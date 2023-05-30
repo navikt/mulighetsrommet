@@ -6,6 +6,8 @@ data class OverordnetEnhetDbo(
     val organisasjonsnummer: String,
     val navn: String,
     val underenheter: List<VirksomhetDto>,
+    val poststed: String? = null,
+    val postnummer: String? = null,
 )
 
 fun VirksomhetDto.toOverordnetEnhetDbo(): OverordnetEnhetDbo {
@@ -16,5 +18,7 @@ fun VirksomhetDto.toOverordnetEnhetDbo(): OverordnetEnhetDbo {
         organisasjonsnummer = organisasjonsnummer,
         navn = navn,
         underenheter = underenheter,
+        postnummer = postnummer,
+        poststed = poststed,
     )
 }

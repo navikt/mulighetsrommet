@@ -24,16 +24,17 @@ class VirksomhetServiceTest : FunSpec({
         every { virksomhetRepository.upsert(any()) } returns query {}
         every { virksomhetRepository.upsertOverordnetEnhet(any()) } returns query {}
 
-        coEvery { brregClient.hentEnhet("123456789") } returns VirksomhetDto(
-            organisasjonsnummer = "123456789",
-            navn = "Testbedriften AS",
-            underenheter = listOf(
-                VirksomhetDto(
-                    organisasjonsnummer = "234567891",
-                    navn = "Underenhet til Testbedriften AS",
+        coEvery { brregClient.hentEnhet("123456789") } returns
+            VirksomhetDto(
+                organisasjonsnummer = "123456789",
+                navn = "Testbedriften AS",
+                underenheter = listOf(
+                    VirksomhetDto(
+                        organisasjonsnummer = "234567891",
+                        navn = "Underenhet til Testbedriften AS",
+                    ),
                 ),
-            ),
-        )
+            )
 
         coEvery { brregClient.hentEnhet("999999999") } throws NotFoundException("Fant ingen enhet i Brreg med orgnr: '999999999'")
 

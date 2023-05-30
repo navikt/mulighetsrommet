@@ -23,9 +23,11 @@ class VirksomhetRepository(private val db: Database) {
         val query = """
             insert into virksomhet(
                 organisasjonsnummer,
-                navn
+                navn,
+                postnummer,
+                poststed
             )
-            values (:organisasjonsnummer, :navn)
+            values (:organisasjonsnummer, :navn, :postnummer, :poststed)
             on conflict (organisasjonsnummer) do update set
                 navn = excluded.navn
             returning *
@@ -33,8 +35,8 @@ class VirksomhetRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val upsertUnderenheter = """
-             insert into virksomhet (overordnet_enhet, navn, organisasjonsnummer)
-             values (?, ?, ?)
+             insert into virksomhet (overordnet_enhet, navn, organisasjonsnummer, postnummer, poststed)
+             values (?, ?, ?, ?, ?)
              on conflict (organisasjonsnummer) do update set
                 navn             = excluded.navn,
                 overordnet_enhet = excluded.overordnet_enhet
@@ -56,6 +58,8 @@ class VirksomhetRepository(private val db: Database) {
                     overordnetEnhetDbo.organisasjonsnummer,
                     underenhet.navn,
                     underenhet.organisasjonsnummer,
+                    underenhet.postnummer,
+                    underenhet.poststed,
                 ).asExecute.let { tx.run(it) }
             }
 
@@ -76,12 +80,16 @@ class VirksomhetRepository(private val db: Database) {
             insert into virksomhet(
                 organisasjonsnummer,
                 navn,
-                overordnet_enhet
+                overordnet_enhet,
+                postnummer,
+                poststed
             )
-            values (:organisasjonsnummer, :navn, :overordnet_enhet)
+            values (:organisasjonsnummer, :navn, :overordnet_enhet, :postnummer, :poststed)
             on conflict (organisasjonsnummer) do update set
                 navn = excluded.navn,
-                overordnet_enhet = excluded.overordnet_enhet
+                overordnet_enhet = excluded.overordnet_enhet,
+                postnummer = excluded.postnummer,
+                poststed = excluded.poststed
             returning *
         """.trimIndent()
 
@@ -96,7 +104,9 @@ class VirksomhetRepository(private val db: Database) {
             select
                 v.organisasjonsnummer,
                 v.overordnet_enhet,
-                v.navn
+                v.navn,
+                v.postnummer,
+                v.poststed
             from virksomhet v
             where v.organisasjonsnummer = ?
         """.trimIndent()
@@ -106,7 +116,9 @@ class VirksomhetRepository(private val db: Database) {
             select
                 v.organisasjonsnummer,
                 v.overordnet_enhet,
-                v.navn
+                v.navn,
+                v.postnummer,
+                v.poststed
             from virksomhet v
             where v.organisasjonsnummer = ?
         """.trimIndent()
@@ -116,7 +128,9 @@ class VirksomhetRepository(private val db: Database) {
             select
                 v.organisasjonsnummer,
                 v.overordnet_enhet,
-                v.navn
+                v.navn,
+                v.postnummer,
+                v.poststed
             from virksomhet v
             where v.overordnet_enhet = ?
         """.trimIndent()
@@ -158,16 +172,22 @@ class VirksomhetRepository(private val db: Database) {
         navn = string("navn"),
         overordnetEnhet = stringOrNull("overordnet_enhet"),
         underenheter = null,
+        postnummer = stringOrNull("postnummer"),
+        poststed = stringOrNull("poststed"),
     )
 
     private fun VirksomhetDto.toSqlParameters() = mapOf(
         "organisasjonsnummer" to organisasjonsnummer,
         "navn" to navn,
         "overordnet_enhet" to overordnetEnhet,
+        "postnummer" to postnummer,
+        "poststed" to poststed,
     )
 
     private fun OverordnetEnhetDbo.toSqlParameters() = mapOf(
         "organisasjonsnummer" to organisasjonsnummer,
         "navn" to navn,
+        "postnummer" to postnummer,
+        "poststed" to poststed,
     )
 }

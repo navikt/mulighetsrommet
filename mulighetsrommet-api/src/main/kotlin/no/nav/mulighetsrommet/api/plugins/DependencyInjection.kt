@@ -127,7 +127,7 @@ private fun kafka(config: KafkaConfig) = module {
     single {
         val consumers = listOf(
             AmtDeltakerV1TopicConsumer(config = config.consumers.amtDeltakerV1, deltakere = get()),
-            AmtVirksomheterV1TopicConsumer(config = config.consumers.amtVirksomheterV1, virksomhetRepository = get()),
+            AmtVirksomheterV1TopicConsumer(config = config.consumers.amtVirksomheterV1, virksomhetRepository = get(), brregClient = get()),
         )
         KafkaConsumerOrchestrator(
             consumerPreset = properties,
@@ -244,7 +244,7 @@ private fun services(appConfig: AppConfig) = module {
     single { DelMedBrukerService(get()) }
     single { MicrosoftGraphService(get()) }
     single { TiltaksgjennomforingService(get(), get(), get(), get(), get()) }
-    single { SanityTiltaksgjennomforingService(get(), get(), get(), get()) }
+    single { SanityTiltaksgjennomforingService(get(), get(), get(), get(), get()) }
     single { TiltakstypeService(get(), get(), get(), get()) }
     single { NavEnheterSyncService(get(), get(), get(), get()) }
     single { KafkaSyncService(get(), get(), get(), get()) }

@@ -8,4 +8,6 @@ data class VirksomhetDto(
     val navn: String,
     val overordnetEnhet: String? = null,
     val underenheter: List<VirksomhetDto>? = null,
+    val postnummer: String? = null,
+    val poststed: String? = null,
 )

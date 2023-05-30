@@ -29,22 +29,30 @@ class VirksomhetRepositoryTest : FunSpec({
                 organisasjonsnummer = "880907522",
                 overordnetEnhet = "982254604",
                 navn = "REMA 1000 NORGE AS REGION NORDLAND",
+                postnummer = "5174",
+                poststed = "Mathopen",
             )
             val underenhet2 = VirksomhetDto(
                 organisasjonsnummer = "912704327",
                 overordnetEnhet = "982254604",
                 navn = "REMA 1000 NORGE AS REGION VESTRE ØSTLAND",
+                postnummer = "5174",
+                poststed = "Mathopen",
             )
             val underenhet3 = VirksomhetDto(
                 organisasjonsnummer = "912704394",
                 overordnetEnhet = "982254604",
                 navn = "REMA 1000 NORGE AS REGION NORD",
+                postnummer = "5174",
+                poststed = "Mathopen",
             )
 
             val overordnet = OverordnetEnhetDbo(
                 navn = "REMA 1000 AS",
                 organisasjonsnummer = "982254604",
                 underenheter = listOf(underenhet1, underenhet2, underenhet3),
+                postnummer = "5174",
+                poststed = "Mathopen",
             )
             virksomhetRepository.upsertOverordnetEnhet(overordnet).shouldBeRight()
 
@@ -54,7 +62,8 @@ class VirksomhetRepositoryTest : FunSpec({
                 it.underenheter!! shouldContainAll listOf(underenhet1, underenhet2, underenhet3)
             }
 
-            virksomhetRepository.upsertOverordnetEnhet(overordnet.copy(underenheter = listOf(underenhet1))).shouldBeRight()
+            virksomhetRepository.upsertOverordnetEnhet(overordnet.copy(underenheter = listOf(underenhet1)))
+                .shouldBeRight()
             virksomhetRepository.get(overordnet.organisasjonsnummer).shouldBeRight().should {
                 it!!.underenheter!! shouldHaveSize 1
                 it.underenheter!! shouldContain underenhet1
@@ -68,12 +77,16 @@ class VirksomhetRepositoryTest : FunSpec({
                 organisasjonsnummer = "880907522",
                 overordnetEnhet = "982254604",
                 navn = "REMA 1000 NORGE AS REGION NORDLAND",
+                postnummer = "5174",
+                poststed = "Mathopen",
             )
 
             val overordnet = VirksomhetDto(
                 navn = "REMA 1000 AS",
                 organisasjonsnummer = "982254604",
                 underenheter = listOf(), // Tom først
+                postnummer = "5174",
+                poststed = "Mathopen",
             )
 
             virksomhetRepository.upsert(overordnet).shouldBeRight()
@@ -94,12 +107,16 @@ class VirksomhetRepositoryTest : FunSpec({
                 organisasjonsnummer = "880907522",
                 overordnetEnhet = "982254604",
                 navn = "REMA 1000 NORGE AS REGION NORDLAND",
+                postnummer = "5174",
+                poststed = "Mathopen",
             )
 
             val overordnet = OverordnetEnhetDbo(
                 navn = "REMA 1000 AS",
                 organisasjonsnummer = "982254604",
                 underenheter = listOf(underenhet1),
+                postnummer = "5174",
+                poststed = "Mathopen",
             )
             virksomhetRepository.upsertOverordnetEnhet(overordnet).shouldBeRight()
 

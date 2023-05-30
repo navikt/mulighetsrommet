@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.kafka.amt
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.stringDeserializer
+import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
 import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
 import no.nav.mulighetsrommet.api.repositories.VirksomhetRepository
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
@@ -13,6 +14,7 @@ import org.slf4j.LoggerFactory
 class AmtVirksomheterV1TopicConsumer(
     config: Config,
     private val virksomhetRepository: VirksomhetRepository,
+    private val brregClient: BrregClient,
 ) : KafkaTopicConsumer<String, JsonElement>(
     config,
     stringDeserializer(),
@@ -27,7 +29,8 @@ class AmtVirksomheterV1TopicConsumer(
                 virksomhetRepository.delete(key)
             }
             else -> {
-                virksomhetRepository.upsert(amtVirksomhet.toVirksomhetDto())
+                val enhet = brregClient.hentEnhet(amtVirksomhet.organisasjonsnummer) // Hent fra Brreg for å oppdatere postnummer og poststed
+                virksomhetRepository.upsert(enhet)
             }
         }
     }

@@ -47,6 +47,9 @@ class BrregClientImpl(
                 navn = data.navn,
                 overordnetEnhet = null,
                 underenheter = hentUnderenheterForOverordnetEnhet(orgnr),
+                postnummer = data.beliggenhetsadresse?.postnummer,
+                poststed = data.beliggenhetsadresse?.poststed,
+
             )
         }
 
@@ -60,6 +63,8 @@ class BrregClientImpl(
                 navn = it.navn,
                 overordnetEnhet = it.overordnetEnhet,
                 underenheter = null,
+                postnummer = underenhetData.beliggenhetsadresse?.postnummer,
+                poststed = underenhetData.beliggenhetsadresse?.poststed,
             )
         } ?: throw NotFoundException("Fant ingen enhet i Brreg med orgnr: '$orgnr'")
     }
@@ -131,6 +136,7 @@ internal data class BrregEnhet(
     val organisasjonsnummer: String,
     val navn: String,
     val overordnetEnhet: String? = null,
+    val beliggenhetsadresse: Adresse? = null,
 )
 
 @Serializable
@@ -151,4 +157,10 @@ internal data class BrregEmbeddedUnderenheter(
 @Serializable
 internal data class BrregUnderenheter(
     val underenheter: List<BrregEnhet>,
+)
+
+@Serializable
+internal data class Adresse(
+    val poststed: String,
+    val postnummer: String,
 )
