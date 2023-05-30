@@ -10,7 +10,7 @@ data class OverordnetEnhetDbo(
 
 fun VirksomhetDto.toOverordnetEnhetDbo(): OverordnetEnhetDbo {
     if (overordnetEnhet != null || underenheter == null) {
-        throw IllegalArgumentException("Virksomhet $organisasjonsnummer er ikke en full overordnet enhet")
+        throw IllegalArgumentException("Virksomhet $organisasjonsnummer er ikke en full overordnet enhet. Virksomhetsdata: $this")
     }
     return OverordnetEnhetDbo(
         organisasjonsnummer = organisasjonsnummer,
