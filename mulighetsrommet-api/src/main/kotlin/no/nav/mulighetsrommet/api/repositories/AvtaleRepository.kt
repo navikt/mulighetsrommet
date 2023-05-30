@@ -384,13 +384,6 @@ class AvtaleRepository(private val db: Database) {
         )
     }
 
-    private fun Row.toLeverandor(): AvtaleAdminDto.Leverandor {
-        return AvtaleAdminDto.Leverandor(
-            navn = stringOrNull("navn"),
-            organisasjonsnummer = string("organisasjonsnummer"),
-        )
-    }
-
     private fun Avtalestatus.toDbStatement(): String {
         return when (this) {
             Avtalestatus.Aktiv -> "(avslutningsstatus = '${Avslutningsstatus.IKKE_AVSLUTTET}' and (:today >= start_dato and :today <= slutt_dato))"
