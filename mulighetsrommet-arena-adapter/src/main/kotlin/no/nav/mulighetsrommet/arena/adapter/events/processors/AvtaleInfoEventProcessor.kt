@@ -20,6 +20,7 @@ import no.nav.mulighetsrommet.arena.adapter.models.db.Avtale
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.arena.adapter.utils.ArenaUtils
 import no.nav.mulighetsrommet.domain.Tiltakskoder
+import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering.ArenaAvtaleCutoffDateTime
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.AvtaleDbo
@@ -129,7 +130,7 @@ class AvtaleInfoEventProcessor(
             avtaletype = avtaletype,
             avslutningsstatus = avslutningsstatus,
             prisbetingelser = avtale.prisbetingelser,
-            opphav = AvtaleDbo.Opphav.ARENA,
+            opphav = ArenaMigrering.Opphav.ARENA,
             navRegion = null,
             navEnheter = emptyList(),
         )
