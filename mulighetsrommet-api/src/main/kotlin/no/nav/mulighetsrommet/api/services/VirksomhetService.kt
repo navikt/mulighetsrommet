@@ -40,6 +40,7 @@ class VirksomhetService(
         val enhet = CacheUtils.tryCacheFirstNotNull(brregServiceCache, orgnr) {
             brregClient.hentEnhet(orgnr)
         }
+        log.info("Hentet enhet fra Brreg med orgnr: $orgnr: $enhet")
         val overordnetEnhet = if (enhet.overordnetEnhet == null) {
             enhet
         } else {
