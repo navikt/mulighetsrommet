@@ -35,22 +35,23 @@ class VirksomhetService(
         return virksomhetRepository.get(orgnr).getOrThrow() ?: syncEnhetFraBrreg(orgnr)
     }
 
-    suspend fun syncEnhetFraBrreg(orgnr: String): VirksomhetDto? {
+    private suspend fun syncEnhetFraBrreg(orgnr: String): VirksomhetDto? {
         log.info("Skal synkronisere enhet med orgnr: $orgnr fra Brreg")
-        val enhet = CacheUtils.tryCacheFirstNotNull(brregServiceCache, orgnr) {
+        val enhet = CacheUtils.tryCacheFirstNullable(brregServiceCache, orgnr) {
             brregClient.hentEnhet(orgnr)
-        }
+        } ?: return null
+
         log.info("Hentet enhet fra Brreg med orgnr: $orgnr: $enhet")
         val overordnetEnhet = if (enhet.overordnetEnhet == null) {
             enhet
         } else {
-            CacheUtils.tryCacheFirstNotNull(brregServiceCache, enhet.overordnetEnhet) {
+            CacheUtils.tryCacheFirstNullable(brregServiceCache, enhet.overordnetEnhet) {
                 brregClient.hentEnhet(enhet.overordnetEnhet)
             }
-        }
-        log.info("Potensiell overordnet enhet fra Brreg: $overordnetEnhet")
+        } ?: return null
+        log.debug("Potensiell overordnet enhet fra Brreg: $overordnetEnhet")
 
-        if (enhet.slettedato != null) {
+        if (overordnetEnhet.slettedato != null) {
             log.debug("Enhet med orgnr: ${enhet.organisasjonsnummer} er slettet i Brreg med slettedato ${enhet.slettedato}")
             return null
         }

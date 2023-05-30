@@ -20,7 +20,6 @@ import java.util.*
 
 class TiltaksgjennomforingService(
     private val tiltaksgjennomforingRepository: TiltaksgjennomforingRepository,
-    private val arrangorService: ArrangorService,
     private val deltakerRepository: DeltakerRepository,
     private val sanityTiltaksgjennomforingService: SanityTiltaksgjennomforingService,
     private val virksomhetService: VirksomhetService,
@@ -28,7 +27,7 @@ class TiltaksgjennomforingService(
     private val log: Logger = LoggerFactory.getLogger(javaClass)
 
     suspend fun upsert(dbo: TiltaksgjennomforingDbo): QueryResult<TiltaksgjennomforingAdminDto> {
-        virksomhetService.syncEnhetFraBrreg(dbo.virksomhetsnummer)
+        virksomhetService.hentEnhet(dbo.virksomhetsnummer)
         return tiltaksgjennomforingRepository.upsert(dbo)
             .flatMap { tiltaksgjennomforingRepository.get(dbo.id) }
             .onLeft { log.error("Klarte ikke lagre tiltaksgjennomføring", it.error) }
@@ -38,20 +37,18 @@ class TiltaksgjennomforingService(
             }
     }
 
-    suspend fun get(id: UUID): QueryResult<TiltaksgjennomforingAdminDto?> =
+    fun get(id: UUID): QueryResult<TiltaksgjennomforingAdminDto?> =
         tiltaksgjennomforingRepository.get(id)
             .onLeft { log.error("Klarte ikke hente tiltaksgjennomføring", it.error) }
-            .map { it?.let { withVirksomhetsnavn(it) } }
 
-    suspend fun getAll(
+    fun getAll(
         pagination: PaginationParams,
         filter: AdminTiltaksgjennomforingFilter,
     ): Either<DatabaseOperationError, PaginatedResponse<TiltaksgjennomforingAdminDto>> =
         tiltaksgjennomforingRepository
             .getAll(pagination, filter)
             .onLeft { log.error("Klarte ikke hente tiltaksgjennomføringer", it.error) }
-            .map { (totalCount, items) ->
-                val data = items.map { withVirksomhetsnavn(it) }
+            .map { (totalCount, data) ->
                 PaginatedResponse(
                     pagination = Pagination(
                         totalCount = totalCount,
@@ -66,12 +63,6 @@ class TiltaksgjennomforingService(
         TiltaksgjennomforingNokkeltallDto(
             antallDeltakere = deltakerRepository.countAntallDeltakereForTiltakstypeWithId(tiltaksgjennomforingId),
         )
-
-    private suspend fun withVirksomhetsnavn(tiltaksgjennomforing: TiltaksgjennomforingAdminDto): TiltaksgjennomforingAdminDto {
-        return arrangorService.hentVirksomhet(tiltaksgjennomforing.virksomhetsnummer)
-            ?.let { tiltaksgjennomforing.copy(virksomhetsnavn = it.navn) }
-            ?: tiltaksgjennomforing
-    }
 
     fun getAllGjennomforingerSomNarmerSegSluttdato(): List<TiltaksgjennomforingNotificationDto> {
         return tiltaksgjennomforingRepository.getAllGjennomforingerSomNarmerSegSluttdato()

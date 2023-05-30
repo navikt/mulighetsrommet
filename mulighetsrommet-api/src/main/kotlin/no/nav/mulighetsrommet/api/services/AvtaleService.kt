@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.api.services
 
 import arrow.core.flatMap
 import io.ktor.server.plugins.*
-import no.nav.mulighetsrommet.api.clients.enhetsregister.AmtEnhetsregisterClient
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleNokkeltallDto
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
@@ -17,68 +16,42 @@ import java.util.*
 
 class AvtaleService(
     private val avtaler: AvtaleRepository,
-    private val arrangorService: ArrangorService,
     private val tiltaksgjennomforinger: TiltaksgjennomforingRepository,
-    private val amtEnhetsregisterClient: AmtEnhetsregisterClient,
+    private val virksomhetService: VirksomhetService,
 ) {
-    suspend fun get(id: UUID): QueryResult<AvtaleAdminDto?> {
+    fun get(id: UUID): QueryResult<AvtaleAdminDto?> {
         return avtaler.get(id)
-            .map { it?.hentVirksomhetsnavnForAvtale() }
-            .map { it?.hentNavnForUnderenheterTilLeverandor() }
     }
 
     suspend fun upsert(avtale: AvtaleRequest): QueryResult<AvtaleAdminDto> {
         val avtaleDbo = avtale.toDbo()
-        validerOrganisasjonsnummerForLeverandor(avtale.leverandorOrganisasjonsnummer)
+
+        virksomhetService.hentEnhet(avtale.leverandorOrganisasjonsnummer)
+            ?: throw BadRequestException("leverandør ${avtale.leverandorOrganisasjonsnummer} finnes ikke")
 
         return avtaler.upsert(avtaleDbo)
             .flatMap { avtaler.get(avtaleDbo.id) }
             .map { it!! } // If upsert is succesfull it should exist here
     }
 
-    private suspend fun validerOrganisasjonsnummerForLeverandor(leverandorOrganisasjonsnummer: String) {
-        amtEnhetsregisterClient.hentVirksomhet(leverandorOrganisasjonsnummer)
-            ?: throw BadRequestException("Fant ikke virksomhet med organisasjonsnummer $leverandorOrganisasjonsnummer. Kan derfor ikke lagre avtalen.")
-    }
-
     fun delete(id: UUID): QueryResult<Int> {
         return avtaler.delete(id)
     }
 
-    suspend fun getAll(
+    fun getAll(
         filter: AvtaleFilter,
         pagination: PaginationParams = PaginationParams(),
     ): PaginatedResponse<AvtaleAdminDto> {
         val (totalCount, items) = avtaler.getAll(filter, pagination)
 
-        val avtalerMedLeverandorNavn = items
-            .map { it.hentVirksomhetsnavnForAvtale() }
-            .map { it.hentNavnForUnderenheterTilLeverandor() }
-
         return PaginatedResponse(
-            data = avtalerMedLeverandorNavn,
+            data = items,
             pagination = Pagination(
                 totalCount = totalCount,
                 currentPage = pagination.page,
                 pageSize = pagination.limit,
             ),
         )
-    }
-
-    private suspend fun AvtaleAdminDto.hentVirksomhetsnavnForAvtale(): AvtaleAdminDto {
-        val virksomhet = arrangorService.hentVirksomhet(this.leverandor.organisasjonsnummer)
-        return this.copy(leverandor = this.leverandor.copy(navn = virksomhet?.navn))
-    }
-
-    private suspend fun AvtaleAdminDto.hentNavnForUnderenheterTilLeverandor(): AvtaleAdminDto {
-        val underenheterMedNavn = this.leverandorUnderenheter.map {
-            val virksomhet = arrangorService.hentVirksomhet(it.organisasjonsnummer)
-            AvtaleAdminDto.Leverandor(
-                organisasjonsnummer = it.organisasjonsnummer,
-                navn = virksomhet?.navn,
-            )
-        }
-        return this.copy(leverandorUnderenheter = underenheterMedNavn)
     }
 
     fun getNokkeltallForAvtaleMedId(id: UUID): AvtaleNokkeltallDto {

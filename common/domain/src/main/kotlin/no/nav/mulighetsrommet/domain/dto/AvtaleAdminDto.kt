@@ -26,7 +26,7 @@ data class AvtaleAdminDto(
     val ansvarlig: String?,
     val url: String?,
     val antallPlasser: Int?,
-    val navEnheter: List<String>,
+    val navEnheter: List<NavEnhet>,
 ) {
     @Serializable
     data class Tiltakstype(

@@ -4,7 +4,6 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.stringDeserializer
 import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
-import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
 import no.nav.mulighetsrommet.api.repositories.VirksomhetRepository
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
@@ -29,15 +28,10 @@ class AmtVirksomheterV1TopicConsumer(
                 virksomhetRepository.delete(key)
             }
             else -> {
-                val enhet = brregClient.hentEnhet(amtVirksomhet.organisasjonsnummer) // Hent fra Brreg for å oppdatere postnummer og poststed
-                virksomhetRepository.upsert(enhet)
+                brregClient.hentEnhet(amtVirksomhet.organisasjonsnummer)?.let { // Hent fra Brreg for å oppdatere postnummer og poststed
+                    virksomhetRepository.upsert(it)
+                }
             }
         }
     }
-
-    private fun AmtVirksomhetV1Dto.toVirksomhetDto() = VirksomhetDto(
-        navn = navn,
-        organisasjonsnummer = organisasjonsnummer,
-        overordnetEnhet = overordnetEnhetOrganisasjonsnummer,
-    )
 }

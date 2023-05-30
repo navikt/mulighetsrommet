@@ -232,7 +232,7 @@ private fun services(appConfig: AppConfig) = module {
         BrregClientImpl(baseUrl = appConfig.brreg.baseUrl)
     }
     single { ArenaAdapterService(get(), get(), get(), get(), get(), get(), get(), get(), get()) }
-    single { AvtaleService(get(), get(), get(), get()) }
+    single { AvtaleService(get(), get(), get()) }
     single { TiltakshistorikkService(get(), get()) }
     single { VeilederflateSanityService(get(), get()) }
     single { SanityTiltaksgjennomforingEnheterTilApiService(get(), get()) }
@@ -243,7 +243,7 @@ private fun services(appConfig: AppConfig) = module {
     single { PoaoTilgangService(get()) }
     single { DelMedBrukerService(get()) }
     single { MicrosoftGraphService(get()) }
-    single { TiltaksgjennomforingService(get(), get(), get(), get(), get()) }
+    single { TiltaksgjennomforingService(get(), get(), get(), get()) }
     single { SanityTiltaksgjennomforingService(get(), get(), get(), get(), get()) }
     single { TiltakstypeService(get(), get(), get(), get()) }
     single { NavEnheterSyncService(get(), get(), get(), get()) }

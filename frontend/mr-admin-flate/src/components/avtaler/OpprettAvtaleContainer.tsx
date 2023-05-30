@@ -85,7 +85,9 @@ export function OpprettAvtaleContainer({
       tiltakstype: avtale?.tiltakstype?.id,
       navRegion: defaultEnhet(),
       navEnheter:
-        avtale?.navEnheter.length === 0 ? ["alle_enheter"] : avtale?.navEnheter,
+        avtale?.navEnheter.length === 0
+          ? ["alle_enheter"]
+          : avtale?.navEnheter.map(e => e.enhetsnummer),
       avtaleansvarlig: avtale?.ansvarlig || ansatt?.ident || "",
       avtalenavn: getValueOrDefault(avtale?.navn, ""),
       avtaletype: getValueOrDefault(avtale?.avtaletype, Avtaletype.AVTALE),
