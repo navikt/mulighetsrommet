@@ -36,6 +36,7 @@ class VirksomhetService(
     }
 
     suspend fun syncEnhetFraBrreg(orgnr: String): VirksomhetDto {
+        log.info("Skal synkronisere enhet med orgnr: $orgnr fra Brreg")
         val enhet = CacheUtils.tryCacheFirstNotNull(brregServiceCache, orgnr) {
             brregClient.hentEnhet(orgnr)
         }
@@ -46,6 +47,7 @@ class VirksomhetService(
                 brregClient.hentEnhet(orgnr)
             }
         }
+        log.info("Potensiell overordnet enhet fra Brreg: $overordnetEnhet")
         virksomhetRepository.upsertOverordnetEnhet(overordnetEnhet.toOverordnetEnhetDbo())
             .onLeft { log.warn("Feil ved upsert av virksomhet: $it") }
 
