@@ -264,10 +264,20 @@ export const mockAvtaler: PaginertAvtale = {
       leverandorUnderenheter: [],
       startDato: "2021-10-01",
       sluttDato: "2024-12-31",
-      navEnheter: ["alle_enheter"],
+      navEnheter: [
+        {
+          enhetsnummer: "1001",
+          navn: "NAV Grunelokka",
+        },
+        {
+          enhetsnummer: "1088",
+          navn: "NAV Sinsen",
+        },
+
+      ],
       navRegion: {
-        enhetsnummer: "1087",
-        navn: "NAV Våler",
+        enhetsnummer: "1000",
+        navn: "NAV Oslo",
       },
       avtaletype: Avtaletype.RAMMEAVTALE,
       avtalestatus: Avtalestatus.AKTIV,
@@ -289,10 +299,20 @@ export const mockAvtaler: PaginertAvtale = {
       leverandorUnderenheter: [],
       startDato: "2020-07-01",
       sluttDato: "2023-06-30",
-      navEnheter: ["alle_enheter"],
+      navEnheter: [
+        {
+          enhetsnummer: "1001",
+          navn: "NAV Grunelokka",
+        },
+        {
+          enhetsnummer: "1088",
+          navn: "NAV Sinsen",
+        },
+
+      ],
       navRegion: {
-        enhetsnummer: "1287",
-        navn: "NAV Våler",
+        enhetsnummer: "1000",
+        navn: "NAV Oslo",
       },
       avtaletype: Avtaletype.RAMMEAVTALE,
       avtalestatus: Avtalestatus.AKTIV,

@@ -1015,7 +1015,7 @@ components:
         navEnheter:
           type: array
           items:
-            type: string
+            $ref: "#/components/schemas/EmbeddedNavEnhet"
       required:
         - id
         - tiltakstype

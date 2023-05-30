@@ -221,7 +221,7 @@ export const OpprettTiltaksgjennomforingContainer = (
       .filter(
         (enhet: NavEnhet) =>
           avtale?.navEnheter.length === 0 ||
-          avtale?.navEnheter.includes(enhet.enhetsnummer)
+          avtale?.navEnheter.find(e => e.enhetsnummer === enhet.enhetsnummer)
       )
       .map((enhet) => ({
         label: enhet.navn,
