@@ -14,6 +14,7 @@ import no.nav.mulighetsrommet.api.routes.v1.responses.*
 import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
 import no.nav.mulighetsrommet.api.utils.getAdminTiltaksgjennomforingsFilter
 import no.nav.mulighetsrommet.api.utils.getPaginationParams
+import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
@@ -117,6 +118,7 @@ data class TiltaksgjennomforingRequest(
                 ansvarlige = listOf(ansvarlig),
                 navEnheter = navEnheter,
                 oppstart = oppstart,
+                opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
             ),
         )
     }

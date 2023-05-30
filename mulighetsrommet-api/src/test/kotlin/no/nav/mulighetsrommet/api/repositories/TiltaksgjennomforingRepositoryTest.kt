@@ -19,6 +19,7 @@ import no.nav.mulighetsrommet.api.utils.AdminTiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.api.utils.DEFAULT_PAGINATION_LIMIT
 import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
+import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.*
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo.Tilgjengelighetsstatus
 import no.nav.mulighetsrommet.domain.dto.NavEnhet
@@ -534,6 +535,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                         ansvarlige = emptyList(),
                         navEnheter = emptyList(),
                         oppstart = TiltaksgjennomforingDbo.Oppstartstype.FELLES,
+                        opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
                     ),
                 )
             }

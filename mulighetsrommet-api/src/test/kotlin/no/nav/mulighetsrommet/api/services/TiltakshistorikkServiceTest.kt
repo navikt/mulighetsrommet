@@ -10,6 +10,7 @@ import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakshistorikkRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
+import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.*
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -45,6 +46,7 @@ class TiltakshistorikkServiceTest : FunSpec({
         ansvarlige = emptyList(),
         navEnheter = emptyList(),
         oppstart = TiltaksgjennomforingDbo.Oppstartstype.FELLES,
+        opphav = ArenaMigrering.Opphav.ARENA,
     )
 
     val tiltakshistorikkGruppe = TiltakshistorikkDbo.Gruppetiltak(
