@@ -1,7 +1,4 @@
 .gjennomforingsliste_container {
-  display: flex;
-  flex-direction: column;
-
   .gjennomforingsliste {
     overflow-y: auto;
     list-style: none;
@@ -15,7 +12,7 @@
     display: grid;
     grid-template-columns: 2fr 1fr 1fr 1fr;
     border-bottom: 1px solid var(--a-border-divider);
-    padding: 1rem 0;
+    padding: 1rem;
     align-items: center;
     gap: 0.5rem;
   }
@@ -30,7 +27,6 @@
     span {
       display: flex;
       align-items: center;
-      width: 5rem;
     }
   }
 }

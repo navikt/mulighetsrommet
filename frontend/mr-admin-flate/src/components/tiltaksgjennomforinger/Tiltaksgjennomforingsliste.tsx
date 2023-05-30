@@ -115,7 +115,7 @@ export const Tiltaksgjennomforingsliste = () => {
                       disabled={isLoadingKobleGjennomforingForAvtale}
                       size="small"
                     >
-                      ﬂ Fjern
+                      Fjern
                     </Button>
                   ) : (
                     <div style={{ margin: "0 auto" }}>
