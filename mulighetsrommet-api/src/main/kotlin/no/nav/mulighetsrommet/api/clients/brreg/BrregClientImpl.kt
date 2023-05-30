@@ -35,7 +35,7 @@ class BrregClientImpl(
         val baseUrl: String,
     )
 
-    override suspend fun hentEnhet(orgnr: String): VirksomhetDto {
+    override suspend fun hentEnhet(orgnr: String): VirksomhetDto? {
         validerOrgnr(orgnr)
         val response = client.get("$baseUrl/enheter/$orgnr")
         val data = tolkRespons<BrregEnhet>(response, orgnr)
@@ -88,7 +88,7 @@ class BrregClientImpl(
                 postnummer = underenhetData.beliggenhetsadresse?.postnummer,
                 poststed = underenhetData.beliggenhetsadresse?.poststed,
             )
-        } ?: throw NotFoundException("Fant ingen enhet i Brreg med orgnr: '$orgnr'")
+        }
     }
 
     override suspend fun sokEtterOverordnetEnheter(orgnr: String): List<VirksomhetDto> {

@@ -3,12 +3,17 @@ package no.nav.mulighetsrommet.api.repositories
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainAll
+import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
+import no.nav.mulighetsrommet.api.domain.dbo.OverordnetEnhetDbo
+import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
@@ -18,7 +23,9 @@ import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListe
 import no.nav.mulighetsrommet.database.utils.getOrThrow
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
+import no.nav.mulighetsrommet.domain.dto.AvtaleAdminDto
 import no.nav.mulighetsrommet.domain.dto.Avtalestatus
+import no.nav.mulighetsrommet.domain.dto.NavEnhet
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -75,6 +82,49 @@ class AvtaleRepositoryTest : FunSpec({
             database.assertThat("avtale_underleverandor").row()
                 .value("organisasjonsnummer").isEqualTo(underenhet)
                 .value("avtale_id").isEqualTo(avtale1.id)
+        }
+
+        test("Underenheter blir riktig med fra spørring") {
+            val virksomhetRepository = VirksomhetRepository(database.db)
+            virksomhetRepository.upsertOverordnetEnhet(
+                OverordnetEnhetDbo(
+                    organisasjonsnummer = "999999999",
+                    navn = "overordnet",
+                    underenheter = listOf(
+                        VirksomhetDto(
+                            organisasjonsnummer = "888888888",
+                            navn = "u8",
+                        ),
+                        VirksomhetDto(
+                            organisasjonsnummer = "777777777",
+                            navn = "u7",
+                        ),
+                    ),
+                ),
+            )
+
+            val avtale1 = avtaleFixture.createAvtaleForTiltakstype(
+                leverandorOrganisasjonsnummer = "999999999",
+                leverandorUnderenheter = listOf("888888888", "777777777"),
+            )
+
+            val avtaleRepository = avtaleFixture.upsertAvtaler(listOf(avtale1))
+            avtaleRepository.get(avtale1.id).shouldBeRight().should {
+                it!!.leverandorUnderenheter shouldContainExactlyInAnyOrder listOf(
+                    AvtaleAdminDto.Leverandor(
+                        organisasjonsnummer = "777777777",
+                        navn = "u7",
+                    ),
+                    AvtaleAdminDto.Leverandor(
+                        organisasjonsnummer = "888888888",
+                        navn = "u8",
+                    ),
+                )
+                it.leverandor shouldBe AvtaleAdminDto.Leverandor(
+                    organisasjonsnummer = "999999999",
+                    navn = "overordnet",
+                )
+            }
         }
     }
 
@@ -185,7 +235,8 @@ class AvtaleRepositoryTest : FunSpec({
                 result.second.map { it.id }.shouldContainAll(avtaleAvsluttetStatus.id, avtaleAvsluttetDato.id)
             }
         }
-        context("Enhet") {
+
+        context("NavEnhet") {
             test("Filtrere på region returnerer avtaler for gitt region") {
                 val navEnhetRepository = NavEnhetRepository(database.db)
                 navEnhetRepository.upsert(
@@ -226,6 +277,38 @@ class AvtaleRepositoryTest : FunSpec({
                 result.second shouldHaveSize 1
                 result.second[0].navRegion?.enhetsnummer shouldBe "1801"
                 result.second[0].navRegion?.navn shouldBe "Vestland"
+            }
+
+            test("Avtale navenhet blir med riktig tilbake") {
+                val navEnhetRepository = NavEnhetRepository(database.db)
+                navEnhetRepository.upsert(
+                    NavEnhetDbo(
+                        navn = "Oppland",
+                        enhetsnummer = "1900",
+                        status = NavEnhetStatus.AKTIV,
+                        type = Norg2Type.FYLKE,
+                        overordnetEnhet = null,
+                    ),
+                )
+                navEnhetRepository.upsert(
+                    NavEnhetDbo(
+                        navn = "Oppland 1",
+                        enhetsnummer = "1901",
+                        status = NavEnhetStatus.AKTIV,
+                        type = Norg2Type.LOKAL,
+                        overordnetEnhet = "1900",
+                    ),
+                )
+
+                val avtale1 = avtaleFixture.createAvtaleForTiltakstype(
+                    navRegion = "1900",
+                    navEnheter = listOf("1901"),
+                )
+                val avtaleRepository = avtaleFixture.upsertAvtaler(listOf(avtale1))
+                avtaleRepository.get(avtale1.id).shouldBeRight().should {
+                    it!!.navRegion?.enhetsnummer shouldBe "1900"
+                    it.navEnheter shouldContainExactly listOf(NavEnhet(enhetsnummer = "1901", navn = "Oppland 1"))
+                }
             }
         }
 

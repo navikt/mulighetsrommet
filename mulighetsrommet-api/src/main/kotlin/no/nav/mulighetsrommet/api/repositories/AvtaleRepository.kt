@@ -1,5 +1,7 @@
 package no.nav.mulighetsrommet.api.repositories
 
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.utils.*
@@ -167,6 +169,7 @@ class AvtaleRepository(private val db: Database) {
                    a.tiltakstype_id,
                    a.avtalenummer,
                    a.leverandor_organisasjonsnummer,
+                   v.navn as leverandor_navn,
                    a.start_dato,
                    a.slutt_dato,
                    a.nav_region,
@@ -178,18 +181,26 @@ class AvtaleRepository(private val db: Database) {
                    nav_enhet.navn as nav_enhet_navn,
                    t.navn as tiltakstype_navn,
                    t.tiltakskode,
-                   array_agg(distinct lva.organisasjonsnummer) as leverandorUnderenheter,
-                   array_agg(e.enhetsnummer) as navEnheter,
+                   au.leverandor_underenheter,
+                   an.nav_enheter,
                    aa.navident
             from avtale a
                      join tiltakstype t on t.id = a.tiltakstype_id
                      left join avtale_ansvarlig aa on a.id = aa.avtale_id
                      left join nav_enhet on a.nav_region = nav_enhet.enhetsnummer
-                     left join avtale_nav_enhet e on e.avtale_id = a.id
-                     left join avtale_underleverandor lva on lva.avtale_id = a.id
+                     left join lateral (
+                         SELECT an.avtale_id, jsonb_strip_nulls(jsonb_agg(jsonb_build_object('enhetsnummer', an.enhetsnummer, 'navn', ne.navn))) as nav_enheter
+                         FROM avtale_nav_enhet an left join nav_enhet ne on ne.enhetsnummer = an.enhetsnummer WHERE an.avtale_id = a.id GROUP BY 1
+                     ) an on true
+                     left join lateral (
+                         SELECT au.avtale_id, jsonb_strip_nulls(jsonb_agg(jsonb_build_object('organisasjonsnummer', au.organisasjonsnummer, 'navn', v.navn))) as leverandor_underenheter
+                         FROM avtale_underleverandor au left join virksomhet v on v.organisasjonsnummer = au.organisasjonsnummer WHERE au.avtale_id = a.id GROUP BY 1
+                     ) au on true
+                     left join virksomhet v on v.organisasjonsnummer = a.leverandor_organisasjonsnummer
             where a.id = ?::uuid
-            group by a.id, t.tiltakskode, t.navn, aa.navident, nav_enhet.navn
+            group by a.id, t.tiltakskode, t.navn, aa.navident, nav_enhet.navn, v.navn, au.leverandor_underenheter, an.nav_enheter
         """.trimIndent()
+
         queryOf(query, id)
             .map { it.toAvtaleAdminDto() }
             .asSingle
@@ -256,6 +267,7 @@ class AvtaleRepository(private val db: Database) {
                    a.tiltakstype_id,
                    a.avtalenummer,
                    a.leverandor_organisasjonsnummer,
+                   v.navn as leverandor_navn,
                    a.start_dato,
                    a.slutt_dato,
                    a.nav_region,
@@ -268,17 +280,26 @@ class AvtaleRepository(private val db: Database) {
                    t.navn as tiltakstype_navn,
                    t.tiltakskode,
                    aa.navident as navident,
-                   array_agg(distinct lva.organisasjonsnummer) as leverandorUnderenheter,
-                   array_agg(ae.enhetsnummer) as navEnheter,
+                   an.nav_enheter,
+                   au.leverandor_underenheter,
                    count(*) over () as full_count
             from avtale a
-                     join tiltakstype t on a.tiltakstype_id = t.id
-                     left join nav_enhet on a.nav_region = nav_enhet.enhetsnummer
-                     left join avtale_ansvarlig aa on a.id = aa.avtale_id
-                     left join avtale_nav_enhet ae on ae.avtale_id = a.id
-                     left join avtale_underleverandor lva on lva.avtale_id = a.id
+                  join tiltakstype t on a.tiltakstype_id = t.id
+                  left join nav_enhet on a.nav_region = nav_enhet.enhetsnummer
+                  left join avtale_ansvarlig aa on a.id = aa.avtale_id
+                  left join avtale_nav_enhet ae on ae.avtale_id = a.id
+                  left join avtale_underleverandor lva on lva.avtale_id = a.id
+                  left join virksomhet v on v.organisasjonsnummer = a.leverandor_organisasjonsnummer
+                  left join lateral (
+                     SELECT an.avtale_id, jsonb_strip_nulls(jsonb_agg(jsonb_build_object('enhetsnummer', an.enhetsnummer, 'navn', ne.navn))) as nav_enheter
+                     FROM avtale_nav_enhet an left join nav_enhet ne on ne.enhetsnummer = an.enhetsnummer WHERE an.avtale_id = a.id GROUP BY 1
+                  ) an on true
+                  left join lateral (
+                     SELECT au.avtale_id, jsonb_strip_nulls(jsonb_agg(jsonb_build_object('organisasjonsnummer', au.organisasjonsnummer, 'navn', v.navn))) as leverandor_underenheter
+                     FROM avtale_underleverandor au left join virksomhet v on v.organisasjonsnummer = au.organisasjonsnummer WHERE au.avtale_id = a.id GROUP BY 1
+                  ) au on true
             $where
-            group by a.id, t.navn, t.tiltakskode, aa.navident, nav_enhet.navn
+            group by a.id, t.navn, t.tiltakskode, aa.navident, nav_enhet.navn, v.navn, au.leverandor_underenheter, an.nav_enheter
             order by $order
             limit :limit
             offset :offset
@@ -319,11 +340,12 @@ class AvtaleRepository(private val db: Database) {
         val startDato = localDate("start_dato")
         val sluttDato = localDate("slutt_dato")
         val navRegion = stringOrNull("nav_region")
-        val navEnheter = arrayOrNull<String?>("navEnheter")?.asList()?.filterNotNull() ?: emptyList()
-        val underenheter = arrayOrNull<String?>("leverandorUnderenheter")
-            ?.filterNotNull()
-            ?.map { AvtaleAdminDto.Leverandor(organisasjonsnummer = it) }
-            ?: emptyList()
+        val navEnheter = stringOrNull("nav_enheter")?.let {
+            Json.decodeFromString<List<NavEnhet?>>(it).filterNotNull()
+        } ?: emptyList()
+        val underenheter = stringOrNull("leverandor_underenheter")?.let {
+            Json.decodeFromString<List<AvtaleAdminDto.Leverandor?>>(it).filterNotNull()
+        } ?: emptyList()
 
         return AvtaleAdminDto(
             id = uuid("id"),
@@ -336,6 +358,7 @@ class AvtaleRepository(private val db: Database) {
             avtalenummer = stringOrNull("avtalenummer"),
             leverandor = AvtaleAdminDto.Leverandor(
                 organisasjonsnummer = string("leverandor_organisasjonsnummer"),
+                navn = stringOrNull("leverandor_navn"),
             ),
             leverandorUnderenheter = underenheter,
             navEnheter = navEnheter,
@@ -358,6 +381,13 @@ class AvtaleRepository(private val db: Database) {
             ansvarlig = stringOrNull("navident"),
             url = stringOrNull("url"),
             antallPlasser = intOrNull("antall_plasser"),
+        )
+    }
+
+    private fun Row.toLeverandor(): AvtaleAdminDto.Leverandor {
+        return AvtaleAdminDto.Leverandor(
+            navn = stringOrNull("navn"),
+            organisasjonsnummer = string("organisasjonsnummer"),
         )
     }
 

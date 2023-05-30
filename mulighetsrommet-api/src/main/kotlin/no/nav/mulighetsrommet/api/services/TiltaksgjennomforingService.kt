@@ -28,7 +28,7 @@ class TiltaksgjennomforingService(
     private val log: Logger = LoggerFactory.getLogger(javaClass)
 
     suspend fun upsert(dbo: TiltaksgjennomforingDbo): QueryResult<TiltaksgjennomforingAdminDto> {
-        virksomhetService.syncEnhetFraBrreg(dbo.virksomhetsnummer)
+        virksomhetService.hentEnhet(dbo.virksomhetsnummer)
         return tiltaksgjennomforingRepository.upsert(dbo)
             .flatMap { tiltaksgjennomforingRepository.get(dbo.id) }
             .onLeft { log.error("Klarte ikke lagre tiltaksgjennomføring", it.error) }

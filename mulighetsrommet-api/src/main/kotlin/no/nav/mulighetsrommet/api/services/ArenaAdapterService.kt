@@ -41,7 +41,7 @@ class ArenaAdapterService(
     }
 
     suspend fun upsertAvtale(avtale: AvtaleDbo): QueryResult<AvtaleAdminDto> {
-        virksomhetService.syncEnhetFraBrreg(avtale.leverandorOrganisasjonsnummer)
+        virksomhetService.hentEnhet(avtale.leverandorOrganisasjonsnummer)
         return avtaler.upsert(avtale)
             .flatMap { avtaler.get(avtale.id) }
             .map { it!! }
@@ -52,7 +52,7 @@ class ArenaAdapterService(
     }
 
     suspend fun upsertTiltaksgjennomforing(tiltaksgjennomforing: TiltaksgjennomforingDbo): QueryResult<TiltaksgjennomforingAdminDto> {
-        virksomhetService.syncEnhetFraBrreg(tiltaksgjennomforing.virksomhetsnummer)
+        virksomhetService.hentEnhet(tiltaksgjennomforing.virksomhetsnummer)
         return tiltaksgjennomforinger.upsert(tiltaksgjennomforing)
             .flatMap { tiltaksgjennomforinger.get(tiltaksgjennomforing.id) }
             .map { it!! }
