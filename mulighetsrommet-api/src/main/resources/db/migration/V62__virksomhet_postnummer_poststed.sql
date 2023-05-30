@@ -1,3 +1,2 @@
-alter table virksomhet
-    add postnummer text,
-    add poststed   text;
+alter table virksomhet add column if not exists postnummer text;
+alter table virksomhet add column if not exists poststed text;
