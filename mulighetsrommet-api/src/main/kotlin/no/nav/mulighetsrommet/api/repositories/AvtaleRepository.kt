@@ -55,7 +55,7 @@ class AvtaleRepository(private val db: Database) {
                     :prisbetingelser,
                     :antall_plasser,
                     :url,
-                    :opphav::avtaleopphav)
+                    :opphav::opphav)
             on conflict (id) do update set navn                           = excluded.navn,
                                            tiltakstype_id                 = excluded.tiltakstype_id,
                                            avtalenummer                   = excluded.avtalenummer,

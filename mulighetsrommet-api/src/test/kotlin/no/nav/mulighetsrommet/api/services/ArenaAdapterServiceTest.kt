@@ -10,6 +10,7 @@ import no.nav.mulighetsrommet.api.producers.TiltakstypeKafkaProducer
 import no.nav.mulighetsrommet.api.repositories.*
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.utils.getOrThrow
+import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.*
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo.Tilgjengelighetsstatus
 import no.nav.mulighetsrommet.domain.dto.*
@@ -53,7 +54,7 @@ class ArenaAdapterServiceTest : FunSpec({
         avtaletype = Avtaletype.Rammeavtale,
         avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
         prisbetingelser = "💸",
-        opphav = AvtaleDbo.Opphav.ARENA,
+        opphav = ArenaMigrering.Opphav.ARENA,
         navEnheter = emptyList(),
     )
 
@@ -72,6 +73,7 @@ class ArenaAdapterServiceTest : FunSpec({
         ansvarlige = emptyList(),
         navEnheter = emptyList(),
         oppstart = TiltaksgjennomforingDbo.Oppstartstype.FELLES,
+        opphav = ArenaMigrering.Opphav.ARENA,
     )
 
     val tiltakshistorikkGruppe = TiltakshistorikkDbo.Gruppetiltak(

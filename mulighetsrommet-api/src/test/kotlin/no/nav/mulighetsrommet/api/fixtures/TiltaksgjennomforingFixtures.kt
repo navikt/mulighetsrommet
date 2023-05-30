@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.fixtures
 
+import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo.Oppstartstype
@@ -23,6 +24,7 @@ object TiltaksgjennomforingFixtures {
         ansvarlige = emptyList(),
         navEnheter = emptyList(),
         oppstart = Oppstartstype.FELLES,
+        opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
     )
 
     val Oppfolging2 = TiltaksgjennomforingDbo(
@@ -40,6 +42,7 @@ object TiltaksgjennomforingFixtures {
         ansvarlige = emptyList(),
         navEnheter = emptyList(),
         oppstart = Oppstartstype.FELLES,
+        opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
     )
 
     val Arbeidstrening1 = TiltaksgjennomforingDbo(
@@ -57,5 +60,6 @@ object TiltaksgjennomforingFixtures {
         ansvarlige = emptyList(),
         navEnheter = emptyList(),
         oppstart = Oppstartstype.FELLES,
+        opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
     )
 }

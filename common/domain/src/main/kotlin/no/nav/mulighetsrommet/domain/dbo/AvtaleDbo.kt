@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.domain.dbo
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
@@ -26,14 +27,9 @@ data class AvtaleDbo(
     val navEnheter: List<String>,
     val avtaletype: Avtaletype,
     val avslutningsstatus: Avslutningsstatus,
-    val opphav: Opphav,
+    val opphav: ArenaMigrering.Opphav,
     val prisbetingelser: String? = null,
     val antallPlasser: Int? = null,
     val url: String? = null,
     val ansvarlige: List<String> = emptyList(),
-) {
-    enum class Opphav {
-        ARENA,
-        MR_ADMIN_FLATE,
-    }
-}
+)

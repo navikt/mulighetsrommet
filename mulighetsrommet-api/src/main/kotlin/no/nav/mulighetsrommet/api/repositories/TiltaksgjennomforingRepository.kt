@@ -11,6 +11,7 @@ import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
+import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dto.*
@@ -28,8 +29,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            insert into tiltaksgjennomforing (id, navn, tiltakstype_id, tiltaksnummer, virksomhetsnummer, arena_ansvarlig_enhet, start_dato, slutt_dato, avslutningsstatus, tilgjengelighet, antall_plasser, avtale_id, oppstart)
-            values (:id::uuid, :navn, :tiltakstype_id::uuid, :tiltaksnummer, :virksomhetsnummer, :arena_ansvarlig_enhet, :start_dato, :slutt_dato, :avslutningsstatus::avslutningsstatus, :tilgjengelighet::tilgjengelighetsstatus, :antall_plasser, :avtale_id, :oppstart::tiltaksgjennomforing_oppstartstype)
+            insert into tiltaksgjennomforing (id, navn, tiltakstype_id, tiltaksnummer, virksomhetsnummer, arena_ansvarlig_enhet, start_dato, slutt_dato, avslutningsstatus, tilgjengelighet, antall_plasser, avtale_id, oppstart, opphav)
+            values (:id::uuid, :navn, :tiltakstype_id::uuid, :tiltaksnummer, :virksomhetsnummer, :arena_ansvarlig_enhet, :start_dato, :slutt_dato, :avslutningsstatus::avslutningsstatus, :tilgjengelighet::tilgjengelighetsstatus, :antall_plasser, :avtale_id, :oppstart::tiltaksgjennomforing_oppstartstype, :opphav::opphav)
             on conflict (id)
                 do update set navn                  = excluded.navn,
                               tiltakstype_id        = excluded.tiltakstype_id,
@@ -42,7 +43,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                               tilgjengelighet       = excluded.tilgjengelighet,
                               antall_plasser        = excluded.antall_plasser,
                               avtale_id             = excluded.avtale_id,
-                              oppstart              = excluded.oppstart
+                              oppstart              = excluded.oppstart,
+                              opphav                = excluded.opphav
             returning *
         """.trimIndent()
 
@@ -349,7 +351,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                    tilgjengelighet,
                    antall_plasser,
                    avtale_id,
-                   oppstart
+                   oppstart,
+                   opphav
             from tiltaksgjennomforing
             where avslutningsstatus = :avslutningsstatus::avslutningsstatus and (
                 (start_dato > :date_interval_start and start_dato <= :date_interval_end) or
@@ -437,6 +440,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         "antall_plasser" to antallPlasser,
         "avtale_id" to avtaleId,
         "oppstart" to oppstart.name,
+        "opphav" to opphav.name,
     )
 
     private fun Row.toTiltaksgjennomforingDbo() = TiltaksgjennomforingDbo(
@@ -455,6 +459,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         ansvarlige = emptyList(),
         navEnheter = emptyList(),
         oppstart = TiltaksgjennomforingDbo.Oppstartstype.valueOf(string("oppstart")),
+        opphav = ArenaMigrering.Opphav.valueOf(string("opphav")),
     )
 
     private fun Row.toTiltaksgjennomforingAdminDto(): TiltaksgjennomforingAdminDto {

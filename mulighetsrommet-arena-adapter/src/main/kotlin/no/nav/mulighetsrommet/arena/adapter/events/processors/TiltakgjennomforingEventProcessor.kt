@@ -24,6 +24,7 @@ import no.nav.mulighetsrommet.arena.adapter.utils.AktivitetsplanenLaunchDate
 import no.nav.mulighetsrommet.arena.adapter.utils.ArenaUtils
 import no.nav.mulighetsrommet.domain.Tiltakskoder.hasFellesOppstart
 import no.nav.mulighetsrommet.domain.Tiltakskoder.isGruppetiltak
+import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo.Oppstartstype.FELLES
@@ -170,5 +171,6 @@ class TiltakgjennomforingEventProcessor(
             ansvarlige = emptyList(),
             navEnheter = emptyList(),
             oppstart = if (hasFellesOppstart(tiltakskode)) FELLES else LOPENDE,
+            opphav = ArenaMigrering.Opphav.ARENA,
         )
 }

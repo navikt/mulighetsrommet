@@ -10,6 +10,7 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.services.AvtaleService
 import no.nav.mulighetsrommet.api.utils.getAvtaleFilter
 import no.nav.mulighetsrommet.api.utils.getPaginationParams
+import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
@@ -122,7 +123,7 @@ data class AvtaleRequest(
             avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
             antallPlasser = antallPlasser,
             url = url,
-            opphav = AvtaleDbo.Opphav.MR_ADMIN_FLATE,
+            opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
             ansvarlige = listOf(ansvarlig),
             prisbetingelser = prisOgBetalingsinformasjon,
             navEnheter = navEnheter,

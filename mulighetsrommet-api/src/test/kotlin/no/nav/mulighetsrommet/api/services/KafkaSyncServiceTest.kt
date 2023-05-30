@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.api.producers.TiltakstypeKafkaProducer
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
+import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo.Tilgjengelighetsstatus
@@ -63,6 +64,7 @@ class KafkaSyncServiceTest : FunSpec({
             ansvarlige = emptyList(),
             navEnheter = emptyList(),
             oppstart = TiltaksgjennomforingDbo.Oppstartstype.FELLES,
+            opphav = ArenaMigrering.Opphav.ARENA,
         )
     }
 

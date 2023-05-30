@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.domain.dbo
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import java.time.LocalDate
@@ -28,6 +29,7 @@ data class TiltaksgjennomforingDbo(
     val ansvarlige: List<String>,
     val navEnheter: List<String>,
     val oppstart: Oppstartstype,
+    val opphav: ArenaMigrering.Opphav
 ) {
     enum class Tilgjengelighetsstatus {
         Ledig,

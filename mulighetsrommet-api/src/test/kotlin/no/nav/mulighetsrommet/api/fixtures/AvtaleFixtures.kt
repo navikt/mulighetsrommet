@@ -4,6 +4,7 @@ import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.utils.getOrThrow
+import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
@@ -80,7 +81,7 @@ class AvtaleFixtures(private val database: FlywayDatabaseTestListener) {
             avtaletype = avtaletype,
             avslutningsstatus = avslutningsstatus,
             prisbetingelser = null,
-            opphav = AvtaleDbo.Opphav.MR_ADMIN_FLATE,
+            opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
             ansvarlige = ansvarlige,
             navEnheter = navEnheter,
         )
