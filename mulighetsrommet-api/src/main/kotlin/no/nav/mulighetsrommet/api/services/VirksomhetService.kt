@@ -45,7 +45,7 @@ class VirksomhetService(
             enhet
         } else {
             CacheUtils.tryCacheFirstNotNull(brregServiceCache, enhet.overordnetEnhet) {
-                brregClient.hentEnhet(orgnr)
+                brregClient.hentEnhet(enhet.overordnetEnhet)
             }
         }
         log.info("Potensiell overordnet enhet fra Brreg: $overordnetEnhet")
