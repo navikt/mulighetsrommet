@@ -18,6 +18,7 @@ import styles from "./Filter.module.scss";
 import { OpprettTiltaksgjennomforingModal } from "../modal/OpprettTiltaksgjennomforingModal";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
 import { LeggTilGjennomforingModal } from "../modal/LeggTilGjennomforingModal";
+import { arenaKodeErAftEllerVta } from "../../utils/tiltakskoder";
 
 type Filters = "tiltakstype";
 
@@ -45,9 +46,7 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
     features.data[OPPRETT_TILTAKSGJENNOMFORING_ADMIN_FLATE] &&
     inneholderUrl("/avtaler/");
 
-  const erAFTellerVTA =
-    avtale?.tiltakstype.arenaKode === "ARBFORB" ||
-    avtale?.tiltakstype.arenaKode === "VASV";
+  const erAFTellerVTA = arenaKodeErAftEllerVta(avtale?.tiltakstype.arenaKode);
 
   return (
     <>
