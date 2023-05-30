@@ -129,6 +129,8 @@ class BrregClientImpl(
                     navn = it.navn,
                     overordnetEnhet = orgnrOverordnetEnhet,
                     underenheter = null,
+                    poststed = it.beliggenhetsadresse?.poststed,
+                    postnummer = it.beliggenhetsadresse?.postnummer,
                 )
             }
         } ?: emptyList()
