@@ -40,6 +40,17 @@ class BrregClientImpl(
         val response = client.get("$baseUrl/enheter/$orgnr")
         val data = tolkRespons<BrregEnhet>(response, orgnr)
 
+        if (data?.slettedato != null) {
+            log.debug("Enhet med orgnr: $orgnr er slettet fra Brreg. Slettedato: ${data.slettedato}. Enhet fra Brreg: $data")
+            return VirksomhetDto(
+                organisasjonsnummer = data.organisasjonsnummer,
+                navn = data.navn,
+                overordnetEnhet = null,
+                underenheter = emptyList(),
+                slettedato = data.slettedato,
+            )
+        }
+
         // Vi fikk treff på hovedenhet
         if (data != null) {
             return VirksomhetDto(
@@ -137,6 +148,7 @@ internal data class BrregEnhet(
     val navn: String,
     val overordnetEnhet: String? = null,
     val beliggenhetsadresse: Adresse? = null,
+    val slettedato: String? = null,
 )
 
 @Serializable
