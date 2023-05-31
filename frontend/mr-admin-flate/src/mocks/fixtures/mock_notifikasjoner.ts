@@ -32,5 +32,15 @@ export const mockNotifikasjoner: PaginertUserNotifications = {
       createdAt: "2023-01-26T13:51:50.417-07:00",
       doneAt: "2023-01-26T13:51:50.417-07:00",
     },
+    {
+      id: "eccd9a93-3f08-4006-b3cb-751762e8bccf",
+      type: NotificationType.TASK,
+      title: "Du må fikse noe greier",
+      description:
+        "Dette er en 'TASK' som betyr at du må få den late rumpen din opp av stolen og gjøre noe fornuftig",
+      user: "B99876",
+      createdAt: "2023-01-26T13:51:50.417-07:00",
+      doneAt: "2023-01-26T13:51:50.417-07:00",
+    },
   ],
 };
