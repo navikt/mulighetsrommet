@@ -127,7 +127,11 @@ private fun kafka(config: KafkaConfig) = module {
     single {
         val consumers = listOf(
             AmtDeltakerV1TopicConsumer(config = config.consumers.amtDeltakerV1, deltakere = get()),
-            AmtVirksomheterV1TopicConsumer(config = config.consumers.amtVirksomheterV1, virksomhetRepository = get(), brregClient = get()),
+            AmtVirksomheterV1TopicConsumer(
+                config = config.consumers.amtVirksomheterV1,
+                virksomhetRepository = get(),
+                brregClient = get(),
+            ),
         )
         KafkaConsumerOrchestrator(
             consumerPreset = properties,
@@ -280,6 +284,8 @@ private fun tasks(config: TaskConfig) = module {
                 get(),
                 get(),
             )
+        val notifySluttdatoForAvtalerNarmerSeg =
+            NotifySluttdatoForAvtalerNarmerSeg(config.notifySluttdatoForAvtalerNarmerSeg, get(), get(), get())
         val notificationService: NotificationService by inject()
 
         val db: Database by inject()
@@ -294,6 +300,7 @@ private fun tasks(config: TaskConfig) = module {
                 synchronizeTilgjengelighetsstatuserToSanity.task,
                 synchronizeNavAnsatte.task,
                 notifySluttdatoForGjennomforingerNarmerSeg.task,
+                notifySluttdatoForAvtalerNarmerSeg.task,
             )
             .serializer(DbSchedulerKotlinSerializer())
             .registerShutdownHook()

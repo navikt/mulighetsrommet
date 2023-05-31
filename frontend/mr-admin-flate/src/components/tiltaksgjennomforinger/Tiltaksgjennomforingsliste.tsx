@@ -1,4 +1,3 @@
-import { MinusIcon, PlusIcon } from "@navikt/aksel-icons";
 import { Alert, BodyShort, Button, HelpText } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { Tiltaksgjennomforing } from "mulighetsrommet-api-client";
@@ -12,6 +11,8 @@ import { Laster } from "../laster/Laster";
 import { Tiltaksgjennomforingstatus } from "../statuselementer/Tiltaksgjennomforingstatus";
 import styles from "./Tiltaksgjennomforingsliste.module.scss";
 import { useState } from "react";
+import { Link } from "react-router-dom";
+import { arenaKodeErAftEllerVta } from "../../utils/tiltakskoder";
 
 export const Tiltaksgjennomforingsliste = () => {
   const {
@@ -85,8 +86,11 @@ export const Tiltaksgjennomforingsliste = () => {
           </div>
 
           <ul className={styles.gjennomforingsliste}>
-            {tiltaksgjennomforinger.map(
-              (gjennomforing: Tiltaksgjennomforing, index: number) => (
+            {tiltaksgjennomforinger
+              .filter((gjennomforing) =>
+                arenaKodeErAftEllerVta(gjennomforing.tiltakstype.arenaKode)
+              )
+              .map((gjennomforing: Tiltaksgjennomforing, index: number) => (
                 <li key={index} className={styles.gjennomforingsliste_element}>
                   <BodyShort>{gjennomforing.navn}</BodyShort>
                   <BodyShort>{gjennomforing.tiltaksnummer}</BodyShort>
@@ -99,8 +103,8 @@ export const Tiltaksgjennomforingsliste = () => {
                       className={styles.legg_til_knapp}
                       onClick={() => handleLeggTil(gjennomforing, avtale?.id)}
                       disabled={isLoadingKobleGjennomforingForAvtale}
+                      size="small"
                     >
-                      <PlusIcon fontSize={22} />
                       Legg til
                     </Button>
                   ) : gjennomforing.avtaleId === avtale?.id ? (
@@ -109,21 +113,25 @@ export const Tiltaksgjennomforingsliste = () => {
                       className={styles.legg_til_knapp}
                       onClick={() => handleLeggTil(gjennomforing, undefined)}
                       disabled={isLoadingKobleGjennomforingForAvtale}
+                      size="small"
                     >
-                      <MinusIcon fontSize={22} />
                       Fjern
                     </Button>
                   ) : (
                     <div style={{ margin: "0 auto" }}>
                       <HelpText title="Hvorfor har du ikke legg til eller fjern-knapp?">
-                        Denne tiltaksgjennomføringen er allerede koblet til
-                        avtalen med avtalenavn <b>{avtale?.navn}</b>.
+                        Denne tiltaksgjennomføringen er allerede koblet til en
+                        annen avtale.
+                        <div>
+                          <Link to={`/avtaler/${gjennomforing.avtaleId}`}>
+                            Gå til avtalen
+                          </Link>
+                        </div>
                       </HelpText>
                     </div>
                   )}
                 </li>
-              )
-            )}
+              ))}
           </ul>
         </div>
       )}

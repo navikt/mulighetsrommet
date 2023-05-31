@@ -74,6 +74,7 @@ data class TaskConfig(
     val synchronizeTilgjengelighetsstatuser: SynchronizeTilgjengelighetsstatuserToSanity.Config,
     val synchronizeNavAnsatte: SynchronizeNavAnsatte.Config,
     val notifySluttdatoForGjennomforingerNarmerSeg: NotifySluttdatoForGjennomforingerNarmerSeg.Config,
+    val notifySluttdatoForAvtalerNarmerSeg: NotifySluttdatoForAvtalerNarmerSeg.Config,
 )
 
 data class Norg2Config(

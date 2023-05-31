@@ -11,10 +11,7 @@ import no.nav.mulighetsrommet.database.utils.query
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.AvtaleDbo
-import no.nav.mulighetsrommet.domain.dto.AvtaleAdminDto
-import no.nav.mulighetsrommet.domain.dto.Avtalestatus
-import no.nav.mulighetsrommet.domain.dto.Avtaletype
-import no.nav.mulighetsrommet.domain.dto.NavEnhet
+import no.nav.mulighetsrommet.domain.dto.*
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
@@ -425,5 +422,43 @@ class AvtaleRepository(private val db: Database) {
             .map { it.int("antall") }
             .asSingle
             .let { db.run(it)!! }
+    }
+
+    fun getAllAvtalerSomNarmerSegSluttdato(currentDate: LocalDate = LocalDate.now()): List<AvtaleNotificationDto> {
+        val params = mapOf(
+            "currentDate" to currentDate,
+        )
+
+        @Language("PostgreSQL")
+        val query = """
+            select a.id::uuid, a.navn, a.start_dato, a.slutt_dato, array_agg(distinct aa.navident) as ansvarlige
+            from avtale a
+            join avtale_ansvarlig aa on a.id = aa.avtale_id
+            where
+                (:currentDate::timestamp + interval '6' month) = a.slutt_dato
+               or (:currentDate::timestamp + interval '3' month) = a.slutt_dato
+               or (:currentDate::timestamp + interval '14' day) = a.slutt_dato
+               or (:currentDate::timestamp + interval '7' day) = a.slutt_dato
+            group by a.id, aa.navident
+        """.trimIndent()
+
+        return queryOf(query, params)
+            .map { it.toAvtaleNotificationDto() }
+            .asList
+            .let { db.run(it) }
+    }
+
+    private fun Row.toAvtaleNotificationDto(): AvtaleNotificationDto {
+        val ansvarlige = arrayOrNull<String?>("ansvarlige")?.asList()?.filterNotNull() ?: emptyList()
+        val startDato = localDate("start_dato")
+        val sluttDato = localDateOrNull("slutt_dato")
+
+        return AvtaleNotificationDto(
+            id = uuid("id"),
+            navn = string("navn"),
+            startDato = startDato,
+            sluttDato = sluttDato,
+            ansvarlige = ansvarlige,
+        )
     }
 }

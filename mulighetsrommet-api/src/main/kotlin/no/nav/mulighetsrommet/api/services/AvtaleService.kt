@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.api.utils.AvtaleFilter
 import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.domain.dto.AvtaleAdminDto
+import no.nav.mulighetsrommet.domain.dto.AvtaleNotificationDto
 import java.util.*
 
 class AvtaleService(
@@ -61,5 +62,9 @@ class AvtaleService(
             antallTiltaksgjennomforinger = antallTiltaksgjennomforinger,
             antallDeltakere = antallDeltakereForAvtale,
         )
+    }
+
+    fun getAllAvtalerSomNarmerSegSluttdato(): List<AvtaleNotificationDto> {
+        return avtaler.getAllAvtalerSomNarmerSegSluttdato()
     }
 }

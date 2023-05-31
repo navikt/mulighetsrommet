@@ -605,4 +605,57 @@ class AvtaleRepositoryTest : FunSpec({
             }
         }
     }
+
+    context("Notifikasjoner for avtaler") {
+        val tiltakstypeRepository = TiltakstypeRepository(database.db)
+        val avtaleRepository = AvtaleRepository(database.db)
+
+        context("Avtaler nærmer seg sluttdato") {
+            test("Skal returnere avtaler som har sluttdato om 6 mnd, 3 mnd, 14 dager og 7 dager") {
+                val tiltakstype = TiltakstypeFixtures.Oppfolging.copy(id = avtaleFixture.tiltakstypeId)
+                val avtale6Mnd = avtaleFixture.createAvtaleForTiltakstype(
+                    startDato = LocalDate.of(2021, 1, 1),
+                    sluttDato = LocalDate.of(2023, 11, 30),
+                    ansvarlige = listOf("OLE"),
+                )
+                val avtale3Mnd = avtaleFixture.createAvtaleForTiltakstype(
+                    startDato = LocalDate.of(2021, 1, 1),
+                    sluttDato = LocalDate.of(2023, 8, 31),
+                    ansvarlige = listOf("OLE"),
+                )
+                val avtale14Dag = avtaleFixture.createAvtaleForTiltakstype(
+                    startDato = LocalDate.of(2021, 1, 1),
+                    sluttDato = LocalDate.of(2023, 6, 14),
+                    ansvarlige = listOf("OLE"),
+                )
+                val avtale7Dag = avtaleFixture.createAvtaleForTiltakstype(
+                    startDato = LocalDate.of(2021, 1, 1),
+                    sluttDato = LocalDate.of(2023, 6, 7),
+                    ansvarlige = listOf("OLE"),
+                )
+                val avtaleSomIkkeSkalMatche = avtaleFixture.createAvtaleForTiltakstype(
+                    startDato = LocalDate.of(2022, 6, 7),
+                    sluttDato = LocalDate.of(2024, 1, 1),
+                    ansvarlige = listOf("OLE"),
+                )
+
+                tiltakstypeRepository.upsert(tiltakstype).getOrThrow()
+
+                avtaleFixture.upsertAvtaler(
+                    listOf(
+                        avtale6Mnd,
+                        avtale3Mnd,
+                        avtale14Dag,
+                        avtale7Dag,
+                        avtaleSomIkkeSkalMatche,
+                    ),
+                )
+
+                val result =
+                    avtaleRepository.getAllAvtalerSomNarmerSegSluttdato(currentDate = LocalDate.of(2023, 5, 31))
+                result.size shouldBe 4
+                result[0].ansvarlige[0] shouldBe "OLE"
+            }
+        }
+    }
 })
