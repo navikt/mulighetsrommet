@@ -6,6 +6,7 @@ html {
   padding: 1rem;
 }
 
+/* Siden vi ønsker en custom read-only styling (gråa ut) overstyrer nav text field sin her */
 .navds-text-field__input:read-only {
   background-color: #F1F1F1;
   border-color: #0000001A;
