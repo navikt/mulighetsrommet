@@ -391,6 +391,7 @@ export function OpprettAvtaleContainer({
         {erAnskaffetTiltak(watch("tiltakstype")) ? (
           <FormGroup>
             <Textarea
+              readOnly={arenaOpphav}
               error={errors.prisOgBetalingsinfo?.message}
               label="Pris og betalingsinformasjon"
               {...register("prisOgBetalingsinfo")}
