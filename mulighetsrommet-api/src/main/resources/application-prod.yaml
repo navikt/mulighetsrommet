@@ -93,6 +93,9 @@ app:
     notifySluttdatoForGjennomforingerNarmerSeg:
       disabled: false
       cronPattern: "0 0 6 * * *" # Hver morgen kl. 06.00
+    notifySluttdatoForAvtalerNarmerSeg:
+      disabled: false
+      cronPattern: "0 0 6 * * *" # Hver morgen kl. 06.00
 
   norg2:
     baseUrl: https://norg2.prod-fss-pub.nais.io/norg2/api/v1
