@@ -32,8 +32,7 @@ const SokeSelect = React.forwardRef((props: SelectProps, _) => {
   const customStyles = (isError: boolean) => ({
     control: (provided: any, state: any) => ({
       ...provided,
-      background: disabled ? "#F1F1F1" : "#fff",
-      color: "red",
+      background: "#fff",
       borderColor: isError ? "#C30000" : "#0000008f",
       borderWidth: isError ? "2px" : "1px",
       height: "50px",
@@ -58,6 +57,10 @@ const SokeSelect = React.forwardRef((props: SelectProps, _) => {
       ...provided,
       color: "black",
     }),
+    container: (provided: any) => ({
+      ...provided,
+      opacity: disabled ? "0.3" : "1",
+    }),
     menu: (provided: any) => ({
       ...provided,
       zIndex: "1000",
@@ -74,7 +77,11 @@ const SokeSelect = React.forwardRef((props: SelectProps, _) => {
           fieldState: { error },
         }) => (
           <div>
-            <label className={style.label} htmlFor={name}>
+            <label
+              className={style.label}
+              htmlFor={name}
+              style={{ opacity: disabled ? "0.3" : "1" }}
+            >
               <b>{label}</b>
             </label>
             <ReactSelect

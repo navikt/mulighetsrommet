@@ -260,8 +260,7 @@ export const OpprettTiltaksgjennomforingContainer = (
       <form onSubmit={handleSubmit(postData)}>
         <FormGroup>
           <TextField
-            readOnly={arenaOpphav}
-            style={{ backgroundColor: arenaOpphav ? "#F1F1F1" : "white" }}
+            disabled={arenaOpphav}
             error={errors.tittel?.message}
             label="Tiltaksnavn"
             {...register("tittel")}
@@ -269,8 +268,7 @@ export const OpprettTiltaksgjennomforingContainer = (
         </FormGroup>
         <FormGroup>
           <TextField
-            readOnly
-            style={{ backgroundColor: "#F1F1F1" }}
+            disabled
             label={"Avtale"}
             value={avtale?.navn || ""}
           />
@@ -291,21 +289,17 @@ export const OpprettTiltaksgjennomforingContainer = (
             }}
           />
           <TextField
-            readOnly={tiltaksgjennomforing?.opphav === Opphav.ARENA}
+            disabled={arenaOpphav}
             error={errors.antallPlasser?.message}
             type="number"
-            style={{
-              width: "180px",
-              backgroundColor: arenaOpphav ? "#F1F1F1" : "white"
-            }}
+            style={{ width: "180px" }}
             label="Antall plasser"
             {...register("antallPlasser", { valueAsNumber: true })}
           />
         </FormGroup>
         <FormGroup>
           <TextField
-            readOnly
-            style={{ backgroundColor: "#F1F1F1" }}
+            disabled
             label={"NAV region"}
             value={avtale?.navRegion?.navn || ""}
           />
@@ -321,8 +315,7 @@ export const OpprettTiltaksgjennomforingContainer = (
             label="Tiltaksarrangør hovedenhet"
             placeholder=""
             defaultValue={`${avtale?.leverandor.navn} - ${avtale?.leverandor.organisasjonsnummer}`}
-            style={{ backgroundColor: "#F1F1F1" }}
-            readOnly
+            disabled
           />
           <SokeSelect
             label="Tiltaksarrangør underenhet"

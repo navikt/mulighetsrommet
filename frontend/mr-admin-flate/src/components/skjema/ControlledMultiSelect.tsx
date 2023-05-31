@@ -26,7 +26,11 @@ const ControlledMultiSelect = React.forwardRef((props: MultiSelectProps, _) => {
         }) => (
           <>
             <label
-              style={{ marginBottom: "8px", display: "inline-block" }}
+              style={{
+                marginBottom: "8px",
+                display: "inline-block",
+                opacity: disabled ? "0.3" : "1",
+              }}
               htmlFor={name}
             >
               <b>{label}</b>

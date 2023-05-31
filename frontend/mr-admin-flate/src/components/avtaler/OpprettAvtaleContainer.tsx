@@ -256,8 +256,7 @@ export function OpprettAvtaleContainer({
       <form onSubmit={handleSubmit(postData)}>
         <FormGroup>
           <TextField
-            readOnly={arenaOpphav}
-            style={{ backgroundColor: arenaOpphav ? "#F1F1F1" : "white" }}
+            disabled={arenaOpphav}
             error={errors.avtalenavn?.message}
             label="Avtalenavn"
             {...register("avtalenavn")}
@@ -344,6 +343,7 @@ export function OpprettAvtaleContainer({
         </FormGroup>
         <FormGroup cols={1}>
           <SokeSelect
+            disabled={arenaOpphav}
             placeholder="Søk etter tiltaksarrangør"
             label={"Tiltaksarrangør hovedenhet"}
             {...register("leverandor")}
