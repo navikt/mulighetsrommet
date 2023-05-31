@@ -4,7 +4,7 @@ $lest: var(--a-icon-success);
 
 .button {
   cursor: pointer;
-  background-color: white;
+  background-color: unset;
   color: black;
   display: flex;
   justify-content: center;
@@ -28,8 +28,6 @@ $lest: var(--a-icon-success);
   }
 }
 
-.unread {
-  &:hover {
-    background: $ulest;
-  }
+.unread:hover {
+  background: $ulest;
 }
