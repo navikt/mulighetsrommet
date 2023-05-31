@@ -316,6 +316,7 @@ export function OpprettAvtaleContainer({
           />
           <TextField
             type={"number"}
+            min={0}
             error={errors.antallPlasser?.message}
             label="Antall plasser"
             {...register("antallPlasser", { valueAsNumber: true })}
