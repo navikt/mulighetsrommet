@@ -128,6 +128,7 @@ class ArenaAdapterServiceTest : FunSpec({
             navEnheter = emptyList(),
             sanityId = null,
             oppstart = oppstart,
+            opphav = ArenaMigrering.Opphav.ARENA,
         )
     }
 

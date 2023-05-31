@@ -12,8 +12,7 @@ export interface SelectProps {
   label: string;
   placeholder: string;
   options: SelectOption[];
-  defaultValue?: string;
-  disabled?: boolean;
+  readOnly?: boolean;
   onChange?: (a0: any) => void;
   onInputChange?: (a0: any) => void;
 }
@@ -24,8 +23,7 @@ const SokeSelect = React.forwardRef((props: SelectProps, _) => {
     label,
     placeholder,
     options,
-    defaultValue,
-    disabled,
+    readOnly,
     onChange: providedOnChange,
     onInputChange: providedOnInputChange,
     ...rest
@@ -34,8 +32,8 @@ const SokeSelect = React.forwardRef((props: SelectProps, _) => {
   const customStyles = (isError: boolean) => ({
     control: (provided: any, state: any) => ({
       ...provided,
-      background: disabled ? "#F1F1F1" : "#fff",
-      borderColor: isError ? "#C30000" : "#0000008f",
+      background: readOnly ? "#f1f1f1" : "#fff",
+      borderColor: isError ? "#C30000" : (readOnly ? "#0000001A" : "#0000008f"),
       borderWidth: isError ? "2px" : "1px",
       height: "50px",
       boxShadow: state.isFocused ? null : null,
@@ -54,6 +52,10 @@ const SokeSelect = React.forwardRef((props: SelectProps, _) => {
     placeholder: (provided: any) => ({
       ...provided,
       color: "#0000008f",
+    }),
+    singleValue: (provided: any) => ({
+      ...provided,
+      color: "black",
     }),
     menu: (provided: any) => ({
       ...provided,
@@ -76,13 +78,12 @@ const SokeSelect = React.forwardRef((props: SelectProps, _) => {
             </label>
             <ReactSelect
               placeholder={placeholder}
-              isDisabled={!!disabled}
+              isDisabled={!!readOnly}
               isClearable
               ref={ref}
               noOptionsMessage={() => "Ingen funnet"}
               name={name}
-              defaultInputValue={defaultValue}
-              value={disabled ? null : options.find((c) => c.value === value)}
+              value={options.find((c) => c.value === value)}
               onChange={(e) => {
                 onChange(e?.value);
                 providedOnChange?.(e?.value);

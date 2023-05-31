@@ -7,13 +7,13 @@ export interface MultiSelectProps {
   label: string;
   placeholder: string;
   options: SelectOption[];
-  disabled?: boolean;
+  readOnly?: boolean;
   size?: "small" | "medium";
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const ControlledMultiSelect = React.forwardRef((props: MultiSelectProps, _) => {
-  const { label, placeholder, options, disabled, ...rest } = props;
+  const { label, placeholder, options, readOnly, ...rest } = props;
 
   return (
     <div>
@@ -41,7 +41,7 @@ const ControlledMultiSelect = React.forwardRef((props: MultiSelectProps, _) => {
                 onChange(e.map((option: SelectOption) => option.value));
               }}
               options={options}
-              disabled={disabled}
+              readOnly={readOnly}
             />
             {error && (
               <div style={{ marginTop: "8px", color: "#C30000" }}>

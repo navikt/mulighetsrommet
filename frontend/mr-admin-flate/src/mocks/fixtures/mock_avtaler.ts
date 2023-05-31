@@ -1,6 +1,7 @@
 import {
   Avtalestatus,
   Avtaletype,
+  Opphav,
   PaginertAvtale,
 } from "mulighetsrommet-api-client";
 
@@ -19,6 +20,7 @@ export const mockAvtaler: PaginertAvtale = {
         arenaKode: "VASV",
       },
       navn: "Testtiltak Varig",
+      opphav: Opphav.MR_ADMIN_FLATE,
       avtalenummer: "2021#10579",
       leverandor: {
         organisasjonsnummer: "864965962",
@@ -54,6 +56,7 @@ export const mockAvtaler: PaginertAvtale = {
         organisasjonsnummer: "864965962",
         navn: "ÅMLI KOMMUNE",
       },
+      opphav: Opphav.ARENA,
       leverandorUnderenheter: [
         { organisasjonsnummer: "456798321", navn: "Underenhet 1" },
         { organisasjonsnummer: "456798322", navn: "Underenhet 2" },
@@ -73,6 +76,7 @@ export const mockAvtaler: PaginertAvtale = {
     },
     {
       id: "6374b285-989d-4f78-a59e-29481b64ba92",
+      opphav: Opphav.ARENA,
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "Oppfølging",
@@ -106,6 +110,7 @@ export const mockAvtaler: PaginertAvtale = {
       },
       navn: "Avtale hos Arbeids- og sosialdepartementet",
       avtalenummer: "2020#4993",
+      opphav: Opphav.ARENA,
       leverandor: {
         organisasjonsnummer: "983887457",
         navn: "ARBEIDS- OG INKLUDERINGSDEPARTEMENTET",
@@ -125,6 +130,7 @@ export const mockAvtaler: PaginertAvtale = {
     },
     {
       id: "8a4a4dee-98c7-4a07-bc0c-f677a46c406f",
+      opphav: Opphav.ARENA,
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "Oppfølging",
@@ -162,6 +168,7 @@ export const mockAvtaler: PaginertAvtale = {
         navn: "ASKØY KOMMUNE BARNEHAGE",
       },
       leverandorUnderenheter: [],
+      opphav: Opphav.ARENA,
       startDato: "2021-11-01",
       sluttDato: "2023-10-31",
       navEnheter: [],
@@ -180,6 +187,7 @@ export const mockAvtaler: PaginertAvtale = {
         navn: "Oppfølging",
         arenaKode: "INDOPPFAG",
       },
+      opphav: Opphav.ARENA,
       navn: "Avtale hos ASKØY KOMMUNE KOMM TEKNISK AVD",
       avtalenummer: "2021#17845",
       leverandor: {
@@ -200,6 +208,7 @@ export const mockAvtaler: PaginertAvtale = {
     },
     {
       id: "e26c53cd-cafd-4a57-b7e0-c774cf33ea0d",
+      opphav: Opphav.ARENA,
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "Oppfølging",
@@ -225,6 +234,7 @@ export const mockAvtaler: PaginertAvtale = {
     },
     {
       id: "6267aed1-1d7a-419a-83aa-1c42488b6bf1",
+      opphav: Opphav.ARENA,
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "Oppfølging",
@@ -261,6 +271,7 @@ export const mockAvtaler: PaginertAvtale = {
         organisasjonsnummer: "918781390",
         navn: "KRISTIANSAND KOMMUNE SAMHANDLING OG INNOVASJON",
       },
+      opphav: Opphav.ARENA,
       leverandorUnderenheter: [],
       startDato: "2021-10-01",
       sluttDato: "2024-12-31",
@@ -317,6 +328,7 @@ export const mockAvtaler: PaginertAvtale = {
       avtaletype: Avtaletype.RAMMEAVTALE,
       avtalestatus: Avtalestatus.AKTIV,
       prisbetingelser: "Maskert prisbetingelser",
+      opphav: Opphav.MR_ADMIN_FLATE,
     },
     {
       id: "f80817a4-4602-46e4-ae62-46ad28b023be",
@@ -342,6 +354,7 @@ export const mockAvtaler: PaginertAvtale = {
       avtaletype: Avtaletype.RAMMEAVTALE,
       avtalestatus: Avtalestatus.AKTIV,
       prisbetingelser: "Maskert prisbetingelser",
+      opphav: Opphav.MR_ADMIN_FLATE,
     },
     {
       id: "03d8e390-6c4d-4d8c-b42d-d9f39406086b",
@@ -367,6 +380,7 @@ export const mockAvtaler: PaginertAvtale = {
       avtaletype: Avtaletype.RAMMEAVTALE,
       avtalestatus: Avtalestatus.AKTIV,
       prisbetingelser: "Maskert prisbetingelser",
+      opphav: Opphav.MR_ADMIN_FLATE,
     },
     {
       id: "21ab610d-5ed9-4d08-bdba-0650e2a56601",
@@ -392,6 +406,7 @@ export const mockAvtaler: PaginertAvtale = {
       avtaletype: Avtaletype.RAMMEAVTALE,
       avtalestatus: Avtalestatus.AKTIV,
       prisbetingelser: "Maskert prisbetingelser",
+      opphav: Opphav.MR_ADMIN_FLATE,
     },
     {
       id: "f671039e-796b-456f-a4b3-c95172e2142c",
@@ -417,6 +432,7 @@ export const mockAvtaler: PaginertAvtale = {
       avtaletype: Avtaletype.RAMMEAVTALE,
       avtalestatus: Avtalestatus.AKTIV,
       prisbetingelser: "Maskert prisbetingelser",
+      opphav: Opphav.MR_ADMIN_FLATE,
     },
     {
       id: "8179667d-4cdb-4307-ac34-d459bda709a3",
@@ -435,6 +451,7 @@ export const mockAvtaler: PaginertAvtale = {
       startDato: "2022-01-01",
       sluttDato: "2024-12-31",
       navEnheter: [],
+      opphav: Opphav.MR_ADMIN_FLATE,
       navRegion: {
         enhetsnummer: "1287",
         navn: "NAV Våler",

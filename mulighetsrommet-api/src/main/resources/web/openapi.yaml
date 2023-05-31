@@ -1016,6 +1016,8 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/EmbeddedNavEnhet"
+        opphav:
+          $ref: "#/components/schemas/Opphav"
       required:
         - id
         - tiltakstype
@@ -1029,6 +1031,7 @@ components:
         - avtalestatus
         - prisbetingelser
         - navEnheter
+        - opphav
 
     AvtaleRequest:
       type: object
@@ -1071,6 +1074,8 @@ components:
           type: array
           items:
             type: string
+        opphav:
+          $ref: "#/components/schemas/Opphav"
       required:
         - tiltakstypeId
         - navn
@@ -1199,6 +1204,8 @@ components:
           type: string
         oppstart:
           $ref: "#/components/schemas/TiltaksgjennomforingOppstartstype"
+        opphav:
+          $ref: "#/components/schemas/Opphav"
       required:
         - id
         - tiltakstype
@@ -1206,6 +1213,7 @@ components:
         - tiltaksnummer
         - virksomhetsnummer
         - navEnheter
+        - opphav
 
     TiltaksgjennomforingRequest:
       type: object
@@ -1276,6 +1284,12 @@ components:
       enum:
         - LOPENDE
         - FELLES
+        -
+    Opphav:
+      type: string
+      enum:
+        - ARENA
+        - MR_ADMIN_FLATE
 
     Bruker:
       type: object

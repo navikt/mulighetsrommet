@@ -26,6 +26,7 @@ import { useVirksomhet } from "../../api/virksomhet/useVirksomhet";
 import { Link } from "react-router-dom";
 import { isTiltakMedFellesOppstart } from "../../utils/tiltakskoder";
 import { mulighetsrommetClient } from "../../api/clients";
+import { Opphav } from "mulighetsrommet-api-client/build/models/Opphav";
 import { useFeatureToggles } from "../../api/features/feature-toggles";
 
 const Schema = z.object({
@@ -203,6 +204,8 @@ export const OpprettTiltaksgjennomforingContainer = (
     }
   };
 
+  const arenaOpphav = tiltaksgjennomforing?.opphav === Opphav.ARENA;
+
   const navn = ansatt?.fornavn
     ? [ansatt.fornavn, ansatt.etternavn ?? ""]
         .map((it) => capitalize(it))
@@ -266,6 +269,7 @@ export const OpprettTiltaksgjennomforingContainer = (
       <form onSubmit={handleSubmit(postData)}>
         <FormGroup>
           <TextField
+            readOnly={arenaOpphav}
             error={errors.tittel?.message}
             label="Tiltaksnavn"
             {...register("tittel")}
@@ -274,7 +278,6 @@ export const OpprettTiltaksgjennomforingContainer = (
         <FormGroup>
           <TextField
             readOnly
-            style={{ backgroundColor: "#F1F1F1" }}
             label={"Avtale"}
             value={avtale?.navn || ""}
           />
@@ -284,15 +287,18 @@ export const OpprettTiltaksgjennomforingContainer = (
             fra={{
               label: "Startdato",
               error: errors.startDato?.message,
+              readOnly: arenaOpphav,
               ...register("startDato"),
             }}
             til={{
               label: "Sluttdato",
+              readOnly: arenaOpphav,
               error: errors.sluttDato?.message,
               ...register("sluttDato"),
             }}
           />
           <TextField
+            readOnly={arenaOpphav}
             error={errors.antallPlasser?.message}
             type="number"
             style={{ width: "180px" }}
@@ -303,7 +309,6 @@ export const OpprettTiltaksgjennomforingContainer = (
         <FormGroup>
           <TextField
             readOnly
-            style={{ backgroundColor: "#F1F1F1" }}
             label={"NAV region"}
             value={avtale?.navRegion?.navn || ""}
           />
@@ -319,14 +324,13 @@ export const OpprettTiltaksgjennomforingContainer = (
             label="Tiltaksarrangør hovedenhet"
             placeholder=""
             defaultValue={`${avtale?.leverandor.navn} - ${avtale?.leverandor.organisasjonsnummer}`}
-            style={{ backgroundColor: "#F1F1F1" }}
             readOnly
           />
           <SokeSelect
             label="Tiltaksarrangør underenhet"
             placeholder="Velg underenhet for tiltaksarrangør"
             {...register("tiltaksArrangorUnderenhetOrganisasjonsnummer")}
-            disabled={!avtale?.leverandor.organisasjonsnummer}
+            readOnly={!avtale?.leverandor.organisasjonsnummer}
             options={arrangorUnderenheterOptions()}
           />
         </FormGroup>

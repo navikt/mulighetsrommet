@@ -88,6 +88,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 navEnheter = emptyList(),
                 sanityId = null,
                 oppstart = TiltaksgjennomforingDbo.Oppstartstype.FELLES,
+                opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
             )
 
             tiltaksgjennomforinger.delete(gjennomforing1.id)

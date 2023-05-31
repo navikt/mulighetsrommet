@@ -1,4 +1,5 @@
 import {
+  Opphav,
   PaginertTiltaksgjennomforing,
   TiltaksgjennomforingStatus,
 } from "mulighetsrommet-api-client";
@@ -26,6 +27,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       arenaAnsvarligEnhet: "2990",
       navEnheter: [],
       status: TiltaksgjennomforingStatus.GJENNOMFORES,
+      opphav: Opphav.MR_ADMIN_FLATE,
     },
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee362",
@@ -43,6 +45,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       arenaAnsvarligEnhet: "2990",
       navEnheter: [],
       status: TiltaksgjennomforingStatus.AVLYST,
+      opphav: Opphav.MR_ADMIN_FLATE,
     },
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee363",
@@ -60,6 +63,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       arenaAnsvarligEnhet: "2990",
       navEnheter: [],
       status: TiltaksgjennomforingStatus.GJENNOMFORES,
+      opphav: Opphav.MR_ADMIN_FLATE,
     },
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee364",
@@ -77,6 +81,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       arenaAnsvarligEnhet: "1190",
       navEnheter: [],
       status: TiltaksgjennomforingStatus.GJENNOMFORES,
+      opphav: Opphav.MR_ADMIN_FLATE,
     },
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee365",
@@ -94,6 +99,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       arenaAnsvarligEnhet: "1190",
       navEnheter: [],
       status: TiltaksgjennomforingStatus.GJENNOMFORES,
+      opphav: Opphav.MR_ADMIN_FLATE,
     },
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee366",
@@ -111,6 +117,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       arenaAnsvarligEnhet: "1190",
       navEnheter: [],
       status: TiltaksgjennomforingStatus.AVBRUTT,
+      opphav: Opphav.MR_ADMIN_FLATE,
     },
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee367",
@@ -128,6 +135,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       arenaAnsvarligEnhet: "1190",
       navEnheter: [],
       status: TiltaksgjennomforingStatus.GJENNOMFORES,
+      opphav: Opphav.MR_ADMIN_FLATE,
     },
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee368",
@@ -145,6 +153,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       arenaAnsvarligEnhet: "1190",
       navEnheter: [],
       status: TiltaksgjennomforingStatus.AVLYST,
+      opphav: Opphav.ARENA,
     },
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee369",
@@ -162,6 +171,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       arenaAnsvarligEnhet: "1190",
       navEnheter: [],
       status: TiltaksgjennomforingStatus.GJENNOMFORES,
+      opphav: Opphav.ARENA,
     },
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee310",
@@ -179,6 +189,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       arenaAnsvarligEnhet: "1190",
       navEnheter: [],
       status: TiltaksgjennomforingStatus.GJENNOMFORES,
+      opphav: Opphav.ARENA,
     },
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee311",
@@ -196,6 +207,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       arenaAnsvarligEnhet: "1190",
       navEnheter: [],
       status: TiltaksgjennomforingStatus.GJENNOMFORES,
+      opphav: Opphav.ARENA,
     },
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee312",
@@ -213,6 +225,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       arenaAnsvarligEnhet: "1190",
       navEnheter: [],
       status: TiltaksgjennomforingStatus.GJENNOMFORES,
+      opphav: Opphav.ARENA,
     },
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee313",
@@ -230,6 +243,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       arenaAnsvarligEnhet: "1190",
       navEnheter: [],
       status: TiltaksgjennomforingStatus.GJENNOMFORES,
+      opphav: Opphav.ARENA,
     },
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee314",
@@ -247,6 +261,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       arenaAnsvarligEnhet: "1190",
       navEnheter: [],
       status: TiltaksgjennomforingStatus.GJENNOMFORES,
+      opphav: Opphav.ARENA,
     },
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee315",
@@ -264,6 +279,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       arenaAnsvarligEnhet: "1190",
       navEnheter: [],
       status: TiltaksgjennomforingStatus.GJENNOMFORES,
+      opphav: Opphav.ARENA,
     },
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee316",
@@ -281,6 +297,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       arenaAnsvarligEnhet: "1190",
       navEnheter: [],
       status: TiltaksgjennomforingStatus.GJENNOMFORES,
+      opphav: Opphav.ARENA,
     },
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee317",
@@ -298,6 +315,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       arenaAnsvarligEnhet: "1190",
       navEnheter: [],
       status: TiltaksgjennomforingStatus.GJENNOMFORES,
+      opphav: Opphav.ARENA,
     },
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee318",
@@ -315,6 +333,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       arenaAnsvarligEnhet: "1190",
       navEnheter: [],
       status: TiltaksgjennomforingStatus.APENT_FOR_INNSOK,
+      opphav: Opphav.ARENA,
     },
   ],
 };

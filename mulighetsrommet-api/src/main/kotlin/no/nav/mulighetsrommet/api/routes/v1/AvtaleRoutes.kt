@@ -106,6 +106,7 @@ data class AvtaleRequest(
     val avtaletype: Avtaletype,
     val prisOgBetalingsinformasjon: String? = null,
     val navEnheter: List<String> = emptyList(),
+    val opphav: ArenaMigrering.Opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
 ) {
     fun toDbo(): AvtaleDbo {
         return AvtaleDbo(
@@ -123,10 +124,10 @@ data class AvtaleRequest(
             avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
             antallPlasser = antallPlasser,
             url = url,
-            opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
             ansvarlige = listOf(ansvarlig),
             prisbetingelser = prisOgBetalingsinformasjon,
             navEnheter = navEnheter,
+            opphav = opphav,
         )
     }
 }

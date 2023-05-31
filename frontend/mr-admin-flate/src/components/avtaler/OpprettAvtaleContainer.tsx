@@ -6,6 +6,7 @@ import {
   AvtaleRequest,
   Avtaletype,
   Norg2Type,
+  Opphav,
 } from "mulighetsrommet-api-client";
 import { Ansatt } from "mulighetsrommet-api-client/build/models/Ansatt";
 import { NavEnhet } from "mulighetsrommet-api-client/build/models/NavEnhet";
@@ -132,6 +133,8 @@ export function OpprettAvtaleContainer({
     return tiltakstypekodeErAnskaffetTiltak(tiltakstype?.arenaKode);
   };
 
+  const arenaOpphav = avtale?.opphav === Opphav.ARENA;
+
   const postData: SubmitHandler<inferredSchema> = async (
     data
   ): Promise<void> => {
@@ -192,6 +195,7 @@ export function OpprettAvtaleContainer({
       prisOgBetalingsinformasjon: erAnskaffetTiltak(tiltakstypeId)
         ? prisOgBetalingsinfo
         : undefined,
+      opphav: avtale?.opphav,
     };
 
     if (avtale?.id) {
@@ -272,6 +276,7 @@ export function OpprettAvtaleContainer({
       <form onSubmit={handleSubmit(postData)}>
         <FormGroup>
           <TextField
+            readOnly={arenaOpphav}
             error={errors.avtalenavn?.message}
             label="Avtalenavn"
             {...register("avtalenavn")}
@@ -279,6 +284,7 @@ export function OpprettAvtaleContainer({
         </FormGroup>
         <FormGroup cols={2}>
           <SokeSelect
+            readOnly={arenaOpphav}
             placeholder="Velg en"
             label={"Tiltakstype"}
             {...register("tiltakstype")}
@@ -289,6 +295,7 @@ export function OpprettAvtaleContainer({
           />
           <div></div>
           <SokeSelect
+            readOnly={arenaOpphav}
             placeholder="Velg en"
             label={"Avtaletype"}
             {...register("avtaletype")}
@@ -317,11 +324,13 @@ export function OpprettAvtaleContainer({
         <FormGroup>
           <Datovelger
             fra={{
+              readOnly: arenaOpphav,
               ...register("startDato"),
               label: "Startdato",
               error: errors.startDato?.message,
             }}
             til={{
+              readOnly: arenaOpphav,
               ...register("sluttDato"),
               label: "Sluttdato",
               error: errors.sluttDato?.message,
@@ -346,7 +355,7 @@ export function OpprettAvtaleContainer({
           />
           <ControlledMultiSelect
             placeholder="Velg en"
-            disabled={!navRegion}
+            readOnly={!navRegion}
             label={"NAV enhet (kontorer)"}
             {...register("navEnheter")}
             options={enheterOptions()}
@@ -354,6 +363,7 @@ export function OpprettAvtaleContainer({
         </FormGroup>
         <FormGroup cols={1}>
           <SokeSelect
+            readOnly={arenaOpphav}
             placeholder="Søk etter tiltaksarrangør"
             label={"Tiltaksarrangør hovedenhet"}
             {...register("leverandor")}
@@ -366,7 +376,7 @@ export function OpprettAvtaleContainer({
           <ControlledMultiSelect
             placeholder="Velg underenhet for tiltaksarrangør"
             label={"Tiltaksarrangør underenhet"}
-            disabled={!watch("leverandor")}
+            readOnly={!watch("leverandor")}
             {...register("leverandorUnderenheter")}
             options={underenheterOptions()}
           />
