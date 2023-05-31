@@ -163,7 +163,7 @@ export const OpprettTiltaksgjennomforingContainer = (
   const postData: SubmitHandler<inferredSchema> = async (
     data
   ): Promise<void> => {
-    if (features?.["mulighetsrommet.admin-flate-lagre-data-fra-admin-flate"]) {
+    if (!features?.["mulighetsrommet.admin-flate-lagre-data-fra-admin-flate"]) {
       alert(
         "Opprettelse av tiltaksgjennomføring er ikke skrudd på enda. Kontakt Team Valp ved spørsmål."
       );

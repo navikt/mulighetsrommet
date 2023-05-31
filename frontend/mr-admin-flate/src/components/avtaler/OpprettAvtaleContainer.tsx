@@ -137,7 +137,7 @@ export function OpprettAvtaleContainer({
     setFeil(null);
     setResult(null);
 
-    if (features?.["mulighetsrommet.admin-flate-lagre-data-fra-admin-flate"]) {
+    if (!features?.["mulighetsrommet.admin-flate-lagre-data-fra-admin-flate"]) {
       alert(
         "Opprettelse av avtale er ikke skrudd på enda. Kontakt Team Valp ved spørsmål."
       );
