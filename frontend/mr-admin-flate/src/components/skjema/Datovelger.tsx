@@ -7,6 +7,7 @@ import { inferredSchema } from "../avtaler/AvtaleSchema";
 
 interface DatoProps {
   name: string;
+  readOnly?: boolean;
   label: string;
   error?: string;
 }
@@ -108,6 +109,8 @@ const DatoFelt = forwardRef(function DatoFeltInput(props: any, ref: any) {
       name={name}
       size="medium"
       ref={ref}
+      disabled={rest.readOnly}
+      className={styles.dato_input}
     />
   );
 });

@@ -269,7 +269,7 @@ export const OpprettTiltaksgjennomforingContainer = (
       <form onSubmit={handleSubmit(postData)}>
         <FormGroup>
           <TextField
-            disabled={arenaOpphav}
+            readOnly={arenaOpphav}
             error={errors.tittel?.message}
             label="Tiltaksnavn"
             {...register("tittel")}
@@ -277,7 +277,7 @@ export const OpprettTiltaksgjennomforingContainer = (
         </FormGroup>
         <FormGroup>
           <TextField
-            disabled
+            readOnly
             label={"Avtale"}
             value={avtale?.navn || ""}
           />
@@ -287,18 +287,18 @@ export const OpprettTiltaksgjennomforingContainer = (
             fra={{
               label: "Startdato",
               error: errors.startDato?.message,
-              disabled: arenaOpphav,
+              readOnly: arenaOpphav,
               ...register("startDato"),
             }}
             til={{
               label: "Sluttdato",
-              disabled: arenaOpphav,
+              readOnly: arenaOpphav,
               error: errors.sluttDato?.message,
               ...register("sluttDato"),
             }}
           />
           <TextField
-            disabled={arenaOpphav}
+            readOnly={arenaOpphav}
             error={errors.antallPlasser?.message}
             type="number"
             style={{ width: "180px" }}
@@ -308,7 +308,7 @@ export const OpprettTiltaksgjennomforingContainer = (
         </FormGroup>
         <FormGroup>
           <TextField
-            disabled
+            readOnly
             label={"NAV region"}
             value={avtale?.navRegion?.navn || ""}
           />
@@ -324,13 +324,13 @@ export const OpprettTiltaksgjennomforingContainer = (
             label="Tiltaksarrangør hovedenhet"
             placeholder=""
             defaultValue={`${avtale?.leverandor.navn} - ${avtale?.leverandor.organisasjonsnummer}`}
-            disabled
+            readOnly
           />
           <SokeSelect
             label="Tiltaksarrangør underenhet"
             placeholder="Velg underenhet for tiltaksarrangør"
             {...register("tiltaksArrangorUnderenhetOrganisasjonsnummer")}
-            disabled={!avtale?.leverandor.organisasjonsnummer}
+            readOnly={!avtale?.leverandor.organisasjonsnummer}
             options={arrangorUnderenheterOptions()}
           />
         </FormGroup>

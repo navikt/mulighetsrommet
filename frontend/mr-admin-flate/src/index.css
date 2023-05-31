@@ -5,3 +5,8 @@ html {
 .error {
   padding: 1rem;
 }
+
+.navds-text-field__input:read-only {
+  background-color: #F1F1F1;
+  border-color: #0000001A;
+}

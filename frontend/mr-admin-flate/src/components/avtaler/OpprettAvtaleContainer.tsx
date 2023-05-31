@@ -276,7 +276,7 @@ export function OpprettAvtaleContainer({
       <form onSubmit={handleSubmit(postData)}>
         <FormGroup>
           <TextField
-            disabled={arenaOpphav}
+            readOnly={arenaOpphav}
             error={errors.avtalenavn?.message}
             label="Avtalenavn"
             {...register("avtalenavn")}
@@ -284,7 +284,7 @@ export function OpprettAvtaleContainer({
         </FormGroup>
         <FormGroup cols={2}>
           <SokeSelect
-            disabled={arenaOpphav}
+            readOnly={arenaOpphav}
             placeholder="Velg en"
             label={"Tiltakstype"}
             {...register("tiltakstype")}
@@ -295,7 +295,7 @@ export function OpprettAvtaleContainer({
           />
           <div></div>
           <SokeSelect
-            disabled={arenaOpphav}
+            readOnly={arenaOpphav}
             placeholder="Velg en"
             label={"Avtaletype"}
             {...register("avtaletype")}
@@ -324,13 +324,13 @@ export function OpprettAvtaleContainer({
         <FormGroup>
           <Datovelger
             fra={{
-              disabled: arenaOpphav,
+              readOnly: arenaOpphav,
               ...register("startDato"),
               label: "Startdato",
               error: errors.startDato?.message,
             }}
             til={{
-              disabled: arenaOpphav,
+              readOnly: arenaOpphav,
               ...register("sluttDato"),
               label: "Sluttdato",
               error: errors.sluttDato?.message,
@@ -355,7 +355,7 @@ export function OpprettAvtaleContainer({
           />
           <ControlledMultiSelect
             placeholder="Velg en"
-            disabled={!navRegion}
+            readOnly={!navRegion}
             label={"NAV enhet (kontorer)"}
             {...register("navEnheter")}
             options={enheterOptions()}
@@ -363,7 +363,7 @@ export function OpprettAvtaleContainer({
         </FormGroup>
         <FormGroup cols={1}>
           <SokeSelect
-            disabled={arenaOpphav}
+            readOnly={arenaOpphav}
             placeholder="Søk etter tiltaksarrangør"
             label={"Tiltaksarrangør hovedenhet"}
             {...register("leverandor")}
@@ -376,7 +376,7 @@ export function OpprettAvtaleContainer({
           <ControlledMultiSelect
             placeholder="Velg underenhet for tiltaksarrangør"
             label={"Tiltaksarrangør underenhet"}
-            disabled={!watch("leverandor")}
+            readOnly={!watch("leverandor")}
             {...register("leverandorUnderenheter")}
             options={underenheterOptions()}
           />

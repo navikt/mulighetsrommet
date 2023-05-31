@@ -9,7 +9,7 @@ export interface MultiSelectProps {
   options: SelectOption[];
   size?: "small" | "medium";
   value: SelectOption[];
-  disabled?: boolean;
+  readOnly?: boolean;
   onChange: (e: any) => void;
   error: boolean;
 }
@@ -24,14 +24,14 @@ const MultiSelect = React.forwardRef((props: MultiSelectProps, _) => {
     value,
     childRef,
     error,
-    disabled,
+    readOnly,
   } = props;
 
   const customStyles = (isError: boolean) => ({
     control: (provided: any, state: any) => ({
       ...provided,
-      background: disabled ? "#F1F1F1" : "#fff",
-      borderColor: isError ? "#C30000" : "#0000008f",
+      background: readOnly ? "#F1F1F1" : "#fff",
+      borderColor: isError ? "#C30000" : (readOnly ? "#0000001A" : "#0000008f"),
       borderWidth: isError ? "2px" : "1px",
       minHeight: "48px",
       boxShadow: state.isFocused ? null : null,
@@ -73,7 +73,7 @@ const MultiSelect = React.forwardRef((props: MultiSelectProps, _) => {
       placeholder={placeholder}
       ref={childRef}
       isMulti
-      isDisabled={!!disabled}
+      isDisabled={!!readOnly}
       noOptionsMessage={() => "Ingen funnet"}
       name={name}
       value={value}

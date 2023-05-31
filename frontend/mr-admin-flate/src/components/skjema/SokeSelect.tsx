@@ -12,7 +12,7 @@ export interface SelectProps {
   label: string;
   placeholder: string;
   options: SelectOption[];
-  disabled?: boolean;
+  readOnly?: boolean;
   onChange?: (a0: any) => void;
   onInputChange?: (a0: any) => void;
 }
@@ -23,7 +23,7 @@ const SokeSelect = React.forwardRef((props: SelectProps, _) => {
     label,
     placeholder,
     options,
-    disabled,
+    readOnly,
     onChange: providedOnChange,
     onInputChange: providedOnInputChange,
     ...rest
@@ -32,8 +32,8 @@ const SokeSelect = React.forwardRef((props: SelectProps, _) => {
   const customStyles = (isError: boolean) => ({
     control: (provided: any, state: any) => ({
       ...provided,
-      background: "#fff",
-      borderColor: isError ? "#C30000" : "#0000008f",
+      background: readOnly ? "#f1f1f1" : "#fff",
+      borderColor: isError ? "#C30000" : (readOnly ? "#0000001A" : "#0000008f"),
       borderWidth: isError ? "2px" : "1px",
       height: "50px",
       boxShadow: state.isFocused ? null : null,
@@ -57,10 +57,6 @@ const SokeSelect = React.forwardRef((props: SelectProps, _) => {
       ...provided,
       color: "black",
     }),
-    container: (provided: any) => ({
-      ...provided,
-      opacity: disabled ? "0.3" : "1",
-    }),
     menu: (provided: any) => ({
       ...provided,
       zIndex: "1000",
@@ -77,16 +73,12 @@ const SokeSelect = React.forwardRef((props: SelectProps, _) => {
           fieldState: { error },
         }) => (
           <div>
-            <label
-              className={style.label}
-              htmlFor={name}
-              style={{ opacity: disabled ? "0.3" : "1" }}
-            >
+            <label className={style.label} htmlFor={name}>
               <b>{label}</b>
             </label>
             <ReactSelect
               placeholder={placeholder}
-              isDisabled={!!disabled}
+              isDisabled={!!readOnly}
               isClearable
               ref={ref}
               noOptionsMessage={() => "Ingen funnet"}
