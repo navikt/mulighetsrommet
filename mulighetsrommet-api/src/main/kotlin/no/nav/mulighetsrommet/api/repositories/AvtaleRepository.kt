@@ -8,6 +8,7 @@ import no.nav.mulighetsrommet.api.utils.*
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
+import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.domain.dto.AvtaleAdminDto
@@ -174,6 +175,7 @@ class AvtaleRepository(private val db: Database) {
                    a.slutt_dato,
                    a.nav_region,
                    a.avtaletype,
+                   a.opphav,
                    a.avslutningsstatus,
                    a.prisbetingelser,
                    a.url,
@@ -270,6 +272,7 @@ class AvtaleRepository(private val db: Database) {
                    v.navn as leverandor_navn,
                    a.start_dato,
                    a.slutt_dato,
+                   a.opphav,
                    a.nav_region,
                    a.avtaletype,
                    a.avslutningsstatus,
@@ -381,6 +384,7 @@ class AvtaleRepository(private val db: Database) {
             ansvarlig = stringOrNull("navident"),
             url = stringOrNull("url"),
             antallPlasser = intOrNull("antall_plasser"),
+            opphav = ArenaMigrering.Opphav.valueOf(string("opphav")),
         )
     }
 

@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.domain.dto
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
@@ -30,6 +31,7 @@ data class TiltaksgjennomforingAdminDto(
     val navEnheter: List<NavEnhet>,
     val sanityId: String?,
     val oppstart: TiltaksgjennomforingDbo.Oppstartstype,
+    val opphav: ArenaMigrering.Opphav,
 ) {
     @Serializable
     data class Tiltakstype(

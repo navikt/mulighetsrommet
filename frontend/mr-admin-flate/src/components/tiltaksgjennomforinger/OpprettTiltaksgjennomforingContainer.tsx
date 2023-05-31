@@ -26,6 +26,7 @@ import { useVirksomhet } from "../../api/virksomhet/useVirksomhet";
 import { Link } from "react-router-dom";
 import { isTiltakMedFellesOppstart } from "../../utils/tiltakskoder";
 import { mulighetsrommetClient } from "../../api/clients";
+import { Opphav } from "mulighetsrommet-api-client/build/models/Opphav";
 
 const Schema = z.object({
   tittel: z.string().min(1, "Du må skrive inn tittel"),
@@ -194,6 +195,8 @@ export const OpprettTiltaksgjennomforingContainer = (
     }
   };
 
+  const arenaOpphav = tiltaksgjennomforing?.opphav === Opphav.ARENA;
+
   const navn = ansatt?.fornavn
     ? [ansatt.fornavn, ansatt.etternavn ?? ""]
         .map((it) => capitalize(it))
@@ -257,6 +260,8 @@ export const OpprettTiltaksgjennomforingContainer = (
       <form onSubmit={handleSubmit(postData)}>
         <FormGroup>
           <TextField
+            readOnly={arenaOpphav}
+            style={{ backgroundColor: arenaOpphav ? "#F1F1F1" : "white" }}
             error={errors.tittel?.message}
             label="Tiltaksnavn"
             {...register("tittel")}
@@ -275,18 +280,24 @@ export const OpprettTiltaksgjennomforingContainer = (
             fra={{
               label: "Startdato",
               error: errors.startDato?.message,
+              disabled: arenaOpphav,
               ...register("startDato"),
             }}
             til={{
               label: "Sluttdato",
+              disabled: arenaOpphav,
               error: errors.sluttDato?.message,
               ...register("sluttDato"),
             }}
           />
           <TextField
+            readOnly={tiltaksgjennomforing?.opphav === Opphav.ARENA}
             error={errors.antallPlasser?.message}
             type="number"
-            style={{ width: "180px" }}
+            style={{
+              width: "180px",
+              backgroundColor: arenaOpphav ? "#F1F1F1" : "white"
+            }}
             label="Antall plasser"
             {...register("antallPlasser", { valueAsNumber: true })}
           />

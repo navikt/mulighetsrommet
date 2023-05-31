@@ -6,6 +6,7 @@ import {
   AvtaleRequest,
   Avtaletype,
   Norg2Type,
+  Opphav,
 } from "mulighetsrommet-api-client";
 import { Ansatt } from "mulighetsrommet-api-client/build/models/Ansatt";
 import { NavEnhet } from "mulighetsrommet-api-client/build/models/NavEnhet";
@@ -129,6 +130,8 @@ export function OpprettAvtaleContainer({
     return tiltakstypekodeErAnskaffetTiltak(tiltakstype?.arenaKode);
   };
 
+  const arenaOpphav = avtale?.opphav === Opphav.ARENA;
+
   const postData: SubmitHandler<inferredSchema> = async (
     data
   ): Promise<void> => {
@@ -172,6 +175,7 @@ export function OpprettAvtaleContainer({
       prisOgBetalingsinformasjon: erAnskaffetTiltak(tiltakstypeId)
         ? prisOgBetalingsinfo
         : undefined,
+      opphav: avtale?.opphav,
     };
 
     if (avtale?.id) {
@@ -252,6 +256,8 @@ export function OpprettAvtaleContainer({
       <form onSubmit={handleSubmit(postData)}>
         <FormGroup>
           <TextField
+            readOnly={arenaOpphav}
+            style={{ backgroundColor: arenaOpphav ? "#F1F1F1" : "white" }}
             error={errors.avtalenavn?.message}
             label="Avtalenavn"
             {...register("avtalenavn")}
@@ -259,6 +265,7 @@ export function OpprettAvtaleContainer({
         </FormGroup>
         <FormGroup cols={2}>
           <SokeSelect
+            disabled={arenaOpphav}
             placeholder="Velg en"
             label={"Tiltakstype"}
             {...register("tiltakstype")}
@@ -269,6 +276,7 @@ export function OpprettAvtaleContainer({
           />
           <div></div>
           <SokeSelect
+            disabled={arenaOpphav}
             placeholder="Velg en"
             label={"Avtaletype"}
             {...register("avtaletype")}
@@ -297,11 +305,13 @@ export function OpprettAvtaleContainer({
         <FormGroup>
           <Datovelger
             fra={{
+              disabled: arenaOpphav,
               ...register("startDato"),
               label: "Startdato",
               error: errors.startDato?.message,
             }}
             til={{
+              disabled: arenaOpphav,
               ...register("sluttDato"),
               label: "Sluttdato",
               error: errors.sluttDato?.message,

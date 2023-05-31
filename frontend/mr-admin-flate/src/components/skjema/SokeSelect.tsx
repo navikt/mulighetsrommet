@@ -12,7 +12,6 @@ export interface SelectProps {
   label: string;
   placeholder: string;
   options: SelectOption[];
-  defaultValue?: string;
   disabled?: boolean;
   onChange?: (a0: any) => void;
   onInputChange?: (a0: any) => void;
@@ -24,7 +23,6 @@ const SokeSelect = React.forwardRef((props: SelectProps, _) => {
     label,
     placeholder,
     options,
-    defaultValue,
     disabled,
     onChange: providedOnChange,
     onInputChange: providedOnInputChange,
@@ -35,6 +33,7 @@ const SokeSelect = React.forwardRef((props: SelectProps, _) => {
     control: (provided: any, state: any) => ({
       ...provided,
       background: disabled ? "#F1F1F1" : "#fff",
+      color: "red",
       borderColor: isError ? "#C30000" : "#0000008f",
       borderWidth: isError ? "2px" : "1px",
       height: "50px",
@@ -54,6 +53,10 @@ const SokeSelect = React.forwardRef((props: SelectProps, _) => {
     placeholder: (provided: any) => ({
       ...provided,
       color: "#0000008f",
+    }),
+    singleValue: (provided: any) => ({
+      ...provided,
+      color: "black",
     }),
     menu: (provided: any) => ({
       ...provided,
@@ -81,8 +84,7 @@ const SokeSelect = React.forwardRef((props: SelectProps, _) => {
               ref={ref}
               noOptionsMessage={() => "Ingen funnet"}
               name={name}
-              defaultInputValue={defaultValue}
-              value={disabled ? null : options.find((c) => c.value === value)}
+              value={options.find((c) => c.value === value)}
               onChange={(e) => {
                 onChange(e?.value);
                 providedOnChange?.(e?.value);

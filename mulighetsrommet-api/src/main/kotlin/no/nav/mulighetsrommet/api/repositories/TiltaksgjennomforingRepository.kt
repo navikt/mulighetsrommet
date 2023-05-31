@@ -199,7 +199,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                        when e.enhetsnummer is null then null::jsonb
                        else jsonb_build_object('enhetsnummer', e.enhetsnummer, 'navn', ne.navn)
                      end
-                   ) as nav_enheter
+                   ) as nav_enheter,
+                   tg.opphav
             from tiltaksgjennomforing tg
                      inner join tiltakstype t on t.id = tg.tiltakstype_id
                      left join tiltaksgjennomforing_ansvarlig a on a.tiltaksgjennomforing_id = tg.id
@@ -295,6 +296,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                    t.navn as tiltakstype_navn,
                    tg.arena_ansvarlig_enhet,
                    tg.sanity_id,
+                   tg.opphav,
                    tg.avslutningsstatus,
                    tg.tilgjengelighet,
                    tg.antall_plasser,
@@ -499,6 +501,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             navEnheter = navEnheter,
             sanityId = stringOrNull("sanity_id"),
             oppstart = TiltaksgjennomforingDbo.Oppstartstype.valueOf(string("oppstart")),
+            opphav = ArenaMigrering.Opphav.valueOf(string("opphav")),
         )
     }
 
