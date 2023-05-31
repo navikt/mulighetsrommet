@@ -15,7 +15,7 @@ import "./index.css";
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      refetchOnWindowFocus: process.env.NODE_ENV !== "development",
+      refetchOnWindowFocus: true, // process.env.NODE_ENV !== "development",
     },
   },
 });
