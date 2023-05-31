@@ -26,6 +26,7 @@ import { useVirksomhet } from "../../api/virksomhet/useVirksomhet";
 import { Link } from "react-router-dom";
 import { isTiltakMedFellesOppstart } from "../../utils/tiltakskoder";
 import { mulighetsrommetClient } from "../../api/clients";
+import { useFeatureToggles } from "../../api/features/feature-toggles";
 
 const Schema = z.object({
   tittel: z.string().min(1, "Du må skrive inn tittel"),
@@ -134,6 +135,7 @@ export const OpprettTiltaksgjennomforingContainer = (
   const { navigerTilTiltaksgjennomforing } =
     useNavigerTilTiltaksgjennomforing();
 
+  const { data: features } = useFeatureToggles();
   const {
     data: enheter,
     isLoading: isLoadingEnheter,
@@ -161,6 +163,13 @@ export const OpprettTiltaksgjennomforingContainer = (
   const postData: SubmitHandler<inferredSchema> = async (
     data
   ): Promise<void> => {
+    if (!features?.["mulighetsrommet.admin-flate-lagre-data-fra-admin-flate"]) {
+      alert(
+        "Opprettelse av tiltaksgjennomføring er ikke skrudd på enda. Kontakt Team Valp ved spørsmål."
+      );
+      return;
+    }
+
     const body: TiltaksgjennomforingRequest = {
       id: tiltaksgjennomforing ? tiltaksgjennomforing.id : uuidv4(),
       antallPlasser: data.antallPlasser,
@@ -221,7 +230,7 @@ export const OpprettTiltaksgjennomforingContainer = (
       .filter(
         (enhet: NavEnhet) =>
           avtale?.navEnheter.length === 0 ||
-          avtale?.navEnheter.find(e => e.enhetsnummer === enhet.enhetsnummer)
+          avtale?.navEnheter.find((e) => e.enhetsnummer === enhet.enhetsnummer)
       )
       .map((enhet) => ({
         label: enhet.navn,

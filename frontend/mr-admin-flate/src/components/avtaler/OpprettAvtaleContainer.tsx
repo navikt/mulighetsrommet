@@ -28,6 +28,7 @@ import { SokeSelect } from "../skjema/SokeSelect";
 import styles from "./OpprettAvtaleContainer.module.scss";
 import { Datovelger } from "../skjema/Datovelger";
 import { AvtaleSchema, inferredSchema } from "./AvtaleSchema";
+import { useFeatureToggles } from "../../api/features/feature-toggles";
 
 interface OpprettAvtaleContainerProps {
   onAvbryt: () => void;
@@ -57,6 +58,7 @@ export function OpprettAvtaleContainer({
   );
   const { data: leverandorVirksomheter = [] } =
     useSokVirksomheter(sokLeverandor);
+  const { data: features } = useFeatureToggles();
 
   const clickCancel = () => {
     setFeil(null);
@@ -87,7 +89,7 @@ export function OpprettAvtaleContainer({
       navEnheter:
         avtale?.navEnheter.length === 0
           ? ["alle_enheter"]
-          : avtale?.navEnheter.map(e => e.enhetsnummer),
+          : avtale?.navEnheter.map((e) => e.enhetsnummer),
       avtaleansvarlig: avtale?.ansvarlig || ansatt?.ident || "",
       avtalenavn: getValueOrDefault(avtale?.navn, ""),
       avtaletype: getValueOrDefault(avtale?.avtaletype, Avtaletype.AVTALE),
@@ -134,6 +136,13 @@ export function OpprettAvtaleContainer({
   ): Promise<void> => {
     setFeil(null);
     setResult(null);
+
+    if (!features?.["mulighetsrommet.admin-flate-lagre-data-fra-admin-flate"]) {
+      alert(
+        "Opprettelse av avtale er ikke skrudd på enda. Kontakt Team Valp ved spørsmål."
+      );
+      return;
+    }
 
     const {
       antallPlasser,
