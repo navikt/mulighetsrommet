@@ -29,6 +29,7 @@ import styles from "./OpprettAvtaleContainer.module.scss";
 import { Datovelger } from "../skjema/Datovelger";
 import { AvtaleSchema, inferredSchema } from "./AvtaleSchema";
 import { useFeatureToggles } from "../../api/features/feature-toggles";
+import { arenaKodeErAftEllerVta } from "../../utils/tiltakskoder";
 
 interface OpprettAvtaleContainerProps {
   onAvbryt: () => void;
@@ -137,7 +138,17 @@ export function OpprettAvtaleContainer({
     setFeil(null);
     setResult(null);
 
-    if (!features?.["mulighetsrommet.admin-flate-lagre-data-fra-admin-flate"]) {
+    const arenaKodeForTiltakstype = tiltakstyper.find(
+      (type) => type.id === data.tiltakstype
+    )?.arenaKode;
+
+    const avtaleErVtaEllerAft = arenaKodeErAftEllerVta(arenaKodeForTiltakstype);
+
+    const enableAvtale = avtaleErVtaEllerAft
+      ? true
+      : features?.["mulighetsrommet.admin-flate-lagre-data-fra-admin-flate"];
+
+    if (!enableAvtale) {
       alert(
         "Opprettelse av avtale er ikke skrudd på enda. Kontakt Team Valp ved spørsmål."
       );
