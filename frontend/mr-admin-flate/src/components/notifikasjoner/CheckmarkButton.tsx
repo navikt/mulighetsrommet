@@ -35,6 +35,7 @@ export function CheckmarkButton({ id, read, setRead }: Props) {
       onClick={() => setStatus(NotificationStatus.NOT_DONE)}
       className={classNames(styles.button, styles.read)}
       size="medium"
+      aria-label="Knapp for å markere notifikasjon som ulest"
     >
       <CheckmarkCircleFillIcon fontSize={"2rem"} className={styles.icon} />
     </Button>
@@ -43,6 +44,7 @@ export function CheckmarkButton({ id, read, setRead }: Props) {
       onClick={() => setStatus(NotificationStatus.DONE)}
       className={classNames(styles.button, styles.unread)}
       size="medium"
+      aria-label="Knapp for å markere notifikasjon som lest"
     >
       <CheckmarkCircleIcon fontSize={"2rem"} className={styles.icon} />
     </Button>
