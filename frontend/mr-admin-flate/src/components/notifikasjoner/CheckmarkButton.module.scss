@@ -1,8 +1,35 @@
+$ulest: var(--a-surface-subtle);
+$ulest_ikon: var(--a-icon-subtle);
+$lest: var(--a-icon-success);
+
 .button {
   cursor: pointer;
+  background-color: white;
+  color: black;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-.greenFill {
-  color: #007C2E;
+.icon {
+  padding: 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
+.read {
+  color: $lest;
+
+  &:hover {
+    background-color: $ulest;
+    color: $ulest_ikon;
+  }
+}
+
+.unread {
+  &:hover {
+    background: $ulest;
+  }
+}

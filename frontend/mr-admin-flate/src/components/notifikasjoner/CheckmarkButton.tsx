@@ -7,6 +7,7 @@ import { NotificationStatus } from "mulighetsrommet-api-client";
 import classNames from "classnames";
 import styles from "./CheckmarkButton.module.scss";
 import { useSetNotificationStatus } from "../../api/notifikasjoner/useSetNotificationStatus";
+import { Button } from "@navikt/ds-react";
 
 interface Props {
   id: string;
@@ -30,16 +31,20 @@ export function CheckmarkButton({ id, read, setRead }: Props) {
   };
 
   return read ? (
-    <CheckmarkCircleFillIcon
-      fontSize={"1.5rem"}
+    <Button
       onClick={() => setStatus(NotificationStatus.NOT_DONE)}
-      className={classNames(styles.button, styles.greenFill)}
-    />
+      className={classNames(styles.button, styles.read)}
+      size="medium"
+    >
+      <CheckmarkCircleFillIcon fontSize={"2rem"} className={styles.icon} />
+    </Button>
   ) : (
-    <CheckmarkCircleIcon
-      fontSize={"1.5rem"}
+    <Button
       onClick={() => setStatus(NotificationStatus.DONE)}
-      className={styles.button}
-    />
+      className={classNames(styles.button, styles.unread)}
+      size="medium"
+    >
+      <CheckmarkCircleIcon fontSize={"2rem"} className={styles.icon} />
+    </Button>
   );
 }

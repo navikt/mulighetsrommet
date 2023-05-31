@@ -1,10 +1,10 @@
 import { BodyLong, BodyShort, Heading } from "@navikt/ds-react";
-import { UserNotification } from "mulighetsrommet-api-client";
-import { formaterDatoTid } from "../../utils/Utils";
-import styles from "./Notifikasjoner.module.scss";
-import { useState } from "react";
-import { CheckmarkButton } from "./CheckmarkButton";
 import classNames from "classnames";
+import { UserNotification } from "mulighetsrommet-api-client";
+import { useState } from "react";
+import { formaterDatoTid } from "../../utils/Utils";
+import { CheckmarkButton } from "./CheckmarkButton";
+import styles from "./Notifikasjoner.module.scss";
 
 interface NotifikasjonssradProps {
   notifikasjon: UserNotification;
