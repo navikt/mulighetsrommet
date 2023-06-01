@@ -13,6 +13,7 @@ import styles from "../DetaljerInfo.module.scss";
 import { NavLink, useParams } from "react-router-dom";
 import OpprettAvtaleModal from "../../components/avtaler/OpprettAvtaleModal";
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
+import SlettAvtaleModal from "../../components/avtaler/SlettAvtaleModal";
 
 export function Avtaleinfo() {
   const { avtaleId } = useParams<{ avtaleId: string }>();
@@ -22,9 +23,12 @@ export function Avtaleinfo() {
   const { data: avtale, isLoading, error } = useAvtale(avtaleId);
   const { data: features } = useFeatureToggles();
   const [redigerModal, setRedigerModal] = useState(false);
+  const [slettModal, setSlettModal] = useState(false);
 
   const handleRediger = () => setRedigerModal(true);
   const lukkRedigerModal = () => setRedigerModal(false);
+  const handleSlett = () => setSlettModal(true);
+  const lukkSlettModal = () => setSlettModal(false);
 
   if (!avtale && isLoading) {
     return <Laster tekst="Laster avtaleinformasjon..." />;
@@ -117,21 +121,42 @@ export function Avtaleinfo() {
         )}
       </div>
       <div className={styles.knapperad}>
-        {features?.["mulighetsrommet.admin-flate-rediger-avtale"] ? (
-          <Button
-            variant="tertiary"
-            onClick={handleRediger}
-            data-testid="endre-avtale"
-          >
-            Endre
-          </Button>
-        ) : null}
+        <div>
+          {features?.["mulighetsrommet.admin-flate-slett-avtale"] ? (
+            <Button
+              variant="tertiary-neutral"
+              onClick={handleSlett}
+              data-testid="slett-avtale"
+              className={styles.slett_knapp}
+            >
+              Slett
+            </Button>
+          ) : null}
+        </div>
+        <div>
+          {features?.["mulighetsrommet.admin-flate-rediger-avtale"] ? (
+            <Button
+              variant="tertiary"
+              onClick={handleRediger}
+              data-testid="endre-avtale"
+            >
+              Endre
+            </Button>
+          ) : null}
+        </div>
       </div>
       <OpprettAvtaleModal
         modalOpen={redigerModal}
         onClose={lukkRedigerModal}
         shouldCloseOnOverlayClick={true}
         avtale={avtale}
+      />
+      <SlettAvtaleModal
+        modalOpen={slettModal}
+        onClose={lukkSlettModal}
+        shouldCloseOnOverlayClick={true}
+        avtale={avtale}
+        handleRediger={() => setRedigerModal(true)}
       />
     </div>
   );

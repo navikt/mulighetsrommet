@@ -9,6 +9,7 @@ import {
   PaginertTiltaksgjennomforing,
   PaginertTiltakstype,
   PaginertUserNotifications,
+  SletteAvtale,
   Tiltaksgjennomforing,
   TiltaksgjennomforingNokkeltall,
   Tiltakstype,
@@ -78,6 +79,30 @@ export const apiHandlers = [
       );
     }
   ),
+
+  rest.delete<SletteAvtale>("/api/v1/internal/avtaler/:id", (req, res, ctx) => {
+    const responsErOk = Math.random() > 0.5;
+    if (responsErOk) {
+      return res(
+        ctx.status(200),
+        ctx.json<SletteAvtale>({
+          status: "200",
+          message: "Avtalen ble slettet",
+        })
+      );
+    }
+
+    const responses = [
+      "Avtalen er mellom start- og sluttdato og må avsluttes før den kan slettes.",
+      "Avtalen har 3 tiltaksgjennomføringer koblet til seg. Du må frikoble gjennomføringene før du kan slette avtalen.",
+    ];
+    const randomIndex = Math.floor(Math.random() * responses.length);
+
+    return res(
+      ctx.status(200),
+      ctx.json<SletteAvtale>({ status: "400", message: responses[randomIndex] })
+    );
+  }),
 
   rest.get<any, any, NavEnhet[]>(
     "*/api/v1/internal/enheter",
@@ -259,7 +284,8 @@ export const apiHandlers = [
       return res(ctx.status(200), ctx.json(mockUserNotificationSummary));
     }
   ),
-  rest.post<any, any, any>( "*/api/v1/internal/notifications/:id/status",
+  rest.post<any, any, any>(
+    "*/api/v1/internal/notifications/:id/status",
     (req, res, ctx) => {
       return res(ctx.status(200));
     }

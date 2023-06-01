@@ -4,7 +4,6 @@ import arrow.core.flatMap
 import arrow.core.getOrElse
 import io.ktor.http.*
 import io.ktor.server.plugins.*
-import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleNokkeltallDto
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
@@ -46,30 +45,35 @@ class AvtaleService(
         val optionalAvtale = avtaler.get(id).getOrNull()
             ?: throw NotFoundException("Fant ikke avtale for sletting")
 
-        if (optionalAvtale.startDato < currentDate && optionalAvtale.sluttDato > currentDate) {
+        if (optionalAvtale.startDato <= currentDate && optionalAvtale.sluttDato >= currentDate) {
             return SletteAvtaleDto(
-                statusCode = HttpStatusCode.BadRequest,
+                statusCode = HttpStatusCode.BadRequest.value,
                 message = "Avtalen er mellom start- og sluttdato og må avsluttes før den kan slettes.",
             )
         }
 
         val gjennomforingerForAvtale =
-            tiltaksgjennomforinger.getAll(filter = AdminTiltaksgjennomforingFilter(avtaleId = id, dagensDato = currentDate))
+            tiltaksgjennomforinger.getAll(
+                filter = AdminTiltaksgjennomforingFilter(
+                    avtaleId = id,
+                    dagensDato = currentDate,
+                ),
+            )
                 .getOrElse { Pair(0, emptyList()) }
         if (gjennomforingerForAvtale.first > 0) {
             return SletteAvtaleDto(
-                statusCode = HttpStatusCode.BadRequest,
-                message = "Avtalen har ${gjennomforingerForAvtale.first} tiltaksgjennomføringer koblet til seg. Du må frikoble gjennomføringene før du kan slette avtalen.",
+                statusCode = HttpStatusCode.BadRequest.value,
+                message = "Avtalen har ${gjennomforingerForAvtale.first} ${if (gjennomforingerForAvtale.first > 1) "tiltaksgjennomføringer" else "tiltaksgjennomføring"} koblet til seg. Du må frikoble gjennomføringene før du kan slette avtalen.",
             )
         }
 
         val deleteResponse = avtaler.delete(id)
 
         return deleteResponse.map {
-            SletteAvtaleDto(statusCode = HttpStatusCode.OK, message = "Avtalen ble slettet")
+            SletteAvtaleDto(statusCode = HttpStatusCode.OK.value, message = "Avtalen ble slettet")
         }.mapLeft {
             SletteAvtaleDto(
-                statusCode = HttpStatusCode.InternalServerError,
+                statusCode = HttpStatusCode.InternalServerError.value,
                 "Det oppsto en feil ved sletting av avtalen",
                 cause = it.error.message,
             )
@@ -111,8 +115,7 @@ class AvtaleService(
 
 @Serializable
 data class SletteAvtaleDto(
-    @Contextual
-    val statusCode: HttpStatusCode,
+    val statusCode: Int,
     val message: String,
     val cause: String? = null,
 )

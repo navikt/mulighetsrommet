@@ -48,13 +48,13 @@ class AvtaleServiceTest : FunSpec({
             val currentDate = LocalDate.of(2023, 6, 1)
             val avtale = avtaleFixture.createAvtaleForTiltakstype(
                 navn = "Avtale som eksisterer",
-                startDato = LocalDate.of(2023, 5, 17),
+                startDato = LocalDate.of(2023, 6, 1),
                 sluttDato = LocalDate.of(2023, 7, 1),
             )
             avtaleFixture.upsertAvtaler(listOf(avtale))
 
             val response = avtaleService.delete(avtale.id, currentDate = currentDate)
-            response.statusCode shouldBe HttpStatusCode.BadRequest
+            response.statusCode shouldBe HttpStatusCode.BadRequest.value
             response.message shouldBe "Avtalen er mellom start- og sluttdato og må avsluttes før den kan slettes."
         }
 
@@ -95,7 +95,7 @@ class AvtaleServiceTest : FunSpec({
             tiltaksgjennomforinger.upsert(oppfolging2).shouldBeRight()
 
             val response = avtaleService.delete(avtale.id, currentDate = currentDate)
-            response.statusCode shouldBe HttpStatusCode.BadRequest
+            response.statusCode shouldBe HttpStatusCode.BadRequest.value
             response.message shouldBe "Avtalen har 2 tiltaksgjennomføringer koblet til seg. Du må frikoble gjennomføringene før du kan slette avtalen."
         }
 
@@ -108,7 +108,7 @@ class AvtaleServiceTest : FunSpec({
             )
             avtaleRepository.upsert(avtale).right()
             val response = avtaleService.delete(avtale.id, currentDate = currentDate)
-            response.statusCode shouldBe HttpStatusCode.OK
+            response.statusCode shouldBe HttpStatusCode.OK.value
             response.message shouldBe "Avtalen ble slettet"
         }
     }
