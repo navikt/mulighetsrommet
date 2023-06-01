@@ -7,6 +7,7 @@ import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
 import no.nav.mulighetsrommet.api.domain.dbo.toOverordnetEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
 import no.nav.mulighetsrommet.api.repositories.VirksomhetRepository
+import no.nav.mulighetsrommet.api.utils.VirksomhetFilter
 import no.nav.mulighetsrommet.database.utils.getOrThrow
 import no.nav.mulighetsrommet.metrics.Metrikker
 import no.nav.mulighetsrommet.utils.CacheUtils
@@ -29,6 +30,10 @@ class VirksomhetService(
         val cacheMetrics: CacheMetricsCollector =
             CacheMetricsCollector().register(Metrikker.appMicrometerRegistry.prometheusRegistry)
         cacheMetrics.addCache("brregServiceCache", brregServiceCache)
+    }
+
+    fun getAll(filter: VirksomhetFilter): List<VirksomhetDto> {
+        return virksomhetRepository.getAll(filter).getOrThrow()
     }
 
     suspend fun hentEnhet(orgnr: String): VirksomhetDto? {

@@ -64,6 +64,22 @@ enum class Tiltakstypekategori {
     INDIVIDUELL, GRUPPE
 }
 
+data class VirksomhetFilter(
+    val til: VirksomhetTil? = null,
+)
+
+enum class VirksomhetTil {
+    AVTALE,
+    TILTAKSGJENNOMFORING,
+}
+
+fun <T : Any> PipelineContext<T, ApplicationCall>.getVirksomhetFilter(): VirksomhetFilter {
+    val til = call.request.queryParameters["til"]
+    return VirksomhetFilter(
+        til = til?.let { VirksomhetTil.valueOf(it) },
+    )
+}
+
 fun <T : Any> PipelineContext<T, ApplicationCall>.getNotificationFilter(): NotificationFilter {
     val status = call.request.queryParameters["status"]
     return NotificationFilter(
