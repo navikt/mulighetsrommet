@@ -1312,6 +1312,14 @@ components:
         - ARENA
         - MR_ADMIN_FLATE
 
+    VirksomhetTil:
+      type: string
+      enum:
+        - AVTALE
+        - TILTAKSGJENNOMFORING
+        - AVSLUTTET
+        - IKKE_AVSLUTTET
+
     Bruker:
       type: object
       properties:
