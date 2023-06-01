@@ -94,8 +94,8 @@ data class TiltaksgjennomforingRequest(
     val oppstart: TiltaksgjennomforingDbo.Oppstartstype,
 ) {
     fun toDbo(): StatusResponse<TiltaksgjennomforingDbo> {
-        if (sluttDato.isBefore(startDato)) {
-            return Either.Left(BadRequest("Sluttdato kan ikke være før startdato"))
+        if (!startDato.isBefore(sluttDato)) {
+            return Either.Left(BadRequest("Startdato må være før sluttdato"))
         }
         if (antallPlasser <= 0) {
             return Either.Left(BadRequest("Antall plasser må være større enn 0"))

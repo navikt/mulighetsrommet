@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.routes.v1
 
+import arrow.core.Either
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
@@ -7,6 +8,9 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.routes.v1.responses.BadRequest
+import no.nav.mulighetsrommet.api.routes.v1.responses.StatusResponse
+import no.nav.mulighetsrommet.api.routes.v1.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.services.AvtaleService
 import no.nav.mulighetsrommet.api.utils.getAvtaleFilter
 import no.nav.mulighetsrommet.api.utils.getPaginationParams
@@ -64,12 +68,12 @@ fun Route.avtaleRoutes() {
         put {
             val avtaleRequest = call.receive<AvtaleRequest>()
 
-            avtaler.upsert(avtaleRequest)
-                .map { call.respond(it) }
-                .mapLeft {
-                    logError(logger, it.error)
-                    call.respond(HttpStatusCode.InternalServerError, "Kunne ikke opprette avtale")
+            val result = avtaleRequest.toDbo()
+                .map { avtaler.upsert(it) }
+                .onLeft {
+                    logger.error(it.message)
                 }
+            call.respondWithStatusResponse(result)
         }
 
         delete("{id}") {
@@ -108,26 +112,35 @@ data class AvtaleRequest(
     val navEnheter: List<String> = emptyList(),
     val opphav: ArenaMigrering.Opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
 ) {
-    fun toDbo(): AvtaleDbo {
-        return AvtaleDbo(
-            id = id ?: UUID.randomUUID(),
-            navn = navn,
-            avtalenummer = avtalenummer,
-            tiltakstypeId = tiltakstypeId,
-            leverandorOrganisasjonsnummer = leverandorOrganisasjonsnummer,
-            leverandorUnderenheter = leverandorUnderenheter,
-            startDato = startDato,
-            sluttDato = sluttDato,
-            arenaAnsvarligEnhet = null,
-            navRegion = navRegion,
-            avtaletype = avtaletype,
-            avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
-            antallPlasser = antallPlasser,
-            url = url,
-            ansvarlige = listOf(ansvarlig),
-            prisbetingelser = prisOgBetalingsinformasjon,
-            navEnheter = navEnheter,
-            opphav = opphav,
+    fun toDbo(): StatusResponse<AvtaleDbo> {
+        if (!startDato.isBefore(sluttDato)) {
+            return Either.Left(BadRequest("Startdato må være før sluttdato"))
+        }
+        if (antallPlasser <= 0) {
+            return Either.Left(BadRequest("Antall plasser må være større enn 0"))
+        }
+
+        return Either.Right(
+            AvtaleDbo(
+                id = id ?: UUID.randomUUID(),
+                navn = navn,
+                avtalenummer = avtalenummer,
+                tiltakstypeId = tiltakstypeId,
+                leverandorOrganisasjonsnummer = leverandorOrganisasjonsnummer,
+                leverandorUnderenheter = leverandorUnderenheter,
+                startDato = startDato,
+                sluttDato = sluttDato,
+                arenaAnsvarligEnhet = null,
+                navRegion = navRegion,
+                avtaletype = avtaletype,
+                avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
+                antallPlasser = antallPlasser,
+                url = url,
+                ansvarlige = listOf(ansvarlig),
+                prisbetingelser = prisOgBetalingsinformasjon,
+                navEnheter = navEnheter,
+                opphav = opphav,
+            ),
         )
     }
 }
