@@ -4,6 +4,7 @@ import {
   Avtalestatus,
   Norg2Type,
   Tiltakstypestatus,
+  VirksomhetTil,
 } from "mulighetsrommet-api-client";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { avtaleFilter, avtalePaginationAtom } from "../../api/atoms";
@@ -17,6 +18,7 @@ import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
 import { resetPaginering } from "../../utils/Utils";
 import OpprettAvtaleModal from "../avtaler/OpprettAvtaleModal";
 import styles from "./Filter.module.scss";
+import { useVirksomheter } from "../../api/virksomhet/useVirksomheter";
 
 type Filters = "tiltakstype";
 
@@ -32,6 +34,7 @@ export function Avtalefilter(props: Props) {
     1
   );
   const { data } = useAvtaler();
+  const { data: leverandorer } = useVirksomheter(VirksomhetTil.AVTALE);
   const [, setPage] = useAtom(avtalePaginationAtom);
   const searchRef = useRef<HTMLDivElement | null>(null);
   const [modalOpen, setModalOpen] = useState<boolean>(false);
@@ -46,10 +49,6 @@ export function Avtalefilter(props: Props) {
       searchRef?.current?.focus();
     }
   }, [data]);
-
-  const leverandorer = {
-    data: [{ id: "123", orgnr: "123456789", navn: "Dummy Dummysen" }],
-  };
 
   return (
     <>
@@ -140,8 +139,11 @@ export function Avtalefilter(props: Props) {
             }}
           >
             <option value="">Alle leverandører</option>
-            {leverandorer?.data?.map((leverandor) => (
-              <option key={leverandor.id} value={leverandor.id}>
+            {leverandorer?.map((leverandor) => (
+              <option
+                key={leverandor.organisasjonsnummer}
+                value={leverandor.organisasjonsnummer}
+              >
                 {leverandor.navn}
               </option>
             ))}

@@ -115,7 +115,7 @@ class VirksomhetRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val selectVirksomheter = """
-            select
+            select distinct
                 v.organisasjonsnummer,
                 v.overordnet_enhet,
                 v.navn,
@@ -123,6 +123,7 @@ class VirksomhetRepository(private val db: Database) {
                 v.poststed
             from virksomhet v
                 $join
+            order by v.navn asc
         """.trimIndent()
 
         queryOf(selectVirksomheter)

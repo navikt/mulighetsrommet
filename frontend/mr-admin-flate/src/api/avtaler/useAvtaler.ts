@@ -22,7 +22,6 @@ export function useAvtaler() {
       page
     ),
     () => {
-      // TODO Oppdater getAvtaler til å ta i mot leverandørens orgnr for filtrering
       return mulighetsrommetClient.avtaler.getAvtaler({
         tiltakstypeId: filter.tiltakstype || undefined,
         search: debouncedSok || undefined,
@@ -31,6 +30,7 @@ export function useAvtaler() {
         sort: filter.sortering,
         page,
         size: AVTALE_PAGE_SIZE,
+        leverandorOrgnr: filter.leverandor_orgnr || undefined,
       });
     }
   );
