@@ -5,7 +5,6 @@ import io.ktor.server.plugins.*
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleNokkeltallDto
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
-import no.nav.mulighetsrommet.api.routes.v1.AvtaleRequest
 import no.nav.mulighetsrommet.api.routes.v1.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.routes.v1.responses.Pagination
 import no.nav.mulighetsrommet.api.routes.v1.responses.ServerError
@@ -34,7 +33,7 @@ class AvtaleService(
         return avtaler.upsert(avtale)
             .flatMap { avtaler.get(avtale.id) }
             .map { it!! } // If upsert is succesfull it should exist here
-            .mapLeft { ServerError("Internal Error while upserting avtale: $it")  }
+            .mapLeft { ServerError("Internal Error while upserting avtale: $it") }
     }
 
     fun delete(id: UUID): QueryResult<Int> {
