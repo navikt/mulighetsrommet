@@ -6,12 +6,12 @@ export const historikk: HistorikkForBruker[] = genererHistorikk();
 function genererHistorikk(): HistorikkForBruker[] {
   const forUnder = [
     {
-      id: faker.git.shortSha(),
+      id: faker.git.commitSha({ length: 7 }),
       fnr: '12345678910',
       fraDato: undefined,
-      tilDato: faker.date.soon(10).toString(),
+      tilDato: faker.date.soon({ days: 10 }),
       status: faker.helpers.arrayElement(['VENTER']),
-      tiltaksnummer: faker.random.numeric(6),
+      tiltaksnummer: faker.string.numeric(6),
       tiltaksnavn: faker.company.catchPhrase(),
       tiltakstype: faker.helpers.arrayElement([
         'Lønnstilskudd',
@@ -30,12 +30,12 @@ function genererHistorikk(): HistorikkForBruker[] {
       arrangor: faker.helpers.arrayElement(['AS3', 'Adecco', 'Jobbklubben', 'Kom i Arbeid AS']),
     },
     {
-      id: faker.git.shortSha(),
+      id: faker.git.commitSha({ length: 7 }),
       fnr: '12345678910',
-      fraDato: faker.date.recent(10).toString(),
-      tilDato: faker.date.soon(10).toString(),
+      fraDato: faker.date.recent({ days: 10 }).toString(),
+      tilDato: faker.date.soon({ days: 10 }),
       status: faker.helpers.arrayElement(['VENTER']),
-      tiltaksnummer: faker.random.numeric(6),
+      tiltaksnummer: faker.string.numeric(6),
       tiltaksnavn: faker.company.catchPhrase(),
       tiltakstype: faker.helpers.arrayElement([
         'Lønnstilskudd',
@@ -54,12 +54,12 @@ function genererHistorikk(): HistorikkForBruker[] {
       arrangor: faker.helpers.arrayElement(['AS3', 'Adecco', 'Jobbklubben', 'Kom i Arbeid AS']),
     },
     {
-      id: faker.git.shortSha(),
+      id: faker.git.commitSha({ length: 7 }),
       fnr: '12345678910',
-      fraDato: faker.date.recent(10).toString(),
-      tilDato: faker.date.soon(10).toString(),
+      fraDato: faker.date.recent({ days: 10 }).toString(),
+      tilDato: faker.date.soon({ days: 10 }),
       status: faker.helpers.arrayElement(['DELTAR']),
-      tiltaksnummer: faker.random.numeric(6),
+      tiltaksnummer: faker.string.numeric(6),
       tiltaksnavn: faker.company.catchPhrase(),
       tiltakstype: faker.helpers.arrayElement([
         'Lønnstilskudd',
@@ -78,12 +78,12 @@ function genererHistorikk(): HistorikkForBruker[] {
       arrangor: faker.helpers.arrayElement(['AS3', 'Adecco', 'Jobbklubben', 'Kom i Arbeid AS']),
     },
     {
-      id: faker.git.shortSha(),
+      id: faker.git.commitSha({ length: 7 }),
       fnr: '12345678910',
-      fraDato: faker.date.recent(10).toString(),
-      tilDato: faker.date.soon(10).toString(),
+      fraDato: faker.date.recent({ days: 10 }).toString(),
+      tilDato: faker.date.soon({ days: 10 }),
       status: faker.helpers.arrayElement(['AVSLUTTET', 'IKKE_AKTUELL']),
-      tiltaksnummer: faker.random.numeric(6),
+      tiltaksnummer: faker.string.numeric(6),
       tiltaksnavn: faker.company.catchPhrase(),
       tiltakstype: faker.helpers.arrayElement([
         'Lønnstilskudd',
@@ -102,12 +102,12 @@ function genererHistorikk(): HistorikkForBruker[] {
       arrangor: faker.helpers.arrayElement(['AS3', 'Adecco', 'Jobbklubben', 'Kom i Arbeid AS']),
     },
     {
-      id: faker.git.shortSha(),
+      id: faker.git.commitSha({ length: 7 }),
       fnr: '12345678910',
-      fraDato: faker.date.recent(10).toString(),
-      tilDato: faker.date.soon(10).toString(),
+      fraDato: faker.date.recent({ days: 10 }).toString(),
+      tilDato: faker.date.soon({ days: 10 }),
       status: faker.helpers.arrayElement(['AVSLUTTET', 'IKKE_AKTUELL']),
-      tiltaksnummer: faker.random.numeric(6),
+      tiltaksnummer: faker.string.numeric(6),
       tiltaksnavn: faker.company.catchPhrase(),
       tiltakstype: faker.helpers.arrayElement([
         'Lønnstilskudd',
@@ -126,12 +126,12 @@ function genererHistorikk(): HistorikkForBruker[] {
       arrangor: faker.helpers.arrayElement(['AS3', 'Adecco', 'Jobbklubben', 'Kom i Arbeid AS']),
     },
     {
-      id: faker.git.shortSha(),
+      id: faker.git.commitSha({ length: 7 }),
       fnr: '12345678910',
-      fraDato: faker.date.recent(10).toString(),
-      tilDato: faker.date.soon(10).toString(),
+      fraDato: faker.date.recent({ days: 10 }).toString(),
+      tilDato: faker.date.soon({ days: 10 }),
       status: faker.helpers.arrayElement(['AVSLUTTET', 'IKKE_AKTUELL']),
-      tiltaksnummer: faker.random.numeric(6),
+      tiltaksnummer: faker.string.numeric(6),
       tiltaksnavn: faker.company.catchPhrase(),
       tiltakstype: faker.helpers.arrayElement([
         'Lønnstilskudd',
@@ -150,12 +150,12 @@ function genererHistorikk(): HistorikkForBruker[] {
       arrangor: faker.helpers.arrayElement(['AS3', 'Adecco', 'Jobbklubben', 'Kom i Arbeid AS']),
     },
     {
-      id: faker.git.shortSha(),
+      id: faker.git.commitSha({ length: 7 }),
       fnr: '12345678910',
-      fraDato: faker.date.recent(10).toString(),
-      tilDato: faker.date.soon(10).toString(),
+      fraDato: faker.date.recent({ days: 10 }).toString(),
+      tilDato: faker.date.soon({ days: 10 }),
       status: faker.helpers.arrayElement(['AVSLUTTET', 'IKKE_AKTUELL']),
-      tiltaksnummer: faker.random.numeric(6),
+      tiltaksnummer: faker.string.numeric(6),
       tiltaksnavn: faker.company.catchPhrase(),
       tiltakstype: faker.helpers.arrayElement([
         'Lønnstilskudd',
