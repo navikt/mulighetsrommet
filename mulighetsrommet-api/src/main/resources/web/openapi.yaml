@@ -756,6 +756,27 @@ paths:
                 items:
                   $ref: "#/components/schemas/NavEnhet"
 
+  /api/v1/internal/virksomhet:
+    get:
+      tags:
+        - Virksomhet
+      operationId: getVirksomheter
+      parameters:
+        - in: query
+          name: til
+          schema:
+            $ref: "#/components/schemas/VirksomhetTil"
+          description: Hent virksomheter tilhørende avtaler eller gjennomforinger
+      responses:
+        200:
+          description: Liste med virksomheter
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Virksomhet"
+
   /api/v1/internal/virksomhet/{orgnr}:
     get:
       tags:
@@ -1290,6 +1311,14 @@ components:
       enum:
         - ARENA
         - MR_ADMIN_FLATE
+
+    VirksomhetTil:
+      type: string
+      enum:
+        - AVTALE
+        - TILTAKSGJENNOMFORING
+        - AVSLUTTET
+        - IKKE_AVSLUTTET
 
     Bruker:
       type: object

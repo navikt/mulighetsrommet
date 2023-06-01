@@ -5,13 +5,26 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.OverordnetEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
+import no.nav.mulighetsrommet.api.utils.VirksomhetFilter
+import no.nav.mulighetsrommet.api.utils.VirksomhetTil
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
+import no.nav.mulighetsrommet.database.utils.getOrThrow
+import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
+import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
+import no.nav.mulighetsrommet.domain.dbo.AvtaleDbo
+import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
+import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
+import no.nav.mulighetsrommet.domain.dto.Avtaletype
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.util.*
 
 class VirksomhetRepositoryTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
@@ -181,6 +194,90 @@ class VirksomhetRepositoryTest : FunSpec({
             }
             virksomhetRepository.get(overordnet.organisasjonsnummer).shouldBeRight().should {
                 it shouldBe null
+            }
+        }
+
+        test("Filter på avtale eller gjennomforing") {
+            val virksomhetRepository = VirksomhetRepository(database.db)
+            val avtaleRepository = AvtaleRepository(database.db)
+            val tiltakstypeRepository = TiltakstypeRepository(database.db)
+            val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
+
+            val tiltakstypeId = UUID.randomUUID()
+            tiltakstypeRepository.upsert(
+                TiltakstypeDbo(
+                    tiltakstypeId,
+                    "",
+                    "",
+                    rettPaaTiltakspenger = true,
+                    registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
+                    sistEndretDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
+                    fraDato = LocalDate.of(2023, 1, 11),
+                    tilDato = LocalDate.of(2023, 1, 12),
+                ),
+            ).getOrThrow()
+
+            val avtale = AvtaleDbo(
+                id = UUID.randomUUID(),
+                navn = "Navn",
+                tiltakstypeId = tiltakstypeId,
+                leverandorOrganisasjonsnummer = "982254604",
+                leverandorUnderenheter = emptyList(),
+                startDato = LocalDate.now(),
+                sluttDato = LocalDate.now(),
+                arenaAnsvarligEnhet = null,
+                navRegion = null,
+                navEnheter = emptyList(),
+                avtaletype = Avtaletype.Avtale,
+                avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
+                opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
+            )
+            avtaleRepository.upsert(avtale).shouldBeRight()
+            val tiltaksgjennomforing = TiltaksgjennomforingDbo(
+                id = UUID.randomUUID(),
+                navn = "Navn",
+                tiltakstypeId = tiltakstypeId,
+                tiltaksnummer = null,
+                virksomhetsnummer = "112254604",
+                startDato = LocalDate.now(),
+                arenaAnsvarligEnhet = null,
+                avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
+                tilgjengelighet = TiltaksgjennomforingDbo.Tilgjengelighetsstatus.Ledig,
+                antallPlasser = null,
+                ansvarlige = emptyList(),
+                navEnheter = emptyList(),
+                oppstart = TiltaksgjennomforingDbo.Oppstartstype.FELLES,
+                opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
+            )
+            tiltaksgjennomforingRepository.upsert(tiltaksgjennomforing).shouldBeRight()
+
+            val virksomhet1 = VirksomhetDto(
+                navn = "REMA 1000 AS",
+                organisasjonsnummer = "982254604",
+                underenheter = null,
+                postnummer = "5174",
+                poststed = "Mathopen",
+            )
+            val virksomhet2 = VirksomhetDto(
+                navn = "TEMA 2004 AS",
+                organisasjonsnummer = "112254604",
+                underenheter = null,
+                postnummer = "5174",
+                poststed = "Mathopen",
+            )
+            virksomhetRepository.upsert(virksomhet1).shouldBeRight()
+            virksomhetRepository.upsert(virksomhet2).shouldBeRight()
+
+            virksomhetRepository.getAll(VirksomhetFilter(til = VirksomhetTil.AVTALE)).shouldBeRight().should {
+                it.size shouldBe 1
+                it[0] shouldBe virksomhet1
+            }
+            virksomhetRepository.getAll(VirksomhetFilter(til = VirksomhetTil.TILTAKSGJENNOMFORING)).shouldBeRight().should {
+                it.size shouldBe 1
+                it[0] shouldBe virksomhet2
+            }
+            virksomhetRepository.getAll(VirksomhetFilter(til = null)).shouldBeRight().should {
+                it shouldContainExactlyInAnyOrder listOf(virksomhet1, virksomhet2)
             }
         }
     }

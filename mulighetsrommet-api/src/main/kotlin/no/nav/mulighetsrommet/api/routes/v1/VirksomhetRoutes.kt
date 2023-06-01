@@ -8,12 +8,18 @@ import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import no.nav.mulighetsrommet.api.clients.brreg.OrgnummerUtil
 import no.nav.mulighetsrommet.api.services.VirksomhetService
+import no.nav.mulighetsrommet.api.utils.getVirksomhetFilter
 import org.koin.ktor.ext.inject
 
 fun Route.virksomhetRoutes() {
     val virksomhetService: VirksomhetService by inject()
 
     route("api/v1/internal/virksomhet") {
+        get {
+            val filter = getVirksomhetFilter()
+            call.respond(virksomhetService.getAll(filter))
+        }
+
         get("{orgnr}") {
             val orgnr = call.parameters.getOrFail("orgnr")
 
