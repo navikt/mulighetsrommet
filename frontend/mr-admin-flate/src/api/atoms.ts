@@ -79,6 +79,7 @@ const avtaleFilter = atomWithHash<{
   navRegion: string;
   tiltakstype: string;
   sortering: SorteringAvtaler;
+  leverandor_orgnr: string;
 }>(
   "avtalefilter",
   {
@@ -87,6 +88,7 @@ const avtaleFilter = atomWithHash<{
     navRegion: "",
     tiltakstype: "",
     sortering: SorteringAvtaler.NAVN_ASCENDING,
+    leverandor_orgnr: "",
   },
   { setHash: "replaceState" }
 );

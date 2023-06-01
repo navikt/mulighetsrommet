@@ -18,9 +18,11 @@ export function useAvtaler() {
       filter.status,
       filter.navRegion,
       filter.sortering,
+      filter.leverandor_orgnr,
       page
     ),
     () => {
+      // TODO Oppdater getAvtaler til å ta i mot leverandørens orgnr for filtrering
       return mulighetsrommetClient.avtaler.getAvtaler({
         tiltakstypeId: filter.tiltakstype || undefined,
         search: debouncedSok || undefined,

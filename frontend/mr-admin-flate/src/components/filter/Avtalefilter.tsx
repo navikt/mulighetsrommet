@@ -47,6 +47,10 @@ export function Avtalefilter(props: Props) {
     }
   }, [data]);
 
+  const leverandorer = {
+    data: [{ id: "123", orgnr: "123456789", navn: "Dummy Dummysen" }],
+  };
+
   return (
     <>
       <div className={styles.filter_container}>
@@ -124,6 +128,24 @@ export function Avtalefilter(props: Props) {
               ))}
             </Select>
           )}
+          <Select
+            label="Filtrer på leverandør"
+            hideLabel
+            size="small"
+            value={filter.leverandor_orgnr}
+            data-testid="filter_avtale_leverandor"
+            onChange={(e: ChangeEvent<HTMLSelectElement>) => {
+              resetPaginering(setPage);
+              setFilter({ ...filter, leverandor_orgnr: e.currentTarget.value });
+            }}
+          >
+            <option value="">Alle leverandører</option>
+            {leverandorer?.data?.map((leverandor) => (
+              <option key={leverandor.id} value={leverandor.id}>
+                {leverandor.navn}
+              </option>
+            ))}
+          </Select>
         </div>
         <div className={styles.filter_right}>
           {visOpprettAvtaleknapp && (
