@@ -8,14 +8,16 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleNokkeltallDto
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
-import no.nav.mulighetsrommet.api.routes.v1.AvtaleRequest
 import no.nav.mulighetsrommet.api.routes.v1.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.routes.v1.responses.Pagination
+import no.nav.mulighetsrommet.api.routes.v1.responses.ServerError
+import no.nav.mulighetsrommet.api.routes.v1.responses.StatusResponse
 import no.nav.mulighetsrommet.api.utils.AdminTiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.api.utils.AvtaleFilter
 import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
+import no.nav.mulighetsrommet.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.domain.dto.AvtaleAdminDto
 import no.nav.mulighetsrommet.domain.dto.AvtaleNotificationDto
 import no.nav.mulighetsrommet.ktor.exception.StatusException
@@ -31,15 +33,14 @@ class AvtaleService(
         return avtaler.get(id)
     }
 
-    suspend fun upsert(avtale: AvtaleRequest): QueryResult<AvtaleAdminDto> {
-        val avtaleDbo = avtale.toDbo()
-
+    suspend fun upsert(avtale: AvtaleDbo): StatusResponse<AvtaleAdminDto> {
         virksomhetService.hentEnhet(avtale.leverandorOrganisasjonsnummer)
             ?: throw BadRequestException("leverandør ${avtale.leverandorOrganisasjonsnummer} finnes ikke")
 
-        return avtaler.upsert(avtaleDbo)
-            .flatMap { avtaler.get(avtaleDbo.id) }
+        return avtaler.upsert(avtale)
+            .flatMap { avtaler.get(avtale.id) }
             .map { it!! } // If upsert is succesfull it should exist here
+            .mapLeft { ServerError("Internal Error while upserting avtale: $it") }
     }
 
     fun delete(id: UUID, currentDate: LocalDate = LocalDate.now()): SletteAvtaleDto {
