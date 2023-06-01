@@ -28,6 +28,7 @@ data class AvtaleFilter(
     val navRegion: String? = null,
     val sortering: String? = null,
     val dagensDato: LocalDate = LocalDate.now(),
+    val leverandorOrgnr: String? = null,
 )
 
 data class AdminTiltaksgjennomforingFilter(
@@ -109,12 +110,14 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getAvtaleFilter(): AvtaleFilte
         call.request.queryParameters["avtalestatus"]?.let { status -> Avtalestatus.valueOf(status) }
     val navRegion = call.request.queryParameters["navRegion"]
     val sortering = call.request.queryParameters["sort"]
+    val leverandorOrgnr = call.request.queryParameters["leverandorOrgnr"]
     return AvtaleFilter(
         tiltakstypeId = tiltakstypeId,
         search = search,
         avtalestatus = avtalestatus,
         navRegion = navRegion,
         sortering = sortering,
+        leverandorOrgnr = leverandorOrgnr,
     )
 }
 

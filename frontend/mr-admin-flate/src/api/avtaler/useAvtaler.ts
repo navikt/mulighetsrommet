@@ -18,6 +18,7 @@ export function useAvtaler() {
       filter.status,
       filter.navRegion,
       filter.sortering,
+      filter.leverandor_orgnr,
       page
     ),
     () => {
@@ -29,6 +30,7 @@ export function useAvtaler() {
         sort: filter.sortering,
         page,
         size: AVTALE_PAGE_SIZE,
+        leverandorOrgnr: filter.leverandor_orgnr || undefined,
       });
     }
   );

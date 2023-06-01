@@ -128,6 +128,11 @@ paths:
           name: sort
           schema:
             $ref: "#/components/schemas/SorteringAvtaler"
+        - in: query
+          name: leverandorOrgnr
+          schema:
+            type: string
+          description: Organisasjonsnummer til leverandør for avtaler
       responses:
         200:
           description: Object of paginated avtaler connected to specified tiltakstype-id.
@@ -1317,8 +1322,6 @@ components:
       enum:
         - AVTALE
         - TILTAKSGJENNOMFORING
-        - AVSLUTTET
-        - IKKE_AVSLUTTET
 
     Bruker:
       type: object
