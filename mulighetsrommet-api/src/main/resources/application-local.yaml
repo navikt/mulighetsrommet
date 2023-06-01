@@ -95,6 +95,7 @@ app:
       disabled: true
       cronPattern: "0 */1 * * * *" # Hvert 1 minutt
     notifyFailedKafkaEvents:
+      disabled: true
       maxRetries: 5
       delayOfMinutes: 15
 

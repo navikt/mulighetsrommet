@@ -70,7 +70,11 @@ fun createTestApplicationConfig(oauth: MockOAuth2Server) = AppConfig(
             disabled = true,
         ),
         notifySluttdatoForAvtalerNarmerSeg = NotifySluttdatoForAvtalerNarmerSeg.Config(disabled = true),
-        notifyFailedKafkaEvents = NotifyFailedKafkaEvents.Config(),
+        notifyFailedKafkaEvents = NotifyFailedKafkaEvents.Config(
+            disabled = true,
+            delayOfMinutes = 15,
+            maxRetries = 5,
+        ),
     ),
     norg2 = Norg2Config(baseUrl = ""),
     slack = SlackConfig(

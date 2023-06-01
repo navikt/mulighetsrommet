@@ -2,7 +2,9 @@ package no.nav.mulighetsrommet.api.tasks
 
 import com.github.kagkarlsson.scheduler.task.helper.RecurringTask
 import com.github.kagkarlsson.scheduler.task.helper.Tasks
+import com.github.kagkarlsson.scheduler.task.schedule.DisabledSchedule
 import com.github.kagkarlsson.scheduler.task.schedule.FixedDelay
+import com.github.kagkarlsson.scheduler.task.schedule.Schedule
 import kotlinx.coroutines.runBlocking
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.kafka.KafkaConsumerRepository
@@ -17,15 +19,24 @@ class NotifyFailedKafkaEvents(
 ) {
 
     data class Config(
+        val disabled: Boolean = false,
         val delayOfMinutes: Int,
         val maxRetries: Int,
-    )
+    ) {
+        fun toSchedule(): Schedule {
+            return if (disabled) {
+                DisabledSchedule()
+            } else {
+                FixedDelay.ofMinutes(delayOfMinutes)
+            }
+        }
+    }
 
     private val logger = LoggerFactory.getLogger(javaClass)
     private val taskName = "notify-failed-kafka-events"
 
     val task: RecurringTask<Void> = Tasks
-        .recurring(taskName, FixedDelay.ofMinutes(config.delayOfMinutes))
+        .recurring(taskName, config.toSchedule())
         .onFailure { _, _ ->
             slackNotifier.sendMessage("Klarte ikke kjøre task '$taskName'. Konsekvensen er at man ikke får gitt beskjed på Slack dersom det finnes kafka events som har failed etter for mange retries.")
         }
