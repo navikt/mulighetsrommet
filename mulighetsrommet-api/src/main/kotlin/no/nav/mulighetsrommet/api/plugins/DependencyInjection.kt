@@ -42,6 +42,7 @@ import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
 import no.nav.mulighetsrommet.env.NaisEnv
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
+import no.nav.mulighetsrommet.kafka.KafkaConsumerRepository
 import no.nav.mulighetsrommet.kafka.amt.AmtDeltakerV1TopicConsumer
 import no.nav.mulighetsrommet.kafka.amt.AmtVirksomheterV1TopicConsumer
 import no.nav.mulighetsrommet.metrics.Metrikker
@@ -151,6 +152,7 @@ private fun repositories() = module {
     single { NotificationRepository(get()) }
     single { NavAnsattRepository(get()) }
     single { VirksomhetRepository(get()) }
+    single { KafkaConsumerRepository(get()) }
 }
 
 private fun services(appConfig: AppConfig) = module {
@@ -286,6 +288,12 @@ private fun tasks(config: TaskConfig) = module {
             )
         val notifySluttdatoForAvtalerNarmerSeg =
             NotifySluttdatoForAvtalerNarmerSeg(config.notifySluttdatoForAvtalerNarmerSeg, get(), get(), get())
+        val notifyFailedKafkaEvents = NotifyFailedKafkaEvents(
+            config.notifyFailedKafkaEvents,
+            get(),
+            get(),
+            get(),
+        )
         val notificationService: NotificationService by inject()
 
         val db: Database by inject()
@@ -301,6 +309,7 @@ private fun tasks(config: TaskConfig) = module {
                 synchronizeNavAnsatte.task,
                 notifySluttdatoForGjennomforingerNarmerSeg.task,
                 notifySluttdatoForAvtalerNarmerSeg.task,
+                notifyFailedKafkaEvents.task,
             )
             .serializer(DbSchedulerKotlinSerializer())
             .registerShutdownHook()

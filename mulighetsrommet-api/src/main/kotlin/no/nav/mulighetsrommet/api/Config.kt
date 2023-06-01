@@ -75,6 +75,7 @@ data class TaskConfig(
     val synchronizeNavAnsatte: SynchronizeNavAnsatte.Config,
     val notifySluttdatoForGjennomforingerNarmerSeg: NotifySluttdatoForGjennomforingerNarmerSeg.Config,
     val notifySluttdatoForAvtalerNarmerSeg: NotifySluttdatoForAvtalerNarmerSeg.Config,
+    val notifyFailedKafkaEvents: NotifyFailedKafkaEvents.Config,
 )
 
 data class Norg2Config(

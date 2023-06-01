@@ -64,6 +64,17 @@ class KafkaConsumerRepository(private val db: Database) : KafkaConsumerRepositor
         return db.run(queryResult).toMutableList()
     }
 
+    fun getAllRecords(): MutableList<StoredConsumerRecord> {
+        @Language("PostgreSQL")
+        val query = """
+            select * from failed_events order by record_offset
+        """.trimIndent()
+
+        val queryResult = queryOf(query).map { toStoredConsumerRecord(it) }.asList
+
+        return db.run(queryResult).toMutableList()
+    }
+
     override fun incrementRetries(id: Long) {
         @Language("PostgreSQL")
         val query = """
