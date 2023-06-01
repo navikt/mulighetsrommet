@@ -9,7 +9,7 @@ function genererHistorikk(): HistorikkForBruker[] {
       id: faker.git.commitSha({ length: 7 }),
       fnr: '12345678910',
       fraDato: undefined,
-      tilDato: faker.date.soon({ days: 10 }),
+      tilDato: faker.date.soon({ days: 10 }).toString(),
       status: faker.helpers.arrayElement(['VENTER']),
       tiltaksnummer: faker.string.numeric(6),
       tiltaksnavn: faker.company.catchPhrase(),
@@ -33,7 +33,7 @@ function genererHistorikk(): HistorikkForBruker[] {
       id: faker.git.commitSha({ length: 7 }),
       fnr: '12345678910',
       fraDato: faker.date.recent({ days: 10 }).toString(),
-      tilDato: faker.date.soon({ days: 10 }),
+      tilDato: faker.date.soon({ days: 10 }).toString(),
       status: faker.helpers.arrayElement(['VENTER']),
       tiltaksnummer: faker.string.numeric(6),
       tiltaksnavn: faker.company.catchPhrase(),
@@ -57,7 +57,7 @@ function genererHistorikk(): HistorikkForBruker[] {
       id: faker.git.commitSha({ length: 7 }),
       fnr: '12345678910',
       fraDato: faker.date.recent({ days: 10 }).toString(),
-      tilDato: faker.date.soon({ days: 10 }),
+      tilDato: faker.date.soon({ days: 10 }).toString(),
       status: faker.helpers.arrayElement(['DELTAR']),
       tiltaksnummer: faker.string.numeric(6),
       tiltaksnavn: faker.company.catchPhrase(),
@@ -81,7 +81,7 @@ function genererHistorikk(): HistorikkForBruker[] {
       id: faker.git.commitSha({ length: 7 }),
       fnr: '12345678910',
       fraDato: faker.date.recent({ days: 10 }).toString(),
-      tilDato: faker.date.soon({ days: 10 }),
+      tilDato: faker.date.soon({ days: 10 }).toString(),
       status: faker.helpers.arrayElement(['AVSLUTTET', 'IKKE_AKTUELL']),
       tiltaksnummer: faker.string.numeric(6),
       tiltaksnavn: faker.company.catchPhrase(),
@@ -105,7 +105,7 @@ function genererHistorikk(): HistorikkForBruker[] {
       id: faker.git.commitSha({ length: 7 }),
       fnr: '12345678910',
       fraDato: faker.date.recent({ days: 10 }).toString(),
-      tilDato: faker.date.soon({ days: 10 }),
+      tilDato: faker.date.soon({ days: 10 }).toString(),
       status: faker.helpers.arrayElement(['AVSLUTTET', 'IKKE_AKTUELL']),
       tiltaksnummer: faker.string.numeric(6),
       tiltaksnavn: faker.company.catchPhrase(),
@@ -129,7 +129,7 @@ function genererHistorikk(): HistorikkForBruker[] {
       id: faker.git.commitSha({ length: 7 }),
       fnr: '12345678910',
       fraDato: faker.date.recent({ days: 10 }).toString(),
-      tilDato: faker.date.soon({ days: 10 }),
+      tilDato: faker.date.soon({ days: 10 }).toString(),
       status: faker.helpers.arrayElement(['AVSLUTTET', 'IKKE_AKTUELL']),
       tiltaksnummer: faker.string.numeric(6),
       tiltaksnavn: faker.company.catchPhrase(),
@@ -153,7 +153,7 @@ function genererHistorikk(): HistorikkForBruker[] {
       id: faker.git.commitSha({ length: 7 }),
       fnr: '12345678910',
       fraDato: faker.date.recent({ days: 10 }).toString(),
-      tilDato: faker.date.soon({ days: 10 }),
+      tilDato: faker.date.soon({ days: 10 }).toString(),
       status: faker.helpers.arrayElement(['AVSLUTTET', 'IKKE_AKTUELL']),
       tiltaksnummer: faker.string.numeric(6),
       tiltaksnavn: faker.company.catchPhrase(),
@@ -177,5 +177,3 @@ function genererHistorikk(): HistorikkForBruker[] {
 
   return forUnder as HistorikkForBruker[];
 }
-
-// 'VENTER', 'AVSLUTTET', 'DELTAR', 'IKKE_AKTUELL'
