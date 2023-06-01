@@ -14,6 +14,7 @@ import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
+import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.utils.toUUID
 import java.time.LocalDate
 
@@ -56,6 +57,21 @@ class AvtaleServiceTest : FunSpec({
             val response = avtaleService.delete(avtale.id, currentDate = currentDate)
             response.statusCode shouldBe HttpStatusCode.BadRequest.value
             response.message shouldBe "Avtalen er mellom start- og sluttdato og må avsluttes før den kan slettes."
+        }
+
+        test("Man skal ikke få slette, men få en melding dersom opphav for avtalen ikke er admin-flate") {
+            val currentDate = LocalDate.of(2023, 6, 1)
+            val avtale = avtaleFixture.createAvtaleForTiltakstype(
+                navn = "Avtale som eksisterer",
+                startDato = LocalDate.of(2023, 6, 1),
+                sluttDato = LocalDate.of(2023, 7, 1),
+                opphav = ArenaMigrering.Opphav.ARENA,
+            )
+            avtaleFixture.upsertAvtaler(listOf(avtale))
+
+            val response = avtaleService.delete(avtale.id, currentDate = currentDate)
+            response.statusCode shouldBe HttpStatusCode.BadRequest.value
+            response.message shouldBe "Avtalen har opprinnelse fra Arena og kan ikke bli slettet i admin-flate."
         }
 
         test("Man skal ikke få slette, men få en melding dersom det finnes gjennomføringer koblet til avtalen") {

@@ -86,7 +86,7 @@ export const apiHandlers = [
       return res(
         ctx.status(200),
         ctx.json<SletteAvtale>({
-          status: "200",
+          statusCode: 200,
           message: "Avtalen ble slettet",
         })
       );
@@ -100,7 +100,10 @@ export const apiHandlers = [
 
     return res(
       ctx.status(200),
-      ctx.json<SletteAvtale>({ status: "400", message: responses[randomIndex] })
+      ctx.json<SletteAvtale>({
+        statusCode: 400,
+        message: responses[randomIndex],
+      })
     );
   }),
 

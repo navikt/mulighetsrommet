@@ -15,6 +15,7 @@ import no.nav.mulighetsrommet.api.utils.AdminTiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.api.utils.AvtaleFilter
 import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.utils.QueryResult
+import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.AvtaleAdminDto
 import no.nav.mulighetsrommet.domain.dto.AvtaleNotificationDto
 import no.nav.mulighetsrommet.ktor.exception.StatusException
@@ -44,6 +45,13 @@ class AvtaleService(
     fun delete(id: UUID, currentDate: LocalDate = LocalDate.now()): SletteAvtaleDto {
         val optionalAvtale = avtaler.get(id).getOrNull()
             ?: throw NotFoundException("Fant ikke avtale for sletting")
+
+        if (optionalAvtale.opphav == ArenaMigrering.Opphav.ARENA) {
+            return SletteAvtaleDto(
+                statusCode = HttpStatusCode.BadRequest.value,
+                message = "Avtalen har opprinnelse fra Arena og kan ikke bli slettet i admin-flate.",
+            )
+        }
 
         if (optionalAvtale.startDato <= currentDate && optionalAvtale.sluttDato >= currentDate) {
             return SletteAvtaleDto(
