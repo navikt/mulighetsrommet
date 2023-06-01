@@ -13,6 +13,16 @@ import { TiltakstyperPage } from "./pages/tiltakstyper/TiltakstyperPage";
 import { TiltaksgjennomforingerPage } from "./pages/tiltaksgjennomforinger/TiltaksgjennomforingerPage";
 import { DetaljerTiltaksgjennomforingerPage } from "./pages/tiltaksgjennomforinger/DetaljerTiltaksgjennomforingerPage";
 import { NotifikasjonerPage } from "./pages/notifikasjoner/NotifikasjonerPage";
+import { initializeFaro } from "@grafana/faro-web-sdk";
+
+if (import.meta.env.PROD) {
+  initializeFaro({
+    url: import.meta.env.VITE_FARO_URL || "http://localhost:3000/collect",
+    app: {
+      name: "mr-admin-flate",
+    },
+  });
+}
 
 export function App() {
   const optionalAnsatt = useHentAnsatt();
