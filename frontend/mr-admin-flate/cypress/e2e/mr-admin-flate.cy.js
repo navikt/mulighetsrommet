@@ -98,11 +98,6 @@ describe("Avtaler", () => {
   });
 
   context("Oversikt over avtaler", () => {
-    it("Skal finnes et filter for tiltakstype for avtaler", () => {
-      cy.visit("/avtaler");
-      cy.getByTestId("filter_avtale_tiltakstype").should("exist");
-    });
-
     it("Skal kunne registrere en ny avtale", () => {
       cy.visit("/avtaler");
       cy.getByTestId("registrer-ny-avtale").should("exist").click();

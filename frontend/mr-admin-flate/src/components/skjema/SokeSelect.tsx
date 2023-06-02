@@ -1,7 +1,8 @@
 import React from "react";
 import { Controller } from "react-hook-form";
 import ReactSelect from "react-select";
-import style from "./SokeSelect.module.scss";
+import styles from "./SokeSelect.module.scss";
+import classnames from "classnames";
 
 export interface SelectOption {
   value?: string;
@@ -10,22 +11,28 @@ export interface SelectOption {
 
 export interface SelectProps {
   label: string;
+  hideLabel?: boolean;
   placeholder: string;
   options: SelectOption[];
   readOnly?: boolean;
   onChange?: (a0: any) => void;
   onInputChange?: (a0: any) => void;
+  isClearable?: boolean;
+  className?: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const SokeSelect = React.forwardRef((props: SelectProps, _) => {
   const {
     label,
+    hideLabel = false,
     placeholder,
     options,
     readOnly,
     onChange: providedOnChange,
     onInputChange: providedOnInputChange,
+    isClearable = true,
+    className,
     ...rest
   } = props;
 
@@ -33,9 +40,8 @@ const SokeSelect = React.forwardRef((props: SelectProps, _) => {
     control: (provided: any, state: any) => ({
       ...provided,
       background: readOnly ? "#f1f1f1" : "#fff",
-      borderColor: isError ? "#C30000" : (readOnly ? "#0000001A" : "#0000008f"),
+      borderColor: isError ? "#C30000" : readOnly ? "#0000001A" : "#0000008f",
       borderWidth: isError ? "2px" : "1px",
-      height: "50px",
       boxShadow: state.isFocused ? null : null,
     }),
     clearIndicator: (provided: any) => ({
@@ -73,14 +79,21 @@ const SokeSelect = React.forwardRef((props: SelectProps, _) => {
           fieldState: { error },
         }) => (
           <div>
-            <label className={style.label} htmlFor={name}>
+            <label
+              className={classnames(styles.label, {
+                "navds-sr-only": hideLabel,
+              })}
+              htmlFor={name}
+            >
               <b>{label}</b>
             </label>
+
             <ReactSelect
               placeholder={placeholder}
               isDisabled={!!readOnly}
-              isClearable
+              isClearable={isClearable}
               ref={ref}
+              inputId={name}
               noOptionsMessage={() => "Ingen funnet"}
               name={name}
               value={options.find((c) => c.value === value)}
@@ -93,6 +106,7 @@ const SokeSelect = React.forwardRef((props: SelectProps, _) => {
               }}
               styles={customStyles(Boolean(error))}
               options={options}
+              className={className}
               theme={(theme: any) => ({
                 ...theme,
                 colors: {
@@ -103,7 +117,7 @@ const SokeSelect = React.forwardRef((props: SelectProps, _) => {
               })}
             />
             {error && (
-              <div className={style.errormsg}>
+              <div className={styles.errormsg}>
                 <b>• {error.message}</b>
               </div>
             )}
