@@ -31,7 +31,7 @@ const headers: ColumnHeader[] = [
     sortable: true,
     width: "1fr",
   },
-  { sortKey: "arrangor", tittel: "Arrangør", sortable: false, width: "3fr" },
+  { sortKey: "arrangor", tittel: "Arrangør", sortable: true, width: "3fr" },
   {
     sortKey: "tiltakstype",
     tittel: "Tiltakstype",
@@ -103,8 +103,11 @@ export const TiltaksgjennomforingsTabell = ({ skjulKolonner }: Props) => {
   }
 
   const handleSort = (sortKey: string) => {
+    // Hvis man bytter sortKey starter vi med ascending
     const direction =
-      sort.direction === "ascending" ? "descending" : "ascending";
+      sort.orderBy === sortKey
+        ?  sort.direction === "descending" ? "ascending" : "descending"
+        : "ascending";
 
     setSort({
       orderBy: sortKey,

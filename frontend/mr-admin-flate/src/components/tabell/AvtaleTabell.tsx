@@ -23,8 +23,11 @@ export const AvtaleTabell = () => {
   const avtaler = data?.data ?? [];
 
   const handleSort = (sortKey: string) => {
+    // Hvis man bytter sortKey starter vi med ascending
     const direction =
-      sort.direction === "ascending" ? "descending" : "ascending";
+      sort.orderBy === sortKey
+        ?  sort.direction === "descending" ? "ascending" : "descending"
+        : "ascending";
 
     setSort({
       orderBy: sortKey,
@@ -69,8 +72,10 @@ export const AvtaleTabell = () => {
             <Table.ColumnHeader sortKey="navn" sortable>
               Tittel
             </Table.ColumnHeader>
-            <Table.ColumnHeader>Leverandør</Table.ColumnHeader>
-            <Table.ColumnHeader sortKey="enhet" sortable>
+            <Table.ColumnHeader sortKey="leverandor" sortable>
+              Leverandør
+            </Table.ColumnHeader>
+            <Table.ColumnHeader sortKey="nav-enhet" sortable>
               Enhet
             </Table.ColumnHeader>
             <Table.ColumnHeader sortKey="startdato" sortable>

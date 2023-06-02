@@ -1162,12 +1162,14 @@ components:
       enum:
         - navn-ascending
         - navn-descending
-        - enhet-ascending
-        - enhet-descending
+        - nav-enhet-ascending
+        - nav-enhet-descending
         - startdato-ascending
         - startdato-descending
         - sluttdato-ascending
         - sluttdato-descending
+        - leverandor-ascending
+        - leverandor-descending
 
     SorteringTiltakstyper:
       type: string
@@ -1192,6 +1194,8 @@ components:
         - startdato-descending
         - sluttdato-ascending
         - sluttdato-descending
+        - arrangor-ascending
+        - arrangor-descending
 
     Tiltaksgjennomforing:
       type: object
