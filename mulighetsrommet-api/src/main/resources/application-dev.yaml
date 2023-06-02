@@ -95,6 +95,9 @@ app:
     notifySluttdatoForAvtalerNarmerSeg:
       disabled: false
       cronPattern: "0 0 6 * * *" # Hver morgen kl. 06.00
+    notifyFailedKafkaEvents:
+      maxRetries: 5
+      delayOfMinutes: 15
 
   norg2:
     baseUrl: https://norg2.dev-fss-pub.nais.io/norg2/api/v1
