@@ -211,6 +211,10 @@ paths:
           name: avtaleId
           schema:
             type: string
+        - in: query
+          name: arrangor
+          schema:
+            type: string
       responses:
         200:
           description: Object of paginated tiltaksgjennomføringer.

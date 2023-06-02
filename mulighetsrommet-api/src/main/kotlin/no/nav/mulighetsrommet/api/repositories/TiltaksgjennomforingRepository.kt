@@ -252,7 +252,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             "today" to filter.dagensDato,
             "fylkesenhet" to filter.fylkesenhet,
             "avtaleId" to filter.avtaleId,
-            "virksomhetsnummer" to filter.organisasjonsnummer,
+            "virksomhetsnummer" to filter.arrangor,
         )
 
         val where = DatabaseUtils.andWhereParameterNotNull(
@@ -263,7 +263,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             filter.sluttDatoCutoff to "(tg.slutt_dato >= :cutoffdato or tg.slutt_dato is null)",
             filter.fylkesenhet to "tg.arena_ansvarlig_enhet in (select enhetsnummer from nav_enhet where overordnet_enhet = :fylkesenhet)",
             filter.avtaleId to "tg.avtale_id = :avtaleId",
-            filter.organisasjonsnummer to "tg.virksomhetsnummer = :virksomhetsnummer",
+            filter.arrangor to "tg.virksomhetsnummer = :virksomhetsnummer",
         )
 
         val order = when (filter.sortering) {
