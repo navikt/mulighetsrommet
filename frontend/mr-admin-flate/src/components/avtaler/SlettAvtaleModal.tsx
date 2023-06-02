@@ -1,5 +1,5 @@
 import { Button, Heading, Modal } from "@navikt/ds-react";
-import { Avtale, Opphav } from "mulighetsrommet-api-client";
+import { ApiError, Avtale, Opphav } from "mulighetsrommet-api-client";
 import { useEffect, useState } from "react";
 import styles from "./Modal.module.scss";
 import classNames from "classnames";
@@ -59,7 +59,7 @@ const SlettAvtaleModal = ({
         <VarselIkon />
         {avtale?.opphav === Opphav.ARENA ? (
           <span>Avtalen kan ikke slettes</span>
-        ) : mutation.data?.statusCode === 400 ? (
+        ) : mutation.isError ? (
           <span>Kan ikke slette {avtale?.navn}</span>
         ) : (
           <span>Ønsker du å slette {avtale?.navn}?</span>
@@ -73,8 +73,8 @@ const SlettAvtaleModal = ({
       <>
         {avtale?.opphav === Opphav.ARENA ? (
           <p>Avtalen {avtale?.navn} kommer fra Arena og kan ikke slettes her</p>
-        ) : mutation?.data?.statusCode === 400 ? (
-          <p>{mutation?.data.message}</p>
+        ) : mutation?.isError ? (
+          <p>{(mutation.error as ApiError).body}</p>
         ) : (
           <>
             <p>Er du sikker på at du ønsker å slette avtalen {avtale?.navn}?</p>
@@ -82,8 +82,7 @@ const SlettAvtaleModal = ({
           </>
         )}
         <div className={styles.knapperad}>
-          {avtale?.opphav === Opphav.ARENA ? null : mutation?.data
-              ?.statusCode === 400 ? (
+          {avtale?.opphav === Opphav.ARENA ? null : mutation?.isError ? (
             <Button variant="primary" onClick={handleRedigerAvtale}>
               Rediger avtale
             </Button>
