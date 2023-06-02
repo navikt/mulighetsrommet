@@ -3,7 +3,6 @@ package no.nav.mulighetsrommet.api.services
 import arrow.core.Either
 import arrow.core.flatMap
 import arrow.core.getOrElse
-import io.ktor.server.plugins.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleNokkeltallDto
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository

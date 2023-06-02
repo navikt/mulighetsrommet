@@ -30,7 +30,7 @@ const SlettAvtaleModal = ({
   }, []);
 
   useEffect(() => {
-    if (mutation.data?.statusCode === 200) {
+    if (mutation.isSuccess) {
       navigate("/avtaler");
       return;
     }
