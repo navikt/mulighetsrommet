@@ -1,4 +1,4 @@
-import { Button, Search, Select } from "@navikt/ds-react";
+import { Button, Search } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import {
   Avtale,
@@ -7,26 +7,26 @@ import {
   Tiltakstypestatus,
   VirksomhetTil,
 } from "mulighetsrommet-api-client";
-import { ChangeEvent, useState } from "react";
-import {
-  OPPRETT_TILTAKSGJENNOMFORING_ADMIN_FLATE,
-  useFeatureToggles,
-} from "../../api/features/feature-toggles";
+import { useState } from "react";
+import { FormProvider, useForm } from "react-hook-form";
 import {
   Tiltaksgjennomforingfilter as TiltaksgjennomforingAtomFilter,
   paginationAtom,
   tiltaksgjennomforingfilter,
 } from "../../api/atoms";
 import { useAlleEnheter } from "../../api/enhet/useAlleEnheter";
-import { inneholderUrl, resetPaginering } from "../../utils/Utils";
-import styles from "./Filter.module.scss";
-import { OpprettTiltaksgjennomforingModal } from "../modal/OpprettTiltaksgjennomforingModal";
+import {
+  OPPRETT_TILTAKSGJENNOMFORING_ADMIN_FLATE,
+  useFeatureToggles,
+} from "../../api/features/feature-toggles";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
-import { LeggTilGjennomforingModal } from "../modal/LeggTilGjennomforingModal";
-import { arenaKodeErAftEllerVta } from "../../utils/tiltakskoder";
 import { useVirksomheter } from "../../api/virksomhet/useVirksomheter";
-import { FormProvider, useForm } from "react-hook-form";
+import { inneholderUrl, resetPaginering } from "../../utils/Utils";
+import { arenaKodeErAftEllerVta } from "../../utils/tiltakskoder";
+import { LeggTilGjennomforingModal } from "../modal/LeggTilGjennomforingModal";
+import { OpprettTiltaksgjennomforingModal } from "../modal/OpprettTiltaksgjennomforingModal";
 import { SokeSelect } from "../skjema/SokeSelect";
+import styles from "./Filter.module.scss";
 
 type Filters = "tiltakstype";
 
