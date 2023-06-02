@@ -1,8 +1,8 @@
+import classnames from "classnames";
 import React from "react";
 import { Controller } from "react-hook-form";
 import ReactSelect from "react-select";
 import styles from "./SokeSelect.module.scss";
-import classnames from "classnames";
 
 export interface SelectOption {
   value?: string;

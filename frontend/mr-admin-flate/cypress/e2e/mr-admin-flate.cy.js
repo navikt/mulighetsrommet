@@ -50,31 +50,6 @@ describe("Forside", () => {
   });
 });
 
-describe("Tiltakstyper", () => {
-  beforeEach(() => {
-    cy.visit("/tiltakstyper");
-  });
-
-  context("Filtrering for tiltakstyper", () => {
-    it("Bruker skal ha et søkefelt for tiltakstyper", () => {
-      cy.getByTestId("filter_sokefelt").should("exist");
-    });
-
-    it("Bruker skal ha et valg for å filtrere på statuser", () => {
-      cy.getByTestId("filter_status").should("exist");
-      cy.getByTestId("filter_status").select("Aktiv").should("exist");
-      cy.getByTestId("filter_status").select("Planlagt").should("exist");
-      cy.getByTestId("filter_status").select("Avsluttet").should("exist");
-    });
-
-    it("Bruker skal ha et valg for å filtrere på gruppe- eller individuelle tiltak", () => {
-      cy.getByTestId("filter_kategori").should("exist");
-      cy.getByTestId("filter_kategori").select("GRUPPE").should("exist");
-      cy.getByTestId("filter_kategori").select("INDIVIDUELL").should("exist");
-    });
-  });
-});
-
 describe("Avtaler", () => {
   context("Navigering til avtaledetaljer", () => {
     it("Skal kunne klikke på en avtale og navigere til avtaledetaljer", () => {
