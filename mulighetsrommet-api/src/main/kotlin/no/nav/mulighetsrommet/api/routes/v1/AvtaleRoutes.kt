@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.routes.v1
 
 import arrow.core.Either
+import arrow.core.flatMap
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
@@ -69,7 +70,7 @@ fun Route.avtaleRoutes() {
             val avtaleRequest = call.receive<AvtaleRequest>()
 
             val result = avtaleRequest.toDbo()
-                .map { avtaler.upsert(it) }
+                .flatMap { avtaler.upsert(it) }
                 .onLeft {
                     logger.error(it.message)
                 }
