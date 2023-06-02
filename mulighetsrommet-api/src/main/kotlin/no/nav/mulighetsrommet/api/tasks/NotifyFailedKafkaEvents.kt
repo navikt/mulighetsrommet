@@ -45,7 +45,7 @@ class NotifyFailedKafkaEvents(
 
             runBlocking {
                 val retries = config.maxRetries
-                val failedEvents = kafkaConsumerRepository.getAllRecords()
+                val failedEvents = kafkaConsumerRepository.getAll()
                 val topicCounts = failedEvents
                     .groupBy { it.topic }
                     .map { "${it.key} : ${it.value.count()}" }
