@@ -413,6 +413,121 @@ class AvtaleRepositoryTest : FunSpec({
                 result.second[4].navn shouldBe "Avtale hos Anders"
             }
 
+            test("Sortering på nav_enhet sorterer korrekt") {
+                val navEnhetRepository = NavEnhetRepository(database.db)
+                navEnhetRepository.upsert(
+                    NavEnhetDbo(
+                        navn = "alvdal",
+                        enhetsnummer = "1",
+                        status = NavEnhetStatus.AKTIV,
+                        type = Norg2Type.FYLKE,
+                        overordnetEnhet = null,
+                    ),
+                )
+                navEnhetRepository.upsert(
+                    NavEnhetDbo(
+                        navn = "zorro",
+                        enhetsnummer = "2",
+                        status = NavEnhetStatus.AKTIV,
+                        type = Norg2Type.FYLKE,
+                        overordnetEnhet = null,
+                    ),
+                )
+                val avtale1 = avtaleFixture.createAvtaleForTiltakstype(
+                    navRegion = "1",
+                    navn = "Avtale hos Anders",
+                )
+                val avtale2 = avtaleFixture.createAvtaleForTiltakstype(
+                    navRegion = "2",
+                    navn = "Avtale hos Åse",
+                )
+                val avtale3 = avtaleFixture.createAvtaleForTiltakstype(
+                    navRegion = null,
+                    navn = "Avtale hos Øyvind",
+                )
+                val avtaleRepository =
+                    avtaleFixture.upsertAvtaler(listOf(avtale1, avtale2, avtale3))
+
+                val ascending = avtaleRepository.getAll(
+                    filter = defaultFilter.copy(
+                        sortering = "nav-enhet-ascending",
+                    ),
+                )
+
+                ascending.second shouldHaveSize 3
+                ascending.second[0].navRegion shouldBe NavEnhet(enhetsnummer = "1", navn = "alvdal")
+                ascending.second[1].navRegion shouldBe NavEnhet(enhetsnummer = "2", navn = "zorro")
+                ascending.second[2].navRegion shouldBe null
+
+                val descending = avtaleRepository.getAll(
+                    filter = defaultFilter.copy(
+                        sortering = "nav-enhet-descending",
+                    ),
+                )
+
+                descending.second shouldHaveSize 3
+                descending.second[0].navRegion shouldBe null
+                descending.second[1].navRegion shouldBe NavEnhet(enhetsnummer = "2", navn = "zorro")
+                descending.second[2].navRegion shouldBe NavEnhet(enhetsnummer = "1", navn = "alvdal")
+            }
+
+            test("Sortering på leverandor sorterer korrekt") {
+                val virksomhetRepository = VirksomhetRepository(database.db)
+                virksomhetRepository.upsert(
+                    VirksomhetDto(
+                        navn = "alvdal",
+                        organisasjonsnummer = "987654321",
+                    ),
+                )
+                virksomhetRepository.upsert(
+                    VirksomhetDto(
+                        navn = "bjarne",
+                        organisasjonsnummer = "123456789",
+                    ),
+                )
+                val avtale1 = avtaleFixture.createAvtaleForTiltakstype(
+                    leverandorOrganisasjonsnummer = "123456789",
+                    navn = "Avtale hos Anders",
+                )
+                val avtale2 = avtaleFixture.createAvtaleForTiltakstype(
+                    leverandorOrganisasjonsnummer = "987654321",
+                    navn = "Avtale hos Åse",
+                )
+                val avtaleRepository = avtaleFixture.upsertAvtaler(listOf(avtale1, avtale2))
+
+                val ascending = avtaleRepository.getAll(
+                    filter = defaultFilter.copy(
+                        sortering = "leverandor-ascending",
+                    ),
+                )
+
+                ascending.second shouldHaveSize 2
+                ascending.second[0].leverandor shouldBe AvtaleAdminDto.Leverandor(
+                    organisasjonsnummer = "987654321",
+                    navn = "alvdal",
+                )
+                ascending.second[1].leverandor shouldBe AvtaleAdminDto.Leverandor(
+                    organisasjonsnummer = "123456789",
+                    navn = "bjarne",
+                )
+
+                val descending = avtaleRepository.getAll(
+                    filter = defaultFilter.copy(
+                        sortering = "leverandor-descending",
+                    ),
+                )
+
+                descending.second shouldHaveSize 2
+                descending.second[0].leverandor shouldBe AvtaleAdminDto.Leverandor(
+                    organisasjonsnummer = "123456789",
+                    navn = "bjarne",
+                )
+                descending.second[1].leverandor shouldBe AvtaleAdminDto.Leverandor(
+                    organisasjonsnummer = "987654321",
+                    navn = "alvdal",
+                )
+            }
+
             test("Sortering på sluttdato fra a-å sorterer korrekt") {
                 val avtale1 = avtaleFixture.createAvtaleForTiltakstype(
                     sluttDato = LocalDate.of(2010, 1, 31),
