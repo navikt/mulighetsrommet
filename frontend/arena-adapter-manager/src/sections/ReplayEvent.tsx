@@ -12,7 +12,10 @@ function ReplayEvent() {
 
   const handleReplay = async (table: string, arenaId: string) => {
     setLoading(true);
-    await replayEvent(table, arenaId);
+    const arenaIder = arenaId.split(",");
+    arenaIder.forEach(async (id) => {
+      await replayEvent(table, id);
+    });
     setLoading(false);
   };
 
@@ -36,7 +39,7 @@ function ReplayEvent() {
         ))}
       </Select>
       <Input
-        placeholder="Arena id"
+        placeholder="Arena-id eller kommaseparert liste med Arena-id'er"
         value={arenaId}
         onChange={({ currentTarget }) => {
           setArenaId(currentTarget.value);
