@@ -231,14 +231,14 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             tiltaksgjennomforinger.upsert(gjennomforing2.copy(virksomhetsnummer = "999999999")).shouldBeRight()
 
             tiltaksgjennomforinger.getAll(
-                filter = AdminTiltaksgjennomforingFilter(arrangor = "222222222"),
+                filter = AdminTiltaksgjennomforingFilter(arrangorOrgnr = "222222222"),
             ).shouldBeRight().should {
                 it.second.size shouldBe 1
                 it.second[0].id shouldBe gjennomforing1.id
             }
 
             tiltaksgjennomforinger.getAll(
-                filter = AdminTiltaksgjennomforingFilter(arrangor = "999999999"),
+                filter = AdminTiltaksgjennomforingFilter(arrangorOrgnr = "999999999"),
             ).shouldBeRight().should {
                 it.second.size shouldBe 1
                 it.second[0].id shouldBe gjennomforing2.id

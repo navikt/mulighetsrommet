@@ -178,13 +178,13 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
             label="Filtrer på arrangør"
             hideLabel
             size="small"
-            value={sokefilter.arrangor}
+            value={sokefilter.arrangorOrgnr}
             data-testid="filter_tiltaksgjennomforing_arrangor"
             onChange={(e: ChangeEvent<HTMLSelectElement>) => {
               resetPaginering(setPage);
               setSokefilter({
                 ...sokefilter,
-                arrangor: e.currentTarget.value,
+                arrangorOrgnr: e.currentTarget.value,
               });
             }}
           >

@@ -212,7 +212,7 @@ paths:
           schema:
             type: string
         - in: query
-          name: arrangor
+          name: arrangorOrgnr
           schema:
             type: string
       responses:
