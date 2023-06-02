@@ -12,7 +12,11 @@ import {
   OPPRETT_TILTAKSGJENNOMFORING_ADMIN_FLATE,
   useFeatureToggles,
 } from "../../api/features/feature-toggles";
-import { paginationAtom, tiltaksgjennomforingfilter } from "../../api/atoms";
+import {
+  Tiltaksgjennomforingfilter as TiltaksgjennomforingAtomFilter,
+  paginationAtom,
+  tiltaksgjennomforingfilter,
+} from "../../api/atoms";
 import { useAlleEnheter } from "../../api/enhet/useAlleEnheter";
 import { inneholderUrl, resetPaginering } from "../../utils/Utils";
 import styles from "./Filter.module.scss";
@@ -21,6 +25,8 @@ import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
 import { LeggTilGjennomforingModal } from "../modal/LeggTilGjennomforingModal";
 import { arenaKodeErAftEllerVta } from "../../utils/tiltakskoder";
 import { useVirksomheter } from "../../api/virksomhet/useVirksomheter";
+import { FormProvider, useForm } from "react-hook-form";
+import { SokeSelect } from "../skjema/SokeSelect";
 
 type Filters = "tiltakstype";
 
@@ -33,7 +39,9 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
   const [sokefilter, setSokefilter] = useAtom(tiltaksgjennomforingfilter);
   const [, setPage] = useAtom(paginationAtom);
   const { data: enheter } = useAlleEnheter();
-  const { data: virksomheter } = useVirksomheter(VirksomhetTil.TILTAKSGJENNOMFORING);
+  const { data: virksomheter } = useVirksomheter(
+    VirksomhetTil.TILTAKSGJENNOMFORING
+  );
   const { data: tiltakstyper } = useTiltakstyper(
     {
       status: Tiltakstypestatus.AKTIV,
@@ -43,6 +51,13 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
   const [opprettModal, setOpprettModalOpen] = useState<boolean>(false);
   const [modalOpen, setModalOpen] = useState<boolean>(false);
 
+  const form = useForm<TiltaksgjennomforingAtomFilter>({
+    defaultValues: {
+      ...sokefilter,
+    },
+  });
+  const { register } = form;
+
   const features = useFeatureToggles();
   const visOpprettTiltaksgjennomforingKnapp =
     features.isSuccess &&
@@ -51,190 +66,210 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
 
   const erAFTellerVTA = arenaKodeErAftEllerVta(avtale?.tiltakstype.arenaKode);
 
+  const regionOptions = () => {
+    const options =
+      enheter
+        ?.filter((enhet) => enhet.type === Norg2Type.FYLKE)
+        ?.sort()
+        ?.map((enhet) => ({ label: enhet.navn, value: enhet.enhetsnummer })) ||
+      [];
+
+    return [{ value: "", label: "Alle regioner" }, ...options];
+  };
+
+  const enhetOptions = () => {
+    const options =
+      enheter
+        ?.filter((enhet) => {
+          const erLokalEllerTiltaksenhet =
+            enhet.type === Norg2Type.LOKAL || enhet.type === Norg2Type.TILTAK;
+          const enheterFraFylke =
+            sokefilter.fylkesenhet === ""
+              ? true
+              : sokefilter.fylkesenhet === enhet.overordnetEnhet;
+          return erLokalEllerTiltaksenhet && enheterFraFylke;
+        })
+        ?.sort()
+        ?.map((enhet) => ({
+          label: `${enhet.navn} - ${enhet.enhetsnummer}`,
+          value: enhet.enhetsnummer,
+        })) || [];
+
+    return [{ value: "", label: "Alle enheter" }, ...options];
+  };
+
+  const tiltakstypeOptions = () => {
+    const options =
+      tiltakstyper?.data?.sort()?.map((tiltakstype) => ({
+        label: tiltakstype.navn,
+        value: tiltakstype.id,
+      })) || [];
+
+    return [{ value: "", label: "Alle tiltakstyper" }, ...options];
+  };
+
+  const statusOptions = () => {
+    return [
+      { label: "Gjennomføres", value: TiltaksgjennomforingStatus.GJENNOMFORES },
+      { label: "Avsluttet", value: TiltaksgjennomforingStatus.AVSLUTTET },
+      { label: "Avbrutt", value: TiltaksgjennomforingStatus.AVBRUTT },
+      {
+        label: "Åpent for innsøk",
+        value: TiltaksgjennomforingStatus.APENT_FOR_INNSOK,
+      },
+      { label: "Alle statuser", value: "" },
+    ];
+  };
+
+  const arrangorOptions = () => {
+    const options =
+      virksomheter?.sort()?.map((virksomhet) => ({
+        label: virksomhet.navn,
+        value: virksomhet.organisasjonsnummer,
+      })) || [];
+
+    return [{ value: "", label: "Alle arrangører" }, ...options];
+  };
+
   return (
-    <>
-      <div className={styles.filter_container}>
-        <div className={styles.filter_left}>
-          <Search
-            label="Søk etter tiltaksgjennomføring"
-            hideLabel
-            size="small"
-            variant="simple"
-            onChange={(search: string) =>
-              setSokefilter({ ...sokefilter, search })
-            }
-            value={sokefilter.search}
-            aria-label="Søk etter tiltaksgjennomføring"
-            data-testid="filter_sokefelt"
-            className={styles.form_field}
-          />
-          <Select
-            label="Filtrer på region"
-            hideLabel
-            size="small"
-            value={sokefilter.fylkesenhet}
-            data-testid="filter_tiltaksgjennomforing_fylkesenhet"
-            onChange={(e: ChangeEvent<HTMLSelectElement>) => {
-              resetPaginering(setPage);
-              setSokefilter({
-                ...sokefilter,
-                enhet: "",
-                fylkesenhet: e.currentTarget.value,
-              });
-            }}
-          >
-            <option value="">Alle regioner</option>
-            {enheter
-              ?.filter((enhet) => enhet.type === Norg2Type.FYLKE)
-              ?.sort()
-              ?.map((enhet) => (
-                <option key={enhet.enhetsnummer} value={enhet.enhetsnummer}>
-                  {enhet.navn}
-                </option>
-              ))}
-          </Select>
-          <Select
-            label="Filtrer på enhet"
-            hideLabel
-            size="small"
-            value={sokefilter.enhet}
-            data-testid="filter_tiltaksgjennomforing_enhet"
-            onChange={(e: ChangeEvent<HTMLSelectElement>) => {
-              resetPaginering(setPage);
-              setSokefilter({
-                ...sokefilter,
-                enhet: e.currentTarget.value,
-              });
-            }}
-          >
-            <option value="">Alle enheter</option>
-            {enheter
-              ?.filter((enhet) => {
-                const erLokalEllerTiltaksenhet =
-                  enhet.type === Norg2Type.LOKAL ||
-                  enhet.type === Norg2Type.TILTAK;
-                const enheterFraFylke =
-                  sokefilter.fylkesenhet === ""
-                    ? true
-                    : sokefilter.fylkesenhet === enhet.overordnetEnhet;
-                return erLokalEllerTiltaksenhet && enheterFraFylke;
-              })
-              ?.map((enhet) => (
-                <option key={enhet.enhetsnummer} value={enhet.enhetsnummer}>
-                  {enhet.navn} - {enhet.enhetsnummer}
-                </option>
-              ))}
-          </Select>
-          {skjulFilter?.tiltakstype ? null : (
-            <Select
-              label="Filtrer på tiltakstype"
+    <FormProvider {...form}>
+      <form>
+        <div className={styles.filter_container}>
+          <div className={styles.filter_left}>
+            <Search
+              label="Søk etter tiltaksgjennomføring"
               hideLabel
               size="small"
-              value={sokefilter.tiltakstype}
-              data-testid="filter_tiltaksgjennomforing_tiltakstype"
-              onChange={(e: ChangeEvent<HTMLSelectElement>) => {
+              variant="simple"
+              onChange={(search: string) =>
+                setSokefilter({ ...sokefilter, search })
+              }
+              value={sokefilter.search}
+              aria-label="Søk etter tiltaksgjennomføring"
+              data-testid="filter_sokefelt"
+              className={styles.form_field}
+            />
+            <SokeSelect
+              label="Filtrer på region"
+              placeholder="Filtrer på region"
+              hideLabel
+              {...register("fylkesenhet")}
+              onChange={(fylkesenhet) => {
                 resetPaginering(setPage);
                 setSokefilter({
                   ...sokefilter,
-                  tiltakstype: e.currentTarget.value,
+                  enhet: "",
+                  fylkesenhet,
                 });
               }}
-            >
-              <option value="">Alle tiltakstyper</option>
-              {tiltakstyper?.data?.map((tiltakstype) => (
-                <option key={tiltakstype.id} value={tiltakstype.id}>
-                  {tiltakstype.navn}
-                </option>
-              ))}
-            </Select>
-          )}
-          <Select
-            label="Filtrer på status"
-            hideLabel
-            size="small"
-            value={sokefilter.status}
-            data-testid="filter_tiltaksgjennomforing_status"
-            onChange={(e: ChangeEvent<HTMLSelectElement>) => {
-              resetPaginering(setPage);
-              setSokefilter({
-                ...sokefilter,
-                status: e.currentTarget.value as TiltaksgjennomforingStatus,
-              });
-            }}
-          >
-            <option value={TiltaksgjennomforingStatus.GJENNOMFORES}>
-              Gjennomføres
-            </option>
-            <option value={TiltaksgjennomforingStatus.AVSLUTTET}>
-              Avsluttet
-            </option>
-            <option value={TiltaksgjennomforingStatus.AVBRUTT}>Avbrutt</option>
-            <option value={TiltaksgjennomforingStatus.AVLYST}>Avlyst</option>
-            <option value={TiltaksgjennomforingStatus.APENT_FOR_INNSOK}>
-              Åpent for innsøk
-            </option>
-            <option value="">Alle statuser</option>
-          </Select>
-          <Select
-            label="Filtrer på arrangør"
-            hideLabel
-            size="small"
-            value={sokefilter.arrangorOrgnr}
-            data-testid="filter_tiltaksgjennomforing_arrangor"
-            onChange={(e: ChangeEvent<HTMLSelectElement>) => {
-              resetPaginering(setPage);
-              setSokefilter({
-                ...sokefilter,
-                arrangorOrgnr: e.currentTarget.value,
-              });
-            }}
-          >
-            <>
-              <option value="">Alle arrangører</option>
-              {virksomheter?.map(v =>
-                <option key={v.organisasjonsnummer} value={v.organisasjonsnummer}>{v.navn}</option>
-              )}
-            </>
-          </Select>
-        </div>
-        <div className={styles.filter_right}>
-          {avtale && (
-            <>
-              {visOpprettTiltaksgjennomforingKnapp && (
-                <>
-                  <Button
-                    size="small"
-                    onClick={() => setOpprettModalOpen(true)}
-                  >
-                    Opprett ny gjennomføring
-                  </Button>
+              options={regionOptions()}
+              className={styles.form_field}
+            />
 
-                  <OpprettTiltaksgjennomforingModal
-                    modalOpen={opprettModal}
-                    avtale={avtale}
-                    onClose={() => setOpprettModalOpen(false)}
-                  />
-                </>
-              )}
-              {erAFTellerVTA && (
-                <>
-                  <Button
-                    size="small"
-                    onClick={() => setModalOpen(true)}
-                    variant="secondary"
-                  >
-                    Legg til gjennomføring
-                  </Button>
-                  <LeggTilGjennomforingModal
-                    modalOpen={modalOpen}
-                    onClose={() => setModalOpen(false)}
-                  />
-                </>
-              )}
-            </>
-          )}
+            <SokeSelect
+              label="Filtrer på enhet"
+              placeholder="Filtrer på enhet"
+              hideLabel
+              {...register("enhet")}
+              onChange={(enhet) => {
+                resetPaginering(setPage);
+                setSokefilter({
+                  ...sokefilter,
+                  enhet,
+                });
+              }}
+              options={enhetOptions()}
+              className={styles.form_field}
+            />
+            {skjulFilter?.tiltakstype ? null : (
+              <SokeSelect
+                label="Filtrer på tiltakstype"
+                placeholder="Filtrer på tiltakstype"
+                hideLabel
+                {...register("tiltakstype")}
+                onChange={(tiltakstype) => {
+                  resetPaginering(setPage);
+                  setSokefilter({
+                    ...sokefilter,
+                    tiltakstype,
+                  });
+                }}
+                options={tiltakstypeOptions()}
+                className={styles.form_field}
+              />
+            )}
+            <SokeSelect
+              label="Filtrer på status"
+              placeholder="Filtrer på status"
+              hideLabel
+              {...register("status")}
+              onChange={(status) => {
+                resetPaginering(setPage);
+                setSokefilter({
+                  ...sokefilter,
+                  status,
+                });
+              }}
+              options={statusOptions()}
+              className={styles.form_field}
+            />
+            <SokeSelect
+              label="Filtrer på arrangør"
+              placeholder="Filtrer på arrangør"
+              hideLabel
+              {...register("arrangorOrgnr")}
+              onChange={(arrangorOrgnr) => {
+                resetPaginering(setPage);
+                setSokefilter({
+                  ...sokefilter,
+                  arrangorOrgnr,
+                });
+              }}
+              options={arrangorOptions()}
+              className={styles.form_field}
+            />
+          </div>
+          <div className={styles.filter_right}>
+            {avtale && (
+              <>
+                {visOpprettTiltaksgjennomforingKnapp && (
+                  <>
+                    <Button
+                      size="small"
+                      onClick={() => setOpprettModalOpen(true)}
+                      type="button"
+                    >
+                      Opprett ny gjennomføring
+                    </Button>
+
+                    <OpprettTiltaksgjennomforingModal
+                      modalOpen={opprettModal}
+                      avtale={avtale}
+                      onClose={() => setOpprettModalOpen(false)}
+                    />
+                  </>
+                )}
+                {erAFTellerVTA && (
+                  <>
+                    <Button
+                      size="small"
+                      onClick={() => setModalOpen(true)}
+                      variant="secondary"
+                      type="button"
+                    >
+                      Legg til gjennomføring
+                    </Button>
+                    <LeggTilGjennomforingModal
+                      modalOpen={modalOpen}
+                      onClose={() => setModalOpen(false)}
+                    />
+                  </>
+                )}
+              </>
+            )}
+          </div>
         </div>
-      </div>
-    </>
+      </form>
+    </FormProvider>
   );
 }
