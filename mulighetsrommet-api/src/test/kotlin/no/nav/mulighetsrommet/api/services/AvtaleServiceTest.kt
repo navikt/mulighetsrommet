@@ -3,12 +3,10 @@ package no.nav.mulighetsrommet.api.services
 import arrow.core.right
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.ktor.http.*
-import io.ktor.server.plugins.*
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
@@ -44,7 +42,9 @@ class AvtaleServiceTest : FunSpec({
             val avtaleIdSomIkkeFinnes = "3c9f3d26-50ec-45a7-a7b2-c2d8a3653945".toUUID()
             avtaleFixture.upsertAvtaler(listOf(avtale))
 
-            shouldThrow<NotFoundException> { avtaleService.delete(avtaleIdSomIkkeFinnes) }
+            avtaleService.delete(avtaleIdSomIkkeFinnes).shouldBeLeft().should {
+                it.status shouldBe HttpStatusCode.NotFound
+            }
         }
 
         test("Man skal ikke få slette, men få en melding dersom dagens dato er mellom start- og sluttdato for avtalen") {
@@ -57,7 +57,7 @@ class AvtaleServiceTest : FunSpec({
             avtaleFixture.upsertAvtaler(listOf(avtale))
 
             avtaleService.delete(avtale.id, currentDate = currentDate).shouldBeLeft().should {
-                it.status shouldBe HttpStatusCode.BadRequest.value
+                it.status shouldBe HttpStatusCode.BadRequest
                 it.message shouldBe "Avtalen er mellom start- og sluttdato og må avsluttes før den kan slettes."
             }
         }
@@ -73,7 +73,7 @@ class AvtaleServiceTest : FunSpec({
             avtaleFixture.upsertAvtaler(listOf(avtale))
 
             avtaleService.delete(avtale.id, currentDate = currentDate).shouldBeLeft().should {
-                it.status shouldBe HttpStatusCode.BadRequest.value
+                it.status shouldBe HttpStatusCode.BadRequest
                 it.message shouldBe "Avtalen har opprinnelse fra Arena og kan ikke bli slettet i admin-flate."
             }
         }
@@ -115,7 +115,7 @@ class AvtaleServiceTest : FunSpec({
             tiltaksgjennomforinger.upsert(oppfolging2).shouldBeRight()
 
             avtaleService.delete(avtale.id, currentDate = currentDate).shouldBeLeft().should {
-                it.status shouldBe HttpStatusCode.BadRequest.value
+                it.status shouldBe HttpStatusCode.BadRequest
                 it.message shouldBe "Avtalen har 2 tiltaksgjennomføringer koblet til seg. Du må frikoble gjennomføringene før du kan slette avtalen."
             }
         }
