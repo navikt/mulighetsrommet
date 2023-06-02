@@ -23,6 +23,7 @@ export function useAdminTiltaksgjennomforinger() {
         sort: filter.sortering ? filter.sortering : undefined,
         size: PAGE_SIZE,
         avtaleId: filter.avtale ? filter.avtale : undefined,
+        arrangorOrgnr: filter.arrangorOrgnr ? filter.arrangorOrgnr : undefined,
       })
   );
 }

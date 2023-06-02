@@ -223,6 +223,29 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         }
     }
 
+    context("Filtrer på arrangør") {
+        test("Kun gjennomforinger tilhørende arrangør blir tatt med") {
+            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
+
+            tiltaksgjennomforinger.upsert(gjennomforing1).shouldBeRight()
+            tiltaksgjennomforinger.upsert(gjennomforing2.copy(virksomhetsnummer = "999999999")).shouldBeRight()
+
+            tiltaksgjennomforinger.getAll(
+                filter = AdminTiltaksgjennomforingFilter(arrangorOrgnr = "222222222"),
+            ).shouldBeRight().should {
+                it.second.size shouldBe 1
+                it.second[0].id shouldBe gjennomforing1.id
+            }
+
+            tiltaksgjennomforinger.getAll(
+                filter = AdminTiltaksgjennomforingFilter(arrangorOrgnr = "999999999"),
+            ).shouldBeRight().should {
+                it.second.size shouldBe 1
+                it.second[0].id shouldBe gjennomforing2.id
+            }
+        }
+    }
+
     context("Cutoffdato") {
         test("Gamle tiltaksgjennomføringer blir ikke tatt med") {
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)

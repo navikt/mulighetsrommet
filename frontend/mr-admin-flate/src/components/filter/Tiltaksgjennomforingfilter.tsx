@@ -5,6 +5,7 @@ import {
   Norg2Type,
   TiltaksgjennomforingStatus,
   Tiltakstypestatus,
+  VirksomhetTil,
 } from "mulighetsrommet-api-client";
 import { ChangeEvent, useState } from "react";
 import {
@@ -19,6 +20,7 @@ import { OpprettTiltaksgjennomforingModal } from "../modal/OpprettTiltaksgjennom
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
 import { LeggTilGjennomforingModal } from "../modal/LeggTilGjennomforingModal";
 import { arenaKodeErAftEllerVta } from "../../utils/tiltakskoder";
+import { useVirksomheter } from "../../api/virksomhet/useVirksomheter";
 
 type Filters = "tiltakstype";
 
@@ -31,6 +33,7 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
   const [sokefilter, setSokefilter] = useAtom(tiltaksgjennomforingfilter);
   const [, setPage] = useAtom(paginationAtom);
   const { data: enheter } = useAlleEnheter();
+  const { data: virksomheter } = useVirksomheter(VirksomhetTil.TILTAKSGJENNOMFORING);
   const { data: tiltakstyper } = useTiltakstyper(
     {
       status: Tiltakstypestatus.AKTIV,
@@ -170,6 +173,27 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
               Åpent for innsøk
             </option>
             <option value="">Alle statuser</option>
+          </Select>
+          <Select
+            label="Filtrer på arrangør"
+            hideLabel
+            size="small"
+            value={sokefilter.arrangorOrgnr}
+            data-testid="filter_tiltaksgjennomforing_arrangor"
+            onChange={(e: ChangeEvent<HTMLSelectElement>) => {
+              resetPaginering(setPage);
+              setSokefilter({
+                ...sokefilter,
+                arrangorOrgnr: e.currentTarget.value,
+              });
+            }}
+          >
+            <>
+              <option value="">Alle arrangører</option>
+              {virksomheter?.map(v =>
+                <option key={v.organisasjonsnummer} value={v.organisasjonsnummer}>{v.navn}</option>
+              )}
+            </>
           </Select>
         </div>
         <div className={styles.filter_right}>
