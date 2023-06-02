@@ -186,6 +186,6 @@ internal data class BrregUnderenheter(
 
 @Serializable
 internal data class Adresse(
-    val poststed: String,
-    val postnummer: String,
+    val poststed: String ? = null,
+    val postnummer: String? = null,
 )
