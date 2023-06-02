@@ -78,13 +78,7 @@ fun Route.avtaleRoutes() {
 
         delete("{id}") {
             val id = call.parameters.getOrFail<UUID>("id")
-
-            avtaler.delete(id)
-                .map { call.response.status(HttpStatusCode.OK) }
-                .mapLeft {
-                    logError(logger, it.error)
-                    call.respond(HttpStatusCode.InternalServerError, "Kunne ikke slette avtale")
-                }
+            call.respond(avtaler.delete(id))
         }
     }
 }

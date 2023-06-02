@@ -59,7 +59,7 @@ paths:
           content:
             application/json:
               schema:
-                type: string
+                $ref: "#/components/schemas/SletteAvtale"
         404:
           description: "Mangler eller ugyldig id."
           content:
@@ -1892,3 +1892,17 @@ components:
           type: string
           format: UUID
           nullable: true
+
+    SletteAvtale:
+      type: object
+      properties:
+        statusCode:
+          type: number
+        message:
+          type: string
+        cause:
+          type: string
+          nullable: true
+      required:
+        - statusCode
+        - message
