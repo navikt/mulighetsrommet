@@ -1190,6 +1190,8 @@ components:
         - startdato-descending
         - sluttdato-ascending
         - sluttdato-descending
+        - arrangor-ascending
+        - arrangor-descending
 
     Tiltaksgjennomforing:
       type: object
