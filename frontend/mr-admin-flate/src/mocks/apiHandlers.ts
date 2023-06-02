@@ -320,4 +320,10 @@ export const apiHandlers = [
       );
     }
   ),
+  rest.get<any, any, Virksomhet[] | undefined>(
+    "*/api/v1/internal/virksomhet",
+    (req, res, ctx) => {
+      return res(ctx.status(200), ctx.json(mockVirksomheter));
+    }
+  ),
 ];

@@ -1,13 +1,17 @@
-import { Button, Search, Select } from "@navikt/ds-react";
+import { Button, Search } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import {
-  Avtalestatus,
   Norg2Type,
   Tiltakstypestatus,
   VirksomhetTil,
 } from "mulighetsrommet-api-client";
-import { ChangeEvent, useEffect, useRef, useState } from "react";
-import { avtaleFilter, avtalePaginationAtom } from "../../api/atoms";
+import { useEffect, useRef, useState } from "react";
+import { FormProvider, useForm } from "react-hook-form";
+import {
+  AvtaleFilterProps,
+  avtaleFilter,
+  avtalePaginationAtom,
+} from "../../api/atoms";
 import { useAvtaler } from "../../api/avtaler/useAvtaler";
 import { useAlleEnheter } from "../../api/enhet/useAlleEnheter";
 import {
@@ -15,10 +19,11 @@ import {
   useFeatureToggles,
 } from "../../api/features/feature-toggles";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
+import { useVirksomheter } from "../../api/virksomhet/useVirksomheter";
 import { resetPaginering } from "../../utils/Utils";
 import OpprettAvtaleModal from "../avtaler/OpprettAvtaleModal";
+import { SokeSelect } from "../skjema/SokeSelect";
 import styles from "./Filter.module.scss";
-import { useVirksomheter } from "../../api/virksomhet/useVirksomheter";
 
 type Filters = "tiltakstype";
 
@@ -28,6 +33,14 @@ interface Props {
 
 export function Avtalefilter(props: Props) {
   const [filter, setFilter] = useAtom(avtaleFilter);
+
+  const form = useForm<AvtaleFilterProps>({
+    defaultValues: {
+      ...filter,
+    },
+  });
+  const { register } = form;
+
   const { data: enheter } = useAlleEnheter();
   const { data: tiltakstyper } = useTiltakstyper(
     { status: Tiltakstypestatus.AKTIV },
@@ -50,123 +63,136 @@ export function Avtalefilter(props: Props) {
     }
   }, [data]);
 
+  const regionOptions = () => {
+    const alleOptions = { value: "", label: "Alle regioner" };
+    const regionOptions = enheter
+      ? enheter
+          ?.filter((enhet) => enhet.type === Norg2Type.FYLKE)
+          ?.map((enhet) => ({
+            value: enhet.enhetsnummer,
+            label: `${enhet.navn} - ${enhet.enhetsnummer}`,
+          }))
+      : [];
+    return [alleOptions, ...regionOptions];
+  };
+
+  const tiltakstypeOptions = () => {
+    const alleOptions = { value: "", label: "Alle tiltakstyper" };
+    const tiltakstypeOptions = tiltakstyper
+      ? tiltakstyper?.data?.map((tiltakstype) => ({
+          label: tiltakstype.navn,
+          value: tiltakstype.id,
+        }))
+      : [];
+    return [alleOptions, ...tiltakstypeOptions];
+  };
+  const leverandorOptions = () => {
+    const alleOptions = { value: "", label: "Alle leverandører" };
+    const leverandorOptions = leverandorer
+      ? leverandorer?.map(({ navn: label, organisasjonsnummer: value }) => ({
+          label,
+          value,
+        }))
+      : [];
+    return [alleOptions, ...leverandorOptions];
+  };
+
   return (
-    <>
-      <div className={styles.filter_container}>
-        <div className={styles.filter_left}>
-          <Search
-            ref={searchRef}
-            label="Søk etter avtale"
-            hideLabel
-            size="small"
-            variant="simple"
-            onChange={(sok: string) => {
-              setFilter({ ...filter, sok });
-            }}
-            value={filter.sok}
-            aria-label="Søk etter avtale"
-            data-testid="filter_avtale_sokefelt"
-          />
-          <Select
-            label="Filtrer på statuser"
-            hideLabel
-            size="small"
-            value={filter.status}
-            data-testid="filter_avtale_status"
-            onChange={(e: ChangeEvent<HTMLSelectElement>) => {
-              resetPaginering(setPage);
-              setFilter({
-                ...filter,
-                status: e.currentTarget.value as Avtalestatus,
-              });
-            }}
-          >
-            <option value="Aktiv">Aktiv</option>
-            <option value="Planlagt">Planlagt</option>
-            <option value="Avsluttet">Avsluttet</option>
-            <option value="Avbrutt">Avbrutt</option>
-            <option value="">Alle statuser</option>
-          </Select>
-          <Select
-            label="Filtrer på region"
-            hideLabel
-            size="small"
-            value={filter.navRegion}
-            data-testid="filter_avtale_nav_region"
-            onChange={(e: ChangeEvent<HTMLSelectElement>) => {
-              resetPaginering(setPage);
-              setFilter({ ...filter, navRegion: e.currentTarget.value });
-            }}
-          >
-            <option value="">Alle regioner</option>
-            {enheter
-              ?.filter((enhet) => enhet.type === Norg2Type.FYLKE)
-              ?.map((enhet) => (
-                <option key={enhet.enhetsnummer} value={enhet.enhetsnummer}>
-                  {enhet.navn} - {enhet.enhetsnummer}
-                </option>
-              ))}
-          </Select>
-          {props.skjulFilter?.tiltakstype ? null : (
-            <Select
-              label="Filtrer på tiltakstype"
+    <FormProvider {...form}>
+      <form>
+        <div className={styles.filter_container}>
+          <div className={styles.filter_left}>
+            <Search
+              ref={searchRef}
+              label="Søk etter avtale"
               hideLabel
               size="small"
-              value={filter.tiltakstype}
-              data-testid="filter_avtale_tiltakstype"
-              onChange={(e: ChangeEvent<HTMLSelectElement>) => {
-                resetPaginering(setPage);
-                setFilter({ ...filter, tiltakstype: e.currentTarget.value });
+              variant="simple"
+              onChange={(sok: string) => {
+                setFilter({ ...filter, sok });
               }}
-            >
-              <option value="">Alle tiltakstyper</option>
-              {tiltakstyper?.data?.map((tiltakstype) => (
-                <option key={tiltakstype.id} value={tiltakstype.id}>
-                  {tiltakstype.navn}
-                </option>
-              ))}
-            </Select>
-          )}
-          <Select
-            label="Filtrer på leverandør"
-            hideLabel
-            size="small"
-            value={filter.leverandor_orgnr}
-            data-testid="filter_avtale_leverandor"
-            onChange={(e: ChangeEvent<HTMLSelectElement>) => {
-              resetPaginering(setPage);
-              setFilter({ ...filter, leverandor_orgnr: e.currentTarget.value });
-            }}
-          >
-            <option value="">Alle leverandører</option>
-            {leverandorer?.map((leverandor) => (
-              <option
-                key={leverandor.organisasjonsnummer}
-                value={leverandor.organisasjonsnummer}
-              >
-                {leverandor.navn}
-              </option>
-            ))}
-          </Select>
-        </div>
-        <div className={styles.filter_right}>
-          {visOpprettAvtaleknapp && (
-            <>
-              <Button
-                onClick={() => setModalOpen(true)}
-                data-testid="registrer-ny-avtale"
-                size="small"
-              >
-                Registrer avtale
-              </Button>
-              <OpprettAvtaleModal
-                modalOpen={modalOpen}
-                onClose={() => setModalOpen(false)}
+              value={filter.sok}
+              aria-label="Søk etter avtale"
+              className={styles.form_field}
+            />
+            <SokeSelect
+              placeholder="Filtrer på statuser"
+              label="Filtrer på statuser"
+              hideLabel
+              {...register("status")}
+              className={styles.form_field}
+              onChange={(e) => setFilter({ ...filter, status: e })}
+              options={[
+                { value: "Aktiv", label: "Aktiv" },
+                { value: "Planlagt", label: "Planlagt" },
+                { value: "Avsluttet", label: "Avsluttet" },
+                { value: "Avbrutt", label: "Avbrutt" },
+                { value: "", label: "Alle statuser" },
+              ]}
+            />
+
+            <SokeSelect
+              label="Filtrer på region"
+              hideLabel
+              placeholder="Filtrer på region"
+              {...register("navRegion")}
+              className={styles.form_field}
+              onChange={(e) => {
+                resetPaginering(setPage);
+                setFilter({ ...filter, navRegion: e });
+              }}
+              options={regionOptions()}
+            />
+            {props.skjulFilter?.tiltakstype ? null : (
+              <SokeSelect
+                label="Filtrer på tiltakstype"
+                placeholder="Filtrer på tiltakstype"
+                hideLabel
+                {...register("tiltakstype")}
+                className={styles.form_field}
+                onChange={(e) => {
+                  resetPaginering(setPage);
+                  setFilter({ ...filter, tiltakstype: e });
+                }}
+                options={tiltakstypeOptions()}
               />
-            </>
-          )}
+            )}
+            <SokeSelect
+              label="Filtrer på leverandør"
+              placeholder="Filtrer på leverandør"
+              hideLabel
+              {...register("leverandor_orgnr")}
+              className={styles.form_field}
+              onChange={(e) => {
+                resetPaginering(setPage);
+                setFilter({
+                  ...filter,
+                  leverandor_orgnr: e,
+                });
+              }}
+              options={leverandorOptions()}
+            />
+          </div>
+          <div className={styles.filter_right}>
+            {visOpprettAvtaleknapp && (
+              <>
+                <Button
+                  onClick={() => setModalOpen(true)}
+                  data-testid="registrer-ny-avtale"
+                  size="small"
+                  type="button"
+                >
+                  Registrer avtale
+                </Button>
+                <OpprettAvtaleModal
+                  modalOpen={modalOpen}
+                  onClose={() => setModalOpen(false)}
+                />
+              </>
+            )}
+          </div>
         </div>
-      </div>
-    </>
+      </form>
+    </FormProvider>
   );
 }

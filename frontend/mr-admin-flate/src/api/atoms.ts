@@ -75,14 +75,16 @@ export const tiltaksgjennomforingTilAvtaleFilter = atom<
   Pick<Tiltaksgjennomforingfilter, "search">
 >({ search: "" });
 
-const avtaleFilter = atomWithHash<{
+export interface AvtaleFilterProps {
   sok: string;
   status: Avtalestatus;
   navRegion: string;
   tiltakstype: string;
   sortering: SorteringAvtaler;
   leverandor_orgnr: string;
-}>(
+}
+
+const avtaleFilter = atomWithHash<AvtaleFilterProps>(
   "avtalefilter",
   {
     sok: "",

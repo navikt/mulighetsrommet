@@ -66,6 +66,7 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
             value={sokefilter.search}
             aria-label="Søk etter tiltaksgjennomføring"
             data-testid="filter_sokefelt"
+            className={styles.form_field}
           />
           <Select
             label="Filtrer på region"
