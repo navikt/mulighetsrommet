@@ -14,6 +14,7 @@ export const SE_NOTIFIKASJONER_ADMIN_FLATE =
   "mulighetsrommet.admin-flate-se-notifikasjoner";
 export const LAGRE_DATA_FRA_ADMIN_FLATE =
   "mulighetsrommet.admin-flate-lagre-data-fra-admin-flate";
+export const SLETTE_AVTALE = "mulighetsrommet.admin-flate-slett-avtale";
 
 export const ALL_TOGGLES = [
   ENABLE_ADMIN_FLATE,
@@ -23,6 +24,7 @@ export const ALL_TOGGLES = [
   OPPRETT_TILTAKSGJENNOMFORING_ADMIN_FLATE,
   SE_NOTIFIKASJONER_ADMIN_FLATE,
   LAGRE_DATA_FRA_ADMIN_FLATE,
+  SLETTE_AVTALE,
 ] as const;
 
 export type Features = Record<(typeof ALL_TOGGLES)[number], boolean>;
@@ -35,6 +37,7 @@ export const initialFeatures: Features = {
   "mulighetsrommet.admin-flate-opprett-tiltaksgjennomforing": false,
   "mulighetsrommet.admin-flate-se-notifikasjoner": false,
   "mulighetsrommet.admin-flate-lagre-data-fra-admin-flate": false,
+  "mulighetsrommet.admin-flate-slett-avtale": false,
 };
 
 const toggles = ALL_TOGGLES.map((element) => "feature=" + element).join("&");

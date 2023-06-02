@@ -57,6 +57,7 @@ liste, blir oppdatert etter hvert som behovet oppstår):
 Det finnes noen tilgjengelige dashboards, men nytten med disse kan variere:
 
 - [Innsikt i logger](<https://logs.adeo.no/app/dashboards#/view/6927d260-00ed-11ed-9b1a-4723a5e7a9db?_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:now-15m,to:now))>)
+- [Opentelemetry-metrikker fra frontend](https://grafana.nav.cloud.nais.io/d/k8g_nks4z/frontend-web-vitals?orgId=1&var-app=mulighetsrommet-veileder-flate&var-env=prod-gcp-loki&from=now-15m&to=now)
 - [Metrikker fra frontend](<https://logs.adeo.no/app/dashboards#/view/b9e91b00-01ba-11ed-9b1a-4723a5e7a9db?_a=(viewMode:edit)&_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:now-15m,to:now))>)
 - [Metrikker fra backend](https://grafana.nais.io/d/8W2DNq6nk/mulighetsrommet-api?orgId=1&refresh=5m&var-datasource=prod-gcp&var-duration=30m&var-team=team-mulighetsrommet&from=now-15m&to=now)
 

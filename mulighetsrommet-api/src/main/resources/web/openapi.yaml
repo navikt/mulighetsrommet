@@ -59,7 +59,7 @@ paths:
           content:
             application/json:
               schema:
-                type: string
+                $ref: "#/components/schemas/SletteAvtale"
         404:
           description: "Mangler eller ugyldig id."
           content:
@@ -128,6 +128,11 @@ paths:
           name: sort
           schema:
             $ref: "#/components/schemas/SorteringAvtaler"
+        - in: query
+          name: leverandorOrgnr
+          schema:
+            type: string
+          description: Organisasjonsnummer til leverandør for avtaler
       responses:
         200:
           description: Object of paginated avtaler connected to specified tiltakstype-id.
@@ -756,6 +761,27 @@ paths:
                 items:
                   $ref: "#/components/schemas/NavEnhet"
 
+  /api/v1/internal/virksomhet:
+    get:
+      tags:
+        - Virksomhet
+      operationId: getVirksomheter
+      parameters:
+        - in: query
+          name: til
+          schema:
+            $ref: "#/components/schemas/VirksomhetTil"
+          description: Hent virksomheter tilhørende avtaler eller gjennomforinger
+      responses:
+        200:
+          description: Liste med virksomheter
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Virksomhet"
+
   /api/v1/internal/virksomhet/{orgnr}:
     get:
       tags:
@@ -1290,6 +1316,12 @@ components:
       enum:
         - ARENA
         - MR_ADMIN_FLATE
+
+    VirksomhetTil:
+      type: string
+      enum:
+        - AVTALE
+        - TILTAKSGJENNOMFORING
 
     Bruker:
       type: object
@@ -1860,3 +1892,17 @@ components:
           type: string
           format: UUID
           nullable: true
+
+    SletteAvtale:
+      type: object
+      properties:
+        statusCode:
+          type: number
+        message:
+          type: string
+        cause:
+          type: string
+          nullable: true
+      required:
+        - statusCode
+        - message

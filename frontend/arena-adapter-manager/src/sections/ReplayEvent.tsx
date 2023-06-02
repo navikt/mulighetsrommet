@@ -8,6 +8,16 @@ function ReplayEvent() {
   const { arenaTables, isArenaTablesLoading } = useArenaTables();
   const [arenaId, setArenaId] = useState<string>("");
   const [table, setTable] = useState<string>("");
+  const [loading, setLoading] = useState(false);
+
+  const handleReplay = async (table: string, arenaId: string) => {
+    setLoading(true);
+    const arenaIder = arenaId.split(",");
+    arenaIder.forEach(async (id) => {
+      await replayEvent(table, id);
+    });
+    setLoading(false);
+  };
 
   return (
     <Section
@@ -29,13 +39,15 @@ function ReplayEvent() {
         ))}
       </Select>
       <Input
-        placeholder="Arena id"
+        placeholder="Arena-id eller kommaseparert liste med Arena-id'er"
         value={arenaId}
         onChange={({ currentTarget }) => {
           setArenaId(currentTarget.value);
         }}
       />
-      <Button onClick={() => replayEvent(table, arenaId)}>Replay Event</Button>
+      <Button disabled={loading} onClick={() => handleReplay(table, arenaId)}>
+        {loading ? "Replaying event" : "Replay Event"}
+      </Button>
     </Section>
   );
 }

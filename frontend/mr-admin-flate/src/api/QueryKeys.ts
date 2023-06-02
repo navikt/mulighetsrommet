@@ -3,6 +3,7 @@ import {
   SorteringTiltakstyper,
   Tiltakstypekategori,
   Tiltakstypestatus,
+  VirksomhetTil,
 } from "mulighetsrommet-api-client";
 import { Tiltaksgjennomforingfilter } from "./atoms";
 
@@ -38,11 +39,22 @@ export const QueryKeys = {
     status: Avtalestatus,
     enhet: string,
     sortering: string,
+    leverandorOrgnr: string,
     page: number
-  ) => [sok, status, enhet, sortering, tiltakstypeId, page, "avtaler"],
+  ) => [
+    sok,
+    status,
+    enhet,
+    sortering,
+    tiltakstypeId,
+    page,
+    leverandorOrgnr,
+    "avtaler",
+  ],
   avtale: (avtaleId: string) => [avtaleId, "avtale"],
   nokkeltallAvtale: (avtaleId: string) => [avtaleId, "nokkeltallAvtale"],
   enheter: () => ["enheter"],
+  virksomheter: (til: VirksomhetTil) => [til, "virksomheter"],
   antallUlesteNotifikasjoner: () => ["antallUlesteNotifikasjoner"],
   virksomhetSok: (sokestreng: string) => ["virksomhetSok", sokestreng],
   virksomhetOppslag: (orgnr: string) => ["virksometOppslag", orgnr],

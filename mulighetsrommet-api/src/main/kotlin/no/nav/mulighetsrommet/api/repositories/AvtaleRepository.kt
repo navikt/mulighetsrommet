@@ -236,6 +236,7 @@ class AvtaleRepository(private val db: Database) {
             "limit" to pagination.limit,
             "offset" to pagination.offset,
             "today" to filter.dagensDato,
+            "leverandorOrgnr" to filter.leverandorOrgnr,
         )
 
         val where = DatabaseUtils.andWhereParameterNotNull(
@@ -243,6 +244,7 @@ class AvtaleRepository(private val db: Database) {
             filter.search to "(lower(a.navn) like lower(:search))",
             filter.avtalestatus to filter.avtalestatus?.toDbStatement(),
             filter.navRegion to "lower(a.nav_region) = lower(:nav_region) or lower(a.arena_ansvarlig_enhet) = lower(:nav_region) or lower(a.arena_ansvarlig_enhet) in (select enhetsnummer from nav_enhet where overordnet_enhet = :nav_region)",
+            filter.leverandorOrgnr to "a.leverandor_organisasjonsnummer = :leverandorOrgnr",
         )
 
         val order = when (filter.sortering) {

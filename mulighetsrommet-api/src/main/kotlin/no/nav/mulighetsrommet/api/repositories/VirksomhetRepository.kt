@@ -102,6 +102,36 @@ class VirksomhetRepository(private val db: Database) {
         }
     }
 
+    fun getAll(filter: VirksomhetFilter): QueryResult<List<VirksomhetDto>> = query {
+        val join = when (filter.til) {
+            VirksomhetTil.AVTALE -> {
+                "inner join avtale on avtale.leverandor_organisasjonsnummer = v.organisasjonsnummer"
+            }
+            VirksomhetTil.TILTAKSGJENNOMFORING -> {
+                "inner join tiltaksgjennomforing t on t.virksomhetsnummer = v.organisasjonsnummer"
+            }
+            else -> ""
+        }
+
+        @Language("PostgreSQL")
+        val selectVirksomheter = """
+            select distinct
+                v.organisasjonsnummer,
+                v.overordnet_enhet,
+                v.navn,
+                v.postnummer,
+                v.poststed
+            from virksomhet v
+                $join
+            order by v.navn asc
+        """.trimIndent()
+
+        queryOf(selectVirksomheter)
+            .map { it.toVirksomhetDto() }
+            .asList
+            .let { db.run(it) }
+    }
+
     fun get(orgnr: String): QueryResult<VirksomhetDto?> = query {
         @Language("PostgreSQL")
         val selectVirksomhet = """

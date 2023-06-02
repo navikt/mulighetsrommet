@@ -4,9 +4,9 @@
   "private": true,
   "scripts": {
     "backend": "cross-env VITE_MULIGHETSROMMET_API_BASE='http://localhost:8080' VITE_EKSTERNE_SYSTEMER_MOCK=true vite",
-    "build": "cross-env VITE_ENVIRONMENT=production VITE_MULIGHETSROMMET_API_BASE='/mulighetsrommet-api' vite build --base=https://mulighetsrommet-veileder-flate.intern.nav.no/",
-    "build:dev": "cross-env VITE_ENVIRONMENT=dev VITE_MULIGHETSROMMET_API_BASE='/mulighetsrommet-api' vite build --base=https://mulighetsrommet-veileder-flate.intern.dev.nav.no/",
-    "build:demo": "cross-env VITE_MULIGHETSROMMET_API_MOCK=true VITE_EKSTERNE_SYSTEMER_MOCK=true vite build",
+    "build": "cross-env VITE_ENVIRONMENT=production VITE_FARO_URL=https://telemetry.nav.no/collect VITE_MULIGHETSROMMET_API_BASE='/mulighetsrommet-api' vite build --base=https://mulighetsrommet-veileder-flate.intern.nav.no/",
+    "build:dev": "cross-env VITE_ENVIRONMENT=dev VITE_FARO_URL=https://telemetry.ekstern.dev.nav.no/collect VITE_MULIGHETSROMMET_API_BASE='/mulighetsrommet-api' vite build --base=https://mulighetsrommet-veileder-flate.intern.dev.nav.no/",
+    "build:demo": "cross-env VITE_MULIGHETSROMMET_API_MOCK=true VITE_EKSTERNE_SYSTEMER_MOCK=true VITE_FARO_URL=https://telemetry.ekstern.dev.nav.no/collect vite build",
     "cy:run": "npx cypress run --e2e --browser chrome",
     "cypress": "npx cypress open",
     "lint": "eslint src --ext .js,.ts,.tsx && tsc",
@@ -24,6 +24,7 @@
     "**/fsevents": "^1.2.9"
   },
   "dependencies": {
+    "@grafana/faro-web-sdk": "^1.0.5",
     "@navikt/aksel-icons": "^3.3.1",
     "@navikt/ds-css": "^3.2.3",
     "@navikt/ds-react": "^3.1.3",
