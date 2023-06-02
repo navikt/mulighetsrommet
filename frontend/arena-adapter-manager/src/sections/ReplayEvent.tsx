@@ -8,6 +8,13 @@ function ReplayEvent() {
   const { arenaTables, isArenaTablesLoading } = useArenaTables();
   const [arenaId, setArenaId] = useState<string>("");
   const [table, setTable] = useState<string>("");
+  const [loading, setLoading] = useState(false);
+
+  const handleReplay = async (table: string, arenaId: string) => {
+    setLoading(true);
+    await replayEvent(table, arenaId);
+    setLoading(false);
+  };
 
   return (
     <Section
@@ -35,7 +42,9 @@ function ReplayEvent() {
           setArenaId(currentTarget.value);
         }}
       />
-      <Button onClick={() => replayEvent(table, arenaId)}>Replay Event</Button>
+      <Button disabled={loading} onClick={() => handleReplay(table, arenaId)}>
+        {loading ? "Replaying event" : "Replay Event"}
+      </Button>
     </Section>
   );
 }
