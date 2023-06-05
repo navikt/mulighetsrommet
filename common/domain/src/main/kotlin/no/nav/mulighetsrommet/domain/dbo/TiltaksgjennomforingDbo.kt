@@ -30,6 +30,7 @@ data class TiltaksgjennomforingDbo(
     val navEnheter: List<String>,
     val oppstart: Oppstartstype,
     val opphav: ArenaMigrering.Opphav,
+    val midlertidigStengt: Boolean = false,
 ) {
     enum class Tilgjengelighetsstatus {
         Ledig,

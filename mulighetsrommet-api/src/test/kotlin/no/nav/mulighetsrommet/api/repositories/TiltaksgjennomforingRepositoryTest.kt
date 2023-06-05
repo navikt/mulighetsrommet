@@ -89,12 +89,23 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 sanityId = null,
                 oppstart = TiltaksgjennomforingDbo.Oppstartstype.FELLES,
                 opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
+                midlertidigStengt = false,
             )
 
             tiltaksgjennomforinger.delete(gjennomforing1.id)
 
             tiltaksgjennomforinger.getAll(filter = AdminTiltaksgjennomforingFilter())
                 .shouldBeRight().second shouldHaveSize 1
+        }
+
+        test("midlertidig_stengt crud") {
+            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
+            val gjennomforing = gjennomforing1.copy(midlertidigStengt = true)
+            tiltaksgjennomforinger.upsert(gjennomforing).shouldBeRight()
+
+            tiltaksgjennomforinger.get(gjennomforing.id).shouldBeRight().should {
+                it!!.midlertidigStengt shouldBe true
+            }
         }
 
         test("navEnheter crud") {

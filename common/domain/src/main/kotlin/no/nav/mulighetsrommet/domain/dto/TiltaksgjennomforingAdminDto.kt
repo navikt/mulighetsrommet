@@ -32,6 +32,7 @@ data class TiltaksgjennomforingAdminDto(
     val sanityId: String?,
     val oppstart: TiltaksgjennomforingDbo.Oppstartstype,
     val opphav: ArenaMigrering.Opphav,
+    val midlertidigStengt: Boolean,
 ) {
     @Serializable
     data class Tiltakstype(

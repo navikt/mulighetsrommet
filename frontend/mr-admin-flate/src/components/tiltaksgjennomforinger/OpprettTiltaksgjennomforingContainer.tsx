@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button, TextField } from "@navikt/ds-react";
+import { Button, Checkbox, TextField } from "@navikt/ds-react";
 import {
   Avtale,
   NavEnhet,
@@ -50,6 +50,7 @@ const Schema = z.object({
     })
     .min(1, "Du må velge en underenhet for tiltaksarrangør"),
   ansvarlig: z.string({ required_error: "Du må velge en ansvarlig" }),
+  midlertidigStengt: z.boolean().default(false),
 });
 
 export type inferredSchema = z.infer<typeof Schema>;
@@ -124,6 +125,7 @@ export const OpprettTiltaksgjennomforingContainer = (
         : undefined,
       tiltaksArrangorUnderenhetOrganisasjonsnummer:
         tiltaksgjennomforing?.virksomhetsnummer || "",
+      midlertidigStengt: tiltaksgjennomforing?.midlertidigStengt || false,
     },
   });
   const {
@@ -189,6 +191,7 @@ export const OpprettTiltaksgjennomforingContainer = (
         "",
       tiltaksnummer: tiltaksgjennomforing?.tiltaksnummer,
       oppstart: temporaryResolveOppstartstypeFromAvtale(avtale),
+      midlertidigStengt: data.midlertidigStengt,
     };
 
     try {
@@ -297,6 +300,11 @@ export const OpprettTiltaksgjennomforingContainer = (
               ...register("sluttDato"),
             }}
           />
+          <Checkbox
+            {...register("midlertidigStengt")}
+          >
+            Midlertidig stengt
+          </Checkbox>
           <TextField
             readOnly={arenaOpphav}
             error={errors.antallPlasser?.message}

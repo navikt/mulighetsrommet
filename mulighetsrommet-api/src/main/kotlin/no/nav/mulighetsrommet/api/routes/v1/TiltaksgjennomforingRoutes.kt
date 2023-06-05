@@ -92,6 +92,7 @@ data class TiltaksgjennomforingRequest(
     val ansvarlig: String,
     val navEnheter: List<String>,
     val oppstart: TiltaksgjennomforingDbo.Oppstartstype,
+    val midlertidigStengt: Boolean,
 ) {
     fun toDbo(): StatusResponse<TiltaksgjennomforingDbo> {
         if (!startDato.isBefore(sluttDato)) {
@@ -119,6 +120,7 @@ data class TiltaksgjennomforingRequest(
                 navEnheter = navEnheter,
                 oppstart = oppstart,
                 opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
+                midlertidigStengt = midlertidigStengt,
             ),
         )
     }
