@@ -68,6 +68,7 @@ class AvtaleFixtures(private val database: FlywayDatabaseTestListener) {
         navEnheter: List<String> = emptyList(),
         leverandorUnderenheter: List<String> = emptyList(),
         opphav: ArenaMigrering.Opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
+        arenaAnsvarligEnhet: String? = null,
     ): AvtaleDbo {
         return AvtaleDbo(
             id = UUID.randomUUID(),
@@ -78,7 +79,7 @@ class AvtaleFixtures(private val database: FlywayDatabaseTestListener) {
             leverandorUnderenheter = leverandorUnderenheter,
             startDato = startDato,
             sluttDato = sluttDato,
-            arenaAnsvarligEnhet = null,
+            arenaAnsvarligEnhet = arenaAnsvarligEnhet,
             navRegion = navRegion,
             avtaletype = avtaletype,
             avslutningsstatus = avslutningsstatus,
