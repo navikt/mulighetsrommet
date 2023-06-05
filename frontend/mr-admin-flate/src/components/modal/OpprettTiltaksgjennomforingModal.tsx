@@ -46,6 +46,7 @@ export const OpprettTiltaksgjennomforingModal = ({
       {!error && !result && (
         <Modal
           shouldCloseOnOverlayClick={false}
+          shouldCloseOnEsc={false}
           closeButton
           open={modalOpen}
           onClose={clickCancel}
