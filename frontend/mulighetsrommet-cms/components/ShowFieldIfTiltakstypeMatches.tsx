@@ -3,12 +3,16 @@ import { useClient, useFormValue } from "sanity";
 import { API_VERSION } from "../sanity.config";
 export function ShowFieldIfTiltakstypeMatches(props: any, tiltakstype: string) {
   const client = useClient({ apiVersion: API_VERSION });
-  console.log(props);
   const [visKomponent, setVisKomponent] = useState(false);
   const tiltakstypeRef = useFormValue(["tiltakstype"])?._ref;
 
   useEffect(() => {
-    if (!tiltakstypeRef) return;
+    if (!tiltakstypeRef) {
+      console.warn(
+        "Du prøver å bruke komponenten på et skjema som ikke refererer til tiltakstype. Det går ikke."
+      );
+      return;
+    }
 
     const hentTiltakstype = async () => {
       const res = await client.fetch(
