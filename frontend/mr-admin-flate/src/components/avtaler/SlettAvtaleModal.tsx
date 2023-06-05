@@ -1,10 +1,10 @@
 import { Button, Heading, Modal } from "@navikt/ds-react";
-import { Avtale, Opphav } from "mulighetsrommet-api-client";
-import { useEffect, useState } from "react";
-import styles from "./Modal.module.scss";
 import classNames from "classnames";
-import { useDeleteAvtale } from "../../api/avtaler/useDeleteAvtale";
+import { Avtale, Opphav } from "mulighetsrommet-api-client";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useDeleteAvtale } from "../../api/avtaler/useDeleteAvtale";
+import styles from "./Modal.module.scss";
 
 interface SlettAvtaleModalprops {
   modalOpen: boolean;
