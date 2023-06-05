@@ -79,7 +79,7 @@ fun Route.avtaleRoutes() {
 
         delete("{id}") {
             val id = call.parameters.getOrFail<UUID>("id")
-            call.respond(avtaler.delete(id))
+            call.respondWithStatusResponse(avtaler.delete(id))
         }
     }
 }

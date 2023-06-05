@@ -1,4 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
+import { SletteAvtale } from "mulighetsrommet-api-client";
 import { mulighetsrommetClient } from "../clients";
 
 export function useDeleteAvtale() {
