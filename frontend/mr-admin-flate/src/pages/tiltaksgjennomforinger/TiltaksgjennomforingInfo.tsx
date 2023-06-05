@@ -9,7 +9,7 @@ import { useState } from "react";
 import { useFeatureToggles } from "../../api/features/feature-toggles";
 import { OpprettTiltaksgjennomforingModal } from "../../components/modal/OpprettTiltaksgjennomforingModal";
 import { useAvtale } from "../../api/avtaler/useAvtale";
-import { CheckmarkCircleIcon, ExternalLinkIcon } from "@navikt/aksel-icons";
+import { ExternalLinkIcon } from "@navikt/aksel-icons";
 
 export function TiltaksgjennomforingInfo() {
   const {
