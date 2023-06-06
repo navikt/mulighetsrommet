@@ -31,8 +31,15 @@ import { useFeatureToggles } from "../../api/features/feature-toggles";
 
 const Schema = z.object({
   tittel: z.string().min(1, "Du må skrive inn tittel"),
-  startDato: z.date({ required_error: "En gjennomføring må ha en startdato" }),
-  sluttDato: z.date({ required_error: "En gjennomføring må ha en sluttdato" }),
+  startOgSluttDato: z
+    .object({
+      startDato: z.date({ required_error: "En gjennomføring må ha en startdato" }),
+      sluttDato: z.date({ required_error: "En gjennomføring må ha en sluttdato" }),
+    })
+    .refine((data) => !data.startDato || !data.sluttDato || data.sluttDato > data.startDato, {
+        message: "Startdato må være før sluttdato",
+        path: ["startDato"],
+    }),
   antallPlasser: z
     .number({
       invalid_type_error:
@@ -133,12 +140,14 @@ export const OpprettTiltaksgjennomforingContainer = (
           : tiltaksgjennomforing?.navEnheter.map((enhet) => enhet.enhetsnummer),
       ansvarlig: tiltaksgjennomforing?.ansvarlig,
       antallPlasser: tiltaksgjennomforing?.antallPlasser,
-      startDato: tiltaksgjennomforing?.startDato
-        ? new Date(tiltaksgjennomforing.startDato)
-        : undefined,
-      sluttDato: tiltaksgjennomforing?.sluttDato
-        ? new Date(tiltaksgjennomforing.sluttDato)
-        : undefined,
+      startOgSluttDato: {
+        startDato: tiltaksgjennomforing?.startDato
+          ? new Date(tiltaksgjennomforing.startDato)
+          : undefined,
+        sluttDato: tiltaksgjennomforing?.sluttDato
+          ? new Date(tiltaksgjennomforing.sluttDato)
+          : undefined,
+      },
       tiltaksArrangorUnderenhetOrganisasjonsnummer:
         tiltaksgjennomforing?.virksomhetsnummer || "",
       midlertidigStengt: {
@@ -207,8 +216,8 @@ export const OpprettTiltaksgjennomforingContainer = (
         ? []
         : data.navEnheter,
       navn: data.tittel,
-      sluttDato: formaterDatoSomYYYYMMDD(data.sluttDato),
-      startDato: formaterDatoSomYYYYMMDD(data.startDato),
+      sluttDato: formaterDatoSomYYYYMMDD(data.startOgSluttDato.sluttDato),
+      startDato: formaterDatoSomYYYYMMDD(data.startOgSluttDato.startDato),
       avtaleId: avtale?.id || "",
       ansvarlig: data.ansvarlig,
       virksomhetsnummer:
@@ -321,12 +330,12 @@ export const OpprettTiltaksgjennomforingContainer = (
             fra={{
               label: "Startdato",
               readOnly: arenaOpphav,
-              ...register("startDato"),
+              ...register("startOgSluttDato.startDato"),
             }}
             til={{
               label: "Sluttdato",
               readOnly: arenaOpphav,
-              ...register("sluttDato"),
+              ...register("startOgSluttDato.sluttDato"),
             }}
           />
           <Checkbox

@@ -26,11 +26,11 @@ import {
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { SokeSelect } from "../skjema/SokeSelect";
 import styles from "./OpprettAvtaleContainer.module.scss";
-import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
 import { AvtaleSchema, inferredSchema } from "./AvtaleSchema";
 import { useFeatureToggles } from "../../api/features/feature-toggles";
 import { arenaKodeErAftEllerVta } from "../../utils/tiltakskoder";
 import { usePutAvtale } from "../../api/avtaler/usePutAvtale";
+import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
 
 interface OpprettAvtaleContainerProps {
   onAvbryt: () => void;
@@ -99,8 +99,10 @@ export function OpprettAvtaleContainer({
               (enhet) => enhet.organisasjonsnummer
             ),
       antallPlasser: getValueOrDefault(avtale?.antallPlasser, 0),
-      startDato: avtale?.startDato ? new Date(avtale.startDato) : null,
-      sluttDato: avtale?.sluttDato ? new Date(avtale.sluttDato) : null,
+      startOgSluttDato: {
+        startDato: avtale?.startDato ? new Date(avtale.startDato) : undefined,
+        sluttDato: avtale?.sluttDato ? new Date(avtale.sluttDato) : undefined,
+      },
       url: getValueOrDefault(avtale?.url, ""),
       prisOgBetalingsinfo: getValueOrDefault(
         avtale?.prisbetingelser,
@@ -160,8 +162,7 @@ export function OpprettAvtaleContainer({
       leverandor: leverandorOrganisasjonsnummer,
       leverandorUnderenheter,
       avtalenavn: navn,
-      sluttDato,
-      startDato,
+      startOgSluttDato,
       tiltakstype: tiltakstypeId,
       avtaleansvarlig: ansvarlig,
       avtaletype,
@@ -181,8 +182,8 @@ export function OpprettAvtaleContainer({
         ? []
         : leverandorUnderenheter,
       navn,
-      sluttDato: formaterDatoSomYYYYMMDD(sluttDato),
-      startDato: formaterDatoSomYYYYMMDD(startDato),
+      sluttDato: formaterDatoSomYYYYMMDD(startOgSluttDato.sluttDato),
+      startDato: formaterDatoSomYYYYMMDD(startOgSluttDato.startDato),
       tiltakstypeId,
       url,
       ansvarlig,
@@ -314,12 +315,12 @@ export function OpprettAvtaleContainer({
           <FraTilDatoVelger
             fra={{
               readOnly: arenaOpphav,
-              ...register("startDato"),
+              ...register("startOgSluttDato.startDato"),
               label: "Startdato",
             }}
             til={{
               readOnly: arenaOpphav,
-              ...register("sluttDato"),
+              ...register("startOgSluttDato.sluttDato"),
               label: "Sluttdato",
             }}
           />
