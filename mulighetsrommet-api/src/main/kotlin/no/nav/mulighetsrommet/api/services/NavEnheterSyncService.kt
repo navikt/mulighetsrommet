@@ -42,7 +42,7 @@ class NavEnheterSyncService(
                     enhetsnummer = it.enhet.enhetNr,
                     status = NavEnhetStatus.valueOf(it.enhet.status.name),
                     type = Norg2Type.valueOf(it.enhet.type.name),
-                    overordnetEnhet = getOverordnetEnhet(it.enhet.enhetNr, it.enhet.type) ?: it.overordnetEnhet,
+                    overordnetEnhet = getOverordnetEnhet(it.enhet.enhetNr, it.enhet.type, enhet.status) ?: it.overordnetEnhet,
                 ),
             )
         }
@@ -99,7 +99,7 @@ class NavEnheterSyncService(
                 _key = fylke.enhetNr,
             )
         } else if (enhet.type == Norg2Type.ALS) {
-            val fylkesnummer = getOverordnetEnhet(enhet.enhetNr, enhet.type)
+            val fylkesnummer = getOverordnetEnhet(enhet.enhetNr, enhet.type, enhet.status)
             if (fylkesnummer != null) {
                 fylkeTilEnhet = FylkeRef(
                     _type = "reference",
@@ -123,8 +123,8 @@ class NavEnheterSyncService(
         )
     }
 
-    private fun getOverordnetEnhet(enhetNr: String, type: Norg2Type): String? {
-        if (!listOf(Norg2Type.ALS, Norg2Type.TILTAK).contains(type)) {
+    private fun getOverordnetEnhet(enhetNr: String, type: Norg2Type, status: Norg2EnhetStatus): String? {
+        if (!getWhitelistForStatus().contains(status) || !listOf(Norg2Type.ALS, Norg2Type.TILTAK).contains(type)) {
             return null
         }
 
