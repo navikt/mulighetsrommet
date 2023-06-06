@@ -32,7 +32,10 @@ data class TiltaksgjennomforingAdminDto(
     val sanityId: String?,
     val oppstart: TiltaksgjennomforingDbo.Oppstartstype,
     val opphav: ArenaMigrering.Opphav,
-    val midlertidigStengt: Boolean,
+    @Serializable(with = LocalDateSerializer::class)
+    val stengtFra: LocalDate?,
+    @Serializable(with = LocalDateSerializer::class)
+    val stengtTil: LocalDate? = null,
 ) {
     @Serializable
     data class Tiltakstype(

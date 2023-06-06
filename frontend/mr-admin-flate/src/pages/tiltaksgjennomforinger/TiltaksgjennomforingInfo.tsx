@@ -70,9 +70,16 @@ export function TiltaksgjennomforingInfo() {
             header="Sluttdato"
             verdi={formaterDato(tiltaksgjennomforing.sluttDato)}
           />
-          {tiltaksgjennomforing.midlertidigStengt && 
+          {Boolean(tiltaksgjennomforing.stengtFra) && 
             <Metadata
-                header={<Checkbox checked={true}>Midlertidig stengt</Checkbox>}
+                header={
+                  <Checkbox
+                    checked={true}
+                    description={formaterDato(tiltaksgjennomforing.stengtFra) + " - " + formaterDato(tiltaksgjennomforing.stengtTil)}
+                  >
+                    Midlertidig stengt
+                  </Checkbox>
+                }
                 verdi={null}
             />
           }

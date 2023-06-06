@@ -44,7 +44,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 avtale_id,
                 oppstart,
                 opphav,
-                midlertidig_stengt
+                stengt_fra,
+                stengt_til
             )
             values (
                 :id::uuid,
@@ -61,7 +62,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 :avtale_id,
                 :oppstart::tiltaksgjennomforing_oppstartstype,
                 :opphav::opphav,
-                :midlertidig_stengt
+                :stengt_fra,
+                :stengt_til
             )
             on conflict (id)
                 do update set navn                  = excluded.navn,
@@ -77,7 +79,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                               avtale_id             = excluded.avtale_id,
                               oppstart              = excluded.oppstart,
                               opphav                = excluded.opphav,
-                              midlertidig_stengt    = excluded.midlertidig_stengt
+                              stengt_fra            = excluded.stengt_fra,
+                              stengt_til            = excluded.stengt_til
             returning *
         """.trimIndent()
 
@@ -227,7 +230,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                    tg.avtale_id,
                    tg.oppstart,
                    tg.opphav,
-                   tg.midlertidig_stengt,
+                   tg.stengt_fra,
+                   tg.stengt_til,
                    array_agg(a.navident) as ansvarlige,
                    jsonb_agg(
                      case
@@ -336,7 +340,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                    tg.antall_plasser,
                    tg.avtale_id,
                    tg.oppstart,
-                   tg.midlertidig_stengt,
+                   tg.stengt_fra,
+                   tg.stengt_til,
                    array_agg(a.navident) as ansvarlige,
                    jsonb_agg(
                      case
@@ -482,7 +487,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         "avtale_id" to avtaleId,
         "oppstart" to oppstart.name,
         "opphav" to opphav.name,
-        "midlertidig_stengt" to midlertidigStengt,
+        "stengt_fra" to stengtFra,
+        "stengt_til" to stengtTil,
     )
 
     private fun Row.toTiltaksgjennomforingDbo() = TiltaksgjennomforingDbo(
@@ -538,7 +544,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             sanityId = stringOrNull("sanity_id"),
             oppstart = TiltaksgjennomforingDbo.Oppstartstype.valueOf(string("oppstart")),
             opphav = ArenaMigrering.Opphav.valueOf(string("opphav")),
-            midlertidigStengt = boolean("midlertidig_stengt"),
+            stengtFra = localDateOrNull("stengt_fra"),
+            stengtTil = localDateOrNull("stengt_til"),
         )
     }
 

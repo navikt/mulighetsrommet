@@ -89,7 +89,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 sanityId = null,
                 oppstart = TiltaksgjennomforingDbo.Oppstartstype.FELLES,
                 opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
-                midlertidigStengt = false,
+                stengtFra = null,
             )
 
             tiltaksgjennomforinger.delete(gjennomforing1.id)
@@ -100,11 +100,15 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 
         test("midlertidig_stengt crud") {
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-            val gjennomforing = gjennomforing1.copy(midlertidigStengt = true)
+            val gjennomforing = gjennomforing1.copy(
+                stengtFra = LocalDate.of(2020, 1, 22),
+                stengtTil = LocalDate.of(2020, 4, 22),
+            )
             tiltaksgjennomforinger.upsert(gjennomforing).shouldBeRight()
 
             tiltaksgjennomforinger.get(gjennomforing.id).shouldBeRight().should {
-                it!!.midlertidigStengt shouldBe true
+                it!!.stengtFra shouldBe LocalDate.of(2020, 1, 22)
+                it.stengtTil shouldBe LocalDate.of(2020, 4, 22)
             }
         }
 

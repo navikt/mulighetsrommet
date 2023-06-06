@@ -1240,8 +1240,12 @@ components:
           $ref: "#/components/schemas/TiltaksgjennomforingOppstartstype"
         opphav:
           $ref: "#/components/schemas/Opphav"
-        midlertidigStengt:
-          type: boolean
+        stengtFra:
+          type: string
+          format: date
+        stengtTil:
+          type: string
+          format: date
       required:
         - id
         - tiltakstype
@@ -1286,8 +1290,12 @@ components:
             type: string
         oppstart:
           $ref: "#/components/schemas/TiltaksgjennomforingOppstartstype"
-        midlertidigStengt:
-          type: boolean
+        stengtFra:
+          type: string
+          format: date
+        stengtTil:
+          type: string
+          format: date
       required:
         - id
         - avtaleId
@@ -1300,7 +1308,6 @@ components:
         - ansvarlig
         - navEnheter
         - oppstart
-        - midlertidigStengt
 
     TiltaksgjennomforingAvslutningsstatus:
       type: string

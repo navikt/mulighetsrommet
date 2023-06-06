@@ -44,6 +44,7 @@ fun Route.tiltaksgjennomforingRoutes() {
             val filter = getAdminTiltaksgjennomforingsFilter()
 
             val result = tiltaksgjennomforingService.getAll(paginationParams, filter)
+                .onLeft { log.error("${it.error}") }
                 .mapLeft { ServerError("Klarte ikke hente tiltaksgjennomføringer") }
 
             call.respondWithStatusResponse(result)
@@ -92,11 +93,20 @@ data class TiltaksgjennomforingRequest(
     val ansvarlig: String,
     val navEnheter: List<String>,
     val oppstart: TiltaksgjennomforingDbo.Oppstartstype,
-    val midlertidigStengt: Boolean,
+    @Serializable(with = LocalDateSerializer::class)
+    val stengtFra: LocalDate? = null,
+    @Serializable(with = LocalDateSerializer::class)
+    val stengtTil: LocalDate? = null,
 ) {
     fun toDbo(): StatusResponse<TiltaksgjennomforingDbo> {
         if (!startDato.isBefore(sluttDato)) {
             return Either.Left(BadRequest("Startdato må være før sluttdato"))
+        }
+        if ((stengtFra != null) != (stengtTil != null)) {
+            return Either.Left(BadRequest("Både stengt fra og til må være satt"))
+        }
+        if (stengtFra?.isBefore(stengtTil) == false) {
+            return Either.Left(BadRequest("Stengt fra må være før stengt til"))
         }
         if (antallPlasser <= 0) {
             return Either.Left(BadRequest("Antall plasser må være større enn 0"))
@@ -120,7 +130,8 @@ data class TiltaksgjennomforingRequest(
                 navEnheter = navEnheter,
                 oppstart = oppstart,
                 opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
-                midlertidigStengt = midlertidigStengt,
+                stengtFra = stengtFra,
+                stengtTil = stengtTil,
             ),
         )
     }
