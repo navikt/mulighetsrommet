@@ -70,7 +70,7 @@ export function Avtalefilter(props: Props) {
           ?.filter((enhet) => enhet.type === Norg2Type.FYLKE)
           ?.map((enhet) => ({
             value: enhet.enhetsnummer,
-            label: `${enhet.navn} - ${enhet.enhetsnummer}`,
+            label: enhet.navn,
           }))
       : [];
     return [alleOptions, ...regionOptions];
