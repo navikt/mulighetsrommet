@@ -129,6 +129,7 @@ class ArenaAdapterServiceTest : FunSpec({
             sanityId = null,
             oppstart = oppstart,
             opphav = ArenaMigrering.Opphav.ARENA,
+            stengtFra = null,
         )
     }
 

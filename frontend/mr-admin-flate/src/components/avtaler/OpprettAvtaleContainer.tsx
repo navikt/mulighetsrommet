@@ -2,6 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Textarea, TextField } from "@navikt/ds-react";
 import classNames from "classnames";
 import {
+  ApiError,
   Avtale,
   AvtaleRequest,
   Avtaletype,
@@ -11,30 +12,28 @@ import {
 import { Ansatt } from "mulighetsrommet-api-client/build/models/Ansatt";
 import { NavEnhet } from "mulighetsrommet-api-client/build/models/NavEnhet";
 import { Tiltakstype } from "mulighetsrommet-api-client/build/models/Tiltakstype";
-import { porten } from "mulighetsrommet-frontend-common/constants";
 import { StatusModal } from "mulighetsrommet-veileder-flate/src/components/modal/delemodal/StatusModal";
-import { Dispatch, ReactNode, SetStateAction, useState } from "react";
+import { ReactNode, useState } from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
-import { mulighetsrommetClient } from "../../api/clients";
+import { usePutAvtale } from "../../api/avtaler/usePutAvtale";
+import { useFeatureToggles } from "../../api/features/feature-toggles";
 import { useSokVirksomheter } from "../../api/virksomhet/useSokVirksomhet";
 import { useVirksomhet } from "../../api/virksomhet/useVirksomhet";
 import { useNavigerTilAvtale } from "../../hooks/useNavigerTilAvtale";
+import { arenaKodeErAftEllerVta } from "../../utils/tiltakskoder";
 import {
   capitalize,
   formaterDatoSomYYYYMMDD,
   tiltakstypekodeErAnskaffetTiltak,
 } from "../../utils/Utils";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
+import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
 import { SokeSelect } from "../skjema/SokeSelect";
-import styles from "./OpprettAvtaleContainer.module.scss";
-import { Datovelger } from "../skjema/Datovelger";
 import { AvtaleSchema, inferredSchema } from "./AvtaleSchema";
-import { useFeatureToggles } from "../../api/features/feature-toggles";
-import { arenaKodeErAftEllerVta } from "../../utils/tiltakskoder";
+import styles from "./OpprettAvtaleContainer.module.scss";
 
 interface OpprettAvtaleContainerProps {
   onAvbryt: () => void;
-  setResult: Dispatch<SetStateAction<string | null>>;
   tiltakstyper: Tiltakstype[];
   ansatt: Ansatt;
   avtale?: Avtale;
@@ -43,15 +42,14 @@ interface OpprettAvtaleContainerProps {
 
 export function OpprettAvtaleContainer({
   onAvbryt,
-  setResult,
   tiltakstyper,
   ansatt,
   enheter,
   avtale,
 }: OpprettAvtaleContainerProps) {
+  const mutation = usePutAvtale();
   const { navigerTilAvtale } = useNavigerTilAvtale();
   const redigeringsModus = !!avtale;
-  const [feil, setFeil] = useState<string | null>("");
   const [navRegion, setNavRegion] = useState<string | undefined>(
     avtale?.navRegion?.enhetsnummer
   );
@@ -61,10 +59,6 @@ export function OpprettAvtaleContainer({
   const { data: leverandorVirksomheter = [] } =
     useSokVirksomheter(sokLeverandor);
   const { data: features } = useFeatureToggles();
-
-  const clickCancel = () => {
-    setFeil(null);
-  };
 
   const defaultEnhet = () => {
     if (avtale?.navRegion?.enhetsnummer) {
@@ -105,8 +99,10 @@ export function OpprettAvtaleContainer({
           : avtale?.leverandorUnderenheter?.map(
               (enhet) => enhet.organisasjonsnummer
             ),
-      startDato: avtale?.startDato ? new Date(avtale.startDato) : null,
-      sluttDato: avtale?.sluttDato ? new Date(avtale.sluttDato) : null,
+      startOgSluttDato: {
+        startDato: avtale?.startDato ? new Date(avtale.startDato) : undefined,
+        sluttDato: avtale?.sluttDato ? new Date(avtale.sluttDato) : undefined,
+      },
       url: getValueOrDefault(avtale?.url, ""),
       prisOgBetalingsinfo: getValueOrDefault(
         avtale?.prisbetingelser,
@@ -133,13 +129,15 @@ export function OpprettAvtaleContainer({
   };
 
   const arenaOpphav = avtale?.opphav === Opphav.ARENA;
+  const navn = ansatt?.fornavn
+    ? [ansatt.fornavn, ansatt.etternavn ?? ""]
+        .map((it) => capitalize(it))
+        .join(" ")
+    : "";
 
   const postData: SubmitHandler<inferredSchema> = async (
     data
   ): Promise<void> => {
-    setFeil(null);
-    setResult(null);
-
     const arenaKodeForTiltakstype = tiltakstyper.find(
       (type) => type.id === data.tiltakstype
     )?.arenaKode;
@@ -163,8 +161,7 @@ export function OpprettAvtaleContainer({
       leverandor: leverandorOrganisasjonsnummer,
       leverandorUnderenheter,
       avtalenavn: navn,
-      sluttDato,
-      startDato,
+      startOgSluttDato,
       tiltakstype: tiltakstypeId,
       avtaleansvarlig: ansvarlig,
       avtaletype,
@@ -183,8 +180,8 @@ export function OpprettAvtaleContainer({
         ? []
         : leverandorUnderenheter,
       navn,
-      sluttDato: formaterDatoSomYYYYMMDD(sluttDato),
-      startDato: formaterDatoSomYYYYMMDD(startDato),
+      sluttDato: formaterDatoSomYYYYMMDD(startOgSluttDato.sluttDato),
+      startDato: formaterDatoSomYYYYMMDD(startOgSluttDato.startDato),
       tiltakstypeId,
       url,
       ansvarlig,
@@ -199,40 +196,32 @@ export function OpprettAvtaleContainer({
       requestBody.id = avtale.id; // Ved oppdatering av eksisterende avtale
     }
 
-    try {
-      const response = await mulighetsrommetClient.avtaler.opprettAvtale({
-        requestBody,
-      });
-      navigerTilAvtale(response.id);
-      return;
-    } catch {
-      setFeil("Klarte ikke opprette eller redigere avtale");
-    }
+    mutation.mutate(requestBody);
   };
 
-  const navn = ansatt?.fornavn
-    ? [ansatt.fornavn, ansatt.etternavn ?? ""]
-        .map((it) => capitalize(it))
-        .join(" ")
-    : "";
+  if (mutation.isSuccess) {
+    navigerTilAvtale(mutation.data.id);
+  }
 
-  if (feil) {
+  if (mutation.isError) {
     return (
       <StatusModal
-        modalOpen={!!feil}
+        modalOpen={!!mutation.isError}
         ikonVariant="error"
         heading="Kunne ikke opprette avtale"
         text={
           <>
-            Avtalen kunne ikke opprettes på grunn av en teknisk feil hos oss.
-            Forsøk på nytt eller ta <a href={porten}>kontakt</a> i Porten dersom
-            du trenger mer hjelp.
+            {(mutation.error as ApiError).status === 400
+              ? (mutation.error as ApiError).body
+              : "Avtalen kunne ikke opprettes på grunn av en teknisk feil hos oss. " +
+                "Forsøk på nytt eller ta <a href={porten}>kontakt</a> i Porten dersom " +
+                "du trenger mer hjelp."}
           </>
         }
-        onClose={clickCancel}
-        primaryButtonOnClick={() => setFeil("")}
+        onClose={onAvbryt}
+        primaryButtonOnClick={() => mutation.reset()}
         primaryButtonText="Prøv igjen"
-        secondaryButtonOnClick={clickCancel}
+        secondaryButtonOnClick={onAvbryt}
         secondaryButtonText="Avbryt"
       />
     );
@@ -312,18 +301,16 @@ export function OpprettAvtaleContainer({
           />
         </FormGroup>
         <FormGroup>
-          <Datovelger
+          <FraTilDatoVelger
             fra={{
               readOnly: arenaOpphav,
-              ...register("startDato"),
+              ...register("startOgSluttDato.startDato"),
               label: "Startdato",
-              error: errors.startDato?.message,
             }}
             til={{
               readOnly: arenaOpphav,
-              ...register("sluttDato"),
+              ...register("startOgSluttDato.sluttDato"),
               label: "Sluttdato",
-              error: errors.sluttDato?.message,
             }}
           />
         </FormGroup>

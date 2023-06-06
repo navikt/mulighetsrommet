@@ -5,7 +5,7 @@ export function Metadata({
   header,
   verdi = "",
 }: {
-  header: string;
+  header: string | ReactNode;
   verdi: string | number | undefined | null | ReactNode;
 }) {
   return (

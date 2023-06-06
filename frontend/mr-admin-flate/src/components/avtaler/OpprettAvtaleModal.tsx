@@ -1,6 +1,6 @@
 import { Heading, Modal } from "@navikt/ds-react";
 import { Avtale, Tiltakstypestatus } from "mulighetsrommet-api-client";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
 import { useAlleEnheter } from "../../api/enhet/useAlleEnheter";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
@@ -40,47 +40,38 @@ const OpprettAvtaleModal = ({
   }, []);
 
   const clickCancel = () => {
-    setError(null);
-    setResult(null);
     onClose();
     handleCancel?.();
   };
 
-  const [error, setError] = useState<string | null>(null);
-  const [result, setResult] = useState<string | null>(null);
-
   return (
     <>
-      {!error && !result && (
-        <Modal
-          shouldCloseOnOverlayClick={false}
-          shouldCloseOnEsc={false}
-          closeButton
-          open={modalOpen}
-          onClose={clickCancel}
-          className={styles.overstyrte_styles_fra_ds_modal}
-          aria-label="modal"
-        >
-          <Modal.Content>
-            <Heading size="medium" level="2" data-testid="avtale_modal_header">
-              {redigeringsModus ? "Rediger avtale" : "Registrer ny avtale"}
-            </Heading>
-            {isLoadingAnsatt || isLoadingTiltakstyper || isLoadingEnheter ? (
-              <Laster />
-            ) : null}
-            {!tiltakstyper?.data || !ansatt || !enheter ? null : (
-              <OpprettAvtaleContainer
-                onAvbryt={clickCancel}
-                tiltakstyper={tiltakstyper.data}
-                ansatt={ansatt}
-                setResult={setResult}
-                enheter={enheter}
-                avtale={avtale}
-              />
-            )}
-          </Modal.Content>
-        </Modal>
-      )}
+      <Modal
+        shouldCloseOnOverlayClick={false}
+        closeButton
+        open={modalOpen}
+        onClose={clickCancel}
+        className={styles.overstyrte_styles_fra_ds_modal}
+        aria-label="modal"
+      >
+        <Modal.Content>
+          <Heading size="medium" level="2" data-testid="avtale_modal_header">
+            {redigeringsModus ? "Rediger avtale" : "Registrer ny avtale"}
+          </Heading>
+          {isLoadingAnsatt || isLoadingTiltakstyper || isLoadingEnheter ? (
+            <Laster />
+          ) : null}
+          {!tiltakstyper?.data || !ansatt || !enheter ? null : (
+            <OpprettAvtaleContainer
+              onAvbryt={clickCancel}
+              tiltakstyper={tiltakstyper.data}
+              ansatt={ansatt}
+              enheter={enheter}
+              avtale={avtale}
+            />
+          )}
+        </Modal.Content>
+      </Modal>
     </>
   );
 };

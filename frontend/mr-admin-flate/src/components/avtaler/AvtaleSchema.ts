@@ -23,22 +23,19 @@ export const AvtaleSchema = z.object({
     .string()
     .array()
     .nonempty({ message: "Du må velge minst én enhet" }),
-  startDato: z
-    .date({
-      required_error: "En avtale må ha en startdato",
+  startOgSluttDato: z
+    .object({
+      startDato: z.date({ required_error: "En avtale må ha en startdato" }),
+      sluttDato: z.date({ required_error: "En avtale må ha en sluttdato" }),
     })
-    .nullable()
-    .refine((val) => val !== null, {
-      message: "En avtale må ha en startdato",
-    }),
-  sluttDato: z
-    .date({
-      required_error: "En avtale må ha en sluttdato",
-    })
-    .nullable()
-    .refine((val) => val !== null, {
-      message: "En avtale må ha en sluttdato",
-    }),
+    .refine(
+      (data) =>
+        !data.startDato || !data.sluttDato || data.sluttDato > data.startDato,
+      {
+        message: "Startdato må være før sluttdato",
+        path: ["startDato"],
+      }
+    ),
   avtaleansvarlig: z.string({
     required_error: "Du må velge en avtaleansvarlig",
   }),
