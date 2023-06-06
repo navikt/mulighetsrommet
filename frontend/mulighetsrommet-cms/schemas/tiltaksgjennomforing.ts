@@ -1,9 +1,21 @@
 import { GrDocumentPerformance } from "react-icons/gr";
-import { Rule, defineField, defineType } from "sanity";
+import {
+  ConditionalPropertyCallbackContext,
+  Rule,
+  defineField,
+  defineType,
+} from "sanity";
 import { Information } from "../components/Information";
 import { ShowFieldIfTiltakstypeMatches } from "../components/ShowFieldIfTiltakstypeMatches";
 import { API_VERSION } from "../sanity.config";
 import { EnhetType } from "./enhet";
+
+function erIkkeAdmin(props: ConditionalPropertyCallbackContext): boolean {
+  return (
+    props.currentUser.roles.find((role) => role.name === "administrator") ===
+    undefined
+  );
+}
 
 export const tiltaksgjennomforing = defineType({
   name: "tiltaksgjennomforing",
@@ -54,8 +66,10 @@ export const tiltaksgjennomforing = defineType({
     defineField({
       name: "tiltaksgjennomforingNavn",
       title: "Navn på tiltaksgjennomføring",
+      description: "Navnet kommer fra Arena/admin-flate",
       type: "string",
       validation: (rule) => rule.required(),
+      readOnly: erIkkeAdmin,
     }),
     defineField({
       name: "aar",
@@ -64,6 +78,7 @@ export const tiltaksgjennomforing = defineType({
         "Hvis tiltakstypen gjelder individuelle tiltak skal du ikke fylle inn år.",
       type: "number",
       initialValue: () => new Date().getFullYear(),
+      readOnly: erIkkeAdmin,
     }),
     defineField({
       name: "lopenummer",
@@ -71,6 +86,7 @@ export const tiltaksgjennomforing = defineType({
       description:
         "Hvis tiltakstypen gjelder individuelle tiltak skal du ikke fylle inn løpenummer.",
       type: "number",
+      readOnly: erIkkeAdmin,
     }),
     defineField({
       name: "tiltaksnummer",
@@ -90,6 +106,7 @@ export const tiltaksgjennomforing = defineType({
           }`;
         },
       },
+      readOnly: erIkkeAdmin,
     }),
     defineField({
       name: "kontaktinfoArrangor",
