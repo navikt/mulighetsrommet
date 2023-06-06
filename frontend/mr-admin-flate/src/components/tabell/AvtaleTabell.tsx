@@ -1,18 +1,21 @@
 import { Alert, Pagination, Table } from "@navikt/ds-react";
+import classNames from "classnames";
 import { useAtom } from "jotai";
 import { SorteringAvtaler } from "mulighetsrommet-api-client";
 import Lenke from "mulighetsrommet-veileder-flate/src/components/lenke/Lenke";
 import { avtaleFilter, avtalePaginationAtom } from "../../api/atoms";
 import { useAvtaler } from "../../api/avtaler/useAvtaler";
-import { AVTALE_PAGE_SIZE } from "../../constants";
 import { useSort } from "../../hooks/useSort";
-import { capitalizeEveryWord, formaterDato } from "../../utils/Utils";
+import {
+  capitalizeEveryWord,
+  formaterDato,
+  resetPaginering,
+} from "../../utils/Utils";
 import { Laster } from "../laster/Laster";
 import { PagineringContainer } from "../paginering/PagineringContainer";
 import { PagineringsOversikt } from "../paginering/PagineringOversikt";
 import { Avtalestatus } from "../statuselementer/Avtalestatus";
 import styles from "./Tabell.module.scss";
-import classNames from "classnames";
 
 export const AvtaleTabell = () => {
   const { data, isLoading, isError } = useAvtaler();
@@ -56,8 +59,6 @@ export const AvtaleTabell = () => {
     );
   }
 
-  const avtalerPageSize = filter.size || AVTALE_PAGE_SIZE;
-
   return (
     <div className={classNames(styles.tabell_wrapper, styles.avtaletabell)}>
       <PagineringsOversikt
@@ -65,8 +66,11 @@ export const AvtaleTabell = () => {
         antall={avtaler.length}
         maksAntall={pagination?.totalCount}
         type="avtaler"
-        size={filter.size}
-        setSize={(value) => setFilter({ ...filter, size: value })}
+        antallVises={filter.antallAvtalerVises}
+        setAntallVises={(value) => {
+          resetPaginering(setPage);
+          setFilter({ ...filter, antallAvtalerVises: value });
+        }}
       />
       <Table
         sort={sort!}
@@ -143,6 +147,7 @@ export const AvtaleTabell = () => {
             antall={avtaler.length}
             maksAntall={pagination?.totalCount}
             type="avtaler"
+            antallVises={filter.antallAvtalerVises}
           />
           <Pagination
             className={styles.pagination}
@@ -151,7 +156,8 @@ export const AvtaleTabell = () => {
             page={page}
             onPageChange={setPage}
             count={Math.ceil(
-              (pagination?.totalCount ?? avtalerPageSize) / avtalerPageSize
+              (pagination?.totalCount ?? filter.antallAvtalerVises) /
+                filter.antallAvtalerVises
             )}
             data-version="v1"
           />

@@ -1,10 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
-import { mulighetsrommetClient } from "../clients";
-import { QueryKeys } from "../QueryKeys";
 import { useAtom } from "jotai";
-import { PAGE_SIZE } from "../../constants";
-import { paginationAtom, tiltaksgjennomforingfilter } from "../atoms";
 import { useDebounce } from "mulighetsrommet-frontend-common";
+import { QueryKeys } from "../QueryKeys";
+import { paginationAtom, tiltaksgjennomforingfilter } from "../atoms";
+import { mulighetsrommetClient } from "../clients";
 
 export function useAdminTiltaksgjennomforinger() {
   const [page] = useAtom(paginationAtom);
@@ -21,7 +20,7 @@ export function useAdminTiltaksgjennomforinger() {
         status: filter.status ? filter.status : undefined,
         fylkesenhet: filter.fylkesenhet ? filter.fylkesenhet : undefined,
         sort: filter.sortering ? filter.sortering : undefined,
-        size: filter.size || PAGE_SIZE,
+        size: filter.antallGjennomforingerVises,
         avtaleId: filter.avtale ? filter.avtale : undefined,
         arrangorOrgnr: filter.arrangorOrgnr ? filter.arrangorOrgnr : undefined,
       })

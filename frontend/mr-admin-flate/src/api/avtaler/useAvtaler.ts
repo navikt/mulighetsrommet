@@ -1,10 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { useAtom } from "jotai";
 import { useDebounce } from "mulighetsrommet-frontend-common";
-import { AVTALE_PAGE_SIZE } from "../../constants";
+import { QueryKeys } from "../QueryKeys";
 import { avtaleFilter, avtalePaginationAtom } from "../atoms";
 import { mulighetsrommetClient } from "../clients";
-import { QueryKeys } from "../QueryKeys";
 
 export function useAvtaler() {
   const [page] = useAtom(avtalePaginationAtom);
@@ -21,7 +20,7 @@ export function useAvtaler() {
         navRegion: filter.navRegion ? filter.navRegion : undefined,
         sort: filter.sortering,
         page,
-        size: filter.size || AVTALE_PAGE_SIZE,
+        size: filter.antallAvtalerVises,
         leverandorOrgnr: filter.leverandor_orgnr || undefined,
       });
     }

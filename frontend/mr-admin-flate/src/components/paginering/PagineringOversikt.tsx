@@ -1,5 +1,4 @@
 import { Heading, Select } from "@navikt/ds-react";
-import { PAGE_SIZE } from "../../constants";
 import styles from "./PagineringOversikt.module.scss";
 
 interface Props {
@@ -7,8 +6,8 @@ interface Props {
   antall: number;
   maksAntall?: number;
   type: string;
-  size?: number;
-  setSize?: (value: number) => void;
+  antallVises: number;
+  setAntallVises?: (value: number) => void;
 }
 
 const antallSize = [15, 50, 100, 250, 500, 1000];
@@ -18,8 +17,8 @@ export function PagineringsOversikt({
   antall,
   maksAntall = 0,
   type,
-  size,
-  setSize,
+  antallVises,
+  setAntallVises,
 }: Props) {
   if (antall === 0) return null;
 
@@ -31,17 +30,19 @@ export function PagineringsOversikt({
       className={styles.container}
     >
       <span>
-        Viser {(page - 1) * PAGE_SIZE + 1}-{antall + (page - 1) * PAGE_SIZE} av{" "}
-        {maksAntall} {type}{" "}
+        Viser {(page - 1) * antallVises + 1}-{antall + (page - 1) * antallVises}{" "}
+        av {maksAntall} {type}{" "}
       </span>
-      {setSize ? (
+      {setAntallVises ? (
         <Select
           size="small"
           label="Velg antall"
           hideLabel
           name="size"
-          value={size}
-          onChange={(e) => setSize(Number.parseInt(e.currentTarget.value))}
+          value={antallVises}
+          onChange={(e) =>
+            setAntallVises(Number.parseInt(e.currentTarget.value))
+          }
         >
           {antallSize.map((ant) => (
             <option key={ant} value={ant}>
