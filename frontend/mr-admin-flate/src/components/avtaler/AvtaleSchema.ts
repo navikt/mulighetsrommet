@@ -1,5 +1,5 @@
 import { Avtaletype } from "mulighetsrommet-api-client";
-import z from "zod";
+import z, { object } from "zod";
 
 const GyldigUrlHvisVerdi = z.union([
   z.literal(""),
@@ -30,21 +30,14 @@ export const AvtaleSchema = z.object({
     })
     .gt(0, "Antall plasser må være større enn 0")
     .int(),
-  startDato: z
-    .date({
-      required_error: "En avtale må ha en startdato",
+  startOgSluttDato: z
+    .object({
+      startDato: z.date({ required_error: "En avtale må ha en startdato" }),
+      sluttDato: z.date({ required_error: "En avtale må ha en sluttdato" }),
     })
-    .nullable()
-    .refine((val) => val !== null, {
-      message: "En avtale må ha en startdato",
-    }),
-  sluttDato: z
-    .date({
-      required_error: "En avtale må ha en sluttdato",
-    })
-    .nullable()
-    .refine((val) => val !== null, {
-      message: "En avtale må ha en sluttdato",
+    .refine((data) => !data.startDato || !data.sluttDato || data.sluttDato > data.startDato, {
+        message: "Startdato må være før sluttdato",
+        path: ["startDato"],
     }),
   avtaleansvarlig: z.string({
     required_error: "Du må velge en avtaleansvarlig",
