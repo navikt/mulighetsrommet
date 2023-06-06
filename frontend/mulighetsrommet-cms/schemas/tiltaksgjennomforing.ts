@@ -54,8 +54,10 @@ export const tiltaksgjennomforing = defineType({
     defineField({
       name: "tiltaksgjennomforingNavn",
       title: "Navn på tiltaksgjennomføring",
+      description: "Navnet kommer fra Arena/admin-flate",
       type: "string",
       validation: (rule) => rule.required(),
+      readOnly: true,
     }),
     defineField({
       name: "aar",
@@ -64,6 +66,7 @@ export const tiltaksgjennomforing = defineType({
         "Hvis tiltakstypen gjelder individuelle tiltak skal du ikke fylle inn år.",
       type: "number",
       initialValue: () => new Date().getFullYear(),
+      readOnly: true,
     }),
     defineField({
       name: "lopenummer",
@@ -71,6 +74,7 @@ export const tiltaksgjennomforing = defineType({
       description:
         "Hvis tiltakstypen gjelder individuelle tiltak skal du ikke fylle inn løpenummer.",
       type: "number",
+      readOnly: true,
     }),
     defineField({
       name: "tiltaksnummer",
@@ -90,6 +94,7 @@ export const tiltaksgjennomforing = defineType({
           }`;
         },
       },
+      readOnly: true,
     }),
     defineField({
       name: "kontaktinfoArrangor",
