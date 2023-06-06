@@ -311,7 +311,7 @@ export const OpprettTiltaksgjennomforingContainer = (
         </FormGroup>
         <FormGroup>
           <TextField
-            onChange={() => console.log(form.getValues())}
+            readOnly
             label={"Avtale"}
             value={avtale?.navn || ""}
           />
