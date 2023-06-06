@@ -6,7 +6,7 @@ interface Props {
   antall: number;
   maksAntall?: number;
   type: string;
-  antallVises: number;
+  antallVises?: number;
   setAntallVises?: (value: number) => void;
 }
 
@@ -17,7 +17,7 @@ export function PagineringsOversikt({
   antall,
   maksAntall = 0,
   type,
-  antallVises,
+  antallVises = antall,
   setAntallVises,
 }: Props) {
   if (antall === 0) return null;

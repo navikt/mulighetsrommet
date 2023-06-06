@@ -1,5 +1,4 @@
 import {
-  Avtalestatus,
   SorteringTiltakstyper,
   Tiltakstypekategori,
   Tiltakstypestatus,
