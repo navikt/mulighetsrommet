@@ -1,19 +1,18 @@
 import { Alert, Pagination, Table } from "@navikt/ds-react";
 import { useAtom } from "jotai";
-import { paginationAtom, tiltaksgjennomforingfilter } from "../../api/atoms";
+import Lenke from "mulighetsrommet-veileder-flate/src/components/lenke/Lenke";
+import React from "react";
 import { SorteringTiltaksgjennomforinger } from "../../../../mulighetsrommet-api-client";
+import { paginationAtom, tiltaksgjennomforingfilter } from "../../api/atoms";
+import { useAdminTiltaksgjennomforinger } from "../../api/tiltaksgjennomforing/useAdminTiltaksgjennomforinger";
+import { useSort } from "../../hooks/useSort";
+import pageStyles from "../../pages/Page.module.scss";
+import { formaterDato, resetPaginering } from "../../utils/Utils";
 import { Laster } from "../laster/Laster";
 import { PagineringContainer } from "../paginering/PagineringContainer";
 import { PagineringsOversikt } from "../paginering/PagineringOversikt";
-import styles from "./Tabell.module.scss";
-import { PAGE_SIZE } from "../../constants";
-import { formaterDato } from "../../utils/Utils";
-import Lenke from "mulighetsrommet-veileder-flate/src/components/lenke/Lenke";
-import { useAdminTiltaksgjennomforinger } from "../../api/tiltaksgjennomforing/useAdminTiltaksgjennomforinger";
 import { Tiltaksgjennomforingstatus } from "../statuselementer/Tiltaksgjennomforingstatus";
-import pageStyles from "../../pages/Page.module.scss";
-import { useSort } from "../../hooks/useSort";
-import React from "react";
+import styles from "./Tabell.module.scss";
 
 interface ColumnHeader {
   sortKey: Kolonne;
@@ -106,7 +105,9 @@ export const TiltaksgjennomforingsTabell = ({ skjulKolonner }: Props) => {
     // Hvis man bytter sortKey starter vi med ascending
     const direction =
       sort.orderBy === sortKey
-        ?  sort.direction === "descending" ? "ascending" : "descending"
+        ? sort.direction === "descending"
+          ? "ascending"
+          : "descending"
         : "ascending";
 
     setSort({
@@ -141,6 +142,11 @@ export const TiltaksgjennomforingsTabell = ({ skjulKolonner }: Props) => {
         antall={tiltaksgjennomforinger.length}
         maksAntall={pagination?.totalCount}
         type="tiltaksgjennomføringer"
+        antallVises={filter.antallGjennomforingerVises}
+        setAntallVises={(size) => {
+          resetPaginering(setPage);
+          setFilter({ ...filter, antallGjennomforingerVises: size });
+        }}
       />
 
       <Table
@@ -276,6 +282,7 @@ export const TiltaksgjennomforingsTabell = ({ skjulKolonner }: Props) => {
             antall={tiltaksgjennomforinger.length}
             maksAntall={pagination?.totalCount}
             type="tiltaksgjennomføringer"
+            antallVises={filter.antallGjennomforingerVises}
           />
           <Pagination
             className={pageStyles.pagination}
@@ -283,7 +290,10 @@ export const TiltaksgjennomforingsTabell = ({ skjulKolonner }: Props) => {
             data-testid="paginering"
             page={page}
             onPageChange={setPage}
-            count={Math.ceil((pagination?.totalCount ?? PAGE_SIZE) / PAGE_SIZE)}
+            count={Math.ceil(
+              (pagination?.totalCount ?? filter.antallGjennomforingerVises) /
+                filter.antallGjennomforingerVises
+            )}
             data-version="v1"
           />
         </PagineringContainer>

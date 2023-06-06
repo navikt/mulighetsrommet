@@ -1,11 +1,10 @@
 import {
-  Avtalestatus,
   SorteringTiltakstyper,
   Tiltakstypekategori,
   Tiltakstypestatus,
   VirksomhetTil,
 } from "mulighetsrommet-api-client";
-import { Tiltaksgjennomforingfilter } from "./atoms";
+import { AvtaleFilterProps, Tiltaksgjennomforingfilter } from "./atoms";
 
 export const QueryKeys = {
   tiltakstype: (id?: string) => [id, "tiltakstype"] as const,
@@ -33,22 +32,9 @@ export const QueryKeys = {
   ansatt: ["ansatt"] as const,
   tiltaksgjennomforingerByEnhet: (enhet: string = "enhet", page?: number) =>
     [enhet, page, "tiltaksgjennomforinger"] as const,
-  avtaler: (
-    tiltakstypeId: string,
-    sok: string,
-    status: Avtalestatus,
-    enhet: string,
-    sortering: string,
-    leverandorOrgnr: string,
-    page: number
-  ) => [
-    sok,
-    status,
-    enhet,
-    sortering,
-    tiltakstypeId,
+  avtaler: (avtaleFilter: AvtaleFilterProps, page: number) => [
+    { ...avtaleFilter },
     page,
-    leverandorOrgnr,
     "avtaler",
   ],
   avtale: (avtaleId: string) => [avtaleId, "avtale"],
