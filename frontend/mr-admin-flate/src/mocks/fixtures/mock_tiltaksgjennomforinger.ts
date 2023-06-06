@@ -226,6 +226,8 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       navEnheter: [],
       status: TiltaksgjennomforingStatus.GJENNOMFORES,
       opphav: Opphav.ARENA,
+      stengtFra: "2022-01-01",
+      stengtTil: "2022-12-12",
     },
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee313",
@@ -244,6 +246,8 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       navEnheter: [],
       status: TiltaksgjennomforingStatus.GJENNOMFORES,
       opphav: Opphav.ARENA,
+      stengtFra: "2022-01-01",
+      stengtTil: "2022-12-12",
     },
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee314",

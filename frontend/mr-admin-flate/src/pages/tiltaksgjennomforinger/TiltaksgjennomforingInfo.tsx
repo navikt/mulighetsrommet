@@ -3,7 +3,7 @@ import { formaterDato, inneholderUrl } from "../../utils/Utils";
 import styles from "../DetaljerInfo.module.scss";
 import { useTiltaksgjennomforingById } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforingById";
 import { Laster } from "../../components/laster/Laster";
-import { Alert, Button, Link } from "@navikt/ds-react";
+import { Alert, Button, Checkbox, Link } from "@navikt/ds-react";
 import classNames from "classnames";
 import { useState } from "react";
 import { useFeatureToggles } from "../../api/features/feature-toggles";
@@ -70,6 +70,19 @@ export function TiltaksgjennomforingInfo() {
             header="Sluttdato"
             verdi={formaterDato(tiltaksgjennomforing.sluttDato)}
           />
+          {Boolean(tiltaksgjennomforing.stengtFra) && 
+            <Metadata
+                header={
+                  <Checkbox
+                    checked={true}
+                    description={formaterDato(tiltaksgjennomforing.stengtFra) + " - " + formaterDato(tiltaksgjennomforing.stengtTil)}
+                  >
+                    Midlertidig stengt
+                  </Checkbox>
+                }
+                verdi={null}
+            />
+          }
         </dl>
         <Separator />
         <dl className={styles.bolk}>
