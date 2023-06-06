@@ -1090,8 +1090,6 @@ components:
           format: date
         navRegion:
           type: string
-        antallPlasser:
-          type: number
         url:
           type: string
         ansvarlig:

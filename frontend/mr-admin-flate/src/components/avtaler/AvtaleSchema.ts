@@ -23,13 +23,6 @@ export const AvtaleSchema = z.object({
     .string()
     .array()
     .nonempty({ message: "Du må velge minst én enhet" }),
-  antallPlasser: z
-    .number({
-      invalid_type_error:
-        "Du må skrive inn antall plasser for avtalen som et tall",
-    })
-    .gt(0, "Antall plasser må være større enn 0")
-    .int(),
   startDato: z
     .date({
       required_error: "En avtale må ha en startdato",

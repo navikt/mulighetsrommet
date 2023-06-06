@@ -105,7 +105,6 @@ export function OpprettAvtaleContainer({
           : avtale?.leverandorUnderenheter?.map(
               (enhet) => enhet.organisasjonsnummer
             ),
-      antallPlasser: getValueOrDefault(avtale?.antallPlasser, 0),
       startDato: avtale?.startDato ? new Date(avtale.startDato) : null,
       sluttDato: avtale?.sluttDato ? new Date(avtale.sluttDato) : null,
       url: getValueOrDefault(avtale?.url, ""),
@@ -159,7 +158,6 @@ export function OpprettAvtaleContainer({
     }
 
     const {
-      antallPlasser,
       navRegion,
       navEnheter,
       leverandor: leverandorOrganisasjonsnummer,
@@ -175,7 +173,6 @@ export function OpprettAvtaleContainer({
     } = data;
 
     const requestBody: AvtaleRequest = {
-      antallPlasser,
       navRegion,
       navEnheter: navEnheter.includes("alle_enheter") ? [] : navEnheter,
       avtalenummer: getValueOrDefault(avtale?.avtalenummer, ""),
@@ -293,7 +290,6 @@ export function OpprettAvtaleContainer({
               label: tiltakstype.navn,
             }))}
           />
-          <div></div>
           <SokeSelect
             readOnly={arenaOpphav}
             placeholder="Velg en"
@@ -313,13 +309,6 @@ export function OpprettAvtaleContainer({
                 label: "Avtale",
               },
             ]}
-          />
-          <TextField
-            type={"number"}
-            min={0}
-            error={errors.antallPlasser?.message}
-            label="Antall plasser"
-            {...register("antallPlasser", { valueAsNumber: true })}
           />
         </FormGroup>
         <FormGroup>
