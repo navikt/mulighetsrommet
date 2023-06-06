@@ -413,6 +413,59 @@ class AvtaleRepositoryTest : FunSpec({
                 result.second[4].navn shouldBe "Avtale hos Anders"
             }
 
+            test("Filtrer på tiltakstype og nav-region forholder seg til korrekt logikk i filter-spørring") {
+                val navEnhetRepository = NavEnhetRepository(database.db)
+
+                navEnhetRepository.upsert(
+                    NavEnhetDbo(
+                        navn = "NAV Oslo",
+                        "0300",
+                        NavEnhetStatus.AKTIV,
+                        Norg2Type.FYLKE,
+                        null,
+                    ),
+                ).getOrThrow()
+                val tiltakstypeId = UUID.randomUUID()
+                avtaleFixture.upsertTiltakstype(
+                    listOf(
+                        TiltakstypeDbo(
+                            tiltakstypeId,
+                            "",
+                            "",
+                            rettPaaTiltakspenger = true,
+                            registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
+                            sistEndretDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
+                            fraDato = LocalDate.of(2023, 1, 11),
+                            tilDato = LocalDate.of(2023, 1, 12),
+                        ),
+                    ),
+                )
+                val avtale1 = avtaleFixture.createAvtaleForTiltakstype(
+                    navn = "Avtale hos Anders",
+                    arenaAnsvarligEnhet = "0300",
+
+                )
+                val avtale2 = avtaleFixture.createAvtaleForTiltakstype(
+                    navn = "Avtale hos Åse",
+                    arenaAnsvarligEnhet = "0300",
+                )
+                val avtale3 = avtaleFixture.createAvtaleForTiltakstype(
+                    navn = "Avtale hos Øyvind",
+                    arenaAnsvarligEnhet = "0300",
+                    tiltakstypeId = tiltakstypeId,
+                )
+
+                val avtaleRepository = avtaleFixture.upsertAvtaler(listOf(avtale1, avtale2, avtale3))
+                val result = avtaleRepository.getAll(
+                    filter = defaultFilter.copy(
+                        tiltakstypeId = avtaleFixture.tiltakstypeId,
+                        navRegion = "0300",
+                    ),
+                )
+
+                result.second shouldHaveSize 2
+            }
+
             test("Sortering på nav_enhet sorterer korrekt") {
                 val navEnhetRepository = NavEnhetRepository(database.db)
                 navEnhetRepository.upsert(

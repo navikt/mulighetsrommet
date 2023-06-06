@@ -2,12 +2,12 @@
 common-java-modules = "3.2023.05.08_11.05-d13adbef1e85"
 flyway = "9.19.1"
 hoplite = "2.7.4"
-koin = "3.4.0"
+koin = "3.4.1"
 kotest = "5.6.2"
 kotlin = "1.8.21"
-ktor = "2.3.0"
+ktor = "2.3.1"
 logback = "1.4.7"
-metrics = "4.2.18"
+metrics = "4.2.19"
 
 [plugins]
 flyway = { id = "org.flywaydb.flyway", version.ref = "flyway" }
@@ -103,4 +103,4 @@ slack-client = "com.slack.api:slack-api-client:1.29.2"
 
 slf4j = "org.slf4j:slf4j-api:2.0.7"
 
-testcontainers-kafka = "org.testcontainers:kafka:1.18.1"
+testcontainers-kafka = "org.testcontainers:kafka:1.18.3"

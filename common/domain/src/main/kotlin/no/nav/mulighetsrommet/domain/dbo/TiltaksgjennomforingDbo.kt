@@ -30,6 +30,10 @@ data class TiltaksgjennomforingDbo(
     val navEnheter: List<String>,
     val oppstart: Oppstartstype,
     val opphav: ArenaMigrering.Opphav,
+    @Serializable(with = LocalDateSerializer::class)
+    val stengtFra: LocalDate? = null,
+    @Serializable(with = LocalDateSerializer::class)
+    val stengtTil: LocalDate? = null,
 ) {
     enum class Tilgjengelighetsstatus {
         Ledig,

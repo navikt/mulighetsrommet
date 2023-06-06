@@ -29,8 +29,42 @@ class TiltaksgjennomforingRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            insert into tiltaksgjennomforing (id, navn, tiltakstype_id, tiltaksnummer, virksomhetsnummer, arena_ansvarlig_enhet, start_dato, slutt_dato, avslutningsstatus, tilgjengelighet, antall_plasser, avtale_id, oppstart, opphav)
-            values (:id::uuid, :navn, :tiltakstype_id::uuid, :tiltaksnummer, :virksomhetsnummer, :arena_ansvarlig_enhet, :start_dato, :slutt_dato, :avslutningsstatus::avslutningsstatus, :tilgjengelighet::tilgjengelighetsstatus, :antall_plasser, :avtale_id, :oppstart::tiltaksgjennomforing_oppstartstype, :opphav::opphav)
+            insert into tiltaksgjennomforing (
+                id,
+                navn,
+                tiltakstype_id,
+                tiltaksnummer,
+                virksomhetsnummer,
+                arena_ansvarlig_enhet,
+                start_dato,
+                slutt_dato,
+                avslutningsstatus,
+                tilgjengelighet,
+                antall_plasser,
+                avtale_id,
+                oppstart,
+                opphav,
+                stengt_fra,
+                stengt_til
+            )
+            values (
+                :id::uuid,
+                :navn,
+                :tiltakstype_id::uuid,
+                :tiltaksnummer,
+                :virksomhetsnummer,
+                :arena_ansvarlig_enhet,
+                :start_dato,
+                :slutt_dato,
+                :avslutningsstatus::avslutningsstatus,
+                :tilgjengelighet::tilgjengelighetsstatus,
+                :antall_plasser,
+                :avtale_id,
+                :oppstart::tiltaksgjennomforing_oppstartstype,
+                :opphav::opphav,
+                :stengt_fra,
+                :stengt_til
+            )
             on conflict (id)
                 do update set navn                  = excluded.navn,
                               tiltakstype_id        = excluded.tiltakstype_id,
@@ -44,7 +78,9 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                               antall_plasser        = excluded.antall_plasser,
                               avtale_id             = excluded.avtale_id,
                               oppstart              = excluded.oppstart,
-                              opphav                = excluded.opphav
+                              opphav                = excluded.opphav,
+                              stengt_fra            = excluded.stengt_fra,
+                              stengt_til            = excluded.stengt_til
             returning *
         """.trimIndent()
 
@@ -193,14 +229,16 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                    tg.antall_plasser,
                    tg.avtale_id,
                    tg.oppstart,
+                   tg.opphav,
+                   tg.stengt_fra,
+                   tg.stengt_til,
                    array_agg(a.navident) as ansvarlige,
                    jsonb_agg(
                      case
                        when e.enhetsnummer is null then null::jsonb
                        else jsonb_build_object('enhetsnummer', e.enhetsnummer, 'navn', ne.navn)
                      end
-                   ) as nav_enheter,
-                   tg.opphav
+                   ) as nav_enheter
             from tiltaksgjennomforing tg
                      inner join tiltakstype t on t.id = tg.tiltakstype_id
                      left join tiltaksgjennomforing_ansvarlig a on a.tiltaksgjennomforing_id = tg.id
@@ -302,6 +340,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                    tg.antall_plasser,
                    tg.avtale_id,
                    tg.oppstart,
+                   tg.stengt_fra,
+                   tg.stengt_til,
                    array_agg(a.navident) as ansvarlige,
                    jsonb_agg(
                      case
@@ -447,6 +487,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         "avtale_id" to avtaleId,
         "oppstart" to oppstart.name,
         "opphav" to opphav.name,
+        "stengt_fra" to stengtFra,
+        "stengt_til" to stengtTil,
     )
 
     private fun Row.toTiltaksgjennomforingDbo() = TiltaksgjennomforingDbo(
@@ -502,6 +544,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             sanityId = stringOrNull("sanity_id"),
             oppstart = TiltaksgjennomforingDbo.Oppstartstype.valueOf(string("oppstart")),
             opphav = ArenaMigrering.Opphav.valueOf(string("opphav")),
+            stengtFra = localDateOrNull("stengt_fra"),
+            stengtTil = localDateOrNull("stengt_til"),
         )
     }
 

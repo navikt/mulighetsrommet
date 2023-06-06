@@ -26,7 +26,7 @@ import {
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { SokeSelect } from "../skjema/SokeSelect";
 import styles from "./OpprettAvtaleContainer.module.scss";
-import { Datovelger } from "../skjema/Datovelger";
+import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
 import { AvtaleSchema, inferredSchema } from "./AvtaleSchema";
 import { useFeatureToggles } from "../../api/features/feature-toggles";
 import { arenaKodeErAftEllerVta } from "../../utils/tiltakskoder";
@@ -311,18 +311,16 @@ export function OpprettAvtaleContainer({
           />
         </FormGroup>
         <FormGroup>
-          <Datovelger
+          <FraTilDatoVelger
             fra={{
               readOnly: arenaOpphav,
               ...register("startDato"),
               label: "Startdato",
-              error: errors.startDato?.message,
             }}
             til={{
               readOnly: arenaOpphav,
               ...register("sluttDato"),
               label: "Sluttdato",
-              error: errors.sluttDato?.message,
             }}
           />
         </FormGroup>

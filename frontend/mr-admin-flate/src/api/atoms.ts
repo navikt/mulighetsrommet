@@ -9,6 +9,7 @@ import {
   Tiltakstypestatus,
 } from "mulighetsrommet-api-client";
 import { atom } from "jotai";
+import { AVTALE_PAGE_SIZE, PAGE_SIZE } from "../constants";
 
 export const paginationAtom = atomWithHash("page", 1, {
   setHash: "replaceState",
@@ -51,6 +52,7 @@ export interface Tiltaksgjennomforingfilter {
   fylkesenhet: string;
   avtale: string;
   arrangorOrgnr: string;
+  antallGjennomforingerVises: number;
 }
 
 export const tiltaksgjennomforingfilter =
@@ -65,6 +67,7 @@ export const tiltaksgjennomforingfilter =
       fylkesenhet: "",
       avtale: "",
       arrangorOrgnr: "",
+      antallGjennomforingerVises: PAGE_SIZE,
     },
     {
       setHash: "replaceState",
@@ -82,6 +85,7 @@ export interface AvtaleFilterProps {
   tiltakstype: string;
   sortering: SorteringAvtaler;
   leverandor_orgnr: string;
+  antallAvtalerVises: number;
 }
 
 const avtaleFilter = atomWithHash<AvtaleFilterProps>(
@@ -93,6 +97,7 @@ const avtaleFilter = atomWithHash<AvtaleFilterProps>(
     tiltakstype: "",
     sortering: SorteringAvtaler.NAVN_ASCENDING,
     leverandor_orgnr: "",
+    antallAvtalerVises: AVTALE_PAGE_SIZE,
   },
   { setHash: "replaceState" }
 );

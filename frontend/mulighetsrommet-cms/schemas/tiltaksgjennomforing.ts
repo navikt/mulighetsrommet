@@ -1,9 +1,21 @@
 import { GrDocumentPerformance } from "react-icons/gr";
-import { EnhetType } from "./enhet";
-import { lenke } from "./lenke";
-import { defineField, defineType } from "sanity";
-import { API_VERSION } from "../sanity.config";
+import {
+  ConditionalPropertyCallbackContext,
+  Rule,
+  defineField,
+  defineType,
+} from "sanity";
 import { Information } from "../components/Information";
+import { ShowFieldIfTiltakstypeMatches } from "../components/ShowFieldIfTiltakstypeMatches";
+import { API_VERSION } from "../sanity.config";
+import { EnhetType } from "./enhet";
+
+function erIkkeAdmin(props: ConditionalPropertyCallbackContext): boolean {
+  return (
+    props.currentUser.roles.find((role) => role.name === "administrator") ===
+    undefined
+  );
+}
 
 export const tiltaksgjennomforing = defineType({
   name: "tiltaksgjennomforing",
@@ -54,8 +66,10 @@ export const tiltaksgjennomforing = defineType({
     defineField({
       name: "tiltaksgjennomforingNavn",
       title: "Navn på tiltaksgjennomføring",
+      description: "Navnet kommer fra Arena/admin-flate",
       type: "string",
       validation: (rule) => rule.required(),
+      readOnly: erIkkeAdmin,
     }),
     defineField({
       name: "aar",
@@ -64,6 +78,7 @@ export const tiltaksgjennomforing = defineType({
         "Hvis tiltakstypen gjelder individuelle tiltak skal du ikke fylle inn år.",
       type: "number",
       initialValue: () => new Date().getFullYear(),
+      readOnly: erIkkeAdmin,
     }),
     defineField({
       name: "lopenummer",
@@ -71,6 +86,7 @@ export const tiltaksgjennomforing = defineType({
       description:
         "Hvis tiltakstypen gjelder individuelle tiltak skal du ikke fylle inn løpenummer.",
       type: "number",
+      readOnly: erIkkeAdmin,
     }),
     defineField({
       name: "tiltaksnummer",
@@ -90,6 +106,7 @@ export const tiltaksgjennomforing = defineType({
           }`;
         },
       },
+      readOnly: erIkkeAdmin,
     }),
     defineField({
       name: "kontaktinfoArrangor",
@@ -105,7 +122,11 @@ export const tiltaksgjennomforing = defineType({
       description: "Beskrivelse av formålet med tiltaksgjennomføringen.",
       type: "text",
       rows: 5,
-      validation: (rule) => rule.max(500),
+      components: {
+        field: (props) =>
+          ShowFieldIfTiltakstypeMatches(props, "Opplæring - Gruppe AMO"), // Viser feltet hvis det er Gruppe AMO som er valgt som tiltakstype
+      },
+      validation: (rule: Rule) => rule.max(500),
     }),
 
     defineField({
@@ -144,13 +165,14 @@ export const tiltaksgjennomforing = defineType({
     defineField({
       name: "oppstartsdato",
       title: "Dato for oppstart",
+      description: "Dato for når gjennomføringen starter",
       type: "date",
       options: { dateFormat: "DD/MM/YYYY" },
       hidden: ({ parent }) => parent?.oppstart !== "dato",
     }),
     defineField({
       name: "sluttdato",
-      title: "Sluttdato",
+      title: "Data for avslutning",
       description: "Dato for når gjennomføringen slutter",
       type: "date",
       options: { dateFormat: "DD/MM/YYYY" },
