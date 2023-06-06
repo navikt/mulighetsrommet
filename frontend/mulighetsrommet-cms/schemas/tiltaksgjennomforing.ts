@@ -57,7 +57,11 @@ export const tiltaksgjennomforing = defineType({
       description: "Navnet kommer fra Arena/admin-flate",
       type: "string",
       validation: (rule) => rule.required(),
-      readOnly: true,
+      readOnly: (props) => {
+        return !props.currentUser.roles.find(
+          (role) => role.name === "administrator" // Hvis admin så kan vi endre manuelt
+        );
+      },
     }),
     defineField({
       name: "aar",
@@ -66,7 +70,11 @@ export const tiltaksgjennomforing = defineType({
         "Hvis tiltakstypen gjelder individuelle tiltak skal du ikke fylle inn år.",
       type: "number",
       initialValue: () => new Date().getFullYear(),
-      readOnly: true,
+      readOnly: (props) => {
+        return !props.currentUser.roles.find(
+          (role) => role.name === "administrator" // Hvis admin så kan vi endre manuelt
+        );
+      },
     }),
     defineField({
       name: "lopenummer",
@@ -74,7 +82,11 @@ export const tiltaksgjennomforing = defineType({
       description:
         "Hvis tiltakstypen gjelder individuelle tiltak skal du ikke fylle inn løpenummer.",
       type: "number",
-      readOnly: true,
+      readOnly: (props) => {
+        return !props.currentUser.roles.find(
+          (role) => role.name === "administrator" // Hvis admin så kan vi endre manuelt
+        );
+      },
     }),
     defineField({
       name: "tiltaksnummer",
@@ -94,7 +106,11 @@ export const tiltaksgjennomforing = defineType({
           }`;
         },
       },
-      readOnly: true,
+      readOnly: (props) => {
+        return !props.currentUser.roles.find(
+          (role) => role.name === "administrator" // Hvis admin så kan vi endre manuelt
+        );
+      },
     }),
     defineField({
       name: "kontaktinfoArrangor",
