@@ -42,7 +42,7 @@ class NavEnheterSyncService(
                     enhetsnummer = it.enhet.enhetNr,
                     status = NavEnhetStatus.valueOf(it.enhet.status.name),
                     type = Norg2Type.valueOf(it.enhet.type.name),
-                    overordnetEnhet = getOverordnetEnhet(it.enhet.enhetNr, it.enhet.type, enhet.status) ?: it.overordnetEnhet,
+                    overordnetEnhet = getOverordnetEnhet(it.enhet.enhetNr, it.enhet.type, it.enhet.status) ?: it.overordnetEnhet,
                 ),
             )
         }
