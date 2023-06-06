@@ -42,7 +42,7 @@ class NavEnheterSyncService(
                     enhetsnummer = it.enhet.enhetNr,
                     status = NavEnhetStatus.valueOf(it.enhet.status.name),
                     type = Norg2Type.valueOf(it.enhet.type.name),
-                    overordnetEnhet = it.overordnetEnhet,
+                    overordnetEnhet = getOverordnetEnhet(it.enhet.enhetNr, it.enhet.type) ?: it.overordnetEnhet,
                 ),
             )
         }
@@ -99,7 +99,7 @@ class NavEnheterSyncService(
                 _key = fylke.enhetNr,
             )
         } else if (enhet.type == Norg2Type.ALS) {
-            val fylkesnummer = getFylkesnummerForSpesialenhet(enhet.enhetNr)
+            val fylkesnummer = getOverordnetEnhet(enhet.enhetNr, enhet.type)
             if (fylkesnummer != null) {
                 fylkeTilEnhet = FylkeRef(
                     _type = "reference",
@@ -123,7 +123,11 @@ class NavEnheterSyncService(
         )
     }
 
-    private fun getFylkesnummerForSpesialenhet(enhetNr: String): String? {
+    private fun getOverordnetEnhet(enhetNr: String, type: Norg2Type): String? {
+        if (!listOf(Norg2Type.ALS, Norg2Type.TILTAK).contains(type)) {
+            return null
+        }
+
         val spesialEnheterTilFylkeMap = mapOf(
             "1291" to "1200", // Vestland
             "0291" to "0200", // Øst-Viken
@@ -137,6 +141,17 @@ class NavEnheterSyncService(
             "5772" to "5700", // Trøndelag,
             "0391" to "0300", // Oslo
             "1191" to "1100", // Rogaland
+            "1287" to "1200", // NAV Tiltak Vestland
+            "1987" to "1900", // NAV Tiltak Troms og Finnmark,
+            "0287" to "0200", // NAV Tiltak Øst-Viken
+            "0387" to "0300", // NAV Tiltak Oslo
+            "0587" to "0500", // NAV Tiltak Innlandet,
+            "0687" to "0600", // NAV Forvaltningstjenester Vest-Viken
+            "1087" to "1000", // NAV Tiltak Agder
+            "1187" to "1100", // NAV Tiltak Rogaland
+            "1194" to "1100", // NAV Marked Sør-Rogaland
+            "1193" to "1100", // NAV Marked Nord-Rogaland
+            "5771" to "5700", // NAV Tiltak Trøndelag
         )
 
         val fantFylke = spesialEnheterTilFylkeMap[enhetNr]
