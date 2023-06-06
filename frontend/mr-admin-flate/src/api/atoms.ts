@@ -51,6 +51,7 @@ export interface Tiltaksgjennomforingfilter {
   fylkesenhet: string;
   avtale: string;
   arrangorOrgnr: string;
+  size?: number;
 }
 
 export const tiltaksgjennomforingfilter =
@@ -82,6 +83,7 @@ export interface AvtaleFilterProps {
   tiltakstype: string;
   sortering: SorteringAvtaler;
   leverandor_orgnr: string;
+  size?: number;
 }
 
 const avtaleFilter = atomWithHash<AvtaleFilterProps>(

@@ -26,7 +26,9 @@ export const AvtaleTabell = () => {
     // Hvis man bytter sortKey starter vi med ascending
     const direction =
       sort.orderBy === sortKey
-        ?  sort.direction === "descending" ? "ascending" : "descending"
+        ? sort.direction === "descending"
+          ? "ascending"
+          : "descending"
         : "ascending";
 
     setSort({
@@ -54,6 +56,8 @@ export const AvtaleTabell = () => {
     );
   }
 
+  const avtalerPageSize = filter.size || AVTALE_PAGE_SIZE;
+
   return (
     <div className={classNames(styles.tabell_wrapper, styles.avtaletabell)}>
       <PagineringsOversikt
@@ -61,6 +65,8 @@ export const AvtaleTabell = () => {
         antall={avtaler.length}
         maksAntall={pagination?.totalCount}
         type="avtaler"
+        size={filter.size}
+        setSize={(value) => setFilter({ ...filter, size: value })}
       />
       <Table
         sort={sort!}
@@ -145,7 +151,7 @@ export const AvtaleTabell = () => {
             page={page}
             onPageChange={setPage}
             count={Math.ceil(
-              (pagination?.totalCount ?? AVTALE_PAGE_SIZE) / AVTALE_PAGE_SIZE
+              (pagination?.totalCount ?? avtalerPageSize) / avtalerPageSize
             )}
             data-version="v1"
           />

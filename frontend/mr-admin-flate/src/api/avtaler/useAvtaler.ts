@@ -12,15 +12,7 @@ export function useAvtaler() {
   const debouncedSok = useDebounce(filter.sok, 300);
 
   return useQuery(
-    QueryKeys.avtaler(
-      filter.tiltakstype,
-      debouncedSok,
-      filter.status,
-      filter.navRegion,
-      filter.sortering,
-      filter.leverandor_orgnr,
-      page
-    ),
+    QueryKeys.avtaler({ ...filter, sok: debouncedSok }, page),
     () => {
       return mulighetsrommetClient.avtaler.getAvtaler({
         tiltakstypeId: filter.tiltakstype || undefined,
@@ -29,7 +21,7 @@ export function useAvtaler() {
         navRegion: filter.navRegion ? filter.navRegion : undefined,
         sort: filter.sortering,
         page,
-        size: AVTALE_PAGE_SIZE,
+        size: filter.size || AVTALE_PAGE_SIZE,
         leverandorOrgnr: filter.leverandor_orgnr || undefined,
       });
     }

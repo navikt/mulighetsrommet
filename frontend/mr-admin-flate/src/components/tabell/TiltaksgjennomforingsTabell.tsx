@@ -106,7 +106,9 @@ export const TiltaksgjennomforingsTabell = ({ skjulKolonner }: Props) => {
     // Hvis man bytter sortKey starter vi med ascending
     const direction =
       sort.orderBy === sortKey
-        ?  sort.direction === "descending" ? "ascending" : "descending"
+        ? sort.direction === "descending"
+          ? "ascending"
+          : "descending"
         : "ascending";
 
     setSort({
@@ -134,6 +136,8 @@ export const TiltaksgjennomforingsTabell = ({ skjulKolonner }: Props) => {
     }`;
   };
 
+  const pageSize = filter.size || PAGE_SIZE;
+
   return (
     <div className={styles.tabell_wrapper}>
       <PagineringsOversikt
@@ -141,6 +145,8 @@ export const TiltaksgjennomforingsTabell = ({ skjulKolonner }: Props) => {
         antall={tiltaksgjennomforinger.length}
         maksAntall={pagination?.totalCount}
         type="tiltaksgjennomføringer"
+        size={filter.size}
+        setSize={(size) => setFilter({ ...filter, size })}
       />
 
       <Table
@@ -283,7 +289,7 @@ export const TiltaksgjennomforingsTabell = ({ skjulKolonner }: Props) => {
             data-testid="paginering"
             page={page}
             onPageChange={setPage}
-            count={Math.ceil((pagination?.totalCount ?? PAGE_SIZE) / PAGE_SIZE)}
+            count={Math.ceil((pagination?.totalCount ?? pageSize) / pageSize)}
             data-version="v1"
           />
         </PagineringContainer>

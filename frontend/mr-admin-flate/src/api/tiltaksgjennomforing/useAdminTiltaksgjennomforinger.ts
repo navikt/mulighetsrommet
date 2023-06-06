@@ -21,7 +21,7 @@ export function useAdminTiltaksgjennomforinger() {
         status: filter.status ? filter.status : undefined,
         fylkesenhet: filter.fylkesenhet ? filter.fylkesenhet : undefined,
         sort: filter.sortering ? filter.sortering : undefined,
-        size: PAGE_SIZE,
+        size: filter.size || PAGE_SIZE,
         avtaleId: filter.avtale ? filter.avtale : undefined,
         arrangorOrgnr: filter.arrangorOrgnr ? filter.arrangorOrgnr : undefined,
       })
