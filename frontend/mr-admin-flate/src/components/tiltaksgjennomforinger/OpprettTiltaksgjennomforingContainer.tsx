@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button, Checkbox, TextField } from "@navikt/ds-react";
+import { Alert, Button, Checkbox, TextField } from "@navikt/ds-react";
 import {
   Avtale,
   NavEnhet,
@@ -29,60 +29,80 @@ import { mulighetsrommetClient } from "../../api/clients";
 import { Opphav } from "mulighetsrommet-api-client/build/models/Opphav";
 import { useFeatureToggles } from "../../api/features/feature-toggles";
 
-const Schema = z.object({
-  tittel: z.string().min(1, "Du må skrive inn tittel"),
-  startOgSluttDato: z
-    .object({
-      startDato: z.date({ required_error: "En gjennomføring må ha en startdato" }),
-      sluttDato: z.date({ required_error: "En gjennomføring må ha en sluttdato" }),
-    })
-    .refine((data) => !data.startDato || !data.sluttDato || data.sluttDato > data.startDato, {
-        message: "Startdato må være før sluttdato",
-        path: ["startDato"],
-    }),
-  antallPlasser: z
-    .number({
-      invalid_type_error:
-        "Du må skrive inn antall plasser for gjennomføringen som et positivt heltall",
-    })
-    .int()
-    .positive(),
-  navEnheter: z
-    .string()
-    .array()
-    .nonempty({ message: "Du må velge minst én enhet" }),
-  tiltaksArrangorUnderenhetOrganisasjonsnummer: z
-    .string({
-      required_error: "Du må velge en underenhet for tiltaksarrangør",
-    })
-    .min(1, "Du må velge en underenhet for tiltaksarrangør"),
-  ansvarlig: z.string({ required_error: "Du må velge en ansvarlig" }),
-  midlertidigStengt: z.object({
-    erMidlertidigStengt: z.boolean(),
-    stengtFra: z.date().optional(),
-    stengtTil: z.date().optional(),
-  })
-    .refine((data) => !data.erMidlertidigStengt || Boolean(data.stengtFra), {
+const Schema = z
+  .object({
+    tittel: z.string().min(1, "Du må skrive inn tittel"),
+    startOgSluttDato: z
+      .object({
+        startDato: z.date({
+          required_error: "En gjennomføring må ha en startdato",
+        }),
+        sluttDato: z.date({
+          required_error: "En gjennomføring må ha en sluttdato",
+        }),
+      })
+      .refine(
+        (data) =>
+          !data.startDato || !data.sluttDato || data.sluttDato > data.startDato,
+        {
+          message: "Startdato må være før sluttdato",
+          path: ["startDato"],
+        }
+      ),
+    antallPlasser: z
+      .number({
+        invalid_type_error:
+          "Du må skrive inn antall plasser for gjennomføringen som et positivt heltall",
+      })
+      .int()
+      .positive(),
+    navEnheter: z
+      .string()
+      .array()
+      .nonempty({ message: "Du må velge minst én enhet" }),
+    tiltaksArrangorUnderenhetOrganisasjonsnummer: z
+      .string({
+        required_error: "Du må velge en underenhet for tiltaksarrangør",
+      })
+      .min(1, "Du må velge en underenhet for tiltaksarrangør"),
+    ansvarlig: z.string({ required_error: "Du må velge en ansvarlig" }),
+    midlertidigStengt: z
+      .object({
+        erMidlertidigStengt: z.boolean(),
+        stengtFra: z.date().optional(),
+        stengtTil: z.date().optional(),
+      })
+      .refine((data) => !data.erMidlertidigStengt || Boolean(data.stengtFra), {
         message: "Midlertidig stengt må ha en start dato",
         path: ["stengtFra"],
-    })
-    .refine((data) => !data.erMidlertidigStengt || Boolean(data.stengtTil), {
+      })
+      .refine((data) => !data.erMidlertidigStengt || Boolean(data.stengtTil), {
         message: "Midlertidig stengt må ha en til dato",
         path: ["stengtTil"],
-    })
-    .refine((data) => !data.erMidlertidigStengt || !data.stengtTil || !data.stengtFra || data.stengtTil > data.stengtFra, {
-        message: "Midlertidig stengt fra dato må være før til dato",
-        path: ["stengtFra"],
-    })
-})
-  .refine((data) =>
-            !data.midlertidigStengt.erMidlertidigStengt ||
-            !data.midlertidigStengt.stengtTil || 
-            !data.sluttDato ||
-            data.midlertidigStengt.stengtTil <= data.sluttDato, {
+      })
+      .refine(
+        (data) =>
+          !data.erMidlertidigStengt ||
+          !data.stengtTil ||
+          !data.stengtFra ||
+          data.stengtTil > data.stengtFra,
+        {
+          message: "Midlertidig stengt fra dato må være før til dato",
+          path: ["stengtFra"],
+        }
+      ),
+  })
+  .refine(
+    (data) =>
+      !data.midlertidigStengt.erMidlertidigStengt ||
+      !data.midlertidigStengt.stengtTil ||
+      !data.sluttDato ||
+      data.midlertidigStengt.stengtTil <= data.sluttDato,
+    {
       message: "Stengt til dato må være før sluttdato",
       path: ["midlertidigStengt.stengtTil"],
-  });
+    }
+  );
 
 export type inferredSchema = z.infer<typeof Schema>;
 
@@ -177,7 +197,9 @@ export const OpprettTiltaksgjennomforingContainer = (
     watch,
   } = form;
 
-  const watchErMidlertidigStengt = watch("midlertidigStengt.erMidlertidigStengt")
+  const watchErMidlertidigStengt = watch(
+    "midlertidigStengt.erMidlertidigStengt"
+  );
   const { navigerTilTiltaksgjennomforing } =
     useNavigerTilTiltaksgjennomforing();
 
@@ -327,11 +349,7 @@ export const OpprettTiltaksgjennomforingContainer = (
           />
         </FormGroup>
         <FormGroup>
-          <TextField
-            readOnly
-            label={"Avtale"}
-            value={avtale?.navn || ""}
-          />
+          <TextField readOnly label={"Avtale"} value={avtale?.navn || ""} />
         </FormGroup>
         <FormGroup>
           <FraTilDatoVelger
@@ -346,12 +364,10 @@ export const OpprettTiltaksgjennomforingContainer = (
               ...register("startOgSluttDato.sluttDato"),
             }}
           />
-          <Checkbox
-            {...register("midlertidigStengt.erMidlertidigStengt")}
-          >
+          <Checkbox {...register("midlertidigStengt.erMidlertidigStengt")}>
             Midlertidig stengt
           </Checkbox>
-          { watchErMidlertidigStengt &&
+          {watchErMidlertidigStengt && (
             <FraTilDatoVelger
               fra={{
                 label: "Stengt fra",
@@ -359,10 +375,10 @@ export const OpprettTiltaksgjennomforingContainer = (
               }}
               til={{
                 label: "Stengt til",
-                ...register("midlertidigStengt.stengtTil")
+                ...register("midlertidigStengt.stengtTil"),
               }}
             />
-          }
+          )}
           <TextField
             readOnly={arenaOpphav}
             error={errors.antallPlasser?.message}
@@ -419,6 +435,10 @@ export const OpprettTiltaksgjennomforingContainer = (
             }
           />
         </FormGroup>
+        <Alert variant="warning" style={{ marginBottom: "1rem" }}>
+          Opprettelse av gjennomføring her vil ikke opprette gjennomføringen i
+          Arena.
+        </Alert>
         <div className={styles.button_row}>
           <Button
             className={styles.button}
@@ -436,4 +456,3 @@ export const OpprettTiltaksgjennomforingContainer = (
     </FormProvider>
   );
 };
-
