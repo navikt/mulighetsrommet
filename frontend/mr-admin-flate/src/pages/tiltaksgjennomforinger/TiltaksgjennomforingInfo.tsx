@@ -3,13 +3,13 @@ import { formaterDato, inneholderUrl } from "../../utils/Utils";
 import styles from "../DetaljerInfo.module.scss";
 import { useTiltaksgjennomforingById } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforingById";
 import { Laster } from "../../components/laster/Laster";
-import { Alert, Button, Checkbox, Link } from "@navikt/ds-react";
+import { Alert, Button, Heading, Link } from "@navikt/ds-react";
 import classNames from "classnames";
 import { useState } from "react";
 import { useFeatureToggles } from "../../api/features/feature-toggles";
 import { OpprettTiltaksgjennomforingModal } from "../../components/modal/OpprettTiltaksgjennomforingModal";
 import { useAvtale } from "../../api/avtaler/useAvtale";
-import { ExternalLinkIcon } from "@navikt/aksel-icons";
+import { ExclamationmarkTriangleIcon, ExternalLinkIcon } from "@navikt/aksel-icons";
 
 export function TiltaksgjennomforingInfo() {
   const {
@@ -47,6 +47,8 @@ export function TiltaksgjennomforingInfo() {
     return <Alert variant="warning">Fant ingen tiltaksgjennomføring</Alert>;
   }
 
+  const todayDate = new Date();
+
   return (
     <div className={styles.container}>
       <div className={classNames(styles.detaljer, styles.container)}>
@@ -70,17 +72,17 @@ export function TiltaksgjennomforingInfo() {
             header="Sluttdato"
             verdi={formaterDato(tiltaksgjennomforing.sluttDato)}
           />
-          {Boolean(tiltaksgjennomforing.stengtFra) && 
+          {Boolean(tiltaksgjennomforing.stengtFra) && Boolean(tiltaksgjennomforing.stengtTil) && new Date(tiltaksgjennomforing.stengtTil!!) > todayDate &&
             <Metadata
-                header={
-                  <Checkbox
-                    checked={true}
-                    description={formaterDato(tiltaksgjennomforing.stengtFra) + " - " + formaterDato(tiltaksgjennomforing.stengtTil)}
-                  >
-                    Midlertidig stengt
-                  </Checkbox>
+                header={todayDate >= new Date(tiltaksgjennomforing.stengtFra!!) && todayDate <= new Date(tiltaksgjennomforing.stengtTil!!)
+                  ? (
+                    <div style={{ display: "flex", flexDirection: "row" }}>
+                      <ExclamationmarkTriangleIcon style={{ marginRight: "5px" }} title="midlertidig-stengt" />
+                      <Heading size="xsmall" level="2">Midlertidig Stengt</Heading>
+                    </div>
+                  ) : (<Heading size="xsmall" level="2">Midlertidig Stengt</Heading>)
                 }
-                verdi={null}
+                verdi={formaterDato(tiltaksgjennomforing.stengtFra) + " - " + formaterDato(tiltaksgjennomforing.stengtTil)}
             />
           }
         </dl>

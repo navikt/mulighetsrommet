@@ -74,7 +74,15 @@ const Schema = z.object({
         message: "Midlertidig stengt fra dato må være før til dato",
         path: ["stengtFra"],
     })
-});
+})
+  .refine((data) =>
+            !data.midlertidigStengt.erMidlertidigStengt ||
+            !data.midlertidigStengt.stengtTil || 
+            !data.sluttDato ||
+            data.midlertidigStengt.stengtTil <= data.sluttDato, {
+      message: "Stengt til dato må være før sluttdato",
+      path: ["midlertidigStengt.stengtTil"],
+  });
 
 export type inferredSchema = z.infer<typeof Schema>;
 
