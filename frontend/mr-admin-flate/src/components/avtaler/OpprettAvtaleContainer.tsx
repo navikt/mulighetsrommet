@@ -15,22 +15,22 @@ import { Tiltakstype } from "mulighetsrommet-api-client/build/models/Tiltakstype
 import { StatusModal } from "mulighetsrommet-veileder-flate/src/components/modal/delemodal/StatusModal";
 import { ReactNode, useState } from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
+import { usePutAvtale } from "../../api/avtaler/usePutAvtale";
+import { useFeatureToggles } from "../../api/features/feature-toggles";
 import { useSokVirksomheter } from "../../api/virksomhet/useSokVirksomhet";
 import { useVirksomhet } from "../../api/virksomhet/useVirksomhet";
 import { useNavigerTilAvtale } from "../../hooks/useNavigerTilAvtale";
+import { arenaKodeErAftEllerVta } from "../../utils/tiltakskoder";
 import {
   capitalize,
   formaterDatoSomYYYYMMDD,
   tiltakstypekodeErAnskaffetTiltak,
 } from "../../utils/Utils";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
-import { SokeSelect } from "../skjema/SokeSelect";
-import styles from "./OpprettAvtaleContainer.module.scss";
-import { AvtaleSchema, inferredSchema } from "./AvtaleSchema";
-import { useFeatureToggles } from "../../api/features/feature-toggles";
-import { arenaKodeErAftEllerVta } from "../../utils/tiltakskoder";
-import { usePutAvtale } from "../../api/avtaler/usePutAvtale";
 import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
+import { SokeSelect } from "../skjema/SokeSelect";
+import { AvtaleSchema, inferredSchema } from "./AvtaleSchema";
+import styles from "./OpprettAvtaleContainer.module.scss";
 
 interface OpprettAvtaleContainerProps {
   onAvbryt: () => void;
@@ -56,7 +56,8 @@ export function OpprettAvtaleContainer({
   const [sokLeverandor, setSokLeverandor] = useState(
     avtale?.leverandor.organisasjonsnummer || ""
   );
-  const { data: leverandorVirksomheter = [] } = useSokVirksomheter(sokLeverandor);
+  const { data: leverandorVirksomheter = [] } =
+    useSokVirksomheter(sokLeverandor);
   const { data: features } = useFeatureToggles();
 
   const defaultEnhet = () => {
@@ -98,7 +99,6 @@ export function OpprettAvtaleContainer({
           : avtale?.leverandorUnderenheter?.map(
               (enhet) => enhet.organisasjonsnummer
             ),
-      antallPlasser: getValueOrDefault(avtale?.antallPlasser, 0),
       startOgSluttDato: {
         startDato: avtale?.startDato ? new Date(avtale.startDato) : undefined,
         sluttDato: avtale?.sluttDato ? new Date(avtale.sluttDato) : undefined,
@@ -156,7 +156,6 @@ export function OpprettAvtaleContainer({
     }
 
     const {
-      antallPlasser,
       navRegion,
       navEnheter,
       leverandor: leverandorOrganisasjonsnummer,
@@ -171,7 +170,6 @@ export function OpprettAvtaleContainer({
     } = data;
 
     const requestBody: AvtaleRequest = {
-      antallPlasser,
       navRegion,
       navEnheter: navEnheter.includes("alle_enheter") ? [] : navEnheter,
       avtalenummer: getValueOrDefault(avtale?.avtalenummer, ""),
@@ -202,7 +200,7 @@ export function OpprettAvtaleContainer({
   };
 
   if (mutation.isSuccess) {
-    navigerTilAvtale(mutation.data.id)
+    navigerTilAvtale(mutation.data.id);
   }
 
   if (mutation.isError) {
@@ -217,8 +215,7 @@ export function OpprettAvtaleContainer({
               ? (mutation.error as ApiError).body
               : "Avtalen kunne ikke opprettes på grunn av en teknisk feil hos oss. " +
                 "Forsøk på nytt eller ta <a href={porten}>kontakt</a> i Porten dersom " +
-                "du trenger mer hjelp."
-            }
+                "du trenger mer hjelp."}
           </>
         }
         onClose={onAvbryt}
@@ -282,7 +279,6 @@ export function OpprettAvtaleContainer({
               label: tiltakstype.navn,
             }))}
           />
-          <div></div>
           <SokeSelect
             readOnly={arenaOpphav}
             placeholder="Velg en"
@@ -302,13 +298,6 @@ export function OpprettAvtaleContainer({
                 label: "Avtale",
               },
             ]}
-          />
-          <TextField
-            type={"number"}
-            min={0}
-            error={errors.antallPlasser?.message}
-            label="Antall plasser"
-            {...register("antallPlasser", { valueAsNumber: true })}
           />
         </FormGroup>
         <FormGroup>

@@ -11,7 +11,7 @@ export function Metadata({
   return (
     <div className={styles.header_og_verdi}>
       <dt className={styles.bold}>{header}</dt>
-      <dd className={styles.definition}>{verdi}</dd>
+      <dd className={styles.definition}>{verdi ?? "N/A"}</dd>
     </div>
   );
 }

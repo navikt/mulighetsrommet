@@ -99,7 +99,6 @@ data class AvtaleRequest(
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate,
     val navRegion: String,
-    val antallPlasser: Int,
     val url: String,
     val ansvarlig: String,
     val avtaletype: Avtaletype,
@@ -110,9 +109,6 @@ data class AvtaleRequest(
     fun toDbo(): StatusResponse<AvtaleDbo> {
         if (!startDato.isBefore(sluttDato)) {
             return Either.Left(BadRequest("Startdato må være før sluttdato"))
-        }
-        if (antallPlasser <= 0) {
-            return Either.Left(BadRequest("Antall plasser må være større enn 0"))
         }
 
         return Either.Right(
@@ -129,7 +125,7 @@ data class AvtaleRequest(
                 navRegion = navRegion,
                 avtaletype = avtaletype,
                 avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
-                antallPlasser = antallPlasser,
+                antallPlasser = null,
                 url = url,
                 ansvarlige = listOf(ansvarlig),
                 prisbetingelser = prisOgBetalingsinformasjon,
