@@ -96,8 +96,8 @@ const Schema = z
     (data) =>
       !data.midlertidigStengt.erMidlertidigStengt ||
       !data.midlertidigStengt.stengtTil ||
-      !data.sluttDato ||
-      data.midlertidigStengt.stengtTil <= data.sluttDato,
+      !data.startOgSluttDato.sluttDato ||
+      data.midlertidigStengt.stengtTil <= data.startOgSluttDato.sluttDato,
     {
       message: "Stengt til dato må være før sluttdato",
       path: ["midlertidigStengt.stengtTil"],
