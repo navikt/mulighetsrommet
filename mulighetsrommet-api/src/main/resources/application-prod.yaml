@@ -85,7 +85,7 @@ app:
     synchronizeTilgjengelighetsstatuser:
       cronPattern: "0 0/30 6-18 * * *" # Hver halvtime fra kl 06:00 til 18:00
     synchronizeNavAnsatte:
-      disabled: true
+      disabled: false
       cronPattern: "0 0 6 * * *" # Hver dag kl 06:00
       groups:
         - 676673aa-ec8f-4606-8399-723dce26b361 # team-mulighetsrommet
