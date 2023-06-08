@@ -22,6 +22,7 @@ import { Avtalestatus } from "../statuselementer/Avtalestatus";
 import styles from "./Tabell.module.scss";
 import { APPLICATION_NAME } from "../../constants";
 import { createRef } from "react";
+import { useFeatureToggles } from "../../api/features/feature-toggles";
 
 async function lastNedFil(filter: AvtaleFilterProps) {
   const headers = new Headers();
@@ -67,6 +68,7 @@ async function lastNedFil(filter: AvtaleFilterProps) {
 
 export const AvtaleTabell = () => {
   const { data, isLoading, isError } = useAvtaler();
+  const { data: features } = useFeatureToggles();
   const [filter, setFilter] = useAtom(avtaleFilter);
   const [page, setPage] = useAtom(avtalePaginationAtom);
   const [sort, setSort] = useSort("navn");
@@ -139,16 +141,18 @@ export const AvtaleTabell = () => {
             setFilter({ ...filter, antallAvtalerVises: value });
           }}
         />
-        <div>
-          <Button
-            icon={<ExcelIkon />}
-            variant="tertiary"
-            onClick={lastNedExcel}
-          >
-            Eksporter tabellen til Excel
-          </Button>
-          <a ref={link}></a>
-        </div>
+        {features?.["mulighetsrommet.admin-flate-vis-last-ned-excel-knapp"] ? (
+          <div>
+            <Button
+              icon={<ExcelIkon />}
+              variant="tertiary"
+              onClick={lastNedExcel}
+            >
+              Eksporter tabellen til Excel
+            </Button>
+            <a style={{ display: "none" }} ref={link}></a>
+          </div>
+        ) : null}
       </div>
 
       <Table

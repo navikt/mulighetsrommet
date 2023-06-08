@@ -15,6 +15,8 @@ export const SE_NOTIFIKASJONER_ADMIN_FLATE =
 export const LAGRE_DATA_FRA_ADMIN_FLATE =
   "mulighetsrommet.admin-flate-lagre-data-fra-admin-flate";
 export const SLETTE_AVTALE = "mulighetsrommet.admin-flate-slett-avtale";
+export const VIS_LAST_NED_EXCEL_KNAPP =
+  "mulighetsrommet.admin-flate-vis-last-ned-excel-knapp";
 
 export const ALL_TOGGLES = [
   ENABLE_ADMIN_FLATE,
@@ -25,6 +27,7 @@ export const ALL_TOGGLES = [
   SE_NOTIFIKASJONER_ADMIN_FLATE,
   LAGRE_DATA_FRA_ADMIN_FLATE,
   SLETTE_AVTALE,
+  VIS_LAST_NED_EXCEL_KNAPP,
 ] as const;
 
 export type Features = Record<(typeof ALL_TOGGLES)[number], boolean>;
@@ -38,6 +41,7 @@ export const initialFeatures: Features = {
   "mulighetsrommet.admin-flate-se-notifikasjoner": false,
   "mulighetsrommet.admin-flate-lagre-data-fra-admin-flate": false,
   "mulighetsrommet.admin-flate-slett-avtale": false,
+  "mulighetsrommet.admin-flate-vis-last-ned-excel-knapp": false,
 };
 
 const toggles = ALL_TOGGLES.map((element) => "feature=" + element).join("&");
