@@ -1,15 +1,13 @@
 import { useAtom } from "jotai";
 import { useEffect } from "react";
 import { tiltaksgjennomforingfilter } from "../../../api/atoms";
-import { useGetAvtaleIdFromUrl } from "../../../hooks/useGetAvtaleIdFromUrl";
+import { useAvtale } from "../../../api/avtaler/useAvtale";
 import { Tiltaksgjennomforingfilter } from "../../../components/filter/Tiltaksgjennomforingfilter";
 import { TiltaksgjennomforingsTabell } from "../../../components/tabell/TiltaksgjennomforingsTabell";
-import { useAdminTiltaksgjennomforinger } from "../../../api/tiltaksgjennomforing/useAdminTiltaksgjennomforinger";
-import { useAvtale } from "../../../api/avtaler/useAvtale";
+import { useGetAvtaleIdFromUrl } from "../../../hooks/useGetAvtaleIdFromUrl";
 
 export function TiltaksgjennomforingerForAvtale() {
   const avtaleId = useGetAvtaleIdFromUrl();
-  const { data } = useAdminTiltaksgjennomforinger();
   const [filter, setFilter] = useAtom(tiltaksgjennomforingfilter);
 
   const { data: avtale } = useAvtale(avtaleId);
@@ -20,10 +18,6 @@ export function TiltaksgjennomforingerForAvtale() {
       setFilter({ ...filter, avtale: avtaleId });
     }
   }, [avtaleId]);
-
-  if (!data || !avtale) {
-    return null;
-  }
 
   return (
     <>
