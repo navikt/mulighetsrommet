@@ -21,7 +21,7 @@ import { PagineringsOversikt } from "../paginering/PagineringOversikt";
 import { Avtalestatus } from "../statuselementer/Avtalestatus";
 import styles from "./Tabell.module.scss";
 import { APPLICATION_NAME } from "../../constants";
-import { createRef, useState } from "react";
+import { createRef, useEffect, useState } from "react";
 import { useFeatureToggles } from "../../api/features/feature-toggles";
 
 async function lastNedFil(filter: AvtaleFilterProps) {
@@ -75,25 +75,32 @@ export const AvtaleTabell = () => {
   const pagination = data?.pagination;
   const avtaler = data?.data ?? [];
   const [lasterExcel, setLasterExcel] = useState(false);
+  const [excelUrl, setExcelUrl] = useState("");
 
   const link = createRef<any>();
 
   async function lastNedExcel() {
-    if (link?.current?.href) {
-      return;
+    setLasterExcel(true);
+    if (excelUrl) {
+      setExcelUrl("");
     }
 
-    setLasterExcel(true);
     const excelFil = await lastNedFil(filter);
     const blob = await excelFil.blob();
     const url = URL.createObjectURL(blob);
-    link.current.download = "avtaler.xlsx";
-    link.current.href = url;
-
-    link.current.click();
-    URL.revokeObjectURL(url);
+    setExcelUrl(url);
     setLasterExcel(false);
   }
+
+  useEffect(() => {
+    if (link.current && excelUrl) {
+      link.current.download = "avtaler.xlsx";
+      link.current.href = excelUrl;
+
+      link.current.click();
+      URL.revokeObjectURL(excelUrl);
+    }
+  }, [excelUrl]);
 
   const handleSort = (sortKey: string) => {
     // Hvis man bytter sortKey starter vi med ascending
@@ -150,6 +157,7 @@ export const AvtaleTabell = () => {
               variant="tertiary"
               onClick={lastNedExcel}
               disabled={lasterExcel}
+              type="button"
             >
               {lasterExcel
                 ? "Henter Excel-fil..."

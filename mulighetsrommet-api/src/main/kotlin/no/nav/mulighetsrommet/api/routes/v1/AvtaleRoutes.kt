@@ -44,11 +44,12 @@ fun Route.avtaleRoutes() {
         get("/excel") {
             val pagination = getPaginationParams()
             val filter = getAvtaleFilter()
-            val result = avtaler.getAll(filter, pagination)
+            val overstyrtFilter = filter.copy(sortering = "tiltakstype_navn-ascending")
+            val result = avtaler.getAll(overstyrtFilter, pagination)
             val file = excelService.createExcelFile(result.data)
             call.response.header(
                 HttpHeaders.ContentDisposition,
-                ContentDisposition.Attachment.withParameter(ContentDisposition.Parameters.FileName, "test_output_.xlsx")
+                ContentDisposition.Attachment.withParameter(ContentDisposition.Parameters.FileName, "avtaler.xlsx")
                     .toString(),
             )
             call.response.header("Access-Control-Expose-Headers", HttpHeaders.ContentDisposition)
