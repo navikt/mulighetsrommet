@@ -73,15 +73,12 @@ class MicrosoftGraphClientImpl(
             parameter("\$select", "id,streetAddress,city,givenName,surname,onPremisesSamAccountName,mail")
         }
 
-        log.info("Response fra getGroupMembers: {}", response)
         if (!response.status.isSuccess()) {
             log.error("Klarte ikke hente medlemmer i AD-gruppe med id=$groupId")
             throw RuntimeException("Klarte ikke hente medlemmer i AD-gruppe med id=$groupId")
         }
 
-        log.info("Response ok, prøver å hente ut responsen")
         val result = response.body<GetGroupMembersResponse>()
-        log.info("Resultat fra respons: {}", result)
 
         return result.value
             .filter { isNavAnsatt(it) }
