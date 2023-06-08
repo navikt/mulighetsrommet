@@ -85,7 +85,6 @@ export const AvtaleTabell = () => {
     const excelFil = await lastNedFil(filter);
     const blob = await excelFil.blob();
     const url = URL.createObjectURL(blob);
-    console.log(url);
     link.current.download = "avtaler.xlsx";
     link.current.href = url;
 
