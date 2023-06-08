@@ -17,8 +17,7 @@ class AvtaleFixtures(private val database: FlywayDatabaseTestListener) {
     val tiltakstypeId: UUID = UUID.fromString("0c565576-6a74-4bc2-ad5a-765580014ef9")
 
     fun runBeforeTests() {
-        database.db.clean()
-        database.db.migrate()
+        database.db.truncateAll()
 
         val tiltakstypeRepository = TiltakstypeRepository(database.db)
 

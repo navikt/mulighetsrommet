@@ -26,8 +26,7 @@ class KafkaSyncServiceTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
     beforeContainer {
-        database.db.clean()
-        database.db.migrate()
+        database.db.truncateAll()
     }
 
     val lastSuccessDate = LocalDate.of(2023, 2, 14)

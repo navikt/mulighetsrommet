@@ -13,8 +13,7 @@ class NavEnhetRepositoryTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
     beforeEach {
-        database.db.clean()
-        database.db.migrate()
+        database.db.truncateAll()
     }
 
     fun createEnhet(

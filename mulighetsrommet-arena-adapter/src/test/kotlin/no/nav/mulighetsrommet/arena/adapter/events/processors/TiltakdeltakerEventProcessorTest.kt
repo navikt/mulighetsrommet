@@ -47,12 +47,8 @@ import java.util.*
 class TiltakdeltakerEventProcessorTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
-    beforeEach {
-        database.db.migrate()
-    }
-
     afterEach {
-        database.db.clean()
+        database.db.truncateAll()
     }
 
     val regDatoBeforeAktivitetsplanen = AktivitetsplanenLaunchDate

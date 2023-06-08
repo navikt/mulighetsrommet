@@ -40,12 +40,8 @@ import no.nav.mulighetsrommet.ktor.respondJson
 class AvtaleInfoEventProcessorTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
-    beforeEach {
-        database.db.migrate()
-    }
-
     afterEach {
-        database.db.clean()
+        database.db.truncateAll()
     }
 
     context("handleEvent") {
