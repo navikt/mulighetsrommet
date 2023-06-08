@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "backend": "cross-env VITE_MULIGHETSROMMET_API_BASE='http://localhost:8080' VITE_EKSTERNE_SYSTEMER_MOCK=true vite",
+    "backend": "cross-env VITE_MULIGHETSROMMET_API_MOCK=false VITE_MULIGHETSROMMET_API_BASE='http://localhost:8080' VITE_EKSTERNE_SYSTEMER_MOCK=true vite",
     "build": "cross-env VITE_ENVIRONMENT=production VITE_FARO_URL=https://telemetry.nav.no/collect VITE_MULIGHETSROMMET_API_BASE='/mulighetsrommet-api' vite build --base=https://mulighetsrommet-veileder-flate.intern.nav.no/",
     "build:dev": "cross-env VITE_ENVIRONMENT=dev VITE_FARO_URL=https://telemetry.ekstern.dev.nav.no/collect VITE_MULIGHETSROMMET_API_BASE='/mulighetsrommet-api' vite build --base=https://mulighetsrommet-veileder-flate.intern.dev.nav.no/",
     "build:demo": "cross-env VITE_MULIGHETSROMMET_API_MOCK=true VITE_EKSTERNE_SYSTEMER_MOCK=true VITE_FARO_URL=https://telemetry.ekstern.dev.nav.no/collect vite build",

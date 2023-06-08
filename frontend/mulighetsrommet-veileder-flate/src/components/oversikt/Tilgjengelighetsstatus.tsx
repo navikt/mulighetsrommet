@@ -3,14 +3,29 @@ import { SanityTiltaksgjennomforing } from 'mulighetsrommet-api-client';
 import StatusGronn from '../../ikoner/Sirkel-gronn.png';
 import StatusGul from '../../ikoner/Sirkel-gul.png';
 import StatusRod from '../../ikoner/Sirkel-rod.png';
+import { formaterDato } from '../../utils/Utils';
 import styles from './Tilgjengelighetsstatus.module.scss';
 
 interface Props {
   status?: SanityTiltaksgjennomforing.tilgjengelighetsstatus;
   estimert_ventetid?: string;
+  stengtFra?: string;
+  stengtTil?: string;
 }
 
-export function TilgjengelighetsstatusComponent({ status, estimert_ventetid }: Props) {
+export function TilgjengelighetsstatusComponent({ status, estimert_ventetid, stengtFra, stengtTil }: Props) {
+  const todayDate = new Date();
+
+  if (stengtFra && stengtTil && todayDate <= new Date(stengtTil) && todayDate >= new Date(stengtFra)) {
+    return (
+      <div>
+        <div className={styles.tilgjengelighetsstatus}>
+          <img src={StatusRod} alt="Rødt ikon som representerer at tiltaksgjennomføringen er stengt" />
+          <div title={`Midlertidig stengt mellom ${formaterDato(stengtFra)} og ${formaterDato(stengtTil)}`}>Midlertidig stengt</div>
+        </div>
+      </div>
+    );
+  }
   if (status === 'Ledig' || !status) {
     return (
       <div>

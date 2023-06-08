@@ -75,6 +75,10 @@ open class DatabaseAdapter(config: DatabaseConfig) : Database {
         return createArrayOf("text", list)
     }
 
+    override fun createUuidArray(list: Collection<UUID>): Array {
+        return createArrayOf("uuid", list)
+    }
+
     override fun createIntArray(list: Collection<Int>): Array {
         return createArrayOf("integer", list)
     }

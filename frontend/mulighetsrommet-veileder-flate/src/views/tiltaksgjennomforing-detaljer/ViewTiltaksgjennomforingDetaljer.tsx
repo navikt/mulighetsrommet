@@ -129,7 +129,11 @@ const ViewTiltaksgjennomforingDetaljer = () => {
     nokkelinfoKomponenter: [
       {
         _id: tiltaksgjennomforing._id,
-        innhold: <TilgjengelighetsstatusComponent status={tiltaksgjennomforing.tilgjengelighetsstatus} />,
+        innhold: <TilgjengelighetsstatusComponent
+          status={tiltaksgjennomforing.tilgjengelighetsstatus}
+          stengtFra={tiltaksgjennomforing.stengtFra}
+          stengtTil={tiltaksgjennomforing.stengtTil}
+        />,
         tittel: tiltaksgjennomforing.estimert_ventetid?.toString() ?? '',
         hjelpetekst: 'Tilgjengelighetsstatusen er beregnet ut i fra data som kommer fra Arena',
       },

@@ -37,6 +37,8 @@ export function Gjennomforingsrad({ tiltaksgjennomforing, index }: Props) {
     oppstart,
     oppstartsdato,
     estimert_ventetid,
+    stengtFra,
+    stengtTil,
   } = tiltaksgjennomforing;
 
   return (
@@ -68,7 +70,12 @@ export function Gjennomforingsrad({ tiltaksgjennomforing, index }: Props) {
             <BodyShort size="small" title={visOppstartsdato(oppstart, oppstartsdato)} className={styles.truncate}>
               {visOppstartsdato(oppstart, oppstartsdato)}
             </BodyShort>
-            <TilgjengelighetsstatusComponent status={tilgjengelighetsstatus} estimert_ventetid={estimert_ventetid} />
+            <TilgjengelighetsstatusComponent
+              status={tilgjengelighetsstatus}
+              estimert_ventetid={estimert_ventetid}
+              stengtFra={stengtFra}
+              stengtTil={stengtTil}
+            />
           </div>
           <ChevronRightIcon className={styles.ikon} />
         </div>
