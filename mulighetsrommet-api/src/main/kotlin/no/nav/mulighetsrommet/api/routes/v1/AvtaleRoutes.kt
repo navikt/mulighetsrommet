@@ -13,6 +13,7 @@ import no.nav.mulighetsrommet.api.routes.v1.responses.BadRequest
 import no.nav.mulighetsrommet.api.routes.v1.responses.StatusResponse
 import no.nav.mulighetsrommet.api.routes.v1.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.services.AvtaleService
+import no.nav.mulighetsrommet.api.services.ExcelService
 import no.nav.mulighetsrommet.api.utils.getAvtaleFilter
 import no.nav.mulighetsrommet.api.utils.getPaginationParams
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
@@ -27,6 +28,7 @@ import java.util.*
 
 fun Route.avtaleRoutes() {
     val avtaler: AvtaleService by inject()
+    val excelService: ExcelService by inject()
 
     val logger = application.environment.log
 
@@ -37,6 +39,24 @@ fun Route.avtaleRoutes() {
             val result = avtaler.getAll(filter, pagination)
 
             call.respond(result)
+        }
+
+        get("/excel") {
+            val pagination = getPaginationParams()
+            val filter = getAvtaleFilter()
+            val result = avtaler.getAll(filter, pagination)
+            val file = excelService.createExcelFile(result)
+            call.response.header(
+                HttpHeaders.ContentDisposition,
+                ContentDisposition.Attachment.withParameter(ContentDisposition.Parameters.FileName, "test_output_.xlsx")
+                    .toString(),
+            )
+            call.response.header("Access-Control-Expose-Headers", HttpHeaders.ContentDisposition)
+            call.response.header(
+                HttpHeaders.ContentType,
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            )
+            call.respondFile(file)
         }
 
         get("{id}") {

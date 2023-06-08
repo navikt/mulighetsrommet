@@ -163,6 +163,20 @@ paths:
               schema:
                 type: string
 
+  /api/v1/internal/avtaler/excel:
+    get:
+      tags:
+        - Avtaler
+      operationId: lastNedAvtalerSomExcel
+      responses:
+        200:
+          description: Excel-fil med avtaler
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+
   /api/v1/internal/tiltaksgjennomforinger:
     get:
       tags:

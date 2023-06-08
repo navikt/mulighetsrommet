@@ -258,6 +258,7 @@ private fun services(appConfig: AppConfig) = module {
     single { TilgjengelighetsstatusSanitySyncService(get(), get()) }
     single { NotificationService(get(), get(), get()) }
     single { VirksomhetService(get(), get()) }
+    single { ExcelService() }
 }
 
 private fun tasks(config: TaskConfig) = module {
