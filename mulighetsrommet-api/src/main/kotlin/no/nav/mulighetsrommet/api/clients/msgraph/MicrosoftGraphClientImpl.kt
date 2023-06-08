@@ -103,6 +103,14 @@ class MicrosoftGraphClientImpl(
             throw RuntimeException("NAV Enhetsnavn mangler for bruker med id=${user.id}")
         }
 
+        user.givenName == null -> {
+            throw RuntimeException("Fornavn på ansatt mangler for bruker med id=${user.id}")
+        }
+
+        user.surname == null -> {
+            throw RuntimeException("Etternavn på ansatt mangler for bruker med id=${user.id}")
+        }
+
         else -> NavAnsattDto(
             azureId = user.id,
             navident = user.onPremisesSamAccountName,
