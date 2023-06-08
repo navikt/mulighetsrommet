@@ -1682,6 +1682,10 @@ components:
             - Ledig
             - Venteliste
             - Stengt
+        stengtFra:
+          type: string
+        stengtTil:
+          type: string
       required:
         - _id
         - tiltaksgjennomforingNavn

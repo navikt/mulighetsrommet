@@ -71,4 +71,8 @@ class TiltaksgjennomforingService(
     fun kobleGjennomforingTilAvtale(gjennomforingId: UUID, avtaleId: UUID? = null) {
         return tiltaksgjennomforingRepository.updateAvtaleIdForGjennomforing(gjennomforingId, avtaleId)
     }
+
+    fun getBySanitIds(sanityIds: List<UUID>): Map<String, TiltaksgjennomforingAdminDto> {
+        return tiltaksgjennomforingRepository.getBySanityIds(sanityIds)
+    }
 }

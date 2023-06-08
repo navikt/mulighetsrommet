@@ -6,16 +6,19 @@ import io.prometheus.client.cache.caffeine.CacheMetricsCollector
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.domain.dto.FylkeResponse
 import no.nav.mulighetsrommet.api.domain.dto.SanityResponse
+import no.nav.mulighetsrommet.api.domain.dto.VeilederflateTiltaksgjennomforing
 import no.nav.mulighetsrommet.api.utils.*
 import no.nav.mulighetsrommet.metrics.Metrikker
 import no.nav.mulighetsrommet.utils.CacheUtils
 import org.slf4j.LoggerFactory
+import java.util.UUID
 import java.util.concurrent.TimeUnit
 import kotlin.collections.set
 
 class VeilederflateSanityService(
     private val sanityClient: SanityClient,
     private val brukerService: BrukerService,
+    private val tiltaksgjennomforingService: TiltaksgjennomforingService,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
     private val fylkenummerCache = mutableMapOf<String?, String>()
@@ -73,7 +76,7 @@ class VeilederflateSanityService(
         fnr: String,
         accessToken: String,
         filter: TiltaksgjennomforingFilter,
-    ): SanityResponse {
+    ): List<VeilederflateTiltaksgjennomforing> {
         val brukerData = brukerService.hentBrukerdata(fnr, accessToken)
         val enhetsId = brukerData.geografiskEnhet?.enhetsnummer ?: ""
         val fylkeId = getFylkeIdBasertPaaEnhetsId(enhetsId) ?: ""
@@ -99,10 +102,16 @@ class VeilederflateSanityService(
               }
         """.trimIndent()
 
-        return sanityClient.query(query)
+        return when (val result = sanityClient.query(query)) {
+            is SanityResponse.Result -> {
+                val gjennomforinger = result.decode<List<VeilederflateTiltaksgjennomforing>>()
+                supplerDataFraDB(gjennomforinger)
+            }
+            is SanityResponse.Error -> throw Exception(result.error.toString())
+        }
     }
 
-    suspend fun hentTiltaksgjennomforing(id: String): SanityResponse {
+    suspend fun hentTiltaksgjennomforing(id: String): List<VeilederflateTiltaksgjennomforing> {
         val query = """
             *[_type == "tiltaksgjennomforing" && (_id == '$id' || _id == 'drafts.$id')] {
                 _id,
@@ -138,7 +147,35 @@ class VeilederflateSanityService(
               }
         """.trimIndent()
 
-        return sanityClient.query(query)
+        return when (val result = sanityClient.query(query)) {
+            is SanityResponse.Result -> {
+                val gjennomforinger = result.decode<List<VeilederflateTiltaksgjennomforing>>()
+                supplerDataFraDB(gjennomforinger)
+            }
+            is SanityResponse.Error -> throw Exception(result.error.toString())
+        }
+    }
+
+    private fun supplerDataFraDB(gjennomforinger: List<VeilederflateTiltaksgjennomforing>): List<VeilederflateTiltaksgjennomforing> {
+        val sanityIds = gjennomforinger
+            .mapNotNull {
+                try {
+                    UUID.fromString(it._id)
+                } catch (e: IllegalArgumentException) {
+                    null
+                }
+            }
+
+        val gjennomforingerFraDb = tiltaksgjennomforingService.getBySanitIds(sanityIds)
+
+        return gjennomforinger
+            .map {
+                val apiGjennomforing = gjennomforingerFraDb[it._id]
+                it.copy(
+                    stengtFra = apiGjennomforing?.stengtFra,
+                    stengtTil = apiGjennomforing?.stengtTil,
+                )
+            }
     }
 
     private suspend fun getFylkeIdBasertPaaEnhetsId(enhetsId: String?): String? {

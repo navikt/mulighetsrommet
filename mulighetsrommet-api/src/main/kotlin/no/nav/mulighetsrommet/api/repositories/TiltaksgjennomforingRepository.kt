@@ -209,6 +209,54 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         }
     }
 
+    fun getBySanityIds(sanityIds: List<UUID>): Map<String, TiltaksgjennomforingAdminDto> {
+        @Language("PostgreSQL")
+        val query = """
+            select tg.id::uuid,
+                   tg.navn,
+                   tg.tiltakstype_id,
+                   tg.tiltaksnummer,
+                   tg.virksomhetsnummer,
+                   v.navn as virksomhetsnavn,
+                   tg.start_dato,
+                   tg.slutt_dato,
+                   t.tiltakskode,
+                   t.navn as tiltakstype_navn,
+                   tg.arena_ansvarlig_enhet,
+                   tg.avslutningsstatus,
+                   tg.tilgjengelighet,
+                   tg.sanity_id,
+                   tg.antall_plasser,
+                   tg.avtale_id,
+                   tg.oppstart,
+                   tg.opphav,
+                   tg.stengt_fra,
+                   tg.stengt_til,
+                   array_agg(a.navident) as ansvarlige,
+                   jsonb_agg(
+                     case
+                       when e.enhetsnummer is null then null::jsonb
+                       else jsonb_build_object('enhetsnummer', e.enhetsnummer, 'navn', ne.navn)
+                     end
+                   ) as nav_enheter
+            from tiltaksgjennomforing tg
+                     inner join tiltakstype t on t.id = tg.tiltakstype_id
+                     left join tiltaksgjennomforing_ansvarlig a on a.tiltaksgjennomforing_id = tg.id
+                     left join tiltaksgjennomforing_nav_enhet e on e.tiltaksgjennomforing_id = tg.id
+                     left join nav_enhet ne on e.enhetsnummer = ne.enhetsnummer
+                     left join virksomhet v on v.organisasjonsnummer = tg.virksomhetsnummer
+            where tg.sanity_id = any (?)
+            group by tg.id, t.id, v.navn
+        """.trimIndent()
+
+        return queryOf(query, db.createUuidArray(sanityIds))
+            .map { it.toTiltaksgjennomforingAdminDto() }
+            .asList
+            .let { db.run(it) }
+            .filter { it.sanityId != null }
+            .associateBy { it.sanityId!! }
+    }
+
     fun get(id: UUID): QueryResult<TiltaksgjennomforingAdminDto?> = query {
         @Language("PostgreSQL")
         val query = """

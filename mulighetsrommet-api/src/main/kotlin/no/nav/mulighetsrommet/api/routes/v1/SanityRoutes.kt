@@ -46,19 +46,21 @@ fun Route.sanityRoutes() {
 
         get("/tiltaksgjennomforinger") {
             poaoTilgangService.verfiyAccessToModia(getNavAnsattAzureId())
-            call.respondWithData(
-                veilederflateSanityService.hentTiltaksgjennomforingerForBrukerBasertPaEnhetOgFylke(
-                    getNorskIdent(),
-                    call.getAccessToken(),
-                    getTiltaksgjennomforingsFilter(),
-                ).toResponse(),
+
+            val result = veilederflateSanityService.hentTiltaksgjennomforingerForBrukerBasertPaEnhetOgFylke(
+                getNorskIdent(),
+                call.getAccessToken(),
+                getTiltaksgjennomforingsFilter(),
             )
+            call.respond(result)
         }
 
         get("/tiltaksgjennomforing/{id}") {
             poaoTilgangService.verfiyAccessToModia(getNavAnsattAzureId())
             val id = call.parameters.getOrFail("id")
-            call.respondWithData(veilederflateSanityService.hentTiltaksgjennomforing(id).toResponse())
+            val result = veilederflateSanityService.hentTiltaksgjennomforing(id)
+
+            call.respond(result)
         }
     }
 }

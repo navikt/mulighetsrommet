@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.database
 import kotliquery.TransactionalSession
 import kotliquery.action.*
 import java.sql.Array
+import java.util.*
 import javax.sql.DataSource
 
 interface Database {
@@ -13,6 +14,8 @@ interface Database {
     fun createArrayOf(arrayType: String, list: Collection<Any>): Array
 
     fun createTextArray(list: Collection<String>): Array
+
+    fun createUuidArray(list: Collection<UUID>): Array
 
     fun createIntArray(list: Collection<Int>): Array
 
