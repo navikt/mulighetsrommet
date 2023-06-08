@@ -139,6 +139,20 @@ const avtaleManglerNavRegionError = (avtaleId?: string) => (
   </>
 );
 
+const avtaleFinnesIkke = () => (
+  <>
+    Det finnes ingen avtale koblet til tiltaksgjennomføringen. Hvis
+    gjennomføringen er en AFT- eller VTA-gjennomføring kan du koble
+    gjennomføringen til riktig avtale.
+    <br />
+    <br />
+    <Link to={`/avtaler`}>Gå til avtaler her</Link>
+    <br />
+    <br />
+    Ta <a href={porten}>kontakt</a> i Porten dersom du trenger mer hjelp.
+  </>
+);
+
 // På sikt burde denne egenskapen spesifiseres i skjema for gjennomføring, evt.
 // utledes basert på eksplisitt styre-data i avtale eller tiltakstype.
 function temporaryResolveOppstartstypeFromAvtale(
@@ -289,7 +303,11 @@ export const OpprettTiltaksgjennomforingContainer = (
     return <Laster />;
   }
 
-  if (!avtale?.navRegion) {
+  if (!avtale) {
+    setError(avtaleFinnesIkke());
+  }
+
+  if (avtale && !avtale?.navRegion) {
     setError(avtaleManglerNavRegionError(avtale?.id));
   }
 
