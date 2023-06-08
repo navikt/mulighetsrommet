@@ -39,7 +39,7 @@ const headers: ColumnHeader[] = [
   },
   { sortKey: "startdato", tittel: "Startdato", sortable: true, width: "1fr" },
   { sortKey: "sluttdato", tittel: "Sluttdato", sortable: true, width: "1fr" },
-  { sortKey: "status", tittel: "Status", sortable: true, width: "1fr" },
+  { sortKey: "status", tittel: "Status", sortable: false, width: "1fr" },
 ];
 
 type Kolonne =
