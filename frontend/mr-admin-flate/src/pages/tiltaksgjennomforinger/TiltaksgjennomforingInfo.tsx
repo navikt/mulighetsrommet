@@ -9,7 +9,10 @@ import { useState } from "react";
 import { useFeatureToggles } from "../../api/features/feature-toggles";
 import { OpprettTiltaksgjennomforingModal } from "../../components/modal/OpprettTiltaksgjennomforingModal";
 import { useAvtale } from "../../api/avtaler/useAvtale";
-import { ExclamationmarkTriangleIcon, ExternalLinkIcon } from "@navikt/aksel-icons";
+import {
+  ExclamationmarkTriangleIcon,
+  ExternalLinkIcon,
+} from "@navikt/aksel-icons";
 
 export function TiltaksgjennomforingInfo() {
   const {
@@ -72,19 +75,35 @@ export function TiltaksgjennomforingInfo() {
             header="Sluttdato"
             verdi={formaterDato(tiltaksgjennomforing.sluttDato)}
           />
-          {Boolean(tiltaksgjennomforing.stengtFra) && Boolean(tiltaksgjennomforing.stengtTil) && new Date(tiltaksgjennomforing.stengtTil!!) > todayDate &&
-            <Metadata
-                header={todayDate >= new Date(tiltaksgjennomforing.stengtFra!!) && todayDate <= new Date(tiltaksgjennomforing.stengtTil!!)
-                  ? (
+          {Boolean(tiltaksgjennomforing.stengtFra) &&
+            Boolean(tiltaksgjennomforing.stengtTil) &&
+            new Date(tiltaksgjennomforing.stengtTil!!) > todayDate && (
+              <Metadata
+                header={
+                  todayDate >= new Date(tiltaksgjennomforing.stengtFra!!) &&
+                  todayDate <= new Date(tiltaksgjennomforing.stengtTil!!) ? (
                     <div style={{ display: "flex", flexDirection: "row" }}>
-                      <ExclamationmarkTriangleIcon style={{ marginRight: "5px" }} title="midlertidig-stengt" />
-                      <Heading size="xsmall" level="2">Midlertidig Stengt</Heading>
+                      <ExclamationmarkTriangleIcon
+                        style={{ marginRight: "5px" }}
+                        title="midlertidig-stengt"
+                      />
+                      <Heading size="xsmall" level="2">
+                        Midlertidig Stengt
+                      </Heading>
                     </div>
-                  ) : (<Heading size="xsmall" level="2">Midlertidig Stengt</Heading>)
+                  ) : (
+                    <Heading size="xsmall" level="2">
+                      Midlertidig Stengt
+                    </Heading>
+                  )
                 }
-                verdi={formaterDato(tiltaksgjennomforing.stengtFra) + " - " + formaterDato(tiltaksgjennomforing.stengtTil)}
-            />
-          }
+                verdi={
+                  formaterDato(tiltaksgjennomforing.stengtFra) +
+                  " - " +
+                  formaterDato(tiltaksgjennomforing.stengtTil)
+                }
+              />
+            )}
         </dl>
         <Separator />
         <dl className={styles.bolk}>
@@ -123,9 +142,13 @@ export function TiltaksgjennomforingInfo() {
                   <>
                     <Link
                       target="_blank"
-                      href={sanityTiltaksgjennomforingUrl + tiltaksgjennomforing.sanityId}
+                      href={
+                        sanityTiltaksgjennomforingUrl +
+                        tiltaksgjennomforing.sanityId
+                      }
                     >
-                      Åpne tiltaksgjennomføringen i Sanity <ExternalLinkIcon title="Åpner tiltaksgjennomføringen i Sanity" />
+                      Åpne tiltaksgjennomføringen i Sanity{" "}
+                      <ExternalLinkIcon title="Åpner tiltaksgjennomføringen i Sanity" />
                     </Link>
                   </>
                 }

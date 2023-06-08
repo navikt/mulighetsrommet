@@ -1,6 +1,6 @@
 import { Search } from "@navikt/ds-react";
 import { useAtom } from "jotai";
-import { ChangeEvent } from "react";
+import { ChangeEvent, useEffect } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import {
   TiltakstypeFilter,
@@ -10,17 +10,23 @@ import {
 import { resetPaginering } from "../../utils/Utils";
 import { SokeSelect } from "../skjema/SokeSelect";
 import styles from "./Filter.module.scss";
+import { RESET } from "jotai/vanilla/utils";
 
 export function Tiltakstypefilter() {
-  const [sokefilter, setSokefilter] = useAtom(tiltakstypeFilter);
+  const [filter, setFilter] = useAtom(tiltakstypeFilter);
   const [, setPage] = useAtom(paginationAtom);
 
   const form = useForm<TiltakstypeFilter>({
     defaultValues: {
-      ...sokefilter,
+      ...filter,
     },
   });
   const { register } = form;
+
+  useEffect(() => {
+    // Reset filter når vi unmounter
+    return () => setFilter(RESET);
+  }, []);
 
   const statusOptions = () => {
     return [
@@ -34,7 +40,7 @@ export function Tiltakstypefilter() {
   const kategoriOptions = () => {
     return [
       { label: "Gruppetiltak", value: "GRUPPE" },
-      { label: "Individuelle tiltak", value: "INDIVIDUELLE" },
+      { label: "Individuelle tiltak", value: "INDIVIDUELL" },
       { label: "Alle", value: "ALLE" },
     ];
   };
@@ -49,8 +55,8 @@ export function Tiltakstypefilter() {
               hideLabel
               variant="simple"
               data-testid="filter_sokefelt"
-              onChange={(sok: string) => setSokefilter({ ...sokefilter, sok })}
-              value={sokefilter.sok}
+              onChange={(sok: string) => setFilter({ ...filter, sok })}
+              value={filter.sok}
               aria-label="Søk etter tiltakstype"
               size="small"
               className={styles.form_field}
@@ -62,11 +68,11 @@ export function Tiltakstypefilter() {
               data-testid="filter_status"
               {...register("status")}
               className={styles.form_field}
-              onChange={(e: ChangeEvent<HTMLSelectElement>) => {
+              onChange={(e) => {
                 resetPaginering(setPage);
-                const status = e.currentTarget.value as any;
-                setSokefilter({
-                  ...sokefilter,
+                const status = e as any;
+                setFilter({
+                  ...filter,
                   status: status === "Alle" ? undefined : status,
                 });
               }}
@@ -79,11 +85,11 @@ export function Tiltakstypefilter() {
               hideLabel
               {...register("kategori")}
               data-testid="filter_kategori"
-              onChange={(e: ChangeEvent<HTMLSelectElement>) => {
+              onChange={(e) => {
                 resetPaginering(setPage);
-                const kategori = e.currentTarget.value as any;
-                setSokefilter({
-                  ...sokefilter,
+                const kategori = e as any;
+                setFilter({
+                  ...filter,
                   kategori: kategori === "ALLE" ? undefined : kategori,
                 });
               }}
