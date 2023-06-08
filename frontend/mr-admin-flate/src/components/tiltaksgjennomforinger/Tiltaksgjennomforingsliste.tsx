@@ -67,7 +67,7 @@ export const Tiltaksgjennomforingsliste = () => {
         onSettled: async () => {
           await refetchAvtaler();
           await refetchTiltaksgjennomforinger();
-          faro.api.pushEvent(
+          faro?.api?.pushEvent(
             `Bruker ${
               avtaleId
                 ? "kobler gjennomføring til avtale"

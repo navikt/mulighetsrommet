@@ -81,7 +81,7 @@ export const AvtaleTabell = () => {
   const link = createRef<any>();
 
   async function lastNedExcel() {
-    faro.api.pushEvent("Bruker trykket på 'Last ned Excel'-knapp");
+    faro?.api?.pushEvent("Bruker trykket på 'Last ned Excel'-knapp");
     setLasterExcel(true);
     if (excelUrl) {
       setExcelUrl("");

@@ -415,7 +415,7 @@ export function OpprettAvtaleContainer({
             className={styles.button}
             type="submit"
             onClick={() => {
-              faro.api.pushEvent(
+              faro?.api?.pushEvent(
                 "Bruker lagrer avtale",
                 { handling: redigeringsModus ? "redigerer" : "oppretter" },
                 "avtale"

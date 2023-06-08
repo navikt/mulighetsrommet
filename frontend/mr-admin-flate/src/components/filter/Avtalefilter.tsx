@@ -185,7 +185,7 @@ export function Avtalefilter(props: Props) {
               <>
                 <Button
                   onClick={() => {
-                    faro.api.pushEvent(
+                    faro?.api?.pushEvent(
                       "Bruker trykket på 'Registrer avtale'-knapp"
                     );
                     setModalOpen(true);
