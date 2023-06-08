@@ -339,6 +339,10 @@ export const OpprettTiltaksgjennomforingContainer = (
 
   return (
     <FormProvider {...form}>
+      <Alert variant="warning" style={{ margin: "1rem 0" }}>
+        Opprettelse av gjennomføring her vil ikke opprette gjennomføringen i
+        Arena.
+      </Alert>
       <form onSubmit={handleSubmit(postData)}>
         <FormGroup>
           <TextField
@@ -435,10 +439,7 @@ export const OpprettTiltaksgjennomforingContainer = (
             }
           />
         </FormGroup>
-        <Alert variant="warning" style={{ marginBottom: "1rem" }}>
-          Opprettelse av gjennomføring her vil ikke opprette gjennomføringen i
-          Arena.
-        </Alert>
+
         <div className={styles.button_row}>
           <Button
             className={styles.button}
