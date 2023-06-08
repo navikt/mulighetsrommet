@@ -341,19 +341,19 @@ export const OpprettTiltaksgjennomforingContainer = (
     if (isLoadingAnsatt) {
       return [{ label: "Laster...", value: "" }]
     }
-    const options = [
-      {
-        value: ansatt?.ident ?? "",
-        label: `${navn} - ${ansatt?.ident}`,
-      }
-    ];
-
+    const options = []
     if (tiltaksgjennomforing?.ansvarlig && tiltaksgjennomforing.ansvarlig !== ansatt?.ident) {
       options.push({
         value: tiltaksgjennomforing?.ansvarlig,
         label: tiltaksgjennomforing?.ansvarlig,
       })
     }
+
+    options.push({
+      value: ansatt?.ident ?? "",
+      label: `${navn} - ${ansatt?.ident}`,
+    });
+
     return options;
   }
 
