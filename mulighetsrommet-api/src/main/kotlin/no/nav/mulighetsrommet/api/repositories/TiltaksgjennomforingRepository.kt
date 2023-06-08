@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.api.repositories
 
 import io.ktor.utils.io.core.*
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.queryOf
