@@ -21,7 +21,7 @@ import { PagineringsOversikt } from "../paginering/PagineringOversikt";
 import { Avtalestatus } from "../statuselementer/Avtalestatus";
 import styles from "./Tabell.module.scss";
 import { APPLICATION_NAME } from "../../constants";
-import { createRef } from "react";
+import { createRef, useState } from "react";
 import { useFeatureToggles } from "../../api/features/feature-toggles";
 
 async function lastNedFil(filter: AvtaleFilterProps) {
@@ -74,6 +74,7 @@ export const AvtaleTabell = () => {
   const [sort, setSort] = useSort("navn");
   const pagination = data?.pagination;
   const avtaler = data?.data ?? [];
+  const [lasterExcel, setLasterExcel] = useState(false);
 
   const link = createRef<any>();
 
@@ -82,6 +83,7 @@ export const AvtaleTabell = () => {
       return;
     }
 
+    setLasterExcel(true);
     const excelFil = await lastNedFil(filter);
     const blob = await excelFil.blob();
     const url = URL.createObjectURL(blob);
@@ -90,6 +92,7 @@ export const AvtaleTabell = () => {
 
     link.current.click();
     URL.revokeObjectURL(url);
+    setLasterExcel(false);
   }
 
   const handleSort = (sortKey: string) => {
@@ -146,8 +149,11 @@ export const AvtaleTabell = () => {
               icon={<ExcelIkon />}
               variant="tertiary"
               onClick={lastNedExcel}
+              disabled={lasterExcel}
             >
-              Eksporter tabellen til Excel
+              {lasterExcel
+                ? "Henter Excel-fil..."
+                : "Eksporter tabellen til Excel"}
             </Button>
             <a style={{ display: "none" }} ref={link}></a>
           </div>
