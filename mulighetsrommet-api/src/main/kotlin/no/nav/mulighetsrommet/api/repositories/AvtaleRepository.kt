@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.repositories
 
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.queryOf
@@ -258,6 +257,8 @@ class AvtaleRepository(private val db: Database) {
             "startdato-descending" -> "a.start_dato desc, a.navn asc"
             "sluttdato-ascending" -> "a.slutt_dato asc, a.navn asc"
             "sluttdato-descending" -> "a.slutt_dato desc, a.navn asc"
+            "tiltakstype_navn-ascending" -> "tiltakstype_navn asc, a.navn asc"
+            "tiltakstype_navn-descending" -> "tiltakstype_navn desc, a.navn desc"
             else -> "a.navn asc"
         }
 
