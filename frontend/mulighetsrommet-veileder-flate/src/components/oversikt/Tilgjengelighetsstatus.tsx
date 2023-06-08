@@ -3,6 +3,7 @@ import { SanityTiltaksgjennomforing } from 'mulighetsrommet-api-client';
 import StatusGronn from '../../ikoner/Sirkel-gronn.png';
 import StatusGul from '../../ikoner/Sirkel-gul.png';
 import StatusRod from '../../ikoner/Sirkel-rod.png';
+import { formaterDato } from '../../utils/Utils';
 import styles from './Tilgjengelighetsstatus.module.scss';
 
 interface Props {
@@ -19,8 +20,8 @@ export function TilgjengelighetsstatusComponent({ status, estimert_ventetid, ste
     return (
       <div>
         <div className={styles.tilgjengelighetsstatus}>
-          <img src={StatusRod} alt="Rødt ikon som representerer at tilgjengelighetsstatus er stengt" />
-          <div>Midlertidig stengt</div>
+          <img src={StatusRod} alt="Rødt ikon som representerer at tiltaksgjennomføringen er stengt" />
+          <div title={`Midlertidig stengt mellom ${formaterDato(stengtFra)} og ${formaterDato(stengtTil)}`}>Midlertidig stengt</div>
         </div>
       </div>
     );
