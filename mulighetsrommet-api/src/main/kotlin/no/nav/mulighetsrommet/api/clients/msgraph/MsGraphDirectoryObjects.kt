@@ -14,11 +14,11 @@ internal data class MsGraphUserDto(
     /**
      * Fornavn
      */
-    val givenName: String,
+    val givenName: String?,
     /**
      * Etternavn
      */
-    val surname: String,
+    val surname: String?,
     /**
      * NAVident
      *
