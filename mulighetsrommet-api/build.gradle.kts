@@ -65,6 +65,10 @@ dependencies {
     implementation(libs.koin.ktor)
     implementation(libs.koin.logger.slf4j)
 
+    // Excel
+    implementation(libs.apache.poi)
+    implementation(libs.apache.poi.ooxml)
+
     implementation(libs.nav.common.auditLog)
     constraints {
         implementation(libs.logback.core) {

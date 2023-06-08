@@ -1,9 +1,9 @@
 import { Heading } from "@navikt/ds-react";
 import { Avtalefilter } from "../../components/filter/Avtalefilter";
+import { AvtaleTabell } from "../../components/tabell/AvtaleTabell";
 import { ContainerLayout } from "../../layouts/ContainerLayout";
 import { MainContainer } from "../../layouts/MainContainer";
 import styles from "../Page.module.scss";
-import { AvtaleTabell } from "../../components/tabell/AvtaleTabell";
 
 export function AvtalerPage() {
   return (

@@ -42,8 +42,8 @@ fun Application.configure(config: AppConfig) {
         swaggerUI(path = "/swagger-ui/internal", swaggerFile = "web/openapi.yaml")
         authenticate(AuthProvider.AzureAdNavIdent.name) {
             tiltakstypeRoutes()
-            avtaleRoutes()
             tiltaksgjennomforingRoutes()
+            avtaleRoutes()
             sanityRoutes()
             brukerRoutes()
             navAnsattRoutes()
