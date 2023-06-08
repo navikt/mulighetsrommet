@@ -61,6 +61,7 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
 
   useEffect(() => {
     // Reset filter når vi unmounter
+    console.log("Vi resetter");
     return () => setFilter(RESET);
   }, []);
 
