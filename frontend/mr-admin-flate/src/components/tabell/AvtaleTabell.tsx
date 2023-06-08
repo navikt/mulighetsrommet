@@ -23,6 +23,7 @@ import styles from "./Tabell.module.scss";
 import { APPLICATION_NAME } from "../../constants";
 import { createRef, useEffect, useState } from "react";
 import { useFeatureToggles } from "../../api/features/feature-toggles";
+import { faro } from "@grafana/faro-web-sdk";
 
 async function lastNedFil(filter: AvtaleFilterProps) {
   const headers = new Headers();
@@ -80,6 +81,7 @@ export const AvtaleTabell = () => {
   const link = createRef<any>();
 
   async function lastNedExcel() {
+    faro.api.pushEvent("Bruker trykket på 'Last ned Excel'-knapp");
     setLasterExcel(true);
     if (excelUrl) {
       setExcelUrl("");

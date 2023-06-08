@@ -33,7 +33,7 @@ export const mockNotifikasjoner: PaginertUserNotifications = {
       doneAt: "2023-01-26T13:51:50.417-07:00",
     },
     {
-      id: "eccd9a93-3f08-4006-b3cb-751762e8bccf",
+      id: "eccd9a93-3f08-4006-b3cb-751762e8bcce",
       type: NotificationType.TASK,
       title: "Du må fikse noe greier",
       description:
