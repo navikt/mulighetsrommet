@@ -24,6 +24,7 @@ import { resetPaginering } from "../../utils/Utils";
 import OpprettAvtaleModal from "../avtaler/OpprettAvtaleModal";
 import { SokeSelect } from "../skjema/SokeSelect";
 import styles from "./Filter.module.scss";
+import { RESET } from "jotai/vanilla/utils";
 
 type Filters = "tiltakstype";
 
@@ -62,6 +63,11 @@ export function Avtalefilter(props: Props) {
       searchRef?.current?.focus();
     }
   }, [data]);
+
+  useEffect(() => {
+    // Reset filter når vi unmounter
+    return () => setFilter(RESET);
+  }, []);
 
   const regionOptions = () => {
     const alleOptions = { value: "", label: "Alle regioner" };

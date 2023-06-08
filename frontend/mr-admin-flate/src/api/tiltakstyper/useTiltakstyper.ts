@@ -5,12 +5,8 @@ import { TiltakstypeFilter } from "../atoms";
 import { mulighetsrommetClient } from "../clients";
 import { QueryKeys } from "../QueryKeys";
 
-export function useTiltakstyper(
-  filter: TiltakstypeFilter,
-  page: number,
-) {
+export function useTiltakstyper(filter: TiltakstypeFilter, page: number) {
   const debouncedSok = useDebounce(filter.sok || "", 300);
-
   return useQuery(
     QueryKeys.tiltakstyper(
       debouncedSok,

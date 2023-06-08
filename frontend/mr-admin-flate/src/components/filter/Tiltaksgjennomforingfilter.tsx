@@ -7,7 +7,7 @@ import {
   Tiltakstypestatus,
   VirksomhetTil,
 } from "mulighetsrommet-api-client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import {
   Tiltaksgjennomforingfilter as TiltaksgjennomforingAtomFilter,
@@ -27,6 +27,7 @@ import { LeggTilGjennomforingModal } from "../modal/LeggTilGjennomforingModal";
 import { OpprettTiltaksgjennomforingModal } from "../modal/OpprettTiltaksgjennomforingModal";
 import { SokeSelect } from "../skjema/SokeSelect";
 import styles from "./Filter.module.scss";
+import { RESET } from "jotai/vanilla/utils";
 
 type Filters = "tiltakstype";
 
@@ -36,7 +37,7 @@ interface Props {
 }
 
 export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
-  const [sokefilter, setSokefilter] = useAtom(tiltaksgjennomforingfilter);
+  const [filter, setFilter] = useAtom(tiltaksgjennomforingfilter);
   const [, setPage] = useAtom(paginationAtom);
   const { data: enheter } = useAlleEnheter();
   const { data: virksomheter } = useVirksomheter(
@@ -53,10 +54,15 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
 
   const form = useForm<TiltaksgjennomforingAtomFilter>({
     defaultValues: {
-      ...sokefilter,
+      ...filter,
     },
   });
   const { register } = form;
+
+  useEffect(() => {
+    // Reset filter når vi unmounter
+    return () => setFilter(RESET);
+  }, []);
 
   const features = useFeatureToggles();
   const visOpprettTiltaksgjennomforingKnapp =
@@ -84,9 +90,9 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
           const erLokalEllerTiltaksenhet =
             enhet.type === Norg2Type.LOKAL || enhet.type === Norg2Type.TILTAK;
           const enheterFraFylke =
-            sokefilter.fylkesenhet === ""
+            filter.fylkesenhet === ""
               ? true
-              : sokefilter.fylkesenhet === enhet.overordnetEnhet;
+              : filter.fylkesenhet === enhet.overordnetEnhet;
           return erLokalEllerTiltaksenhet && enheterFraFylke;
         })
         ?.sort()
@@ -141,10 +147,8 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
               hideLabel
               size="small"
               variant="simple"
-              onChange={(search: string) =>
-                setSokefilter({ ...sokefilter, search })
-              }
-              value={sokefilter.search}
+              onChange={(search: string) => setFilter({ ...filter, search })}
+              value={filter.search}
               aria-label="Søk etter tiltaksgjennomføring"
               data-testid="filter_sokefelt"
               className={styles.form_field}
@@ -156,8 +160,8 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
               {...register("fylkesenhet")}
               onChange={(fylkesenhet) => {
                 resetPaginering(setPage);
-                setSokefilter({
-                  ...sokefilter,
+                setFilter({
+                  ...filter,
                   enhet: "",
                   fylkesenhet,
                 });
@@ -173,8 +177,8 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
               {...register("enhet")}
               onChange={(enhet) => {
                 resetPaginering(setPage);
-                setSokefilter({
-                  ...sokefilter,
+                setFilter({
+                  ...filter,
                   enhet,
                 });
               }}
@@ -189,8 +193,8 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
                 {...register("tiltakstype")}
                 onChange={(tiltakstype) => {
                   resetPaginering(setPage);
-                  setSokefilter({
-                    ...sokefilter,
+                  setFilter({
+                    ...filter,
                     tiltakstype,
                   });
                 }}
@@ -205,8 +209,8 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
               {...register("status")}
               onChange={(status) => {
                 resetPaginering(setPage);
-                setSokefilter({
-                  ...sokefilter,
+                setFilter({
+                  ...filter,
                   status,
                 });
               }}
@@ -220,8 +224,8 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
               {...register("arrangorOrgnr")}
               onChange={(arrangorOrgnr) => {
                 resetPaginering(setPage);
-                setSokefilter({
-                  ...sokefilter,
+                setFilter({
+                  ...filter,
                   arrangorOrgnr,
                 });
               }}
