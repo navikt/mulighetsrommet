@@ -587,7 +587,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             tilgjengelighet = TiltaksgjennomforingDbo.Tilgjengelighetsstatus.valueOf(string("tilgjengelighet")),
             antallPlasser = intOrNull("antall_plasser"),
             avtaleId = uuidOrNull("avtale_id"),
-            ansvarlige = ansvarlige,
+            ansvarlig = ansvarlige.getOrNull(0),
             navEnheter = navEnheter,
             sanityId = stringOrNull("sanity_id"),
             oppstart = TiltaksgjennomforingDbo.Oppstartstype.valueOf(string("oppstart")),

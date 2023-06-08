@@ -124,7 +124,7 @@ class ArenaAdapterServiceTest : FunSpec({
             status = Tiltaksgjennomforingsstatus.AVSLUTTET,
             tilgjengelighet = Tilgjengelighetsstatus.Ledig,
             antallPlasser = null,
-            ansvarlige = emptyList(),
+            ansvarlig = null,
             navEnheter = emptyList(),
             sanityId = null,
             oppstart = oppstart,

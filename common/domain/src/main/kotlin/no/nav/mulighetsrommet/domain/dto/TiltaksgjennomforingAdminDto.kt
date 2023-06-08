@@ -27,7 +27,7 @@ data class TiltaksgjennomforingAdminDto(
     val antallPlasser: Int?,
     @Serializable(with = UUIDSerializer::class)
     val avtaleId: UUID? = null,
-    val ansvarlige: List<String>,
+    val ansvarlig: String?,
     val navEnheter: List<NavEnhet>,
     val sanityId: String?,
     val oppstart: TiltaksgjennomforingDbo.Oppstartstype,

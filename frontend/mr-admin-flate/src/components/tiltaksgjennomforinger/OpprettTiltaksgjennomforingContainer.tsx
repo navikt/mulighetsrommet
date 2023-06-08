@@ -221,7 +221,7 @@ export const OpprettTiltaksgjennomforingContainer = (
   );
 
   useEffect(() => {
-    if (ansatt && !isLoadingAnsatt) {
+    if (ansatt && !isLoadingAnsatt && !tiltaksgjennomforing?.ansvarlig) {
       setValue("ansvarlig", ansatt.ident!!);
     }
   }, [ansatt, isLoadingAnsatt, setValue]);
@@ -337,6 +337,26 @@ export const OpprettTiltaksgjennomforingContainer = (
     return options;
   };
 
+  const ansvarligOptions = () => {
+    if (isLoadingAnsatt) {
+      return [{ label: "Laster...", value: "" }]
+    }
+    const options = [
+      {
+        value: ansatt?.ident ?? "",
+        label: `${navn} - ${ansatt?.ident}`,
+      }
+    ];
+
+    if (tiltaksgjennomforing?.ansvarlig && tiltaksgjennomforing.ansvarlig !== ansatt?.ident) {
+      options.push({
+        value: tiltaksgjennomforing?.ansvarlig,
+        label: tiltaksgjennomforing?.ansvarlig,
+      })
+    }
+    return options;
+  }
+
   return (
     <FormProvider {...form}>
       <form onSubmit={handleSubmit(postData)}>
@@ -423,16 +443,7 @@ export const OpprettTiltaksgjennomforingContainer = (
             }
             label={"Tiltaksansvarlig"}
             {...register("ansvarlig")}
-            options={
-              isLoadingAnsatt
-                ? [{ label: "Laster...", value: "" }]
-                : [
-                    {
-                      value: ansatt?.ident ?? "",
-                      label: `${navn} - ${ansatt?.ident}`,
-                    },
-                  ]
-            }
+            options={ansvarligOptions()}
           />
         </FormGroup>
         <Alert variant="warning" style={{ marginBottom: "1rem" }}>

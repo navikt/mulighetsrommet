@@ -84,7 +84,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 tilgjengelighet = Tilgjengelighetsstatus.Ledig,
                 antallPlasser = null,
                 avtaleId = gjennomforing1.avtaleId,
-                ansvarlige = emptyList(),
+                ansvarlig = null,
                 navEnheter = emptyList(),
                 sanityId = null,
                 oppstart = TiltaksgjennomforingDbo.Oppstartstype.FELLES,
@@ -295,22 +295,12 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
 
             val ident1 = "N12343"
-            val ident2 = "Y12343"
-            val gjennomforing = gjennomforing1.copy(ansvarlige = listOf(ident1, ident2))
+            val gjennomforing = gjennomforing1.copy(ansvarlige = listOf(ident1))
 
             tiltaksgjennomforinger.upsert(gjennomforing).shouldBeRight()
             tiltaksgjennomforinger.get(gjennomforing.id).shouldBeRight().should {
-                it!!.ansvarlige.shouldContainExactlyInAnyOrder(ident1, ident2)
+                it!!.ansvarlig shouldBe ident1
             }
-
-            database.assertThat("tiltaksgjennomforing_ansvarlig").hasNumberOfRows(2)
-
-            val ident3 = "X12343"
-            tiltaksgjennomforinger.upsert(gjennomforing.copy(ansvarlige = listOf(ident3))).shouldBeRight()
-            tiltaksgjennomforinger.get(gjennomforing.id).shouldBeRight().should {
-                it!!.ansvarlige.shouldContainExactlyInAnyOrder(ident3)
-            }
-
             database.assertThat("tiltaksgjennomforing_ansvarlig").hasNumberOfRows(1)
         }
     }

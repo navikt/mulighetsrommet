@@ -227,6 +227,23 @@ export function OpprettAvtaleContainer({
     );
   }
 
+  const ansvarligOptions = () => {
+    const options = [
+      {
+        value: ansatt?.ident ?? "",
+        label: `${navn} - ${ansatt?.ident}`,
+      }
+    ];
+
+    if (avtale?.ansvarlig && avtale.ansvarlig !== ansatt?.ident) {
+      options.push({
+        value: avtale?.ansvarlig,
+        label: avtale?.ansvarlig,
+      })
+    }
+    return options;
+  }
+
   const enheterOptions = () => {
     if (!navRegion) {
       return [];
@@ -380,12 +397,7 @@ export function OpprettAvtaleContainer({
             placeholder="Velg en"
             label={"Avtaleansvarlig"}
             {...register("avtaleansvarlig")}
-            options={[
-              {
-                value: ansatt.ident ?? "",
-                label: `${navn} - ${ansatt?.ident}`,
-              },
-            ]}
+            options={ansvarligOptions()}
           />
         </FormGroup>
 
