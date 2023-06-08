@@ -28,3 +28,8 @@
     grid-template-columns: 3fr 2fr 2fr repeat(3, 1fr);
   }
 }
+
+.tabell_topp_container {
+  display: flex;
+  justify-content: space-between;
+}

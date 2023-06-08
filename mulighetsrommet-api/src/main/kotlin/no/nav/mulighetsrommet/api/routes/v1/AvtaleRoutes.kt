@@ -45,7 +45,7 @@ fun Route.avtaleRoutes() {
             val pagination = getPaginationParams()
             val filter = getAvtaleFilter()
             val result = avtaler.getAll(filter, pagination)
-            val file = excelService.createExcelFile(result)
+            val file = excelService.createExcelFile(result.data)
             call.response.header(
                 HttpHeaders.ContentDisposition,
                 ContentDisposition.Attachment.withParameter(ContentDisposition.Parameters.FileName, "test_output_.xlsx")

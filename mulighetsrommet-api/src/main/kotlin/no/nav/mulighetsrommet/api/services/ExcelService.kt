@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.services
 
-import no.nav.mulighetsrommet.api.routes.v1.responses.PaginatedResponse
 import no.nav.mulighetsrommet.domain.dto.AvtaleAdminDto
 import org.apache.poi.xssf.usermodel.XSSFRow
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
@@ -11,12 +10,12 @@ import java.time.format.FormatStyle
 import kotlin.io.path.outputStream
 
 class ExcelService {
-    fun createExcelFile(result: PaginatedResponse<AvtaleAdminDto>): File {
+    fun createExcelFile(result: List<AvtaleAdminDto>): File {
         val workbook = XSSFWorkbook()
         val workSheet = workbook.createSheet()
         val headers = workSheet.createRow(0)
         opprettHeaders(headers)
-        result.data.forEachIndexed { index, avtaleAdminDto ->
+        result.forEachIndexed { index, avtaleAdminDto ->
             val row = workSheet.createRow(index + 1)
             opprettCelle(row, 0, avtaleAdminDto.navn)
             opprettCelle(row, 1, avtaleAdminDto.tiltakstype.navn)
@@ -34,6 +33,7 @@ class ExcelService {
                 avtaleAdminDto.sluttDato.formaterDato(),
             )
             opprettCelle(row, 7, avtaleAdminDto.avtaletype.name)
+            opprettCelle(row, 8, avtaleAdminDto.navRegion?.navn ?: "")
         }
 
         val tempFile = kotlin.io.path.createTempFile("avtaler", ".xlsx")
@@ -52,6 +52,7 @@ class ExcelService {
         opprettCelle(headers, 5, "Startdato")
         opprettCelle(headers, 6, "Sluttdato")
         opprettCelle(headers, 7, "Avtaletype")
+        opprettCelle(headers, 8, "Region")
     }
 
     private fun opprettCelle(row: XSSFRow, cellIndex: Int, verdi: String) {
