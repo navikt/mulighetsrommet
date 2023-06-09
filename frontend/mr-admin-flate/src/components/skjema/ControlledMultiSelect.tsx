@@ -13,7 +13,7 @@ export interface MultiSelectProps {
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const ControlledMultiSelect = React.forwardRef((props: MultiSelectProps, _) => {
-  const { label, placeholder, options, readOnly, ...rest } = props;
+  const { size, label, placeholder, options, readOnly, ...rest } = props;
 
   return (
     <div>
@@ -26,12 +26,17 @@ const ControlledMultiSelect = React.forwardRef((props: MultiSelectProps, _) => {
         }) => (
           <>
             <label
-              style={{ marginBottom: "8px", display: "inline-block" }}
+              style={{
+                fontSize: size === "small" ? "16px" : "18px",
+                marginBottom: "8px",
+                display: "inline-block"
+              }}
               htmlFor={name}
             >
               <b>{label}</b>
             </label>
             <MultiSelect
+              size={size}
               error={Boolean(error)}
               placeholder={placeholder}
               childRef={ref}

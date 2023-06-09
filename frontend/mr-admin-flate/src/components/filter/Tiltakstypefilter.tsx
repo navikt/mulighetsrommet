@@ -1,6 +1,6 @@
 import { Search } from "@navikt/ds-react";
 import { useAtom } from "jotai";
-import { ChangeEvent, useEffect } from "react";
+import { useEffect } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import {
   TiltakstypeFilter,
@@ -62,6 +62,7 @@ export function Tiltakstypefilter() {
               className={styles.form_field}
             />
             <SokeSelect
+              size="small"
               label="Filtrer på statuser"
               placeholder="Filtrer på statuser"
               hideLabel
@@ -80,6 +81,7 @@ export function Tiltakstypefilter() {
             />
 
             <SokeSelect
+              size="small"
               label="Gruppetiltak eller individuelle tiltak"
               placeholder="Gruppetiltak eller individuelle tiltak"
               hideLabel

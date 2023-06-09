@@ -19,6 +19,7 @@ export interface SelectProps {
   onInputChange?: (a0: any) => void;
   isClearable?: boolean;
   className?: string;
+  size?: "small" | "medium";
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -33,6 +34,7 @@ const SokeSelect = React.forwardRef((props: SelectProps, _) => {
     onInputChange: providedOnInputChange,
     isClearable = true,
     className,
+    size,
     ...rest
   } = props;
 
@@ -83,6 +85,9 @@ const SokeSelect = React.forwardRef((props: SelectProps, _) => {
               className={classnames(styles.label, {
                 "navds-sr-only": hideLabel,
               })}
+              style={{
+                fontSize: size === "small" ? "16px" : "18px",
+              }}
               htmlFor={name}
             >
               <b>{label}</b>
@@ -109,6 +114,11 @@ const SokeSelect = React.forwardRef((props: SelectProps, _) => {
               className={className}
               theme={(theme: any) => ({
                 ...theme,
+                spacing: {
+                  ...theme.spacing,
+                  controlHeight: size === "small" ? 32 : 48,
+                  baseUnit: 2
+                },
                 colors: {
                   ...theme.colors,
                   primary25: "#cce1ff",

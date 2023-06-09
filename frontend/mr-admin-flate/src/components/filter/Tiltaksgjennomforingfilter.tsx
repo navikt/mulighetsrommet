@@ -154,7 +154,8 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
               data-testid="filter_sokefelt"
               className={styles.form_field}
             />
-            <SokeSelect
+            <SokeSelect 
+              size="small"
               label="Filtrer på region"
               placeholder="Filtrer på region"
               hideLabel
@@ -172,6 +173,7 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
             />
 
             <SokeSelect
+              size="small"
               label="Filtrer på enhet"
               placeholder="Filtrer på enhet"
               hideLabel
@@ -188,6 +190,7 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
             />
             {skjulFilter?.tiltakstype ? null : (
               <SokeSelect
+                size="small"
                 label="Filtrer på tiltakstype"
                 placeholder="Filtrer på tiltakstype"
                 hideLabel
@@ -204,6 +207,7 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
               />
             )}
             <SokeSelect
+              size="small"
               label="Filtrer på status"
               placeholder="Filtrer på status"
               hideLabel
@@ -219,6 +223,7 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
               className={styles.form_field}
             />
             <SokeSelect
+              size="small"
               label="Filtrer på arrangør"
               placeholder="Filtrer på arrangør"
               hideLabel

@@ -122,6 +122,7 @@ export function Avtalefilter(props: Props) {
               className={styles.form_field}
             />
             <SokeSelect
+              size="small"
               placeholder="Filtrer på statuser"
               label="Filtrer på statuser"
               hideLabel
@@ -138,6 +139,7 @@ export function Avtalefilter(props: Props) {
             />
 
             <SokeSelect
+              size="small"
               label="Filtrer på region"
               hideLabel
               placeholder="Filtrer på region"
@@ -151,6 +153,7 @@ export function Avtalefilter(props: Props) {
             />
             {props.skjulFilter?.tiltakstype ? null : (
               <SokeSelect
+                size="small"
                 label="Filtrer på tiltakstype"
                 placeholder="Filtrer på tiltakstype"
                 hideLabel
@@ -164,6 +167,7 @@ export function Avtalefilter(props: Props) {
               />
             )}
             <SokeSelect
+              size="small"
               label="Filtrer på leverandør"
               placeholder="Filtrer på leverandør"
               hideLabel

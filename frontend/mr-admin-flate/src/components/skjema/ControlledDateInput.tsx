@@ -7,11 +7,12 @@ import { UNSAFE_DatePicker, UNSAFE_useDatepicker } from "@navikt/ds-react";
 export interface DateInputProps {
   label: string;
   readOnly?: boolean;
+  size?: "small" | "medium";
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const ControlledDateInput = forwardRef((props: DateInputProps, _) => {
-  const { label, readOnly, ...rest } = props;
+  const { label, size, readOnly, ...rest } = props;
 
   return (
     <div>
@@ -44,6 +45,7 @@ const ControlledDateInput = forwardRef((props: DateInputProps, _) => {
           return (
             <UNSAFE_DatePicker {...startdatoProps} dropdownCaption>
               <DatoFelt
+                size={size}
                 label={label}
                 {...rest}
                 error={error?.message}
@@ -64,13 +66,13 @@ const ControlledDateInput = forwardRef((props: DateInputProps, _) => {
 ControlledDateInput.displayName = "ControlledDateInput";
 
 const DatoFelt = forwardRef(function DatoFeltInput(props: any, ref: any) {
-  const { name, label, ...rest } = props;
+  const { name, label, size, ...rest } = props;
   return (
     <UNSAFE_DatePicker.Input
       {...rest}
       label={label}
       name={name}
-      size="medium"
+      size={size}
       ref={ref}
       disabled={rest.readOnly}
       className={styles.dato_input}

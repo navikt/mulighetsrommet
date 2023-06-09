@@ -25,6 +25,7 @@ const MultiSelect = React.forwardRef((props: MultiSelectProps, _) => {
     childRef,
     error,
     readOnly,
+    size,
   } = props;
 
   const customStyles = (isError: boolean) => ({
@@ -33,7 +34,6 @@ const MultiSelect = React.forwardRef((props: MultiSelectProps, _) => {
       background: readOnly ? "#F1F1F1" : "#fff",
       borderColor: isError ? "#C30000" : (readOnly ? "#0000001A" : "#0000008f"),
       borderWidth: isError ? "2px" : "1px",
-      minHeight: "48px",
       boxShadow: state.isFocused ? null : null,
     }),
     multiValue: (provided: any) => ({
@@ -82,6 +82,11 @@ const MultiSelect = React.forwardRef((props: MultiSelectProps, _) => {
       options={options}
       theme={(theme: any) => ({
         ...theme,
+        spacing: {
+          ...theme.spacing,
+          controlHeight: size === "small" ? 32 : 48,
+          baseUnit: 2
+        },
         colors: {
           ...theme.colors,
           primary25: "#cce1ff",
