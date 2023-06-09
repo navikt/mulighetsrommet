@@ -380,10 +380,13 @@ export const OpprettTiltaksgjennomforingContainer = (
 
   return (
     <FormProvider {...form}>
-      <Alert variant="warning" style={{ margin: "1rem 0" }}>
-        Opprettelse av gjennomføring her vil ikke opprette gjennomføringen i
-        Arena.
-      </Alert>
+      {!redigeringsModus ? (
+        <Alert variant="warning" style={{ margin: "1rem 0" }}>
+          Opprettelse av gjennomføring her vil ikke opprette gjennomføringen i
+          Arena.
+        </Alert>
+      ) : null}
+
       <form onSubmit={handleSubmit(postData)}>
         <FormGroup>
           <TextField
@@ -416,7 +419,10 @@ export const OpprettTiltaksgjennomforingContainer = (
               ...register("startOgSluttDato.sluttDato"),
             }}
           />
-          <Checkbox size="small" {...register("midlertidigStengt.erMidlertidigStengt")}>
+          <Checkbox
+            size="small"
+            {...register("midlertidigStengt.erMidlertidigStengt")}
+          >
             Midlertidig stengt
           </Checkbox>
           {watchErMidlertidigStengt && (
