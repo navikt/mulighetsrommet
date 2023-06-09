@@ -17,7 +17,7 @@ import { initializeFaro } from "@grafana/faro-web-sdk";
 
 if (import.meta.env.PROD) {
   initializeFaro({
-    url: import.meta.env.VITE_FARO_URL || "http://localhost:3000/collect",
+    url: import.meta.env.VITE_FARO_URL || "http://localhost:12347/collect",
     app: {
       name: "mr-admin-flate",
     },

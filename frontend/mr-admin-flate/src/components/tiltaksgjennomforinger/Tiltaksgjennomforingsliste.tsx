@@ -13,6 +13,7 @@ import styles from "./Tiltaksgjennomforingsliste.module.scss";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { arenaKodeErAftEllerVta } from "../../utils/tiltakskoder";
+import { faro } from "@grafana/faro-web-sdk";
 
 export const Tiltaksgjennomforingsliste = () => {
   const {
@@ -66,6 +67,15 @@ export const Tiltaksgjennomforingsliste = () => {
         onSettled: async () => {
           await refetchAvtaler();
           await refetchTiltaksgjennomforinger();
+          faro?.api?.pushEvent(
+            `Bruker ${
+              avtaleId
+                ? "kobler gjennomføring til avtale"
+                : "fjerner gjennomføring fra avtale"
+            }`,
+            { handling: avtaleId ? "kobler til" : "fjerner kobling" },
+            "avtale"
+          );
         },
         onError: () => {
           setError(`Klarte ikke koble gjennomføring til avtale`);
