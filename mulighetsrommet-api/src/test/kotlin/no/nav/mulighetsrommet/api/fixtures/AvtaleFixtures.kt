@@ -55,6 +55,7 @@ class AvtaleFixtures(private val database: FlywayDatabaseTestListener) {
     }
 
     fun createAvtaleForTiltakstype(
+        id: UUID = UUID.randomUUID(),
         tiltakstypeId: UUID = this.tiltakstypeId,
         navn: String = "Avtalenavn",
         avtalenummer: String = "2023#1",
@@ -71,7 +72,7 @@ class AvtaleFixtures(private val database: FlywayDatabaseTestListener) {
         arenaAnsvarligEnhet: String? = null,
     ): AvtaleDbo {
         return AvtaleDbo(
-            id = UUID.randomUUID(),
+            id = id,
             navn = navn,
             avtalenummer = avtalenummer,
             tiltakstypeId = tiltakstypeId,

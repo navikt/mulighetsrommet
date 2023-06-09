@@ -5,17 +5,23 @@ import arrow.core.flatMap
 import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingNokkeltallDto
 import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
+import no.nav.mulighetsrommet.api.routes.v1.responses.BadRequest
+import no.nav.mulighetsrommet.api.routes.v1.responses.NotFound
 import no.nav.mulighetsrommet.api.routes.v1.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.routes.v1.responses.Pagination
+import no.nav.mulighetsrommet.api.routes.v1.responses.ServerError
+import no.nav.mulighetsrommet.api.routes.v1.responses.StatusResponse
 import no.nav.mulighetsrommet.api.utils.AdminTiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.utils.DatabaseOperationError
 import no.nav.mulighetsrommet.database.utils.QueryResult
+import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingAdminDto
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingNotificationDto
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.time.LocalDate
 import java.util.*
 
 class TiltaksgjennomforingService(
@@ -74,5 +80,29 @@ class TiltaksgjennomforingService(
 
     fun getBySanitIds(sanityIds: List<UUID>): Map<String, TiltaksgjennomforingAdminDto> {
         return tiltaksgjennomforingRepository.getBySanityIds(sanityIds)
+    }
+
+    fun delete(id: UUID, currentDate: LocalDate = LocalDate.now()): StatusResponse<Int> {
+        val gjennomforing = tiltaksgjennomforingRepository.get(id).getOrNull()
+            ?: return Either.Left(NotFound("Fant ikke gjennomforingen med id $id"))
+
+        if (gjennomforing.opphav == ArenaMigrering.Opphav.ARENA) {
+            return Either.Left(BadRequest(message = "Gjennomforingen har opprinnelse fra Arena og kan ikke bli slettet i admin-flate."))
+        }
+
+        if (gjennomforing.startDato <= currentDate && gjennomforing.sluttDato?.let { it >= currentDate } != false) {
+            return Either.Left(BadRequest(message = "Gjennomforingen er mellom start- og sluttdato og må avsluttes før den kan slettes."))
+        }
+
+        val antallDeltagere = deltakerRepository.getAll(id).size
+        if (antallDeltagere > 0) {
+            return Either.Left(BadRequest(message = "Gjennomforingen kan ikke slette fordi den har $antallDeltagere deltager(e) koblet til seg."))
+        }
+
+        return tiltaksgjennomforingRepository
+            .delete(id)
+            .mapLeft {
+                ServerError(message = "Det oppsto en feil ved sletting av gjennomforingen")
+            }
     }
 }

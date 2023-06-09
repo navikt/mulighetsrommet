@@ -1,29 +1,30 @@
 import { Button, Heading, Modal } from "@navikt/ds-react";
-import { ApiError, Avtale, Opphav } from "mulighetsrommet-api-client";
+import { ApiError, Opphav, Tiltaksgjennomforing } from "mulighetsrommet-api-client";
 import { useEffect } from "react";
 import classNames from "classnames";
 import { useNavigate } from "react-router-dom";
-import { useDeleteAvtale } from "../../api/avtaler/useDeleteAvtale";
-import styles from "./Modal.module.scss";
+import styles from "../avtaler/Modal.module.scss";
+import { VarselIkon } from "../avtaler/SlettAvtaleModal";
+import { useDeleteTiltaksgjennomforing } from "../../api/tiltaksgjennomforing/useDeleteTiltaksgjennomforing";
 
-interface SlettAvtaleModalprops {
+interface SlettTiltaksgjennomforingModalprops {
   modalOpen: boolean;
   onClose: () => void;
   handleForm?: () => void;
   handleCancel?: () => void;
   handleRediger?: () => void;
   shouldCloseOnOverlayClick?: boolean;
-  avtale?: Avtale;
+  tiltaksgjennomforing: Tiltaksgjennomforing;
 }
 
-const SlettAvtaleModal = ({
+const SlettTiltaksgjennomforingModal = ({
   modalOpen,
   onClose,
   handleCancel,
   handleRediger,
-  avtale,
-}: SlettAvtaleModalprops) => {
-  const mutation = useDeleteAvtale();
+  tiltaksgjennomforing,
+}: SlettTiltaksgjennomforingModalprops) => {
+  const mutation = useDeleteTiltaksgjennomforing();
   const navigate = useNavigate();
   useEffect(() => {
     Modal.setAppElement("#root");
@@ -31,7 +32,7 @@ const SlettAvtaleModal = ({
 
   useEffect(() => {
     if (mutation.isSuccess) {
-      navigate("/avtaler");
+      navigate("/tiltaksgjennomforinger");
       return;
     }
   }, [mutation]);
@@ -42,9 +43,7 @@ const SlettAvtaleModal = ({
   };
 
   const handleDelete = () => {
-    if (avtale?.id) {
-      mutation.mutate(avtale?.id);
-    }
+    mutation.mutate(tiltaksgjennomforing.id);
   };
 
   const handleRedigerAvtale = () => {
@@ -53,42 +52,42 @@ const SlettAvtaleModal = ({
     handleRediger?.();
   };
 
-  function headerInnhold(avtale?: Avtale) {
+  function headerInnhold(tiltaksgjennomforing: Tiltaksgjennomforing) {
     return (
       <div className={styles.heading}>
         <VarselIkon />
-        {avtale?.opphav === Opphav.ARENA ? (
+        {tiltaksgjennomforing.opphav === Opphav.ARENA ? (
           <span>Avtalen kan ikke slettes</span>
         ) : mutation.isError ? (
-          <span>Kan ikke slette «{avtale?.navn}»</span>
+          <span>Kan ikke slette «{tiltaksgjennomforing.navn}»</span>
         ) : (
-          <span>Ønsker du å slette «{avtale?.navn}»?</span>
+          <span>Ønsker du å slette «{tiltaksgjennomforing.navn}»?</span>
         )}
       </div>
     );
   }
 
-  function modalInnhold(avtale?: Avtale) {
+  function modalInnhold(tiltaksgjennomforing: Tiltaksgjennomforing) {
     return (
       <>
-        {avtale?.opphav === Opphav.ARENA ? (
-          <p>Avtalen {avtale?.navn} kommer fra Arena og kan ikke slettes her</p>
+        {tiltaksgjennomforing.opphav === Opphav.ARENA ? (
+          <p>Avtalen «{tiltaksgjennomforing.navn}» kommer fra Arena og kan ikke slettes her</p>
         ) : mutation?.isError ? (
           <p>{(mutation.error as ApiError).body}</p>
         ) : (
           <>
-            <p>Er du sikker på at du ønsker å slette avtalen «{avtale?.navn}»?</p>
+            <p>Er du sikker på at du ønsker å slette gjennomforingen «{tiltaksgjennomforing.navn}»?</p>
             <p>Du kan ikke angre denne handlingen</p>
           </>
         )}
         <div className={styles.knapperad}>
-          {avtale?.opphav === Opphav.ARENA ? null : mutation?.isError ? (
+          {tiltaksgjennomforing.opphav === Opphav.ARENA ? null : mutation?.isError ? (
             <Button variant="primary" onClick={handleRedigerAvtale}>
-              Rediger avtale
+              Rediger gjennomføring
             </Button>
           ) : (
             <Button variant="danger" onClick={handleDelete}>
-              Slett avtale
+              Slett gjennomføring
             </Button>
           )}
           <Button variant="secondary-neutral" onClick={clickCancel}>
@@ -118,29 +117,13 @@ const SlettAvtaleModal = ({
             level="2"
             data-testid="slett_avtale_modal_header"
           >
-            {headerInnhold(avtale)}
+            {headerInnhold(tiltaksgjennomforing)}
           </Heading>
-          {modalInnhold(avtale)}
+          {modalInnhold(tiltaksgjennomforing)}
         </Modal.Content>
       </Modal>
     </>
   );
 };
 
-export const VarselIkon = () =>
-    <svg
-      width="32"
-      height="32"
-      viewBox="0 0 32 32"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path
-        fillRule="evenodd"
-        clipRule="evenodd"
-        d="M3.14138e-05 15.968C0.016727 7.16242 7.19306 0 15.9986 0C24.8529 0.0166956 32.0167 7.20833 32 16.0292C31.9819 24.8361 24.8042 31.9999 16 31.9999H15.9694C11.6953 31.9916 7.68002 30.3192 4.66367 27.2918C1.64733 24.2629 -0.0083164 20.242 3.14138e-05 15.968ZM22.6666 11.2381L20.7619 9.33332L16 14.096L11.2381 9.33332L9.33332 11.2381L14.096 16L9.33332 20.7619L11.2381 22.6666L16 17.904L20.7619 22.6666L22.6666 20.7619L17.904 16L22.6666 11.2381Z"
-        fill="#C30000"
-      />
-    </svg>
-
-export default SlettAvtaleModal;
+export default SlettTiltaksgjennomforingModal;

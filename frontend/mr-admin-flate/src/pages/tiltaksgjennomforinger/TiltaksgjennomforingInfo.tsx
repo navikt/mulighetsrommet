@@ -13,6 +13,7 @@ import {
   ExclamationmarkTriangleIcon,
   ExternalLinkIcon,
 } from "@navikt/aksel-icons";
+import SlettTiltaksgjennomforingModal from "../../components/tiltaksgjennomforinger/SlettTiltaksgjennomforingModal";
 
 export function TiltaksgjennomforingInfo() {
   const {
@@ -25,9 +26,13 @@ export function TiltaksgjennomforingInfo() {
   );
   const { data: features } = useFeatureToggles();
 
+  const [slettModal, setSlettModal] = useState(false);
   const [redigerModal, setRedigerModal] = useState(false);
+
   const handleRediger = () => setRedigerModal(true);
   const lukkRedigerModal = () => setRedigerModal(false);
+  const handleSlett = () => setSlettModal(true);
+  const lukkSlettModal = () => setSlettModal(false);
 
   const sanityTiltaksgjennomforingUrl =
     "https://mulighetsrommet-sanity-studio.intern.nav.no/" +
@@ -158,11 +163,21 @@ export function TiltaksgjennomforingInfo() {
         ) : null}
       </div>
       <div className={styles.knapperad}>
+        {features?.["mulighetsrommet.admin-flate-slett-avtale"] ? (
+          <Button
+            variant="tertiary-neutral"
+            onClick={handleSlett}
+            data-testid="slett-gjennomforing"
+            className={styles.slett_knapp}
+          >
+            Slett
+          </Button>
+        ) : null}
         {features?.["mulighetsrommet.admin-flate-rediger-avtale"] ? (
           <Button
             variant="tertiary"
             onClick={handleRediger}
-            data-testid="endre-avtale"
+            data-testid="endre-gjennomforing"
           >
             Endre
           </Button>
@@ -174,6 +189,13 @@ export function TiltaksgjennomforingInfo() {
         shouldCloseOnOverlayClick={true}
         tiltaksgjennomforing={tiltaksgjennomforing}
         avtale={avtale}
+      />
+      <SlettTiltaksgjennomforingModal
+        modalOpen={slettModal}
+        onClose={lukkSlettModal}
+        shouldCloseOnOverlayClick={true}
+        tiltaksgjennomforing={tiltaksgjennomforing}
+        handleRediger={() => setRedigerModal(true)}
       />
     </div>
   );
