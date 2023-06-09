@@ -25,7 +25,7 @@ export function Forside() {
                 data-testid={card.navn.toLowerCase()}
                 onClick={() =>
                   faro?.api?.pushEvent(
-                    "Bruker trykket på inngang fra forside",
+                    `Bruker trykket på inngang fra forside: ${card.navn}`,
                     { inngang: card.navn },
                     "forside"
                   )

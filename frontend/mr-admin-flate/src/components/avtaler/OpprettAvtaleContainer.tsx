@@ -416,7 +416,7 @@ export function OpprettAvtaleContainer({
             type="submit"
             onClick={() => {
               faro?.api?.pushEvent(
-                "Bruker lagrer avtale",
+                `Bruker ${redigeringsModus ? "redigerer" : "oppretter"} avtale`,
                 { handling: redigeringsModus ? "redigerer" : "oppretter" },
                 "avtale"
               );
