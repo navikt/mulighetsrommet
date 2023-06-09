@@ -1,5 +1,5 @@
 import { formaterDato } from "../../utils/Utils";
-import styles from "./ControlledDateInput.module.scss"
+import styles from "./ControlledDateInput.module.scss";
 import { forwardRef } from "react";
 import { Controller } from "react-hook-form";
 import { UNSAFE_DatePicker, UNSAFE_useDatepicker } from "@navikt/ds-react";
@@ -18,10 +18,7 @@ const ControlledDateInput = forwardRef((props: DateInputProps, _) => {
       <Controller
         name={label}
         {...rest}
-        render={({
-          field: { onChange, value },
-          fieldState: { error },
-        }) => {
+        render={({ field: { onChange, value }, fieldState: { error } }) => {
           const {
             datepickerProps: startdatoProps,
             inputProps: startdatoInputProps,
@@ -40,16 +37,17 @@ const ControlledDateInput = forwardRef((props: DateInputProps, _) => {
             toDate: futureDate(),
             defaultSelected: value ? new Date(value) : undefined,
           });
-
           return (
             <UNSAFE_DatePicker {...startdatoProps} dropdownCaption>
               <DatoFelt
                 label={label}
                 {...rest}
-                error={error?.message}
                 {...startdatoInputProps}
+                error={error?.message}
                 value={
-                  selectedStartdato ? formaterDato(selectedStartdato) : undefined
+                  selectedStartdato
+                    ? formaterDato(selectedStartdato)
+                    : undefined
                 }
                 readOnly={readOnly}
               />
@@ -72,7 +70,6 @@ const DatoFelt = forwardRef(function DatoFeltInput(props: any, ref: any) {
       name={name}
       size="medium"
       ref={ref}
-      disabled={rest.readOnly}
       className={styles.dato_input}
     />
   );
@@ -82,9 +79,7 @@ const offsetAntallAar = 3;
 
 const pastDate = () => {
   const newDate = new Date();
-  const yearsAgo = newDate.setFullYear(
-    newDate.getFullYear() - offsetAntallAar
-  );
+  const yearsAgo = newDate.setFullYear(newDate.getFullYear() - offsetAntallAar);
   return new Date(yearsAgo);
 };
 
@@ -96,4 +91,4 @@ const futureDate = () => {
   return new Date(yearsFromNow);
 };
 
-export { ControlledDateInput }
+export { ControlledDateInput };
