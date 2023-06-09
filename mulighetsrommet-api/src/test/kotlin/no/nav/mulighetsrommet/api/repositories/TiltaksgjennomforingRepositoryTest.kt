@@ -330,6 +330,41 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         }
     }
 
+    context("Hente tiltaksgjennomføringer som er midlertidig stengt og som nærmer seg sluttdato for den stengte perioden") {
+        test("Skal hente gjennomføringer som er 7 eller 1 dag til stengt-til-datoen") {
+            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
+            val gjennomforing14Dager =
+                gjennomforing1.copy(id = UUID.randomUUID(), sluttDato = LocalDate.of(2023, 5, 30))
+            val gjennomforing7Dager = gjennomforing1.copy(
+                id = UUID.randomUUID(),
+                sluttDato = LocalDate.of(2023, 5, 23),
+                stengtFra = LocalDate.of(2023, 6, 16),
+                stengtTil = LocalDate.of(2023, 5, 23),
+            )
+            val gjennomforing1Dager = gjennomforing1.copy(
+                id = UUID.randomUUID(),
+                sluttDato = LocalDate.of(2023, 5, 17),
+                stengtFra = LocalDate.of(2023, 6, 16),
+                stengtTil = LocalDate.of(2023, 5, 17),
+            )
+            val gjennomforing10Dager =
+                gjennomforing1.copy(id = UUID.randomUUID(), sluttDato = LocalDate.of(2023, 5, 26))
+            tiltaksgjennomforinger.upsert(gjennomforing14Dager).shouldBeRight()
+            tiltaksgjennomforinger.upsert(gjennomforing7Dager).shouldBeRight()
+            tiltaksgjennomforinger.upsert(gjennomforing1Dager).shouldBeRight()
+            tiltaksgjennomforinger.upsert(gjennomforing10Dager).shouldBeRight()
+
+            val result = tiltaksgjennomforinger.getAllMidlertidigStengteGjennomforingerSomNarmerSegSluttdato(
+                currentDate = LocalDate.of(
+                    2023,
+                    5,
+                    16,
+                ),
+            )
+            result.size shouldBe 2
+        }
+    }
+
     context("tilgjengelighetsstatus") {
         val tiltakstyper = TiltakstypeRepository(database.db)
         tiltakstyper.upsert(tiltakstype1)

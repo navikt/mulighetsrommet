@@ -295,6 +295,7 @@ private fun tasks(config: TaskConfig) = module {
             get(),
             get(),
         )
+        val notifySluttdatoForMidlertidigStengtGjennomforingerNarmerSeg = NotifySluttdatoForMidlertidigStengtGjennomforingerNarmerSeg(config.notifySluttdatoForMidlertidigStengtGjennomforingerNarmerSeg, get(), get(), get())
         val notificationService: NotificationService by inject()
 
         val db: Database by inject()
@@ -311,6 +312,7 @@ private fun tasks(config: TaskConfig) = module {
                 notifySluttdatoForGjennomforingerNarmerSeg.task,
                 notifySluttdatoForAvtalerNarmerSeg.task,
                 notifyFailedKafkaEvents.task,
+                notifySluttdatoForMidlertidigStengtGjennomforingerNarmerSeg.task,
             )
             .serializer(DbSchedulerKotlinSerializer())
             .registerShutdownHook()
