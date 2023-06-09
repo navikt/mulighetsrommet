@@ -18,7 +18,7 @@ import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import kotlin.jvm.optionals.getOrNull
 
-class NotifySluttdatoForGjennomforingerNarmerSeg(
+class NotifySluttdatoForMidlertidigStengtGjennomforingerNarmerSeg(
     config: Config,
     notificationService: NotificationService,
     tiltaksgjennomforingService: TiltaksgjennomforingService,
@@ -40,34 +40,34 @@ class NotifySluttdatoForGjennomforingerNarmerSeg(
     }
 
     val task: RecurringTask<Void> = Tasks
-        .recurring("notify-sluttdato-for-tiltaksgjennomforinger-narmer-seg", config.toSchedule())
+        .recurring("notify-sluttdato-for-midlertidig-stengt-tiltaksgjennomforinger-narmer-seg", config.toSchedule())
         .onFailure { failure, _ ->
             val cause = failure.cause.getOrNull()?.message
             slack.sendMessage(
                 """
-                Klarte ikke opprette notifikasjoner for tiltaksgjennomføringer som nærmer seg sluttdato.
-                Konsekvensen er at brukere ikke nødvendigvis får med seg at sluttdato nærmer seg for sine tiltaksgjennomføringer.
+                Klarte ikke opprette notifikasjoner for midlertidig stengte tiltaksgjennomføringer som nærmer seg sluttdato for den stengte perioden.
+                Konsekvensen er at brukere ikke nødvendigvis får med seg at sluttdato nærmer seg for sine midlertidig stengte tiltaksgjennomføringer.
                 Detaljer: $cause
                 """.trimIndent(),
             )
         }
         .execute { _, _ ->
-            logger.info("Oppretter notifikasjoner for tiltaksgjennomføringer som nærmer seg sluttdato...")
+            logger.info("Oppretter notifikasjoner for midlertidig stengte tiltaksgjennomføringer som nærmer seg sluttdato...")
 
             runBlocking {
                 val tiltaksgjennomforinger: List<TiltaksgjennomforingNotificationDto> =
-                    tiltaksgjennomforingService.getAllGjennomforingerSomNarmerSegSluttdato()
+                    tiltaksgjennomforingService.getAllMidlertidigStengteGjennomforingerSomNarmerSegSluttdato()
                 tiltaksgjennomforinger.forEach {
                     if (it.ansvarlige.isEmpty()) {
                         logger.info("Fant ingen ansvarlige for gjennomføring med id: ${it.id}")
                     } else {
                         val notification = ScheduledNotification(
                             type = NotificationType.NOTIFICATION,
-                            title = "Gjennomføringen \"${it.navn} ${if (it.tiltaksnummer != null) "(${it.tiltaksnummer})" else ""}\"  utløper ${
-                                it.sluttDato?.format(
+                            title = "Midlertidig stengt periode for gjennomføring \"${it.navn} ${if (it.tiltaksnummer != null) "(${it.tiltaksnummer})" else ""}\" utløper ${
+                                it.stengtTil?.format(
                                     DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT),
                                 )
-                            }",
+                            }.",
                             targets = it.ansvarlige,
                             createdAt = Instant.now(),
                         )

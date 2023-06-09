@@ -98,6 +98,9 @@ app:
       disabled: true
       maxRetries: 5
       delayOfMinutes: 15
+    notifySluttdatoForMidlertidigStengtGjennomforingerNarmerSeg:
+      disabled: true
+      cronPattern: "0 */1 * * * *" # Hvert 1 minutt
 
   norg2:
     baseUrl: https://norg2.dev-fss-pub.nais.io/norg2/api/v1

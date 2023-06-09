@@ -75,4 +75,8 @@ class TiltaksgjennomforingService(
     fun getBySanitIds(sanityIds: List<UUID>): Map<String, TiltaksgjennomforingAdminDto> {
         return tiltaksgjennomforingRepository.getBySanityIds(sanityIds)
     }
+
+    fun getAllMidlertidigStengteGjennomforingerSomNarmerSegSluttdato(): List<TiltaksgjennomforingNotificationDto> {
+        return tiltaksgjennomforingRepository.getAllMidlertidigStengteGjennomforingerSomNarmerSegSluttdato()
+    }
 }

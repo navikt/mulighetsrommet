@@ -608,6 +608,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             startDato = startDato,
             sluttDato = sluttDato,
             ansvarlige = ansvarlige,
+            tiltaksnummer = stringOrNull("tiltaksnummer"),
+            stengtTil = localDateOrNull("stengt_til"),
         )
     }
 
@@ -652,7 +654,9 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                    tg.start_dato,
                    tg.slutt_dato,
                    array_agg(distinct a.navident) as ansvarlige,
-                   array_agg(e.enhetsnummer) as navEnheter
+                   array_agg(e.enhetsnummer) as navEnheter,
+                   tg.tiltaksnummer,
+                   tg.stengt_til
             from tiltaksgjennomforing tg
                      left join tiltaksgjennomforing_ansvarlig a on a.tiltaksgjennomforing_id = tg.id
                     left join tiltaksgjennomforing_nav_enhet e on e.tiltaksgjennomforing_id = tg.id
@@ -676,5 +680,31 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         """.trimIndent()
 
         return queryOf(query, avtaleId, gjennomforingId).asUpdate.let { db.run(it) }
+    }
+
+    fun getAllMidlertidigStengteGjennomforingerSomNarmerSegSluttdato(currentDate: LocalDate = LocalDate.now()): List<TiltaksgjennomforingNotificationDto> {
+        @Language("PostgreSQL")
+        val query = """
+            select tg.id::uuid,
+                   tg.navn,
+                   tg.start_dato,
+                   tg.slutt_dato,
+                   tg.stengt_til,
+                   array_agg(distinct a.navident) as ansvarlige,
+                   array_agg(e.enhetsnummer) as navEnheter,
+                   tg.tiltaksnummer
+            from tiltaksgjennomforing tg
+                     left join tiltaksgjennomforing_ansvarlig a on a.tiltaksgjennomforing_id = tg.id
+                    left join tiltaksgjennomforing_nav_enhet e on e.tiltaksgjennomforing_id = tg.id
+
+            where tg.stengt_til is not null and
+               (?::timestamp + interval '7' day) = tg.stengt_til
+               or (?::timestamp + interval '1' day) = tg.stengt_til
+            group by tg.id, a.navident;
+        """.trimIndent()
+
+        return queryOf(query, currentDate, currentDate).map { it.toTiltaksgjennomforingNotificationDto() }
+            .asList
+            .let { db.run(it) }
     }
 }
