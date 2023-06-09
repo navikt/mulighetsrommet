@@ -384,6 +384,7 @@ export const OpprettTiltaksgjennomforingContainer = (
       <form onSubmit={handleSubmit(postData)}>
         <FormGroup>
           <TextField
+            size="small"
             readOnly={arenaOpphav}
             error={errors.tittel?.message}
             label="Tiltaksnavn"
@@ -391,10 +392,16 @@ export const OpprettTiltaksgjennomforingContainer = (
           />
         </FormGroup>
         <FormGroup>
-          <TextField readOnly label={"Avtale"} value={avtale?.navn || ""} />
+          <TextField
+            size="small"
+            readOnly
+            label={"Avtale"}
+            value={avtale?.navn || ""}
+          />
         </FormGroup>
         <FormGroup>
           <FraTilDatoVelger
+            size="small"
             fra={{
               label: "Startdato",
               readOnly: arenaOpphav,
@@ -406,11 +413,12 @@ export const OpprettTiltaksgjennomforingContainer = (
               ...register("startOgSluttDato.sluttDato"),
             }}
           />
-          <Checkbox {...register("midlertidigStengt.erMidlertidigStengt")}>
+          <Checkbox size="small" {...register("midlertidigStengt.erMidlertidigStengt")}>
             Midlertidig stengt
           </Checkbox>
           {watchErMidlertidigStengt && (
             <FraTilDatoVelger
+              size="small"
               fra={{
                 label: "Stengt fra",
                 ...register("midlertidigStengt.stengtFra"),
@@ -422,6 +430,7 @@ export const OpprettTiltaksgjennomforingContainer = (
             />
           )}
           <TextField
+            size="small"
             readOnly={arenaOpphav}
             error={errors.antallPlasser?.message}
             type="number"
@@ -432,11 +441,13 @@ export const OpprettTiltaksgjennomforingContainer = (
         </FormGroup>
         <FormGroup>
           <TextField
+            size="small"
             readOnly
             label={"NAV region"}
             value={avtale?.navRegion?.navn || ""}
           />
           <ControlledMultiSelect
+            size="small"
             placeholder={isLoadingEnheter ? "Laster enheter..." : "Velg en"}
             label={"NAV enhet (kontorer)"}
             {...register("navEnheter")}
@@ -445,12 +456,14 @@ export const OpprettTiltaksgjennomforingContainer = (
         </FormGroup>
         <FormGroup>
           <TextField
+            size="small"
             label="Tiltaksarrangør hovedenhet"
             placeholder=""
             defaultValue={`${avtale?.leverandor.navn} - ${avtale?.leverandor.organisasjonsnummer}`}
             readOnly
           />
           <SokeSelect
+            size="small"
             label="Tiltaksarrangør underenhet"
             placeholder="Velg underenhet for tiltaksarrangør"
             {...register("tiltaksArrangorUnderenhetOrganisasjonsnummer")}
@@ -460,6 +473,7 @@ export const OpprettTiltaksgjennomforingContainer = (
         </FormGroup>
         <FormGroup>
           <SokeSelect
+            size="small"
             placeholder={
               isLoadingAnsatt ? "Laster Tiltaksansvarlig..." : "Velg en"
             }

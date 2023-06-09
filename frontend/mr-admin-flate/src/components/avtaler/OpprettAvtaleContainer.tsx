@@ -280,6 +280,7 @@ export function OpprettAvtaleContainer({
       <form onSubmit={handleSubmit(postData)}>
         <FormGroup>
           <TextField
+            size="small"
             readOnly={arenaOpphav}
             error={errors.avtalenavn?.message}
             label="Avtalenavn"
@@ -288,6 +289,7 @@ export function OpprettAvtaleContainer({
         </FormGroup>
         <FormGroup cols={2}>
           <SokeSelect
+            size="small"
             readOnly={arenaOpphav}
             placeholder="Velg en"
             label={"Tiltakstype"}
@@ -298,6 +300,7 @@ export function OpprettAvtaleContainer({
             }))}
           />
           <SokeSelect
+            size="small"
             readOnly={arenaOpphav}
             placeholder="Velg en"
             label={"Avtaletype"}
@@ -320,6 +323,7 @@ export function OpprettAvtaleContainer({
         </FormGroup>
         <FormGroup>
           <FraTilDatoVelger
+            size="small"
             fra={{
               readOnly: arenaOpphav,
               ...register("startOgSluttDato.startDato"),
@@ -334,6 +338,7 @@ export function OpprettAvtaleContainer({
         </FormGroup>
         <FormGroup>
           <SokeSelect
+            size="small"
             placeholder="Velg en"
             label={"NAV region"}
             {...register("navRegion")}
@@ -349,6 +354,7 @@ export function OpprettAvtaleContainer({
               }))}
           />
           <ControlledMultiSelect
+            size="small"
             placeholder="Velg en"
             readOnly={!navRegion}
             label={"NAV enhet (kontorer)"}
@@ -358,6 +364,7 @@ export function OpprettAvtaleContainer({
         </FormGroup>
         <FormGroup cols={1}>
           <SokeSelect
+            size="small"
             readOnly={arenaOpphav}
             placeholder="Søk etter tiltaksarrangør"
             label={"Tiltaksarrangør hovedenhet"}
@@ -369,6 +376,7 @@ export function OpprettAvtaleContainer({
             }))}
           />
           <ControlledMultiSelect
+            size="small"
             placeholder="Velg underenhet for tiltaksarrangør"
             label={"Tiltaksarrangør underenhet"}
             readOnly={!watch("leverandor")}
@@ -378,6 +386,7 @@ export function OpprettAvtaleContainer({
         </FormGroup>
         <FormGroup>
           <TextField
+            size="small"
             error={errors.url?.message}
             label="URL til avtale"
             {...register("url")}
@@ -386,6 +395,7 @@ export function OpprettAvtaleContainer({
         {erAnskaffetTiltak(watch("tiltakstype")) ? (
           <FormGroup>
             <Textarea
+              size="small"
               readOnly={arenaOpphav}
               error={errors.prisOgBetalingsinfo?.message}
               label="Pris og betalingsinformasjon"
@@ -395,6 +405,7 @@ export function OpprettAvtaleContainer({
         ) : null}
         <FormGroup cols={2}>
           <SokeSelect
+            size="small"
             placeholder="Velg en"
             label={"Avtaleansvarlig"}
             {...register("avtaleansvarlig")}

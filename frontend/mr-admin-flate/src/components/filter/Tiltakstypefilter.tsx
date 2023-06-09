@@ -62,6 +62,7 @@ export function Tiltakstypefilter() {
               className={styles.form_field}
             />
             <SokeSelect
+              size="small"
               label="Filtrer på statuser"
               placeholder="Filtrer på statuser"
               hideLabel
@@ -80,6 +81,7 @@ export function Tiltakstypefilter() {
             />
 
             <SokeSelect
+              size="small"
               label="Gruppetiltak eller individuelle tiltak"
               placeholder="Gruppetiltak eller individuelle tiltak"
               hideLabel
