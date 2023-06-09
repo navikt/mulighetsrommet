@@ -357,14 +357,17 @@ export const OpprettTiltaksgjennomforingContainer = (
 
   const ansvarligOptions = () => {
     if (isLoadingAnsatt) {
-      return [{ label: "Laster...", value: "" }]
+      return [{ label: "Laster...", value: "" }];
     }
-    const options = []
-    if (tiltaksgjennomforing?.ansvarlig && tiltaksgjennomforing.ansvarlig !== ansatt?.ident) {
+    const options = [];
+    if (
+      tiltaksgjennomforing?.ansvarlig &&
+      tiltaksgjennomforing.ansvarlig !== ansatt?.ident
+    ) {
       options.push({
         value: tiltaksgjennomforing?.ansvarlig,
         label: tiltaksgjennomforing?.ansvarlig,
-      })
+      });
     }
 
     options.push({
@@ -373,7 +376,7 @@ export const OpprettTiltaksgjennomforingContainer = (
     });
 
     return options;
-  }
+  };
 
   return (
     <FormProvider {...form}>
