@@ -31,6 +31,7 @@ import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
 import { SokeSelect } from "../skjema/SokeSelect";
 import { AvtaleSchema, inferredSchema } from "./AvtaleSchema";
 import styles from "./OpprettAvtaleContainer.module.scss";
+import { faro } from "@grafana/faro-web-sdk";
 
 interface OpprettAvtaleContainerProps {
   onAvbryt: () => void;
@@ -228,21 +229,21 @@ export function OpprettAvtaleContainer({
   }
 
   const ansvarligOptions = () => {
-    const options = []
+    const options = [];
     if (avtale?.ansvarlig && avtale.ansvarlig !== ansatt?.ident) {
       options.push({
         value: avtale?.ansvarlig,
         label: avtale?.ansvarlig,
-      })
+      });
     }
- 
+
     options.push({
       value: ansatt?.ident ?? "",
       label: `${navn} - ${ansatt?.ident}`,
     });
 
-   return options;
-  }
+    return options;
+  };
 
   const enheterOptions = () => {
     if (!navRegion) {
@@ -421,8 +422,18 @@ export function OpprettAvtaleContainer({
           >
             Avbryt
           </Button>
-          <Button className={styles.button} type="submit">
-            {redigeringsModus ? "Lagre redigert avtale" : "Registrer avtale"}{" "}
+          <Button
+            className={styles.button}
+            type="submit"
+            onClick={() => {
+              faro?.api?.pushEvent(
+                `Bruker ${redigeringsModus ? "redigerer" : "oppretter"} avtale`,
+                { handling: redigeringsModus ? "redigerer" : "oppretter" },
+                "avtale"
+              );
+            }}
+          >
+            {redigeringsModus ? "Lagre redigert avtale" : "Registrer avtale"}
           </Button>
         </div>
       </form>

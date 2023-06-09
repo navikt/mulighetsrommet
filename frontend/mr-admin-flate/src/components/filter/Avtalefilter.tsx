@@ -25,6 +25,7 @@ import OpprettAvtaleModal from "../avtaler/OpprettAvtaleModal";
 import { SokeSelect } from "../skjema/SokeSelect";
 import styles from "./Filter.module.scss";
 import { RESET } from "jotai/vanilla/utils";
+import { faro } from "@grafana/faro-web-sdk";
 
 type Filters = "tiltakstype";
 
@@ -187,7 +188,12 @@ export function Avtalefilter(props: Props) {
             {visOpprettAvtaleknapp && (
               <>
                 <Button
-                  onClick={() => setModalOpen(true)}
+                  onClick={() => {
+                    faro?.api?.pushEvent(
+                      "Bruker trykket på 'Registrer avtale'-knapp"
+                    );
+                    setModalOpen(true);
+                  }}
                   data-testid="registrer-ny-avtale"
                   size="small"
                   type="button"

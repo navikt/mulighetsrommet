@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import styles from "./Forside.module.scss";
 import { forsideKort } from "./constants";
 import { BrukerNotifikasjoner } from "./components/notifikasjoner/BrukerNotifikasjoner";
+import { faro } from "@grafana/faro-web-sdk";
 
 export function Forside() {
   return (
@@ -22,6 +23,13 @@ export function Forside() {
                 className={styles.card}
                 to={card.url}
                 data-testid={card.navn.toLowerCase()}
+                onClick={() =>
+                  faro?.api?.pushEvent(
+                    `Bruker trykket på inngang fra forside: ${card.navn}`,
+                    { inngang: card.navn },
+                    "forside"
+                  )
+                }
               >
                 <span className={styles.circle}></span>
                 <h3>{card.navn}</h3>
