@@ -1,6 +1,7 @@
 import { Search } from "@navikt/ds-react";
 import { useAtom } from "jotai";
-import { ChangeEvent, useEffect } from "react";
+import { RESET } from "jotai/vanilla/utils";
+import { useEffect } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import {
   TiltakstypeFilter,
@@ -10,7 +11,6 @@ import {
 import { resetPaginering } from "../../utils/Utils";
 import { SokeSelect } from "../skjema/SokeSelect";
 import styles from "./Filter.module.scss";
-import { RESET } from "jotai/vanilla/utils";
 
 export function Tiltakstypefilter() {
   const [filter, setFilter] = useAtom(tiltakstypeFilter);
