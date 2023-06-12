@@ -13,7 +13,7 @@ import { Laster } from "../../components/laster/Laster";
 import { Link, useParams } from "react-router-dom";
 import { TiltaksgjennomforingerForAvtale } from "./tiltaksgjennomforinger/TiltaksgjennomforingerForAvtale";
 import { useAtom } from "jotai";
-import { avtaleFilter } from "../../api/atoms";
+import { AvtaleTabs, avtaleFilter } from "../../api/atoms";
 
 export function DetaljerAvtalePage() {
   const { avtaleId } = useParams<{ avtaleId: string }>();
@@ -53,7 +53,9 @@ export function DetaljerAvtalePage() {
       </Header>
       <Tabs
         value={filter.avtaleTab}
-        onChange={(tab) => setFilter({ ...filter, avtaleTab: tab as any })}
+        onChange={(tab) =>
+          setFilter({ ...filter, avtaleTab: tab as AvtaleTabs })
+        }
       >
         <Tabs.List className={styles.list}>
           <Tabs.Tab value="avtaleinfo" label="Avtaleinfo" />
