@@ -3,11 +3,15 @@ package no.nav.mulighetsrommet.database
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotliquery.queryOf
 import no.nav.mulighetsrommet.slack.SlackNotifier
 import org.flywaydb.core.Flyway
 import org.slf4j.LoggerFactory
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.time.ExperimentalTime
 import kotlin.time.measureTime
+
+val hasMigrated = AtomicBoolean(false)
 
 class FlywayDatabaseAdapter(
     config: Config,
@@ -58,18 +62,22 @@ class FlywayDatabaseAdapter(
             }
             .load()
 
-        when (config.migrationConfig.strategy) {
-            InitializationStrategy.Migrate -> {
-                migrate()
-            }
+        if (!hasMigrated.get()) {
+            hasMigrated.set(true)
+            clean()
+            when (config.migrationConfig.strategy) {
+                InitializationStrategy.Migrate -> {
+                    migrate()
+                }
 
-            InitializationStrategy.MigrateAsync -> runAsync {
-                migrate()
-            }
+                InitializationStrategy.MigrateAsync -> runAsync {
+                    migrate()
+                }
 
-            InitializationStrategy.RepairAndMigrate -> {
-                repair()
-                migrate()
+                InitializationStrategy.RepairAndMigrate -> {
+                    repair()
+                    migrate()
+                }
             }
         }
     }
@@ -84,6 +92,16 @@ class FlywayDatabaseAdapter(
 
     fun clean() {
         flyway.clean()
+    }
+
+    fun truncateAll() {
+        val tableNames = queryOf("SELECT table_name FROM information_schema.tables WHERE table_schema='test-schema' AND table_type='BASE TABLE'")
+            .map { it.string("table_name") }
+            .asList
+            .let { run(it) }
+        tableNames.forEach {
+            run(queryOf("truncate table $it restart identity cascade").asExecute)
+        }
     }
 
     @OptIn(ExperimentalTime::class)

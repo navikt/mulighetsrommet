@@ -44,12 +44,8 @@ import java.time.LocalDate
 class TiltakgjennomforingEventProcessorTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
-    beforeEach {
-        database.db.migrate()
-    }
-
     afterEach {
-        database.db.clean()
+        database.db.truncateAll()
     }
 
     val regDatoBeforeAktivitetsplanen = AktivitetsplanenLaunchDate

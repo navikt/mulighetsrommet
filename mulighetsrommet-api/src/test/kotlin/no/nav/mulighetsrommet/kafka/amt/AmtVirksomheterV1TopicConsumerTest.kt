@@ -27,8 +27,6 @@ class AmtVirksomheterV1TopicConsumerTest : FunSpec({
 
     context("consume virksomheter") {
         beforeTest {
-            database.db.migrate()
-
             val tiltak = TiltakstypeRepository(database.db)
             tiltak.upsert(TiltakstypeFixtures.Oppfolging).getOrThrow()
 
@@ -37,7 +35,7 @@ class AmtVirksomheterV1TopicConsumerTest : FunSpec({
         }
 
         afterTest {
-            database.db.clean()
+            database.db.truncateAll()
         }
 
         val virksomhetRepository = VirksomhetRepository(database.db)

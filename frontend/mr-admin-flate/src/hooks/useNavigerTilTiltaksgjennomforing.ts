@@ -1,7 +1,9 @@
+import { useNavigate } from "react-router-dom";
+
 export const useNavigerTilTiltaksgjennomforing = () => {
+  const navigate = useNavigate();
   const navigerTilTiltaksgjennomforing = (tiltaksgjennomforingId: String) => {
-    const origin = window.location.origin;
-    window.location.href = `${origin}/tiltaksgjennomforinger/${tiltaksgjennomforingId}`;
+    navigate(`/tiltaksgjennomforinger/${tiltaksgjennomforingId}`);
   };
   return { navigerTilTiltaksgjennomforing };
-}
+};

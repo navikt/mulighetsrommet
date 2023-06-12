@@ -204,8 +204,7 @@ class TiltakstypeRepositoryTest : FunSpec({
     }
 
     context("pagination") {
-        database.db.clean()
-        database.db.migrate()
+        database.db.truncateAll()
 
         val tiltakstyper = TiltakstypeRepository(database.db)
 

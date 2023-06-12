@@ -17,12 +17,8 @@ import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListe
 class SakEventProcessorTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
-    beforeEach {
-        database.db.migrate()
-    }
-
     afterEach {
-        database.db.clean()
+        database.db.truncateAll()
     }
 
     context("handleEvent") {

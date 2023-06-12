@@ -6,12 +6,9 @@ import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.api.producers.TiltakstypeKafkaProducer
 import no.nav.mulighetsrommet.api.tasks.*
-import no.nav.mulighetsrommet.database.Database
-import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
 import no.nav.mulighetsrommet.database.kotest.extensions.createDatabaseTestSchema
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.security.mock.oauth2.MockOAuth2Server
-import org.koin.ktor.ext.inject
 
 fun createDatabaseTestConfig() = createDatabaseTestSchema("mulighetsrommet-api-db", 5442)
 
@@ -20,21 +17,13 @@ fun <R> withTestApplication(
     config: AppConfig = createTestApplicationConfig(oauth),
     test: suspend ApplicationTestBuilder.() -> R,
 ) {
-    var flywayAdapter: FlywayDatabaseAdapter? = null
-
     testApplication {
         application {
             configure(config)
-
-            val db by inject<Database>()
-            flywayAdapter = db as FlywayDatabaseAdapter
         }
 
         test()
     }
-
-    // Småhacky måte å rydde opp databasen etter at testen er ferdig
-    flywayAdapter?.clean()
 }
 
 fun createTestApplicationConfig(oauth: MockOAuth2Server) = AppConfig(
@@ -74,6 +63,9 @@ fun createTestApplicationConfig(oauth: MockOAuth2Server) = AppConfig(
             disabled = true,
             delayOfMinutes = 15,
             maxRetries = 5,
+        ),
+        notifySluttdatoForMidlertidigStengtGjennomforingerNarmerSeg = NotifySluttdatoForMidlertidigStengtGjennomforingerNarmerSeg.Config(
+            disabled = true,
         ),
     ),
     norg2 = Norg2Config(baseUrl = ""),

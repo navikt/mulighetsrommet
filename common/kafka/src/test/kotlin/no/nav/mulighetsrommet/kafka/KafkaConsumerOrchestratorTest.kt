@@ -47,12 +47,8 @@ class KafkaConsumerOrchestratorTest : FunSpec({
         kafka.close()
     }
 
-    beforeEach {
-        database.db.migrate()
-    }
-
     afterEach {
-        database.db.clean()
+        database.db.truncateAll()
     }
 
     test("should store topics based on provided consumers during setup") {

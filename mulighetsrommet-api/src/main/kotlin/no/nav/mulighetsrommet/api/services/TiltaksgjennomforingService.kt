@@ -105,4 +105,8 @@ class TiltaksgjennomforingService(
                 ServerError(message = "Det oppsto en feil ved sletting av gjennomforingen")
             }
     }
+
+    fun getAllMidlertidigStengteGjennomforingerSomNarmerSegSluttdato(): List<TiltaksgjennomforingNotificationDto> {
+        return tiltaksgjennomforingRepository.getAllMidlertidigStengteGjennomforingerSomNarmerSegSluttdato()
+    }
 }

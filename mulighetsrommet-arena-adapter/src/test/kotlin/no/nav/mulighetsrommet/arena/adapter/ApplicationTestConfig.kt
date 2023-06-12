@@ -32,7 +32,7 @@ fun <R> withTestApplication(
     }
 
     // Småhacky måte å rydde opp databasen etter at testen er ferdig
-    flywayAdapter?.clean()
+    flywayAdapter?.truncateAll()
 }
 
 fun createTestApplicationConfig(oauth: MockOAuth2Server) = AppConfig(

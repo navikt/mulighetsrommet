@@ -78,6 +78,8 @@ export const tiltaksgjennomforingTilAvtaleFilter = atom<
   Pick<Tiltaksgjennomforingfilter, "search">
 >({ search: "" });
 
+export type AvtaleTabs = "avtaleinfo" | "tiltaksgjennomforinger" | "nokkeltall";
+
 export interface AvtaleFilterProps {
   sok: string;
   status: Avtalestatus;
@@ -86,6 +88,7 @@ export interface AvtaleFilterProps {
   sortering: SorteringAvtaler;
   leverandor_orgnr: string;
   antallAvtalerVises: number;
+  avtaleTab: AvtaleTabs;
 }
 
 const avtaleFilter = atomWithHash<AvtaleFilterProps>(
@@ -98,13 +101,14 @@ const avtaleFilter = atomWithHash<AvtaleFilterProps>(
     sortering: SorteringAvtaler.NAVN_ASCENDING,
     leverandor_orgnr: "",
     antallAvtalerVises: AVTALE_PAGE_SIZE,
+    avtaleTab: "avtaleinfo",
   },
   { setHash: "replaceState" }
 );
 
-export type AvtaleTabs = "arenaInfo" | "avtaler";
+export type TiltakstypeAvtaleTabs = "arenaInfo" | "avtaler";
 
-export const avtaleTabAtom = atomWithHash<AvtaleTabs>(
+export const avtaleTabAtom = atomWithHash<TiltakstypeAvtaleTabs>(
   "avtaleTab",
   "arenaInfo",
   {

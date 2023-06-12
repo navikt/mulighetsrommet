@@ -21,12 +21,8 @@ import java.util.*
 class ArenaAdapterServiceTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
-    beforeEach {
-        database.db.migrate()
-    }
-
     afterEach {
-        database.db.clean()
+        database.db.truncateAll()
     }
 
     val tiltakstype = TiltakstypeDbo(

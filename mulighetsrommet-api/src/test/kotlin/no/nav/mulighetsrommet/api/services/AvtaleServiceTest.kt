@@ -80,7 +80,6 @@ class AvtaleServiceTest : FunSpec({
 
         test("Man skal ikke få slette, men få en melding dersom det finnes gjennomføringer koblet til avtalen") {
             val currentDate = LocalDate.of(2023, 6, 1)
-            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
             val avtale = avtaleFixture.createAvtaleForTiltakstype(
                 navn = "Avtale som eksisterer",
                 startDato = LocalDate.of(2024, 5, 17),

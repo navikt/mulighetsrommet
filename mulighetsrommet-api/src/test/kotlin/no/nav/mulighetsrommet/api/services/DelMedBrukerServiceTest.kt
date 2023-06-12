@@ -15,12 +15,8 @@ import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListe
 class DelMedBrukerServiceTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
-    beforeEach {
-        database.db.migrate()
-    }
-
     afterEach {
-        database.db.clean()
+        database.db.truncateAll()
     }
 
     context("DelMedBrukerService") {

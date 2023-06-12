@@ -21,14 +21,11 @@ class DeltakerRepositoryTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
     beforeEach {
-        database.db.clean()
-        database.db.migrate()
+        database.db.truncateAll()
     }
 
     context("consume deltakere") {
         beforeTest {
-            database.db.migrate()
-
             val tiltak = TiltakstypeRepository(database.db)
             tiltak.upsert(TiltakstypeFixtures.Oppfolging).getOrThrow()
 

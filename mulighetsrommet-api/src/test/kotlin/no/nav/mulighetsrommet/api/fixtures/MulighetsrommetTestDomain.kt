@@ -36,8 +36,7 @@ data class MulighetsrommetTestDomain(
     ),
 ) {
     fun initialize(database: FlywayDatabaseAdapter) {
-        database.clean()
-        database.migrate()
+        database.truncateAll()
 
         val enheter = NavEnhetRepository(database)
         enheter.upsert(enhet).shouldBeRight()
