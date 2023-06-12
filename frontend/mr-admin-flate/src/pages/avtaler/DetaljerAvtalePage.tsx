@@ -12,6 +12,8 @@ import styles from "./DetaljerAvtalePage.module.scss";
 import { Laster } from "../../components/laster/Laster";
 import { Link, useParams } from "react-router-dom";
 import { TiltaksgjennomforingerForAvtale } from "./tiltaksgjennomforinger/TiltaksgjennomforingerForAvtale";
+import { useAtom } from "jotai";
+import { AvtaleTabs, avtaleFilter } from "../../api/atoms";
 
 export function DetaljerAvtalePage() {
   const { avtaleId } = useParams<{ avtaleId: string }>();
@@ -19,7 +21,7 @@ export function DetaljerAvtalePage() {
     throw new Error("Fant ingen avtaleId i url");
   }
   const { data: avtale, isLoading } = useAvtale(avtaleId);
-  const [tabValgt, setTabValgt] = useState("avtaleinfo");
+  const [filter, setFilter] = useAtom(avtaleFilter);
   const { data } = useFeatureToggles();
 
   if (!avtale && isLoading) {
@@ -49,7 +51,12 @@ export function DetaljerAvtalePage() {
           <Avtalestatus avtale={avtale} />
         </div>{" "}
       </Header>
-      <Tabs value={tabValgt} onChange={setTabValgt}>
+      <Tabs
+        value={filter.avtaleTab}
+        onChange={(tab) =>
+          setFilter({ ...filter, avtaleTab: tab as AvtaleTabs })
+        }
+      >
         <Tabs.List className={styles.list}>
           <Tabs.Tab value="avtaleinfo" label="Avtaleinfo" />
           <Tabs.Tab value="tiltaksgjennomforinger" label="Gjennomføringer" />

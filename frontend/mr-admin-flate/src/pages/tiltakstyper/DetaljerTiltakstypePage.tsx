@@ -1,7 +1,7 @@
 import { Alert, Tabs } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { Link } from "react-router-dom";
-import { avtaleTabAtom, AvtaleTabs } from "../../api/atoms";
+import { avtaleTabAtom, TiltakstypeAvtaleTabs } from "../../api/atoms";
 import { useFeatureToggles } from "../../api/features/feature-toggles";
 import { useTiltakstypeById } from "../../api/tiltakstyper/useTiltakstypeById";
 import { Header } from "../../components/detaljside/Header";
@@ -46,7 +46,7 @@ export function DetaljerTiltakstypePage() {
 
       <Tabs
         value={tabValgt}
-        onChange={(value) => setTabValgt(value as AvtaleTabs)}
+        onChange={(value) => setTabValgt(value as TiltakstypeAvtaleTabs)}
       >
         <Tabs.List className={styles.list}>
           <Tabs.Tab
