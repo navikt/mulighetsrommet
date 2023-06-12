@@ -17,7 +17,7 @@ class MicrosoftGraphClientImplTest : FunSpec({
         val id = UUID.randomUUID()
 
         val engine = createMockEngine(
-            "/v1.0/users/$id?\$select=id,streetAddress,city,givenName,surname,onPremisesSamAccountName,mail" to {
+            "/v1.0/users/$id?\$select=id,streetAddress,city,givenName,surname,onPremisesSamAccountName,mail,mobilePhone" to {
                 respondJson(
                     MsGraphUserDto(
                         id = id,
@@ -27,6 +27,7 @@ class MicrosoftGraphClientImplTest : FunSpec({
                         mail = "donald.duck@nav.no",
                         streetAddress = "0400",
                         city = "Andeby",
+                        mobilePhone = "12345678",
                     ),
                 )
             },
@@ -41,6 +42,8 @@ class MicrosoftGraphClientImplTest : FunSpec({
             etternavn = "Duck",
             hovedenhetKode = "0400",
             hovedenhetNavn = "Andeby",
+            mobilnr = "12345678",
+            epost = "donald.duck@nav.no",
         )
     }
 

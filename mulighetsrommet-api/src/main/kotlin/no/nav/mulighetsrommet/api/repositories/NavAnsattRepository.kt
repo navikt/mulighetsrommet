@@ -13,14 +13,16 @@ class NavAnsattRepository(private val db: Database) {
     fun upsert(ansatt: NavAnsattDbo): QueryResult<NavAnsattDbo> = query {
         @Language("PostgreSQL")
         val query = """
-            insert into nav_ansatt(nav_ident, fornavn, etternavn, hovedenhet, azure_id, fra_ad_gruppe)
-            values (:nav_ident, :fornavn, :etternavn, :hovedenhet, :azure_id::uuid, :fra_ad_gruppe::uuid)
+            insert into nav_ansatt(nav_ident, fornavn, etternavn, hovedenhet, azure_id, fra_ad_gruppe, mobilnummer, epost)
+            values (:nav_ident, :fornavn, :etternavn, :hovedenhet, :azure_id::uuid, :fra_ad_gruppe::uuid, :mobilnummer, :epost)
             on conflict (nav_ident)
                 do update set fornavn       = excluded.fornavn,
                               etternavn     = excluded.etternavn,
                               hovedenhet    = excluded.hovedenhet,
                               azure_id      = excluded.azure_id,
-                              fra_ad_gruppe = excluded.fra_ad_gruppe
+                              fra_ad_gruppe = excluded.fra_ad_gruppe,
+                              mobilnummer   = excluded.mobilnummer,
+                              epost         = excluded.epost
             returning *
         """.trimIndent()
 
@@ -33,7 +35,7 @@ class NavAnsattRepository(private val db: Database) {
     fun getByNavIdent(navIdent: String): QueryResult<NavAnsattDbo?> = query {
         @Language("PostgreSQL")
         val query = """
-            select nav_ident, fornavn, etternavn, hovedenhet, azure_id, fra_ad_gruppe
+            select nav_ident, fornavn, etternavn, hovedenhet, azure_id, fra_ad_gruppe, mobilnummer, epost
             from nav_ansatt
             where nav_ident = :nav_ident
         """.trimIndent()
@@ -47,7 +49,7 @@ class NavAnsattRepository(private val db: Database) {
     fun getByAzureId(azureId: UUID): QueryResult<NavAnsattDbo?> = query {
         @Language("PostgreSQL")
         val query = """
-            select nav_ident, fornavn, etternavn, hovedenhet, azure_id, fra_ad_gruppe
+            select nav_ident, fornavn, etternavn, hovedenhet, azure_id, fra_ad_gruppe, mobilnummer, epost
             from nav_ansatt
             where azure_id = :azure_id::uuid
         """.trimIndent()
@@ -77,6 +79,8 @@ class NavAnsattRepository(private val db: Database) {
         "hovedenhet" to hovedenhet,
         "azure_id" to azureId,
         "fra_ad_gruppe" to fraAdGruppe,
+        "mobilnummer" to mobilnummer,
+        "epost" to epost,
     )
 
     private fun Row.toNavAnsatt() = NavAnsattDbo(
@@ -86,5 +90,7 @@ class NavAnsattRepository(private val db: Database) {
         hovedenhet = string("hovedenhet"),
         azureId = uuid("azure_id"),
         fraAdGruppe = uuid("fra_ad_gruppe"),
+        mobilnummer = string("mobilnummer"),
+        epost = string("epost"),
     )
 }

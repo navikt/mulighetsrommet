@@ -22,6 +22,8 @@ class MicrosoftGraphServiceTest : FunSpec({
                 fornavn = "Bertil",
                 etternavn = "Betabruker",
                 navident = "B123456",
+                mobilnr = "12345678",
+                epost = "test@test.no",
             )
             val mockAccessToken = "123"
 

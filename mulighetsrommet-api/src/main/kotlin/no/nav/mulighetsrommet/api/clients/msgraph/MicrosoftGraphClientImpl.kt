@@ -36,7 +36,7 @@ class MicrosoftGraphClientImpl(
     override suspend fun getNavAnsatt(accessToken: String, navAnsattAzureId: UUID): NavAnsattDto {
         val response = client.get("$baseUrl/v1.0/users/$navAnsattAzureId") {
             bearerAuth(tokenProvider(accessToken))
-            parameter("\$select", "id,streetAddress,city,givenName,surname,onPremisesSamAccountName,mail")
+            parameter("\$select", "id,streetAddress,city,givenName,surname,onPremisesSamAccountName,mail,mobilePhone")
         }
 
         if (!response.status.isSuccess()) {
@@ -70,7 +70,7 @@ class MicrosoftGraphClientImpl(
     override suspend fun getGroupMembers(groupId: UUID): List<NavAnsattDto> {
         val response = client.get("$baseUrl/v1.0/groups/$groupId/members") {
             bearerAuth(tokenProvider.invoke(null))
-            parameter("\$select", "id,streetAddress,city,givenName,surname,onPremisesSamAccountName,mail")
+            parameter("\$select", "id,streetAddress,city,givenName,surname,onPremisesSamAccountName,mail,mobilePhone")
         }
 
         if (!response.status.isSuccess()) {
@@ -111,6 +111,10 @@ class MicrosoftGraphClientImpl(
             throw RuntimeException("Etternavn på ansatt mangler for bruker med id=${user.id}")
         }
 
+        user.mail == null -> {
+            throw RuntimeException("Epost på ansatt mangler for bruker med id=${user.id}")
+        }
+
         else -> NavAnsattDto(
             azureId = user.id,
             navident = user.onPremisesSamAccountName,
@@ -118,6 +122,8 @@ class MicrosoftGraphClientImpl(
             etternavn = user.surname,
             hovedenhetKode = user.streetAddress,
             hovedenhetNavn = user.city,
+            mobilnr = user.mobilePhone,
+            epost = user.mail,
         )
     }
 }
