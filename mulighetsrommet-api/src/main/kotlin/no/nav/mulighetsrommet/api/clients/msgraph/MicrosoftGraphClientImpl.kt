@@ -36,7 +36,7 @@ class MicrosoftGraphClientImpl(
     override suspend fun getNavAnsatt(accessToken: String, navAnsattAzureId: UUID): NavAnsattDto {
         val response = client.get("$baseUrl/v1.0/users/$navAnsattAzureId") {
             bearerAuth(tokenProvider(accessToken))
-            parameter("\$select", "id,streetAddress,city,givenName,surname,onPremisesSamAccountName,mail")
+            parameter("\$select", "id,streetAddress,city,givenName,surname,onPremisesSamAccountName,mail,mobilePhone")
         }
 
         if (!response.status.isSuccess()) {
