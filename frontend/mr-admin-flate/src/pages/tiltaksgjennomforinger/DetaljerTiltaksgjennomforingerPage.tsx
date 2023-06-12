@@ -10,9 +10,8 @@ import { useTiltaksgjennomforingById } from "../../api/tiltaksgjennomforing/useT
 import { Header } from "../../components/detaljside/Header";
 import { Laster } from "../../components/laster/Laster";
 import { Tiltaksgjennomforingstatus } from "../../components/statuselementer/Tiltaksgjennomforingstatus";
-import { ContainerLayout } from "../../layouts/ContainerLayout";
-import { MainContainer } from "../../layouts/MainContainer";
-import styles from "./DetaljerTiltaksgjennomforingerPage.module.scss";
+import { ContainerLayoutDetaljer } from "../../layouts/ContainerLayout";
+import commonStyles from "../Page.module.scss";
 import { NokkeltallForTiltaksgjennomforing } from "./nokkeltall/NokkeltallForTiltaksgjennomforing";
 import { TiltaksgjennomforingInfo } from "./TiltaksgjennomforingInfo";
 
@@ -41,9 +40,9 @@ export function DetaljerTiltaksgjennomforingerPage() {
 
   const tiltaksgjennomforing = optionalTiltaksgjennomforing.data;
   return (
-    <MainContainer>
+    <>
       <Header>
-        <div className={styles.header}>
+        <div className={commonStyles.header}>
           <span>{tiltaksgjennomforing?.navn ?? "..."}</span>
           <Tiltaksgjennomforingstatus
             tiltaksgjennomforing={tiltaksgjennomforing}
@@ -55,7 +54,7 @@ export function DetaljerTiltaksgjennomforingerPage() {
         value={tabValgt}
         onChange={(value) => setTabValgt(value as TiltaksgjennomforingerTabs)}
       >
-        <Tabs.List className={styles.list}>
+        <Tabs.List className={commonStyles.list}>
           <Tabs.Tab
             value="detaljer"
             label="Detaljer"
@@ -70,16 +69,16 @@ export function DetaljerTiltaksgjennomforingerPage() {
           ) : null}
         </Tabs.List>
         <Tabs.Panel value="detaljer">
-          <ContainerLayout>
+          <ContainerLayoutDetaljer>
             <TiltaksgjennomforingInfo />
-          </ContainerLayout>
+          </ContainerLayoutDetaljer>
         </Tabs.Panel>
         <Tabs.Panel value="nokkeltall">
-          <ContainerLayout>
+          <ContainerLayoutDetaljer>
             <NokkeltallForTiltaksgjennomforing />
-          </ContainerLayout>
+          </ContainerLayoutDetaljer>
         </Tabs.Panel>
       </Tabs>
-    </MainContainer>
+    </>
   );
 }

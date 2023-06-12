@@ -6,13 +6,13 @@ html {
   padding: 1rem;
 }
 
-/* Siden vi ønsker en custom read-only styling (gråa ut) overstyrer noen av 
+/* Siden vi ønsker en custom read-only styling (gråa ut) overstyrer noen av
  * navds sine read-only stylinger */
 .navds-text-field__input:read-only {
-  background-color: #F1F1F1;
-  border-color: #0000001A;
+  background-color: #f1f1f1;
+  border-color: #0000001a;
 }
 .navds-textarea__input:read-only {
-  background-color: #F1F1F1;
-  border-color: #0000001A;
+  background-color: #f1f1f1;
+  border-color: #0000001a;
 }
