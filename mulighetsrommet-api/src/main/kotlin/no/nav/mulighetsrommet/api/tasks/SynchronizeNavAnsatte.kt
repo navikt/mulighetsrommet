@@ -65,7 +65,7 @@ class SynchronizeNavAnsatte(
                                 hovedenhet = hovedenhetKode,
                                 azureId = azureId,
                                 fraAdGruppe = groupId,
-                                mobilnr = mobilnr,
+                                mobilnummer = mobilnr,
                                 epost = epost,
                             )
                         }

@@ -25,7 +25,7 @@ data class MulighetsrommetTestDomain(
         hovedenhet = "2990",
         azureId = UUID.randomUUID(),
         fraAdGruppe = UUID.randomUUID(),
-        mobilnr = "12345678",
+        mobilnummer = "12345678",
         epost = "test@test.no",
     ),
     val ansatt2: NavAnsattDbo = NavAnsattDbo(
@@ -35,7 +35,7 @@ data class MulighetsrommetTestDomain(
         hovedenhet = "2990",
         azureId = UUID.randomUUID(),
         fraAdGruppe = UUID.randomUUID(),
-        mobilnr = "48243214",
+        mobilnummer = "48243214",
         epost = "test@testesen.no",
     ),
 ) {

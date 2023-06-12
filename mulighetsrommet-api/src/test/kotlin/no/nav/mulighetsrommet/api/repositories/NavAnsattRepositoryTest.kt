@@ -36,7 +36,7 @@ class NavAnsattRepositoryTest : FunSpec({
                 etternavn = "Duck",
                 hovedenhet = "1000",
                 fraAdGruppe = UUID.randomUUID(),
-                mobilnr = "12345678",
+                mobilnummer = "12345678",
                 epost = "test@test.no",
             )
 
