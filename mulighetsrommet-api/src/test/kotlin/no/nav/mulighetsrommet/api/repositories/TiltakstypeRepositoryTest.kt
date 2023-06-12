@@ -24,6 +24,7 @@ class TiltakstypeRepositoryTest : FunSpec({
     val tiltaksgjennomforingFixture = TiltaksgjennomforingFixtures
 
     test("CRUD") {
+        database.db.truncateAll()
         val tiltakstyper = TiltakstypeRepository(database.db)
 
         tiltakstyper.upsert(
