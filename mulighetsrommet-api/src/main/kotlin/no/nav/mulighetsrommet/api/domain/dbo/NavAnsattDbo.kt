@@ -12,4 +12,6 @@ data class NavAnsattDbo(
     val hovedenhet: String,
     val azureId: UUID,
     val fraAdGruppe: UUID,
+    val mobilnr: String,
+    val epost: String,
 )

@@ -9,4 +9,6 @@ data class NavAnsattDto(
     val etternavn: String,
     val hovedenhetKode: String,
     val hovedenhetNavn: String,
+    val mobilnr: String,
+    val epost: String,
 )

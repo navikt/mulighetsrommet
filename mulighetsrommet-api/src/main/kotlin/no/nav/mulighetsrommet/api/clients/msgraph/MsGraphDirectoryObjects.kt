@@ -44,6 +44,13 @@ internal data class MsGraphUserDto(
      * om feltet er null så antar vi at brukeren ikke er en ansatt hos NAV.
      */
     val city: String?,
+    /**
+     * NAV Enhetsnavn
+     *
+     * Vi antar at denne er definert for alle ansatte,
+     * om feltet er null så antar vi at brukeren ikke er en ansatt hos NAV.
+     */
+    val mobilePhone: String?,
 )
 
 @Serializable

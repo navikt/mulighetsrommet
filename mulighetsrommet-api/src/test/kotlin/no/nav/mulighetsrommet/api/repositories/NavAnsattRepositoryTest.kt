@@ -36,6 +36,8 @@ class NavAnsattRepositoryTest : FunSpec({
                 etternavn = "Duck",
                 hovedenhet = "1000",
                 fraAdGruppe = UUID.randomUUID(),
+                mobilnr = "12345678",
+                epost = "test@test.no",
             )
 
             ansatte.upsert(ansatt).shouldBeRight()
