@@ -86,6 +86,7 @@ export interface AvtaleFilterProps {
   sortering: SorteringAvtaler;
   leverandor_orgnr: string;
   antallAvtalerVises: number;
+  avtaleTab: "avtaleinfo" | "tiltaksgjennomforinger" | "nokkeltall";
 }
 
 const avtaleFilter = atomWithHash<AvtaleFilterProps>(
@@ -98,6 +99,7 @@ const avtaleFilter = atomWithHash<AvtaleFilterProps>(
     sortering: SorteringAvtaler.NAVN_ASCENDING,
     leverandor_orgnr: "",
     antallAvtalerVises: AVTALE_PAGE_SIZE,
+    avtaleTab: "avtaleinfo",
   },
   { setHash: "replaceState" }
 );

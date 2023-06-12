@@ -7,27 +7,26 @@ import {
   TiltaksgjennomforingOppstartstype,
   TiltaksgjennomforingRequest,
 } from "mulighetsrommet-api-client";
+import { Opphav } from "mulighetsrommet-api-client/build/models/Opphav";
+import { porten } from "mulighetsrommet-frontend-common/constants";
 import React, { Dispatch, SetStateAction, useEffect } from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
+import { Link, useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 import z from "zod";
 import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
+import { mulighetsrommetClient } from "../../api/clients";
 import { useAlleEnheter } from "../../api/enhet/useAlleEnheter";
+import { useFeatureToggles } from "../../api/features/feature-toggles";
+import { useVirksomhet } from "../../api/virksomhet/useVirksomhet";
+import { capitalize, formaterDatoSomYYYYMMDD } from "../../utils/Utils";
+import { isTiltakMedFellesOppstart } from "../../utils/tiltakskoder";
+import { FormGroup } from "../avtaler/OpprettAvtaleContainer";
+import { Laster } from "../laster/Laster";
+import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
 import { SokeSelect } from "../skjema/SokeSelect";
 import styles from "./OpprettTiltaksgjennomforingContainer.module.scss";
-import { Laster } from "../laster/Laster";
-import { useNavigerTilTiltaksgjennomforing } from "../../hooks/useNavigerTilTiltaksgjennomforing";
-import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
-import { FormGroup } from "../avtaler/OpprettAvtaleContainer";
-import { porten } from "mulighetsrommet-frontend-common/constants";
-import { capitalize, formaterDatoSomYYYYMMDD } from "../../utils/Utils";
-import { useVirksomhet } from "../../api/virksomhet/useVirksomhet";
-import { Link } from "react-router-dom";
-import { isTiltakMedFellesOppstart } from "../../utils/tiltakskoder";
-import { mulighetsrommetClient } from "../../api/clients";
-import { Opphav } from "mulighetsrommet-api-client/build/models/Opphav";
-import { useFeatureToggles } from "../../api/features/feature-toggles";
 
 const Schema = z
   .object({
@@ -172,6 +171,7 @@ export const OpprettTiltaksgjennomforingContainer = (
   props: OpprettTiltaksgjennomforingContainerProps
 ) => {
   const { avtale, tiltaksgjennomforing, setError, onAvbryt } = props;
+  const navigate = useNavigate();
   const form = useForm<inferredSchema>({
     resolver: zodResolver(Schema),
     defaultValues: {
@@ -214,8 +214,6 @@ export const OpprettTiltaksgjennomforingContainer = (
   const watchErMidlertidigStengt = watch(
     "midlertidigStengt.erMidlertidigStengt"
   );
-  const { navigerTilTiltaksgjennomforing } =
-    useNavigerTilTiltaksgjennomforing();
 
   const { data: features } = useFeatureToggles();
   const {
@@ -285,7 +283,7 @@ export const OpprettTiltaksgjennomforingContainer = (
             requestBody: body,
           }
         );
-      navigerTilTiltaksgjennomforing(response.id);
+      navigate(`/tiltaksgjennomforinger/${response.id}`);
     } catch {
       setError(tekniskFeilError());
     }

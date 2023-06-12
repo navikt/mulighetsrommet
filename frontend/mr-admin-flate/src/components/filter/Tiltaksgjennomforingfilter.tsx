@@ -153,7 +153,7 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
               data-testid="filter_sokefelt"
               className={styles.form_field}
             />
-            <SokeSelect 
+            <SokeSelect
               size="small"
               label="Filtrer på region"
               placeholder="Filtrer på region"
