@@ -7,11 +7,19 @@ import no.nav.mulighetsrommet.arena.adapter.tasks.RetryFailedEvents
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
 import no.nav.mulighetsrommet.database.kotest.extensions.createDatabaseTestSchema
+import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.koin.ktor.ext.inject
 
-fun createDatabaseTestConfig() = createDatabaseTestSchema("mulighetsrommet-arena-adapter-db", 5443)
+var databaseConfig: FlywayDatabaseAdapter.Config? = null
+fun createDatabaseTestConfig() =
+    if (databaseConfig == null) {
+        databaseConfig = createDatabaseTestSchema("mulighetsrommet-arena-adapter-db", 5443)
+        databaseConfig!!
+    } else {
+        databaseConfig!!
+    }
 
 fun <R> withTestApplication(
     oauth: MockOAuth2Server = MockOAuth2Server(),

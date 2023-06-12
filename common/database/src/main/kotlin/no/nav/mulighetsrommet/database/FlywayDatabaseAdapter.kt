@@ -3,7 +3,6 @@ package no.nav.mulighetsrommet.database
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import kotliquery.queryOf
 import no.nav.mulighetsrommet.slack.SlackNotifier
 import org.flywaydb.core.Flyway
 import org.slf4j.LoggerFactory
@@ -14,7 +13,7 @@ import kotlin.time.measureTime
 val hasMigrated = AtomicBoolean(false)
 
 class FlywayDatabaseAdapter(
-    config: Config,
+    val config: Config,
     private val slackNotifier: SlackNotifier? = null,
 ) : DatabaseAdapter(config) {
 
@@ -64,7 +63,6 @@ class FlywayDatabaseAdapter(
 
         if (!hasMigrated.get()) {
             hasMigrated.set(true)
-            clean()
             when (config.migrationConfig.strategy) {
                 InitializationStrategy.Migrate -> {
                     migrate()
@@ -88,20 +86,6 @@ class FlywayDatabaseAdapter(
 
     fun migrate() {
         flyway.migrate()
-    }
-
-    fun clean() {
-        flyway.clean()
-    }
-
-    fun truncateAll() {
-        val tableNames = queryOf("SELECT table_name FROM information_schema.tables WHERE table_schema='test-schema' AND table_type='BASE TABLE'")
-            .map { it.string("table_name") }
-            .asList
-            .let { run(it) }
-        tableNames.forEach {
-            run(queryOf("truncate table $it restart identity cascade").asExecute)
-        }
     }
 
     @OptIn(ExperimentalTime::class)
