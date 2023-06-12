@@ -62,6 +62,7 @@ data class Tiltakstype(
     val tiltaksgruppe: String? = null,
     val tiltakstypeNavn: String? = null,
     val faneinnhold: Faneinnhold? = null,
+    val delingMedBruker: String? = null,
 )
 
 @Serializable
