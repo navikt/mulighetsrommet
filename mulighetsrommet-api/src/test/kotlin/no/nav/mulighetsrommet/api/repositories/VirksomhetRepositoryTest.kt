@@ -30,8 +30,7 @@ class VirksomhetRepositoryTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
     beforeEach {
-        database.db.clean()
-        database.db.migrate()
+        database.db.truncateAll()
     }
 
     context("crud") {

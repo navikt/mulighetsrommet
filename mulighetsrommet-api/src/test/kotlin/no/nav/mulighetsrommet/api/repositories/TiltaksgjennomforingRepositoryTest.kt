@@ -47,8 +47,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
     val gjennomforing2 = TiltaksgjennomforingFixtures.Oppfolging1
 
     beforeAny {
-        database.db.clean()
-        database.db.migrate()
+        database.db.truncateAll()
 
         val tiltakstyper = TiltakstypeRepository(database.db)
         tiltakstyper.upsert(tiltakstype1)

@@ -26,8 +26,6 @@ class AmtDeltakerV1TopicConsumerTest : FunSpec({
 
     context("consume deltakere") {
         beforeTest {
-            database.db.migrate()
-
             val tiltak = TiltakstypeRepository(database.db)
             tiltak.upsert(TiltakstypeFixtures.Oppfolging).getOrThrow()
 
@@ -36,7 +34,7 @@ class AmtDeltakerV1TopicConsumerTest : FunSpec({
         }
 
         afterTest {
-            database.db.clean()
+            database.db.truncateAll()
         }
 
         val deltakere = DeltakerRepository(database.db)

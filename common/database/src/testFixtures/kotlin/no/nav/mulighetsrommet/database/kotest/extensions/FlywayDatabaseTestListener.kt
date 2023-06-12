@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.database.kotest.extensions
 
-import io.kotest.core.listeners.AfterSpecListener
 import io.kotest.core.listeners.BeforeEachListener
 import io.kotest.core.listeners.BeforeSpecListener
 import io.kotest.core.spec.Spec
@@ -13,7 +12,6 @@ import org.assertj.db.type.Table
 
 class FlywayDatabaseTestListener(private val config: FlywayDatabaseAdapter.Config) :
     BeforeSpecListener,
-    AfterSpecListener,
     BeforeEachListener {
     private var delegate: FlywayDatabaseAdapter? = null
 
@@ -26,10 +24,7 @@ class FlywayDatabaseTestListener(private val config: FlywayDatabaseAdapter.Confi
         spec.testOrder = TestCaseOrder.Sequential
 
         delegate = FlywayDatabaseAdapter(config, slackNotifier = null)
-    }
-
-    override suspend fun afterSpec(spec: Spec) {
-        delegate?.clean()
+        delegate?.truncateAll()
     }
 
     // Initialiserer ny connection pool per test pga potensielle caching issues mellom tester
