@@ -22,7 +22,7 @@ import java.util.*
 class ArenaAdapterServiceTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
-    afterEach {
+    beforeEach {
         database.db.truncateAll()
     }
 
