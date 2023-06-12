@@ -45,12 +45,12 @@ export function DetaljerAvtalePage() {
   }
 
   return (
-    <>
+    <main>
       <Header>
         <div className={commonStyles.header}>
           <span>{avtale?.navn ?? "..."}</span>
           <Avtalestatus avtale={avtale} />
-        </div>{" "}
+        </div>
       </Header>
       <Tabs
         value={filter.avtaleTab}
@@ -81,6 +81,6 @@ export function DetaljerAvtalePage() {
           </ContainerLayoutDetaljer>
         </Tabs.Panel>
       </Tabs>
-    </>
+    </main>
   );
 }

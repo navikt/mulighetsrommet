@@ -38,7 +38,7 @@ export function DetaljerTiltakstypePage() {
 
   const tiltakstype = optionalTiltakstype.data;
   return (
-    <>
+    <main>
       <Header>
         <div className={commonStyles.header}>
           <span>{tiltakstype?.navn ?? "..."}</span>
@@ -81,6 +81,6 @@ export function DetaljerTiltakstypePage() {
           </ContainerLayoutDetaljer>
         </Tabs.Panel>
       </Tabs>
-    </>
+    </main>
   );
 }
