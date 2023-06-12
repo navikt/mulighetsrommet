@@ -8,6 +8,7 @@ import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.repositories.NavAnsattRepository
 import no.nav.mulighetsrommet.api.repositories.NavEnhetRepository
 import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
+import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import java.util.*
 
 data class MulighetsrommetTestDomain(

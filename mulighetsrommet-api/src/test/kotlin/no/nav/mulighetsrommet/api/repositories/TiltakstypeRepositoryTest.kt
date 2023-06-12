@@ -11,6 +11,7 @@ import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.utils.*
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
+import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.database.utils.getOrThrow
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 import no.nav.mulighetsrommet.domain.dto.Tiltakstypestatus
@@ -79,8 +80,7 @@ class TiltakstypeRepositoryTest : FunSpec({
     }
 
     context("filter") {
-        database.db.clean()
-        database.db.migrate()
+        database.db.truncateAll()
 
         val tiltakstyper = TiltakstypeRepository(database.db)
         val dagensDato = LocalDate.of(2023, 1, 12)

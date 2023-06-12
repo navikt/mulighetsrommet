@@ -6,11 +6,20 @@ import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.api.producers.TiltakstypeKafkaProducer
 import no.nav.mulighetsrommet.api.tasks.*
+import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
 import no.nav.mulighetsrommet.database.kotest.extensions.createDatabaseTestSchema
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.security.mock.oauth2.MockOAuth2Server
 
-fun createDatabaseTestConfig() = createDatabaseTestSchema("mulighetsrommet-api-db", 5442)
+var databaseConfig: FlywayDatabaseAdapter.Config? = null
+
+fun createDatabaseTestConfig() =
+    if (databaseConfig == null) {
+        databaseConfig = createDatabaseTestSchema("mulighetsrommet-api-db", 5442)
+        databaseConfig!!
+    } else {
+        databaseConfig!!
+    }
 
 fun <R> withTestApplication(
     oauth: MockOAuth2Server = MockOAuth2Server(),
