@@ -111,10 +111,6 @@ class MicrosoftGraphClientImpl(
             throw RuntimeException("Etternavn på ansatt mangler for bruker med id=${user.id}")
         }
 
-        user.mobilePhone == null -> {
-            throw RuntimeException("Mobilnummer på ansatt mangler for bruker med id=${user.id}")
-        }
-
         user.mail == null -> {
             throw RuntimeException("Epost på ansatt mangler for bruker med id=${user.id}")
         }
