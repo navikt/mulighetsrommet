@@ -46,7 +46,7 @@ const SlettTiltaksgjennomforingModal = ({
     mutation.mutate(tiltaksgjennomforing.id);
   };
 
-  const handleRedigerAvtale = () => {
+  const handleRedigerGjennomforing = () => {
     clickCancel();
     mutation.reset();
     handleRediger?.();
@@ -57,7 +57,7 @@ const SlettTiltaksgjennomforingModal = ({
       <div className={styles.heading}>
         <VarselIkon />
         {tiltaksgjennomforing.opphav === Opphav.ARENA ? (
-          <span>Avtalen kan ikke slettes</span>
+          <span>Gjennomføringen kan ikke slettes</span>
         ) : mutation.isError ? (
           <span>Kan ikke slette «{tiltaksgjennomforing.navn}»</span>
         ) : (
@@ -71,18 +71,18 @@ const SlettTiltaksgjennomforingModal = ({
     return (
       <>
         {tiltaksgjennomforing.opphav === Opphav.ARENA ? (
-          <p>Avtalen «{tiltaksgjennomforing.navn}» kommer fra Arena og kan ikke slettes her</p>
+          <p>Gjennomføringen «{tiltaksgjennomforing.navn}» kommer fra Arena og kan ikke slettes her</p>
         ) : mutation?.isError ? (
           <p>{(mutation.error as ApiError).body}</p>
         ) : (
           <>
-            <p>Er du sikker på at du ønsker å slette gjennomforingen «{tiltaksgjennomforing.navn}»?</p>
+            <p>Er du sikker på at du ønsker å slette gjennomføringen «{tiltaksgjennomforing.navn}»?</p>
             <p>Du kan ikke angre denne handlingen</p>
           </>
         )}
         <div className={styles.knapperad}>
           {tiltaksgjennomforing.opphav === Opphav.ARENA ? null : mutation?.isError ? (
-            <Button variant="primary" onClick={handleRedigerAvtale}>
+            <Button variant="primary" onClick={handleRedigerGjennomforing}>
               Rediger gjennomføring
             </Button>
           ) : (
@@ -115,7 +115,7 @@ const SlettTiltaksgjennomforingModal = ({
           <Heading
             size="medium"
             level="2"
-            data-testid="slett_avtale_modal_header"
+            data-testid="slett_gjennomforing_modal_header"
           >
             {headerInnhold(tiltaksgjennomforing)}
           </Heading>

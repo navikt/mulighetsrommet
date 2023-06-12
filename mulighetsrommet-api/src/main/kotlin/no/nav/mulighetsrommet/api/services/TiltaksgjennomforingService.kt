@@ -84,25 +84,25 @@ class TiltaksgjennomforingService(
 
     fun delete(id: UUID, currentDate: LocalDate = LocalDate.now()): StatusResponse<Int> {
         val gjennomforing = tiltaksgjennomforingRepository.get(id).getOrNull()
-            ?: return Either.Left(NotFound("Fant ikke gjennomforingen med id $id"))
+            ?: return Either.Left(NotFound("Fant ikke gjennomføringen med id $id"))
 
         if (gjennomforing.opphav == ArenaMigrering.Opphav.ARENA) {
-            return Either.Left(BadRequest(message = "Gjennomforingen har opprinnelse fra Arena og kan ikke bli slettet i admin-flate."))
+            return Either.Left(BadRequest(message = "Gjennomføringen har opprinnelse fra Arena og kan ikke bli slettet i admin-flate."))
         }
 
         if (gjennomforing.startDato <= currentDate && gjennomforing.sluttDato?.let { it >= currentDate } != false) {
-            return Either.Left(BadRequest(message = "Gjennomforingen er mellom start- og sluttdato og må avsluttes før den kan slettes."))
+            return Either.Left(BadRequest(message = "Gjennomføringen er mellom start- og sluttdato og må avsluttes før den kan slettes."))
         }
 
         val antallDeltagere = deltakerRepository.getAll(id).size
         if (antallDeltagere > 0) {
-            return Either.Left(BadRequest(message = "Gjennomforingen kan ikke slette fordi den har $antallDeltagere deltager(e) koblet til seg."))
+            return Either.Left(BadRequest(message = "Gjennomføringen kan ikke slettes fordi den har $antallDeltagere deltager(e) koblet til seg."))
         }
 
         return tiltaksgjennomforingRepository
             .delete(id)
             .mapLeft {
-                ServerError(message = "Det oppsto en feil ved sletting av gjennomforingen")
+                ServerError(message = "Det oppsto en feil ved sletting av gjennomføringen")
             }
     }
 
