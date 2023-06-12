@@ -40,7 +40,7 @@ export function DetaljerTiltaksgjennomforingerPage() {
 
   const tiltaksgjennomforing = optionalTiltaksgjennomforing.data;
   return (
-    <>
+    <main>
       <Header>
         <div className={commonStyles.header}>
           <span>{tiltaksgjennomforing?.navn ?? "..."}</span>
@@ -79,6 +79,6 @@ export function DetaljerTiltaksgjennomforingerPage() {
           </ContainerLayoutDetaljer>
         </Tabs.Panel>
       </Tabs>
-    </>
+    </main>
   );
 }

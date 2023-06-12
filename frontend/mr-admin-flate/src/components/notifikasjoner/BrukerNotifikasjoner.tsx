@@ -16,8 +16,8 @@ export function BrukerNotifikasjoner() {
   if (antallUlesteNotifikasjoner <= 0) return null;
 
   return (
-    <section className={styles.brukernotifikasjoner_container}>
-      <Heading level="3" size="medium">
+    <div className={styles.brukernotifikasjoner_container}>
+      <Heading level="2" size="medium">
         Hei {bruker?.fornavn}
       </Heading>
       <Notifikasjon
@@ -25,6 +25,6 @@ export function BrukerNotifikasjoner() {
         tittel="Notifikasjoner"
         melding="Du har nye notifikasjoner"
       />
-    </section>
+    </div>
   );
 }

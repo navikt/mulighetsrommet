@@ -9,13 +9,13 @@ interface Props {
 
 export function Header({ children }: Props) {
   return (
-    <header className={styles.header_container}>
+    <div className={styles.header_container}>
       <div className={styles.header}>
         <Tilbakelenke>Tilbake</Tilbakelenke>
         <Heading size="large" level="2">
           {children}
         </Heading>
       </div>
-    </header>
+    </div>
   );
 }
