@@ -7,12 +7,14 @@ import { useTiltakstypeById } from "../../api/tiltakstyper/useTiltakstypeById";
 import { Header } from "../../components/detaljside/Header";
 import { Laster } from "../../components/laster/Laster";
 import { Tiltakstypestatus } from "../../components/statuselementer/Tiltakstypestatus";
-import { ContainerLayout } from "../../layouts/ContainerLayout";
-import { MainContainer } from "../../layouts/MainContainer";
+import {
+  ContainerLayoutDetaljer,
+  ContainerLayoutTabell,
+} from "../../layouts/ContainerLayout";
 import { AvtalerForTiltakstype } from "./avtaler/AvtalerForTiltakstype";
 import { NokkeltallForTiltakstype } from "./nokkeltall/NokkeltallForTiltakstype";
 import { TiltakstypeInfo } from "./TiltakstypeInfo";
-import styles from "./DetaljerTiltakstypePage.module.scss";
+import commonStyles from "../Page.module.scss";
 
 export function DetaljerTiltakstypePage() {
   const optionalTiltakstype = useTiltakstypeById();
@@ -36,9 +38,9 @@ export function DetaljerTiltakstypePage() {
 
   const tiltakstype = optionalTiltakstype.data;
   return (
-    <MainContainer>
+    <>
       <Header>
-        <div className={styles.header}>
+        <div className={commonStyles.header}>
           <span>{tiltakstype?.navn ?? "..."}</span>
           <Tiltakstypestatus tiltakstype={tiltakstype} />
         </div>
@@ -48,7 +50,7 @@ export function DetaljerTiltakstypePage() {
         value={tabValgt}
         onChange={(value) => setTabValgt(value as TiltakstypeAvtaleTabs)}
       >
-        <Tabs.List className={styles.list}>
+        <Tabs.List className={commonStyles.list}>
           <Tabs.Tab
             value="arenaInfo"
             label="Arenainfo"
@@ -63,22 +65,22 @@ export function DetaljerTiltakstypePage() {
             />
           ) : null}
         </Tabs.List>
-        <Tabs.Panel value="arenaInfo" className="h-24 w-full bg-gray-50 p-4">
-          <ContainerLayout>
+        <Tabs.Panel value="arenaInfo">
+          <ContainerLayoutDetaljer>
             <TiltakstypeInfo />
-          </ContainerLayout>
+          </ContainerLayoutDetaljer>
         </Tabs.Panel>
-        <Tabs.Panel value="avtaler" className="h-24 w-full bg-gray-50 p-4">
-          <ContainerLayout>
+        <Tabs.Panel value="avtaler">
+          <ContainerLayoutTabell>
             <AvtalerForTiltakstype />
-          </ContainerLayout>
+          </ContainerLayoutTabell>
         </Tabs.Panel>
-        <Tabs.Panel value="nokkeltall" className="h-24 w-full bg-gray-50 p-4">
-          <ContainerLayout>
+        <Tabs.Panel value="nokkeltall">
+          <ContainerLayoutDetaljer>
             <NokkeltallForTiltakstype />
-          </ContainerLayout>
+          </ContainerLayoutDetaljer>
         </Tabs.Panel>
       </Tabs>
-    </MainContainer>
+    </>
   );
 }
