@@ -17,6 +17,10 @@ export const LAGRE_DATA_FRA_ADMIN_FLATE =
 export const SLETTE_AVTALE = "mulighetsrommet.admin-flate-slett-avtale";
 export const VIS_LAST_NED_EXCEL_KNAPP =
   "mulighetsrommet.admin-flate-vis-last-ned-excel-knapp";
+export const REDIGER_TILTAKSGJENNOMFORING_ADMIN_FLATE =
+  "mulighetsrommet.admin-flate-rediger-tiltaksgjennomforing";
+export const SLETT_TILTAKSGJENNOMFORING_ADMIN_FLATE =
+  "mulighetsrommet.admin-flate-slett-tiltaksgjennomforing";
 
 export const ALL_TOGGLES = [
   ENABLE_ADMIN_FLATE,
@@ -28,6 +32,8 @@ export const ALL_TOGGLES = [
   LAGRE_DATA_FRA_ADMIN_FLATE,
   SLETTE_AVTALE,
   VIS_LAST_NED_EXCEL_KNAPP,
+  REDIGER_TILTAKSGJENNOMFORING_ADMIN_FLATE,
+  SLETT_TILTAKSGJENNOMFORING_ADMIN_FLATE,
 ] as const;
 
 export type Features = Record<(typeof ALL_TOGGLES)[number], boolean>;
@@ -42,6 +48,8 @@ export const initialFeatures: Features = {
   "mulighetsrommet.admin-flate-lagre-data-fra-admin-flate": false,
   "mulighetsrommet.admin-flate-slett-avtale": false,
   "mulighetsrommet.admin-flate-vis-last-ned-excel-knapp": false,
+  "mulighetsrommet.admin-flate-slett-tiltaksgjennomforing": false,
+  "mulighetsrommet.admin-flate-rediger-tiltaksgjennomforing": false,
 };
 
 const toggles = ALL_TOGGLES.map((element) => "feature=" + element).join("&");

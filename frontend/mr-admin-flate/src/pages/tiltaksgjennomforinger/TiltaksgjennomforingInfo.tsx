@@ -163,7 +163,7 @@ export function TiltaksgjennomforingInfo() {
         ) : null}
       </div>
       <div className={styles.knapperad}>
-        {features?.["mulighetsrommet.admin-flate-slett-avtale"] ? (
+        {features?.["mulighetsrommet.admin-flate-slett-gjennomforing"] ? (
           <Button
             variant="tertiary-neutral"
             onClick={handleSlett}
@@ -173,7 +173,7 @@ export function TiltaksgjennomforingInfo() {
             Slett
           </Button>
         ) : null}
-        {features?.["mulighetsrommet.admin-flate-rediger-avtale"] ? (
+        {features?.["mulighetsrommet.admin-flate-rediger-gjennomforing"] ? (
           <Button
             variant="tertiary"
             onClick={handleRediger}
