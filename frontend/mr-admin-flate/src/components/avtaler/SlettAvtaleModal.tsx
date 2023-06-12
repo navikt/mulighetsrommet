@@ -60,9 +60,9 @@ const SlettAvtaleModal = ({
         {avtale?.opphav === Opphav.ARENA ? (
           <span>Avtalen kan ikke slettes</span>
         ) : mutation.isError ? (
-          <span>Kan ikke slette {avtale?.navn}</span>
+          <span>Kan ikke slette «{avtale?.navn}»</span>
         ) : (
-          <span>Ønsker du å slette {avtale?.navn}?</span>
+          <span>Ønsker du å slette «{avtale?.navn}»?</span>
         )}
       </div>
     );
@@ -77,7 +77,7 @@ const SlettAvtaleModal = ({
           <p>{(mutation.error as ApiError).body}</p>
         ) : (
           <>
-            <p>Er du sikker på at du ønsker å slette avtalen {avtale?.navn}?</p>
+            <p>Er du sikker på at du ønsker å slette avtalen «{avtale?.navn}»?</p>
             <p>Du kan ikke angre denne handlingen</p>
           </>
         )}
@@ -127,8 +127,7 @@ const SlettAvtaleModal = ({
   );
 };
 
-function VarselIkon() {
-  return (
+export const VarselIkon = () =>
     <svg
       width="32"
       height="32"
@@ -143,7 +142,5 @@ function VarselIkon() {
         fill="#C30000"
       />
     </svg>
-  );
-}
 
 export default SlettAvtaleModal;

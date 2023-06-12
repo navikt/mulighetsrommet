@@ -10,4 +10,6 @@ export const mockFeatures: Features = {
   "mulighetsrommet.admin-flate-lagre-data-fra-admin-flate": true,
   "mulighetsrommet.admin-flate-slett-avtale": true,
   "mulighetsrommet.admin-flate-vis-last-ned-excel-knapp": true,
+  "mulighetsrommet.admin-flate-rediger-tiltaksgjennomforing": true,
+  "mulighetsrommet.admin-flate-slett-tiltaksgjennomforing": true,
 };

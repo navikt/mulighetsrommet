@@ -59,7 +59,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/SletteAvtale"
+                type: string
         404:
           description: "Mangler eller ugyldig id."
           content:
@@ -291,6 +291,23 @@ paths:
       responses:
         200:
           description: ''
+    delete:
+      tags:
+        - Tiltaksgjennomforinger
+      operationId: deleteTiltaksgjennomforing
+      responses:
+        200:
+          description: "The specified gjennomforing was deleted."
+          content:
+            application/json:
+              schema:
+                type: string
+        404:
+          description: "Mangler eller ugyldig id."
+          content:
+            application/json:
+              schema:
+                type: string
 
   /api/v1/internal/tiltaksgjennomforinger/{id}/nokkeltall:
     get:
