@@ -36,7 +36,7 @@ const whiteListOpprettAvtaleKnapp = [
   'Varig lønnstilskudd',
   'Mentor',
   'Inkluderingstilskudd',
-  'Sommerjobb',
+  'Tilskudd til sommerjobb',
 ] as const;
 
 type IndividuelleTiltak = (typeof whiteListOpprettAvtaleKnapp)[number];
@@ -53,7 +53,7 @@ function tiltakstypeNavnTilUrlVerdi(tiltakstype: IndividuelleTiltak): Individuel
       return 'MENTOR';
     case 'Inkluderingstilskudd':
       return 'INKLUDERINGSTILSKUDD';
-    case 'Sommerjobb':
+    case 'Tilskudd til sommerjobb':
       return 'SOMMERJOBB';
   }
 }
