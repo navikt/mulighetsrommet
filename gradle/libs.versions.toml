@@ -4,7 +4,7 @@ flyway = "9.19.1"
 hoplite = "2.7.4"
 koin = "3.4.1"
 kotest = "5.6.2"
-kotlin = "1.8.21"
+kotlin = "1.8.22"
 ktor = "2.3.1"
 logback = "1.4.7"
 metrics = "4.2.19"
@@ -13,7 +13,7 @@ metrics = "4.2.19"
 flyway = { id = "org.flywaydb.flyway", version.ref = "flyway" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
-ktlint = "org.jlleitschuh.gradle.ktlint:11.3.2"
+ktlint = "org.jlleitschuh.gradle.ktlint:11.4.0"
 shadow = "com.github.johnrengelman.shadow:8.1.1"
 
 [libraries]

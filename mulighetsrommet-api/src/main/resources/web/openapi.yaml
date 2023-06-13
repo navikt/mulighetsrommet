@@ -59,7 +59,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/SletteAvtale"
+                type: string
         404:
           description: "Mangler eller ugyldig id."
           content:
@@ -291,6 +291,23 @@ paths:
       responses:
         200:
           description: ''
+    delete:
+      tags:
+        - Tiltaksgjennomforinger
+      operationId: deleteTiltaksgjennomforing
+      responses:
+        200:
+          description: "The specified gjennomforing was deleted."
+          content:
+            application/json:
+              schema:
+                type: string
+        404:
+          description: "Mangler eller ugyldig id."
+          content:
+            application/json:
+              schema:
+                type: string
 
   /api/v1/internal/tiltaksgjennomforinger/{id}/nokkeltall:
     get:
@@ -609,6 +626,27 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/HistorikkForBruker"
+
+  /api/v1/internal/ansatt:
+    get:
+      tags:
+        - Ansatt
+      operationId: hentAnsatte
+      parameters:
+        - in: query
+          name: azureIder
+          schema:
+            type: array
+            items:
+              type: string
+          description: Azure-id koblet til brukere
+      responses:
+        200:
+          description: Get list of employeees
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NavKontaktperson"
 
   /api/v1/internal/ansatt/me:
     get:
@@ -1377,6 +1415,36 @@ components:
         - fnr
         - oppfolgingsenhet
         - geografiskEnhet
+
+    NavKontaktperson:
+      type: object
+      properties:
+        etternavn:
+          type: string
+          nullable: true
+        fornavn:
+          type: string
+          nullable: true
+        ident:
+          type: string
+          nullable: true
+        navn:
+          type: string
+          nullable: true
+        hovedenhet:
+          type: string
+        mobilnummer:
+          type: string
+          nullable: true
+        epost:
+          type: string
+      required:
+        - etternavn
+        - fornavn
+        - ident
+        - navn
+        - hovedenhet
+        - epost
 
     Ansatt:
       type: object

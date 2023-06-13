@@ -89,6 +89,7 @@ app:
       groups:
         - 676673aa-ec8f-4606-8399-723dce26b361 # team-mulighetsrommet
         - dde41c4b-42af-401f-bedf-9e537bcbdd37 # 0000-GA-mr-admin-flate_betabruker
+        - 9b259b32-17ae-408d-845f-ef4e70be91a6 # 0000-GA-mr-nav_kontaktperson
     notifySluttdatoForGjennomforingerNarmerSeg:
       disabled: false
       cronPattern: "0 0 6 * * *" # Hver morgen kl. 06.00

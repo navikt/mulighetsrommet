@@ -70,6 +70,11 @@ fun Route.tiltaksgjennomforingRoutes() {
             val id = call.parameters.getOrFail<UUID>("id")
             call.respond(tiltaksgjennomforingService.getNokkeltallForTiltaksgjennomforing(id))
         }
+
+        delete("{id}") {
+            val id = call.parameters.getOrFail<UUID>("id")
+            call.respondWithStatusResponse(tiltaksgjennomforingService.delete(id))
+        }
     }
 }
 
