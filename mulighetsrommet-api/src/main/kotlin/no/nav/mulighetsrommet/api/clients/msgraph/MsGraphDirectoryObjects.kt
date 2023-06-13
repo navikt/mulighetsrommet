@@ -47,7 +47,7 @@ internal data class MsGraphUserDto(
     /**
      * Mobilnummer
      */
-    val mobilePhone: String?,
+    val mobilePhone: String? = null,
 )
 
 @Serializable
