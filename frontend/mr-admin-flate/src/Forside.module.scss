@@ -32,9 +32,8 @@
   flex-wrap: wrap;
 
   @media (width <= 1175px) {
-    gap: 1rem
+    gap: 1rem;
   }
-
 }
 
 .card {
@@ -61,6 +60,11 @@
   height: 100px;
   background-color: var(--a-deepblue-100);
   border-radius: 50%;
+
+  svg {
+    width: 4rem;
+    height: auto;
+  }
 }
 
 .infotekst {
