@@ -19,14 +19,6 @@ export function DetaljerJoyride({ opprettAvtale }: Props) {
     stepIndex: 0,
   });
 
-  // useEffect(() => {
-  //   if (joyride.joyrideDetaljer === null) {
-  //     setJoyride({ ...joyride, joyrideDetaljer: true });
-  //   } else {
-  //     setJoyride({ ...joyride, joyrideDetaljer: false });
-  //   }
-  // }, []);
-
   const handleJoyrideCallback = (data: CallBackProps) => {
     const { action, index, status, type } = data;
     const nextStepIndex = index + (action === ACTIONS.PREV ? -1 : 1);
@@ -38,7 +30,7 @@ export function DetaljerJoyride({ opprettAvtale }: Props) {
 
     if (!opprettAvtale) {
       //hvis brukeren ikke er inne på et tiltak med opprett avtale, settes opprett avtale-steps til false i localStorage
-      setJoyride({ ...joyride, joyrideDetaljerHarVistOpprettAvtale: false });
+      setJoyride(joyride => ({ ...joyride, joyrideDetaljerHarVistOpprettAvtale: false }));
 
       //hopper over steget med opprett avtale for at den skal kjøre videre til neste steg
       if (isStep(data.step, 'opprett-avtale') && !opprettAvtale) {
@@ -48,20 +40,20 @@ export function DetaljerJoyride({ opprettAvtale }: Props) {
 
     //resetter joyride ved error
     if (STATUS.ERROR === status) {
-      setJoyride({ ...joyride, joyrideDetaljer: true });
+      setJoyride(joyride => ({ ...joyride, joyrideDetaljer: true }));
       setState(prevState => ({ ...prevState, run: false, stepIndex: 0 }));
     }
 
     //resetter joyride når den er ferdig eller man klikker skip
     else if (([STATUS.FINISHED, STATUS.SKIPPED] as string[]).includes(status)) {
       logEvent('mulighetsrommet.joyride', { value: 'detaljer', status });
-      setJoyride({ ...joyride, joyrideDetaljer: false });
+      setJoyride(joyride => ({ ...joyride, joyrideDetaljer: false }));
       setState(prevState => ({ ...prevState, run: false, stepIndex: 0 }));
     }
 
     //lukker joyride ved klikk på escape
     if (ACTIONS.CLOSE === action) {
-      setJoyride({ ...joyride, joyrideDetaljer: false });
+      setJoyride(joyride => ({ ...joyride, joyrideDetaljer: false }));
       setState(prevState => ({ ...prevState, run: true, stepIndex: 0 }));
     }
   };
@@ -70,7 +62,7 @@ export function DetaljerJoyride({ opprettAvtale }: Props) {
     <>
       <JoyrideKnapp
         handleClick={() => {
-          setJoyride({ ...joyride, joyrideDetaljer: true });
+          setJoyride(joyride => ({ ...joyride, joyrideDetaljer: true }));
           setState(prevState => ({ ...prevState, run: true }));
           logEvent('mulighetsrommet.joyride', { value: 'detaljer' });
         }}
