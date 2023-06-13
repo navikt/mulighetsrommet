@@ -17,6 +17,7 @@ import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
+import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import java.time.LocalDate
 import java.util.*
@@ -31,8 +32,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
     val avtaleId = UUID.randomUUID()
 
     beforeEach {
-        database.db.clean()
-        database.db.migrate()
+        database.db.truncateAll()
 
         val tiltakstypeRepository = TiltakstypeRepository(database.db)
         tiltakstypeRepository.upsert(TiltakstypeFixtures.Oppfolging)
