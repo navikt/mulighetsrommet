@@ -33,7 +33,9 @@ export function Forside() {
               }
             >
               <span className={styles.circle}></span>
-              <Heading size={"medium"}>{card.navn}</Heading>
+              <Heading size="medium" level="3">
+                {card.navn}
+              </Heading>
               <BodyShort className={styles.infotekst}>{card.tekst}</BodyShort>
             </Link>
           ))}
