@@ -3,6 +3,8 @@ package no.nav.mulighetsrommet.api.repositories
 import kotliquery.Row
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattDbo
+import no.nav.mulighetsrommet.api.utils.DatabaseUtils
+import no.nav.mulighetsrommet.api.utils.NavAnsattFilter
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
@@ -15,7 +17,7 @@ class NavAnsattRepository(private val db: Database) {
         val query = """
             insert into nav_ansatt(nav_ident, fornavn, etternavn, hovedenhet, azure_id, fra_ad_gruppe, mobilnummer, epost)
             values (:nav_ident, :fornavn, :etternavn, :hovedenhet, :azure_id::uuid, :fra_ad_gruppe::uuid, :mobilnummer, :epost)
-            on conflict (nav_ident)
+            on conflict (nav_ident, fra_ad_gruppe)
                 do update set fornavn       = excluded.fornavn,
                               etternavn     = excluded.etternavn,
                               hovedenhet    = excluded.hovedenhet,
@@ -32,29 +34,51 @@ class NavAnsattRepository(private val db: Database) {
             .let { db.run(it)!! }
     }
 
-    fun getByNavIdent(navIdent: String): QueryResult<NavAnsattDbo?> = query {
+    fun getAll(filter: NavAnsattFilter): QueryResult<List<NavAnsattDbo>> = query {
+        val params = mapOf(
+            "azureIder" to db.createUuidArray(filter.azureIder),
+        )
+
+        val where = DatabaseUtils.andWhereParameterNotNull(
+            filter.azureIder to "fra_ad_gruppe = any(:azureIder)",
+        )
+
+        @Language("PostgreSQL")
+        val query = """
+            select *
+            from nav_ansatt
+            $where
+        """.trimIndent()
+
+        queryOf(query, params)
+            .map { it.toNavAnsatt() }
+            .asList
+            .let { db.run(it) }
+    }
+
+    fun getByNavIdentAndAdGruppe(navIdent: String, adGruppe: UUID): QueryResult<NavAnsattDbo?> = query {
         @Language("PostgreSQL")
         val query = """
             select nav_ident, fornavn, etternavn, hovedenhet, azure_id, fra_ad_gruppe, mobilnummer, epost
             from nav_ansatt
-            where nav_ident = :nav_ident
+            where nav_ident = :nav_ident and fra_ad_gruppe = :fra_ad_gruppe::uuid
         """.trimIndent()
 
-        queryOf(query, mapOf("nav_ident" to navIdent))
+        queryOf(query, mapOf("nav_ident" to navIdent, "fra_ad_gruppe" to adGruppe))
             .map { it.toNavAnsatt() }
             .asSingle
             .let { db.run(it) }
     }
 
-    fun getByAzureId(azureId: UUID): QueryResult<NavAnsattDbo?> = query {
+    fun getByAzureIdAndAdGruppe(azureId: UUID, adGruppe: UUID): QueryResult<NavAnsattDbo?> = query {
         @Language("PostgreSQL")
         val query = """
             select nav_ident, fornavn, etternavn, hovedenhet, azure_id, fra_ad_gruppe, mobilnummer, epost
             from nav_ansatt
-            where azure_id = :azure_id::uuid
+            where azure_id = :azure_id::uuid and fra_ad_gruppe = :fra_ad_gruppe::uuid
         """.trimIndent()
 
-        queryOf(query, mapOf("azure_id" to azureId))
+        queryOf(query, mapOf("azure_id" to azureId, "fra_ad_gruppe" to adGruppe))
             .map { it.toNavAnsatt() }
             .asSingle
             .let { db.run(it) }
