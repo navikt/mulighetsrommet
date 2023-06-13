@@ -10,7 +10,7 @@ export function Forside() {
   return (
     <main>
       <div className={styles.hero}>
-        <Heading size={"large"} className={styles.title}>
+        <Heading size="large" level="2" className={styles.title}>
           Enkel og effektiv administrasjon
           <br /> av arbeidsmarkedstiltak
         </Heading>
