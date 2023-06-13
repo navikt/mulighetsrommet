@@ -1,5 +1,4 @@
 import { Alert, Tabs } from "@navikt/ds-react";
-import { useState } from "react";
 import { useAvtale } from "../../api/avtaler/useAvtale";
 import { useFeatureToggles } from "../../api/features/feature-toggles";
 import { Header } from "../../components/detaljside/Header";
