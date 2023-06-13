@@ -90,7 +90,7 @@ class NavAnsattRepository(private val db: Database) {
         hovedenhet = string("hovedenhet"),
         azureId = uuid("azure_id"),
         fraAdGruppe = uuid("fra_ad_gruppe"),
-        mobilnummer = string("mobilnummer"),
+        mobilnummer = stringOrNull("mobilnummer"),
         epost = string("epost"),
     )
 }
