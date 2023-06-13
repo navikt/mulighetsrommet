@@ -3,10 +3,7 @@ import { useAvtale } from "../../api/avtaler/useAvtale";
 import { useFeatureToggles } from "../../api/features/feature-toggles";
 import { Header } from "../../components/detaljside/Header";
 import { Avtalestatus } from "../../components/statuselementer/Avtalestatus";
-import {
-  ContainerLayoutDetaljer,
-  ContainerLayoutTabell,
-} from "../../layouts/ContainerLayout";
+import { ContainerLayoutDetaljer } from "../../layouts/ContainerLayout";
 import { Avtaleinfo } from "./Avtaleinfo";
 import { NokkeltallForAvtale } from "./nokkeltall/NokkeltallForAvtale";
 import commonStyles from "../Page.module.scss";
@@ -71,9 +68,9 @@ export function DetaljerAvtalePage() {
           </ContainerLayoutDetaljer>
         </Tabs.Panel>
         <Tabs.Panel value="tiltaksgjennomforinger">
-          <ContainerLayoutTabell>
+          <ContainerLayoutDetaljer>
             <TiltaksgjennomforingerForAvtale />
-          </ContainerLayoutTabell>
+          </ContainerLayoutDetaljer>
         </Tabs.Panel>
         <Tabs.Panel value="nokkeltall">
           <ContainerLayoutDetaljer>

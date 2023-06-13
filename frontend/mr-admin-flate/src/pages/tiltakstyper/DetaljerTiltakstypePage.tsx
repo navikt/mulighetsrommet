@@ -7,10 +7,7 @@ import { useTiltakstypeById } from "../../api/tiltakstyper/useTiltakstypeById";
 import { Header } from "../../components/detaljside/Header";
 import { Laster } from "../../components/laster/Laster";
 import { Tiltakstypestatus } from "../../components/statuselementer/Tiltakstypestatus";
-import {
-  ContainerLayoutDetaljer,
-  ContainerLayoutTabell,
-} from "../../layouts/ContainerLayout";
+import { ContainerLayoutDetaljer } from "../../layouts/ContainerLayout";
 import { AvtalerForTiltakstype } from "./avtaler/AvtalerForTiltakstype";
 import { NokkeltallForTiltakstype } from "./nokkeltall/NokkeltallForTiltakstype";
 import { TiltakstypeInfo } from "./TiltakstypeInfo";
@@ -71,9 +68,9 @@ export function DetaljerTiltakstypePage() {
           </ContainerLayoutDetaljer>
         </Tabs.Panel>
         <Tabs.Panel value="avtaler">
-          <ContainerLayoutTabell>
+          <ContainerLayoutDetaljer>
             <AvtalerForTiltakstype />
-          </ContainerLayoutTabell>
+          </ContainerLayoutDetaljer>
         </Tabs.Panel>
         <Tabs.Panel value="nokkeltall">
           <ContainerLayoutDetaljer>
