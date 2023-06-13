@@ -2,12 +2,17 @@ package no.nav.mulighetsrommet.api.services
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.domain.dto.AdGruppe
+import no.nav.mulighetsrommet.api.domain.dto.NavKontaktpersonDto
+import no.nav.mulighetsrommet.api.repositories.NavAnsattRepository
 import no.nav.mulighetsrommet.api.tilgangskontroll.AdGrupper.ADMIN_FLATE_BETABRUKER
 import no.nav.mulighetsrommet.api.tilgangskontroll.AdGrupper.TEAM_MULIGHETSROMMET
+import no.nav.mulighetsrommet.api.utils.NavAnsattFilter
+import no.nav.mulighetsrommet.database.utils.getOrThrow
 import java.util.*
 
 class NavAnsattService(
     private val microsoftGraphService: MicrosoftGraphService,
+    private val navAnsattRepository: NavAnsattRepository,
 ) {
     suspend fun hentAnsattData(accessToken: String, navAnsattAzureId: UUID): AnsattData {
         val ansatt = microsoftGraphService.getNavAnsatt(accessToken, navAnsattAzureId)
@@ -21,6 +26,22 @@ class NavAnsattService(
             hovedenhet = ansatt.hovedenhetKode,
             hovedenhetNavn = ansatt.hovedenhetNavn,
         )
+    }
+
+    fun hentAnsatte(filter: NavAnsattFilter): List<NavKontaktpersonDto> {
+        return navAnsattRepository.getAll(filter).map { ansatte ->
+            ansatte.map {
+                NavKontaktpersonDto(
+                    navident = it.navIdent,
+                    azureId = it.azureId,
+                    fornavn = it.fornavn,
+                    etternavn = it.etternavn,
+                    hovedenhetKode = it.hovedenhet,
+                    mobilnr = it.mobilnummer,
+                    epost = it.epost,
+                )
+            }
+        }.getOrThrow()
     }
 }
 

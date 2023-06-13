@@ -181,3 +181,14 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getTiltaksgjennomforingsFilter
         lokasjoner = lokasjoner,
     )
 }
+
+data class NavAnsattFilter(
+    val azureIder: List<UUID> = emptyList(),
+)
+
+fun <T : Any> PipelineContext<T, ApplicationCall>.getNavAnsattFilter(): NavAnsattFilter {
+    val azureIder = call.parameters.getAll("azureIder")?.map { it.toUUID() } ?: emptyList()
+    return NavAnsattFilter(
+        azureIder = azureIder,
+    )
+}

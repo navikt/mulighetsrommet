@@ -5,6 +5,7 @@ import io.kotest.core.listeners.BeforeSpecListener
 import io.kotest.core.spec.Spec
 import io.kotest.core.test.TestCase
 import io.kotest.core.test.TestCaseOrder
+import kotliquery.queryOf
 import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
 import org.assertj.db.api.Assertions
 import org.assertj.db.api.TableAssert
@@ -16,7 +17,9 @@ class FlywayDatabaseTestListener(private val config: FlywayDatabaseAdapter.Confi
     private var delegate: FlywayDatabaseAdapter? = null
 
     val db: FlywayDatabaseAdapter
-        get() = delegate ?: throw RuntimeException("Database has not yet been initialized")
+        get() {
+            return delegate ?: throw RuntimeException("Database has not yet been initialized")
+        }
 
     override suspend fun beforeSpec(spec: Spec) {
         // It's not optimal to force a sequential test order, but since tests (for now) all share the same database
@@ -24,7 +27,6 @@ class FlywayDatabaseTestListener(private val config: FlywayDatabaseAdapter.Confi
         spec.testOrder = TestCaseOrder.Sequential
 
         delegate = FlywayDatabaseAdapter(config, slackNotifier = null)
-        delegate?.truncateAll()
     }
 
     // Initialiserer ny connection pool per test pga potensielle caching issues mellom tester
@@ -36,5 +38,15 @@ class FlywayDatabaseTestListener(private val config: FlywayDatabaseAdapter.Confi
     fun assertThat(tableName: String): TableAssert {
         val table = Table(db.getDatasource(), tableName)
         return Assertions.assertThat(table)
+    }
+}
+
+fun FlywayDatabaseAdapter.truncateAll() {
+    val tableNames = queryOf("SELECT table_name FROM information_schema.tables WHERE table_schema='${config.schema}' AND table_type='BASE TABLE'")
+        .map { it.string("table_name") }
+        .asList
+        .let { run(it) }
+    tableNames.forEach {
+        run(queryOf("truncate table $it restart identity cascade").asExecute)
     }
 }

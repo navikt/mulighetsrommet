@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ProcessingStatus.*
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
+import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import java.util.*
 
 class ArenaEventRepositoryTest : FunSpec({

@@ -245,7 +245,7 @@ private fun services(appConfig: AppConfig) = module {
     single { ArrangorService(get()) }
     single { BrukerService(get(), get(), get()) }
     single { DialogService(get()) }
-    single { NavAnsattService(get()) }
+    single { NavAnsattService(get(), get()) }
     single { PoaoTilgangService(get()) }
     single { DelMedBrukerService(get()) }
     single { MicrosoftGraphService(get()) }
