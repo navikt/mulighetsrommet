@@ -12,7 +12,6 @@ interface SlettAvtaleModalprops {
   handleForm?: () => void;
   handleCancel?: () => void;
   handleRediger?: () => void;
-  shouldCloseOnOverlayClick?: boolean;
   avtale?: Avtale;
 }
 

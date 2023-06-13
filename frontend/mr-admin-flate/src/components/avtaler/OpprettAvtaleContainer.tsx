@@ -31,10 +31,10 @@ import { SokeSelect } from "../skjema/SokeSelect";
 import { AvtaleSchema, inferredSchema } from "./AvtaleSchema";
 import styles from "./OpprettAvtaleContainer.module.scss";
 import { faro } from "@grafana/faro-web-sdk";
-import { useNavigate } from "react-router-dom";
 
 interface OpprettAvtaleContainerProps {
-  onAvbryt: () => void;
+  onClose: () => void;
+  onSuccess: (id: string) => void;
   tiltakstyper: Tiltakstype[];
   ansatt: Ansatt;
   avtale?: Avtale;
@@ -42,14 +42,14 @@ interface OpprettAvtaleContainerProps {
 }
 
 export function OpprettAvtaleContainer({
-  onAvbryt,
+  onClose,
+  onSuccess,
   tiltakstyper,
   ansatt,
   enheter,
   avtale,
 }: OpprettAvtaleContainerProps) {
   const mutation = usePutAvtale();
-  const navigate = useNavigate();
   const redigeringsModus = !!avtale;
   const [navRegion, setNavRegion] = useState<string | undefined>(
     avtale?.navRegion?.enhetsnummer
@@ -201,9 +201,7 @@ export function OpprettAvtaleContainer({
   };
 
   if (mutation.isSuccess) {
-    avtale
-      ? navigate(0)
-      : navigate(`/avtaler/${mutation.data.id}`);
+    onSuccess(mutation.data.id);
   }
 
   if (mutation.isError) {
@@ -221,10 +219,10 @@ export function OpprettAvtaleContainer({
                 "du trenger mer hjelp."}
           </>
         }
-        onClose={onAvbryt}
+        onClose={onClose}
         primaryButtonOnClick={() => mutation.reset()}
         primaryButtonText="Prøv igjen"
-        secondaryButtonOnClick={onAvbryt}
+        secondaryButtonOnClick={onClose}
         secondaryButtonText="Avbryt"
       />
     );
@@ -418,7 +416,7 @@ export function OpprettAvtaleContainer({
         <div className={styles.button_row}>
           <Button
             className={styles.button}
-            onClick={onAvbryt}
+            onClick={onClose}
             variant="tertiary"
             type="button"
           >

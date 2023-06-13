@@ -8,9 +8,7 @@ import { Avtale, Tiltaksgjennomforing } from "mulighetsrommet-api-client";
 interface ModalProps {
   modalOpen: boolean;
   onClose: () => void;
-  handleForm?: () => void;
-  handleCancel?: () => void;
-  shouldCloseOnOverlayClick?: boolean;
+  onSuccess: (id: string) => void;
   tiltaksgjennomforing?: Tiltaksgjennomforing;
   avtale?: Avtale;
 }
@@ -18,7 +16,7 @@ interface ModalProps {
 export const OpprettTiltaksgjennomforingModal = ({
   modalOpen,
   onClose,
-  handleCancel,
+  onSuccess,
   tiltaksgjennomforing,
   avtale,
 }: ModalProps) => {
@@ -26,27 +24,19 @@ export const OpprettTiltaksgjennomforingModal = ({
     Modal.setAppElement("#root");
   });
 
-  const clickCancel = () => {
-    setError(null);
-    setResult(null);
-    onClose();
-    handleCancel?.();
-  };
-
   const [error, setError] = useState<React.ReactNode | null>(null);
-  const [result, setResult] = useState<string | null>(null);
 
   const redigeringsModus = !!tiltaksgjennomforing;
 
   return (
     <>
-      {!error && !result && (
+      {!error && (
         <Modal
           shouldCloseOnOverlayClick={false}
           shouldCloseOnEsc={false}
           closeButton
           open={modalOpen}
-          onClose={clickCancel}
+          onClose={onClose}
           className={styles.overstyrte_styles_fra_ds_modal}
           aria-label="modal"
         >
@@ -57,9 +47,9 @@ export const OpprettTiltaksgjennomforingModal = ({
                 : "Opprett ny gjennomføring"}
             </Heading>
             <OpprettTiltaksgjennomforingContainer
-              onAvbryt={clickCancel}
+              onClose={onClose}
+              onSuccess={onSuccess}
               setError={setError}
-              setResult={setResult}
               tiltaksgjennomforing={tiltaksgjennomforing}
               avtale={avtale}
             />
@@ -72,10 +62,10 @@ export const OpprettTiltaksgjennomforingModal = ({
           ikonVariant="error"
           heading="Kunne ikke opprette gjennomføring"
           text={error}
-          onClose={clickCancel}
+          onClose={onClose}
           primaryButtonOnClick={() => setError(null)}
           primaryButtonText="Prøv igjen"
-          secondaryButtonOnClick={clickCancel}
+          secondaryButtonOnClick={onClose}
           secondaryButtonText="Avbryt"
         />
       )}

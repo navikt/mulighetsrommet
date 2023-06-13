@@ -11,16 +11,14 @@ import { OpprettAvtaleContainer } from "./OpprettAvtaleContainer";
 interface OpprettAvtaleModalProps {
   modalOpen: boolean;
   onClose: () => void;
-  handleForm?: () => void;
-  handleCancel?: () => void;
-  shouldCloseOnOverlayClick?: boolean;
+  onSuccess: (id: string) => void;
   avtale?: Avtale;
 }
 
 const OpprettAvtaleModal = ({
   modalOpen,
   onClose,
-  handleCancel,
+  onSuccess,
   avtale,
 }: OpprettAvtaleModalProps) => {
   const { data: tiltakstyper, isLoading: isLoadingTiltakstyper } =
@@ -39,18 +37,13 @@ const OpprettAvtaleModal = ({
     Modal.setAppElement("#root");
   }, []);
 
-  const clickCancel = () => {
-    onClose();
-    handleCancel?.();
-  };
-
   return (
     <>
       <Modal
         shouldCloseOnOverlayClick={false}
         closeButton
         open={modalOpen}
-        onClose={clickCancel}
+        onClose={onClose}
         className={styles.overstyrte_styles_fra_ds_modal}
         aria-label="modal"
       >
@@ -63,7 +56,8 @@ const OpprettAvtaleModal = ({
           ) : null}
           {!tiltakstyper?.data || !ansatt || !enheter ? null : (
             <OpprettAvtaleContainer
-              onAvbryt={clickCancel}
+              onClose={onClose}
+              onSuccess={onSuccess}
               tiltakstyper={tiltakstyper.data}
               ansatt={ansatt}
               enheter={enheter}
