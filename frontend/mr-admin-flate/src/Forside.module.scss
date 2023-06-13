@@ -1,11 +1,14 @@
-.container {
+.adminflate_container {
   position: relative;
   display: flex;
   flex-direction: column;
   justify-content: center;
   margin: 0 auto;
-  width: 95%;
-  max-width: 1920px;
+  max-width: 1280px;
+
+  @media (width <= 1280px) {
+    margin: 0 1rem;
+  }
 }
 
 .hero {
@@ -24,16 +27,13 @@
 
 .card_container {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 2rem;
-}
-
-.cards {
-  display: flex;
-  flex-wrap: wrap;
   justify-content: space-between;
-  gap: 5rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+
+  @media (width <= 1175px) {
+    gap: 1rem;
+  }
 }
 
 .card {
@@ -60,8 +60,14 @@
   height: 100px;
   background-color: var(--a-deepblue-100);
   border-radius: 50%;
+
+  svg {
+    width: 4rem;
+    height: auto;
+  }
 }
 
 .infotekst {
   color: var(--a-text-subtle);
+  margin-top: 2rem;
 }

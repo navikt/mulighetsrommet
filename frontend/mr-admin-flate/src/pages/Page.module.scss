@@ -4,4 +4,28 @@
   justify-content: space-between;
   margin: 1rem 0;
   border-bottom: solid 1px var(--a-border-divider);
+  padding-left: 0.5rem;
+}
+
+.header {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.list {
+  padding-left: 0.5rem;
+  width: 1920px;
+  display: flex;
+  justify-items: start;
+  margin: 0 auto;
+
+  @media (width > 1930px) {
+    padding-left: 0;
+  }
+}
+
+:global(.navds-tabs__tablist-wrapper) {
+  background-color: white;
+  width: 100%;
 }

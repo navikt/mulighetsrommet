@@ -34,6 +34,7 @@ export const paginationAtom = atomWithHash('page', 1);
 export const faneAtom = atomWithHash('fane', 'tab1', {
   setHash: 'replaceState',
 });
+
 export const joyrideAtom = atomWithStorage<{
   joyrideOversikten: boolean;
   joyrideOversiktenLastStep: boolean | null;
