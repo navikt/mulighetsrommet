@@ -12,7 +12,3 @@ export function ContainerLayoutOversikt({ children }: Props) {
 export function ContainerLayoutDetaljer({ children }: Props) {
   return <div className={styles.container_layout_detaljer}>{children}</div>;
 }
-
-export function ContainerLayoutTabell({ children }: Props) {
-  return <div className={styles.container_layout_tabell}>{children}</div>;
-}
