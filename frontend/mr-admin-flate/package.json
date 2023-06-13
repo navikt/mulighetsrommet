@@ -20,7 +20,7 @@
     "@navikt/aksel-icons": "^4.1.3",
     "@navikt/ds-css": "^3.4.2",
     "@navikt/ds-css-internal": "^3.4.2",
-    "@navikt/ds-react": "^3.4.2",
+    "@navikt/ds-react": "^4.1.3",
     "@navikt/ds-react-internal": "^3.4.2",
     "@navikt/ds-tokens": "^4.1.3",
     "@tanstack/react-query": "^4.29.12",
