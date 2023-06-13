@@ -53,7 +53,9 @@
 }
 
 .circle {
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 100px;
   height: 100px;
   background-color: var(--a-deepblue-100);
