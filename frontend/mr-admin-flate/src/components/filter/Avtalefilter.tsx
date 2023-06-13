@@ -26,6 +26,7 @@ import { SokeSelect } from "../skjema/SokeSelect";
 import styles from "./Filter.module.scss";
 import { RESET } from "jotai/vanilla/utils";
 import { faro } from "@grafana/faro-web-sdk";
+import { useNavigate } from "react-router-dom";
 
 type Filters = "tiltakstype";
 
@@ -35,6 +36,7 @@ interface Props {
 
 export function Avtalefilter(props: Props) {
   const [filter, setFilter] = useAtom(avtaleFilter);
+  const navigate = useNavigate();
 
   const form = useForm<AvtaleFilterProps>({
     defaultValues: {
@@ -203,6 +205,7 @@ export function Avtalefilter(props: Props) {
                 <OpprettAvtaleModal
                   modalOpen={modalOpen}
                   onClose={() => setModalOpen(false)}
+                  onSuccess={(id) => navigate(`/avtaler/${id}`)}
                 />
               </>
             )}

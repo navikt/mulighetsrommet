@@ -20,6 +20,7 @@ export function TiltaksgjennomforingInfo() {
     data: tiltaksgjennomforing,
     isError: isErrorTiltaksgjennomforing,
     isLoading: isLoadingTiltaksgjennomforing,
+    refetch
   } = useTiltaksgjennomforingById();
   const { data: avtale, isLoading: isLoadingAvtale } = useAvtale(
     tiltaksgjennomforing?.avtaleId
@@ -186,7 +187,10 @@ export function TiltaksgjennomforingInfo() {
       <OpprettTiltaksgjennomforingModal
         modalOpen={redigerModal}
         onClose={lukkRedigerModal}
-        shouldCloseOnOverlayClick={true}
+        onSuccess={() => {
+          lukkRedigerModal();
+          refetch();
+        }}
         tiltaksgjennomforing={tiltaksgjennomforing}
         avtale={avtale}
       />
