@@ -1,5 +1,5 @@
 import Joyride, { ACTIONS, CallBackProps, EVENTS, STATUS } from 'react-joyride';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { joyrideStyling, localeStrings } from './Utils';
 import { JoyrideKnapp } from './JoyrideKnapp';
 import { logEvent } from '../../core/api/logger';
@@ -19,14 +19,13 @@ export function DetaljerJoyride({ opprettAvtale }: Props) {
     stepIndex: 0,
   });
 
-  useEffect(() => {
-    // console.log(joyride.joyrideDetaljer);
-    if (joyride.joyrideDetaljer === null) {
-      setJoyride({ ...joyride, joyrideDetaljer: true });
-    } else {
-      setJoyride({ ...joyride, joyrideDetaljer: false });
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (joyride.joyrideDetaljer === null) {
+  //     setJoyride({ ...joyride, joyrideDetaljer: true });
+  //   } else {
+  //     setJoyride({ ...joyride, joyrideDetaljer: false });
+  //   }
+  // }, []);
 
   const handleJoyrideCallback = (data: CallBackProps) => {
     const { action, index, status, type } = data;
@@ -71,7 +70,6 @@ export function DetaljerJoyride({ opprettAvtale }: Props) {
     <>
       <JoyrideKnapp
         handleClick={() => {
-          console.log('Klikk?');
           setJoyride({ ...joyride, joyrideDetaljer: true });
           setState(prevState => ({ ...prevState, run: true }));
           logEvent('mulighetsrommet.joyride', { value: 'detaljer' });
@@ -81,7 +79,7 @@ export function DetaljerJoyride({ opprettAvtale }: Props) {
       <Joyride
         locale={localeStrings()}
         continuous
-        run={!!joyride.joyrideDetaljer}
+        run={joyride.joyrideDetaljer}
         steps={stepsDetaljer}
         hideCloseButton
         callback={handleJoyrideCallback}

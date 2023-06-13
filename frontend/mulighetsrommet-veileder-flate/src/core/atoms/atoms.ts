@@ -38,11 +38,11 @@ export const faneAtom = atomWithHash('fane', 'tab1', {
 export const joyrideAtom = atomWithStorage<{
   joyrideOversikten: boolean;
   joyrideOversiktenLastStep: boolean | null;
-  joyrideDetaljer: boolean | null;
+  joyrideDetaljer: boolean;
   joyrideDetaljerHarVistOpprettAvtale: boolean;
 }>('joyride_mulighetsrommet', {
   joyrideOversikten: true,
   joyrideOversiktenLastStep: null,
-  joyrideDetaljer: null,
+  joyrideDetaljer: true,
   joyrideDetaljerHarVistOpprettAvtale: true,
 });
