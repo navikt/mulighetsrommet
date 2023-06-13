@@ -627,6 +627,27 @@ paths:
                 items:
                   $ref: "#/components/schemas/HistorikkForBruker"
 
+  /api/v1/internal/ansatt:
+    get:
+      tags:
+        - Ansatt
+      operationId: hentAnsatte
+      parameters:
+        - in: query
+          name: azureIder
+          schema:
+            type: array
+            items:
+              type: string
+          description: Azure-id koblet til brukere
+      responses:
+        200:
+          description: Get list of employeees
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NavKontaktperson"
+
   /api/v1/internal/ansatt/me:
     get:
       tags:
@@ -1394,6 +1415,36 @@ components:
         - fnr
         - oppfolgingsenhet
         - geografiskEnhet
+
+    NavKontaktperson:
+      type: object
+      properties:
+        etternavn:
+          type: string
+          nullable: true
+        fornavn:
+          type: string
+          nullable: true
+        ident:
+          type: string
+          nullable: true
+        navn:
+          type: string
+          nullable: true
+        hovedenhet:
+          type: string
+        mobilnummer:
+          type: string
+          nullable: true
+        epost:
+          type: string
+      required:
+        - etternavn
+        - fornavn
+        - ident
+        - navn
+        - hovedenhet
+        - epost
 
     Ansatt:
       type: object
