@@ -2,12 +2,15 @@ package no.nav.mulighetsrommet.api.repositories
 
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
+import no.nav.mulighetsrommet.api.utils.NavAnsattFilter
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
+import no.nav.mulighetsrommet.database.utils.getOrThrow
 import java.util.*
 
 class NavAnsattRepositoryTest : FunSpec({
@@ -29,26 +32,80 @@ class NavAnsattRepositoryTest : FunSpec({
         }
 
         test("CRUD") {
+            val adGruppe1 = UUID.randomUUID()
+            val adGruppe2 = UUID.randomUUID()
+            val azureId = UUID.randomUUID()
+
             val ansatt = NavAnsattDbo(
-                azureId = UUID.randomUUID(),
+                azureId = azureId,
                 navIdent = "DD123456",
                 fornavn = "Donald",
                 etternavn = "Duck",
                 hovedenhet = "1000",
-                fraAdGruppe = UUID.randomUUID(),
+                fraAdGruppe = adGruppe1,
+                mobilnummer = "12345678",
+                epost = "test@test.no",
+            )
+
+            val ansatt2 = NavAnsattDbo(
+                azureId = azureId,
+                navIdent = "DD123456",
+                fornavn = "Donald",
+                etternavn = "Duck",
+                hovedenhet = "1000",
+                fraAdGruppe = adGruppe2,
                 mobilnummer = "12345678",
                 epost = "test@test.no",
             )
 
             ansatte.upsert(ansatt).shouldBeRight()
+            ansatte.upsert(ansatt2).shouldBeRight()
 
-            ansatte.getByAzureId(ansatt.azureId) shouldBeRight ansatt
-            ansatte.getByNavIdent(ansatt.navIdent) shouldBeRight ansatt
+            ansatte.getByAzureIdAndAdGruppe(ansatt.azureId, adGruppe1) shouldBeRight ansatt
+            ansatte.getByNavIdentAndAdGruppe(ansatt.navIdent, adGruppe1) shouldBeRight ansatt
+            ansatte.getByAzureIdAndAdGruppe(ansatt2.azureId, adGruppe2) shouldBeRight ansatt2
+            ansatte.getByNavIdentAndAdGruppe(ansatt2.navIdent, adGruppe2) shouldBeRight ansatt2
 
             ansatte.deleteByAzureId(ansatt.azureId).shouldBeRight()
 
-            ansatte.getByAzureId(ansatt.azureId) shouldBeRight null
-            ansatte.getByNavIdent(ansatt.navIdent) shouldBeRight null
+            ansatte.getByAzureIdAndAdGruppe(ansatt.azureId, adGruppe1) shouldBeRight null
+            ansatte.getByNavIdentAndAdGruppe(ansatt.navIdent, adGruppe1) shouldBeRight null
+            ansatte.getByAzureIdAndAdGruppe(ansatt2.azureId, adGruppe2) shouldBeRight null
+            ansatte.getByNavIdentAndAdGruppe(ansatt2.navIdent, adGruppe2) shouldBeRight null
+        }
+
+        test("Skal hente alle ansatte for en gitt ad-gruppe") {
+            val adGruppe1 = UUID.randomUUID()
+            val adGruppe2 = UUID.randomUUID()
+            val azureId = UUID.randomUUID()
+
+            val ansatt = NavAnsattDbo(
+                azureId = azureId,
+                navIdent = "DD123456",
+                fornavn = "Donald",
+                etternavn = "Duck",
+                hovedenhet = "1000",
+                fraAdGruppe = adGruppe1,
+                mobilnummer = "12345678",
+                epost = "test@test.no",
+            )
+
+            val ansatt2 = NavAnsattDbo(
+                azureId = azureId,
+                navIdent = "DD123456",
+                fornavn = "Donald",
+                etternavn = "Duck",
+                hovedenhet = "1000",
+                fraAdGruppe = adGruppe2,
+                mobilnummer = "12345678",
+                epost = "test@test.no",
+            )
+
+            ansatte.upsert(ansatt).shouldBeRight()
+            ansatte.upsert(ansatt2).shouldBeRight()
+
+            val result = ansatte.getAll(filter = NavAnsattFilter(azureIder = listOf(adGruppe1))).getOrThrow()
+            result.size shouldBe 1
         }
     }
 })
