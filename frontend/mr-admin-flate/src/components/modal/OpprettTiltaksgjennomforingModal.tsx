@@ -2,7 +2,6 @@ import { Heading, Modal } from "@navikt/ds-react";
 import React, { useEffect, useState } from "react";
 import styles from "./Modal.module.scss";
 import { StatusModal } from "mulighetsrommet-veileder-flate/src/components/modal/delemodal/StatusModal";
-import { useNavigerTilTiltaksgjennomforing } from "../../hooks/useNavigerTilTiltaksgjennomforing";
 import { OpprettTiltaksgjennomforingContainer } from "../tiltaksgjennomforinger/OpprettTiltaksgjennomforingContainer";
 import { Avtale, Tiltaksgjennomforing } from "mulighetsrommet-api-client";
 
@@ -23,8 +22,6 @@ export const OpprettTiltaksgjennomforingModal = ({
   tiltaksgjennomforing,
   avtale,
 }: ModalProps) => {
-  const { navigerTilTiltaksgjennomforing } =
-    useNavigerTilTiltaksgjennomforing();
   useEffect(() => {
     Modal.setAppElement("#root");
   });
@@ -80,19 +77,6 @@ export const OpprettTiltaksgjennomforingModal = ({
           primaryButtonText="Prøv igjen"
           secondaryButtonOnClick={clickCancel}
           secondaryButtonText="Avbryt"
-        />
-      )}
-      {result && (
-        <StatusModal
-          modalOpen={modalOpen}
-          onClose={clickCancel}
-          ikonVariant="success"
-          heading="Gjennomføringen er opprettet."
-          text="Gjennomføringen ble opprettet."
-          primaryButtonText="Gå til gjennomføringen"
-          primaryButtonOnClick={() => navigerTilTiltaksgjennomforing(result)}
-          secondaryButtonText="Lukk"
-          secondaryButtonOnClick={clickCancel}
         />
       )}
     </>

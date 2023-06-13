@@ -19,7 +19,6 @@ import { usePutAvtale } from "../../api/avtaler/usePutAvtale";
 import { useFeatureToggles } from "../../api/features/feature-toggles";
 import { useSokVirksomheter } from "../../api/virksomhet/useSokVirksomhet";
 import { useVirksomhet } from "../../api/virksomhet/useVirksomhet";
-import { useNavigerTilAvtale } from "../../hooks/useNavigerTilAvtale";
 import { arenaKodeErAftEllerVta } from "../../utils/tiltakskoder";
 import {
   capitalize,
@@ -32,6 +31,7 @@ import { SokeSelect } from "../skjema/SokeSelect";
 import { AvtaleSchema, inferredSchema } from "./AvtaleSchema";
 import styles from "./OpprettAvtaleContainer.module.scss";
 import { faro } from "@grafana/faro-web-sdk";
+import { useNavigate } from "react-router-dom";
 
 interface OpprettAvtaleContainerProps {
   onAvbryt: () => void;
@@ -49,7 +49,7 @@ export function OpprettAvtaleContainer({
   avtale,
 }: OpprettAvtaleContainerProps) {
   const mutation = usePutAvtale();
-  const { navigerTilAvtale } = useNavigerTilAvtale();
+  const navigate = useNavigate();
   const redigeringsModus = !!avtale;
   const [navRegion, setNavRegion] = useState<string | undefined>(
     avtale?.navRegion?.enhetsnummer
@@ -201,7 +201,9 @@ export function OpprettAvtaleContainer({
   };
 
   if (mutation.isSuccess) {
-    navigerTilAvtale(mutation.data.id);
+    avtale
+      ? navigate(0)
+      : navigate(`/avtaler/${mutation.data.id}`);
   }
 
   if (mutation.isError) {

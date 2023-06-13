@@ -283,7 +283,9 @@ export const OpprettTiltaksgjennomforingContainer = (
             requestBody: body,
           }
         );
-      navigate(`/tiltaksgjennomforinger/${response.id}`);
+      tiltaksgjennomforing
+        ? navigate(0)
+        : navigate(`/tiltaksgjennomforinger/${response.id}`);
     } catch {
       setError(tekniskFeilError());
     }
