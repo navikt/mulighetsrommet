@@ -30,6 +30,11 @@
   justify-content: space-between;
   margin-bottom: 2rem;
   flex-wrap: wrap;
+
+  @media (width <= 1175px) {
+    gap: 1rem
+  }
+
 }
 
 .card {
