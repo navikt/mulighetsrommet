@@ -81,7 +81,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 sluttDato = gjennomforing1.sluttDato,
                 arenaAnsvarligEnhet = gjennomforing1.arenaAnsvarligEnhet,
                 status = Tiltaksgjennomforingsstatus.AVSLUTTET,
-                tilgjengelighet = Tilgjengelighetsstatus.Ledig,
+                tilgjengelighet = Tilgjengelighetsstatus.LEDIG,
                 antallPlasser = null,
                 avtaleId = gjennomforing1.avtaleId,
                 ansvarlig = null,
@@ -385,14 +385,14 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             beforeAny {
                 tiltaksgjennomforinger.upsert(
                     gjennomforing1.copy(
-                        tilgjengelighet = Tilgjengelighetsstatus.Stengt,
+                        tilgjengelighet = Tilgjengelighetsstatus.STENGT,
                     ),
                 ).shouldBeRight()
             }
 
             test("should have tilgjengelighet set to Stengt") {
                 tiltaksgjennomforinger.get(gjennomforing1.id)
-                    .shouldBeRight()?.tilgjengelighet shouldBe Tilgjengelighetsstatus.Stengt
+                    .shouldBeRight()?.tilgjengelighet shouldBe Tilgjengelighetsstatus.STENGT
             }
         }
 
@@ -401,7 +401,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             beforeAny {
                 tiltaksgjennomforinger.upsert(
                     gjennomforing1.copy(
-                        tilgjengelighet = Tilgjengelighetsstatus.Ledig,
+                        tilgjengelighet = Tilgjengelighetsstatus.LEDIG,
                         avslutningsstatus = Avslutningsstatus.AVSLUTTET,
                     ),
                 ).shouldBeRight()
@@ -409,7 +409,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 
             test("should have tilgjengelighet set to Stengt") {
                 tiltaksgjennomforinger.get(gjennomforing1.id)
-                    .shouldBeRight()?.tilgjengelighet shouldBe Tilgjengelighetsstatus.Stengt
+                    .shouldBeRight()?.tilgjengelighet shouldBe Tilgjengelighetsstatus.STENGT
             }
         }
 
@@ -418,7 +418,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             beforeAny {
                 tiltaksgjennomforinger.upsert(
                     gjennomforing1.copy(
-                        tilgjengelighet = Tilgjengelighetsstatus.Ledig,
+                        tilgjengelighet = Tilgjengelighetsstatus.LEDIG,
                         antallPlasser = null,
                     ),
                 ).shouldBeRight()
@@ -426,7 +426,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 
             test("should have tilgjengelighet set to Ledig") {
                 tiltaksgjennomforinger.get(gjennomforing1.id)
-                    .shouldBeRight()?.tilgjengelighet shouldBe Tilgjengelighetsstatus.Ledig
+                    .shouldBeRight()?.tilgjengelighet shouldBe Tilgjengelighetsstatus.LEDIG
             }
         }
 
@@ -435,7 +435,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             beforeAny {
                 tiltaksgjennomforinger.upsert(
                     gjennomforing1.copy(
-                        tilgjengelighet = Tilgjengelighetsstatus.Ledig,
+                        tilgjengelighet = Tilgjengelighetsstatus.LEDIG,
                         antallPlasser = 0,
                     ),
                 ).shouldBeRight()
@@ -443,7 +443,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 
             test("should have tilgjengelighet set to Venteliste") {
                 tiltaksgjennomforinger.get(gjennomforing1.id)
-                    .shouldBeRight()?.tilgjengelighet shouldBe Tilgjengelighetsstatus.Venteliste
+                    .shouldBeRight()?.tilgjengelighet shouldBe Tilgjengelighetsstatus.VENTELISTE
             }
         }
 
@@ -452,7 +452,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             beforeAny {
                 tiltaksgjennomforinger.upsert(
                     gjennomforing1.copy(
-                        tilgjengelighet = Tilgjengelighetsstatus.Ledig,
+                        tilgjengelighet = Tilgjengelighetsstatus.LEDIG,
                         antallPlasser = 1,
                     ),
                 ).shouldBeRight()
@@ -462,7 +462,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 
             test("should have tilgjengelighet set to Venteliste") {
                 tiltaksgjennomforinger.get(gjennomforing1.id)
-                    .shouldBeRight()?.tilgjengelighet shouldBe Tilgjengelighetsstatus.Venteliste
+                    .shouldBeRight()?.tilgjengelighet shouldBe Tilgjengelighetsstatus.VENTELISTE
             }
         }
 
@@ -471,7 +471,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             beforeAny {
                 tiltaksgjennomforinger.upsert(
                     gjennomforing1.copy(
-                        tilgjengelighet = Tilgjengelighetsstatus.Ledig,
+                        tilgjengelighet = Tilgjengelighetsstatus.LEDIG,
                         antallPlasser = 1,
                     ),
                 ).shouldBeRight()
@@ -481,7 +481,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 
             test("should have tilgjengelighet set to Ledig") {
                 tiltaksgjennomforinger.get(gjennomforing1.id)
-                    .shouldBeRight()?.tilgjengelighet shouldBe Tilgjengelighetsstatus.Ledig
+                    .shouldBeRight()?.tilgjengelighet shouldBe Tilgjengelighetsstatus.LEDIG
             }
         }
     }
@@ -594,7 +594,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                         arenaAnsvarligEnhet = "2990",
                         avslutningsstatus = Avslutningsstatus.AVSLUTTET,
                         startDato = LocalDate.of(2022, 1, 1),
-                        tilgjengelighet = Tilgjengelighetsstatus.Ledig,
+                        tilgjengelighet = Tilgjengelighetsstatus.LEDIG,
                         antallPlasser = null,
                         ansvarlige = emptyList(),
                         navEnheter = emptyList(),

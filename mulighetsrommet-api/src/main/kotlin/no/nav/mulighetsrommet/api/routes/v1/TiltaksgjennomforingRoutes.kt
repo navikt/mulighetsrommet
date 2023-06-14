@@ -102,6 +102,7 @@ data class TiltaksgjennomforingRequest(
     val stengtFra: LocalDate? = null,
     @Serializable(with = LocalDateSerializer::class)
     val stengtTil: LocalDate? = null,
+    val apenForInnsok: Boolean = true,
 ) {
     fun toDbo(): StatusResponse<TiltaksgjennomforingDbo> {
         if (!startDato.isBefore(sluttDato)) {
@@ -128,7 +129,7 @@ data class TiltaksgjennomforingRequest(
                 arenaAnsvarligEnhet = enhet,
                 avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
                 antallPlasser = antallPlasser,
-                tilgjengelighet = TiltaksgjennomforingDbo.Tilgjengelighetsstatus.Ledig,
+                tilgjengelighet = if (apenForInnsok) TiltaksgjennomforingDbo.Tilgjengelighetsstatus.LEDIG else { TiltaksgjennomforingDbo.Tilgjengelighetsstatus.STENGT },
                 tiltaksnummer = tiltaksnummer,
                 virksomhetsnummer = virksomhetsnummer,
                 ansvarlige = listOf(ansvarlig),

@@ -36,9 +36,9 @@ data class TiltaksgjennomforingDbo(
     val stengtTil: LocalDate? = null,
 ) {
     enum class Tilgjengelighetsstatus {
-        Ledig,
-        Venteliste,
-        Stengt,
+        LEDIG,
+        VENTELISTE,
+        STENGT,
     }
 
     enum class Oppstartstype {

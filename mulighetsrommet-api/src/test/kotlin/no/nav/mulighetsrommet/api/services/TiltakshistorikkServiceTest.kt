@@ -41,7 +41,7 @@ class TiltakshistorikkServiceTest : FunSpec({
         arenaAnsvarligEnhet = "2990",
         avslutningsstatus = Avslutningsstatus.AVSLUTTET,
         startDato = LocalDate.of(2022, 1, 1),
-        tilgjengelighet = TiltaksgjennomforingDbo.Tilgjengelighetsstatus.Ledig,
+        tilgjengelighet = TiltaksgjennomforingDbo.Tilgjengelighetsstatus.LEDIG,
         antallPlasser = null,
         ansvarlige = emptyList(),
         navEnheter = emptyList(),

@@ -14,6 +14,7 @@ import {
   ExternalLinkIcon,
 } from "@navikt/aksel-icons";
 import SlettTiltaksgjennomforingModal from "../../components/tiltaksgjennomforinger/SlettTiltaksgjennomforingModal";
+import { TiltaksgjennomforingOppstartstype } from "mulighetsrommet-api-client";
 
 export function TiltaksgjennomforingInfo() {
   const {
@@ -80,6 +81,12 @@ export function TiltaksgjennomforingInfo() {
           <Metadata
             header="Sluttdato"
             verdi={formaterDato(tiltaksgjennomforing.sluttDato)}
+          />
+          <Metadata
+            header="Oppstart"
+            verdi={tiltaksgjennomforing.oppstart === TiltaksgjennomforingOppstartstype.FELLES
+              ? formaterDato(tiltaksgjennomforing.oppstartsdato) : "Løpende oppstart"
+            }
           />
           {Boolean(tiltaksgjennomforing.stengtFra) &&
             Boolean(tiltaksgjennomforing.stengtTil) &&

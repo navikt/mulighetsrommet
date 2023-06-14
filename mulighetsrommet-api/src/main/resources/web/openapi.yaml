@@ -1296,6 +1296,8 @@ components:
         stengtTil:
           type: string
           format: date
+        tilgjengelighet:
+          $ref: "#/components/schemas/Tilgjengelighetsstatus"
       required:
         - id
         - tiltakstype
@@ -1305,6 +1307,7 @@ components:
         - navEnheter
         - opphav
         - midlertidigStengt
+        - tilgjengelighet
 
     TiltaksgjennomforingRequest:
       type: object
@@ -1346,6 +1349,8 @@ components:
         stengtTil:
           type: string
           format: date
+        apenForInnsok:
+          type: boolean
       required:
         - id
         - avtaleId
@@ -1375,6 +1380,13 @@ components:
         - AVLYST
         - AVSLUTTET
         - APENT_FOR_INNSOK
+
+    Tilgjengelighetsstatus:
+      type: string
+      enum:
+        - LEDIG
+        - STENGT
+        - VENTELISTE
 
     TiltaksgjennomforingOppstartstype:
       type: string

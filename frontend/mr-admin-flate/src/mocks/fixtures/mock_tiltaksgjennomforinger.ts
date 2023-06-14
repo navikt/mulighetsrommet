@@ -3,6 +3,7 @@ import {
   PaginertTiltaksgjennomforing,
   TiltaksgjennomforingStatus,
 } from "mulighetsrommet-api-client";
+import { Tilgjengelighetsstatus } from "mulighetsrommet-api-client/build/models/Tilgjengelighetsstatus";
 
 export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
   pagination: {
@@ -28,6 +29,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       navEnheter: [],
       status: TiltaksgjennomforingStatus.GJENNOMFORES,
       opphav: Opphav.MR_ADMIN_FLATE,
+      tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
     },
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee362",
@@ -46,6 +48,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       navEnheter: [],
       status: TiltaksgjennomforingStatus.AVLYST,
       opphav: Opphav.MR_ADMIN_FLATE,
+      tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
     },
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee363",
@@ -64,6 +67,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       navEnheter: [],
       status: TiltaksgjennomforingStatus.GJENNOMFORES,
       opphav: Opphav.MR_ADMIN_FLATE,
+      tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
     },
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee364",
@@ -82,6 +86,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       navEnheter: [],
       status: TiltaksgjennomforingStatus.GJENNOMFORES,
       opphav: Opphav.MR_ADMIN_FLATE,
+      tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
     },
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee365",
@@ -100,6 +105,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       navEnheter: [],
       status: TiltaksgjennomforingStatus.GJENNOMFORES,
       opphav: Opphav.MR_ADMIN_FLATE,
+      tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
     },
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee366",
@@ -118,6 +124,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       navEnheter: [],
       status: TiltaksgjennomforingStatus.AVBRUTT,
       opphav: Opphav.MR_ADMIN_FLATE,
+      tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
     },
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee367",
@@ -136,6 +143,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       navEnheter: [],
       status: TiltaksgjennomforingStatus.GJENNOMFORES,
       opphav: Opphav.MR_ADMIN_FLATE,
+      tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
     },
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee368",
@@ -154,6 +162,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       navEnheter: [],
       status: TiltaksgjennomforingStatus.AVLYST,
       opphav: Opphav.ARENA,
+      tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
     },
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee369",
@@ -172,6 +181,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       navEnheter: [],
       status: TiltaksgjennomforingStatus.GJENNOMFORES,
       opphav: Opphav.ARENA,
+      tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
     },
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee310",
@@ -190,6 +200,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       navEnheter: [],
       status: TiltaksgjennomforingStatus.GJENNOMFORES,
       opphav: Opphav.ARENA,
+      tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
     },
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee311",
@@ -208,6 +219,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       navEnheter: [],
       status: TiltaksgjennomforingStatus.GJENNOMFORES,
       opphav: Opphav.ARENA,
+      tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
     },
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee312",
@@ -226,6 +238,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       navEnheter: [],
       status: TiltaksgjennomforingStatus.GJENNOMFORES,
       opphav: Opphav.ARENA,
+      tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
       stengtFra: "2022-01-01",
       stengtTil: "2022-12-12",
     },
@@ -244,6 +257,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       sluttDato: "2022-12-12",
       arenaAnsvarligEnhet: "1190",
       navEnheter: [],
+      tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
       status: TiltaksgjennomforingStatus.GJENNOMFORES,
       opphav: Opphav.ARENA,
       stengtFra: "2022-01-01",
@@ -262,6 +276,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       },
       startDato: "2022-01-01",
       sluttDato: "2022-12-12",
+      tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
       arenaAnsvarligEnhet: "1190",
       navEnheter: [],
       status: TiltaksgjennomforingStatus.GJENNOMFORES,
@@ -280,6 +295,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       },
       startDato: "2022-01-01",
       sluttDato: "2022-12-12",
+      tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
       arenaAnsvarligEnhet: "1190",
       navEnheter: [],
       status: TiltaksgjennomforingStatus.GJENNOMFORES,
@@ -298,6 +314,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       },
       startDato: "2022-01-01",
       sluttDato: "2022-12-12",
+      tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
       arenaAnsvarligEnhet: "1190",
       navEnheter: [],
       status: TiltaksgjennomforingStatus.GJENNOMFORES,
@@ -316,6 +333,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       },
       startDato: "2022-01-01",
       sluttDato: "2022-12-12",
+      tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
       arenaAnsvarligEnhet: "1190",
       navEnheter: [],
       status: TiltaksgjennomforingStatus.GJENNOMFORES,
@@ -334,6 +352,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       },
       startDato: "2022-01-01",
       sluttDato: "2022-12-12",
+      tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
       arenaAnsvarligEnhet: "1190",
       navEnheter: [],
       status: TiltaksgjennomforingStatus.APENT_FOR_INNSOK,
