@@ -48,4 +48,5 @@ export const QueryKeys = {
     "tiltaksgjennomforinger",
     filter,
   ],
+  kontaktpersoner: () => ["nav-kontaktpersoner"],
 };

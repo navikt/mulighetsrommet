@@ -4,17 +4,24 @@ import {
   Avtale,
   NavEnhet,
   Tiltaksgjennomforing,
+  TiltaksgjennomforingKontaktpersoner,
   TiltaksgjennomforingOppstartstype,
   TiltaksgjennomforingRequest,
 } from "mulighetsrommet-api-client";
 import { Opphav } from "mulighetsrommet-api-client/build/models/Opphav";
 import { porten } from "mulighetsrommet-frontend-common/constants";
 import React, { Dispatch, SetStateAction, useEffect } from "react";
-import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
+import {
+  FormProvider,
+  SubmitHandler,
+  useFieldArray,
+  useForm,
+} from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 import z from "zod";
 import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
+import { useHentKontaktpersoner } from "../../api/ansatt/useHentKontaktpersoner";
 import { mulighetsrommetClient } from "../../api/clients";
 import { useAlleEnheter } from "../../api/enhet/useAlleEnheter";
 import { useFeatureToggles } from "../../api/features/feature-toggles";
@@ -59,6 +66,23 @@ const Schema = z
       .string()
       .array()
       .nonempty({ message: "Du må velge minst én enhet" }),
+    kontaktpersoner: z
+      .object({
+        navIdent: z.string({ required_error: "Du må velge en kontaktperson" }),
+        navEnheter: z
+          .string({ required_error: "Du må velge minst et område" })
+          .array(),
+      })
+      .array()
+      .refine(
+        (data) => {
+          return data.filter((d) => d.navIdent !== "").length > 0;
+        },
+        {
+          message: "Du må velge minst en kontaktperson i NAV",
+          path: ["navIdent"], // TODO Denne må settes dynamisk så vi får korrekt validering
+        }
+      ),
     tiltaksArrangorUnderenhetOrganisasjonsnummer: z
       .string({
         required_error: "Du må velge en underenhet for tiltaksarrangør",
@@ -167,10 +191,23 @@ function temporaryResolveOppstartstypeFromAvtale(
     : TiltaksgjennomforingOppstartstype.LOPENDE;
 }
 
+function defaultValuesForKontaktpersoner(
+  kontaktpersoner?: TiltaksgjennomforingKontaktpersoner[]
+): TiltaksgjennomforingKontaktpersoner[] {
+  if (!kontaktpersoner) return [{ navIdent: "", navEnheter: [] }];
+
+  return kontaktpersoner.map((person) => ({
+    navIdent: person.navIdent,
+    navEnheter: person.navEnheter ?? [],
+  }));
+}
+
 export const OpprettTiltaksgjennomforingContainer = (
   props: OpprettTiltaksgjennomforingContainerProps
 ) => {
   const { avtale, tiltaksgjennomforing, setError, onAvbryt } = props;
+  const { data: kontaktpersoner, isLoading: isLoadingKontaktpersoner } =
+    useHentKontaktpersoner();
   const navigate = useNavigate();
   const form = useForm<inferredSchema>({
     resolver: zodResolver(Schema),
@@ -201,15 +238,25 @@ export const OpprettTiltaksgjennomforingContainer = (
           ? new Date(tiltaksgjennomforing.stengtTil)
           : undefined,
       },
+      kontaktpersoner: defaultValuesForKontaktpersoner(
+        tiltaksgjennomforing?.kontaktpersoner
+      ),
     },
   });
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors },
     setValue,
     watch,
   } = form;
+
+  const {
+    fields: kontaktpersonFields,
+    append: appendKontaktperson,
+    remove: removeKontaktperson,
+  } = useFieldArray({ name: "kontaktpersoner", control });
 
   const watchErMidlertidigStengt = watch(
     "midlertidigStengt.erMidlertidigStengt"
@@ -250,6 +297,7 @@ export const OpprettTiltaksgjennomforingContainer = (
       return;
     }
 
+    // TODO Legge til kontaktpersoner for request når api er klart for det
     const body: TiltaksgjennomforingRequest = {
       id: tiltaksgjennomforing ? tiltaksgjennomforing.id : uuidv4(),
       antallPlasser: data.antallPlasser,
@@ -274,6 +322,7 @@ export const OpprettTiltaksgjennomforingContainer = (
       stengtTil: data.midlertidigStengt.erMidlertidigStengt
         ? formaterDatoSomYYYYMMDD(data.midlertidigStengt.stengtTil)
         : undefined,
+      kontaktpersoner: data.kontaktpersoner,
     };
 
     try {
@@ -333,6 +382,15 @@ export const OpprettTiltaksgjennomforingContainer = (
     return options || [];
   };
 
+  const kontaktpersonerOption = () => {
+    const options = kontaktpersoner?.map((kontaktperson) => ({
+      label: `${kontaktperson.fornavn} ${kontaktperson.etternavn} - ${kontaktperson.navident}`,
+      value: kontaktperson.navident,
+    }));
+
+    return options || [];
+  };
+
   const arrangorUnderenheterOptions = () => {
     const options =
       avtale?.leverandorUnderenheter.map((lev) => {
@@ -384,7 +442,6 @@ export const OpprettTiltaksgjennomforingContainer = (
           Arena.
         </Alert>
       ) : null}
-
       <form onSubmit={handleSubmit(postData)}>
         <FormGroup>
           <TextField
@@ -477,6 +534,59 @@ export const OpprettTiltaksgjennomforingContainer = (
             readOnly={!avtale?.leverandor.organisasjonsnummer}
             options={arrangorUnderenheterOptions()}
           />
+        </FormGroup>
+        <pre>{JSON.stringify(watch("kontaktpersoner"), null, 2)}</pre>
+        <FormGroup>
+          {kontaktpersonFields.map((field, index) => {
+            return (
+              <div className={styles.kontaktperson_container} key={field.id}>
+                <div className={styles.kontaktperson_inputs}>
+                  <SokeSelect
+                    size="small"
+                    placeholder={
+                      isLoadingKontaktpersoner
+                        ? "Laster kontaktpersoner..."
+                        : "Velg en"
+                    }
+                    label={"Kontaktperson i NAV"}
+                    {...register(`kontaktpersoner.${index}.navIdent`, {
+                      shouldUnregister: true,
+                    })}
+                    options={kontaktpersonerOption()}
+                  />
+                  <ControlledMultiSelect
+                    size="small"
+                    placeholder={
+                      isLoadingKontaktpersoner ? "Laster enheter..." : "Velg en"
+                    }
+                    label={"Område"}
+                    {...register(`kontaktpersoner.${index}.navEnheter`, {
+                      shouldUnregister: true,
+                    })}
+                    options={enheterOptions()}
+                  />
+                </div>
+                {index > 0 ? (
+                  <button
+                    className={styles.kontaktperson_button}
+                    type="button"
+                    onClick={() => removeKontaktperson(index)}
+                  >
+                    Fjern
+                  </button>
+                ) : null}
+              </div>
+            );
+          })}
+          <button
+            className={styles.kontaktperson_button}
+            type="button"
+            onClick={() =>
+              appendKontaktperson({ navIdent: "", navEnheter: [] })
+            }
+          >
+            Legg til ny kontaktperson
+          </button>
         </FormGroup>
         <FormGroup>
           <SokeSelect

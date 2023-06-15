@@ -2,16 +2,19 @@ package no.nav.mulighetsrommet.api.services
 
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
+import io.ktor.server.plugins.*
 import io.prometheus.client.cache.caffeine.CacheMetricsCollector
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.domain.dto.FylkeResponse
+import no.nav.mulighetsrommet.api.domain.dto.KontaktinfoTiltaksansvarlige
 import no.nav.mulighetsrommet.api.domain.dto.SanityResponse
 import no.nav.mulighetsrommet.api.domain.dto.VeilederflateTiltaksgjennomforing
 import no.nav.mulighetsrommet.api.utils.*
+import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingAdminDto
 import no.nav.mulighetsrommet.metrics.Metrikker
 import no.nav.mulighetsrommet.utils.CacheUtils
 import org.slf4j.LoggerFactory
-import java.util.UUID
+import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.collections.set
 
@@ -19,6 +22,8 @@ class VeilederflateSanityService(
     private val sanityClient: SanityClient,
     private val brukerService: BrukerService,
     private val tiltaksgjennomforingService: TiltaksgjennomforingService,
+    private val navAnsattService: NavAnsattService,
+    private val navEnhetService: NavEnhetService,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
     private val fylkenummerCache = mutableMapOf<String?, String>()
@@ -107,6 +112,7 @@ class VeilederflateSanityService(
                 val gjennomforinger = result.decode<List<VeilederflateTiltaksgjennomforing>>()
                 supplerDataFraDB(gjennomforinger)
             }
+
             is SanityResponse.Error -> throw Exception(result.error.toString())
         }
     }
@@ -152,6 +158,7 @@ class VeilederflateSanityService(
                 val gjennomforinger = result.decode<List<VeilederflateTiltaksgjennomforing>>()
                 supplerDataFraDB(gjennomforinger)
             }
+
             is SanityResponse.Error -> throw Exception(result.error.toString())
         }
     }
@@ -171,11 +178,36 @@ class VeilederflateSanityService(
         return gjennomforinger
             .map {
                 val apiGjennomforing = gjennomforingerFraDb[it._id]
+                val kontaktpersoner = hentKontaktpersoner(gjennomforingerFraDb[it._id])
                 it.copy(
                     stengtFra = apiGjennomforing?.stengtFra,
                     stengtTil = apiGjennomforing?.stengtTil,
+                    kontaktinfoTiltaksansvarlige = kontaktpersoner.ifEmpty { it.kontaktinfoTiltaksansvarlige },
                 )
             }
+    }
+
+    /**
+     * TODO Vurdere å upserte tiltaksansvarlige fra Sanity til db. OBS: Må hardkode inn ad-gruppen og anta at de skal ha den ad-gruppen i fremtiden...
+     * TODO Vurdere å flytte kontaktpersoner til egen tabell fra starten av fordi det er kjipt å sende ad-gruppen rundt i koden som en config-variabel...
+     */
+    private fun hentKontaktpersoner(tiltaksgjennomforingAdminDto: TiltaksgjennomforingAdminDto?): List<KontaktinfoTiltaksansvarlige> {
+        return tiltaksgjennomforingAdminDto?.kontaktpersoner?.map {
+            val kontaktperson = navAnsattService.hentKontaktperson(it.navIdent)
+                ?: throw NotFoundException("Fant ikke kontaktperson med ident: ${it.navIdent}")
+            val enhet = navEnhetService.hentEnhet(kontaktperson.hovedenhetKode)
+            KontaktinfoTiltaksansvarlige(
+                navn = "${kontaktperson.fornavn} ${kontaktperson.etternavn}",
+                telefonnummer = kontaktperson.mobilnr ?: "",
+                enhet = enhet?.navn,
+                epost = kontaktperson.epost,
+                _rev = null,
+                _type = null,
+                _id = null,
+                _updatedAt = null,
+                _createdAt = null,
+            )
+        } ?: emptyList()
     }
 
     private suspend fun getFylkeIdBasertPaaEnhetsId(enhetsId: String?): String? {

@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.fixtures
 import io.kotest.assertions.arrow.core.shouldBeRight
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattDbo
+import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.repositories.NavAnsattRepository
@@ -28,6 +29,7 @@ data class MulighetsrommetTestDomain(
         fraAdGruppe = UUID.randomUUID(),
         mobilnummer = "12345678",
         epost = "test@test.no",
+        rolle = NavAnsattRolle.BETABRUKER,
     ),
     val ansatt2: NavAnsattDbo = NavAnsattDbo(
         navIdent = "DD2",
@@ -38,6 +40,7 @@ data class MulighetsrommetTestDomain(
         fraAdGruppe = UUID.randomUUID(),
         mobilnummer = "48243214",
         epost = "test@testesen.no",
+        rolle = NavAnsattRolle.BETABRUKER,
     ),
 ) {
     fun initialize(database: FlywayDatabaseAdapter) {

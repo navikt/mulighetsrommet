@@ -631,22 +631,24 @@ paths:
     get:
       tags:
         - Ansatt
-      operationId: hentAnsatte
+      operationId: hentKontaktpersoner
       parameters:
         - in: query
-          name: azureIder
+          name: roller
           schema:
             type: array
             items:
-              type: string
-          description: Azure-id koblet til brukere
+              $ref: "#/components/schemas/NavAnsattRolle"
+          description: Nav-Ansatt rollen du ønsker å filtrere på
       responses:
         200:
           description: Get list of employeees
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/NavKontaktperson"
+                type: array
+                items:
+                  $ref: "#/components/schemas/NavKontaktperson"
 
   /api/v1/internal/ansatt/me:
     get:
@@ -1296,6 +1298,10 @@ components:
         stengtTil:
           type: string
           format: date
+        kontaktpersoner:
+          type: array
+          items:
+            $ref: "#/components/schemas/TiltaksgjennomforingKontaktpersoner"
       required:
         - id
         - tiltakstype
@@ -1305,6 +1311,7 @@ components:
         - navEnheter
         - opphav
         - midlertidigStengt
+        - kontaktpersoner
 
     TiltaksgjennomforingRequest:
       type: object
@@ -1346,6 +1353,10 @@ components:
         stengtTil:
           type: string
           format: date
+        kontaktpersoner:
+          type: array
+          items:
+            $ref: "#/components/schemas/TiltaksgjennomforingKontaktpersoner"
       required:
         - id
         - avtaleId
@@ -1358,6 +1369,7 @@ components:
         - ansvarlig
         - navEnheter
         - oppstart
+        - kontaktpersoner
 
     TiltaksgjennomforingAvslutningsstatus:
       type: string
@@ -1425,9 +1437,8 @@ components:
         fornavn:
           type: string
           nullable: true
-        ident:
+        navident:
           type: string
-          nullable: true
         navn:
           type: string
           nullable: true
@@ -1441,7 +1452,7 @@ components:
       required:
         - etternavn
         - fornavn
-        - ident
+        - navident
         - navn
         - hovedenhet
         - epost
@@ -2011,3 +2022,20 @@ components:
       required:
         - statusCode
         - message
+
+    TiltaksgjennomforingKontaktpersoner:
+      type: object
+      properties:
+        navIdent:
+          type: string
+        navEnheter:
+          type: array
+          items:
+            type: string
+
+    NavAnsattRolle:
+      type: string
+      enum:
+        - TEAM_MULIGHETSROMMET
+        - BETABRUKER
+        - KONTAKTPERSON

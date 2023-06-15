@@ -1,19 +1,18 @@
 import { Alert, Tabs } from "@navikt/ds-react";
-import { useState } from "react";
+import { useAtom } from "jotai";
+import { Link, useParams } from "react-router-dom";
+import { AvtaleTabs, avtaleFilter } from "../../api/atoms";
 import { useAvtale } from "../../api/avtaler/useAvtale";
 import { useFeatureToggles } from "../../api/features/feature-toggles";
 import { Header } from "../../components/detaljside/Header";
+import { Laster } from "../../components/laster/Laster";
 import { Avtalestatus } from "../../components/statuselementer/Avtalestatus";
 import { ContainerLayout } from "../../layouts/ContainerLayout";
 import { MainContainer } from "../../layouts/MainContainer";
 import { Avtaleinfo } from "./Avtaleinfo";
-import { NokkeltallForAvtale } from "./nokkeltall/NokkeltallForAvtale";
 import styles from "./DetaljerAvtalePage.module.scss";
-import { Laster } from "../../components/laster/Laster";
-import { Link, useParams } from "react-router-dom";
+import { NokkeltallForAvtale } from "./nokkeltall/NokkeltallForAvtale";
 import { TiltaksgjennomforingerForAvtale } from "./tiltaksgjennomforinger/TiltaksgjennomforingerForAvtale";
-import { useAtom } from "jotai";
-import { AvtaleTabs, avtaleFilter } from "../../api/atoms";
 
 export function DetaljerAvtalePage() {
   const { avtaleId } = useParams<{ avtaleId: string }>();

@@ -87,9 +87,12 @@ app:
     synchronizeNavAnsatte:
       cronPattern: "0 0 6 * * *" # Hver dag kl 06:00
       groups:
-        - 676673aa-ec8f-4606-8399-723dce26b361 # team-mulighetsrommet
-        - dde41c4b-42af-401f-bedf-9e537bcbdd37 # 0000-GA-mr-admin-flate_betabruker
-        - 9b259b32-17ae-408d-845f-ef4e70be91a6 # 0000-GA-mr-nav_kontaktperson
+          - adGruppe: 676673aa-ec8f-4606-8399-723dce26b361 # team-mulighetsrommet
+            rolle: TEAM_MULIGHETSROMMET
+          - adGruppe: dde41c4b-42af-401f-bedf-9e537bcbdd37 # 0000-GA-mr-admin-flate_betabruker
+            rolle: BETABRUKER
+          - adGruppe: 9b259b32-17ae-408d-845f-ef4e70be91a6 # 0000-GA-mr-nav_kontaktperson
+            rolle: KONTAKTPERSON
     notifySluttdatoForGjennomforingerNarmerSeg:
       disabled: false
       cronPattern: "0 0 6 * * *" # Hver morgen kl. 06.00

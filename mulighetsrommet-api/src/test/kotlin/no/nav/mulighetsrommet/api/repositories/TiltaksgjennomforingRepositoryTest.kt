@@ -20,11 +20,13 @@ import no.nav.mulighetsrommet.api.utils.DEFAULT_PAGINATION_LIMIT
 import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
+import no.nav.mulighetsrommet.database.utils.getOrThrow
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.*
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo.Tilgjengelighetsstatus
 import no.nav.mulighetsrommet.domain.dto.NavEnhet
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingAdminDto
+import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingKontaktperson
 import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -90,6 +92,12 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 oppstart = TiltaksgjennomforingDbo.Oppstartstype.FELLES,
                 opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
                 stengtFra = null,
+                kontaktpersoner = listOf(
+                    TiltaksgjennomforingKontaktperson(
+                        navIdent = "D123456",
+                        navEnheter = listOf("2990", "2991"),
+                    ),
+                ),
             )
 
             tiltaksgjennomforinger.delete(gjennomforing1.id)
@@ -162,6 +170,66 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 )
             }
             database.assertThat("tiltaksgjennomforing_nav_enhet").hasNumberOfRows(2)
+        }
+
+        test("kontaktpersoner på tiltaksgjennomføring CRUD") {
+            val enhetRepository = NavEnhetRepository(database.db)
+            enhetRepository.upsert(
+                NavEnhetDbo(
+                    navn = "Navn1",
+                    enhetsnummer = "1",
+                    status = NavEnhetStatus.AKTIV,
+                    type = Norg2Type.LOKAL,
+                    overordnetEnhet = null,
+                ),
+            ).shouldBeRight()
+            enhetRepository.upsert(
+                NavEnhetDbo(
+                    navn = "Navn2",
+                    enhetsnummer = "2",
+                    status = NavEnhetStatus.AKTIV,
+                    type = Norg2Type.LOKAL,
+                    overordnetEnhet = null,
+                ),
+            ).shouldBeRight()
+            enhetRepository.upsert(
+                NavEnhetDbo(
+                    navn = "Navn3",
+                    enhetsnummer = "3",
+                    status = NavEnhetStatus.AKTIV,
+                    type = Norg2Type.LOKAL,
+                    overordnetEnhet = null,
+                ),
+            ).shouldBeRight()
+            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
+            val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1.copy(
+                kontaktpersoner = listOf(
+                    TiltaksgjennomforingKontaktperson(
+                        navIdent = "D123456",
+                        navEnheter = listOf("1", "2"),
+                    ),
+                    TiltaksgjennomforingKontaktperson(
+                        navIdent = "M654321",
+                        navEnheter = listOf("3"),
+                    ),
+                ),
+            )
+            tiltaksgjennomforinger.upsert(gjennomforing)
+            val result = tiltaksgjennomforinger.get(gjennomforing.id).getOrThrow()
+            result?.kontaktpersoner?.size shouldBe 2
+            val gjennomforingFjernetKontaktperson = gjennomforing.copy(
+                kontaktpersoner = listOf(
+                    TiltaksgjennomforingKontaktperson(
+                        navIdent = "D123456",
+                        navEnheter = listOf("1", "2"),
+                    ),
+                ),
+            )
+            tiltaksgjennomforinger.upsert(gjennomforingFjernetKontaktperson)
+            val oppdatertResult = tiltaksgjennomforinger.get(gjennomforingFjernetKontaktperson.id).getOrThrow()
+            oppdatertResult?.kontaktpersoner?.size shouldBe 1
+            oppdatertResult?.kontaktpersoner?.get(0)?.navIdent shouldBe "D123456"
+            oppdatertResult?.kontaktpersoner?.get(0)?.navEnheter shouldBe listOf("1", "2")
         }
 
         test("Oppdater navEnheter fra Sanity-tiltaksgjennomføringer til database") {
