@@ -48,9 +48,9 @@ class NavAnsattService(
 
     fun hentKontaktperson(navident: String): NavKontaktpersonDto? {
         return navAnsattRepository.getByNavIdentAndRolle(navident, NavAnsattRolle.KONTAKTPERSON).map {
-            it?.let { it1 ->
+            it?.let {
                 NavKontaktpersonDto(
-                    navident = it1.navIdent,
+                    navident = it.navIdent,
                     azureId = it.azureId,
                     fornavn = it.fornavn,
                     etternavn = it.etternavn,
