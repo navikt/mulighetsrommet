@@ -1,5 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { PlusIcon, XMarkIcon } from "@navikt/aksel-icons";
 import { Alert, Button, Checkbox, TextField } from "@navikt/ds-react";
+import classNames from "classnames";
 import {
   Avtale,
   NavEnhet,
@@ -8,7 +10,6 @@ import {
   TiltaksgjennomforingOppstartstype,
   TiltaksgjennomforingRequest,
 } from "mulighetsrommet-api-client";
-import { XMarkIcon, PlusIcon } from "@navikt/aksel-icons";
 import { Opphav } from "mulighetsrommet-api-client/build/models/Opphav";
 import { porten } from "mulighetsrommet-frontend-common/constants";
 import React, { Dispatch, SetStateAction, useEffect } from "react";
@@ -18,7 +19,7 @@ import {
   useFieldArray,
   useForm,
 } from "react-hook-form";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 import z from "zod";
 import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
@@ -35,7 +36,6 @@ import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
 import { SokeSelect } from "../skjema/SokeSelect";
 import styles from "./OpprettTiltaksgjennomforingContainer.module.scss";
-import classNames from "classnames";
 
 const Schema = z
   .object({
@@ -192,7 +192,8 @@ function defaultValuesForKontaktpersoner(
 
   return kontaktpersoner.map((person) => ({
     navIdent: person.navIdent,
-    navEnheter: person.navEnheter ?? [],
+    navEnheter:
+      person.navEnheter?.length === 0 ? ["alle_enheter"] : person.navEnheter,
   }));
 }
 
@@ -201,7 +202,6 @@ export const OpprettTiltaksgjennomforingContainer = (
 ) => {
   const { data: kontaktpersoner, isLoading: isLoadingKontaktpersoner } =
     useHentKontaktpersoner();
-  const navigate = useNavigate();
   const { avtale, tiltaksgjennomforing, setError, onClose, onSuccess } = props;
   const form = useForm<inferredSchema>({
     resolver: zodResolver(Schema),
@@ -315,7 +315,13 @@ export const OpprettTiltaksgjennomforingContainer = (
       stengtTil: data.midlertidigStengt.erMidlertidigStengt
         ? formaterDatoSomYYYYMMDD(data.midlertidigStengt.stengtTil)
         : undefined,
-      kontaktpersoner: data.kontaktpersoner || [],
+      kontaktpersoner:
+        data.kontaktpersoner?.map((kontakt) => ({
+          ...kontakt,
+          navEnheter: kontakt.navEnheter.includes("alle_enheter")
+            ? []
+            : kontakt.navEnheter,
+        })) || [],
     };
 
     try {
@@ -376,10 +382,18 @@ export const OpprettTiltaksgjennomforingContainer = (
   };
 
   const kontaktpersonerOption = () => {
-    const options = kontaktpersoner?.map((kontaktperson) => ({
-      label: `${kontaktperson.fornavn} ${kontaktperson.etternavn} - ${kontaktperson.navident}`,
-      value: kontaktperson.navident,
-    }));
+    const kontaktpersonerFraSkjema = watch("kontaktpersoner");
+    const options = kontaktpersoner
+      ?.filter(
+        (person) =>
+          !kontaktpersonerFraSkjema
+            ?.map((k) => k.navIdent)
+            .includes(person.navident)
+      )
+      ?.map((kontaktperson) => ({
+        label: `${kontaktperson.fornavn} ${kontaktperson.etternavn} - ${kontaktperson.navident}`,
+        value: kontaktperson.navident,
+      }));
 
     return options || [];
   };
