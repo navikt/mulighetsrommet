@@ -20,13 +20,13 @@ export function Avtaleinfo() {
   if (!avtaleId) {
     throw new Error("Fant ingen avtaleId i url");
   }
-  const { data: avtale, isLoading, error } = useAvtale(avtaleId);
+  const { data: avtale, isLoading, error, refetch } = useAvtale(avtaleId);
   const { data: features } = useFeatureToggles();
   const [redigerModal, setRedigerModal] = useState(false);
   const [slettModal, setSlettModal] = useState(false);
 
   const handleRediger = () => setRedigerModal(true);
-  const lukkRedigerModal = () => setRedigerModal(false);
+  const lukkRedigerModal = () => { refetch(); setRedigerModal(false); };
   const handleSlett = () => setSlettModal(true);
   const lukkSlettModal = () => setSlettModal(false);
 
@@ -150,13 +150,15 @@ export function Avtaleinfo() {
       <OpprettAvtaleModal
         modalOpen={redigerModal}
         onClose={lukkRedigerModal}
-        shouldCloseOnOverlayClick={true}
+        onSuccess={() => {
+          lukkRedigerModal();
+          refetch();
+        }}
         avtale={avtale}
       />
       <SlettAvtaleModal
         modalOpen={slettModal}
         onClose={lukkSlettModal}
-        shouldCloseOnOverlayClick={true}
         avtale={avtale}
         handleRediger={() => setRedigerModal(true)}
       />

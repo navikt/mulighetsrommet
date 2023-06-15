@@ -1,17 +1,22 @@
 :global(.mulighetsrommet-veileder-flate) {
-  .joyride_knapp {
+  .joyride_detaljer {
+    align-items: center;
     color: black;
+    width: fit-content;
     justify-self: end;
-  }
 
-  :global(.navds-label) {
-    display: flex;
-    flex-direction: row;
-    font-weight: lighter;
-    gap: 2px;
+    :global(.navds-label) {
+      display: flex;
+      flex-direction: row;
+      font-weight: lighter;
+      gap: 2px;
+      align-items: center;
+    }
 
     svg {
       margin: 0 auto;
+      width: 1.5rem;
+      height: auto;
     }
   }
 }

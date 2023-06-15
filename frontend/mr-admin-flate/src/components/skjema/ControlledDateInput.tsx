@@ -2,7 +2,7 @@ import { formaterDato } from "../../utils/Utils";
 import styles from "./ControlledDateInput.module.scss";
 import { forwardRef } from "react";
 import { Controller } from "react-hook-form";
-import { UNSAFE_DatePicker, UNSAFE_useDatepicker } from "@navikt/ds-react";
+import { DatePicker, useDatepicker } from "@navikt/ds-react";
 
 export interface DateInputProps {
   label: string;
@@ -24,7 +24,7 @@ const ControlledDateInput = forwardRef((props: DateInputProps, _) => {
             datepickerProps: startdatoProps,
             inputProps: startdatoInputProps,
             selectedDay: selectedStartdato,
-          } = UNSAFE_useDatepicker({
+          } = useDatepicker({
             onDateChange: (val: any) => {
               if (val) {
                 onChange(val);
@@ -39,7 +39,7 @@ const ControlledDateInput = forwardRef((props: DateInputProps, _) => {
             defaultSelected: value ? new Date(value) : undefined,
           });
           return (
-            <UNSAFE_DatePicker {...startdatoProps} dropdownCaption>
+            <DatePicker {...startdatoProps} dropdownCaption>
               <DatoFelt
                 size={size}
                 label={label}
@@ -53,7 +53,7 @@ const ControlledDateInput = forwardRef((props: DateInputProps, _) => {
                 }
                 readOnly={readOnly}
               />
-            </UNSAFE_DatePicker>
+            </DatePicker>
           );
         }}
       />
@@ -66,7 +66,7 @@ ControlledDateInput.displayName = "ControlledDateInput";
 const DatoFelt = forwardRef(function DatoFeltInput(props: any, ref: any) {
   const { name, label, size, ...rest } = props;
   return (
-    <UNSAFE_DatePicker.Input
+    <DatePicker.Input
       {...rest}
       label={label}
       name={name}

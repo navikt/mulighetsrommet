@@ -6,6 +6,7 @@ import { logEvent } from '../../core/api/logger';
 import { isStep, stepsDetaljer } from './Steps';
 import { useAtom } from 'jotai';
 import { joyrideAtom } from '../../core/atoms/atoms';
+import styles from './Joyride.module.scss';
 
 interface Props {
   opprettAvtale: boolean;
@@ -29,7 +30,7 @@ export function DetaljerJoyride({ opprettAvtale }: Props) {
 
     if (!opprettAvtale) {
       //hvis brukeren ikke er inne på et tiltak med opprett avtale, settes opprett avtale-steps til false i localStorage
-      setJoyride({ ...joyride, joyrideDetaljerHarVistOpprettAvtale: false });
+      setJoyride(joyride => ({ ...joyride, joyrideDetaljerHarVistOpprettAvtale: false }));
 
       //hopper over steget med opprett avtale for at den skal kjøre videre til neste steg
       if (isStep(data.step, 'opprett-avtale') && !opprettAvtale) {
@@ -39,20 +40,20 @@ export function DetaljerJoyride({ opprettAvtale }: Props) {
 
     //resetter joyride ved error
     if (STATUS.ERROR === status) {
-      setJoyride({ ...joyride, joyrideDetaljer: true });
+      setJoyride(joyride => ({ ...joyride, joyrideDetaljer: true }));
       setState(prevState => ({ ...prevState, run: false, stepIndex: 0 }));
     }
 
     //resetter joyride når den er ferdig eller man klikker skip
     else if (([STATUS.FINISHED, STATUS.SKIPPED] as string[]).includes(status)) {
       logEvent('mulighetsrommet.joyride', { value: 'detaljer', status });
-      setJoyride({ ...joyride, joyrideDetaljer: false });
+      setJoyride(joyride => ({ ...joyride, joyrideDetaljer: false }));
       setState(prevState => ({ ...prevState, run: false, stepIndex: 0 }));
     }
 
     //lukker joyride ved klikk på escape
     if (ACTIONS.CLOSE === action) {
-      setJoyride({ ...joyride, joyrideDetaljer: false });
+      setJoyride(joyride => ({ ...joyride, joyrideDetaljer: false }));
       setState(prevState => ({ ...prevState, run: true, stepIndex: 0 }));
     }
   };
@@ -61,10 +62,11 @@ export function DetaljerJoyride({ opprettAvtale }: Props) {
     <>
       <JoyrideKnapp
         handleClick={() => {
-          setJoyride({ ...joyride, joyrideDetaljer: true });
+          setJoyride(joyride => ({ ...joyride, joyrideDetaljer: true }));
           setState(prevState => ({ ...prevState, run: true }));
           logEvent('mulighetsrommet.joyride', { value: 'detaljer' });
         }}
+        className={styles.joyride_detaljer}
       />
       <Joyride
         locale={localeStrings()}

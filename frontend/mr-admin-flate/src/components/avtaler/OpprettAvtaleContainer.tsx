@@ -19,7 +19,6 @@ import { usePutAvtale } from "../../api/avtaler/usePutAvtale";
 import { useFeatureToggles } from "../../api/features/feature-toggles";
 import { useSokVirksomheter } from "../../api/virksomhet/useSokVirksomhet";
 import { useVirksomhet } from "../../api/virksomhet/useVirksomhet";
-import { useNavigerTilAvtale } from "../../hooks/useNavigerTilAvtale";
 import { arenaKodeErAftEllerVta } from "../../utils/tiltakskoder";
 import {
   capitalize,
@@ -34,7 +33,8 @@ import styles from "./OpprettAvtaleContainer.module.scss";
 import { faro } from "@grafana/faro-web-sdk";
 
 interface OpprettAvtaleContainerProps {
-  onAvbryt: () => void;
+  onClose: () => void;
+  onSuccess: (id: string) => void;
   tiltakstyper: Tiltakstype[];
   ansatt: Ansatt;
   avtale?: Avtale;
@@ -42,14 +42,14 @@ interface OpprettAvtaleContainerProps {
 }
 
 export function OpprettAvtaleContainer({
-  onAvbryt,
+  onClose,
+  onSuccess,
   tiltakstyper,
   ansatt,
   enheter,
   avtale,
 }: OpprettAvtaleContainerProps) {
   const mutation = usePutAvtale();
-  const { navigerTilAvtale } = useNavigerTilAvtale();
   const redigeringsModus = !!avtale;
   const [navRegion, setNavRegion] = useState<string | undefined>(
     avtale?.navRegion?.enhetsnummer
@@ -201,7 +201,7 @@ export function OpprettAvtaleContainer({
   };
 
   if (mutation.isSuccess) {
-    navigerTilAvtale(mutation.data.id);
+    onSuccess(mutation.data.id);
   }
 
   if (mutation.isError) {
@@ -219,10 +219,10 @@ export function OpprettAvtaleContainer({
                 "du trenger mer hjelp."}
           </>
         }
-        onClose={onAvbryt}
+        onClose={onClose}
         primaryButtonOnClick={() => mutation.reset()}
         primaryButtonText="Prøv igjen"
-        secondaryButtonOnClick={onAvbryt}
+        secondaryButtonOnClick={onClose}
         secondaryButtonText="Avbryt"
       />
     );
@@ -416,7 +416,7 @@ export function OpprettAvtaleContainer({
         <div className={styles.button_row}>
           <Button
             className={styles.button}
-            onClick={onAvbryt}
+            onClick={onClose}
             variant="tertiary"
             type="button"
           >

@@ -130,9 +130,9 @@ const Schema = z
 export type inferredSchema = z.infer<typeof Schema>;
 
 interface OpprettTiltaksgjennomforingContainerProps {
-  onAvbryt: () => void;
+  onClose: () => void;
+  onSuccess: (id: string) => void;
   setError: Dispatch<SetStateAction<React.ReactNode | null>>;
-  setResult: Dispatch<SetStateAction<string | null>>;
   avtale?: Avtale;
   tiltaksgjennomforing?: Tiltaksgjennomforing;
 }
@@ -205,10 +205,10 @@ function defaultValuesForKontaktpersoner(
 export const OpprettTiltaksgjennomforingContainer = (
   props: OpprettTiltaksgjennomforingContainerProps
 ) => {
-  const { avtale, tiltaksgjennomforing, setError, onAvbryt } = props;
   const { data: kontaktpersoner, isLoading: isLoadingKontaktpersoner } =
     useHentKontaktpersoner();
   const navigate = useNavigate();
+  const { avtale, tiltaksgjennomforing, setError, onClose, onSuccess } = props;
   const form = useForm<inferredSchema>({
     resolver: zodResolver(Schema),
     defaultValues: {
@@ -332,7 +332,7 @@ export const OpprettTiltaksgjennomforingContainer = (
             requestBody: body,
           }
         );
-      navigate(`/tiltaksgjennomforinger/${response.id}`);
+      onSuccess(response.id);
     } catch {
       setError(tekniskFeilError());
     }
@@ -603,7 +603,7 @@ export const OpprettTiltaksgjennomforingContainer = (
         <div className={styles.button_row}>
           <Button
             className={styles.button}
-            onClick={onAvbryt}
+            onClick={onClose}
             variant="tertiary"
             type="button"
           >

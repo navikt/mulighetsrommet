@@ -3,40 +3,54 @@ import styles from "./Forside.module.scss";
 import { forsideKort } from "./constants";
 import { BrukerNotifikasjoner } from "./components/notifikasjoner/BrukerNotifikasjoner";
 import { faro } from "@grafana/faro-web-sdk";
+import { BodyShort, Heading } from "@navikt/ds-react";
+import {
+  FileCheckmarkIcon,
+  HandshakeIcon,
+  TokenIcon,
+} from "@navikt/aksel-icons";
 
 export function Forside() {
   return (
     <main>
       <div className={styles.hero}>
-        <h2 className={styles.title}>
+        <Heading size="large" level="2" className={styles.title}>
           Enkel og effektiv administrasjon
           <br /> av arbeidsmarkedstiltak
-        </h2>
+        </Heading>
       </div>
-      <div className={styles.container}>
+      <div className={styles.adminflate_container}>
         <BrukerNotifikasjoner />
         <div className={styles.card_container}>
-          <div className={styles.cards}>
-            {forsideKort.map((card) => (
-              <Link
-                key={card.url}
-                className={styles.card}
-                to={card.url}
-                data-testid={card.navn.toLowerCase()}
-                onClick={() =>
-                  faro?.api?.pushEvent(
-                    `Bruker trykket på inngang fra forside: ${card.navn}`,
-                    { inngang: card.navn },
-                    "forside"
-                  )
-                }
-              >
-                <span className={styles.circle}></span>
-                <h3>{card.navn}</h3>
-                <p className={styles.infotekst}>{card.tekst}</p>
-              </Link>
-            ))}
-          </div>
+          {forsideKort.map((card) => (
+            <Link
+              key={card.url}
+              className={styles.card}
+              to={card.url}
+              data-testid={card.navn.toLowerCase()}
+              onClick={() =>
+                faro?.api?.pushEvent(
+                  `Bruker trykket på inngang fra forside: ${card.navn}`,
+                  { inngang: card.navn },
+                  "forside"
+                )
+              }
+            >
+              <span className={styles.circle}>
+                {card.url === "avtaler" ? (
+                  <HandshakeIcon />
+                ) : card.url === "tiltakstyper" ? (
+                  <TokenIcon />
+                ) : (
+                  <FileCheckmarkIcon />
+                )}
+              </span>
+              <Heading size="medium" level="3">
+                {card.navn}
+              </Heading>
+              <BodyShort className={styles.infotekst}>{card.tekst}</BodyShort>
+            </Link>
+          ))}
         </div>
       </div>
     </main>

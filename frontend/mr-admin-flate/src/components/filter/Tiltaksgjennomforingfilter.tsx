@@ -28,6 +28,7 @@ import { OpprettTiltaksgjennomforingModal } from "../modal/OpprettTiltaksgjennom
 import { SokeSelect } from "../skjema/SokeSelect";
 import styles from "./Filter.module.scss";
 import { RESET } from "jotai/vanilla/utils";
+import { useNavigate } from "react-router-dom";
 
 type Filters = "tiltakstype";
 
@@ -37,6 +38,7 @@ interface Props {
 }
 
 export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
+  const navigate = useNavigate();
   const [filter, setFilter] = useAtom(tiltaksgjennomforingfilter);
   const [, setPage] = useAtom(paginationAtom);
   const { data: enheter } = useAlleEnheter();
@@ -255,6 +257,7 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
                       modalOpen={opprettModal}
                       avtale={avtale}
                       onClose={() => setOpprettModalOpen(false)}
+                      onSuccess={(id) => navigate(`/tiltaksgjennomforinger/${id}`)}
                     />
                   </>
                 )}

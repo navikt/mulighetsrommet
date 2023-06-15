@@ -1,7 +1,9 @@
-.header {
+.header_container {
   background-color: white;
-}
+  padding: 1rem;
 
-.padding_detaljer {
-  padding: 1rem 4rem 0 4rem;
+  .header {
+    max-width: 1920px;
+    margin: 0 auto;
+  }
 }
