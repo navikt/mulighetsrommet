@@ -187,9 +187,6 @@ class VeilederflateSanityService(
             }
     }
 
-    /**
-     * TODO Vurdere å upserte tiltaksansvarlige fra Sanity til db. OBS: Må hardkode inn ad-gruppen og anta at de skal ha den ad-gruppen i fremtiden...
-     */
     private fun hentKontaktpersoner(tiltaksgjennomforingAdminDto: TiltaksgjennomforingAdminDto?): List<KontaktinfoTiltaksansvarlige> {
         return tiltaksgjennomforingAdminDto?.kontaktpersoner?.map {
             val kontaktperson = navAnsattService.hentKontaktperson(it.navIdent)

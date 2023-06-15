@@ -8,6 +8,7 @@ import {
   TiltaksgjennomforingOppstartstype,
   TiltaksgjennomforingRequest,
 } from "mulighetsrommet-api-client";
+import { XMarkIcon, PlusIcon } from "@navikt/aksel-icons";
 import { Opphav } from "mulighetsrommet-api-client/build/models/Opphav";
 import { porten } from "mulighetsrommet-frontend-common/constants";
 import React, { Dispatch, SetStateAction, useEffect } from "react";
@@ -34,6 +35,7 @@ import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
 import { SokeSelect } from "../skjema/SokeSelect";
 import styles from "./OpprettTiltaksgjennomforingContainer.module.scss";
+import classNames from "classnames";
 
 const Schema = z
   .object({
@@ -74,15 +76,7 @@ const Schema = z
           .array(),
       })
       .array()
-      .refine(
-        (data) => {
-          return data.filter((d) => d.navIdent !== "").length > 0;
-        },
-        {
-          message: "Du må velge minst en kontaktperson i NAV",
-          path: ["navIdent"], // TODO Denne må settes dynamisk så vi får korrekt validering
-        }
-      ),
+      .optional(),
     tiltaksArrangorUnderenhetOrganisasjonsnummer: z
       .string({
         required_error: "Du må velge en underenhet for tiltaksarrangør",
@@ -297,7 +291,6 @@ export const OpprettTiltaksgjennomforingContainer = (
       return;
     }
 
-    // TODO Legge til kontaktpersoner for request når api er klart for det
     const body: TiltaksgjennomforingRequest = {
       id: tiltaksgjennomforing ? tiltaksgjennomforing.id : uuidv4(),
       antallPlasser: data.antallPlasser,
@@ -322,7 +315,7 @@ export const OpprettTiltaksgjennomforingContainer = (
       stengtTil: data.midlertidigStengt.erMidlertidigStengt
         ? formaterDatoSomYYYYMMDD(data.midlertidigStengt.stengtTil)
         : undefined,
-      kontaktpersoner: data.kontaktpersoner,
+      kontaktpersoner: data.kontaktpersoner || [],
     };
 
     try {
@@ -535,59 +528,73 @@ export const OpprettTiltaksgjennomforingContainer = (
             options={arrangorUnderenheterOptions()}
           />
         </FormGroup>
-        <pre>{JSON.stringify(watch("kontaktpersoner"), null, 2)}</pre>
-        <FormGroup>
-          {kontaktpersonFields.map((field, index) => {
-            return (
-              <div className={styles.kontaktperson_container} key={field.id}>
-                <div className={styles.kontaktperson_inputs}>
-                  <SokeSelect
-                    size="small"
-                    placeholder={
-                      isLoadingKontaktpersoner
-                        ? "Laster kontaktpersoner..."
-                        : "Velg en"
-                    }
-                    label={"Kontaktperson i NAV"}
-                    {...register(`kontaktpersoner.${index}.navIdent`, {
-                      shouldUnregister: true,
-                    })}
-                    options={kontaktpersonerOption()}
-                  />
-                  <ControlledMultiSelect
-                    size="small"
-                    placeholder={
-                      isLoadingKontaktpersoner ? "Laster enheter..." : "Velg en"
-                    }
-                    label={"Område"}
-                    {...register(`kontaktpersoner.${index}.navEnheter`, {
-                      shouldUnregister: true,
-                    })}
-                    options={enheterOptions()}
-                  />
-                </div>
-                {index > 0 ? (
+        {features?.[
+          "mulighetsrommet.admin-flate-koble-tiltaksansvarlig-til-gjennomforing"
+        ] ? (
+          <FormGroup>
+            {kontaktpersonFields.map((field, index) => {
+              return (
+                <div className={styles.kontaktperson_container} key={field.id}>
                   <button
-                    className={styles.kontaktperson_button}
+                    className={classNames(
+                      styles.kontaktperson_button,
+                      styles.kontaktperson_fjern_button
+                    )}
                     type="button"
-                    onClick={() => removeKontaktperson(index)}
+                    onClick={() => {
+                      if (index > 0) {
+                        removeKontaktperson(index);
+                      } else {
+                        setValue("kontaktpersoner", [
+                          { navIdent: "", navEnheter: [] },
+                        ]);
+                      }
+                    }}
                   >
-                    Fjern
+                    <XMarkIcon />
                   </button>
-                ) : null}
-              </div>
-            );
-          })}
-          <button
-            className={styles.kontaktperson_button}
-            type="button"
-            onClick={() =>
-              appendKontaktperson({ navIdent: "", navEnheter: [] })
-            }
-          >
-            Legg til ny kontaktperson
-          </button>
-        </FormGroup>
+                  <div className={styles.kontaktperson_inputs}>
+                    <SokeSelect
+                      size="small"
+                      placeholder={
+                        isLoadingKontaktpersoner
+                          ? "Laster kontaktpersoner..."
+                          : "Velg en"
+                      }
+                      label={"Kontaktperson i NAV"}
+                      {...register(`kontaktpersoner.${index}.navIdent`, {
+                        shouldUnregister: true,
+                      })}
+                      options={kontaktpersonerOption()}
+                    />
+                    <ControlledMultiSelect
+                      size="small"
+                      placeholder={
+                        isLoadingKontaktpersoner
+                          ? "Laster enheter..."
+                          : "Velg en"
+                      }
+                      label={"Område"}
+                      {...register(`kontaktpersoner.${index}.navEnheter`, {
+                        shouldUnregister: true,
+                      })}
+                      options={enheterOptions()}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+            <button
+              className={styles.kontaktperson_button}
+              type="button"
+              onClick={() =>
+                appendKontaktperson({ navIdent: "", navEnheter: [] })
+              }
+            >
+              <PlusIcon /> Legg til ny kontaktperson
+            </button>
+          </FormGroup>
+        ) : null}
         <FormGroup>
           <SokeSelect
             size="small"

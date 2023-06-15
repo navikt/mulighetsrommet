@@ -19,6 +19,13 @@
   justify-content: space-between;
 }
 
+.kontaktperson_container {
+  background-color: var(--a-surface-selected);
+  padding: 1rem;
+  position: relative;
+  border-radius: 0.2rem;
+}
+
 .kontaktperson_inputs {
   display: flex;
   flex-direction: column;
@@ -26,8 +33,9 @@
 }
 
 .kontaktperson_button {
-  display: inline;
+  display: inline-flex;
   text-align: left;
+  align-items: center;
   padding: 0;
   margin: 1rem 0;
   color: var(--a-text-action);
@@ -42,4 +50,11 @@
     border: none;
     cursor: pointer;
   }
+}
+
+.kontaktperson_fjern_button {
+  position: absolute;
+  right: 1rem;
+  top: 0;
+  color: var(--a-icon-default);
 }

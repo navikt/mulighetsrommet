@@ -118,9 +118,6 @@ data class TiltaksgjennomforingRequest(
         if (antallPlasser <= 0) {
             return Either.Left(BadRequest("Antall plasser må være større enn 0"))
         }
-        if (kontaktpersoner.isNullOrEmpty()) {
-            return Either.Left(BadRequest("Du må sette minst én kontaktperson for tiltaksgjennomføringen"))
-        }
 
         return Either.Right(
             TiltaksgjennomforingDbo(
@@ -142,7 +139,7 @@ data class TiltaksgjennomforingRequest(
                 opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
                 stengtFra = stengtFra,
                 stengtTil = stengtTil,
-                kontaktpersoner = kontaktpersoner.map {
+                kontaktpersoner = kontaktpersoner?.map {
                     TiltaksgjennomforingKontaktperson(
                         navIdent = it.navIdent,
                         navEnheter = it.navEnheter,
