@@ -46,9 +46,9 @@ export function Tiltakstypefilter() {
 
   return (
     <FormProvider {...form}>
-      <form>
+      <form className={styles.tiltakstypeform}>
         <div className={styles.filter_container}>
-          <div className={styles.filter_left}>
+          <div className={styles.filtrering}>
             <Search
               label="Søk etter tiltakstype"
               hideLabel
@@ -99,6 +99,7 @@ export function Tiltakstypefilter() {
               className={styles.form_field}
             />
           </div>
+          <div className={styles.tabs}>TABS</div>
         </div>
       </form>
     </FormProvider>

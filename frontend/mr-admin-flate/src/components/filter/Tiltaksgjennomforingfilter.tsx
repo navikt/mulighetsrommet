@@ -34,6 +34,7 @@ import { SokeSelect } from "../skjema/SokeSelect";
 import styles from "./Filter.module.scss";
 import { RESET } from "jotai/vanilla/utils";
 import { useNavigate } from "react-router-dom";
+import classNames from "classnames";
 
 type Filters = "tiltakstype";
 
@@ -146,9 +147,15 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
 
   return (
     <FormProvider {...form}>
-      <form>
+      <form
+        className={
+          avtale
+            ? styles.tiltaksgjennomforingform_med_knapperad
+            : styles.tiltaksgjennomforingform
+        }
+      >
         <div className={styles.filter_container}>
-          <div className={styles.filter_left}>
+          <div className={styles.filtrering}>
             <Search
               label="Søk etter tiltaksgjennomføring"
               hideLabel
@@ -260,8 +267,14 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
               className={styles.form_field}
             />
           </div>
-          <div className={styles.filter_right}>
-            {avtale && (
+
+          {avtale && (
+            <div
+              className={classNames(
+                styles.knapperad,
+                styles.tiltaksgjennomforings_knapperad
+              )}
+            >
               <>
                 {visOpprettTiltaksgjennomforingKnapp && (
                   <>
@@ -300,8 +313,9 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
                   </>
                 )}
               </>
-            )}
-          </div>
+            </div>
+          )}
+          <div className={styles.tabs}>TABS</div>
         </div>
       </form>
     </FormProvider>

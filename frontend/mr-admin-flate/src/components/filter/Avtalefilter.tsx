@@ -8,8 +8,8 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import {
-  AvtaleFilterProps,
   avtaleFilter,
+  AvtaleFilterProps,
   avtalePaginationAtom,
   defaultAvtaleFilter,
 } from "../../api/atoms";
@@ -109,9 +109,9 @@ export function Avtalefilter(props: Props) {
 
   return (
     <FormProvider {...form}>
-      <form>
+      <form className={styles.avtaleform}>
         <div className={styles.filter_container}>
-          <div className={styles.filter_left}>
+          <div className={styles.filtrering}>
             <Search
               ref={searchRef}
               label="Søk etter avtale"
@@ -204,7 +204,8 @@ export function Avtalefilter(props: Props) {
               options={leverandorOptions()}
             />
           </div>
-          <div className={styles.filter_right}>
+
+          <div className={styles.knapperad}>
             {visOpprettAvtaleknapp && (
               <>
                 <Button
@@ -217,6 +218,7 @@ export function Avtalefilter(props: Props) {
                   data-testid="registrer-ny-avtale"
                   size="small"
                   type="button"
+                  className={styles.registrer_avtale_knapp}
                 >
                   Registrer avtale
                 </Button>
@@ -228,6 +230,7 @@ export function Avtalefilter(props: Props) {
               </>
             )}
           </div>
+          <div className={styles.tabs}>TABS</div>
         </div>
       </form>
     </FormProvider>
