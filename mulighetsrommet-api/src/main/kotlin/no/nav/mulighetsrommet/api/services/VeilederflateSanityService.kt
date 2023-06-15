@@ -189,7 +189,6 @@ class VeilederflateSanityService(
 
     /**
      * TODO Vurdere å upserte tiltaksansvarlige fra Sanity til db. OBS: Må hardkode inn ad-gruppen og anta at de skal ha den ad-gruppen i fremtiden...
-     * TODO Vurdere å flytte kontaktpersoner til egen tabell fra starten av fordi det er kjipt å sende ad-gruppen rundt i koden som en config-variabel...
      */
     private fun hentKontaktpersoner(tiltaksgjennomforingAdminDto: TiltaksgjennomforingAdminDto?): List<KontaktinfoTiltaksansvarlige> {
         return tiltaksgjennomforingAdminDto?.kontaktpersoner?.map {
