@@ -1,5 +1,9 @@
 import { Button, Heading, Modal } from "@navikt/ds-react";
-import { ApiError, Opphav, Tiltaksgjennomforing } from "mulighetsrommet-api-client";
+import {
+  ApiError,
+  Opphav,
+  Tiltaksgjennomforing,
+} from "mulighetsrommet-api-client";
 import { useEffect } from "react";
 import classNames from "classnames";
 import { useNavigate } from "react-router-dom";
@@ -71,17 +75,24 @@ const SlettTiltaksgjennomforingModal = ({
     return (
       <>
         {tiltaksgjennomforing.opphav === Opphav.ARENA ? (
-          <p>Gjennomføringen «{tiltaksgjennomforing.navn}» kommer fra Arena og kan ikke slettes her</p>
+          <p>
+            Gjennomføringen «{tiltaksgjennomforing.navn}» kommer fra Arena og
+            kan ikke slettes her
+          </p>
         ) : mutation?.isError ? (
           <p>{(mutation.error as ApiError).body}</p>
         ) : (
           <>
-            <p>Er du sikker på at du ønsker å slette gjennomføringen «{tiltaksgjennomforing.navn}»?</p>
+            <p>
+              Er du sikker på at du ønsker å slette gjennomføringen «
+              {tiltaksgjennomforing.navn}»?
+            </p>
             <p>Du kan ikke angre denne handlingen</p>
           </>
         )}
         <div className={styles.knapperad}>
-          {tiltaksgjennomforing.opphav === Opphav.ARENA ? null : mutation?.isError ? (
+          {tiltaksgjennomforing.opphav ===
+          Opphav.ARENA ? null : mutation?.isError ? (
             <Button variant="primary" onClick={handleRedigerGjennomforing}>
               Rediger gjennomføring
             </Button>

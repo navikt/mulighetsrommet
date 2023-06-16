@@ -26,7 +26,10 @@ export function Avtaleinfo() {
   const [slettModal, setSlettModal] = useState(false);
 
   const handleRediger = () => setRedigerModal(true);
-  const lukkRedigerModal = () => { refetch(); setRedigerModal(false); };
+  const lukkRedigerModal = () => {
+    refetch();
+    setRedigerModal(false);
+  };
   const handleSlett = () => setSlettModal(true);
   const lukkSlettModal = () => setSlettModal(false);
 
@@ -131,7 +134,7 @@ export function Avtaleinfo() {
               data-testid="slett-avtale"
               className={styles.slett_knapp}
             >
-              Slett
+              Feilregistrering
             </Button>
           ) : null}
         </div>
