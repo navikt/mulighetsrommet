@@ -15,7 +15,9 @@ fun Route.navAnsattRoutes() {
     route("/api/v1/internal/ansatt") {
         get {
             val filter = getNavAnsattFilter()
-            call.respond(ansattService.hentAnsatte(filter))
+            call.respond(
+                ansattService.hentKontaktpersoner(filter = filter),
+            )
         }
         get("/me") {
             val accessToken = call.getAccessToken()

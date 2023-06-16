@@ -50,7 +50,13 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 when tg_e.enhetsnummer is null then null::jsonb
                 else jsonb_build_object('enhetsnummer', tg_e.enhetsnummer, 'navn', ne.navn)
             end
-        ) as nav_enheter
+        ) as nav_enheter,
+        jsonb_agg(distinct
+            case
+                when tgk.tiltaksgjennomforing_id is null then null::jsonb
+                else jsonb_build_object('navIdent', tgk.kontaktperson_nav_ident, 'navEnheter', tgk.enheter)
+            end
+        ) as kontaktpersoner
         """
 
     fun upsert(tiltaksgjennomforing: TiltaksgjennomforingDbo): QueryResult<Unit> = query {
@@ -139,6 +145,19 @@ class TiltaksgjennomforingRepository(private val db: Database) {
              where tiltaksgjennomforing_id = ?::uuid and not (navident = any (?))
         """.trimIndent()
 
+        @Language("PostgreSQL")
+        val upsertKontaktperson = """
+            insert into tiltaksgjennomforing_kontaktperson (tiltaksgjennomforing_id, enheter, kontaktperson_nav_ident)
+            values (?::uuid, ?, ?)
+            on conflict (tiltaksgjennomforing_id, kontaktperson_nav_ident) do update set enheter = ?
+        """.trimIndent()
+
+        @Language("PostgreSQL")
+        val deleteKontaktpersoner = """
+            delete from tiltaksgjennomforing_kontaktperson
+            where tiltaksgjennomforing_id = ?::uuid and not (kontaktperson_nav_ident = any (?))
+        """.trimIndent()
+
         db.transaction { tx ->
             tx.run(queryOf(query, tiltaksgjennomforing.toSqlParameters()).asExecute)
 
@@ -175,6 +194,26 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                     deleteEnheter,
                     tiltaksgjennomforing.id,
                     db.createTextArray(tiltaksgjennomforing.navEnheter),
+                ).asExecute,
+            )
+
+            tiltaksgjennomforing.kontaktpersoner?.forEach { kontakt ->
+                tx.run(
+                    queryOf(
+                        upsertKontaktperson,
+                        tiltaksgjennomforing.id,
+                        db.createTextArray(kontakt.navEnheter),
+                        kontakt.navIdent,
+                        db.createTextArray(kontakt.navEnheter),
+                    ).asExecute,
+                )
+            }
+
+            tx.run(
+                queryOf(
+                    deleteKontaktpersoner,
+                    tiltaksgjennomforing.id,
+                    tiltaksgjennomforing.kontaktpersoner?.let { kontakt -> db.createTextArray(kontakt.map { it.navIdent }) },
                 ).asExecute,
             )
         }
@@ -249,6 +288,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 left join tiltaksgjennomforing_nav_enhet tg_e on tg_e.tiltaksgjennomforing_id = tg.id
                 left join nav_enhet ne on tg_e.enhetsnummer = ne.enhetsnummer
                 left join virksomhet v on v.organisasjonsnummer = tg.virksomhetsnummer
+                left join tiltaksgjennomforing_kontaktperson tgk on tgk.tiltaksgjennomforing_id = tg.id
             where tg.sanity_id = any (?)
             group by tg.id, t.id, v.navn
         """.trimIndent()
@@ -272,10 +312,10 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 left join tiltaksgjennomforing_nav_enhet tg_e on tg_e.tiltaksgjennomforing_id = tg.id
                 left join nav_enhet ne on tg_e.enhetsnummer = ne.enhetsnummer
                 left join virksomhet v on v.organisasjonsnummer = tg.virksomhetsnummer
+                left join tiltaksgjennomforing_kontaktperson tgk on tgk.tiltaksgjennomforing_id = tg.id
             where tg.id = ?::uuid
             group by tg.id, t.id, v.navn
         """.trimIndent()
-
         queryOf(query, id)
             .map { it.toTiltaksgjennomforingAdminDto() }
             .asSingle
@@ -358,6 +398,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 left join tiltaksgjennomforing_nav_enhet tg_e on tg_e.tiltaksgjennomforing_id = tg.id
                 left join nav_enhet ne on tg_e.enhetsnummer = ne.enhetsnummer
                 left join virksomhet v on v.organisasjonsnummer = tg.virksomhetsnummer
+                left join tiltaksgjennomforing_kontaktperson tgk on tgk.tiltaksgjennomforing_id = tg.id
             $where
             group by tg.id, t.id, v.navn
             order by $order
@@ -515,6 +556,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
     private fun Row.toTiltaksgjennomforingAdminDto(): TiltaksgjennomforingAdminDto {
         val ansvarlige = arrayOrNull<String?>("ansvarlige")?.asList()?.filterNotNull() ?: emptyList()
         val navEnheter = Json.decodeFromString<List<NavEnhet?>>(string("nav_enheter")).filterNotNull()
+        val kontaktpersoner =
+            Json.decodeFromString<List<TiltaksgjennomforingKontaktperson?>>(string("kontaktpersoner")).filterNotNull()
 
         val startDato = localDate("start_dato")
         val sluttDato = localDateOrNull("slutt_dato")
@@ -548,6 +591,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             opphav = ArenaMigrering.Opphav.valueOf(string("opphav")),
             stengtFra = localDateOrNull("stengt_fra"),
             stengtTil = localDateOrNull("stengt_til"),
+            kontaktpersoner = kontaktpersoner,
         )
     }
 

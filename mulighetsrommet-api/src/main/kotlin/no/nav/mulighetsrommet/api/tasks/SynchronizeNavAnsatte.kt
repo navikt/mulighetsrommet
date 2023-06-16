@@ -8,11 +8,17 @@ import com.github.kagkarlsson.scheduler.task.schedule.Schedules
 import kotlinx.coroutines.runBlocking
 import no.nav.mulighetsrommet.api.clients.msgraph.MicrosoftGraphClient
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattDbo
+import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle
 import no.nav.mulighetsrommet.api.repositories.NavAnsattRepository
 import no.nav.mulighetsrommet.slack.SlackNotifier
 import org.slf4j.LoggerFactory
 import java.util.*
 import kotlin.jvm.optionals.getOrNull
+
+data class Group(
+    val adGruppe: UUID,
+    val rolle: NavAnsattRolle,
+)
 
 class SynchronizeNavAnsatte(
     config: Config,
@@ -25,7 +31,7 @@ class SynchronizeNavAnsatte(
     data class Config(
         val disabled: Boolean = false,
         val cronPattern: String? = null,
-        val groups: List<UUID> = listOf(),
+        val groups: List<Group> = listOf(),
     ) {
         fun toSchedule(): Schedule {
             return if (disabled) {
@@ -52,10 +58,10 @@ class SynchronizeNavAnsatte(
             logger.info("Synkroniserer NAV-ansatte fra Azure til database...")
 
             runBlocking {
-                config.groups.forEach { groupId ->
-                    logger.info("Synkroniserer brukere i AD-gruppe id=$groupId")
+                config.groups.forEach { group ->
+                    logger.info("Synkroniserer brukere i AD-gruppe id=${group.adGruppe}")
 
-                    val members = msGraphClient.getGroupMembers(groupId)
+                    val members = msGraphClient.getGroupMembers(group.adGruppe)
                     members.forEach { ansatt ->
                         val dbo = ansatt.run {
                             NavAnsattDbo(
@@ -64,9 +70,10 @@ class SynchronizeNavAnsatte(
                                 etternavn = etternavn,
                                 hovedenhet = hovedenhetKode,
                                 azureId = azureId,
-                                fraAdGruppe = groupId,
+                                fraAdGruppe = group.adGruppe,
                                 mobilnummer = mobilnr,
                                 epost = epost,
+                                rolle = group.rolle,
                             )
                         }
 

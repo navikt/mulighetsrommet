@@ -12,4 +12,5 @@ export const mockFeatures: Features = {
   "mulighetsrommet.admin-flate-vis-last-ned-excel-knapp": true,
   "mulighetsrommet.admin-flate-rediger-tiltaksgjennomforing": true,
   "mulighetsrommet.admin-flate-slett-tiltaksgjennomforing": true,
+  "mulighetsrommet.admin-flate-koble-tiltaksansvarlig-til-gjennomforing": true,
 };

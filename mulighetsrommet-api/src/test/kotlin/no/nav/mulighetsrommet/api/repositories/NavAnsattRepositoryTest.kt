@@ -6,6 +6,7 @@ import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattDbo
+import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.utils.NavAnsattFilter
@@ -45,6 +46,7 @@ class NavAnsattRepositoryTest : FunSpec({
                 fraAdGruppe = adGruppe1,
                 mobilnummer = "12345678",
                 epost = "test@test.no",
+                rolle = NavAnsattRolle.BETABRUKER,
             )
 
             val ansatt2 = NavAnsattDbo(
@@ -56,22 +58,23 @@ class NavAnsattRepositoryTest : FunSpec({
                 fraAdGruppe = adGruppe2,
                 mobilnummer = "12345678",
                 epost = "test@test.no",
+                rolle = NavAnsattRolle.KONTAKTPERSON,
             )
 
             ansatte.upsert(ansatt).shouldBeRight()
             ansatte.upsert(ansatt2).shouldBeRight()
 
-            ansatte.getByAzureIdAndAdGruppe(ansatt.azureId, adGruppe1) shouldBeRight ansatt
-            ansatte.getByNavIdentAndAdGruppe(ansatt.navIdent, adGruppe1) shouldBeRight ansatt
-            ansatte.getByAzureIdAndAdGruppe(ansatt2.azureId, adGruppe2) shouldBeRight ansatt2
-            ansatte.getByNavIdentAndAdGruppe(ansatt2.navIdent, adGruppe2) shouldBeRight ansatt2
+            ansatte.getByAzureIdAndAdGruppe(ansatt.azureId, NavAnsattRolle.BETABRUKER) shouldBeRight ansatt
+            ansatte.getByNavIdentAndRolle(ansatt.navIdent, NavAnsattRolle.BETABRUKER) shouldBeRight ansatt
+            ansatte.getByAzureIdAndAdGruppe(ansatt2.azureId, NavAnsattRolle.KONTAKTPERSON) shouldBeRight ansatt2
+            ansatte.getByNavIdentAndRolle(ansatt2.navIdent, NavAnsattRolle.KONTAKTPERSON) shouldBeRight ansatt2
 
             ansatte.deleteByAzureId(ansatt.azureId).shouldBeRight()
 
-            ansatte.getByAzureIdAndAdGruppe(ansatt.azureId, adGruppe1) shouldBeRight null
-            ansatte.getByNavIdentAndAdGruppe(ansatt.navIdent, adGruppe1) shouldBeRight null
-            ansatte.getByAzureIdAndAdGruppe(ansatt2.azureId, adGruppe2) shouldBeRight null
-            ansatte.getByNavIdentAndAdGruppe(ansatt2.navIdent, adGruppe2) shouldBeRight null
+            ansatte.getByAzureIdAndAdGruppe(ansatt.azureId, NavAnsattRolle.BETABRUKER) shouldBeRight null
+            ansatte.getByNavIdentAndRolle(ansatt.navIdent, NavAnsattRolle.BETABRUKER) shouldBeRight null
+            ansatte.getByAzureIdAndAdGruppe(ansatt2.azureId, NavAnsattRolle.KONTAKTPERSON) shouldBeRight null
+            ansatte.getByNavIdentAndRolle(ansatt2.navIdent, NavAnsattRolle.KONTAKTPERSON) shouldBeRight null
         }
 
         test("Skal hente alle ansatte for en gitt ad-gruppe") {
@@ -88,6 +91,7 @@ class NavAnsattRepositoryTest : FunSpec({
                 fraAdGruppe = adGruppe1,
                 mobilnummer = "12345678",
                 epost = "test@test.no",
+                rolle = NavAnsattRolle.BETABRUKER,
             )
 
             val ansatt2 = NavAnsattDbo(
@@ -99,12 +103,14 @@ class NavAnsattRepositoryTest : FunSpec({
                 fraAdGruppe = adGruppe2,
                 mobilnummer = "12345678",
                 epost = "test@test.no",
+                rolle = NavAnsattRolle.KONTAKTPERSON,
             )
 
             ansatte.upsert(ansatt).shouldBeRight()
             ansatte.upsert(ansatt2).shouldBeRight()
 
-            val result = ansatte.getAll(filter = NavAnsattFilter(azureIder = listOf(adGruppe1))).getOrThrow()
+            val result =
+                ansatte.getAll(filter = NavAnsattFilter(roller = listOf(NavAnsattRolle.KONTAKTPERSON))).getOrThrow()
             result.size shouldBe 1
         }
     }
