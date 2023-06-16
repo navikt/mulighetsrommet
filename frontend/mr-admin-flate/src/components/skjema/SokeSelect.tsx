@@ -127,7 +127,9 @@ const SokeSelect = React.forwardRef((props: SelectProps, _) => {
               })}
             />
             {error && (
-              <div className={styles.errormsg}>
+              <div
+                className={styles.errormsg}
+              >
                 <b>• {error.message}</b>
               </div>
             )}

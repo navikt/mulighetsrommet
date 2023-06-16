@@ -42,25 +42,23 @@ class FlywayDatabaseAdapter(
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    private val flyway: Flyway
+    private val flyway: Flyway = Flyway
+        .configure()
+        .cleanDisabled(config.migrationConfig.cleanDisabled)
+        .lockRetryCount(-1) // -1 = prøv for alltid https://flywaydb.org/documentation/configuration/parameters/lockRetryCount
+        .configuration(
+            mapOf(
+                // Disable transactional locks in order to support concurrent indexes
+                "flyway.postgresql.transactional.lock" to "false",
+            ),
+        )
+        .dataSource(config.jdbcUrl, config.user, config.password.value)
+        .apply {
+            config.schema?.let { schemas(it) }
+        }
+        .load()
 
     init {
-        flyway = Flyway
-            .configure()
-            .cleanDisabled(config.migrationConfig.cleanDisabled)
-            .lockRetryCount(-1) // -1 = prøv for alltid https://flywaydb.org/documentation/configuration/parameters/lockRetryCount
-            .configuration(
-                mapOf(
-                    // Disable transactional locks in order to support concurrent indexes
-                    "flyway.postgresql.transactional.lock" to "false",
-                ),
-            )
-            .dataSource(config.jdbcUrl, config.user, config.password.value)
-            .apply {
-                config.schema?.let { schemas(it) }
-            }
-            .load()
-
         if (!hasMigrated.get()) {
             hasMigrated.set(true)
             when (config.migrationConfig.strategy) {

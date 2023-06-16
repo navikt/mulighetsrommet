@@ -49,7 +49,13 @@ const ControlledMultiSelect = React.forwardRef((props: MultiSelectProps, _) => {
               readOnly={readOnly}
             />
             {error && (
-              <div style={{ marginTop: "8px", color: "#C30000" }}>
+              <div
+                style={{
+                  marginTop: "8px",
+                  color: "#C30000",
+                  fontSize: size === "small" ? "16px" : "18px",
+                }}
+              >
                 <b>• {error.message}</b>
               </div>
             )}

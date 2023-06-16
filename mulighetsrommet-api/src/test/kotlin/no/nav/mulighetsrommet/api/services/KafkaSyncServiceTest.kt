@@ -59,7 +59,7 @@ class KafkaSyncServiceTest : FunSpec({
             sluttDato = sluttDato,
             arenaAnsvarligEnhet = "2990",
             avslutningsstatus = avslutningsstatus,
-            tilgjengelighet = Tilgjengelighetsstatus.Ledig,
+            tilgjengelighet = Tilgjengelighetsstatus.LEDIG,
             antallPlasser = null,
             ansvarlige = emptyList(),
             navEnheter = emptyList(),

@@ -38,9 +38,9 @@ data class TiltaksgjennomforingDbo(
     val kontaktpersoner: List<TiltaksgjennomforingKontaktperson>? = emptyList(),
 ) {
     enum class Tilgjengelighetsstatus {
-        Ledig,
-        Venteliste,
-        Stengt,
+        LEDIG,
+        VENTELISTE,
+        STENGT,
     }
 
     enum class Oppstartstype {

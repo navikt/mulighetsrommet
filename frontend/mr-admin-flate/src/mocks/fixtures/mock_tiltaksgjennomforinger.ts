@@ -3,6 +3,7 @@ import {
   PaginertTiltaksgjennomforing,
   TiltaksgjennomforingStatus,
 } from "mulighetsrommet-api-client";
+import { Tilgjengelighetsstatus } from "mulighetsrommet-api-client/build/models/Tilgjengelighetsstatus";
 
 export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
   pagination: {
@@ -28,6 +29,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       navEnheter: [],
       status: TiltaksgjennomforingStatus.GJENNOMFORES,
       opphav: Opphav.MR_ADMIN_FLATE,
+      tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
       kontaktpersoner: [],
     },
     {
@@ -47,6 +49,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       navEnheter: [],
       status: TiltaksgjennomforingStatus.AVLYST,
       opphav: Opphav.MR_ADMIN_FLATE,
+      tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
       kontaktpersoner: [],
     },
     {
@@ -66,6 +69,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       navEnheter: [],
       status: TiltaksgjennomforingStatus.GJENNOMFORES,
       opphav: Opphav.MR_ADMIN_FLATE,
+      tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
       kontaktpersoner: [],
     },
     {
@@ -85,6 +89,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       navEnheter: [],
       status: TiltaksgjennomforingStatus.GJENNOMFORES,
       opphav: Opphav.MR_ADMIN_FLATE,
+      tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
       kontaktpersoner: [],
     },
     {
@@ -104,6 +109,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       navEnheter: [],
       status: TiltaksgjennomforingStatus.GJENNOMFORES,
       opphav: Opphav.MR_ADMIN_FLATE,
+      tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
       kontaktpersoner: [],
     },
     {
@@ -123,6 +129,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       navEnheter: [],
       status: TiltaksgjennomforingStatus.AVBRUTT,
       opphav: Opphav.MR_ADMIN_FLATE,
+      tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
       kontaktpersoner: [],
     },
     {
@@ -142,6 +149,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       navEnheter: [],
       status: TiltaksgjennomforingStatus.GJENNOMFORES,
       opphav: Opphav.MR_ADMIN_FLATE,
+      tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
       kontaktpersoner: [],
     },
     {
@@ -161,6 +169,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       navEnheter: [],
       status: TiltaksgjennomforingStatus.AVLYST,
       opphav: Opphav.ARENA,
+      tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
       kontaktpersoner: [],
     },
     {
@@ -180,6 +189,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       navEnheter: [],
       status: TiltaksgjennomforingStatus.GJENNOMFORES,
       opphav: Opphav.ARENA,
+      tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
       kontaktpersoner: [],
     },
     {
@@ -199,6 +209,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       navEnheter: [],
       status: TiltaksgjennomforingStatus.GJENNOMFORES,
       opphav: Opphav.ARENA,
+      tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
       kontaktpersoner: [],
     },
     {
@@ -218,6 +229,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       navEnheter: [],
       status: TiltaksgjennomforingStatus.GJENNOMFORES,
       opphav: Opphav.ARENA,
+      tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
       kontaktpersoner: [],
     },
     {
@@ -237,6 +249,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       navEnheter: [],
       status: TiltaksgjennomforingStatus.GJENNOMFORES,
       opphav: Opphav.ARENA,
+      tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
       kontaktpersoner: [],
       stengtFra: "2022-01-01",
       stengtTil: "2022-12-12",
@@ -256,6 +269,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       sluttDato: "2022-12-12",
       arenaAnsvarligEnhet: "1190",
       navEnheter: [],
+      tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
       status: TiltaksgjennomforingStatus.GJENNOMFORES,
       opphav: Opphav.ARENA,
       kontaktpersoner: [],
@@ -275,6 +289,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       },
       startDato: "2022-01-01",
       sluttDato: "2022-12-12",
+      tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
       arenaAnsvarligEnhet: "1190",
       navEnheter: [],
       status: TiltaksgjennomforingStatus.GJENNOMFORES,
@@ -294,6 +309,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       },
       startDato: "2022-01-01",
       sluttDato: "2022-12-12",
+      tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
       arenaAnsvarligEnhet: "1190",
       navEnheter: [],
       status: TiltaksgjennomforingStatus.GJENNOMFORES,
@@ -313,6 +329,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       },
       startDato: "2022-01-01",
       sluttDato: "2022-12-12",
+      tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
       arenaAnsvarligEnhet: "1190",
       navEnheter: [],
       status: TiltaksgjennomforingStatus.GJENNOMFORES,
@@ -332,6 +349,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       },
       startDato: "2022-01-01",
       sluttDato: "2022-12-12",
+      tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
       arenaAnsvarligEnhet: "1190",
       navEnheter: [],
       status: TiltaksgjennomforingStatus.GJENNOMFORES,
@@ -351,6 +369,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       },
       startDato: "2022-01-01",
       sluttDato: "2022-12-12",
+      tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
       arenaAnsvarligEnhet: "1190",
       navEnheter: [],
       status: TiltaksgjennomforingStatus.APENT_FOR_INNSOK,

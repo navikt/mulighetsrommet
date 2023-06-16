@@ -29,8 +29,8 @@ import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo.Oppstartstype.FELLES
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo.Oppstartstype.LOPENDE
-import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo.Tilgjengelighetsstatus.Ledig
-import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo.Tilgjengelighetsstatus.Stengt
+import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo.Tilgjengelighetsstatus.LEDIG
+import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo.Tilgjengelighetsstatus.STENGT
 import java.util.*
 
 class TiltakgjennomforingEventProcessor(
@@ -165,7 +165,7 @@ class TiltakgjennomforingEventProcessor(
             sluttDato = tilDato?.toLocalDate(),
             arenaAnsvarligEnhet = sak.enhet,
             avslutningsstatus = Avslutningsstatus.fromArenastatus(status),
-            tilgjengelighet = if (apentForInnsok) Ledig else Stengt,
+            tilgjengelighet = if (apentForInnsok) LEDIG else STENGT,
             antallPlasser = antallPlasser,
             avtaleId = avtaleId,
             ansvarlige = emptyList(),
