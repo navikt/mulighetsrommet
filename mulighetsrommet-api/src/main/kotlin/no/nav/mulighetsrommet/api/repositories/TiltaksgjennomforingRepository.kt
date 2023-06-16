@@ -329,7 +329,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                    jsonb_agg(distinct
                      case
                        when tgk.tiltaksgjennomforing_id is null then null::jsonb
-                       else jsonb_build_object('navIdent', tgk.kontaktperson_nav_ident, 'navEnheter', tgk.enheter)
+                       else jsonb_build_object('navIdent', tgk.kontaktperson_nav_ident, 'navn', concat(na.fornavn, ' ', na.etternavn), 'epost', na.epost, 'mobilnummer', na.mobilnummer, 'navEnheter', tgk.enheter)
                      end
                    ) as kontaktpersoner
             from tiltaksgjennomforing tg
@@ -339,6 +339,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                      left join tiltaksgjennomforing_kontaktperson tgk on tgk.tiltaksgjennomforing_id = tg.id
                      left join nav_enhet ne on e.enhetsnummer = ne.enhetsnummer
                      left join virksomhet v on v.organisasjonsnummer = tg.virksomhetsnummer
+                     left join nav_ansatt na on na.nav_ident = tgk.kontaktperson_nav_ident
             where tg.id = ?::uuid
             group by tg.id, t.id, v.navn
         """.trimIndent()
@@ -442,12 +443,12 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                        else jsonb_build_object('enhetsnummer', e.enhetsnummer, 'navn', ne.navn)
                      end
                    ) as nav_enheter,
-                  jsonb_agg(distinct
-                    case
-                      when tgk.tiltaksgjennomforing_id is null then null::jsonb
-                      else jsonb_build_object('navIdent', tgk.kontaktperson_nav_ident, 'navEnheter', tgk.enheter)
-                    end
-                  ) as kontaktpersoner,
+                   jsonb_agg(distinct
+                     case
+                       when tgk.tiltaksgjennomforing_id is null then null::jsonb
+                       else jsonb_build_object('navIdent', tgk.kontaktperson_nav_ident, 'navn', concat(na.fornavn, ' ', na.etternavn), 'epost', na.epost, 'mobilnummer', na.mobilnummer, 'navEnheter', tgk.enheter)
+                     end
+                   ) as kontaktpersoner,
                    count(*) over () as full_count
             from tiltaksgjennomforing tg
                    inner join tiltakstype t on tg.tiltakstype_id = t.id
@@ -456,6 +457,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                    left join tiltaksgjennomforing_kontaktperson tgk on tgk.tiltaksgjennomforing_id = tg.id
                    left join nav_enhet ne on e.enhetsnummer = ne.enhetsnummer
                    left join virksomhet v on v.organisasjonsnummer = tg.virksomhetsnummer
+                   left join nav_ansatt na on na.nav_ident = tgk.kontaktperson_nav_ident
             $where
             group by tg.id, t.id, v.navn
             order by $order

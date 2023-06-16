@@ -173,7 +173,7 @@ class VeilederflateSanityService(
                 }
             }
 
-        val gjennomforingerFraDb = tiltaksgjennomforingService.getBySanitIds(sanityIds)
+        val gjennomforingerFraDb = tiltaksgjennomforingService.getBySanityIds(sanityIds)
 
         return gjennomforinger
             .map {

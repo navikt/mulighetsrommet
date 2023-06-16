@@ -1311,7 +1311,6 @@ components:
         - navEnheter
         - opphav
         - midlertidigStengt
-        - kontaktpersoner
 
     TiltaksgjennomforingRequest:
       type: object
@@ -1356,7 +1355,7 @@ components:
         kontaktpersoner:
           type: array
           items:
-            $ref: "#/components/schemas/TiltaksgjennomforingKontaktpersoner"
+            $ref: "#/components/schemas/TiltaksgjennomforingKontaktpersonerRequest"
       required:
         - id
         - avtaleId
@@ -2028,10 +2027,34 @@ components:
       properties:
         navIdent:
           type: string
+        navn:
+          type: string
+        epost:
+          type: string
+          nullable: true
+        mobilnummer:
+          type: string
+          nullable: true
         navEnheter:
           type: array
           items:
             type: string
+      required:
+        - navIdent
+        - navEnheter
+
+    TiltaksgjennomforingKontaktpersonerRequest:
+      type: object
+      properties:
+        navIdent:
+          type: string
+        navEnheter:
+          type: array
+          items:
+            type: string
+      required:
+        - navIdent
+        - navEnheter
 
     NavAnsattRolle:
       type: string

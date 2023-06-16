@@ -29,6 +29,9 @@ object TiltaksgjennomforingFixtures {
         kontaktpersoner = listOf(
             TiltaksgjennomforingKontaktperson(
                 navIdent = "D123456",
+                navn = "Donald Duck",
+                mobilnummer = "12345678",
+                epost = "donald.duck@nav.no",
                 navEnheter = listOf("2990", "2991"),
             ),
         ),
@@ -53,6 +56,9 @@ object TiltaksgjennomforingFixtures {
         kontaktpersoner = listOf(
             TiltaksgjennomforingKontaktperson(
                 navIdent = "D123456",
+                navn = "Donald Duck",
+                mobilnummer = "12345678",
+                epost = "donald.duck@nav.no",
                 navEnheter = listOf("2990", "2991"),
             ),
         ),
@@ -77,6 +83,9 @@ object TiltaksgjennomforingFixtures {
         kontaktpersoner = listOf(
             TiltaksgjennomforingKontaktperson(
                 navIdent = "D123456",
+                navn = "Donald Duck",
+                mobilnummer = "12345678",
+                epost = "donald.duck@nav.no",
                 navEnheter = listOf("2990", "2991"),
             ),
         ),

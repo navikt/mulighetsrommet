@@ -316,12 +316,14 @@ export const OpprettTiltaksgjennomforingContainer = (
         ? formaterDatoSomYYYYMMDD(data.midlertidigStengt.stengtTil)
         : undefined,
       kontaktpersoner:
-        data.kontaktpersoner?.map((kontakt) => ({
-          ...kontakt,
-          navEnheter: kontakt.navEnheter.includes("alle_enheter")
-            ? []
-            : kontakt.navEnheter,
-        })) || [],
+        data.kontaktpersoner
+          ?.filter((kontakt) => kontakt.navIdent !== "")
+          ?.map((kontakt) => ({
+            ...kontakt,
+            navEnheter: kontakt.navEnheter.includes("alle_enheter")
+              ? []
+              : kontakt.navEnheter,
+          })) || [],
     };
 
     try {
@@ -548,7 +550,7 @@ export const OpprettTiltaksgjennomforingContainer = (
                     )}
                     type="button"
                     onClick={() => {
-                      if (index > 0) {
+                      if (watch("kontaktpersoner")!.length > 1) {
                         removeKontaktperson(index);
                       } else {
                         setValue("kontaktpersoner", [

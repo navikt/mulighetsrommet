@@ -10,6 +10,8 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
+import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattDbo
+import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
@@ -63,6 +65,22 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 
         test("CRUD") {
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
+            val navEnheter = NavEnhetRepository(database.db)
+            navEnheter.upsert(NavEnhetDbo(navn = "NAV Andeby", enhetsnummer = "2990", status = NavEnhetStatus.AKTIV, type = Norg2Type.TILTAK, overordnetEnhet = null))
+            val navAnsatte = NavAnsattRepository(database.db)
+            navAnsatte.upsert(
+                NavAnsattDbo(
+                    navIdent = "D123456",
+                    fornavn = "Donald",
+                    etternavn = "Duck",
+                    hovedenhet = "2990",
+                    azureId = UUID.randomUUID(),
+                    fraAdGruppe = UUID.randomUUID(),
+                    mobilnummer = "12345678",
+                    epost = "donald.duck@nav.no",
+                    rolle = NavAnsattRolle.KONTAKTPERSON,
+                ),
+            ).shouldBeRight()
 
             tiltaksgjennomforinger.upsert(gjennomforing1).shouldBeRight()
             tiltaksgjennomforinger.upsert(gjennomforing2).shouldBeRight()
@@ -95,6 +113,9 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 kontaktpersoner = listOf(
                     TiltaksgjennomforingKontaktperson(
                         navIdent = "D123456",
+                        navn = "Donald Duck",
+                        mobilnummer = "12345678",
+                        epost = "donald.duck@nav.no",
                         navEnheter = listOf("2990", "2991"),
                     ),
                 ),
@@ -206,10 +227,12 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 kontaktpersoner = listOf(
                     TiltaksgjennomforingKontaktperson(
                         navIdent = "D123456",
+                        navn = "Donald Duck",
                         navEnheter = listOf("1", "2"),
                     ),
                     TiltaksgjennomforingKontaktperson(
                         navIdent = "M654321",
+                        navn = "Donald Duck",
                         navEnheter = listOf("3"),
                     ),
                 ),
@@ -221,6 +244,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 kontaktpersoner = listOf(
                     TiltaksgjennomforingKontaktperson(
                         navIdent = "D123456",
+                        navn = "Donald Duck",
                         navEnheter = listOf("1", "2"),
                     ),
                 ),

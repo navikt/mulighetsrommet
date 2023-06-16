@@ -20,7 +20,7 @@ export function TiltaksgjennomforingInfo() {
     data: tiltaksgjennomforing,
     isError: isErrorTiltaksgjennomforing,
     isLoading: isLoadingTiltaksgjennomforing,
-    refetch
+    refetch,
   } = useTiltaksgjennomforingById();
   const { data: avtale, isLoading: isLoadingAvtale } = useAvtale(
     tiltaksgjennomforing?.avtaleId
@@ -57,6 +57,7 @@ export function TiltaksgjennomforingInfo() {
   }
 
   const todayDate = new Date();
+  const kontaktpersonerFraNav = tiltaksgjennomforing.kontaktpersoner ?? [];
 
   return (
     <div className={styles.container}>
@@ -138,6 +139,27 @@ export function TiltaksgjennomforingInfo() {
             />
           ) : null}
         </dl>
+        {kontaktpersonerFraNav.length > 0 ? (
+          <>
+            <Separator />
+            <dl className={styles.bolk}>
+              <Metadata
+                header="Kontaktpersoner i NAV"
+                verdi={
+                  kontaktpersonerFraNav.length > 0 ? (
+                    <ul>
+                      {kontaktpersonerFraNav.map((kontakt) => (
+                        <li key={kontakt.navIdent}>{kontakt.navn}</li>
+                      ))}
+                    </ul>
+                  ) : (
+                    "Alle enheter"
+                  )
+                }
+              />
+            </dl>
+          </>
+        ) : null}
         {tiltaksgjennomforing.sanityId ? (
           <>
             <Separator />
@@ -164,7 +186,9 @@ export function TiltaksgjennomforingInfo() {
         ) : null}
       </div>
       <div className={styles.knapperad}>
-        {features?.["mulighetsrommet.admin-flate-slett-tiltaksgjennomforing"] ? (
+        {features?.[
+          "mulighetsrommet.admin-flate-slett-tiltaksgjennomforing"
+        ] ? (
           <Button
             variant="tertiary-neutral"
             onClick={handleSlett}
@@ -174,7 +198,9 @@ export function TiltaksgjennomforingInfo() {
             Slett
           </Button>
         ) : null}
-        {features?.["mulighetsrommet.admin-flate-rediger-tiltaksgjennomforing"] ? (
+        {features?.[
+          "mulighetsrommet.admin-flate-rediger-tiltaksgjennomforing"
+        ] ? (
           <Button
             variant="tertiary"
             onClick={handleRediger}
