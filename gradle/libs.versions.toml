@@ -1,6 +1,6 @@
 [versions]
 common-java-modules = "3.2023.05.08_11.05-d13adbef1e85"
-flyway = "9.19.1"
+flyway = "9.19.4"
 hoplite = "2.7.4"
 koin = "3.4.1"
 kotest = "5.6.2"
@@ -97,7 +97,7 @@ postgresql = "org.postgresql:postgresql:42.6.0"
 
 prometheus-caffeine = "io.prometheus:simpleclient_caffeine:0.16.0"
 
-shedlock-jdbc = "net.javacrumbs.shedlock:shedlock-provider-jdbc:5.3.0"
+shedlock-jdbc = "net.javacrumbs.shedlock:shedlock-provider-jdbc:5.4.0"
 
 slack-client = "com.slack.api:slack-api-client:1.29.2"
 

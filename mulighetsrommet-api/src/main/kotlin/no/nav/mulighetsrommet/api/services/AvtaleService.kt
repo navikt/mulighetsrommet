@@ -7,12 +7,7 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleNokkeltallDto
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
-import no.nav.mulighetsrommet.api.routes.v1.responses.BadRequest
-import no.nav.mulighetsrommet.api.routes.v1.responses.NotFound
-import no.nav.mulighetsrommet.api.routes.v1.responses.PaginatedResponse
-import no.nav.mulighetsrommet.api.routes.v1.responses.Pagination
-import no.nav.mulighetsrommet.api.routes.v1.responses.ServerError
-import no.nav.mulighetsrommet.api.routes.v1.responses.StatusResponse
+import no.nav.mulighetsrommet.api.routes.v1.responses.*
 import no.nav.mulighetsrommet.api.utils.AdminTiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.api.utils.AvtaleFilter
 import no.nav.mulighetsrommet.api.utils.PaginationParams
@@ -51,8 +46,8 @@ class AvtaleService(
             return Either.Left(BadRequest(message = "Avtalen har opprinnelse fra Arena og kan ikke bli slettet i admin-flate."))
         }
 
-        if (optionalAvtale.startDato <= currentDate && optionalAvtale.sluttDato >= currentDate) {
-            return Either.Left(BadRequest(message = "Avtalen er mellom start- og sluttdato og må avsluttes før den kan slettes."))
+        if (optionalAvtale.startDato <= currentDate) {
+            return Either.Left(BadRequest(message = "Avtalen er aktiv og kan derfor ikke slettes."))
         }
 
         val gjennomforingerForAvtale =

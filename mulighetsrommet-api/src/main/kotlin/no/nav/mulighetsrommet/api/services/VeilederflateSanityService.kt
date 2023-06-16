@@ -110,14 +110,20 @@ class VeilederflateSanityService(
         return when (val result = sanityClient.query(query)) {
             is SanityResponse.Result -> {
                 val gjennomforinger = result.decode<List<VeilederflateTiltaksgjennomforing>>()
-                supplerDataFraDB(gjennomforinger)
+                supplerDataFraDB(gjennomforinger, enhetsId)
             }
 
             is SanityResponse.Error -> throw Exception(result.error.toString())
         }
     }
 
-    suspend fun hentTiltaksgjennomforing(id: String): List<VeilederflateTiltaksgjennomforing> {
+    suspend fun hentTiltaksgjennomforing(
+        id: String,
+        fnr: String,
+        accessToken: String,
+    ): List<VeilederflateTiltaksgjennomforing> {
+        val brukerData = brukerService.hentBrukerdata(fnr, accessToken)
+        val enhetsId = brukerData.geografiskEnhet?.enhetsnummer ?: ""
         val query = """
             *[_type == "tiltaksgjennomforing" && (_id == '$id' || _id == 'drafts.$id')] {
                 _id,
@@ -156,14 +162,17 @@ class VeilederflateSanityService(
         return when (val result = sanityClient.query(query)) {
             is SanityResponse.Result -> {
                 val gjennomforinger = result.decode<List<VeilederflateTiltaksgjennomforing>>()
-                supplerDataFraDB(gjennomforinger)
+                supplerDataFraDB(gjennomforinger, enhetsId)
             }
 
             is SanityResponse.Error -> throw Exception(result.error.toString())
         }
     }
 
-    private fun supplerDataFraDB(gjennomforinger: List<VeilederflateTiltaksgjennomforing>): List<VeilederflateTiltaksgjennomforing> {
+    private fun supplerDataFraDB(
+        gjennomforinger: List<VeilederflateTiltaksgjennomforing>,
+        enhetsId: String,
+    ): List<VeilederflateTiltaksgjennomforing> {
         val sanityIds = gjennomforinger
             .mapNotNull {
                 try {
@@ -176,34 +185,38 @@ class VeilederflateSanityService(
         val gjennomforingerFraDb = tiltaksgjennomforingService.getBySanityIds(sanityIds)
 
         return gjennomforinger
-            .map {
-                val apiGjennomforing = gjennomforingerFraDb[it._id]
-                val kontaktpersoner = hentKontaktpersoner(gjennomforingerFraDb[it._id])
-                it.copy(
+            .map { sanityData ->
+                val apiGjennomforing = gjennomforingerFraDb[sanityData._id]
+                val kontaktpersoner = hentKontaktpersoner(gjennomforingerFraDb[sanityData._id], enhetsId)
+                sanityData.copy(
                     stengtFra = apiGjennomforing?.stengtFra,
                     stengtTil = apiGjennomforing?.stengtTil,
-                    kontaktinfoTiltaksansvarlige = kontaktpersoner.ifEmpty { it.kontaktinfoTiltaksansvarlige },
+                    kontaktinfoTiltaksansvarlige = kontaktpersoner.ifEmpty { sanityData.kontaktinfoTiltaksansvarlige },
                 )
             }
     }
 
-    private fun hentKontaktpersoner(tiltaksgjennomforingAdminDto: TiltaksgjennomforingAdminDto?): List<KontaktinfoTiltaksansvarlige> {
-        return tiltaksgjennomforingAdminDto?.kontaktpersoner?.map {
-            val kontaktperson = navAnsattService.hentKontaktperson(it.navIdent)
-                ?: throw NotFoundException("Fant ikke kontaktperson med ident: ${it.navIdent}")
-            val enhet = navEnhetService.hentEnhet(kontaktperson.hovedenhetKode)
-            KontaktinfoTiltaksansvarlige(
-                navn = "${kontaktperson.fornavn} ${kontaktperson.etternavn}",
-                telefonnummer = kontaktperson.mobilnr ?: "",
-                enhet = enhet?.navn,
-                epost = kontaktperson.epost,
-                _rev = null,
-                _type = null,
-                _id = null,
-                _updatedAt = null,
-                _createdAt = null,
-            )
-        } ?: emptyList()
+    private fun hentKontaktpersoner(
+        tiltaksgjennomforingAdminDto: TiltaksgjennomforingAdminDto?,
+        enhetsId: String,
+    ): List<KontaktinfoTiltaksansvarlige> {
+        return tiltaksgjennomforingAdminDto?.kontaktpersoner?.filter { it.navEnheter.isEmpty() || it.navEnheter.contains(enhetsId) }
+            ?.map {
+                val kontaktperson = navAnsattService.hentKontaktperson(it.navIdent)
+                    ?: throw NotFoundException("Fant ikke kontaktperson med ident: ${it.navIdent}")
+                val enhet = navEnhetService.hentEnhet(kontaktperson.hovedenhetKode)
+                KontaktinfoTiltaksansvarlige(
+                    navn = "${kontaktperson.fornavn} ${kontaktperson.etternavn}",
+                    telefonnummer = kontaktperson.mobilnr ?: "",
+                    enhet = enhet?.navn,
+                    epost = kontaktperson.epost,
+                    _rev = null,
+                    _type = null,
+                    _id = null,
+                    _updatedAt = null,
+                    _createdAt = null,
+                )
+            } ?: emptyList()
     }
 
     private suspend fun getFylkeIdBasertPaaEnhetsId(enhetsId: String?): String? {

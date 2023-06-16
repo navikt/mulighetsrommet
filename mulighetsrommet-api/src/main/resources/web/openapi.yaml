@@ -574,6 +574,11 @@ paths:
           schema:
             type: string
           description: ID for tiltaksgjennomføring i Sanity
+        - in: query
+          name: fnr
+          schema:
+            type: string
+          description: FNR for bruker
       responses:
         200:
           description: Hent tiltaksgjennomføring for id
@@ -1298,6 +1303,8 @@ components:
         stengtTil:
           type: string
           format: date
+        tilgjengelighet:
+          $ref: "#/components/schemas/Tilgjengelighetsstatus"
         kontaktpersoner:
           type: array
           items:
@@ -1311,6 +1318,7 @@ components:
         - navEnheter
         - opphav
         - midlertidigStengt
+        - tilgjengelighet
 
     TiltaksgjennomforingRequest:
       type: object
@@ -1352,6 +1360,8 @@ components:
         stengtTil:
           type: string
           format: date
+        apenForInnsok:
+          type: boolean
         kontaktpersoner:
           type: array
           items:
@@ -1386,6 +1396,13 @@ components:
         - AVLYST
         - AVSLUTTET
         - APENT_FOR_INNSOK
+
+    Tilgjengelighetsstatus:
+      type: string
+      enum:
+        - LEDIG
+        - STENGT
+        - VENTELISTE
 
     TiltaksgjennomforingOppstartstype:
       type: string

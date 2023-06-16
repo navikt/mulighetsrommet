@@ -31,6 +31,8 @@ data class TiltaksgjennomforingAdminDto(
     val navEnheter: List<NavEnhet>,
     val sanityId: String?,
     val oppstart: TiltaksgjennomforingDbo.Oppstartstype,
+    @Serializable(with = LocalDateSerializer::class)
+    val oppstartsdato: LocalDate? = null,
     val opphav: ArenaMigrering.Opphav,
     @Serializable(with = LocalDateSerializer::class)
     val stengtFra: LocalDate?,

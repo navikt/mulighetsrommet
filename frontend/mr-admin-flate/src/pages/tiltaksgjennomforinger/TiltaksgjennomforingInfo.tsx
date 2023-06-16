@@ -12,6 +12,7 @@ import { Metadata, Separator } from "../../components/detaljside/Metadata";
 import { Laster } from "../../components/laster/Laster";
 import { OpprettTiltaksgjennomforingModal } from "../../components/modal/OpprettTiltaksgjennomforingModal";
 import SlettTiltaksgjennomforingModal from "../../components/tiltaksgjennomforinger/SlettTiltaksgjennomforingModal";
+import { TiltaksgjennomforingOppstartstype } from "mulighetsrommet-api-client";
 import { formaterDato, inneholderUrl } from "../../utils/Utils";
 import styles from "../DetaljerInfo.module.scss";
 
@@ -83,6 +84,12 @@ export function TiltaksgjennomforingInfo() {
           <Metadata
             header="Sluttdato"
             verdi={formaterDato(tiltaksgjennomforing.sluttDato)}
+          />
+          <Metadata
+            header="Oppstart"
+            verdi={tiltaksgjennomforing.oppstart === TiltaksgjennomforingOppstartstype.FELLES
+              ? "Dato" : "Løpende oppstart"
+            }
           />
           {Boolean(tiltaksgjennomforing.stengtFra) &&
             Boolean(tiltaksgjennomforing.stengtTil) &&
@@ -211,7 +218,7 @@ export function TiltaksgjennomforingInfo() {
             data-testid="slett-gjennomforing"
             className={styles.slett_knapp}
           >
-            Slett
+            Feilregistrering
           </Button>
         ) : null}
         {features?.[

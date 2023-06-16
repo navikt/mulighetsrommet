@@ -23,6 +23,42 @@ import java.util.*
 class TiltaksgjennomforingRepository(private val db: Database) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
+    private val selectTiltaksgjennomforingAdminDtoColumns = """
+        tg.id::uuid,
+        tg.navn,
+        tg.tiltakstype_id,
+        tg.tiltaksnummer,
+        tg.virksomhetsnummer,
+        v.navn as virksomhetsnavn,
+        tg.start_dato,
+        tg.slutt_dato,
+        t.tiltakskode,
+        t.navn as tiltakstype_navn,
+        tg.arena_ansvarlig_enhet,
+        tg.avslutningsstatus,
+        tg.tilgjengelighet,
+        tg.sanity_id,
+        tg.antall_plasser,
+        tg.avtale_id,
+        tg.oppstart,
+        tg.opphav,
+        tg.stengt_fra,
+        tg.stengt_til,
+        array_agg(tg_a.navident) as ansvarlige,
+        jsonb_agg(
+            case
+                when tg_e.enhetsnummer is null then null::jsonb
+                else jsonb_build_object('enhetsnummer', tg_e.enhetsnummer, 'navn', ne.navn)
+            end
+        ) as nav_enheter,
+        jsonb_agg(distinct
+            case
+                when tgk.tiltaksgjennomforing_id is null then null::jsonb
+                else jsonb_build_object('navIdent', tgk.kontaktperson_nav_ident, 'navn', concat(na.fornavn, ' ', na.etternavn), 'epost', na.epost, 'mobilnummer', na.mobilnummer, 'navEnheter', tgk.enheter)
+            end
+        ) as kontaktpersoner
+        """
+
     fun upsert(tiltaksgjennomforing: TiltaksgjennomforingDbo): QueryResult<Unit> = query {
         logger.info("Lagrer tiltaksgjennomføring id=${tiltaksgjennomforing.id}")
 
@@ -244,46 +280,16 @@ class TiltaksgjennomforingRepository(private val db: Database) {
     fun getBySanityIds(sanityIds: List<UUID>): Map<String, TiltaksgjennomforingAdminDto> {
         @Language("PostgreSQL")
         val query = """
-            select tg.id::uuid,
-                   tg.navn,
-                   tg.tiltakstype_id,
-                   tg.tiltaksnummer,
-                   tg.virksomhetsnummer,
-                   v.navn as virksomhetsnavn,
-                   tg.start_dato,
-                   tg.slutt_dato,
-                   t.tiltakskode,
-                   t.navn as tiltakstype_navn,
-                   tg.arena_ansvarlig_enhet,
-                   tg.avslutningsstatus,
-                   tg.tilgjengelighet,
-                   tg.sanity_id,
-                   tg.antall_plasser,
-                   tg.avtale_id,
-                   tg.oppstart,
-                   tg.opphav,
-                   tg.stengt_fra,
-                   tg.stengt_til,
-                   array_agg(a.navident) as ansvarlige,
-                   jsonb_agg(distinct
-                     case
-                       when e.enhetsnummer is null then null::jsonb
-                       else jsonb_build_object('enhetsnummer', e.enhetsnummer, 'navn', ne.navn)
-                     end
-                   ) as nav_enheter,
-                   jsonb_agg(distinct
-                     case
-                       when tgk.tiltaksgjennomforing_id is null then null::jsonb
-                       else jsonb_build_object('navIdent', tgk.kontaktperson_nav_ident, 'navEnheter', tgk.enheter)
-                     end
-                   ) as kontaktpersoner
+            select
+                $selectTiltaksgjennomforingAdminDtoColumns
             from tiltaksgjennomforing tg
-                     inner join tiltakstype t on t.id = tg.tiltakstype_id
-                     left join tiltaksgjennomforing_ansvarlig a on a.tiltaksgjennomforing_id = tg.id
-                     left join tiltaksgjennomforing_nav_enhet e on e.tiltaksgjennomforing_id = tg.id
-                     left join tiltaksgjennomforing_kontaktperson tgk on tgk.tiltaksgjennomforing_id = tg.id
-                     left join nav_enhet ne on e.enhetsnummer = ne.enhetsnummer
-                     left join virksomhet v on v.organisasjonsnummer = tg.virksomhetsnummer
+                inner join tiltakstype t on t.id = tg.tiltakstype_id
+                left join tiltaksgjennomforing_ansvarlig tg_a on tg_a.tiltaksgjennomforing_id = tg.id
+                left join tiltaksgjennomforing_nav_enhet tg_e on tg_e.tiltaksgjennomforing_id = tg.id
+                left join nav_enhet ne on tg_e.enhetsnummer = ne.enhetsnummer
+                left join virksomhet v on v.organisasjonsnummer = tg.virksomhetsnummer
+                left join tiltaksgjennomforing_kontaktperson tgk on tgk.tiltaksgjennomforing_id = tg.id
+                left join nav_ansatt na on na.nav_ident = tgk.kontaktperson_nav_ident
             where tg.sanity_id = any (?)
             group by tg.id, t.id, v.navn
         """.trimIndent()
@@ -299,47 +305,16 @@ class TiltaksgjennomforingRepository(private val db: Database) {
     fun get(id: UUID): QueryResult<TiltaksgjennomforingAdminDto?> = query {
         @Language("PostgreSQL")
         val query = """
-            select tg.id::uuid,
-                   tg.navn,
-                   tg.tiltakstype_id,
-                   tg.tiltaksnummer,
-                   tg.virksomhetsnummer,
-                   v.navn as virksomhetsnavn,
-                   tg.start_dato,
-                   tg.slutt_dato,
-                   t.tiltakskode,
-                   t.navn as tiltakstype_navn,
-                   tg.arena_ansvarlig_enhet,
-                   tg.avslutningsstatus,
-                   tg.tilgjengelighet,
-                   tg.sanity_id,
-                   tg.antall_plasser,
-                   tg.avtale_id,
-                   tg.oppstart,
-                   tg.opphav,
-                   tg.stengt_fra,
-                   tg.stengt_til,
-                   array_agg(distinct a.navident) as ansvarlige,
-                   jsonb_agg(distinct
-                     case
-                       when e.enhetsnummer is null then null::jsonb
-                       else jsonb_build_object('enhetsnummer', e.enhetsnummer, 'navn', ne.navn)
-                     end
-                   ) as nav_enheter,
-                   jsonb_agg(distinct
-                     case
-                       when tgk.tiltaksgjennomforing_id is null then null::jsonb
-                       else jsonb_build_object('navIdent', tgk.kontaktperson_nav_ident, 'navn', concat(na.fornavn, ' ', na.etternavn), 'epost', na.epost, 'mobilnummer', na.mobilnummer, 'navEnheter', tgk.enheter)
-                     end
-                   ) as kontaktpersoner
+            select
+                $selectTiltaksgjennomforingAdminDtoColumns
             from tiltaksgjennomforing tg
-                     inner join tiltakstype t on t.id = tg.tiltakstype_id
-                     left join tiltaksgjennomforing_ansvarlig a on a.tiltaksgjennomforing_id = tg.id
-                     left join tiltaksgjennomforing_nav_enhet e on e.tiltaksgjennomforing_id = tg.id
-                     left join tiltaksgjennomforing_kontaktperson tgk on tgk.tiltaksgjennomforing_id = tg.id
-                     left join nav_enhet ne on e.enhetsnummer = ne.enhetsnummer
-                     left join virksomhet v on v.organisasjonsnummer = tg.virksomhetsnummer
-                     left join nav_ansatt na on na.nav_ident = tgk.kontaktperson_nav_ident
+                inner join tiltakstype t on t.id = tg.tiltakstype_id
+                left join tiltaksgjennomforing_ansvarlig tg_a on tg_a.tiltaksgjennomforing_id = tg.id
+                left join tiltaksgjennomforing_nav_enhet tg_e on tg_e.tiltaksgjennomforing_id = tg.id
+                left join nav_enhet ne on tg_e.enhetsnummer = ne.enhetsnummer
+                left join virksomhet v on v.organisasjonsnummer = tg.virksomhetsnummer
+                left join tiltaksgjennomforing_kontaktperson tgk on tgk.tiltaksgjennomforing_id = tg.id
+                left join nav_ansatt na on na.nav_ident = tgk.kontaktperson_nav_ident
             where tg.id = ?::uuid
             group by tg.id, t.id, v.navn
         """.trimIndent()
@@ -416,48 +391,17 @@ class TiltaksgjennomforingRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            select tg.id::uuid,
-                   tg.navn,
-                   tg.tiltakstype_id,
-                   tg.tiltaksnummer,
-                   tg.virksomhetsnummer,
-                   v.navn as virksomhetsnavn,
-                   tg.start_dato,
-                   tg.slutt_dato,
-                   t.tiltakskode,
-                   t.navn as tiltakstype_navn,
-                   tg.arena_ansvarlig_enhet,
-                   tg.sanity_id,
-                   tg.opphav,
-                   tg.avslutningsstatus,
-                   tg.tilgjengelighet,
-                   tg.antall_plasser,
-                   tg.avtale_id,
-                   tg.oppstart,
-                   tg.stengt_fra,
-                   tg.stengt_til,
-                   array_agg(a.navident) as ansvarlige,
-                   jsonb_agg(distinct
-                     case
-                       when e.enhetsnummer is null then null::jsonb
-                       else jsonb_build_object('enhetsnummer', e.enhetsnummer, 'navn', ne.navn)
-                     end
-                   ) as nav_enheter,
-                   jsonb_agg(distinct
-                     case
-                       when tgk.tiltaksgjennomforing_id is null then null::jsonb
-                       else jsonb_build_object('navIdent', tgk.kontaktperson_nav_ident, 'navn', concat(na.fornavn, ' ', na.etternavn), 'epost', na.epost, 'mobilnummer', na.mobilnummer, 'navEnheter', tgk.enheter)
-                     end
-                   ) as kontaktpersoner,
-                   count(*) over () as full_count
+            select
+                $selectTiltaksgjennomforingAdminDtoColumns,
+                count(*) over () as full_count
             from tiltaksgjennomforing tg
-                   inner join tiltakstype t on tg.tiltakstype_id = t.id
-                   left join tiltaksgjennomforing_ansvarlig a on a.tiltaksgjennomforing_id = tg.id
-                   left join tiltaksgjennomforing_nav_enhet e on e.tiltaksgjennomforing_id = tg.id
-                   left join tiltaksgjennomforing_kontaktperson tgk on tgk.tiltaksgjennomforing_id = tg.id
-                   left join nav_enhet ne on e.enhetsnummer = ne.enhetsnummer
-                   left join virksomhet v on v.organisasjonsnummer = tg.virksomhetsnummer
-                   left join nav_ansatt na on na.nav_ident = tgk.kontaktperson_nav_ident
+                inner join tiltakstype t on tg.tiltakstype_id = t.id
+                left join tiltaksgjennomforing_ansvarlig tg_a on tg_a.tiltaksgjennomforing_id = tg.id
+                left join tiltaksgjennomforing_nav_enhet tg_e on tg_e.tiltaksgjennomforing_id = tg.id
+                left join nav_enhet ne on tg_e.enhetsnummer = ne.enhetsnummer
+                left join virksomhet v on v.organisasjonsnummer = tg.virksomhetsnummer
+                left join tiltaksgjennomforing_kontaktperson tgk on tgk.tiltaksgjennomforing_id = tg.id
+                left join nav_ansatt na on na.nav_ident = tgk.kontaktperson_nav_ident
             $where
             group by tg.id, t.id, v.navn
             order by $order

@@ -242,7 +242,7 @@ class VirksomhetRepositoryTest : FunSpec({
                 startDato = LocalDate.now(),
                 arenaAnsvarligEnhet = null,
                 avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
-                tilgjengelighet = TiltaksgjennomforingDbo.Tilgjengelighetsstatus.Ledig,
+                tilgjengelighet = TiltaksgjennomforingDbo.Tilgjengelighetsstatus.LEDIG,
                 antallPlasser = null,
                 ansvarlige = emptyList(),
                 navEnheter = emptyList(),

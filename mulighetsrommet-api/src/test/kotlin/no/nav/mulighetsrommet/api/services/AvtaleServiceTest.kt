@@ -58,7 +58,7 @@ class AvtaleServiceTest : FunSpec({
 
             avtaleService.delete(avtale.id, currentDate = currentDate).shouldBeLeft().should {
                 it.status shouldBe HttpStatusCode.BadRequest
-                it.message shouldBe "Avtalen er mellom start- og sluttdato og må avsluttes før den kan slettes."
+                it.message shouldBe "Avtalen er aktiv og kan derfor ikke slettes."
             }
         }
 

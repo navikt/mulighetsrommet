@@ -36,6 +36,7 @@ import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
 import { SokeSelect } from "../skjema/SokeSelect";
 import styles from "./OpprettTiltaksgjennomforingContainer.module.scss";
+import { Tilgjengelighetsstatus } from "mulighetsrommet-api-client/build/models/Tilgjengelighetsstatus";
 
 const Schema = z
   .object({
@@ -108,6 +109,8 @@ const Schema = z
           path: ["stengtFra"],
         }
       ),
+    oppstart: z.custom<TiltaksgjennomforingOppstartstype>((val) => !!val, "Du må velge oppstart type"),
+    apenForInnsok: z.boolean(),
   })
   .refine(
     (data) =>
@@ -179,9 +182,7 @@ const avtalenErAvsluttet = () => (
   </>
 );
 
-// På sikt burde denne egenskapen spesifiseres i skjema for gjennomføring, evt.
-// utledes basert på eksplisitt styre-data i avtale eller tiltakstype.
-function temporaryResolveOppstartstypeFromAvtale(
+function defaultOppstartType(
   avtale?: Avtale
 ): TiltaksgjennomforingOppstartstype {
   if (!avtale) {
@@ -241,6 +242,8 @@ export const OpprettTiltaksgjennomforingContainer = (
           ? new Date(tiltaksgjennomforing.stengtTil)
           : undefined,
       },
+      oppstart: tiltaksgjennomforing?.oppstart ?? defaultOppstartType(avtale),
+      apenForInnsok: tiltaksgjennomforing?.tilgjengelighet !== Tilgjengelighetsstatus.STENGT,
       kontaktpersoner: defaultValuesForKontaktpersoner(
         tiltaksgjennomforing?.kontaktpersoner
       ),
@@ -317,7 +320,8 @@ export const OpprettTiltaksgjennomforingContainer = (
         tiltaksgjennomforing?.virksomhetsnummer ||
         "",
       tiltaksnummer: tiltaksgjennomforing?.tiltaksnummer,
-      oppstart: temporaryResolveOppstartstypeFromAvtale(avtale),
+      oppstart: data.oppstart,
+      apenForInnsok: data.apenForInnsok,
       stengtFra: data.midlertidigStengt.erMidlertidigStengt
         ? formaterDatoSomYYYYMMDD(data.midlertidigStengt.stengtFra)
         : undefined,
@@ -368,7 +372,7 @@ export const OpprettTiltaksgjennomforingContainer = (
     setError(avtalenErAvsluttet());
   }
 
-  if (!avtale.navRegion) {
+  if (!avtale?.navRegion) {
     setError(avtaleManglerNavRegionError(avtale?.id));
   }
 
@@ -475,6 +479,17 @@ export const OpprettTiltaksgjennomforingContainer = (
           />
         </FormGroup>
         <FormGroup>
+          <SokeSelect
+            size="small"
+            label="Oppstartstype"
+            readOnly={arenaOpphav}
+            placeholder="Velg oppstart"
+            {...register("oppstart")}
+            options={[
+              { label: "Dato", value: TiltaksgjennomforingOppstartstype.FELLES },
+              { label: "Løpende oppstart", value: TiltaksgjennomforingOppstartstype.LOPENDE },
+            ]}
+          />
           <FraTilDatoVelger
             size="small"
             fra={{
@@ -490,11 +505,18 @@ export const OpprettTiltaksgjennomforingContainer = (
           />
           <Checkbox
             size="small"
+            readOnly={arenaOpphav}
+            {...register("apenForInnsok")}
+          >
+            Åpen for innsøk
+          </Checkbox>
+          <Checkbox
+            size="small"
             {...register("midlertidigStengt.erMidlertidigStengt")}
           >
             Midlertidig stengt
           </Checkbox>
-          {watchErMidlertidigStengt && (
+          {watchErMidlertidigStengt &&
             <FraTilDatoVelger
               size="small"
               fra={{
@@ -506,7 +528,7 @@ export const OpprettTiltaksgjennomforingContainer = (
                 ...register("midlertidigStengt.stengtTil"),
               }}
             />
-          )}
+          }
           <TextField
             size="small"
             readOnly={arenaOpphav}
