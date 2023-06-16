@@ -185,13 +185,13 @@ class VeilederflateSanityService(
         val gjennomforingerFraDb = tiltaksgjennomforingService.getBySanityIds(sanityIds)
 
         return gjennomforinger
-            .map {
-                val apiGjennomforing = gjennomforingerFraDb[it._id]
-                val kontaktpersoner = hentKontaktpersoner(gjennomforingerFraDb[it._id], enhetsId)
-                it.copy(
+            .map { sanityData ->
+                val apiGjennomforing = gjennomforingerFraDb[sanityData._id]
+                val kontaktpersoner = hentKontaktpersoner(gjennomforingerFraDb[sanityData._id], enhetsId)
+                sanityData.copy(
                     stengtFra = apiGjennomforing?.stengtFra,
                     stengtTil = apiGjennomforing?.stengtTil,
-                    kontaktinfoTiltaksansvarlige = kontaktpersoner.ifEmpty { it.kontaktinfoTiltaksansvarlige },
+                    kontaktinfoTiltaksansvarlige = kontaktpersoner.ifEmpty { sanityData.kontaktinfoTiltaksansvarlige },
                 )
             }
     }
@@ -200,22 +200,23 @@ class VeilederflateSanityService(
         tiltaksgjennomforingAdminDto: TiltaksgjennomforingAdminDto?,
         enhetsId: String,
     ): List<KontaktinfoTiltaksansvarlige> {
-        return tiltaksgjennomforingAdminDto?.kontaktpersoner?.filter { it.navEnheter.contains(enhetsId) }?.map {
-            val kontaktperson = navAnsattService.hentKontaktperson(it.navIdent)
-                ?: throw NotFoundException("Fant ikke kontaktperson med ident: ${it.navIdent}")
-            val enhet = navEnhetService.hentEnhet(kontaktperson.hovedenhetKode)
-            KontaktinfoTiltaksansvarlige(
-                navn = "${kontaktperson.fornavn} ${kontaktperson.etternavn}",
-                telefonnummer = kontaktperson.mobilnr ?: "",
-                enhet = enhet?.navn,
-                epost = kontaktperson.epost,
-                _rev = null,
-                _type = null,
-                _id = null,
-                _updatedAt = null,
-                _createdAt = null,
-            )
-        } ?: emptyList()
+        return tiltaksgjennomforingAdminDto?.kontaktpersoner?.filter { it.navEnheter.isEmpty() || it.navEnheter.contains(enhetsId) }
+            ?.map {
+                val kontaktperson = navAnsattService.hentKontaktperson(it.navIdent)
+                    ?: throw NotFoundException("Fant ikke kontaktperson med ident: ${it.navIdent}")
+                val enhet = navEnhetService.hentEnhet(kontaktperson.hovedenhetKode)
+                KontaktinfoTiltaksansvarlige(
+                    navn = "${kontaktperson.fornavn} ${kontaktperson.etternavn}",
+                    telefonnummer = kontaktperson.mobilnr ?: "",
+                    enhet = enhet?.navn,
+                    epost = kontaktperson.epost,
+                    _rev = null,
+                    _type = null,
+                    _id = null,
+                    _updatedAt = null,
+                    _createdAt = null,
+                )
+            } ?: emptyList()
     }
 
     private suspend fun getFylkeIdBasertPaaEnhetsId(enhetsId: String?): String? {
