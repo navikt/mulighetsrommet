@@ -574,6 +574,11 @@ paths:
           schema:
             type: string
           description: ID for tiltaksgjennomføring i Sanity
+        - in: query
+          name: fnr
+          schema:
+            type: string
+          description: FNR for bruker
       responses:
         200:
           description: Hent tiltaksgjennomføring for id

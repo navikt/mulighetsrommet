@@ -15,7 +15,6 @@ import no.nav.mulighetsrommet.api.utils.getTiltaksgjennomforingsFilter
 import org.koin.ktor.ext.inject
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.util.*
 
 val log: Logger = LoggerFactory.getLogger("sanityRouteLogger")
 
@@ -58,7 +57,11 @@ fun Route.sanityRoutes() {
         get("/tiltaksgjennomforing/{id}") {
             poaoTilgangService.verfiyAccessToModia(getNavAnsattAzureId())
             val id = call.parameters.getOrFail("id")
-            val result = veilederflateSanityService.hentTiltaksgjennomforing(id)
+            val result = veilederflateSanityService.hentTiltaksgjennomforing(
+                id,
+                getNorskIdent(),
+                call.getAccessToken(),
+            )
 
             call.respond(result)
         }
