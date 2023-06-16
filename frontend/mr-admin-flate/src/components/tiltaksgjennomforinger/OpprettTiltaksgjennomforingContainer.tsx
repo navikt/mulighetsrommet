@@ -368,11 +368,11 @@ export const OpprettTiltaksgjennomforingContainer = (
     setError(avtaleFinnesIkke());
   }
 
-  if (avtale?.sluttDato && new Date(avtale.sluttDato) < new Date()) {
+  if (avtale && avtale?.sluttDato && new Date(avtale.sluttDato) < new Date()) {
     setError(avtalenErAvsluttet());
   }
 
-  if (!avtale?.navRegion) {
+  if (avtale && !avtale?.navRegion) {
     setError(avtaleManglerNavRegionError(avtale?.id));
   }
 
