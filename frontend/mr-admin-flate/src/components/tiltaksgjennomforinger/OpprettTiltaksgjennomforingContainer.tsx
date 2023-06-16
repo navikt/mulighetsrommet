@@ -382,18 +382,10 @@ export const OpprettTiltaksgjennomforingContainer = (
   };
 
   const kontaktpersonerOption = () => {
-    const kontaktpersonerFraSkjema = watch("kontaktpersoner");
-    const options = kontaktpersoner
-      ?.filter(
-        (person) =>
-          !kontaktpersonerFraSkjema
-            ?.map((k) => k.navIdent)
-            .includes(person.navident)
-      )
-      ?.map((kontaktperson) => ({
-        label: `${kontaktperson.fornavn} ${kontaktperson.etternavn} - ${kontaktperson.navident}`,
-        value: kontaktperson.navident,
-      }));
+    const options = kontaktpersoner?.map((kontaktperson) => ({
+      label: `${kontaktperson.fornavn} ${kontaktperson.etternavn} - ${kontaktperson.navident}`,
+      value: kontaktperson.navident,
+    }));
 
     return options || [];
   };
