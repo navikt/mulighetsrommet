@@ -85,8 +85,8 @@ class TiltaksgjennomforingService(
             return Either.Left(BadRequest(message = "Gjennomføringen har opprinnelse fra Arena og kan ikke bli slettet i admin-flate."))
         }
 
-        if (gjennomforing.startDato <= currentDate && gjennomforing.sluttDato?.let { it >= currentDate } != false) {
-            return Either.Left(BadRequest(message = "Gjennomføringen er mellom start- og sluttdato og må avsluttes før den kan slettes."))
+        if (gjennomforing.startDato <= currentDate) {
+            return Either.Left(BadRequest(message = "Gjennomføringen er aktiv og kan derfor ikke slettes."))
         }
 
         val antallDeltagere = deltakerRepository.getAll(id).size

@@ -211,7 +211,7 @@ export function TiltaksgjennomforingInfo() {
             data-testid="slett-gjennomforing"
             className={styles.slett_knapp}
           >
-            Slett
+            Feilregistrering
           </Button>
         ) : null}
         {features?.[

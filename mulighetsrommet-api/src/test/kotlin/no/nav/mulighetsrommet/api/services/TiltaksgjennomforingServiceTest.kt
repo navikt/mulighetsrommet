@@ -78,12 +78,14 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             tiltaksgjennomforingRepository.upsert(gjennomforingMedSlutt).shouldBeRight()
             tiltaksgjennomforingRepository.upsert(gjennomforingUtenSlutt).shouldBeRight()
 
-            tiltaksgjennomforingService.delete(gjennomforingMedSlutt.id, currentDate = currentDate).shouldBeLeft().should {
-                it.status shouldBe HttpStatusCode.BadRequest
-            }
-            tiltaksgjennomforingService.delete(gjennomforingUtenSlutt.id, currentDate = currentDate).shouldBeLeft().should {
-                it.status shouldBe HttpStatusCode.BadRequest
-            }
+            tiltaksgjennomforingService.delete(gjennomforingMedSlutt.id, currentDate = currentDate).shouldBeLeft()
+                .should {
+                    it.status shouldBe HttpStatusCode.BadRequest
+                }
+            tiltaksgjennomforingService.delete(gjennomforingUtenSlutt.id, currentDate = currentDate).shouldBeLeft()
+                .should {
+                    it.status shouldBe HttpStatusCode.BadRequest
+                }
         }
 
         test("Man skal ikke få slette dersom opphav for gjennomforingen ikke er admin-flate") {
@@ -113,13 +115,15 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             }
         }
 
-        test("Skal få slette avtale hvis alle sjekkene er ok") {
-            val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1.copy(avtaleId = avtaleId)
+        test("Skal få slette tiltaksgjennomføring hvis alle sjekkene er ok") {
+            val gjennomforing =
+                TiltaksgjennomforingFixtures.Oppfolging1.copy(avtaleId = avtaleId, startDato = LocalDate.of(2023, 7, 1))
             tiltaksgjennomforingRepository.upsert(gjennomforing)
 
-            tiltaksgjennomforingService.delete(gjennomforing.id).shouldBeRight().should {
-                it shouldBe 1
-            }
+            tiltaksgjennomforingService.delete(gjennomforing.id, currentDate = LocalDate.of(2023, 6, 16))
+                .shouldBeRight().should {
+                    it shouldBe 1
+                }
         }
     }
 })
