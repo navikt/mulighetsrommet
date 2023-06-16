@@ -1,19 +1,21 @@
-import { Metadata, Separator } from "../../components/detaljside/Metadata";
-import { formaterDato, inneholderUrl } from "../../utils/Utils";
-import styles from "../DetaljerInfo.module.scss";
-import { useTiltaksgjennomforingById } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforingById";
-import { Laster } from "../../components/laster/Laster";
-import { Alert, Button, Heading, Link } from "@navikt/ds-react";
-import classNames from "classnames";
-import { useState } from "react";
-import { useFeatureToggles } from "../../api/features/feature-toggles";
-import { OpprettTiltaksgjennomforingModal } from "../../components/modal/OpprettTiltaksgjennomforingModal";
-import { useAvtale } from "../../api/avtaler/useAvtale";
 import {
   ExclamationmarkTriangleIcon,
   ExternalLinkIcon,
 } from "@navikt/aksel-icons";
+import { Alert, Button, Heading, Link } from "@navikt/ds-react";
+import classNames from "classnames";
+import { useState } from "react";
+import { useAvtale } from "../../api/avtaler/useAvtale";
+import { useFeatureToggles } from "../../api/features/feature-toggles";
+import { useTiltaksgjennomforingById } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforingById";
+import { Metadata, Separator } from "../../components/detaljside/Metadata";
+import { Laster } from "../../components/laster/Laster";
+import { OpprettTiltaksgjennomforingModal } from "../../components/modal/OpprettTiltaksgjennomforingModal";
 import SlettTiltaksgjennomforingModal from "../../components/tiltaksgjennomforinger/SlettTiltaksgjennomforingModal";
+import { formaterDato, inneholderUrl } from "../../utils/Utils";
+import styles from "../DetaljerInfo.module.scss";
+
+const TEAMS_DYPLENKE = "https://teams.microsoft.com/l/chat/0/0?users=";
 
 export function TiltaksgjennomforingInfo() {
   const {
@@ -149,7 +151,21 @@ export function TiltaksgjennomforingInfo() {
                   kontaktpersonerFraNav.length > 0 ? (
                     <ul>
                       {kontaktpersonerFraNav.map((kontakt) => (
-                        <li key={kontakt.navIdent}>{kontakt.navn}</li>
+                        <li key={kontakt.navIdent}>
+                          {kontakt.navn}{" "}
+                          {kontakt.epost ? (
+                            <span>
+                              -{" "}
+                              <a
+                                href={`${TEAMS_DYPLENKE}${encodeURIComponent(
+                                  kontakt.epost
+                                )}`}
+                              >
+                                Ta kontakt på Teams
+                              </a>
+                            </span>
+                          ) : null}
+                        </li>
                       ))}
                     </ul>
                   ) : (
