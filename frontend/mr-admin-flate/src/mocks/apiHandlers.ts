@@ -5,6 +5,7 @@ import {
   AvtaleNokkeltall,
   AvtaleRequest,
   NavEnhet,
+  NavKontaktperson,
   PaginertAvtale,
   PaginertTiltaksgjennomforing,
   PaginertTiltakstype,
@@ -18,7 +19,7 @@ import {
   Virksomhet,
 } from "mulighetsrommet-api-client";
 import { mockVirksomheter } from "./fixtures/mock_virksomheter";
-import { mockBetabruker } from "./fixtures/mock_ansatt";
+import { mockBetabruker, mockKontaktpersoner } from "./fixtures/mock_ansatt";
 import { mockAvtaleNokkeltall } from "./fixtures/mock_avtale_nokkeltall";
 import { mockAvtaler } from "./fixtures/mock_avtaler";
 import { mockEnheter } from "./fixtures/mock_enheter";
@@ -262,6 +263,13 @@ export const apiHandlers = [
           data: gjennomforinger,
         })
       );
+    }
+  ),
+
+  rest.get<any, any, NavKontaktperson[]>(
+    "*/api/v1/internal/ansatt/kontaktpersoner",
+    (req, res, ctx) => {
+      return res(ctx.status(200), ctx.json(mockKontaktpersoner));
     }
   ),
 

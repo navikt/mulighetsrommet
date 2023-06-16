@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.repositories
 import kotliquery.Row
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattDbo
+import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle
 import no.nav.mulighetsrommet.api.utils.DatabaseUtils
 import no.nav.mulighetsrommet.api.utils.NavAnsattFilter
 import no.nav.mulighetsrommet.database.Database
@@ -15,8 +16,8 @@ class NavAnsattRepository(private val db: Database) {
     fun upsert(ansatt: NavAnsattDbo): QueryResult<NavAnsattDbo> = query {
         @Language("PostgreSQL")
         val query = """
-            insert into nav_ansatt(nav_ident, fornavn, etternavn, hovedenhet, azure_id, fra_ad_gruppe, mobilnummer, epost)
-            values (:nav_ident, :fornavn, :etternavn, :hovedenhet, :azure_id::uuid, :fra_ad_gruppe::uuid, :mobilnummer, :epost)
+            insert into nav_ansatt(nav_ident, fornavn, etternavn, hovedenhet, azure_id, fra_ad_gruppe, mobilnummer, epost, rolle)
+            values (:nav_ident, :fornavn, :etternavn, :hovedenhet, :azure_id::uuid, :fra_ad_gruppe::uuid, :mobilnummer, :epost, :rolle::nav_ansatt_rolle)
             on conflict (nav_ident, fra_ad_gruppe)
                 do update set fornavn       = excluded.fornavn,
                               etternavn     = excluded.etternavn,
@@ -24,7 +25,8 @@ class NavAnsattRepository(private val db: Database) {
                               azure_id      = excluded.azure_id,
                               fra_ad_gruppe = excluded.fra_ad_gruppe,
                               mobilnummer   = excluded.mobilnummer,
-                              epost         = excluded.epost
+                              epost         = excluded.epost,
+                              rolle         = excluded.rolle::nav_ansatt_rolle
             returning *
         """.trimIndent()
 
@@ -36,11 +38,11 @@ class NavAnsattRepository(private val db: Database) {
 
     fun getAll(filter: NavAnsattFilter): QueryResult<List<NavAnsattDbo>> = query {
         val params = mapOf(
-            "azureIder" to db.createUuidArray(filter.azureIder),
+            "roller" to filter.roller.let { db.createTextArray(it.map { it.name }) },
         )
 
         val where = DatabaseUtils.andWhereParameterNotNull(
-            filter.azureIder to "fra_ad_gruppe = any(:azureIder)",
+            filter.roller to "rolle = any(:roller::nav_ansatt_rolle[])",
         )
 
         @Language("PostgreSQL")
@@ -56,29 +58,29 @@ class NavAnsattRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    fun getByNavIdentAndAdGruppe(navIdent: String, adGruppe: UUID): QueryResult<NavAnsattDbo?> = query {
+    fun getByNavIdentAndRolle(navIdent: String, rolle: NavAnsattRolle): QueryResult<NavAnsattDbo?> = query {
         @Language("PostgreSQL")
         val query = """
-            select nav_ident, fornavn, etternavn, hovedenhet, azure_id, fra_ad_gruppe, mobilnummer, epost
+            select nav_ident, fornavn, etternavn, hovedenhet, azure_id, fra_ad_gruppe, mobilnummer, epost, rolle
             from nav_ansatt
-            where nav_ident = :nav_ident and fra_ad_gruppe = :fra_ad_gruppe::uuid
+            where nav_ident = :nav_ident and rolle = :rolle::nav_ansatt_rolle
         """.trimIndent()
 
-        queryOf(query, mapOf("nav_ident" to navIdent, "fra_ad_gruppe" to adGruppe))
+        queryOf(query, mapOf("nav_ident" to navIdent, "rolle" to rolle.name))
             .map { it.toNavAnsatt() }
             .asSingle
             .let { db.run(it) }
     }
 
-    fun getByAzureIdAndAdGruppe(azureId: UUID, adGruppe: UUID): QueryResult<NavAnsattDbo?> = query {
+    fun getByAzureIdAndAdGruppe(azureId: UUID, rolle: NavAnsattRolle): QueryResult<NavAnsattDbo?> = query {
         @Language("PostgreSQL")
         val query = """
-            select nav_ident, fornavn, etternavn, hovedenhet, azure_id, fra_ad_gruppe, mobilnummer, epost
+            select nav_ident, fornavn, etternavn, hovedenhet, azure_id, fra_ad_gruppe, mobilnummer, epost, rolle
             from nav_ansatt
-            where azure_id = :azure_id::uuid and fra_ad_gruppe = :fra_ad_gruppe::uuid
+            where azure_id = :azure_id::uuid and rolle = :rolle::nav_ansatt_rolle
         """.trimIndent()
 
-        queryOf(query, mapOf("azure_id" to azureId, "fra_ad_gruppe" to adGruppe))
+        queryOf(query, mapOf("azure_id" to azureId, "rolle" to rolle.name))
             .map { it.toNavAnsatt() }
             .asSingle
             .let { db.run(it) }
@@ -105,6 +107,7 @@ class NavAnsattRepository(private val db: Database) {
         "fra_ad_gruppe" to fraAdGruppe,
         "mobilnummer" to mobilnummer,
         "epost" to epost,
+        "rolle" to rolle.name,
     )
 
     private fun Row.toNavAnsatt() = NavAnsattDbo(
@@ -116,5 +119,6 @@ class NavAnsattRepository(private val db: Database) {
         fraAdGruppe = uuid("fra_ad_gruppe"),
         mobilnummer = stringOrNull("mobilnummer"),
         epost = string("epost"),
+        rolle = NavAnsattRolle.valueOf(string("rolle")),
     )
 }

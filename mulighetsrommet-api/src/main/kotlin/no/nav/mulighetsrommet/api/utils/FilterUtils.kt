@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.utils
 import io.ktor.server.application.*
 import io.ktor.util.pipeline.*
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
+import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.Avtalestatus
@@ -183,12 +184,12 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getTiltaksgjennomforingsFilter
 }
 
 data class NavAnsattFilter(
-    val azureIder: List<UUID> = emptyList(),
+    val roller: List<NavAnsattRolle> = emptyList(),
 )
 
 fun <T : Any> PipelineContext<T, ApplicationCall>.getNavAnsattFilter(): NavAnsattFilter {
-    val azureIder = call.parameters.getAll("azureIder")?.map { it.toUUID() } ?: emptyList()
+    val azureIder = call.parameters.getAll("roller")?.map { NavAnsattRolle.valueOf(it) } ?: emptyList()
     return NavAnsattFilter(
-        azureIder = azureIder,
+        roller = azureIder,
     )
 }

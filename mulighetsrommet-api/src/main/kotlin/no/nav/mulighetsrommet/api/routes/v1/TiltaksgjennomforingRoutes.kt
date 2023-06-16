@@ -17,6 +17,7 @@ import no.nav.mulighetsrommet.api.utils.getPaginationParams
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
+import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingKontaktperson
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
@@ -102,6 +103,7 @@ data class TiltaksgjennomforingRequest(
     val stengtFra: LocalDate? = null,
     @Serializable(with = LocalDateSerializer::class)
     val stengtTil: LocalDate? = null,
+    val kontaktpersoner: List<NavKontaktpersonForGjennomforing>? = emptyList(),
 ) {
     fun toDbo(): StatusResponse<TiltaksgjennomforingDbo> {
         if (!startDato.isBefore(sluttDato)) {
@@ -137,6 +139,12 @@ data class TiltaksgjennomforingRequest(
                 opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
                 stengtFra = stengtFra,
                 stengtTil = stengtTil,
+                kontaktpersoner = kontaktpersoner?.map {
+                    TiltaksgjennomforingKontaktperson(
+                        navIdent = it.navIdent,
+                        navEnheter = it.navEnheter,
+                    )
+                },
             ),
         )
     }
@@ -146,4 +154,10 @@ data class TiltaksgjennomforingRequest(
 data class GjennomforingTilAvtaleRequest(
     @Serializable(with = UUIDSerializer::class)
     val avtaleId: UUID? = null,
+)
+
+@Serializable
+data class NavKontaktpersonForGjennomforing(
+    val navIdent: String,
+    val navEnheter: List<String>,
 )
