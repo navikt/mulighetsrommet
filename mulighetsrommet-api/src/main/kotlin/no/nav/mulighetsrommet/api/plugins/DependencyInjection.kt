@@ -153,6 +153,7 @@ private fun repositories() = module {
     single { NavAnsattRepository(get()) }
     single { VirksomhetRepository(get()) }
     single { KafkaConsumerRepository(get()) }
+    single { MetrikkRepository(get()) }
 }
 
 private fun services(appConfig: AppConfig) = module {
@@ -259,6 +260,7 @@ private fun services(appConfig: AppConfig) = module {
     single { NotificationService(get(), get(), get()) }
     single { VirksomhetService(get(), get()) }
     single { ExcelService() }
+    single { MetrikkService(get()) }
 }
 
 private fun tasks(config: TaskConfig) = module {
@@ -295,7 +297,14 @@ private fun tasks(config: TaskConfig) = module {
             get(),
             get(),
         )
-        val notifySluttdatoForMidlertidigStengtGjennomforingerNarmerSeg = NotifySluttdatoForMidlertidigStengtGjennomforingerNarmerSeg(config.notifySluttdatoForMidlertidigStengtGjennomforingerNarmerSeg, get(), get(), get())
+        val notifySluttdatoForMidlertidigStengtGjennomforingerNarmerSeg =
+            NotifySluttdatoForMidlertidigStengtGjennomforingerNarmerSeg(
+                config.notifySluttdatoForMidlertidigStengtGjennomforingerNarmerSeg,
+                get(),
+                get(),
+                get(),
+            )
+        val oppdaterMetrikker = OppdaterMetrikker(config.oppdaterMetrikker, get(), get())
         val notificationService: NotificationService by inject()
 
         val db: Database by inject()
@@ -313,6 +322,7 @@ private fun tasks(config: TaskConfig) = module {
                 notifySluttdatoForAvtalerNarmerSeg.task,
                 notifyFailedKafkaEvents.task,
                 notifySluttdatoForMidlertidigStengtGjennomforingerNarmerSeg.task,
+                oppdaterMetrikker.task,
             )
             .serializer(DbSchedulerKotlinSerializer())
             .registerShutdownHook()

@@ -76,6 +76,10 @@ fun createTestApplicationConfig(oauth: MockOAuth2Server) = AppConfig(
         notifySluttdatoForMidlertidigStengtGjennomforingerNarmerSeg = NotifySluttdatoForMidlertidigStengtGjennomforingerNarmerSeg.Config(
             disabled = true,
         ),
+        oppdaterMetrikker = OppdaterMetrikker.Config(
+            disabled = true,
+            delayOfMinutes = 10,
+        ),
     ),
     norg2 = Norg2Config(baseUrl = ""),
     slack = SlackConfig(
