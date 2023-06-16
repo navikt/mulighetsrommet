@@ -49,9 +49,11 @@ class TiltaksgjennomforingServiceTest : FunSpec({
     context("Slette gjennomforing") {
         val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
         val deltagerRepository = DeltakerRepository(database.db)
+        val avtaleRepository = AvtaleRepository(database.db)
         val tiltaksgjennomforingService = TiltaksgjennomforingService(
             tiltaksgjennomforingRepository,
             deltagerRepository,
+            avtaleRepository,
             sanityTiltaksgjennomforingService,
             virksomhetService,
         )
@@ -119,6 +121,33 @@ class TiltaksgjennomforingServiceTest : FunSpec({
 
             tiltaksgjennomforingService.delete(gjennomforing.id).shouldBeRight().should {
                 it shouldBe 1
+            }
+        }
+    }
+
+    context("Put gjennomforing") {
+        val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
+        val deltagerRepository = DeltakerRepository(database.db)
+        val avtaleRepository = AvtaleRepository(database.db)
+        val tiltaksgjennomforingService = TiltaksgjennomforingService(
+            tiltaksgjennomforingRepository,
+            deltagerRepository,
+            avtaleRepository,
+            sanityTiltaksgjennomforingService,
+            virksomhetService,
+        )
+
+        test("Man skal ikke få lov og opprette dersom avtalen er avsluttet") {
+            avtaleRepository.upsert(
+                avtaleFixtures.createAvtaleForTiltakstype(
+                    id = avtaleId,
+                    tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
+                    sluttDato = LocalDate.of(2022, 1, 1),
+                ),
+            )
+            val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1.copy(avtaleId = avtaleId)
+            tiltaksgjennomforingService.upsert(gjennomforing, LocalDate.of(2022, 2, 2)).shouldBeLeft().should {
+                it.status shouldBe HttpStatusCode.BadRequest
             }
         }
     }

@@ -170,6 +170,15 @@ const avtaleFinnesIkke = () => (
   </>
 );
 
+const avtalenErAvsluttet = () => (
+  <>
+    Kan ikke opprette gjennomføring fordi avtalens sluttdato har passert.
+    <br />
+    <br />
+    Ta <a href={porten}>kontakt</a> i Porten dersom du trenger mer hjelp.
+  </>
+);
+
 // På sikt burde denne egenskapen spesifiseres i skjema for gjennomføring, evt.
 // utledes basert på eksplisitt styre-data i avtale eller tiltakstype.
 function temporaryResolveOppstartstypeFromAvtale(
@@ -355,7 +364,11 @@ export const OpprettTiltaksgjennomforingContainer = (
     setError(avtaleFinnesIkke());
   }
 
-  if (avtale && !avtale?.navRegion) {
+  if (avtale?.sluttDato && new Date(avtale.sluttDato) < new Date()) {
+    setError(avtalenErAvsluttet());
+  }
+
+  if (!avtale.navRegion) {
     setError(avtaleManglerNavRegionError(avtale?.id));
   }
 
