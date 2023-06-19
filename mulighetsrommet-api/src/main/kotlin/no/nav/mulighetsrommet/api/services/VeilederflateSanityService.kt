@@ -170,10 +170,10 @@ class VeilederflateSanityService(
     }
 
     private fun supplerDataFraDB(
-        gjennomforinger: List<VeilederflateTiltaksgjennomforing>,
+        gjennomforingerFraSanity: List<VeilederflateTiltaksgjennomforing>,
         enhetsId: String,
     ): List<VeilederflateTiltaksgjennomforing> {
-        val sanityIds = gjennomforinger
+        val sanityIds = gjennomforingerFraSanity
             .mapNotNull {
                 try {
                     UUID.fromString(it._id)
@@ -184,23 +184,42 @@ class VeilederflateSanityService(
 
         val gjennomforingerFraDb = tiltaksgjennomforingService.getBySanityIds(sanityIds)
 
-        return gjennomforinger
+        return gjennomforingerFraSanity
             .map { sanityData ->
                 val apiGjennomforing = gjennomforingerFraDb[sanityData._id]
                 val kontaktpersoner = hentKontaktpersoner(gjennomforingerFraDb[sanityData._id], enhetsId)
+                val tilgjengelighetsstatus: String? = utledTilgjengelighetsstatus(apiGjennomforing, sanityData)
                 sanityData.copy(
                     stengtFra = apiGjennomforing?.stengtFra,
                     stengtTil = apiGjennomforing?.stengtTil,
                     kontaktinfoTiltaksansvarlige = kontaktpersoner.ifEmpty { sanityData.kontaktinfoTiltaksansvarlige },
+                    tilgjengelighetsstatus = tilgjengelighetsstatus,
                 )
             }
+    }
+
+    private fun utledTilgjengelighetsstatus(
+        apiGjennomforing: TiltaksgjennomforingAdminDto?,
+        sanityData: VeilederflateTiltaksgjennomforing,
+    ): String? {
+        if (apiGjennomforing?.tilgjengelighet != null) {
+            logger.info("Henter tilgjengelighetsstatus fra database for gjennomføring med id: ${apiGjennomforing.id}")
+            return apiGjennomforing.tilgjengelighet.name
+        }
+
+        logger.info("Fant ikke tilgjengelighetsstatus fra database for gjennomføring - Henter tilgjengelighetsstatus fra Sanity for gjennomføring med id: ${sanityData._id}")
+        return sanityData.tilgjengelighetsstatus
     }
 
     private fun hentKontaktpersoner(
         tiltaksgjennomforingAdminDto: TiltaksgjennomforingAdminDto?,
         enhetsId: String,
     ): List<KontaktinfoTiltaksansvarlige> {
-        return tiltaksgjennomforingAdminDto?.kontaktpersoner?.filter { it.navEnheter.isEmpty() || it.navEnheter.contains(enhetsId) }
+        return tiltaksgjennomforingAdminDto?.kontaktpersoner?.filter {
+            it.navEnheter.isEmpty() || it.navEnheter.contains(
+                enhetsId,
+            )
+        }
             ?.map {
                 val kontaktperson = navAnsattService.hentKontaktperson(it.navIdent)
                     ?: throw NotFoundException("Fant ikke kontaktperson med ident: ${it.navIdent}")
