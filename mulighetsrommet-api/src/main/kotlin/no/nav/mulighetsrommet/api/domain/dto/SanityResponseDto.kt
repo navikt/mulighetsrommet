@@ -74,7 +74,8 @@ data class VeilederflateTiltaksgjennomforing(
     val tiltakstype: Tiltakstype? = null,
     val tiltaksnummer: String? = null,
     val oppstart: String? = null,
-    val oppstartsdato: String? = null,
+    @Serializable(with = LocalDateSerializer::class)
+    val oppstartsdato: LocalDate? = null,
     val kontaktInfoArrangor: KontaktInfoArrangor? = null,
     val estimert_ventetid: String? = null,
     @Serializable(with = LocalDateSerializer::class)
