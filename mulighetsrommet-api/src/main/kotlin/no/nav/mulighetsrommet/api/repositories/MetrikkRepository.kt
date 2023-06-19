@@ -60,6 +60,20 @@ class MetrikkRepository(private val db: Database) {
         return queryOf(query).map { it.int("antallAnsvarligForGjennomforing") }.asSingle.let { db.run(it) } ?: 0
     }
 
+    fun hentAntallTiltaksgjennomforingerMedOpphav(opphav: ArenaMigrering.Opphav): Int {
+        val params = mapOf(
+            "opphav" to opphav.name,
+        )
+
+        @Language("PostgreSQL")
+        val query = """
+            select count(*) as antallGjennomforinger from tiltaksgjennomforing
+            where opphav = :opphav::opphav
+        """.trimIndent()
+
+        return queryOf(query, params).map { it.int("antallGjennomforinger") }.asSingle.let { db.run(it) } ?: 0
+    }
+
     fun hentAntallDeltakerMedOpphav(opphav: Deltakeropphav): Int {
         val params = mapOf(
             "opphav" to opphav.name,

@@ -19,6 +19,10 @@ class MetrikkService(private val metrikkRepository: MetrikkRepository) {
         Metrikker.appMicrometerRegistry.gauge("antall.arrangorer", AtomicInteger(0))
     private val antallAnsvarligeForGjennomforingGauge: AtomicInteger =
         Metrikker.appMicrometerRegistry.gauge("antall.tiltaksgjennomforinger.med.ansvarlig", AtomicInteger(0))
+    private val antallGjennomforingerMedOpphavArenaGauge: AtomicInteger =
+        Metrikker.appMicrometerRegistry.gauge("antall.tiltaksgjennomforinger.fra.arena", AtomicInteger(0))
+    private val antallGjennomforingerMedOpphavAdminflateGauge: AtomicInteger =
+        Metrikker.appMicrometerRegistry.gauge("antall.tiltaksgjennomforinger.fra.adminflate", AtomicInteger(0))
     private val antallDeltakereMedOpphavAmt: AtomicInteger =
         Metrikker.appMicrometerRegistry.gauge("antall.deltakere.fra.komet", AtomicInteger(0))
     private val antallDeltakereMedOpphavArena: AtomicInteger =
@@ -39,5 +43,7 @@ class MetrikkService(private val metrikkRepository: MetrikkRepository) {
         antallDeltakereMedOpphavArena.set(metrikkRepository.hentAntallDeltakerMedOpphav(opphav = Deltakeropphav.ARENA))
         antallAvtalerFraAdminFlateGauge.set(metrikkRepository.hentAntallAvtalerMedOpphav(opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE))
         antallAvtalerFraArenaGauge.set(metrikkRepository.hentAntallAvtalerMedOpphav(opphav = ArenaMigrering.Opphav.ARENA))
+        antallGjennomforingerMedOpphavArenaGauge.set(metrikkRepository.hentAntallTiltaksgjennomforingerMedOpphav(opphav = ArenaMigrering.Opphav.ARENA))
+        antallGjennomforingerMedOpphavAdminflateGauge.set(metrikkRepository.hentAntallTiltaksgjennomforingerMedOpphav(opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE))
     }
 }
