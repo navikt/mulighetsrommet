@@ -101,6 +101,9 @@ app:
     notifySluttdatoForMidlertidigStengtGjennomforingerNarmerSeg:
       disabled: true
       cronPattern: "0 */1 * * * *" # Hvert 1 minutt
+    oppdaterMetrikker:
+      disabled: true
+      delayOfMinutes: 1
 
   norg2:
     baseUrl: https://norg2.dev-fss-pub.nais.io/norg2/api/v1
