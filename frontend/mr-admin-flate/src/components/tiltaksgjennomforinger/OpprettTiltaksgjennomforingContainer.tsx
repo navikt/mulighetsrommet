@@ -173,6 +173,15 @@ const avtaleFinnesIkke = () => (
   </>
 );
 
+const avtalenErAvsluttet = () => (
+  <>
+    Kan ikke opprette gjennomføring fordi avtalens sluttdato har passert.
+    <br />
+    <br />
+    Ta <a href={porten}>kontakt</a> i Porten dersom du trenger mer hjelp.
+  </>
+);
+
 function defaultOppstartType(
   avtale?: Avtale
 ): TiltaksgjennomforingOppstartstype {
@@ -357,6 +366,10 @@ export const OpprettTiltaksgjennomforingContainer = (
 
   if (!avtale) {
     setError(avtaleFinnesIkke());
+  }
+
+  if (avtale && avtale?.sluttDato && new Date(avtale.sluttDato) < new Date()) {
+    setError(avtalenErAvsluttet());
   }
 
   if (avtale && !avtale?.navRegion) {
