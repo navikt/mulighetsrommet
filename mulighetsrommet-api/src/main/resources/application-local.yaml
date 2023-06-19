@@ -102,7 +102,7 @@ app:
       disabled: true
       cronPattern: "0 */1 * * * *" # Hvert 1 minutt
     oppdaterMetrikker:
-      disabled: false
+      disabled: true
       delayOfMinutes: 1
 
   norg2:
