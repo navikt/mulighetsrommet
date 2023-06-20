@@ -136,6 +136,7 @@ export const tiltaksgjennomforing = defineType({
         "Tilgjengelighetsstatus utledes fra data i Arena og kan ikke overskrives i Sanity.",
       readOnly: true,
       type: "string",
+      hidden: true,
       options: {
         list: [
           { title: "Åpent", value: "Ledig" },
@@ -147,8 +148,10 @@ export const tiltaksgjennomforing = defineType({
     defineField({
       name: "estimert_ventetid",
       title: "Merknad til tilgjengelighetsstatus",
-      description: "F.eks estimert ventetid eller stengt til dato.",
+      description:
+        "Dette feltet er utilgjengelig mens vi jobber med å flytte det til Admin-flate",
       type: "string",
+      readOnly: true,
     }),
     defineField({
       name: "oppstart",

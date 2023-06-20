@@ -82,8 +82,6 @@ app:
       delayOfMinutes: 360 # Hver 6. time
     synchronizeEnheterFraSanityTilApi:
       delayOfMinutes: 360 # Hver 6. time
-    synchronizeTilgjengelighetsstatuser:
-      cronPattern: "0 0/30 6-18 * * *" # Hver halvtime fra kl 06:00 til 18:00
     synchronizeNavAnsatte:
       cronPattern: "0 0 6 * * *" # Hver dag kl 06:00
       groups:

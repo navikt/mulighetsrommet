@@ -84,8 +84,6 @@ app:
     synchronizeEnheterFraSanityTilApi:
       disabled: true
       delayOfMinutes: 360 # Hver 6. time
-    synchronizeTilgjengelighetsstatuser:
-      disabled: true
     synchronizeNavAnsatte:
       disabled: true
     notifySluttdatoForGjennomforingerNarmerSeg:

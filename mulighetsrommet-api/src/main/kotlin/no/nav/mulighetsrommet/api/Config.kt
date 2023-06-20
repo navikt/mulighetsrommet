@@ -71,7 +71,6 @@ data class ServiceClientConfig(
 data class TaskConfig(
     val synchronizeNorgEnheter: SynchronizeNorgEnheter.Config,
     val synchronizeEnheterFraSanityTilApi: SynchronizeTiltaksgjennomforingEnheter.Config,
-    val synchronizeTilgjengelighetsstatuser: SynchronizeTilgjengelighetsstatuserToSanity.Config,
     val synchronizeNavAnsatte: SynchronizeNavAnsatte.Config,
     val notifySluttdatoForGjennomforingerNarmerSeg: NotifySluttdatoForGjennomforingerNarmerSeg.Config,
     val notifySluttdatoForAvtalerNarmerSeg: NotifySluttdatoForAvtalerNarmerSeg.Config,
