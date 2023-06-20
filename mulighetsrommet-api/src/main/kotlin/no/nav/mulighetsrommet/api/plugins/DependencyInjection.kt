@@ -276,11 +276,6 @@ private fun tasks(config: TaskConfig) = module {
             get(),
             get(),
         )
-        val synchronizeTilgjengelighetsstatuserToSanity = SynchronizeTilgjengelighetsstatuserToSanity(
-            config.synchronizeTilgjengelighetsstatuser,
-            get(),
-            get(),
-        )
         val synchronizeNavAnsatte = SynchronizeNavAnsatte(config.synchronizeNavAnsatte, get(), get(), get())
         val notifySluttdatoForGjennomforingerNarmerSeg =
             NotifySluttdatoForGjennomforingerNarmerSeg(
@@ -316,7 +311,6 @@ private fun tasks(config: TaskConfig) = module {
                 synchronizeTiltaksgjennomforingsstatuserToKafka.task,
                 synchronizeTiltakstypestatuserToKafka.task,
                 synchronizeTiltaksgjennomforingEnheter.task,
-                synchronizeTilgjengelighetsstatuserToSanity.task,
                 synchronizeNavAnsatte.task,
                 notifySluttdatoForGjennomforingerNarmerSeg.task,
                 notifySluttdatoForAvtalerNarmerSeg.task,
