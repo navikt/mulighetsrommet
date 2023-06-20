@@ -1,6 +1,7 @@
 import { TiltaksgjennomforingStatus } from "mulighetsrommet-api-client/build/models/TiltaksgjennomforingStatus";
 import { ANSKAFFEDE_TILTAK } from "../constants";
 import { Tilgjengelighetsstatus } from "mulighetsrommet-api-client/build/models/Tilgjengelighetsstatus";
+import { Avtaletype } from "mulighetsrommet-api-client/build/models/Avtaletype";
 
 export function capitalize(text?: string): string {
   return text
@@ -144,5 +145,19 @@ export function tilgjengelighetsstatusTilTekst(
       return "Venteliste";
     default:
       return "";
+  }
+}
+
+
+export function avtaletypeTilTekst(
+  type: Avtaletype
+): "Avtale" | "Rammeavtale" | "Forhåndsgodkjent" {
+  switch (type) {
+    case Avtaletype.AVTALE:
+      return "Avtale";
+    case Avtaletype.FORHAANDSGODKJENT:
+      return "Forhåndsgodkjent";
+    case Avtaletype.RAMMEAVTALE:
+      return "Rammeavtale";
   }
 }
