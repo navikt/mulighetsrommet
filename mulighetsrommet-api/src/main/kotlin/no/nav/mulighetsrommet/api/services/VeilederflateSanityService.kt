@@ -188,31 +188,17 @@ class VeilederflateSanityService(
             .map { sanityData ->
                 val apiGjennomforing = gjennomforingerFraDb[sanityData._id]
                 val kontaktpersoner = hentKontaktpersoner(gjennomforingerFraDb[sanityData._id], enhetsId)
-                val tilgjengelighetsstatus: String? = utledTilgjengelighetsstatus(apiGjennomforing, sanityData)
                 val oppstart = apiGjennomforing?.oppstart?.name?.lowercase() ?: sanityData.oppstart
                 val oppstartsdato = apiGjennomforing?.oppstartsdato ?: sanityData.oppstartsdato
                 sanityData.copy(
                     stengtFra = apiGjennomforing?.stengtFra,
                     stengtTil = apiGjennomforing?.stengtTil,
                     kontaktinfoTiltaksansvarlige = kontaktpersoner.ifEmpty { sanityData.kontaktinfoTiltaksansvarlige },
-                    tilgjengelighetsstatus = tilgjengelighetsstatus,
                     oppstart = oppstart,
                     oppstartsdato = oppstartsdato,
+                    tilgjengelighetsstatus = apiGjennomforing?.tilgjengelighet?.name,
                 )
             }
-    }
-
-    private fun utledTilgjengelighetsstatus(
-        apiGjennomforing: TiltaksgjennomforingAdminDto?,
-        sanityData: VeilederflateTiltaksgjennomforing,
-    ): String? {
-        if (apiGjennomforing?.tilgjengelighet != null) {
-            logger.info("Henter tilgjengelighetsstatus fra database for gjennomføring med id: ${apiGjennomforing.id}")
-            return apiGjennomforing.tilgjengelighet.name
-        }
-
-        logger.info("Fant ikke tilgjengelighetsstatus fra database for gjennomføring - Henter tilgjengelighetsstatus fra Sanity for gjennomføring med id: ${sanityData._id}")
-        return sanityData.tilgjengelighetsstatus
     }
 
     private fun hentKontaktpersoner(
