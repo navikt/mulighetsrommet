@@ -188,10 +188,14 @@ class VeilederflateSanityService(
             .map { sanityData ->
                 val apiGjennomforing = gjennomforingerFraDb[sanityData._id]
                 val kontaktpersoner = hentKontaktpersoner(gjennomforingerFraDb[sanityData._id], enhetsId)
+                val oppstart = apiGjennomforing?.oppstart?.name?.lowercase() ?: sanityData.oppstart
+                val oppstartsdato = apiGjennomforing?.oppstartsdato ?: sanityData.oppstartsdato
                 sanityData.copy(
                     stengtFra = apiGjennomforing?.stengtFra,
                     stengtTil = apiGjennomforing?.stengtTil,
                     kontaktinfoTiltaksansvarlige = kontaktpersoner.ifEmpty { sanityData.kontaktinfoTiltaksansvarlige },
+                    oppstart = oppstart,
+                    oppstartsdato = oppstartsdato,
                     tilgjengelighetsstatus = apiGjennomforing?.tilgjengelighet?.name,
                 )
             }
