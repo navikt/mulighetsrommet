@@ -34,7 +34,7 @@ fun Route.tiltaksgjennomforingRoutes() {
             val result = request.toDbo()
                 .flatMap {
                     tiltaksgjennomforingService.upsert(it)
-                        .mapLeft { ServerError("Klarte ikke lagre tiltaksgjennomføring") }
+                        .mapLeft { ServerError("Klarte ikke lagre tiltaksgjennomføring.") }
                 }
 
             call.respondWithStatusResponse(result)
@@ -105,6 +105,7 @@ data class TiltaksgjennomforingRequest(
     val stengtTil: LocalDate? = null,
     val apenForInnsok: Boolean = true,
     val kontaktpersoner: List<NavKontaktpersonForGjennomforing>? = emptyList(),
+    val estimertVentetid: String? = null,
 ) {
     fun toDbo(): StatusResponse<TiltaksgjennomforingDbo> {
         if (!startDato.isBefore(sluttDato)) {
@@ -132,6 +133,7 @@ data class TiltaksgjennomforingRequest(
                 avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
                 antallPlasser = antallPlasser,
                 tilgjengelighet = if (apenForInnsok) TiltaksgjennomforingDbo.Tilgjengelighetsstatus.LEDIG else { TiltaksgjennomforingDbo.Tilgjengelighetsstatus.STENGT },
+                estimertVentetid = estimertVentetid,
                 tiltaksnummer = tiltaksnummer,
                 virksomhetsnummer = virksomhetsnummer,
                 ansvarlige = listOf(ansvarlig),

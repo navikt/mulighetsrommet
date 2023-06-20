@@ -2,7 +2,7 @@ import {
   ExclamationmarkTriangleIcon,
   ExternalLinkIcon,
 } from "@navikt/aksel-icons";
-import { Alert, Button, Heading, Link } from "@navikt/ds-react";
+import { Alert, Button, Heading, Link, TextField } from "@navikt/ds-react";
 import classNames from "classnames";
 import { useState } from "react";
 import { useAvtale } from "../../api/avtaler/useAvtale";
@@ -13,7 +13,11 @@ import { Laster } from "../../components/laster/Laster";
 import { OpprettTiltaksgjennomforingModal } from "../../components/modal/OpprettTiltaksgjennomforingModal";
 import SlettTiltaksgjennomforingModal from "../../components/tiltaksgjennomforinger/SlettTiltaksgjennomforingModal";
 import { TiltaksgjennomforingOppstartstype } from "mulighetsrommet-api-client";
-import { formaterDato, inneholderUrl } from "../../utils/Utils";
+import {
+  formaterDato,
+  inneholderUrl,
+  tilgjengelighetsstatusTilTekst,
+} from "../../utils/Utils";
 import styles from "../DetaljerInfo.module.scss";
 
 const TEAMS_DYPLENKE = "https://teams.microsoft.com/l/chat/0/0?users=";
@@ -87,8 +91,11 @@ export function TiltaksgjennomforingInfo() {
           />
           <Metadata
             header="Oppstart"
-            verdi={tiltaksgjennomforing.oppstart === TiltaksgjennomforingOppstartstype.FELLES
-              ? "Dato" : "Løpende oppstart"
+            verdi={
+              tiltaksgjennomforing.oppstart ===
+              TiltaksgjennomforingOppstartstype.FELLES
+                ? "Dato"
+                : "Løpende oppstart"
             }
           />
           {Boolean(tiltaksgjennomforing.stengtFra) &&
@@ -120,6 +127,21 @@ export function TiltaksgjennomforingInfo() {
                 }
               />
             )}
+        </dl>
+        <Separator />
+        <dl className={styles.bolk}>
+          <Metadata
+            header="Tilgjengelighetsstatus"
+            verdi={tilgjengelighetsstatusTilTekst(
+              tiltaksgjennomforing.tilgjengelighet
+            )}
+          />
+          {tiltaksgjennomforing?.estimertVentetid ? (
+            <Metadata
+              header="Estimert ventetid"
+              verdi={tiltaksgjennomforing.estimertVentetid}
+            />
+          ) : null}
         </dl>
         <Separator />
         <dl className={styles.bolk}>

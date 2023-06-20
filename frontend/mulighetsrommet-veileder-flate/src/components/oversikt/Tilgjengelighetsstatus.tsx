@@ -1,5 +1,5 @@
 /* eslint-disable camelcase */
-import { SanityTiltaksgjennomforing } from 'mulighetsrommet-api-client';
+import { SanityTiltaksgjennomforing, Tilgjengelighetsstatus } from 'mulighetsrommet-api-client';
 import StatusGronn from '../../ikoner/Sirkel-gronn.png';
 import StatusGul from '../../ikoner/Sirkel-gul.png';
 import StatusRod from '../../ikoner/Sirkel-rod.png';
@@ -7,10 +7,14 @@ import { formaterDato } from '../../utils/Utils';
 import styles from './Tilgjengelighetsstatus.module.scss';
 
 interface Props {
-  status?: SanityTiltaksgjennomforing.tilgjengelighetsstatus;
+  status?: SanityTiltaksgjennomforing.tilgjengelighetsstatus | Tilgjengelighetsstatus;
   estimert_ventetid?: string;
   stengtFra?: string;
   stengtTil?: string;
+}
+
+function EstimertVentetid({ estimert_ventetid }: { estimert_ventetid?: string }) {
+  return estimert_ventetid ? <small className={styles.estimert_ventetid}>{estimert_ventetid}</small> : null;
 }
 
 export function TilgjengelighetsstatusComponent({ status, estimert_ventetid, stengtFra, stengtTil }: Props) {
@@ -21,38 +25,41 @@ export function TilgjengelighetsstatusComponent({ status, estimert_ventetid, ste
       <div>
         <div className={styles.tilgjengelighetsstatus}>
           <img src={StatusRod} alt="Rødt ikon som representerer at tiltaksgjennomføringen er stengt" />
-          <div title={`Midlertidig stengt mellom ${formaterDato(stengtFra)} og ${formaterDato(stengtTil)}`}>Midlertidig stengt</div>
+          <div title={`Midlertidig stengt mellom ${formaterDato(stengtFra)} og ${formaterDato(stengtTil)}`}>
+            Midlertidig stengt
+          </div>
         </div>
       </div>
     );
   }
-  if (status === 'Ledig' || !status) {
+  if (status === 'Ledig' || status === 'LEDIG' || !status) {
     return (
       <div>
         <div className={styles.tilgjengelighetsstatus}>
           <img src={StatusGronn} alt="Grønt ikon som representerer at tilgjengelighetsstatus er åpent" />
           <div>Åpent</div>
         </div>
+        <EstimertVentetid estimert_ventetid={estimert_ventetid} />
       </div>
     );
-  } else if (status === 'Stengt') {
+  } else if (status === 'Stengt' || status === 'STENGT') {
     return (
       <div title={estimert_ventetid ?? ''}>
         <div className={styles.tilgjengelighetsstatus}>
           <img src={StatusRod} alt="Rødt ikon som representerer at tilgjengelighetsstatus er stengt" />
           <div>Stengt</div>
         </div>
-        {estimert_ventetid ? <small className={styles.estimert_ventetid}>{estimert_ventetid}</small> : null}
+        <EstimertVentetid estimert_ventetid={estimert_ventetid} />
       </div>
     );
-  } else if (status === 'Venteliste') {
+  } else if (status === 'Venteliste' || status === 'VENTELISTE') {
     return (
       <div title={estimert_ventetid ?? ''}>
         <div className={styles.tilgjengelighetsstatus}>
           <img src={StatusGul} alt="Gult ikon som representerer at tilgjengelighetsstatus er venteliste" />
           <div>Venteliste</div>
         </div>
-        {estimert_ventetid ? <small className={styles.estimert_ventetid}>{estimert_ventetid}</small> : null}
+        <EstimertVentetid estimert_ventetid={estimert_ventetid} />
       </div>
     );
   }

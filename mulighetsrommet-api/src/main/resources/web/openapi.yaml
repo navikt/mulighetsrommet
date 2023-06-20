@@ -1305,6 +1305,8 @@ components:
           format: date
         tilgjengelighet:
           $ref: "#/components/schemas/Tilgjengelighetsstatus"
+        estimertVentetid:
+          type: string
         kontaktpersoner:
           type: array
           items:
@@ -1366,6 +1368,8 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/TiltaksgjennomforingKontaktpersonerRequest"
+        estimertVentetid:
+          type: string
       required:
         - id
         - avtaleId

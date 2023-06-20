@@ -1,5 +1,6 @@
 import { TiltaksgjennomforingStatus } from "mulighetsrommet-api-client/build/models/TiltaksgjennomforingStatus";
 import { ANSKAFFEDE_TILTAK } from "../constants";
+import { Tilgjengelighetsstatus } from "mulighetsrommet-api-client";
 
 export function capitalize(text?: string): string {
   return text
@@ -130,3 +131,18 @@ export const tiltakstypekodeErAnskaffetTiltak = (
 export const inneholderUrl = (string: string) => {
   return window.location.href.indexOf(string) > -1;
 };
+
+export function tilgjengelighetsstatusTilTekst(
+  status?: Tilgjengelighetsstatus
+): "Åpent" | "Stengt" | "Venteliste" | "" {
+  switch (status) {
+    case Tilgjengelighetsstatus.LEDIG:
+      return "Åpent";
+    case Tilgjengelighetsstatus.STENGT:
+      return "Stengt";
+    case Tilgjengelighetsstatus.VENTELISTE:
+      return "Venteliste";
+    default:
+      return "";
+  }
+}
