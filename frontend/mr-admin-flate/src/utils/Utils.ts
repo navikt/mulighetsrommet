@@ -1,5 +1,6 @@
 import { TiltaksgjennomforingStatus } from "mulighetsrommet-api-client/build/models/TiltaksgjennomforingStatus";
 import { ANSKAFFEDE_TILTAK } from "../constants";
+import { Avtaletype } from "mulighetsrommet-api-client/build/models/Avtaletype";
 
 export function capitalize(text?: string): string {
   return text
@@ -130,3 +131,16 @@ export const tiltakstypekodeErAnskaffetTiltak = (
 export const inneholderUrl = (string: string) => {
   return window.location.href.indexOf(string) > -1;
 };
+
+export function avtaletypeTilTekst(
+  type: Avtaletype
+): "Avtale" | "Rammeavtale" | "Forhåndsgodkjent" {
+  switch (type) {
+    case Avtaletype.AVTALE:
+      return "Avtale";
+    case Avtaletype.FORHAANDSGODKJENT:
+      return "Forhåndsgodkjent";
+    case Avtaletype.RAMMEAVTALE:
+      return "Rammeavtale";
+  }
+}
