@@ -1,6 +1,6 @@
 import { TiltaksgjennomforingStatus } from "mulighetsrommet-api-client/build/models/TiltaksgjennomforingStatus";
 import { ANSKAFFEDE_TILTAK } from "../constants";
-import { Tilgjengelighetsstatus } from "mulighetsrommet-api-client";
+import { Tilgjengelighetsstatus } from "mulighetsrommet-api-client/build/models/Tilgjengelighetsstatus";
 
 export function capitalize(text?: string): string {
   return text
