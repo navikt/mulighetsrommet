@@ -13,11 +13,12 @@ import RoutesConfig from './RoutesConfig';
 import { ErrorFallback } from './utils/ErrorFallback';
 import styles from './App.module.scss';
 import { SanityPreview } from './views/Preview/SanityPreview';
-import { initializeFaro } from '@grafana/faro-web-sdk';
+import { getWebInstrumentations, initializeFaro } from '@grafana/faro-web-sdk';
 
 if (import.meta.env.PROD) {
   initializeFaro({
     url: import.meta.env.VITE_FARO_URL || 'http://localhost:3000/collect',
+    instrumentations: [...getWebInstrumentations()],
     app: {
       name: 'mulighetsrommet-veileder-flate',
     },
