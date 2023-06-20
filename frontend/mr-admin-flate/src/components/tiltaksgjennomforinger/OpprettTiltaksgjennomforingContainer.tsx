@@ -570,6 +570,7 @@ export const OpprettTiltaksgjennomforingContainer = (
             size="small"
             label="Estimert ventetid"
             description="Kommuniser estimert ventetid til veileder i Modia"
+            maxLength={60}
             {...register("estimertVentetid")}
           />
         </FormGroup>
