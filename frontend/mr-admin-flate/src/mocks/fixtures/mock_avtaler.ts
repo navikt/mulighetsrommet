@@ -38,7 +38,7 @@ export const mockAvtaler: PaginertAvtale = {
         enhetsnummer: "1087",
         navn: "NAV Våler",
       },
-      avtaletype: Avtaletype.RAMMEAVTALE,
+      avtaletype: Avtaletype.FORHAANDSGODKJENT,
       avtalestatus: Avtalestatus.AKTIV,
       prisbetingelser: "Maskert prisbetingelser",
       url: "https://www.mercell.no",
@@ -284,7 +284,6 @@ export const mockAvtaler: PaginertAvtale = {
           enhetsnummer: "1088",
           navn: "NAV Sinsen",
         },
-
       ],
       navRegion: {
         enhetsnummer: "1000",
@@ -319,7 +318,6 @@ export const mockAvtaler: PaginertAvtale = {
           enhetsnummer: "1088",
           navn: "NAV Sinsen",
         },
-
       ],
       navRegion: {
         enhetsnummer: "1000",
