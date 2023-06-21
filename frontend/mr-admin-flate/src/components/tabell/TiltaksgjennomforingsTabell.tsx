@@ -4,7 +4,6 @@ import Lenke from "mulighetsrommet-veileder-flate/src/components/lenke/Lenke";
 import React from "react";
 import { SorteringTiltaksgjennomforinger } from "../../../../mulighetsrommet-api-client";
 import { paginationAtom, tiltaksgjennomforingfilter } from "../../api/atoms";
-import { useAlleEnheter } from "../../api/enhet/useAlleEnheter";
 import { useAdminTiltaksgjennomforinger } from "../../api/tiltaksgjennomforing/useAdminTiltaksgjennomforinger";
 import { useSort } from "../../hooks/useSort";
 import pageStyles from "../../pages/Page.module.scss";
@@ -72,14 +71,12 @@ export const TiltaksgjennomforingsTabell = ({ skjulKolonner }: Props) => {
   const [page, setPage] = useAtom(paginationAtom);
   const [sort, setSort] = useSort("navn");
   const [filter, setFilter] = useAtom(tiltaksgjennomforingfilter);
-  const { data: enheter, isLoading: enheterIsLoading } = useAlleEnheter();
   const pagination = data?.pagination;
   const tiltaksgjennomforinger = data?.data ?? [];
 
   if (
-    ((!tiltaksgjennomforinger || tiltaksgjennomforinger.length === 0) &&
-      isLoading) ||
-    enheterIsLoading
+    (!tiltaksgjennomforinger || tiltaksgjennomforinger.length === 0) &&
+    isLoading
   ) {
     return <Laster size="xlarge" tekst="Laster tiltaksgjennomføringer..." />;
   }
