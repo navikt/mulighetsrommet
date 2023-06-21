@@ -30,6 +30,7 @@ class AvtaleRepository(private val db: Database) {
                                tiltakstype_id,
                                avtalenummer,
                                leverandor_organisasjonsnummer,
+                               leverandor_kontaktperson_id,
                                start_dato,
                                slutt_dato,
                                arena_ansvarlig_enhet,
@@ -45,6 +46,7 @@ class AvtaleRepository(private val db: Database) {
                     :tiltakstype_id::uuid,
                     :avtalenummer,
                     :leverandor_organisasjonsnummer,
+                    :leverandor_kontaktperson_id,
                     :start_dato,
                     :slutt_dato,
                     :arena_ansvarlig_enhet,
@@ -59,6 +61,7 @@ class AvtaleRepository(private val db: Database) {
                                            tiltakstype_id                 = excluded.tiltakstype_id,
                                            avtalenummer                   = excluded.avtalenummer,
                                            leverandor_organisasjonsnummer = excluded.leverandor_organisasjonsnummer,
+                                           leverandor_kontaktperson_id    = excluded.leverandor_kontaktperson_id,
                                            start_dato                     = excluded.start_dato,
                                            slutt_dato                     = excluded.slutt_dato,
                                            arena_ansvarlig_enhet          = excluded.arena_ansvarlig_enhet,
@@ -111,7 +114,31 @@ class AvtaleRepository(private val db: Database) {
              where avtale_id = ?::uuid and not (organisasjonsnummer = any (?))
         """.trimIndent()
 
+        @Language("PostgreSQL")
+        val upsertVirksomhetKontaktperson = """
+            insert into virksomhet_kontaktperson(id, organisasjonsnummer, navn, telefon, epost)
+            values (?::uuid, ?, ?, ?, ?)
+            on conflict (id) do update set
+                navn                = excluded.navn,
+                organisasjonsnummer = excluded.organisasjonsnummer,
+                telefon             = excluded.telefon,
+                epost               = excluded.epost
+            returning *
+        """.trimIndent()
+
         db.transaction { tx ->
+            avtale.leverandorKontaktperson?.let { person ->
+                queryOf(
+                    upsertVirksomhetKontaktperson,
+                    person.id,
+                    person.organisasjonsnummer,
+                    person.navn,
+                    person.telefon,
+                    person.epost,
+                )
+                    .asExecute.let { tx.run(it) }
+            }
+
             tx.run(queryOf(query, avtale.toSqlParameters()).asExecute)
 
             avtale.ansvarlige.forEach { ansvarlig ->
@@ -166,6 +193,11 @@ class AvtaleRepository(private val db: Database) {
                    a.tiltakstype_id,
                    a.avtalenummer,
                    a.leverandor_organisasjonsnummer,
+                   vk.id as leverandor_kontaktperson_id,
+                   vk.organisasjonsnummer as leverandor_kontaktperson_organisasjonsnummer,
+                   vk.navn as leverandor_kontaktperson_navn,
+                   vk.telefon as leverandor_kontaktperson_telefon,
+                   vk.epost as leverandor_kontaktperson_epost,
                    v.navn as leverandor_navn,
                    a.start_dato,
                    a.slutt_dato,
@@ -195,8 +227,9 @@ class AvtaleRepository(private val db: Database) {
                          FROM avtale_underleverandor au left join virksomhet v on v.organisasjonsnummer = au.organisasjonsnummer WHERE au.avtale_id = a.id GROUP BY 1
                      ) au on true
                      left join virksomhet v on v.organisasjonsnummer = a.leverandor_organisasjonsnummer
+                     left join virksomhet_kontaktperson vk on vk.id = a.leverandor_kontaktperson_id
             where a.id = ?::uuid
-            group by a.id, t.tiltakskode, t.navn, aa.navident, nav_enhet.navn, v.navn, au.leverandor_underenheter, an.nav_enheter
+            group by a.id, t.tiltakskode, t.navn, aa.navident, nav_enhet.navn, v.navn, au.leverandor_underenheter, an.nav_enheter, vk.id
         """.trimIndent()
 
         queryOf(query, id)
@@ -269,6 +302,11 @@ class AvtaleRepository(private val db: Database) {
                    a.tiltakstype_id,
                    a.avtalenummer,
                    a.leverandor_organisasjonsnummer,
+                   vk.id as leverandor_kontaktperson_id,
+                   vk.organisasjonsnummer as leverandor_kontaktperson_organisasjonsnummer,
+                   vk.navn as leverandor_kontaktperson_navn,
+                   vk.telefon as leverandor_kontaktperson_telefon,
+                   vk.epost as leverandor_kontaktperson_epost,
                    v.navn as leverandor_navn,
                    a.start_dato,
                    a.slutt_dato,
@@ -301,8 +339,9 @@ class AvtaleRepository(private val db: Database) {
                      SELECT au.avtale_id, jsonb_strip_nulls(jsonb_agg(jsonb_build_object('organisasjonsnummer', au.organisasjonsnummer, 'navn', v.navn))) as leverandor_underenheter
                      FROM avtale_underleverandor au left join virksomhet v on v.organisasjonsnummer = au.organisasjonsnummer WHERE au.avtale_id = a.id GROUP BY 1
                   ) au on true
+                  left join virksomhet_kontaktperson vk on vk.id = a.leverandor_kontaktperson_id
             $where
-            group by a.id, t.navn, t.tiltakskode, aa.navident, nav_enhet.navn, v.navn, au.leverandor_underenheter, an.nav_enheter
+            group by a.id, t.navn, t.tiltakskode, aa.navident, nav_enhet.navn, v.navn, au.leverandor_underenheter, an.nav_enheter, vk.id
             order by $order
             limit :limit
             offset :offset
@@ -326,6 +365,7 @@ class AvtaleRepository(private val db: Database) {
         "tiltakstype_id" to tiltakstypeId,
         "avtalenummer" to avtalenummer,
         "leverandor_organisasjonsnummer" to leverandorOrganisasjonsnummer,
+        "leverandor_kontaktperson_id" to leverandorKontaktperson?.id,
         "leverandor_underenheter" to db.createTextArray(leverandorUnderenheter),
         "start_dato" to startDato,
         "slutt_dato" to sluttDato,
@@ -364,6 +404,15 @@ class AvtaleRepository(private val db: Database) {
                 navn = stringOrNull("leverandor_navn"),
             ),
             leverandorUnderenheter = underenheter,
+            leverandorKontaktperson = uuidOrNull("leverandor_kontaktperson_id")?.let {
+                VirksomhetKontaktperson(
+                    id = it,
+                    organisasjonsnummer = string("leverandor_kontaktperson_organisasjonsnummer"),
+                    navn = string("leverandor_kontaktperson_navn"),
+                    telefon = stringOrNull("leverandor_kontaktperson_telefon"),
+                    epost = stringOrNull("leverandor_kontaktperson_epost"),
+                )
+            },
             navEnheter = navEnheter,
             startDato = startDato,
             sluttDato = sluttDato,

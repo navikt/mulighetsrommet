@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.domain.dbo
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
+import no.nav.mulighetsrommet.domain.dto.VirksomhetKontaktperson
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import java.time.LocalDate
@@ -18,6 +19,7 @@ data class AvtaleDbo(
     val avtalenummer: String? = null,
     val leverandorOrganisasjonsnummer: String,
     val leverandorUnderenheter: List<String>,
+    val leverandorKontaktperson: VirksomhetKontaktperson? = null,
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)

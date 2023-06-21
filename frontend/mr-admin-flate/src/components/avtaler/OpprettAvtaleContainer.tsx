@@ -13,6 +13,7 @@ import { Ansatt } from "mulighetsrommet-api-client/build/models/Ansatt";
 import { NavEnhet } from "mulighetsrommet-api-client/build/models/NavEnhet";
 import { Tiltakstype } from "mulighetsrommet-api-client/build/models/Tiltakstype";
 import { StatusModal } from "mulighetsrommet-veileder-flate/src/components/modal/delemodal/StatusModal";
+import { v4 as uuidv4 } from "uuid";
 import { ReactNode, useState } from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { usePutAvtale } from "../../api/avtaler/usePutAvtale";
@@ -31,6 +32,7 @@ import { SokeSelect } from "../skjema/SokeSelect";
 import { AvtaleSchema, inferredSchema } from "./AvtaleSchema";
 import styles from "./OpprettAvtaleContainer.module.scss";
 import { faro } from "@grafana/faro-web-sdk";
+import { XMarkIcon } from "@navikt/aksel-icons";
 
 interface OpprettAvtaleContainerProps {
   onClose: () => void;
@@ -100,6 +102,11 @@ export function OpprettAvtaleContainer({
           : avtale?.leverandorUnderenheter?.map(
               (enhet) => enhet.organisasjonsnummer
             ),
+      leverandorKontaktperson: {
+        navn: avtale?.leverandorKontaktperson?.navn,
+        telefon: avtale?.leverandorKontaktperson?.telefon,
+        epost: avtale?.leverandorKontaktperson?.epost,
+      },
       startOgSluttDato: {
         startDato: avtale?.startDato ? new Date(avtale.startDato) : undefined,
         sluttDato: avtale?.sluttDato ? new Date(avtale.sluttDato) : undefined,
@@ -116,6 +123,7 @@ export function OpprettAvtaleContainer({
     handleSubmit,
     formState: { errors },
     watch,
+    setValue,
   } = form;
 
   const { data: leverandorData } = useVirksomhet(watch("leverandor"));
@@ -161,6 +169,7 @@ export function OpprettAvtaleContainer({
       navEnheter,
       leverandor: leverandorOrganisasjonsnummer,
       leverandorUnderenheter,
+      leverandorKontaktperson,
       avtalenavn: navn,
       startOgSluttDato,
       tiltakstype: tiltakstypeId,
@@ -191,6 +200,12 @@ export function OpprettAvtaleContainer({
         ? prisOgBetalingsinfo
         : undefined,
       opphav: avtale?.opphav,
+      leverandorKontaktperson: leverandorKontaktperson.navn ? {
+        id: avtale?.leverandorKontaktperson?.id ? avtale.leverandorKontaktperson.id : uuidv4(),
+        organisasjonsnummer: leverandorOrganisasjonsnummer,
+        navn: leverandorKontaktperson.navn,
+        ...leverandorKontaktperson
+      } : undefined,
     };
 
     if (avtale?.id) {
@@ -383,6 +398,44 @@ export function OpprettAvtaleContainer({
             {...register("leverandorUnderenheter")}
             options={underenheterOptions()}
           />
+        </FormGroup>
+        <FormGroup>
+          <div className={styles.kontaktperson_container}>
+            <label className={styles.kontaktperson_label} >
+              <b>Kontaktperson hos leverandøren</b>
+            </label>
+            <button
+              className={classNames(
+                styles.kontaktperson_button,
+                styles.kontaktperson_fjern_button
+              )}
+              type="button"
+              onClick={() => {
+                setValue('leverandorKontaktperson.navn', undefined)
+                setValue('leverandorKontaktperson.telefon', undefined)
+                setValue('leverandorKontaktperson.epost', undefined)
+              }}
+            >
+              <XMarkIcon />
+            </button>
+            <TextField
+              size="small"
+              label={"Navn"}
+              {...register('leverandorKontaktperson.navn')}
+            />
+            <div className={styles.kontaktperson_inputs}>
+              <TextField
+                size="small"
+                label="Telefon"
+                {...register('leverandorKontaktperson.telefon')}
+              />
+              <TextField
+                size="small"
+                label="Epost"
+                {...register('leverandorKontaktperson.epost')}
+              />
+            </div>
+          </div>
         </FormGroup>
         <FormGroup>
           <TextField

@@ -81,6 +81,7 @@ export function Avtaleinfo() {
           <Metadata header="Avtaletype" verdi={avtale.avtaletype} />
           <Metadata header="Avtalenr" verdi={avtale.avtalenummer} />
         </div>
+        <Separator />
         <div className={styles.bolk}>
           <Metadata
             header="Leverandør"
@@ -89,9 +90,20 @@ export function Avtaleinfo() {
               avtale.leverandor?.organisasjonsnummer
             }
           />
+        {avtale.leverandorKontaktperson &&
+            <Metadata
+              header="Kontaktperson"
+              verdi={
+                <div className={styles.leverandor_kontaktinfo}>
+                  <label>{avtale.leverandorKontaktperson?.navn}</label>
+                  <label>{avtale.leverandorKontaktperson?.telefon}</label>
+                  <label>{avtale.leverandorKontaktperson?.epost}</label>
+                </div>
+              }
+            />
+        }
         </div>
         <Separator />
-
         {tiltakstypekodeErAnskaffetTiltak(avtale.tiltakstype.arenaKode) ? (
           <>
             <div>

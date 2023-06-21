@@ -10,6 +10,7 @@ import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
+import no.nav.mulighetsrommet.domain.dto.VirksomhetKontaktperson
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -70,6 +71,7 @@ class AvtaleFixtures(private val database: FlywayDatabaseTestListener) {
         leverandorUnderenheter: List<String> = emptyList(),
         opphav: ArenaMigrering.Opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
         arenaAnsvarligEnhet: String? = null,
+        leverandorKontaktperson: VirksomhetKontaktperson? = null,
     ): AvtaleDbo {
         return AvtaleDbo(
             id = id,
@@ -88,6 +90,7 @@ class AvtaleFixtures(private val database: FlywayDatabaseTestListener) {
             opphav = opphav,
             ansvarlige = ansvarlige,
             navEnheter = navEnheter,
+            leverandorKontaktperson = leverandorKontaktperson,
         )
     }
 }

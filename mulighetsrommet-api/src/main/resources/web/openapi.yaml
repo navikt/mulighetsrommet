@@ -1073,6 +1073,8 @@ components:
           type: string
         leverandor:
           $ref: "#/components/schemas/Leverandor"
+        leverandorKontaktperson:
+          $ref: "#/components/schemas/VirksomhetKontaktperson"
         leverandorUnderenheter:
           type: array
           items:
@@ -1137,6 +1139,8 @@ components:
           type: string
         leverandorOrganisasjonsnummer:
           type: string
+        leverandorKontaktperson:
+          $ref: "#/components/schemas/VirksomhetKontaktperson"
         leverandorUnderenheter:
           type: array
           items:
@@ -1681,6 +1685,24 @@ components:
           type: string
       required:
         - organisasjonsnummer
+
+    VirksomhetKontaktperson:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        organisasjonsnummer:
+          type: string
+        navn:
+          type: string
+        telefon:
+          type: string
+        epost:
+          type: string
+      required:
+        - id
+        - navn
 
     EmbeddedNavEnhet:
       type: object
