@@ -30,8 +30,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         tg.tiltaksnummer,
         tg.virksomhetsnummer,
         v.navn as virksomhetsnavn,
-        tg.start_dato,
-        tg.slutt_dato,
+        tg.start_dato as gjennomforingStartdato,
+        tg.slutt_dato as gjennomforingSluttdato,
         t.tiltakskode,
         t.navn as tiltakstype_navn,
         tg.arena_ansvarlig_enhet,
@@ -45,6 +45,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         tg.opphav,
         tg.stengt_fra,
         tg.stengt_til,
+        avtale_ne.navn as navRegionForAvtale,
         array_agg(tg_a.navident) as ansvarlige,
         jsonb_agg(distinct
             case
@@ -290,12 +291,14 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 inner join tiltakstype t on t.id = tg.tiltakstype_id
                 left join tiltaksgjennomforing_ansvarlig tg_a on tg_a.tiltaksgjennomforing_id = tg.id
                 left join tiltaksgjennomforing_nav_enhet tg_e on tg_e.tiltaksgjennomforing_id = tg.id
+                left join avtale a on a.id = tg.avtale_id
                 left join nav_enhet ne on tg_e.enhetsnummer = ne.enhetsnummer
+                left join nav_enhet avtale_ne on avtale_ne.enhetsnummer = a.nav_region
                 left join virksomhet v on v.organisasjonsnummer = tg.virksomhetsnummer
                 left join tiltaksgjennomforing_kontaktperson tgk on tgk.tiltaksgjennomforing_id = tg.id
                 left join nav_ansatt na on na.nav_ident = tgk.kontaktperson_nav_ident
             where tg.sanity_id = any (?)
-            group by tg.id, t.id, v.navn
+            group by tg.id, t.id, v.navn, avtale_ne.navn
         """.trimIndent()
 
         return queryOf(query, db.createUuidArray(sanityIds))
@@ -315,12 +318,14 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 inner join tiltakstype t on t.id = tg.tiltakstype_id
                 left join tiltaksgjennomforing_ansvarlig tg_a on tg_a.tiltaksgjennomforing_id = tg.id
                 left join tiltaksgjennomforing_nav_enhet tg_e on tg_e.tiltaksgjennomforing_id = tg.id
+                left join avtale a on a.id = tg.avtale_id
                 left join nav_enhet ne on tg_e.enhetsnummer = ne.enhetsnummer
+                left join nav_enhet avtale_ne on avtale_ne.enhetsnummer = a.nav_region
                 left join virksomhet v on v.organisasjonsnummer = tg.virksomhetsnummer
                 left join tiltaksgjennomforing_kontaktperson tgk on tgk.tiltaksgjennomforing_id = tg.id
                 left join nav_ansatt na on na.nav_ident = tgk.kontaktperson_nav_ident
             where tg.id = ?::uuid
-            group by tg.id, t.id, v.navn
+            group by tg.id, t.id, v.navn, avtale_ne.navn
         """.trimIndent()
         queryOf(query, id)
             .map { it.toTiltaksgjennomforingAdminDto() }
@@ -386,8 +391,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             "arrangor-descending" -> "v.navn desc"
             "tiltakstype-ascending" -> "t.navn asc"
             "tiltakstype-descending" -> "t.navn desc"
-            "startdato-ascending" -> "tg.start_dato asc"
-            "startdato-descending" -> "tg.start_dato desc"
+            "startdato-ascending" -> "gjennomforingStartdato asc"
+            "startdato-descending" -> "gjennomforingStartdato desc"
             "sluttdato-ascending" -> "tg.slutt_dato asc"
             "sluttdato-descending" -> "tg.slutt_dato desc"
             else -> "tg.navn asc"
@@ -402,12 +407,14 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 inner join tiltakstype t on tg.tiltakstype_id = t.id
                 left join tiltaksgjennomforing_ansvarlig tg_a on tg_a.tiltaksgjennomforing_id = tg.id
                 left join tiltaksgjennomforing_nav_enhet tg_e on tg_e.tiltaksgjennomforing_id = tg.id
+                left join avtale a on a.id = tg.avtale_id
                 left join nav_enhet ne on tg_e.enhetsnummer = ne.enhetsnummer
+                left join nav_enhet avtale_ne on avtale_ne.enhetsnummer = a.nav_region
                 left join virksomhet v on v.organisasjonsnummer = tg.virksomhetsnummer
                 left join tiltaksgjennomforing_kontaktperson tgk on tgk.tiltaksgjennomforing_id = tg.id
                 left join nav_ansatt na on na.nav_ident = tgk.kontaktperson_nav_ident
             $where
-            group by tg.id, t.id, v.navn
+            group by tg.id, t.id, v.navn, avtale_ne.navn
             order by $order
             limit :limit
             offset :offset
@@ -435,22 +442,22 @@ class TiltaksgjennomforingRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            select id::uuid,
-                   navn,
-                   tiltakstype_id,
-                   tiltaksnummer,
-                   virksomhetsnummer,
-                   start_dato,
-                   slutt_dato,
-                   arena_ansvarlig_enhet,
-                   avslutningsstatus,
-                   tilgjengelighet,
-                   estimert_ventetid,
-                   antall_plasser,
-                   avtale_id,
-                   oppstart,
-                   opphav
-            from tiltaksgjennomforing
+            select tg.id::uuid,
+                   tg.navn,
+                   tg.tiltakstype_id,
+                   tg.tiltaksnummer,
+                   tg.virksomhetsnummer,
+                   tg.start_dato,
+                   tg.slutt_dato,
+                   tg.arena_ansvarlig_enhet,
+                   tg.avslutningsstatus,
+                   tg.tilgjengelighet,
+                   tg.estimert_ventetid,
+                   tg.antall_plasser,
+                   tg.avtale_id,
+                   tg.oppstart,
+                   tg.opphav
+            from tiltaksgjennomforing tg
             where avslutningsstatus = :avslutningsstatus::avslutningsstatus and (
                 (start_dato > :date_interval_start and start_dato <= :date_interval_end) or
                 (slutt_dato >= :date_interval_start and slutt_dato < :date_interval_end))
@@ -515,11 +522,11 @@ class TiltaksgjennomforingRepository(private val db: Database) {
 
     private fun Tiltaksgjennomforingsstatus.toDbStatement(): String {
         return when (this) {
-            Tiltaksgjennomforingsstatus.APENT_FOR_INNSOK -> "(:today < start_dato and avslutningsstatus = '${Avslutningsstatus.IKKE_AVSLUTTET}')"
-            Tiltaksgjennomforingsstatus.GJENNOMFORES -> "((:today >= start_dato and (:today <= slutt_dato or slutt_dato is null)) and avslutningsstatus = '${Avslutningsstatus.IKKE_AVSLUTTET}')"
-            Tiltaksgjennomforingsstatus.AVSLUTTET -> "(:today > slutt_dato or avslutningsstatus = '${Avslutningsstatus.AVSLUTTET}')"
-            Tiltaksgjennomforingsstatus.AVBRUTT -> "avslutningsstatus = '${Avslutningsstatus.AVBRUTT}'"
-            Tiltaksgjennomforingsstatus.AVLYST -> "avslutningsstatus = '${Avslutningsstatus.AVLYST}'"
+            Tiltaksgjennomforingsstatus.APENT_FOR_INNSOK -> "(:today < tg.start_dato and tg.avslutningsstatus = '${Avslutningsstatus.IKKE_AVSLUTTET}')"
+            Tiltaksgjennomforingsstatus.GJENNOMFORES -> "((:today >= tg.start_dato and (:today <= tg.slutt_dato or tg.slutt_dato is null)) and tg.avslutningsstatus = '${Avslutningsstatus.IKKE_AVSLUTTET}')"
+            Tiltaksgjennomforingsstatus.AVSLUTTET -> "(:today > tg.slutt_dato or tg.avslutningsstatus = '${Avslutningsstatus.AVSLUTTET}')"
+            Tiltaksgjennomforingsstatus.AVBRUTT -> "tg.avslutningsstatus = '${Avslutningsstatus.AVBRUTT}'"
+            Tiltaksgjennomforingsstatus.AVLYST -> "tg.avslutningsstatus = '${Avslutningsstatus.AVLYST}'"
         }
     }
 
@@ -569,8 +576,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         val kontaktpersoner =
             Json.decodeFromString<List<TiltaksgjennomforingKontaktperson?>>(string("kontaktpersoner")).filterNotNull()
 
-        val startDato = localDate("start_dato")
-        val sluttDato = localDateOrNull("slutt_dato")
+        val startDato = localDate("gjennomforingStartdato")
+        val sluttDato = localDateOrNull("gjennomforingSluttdato")
         return TiltaksgjennomforingAdminDto(
             id = uuid("id"),
             tiltakstype = TiltaksgjennomforingAdminDto.Tiltakstype(
@@ -597,6 +604,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             avtaleId = uuidOrNull("avtale_id"),
             ansvarlig = ansvarlige.getOrNull(0),
             navEnheter = navEnheter,
+            navRegion = stringOrNull("navRegionForAvtale"),
             sanityId = stringOrNull("sanity_id"),
             oppstart = TiltaksgjennomforingDbo.Oppstartstype.valueOf(string("oppstart")),
             opphav = ArenaMigrering.Opphav.valueOf(string("opphav")),
@@ -704,9 +712,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                    array_agg(e.enhetsnummer) as navEnheter,
                    tg.tiltaksnummer
             from tiltaksgjennomforing tg
-                     left join tiltaksgjennomforing_ansvarlig a on a.tiltaksgjennomforing_id = tg.id
+                    left join tiltaksgjennomforing_ansvarlig a on a.tiltaksgjennomforing_id = tg.id
                     left join tiltaksgjennomforing_nav_enhet e on e.tiltaksgjennomforing_id = tg.id
-
             where tg.stengt_til is not null and
                (?::timestamp + interval '7' day) = tg.stengt_til
                or (?::timestamp + interval '1' day) = tg.stengt_til

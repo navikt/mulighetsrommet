@@ -1284,6 +1284,8 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/EmbeddedNavEnhet"
+        navRegion:
+          type: string
         ansvarlig:
           type: string
         antallPlasser:

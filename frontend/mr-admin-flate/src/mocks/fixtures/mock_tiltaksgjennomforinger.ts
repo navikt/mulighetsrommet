@@ -26,7 +26,16 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       startDato: "2022-01-01",
       sluttDato: "2022-12-12",
       arenaAnsvarligEnhet: "2990",
-      navEnheter: [],
+      navEnheter: [
+        {
+          enhetsnummer: "5701",
+          navn: "NAV Falkenborg",
+        },
+        {
+          enhetsnummer: "5703",
+          navn: "NAV Indre Fosen",
+        },
+      ],
       status: TiltaksgjennomforingStatus.GJENNOMFORES,
       opphav: Opphav.MR_ADMIN_FLATE,
       tilgjengelighet: Tilgjengelighetsstatus.LEDIG,

@@ -4,6 +4,7 @@ import Lenke from "mulighetsrommet-veileder-flate/src/components/lenke/Lenke";
 import React from "react";
 import { SorteringTiltaksgjennomforinger } from "../../../../mulighetsrommet-api-client";
 import { paginationAtom, tiltaksgjennomforingfilter } from "../../api/atoms";
+import { useAlleEnheter } from "../../api/enhet/useAlleEnheter";
 import { useAdminTiltaksgjennomforinger } from "../../api/tiltaksgjennomforing/useAdminTiltaksgjennomforinger";
 import { useSort } from "../../hooks/useSort";
 import pageStyles from "../../pages/Page.module.scss";
@@ -71,12 +72,14 @@ export const TiltaksgjennomforingsTabell = ({ skjulKolonner }: Props) => {
   const [page, setPage] = useAtom(paginationAtom);
   const [sort, setSort] = useSort("navn");
   const [filter, setFilter] = useAtom(tiltaksgjennomforingfilter);
+  const { data: enheter, isLoading: enheterIsLoading } = useAlleEnheter();
   const pagination = data?.pagination;
   const tiltaksgjennomforinger = data?.data ?? [];
 
   if (
-    (!tiltaksgjennomforinger || tiltaksgjennomforinger.length === 0) &&
-    isLoading
+    ((!tiltaksgjennomforinger || tiltaksgjennomforinger.length === 0) &&
+      isLoading) ||
+    enheterIsLoading
   ) {
     return <Laster size="xlarge" tekst="Laster tiltaksgjennomføringer..." />;
   }
@@ -122,13 +125,14 @@ export const TiltaksgjennomforingsTabell = ({ skjulKolonner }: Props) => {
   };
 
   const formaterNavEnheter = (
+    navRegion: string = "",
     navEnheter?: { navn?: string | null; enhetsnummer?: string }[]
   ): string => {
     const liste = [...(navEnheter || [])];
     if (!liste) return "";
 
     const forsteEnhet = liste.shift();
-    if (!forsteEnhet) return "";
+    if (!forsteEnhet) return navRegion;
 
     return `${forsteEnhet?.navn} ${
       liste.length > 0 ? `+ ${liste.length}` : ""
@@ -203,7 +207,10 @@ export const TiltaksgjennomforingsTabell = ({ skjulKolonner }: Props) => {
                         .map((enhet) => enhet?.navn)
                         .join(", ")}`}
                     >
-                      {formaterNavEnheter(tiltaksgjennomforing.navEnheter)}
+                      {formaterNavEnheter(
+                        tiltaksgjennomforing.navRegion,
+                        tiltaksgjennomforing.navEnheter
+                      )}
                     </Table.DataCell>
                   </SkjulKolonne>
 
