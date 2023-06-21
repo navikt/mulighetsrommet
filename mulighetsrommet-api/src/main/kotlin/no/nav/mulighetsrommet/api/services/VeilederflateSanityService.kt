@@ -213,7 +213,7 @@ class VeilederflateSanityService(
             .map {
                 KontaktinfoTiltaksansvarlige(
                     navn = it.navn,
-                    telefonnummer = it.mobilnummer ?: "",
+                    telefonnummer = it.mobilnummer,
                     enhet = it.hovedenhet,
                     epost = it.epost,
                     _rev = null,

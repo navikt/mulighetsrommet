@@ -5,7 +5,6 @@ import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo.Oppstartstype
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo.Tilgjengelighetsstatus
-import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingKontaktperson
 import java.time.LocalDate
 import java.util.*
 
@@ -26,15 +25,7 @@ object TiltaksgjennomforingFixtures {
         navEnheter = emptyList(),
         oppstart = Oppstartstype.FELLES,
         opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
-        kontaktpersoner = listOf(
-            TiltaksgjennomforingKontaktperson(
-                navIdent = "D123456",
-                navn = "Donald Duck",
-                mobilnummer = "12345678",
-                epost = "donald.duck@nav.no",
-                navEnheter = listOf("2990", "2991"),
-            ),
-        ),
+        kontaktpersoner = emptyList(),
     )
 
     val Oppfolging2 = TiltaksgjennomforingDbo(
@@ -53,15 +44,7 @@ object TiltaksgjennomforingFixtures {
         navEnheter = emptyList(),
         oppstart = Oppstartstype.FELLES,
         opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
-        kontaktpersoner = listOf(
-            TiltaksgjennomforingKontaktperson(
-                navIdent = "D123456",
-                navn = "Donald Duck",
-                mobilnummer = "12345678",
-                epost = "donald.duck@nav.no",
-                navEnheter = listOf("2990", "2991"),
-            ),
-        ),
+        kontaktpersoner = emptyList(),
     )
 
     val Arbeidstrening1 = TiltaksgjennomforingDbo(
@@ -80,14 +63,6 @@ object TiltaksgjennomforingFixtures {
         navEnheter = emptyList(),
         oppstart = Oppstartstype.FELLES,
         opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
-        kontaktpersoner = listOf(
-            TiltaksgjennomforingKontaktperson(
-                navIdent = "D123456",
-                navn = "Donald Duck",
-                mobilnummer = "12345678",
-                epost = "donald.duck@nav.no",
-                navEnheter = listOf("2990", "2991"),
-            ),
-        ),
+        kontaktpersoner = emptyList(),
     )
 }

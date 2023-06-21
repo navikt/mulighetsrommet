@@ -201,7 +201,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 ).asExecute,
             )
 
-            tiltaksgjennomforing.kontaktpersoner?.forEach { kontakt ->
+            tiltaksgjennomforing.kontaktpersoner.forEach { kontakt ->
                 tx.run(
                     queryOf(
                         upsertKontaktperson,
@@ -217,7 +217,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 queryOf(
                     deleteKontaktpersoner,
                     tiltaksgjennomforing.id,
-                    tiltaksgjennomforing.kontaktpersoner?.let { kontakt -> db.createTextArray(kontakt.map { it.navIdent }) },
+                    tiltaksgjennomforing.kontaktpersoner.let { kontakt -> db.createTextArray(kontakt.map { it.navIdent }) },
                 ).asExecute,
             )
         }

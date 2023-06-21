@@ -13,3 +13,6 @@ alter table nav_ansatt
 
 alter table nav_ansatt
     add roller nav_ansatt_rolle[] not null default array []::nav_ansatt_rolle[];
+
+alter table tiltaksgjennomforing_kontaktperson
+    add constraint fk_kontaktperson_nav_ident foreign key (kontaktperson_nav_ident) references nav_ansatt (nav_ident) on delete cascade;
