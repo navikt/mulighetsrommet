@@ -9,4 +9,5 @@ data class TiltaksgjennomforingKontaktperson(
     val epost: String? = null,
     val mobilnummer: String? = null,
     val navEnheter: List<String>,
+    val hovedenhet: String? = null,
 )

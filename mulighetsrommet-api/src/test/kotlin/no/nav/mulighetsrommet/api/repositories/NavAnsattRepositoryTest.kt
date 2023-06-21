@@ -2,16 +2,13 @@ package no.nav.mulighetsrommet.api.repositories
 
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
-import no.nav.mulighetsrommet.api.utils.NavAnsattFilter
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.database.utils.getOrThrow
 import java.util.*
 
 class NavAnsattRepositoryTest : FunSpec({
@@ -33,8 +30,6 @@ class NavAnsattRepositoryTest : FunSpec({
         }
 
         test("CRUD") {
-            val adGruppe1 = UUID.randomUUID()
-            val adGruppe2 = UUID.randomUUID()
             val azureId = UUID.randomUUID()
 
             val ansatt = NavAnsattDbo(
@@ -43,75 +38,69 @@ class NavAnsattRepositoryTest : FunSpec({
                 fornavn = "Donald",
                 etternavn = "Duck",
                 hovedenhet = "1000",
-                fraAdGruppe = adGruppe1,
                 mobilnummer = "12345678",
                 epost = "test@test.no",
-                rolle = NavAnsattRolle.BETABRUKER,
-            )
-
-            val ansatt2 = NavAnsattDbo(
-                azureId = azureId,
-                navIdent = "DD123456",
-                fornavn = "Donald",
-                etternavn = "Duck",
-                hovedenhet = "1000",
-                fraAdGruppe = adGruppe2,
-                mobilnummer = "12345678",
-                epost = "test@test.no",
-                rolle = NavAnsattRolle.KONTAKTPERSON,
+                roller = listOf(NavAnsattRolle.BETABRUKER, NavAnsattRolle.KONTAKTPERSON),
             )
 
             ansatte.upsert(ansatt).shouldBeRight()
-            ansatte.upsert(ansatt2).shouldBeRight()
 
-            ansatte.getByAzureIdAndAdGruppe(ansatt.azureId, NavAnsattRolle.BETABRUKER) shouldBeRight ansatt
-            ansatte.getByNavIdentAndRolle(ansatt.navIdent, NavAnsattRolle.BETABRUKER) shouldBeRight ansatt
-            ansatte.getByAzureIdAndAdGruppe(ansatt2.azureId, NavAnsattRolle.KONTAKTPERSON) shouldBeRight ansatt2
-            ansatte.getByNavIdentAndRolle(ansatt2.navIdent, NavAnsattRolle.KONTAKTPERSON) shouldBeRight ansatt2
+            ansatte.getByAzureId(ansatt.azureId) shouldBeRight ansatt
+            ansatte.getByNavIdent(ansatt.navIdent) shouldBeRight ansatt
 
             ansatte.deleteByAzureId(ansatt.azureId).shouldBeRight()
 
-            ansatte.getByAzureIdAndAdGruppe(ansatt.azureId, NavAnsattRolle.BETABRUKER) shouldBeRight null
-            ansatte.getByNavIdentAndRolle(ansatt.navIdent, NavAnsattRolle.BETABRUKER) shouldBeRight null
-            ansatte.getByAzureIdAndAdGruppe(ansatt2.azureId, NavAnsattRolle.KONTAKTPERSON) shouldBeRight null
-            ansatte.getByNavIdentAndRolle(ansatt2.navIdent, NavAnsattRolle.KONTAKTPERSON) shouldBeRight null
+            ansatte.getByAzureId(ansatt.azureId) shouldBeRight null
+            ansatte.getByNavIdent(ansatt.navIdent) shouldBeRight null
         }
 
-        test("Skal hente alle ansatte for en gitt ad-gruppe") {
-            val adGruppe1 = UUID.randomUUID()
-            val adGruppe2 = UUID.randomUUID()
-            val azureId = UUID.randomUUID()
-
-            val ansatt = NavAnsattDbo(
-                azureId = azureId,
-                navIdent = "DD123456",
+        test("Skal hente alle ansatte for en gitt rolle") {
+            val ansatt1 = NavAnsattDbo(
+                azureId = UUID.randomUUID(),
+                navIdent = "D1",
                 fornavn = "Donald",
                 etternavn = "Duck",
                 hovedenhet = "1000",
-                fraAdGruppe = adGruppe1,
                 mobilnummer = "12345678",
-                epost = "test@test.no",
-                rolle = NavAnsattRolle.BETABRUKER,
+                epost = "donald@nav.no",
+                roller = listOf(NavAnsattRolle.BETABRUKER),
             )
 
             val ansatt2 = NavAnsattDbo(
-                azureId = azureId,
-                navIdent = "DD123456",
-                fornavn = "Donald",
+                azureId = UUID.randomUUID(),
+                navIdent = "D2",
+                fornavn = "Dolly",
                 etternavn = "Duck",
                 hovedenhet = "1000",
-                fraAdGruppe = adGruppe2,
                 mobilnummer = "12345678",
-                epost = "test@test.no",
-                rolle = NavAnsattRolle.KONTAKTPERSON,
+                epost = "dolly@nav.no",
+                roller = listOf(NavAnsattRolle.KONTAKTPERSON),
             )
 
-            ansatte.upsert(ansatt).shouldBeRight()
-            ansatte.upsert(ansatt2).shouldBeRight()
+            val ansatt3 = NavAnsattDbo(
+                azureId = UUID.randomUUID(),
+                navIdent = "D3",
+                fornavn = "Ole",
+                etternavn = "Duck",
+                hovedenhet = "1000",
+                mobilnummer = "12345678",
+                epost = "ole@nav.no",
+                roller = listOf(NavAnsattRolle.BETABRUKER, NavAnsattRolle.KONTAKTPERSON),
+            )
 
-            val result =
-                ansatte.getAll(filter = NavAnsattFilter(roller = listOf(NavAnsattRolle.KONTAKTPERSON))).getOrThrow()
-            result.size shouldBe 1
+            ansatte.upsert(ansatt1).shouldBeRight()
+            ansatte.upsert(ansatt2).shouldBeRight()
+            ansatte.upsert(ansatt3).shouldBeRight()
+
+            ansatte.getAll(
+                roller = listOf(NavAnsattRolle.BETABRUKER),
+            ) shouldBeRight listOf(ansatt1, ansatt3)
+            ansatte.getAll(
+                roller = listOf(NavAnsattRolle.KONTAKTPERSON),
+            ) shouldBeRight listOf(ansatt2, ansatt3)
+            ansatte.getAll(
+                roller = listOf(NavAnsattRolle.BETABRUKER, NavAnsattRolle.KONTAKTPERSON),
+            ) shouldBeRight listOf(ansatt3)
         }
     }
 })

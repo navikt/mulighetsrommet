@@ -66,7 +66,15 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         test("CRUD") {
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
             val navEnheter = NavEnhetRepository(database.db)
-            navEnheter.upsert(NavEnhetDbo(navn = "NAV Andeby", enhetsnummer = "2990", status = NavEnhetStatus.AKTIV, type = Norg2Type.TILTAK, overordnetEnhet = null))
+            navEnheter.upsert(
+                NavEnhetDbo(
+                    navn = "NAV Andeby",
+                    enhetsnummer = "2990",
+                    status = NavEnhetStatus.AKTIV,
+                    type = Norg2Type.TILTAK,
+                    overordnetEnhet = null,
+                ),
+            )
             val navAnsatte = NavAnsattRepository(database.db)
             navAnsatte.upsert(
                 NavAnsattDbo(
@@ -75,10 +83,9 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     etternavn = "Duck",
                     hovedenhet = "2990",
                     azureId = UUID.randomUUID(),
-                    fraAdGruppe = UUID.randomUUID(),
                     mobilnummer = "12345678",
                     epost = "donald.duck@nav.no",
-                    rolle = NavAnsattRolle.KONTAKTPERSON,
+                    roller = listOf(NavAnsattRolle.KONTAKTPERSON),
                 ),
             ).shouldBeRight()
 
@@ -117,6 +124,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                         mobilnummer = "12345678",
                         epost = "donald.duck@nav.no",
                         navEnheter = listOf("2990", "2991"),
+                        hovedenhet = "2990",
                     ),
                 ),
             )

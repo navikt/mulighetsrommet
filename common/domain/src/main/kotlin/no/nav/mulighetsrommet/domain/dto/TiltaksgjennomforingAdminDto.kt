@@ -39,7 +39,7 @@ data class TiltaksgjennomforingAdminDto(
     val stengtFra: LocalDate?,
     @Serializable(with = LocalDateSerializer::class)
     val stengtTil: LocalDate? = null,
-    val kontaktpersoner: List<TiltaksgjennomforingKontaktperson>? = emptyList(),
+    val kontaktpersoner: List<TiltaksgjennomforingKontaktperson> = emptyList(),
 ) {
     @Serializable
     data class Tiltakstype(
