@@ -148,7 +148,6 @@ export function tilgjengelighetsstatusTilTekst(
   }
 }
 
-
 export function avtaletypeTilTekst(
   type: Avtaletype
 ): "Avtale" | "Rammeavtale" | "Forhåndsgodkjent" {

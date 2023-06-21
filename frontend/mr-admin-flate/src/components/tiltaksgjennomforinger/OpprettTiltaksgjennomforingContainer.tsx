@@ -115,7 +115,7 @@ const Schema = z
       ),
     oppstart: z.custom<TiltaksgjennomforingOppstartstype>(
       (val) => !!val,
-      "Du må velge oppstart type"
+      "Du må velge oppstartstype"
     ),
     apenForInnsok: z.boolean(),
     estimertVentetid: z.string().optional(),
@@ -498,7 +498,7 @@ export const OpprettTiltaksgjennomforingContainer = (
             {...register("oppstart")}
             options={[
               {
-                label: "Dato",
+                label: "Felles",
                 value: TiltaksgjennomforingOppstartstype.FELLES,
               },
               {

@@ -1,5 +1,5 @@
 /* eslint-disable camelcase */
-import { SanityTiltaksgjennomforing, Tilgjengelighetsstatus } from 'mulighetsrommet-api-client';
+import { Tilgjengelighetsstatus } from 'mulighetsrommet-api-client';
 import StatusGronn from '../../ikoner/Sirkel-gronn.png';
 import StatusGul from '../../ikoner/Sirkel-gul.png';
 import StatusRod from '../../ikoner/Sirkel-rod.png';
@@ -7,7 +7,7 @@ import { formaterDato } from '../../utils/Utils';
 import styles from './Tilgjengelighetsstatus.module.scss';
 
 interface Props {
-  status?: SanityTiltaksgjennomforing.tilgjengelighetsstatus | Tilgjengelighetsstatus;
+  status?: Tilgjengelighetsstatus;
   estimert_ventetid?: string;
   stengtFra?: string;
   stengtTil?: string;
@@ -32,7 +32,7 @@ export function TilgjengelighetsstatusComponent({ status, estimert_ventetid, ste
       </div>
     );
   }
-  if (status === 'Ledig' || status === 'LEDIG' || !status) {
+  if (status === Tilgjengelighetsstatus.LEDIG || !status) {
     return (
       <div>
         <div className={styles.tilgjengelighetsstatus}>
@@ -42,7 +42,7 @@ export function TilgjengelighetsstatusComponent({ status, estimert_ventetid, ste
         <EstimertVentetid estimert_ventetid={estimert_ventetid} />
       </div>
     );
-  } else if (status === 'Stengt' || status === 'STENGT') {
+  } else if (status === Tilgjengelighetsstatus.STENGT) {
     return (
       <div title={estimert_ventetid ?? ''}>
         <div className={styles.tilgjengelighetsstatus}>
@@ -52,7 +52,7 @@ export function TilgjengelighetsstatusComponent({ status, estimert_ventetid, ste
         <EstimertVentetid estimert_ventetid={estimert_ventetid} />
       </div>
     );
-  } else if (status === 'Venteliste' || status === 'VENTELISTE') {
+  } else if (status === Tilgjengelighetsstatus.VENTELISTE) {
     return (
       <div title={estimert_ventetid ?? ''}>
         <div className={styles.tilgjengelighetsstatus}>

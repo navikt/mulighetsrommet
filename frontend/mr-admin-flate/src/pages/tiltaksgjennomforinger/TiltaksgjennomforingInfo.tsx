@@ -94,7 +94,7 @@ export function TiltaksgjennomforingInfo() {
             verdi={
               tiltaksgjennomforing.oppstart ===
               TiltaksgjennomforingOppstartstype.FELLES
-                ? "Dato"
+                ? "Felles"
                 : "Løpende oppstart"
             }
           />
