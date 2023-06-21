@@ -99,7 +99,6 @@ class VeilederflateSanityService(
                 lokasjon,
                 oppstart,
                 oppstartsdato,
-                estimert_ventetid,
                 "tiltaksnummer": tiltaksnummer.current,
                 kontaktinfoArrangor->{selskapsnavn},
                 tiltakstype->{tiltakstypeNavn}
@@ -129,7 +128,6 @@ class VeilederflateSanityService(
                 tiltaksgjennomforingNavn,
                 beskrivelse,
                 "tiltaksnummer": tiltaksnummer.current,
-                estimert_ventetid,
                 lokasjon,
                 oppstart,
                 oppstartsdato,
@@ -188,7 +186,6 @@ class VeilederflateSanityService(
                 val kontaktpersoner = hentKontaktpersoner(gjennomforingerFraDb[sanityData._id], enhetsId)
                 val oppstart = apiGjennomforing?.oppstart?.name?.lowercase() ?: sanityData.oppstart
                 val oppstartsdato = apiGjennomforing?.oppstartsdato ?: sanityData.oppstartsdato
-                val estimertVentetid = apiGjennomforing?.estimertVentetid ?: sanityData.estimert_ventetid
                 sanityData.copy(
                     stengtFra = apiGjennomforing?.stengtFra,
                     stengtTil = apiGjennomforing?.stengtTil,
@@ -196,7 +193,7 @@ class VeilederflateSanityService(
                     oppstart = oppstart,
                     oppstartsdato = oppstartsdato,
                     tilgjengelighetsstatus = apiGjennomforing?.tilgjengelighet?.name,
-                    estimert_ventetid = estimertVentetid,
+                    estimert_ventetid = apiGjennomforing?.estimertVentetid,
                 )
             }
     }

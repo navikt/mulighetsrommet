@@ -146,14 +146,6 @@ export const tiltaksgjennomforing = defineType({
       },
     }),
     defineField({
-      name: "estimert_ventetid",
-      title: "Merknad til tilgjengelighetsstatus",
-      description:
-        "Dette feltet er utilgjengelig mens vi jobber med å flytte det til Admin-flate",
-      type: "string",
-      readOnly: true,
-    }),
-    defineField({
       name: "oppstart",
       title: "Oppstart",
       type: "string",
