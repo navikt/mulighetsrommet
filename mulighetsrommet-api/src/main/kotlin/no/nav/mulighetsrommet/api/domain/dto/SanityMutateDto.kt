@@ -37,6 +37,7 @@ data class SanityTiltaksgjennomforing(
 @Serializable
 data class SanityEnhet(
     val _id: String,
+    @EncodeDefault
     val _type: String = "enhet",
     val navn: String,
     val nummer: EnhetSlug,
@@ -47,12 +48,14 @@ data class SanityEnhet(
 
 @Serializable
 data class EnhetSlug(
+    @EncodeDefault
     val _type: String = "slug",
     val current: String,
 )
 
 @Serializable
 data class TiltakstypeRef(
+    @EncodeDefault
     val _type: String = "reference",
     val _ref: String,
     val _key: String? = null,
@@ -65,6 +68,7 @@ data class TiltakstypeIdResponse(
 
 @Serializable
 data class FylkeRef(
+    @EncodeDefault
     val _type: String = "reference",
     val _ref: String,
     val _key: String? = null,
