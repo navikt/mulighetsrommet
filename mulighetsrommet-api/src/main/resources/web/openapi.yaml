@@ -1788,11 +1788,7 @@ components:
           items:
             $ref: "#/components/schemas/SanityKontakinfoTiltaksansvarlige"
         tilgjengelighetsstatus:
-          type: string
-          enum:
-            - Ledig
-            - Venteliste
-            - Stengt
+          $ref: "#/components/schemas/Tilgjengelighetsstatus"
         stengtFra:
           type: string
         stengtTil:

@@ -46,7 +46,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         tg.stengt_fra,
         tg.stengt_til,
         array_agg(tg_a.navident) as ansvarlige,
-        jsonb_agg(distinct 
+        jsonb_agg(distinct
             case
                 when tg_e.enhetsnummer is null then null::jsonb
                 else jsonb_build_object('enhetsnummer', tg_e.enhetsnummer, 'navn', ne.navn)
