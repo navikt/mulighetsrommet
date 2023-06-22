@@ -22,8 +22,8 @@ data class Group(
 
 class SynchronizeNavAnsatte(
     config: Config,
-    msGraphClient: MicrosoftGraphClient,
-    ansatte: NavAnsattRepository,
+    private val msGraphClient: MicrosoftGraphClient,
+    private val ansatte: NavAnsattRepository,
     slack: SlackNotifier,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
@@ -58,33 +58,7 @@ class SynchronizeNavAnsatte(
             logger.info("Synkroniserer NAV-ansatte fra Azure til database...")
 
             runBlocking {
-                config.groups
-                    .flatMap { group ->
-                        logger.info("Henter brukere i AD-gruppe id=${group.adGruppe}")
-
-                        val members = msGraphClient.getGroupMembers(group.adGruppe)
-
-                        members.map { ansatt ->
-                            ansatt.run {
-                                NavAnsattDbo(
-                                    navIdent = navident,
-                                    fornavn = fornavn,
-                                    etternavn = etternavn,
-                                    hovedenhet = hovedenhetKode,
-                                    azureId = azureId,
-                                    mobilnummer = mobilnr,
-                                    epost = epost,
-                                    roller = listOf(group.rolle),
-                                )
-                            }
-                        }
-                    }
-                    .groupBy { it.navIdent }
-                    .map { (_, value) ->
-                        value.reduce { a1, a2 ->
-                            a1.copy(roller = a1.roller + a2.roller)
-                        }
-                    }
+                resolveNavAnsatte(config.groups, msGraphClient)
                     .forEach { ansatt ->
                         ansatte.upsert(ansatt).onLeft {
                             throw it.error
@@ -93,3 +67,17 @@ class SynchronizeNavAnsatte(
             }
         }
 }
+
+internal suspend fun resolveNavAnsatte(groups: List<Group>, microsoftGraphClient: MicrosoftGraphClient) = groups
+    .flatMap { group ->
+        val members = microsoftGraphClient.getGroupMembers(group.adGruppe)
+        members.map { ansatt ->
+            NavAnsattDbo.fromDto(ansatt, listOf(group.rolle))
+        }
+    }
+    .groupBy { it.navIdent }
+    .map { (_, value) ->
+        value.reduce { a1, a2 ->
+            a1.copy(roller = a1.roller + a2.roller)
+        }
+    }
