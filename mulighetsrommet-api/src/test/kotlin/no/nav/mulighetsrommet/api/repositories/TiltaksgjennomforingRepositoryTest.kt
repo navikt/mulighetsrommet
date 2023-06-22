@@ -2,10 +2,7 @@ package no.nav.mulighetsrommet.api.repositories
 
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.collections.shouldBeEmpty
-import io.kotest.matchers.collections.shouldContainAll
-import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
-import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.collections.*
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
@@ -138,6 +135,22 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             tiltaksgjennomforinger.get(gjennomforing.id).shouldBeRight().should {
                 it!!.stengtFra shouldBe LocalDate.of(2020, 1, 22)
                 it.stengtTil shouldBe LocalDate.of(2020, 4, 22)
+            }
+        }
+
+        test("Skal hente ut navRegion fra avtale for en gitt gjennomføring") {
+            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
+            val navEnheter = NavEnhetRepository(database.db)
+            navEnheter.upsert(NavEnhetDbo(navn = "NAV Andeby", enhetsnummer = "2990", status = NavEnhetStatus.AKTIV, type = Norg2Type.FYLKE, overordnetEnhet = null))
+            navEnheter.upsert(NavEnhetDbo(navn = "NAV Gåseby", enhetsnummer = "2980", status = NavEnhetStatus.AKTIV, type = Norg2Type.LOKAL, overordnetEnhet = null))
+            val avtaleFixtures = AvtaleFixtures(database)
+            val avtale = avtale1.copy(navRegion = "2990")
+            avtaleFixtures.upsertAvtaler(listOf(avtale))
+            val tiltaksgjennomforing = TiltaksgjennomforingFixtures.Oppfolging1.copy(avtaleId = avtale.id, navEnheter = listOf("2980"))
+            tiltaksgjennomforinger.upsert(tiltaksgjennomforing).shouldBeRight()
+            tiltaksgjennomforinger.get(tiltaksgjennomforing.id).shouldBeRight().should {
+                it?.navRegion shouldBe "NAV Andeby"
+                it?.navEnheter?.shouldContain(NavEnhet(enhetsnummer = "2980", "NAV Gåseby"))
             }
         }
 

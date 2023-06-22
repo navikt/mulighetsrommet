@@ -30,6 +30,7 @@ data class TiltaksgjennomforingAdminDto(
     val avtaleId: UUID? = null,
     val ansvarlig: String?,
     val navEnheter: List<NavEnhet>,
+    val navRegion: String? = null,
     val sanityId: String?,
     val oppstart: TiltaksgjennomforingDbo.Oppstartstype,
     @Serializable(with = LocalDateSerializer::class)
