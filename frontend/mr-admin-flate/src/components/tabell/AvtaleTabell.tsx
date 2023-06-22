@@ -184,7 +184,7 @@ export const AvtaleTabell = () => {
               Leverandør
             </Table.ColumnHeader>
             <Table.ColumnHeader sortKey="nav-enhet" sortable>
-              Enhet
+              Region
             </Table.ColumnHeader>
             <Table.ColumnHeader sortKey="startdato" sortable>
               Startdato
@@ -214,7 +214,7 @@ export const AvtaleTabell = () => {
                     ""}
                 </Table.DataCell>
                 <Table.DataCell
-                  aria-label={`NAV-enhet: ${
+                  aria-label={`NAV-region: ${
                     avtale.navRegion?.navn || avtale.navRegion?.enhetsnummer
                   }`}
                 >

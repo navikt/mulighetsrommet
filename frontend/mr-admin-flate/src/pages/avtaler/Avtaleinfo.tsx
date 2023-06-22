@@ -77,7 +77,7 @@ export function Avtaleinfo() {
         <Separator />
         <div className={styles.bolk}>
           <Metadata header="Tiltakstype" verdi={avtale.tiltakstype.navn} />
-          <Metadata header="Enhet" verdi={avtale.navRegion?.navn} />
+          <Metadata header="Region" verdi={avtale.navRegion?.navn} />
 
           <Metadata
             header="Avtaletype"
