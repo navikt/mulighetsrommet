@@ -1,5 +1,5 @@
 import { Heading } from "@navikt/ds-react";
-import { useHentAnsatt } from "../../api/administrator/useHentAdministrator";
+import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
 import { useFeatureToggles } from "../../api/features/feature-toggles";
 import { useNotificationSummary } from "../../api/notifikasjoner/useNotificationSummary";
 import styles from "./BrukerNotifikasjoner.module.scss";

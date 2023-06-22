@@ -1,7 +1,7 @@
 import { Alert, BodyShort, Heading } from "@navikt/ds-react";
 import { Route, Routes } from "react-router-dom";
-import { useHentAnsatt } from "./api/administrator/useHentAdministrator";
 import { useFeatureToggles } from "./api/features/feature-toggles";
+import { useHentAnsatt } from "./api/ansatt/useHentAnsatt";
 import { Laster } from "./components/laster/Laster";
 import { Forside } from "./Forside";
 import IkkeAutentisertApp from "./IkkeAutentisertApp";
