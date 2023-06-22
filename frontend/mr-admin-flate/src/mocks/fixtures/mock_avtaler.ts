@@ -35,10 +35,10 @@ export const mockAvtaler: PaginertAvtale = {
       sluttDato: "2026-08-01",
       navEnheter: [],
       navRegion: {
-        enhetsnummer: "1087",
-        navn: "NAV Våler",
+        enhetsnummer: "0400",
+        navn: "NAV Innlandet",
       },
-      avtaletype: Avtaletype.RAMMEAVTALE,
+      avtaletype: Avtaletype.FORHAANDSGODKJENT,
       avtalestatus: Avtalestatus.AKTIV,
       prisbetingelser: "Maskert prisbetingelser",
       url: "https://www.mercell.no",
@@ -66,8 +66,8 @@ export const mockAvtaler: PaginertAvtale = {
       sluttDato: "2026-08-01",
       navEnheter: [],
       navRegion: {
-        enhetsnummer: "1087",
-        navn: "NAV Våler",
+        enhetsnummer: "0400",
+        navn: "NAV Innlandet",
       },
       avtaletype: Avtaletype.RAMMEAVTALE,
       avtalestatus: Avtalestatus.AKTIV,
@@ -95,7 +95,7 @@ export const mockAvtaler: PaginertAvtale = {
       navEnheter: [],
       navRegion: {
         enhetsnummer: "1187",
-        navn: "NAV Våler",
+        navn: "NAV Innlandet",
       },
       avtaletype: Avtaletype.RAMMEAVTALE,
       avtalestatus: Avtalestatus.AKTIV,
@@ -121,7 +121,7 @@ export const mockAvtaler: PaginertAvtale = {
       navEnheter: [],
       navRegion: {
         enhetsnummer: "0587",
-        navn: "NAV Våler",
+        navn: "NAV Innlandet",
       },
       avtaletype: Avtaletype.RAMMEAVTALE,
       avtalestatus: Avtalestatus.AKTIV,
@@ -148,7 +148,7 @@ export const mockAvtaler: PaginertAvtale = {
       navEnheter: [],
       navRegion: {
         enhetsnummer: "0800",
-        navn: "NAV Våler",
+        navn: "NAV Innlandet",
       },
       avtaletype: Avtaletype.RAMMEAVTALE,
       avtalestatus: Avtalestatus.AKTIV,
@@ -174,7 +174,7 @@ export const mockAvtaler: PaginertAvtale = {
       navEnheter: [],
       navRegion: {
         enhetsnummer: "1287",
-        navn: "NAV Våler",
+        navn: "NAV Innlandet",
       },
       avtaletype: Avtaletype.RAMMEAVTALE,
       avtalestatus: Avtalestatus.AKTIV,
@@ -200,7 +200,7 @@ export const mockAvtaler: PaginertAvtale = {
       navEnheter: [],
       navRegion: {
         enhetsnummer: "1287",
-        navn: "NAV Våler",
+        navn: "NAV Innlandet",
       },
       avtaletype: Avtaletype.RAMMEAVTALE,
       avtalestatus: Avtalestatus.AKTIV,
@@ -225,8 +225,8 @@ export const mockAvtaler: PaginertAvtale = {
       sluttDato: "2023-08-19",
       navEnheter: [],
       navRegion: {
-        enhetsnummer: "1087",
-        navn: "NAV Våler",
+        enhetsnummer: "0400",
+        navn: "NAV Innlandet",
       },
       avtaletype: Avtaletype.RAMMEAVTALE,
       avtalestatus: Avtalestatus.AKTIV,
@@ -252,7 +252,7 @@ export const mockAvtaler: PaginertAvtale = {
       navEnheter: [],
       navRegion: {
         enhetsnummer: "1187",
-        navn: "NAV Våler",
+        navn: "NAV Innlandet",
       },
       avtaletype: Avtaletype.RAMMEAVTALE,
       avtalestatus: Avtalestatus.AKTIV,
@@ -284,7 +284,6 @@ export const mockAvtaler: PaginertAvtale = {
           enhetsnummer: "1088",
           navn: "NAV Sinsen",
         },
-
       ],
       navRegion: {
         enhetsnummer: "1000",
@@ -319,7 +318,6 @@ export const mockAvtaler: PaginertAvtale = {
           enhetsnummer: "1088",
           navn: "NAV Sinsen",
         },
-
       ],
       navRegion: {
         enhetsnummer: "1000",
@@ -349,7 +347,7 @@ export const mockAvtaler: PaginertAvtale = {
       navEnheter: [],
       navRegion: {
         enhetsnummer: "1500",
-        navn: "NAV Våler",
+        navn: "NAV Innlandet",
       },
       avtaletype: Avtaletype.RAMMEAVTALE,
       avtalestatus: Avtalestatus.AKTIV,
@@ -375,7 +373,7 @@ export const mockAvtaler: PaginertAvtale = {
       navEnheter: [],
       navRegion: {
         enhetsnummer: "0687",
-        navn: "NAV Våler",
+        navn: "NAV Innlandet",
       },
       avtaletype: Avtaletype.RAMMEAVTALE,
       avtalestatus: Avtalestatus.AKTIV,
@@ -401,7 +399,7 @@ export const mockAvtaler: PaginertAvtale = {
       navEnheter: [],
       navRegion: {
         enhetsnummer: "0287",
-        navn: "NAV Våler",
+        navn: "NAV Innlandet",
       },
       avtaletype: Avtaletype.RAMMEAVTALE,
       avtalestatus: Avtalestatus.AKTIV,
@@ -427,7 +425,7 @@ export const mockAvtaler: PaginertAvtale = {
       navEnheter: [],
       navRegion: {
         enhetsnummer: "1287",
-        navn: "NAV Våler",
+        navn: "NAV Innlandet",
       },
       avtaletype: Avtaletype.RAMMEAVTALE,
       avtalestatus: Avtalestatus.AKTIV,
@@ -454,7 +452,7 @@ export const mockAvtaler: PaginertAvtale = {
       opphav: Opphav.MR_ADMIN_FLATE,
       navRegion: {
         enhetsnummer: "1287",
-        navn: "NAV Våler",
+        navn: "NAV Innlandet",
       },
       avtaletype: Avtaletype.RAMMEAVTALE,
       avtalestatus: Avtalestatus.AKTIV,

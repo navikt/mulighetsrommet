@@ -68,13 +68,13 @@ class NavEnheterSyncService(
         }
     }
 
-    fun spesialEnheterToSanityEnheter(enheter: List<Norg2Response>): List<SanityEnhet> {
+    private fun spesialEnheterToSanityEnheter(enheter: List<Norg2Response>): List<SanityEnhet> {
         return enheter
             .filter { NavEnhetUtils.relevanteStatuser(it.enhet.status) && erSpesialenhet(it) }
             .map { toSanityEnhet(it.enhet) }
     }
 
-    fun fylkeOgUnderenheterToSanity(enheter: List<Norg2Response>): List<SanityEnhet> {
+    private fun fylkeOgUnderenheterToSanity(enheter: List<Norg2Response>): List<SanityEnhet> {
         val relevanteEnheter = enheter
             .filter { erFylkeEllerUnderenhet(it) }
 

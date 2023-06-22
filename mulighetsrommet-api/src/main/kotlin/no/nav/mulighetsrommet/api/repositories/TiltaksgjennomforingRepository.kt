@@ -23,42 +23,6 @@ import java.util.*
 class TiltaksgjennomforingRepository(private val db: Database) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    private val selectTiltaksgjennomforingAdminDtoColumns = """
-        tg.id::uuid,
-        tg.navn,
-        tg.tiltakstype_id,
-        tg.tiltaksnummer,
-        tg.virksomhetsnummer,
-        v.navn as virksomhetsnavn,
-        tg.start_dato,
-        tg.slutt_dato,
-        t.tiltakskode,
-        t.navn as tiltakstype_navn,
-        tg.arena_ansvarlig_enhet,
-        tg.avslutningsstatus,
-        tg.tilgjengelighet,
-        tg.sanity_id,
-        tg.antall_plasser,
-        tg.avtale_id,
-        tg.oppstart,
-        tg.opphav,
-        tg.stengt_fra,
-        tg.stengt_til,
-        array_agg(tg_a.navident) as ansvarlige,
-        jsonb_agg(
-            case
-                when tg_e.enhetsnummer is null then null::jsonb
-                else jsonb_build_object('enhetsnummer', tg_e.enhetsnummer, 'navn', ne.navn)
-            end
-        ) as nav_enheter,
-        jsonb_agg(distinct
-            case
-                when tgk.tiltaksgjennomforing_id is null then null::jsonb
-                else jsonb_build_object('navIdent', tgk.kontaktperson_nav_ident, 'navn', concat(na.fornavn, ' ', na.etternavn), 'epost', na.epost, 'mobilnummer', na.mobilnummer, 'navEnheter', tgk.enheter)
-            end
-        ) as kontaktpersoner
-        """
-
     fun upsert(tiltaksgjennomforing: TiltaksgjennomforingDbo): QueryResult<Unit> = query {
         logger.info("Lagrer tiltaksgjennomføring id=${tiltaksgjennomforing.id}")
 
@@ -75,6 +39,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 slutt_dato,
                 avslutningsstatus,
                 tilgjengelighet,
+                estimert_ventetid,
                 antall_plasser,
                 avtale_id,
                 oppstart,
@@ -93,6 +58,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 :slutt_dato,
                 :avslutningsstatus::avslutningsstatus,
                 :tilgjengelighet::tilgjengelighetsstatus,
+                :estimert_ventetid,
                 :antall_plasser,
                 :avtale_id,
                 :oppstart::tiltaksgjennomforing_oppstartstype,
@@ -110,6 +76,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                               slutt_dato            = excluded.slutt_dato,
                               avslutningsstatus     = excluded.avslutningsstatus,
                               tilgjengelighet       = excluded.tilgjengelighet,
+                              estimert_ventetid     = excluded.estimert_ventetid,
                               antall_plasser        = excluded.antall_plasser,
                               avtale_id             = excluded.avtale_id,
                               oppstart              = excluded.oppstart,
@@ -197,7 +164,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 ).asExecute,
             )
 
-            tiltaksgjennomforing.kontaktpersoner?.forEach { kontakt ->
+            tiltaksgjennomforing.kontaktpersoner.forEach { kontakt ->
                 tx.run(
                     queryOf(
                         upsertKontaktperson,
@@ -213,7 +180,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 queryOf(
                     deleteKontaktpersoner,
                     tiltaksgjennomforing.id,
-                    tiltaksgjennomforing.kontaktpersoner?.let { kontakt -> db.createTextArray(kontakt.map { it.navIdent }) },
+                    tiltaksgjennomforing.kontaktpersoner.let { kontakt -> db.createTextArray(kontakt.map { it.navIdent }) },
                 ).asExecute,
             )
         }
@@ -280,18 +247,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
     fun getBySanityIds(sanityIds: List<UUID>): Map<String, TiltaksgjennomforingAdminDto> {
         @Language("PostgreSQL")
         val query = """
-            select
-                $selectTiltaksgjennomforingAdminDtoColumns
-            from tiltaksgjennomforing tg
-                inner join tiltakstype t on t.id = tg.tiltakstype_id
-                left join tiltaksgjennomforing_ansvarlig tg_a on tg_a.tiltaksgjennomforing_id = tg.id
-                left join tiltaksgjennomforing_nav_enhet tg_e on tg_e.tiltaksgjennomforing_id = tg.id
-                left join nav_enhet ne on tg_e.enhetsnummer = ne.enhetsnummer
-                left join virksomhet v on v.organisasjonsnummer = tg.virksomhetsnummer
-                left join tiltaksgjennomforing_kontaktperson tgk on tgk.tiltaksgjennomforing_id = tg.id
-                left join nav_ansatt na on na.nav_ident = tgk.kontaktperson_nav_ident
-            where tg.sanity_id = any (?)
-            group by tg.id, t.id, v.navn
+            select * from tiltaksgjennomforing_admin_dto_view
+            where sanity_id = any (?)
         """.trimIndent()
 
         return queryOf(query, db.createUuidArray(sanityIds))
@@ -305,18 +262,9 @@ class TiltaksgjennomforingRepository(private val db: Database) {
     fun get(id: UUID): QueryResult<TiltaksgjennomforingAdminDto?> = query {
         @Language("PostgreSQL")
         val query = """
-            select
-                $selectTiltaksgjennomforingAdminDtoColumns
-            from tiltaksgjennomforing tg
-                inner join tiltakstype t on t.id = tg.tiltakstype_id
-                left join tiltaksgjennomforing_ansvarlig tg_a on tg_a.tiltaksgjennomforing_id = tg.id
-                left join tiltaksgjennomforing_nav_enhet tg_e on tg_e.tiltaksgjennomforing_id = tg.id
-                left join nav_enhet ne on tg_e.enhetsnummer = ne.enhetsnummer
-                left join virksomhet v on v.organisasjonsnummer = tg.virksomhetsnummer
-                left join tiltaksgjennomforing_kontaktperson tgk on tgk.tiltaksgjennomforing_id = tg.id
-                left join nav_ansatt na on na.nav_ident = tgk.kontaktperson_nav_ident
-            where tg.id = ?::uuid
-            group by tg.id, t.id, v.navn
+            select *
+            from tiltaksgjennomforing_admin_dto_view
+            where id = ?::uuid
         """.trimIndent()
         queryOf(query, id)
             .map { it.toTiltaksgjennomforingAdminDto() }
@@ -363,47 +311,37 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         )
 
         val where = DatabaseUtils.andWhereParameterNotNull(
-            filter.search to "((lower(tg.navn) like lower(:search)) or (tg.tiltaksnummer like :search))",
-            filter.enhet to "lower(tg.arena_ansvarlig_enhet) = lower(:enhet)",
-            filter.tiltakstypeId to "tg.tiltakstype_id = :tiltakstypeId",
+            filter.search to "((lower(navn) like lower(:search)) or (tiltaksnummer like :search))",
+            filter.enhet to "lower(arena_ansvarlig_enhet) = lower(:enhet)",
+            filter.tiltakstypeId to "tiltakstype_id = :tiltakstypeId",
             filter.status to filter.status?.toDbStatement(),
-            filter.sluttDatoCutoff to "(tg.slutt_dato >= :cutoffdato or tg.slutt_dato is null)",
-            filter.fylkesenhet to "tg.arena_ansvarlig_enhet in (select enhetsnummer from nav_enhet where overordnet_enhet = :fylkesenhet)",
-            filter.avtaleId to "tg.avtale_id = :avtaleId",
-            filter.arrangorOrgnr to "tg.virksomhetsnummer = :virksomhetsnummer",
+            filter.sluttDatoCutoff to "(slutt_dato >= :cutoffdato or slutt_dato is null)",
+            filter.fylkesenhet to "arena_ansvarlig_enhet in (select enhetsnummer from nav_enhet where overordnet_enhet = :fylkesenhet)",
+            filter.avtaleId to "avtale_id = :avtaleId",
+            filter.arrangorOrgnr to "virksomhetsnummer = :virksomhetsnummer",
         )
 
         val order = when (filter.sortering) {
-            "navn-ascending" -> "tg.navn asc"
-            "navn-descending" -> "tg.navn desc"
-            "tiltaksnummer-ascending" -> "tg.tiltaksnummer asc"
-            "tiltaksnummer-descending" -> "tg.tiltaksnummer desc"
-            "arrangor-ascending" -> "v.navn asc"
-            "arrangor-descending" -> "v.navn desc"
-            "tiltakstype-ascending" -> "t.navn asc"
-            "tiltakstype-descending" -> "t.navn desc"
-            "startdato-ascending" -> "tg.start_dato asc"
-            "startdato-descending" -> "tg.start_dato desc"
-            "sluttdato-ascending" -> "tg.slutt_dato asc"
-            "sluttdato-descending" -> "tg.slutt_dato desc"
-            else -> "tg.navn asc"
+            "navn-ascending" -> "navn asc"
+            "navn-descending" -> "navn desc"
+            "tiltaksnummer-ascending" -> "tiltaksnummer asc"
+            "tiltaksnummer-descending" -> "tiltaksnummer desc"
+            "arrangor-ascending" -> "virksomhetsnavn asc"
+            "arrangor-descending" -> "virksomhetsnavn desc"
+            "tiltakstype-ascending" -> "tiltakstype_navn asc"
+            "tiltakstype-descending" -> "tiltakstype_navn desc"
+            "startdato-ascending" -> "start_dato asc"
+            "startdato-descending" -> "start_dato desc"
+            "sluttdato-ascending" -> "slutt_dato asc"
+            "sluttdato-descending" -> "slutt_dato desc"
+            else -> "navn asc"
         }
 
         @Language("PostgreSQL")
         val query = """
-            select
-                $selectTiltaksgjennomforingAdminDtoColumns,
-                count(*) over () as full_count
-            from tiltaksgjennomforing tg
-                inner join tiltakstype t on tg.tiltakstype_id = t.id
-                left join tiltaksgjennomforing_ansvarlig tg_a on tg_a.tiltaksgjennomforing_id = tg.id
-                left join tiltaksgjennomforing_nav_enhet tg_e on tg_e.tiltaksgjennomforing_id = tg.id
-                left join nav_enhet ne on tg_e.enhetsnummer = ne.enhetsnummer
-                left join virksomhet v on v.organisasjonsnummer = tg.virksomhetsnummer
-                left join tiltaksgjennomforing_kontaktperson tgk on tgk.tiltaksgjennomforing_id = tg.id
-                left join nav_ansatt na on na.nav_ident = tgk.kontaktperson_nav_ident
+            select *, count(*) over () as full_count
+            from tiltaksgjennomforing_admin_dto_view
             $where
-            group by tg.id, t.id, v.navn
             order by $order
             limit :limit
             offset :offset
@@ -431,21 +369,22 @@ class TiltaksgjennomforingRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            select id::uuid,
-                   navn,
-                   tiltakstype_id,
-                   tiltaksnummer,
-                   virksomhetsnummer,
-                   start_dato,
-                   slutt_dato,
-                   arena_ansvarlig_enhet,
-                   avslutningsstatus,
-                   tilgjengelighet,
-                   antall_plasser,
-                   avtale_id,
-                   oppstart,
-                   opphav
-            from tiltaksgjennomforing
+            select tg.id::uuid,
+                   tg.navn,
+                   tg.tiltakstype_id,
+                   tg.tiltaksnummer,
+                   tg.virksomhetsnummer,
+                   tg.start_dato,
+                   tg.slutt_dato,
+                   tg.arena_ansvarlig_enhet,
+                   tg.avslutningsstatus,
+                   tg.tilgjengelighet,
+                   tg.estimert_ventetid,
+                   tg.antall_plasser,
+                   tg.avtale_id,
+                   tg.oppstart,
+                   tg.opphav
+            from tiltaksgjennomforing tg
             where avslutningsstatus = :avslutningsstatus::avslutningsstatus and (
                 (start_dato > :date_interval_start and start_dato <= :date_interval_end) or
                 (slutt_dato >= :date_interval_start and slutt_dato < :date_interval_end))
@@ -529,6 +468,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         "slutt_dato" to sluttDato,
         "avslutningsstatus" to avslutningsstatus.name,
         "tilgjengelighet" to tilgjengelighet.name,
+        "estimert_ventetid" to estimertVentetid,
         "antall_plasser" to antallPlasser,
         "avtale_id" to avtaleId,
         "oppstart" to oppstart.name,
@@ -548,6 +488,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         arenaAnsvarligEnhet = stringOrNull("arena_ansvarlig_enhet"),
         avslutningsstatus = Avslutningsstatus.valueOf(string("avslutningsstatus")),
         tilgjengelighet = TiltaksgjennomforingDbo.Tilgjengelighetsstatus.valueOf(string("tilgjengelighet")),
+        estimertVentetid = stringOrNull("estimert_ventetid"),
         antallPlasser = intOrNull("antall_plasser"),
         avtaleId = uuidOrNull("avtale_id"),
         ansvarlige = emptyList(),
@@ -585,10 +526,12 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 Avslutningsstatus.valueOf(string("avslutningsstatus")),
             ),
             tilgjengelighet = TiltaksgjennomforingDbo.Tilgjengelighetsstatus.valueOf(string("tilgjengelighet")),
+            estimertVentetid = stringOrNull("estimert_ventetid"),
             antallPlasser = intOrNull("antall_plasser"),
             avtaleId = uuidOrNull("avtale_id"),
             ansvarlig = ansvarlige.getOrNull(0),
             navEnheter = navEnheter,
+            navRegion = stringOrNull("navRegionForAvtale"),
             sanityId = stringOrNull("sanity_id"),
             oppstart = TiltaksgjennomforingDbo.Oppstartstype.valueOf(string("oppstart")),
             opphav = ArenaMigrering.Opphav.valueOf(string("opphav")),
@@ -696,9 +639,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                    array_agg(e.enhetsnummer) as navEnheter,
                    tg.tiltaksnummer
             from tiltaksgjennomforing tg
-                     left join tiltaksgjennomforing_ansvarlig a on a.tiltaksgjennomforing_id = tg.id
+                    left join tiltaksgjennomforing_ansvarlig a on a.tiltaksgjennomforing_id = tg.id
                     left join tiltaksgjennomforing_nav_enhet e on e.tiltaksgjennomforing_id = tg.id
-
             where tg.stengt_til is not null and
                (?::timestamp + interval '7' day) = tg.stengt_til
                or (?::timestamp + interval '1' day) = tg.stengt_til

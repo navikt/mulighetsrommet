@@ -41,6 +41,7 @@ const OpprettAvtaleModal = ({
     <>
       <Modal
         shouldCloseOnOverlayClick={false}
+        shouldCloseOnEsc={false}
         closeButton
         open={modalOpen}
         onClose={onClose}

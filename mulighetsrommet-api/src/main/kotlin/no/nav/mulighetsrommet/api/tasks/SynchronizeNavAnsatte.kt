@@ -58,30 +58,38 @@ class SynchronizeNavAnsatte(
             logger.info("Synkroniserer NAV-ansatte fra Azure til database...")
 
             runBlocking {
-                config.groups.forEach { group ->
-                    logger.info("Synkroniserer brukere i AD-gruppe id=${group.adGruppe}")
+                config.groups
+                    .flatMap { group ->
+                        logger.info("Henter brukere i AD-gruppe id=${group.adGruppe}")
 
-                    val members = msGraphClient.getGroupMembers(group.adGruppe)
-                    members.forEach { ansatt ->
-                        val dbo = ansatt.run {
-                            NavAnsattDbo(
-                                navIdent = navident,
-                                fornavn = fornavn,
-                                etternavn = etternavn,
-                                hovedenhet = hovedenhetKode,
-                                azureId = azureId,
-                                fraAdGruppe = group.adGruppe,
-                                mobilnummer = mobilnr,
-                                epost = epost,
-                                rolle = group.rolle,
-                            )
+                        val members = msGraphClient.getGroupMembers(group.adGruppe)
+
+                        members.map { ansatt ->
+                            ansatt.run {
+                                NavAnsattDbo(
+                                    navIdent = navident,
+                                    fornavn = fornavn,
+                                    etternavn = etternavn,
+                                    hovedenhet = hovedenhetKode,
+                                    azureId = azureId,
+                                    mobilnummer = mobilnr,
+                                    epost = epost,
+                                    roller = listOf(group.rolle),
+                                )
+                            }
                         }
-
-                        ansatte.upsert(dbo).onLeft {
+                    }
+                    .groupBy { it.navIdent }
+                    .map { (_, value) ->
+                        value.reduce { a1, a2 ->
+                            a1.copy(roller = a1.roller + a2.roller)
+                        }
+                    }
+                    .forEach { ansatt ->
+                        ansatte.upsert(ansatt).onLeft {
                             throw it.error
                         }
                     }
-                }
             }
         }
 }

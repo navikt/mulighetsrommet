@@ -1332,6 +1332,8 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/EmbeddedNavEnhet"
+        navRegion:
+          type: string
         ansvarlig:
           type: string
         antallPlasser:
@@ -1353,6 +1355,8 @@ components:
           format: date
         tilgjengelighet:
           $ref: "#/components/schemas/Tilgjengelighetsstatus"
+        estimertVentetid:
+          type: string
         kontaktpersoner:
           type: array
           items:
@@ -1414,6 +1418,8 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/TiltaksgjennomforingKontaktpersonerRequest"
+        estimertVentetid:
+          type: string
       required:
         - id
         - avtaleId
@@ -1827,6 +1833,32 @@ components:
           $ref: "#/components/schemas/SanityFaneinnhold"
         delingMedBruker:
           type: string
+        arenakode:
+          type: string
+          enum:
+            - IPSUNG
+            - INKLUTILS
+            - HOYEREUTD
+            - ENKELAMO
+            - GRUFAGYRKE
+            - ARBTREN
+            - ARBFORB
+            - MIDLONTIL
+            - TILSJOBB
+            - ENKFAGYRKE
+            - INDJOBSTOT
+            - AVKLARAG
+            - DIGIOPPARB
+            - MENTOR
+            - INDOPPFAG
+            - GRUPPEAMO
+            - VASV
+            -  ARBRRHDAG
+            - JOBBK
+            - VATIAROR
+            - VARLONTIL
+            - UTVAOONAV
+          nullable: true
       required:
         - _id
         - tiltakstypeNavn
@@ -1867,11 +1899,7 @@ components:
           items:
             $ref: "#/components/schemas/SanityKontakinfoTiltaksansvarlige"
         tilgjengelighetsstatus:
-          type: string
-          enum:
-            - Ledig
-            - Venteliste
-            - Stengt
+          $ref: "#/components/schemas/Tilgjengelighetsstatus"
         stengtFra:
           type: string
         stengtTil:

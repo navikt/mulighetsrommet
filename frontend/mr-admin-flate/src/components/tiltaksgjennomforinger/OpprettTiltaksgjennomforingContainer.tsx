@@ -28,7 +28,11 @@ import { mulighetsrommetClient } from "../../api/clients";
 import { useAlleEnheter } from "../../api/enhet/useAlleEnheter";
 import { useFeatureToggles } from "../../api/features/feature-toggles";
 import { useVirksomhet } from "../../api/virksomhet/useVirksomhet";
-import { capitalize, formaterDatoSomYYYYMMDD } from "../../utils/Utils";
+import {
+  capitalize,
+  formaterDatoSomYYYYMMDD,
+  tilgjengelighetsstatusTilTekst,
+} from "../../utils/Utils";
 import { isTiltakMedFellesOppstart } from "../../utils/tiltakskoder";
 import { FormGroup } from "../avtaler/OpprettAvtaleContainer";
 import { Laster } from "../laster/Laster";
@@ -109,8 +113,12 @@ const Schema = z
           path: ["stengtFra"],
         }
       ),
-    oppstart: z.custom<TiltaksgjennomforingOppstartstype>((val) => !!val, "Du må velge oppstart type"),
+    oppstart: z.custom<TiltaksgjennomforingOppstartstype>(
+      (val) => !!val,
+      "Du må velge oppstartstype"
+    ),
     apenForInnsok: z.boolean(),
+    estimertVentetid: z.string().optional(),
   })
   .refine(
     (data) =>
@@ -243,10 +251,12 @@ export const OpprettTiltaksgjennomforingContainer = (
           : undefined,
       },
       oppstart: tiltaksgjennomforing?.oppstart ?? defaultOppstartType(avtale),
-      apenForInnsok: tiltaksgjennomforing?.tilgjengelighet !== Tilgjengelighetsstatus.STENGT,
+      apenForInnsok:
+        tiltaksgjennomforing?.tilgjengelighet !== Tilgjengelighetsstatus.STENGT,
       kontaktpersoner: defaultValuesForKontaktpersoner(
         tiltaksgjennomforing?.kontaktpersoner
       ),
+      estimertVentetid: tiltaksgjennomforing?.estimertVentetid,
     },
   });
   const {
@@ -337,6 +347,7 @@ export const OpprettTiltaksgjennomforingContainer = (
               ? []
               : kontakt.navEnheter,
           })) || [],
+      estimertVentetid: data.estimertVentetid,
     };
 
     try {
@@ -486,8 +497,14 @@ export const OpprettTiltaksgjennomforingContainer = (
             placeholder="Velg oppstart"
             {...register("oppstart")}
             options={[
-              { label: "Dato", value: TiltaksgjennomforingOppstartstype.FELLES },
-              { label: "Løpende oppstart", value: TiltaksgjennomforingOppstartstype.LOPENDE },
+              {
+                label: "Felles",
+                value: TiltaksgjennomforingOppstartstype.FELLES,
+              },
+              {
+                label: "Løpende oppstart",
+                value: TiltaksgjennomforingOppstartstype.LOPENDE,
+              },
             ]}
           />
           <FraTilDatoVelger
@@ -516,7 +533,7 @@ export const OpprettTiltaksgjennomforingContainer = (
           >
             Midlertidig stengt
           </Checkbox>
-          {watchErMidlertidigStengt &&
+          {watchErMidlertidigStengt && (
             <FraTilDatoVelger
               size="small"
               fra={{
@@ -528,7 +545,7 @@ export const OpprettTiltaksgjennomforingContainer = (
                 ...register("midlertidigStengt.stengtTil"),
               }}
             />
-          }
+          )}
           <TextField
             size="small"
             readOnly={arenaOpphav}
@@ -537,6 +554,24 @@ export const OpprettTiltaksgjennomforingContainer = (
             style={{ width: "180px" }}
             label="Antall plasser"
             {...register("antallPlasser", { valueAsNumber: true })}
+          />
+        </FormGroup>
+        <FormGroup>
+          <TextField
+            readOnly
+            size="small"
+            label="Tilgjengelighetsstatus"
+            description="Statusen vises til veileder i Modia"
+            value={tilgjengelighetsstatusTilTekst(
+              tiltaksgjennomforing?.tilgjengelighet
+            )}
+          />
+          <TextField
+            size="small"
+            label="Estimert ventetid"
+            description="Kommuniser estimert ventetid til veileder i Modia"
+            maxLength={60}
+            {...register("estimertVentetid")}
           />
         </FormGroup>
         <FormGroup>

@@ -1,17 +1,20 @@
+import { Chat2Icon, CheckmarkIcon } from '@navikt/aksel-icons';
 import { Alert, Button, Link, Loader } from '@navikt/ds-react';
 import { useAtom } from 'jotai';
-import { Ansatt } from 'mulighetsrommet-api-client';
-import React, { useState } from 'react';
+import { Ansatt, SanityTiltakstype } from 'mulighetsrommet-api-client';
+import { useState } from 'react';
 import { BrukerHarIkke14aVedtakVarsel } from '../../components/ikkeKvalifisertVarsel/BrukerHarIkke14aVedtakVarsel';
 import { BrukerKvalifisererIkkeVarsel } from '../../components/ikkeKvalifisertVarsel/BrukerKvalifisererIkkeVarsel';
+import { DetaljerJoyride } from '../../components/joyride/DetaljerJoyride';
+import { DetaljerOpprettAvtaleJoyride } from '../../components/joyride/DetaljerOpprettAvtaleJoyride';
 import Delemodal, { logDelMedbrukerEvent } from '../../components/modal/delemodal/Delemodal';
 import Nokkelinfo, { NokkelinfoProps } from '../../components/nokkelinfo/Nokkelinfo';
 import { TilgjengelighetsstatusComponent } from '../../components/oversikt/Tilgjengelighetsstatus';
 import SidemenyDetaljer from '../../components/sidemeny/SidemenyDetaljer';
 import TiltaksdetaljerFane from '../../components/tabs/TiltaksdetaljerFane';
 import Tilbakeknapp from '../../components/tilbakeknapp/Tilbakeknapp';
+import { VIS_JOYRIDE, useFeatureToggles } from '../../core/api/feature-toggles';
 import { logEvent } from '../../core/api/logger';
-import { IndividuellTiltaksType } from '../../core/api/models';
 import { useGetTiltaksgjennomforingIdFraUrl } from '../../core/api/queries/useGetTiltaksgjennomforingIdFraUrl';
 import { useHentBrukerdata } from '../../core/api/queries/useHentBrukerdata';
 import { useHentDeltMedBrukerStatus } from '../../core/api/queries/useHentDeltMedbrukerStatus';
@@ -25,50 +28,31 @@ import { useNavigerTilDialogen } from '../../hooks/useNavigerTilDialogen';
 import TiltaksgjennomforingsHeader from '../../layouts/TiltaksgjennomforingsHeader';
 import { capitalize, erPreview, formaterDato } from '../../utils/Utils';
 import styles from './ViewTiltaksgjennomforingDetaljer.module.scss';
-import { DetaljerJoyride } from '../../components/joyride/DetaljerJoyride';
-import { Chat2Icon, CheckmarkIcon } from '@navikt/aksel-icons';
-import { useFeatureToggles, VIS_JOYRIDE } from '../../core/api/feature-toggles';
-import { DetaljerOpprettAvtaleJoyride } from '../../components/joyride/DetaljerOpprettAvtaleJoyride';
 
-const whiteListOpprettAvtaleKnapp = [
-  'Midlertidig lønnstilskudd',
-  'Arbeidstrening',
-  'Varig lønnstilskudd',
-  'Mentor',
-  'Inkluderingstilskudd',
-  'Tilskudd til sommerjobb',
-] as const;
+const whiteListOpprettAvtaleKnapp: SanityTiltakstype.arenakode[] = [
+  SanityTiltakstype.arenakode.MIDLONTIL,
+  SanityTiltakstype.arenakode.ARBTREN,
+  SanityTiltakstype.arenakode.VARLONTIL,
+  SanityTiltakstype.arenakode.MENTOR,
+  SanityTiltakstype.arenakode.INKLUTILS,
+  SanityTiltakstype.arenakode.TILSJOBB,
+];
 
 type IndividuelleTiltak = (typeof whiteListOpprettAvtaleKnapp)[number];
 
-function tiltakstypeNavnTilUrlVerdi(tiltakstype: IndividuelleTiltak): IndividuellTiltaksType {
-  switch (tiltakstype) {
-    case 'Midlertidig lønnstilskudd':
-      return 'MIDLERTIDIG_LONNSTILSKUDD';
-    case 'Arbeidstrening':
-      return 'ARBEIDSTRENING';
-    case 'Varig lønnstilskudd':
-      return 'VARIG_LONNSTILSKUDD';
-    case 'Mentor':
-      return 'MENTOR';
-    case 'Inkluderingstilskudd':
-      return 'INKLUDERINGSTILSKUDD';
-    case 'Tilskudd til sommerjobb':
-      return 'SOMMERJOBB';
-  }
+function tiltakstypeAsStringIsIndividuellTiltakstype(
+  arenakode: SanityTiltakstype.arenakode
+): arenakode is IndividuelleTiltak {
+  return whiteListOpprettAvtaleKnapp.includes(arenakode);
 }
 
-function tiltakstypeAsStringIsIndividuellTiltakstype(tiltakstype: string): tiltakstype is IndividuelleTiltak {
-  return whiteListOpprettAvtaleKnapp.includes(tiltakstype as any);
-}
-
-function lenkeTilOpprettAvtaleForEnv(tiltakstype: IndividuelleTiltak): string {
+function lenkeTilOpprettAvtaleForEnv(): string {
   const env: environments = import.meta.env.VITE_ENVIRONMENT;
   const baseUrl =
     env === 'production'
       ? 'https://tiltaksgjennomforing.intern.nav.no/'
       : 'https://tiltaksgjennomforing.intern.dev.nav.no/';
-  return `${baseUrl}tiltaksgjennomforing/opprett-avtale?type=${tiltakstypeNavnTilUrlVerdi(tiltakstype)}`;
+  return `${baseUrl}tiltaksgjennomforing/opprett-avtale`;
 }
 
 function resolveName(ansatt?: Ansatt) {
@@ -118,8 +102,11 @@ const ViewTiltaksgjennomforingDetaljer = () => {
 
   const kanBrukerFaaAvtale = () => {
     const tiltakstypeNavn = tiltaksgjennomforing.tiltakstype.tiltakstypeNavn;
-    if (tiltakstypeAsStringIsIndividuellTiltakstype(tiltakstypeNavn)) {
-      const url = lenkeTilOpprettAvtaleForEnv(tiltakstypeNavn);
+    if (
+      tiltaksgjennomforing.tiltakstype.arenakode &&
+      tiltakstypeAsStringIsIndividuellTiltakstype(tiltaksgjennomforing.tiltakstype?.arenakode)
+    ) {
+      const url = lenkeTilOpprettAvtaleForEnv();
       window.open(url, '_blank');
       logEvent('mulighetsrommet.opprett-avtale', { tiltakstype: tiltakstypeNavn });
     }
@@ -129,11 +116,13 @@ const ViewTiltaksgjennomforingDetaljer = () => {
     nokkelinfoKomponenter: [
       {
         _id: tiltaksgjennomforing._id,
-        innhold: <TilgjengelighetsstatusComponent
-          status={tiltaksgjennomforing.tilgjengelighetsstatus}
-          stengtFra={tiltaksgjennomforing.stengtFra}
-          stengtTil={tiltaksgjennomforing.stengtTil}
-        />,
+        innhold: (
+          <TilgjengelighetsstatusComponent
+            status={tiltaksgjennomforing.tilgjengelighetsstatus}
+            stengtFra={tiltaksgjennomforing.stengtFra}
+            stengtTil={tiltaksgjennomforing.stengtTil}
+          />
+        ),
         tittel: tiltaksgjennomforing.estimert_ventetid?.toString() ?? '',
         hjelpetekst: 'Tilgjengelighetsstatusen er beregnet ut i fra data som kommer fra Arena',
       },
@@ -141,8 +130,8 @@ const ViewTiltaksgjennomforingDetaljer = () => {
   };
 
   const opprettAvtale =
-    tiltakstypeAsStringIsIndividuellTiltakstype(tiltaksgjennomforing.tiltakstype.tiltakstypeNavn) &&
-    whiteListOpprettAvtaleKnapp.includes(tiltaksgjennomforing.tiltakstype.tiltakstypeNavn) &&
+    !!tiltaksgjennomforing.tiltakstype.arenakode &&
+    tiltakstypeAsStringIsIndividuellTiltakstype(tiltaksgjennomforing.tiltakstype.arenakode) &&
     !erPreview;
 
   return (

@@ -2,6 +2,7 @@ import { Heading, Ingress } from '@navikt/ds-react';
 import useTiltaksgjennomforingById from '../core/api/queries/useTiltaksgjennomforingById';
 import { kebabCase } from '../utils/Utils';
 import styles from './TiltaksgjennomforingsHeader.module.scss';
+import { SanityTiltakstype } from 'mulighetsrommet-api-client';
 
 const TiltaksgjennomforingsHeader = () => {
   const { data } = useTiltaksgjennomforingById();
@@ -18,7 +19,7 @@ const TiltaksgjennomforingsHeader = () => {
       >
         {tiltaksgjennomforingNavn}
       </Heading>
-      {tiltakstype?.tiltakstypeNavn === 'Opplæring - Gruppe AMO'
+      {tiltakstype?.arenakode === SanityTiltakstype.arenakode.GRUPPEAMO
         ? beskrivelse && <Ingress>{beskrivelse}</Ingress>
         : null}
       {tiltakstype.beskrivelse && <Ingress className={styles.beskrivelse}>{tiltakstype.beskrivelse}</Ingress>}

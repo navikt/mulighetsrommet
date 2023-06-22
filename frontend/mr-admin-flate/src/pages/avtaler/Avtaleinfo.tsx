@@ -5,6 +5,7 @@ import { useFeatureToggles } from "../../api/features/feature-toggles";
 import { Metadata, Separator } from "../../components/detaljside/Metadata";
 import { Laster } from "../../components/laster/Laster";
 import {
+  avtaletypeTilTekst,
   capitalizeEveryWord,
   formaterDato,
   tiltakstypekodeErAnskaffetTiltak,
@@ -76,9 +77,12 @@ export function Avtaleinfo() {
         <Separator />
         <div className={styles.bolk}>
           <Metadata header="Tiltakstype" verdi={avtale.tiltakstype.navn} />
-          <Metadata header="Enhet" verdi={avtale.navRegion?.navn} />
+          <Metadata header="Region" verdi={avtale.navRegion?.navn} />
 
-          <Metadata header="Avtaletype" verdi={avtale.avtaletype} />
+          <Metadata
+            header="Avtaletype"
+            verdi={avtaletypeTilTekst(avtale.avtaletype)}
+          />
           <Metadata header="Avtalenr" verdi={avtale.avtalenummer} />
         </div>
         <Separator />

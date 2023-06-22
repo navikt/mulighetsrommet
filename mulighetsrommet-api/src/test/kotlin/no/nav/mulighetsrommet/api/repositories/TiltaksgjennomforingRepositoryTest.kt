@@ -2,19 +2,15 @@ package no.nav.mulighetsrommet.api.repositories
 
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.collections.shouldBeEmpty
-import io.kotest.matchers.collections.shouldContainAll
-import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
-import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.collections.*
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
-import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattDbo
-import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
+import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.utils.AdminTiltaksgjennomforingFilter
@@ -26,10 +22,7 @@ import no.nav.mulighetsrommet.database.utils.getOrThrow
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.*
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo.Tilgjengelighetsstatus
-import no.nav.mulighetsrommet.domain.dto.NavEnhet
-import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingAdminDto
-import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingKontaktperson
-import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
+import no.nav.mulighetsrommet.domain.dto.*
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -65,28 +58,9 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 
         test("CRUD") {
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-            val navEnheter = NavEnhetRepository(database.db)
-            navEnheter.upsert(NavEnhetDbo(navn = "NAV Andeby", enhetsnummer = "2990", status = NavEnhetStatus.AKTIV, type = Norg2Type.TILTAK, overordnetEnhet = null))
-            val navAnsatte = NavAnsattRepository(database.db)
-            navAnsatte.upsert(
-                NavAnsattDbo(
-                    navIdent = "D123456",
-                    fornavn = "Donald",
-                    etternavn = "Duck",
-                    hovedenhet = "2990",
-                    azureId = UUID.randomUUID(),
-                    fraAdGruppe = UUID.randomUUID(),
-                    mobilnummer = "12345678",
-                    epost = "donald.duck@nav.no",
-                    rolle = NavAnsattRolle.KONTAKTPERSON,
-                ),
-            ).shouldBeRight()
 
             tiltaksgjennomforinger.upsert(gjennomforing1).shouldBeRight()
-            tiltaksgjennomforinger.upsert(gjennomforing2).shouldBeRight()
 
-            tiltaksgjennomforinger.getAll(filter = AdminTiltaksgjennomforingFilter())
-                .shouldBeRight().second shouldHaveSize 2
             tiltaksgjennomforinger.get(gjennomforing1.id).shouldBeRight() shouldBe TiltaksgjennomforingAdminDto(
                 id = gjennomforing1.id,
                 tiltakstype = TiltaksgjennomforingAdminDto.Tiltakstype(
@@ -110,21 +84,12 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 oppstart = TiltaksgjennomforingDbo.Oppstartstype.FELLES,
                 opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
                 stengtFra = null,
-                kontaktpersoner = listOf(
-                    TiltaksgjennomforingKontaktperson(
-                        navIdent = "D123456",
-                        navn = "Donald Duck",
-                        mobilnummer = "12345678",
-                        epost = "donald.duck@nav.no",
-                        navEnheter = listOf("2990", "2991"),
-                    ),
-                ),
+                kontaktpersoner = listOf(),
             )
 
             tiltaksgjennomforinger.delete(gjennomforing1.id)
 
-            tiltaksgjennomforinger.getAll(filter = AdminTiltaksgjennomforingFilter())
-                .shouldBeRight().second shouldHaveSize 1
+            tiltaksgjennomforinger.get(gjennomforing1.id) shouldBeRight null
         }
 
         test("midlertidig_stengt crud") {
@@ -138,6 +103,22 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             tiltaksgjennomforinger.get(gjennomforing.id).shouldBeRight().should {
                 it!!.stengtFra shouldBe LocalDate.of(2020, 1, 22)
                 it.stengtTil shouldBe LocalDate.of(2020, 4, 22)
+            }
+        }
+
+        test("Skal hente ut navRegion fra avtale for en gitt gjennomføring") {
+            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
+            val navEnheter = NavEnhetRepository(database.db)
+            navEnheter.upsert(NavEnhetDbo(navn = "NAV Andeby", enhetsnummer = "2990", status = NavEnhetStatus.AKTIV, type = Norg2Type.FYLKE, overordnetEnhet = null))
+            navEnheter.upsert(NavEnhetDbo(navn = "NAV Gåseby", enhetsnummer = "2980", status = NavEnhetStatus.AKTIV, type = Norg2Type.LOKAL, overordnetEnhet = null))
+            val avtaleFixtures = AvtaleFixtures(database)
+            val avtale = avtale1.copy(navRegion = "2990")
+            avtaleFixtures.upsertAvtaler(listOf(avtale))
+            val tiltaksgjennomforing = TiltaksgjennomforingFixtures.Oppfolging1.copy(avtaleId = avtale.id, navEnheter = listOf("2980"))
+            tiltaksgjennomforinger.upsert(tiltaksgjennomforing).shouldBeRight()
+            tiltaksgjennomforinger.get(tiltaksgjennomforing.id).shouldBeRight().should {
+                it?.navRegion shouldBe "NAV Andeby"
+                it?.navEnheter?.shouldContain(NavEnhet(enhetsnummer = "2980", "NAV Gåseby"))
             }
         }
 
@@ -194,66 +175,65 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         }
 
         test("kontaktpersoner på tiltaksgjennomføring CRUD") {
-            val enhetRepository = NavEnhetRepository(database.db)
-            enhetRepository.upsert(
-                NavEnhetDbo(
-                    navn = "Navn1",
-                    enhetsnummer = "1",
-                    status = NavEnhetStatus.AKTIV,
-                    type = Norg2Type.LOKAL,
-                    overordnetEnhet = null,
-                ),
-            ).shouldBeRight()
-            enhetRepository.upsert(
-                NavEnhetDbo(
-                    navn = "Navn2",
-                    enhetsnummer = "2",
-                    status = NavEnhetStatus.AKTIV,
-                    type = Norg2Type.LOKAL,
-                    overordnetEnhet = null,
-                ),
-            ).shouldBeRight()
-            enhetRepository.upsert(
-                NavEnhetDbo(
-                    navn = "Navn3",
-                    enhetsnummer = "3",
-                    status = NavEnhetStatus.AKTIV,
-                    type = Norg2Type.LOKAL,
-                    overordnetEnhet = null,
-                ),
-            ).shouldBeRight()
+            val domain = MulighetsrommetTestDomain()
+            domain.initialize(database.db)
+
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
+
             val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1.copy(
                 kontaktpersoner = listOf(
-                    TiltaksgjennomforingKontaktperson(
-                        navIdent = "D123456",
-                        navn = "Donald Duck",
-                        navEnheter = listOf("1", "2"),
+                    TiltaksgjennomforingKontaktpersonDbo(
+                        navIdent = domain.ansatt1.navIdent,
+                        navEnheter = listOf(domain.ansatt1.hovedenhet),
                     ),
-                    TiltaksgjennomforingKontaktperson(
-                        navIdent = "M654321",
-                        navn = "Donald Duck",
-                        navEnheter = listOf("3"),
+                    TiltaksgjennomforingKontaktpersonDbo(
+                        navIdent = domain.ansatt2.navIdent,
+                        navEnheter = listOf(domain.ansatt2.hovedenhet),
                     ),
                 ),
             )
-            tiltaksgjennomforinger.upsert(gjennomforing)
+            tiltaksgjennomforinger.upsert(gjennomforing).shouldBeRight()
+
             val result = tiltaksgjennomforinger.get(gjennomforing.id).getOrThrow()
-            result?.kontaktpersoner?.size shouldBe 2
+            result?.kontaktpersoner shouldContainExactlyInAnyOrder listOf(
+                TiltaksgjennomforingKontaktperson(
+                    navIdent = "DD1",
+                    navn = "Donald Duck",
+                    mobilnummer = "12345678",
+                    epost = "donald.duck@nav.no",
+                    navEnheter = listOf("2990"),
+                    hovedenhet = "2990",
+                ),
+                TiltaksgjennomforingKontaktperson(
+                    navIdent = "DD2",
+                    navn = "Dolly Duck",
+                    mobilnummer = "48243214",
+                    epost = "dolly.duck@nav.no",
+                    navEnheter = listOf("2990"),
+                    hovedenhet = "2990",
+                ),
+            )
             val gjennomforingFjernetKontaktperson = gjennomforing.copy(
                 kontaktpersoner = listOf(
-                    TiltaksgjennomforingKontaktperson(
-                        navIdent = "D123456",
-                        navn = "Donald Duck",
-                        navEnheter = listOf("1", "2"),
+                    TiltaksgjennomforingKontaktpersonDbo(
+                        navIdent = domain.ansatt1.navIdent,
+                        navEnheter = listOf(domain.ansatt1.hovedenhet),
                     ),
                 ),
             )
-            tiltaksgjennomforinger.upsert(gjennomforingFjernetKontaktperson)
+            tiltaksgjennomforinger.upsert(gjennomforingFjernetKontaktperson).shouldBeRight()
+
             val oppdatertResult = tiltaksgjennomforinger.get(gjennomforingFjernetKontaktperson.id).getOrThrow()
-            oppdatertResult?.kontaktpersoner?.size shouldBe 1
-            oppdatertResult?.kontaktpersoner?.get(0)?.navIdent shouldBe "D123456"
-            oppdatertResult?.kontaktpersoner?.get(0)?.navEnheter shouldBe listOf("1", "2")
+            oppdatertResult?.kontaktpersoner shouldBe listOf(
+                TiltaksgjennomforingKontaktperson(
+                    navIdent = "DD1",
+                    navn = "Donald Duck",
+                    mobilnummer = "12345678",
+                    epost = "donald.duck@nav.no",
+                    navEnheter = listOf("2990"),
+                    hovedenhet = "2990",
+                ),
+            )
         }
 
         test("Oppdater navEnheter fra Sanity-tiltaksgjennomføringer til database") {

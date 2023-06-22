@@ -17,7 +17,7 @@ import no.nav.mulighetsrommet.api.utils.getPaginationParams
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
-import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingKontaktperson
+import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingKontaktpersonDbo
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
@@ -34,7 +34,7 @@ fun Route.tiltaksgjennomforingRoutes() {
             val result = request.toDbo()
                 .flatMap {
                     tiltaksgjennomforingService.upsert(it)
-                        .mapLeft { ServerError("Klarte ikke lagre tiltaksgjennomføring") }
+                        .mapLeft { ServerError("Klarte ikke lagre tiltaksgjennomføring.") }
                 }
 
             call.respondWithStatusResponse(result)
@@ -104,7 +104,8 @@ data class TiltaksgjennomforingRequest(
     @Serializable(with = LocalDateSerializer::class)
     val stengtTil: LocalDate? = null,
     val apenForInnsok: Boolean = true,
-    val kontaktpersoner: List<NavKontaktpersonForGjennomforing>? = emptyList(),
+    val kontaktpersoner: List<NavKontaktpersonForGjennomforing> = emptyList(),
+    val estimertVentetid: String? = null,
 ) {
     fun toDbo(): StatusResponse<TiltaksgjennomforingDbo> {
         if (!startDato.isBefore(sluttDato)) {
@@ -132,6 +133,7 @@ data class TiltaksgjennomforingRequest(
                 avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
                 antallPlasser = antallPlasser,
                 tilgjengelighet = if (apenForInnsok) TiltaksgjennomforingDbo.Tilgjengelighetsstatus.LEDIG else { TiltaksgjennomforingDbo.Tilgjengelighetsstatus.STENGT },
+                estimertVentetid = estimertVentetid,
                 tiltaksnummer = tiltaksnummer,
                 virksomhetsnummer = virksomhetsnummer,
                 ansvarlige = listOf(ansvarlig),
@@ -140,8 +142,8 @@ data class TiltaksgjennomforingRequest(
                 opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
                 stengtFra = stengtFra,
                 stengtTil = stengtTil,
-                kontaktpersoner = kontaktpersoner?.map {
-                    TiltaksgjennomforingKontaktperson(
+                kontaktpersoner = kontaktpersoner.map {
+                    TiltaksgjennomforingKontaktpersonDbo(
                         navIdent = it.navIdent,
                         navEnheter = it.navEnheter,
                     )

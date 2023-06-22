@@ -122,13 +122,14 @@ export const TiltaksgjennomforingsTabell = ({ skjulKolonner }: Props) => {
   };
 
   const formaterNavEnheter = (
+    navRegion: string = "",
     navEnheter?: { navn?: string | null; enhetsnummer?: string }[]
   ): string => {
     const liste = [...(navEnheter || [])];
     if (!liste) return "";
 
     const forsteEnhet = liste.shift();
-    if (!forsteEnhet) return "";
+    if (!forsteEnhet) return navRegion;
 
     return `${forsteEnhet?.navn} ${
       liste.length > 0 ? `+ ${liste.length}` : ""
@@ -203,7 +204,10 @@ export const TiltaksgjennomforingsTabell = ({ skjulKolonner }: Props) => {
                         .map((enhet) => enhet?.navn)
                         .join(", ")}`}
                     >
-                      {formaterNavEnheter(tiltaksgjennomforing.navEnheter)}
+                      {formaterNavEnheter(
+                        tiltaksgjennomforing.navRegion,
+                        tiltaksgjennomforing.navEnheter
+                      )}
                     </Table.DataCell>
                   </SkjulKolonne>
 

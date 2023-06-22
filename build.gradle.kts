@@ -36,6 +36,9 @@ allprojects {
 
         useJUnitPlatform()
 
+        // Run tests in parallel
+        maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).takeIf { it > 0 } ?: 1
+
         testLogging {
             showCauses = true
             showExceptions = true

@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.api.services
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle
 import no.nav.mulighetsrommet.api.domain.dto.AdGruppe
 import no.nav.mulighetsrommet.api.domain.dto.NavKontaktpersonDto
 import no.nav.mulighetsrommet.api.repositories.NavAnsattRepository
@@ -30,7 +29,7 @@ class NavAnsattService(
     }
 
     fun hentKontaktpersoner(filter: NavAnsattFilter): List<NavKontaktpersonDto> {
-        return navAnsattRepository.getAll(filter = filter)
+        return navAnsattRepository.getAll(roller = filter.roller)
             .map { ansatte ->
                 ansatte.map {
                     NavKontaktpersonDto(
@@ -44,22 +43,6 @@ class NavAnsattService(
                     )
                 }
             }.getOrThrow()
-    }
-
-    fun hentKontaktperson(navident: String): NavKontaktpersonDto? {
-        return navAnsattRepository.getByNavIdentAndRolle(navident, NavAnsattRolle.KONTAKTPERSON).map {
-            it?.let {
-                NavKontaktpersonDto(
-                    navident = it.navIdent,
-                    azureId = it.azureId,
-                    fornavn = it.fornavn,
-                    etternavn = it.etternavn,
-                    hovedenhetKode = it.hovedenhet,
-                    mobilnr = it.mobilnummer,
-                    epost = it.epost,
-                )
-            }
-        }.getOrThrow()
     }
 }
 
