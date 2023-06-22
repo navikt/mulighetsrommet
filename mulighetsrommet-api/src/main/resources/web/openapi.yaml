@@ -1750,6 +1750,32 @@ components:
           $ref: "#/components/schemas/SanityFaneinnhold"
         delingMedBruker:
           type: string
+        arenakode:
+          type: string
+          enum:
+            - IPSUNG
+            - INKLUTILS
+            - HOYEREUTD
+            - ENKELAMO
+            - GRUFAGYRKE
+            - ARBTREN
+            - ARBFORB
+            - MIDLONTIL
+            - TILSJOBB
+            - ENKFAGYRKE
+            - INDJOBSTOT
+            - AVKLARAG
+            - DIGIOPPARB
+            - MENTOR
+            - INDOPPFAG
+            - GRUPPEAMO
+            - VASV
+            -  ARBRRHDAG
+            - JOBBK
+            - VATIAROR
+            - VARLONTIL
+            - UTVAOONAV
+          nullable: true
       required:
         - _id
         - tiltakstypeNavn
