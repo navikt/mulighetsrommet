@@ -1,5 +1,7 @@
 package no.nav.mulighetsrommet.api.tasks
 
+import arrow.core.Either
+import arrow.core.continuations.either
 import com.github.kagkarlsson.scheduler.task.helper.RecurringTask
 import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import com.github.kagkarlsson.scheduler.task.schedule.DisabledSchedule
@@ -10,6 +12,7 @@ import no.nav.mulighetsrommet.api.clients.msgraph.MicrosoftGraphClient
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle
 import no.nav.mulighetsrommet.api.repositories.NavAnsattRepository
+import no.nav.mulighetsrommet.database.utils.DatabaseOperationError
 import no.nav.mulighetsrommet.slack.SlackNotifier
 import org.slf4j.LoggerFactory
 import java.util.*
@@ -58,14 +61,25 @@ class SynchronizeNavAnsatte(
             logger.info("Synkroniserer NAV-ansatte fra Azure til database...")
 
             runBlocking {
-                resolveNavAnsatte(config.groups, msGraphClient)
-                    .forEach { ansatt ->
-                        ansatte.upsert(ansatt).onLeft {
-                            throw it.error
-                        }
-                    }
+                synchronizeNavAnsatte(config.groups)
             }
         }
+
+    internal suspend fun synchronizeNavAnsatte(groups: List<Group>): Either<DatabaseOperationError, Unit> = either {
+        val ansatteToUpsert = resolveNavAnsatte(groups, msGraphClient)
+
+        ansatteToUpsert.forEach { ansatt ->
+            ansatte.upsert(ansatt).bind()
+        }
+
+        val ansatteToDelete = ansatte.getAll()
+            .map { it.filter { ansatt -> !ansatteToUpsert.contains(ansatt) } }
+            .bind()
+
+        ansatteToDelete.forEach { ansatt ->
+            ansatte.deleteByAzureId(ansatt.azureId).bind()
+        }
+    }
 }
 
 internal suspend fun resolveNavAnsatte(groups: List<Group>, microsoftGraphClient: MicrosoftGraphClient) = groups
