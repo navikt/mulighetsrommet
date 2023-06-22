@@ -5,6 +5,7 @@ import io.kotest.core.spec.style.FunSpec
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
+import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -18,6 +19,7 @@ class NotificationRepositoryTest : FunSpec({
     val domain = MulighetsrommetTestDomain()
 
     beforeEach {
+        database.db.truncateAll()
         domain.initialize(database.db)
     }
 

@@ -9,7 +9,6 @@ import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.repositories.NavAnsattRepository
 import no.nav.mulighetsrommet.api.repositories.NavEnhetRepository
 import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
-import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import java.util.*
 
 data class MulighetsrommetTestDomain(
@@ -26,10 +25,9 @@ data class MulighetsrommetTestDomain(
         etternavn = "Duck",
         hovedenhet = "2990",
         azureId = UUID.randomUUID(),
-        fraAdGruppe = UUID.randomUUID(),
         mobilnummer = "12345678",
-        epost = "test@test.no",
-        rolle = NavAnsattRolle.BETABRUKER,
+        epost = "donald.duck@nav.no",
+        roller = listOf(NavAnsattRolle.BETABRUKER),
     ),
     val ansatt2: NavAnsattDbo = NavAnsattDbo(
         navIdent = "DD2",
@@ -37,15 +35,12 @@ data class MulighetsrommetTestDomain(
         etternavn = "Duck",
         hovedenhet = "2990",
         azureId = UUID.randomUUID(),
-        fraAdGruppe = UUID.randomUUID(),
         mobilnummer = "48243214",
-        epost = "test@testesen.no",
-        rolle = NavAnsattRolle.BETABRUKER,
+        epost = "dolly.duck@nav.no",
+        roller = listOf(NavAnsattRolle.BETABRUKER),
     ),
 ) {
     fun initialize(database: FlywayDatabaseAdapter) {
-        database.truncateAll()
-
         val enheter = NavEnhetRepository(database)
         enheter.upsert(enhet).shouldBeRight()
 

@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.api.services
 
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
-import io.ktor.server.plugins.*
 import io.prometheus.client.cache.caffeine.CacheMetricsCollector
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.domain.dto.FylkeResponse
@@ -183,7 +182,7 @@ class VeilederflateSanityService(
         return gjennomforingerFraSanity
             .map { sanityData ->
                 val apiGjennomforing = gjennomforingerFraDb[sanityData._id]
-                val kontaktpersoner = hentKontaktpersoner(gjennomforingerFraDb[sanityData._id], enhetsId)
+                val kontaktpersoner = apiGjennomforing?.let { hentKontaktpersoner(it, enhetsId) } ?: emptyList()
                 val oppstart = apiGjennomforing?.oppstart?.name?.lowercase() ?: sanityData.oppstart
                 val oppstartsdato = apiGjennomforing?.oppstartsdato ?: sanityData.oppstartsdato
                 sanityData.copy(
@@ -199,30 +198,28 @@ class VeilederflateSanityService(
     }
 
     private fun hentKontaktpersoner(
-        tiltaksgjennomforingAdminDto: TiltaksgjennomforingAdminDto?,
+        tiltaksgjennomforingAdminDto: TiltaksgjennomforingAdminDto,
         enhetsId: String,
     ): List<KontaktinfoTiltaksansvarlige> {
-        return tiltaksgjennomforingAdminDto?.kontaktpersoner?.filter {
-            it.navEnheter.isEmpty() || it.navEnheter.contains(
-                enhetsId,
-            )
-        }
-            ?.map {
-                val kontaktperson = navAnsattService.hentKontaktperson(it.navIdent)
-                    ?: throw NotFoundException("Fant ikke kontaktperson med ident: ${it.navIdent}")
-                val enhet = navEnhetService.hentEnhet(kontaktperson.hovedenhetKode)
+        return tiltaksgjennomforingAdminDto.kontaktpersoner
+            .filter {
+                it.navEnheter.isEmpty() || it.navEnheter.contains(
+                    enhetsId,
+                )
+            }
+            .map {
                 KontaktinfoTiltaksansvarlige(
-                    navn = "${kontaktperson.fornavn} ${kontaktperson.etternavn}",
-                    telefonnummer = kontaktperson.mobilnr ?: "",
-                    enhet = enhet?.navn,
-                    epost = kontaktperson.epost,
+                    navn = it.navn,
+                    telefonnummer = it.mobilnummer,
+                    enhet = it.hovedenhet,
+                    epost = it.epost,
                     _rev = null,
                     _type = null,
                     _id = null,
                     _updatedAt = null,
                     _createdAt = null,
                 )
-            } ?: emptyList()
+            }
     }
 
     private suspend fun getFylkeIdBasertPaaEnhetsId(enhetsId: String?): String? {

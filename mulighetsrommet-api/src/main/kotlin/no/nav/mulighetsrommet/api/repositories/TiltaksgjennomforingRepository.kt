@@ -56,7 +56,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         jsonb_agg(distinct
             case
                 when tgk.tiltaksgjennomforing_id is null then null::jsonb
-                else jsonb_build_object('navIdent', tgk.kontaktperson_nav_ident, 'navn', concat(na.fornavn, ' ', na.etternavn), 'epost', na.epost, 'mobilnummer', na.mobilnummer, 'navEnheter', tgk.enheter)
+                else jsonb_build_object('navIdent', tgk.kontaktperson_nav_ident, 'navn', concat(na.fornavn, ' ', na.etternavn), 'epost', na.epost, 'mobilnummer', na.mobilnummer, 'navEnheter', tgk.enheter, 'hovedenhet', na.hovedenhet)
             end
         ) as kontaktpersoner
         """
@@ -202,7 +202,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 ).asExecute,
             )
 
-            tiltaksgjennomforing.kontaktpersoner?.forEach { kontakt ->
+            tiltaksgjennomforing.kontaktpersoner.forEach { kontakt ->
                 tx.run(
                     queryOf(
                         upsertKontaktperson,
@@ -218,7 +218,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 queryOf(
                     deleteKontaktpersoner,
                     tiltaksgjennomforing.id,
-                    tiltaksgjennomforing.kontaktpersoner?.let { kontakt -> db.createTextArray(kontakt.map { it.navIdent }) },
+                    tiltaksgjennomforing.kontaktpersoner.let { kontakt -> db.createTextArray(kontakt.map { it.navIdent }) },
                 ).asExecute,
             )
         }
