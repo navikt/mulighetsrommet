@@ -23,44 +23,6 @@ import java.util.*
 class TiltaksgjennomforingRepository(private val db: Database) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    private val selectTiltaksgjennomforingAdminDtoColumns = """
-        tg.id::uuid,
-        tg.navn,
-        tg.tiltakstype_id,
-        tg.tiltaksnummer,
-        tg.virksomhetsnummer,
-        v.navn as virksomhetsnavn,
-        tg.start_dato as gjennomforingStartdato,
-        tg.slutt_dato as gjennomforingSluttdato,
-        t.tiltakskode,
-        t.navn as tiltakstype_navn,
-        tg.arena_ansvarlig_enhet,
-        tg.avslutningsstatus,
-        tg.tilgjengelighet,
-        tg.estimert_ventetid,
-        tg.sanity_id,
-        tg.antall_plasser,
-        tg.avtale_id,
-        tg.oppstart,
-        tg.opphav,
-        tg.stengt_fra,
-        tg.stengt_til,
-        avtale_ne.navn as navRegionForAvtale,
-        array_agg(tg_a.navident) as ansvarlige,
-        jsonb_agg(distinct
-            case
-                when tg_e.enhetsnummer is null then null::jsonb
-                else jsonb_build_object('enhetsnummer', tg_e.enhetsnummer, 'navn', ne.navn)
-            end
-        ) as nav_enheter,
-        jsonb_agg(distinct
-            case
-                when tgk.tiltaksgjennomforing_id is null then null::jsonb
-                else jsonb_build_object('navIdent', tgk.kontaktperson_nav_ident, 'navn', concat(na.fornavn, ' ', na.etternavn), 'epost', na.epost, 'mobilnummer', na.mobilnummer, 'navEnheter', tgk.enheter, 'hovedenhet', na.hovedenhet)
-            end
-        ) as kontaktpersoner
-        """
-
     fun upsert(tiltaksgjennomforing: TiltaksgjennomforingDbo): QueryResult<Unit> = query {
         logger.info("Lagrer tiltaksgjennomføring id=${tiltaksgjennomforing.id}")
 
@@ -285,20 +247,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
     fun getBySanityIds(sanityIds: List<UUID>): Map<String, TiltaksgjennomforingAdminDto> {
         @Language("PostgreSQL")
         val query = """
-            select
-                $selectTiltaksgjennomforingAdminDtoColumns
-            from tiltaksgjennomforing tg
-                inner join tiltakstype t on t.id = tg.tiltakstype_id
-                left join tiltaksgjennomforing_ansvarlig tg_a on tg_a.tiltaksgjennomforing_id = tg.id
-                left join tiltaksgjennomforing_nav_enhet tg_e on tg_e.tiltaksgjennomforing_id = tg.id
-                left join avtale a on a.id = tg.avtale_id
-                left join nav_enhet ne on tg_e.enhetsnummer = ne.enhetsnummer
-                left join nav_enhet avtale_ne on avtale_ne.enhetsnummer = a.nav_region
-                left join virksomhet v on v.organisasjonsnummer = tg.virksomhetsnummer
-                left join tiltaksgjennomforing_kontaktperson tgk on tgk.tiltaksgjennomforing_id = tg.id
-                left join nav_ansatt na on na.nav_ident = tgk.kontaktperson_nav_ident
-            where tg.sanity_id = any (?)
-            group by tg.id, t.id, v.navn, avtale_ne.navn
+            select * from tiltaksgjennomforing_admin_view
+            where sanity_id = any (?)
         """.trimIndent()
 
         return queryOf(query, db.createUuidArray(sanityIds))
@@ -312,20 +262,9 @@ class TiltaksgjennomforingRepository(private val db: Database) {
     fun get(id: UUID): QueryResult<TiltaksgjennomforingAdminDto?> = query {
         @Language("PostgreSQL")
         val query = """
-            select
-                $selectTiltaksgjennomforingAdminDtoColumns
-            from tiltaksgjennomforing tg
-                inner join tiltakstype t on t.id = tg.tiltakstype_id
-                left join tiltaksgjennomforing_ansvarlig tg_a on tg_a.tiltaksgjennomforing_id = tg.id
-                left join tiltaksgjennomforing_nav_enhet tg_e on tg_e.tiltaksgjennomforing_id = tg.id
-                left join avtale a on a.id = tg.avtale_id
-                left join nav_enhet ne on tg_e.enhetsnummer = ne.enhetsnummer
-                left join nav_enhet avtale_ne on avtale_ne.enhetsnummer = a.nav_region
-                left join virksomhet v on v.organisasjonsnummer = tg.virksomhetsnummer
-                left join tiltaksgjennomforing_kontaktperson tgk on tgk.tiltaksgjennomforing_id = tg.id
-                left join nav_ansatt na on na.nav_ident = tgk.kontaktperson_nav_ident
-            where tg.id = ?::uuid
-            group by tg.id, t.id, v.navn, avtale_ne.navn
+            select *
+            from tiltaksgjennomforing_admin_view
+            where id = ?::uuid
         """.trimIndent()
         queryOf(query, id)
             .map { it.toTiltaksgjennomforingAdminDto() }
@@ -372,49 +311,37 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         )
 
         val where = DatabaseUtils.andWhereParameterNotNull(
-            filter.search to "((lower(tg.navn) like lower(:search)) or (tg.tiltaksnummer like :search))",
-            filter.enhet to "lower(tg.arena_ansvarlig_enhet) = lower(:enhet)",
-            filter.tiltakstypeId to "tg.tiltakstype_id = :tiltakstypeId",
+            filter.search to "((lower(navn) like lower(:search)) or (tiltaksnummer like :search))",
+            filter.enhet to "lower(arena_ansvarlig_enhet) = lower(:enhet)",
+            filter.tiltakstypeId to "tiltakstype_id = :tiltakstypeId",
             filter.status to filter.status?.toDbStatement(),
-            filter.sluttDatoCutoff to "(tg.slutt_dato >= :cutoffdato or tg.slutt_dato is null)",
-            filter.fylkesenhet to "tg.arena_ansvarlig_enhet in (select enhetsnummer from nav_enhet where overordnet_enhet = :fylkesenhet)",
-            filter.avtaleId to "tg.avtale_id = :avtaleId",
-            filter.arrangorOrgnr to "tg.virksomhetsnummer = :virksomhetsnummer",
+            filter.sluttDatoCutoff to "(slutt_dato >= :cutoffdato or slutt_dato is null)",
+            filter.fylkesenhet to "arena_ansvarlig_enhet in (select enhetsnummer from nav_enhet where overordnet_enhet = :fylkesenhet)",
+            filter.avtaleId to "avtale_id = :avtaleId",
+            filter.arrangorOrgnr to "virksomhetsnummer = :virksomhetsnummer",
         )
 
         val order = when (filter.sortering) {
-            "navn-ascending" -> "tg.navn asc"
-            "navn-descending" -> "tg.navn desc"
-            "tiltaksnummer-ascending" -> "tg.tiltaksnummer asc"
-            "tiltaksnummer-descending" -> "tg.tiltaksnummer desc"
-            "arrangor-ascending" -> "v.navn asc"
-            "arrangor-descending" -> "v.navn desc"
-            "tiltakstype-ascending" -> "t.navn asc"
-            "tiltakstype-descending" -> "t.navn desc"
-            "startdato-ascending" -> "gjennomforingStartdato asc"
-            "startdato-descending" -> "gjennomforingStartdato desc"
-            "sluttdato-ascending" -> "tg.slutt_dato asc"
-            "sluttdato-descending" -> "tg.slutt_dato desc"
-            else -> "tg.navn asc"
+            "navn-ascending" -> "navn asc"
+            "navn-descending" -> "navn desc"
+            "tiltaksnummer-ascending" -> "tiltaksnummer asc"
+            "tiltaksnummer-descending" -> "tiltaksnummer desc"
+            "arrangor-ascending" -> "virksomhetsnavn asc"
+            "arrangor-descending" -> "virksomhetsnavn desc"
+            "tiltakstype-ascending" -> "tiltakstype_navn asc"
+            "tiltakstype-descending" -> "tiltakstype_navn desc"
+            "startdato-ascending" -> "start_dato asc"
+            "startdato-descending" -> "start_dato desc"
+            "sluttdato-ascending" -> "slutt_dato asc"
+            "sluttdato-descending" -> "slutt_dato desc"
+            else -> "navn asc"
         }
 
         @Language("PostgreSQL")
         val query = """
-            select
-                $selectTiltaksgjennomforingAdminDtoColumns,
-                count(*) over () as full_count
-            from tiltaksgjennomforing tg
-                inner join tiltakstype t on tg.tiltakstype_id = t.id
-                left join tiltaksgjennomforing_ansvarlig tg_a on tg_a.tiltaksgjennomforing_id = tg.id
-                left join tiltaksgjennomforing_nav_enhet tg_e on tg_e.tiltaksgjennomforing_id = tg.id
-                left join avtale a on a.id = tg.avtale_id
-                left join nav_enhet ne on tg_e.enhetsnummer = ne.enhetsnummer
-                left join nav_enhet avtale_ne on avtale_ne.enhetsnummer = a.nav_region
-                left join virksomhet v on v.organisasjonsnummer = tg.virksomhetsnummer
-                left join tiltaksgjennomforing_kontaktperson tgk on tgk.tiltaksgjennomforing_id = tg.id
-                left join nav_ansatt na on na.nav_ident = tgk.kontaktperson_nav_ident
+            select *, count(*) over () as full_count
+            from tiltaksgjennomforing_admin_view
             $where
-            group by tg.id, t.id, v.navn, avtale_ne.navn
             order by $order
             limit :limit
             offset :offset
@@ -522,11 +449,11 @@ class TiltaksgjennomforingRepository(private val db: Database) {
 
     private fun Tiltaksgjennomforingsstatus.toDbStatement(): String {
         return when (this) {
-            Tiltaksgjennomforingsstatus.APENT_FOR_INNSOK -> "(:today < tg.start_dato and tg.avslutningsstatus = '${Avslutningsstatus.IKKE_AVSLUTTET}')"
-            Tiltaksgjennomforingsstatus.GJENNOMFORES -> "((:today >= tg.start_dato and (:today <= tg.slutt_dato or tg.slutt_dato is null)) and tg.avslutningsstatus = '${Avslutningsstatus.IKKE_AVSLUTTET}')"
-            Tiltaksgjennomforingsstatus.AVSLUTTET -> "(:today > tg.slutt_dato or tg.avslutningsstatus = '${Avslutningsstatus.AVSLUTTET}')"
-            Tiltaksgjennomforingsstatus.AVBRUTT -> "tg.avslutningsstatus = '${Avslutningsstatus.AVBRUTT}'"
-            Tiltaksgjennomforingsstatus.AVLYST -> "tg.avslutningsstatus = '${Avslutningsstatus.AVLYST}'"
+            Tiltaksgjennomforingsstatus.APENT_FOR_INNSOK -> "(:today < start_dato and avslutningsstatus = '${Avslutningsstatus.IKKE_AVSLUTTET}')"
+            Tiltaksgjennomforingsstatus.GJENNOMFORES -> "((:today >= start_dato and (:today <= slutt_dato or slutt_dato is null)) and avslutningsstatus = '${Avslutningsstatus.IKKE_AVSLUTTET}')"
+            Tiltaksgjennomforingsstatus.AVSLUTTET -> "(:today > slutt_dato or avslutningsstatus = '${Avslutningsstatus.AVSLUTTET}')"
+            Tiltaksgjennomforingsstatus.AVBRUTT -> "avslutningsstatus = '${Avslutningsstatus.AVBRUTT}'"
+            Tiltaksgjennomforingsstatus.AVLYST -> "avslutningsstatus = '${Avslutningsstatus.AVLYST}'"
         }
     }
 
@@ -576,8 +503,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         val kontaktpersoner =
             Json.decodeFromString<List<TiltaksgjennomforingKontaktperson?>>(string("kontaktpersoner")).filterNotNull()
 
-        val startDato = localDate("gjennomforingStartdato")
-        val sluttDato = localDateOrNull("gjennomforingSluttdato")
+        val startDato = localDate("start_dato")
+        val sluttDato = localDateOrNull("slutt_dato")
         return TiltaksgjennomforingAdminDto(
             id = uuid("id"),
             tiltakstype = TiltaksgjennomforingAdminDto.Tiltakstype(
