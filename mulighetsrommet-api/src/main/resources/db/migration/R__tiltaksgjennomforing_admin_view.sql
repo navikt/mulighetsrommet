@@ -1,4 +1,4 @@
-create or replace view tiltaksgjennomforing_admin_view as
+create or replace view tiltaksgjennomforing_admin_dto_view as
 select tg.id::uuid,
        tg.navn,
        tg.tiltakstype_id,

@@ -247,7 +247,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
     fun getBySanityIds(sanityIds: List<UUID>): Map<String, TiltaksgjennomforingAdminDto> {
         @Language("PostgreSQL")
         val query = """
-            select * from tiltaksgjennomforing_admin_view
+            select * from tiltaksgjennomforing_admin_dto_view
             where sanity_id = any (?)
         """.trimIndent()
 
@@ -263,7 +263,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         @Language("PostgreSQL")
         val query = """
             select *
-            from tiltaksgjennomforing_admin_view
+            from tiltaksgjennomforing_admin_dto_view
             where id = ?::uuid
         """.trimIndent()
         queryOf(query, id)
@@ -340,7 +340,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         @Language("PostgreSQL")
         val query = """
             select *, count(*) over () as full_count
-            from tiltaksgjennomforing_admin_view
+            from tiltaksgjennomforing_admin_dto_view
             $where
             order by $order
             limit :limit
