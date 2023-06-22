@@ -63,6 +63,7 @@ data class Tiltakstype(
     val tiltakstypeNavn: String? = null,
     val faneinnhold: Faneinnhold? = null,
     val delingMedBruker: String? = null,
+    val arenakode: String? = null,
 )
 
 @Serializable

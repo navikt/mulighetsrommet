@@ -31,13 +31,14 @@ const SidemenyDetaljer = () => {
     return (
       !!oppstartsdato &&
       !!sluttdato &&
+      !!tiltakstype?.arenakode &&
       [
-        'Opplæring - Gruppe AMO',
-        'Jobbklubb',
-        'Digitalt oppfølgingstiltak for arbeidsledige ("digital jobbklubb")',
-        'Opplæring - Gruppe Fag- og yrkesopplæring',
-        'Opplæring - Fagskole (høyere yrkesfaglig utdanning)',
-      ].includes(tiltakstype?.tiltakstypeNavn)
+        SanityTiltakstype.arenakode.GRUPPEAMO,
+        SanityTiltakstype.arenakode.JOBBK,
+        SanityTiltakstype.arenakode.DIGIOPPARB,
+        SanityTiltakstype.arenakode.GRUFAGYRKE,
+        SanityTiltakstype.arenakode.ENKFAGYRKE,
+      ].includes(tiltakstype?.arenakode)
     );
   };
 

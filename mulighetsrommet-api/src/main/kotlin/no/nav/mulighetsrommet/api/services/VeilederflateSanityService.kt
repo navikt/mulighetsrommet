@@ -193,6 +193,7 @@ class VeilederflateSanityService(
                     oppstartsdato = oppstartsdato,
                     tilgjengelighetsstatus = apiGjennomforing?.tilgjengelighet?.name,
                     estimert_ventetid = apiGjennomforing?.estimertVentetid,
+                    tiltakstype = sanityData.tiltakstype?.copy(arenakode = apiGjennomforing?.tiltakstype?.arenaKode),
                 )
             }
     }
