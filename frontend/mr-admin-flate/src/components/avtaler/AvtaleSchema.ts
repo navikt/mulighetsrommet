@@ -18,12 +18,7 @@ export const AvtaleSchema = z.object({
     .max(9, "Du må velge en leverandør")
     .regex(/^\d+$/, "Leverandør må være et nummer"),
   leverandorUnderenheter: z.string().array(),
-  leverandorKontaktperson: z
-    .object({
-      navn: z.string().optional(),
-      telefon: z.string().optional(),
-      epost: z.string().optional(),
-    }),
+  leverandorKontaktpersonId: z.string().optional(),
   navRegion: z.string({ required_error: "Du må velge en enhet" }),
   navEnheter: z
     .string()

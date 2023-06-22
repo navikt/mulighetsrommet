@@ -837,7 +837,6 @@ class AvtaleRepositoryTest : FunSpec({
                     navn = "Rema 1000",
                 ),
             )
-            val avtaleRepository = AvtaleRepository(database.db)
             val leverandorKontaktperson = VirksomhetKontaktperson(
                 id = UUID.randomUUID(),
                 organisasjonsnummer = "999888777",
@@ -845,9 +844,11 @@ class AvtaleRepositoryTest : FunSpec({
                 telefon = "22232322",
                 epost = "navn@gmail.com",
             )
+            virksomhetRepository.upsertKontaktperson(leverandorKontaktperson)
 
+            val avtaleRepository = AvtaleRepository(database.db)
             var avtale = avtaleFixture.createAvtaleForTiltakstype(
-                leverandorKontaktperson = leverandorKontaktperson,
+                leverandorKontaktpersonId = leverandorKontaktperson.id,
             )
             avtaleRepository.upsert(avtale).shouldBeRight()
             avtaleRepository.get(avtale.id).shouldBeRight().should {
@@ -859,9 +860,10 @@ class AvtaleRepositoryTest : FunSpec({
                 navn = "Fredrik Navnesen",
                 telefon = "32322",
             )
+            virksomhetRepository.upsertKontaktperson(nyPerson)
 
             avtale = avtale.copy(
-                leverandorKontaktperson = nyPerson,
+                leverandorKontaktpersonId = nyPerson.id,
             )
             avtaleRepository.upsert(avtale).shouldBeRight()
             avtaleRepository.get(avtale.id).shouldBeRight().should {
@@ -870,7 +872,7 @@ class AvtaleRepositoryTest : FunSpec({
 
             // Fjern kontaktperson
             avtale = avtale.copy(
-                leverandorKontaktperson = null,
+                leverandorKontaktpersonId = null,
             )
             avtaleRepository.upsert(avtale).shouldBeRight()
             avtaleRepository.get(avtale.id).shouldBeRight().should {

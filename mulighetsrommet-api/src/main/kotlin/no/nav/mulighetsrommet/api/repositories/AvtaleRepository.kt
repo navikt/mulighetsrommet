@@ -114,31 +114,7 @@ class AvtaleRepository(private val db: Database) {
              where avtale_id = ?::uuid and not (organisasjonsnummer = any (?))
         """.trimIndent()
 
-        @Language("PostgreSQL")
-        val upsertVirksomhetKontaktperson = """
-            insert into virksomhet_kontaktperson(id, organisasjonsnummer, navn, telefon, epost)
-            values (?::uuid, ?, ?, ?, ?)
-            on conflict (id) do update set
-                navn                = excluded.navn,
-                organisasjonsnummer = excluded.organisasjonsnummer,
-                telefon             = excluded.telefon,
-                epost               = excluded.epost
-            returning *
-        """.trimIndent()
-
         db.transaction { tx ->
-            avtale.leverandorKontaktperson?.let { person ->
-                queryOf(
-                    upsertVirksomhetKontaktperson,
-                    person.id,
-                    person.organisasjonsnummer,
-                    person.navn,
-                    person.telefon,
-                    person.epost,
-                )
-                    .asExecute.let { tx.run(it) }
-            }
-
             tx.run(queryOf(query, avtale.toSqlParameters()).asExecute)
 
             avtale.ansvarlige.forEach { ansvarlig ->
@@ -365,7 +341,7 @@ class AvtaleRepository(private val db: Database) {
         "tiltakstype_id" to tiltakstypeId,
         "avtalenummer" to avtalenummer,
         "leverandor_organisasjonsnummer" to leverandorOrganisasjonsnummer,
-        "leverandor_kontaktperson_id" to leverandorKontaktperson?.id,
+        "leverandor_kontaktperson_id" to leverandorKontaktpersonId,
         "leverandor_underenheter" to db.createTextArray(leverandorUnderenheter),
         "start_dato" to startDato,
         "slutt_dato" to sluttDato,

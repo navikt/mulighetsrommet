@@ -23,6 +23,7 @@ import no.nav.mulighetsrommet.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
+import no.nav.mulighetsrommet.domain.dto.VirksomhetKontaktperson
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -279,6 +280,37 @@ class VirksomhetRepositoryTest : FunSpec({
             virksomhetRepository.getAll(VirksomhetFilter(til = null)).shouldBeRight().should {
                 it shouldContainExactlyInAnyOrder listOf(virksomhet1, virksomhet2)
             }
+        }
+    }
+
+    context("vikrsomhet_kontaktperson") {
+        test("crud") {
+            val virksomhetRepository = VirksomhetRepository(database.db)
+            val virksomhet = VirksomhetDto(
+                navn = "REMA 1000 AS",
+                organisasjonsnummer = "982254604",
+                underenheter = null,
+                postnummer = "5174",
+                poststed = "Mathopen",
+            )
+            virksomhetRepository.upsert(virksomhet).shouldBeRight()
+
+            val kontaktperson = VirksomhetKontaktperson(
+                id = UUID.randomUUID(),
+                navn = "Fredrik",
+                organisasjonsnummer = "982254604",
+                telefon = "322232323",
+            )
+            val kontaktperson2 = VirksomhetKontaktperson(
+                id = UUID.randomUUID(),
+                navn = "Trond",
+                organisasjonsnummer = "982254604",
+                telefon = "232232323",
+            )
+            virksomhetRepository.upsertKontaktperson(kontaktperson)
+            virksomhetRepository.upsertKontaktperson(kontaktperson2)
+
+            virksomhetRepository.getKontaktpersoner("982254604") shouldContainExactlyInAnyOrder listOf(kontaktperson, kontaktperson2)
         }
     }
 })

@@ -49,4 +49,5 @@ export const QueryKeys = {
     filter,
   ],
   kontaktpersoner: () => ["nav-kontaktpersoner"],
+  virksomhetKontaktpersoner: (orgnr: string) => [orgnr, "virksomhet-kontaktpersoner"],
 };

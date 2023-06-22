@@ -20,7 +20,6 @@ import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
-import no.nav.mulighetsrommet.domain.dto.VirksomhetKontaktperson
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
@@ -115,7 +114,8 @@ data class AvtaleRequest(
     val tiltakstypeId: UUID,
     val leverandorOrganisasjonsnummer: String,
     val leverandorUnderenheter: List<String> = emptyList(),
-    val leverandorKontaktperson: VirksomhetKontaktperson? = null,
+    @Serializable(with = UUIDSerializer::class)
+    val leverandorKontaktpersonId: UUID? = null,
     val avtalenummer: String,
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate,
@@ -142,7 +142,7 @@ data class AvtaleRequest(
                 tiltakstypeId = tiltakstypeId,
                 leverandorOrganisasjonsnummer = leverandorOrganisasjonsnummer,
                 leverandorUnderenheter = leverandorUnderenheter,
-                leverandorKontaktperson = leverandorKontaktperson,
+                leverandorKontaktpersonId = leverandorKontaktpersonId,
                 startDato = startDato,
                 sluttDato = sluttDato,
                 arenaAnsvarligEnhet = null,

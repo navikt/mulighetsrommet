@@ -864,6 +864,49 @@ paths:
               schema:
                 $ref: "#/components/schemas/Virksomhet"
 
+  /api/v1/internal/virksomhet/{orgnr}/kontaktperson:
+    get:
+      tags:
+        - VirksomhetKontaktperson
+      operationId: hentVirksomhetKontaktpersoner
+      parameters:
+        - in: path
+          name: orgnr
+          schema:
+            type: string
+          description: 9-sifret organisasjonsnummer
+      responses:
+        200:
+          description: Kontaktpersoner lagret på virksomhet
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/VirksomhetKontaktperson"
+    put:
+      tags:
+        - VirksomhetKontaktperson
+      operationId: opprettVirksomhetKontaktperson
+      parameters:
+        - in: path
+          name: orgnr
+          schema:
+            type: string
+          description: 9-sifret organisasjonsnummer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VirksomhetKontaktpersonRequest"
+      responses:
+        200:
+          description: VirksomhetKontaktperson response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VirksomhetKontaktperson"
+
   /api/v1/internal/virksomhet/sok/{sok}:
     get:
       tags:
@@ -1139,8 +1182,9 @@ components:
           type: string
         leverandorOrganisasjonsnummer:
           type: string
-        leverandorKontaktperson:
-          $ref: "#/components/schemas/VirksomhetKontaktperson"
+        leverandorKontaktpersonId:
+          type: string
+          format: UUID
         leverandorUnderenheter:
           type: array
           items:
@@ -1686,6 +1730,22 @@ components:
       required:
         - organisasjonsnummer
 
+    VirksomhetKontaktpersonRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        navn:
+          type: string
+        telefon:
+          type: string
+        epost:
+          type: string
+      required:
+        - id
+        - navn
+
     VirksomhetKontaktperson:
       type: object
       properties:
@@ -1703,6 +1763,7 @@ components:
       required:
         - id
         - navn
+        - organisasjonsnummer
 
     EmbeddedNavEnhet:
       type: object

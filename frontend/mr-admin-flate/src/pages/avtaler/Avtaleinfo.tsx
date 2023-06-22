@@ -97,7 +97,7 @@ export function Avtaleinfo() {
                 <div className={styles.leverandor_kontaktinfo}>
                   <label>{avtale.leverandorKontaktperson?.navn}</label>
                   <label>{avtale.leverandorKontaktperson?.telefon}</label>
-                  <label>{avtale.leverandorKontaktperson?.epost}</label>
+                  <a href={`mailto:${avtale.leverandorKontaktperson?.epost}`}>{avtale.leverandorKontaktperson?.epost}</a> 
                 </div>
               }
             />
