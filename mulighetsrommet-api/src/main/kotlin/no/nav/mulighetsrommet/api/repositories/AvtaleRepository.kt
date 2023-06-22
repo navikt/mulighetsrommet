@@ -385,8 +385,8 @@ class AvtaleRepository(private val db: Database) {
                     id = it,
                     organisasjonsnummer = string("leverandor_kontaktperson_organisasjonsnummer"),
                     navn = string("leverandor_kontaktperson_navn"),
-                    telefon = stringOrNull("leverandor_kontaktperson_telefon"),
-                    epost = stringOrNull("leverandor_kontaktperson_epost"),
+                    telefon = string("leverandor_kontaktperson_telefon"),
+                    epost = string("leverandor_kontaktperson_epost"),
                 )
             },
             navEnheter = navEnheter,

@@ -5,11 +5,32 @@
   border-radius: 0.2rem;
 }
 
-.kontaktperson_inputs {
+.input_container {
   margin-top: 8px;
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   justify-content: space-between;
+}
+
+.telefonepost_input {
+  margin-top: 8px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.telefon_input {
+  display: flex;
+  flex: 1 1 auto;
+}
+
+.epost_input {
+  flex: 2 1 auto;
+}
+
+.kontaktperson_info_container {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
 }
 
 .kontaktperson_label {
@@ -38,21 +59,9 @@
   }
 }
 
-.button_container_inner {
-  margin-top: 8px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
 .button_container {
   margin-top: 8px;
   display: flex;
   flex-direction: row;
-  justify-content: flex-start;
-}
-
-.errormsg {
-  margin-top: 8px;
-  color: #c30000;
+  justify-content: space-between;
 }

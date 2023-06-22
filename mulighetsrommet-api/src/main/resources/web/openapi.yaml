@@ -1751,6 +1751,8 @@ components:
       required:
         - id
         - navn
+        - telefon
+        - epost
 
     VirksomhetKontaktperson:
       type: object
@@ -1770,6 +1772,8 @@ components:
         - id
         - navn
         - organisasjonsnummer
+        - telefon
+        - epost
 
     EmbeddedNavEnhet:
       type: object

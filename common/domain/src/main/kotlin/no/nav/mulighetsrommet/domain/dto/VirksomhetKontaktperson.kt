@@ -10,6 +10,6 @@ data class VirksomhetKontaktperson(
     val id: UUID,
     val organisasjonsnummer: String,
     val navn: String,
-    val telefon: String? = null,
-    val epost: String? = null,
+    val telefon: String,
+    val epost: String,
 )

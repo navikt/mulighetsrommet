@@ -1,5 +1,5 @@
-import { PlusIcon, XMarkIcon } from "@navikt/aksel-icons";
-import { Button, Loader, TextField } from "@navikt/ds-react";
+import { PlusIcon } from "@navikt/aksel-icons";
+import { Button, TextField } from "@navikt/ds-react";
 import classNames from "classnames";
 import { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
@@ -7,127 +7,171 @@ import { useVirksomhetKontaktpersoner } from "../../api/virksomhet/useVirksomhet
 import styles from "./VirksomhetKontaktpersoner.module.scss";
 import { usePutVirksomhetKontaktperson } from "../../api/virksomhet/usePutVirksomhetKontaktperson";
 import { SokeSelect } from "../skjema/SokeSelect";
-import { VirksomhetKontaktperson } from "mulighetsrommet-api-client";
+import { useFormContext } from "react-hook-form";
+import { Laster } from "../laster/Laster";
+
+interface State {
+  leggTil: boolean
+  navn?: string;
+  epost?: string;
+  telefon?: string;
+  navnError?: string;
+  epostError?: string;
+  telefonError?: string;
+}
 
 interface VirksomhetKontaktpersonerProps {
   orgnr: string;
-  setValue: (e: any) => void;
+  formValueName: string;
 }
 
 export const VirksomhetKontaktpersoner = (
   props: VirksomhetKontaktpersonerProps
 ) => {
-  const { orgnr, setValue, ...rest } = props;
+  const { orgnr, formValueName } = props;
+  const { register, watch, setValue } = useFormContext();
   const mutation = usePutVirksomhetKontaktperson(orgnr);
-  const { data: kontaktpersoner, isLoading: isLoadingKontaktpersoner, refetch } = useVirksomhetKontaktpersoner(orgnr);
+  const {
+    data: kontaktpersoner,
+    isLoading: isLoadingKontaktpersoner,
+    refetch
+  } = useVirksomhetKontaktpersoner(orgnr);
+
+  const initialState: State = {
+    leggTil: false,
+    navn: undefined,
+    telefon: undefined,
+    epost: undefined,
+    navnError: undefined,
+    telefonError: undefined,
+    epostError: undefined,
+  }
+
+  const [state, setState] = useState<State>(initialState);
 
   useEffect(() => {
     if (mutation.isSuccess) {
-      setValue(mutation.data.id);
-      setLeggTil(false)
-      setNavn(undefined);
-      setTelefon(undefined);
-      setEpost(undefined);
+      setValue(formValueName, mutation.data.id)
+      setState(initialState);
       refetch();
       mutation.reset();
     }
   }, [mutation])
 
-  const [leggTil, setLeggTil] = useState<boolean>(false);
-
-  const [navn, setNavn] = useState<string | undefined>();
-  const [navnError, setNavnError] = useState<string | undefined>();
-  const [epost, setEpost] = useState<string | undefined>();
-  const [telefon, setTelefon] = useState<string | undefined>();
-
   if (!kontaktpersoner || isLoadingKontaktpersoner) {
-    return <Loader />
+    return <Laster />
   }
+
+  const person = kontaktpersoner.find((person) => person.id === watch(formValueName))
+
   const opprettKontaktperson = () => {
-    if (!navn) {
-      setNavnError("Navn er påkrevd")
+    setState({
+      ...state,
+      navnError: !state.navn ? "Navn må være satt" : undefined,
+      epostError: !state.epost ? "Epost må være satt" : undefined,
+      telefonError: !state.telefon ? "Telefon må være satt" : undefined,
+    });
+    if (!state.navn || !state.epost || !state.telefon) {
       return;
     }
+
     mutation.mutate({
       id: uuidv4(),
-      navn,
-      telefon,
-      epost,
+      navn: state.navn,
+      telefon: state.telefon,
+      epost: state.epost,
     });
   };
 
-  const personLabel = (person: VirksomhetKontaktperson) => {
-    let label = person.navn;
-    if (person.epost) {
-      label += `/${person.epost}`
-    }
-    if (person.telefon) {
-      label += `/${person.telefon}`
-    }
-    return label;
-  }
-
   return (
-    <div className={styles.kontaktperson_container}>
-      <label className={styles.kontaktperson_label} >
-        <b>Kontaktperson hos leverandøren</b>
-      </label>
-      <SokeSelect
-        size="small"
-        placeholder="Søk etter kontaktpersoner"
-        label={"Lagrede kontaktpersoner"}
-        {...rest}
-        options={kontaktpersoner.map((person) => ({
-          value: person.id,
-          label: `${personLabel(person)}`,
-        }))}
-      />
-      <Button
-        className={classNames(
-          styles.kontaktperson_button,
-          styles.kontaktperson_fjern_button
-        )}
-        type="button"
-        onClick={() => { setLeggTil(!leggTil) }}
-      >
-        {leggTil ? <XMarkIcon /> : <><PlusIcon /> Legg til kontaktperson</>}
-      </Button>
-      {leggTil &&
-        <div>
-          <TextField
-            size="small"
-            label={"Navn"}
-            error={navnError}
-            onChange={(e) => {
-              setNavn(e.target.value);
-              setNavnError(undefined);
-            }}
-          />
-          <div className={styles.kontaktperson_inputs}>
+    <>
+      <div className={styles.kontaktperson_container}>
+        <label className={styles.kontaktperson_label} >
+          <b>Kontaktperson hos leverandøren</b>
+        </label>
+        <SokeSelect
+          size="small"
+          placeholder="Søk etter kontaktpersoner"
+          label={"Lagrede kontaktpersoner"}
+          {...register(formValueName)}
+          options={kontaktpersoner.map((person) => ({
+            value: person.id,
+            label: person.navn,
+          }))}
+        />
+        {person &&
+          <div className={styles.kontaktperson_info_container}>
+            <label>{`Navn: ${person.navn}`}</label>
+            <label>{`Telefon: ${person.telefon}`}</label>
+            <label>{`Epost: ${person.epost}`}</label>
+          </div>
+        }
+        {!state.leggTil &&
+          <Button
+            className={classNames(
+              styles.kontaktperson_button,
+              styles.kontaktperson_fjern_button
+            )}
+            type="button"
+            onClick={() => setState({ ...state, leggTil: !state.leggTil })}
+          >
+            <PlusIcon /> Legg til kontaktperson
+          </Button>
+        }
+        {state.leggTil &&
+          <div className={styles.input_container}>
             <TextField
               size="small"
-              label="Telefon"
-              onChange={(e) => setTelefon(e.target.value)}
+              label={"Navn"}
+              error={state.navnError}
+              onChange={(e) => {
+                setState({ ...state, navn: e.target.value, navnError: undefined });
+              }}
             />
-            <TextField
-              size="small"
-              label="Epost"
-              onChange={(e) => setEpost(e.target.value)}
-            />
+            <div className={styles.telefonepost_input}>
+              <div className={styles.telefon_input}>
+                <TextField
+                  size="small"
+                  label="Telefon"
+                  error={state.telefonError}
+                  onChange={(e) => {
+                    setState({ ...state, telefon: e.target.value, telefonError: undefined });
+                  }}
+                />
+              </div>
+              <div className={styles.epost_input}>
+                <TextField
+                  size="small"
+                  label="Epost"
+                  error={state.epostError}
+                  onChange={(e) => {
+                    setState({ ...state, epost: e.target.value, epostError: undefined });
+                  }}
+                />
+              </div>
+            </div>
+            <div className={styles.button_container}>
+              <Button
+                size="small"
+                className={styles.button}
+                type="button"
+                onClick={opprettKontaktperson}
+              >
+                Opprett kontaktperson
+              </Button>
+              <Button
+                size="small"
+                variant="secondary"
+                className={styles.button}
+                type="button"
+                onClick={() => setState(initialState)}
+              >
+                Avbryt
+              </Button>
+            </div>
           </div>
-          <div className={styles.button_container}>
-            <Button
-              size="small"
-              variant="secondary"
-              className={styles.button}
-              type="button"
-              onClick={opprettKontaktperson}
-            >
-              Lagre kontaktperson
-            </Button>
-          </div>
-        </div>
-      }
-    </div>
+        }
+      </div>
+    </>
   );
 }

@@ -253,8 +253,8 @@ class VirksomhetRepository(private val db: Database) {
         id = uuid("id"),
         organisasjonsnummer = string("organisasjonsnummer"),
         navn = string("navn"),
-        telefon = stringOrNull("telefon"),
-        epost = stringOrNull("epost"),
+        telefon = string("telefon"),
+        epost = string("epost"),
     )
 
     private fun VirksomhetDto.toSqlParameters() = mapOf(

@@ -300,12 +300,14 @@ class VirksomhetRepositoryTest : FunSpec({
                 navn = "Fredrik",
                 organisasjonsnummer = "982254604",
                 telefon = "322232323",
+                epost = "fredrik@gmail.com",
             )
             val kontaktperson2 = VirksomhetKontaktperson(
                 id = UUID.randomUUID(),
                 navn = "Trond",
                 organisasjonsnummer = "982254604",
                 telefon = "232232323",
+                epost = "trond@gmail.com",
             )
             virksomhetRepository.upsertKontaktperson(kontaktperson)
             virksomhetRepository.upsertKontaktperson(kontaktperson2)
