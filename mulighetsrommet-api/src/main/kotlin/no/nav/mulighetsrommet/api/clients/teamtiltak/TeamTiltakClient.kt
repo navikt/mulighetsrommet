@@ -22,12 +22,10 @@ class TeamTiltakClient(
 
     suspend fun getAvtaler(norskIdent: String): List<String> {
         return try {
-            val response = client.get("$baseUrl/tiltaksgjennomforing-api/avtale-hendelse/$norskIdent") {
-                bearerAuth(tokenProvider())
-                parameter(
-                    "\$select",
-                    "id,streetAddress,city,givenName,surname,onPremisesSamAccountName,mail,mobilePhone",
-                )
+            val bearerAuth = tokenProvider()
+            log.warn("Accesstoekn: $bearerAuth")
+            val response = client.post("$baseUrl/tiltaksgjennomforing-api/avtale-hendelse/$norskIdent") {
+                bearerAuth(bearerAuth)
             }
 
             if (!response.status.isSuccess()) {
