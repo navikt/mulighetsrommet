@@ -116,6 +116,7 @@ export function OpprettAvtaleContainer({
     handleSubmit,
     formState: { errors },
     watch,
+    setValue,
   } = form;
 
   const { data: leverandorData } = useVirksomhet(watch("leverandor"));
@@ -298,11 +299,13 @@ export function OpprettAvtaleContainer({
               value: tiltakstype.id,
               label: tiltakstype.navn,
             }))}
+            isClearable={false}
           />
           <SokeSelect
             size="small"
             readOnly={arenaOpphav}
             placeholder="Velg en"
+            isClearable={false}
             label={"Avtaletype"}
             {...register("avtaletype")}
             options={[
@@ -346,6 +349,7 @@ export function OpprettAvtaleContainer({
               setNavRegion(e);
               form.setValue("navEnheter", [] as any);
             }}
+            onClearValue={() => setValue("navRegion", "")}
             options={enheter
               .filter((enhet) => enhet.type === Norg2Type.FYLKE)
               .map((enhet) => ({
@@ -370,6 +374,7 @@ export function OpprettAvtaleContainer({
             label={"Tiltaksarrangør hovedenhet"}
             {...register("leverandor")}
             onInputChange={(value) => setSokLeverandor(value)}
+            onClearValue={() => setValue("leverandor", "")}
             options={leverandorVirksomheter.map((enhet) => ({
               value: enhet.organisasjonsnummer,
               label: `${enhet.navn} - ${enhet.organisasjonsnummer}`,
@@ -409,6 +414,7 @@ export function OpprettAvtaleContainer({
             placeholder="Velg en"
             label={"Avtaleansvarlig"}
             {...register("avtaleansvarlig")}
+            onClearValue={() => setValue("avtaleansvarlig", "")}
             options={ansvarligOptions()}
           />
         </FormGroup>

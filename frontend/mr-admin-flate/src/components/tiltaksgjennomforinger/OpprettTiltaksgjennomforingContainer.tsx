@@ -3,6 +3,7 @@ import { PlusIcon, XMarkIcon } from "@navikt/aksel-icons";
 import { Alert, Button, Checkbox, TextField } from "@navikt/ds-react";
 import classNames from "classnames";
 import {
+  ApiError,
   Avtale,
   NavEnhet,
   Tiltaksgjennomforing,
@@ -11,6 +12,7 @@ import {
   TiltaksgjennomforingRequest,
 } from "mulighetsrommet-api-client";
 import { Opphav } from "mulighetsrommet-api-client/build/models/Opphav";
+import { Tilgjengelighetsstatus } from "mulighetsrommet-api-client/build/models/Tilgjengelighetsstatus";
 import { porten } from "mulighetsrommet-frontend-common/constants";
 import React, { Dispatch, SetStateAction, useEffect } from "react";
 import {
@@ -24,7 +26,7 @@ import { v4 as uuidv4 } from "uuid";
 import z from "zod";
 import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
 import { useHentKontaktpersoner } from "../../api/ansatt/useHentKontaktpersoner";
-import { mulighetsrommetClient } from "../../api/clients";
+import { usePutGjennomforing } from "../../api/avtaler/usePutGjennomforing";
 import { useAlleEnheter } from "../../api/enhet/useAlleEnheter";
 import { useFeatureToggles } from "../../api/features/feature-toggles";
 import { useVirksomhet } from "../../api/virksomhet/useVirksomhet";
@@ -40,7 +42,6 @@ import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
 import { SokeSelect } from "../skjema/SokeSelect";
 import styles from "./OpprettTiltaksgjennomforingContainer.module.scss";
-import { Tilgjengelighetsstatus } from "mulighetsrommet-api-client/build/models/Tilgjengelighetsstatus";
 
 const Schema = z
   .object({
@@ -158,7 +159,9 @@ const avtaleManglerNavRegionError = (avtaleId?: string) => (
       <>
         <br />
         <br />
-        <Link to={`/avtaler/${avtaleId}`}>Klikk her for å fikse avtalen</Link>
+        <Link reloadDocument to={`/avtaler/${avtaleId}`}>
+          Klikk her for å fikse avtalen
+        </Link>
         <br />
         <br />
       </>
@@ -220,6 +223,7 @@ export const OpprettTiltaksgjennomforingContainer = (
 ) => {
   const { data: kontaktpersoner, isLoading: isLoadingKontaktpersoner } =
     useHentKontaktpersoner();
+  const mutation = usePutGjennomforing();
   const { avtale, tiltaksgjennomforing, setError, onClose, onSuccess } = props;
   const form = useForm<inferredSchema>({
     resolver: zodResolver(Schema),
@@ -301,6 +305,12 @@ export const OpprettTiltaksgjennomforingContainer = (
     }
   }, [ansatt, isLoadingAnsatt, setValue]);
 
+  useEffect(() => {
+    if (mutation.data?.id) {
+      onSuccess(mutation.data.id);
+    }
+  }, [mutation]);
+
   const redigeringsModus = !!tiltaksgjennomforing;
 
   const postData: SubmitHandler<inferredSchema> = async (
@@ -351,13 +361,7 @@ export const OpprettTiltaksgjennomforingContainer = (
     };
 
     try {
-      const response =
-        await mulighetsrommetClient.tiltaksgjennomforinger.opprettTiltaksgjennomforing(
-          {
-            requestBody: body,
-          }
-        );
-      onSuccess(response.id);
+      await mutation.mutate(body);
     } catch {
       setError(tekniskFeilError());
     }
@@ -494,11 +498,14 @@ export const OpprettTiltaksgjennomforingContainer = (
             size="small"
             label="Oppstartstype"
             readOnly={arenaOpphav}
+            onClearValue={() =>
+              setValue("oppstart", TiltaksgjennomforingOppstartstype.FELLES)
+            }
             placeholder="Velg oppstart"
             {...register("oppstart")}
             options={[
               {
-                label: "Felles",
+                label: "Felles oppstartsdato",
                 value: TiltaksgjennomforingOppstartstype.FELLES,
               },
               {
@@ -602,6 +609,9 @@ export const OpprettTiltaksgjennomforingContainer = (
             label="Tiltaksarrangør underenhet"
             placeholder="Velg underenhet for tiltaksarrangør"
             {...register("tiltaksArrangorUnderenhetOrganisasjonsnummer")}
+            onClearValue={() =>
+              setValue("tiltaksArrangorUnderenhetOrganisasjonsnummer", "")
+            }
             readOnly={!avtale?.leverandor.organisasjonsnummer}
             options={arrangorUnderenheterOptions()}
           />
@@ -682,6 +692,7 @@ export const OpprettTiltaksgjennomforingContainer = (
             label={"Tiltaksansvarlig"}
             {...register("ansvarlig")}
             options={ansvarligOptions()}
+            onClearValue={() => setValue("ansvarlig", "")}
           />
         </FormGroup>
 
@@ -694,8 +705,16 @@ export const OpprettTiltaksgjennomforingContainer = (
           >
             Avbryt
           </Button>
-          <Button className={styles.button} type="submit">
-            {redigeringsModus ? "Lagre gjennomføring" : "Opprett"}
+          <Button
+            className={styles.button}
+            type="submit"
+            disabled={mutation.isLoading}
+          >
+            {mutation.isLoading
+              ? "Lagrer..."
+              : redigeringsModus
+              ? "Lagre gjennomføring"
+              : "Opprett"}
           </Button>
         </div>
       </form>

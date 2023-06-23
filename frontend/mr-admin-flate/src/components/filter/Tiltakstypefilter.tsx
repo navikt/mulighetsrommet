@@ -5,10 +5,11 @@ import { useEffect } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import {
   TiltakstypeFilter,
+  defaultTiltakstypeFilter,
   paginationAtom,
   tiltakstypeFilter,
 } from "../../api/atoms";
-import { resetPaginering } from "../../utils/Utils";
+import { resetPaginering, valueOrDefault } from "../../utils/Utils";
 import { SokeSelect } from "../skjema/SokeSelect";
 import styles from "./Filter.module.scss";
 
@@ -33,7 +34,6 @@ export function Tiltakstypefilter() {
       { label: "Aktiv", value: "Aktiv" },
       { label: "Planlagt", value: "Planlagt" },
       { label: "Avsluttet", value: "Avsluttet" },
-      { label: "Alle", value: "Alle" },
     ];
   };
 
@@ -41,7 +41,6 @@ export function Tiltakstypefilter() {
     return [
       { label: "Gruppetiltak", value: "GRUPPE" },
       { label: "Individuelle tiltak", value: "INDIVIDUELL" },
-      { label: "Alle", value: "ALLE" },
     ];
   };
 
@@ -71,10 +70,9 @@ export function Tiltakstypefilter() {
               className={styles.form_field}
               onChange={(e) => {
                 resetPaginering(setPage);
-                const status = e as any;
                 setFilter({
                   ...filter,
-                  status: status === "Alle" ? undefined : status,
+                  status: valueOrDefault(e, defaultTiltakstypeFilter.status),
                 });
               }}
               options={statusOptions()}
@@ -89,10 +87,12 @@ export function Tiltakstypefilter() {
               data-testid="filter_kategori"
               onChange={(e) => {
                 resetPaginering(setPage);
-                const kategori = e as any;
                 setFilter({
                   ...filter,
-                  kategori: kategori === "ALLE" ? undefined : kategori,
+                  kategori: valueOrDefault(
+                    e,
+                    defaultTiltakstypeFilter.kategori
+                  ),
                 });
               }}
               options={kategoriOptions()}
