@@ -28,6 +28,7 @@ data class AppConfig(
     val amtEnhetsregister: ServiceClientConfig,
     val arenaAdapter: ServiceClientConfig,
     val msGraphConfig: ServiceClientConfig,
+    val teamTiltak: ServiceClientConfig,
     val tasks: TaskConfig,
     val norg2: Norg2Config,
     val slack: SlackConfig,

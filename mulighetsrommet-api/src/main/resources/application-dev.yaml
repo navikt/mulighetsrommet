@@ -73,6 +73,10 @@ app:
     url: https://graph.microsoft.com
     scope: https://graph.microsoft.com/.default
 
+  teamTiltak:
+    url: https://tiltak-proxy.dev-fss-pub.nais.io
+    scope: api://dev-fss.arbeidsgiver.tiltaksgjennomforing-api/.default
+
   arenaAdapter:
     url: http://mulighetsrommet-arena-adapter
     scope: api://dev-gcp.team-mulighetsrommet.mulighetsrommet-arena-adapter/.default

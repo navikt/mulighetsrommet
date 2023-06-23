@@ -80,10 +80,14 @@ spec:
           namespace: poao
         - application: amt-enhetsregister
           namespace: amt
+        - application: tiltak-proxy
+          namespace: arbeidsgiver
+          cluster: dev-fss
       external:
         - host: norg2.prod-fss-pub.nais.io
         - host: slack.com
         - host: xegcworx.apicdn.sanity.io
         - host: data.brreg.no
+        - host: tiltak-proxy.dev-fss-pub.nais.io
   envFrom:
     - secret: mulighetsrommet-api

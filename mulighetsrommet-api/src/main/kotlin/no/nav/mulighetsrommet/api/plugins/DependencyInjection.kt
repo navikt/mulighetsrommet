@@ -31,6 +31,7 @@ import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClientImpl
 import no.nav.mulighetsrommet.api.clients.person.VeilarbpersonClient
 import no.nav.mulighetsrommet.api.clients.person.VeilarbpersonClientImpl
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
+import no.nav.mulighetsrommet.api.clients.teamtiltak.TeamTiltakClient
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClientImpl
 import no.nav.mulighetsrommet.api.producers.TiltaksgjennomforingKafkaProducer
@@ -219,6 +220,14 @@ private fun services(appConfig: AppConfig) = module {
             },
         )
     }
+    single {
+        TeamTiltakClient(
+            baseUrl = appConfig.teamTiltak.url,
+            tokenProvider = {
+                m2mTokenProvider.createMachineToMachineToken(appConfig.teamTiltak.scope)
+            },
+        )
+    }
     single<ArenaAdapterClient> {
         ArenaAdapterClientImpl(
             baseUrl = appConfig.arenaAdapter.url,
@@ -240,7 +249,7 @@ private fun services(appConfig: AppConfig) = module {
     }
     single { ArenaAdapterService(get(), get(), get(), get(), get(), get(), get(), get(), get()) }
     single { AvtaleService(get(), get(), get()) }
-    single { TiltakshistorikkService(get(), get()) }
+    single { TiltakshistorikkService(get(), get(), get()) }
     single { VeilederflateSanityService(get(), get(), get(), get(), get()) }
     single { SanityTiltaksgjennomforingEnheterTilApiService(get(), get()) }
     single { ArrangorService(get()) }
