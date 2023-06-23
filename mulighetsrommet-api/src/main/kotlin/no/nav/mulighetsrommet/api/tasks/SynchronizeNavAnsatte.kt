@@ -15,6 +15,8 @@ import no.nav.mulighetsrommet.api.repositories.NavAnsattRepository
 import no.nav.mulighetsrommet.database.utils.DatabaseOperationError
 import no.nav.mulighetsrommet.slack.SlackNotifier
 import org.slf4j.LoggerFactory
+import java.time.Duration
+import java.time.LocalDate
 import java.util.*
 import kotlin.jvm.optionals.getOrNull
 
@@ -35,6 +37,7 @@ class SynchronizeNavAnsatte(
         val disabled: Boolean = false,
         val cronPattern: String? = null,
         val groups: List<Group> = listOf(),
+        val navAnsattDeleteGracePeriod: Duration = Duration.ofDays(30),
     ) {
         fun toSchedule(): Schedule {
             return if (disabled) {
@@ -61,22 +64,31 @@ class SynchronizeNavAnsatte(
             logger.info("Synkroniserer NAV-ansatte fra Azure til database...")
 
             runBlocking {
-                synchronizeNavAnsatte(config.groups)
+                val deletionDate = LocalDate.now().plus(config.navAnsattDeleteGracePeriod)
+                synchronizeNavAnsatte(config.groups, deletionDate)
             }
         }
 
-    internal suspend fun synchronizeNavAnsatte(groups: List<Group>): Either<DatabaseOperationError, Unit> = either {
+    internal suspend fun synchronizeNavAnsatte(
+        groups: List<Group>,
+        navAnsattDeletionDate: LocalDate?,
+    ): Either<DatabaseOperationError, Unit> = either {
         val ansatteToUpsert = resolveNavAnsatte(groups, msGraphClient)
-
         ansatteToUpsert.forEach { ansatt ->
             ansatte.upsert(ansatt).bind()
         }
 
-        val ansatteToDelete = ansatte.getAll()
-            .map { it.filter { ansatt -> !ansatteToUpsert.contains(ansatt) } }
+        val ansatteToScheduleForDeletion = ansatte.getAll()
+            .map { it.filter { ansatt -> ansatt !in ansatteToUpsert && ansatt.skalSlettesDato == null } }
             .bind()
+        ansatteToScheduleForDeletion.forEach { ansatt ->
+            logger.info("Oppdaterer NavAnsatt med dato for sletting azureId=${ansatt.azureId} dato=$navAnsattDeletionDate")
+            ansatte.upsert(ansatt.copy(skalSlettesDato = navAnsattDeletionDate)).bind()
+        }
 
+        val ansatteToDelete = ansatte.getAll(skalSlettesDatoLte = LocalDate.now()).bind()
         ansatteToDelete.forEach { ansatt ->
+            logger.info("Sletter NavAnsatt fordi fordi vi har passert dato for sletting azureId=${ansatt.azureId} dato=${ansatt.skalSlettesDato}")
             ansatte.deleteByAzureId(ansatt.azureId).bind()
         }
     }
