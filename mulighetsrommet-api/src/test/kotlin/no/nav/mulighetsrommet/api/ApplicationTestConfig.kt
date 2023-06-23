@@ -48,6 +48,7 @@ fun createTestApplicationConfig(oauth: MockOAuth2Server) = AppConfig(
     poaoTilgang = createServiceClientConfig("poaotilgang"),
     amtEnhetsregister = createServiceClientConfig("amtenhetsregister"),
     msGraphConfig = createServiceClientConfig("ms-graph"),
+    teamTiltak = createServiceClientConfig("team-tiltak"),
     arenaAdapter = createServiceClientConfig("arena-adapter"),
     tasks = TaskConfig(
         synchronizeNorgEnheter = SynchronizeNorgEnheter.Config(

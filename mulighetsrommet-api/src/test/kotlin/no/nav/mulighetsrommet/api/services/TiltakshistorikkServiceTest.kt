@@ -4,6 +4,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
+import no.nav.mulighetsrommet.api.clients.teamtiltak.TeamTiltakClient
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dto.TiltakshistorikkDto
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
@@ -18,6 +19,8 @@ import java.util.*
 
 class TiltakshistorikkServiceTest : FunSpec({
     val arrangorService: ArrangorService = mockk()
+    val teamTiltakClient: TeamTiltakClient = mockk()
+    coEvery { teamTiltakClient.getAvtaler(any()) } returns emptyList()
 
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
@@ -99,7 +102,11 @@ class TiltakshistorikkServiceTest : FunSpec({
         coEvery { arrangorService.hentOverordnetEnhetNavnForArrangor("123456789") } returns bedriftsnavn
         coEvery { arrangorService.hentOverordnetEnhetNavnForArrangor("12343") } returns bedriftsnavn2
 
-        val historikkService = TiltakshistorikkService(arrangorService, TiltakshistorikkRepository(database.db))
+        val historikkService = TiltakshistorikkService(
+            arrangorService,
+            TiltakshistorikkRepository(database.db),
+            teamTiltakClient,
+        )
 
         val forventetHistorikk = listOf(
             TiltakshistorikkDto(
