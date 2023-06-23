@@ -75,7 +75,7 @@ app:
 
   teamTiltak:
     url: https://tiltak-proxy.dev-fss-pub.nais.io
-    scope: api://dev-fss.arbeidsgiver.tiltaksgjennomforing-api/.default
+    scope: api://dev-fss.arbeidsgiver.tiltak-proxy/.default
 
   arenaAdapter:
     url: http://mulighetsrommet-arena-adapter
