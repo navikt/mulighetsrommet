@@ -15,15 +15,12 @@ import "./index.css";
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      refetchOnWindowFocus: process.env.NODE_ENV !== "development",
+      refetchOnWindowFocus: import.meta.env.PROD,
     },
   },
 });
 
-if (
-  process.env.NODE_ENV === "development" ||
-  import.meta.env.VITE_INCLUDE_MOCKS === "true"
-) {
+if (!import.meta.env.PROD || import.meta.env.VITE_INCLUDE_MOCKS === "true") {
   import("./mocks/browser").then(({ worker }) => {
     worker.start();
     render();

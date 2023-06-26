@@ -30,8 +30,8 @@ Modal.setAppElement?.(`#${MODAL_ACCESSIBILITY_WRAPPER}`);
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      refetchOnWindowFocus: process.env.NODE_ENV !== 'development',
-      retry: process.env.NODE_ENV !== 'development',
+      refetchOnWindowFocus: import.meta.env.PROD,
+      retry: import.meta.env.PROD,
     },
   },
 });
