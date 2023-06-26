@@ -83,7 +83,9 @@ export function Avtaleinfo() {
             header="Avtaletype"
             verdi={avtaletypeTilTekst(avtale.avtaletype)}
           />
-          <Metadata header="Avtalenr" verdi={avtale.avtalenummer} />
+          {avtale.avtalenummer ? (
+            <Metadata header="Avtalenr" verdi={avtale.avtalenummer} />
+          ) : null}
         </div>
         <Separator />
         <div className={styles.bolk}>

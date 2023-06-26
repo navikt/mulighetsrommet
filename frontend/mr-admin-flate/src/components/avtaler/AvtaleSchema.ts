@@ -37,8 +37,8 @@ export const AvtaleSchema = z.object({
         path: ["startDato"],
       }
     ),
-  avtaleansvarlig: z.string({
-    required_error: "Du må velge en avtaleansvarlig",
+  avtaleansvarlig: z.string().refine((data) => data.length > 0, {
+    message: "Du må velge en avtaleansvarlig",
   }),
   url: GyldigUrlHvisVerdi,
   prisOgBetalingsinfo: z.string().optional(),

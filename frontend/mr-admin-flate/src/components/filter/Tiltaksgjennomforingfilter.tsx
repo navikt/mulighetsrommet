@@ -11,6 +11,7 @@ import { useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import {
   Tiltaksgjennomforingfilter as TiltaksgjennomforingAtomFilter,
+  defaultTiltaksgjennomforingfilter,
   paginationAtom,
   tiltaksgjennomforingfilter,
 } from "../../api/atoms";
@@ -21,7 +22,11 @@ import {
 } from "../../api/features/feature-toggles";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
 import { useVirksomheter } from "../../api/virksomhet/useVirksomheter";
-import { inneholderUrl, resetPaginering } from "../../utils/Utils";
+import {
+  inneholderUrl,
+  resetPaginering,
+  valueOrDefault,
+} from "../../utils/Utils";
 import { arenaKodeErAftEllerVta } from "../../utils/tiltakskoder";
 import { LeggTilGjennomforingModal } from "../modal/LeggTilGjennomforingModal";
 import { OpprettTiltaksgjennomforingModal } from "../modal/OpprettTiltaksgjennomforingModal";
@@ -166,7 +171,10 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
                 setFilter({
                   ...filter,
                   enhet: "",
-                  fylkesenhet,
+                  fylkesenhet: valueOrDefault(
+                    fylkesenhet,
+                    defaultTiltaksgjennomforingfilter.fylkesenhet
+                  ),
                 });
               }}
               options={regionOptions()}
@@ -183,7 +191,10 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
                 resetPaginering(setPage);
                 setFilter({
                   ...filter,
-                  enhet,
+                  enhet: valueOrDefault(
+                    enhet,
+                    defaultTiltaksgjennomforingfilter.enhet
+                  ),
                 });
               }}
               options={enhetOptions()}
@@ -200,7 +211,10 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
                   resetPaginering(setPage);
                   setFilter({
                     ...filter,
-                    tiltakstype,
+                    tiltakstype: valueOrDefault(
+                      tiltakstype,
+                      defaultTiltaksgjennomforingfilter.tiltakstype
+                    ),
                   });
                 }}
                 options={tiltakstypeOptions()}
@@ -217,7 +231,10 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
                 resetPaginering(setPage);
                 setFilter({
                   ...filter,
-                  status,
+                  status: valueOrDefault(
+                    status,
+                    defaultTiltaksgjennomforingfilter.status
+                  ),
                 });
               }}
               options={statusOptions()}
@@ -233,7 +250,10 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
                 resetPaginering(setPage);
                 setFilter({
                   ...filter,
-                  arrangorOrgnr,
+                  arrangorOrgnr: valueOrDefault(
+                    arrangorOrgnr,
+                    defaultTiltaksgjennomforingfilter.arrangorOrgnr
+                  ),
                 });
               }}
               options={arrangorOptions()}
@@ -257,7 +277,9 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
                       modalOpen={opprettModal}
                       avtale={avtale}
                       onClose={() => setOpprettModalOpen(false)}
-                      onSuccess={(id) => navigate(`/tiltaksgjennomforinger/${id}`)}
+                      onSuccess={(id) =>
+                        navigate(`/tiltaksgjennomforinger/${id}`)
+                      }
                     />
                   </>
                 )}

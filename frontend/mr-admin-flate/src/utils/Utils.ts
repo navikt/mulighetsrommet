@@ -160,3 +160,10 @@ export function avtaletypeTilTekst(
       return "Rammeavtale";
   }
 }
+
+export function valueOrDefault<T, X>(
+  value: T | undefined,
+  defaultValue: X
+): T | X {
+  return value !== undefined ? value : defaultValue;
+}
