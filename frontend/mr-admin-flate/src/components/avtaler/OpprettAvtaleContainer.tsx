@@ -299,13 +299,11 @@ export function OpprettAvtaleContainer({
               value: tiltakstype.id,
               label: tiltakstype.navn,
             }))}
-            isClearable={false}
           />
           <SokeSelect
             size="small"
             readOnly={arenaOpphav}
             placeholder="Velg en"
-            isClearable={false}
             label={"Avtaletype"}
             {...register("avtaletype")}
             options={[

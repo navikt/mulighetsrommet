@@ -17,7 +17,6 @@ export interface SelectProps {
   readOnly?: boolean;
   onChange?: (a0: any) => void;
   onInputChange?: (a0: any) => void;
-  isClearable?: boolean;
   className?: string;
   size?: "small" | "medium";
   onClearValue?: () => void;
@@ -33,7 +32,6 @@ const SokeSelect = React.forwardRef((props: SelectProps, _) => {
     readOnly,
     onChange: providedOnChange,
     onInputChange: providedOnInputChange,
-    isClearable = true,
     className,
     size,
     onClearValue,
@@ -98,7 +96,7 @@ const SokeSelect = React.forwardRef((props: SelectProps, _) => {
             <ReactSelect
               placeholder={placeholder}
               isDisabled={!!readOnly}
-              isClearable={isClearable}
+              isClearable={!!onClearValue}
               ref={ref}
               inputId={name}
               noOptionsMessage={() => "Ingen funnet"}
