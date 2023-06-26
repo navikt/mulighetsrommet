@@ -3,7 +3,6 @@ import { PlusIcon, XMarkIcon } from "@navikt/aksel-icons";
 import { Alert, Button, Checkbox, TextField } from "@navikt/ds-react";
 import classNames from "classnames";
 import {
-  ApiError,
   Avtale,
   NavEnhet,
   Tiltaksgjennomforing,
@@ -42,6 +41,7 @@ import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
 import { SokeSelect } from "../skjema/SokeSelect";
 import styles from "./OpprettTiltaksgjennomforingContainer.module.scss";
+import { mulighetsrommetClient } from "../../api/clients";
 
 const Schema = z
   .object({
@@ -88,6 +88,9 @@ const Schema = z
         required_error: "Du må velge en underenhet for tiltaksarrangør",
       })
       .min(1, "Du må velge en underenhet for tiltaksarrangør"),
+    lokasjon: z.string().refine((data) => data.length > 0, {
+      message: "Du må skrive inn lokasjon for hvor gjennomføringen finner sted",
+    }),
     ansvarlig: z.string({ required_error: "Du må velge en ansvarlig" }),
     midlertidigStengt: z
       .object({
@@ -261,6 +264,7 @@ export const OpprettTiltaksgjennomforingContainer = (
         tiltaksgjennomforing?.kontaktpersoner
       ),
       estimertVentetid: tiltaksgjennomforing?.estimertVentetid,
+      lokasjon: tiltaksgjennomforing?.lokasjon,
     },
   });
   const {
@@ -311,6 +315,20 @@ export const OpprettTiltaksgjennomforingContainer = (
     }
   }, [mutation]);
 
+  async function getLokasjonForArrangor(arrangorOrgnr?: string) {
+    if (!arrangorOrgnr) return;
+
+    const lokasjon = await mulighetsrommetClient.virksomhet.hentVirksomhet({
+      orgnr: arrangorOrgnr,
+    });
+
+    const lokasjonsStreng = `${lokasjon.postnummer} ${lokasjon.poststed}`;
+
+    if (lokasjonsStreng !== watch("lokasjon")) {
+      setValue("lokasjon", lokasjonsStreng);
+    }
+  }
+
   const redigeringsModus = !!tiltaksgjennomforing;
 
   const postData: SubmitHandler<inferredSchema> = async (
@@ -358,6 +376,7 @@ export const OpprettTiltaksgjennomforingContainer = (
               : kontakt.navEnheter,
           })) || [],
       estimertVentetid: data.estimertVentetid,
+      lokasjon: data.lokasjon,
     };
 
     try {
@@ -609,11 +628,18 @@ export const OpprettTiltaksgjennomforingContainer = (
             label="Tiltaksarrangør underenhet"
             placeholder="Velg underenhet for tiltaksarrangør"
             {...register("tiltaksArrangorUnderenhetOrganisasjonsnummer")}
+            onChange={getLokasjonForArrangor}
             onClearValue={() =>
               setValue("tiltaksArrangorUnderenhetOrganisasjonsnummer", "")
             }
             readOnly={!avtale?.leverandor.organisasjonsnummer}
             options={arrangorUnderenheterOptions()}
+          />
+          <TextField
+            size="small"
+            label="Lokasjon"
+            {...register("lokasjon")}
+            error={errors.lokasjon ? errors.lokasjon.message : null}
           />
         </FormGroup>
         {features?.[

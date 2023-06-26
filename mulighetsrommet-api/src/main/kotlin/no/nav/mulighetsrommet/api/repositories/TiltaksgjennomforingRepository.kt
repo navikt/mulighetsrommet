@@ -25,7 +25,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
 
     fun upsert(tiltaksgjennomforing: TiltaksgjennomforingDbo): QueryResult<Unit> = query {
         logger.info("Lagrer tiltaksgjennomføring id=${tiltaksgjennomforing.id}")
-
         @Language("PostgreSQL")
         val query = """
             insert into tiltaksgjennomforing (
@@ -45,7 +44,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 oppstart,
                 opphav,
                 stengt_fra,
-                stengt_til
+                stengt_til,
+                lokasjon
             )
             values (
                 :id::uuid,
@@ -64,7 +64,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 :oppstart::tiltaksgjennomforing_oppstartstype,
                 :opphav::opphav,
                 :stengt_fra,
-                :stengt_til
+                :stengt_til,
+                :lokasjon
             )
             on conflict (id)
                 do update set navn                  = excluded.navn,
@@ -82,7 +83,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                               oppstart              = excluded.oppstart,
                               opphav                = excluded.opphav,
                               stengt_fra            = excluded.stengt_fra,
-                              stengt_til            = excluded.stengt_til
+                              stengt_til            = excluded.stengt_til,
+                              lokasjon              = excluded.lokasjon
             returning *
         """.trimIndent()
 
@@ -475,6 +477,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         "opphav" to opphav.name,
         "stengt_fra" to stengtFra,
         "stengt_til" to stengtTil,
+        "lokasjon" to lokasjon,
     )
 
     private fun Row.toTiltaksgjennomforingDbo() = TiltaksgjennomforingDbo(
@@ -495,6 +498,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         navEnheter = emptyList(),
         oppstart = TiltaksgjennomforingDbo.Oppstartstype.valueOf(string("oppstart")),
         opphav = ArenaMigrering.Opphav.valueOf(string("opphav")),
+        lokasjon = string("lokasjon"),
     )
 
     private fun Row.toTiltaksgjennomforingAdminDto(): TiltaksgjennomforingAdminDto {
@@ -538,6 +542,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             stengtFra = localDateOrNull("stengt_fra"),
             stengtTil = localDateOrNull("stengt_til"),
             kontaktpersoner = kontaktpersoner,
+            lokasjon = stringOrNull("lokasjon"),
         )
     }
 

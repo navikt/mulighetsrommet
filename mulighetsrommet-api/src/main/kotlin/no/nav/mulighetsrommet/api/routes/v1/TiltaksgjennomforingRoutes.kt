@@ -106,6 +106,7 @@ data class TiltaksgjennomforingRequest(
     val apenForInnsok: Boolean = true,
     val kontaktpersoner: List<NavKontaktpersonForGjennomforing> = emptyList(),
     val estimertVentetid: String? = null,
+    val lokasjon: String? = null,
 ) {
     fun toDbo(): StatusResponse<TiltaksgjennomforingDbo> {
         if (!startDato.isBefore(sluttDato)) {
@@ -120,6 +121,9 @@ data class TiltaksgjennomforingRequest(
         if (antallPlasser <= 0) {
             return Either.Left(BadRequest("Antall plasser må være større enn 0"))
         }
+        if (lokasjon.isNullOrEmpty()) {
+            return Either.Left(BadRequest("Lokasjon må være satt"))
+        }
 
         return Either.Right(
             TiltaksgjennomforingDbo(
@@ -132,7 +136,11 @@ data class TiltaksgjennomforingRequest(
                 arenaAnsvarligEnhet = enhet,
                 avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
                 antallPlasser = antallPlasser,
-                tilgjengelighet = if (apenForInnsok) TiltaksgjennomforingDbo.Tilgjengelighetsstatus.LEDIG else { TiltaksgjennomforingDbo.Tilgjengelighetsstatus.STENGT },
+                tilgjengelighet = if (apenForInnsok) {
+                    TiltaksgjennomforingDbo.Tilgjengelighetsstatus.LEDIG
+                } else {
+                    TiltaksgjennomforingDbo.Tilgjengelighetsstatus.STENGT
+                },
                 estimertVentetid = estimertVentetid,
                 tiltaksnummer = tiltaksnummer,
                 virksomhetsnummer = virksomhetsnummer,
@@ -148,6 +156,7 @@ data class TiltaksgjennomforingRequest(
                         navEnheter = it.navEnheter,
                     )
                 },
+                lokasjon = lokasjon,
             ),
         )
     }

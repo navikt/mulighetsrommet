@@ -1361,6 +1361,8 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/TiltaksgjennomforingKontaktpersoner"
+        lokasjon:
+          type: string
       required:
         - id
         - tiltakstype
@@ -1420,6 +1422,8 @@ components:
             $ref: "#/components/schemas/TiltaksgjennomforingKontaktpersonerRequest"
         estimertVentetid:
           type: string
+        lokasjon:
+          type: string
       required:
         - id
         - avtaleId
@@ -1433,6 +1437,7 @@ components:
         - navEnheter
         - oppstart
         - kontaktpersoner
+        - lokasjon
 
     TiltaksgjennomforingAvslutningsstatus:
       type: string
@@ -2070,6 +2075,12 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Virksomhet"
+          nullable: true
+        postnummer:
+          type: string
+          nullable: true
+        poststed:
+          type: string
           nullable: true
       required:
         - organisasjonsnummer

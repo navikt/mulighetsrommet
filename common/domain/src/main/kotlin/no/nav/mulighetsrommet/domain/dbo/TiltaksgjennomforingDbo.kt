@@ -36,6 +36,7 @@ data class TiltaksgjennomforingDbo(
     @Serializable(with = LocalDateSerializer::class)
     val stengtTil: LocalDate? = null,
     val kontaktpersoner: List<TiltaksgjennomforingKontaktpersonDbo> = emptyList(),
+    val lokasjon: String,
 ) {
     enum class Tilgjengelighetsstatus {
         LEDIG,

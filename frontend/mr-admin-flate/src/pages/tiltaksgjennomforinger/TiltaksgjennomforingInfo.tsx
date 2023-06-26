@@ -74,10 +74,12 @@ export function TiltaksgjennomforingInfo() {
             header="Tiltakstype"
             verdi={tiltaksgjennomforing.tiltakstype.navn}
           />
-          <Metadata
-            header="Tiltaksnummer"
-            verdi={tiltaksgjennomforing.tiltaksnummer}
-          />
+          {tiltaksgjennomforing.tiltaksnummer ? (
+            <Metadata
+              header="Tiltaksnummer"
+              verdi={tiltaksgjennomforing.tiltaksnummer}
+            />
+          ) : null}
         </dl>
         <Separator />
         <dl className={styles.bolk}>
@@ -167,6 +169,12 @@ export function TiltaksgjennomforingInfo() {
             <Metadata
               header="Arrangør"
               verdi={tiltaksgjennomforing.virksomhetsnavn}
+            />
+          ) : null}
+          {tiltaksgjennomforing.lokasjon ? (
+            <Metadata
+              header="Lokasjon for arrangør"
+              verdi={tiltaksgjennomforing.lokasjon}
             />
           ) : null}
         </dl>
