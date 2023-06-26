@@ -79,7 +79,7 @@ class SynchronizeNavAnsatteTest : FunSpec({
                     listOf(kontaktperson),
                     listOf(
                         domain.ansatt1.copy(
-                            roller = listOf(BETABRUKER),
+                            roller = listOf(),
                             skalSlettesDato = deletionDate,
                         ),
                         domain.ansatt2.copy(roller = listOf(KONTAKTPERSON)),
@@ -89,11 +89,11 @@ class SynchronizeNavAnsatteTest : FunSpec({
                     listOf(),
                     listOf(
                         domain.ansatt1.copy(
-                            roller = listOf(BETABRUKER),
+                            roller = listOf(),
                             skalSlettesDato = deletionDate,
                         ),
                         domain.ansatt2.copy(
-                            roller = listOf(KONTAKTPERSON),
+                            roller = listOf(),
                             skalSlettesDato = deletionDate,
                         ),
                     ),

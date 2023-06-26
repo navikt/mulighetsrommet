@@ -29,7 +29,7 @@ class SynchronizeNavAnsatte(
     data class Config(
         val disabled: Boolean = false,
         val cronPattern: String? = null,
-        val groups: List<AdGruppeNavAnsattRolleMapping> = listOf(),
+        val groups: List<AdGruppeNavAnsattRolleMapping> = emptyList(),
         val deleteNavAnsattGracePeriod: Duration = Duration.ofDays(30),
     ) {
         fun toSchedule(): Schedule {
@@ -78,7 +78,7 @@ class SynchronizeNavAnsatte(
             .bind()
         ansatteToScheduleForDeletion.forEach { ansatt ->
             logger.info("Oppdaterer NavAnsatt med dato for sletting azureId=${ansatt.azureId} dato=$navAnsattDeletionDate")
-            ansatte.upsert(ansatt.copy(skalSlettesDato = navAnsattDeletionDate)).bind()
+            ansatte.upsert(ansatt.copy(roller = emptyList(), skalSlettesDato = navAnsattDeletionDate)).bind()
         }
 
         val ansatteToDelete = ansatte.getAll(skalSlettesDatoLte = today).bind()
