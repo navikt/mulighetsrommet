@@ -41,6 +41,7 @@ class TeamTiltakClient(
             val bearerAuth = tokenProvider(accessToken)
             log.warn("Accesstoekn: $bearerAuth")
             val response = client.post("$baseUrl/tiltaksgjennomforing-api/avtale-hendelse/fnr") {
+                contentType(ContentType.Application.Json)
                 setBody(AvtaleHendelseRequest(fnr = norskIdent))
                 bearerAuth(bearerAuth)
             }
