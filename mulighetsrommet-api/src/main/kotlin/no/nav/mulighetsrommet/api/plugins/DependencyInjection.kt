@@ -224,7 +224,7 @@ private fun services(appConfig: AppConfig) = module {
         TeamTiltakClient(
             baseUrl = appConfig.teamTiltak.url,
             tokenProvider = { token ->
-                oboTokenProvider.exchangeOnBehalfOfToken(appConfig.msGraphConfig.scope, token)
+                oboTokenProvider.exchangeOnBehalfOfToken(appConfig.teamTiltak.scope, token)
             },
         )
     }
