@@ -6,6 +6,7 @@ import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
 import io.ktor.http.*
+import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import org.slf4j.LoggerFactory
 
@@ -20,11 +21,17 @@ class TeamTiltakClient(
         install(HttpCache)
     }
 
+    @Serializable
+    data class AvtaleHendelseRequest(
+        val fnr: String,
+    )
+
     suspend fun getAvtaler(norskIdent: String, accessToken: String): List<String> {
         return try {
             val bearerAuth = tokenProvider(accessToken)
             log.warn("Accesstoekn: $bearerAuth")
-            val response = client.post("$baseUrl/tiltaksgjennomforing-api/avtale-hendelse/$norskIdent") {
+            val response = client.post("$baseUrl/tiltaksgjennomforing-api/avtale-hendelse/fnr") {
+                setBody(AvtaleHendelseRequest(fnr = norskIdent))
                 bearerAuth(bearerAuth)
             }
 
