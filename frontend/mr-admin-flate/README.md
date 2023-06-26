@@ -27,6 +27,13 @@ VITE_MULIGHETSROMMET_API_AUTH_TOKEN=<token>
 
 Deretter kan du kjøre `npm run backend`.
 
+### Lokal utvikling med lokal microfrontend
+
+For å sjekke hvordan appen rendrer sammen med microfrontend som kjører lokalt må man
+først kjøre `npm run build` og `npm run preview` for å starte microfrontenden.
+
+Så må man kjøre `npm run build:local` og `npm run preview` for å rendre admin-flate.
+
 ## Deploy
 
 Ved merge til main-branch deployes appen til dev og prod.

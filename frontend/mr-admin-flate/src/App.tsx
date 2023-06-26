@@ -58,7 +58,7 @@ export function App() {
   }
 
   if (
-    !optionalAnsatt?.data?.tilganger.some(
+    !optionalAnsatt?.data?.tilganger?.some(
       (tilgang) => tilgang === "BETABRUKER" || tilgang === "UTVIKLER_VALP"
     )
   ) {
