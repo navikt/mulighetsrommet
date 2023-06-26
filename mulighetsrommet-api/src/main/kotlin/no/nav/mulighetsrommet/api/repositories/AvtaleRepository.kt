@@ -461,9 +461,8 @@ class AvtaleRepository(private val db: Database) {
         val query = """
             select a.id::uuid, a.navn, a.start_dato, a.slutt_dato, array_agg(distinct aa.navident) as ansvarlige
             from avtale a
-            join avtale_ansvarlig aa on a.id = aa.avtale_id
-            where
-                (:currentDate::timestamp + interval '6' month) = a.slutt_dato
+                     left join avtale_ansvarlig aa on a.id = aa.avtale_id
+            where (:currentDate::timestamp + interval '6' month) = a.slutt_dato
                or (:currentDate::timestamp + interval '3' month) = a.slutt_dato
                or (:currentDate::timestamp + interval '14' day) = a.slutt_dato
                or (:currentDate::timestamp + interval '7' day) = a.slutt_dato
