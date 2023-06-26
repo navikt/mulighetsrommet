@@ -41,7 +41,8 @@ fun Route.brukerRoutes() {
                 auditLog.log(createAuditMessage("NAV-ansatt med ident: '${getNavIdent()}' forsøkte, men fikk ikke sett tiltakshistorikken for bruker med ident: '${getNorskIdent()}'."))
                 secureLog.warn("NAV-ansatt med ident: '${getNavIdent()}' har ikke tilgang til bruker med ident: '${getNorskIdent()}'")
             }
-            historikkService.hentHistorikkForBruker(getNorskIdent()).let {
+            val accessToken = call.getAccessToken()
+            historikkService.hentHistorikkForBruker(getNorskIdent(), accessToken).let {
                 auditLog.log(createAuditMessage("NAV-ansatt med ident: '${getNavIdent()}' har sett på tiltakshistorikken for bruker med ident: '${getNorskIdent()}'."))
                 call.respond(it)
             }

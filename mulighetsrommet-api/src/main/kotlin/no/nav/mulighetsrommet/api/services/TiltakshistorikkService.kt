@@ -14,8 +14,8 @@ class TiltakshistorikkService(
 ) {
     val log: Logger = LoggerFactory.getLogger(javaClass)
 
-    suspend fun hentHistorikkForBruker(norskIdent: String): List<TiltakshistorikkDto> {
-        val jsonTeamTiltak = teamTiltakClient.getAvtaler(norskIdent)
+    suspend fun hentHistorikkForBruker(norskIdent: String, accessToken: String): List<TiltakshistorikkDto> {
+        val jsonTeamTiltak = teamTiltakClient.getAvtaler(norskIdent, accessToken)
         log.warn("json fra team tiltak: $jsonTeamTiltak")
         val historikk = tiltakshistorikkRepository.getTiltakshistorikkForBruker(norskIdent).map {
             val arrangor = it.arrangor?.let { arrangor ->

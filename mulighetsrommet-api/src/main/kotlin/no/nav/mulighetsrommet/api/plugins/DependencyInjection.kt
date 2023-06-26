@@ -223,8 +223,8 @@ private fun services(appConfig: AppConfig) = module {
     single {
         TeamTiltakClient(
             baseUrl = appConfig.teamTiltak.url,
-            tokenProvider = {
-                m2mTokenProvider.createMachineToMachineToken(appConfig.teamTiltak.scope)
+            tokenProvider = { token ->
+                oboTokenProvider.exchangeOnBehalfOfToken(appConfig.msGraphConfig.scope, token)
             },
         )
     }

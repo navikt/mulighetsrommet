@@ -20,7 +20,7 @@ import java.util.*
 class TiltakshistorikkServiceTest : FunSpec({
     val arrangorService: ArrangorService = mockk()
     val teamTiltakClient: TeamTiltakClient = mockk()
-    coEvery { teamTiltakClient.getAvtaler(any()) } returns emptyList()
+    coEvery { teamTiltakClient.getAvtaler(any(), any()) } returns emptyList()
 
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
@@ -129,6 +129,6 @@ class TiltakshistorikkServiceTest : FunSpec({
             ),
         )
 
-        historikkService.hentHistorikkForBruker("12345678910") shouldBe forventetHistorikk
+        historikkService.hentHistorikkForBruker("12345678910", "accessToken") shouldBe forventetHistorikk
     }
 })

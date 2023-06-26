@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory
 class TeamTiltakClient(
     engine: HttpClientEngine = CIO.create(),
     private val baseUrl: String,
-    private val tokenProvider: () -> String,
+    private val tokenProvider: (String) -> String,
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
@@ -20,9 +20,9 @@ class TeamTiltakClient(
         install(HttpCache)
     }
 
-    suspend fun getAvtaler(norskIdent: String): List<String> {
+    suspend fun getAvtaler(norskIdent: String, accessToken: String): List<String> {
         return try {
-            val bearerAuth = tokenProvider()
+            val bearerAuth = tokenProvider(accessToken)
             log.warn("Accesstoekn: $bearerAuth")
             val response = client.post("$baseUrl/tiltaksgjennomforing-api/avtale-hendelse/$norskIdent") {
                 bearerAuth(bearerAuth)
