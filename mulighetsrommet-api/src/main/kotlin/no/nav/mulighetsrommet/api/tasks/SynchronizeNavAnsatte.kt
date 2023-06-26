@@ -83,7 +83,7 @@ class SynchronizeNavAnsatte(
 
         val ansatteToDelete = ansatte.getAll(skalSlettesDatoLte = today).bind()
         ansatteToDelete.forEach { ansatt ->
-            logger.info("Sletter NavAnsatt fordi fordi vi har passert dato for sletting azureId=${ansatt.azureId} dato=${ansatt.skalSlettesDato}")
+            logger.info("Sletter NavAnsatt fordi vi har passert dato for sletting azureId=${ansatt.azureId} dato=${ansatt.skalSlettesDato}")
             ansatte.deleteByAzureId(ansatt.azureId).bind()
         }
     }
