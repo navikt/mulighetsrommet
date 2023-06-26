@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
 import no.nav.mulighetsrommet.api.repositories.VirksomhetRepository
 import no.nav.mulighetsrommet.api.utils.VirksomhetFilter
 import no.nav.mulighetsrommet.database.utils.getOrThrow
+import no.nav.mulighetsrommet.domain.dto.VirksomhetKontaktperson
 import no.nav.mulighetsrommet.metrics.Metrikker
 import no.nav.mulighetsrommet.utils.CacheUtils
 import org.slf4j.LoggerFactory
@@ -70,4 +71,10 @@ class VirksomhetService(
     suspend fun sokEtterEnhet(sokestreng: String): List<VirksomhetDto> {
         return brregClient.sokEtterOverordnetEnheter(sokestreng)
     }
+
+    fun upsertKontaktperson(kontaktperson: VirksomhetKontaktperson) =
+        virksomhetRepository.upsertKontaktperson(kontaktperson)
+
+    fun hentKontaktpersoner(orgnr: String): List<VirksomhetKontaktperson> =
+        virksomhetRepository.getKontaktpersoner(orgnr)
 }

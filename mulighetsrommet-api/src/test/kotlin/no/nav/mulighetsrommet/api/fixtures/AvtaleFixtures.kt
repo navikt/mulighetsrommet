@@ -70,6 +70,7 @@ class AvtaleFixtures(private val database: FlywayDatabaseTestListener) {
         leverandorUnderenheter: List<String> = emptyList(),
         opphav: ArenaMigrering.Opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
         arenaAnsvarligEnhet: String? = null,
+        leverandorKontaktpersonId: UUID? = null,
     ): AvtaleDbo {
         return AvtaleDbo(
             id = id,
@@ -88,6 +89,7 @@ class AvtaleFixtures(private val database: FlywayDatabaseTestListener) {
             opphav = opphav,
             ansvarlige = ansvarlige,
             navEnheter = navEnheter,
+            leverandorKontaktpersonId = leverandorKontaktpersonId,
         )
     }
 }

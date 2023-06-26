@@ -26,6 +26,7 @@ import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 import no.nav.mulighetsrommet.domain.dto.AvtaleAdminDto
 import no.nav.mulighetsrommet.domain.dto.Avtalestatus
 import no.nav.mulighetsrommet.domain.dto.NavEnhet
+import no.nav.mulighetsrommet.domain.dto.VirksomhetKontaktperson
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -823,6 +824,59 @@ class AvtaleRepositoryTest : FunSpec({
                     avtaleRepository.getAllAvtalerSomNarmerSegSluttdato(currentDate = LocalDate.of(2023, 5, 31))
                 result.size shouldBe 4
                 result[0].ansvarlige[0] shouldBe "OLE"
+            }
+        }
+    }
+
+    context("leverandør kontaktperson") {
+        test("Leverandør kontaktperson crud") {
+            val virksomhetRepository = VirksomhetRepository(database.db)
+            virksomhetRepository.upsert(
+                VirksomhetDto(
+                    organisasjonsnummer = "999888777",
+                    navn = "Rema 1000",
+                ),
+            )
+            val leverandorKontaktperson = VirksomhetKontaktperson(
+                id = UUID.randomUUID(),
+                organisasjonsnummer = "999888777",
+                navn = "Navn Navnesen",
+                telefon = "22232322",
+                epost = "navn@gmail.com",
+            )
+            virksomhetRepository.upsertKontaktperson(leverandorKontaktperson)
+
+            val avtaleRepository = AvtaleRepository(database.db)
+            var avtale = avtaleFixture.createAvtaleForTiltakstype(
+                leverandorKontaktpersonId = leverandorKontaktperson.id,
+            )
+            avtaleRepository.upsert(avtale).shouldBeRight()
+            avtaleRepository.get(avtale.id).shouldBeRight().should {
+                it!!.leverandorKontaktperson shouldBe leverandorKontaktperson
+            }
+
+            // Endre kontaktperson
+            val nyPerson = leverandorKontaktperson.copy(
+                navn = "Fredrik Navnesen",
+                telefon = "32322",
+            )
+            virksomhetRepository.upsertKontaktperson(nyPerson)
+
+            avtale = avtale.copy(
+                leverandorKontaktpersonId = nyPerson.id,
+            )
+            avtaleRepository.upsert(avtale).shouldBeRight()
+            avtaleRepository.get(avtale.id).shouldBeRight().should {
+                it!!.leverandorKontaktperson shouldBe nyPerson
+            }
+
+            // Fjern kontaktperson
+            avtale = avtale.copy(
+                leverandorKontaktpersonId = null,
+            )
+            avtaleRepository.upsert(avtale).shouldBeRight()
+            avtaleRepository.get(avtale.id).shouldBeRight().should {
+                it!!.leverandorKontaktperson shouldBe null
             }
         }
     }
