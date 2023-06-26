@@ -18,6 +18,8 @@ data class AvtaleDbo(
     val avtalenummer: String? = null,
     val leverandorOrganisasjonsnummer: String,
     val leverandorUnderenheter: List<String>,
+    @Serializable(with = UUIDSerializer::class)
+    val leverandorKontaktpersonId: UUID? = null,
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)

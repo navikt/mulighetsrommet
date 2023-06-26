@@ -30,14 +30,16 @@ export interface TiltakstypeFilter {
   sortering?: SorteringTiltakstyper;
 }
 
+export const defaultTiltakstypeFilter: TiltakstypeFilter = {
+  sok: "",
+  status: Tiltakstypestatus.AKTIV,
+  kategori: Tiltakstypekategori.GRUPPE,
+  sortering: SorteringTiltakstyper.NAVN_ASCENDING,
+};
+
 export const tiltakstypeFilter = atomWithHash<TiltakstypeFilter>(
   "tiltakstypefilter",
-  {
-    sok: "",
-    status: Tiltakstypestatus.AKTIV,
-    kategori: Tiltakstypekategori.GRUPPE,
-    sortering: SorteringTiltakstyper.NAVN_ASCENDING,
-  },
+  defaultTiltakstypeFilter,
   {
     setHash: "replaceState",
   }
@@ -55,20 +57,22 @@ export interface Tiltaksgjennomforingfilter {
   antallGjennomforingerVises: number;
 }
 
+export const defaultTiltaksgjennomforingfilter: Tiltaksgjennomforingfilter = {
+  search: "",
+  enhet: "",
+  tiltakstype: "",
+  status: TiltaksgjennomforingStatus.GJENNOMFORES,
+  sortering: SorteringTiltaksgjennomforinger.NAVN_ASCENDING,
+  fylkesenhet: "",
+  avtale: "",
+  arrangorOrgnr: "",
+  antallGjennomforingerVises: PAGE_SIZE,
+};
+
 export const tiltaksgjennomforingfilter =
   atomWithHash<Tiltaksgjennomforingfilter>(
-    "tiltakstypefilter",
-    {
-      search: "",
-      enhet: "",
-      tiltakstype: "",
-      status: TiltaksgjennomforingStatus.GJENNOMFORES,
-      sortering: SorteringTiltaksgjennomforinger.NAVN_ASCENDING,
-      fylkesenhet: "",
-      avtale: "",
-      arrangorOrgnr: "",
-      antallGjennomforingerVises: PAGE_SIZE,
-    },
+    "tiltaksgjennomforingFilter",
+    defaultTiltaksgjennomforingfilter,
     {
       setHash: "replaceState",
     }
@@ -91,18 +95,20 @@ export interface AvtaleFilterProps {
   avtaleTab: AvtaleTabs;
 }
 
+export const defaultAvtaleFilter: AvtaleFilterProps = {
+  sok: "",
+  status: Avtalestatus.AKTIV,
+  navRegion: "",
+  tiltakstype: "",
+  sortering: SorteringAvtaler.NAVN_ASCENDING,
+  leverandor_orgnr: "",
+  antallAvtalerVises: AVTALE_PAGE_SIZE,
+  avtaleTab: "avtaleinfo",
+};
+
 const avtaleFilter = atomWithHash<AvtaleFilterProps>(
   "avtalefilter",
-  {
-    sok: "",
-    status: Avtalestatus.AKTIV,
-    navRegion: "",
-    tiltakstype: "",
-    sortering: SorteringAvtaler.NAVN_ASCENDING,
-    leverandor_orgnr: "",
-    antallAvtalerVises: AVTALE_PAGE_SIZE,
-    avtaleTab: "avtaleinfo",
-  },
+  defaultAvtaleFilter,
   { setHash: "replaceState" }
 );
 

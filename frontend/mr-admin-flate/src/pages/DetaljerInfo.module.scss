@@ -29,3 +29,9 @@
 .slett_knapp {
   color: var(--a-text-danger);
 }
+
+.leverandor_kontaktinfo {
+  display: flex;
+  flex-direction: column;
+}
+

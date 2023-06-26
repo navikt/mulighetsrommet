@@ -11,6 +11,7 @@ import {
   AvtaleFilterProps,
   avtaleFilter,
   avtalePaginationAtom,
+  defaultAvtaleFilter,
 } from "../../api/atoms";
 import { useAvtaler } from "../../api/avtaler/useAvtaler";
 import { useAlleEnheter } from "../../api/enhet/useAlleEnheter";
@@ -20,7 +21,7 @@ import {
 } from "../../api/features/feature-toggles";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
 import { useVirksomheter } from "../../api/virksomhet/useVirksomheter";
-import { resetPaginering } from "../../utils/Utils";
+import { resetPaginering, valueOrDefault } from "../../utils/Utils";
 import OpprettAvtaleModal from "../avtaler/OpprettAvtaleModal";
 import { SokeSelect } from "../skjema/SokeSelect";
 import styles from "./Filter.module.scss";
@@ -131,7 +132,12 @@ export function Avtalefilter(props: Props) {
               hideLabel
               {...register("status")}
               className={styles.form_field}
-              onChange={(e) => setFilter({ ...filter, status: e })}
+              onChange={(e) => {
+                setFilter({
+                  ...filter,
+                  status: valueOrDefault(e, defaultAvtaleFilter.status),
+                });
+              }}
               options={[
                 { value: "Aktiv", label: "Aktiv" },
                 { value: "Planlagt", label: "Planlagt" },
@@ -150,7 +156,10 @@ export function Avtalefilter(props: Props) {
               className={styles.form_field}
               onChange={(e) => {
                 resetPaginering(setPage);
-                setFilter({ ...filter, navRegion: e });
+                setFilter({
+                  ...filter,
+                  navRegion: valueOrDefault(e, defaultAvtaleFilter.navRegion),
+                });
               }}
               options={regionOptions()}
             />
@@ -164,7 +173,13 @@ export function Avtalefilter(props: Props) {
                 className={styles.form_field}
                 onChange={(e) => {
                   resetPaginering(setPage);
-                  setFilter({ ...filter, tiltakstype: e });
+                  setFilter({
+                    ...filter,
+                    tiltakstype: valueOrDefault(
+                      e,
+                      defaultAvtaleFilter.tiltakstype
+                    ),
+                  });
                 }}
                 options={tiltakstypeOptions()}
               />
@@ -180,7 +195,10 @@ export function Avtalefilter(props: Props) {
                 resetPaginering(setPage);
                 setFilter({
                   ...filter,
-                  leverandor_orgnr: e,
+                  leverandor_orgnr: valueOrDefault(
+                    e,
+                    defaultAvtaleFilter.leverandor_orgnr
+                  ),
                 });
               }}
               options={leverandorOptions()}

@@ -18,6 +18,7 @@ export const AvtaleSchema = z.object({
     .max(9, "Du må velge en leverandør")
     .regex(/^\d+$/, "Leverandør må være et nummer"),
   leverandorUnderenheter: z.string().array(),
+  leverandorKontaktpersonId: z.string().optional(),
   navRegion: z.string({ required_error: "Du må velge en enhet" }),
   navEnheter: z
     .string()
@@ -36,8 +37,8 @@ export const AvtaleSchema = z.object({
         path: ["startDato"],
       }
     ),
-  avtaleansvarlig: z.string({
-    required_error: "Du må velge en avtaleansvarlig",
+  avtaleansvarlig: z.string().refine((data) => data.length > 0, {
+    message: "Du må velge en avtaleansvarlig",
   }),
   url: GyldigUrlHvisVerdi,
   prisOgBetalingsinfo: z.string().optional(),

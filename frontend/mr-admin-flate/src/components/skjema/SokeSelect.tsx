@@ -17,9 +17,9 @@ export interface SelectProps {
   readOnly?: boolean;
   onChange?: (a0: any) => void;
   onInputChange?: (a0: any) => void;
-  isClearable?: boolean;
   className?: string;
   size?: "small" | "medium";
+  onClearValue?: () => void;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -32,9 +32,9 @@ const SokeSelect = React.forwardRef((props: SelectProps, _) => {
     readOnly,
     onChange: providedOnChange,
     onInputChange: providedOnInputChange,
-    isClearable = true,
     className,
     size,
+    onClearValue,
     ...rest
   } = props;
 
@@ -96,7 +96,7 @@ const SokeSelect = React.forwardRef((props: SelectProps, _) => {
             <ReactSelect
               placeholder={placeholder}
               isDisabled={!!readOnly}
-              isClearable={isClearable}
+              isClearable={!!onClearValue}
               ref={ref}
               inputId={name}
               noOptionsMessage={() => "Ingen funnet"}
@@ -105,6 +105,9 @@ const SokeSelect = React.forwardRef((props: SelectProps, _) => {
               onChange={(e) => {
                 onChange(e?.value);
                 providedOnChange?.(e?.value);
+                if (!e) {
+                  onClearValue?.();
+                }
               }}
               onInputChange={(e) => {
                 providedOnInputChange?.(e);
@@ -117,7 +120,7 @@ const SokeSelect = React.forwardRef((props: SelectProps, _) => {
                 spacing: {
                   ...theme.spacing,
                   controlHeight: size === "small" ? 32 : 48,
-                  baseUnit: 2
+                  baseUnit: 2,
                 },
                 colors: {
                   ...theme.colors,
@@ -127,9 +130,7 @@ const SokeSelect = React.forwardRef((props: SelectProps, _) => {
               })}
             />
             {error && (
-              <div
-                className={styles.errormsg}
-              >
+              <div className={styles.errormsg}>
                 <b>• {error.message}</b>
               </div>
             )}
