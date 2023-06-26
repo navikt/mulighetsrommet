@@ -1,4 +1,4 @@
-import { Alert, BodyShort, Button, Loader, Pagination } from '@navikt/ds-react';
+import { Alert, BodyShort, Button, Loader, Pagination, Skeleton } from '@navikt/ds-react';
 import { useAtom } from 'jotai';
 import { RESET } from 'jotai/utils';
 import { useEffect, useRef, useState } from 'react';
@@ -45,7 +45,7 @@ const Tiltaksgjennomforingsoversikt = () => {
   if (tiltaksgjennomforinger.length === 0 && (isLoading || brukerdata.isLoading)) {
     return (
       <div className={styles.filter_loader}>
-        <Loader size="xlarge" />
+        <Skeleton variant="rounded" width="100%" height="100vh" />
       </div>
     );
   }
