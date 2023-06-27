@@ -49,7 +49,7 @@
     "@vitejs/plugin-react": "^4.0.1",
     "axe-core": "^4.7.2",
     "cross-env": "^7.0.3",
-    "cypress": "^12.15.0",
+    "cypress": "^12.16.0",
     "cypress-axe": "^1.4.0",
     "eslint-config-prettier": "^8.8.0",
     "eslint-config-standard": "^17.1.0",
