@@ -1,9 +1,9 @@
 package no.nav.mulighetsrommet.api.services
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle
 import no.nav.mulighetsrommet.api.domain.dto.AdGruppe
+import no.nav.mulighetsrommet.api.domain.dto.NavAnsattDto
 import no.nav.mulighetsrommet.api.domain.dto.NavKontaktpersonDto
 import no.nav.mulighetsrommet.api.repositories.NavAnsattRepository
 import no.nav.mulighetsrommet.api.tilgangskontroll.AdGrupper.ADMIN_FLATE_BETABRUKER
@@ -39,7 +39,7 @@ class NavAnsattService(
                         azureId = it.azureId,
                         fornavn = it.fornavn,
                         etternavn = it.etternavn,
-                        hovedenhetKode = it.hovedenhet,
+                        hovedenhetKode = it.hovedenhet.enhetsnummer,
                         mobilnr = it.mobilnummer,
                         epost = it.epost,
                     )
@@ -47,19 +47,21 @@ class NavAnsattService(
             }.getOrThrow()
     }
 
-    suspend fun getNavAnsatteWithRoles(roles: List<AdGruppeNavAnsattRolleMapping>) = roles
-        .flatMap {
-            val members = microsoftGraphService.getNavAnsatteInGroup(it.adGruppeId)
-            members.map { ansatt ->
-                NavAnsattDbo.fromDto(ansatt, listOf(it.rolle))
+    suspend fun getNavAnsatteWithRoles(roles: List<AdGruppeNavAnsattRolleMapping>): List<NavAnsattDto> {
+        return roles
+            .flatMap {
+                val members = microsoftGraphService.getNavAnsatteInGroup(it.adGruppeId)
+                members.map { ansatt ->
+                    NavAnsattDto.fromAzureAdNavAnsatt(ansatt, listOf(it.rolle))
+                }
             }
-        }
-        .groupBy { it.navIdent }
-        .map { (_, value) ->
-            value.reduce { a1, a2 ->
-                a1.copy(roller = a1.roller + a2.roller)
+            .groupBy { it.navIdent }
+            .map { (_, value) ->
+                value.reduce { a1, a2 ->
+                    a1.copy(roller = a1.roller + a2.roller)
+                }
             }
-        }
+    }
 }
 
 private fun mapAdGruppeTilTilgang(adGruppe: AdGruppe): Tilgang? {

@@ -8,6 +8,7 @@ import com.github.kagkarlsson.scheduler.task.schedule.DisabledSchedule
 import com.github.kagkarlsson.scheduler.task.schedule.Schedule
 import com.github.kagkarlsson.scheduler.task.schedule.Schedules
 import kotlinx.coroutines.runBlocking
+import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattDbo
 import no.nav.mulighetsrommet.api.repositories.NavAnsattRepository
 import no.nav.mulighetsrommet.api.services.AdGruppeNavAnsattRolleMapping
 import no.nav.mulighetsrommet.api.services.NavAnsattService
@@ -72,7 +73,7 @@ class SynchronizeNavAnsatte(
     ): Either<DatabaseOperationError, Unit> = either {
         val ansatteToUpsert = navAnsattService.getNavAnsatteWithRoles(roles)
         ansatteToUpsert.forEach { ansatt ->
-            ansatte.upsert(ansatt).bind()
+            ansatte.upsert(NavAnsattDbo.fromNavAnsattDto(ansatt)).bind()
         }
 
         val ansatteToScheduleForDeletion = ansatte.getAll()
@@ -80,7 +81,8 @@ class SynchronizeNavAnsatte(
             .bind()
         ansatteToScheduleForDeletion.forEach { ansatt ->
             logger.info("Oppdaterer NavAnsatt med dato for sletting azureId=${ansatt.azureId} dato=$navAnsattDeletionDate")
-            ansatte.upsert(ansatt.copy(roller = emptyList(), skalSlettesDato = navAnsattDeletionDate)).bind()
+            val ansattToDelete = ansatt.copy(roller = emptyList(), skalSlettesDato = navAnsattDeletionDate)
+            ansatte.upsert(NavAnsattDbo.fromNavAnsattDto(ansattToDelete)).bind()
         }
 
         val ansatteToDelete = ansatte.getAll(skalSlettesDatoLte = today).bind()

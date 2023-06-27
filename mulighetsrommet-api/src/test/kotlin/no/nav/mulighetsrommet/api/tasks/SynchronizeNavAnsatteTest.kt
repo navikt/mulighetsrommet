@@ -10,8 +10,10 @@ import io.kotest.matchers.should
 import io.mockk.coEvery
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
+import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle.BETABRUKER
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle.KONTAKTPERSON
+import no.nav.mulighetsrommet.api.domain.dto.NavAnsattDto
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.repositories.NavAnsattRepository
 import no.nav.mulighetsrommet.api.services.AdGruppeNavAnsattRolleMapping
@@ -29,6 +31,24 @@ class SynchronizeNavAnsatteTest : FunSpec({
         domain.initialize(database.db)
     }
 
+    fun toDto(dbo: NavAnsattDbo) = NavAnsattDto(
+        azureId = dbo.azureId,
+        navIdent = dbo.navIdent,
+        fornavn = dbo.fornavn,
+        etternavn = dbo.etternavn,
+        hovedenhet = NavAnsattDto.Hovedenhet(
+            enhetsnummer = domain.enhet.enhetsnummer,
+            navn = domain.enhet.navn,
+        ),
+        mobilnummer = dbo.mobilnummer,
+        epost = dbo.epost,
+        roller = dbo.roller,
+        skalSlettesDato = dbo.skalSlettesDato,
+    )
+
+    val ansatt1 = toDto(domain.ansatt1)
+    val ansatt2 = toDto(domain.ansatt2)
+
     context("synchronizeNavAnsatte") {
         val betabruker = AdGruppeNavAnsattRolleMapping(adGruppeId = UUID.randomUUID(), rolle = BETABRUKER)
         val kontaktperson = AdGruppeNavAnsattRolleMapping(adGruppeId = UUID.randomUUID(), rolle = KONTAKTPERSON)
@@ -36,15 +56,15 @@ class SynchronizeNavAnsatteTest : FunSpec({
         val service = mockk<NavAnsattService>()
         coEvery { service.getNavAnsatteWithRoles(listOf()) } returns listOf()
         coEvery { service.getNavAnsatteWithRoles(listOf(betabruker)) } returns listOf(
-            domain.ansatt1.copy(roller = listOf(BETABRUKER)),
-            domain.ansatt2.copy(roller = listOf(BETABRUKER)),
+            ansatt1.copy(roller = listOf(BETABRUKER)),
+            ansatt2.copy(roller = listOf(BETABRUKER)),
         )
         coEvery { service.getNavAnsatteWithRoles(listOf(kontaktperson)) } returns listOf(
-            domain.ansatt2.copy(roller = listOf(KONTAKTPERSON)),
+            ansatt2.copy(roller = listOf(KONTAKTPERSON)),
         )
         coEvery { service.getNavAnsatteWithRoles(listOf(betabruker, kontaktperson)) } returns listOf(
-            domain.ansatt1.copy(roller = listOf(BETABRUKER)),
-            domain.ansatt2.copy(roller = listOf(BETABRUKER, KONTAKTPERSON)),
+            ansatt1.copy(roller = listOf(BETABRUKER)),
+            ansatt2.copy(roller = listOf(BETABRUKER, KONTAKTPERSON)),
         )
 
         val ansatte = NavAnsattRepository(database.db)
@@ -64,35 +84,35 @@ class SynchronizeNavAnsatteTest : FunSpec({
                 row(
                     listOf(betabruker, kontaktperson),
                     listOf(
-                        domain.ansatt1.copy(roller = listOf(BETABRUKER)),
-                        domain.ansatt2.copy(roller = listOf(BETABRUKER, KONTAKTPERSON)),
+                        ansatt1.copy(roller = listOf(BETABRUKER)),
+                        ansatt2.copy(roller = listOf(BETABRUKER, KONTAKTPERSON)),
                     ),
                 ),
                 row(
                     listOf(betabruker),
                     listOf(
-                        domain.ansatt1.copy(roller = listOf(BETABRUKER)),
-                        domain.ansatt2.copy(roller = listOf(BETABRUKER)),
+                        ansatt1.copy(roller = listOf(BETABRUKER)),
+                        ansatt2.copy(roller = listOf(BETABRUKER)),
                     ),
                 ),
                 row(
                     listOf(kontaktperson),
                     listOf(
-                        domain.ansatt1.copy(
+                        ansatt1.copy(
                             roller = listOf(),
                             skalSlettesDato = deletionDate,
                         ),
-                        domain.ansatt2.copy(roller = listOf(KONTAKTPERSON)),
+                        ansatt2.copy(roller = listOf(KONTAKTPERSON)),
                     ),
                 ),
                 row(
                     listOf(),
                     listOf(
-                        domain.ansatt1.copy(
+                        ansatt1.copy(
                             roller = listOf(),
                             skalSlettesDato = deletionDate,
                         ),
-                        domain.ansatt2.copy(
+                        ansatt2.copy(
                             roller = listOf(),
                             skalSlettesDato = deletionDate,
                         ),
@@ -116,14 +136,14 @@ class SynchronizeNavAnsatteTest : FunSpec({
                 row(
                     listOf(betabruker, kontaktperson),
                     listOf(
-                        domain.ansatt1.copy(roller = listOf(BETABRUKER)),
-                        domain.ansatt2.copy(roller = listOf(BETABRUKER, KONTAKTPERSON)),
+                        ansatt1.copy(roller = listOf(BETABRUKER)),
+                        ansatt2.copy(roller = listOf(BETABRUKER, KONTAKTPERSON)),
                     ),
                 ),
                 row(
                     listOf(kontaktperson),
                     listOf(
-                        domain.ansatt2.copy(roller = listOf(KONTAKTPERSON)),
+                        ansatt2.copy(roller = listOf(KONTAKTPERSON)),
                     ),
                 ),
                 row(

@@ -9,9 +9,9 @@ import io.mockk.coEvery
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.clients.msgraph.AzureAdNavAnsatt
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
-import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle.BETABRUKER
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle.KONTAKTPERSON
+import no.nav.mulighetsrommet.api.domain.dto.NavAnsattDto
 import no.nav.mulighetsrommet.api.repositories.NavAnsattRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import java.util.*
@@ -60,19 +60,19 @@ class NavAnsattServiceTest : FunSpec({
                 row(
                     listOf(betabrukerGroup),
                     listOf(
-                        NavAnsattDbo.fromDto(ansatt1, listOf(BETABRUKER)),
-                        NavAnsattDbo.fromDto(ansatt2, listOf(BETABRUKER)),
+                        NavAnsattDto.fromAzureAdNavAnsatt(ansatt1, listOf(BETABRUKER)),
+                        NavAnsattDto.fromAzureAdNavAnsatt(ansatt2, listOf(BETABRUKER)),
                     ),
                 ),
                 row(
                     listOf(kontaktpersonGroup),
-                    listOf(NavAnsattDbo.fromDto(ansatt2, listOf(KONTAKTPERSON))),
+                    listOf(NavAnsattDto.fromAzureAdNavAnsatt(ansatt2, listOf(KONTAKTPERSON))),
                 ),
                 row(
                     listOf(betabrukerGroup, kontaktpersonGroup),
                     listOf(
-                        NavAnsattDbo.fromDto(ansatt1, listOf(BETABRUKER)),
-                        NavAnsattDbo.fromDto(ansatt2, listOf(BETABRUKER, KONTAKTPERSON)),
+                        NavAnsattDto.fromAzureAdNavAnsatt(ansatt1, listOf(BETABRUKER)),
+                        NavAnsattDto.fromAzureAdNavAnsatt(ansatt2, listOf(BETABRUKER, KONTAKTPERSON)),
                     ),
                 ),
             ) { groups, ansatteMedRoller ->
