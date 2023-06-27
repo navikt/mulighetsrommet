@@ -36,5 +36,4 @@ enum class NavAnsattRolle {
     TEAM_MULIGHETSROMMET,
     BETABRUKER,
     KONTAKTPERSON,
-    UKJENT,
 }
