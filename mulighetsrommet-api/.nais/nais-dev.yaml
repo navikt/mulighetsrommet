@@ -75,6 +75,11 @@ spec:
           permission:
             roles:
               - tiltaksgjennomforing-read
+        - application: tiltakspenger-tiltak
+          namespace: tpts
+          permission:
+            roles:
+              - tiltaksgjennomforing-read
     outbound:
       rules:
         - application: mulighetsrommet-arena-adapter
