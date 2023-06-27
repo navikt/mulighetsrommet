@@ -9,7 +9,7 @@ import no.nav.mulighetsrommet.api.domain.dto.SanityResponse
 import no.nav.mulighetsrommet.api.plugins.getNavAnsattAzureId
 import no.nav.mulighetsrommet.api.plugins.getNorskIdent
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
-import no.nav.mulighetsrommet.api.services.VeilederflateSanityService
+import no.nav.mulighetsrommet.api.services.VeilederflateService
 import no.nav.mulighetsrommet.api.utils.getAccessToken
 import no.nav.mulighetsrommet.api.utils.getTiltaksgjennomforingsFilter
 import org.koin.ktor.ext.inject
@@ -19,34 +19,34 @@ import org.slf4j.LoggerFactory
 val log: Logger = LoggerFactory.getLogger("sanityRouteLogger")
 
 fun Route.sanityRoutes() {
-    val veilederflateSanityService: VeilederflateSanityService by inject()
+    val veilederflateService: VeilederflateService by inject()
     val poaoTilgangService: PoaoTilgangService by inject()
 
     route("/api/v1/internal/sanity") {
         get("/innsatsgrupper") {
             poaoTilgangService.verfiyAccessToModia(getNavAnsattAzureId())
-            call.respondWithData(veilederflateSanityService.hentInnsatsgrupper().toResponse())
+            call.respondWithData(veilederflateService.hentInnsatsgrupper().toResponse())
         }
 
         get("/tiltakstyper") {
             poaoTilgangService.verfiyAccessToModia(getNavAnsattAzureId())
-            call.respondWithData(veilederflateSanityService.hentTiltakstyper().toResponse())
+            call.respondWithData(veilederflateService.hentTiltakstyper().toResponse())
         }
 
         get("/lokasjoner") {
             poaoTilgangService.verfiyAccessToModia(getNavAnsattAzureId())
-            call.respondWithData(
-                veilederflateSanityService.hentLokasjonerForBrukersEnhetOgFylke(
+            call.respond(
+                veilederflateService.hentLokasjonerForBrukersEnhetOgFylke(
                     getNorskIdent(),
                     call.getAccessToken(),
-                ).toResponse(),
+                ),
             )
         }
 
         get("/tiltaksgjennomforinger") {
             poaoTilgangService.verfiyAccessToModia(getNavAnsattAzureId())
 
-            val result = veilederflateSanityService.hentTiltaksgjennomforingerForBrukerBasertPaEnhetOgFylke(
+            val result = veilederflateService.hentTiltaksgjennomforingerForBrukerBasertPaEnhetOgFylke(
                 getNorskIdent(),
                 call.getAccessToken(),
                 getTiltaksgjennomforingsFilter(),
@@ -57,7 +57,7 @@ fun Route.sanityRoutes() {
         get("/tiltaksgjennomforing/{id}") {
             poaoTilgangService.verfiyAccessToModia(getNavAnsattAzureId())
             val id = call.parameters.getOrFail("id")
-            val result = veilederflateSanityService.hentTiltaksgjennomforing(
+            val result = veilederflateService.hentTiltaksgjennomforing(
                 id,
                 getNorskIdent(),
                 call.getAccessToken(),

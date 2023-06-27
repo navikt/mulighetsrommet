@@ -761,4 +761,62 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             totalCount shouldBe 105
         }
     }
+
+    context("Lokasjon til veilederflate fra gjennomføringer") {
+        test("Skal hente ut distinkt liste med lokasjoner basert på brukers enhet eller fylkesenhet") {
+            val avtaleFixtures = AvtaleFixtures(database)
+            avtaleFixtures.runBeforeTests()
+            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
+            val enhetRepository = NavEnhetRepository(database.db)
+            enhetRepository.upsert(
+                NavEnhetDbo(
+                    navn = "Navn1",
+                    enhetsnummer = "0400",
+                    status = NavEnhetStatus.AKTIV,
+                    type = Norg2Type.FYLKE,
+                    overordnetEnhet = null,
+                ),
+            ).shouldBeRight()
+            enhetRepository.upsert(
+                NavEnhetDbo(
+                    navn = "Navn2",
+                    enhetsnummer = "0482",
+                    status = NavEnhetStatus.AKTIV,
+                    type = Norg2Type.LOKAL,
+                    overordnetEnhet = "0400",
+                ),
+            ).shouldBeRight()
+
+            val avtale = avtaleFixtures.createAvtaleForTiltakstype(navRegion = "0400")
+            val gjennomforing1 = TiltaksgjennomforingFixtures.Oppfolging1.copy(
+                lokasjonArrangor = "0139 Oslo",
+                id = UUID.randomUUID(),
+                navEnheter = listOf("0482"),
+                avtaleId = avtale.id,
+                tiltakstypeId = avtaleFixtures.tiltakstypeId,
+            )
+            val gjennomforing2 = TiltaksgjennomforingFixtures.Oppfolging1.copy(
+                lokasjonArrangor = "8756 Kristiansand",
+                id = UUID.randomUUID(),
+                navEnheter = listOf("0482"),
+                avtaleId = avtale.id,
+                tiltakstypeId = avtaleFixtures.tiltakstypeId,
+            )
+            val gjennomforing3 = TiltaksgjennomforingFixtures.Oppfolging1.copy(
+                lokasjonArrangor = "0139 Oslo",
+                id = UUID.randomUUID(),
+                navEnheter = listOf("0482"),
+                avtaleId = avtale.id,
+                tiltakstypeId = avtaleFixtures.tiltakstypeId,
+            )
+            avtaleFixtures.upsertAvtaler(listOf(avtale))
+            tiltaksgjennomforinger.upsert(gjennomforing1).shouldBeRight()
+            tiltaksgjennomforinger.upsert(gjennomforing2).shouldBeRight()
+            tiltaksgjennomforinger.upsert(gjennomforing3).shouldBeRight()
+
+            val result = tiltaksgjennomforinger.getLokasjonerForEnhet("0482", "0400")
+            result.size shouldBe 2
+            result shouldContainExactly listOf("0139 Oslo", "8756 Kristiansand")
+        }
+    }
 })

@@ -115,4 +115,8 @@ class TiltaksgjennomforingService(
     fun getAllMidlertidigStengteGjennomforingerSomNarmerSegSluttdato(): List<TiltaksgjennomforingNotificationDto> {
         return tiltaksgjennomforingRepository.getAllMidlertidigStengteGjennomforingerSomNarmerSegSluttdato()
     }
+
+    fun getLokasjonerForBrukersEnhet(enhetsId: String, fylkeId: String): List<String> {
+        return tiltaksgjennomforingRepository.getLokasjonerForEnhet(enhetsId, fylkeId)
+    }
 }

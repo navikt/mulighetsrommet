@@ -17,16 +17,20 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.collections.set
 
-class VeilederflateSanityService(
+class VeilederflateService(
     private val sanityClient: SanityClient,
     private val brukerService: BrukerService,
     private val tiltaksgjennomforingService: TiltaksgjennomforingService,
-    private val navAnsattService: NavAnsattService,
-    private val navEnhetService: NavEnhetService,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
     private val fylkenummerCache = mutableMapOf<String?, String>()
     private val sanityCache: Cache<String, SanityResponse> = Caffeine.newBuilder()
+        .expireAfterWrite(30, TimeUnit.MINUTES)
+        .maximumSize(500)
+        .recordStats()
+        .build()
+
+    private val lokasjonCache: Cache<String, List<String>> = Caffeine.newBuilder()
         .expireAfterWrite(30, TimeUnit.MINUTES)
         .maximumSize(500)
         .recordStats()
@@ -58,21 +62,13 @@ class VeilederflateSanityService(
         }
     }
 
-    suspend fun hentLokasjonerForBrukersEnhetOgFylke(fnr: String, accessToken: String): SanityResponse {
+    suspend fun hentLokasjonerForBrukersEnhetOgFylke(fnr: String, accessToken: String): List<String> {
         val brukerData = brukerService.hentBrukerdata(fnr, accessToken)
         val enhetsId = brukerData.geografiskEnhet?.enhetsnummer ?: ""
         val fylkeId = getFylkeIdBasertPaaEnhetsId(enhetsId) ?: ""
 
-        val query = """
-            array::unique(*[_type == "tiltaksgjennomforing" && !(_id in path("drafts.**"))
-            ${byggEnhetOgFylkeFilter(enhetsId, fylkeId)}]
-            {
-              lokasjon
-            }.lokasjon)
-        """.trimIndent()
-
-        return CacheUtils.tryCacheFirstNotNull(sanityCache, fnr) {
-            sanityClient.query(query)
+        return CacheUtils.tryCacheFirstNotNull(lokasjonCache, fnr) {
+            tiltaksgjennomforingService.getLokasjonerForBrukersEnhet(enhetsId, fylkeId)
         }
     }
 
@@ -89,13 +85,11 @@ class VeilederflateSanityService(
               ${byggInnsatsgruppeFilter(filter.innsatsgruppe)}
               ${byggTiltakstypeFilter(filter.tiltakstypeIder)}
               ${byggSokeFilter(filter.sokestreng)}
-              ${byggLokasjonsFilter(filter.lokasjoner)}
               ${byggEnhetOgFylkeFilter(enhetsId, fylkeId)}
               ]
               {
                 _id,
                 tiltaksgjennomforingNavn,
-                lokasjon,
                 oppstart,
                 oppstartsdato,
                 "tiltaksnummer": tiltaksnummer.current,
@@ -107,7 +101,8 @@ class VeilederflateSanityService(
         return when (val result = sanityClient.query(query)) {
             is SanityResponse.Result -> {
                 val gjennomforinger = result.decode<List<VeilederflateTiltaksgjennomforing>>()
-                supplerDataFraDB(gjennomforinger, enhetsId)
+                val gjennomforingerMedDbData = supplerDataFraDB(gjennomforinger, enhetsId)
+                return gjennomforingerMedDbData.filter { filter.lokasjoner.isEmpty() || filter.lokasjoner.contains(it.lokasjon) }
             }
 
             is SanityResponse.Error -> throw Exception(result.error.toString())
@@ -194,6 +189,7 @@ class VeilederflateSanityService(
                     tilgjengelighetsstatus = apiGjennomforing?.tilgjengelighet?.name,
                     estimert_ventetid = apiGjennomforing?.estimertVentetid,
                     tiltakstype = sanityData.tiltakstype?.copy(arenakode = apiGjennomforing?.tiltakstype?.arenaKode),
+                    lokasjon = apiGjennomforing?.lokasjonArrangor,
                 )
             }
     }

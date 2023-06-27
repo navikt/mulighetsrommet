@@ -241,7 +241,7 @@ private fun services(appConfig: AppConfig) = module {
     single { ArenaAdapterService(get(), get(), get(), get(), get(), get(), get(), get(), get()) }
     single { AvtaleService(get(), get(), get()) }
     single { TiltakshistorikkService(get(), get()) }
-    single { VeilederflateSanityService(get(), get(), get(), get(), get()) }
+    single { VeilederflateService(get(), get(), get()) }
     single { SanityTiltaksgjennomforingEnheterTilApiService(get(), get()) }
     single { ArrangorService(get()) }
     single { BrukerService(get(), get(), get()) }

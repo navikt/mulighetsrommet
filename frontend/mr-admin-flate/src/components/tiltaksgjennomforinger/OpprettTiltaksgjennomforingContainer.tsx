@@ -318,11 +318,12 @@ export const OpprettTiltaksgjennomforingContainer = (
   async function getLokasjonForArrangor(arrangorOrgnr?: string) {
     if (!arrangorOrgnr) return;
 
-    const lokasjon = await mulighetsrommetClient.virksomhet.hentVirksomhet({
-      orgnr: arrangorOrgnr,
-    });
+    const { postnummer = "", poststed = "" } =
+      await mulighetsrommetClient.virksomhet.hentVirksomhet({
+        orgnr: arrangorOrgnr,
+      });
 
-    const lokasjonsStreng = `${lokasjon.postnummer} ${lokasjon.poststed}`;
+    const lokasjonsStreng = `${postnummer} ${poststed}`;
 
     if (lokasjonsStreng !== watch("lokasjonArrangor")) {
       setValue("lokasjonArrangor", lokasjonsStreng);
