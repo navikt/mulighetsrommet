@@ -1,29 +1,27 @@
 package no.nav.mulighetsrommet.api.tasks
 
+import arrow.core.Either
+import arrow.core.continuations.either
 import com.github.kagkarlsson.scheduler.task.helper.RecurringTask
 import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import com.github.kagkarlsson.scheduler.task.schedule.DisabledSchedule
 import com.github.kagkarlsson.scheduler.task.schedule.Schedule
 import com.github.kagkarlsson.scheduler.task.schedule.Schedules
 import kotlinx.coroutines.runBlocking
-import no.nav.mulighetsrommet.api.clients.msgraph.MicrosoftGraphClient
-import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattDbo
-import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle
 import no.nav.mulighetsrommet.api.repositories.NavAnsattRepository
+import no.nav.mulighetsrommet.api.services.AdGruppeNavAnsattRolleMapping
+import no.nav.mulighetsrommet.api.services.NavAnsattService
+import no.nav.mulighetsrommet.database.utils.DatabaseOperationError
 import no.nav.mulighetsrommet.slack.SlackNotifier
 import org.slf4j.LoggerFactory
-import java.util.*
+import java.time.Duration
+import java.time.LocalDate
 import kotlin.jvm.optionals.getOrNull
-
-data class Group(
-    val adGruppe: UUID,
-    val rolle: NavAnsattRolle,
-)
 
 class SynchronizeNavAnsatte(
     config: Config,
-    msGraphClient: MicrosoftGraphClient,
-    ansatte: NavAnsattRepository,
+    private val navAnsattService: NavAnsattService,
+    private val ansatte: NavAnsattRepository,
     slack: SlackNotifier,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
@@ -31,7 +29,8 @@ class SynchronizeNavAnsatte(
     data class Config(
         val disabled: Boolean = false,
         val cronPattern: String? = null,
-        val groups: List<Group> = listOf(),
+        val groups: List<AdGruppeNavAnsattRolleMapping> = emptyList(),
+        val deleteNavAnsattGracePeriod: Duration = Duration.ofDays(30),
     ) {
         fun toSchedule(): Schedule {
             return if (disabled) {
@@ -58,38 +57,34 @@ class SynchronizeNavAnsatte(
             logger.info("Synkroniserer NAV-ansatte fra Azure til database...")
 
             runBlocking {
-                config.groups
-                    .flatMap { group ->
-                        logger.info("Henter brukere i AD-gruppe id=${group.adGruppe}")
-
-                        val members = msGraphClient.getGroupMembers(group.adGruppe)
-
-                        members.map { ansatt ->
-                            ansatt.run {
-                                NavAnsattDbo(
-                                    navIdent = navident,
-                                    fornavn = fornavn,
-                                    etternavn = etternavn,
-                                    hovedenhet = hovedenhetKode,
-                                    azureId = azureId,
-                                    mobilnummer = mobilnr,
-                                    epost = epost,
-                                    roller = listOf(group.rolle),
-                                )
-                            }
-                        }
-                    }
-                    .groupBy { it.navIdent }
-                    .map { (_, value) ->
-                        value.reduce { a1, a2 ->
-                            a1.copy(roller = a1.roller + a2.roller)
-                        }
-                    }
-                    .forEach { ansatt ->
-                        ansatte.upsert(ansatt).onLeft {
-                            throw it.error
-                        }
-                    }
+                val today = LocalDate.now()
+                val deletionDate = today.plus(config.deleteNavAnsattGracePeriod)
+                synchronizeNavAnsatte(config.groups, today, deletionDate)
             }
         }
+
+    internal suspend fun synchronizeNavAnsatte(
+        roles: List<AdGruppeNavAnsattRolleMapping>,
+        today: LocalDate,
+        navAnsattDeletionDate: LocalDate,
+    ): Either<DatabaseOperationError, Unit> = either {
+        val ansatteToUpsert = navAnsattService.getNavAnsatteWithRoles(roles)
+        ansatteToUpsert.forEach { ansatt ->
+            ansatte.upsert(ansatt).bind()
+        }
+
+        val ansatteToScheduleForDeletion = ansatte.getAll()
+            .map { it.filter { ansatt -> ansatt !in ansatteToUpsert && ansatt.skalSlettesDato == null } }
+            .bind()
+        ansatteToScheduleForDeletion.forEach { ansatt ->
+            logger.info("Oppdaterer NavAnsatt med dato for sletting azureId=${ansatt.azureId} dato=$navAnsattDeletionDate")
+            ansatte.upsert(ansatt.copy(roller = emptyList(), skalSlettesDato = navAnsattDeletionDate)).bind()
+        }
+
+        val ansatteToDelete = ansatte.getAll(skalSlettesDatoLte = today).bind()
+        ansatteToDelete.forEach { ansatt ->
+            logger.info("Sletter NavAnsatt fordi vi har passert dato for sletting azureId=${ansatt.azureId} dato=${ansatt.skalSlettesDato}")
+            ansatte.deleteByAzureId(ansatt.azureId).bind()
+        }
+    }
 }

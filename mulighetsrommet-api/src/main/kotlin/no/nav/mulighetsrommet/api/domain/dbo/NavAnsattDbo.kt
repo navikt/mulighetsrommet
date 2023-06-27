@@ -1,5 +1,7 @@
 package no.nav.mulighetsrommet.api.domain.dbo
 
+import no.nav.mulighetsrommet.api.domain.dto.NavAnsattDto
+import java.time.LocalDate
 import java.util.*
 
 data class NavAnsattDbo(
@@ -14,7 +16,21 @@ data class NavAnsattDbo(
     val mobilnummer: String? = null,
     val epost: String,
     val roller: List<NavAnsattRolle>,
-)
+    val skalSlettesDato: LocalDate? = null,
+) {
+    companion object {
+        fun fromDto(dto: NavAnsattDto, roller: List<NavAnsattRolle> = listOf()) = NavAnsattDbo(
+            navIdent = dto.navident,
+            fornavn = dto.fornavn,
+            etternavn = dto.etternavn,
+            hovedenhet = dto.hovedenhetKode,
+            azureId = dto.azureId,
+            mobilnummer = dto.mobilnr,
+            epost = dto.epost,
+            roller = roller,
+        )
+    }
+}
 
 enum class NavAnsattRolle {
     TEAM_MULIGHETSROMMET,

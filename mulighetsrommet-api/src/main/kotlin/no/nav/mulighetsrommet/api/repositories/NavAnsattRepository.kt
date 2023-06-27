@@ -9,22 +9,24 @@ import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
 import org.intellij.lang.annotations.Language
+import java.time.LocalDate
 import java.util.*
 
 class NavAnsattRepository(private val db: Database) {
     fun upsert(ansatt: NavAnsattDbo): QueryResult<NavAnsattDbo> = query {
         @Language("PostgreSQL")
         val query = """
-            insert into nav_ansatt(nav_ident, fornavn, etternavn, hovedenhet, azure_id, mobilnummer, epost, roller)
-            values (:nav_ident, :fornavn, :etternavn, :hovedenhet, :azure_id::uuid, :mobilnummer, :epost, :roller::nav_ansatt_rolle[])
+            insert into nav_ansatt(nav_ident, fornavn, etternavn, hovedenhet, azure_id, mobilnummer, epost, roller, skal_slettes_dato)
+            values (:nav_ident, :fornavn, :etternavn, :hovedenhet, :azure_id::uuid, :mobilnummer, :epost, :roller::nav_ansatt_rolle[], :skal_slettes_dato)
             on conflict (nav_ident)
-                do update set fornavn       = excluded.fornavn,
-                              etternavn     = excluded.etternavn,
-                              hovedenhet    = excluded.hovedenhet,
-                              azure_id      = excluded.azure_id,
-                              mobilnummer   = excluded.mobilnummer,
-                              epost         = excluded.epost,
-                              roller        = excluded.roller
+                do update set fornavn           = excluded.fornavn,
+                              etternavn         = excluded.etternavn,
+                              hovedenhet        = excluded.hovedenhet,
+                              azure_id          = excluded.azure_id,
+                              mobilnummer       = excluded.mobilnummer,
+                              epost             = excluded.epost,
+                              roller            = excluded.roller,
+                              skal_slettes_dato = excluded.skal_slettes_dato
             returning *
         """.trimIndent()
 
@@ -34,13 +36,18 @@ class NavAnsattRepository(private val db: Database) {
             .let { db.run(it)!! }
     }
 
-    fun getAll(roller: List<NavAnsattRolle>? = null): QueryResult<List<NavAnsattDbo>> = query {
+    fun getAll(
+        roller: List<NavAnsattRolle>? = null,
+        skalSlettesDatoLte: LocalDate? = null,
+    ): QueryResult<List<NavAnsattDbo>> = query {
         val params = mapOf(
             "roller" to roller?.let { roller -> db.createTextArray(roller.map { it.name }) },
+            "skal_slettes_dato" to skalSlettesDatoLte,
         )
 
         val where = DatabaseUtils.andWhereParameterNotNull(
             roller to "roller @> :roller::nav_ansatt_rolle[]",
+            skalSlettesDatoLte to "skal_slettes_dato <= :skal_slettes_dato",
         )
 
         @Language("PostgreSQL")
@@ -59,7 +66,7 @@ class NavAnsattRepository(private val db: Database) {
     fun getByNavIdent(navIdent: String): QueryResult<NavAnsattDbo?> = query {
         @Language("PostgreSQL")
         val query = """
-            select nav_ident, fornavn, etternavn, hovedenhet, azure_id, mobilnummer, epost, roller
+            select nav_ident, fornavn, etternavn, hovedenhet, azure_id, mobilnummer, epost, roller, skal_slettes_dato
             from nav_ansatt
             where nav_ident = :nav_ident
         """.trimIndent()
@@ -73,7 +80,7 @@ class NavAnsattRepository(private val db: Database) {
     fun getByAzureId(azureId: UUID): QueryResult<NavAnsattDbo?> = query {
         @Language("PostgreSQL")
         val query = """
-            select nav_ident, fornavn, etternavn, hovedenhet, azure_id, mobilnummer, epost, roller
+            select nav_ident, fornavn, etternavn, hovedenhet, azure_id, mobilnummer, epost, roller, skal_slettes_dato
             from nav_ansatt
             where azure_id = :azure_id::uuid
         """.trimIndent()
@@ -105,6 +112,7 @@ class NavAnsattRepository(private val db: Database) {
         "mobilnummer" to mobilnummer,
         "epost" to epost,
         "roller" to db.createArrayOf("nav_ansatt_rolle", roller.map { it.name }),
+        "skal_slettes_dato" to skalSlettesDato,
     )
 
     private fun Row.toNavAnsatt() = NavAnsattDbo(
@@ -116,5 +124,6 @@ class NavAnsattRepository(private val db: Database) {
         mobilnummer = stringOrNull("mobilnummer"),
         epost = string("epost"),
         roller = array<String>("roller").toList().map { NavAnsattRolle.valueOf(it) },
+        skalSlettesDato = localDateOrNull("skal_slettes_dato"),
     )
 }

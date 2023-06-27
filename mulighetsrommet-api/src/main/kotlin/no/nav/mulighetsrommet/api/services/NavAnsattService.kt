@@ -1,6 +1,8 @@
 package no.nav.mulighetsrommet.api.services
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattDbo
+import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle
 import no.nav.mulighetsrommet.api.domain.dto.AdGruppe
 import no.nav.mulighetsrommet.api.domain.dto.NavKontaktpersonDto
 import no.nav.mulighetsrommet.api.repositories.NavAnsattRepository
@@ -12,7 +14,7 @@ import java.util.*
 
 class NavAnsattService(
     private val microsoftGraphService: MicrosoftGraphService,
-    private val navAnsattRepository: NavAnsattRepository,
+    private val ansatte: NavAnsattRepository,
 ) {
     suspend fun hentAnsattData(accessToken: String, navAnsattAzureId: UUID): AnsattData {
         val ansatt = microsoftGraphService.getNavAnsatt(accessToken, navAnsattAzureId)
@@ -29,7 +31,7 @@ class NavAnsattService(
     }
 
     fun hentKontaktpersoner(filter: NavAnsattFilter): List<NavKontaktpersonDto> {
-        return navAnsattRepository.getAll(roller = filter.roller)
+        return ansatte.getAll(roller = filter.roller)
             .map { ansatte ->
                 ansatte.map {
                     NavKontaktpersonDto(
@@ -44,6 +46,20 @@ class NavAnsattService(
                 }
             }.getOrThrow()
     }
+
+    suspend fun getNavAnsatteWithRoles(roles: List<AdGruppeNavAnsattRolleMapping>) = roles
+        .flatMap {
+            val members = microsoftGraphService.getNavAnsatteInGroup(it.adGruppeId)
+            members.map { ansatt ->
+                NavAnsattDbo.fromDto(ansatt, listOf(it.rolle))
+            }
+        }
+        .groupBy { it.navIdent }
+        .map { (_, value) ->
+            value.reduce { a1, a2 ->
+                a1.copy(roller = a1.roller + a2.roller)
+            }
+        }
 }
 
 private fun mapAdGruppeTilTilgang(adGruppe: AdGruppe): Tilgang? {
@@ -70,3 +86,8 @@ enum class Tilgang {
     BETABRUKER,
     UTVIKLER_VALP,
 }
+
+data class AdGruppeNavAnsattRolleMapping(
+    val adGruppeId: UUID,
+    val rolle: NavAnsattRolle,
+)

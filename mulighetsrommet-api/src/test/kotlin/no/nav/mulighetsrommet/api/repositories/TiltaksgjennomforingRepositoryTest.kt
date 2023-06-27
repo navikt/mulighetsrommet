@@ -58,7 +58,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
     }
 
     context("CRUD") {
-
         test("CRUD") {
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
 
@@ -130,7 +129,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     overordnetEnhet = null,
                 ),
             )
-            val avtaleFixtures = AvtaleFixtures(database)
             val avtale = avtale1.copy(navRegion = "2990")
             avtaleFixtures.upsertAvtaler(listOf(avtale))
             val tiltaksgjennomforing =
@@ -386,12 +384,14 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         test("Ansvarlige crud") {
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
 
-            val ident1 = "N12343"
-            val gjennomforing = gjennomforing1.copy(ansvarlige = listOf(ident1))
+            val domain = MulighetsrommetTestDomain()
+            domain.initialize(database.db)
 
+            val gjennomforing = gjennomforing1.copy(ansvarlige = listOf(domain.ansatt1.navIdent))
             tiltaksgjennomforinger.upsert(gjennomforing).shouldBeRight()
+
             tiltaksgjennomforinger.get(gjennomforing.id).shouldBeRight().should {
-                it!!.ansvarlig shouldBe ident1
+                it!!.ansvarlig shouldBe domain.ansatt1.navIdent
             }
             database.assertThat("tiltaksgjennomforing_ansvarlig").hasNumberOfRows(1)
         }

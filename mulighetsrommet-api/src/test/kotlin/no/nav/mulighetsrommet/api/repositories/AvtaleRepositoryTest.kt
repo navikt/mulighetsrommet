@@ -15,6 +15,7 @@ import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.domain.dbo.OverordnetEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
+import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.utils.AdminTiltaksgjennomforingFilter
@@ -40,35 +41,34 @@ class AvtaleRepositoryTest : FunSpec({
     }
 
     context("Avtaleansvarlig") {
-        test("Ansvarlig blir satt i egen tabell") {
-            val ident = "N12343"
-            val avtale1 = avtaleFixture.createAvtaleForTiltakstype(
-                ansvarlige = listOf(ident),
-            )
-            avtaleFixture.upsertAvtaler(listOf(avtale1))
-            avtaleFixture.upsertAvtaler(listOf(avtale1))
-            database.assertThat("avtale_ansvarlig").row()
-                .value("avtale_id").isEqualTo(avtale1.id)
-                .value("navident").isEqualTo(ident)
-        }
+        test("Ansvarlig tabell blir oppdatert til å reflektere liste med ansvarlige i dbo") {
+            val domain = MulighetsrommetTestDomain()
+            domain.initialize(database.db)
 
-        test("Ansvarlig tabell blir oppdatert til å reflektere listen i dbo") {
-            val ident = "N12343"
+            val ansatt1 = domain.ansatt1
+            val ansatt2 = domain.ansatt2
             val avtale1 = avtaleFixture.createAvtaleForTiltakstype(
-                ansvarlige = listOf(ident),
+                ansvarlige = listOf(ansatt1.navIdent),
             )
-            avtaleFixture.upsertAvtaler(listOf(avtale1))
 
-            avtaleFixture.upsertAvtaler(listOf(avtale1.copy(ansvarlige = listOf("M12343", "L12343"))))
+            avtaleFixture.upsertAvtaler(listOf(avtale1))
 
             database.assertThat("avtale_ansvarlig").row()
                 .value("avtale_id").isEqualTo(avtale1.id)
-                .value("navident").isEqualTo("L12343")
+                .value("navident").isEqualTo(ansatt1.navIdent)
+
+            avtaleFixture.upsertAvtaler(
+                listOf(avtale1.copy(ansvarlige = listOf(ansatt1.navIdent, ansatt2.navIdent))),
+            )
+
+            database.assertThat("avtale_ansvarlig")
+                .hasNumberOfRows(2)
                 .row()
                 .value("avtale_id").isEqualTo(avtale1.id)
-                .value("navident").isEqualTo("M12343")
-
-            database.assertThat("avtale_ansvarlig").hasNumberOfRows(2)
+                .value("navident").isEqualTo(ansatt1.navIdent)
+                .row()
+                .value("avtale_id").isEqualTo(avtale1.id)
+                .value("navident").isEqualTo(ansatt2.navIdent)
         }
     }
 
@@ -785,27 +785,22 @@ class AvtaleRepositoryTest : FunSpec({
                 val avtale6Mnd = avtaleFixture.createAvtaleForTiltakstype(
                     startDato = LocalDate.of(2021, 1, 1),
                     sluttDato = LocalDate.of(2023, 11, 30),
-                    ansvarlige = listOf("OLE"),
                 )
                 val avtale3Mnd = avtaleFixture.createAvtaleForTiltakstype(
                     startDato = LocalDate.of(2021, 1, 1),
                     sluttDato = LocalDate.of(2023, 8, 31),
-                    ansvarlige = listOf("OLE"),
                 )
                 val avtale14Dag = avtaleFixture.createAvtaleForTiltakstype(
                     startDato = LocalDate.of(2021, 1, 1),
                     sluttDato = LocalDate.of(2023, 6, 14),
-                    ansvarlige = listOf("OLE"),
                 )
                 val avtale7Dag = avtaleFixture.createAvtaleForTiltakstype(
                     startDato = LocalDate.of(2021, 1, 1),
                     sluttDato = LocalDate.of(2023, 6, 7),
-                    ansvarlige = listOf("OLE"),
                 )
                 val avtaleSomIkkeSkalMatche = avtaleFixture.createAvtaleForTiltakstype(
                     startDato = LocalDate.of(2022, 6, 7),
                     sluttDato = LocalDate.of(2024, 1, 1),
-                    ansvarlige = listOf("OLE"),
                 )
 
                 tiltakstypeRepository.upsert(tiltakstype).getOrThrow()
@@ -820,10 +815,10 @@ class AvtaleRepositoryTest : FunSpec({
                     ),
                 )
 
-                val result =
-                    avtaleRepository.getAllAvtalerSomNarmerSegSluttdato(currentDate = LocalDate.of(2023, 5, 31))
+                val result = avtaleRepository.getAllAvtalerSomNarmerSegSluttdato(
+                    currentDate = LocalDate.of(2023, 5, 31),
+                )
                 result.size shouldBe 4
-                result[0].ansvarlige[0] shouldBe "OLE"
             }
         }
     }
