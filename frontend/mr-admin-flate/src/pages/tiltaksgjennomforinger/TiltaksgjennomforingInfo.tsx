@@ -173,7 +173,7 @@ export function TiltaksgjennomforingInfo() {
           ) : null}
           {tiltaksgjennomforing.lokasjonArrangor ? (
             <Metadata
-              header="Lokasjon for arrangør"
+              header="Lokasjon for gjennomføring"
               verdi={tiltaksgjennomforing.lokasjonArrangor}
             />
           ) : null}

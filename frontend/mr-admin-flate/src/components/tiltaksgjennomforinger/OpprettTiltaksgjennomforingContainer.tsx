@@ -638,7 +638,8 @@ export const OpprettTiltaksgjennomforingContainer = (
           />
           <TextField
             size="small"
-            label="Lokasjon for arrangør"
+            label="Sted for gjennomføring"
+            description="Sted for gjennomføring, f.eks. Fredrikstad eller Tromsø. Veileder kan filtrere på verdiene i dette feltet, så ikke skriv fulle adresser."
             {...register("lokasjonArrangor")}
             error={
               errors.lokasjonArrangor ? errors.lokasjonArrangor.message : null
