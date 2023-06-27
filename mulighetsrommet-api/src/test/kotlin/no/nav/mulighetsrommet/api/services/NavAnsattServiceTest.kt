@@ -7,11 +7,11 @@ import io.kotest.data.row
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.mockk.coEvery
 import io.mockk.mockk
+import no.nav.mulighetsrommet.api.clients.msgraph.AzureAdNavAnsatt
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle.BETABRUKER
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle.KONTAKTPERSON
-import no.nav.mulighetsrommet.api.domain.dto.NavAnsattDto
 import no.nav.mulighetsrommet.api.repositories.NavAnsattRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import java.util.*
@@ -19,24 +19,24 @@ import java.util.*
 class NavAnsattServiceTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
-    val ansatt1 = NavAnsattDto(
-        navident = "DD1",
+    val ansatt1 = AzureAdNavAnsatt(
+        navIdent = "DD1",
         fornavn = "Donald",
         etternavn = "Duck",
         hovedenhetKode = "2990",
         hovedenhetNavn = "Andeby",
         azureId = UUID.randomUUID(),
-        mobilnr = "12345678",
+        mobilnummer = "12345678",
         epost = "donald.duck@nav.no",
     )
-    val ansatt2 = NavAnsattDto(
-        navident = "DD2",
+    val ansatt2 = AzureAdNavAnsatt(
+        navIdent = "DD2",
         fornavn = "Dolly",
         etternavn = "Duck",
         hovedenhetKode = "2990",
         hovedenhetNavn = "Andeby",
         azureId = UUID.randomUUID(),
-        mobilnr = "48243214",
+        mobilnummer = "48243214",
         epost = "dolly.duck@nav.no",
     )
 

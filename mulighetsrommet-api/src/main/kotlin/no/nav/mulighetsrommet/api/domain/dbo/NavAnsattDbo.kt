@@ -1,6 +1,6 @@
 package no.nav.mulighetsrommet.api.domain.dbo
 
-import no.nav.mulighetsrommet.api.domain.dto.NavAnsattDto
+import no.nav.mulighetsrommet.api.clients.msgraph.AzureAdNavAnsatt
 import java.time.LocalDate
 import java.util.*
 
@@ -19,13 +19,13 @@ data class NavAnsattDbo(
     val skalSlettesDato: LocalDate? = null,
 ) {
     companion object {
-        fun fromDto(dto: NavAnsattDto, roller: List<NavAnsattRolle> = listOf()) = NavAnsattDbo(
-            navIdent = dto.navident,
+        fun fromDto(dto: AzureAdNavAnsatt, roller: List<NavAnsattRolle> = listOf()) = NavAnsattDbo(
+            navIdent = dto.navIdent,
             fornavn = dto.fornavn,
             etternavn = dto.etternavn,
             hovedenhet = dto.hovedenhetKode,
             azureId = dto.azureId,
-            mobilnummer = dto.mobilnr,
+            mobilnummer = dto.mobilnummer,
             epost = dto.epost,
             roller = roller,
         )

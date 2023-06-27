@@ -22,7 +22,7 @@ class NavAnsattService(
         return AnsattData(
             etternavn = ansatt.etternavn,
             fornavn = ansatt.fornavn,
-            ident = ansatt.navident,
+            ident = ansatt.navIdent,
             navn = "${ansatt.fornavn} ${ansatt.etternavn}",
             tilganger = azureAdGrupper.mapNotNull(::mapAdGruppeTilTilgang).toSet(),
             hovedenhet = ansatt.hovedenhetKode,

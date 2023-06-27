@@ -3,9 +3,9 @@ package no.nav.mulighetsrommet.api.services
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import io.prometheus.client.cache.caffeine.CacheMetricsCollector
+import no.nav.mulighetsrommet.api.clients.msgraph.AzureAdNavAnsatt
 import no.nav.mulighetsrommet.api.clients.msgraph.MicrosoftGraphClient
 import no.nav.mulighetsrommet.api.domain.dto.AdGruppe
-import no.nav.mulighetsrommet.api.domain.dto.NavAnsattDto
 import no.nav.mulighetsrommet.metrics.Metrikker
 import no.nav.mulighetsrommet.utils.CacheUtils
 import java.util.*
@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit
 
 class MicrosoftGraphService(private val client: MicrosoftGraphClient) {
 
-    private val ansattDataCache: Cache<UUID, NavAnsattDto> = Caffeine.newBuilder()
+    private val ansattDataCache: Cache<UUID, AzureAdNavAnsatt> = Caffeine.newBuilder()
         .expireAfterWrite(4, TimeUnit.HOURS)
         .maximumSize(500)
         .recordStats()
@@ -25,7 +25,7 @@ class MicrosoftGraphService(private val client: MicrosoftGraphClient) {
         .recordStats()
         .build()
 
-    private val azureAdGroupMembersCache: Cache<UUID, List<NavAnsattDto>> = Caffeine.newBuilder()
+    private val azureAdGroupMembersCache: Cache<UUID, List<AzureAdNavAnsatt>> = Caffeine.newBuilder()
         .expireAfterWrite(1, TimeUnit.HOURS)
         .maximumSize(10_000)
         .recordStats()
@@ -39,7 +39,7 @@ class MicrosoftGraphService(private val client: MicrosoftGraphClient) {
         cacheMetrics.addCache("azureAdGroupMembersCache", azureAdGroupMembersCache)
     }
 
-    suspend fun getNavAnsatt(accessToken: String, navAnsattAzureId: UUID): NavAnsattDto {
+    suspend fun getNavAnsatt(accessToken: String, navAnsattAzureId: UUID): AzureAdNavAnsatt {
         return CacheUtils.tryCacheFirstNotNull(ansattDataCache, navAnsattAzureId) {
             client.getNavAnsatt(accessToken, navAnsattAzureId)
         }
@@ -51,7 +51,7 @@ class MicrosoftGraphService(private val client: MicrosoftGraphClient) {
         }
     }
 
-    suspend fun getNavAnsatteInGroup(groupId: UUID): List<NavAnsattDto> {
+    suspend fun getNavAnsatteInGroup(groupId: UUID): List<AzureAdNavAnsatt> {
         return CacheUtils.tryCacheFirstNotNull(azureAdGroupMembersCache, groupId) {
             client.getGroupMembers(groupId)
         }
