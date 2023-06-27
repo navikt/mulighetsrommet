@@ -1,4 +1,4 @@
-import { Accordion, Alert, Loader, Radio, RadioGroup } from '@navikt/ds-react';
+import { Accordion, Alert, Loader, Radio, RadioGroup, Skeleton } from '@navikt/ds-react';
 import { useAtom } from 'jotai';
 import { Innsatsgruppe } from 'mulighetsrommet-api-client';
 import { logEvent } from '../../core/api/logger';
