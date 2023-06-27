@@ -6,6 +6,7 @@ updates:
       interval: weekly
       day: monday
       time: "07:00"
+      timezone: Europe/Oslo
     open-pull-requests-limit: 10
 
   - package-ecosystem: gradle
@@ -14,6 +15,7 @@ updates:
       interval: weekly
       day: monday
       time: "07:00"
+      timezone: Europe/Oslo
     open-pull-requests-limit: 10
 
   - package-ecosystem: npm
@@ -22,6 +24,7 @@ updates:
       interval: weekly
       day: monday
       time: "07:00"
+      timezone: Europe/Oslo
     open-pull-requests-limit: 10
 
   # Test versjonsoppdatering av docker images i nais config

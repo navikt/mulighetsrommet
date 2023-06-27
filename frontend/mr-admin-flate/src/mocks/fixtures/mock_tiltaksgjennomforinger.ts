@@ -18,6 +18,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       tiltaksnummer: "123456",
       virksomhetsnummer: "1000",
       virksomhetsnavn: "Valp AS",
+      avtaleId: "d1f163b7-1a41-4547-af16-03fd4492b7ba",
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "TILTAKSTYPENAVN",

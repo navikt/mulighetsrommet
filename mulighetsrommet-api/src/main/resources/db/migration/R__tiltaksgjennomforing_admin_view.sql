@@ -35,7 +35,8 @@ select tg.id::uuid,
                                              concat(na.fornavn, ' ', na.etternavn), 'epost', na.epost, 'mobilnummer',
                                              na.mobilnummer, 'navEnheter', tgk.enheter, 'hovedenhet', na.hovedenhet)
                      end
-           )                    as kontaktpersoner
+           )                    as kontaktpersoner,
+       tg.lokasjon_arrangor
 from tiltaksgjennomforing tg
          inner join tiltakstype t on tg.tiltakstype_id = t.id
          left join tiltaksgjennomforing_ansvarlig tg_a on tg_a.tiltaksgjennomforing_id = tg.id

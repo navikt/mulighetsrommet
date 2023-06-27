@@ -22,7 +22,10 @@ import no.nav.mulighetsrommet.database.utils.getOrThrow
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.*
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo.Tilgjengelighetsstatus
-import no.nav.mulighetsrommet.domain.dto.*
+import no.nav.mulighetsrommet.domain.dto.NavEnhet
+import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingAdminDto
+import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingKontaktperson
+import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -109,12 +112,29 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         test("Skal hente ut navRegion fra avtale for en gitt gjennomføring") {
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
             val navEnheter = NavEnhetRepository(database.db)
-            navEnheter.upsert(NavEnhetDbo(navn = "NAV Andeby", enhetsnummer = "2990", status = NavEnhetStatus.AKTIV, type = Norg2Type.FYLKE, overordnetEnhet = null))
-            navEnheter.upsert(NavEnhetDbo(navn = "NAV Gåseby", enhetsnummer = "2980", status = NavEnhetStatus.AKTIV, type = Norg2Type.LOKAL, overordnetEnhet = null))
+            navEnheter.upsert(
+                NavEnhetDbo(
+                    navn = "NAV Andeby",
+                    enhetsnummer = "2990",
+                    status = NavEnhetStatus.AKTIV,
+                    type = Norg2Type.FYLKE,
+                    overordnetEnhet = null,
+                ),
+            )
+            navEnheter.upsert(
+                NavEnhetDbo(
+                    navn = "NAV Gåseby",
+                    enhetsnummer = "2980",
+                    status = NavEnhetStatus.AKTIV,
+                    type = Norg2Type.LOKAL,
+                    overordnetEnhet = null,
+                ),
+            )
             val avtaleFixtures = AvtaleFixtures(database)
             val avtale = avtale1.copy(navRegion = "2990")
             avtaleFixtures.upsertAvtaler(listOf(avtale))
-            val tiltaksgjennomforing = TiltaksgjennomforingFixtures.Oppfolging1.copy(avtaleId = avtale.id, navEnheter = listOf("2980"))
+            val tiltaksgjennomforing =
+                TiltaksgjennomforingFixtures.Oppfolging1.copy(avtaleId = avtale.id, navEnheter = listOf("2980"))
             tiltaksgjennomforinger.upsert(tiltaksgjennomforing).shouldBeRight()
             tiltaksgjennomforinger.get(tiltaksgjennomforing.id).shouldBeRight().should {
                 it?.navRegion shouldBe "NAV Andeby"
@@ -672,6 +692,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                         navEnheter = emptyList(),
                         oppstart = TiltaksgjennomforingDbo.Oppstartstype.FELLES,
                         opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
+                        lokasjonArrangor = "0139 Oslo",
                     ),
                 )
             }
