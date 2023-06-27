@@ -171,10 +171,10 @@ export function TiltaksgjennomforingInfo() {
               verdi={tiltaksgjennomforing.virksomhetsnavn}
             />
           ) : null}
-          {tiltaksgjennomforing.lokasjon ? (
+          {tiltaksgjennomforing.lokasjonArrangor ? (
             <Metadata
               header="Lokasjon for arrangør"
-              verdi={tiltaksgjennomforing.lokasjon}
+              verdi={tiltaksgjennomforing.lokasjonArrangor}
             />
           ) : null}
         </dl>

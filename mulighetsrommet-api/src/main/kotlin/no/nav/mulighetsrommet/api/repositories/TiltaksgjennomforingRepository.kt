@@ -45,7 +45,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 opphav,
                 stengt_fra,
                 stengt_til,
-                lokasjon
+                lokasjon_arrangor
             )
             values (
                 :id::uuid,
@@ -65,7 +65,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 :opphav::opphav,
                 :stengt_fra,
                 :stengt_til,
-                :lokasjon
+                :lokasjon_arrangor
             )
             on conflict (id)
                 do update set navn                  = excluded.navn,
@@ -84,7 +84,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                               opphav                = excluded.opphav,
                               stengt_fra            = excluded.stengt_fra,
                               stengt_til            = excluded.stengt_til,
-                              lokasjon              = excluded.lokasjon
+                              lokasjon_arrangor              = excluded.lokasjon_arrangor
             returning *
         """.trimIndent()
 
@@ -477,7 +477,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         "opphav" to opphav.name,
         "stengt_fra" to stengtFra,
         "stengt_til" to stengtTil,
-        "lokasjon" to lokasjon,
+        "lokasjon_arrangor" to lokasjonArrangor,
     )
 
     private fun Row.toTiltaksgjennomforingDbo() = TiltaksgjennomforingDbo(
@@ -498,7 +498,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         navEnheter = emptyList(),
         oppstart = TiltaksgjennomforingDbo.Oppstartstype.valueOf(string("oppstart")),
         opphav = ArenaMigrering.Opphav.valueOf(string("opphav")),
-        lokasjon = string("lokasjon"),
     )
 
     private fun Row.toTiltaksgjennomforingAdminDto(): TiltaksgjennomforingAdminDto {
@@ -542,7 +541,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             stengtFra = localDateOrNull("stengt_fra"),
             stengtTil = localDateOrNull("stengt_til"),
             kontaktpersoner = kontaktpersoner,
-            lokasjon = stringOrNull("lokasjon"),
+            lokasjonArrangor = stringOrNull("lokasjon_arrangor"),
         )
     }
 

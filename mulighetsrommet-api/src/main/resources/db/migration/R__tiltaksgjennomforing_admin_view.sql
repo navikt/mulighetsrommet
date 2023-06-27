@@ -21,7 +21,7 @@ select tg.id::uuid,
        tg.stengt_fra,
        tg.stengt_til,
        avtale_ne.navn           as navRegionForAvtale,
-       tg.lokasjon,
+       tg.lokasjon_arrangor,
        array_agg(tg_a.navident) as ansvarlige,
        jsonb_agg(distinct
                  case

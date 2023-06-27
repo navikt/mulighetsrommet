@@ -106,7 +106,7 @@ data class TiltaksgjennomforingRequest(
     val apenForInnsok: Boolean = true,
     val kontaktpersoner: List<NavKontaktpersonForGjennomforing> = emptyList(),
     val estimertVentetid: String? = null,
-    val lokasjon: String? = null,
+    val lokasjonArrangor: String? = null,
 ) {
     fun toDbo(): StatusResponse<TiltaksgjennomforingDbo> {
         if (!startDato.isBefore(sluttDato)) {
@@ -121,8 +121,8 @@ data class TiltaksgjennomforingRequest(
         if (antallPlasser <= 0) {
             return Either.Left(BadRequest("Antall plasser må være større enn 0"))
         }
-        if (lokasjon.isNullOrEmpty()) {
-            return Either.Left(BadRequest("Lokasjon må være satt"))
+        if (lokasjonArrangor.isNullOrEmpty()) {
+            return Either.Left(BadRequest("Lokasjon for arrangørw må være satt"))
         }
 
         return Either.Right(
@@ -156,7 +156,7 @@ data class TiltaksgjennomforingRequest(
                         navEnheter = it.navEnheter,
                     )
                 },
-                lokasjon = lokasjon,
+                lokasjonArrangor = lokasjonArrangor,
             ),
         )
     }

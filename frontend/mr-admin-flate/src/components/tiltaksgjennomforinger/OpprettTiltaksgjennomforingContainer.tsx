@@ -88,7 +88,7 @@ const Schema = z
         required_error: "Du må velge en underenhet for tiltaksarrangør",
       })
       .min(1, "Du må velge en underenhet for tiltaksarrangør"),
-    lokasjon: z.string().refine((data) => data.length > 0, {
+    lokasjonArrangor: z.string().refine((data) => data.length > 0, {
       message: "Du må skrive inn lokasjon for hvor gjennomføringen finner sted",
     }),
     ansvarlig: z.string({ required_error: "Du må velge en ansvarlig" }),
@@ -264,7 +264,7 @@ export const OpprettTiltaksgjennomforingContainer = (
         tiltaksgjennomforing?.kontaktpersoner
       ),
       estimertVentetid: tiltaksgjennomforing?.estimertVentetid,
-      lokasjon: tiltaksgjennomforing?.lokasjon,
+      lokasjonArrangor: tiltaksgjennomforing?.lokasjonArrangor,
     },
   });
   const {
@@ -324,8 +324,8 @@ export const OpprettTiltaksgjennomforingContainer = (
 
     const lokasjonsStreng = `${lokasjon.postnummer} ${lokasjon.poststed}`;
 
-    if (lokasjonsStreng !== watch("lokasjon")) {
-      setValue("lokasjon", lokasjonsStreng);
+    if (lokasjonsStreng !== watch("lokasjonArrangor")) {
+      setValue("lokasjonArrangor", lokasjonsStreng);
     }
   }
 
@@ -376,7 +376,7 @@ export const OpprettTiltaksgjennomforingContainer = (
               : kontakt.navEnheter,
           })) || [],
       estimertVentetid: data.estimertVentetid,
-      lokasjon: data.lokasjon,
+      lokasjonArrangor: data.lokasjonArrangor,
     };
 
     try {
@@ -501,6 +501,7 @@ export const OpprettTiltaksgjennomforingContainer = (
             readOnly={arenaOpphav}
             error={errors.tittel?.message}
             label="Tiltaksnavn"
+            autoFocus
             {...register("tittel")}
           />
         </FormGroup>
@@ -637,9 +638,11 @@ export const OpprettTiltaksgjennomforingContainer = (
           />
           <TextField
             size="small"
-            label="Lokasjon"
-            {...register("lokasjon")}
-            error={errors.lokasjon ? errors.lokasjon.message : null}
+            label="Lokasjon for arrangør"
+            {...register("lokasjonArrangor")}
+            error={
+              errors.lokasjonArrangor ? errors.lokasjonArrangor.message : null
+            }
           />
         </FormGroup>
         {features?.[

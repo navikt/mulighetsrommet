@@ -1,2 +1,2 @@
 alter table tiltaksgjennomforing
-add column lokasjon text;
+add column lokasjon_arrangor text;

@@ -1361,7 +1361,7 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/TiltaksgjennomforingKontaktpersoner"
-        lokasjon:
+        lokasjonArrangor:
           type: string
       required:
         - id
@@ -1422,7 +1422,7 @@ components:
             $ref: "#/components/schemas/TiltaksgjennomforingKontaktpersonerRequest"
         estimertVentetid:
           type: string
-        lokasjon:
+        lokasjonArrangor:
           type: string
       required:
         - id
@@ -1437,7 +1437,7 @@ components:
         - navEnheter
         - oppstart
         - kontaktpersoner
-        - lokasjon
+        - lokasjonArrangor
 
     TiltaksgjennomforingAvslutningsstatus:
       type: string
