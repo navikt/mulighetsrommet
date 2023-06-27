@@ -1,19 +1,19 @@
-import { Alert, BodyShort, Button, Loader, Pagination, Skeleton } from '@navikt/ds-react';
+import { Alert, BodyShort, Button, Loader, Pagination } from '@navikt/ds-react';
 import { useAtom } from 'jotai';
 import { RESET } from 'jotai/utils';
+import { ApiError, SanityTiltaksgjennomforing } from 'mulighetsrommet-api-client';
+import { porten } from 'mulighetsrommet-frontend-common/constants';
 import { useEffect, useRef, useState } from 'react';
+import { logEvent } from '../../core/api/logger';
 import { useHentBrukerdata } from '../../core/api/queries/useHentBrukerdata';
 import useTiltaksgjennomforinger from '../../core/api/queries/useTiltaksgjennomforinger';
 import { paginationAtom, tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
 import { usePrepopulerFilter } from '../../hooks/usePrepopulerFilter';
-import { ApiError, SanityTiltaksgjennomforing } from 'mulighetsrommet-api-client';
-import { logEvent } from '../../core/api/logger';
 import { Feilmelding, forsokPaNyttLink } from '../feilmelding/Feilmelding';
+import Lenke from '../lenke/Lenke';
 import { Sorteringsmeny } from '../sorteringmeny/Sorteringsmeny';
 import { Gjennomforingsrad } from './Gjennomforingsrad';
 import styles from './Tiltaksgjennomforingsoversikt.module.scss';
-import Lenke from '../lenke/Lenke';
-import { porten } from 'mulighetsrommet-frontend-common/constants';
 
 const Tiltaksgjennomforingsoversikt = () => {
   const [page, setPage] = useAtom(paginationAtom);
@@ -45,7 +45,7 @@ const Tiltaksgjennomforingsoversikt = () => {
   if (tiltaksgjennomforinger.length === 0 && (isLoading || brukerdata.isLoading)) {
     return (
       <div className={styles.filter_loader}>
-        <Skeleton variant="rounded" width="100%" height="100vh" />
+        <Loader />
       </div>
     );
   }
