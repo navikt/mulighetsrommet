@@ -6,10 +6,10 @@ import {
   Avtale,
   AvtaleRequest,
   Avtaletype,
+  NavAnsatt,
   Norg2Type,
   Opphav,
 } from "mulighetsrommet-api-client";
-import { Ansatt } from "mulighetsrommet-api-client/build/models/Ansatt";
 import { NavEnhet } from "mulighetsrommet-api-client/build/models/NavEnhet";
 import { Tiltakstype } from "mulighetsrommet-api-client/build/models/Tiltakstype";
 import { StatusModal } from "mulighetsrommet-veileder-flate/src/components/modal/delemodal/StatusModal";
@@ -37,7 +37,7 @@ interface OpprettAvtaleContainerProps {
   onClose: () => void;
   onSuccess: (id: string) => void;
   tiltakstyper: Tiltakstype[];
-  ansatt: Ansatt;
+  ansatt: NavAnsatt;
   avtale?: Avtale;
   enheter: NavEnhet[];
 }
@@ -66,8 +66,10 @@ export function OpprettAvtaleContainer({
     if (avtale?.navRegion?.enhetsnummer) {
       return avtale?.navRegion?.enhetsnummer;
     }
-    if (enheter.find((e) => e.enhetsnummer === ansatt.hovedenhet)) {
-      return ansatt.hovedenhet;
+    if (
+      enheter.find((e) => e.enhetsnummer === ansatt.hovedenhet.enhetsnummer)
+    ) {
+      return ansatt.hovedenhet.enhetsnummer;
     }
     return undefined;
   };
@@ -88,7 +90,7 @@ export function OpprettAvtaleContainer({
         avtale?.navEnheter.length === 0
           ? ["alle_enheter"]
           : avtale?.navEnheter.map((e) => e.enhetsnummer),
-      avtaleansvarlig: avtale?.ansvarlig || ansatt?.ident || "",
+      avtaleansvarlig: avtale?.ansvarlig || ansatt.navIdent || "",
       avtalenavn: getValueOrDefault(avtale?.navn, ""),
       avtaletype: getValueOrDefault(avtale?.avtaletype, Avtaletype.AVTALE),
       leverandor: getValueOrDefault(
@@ -99,8 +101,8 @@ export function OpprettAvtaleContainer({
         avtale?.leverandorUnderenheter.length === 0
           ? []
           : avtale?.leverandorUnderenheter?.map(
-            (enhet) => enhet.organisasjonsnummer
-          ),
+              (enhet) => enhet.organisasjonsnummer
+            ),
       leverandorKontaktpersonId: avtale?.leverandorKontaktperson?.id,
       startOgSluttDato: {
         startDato: avtale?.startDato ? new Date(avtale.startDato) : undefined,
@@ -133,11 +135,9 @@ export function OpprettAvtaleContainer({
   };
 
   const arenaOpphav = avtale?.opphav === Opphav.ARENA;
-  const navn = ansatt?.fornavn
-    ? [ansatt.fornavn, ansatt.etternavn ?? ""]
-      .map((it) => capitalize(it))
-      .join(" ")
-    : "";
+  const navn = [ansatt.fornavn, ansatt.etternavn]
+    .map((it) => capitalize(it))
+    .join(" ");
 
   const postData: SubmitHandler<inferredSchema> = async (
     data
@@ -220,8 +220,8 @@ export function OpprettAvtaleContainer({
             {(mutation.error as ApiError).status === 400
               ? (mutation.error as ApiError).body
               : "Avtalen kunne ikke opprettes på grunn av en teknisk feil hos oss. " +
-              "Forsøk på nytt eller ta <a href={porten}>kontakt</a> i Porten dersom " +
-              "du trenger mer hjelp."}
+                "Forsøk på nytt eller ta <a href={porten}>kontakt</a> i Porten dersom " +
+                "du trenger mer hjelp."}
           </>
         }
         onClose={onClose}
@@ -235,7 +235,7 @@ export function OpprettAvtaleContainer({
 
   const ansvarligOptions = () => {
     const options = [];
-    if (avtale?.ansvarlig && avtale.ansvarlig !== ansatt?.ident) {
+    if (avtale?.ansvarlig && avtale.ansvarlig !== ansatt?.navIdent) {
       options.push({
         value: avtale?.ansvarlig,
         label: avtale?.ansvarlig,
@@ -243,8 +243,8 @@ export function OpprettAvtaleContainer({
     }
 
     options.push({
-      value: ansatt?.ident ?? "",
-      label: `${navn} - ${ansatt?.ident}`,
+      value: ansatt.navIdent,
+      label: `${navn} - ${ansatt.navIdent}`,
     });
 
     return options;
@@ -391,19 +391,19 @@ export function OpprettAvtaleContainer({
             options={underenheterOptions()}
           />
         </FormGroup>
-        { watch('leverandor') &&
+        {watch("leverandor") && (
           <FormGroup>
             <div className={styles.kontaktperson_container}>
               <label className={styles.kontaktperson_label} >
                 <b>Kontaktperson hos leverandøren</b>
               </label>
               <VirksomhetKontaktpersoner
-                orgnr={watch('leverandor')}
-                formValueName={'leverandorKontaktpersonId'}
+                orgnr={watch("leverandor")}
+                formValueName={"leverandorKontaktpersonId"}
               />
             </div>
           </FormGroup>
-        }
+        )}
         <FormGroup>
           <TextField
             size="small"

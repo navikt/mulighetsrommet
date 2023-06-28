@@ -9,8 +9,8 @@ import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
 export function AdministratorHeader() {
   const response = useHentAnsatt();
 
-  const ansattNavn = response.data?.fornavn
-    ? [response.data.fornavn, response.data?.etternavn ?? ""]
+  const ansattNavn = response.data
+    ? [response.data.fornavn, response.data.etternavn]
         .map((it) => capitalize(it))
         .join(" ")
     : "Team Valp";
@@ -29,7 +29,7 @@ export function AdministratorHeader() {
       <Header.User
         data-testid="header-navident"
         name={ansattNavn}
-        description={response?.data?.ident ?? "..."}
+        description={response?.data?.navIdent ?? "..."}
         className={styles.user}
       />
     </Header>
