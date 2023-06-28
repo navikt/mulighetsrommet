@@ -7,18 +7,6 @@ import no.nav.mulighetsrommet.api.clients.vedtak.Innsatsgruppe
 class SanityFiltersKtTest : FunSpec({
 
     context("Filter for Groq-spørringer") {
-        test("byggLokasjonsFilter skal returnere tom streng når ingen lokasjoner er valgt") {
-            val lokasjoner = emptyList<String>()
-            val result = byggLokasjonsFilter(lokasjoner)
-            result shouldBe ""
-        }
-
-        test("byggLokasjonsfilter skal returnere korrekt Groq-uttrykk når lokasjoner er valgt") {
-            val lokasjoner = listOf("Fredrikstad", "Oslo")
-            val result = byggLokasjonsFilter(lokasjoner)
-            result shouldBe "&& lokasjon in ['Fredrikstad', 'Oslo']"
-        }
-
         test("byggEnhetOgFylkeFilter skal korrekt Groq-uttrykk for brukers enhet og fylkeId") {
             val enhetsId = "0200"
             val fylkesId = "0400"

@@ -2,14 +2,6 @@ package no.nav.mulighetsrommet.api.utils
 
 import no.nav.mulighetsrommet.api.clients.vedtak.Innsatsgruppe
 
-fun byggLokasjonsFilter(lokasjoner: List<String>): String {
-    if (lokasjoner.isEmpty()) return ""
-
-    return """
-            && lokasjon in ${lokasjoner.toSanityListe()}
-    """.trimIndent()
-}
-
 fun byggEnhetOgFylkeFilter(enhetsId: String, fylkeId: String): String {
     return """
             && ('enhet.lokal.$enhetsId' in enheter[]._ref || (enheter[0] == null && 'enhet.fylke.$fylkeId' == fylke._ref))
