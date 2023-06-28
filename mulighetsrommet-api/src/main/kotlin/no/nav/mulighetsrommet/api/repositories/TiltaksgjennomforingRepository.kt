@@ -665,9 +665,9 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         @Language("PostgreSQL")
         val query = """
             select distinct tg.lokasjon_arrangor from tiltaksgjennomforing tg
-            join tiltaksgjennomforing_nav_enhet tne on tg.id = tne.tiltaksgjennomforing_id
-            join avtale a on a.id = tg.avtale_id
-            where tne.enhetsnummer = :enhetsId or a.nav_region = :fylkesId
+            left join tiltaksgjennomforing_nav_enhet tne on tg.id = tne.tiltaksgjennomforing_id
+            left join avtale a on a.id = tg.avtale_id
+            where tne.enhetsnummer = :enhetsId or (tne.enhetsnummer is null and a.nav_region = :fylkesId)
         """.trimIndent()
 
         return queryOf(query, params)
