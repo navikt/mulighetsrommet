@@ -1,8 +1,5 @@
-.kontaktperson_container {
-  background-color: var(--a-surface-selected);
-  padding: 1rem;
-  position: relative;
-  border-radius: 0.2rem;
+.container {
+  margin-top: 1rem;
 }
 
 .input_container {
@@ -31,12 +28,6 @@
   margin-top: 8px;
   display: flex;
   flex-direction: column;
-}
-
-.kontaktperson_label {
-  margin-bottom: 8px;
-  display: inline-block;
-  font-size: 16px;
 }
 
 .kontaktperson_button {

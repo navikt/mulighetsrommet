@@ -36,7 +36,12 @@ select tg.id::uuid,
                                              na.mobilnummer, 'navEnheter', tgk.enheter, 'hovedenhet', na.hovedenhet)
                      end
            )                    as kontaktpersoner,
-       tg.lokasjon_arrangor
+       tg.lokasjon_arrangor,
+       tg.virksomhet_kontaktperson_id,
+       vk.organisasjonsnummer as virksomhet_kontaktperson_organisasjonsnummer,
+       vk.navn as virksomhet_kontaktperson_navn,
+       vk.telefon as virksomhet_kontaktperson_telefon,
+       vk.epost as virksomhet_kontaktperson_epost
 from tiltaksgjennomforing tg
          inner join tiltakstype t on tg.tiltakstype_id = t.id
          left join tiltaksgjennomforing_ansvarlig tg_a on tg_a.tiltaksgjennomforing_id = tg.id
@@ -47,4 +52,5 @@ from tiltaksgjennomforing tg
          left join virksomhet v on v.organisasjonsnummer = tg.virksomhetsnummer
          left join tiltaksgjennomforing_kontaktperson tgk on tgk.tiltaksgjennomforing_id = tg.id
          left join nav_ansatt na on na.nav_ident = tgk.kontaktperson_nav_ident
-group by tg.id, t.id, v.navn, avtale_ne.navn;
+         left join virksomhet_kontaktperson vk on vk.id = tg.virksomhet_kontaktperson_id
+group by tg.id, t.id, v.navn, avtale_ne.navn, vk.id;

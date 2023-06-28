@@ -42,6 +42,7 @@ import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
 import { SokeSelect } from "../skjema/SokeSelect";
 import styles from "./OpprettTiltaksgjennomforingContainer.module.scss";
 import { mulighetsrommetClient } from "../../api/clients";
+import { VirksomhetKontaktpersoner } from "../virksomhet/VirksomhetKontaktpersoner";
 
 const Schema = z
   .object({
@@ -91,6 +92,7 @@ const Schema = z
     lokasjonArrangor: z.string().refine((data) => data.length > 0, {
       message: "Du må skrive inn lokasjon for hvor gjennomføringen finner sted",
     }),
+    virksomhetKontaktpersonId: z.string().nullable().optional(),
     ansvarlig: z.string({ required_error: "Du må velge en ansvarlig" }),
     midlertidigStengt: z
       .object({
@@ -265,6 +267,7 @@ export const OpprettTiltaksgjennomforingContainer = (
       ),
       estimertVentetid: tiltaksgjennomforing?.estimertVentetid,
       lokasjonArrangor: tiltaksgjennomforing?.lokasjonArrangor,
+      virksomhetKontaktpersonId: tiltaksgjennomforing?.virksomhetKontaktperson?.id,
     },
   });
   const {
@@ -378,6 +381,7 @@ export const OpprettTiltaksgjennomforingContainer = (
           })) || [],
       estimertVentetid: data.estimertVentetid,
       lokasjonArrangor: data.lokasjonArrangor,
+      virksomhetKontaktpersonId: data.virksomhetKontaktpersonId,
     };
 
     try {
@@ -625,18 +629,26 @@ export const OpprettTiltaksgjennomforingContainer = (
             defaultValue={`${avtale?.leverandor.navn} - ${avtale?.leverandor.organisasjonsnummer}`}
             readOnly
           />
-          <SokeSelect
-            size="small"
-            label="Tiltaksarrangør underenhet"
-            placeholder="Velg underenhet for tiltaksarrangør"
-            {...register("tiltaksArrangorUnderenhetOrganisasjonsnummer")}
-            onChange={getLokasjonForArrangor}
-            onClearValue={() =>
-              setValue("tiltaksArrangorUnderenhetOrganisasjonsnummer", "")
+          <div className={styles.virksomhet_kontaktperson_container}>
+            <SokeSelect
+              size="small"
+              label="Tiltaksarrangør underenhet"
+              placeholder="Velg underenhet for tiltaksarrangør"
+              {...register("tiltaksArrangorUnderenhetOrganisasjonsnummer")}
+              onChange={getLokasjonForArrangor}
+              onClearValue={() =>
+                setValue("tiltaksArrangorUnderenhetOrganisasjonsnummer", "")
+              }
+              readOnly={!avtale?.leverandor.organisasjonsnummer}
+              options={arrangorUnderenheterOptions()}
+            />
+            {watch('tiltaksArrangorUnderenhetOrganisasjonsnummer') &&
+              <VirksomhetKontaktpersoner
+                orgnr={watch('tiltaksArrangorUnderenhetOrganisasjonsnummer')}
+                formValueName={'virksomhetKontaktpersonId'}
+              />
             }
-            readOnly={!avtale?.leverandor.organisasjonsnummer}
-            options={arrangorUnderenheterOptions()}
-          />
+          </div>
           <TextField
             size="small"
             label="Sted for gjennomføring"

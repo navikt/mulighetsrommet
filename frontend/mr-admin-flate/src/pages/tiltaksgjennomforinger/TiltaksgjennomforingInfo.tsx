@@ -171,6 +171,18 @@ export function TiltaksgjennomforingInfo() {
               verdi={tiltaksgjennomforing.virksomhetsnavn}
             />
           ) : null}
+          {tiltaksgjennomforing.virksomhetKontaktperson &&
+            <Metadata
+              header="Kontaktperson"
+              verdi={
+                <div className={styles.leverandor_kontaktinfo}>
+                  <label>{tiltaksgjennomforing.virksomhetKontaktperson?.navn}</label>
+                  <label>{tiltaksgjennomforing.virksomhetKontaktperson?.telefon}</label>
+                  <a href={`mailto:${tiltaksgjennomforing.virksomhetKontaktperson?.epost}`}>{tiltaksgjennomforing.virksomhetKontaktperson?.epost}</a>
+                </div>
+              }
+            />
+          }
           {tiltaksgjennomforing.lokasjonArrangor ? (
             <Metadata
               header="Lokasjon for gjennomføring"

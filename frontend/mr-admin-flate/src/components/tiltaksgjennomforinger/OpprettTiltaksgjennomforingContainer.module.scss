@@ -58,3 +58,10 @@
   top: 0;
   color: var(--a-icon-default);
 }
+
+.virksomhet_kontaktperson_container {
+  background-color: var(--a-surface-selected);
+  padding: 1rem;
+  position: relative;
+  border-radius: 0.2rem;
+}

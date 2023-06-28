@@ -33,6 +33,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 tiltakstype_id,
                 tiltaksnummer,
                 virksomhetsnummer,
+                virksomhet_kontaktperson_id,
                 arena_ansvarlig_enhet,
                 start_dato,
                 slutt_dato,
@@ -53,6 +54,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 :tiltakstype_id::uuid,
                 :tiltaksnummer,
                 :virksomhetsnummer,
+                :virksomhet_kontaktperson_id,
                 :arena_ansvarlig_enhet,
                 :start_dato,
                 :slutt_dato,
@@ -68,23 +70,24 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 :lokasjon_arrangor
             )
             on conflict (id)
-                do update set navn                  = excluded.navn,
-                              tiltakstype_id        = excluded.tiltakstype_id,
-                              tiltaksnummer         = excluded.tiltaksnummer,
-                              virksomhetsnummer     = excluded.virksomhetsnummer,
-                              arena_ansvarlig_enhet = excluded.arena_ansvarlig_enhet,
-                              start_dato            = excluded.start_dato,
-                              slutt_dato            = excluded.slutt_dato,
-                              avslutningsstatus     = excluded.avslutningsstatus,
-                              tilgjengelighet       = excluded.tilgjengelighet,
-                              estimert_ventetid     = excluded.estimert_ventetid,
-                              antall_plasser        = excluded.antall_plasser,
-                              avtale_id             = excluded.avtale_id,
-                              oppstart              = excluded.oppstart,
-                              opphav                = excluded.opphav,
-                              stengt_fra            = excluded.stengt_fra,
-                              stengt_til            = excluded.stengt_til,
-                              lokasjon_arrangor              = excluded.lokasjon_arrangor
+                do update set navn                        = excluded.navn,
+                              tiltakstype_id              = excluded.tiltakstype_id,
+                              tiltaksnummer               = excluded.tiltaksnummer,
+                              virksomhetsnummer           = excluded.virksomhetsnummer,
+                              virksomhet_kontaktperson_id = excluded.virksomhet_kontaktperson_id,
+                              arena_ansvarlig_enhet       = excluded.arena_ansvarlig_enhet,
+                              start_dato                  = excluded.start_dato,
+                              slutt_dato                  = excluded.slutt_dato,
+                              avslutningsstatus           = excluded.avslutningsstatus,
+                              tilgjengelighet             = excluded.tilgjengelighet,
+                              estimert_ventetid           = excluded.estimert_ventetid,
+                              antall_plasser              = excluded.antall_plasser,
+                              avtale_id                   = excluded.avtale_id,
+                              oppstart                    = excluded.oppstart,
+                              opphav                      = excluded.opphav,
+                              stengt_fra                  = excluded.stengt_fra,
+                              stengt_til                  = excluded.stengt_til,
+                              lokasjon_arrangor           = excluded.lokasjon_arrangor
             returning *
         """.trimIndent()
 
@@ -465,6 +468,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         "tiltakstype_id" to tiltakstypeId,
         "tiltaksnummer" to tiltaksnummer,
         "virksomhetsnummer" to virksomhetsnummer,
+        "virksomhet_kontaktperson_id" to virksomhetKontaktpersonId,
         "start_dato" to startDato,
         "arena_ansvarlig_enhet" to arenaAnsvarligEnhet,
         "slutt_dato" to sluttDato,
@@ -519,6 +523,15 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             tiltaksnummer = stringOrNull("tiltaksnummer"),
             virksomhetsnummer = string("virksomhetsnummer"),
             virksomhetsnavn = stringOrNull("virksomhetsnavn"),
+            virksomhetKontaktperson = uuidOrNull("virksomhet_kontaktperson_id")?.let {
+                VirksomhetKontaktperson(
+                    id = it,
+                    organisasjonsnummer = string("virksomhet_kontaktperson_organisasjonsnummer"),
+                    navn = string("virksomhet_kontaktperson_navn"),
+                    telefon = string("virksomhet_kontaktperson_telefon"),
+                    epost = string("virksomhet_kontaktperson_epost"),
+                )
+            },
             startDato = startDato,
             sluttDato = sluttDato,
             arenaAnsvarligEnhet = stringOrNull("arena_ansvarlig_enhet"),

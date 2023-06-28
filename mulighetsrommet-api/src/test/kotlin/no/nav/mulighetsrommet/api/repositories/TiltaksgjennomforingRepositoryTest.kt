@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
+import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
@@ -26,6 +27,7 @@ import no.nav.mulighetsrommet.domain.dto.NavEnhet
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingAdminDto
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingKontaktperson
 import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
+import no.nav.mulighetsrommet.domain.dto.VirksomhetKontaktperson
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -306,6 +308,38 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             tiltaksgjennomforinger.updateSanityTiltaksgjennomforingId(gjennomforing1.id, id).shouldBeRight()
             tiltaksgjennomforinger.get(gjennomforing1.id).shouldBeRight().should {
                 it!!.sanityId.shouldBe(id.toString())
+            }
+        }
+
+        test("virksomhet_kontaktperson") {
+            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
+            val virksomhetRepository = VirksomhetRepository(database.db)
+
+            virksomhetRepository.upsert(
+                VirksomhetDto(
+                    organisasjonsnummer = "999888777",
+                    navn = "Rema 2000",
+                ),
+            )
+            val thomas = VirksomhetKontaktperson(
+                navn = "Thomas",
+                telefon = "22222222",
+                epost = "thomas@thetrain.co.uk",
+                id = UUID.randomUUID(),
+                organisasjonsnummer = "999888777",
+            )
+            virksomhetRepository.upsertKontaktperson(thomas)
+
+            val gjennomforing = gjennomforing1.copy(virksomhetKontaktpersonId = thomas.id)
+
+            tiltaksgjennomforinger.upsert(gjennomforing).shouldBeRight()
+            tiltaksgjennomforinger.get(gjennomforing.id).shouldBeRight().should {
+                it!!.virksomhetKontaktperson shouldBe thomas
+            }
+
+            tiltaksgjennomforinger.upsert(gjennomforing.copy(virksomhetKontaktpersonId = null)).shouldBeRight()
+            tiltaksgjennomforinger.get(gjennomforing.id).shouldBeRight().should {
+                it!!.virksomhetKontaktperson shouldBe null
             }
         }
     }

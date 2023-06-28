@@ -95,6 +95,8 @@ data class TiltaksgjennomforingRequest(
     val enhet: String? = null,
     val antallPlasser: Int,
     val virksomhetsnummer: String,
+    @Serializable(with = UUIDSerializer::class)
+    val virksomhetKontaktpersonId: UUID? = null,
     val tiltaksnummer: String? = null,
     val ansvarlig: String,
     val navEnheter: List<String>,
@@ -144,6 +146,7 @@ data class TiltaksgjennomforingRequest(
                 estimertVentetid = estimertVentetid,
                 tiltaksnummer = tiltaksnummer,
                 virksomhetsnummer = virksomhetsnummer,
+                virksomhetKontaktpersonId = virksomhetKontaktpersonId,
                 ansvarlige = listOf(ansvarlig),
                 navEnheter = navEnheter,
                 oppstart = oppstart,

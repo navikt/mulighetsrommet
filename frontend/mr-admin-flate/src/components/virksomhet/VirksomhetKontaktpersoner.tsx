@@ -85,14 +85,12 @@ export const VirksomhetKontaktpersoner = (
 
   return (
     <>
-      <div className={styles.kontaktperson_container}>
-        <label className={styles.kontaktperson_label} >
-          <b>Kontaktperson hos leverandøren</b>
-        </label>
+      <div className={styles.container}>
         <SokeSelect
           size="small"
           placeholder="Søk etter kontaktpersoner"
-          label={"Lagrede kontaktpersoner"}
+          onClearValue={() => setValue(formValueName, null)}
+          label={"Velg kontaktperson"}
           {...register(formValueName)}
           options={kontaktpersoner.map((person) => ({
             value: person.id,
@@ -115,7 +113,7 @@ export const VirksomhetKontaktpersoner = (
             type="button"
             onClick={() => setState({ ...state, leggTil: !state.leggTil })}
           >
-            <PlusIcon /> Legg til kontaktperson
+            <PlusIcon /> eller opprett ny kontaktperson
           </Button>
         }
         {state.leggTil &&
