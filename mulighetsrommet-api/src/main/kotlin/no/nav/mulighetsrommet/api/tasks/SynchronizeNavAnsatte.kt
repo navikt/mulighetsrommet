@@ -14,8 +14,8 @@ import no.nav.mulighetsrommet.api.services.NavAnsattService
 import no.nav.mulighetsrommet.database.utils.DatabaseOperationError
 import no.nav.mulighetsrommet.slack.SlackNotifier
 import org.slf4j.LoggerFactory
-import java.time.Duration
 import java.time.LocalDate
+import java.time.Period
 import kotlin.jvm.optionals.getOrNull
 
 class SynchronizeNavAnsatte(
@@ -30,7 +30,7 @@ class SynchronizeNavAnsatte(
         val disabled: Boolean = false,
         val cronPattern: String? = null,
         val groups: List<AdGruppeNavAnsattRolleMapping> = emptyList(),
-        val deleteNavAnsattGracePeriod: Duration = Duration.ofDays(30),
+        val deleteNavAnsattGracePeriod: Period = Period.ofDays(30),
     ) {
         fun toSchedule(): Schedule {
             return if (disabled) {
@@ -45,11 +45,13 @@ class SynchronizeNavAnsatte(
         .recurring("synchronize-nav-ansatte", config.toSchedule())
         .onFailure { failure, _ ->
             val cause = failure.cause.getOrNull()?.message
+            val stackTrace = failure.cause.getOrNull()?.stackTrace
             slack.sendMessage(
                 """
                 Klarte ikke synkronisere NAV-ansatte fra AD-grupper med id=${config.groups}.
                 Konsekvensen er at databasen over NAV-ansatte i løsningen kan være utdatert.
                 Detaljer: $cause
+                Stacktrace: $stackTrace
                 """.trimIndent(),
             )
         }
