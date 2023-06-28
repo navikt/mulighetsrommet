@@ -326,7 +326,7 @@ export const OpprettTiltaksgjennomforingContainer = (
         orgnr: arrangorOrgnr,
       });
 
-    const lokasjonsStreng = `${postnummer} ${poststed}`;
+    const lokasjonsStreng = "" + (postnummer || "") + (poststed ? ` ${poststed}` : "");
 
     if (lokasjonsStreng !== watch("lokasjonArrangor")) {
       setValue("lokasjonArrangor", lokasjonsStreng);
@@ -381,7 +381,7 @@ export const OpprettTiltaksgjennomforingContainer = (
           })) || [],
       estimertVentetid: data.estimertVentetid,
       lokasjonArrangor: data.lokasjonArrangor,
-      virksomhetKontaktpersonId: data.virksomhetKontaktpersonId,
+      virksomhetKontaktpersonId: data.virksomhetKontaktpersonId ?? undefined,
     };
 
     try {

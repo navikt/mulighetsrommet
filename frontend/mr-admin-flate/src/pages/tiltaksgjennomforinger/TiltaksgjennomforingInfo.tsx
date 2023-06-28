@@ -2,7 +2,7 @@ import {
   ExclamationmarkTriangleIcon,
   ExternalLinkIcon,
 } from "@navikt/aksel-icons";
-import { Alert, Button, Heading, Link, TextField } from "@navikt/ds-react";
+import { Alert, Button, Heading, Link } from "@navikt/ds-react";
 import classNames from "classnames";
 import { useState } from "react";
 import { useAvtale } from "../../api/avtaler/useAvtale";
