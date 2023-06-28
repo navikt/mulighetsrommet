@@ -52,7 +52,7 @@ class ArenaAdapterService(
     }
 
     suspend fun upsertTiltaksgjennomforing(tiltaksgjennomforing: TiltaksgjennomforingDbo): QueryResult<TiltaksgjennomforingAdminDto> {
-        virksomhetService.hentEnhet(tiltaksgjennomforing.virksomhetsnummer)
+        virksomhetService.hentEnhet(tiltaksgjennomforing.arrangorOrganisasjonsnummer)
         return tiltaksgjennomforinger.upsert(tiltaksgjennomforing)
             .flatMap { tiltaksgjennomforinger.get(tiltaksgjennomforing.id) }
             .map { it!! }

@@ -74,7 +74,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 ),
                 navn = gjennomforing1.navn,
                 tiltaksnummer = gjennomforing1.tiltaksnummer,
-                virksomhetsnummer = gjennomforing1.virksomhetsnummer,
+                arrangorOrganisasjonsnummer = gjennomforing1.arrangorOrganisasjonsnummer,
                 startDato = gjennomforing1.startDato,
                 sluttDato = gjennomforing1.sluttDato,
                 arenaAnsvarligEnhet = gjennomforing1.arenaAnsvarligEnhet,
@@ -330,16 +330,16 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             )
             virksomhetRepository.upsertKontaktperson(thomas)
 
-            val gjennomforing = gjennomforing1.copy(virksomhetKontaktpersonId = thomas.id)
+            val gjennomforing = gjennomforing1.copy(arrangorKontaktpersonId = thomas.id)
 
             tiltaksgjennomforinger.upsert(gjennomforing).shouldBeRight()
             tiltaksgjennomforinger.get(gjennomforing.id).shouldBeRight().should {
-                it!!.virksomhetKontaktperson shouldBe thomas
+                it!!.arrangorKontaktperson shouldBe thomas
             }
 
-            tiltaksgjennomforinger.upsert(gjennomforing.copy(virksomhetKontaktpersonId = null)).shouldBeRight()
+            tiltaksgjennomforinger.upsert(gjennomforing.copy(arrangorKontaktpersonId = null)).shouldBeRight()
             tiltaksgjennomforinger.get(gjennomforing.id).shouldBeRight().should {
-                it!!.virksomhetKontaktperson shouldBe null
+                it!!.arrangorKontaktperson shouldBe null
             }
         }
     }
@@ -367,7 +367,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
 
             tiltaksgjennomforinger.upsert(gjennomforing1).shouldBeRight()
-            tiltaksgjennomforinger.upsert(gjennomforing2.copy(virksomhetsnummer = "999999999")).shouldBeRight()
+            tiltaksgjennomforinger.upsert(gjennomforing2.copy(arrangorOrganisasjonsnummer = "999999999")).shouldBeRight()
 
             tiltaksgjennomforinger.getAll(
                 filter = AdminTiltaksgjennomforingFilter(arrangorOrgnr = "222222222"),
@@ -716,7 +716,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                         navn = "Tiltak - $it",
                         tiltakstypeId = tiltakstype1.id,
                         tiltaksnummer = "$it",
-                        virksomhetsnummer = "123456789",
+                        arrangorOrganisasjonsnummer = "123456789",
                         arenaAnsvarligEnhet = "2990",
                         avslutningsstatus = Avslutningsstatus.AVSLUTTET,
                         startDato = LocalDate.of(2022, 1, 1),

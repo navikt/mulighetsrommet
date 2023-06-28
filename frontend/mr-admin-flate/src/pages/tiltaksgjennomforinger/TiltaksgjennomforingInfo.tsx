@@ -165,20 +165,20 @@ export function TiltaksgjennomforingInfo() {
               )
             }
           />
-          {tiltaksgjennomforing.virksomhetsnavn ? (
+          {tiltaksgjennomforing.arrangorNavn ? (
             <Metadata
               header="Arrangør"
-              verdi={tiltaksgjennomforing.virksomhetsnavn}
+              verdi={tiltaksgjennomforing.arrangorNavn}
             />
           ) : null}
-          {tiltaksgjennomforing.virksomhetKontaktperson &&
+          {tiltaksgjennomforing.arrangorKontaktperson &&
             <Metadata
               header="Kontaktperson"
               verdi={
                 <div className={styles.leverandor_kontaktinfo}>
-                  <label>{tiltaksgjennomforing.virksomhetKontaktperson?.navn}</label>
-                  <label>{tiltaksgjennomforing.virksomhetKontaktperson?.telefon}</label>
-                  <a href={`mailto:${tiltaksgjennomforing.virksomhetKontaktperson?.epost}`}>{tiltaksgjennomforing.virksomhetKontaktperson?.epost}</a>
+                  <label>{tiltaksgjennomforing.arrangorKontaktperson?.navn}</label>
+                  <label>{tiltaksgjennomforing.arrangorKontaktperson?.telefon}</label>
+                  <a href={`mailto:${tiltaksgjennomforing.arrangorKontaktperson?.epost}`}>{tiltaksgjennomforing.arrangorKontaktperson?.epost}</a>
                 </div>
               }
             />

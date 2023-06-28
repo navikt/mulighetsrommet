@@ -15,9 +15,9 @@ data class TiltaksgjennomforingAdminDto(
     val tiltakstype: Tiltakstype,
     val navn: String,
     val tiltaksnummer: String?,
-    val virksomhetsnummer: String,
-    val virksomhetsnavn: String? = null,
-    val virksomhetKontaktperson: VirksomhetKontaktperson? = null,
+    val arrangorOrganisasjonsnummer: String,
+    val arrangorNavn: String? = null,
+    val arrangorKontaktperson: VirksomhetKontaktperson? = null,
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)

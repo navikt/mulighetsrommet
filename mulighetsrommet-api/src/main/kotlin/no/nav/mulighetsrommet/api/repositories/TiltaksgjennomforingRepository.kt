@@ -32,8 +32,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 navn,
                 tiltakstype_id,
                 tiltaksnummer,
-                virksomhetsnummer,
-                virksomhet_kontaktperson_id,
+                arrangor_organisasjonsnummer,
+                arrangor_kontaktperson_id,
                 arena_ansvarlig_enhet,
                 start_dato,
                 slutt_dato,
@@ -53,8 +53,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 :navn,
                 :tiltakstype_id::uuid,
                 :tiltaksnummer,
-                :virksomhetsnummer,
-                :virksomhet_kontaktperson_id,
+                :arrangor_organisasjonsnummer,
+                :arrangor_kontaktperson_id,
                 :arena_ansvarlig_enhet,
                 :start_dato,
                 :slutt_dato,
@@ -70,24 +70,24 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 :lokasjon_arrangor
             )
             on conflict (id)
-                do update set navn                        = excluded.navn,
-                              tiltakstype_id              = excluded.tiltakstype_id,
-                              tiltaksnummer               = excluded.tiltaksnummer,
-                              virksomhetsnummer           = excluded.virksomhetsnummer,
-                              virksomhet_kontaktperson_id = excluded.virksomhet_kontaktperson_id,
-                              arena_ansvarlig_enhet       = excluded.arena_ansvarlig_enhet,
-                              start_dato                  = excluded.start_dato,
-                              slutt_dato                  = excluded.slutt_dato,
-                              avslutningsstatus           = excluded.avslutningsstatus,
-                              tilgjengelighet             = excluded.tilgjengelighet,
-                              estimert_ventetid           = excluded.estimert_ventetid,
-                              antall_plasser              = excluded.antall_plasser,
-                              avtale_id                   = excluded.avtale_id,
-                              oppstart                    = excluded.oppstart,
-                              opphav                      = excluded.opphav,
-                              stengt_fra                  = excluded.stengt_fra,
-                              stengt_til                  = excluded.stengt_til,
-                              lokasjon_arrangor           = excluded.lokasjon_arrangor
+                do update set navn                         = excluded.navn,
+                              tiltakstype_id               = excluded.tiltakstype_id,
+                              tiltaksnummer                = excluded.tiltaksnummer,
+                              arrangor_organisasjonsnummer = excluded.arrangor_organisasjonsnummer,
+                              arrangor_kontaktperson_id    = excluded.arrangor_kontaktperson_id,
+                              arena_ansvarlig_enhet        = excluded.arena_ansvarlig_enhet,
+                              start_dato                   = excluded.start_dato,
+                              slutt_dato                   = excluded.slutt_dato,
+                              avslutningsstatus            = excluded.avslutningsstatus,
+                              tilgjengelighet              = excluded.tilgjengelighet,
+                              estimert_ventetid            = excluded.estimert_ventetid,
+                              antall_plasser               = excluded.antall_plasser,
+                              avtale_id                    = excluded.avtale_id,
+                              oppstart                     = excluded.oppstart,
+                              opphav                       = excluded.opphav,
+                              stengt_fra                   = excluded.stengt_fra,
+                              stengt_til                   = excluded.stengt_til,
+                              lokasjon_arrangor            = excluded.lokasjon_arrangor
             returning *
         """.trimIndent()
 
@@ -312,7 +312,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             "today" to filter.dagensDato,
             "fylkesenhet" to filter.fylkesenhet,
             "avtaleId" to filter.avtaleId,
-            "virksomhetsnummer" to filter.arrangorOrgnr,
+            "arrangor_organisasjonsnummer" to filter.arrangorOrgnr,
         )
 
         val where = DatabaseUtils.andWhereParameterNotNull(
@@ -323,7 +323,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             filter.sluttDatoCutoff to "(slutt_dato >= :cutoffdato or slutt_dato is null)",
             filter.fylkesenhet to "arena_ansvarlig_enhet in (select enhetsnummer from nav_enhet where overordnet_enhet = :fylkesenhet)",
             filter.avtaleId to "avtale_id = :avtaleId",
-            filter.arrangorOrgnr to "virksomhetsnummer = :virksomhetsnummer",
+            filter.arrangorOrgnr to "arrangor_organisasjonsnummer = :arrangor_organisasjonsnummer",
         )
 
         val order = when (filter.sortering) {
@@ -331,8 +331,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             "navn-descending" -> "navn desc"
             "tiltaksnummer-ascending" -> "tiltaksnummer asc"
             "tiltaksnummer-descending" -> "tiltaksnummer desc"
-            "arrangor-ascending" -> "virksomhetsnavn asc"
-            "arrangor-descending" -> "virksomhetsnavn desc"
+            "arrangor-ascending" -> "arrangor_navn asc"
+            "arrangor-descending" -> "arrangor_navn desc"
             "tiltakstype-ascending" -> "tiltakstype_navn asc"
             "tiltakstype-descending" -> "tiltakstype_navn desc"
             "startdato-ascending" -> "start_dato asc"
@@ -378,7 +378,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                    tg.navn,
                    tg.tiltakstype_id,
                    tg.tiltaksnummer,
-                   tg.virksomhetsnummer,
+                   tg.arrangor_organisasjonsnummer,
                    tg.start_dato,
                    tg.slutt_dato,
                    tg.arena_ansvarlig_enhet,
@@ -467,8 +467,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         "navn" to navn,
         "tiltakstype_id" to tiltakstypeId,
         "tiltaksnummer" to tiltaksnummer,
-        "virksomhetsnummer" to virksomhetsnummer,
-        "virksomhet_kontaktperson_id" to virksomhetKontaktpersonId,
+        "arrangor_organisasjonsnummer" to arrangorOrganisasjonsnummer,
+        "arrangor_kontaktperson_id" to arrangorKontaktpersonId,
         "start_dato" to startDato,
         "arena_ansvarlig_enhet" to arenaAnsvarligEnhet,
         "slutt_dato" to sluttDato,
@@ -489,7 +489,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         navn = string("navn"),
         tiltakstypeId = uuid("tiltakstype_id"),
         tiltaksnummer = stringOrNull("tiltaksnummer"),
-        virksomhetsnummer = string("virksomhetsnummer"),
+        arrangorOrganisasjonsnummer = string("arrangor_organisasjonsnummer"),
         startDato = localDate("start_dato"),
         sluttDato = localDateOrNull("slutt_dato"),
         arenaAnsvarligEnhet = stringOrNull("arena_ansvarlig_enhet"),
@@ -521,15 +521,15 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             ),
             navn = string("navn"),
             tiltaksnummer = stringOrNull("tiltaksnummer"),
-            virksomhetsnummer = string("virksomhetsnummer"),
-            virksomhetsnavn = stringOrNull("virksomhetsnavn"),
-            virksomhetKontaktperson = uuidOrNull("virksomhet_kontaktperson_id")?.let {
+            arrangorOrganisasjonsnummer = string("arrangor_organisasjonsnummer"),
+            arrangorNavn = stringOrNull("arrangor_navn"),
+            arrangorKontaktperson = uuidOrNull("arrangor_kontaktperson_id")?.let {
                 VirksomhetKontaktperson(
                     id = it,
-                    organisasjonsnummer = string("virksomhet_kontaktperson_organisasjonsnummer"),
-                    navn = string("virksomhet_kontaktperson_navn"),
-                    telefon = string("virksomhet_kontaktperson_telefon"),
-                    epost = string("virksomhet_kontaktperson_epost"),
+                    organisasjonsnummer = string("arrangor_kontaktperson_organisasjonsnummer"),
+                    navn = string("arrangor_kontaktperson_navn"),
+                    telefon = string("arrangor_kontaktperson_telefon"),
+                    epost = string("arrangor_kontaktperson_epost"),
                 )
             },
             startDato = startDato,

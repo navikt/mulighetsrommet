@@ -9,6 +9,7 @@ import { usePutVirksomhetKontaktperson } from "../../api/virksomhet/usePutVirkso
 import { SokeSelect } from "../skjema/SokeSelect";
 import { useFormContext } from "react-hook-form";
 import { Laster } from "../laster/Laster";
+import { validEmail } from "../../utils/Utils";
 
 interface State {
   leggTil: boolean
@@ -68,7 +69,7 @@ export const VirksomhetKontaktpersoner = (
     setState({
       ...state,
       navnError: !state.navn ? "Navn må være satt" : undefined,
-      epostError: !state.epost ? "Epost må være satt" : undefined,
+      epostError: !validEmail(state.epost) ? "Epost må være en gyldig epost adresse" : undefined,
       telefonError: !state.telefon ? "Telefon må være satt" : undefined,
     });
     if (!state.navn || !state.epost || !state.telefon) {

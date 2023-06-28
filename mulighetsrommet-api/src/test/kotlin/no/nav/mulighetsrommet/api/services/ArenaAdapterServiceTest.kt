@@ -60,7 +60,7 @@ class ArenaAdapterServiceTest : FunSpec({
         navn = "Arbeidstrening",
         tiltakstypeId = tiltakstype.id,
         tiltaksnummer = "12345",
-        virksomhetsnummer = "123456789",
+        arrangorOrganisasjonsnummer = "123456789",
         startDato = LocalDate.of(2022, 11, 11),
         sluttDato = LocalDate.of(2023, 11, 11),
         arenaAnsvarligEnhet = "2990",
@@ -114,7 +114,7 @@ class ArenaAdapterServiceTest : FunSpec({
             ),
             navn = navn,
             tiltaksnummer = tiltaksnummer,
-            virksomhetsnummer = virksomhetsnummer,
+            arrangorOrganisasjonsnummer = arrangorOrganisasjonsnummer,
             startDato = startDato,
             sluttDato = sluttDato,
             arenaAnsvarligEnhet = arenaAnsvarligEnhet,
@@ -251,7 +251,7 @@ class ArenaAdapterServiceTest : FunSpec({
                 .value("navn").isEqualTo(tiltaksgjennomforing.navn)
                 .value("tiltakstype_id").isEqualTo(tiltakstype.id)
                 .value("tiltaksnummer").isEqualTo(tiltaksgjennomforing.tiltaksnummer)
-                .value("virksomhetsnummer").isEqualTo(tiltaksgjennomforing.virksomhetsnummer)
+                .value("virksomhetsnummer").isEqualTo(tiltaksgjennomforing.arrangorOrganisasjonsnummer)
                 .value("start_dato").isEqualTo(tiltaksgjennomforing.startDato)
                 .value("slutt_dato").isEqualTo(tiltaksgjennomforing.sluttDato)
 

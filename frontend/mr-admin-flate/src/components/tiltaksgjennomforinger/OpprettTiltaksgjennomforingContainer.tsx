@@ -92,7 +92,7 @@ const Schema = z
     lokasjonArrangor: z.string().refine((data) => data.length > 0, {
       message: "Du må skrive inn lokasjon for hvor gjennomføringen finner sted",
     }),
-    virksomhetKontaktpersonId: z.string().nullable().optional(),
+    arrangorKontaktpersonId: z.string().nullable().optional(),
     ansvarlig: z.string({ required_error: "Du må velge en ansvarlig" }),
     midlertidigStengt: z
       .object({
@@ -249,7 +249,7 @@ export const OpprettTiltaksgjennomforingContainer = (
           : undefined,
       },
       tiltaksArrangorUnderenhetOrganisasjonsnummer:
-        tiltaksgjennomforing?.virksomhetsnummer || "",
+        tiltaksgjennomforing?.arrangorOrganisasjonsnummer || "",
       midlertidigStengt: {
         erMidlertidigStengt: Boolean(tiltaksgjennomforing?.stengtFra),
         stengtFra: tiltaksgjennomforing?.stengtFra
@@ -267,7 +267,7 @@ export const OpprettTiltaksgjennomforingContainer = (
       ),
       estimertVentetid: tiltaksgjennomforing?.estimertVentetid,
       lokasjonArrangor: tiltaksgjennomforing?.lokasjonArrangor,
-      virksomhetKontaktpersonId: tiltaksgjennomforing?.virksomhetKontaktperson?.id,
+      arrangorKontaktpersonId: tiltaksgjennomforing?.arrangorKontaktperson?.id,
     },
   });
   const {
@@ -326,7 +326,7 @@ export const OpprettTiltaksgjennomforingContainer = (
         orgnr: arrangorOrgnr,
       });
 
-    const lokasjonsStreng = "" + (postnummer || "") + (poststed ? ` ${poststed}` : "");
+    const lokasjonsStreng = `${postnummer} ${poststed}`.trim();
 
     if (lokasjonsStreng !== watch("lokasjonArrangor")) {
       setValue("lokasjonArrangor", lokasjonsStreng);
@@ -357,9 +357,9 @@ export const OpprettTiltaksgjennomforingContainer = (
       startDato: formaterDatoSomYYYYMMDD(data.startOgSluttDato.startDato),
       avtaleId: avtale?.id || "",
       ansvarlig: data.ansvarlig,
-      virksomhetsnummer:
+      arrangorOrganisasjonsnummer:
         data.tiltaksArrangorUnderenhetOrganisasjonsnummer ||
-        tiltaksgjennomforing?.virksomhetsnummer ||
+        tiltaksgjennomforing?.arrangorOrganisasjonsnummer ||
         "",
       tiltaksnummer: tiltaksgjennomforing?.tiltaksnummer,
       oppstart: data.oppstart,
@@ -381,7 +381,7 @@ export const OpprettTiltaksgjennomforingContainer = (
           })) || [],
       estimertVentetid: data.estimertVentetid,
       lokasjonArrangor: data.lokasjonArrangor,
-      virksomhetKontaktpersonId: data.virksomhetKontaktpersonId ?? undefined,
+      arrangorKontaktpersonId: data.arrangorKontaktpersonId ?? undefined,
     };
 
     try {

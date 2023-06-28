@@ -160,7 +160,7 @@ class TiltakgjennomforingEventProcessor(
             navn = navn,
             tiltakstypeId = tiltakstypeId,
             tiltaksnummer = "${sak.aar}#${sak.lopenummer}",
-            virksomhetsnummer = virksomhetsnummer,
+            arrangorOrganisasjonsnummer = virksomhetsnummer,
             startDato = fraDato.toLocalDate(),
             sluttDato = tilDato?.toLocalDate(),
             arenaAnsvarligEnhet = sak.enhet,

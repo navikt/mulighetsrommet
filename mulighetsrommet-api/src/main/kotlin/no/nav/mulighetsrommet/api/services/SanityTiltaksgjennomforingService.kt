@@ -46,7 +46,7 @@ class SanityTiltaksgjennomforingService(
         val sanityTiltaksgjennomforingId = UUID.randomUUID()
         val avtale = tiltaksgjennomforing.avtaleId?.let { avtaleRepository.get(it).getOrThrow() }
         val tiltakstype = tiltakstypeRepository.get(tiltaksgjennomforing.tiltakstype.id)
-        val enhet = virksomhetRepository.get(tiltaksgjennomforing.virksomhetsnummer).getOrNull()
+        val enhet = virksomhetRepository.get(tiltaksgjennomforing.arrangorOrganisasjonsnummer).getOrNull()
         val lokasjonForVirksomhetFraBrreg = "${enhet?.postnummer ?: ""} ${enhet?.poststed ?: ""}"
 
         val sanityTiltaksgjennomforing = SanityTiltaksgjennomforing(

@@ -15,9 +15,9 @@ data class TiltaksgjennomforingDbo(
     @Serializable(with = UUIDSerializer::class)
     val tiltakstypeId: UUID,
     val tiltaksnummer: String?,
-    val virksomhetsnummer: String,
+    val arrangorOrganisasjonsnummer: String,
     @Serializable(with = UUIDSerializer::class)
-    val virksomhetKontaktpersonId: UUID? = null,
+    val arrangorKontaktpersonId: UUID? = null,
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)

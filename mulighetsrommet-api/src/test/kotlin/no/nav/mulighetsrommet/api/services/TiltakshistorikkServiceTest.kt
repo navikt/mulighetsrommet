@@ -37,7 +37,7 @@ class TiltakshistorikkServiceTest : FunSpec({
         navn = "Arbeidstrening",
         tiltakstypeId = tiltakstype.id,
         tiltaksnummer = "12345",
-        virksomhetsnummer = "123456789",
+        arrangorOrganisasjonsnummer = "123456789",
         arenaAnsvarligEnhet = "2990",
         avslutningsstatus = Avslutningsstatus.AVSLUTTET,
         startDato = LocalDate.of(2022, 1, 1),

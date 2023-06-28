@@ -41,7 +41,7 @@ class TiltaksgjennomforingService(
             return Either.Left(BadRequest("Avtalens sluttdato har passert"))
         }
 
-        virksomhetService.hentEnhet(dbo.virksomhetsnummer)
+        virksomhetService.hentEnhet(dbo.arrangorOrganisasjonsnummer)
         return tiltaksgjennomforingRepository.upsert(dbo)
             .flatMap { tiltaksgjennomforingRepository.get(dbo.id) }
             .map { it!! }

@@ -239,7 +239,7 @@ class VirksomhetRepositoryTest : FunSpec({
                 navn = "Navn",
                 tiltakstypeId = tiltakstypeId,
                 tiltaksnummer = null,
-                virksomhetsnummer = "112254604",
+                arrangorOrganisasjonsnummer = "112254604",
                 startDato = LocalDate.now(),
                 arenaAnsvarligEnhet = null,
                 avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,

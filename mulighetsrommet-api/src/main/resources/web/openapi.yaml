@@ -1314,11 +1314,11 @@ components:
           type: string
         tiltaksnummer:
           type: string
-        virksomhetsnummer:
+        arrangorOrganisasjonsnummer:
           type: string
-        virksomhetsnavn:
+        arrangorNavn:
           type: string
-        virksomhetKontaktperson:
+        arrangorKontaktperson:
           $ref: "#/components/schemas/VirksomhetKontaktperson"
         arenaAnsvarligEnhet:
           type: string
@@ -1370,7 +1370,7 @@ components:
         - tiltakstype
         - navn
         - tiltaksnummer
-        - virksomhetsnummer
+        - arrangorOrganisasjonsnummer
         - navEnheter
         - opphav
         - midlertidigStengt
@@ -1398,9 +1398,9 @@ components:
           format: date
         antallPlasser:
           type: number
-        virksomhetsnummer:
+        arrangorOrganisasjonsnummer:
           type: string
-        virksomhetKontaktpersonId:
+        arrangorKontaktpersonId:
           type: string
           format: UUID
         tiltaksnummer:
@@ -1437,7 +1437,7 @@ components:
         - startDato
         - sluttDato
         - antallPlasser
-        - virksomhetsnummer
+        - arrangorOrganisasjonsnummer
         - ansvarlig
         - navEnheter
         - oppstart

@@ -365,7 +365,7 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                         id shouldBe mapping.entityId
                         tiltakstypeId shouldBe tiltakstype.id
                         tiltaksnummer shouldBe "2022#123"
-                        virksomhetsnummer shouldBe "123456"
+                        arrangorOrganisasjonsnummer shouldBe "123456"
                         startDato shouldBe LocalDate.of(2022, 11, 11)
                         sluttDato shouldBe LocalDate.of(2023, 11, 11)
                         avslutningsstatus shouldBe Avslutningsstatus.IKKE_AVSLUTTET
