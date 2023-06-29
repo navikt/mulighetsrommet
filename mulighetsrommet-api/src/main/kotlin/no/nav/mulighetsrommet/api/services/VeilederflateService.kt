@@ -179,13 +179,15 @@ class VeilederflateService(
                 val apiGjennomforing = gjennomforingerFraDb[sanityData._id]
                 val kontaktpersoner = apiGjennomforing?.let { hentKontaktpersoner(it, enhetsId) } ?: emptyList()
                 val oppstart = apiGjennomforing?.oppstart?.name?.lowercase() ?: sanityData.oppstart
-                val oppstartsdato = apiGjennomforing?.oppstartsdato ?: sanityData.oppstartsdato
+                val oppstartsdato = apiGjennomforing?.startDato ?: sanityData.oppstartsdato
+                val sluttdato = apiGjennomforing?.sluttDato ?: sanityData.sluttdato
                 sanityData.copy(
                     stengtFra = apiGjennomforing?.stengtFra,
                     stengtTil = apiGjennomforing?.stengtTil,
                     kontaktinfoTiltaksansvarlige = kontaktpersoner.ifEmpty { sanityData.kontaktinfoTiltaksansvarlige },
                     oppstart = oppstart,
                     oppstartsdato = oppstartsdato,
+                    sluttdato = sluttdato,
                     tilgjengelighetsstatus = apiGjennomforing?.tilgjengelighet?.name,
                     estimert_ventetid = apiGjennomforing?.estimertVentetid,
                     tiltakstype = sanityData.tiltakstype?.copy(arenakode = apiGjennomforing?.tiltakstype?.arenaKode),
