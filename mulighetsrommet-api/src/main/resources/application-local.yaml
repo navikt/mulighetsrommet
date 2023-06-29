@@ -77,6 +77,11 @@ app:
     url: http://0.0.0.0:8084
     scope: default
 
+  navAnsattService:
+    roller:
+      - adGruppeId: ee45478c-57a5-4ee6-b28d-b65f8c1733fe
+        rolle: BETABRUKER
+
   tasks:
     synchronizeNorgEnheter:
       disabled: true

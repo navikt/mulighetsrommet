@@ -1,19 +1,24 @@
 package no.nav.mulighetsrommet.api.services
 
+import arrow.core.Either
+import arrow.core.continuations.either
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
+import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle
 import no.nav.mulighetsrommet.api.domain.dto.NavAnsattDto
 import no.nav.mulighetsrommet.api.repositories.NavAnsattRepository
 import no.nav.mulighetsrommet.api.utils.NavAnsattFilter
+import no.nav.mulighetsrommet.database.utils.DatabaseOperationError
 import no.nav.mulighetsrommet.database.utils.getOrThrow
 import org.slf4j.LoggerFactory
+import java.time.LocalDate
 import java.util.*
 
 class NavAnsattService(
     private val microsoftGraphService: MicrosoftGraphService,
     private val ansatte: NavAnsattRepository,
-    private val roles: List<AdGruppeNavAnsattRolleMapping> = emptyList(),
+    private val roles: List<AdGruppeNavAnsattRolleMapping>,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -32,22 +37,6 @@ class NavAnsattService(
 
     fun getNavAnsatte(filter: NavAnsattFilter): List<NavAnsattDto> {
         return ansatte.getAll(roller = filter.roller).getOrThrow()
-    }
-
-    suspend fun getNavAnsatteWithRoles(roles: List<AdGruppeNavAnsattRolleMapping>): List<NavAnsattDto> {
-        return roles
-            .flatMap {
-                val members = microsoftGraphService.getNavAnsatteInGroup(it.adGruppeId)
-                members.map { ansatt ->
-                    NavAnsattDto.fromAzureAdNavAnsatt(ansatt, listOf(it.rolle))
-                }
-            }
-            .groupBy { it.navIdent }
-            .map { (_, value) ->
-                value.reduce { a1, a2 ->
-                    a1.copy(roller = a1.roller + a2.roller)
-                }
-            }
     }
 
     suspend fun getNavAnsattFromAzure(accessToken: String, azureId: UUID): NavAnsattDto = coroutineScope {
@@ -78,6 +67,31 @@ class NavAnsattService(
                     a1.copy(roller = a1.roller + a2.roller)
                 }
             }
+    }
+
+    suspend fun synchronizeNavAnsatte(
+        today: LocalDate,
+        deletionDate: LocalDate,
+    ): Either<DatabaseOperationError, Unit> = either {
+        val ansatteToUpsert = getNavAnsatteFromAzure()
+        ansatteToUpsert.forEach { ansatt ->
+            ansatte.upsert(NavAnsattDbo.fromNavAnsattDto(ansatt)).bind()
+        }
+
+        val ansatteToScheduleForDeletion = ansatte.getAll()
+            .map { it.filter { ansatt -> ansatt !in ansatteToUpsert && ansatt.skalSlettesDato == null } }
+            .bind()
+        ansatteToScheduleForDeletion.forEach { ansatt ->
+            logger.info("Oppdaterer NavAnsatt med dato for sletting azureId=${ansatt.azureId} dato=$deletionDate")
+            val ansattToDelete = ansatt.copy(roller = emptyList(), skalSlettesDato = deletionDate)
+            ansatte.upsert(NavAnsattDbo.fromNavAnsattDto(ansattToDelete)).bind()
+        }
+
+        val ansatteToDelete = ansatte.getAll(skalSlettesDatoLte = today).bind()
+        ansatteToDelete.forEach { ansatt ->
+            logger.info("Sletter NavAnsatt fordi vi har passert dato for sletting azureId=${ansatt.azureId} dato=${ansatt.skalSlettesDato}")
+            ansatte.deleteByAzureId(ansatt.azureId).bind()
+        }
     }
 }
 
