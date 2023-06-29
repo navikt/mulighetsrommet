@@ -2,8 +2,6 @@ package no.nav.mulighetsrommet.api.services
 
 import arrow.core.Either
 import arrow.core.continuations.either
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle
 import no.nav.mulighetsrommet.api.domain.dto.NavAnsattDto
@@ -29,7 +27,7 @@ class NavAnsattService(
                     it
                 } else {
                     logger.info("Fant ikke NavAnsatt for azureId=$azureId i databasen, forsøker Azure AD i stedet")
-                    getNavAnsattFromAzure("", azureId)
+                    getNavAnsattFromAzure(azureId)
                 }
             }
             .getOrThrow()
@@ -39,18 +37,20 @@ class NavAnsattService(
         return ansatte.getAll(roller = filter.roller).getOrThrow()
     }
 
-    suspend fun getNavAnsattFromAzure(accessToken: String, azureId: UUID): NavAnsattDto = coroutineScope {
-        val ansatt = async { microsoftGraphService.getNavAnsatt(accessToken, azureId) }
-        val groups = async { microsoftGraphService.getNavAnsattAdGrupper(accessToken, azureId) }
-
+    suspend fun getNavAnsattFromAzure(azureId: UUID): NavAnsattDto {
         val rolesDirectory = roles.associateBy { it.adGruppeId }
 
-        val roller = groups
-            .await()
+        val roller = microsoftGraphService.getNavAnsattAdGrupper("", azureId)
             .filter { rolesDirectory.containsKey(it.id) }
             .map { rolesDirectory.getValue(it.id).rolle }
 
-        NavAnsattDto.fromAzureAdNavAnsatt(ansatt.await(), roller)
+        if (roller.isEmpty()) {
+            logger.info("Ansatt med azureId=$azureId har ingen av rollene $roles")
+            throw IllegalStateException("Ansatt med azureId=$azureId har ingen av de påkrevde rollene")
+        }
+
+        val ansatt = microsoftGraphService.getNavAnsatt("", azureId)
+        return NavAnsattDto.fromAzureAdNavAnsatt(ansatt, roller)
     }
 
     suspend fun getNavAnsatteFromAzure(): List<NavAnsattDto> {
