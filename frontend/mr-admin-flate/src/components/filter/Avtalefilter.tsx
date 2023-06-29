@@ -28,6 +28,7 @@ import styles from "./Filter.module.scss";
 import { RESET } from "jotai/vanilla/utils";
 import { faro } from "@grafana/faro-web-sdk";
 import { useNavigate } from "react-router-dom";
+import { FilterTag } from "./FilterTag";
 
 type Filters = "tiltakstype";
 
@@ -44,14 +45,14 @@ export function Avtalefilter(props: Props) {
       ...filter,
     },
   });
-  const { register } = form;
+  const { register, setValue } = form;
 
   const { data: enheter } = useAlleEnheter();
   const { data: tiltakstyper } = useTiltakstyper(
-    { status: Tiltakstypestatus.AKTIV },
+    { status: Tiltakstypestatus.AKTIV, kategori: "" },
     1
   );
-  const { data } = useAvtaler();
+  const { data: avtaler } = useAvtaler();
   const { data: leverandorer } = useVirksomheter(VirksomhetTil.AVTALE);
   const [, setPage] = useAtom(avtalePaginationAtom);
   const searchRef = useRef<HTMLDivElement | null>(null);
@@ -66,7 +67,7 @@ export function Avtalefilter(props: Props) {
     if (filter.sok !== "") {
       searchRef?.current?.focus();
     }
-  }, [data]);
+  }, [avtaler]);
 
   useEffect(() => {
     // Reset filter når vi unmounter
@@ -230,7 +231,44 @@ export function Avtalefilter(props: Props) {
               </>
             )}
           </div>
-          <div className={styles.tabs}>TABS</div>
+          <div className={styles.tags_container}>
+            {filter.status &&
+              <FilterTag
+                label={filter.status}
+                onClick={() => {
+                  setFilter({ ...filter, status: "" });
+                  setValue('status', "");
+                }}
+              />
+            }
+            {filter.navRegion && 
+              <FilterTag
+                label={enheter?.find(e => e.enhetsnummer === filter.navRegion)?.navn}
+                onClick={() => {
+                  setFilter({ ...filter, navRegion: defaultAvtaleFilter.navRegion });
+                  setValue('navRegion', defaultAvtaleFilter.navRegion);
+                }}
+              />
+            }
+            {filter.tiltakstype &&
+              <FilterTag
+                label={tiltakstyper?.data?.find(t => t.id === filter.tiltakstype)?.navn}
+                onClick={() => {
+                  setFilter({ ...filter, tiltakstype: defaultAvtaleFilter.tiltakstype });
+                  setValue('tiltakstype', defaultAvtaleFilter.tiltakstype);
+                }}
+              />
+            }
+            {filter.leverandor_orgnr &&
+              <FilterTag
+                label={leverandorer?.find(l => l.organisasjonsnummer === filter.leverandor_orgnr)?.navn}
+                onClick={() => {
+                  setFilter({ ...filter, leverandor_orgnr: defaultAvtaleFilter.leverandor_orgnr });
+                  setValue('leverandor_orgnr', defaultAvtaleFilter.leverandor_orgnr);
+                }}
+              />
+            }
+          </div>
         </div>
       </form>
     </FormProvider>

@@ -12,6 +12,7 @@ import {
 import { resetPaginering, valueOrDefault } from "../../utils/Utils";
 import { SokeSelect } from "../skjema/SokeSelect";
 import styles from "./Filter.module.scss";
+import { FilterTag } from "./FilterTag";
 
 export function Tiltakstypefilter() {
   const [filter, setFilter] = useAtom(tiltakstypeFilter);
@@ -22,7 +23,7 @@ export function Tiltakstypefilter() {
       ...filter,
     },
   });
-  const { register } = form;
+  const { register, setValue } = form;
 
   useEffect(() => {
     // Reset filter når vi unmounter
@@ -34,6 +35,7 @@ export function Tiltakstypefilter() {
       { label: "Aktiv", value: "Aktiv" },
       { label: "Planlagt", value: "Planlagt" },
       { label: "Avsluttet", value: "Avsluttet" },
+      { label: "Alle statuser", value: "" },
     ];
   };
 
@@ -41,6 +43,7 @@ export function Tiltakstypefilter() {
     return [
       { label: "Gruppetiltak", value: "GRUPPE" },
       { label: "Individuelle tiltak", value: "INDIVIDUELL" },
+      { label: "Alle kategorier", value: "" },
     ];
   };
 
@@ -99,7 +102,26 @@ export function Tiltakstypefilter() {
               className={styles.form_field}
             />
           </div>
-          <div className={styles.tabs}>TABS</div>
+          <div className={styles.tags_container}>
+            {filter.status &&
+              <FilterTag
+                label={filter.status}
+                onClick={() => {
+                  setFilter({ ...filter, status: "" });
+                  setValue('status', "");
+                }}
+              />
+            }
+            {filter.kategori && 
+              <FilterTag
+                label={filter.kategori === "GRUPPE" ? "Gruppetiltak" : "Individuelle tiltak"}
+                onClick={() => {
+                  setFilter({ ...filter, kategori: "" });
+                  setValue('kategori', "");
+                }}
+              />
+            }
+          </div>
         </div>
       </form>
     </FormProvider>

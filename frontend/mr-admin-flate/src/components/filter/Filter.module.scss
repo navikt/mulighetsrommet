@@ -69,7 +69,7 @@
 }
 
 .tiltaksgjennomforingform_med_knapperad {
-  @media (width <= 1280px) {
+  @media (width < 1280px) {
     .filter_container {
       grid-template-columns: 5fr 1fr;
       .knapperad {
@@ -82,5 +82,38 @@
 .avtaleform {
   .knapperad {
     border-left: 1px solid var(--border-default, rgba(0, 0, 0, 0.44));
+  }
+}
+
+.tags_container {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 0.5rem;
+}
+
+.tag {
+  background-color: var(--a-surface-selected);
+  border: none;
+  margin-right: 0.5rem;
+  border-radius: 0.25rem;
+}
+
+.tag_inner {
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
+}
+
+.tag_button {
+  background: none;
+  margin-left: 0.5rem;
+  border: none;
+  color: black;
+  font-size: 13px;
+
+  &:hover {
+    color: var(--a-text-action);
+    background: none;
+    border: none;
+    cursor: pointer;
   }
 }
