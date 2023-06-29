@@ -55,6 +55,7 @@ class NavAnsattRepository(private val db: Database) {
             select *
             from nav_ansatt
             $where
+            order by fornavn, etternavn asc
         """.trimIndent()
 
         queryOf(query, params)
