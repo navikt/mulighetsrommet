@@ -66,7 +66,7 @@ fun Route.arenaAdapterRoutes() {
         }
 
         put("tiltaksgjennomforing") {
-            val tiltaksgjennomforing = call.receive<TiltaksgjennomforingDbo>()
+            val tiltaksgjennomforing = call.receive<ArenaTiltaksgjennomforingDbo>()
 
             arenaAdapterService.upsertTiltaksgjennomforing(tiltaksgjennomforing)
                 .map { call.respond(it) }

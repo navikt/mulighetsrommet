@@ -11,6 +11,7 @@ import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
+import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dto.*
@@ -189,6 +190,62 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 ).asExecute,
             )
         }
+    }
+
+    fun upsertArenaTiltaksgjennomforing(tiltaksgjennomforing: ArenaTiltaksgjennomforingDbo): QueryResult<Unit> = query {
+        logger.info("Lagrer tiltaksgjennomføring fra Arena id=${tiltaksgjennomforing.id}")
+        @Language("PostgreSQL")
+        val query = """
+            insert into tiltaksgjennomforing (
+                id,
+                navn,
+                tiltakstype_id,
+                tiltaksnummer,
+                arrangor_organisasjonsnummer,
+                arena_ansvarlig_enhet,
+                start_dato,
+                slutt_dato,
+                avslutningsstatus,
+                tilgjengelighet,
+                antall_plasser,
+                avtale_id,
+                oppstart,
+                opphav
+            )
+            values (
+                :id::uuid,
+                :navn,
+                :tiltakstype_id::uuid,
+                :tiltaksnummer,
+                :arrangor_organisasjonsnummer,
+                :arena_ansvarlig_enhet,
+                :start_dato,
+                :slutt_dato,
+                :avslutningsstatus::avslutningsstatus,
+                :tilgjengelighet::tilgjengelighetsstatus,
+                :antall_plasser,
+                :avtale_id,
+                :oppstart::tiltaksgjennomforing_oppstartstype,
+                :opphav::opphav
+            )
+            on conflict (id)
+                do update set navn                         = excluded.navn,
+                              tiltakstype_id               = excluded.tiltakstype_id,
+                              tiltaksnummer                = excluded.tiltaksnummer,
+                              arrangor_organisasjonsnummer = excluded.arrangor_organisasjonsnummer,
+                              arena_ansvarlig_enhet        = excluded.arena_ansvarlig_enhet,
+                              start_dato                   = excluded.start_dato,
+                              slutt_dato                   = excluded.slutt_dato,
+                              avslutningsstatus            = excluded.avslutningsstatus,
+                              tilgjengelighet              = excluded.tilgjengelighet,
+                              antall_plasser               = excluded.antall_plasser,
+                              avtale_id                    = excluded.avtale_id,
+                              oppstart                     = excluded.oppstart,
+                              opphav                       = excluded.opphav
+            returning *
+        """.trimIndent()
+
+        queryOf(query, tiltaksgjennomforing.toSqlParameters()).asExecute.let { db.run(it) }
     }
 
     fun updateEnheter(tiltaksnummer: String, navEnheter: List<String>): QueryResult<Int> = query {
@@ -482,6 +539,23 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         "stengt_fra" to stengtFra,
         "stengt_til" to stengtTil,
         "lokasjon_arrangor" to lokasjonArrangor,
+    )
+
+    private fun ArenaTiltaksgjennomforingDbo.toSqlParameters() = mapOf(
+        "id" to id,
+        "navn" to navn,
+        "tiltakstype_id" to tiltakstypeId,
+        "tiltaksnummer" to tiltaksnummer,
+        "arrangor_organisasjonsnummer" to arrangorOrganisasjonsnummer,
+        "start_dato" to startDato,
+        "arena_ansvarlig_enhet" to arenaAnsvarligEnhet,
+        "slutt_dato" to sluttDato,
+        "avslutningsstatus" to avslutningsstatus.name,
+        "tilgjengelighet" to tilgjengelighet.name,
+        "antall_plasser" to antallPlasser,
+        "avtale_id" to avtaleId,
+        "oppstart" to oppstart.name,
+        "opphav" to opphav.name,
     )
 
     private fun Row.toTiltaksgjennomforingDbo() = TiltaksgjennomforingDbo(

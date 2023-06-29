@@ -55,7 +55,7 @@ class ArenaAdapterServiceTest : FunSpec({
         navEnheter = emptyList(),
     )
 
-    val tiltaksgjennomforing = TiltaksgjennomforingDbo(
+    val tiltaksgjennomforing = ArenaTiltaksgjennomforingDbo(
         id = UUID.randomUUID(),
         navn = "Arbeidstrening",
         tiltakstypeId = tiltakstype.id,
@@ -67,8 +67,6 @@ class ArenaAdapterServiceTest : FunSpec({
         avslutningsstatus = Avslutningsstatus.AVSLUTTET,
         tilgjengelighet = Tilgjengelighetsstatus.LEDIG,
         antallPlasser = null,
-        ansvarlige = emptyList(),
-        navEnheter = emptyList(),
         oppstart = TiltaksgjennomforingDbo.Oppstartstype.FELLES,
         opphav = ArenaMigrering.Opphav.ARENA,
     )

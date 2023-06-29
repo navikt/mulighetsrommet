@@ -51,9 +51,9 @@ class ArenaAdapterService(
         return avtaler.delete(id)
     }
 
-    suspend fun upsertTiltaksgjennomforing(tiltaksgjennomforing: TiltaksgjennomforingDbo): QueryResult<TiltaksgjennomforingAdminDto> {
+    suspend fun upsertTiltaksgjennomforing(tiltaksgjennomforing: ArenaTiltaksgjennomforingDbo): QueryResult<TiltaksgjennomforingAdminDto> {
         virksomhetService.hentEnhet(tiltaksgjennomforing.arrangorOrganisasjonsnummer)
-        return tiltaksgjennomforinger.upsert(tiltaksgjennomforing)
+        return tiltaksgjennomforinger.upsertArenaTiltaksgjennomforing(tiltaksgjennomforing)
             .flatMap { tiltaksgjennomforinger.get(tiltaksgjennomforing.id) }
             .map { it!! }
             .onRight {
