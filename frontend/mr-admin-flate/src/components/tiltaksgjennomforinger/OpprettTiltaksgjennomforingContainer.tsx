@@ -645,7 +645,7 @@ export const OpprettTiltaksgjennomforingContainer = (
             {watch('tiltaksArrangorUnderenhetOrganisasjonsnummer') &&
               <VirksomhetKontaktpersoner
                 orgnr={watch('tiltaksArrangorUnderenhetOrganisasjonsnummer')}
-                formValueName={'virksomhetKontaktpersonId'}
+                formValueName={'arrangorKontaktpersonId'}
               />
             }
           </div>
