@@ -34,8 +34,8 @@ import no.nav.mulighetsrommet.arena.adapter.utils.AktivitetsplanenLaunchDate
 import no.nav.mulighetsrommet.arena.adapter.utils.ArenaUtils
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
+import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
-import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.decodeRequestBody
 import no.nav.mulighetsrommet.ktor.getLastPathParameterAsUUID
@@ -361,7 +361,7 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                 engine.requestHistory.last().apply {
                     method shouldBe HttpMethod.Put
 
-                    decodeRequestBody<TiltaksgjennomforingDbo>().apply {
+                    decodeRequestBody<ArenaTiltaksgjennomforingDbo>().apply {
                         id shouldBe mapping.entityId
                         tiltakstypeId shouldBe tiltakstype.id
                         tiltaksnummer shouldBe "2022#123"
@@ -464,7 +464,7 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                     .value("avtale_id").isEqualTo(1)
 
                 engine.requestHistory.last().apply {
-                    decodeRequestBody<TiltaksgjennomforingDbo>().apply {
+                    decodeRequestBody<ArenaTiltaksgjennomforingDbo>().apply {
                         id shouldBe mapping.entityId
                         avtaleId shouldBe avtaleMapping.entityId
                     }

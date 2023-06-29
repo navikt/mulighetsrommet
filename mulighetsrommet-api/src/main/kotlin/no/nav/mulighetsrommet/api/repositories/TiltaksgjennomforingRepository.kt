@@ -4,6 +4,7 @@ import io.ktor.utils.io.core.*
 import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.utils.AdminTiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.api.utils.DatabaseUtils
 import no.nav.mulighetsrommet.api.utils.PaginationParams
@@ -13,7 +14,8 @@ import no.nav.mulighetsrommet.database.utils.query
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
-import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
+import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
+import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingTilgjengelighetsstatus
 import no.nav.mulighetsrommet.domain.dto.*
 import org.intellij.lang.annotations.Language
 import org.postgresql.util.PSQLException
@@ -483,7 +485,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    fun getTilgjengelighetsstatus(tiltaksnummer: String): TiltaksgjennomforingDbo.Tilgjengelighetsstatus? {
+    fun getTilgjengelighetsstatus(tiltaksnummer: String): TiltaksgjennomforingTilgjengelighetsstatus? {
         @Language("PostgreSQL")
         val query = """
             select tilgjengelighet
@@ -503,7 +505,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         return queryOf(query, parameters)
             .map {
                 val value = it.string("tilgjengelighet")
-                TiltaksgjennomforingDbo.Tilgjengelighetsstatus.valueOf(value)
+                TiltaksgjennomforingTilgjengelighetsstatus.valueOf(value)
             }
             .asSingle
             .let { db.run(it) }
@@ -568,13 +570,13 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         sluttDato = localDateOrNull("slutt_dato"),
         arenaAnsvarligEnhet = stringOrNull("arena_ansvarlig_enhet"),
         avslutningsstatus = Avslutningsstatus.valueOf(string("avslutningsstatus")),
-        tilgjengelighet = TiltaksgjennomforingDbo.Tilgjengelighetsstatus.valueOf(string("tilgjengelighet")),
+        tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.valueOf(string("tilgjengelighet")),
         estimertVentetid = stringOrNull("estimert_ventetid"),
         antallPlasser = intOrNull("antall_plasser"),
         avtaleId = uuidOrNull("avtale_id"),
         ansvarlige = emptyList(),
         navEnheter = emptyList(),
-        oppstart = TiltaksgjennomforingDbo.Oppstartstype.valueOf(string("oppstart")),
+        oppstart = TiltaksgjennomforingOppstartstype.valueOf(string("oppstart")),
         opphav = ArenaMigrering.Opphav.valueOf(string("opphav")),
     )
 
@@ -615,7 +617,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 sluttDato,
                 Avslutningsstatus.valueOf(string("avslutningsstatus")),
             ),
-            tilgjengelighet = TiltaksgjennomforingDbo.Tilgjengelighetsstatus.valueOf(string("tilgjengelighet")),
+            tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.valueOf(string("tilgjengelighet")),
             estimertVentetid = stringOrNull("estimert_ventetid"),
             antallPlasser = intOrNull("antall_plasser"),
             avtaleId = uuidOrNull("avtale_id"),
@@ -623,7 +625,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             navEnheter = navEnheter,
             navRegion = stringOrNull("navRegionForAvtale"),
             sanityId = stringOrNull("sanity_id"),
-            oppstart = TiltaksgjennomforingDbo.Oppstartstype.valueOf(string("oppstart")),
+            oppstart = TiltaksgjennomforingOppstartstype.valueOf(string("oppstart")),
             opphav = ArenaMigrering.Opphav.valueOf(string("opphav")),
             stengtFra = localDateOrNull("stengt_fra"),
             stengtTil = localDateOrNull("stengt_til"),

@@ -22,10 +22,10 @@ data class ArenaTiltaksgjennomforingDbo(
     val sluttDato: LocalDate? = null,
     val arenaAnsvarligEnhet: String?,
     val avslutningsstatus: Avslutningsstatus,
-    val tilgjengelighet: TiltaksgjennomforingDbo.Tilgjengelighetsstatus, // TODO Vurdere om denne kan fjernes
+    val tilgjengelighet: TiltaksgjennomforingTilgjengelighetsstatus, // TODO Vurdere om denne kan fjernes
     val antallPlasser: Int?,
     @Serializable(with = UUIDSerializer::class)
     val avtaleId: UUID? = null,
-    val oppstart: TiltaksgjennomforingDbo.Oppstartstype,
+    val oppstart: TiltaksgjennomforingOppstartstype,
     val opphav: ArenaMigrering.Opphav,
 )

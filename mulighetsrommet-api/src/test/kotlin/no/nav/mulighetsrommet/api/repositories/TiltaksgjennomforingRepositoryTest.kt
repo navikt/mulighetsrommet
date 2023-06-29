@@ -9,6 +9,8 @@ import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
+import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingDbo
+import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingKontaktpersonDbo
 import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
@@ -22,12 +24,7 @@ import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.database.utils.getOrThrow
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.*
-import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo.Tilgjengelighetsstatus
-import no.nav.mulighetsrommet.domain.dto.NavEnhet
-import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingAdminDto
-import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingKontaktperson
-import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
-import no.nav.mulighetsrommet.domain.dto.VirksomhetKontaktperson
+import no.nav.mulighetsrommet.domain.dto.*
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -79,13 +76,13 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 sluttDato = gjennomforing1.sluttDato,
                 arenaAnsvarligEnhet = gjennomforing1.arenaAnsvarligEnhet,
                 status = Tiltaksgjennomforingsstatus.AVSLUTTET,
-                tilgjengelighet = Tilgjengelighetsstatus.LEDIG,
+                tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.LEDIG,
                 antallPlasser = null,
                 avtaleId = gjennomforing1.avtaleId,
                 ansvarlig = null,
                 navEnheter = emptyList(),
                 sanityId = null,
-                oppstart = TiltaksgjennomforingDbo.Oppstartstype.FELLES,
+                oppstart = TiltaksgjennomforingOppstartstype.FELLES,
                 opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
                 stengtFra = null,
                 kontaktpersoner = listOf(),
@@ -491,7 +488,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         }
     }
 
-    context("tilgjengelighetsstatus") {
+    context("TiltaksgjennomforingTilgjengelighetsstatus") {
         val tiltakstyper = TiltakstypeRepository(database.db)
         tiltakstyper.upsert(tiltakstype1)
 
@@ -511,14 +508,14 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             beforeAny {
                 tiltaksgjennomforinger.upsert(
                     gjennomforing1.copy(
-                        tilgjengelighet = Tilgjengelighetsstatus.STENGT,
+                        tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.STENGT,
                     ),
                 ).shouldBeRight()
             }
 
             test("should have tilgjengelighet set to Stengt") {
                 tiltaksgjennomforinger.get(gjennomforing1.id)
-                    .shouldBeRight()?.tilgjengelighet shouldBe Tilgjengelighetsstatus.STENGT
+                    .shouldBeRight()?.tilgjengelighet shouldBe TiltaksgjennomforingTilgjengelighetsstatus.STENGT
             }
         }
 
@@ -527,7 +524,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             beforeAny {
                 tiltaksgjennomforinger.upsert(
                     gjennomforing1.copy(
-                        tilgjengelighet = Tilgjengelighetsstatus.LEDIG,
+                        tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.LEDIG,
                         avslutningsstatus = Avslutningsstatus.AVSLUTTET,
                     ),
                 ).shouldBeRight()
@@ -535,7 +532,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 
             test("should have tilgjengelighet set to Stengt") {
                 tiltaksgjennomforinger.get(gjennomforing1.id)
-                    .shouldBeRight()?.tilgjengelighet shouldBe Tilgjengelighetsstatus.STENGT
+                    .shouldBeRight()?.tilgjengelighet shouldBe TiltaksgjennomforingTilgjengelighetsstatus.STENGT
             }
         }
 
@@ -544,7 +541,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             beforeAny {
                 tiltaksgjennomforinger.upsert(
                     gjennomforing1.copy(
-                        tilgjengelighet = Tilgjengelighetsstatus.LEDIG,
+                        tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.LEDIG,
                         antallPlasser = null,
                     ),
                 ).shouldBeRight()
@@ -552,7 +549,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 
             test("should have tilgjengelighet set to Ledig") {
                 tiltaksgjennomforinger.get(gjennomforing1.id)
-                    .shouldBeRight()?.tilgjengelighet shouldBe Tilgjengelighetsstatus.LEDIG
+                    .shouldBeRight()?.tilgjengelighet shouldBe TiltaksgjennomforingTilgjengelighetsstatus.LEDIG
             }
         }
 
@@ -561,7 +558,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             beforeAny {
                 tiltaksgjennomforinger.upsert(
                     gjennomforing1.copy(
-                        tilgjengelighet = Tilgjengelighetsstatus.LEDIG,
+                        tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.LEDIG,
                         antallPlasser = 0,
                     ),
                 ).shouldBeRight()
@@ -569,7 +566,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 
             test("should have tilgjengelighet set to Venteliste") {
                 tiltaksgjennomforinger.get(gjennomforing1.id)
-                    .shouldBeRight()?.tilgjengelighet shouldBe Tilgjengelighetsstatus.VENTELISTE
+                    .shouldBeRight()?.tilgjengelighet shouldBe TiltaksgjennomforingTilgjengelighetsstatus.VENTELISTE
             }
         }
 
@@ -578,7 +575,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             beforeAny {
                 tiltaksgjennomforinger.upsert(
                     gjennomforing1.copy(
-                        tilgjengelighet = Tilgjengelighetsstatus.LEDIG,
+                        tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.LEDIG,
                         antallPlasser = 1,
                     ),
                 ).shouldBeRight()
@@ -588,7 +585,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 
             test("should have tilgjengelighet set to Venteliste") {
                 tiltaksgjennomforinger.get(gjennomforing1.id)
-                    .shouldBeRight()?.tilgjengelighet shouldBe Tilgjengelighetsstatus.VENTELISTE
+                    .shouldBeRight()?.tilgjengelighet shouldBe TiltaksgjennomforingTilgjengelighetsstatus.VENTELISTE
             }
         }
 
@@ -597,7 +594,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             beforeAny {
                 tiltaksgjennomforinger.upsert(
                     gjennomforing1.copy(
-                        tilgjengelighet = Tilgjengelighetsstatus.LEDIG,
+                        tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.LEDIG,
                         antallPlasser = 1,
                     ),
                 ).shouldBeRight()
@@ -607,7 +604,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 
             test("should have tilgjengelighet set to Ledig") {
                 tiltaksgjennomforinger.get(gjennomforing1.id)
-                    .shouldBeRight()?.tilgjengelighet shouldBe Tilgjengelighetsstatus.LEDIG
+                    .shouldBeRight()?.tilgjengelighet shouldBe TiltaksgjennomforingTilgjengelighetsstatus.LEDIG
             }
         }
     }
@@ -720,11 +717,11 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                         arenaAnsvarligEnhet = "2990",
                         avslutningsstatus = Avslutningsstatus.AVSLUTTET,
                         startDato = LocalDate.of(2022, 1, 1),
-                        tilgjengelighet = Tilgjengelighetsstatus.LEDIG,
+                        tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.LEDIG,
                         antallPlasser = null,
                         ansvarlige = emptyList(),
                         navEnheter = emptyList(),
-                        oppstart = TiltaksgjennomforingDbo.Oppstartstype.FELLES,
+                        oppstart = TiltaksgjennomforingOppstartstype.FELLES,
                         opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
                         lokasjonArrangor = "0139 Oslo",
                     ),

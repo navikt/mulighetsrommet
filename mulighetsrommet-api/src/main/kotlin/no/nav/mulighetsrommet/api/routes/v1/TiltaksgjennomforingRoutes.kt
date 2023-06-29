@@ -10,14 +10,16 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingDbo
+import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingKontaktpersonDbo
 import no.nav.mulighetsrommet.api.routes.v1.responses.*
 import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
 import no.nav.mulighetsrommet.api.utils.getAdminTiltaksgjennomforingsFilter
 import no.nav.mulighetsrommet.api.utils.getPaginationParams
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
-import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
-import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingKontaktpersonDbo
+import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
+import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingTilgjengelighetsstatus
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
@@ -100,7 +102,7 @@ data class TiltaksgjennomforingRequest(
     val tiltaksnummer: String? = null,
     val ansvarlig: String,
     val navEnheter: List<String>,
-    val oppstart: TiltaksgjennomforingDbo.Oppstartstype,
+    val oppstart: TiltaksgjennomforingOppstartstype,
     @Serializable(with = LocalDateSerializer::class)
     val stengtFra: LocalDate? = null,
     @Serializable(with = LocalDateSerializer::class)
@@ -139,9 +141,9 @@ data class TiltaksgjennomforingRequest(
                 avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
                 antallPlasser = antallPlasser,
                 tilgjengelighet = if (apenForInnsok) {
-                    TiltaksgjennomforingDbo.Tilgjengelighetsstatus.LEDIG
+                    TiltaksgjennomforingTilgjengelighetsstatus.LEDIG
                 } else {
-                    TiltaksgjennomforingDbo.Tilgjengelighetsstatus.STENGT
+                    TiltaksgjennomforingTilgjengelighetsstatus.STENGT
                 },
                 estimertVentetid = estimertVentetid,
                 tiltaksnummer = tiltaksnummer,

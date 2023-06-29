@@ -2,7 +2,8 @@ package no.nav.mulighetsrommet.domain.dto
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
-import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
+import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
+import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingTilgjengelighetsstatus
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import java.time.LocalDate
@@ -24,7 +25,7 @@ data class TiltaksgjennomforingAdminDto(
     val sluttDato: LocalDate? = null,
     val arenaAnsvarligEnhet: String?,
     val status: Tiltaksgjennomforingsstatus,
-    val tilgjengelighet: TiltaksgjennomforingDbo.Tilgjengelighetsstatus,
+    val tilgjengelighet: TiltaksgjennomforingTilgjengelighetsstatus,
     val estimertVentetid: String? = null,
     val antallPlasser: Int?,
     @Serializable(with = UUIDSerializer::class)
@@ -33,7 +34,7 @@ data class TiltaksgjennomforingAdminDto(
     val navEnheter: List<NavEnhet>,
     val navRegion: String? = null,
     val sanityId: String?,
-    val oppstart: TiltaksgjennomforingDbo.Oppstartstype,
+    val oppstart: TiltaksgjennomforingOppstartstype,
     @Serializable(with = LocalDateSerializer::class)
     val oppstartsdato: LocalDate? = null,
     val opphav: ArenaMigrering.Opphav,

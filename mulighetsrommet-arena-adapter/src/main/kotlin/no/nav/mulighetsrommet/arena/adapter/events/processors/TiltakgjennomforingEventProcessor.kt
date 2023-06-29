@@ -27,10 +27,10 @@ import no.nav.mulighetsrommet.domain.Tiltakskoder.isGruppetiltak
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
-import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo.Oppstartstype.FELLES
-import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo.Oppstartstype.LOPENDE
-import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo.Tilgjengelighetsstatus.LEDIG
-import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo.Tilgjengelighetsstatus.STENGT
+import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype.FELLES
+import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype.LOPENDE
+import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingTilgjengelighetsstatus.LEDIG
+import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingTilgjengelighetsstatus.STENGT
 import java.util.*
 
 class TiltakgjennomforingEventProcessor(

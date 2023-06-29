@@ -13,7 +13,6 @@ import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.database.utils.getOrThrow
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.*
-import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo.Tilgjengelighetsstatus
 import no.nav.mulighetsrommet.domain.dto.*
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -65,9 +64,9 @@ class ArenaAdapterServiceTest : FunSpec({
         sluttDato = LocalDate.of(2023, 11, 11),
         arenaAnsvarligEnhet = "2990",
         avslutningsstatus = Avslutningsstatus.AVSLUTTET,
-        tilgjengelighet = Tilgjengelighetsstatus.LEDIG,
+        tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.LEDIG,
         antallPlasser = null,
-        oppstart = TiltaksgjennomforingDbo.Oppstartstype.FELLES,
+        oppstart = TiltaksgjennomforingOppstartstype.FELLES,
         opphav = ArenaMigrering.Opphav.ARENA,
     )
 
@@ -117,7 +116,7 @@ class ArenaAdapterServiceTest : FunSpec({
             sluttDato = sluttDato,
             arenaAnsvarligEnhet = arenaAnsvarligEnhet,
             status = Tiltaksgjennomforingsstatus.AVSLUTTET,
-            tilgjengelighet = Tilgjengelighetsstatus.LEDIG,
+            tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.LEDIG,
             antallPlasser = null,
             ansvarlig = null,
             navEnheter = emptyList(),

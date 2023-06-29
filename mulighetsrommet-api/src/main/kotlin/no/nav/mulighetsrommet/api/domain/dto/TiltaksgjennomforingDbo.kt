@@ -1,7 +1,10 @@
-package no.nav.mulighetsrommet.domain.dbo
+package no.nav.mulighetsrommet.api.domain.dto
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
+import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
+import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
+import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingTilgjengelighetsstatus
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import java.time.LocalDate
@@ -24,14 +27,14 @@ data class TiltaksgjennomforingDbo(
     val sluttDato: LocalDate? = null,
     val arenaAnsvarligEnhet: String?,
     val avslutningsstatus: Avslutningsstatus,
-    val tilgjengelighet: Tilgjengelighetsstatus,
+    val tilgjengelighet: TiltaksgjennomforingTilgjengelighetsstatus,
     val estimertVentetid: String? = null,
     val antallPlasser: Int?,
     @Serializable(with = UUIDSerializer::class)
     val avtaleId: UUID? = null,
     val ansvarlige: List<String>,
     val navEnheter: List<String>,
-    val oppstart: Oppstartstype,
+    val oppstart: TiltaksgjennomforingOppstartstype,
     val opphav: ArenaMigrering.Opphav,
     @Serializable(with = LocalDateSerializer::class)
     val stengtFra: LocalDate? = null,
@@ -39,18 +42,7 @@ data class TiltaksgjennomforingDbo(
     val stengtTil: LocalDate? = null,
     val kontaktpersoner: List<TiltaksgjennomforingKontaktpersonDbo> = emptyList(),
     val lokasjonArrangor: String? = null,
-) {
-    enum class Tilgjengelighetsstatus {
-        LEDIG,
-        VENTELISTE,
-        STENGT,
-    }
-
-    enum class Oppstartstype {
-        LOPENDE,
-        FELLES,
-    }
-}
+)
 
 @Serializable
 data class TiltaksgjennomforingKontaktpersonDbo(
