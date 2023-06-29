@@ -60,7 +60,7 @@ class ArenaAdapterServiceTest : FunSpec({
         navn = "Arbeidstrening",
         tiltakstypeId = tiltakstype.id,
         tiltaksnummer = "12345",
-        virksomhetsnummer = "123456789",
+        arrangorOrganisasjonsnummer = "123456789",
         startDato = LocalDate.of(2022, 11, 11),
         sluttDato = LocalDate.of(2023, 11, 11),
         arenaAnsvarligEnhet = "2990",
@@ -101,7 +101,7 @@ class ArenaAdapterServiceTest : FunSpec({
         tilDato = LocalDateTime.of(2019, 12, 3, 0, 0),
         beskrivelse = "Utdanning",
         tiltakstypeId = tiltakstypeIndividuell.id,
-        virksomhetsnummer = "12343",
+        arrangorOrganisasjonsnummer = "12343",
     )
 
     val tiltaksgjennomforingDto = tiltaksgjennomforing.run {
@@ -114,7 +114,7 @@ class ArenaAdapterServiceTest : FunSpec({
             ),
             navn = navn,
             tiltaksnummer = tiltaksnummer,
-            virksomhetsnummer = virksomhetsnummer,
+            arrangorOrganisasjonsnummer = arrangorOrganisasjonsnummer,
             startDato = startDato,
             sluttDato = sluttDato,
             arenaAnsvarligEnhet = arenaAnsvarligEnhet,
@@ -251,7 +251,7 @@ class ArenaAdapterServiceTest : FunSpec({
                 .value("navn").isEqualTo(tiltaksgjennomforing.navn)
                 .value("tiltakstype_id").isEqualTo(tiltakstype.id)
                 .value("tiltaksnummer").isEqualTo(tiltaksgjennomforing.tiltaksnummer)
-                .value("virksomhetsnummer").isEqualTo(tiltaksgjennomforing.virksomhetsnummer)
+                .value("arrangor_organisasjonsnummer").isEqualTo(tiltaksgjennomforing.arrangorOrganisasjonsnummer)
                 .value("start_dato").isEqualTo(tiltaksgjennomforing.startDato)
                 .value("slutt_dato").isEqualTo(tiltaksgjennomforing.sluttDato)
 
@@ -318,7 +318,7 @@ class ArenaAdapterServiceTest : FunSpec({
                 .value("status").isEqualTo(tiltakshistorikkGruppe.status.name)
                 .value("tiltaksgjennomforing_id").isEqualTo(tiltakshistorikkGruppe.tiltaksgjennomforingId)
                 .value("beskrivelse").isNull
-                .value("virksomhetsnummer").isNull
+                .value("arrangor_organisasjonsnummer").isNull
                 .value("tiltakstypeid").isNull
 
             val updated = tiltakshistorikkGruppe.copy(status = Deltakerstatus.DELTAR)
@@ -339,7 +339,7 @@ class ArenaAdapterServiceTest : FunSpec({
             database.assertThat("tiltakshistorikk").row()
                 .value("id").isEqualTo(tiltakshistorikkIndividuell.id)
                 .value("beskrivelse").isEqualTo(tiltakshistorikkIndividuell.beskrivelse)
-                .value("virksomhetsnummer").isEqualTo(tiltakshistorikkIndividuell.virksomhetsnummer)
+                .value("arrangor_organisasjonsnummer").isEqualTo(tiltakshistorikkIndividuell.arrangorOrganisasjonsnummer)
                 .value("tiltakstypeid").isEqualTo(tiltakshistorikkIndividuell.tiltakstypeId)
                 .value("tiltaksgjennomforing_id").isNull
 

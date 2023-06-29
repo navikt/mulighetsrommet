@@ -9,6 +9,7 @@ import { usePutVirksomhetKontaktperson } from "../../api/virksomhet/usePutVirkso
 import { SokeSelect } from "../skjema/SokeSelect";
 import { useFormContext } from "react-hook-form";
 import { Laster } from "../laster/Laster";
+import { validEmail } from "../../utils/Utils";
 
 interface State {
   leggTil: boolean
@@ -68,7 +69,7 @@ export const VirksomhetKontaktpersoner = (
     setState({
       ...state,
       navnError: !state.navn ? "Navn må være satt" : undefined,
-      epostError: !state.epost ? "Epost må være satt" : undefined,
+      epostError: !validEmail(state.epost) ? "Epost må være en gyldig epost adresse" : undefined,
       telefonError: !state.telefon ? "Telefon må være satt" : undefined,
     });
     if (!state.navn || !state.epost || !state.telefon) {
@@ -85,14 +86,12 @@ export const VirksomhetKontaktpersoner = (
 
   return (
     <>
-      <div className={styles.kontaktperson_container}>
-        <label className={styles.kontaktperson_label} >
-          <b>Kontaktperson hos leverandøren</b>
-        </label>
+      <div className={styles.container}>
         <SokeSelect
           size="small"
           placeholder="Søk etter kontaktpersoner"
-          label={"Lagrede kontaktpersoner"}
+          onClearValue={() => setValue(formValueName, null)}
+          label={"Velg kontaktperson"}
           {...register(formValueName)}
           options={kontaktpersoner.map((person) => ({
             value: person.id,
@@ -115,7 +114,7 @@ export const VirksomhetKontaktpersoner = (
             type="button"
             onClick={() => setState({ ...state, leggTil: !state.leggTil })}
           >
-            <PlusIcon /> Legg til kontaktperson
+            <PlusIcon /> eller opprett ny kontaktperson
           </Button>
         }
         {state.leggTil &&

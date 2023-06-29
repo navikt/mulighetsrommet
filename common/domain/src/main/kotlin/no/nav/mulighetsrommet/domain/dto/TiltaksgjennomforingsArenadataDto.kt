@@ -15,7 +15,7 @@ data class TiltaksgjennomforingsArenadataDto(
             TiltaksgjennomforingsArenadataDto(
                 opprettetAar = tiltaksnummer?.split("#")?.first()?.toInt(),
                 lopenr = tiltaksnummer?.split("#")?.get(1)?.toInt(),
-                virksomhetsnummer = virksomhetsnummer,
+                virksomhetsnummer = arrangorOrganisasjonsnummer,
                 ansvarligNavEnhetId = arenaAnsvarligEnhet,
                 status = status,
             )

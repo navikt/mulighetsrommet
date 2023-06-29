@@ -2,7 +2,7 @@ import {
   ExclamationmarkTriangleIcon,
   ExternalLinkIcon,
 } from "@navikt/aksel-icons";
-import { Alert, Button, Heading, Link, TextField } from "@navikt/ds-react";
+import { Alert, Button, Heading, Link } from "@navikt/ds-react";
 import classNames from "classnames";
 import { useState } from "react";
 import { useAvtale } from "../../api/avtaler/useAvtale";
@@ -165,12 +165,24 @@ export function TiltaksgjennomforingInfo() {
               )
             }
           />
-          {tiltaksgjennomforing.virksomhetsnavn ? (
+          {tiltaksgjennomforing.arrangorNavn ? (
             <Metadata
               header="Arrangør"
-              verdi={tiltaksgjennomforing.virksomhetsnavn}
+              verdi={tiltaksgjennomforing.arrangorNavn}
             />
           ) : null}
+          {tiltaksgjennomforing.arrangorKontaktperson &&
+            <Metadata
+              header="Kontaktperson"
+              verdi={
+                <div className={styles.leverandor_kontaktinfo}>
+                  <label>{tiltaksgjennomforing.arrangorKontaktperson?.navn}</label>
+                  <label>{tiltaksgjennomforing.arrangorKontaktperson?.telefon}</label>
+                  <a href={`mailto:${tiltaksgjennomforing.arrangorKontaktperson?.epost}`}>{tiltaksgjennomforing.arrangorKontaktperson?.epost}</a>
+                </div>
+              }
+            />
+          }
           {tiltaksgjennomforing.lokasjonArrangor ? (
             <Metadata
               header="Lokasjon for gjennomføring"
