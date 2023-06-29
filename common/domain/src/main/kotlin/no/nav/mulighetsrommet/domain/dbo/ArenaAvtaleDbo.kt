@@ -15,10 +15,8 @@ data class ArenaAvtaleDbo(
     val navn: String,
     @Serializable(with = UUIDSerializer::class)
     val tiltakstypeId: UUID,
-    val avtalenummer: String? = null,
+    val avtalenummer: String?,
     val leverandorOrganisasjonsnummer: String,
-    @Serializable(with = UUIDSerializer::class)
-    val leverandorKontaktpersonId: UUID? = null,
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
@@ -27,5 +25,5 @@ data class ArenaAvtaleDbo(
     val avtaletype: Avtaletype,
     val avslutningsstatus: Avslutningsstatus,
     val opphav: ArenaMigrering.Opphav,
-    val prisbetingelser: String? = null,
+    val prisbetingelser: String?,
 )

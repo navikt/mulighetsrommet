@@ -93,6 +93,62 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             tiltaksgjennomforinger.get(gjennomforing1.id) shouldBeRight null
         }
 
+        test("CRUD ArenaTiltaksgjennomforing") {
+            val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
+            val gjennomforingId = UUID.randomUUID()
+            val gjennomforingFraArena = ArenaTiltaksgjennomforingDbo(
+                id = gjennomforingId,
+                navn = "Tiltak for dovne giraffer",
+                tiltakstypeId = tiltakstype1.id,
+                tiltaksnummer = "2023#1",
+                arrangorOrganisasjonsnummer = "123456789",
+                startDato = LocalDate.of(2023, 1, 1),
+                sluttDato = LocalDate.of(2023, 2, 2),
+                arenaAnsvarligEnhet = "0400",
+                avslutningsstatus = Avslutningsstatus.AVSLUTTET,
+                tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.STENGT,
+                antallPlasser = 10,
+                avtaleId = avtale1.id,
+                oppstart = TiltaksgjennomforingOppstartstype.FELLES,
+                opphav = ArenaMigrering.Opphav.ARENA,
+            )
+
+            val gjennomforingDto = TiltaksgjennomforingAdminDto(
+                id = gjennomforingId,
+                navn = "Tiltak for dovne giraffer",
+                tiltakstype = TiltaksgjennomforingAdminDto.Tiltakstype(
+                    id = tiltakstype1.id,
+                    navn = tiltakstype1.navn,
+                    arenaKode = tiltakstype1.tiltakskode,
+                ),
+                tiltaksnummer = "2023#1",
+                arrangorOrganisasjonsnummer = "123456789",
+                startDato = LocalDate.of(2023, 1, 1),
+                sluttDato = LocalDate.of(2023, 2, 2),
+                arenaAnsvarligEnhet = "0400",
+                tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.STENGT,
+                antallPlasser = 10,
+                avtaleId = avtale1.id,
+                oppstart = TiltaksgjennomforingOppstartstype.FELLES,
+                arrangorNavn = null,
+                arrangorKontaktperson = null,
+                status = Tiltaksgjennomforingsstatus.AVSLUTTET,
+                estimertVentetid = null,
+                ansvarlig = null,
+                navEnheter = emptyList(),
+                navRegion = null,
+                sanityId = null,
+                oppstartsdato = null,
+                opphav = ArenaMigrering.Opphav.ARENA,
+                stengtFra = null,
+                stengtTil = null,
+                kontaktpersoner = emptyList(),
+                lokasjonArrangor = null,
+            )
+            tiltaksgjennomforingRepository.upsertArenaTiltaksgjennomforing(gjennomforingFraArena).shouldBeRight()
+            tiltaksgjennomforingRepository.get(gjennomforingFraArena.id).shouldBeRight(gjennomforingDto)
+        }
+
         test("midlertidig_stengt crud") {
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
             val gjennomforing = gjennomforing1.copy(
@@ -364,7 +420,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
 
             tiltaksgjennomforinger.upsert(gjennomforing1).shouldBeRight()
-            tiltaksgjennomforinger.upsert(gjennomforing2.copy(arrangorOrganisasjonsnummer = "999999999")).shouldBeRight()
+            tiltaksgjennomforinger.upsert(gjennomforing2.copy(arrangorOrganisasjonsnummer = "999999999"))
+                .shouldBeRight()
 
             tiltaksgjennomforinger.getAll(
                 filter = AdminTiltaksgjennomforingFilter(arrangorOrgnr = "222222222"),

@@ -22,12 +22,11 @@ import no.nav.mulighetsrommet.api.utils.AdminTiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.api.utils.AvtaleFilter
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.utils.getOrThrow
+import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
+import no.nav.mulighetsrommet.domain.dbo.ArenaAvtaleDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
-import no.nav.mulighetsrommet.domain.dto.AvtaleAdminDto
-import no.nav.mulighetsrommet.domain.dto.Avtalestatus
-import no.nav.mulighetsrommet.domain.dto.NavEnhet
-import no.nav.mulighetsrommet.domain.dto.VirksomhetKontaktperson
+import no.nav.mulighetsrommet.domain.dto.*
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -874,5 +873,58 @@ class AvtaleRepositoryTest : FunSpec({
                 it!!.leverandorKontaktperson shouldBe null
             }
         }
+    }
+
+    context("Upsert av Arena-avtaler") {
+        val tiltakstypeRepository = TiltakstypeRepository(database.db)
+        val avtaleRepository = AvtaleRepository(database.db)
+
+        val tiltakstype = TiltakstypeFixtures.Oppfolging.copy(id = avtaleFixture.tiltakstypeId)
+        tiltakstypeRepository.upsert(tiltakstype).shouldBeRight()
+
+        val avtaleId = UUID.randomUUID()
+        val avtale = ArenaAvtaleDbo(
+            id = avtaleId,
+            navn = "Avtale til test",
+            tiltakstypeId = tiltakstype.id,
+            avtalenummer = "2023#123",
+            leverandorOrganisasjonsnummer = "123456789",
+            startDato = LocalDate.of(2023, 1, 1),
+            sluttDato = LocalDate.of(2023, 2, 2),
+            arenaAnsvarligEnhet = "0400",
+            avtaletype = Avtaletype.Avtale,
+            avslutningsstatus = Avslutningsstatus.AVSLUTTET,
+            opphav = ArenaMigrering.Opphav.ARENA,
+            prisbetingelser = "Alt er dyrt",
+        )
+
+        val avtaleDto = AvtaleAdminDto(
+            id = avtaleId,
+            tiltakstype = AvtaleAdminDto.Tiltakstype(
+                id = tiltakstype.id,
+                navn = tiltakstype.navn,
+                arenaKode = tiltakstype.tiltakskode,
+            ),
+            navn = "Avtale til test",
+            avtalenummer = "2023#123",
+            leverandor = AvtaleAdminDto.Leverandor(organisasjonsnummer = "123456789", navn = null),
+            leverandorUnderenheter = emptyList(),
+            leverandorKontaktperson = null,
+            startDato = LocalDate.of(2023, 1, 1),
+            sluttDato = LocalDate.of(2023, 2, 2),
+            navRegion = null,
+            avtaletype = Avtaletype.Avtale,
+            avtalestatus = Avtalestatus.Avsluttet,
+            prisbetingelser = "Alt er dyrt",
+            ansvarlig = null,
+            url = null,
+            antallPlasser = null,
+            navEnheter = emptyList(),
+            opphav = ArenaMigrering.Opphav.ARENA,
+
+        )
+
+        avtaleRepository.upsertArenaAvtale(avtale).shouldBeRight()
+        avtaleRepository.get(avtale.id).shouldBeRight(avtaleDto)
     }
 })

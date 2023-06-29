@@ -19,13 +19,13 @@ data class ArenaTiltaksgjennomforingDbo(
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
-    val sluttDato: LocalDate? = null,
+    val sluttDato: LocalDate?,
     val arenaAnsvarligEnhet: String?,
     val avslutningsstatus: Avslutningsstatus,
     val tilgjengelighet: TiltaksgjennomforingTilgjengelighetsstatus, // TODO Vurdere om denne kan fjernes
     val antallPlasser: Int?,
     @Serializable(with = UUIDSerializer::class)
-    val avtaleId: UUID? = null,
+    val avtaleId: UUID?,
     val oppstart: TiltaksgjennomforingOppstartstype,
     val opphav: ArenaMigrering.Opphav,
 )
