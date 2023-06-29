@@ -109,7 +109,7 @@ class VirksomhetRepository(private val db: Database) {
                 "inner join avtale on avtale.leverandor_organisasjonsnummer = v.organisasjonsnummer"
             }
             VirksomhetTil.TILTAKSGJENNOMFORING -> {
-                "inner join tiltaksgjennomforing t on t.virksomhetsnummer = v.organisasjonsnummer"
+                "inner join tiltaksgjennomforing t on t.arrangor_organisasjonsnummer = v.organisasjonsnummer"
             }
             else -> ""
         }

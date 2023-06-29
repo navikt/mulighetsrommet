@@ -251,7 +251,7 @@ class ArenaAdapterServiceTest : FunSpec({
                 .value("navn").isEqualTo(tiltaksgjennomforing.navn)
                 .value("tiltakstype_id").isEqualTo(tiltakstype.id)
                 .value("tiltaksnummer").isEqualTo(tiltaksgjennomforing.tiltaksnummer)
-                .value("virksomhetsnummer").isEqualTo(tiltaksgjennomforing.arrangorOrganisasjonsnummer)
+                .value("arrangor_organisasjonsnummer").isEqualTo(tiltaksgjennomforing.arrangorOrganisasjonsnummer)
                 .value("start_dato").isEqualTo(tiltaksgjennomforing.startDato)
                 .value("slutt_dato").isEqualTo(tiltaksgjennomforing.sluttDato)
 
