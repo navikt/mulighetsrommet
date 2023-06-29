@@ -1688,7 +1688,7 @@ components:
       type: object
       nullable: true
       properties:
-        virksomhetsnummer:
+        organisasjonsnummer:
           type: string
         navn:
           type: string

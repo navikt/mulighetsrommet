@@ -48,6 +48,6 @@ sealed class TiltakshistorikkDbo {
         val beskrivelse: String,
         @Serializable(with = UUIDSerializer::class)
         val tiltakstypeId: UUID,
-        val virksomhetsnummer: String,
+        val arrangorOrganisasjonsnummer: String,
     ) : TiltakshistorikkDbo()
 }

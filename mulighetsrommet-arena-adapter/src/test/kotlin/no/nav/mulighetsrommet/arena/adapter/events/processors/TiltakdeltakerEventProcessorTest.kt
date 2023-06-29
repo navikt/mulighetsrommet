@@ -349,7 +349,7 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
                         shouldBeInstanceOf<TiltakshistorikkDbo.IndividueltTiltak>()
                         id shouldBe mapping.entityId
                         beskrivelse shouldBe tiltaksgjennomforingIndividuell.navn
-                        virksomhetsnummer shouldBe "123456"
+                        arrangorOrganisasjonsnummer shouldBe "123456"
                         tiltakstypeId shouldBe tiltakstypeIndividuell.id
                         norskIdent shouldBe "12345678910"
                     }

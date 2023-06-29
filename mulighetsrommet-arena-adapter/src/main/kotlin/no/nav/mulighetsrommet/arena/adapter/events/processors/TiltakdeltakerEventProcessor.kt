@@ -184,7 +184,7 @@ class TiltakdeltakerEventProcessor(
                 tilDato = tilDato,
                 beskrivelse = tiltaksgjennomforing.navn,
                 tiltakstypeId = tiltakstype.id,
-                virksomhetsnummer = virksomhetsnummer,
+                arrangorOrganisasjonsnummer = virksomhetsnummer,
             )
         }
     }

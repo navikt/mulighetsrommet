@@ -21,8 +21,8 @@ class TiltakshistorikkRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            insert into tiltakshistorikk (id, tiltaksgjennomforing_id, norsk_ident, status, fra_dato, til_dato, beskrivelse, virksomhetsnummer, tiltakstypeid)
-            values (:id::uuid, :tiltaksgjennomforing_id::uuid, :norsk_ident, :status::deltakerstatus, :fra_dato, :til_dato, :beskrivelse, :virksomhetsnummer, :tiltakstypeid::uuid)
+            insert into tiltakshistorikk (id, tiltaksgjennomforing_id, norsk_ident, status, fra_dato, til_dato, beskrivelse, arrangor_organisasjonsnummer, tiltakstypeid)
+            values (:id::uuid, :tiltaksgjennomforing_id::uuid, :norsk_ident, :status::deltakerstatus, :fra_dato, :til_dato, :beskrivelse, :arrangor_organisasjonsnummer, :tiltakstypeid::uuid)
             on conflict (id)
                 do update set tiltaksgjennomforing_id = excluded.tiltaksgjennomforing_id,
                               norsk_ident             = excluded.norsk_ident,
@@ -30,7 +30,7 @@ class TiltakshistorikkRepository(private val db: Database) {
                               fra_dato                = excluded.fra_dato,
                               til_dato                = excluded.til_dato,
                               beskrivelse             = excluded.beskrivelse,
-                              virksomhetsnummer       = excluded.virksomhetsnummer,
+                              arrangor_organisasjonsnummer       = excluded.arrangor_organisasjonsnummer,
                               tiltakstypeid           = excluded.tiltakstypeid
             returning *
         """.trimIndent()
@@ -63,7 +63,7 @@ class TiltakshistorikkRepository(private val db: Database) {
                    h.til_dato,
                    h.status,
                    coalesce(g.navn, h.beskrivelse) as navn,
-                   coalesce(g.virksomhetsnummer, h.virksomhetsnummer) as virksomhetsnummer,
+                   coalesce(g.arrangor_organisasjonsnummer, h.arrangor_organisasjonsnummer) as arrangor_organisasjonsnummer,
                    t.navn as tiltakstype
             from tiltakshistorikk h
                      left join tiltaksgjennomforing g on g.id = h.tiltaksgjennomforing_id
@@ -89,7 +89,7 @@ class TiltakshistorikkRepository(private val db: Database) {
 
             is TiltakshistorikkDbo.IndividueltTiltak -> listOfNotNull(
                 "beskrivelse" to beskrivelse,
-                "virksomhetsnummer" to virksomhetsnummer,
+                "arrangor_organisasjonsnummer" to arrangorOrganisasjonsnummer,
                 "tiltakstypeid" to tiltakstypeId,
             )
         }
@@ -115,7 +115,7 @@ class TiltakshistorikkRepository(private val db: Database) {
                 tilDato = localDateTimeOrNull("til_dato"),
                 beskrivelse = string("beskrivelse"),
                 tiltakstypeId = uuid("tiltakstypeid"),
-                virksomhetsnummer = string("virksomhetsnummer"),
+                arrangorOrganisasjonsnummer = string("arrangor_organisasjonsnummer"),
             )
     }
 
@@ -126,8 +126,8 @@ class TiltakshistorikkRepository(private val db: Database) {
         status = Deltakerstatus.valueOf(string("status")),
         tiltaksnavn = stringOrNull("navn"),
         tiltakstype = string("tiltakstype"),
-        arrangor = stringOrNull("virksomhetsnummer")?.let {
-            TiltakshistorikkDto.Arrangor(virksomhetsnummer = it, navn = null)
+        arrangor = stringOrNull("arrangor_organisasjonsnummer")?.let {
+            TiltakshistorikkDto.Arrangor(organisasjonsnummer = it, navn = null)
         },
     )
 }
