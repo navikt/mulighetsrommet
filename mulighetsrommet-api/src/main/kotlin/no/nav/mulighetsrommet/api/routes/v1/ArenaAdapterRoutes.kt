@@ -44,7 +44,7 @@ fun Route.arenaAdapterRoutes() {
         }
 
         put("avtale") {
-            val dbo = call.receive<AvtaleDbo>()
+            val dbo = call.receive<ArenaAvtaleDbo>()
 
             arenaAdapterService.upsertAvtale(dbo)
                 .map { call.respond(it) }

@@ -40,9 +40,9 @@ class ArenaAdapterService(
         }
     }
 
-    suspend fun upsertAvtale(avtale: AvtaleDbo): QueryResult<AvtaleAdminDto> {
+    suspend fun upsertAvtale(avtale: ArenaAvtaleDbo): QueryResult<AvtaleAdminDto> {
         virksomhetService.hentEnhet(avtale.leverandorOrganisasjonsnummer)
-        return avtaler.upsert(avtale)
+        return avtaler.upsertArenaAvtale(avtale)
             .flatMap { avtaler.get(avtale.id) }
             .map { it!! }
     }

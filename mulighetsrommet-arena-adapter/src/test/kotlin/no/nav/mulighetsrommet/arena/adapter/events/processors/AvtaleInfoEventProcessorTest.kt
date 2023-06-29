@@ -30,8 +30,8 @@ import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
+import no.nav.mulighetsrommet.domain.dbo.ArenaAvtaleDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
-import no.nav.mulighetsrommet.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.decodeRequestBody
@@ -248,7 +248,7 @@ class AvtaleInfoEventProcessorTest : FunSpec({
                 engine.requestHistory.last().apply {
                     method shouldBe HttpMethod.Put
 
-                    decodeRequestBody<AvtaleDbo>().apply {
+                    decodeRequestBody<ArenaAvtaleDbo>().apply {
                         id shouldBe mapping.entityId
                         tiltakstypeId shouldBe tiltakstype.id
                         avtalenummer shouldBe "2022#2000"

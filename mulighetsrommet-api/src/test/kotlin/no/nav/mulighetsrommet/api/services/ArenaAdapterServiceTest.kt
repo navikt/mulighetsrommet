@@ -36,22 +36,19 @@ class ArenaAdapterServiceTest : FunSpec({
         tilDato = LocalDate.of(2023, 1, 12),
     )
 
-    val avtale = AvtaleDbo(
+    val avtale = ArenaAvtaleDbo(
         id = UUID.randomUUID(),
         navn = "Arbeidstrening",
         tiltakstypeId = tiltakstype.id,
         avtalenummer = "2023#1000",
         leverandorOrganisasjonsnummer = "123456789",
-        leverandorUnderenheter = emptyList(),
         startDato = LocalDate.of(2022, 11, 11),
         sluttDato = LocalDate.of(2023, 11, 11),
         arenaAnsvarligEnhet = "2990",
-        navRegion = null,
         avtaletype = Avtaletype.Rammeavtale,
         avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
         prisbetingelser = "💸",
         opphav = ArenaMigrering.Opphav.ARENA,
-        navEnheter = emptyList(),
     )
 
     val tiltaksgjennomforing = ArenaTiltaksgjennomforingDbo(
