@@ -3,13 +3,14 @@ package no.nav.mulighetsrommet.api.repositories
 import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.api.utils.*
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
+import no.nav.mulighetsrommet.domain.dbo.ArenaAvtaleDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
-import no.nav.mulighetsrommet.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.domain.dto.*
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
@@ -159,6 +160,54 @@ class AvtaleRepository(private val db: Database) {
                 db.createTextArray(avtale.leverandorUnderenheter),
             ).asExecute.let { tx.run(it) }
         }
+    }
+
+    fun upsertArenaAvtale(avtale: ArenaAvtaleDbo): QueryResult<Unit> = query {
+        logger.info("Lagrer avtale fra Arena id=${avtale.id}")
+
+        @Language("PostgreSQL")
+        val query = """
+            insert into avtale(id,
+                               navn,
+                               tiltakstype_id,
+                               avtalenummer,
+                               leverandor_organisasjonsnummer,
+                               start_dato,
+                               slutt_dato,
+                               arena_ansvarlig_enhet,
+                               avtaletype,
+                               avslutningsstatus,
+                               prisbetingelser,
+                               opphav)
+            values (:id::uuid,
+                    :navn,
+                    :tiltakstype_id::uuid,
+                    :avtalenummer,
+                    :leverandor_organisasjonsnummer,
+                    :start_dato,
+                    :slutt_dato,
+                    :arena_ansvarlig_enhet,
+                    :avtaletype::avtaletype,
+                    :avslutningsstatus::avslutningsstatus,
+                    :prisbetingelser,
+                    :opphav::opphav
+                    )
+            on conflict (id) do update set navn                           = excluded.navn,
+                                           tiltakstype_id                 = excluded.tiltakstype_id,
+                                           avtalenummer                   = excluded.avtalenummer,
+                                           leverandor_organisasjonsnummer = excluded.leverandor_organisasjonsnummer,
+                                           start_dato                     = excluded.start_dato,
+                                           slutt_dato                     = excluded.slutt_dato,
+                                           arena_ansvarlig_enhet          = excluded.arena_ansvarlig_enhet,
+                                           avtaletype                     = excluded.avtaletype,
+                                           avslutningsstatus              = excluded.avslutningsstatus,
+                                           prisbetingelser                = excluded.prisbetingelser,
+                                           antall_plasser                 = excluded.antall_plasser,
+                                           opphav                         = excluded.opphav
+            returning *
+        """.trimIndent()
+
+        queryOf(query, avtale.toSqlParameters()).asExecute.let { db.run(it) }
     }
 
     fun get(id: UUID): QueryResult<AvtaleAdminDto?> = query {
@@ -352,6 +401,21 @@ class AvtaleRepository(private val db: Database) {
         "prisbetingelser" to prisbetingelser,
         "antall_plasser" to antallPlasser,
         "url" to url,
+        "opphav" to opphav.name,
+    )
+
+    private fun ArenaAvtaleDbo.toSqlParameters() = mapOf(
+        "id" to id,
+        "navn" to navn,
+        "tiltakstype_id" to tiltakstypeId,
+        "avtalenummer" to avtalenummer,
+        "leverandor_organisasjonsnummer" to leverandorOrganisasjonsnummer,
+        "start_dato" to startDato,
+        "slutt_dato" to sluttDato,
+        "arena_ansvarlig_enhet" to arenaAnsvarligEnhet,
+        "avtaletype" to avtaletype.name,
+        "avslutningsstatus" to avslutningsstatus.name,
+        "prisbetingelser" to prisbetingelser,
         "opphav" to opphav.name,
     )
 

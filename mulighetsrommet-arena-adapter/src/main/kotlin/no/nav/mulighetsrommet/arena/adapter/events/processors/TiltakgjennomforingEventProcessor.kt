@@ -25,12 +25,12 @@ import no.nav.mulighetsrommet.arena.adapter.utils.ArenaUtils
 import no.nav.mulighetsrommet.domain.Tiltakskoder.hasFellesOppstart
 import no.nav.mulighetsrommet.domain.Tiltakskoder.isGruppetiltak
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
+import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
-import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
-import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo.Oppstartstype.FELLES
-import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo.Oppstartstype.LOPENDE
-import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo.Tilgjengelighetsstatus.LEDIG
-import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo.Tilgjengelighetsstatus.STENGT
+import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype.FELLES
+import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype.LOPENDE
+import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingTilgjengelighetsstatus.LEDIG
+import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingTilgjengelighetsstatus.STENGT
 import java.util.*
 
 class TiltakgjennomforingEventProcessor(
@@ -155,7 +155,7 @@ class TiltakgjennomforingEventProcessor(
         }.mapLeft { ProcessingError.InvalidPayload(it.localizedMessage) }
 
     private fun Tiltaksgjennomforing.toDbo(tiltakstypeId: UUID, sak: Sak, virksomhetsnummer: String, avtaleId: UUID?) =
-        TiltaksgjennomforingDbo(
+        ArenaTiltaksgjennomforingDbo(
             id = id,
             navn = navn,
             tiltakstypeId = tiltakstypeId,
@@ -168,8 +168,6 @@ class TiltakgjennomforingEventProcessor(
             tilgjengelighet = if (apentForInnsok) LEDIG else STENGT,
             antallPlasser = antallPlasser,
             avtaleId = avtaleId,
-            ansvarlige = emptyList(),
-            navEnheter = emptyList(),
             oppstart = if (hasFellesOppstart(tiltakskode)) FELLES else LOPENDE,
             opphav = ArenaMigrering.Opphav.ARENA,
         )

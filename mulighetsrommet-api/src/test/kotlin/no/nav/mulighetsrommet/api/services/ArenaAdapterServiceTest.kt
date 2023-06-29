@@ -13,7 +13,6 @@ import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.database.utils.getOrThrow
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.*
-import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo.Tilgjengelighetsstatus
 import no.nav.mulighetsrommet.domain.dto.*
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -37,25 +36,22 @@ class ArenaAdapterServiceTest : FunSpec({
         tilDato = LocalDate.of(2023, 1, 12),
     )
 
-    val avtale = AvtaleDbo(
+    val avtale = ArenaAvtaleDbo(
         id = UUID.randomUUID(),
         navn = "Arbeidstrening",
         tiltakstypeId = tiltakstype.id,
         avtalenummer = "2023#1000",
         leverandorOrganisasjonsnummer = "123456789",
-        leverandorUnderenheter = emptyList(),
         startDato = LocalDate.of(2022, 11, 11),
         sluttDato = LocalDate.of(2023, 11, 11),
         arenaAnsvarligEnhet = "2990",
-        navRegion = null,
         avtaletype = Avtaletype.Rammeavtale,
         avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
         prisbetingelser = "💸",
         opphav = ArenaMigrering.Opphav.ARENA,
-        navEnheter = emptyList(),
     )
 
-    val tiltaksgjennomforing = TiltaksgjennomforingDbo(
+    val tiltaksgjennomforing = ArenaTiltaksgjennomforingDbo(
         id = UUID.randomUUID(),
         navn = "Arbeidstrening",
         tiltakstypeId = tiltakstype.id,
@@ -65,12 +61,11 @@ class ArenaAdapterServiceTest : FunSpec({
         sluttDato = LocalDate.of(2023, 11, 11),
         arenaAnsvarligEnhet = "2990",
         avslutningsstatus = Avslutningsstatus.AVSLUTTET,
-        tilgjengelighet = Tilgjengelighetsstatus.LEDIG,
+        tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.LEDIG,
         antallPlasser = null,
-        ansvarlige = emptyList(),
-        navEnheter = emptyList(),
-        oppstart = TiltaksgjennomforingDbo.Oppstartstype.FELLES,
+        oppstart = TiltaksgjennomforingOppstartstype.FELLES,
         opphav = ArenaMigrering.Opphav.ARENA,
+        avtaleId = null,
     )
 
     val tiltakshistorikkGruppe = TiltakshistorikkDbo.Gruppetiltak(
@@ -119,7 +114,7 @@ class ArenaAdapterServiceTest : FunSpec({
             sluttDato = sluttDato,
             arenaAnsvarligEnhet = arenaAnsvarligEnhet,
             status = Tiltaksgjennomforingsstatus.AVSLUTTET,
-            tilgjengelighet = Tilgjengelighetsstatus.LEDIG,
+            tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.LEDIG,
             antallPlasser = null,
             ansvarlig = null,
             navEnheter = emptyList(),

@@ -2,15 +2,13 @@ package no.nav.mulighetsrommet.api.repositories
 
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.collections.shouldContain
-import io.kotest.matchers.collections.shouldContainAll
-import io.kotest.matchers.collections.shouldContainExactly
-import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
-import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.collections.*
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
+import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.api.domain.dbo.OverordnetEnhetDbo
+import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
 import no.nav.mulighetsrommet.api.utils.VirksomhetFilter
 import no.nav.mulighetsrommet.api.utils.VirksomhetTil
@@ -18,10 +16,7 @@ import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListe
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.database.utils.getOrThrow
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
-import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
-import no.nav.mulighetsrommet.domain.dbo.AvtaleDbo
-import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
-import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
+import no.nav.mulighetsrommet.domain.dbo.*
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import no.nav.mulighetsrommet.domain.dto.VirksomhetKontaktperson
 import java.time.LocalDate
@@ -243,11 +238,11 @@ class VirksomhetRepositoryTest : FunSpec({
                 startDato = LocalDate.now(),
                 arenaAnsvarligEnhet = null,
                 avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
-                tilgjengelighet = TiltaksgjennomforingDbo.Tilgjengelighetsstatus.LEDIG,
+                tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.LEDIG,
                 antallPlasser = null,
                 ansvarlige = emptyList(),
                 navEnheter = emptyList(),
-                oppstart = TiltaksgjennomforingDbo.Oppstartstype.FELLES,
+                oppstart = TiltaksgjennomforingOppstartstype.FELLES,
                 opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
             )
             tiltaksgjennomforingRepository.upsert(tiltaksgjennomforing).shouldBeRight()
