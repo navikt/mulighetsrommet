@@ -1,0 +1,2 @@
+alter view tiltaksgjennomforing_admin_dto_view rename column virksomhetsnummer to arrangor_organisasjonsnummer;
+alter view tiltaksgjennomforing_admin_dto_view rename column virksomhetsnavn to arrangor_navn;
