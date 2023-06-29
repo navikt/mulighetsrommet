@@ -64,8 +64,8 @@ class NavAnsattServiceTest : FunSpec({
 
             val azureId = UUID.randomUUID()
 
-            coEvery { msGraph.getNavAnsatt("", azureId) } returns ansatt1
-            coEvery { msGraph.getNavAnsattAdGrupper("", azureId) } returns listOf(
+            coEvery { msGraph.getNavAnsatt(azureId) } returns ansatt1
+            coEvery { msGraph.getNavAnsattAdGrupper(azureId) } returns listOf(
                 AdGruppe(id = betabruker.adGruppeId, navn = "Betabruker"),
                 AdGruppe(
                     id = UUID.randomUUID(),
@@ -88,8 +88,8 @@ class NavAnsattServiceTest : FunSpec({
 
             val azureId = UUID.randomUUID()
 
-            coEvery { msGraph.getNavAnsatt("", azureId) } returns ansatt1
-            coEvery { msGraph.getNavAnsattAdGrupper("", azureId) } returns listOf(
+            coEvery { msGraph.getNavAnsatt(azureId) } returns ansatt1
+            coEvery { msGraph.getNavAnsattAdGrupper(azureId) } returns listOf(
                 AdGruppe(id = betabruker.adGruppeId, navn = "Betabruker"),
             )
 

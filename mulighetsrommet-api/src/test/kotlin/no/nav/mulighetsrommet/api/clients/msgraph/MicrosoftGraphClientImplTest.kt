@@ -34,7 +34,7 @@ class MicrosoftGraphClientImplTest : FunSpec({
 
         val client = createClient(engine)
 
-        client.getNavAnsatt("token", id) shouldBe AzureAdNavAnsatt(
+        client.getNavAnsatt(id) shouldBe AzureAdNavAnsatt(
             azureId = id,
             navIdent = "DD123456",
             fornavn = "Donald",
@@ -59,6 +59,6 @@ class MicrosoftGraphClientImplTest : FunSpec({
 
         val client = createClient(engine)
 
-        client.getMemberGroups("token", id) shouldBe listOf(AdGruppe(group.id, group.displayName))
+        client.getMemberGroups(id) shouldBe listOf(AdGruppe(group.id, group.displayName))
     }
 })

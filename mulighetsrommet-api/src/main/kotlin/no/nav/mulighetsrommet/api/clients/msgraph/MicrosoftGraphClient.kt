@@ -4,9 +4,9 @@ import no.nav.mulighetsrommet.api.domain.dto.AdGruppe
 import java.util.*
 
 interface MicrosoftGraphClient {
-    suspend fun getNavAnsatt(accessToken: String, navAnsattAzureId: UUID): AzureAdNavAnsatt
+    suspend fun getNavAnsatt(navAnsattAzureId: UUID, oboToken: String? = null): AzureAdNavAnsatt
 
-    suspend fun getMemberGroups(accessToken: String, navAnsattAzureId: UUID): List<AdGruppe>
+    suspend fun getMemberGroups(navAnsattAzureId: UUID, oboToken: String? = null): List<AdGruppe>
 
     suspend fun getGroupMembers(groupId: UUID): List<AzureAdNavAnsatt>
 }

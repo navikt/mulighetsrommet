@@ -25,36 +25,33 @@ class MicrosoftGraphServiceTest : FunSpec({
                 mobilnummer = "12345678",
                 epost = "test@test.no",
             )
-            val mockAccessToken = "123"
 
             val client: MicrosoftGraphClient = mockk()
             coEvery {
-                client.getNavAnsatt(mockAccessToken, navAnsattAzureId)
+                client.getNavAnsatt(navAnsattAzureId)
             } returns mockResponse
 
             val service = MicrosoftGraphService(client)
-            val result = service.getNavAnsatt(mockAccessToken, navAnsattAzureId)
+            val result = service.getNavAnsatt(navAnsattAzureId)
 
-            service.getNavAnsatt(mockAccessToken, navAnsattAzureId)
-            service.getNavAnsatt(mockAccessToken, navAnsattAzureId)
-            service.getNavAnsatt(mockAccessToken, navAnsattAzureId)
+            service.getNavAnsatt(navAnsattAzureId)
+            service.getNavAnsatt(navAnsattAzureId)
+            service.getNavAnsatt(navAnsattAzureId)
 
             result shouldBe mockResponse
             coVerify(exactly = 1) {
-                client.getNavAnsatt(mockAccessToken, navAnsattAzureId)
+                client.getNavAnsatt(navAnsattAzureId)
             }
         }
 
         test("Når man kaller hentAnsattData og ikke finner bruker skal det kastes en feil") {
             val client: MicrosoftGraphClient = mockk()
-            coEvery {
-                client.getNavAnsatt("123", navAnsattAzureId)
-            } throws RuntimeException("Klarte ikke hente bruker")
+            coEvery { client.getNavAnsatt(navAnsattAzureId) } throws RuntimeException("Klarte ikke hente bruker")
 
             val service = MicrosoftGraphService(client)
 
             shouldThrow<RuntimeException> {
-                service.getNavAnsatt("123", navAnsattAzureId)
+                service.getNavAnsatt(navAnsattAzureId)
             }
         }
     }

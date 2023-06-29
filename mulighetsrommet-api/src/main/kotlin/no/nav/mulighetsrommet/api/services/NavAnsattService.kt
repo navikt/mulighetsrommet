@@ -40,7 +40,7 @@ class NavAnsattService(
     suspend fun getNavAnsattFromAzure(azureId: UUID): NavAnsattDto {
         val rolesDirectory = roles.associateBy { it.adGruppeId }
 
-        val roller = microsoftGraphService.getNavAnsattAdGrupper("", azureId)
+        val roller = microsoftGraphService.getNavAnsattAdGrupper(azureId)
             .filter { rolesDirectory.containsKey(it.id) }
             .map { rolesDirectory.getValue(it.id).rolle }
 
@@ -49,7 +49,7 @@ class NavAnsattService(
             throw IllegalStateException("Ansatt med azureId=$azureId har ingen av de påkrevde rollene")
         }
 
-        val ansatt = microsoftGraphService.getNavAnsatt("", azureId)
+        val ansatt = microsoftGraphService.getNavAnsatt(azureId)
         return NavAnsattDto.fromAzureAdNavAnsatt(ansatt, roller)
     }
 

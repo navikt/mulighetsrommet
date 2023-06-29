@@ -39,15 +39,15 @@ class MicrosoftGraphService(private val client: MicrosoftGraphClient) {
         cacheMetrics.addCache("azureAdGroupMembersCache", azureAdGroupMembersCache)
     }
 
-    suspend fun getNavAnsatt(accessToken: String, navAnsattAzureId: UUID): AzureAdNavAnsatt {
+    suspend fun getNavAnsatt(navAnsattAzureId: UUID, oboToken: String? = null): AzureAdNavAnsatt {
         return CacheUtils.tryCacheFirstNotNull(ansattDataCache, navAnsattAzureId) {
-            client.getNavAnsatt(accessToken, navAnsattAzureId)
+            client.getNavAnsatt(navAnsattAzureId, oboToken)
         }
     }
 
-    suspend fun getNavAnsattAdGrupper(accessToken: String, navAnsattAzureId: UUID): List<AdGruppe> {
+    suspend fun getNavAnsattAdGrupper(navAnsattAzureId: UUID): List<AdGruppe> {
         return CacheUtils.tryCacheFirstNotNull(navAnsattAdGrupperCache, navAnsattAzureId) {
-            client.getMemberGroups(accessToken, navAnsattAzureId)
+            client.getMemberGroups(navAnsattAzureId)
         }
     }
 

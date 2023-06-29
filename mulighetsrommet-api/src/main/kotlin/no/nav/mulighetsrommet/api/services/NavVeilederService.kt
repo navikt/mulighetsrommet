@@ -6,8 +6,8 @@ import java.util.*
 class NavVeilederService(
     private val microsoftGraphService: MicrosoftGraphService,
 ) {
-    suspend fun getNavVeileder(azureId: UUID): NavVeilederDto {
-        val ansatt = microsoftGraphService.getNavAnsatt("", azureId)
+    suspend fun getNavVeileder(azureId: UUID, oboToken: String): NavVeilederDto {
+        val ansatt = microsoftGraphService.getNavAnsatt(azureId, oboToken)
         return NavVeilederDto(
             navIdent = ansatt.navIdent,
             fornavn = ansatt.fornavn,
