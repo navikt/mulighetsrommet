@@ -1,10 +1,10 @@
 import { Header } from "@navikt/ds-react-internal";
 import { Link } from "react-router-dom";
-import { useHentAnsatt } from "../../api/administrator/useHentAdministrator";
 import { NavigeringHeader } from "../../pages/forside/NavigeringHeader";
 import { capitalize } from "../../utils/Utils";
 import styles from "./AdministratorHeader.module.scss";
 import { Notifikasjonsbjelle } from "../notifikasjoner/Notifikasjonsbjelle";
+import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
 
 export function AdministratorHeader() {
   const response = useHentAnsatt();
