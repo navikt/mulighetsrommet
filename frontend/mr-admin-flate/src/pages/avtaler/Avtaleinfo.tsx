@@ -1,20 +1,25 @@
+import { ExternalLinkIcon } from "@navikt/aksel-icons";
+import { Alert, Button, Heading } from "@navikt/ds-react";
 import { useState } from "react";
-import { Alert, Button } from "@navikt/ds-react";
+import { NavLink, useParams } from "react-router-dom";
 import { useAvtale } from "../../api/avtaler/useAvtale";
 import { useFeatureToggles } from "../../api/features/feature-toggles";
-import { Metadata, Separator } from "../../components/detaljside/Metadata";
+import OpprettAvtaleModal from "../../components/avtaler/OpprettAvtaleModal";
+import SlettAvtaleModal from "../../components/avtaler/SlettAvtaleModal";
+import { Bolk } from "../../components/detaljside/Bolk";
+import {
+  Liste,
+  Metadata,
+  Separator,
+} from "../../components/detaljside/Metadata";
+import { VisHvisVerdi } from "../../components/detaljside/VisHvisVerdi";
 import { Laster } from "../../components/laster/Laster";
 import {
   avtaletypeTilTekst,
-  capitalizeEveryWord,
   formaterDato,
   tiltakstypekodeErAnskaffetTiltak,
 } from "../../utils/Utils";
 import styles from "../DetaljerInfo.module.scss";
-import { NavLink, useParams } from "react-router-dom";
-import OpprettAvtaleModal from "../../components/avtaler/OpprettAvtaleModal";
-import { ExternalLinkIcon } from "@navikt/aksel-icons";
-import SlettAvtaleModal from "../../components/avtaler/SlettAvtaleModal";
 
 export function Avtaleinfo() {
   const { avtaleId } = useParams<{ avtaleId: string }>();
@@ -70,79 +75,126 @@ export function Avtaleinfo() {
   return (
     <div className={styles.container}>
       <div className={styles.detaljer}>
-        <div className={styles.bolk}>
-          <Metadata header="Startdato" verdi={formaterDato(avtale.startDato)} />
-          <Metadata header="Sluttdato" verdi={formaterDato(avtale.sluttDato)} />
-        </div>
-        <Separator />
-        <div className={styles.bolk}>
+        <Bolk aria-label="Avtalenavn">
+          <Metadata header="Avtalenavn" verdi={avtale.navn} />
+          <VisHvisVerdi verdi={avtale.avtalenummer}>
+            <Metadata header="Avtalenr" verdi={avtale.avtalenummer} />
+          </VisHvisVerdi>
+        </Bolk>
+        <Bolk aria-label="Tiltakstype">
           <Metadata header="Tiltakstype" verdi={avtale.tiltakstype.navn} />
-          <Metadata header="Region" verdi={avtale.navRegion?.navn} />
-
+        </Bolk>
+        <Bolk aria-label="Avtaletype">
           <Metadata
             header="Avtaletype"
             verdi={avtaletypeTilTekst(avtale.avtaletype)}
           />
-          {avtale.avtalenummer ? (
-            <Metadata header="Avtalenr" verdi={avtale.avtalenummer} />
-          ) : null}
-        </div>
+        </Bolk>
         <Separator />
-        <div className={styles.bolk}>
+        <Heading size="small" as="h3">
+          Avtalens varighet
+        </Heading>
+        <Bolk aria-label="Start- og sluttdato">
+          <Metadata header="Startdato" verdi={formaterDato(avtale.startDato)} />
+          <Metadata header="Sluttdato" verdi={formaterDato(avtale.sluttDato)} />
+        </Bolk>
+        <Separator />
+
+        <Bolk aria-label="Avtale">
+          <VisHvisVerdi verdi={avtale.url}>
+            <NavLink
+              key={avtale.url}
+              to={avtale.url!}
+              className={({ isActive }) =>
+                isActive ? styles.navlink_active : styles.navlink
+              }
+            >
+              {lenketekst}
+            </NavLink>
+          </VisHvisVerdi>
+        </Bolk>
+        <Bolk aria-label="Pris- og betalingsbetingelser">
+          {tiltakstypekodeErAnskaffetTiltak(avtale.tiltakstype.arenaKode) ? (
+            <Metadata
+              header="Pris- og betalingsbetingelser"
+              verdi={
+                avtale.prisbetingelser ??
+                "Det eksisterer ikke pris og betalingsbetingelser for denne avtalen"
+              }
+            />
+          ) : null}
+        </Bolk>
+        <VisHvisVerdi verdi={avtale.ansvarlig}>
+          <Bolk aria-label="Avtaleansvarlig">
+            <Metadata header="Avtaleansvarlig" verdi={avtale.ansvarlig} />
+          </Bolk>
+        </VisHvisVerdi>
+      </div>
+
+      <div className={styles.detaljer}>
+        <Bolk aria-label="NAV-region">
+          <Metadata header="NAV-region" verdi={avtale.navRegion?.navn} />
+        </Bolk>
+        <Bolk aria-label="NAV-enheter">
           <Metadata
-            header="Leverandør"
+            header="NAV-enheter (kontorer)"
             verdi={
-              capitalizeEveryWord(avtale.leverandor?.navn) ||
-              avtale.leverandor?.organisasjonsnummer
+              <Liste
+                elementer={avtale.navEnheter.map((enhet) => ({
+                  key: enhet.enhetsnummer,
+                  value: enhet.navn,
+                }))}
+                tekstHvisTom="Alle enheter"
+              />
+            }
+          />{" "}
+        </Bolk>
+        <Separator />
+
+        <Bolk aria-label="Tiltaksleverandør hovedenhet">
+          <Metadata
+            header="Tiltaksleverandør hovedenhet"
+            verdi={`${avtale.leverandor.navn} - ${avtale.leverandor.organisasjonsnummer}`}
+          />
+        </Bolk>
+
+        <Bolk aria-label="Arrangører underenheter">
+          <Metadata
+            header="Arrangører underenheter"
+            verdi={
+              <Liste
+                elementer={avtale.leverandorUnderenheter
+                  .filter((enhet) => enhet.navn)
+                  .map((enhet) => ({
+                    key: enhet.organisasjonsnummer,
+                    value: `${enhet.navn} - ${enhet.organisasjonsnummer}`,
+                  }))}
+                tekstHvisTom="Alle underenheter for arrangør"
+              />
             }
           />
-        {avtale.leverandorKontaktperson &&
+        </Bolk>
+
+        <Separator />
+
+        <VisHvisVerdi verdi={avtale.leverandorKontaktperson}>
+          <Bolk aria-label="Kontaktperson">
             <Metadata
               header="Kontaktperson"
               verdi={
                 <div className={styles.leverandor_kontaktinfo}>
                   <label>{avtale.leverandorKontaktperson?.navn}</label>
                   <label>{avtale.leverandorKontaktperson?.telefon}</label>
-                  <a href={`mailto:${avtale.leverandorKontaktperson?.epost}`}>{avtale.leverandorKontaktperson?.epost}</a> 
+                  <a href={`mailto:${avtale.leverandorKontaktperson?.epost}`}>
+                    {avtale.leverandorKontaktperson?.epost}
+                  </a>
                 </div>
               }
             />
-        }
-        </div>
-        <Separator />
-        {tiltakstypekodeErAnskaffetTiltak(avtale.tiltakstype.arenaKode) ? (
-          <>
-            <div>
-              <Metadata
-                header="Pris og betalingsbetingelser"
-                verdi={
-                  avtale.prisbetingelser ??
-                  "Det eksisterer ikke pris og betalingsbetingelser for denne avtalen"
-                }
-              />
-            </div>
-            <Separator />
-          </>
-        ) : null}
-
-        {avtale.ansvarlig && (
-          <div>
-            <Metadata header="Avtaleansvarlig" verdi={avtale.ansvarlig} />
-          </div>
-        )}
-
-        {avtale.url && (
-          <NavLink
-            key={avtale.url}
-            to={avtale.url}
-            className={({ isActive }) =>
-              isActive ? styles.navlink_active : styles.navlink
-            }
-          >
-            {lenketekst}
-          </NavLink>
-        )}
+          </Bolk>
+        </VisHvisVerdi>
       </div>
+
       <div className={styles.knapperad}>
         <div>
           {features?.["mulighetsrommet.admin-flate-slett-avtale"] ? (

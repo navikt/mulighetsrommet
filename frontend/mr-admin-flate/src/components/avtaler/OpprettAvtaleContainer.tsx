@@ -99,8 +99,8 @@ export function OpprettAvtaleContainer({
         avtale?.leverandorUnderenheter.length === 0
           ? []
           : avtale?.leverandorUnderenheter?.map(
-            (enhet) => enhet.organisasjonsnummer
-          ),
+              (enhet) => enhet.organisasjonsnummer
+            ),
       leverandorKontaktpersonId: avtale?.leverandorKontaktperson?.id,
       startOgSluttDato: {
         startDato: avtale?.startDato ? new Date(avtale.startDato) : undefined,
@@ -135,8 +135,8 @@ export function OpprettAvtaleContainer({
   const arenaOpphav = avtale?.opphav === Opphav.ARENA;
   const navn = ansatt?.fornavn
     ? [ansatt.fornavn, ansatt.etternavn ?? ""]
-      .map((it) => capitalize(it))
-      .join(" ")
+        .map((it) => capitalize(it))
+        .join(" ")
     : "";
 
   const postData: SubmitHandler<inferredSchema> = async (
@@ -220,8 +220,8 @@ export function OpprettAvtaleContainer({
             {(mutation.error as ApiError).status === 400
               ? (mutation.error as ApiError).body
               : "Avtalen kunne ikke opprettes på grunn av en teknisk feil hos oss. " +
-              "Forsøk på nytt eller ta <a href={porten}>kontakt</a> i Porten dersom " +
-              "du trenger mer hjelp."}
+                "Forsøk på nytt eller ta <a href={porten}>kontakt</a> i Porten dersom " +
+                "du trenger mer hjelp."}
           </>
         }
         onClose={onClose}
@@ -391,19 +391,19 @@ export function OpprettAvtaleContainer({
             options={underenheterOptions()}
           />
         </FormGroup>
-        { watch('leverandor') &&
+        {watch("leverandor") && (
           <FormGroup>
             <div className={styles.kontaktperson_container}>
-              <label className={styles.kontaktperson_label} >
+              <label className={styles.kontaktperson_label}>
                 <b>Kontaktperson hos leverandøren</b>
               </label>
               <VirksomhetKontaktpersoner
-                orgnr={watch('leverandor')}
-                formValueName={'leverandorKontaktpersonId'}
+                orgnr={watch("leverandor")}
+                formValueName={"leverandorKontaktpersonId"}
               />
             </div>
           </FormGroup>
-        }
+        )}
         <FormGroup>
           <TextField
             size="small"
