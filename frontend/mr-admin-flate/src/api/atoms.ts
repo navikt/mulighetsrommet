@@ -25,8 +25,8 @@ export const faneAtom = atomWithHash("fane", "tab_notifikasjoner_1", {
 
 export interface TiltakstypeFilter {
   sok?: string;
-  status?: Tiltakstypestatus;
-  kategori?: Tiltakstypekategori;
+  status: Tiltakstypestatus | "";
+  kategori?: Tiltakstypekategori | "";
   sortering?: SorteringTiltakstyper;
 }
 
@@ -49,9 +49,9 @@ export interface Tiltaksgjennomforingfilter {
   search: string;
   enhet: string;
   tiltakstype: string;
-  status: TiltaksgjennomforingStatus;
+  status: TiltaksgjennomforingStatus | "";
   sortering: SorteringTiltaksgjennomforinger;
-  fylkesenhet: string;
+  navRegion: string;
   avtale: string;
   arrangorOrgnr: string;
   antallGjennomforingerVises: number;
@@ -63,7 +63,7 @@ export const defaultTiltaksgjennomforingfilter: Tiltaksgjennomforingfilter = {
   tiltakstype: "",
   status: TiltaksgjennomforingStatus.GJENNOMFORES,
   sortering: SorteringTiltaksgjennomforinger.NAVN_ASCENDING,
-  fylkesenhet: "",
+  navRegion: "",
   avtale: "",
   arrangorOrgnr: "",
   antallGjennomforingerVises: PAGE_SIZE,
@@ -86,7 +86,7 @@ export type AvtaleTabs = "avtaleinfo" | "tiltaksgjennomforinger" | "nokkeltall";
 
 export interface AvtaleFilterProps {
   sok: string;
-  status: Avtalestatus;
+  status: Avtalestatus | "";
   navRegion: string;
   tiltakstype: string;
   sortering: SorteringAvtaler;
