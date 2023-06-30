@@ -268,6 +268,22 @@ export function Avtalefilter(props: Props) {
                 }}
               />
             }
+            { (filter.status || filter.navRegion || filter.tiltakstype || filter.leverandor_orgnr) &&
+              <Button
+                type="button"
+                size="small"
+                variant="tertiary"
+                onClick={() => {
+                  setFilter({ ...defaultAvtaleFilter, status: "" });
+                  setValue('status', "");
+                  setValue('navRegion', defaultAvtaleFilter.navRegion);
+                  setValue('tiltakstype', defaultAvtaleFilter.tiltakstype);
+                  setValue('leverandor_orgnr', defaultAvtaleFilter.leverandor_orgnr);
+                }}
+              >
+                Tilbakestill filter
+              </Button>
+            }
           </div>
         </div>
       </form>

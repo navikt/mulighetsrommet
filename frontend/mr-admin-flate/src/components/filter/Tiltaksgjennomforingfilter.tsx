@@ -359,6 +359,23 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
                 }}
               />
             }
+            { (filter.navRegion || filter.enhet || filter.tiltakstype || filter.status || filter.arrangorOrgnr) &&
+              <Button
+                type="button"
+                size="small"
+                variant="tertiary"
+                onClick={() => {
+                  setFilter({ ...defaultTiltaksgjennomforingfilter, status: "" });
+                  setValue('status', "");
+                  setValue('enhet', defaultTiltaksgjennomforingfilter.enhet);
+                  setValue('navRegion', defaultTiltaksgjennomforingfilter.navRegion);
+                  setValue('tiltakstype', defaultTiltaksgjennomforingfilter.tiltakstype);
+                  setValue('arrangorOrgnr', defaultTiltaksgjennomforingfilter.arrangorOrgnr);
+                }}
+              >
+                Tilbakestill filter
+              </Button>
+            }
           </div>
         </div>
       </form>

@@ -1,4 +1,4 @@
-import { Search } from "@navikt/ds-react";
+import { Button, Search } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { RESET } from "jotai/vanilla/utils";
 import { useEffect } from "react";
@@ -120,6 +120,21 @@ export function Tiltakstypefilter() {
                   setValue('kategori', "");
                 }}
               />
+            }
+            { (filter.status || filter.kategori) &&
+              <Button
+                style={{ height: "16px", maxHeight: "16px" }}
+                type="button"
+                size="small"
+                variant="tertiary"
+                onClick={() => {
+                  setFilter({ status: "", kategori: "" });
+                  setValue('status', "");
+                  setValue('kategori', "");
+                }}
+              >
+                Tilbakestill filter
+              </Button>
             }
           </div>
         </div>
