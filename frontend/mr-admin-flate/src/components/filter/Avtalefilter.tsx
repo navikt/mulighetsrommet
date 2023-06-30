@@ -25,7 +25,6 @@ import { resetPaginering, valueOrDefault } from "../../utils/Utils";
 import OpprettAvtaleModal from "../avtaler/OpprettAvtaleModal";
 import { SokeSelect } from "../skjema/SokeSelect";
 import styles from "./Filter.module.scss";
-import { RESET } from "jotai/vanilla/utils";
 import { faro } from "@grafana/faro-web-sdk";
 import { useNavigate } from "react-router-dom";
 import { FilterTag } from "./FilterTag";
@@ -68,11 +67,6 @@ export function Avtalefilter(props: Props) {
       searchRef?.current?.focus();
     }
   }, [avtaler]);
-
-  useEffect(() => {
-    // Reset filter når vi unmounter
-    return () => setFilter(RESET);
-  }, []);
 
   const regionOptions = () => {
     const alleOptions = { value: "", label: "Alle regioner" };

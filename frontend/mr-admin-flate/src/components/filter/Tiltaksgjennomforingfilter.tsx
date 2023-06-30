@@ -7,7 +7,7 @@ import {
   Tiltakstypestatus,
   VirksomhetTil,
 } from "mulighetsrommet-api-client";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import {
   Tiltaksgjennomforingfilter as TiltaksgjennomforingAtomFilter,
@@ -32,7 +32,6 @@ import { LeggTilGjennomforingModal } from "../modal/LeggTilGjennomforingModal";
 import { OpprettTiltaksgjennomforingModal } from "../modal/OpprettTiltaksgjennomforingModal";
 import { SokeSelect } from "../skjema/SokeSelect";
 import styles from "./Filter.module.scss";
-import { RESET } from "jotai/vanilla/utils";
 import { useNavigate } from "react-router-dom";
 import classNames from "classnames";
 import { FilterTag } from "./FilterTag";
@@ -64,11 +63,6 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
     },
   });
   const { register, setValue } = form;
-
-  useEffect(() => {
-    // Reset filter når vi unmounter
-    return () => setFilter(RESET);
-  }, []);
 
   const features = useFeatureToggles();
   const visOpprettTiltaksgjennomforingKnapp =
