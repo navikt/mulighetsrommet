@@ -246,7 +246,7 @@ private fun services(appConfig: AppConfig) = module {
     single { ArrangorService(get()) }
     single { BrukerService(get(), get(), get()) }
     single { DialogService(get()) }
-    single { NavAnsattService(get(), get()) }
+    single { NavAnsattService(get(), get(), appConfig.navAnsattService.roller) }
     single { PoaoTilgangService(get()) }
     single { DelMedBrukerService(get()) }
     single { MicrosoftGraphService(get()) }
@@ -256,6 +256,7 @@ private fun services(appConfig: AppConfig) = module {
     single { NavEnheterSyncService(get(), get(), get(), get()) }
     single { KafkaSyncService(get(), get(), get(), get()) }
     single { NavEnhetService(get()) }
+    single { NavVeilederService(get()) }
     single { TilgjengelighetsstatusSanitySyncService(get(), get()) }
     single { NotificationService(get(), get(), get()) }
     single { VirksomhetService(get(), get()) }
@@ -276,14 +277,13 @@ private fun tasks(config: TaskConfig) = module {
             get(),
             get(),
         )
-        val synchronizeNavAnsatte = SynchronizeNavAnsatte(config.synchronizeNavAnsatte, get(), get(), get())
-        val notifySluttdatoForGjennomforingerNarmerSeg =
-            NotifySluttdatoForGjennomforingerNarmerSeg(
-                config.notifySluttdatoForGjennomforingerNarmerSeg,
-                get(),
-                get(),
-                get(),
-            )
+        val synchronizeNavAnsatte = SynchronizeNavAnsatte(config.synchronizeNavAnsatte, get(), get())
+        val notifySluttdatoForGjennomforingerNarmerSeg = NotifySluttdatoForGjennomforingerNarmerSeg(
+            config.notifySluttdatoForGjennomforingerNarmerSeg,
+            get(),
+            get(),
+            get(),
+        )
         val notifySluttdatoForAvtalerNarmerSeg =
             NotifySluttdatoForAvtalerNarmerSeg(config.notifySluttdatoForAvtalerNarmerSeg, get(), get(), get())
         val notifyFailedKafkaEvents = NotifyFailedKafkaEvents(

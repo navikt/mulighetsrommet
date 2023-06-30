@@ -4,7 +4,6 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.ktor.client.engine.mock.*
 import no.nav.mulighetsrommet.api.domain.dto.AdGruppe
-import no.nav.mulighetsrommet.api.domain.dto.NavAnsattDto
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.respondJson
 import java.util.*
@@ -35,14 +34,14 @@ class MicrosoftGraphClientImplTest : FunSpec({
 
         val client = createClient(engine)
 
-        client.getNavAnsatt("token", id) shouldBe NavAnsattDto(
+        client.getNavAnsatt(id) shouldBe AzureAdNavAnsatt(
             azureId = id,
-            navident = "DD123456",
+            navIdent = "DD123456",
             fornavn = "Donald",
             etternavn = "Duck",
             hovedenhetKode = "0400",
             hovedenhetNavn = "Andeby",
-            mobilnr = "12345678",
+            mobilnummer = "12345678",
             epost = "donald.duck@nav.no",
         )
     }
@@ -60,6 +59,6 @@ class MicrosoftGraphClientImplTest : FunSpec({
 
         val client = createClient(engine)
 
-        client.getMemberGroups("token", id) shouldBe listOf(AdGruppe(group.id, group.displayName))
+        client.getMemberGroups(id) shouldBe listOf(AdGruppe(group.id, group.displayName))
     }
 })

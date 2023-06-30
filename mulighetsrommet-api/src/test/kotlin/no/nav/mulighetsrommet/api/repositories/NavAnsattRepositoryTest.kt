@@ -8,6 +8,7 @@ import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
+import no.nav.mulighetsrommet.api.domain.dto.NavAnsattDto
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import java.util.*
 
@@ -18,15 +19,33 @@ class NavAnsattRepositoryTest : FunSpec({
         val enheter = NavEnhetRepository(database.db)
         val ansatte = NavAnsattRepository(database.db)
 
+        val enhet = NavEnhetDbo(
+            enhetsnummer = "1000",
+            navn = "Andeby",
+            status = NavEnhetStatus.AKTIV,
+            type = Norg2Type.LOKAL,
+            overordnetEnhet = null,
+        )
+
         beforeAny {
-            val enhet = NavEnhetDbo(
-                enhetsnummer = "1000",
-                navn = "Andeby",
-                status = NavEnhetStatus.AKTIV,
-                type = Norg2Type.LOKAL,
-                overordnetEnhet = null,
-            )
             enheter.upsert(enhet).shouldBeRight()
+        }
+
+        fun toDto(dbo: NavAnsattDbo) = dbo.run {
+            NavAnsattDto(
+                azureId = azureId,
+                navIdent = navIdent,
+                fornavn = fornavn,
+                etternavn = etternavn,
+                hovedenhet = NavAnsattDto.Hovedenhet(
+                    enhetsnummer = hovedenhet,
+                    navn = enhet.navn,
+                ),
+                mobilnummer = mobilnummer,
+                epost = epost,
+                roller = roller,
+                skalSlettesDato = skalSlettesDato,
+            )
         }
 
         test("CRUD") {
@@ -45,8 +64,8 @@ class NavAnsattRepositoryTest : FunSpec({
 
             ansatte.upsert(ansatt).shouldBeRight()
 
-            ansatte.getByAzureId(ansatt.azureId) shouldBeRight ansatt
-            ansatte.getByNavIdent(ansatt.navIdent) shouldBeRight ansatt
+            ansatte.getByAzureId(ansatt.azureId) shouldBeRight toDto(ansatt)
+            ansatte.getByNavIdent(ansatt.navIdent) shouldBeRight toDto(ansatt)
 
             ansatte.deleteByAzureId(ansatt.azureId).shouldBeRight()
 
@@ -94,13 +113,13 @@ class NavAnsattRepositoryTest : FunSpec({
 
             ansatte.getAll(
                 roller = listOf(NavAnsattRolle.BETABRUKER),
-            ) shouldBeRight listOf(ansatt1, ansatt3)
+            ) shouldBeRight listOf(toDto(ansatt1), toDto(ansatt3))
             ansatte.getAll(
                 roller = listOf(NavAnsattRolle.KONTAKTPERSON),
-            ) shouldBeRight listOf(ansatt2, ansatt3)
+            ) shouldBeRight listOf(toDto(ansatt2), toDto(ansatt3))
             ansatte.getAll(
                 roller = listOf(NavAnsattRolle.BETABRUKER, NavAnsattRolle.KONTAKTPERSON),
-            ) shouldBeRight listOf(ansatt3)
+            ) shouldBeRight listOf(toDto(ansatt3))
         }
     }
 })

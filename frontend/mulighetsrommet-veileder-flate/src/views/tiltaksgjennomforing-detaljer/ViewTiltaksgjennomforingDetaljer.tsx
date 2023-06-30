@@ -1,7 +1,7 @@
 import { Chat2Icon, CheckmarkIcon } from '@navikt/aksel-icons';
 import { Alert, Button, Link, Loader } from '@navikt/ds-react';
 import { useAtom } from 'jotai';
-import { Ansatt, SanityTiltakstype } from 'mulighetsrommet-api-client';
+import { NavVeileder, SanityTiltakstype } from 'mulighetsrommet-api-client';
 import { useState } from 'react';
 import { BrukerHarIkke14aVedtakVarsel } from '../../components/ikkeKvalifisertVarsel/BrukerHarIkke14aVedtakVarsel';
 import { BrukerKvalifisererIkkeVarsel } from '../../components/ikkeKvalifisertVarsel/BrukerKvalifisererIkkeVarsel';
@@ -13,7 +13,7 @@ import { TilgjengelighetsstatusComponent } from '../../components/oversikt/Tilgj
 import SidemenyDetaljer from '../../components/sidemeny/SidemenyDetaljer';
 import TiltaksdetaljerFane from '../../components/tabs/TiltaksdetaljerFane';
 import Tilbakeknapp from '../../components/tilbakeknapp/Tilbakeknapp';
-import { VIS_JOYRIDE, useFeatureToggles } from '../../core/api/feature-toggles';
+import { useFeatureToggles, VIS_JOYRIDE } from '../../core/api/feature-toggles';
 import { logEvent } from '../../core/api/logger';
 import { useGetTiltaksgjennomforingIdFraUrl } from '../../core/api/queries/useGetTiltaksgjennomforingIdFraUrl';
 import { useHentBrukerdata } from '../../core/api/queries/useHentBrukerdata';
@@ -55,8 +55,12 @@ function lenkeTilOpprettAvtaleForEnv(): string {
   return `${baseUrl}tiltaksgjennomforing/opprett-avtale`;
 }
 
-function resolveName(ansatt?: Ansatt) {
-  return [ansatt?.fornavn ?? '', ansatt?.etternavn ?? '']
+function resolveName(ansatt?: NavVeileder) {
+  if (!ansatt) {
+    return '';
+  }
+
+  return [ansatt.fornavn, ansatt.etternavn]
     .filter(part => part !== '')
     .map(capitalize)
     .join(' ');
