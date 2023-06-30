@@ -100,19 +100,6 @@ export function Avtaleinfo() {
         </Bolk>
         <Separator />
 
-        <Bolk aria-label="Avtale">
-          <VisHvisVerdi verdi={avtale.url}>
-            <NavLink
-              key={avtale.url}
-              to={avtale.url!}
-              className={({ isActive }) =>
-                isActive ? styles.navlink_active : styles.navlink
-              }
-            >
-              {lenketekst}
-            </NavLink>
-          </VisHvisVerdi>
-        </Bolk>
         <Bolk aria-label="Pris- og betalingsbetingelser">
           {tiltakstypekodeErAnskaffetTiltak(avtale.tiltakstype.arenaKode) ? (
             <Metadata
@@ -124,6 +111,17 @@ export function Avtaleinfo() {
             />
           ) : null}
         </Bolk>
+        <VisHvisVerdi verdi={avtale.url}>
+          <NavLink
+            key={avtale.url}
+            to={avtale.url!}
+            className={({ isActive }) =>
+              isActive ? styles.navlink_active : styles.navlink
+            }
+          >
+            {lenketekst}
+          </NavLink>
+        </VisHvisVerdi>
         <VisHvisVerdi verdi={avtale.ansvarlig}>
           <Bolk aria-label="Avtaleansvarlig">
             <Metadata header="Avtaleansvarlig" verdi={avtale.ansvarlig} />

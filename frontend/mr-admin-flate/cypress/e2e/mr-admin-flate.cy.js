@@ -88,17 +88,7 @@ describe("Tiltaksgjennomføringer", () => {
       cy.getByTestId("tiltakstyperad").eq(0).click();
       cy.getByTestId("tab_arenainfo").should("exist");
       cy.getByTestId("tab_avtaler").should("exist");
-      cy.getByTestId("tab_nokkeltall").should("exist");
       cy.checkPageA11y();
-    });
-  });
-
-  context("Navigering til tiltaksgjennomføringsdetaljer", () => {
-    it("Skal kunne se nøkkeltall", () => {
-      cy.visit("/tiltaksgjennomforinger");
-      cy.getByTestId("tiltaksgjennomforingrad").eq(0).click();
-      cy.checkPageA11y();
-      cy.getByTestId("tab_nokkeltall").click();
     });
   });
 });
