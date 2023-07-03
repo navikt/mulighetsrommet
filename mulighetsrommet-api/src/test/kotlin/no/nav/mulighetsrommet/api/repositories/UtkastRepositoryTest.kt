@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.*
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
+import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import java.time.LocalDateTime
 import java.util.*
 
@@ -16,6 +17,7 @@ class UtkastRepositoryTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
     beforeEach {
+        database.db.truncateAll()
         val navAnsatte = NavAnsattRepository(database.db)
         val enheter = NavEnhetRepository(database.db)
         enheter.upsert(
@@ -27,7 +29,6 @@ class UtkastRepositoryTest : FunSpec({
                 overordnetEnhet = null,
             ),
         )
-
         navAnsatte.upsert(
             NavAnsattDbo(
                 navIdent = "B123456",
