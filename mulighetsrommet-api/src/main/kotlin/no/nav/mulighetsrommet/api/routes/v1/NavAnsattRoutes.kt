@@ -29,7 +29,9 @@ fun Route.navAnsattRoutes() {
             }
 
             get("/me") {
-                call.respond(ansattService.getOrSynchronizeNavAnsatt(getNavAnsattAzureId()))
+                val azureId = getNavAnsattAzureId()
+                val ansatt = ansattService.getOrSynchronizeNavAnsatt(azureId)
+                call.respond(ansatt)
             }
         }
     }
