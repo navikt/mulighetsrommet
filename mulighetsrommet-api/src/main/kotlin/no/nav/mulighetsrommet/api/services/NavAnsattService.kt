@@ -76,6 +76,8 @@ class NavAnsattService(
         deletionDate: LocalDate,
     ): Either<DatabaseOperationError, Unit> = either {
         val ansatteToUpsert = getNavAnsatteFromAzure()
+
+        logger.info("Oppdaterer ${ansatteToUpsert.size} NavAnsatt fra Azure")
         ansatteToUpsert.forEach { ansatt ->
             ansatte.upsert(NavAnsattDbo.fromNavAnsattDto(ansatt)).bind()
         }
