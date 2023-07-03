@@ -394,7 +394,7 @@ export function OpprettAvtaleContainer({
         {watch("leverandor") && (
           <FormGroup>
             <div className={styles.kontaktperson_container}>
-              <label className={styles.kontaktperson_label} >
+              <label className={styles.kontaktperson_label}>
                 <b>Kontaktperson hos leverandøren</b>
               </label>
               <VirksomhetKontaktpersoner

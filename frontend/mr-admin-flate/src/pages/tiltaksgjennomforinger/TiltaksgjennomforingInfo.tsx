@@ -3,16 +3,24 @@ import {
   ExternalLinkIcon,
 } from "@navikt/aksel-icons";
 import { Alert, Button, Heading, Link } from "@navikt/ds-react";
-import classNames from "classnames";
+import {
+  TiltaksgjennomforingKontaktpersoner,
+  TiltaksgjennomforingOppstartstype,
+} from "mulighetsrommet-api-client";
 import { useState } from "react";
 import { useAvtale } from "../../api/avtaler/useAvtale";
 import { useFeatureToggles } from "../../api/features/feature-toggles";
 import { useTiltaksgjennomforingById } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforingById";
-import { Metadata, Separator } from "../../components/detaljside/Metadata";
+import { Bolk } from "../../components/detaljside/Bolk";
+import {
+  Liste,
+  Metadata,
+  Separator,
+} from "../../components/detaljside/Metadata";
+import { VisHvisVerdi } from "../../components/detaljside/VisHvisVerdi";
 import { Laster } from "../../components/laster/Laster";
 import { OpprettTiltaksgjennomforingModal } from "../../components/modal/OpprettTiltaksgjennomforingModal";
 import SlettTiltaksgjennomforingModal from "../../components/tiltaksgjennomforinger/SlettTiltaksgjennomforingModal";
-import { TiltaksgjennomforingOppstartstype } from "mulighetsrommet-api-client";
 import {
   formaterDato,
   inneholderUrl,
@@ -42,6 +50,27 @@ export function TiltaksgjennomforingInfo() {
   const handleSlett = () => setSlettModal(true);
   const lukkSlettModal = () => setSlettModal(false);
 
+  const navnPaaNavEnheterForKontaktperson = (
+    enheterForKontaktperson: string[]
+  ): string => {
+    return (
+      tiltaksgjennomforing?.navEnheter
+        .map((enhet) => {
+          const enhetNavn = enheterForKontaktperson
+            .map((kp) => {
+              if (enhet.enhetsnummer === kp) {
+                return enhet.navn;
+              }
+              return null;
+            })
+            .join("");
+          return enhetNavn;
+        })
+        .filter(Boolean)
+        .join(", ") || ""
+    );
+  };
+
   const sanityTiltaksgjennomforingUrl =
     "https://mulighetsrommet-sanity-studio.intern.nav.no/" +
     (inneholderUrl("intern.nav.no") ? "prod" : "test") +
@@ -68,21 +97,40 @@ export function TiltaksgjennomforingInfo() {
 
   return (
     <div className={styles.container}>
-      <div className={classNames(styles.detaljer, styles.container)}>
-        <dl className={styles.bolk}>
+      <div className={styles.detaljer}>
+        <Bolk aria-label="Tiltakstype">
           <Metadata
             header="Tiltakstype"
             verdi={tiltaksgjennomforing.tiltakstype.navn}
           />
-          {tiltaksgjennomforing.tiltaksnummer ? (
-            <Metadata
-              header="Tiltaksnummer"
-              verdi={tiltaksgjennomforing.tiltaksnummer}
-            />
-          ) : null}
-        </dl>
+          <VisHvisVerdi verdi={tiltaksgjennomforing.tiltaksnummer}>
+            <Bolk aria-label="Tiltaksnummer">
+              <Metadata
+                header="Tiltaksnummer"
+                verdi={tiltaksgjennomforing.tiltaksnummer}
+              />
+            </Bolk>
+          </VisHvisVerdi>
+        </Bolk>
+        <Bolk aria-label="Avtale">
+          <Metadata
+            header="Avtale"
+            verdi={
+              avtale?.id ? (
+                <>
+                  <Link href={`/avtaler/${avtale?.id}`}>
+                    {avtale?.navn}{" "}
+                    {avtale?.avtalenummer ? ` - ${avtale.avtalenummer}` : null}
+                  </Link>{" "}
+                </>
+              ) : (
+                "Ingen avtale for gjennomføringen"
+              )
+            }
+          />
+        </Bolk>
         <Separator />
-        <dl className={styles.bolk}>
+        <Bolk aria-label="Start- og sluttdato">
           <Metadata
             header="Startdato"
             verdi={formaterDato(tiltaksgjennomforing.startDato)}
@@ -91,6 +139,8 @@ export function TiltaksgjennomforingInfo() {
             header="Sluttdato"
             verdi={formaterDato(tiltaksgjennomforing.sluttDato)}
           />
+        </Bolk>
+        <Bolk aria-label="Oppstartsdato">
           <Metadata
             header="Oppstart"
             verdi={
@@ -112,12 +162,12 @@ export function TiltaksgjennomforingInfo() {
                         style={{ marginRight: "5px" }}
                         title="midlertidig-stengt"
                       />
-                      <Heading size="xsmall" level="2">
+                      <Heading size="xsmall" level="3">
                         Midlertidig Stengt
                       </Heading>
                     </div>
                   ) : (
-                    <Heading size="xsmall" level="2">
+                    <Heading size="xsmall" level="3">
                       Midlertidig Stengt
                     </Heading>
                   )
@@ -129,106 +179,47 @@ export function TiltaksgjennomforingInfo() {
                 }
               />
             )}
-        </dl>
+        </Bolk>
+        <Bolk aria-label="Antall plasser">
+          <Metadata
+            header="Antall plasser"
+            verdi={tiltaksgjennomforing.antallPlasser}
+          />
+        </Bolk>
         <Separator />
-        <dl className={styles.bolk}>
+        <Bolk aria-label="Tilgjengelighetsstatus">
           <Metadata
             header="Tilgjengelighetsstatus"
             verdi={tilgjengelighetsstatusTilTekst(
               tiltaksgjennomforing.tilgjengelighet
             )}
           />
-          {tiltaksgjennomforing?.estimertVentetid ? (
+          <VisHvisVerdi verdi={tiltaksgjennomforing.estimertVentetid}>
             <Metadata
               header="Estimert ventetid"
               verdi={tiltaksgjennomforing.estimertVentetid}
             />
-          ) : null}
-        </dl>
+          </VisHvisVerdi>
+        </Bolk>
         <Separator />
-        <dl className={styles.bolk}>
+        <Bolk aria-label="Avtaleansvarlig">
           <Metadata
-            header="Fylke/region"
-            verdi={avtale?.navRegion?.navn || "Ingen region valgt for avtale"}
-          />
-          <Metadata
-            header="Enhet"
+            header="Avtaleansvarlig"
             verdi={
-              tiltaksgjennomforing.navEnheter.length > 0 ? (
-                <ul>
-                  {tiltaksgjennomforing.navEnheter.map((enhet) => (
-                    <li key={enhet.enhetsnummer}>{enhet.navn}</li>
-                  ))}
-                </ul>
-              ) : (
-                "Alle enheter"
-              )
+              <a
+                target="_blank"
+                rel="noopener noreferrer"
+                href={`https://nom.nav.no/ressurs/${tiltaksgjennomforing.ansvarlig}`}
+              >
+                {tiltaksgjennomforing.ansvarlig} <ExternalLinkIcon />
+              </a>
             }
           />
-          {tiltaksgjennomforing.arrangorNavn ? (
-            <Metadata
-              header="Arrangør"
-              verdi={tiltaksgjennomforing.arrangorNavn}
-            />
-          ) : null}
-          {tiltaksgjennomforing.arrangorKontaktperson &&
-            <Metadata
-              header="Kontaktperson"
-              verdi={
-                <div className={styles.leverandor_kontaktinfo}>
-                  <label>{tiltaksgjennomforing.arrangorKontaktperson?.navn}</label>
-                  <label>{tiltaksgjennomforing.arrangorKontaktperson?.telefon}</label>
-                  <a href={`mailto:${tiltaksgjennomforing.arrangorKontaktperson?.epost}`}>{tiltaksgjennomforing.arrangorKontaktperson?.epost}</a>
-                </div>
-              }
-            />
-          }
-          {tiltaksgjennomforing.lokasjonArrangor ? (
-            <Metadata
-              header="Lokasjon for gjennomføring"
-              verdi={tiltaksgjennomforing.lokasjonArrangor}
-            />
-          ) : null}
-        </dl>
-        {kontaktpersonerFraNav.length > 0 ? (
+        </Bolk>
+        <VisHvisVerdi verdi={tiltaksgjennomforing.sanityId}>
           <>
             <Separator />
-            <dl className={styles.bolk}>
-              <Metadata
-                header="Kontaktpersoner i NAV"
-                verdi={
-                  kontaktpersonerFraNav.length > 0 ? (
-                    <ul>
-                      {kontaktpersonerFraNav.map((kontakt) => (
-                        <li key={kontakt.navIdent}>
-                          {kontakt.navn}{" "}
-                          {kontakt.epost ? (
-                            <span>
-                              -{" "}
-                              <a
-                                href={`${TEAMS_DYPLENKE}${encodeURIComponent(
-                                  kontakt.epost
-                                )}`}
-                              >
-                                Ta kontakt på Teams
-                              </a>
-                            </span>
-                          ) : null}
-                        </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    "Alle enheter"
-                  )
-                }
-              />
-            </dl>
-          </>
-        ) : null}
-        {tiltaksgjennomforing.sanityId ? (
-          <>
-            <Separator />
-            <dl className={styles.bolk}>
+            <Bolk aria-label="Sanity-dokument">
               <Metadata
                 header="Sanity dokument"
                 verdi={
@@ -246,9 +237,94 @@ export function TiltaksgjennomforingInfo() {
                   </>
                 }
               />
-            </dl>
+            </Bolk>
           </>
-        ) : null}
+        </VisHvisVerdi>
+      </div>
+      <div className={styles.detaljer}>
+        <Bolk aria-label="NAV-region">
+          <Metadata header="NAV-region" verdi={avtale?.navRegion?.navn} />
+        </Bolk>
+        <Bolk aria-label="Nav-enheter">
+          <Metadata
+            header="Nav-enhet (kontorer)"
+            verdi={
+              <Liste
+                elementer={tiltaksgjennomforing.navEnheter.map((enhet) => ({
+                  key: enhet.enhetsnummer,
+                  value: enhet.navn,
+                }))}
+                tekstHvisTom="Alle enheter"
+              />
+            }
+          />
+        </Bolk>
+        {kontaktpersonerFraNav.map((kp, index) => {
+          return (
+            <Bolk
+              aria-label={`Kontaktperson hos ${navnPaaNavEnheterForKontaktperson(
+                kp.navEnheter
+              )}`}
+              key={index}
+            >
+              <Metadata
+                header={`Kontaktperson hos ${navnPaaNavEnheterForKontaktperson(
+                  kp.navEnheter
+                )}`}
+                verdi={<Kontaktperson kontaktperson={kp} />}
+              />
+            </Bolk>
+          );
+        })}
+
+        <Separator />
+
+        <VisHvisVerdi verdi={avtale?.leverandor}>
+          <Bolk aria-label="Tiltaksleverandør hovedenhet">
+            <Metadata
+              header="Tiltaksleverandør hovedenhet"
+              verdi={`${avtale?.leverandor.navn} - ${avtale?.leverandor.organisasjonsnummer}`}
+            />
+          </Bolk>
+        </VisHvisVerdi>
+        <VisHvisVerdi verdi={tiltaksgjennomforing.arrangorNavn}>
+          <Bolk aria-label="Arrangør underenhet">
+            <Metadata
+              header="Arrangør underenhet"
+              verdi={`${tiltaksgjennomforing.arrangorNavn} - ${tiltaksgjennomforing.arrangorOrganisasjonsnummer}`}
+            />
+          </Bolk>
+        </VisHvisVerdi>
+
+        <VisHvisVerdi verdi={tiltaksgjennomforing.lokasjonArrangor}>
+          <Bolk aria-label="Sted for gjennomføringen">
+            <Metadata
+              header="Sted for gjennomføringen"
+              verdi={tiltaksgjennomforing.lokasjonArrangor}
+            />
+          </Bolk>
+        </VisHvisVerdi>
+
+        {tiltaksgjennomforing.arrangorKontaktperson && (
+          <Metadata
+            header="Kontaktperson hos arrangør"
+            verdi={
+              <div className={styles.leverandor_kontaktinfo}>
+                <label>
+                  {tiltaksgjennomforing.arrangorKontaktperson?.navn}
+                </label>
+                <label>
+                  {tiltaksgjennomforing.arrangorKontaktperson?.telefon}
+                </label>
+                <a
+                  href={`mailto:${tiltaksgjennomforing.arrangorKontaktperson?.epost}`}
+                >
+                  {tiltaksgjennomforing.arrangorKontaktperson?.epost}
+                </a>
+              </div>
+            }
+          />
+        )}
       </div>
       <div className={styles.knapperad}>
         {features?.[
@@ -292,6 +368,22 @@ export function TiltaksgjennomforingInfo() {
         tiltaksgjennomforing={tiltaksgjennomforing}
         handleRediger={() => setRedigerModal(true)}
       />
+    </div>
+  );
+}
+
+interface KontaktpersonProps {
+  kontaktperson: TiltaksgjennomforingKontaktpersoner;
+}
+
+function Kontaktperson({ kontaktperson }: KontaktpersonProps) {
+  return (
+    <div className={styles.leverandor_kontaktinfo}>
+      <label>{kontaktperson.navn}</label>
+      <label>{kontaktperson.mobilnummer}</label>
+      <a href={`${TEAMS_DYPLENKE}${kontaktperson.epost}`}>
+        {kontaktperson.epost}
+      </a>
     </div>
   );
 }
