@@ -15,7 +15,7 @@ data class NavAnsattDbo(
     val azureId: UUID,
     val mobilnummer: String? = null,
     val epost: String,
-    val roller: List<NavAnsattRolle>,
+    val roller: Set<NavAnsattRolle>,
     val skalSlettesDato: LocalDate? = null,
 ) {
     companion object {

@@ -59,7 +59,7 @@ class NavAnsattRepositoryTest : FunSpec({
                 hovedenhet = "1000",
                 mobilnummer = "12345678",
                 epost = "test@test.no",
-                roller = listOf(NavAnsattRolle.BETABRUKER, NavAnsattRolle.KONTAKTPERSON),
+                roller = setOf(NavAnsattRolle.BETABRUKER, NavAnsattRolle.KONTAKTPERSON),
             )
 
             ansatte.upsert(ansatt).shouldBeRight()
@@ -82,7 +82,7 @@ class NavAnsattRepositoryTest : FunSpec({
                 hovedenhet = "1000",
                 mobilnummer = "12345678",
                 epost = "donald@nav.no",
-                roller = listOf(NavAnsattRolle.BETABRUKER),
+                roller = setOf(NavAnsattRolle.BETABRUKER),
             )
 
             val ansatt2 = NavAnsattDbo(
@@ -93,7 +93,7 @@ class NavAnsattRepositoryTest : FunSpec({
                 hovedenhet = "1000",
                 mobilnummer = "12345678",
                 epost = "dolly@nav.no",
-                roller = listOf(NavAnsattRolle.KONTAKTPERSON),
+                roller = setOf(NavAnsattRolle.KONTAKTPERSON),
             )
 
             val ansatt3 = NavAnsattDbo(
@@ -104,7 +104,7 @@ class NavAnsattRepositoryTest : FunSpec({
                 hovedenhet = "1000",
                 mobilnummer = "12345678",
                 epost = "ole@nav.no",
-                roller = listOf(NavAnsattRolle.BETABRUKER, NavAnsattRolle.KONTAKTPERSON),
+                roller = setOf(NavAnsattRolle.BETABRUKER, NavAnsattRolle.KONTAKTPERSON),
             )
 
             ansatte.upsert(ansatt1).shouldBeRight()

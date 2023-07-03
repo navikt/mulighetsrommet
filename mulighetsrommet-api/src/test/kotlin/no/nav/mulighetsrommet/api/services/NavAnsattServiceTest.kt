@@ -75,7 +75,7 @@ class NavAnsattServiceTest : FunSpec({
 
             service.getNavAnsattFromAzure(azureId) shouldBe NavAnsattDto.fromAzureAdNavAnsatt(
                 ansatt1,
-                listOf(BETABRUKER),
+                setOf(BETABRUKER),
             )
         }
 
@@ -105,19 +105,19 @@ class NavAnsattServiceTest : FunSpec({
                 row(
                     listOf(betabruker),
                     listOf(
-                        NavAnsattDto.fromAzureAdNavAnsatt(ansatt1, listOf(BETABRUKER)),
-                        NavAnsattDto.fromAzureAdNavAnsatt(ansatt2, listOf(BETABRUKER)),
+                        NavAnsattDto.fromAzureAdNavAnsatt(ansatt1, setOf(BETABRUKER)),
+                        NavAnsattDto.fromAzureAdNavAnsatt(ansatt2, setOf(BETABRUKER)),
                     ),
                 ),
                 row(
                     listOf(kontaktperson),
-                    listOf(NavAnsattDto.fromAzureAdNavAnsatt(ansatt2, listOf(KONTAKTPERSON))),
+                    listOf(NavAnsattDto.fromAzureAdNavAnsatt(ansatt2, setOf(KONTAKTPERSON))),
                 ),
                 row(
                     listOf(betabruker, kontaktperson),
                     listOf(
-                        NavAnsattDto.fromAzureAdNavAnsatt(ansatt1, listOf(BETABRUKER)),
-                        NavAnsattDto.fromAzureAdNavAnsatt(ansatt2, listOf(BETABRUKER, KONTAKTPERSON)),
+                        NavAnsattDto.fromAzureAdNavAnsatt(ansatt1, setOf(BETABRUKER)),
+                        NavAnsattDto.fromAzureAdNavAnsatt(ansatt2, setOf(BETABRUKER, KONTAKTPERSON)),
                     ),
                 ),
             ) { roles, ansatteMedRoller ->
@@ -147,33 +147,33 @@ class NavAnsattServiceTest : FunSpec({
                 row(
                     listOf(betabruker, kontaktperson),
                     listOf(
-                        NavAnsattDto.fromAzureAdNavAnsatt(ansatt1, listOf(BETABRUKER)),
-                        NavAnsattDto.fromAzureAdNavAnsatt(ansatt2, listOf(BETABRUKER, KONTAKTPERSON)),
+                        NavAnsattDto.fromAzureAdNavAnsatt(ansatt1, setOf(BETABRUKER)),
+                        NavAnsattDto.fromAzureAdNavAnsatt(ansatt2, setOf(BETABRUKER, KONTAKTPERSON)),
                     ),
                 ),
                 row(
                     listOf(betabruker),
                     listOf(
-                        NavAnsattDto.fromAzureAdNavAnsatt(ansatt1, listOf(BETABRUKER)),
-                        NavAnsattDto.fromAzureAdNavAnsatt(ansatt2, listOf(BETABRUKER)),
+                        NavAnsattDto.fromAzureAdNavAnsatt(ansatt1, setOf(BETABRUKER)),
+                        NavAnsattDto.fromAzureAdNavAnsatt(ansatt2, setOf(BETABRUKER)),
                     ),
                 ),
                 row(
                     listOf(kontaktperson),
                     listOf(
-                        NavAnsattDto.fromAzureAdNavAnsatt(ansatt1, listOf()).copy(
+                        NavAnsattDto.fromAzureAdNavAnsatt(ansatt1, setOf()).copy(
                             skalSlettesDato = deletionDate,
                         ),
-                        NavAnsattDto.fromAzureAdNavAnsatt(ansatt2, listOf(KONTAKTPERSON)),
+                        NavAnsattDto.fromAzureAdNavAnsatt(ansatt2, setOf(KONTAKTPERSON)),
                     ),
                 ),
                 row(
                     listOf(),
                     listOf(
-                        NavAnsattDto.fromAzureAdNavAnsatt(ansatt1, listOf()).copy(
+                        NavAnsattDto.fromAzureAdNavAnsatt(ansatt1, setOf()).copy(
                             skalSlettesDato = deletionDate,
                         ),
-                        NavAnsattDto.fromAzureAdNavAnsatt(ansatt2, listOf()).copy(
+                        NavAnsattDto.fromAzureAdNavAnsatt(ansatt2, setOf()).copy(
                             skalSlettesDato = deletionDate,
                         ),
                     ),
@@ -202,14 +202,14 @@ class NavAnsattServiceTest : FunSpec({
                 row(
                     listOf(betabruker, kontaktperson),
                     listOf(
-                        NavAnsattDto.fromAzureAdNavAnsatt(ansatt1, listOf(BETABRUKER)),
-                        NavAnsattDto.fromAzureAdNavAnsatt(ansatt2, listOf(BETABRUKER, KONTAKTPERSON)),
+                        NavAnsattDto.fromAzureAdNavAnsatt(ansatt1, setOf(BETABRUKER)),
+                        NavAnsattDto.fromAzureAdNavAnsatt(ansatt2, setOf(BETABRUKER, KONTAKTPERSON)),
                     ),
                 ),
                 row(
                     listOf(kontaktperson),
                     listOf(
-                        NavAnsattDto.fromAzureAdNavAnsatt(ansatt2, listOf(KONTAKTPERSON)),
+                        NavAnsattDto.fromAzureAdNavAnsatt(ansatt2, setOf(KONTAKTPERSON)),
                     ),
                 ),
                 row(
