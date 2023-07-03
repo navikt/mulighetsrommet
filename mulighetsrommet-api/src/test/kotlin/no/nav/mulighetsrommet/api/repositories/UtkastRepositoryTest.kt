@@ -51,28 +51,28 @@ class UtkastRepositoryTest : FunSpec({
             val utkastId = UUID.randomUUID()
             val utkast = UtkastDbo(
                 id = utkastId,
-                bruker = "B123456",
+                opprettetAv = "B123456",
                 utkastData = "{\"id\":\"123\",\"navn\":\"Min gjennomføring er kul\"}",
                 createdAt = LocalDateTime.now(),
                 updatedAt = LocalDateTime.now(),
                 type = Utkasttype.Tiltaksgjennomforing,
             )
             utkastRepository.upsert(utkast).shouldBeRight().should {
-                it?.bruker shouldBe "B123456"
+                it?.opprettetAv shouldBe "B123456"
                 it?.utkastData shouldContain "Min gjennomføring er kul"
                 it?.type shouldBe Utkasttype.Tiltaksgjennomforing
             }
 
             val redigertUtkast = utkast.copy(utkastData = "{\"id\":\"123\",\"navn\":\"Min gjennomføring er fet\"}")
             utkastRepository.upsert(redigertUtkast).shouldBeRight().should {
-                it?.bruker shouldBe "B123456"
+                it?.opprettetAv shouldBe "B123456"
                 it?.utkastData shouldContain "Min gjennomføring er fet"
                 it?.type shouldBe Utkasttype.Tiltaksgjennomforing
             }
 
             utkastRepository.get(utkastId).shouldBeRight().should {
                 it?.id shouldBe utkastId
-                it?.bruker shouldBe "B123456"
+                it?.opprettetAv shouldBe "B123456"
                 it?.utkastData shouldContain "Min gjennomføring er fet"
                 it?.type shouldBe Utkasttype.Tiltaksgjennomforing
             }

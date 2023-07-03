@@ -24,16 +24,16 @@ class UtkastRepository(private val db: Database) {
         @Language("PostgreSQL")
         val query = """
             insert into utkast(id,
-                               bruker,
+                               opprettet_av,
                                utkast_data,
                                utkast_type)
             values (:id::uuid,
-                    :bruker,
+                    :opprettet_av,
                     :utkast_data::jsonb,
                     :utkast_type::utkasttype)
-            on conflict (id) do update set  bruker      = excluded.bruker,
-                                            utkast_data = excluded.utkast_data,
-                                            utkast_type = excluded.utkast_type
+            on conflict (id) do update set  opprettet_av        = excluded.opprettet_av,
+                                            utkast_data         = excluded.utkast_data,
+                                            utkast_type         = excluded.utkast_type
             returning *
         """.trimIndent()
 
@@ -70,7 +70,7 @@ class UtkastRepository(private val db: Database) {
 
     private fun UtkastDbo.toSqlParams() = mapOf(
         "id" to id,
-        "bruker" to bruker,
+        "opprettet_av" to opprettetAv,
         "utkast_data" to utkastData,
         "utkast_type" to type.name,
     )
@@ -78,7 +78,7 @@ class UtkastRepository(private val db: Database) {
     private fun Row.toUtkastDto(): UtkastDto {
         return UtkastDto(
             id = uuid("id"),
-            bruker = string("bruker"),
+            opprettetAv = string("opprettet_av"),
             utkastData = string("utkast_data"),
             createdAt = localDateTime("created_at"),
             updatedAt = localDateTime("updated_at"),

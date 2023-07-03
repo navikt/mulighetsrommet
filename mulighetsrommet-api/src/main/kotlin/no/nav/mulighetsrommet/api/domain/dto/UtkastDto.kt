@@ -12,7 +12,7 @@ import java.util.*
 data class UtkastDto(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
-    val bruker: String,
+    val opprettetAv: String,
     val utkastData: String,
     @Serializable(with = LocalDateTimeSerializer::class)
     val createdAt: LocalDateTime,
@@ -23,7 +23,7 @@ data class UtkastDto(
     fun toDbo(): UtkastDbo {
         return UtkastDbo(
             id = id,
-            bruker = bruker,
+            opprettetAv = opprettetAv,
             utkastData = utkastData,
             createdAt = createdAt,
             updatedAt = updatedAt,

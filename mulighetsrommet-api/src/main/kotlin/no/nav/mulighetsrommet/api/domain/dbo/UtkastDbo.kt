@@ -5,7 +5,7 @@ import java.util.*
 
 data class UtkastDbo(
     val id: UUID,
-    val bruker: String,
+    val opprettetAv: String,
     val utkastData: String,
     val createdAt: LocalDateTime,
     val updatedAt: LocalDateTime,
