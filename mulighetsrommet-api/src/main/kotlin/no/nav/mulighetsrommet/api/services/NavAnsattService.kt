@@ -57,6 +57,7 @@ class NavAnsattService(
         return roles
             .flatMap {
                 val members = microsoftGraphService.getNavAnsatteInGroup(it.adGruppeId)
+                logger.info("Fant ${members.size} i AD gruppe id=${it.adGruppeId}")
                 members.map { ansatt ->
                     NavAnsattDto.fromAzureAdNavAnsatt(ansatt, listOf(it.rolle))
                 }

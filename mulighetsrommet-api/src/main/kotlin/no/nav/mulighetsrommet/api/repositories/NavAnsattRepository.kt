@@ -10,11 +10,15 @@ import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
 import org.intellij.lang.annotations.Language
+import org.slf4j.LoggerFactory
 import java.time.LocalDate
 import java.util.*
 
 class NavAnsattRepository(private val db: Database) {
+    private val logger = LoggerFactory.getLogger(javaClass)
+
     fun upsert(ansatt: NavAnsattDbo): QueryResult<NavAnsattDbo> = query {
+        logger.info("Upserting ansatt azureId=${ansatt.azureId}")
         @Language("PostgreSQL")
         val query = """
             insert into nav_ansatt(nav_ident, fornavn, etternavn, hovedenhet, azure_id, mobilnummer, epost, roller, skal_slettes_dato)
