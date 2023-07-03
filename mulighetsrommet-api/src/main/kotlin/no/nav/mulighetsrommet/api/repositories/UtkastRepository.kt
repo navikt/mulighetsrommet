@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.repositories
 
+import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.domain.dbo.UtkastDbo
@@ -71,7 +72,7 @@ class UtkastRepository(private val db: Database) {
     private fun UtkastDbo.toSqlParams() = mapOf(
         "id" to id,
         "opprettet_av" to opprettetAv,
-        "utkast_data" to utkastData,
+        "utkast_data" to utkastData.toString(),
         "utkast_type" to type.name,
     )
 
@@ -79,7 +80,7 @@ class UtkastRepository(private val db: Database) {
         return UtkastDto(
             id = uuid("id"),
             opprettetAv = string("opprettet_av"),
-            utkastData = string("utkast_data"),
+            utkastData = Json.decodeFromString(string("utkast_data")),
             createdAt = localDateTime("created_at"),
             updatedAt = localDateTime("updated_at"),
             type = Utkasttype.valueOf(string("utkast_type")),

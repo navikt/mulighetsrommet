@@ -17,7 +17,7 @@ class UtkastService(
 
     fun upsert(utkast: UtkastDbo): StatusResponse<UtkastDto> {
         return utkastRepository.upsert(utkast).map { it!! }
-            .mapLeft { ServerError("Klarte ikke lagre utkast med id: ${utkast.id}") }
+            .mapLeft { error -> ServerError("Klarte ikke lagre utkast med id: ${utkast.id}. Cause: ${error?.toString()}") }
     }
 
     fun deleteUtkast(id: UUID): StatusResponse<Unit> {

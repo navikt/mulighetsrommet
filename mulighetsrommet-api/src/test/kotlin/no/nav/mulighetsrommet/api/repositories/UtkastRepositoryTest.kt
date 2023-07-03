@@ -5,6 +5,8 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.*
@@ -52,28 +54,29 @@ class UtkastRepositoryTest : FunSpec({
             val utkast = UtkastDbo(
                 id = utkastId,
                 opprettetAv = "B123456",
-                utkastData = "{\"id\":\"123\",\"navn\":\"Min gjennomføring er kul\"}",
+                utkastData = Json.parseToJsonElement("{\"id\":\"123\",\"navn\":\"Min gjennomføring er kul\"}"),
                 createdAt = LocalDateTime.now(),
                 updatedAt = LocalDateTime.now(),
                 type = Utkasttype.Tiltaksgjennomforing,
             )
             utkastRepository.upsert(utkast).shouldBeRight().should {
                 it?.opprettetAv shouldBe "B123456"
-                it?.utkastData shouldContain "Min gjennomføring er kul"
+                Json.encodeToString(it?.utkastData) shouldContain "Min gjennomføring er kul"
                 it?.type shouldBe Utkasttype.Tiltaksgjennomforing
             }
 
-            val redigertUtkast = utkast.copy(utkastData = "{\"id\":\"123\",\"navn\":\"Min gjennomføring er fet\"}")
+            val redigertUtkast =
+                utkast.copy(utkastData = Json.parseToJsonElement("{\"id\":\"123\",\"navn\":\"Min gjennomføring er fet\"}"))
             utkastRepository.upsert(redigertUtkast).shouldBeRight().should {
                 it?.opprettetAv shouldBe "B123456"
-                it?.utkastData shouldContain "Min gjennomføring er fet"
+                Json.encodeToString(it?.utkastData) shouldContain "Min gjennomføring er fet"
                 it?.type shouldBe Utkasttype.Tiltaksgjennomforing
             }
 
             utkastRepository.get(utkastId).shouldBeRight().should {
                 it?.id shouldBe utkastId
                 it?.opprettetAv shouldBe "B123456"
-                it?.utkastData shouldContain "Min gjennomføring er fet"
+                Json.encodeToString(it?.utkastData) shouldContain "Min gjennomføring er fet"
                 it?.type shouldBe Utkasttype.Tiltaksgjennomforing
             }
 

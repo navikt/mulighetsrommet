@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.domain.dto
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonElement
 import no.nav.mulighetsrommet.api.domain.dbo.UtkastDbo
 import no.nav.mulighetsrommet.api.domain.dbo.Utkasttype
 import no.nav.mulighetsrommet.domain.serializers.LocalDateTimeSerializer
@@ -13,7 +14,7 @@ data class UtkastDto(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val opprettetAv: String,
-    val utkastData: String,
+    val utkastData: JsonElement,
     @Serializable(with = LocalDateTimeSerializer::class)
     val createdAt: LocalDateTime,
     @Serializable(with = LocalDateTimeSerializer::class)
