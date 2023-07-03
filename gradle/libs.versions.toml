@@ -4,6 +4,7 @@ flyway = "9.20.0"
 hoplite = "2.7.4"
 koin = "3.4.1"
 kotest = "5.6.2"
+kotest-testcontainers = "2.0.2"
 kotlin = "1.8.22"
 ktor = "2.3.1"
 logback = "1.4.8"
@@ -39,7 +40,8 @@ koin-logger-slf4j = { module = "io.insert-koin:koin-logger-slf4j", version.ref =
 
 kotest-assertions-arrow = "io.kotest.extensions:kotest-assertions-arrow:1.3.3"
 kotest-assertions-core = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
-kotest-extensions-testcontainers = "io.kotest.extensions:kotest-extensions-testcontainers:2.0.2"
+kotest-extensions-testcontainers = { module = "io.kotest.extensions:kotest-extensions-testcontainers", version.ref = "kotest-testcontainers" }
+kotest-extensions-testcontainers-kafka = { module = "io.kotest.extensions:kotest-extensions-testcontainers-kafka", version.ref = "kotest-testcontainers" }
 kotest-junit = { module = "io.kotest:kotest-runner-junit5", version.ref = "kotest" }
 
 
@@ -102,8 +104,6 @@ shedlock-jdbc = "net.javacrumbs.shedlock:shedlock-provider-jdbc:5.4.0"
 slack-client = "com.slack.api:slack-api-client:1.29.2"
 
 slf4j = "org.slf4j:slf4j-api:2.0.7"
-
-testcontainers-kafka = "org.testcontainers:kafka:1.18.3"
 
 apache-poi = "org.apache.poi:poi:5.2.3"
 apache-poi-ooxml = "org.apache.poi:poi-ooxml:5.2.3"
