@@ -79,8 +79,9 @@ class NavAnsattService(
             ansatte.upsert(NavAnsattDbo.fromNavAnsattDto(ansatt)).bind()
         }
 
+        val ansatteAzureIds = ansatteToUpsert.map { it.azureId }
         val ansatteToScheduleForDeletion = ansatte.getAll()
-            .map { it.filter { ansatt -> ansatt !in ansatteToUpsert && ansatt.skalSlettesDato == null } }
+            .map { it.filter { ansatt -> ansatt.azureId !in ansatteAzureIds && ansatt.skalSlettesDato == null } }
             .bind()
         ansatteToScheduleForDeletion.forEach { ansatt ->
             logger.info("Oppdaterer NavAnsatt med dato for sletting azureId=${ansatt.azureId} dato=$deletionDate")
