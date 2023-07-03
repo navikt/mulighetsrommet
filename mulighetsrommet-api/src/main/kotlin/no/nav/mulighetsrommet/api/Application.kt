@@ -53,6 +53,7 @@ fun Application.configure(config: AppConfig) {
             navEnhetRoutes()
             virksomhetRoutes()
             notificationRoutes()
+            utkastRoutes()
         }
 
         authenticate(AuthProvider.AzureAdDefaultApp.name) {
