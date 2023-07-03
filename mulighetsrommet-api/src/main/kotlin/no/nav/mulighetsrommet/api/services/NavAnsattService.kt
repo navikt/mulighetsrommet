@@ -20,14 +20,14 @@ class NavAnsattService(
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    suspend fun getNavAnsatt(azureId: UUID): NavAnsattDto {
+    suspend fun getNavAnsatt(azureId: UUID, oboToken: String? = null): NavAnsattDto {
         return ansatte.getByAzureId(azureId)
             .map {
                 if (it != null) {
                     it
                 } else {
                     logger.info("Fant ikke NavAnsatt for azureId=$azureId i databasen, forsøker Azure AD i stedet")
-                    getNavAnsattFromAzure(azureId)
+                    getNavAnsattFromAzure(azureId, oboToken)
                 }
             }
             .getOrThrow()
@@ -37,10 +37,10 @@ class NavAnsattService(
         return ansatte.getAll(roller = filter.roller).getOrThrow()
     }
 
-    suspend fun getNavAnsattFromAzure(azureId: UUID): NavAnsattDto {
+    suspend fun getNavAnsattFromAzure(azureId: UUID, oboToken: String? = null): NavAnsattDto {
         val rolesDirectory = roles.associateBy { it.adGruppeId }
 
-        val roller = microsoftGraphService.getNavAnsattAdGrupper(azureId)
+        val roller = microsoftGraphService.getNavAnsattAdGrupper(azureId, oboToken)
             .filter { rolesDirectory.containsKey(it.id) }
             .map { rolesDirectory.getValue(it.id).rolle }
 
@@ -49,7 +49,7 @@ class NavAnsattService(
             throw IllegalStateException("Ansatt med azureId=$azureId har ingen av de påkrevde rollene")
         }
 
-        val ansatt = microsoftGraphService.getNavAnsatt(azureId)
+        val ansatt = microsoftGraphService.getNavAnsatt(azureId, oboToken)
         return NavAnsattDto.fromAzureAdNavAnsatt(ansatt, roller)
     }
 
