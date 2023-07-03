@@ -18,7 +18,7 @@ data class NavAnsattDto(
     val hovedenhet: Hovedenhet,
     val mobilnummer: String?,
     val epost: String,
-    val roller: List<NavAnsattRolle>,
+    val roller: Set<NavAnsattRolle>,
     @Serializable(with = LocalDateSerializer::class)
     val skalSlettesDato: LocalDate?,
 ) {
@@ -29,7 +29,7 @@ data class NavAnsattDto(
     )
 
     companion object {
-        fun fromAzureAdNavAnsatt(dto: AzureAdNavAnsatt, roller: List<NavAnsattRolle>): NavAnsattDto = NavAnsattDto(
+        fun fromAzureAdNavAnsatt(dto: AzureAdNavAnsatt, roller: Set<NavAnsattRolle>): NavAnsattDto = NavAnsattDto(
             azureId = dto.azureId,
             navIdent = dto.navIdent,
             fornavn = dto.fornavn,

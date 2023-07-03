@@ -43,6 +43,7 @@ class NavAnsattService(
         val roller = microsoftGraphService.getNavAnsattAdGrupper(azureId, oboToken)
             .filter { rolesDirectory.containsKey(it.id) }
             .map { rolesDirectory.getValue(it.id).rolle }
+            .toSet()
 
         if (roller.isEmpty()) {
             logger.info("Ansatt med azureId=$azureId har ingen av rollene $roles")
@@ -59,7 +60,7 @@ class NavAnsattService(
                 val members = microsoftGraphService.getNavAnsatteInGroup(it.adGruppeId)
                 logger.info("Fant ${members.size} i AD gruppe id=${it.adGruppeId}")
                 members.map { ansatt ->
-                    NavAnsattDto.fromAzureAdNavAnsatt(ansatt, listOf(it.rolle))
+                    NavAnsattDto.fromAzureAdNavAnsatt(ansatt, setOf(it.rolle))
                 }
             }
             .groupBy { it.navIdent }
@@ -85,7 +86,7 @@ class NavAnsattService(
             .bind()
         ansatteToScheduleForDeletion.forEach { ansatt ->
             logger.info("Oppdaterer NavAnsatt med dato for sletting azureId=${ansatt.azureId} dato=$deletionDate")
-            val ansattToDelete = ansatt.copy(roller = emptyList(), skalSlettesDato = deletionDate)
+            val ansattToDelete = ansatt.copy(roller = emptySet(), skalSlettesDato = deletionDate)
             ansatte.upsert(NavAnsattDbo.fromNavAnsattDto(ansattToDelete)).bind()
         }
 

@@ -159,7 +159,7 @@ class NavAnsattRepository(private val db: Database) {
         azureId = uuid("azure_id"),
         mobilnummer = stringOrNull("mobilnummer"),
         epost = string("epost"),
-        roller = array<String>("roller").toList().map { NavAnsattRolle.valueOf(it) },
+        roller = array<String>("roller").map { NavAnsattRolle.valueOf(it) }.toSet(),
         skalSlettesDato = localDateOrNull("skal_slettes_dato"),
     )
 
@@ -174,7 +174,7 @@ class NavAnsattRepository(private val db: Database) {
         azureId = uuid("azure_id"),
         mobilnummer = stringOrNull("mobilnummer"),
         epost = string("epost"),
-        roller = array<String>("roller").toList().map { NavAnsattRolle.valueOf(it) },
+        roller = array<String>("roller").map { NavAnsattRolle.valueOf(it) }.toSet(),
         skalSlettesDato = localDateOrNull("skal_slettes_dato"),
     )
 }
