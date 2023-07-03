@@ -1,4 +1,3 @@
-import { atomWithHash } from "jotai-location";
 import {
   Avtalestatus,
   SorteringAvtaler,
@@ -10,18 +9,52 @@ import {
 } from "mulighetsrommet-api-client";
 import { atom } from "jotai";
 import { AVTALE_PAGE_SIZE, PAGE_SIZE } from "../constants";
+import { atomWithStorage } from 'jotai/vanilla/utils';
 
-export const paginationAtom = atomWithHash("page", 1, {
-  setHash: "replaceState",
-});
+export function atomWithHashInLocalStorage<Value>(
+  key: string,
+  initialValue: Value,
+) {
+  const setHash = (hash: string) => {
+    const searchParams = new URLSearchParams(window.location.hash.slice(1));
+    searchParams.set(key, hash)
+    window.history.replaceState(
+      null,
+      '',
+      `${window.location.pathname}${window.location.search}#${searchParams.toString()}`,
+    );
+  };
+  const innerAtom = atomWithStorage<Value>(
+    key,
+    initialValue,
+    {
+      getItem: (key, initialValue) => {
+        const hash = localStorage.getItem(key)
+        if (hash !== null && hash !== "undefined") {
+          setHash(hash);
+          return JSON.parse(hash);
+        } else {
+          return initialValue;
+        }
+      },
+      setItem: (key, value) => {
+        const hash = JSON.stringify(value);
+        setHash(hash);
+        localStorage.setItem(key, hash)
+      },
+      removeItem: (key) => {
+        localStorage.removeItem(key)
+      }
+    }
+  );
+  return innerAtom;
+}
 
-export const avtalePaginationAtom = atomWithHash("avtalePage", 1, {
-  setHash: "replaceState",
-});
+export const paginationAtom = atomWithHashInLocalStorage("page", 1);
 
-export const faneAtom = atomWithHash("fane", "tab_notifikasjoner_1", {
-  setHash: "replaceState",
-});
+export const avtalePaginationAtom = atomWithHashInLocalStorage("avtalePage", 1);
+
+export const faneAtom = atomWithHashInLocalStorage("fane", "tab_notifikasjoner_1");
 
 export interface TiltakstypeFilter {
   sok?: string;
@@ -37,12 +70,9 @@ export const defaultTiltakstypeFilter: TiltakstypeFilter = {
   sortering: SorteringTiltakstyper.NAVN_ASCENDING,
 };
 
-export const tiltakstypeFilter = atomWithHash<TiltakstypeFilter>(
+export const tiltakstypeFilter = atomWithHashInLocalStorage<TiltakstypeFilter>(
   "tiltakstypefilter",
   defaultTiltakstypeFilter,
-  {
-    setHash: "replaceState",
-  }
 );
 
 export interface Tiltaksgjennomforingfilter {
@@ -70,12 +100,9 @@ export const defaultTiltaksgjennomforingfilter: Tiltaksgjennomforingfilter = {
 };
 
 export const tiltaksgjennomforingfilter =
-  atomWithHash<Tiltaksgjennomforingfilter>(
+  atomWithHashInLocalStorage<Tiltaksgjennomforingfilter>(
     "tiltaksgjennomforingFilter",
     defaultTiltaksgjennomforingfilter,
-    {
-      setHash: "replaceState",
-    }
   );
 
 export const tiltaksgjennomforingTilAvtaleFilter = atom<
@@ -106,20 +133,16 @@ export const defaultAvtaleFilter: AvtaleFilterProps = {
   avtaleTab: "avtaleinfo",
 };
 
-const avtaleFilter = atomWithHash<AvtaleFilterProps>(
+const avtaleFilter = atomWithHashInLocalStorage<AvtaleFilterProps>(
   "avtalefilter",
   defaultAvtaleFilter,
-  { setHash: "replaceState" }
 );
 
 export type TiltakstypeAvtaleTabs = "arenaInfo" | "avtaler";
 
-export const avtaleTabAtom = atomWithHash<TiltakstypeAvtaleTabs>(
+export const avtaleTabAtom = atomWithHashInLocalStorage<TiltakstypeAvtaleTabs>(
   "avtaleTab",
   "arenaInfo",
-  {
-    setHash: "replaceState",
-  }
 );
 
 export { avtaleFilter };
@@ -127,10 +150,7 @@ export { avtaleFilter };
 export type TiltaksgjennomforingerTabs = "detaljer" | "nokkeltall";
 
 export const tiltaksgjennomforingTabAtom =
-  atomWithHash<TiltaksgjennomforingerTabs>(
+  atomWithHashInLocalStorage<TiltaksgjennomforingerTabs>(
     "tiltaksgjennomforingTab",
     "detaljer",
-    {
-      setHash: "replaceState",
-    }
   );
