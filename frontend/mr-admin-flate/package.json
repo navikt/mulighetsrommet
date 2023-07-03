@@ -35,7 +35,7 @@
     "react-dom": "^18.2.0",
     "react-error-boundary": "^4.0.10",
     "react-hook-form": "^7.45.1",
-    "react-router-dom": "^6.14.0",
+    "react-router-dom": "^6.14.1",
     "react-select": "^5.7.3",
     "uuid": "^9.0.0",
     "vite-plugin-require": "^1.1.10",
