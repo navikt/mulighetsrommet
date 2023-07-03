@@ -2,6 +2,8 @@ package no.nav.mulighetsrommet.api.services
 
 import arrow.core.Either
 import arrow.core.continuations.either
+import arrow.core.flatMap
+import arrow.core.right
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle
 import no.nav.mulighetsrommet.api.domain.dto.NavAnsattDto
@@ -20,14 +22,13 @@ class NavAnsattService(
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    suspend fun getNavAnsatt(azureId: UUID, oboToken: String? = null): NavAnsattDto {
+    suspend fun getOrSynchronizeNavAnsatt(azureId: UUID, oboToken: String? = null): NavAnsattDto {
         return ansatte.getByAzureId(azureId)
-            .map {
-                if (it != null) {
-                    it
-                } else {
+            .flatMap {
+                it?.right() ?: run {
                     logger.info("Fant ikke NavAnsatt for azureId=$azureId i databasen, forsøker Azure AD i stedet")
-                    getNavAnsattFromAzure(azureId, oboToken)
+                    val ansatt = getNavAnsattFromAzure(azureId, oboToken)
+                    ansatte.upsert(NavAnsattDbo.fromNavAnsattDto(ansatt)).map { ansatt }
                 }
             }
             .getOrThrow()

@@ -29,7 +29,7 @@ fun Route.navAnsattRoutes() {
             }
 
             get("/me") {
-                call.respond(ansattService.getNavAnsatt(getNavAnsattAzureId()))
+                call.respond(ansattService.getOrSynchronizeNavAnsatt(getNavAnsattAzureId()))
             }
         }
     }
