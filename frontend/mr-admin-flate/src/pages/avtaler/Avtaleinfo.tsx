@@ -1,7 +1,7 @@
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
 import { Alert, Button, Heading } from "@navikt/ds-react";
 import { useState } from "react";
-import { NavLink, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useAvtale } from "../../api/avtaler/useAvtale";
 import { useFeatureToggles } from "../../api/features/feature-toggles";
 import OpprettAvtaleModal from "../../components/avtaler/OpprettAvtaleModal";
@@ -112,15 +112,9 @@ export function Avtaleinfo() {
           ) : null}
         </Bolk>
         <VisHvisVerdi verdi={avtale.url}>
-          <NavLink
-            key={avtale.url}
-            to={avtale.url!}
-            className={({ isActive }) =>
-              isActive ? styles.navlink_active : styles.navlink
-            }
-          >
-            {lenketekst}
-          </NavLink>
+          <a href={avtale.url!} target="_blank" rel="noopener noreferrer">
+            {lenketekst()}
+          </a>
         </VisHvisVerdi>
         <VisHvisVerdi verdi={avtale.ansvarlig}>
           <Bolk aria-label="Avtaleansvarlig">
