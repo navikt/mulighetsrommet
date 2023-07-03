@@ -202,17 +202,21 @@ export function TiltaksgjennomforingInfo() {
           </VisHvisVerdi>
         </Bolk>
         <Separator />
-        <Bolk aria-label="Avtaleansvarlig">
+        <Bolk aria-label="Anvarlig for gjennomføringen">
           <Metadata
-            header="Avtaleansvarlig"
+            header="Ansvarlig for gjennomføringen"
             verdi={
-              <a
-                target="_blank"
-                rel="noopener noreferrer"
-                href={`https://nom.nav.no/ressurs/${tiltaksgjennomforing.ansvarlig}`}
-              >
-                {tiltaksgjennomforing.ansvarlig} <ExternalLinkIcon />
-              </a>
+              tiltaksgjennomforing.ansvarlig ? (
+                <a
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  href={`https://nom.nav.no/ressurs/${tiltaksgjennomforing.ansvarlig}`}
+                >
+                  {tiltaksgjennomforing.ansvarlig} <ExternalLinkIcon />
+                </a>
+              ) : (
+                "Ingen ansvarlig satt for gjennomføringen"
+              )
             }
           />
         </Bolk>
