@@ -66,5 +66,14 @@ class UtkastRepositoryTest : FunSpec({
 
             utkastRepository.get(utkastId).shouldBeRight(null)
         }
+
+        test("Utkast til ansatt blir slettet når den ansatte blir slettet") {
+            val ansatte = NavAnsattRepository(database.db)
+
+            utkastRepository.upsert(utkast).shouldBeRight()
+            ansatte.deleteByAzureId(domain.ansatt1.azureId).shouldBeRight()
+
+            utkastRepository.get(utkastId).shouldBeRight(null)
+        }
     }
 })
