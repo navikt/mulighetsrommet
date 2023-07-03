@@ -18,7 +18,7 @@ export function useAdminTiltaksgjennomforinger() {
         enhet: filter.enhet ? filter.enhet : undefined,
         tiltakstypeId: filter.tiltakstype ? filter.tiltakstype : undefined,
         status: filter.status ? filter.status : undefined,
-        fylkesenhet: filter.fylkesenhet ? filter.fylkesenhet : undefined,
+        fylkesenhet: filter.navRegion ? filter.navRegion : undefined,
         sort: filter.sortering ? filter.sortering : undefined,
         size: filter.antallGjennomforingerVises,
         avtaleId: filter.avtale ? filter.avtale : undefined,

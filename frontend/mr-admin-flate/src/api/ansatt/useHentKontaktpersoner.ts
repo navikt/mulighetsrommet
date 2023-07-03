@@ -5,7 +5,7 @@ import { NavAnsattRolle } from "mulighetsrommet-api-client";
 
 export function useHentKontaktpersoner() {
   return useQuery(QueryKeys.kontaktpersoner(), () =>
-    mulighetsrommetClient.ansatt.hentKontaktpersoner({
+    mulighetsrommetClient.ansatt.hentAnsatte({
       roller: [NavAnsattRolle.KONTAKTPERSON],
     })
   );

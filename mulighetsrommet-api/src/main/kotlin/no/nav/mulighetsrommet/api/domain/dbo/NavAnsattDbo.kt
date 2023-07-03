@@ -19,15 +19,16 @@ data class NavAnsattDbo(
     val skalSlettesDato: LocalDate? = null,
 ) {
     companion object {
-        fun fromDto(dto: NavAnsattDto, roller: List<NavAnsattRolle> = listOf()) = NavAnsattDbo(
-            navIdent = dto.navident,
+        fun fromNavAnsattDto(dto: NavAnsattDto): NavAnsattDbo = NavAnsattDbo(
+            navIdent = dto.navIdent,
             fornavn = dto.fornavn,
             etternavn = dto.etternavn,
-            hovedenhet = dto.hovedenhetKode,
+            hovedenhet = dto.hovedenhet.enhetsnummer,
             azureId = dto.azureId,
-            mobilnummer = dto.mobilnr,
+            mobilnummer = dto.mobilnummer,
             epost = dto.epost,
-            roller = roller,
+            roller = dto.roller,
+            skalSlettesDato = dto.skalSlettesDato,
         )
     }
 }
@@ -36,5 +37,4 @@ enum class NavAnsattRolle {
     TEAM_MULIGHETSROMMET,
     BETABRUKER,
     KONTAKTPERSON,
-    UKJENT,
 }

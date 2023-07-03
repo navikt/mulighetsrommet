@@ -14,14 +14,14 @@
     "sanity"
   ],
   "dependencies": {
-    "@navikt/aksel-icons": "^4.4.1",
+    "@navikt/aksel-icons": "^4.5.0",
     "@portabletext/react": "^3.0.4",
     "@sanity/vision": "^3.12.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-icons": "^4.10.1",
     "react-switch": "^7.0.0",
-    "sanity": "^3.12.1",
+    "sanity": "^3.14.1",
     "styled-components": "^5.3.11"
   },
   "devDependencies": {

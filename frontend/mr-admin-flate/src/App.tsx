@@ -1,12 +1,13 @@
 import { Alert, BodyShort, Heading } from "@navikt/ds-react";
 import { Route, Routes } from "react-router-dom";
-import { useHentAnsatt } from "./api/administrator/useHentAdministrator";
 import { useFeatureToggles } from "./api/features/feature-toggles";
+import { useHentAnsatt } from "./api/ansatt/useHentAnsatt";
 import { Laster } from "./components/laster/Laster";
 import { Forside } from "./Forside";
 import IkkeAutentisertApp from "./IkkeAutentisertApp";
 import { AvtalerPage } from "./pages/avtaler/AvtalerPage";
 import { DetaljerAvtalePage } from "./pages/avtaler/DetaljerAvtalePage";
+import { NavAnsattRolle } from "mulighetsrommet-api-client";
 import { ErrorPage } from "./pages/ErrorPage";
 import { DetaljerTiltakstypePage } from "./pages/tiltakstyper/DetaljerTiltakstypePage";
 import { TiltakstyperPage } from "./pages/tiltakstyper/TiltakstyperPage";
@@ -58,8 +59,10 @@ export function App() {
   }
 
   if (
-    !optionalAnsatt?.data?.tilganger.some(
-      (tilgang) => tilgang === "BETABRUKER" || tilgang === "UTVIKLER_VALP"
+    !optionalAnsatt.data.roller.some(
+      (rolle) =>
+        rolle === NavAnsattRolle.BETABRUKER ||
+        rolle === NavAnsattRolle.TEAM_MULIGHETSROMMET
     )
   ) {
     return <IkkeAutentisertApp />;

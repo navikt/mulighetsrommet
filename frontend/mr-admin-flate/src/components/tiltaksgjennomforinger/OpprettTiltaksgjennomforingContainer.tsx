@@ -308,7 +308,7 @@ export const OpprettTiltaksgjennomforingContainer = (
 
   useEffect(() => {
     if (ansatt && !isLoadingAnsatt && !tiltaksgjennomforing?.ansvarlig) {
-      setValue("ansvarlig", ansatt.ident!!);
+      setValue("ansvarlig", ansatt.navIdent);
     }
   }, [ansatt, isLoadingAnsatt, setValue]);
 
@@ -393,7 +393,7 @@ export const OpprettTiltaksgjennomforingContainer = (
 
   const arenaOpphav = tiltaksgjennomforing?.opphav === Opphav.ARENA;
 
-  const navn = ansatt?.fornavn
+  const navn = ansatt
     ? [ansatt.fornavn, ansatt.etternavn ?? ""]
         .map((it) => capitalize(it))
         .join(" ")
@@ -441,8 +441,8 @@ export const OpprettTiltaksgjennomforingContainer = (
 
   const kontaktpersonerOption = () => {
     const options = kontaktpersoner?.map((kontaktperson) => ({
-      label: `${kontaktperson.fornavn} ${kontaktperson.etternavn} - ${kontaktperson.navident}`,
-      value: kontaktperson.navident,
+      label: `${kontaktperson.fornavn} ${kontaktperson.etternavn} - ${kontaktperson.navIdent}`,
+      value: kontaktperson.navIdent,
     }));
 
     return options || [];
@@ -475,7 +475,7 @@ export const OpprettTiltaksgjennomforingContainer = (
     const options = [];
     if (
       tiltaksgjennomforing?.ansvarlig &&
-      tiltaksgjennomforing.ansvarlig !== ansatt?.ident
+      tiltaksgjennomforing.ansvarlig !== ansatt?.navIdent
     ) {
       options.push({
         value: tiltaksgjennomforing?.ansvarlig,
@@ -484,8 +484,8 @@ export const OpprettTiltaksgjennomforingContainer = (
     }
 
     options.push({
-      value: ansatt?.ident ?? "",
-      label: `${navn} - ${ansatt?.ident}`,
+      value: ansatt?.navIdent ?? "",
+      label: `${navn} - ${ansatt?.navIdent}`,
     });
 
     return options;

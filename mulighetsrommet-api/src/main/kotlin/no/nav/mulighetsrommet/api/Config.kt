@@ -4,6 +4,7 @@ import no.nav.mulighetsrommet.api.clients.brreg.BrregClientImpl
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.api.producers.TiltakstypeKafkaProducer
+import no.nav.mulighetsrommet.api.services.AdGruppeNavAnsattRolleMapping
 import no.nav.mulighetsrommet.api.tasks.*
 import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
@@ -28,6 +29,7 @@ data class AppConfig(
     val amtEnhetsregister: ServiceClientConfig,
     val arenaAdapter: ServiceClientConfig,
     val msGraphConfig: ServiceClientConfig,
+    val navAnsattService: NavAnsattServiceConfig,
     val tasks: TaskConfig,
     val norg2: Norg2Config,
     val slack: SlackConfig,
@@ -87,4 +89,8 @@ data class SlackConfig(
     val token: String,
     val channel: String,
     val enable: Boolean,
+)
+
+data class NavAnsattServiceConfig(
+    val roller: List<AdGruppeNavAnsattRolleMapping>,
 )

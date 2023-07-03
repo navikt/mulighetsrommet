@@ -7,7 +7,6 @@ import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import no.nav.mulighetsrommet.api.domain.dto.AdGruppe
-import no.nav.mulighetsrommet.api.domain.dto.NavAnsattDto
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import org.slf4j.LoggerFactory
 import java.util.*
@@ -33,9 +32,11 @@ class MicrosoftGraphClientImpl(
         install(HttpCache)
     }
 
-    override suspend fun getNavAnsatt(accessToken: String, navAnsattAzureId: UUID): NavAnsattDto {
+    override suspend fun getNavAnsatt(navAnsattAzureId: UUID, oboToken: String?): AzureAdNavAnsatt {
         val response = client.get("$baseUrl/v1.0/users/$navAnsattAzureId") {
-            bearerAuth(tokenProvider(accessToken))
+            oboToken?.let {
+                bearerAuth(tokenProvider(it))
+            }
             parameter("\$select", "id,streetAddress,city,givenName,surname,onPremisesSamAccountName,mail,mobilePhone")
         }
 
@@ -49,9 +50,11 @@ class MicrosoftGraphClientImpl(
         return toNavAnsatt(user)
     }
 
-    override suspend fun getMemberGroups(accessToken: String, navAnsattAzureId: UUID): List<AdGruppe> {
+    override suspend fun getMemberGroups(navAnsattAzureId: UUID, oboToken: String?): List<AdGruppe> {
         val response = client.get("$baseUrl/v1.0/users/$navAnsattAzureId/transitiveMemberOf/microsoft.graph.group") {
-            bearerAuth(tokenProvider(accessToken))
+            oboToken?.let {
+                bearerAuth(tokenProvider(it))
+            }
             parameter("\$select", "id,displayName")
         }
 
@@ -67,7 +70,7 @@ class MicrosoftGraphClientImpl(
         }
     }
 
-    override suspend fun getGroupMembers(groupId: UUID): List<NavAnsattDto> {
+    override suspend fun getGroupMembers(groupId: UUID): List<AzureAdNavAnsatt> {
         val response = client.get("$baseUrl/v1.0/groups/$groupId/members") {
             bearerAuth(tokenProvider.invoke(null))
             parameter("\$select", "id,streetAddress,city,givenName,surname,onPremisesSamAccountName,mail,mobilePhone")
@@ -111,14 +114,14 @@ class MicrosoftGraphClientImpl(
             throw RuntimeException("Etternavn på ansatt mangler for bruker med id=${user.id}")
         }
 
-        else -> NavAnsattDto(
+        else -> AzureAdNavAnsatt(
             azureId = user.id,
-            navident = user.onPremisesSamAccountName,
+            navIdent = user.onPremisesSamAccountName,
             fornavn = user.givenName,
             etternavn = user.surname,
             hovedenhetKode = user.streetAddress,
             hovedenhetNavn = user.city,
-            mobilnr = user.mobilePhone,
+            mobilnummer = user.mobilePhone,
             epost = user.mail,
         )
     }

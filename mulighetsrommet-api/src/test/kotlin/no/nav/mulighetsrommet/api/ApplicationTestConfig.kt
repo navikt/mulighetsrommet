@@ -85,6 +85,7 @@ fun createTestApplicationConfig(oauth: MockOAuth2Server) = AppConfig(
         enable = false,
     ),
     brreg = BrregClientImpl.Config(baseUrl = ""),
+    navAnsattService = NavAnsattServiceConfig(roller = listOf()),
 )
 
 fun createKafkaConfig(): KafkaConfig {

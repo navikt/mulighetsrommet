@@ -2,12 +2,12 @@ import { createClient, SanityClient } from '@sanity/client';
 import groq from 'groq';
 import { rest, RestHandler } from 'msw';
 import {
-  Ansatt,
   Bruker,
   DelMedBruker,
   DialogResponse,
   HistorikkForBruker,
   Innsatsgruppe,
+  NavVeileder,
 } from 'mulighetsrommet-api-client';
 import { utledInnsatsgrupperFraInnsatsgruppe } from '../../core/api/queries/useTiltaksgjennomforinger';
 import { historikk } from '../fixtures/historikk';
@@ -51,17 +51,17 @@ export const apiHandlers: RestHandler[] = [
     );
   }),
 
-  rest.get<any, any, Ansatt>('*/api/v1/internal/ansatt/me', (_, res, ctx) => {
+  rest.get<any, any, NavVeileder>('*/api/v1/internal/veileder/me', (_, res, ctx) => {
     return res(
       ctx.status(200),
       ctx.json({
+        navIdent: 'V12345',
         etternavn: 'VEILEDERSEN',
         fornavn: 'VEILEDER',
-        ident: 'V12345',
-        navn: 'Veiledersen, Veileder',
-        tilganger: [],
-        hovedenhet: '2990',
-        hovedenhetNavn: 'Østfold',
+        hovedenhet: {
+          enhetsnummer: '2990',
+          navn: 'Østfold',
+        },
       })
     );
   }),

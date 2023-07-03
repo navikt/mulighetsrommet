@@ -1,17 +1,27 @@
 .filter_container {
-  display: flex;
-  margin-bottom: 2rem;
   background-color: white;
+  margin-bottom: 2rem;
   padding: 1rem;
   border-radius: 0.25rem;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 1rem;
+  display: grid;
+  grid-template-rows: auto auto;
+  grid-template-columns: 11fr 1fr;
 
-  .filter_left {
+  .filtrering {
     display: flex;
     gap: 0.5rem;
     flex-wrap: wrap;
+    padding-bottom: 0.75rem;
+    padding-right: 1.5rem;
+    border-bottom: 1px solid var(--border-default, rgba(0, 0, 0, 0.44));
+
+    width: 100%;
+    grid-row: 1;
+  }
+
+  .tabs {
+    padding-top: 0.75rem;
+    grid-row: 2;
   }
 
   .form_field {
@@ -23,9 +33,88 @@
     }
   }
 
-  .filter_right {
+  .knapperad {
     display: flex;
+    flex-direction: row;
+    align-self: center;
+    align-items: center;
     gap: 1rem;
     justify-content: flex-end;
+    grid-row-start: 1;
+    grid-row-end: 3;
+    padding-left: 1.5rem;
+    height: 100%;
+
+    .registrer_avtale_knapp {
+      height: 2rem;
+
+      span {
+        width: 7rem;
+      }
+    }
+  }
+}
+
+.tiltaksgjennomforingform_med_knapperad {
+  .knapperad {
+    border-left: 1px solid var(--border-default, rgba(0, 0, 0, 0.44));
+  }
+}
+
+.tiltaksgjennomforingform,
+.tiltakstypeform {
+  .filter_container {
+    grid-template-columns: auto;
+  }
+}
+
+.tiltaksgjennomforingform_med_knapperad {
+  @media (width < 1280px) {
+    .filter_container {
+      grid-template-columns: 5fr 1fr;
+      .knapperad {
+        flex-direction: column;
+      }
+    }
+  }
+}
+
+.avtaleform {
+  .knapperad {
+    border-left: 1px solid var(--border-default, rgba(0, 0, 0, 0.44));
+  }
+}
+
+.tags_container {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  margin-top: 0.5rem;
+}
+
+.tag {
+  background-color: var(--a-surface-selected);
+  border: none;
+  margin-right: 0.5rem;
+  border-radius: 0.25rem;
+}
+
+.tag_inner {
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
+}
+
+.tag_button {
+  background: none;
+  margin-left: 0.5rem;
+  border: none;
+  color: black;
+  font-size: 13px;
+
+  &:hover {
+    color: var(--a-text-action);
+    background: none;
+    border: none;
+    cursor: pointer;
   }
 }

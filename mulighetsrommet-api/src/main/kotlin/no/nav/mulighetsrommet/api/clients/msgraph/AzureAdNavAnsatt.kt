@@ -1,17 +1,18 @@
-package no.nav.mulighetsrommet.api.domain.dto
+package no.nav.mulighetsrommet.api.clients.msgraph
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import java.util.*
 
 @Serializable
-data class NavKontaktpersonDto(
+data class AzureAdNavAnsatt(
     @Serializable(with = UUIDSerializer::class)
     val azureId: UUID,
-    val navident: String,
+    val navIdent: String,
     val fornavn: String,
     val etternavn: String,
     val hovedenhetKode: String,
-    val mobilnr: String? = null,
+    val hovedenhetNavn: String,
+    val mobilnummer: String?,
     val epost: String,
 )

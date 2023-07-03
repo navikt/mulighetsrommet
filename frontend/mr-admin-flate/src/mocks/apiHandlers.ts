@@ -1,11 +1,10 @@
 import { rest } from "msw";
 import {
-  Ansatt,
   Avtale,
   AvtaleNokkeltall,
   AvtaleRequest,
+  NavAnsatt,
   NavEnhet,
-  NavKontaktperson,
   PaginertAvtale,
   PaginertTiltaksgjennomforing,
   PaginertTiltakstype,
@@ -266,16 +265,19 @@ export const apiHandlers = [
     }
   ),
 
-  rest.get<any, any, NavKontaktperson[]>(
+  rest.get<any, any, NavAnsatt[]>(
     "*/api/v1/internal/ansatt/kontaktpersoner",
     (req, res, ctx) => {
       return res(ctx.status(200), ctx.json(mockKontaktpersoner));
     }
   ),
 
-  rest.get<any, any, Ansatt>("*/api/v1/internal/ansatt/me", (req, res, ctx) => {
-    return res(ctx.status(200), ctx.json(mockBetabruker));
-  }),
+  rest.get<any, any, NavAnsatt>(
+    "*/api/v1/internal/ansatt/me",
+    (req, res, ctx) => {
+      return res(ctx.status(200), ctx.json(mockBetabruker));
+    }
+  ),
 
   rest.put<AvtaleRequest>("*/api/v1/internal/avtaler", (req, res, ctx) => {
     return res(
