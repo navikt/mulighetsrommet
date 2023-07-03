@@ -18,7 +18,7 @@ dependencies {
     testImplementation(libs.kotest.assertions.core)
     testImplementation(libs.kotest.assertions.arrow)
     testImplementation(libs.kotest.extensions.testcontainers)
+    testImplementation(libs.kotest.extensions.testcontainers.kafka)
     testImplementation(libs.mockk)
-    testImplementation(libs.testcontainers.kafka)
     testImplementation(libs.assertj.db)
 }
