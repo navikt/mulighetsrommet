@@ -26,6 +26,7 @@
     "@tanstack/react-query": "^4.29.15",
     "@tanstack/react-query-devtools": "^4.29.19",
     "classnames": "^2.3.2",
+    "debounce": "^1.2.1",
     "eslint": "8.43.0",
     "jotai": "^2.2.1",
     "jotai-location": "^0.5.1",
@@ -37,11 +38,13 @@
     "react-hook-form": "^7.45.1",
     "react-router-dom": "^6.14.1",
     "react-select": "^5.7.3",
+    "use-deep-compare-effect": "^1.8.1",
     "uuid": "^9.0.0",
     "vite-plugin-require": "^1.1.10",
     "zod": "^3.21.4"
   },
   "devDependencies": {
+    "@types/debounce": "^1.2.1",
     "@types/react": "^18.2.14",
     "@types/react-dom": "^18.2.6",
     "@typescript-eslint/eslint-plugin": "^5.60.1",

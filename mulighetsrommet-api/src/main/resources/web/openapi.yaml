@@ -5,7 +5,7 @@ info:
   title: Mulighetsrommet API
 
 security:
-  - bearerAuth: []
+  - bearerAuth: [ ]
 
 paths:
   /api/v1/internal/bruker:
@@ -472,7 +472,7 @@ paths:
           description: Sanity query result
           content:
             application/json:
-              schema: {}
+              schema: { }
 
   /api/v1/internal/sanity/innsatsgrupper:
     get:
@@ -994,6 +994,25 @@ paths:
       responses:
         200:
           description: OK
+
+  /api/v1/internal/utkast:
+    put:
+      tags:
+        - Utkast
+      operationId: lagreUtkast
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Utkast"
+
+      responses:
+        200:
+          description: Data om utkast
+          content:
+            application/json:
+              schema:
+                type: object
 
 components:
   securitySchemes:
@@ -2236,3 +2255,24 @@ components:
       required:
         - navIdent
         - navEnheter
+
+    Utkast:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        opprettetAv:
+          type: string
+          nullable: true
+        utkastData:
+          type: object
+        type:
+          type: string
+          enum:
+            - Avtale
+            - Tiltaksgjennomforing
+      required:
+        - id
+        - utkastData
+        - type

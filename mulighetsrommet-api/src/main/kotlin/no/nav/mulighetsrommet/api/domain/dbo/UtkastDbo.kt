@@ -5,11 +5,11 @@ import java.time.LocalDateTime
 import java.util.*
 
 data class UtkastDbo(
-    val id: UUID,
+    val id: UUID?,
     val opprettetAv: String,
     val utkastData: JsonElement,
-    val createdAt: LocalDateTime,
-    val updatedAt: LocalDateTime,
+    val createdAt: LocalDateTime?,
+    val updatedAt: LocalDateTime?,
     val type: Utkasttype,
 )
 

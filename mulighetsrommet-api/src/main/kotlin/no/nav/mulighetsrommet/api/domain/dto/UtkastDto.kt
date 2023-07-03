@@ -12,13 +12,13 @@ import java.util.*
 @Serializable
 data class UtkastDto(
     @Serializable(with = UUIDSerializer::class)
-    val id: UUID,
+    val id: UUID? = null,
     val opprettetAv: String,
     val utkastData: JsonElement,
     @Serializable(with = LocalDateTimeSerializer::class)
-    val createdAt: LocalDateTime,
+    val createdAt: LocalDateTime? = null,
     @Serializable(with = LocalDateTimeSerializer::class)
-    val updatedAt: LocalDateTime,
+    val updatedAt: LocalDateTime? = null,
     val type: Utkasttype,
 ) {
     fun toDbo(): UtkastDbo {

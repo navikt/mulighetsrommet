@@ -13,7 +13,7 @@ import {
 import { Opphav } from "mulighetsrommet-api-client/build/models/Opphav";
 import { Tilgjengelighetsstatus } from "mulighetsrommet-api-client/build/models/Tilgjengelighetsstatus";
 import { porten } from "mulighetsrommet-frontend-common/constants";
-import React, { Dispatch, SetStateAction, useEffect } from "react";
+import React, { Dispatch, SetStateAction, useEffect, useRef } from "react";
 import {
   FormProvider,
   SubmitHandler,
@@ -43,6 +43,7 @@ import { SokeSelect } from "../skjema/SokeSelect";
 import styles from "./OpprettTiltaksgjennomforingContainer.module.scss";
 import { mulighetsrommetClient } from "../../api/clients";
 import { VirksomhetKontaktpersoner } from "../virksomhet/VirksomhetKontaktpersoner";
+import { AutoSaveTiltaksgjennomforing } from "./AutoSaveTiltaksgjennomforing";
 
 const Schema = z
   .object({
@@ -226,6 +227,7 @@ function defaultValuesForKontaktpersoner(
 export const OpprettTiltaksgjennomforingContainer = (
   props: OpprettTiltaksgjennomforingContainerProps
 ) => {
+  const utkastIdRef = useRef(uuidv4());
   const { data: kontaktpersoner, isLoading: isLoadingKontaktpersoner } =
     useHentKontaktpersoner();
   const mutation = usePutGjennomforing();
@@ -274,7 +276,7 @@ export const OpprettTiltaksgjennomforingContainer = (
     register,
     handleSubmit,
     control,
-    formState: { errors },
+    formState: { errors, defaultValues },
     setValue,
     watch,
   } = form;
@@ -642,12 +644,12 @@ export const OpprettTiltaksgjennomforingContainer = (
               readOnly={!avtale?.leverandor.organisasjonsnummer}
               options={arrangorUnderenheterOptions()}
             />
-            {watch('tiltaksArrangorUnderenhetOrganisasjonsnummer') &&
+            {watch("tiltaksArrangorUnderenhetOrganisasjonsnummer") && (
               <VirksomhetKontaktpersoner
-                orgnr={watch('tiltaksArrangorUnderenhetOrganisasjonsnummer')}
-                formValueName={'arrangorKontaktpersonId'}
+                orgnr={watch("tiltaksArrangorUnderenhetOrganisasjonsnummer")}
+                formValueName={"arrangorKontaktpersonId"}
               />
-            }
+            )}
           </div>
           <TextField
             size="small"
@@ -740,6 +742,10 @@ export const OpprettTiltaksgjennomforingContainer = (
         </FormGroup>
 
         <div className={styles.button_row}>
+          <AutoSaveTiltaksgjennomforing
+            defaultValues={defaultValues}
+            utkastId={utkastIdRef.current}
+          />
           <Button
             className={styles.button}
             onClick={onClose}

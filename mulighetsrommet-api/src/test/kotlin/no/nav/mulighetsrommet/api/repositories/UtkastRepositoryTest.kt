@@ -40,7 +40,7 @@ class UtkastRepositoryTest : FunSpec({
                 azureId = UUID.randomUUID(),
                 mobilnummer = null,
                 epost = "",
-                roller = emptyList(),
+                roller = emptySet(),
                 skalSlettesDato = null,
             ),
         )
