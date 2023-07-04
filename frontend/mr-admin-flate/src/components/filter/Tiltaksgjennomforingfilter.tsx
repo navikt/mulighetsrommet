@@ -416,24 +416,12 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
                 size="small"
                 variant="tertiary"
                 onClick={() => {
-                  setFilter({
-                    ...defaultTiltaksgjennomforingfilter,
-                    status: "",
-                  });
-                  setValue("status", "");
-                  setValue("enhet", defaultTiltaksgjennomforingfilter.enhet);
-                  setValue(
-                    "navRegion",
-                    defaultTiltaksgjennomforingfilter.navRegion
-                  );
-                  setValue(
-                    "tiltakstype",
-                    defaultTiltaksgjennomforingfilter.tiltakstype
-                  );
-                  setValue(
-                    "arrangorOrgnr",
-                    defaultTiltaksgjennomforingfilter.arrangorOrgnr
-                  );
+                  setFilter({ ...defaultTiltaksgjennomforingfilter, status: "", avtale: filter.avtale });
+                  setValue('status', "");
+                  setValue('enhet', defaultTiltaksgjennomforingfilter.enhet);
+                  setValue('navRegion', defaultTiltaksgjennomforingfilter.navRegion);
+                  setValue('tiltakstype', defaultTiltaksgjennomforingfilter.tiltakstype);
+                  setValue('arrangorOrgnr', defaultTiltaksgjennomforingfilter.arrangorOrgnr);
                 }}
               >
                 Tilbakestill filter

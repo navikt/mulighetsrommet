@@ -52,13 +52,13 @@ export function Avtaleinfo() {
   }
 
   const lenketekst = () => {
-    if (avtale.url!.includes("mercell")) {
+    if (avtale?.url?.includes("mercell")) {
       return (
         <>
           Se originalavtale i Mercell <ExternalLinkIcon />
         </>
       );
-    } else if (avtale.url!.includes("websak")) {
+    } else if (avtale?.url?.includes("websak")) {
       return (
         <>
           Se originalavtale i WebSak <ExternalLinkIcon />
@@ -111,7 +111,7 @@ export function Avtaleinfo() {
             />
           ) : null}
         </Bolk>
-        <VisHvisVerdi verdi={avtale.url}>
+        <VisHvisVerdi verdi={avtale?.url}>
           <a href={avtale.url!} target="_blank" rel="noopener noreferrer">
             {lenketekst()}
           </a>
