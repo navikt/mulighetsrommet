@@ -428,26 +428,12 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         dateIntervalEnd: LocalDate,
         avslutningsstatus: Avslutningsstatus,
         pagination: PaginationParams,
-    ): QueryResult<List<TiltaksgjennomforingDbo>> = query {
+    ): QueryResult<List<UUID>> = query {
         logger.info("Henter alle tiltaksgjennomføringer med start- eller sluttdato mellom $dateIntervalStart og $dateIntervalEnd, med avslutningsstatus $avslutningsstatus")
 
         @Language("PostgreSQL")
         val query = """
-            select tg.id::uuid,
-                   tg.navn,
-                   tg.tiltakstype_id,
-                   tg.tiltaksnummer,
-                   tg.arrangor_organisasjonsnummer,
-                   tg.start_dato,
-                   tg.slutt_dato,
-                   tg.arena_ansvarlig_enhet,
-                   tg.avslutningsstatus,
-                   tg.tilgjengelighet,
-                   tg.estimert_ventetid,
-                   tg.antall_plasser,
-                   tg.avtale_id,
-                   tg.oppstart,
-                   tg.opphav
+            select tg.id::uuid
             from tiltaksgjennomforing tg
             where avslutningsstatus = :avslutningsstatus::avslutningsstatus and (
                 (start_dato > :date_interval_start and start_dato <= :date_interval_end) or
@@ -466,7 +452,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 "offset" to pagination.offset,
             ),
         )
-            .map { it.toTiltaksgjennomforingDbo() }
+            .map { it.uuid("id") }
             .asList
             .let { db.run(it) }
     }
@@ -558,26 +544,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         "avtale_id" to avtaleId,
         "oppstart" to oppstart.name,
         "opphav" to opphav.name,
-    )
-
-    private fun Row.toTiltaksgjennomforingDbo() = TiltaksgjennomforingDbo(
-        id = uuid("id"),
-        navn = string("navn"),
-        tiltakstypeId = uuid("tiltakstype_id"),
-        tiltaksnummer = stringOrNull("tiltaksnummer"),
-        arrangorOrganisasjonsnummer = string("arrangor_organisasjonsnummer"),
-        startDato = localDate("start_dato"),
-        sluttDato = localDateOrNull("slutt_dato"),
-        arenaAnsvarligEnhet = stringOrNull("arena_ansvarlig_enhet"),
-        avslutningsstatus = Avslutningsstatus.valueOf(string("avslutningsstatus")),
-        tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.valueOf(string("tilgjengelighet")),
-        estimertVentetid = stringOrNull("estimert_ventetid"),
-        antallPlasser = intOrNull("antall_plasser"),
-        avtaleId = uuidOrNull("avtale_id"),
-        ansvarlige = emptyList(),
-        navEnheter = emptyList(),
-        oppstart = TiltaksgjennomforingOppstartstype.valueOf(string("oppstart")),
-        opphav = ArenaMigrering.Opphav.valueOf(string("opphav")),
     )
 
     private fun Row.toTiltaksgjennomforingAdminDto(): TiltaksgjennomforingAdminDto {
