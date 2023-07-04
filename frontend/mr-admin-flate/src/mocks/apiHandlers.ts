@@ -15,6 +15,7 @@ import {
   Tiltakstype,
   TiltakstypeNokkeltall,
   UserNotificationSummary,
+  Utkast,
   Virksomhet,
 } from "mulighetsrommet-api-client";
 import { mockVirksomheter } from "./fixtures/mock_virksomheter";
@@ -266,9 +267,17 @@ export const apiHandlers = [
   ),
 
   rest.get<any, any, NavAnsatt[]>(
-    "*/api/v1/internal/ansatt/kontaktpersoner",
+    "*/api/v1/internal/ansatt",
     (req, res, ctx) => {
-      return res(ctx.status(200), ctx.json(mockKontaktpersoner));
+      const roller = req.url.searchParams.getAll("roller");
+      return res(
+        ctx.status(200),
+        ctx.json(
+          mockKontaktpersoner.filter((k) =>
+            k.roller.every((r) => roller.includes(r))
+          )
+        )
+      );
     }
   ),
 
@@ -336,4 +345,8 @@ export const apiHandlers = [
       return res(ctx.status(200), ctx.json(mockVirksomheter));
     }
   ),
+
+  rest.put<Utkast, any, any>("*/api/v1/internal/utkast", (req, res, ctx) => {
+    return res(ctx.status(200), ctx.json(req.json()));
+  }),
 ];

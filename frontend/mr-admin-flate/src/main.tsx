@@ -10,6 +10,7 @@ import { BrowserRouter as Router, Link } from "react-router-dom";
 import { App } from "./App";
 import { AdministratorHeader } from "./components/administrator/AdministratorHeader";
 import { MiljoBanner } from "./components/miljobanner/MiljoBanner";
+import "react-toastify/dist/ReactToastify.css";
 import "./index.css";
 
 const queryClient = new QueryClient({

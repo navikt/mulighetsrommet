@@ -21,11 +21,13 @@ import {
   useForm,
 } from "react-hook-form";
 import { Link } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
 import { v4 as uuidv4 } from "uuid";
 import z from "zod";
 import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
 import { useHentKontaktpersoner } from "../../api/ansatt/useHentKontaktpersoner";
 import { usePutGjennomforing } from "../../api/avtaler/usePutGjennomforing";
+import { mulighetsrommetClient } from "../../api/clients";
 import { useAlleEnheter } from "../../api/enhet/useAlleEnheter";
 import { useFeatureToggles } from "../../api/features/feature-toggles";
 import { useVirksomhet } from "../../api/virksomhet/useVirksomhet";
@@ -40,10 +42,9 @@ import { Laster } from "../laster/Laster";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
 import { SokeSelect } from "../skjema/SokeSelect";
-import styles from "./OpprettTiltaksgjennomforingContainer.module.scss";
-import { mulighetsrommetClient } from "../../api/clients";
 import { VirksomhetKontaktpersoner } from "../virksomhet/VirksomhetKontaktpersoner";
 import { AutoSaveTiltaksgjennomforing } from "./AutoSaveTiltaksgjennomforing";
+import styles from "./OpprettTiltaksgjennomforingContainer.module.scss";
 
 const Schema = z
   .object({
@@ -767,6 +768,16 @@ export const OpprettTiltaksgjennomforingContainer = (
           </Button>
         </div>
       </form>
+      <ToastContainer
+        position="top-right"
+        newestOnTop={true}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
+      <ToastContainer />
     </FormProvider>
   );
 };
