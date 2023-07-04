@@ -7,10 +7,12 @@ import { TiltaksgjennomforingsTabell } from "../../../components/tabell/Tiltaksg
 import { useGetAvtaleIdFromUrl } from "../../../hooks/useGetAvtaleIdFromUrl";
 import { Tabs } from "@navikt/ds-react";
 import { TiltaksgjennomforingUtkast } from "../../../components/tiltaksgjennomforinger/TiltaksgjennomforingUtkast";
+import { useFeatureToggles } from "../../../api/features/feature-toggles";
 
 export function TiltaksgjennomforingerForAvtale() {
   const avtaleId = useGetAvtaleIdFromUrl();
   const [filter, setFilter] = useAtom(tiltaksgjennomforingfilter);
+  const { data: features } = useFeatureToggles();
 
   const { data: avtale } = useAvtale(avtaleId);
 
@@ -31,7 +33,9 @@ export function TiltaksgjennomforingerForAvtale() {
       <Tabs defaultValue="gjennomforinger">
         <Tabs.List>
           <Tabs.Tab value="gjennomforinger" label="Tiltaksgjennomføringer" />
-          <Tabs.Tab value="utkast" label="Mine utkast" />
+          {features?.["mulighetsrommet.admin-flate-lagre-utkast"] ? (
+            <Tabs.Tab value="utkast" label="Mine utkast" />
+          ) : null}
         </Tabs.List>
         <Tabs.Panel value="gjennomforinger">
           <TiltaksgjennomforingsTabell

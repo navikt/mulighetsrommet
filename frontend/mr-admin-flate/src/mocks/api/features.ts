@@ -13,4 +13,5 @@ export const mockFeatures: Features = {
   "mulighetsrommet.admin-flate-rediger-tiltaksgjennomforing": true,
   "mulighetsrommet.admin-flate-slett-tiltaksgjennomforing": true,
   "mulighetsrommet.admin-flate-koble-tiltaksansvarlig-til-gjennomforing": true,
+  "mulighetsrommet.admin-flate-lagre-utkast": true,
 };

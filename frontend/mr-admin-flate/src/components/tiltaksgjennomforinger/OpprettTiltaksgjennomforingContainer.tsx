@@ -747,11 +747,6 @@ export const OpprettTiltaksgjennomforingContainer = (
         </FormGroup>
 
         <div className={styles.button_row}>
-          <AutoSaveTiltaksgjennomforing
-            defaultValues={defaultValues}
-            utkastId={utkastIdRef.current}
-            avtaleId={avtale!.id}
-          />
           <Button
             className={styles.button}
             onClick={onClose}
@@ -773,6 +768,14 @@ export const OpprettTiltaksgjennomforingContainer = (
           </Button>
         </div>
       </form>
+      {features?.["mulighetsrommet.admin-flate-lagre-utkast"] ? (
+        <AutoSaveTiltaksgjennomforing
+          defaultValues={defaultValues}
+          utkastId={utkastIdRef.current}
+          avtaleId={avtale!.id}
+        />
+      ) : null}
+
       <ToastContainer
         position="bottom-right"
         newestOnTop={true}
