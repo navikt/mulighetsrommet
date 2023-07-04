@@ -94,7 +94,7 @@ export const TiltaksgjennomforingSchema = z
     lokasjonArrangor: z.string().refine((data) => data?.length > 0, {
       message: "Du må skrive inn lokasjon for hvor gjennomføringen finner sted",
     }),
-    arrangorKontaktpersonId: z.string().nullable().optional(),
+    arrangorKontaktpersonId: z.string().optional(),
     ansvarlig: z.string({ required_error: "Du må velge en ansvarlig" }),
     midlertidigStengt: z
       .object({
@@ -235,6 +235,7 @@ export const OpprettTiltaksgjennomforingContainer = (
   const mutation = usePutGjennomforing();
   const { avtale, tiltaksgjennomforing, setError, onClose, onSuccess } = props;
   const utkastIdRef = useRef(tiltaksgjennomforing?.id || uuidv4());
+
   const form = useForm<inferredTiltaksgjennomforingSchema>({
     resolver: zodResolver(TiltaksgjennomforingSchema),
     defaultValues: {
@@ -772,7 +773,7 @@ export const OpprettTiltaksgjennomforingContainer = (
         <AutoSaveTiltaksgjennomforing
           defaultValues={defaultValues}
           utkastId={utkastIdRef.current}
-          avtaleId={avtale!.id}
+          avtale={avtale!} // TODO Kan vi klare oss uten utropstegn?
         />
       ) : null}
 

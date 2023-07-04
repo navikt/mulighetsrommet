@@ -1,5 +1,7 @@
 import debounce from "debounce";
 import {
+  Avtale,
+  Tiltaksgjennomforing,
   TiltaksgjennomforingRequest,
   Utkast,
 } from "mulighetsrommet-api-client";
@@ -10,18 +12,19 @@ import useDeepCompareEffect from "use-deep-compare-effect";
 import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
 import { useMutateUtkast } from "../../api/utkast/useMutateUtkast";
 import { useUtkast } from "../../api/utkast/useUtkast";
+import { inferredTiltaksgjennomforingSchema } from "./OpprettTiltaksgjennomforingContainer";
 
 type Props = {
   defaultValues: any;
   utkastId: string;
-  avtaleId: string;
+  avtale: Avtale;
 };
 // TODO Vurdere å ta ting data som props og gjenbruke autosave på tvers av gjennomføring og avtale
 export const AutoSaveTiltaksgjennomforing = memo(
-  ({ defaultValues, utkastId, avtaleId }: Props) => {
+  ({ defaultValues, utkastId, avtale }: Props) => {
     if (!utkastId) throw new Error("Ingen utkastId tilgjengelig");
 
-    const methods = useFormContext();
+    const methods = useFormContext<inferredTiltaksgjennomforingSchema>();
     const { data } = useHentAnsatt();
     const mutation = useMutateUtkast();
 
@@ -29,23 +32,27 @@ export const AutoSaveTiltaksgjennomforing = memo(
 
     const debouncedSave = useCallback(
       debounce(() => {
-        const values = methods.getValues() as any; // TODO Fiks bruk av any
+        const values = methods.getValues();
 
         // TODO Rydd i dette rotet her
         const utkastData: TiltaksgjennomforingRequest = {
           ...values,
-          startDato: values?.startOgSluttDato?.startDato,
-          sluttDato: values?.startOgSluttDato?.sluttDato,
-          navEnheter: values?.navEnheter?.map((enhetsnummer: string) => ({
-            navn: "",
-            enhetsnummer,
-          })),
+          startDato: values?.startOgSluttDato?.startDato?.toDateString(),
+          sluttDato: values?.startOgSluttDato?.sluttDato?.toDateString(),
+          navEnheter: values?.navEnheter,
           stengtFra: values?.midlertidigStengt?.erMidlertidigStengt
-            ? values?.midlertidigStengt?.stengtFra
+            ? values?.midlertidigStengt?.stengtFra?.toString()
             : undefined,
           stengtTil: values?.midlertidigStengt?.erMidlertidigStengt
-            ? values?.midlertidigStengt?.stengtTil
+            ? values?.midlertidigStengt?.stengtTil?.toString()
             : undefined,
+          tiltakstypeId: avtale?.tiltakstype.id,
+          avtaleId: avtale?.id,
+          arrangorKontaktpersonId: values?.arrangorKontaktpersonId,
+          arrangorOrganisasjonsnummer:
+            values.tiltaksArrangorUnderenhetOrganisasjonsnummer,
+          kontaktpersoner:
+            values?.kontaktpersoner?.map((kp) => ({ ...kp })) || [],
           id: utkastId,
         };
 
@@ -64,7 +71,7 @@ export const AutoSaveTiltaksgjennomforing = memo(
           utkastData,
           type: Utkast.type.TILTAKSGJENNOMFORING,
           opprettetAv: lagretUtkast?.opprettetAv || data?.navIdent,
-          avtaleId,
+          avtaleId: avtale.id,
         });
       }, 1000),
       []
