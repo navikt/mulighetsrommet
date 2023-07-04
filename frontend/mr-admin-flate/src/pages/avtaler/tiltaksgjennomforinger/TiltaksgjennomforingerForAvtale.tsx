@@ -5,6 +5,8 @@ import { useAvtale } from "../../../api/avtaler/useAvtale";
 import { Tiltaksgjennomforingfilter } from "../../../components/filter/Tiltaksgjennomforingfilter";
 import { TiltaksgjennomforingsTabell } from "../../../components/tabell/TiltaksgjennomforingsTabell";
 import { useGetAvtaleIdFromUrl } from "../../../hooks/useGetAvtaleIdFromUrl";
+import { Tabs } from "@navikt/ds-react";
+import { TiltaksgjennomforingUtkast } from "../../../components/tiltaksgjennomforinger/TiltaksgjennomforingUtkast";
 
 export function TiltaksgjennomforingerForAvtale() {
   const avtaleId = useGetAvtaleIdFromUrl();
@@ -25,12 +27,24 @@ export function TiltaksgjennomforingerForAvtale() {
         skjulFilter={{ tiltakstype: true }}
         avtale={avtale}
       />
-      <TiltaksgjennomforingsTabell
-        skjulKolonner={{
-          tiltakstype: true,
-          arrangor: true,
-        }}
-      />
+
+      <Tabs defaultValue="gjennomforinger">
+        <Tabs.List>
+          <Tabs.Tab value="gjennomforinger" label="Tiltaksgjennomføringer" />
+          <Tabs.Tab value="utkast" label="Mine utkast" />
+        </Tabs.List>
+        <Tabs.Panel value="gjennomforinger">
+          <TiltaksgjennomforingsTabell
+            skjulKolonner={{
+              tiltakstype: true,
+              arrangor: true,
+            }}
+          />
+        </Tabs.Panel>
+        <Tabs.Panel value="utkast">
+          <TiltaksgjennomforingUtkast />
+        </Tabs.Panel>
+      </Tabs>
     </>
   );
 }

@@ -49,5 +49,14 @@ export const QueryKeys = {
     filter,
   ],
   kontaktpersoner: () => ["nav-kontaktpersoner"],
-  virksomhetKontaktpersoner: (orgnr: string) => [orgnr, "virksomhet-kontaktpersoner"],
+  virksomhetKontaktpersoner: (orgnr: string) => [
+    orgnr,
+    "virksomhet-kontaktpersoner",
+  ],
+  alleUtkast: (avtaleId: string = "", opprettetAv: string = "") => [
+    "alleUtkast",
+    avtaleId,
+    opprettetAv,
+  ],
+  utkast: (utkastId: string) => ["utkast", utkastId],
 };

@@ -36,6 +36,8 @@ import { RESET } from "jotai/vanilla/utils";
 import { useNavigate } from "react-router-dom";
 import classNames from "classnames";
 import { FilterTag } from "./FilterTag";
+import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
+import { useAlleUtkast } from "../../api/utkast/useAlleUtkast";
 
 type Filters = "tiltakstype";
 
@@ -53,10 +55,16 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
     VirksomhetTil.TILTAKSGJENNOMFORING
   );
   const { data: tiltakstyper } = useTiltakstyper(
-    { status: Tiltakstypestatus.AKTIV }, 1
+    { status: Tiltakstypestatus.AKTIV },
+    1
   );
   const [opprettModal, setOpprettModalOpen] = useState<boolean>(false);
   const [modalOpen, setModalOpen] = useState<boolean>(false);
+  const { data: brukerData } = useHentAnsatt();
+  const { refetch: refetchUtkast } = useAlleUtkast(
+    avtale?.id,
+    brukerData?.navIdent
+  );
 
   const form = useForm<TiltaksgjennomforingAtomFilter>({
     defaultValues: {
@@ -287,7 +295,10 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
                     <OpprettTiltaksgjennomforingModal
                       modalOpen={opprettModal}
                       avtale={avtale}
-                      onClose={() => setOpprettModalOpen(false)}
+                      onClose={() => {
+                        refetchUtkast();
+                        setOpprettModalOpen(false);
+                      }}
                       onSuccess={(id) =>
                         navigate(`/tiltaksgjennomforinger/${id}`)
                       }
@@ -314,68 +325,120 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
             </div>
           )}
           <div className={styles.tags_container}>
-            {filter.navRegion && 
+            {filter.navRegion && (
               <FilterTag
-                label={enheter?.find(e => e.enhetsnummer === filter.navRegion)?.navn}
+                label={
+                  enheter?.find((e) => e.enhetsnummer === filter.navRegion)
+                    ?.navn
+                }
                 onClick={() => {
-                  setFilter({ ...filter, navRegion: defaultTiltaksgjennomforingfilter.navRegion });
-                  setValue('navRegion', defaultTiltaksgjennomforingfilter.navRegion);
+                  setFilter({
+                    ...filter,
+                    navRegion: defaultTiltaksgjennomforingfilter.navRegion,
+                  });
+                  setValue(
+                    "navRegion",
+                    defaultTiltaksgjennomforingfilter.navRegion
+                  );
                 }}
               />
-            }
-            {filter.enhet && 
+            )}
+            {filter.enhet && (
               <FilterTag
-                label={enheter?.find(e => e.enhetsnummer === filter.enhet)?.navn}
+                label={
+                  enheter?.find((e) => e.enhetsnummer === filter.enhet)?.navn
+                }
                 onClick={() => {
-                  setFilter({ ...filter, enhet: defaultTiltaksgjennomforingfilter.enhet });
-                  setValue('enhet', defaultTiltaksgjennomforingfilter.enhet);
+                  setFilter({
+                    ...filter,
+                    enhet: defaultTiltaksgjennomforingfilter.enhet,
+                  });
+                  setValue("enhet", defaultTiltaksgjennomforingfilter.enhet);
                 }}
               />
-            }
-            {filter.tiltakstype &&
+            )}
+            {filter.tiltakstype && (
               <FilterTag
-                label={tiltakstyper?.data?.find(t => t.id === filter.tiltakstype)?.navn}
+                label={
+                  tiltakstyper?.data?.find((t) => t.id === filter.tiltakstype)
+                    ?.navn
+                }
                 onClick={() => {
-                  setFilter({ ...filter, tiltakstype: defaultTiltaksgjennomforingfilter.tiltakstype });
-                  setValue('tiltakstype', defaultTiltaksgjennomforingfilter.tiltakstype);
+                  setFilter({
+                    ...filter,
+                    tiltakstype: defaultTiltaksgjennomforingfilter.tiltakstype,
+                  });
+                  setValue(
+                    "tiltakstype",
+                    defaultTiltaksgjennomforingfilter.tiltakstype
+                  );
                 }}
               />
-            }
-            {filter.status &&
+            )}
+            {filter.status && (
               <FilterTag
-                label={statusOptions().find(o => o.value === filter.status)?.label}
+                label={
+                  statusOptions().find((o) => o.value === filter.status)?.label
+                }
                 onClick={() => {
                   setFilter({ ...filter, status: "" });
-                  setValue('status', "");
+                  setValue("status", "");
                 }}
               />
-            }
-            {filter.arrangorOrgnr &&
+            )}
+            {filter.arrangorOrgnr && (
               <FilterTag
-                label={virksomheter?.find(v => v.organisasjonsnummer === filter.arrangorOrgnr)?.navn}
+                label={
+                  virksomheter?.find(
+                    (v) => v.organisasjonsnummer === filter.arrangorOrgnr
+                  )?.navn
+                }
                 onClick={() => {
-                  setFilter({ ...filter, arrangorOrgnr: defaultTiltaksgjennomforingfilter.arrangorOrgnr });
-                  setValue('arrangorOrgnr', defaultTiltaksgjennomforingfilter.arrangorOrgnr);
+                  setFilter({
+                    ...filter,
+                    arrangorOrgnr:
+                      defaultTiltaksgjennomforingfilter.arrangorOrgnr,
+                  });
+                  setValue(
+                    "arrangorOrgnr",
+                    defaultTiltaksgjennomforingfilter.arrangorOrgnr
+                  );
                 }}
               />
-            }
-            { (filter.navRegion || filter.enhet || filter.tiltakstype || filter.status || filter.arrangorOrgnr) &&
+            )}
+            {(filter.navRegion ||
+              filter.enhet ||
+              filter.tiltakstype ||
+              filter.status ||
+              filter.arrangorOrgnr) && (
               <Button
                 type="button"
                 size="small"
                 variant="tertiary"
                 onClick={() => {
-                  setFilter({ ...defaultTiltaksgjennomforingfilter, status: "" });
-                  setValue('status', "");
-                  setValue('enhet', defaultTiltaksgjennomforingfilter.enhet);
-                  setValue('navRegion', defaultTiltaksgjennomforingfilter.navRegion);
-                  setValue('tiltakstype', defaultTiltaksgjennomforingfilter.tiltakstype);
-                  setValue('arrangorOrgnr', defaultTiltaksgjennomforingfilter.arrangorOrgnr);
+                  setFilter({
+                    ...defaultTiltaksgjennomforingfilter,
+                    status: "",
+                  });
+                  setValue("status", "");
+                  setValue("enhet", defaultTiltaksgjennomforingfilter.enhet);
+                  setValue(
+                    "navRegion",
+                    defaultTiltaksgjennomforingfilter.navRegion
+                  );
+                  setValue(
+                    "tiltakstype",
+                    defaultTiltaksgjennomforingfilter.tiltakstype
+                  );
+                  setValue(
+                    "arrangorOrgnr",
+                    defaultTiltaksgjennomforingfilter.arrangorOrgnr
+                  );
                 }}
               >
                 Tilbakestill filter
               </Button>
-            }
+            )}
           </div>
         </div>
       </form>

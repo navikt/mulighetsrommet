@@ -996,6 +996,42 @@ paths:
           description: OK
 
   /api/v1/internal/utkast:
+    get:
+      parameters:
+        - in: query
+          name: utkasttype
+          description: Typen for utkastet
+          required: true
+          schema:
+            type: string
+            enum:
+              - Avtale
+              - Tiltaksgjennomforing
+        - in: query
+          name: opprettetAv
+          description: Brukerident hvis man bare vil se sine egne utkast
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: avtaleId
+          description: Avtalen utkastene gjelder for
+          required: true
+          schema:
+            type: string
+      tags:
+        - Utkast
+      operationId: getAlleUtkast
+      responses:
+        200:
+          description: Liste med utkast
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Utkast"
+
     put:
       tags:
         - Utkast
@@ -1012,7 +1048,32 @@ paths:
           content:
             application/json:
               schema:
-                type: object
+                $ref: "#/components/schemas/Utkast"
+
+  /api/v1/internal/utkast/{id}:
+    parameters:
+      - $ref: "#/components/parameters/ID"
+    get:
+      tags:
+        - Utkast
+      operationId: getUtkast
+      responses:
+        200:
+          description: Data om utkast
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Utkast"
+
+    delete:
+      tags:
+        - Utkast
+      operationId: deleteUtkast
+      responses:
+        200:
+          description: Om utkastet ble slettet eller ikke
+        500:
+          description: Hvis noe gikk galt ved sletting av utkast
 
 components:
   securitySchemes:
@@ -2262,6 +2323,9 @@ components:
         id:
           type: string
           format: uuid
+        avtaleId:
+          type: string
+          format: uuid
         opprettetAv:
           type: string
           nullable: true
@@ -2280,5 +2344,6 @@ components:
             - Tiltaksgjennomforing
       required:
         - id
+        - avtaleId
         - utkastData
         - type

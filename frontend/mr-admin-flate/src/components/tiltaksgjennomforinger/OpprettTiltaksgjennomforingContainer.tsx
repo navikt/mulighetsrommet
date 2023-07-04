@@ -46,9 +46,9 @@ import { VirksomhetKontaktpersoner } from "../virksomhet/VirksomhetKontaktperson
 import { AutoSaveTiltaksgjennomforing } from "./AutoSaveTiltaksgjennomforing";
 import styles from "./OpprettTiltaksgjennomforingContainer.module.scss";
 
-const Schema = z
+export const TiltaksgjennomforingSchema = z
   .object({
-    tittel: z.string().min(1, "Du må skrive inn tittel"),
+    navn: z.string().min(1, "Du må skrive inn tittel"),
     startOgSluttDato: z
       .object({
         startDato: z.date({
@@ -91,7 +91,7 @@ const Schema = z
         required_error: "Du må velge en underenhet for tiltaksarrangør",
       })
       .min(1, "Du må velge en underenhet for tiltaksarrangør"),
-    lokasjonArrangor: z.string().refine((data) => data.length > 0, {
+    lokasjonArrangor: z.string().refine((data) => data?.length > 0, {
       message: "Du må skrive inn lokasjon for hvor gjennomføringen finner sted",
     }),
     arrangorKontaktpersonId: z.string().nullable().optional(),
@@ -140,7 +140,9 @@ const Schema = z
     }
   );
 
-export type inferredSchema = z.infer<typeof Schema>;
+export type inferredTiltaksgjennomforingSchema = z.infer<
+  typeof TiltaksgjennomforingSchema
+>;
 
 interface OpprettTiltaksgjennomforingContainerProps {
   onClose: () => void;
@@ -218,7 +220,7 @@ function defaultValuesForKontaktpersoner(
 ): TiltaksgjennomforingKontaktpersoner[] {
   if (!kontaktpersoner) return [{ navIdent: "", navEnheter: [] }];
 
-  return kontaktpersoner.map((person) => ({
+  return kontaktpersoner?.map((person) => ({
     navIdent: person.navIdent,
     navEnheter:
       person.navEnheter?.length === 0 ? ["alle_enheter"] : person.navEnheter,
@@ -228,19 +230,21 @@ function defaultValuesForKontaktpersoner(
 export const OpprettTiltaksgjennomforingContainer = (
   props: OpprettTiltaksgjennomforingContainerProps
 ) => {
-  const utkastIdRef = useRef(uuidv4());
   const { data: kontaktpersoner, isLoading: isLoadingKontaktpersoner } =
     useHentKontaktpersoner();
   const mutation = usePutGjennomforing();
   const { avtale, tiltaksgjennomforing, setError, onClose, onSuccess } = props;
-  const form = useForm<inferredSchema>({
-    resolver: zodResolver(Schema),
+  const utkastIdRef = useRef(tiltaksgjennomforing?.id || uuidv4());
+  const form = useForm<inferredTiltaksgjennomforingSchema>({
+    resolver: zodResolver(TiltaksgjennomforingSchema),
     defaultValues: {
-      tittel: tiltaksgjennomforing?.navn,
+      navn: tiltaksgjennomforing?.navn,
       navEnheter:
-        tiltaksgjennomforing?.navEnheter.length === 0
+        tiltaksgjennomforing?.navEnheter?.length === 0
           ? ["alle_enheter"]
-          : tiltaksgjennomforing?.navEnheter.map((enhet) => enhet.enhetsnummer),
+          : tiltaksgjennomforing?.navEnheter?.map(
+              (enhet) => enhet.enhetsnummer
+            ),
       ansvarlig: tiltaksgjennomforing?.ansvarlig,
       antallPlasser: tiltaksgjennomforing?.antallPlasser,
       startOgSluttDato: {
@@ -338,7 +342,7 @@ export const OpprettTiltaksgjennomforingContainer = (
 
   const redigeringsModus = !!tiltaksgjennomforing;
 
-  const postData: SubmitHandler<inferredSchema> = async (
+  const postData: SubmitHandler<inferredTiltaksgjennomforingSchema> = async (
     data
   ): Promise<void> => {
     if (!features?.["mulighetsrommet.admin-flate-lagre-data-fra-admin-flate"]) {
@@ -355,7 +359,7 @@ export const OpprettTiltaksgjennomforingContainer = (
       navEnheter: data.navEnheter.includes("alle_enheter")
         ? []
         : data.navEnheter,
-      navn: data.tittel,
+      navn: data.navn,
       sluttDato: formaterDatoSomYYYYMMDD(data.startOgSluttDato.sluttDato),
       startDato: formaterDatoSomYYYYMMDD(data.startOgSluttDato.startDato),
       avtaleId: avtale?.id || "",
@@ -430,7 +434,7 @@ export const OpprettTiltaksgjennomforingContainer = (
       )
       .filter(
         (enhet: NavEnhet) =>
-          avtale?.navEnheter.length === 0 ||
+          avtale?.navEnheter?.length === 0 ||
           avtale?.navEnheter.find((e) => e.enhetsnummer === enhet.enhetsnummer)
       )
       .map((enhet) => ({
@@ -461,7 +465,7 @@ export const OpprettTiltaksgjennomforingContainer = (
       }) || [];
 
     // Ingen underenheter betyr at alle er valgt, må gi valg om alle underenheter fra virksomhet
-    if (options.length === 0) {
+    if (options?.length === 0) {
       const enheter = virksomhet?.underenheter || [];
       return enheter.map((enhet) => ({
         value: enhet.organisasjonsnummer,
@@ -507,10 +511,10 @@ export const OpprettTiltaksgjennomforingContainer = (
           <TextField
             size="small"
             readOnly={arenaOpphav}
-            error={errors.tittel?.message}
+            error={errors.navn?.message}
             label="Tiltaksnavn"
             autoFocus
-            {...register("tittel")}
+            {...register("navn")}
           />
         </FormGroup>
         <FormGroup>
@@ -666,7 +670,7 @@ export const OpprettTiltaksgjennomforingContainer = (
           "mulighetsrommet.admin-flate-koble-tiltaksansvarlig-til-gjennomforing"
         ] ? (
           <FormGroup>
-            {kontaktpersonFields.map((field, index) => {
+            {kontaktpersonFields?.map((field, index) => {
               return (
                 <div className={styles.kontaktperson_container} key={field.id}>
                   <button
@@ -746,6 +750,7 @@ export const OpprettTiltaksgjennomforingContainer = (
           <AutoSaveTiltaksgjennomforing
             defaultValues={defaultValues}
             utkastId={utkastIdRef.current}
+            avtaleId={avtale!.id}
           />
           <Button
             className={styles.button}

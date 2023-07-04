@@ -13,6 +13,8 @@ import java.util.*
 data class UtkastDto(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID? = null,
+    @Serializable(with = UUIDSerializer::class)
+    val avtaleId: UUID? = null,
     val opprettetAv: String,
     val utkastData: JsonElement,
     @Serializable(with = LocalDateTimeSerializer::class)
@@ -29,6 +31,7 @@ data class UtkastDto(
             createdAt = createdAt,
             updatedAt = updatedAt,
             type = type,
+            avtaleId = avtaleId,
         )
     }
 }

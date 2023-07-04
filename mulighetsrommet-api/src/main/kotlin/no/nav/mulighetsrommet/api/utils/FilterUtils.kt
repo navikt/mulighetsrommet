@@ -5,6 +5,7 @@ import io.ktor.util.pipeline.*
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
+import no.nav.mulighetsrommet.api.domain.dbo.Utkasttype
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.Avtalestatus
 import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
@@ -74,6 +75,12 @@ enum class VirksomhetTil {
     AVTALE,
     TILTAKSGJENNOMFORING,
 }
+
+data class UtkastFilter(
+    val type: Utkasttype,
+    val opprettetAv: String?,
+    val avtaleId: UUID,
+)
 
 fun <T : Any> PipelineContext<T, ApplicationCall>.getVirksomhetFilter(): VirksomhetFilter {
     val til = call.request.queryParameters["til"]

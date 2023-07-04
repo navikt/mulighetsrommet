@@ -6,6 +6,7 @@ import java.util.*
 
 data class UtkastDbo(
     val id: UUID?,
+    val avtaleId: UUID?,
     val opprettetAv: String,
     val utkastData: JsonElement,
     val createdAt: LocalDateTime?,
