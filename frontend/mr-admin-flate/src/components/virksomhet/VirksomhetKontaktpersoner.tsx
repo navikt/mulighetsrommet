@@ -72,7 +72,7 @@ export const VirksomhetKontaktpersoner = (
       epostError: !validEmail(state.epost) ? "Epost må være en gyldig epost adresse" : undefined,
       telefonError: !state.telefon ? "Telefon må være satt" : undefined,
     });
-    if (!state.navn || !state.epost || !state.telefon) {
+    if (!state.navn || !state.epost || !validEmail(state.epost) || !state.telefon) {
       return;
     }
 
