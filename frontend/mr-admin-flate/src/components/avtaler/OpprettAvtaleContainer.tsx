@@ -32,6 +32,7 @@ import styles from "./OpprettAvtaleContainer.module.scss";
 import { faro } from "@grafana/faro-web-sdk";
 import { VirksomhetKontaktpersoner } from "../virksomhet/VirksomhetKontaktpersoner";
 import { SokeSelect } from "../skjema/SokeSelect";
+import { Separator, VerticalSeparator } from "../detaljside/Metadata";
 
 interface OpprettAvtaleContainerProps {
   onClose: () => void;
@@ -101,8 +102,8 @@ export function OpprettAvtaleContainer({
         avtale?.leverandorUnderenheter.length === 0
           ? []
           : avtale?.leverandorUnderenheter?.map(
-              (enhet) => enhet.organisasjonsnummer
-            ),
+            (enhet) => enhet.organisasjonsnummer
+          ),
       leverandorKontaktpersonId: avtale?.leverandorKontaktperson?.id,
       startOgSluttDato: {
         startDato: avtale?.startDato ? new Date(avtale.startDato) : undefined,
@@ -220,8 +221,8 @@ export function OpprettAvtaleContainer({
             {(mutation.error as ApiError).status === 400
               ? (mutation.error as ApiError).body
               : "Avtalen kunne ikke opprettes på grunn av en teknisk feil hos oss. " +
-                "Forsøk på nytt eller ta <a href={porten}>kontakt</a> i Porten dersom " +
-                "du trenger mer hjelp."}
+              "Forsøk på nytt eller ta <a href={porten}>kontakt</a> i Porten dersom " +
+              "du trenger mer hjelp."}
           </>
         }
         onClose={onClose}
@@ -283,179 +284,198 @@ export function OpprettAvtaleContainer({
   return (
     <FormProvider {...form}>
       <form onSubmit={handleSubmit(postData)}>
-        <FormGroup>
-          <TextField
-            size="small"
-            readOnly={arenaOpphav}
-            error={errors.avtalenavn?.message}
-            label="Avtalenavn"
-            {...register("avtalenavn")}
-          />
-        </FormGroup>
-        <FormGroup cols={2}>
-          <SokeSelect
-            size="small"
-            readOnly={arenaOpphav}
-            placeholder="Velg en"
-            label={"Tiltakstype"}
-            {...register("tiltakstype")}
-            options={tiltakstyper.map((tiltakstype) => ({
-              value: tiltakstype.id,
-              label: tiltakstype.navn,
-            }))}
-          />
-          <SokeSelect
-            size="small"
-            readOnly={arenaOpphav}
-            placeholder="Velg en"
-            label={"Avtaletype"}
-            {...register("avtaletype")}
-            options={[
-              {
-                value: Avtaletype.FORHAANDSGODKJENT,
-                label: "Forhåndsgodkjent avtale",
-              },
-              {
-                value: Avtaletype.RAMMEAVTALE,
-                label: "Rammeavtale",
-              },
-              {
-                value: Avtaletype.AVTALE,
-                label: "Avtale",
-              },
-            ]}
-          />
-        </FormGroup>
-        <FormGroup>
-          <FraTilDatoVelger
-            size="small"
-            fra={{
-              readOnly: arenaOpphav,
-              ...register("startOgSluttDato.startDato"),
-              label: "Startdato",
-            }}
-            til={{
-              readOnly: arenaOpphav,
-              ...register("startOgSluttDato.sluttDato"),
-              label: "Sluttdato",
-            }}
-          />
-        </FormGroup>
-        <FormGroup>
-          <SokeSelect
-            size="small"
-            placeholder="Velg en"
-            label={"NAV region"}
-            {...register("navRegion")}
-            onChange={(e) => {
-              setNavRegion(e);
-              form.setValue("navEnheter", [] as any);
-            }}
-            onClearValue={() => setValue("navRegion", "")}
-            options={enheter
-              .filter((enhet) => enhet.type === Norg2Type.FYLKE)
-              .map((enhet) => ({
-                value: `${enhet.enhetsnummer}`,
-                label: enhet.navn,
-              }))}
-          />
-          <ControlledMultiSelect
-            size="small"
-            placeholder="Velg en"
-            readOnly={!navRegion}
-            label={"NAV enhet (kontorer)"}
-            {...register("navEnheter")}
-            options={enheterOptions()}
-          />
-        </FormGroup>
-        <FormGroup cols={1}>
-          <SokeSelect
-            size="small"
-            readOnly={arenaOpphav}
-            placeholder="Søk etter tiltaksarrangør"
-            label={"Tiltaksarrangør hovedenhet"}
-            {...register("leverandor")}
-            onInputChange={(value) => setSokLeverandor(value)}
-            onClearValue={() => setValue("leverandor", "")}
-            options={leverandorVirksomheter.map((enhet) => ({
-              value: enhet.organisasjonsnummer,
-              label: `${enhet.navn} - ${enhet.organisasjonsnummer}`,
-            }))}
-          />
-          <ControlledMultiSelect
-            size="small"
-            placeholder="Velg underenhet for tiltaksarrangør"
-            label={"Tiltaksarrangør underenhet"}
-            readOnly={!watch("leverandor")}
-            {...register("leverandorUnderenheter")}
-            options={underenheterOptions()}
-          />
-        </FormGroup>
-        {watch("leverandor") && (
-          <FormGroup>
-            <div className={styles.kontaktperson_container}>
-              <label className={styles.kontaktperson_label}>
-                <b>Kontaktperson hos leverandøren</b>
-              </label>
-              <VirksomhetKontaktpersoner
-                orgnr={watch("leverandor")}
-                formValueName={"leverandorKontaktpersonId"}
-              />
+        <div className={styles.container}>
+          <Separator />
+          <div className={styles.input_container}>
+            <div className={styles.column}>
+              <FormGroup>
+                <TextField
+                  size="small"
+                  readOnly={arenaOpphav}
+                  error={errors.avtalenavn?.message}
+                  label="Avtalenavn"
+                  {...register("avtalenavn")}
+                />
+              </FormGroup>
+              <Separator />
+              <FormGroup cols={2}>
+                <SokeSelect
+                  size="small"
+                  readOnly={arenaOpphav}
+                  placeholder="Velg en"
+                  label={"Tiltakstype"}
+                  {...register("tiltakstype")}
+                  options={tiltakstyper.map((tiltakstype) => ({
+                    value: tiltakstype.id,
+                    label: tiltakstype.navn,
+                  }))}
+                />
+                <SokeSelect
+                  size="small"
+                  readOnly={arenaOpphav}
+                  placeholder="Velg en"
+                  label={"Avtaletype"}
+                  {...register("avtaletype")}
+                  options={[
+                    {
+                      value: Avtaletype.FORHAANDSGODKJENT,
+                      label: "Forhåndsgodkjent avtale",
+                    },
+                    {
+                      value: Avtaletype.RAMMEAVTALE,
+                      label: "Rammeavtale",
+                    },
+                    {
+                      value: Avtaletype.AVTALE,
+                      label: "Avtale",
+                    },
+                  ]}
+                />
+              </FormGroup>
+              <Separator />
+              <FormGroup>
+                <FraTilDatoVelger
+                  size="small"
+                  fra={{
+                    readOnly: arenaOpphav,
+                    ...register("startOgSluttDato.startDato"),
+                    label: "Startdato",
+                  }}
+                  til={{
+                    readOnly: arenaOpphav,
+                    ...register("startOgSluttDato.sluttDato"),
+                    label: "Sluttdato",
+                  }}
+                />
+              </FormGroup>
+              <Separator />
+              <FormGroup>
+                <TextField
+                  size="small"
+                  error={errors.url?.message}
+                  label="URL til avtale"
+                  {...register("url")}
+                />
+              </FormGroup>
+              <Separator />
+              {erAnskaffetTiltak(watch("tiltakstype")) ? (
+                <>
+                  <FormGroup>
+                    <Textarea
+                      size="small"
+                      readOnly={arenaOpphav}
+                      error={errors.prisOgBetalingsinfo?.message}
+                      label="Pris og betalingsinformasjon"
+                      {...register("prisOgBetalingsinfo")}
+                    />
+                  </FormGroup>
+                  <Separator />
+                </>
+              ) : null}
+              <FormGroup>
+                <SokeSelect
+                  size="small"
+                  placeholder="Velg en"
+                  label={"Avtaleansvarlig"}
+                  {...register("avtaleansvarlig")}
+                  onClearValue={() => setValue("avtaleansvarlig", "")}
+                  options={ansvarligOptions()}
+                />
+              </FormGroup>
             </div>
-          </FormGroup>
-        )}
-        <FormGroup>
-          <TextField
-            size="small"
-            error={errors.url?.message}
-            label="URL til avtale"
-            {...register("url")}
-          />
-        </FormGroup>
-        {erAnskaffetTiltak(watch("tiltakstype")) ? (
-          <FormGroup>
-            <Textarea
-              size="small"
-              readOnly={arenaOpphav}
-              error={errors.prisOgBetalingsinfo?.message}
-              label="Pris og betalingsinformasjon"
-              {...register("prisOgBetalingsinfo")}
-            />
-          </FormGroup>
-        ) : null}
-        <FormGroup cols={2}>
-          <SokeSelect
-            size="small"
-            placeholder="Velg en"
-            label={"Avtaleansvarlig"}
-            {...register("avtaleansvarlig")}
-            onClearValue={() => setValue("avtaleansvarlig", "")}
-            options={ansvarligOptions()}
-          />
-        </FormGroup>
-
-        <div className={styles.button_row}>
-          <Button
-            className={styles.button}
-            onClick={onClose}
-            variant="tertiary"
-            type="button"
-          >
-            Avbryt
-          </Button>
-          <Button
-            className={styles.button}
-            type="submit"
-            onClick={() => {
-              faro?.api?.pushEvent(
-                `Bruker ${redigeringsModus ? "redigerer" : "oppretter"} avtale`,
-                { handling: redigeringsModus ? "redigerer" : "oppretter" },
-                "avtale"
-              );
-            }}
-          >
-            {redigeringsModus ? "Lagre redigert avtale" : "Registrer avtale"}
-          </Button>
+            <VerticalSeparator />
+            <div className={styles.column}>
+              <div className={styles.gray_container}>
+                <FormGroup>
+                  <SokeSelect
+                    size="small"
+                    placeholder="Velg en"
+                    label={"NAV region"}
+                    {...register("navRegion")}
+                    onChange={(e) => {
+                      setNavRegion(e);
+                      form.setValue("navEnheter", [] as any);
+                    }}
+                    onClearValue={() => setValue("navRegion", "")}
+                    options={enheter
+                      .filter((enhet) => enhet.type === Norg2Type.FYLKE)
+                      .map((enhet) => ({
+                        value: `${enhet.enhetsnummer}`,
+                        label: enhet.navn,
+                      }))}
+                  />
+                  <ControlledMultiSelect
+                    size="small"
+                    placeholder="Velg en"
+                    readOnly={!navRegion}
+                    label={"NAV enhet (kontorer)"}
+                    {...register("navEnheter")}
+                    options={enheterOptions()}
+                  />
+                </FormGroup>
+              </div>
+              <div className={styles.gray_container}>
+                <FormGroup>
+                  <SokeSelect
+                    size="small"
+                    readOnly={arenaOpphav}
+                    placeholder="Søk etter tiltaksarrangør"
+                    label={"Tiltaksarrangør hovedenhet"}
+                    {...register("leverandor")}
+                    onInputChange={(value) => setSokLeverandor(value)}
+                    onClearValue={() => setValue("leverandor", "")}
+                    options={leverandorVirksomheter.map((enhet) => ({
+                      value: enhet.organisasjonsnummer,
+                      label: `${enhet.navn} - ${enhet.organisasjonsnummer}`,
+                    }))}
+                  />
+                  <ControlledMultiSelect
+                    size="small"
+                    placeholder="Velg underenhet for tiltaksarrangør"
+                    label={"Tiltaksarrangør underenhet"}
+                    readOnly={!watch("leverandor")}
+                    {...register("leverandorUnderenheter")}
+                    options={underenheterOptions()}
+                  />
+                </FormGroup>
+                {watch("leverandor") && (
+                  <FormGroup>
+                    <div className={styles.kontaktperson_container}>
+                      <VirksomhetKontaktpersoner
+                        title={"Kontaktperson hos leverandøren"}
+                        orgnr={watch("leverandor")}
+                        formValueName={"leverandorKontaktpersonId"}
+                      />
+                    </div>
+                  </FormGroup>
+                )}
+              </div>
+            </div>
+          </div>
+          <Separator />
+          <div className={styles.button_row}>
+            <Button
+              className={styles.button}
+              onClick={onClose}
+              variant="tertiary"
+              type="button"
+            >
+              Avbryt
+            </Button>
+            <Button
+              className={styles.button}
+              type="submit"
+              onClick={() => {
+                faro?.api?.pushEvent(
+                  `Bruker ${redigeringsModus ? "redigerer" : "oppretter"} avtale`,
+                  { handling: redigeringsModus ? "redigerer" : "oppretter" },
+                  "avtale"
+                );
+              }}
+            >
+              {redigeringsModus ? "Lagre redigert avtale" : "Registrer avtale"}
+            </Button>
+          </div>
         </div>
       </form>
     </FormProvider>
@@ -469,12 +489,14 @@ export const FormGroup = ({
   children: ReactNode;
   cols?: number;
 }) => (
-  <div
-    className={classNames(styles.form_group, styles.grid, {
-      [styles.grid_1]: cols === 1,
-      [styles.grid_2]: cols === 2,
-    })}
-  >
-    {children}
+  <div className={styles.form_group}>
+    <div
+      className={classNames(styles.grid, {
+        [styles.grid_1]: cols === 1,
+        [styles.grid_2]: cols === 2,
+      })}
+    >
+      {children}
+    </div>
   </div>
 );

@@ -1,13 +1,26 @@
-.flex {
+.container {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
+  align-items: space-between;
+  height: 100%;
+}
+
+.input_container {
+  display: flex;
+  height: 100%;
+}
+
+.column {
+  width: 50%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .form_group {
-  margin: 2rem 0;
-  padding-bottom: 2rem;
-  border-bottom: solid 1px lightgray;
+  width: 100%;
+  padding-right: 2rem;
+  margin-right: 2rem;
 }
 
 .button_row {
@@ -36,13 +49,18 @@
 
 .kontaktperson_container {
   background-color: var(--a-surface-selected);
-  padding: 1rem;
+  margin-top: 1rem;
+  padding: 0.5rem;
   position: relative;
-  border-radius: 0.2rem;
+  border: 1px solid var(--a-border-divider);
+  border-radius: 0.25rem;
 }
 
-.kontaktperson_label {
-  margin-bottom: 8px;
-  display: inline-block;
-  font-size: 16px;
+.gray_container {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  background-color: #f1f1f1;
+  padding: 0.5rem;
+  border: 1px solid var(--a-border-divider);
+  border-radius: 0.25rem;
 }
