@@ -361,15 +361,15 @@ export const OpprettTiltaksgjennomforingContainer = (
         data.tiltaksArrangorUnderenhetOrganisasjonsnummer ||
         tiltaksgjennomforing?.arrangorOrganisasjonsnummer ||
         "",
-      tiltaksnummer: tiltaksgjennomforing?.tiltaksnummer,
+      tiltaksnummer: tiltaksgjennomforing?.tiltaksnummer ?? null,
       oppstart: data.oppstart,
       apenForInnsok: data.apenForInnsok,
       stengtFra: data.midlertidigStengt.erMidlertidigStengt
         ? formaterDatoSomYYYYMMDD(data.midlertidigStengt.stengtFra)
-        : undefined,
+        : null,
       stengtTil: data.midlertidigStengt.erMidlertidigStengt
         ? formaterDatoSomYYYYMMDD(data.midlertidigStengt.stengtTil)
-        : undefined,
+        : null,
       kontaktpersoner:
         data.kontaktpersoner
           ?.filter((kontakt) => kontakt.navIdent !== "")
@@ -379,9 +379,9 @@ export const OpprettTiltaksgjennomforingContainer = (
               ? []
               : kontakt.navEnheter,
           })) || [],
-      estimertVentetid: data.estimertVentetid,
+      estimertVentetid: data.estimertVentetid ?? null,
       lokasjonArrangor: data.lokasjonArrangor,
-      arrangorKontaktpersonId: data.arrangorKontaktpersonId ?? undefined,
+      arrangorKontaktpersonId: data.arrangorKontaktpersonId ?? null,
     };
 
     try {

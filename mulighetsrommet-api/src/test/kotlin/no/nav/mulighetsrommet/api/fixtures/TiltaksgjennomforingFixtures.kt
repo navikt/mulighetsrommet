@@ -26,6 +26,11 @@ object TiltaksgjennomforingFixtures {
         oppstart = TiltaksgjennomforingOppstartstype.FELLES,
         opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
         kontaktpersoner = emptyList(),
+        arrangorKontaktpersonId = null,
+        stengtFra = null,
+        stengtTil = null,
+        lokasjonArrangor = null,
+        estimertVentetid = null,
     )
 
     val Oppfolging2 = TiltaksgjennomforingDbo(
@@ -45,6 +50,11 @@ object TiltaksgjennomforingFixtures {
         oppstart = TiltaksgjennomforingOppstartstype.FELLES,
         opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
         kontaktpersoner = emptyList(),
+        arrangorKontaktpersonId = null,
+        stengtFra = null,
+        stengtTil = null,
+        lokasjonArrangor = null,
+        estimertVentetid = null,
     )
 
     val Arbeidstrening1 = TiltaksgjennomforingDbo(
@@ -64,5 +74,10 @@ object TiltaksgjennomforingFixtures {
         oppstart = TiltaksgjennomforingOppstartstype.FELLES,
         opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
         kontaktpersoner = emptyList(),
+        arrangorKontaktpersonId = null,
+        stengtFra = null,
+        stengtTil = null,
+        lokasjonArrangor = null,
+        estimertVentetid = null,
     )
 }

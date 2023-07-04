@@ -94,23 +94,22 @@ data class TiltaksgjennomforingRequest(
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate,
-    val enhet: String? = null,
     val antallPlasser: Int,
     val arrangorOrganisasjonsnummer: String,
     @Serializable(with = UUIDSerializer::class)
-    val arrangorKontaktpersonId: UUID? = null,
-    val tiltaksnummer: String? = null,
+    val arrangorKontaktpersonId: UUID?,
+    val tiltaksnummer: String?,
     val ansvarlig: String,
     val navEnheter: List<String>,
     val oppstart: TiltaksgjennomforingOppstartstype,
     @Serializable(with = LocalDateSerializer::class)
-    val stengtFra: LocalDate? = null,
+    val stengtFra: LocalDate?,
     @Serializable(with = LocalDateSerializer::class)
-    val stengtTil: LocalDate? = null,
-    val apenForInnsok: Boolean = true,
-    val kontaktpersoner: List<NavKontaktpersonForGjennomforing> = emptyList(),
-    val estimertVentetid: String? = null,
-    val lokasjonArrangor: String? = null,
+    val stengtTil: LocalDate?,
+    val apenForInnsok: Boolean,
+    val kontaktpersoner: List<NavKontaktpersonForGjennomforing>,
+    val estimertVentetid: String?,
+    val lokasjonArrangor: String?,
 ) {
     fun toDbo(): StatusResponse<TiltaksgjennomforingDbo> {
         if (!startDato.isBefore(sluttDato)) {
@@ -137,7 +136,7 @@ data class TiltaksgjennomforingRequest(
                 avtaleId = avtaleId,
                 startDato = startDato,
                 sluttDato = sluttDato,
-                arenaAnsvarligEnhet = enhet,
+                arenaAnsvarligEnhet = null,
                 avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
                 antallPlasser = antallPlasser,
                 tilgjengelighet = if (apenForInnsok) {

@@ -100,28 +100,19 @@ class ArenaAdapterServiceTest : FunSpec({
     )
 
     val tiltaksgjennomforingDto = tiltaksgjennomforing.run {
-        TiltaksgjennomforingAdminDto(
+        TiltaksgjennomforingDto(
             id = id,
-            tiltakstype = TiltaksgjennomforingAdminDto.Tiltakstype(
+            tiltakstype = TiltaksgjennomforingDto.Tiltakstype(
                 id = tiltakstypeId,
                 navn = tiltakstype.navn,
                 arenaKode = tiltakstype.tiltakskode,
             ),
             navn = navn,
-            tiltaksnummer = tiltaksnummer,
-            arrangorOrganisasjonsnummer = arrangorOrganisasjonsnummer,
             startDato = startDato,
             sluttDato = sluttDato,
-            arenaAnsvarligEnhet = arenaAnsvarligEnhet,
             status = Tiltaksgjennomforingsstatus.AVSLUTTET,
-            tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.LEDIG,
-            antallPlasser = null,
-            ansvarlig = null,
-            navEnheter = emptyList(),
-            sanityId = null,
             oppstart = oppstart,
-            opphav = ArenaMigrering.Opphav.ARENA,
-            stengtFra = null,
+            virksomhetsnummer = arrangorOrganisasjonsnummer,
         )
     }
 
@@ -272,9 +263,7 @@ class ArenaAdapterServiceTest : FunSpec({
             service.upsertTiltaksgjennomforing(tiltaksgjennomforing)
 
             verify(exactly = 1) {
-                tiltaksgjennomforingKafkaProducer.publish(
-                    TiltaksgjennomforingDto.from(tiltaksgjennomforingDto),
-                )
+                tiltaksgjennomforingKafkaProducer.publish(tiltaksgjennomforingDto)
             }
 
             service.removeTiltaksgjennomforing(tiltaksgjennomforing.id)

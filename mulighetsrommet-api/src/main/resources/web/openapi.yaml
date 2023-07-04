@@ -1416,8 +1416,10 @@ components:
         arrangorKontaktpersonId:
           type: string
           format: UUID
+          nullable: true
         tiltaksnummer:
           type: string
+          nullable: true
         ansvarlig:
           type: string
         navEnheter:
@@ -1429,9 +1431,11 @@ components:
         stengtFra:
           type: string
           format: date
+          nullable: true
         stengtTil:
           type: string
           format: date
+          nullable: true
         apenForInnsok:
           type: boolean
         kontaktpersoner:
@@ -1440,8 +1444,10 @@ components:
             $ref: "#/components/schemas/TiltaksgjennomforingKontaktpersonerRequest"
         estimertVentetid:
           type: string
+          nullable: true
         lokasjonArrangor:
           type: string
+          nullable: true
       required:
         - id
         - avtaleId
@@ -1456,6 +1462,13 @@ components:
         - oppstart
         - kontaktpersoner
         - lokasjonArrangor
+        - apenForInnsok
+        - kontaktpersoner
+        - estimertVentetid
+        - arrangorKontaktpersonId
+        - tiltaksnummer
+        - stengtFra
+        - stengtTil
 
     TiltaksgjennomforingAvslutningsstatus:
       type: string

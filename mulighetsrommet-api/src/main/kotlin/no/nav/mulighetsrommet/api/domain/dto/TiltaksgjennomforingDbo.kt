@@ -20,15 +20,15 @@ data class TiltaksgjennomforingDbo(
     val tiltaksnummer: String?,
     val arrangorOrganisasjonsnummer: String,
     @Serializable(with = UUIDSerializer::class)
-    val arrangorKontaktpersonId: UUID? = null,
+    val arrangorKontaktpersonId: UUID?,
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
-    val sluttDato: LocalDate? = null,
+    val sluttDato: LocalDate?,
     val arenaAnsvarligEnhet: String?,
     val avslutningsstatus: Avslutningsstatus,
     val tilgjengelighet: TiltaksgjennomforingTilgjengelighetsstatus,
-    val estimertVentetid: String? = null,
+    val estimertVentetid: String?,
     val antallPlasser: Int?,
     @Serializable(with = UUIDSerializer::class)
     val avtaleId: UUID? = null,
@@ -37,11 +37,11 @@ data class TiltaksgjennomforingDbo(
     val oppstart: TiltaksgjennomforingOppstartstype,
     val opphav: ArenaMigrering.Opphav,
     @Serializable(with = LocalDateSerializer::class)
-    val stengtFra: LocalDate? = null,
+    val stengtFra: LocalDate?,
     @Serializable(with = LocalDateSerializer::class)
-    val stengtTil: LocalDate? = null,
-    val kontaktpersoner: List<TiltaksgjennomforingKontaktpersonDbo> = emptyList(),
-    val lokasjonArrangor: String? = null,
+    val stengtTil: LocalDate?,
+    val kontaktpersoner: List<TiltaksgjennomforingKontaktpersonDbo>,
+    val lokasjonArrangor: String?,
 )
 
 @Serializable
