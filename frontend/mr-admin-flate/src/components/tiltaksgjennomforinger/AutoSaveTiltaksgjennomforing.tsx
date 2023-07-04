@@ -34,17 +34,17 @@ export const AutoSaveTiltaksgjennomforing = memo(
         // TODO Rydd i dette rotet her
         const utkastData: TiltaksgjennomforingRequest = {
           ...values,
-          startDato: values.startOgSluttDato.startDato,
-          sluttDato: values.startOgSluttDato.sluttDato,
-          navEnheter: values.navEnheter.map((enhetsnummer: string) => ({
+          startDato: values?.startOgSluttDato?.startDato,
+          sluttDato: values?.startOgSluttDato?.sluttDato,
+          navEnheter: values?.navEnheter?.map((enhetsnummer: string) => ({
             navn: "",
             enhetsnummer,
           })),
-          stengtFra: values.midlertidigStengt.erMidlertidigStengt
-            ? values.midlertidigStengt.stengtFra
+          stengtFra: values?.midlertidigStengt?.erMidlertidigStengt
+            ? values?.midlertidigStengt?.stengtFra
             : undefined,
-          stengtTil: values.midlertidigStengt.erMidlertidigStengt
-            ? values.midlertidigStengt.stengtTil
+          stengtTil: values?.midlertidigStengt?.erMidlertidigStengt
+            ? values?.midlertidigStengt?.stengtTil
             : undefined,
           id: utkastId,
         };
