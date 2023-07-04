@@ -64,7 +64,7 @@ export const mockAvtaler: PaginertAvtale = {
       url: "https://www.mercell.no",
     },
     {
-      id: "d1f163b7-1a41-4547-af16-03fd4492b7ba",
+      id: "d1f163b7-1a41-4547-af16-03fd4492b7bc",
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "Oppfølging",
@@ -92,7 +92,7 @@ export const mockAvtaler: PaginertAvtale = {
       avtaletype: Avtaletype.RAMMEAVTALE,
       avtalestatus: Avtalestatus.AKTIV,
       prisbetingelser: "Maskert prisbetingelser",
-      url: "https://www.mercell.no",
+      url: null,
     },
     {
       id: "6374b285-989d-4f78-a59e-29481b64ba92",
