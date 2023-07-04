@@ -21,7 +21,7 @@ import {
   useForm,
 } from "react-hook-form";
 import { Link } from "react-router-dom";
-import { ToastContainer } from "react-toastify";
+import { ToastContainer, Slide } from "react-toastify";
 import { v4 as uuidv4 } from "uuid";
 import z from "zod";
 import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
@@ -769,15 +769,15 @@ export const OpprettTiltaksgjennomforingContainer = (
         </div>
       </form>
       <ToastContainer
-        position="top-right"
+        position="bottom-right"
         newestOnTop={true}
         closeOnClick
         rtl={false}
         pauseOnFocusLoss
         draggable
         pauseOnHover
+        transition={Slide}
       />
-      <ToastContainer />
     </FormProvider>
   );
 };

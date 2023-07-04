@@ -2267,6 +2267,12 @@ components:
           nullable: true
         utkastData:
           type: object
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
         type:
           type: string
           enum:

@@ -29,6 +29,7 @@ import { mockTiltaksgjennomforingerNokkeltall } from "./fixtures/mock_tiltaksgje
 import { mockTiltakstyper } from "./fixtures/mock_tiltakstyper";
 import { mockTiltakstyperNokkeltall } from "./fixtures/mock_tiltakstyper_nokkeltall";
 import { mockUserNotificationSummary } from "./fixtures/mock_userNotificationSummary";
+import { formaterDatoTid } from "../utils/Utils";
 
 export const apiHandlers = [
   rest.get<any, any, PaginertTiltakstype>(
@@ -346,7 +347,27 @@ export const apiHandlers = [
     }
   ),
 
-  rest.put<Utkast, any, any>("*/api/v1/internal/utkast", (req, res, ctx) => {
-    return res(ctx.status(200), ctx.json(req.json()));
-  }),
+  rest.put<Utkast, any, any>(
+    "*/api/v1/internal/utkast",
+    async (req, res, ctx) => {
+      const responsErOk = Math.random() > 0.2;
+      if (responsErOk) {
+        const data = await req.json();
+
+        const payload: Utkast = {
+          ...data,
+          createdAt:
+            formaterDatoTid(data.createdAt) || formaterDatoTid(new Date()),
+          updatedAt: formaterDatoTid(new Date()),
+        };
+
+        return res(
+          ctx.status(200),
+          ctx.delay(),
+          ctx.json<Utkast>({ ...payload })
+        );
+      }
+      return res.networkError("Klarte ikke lagre utkast");
+    }
+  ),
 ];

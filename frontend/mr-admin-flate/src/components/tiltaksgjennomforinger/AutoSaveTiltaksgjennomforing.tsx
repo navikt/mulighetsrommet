@@ -1,25 +1,23 @@
-import { memo, useCallback, useEffect, useState } from "react";
-import { useFormContext, useWatch } from "react-hook-form";
 import debounce from "debounce";
-import useDeepCompareEffect from "use-deep-compare-effect";
-import { useMutateUtkast } from "../../api/utkast/useMutateUtkast";
 import { Utkast } from "mulighetsrommet-api-client";
-import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
-import { formaterDatoTid } from "../../utils/Utils";
+import { memo, useCallback, useEffect } from "react";
+import { useFormContext, useWatch } from "react-hook-form";
 import { toast } from "react-toastify";
+import useDeepCompareEffect from "use-deep-compare-effect";
+import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
+import { useMutateUtkast } from "../../api/utkast/useMutateUtkast";
 
 type Props = {
   defaultValues: any;
   utkastId: string;
 };
-
+// TODO Vurdere å ta ting inn som props og gjenbruke autosave på tvers av gjennomføring og avtale
 export const AutoSaveTiltaksgjennomforing = memo(
   ({ defaultValues, utkastId }: Props) => {
     if (!utkastId) throw new Error("Ingen utkastId tilgjengelig");
     const methods = useFormContext();
     const { data } = useHentAnsatt();
     const mutation = useMutateUtkast();
-    const [savedTs, setSavedTs] = useState<Date | null>(null);
     const debouncedSave = useCallback(
       debounce(() => {
         const utkastData = methods.getValues();
@@ -27,9 +25,8 @@ export const AutoSaveTiltaksgjennomforing = memo(
           id: utkastId,
           utkastData,
           type: Utkast.type.TILTAKSGJENNOMFORING,
-          opprettetAv: data?.navIdent,
+          opprettetAv: data?.navIdent, // Bør bare settes ved første gang lagring av utkast
         });
-        setSavedTs(new Date());
       }, 1000),
       []
     );
@@ -37,14 +34,15 @@ export const AutoSaveTiltaksgjennomforing = memo(
     useEffect(() => {
       if (mutation.isSuccess) {
         toast.success("Lagret utkast", {
-          toastId: utkastId,
+          toastId: `success-${utkastId}`, // For å hindre duplikate meldinger
           hideProgressBar: true,
+          autoClose: 2000,
         });
       }
 
       if (mutation.isError) {
         toast.error("Klarte ikke lagre utkast", {
-          toastId: utkastId,
+          toastId: `error-${utkastId}`,
           hideProgressBar: true,
         });
       }
@@ -61,9 +59,7 @@ export const AutoSaveTiltaksgjennomforing = memo(
       }
     }, [watchedData]);
 
-    return savedTs ? (
-      <span>Lagret utkast: {formaterDatoTid(savedTs)}</span>
-    ) : null;
+    return null;
   }
 );
 
