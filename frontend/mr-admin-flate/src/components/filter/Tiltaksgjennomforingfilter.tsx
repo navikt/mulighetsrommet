@@ -365,7 +365,7 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
                 size="small"
                 variant="tertiary"
                 onClick={() => {
-                  setFilter({ ...defaultTiltaksgjennomforingfilter, status: "" });
+                  setFilter({ ...defaultTiltaksgjennomforingfilter, status: "", avtale: filter.avtale });
                   setValue('status', "");
                   setValue('enhet', defaultTiltaksgjennomforingfilter.enhet);
                   setValue('navRegion', defaultTiltaksgjennomforingfilter.navRegion);
