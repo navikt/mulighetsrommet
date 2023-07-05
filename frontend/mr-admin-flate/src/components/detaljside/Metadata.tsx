@@ -16,11 +16,9 @@ export function Metadata({
   );
 }
 
-export const Separator = () =>
-  <hr className={styles.separator} />;
-
-export const VerticalSeparator = () =>
-  <div className={styles.vertical_separator} />;
+export function Separator() {
+  return <hr className={styles.separator} />;
+}
 
 interface ListeProps {
   elementer: { key: string; value: string }[];

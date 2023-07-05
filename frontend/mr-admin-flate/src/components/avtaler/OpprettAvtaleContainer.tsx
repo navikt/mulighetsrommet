@@ -383,7 +383,7 @@ export function OpprettAvtaleContainer({
                 />
               </FormGroup>
             </div>
-            <VerticalSeparator />
+            <div className={styles.vertical_separator} />
             <div className={styles.column}>
               <div className={styles.gray_container}>
                 <FormGroup>

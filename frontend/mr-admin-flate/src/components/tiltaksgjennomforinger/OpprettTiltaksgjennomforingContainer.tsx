@@ -43,7 +43,7 @@ import { SokeSelect } from "../skjema/SokeSelect";
 import styles from "./OpprettTiltaksgjennomforingContainer.module.scss";
 import { mulighetsrommetClient } from "../../api/clients";
 import { VirksomhetKontaktpersoner } from "../virksomhet/VirksomhetKontaktpersoner";
-import { Separator, VerticalSeparator } from "../detaljside/Metadata";
+import { Separator } from "../detaljside/Metadata";
 
 const Schema = z
   .object({
@@ -625,7 +625,7 @@ export const OpprettTiltaksgjennomforingContainer = (
                 />
               </FormGroup>
             </div>
-            <VerticalSeparator />
+            <div className={styles.vertical_separator} />
             <div className={styles.column}>
               <div className={styles.gray_container}>
                 <FormGroup>
