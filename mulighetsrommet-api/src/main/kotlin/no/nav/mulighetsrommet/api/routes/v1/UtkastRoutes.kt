@@ -4,11 +4,11 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
-import no.nav.mulighetsrommet.api.domain.dbo.Utkasttype
 import no.nav.mulighetsrommet.api.domain.dto.UtkastDto
+import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.routes.v1.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.services.UtkastService
-import no.nav.mulighetsrommet.api.utils.UtkastFilter
+import no.nav.mulighetsrommet.api.utils.getUtkastFilter
 import org.koin.ktor.ext.inject
 import java.util.*
 
@@ -17,11 +17,12 @@ fun Route.utkastRoutes() {
 
     route("/api/v1/internal/utkast") {
         get {
-            val type = Utkasttype.valueOf(call.request.queryParameters.getOrFail("utkasttype"))
-            val opprettetAv = call.request.queryParameters["opprettetAv"]
-            val avtaleId = call.request.queryParameters.getOrFail<UUID>("avtaleId")
+            call.respondWithStatusResponse(utkastService.getAll(filter = getUtkastFilter()))
+        }
 
-            call.respondWithStatusResponse(utkastService.getAll(filter = UtkastFilter(type = type, opprettetAv = opprettetAv, avtaleId = avtaleId)))
+        get("mine") {
+            val utkastFilter = getUtkastFilter().copy(opprettetAv = getNavIdent())
+            call.respondWithStatusResponse(utkastService.getAll(filter = utkastFilter))
         }
 
         get("{id}") {

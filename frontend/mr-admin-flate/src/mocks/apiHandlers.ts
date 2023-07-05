@@ -30,6 +30,7 @@ import { mockTiltakstyper } from "./fixtures/mock_tiltakstyper";
 import { mockTiltakstyperNokkeltall } from "./fixtures/mock_tiltakstyper_nokkeltall";
 import { mockUserNotificationSummary } from "./fixtures/mock_userNotificationSummary";
 import { formaterDatoTid } from "../utils/Utils";
+import { mockUtkast } from "./fixtures/mock_utkast";
 
 export const apiHandlers = [
   rest.get<any, any, PaginertTiltakstype>(
@@ -368,6 +369,12 @@ export const apiHandlers = [
         );
       }
       return res.networkError("Klarte ikke lagre utkast");
+    }
+  ),
+  rest.get<Utkast, any, any>(
+    "*/api/v1/internal/utkast/mine",
+    async (req, res, ctx) => {
+      return res(ctx.status(200), ctx.delay(), ctx.json(mockUtkast));
     }
   ),
 ];

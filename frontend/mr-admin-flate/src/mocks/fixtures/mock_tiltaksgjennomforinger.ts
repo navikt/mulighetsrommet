@@ -14,7 +14,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
   data: [
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee361",
-      navn: "Yrkesnorsk med praksis",
+      navn: "Yrkesnorsk med praksis med en veldig lang tittel som ikke er helt utenkelig at de skriver inn",
       tiltaksnummer: "123456",
       antallPlasser: 50,
       arrangorOrganisasjonsnummer: "123456789",

@@ -102,3 +102,17 @@ describe("Notifikasjoner", () => {
     });
   });
 });
+
+describe("Utkast", () => {
+  context("Tab for utkast", () => {
+    it("Skal finnes en tab for 'Mine utkast'", () => {
+      cy.visit("/avtaler");
+      cy.getByTestId("avtalerad").eq(0).click();
+      cy.getByTestId("avtale-tiltaksgjennomforing-tab").click();
+      cy.getByTestId("mine-utkast-tab").should("exist").click();
+      cy.getByTestId("rediger-utkast-knapp").should("exist");
+      cy.getByTestId("slett-utkast-knapp").should("exist");
+      cy.checkPageA11y();
+    });
+  });
+});

@@ -6,11 +6,11 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { ErrorBoundary, FallbackProps } from "react-error-boundary";
-import { BrowserRouter as Router, Link } from "react-router-dom";
+import { Link, BrowserRouter as Router } from "react-router-dom";
+import "react-toastify/dist/ReactToastify.css";
 import { App } from "./App";
 import { AdministratorHeader } from "./components/administrator/AdministratorHeader";
 import { MiljoBanner } from "./components/miljobanner/MiljoBanner";
-import "react-toastify/dist/ReactToastify.css";
 import "./index.css";
 
 const queryClient = new QueryClient({

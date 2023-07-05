@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.utils
 
 import io.ktor.server.application.*
+import io.ktor.server.util.*
 import io.ktor.util.pipeline.*
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle
@@ -198,5 +199,15 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getNavAnsattFilter(): NavAnsat
     val azureIder = call.parameters.getAll("roller")?.map { NavAnsattRolle.valueOf(it) } ?: emptyList()
     return NavAnsattFilter(
         roller = azureIder,
+    )
+}
+
+fun <T : Any> PipelineContext<T, ApplicationCall>.getUtkastFilter(): UtkastFilter {
+    val type = Utkasttype.valueOf(call.request.queryParameters.getOrFail("utkasttype"))
+    val avtaleId = call.request.queryParameters.getOrFail<UUID>("avtaleId")
+    return UtkastFilter(
+        type = type,
+        opprettetAv = null,
+        avtaleId = avtaleId,
     )
 }

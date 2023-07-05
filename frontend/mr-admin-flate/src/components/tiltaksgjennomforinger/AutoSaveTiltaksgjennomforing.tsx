@@ -2,7 +2,6 @@ import debounce from "debounce";
 import {
   Avtale,
   Tiltaksgjennomforing,
-  TiltaksgjennomforingRequest,
   Utkast,
 } from "mulighetsrommet-api-client";
 import { memo, useCallback, useEffect } from "react";
@@ -19,6 +18,27 @@ type Props = {
   utkastId: string;
   avtale: Avtale;
 };
+
+type UtkastData = Pick<
+  Tiltaksgjennomforing,
+  | "navn"
+  | "antallPlasser"
+  | "startDato"
+  | "sluttDato"
+  | "navEnheter"
+  | "stengtFra"
+  | "stengtTil"
+  | "arrangorOrganisasjonsnummer"
+  | "kontaktpersoner"
+  | "estimertVentetid"
+  | "lokasjonArrangor"
+> & {
+  tiltakstypeId: string;
+  avtaleId: string;
+  arrangorKontaktpersonId?: string | null;
+  id: string;
+};
+
 // TODO Vurdere å ta ting data som props og gjenbruke autosave på tvers av gjennomføring og avtale
 export const AutoSaveTiltaksgjennomforing = memo(
   ({ defaultValues, utkastId, avtale }: Props) => {
@@ -34,12 +54,15 @@ export const AutoSaveTiltaksgjennomforing = memo(
       debounce(() => {
         const values = methods.getValues();
 
-        // TODO Rydd i dette rotet her
-        const utkastData: TiltaksgjennomforingRequest = {
-          ...values,
+        const utkastData: UtkastData = {
+          navn: values?.navn,
+          antallPlasser: values?.antallPlasser,
           startDato: values?.startOgSluttDato?.startDato?.toDateString(),
           sluttDato: values?.startOgSluttDato?.sluttDato?.toDateString(),
-          navEnheter: values?.navEnheter,
+          navEnheter: values?.navEnheter?.map((enhetsnummer) => ({
+            navn: "",
+            enhetsnummer,
+          })),
           stengtFra: values?.midlertidigStengt?.erMidlertidigStengt
             ? values?.midlertidigStengt?.stengtFra?.toString()
             : undefined,
@@ -54,6 +77,8 @@ export const AutoSaveTiltaksgjennomforing = memo(
           kontaktpersoner:
             values?.kontaktpersoner?.map((kp) => ({ ...kp })) || [],
           id: utkastId,
+          lokasjonArrangor: values?.lokasjonArrangor,
+          estimertVentetid: values?.estimertVentetid,
         };
 
         if (!values.navn) {

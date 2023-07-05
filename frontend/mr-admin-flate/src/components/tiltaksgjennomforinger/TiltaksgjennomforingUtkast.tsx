@@ -6,26 +6,26 @@ import {
 } from "mulighetsrommet-api-client";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
 import { useAvtale } from "../../api/avtaler/useAvtale";
-import { useAlleUtkast } from "../../api/utkast/useAlleUtkast";
 import { useDeleteUtkast } from "../../api/utkast/useDeleteUtkast";
+import { useMineUtkast } from "../../api/utkast/useMineUtkast";
 import { useGetAvtaleIdFromUrl } from "../../hooks/useGetAvtaleIdFromUrl";
+import { formaterDatoTid } from "../../utils/Utils";
 import { Laster } from "../laster/Laster";
 import { OpprettTiltaksgjennomforingModal } from "../modal/OpprettTiltaksgjennomforingModal";
-import { formaterDatoTid } from "../../utils/Utils";
+import { DocPencilIcon } from "@navikt/aksel-icons";
+import styles from "./TiltaksgjennomforingUtkast.module.scss";
 
 export function TiltaksgjennomforingUtkast() {
   // TODO Hent utkast basert på om man har valgt "mine" (default) eller alles utkast.
 
   const avtaleId = useGetAvtaleIdFromUrl();
-  const { data: brukerData } = useHentAnsatt();
   const {
     data = [],
     isLoading,
     error,
     refetch,
-  } = useAlleUtkast(avtaleId, brukerData?.navIdent);
+  } = useMineUtkast(Utkast.type.TILTAKSGJENNOMFORING);
   const [utkastForRedigering, setUtkastForRedigering] = useState<Utkast | null>(
     null
   );
@@ -47,9 +47,10 @@ export function TiltaksgjennomforingUtkast() {
 
   return (
     <div>
-      <ul>
-        {data.length === 0 ? <p>Det eksisterer ingen utkast</p> : null}
-
+      {data.length === 0 ? (
+        <Alert variant="info">Du har ingen utkast</Alert>
+      ) : null}
+      <ul className={styles.container}>
         {data?.map((utkast) => {
           return (
             <li key={utkast.id}>
@@ -85,10 +86,8 @@ interface UtkastKortProps {
 }
 
 function UtkastKort({ utkast, onEdit }: UtkastKortProps) {
-  const avtaleId = useGetAvtaleIdFromUrl();
-  const { data: brukerData } = useHentAnsatt();
   const slettMutation = useDeleteUtkast();
-  const { refetch } = useAlleUtkast(avtaleId, brukerData?.navIdent);
+  const { refetch } = useMineUtkast(Utkast.type.TILTAKSGJENNOMFORING);
 
   async function slettUtkast() {
     slettMutation.mutate(utkast.id, { onSuccess: async () => await refetch() });
@@ -97,17 +96,36 @@ function UtkastKort({ utkast, onEdit }: UtkastKortProps) {
   // TODO Parse data
   const data: any = utkast.utkastData;
   return (
-    <div>
-      <h2>{data?.navn || "Utkast uten tittel"}</h2>
-      <p>Opprettet: {formaterDatoTid(utkast.createdAt!)}</p>
-      <p>Oppdatert: {formaterDatoTid(utkast.updatedAt!)}</p>
-      <div style={{ display: "flex", gap: "0.2rem" }}>
-        <Button size="small" variant="primary" onClick={onEdit}>
-          Rediger utkast
-        </Button>
-        <Button size="small" variant="danger" onClick={slettUtkast}>
-          Slett utkast
-        </Button>
+    <div className={styles.utkast}>
+      <div>
+        <small className={styles.tekst_med_ikon}>
+          <DocPencilIcon /> Utkast
+        </small>
+        <small>Oppdatert: {formaterDatoTid(utkast.updatedAt!)}</small>
+        <h2 className={styles.truncate} title={data?.navn}>
+          {data?.navn || "Utkast uten tittel"}
+        </h2>
+      </div>
+      <div className={styles.knappe_container}>
+        <small>Opprettet: {formaterDatoTid(utkast.createdAt!)}</small>
+        <div className={styles.knapper}>
+          <Button
+            data-testid="rediger-utkast-knapp"
+            size="small"
+            variant="primary"
+            onClick={onEdit}
+          >
+            Rediger utkast
+          </Button>
+          <Button
+            data-testid="slett-utkast-knapp"
+            size="small"
+            variant="danger"
+            onClick={slettUtkast}
+          >
+            Slett utkast
+          </Button>
+        </div>
       </div>
     </div>
   );

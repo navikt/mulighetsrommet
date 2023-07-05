@@ -1,5 +1,8 @@
 import { Button, Search } from "@navikt/ds-react";
+import { useQueryClient } from "@tanstack/react-query";
+import classNames from "classnames";
 import { useAtom } from "jotai";
+import { RESET } from "jotai/vanilla/utils";
 import {
   Avtale,
   Norg2Type,
@@ -9,6 +12,7 @@ import {
 } from "mulighetsrommet-api-client";
 import { useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
 import {
   Tiltaksgjennomforingfilter as TiltaksgjennomforingAtomFilter,
   defaultTiltaksgjennomforingfilter,
@@ -32,12 +36,7 @@ import { LeggTilGjennomforingModal } from "../modal/LeggTilGjennomforingModal";
 import { OpprettTiltaksgjennomforingModal } from "../modal/OpprettTiltaksgjennomforingModal";
 import { SokeSelect } from "../skjema/SokeSelect";
 import styles from "./Filter.module.scss";
-import { RESET } from "jotai/vanilla/utils";
-import { useNavigate } from "react-router-dom";
-import classNames from "classnames";
 import { FilterTag } from "./FilterTag";
-import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
-import { useAlleUtkast } from "../../api/utkast/useAlleUtkast";
 
 type Filters = "tiltakstype";
 
@@ -48,6 +47,7 @@ interface Props {
 
 export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [filter, setFilter] = useAtom(tiltaksgjennomforingfilter);
   const [, setPage] = useAtom(paginationAtom);
   const { data: enheter } = useAlleEnheter();
@@ -60,11 +60,6 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
   );
   const [opprettModal, setOpprettModalOpen] = useState<boolean>(false);
   const [modalOpen, setModalOpen] = useState<boolean>(false);
-  const { data: brukerData } = useHentAnsatt();
-  const { refetch: refetchUtkast } = useAlleUtkast(
-    avtale?.id,
-    brukerData?.navIdent
-  );
 
   const form = useForm<TiltaksgjennomforingAtomFilter>({
     defaultValues: {
@@ -296,7 +291,7 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
                       modalOpen={opprettModal}
                       avtale={avtale}
                       onClose={() => {
-                        refetchUtkast();
+                        queryClient.refetchQueries({ queryKey: ["utkast"] });
                         setOpprettModalOpen(false);
                       }}
                       onSuccess={(id) =>
@@ -416,12 +411,25 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
                 size="small"
                 variant="tertiary"
                 onClick={() => {
-                  setFilter({ ...defaultTiltaksgjennomforingfilter, status: "", avtale: filter.avtale });
-                  setValue('status', "");
-                  setValue('enhet', defaultTiltaksgjennomforingfilter.enhet);
-                  setValue('navRegion', defaultTiltaksgjennomforingfilter.navRegion);
-                  setValue('tiltakstype', defaultTiltaksgjennomforingfilter.tiltakstype);
-                  setValue('arrangorOrgnr', defaultTiltaksgjennomforingfilter.arrangorOrgnr);
+                  setFilter({
+                    ...defaultTiltaksgjennomforingfilter,
+                    status: "",
+                    avtale: filter.avtale,
+                  });
+                  setValue("status", "");
+                  setValue("enhet", defaultTiltaksgjennomforingfilter.enhet);
+                  setValue(
+                    "navRegion",
+                    defaultTiltaksgjennomforingfilter.navRegion
+                  );
+                  setValue(
+                    "tiltakstype",
+                    defaultTiltaksgjennomforingfilter.tiltakstype
+                  );
+                  setValue(
+                    "arrangorOrgnr",
+                    defaultTiltaksgjennomforingfilter.arrangorOrgnr
+                  );
                 }}
               >
                 Tilbakestill filter

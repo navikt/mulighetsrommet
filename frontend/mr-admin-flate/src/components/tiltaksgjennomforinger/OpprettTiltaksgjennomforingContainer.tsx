@@ -769,11 +769,11 @@ export const OpprettTiltaksgjennomforingContainer = (
           </Button>
         </div>
       </form>
-      {features?.["mulighetsrommet.admin-flate-lagre-utkast"] ? (
+      {features?.["mulighetsrommet.admin-flate-lagre-utkast"] && avtale ? (
         <AutoSaveTiltaksgjennomforing
           defaultValues={defaultValues}
           utkastId={utkastIdRef.current}
-          avtale={avtale!} // TODO Kan vi klare oss uten utropstegn?
+          avtale={avtale}
         />
       ) : null}
 
