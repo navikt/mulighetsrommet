@@ -146,6 +146,13 @@ export const tiltaksgjennomforing = defineType({
       },
     }),
     defineField({
+      name: "lokasjon",
+      title: "Lokasjon",
+      description:
+        "Sted for gjennomføring, f.eks. Fredrikstad eller Tromsø. Veileder kan filtrere på verdiene i dette feltet, så ikke skriv fulle adresser.",
+      type: "string",
+    }),
+    defineField({
       name: "fylke",
       title: "Fylke",
       description: "Hvilket fylke gjelder tiltaket for.",
