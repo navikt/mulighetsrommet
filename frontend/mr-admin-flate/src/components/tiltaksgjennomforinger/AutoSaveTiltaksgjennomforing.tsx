@@ -35,7 +35,7 @@ type UtkastData = Pick<
 > & {
   tiltakstypeId: string;
   avtaleId: string;
-  arrangorKontaktpersonId?: string | null;
+  arrangorKontaktpersonId?: { id?: string };
   id: string;
 };
 
@@ -71,7 +71,7 @@ export const AutoSaveTiltaksgjennomforing = memo(
             : undefined,
           tiltakstypeId: avtale?.tiltakstype.id,
           avtaleId: avtale?.id,
-          arrangorKontaktpersonId: values?.arrangorKontaktpersonId,
+          arrangorKontaktpersonId: { id: values?.arrangorKontaktpersonId },
           arrangorOrganisasjonsnummer:
             values.tiltaksArrangorUnderenhetOrganisasjonsnummer,
           kontaktpersoner:

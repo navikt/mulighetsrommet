@@ -46,11 +46,11 @@ export function TiltaksgjennomforingUtkast() {
   }
 
   return (
-    <div>
+    <div className={styles.container}>
       {data.length === 0 ? (
         <Alert variant="info">Du har ingen utkast</Alert>
       ) : null}
-      <ul className={styles.container}>
+      <ul className={styles.liste}>
         {data?.map((utkast) => {
           return (
             <li key={utkast.id}>
