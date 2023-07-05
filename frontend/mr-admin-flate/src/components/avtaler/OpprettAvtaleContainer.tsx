@@ -32,7 +32,7 @@ import styles from "./OpprettAvtaleContainer.module.scss";
 import { faro } from "@grafana/faro-web-sdk";
 import { VirksomhetKontaktpersoner } from "../virksomhet/VirksomhetKontaktpersoner";
 import { SokeSelect } from "../skjema/SokeSelect";
-import { Separator, VerticalSeparator } from "../detaljside/Metadata";
+import { Separator } from "../detaljside/Metadata";
 
 interface OpprettAvtaleContainerProps {
   onClose: () => void;
