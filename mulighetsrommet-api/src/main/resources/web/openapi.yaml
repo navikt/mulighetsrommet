@@ -493,7 +493,7 @@ paths:
     get:
       tags:
         - Sanity
-      operationId: getTiltakstyper
+      operationId: getSanityTiltakstyper
       responses:
         200:
           description: Tiltakstyper definert i Sanity
@@ -567,10 +567,11 @@ paths:
     get:
       tags:
         - Sanity
-      operationId: getTiltaksgjennomforing
+      operationId: getSanityTiltaksgjennomforing
       parameters:
         - in: path
           name: id
+          required: true
           schema:
             type: string
           description: ID for tiltaksgjennomføring i Sanity
@@ -723,7 +724,7 @@ paths:
             type: string
           description: "Brukers fnr"
         - in: path
-          name: "sanityId"
+          name: sanityId
           description: "ID fra Sanity-dokument"
           required: true
           schema:
@@ -747,13 +748,6 @@ paths:
       tags:
         - Del med bruker
       operationId: postDelMedBruker
-      parameters:
-        - in: path
-          name: "sanityId"
-          description: "ID for Sanity-dokument"
-          required: true
-          schema:
-            type: string
       requestBody:
         content:
           application/json:
@@ -866,6 +860,7 @@ paths:
       parameters:
         - in: path
           name: orgnr
+          required: true
           schema:
             type: string
           description: 9-sifret organisasjonsnummer
@@ -885,6 +880,7 @@ paths:
       parameters:
         - in: path
           name: orgnr
+          required: true
           schema:
             type: string
           description: 9-sifret organisasjonsnummer
@@ -904,6 +900,7 @@ paths:
       parameters:
         - in: path
           name: orgnr
+          required: true
           schema:
             type: string
           description: 9-sifret organisasjonsnummer
@@ -928,6 +925,7 @@ paths:
       parameters:
         - in: path
           name: sok
+          required: true
           schema:
             type: string
           description: Søkestreng for navn på virksomheter
@@ -1450,25 +1448,24 @@ components:
           nullable: true
       required:
         - id
-        - avtaleId
         - tiltakstypeId
+        - avtaleId
         - navn
         - startDato
         - sluttDato
         - antallPlasser
         - arrangorOrganisasjonsnummer
+        - arrangorKontaktpersonId
+        - tiltaksnummer
         - ansvarlig
         - navEnheter
         - oppstart
-        - kontaktpersoner
-        - lokasjonArrangor
+        - stengtFra
+        - stengtTil
         - apenForInnsok
         - kontaktpersoner
         - estimertVentetid
-        - arrangorKontaktpersonId
-        - tiltaksnummer
-        - stengtFra
-        - stengtTil
+        - lokasjonArrangor
 
     TiltaksgjennomforingAvslutningsstatus:
       type: string
