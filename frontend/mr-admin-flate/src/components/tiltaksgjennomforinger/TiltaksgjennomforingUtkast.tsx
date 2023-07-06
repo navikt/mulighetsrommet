@@ -1,3 +1,4 @@
+import { DocPencilIcon } from "@navikt/aksel-icons";
 import { Alert, Button } from "@navikt/ds-react";
 import {
   ApiError,
@@ -6,6 +7,7 @@ import {
 } from "mulighetsrommet-api-client";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { z } from "zod";
 import { useAvtale } from "../../api/avtaler/useAvtale";
 import { useDeleteUtkast } from "../../api/utkast/useDeleteUtkast";
 import { useMineUtkast } from "../../api/utkast/useMineUtkast";
@@ -13,10 +15,7 @@ import { useGetAvtaleIdFromUrl } from "../../hooks/useGetAvtaleIdFromUrl";
 import { formaterDatoTid } from "../../utils/Utils";
 import { Laster } from "../laster/Laster";
 import { OpprettTiltaksgjennomforingModal } from "../modal/OpprettTiltaksgjennomforingModal";
-import { DocPencilIcon } from "@navikt/aksel-icons";
 import styles from "./TiltaksgjennomforingUtkast.module.scss";
-import { z } from "zod";
-import { ErrorBoundary } from "react-error-boundary";
 
 export function TiltaksgjennomforingUtkast() {
   // TODO Hent utkast basert på om man har valgt "mine" (default) eller alles utkast.

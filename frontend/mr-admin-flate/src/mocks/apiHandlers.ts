@@ -18,7 +18,6 @@ import {
   Utkast,
   Virksomhet,
 } from "mulighetsrommet-api-client";
-import { mockVirksomheter } from "./fixtures/mock_virksomheter";
 import { mockBetabruker, mockKontaktpersoner } from "./fixtures/mock_ansatt";
 import { mockAvtaleNokkeltall } from "./fixtures/mock_avtale_nokkeltall";
 import { mockAvtaler } from "./fixtures/mock_avtaler";
@@ -29,8 +28,8 @@ import { mockTiltaksgjennomforingerNokkeltall } from "./fixtures/mock_tiltaksgje
 import { mockTiltakstyper } from "./fixtures/mock_tiltakstyper";
 import { mockTiltakstyperNokkeltall } from "./fixtures/mock_tiltakstyper_nokkeltall";
 import { mockUserNotificationSummary } from "./fixtures/mock_userNotificationSummary";
-import { formaterDatoTid } from "../utils/Utils";
 import { mockUtkast } from "./fixtures/mock_utkast";
+import { mockVirksomheter } from "./fixtures/mock_virksomheter";
 
 export const apiHandlers = [
   rest.get<any, any, PaginertTiltakstype>(
