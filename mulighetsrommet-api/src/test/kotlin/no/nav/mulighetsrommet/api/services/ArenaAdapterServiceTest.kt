@@ -13,7 +13,10 @@ import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.database.utils.getOrThrow
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.*
-import no.nav.mulighetsrommet.domain.dto.*
+import no.nav.mulighetsrommet.domain.dto.Avtaletype
+import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingDto
+import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
+import no.nav.mulighetsrommet.domain.dto.TiltakstypeDto
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -73,8 +76,9 @@ class ArenaAdapterServiceTest : FunSpec({
         tiltaksgjennomforingId = tiltaksgjennomforing.id,
         norskIdent = "12345678910",
         status = Deltakerstatus.VENTER,
-        fraDato = LocalDateTime.now(),
-        tilDato = LocalDateTime.now().plusYears(1),
+        fraDato = LocalDateTime.of(2018, 12, 3, 0, 0),
+        tilDato = LocalDateTime.of(2019, 12, 3, 0, 0),
+        registrertIArenaDato = LocalDateTime.of(2018, 12, 3, 0, 0),
     )
 
     val tiltakstypeIndividuell = TiltakstypeDbo(
@@ -94,6 +98,7 @@ class ArenaAdapterServiceTest : FunSpec({
         status = Deltakerstatus.VENTER,
         fraDato = LocalDateTime.of(2018, 12, 3, 0, 0),
         tilDato = LocalDateTime.of(2019, 12, 3, 0, 0),
+        registrertIArenaDato = LocalDateTime.of(2018, 12, 3, 0, 0),
         beskrivelse = "Utdanning",
         tiltakstypeId = tiltakstypeIndividuell.id,
         arrangorOrganisasjonsnummer = "12343",
@@ -323,7 +328,8 @@ class ArenaAdapterServiceTest : FunSpec({
             database.assertThat("tiltakshistorikk").row()
                 .value("id").isEqualTo(tiltakshistorikkIndividuell.id)
                 .value("beskrivelse").isEqualTo(tiltakshistorikkIndividuell.beskrivelse)
-                .value("arrangor_organisasjonsnummer").isEqualTo(tiltakshistorikkIndividuell.arrangorOrganisasjonsnummer)
+                .value("arrangor_organisasjonsnummer")
+                .isEqualTo(tiltakshistorikkIndividuell.arrangorOrganisasjonsnummer)
                 .value("tiltakstypeid").isEqualTo(tiltakshistorikkIndividuell.tiltakstypeId)
                 .value("tiltaksgjennomforing_id").isNull
 
