@@ -164,6 +164,7 @@ class TiltakdeltakerEventProcessor(
                 status = status,
                 fraDato = fraDato,
                 tilDato = tilDato,
+                registrertIArenaDato = registrertDato,
                 tiltaksgjennomforingId = tiltaksgjennomforing.id,
             )
         } else {
@@ -182,6 +183,7 @@ class TiltakdeltakerEventProcessor(
                 status = status,
                 fraDato = fraDato,
                 tilDato = tilDato,
+                registrertIArenaDato = registrertDato,
                 beskrivelse = tiltaksgjennomforing.navn,
                 tiltakstypeId = tiltakstype.id,
                 arrangorOrganisasjonsnummer = virksomhetsnummer,

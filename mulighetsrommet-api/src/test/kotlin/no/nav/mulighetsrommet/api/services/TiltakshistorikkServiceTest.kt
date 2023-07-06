@@ -64,6 +64,7 @@ class TiltakshistorikkServiceTest : FunSpec({
         status = Deltakerstatus.VENTER,
         fraDato = LocalDateTime.of(2018, 12, 3, 0, 0),
         tilDato = LocalDateTime.of(2019, 12, 3, 0, 0),
+        registrertIArenaDato = LocalDateTime.of(2018, 12, 3, 0, 0),
     )
 
     val tiltakstypeIndividuell = TiltakstypeDbo(
@@ -83,6 +84,7 @@ class TiltakshistorikkServiceTest : FunSpec({
         status = Deltakerstatus.VENTER,
         fraDato = LocalDateTime.of(2018, 12, 3, 0, 0),
         tilDato = LocalDateTime.of(2019, 12, 3, 0, 0),
+        registrertIArenaDato = LocalDateTime.of(2018, 12, 3, 0, 0),
         beskrivelse = "Utdanning",
         tiltakstypeId = tiltakstypeIndividuell.id,
         arrangorOrganisasjonsnummer = "12343",

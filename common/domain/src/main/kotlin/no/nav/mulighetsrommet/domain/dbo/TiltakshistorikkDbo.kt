@@ -21,6 +21,9 @@ sealed class TiltakshistorikkDbo {
     @Serializable(with = LocalDateTimeSerializer::class)
     abstract val tilDato: LocalDateTime?
 
+    @Serializable(with = LocalDateTimeSerializer::class)
+    abstract val registrertIArenaDato: LocalDateTime?
+
     @Serializable
     data class Gruppetiltak(
         @Serializable(with = UUIDSerializer::class)
@@ -28,9 +31,11 @@ sealed class TiltakshistorikkDbo {
         override val norskIdent: String,
         override val status: Deltakerstatus,
         @Serializable(with = LocalDateTimeSerializer::class)
-        override val fraDato: LocalDateTime? = null,
+        override val fraDato: LocalDateTime?,
         @Serializable(with = LocalDateTimeSerializer::class)
-        override val tilDato: LocalDateTime? = null,
+        override val tilDato: LocalDateTime?,
+        @Serializable(with = LocalDateTimeSerializer::class)
+        override val registrertIArenaDato: LocalDateTime?,
         @Serializable(with = UUIDSerializer::class)
         val tiltaksgjennomforingId: UUID,
     ) : TiltakshistorikkDbo()
@@ -42,9 +47,11 @@ sealed class TiltakshistorikkDbo {
         override val norskIdent: String,
         override val status: Deltakerstatus,
         @Serializable(with = LocalDateTimeSerializer::class)
-        override val fraDato: LocalDateTime? = null,
+        override val fraDato: LocalDateTime?,
         @Serializable(with = LocalDateTimeSerializer::class)
-        override val tilDato: LocalDateTime? = null,
+        override val tilDato: LocalDateTime?,
+        @Serializable(with = LocalDateTimeSerializer::class)
+        override val registrertIArenaDato: LocalDateTime?,
         val beskrivelse: String,
         @Serializable(with = UUIDSerializer::class)
         val tiltakstypeId: UUID,
