@@ -104,9 +104,9 @@ Følgende steg kan benyttes til å generere opp et token:
 2. Naviger til [mock-oauth2-server sin side for debugging av tokens](http://localhost:8081/azure/debugger)
 3. Generer et token
     1. Trykk på knappen `Get a token`
-    2. Skriv inn et random username og NAVident i `optional claims`, f.eks.
+    2. Skriv inn et random username og B123456 som NAVIdent (fordi det er B123456 som returneres av ms-graph wiremock'en) i `optional claims`, f.eks.
        `{
-       "NAVident": "hei",
+       "NAVident": "B123456",
        "roles": [
        "access_as_application"
        ],

@@ -1,5 +1,7 @@
 package no.nav.mulighetsrommet.api.services
 
+import arrow.core.Either
+import arrow.core.flatMap
 import no.nav.mulighetsrommet.api.domain.dbo.UtkastDbo
 import no.nav.mulighetsrommet.api.domain.dto.UtkastDto
 import no.nav.mulighetsrommet.api.repositories.UtkastRepository
@@ -13,7 +15,9 @@ class UtkastService(
     private val utkastRepository: UtkastRepository,
 ) {
     fun get(id: UUID): StatusResponse<UtkastDto> {
-        return utkastRepository.get(id).map { it!! }.mapLeft { NotFound("Fant ingen utkast med id: $id") }
+        return utkastRepository.get(id)
+            .mapLeft { ServerError("Feil ved henting av utkast med id: $id") }
+            .flatMap { it?.let { Either.Right(it) } ?: Either.Left(NotFound("Fant ingen utkast med id: $id")) }
     }
 
     fun upsert(utkast: UtkastDbo): StatusResponse<UtkastDto> {
