@@ -40,7 +40,7 @@ spec:
           }
           "header": {
             "csp": {
-              "scriptSrc": ["'self'", "unsafe-inline", "esm.sh", "*.intern.dev.nav.no"]
+              "scriptSrc": ["'self'", "'unsafe-inline'", "esm.sh", "*.intern.dev.nav.no"]
             }
           },
         }
