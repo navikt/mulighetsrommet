@@ -67,7 +67,7 @@ spec:
           },
           "header": {
             "csp": {
-              "scriptSrc": ["'self'", "unsafe-inline", "esm.sh"]
+              "scriptSrc": ["'self'", "unsafe-inline", "esm.sh", "nav.no/amt/amt-deltakerliste-flate/bundle.js"]
             }
           },
           "proxies": [
