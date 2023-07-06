@@ -9,7 +9,7 @@ import { SanityTiltaksgjennomforing, SanityTiltakstype } from 'mulighetsrommet-a
 const SidemenyDetaljer = () => {
   const { data } = useTiltaksgjennomforingById();
   if (!data) return null;
-  const { tiltaksnummer, kontaktinfoArrangor, tiltakstype, sluttdato, oppstartsdato } = data;
+  const { tiltaksnummer, kontaktinfoArrangor, tiltakstype, sluttdato, oppstartsdato, lokasjon } = data;
   const oppstart = resolveOppstart(data);
 
   const visDato = (tiltakstype: SanityTiltakstype, oppstart: string, oppstartsdato?: string, sluttdato?: string) => {
@@ -54,6 +54,15 @@ const SidemenyDetaljer = () => {
               <BodyShort size="small">{utledLopenummerFraTiltaksnummer(tiltaksnummer)}</BodyShort>
               <Kopiknapp kopitekst={utledLopenummerFraTiltaksnummer(tiltaksnummer)} dataTestId="knapp_kopier" />
             </div>
+          </div>
+        )}
+
+        {lokasjon && (
+          <div className={styles.rad}>
+            <BodyShort size="small" className={styles.tittel}>
+              Lokasjon
+            </BodyShort>
+            <BodyShort size="small">{lokasjon}</BodyShort>
           </div>
         )}
 
