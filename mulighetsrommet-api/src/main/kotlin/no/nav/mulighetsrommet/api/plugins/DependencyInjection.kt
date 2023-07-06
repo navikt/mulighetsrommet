@@ -154,6 +154,7 @@ private fun repositories() = module {
     single { VirksomhetRepository(get()) }
     single { KafkaConsumerRepository(get()) }
     single { MetrikkRepository(get()) }
+    single { UtkastRepository(get()) }
 }
 
 private fun services(appConfig: AppConfig) = module {
@@ -241,12 +242,12 @@ private fun services(appConfig: AppConfig) = module {
     single { ArenaAdapterService(get(), get(), get(), get(), get(), get(), get(), get(), get()) }
     single { AvtaleService(get(), get(), get()) }
     single { TiltakshistorikkService(get(), get()) }
-    single { VeilederflateSanityService(get(), get(), get(), get(), get()) }
+    single { VeilederflateService(get(), get(), get()) }
     single { SanityTiltaksgjennomforingEnheterTilApiService(get(), get()) }
     single { ArrangorService(get()) }
     single { BrukerService(get(), get(), get()) }
     single { DialogService(get()) }
-    single { NavAnsattService(get(), get()) }
+    single { NavAnsattService(get(), get(), appConfig.navAnsattService.roller) }
     single { PoaoTilgangService(get()) }
     single { DelMedBrukerService(get()) }
     single { MicrosoftGraphService(get()) }
@@ -256,11 +257,13 @@ private fun services(appConfig: AppConfig) = module {
     single { NavEnheterSyncService(get(), get(), get(), get()) }
     single { KafkaSyncService(get(), get(), get(), get()) }
     single { NavEnhetService(get()) }
+    single { NavVeilederService(get()) }
     single { TilgjengelighetsstatusSanitySyncService(get(), get()) }
     single { NotificationService(get(), get(), get()) }
     single { VirksomhetService(get(), get()) }
     single { ExcelService() }
     single { MetrikkService(get()) }
+    single { UtkastService(get()) }
 }
 
 private fun tasks(config: TaskConfig) = module {
@@ -276,14 +279,13 @@ private fun tasks(config: TaskConfig) = module {
             get(),
             get(),
         )
-        val synchronizeNavAnsatte = SynchronizeNavAnsatte(config.synchronizeNavAnsatte, get(), get(), get())
-        val notifySluttdatoForGjennomforingerNarmerSeg =
-            NotifySluttdatoForGjennomforingerNarmerSeg(
-                config.notifySluttdatoForGjennomforingerNarmerSeg,
-                get(),
-                get(),
-                get(),
-            )
+        val synchronizeNavAnsatte = SynchronizeNavAnsatte(config.synchronizeNavAnsatte, get(), get())
+        val notifySluttdatoForGjennomforingerNarmerSeg = NotifySluttdatoForGjennomforingerNarmerSeg(
+            config.notifySluttdatoForGjennomforingerNarmerSeg,
+            get(),
+            get(),
+            get(),
+        )
         val notifySluttdatoForAvtalerNarmerSeg =
             NotifySluttdatoForAvtalerNarmerSeg(config.notifySluttdatoForAvtalerNarmerSeg, get(), get(), get())
         val notifyFailedKafkaEvents = NotifyFailedKafkaEvents(

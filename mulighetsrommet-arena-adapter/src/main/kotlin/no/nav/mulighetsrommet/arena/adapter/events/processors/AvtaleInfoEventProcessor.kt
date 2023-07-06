@@ -22,8 +22,8 @@ import no.nav.mulighetsrommet.arena.adapter.utils.ArenaUtils
 import no.nav.mulighetsrommet.domain.Tiltakskoder
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering.ArenaAvtaleCutoffDateTime
+import no.nav.mulighetsrommet.domain.dbo.ArenaAvtaleDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
-import no.nav.mulighetsrommet.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import java.util.*
 
@@ -93,7 +93,7 @@ class AvtaleInfoEventProcessor(
         return ArenaAvtaleCutoffDateTime.isBefore(ArenaUtils.parseTimestamp(avtale.DATO_TIL))
     }
 
-    private suspend fun toAvtaleDbo(avtale: Avtale): Either<ProcessingError, AvtaleDbo> = either {
+    private suspend fun toAvtaleDbo(avtale: Avtale): Either<ProcessingError, ArenaAvtaleDbo> = either {
         val tiltakstypeMapping = entities
             .getMapping(ArenaTable.Tiltakstype, avtale.tiltakskode)
             .bind()
@@ -117,13 +117,12 @@ class AvtaleInfoEventProcessor(
             else -> Avtaletype.Avtale
         }
 
-        AvtaleDbo(
+        ArenaAvtaleDbo(
             id = avtale.id,
             navn = avtale.navn,
             tiltakstypeId = tiltakstypeMapping.entityId,
             avtalenummer = "${avtale.aar}#${avtale.lopenr}",
             leverandorOrganisasjonsnummer = leverandorOrganisasjonsnummer,
-            leverandorUnderenheter = emptyList(),
             startDato = startDato,
             sluttDato = sluttDato,
             arenaAnsvarligEnhet = avtale.ansvarligEnhet,
@@ -131,8 +130,6 @@ class AvtaleInfoEventProcessor(
             avslutningsstatus = avslutningsstatus,
             prisbetingelser = avtale.prisbetingelser,
             opphav = ArenaMigrering.Opphav.ARENA,
-            navRegion = null,
-            navEnheter = emptyList(),
         )
     }
 }

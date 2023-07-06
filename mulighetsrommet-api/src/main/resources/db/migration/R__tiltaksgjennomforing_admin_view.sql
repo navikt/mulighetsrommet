@@ -1,10 +1,11 @@
+drop view if exists tiltaksgjennomforing_admin_dto_view;
 create or replace view tiltaksgjennomforing_admin_dto_view as
 select tg.id::uuid,
        tg.navn,
        tg.tiltakstype_id,
        tg.tiltaksnummer,
-       tg.virksomhetsnummer,
-       v.navn                   as virksomhetsnavn,
+       tg.arrangor_organisasjonsnummer,
+       v.navn                   as arrangor_navn,
        tg.start_dato,
        tg.slutt_dato,
        t.tiltakskode,
@@ -35,7 +36,13 @@ select tg.id::uuid,
                                              concat(na.fornavn, ' ', na.etternavn), 'epost', na.epost, 'mobilnummer',
                                              na.mobilnummer, 'navEnheter', tgk.enheter, 'hovedenhet', na.hovedenhet)
                      end
-           )                    as kontaktpersoner
+           )                    as kontaktpersoner,
+       tg.lokasjon_arrangor,
+       tg.arrangor_kontaktperson_id,
+       vk.organisasjonsnummer as arrangor_kontaktperson_organisasjonsnummer,
+       vk.navn as arrangor_kontaktperson_navn,
+       vk.telefon as arrangor_kontaktperson_telefon,
+       vk.epost as arrangor_kontaktperson_epost
 from tiltaksgjennomforing tg
          inner join tiltakstype t on tg.tiltakstype_id = t.id
          left join tiltaksgjennomforing_ansvarlig tg_a on tg_a.tiltaksgjennomforing_id = tg.id
@@ -43,7 +50,8 @@ from tiltaksgjennomforing tg
          left join avtale a on a.id = tg.avtale_id
          left join nav_enhet ne on tg_e.enhetsnummer = ne.enhetsnummer
          left join nav_enhet avtale_ne on avtale_ne.enhetsnummer = a.nav_region
-         left join virksomhet v on v.organisasjonsnummer = tg.virksomhetsnummer
+         left join virksomhet v on v.organisasjonsnummer = tg.arrangor_organisasjonsnummer
          left join tiltaksgjennomforing_kontaktperson tgk on tgk.tiltaksgjennomforing_id = tg.id
          left join nav_ansatt na on na.nav_ident = tgk.kontaktperson_nav_ident
-group by tg.id, t.id, v.navn, avtale_ne.navn;
+         left join virksomhet_kontaktperson vk on vk.id = tg.arrangor_kontaktperson_id
+group by tg.id, t.id, v.navn, avtale_ne.navn, vk.id;

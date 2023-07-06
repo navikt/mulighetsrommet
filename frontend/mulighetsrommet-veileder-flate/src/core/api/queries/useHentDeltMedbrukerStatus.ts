@@ -23,11 +23,10 @@ export function useHentDeltMedBrukerStatus() {
   );
 
   async function lagreVeilederHarDeltTiltakMedBruker(dialogId: string, sanityId: string) {
-    if (!veilederData?.ident) return;
+    if (!veilederData?.navIdent) return;
 
     await mulighetsrommetClient.delMedBruker.postDelMedBruker({
-      sanityId,
-      requestBody: { norskIdent, navident: veilederData?.ident, sanityId, dialogId },
+      requestBody: { norskIdent, navident: veilederData?.navIdent, sanityId, dialogId },
     });
 
     await refetchDelMedBruker();

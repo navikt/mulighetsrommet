@@ -1,12 +1,13 @@
 import { Alert, BodyShort, Heading } from "@navikt/ds-react";
 import { Route, Routes } from "react-router-dom";
-import { useHentAnsatt } from "./api/administrator/useHentAdministrator";
 import { useFeatureToggles } from "./api/features/feature-toggles";
+import { useHentAnsatt } from "./api/ansatt/useHentAnsatt";
 import { Laster } from "./components/laster/Laster";
 import { Forside } from "./Forside";
 import IkkeAutentisertApp from "./IkkeAutentisertApp";
 import { AvtalerPage } from "./pages/avtaler/AvtalerPage";
 import { DetaljerAvtalePage } from "./pages/avtaler/DetaljerAvtalePage";
+import { NavAnsattRolle } from "mulighetsrommet-api-client";
 import { ErrorPage } from "./pages/ErrorPage";
 import { DetaljerTiltakstypePage } from "./pages/tiltakstyper/DetaljerTiltakstypePage";
 import { TiltakstyperPage } from "./pages/tiltakstyper/TiltakstyperPage";
@@ -25,7 +26,7 @@ if (import.meta.env.PROD) {
 }
 
 export function App() {
-  const optionalAnsatt = useHentAnsatt();
+  const { data: ansatt, isLoading: ansattIsLoading, error } = useHentAnsatt();
   const { data, isLoading } = useFeatureToggles();
 
   if (!data?.["mulighetsrommet.enable-admin-flate"] && !isLoading) {
@@ -36,20 +37,20 @@ export function App() {
     );
   }
 
-  if (optionalAnsatt.error) {
+  if (error) {
     return (
       <main>
         <Alert variant="error">
           <BodyShort>
             Vi klarte ikke hente brukerinformasjon. Prøv igjen senere.
           </BodyShort>
-          <pre>{JSON.stringify(optionalAnsatt?.error, null, 2)}</pre>
+          <pre>{JSON.stringify(error, null, 2)}</pre>
         </Alert>
       </main>
     );
   }
 
-  if (!optionalAnsatt.data && optionalAnsatt.isLoading) {
+  if (!ansatt || ansattIsLoading) {
     return (
       <main>
         <Laster tekst="Laster..." size="xlarge" />
@@ -58,8 +59,10 @@ export function App() {
   }
 
   if (
-    !optionalAnsatt?.data?.tilganger?.some(
-      (tilgang) => tilgang === "BETABRUKER" || tilgang === "UTVIKLER_VALP"
+    !ansatt.roller?.some(
+      (rolle) =>
+        rolle === NavAnsattRolle.BETABRUKER ||
+        rolle === NavAnsattRolle.TEAM_MULIGHETSROMMET
     )
   ) {
     return <IkkeAutentisertApp />;

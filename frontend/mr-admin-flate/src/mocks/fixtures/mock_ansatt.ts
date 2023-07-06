@@ -1,30 +1,35 @@
-import { Ansatt, NavKontaktperson } from "mulighetsrommet-api-client";
+import { NavAnsatt, NavAnsattRolle } from "mulighetsrommet-api-client";
 
-export const mockBetabruker: Ansatt = {
-  etternavn: "Betabruker",
+const bertil = {
+  azureId: "8c133e5e-fd93-4226-8567-41d699a3efee",
+  navIdent: "B99876",
   fornavn: "Bertil",
-  ident: "B99876",
-  navn: "Betabruker, Bertil",
-  tilganger: ["BETABRUKER"],
-  hovedenhet: "2990",
-  hovedenhetNavn: "IT Drift",
+  etternavn: "Betabruker",
+  hovedenhet: {
+    enhetsnummer: "2990",
+    navn: "IT Drift",
+  },
+  mobilnummer: null,
+  epost: "bertil.betabruker@nav.no",
+  roller: [NavAnsattRolle.BETABRUKER, NavAnsattRolle.KONTAKTPERSON],
+  skalSlettesDato: null,
 };
 
-export const mockKontaktpersoner: NavKontaktperson[] = [
-  {
-    etternavn: "Betabruker",
-    fornavn: "Bertil",
-    navident: "B99876",
-    navn: "Betabruker, Bertil",
-    hovedenhet: "2990",
-    epost: "bertil.betabruker@nav.no",
+const pelle = {
+  azureId: "db0d3a34-1071-42f5-aeec-38d37055271d",
+  fornavn: "Pelle",
+  etternavn: "Pilotbruker",
+  navIdent: "P987655",
+  hovedenhet: {
+    enhetsnummer: "2990",
+    navn: "IT Drift",
   },
-  {
-    etternavn: "Pilotbruker",
-    fornavn: "Pelle",
-    navident: "P987655",
-    navn: "Pilotbruker, ∏elle",
-    hovedenhet: "2990",
-    epost: "pelle.pilotbruker@nav.no",
-  },
-];
+  mobilnummer: null,
+  epost: "pelle.pilotbruker@nav.no",
+  roller: [NavAnsattRolle.KONTAKTPERSON],
+  skalSlettesDato: null,
+};
+
+export const mockBetabruker: NavAnsatt = bertil;
+
+export const mockKontaktpersoner: NavAnsatt[] = [bertil, pelle];

@@ -3,8 +3,8 @@ package no.nav.mulighetsrommet.kafka
 import io.kotest.assertions.timing.eventually
 import io.kotest.core.extensions.install
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.extensions.testcontainers.TestContainerExtension
-import io.kotest.extensions.testcontainers.kafka.createStringStringProducer
+import io.kotest.extensions.testcontainers.kafka.KafkaContainerExtension
+import io.kotest.extensions.testcontainers.kafka.stringStringProducer
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
@@ -23,11 +23,9 @@ import java.util.*
 import kotlin.time.Duration.Companion.seconds
 
 class KafkaConsumerOrchestratorTest : FunSpec({
-    val kafka = install(
-        TestContainerExtension(
-            KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:6.2.1")),
-        ),
-    ) { withEmbeddedZookeeper() }
+    val kafka = install(KafkaContainerExtension(DockerImageName.parse("confluentinc/cp-kafka:6.2.1"))) {
+        withEmbeddedZookeeper()
+    }
 
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
@@ -96,7 +94,7 @@ class KafkaConsumerOrchestratorTest : FunSpec({
     test("consumer should process events from topic") {
         val topic = uniqueTopicName()
 
-        val producer = kafka.createStringStringProducer()
+        val producer = kafka.stringStringProducer()
         producer.send(ProducerRecord(topic, null, "true"))
         producer.send(ProducerRecord(topic, "key1", "true"))
         producer.send(ProducerRecord(topic, "key2", null))
@@ -123,7 +121,7 @@ class KafkaConsumerOrchestratorTest : FunSpec({
     test("consumer should process json events from topic") {
         val topic = uniqueTopicName()
 
-        val producer = kafka.createStringStringProducer()
+        val producer = kafka.stringStringProducer()
         producer.send(ProducerRecord(topic, "key1", """{ "success": true }"""))
         producer.send(ProducerRecord(topic, "key2", null))
         producer.close()
@@ -148,7 +146,7 @@ class KafkaConsumerOrchestratorTest : FunSpec({
         val consumerRepository = KafkaConsumerRepository(database.db)
         val topic = uniqueTopicName()
 
-        val producer = kafka.createStringStringProducer()
+        val producer = kafka.stringStringProducer()
         producer.send(ProducerRecord(topic, "false"))
         producer.close()
 

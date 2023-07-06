@@ -4,6 +4,7 @@ import io.ktor.utils.io.core.*
 import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.utils.AdminTiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.api.utils.DatabaseUtils
 import no.nav.mulighetsrommet.api.utils.PaginationParams
@@ -11,8 +12,10 @@ import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
+import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
-import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
+import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
+import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingTilgjengelighetsstatus
 import no.nav.mulighetsrommet.domain.dto.*
 import org.intellij.lang.annotations.Language
 import org.postgresql.util.PSQLException
@@ -25,7 +28,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
 
     fun upsert(tiltaksgjennomforing: TiltaksgjennomforingDbo): QueryResult<Unit> = query {
         logger.info("Lagrer tiltaksgjennomføring id=${tiltaksgjennomforing.id}")
-
         @Language("PostgreSQL")
         val query = """
             insert into tiltaksgjennomforing (
@@ -33,7 +35,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 navn,
                 tiltakstype_id,
                 tiltaksnummer,
-                virksomhetsnummer,
+                arrangor_organisasjonsnummer,
+                arrangor_kontaktperson_id,
                 arena_ansvarlig_enhet,
                 start_dato,
                 slutt_dato,
@@ -45,14 +48,16 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 oppstart,
                 opphav,
                 stengt_fra,
-                stengt_til
+                stengt_til,
+                lokasjon_arrangor
             )
             values (
                 :id::uuid,
                 :navn,
                 :tiltakstype_id::uuid,
                 :tiltaksnummer,
-                :virksomhetsnummer,
+                :arrangor_organisasjonsnummer,
+                :arrangor_kontaktperson_id,
                 :arena_ansvarlig_enhet,
                 :start_dato,
                 :slutt_dato,
@@ -64,25 +69,28 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 :oppstart::tiltaksgjennomforing_oppstartstype,
                 :opphav::opphav,
                 :stengt_fra,
-                :stengt_til
+                :stengt_til,
+                :lokasjon_arrangor
             )
             on conflict (id)
-                do update set navn                  = excluded.navn,
-                              tiltakstype_id        = excluded.tiltakstype_id,
-                              tiltaksnummer         = excluded.tiltaksnummer,
-                              virksomhetsnummer     = excluded.virksomhetsnummer,
-                              arena_ansvarlig_enhet = excluded.arena_ansvarlig_enhet,
-                              start_dato            = excluded.start_dato,
-                              slutt_dato            = excluded.slutt_dato,
-                              avslutningsstatus     = excluded.avslutningsstatus,
-                              tilgjengelighet       = excluded.tilgjengelighet,
-                              estimert_ventetid     = excluded.estimert_ventetid,
-                              antall_plasser        = excluded.antall_plasser,
-                              avtale_id             = excluded.avtale_id,
-                              oppstart              = excluded.oppstart,
-                              opphav                = excluded.opphav,
-                              stengt_fra            = excluded.stengt_fra,
-                              stengt_til            = excluded.stengt_til
+                do update set navn                         = excluded.navn,
+                              tiltakstype_id               = excluded.tiltakstype_id,
+                              tiltaksnummer                = excluded.tiltaksnummer,
+                              arrangor_organisasjonsnummer = excluded.arrangor_organisasjonsnummer,
+                              arrangor_kontaktperson_id    = excluded.arrangor_kontaktperson_id,
+                              arena_ansvarlig_enhet        = excluded.arena_ansvarlig_enhet,
+                              start_dato                   = excluded.start_dato,
+                              slutt_dato                   = excluded.slutt_dato,
+                              avslutningsstatus            = excluded.avslutningsstatus,
+                              tilgjengelighet              = excluded.tilgjengelighet,
+                              estimert_ventetid            = excluded.estimert_ventetid,
+                              antall_plasser               = excluded.antall_plasser,
+                              avtale_id                    = excluded.avtale_id,
+                              oppstart                     = excluded.oppstart,
+                              opphav                       = excluded.opphav,
+                              stengt_fra                   = excluded.stengt_fra,
+                              stengt_til                   = excluded.stengt_til,
+                              lokasjon_arrangor            = excluded.lokasjon_arrangor
             returning *
         """.trimIndent()
 
@@ -184,6 +192,62 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 ).asExecute,
             )
         }
+    }
+
+    fun upsertArenaTiltaksgjennomforing(tiltaksgjennomforing: ArenaTiltaksgjennomforingDbo): QueryResult<Unit> = query {
+        logger.info("Lagrer tiltaksgjennomføring fra Arena id=${tiltaksgjennomforing.id}")
+        @Language("PostgreSQL")
+        val query = """
+            insert into tiltaksgjennomforing (
+                id,
+                navn,
+                tiltakstype_id,
+                tiltaksnummer,
+                arrangor_organisasjonsnummer,
+                arena_ansvarlig_enhet,
+                start_dato,
+                slutt_dato,
+                avslutningsstatus,
+                tilgjengelighet,
+                antall_plasser,
+                avtale_id,
+                oppstart,
+                opphav
+            )
+            values (
+                :id::uuid,
+                :navn,
+                :tiltakstype_id::uuid,
+                :tiltaksnummer,
+                :arrangor_organisasjonsnummer,
+                :arena_ansvarlig_enhet,
+                :start_dato,
+                :slutt_dato,
+                :avslutningsstatus::avslutningsstatus,
+                :tilgjengelighet::tilgjengelighetsstatus,
+                :antall_plasser,
+                :avtale_id,
+                :oppstart::tiltaksgjennomforing_oppstartstype,
+                :opphav::opphav
+            )
+            on conflict (id)
+                do update set navn                         = excluded.navn,
+                              tiltakstype_id               = excluded.tiltakstype_id,
+                              tiltaksnummer                = excluded.tiltaksnummer,
+                              arrangor_organisasjonsnummer = excluded.arrangor_organisasjonsnummer,
+                              arena_ansvarlig_enhet        = excluded.arena_ansvarlig_enhet,
+                              start_dato                   = excluded.start_dato,
+                              slutt_dato                   = excluded.slutt_dato,
+                              avslutningsstatus            = excluded.avslutningsstatus,
+                              tilgjengelighet              = excluded.tilgjengelighet,
+                              antall_plasser               = excluded.antall_plasser,
+                              avtale_id                    = excluded.avtale_id,
+                              oppstart                     = excluded.oppstart,
+                              opphav                       = excluded.opphav
+            returning *
+        """.trimIndent()
+
+        queryOf(query, tiltaksgjennomforing.toSqlParameters()).asExecute.let { db.run(it) }
     }
 
     fun updateEnheter(tiltaksnummer: String, navEnheter: List<String>): QueryResult<Int> = query {
@@ -307,7 +371,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             "today" to filter.dagensDato,
             "fylkesenhet" to filter.fylkesenhet,
             "avtaleId" to filter.avtaleId,
-            "virksomhetsnummer" to filter.arrangorOrgnr,
+            "arrangor_organisasjonsnummer" to filter.arrangorOrgnr,
         )
 
         val where = DatabaseUtils.andWhereParameterNotNull(
@@ -318,7 +382,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             filter.sluttDatoCutoff to "(slutt_dato >= :cutoffdato or slutt_dato is null)",
             filter.fylkesenhet to "arena_ansvarlig_enhet in (select enhetsnummer from nav_enhet where overordnet_enhet = :fylkesenhet)",
             filter.avtaleId to "avtale_id = :avtaleId",
-            filter.arrangorOrgnr to "virksomhetsnummer = :virksomhetsnummer",
+            filter.arrangorOrgnr to "arrangor_organisasjonsnummer = :arrangor_organisasjonsnummer",
         )
 
         val order = when (filter.sortering) {
@@ -326,8 +390,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             "navn-descending" -> "navn desc"
             "tiltaksnummer-ascending" -> "tiltaksnummer asc"
             "tiltaksnummer-descending" -> "tiltaksnummer desc"
-            "arrangor-ascending" -> "virksomhetsnavn asc"
-            "arrangor-descending" -> "virksomhetsnavn desc"
+            "arrangor-ascending" -> "arrangor_navn asc"
+            "arrangor-descending" -> "arrangor_navn desc"
             "tiltakstype-ascending" -> "tiltakstype_navn asc"
             "tiltakstype-descending" -> "tiltakstype_navn desc"
             "startdato-ascending" -> "start_dato asc"
@@ -364,26 +428,12 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         dateIntervalEnd: LocalDate,
         avslutningsstatus: Avslutningsstatus,
         pagination: PaginationParams,
-    ): QueryResult<List<TiltaksgjennomforingDbo>> = query {
+    ): QueryResult<List<UUID>> = query {
         logger.info("Henter alle tiltaksgjennomføringer med start- eller sluttdato mellom $dateIntervalStart og $dateIntervalEnd, med avslutningsstatus $avslutningsstatus")
 
         @Language("PostgreSQL")
         val query = """
-            select tg.id::uuid,
-                   tg.navn,
-                   tg.tiltakstype_id,
-                   tg.tiltaksnummer,
-                   tg.virksomhetsnummer,
-                   tg.start_dato,
-                   tg.slutt_dato,
-                   tg.arena_ansvarlig_enhet,
-                   tg.avslutningsstatus,
-                   tg.tilgjengelighet,
-                   tg.estimert_ventetid,
-                   tg.antall_plasser,
-                   tg.avtale_id,
-                   tg.oppstart,
-                   tg.opphav
+            select tg.id::uuid
             from tiltaksgjennomforing tg
             where avslutningsstatus = :avslutningsstatus::avslutningsstatus and (
                 (start_dato > :date_interval_start and start_dato <= :date_interval_end) or
@@ -402,7 +452,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 "offset" to pagination.offset,
             ),
         )
-            .map { it.toTiltaksgjennomforingDbo() }
+            .map { it.uuid("id") }
             .asList
             .let { db.run(it) }
     }
@@ -421,7 +471,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    fun getTilgjengelighetsstatus(tiltaksnummer: String): TiltaksgjennomforingDbo.Tilgjengelighetsstatus? {
+    fun getTilgjengelighetsstatus(tiltaksnummer: String): TiltaksgjennomforingTilgjengelighetsstatus? {
         @Language("PostgreSQL")
         val query = """
             select tilgjengelighet
@@ -441,7 +491,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         return queryOf(query, parameters)
             .map {
                 val value = it.string("tilgjengelighet")
-                TiltaksgjennomforingDbo.Tilgjengelighetsstatus.valueOf(value)
+                TiltaksgjennomforingTilgjengelighetsstatus.valueOf(value)
             }
             .asSingle
             .let { db.run(it) }
@@ -462,7 +512,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         "navn" to navn,
         "tiltakstype_id" to tiltakstypeId,
         "tiltaksnummer" to tiltaksnummer,
-        "virksomhetsnummer" to virksomhetsnummer,
+        "arrangor_organisasjonsnummer" to arrangorOrganisasjonsnummer,
+        "arrangor_kontaktperson_id" to arrangorKontaktpersonId,
         "start_dato" to startDato,
         "arena_ansvarlig_enhet" to arenaAnsvarligEnhet,
         "slutt_dato" to sluttDato,
@@ -475,26 +526,24 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         "opphav" to opphav.name,
         "stengt_fra" to stengtFra,
         "stengt_til" to stengtTil,
+        "lokasjon_arrangor" to lokasjonArrangor,
     )
 
-    private fun Row.toTiltaksgjennomforingDbo() = TiltaksgjennomforingDbo(
-        id = uuid("id"),
-        navn = string("navn"),
-        tiltakstypeId = uuid("tiltakstype_id"),
-        tiltaksnummer = stringOrNull("tiltaksnummer"),
-        virksomhetsnummer = string("virksomhetsnummer"),
-        startDato = localDate("start_dato"),
-        sluttDato = localDateOrNull("slutt_dato"),
-        arenaAnsvarligEnhet = stringOrNull("arena_ansvarlig_enhet"),
-        avslutningsstatus = Avslutningsstatus.valueOf(string("avslutningsstatus")),
-        tilgjengelighet = TiltaksgjennomforingDbo.Tilgjengelighetsstatus.valueOf(string("tilgjengelighet")),
-        estimertVentetid = stringOrNull("estimert_ventetid"),
-        antallPlasser = intOrNull("antall_plasser"),
-        avtaleId = uuidOrNull("avtale_id"),
-        ansvarlige = emptyList(),
-        navEnheter = emptyList(),
-        oppstart = TiltaksgjennomforingDbo.Oppstartstype.valueOf(string("oppstart")),
-        opphav = ArenaMigrering.Opphav.valueOf(string("opphav")),
+    private fun ArenaTiltaksgjennomforingDbo.toSqlParameters() = mapOf(
+        "id" to id,
+        "navn" to navn,
+        "tiltakstype_id" to tiltakstypeId,
+        "tiltaksnummer" to tiltaksnummer,
+        "arrangor_organisasjonsnummer" to arrangorOrganisasjonsnummer,
+        "start_dato" to startDato,
+        "arena_ansvarlig_enhet" to arenaAnsvarligEnhet,
+        "slutt_dato" to sluttDato,
+        "avslutningsstatus" to avslutningsstatus.name,
+        "tilgjengelighet" to tilgjengelighet.name,
+        "antall_plasser" to antallPlasser,
+        "avtale_id" to avtaleId,
+        "oppstart" to oppstart.name,
+        "opphav" to opphav.name,
     )
 
     private fun Row.toTiltaksgjennomforingAdminDto(): TiltaksgjennomforingAdminDto {
@@ -514,8 +563,17 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             ),
             navn = string("navn"),
             tiltaksnummer = stringOrNull("tiltaksnummer"),
-            virksomhetsnummer = string("virksomhetsnummer"),
-            virksomhetsnavn = stringOrNull("virksomhetsnavn"),
+            arrangorOrganisasjonsnummer = string("arrangor_organisasjonsnummer"),
+            arrangorNavn = stringOrNull("arrangor_navn"),
+            arrangorKontaktperson = uuidOrNull("arrangor_kontaktperson_id")?.let {
+                VirksomhetKontaktperson(
+                    id = it,
+                    organisasjonsnummer = string("arrangor_kontaktperson_organisasjonsnummer"),
+                    navn = string("arrangor_kontaktperson_navn"),
+                    telefon = string("arrangor_kontaktperson_telefon"),
+                    epost = string("arrangor_kontaktperson_epost"),
+                )
+            },
             startDato = startDato,
             sluttDato = sluttDato,
             arenaAnsvarligEnhet = stringOrNull("arena_ansvarlig_enhet"),
@@ -525,7 +583,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 sluttDato,
                 Avslutningsstatus.valueOf(string("avslutningsstatus")),
             ),
-            tilgjengelighet = TiltaksgjennomforingDbo.Tilgjengelighetsstatus.valueOf(string("tilgjengelighet")),
+            tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.valueOf(string("tilgjengelighet")),
             estimertVentetid = stringOrNull("estimert_ventetid"),
             antallPlasser = intOrNull("antall_plasser"),
             avtaleId = uuidOrNull("avtale_id"),
@@ -533,11 +591,12 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             navEnheter = navEnheter,
             navRegion = stringOrNull("navRegionForAvtale"),
             sanityId = stringOrNull("sanity_id"),
-            oppstart = TiltaksgjennomforingDbo.Oppstartstype.valueOf(string("oppstart")),
+            oppstart = TiltaksgjennomforingOppstartstype.valueOf(string("oppstart")),
             opphav = ArenaMigrering.Opphav.valueOf(string("opphav")),
             stengtFra = localDateOrNull("stengt_fra"),
             stengtTil = localDateOrNull("stengt_til"),
             kontaktpersoner = kontaktpersoner,
+            lokasjonArrangor = stringOrNull("lokasjon_arrangor"),
         )
     }
 
@@ -648,6 +707,26 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         """.trimIndent()
 
         return queryOf(query, currentDate, currentDate).map { it.toTiltaksgjennomforingNotificationDto() }
+            .asList
+            .let { db.run(it) }
+    }
+
+    fun getLokasjonerForEnhet(enhetsId: String, fylkeId: String): List<String> {
+        val params = mapOf(
+            "enhetsId" to enhetsId,
+            "fylkesId" to fylkeId,
+        )
+
+        @Language("PostgreSQL")
+        val query = """
+            select distinct tg.lokasjon_arrangor from tiltaksgjennomforing tg
+            left join tiltaksgjennomforing_nav_enhet tne on tg.id = tne.tiltaksgjennomforing_id
+            left join avtale a on a.id = tg.avtale_id
+            where tne.enhetsnummer = :enhetsId or (tne.enhetsnummer is null and a.nav_region = :fylkesId)
+        """.trimIndent()
+
+        return queryOf(query, params)
+            .map { it.stringOrNull("lokasjon_arrangor") }
             .asList
             .let { db.run(it) }
     }

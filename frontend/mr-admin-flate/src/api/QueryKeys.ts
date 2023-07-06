@@ -1,4 +1,5 @@
 import {
+  NotificationStatus,
   SorteringTiltakstyper,
   Tiltakstypekategori,
   Tiltakstypestatus,
@@ -12,8 +13,8 @@ export const QueryKeys = {
     [id, "nokkeltallTiltakstype"] as const,
   tiltakstyper: (
     sokestreng: string,
-    status?: Tiltakstypestatus,
-    kategori?: Tiltakstypekategori,
+    status: Tiltakstypestatus | "",
+    kategori?: Tiltakstypekategori | "",
     sortering?: SorteringTiltakstyper,
     page?: number
   ) => [sokestreng, status, kategori, sortering, page, "tiltakstyper"] as const,
@@ -29,7 +30,7 @@ export const QueryKeys = {
   nokkeltallTiltaksgjennomforing: (id?: string) =>
     [id, "nokkeltallTiltaksgjennomforing"] as const,
   tiltaksgjennomforing: (id?: string) => [id, "tiltaksgjennomforing"] as const,
-  ansatt: ["ansatt"] as const,
+  ansatt: () => ["ansatt"] as const,
   tiltaksgjennomforingerByEnhet: (enhet: string = "enhet", page?: number) =>
     [enhet, page, "tiltaksgjennomforinger"] as const,
   avtaler: (avtaleFilter: AvtaleFilterProps, page: number) => [
@@ -42,6 +43,10 @@ export const QueryKeys = {
   enheter: () => ["enheter"],
   virksomheter: (til: VirksomhetTil) => [til, "virksomheter"],
   antallUlesteNotifikasjoner: () => ["antallUlesteNotifikasjoner"],
+  notifikasjonerForAnsatt: (status: NotificationStatus) => [
+    "notifikasjoner",
+    status,
+  ],
   virksomhetSok: (sokestreng: string) => ["virksomhetSok", sokestreng],
   virksomhetOppslag: (orgnr: string) => ["virksometOppslag", orgnr],
   tiltaksgjennomforingerTilAvtale: (filter: string) => [
@@ -49,4 +54,11 @@ export const QueryKeys = {
     filter,
   ],
   kontaktpersoner: () => ["nav-kontaktpersoner"],
+  virksomhetKontaktpersoner: (orgnr: string) => [
+    orgnr,
+    "virksomhet-kontaktpersoner",
+  ],
+  alleUtkast: (avtaleId: string = "") => ["utkast", "alleUtkast", avtaleId],
+  mineUtkast: (avtaleId: string) => ["utkast", avtaleId],
+  utkast: (utkastId: string) => ["utkast", utkastId],
 };

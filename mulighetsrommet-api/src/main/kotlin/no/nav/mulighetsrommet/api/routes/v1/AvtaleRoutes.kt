@@ -9,6 +9,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.api.routes.v1.responses.BadRequest
 import no.nav.mulighetsrommet.api.routes.v1.responses.StatusResponse
 import no.nav.mulighetsrommet.api.routes.v1.responses.respondWithStatusResponse
@@ -18,7 +19,6 @@ import no.nav.mulighetsrommet.api.utils.getAvtaleFilter
 import no.nav.mulighetsrommet.api.utils.getPaginationParams
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
-import no.nav.mulighetsrommet.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
@@ -114,6 +114,8 @@ data class AvtaleRequest(
     val tiltakstypeId: UUID,
     val leverandorOrganisasjonsnummer: String,
     val leverandorUnderenheter: List<String> = emptyList(),
+    @Serializable(with = UUIDSerializer::class)
+    val leverandorKontaktpersonId: UUID? = null,
     val avtalenummer: String,
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate,
@@ -140,6 +142,7 @@ data class AvtaleRequest(
                 tiltakstypeId = tiltakstypeId,
                 leverandorOrganisasjonsnummer = leverandorOrganisasjonsnummer,
                 leverandorUnderenheter = leverandorUnderenheter,
+                leverandorKontaktpersonId = leverandorKontaktpersonId,
                 startDato = startDato,
                 sluttDato = sluttDato,
                 arenaAnsvarligEnhet = null,

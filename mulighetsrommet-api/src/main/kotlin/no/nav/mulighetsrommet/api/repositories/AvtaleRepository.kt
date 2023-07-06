@@ -3,13 +3,14 @@ package no.nav.mulighetsrommet.api.repositories
 import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.api.utils.*
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
+import no.nav.mulighetsrommet.domain.dbo.ArenaAvtaleDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
-import no.nav.mulighetsrommet.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.domain.dto.*
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
@@ -30,6 +31,7 @@ class AvtaleRepository(private val db: Database) {
                                tiltakstype_id,
                                avtalenummer,
                                leverandor_organisasjonsnummer,
+                               leverandor_kontaktperson_id,
                                start_dato,
                                slutt_dato,
                                arena_ansvarlig_enhet,
@@ -45,6 +47,7 @@ class AvtaleRepository(private val db: Database) {
                     :tiltakstype_id::uuid,
                     :avtalenummer,
                     :leverandor_organisasjonsnummer,
+                    :leverandor_kontaktperson_id,
                     :start_dato,
                     :slutt_dato,
                     :arena_ansvarlig_enhet,
@@ -59,6 +62,7 @@ class AvtaleRepository(private val db: Database) {
                                            tiltakstype_id                 = excluded.tiltakstype_id,
                                            avtalenummer                   = excluded.avtalenummer,
                                            leverandor_organisasjonsnummer = excluded.leverandor_organisasjonsnummer,
+                                           leverandor_kontaktperson_id    = excluded.leverandor_kontaktperson_id,
                                            start_dato                     = excluded.start_dato,
                                            slutt_dato                     = excluded.slutt_dato,
                                            arena_ansvarlig_enhet          = excluded.arena_ansvarlig_enhet,
@@ -158,6 +162,54 @@ class AvtaleRepository(private val db: Database) {
         }
     }
 
+    fun upsertArenaAvtale(avtale: ArenaAvtaleDbo): QueryResult<Unit> = query {
+        logger.info("Lagrer avtale fra Arena id=${avtale.id}")
+
+        @Language("PostgreSQL")
+        val query = """
+            insert into avtale(id,
+                               navn,
+                               tiltakstype_id,
+                               avtalenummer,
+                               leverandor_organisasjonsnummer,
+                               start_dato,
+                               slutt_dato,
+                               arena_ansvarlig_enhet,
+                               avtaletype,
+                               avslutningsstatus,
+                               prisbetingelser,
+                               opphav)
+            values (:id::uuid,
+                    :navn,
+                    :tiltakstype_id::uuid,
+                    :avtalenummer,
+                    :leverandor_organisasjonsnummer,
+                    :start_dato,
+                    :slutt_dato,
+                    :arena_ansvarlig_enhet,
+                    :avtaletype::avtaletype,
+                    :avslutningsstatus::avslutningsstatus,
+                    :prisbetingelser,
+                    :opphav::opphav
+                    )
+            on conflict (id) do update set navn                           = excluded.navn,
+                                           tiltakstype_id                 = excluded.tiltakstype_id,
+                                           avtalenummer                   = excluded.avtalenummer,
+                                           leverandor_organisasjonsnummer = excluded.leverandor_organisasjonsnummer,
+                                           start_dato                     = excluded.start_dato,
+                                           slutt_dato                     = excluded.slutt_dato,
+                                           arena_ansvarlig_enhet          = excluded.arena_ansvarlig_enhet,
+                                           avtaletype                     = excluded.avtaletype,
+                                           avslutningsstatus              = excluded.avslutningsstatus,
+                                           prisbetingelser                = excluded.prisbetingelser,
+                                           antall_plasser                 = excluded.antall_plasser,
+                                           opphav                         = excluded.opphav
+            returning *
+        """.trimIndent()
+
+        queryOf(query, avtale.toSqlParameters()).asExecute.let { db.run(it) }
+    }
+
     fun get(id: UUID): QueryResult<AvtaleAdminDto?> = query {
         @Language("PostgreSQL")
         val query = """
@@ -166,6 +218,11 @@ class AvtaleRepository(private val db: Database) {
                    a.tiltakstype_id,
                    a.avtalenummer,
                    a.leverandor_organisasjonsnummer,
+                   vk.id as leverandor_kontaktperson_id,
+                   vk.organisasjonsnummer as leverandor_kontaktperson_organisasjonsnummer,
+                   vk.navn as leverandor_kontaktperson_navn,
+                   vk.telefon as leverandor_kontaktperson_telefon,
+                   vk.epost as leverandor_kontaktperson_epost,
                    v.navn as leverandor_navn,
                    a.start_dato,
                    a.slutt_dato,
@@ -195,8 +252,9 @@ class AvtaleRepository(private val db: Database) {
                          FROM avtale_underleverandor au left join virksomhet v on v.organisasjonsnummer = au.organisasjonsnummer WHERE au.avtale_id = a.id GROUP BY 1
                      ) au on true
                      left join virksomhet v on v.organisasjonsnummer = a.leverandor_organisasjonsnummer
+                     left join virksomhet_kontaktperson vk on vk.id = a.leverandor_kontaktperson_id
             where a.id = ?::uuid
-            group by a.id, t.tiltakskode, t.navn, aa.navident, nav_enhet.navn, v.navn, au.leverandor_underenheter, an.nav_enheter
+            group by a.id, t.tiltakskode, t.navn, aa.navident, nav_enhet.navn, v.navn, au.leverandor_underenheter, an.nav_enheter, vk.id
         """.trimIndent()
 
         queryOf(query, id)
@@ -269,6 +327,11 @@ class AvtaleRepository(private val db: Database) {
                    a.tiltakstype_id,
                    a.avtalenummer,
                    a.leverandor_organisasjonsnummer,
+                   vk.id as leverandor_kontaktperson_id,
+                   vk.organisasjonsnummer as leverandor_kontaktperson_organisasjonsnummer,
+                   vk.navn as leverandor_kontaktperson_navn,
+                   vk.telefon as leverandor_kontaktperson_telefon,
+                   vk.epost as leverandor_kontaktperson_epost,
                    v.navn as leverandor_navn,
                    a.start_dato,
                    a.slutt_dato,
@@ -301,8 +364,9 @@ class AvtaleRepository(private val db: Database) {
                      SELECT au.avtale_id, jsonb_strip_nulls(jsonb_agg(jsonb_build_object('organisasjonsnummer', au.organisasjonsnummer, 'navn', v.navn))) as leverandor_underenheter
                      FROM avtale_underleverandor au left join virksomhet v on v.organisasjonsnummer = au.organisasjonsnummer WHERE au.avtale_id = a.id GROUP BY 1
                   ) au on true
+                  left join virksomhet_kontaktperson vk on vk.id = a.leverandor_kontaktperson_id
             $where
-            group by a.id, t.navn, t.tiltakskode, aa.navident, nav_enhet.navn, v.navn, au.leverandor_underenheter, an.nav_enheter
+            group by a.id, t.navn, t.tiltakskode, aa.navident, nav_enhet.navn, v.navn, au.leverandor_underenheter, an.nav_enheter, vk.id
             order by $order
             limit :limit
             offset :offset
@@ -326,6 +390,7 @@ class AvtaleRepository(private val db: Database) {
         "tiltakstype_id" to tiltakstypeId,
         "avtalenummer" to avtalenummer,
         "leverandor_organisasjonsnummer" to leverandorOrganisasjonsnummer,
+        "leverandor_kontaktperson_id" to leverandorKontaktpersonId,
         "leverandor_underenheter" to db.createTextArray(leverandorUnderenheter),
         "start_dato" to startDato,
         "slutt_dato" to sluttDato,
@@ -336,6 +401,21 @@ class AvtaleRepository(private val db: Database) {
         "prisbetingelser" to prisbetingelser,
         "antall_plasser" to antallPlasser,
         "url" to url,
+        "opphav" to opphav.name,
+    )
+
+    private fun ArenaAvtaleDbo.toSqlParameters() = mapOf(
+        "id" to id,
+        "navn" to navn,
+        "tiltakstype_id" to tiltakstypeId,
+        "avtalenummer" to avtalenummer,
+        "leverandor_organisasjonsnummer" to leverandorOrganisasjonsnummer,
+        "start_dato" to startDato,
+        "slutt_dato" to sluttDato,
+        "arena_ansvarlig_enhet" to arenaAnsvarligEnhet,
+        "avtaletype" to avtaletype.name,
+        "avslutningsstatus" to avslutningsstatus.name,
+        "prisbetingelser" to prisbetingelser,
         "opphav" to opphav.name,
     )
 
@@ -364,6 +444,15 @@ class AvtaleRepository(private val db: Database) {
                 navn = stringOrNull("leverandor_navn"),
             ),
             leverandorUnderenheter = underenheter,
+            leverandorKontaktperson = uuidOrNull("leverandor_kontaktperson_id")?.let {
+                VirksomhetKontaktperson(
+                    id = it,
+                    organisasjonsnummer = string("leverandor_kontaktperson_organisasjonsnummer"),
+                    navn = string("leverandor_kontaktperson_navn"),
+                    telefon = string("leverandor_kontaktperson_telefon"),
+                    epost = string("leverandor_kontaktperson_epost"),
+                )
+            },
             navEnheter = navEnheter,
             startDato = startDato,
             sluttDato = sluttDato,
@@ -436,9 +525,8 @@ class AvtaleRepository(private val db: Database) {
         val query = """
             select a.id::uuid, a.navn, a.start_dato, a.slutt_dato, array_agg(distinct aa.navident) as ansvarlige
             from avtale a
-            join avtale_ansvarlig aa on a.id = aa.avtale_id
-            where
-                (:currentDate::timestamp + interval '6' month) = a.slutt_dato
+                     left join avtale_ansvarlig aa on a.id = aa.avtale_id
+            where (:currentDate::timestamp + interval '6' month) = a.slutt_dato
                or (:currentDate::timestamp + interval '3' month) = a.slutt_dato
                or (:currentDate::timestamp + interval '14' day) = a.slutt_dato
                or (:currentDate::timestamp + interval '7' day) = a.slutt_dato

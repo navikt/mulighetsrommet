@@ -15,7 +15,7 @@ class TiltakshistorikkService(
     suspend fun hentHistorikkForBruker(norskIdent: String): List<TiltakshistorikkDto> {
         return tiltakshistorikkRepository.getTiltakshistorikkForBruker(norskIdent).map {
             val arrangor = it.arrangor?.let { arrangor ->
-                val navn = hentArrangorNavn(arrangor.virksomhetsnummer)
+                val navn = hentArrangorNavn(arrangor.organisasjonsnummer)
                 arrangor.copy(navn = navn)
             }
             it.copy(arrangor = arrangor)

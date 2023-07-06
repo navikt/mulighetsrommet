@@ -30,3 +30,19 @@ CREATE TRIGGER set_timestamp
     ON tiltakshistorikk
     FOR EACH ROW
 EXECUTE PROCEDURE trigger_set_timestamp();
+
+DROP TRIGGER IF EXISTS set_timestamp ON avtale;
+
+CREATE TRIGGER set_timestamp
+    BEFORE UPDATE
+    ON avtale
+    FOR EACH ROW
+EXECUTE PROCEDURE trigger_set_timestamp();
+
+DROP TRIGGER IF EXISTS set_timestamp ON utkast;
+
+CREATE TRIGGER set_timestamp
+    BEFORE UPDATE
+    ON utkast
+    FOR EACH ROW
+EXECUTE PROCEDURE trigger_set_timestamp();

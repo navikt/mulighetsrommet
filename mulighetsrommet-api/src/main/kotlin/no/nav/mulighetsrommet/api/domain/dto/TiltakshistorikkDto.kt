@@ -22,7 +22,7 @@ data class TiltakshistorikkDto(
 ) {
     @Serializable
     data class Arrangor(
-        val virksomhetsnummer: String,
+        val organisasjonsnummer: String,
         val navn: String?,
     )
 }

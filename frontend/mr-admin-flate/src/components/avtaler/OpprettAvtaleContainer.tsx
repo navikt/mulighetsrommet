@@ -6,10 +6,10 @@ import {
   Avtale,
   AvtaleRequest,
   Avtaletype,
+  NavAnsatt,
   Norg2Type,
   Opphav,
 } from "mulighetsrommet-api-client";
-import { Ansatt } from "mulighetsrommet-api-client/build/models/Ansatt";
 import { NavEnhet } from "mulighetsrommet-api-client/build/models/NavEnhet";
 import { Tiltakstype } from "mulighetsrommet-api-client/build/models/Tiltakstype";
 import { StatusModal } from "mulighetsrommet-veileder-flate/src/components/modal/delemodal/StatusModal";
@@ -27,16 +27,17 @@ import {
 } from "../../utils/Utils";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
-import { SokeSelect } from "../skjema/SokeSelect";
 import { AvtaleSchema, inferredSchema } from "./AvtaleSchema";
 import styles from "./OpprettAvtaleContainer.module.scss";
 import { faro } from "@grafana/faro-web-sdk";
+import { VirksomhetKontaktpersoner } from "../virksomhet/VirksomhetKontaktpersoner";
+import { SokeSelect } from "../skjema/SokeSelect";
 
 interface OpprettAvtaleContainerProps {
   onClose: () => void;
   onSuccess: (id: string) => void;
   tiltakstyper: Tiltakstype[];
-  ansatt: Ansatt;
+  ansatt: NavAnsatt;
   avtale?: Avtale;
   enheter: NavEnhet[];
 }
@@ -65,8 +66,10 @@ export function OpprettAvtaleContainer({
     if (avtale?.navRegion?.enhetsnummer) {
       return avtale?.navRegion?.enhetsnummer;
     }
-    if (enheter.find((e) => e.enhetsnummer === ansatt.hovedenhet)) {
-      return ansatt.hovedenhet;
+    if (
+      enheter.find((e) => e.enhetsnummer === ansatt.hovedenhet.enhetsnummer)
+    ) {
+      return ansatt.hovedenhet.enhetsnummer;
     }
     return undefined;
   };
@@ -87,7 +90,7 @@ export function OpprettAvtaleContainer({
         avtale?.navEnheter.length === 0
           ? ["alle_enheter"]
           : avtale?.navEnheter.map((e) => e.enhetsnummer),
-      avtaleansvarlig: avtale?.ansvarlig || ansatt?.ident || "",
+      avtaleansvarlig: avtale?.ansvarlig || ansatt.navIdent || "",
       avtalenavn: getValueOrDefault(avtale?.navn, ""),
       avtaletype: getValueOrDefault(avtale?.avtaletype, Avtaletype.AVTALE),
       leverandor: getValueOrDefault(
@@ -100,6 +103,7 @@ export function OpprettAvtaleContainer({
           : avtale?.leverandorUnderenheter?.map(
               (enhet) => enhet.organisasjonsnummer
             ),
+      leverandorKontaktpersonId: avtale?.leverandorKontaktperson?.id,
       startOgSluttDato: {
         startDato: avtale?.startDato ? new Date(avtale.startDato) : undefined,
         sluttDato: avtale?.sluttDato ? new Date(avtale.sluttDato) : undefined,
@@ -131,11 +135,9 @@ export function OpprettAvtaleContainer({
   };
 
   const arenaOpphav = avtale?.opphav === Opphav.ARENA;
-  const navn = ansatt?.fornavn
-    ? [ansatt.fornavn, ansatt.etternavn ?? ""]
-        .map((it) => capitalize(it))
-        .join(" ")
-    : "";
+  const navn = [ansatt.fornavn, ansatt.etternavn]
+    .map((it) => capitalize(it))
+    .join(" ");
 
   const postData: SubmitHandler<inferredSchema> = async (
     data
@@ -162,6 +164,7 @@ export function OpprettAvtaleContainer({
       navEnheter,
       leverandor: leverandorOrganisasjonsnummer,
       leverandorUnderenheter,
+      leverandorKontaktpersonId,
       avtalenavn: navn,
       startOgSluttDato,
       tiltakstype: tiltakstypeId,
@@ -192,6 +195,7 @@ export function OpprettAvtaleContainer({
         ? prisOgBetalingsinfo
         : undefined,
       opphav: avtale?.opphav,
+      leverandorKontaktpersonId,
     };
 
     if (avtale?.id) {
@@ -231,7 +235,7 @@ export function OpprettAvtaleContainer({
 
   const ansvarligOptions = () => {
     const options = [];
-    if (avtale?.ansvarlig && avtale.ansvarlig !== ansatt?.ident) {
+    if (avtale?.ansvarlig && avtale.ansvarlig !== ansatt?.navIdent) {
       options.push({
         value: avtale?.ansvarlig,
         label: avtale?.ansvarlig,
@@ -239,8 +243,8 @@ export function OpprettAvtaleContainer({
     }
 
     options.push({
-      value: ansatt?.ident ?? "",
-      label: `${navn} - ${ansatt?.ident}`,
+      value: ansatt.navIdent,
+      label: `${navn} - ${ansatt.navIdent}`,
     });
 
     return options;
@@ -299,13 +303,11 @@ export function OpprettAvtaleContainer({
               value: tiltakstype.id,
               label: tiltakstype.navn,
             }))}
-            isClearable={false}
           />
           <SokeSelect
             size="small"
             readOnly={arenaOpphav}
             placeholder="Velg en"
-            isClearable={false}
             label={"Avtaletype"}
             {...register("avtaletype")}
             options={[
@@ -389,6 +391,19 @@ export function OpprettAvtaleContainer({
             options={underenheterOptions()}
           />
         </FormGroup>
+        {watch("leverandor") && (
+          <FormGroup>
+            <div className={styles.kontaktperson_container}>
+              <label className={styles.kontaktperson_label}>
+                <b>Kontaktperson hos leverandøren</b>
+              </label>
+              <VirksomhetKontaktpersoner
+                orgnr={watch("leverandor")}
+                formValueName={"leverandorKontaktpersonId"}
+              />
+            </div>
+          </FormGroup>
+        )}
         <FormGroup>
           <TextField
             size="small"

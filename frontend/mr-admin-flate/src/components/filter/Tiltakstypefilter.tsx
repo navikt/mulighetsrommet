@@ -1,4 +1,4 @@
-import { Search } from "@navikt/ds-react";
+import { Button, Search } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { RESET } from "jotai/vanilla/utils";
 import { useEffect } from "react";
@@ -12,6 +12,7 @@ import {
 import { resetPaginering, valueOrDefault } from "../../utils/Utils";
 import { SokeSelect } from "../skjema/SokeSelect";
 import styles from "./Filter.module.scss";
+import { FilterTag } from "./FilterTag";
 
 export function Tiltakstypefilter() {
   const [filter, setFilter] = useAtom(tiltakstypeFilter);
@@ -22,7 +23,7 @@ export function Tiltakstypefilter() {
       ...filter,
     },
   });
-  const { register } = form;
+  const { register, setValue } = form;
 
   useEffect(() => {
     // Reset filter når vi unmounter
@@ -34,6 +35,7 @@ export function Tiltakstypefilter() {
       { label: "Aktiv", value: "Aktiv" },
       { label: "Planlagt", value: "Planlagt" },
       { label: "Avsluttet", value: "Avsluttet" },
+      { label: "Alle statuser", value: "" },
     ];
   };
 
@@ -41,14 +43,15 @@ export function Tiltakstypefilter() {
     return [
       { label: "Gruppetiltak", value: "GRUPPE" },
       { label: "Individuelle tiltak", value: "INDIVIDUELL" },
+      { label: "Alle kategorier", value: "" },
     ];
   };
 
   return (
     <FormProvider {...form}>
-      <form>
+      <form className={styles.tiltakstypeform}>
         <div className={styles.filter_container}>
-          <div className={styles.filter_left}>
+          <div className={styles.filtrering}>
             <Search
               label="Søk etter tiltakstype"
               hideLabel
@@ -98,6 +101,41 @@ export function Tiltakstypefilter() {
               options={kategoriOptions()}
               className={styles.form_field}
             />
+          </div>
+          <div className={styles.tags_container}>
+            {filter.status &&
+              <FilterTag
+                label={filter.status}
+                onClick={() => {
+                  setFilter({ ...filter, status: "" });
+                  setValue('status', "");
+                }}
+              />
+            }
+            {filter.kategori && 
+              <FilterTag
+                label={filter.kategori === "GRUPPE" ? "Gruppetiltak" : "Individuelle tiltak"}
+                onClick={() => {
+                  setFilter({ ...filter, kategori: "" });
+                  setValue('kategori', "");
+                }}
+              />
+            }
+            { (filter.status || filter.kategori) &&
+              <Button
+                style={{ height: "16px", maxHeight: "16px" }}
+                type="button"
+                size="small"
+                variant="tertiary"
+                onClick={() => {
+                  setFilter({ status: "", kategori: "" });
+                  setValue('status', "");
+                  setValue('kategori', "");
+                }}
+              >
+                Tilbakestill filter
+              </Button>
+            }
           </div>
         </div>
       </form>

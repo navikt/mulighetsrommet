@@ -5,7 +5,7 @@ info:
   title: Mulighetsrommet API
 
 security:
-  - bearerAuth: []
+  - bearerAuth: [ ]
 
 paths:
   /api/v1/internal/bruker:
@@ -290,7 +290,7 @@ paths:
               $ref: "#/components/schemas/AvtaleForGjennomforingRequest"
       responses:
         200:
-          description: ''
+          description: ""
     delete:
       tags:
         - Tiltaksgjennomforinger
@@ -472,7 +472,7 @@ paths:
           description: Sanity query result
           content:
             application/json:
-              schema: {}
+              schema: { }
 
   /api/v1/internal/sanity/innsatsgrupper:
     get:
@@ -493,7 +493,7 @@ paths:
     get:
       tags:
         - Sanity
-      operationId: getTiltakstyper
+      operationId: getSanityTiltakstyper
       responses:
         200:
           description: Tiltakstyper definert i Sanity
@@ -567,10 +567,11 @@ paths:
     get:
       tags:
         - Sanity
-      operationId: getTiltaksgjennomforing
+      operationId: getSanityTiltaksgjennomforing
       parameters:
         - in: path
           name: id
+          required: true
           schema:
             type: string
           description: ID for tiltaksgjennomføring i Sanity
@@ -636,7 +637,7 @@ paths:
     get:
       tags:
         - Ansatt
-      operationId: hentKontaktpersoner
+      operationId: hentAnsatte
       parameters:
         - in: query
           name: roller
@@ -653,7 +654,20 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/NavKontaktperson"
+                  $ref: "#/components/schemas/NavAnsatt"
+
+  /api/v1/internal/veileder/me:
+    get:
+      tags:
+        - Veileder
+      operationId: getVeileder
+      responses:
+        200:
+          description: Information about NavVeileder
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NavVeileder"
 
   /api/v1/internal/ansatt/me:
     get:
@@ -666,7 +680,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Ansatt"
+                $ref: "#/components/schemas/NavAnsatt"
         404:
           description: "Could not find data about 'ansatt'"
           content:
@@ -710,7 +724,7 @@ paths:
             type: string
           description: "Brukers fnr"
         - in: path
-          name: "sanityId"
+          name: sanityId
           description: "ID fra Sanity-dokument"
           required: true
           schema:
@@ -734,13 +748,6 @@ paths:
       tags:
         - Del med bruker
       operationId: postDelMedBruker
-      parameters:
-        - in: path
-          name: "sanityId"
-          description: "ID for Sanity-dokument"
-          required: true
-          schema:
-            type: string
       requestBody:
         content:
           application/json:
@@ -853,6 +860,7 @@ paths:
       parameters:
         - in: path
           name: orgnr
+          required: true
           schema:
             type: string
           description: 9-sifret organisasjonsnummer
@@ -864,6 +872,51 @@ paths:
               schema:
                 $ref: "#/components/schemas/Virksomhet"
 
+  /api/v1/internal/virksomhet/{orgnr}/kontaktperson:
+    get:
+      tags:
+        - VirksomhetKontaktperson
+      operationId: hentVirksomhetKontaktpersoner
+      parameters:
+        - in: path
+          name: orgnr
+          required: true
+          schema:
+            type: string
+          description: 9-sifret organisasjonsnummer
+      responses:
+        200:
+          description: Kontaktpersoner lagret på virksomhet
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/VirksomhetKontaktperson"
+    put:
+      tags:
+        - VirksomhetKontaktperson
+      operationId: opprettVirksomhetKontaktperson
+      parameters:
+        - in: path
+          name: orgnr
+          required: true
+          schema:
+            type: string
+          description: 9-sifret organisasjonsnummer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VirksomhetKontaktpersonRequest"
+      responses:
+        200:
+          description: VirksomhetKontaktperson response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VirksomhetKontaktperson"
+
   /api/v1/internal/virksomhet/sok/{sok}:
     get:
       tags:
@@ -872,6 +925,7 @@ paths:
       parameters:
         - in: path
           name: sok
+          required: true
           schema:
             type: string
           description: Søkestreng for navn på virksomheter
@@ -939,6 +993,84 @@ paths:
         200:
           description: OK
 
+  /api/v1/internal/utkast:
+    get:
+      parameters:
+        - $ref: "#/components/parameters/Utkasttype"
+        - $ref: "#/components/parameters/AvtaleId"
+      tags:
+        - Utkast
+      operationId: getAlleUtkast
+      responses:
+        200:
+          description: Liste med utkast
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Utkast"
+
+    put:
+      tags:
+        - Utkast
+      operationId: lagreUtkast
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Utkast"
+      responses:
+        200:
+          description: Data om utkast
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Utkast"
+
+  /api/v1/internal/utkast/mine:
+    get:
+      parameters:
+        - $ref: "#/components/parameters/Utkasttype"
+        - $ref: "#/components/parameters/AvtaleId"
+      tags:
+        - Utkast
+      operationId: getMineUtkast
+      responses:
+        200:
+          description: Liste med utkast for innlogget bruker
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Utkast"
+
+  /api/v1/internal/utkast/{id}:
+    parameters:
+      - $ref: "#/components/parameters/ID"
+    get:
+      tags:
+        - Utkast
+      operationId: getUtkast
+      responses:
+        200:
+          description: Data om utkast
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Utkast"
+
+    delete:
+      tags:
+        - Utkast
+      operationId: deleteUtkast
+      responses:
+        200:
+          description: Om utkastet ble slettet eller ikke
+        500:
+          description: Hvis noe gikk galt ved sletting av utkast
+
 components:
   securitySchemes:
     bearerAuth:
@@ -965,6 +1097,23 @@ components:
       name: fnr
       in: query
       description: Fødselsnummer
+      required: true
+      schema:
+        type: string
+    Utkasttype:
+      in: query
+      name: utkasttype
+      description: Typen for utkastet
+      required: true
+      schema:
+        type: string
+        enum:
+          - Avtale
+          - Tiltaksgjennomforing
+    AvtaleId:
+      in: query
+      name: avtaleId
+      description: Avtalen utkastene gjelder for
       required: true
       schema:
         type: string
@@ -1073,6 +1222,8 @@ components:
           type: string
         leverandor:
           $ref: "#/components/schemas/Leverandor"
+        leverandorKontaktperson:
+          $ref: "#/components/schemas/VirksomhetKontaktperson"
         leverandorUnderenheter:
           type: array
           items:
@@ -1137,6 +1288,9 @@ components:
           type: string
         leverandorOrganisasjonsnummer:
           type: string
+        leverandorKontaktpersonId:
+          type: string
+          format: UUID
         leverandorUnderenheter:
           type: array
           items:
@@ -1266,10 +1420,12 @@ components:
           type: string
         tiltaksnummer:
           type: string
-        virksomhetsnummer:
+        arrangorOrganisasjonsnummer:
           type: string
-        virksomhetsnavn:
+        arrangorNavn:
           type: string
+        arrangorKontaktperson:
+          $ref: "#/components/schemas/VirksomhetKontaktperson"
         arenaAnsvarligEnhet:
           type: string
         status:
@@ -1313,12 +1469,14 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/TiltaksgjennomforingKontaktpersoner"
+        lokasjonArrangor:
+          type: string
       required:
         - id
         - tiltakstype
         - navn
         - tiltaksnummer
-        - virksomhetsnummer
+        - arrangorOrganisasjonsnummer
         - navEnheter
         - opphav
         - midlertidigStengt
@@ -1346,10 +1504,15 @@ components:
           format: date
         antallPlasser:
           type: number
-        virksomhetsnummer:
+        arrangorOrganisasjonsnummer:
           type: string
+        arrangorKontaktpersonId:
+          type: string
+          format: UUID
+          nullable: true
         tiltaksnummer:
           type: string
+          nullable: true
         ansvarlig:
           type: string
         navEnheter:
@@ -1361,9 +1524,11 @@ components:
         stengtFra:
           type: string
           format: date
+          nullable: true
         stengtTil:
           type: string
           format: date
+          nullable: true
         apenForInnsok:
           type: boolean
         kontaktpersoner:
@@ -1372,19 +1537,30 @@ components:
             $ref: "#/components/schemas/TiltaksgjennomforingKontaktpersonerRequest"
         estimertVentetid:
           type: string
+          nullable: true
+        lokasjonArrangor:
+          type: string
+          nullable: true
       required:
         - id
-        - avtaleId
         - tiltakstypeId
+        - avtaleId
         - navn
         - startDato
         - sluttDato
         - antallPlasser
-        - virksomhetsnummer
+        - arrangorOrganisasjonsnummer
+        - arrangorKontaktpersonId
+        - tiltaksnummer
         - ansvarlig
         - navEnheter
         - oppstart
+        - stengtFra
+        - stengtTil
+        - apenForInnsok
         - kontaktpersoner
+        - estimertVentetid
+        - lokasjonArrangor
 
     TiltaksgjennomforingAvslutningsstatus:
       type: string
@@ -1450,69 +1626,89 @@ components:
         - oppfolgingsenhet
         - geografiskEnhet
 
-    NavKontaktperson:
+    NavVeileder:
       type: object
       properties:
-        etternavn:
+        navIdent:
           type: string
-          nullable: true
         fornavn:
           type: string
-          nullable: true
-        navident:
+        etternavn:
+          type: string
+        hovedenhet:
+          $ref: "#/components/schemas/NavVeilederHovedenhet"
+      required:
+        - navIdent
+        - fornavn
+        - etternavn
+        - hovedenhet
+
+    NavVeilederHovedenhet:
+      type: object
+      properties:
+        enhetsnummer:
           type: string
         navn:
           type: string
-          nullable: true
-        hovedenhet:
+      required:
+        - enhetsnummer
+        - navn
+
+    NavAnsatt:
+      type: object
+      properties:
+        azureId:
           type: string
+          format: uuid
+        navIdent:
+          type: string
+        fornavn:
+          type: string
+        etternavn:
+          type: string
+        hovedenhet:
+          $ref: "#/components/schemas/NavAnsattHovedenhet"
         mobilnummer:
           type: string
           nullable: true
         epost:
           type: string
-      required:
-        - etternavn
-        - fornavn
-        - navident
-        - navn
-        - hovedenhet
-        - epost
-
-    Ansatt:
-      type: object
-      properties:
-        etternavn:
-          type: string
-          nullable: true
-        fornavn:
-          type: string
-          nullable: true
-        ident:
-          type: string
-          nullable: true
-        navn:
-          type: string
-          nullable: true
-        tilganger:
+        roller:
           type: array
           items:
-            type: string
-            enum:
-              - BETABRUKER
-              - UTVIKLER_VALP
-        hovedenhet:
+            $ref: "#/components/schemas/NavAnsattRolle"
+        skalSlettesDato:
           type: string
-        hovedenhetNavn:
+          format: date
+          nullable: true
+      required:
+        - azureId
+        - navIdent
+        - fornavn
+        - etternavn
+        - hovedenhet
+        - mobilnummer
+        - epost
+        - roller
+        - skalSlettesDato
+
+    NavAnsattRolle:
+      type: string
+      enum:
+        - TEAM_MULIGHETSROMMET
+        - BETABRUKER
+        - KONTAKTPERSON
+
+    NavAnsattHovedenhet:
+      type: object
+      properties:
+        enhetsnummer:
+          type: string
+        navn:
           type: string
       required:
-        - etternavn
-        - fornavn
-        - ident
+        - enhetsnummer
         - navn
-        - tilganger
-        - hovedenhet
-        - hovedenhetNavn
 
     Innsatsgruppe:
       type: string
@@ -1630,7 +1826,7 @@ components:
       type: object
       nullable: true
       properties:
-        virksomhetsnummer:
+        organisasjonsnummer:
           type: string
         navn:
           type: string
@@ -1687,6 +1883,45 @@ components:
           type: string
       required:
         - organisasjonsnummer
+
+    VirksomhetKontaktpersonRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        navn:
+          type: string
+        telefon:
+          type: string
+        epost:
+          type: string
+      required:
+        - id
+        - navn
+        - telefon
+        - epost
+
+    VirksomhetKontaktperson:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        organisasjonsnummer:
+          type: string
+        navn:
+          type: string
+        telefon:
+          type: string
+        epost:
+          type: string
+      required:
+        - id
+        - navn
+        - organisasjonsnummer
+        - telefon
+        - epost
 
     EmbeddedNavEnhet:
       type: object
@@ -1770,7 +2005,7 @@ components:
             - INDOPPFAG
             - GRUPPEAMO
             - VASV
-            -  ARBRRHDAG
+            - ARBRRHDAG
             - JOBBK
             - VATIAROR
             - VARLONTIL
@@ -1984,6 +2219,12 @@ components:
           items:
             $ref: "#/components/schemas/Virksomhet"
           nullable: true
+        postnummer:
+          type: string
+          nullable: true
+        poststed:
+          type: string
+          nullable: true
       required:
         - organisasjonsnummer
         - navn
@@ -2101,9 +2342,33 @@ components:
         - navIdent
         - navEnheter
 
-    NavAnsattRolle:
-      type: string
-      enum:
-        - TEAM_MULIGHETSROMMET
-        - BETABRUKER
-        - KONTAKTPERSON
+    Utkast:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        avtaleId:
+          type: string
+          format: uuid
+        opprettetAv:
+          type: string
+          nullable: true
+        utkastData:
+          type: object
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        type:
+          type: string
+          enum:
+            - Avtale
+            - Tiltaksgjennomforing
+      required:
+        - id
+        - avtaleId
+        - utkastData
+        - type

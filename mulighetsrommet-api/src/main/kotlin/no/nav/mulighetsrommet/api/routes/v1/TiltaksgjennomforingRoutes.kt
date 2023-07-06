@@ -10,14 +10,17 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingDbo
+import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingKontaktpersonDbo
 import no.nav.mulighetsrommet.api.routes.v1.responses.*
 import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
+import no.nav.mulighetsrommet.api.services.UtkastService
 import no.nav.mulighetsrommet.api.utils.getAdminTiltaksgjennomforingsFilter
 import no.nav.mulighetsrommet.api.utils.getPaginationParams
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
-import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
-import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingKontaktpersonDbo
+import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
+import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingTilgjengelighetsstatus
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
@@ -26,6 +29,7 @@ import java.util.*
 
 fun Route.tiltaksgjennomforingRoutes() {
     val tiltaksgjennomforingService: TiltaksgjennomforingService by inject()
+    val utkastService: UtkastService by inject()
 
     route("/api/v1/internal/tiltaksgjennomforinger") {
         put {
@@ -34,6 +38,7 @@ fun Route.tiltaksgjennomforingRoutes() {
             val result = request.toDbo()
                 .flatMap {
                     tiltaksgjennomforingService.upsert(it)
+                        .onRight { utkastService.deleteUtkast(it.id) }
                         .mapLeft { ServerError("Klarte ikke lagre tiltaksgjennomføring.") }
                 }
 
@@ -92,20 +97,22 @@ data class TiltaksgjennomforingRequest(
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate,
-    val enhet: String? = null,
     val antallPlasser: Int,
-    val virksomhetsnummer: String,
-    val tiltaksnummer: String? = null,
+    val arrangorOrganisasjonsnummer: String,
+    @Serializable(with = UUIDSerializer::class)
+    val arrangorKontaktpersonId: UUID?,
+    val tiltaksnummer: String?,
     val ansvarlig: String,
     val navEnheter: List<String>,
-    val oppstart: TiltaksgjennomforingDbo.Oppstartstype,
+    val oppstart: TiltaksgjennomforingOppstartstype,
     @Serializable(with = LocalDateSerializer::class)
-    val stengtFra: LocalDate? = null,
+    val stengtFra: LocalDate?,
     @Serializable(with = LocalDateSerializer::class)
-    val stengtTil: LocalDate? = null,
-    val apenForInnsok: Boolean = true,
-    val kontaktpersoner: List<NavKontaktpersonForGjennomforing> = emptyList(),
-    val estimertVentetid: String? = null,
+    val stengtTil: LocalDate?,
+    val apenForInnsok: Boolean,
+    val kontaktpersoner: List<NavKontaktpersonForGjennomforing>,
+    val estimertVentetid: String?,
+    val lokasjonArrangor: String?,
 ) {
     fun toDbo(): StatusResponse<TiltaksgjennomforingDbo> {
         if (!startDato.isBefore(sluttDato)) {
@@ -120,6 +127,9 @@ data class TiltaksgjennomforingRequest(
         if (antallPlasser <= 0) {
             return Either.Left(BadRequest("Antall plasser må være større enn 0"))
         }
+        if (lokasjonArrangor.isNullOrEmpty()) {
+            return Either.Left(BadRequest("Lokasjon for gjennomføring må være satt"))
+        }
 
         return Either.Right(
             TiltaksgjennomforingDbo(
@@ -129,13 +139,18 @@ data class TiltaksgjennomforingRequest(
                 avtaleId = avtaleId,
                 startDato = startDato,
                 sluttDato = sluttDato,
-                arenaAnsvarligEnhet = enhet,
+                arenaAnsvarligEnhet = null,
                 avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
                 antallPlasser = antallPlasser,
-                tilgjengelighet = if (apenForInnsok) TiltaksgjennomforingDbo.Tilgjengelighetsstatus.LEDIG else { TiltaksgjennomforingDbo.Tilgjengelighetsstatus.STENGT },
+                tilgjengelighet = if (apenForInnsok) {
+                    TiltaksgjennomforingTilgjengelighetsstatus.LEDIG
+                } else {
+                    TiltaksgjennomforingTilgjengelighetsstatus.STENGT
+                },
                 estimertVentetid = estimertVentetid,
                 tiltaksnummer = tiltaksnummer,
-                virksomhetsnummer = virksomhetsnummer,
+                arrangorOrganisasjonsnummer = arrangorOrganisasjonsnummer,
+                arrangorKontaktpersonId = arrangorKontaktpersonId,
                 ansvarlige = listOf(ansvarlig),
                 navEnheter = navEnheter,
                 oppstart = oppstart,
@@ -148,6 +163,7 @@ data class TiltaksgjennomforingRequest(
                         navEnheter = it.navEnheter,
                     )
                 },
+                lokasjonArrangor = lokasjonArrangor,
             ),
         )
     }

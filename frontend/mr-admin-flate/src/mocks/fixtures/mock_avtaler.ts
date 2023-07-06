@@ -16,10 +16,11 @@ export const mockAvtaler: PaginertAvtale = {
       id: "d1f163b7-1a41-4547-af16-03fd4492b7ba",
       tiltakstype: {
         id: "186df85f-c773-4f34-8904-1983787a3c51",
-        navn: "Varig tilrettelagt arbeid i skjermet virksomhet",
-        arenaKode: "VASV",
+        navn: "Avklaring",
+        arenaKode: "AVKLARAG",
       },
       navn: "Testtiltak Varig",
+      ansvarlig: "M165757",
       opphav: Opphav.MR_ADMIN_FLATE,
       avtalenummer: "2021#10579",
       leverandor: {
@@ -31,20 +32,39 @@ export const mockAvtaler: PaginertAvtale = {
         { organisasjonsnummer: "456798322", navn: "Underenhet 2" },
         { organisasjonsnummer: "456798323", navn: "Underenhet 3" },
       ],
+      leverandorKontaktperson: {
+        navn: "Ole Kjetil Martinsen",
+        id: "1234",
+        epost: "ole.kjetil.martinsen@arrangor.no",
+        telefon: "90123456",
+        organisasjonsnummer: "123456789",
+      },
       startDato: "2021-08-02",
       sluttDato: "2026-08-01",
-      navEnheter: [],
+      navEnheter: [
+        { enhetsnummer: "0418", navn: "NAV Nord-Odal" },
+        { enhetsnummer: "0403", navn: "NAV Hamar" },
+      ],
       navRegion: {
         enhetsnummer: "0400",
         navn: "NAV Innlandet",
       },
       avtaletype: Avtaletype.FORHAANDSGODKJENT,
       avtalestatus: Avtalestatus.AKTIV,
-      prisbetingelser: "Maskert prisbetingelser",
+      prisbetingelser: `Nye priser fra 21.03.23, gamle priser i parentes
+
+        10 deltakere:
+        Teori en uke: 31 239,- (30 329,-)                     Praksis en uke: 26 018,- (25 260,-)                      Kombinasjon en uke: 28 396,- (27 569,-)
+
+        15 deltakere:
+        Teori en uke: 40 549,- (39 368,-)                    Praksis en uke: 36 855,- (35 782,-)                      Kombinasjon en uke: 33 780,- (32 796,-)
+
+        20 deltakere:
+        Teori en uke: 56 771,- (55 117,-)                     Praksis en uke: 45 695,- (44 364,-)                       Kombinasjon en uke: 47 344,- (45 965,-)`,
       url: "https://www.mercell.no",
     },
     {
-      id: "d1f163b7-1a41-4547-af16-03fd4492b7ba",
+      id: "d1f163b7-1a41-4547-af16-03fd4492b7bc",
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "Oppfølging",
@@ -72,7 +92,7 @@ export const mockAvtaler: PaginertAvtale = {
       avtaletype: Avtaletype.RAMMEAVTALE,
       avtalestatus: Avtalestatus.AKTIV,
       prisbetingelser: "Maskert prisbetingelser",
-      url: "https://www.mercell.no",
+      url: null,
     },
     {
       id: "6374b285-989d-4f78-a59e-29481b64ba92",

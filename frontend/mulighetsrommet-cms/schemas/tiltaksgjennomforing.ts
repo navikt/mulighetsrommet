@@ -146,39 +146,11 @@ export const tiltaksgjennomforing = defineType({
       },
     }),
     defineField({
-      name: "oppstart",
-      title: "Oppstart",
-      type: "string",
-      options: {
-        list: [
-          { title: "Dato", value: "dato" },
-          { title: "Løpende oppstart", value: "lopende" },
-        ],
-      },
-      validation: (rule) => rule.required(),
-    }),
-    defineField({
-      name: "oppstartsdato",
-      title: "Dato for oppstart",
-      description: "Dato for når gjennomføringen starter",
-      type: "date",
-      options: { dateFormat: "DD/MM/YYYY" },
-      hidden: ({ parent }) => parent?.oppstart !== "dato",
-    }),
-    defineField({
-      name: "sluttdato",
-      title: "Data for avslutning",
-      description: "Dato for når gjennomføringen slutter",
-      type: "date",
-      options: { dateFormat: "DD/MM/YYYY" },
-    }),
-    defineField({
       name: "lokasjon",
       title: "Lokasjon",
       description:
         "Sted for gjennomføring, f.eks. Fredrikstad eller Tromsø. Veileder kan filtrere på verdiene i dette feltet, så ikke skriv fulle adresser.",
       type: "string",
-      validation: (rule) => rule.required(),
     }),
     defineField({
       name: "fylke",

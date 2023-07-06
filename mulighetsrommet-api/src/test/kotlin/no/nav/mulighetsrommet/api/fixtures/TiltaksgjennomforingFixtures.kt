@@ -1,10 +1,10 @@
 package no.nav.mulighetsrommet.api.fixtures
 
+import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
-import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
-import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo.Oppstartstype
-import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo.Tilgjengelighetsstatus
+import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
+import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingTilgjengelighetsstatus
 import java.time.LocalDate
 import java.util.*
 
@@ -14,18 +14,23 @@ object TiltaksgjennomforingFixtures {
         navn = "Oppfølging 1",
         tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
         tiltaksnummer = "2023#1",
-        virksomhetsnummer = "976663934",
+        arrangorOrganisasjonsnummer = "976663934",
         startDato = LocalDate.of(2023, 1, 1),
         sluttDato = LocalDate.of(2023, 2, 1),
         arenaAnsvarligEnhet = "2990",
         avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
-        tilgjengelighet = Tilgjengelighetsstatus.LEDIG,
+        tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.LEDIG,
         antallPlasser = null,
         ansvarlige = emptyList(),
         navEnheter = emptyList(),
-        oppstart = Oppstartstype.FELLES,
+        oppstart = TiltaksgjennomforingOppstartstype.FELLES,
         opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
         kontaktpersoner = emptyList(),
+        arrangorKontaktpersonId = null,
+        stengtFra = null,
+        stengtTil = null,
+        lokasjonArrangor = null,
+        estimertVentetid = null,
     )
 
     val Oppfolging2 = TiltaksgjennomforingDbo(
@@ -33,18 +38,23 @@ object TiltaksgjennomforingFixtures {
         navn = "Oppfølging 2",
         tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
         tiltaksnummer = "2023#2",
-        virksomhetsnummer = "111111111",
+        arrangorOrganisasjonsnummer = "111111111",
         startDato = LocalDate.of(2023, 1, 1),
         sluttDato = LocalDate.of(2023, 2, 1),
         arenaAnsvarligEnhet = "2990",
         avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
-        tilgjengelighet = Tilgjengelighetsstatus.LEDIG,
+        tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.LEDIG,
         antallPlasser = null,
         ansvarlige = emptyList(),
         navEnheter = emptyList(),
-        oppstart = Oppstartstype.FELLES,
+        oppstart = TiltaksgjennomforingOppstartstype.FELLES,
         opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
         kontaktpersoner = emptyList(),
+        arrangorKontaktpersonId = null,
+        stengtFra = null,
+        stengtTil = null,
+        lokasjonArrangor = null,
+        estimertVentetid = null,
     )
 
     val Arbeidstrening1 = TiltaksgjennomforingDbo(
@@ -52,17 +62,22 @@ object TiltaksgjennomforingFixtures {
         navn = "Arbeidstrening 1",
         tiltakstypeId = TiltakstypeFixtures.Arbeidstrening.id,
         tiltaksnummer = "2023#3",
-        virksomhetsnummer = "222222222",
+        arrangorOrganisasjonsnummer = "222222222",
         startDato = LocalDate.of(2023, 1, 1),
         sluttDato = LocalDate.of(2023, 2, 1),
         arenaAnsvarligEnhet = "2990",
         avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
-        tilgjengelighet = Tilgjengelighetsstatus.LEDIG,
+        tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.LEDIG,
         antallPlasser = null,
         ansvarlige = emptyList(),
         navEnheter = emptyList(),
-        oppstart = Oppstartstype.FELLES,
+        oppstart = TiltaksgjennomforingOppstartstype.FELLES,
         opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
         kontaktpersoner = emptyList(),
+        arrangorKontaktpersonId = null,
+        stengtFra = null,
+        stengtTil = null,
+        lokasjonArrangor = null,
+        estimertVentetid = null,
     )
 }

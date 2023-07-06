@@ -8,6 +8,7 @@ import no.nav.mulighetsrommet.api.utils.*
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
+import no.nav.mulighetsrommet.domain.dto.VirksomhetKontaktperson
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 import java.util.*
@@ -108,7 +109,7 @@ class VirksomhetRepository(private val db: Database) {
                 "inner join avtale on avtale.leverandor_organisasjonsnummer = v.organisasjonsnummer"
             }
             VirksomhetTil.TILTAKSGJENNOMFORING -> {
-                "inner join tiltaksgjennomforing t on t.virksomhetsnummer = v.organisasjonsnummer"
+                "inner join tiltaksgjennomforing t on t.arrangor_organisasjonsnummer = v.organisasjonsnummer"
             }
             else -> ""
         }
@@ -201,6 +202,44 @@ class VirksomhetRepository(private val db: Database) {
         }
     }
 
+    fun upsertKontaktperson(virksomhetKontaktperson: VirksomhetKontaktperson): VirksomhetKontaktperson {
+        @Language("PostgreSQL")
+        val upsertVirksomhetKontaktperson = """
+            insert into virksomhet_kontaktperson(id, organisasjonsnummer, navn, telefon, epost)
+            values (:id::uuid, :organisasjonsnummer, :navn, :telefon, :epost)
+            on conflict (id) do update set
+                navn                = excluded.navn,
+                organisasjonsnummer = excluded.organisasjonsnummer,
+                telefon             = excluded.telefon,
+                epost               = excluded.epost
+            returning *
+        """.trimIndent()
+
+        return queryOf(upsertVirksomhetKontaktperson, virksomhetKontaktperson.toSqlParameters())
+            .map { it.toVirksomhetKontaktperson() }
+            .asSingle
+            .let { db.run(it)!! }
+    }
+
+    fun getKontaktpersoner(orgnr: String): List<VirksomhetKontaktperson> {
+        @Language("PostgreSQL")
+        val query = """
+            select
+                vk.id,
+                vk.organisasjonsnummer,
+                vk.navn,
+                vk.telefon,
+                vk.epost
+            from virksomhet_kontaktperson vk
+            where vk.organisasjonsnummer = ?
+        """.trimIndent()
+
+        return queryOf(query, orgnr)
+            .map { it.toVirksomhetKontaktperson() }
+            .asList
+            .let { db.run(it) }
+    }
+
     private fun Row.toVirksomhetDto() = VirksomhetDto(
         organisasjonsnummer = string("organisasjonsnummer"),
         navn = string("navn"),
@@ -210,12 +249,28 @@ class VirksomhetRepository(private val db: Database) {
         poststed = stringOrNull("poststed"),
     )
 
+    private fun Row.toVirksomhetKontaktperson() = VirksomhetKontaktperson(
+        id = uuid("id"),
+        organisasjonsnummer = string("organisasjonsnummer"),
+        navn = string("navn"),
+        telefon = string("telefon"),
+        epost = string("epost"),
+    )
+
     private fun VirksomhetDto.toSqlParameters() = mapOf(
         "organisasjonsnummer" to organisasjonsnummer,
         "navn" to navn,
         "overordnet_enhet" to overordnetEnhet,
         "postnummer" to postnummer,
         "poststed" to poststed,
+    )
+
+    private fun VirksomhetKontaktperson.toSqlParameters() = mapOf(
+        "id" to id,
+        "organisasjonsnummer" to organisasjonsnummer,
+        "navn" to navn,
+        "telefon" to telefon,
+        "epost" to epost,
     )
 
     private fun OverordnetEnhetDbo.toSqlParameters() = mapOf(

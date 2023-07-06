@@ -5,6 +5,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
+import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.domain.dto.TiltakshistorikkDto
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakshistorikkRepository
@@ -37,16 +38,23 @@ class TiltakshistorikkServiceTest : FunSpec({
         navn = "Arbeidstrening",
         tiltakstypeId = tiltakstype.id,
         tiltaksnummer = "12345",
-        virksomhetsnummer = "123456789",
+        arrangorOrganisasjonsnummer = "123456789",
         arenaAnsvarligEnhet = "2990",
         avslutningsstatus = Avslutningsstatus.AVSLUTTET,
         startDato = LocalDate.of(2022, 1, 1),
-        tilgjengelighet = TiltaksgjennomforingDbo.Tilgjengelighetsstatus.LEDIG,
+        tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.LEDIG,
         antallPlasser = null,
         ansvarlige = emptyList(),
         navEnheter = emptyList(),
-        oppstart = TiltaksgjennomforingDbo.Oppstartstype.FELLES,
+        oppstart = TiltaksgjennomforingOppstartstype.FELLES,
         opphav = ArenaMigrering.Opphav.ARENA,
+        sluttDato = null,
+        kontaktpersoner = emptyList(),
+        arrangorKontaktpersonId = null,
+        stengtFra = null,
+        stengtTil = null,
+        lokasjonArrangor = null,
+        estimertVentetid = null,
     )
 
     val tiltakshistorikkGruppe = TiltakshistorikkDbo.Gruppetiltak(
@@ -77,7 +85,7 @@ class TiltakshistorikkServiceTest : FunSpec({
         tilDato = LocalDateTime.of(2019, 12, 3, 0, 0),
         beskrivelse = "Utdanning",
         tiltakstypeId = tiltakstypeIndividuell.id,
-        virksomhetsnummer = "12343",
+        arrangorOrganisasjonsnummer = "12343",
     )
 
     beforeSpec {
@@ -109,7 +117,7 @@ class TiltakshistorikkServiceTest : FunSpec({
                 status = Deltakerstatus.VENTER,
                 tiltaksnavn = "Arbeidstrening",
                 tiltakstype = "Arbeidstrening",
-                arrangor = TiltakshistorikkDto.Arrangor(virksomhetsnummer = "123456789", navn = bedriftsnavn),
+                arrangor = TiltakshistorikkDto.Arrangor(organisasjonsnummer = "123456789", navn = bedriftsnavn),
             ),
             TiltakshistorikkDto(
                 id = tiltakshistorikkIndividuell.id,
@@ -118,7 +126,7 @@ class TiltakshistorikkServiceTest : FunSpec({
                 status = Deltakerstatus.VENTER,
                 tiltaksnavn = "Utdanning",
                 tiltakstype = "Høyere utdanning",
-                arrangor = TiltakshistorikkDto.Arrangor(virksomhetsnummer = "12343", navn = bedriftsnavn2),
+                arrangor = TiltakshistorikkDto.Arrangor(organisasjonsnummer = "12343", navn = bedriftsnavn2),
             ),
         )
 

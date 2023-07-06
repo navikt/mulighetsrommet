@@ -15,17 +15,18 @@ import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.domain.dbo.OverordnetEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
+import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.utils.AdminTiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.api.utils.AvtaleFilter
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.utils.getOrThrow
+import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
+import no.nav.mulighetsrommet.domain.dbo.ArenaAvtaleDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
-import no.nav.mulighetsrommet.domain.dto.AvtaleAdminDto
-import no.nav.mulighetsrommet.domain.dto.Avtalestatus
-import no.nav.mulighetsrommet.domain.dto.NavEnhet
+import no.nav.mulighetsrommet.domain.dto.*
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -39,35 +40,34 @@ class AvtaleRepositoryTest : FunSpec({
     }
 
     context("Avtaleansvarlig") {
-        test("Ansvarlig blir satt i egen tabell") {
-            val ident = "N12343"
-            val avtale1 = avtaleFixture.createAvtaleForTiltakstype(
-                ansvarlige = listOf(ident),
-            )
-            avtaleFixture.upsertAvtaler(listOf(avtale1))
-            avtaleFixture.upsertAvtaler(listOf(avtale1))
-            database.assertThat("avtale_ansvarlig").row()
-                .value("avtale_id").isEqualTo(avtale1.id)
-                .value("navident").isEqualTo(ident)
-        }
+        test("Ansvarlig tabell blir oppdatert til å reflektere liste med ansvarlige i dbo") {
+            val domain = MulighetsrommetTestDomain()
+            domain.initialize(database.db)
 
-        test("Ansvarlig tabell blir oppdatert til å reflektere listen i dbo") {
-            val ident = "N12343"
+            val ansatt1 = domain.ansatt1
+            val ansatt2 = domain.ansatt2
             val avtale1 = avtaleFixture.createAvtaleForTiltakstype(
-                ansvarlige = listOf(ident),
+                ansvarlige = listOf(ansatt1.navIdent),
             )
-            avtaleFixture.upsertAvtaler(listOf(avtale1))
 
-            avtaleFixture.upsertAvtaler(listOf(avtale1.copy(ansvarlige = listOf("M12343", "L12343"))))
+            avtaleFixture.upsertAvtaler(listOf(avtale1))
 
             database.assertThat("avtale_ansvarlig").row()
                 .value("avtale_id").isEqualTo(avtale1.id)
-                .value("navident").isEqualTo("L12343")
+                .value("navident").isEqualTo(ansatt1.navIdent)
+
+            avtaleFixture.upsertAvtaler(
+                listOf(avtale1.copy(ansvarlige = listOf(ansatt1.navIdent, ansatt2.navIdent))),
+            )
+
+            database.assertThat("avtale_ansvarlig")
+                .hasNumberOfRows(2)
                 .row()
                 .value("avtale_id").isEqualTo(avtale1.id)
-                .value("navident").isEqualTo("M12343")
-
-            database.assertThat("avtale_ansvarlig").hasNumberOfRows(2)
+                .value("navident").isEqualTo(ansatt1.navIdent)
+                .row()
+                .value("avtale_id").isEqualTo(avtale1.id)
+                .value("navident").isEqualTo(ansatt2.navIdent)
         }
     }
 
@@ -784,27 +784,22 @@ class AvtaleRepositoryTest : FunSpec({
                 val avtale6Mnd = avtaleFixture.createAvtaleForTiltakstype(
                     startDato = LocalDate.of(2021, 1, 1),
                     sluttDato = LocalDate.of(2023, 11, 30),
-                    ansvarlige = listOf("OLE"),
                 )
                 val avtale3Mnd = avtaleFixture.createAvtaleForTiltakstype(
                     startDato = LocalDate.of(2021, 1, 1),
                     sluttDato = LocalDate.of(2023, 8, 31),
-                    ansvarlige = listOf("OLE"),
                 )
                 val avtale14Dag = avtaleFixture.createAvtaleForTiltakstype(
                     startDato = LocalDate.of(2021, 1, 1),
                     sluttDato = LocalDate.of(2023, 6, 14),
-                    ansvarlige = listOf("OLE"),
                 )
                 val avtale7Dag = avtaleFixture.createAvtaleForTiltakstype(
                     startDato = LocalDate.of(2021, 1, 1),
                     sluttDato = LocalDate.of(2023, 6, 7),
-                    ansvarlige = listOf("OLE"),
                 )
                 val avtaleSomIkkeSkalMatche = avtaleFixture.createAvtaleForTiltakstype(
                     startDato = LocalDate.of(2022, 6, 7),
                     sluttDato = LocalDate.of(2024, 1, 1),
-                    ansvarlige = listOf("OLE"),
                 )
 
                 tiltakstypeRepository.upsert(tiltakstype).getOrThrow()
@@ -819,11 +814,117 @@ class AvtaleRepositoryTest : FunSpec({
                     ),
                 )
 
-                val result =
-                    avtaleRepository.getAllAvtalerSomNarmerSegSluttdato(currentDate = LocalDate.of(2023, 5, 31))
+                val result = avtaleRepository.getAllAvtalerSomNarmerSegSluttdato(
+                    currentDate = LocalDate.of(2023, 5, 31),
+                )
                 result.size shouldBe 4
-                result[0].ansvarlige[0] shouldBe "OLE"
             }
         }
+    }
+
+    context("leverandør kontaktperson") {
+        test("Leverandør kontaktperson crud") {
+            val virksomhetRepository = VirksomhetRepository(database.db)
+            virksomhetRepository.upsert(
+                VirksomhetDto(
+                    organisasjonsnummer = "999888777",
+                    navn = "Rema 1000",
+                ),
+            )
+            val leverandorKontaktperson = VirksomhetKontaktperson(
+                id = UUID.randomUUID(),
+                organisasjonsnummer = "999888777",
+                navn = "Navn Navnesen",
+                telefon = "22232322",
+                epost = "navn@gmail.com",
+            )
+            virksomhetRepository.upsertKontaktperson(leverandorKontaktperson)
+
+            val avtaleRepository = AvtaleRepository(database.db)
+            var avtale = avtaleFixture.createAvtaleForTiltakstype(
+                leverandorKontaktpersonId = leverandorKontaktperson.id,
+            )
+            avtaleRepository.upsert(avtale).shouldBeRight()
+            avtaleRepository.get(avtale.id).shouldBeRight().should {
+                it!!.leverandorKontaktperson shouldBe leverandorKontaktperson
+            }
+
+            // Endre kontaktperson
+            val nyPerson = leverandorKontaktperson.copy(
+                navn = "Fredrik Navnesen",
+                telefon = "32322",
+            )
+            virksomhetRepository.upsertKontaktperson(nyPerson)
+
+            avtale = avtale.copy(
+                leverandorKontaktpersonId = nyPerson.id,
+            )
+            avtaleRepository.upsert(avtale).shouldBeRight()
+            avtaleRepository.get(avtale.id).shouldBeRight().should {
+                it!!.leverandorKontaktperson shouldBe nyPerson
+            }
+
+            // Fjern kontaktperson
+            avtale = avtale.copy(
+                leverandorKontaktpersonId = null,
+            )
+            avtaleRepository.upsert(avtale).shouldBeRight()
+            avtaleRepository.get(avtale.id).shouldBeRight().should {
+                it!!.leverandorKontaktperson shouldBe null
+            }
+        }
+    }
+
+    context("Upsert av Arena-avtaler") {
+        val tiltakstypeRepository = TiltakstypeRepository(database.db)
+        val avtaleRepository = AvtaleRepository(database.db)
+
+        val tiltakstype = TiltakstypeFixtures.Oppfolging.copy(id = avtaleFixture.tiltakstypeId)
+        tiltakstypeRepository.upsert(tiltakstype).shouldBeRight()
+
+        val avtaleId = UUID.randomUUID()
+        val avtale = ArenaAvtaleDbo(
+            id = avtaleId,
+            navn = "Avtale til test",
+            tiltakstypeId = tiltakstype.id,
+            avtalenummer = "2023#123",
+            leverandorOrganisasjonsnummer = "123456789",
+            startDato = LocalDate.of(2023, 1, 1),
+            sluttDato = LocalDate.of(2023, 2, 2),
+            arenaAnsvarligEnhet = "0400",
+            avtaletype = Avtaletype.Avtale,
+            avslutningsstatus = Avslutningsstatus.AVSLUTTET,
+            opphav = ArenaMigrering.Opphav.ARENA,
+            prisbetingelser = "Alt er dyrt",
+        )
+
+        val avtaleDto = AvtaleAdminDto(
+            id = avtaleId,
+            tiltakstype = AvtaleAdminDto.Tiltakstype(
+                id = tiltakstype.id,
+                navn = tiltakstype.navn,
+                arenaKode = tiltakstype.tiltakskode,
+            ),
+            navn = "Avtale til test",
+            avtalenummer = "2023#123",
+            leverandor = AvtaleAdminDto.Leverandor(organisasjonsnummer = "123456789", navn = null),
+            leverandorUnderenheter = emptyList(),
+            leverandorKontaktperson = null,
+            startDato = LocalDate.of(2023, 1, 1),
+            sluttDato = LocalDate.of(2023, 2, 2),
+            navRegion = null,
+            avtaletype = Avtaletype.Avtale,
+            avtalestatus = Avtalestatus.Avsluttet,
+            prisbetingelser = "Alt er dyrt",
+            ansvarlig = null,
+            url = null,
+            antallPlasser = null,
+            navEnheter = emptyList(),
+            opphav = ArenaMigrering.Opphav.ARENA,
+
+        )
+
+        avtaleRepository.upsertArenaAvtale(avtale).shouldBeRight()
+        avtaleRepository.get(avtale.id).shouldBeRight(avtaleDto)
     }
 })

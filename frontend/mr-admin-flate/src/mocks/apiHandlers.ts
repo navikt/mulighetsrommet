@@ -1,11 +1,10 @@
 import { rest } from "msw";
 import {
-  Ansatt,
   Avtale,
   AvtaleNokkeltall,
   AvtaleRequest,
+  NavAnsatt,
   NavEnhet,
-  NavKontaktperson,
   PaginertAvtale,
   PaginertTiltaksgjennomforing,
   PaginertTiltakstype,
@@ -16,9 +15,9 @@ import {
   Tiltakstype,
   TiltakstypeNokkeltall,
   UserNotificationSummary,
+  Utkast,
   Virksomhet,
 } from "mulighetsrommet-api-client";
-import { mockVirksomheter } from "./fixtures/mock_virksomheter";
 import { mockBetabruker, mockKontaktpersoner } from "./fixtures/mock_ansatt";
 import { mockAvtaleNokkeltall } from "./fixtures/mock_avtale_nokkeltall";
 import { mockAvtaler } from "./fixtures/mock_avtaler";
@@ -29,6 +28,8 @@ import { mockTiltaksgjennomforingerNokkeltall } from "./fixtures/mock_tiltaksgje
 import { mockTiltakstyper } from "./fixtures/mock_tiltakstyper";
 import { mockTiltakstyperNokkeltall } from "./fixtures/mock_tiltakstyper_nokkeltall";
 import { mockUserNotificationSummary } from "./fixtures/mock_userNotificationSummary";
+import { mockUtkast } from "./fixtures/mock_utkast";
+import { mockVirksomheter } from "./fixtures/mock_virksomheter";
 
 export const apiHandlers = [
   rest.get<any, any, PaginertTiltakstype>(
@@ -266,16 +267,27 @@ export const apiHandlers = [
     }
   ),
 
-  rest.get<any, any, NavKontaktperson[]>(
-    "*/api/v1/internal/ansatt/kontaktpersoner",
+  rest.get<any, any, NavAnsatt[]>(
+    "*/api/v1/internal/ansatt",
     (req, res, ctx) => {
-      return res(ctx.status(200), ctx.json(mockKontaktpersoner));
+      const roller = req.url.searchParams.getAll("roller");
+      return res(
+        ctx.status(200),
+        ctx.json(
+          mockKontaktpersoner.filter((k) =>
+            k.roller.every((r) => roller.includes(r))
+          )
+        )
+      );
     }
   ),
 
-  rest.get<any, any, Ansatt>("*/api/v1/internal/ansatt/me", (req, res, ctx) => {
-    return res(ctx.status(200), ctx.json(mockBetabruker));
-  }),
+  rest.get<any, any, NavAnsatt>(
+    "*/api/v1/internal/ansatt/me",
+    (req, res, ctx) => {
+      return res(ctx.status(200), ctx.json(mockBetabruker));
+    }
+  ),
 
   rest.put<AvtaleRequest>("*/api/v1/internal/avtaler", (req, res, ctx) => {
     return res(
@@ -332,6 +344,61 @@ export const apiHandlers = [
     "*/api/v1/internal/virksomhet",
     (req, res, ctx) => {
       return res(ctx.status(200), ctx.json(mockVirksomheter));
+    }
+  ),
+
+  rest.put<Utkast, any, any>(
+    "*/api/v1/internal/utkast",
+    async (req, res, ctx) => {
+      const data = await req.json<Utkast>();
+
+      const lagretUtkastIndex = mockUtkast.findIndex((ut) => ut.id === data.id);
+
+      let payload: Utkast = {
+        ...data,
+        createdAt: new Date().toDateString(),
+        updatedAt: new Date().toDateString(),
+      };
+
+      if (lagretUtkastIndex > -1) {
+        const lagretUtkast = mockUtkast[lagretUtkastIndex];
+        payload = {
+          ...payload,
+          ...lagretUtkast,
+          utkastData: { ...data.utkastData },
+        };
+        mockUtkast[lagretUtkastIndex] = payload;
+        console.log("Upserted", mockUtkast);
+      } else {
+        mockUtkast.push(data);
+        console.log("Pushed", data);
+      }
+
+      return res(
+        ctx.status(200),
+        ctx.delay(),
+        ctx.json<Utkast>({ ...payload })
+      );
+    }
+  ),
+  rest.get<Utkast, any, any>(
+    "*/api/v1/internal/utkast/:id",
+    async (req, res, ctx) => {
+      return res(ctx.status(200), ctx.delay(), ctx.json(mockUtkast));
+    }
+  ),
+  rest.delete<Utkast, any, any>(
+    "*/api/v1/internal/utkast/:id",
+    async (req, res, ctx) => {
+      const { id } = req.params;
+      const updated = mockUtkast.filter((ut) => ut.id !== id);
+      return res(ctx.status(200), ctx.delay(), ctx.json(updated));
+    }
+  ),
+  rest.get<Utkast, any, any>(
+    "*/api/v1/internal/utkast/mine",
+    async (req, res, ctx) => {
+      return res(ctx.status(200), ctx.delay(), ctx.json(mockUtkast));
     }
   ),
 ];

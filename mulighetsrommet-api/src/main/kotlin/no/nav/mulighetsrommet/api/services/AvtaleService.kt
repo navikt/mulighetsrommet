@@ -4,6 +4,7 @@ import arrow.core.Either
 import arrow.core.flatMap
 import arrow.core.getOrElse
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleNokkeltallDto
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
@@ -13,7 +14,6 @@ import no.nav.mulighetsrommet.api.utils.AvtaleFilter
 import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
-import no.nav.mulighetsrommet.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.domain.dto.AvtaleAdminDto
 import no.nav.mulighetsrommet.domain.dto.AvtaleNotificationDto
 import java.time.LocalDate

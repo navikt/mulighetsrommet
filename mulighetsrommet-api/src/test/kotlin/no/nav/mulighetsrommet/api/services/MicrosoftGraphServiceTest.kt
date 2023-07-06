@@ -2,12 +2,12 @@ package no.nav.mulighetsrommet.api.services
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
+import no.nav.mulighetsrommet.api.clients.msgraph.AzureAdNavAnsatt
 import no.nav.mulighetsrommet.api.clients.msgraph.MicrosoftGraphClient
-import no.nav.mulighetsrommet.api.domain.dto.NavAnsattDto
-import org.assertj.core.api.Assertions.assertThat
 import java.util.*
 
 class MicrosoftGraphServiceTest : FunSpec({
@@ -15,51 +15,43 @@ class MicrosoftGraphServiceTest : FunSpec({
 
     context("Hent ansattdata for nav-ansatt") {
         test("Når man kaller hentAnsattData for en nav ansatts azureId får man svar og repeterende forespørsler kommer fra cache") {
-            val mockResponse = NavAnsattDto(
+            val mockResponse = AzureAdNavAnsatt(
                 azureId = UUID.randomUUID(),
                 hovedenhetKode = "2990",
                 hovedenhetNavn = "IT-Avdelingen",
                 fornavn = "Bertil",
                 etternavn = "Betabruker",
-                navident = "B123456",
-                mobilnr = "12345678",
+                navIdent = "B123456",
+                mobilnummer = "12345678",
                 epost = "test@test.no",
             )
-            val mockAccessToken = "123"
 
             val client: MicrosoftGraphClient = mockk()
             coEvery {
-                client.getNavAnsatt(mockAccessToken, navAnsattAzureId)
+                client.getNavAnsatt(navAnsattAzureId)
             } returns mockResponse
 
             val service = MicrosoftGraphService(client)
-            val result = service.getNavAnsatt(mockAccessToken, navAnsattAzureId)
+            val result = service.getNavAnsatt(navAnsattAzureId)
 
-            service.getNavAnsatt(mockAccessToken, navAnsattAzureId)
-            service.getNavAnsatt(mockAccessToken, navAnsattAzureId)
-            service.getNavAnsatt(mockAccessToken, navAnsattAzureId)
+            service.getNavAnsatt(navAnsattAzureId)
+            service.getNavAnsatt(navAnsattAzureId)
+            service.getNavAnsatt(navAnsattAzureId)
 
-            assertThat(result.hovedenhetKode).isEqualTo("2990")
-            assertThat(result.hovedenhetNavn).isEqualTo("IT-Avdelingen")
-            assertThat(result.fornavn).isEqualTo("Bertil")
-            assertThat(result.etternavn).isEqualTo("Betabruker")
-            assertThat(result.navident).isEqualTo("B123456")
+            result shouldBe mockResponse
             coVerify(exactly = 1) {
-                client.getNavAnsatt(mockAccessToken, navAnsattAzureId)
+                client.getNavAnsatt(navAnsattAzureId)
             }
         }
 
         test("Når man kaller hentAnsattData og ikke finner bruker skal det kastes en feil") {
-
             val client: MicrosoftGraphClient = mockk()
-            coEvery {
-                client.getNavAnsatt("123", UUID.randomUUID())
-            } throws RuntimeException("Klarte ikke hente bruker")
+            coEvery { client.getNavAnsatt(navAnsattAzureId) } throws RuntimeException("Klarte ikke hente bruker")
 
             val service = MicrosoftGraphService(client)
 
             shouldThrow<RuntimeException> {
-                service.getNavAnsatt("123", navAnsattAzureId)
+                service.getNavAnsatt(navAnsattAzureId)
             }
         }
     }

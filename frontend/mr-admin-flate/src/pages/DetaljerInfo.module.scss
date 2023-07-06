@@ -1,5 +1,10 @@
 .container {
-  width: 40rem;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  max-width: var(--a-breakpoint-xl);
+  grid-template-areas:
+    "venstre hoyre"
+    "knapperad knapperad";
 }
 
 .detaljer {
@@ -8,24 +13,27 @@
   display: flex;
   flex-direction: column;
 
-  @media (width <= 1200px) {
-    width: 100%;
+  &:first-of-type {
+    border-right: 1px solid var(--a-border-divider);
   }
 
-  .bolk {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, 50%);
-    grid-row-gap: 2rem;
-    margin: 1rem 0;
+  @media (width <= 1700px) {
+    width: 100%;
   }
 }
 
 .knapperad {
   margin-top: 1rem;
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
+  grid-area: knapperad;
 }
 
 .slett_knapp {
   color: var(--a-text-danger);
+}
+
+.leverandor_kontaktinfo {
+  display: flex;
+  flex-direction: column;
 }

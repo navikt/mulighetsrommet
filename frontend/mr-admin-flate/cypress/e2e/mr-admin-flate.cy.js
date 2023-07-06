@@ -88,17 +88,7 @@ describe("Tiltaksgjennomføringer", () => {
       cy.getByTestId("tiltakstyperad").eq(0).click();
       cy.getByTestId("tab_arenainfo").should("exist");
       cy.getByTestId("tab_avtaler").should("exist");
-      cy.getByTestId("tab_nokkeltall").should("exist");
       cy.checkPageA11y();
-    });
-  });
-
-  context("Navigering til tiltaksgjennomføringsdetaljer", () => {
-    it("Skal kunne se nøkkeltall", () => {
-      cy.visit("/tiltaksgjennomforinger");
-      cy.getByTestId("tiltaksgjennomforingrad").eq(0).click();
-      cy.checkPageA11y();
-      cy.getByTestId("tab_nokkeltall").click();
     });
   });
 });
@@ -109,6 +99,33 @@ describe("Notifikasjoner", () => {
       cy.visit("/");
       cy.getByTestId("notifikasjonsbjelle").should("exist").click();
       cy.checkPageA11y();
+    });
+  });
+});
+
+describe("Utkast", () => {
+  context("Tab for utkast for gjennomføringer knyttet til en avtale", () => {
+    it("Skal finnes en tab for 'Mine utkast'", () => {
+      cy.visit("/avtaler");
+      cy.getByTestId("avtalerad").eq(0).click();
+      cy.getByTestId("avtale-tiltaksgjennomforing-tab").click();
+      cy.getByTestId("mine-utkast-tab").should("exist").click();
+      cy.getByTestId("rediger-utkast-knapp").should("exist");
+      cy.getByTestId("slett-utkast-knapp").should("exist");
+      cy.checkPageA11y();
+    });
+
+    it("Skal kunne opprette et utkast og se det i oversikten over utkast", () => {
+      cy.visit("/avtaler");
+      cy.getByTestId("avtalerad").eq(0).click();
+      cy.getByTestId("avtale-tiltaksgjennomforing-tab").click();
+      cy.getByTestId("mine-utkast-tab").should("exist").click();
+      cy.getByTestId("opprett-ny-gjennomforing-knapp").click();
+      cy.getByTestId("tiltaksgjennomforingnavn-input").type("Tester data");
+      cy.wait(1100); // Simuler en bruker som bruker over 1 sek på å skrive
+      cy.get(".navds-button--tertiary-neutral").click();
+      cy.wait(150);
+      cy.contains("Tester data");
     });
   });
 });

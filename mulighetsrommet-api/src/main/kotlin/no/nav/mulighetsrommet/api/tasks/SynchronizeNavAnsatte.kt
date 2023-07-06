@@ -6,24 +6,17 @@ import com.github.kagkarlsson.scheduler.task.schedule.DisabledSchedule
 import com.github.kagkarlsson.scheduler.task.schedule.Schedule
 import com.github.kagkarlsson.scheduler.task.schedule.Schedules
 import kotlinx.coroutines.runBlocking
-import no.nav.mulighetsrommet.api.clients.msgraph.MicrosoftGraphClient
-import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattDbo
-import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle
-import no.nav.mulighetsrommet.api.repositories.NavAnsattRepository
+import no.nav.mulighetsrommet.api.services.NavAnsattService
+import no.nav.mulighetsrommet.database.utils.getOrThrow
 import no.nav.mulighetsrommet.slack.SlackNotifier
 import org.slf4j.LoggerFactory
-import java.util.*
+import java.time.LocalDate
+import java.time.Period
 import kotlin.jvm.optionals.getOrNull
-
-data class Group(
-    val adGruppe: UUID,
-    val rolle: NavAnsattRolle,
-)
 
 class SynchronizeNavAnsatte(
     config: Config,
-    msGraphClient: MicrosoftGraphClient,
-    ansatte: NavAnsattRepository,
+    private val navAnsattService: NavAnsattService,
     slack: SlackNotifier,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
@@ -31,7 +24,7 @@ class SynchronizeNavAnsatte(
     data class Config(
         val disabled: Boolean = false,
         val cronPattern: String? = null,
-        val groups: List<Group> = listOf(),
+        val deleteNavAnsattGracePeriod: Period = Period.ofDays(30),
     ) {
         fun toSchedule(): Schedule {
             return if (disabled) {
@@ -46,11 +39,13 @@ class SynchronizeNavAnsatte(
         .recurring("synchronize-nav-ansatte", config.toSchedule())
         .onFailure { failure, _ ->
             val cause = failure.cause.getOrNull()?.message
+            val stackTrace = failure.cause.getOrNull()?.stackTrace
             slack.sendMessage(
                 """
-                Klarte ikke synkronisere NAV-ansatte fra AD-grupper med id=${config.groups}.
+                Klarte ikke synkronisere NAV-ansatte fra Azure AD.
                 Konsekvensen er at databasen over NAV-ansatte i løsningen kan være utdatert.
                 Detaljer: $cause
+                Stacktrace: $stackTrace
                 """.trimIndent(),
             )
         }
@@ -58,38 +53,9 @@ class SynchronizeNavAnsatte(
             logger.info("Synkroniserer NAV-ansatte fra Azure til database...")
 
             runBlocking {
-                config.groups
-                    .flatMap { group ->
-                        logger.info("Henter brukere i AD-gruppe id=${group.adGruppe}")
-
-                        val members = msGraphClient.getGroupMembers(group.adGruppe)
-
-                        members.map { ansatt ->
-                            ansatt.run {
-                                NavAnsattDbo(
-                                    navIdent = navident,
-                                    fornavn = fornavn,
-                                    etternavn = etternavn,
-                                    hovedenhet = hovedenhetKode,
-                                    azureId = azureId,
-                                    mobilnummer = mobilnr,
-                                    epost = epost,
-                                    roller = listOf(group.rolle),
-                                )
-                            }
-                        }
-                    }
-                    .groupBy { it.navIdent }
-                    .map { (_, value) ->
-                        value.reduce { a1, a2 ->
-                            a1.copy(roller = a1.roller + a2.roller)
-                        }
-                    }
-                    .forEach { ansatt ->
-                        ansatte.upsert(ansatt).onLeft {
-                            throw it.error
-                        }
-                    }
+                val today = LocalDate.now()
+                val deletionDate = today.plus(config.deleteNavAnsattGracePeriod)
+                navAnsattService.synchronizeNavAnsatte(today, deletionDate).getOrThrow()
             }
         }
 }

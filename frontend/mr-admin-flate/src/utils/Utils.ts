@@ -167,3 +167,13 @@ export function valueOrDefault<T, X>(
 ): T | X {
   return value !== undefined ? value : defaultValue;
 }
+
+export const validEmail = (email: string | undefined): Boolean => {
+  if (!email) return false;
+  return Boolean(
+    email
+      .toLowerCase()
+      .match(
+        /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+      ));
+}
