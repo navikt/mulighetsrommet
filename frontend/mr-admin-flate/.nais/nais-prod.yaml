@@ -67,7 +67,7 @@ spec:
           },
           "header": {
             "csp": {
-              "scriptSrc": ["'self'", "esm.sh"]
+              "scriptSrc": ["'self'", "unsafe-inline", "esm.sh"]
             }
           },
           "proxies": [
