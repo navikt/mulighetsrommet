@@ -13,7 +13,7 @@ import {
 import { Opphav } from "mulighetsrommet-api-client/build/models/Opphav";
 import { Tilgjengelighetsstatus } from "mulighetsrommet-api-client/build/models/Tilgjengelighetsstatus";
 import { porten } from "mulighetsrommet-frontend-common/constants";
-import React, { Dispatch, SetStateAction, useEffect } from "react";
+import React, { Dispatch, SetStateAction, useEffect, useRef } from "react";
 import {
   FormProvider,
   SubmitHandler,
@@ -21,11 +21,13 @@ import {
   useForm,
 } from "react-hook-form";
 import { Link } from "react-router-dom";
+import { ToastContainer, Slide } from "react-toastify";
 import { v4 as uuidv4 } from "uuid";
 import z from "zod";
 import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
 import { useHentKontaktpersoner } from "../../api/ansatt/useHentKontaktpersoner";
 import { usePutGjennomforing } from "../../api/avtaler/usePutGjennomforing";
+import { mulighetsrommetClient } from "../../api/clients";
 import { useAlleEnheter } from "../../api/enhet/useAlleEnheter";
 import { useFeatureToggles } from "../../api/features/feature-toggles";
 import { useVirksomhet } from "../../api/virksomhet/useVirksomhet";
@@ -40,13 +42,14 @@ import { Laster } from "../laster/Laster";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
 import { SokeSelect } from "../skjema/SokeSelect";
-import styles from "./OpprettTiltaksgjennomforingContainer.module.scss";
-import { mulighetsrommetClient } from "../../api/clients";
 import { VirksomhetKontaktpersoner } from "../virksomhet/VirksomhetKontaktpersoner";
+import { Separator } from "../detaljside/Metadata";
+import { AutoSaveTiltaksgjennomforing } from "./AutoSaveTiltaksgjennomforing";
+import styles from "./OpprettTiltaksgjennomforingContainer.module.scss";
 
-const Schema = z
+export const TiltaksgjennomforingSchema = z
   .object({
-    tittel: z.string().min(1, "Du må skrive inn tittel"),
+    navn: z.string().min(1, "Du må skrive inn tittel"),
     startOgSluttDato: z
       .object({
         startDato: z.date({
@@ -89,7 +92,7 @@ const Schema = z
         required_error: "Du må velge en underenhet for tiltaksarrangør",
       })
       .min(1, "Du må velge en underenhet for tiltaksarrangør"),
-    lokasjonArrangor: z.string().refine((data) => data.length > 0, {
+    lokasjonArrangor: z.string().refine((data) => data?.length > 0, {
       message: "Du må skrive inn lokasjon for hvor gjennomføringen finner sted",
     }),
     arrangorKontaktpersonId: z.string().nullable().optional(),
@@ -138,7 +141,9 @@ const Schema = z
     }
   );
 
-export type inferredSchema = z.infer<typeof Schema>;
+export type inferredTiltaksgjennomforingSchema = z.infer<
+  typeof TiltaksgjennomforingSchema
+>;
 
 interface OpprettTiltaksgjennomforingContainerProps {
   onClose: () => void;
@@ -216,7 +221,7 @@ function defaultValuesForKontaktpersoner(
 ): TiltaksgjennomforingKontaktpersoner[] {
   if (!kontaktpersoner) return [{ navIdent: "", navEnheter: [] }];
 
-  return kontaktpersoner.map((person) => ({
+  return kontaktpersoner?.map((person) => ({
     navIdent: person.navIdent,
     navEnheter:
       person.navEnheter?.length === 0 ? ["alle_enheter"] : person.navEnheter,
@@ -230,14 +235,18 @@ export const OpprettTiltaksgjennomforingContainer = (
     useHentKontaktpersoner();
   const mutation = usePutGjennomforing();
   const { avtale, tiltaksgjennomforing, setError, onClose, onSuccess } = props;
-  const form = useForm<inferredSchema>({
-    resolver: zodResolver(Schema),
+  const utkastIdRef = useRef(tiltaksgjennomforing?.id || uuidv4());
+
+  const form = useForm<inferredTiltaksgjennomforingSchema>({
+    resolver: zodResolver(TiltaksgjennomforingSchema),
     defaultValues: {
-      tittel: tiltaksgjennomforing?.navn,
+      navn: tiltaksgjennomforing?.navn,
       navEnheter:
-        tiltaksgjennomforing?.navEnheter.length === 0
+        tiltaksgjennomforing?.navEnheter?.length === 0
           ? ["alle_enheter"]
-          : tiltaksgjennomforing?.navEnheter.map((enhet) => enhet.enhetsnummer),
+          : tiltaksgjennomforing?.navEnheter?.map(
+              (enhet) => enhet.enhetsnummer
+            ),
       ansvarlig: tiltaksgjennomforing?.ansvarlig,
       antallPlasser: tiltaksgjennomforing?.antallPlasser,
       startOgSluttDato: {
@@ -274,7 +283,7 @@ export const OpprettTiltaksgjennomforingContainer = (
     register,
     handleSubmit,
     control,
-    formState: { errors },
+    formState: { errors, defaultValues },
     setValue,
     watch,
   } = form;
@@ -335,7 +344,7 @@ export const OpprettTiltaksgjennomforingContainer = (
 
   const redigeringsModus = !!tiltaksgjennomforing;
 
-  const postData: SubmitHandler<inferredSchema> = async (
+  const postData: SubmitHandler<inferredTiltaksgjennomforingSchema> = async (
     data
   ): Promise<void> => {
     if (!features?.["mulighetsrommet.admin-flate-lagre-data-fra-admin-flate"]) {
@@ -352,7 +361,7 @@ export const OpprettTiltaksgjennomforingContainer = (
       navEnheter: data.navEnheter.includes("alle_enheter")
         ? []
         : data.navEnheter,
-      navn: data.tittel,
+      navn: data.navn,
       sluttDato: formaterDatoSomYYYYMMDD(data.startOgSluttDato.sluttDato),
       startDato: formaterDatoSomYYYYMMDD(data.startOgSluttDato.startDato),
       avtaleId: avtale?.id || "",
@@ -361,15 +370,15 @@ export const OpprettTiltaksgjennomforingContainer = (
         data.tiltaksArrangorUnderenhetOrganisasjonsnummer ||
         tiltaksgjennomforing?.arrangorOrganisasjonsnummer ||
         "",
-      tiltaksnummer: tiltaksgjennomforing?.tiltaksnummer,
+      tiltaksnummer: tiltaksgjennomforing?.tiltaksnummer ?? null,
       oppstart: data.oppstart,
       apenForInnsok: data.apenForInnsok,
       stengtFra: data.midlertidigStengt.erMidlertidigStengt
         ? formaterDatoSomYYYYMMDD(data.midlertidigStengt.stengtFra)
-        : undefined,
+        : null,
       stengtTil: data.midlertidigStengt.erMidlertidigStengt
         ? formaterDatoSomYYYYMMDD(data.midlertidigStengt.stengtTil)
-        : undefined,
+        : null,
       kontaktpersoner:
         data.kontaktpersoner
           ?.filter((kontakt) => kontakt.navIdent !== "")
@@ -379,9 +388,9 @@ export const OpprettTiltaksgjennomforingContainer = (
               ? []
               : kontakt.navEnheter,
           })) || [],
-      estimertVentetid: data.estimertVentetid,
+      estimertVentetid: data.estimertVentetid ?? null,
       lokasjonArrangor: data.lokasjonArrangor,
-      arrangorKontaktpersonId: data.arrangorKontaktpersonId ?? undefined,
+      arrangorKontaktpersonId: data.arrangorKontaktpersonId ?? null,
     };
 
     try {
@@ -395,8 +404,8 @@ export const OpprettTiltaksgjennomforingContainer = (
 
   const navn = ansatt
     ? [ansatt.fornavn, ansatt.etternavn ?? ""]
-        .map((it) => capitalize(it))
-        .join(" ")
+      .map((it) => capitalize(it))
+      .join(" ")
     : "";
 
   if (!enheter) {
@@ -427,7 +436,7 @@ export const OpprettTiltaksgjennomforingContainer = (
       )
       .filter(
         (enhet: NavEnhet) =>
-          avtale?.navEnheter.length === 0 ||
+          avtale?.navEnheter?.length === 0 ||
           avtale?.navEnheter.find((e) => e.enhetsnummer === enhet.enhetsnummer)
       )
       .map((enhet) => ({
@@ -458,7 +467,7 @@ export const OpprettTiltaksgjennomforingContainer = (
       }) || [];
 
     // Ingen underenheter betyr at alle er valgt, må gi valg om alle underenheter fra virksomhet
-    if (options.length === 0) {
+    if (options?.length === 0) {
       const enheter = virksomhet?.underenheter || [];
       return enheter.map((enhet) => ({
         value: enhet.organisasjonsnummer,
@@ -500,267 +509,306 @@ export const OpprettTiltaksgjennomforingContainer = (
         </Alert>
       ) : null}
       <form onSubmit={handleSubmit(postData)}>
-        <FormGroup>
-          <TextField
-            size="small"
-            readOnly={arenaOpphav}
-            error={errors.tittel?.message}
-            label="Tiltaksnavn"
-            autoFocus
-            {...register("tittel")}
-          />
-        </FormGroup>
-        <FormGroup>
-          <TextField
-            size="small"
-            readOnly
-            label={"Avtale"}
-            value={avtale?.navn || ""}
-          />
-        </FormGroup>
-        <FormGroup>
-          <SokeSelect
-            size="small"
-            label="Oppstartstype"
-            readOnly={arenaOpphav}
-            onClearValue={() =>
-              setValue("oppstart", TiltaksgjennomforingOppstartstype.FELLES)
-            }
-            placeholder="Velg oppstart"
-            {...register("oppstart")}
-            options={[
-              {
-                label: "Felles oppstartsdato",
-                value: TiltaksgjennomforingOppstartstype.FELLES,
-              },
-              {
-                label: "Løpende oppstart",
-                value: TiltaksgjennomforingOppstartstype.LOPENDE,
-              },
-            ]}
-          />
-          <FraTilDatoVelger
-            size="small"
-            fra={{
-              label: "Startdato",
-              readOnly: arenaOpphav,
-              ...register("startOgSluttDato.startDato"),
-            }}
-            til={{
-              label: "Sluttdato",
-              readOnly: arenaOpphav,
-              ...register("startOgSluttDato.sluttDato"),
-            }}
-          />
-          <Checkbox
-            size="small"
-            readOnly={arenaOpphav}
-            {...register("apenForInnsok")}
-          >
-            Åpen for innsøk
-          </Checkbox>
-          <Checkbox
-            size="small"
-            {...register("midlertidigStengt.erMidlertidigStengt")}
-          >
-            Midlertidig stengt
-          </Checkbox>
-          {watchErMidlertidigStengt && (
-            <FraTilDatoVelger
-              size="small"
-              fra={{
-                label: "Stengt fra",
-                ...register("midlertidigStengt.stengtFra"),
-              }}
-              til={{
-                label: "Stengt til",
-                ...register("midlertidigStengt.stengtTil"),
-              }}
-            />
-          )}
-          <TextField
-            size="small"
-            readOnly={arenaOpphav}
-            error={errors.antallPlasser?.message}
-            type="number"
-            style={{ width: "180px" }}
-            label="Antall plasser"
-            {...register("antallPlasser", { valueAsNumber: true })}
-          />
-        </FormGroup>
-        <FormGroup>
-          <TextField
-            readOnly
-            size="small"
-            label="Tilgjengelighetsstatus"
-            description="Statusen vises til veileder i Modia"
-            value={tilgjengelighetsstatusTilTekst(
-              tiltaksgjennomforing?.tilgjengelighet
-            )}
-          />
-          <TextField
-            size="small"
-            label="Estimert ventetid"
-            description="Kommuniser estimert ventetid til veileder i Modia"
-            maxLength={60}
-            {...register("estimertVentetid")}
-          />
-        </FormGroup>
-        <FormGroup>
-          <TextField
-            size="small"
-            readOnly
-            label={"NAV region"}
-            value={avtale?.navRegion?.navn || ""}
-          />
-          <ControlledMultiSelect
-            size="small"
-            placeholder={isLoadingEnheter ? "Laster enheter..." : "Velg en"}
-            label={"NAV enhet (kontorer)"}
-            {...register("navEnheter")}
-            options={enheterOptions()}
-          />
-        </FormGroup>
-        <FormGroup>
-          <TextField
-            size="small"
-            label="Tiltaksarrangør hovedenhet"
-            placeholder=""
-            defaultValue={`${avtale?.leverandor.navn} - ${avtale?.leverandor.organisasjonsnummer}`}
-            readOnly
-          />
-          <div className={styles.virksomhet_kontaktperson_container}>
-            <SokeSelect
-              size="small"
-              label="Tiltaksarrangør underenhet"
-              placeholder="Velg underenhet for tiltaksarrangør"
-              {...register("tiltaksArrangorUnderenhetOrganisasjonsnummer")}
-              onChange={getLokasjonForArrangor}
-              onClearValue={() =>
-                setValue("tiltaksArrangorUnderenhetOrganisasjonsnummer", "")
-              }
-              readOnly={!avtale?.leverandor.organisasjonsnummer}
-              options={arrangorUnderenheterOptions()}
-            />
-            {watch('tiltaksArrangorUnderenhetOrganisasjonsnummer') &&
-              <VirksomhetKontaktpersoner
-                orgnr={watch('tiltaksArrangorUnderenhetOrganisasjonsnummer')}
-                formValueName={'arrangorKontaktpersonId'}
-              />
-            }
-          </div>
-          <TextField
-            size="small"
-            label="Sted for gjennomføring"
-            description="Sted for gjennomføring, f.eks. Fredrikstad eller Tromsø. Veileder kan filtrere på verdiene i dette feltet, så ikke skriv fulle adresser."
-            {...register("lokasjonArrangor")}
-            error={
-              errors.lokasjonArrangor ? errors.lokasjonArrangor.message : null
-            }
-          />
-        </FormGroup>
-        {features?.[
-          "mulighetsrommet.admin-flate-koble-tiltaksansvarlig-til-gjennomforing"
-        ] ? (
-          <FormGroup>
-            {kontaktpersonFields.map((field, index) => {
-              return (
-                <div className={styles.kontaktperson_container} key={field.id}>
-                  <button
-                    className={classNames(
-                      styles.kontaktperson_button,
-                      styles.kontaktperson_fjern_button
-                    )}
-                    type="button"
-                    onClick={() => {
-                      if (watch("kontaktpersoner")!.length > 1) {
-                        removeKontaktperson(index);
-                      } else {
-                        setValue("kontaktpersoner", [
-                          { navIdent: "", navEnheter: [] },
-                        ]);
-                      }
+        <div className={styles.container}>
+          <Separator />
+          <div className={styles.input_container}>
+            <div className={styles.column}>
+              <FormGroup>
+                <TextField
+                  size="small"
+                  readOnly={arenaOpphav}
+                  error={errors.navn?.message}
+                  label="Tiltaksnavn"
+                  autoFocus
+                  data-testid="tiltaksgjennomforingnavn-input"
+                  {...register("navn")}
+                />
+              </FormGroup>
+              <Separator />
+              <FormGroup>
+                <TextField
+                  size="small"
+                  readOnly
+                  label={"Avtale"}
+                  value={avtale?.navn || ""}
+                />
+              </FormGroup>
+              <Separator />
+              <FormGroup>
+                <SokeSelect
+                  size="small"
+                  label="Oppstartstype"
+                  readOnly={arenaOpphav}
+                  placeholder="Velg oppstart"
+                  {...register("oppstart")}
+                  options={[
+                    {
+                      label: "Felles oppstartsdato",
+                      value: TiltaksgjennomforingOppstartstype.FELLES,
+                    },
+                    {
+                      label: "Løpende oppstart",
+                      value: TiltaksgjennomforingOppstartstype.LOPENDE,
+                    },
+                  ]}
+                />
+                <FraTilDatoVelger
+                  size="small"
+                  fra={{
+                    label: "Startdato",
+                    readOnly: arenaOpphav,
+                    ...register("startOgSluttDato.startDato"),
+                  }}
+                  til={{
+                    label: "Sluttdato",
+                    readOnly: arenaOpphav,
+                    ...register("startOgSluttDato.sluttDato"),
+                  }}
+                />
+                <Checkbox
+                  size="small"
+                  readOnly={arenaOpphav}
+                  {...register("apenForInnsok")}
+                >
+                  Åpen for innsøk
+                </Checkbox>
+                <Checkbox
+                  size="small"
+                  {...register("midlertidigStengt.erMidlertidigStengt")}
+                >
+                  Midlertidig stengt
+                </Checkbox>
+                {watchErMidlertidigStengt && (
+                  <FraTilDatoVelger
+                    size="small"
+                    fra={{
+                      label: "Stengt fra",
+                      ...register("midlertidigStengt.stengtFra"),
                     }}
-                  >
-                    <XMarkIcon />
-                  </button>
-                  <div className={styles.kontaktperson_inputs}>
-                    <SokeSelect
-                      size="small"
-                      placeholder={
-                        isLoadingKontaktpersoner
-                          ? "Laster kontaktpersoner..."
-                          : "Velg en"
-                      }
-                      label={"Kontaktperson i NAV"}
-                      {...register(`kontaktpersoner.${index}.navIdent`, {
-                        shouldUnregister: true,
+                    til={{
+                      label: "Stengt til",
+                      ...register("midlertidigStengt.stengtTil"),
+                    }}
+                  />
+                )}
+                <TextField
+                  size="small"
+                  readOnly={arenaOpphav}
+                  error={errors.antallPlasser?.message}
+                  type="number"
+                  style={{ width: "180px" }}
+                  label="Antall plasser"
+                  {...register("antallPlasser", { valueAsNumber: true })}
+                />
+              </FormGroup>
+              <Separator />
+              <FormGroup>
+                <TextField
+                  readOnly
+                  size="small"
+                  label="Tilgjengelighetsstatus"
+                  description="Statusen vises til veileder i Modia"
+                  value={tilgjengelighetsstatusTilTekst(
+                    tiltaksgjennomforing?.tilgjengelighet
+                  )}
+                />
+                <TextField
+                  size="small"
+                  label="Estimert ventetid"
+                  description="Kommuniser estimert ventetid til veileder i Modia"
+                  maxLength={60}
+                  {...register("estimertVentetid")}
+                />
+              </FormGroup>
+              <Separator />
+              <FormGroup>
+                <SokeSelect
+                  size="small"
+                  placeholder={
+                    isLoadingAnsatt ? "Laster Tiltaksansvarlig..." : "Velg en"
+                  }
+                  label={"Tiltaksansvarlig"}
+                  {...register("ansvarlig")}
+                  options={ansvarligOptions()}
+                  onClearValue={() => setValue("ansvarlig", "")}
+                />
+              </FormGroup>
+            </div>
+            <div className={styles.vertical_separator} />
+            <div className={styles.column}>
+              <div className={styles.gray_container}>
+                <FormGroup>
+                  <TextField
+                    size="small"
+                    readOnly
+                    label={"NAV region"}
+                    value={avtale?.navRegion?.navn || ""}
+                  />
+                  <ControlledMultiSelect
+                    size="small"
+                    placeholder={isLoadingEnheter ? "Laster enheter..." : "Velg en"}
+                    label={"NAV enhet (kontorer)"}
+                    {...register("navEnheter")}
+                    options={enheterOptions()}
+                  />
+                </FormGroup>
+                <Separator />
+                {features?.[
+                  "mulighetsrommet.admin-flate-koble-tiltaksansvarlig-til-gjennomforing"
+                ] ? (
+                  <FormGroup>
+                    <div>
+                      {kontaktpersonFields?.map((field, index) => {
+                        return (
+                          <div className={styles.kontaktperson_container} key={field.id}>
+                            <button
+                              className={classNames(
+                                styles.kontaktperson_button,
+                                styles.kontaktperson_fjern_button
+                              )}
+                              type="button"
+                              onClick={() => {
+                                if (watch("kontaktpersoner")!.length > 1) {
+                                  removeKontaktperson(index);
+                                } else {
+                                  setValue("kontaktpersoner", [
+                                    { navIdent: "", navEnheter: [] },
+                                  ]);
+                                }
+                              }}
+                            >
+                              <XMarkIcon />
+                            </button>
+                            <div className={styles.kontaktperson_inputs}>
+                              <SokeSelect
+                                size="small"
+                                placeholder={
+                                  isLoadingKontaktpersoner
+                                    ? "Laster kontaktpersoner..."
+                                    : "Velg en"
+                                }
+                                label={"Kontaktperson i NAV"}
+                                {...register(`kontaktpersoner.${index}.navIdent`, {
+                                  shouldUnregister: true,
+                                })}
+                                options={kontaktpersonerOption()}
+                              />
+                              <ControlledMultiSelect
+                                size="small"
+                                placeholder={
+                                  isLoadingKontaktpersoner
+                                    ? "Laster enheter..."
+                                    : "Velg en"
+                                }
+                                label={"Område"}
+                                {...register(`kontaktpersoner.${index}.navEnheter`, {
+                                  shouldUnregister: true,
+                                })}
+                                options={enheterOptions()}
+                              />
+                            </div>
+                          </div>
+                        );
                       })}
-                      options={kontaktpersonerOption()}
-                    />
-                    <ControlledMultiSelect
-                      size="small"
-                      placeholder={
-                        isLoadingKontaktpersoner
-                          ? "Laster enheter..."
-                          : "Velg en"
-                      }
-                      label={"Område"}
-                      {...register(`kontaktpersoner.${index}.navEnheter`, {
-                        shouldUnregister: true,
-                      })}
-                      options={enheterOptions()}
-                    />
-                  </div>
-                </div>
-              );
-            })}
-            <button
-              className={styles.kontaktperson_button}
+                      <Button
+                        className={styles.kontaktperson_button}
+                        type="button"
+                        size="small"
+                        onClick={() =>
+                          appendKontaktperson({ navIdent: "", navEnheter: [] })
+                        }
+                      >
+                        <PlusIcon /> Legg til ny kontaktperson
+                      </Button>
+                    </div>
+                  </FormGroup>
+                ) : null}
+              </div>
+              <div className={styles.gray_container}>
+                <FormGroup>
+                  <TextField
+                    size="small"
+                    label="Tiltaksarrangør hovedenhet"
+                    placeholder=""
+                    defaultValue={`${avtale?.leverandor.navn} - ${avtale?.leverandor.organisasjonsnummer}`}
+                    readOnly
+                  />
+                  <SokeSelect
+                    size="small"
+                    label="Tiltaksarrangør underenhet"
+                    placeholder="Velg underenhet for tiltaksarrangør"
+                    {...register("tiltaksArrangorUnderenhetOrganisasjonsnummer")}
+                    onChange={getLokasjonForArrangor}
+                    onClearValue={() =>
+                      setValue("tiltaksArrangorUnderenhetOrganisasjonsnummer", "")
+                    }
+                    readOnly={!avtale?.leverandor.organisasjonsnummer}
+                    options={arrangorUnderenheterOptions()}
+                  />
+                  {watch('tiltaksArrangorUnderenhetOrganisasjonsnummer') &&
+                    <div className={styles.virksomhet_kontaktperson_container}>
+                      <VirksomhetKontaktpersoner
+                        title={"Kontaktperson hos arrangøren"}
+                        orgnr={watch("tiltaksArrangorUnderenhetOrganisasjonsnummer")}
+                        formValueName={"arrangorKontaktpersonId"}
+                      />
+                    </div>
+                  }
+                  <TextField
+                    size="small"
+                    label="Sted for gjennomføring"
+                    description="Sted for gjennomføring, f.eks. Fredrikstad eller Tromsø. Veileder kan filtrere på verdiene i dette feltet, så ikke skriv fulle adresser."
+                    {...register("lokasjonArrangor")}
+                    error={
+                      errors.lokasjonArrangor ? errors.lokasjonArrangor.message : null
+                    }
+                  />
+                </FormGroup>
+              </div>
+            </div>
+          </div>
+          <Separator />
+          <div className={styles.button_row}>
+            <Button
+              className={styles.button}
+              onClick={onClose}
+              variant="tertiary"
               type="button"
-              onClick={() =>
-                appendKontaktperson({ navIdent: "", navEnheter: [] })
-              }
             >
-              <PlusIcon /> Legg til ny kontaktperson
-            </button>
-          </FormGroup>
-        ) : null}
-        <FormGroup>
-          <SokeSelect
-            size="small"
-            placeholder={
-              isLoadingAnsatt ? "Laster Tiltaksansvarlig..." : "Velg en"
-            }
-            label={"Tiltaksansvarlig"}
-            {...register("ansvarlig")}
-            options={ansvarligOptions()}
-            onClearValue={() => setValue("ansvarlig", "")}
-          />
-        </FormGroup>
-
-        <div className={styles.button_row}>
-          <Button
-            className={styles.button}
-            onClick={onClose}
-            variant="tertiary"
-            type="button"
-          >
-            Avbryt
-          </Button>
-          <Button
-            className={styles.button}
-            type="submit"
-            disabled={mutation.isLoading}
-          >
-            {mutation.isLoading
-              ? "Lagrer..."
-              : redigeringsModus
-              ? "Lagre gjennomføring"
-              : "Opprett"}
-          </Button>
+              Avbryt
+            </Button>
+            <Button
+              className={styles.button}
+              type="submit"
+              disabled={mutation.isLoading}
+            >
+              {mutation.isLoading
+                ? "Lagrer..."
+                : redigeringsModus
+                  ? "Lagre gjennomføring"
+                  : "Opprett"}
+            </Button>
+          </div>
         </div>
       </form>
+      {features?.["mulighetsrommet.admin-flate-lagre-utkast"] && avtale ? (
+        <AutoSaveTiltaksgjennomforing
+          defaultValues={defaultValues}
+          utkastId={utkastIdRef.current}
+          avtale={avtale}
+        />
+      ) : null}
+
+      <ToastContainer
+        position="bottom-right"
+        newestOnTop={true}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        transition={Slide}
+      />
     </FormProvider>
   );
 };

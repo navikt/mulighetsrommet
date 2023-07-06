@@ -34,9 +34,7 @@ class MicrosoftGraphClientImpl(
 
     override suspend fun getNavAnsatt(navAnsattAzureId: UUID, oboToken: String?): AzureAdNavAnsatt {
         val response = client.get("$baseUrl/v1.0/users/$navAnsattAzureId") {
-            oboToken?.let {
-                bearerAuth(tokenProvider(it))
-            }
+            bearerAuth(tokenProvider(oboToken))
             parameter("\$select", "id,streetAddress,city,givenName,surname,onPremisesSamAccountName,mail,mobilePhone")
         }
 
@@ -52,9 +50,7 @@ class MicrosoftGraphClientImpl(
 
     override suspend fun getMemberGroups(navAnsattAzureId: UUID, oboToken: String?): List<AdGruppe> {
         val response = client.get("$baseUrl/v1.0/users/$navAnsattAzureId/transitiveMemberOf/microsoft.graph.group") {
-            oboToken?.let {
-                bearerAuth(tokenProvider(it))
-            }
+            bearerAuth(tokenProvider.invoke(oboToken))
             parameter("\$select", "id,displayName")
         }
 

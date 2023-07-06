@@ -3,5 +3,5 @@ import { mulighetsrommetClient } from '../clients';
 import { QueryKeys } from '../query-keys';
 
 export function useTiltakstyper() {
-  return useQuery(QueryKeys.sanity.tiltakstyper, () => mulighetsrommetClient.sanity.getTiltakstyper());
+  return useQuery(QueryKeys.sanity.tiltakstyper, () => mulighetsrommetClient.sanity.getSanityTiltakstyper());
 }

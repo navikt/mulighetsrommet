@@ -10,7 +10,7 @@ export default function useTiltaksgjennomforingById() {
   const tiltaksgjennomforingId = useGetTiltaksgjennomforingIdFraUrl().replace('drafts.', '');
   const fnrForBruker = useHentFnrFraUrl();
   const response = useQuery(QueryKeys.sanity.tiltaksgjennomforing(tiltaksgjennomforingId), () =>
-    mulighetsrommetClient.sanity.getTiltaksgjennomforing({ id: tiltaksgjennomforingId, fnr: fnrForBruker })
+    mulighetsrommetClient.sanity.getSanityTiltaksgjennomforing({ id: tiltaksgjennomforingId, fnr: fnrForBruker })
   );
 
   if (!response.data) {

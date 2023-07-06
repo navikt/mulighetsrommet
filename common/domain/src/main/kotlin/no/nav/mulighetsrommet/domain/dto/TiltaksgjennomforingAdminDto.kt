@@ -17,33 +17,31 @@ data class TiltaksgjennomforingAdminDto(
     val navn: String,
     val tiltaksnummer: String?,
     val arrangorOrganisasjonsnummer: String,
-    val arrangorNavn: String? = null,
-    val arrangorKontaktperson: VirksomhetKontaktperson? = null,
+    val arrangorNavn: String?,
+    val arrangorKontaktperson: VirksomhetKontaktperson?,
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
-    val sluttDato: LocalDate? = null,
+    val sluttDato: LocalDate?,
     val arenaAnsvarligEnhet: String?,
     val status: Tiltaksgjennomforingsstatus,
     val tilgjengelighet: TiltaksgjennomforingTilgjengelighetsstatus,
-    val estimertVentetid: String? = null,
+    val estimertVentetid: String?,
     val antallPlasser: Int?,
     @Serializable(with = UUIDSerializer::class)
-    val avtaleId: UUID? = null,
+    val avtaleId: UUID?,
     val ansvarlig: String?,
     val navEnheter: List<NavEnhet>,
-    val navRegion: String? = null,
+    val navRegion: String?,
     val sanityId: String?,
     val oppstart: TiltaksgjennomforingOppstartstype,
-    @Serializable(with = LocalDateSerializer::class)
-    val oppstartsdato: LocalDate? = null,
     val opphav: ArenaMigrering.Opphav,
     @Serializable(with = LocalDateSerializer::class)
     val stengtFra: LocalDate?,
     @Serializable(with = LocalDateSerializer::class)
-    val stengtTil: LocalDate? = null,
-    val kontaktpersoner: List<TiltaksgjennomforingKontaktperson> = emptyList(),
-    val lokasjonArrangor: String? = null,
+    val stengtTil: LocalDate?,
+    val kontaktpersoner: List<TiltaksgjennomforingKontaktperson>,
+    val lokasjonArrangor: String?,
 ) {
     @Serializable
     data class Tiltakstype(

@@ -23,6 +23,7 @@ export const SLETT_TILTAKSGJENNOMFORING_ADMIN_FLATE =
   "mulighetsrommet.admin-flate-slett-tiltaksgjennomforing";
 export const KOBLE_TILTAKSANSVARLIGE_TIL_GJENNOMFORING =
   "mulighetsrommet.admin-flate-koble-tiltaksansvarlig-til-gjennomforing";
+export const LAGRE_UTKAST = "mulighetsrommet.admin-flate-lagre-utkast";
 
 export const ALL_TOGGLES = [
   ENABLE_ADMIN_FLATE,
@@ -37,6 +38,7 @@ export const ALL_TOGGLES = [
   REDIGER_TILTAKSGJENNOMFORING_ADMIN_FLATE,
   SLETT_TILTAKSGJENNOMFORING_ADMIN_FLATE,
   KOBLE_TILTAKSANSVARLIGE_TIL_GJENNOMFORING,
+  LAGRE_UTKAST,
 ] as const;
 
 export type Features = Record<(typeof ALL_TOGGLES)[number], boolean>;
@@ -54,6 +56,7 @@ export const initialFeatures: Features = {
   "mulighetsrommet.admin-flate-slett-tiltaksgjennomforing": false,
   "mulighetsrommet.admin-flate-rediger-tiltaksgjennomforing": false,
   "mulighetsrommet.admin-flate-koble-tiltaksansvarlig-til-gjennomforing": false,
+  "mulighetsrommet.admin-flate-lagre-utkast": false,
 };
 
 const toggles = ALL_TOGGLES.map((element) => "feature=" + element).join("&");

@@ -2,6 +2,8 @@ package no.nav.mulighetsrommet.api.services
 
 import arrow.core.Either
 import arrow.core.continuations.either
+import arrow.core.flatMap
+import arrow.core.right
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle
 import no.nav.mulighetsrommet.api.domain.dto.NavAnsattDto
@@ -20,14 +22,13 @@ class NavAnsattService(
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    suspend fun getNavAnsatt(azureId: UUID): NavAnsattDto {
+    suspend fun getOrSynchronizeNavAnsatt(azureId: UUID): NavAnsattDto {
         return ansatte.getByAzureId(azureId)
-            .map {
-                if (it != null) {
-                    it
-                } else {
+            .flatMap {
+                it?.right() ?: run {
                     logger.info("Fant ikke NavAnsatt for azureId=$azureId i databasen, forsøker Azure AD i stedet")
-                    getNavAnsattFromAzure(azureId)
+                    val ansatt = getNavAnsattFromAzure(azureId)
+                    ansatte.upsert(NavAnsattDbo.fromNavAnsattDto(ansatt)).map { ansatt }
                 }
             }
             .getOrThrow()
@@ -43,6 +44,7 @@ class NavAnsattService(
         val roller = microsoftGraphService.getNavAnsattAdGrupper(azureId)
             .filter { rolesDirectory.containsKey(it.id) }
             .map { rolesDirectory.getValue(it.id).rolle }
+            .toSet()
 
         if (roller.isEmpty()) {
             logger.info("Ansatt med azureId=$azureId har ingen av rollene $roles")
@@ -57,8 +59,9 @@ class NavAnsattService(
         return roles
             .flatMap {
                 val members = microsoftGraphService.getNavAnsatteInGroup(it.adGruppeId)
+                logger.info("Fant ${members.size} i AD gruppe id=${it.adGruppeId}")
                 members.map { ansatt ->
-                    NavAnsattDto.fromAzureAdNavAnsatt(ansatt, listOf(it.rolle))
+                    NavAnsattDto.fromAzureAdNavAnsatt(ansatt, setOf(it.rolle))
                 }
             }
             .groupBy { it.navIdent }
@@ -74,16 +77,19 @@ class NavAnsattService(
         deletionDate: LocalDate,
     ): Either<DatabaseOperationError, Unit> = either {
         val ansatteToUpsert = getNavAnsatteFromAzure()
+
+        logger.info("Oppdaterer ${ansatteToUpsert.size} NavAnsatt fra Azure")
         ansatteToUpsert.forEach { ansatt ->
             ansatte.upsert(NavAnsattDbo.fromNavAnsattDto(ansatt)).bind()
         }
 
+        val ansatteAzureIds = ansatteToUpsert.map { it.azureId }
         val ansatteToScheduleForDeletion = ansatte.getAll()
-            .map { it.filter { ansatt -> ansatt !in ansatteToUpsert && ansatt.skalSlettesDato == null } }
+            .map { it.filter { ansatt -> ansatt.azureId !in ansatteAzureIds && ansatt.skalSlettesDato == null } }
             .bind()
         ansatteToScheduleForDeletion.forEach { ansatt ->
             logger.info("Oppdaterer NavAnsatt med dato for sletting azureId=${ansatt.azureId} dato=$deletionDate")
-            val ansattToDelete = ansatt.copy(roller = emptyList(), skalSlettesDato = deletionDate)
+            val ansattToDelete = ansatt.copy(roller = emptySet(), skalSlettesDato = deletionDate)
             ansatte.upsert(NavAnsattDbo.fromNavAnsattDto(ansattToDelete)).bind()
         }
 

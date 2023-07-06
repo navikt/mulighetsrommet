@@ -1,10 +1,12 @@
 package no.nav.mulighetsrommet.api.utils
 
 import io.ktor.server.application.*
+import io.ktor.server.util.*
 import io.ktor.util.pipeline.*
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
+import no.nav.mulighetsrommet.api.domain.dbo.Utkasttype
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.Avtalestatus
 import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
@@ -74,6 +76,12 @@ enum class VirksomhetTil {
     AVTALE,
     TILTAKSGJENNOMFORING,
 }
+
+data class UtkastFilter(
+    val type: Utkasttype,
+    val opprettetAv: String?,
+    val avtaleId: UUID,
+)
 
 fun <T : Any> PipelineContext<T, ApplicationCall>.getVirksomhetFilter(): VirksomhetFilter {
     val til = call.request.queryParameters["til"]
@@ -191,5 +199,15 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getNavAnsattFilter(): NavAnsat
     val azureIder = call.parameters.getAll("roller")?.map { NavAnsattRolle.valueOf(it) } ?: emptyList()
     return NavAnsattFilter(
         roller = azureIder,
+    )
+}
+
+fun <T : Any> PipelineContext<T, ApplicationCall>.getUtkastFilter(): UtkastFilter {
+    val type = Utkasttype.valueOf(call.request.queryParameters.getOrFail("utkasttype"))
+    val avtaleId = call.request.queryParameters.getOrFail<UUID>("avtaleId")
+    return UtkastFilter(
+        type = type,
+        opprettetAv = null,
+        avtaleId = avtaleId,
     )
 }

@@ -26,7 +26,6 @@ export function useHentDeltMedBrukerStatus() {
     if (!veilederData?.navIdent) return;
 
     await mulighetsrommetClient.delMedBruker.postDelMedBruker({
-      sanityId,
       requestBody: { norskIdent, navident: veilederData?.navIdent, sanityId, dialogId },
     });
 

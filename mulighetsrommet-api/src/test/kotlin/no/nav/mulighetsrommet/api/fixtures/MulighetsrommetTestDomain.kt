@@ -27,7 +27,7 @@ data class MulighetsrommetTestDomain(
         azureId = UUID.randomUUID(),
         mobilnummer = "12345678",
         epost = "donald.duck@nav.no",
-        roller = listOf(NavAnsattRolle.BETABRUKER),
+        roller = setOf(NavAnsattRolle.BETABRUKER),
     ),
     val ansatt2: NavAnsattDbo = NavAnsattDbo(
         navIdent = "DD2",
@@ -37,7 +37,7 @@ data class MulighetsrommetTestDomain(
         azureId = UUID.randomUUID(),
         mobilnummer = "48243214",
         epost = "dolly.duck@nav.no",
-        roller = listOf(NavAnsattRolle.BETABRUKER),
+        roller = setOf(NavAnsattRolle.BETABRUKER),
     ),
 ) {
     fun initialize(database: FlywayDatabaseAdapter) {
