@@ -10,6 +10,7 @@ import no.nav.mulighetsrommet.domain.dbo.ArenaTiltakshistorikkDbo
 import no.nav.mulighetsrommet.domain.dbo.Deltakerstatus
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
+import java.time.LocalDate
 import java.util.*
 
 class TiltakshistorikkRepository(private val db: Database) {
@@ -52,6 +53,18 @@ class TiltakshistorikkRepository(private val db: Database) {
         """.trimIndent()
 
         run { queryOf(query, id) }
+            .asExecute
+            .let { db.run(it) }
+    }
+
+    fun deleteByExpirationDate(date: LocalDate): QueryResult<Unit> = query {
+        @Language("PostgreSQL")
+        val query = """
+            delete from tiltakshistorikk
+            where til_dato < :date or til_dato is null and registrert_i_arena_dato < :date
+        """.trimIndent()
+
+        run { queryOf(query, mapOf("date" to date)) }
             .asExecute
             .let { db.run(it) }
     }

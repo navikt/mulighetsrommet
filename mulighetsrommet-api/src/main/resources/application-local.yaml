@@ -83,6 +83,8 @@ app:
         rolle: BETABRUKER
 
   tasks:
+    deleteExpiredTiltakshistorikk:
+      disabled: true
     synchronizeNorgEnheter:
       disabled: true
       delayOfMinutes: 360 # Hver 6. time

@@ -87,6 +87,8 @@ app:
         rolle: KONTAKTPERSON
 
   tasks:
+    deleteExpiredTiltakshistorikk:
+      cronPattern: "0 0 1 * * *" # Hver morgen kl. 01:00
     synchronizeNorgEnheter:
       delayOfMinutes: 360 # Hver 6. time
     synchronizeEnheterFraSanityTilApi:
@@ -94,19 +96,15 @@ app:
     synchronizeNavAnsatte:
       cronPattern: "0 0 6-18 * * MON-FRI" # Hver time i løpet av arbeidsdagen
     notifySluttdatoForGjennomforingerNarmerSeg:
-      disabled: false
-      cronPattern: "0 0 6 * * *" # Hver morgen kl. 06.00
+      cronPattern: "0 0 6 * * *" # Hver morgen kl. 06:00
     notifySluttdatoForAvtalerNarmerSeg:
-      disabled: false
-      cronPattern: "0 0 6 * * *" # Hver morgen kl. 06.00
+      cronPattern: "0 0 6 * * *" # Hver morgen kl. 06:00
     notifyFailedKafkaEvents:
       maxRetries: 5
       delayOfMinutes: 15
     notifySluttdatoForMidlertidigStengtGjennomforingerNarmerSeg:
-      disabled: false
-      cronPattern: "0 0 6 * * *" # Hver morgen kl. 06.00
+      cronPattern: "0 0 6 * * *" # Hver morgen kl. 06:00
     oppdaterMetrikker:
-      disabled: false
       delayOfMinutes: 5
 
   norg2:
