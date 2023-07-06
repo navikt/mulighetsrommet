@@ -72,12 +72,12 @@ spec:
               - tiltaksgjennomforing-read
         - application: journalforing-frontend-q2
           namespace: isa
-          permission:
+          permissions:
             roles:
               - tiltaksgjennomforing-read
         - application: tiltakspenger-tiltak
           namespace: tpts
-          permission:
+          permissions:
             roles:
               - tiltaksgjennomforing-read
     outbound:

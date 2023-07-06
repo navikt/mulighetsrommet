@@ -75,7 +75,7 @@ spec:
               - tiltaksgjennomforing-read
         - application: tiltakspenger-tiltak
           namespace: tpts
-          permission:
+          permissions:
             roles:
               - tiltaksgjennomforing-read
     outbound:
