@@ -2,12 +2,12 @@ package no.nav.mulighetsrommet.api.repositories
 
 import kotliquery.Row
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.domain.dto.TiltakshistorikkDto
+import no.nav.mulighetsrommet.api.domain.dbo.TiltakshistorikkDbo
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
+import no.nav.mulighetsrommet.domain.dbo.ArenaTiltakshistorikkDbo
 import no.nav.mulighetsrommet.domain.dbo.Deltakerstatus
-import no.nav.mulighetsrommet.domain.dbo.TiltakshistorikkDbo
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 import java.util.*
@@ -16,7 +16,7 @@ class TiltakshistorikkRepository(private val db: Database) {
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    fun upsert(tiltakshistorikk: TiltakshistorikkDbo): QueryResult<TiltakshistorikkDbo> = query {
+    fun upsert(tiltakshistorikk: ArenaTiltakshistorikkDbo): QueryResult<ArenaTiltakshistorikkDbo> = query {
         logger.info("Lagrer tiltakshistorikk id=${tiltakshistorikk.id}")
 
         @Language("PostgreSQL")
@@ -56,7 +56,7 @@ class TiltakshistorikkRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    fun getTiltakshistorikkForBruker(norskIdent: String): List<TiltakshistorikkDto> {
+    fun getTiltakshistorikkForBruker(norskIdent: String): List<TiltakshistorikkDbo> {
         @Language("PostgreSQL")
         val query = """
             select h.id,
@@ -76,7 +76,7 @@ class TiltakshistorikkRepository(private val db: Database) {
         return db.run(queryResult)
     }
 
-    private fun TiltakshistorikkDbo.toSqlParameters(): Map<String, *> {
+    private fun ArenaTiltakshistorikkDbo.toSqlParameters(): Map<String, *> {
         return mapOf(
             "id" to id,
             "norsk_ident" to norskIdent,
@@ -85,11 +85,11 @@ class TiltakshistorikkRepository(private val db: Database) {
             "til_dato" to tilDato,
             "registrert_i_arena_dato" to registrertIArenaDato,
         ) + when (this) {
-            is TiltakshistorikkDbo.Gruppetiltak -> listOfNotNull(
+            is ArenaTiltakshistorikkDbo.Gruppetiltak -> listOfNotNull(
                 "tiltaksgjennomforing_id" to tiltaksgjennomforingId,
             )
 
-            is TiltakshistorikkDbo.IndividueltTiltak -> listOfNotNull(
+            is ArenaTiltakshistorikkDbo.IndividueltTiltak -> listOfNotNull(
                 "beskrivelse" to beskrivelse,
                 "arrangor_organisasjonsnummer" to arrangorOrganisasjonsnummer,
                 "tiltakstypeid" to tiltakstypeId,
@@ -97,10 +97,10 @@ class TiltakshistorikkRepository(private val db: Database) {
         }
     }
 
-    private fun Row.toTiltakshistorikkDbo(): TiltakshistorikkDbo {
+    private fun Row.toTiltakshistorikkDbo(): ArenaTiltakshistorikkDbo {
         return uuidOrNull("tiltaksgjennomforing_id")
             ?.let {
-                TiltakshistorikkDbo.Gruppetiltak(
+                ArenaTiltakshistorikkDbo.Gruppetiltak(
                     id = uuid("id"),
                     tiltaksgjennomforingId = it,
                     norskIdent = string("norsk_ident"),
@@ -110,7 +110,7 @@ class TiltakshistorikkRepository(private val db: Database) {
                     registrertIArenaDato = localDateTime("registrert_i_arena_dato"),
                 )
             }
-            ?: TiltakshistorikkDbo.IndividueltTiltak(
+            ?: ArenaTiltakshistorikkDbo.IndividueltTiltak(
                 id = uuid("id"),
                 norskIdent = string("norsk_ident"),
                 status = Deltakerstatus.valueOf(string("status")),
@@ -123,15 +123,13 @@ class TiltakshistorikkRepository(private val db: Database) {
             )
     }
 
-    private fun Row.toTiltakshistorikk() = TiltakshistorikkDto(
+    private fun Row.toTiltakshistorikk() = TiltakshistorikkDbo(
         id = uuid("id"),
         fraDato = localDateTimeOrNull("fra_dato"),
         tilDato = localDateTimeOrNull("til_dato"),
         status = Deltakerstatus.valueOf(string("status")),
         tiltaksnavn = stringOrNull("navn"),
         tiltakstype = string("tiltakstype"),
-        arrangor = stringOrNull("arrangor_organisasjonsnummer")?.let {
-            TiltakshistorikkDto.Arrangor(organisasjonsnummer = it, navn = null)
-        },
+        arrangorOrganisasjonsnummer = stringOrNull("arrangor_organisasjonsnummer"),
     )
 }

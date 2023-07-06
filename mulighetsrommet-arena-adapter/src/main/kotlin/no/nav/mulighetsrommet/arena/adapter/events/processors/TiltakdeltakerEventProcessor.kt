@@ -24,9 +24,9 @@ import no.nav.mulighetsrommet.arena.adapter.utils.ArenaUtils
 import no.nav.mulighetsrommet.domain.Tiltakshistorikk
 import no.nav.mulighetsrommet.domain.Tiltakskoder.isAmtTiltak
 import no.nav.mulighetsrommet.domain.Tiltakskoder.isGruppetiltak
+import no.nav.mulighetsrommet.domain.dbo.ArenaTiltakshistorikkDbo
 import no.nav.mulighetsrommet.domain.dbo.DeltakerDbo
 import no.nav.mulighetsrommet.domain.dbo.Deltakeropphav
-import no.nav.mulighetsrommet.domain.dbo.TiltakshistorikkDbo
 import java.util.*
 
 class TiltakdeltakerEventProcessor(
@@ -162,9 +162,9 @@ class TiltakdeltakerEventProcessor(
         tiltakstype: Tiltakstype,
         tiltaksgjennomforing: Tiltaksgjennomforing,
         norskIdent: String,
-    ) = either<ProcessingError, TiltakshistorikkDbo> {
+    ) = either<ProcessingError, ArenaTiltakshistorikkDbo> {
         if (isGruppetiltak(tiltakstype.tiltakskode)) {
-            TiltakshistorikkDbo.Gruppetiltak(
+            ArenaTiltakshistorikkDbo.Gruppetiltak(
                 id = id,
                 norskIdent = norskIdent,
                 status = status,
@@ -183,7 +183,7 @@ class TiltakdeltakerEventProcessor(
                     .map { it.virksomhetsnummer }
                     .bind()
             }
-            TiltakshistorikkDbo.IndividueltTiltak(
+            ArenaTiltakshistorikkDbo.IndividueltTiltak(
                 id = id,
                 norskIdent = norskIdent,
                 status = status,

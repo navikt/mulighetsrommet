@@ -36,8 +36,8 @@ import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.database.utils.getOrThrow
 import no.nav.mulighetsrommet.domain.Tiltakshistorikk
 import no.nav.mulighetsrommet.domain.Tiltakskoder
+import no.nav.mulighetsrommet.domain.dbo.ArenaTiltakshistorikkDbo
 import no.nav.mulighetsrommet.domain.dbo.DeltakerDbo
-import no.nav.mulighetsrommet.domain.dbo.TiltakshistorikkDbo
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.decodeRequestBody
 import no.nav.mulighetsrommet.ktor.getLastPathParameterAsUUID
@@ -305,8 +305,8 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
                 engine.requestHistory.last().apply {
                     method shouldBe HttpMethod.Put
 
-                    decodeRequestBody<TiltakshistorikkDbo>().apply {
-                        shouldBeInstanceOf<TiltakshistorikkDbo.Gruppetiltak>()
+                    decodeRequestBody<ArenaTiltakshistorikkDbo>().apply {
+                        shouldBeInstanceOf<ArenaTiltakshistorikkDbo.Gruppetiltak>()
                         id shouldBe mapping.entityId
                         tiltaksgjennomforingId shouldBe tiltaksgjennomforing.id
                         norskIdent shouldBe "12345678910"
@@ -349,8 +349,8 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
                 engine.requestHistory.last().apply {
                     method shouldBe HttpMethod.Put
 
-                    decodeRequestBody<TiltakshistorikkDbo>().apply {
-                        shouldBeInstanceOf<TiltakshistorikkDbo.IndividueltTiltak>()
+                    decodeRequestBody<ArenaTiltakshistorikkDbo>().apply {
+                        shouldBeInstanceOf<ArenaTiltakshistorikkDbo.IndividueltTiltak>()
                         id shouldBe mapping.entityId
                         beskrivelse shouldBe tiltaksgjennomforingIndividuell.navn
                         arrangorOrganisasjonsnummer shouldBe "123456"
@@ -380,7 +380,7 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
                 engine.requestHistory shouldHaveSingleElement {
                     it.method == HttpMethod.Put &&
                         it.url.encodedPath == "/api/v1/internal/arena/tiltakshistorikk" &&
-                        it.decodeRequestBody<TiltakshistorikkDbo>().id == mapping.entityId
+                        it.decodeRequestBody<ArenaTiltakshistorikkDbo>().id == mapping.entityId
                 }
 
                 engine.requestHistory shouldHaveSingleElement {

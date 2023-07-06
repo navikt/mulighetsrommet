@@ -14,11 +14,21 @@ class TiltakshistorikkService(
 
     suspend fun hentHistorikkForBruker(norskIdent: String): List<TiltakshistorikkDto> {
         return tiltakshistorikkRepository.getTiltakshistorikkForBruker(norskIdent).map {
-            val arrangor = it.arrangor?.let { arrangor ->
-                val navn = hentArrangorNavn(arrangor.organisasjonsnummer)
-                arrangor.copy(navn = navn)
+            val arrangor = it.arrangorOrganisasjonsnummer?.let { orgnr ->
+                val navn = hentArrangorNavn(orgnr)
+                TiltakshistorikkDto.Arrangor(organisasjonsnummer = orgnr, navn = navn)
             }
-            it.copy(arrangor = arrangor)
+            it.run {
+                TiltakshistorikkDto(
+                    id = id,
+                    fraDato = fraDato,
+                    tilDato = tilDato,
+                    status = status,
+                    tiltaksnavn = tiltaksnavn,
+                    tiltakstype = tiltakstype,
+                    arrangor = arrangor,
+                )
+            }
         }
     }
 

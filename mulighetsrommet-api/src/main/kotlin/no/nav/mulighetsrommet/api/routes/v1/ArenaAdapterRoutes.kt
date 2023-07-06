@@ -88,7 +88,7 @@ fun Route.arenaAdapterRoutes() {
         }
 
         put("tiltakshistorikk") {
-            val tiltakshistorikk = call.receive<TiltakshistorikkDbo>()
+            val tiltakshistorikk = call.receive<ArenaTiltakshistorikkDbo>()
 
             arenaAdapterService.upsertTiltakshistorikk(tiltakshistorikk)
                 .map { call.respond(HttpStatusCode.OK, it) }
