@@ -2,7 +2,6 @@ import { Button, Search } from "@navikt/ds-react";
 import { useQueryClient } from "@tanstack/react-query";
 import classNames from "classnames";
 import { useAtom } from "jotai";
-import { RESET } from "jotai/vanilla/utils";
 import {
   Avtale,
   Norg2Type,
@@ -10,9 +9,8 @@ import {
   Tiltakstypestatus,
   VirksomhetTil,
 } from "mulighetsrommet-api-client";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
 import {
   Tiltaksgjennomforingfilter as TiltaksgjennomforingAtomFilter,
   defaultTiltaksgjennomforingfilter,
@@ -36,6 +34,7 @@ import { LeggTilGjennomforingModal } from "../modal/LeggTilGjennomforingModal";
 import { OpprettTiltaksgjennomforingModal } from "../modal/OpprettTiltaksgjennomforingModal";
 import { SokeSelect } from "../skjema/SokeSelect";
 import styles from "./Filter.module.scss";
+import { useNavigate } from "react-router-dom";
 import { FilterTag } from "./FilterTag";
 
 type Filters = "tiltakstype";
@@ -67,11 +66,6 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
     },
   });
   const { register, setValue } = form;
-
-  useEffect(() => {
-    // Reset filter når vi unmounter
-    return () => setFilter(RESET);
-  }, []);
 
   const features = useFeatureToggles();
   const visOpprettTiltaksgjennomforingKnapp =

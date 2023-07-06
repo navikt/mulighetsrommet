@@ -1,7 +1,5 @@
 import { Button, Search } from "@navikt/ds-react";
 import { useAtom } from "jotai";
-import { RESET } from "jotai/vanilla/utils";
-import { useEffect } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import {
   TiltakstypeFilter,
@@ -24,11 +22,6 @@ export function Tiltakstypefilter() {
     },
   });
   const { register, setValue } = form;
-
-  useEffect(() => {
-    // Reset filter når vi unmounter
-    return () => setFilter(RESET);
-  }, []);
 
   const statusOptions = () => {
     return [

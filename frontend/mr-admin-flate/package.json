@@ -29,7 +29,6 @@
     "debounce": "^1.2.1",
     "eslint": "8.44.0",
     "jotai": "^2.2.2",
-    "jotai-location": "^0.5.1",
     "mulighetsrommet-api-client": "*",
     "mulighetsrommet-frontend-common": "*",
     "react": "^18.2.0",
