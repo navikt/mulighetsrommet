@@ -13,12 +13,15 @@ import no.nav.mulighetsrommet.arena.adapter.models.ProcessingError
 import no.nav.mulighetsrommet.arena.adapter.models.ProcessingResult
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTiltakdeltaker
-import no.nav.mulighetsrommet.arena.adapter.models.db.*
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.Handled
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.Ignored
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
+import no.nav.mulighetsrommet.arena.adapter.models.db.Deltaker
+import no.nav.mulighetsrommet.arena.adapter.models.db.Tiltaksgjennomforing
+import no.nav.mulighetsrommet.arena.adapter.models.db.Tiltakstype
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
-import no.nav.mulighetsrommet.arena.adapter.utils.AktivitetsplanenLaunchDate
 import no.nav.mulighetsrommet.arena.adapter.utils.ArenaUtils
+import no.nav.mulighetsrommet.domain.Tiltakshistorikk
 import no.nav.mulighetsrommet.domain.Tiltakskoder.isAmtTiltak
 import no.nav.mulighetsrommet.domain.Tiltakskoder.isGruppetiltak
 import no.nav.mulighetsrommet.domain.dbo.DeltakerDbo
@@ -36,8 +39,11 @@ class TiltakdeltakerEventProcessor(
     override suspend fun handleEvent(event: ArenaEvent) = either {
         val data = event.decodePayload<ArenaTiltakdeltaker>()
 
-        if (isRegisteredBeforeAktivitetsplanen(data)) {
-            return@either ProcessingResult(Ignored, "Deltaker ignorert fordi den registrert før Aktivitetsplanen")
+        if (isNoLongerRelevantForBrukersTiltakshistorikk(data)) {
+            return@either ProcessingResult(
+                Ignored,
+                "Deltaker ignorert fordi den ikke lengre er relevant for brukers tiltakshistorikk",
+            )
         }
 
         val tiltaksgjennomforingIsIgnored = entities
@@ -133,8 +139,8 @@ class TiltakdeltakerEventProcessor(
         entities.deleteDeltaker(mapping.entityId).bind()
     }
 
-    private fun isRegisteredBeforeAktivitetsplanen(data: ArenaTiltakdeltaker): Boolean {
-        return ArenaUtils.parseTimestamp(data.REG_DATO).isBefore(AktivitetsplanenLaunchDate)
+    private fun isNoLongerRelevantForBrukersTiltakshistorikk(data: ArenaTiltakdeltaker): Boolean {
+        return !Tiltakshistorikk.isRelevantTiltakshistorikk(ArenaUtils.parseTimestamp(data.REG_DATO))
     }
 
     private fun ArenaTiltakdeltaker.toDeltaker(id: UUID) = Either

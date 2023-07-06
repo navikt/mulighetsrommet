@@ -30,11 +30,11 @@ import no.nav.mulighetsrommet.arena.adapter.models.dto.ArenaOrdsArrangor
 import no.nav.mulighetsrommet.arena.adapter.models.dto.ArenaOrdsFnr
 import no.nav.mulighetsrommet.arena.adapter.repositories.*
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
-import no.nav.mulighetsrommet.arena.adapter.utils.AktivitetsplanenLaunchDate
 import no.nav.mulighetsrommet.arena.adapter.utils.ArenaUtils
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.database.utils.getOrThrow
+import no.nav.mulighetsrommet.domain.Tiltakshistorikk
 import no.nav.mulighetsrommet.domain.Tiltakskoder
 import no.nav.mulighetsrommet.domain.dbo.DeltakerDbo
 import no.nav.mulighetsrommet.domain.dbo.TiltakshistorikkDbo
@@ -51,10 +51,6 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
     afterEach {
         database.db.truncateAll()
     }
-
-    val regDatoBeforeAktivitetsplanen = AktivitetsplanenLaunchDate
-        .minusDays(1)
-        .format(ArenaUtils.TimestampFormatter)
 
     context("handleEvent") {
         val entities = ArenaEntityService(
@@ -180,14 +176,22 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
                 }
             }
 
-            test("should be ignored when REG_DATO is before aktivitetsplanen") {
+            test("should be ignored when it's no longer relevant for brukers tiltakshistorikk") {
+                val regDatoBeforeTiltakshistorikkStart = LocalDateTime.now()
+                    .minus(Tiltakshistorikk.TiltakshistorikkTimePeriod)
+                    .minusDays(1)
+                    .format(ArenaUtils.TimestampFormatter)
+
                 val processor = createProcessor()
 
                 val event = createArenaTiltakdeltakerEvent(Insert) {
-                    it.copy(REG_DATO = regDatoBeforeAktivitetsplanen)
+                    it.copy(REG_DATO = regDatoBeforeTiltakshistorikkStart)
                 }
 
-                processor.handleEvent(event).shouldBeRight().should { it.status shouldBe Ignored }
+                processor.handleEvent(event).shouldBeRight().should {
+                    it.status shouldBe Ignored
+                    it.message shouldBe "Deltaker ignorert fordi den ikke lengre er relevant for brukers tiltakshistorikk"
+                }
             }
 
             test("should be ignored when dependent tiltaksgjennomforing is ignored") {
