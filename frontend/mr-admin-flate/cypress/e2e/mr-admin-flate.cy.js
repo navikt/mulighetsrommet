@@ -115,7 +115,7 @@ describe("Utkast", () => {
       cy.checkPageA11y();
     });
 
-    it.only("Skal kunne opprette et utkast og se det i oversikten over utkast", () => {
+    it("Skal kunne opprette et utkast og se det i oversikten over utkast", () => {
       cy.visit("/avtaler");
       cy.getByTestId("avtalerad").eq(0).click();
       cy.getByTestId("avtale-tiltaksgjennomforing-tab").click();
