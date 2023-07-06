@@ -12,8 +12,9 @@ import { Laster } from "../../components/laster/Laster";
 import { Tiltaksgjennomforingstatus } from "../../components/statuselementer/Tiltaksgjennomforingstatus";
 import { ContainerLayoutDetaljer } from "../../layouts/ContainerLayout";
 import commonStyles from "../Page.module.scss";
-import { NokkeltallForTiltaksgjennomforing } from "./nokkeltall/NokkeltallForTiltaksgjennomforing";
 import { TiltaksgjennomforingInfo } from "./TiltaksgjennomforingInfo";
+import { NokkeltallForTiltaksgjennomforing } from "./nokkeltall/NokkeltallForTiltaksgjennomforing";
+import { DeltakerListe } from "../../microfrontends/team_komet/Deltakerliste";
 
 export function DetaljerTiltaksgjennomforingerPage() {
   const optionalTiltaksgjennomforing = useTiltaksgjennomforingById();
@@ -60,6 +61,11 @@ export function DetaljerTiltaksgjennomforingerPage() {
             label="Detaljer"
             data-testid="tab_detaljer"
           />
+
+          {data?.["mulighetsrommet.admin-flate-vis-deltakerliste-fra-komet"] ? (
+            <Tabs.Tab value="poc" label="Deltakerliste" />
+          ) : null}
+
           {data?.["mulighetsrommet.admin-flate-vis-nokkeltall"] ? (
             <Tabs.Tab
               value="nokkeltall"
@@ -71,6 +77,11 @@ export function DetaljerTiltaksgjennomforingerPage() {
         <Tabs.Panel value="detaljer">
           <ContainerLayoutDetaljer>
             <TiltaksgjennomforingInfo />
+          </ContainerLayoutDetaljer>
+        </Tabs.Panel>
+        <Tabs.Panel value="poc">
+          <ContainerLayoutDetaljer>
+            <DeltakerListe />
           </ContainerLayoutDetaljer>
         </Tabs.Panel>
         <Tabs.Panel value="nokkeltall">

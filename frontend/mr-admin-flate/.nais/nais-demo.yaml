@@ -38,4 +38,9 @@ spec:
           "gcs": {
             "bucketName": "mr-admin-flate-demo"
           }
+          "header": {
+            "csp": {
+              "scriptSrc": ["'self'", "unsafe-inline", "esm.sh", "*.intern.dev.nav.no"]
+            }
+          },
         }
