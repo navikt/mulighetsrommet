@@ -1,6 +1,3 @@
-import { useAtom } from "jotai";
-import { useEffect } from "react";
-import { tiltaksgjennomforingfilter } from "../../../api/atoms";
 import { useAvtale } from "../../../api/avtaler/useAvtale";
 import { Tiltaksgjennomforingfilter } from "../../../components/filter/Tiltaksgjennomforingfilter";
 import { TiltaksgjennomforingsTabell } from "../../../components/tabell/TiltaksgjennomforingsTabell";
@@ -11,17 +8,9 @@ import { useFeatureToggles } from "../../../api/features/feature-toggles";
 
 export function TiltaksgjennomforingerForAvtale() {
   const avtaleId = useGetAvtaleIdFromUrl();
-  const [filter, setFilter] = useAtom(tiltaksgjennomforingfilter);
   const { data: features } = useFeatureToggles();
 
   const { data: avtale } = useAvtale(avtaleId);
-
-  useEffect(() => {
-    if (avtaleId) {
-      // For å filtrere på avtaler for den spesifikke tiltakstypen
-      setFilter({ ...filter, avtale: avtaleId });
-    }
-  }, [avtaleId]);
 
   return (
     <>

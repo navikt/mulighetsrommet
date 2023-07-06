@@ -36,13 +36,13 @@ data class AvtaleFilter(
 
 data class AdminTiltaksgjennomforingFilter(
     val search: String? = null,
-    val enhet: String? = null,
+    val navEnhet: String? = null,
     val tiltakstypeId: UUID? = null,
     val status: Tiltaksgjennomforingsstatus? = null,
     val sortering: String? = null,
     val sluttDatoCutoff: LocalDate? = ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate,
     val dagensDato: LocalDate = LocalDate.now(),
-    val fylkesenhet: String? = null,
+    val navRegion: String? = null,
     val avtaleId: UUID? = null,
     val arrangorOrgnr: String? = null,
 )
@@ -132,20 +132,20 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getAvtaleFilter(): AvtaleFilte
 
 fun <T : Any> PipelineContext<T, ApplicationCall>.getAdminTiltaksgjennomforingsFilter(): AdminTiltaksgjennomforingFilter {
     val search = call.request.queryParameters["search"]
-    val enhet = call.request.queryParameters["enhet"]
+    val navEnhet = call.request.queryParameters["navEnhet"]
     val tiltakstypeId = call.request.queryParameters["tiltakstypeId"]?.let { UUID.fromString(it) }
     val statuser = call.request.queryParameters["status"]?.let { Tiltaksgjennomforingsstatus.valueOf(it) }
     val sortering = call.request.queryParameters["sort"]
-    val fylkesenhet = call.request.queryParameters["fylkesenhet"]
+    val navRegion = call.request.queryParameters["navRegion"]
     val avtaleId = call.request.queryParameters["avtaleId"]?.let { UUID.fromString(it) }
     val arrangorOrgnr = call.request.queryParameters["arrangorOrgnr"]
     return AdminTiltaksgjennomforingFilter(
         search = search,
-        enhet = enhet,
+        navEnhet = navEnhet,
         tiltakstypeId = tiltakstypeId,
         status = statuser,
         sortering = sortering,
-        fylkesenhet = fylkesenhet,
+        navRegion = navRegion,
         avtaleId = avtaleId,
         arrangorOrgnr = arrangorOrgnr,
     )
