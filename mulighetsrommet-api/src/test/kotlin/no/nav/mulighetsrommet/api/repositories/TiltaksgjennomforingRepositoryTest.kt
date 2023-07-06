@@ -86,6 +86,12 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
                 stengtFra = null,
                 kontaktpersoner = listOf(),
+                lokasjonArrangor = null,
+                stengtTil = null,
+                arrangorNavn = null,
+                navRegion = null,
+                estimertVentetid = null,
+                arrangorKontaktperson = null,
             )
 
             tiltaksgjennomforinger.delete(gjennomforing1.id)
@@ -138,7 +144,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 navEnheter = emptyList(),
                 navRegion = null,
                 sanityId = null,
-                oppstartsdato = null,
                 opphav = ArenaMigrering.Opphav.ARENA,
                 stengtFra = null,
                 stengtTil = null,
@@ -780,7 +785,13 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                         navEnheter = emptyList(),
                         oppstart = TiltaksgjennomforingOppstartstype.FELLES,
                         opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
+                        kontaktpersoner = emptyList(),
                         lokasjonArrangor = "0139 Oslo",
+                        sluttDato = null,
+                        arrangorKontaktpersonId = null,
+                        stengtFra = null,
+                        stengtTil = null,
+                        estimertVentetid = null,
                     ),
                 )
             }
@@ -852,7 +863,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 
     context("Lokasjon til veilederflate fra gjennomføringer") {
         test("Skal hente ut distinkt liste med lokasjoner basert på brukers enhet eller fylkesenhet") {
-            val avtaleFixtures = AvtaleFixtures(database)
             avtaleFixtures.runBeforeTests()
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
             val enhetRepository = NavEnhetRepository(database.db)
@@ -876,21 +886,21 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             ).shouldBeRight()
 
             val avtale = avtaleFixtures.createAvtaleForTiltakstype(navRegion = "0400")
-            val gjennomforing1 = TiltaksgjennomforingFixtures.Oppfolging1.copy(
+            val gjennomforing01 = TiltaksgjennomforingFixtures.Oppfolging1.copy(
                 lokasjonArrangor = "0139 Oslo",
                 id = UUID.randomUUID(),
                 navEnheter = listOf("0482"),
                 avtaleId = avtale.id,
                 tiltakstypeId = avtaleFixtures.tiltakstypeId,
             )
-            val gjennomforing2 = TiltaksgjennomforingFixtures.Oppfolging1.copy(
+            val gjennomforing02 = TiltaksgjennomforingFixtures.Oppfolging1.copy(
                 lokasjonArrangor = "8756 Kristiansand",
                 id = UUID.randomUUID(),
                 navEnheter = listOf("0482"),
                 avtaleId = avtale.id,
                 tiltakstypeId = avtaleFixtures.tiltakstypeId,
             )
-            val gjennomforing3 = TiltaksgjennomforingFixtures.Oppfolging1.copy(
+            val gjennomforing03 = TiltaksgjennomforingFixtures.Oppfolging1.copy(
                 lokasjonArrangor = "0139 Oslo",
                 id = UUID.randomUUID(),
                 navEnheter = listOf("0482"),
@@ -898,9 +908,9 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 tiltakstypeId = avtaleFixtures.tiltakstypeId,
             )
             avtaleFixtures.upsertAvtaler(listOf(avtale))
-            tiltaksgjennomforinger.upsert(gjennomforing1).shouldBeRight()
-            tiltaksgjennomforinger.upsert(gjennomforing2).shouldBeRight()
-            tiltaksgjennomforinger.upsert(gjennomforing3).shouldBeRight()
+            tiltaksgjennomforinger.upsert(gjennomforing01).shouldBeRight()
+            tiltaksgjennomforinger.upsert(gjennomforing02).shouldBeRight()
+            tiltaksgjennomforinger.upsert(gjennomforing03).shouldBeRight()
 
             val result = tiltaksgjennomforinger.getLokasjonerForEnhet("0482", "0400")
             result.size shouldBe 2

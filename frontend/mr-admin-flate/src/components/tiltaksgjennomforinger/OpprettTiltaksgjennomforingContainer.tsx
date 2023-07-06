@@ -13,7 +13,7 @@ import {
 import { Opphav } from "mulighetsrommet-api-client/build/models/Opphav";
 import { Tilgjengelighetsstatus } from "mulighetsrommet-api-client/build/models/Tilgjengelighetsstatus";
 import { porten } from "mulighetsrommet-frontend-common/constants";
-import React, { Dispatch, SetStateAction, useEffect } from "react";
+import React, { Dispatch, SetStateAction, useEffect, useRef } from "react";
 import {
   FormProvider,
   SubmitHandler,
@@ -21,11 +21,13 @@ import {
   useForm,
 } from "react-hook-form";
 import { Link } from "react-router-dom";
+import { ToastContainer, Slide } from "react-toastify";
 import { v4 as uuidv4 } from "uuid";
 import z from "zod";
 import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
 import { useHentKontaktpersoner } from "../../api/ansatt/useHentKontaktpersoner";
 import { usePutGjennomforing } from "../../api/avtaler/usePutGjennomforing";
+import { mulighetsrommetClient } from "../../api/clients";
 import { useAlleEnheter } from "../../api/enhet/useAlleEnheter";
 import { useFeatureToggles } from "../../api/features/feature-toggles";
 import { useVirksomhet } from "../../api/virksomhet/useVirksomhet";
@@ -40,14 +42,14 @@ import { Laster } from "../laster/Laster";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
 import { SokeSelect } from "../skjema/SokeSelect";
-import styles from "./OpprettTiltaksgjennomforingContainer.module.scss";
-import { mulighetsrommetClient } from "../../api/clients";
 import { VirksomhetKontaktpersoner } from "../virksomhet/VirksomhetKontaktpersoner";
 import { Separator } from "../detaljside/Metadata";
+import { AutoSaveTiltaksgjennomforing } from "./AutoSaveTiltaksgjennomforing";
+import styles from "./OpprettTiltaksgjennomforingContainer.module.scss";
 
-const Schema = z
+export const TiltaksgjennomforingSchema = z
   .object({
-    tittel: z.string().min(1, "Du må skrive inn tittel"),
+    navn: z.string().min(1, "Du må skrive inn tittel"),
     startOgSluttDato: z
       .object({
         startDato: z.date({
@@ -90,7 +92,7 @@ const Schema = z
         required_error: "Du må velge en underenhet for tiltaksarrangør",
       })
       .min(1, "Du må velge en underenhet for tiltaksarrangør"),
-    lokasjonArrangor: z.string().refine((data) => data.length > 0, {
+    lokasjonArrangor: z.string().refine((data) => data?.length > 0, {
       message: "Du må skrive inn lokasjon for hvor gjennomføringen finner sted",
     }),
     arrangorKontaktpersonId: z.string().nullable().optional(),
@@ -139,7 +141,9 @@ const Schema = z
     }
   );
 
-export type inferredSchema = z.infer<typeof Schema>;
+export type inferredTiltaksgjennomforingSchema = z.infer<
+  typeof TiltaksgjennomforingSchema
+>;
 
 interface OpprettTiltaksgjennomforingContainerProps {
   onClose: () => void;
@@ -217,7 +221,7 @@ function defaultValuesForKontaktpersoner(
 ): TiltaksgjennomforingKontaktpersoner[] {
   if (!kontaktpersoner) return [{ navIdent: "", navEnheter: [] }];
 
-  return kontaktpersoner.map((person) => ({
+  return kontaktpersoner?.map((person) => ({
     navIdent: person.navIdent,
     navEnheter:
       person.navEnheter?.length === 0 ? ["alle_enheter"] : person.navEnheter,
@@ -231,14 +235,18 @@ export const OpprettTiltaksgjennomforingContainer = (
     useHentKontaktpersoner();
   const mutation = usePutGjennomforing();
   const { avtale, tiltaksgjennomforing, setError, onClose, onSuccess } = props;
-  const form = useForm<inferredSchema>({
-    resolver: zodResolver(Schema),
+  const utkastIdRef = useRef(tiltaksgjennomforing?.id || uuidv4());
+
+  const form = useForm<inferredTiltaksgjennomforingSchema>({
+    resolver: zodResolver(TiltaksgjennomforingSchema),
     defaultValues: {
-      tittel: tiltaksgjennomforing?.navn,
+      navn: tiltaksgjennomforing?.navn,
       navEnheter:
-        tiltaksgjennomforing?.navEnheter.length === 0
+        tiltaksgjennomforing?.navEnheter?.length === 0
           ? ["alle_enheter"]
-          : tiltaksgjennomforing?.navEnheter.map((enhet) => enhet.enhetsnummer),
+          : tiltaksgjennomforing?.navEnheter?.map(
+              (enhet) => enhet.enhetsnummer
+            ),
       ansvarlig: tiltaksgjennomforing?.ansvarlig,
       antallPlasser: tiltaksgjennomforing?.antallPlasser,
       startOgSluttDato: {
@@ -275,7 +283,7 @@ export const OpprettTiltaksgjennomforingContainer = (
     register,
     handleSubmit,
     control,
-    formState: { errors },
+    formState: { errors, defaultValues },
     setValue,
     watch,
   } = form;
@@ -336,7 +344,7 @@ export const OpprettTiltaksgjennomforingContainer = (
 
   const redigeringsModus = !!tiltaksgjennomforing;
 
-  const postData: SubmitHandler<inferredSchema> = async (
+  const postData: SubmitHandler<inferredTiltaksgjennomforingSchema> = async (
     data
   ): Promise<void> => {
     if (!features?.["mulighetsrommet.admin-flate-lagre-data-fra-admin-flate"]) {
@@ -353,7 +361,7 @@ export const OpprettTiltaksgjennomforingContainer = (
       navEnheter: data.navEnheter.includes("alle_enheter")
         ? []
         : data.navEnheter,
-      navn: data.tittel,
+      navn: data.navn,
       sluttDato: formaterDatoSomYYYYMMDD(data.startOgSluttDato.sluttDato),
       startDato: formaterDatoSomYYYYMMDD(data.startOgSluttDato.startDato),
       avtaleId: avtale?.id || "",
@@ -362,15 +370,15 @@ export const OpprettTiltaksgjennomforingContainer = (
         data.tiltaksArrangorUnderenhetOrganisasjonsnummer ||
         tiltaksgjennomforing?.arrangorOrganisasjonsnummer ||
         "",
-      tiltaksnummer: tiltaksgjennomforing?.tiltaksnummer,
+      tiltaksnummer: tiltaksgjennomforing?.tiltaksnummer ?? null,
       oppstart: data.oppstart,
       apenForInnsok: data.apenForInnsok,
       stengtFra: data.midlertidigStengt.erMidlertidigStengt
         ? formaterDatoSomYYYYMMDD(data.midlertidigStengt.stengtFra)
-        : undefined,
+        : null,
       stengtTil: data.midlertidigStengt.erMidlertidigStengt
         ? formaterDatoSomYYYYMMDD(data.midlertidigStengt.stengtTil)
-        : undefined,
+        : null,
       kontaktpersoner:
         data.kontaktpersoner
           ?.filter((kontakt) => kontakt.navIdent !== "")
@@ -380,9 +388,9 @@ export const OpprettTiltaksgjennomforingContainer = (
               ? []
               : kontakt.navEnheter,
           })) || [],
-      estimertVentetid: data.estimertVentetid,
+      estimertVentetid: data.estimertVentetid ?? null,
       lokasjonArrangor: data.lokasjonArrangor,
-      arrangorKontaktpersonId: data.arrangorKontaktpersonId ?? undefined,
+      arrangorKontaktpersonId: data.arrangorKontaktpersonId ?? null,
     };
 
     try {
@@ -428,7 +436,7 @@ export const OpprettTiltaksgjennomforingContainer = (
       )
       .filter(
         (enhet: NavEnhet) =>
-          avtale?.navEnheter.length === 0 ||
+          avtale?.navEnheter?.length === 0 ||
           avtale?.navEnheter.find((e) => e.enhetsnummer === enhet.enhetsnummer)
       )
       .map((enhet) => ({
@@ -459,7 +467,7 @@ export const OpprettTiltaksgjennomforingContainer = (
       }) || [];
 
     // Ingen underenheter betyr at alle er valgt, må gi valg om alle underenheter fra virksomhet
-    if (options.length === 0) {
+    if (options?.length === 0) {
       const enheter = virksomhet?.underenheter || [];
       return enheter.map((enhet) => ({
         value: enhet.organisasjonsnummer,
@@ -509,10 +517,11 @@ export const OpprettTiltaksgjennomforingContainer = (
                 <TextField
                   size="small"
                   readOnly={arenaOpphav}
-                  error={errors.tittel?.message}
+                  error={errors.navn?.message}
                   label="Tiltaksnavn"
                   autoFocus
-                  {...register("tittel")}
+                  data-testid="tiltaksgjennomforingnavn-input"
+                  {...register("navn")}
                 />
               </FormGroup>
               <Separator />
@@ -649,7 +658,7 @@ export const OpprettTiltaksgjennomforingContainer = (
                 ] ? (
                   <FormGroup>
                     <div>
-                      {kontaktpersonFields.map((field, index) => {
+                      {kontaktpersonFields?.map((field, index) => {
                         return (
                           <div className={styles.kontaktperson_container} key={field.id}>
                             <button
@@ -740,8 +749,8 @@ export const OpprettTiltaksgjennomforingContainer = (
                     <div className={styles.virksomhet_kontaktperson_container}>
                       <VirksomhetKontaktpersoner
                         title={"Kontaktperson hos arrangøren"}
-                        orgnr={watch('tiltaksArrangorUnderenhetOrganisasjonsnummer')}
-                        formValueName={'arrangorKontaktpersonId'}
+                        orgnr={watch("tiltaksArrangorUnderenhetOrganisasjonsnummer")}
+                        formValueName={"arrangorKontaktpersonId"}
                       />
                     </div>
                   }
@@ -782,6 +791,24 @@ export const OpprettTiltaksgjennomforingContainer = (
           </div>
         </div>
       </form>
+      {features?.["mulighetsrommet.admin-flate-lagre-utkast"] && avtale ? (
+        <AutoSaveTiltaksgjennomforing
+          defaultValues={defaultValues}
+          utkastId={utkastIdRef.current}
+          avtale={avtale}
+        />
+      ) : null}
+
+      <ToastContainer
+        position="bottom-right"
+        newestOnTop={true}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        transition={Slide}
+      />
     </FormProvider>
   );
 };

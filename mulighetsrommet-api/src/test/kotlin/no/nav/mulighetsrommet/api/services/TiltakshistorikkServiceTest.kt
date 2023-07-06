@@ -48,6 +48,13 @@ class TiltakshistorikkServiceTest : FunSpec({
         navEnheter = emptyList(),
         oppstart = TiltaksgjennomforingOppstartstype.FELLES,
         opphav = ArenaMigrering.Opphav.ARENA,
+        sluttDato = null,
+        kontaktpersoner = emptyList(),
+        arrangorKontaktpersonId = null,
+        stengtFra = null,
+        stengtTil = null,
+        lokasjonArrangor = null,
+        estimertVentetid = null,
     )
 
     val tiltakshistorikkGruppe = TiltakshistorikkDbo.Gruppetiltak(

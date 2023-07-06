@@ -5,7 +5,7 @@ info:
   title: Mulighetsrommet API
 
 security:
-  - bearerAuth: []
+  - bearerAuth: [ ]
 
 paths:
   /api/v1/internal/bruker:
@@ -472,7 +472,7 @@ paths:
           description: Sanity query result
           content:
             application/json:
-              schema: {}
+              schema: { }
 
   /api/v1/internal/sanity/innsatsgrupper:
     get:
@@ -493,7 +493,7 @@ paths:
     get:
       tags:
         - Sanity
-      operationId: getTiltakstyper
+      operationId: getSanityTiltakstyper
       responses:
         200:
           description: Tiltakstyper definert i Sanity
@@ -567,10 +567,11 @@ paths:
     get:
       tags:
         - Sanity
-      operationId: getTiltaksgjennomforing
+      operationId: getSanityTiltaksgjennomforing
       parameters:
         - in: path
           name: id
+          required: true
           schema:
             type: string
           description: ID for tiltaksgjennomføring i Sanity
@@ -723,7 +724,7 @@ paths:
             type: string
           description: "Brukers fnr"
         - in: path
-          name: "sanityId"
+          name: sanityId
           description: "ID fra Sanity-dokument"
           required: true
           schema:
@@ -747,13 +748,6 @@ paths:
       tags:
         - Del med bruker
       operationId: postDelMedBruker
-      parameters:
-        - in: path
-          name: "sanityId"
-          description: "ID for Sanity-dokument"
-          required: true
-          schema:
-            type: string
       requestBody:
         content:
           application/json:
@@ -866,6 +860,7 @@ paths:
       parameters:
         - in: path
           name: orgnr
+          required: true
           schema:
             type: string
           description: 9-sifret organisasjonsnummer
@@ -885,6 +880,7 @@ paths:
       parameters:
         - in: path
           name: orgnr
+          required: true
           schema:
             type: string
           description: 9-sifret organisasjonsnummer
@@ -904,6 +900,7 @@ paths:
       parameters:
         - in: path
           name: orgnr
+          required: true
           schema:
             type: string
           description: 9-sifret organisasjonsnummer
@@ -928,6 +925,7 @@ paths:
       parameters:
         - in: path
           name: sok
+          required: true
           schema:
             type: string
           description: Søkestreng for navn på virksomheter
@@ -995,6 +993,84 @@ paths:
         200:
           description: OK
 
+  /api/v1/internal/utkast:
+    get:
+      parameters:
+        - $ref: "#/components/parameters/Utkasttype"
+        - $ref: "#/components/parameters/AvtaleId"
+      tags:
+        - Utkast
+      operationId: getAlleUtkast
+      responses:
+        200:
+          description: Liste med utkast
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Utkast"
+
+    put:
+      tags:
+        - Utkast
+      operationId: lagreUtkast
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Utkast"
+      responses:
+        200:
+          description: Data om utkast
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Utkast"
+
+  /api/v1/internal/utkast/mine:
+    get:
+      parameters:
+        - $ref: "#/components/parameters/Utkasttype"
+        - $ref: "#/components/parameters/AvtaleId"
+      tags:
+        - Utkast
+      operationId: getMineUtkast
+      responses:
+        200:
+          description: Liste med utkast for innlogget bruker
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Utkast"
+
+  /api/v1/internal/utkast/{id}:
+    parameters:
+      - $ref: "#/components/parameters/ID"
+    get:
+      tags:
+        - Utkast
+      operationId: getUtkast
+      responses:
+        200:
+          description: Data om utkast
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Utkast"
+
+    delete:
+      tags:
+        - Utkast
+      operationId: deleteUtkast
+      responses:
+        200:
+          description: Om utkastet ble slettet eller ikke
+        500:
+          description: Hvis noe gikk galt ved sletting av utkast
+
 components:
   securitySchemes:
     bearerAuth:
@@ -1021,6 +1097,23 @@ components:
       name: fnr
       in: query
       description: Fødselsnummer
+      required: true
+      schema:
+        type: string
+    Utkasttype:
+      in: query
+      name: utkasttype
+      description: Typen for utkastet
+      required: true
+      schema:
+        type: string
+        enum:
+          - Avtale
+          - Tiltaksgjennomforing
+    AvtaleId:
+      in: query
+      name: avtaleId
+      description: Avtalen utkastene gjelder for
       required: true
       schema:
         type: string
@@ -1416,8 +1509,10 @@ components:
         arrangorKontaktpersonId:
           type: string
           format: UUID
+          nullable: true
         tiltaksnummer:
           type: string
+          nullable: true
         ansvarlig:
           type: string
         navEnheter:
@@ -1429,9 +1524,11 @@ components:
         stengtFra:
           type: string
           format: date
+          nullable: true
         stengtTil:
           type: string
           format: date
+          nullable: true
         apenForInnsok:
           type: boolean
         kontaktpersoner:
@@ -1440,21 +1537,29 @@ components:
             $ref: "#/components/schemas/TiltaksgjennomforingKontaktpersonerRequest"
         estimertVentetid:
           type: string
+          nullable: true
         lokasjonArrangor:
           type: string
+          nullable: true
       required:
         - id
-        - avtaleId
         - tiltakstypeId
+        - avtaleId
         - navn
         - startDato
         - sluttDato
         - antallPlasser
         - arrangorOrganisasjonsnummer
+        - arrangorKontaktpersonId
+        - tiltaksnummer
         - ansvarlig
         - navEnheter
         - oppstart
+        - stengtFra
+        - stengtTil
+        - apenForInnsok
         - kontaktpersoner
+        - estimertVentetid
         - lokasjonArrangor
 
     TiltaksgjennomforingAvslutningsstatus:
@@ -2236,3 +2341,34 @@ components:
       required:
         - navIdent
         - navEnheter
+
+    Utkast:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        avtaleId:
+          type: string
+          format: uuid
+        opprettetAv:
+          type: string
+          nullable: true
+        utkastData:
+          type: object
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        type:
+          type: string
+          enum:
+            - Avtale
+            - Tiltaksgjennomforing
+      required:
+        - id
+        - avtaleId
+        - utkastData
+        - type

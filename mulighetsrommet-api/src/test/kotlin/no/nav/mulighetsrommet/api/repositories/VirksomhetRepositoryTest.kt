@@ -244,6 +244,13 @@ class VirksomhetRepositoryTest : FunSpec({
                 navEnheter = emptyList(),
                 oppstart = TiltaksgjennomforingOppstartstype.FELLES,
                 opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
+                sluttDato = null,
+                kontaktpersoner = emptyList(),
+                arrangorKontaktpersonId = null,
+                stengtFra = null,
+                stengtTil = null,
+                lokasjonArrangor = null,
+                estimertVentetid = null,
             )
             tiltaksgjennomforingRepository.upsert(tiltaksgjennomforing).shouldBeRight()
 

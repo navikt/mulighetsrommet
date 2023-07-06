@@ -232,58 +232,86 @@ export function Avtalefilter(props: Props) {
             )}
           </div>
           <div className={styles.tags_container}>
-            {filter.status &&
+            {filter.status && (
               <FilterTag
                 label={filter.status}
                 onClick={() => {
                   setFilter({ ...filter, status: "" });
-                  setValue('status', "");
+                  setValue("status", "");
                 }}
               />
-            }
-            {filter.navRegion && 
+            )}
+            {filter.navRegion && (
               <FilterTag
-                label={enheter?.find(e => e.enhetsnummer === filter.navRegion)?.navn}
+                label={
+                  enheter?.find((e) => e.enhetsnummer === filter.navRegion)
+                    ?.navn
+                }
                 onClick={() => {
-                  setFilter({ ...filter, navRegion: defaultAvtaleFilter.navRegion });
-                  setValue('navRegion', defaultAvtaleFilter.navRegion);
+                  setFilter({
+                    ...filter,
+                    navRegion: defaultAvtaleFilter.navRegion,
+                  });
+                  setValue("navRegion", defaultAvtaleFilter.navRegion);
                 }}
               />
-            }
-            {filter.tiltakstype &&
+            )}
+            {filter.tiltakstype && (
               <FilterTag
-                label={tiltakstyper?.data?.find(t => t.id === filter.tiltakstype)?.navn}
+                label={
+                  tiltakstyper?.data?.find((t) => t.id === filter.tiltakstype)
+                    ?.navn
+                }
                 onClick={() => {
-                  setFilter({ ...filter, tiltakstype: defaultAvtaleFilter.tiltakstype });
-                  setValue('tiltakstype', defaultAvtaleFilter.tiltakstype);
+                  setFilter({
+                    ...filter,
+                    tiltakstype: defaultAvtaleFilter.tiltakstype,
+                  });
+                  setValue("tiltakstype", defaultAvtaleFilter.tiltakstype);
                 }}
               />
-            }
-            {filter.leverandor_orgnr &&
+            )}
+            {filter.leverandor_orgnr && (
               <FilterTag
-                label={leverandorer?.find(l => l.organisasjonsnummer === filter.leverandor_orgnr)?.navn}
+                label={
+                  leverandorer?.find(
+                    (l) => l.organisasjonsnummer === filter.leverandor_orgnr
+                  )?.navn
+                }
                 onClick={() => {
-                  setFilter({ ...filter, leverandor_orgnr: defaultAvtaleFilter.leverandor_orgnr });
-                  setValue('leverandor_orgnr', defaultAvtaleFilter.leverandor_orgnr);
+                  setFilter({
+                    ...filter,
+                    leverandor_orgnr: defaultAvtaleFilter.leverandor_orgnr,
+                  });
+                  setValue(
+                    "leverandor_orgnr",
+                    defaultAvtaleFilter.leverandor_orgnr
+                  );
                 }}
               />
-            }
-            { (filter.status || filter.navRegion || filter.tiltakstype || filter.leverandor_orgnr) &&
+            )}
+            {(filter.status ||
+              filter.navRegion ||
+              filter.tiltakstype ||
+              filter.leverandor_orgnr) && (
               <Button
                 type="button"
                 size="small"
                 variant="tertiary"
                 onClick={() => {
                   setFilter({ ...defaultAvtaleFilter, status: "" });
-                  setValue('status', "");
-                  setValue('navRegion', defaultAvtaleFilter.navRegion);
-                  setValue('tiltakstype', defaultAvtaleFilter.tiltakstype);
-                  setValue('leverandor_orgnr', defaultAvtaleFilter.leverandor_orgnr);
+                  setValue("status", "");
+                  setValue("navRegion", defaultAvtaleFilter.navRegion);
+                  setValue("tiltakstype", defaultAvtaleFilter.tiltakstype);
+                  setValue(
+                    "leverandor_orgnr",
+                    defaultAvtaleFilter.leverandor_orgnr
+                  );
                 }}
               >
                 Tilbakestill filter
               </Button>
-            }
+            )}
           </div>
         </div>
       </form>

@@ -6,6 +6,7 @@ import no.nav.mulighetsrommet.api.repositories.UtkastRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.NotFound
 import no.nav.mulighetsrommet.api.routes.v1.responses.ServerError
 import no.nav.mulighetsrommet.api.routes.v1.responses.StatusResponse
+import no.nav.mulighetsrommet.api.utils.UtkastFilter
 import java.util.*
 
 class UtkastService(
@@ -17,7 +18,7 @@ class UtkastService(
 
     fun upsert(utkast: UtkastDbo): StatusResponse<UtkastDto> {
         return utkastRepository.upsert(utkast).map { it!! }
-            .mapLeft { error -> ServerError("Klarte ikke lagre utkast med id: ${utkast.id}. Cause: ${error?.toString()}") }
+            .mapLeft { error -> ServerError("Klarte ikke lagre utkast med id: ${utkast.id}. Cause: $error") }
     }
 
     fun deleteUtkast(id: UUID): StatusResponse<Unit> {
@@ -25,5 +26,10 @@ class UtkastService(
             .mapLeft {
                 ServerError(message = "Det oppsto en feil ved sletting av utkastet")
             }
+    }
+
+    fun getAll(filter: UtkastFilter): StatusResponse<List<UtkastDto>> {
+        return utkastRepository.getAll(filter = filter).map { it }
+            .mapLeft { error -> ServerError("Klarte ikke hente alle utkast med filter: $filter. Cause: $error") }
     }
 }

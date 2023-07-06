@@ -57,7 +57,11 @@ export function DetaljerAvtalePage() {
       >
         <Tabs.List className={commonStyles.list}>
           <Tabs.Tab value="avtaleinfo" label="Avtaleinfo" />
-          <Tabs.Tab value="tiltaksgjennomforinger" label="Gjennomføringer" />
+          <Tabs.Tab
+            data-testid="avtale-tiltaksgjennomforing-tab"
+            value="tiltaksgjennomforinger"
+            label="Gjennomføringer"
+          />
           {data?.["mulighetsrommet.admin-flate-vis-nokkeltall"] ? (
             <Tabs.Tab value="nokkeltall" label="Nøkkeltall" />
           ) : null}

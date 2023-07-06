@@ -30,8 +30,8 @@ class KafkaSyncService(
                 pagination = paginationParams,
             ).getOrThrow()
 
-            tiltaksgjennomforinger.forEach { it ->
-                tiltaksgjennomforingRepository.get(it.id).getOrThrow()
+            tiltaksgjennomforinger.forEach { id ->
+                tiltaksgjennomforingRepository.get(id).getOrThrow()
                     ?.let {
                         tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingDto.from(it))
                     }

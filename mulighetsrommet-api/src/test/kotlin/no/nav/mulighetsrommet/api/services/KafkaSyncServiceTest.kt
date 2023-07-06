@@ -66,6 +66,12 @@ class KafkaSyncServiceTest : FunSpec({
             navEnheter = emptyList(),
             oppstart = TiltaksgjennomforingOppstartstype.FELLES,
             opphav = ArenaMigrering.Opphav.ARENA,
+            kontaktpersoner = emptyList(),
+            arrangorKontaktpersonId = null,
+            stengtFra = null,
+            stengtTil = null,
+            lokasjonArrangor = null,
+            estimertVentetid = null,
         )
     }
 
