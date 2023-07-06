@@ -9,9 +9,25 @@ import {
 } from "mulighetsrommet-api-client";
 import { atom } from "jotai";
 import { AVTALE_PAGE_SIZE, PAGE_SIZE } from "../constants";
-import { atomWithStorage } from 'jotai/vanilla/utils';
 
-export function atomWithHashInLocalStorage<Value>(
+/**
+ * atomWithStorage fra jotai rendrer først alltid initial value selv om den
+ * finnes i storage (https://github.com/pmndrs/jotai/discussions/1879#discussioncomment-5626120)
+ * Dette er anbefalt måte og ha en sync versjon av atomWithStorage
+ */
+function atomWithStorage<Value>(key: string, initialValue: Value, storage = localStorage) {
+  const baseAtom = atom(storage.getItem(key) ?? JSON.stringify(initialValue))
+  return atom(
+    (get) => JSON.parse(get(baseAtom)),
+    (get, set, nextValue: Value) => {
+      const str = JSON.stringify(nextValue);
+      set(baseAtom, str);
+      storage.setItem(key, str);
+    }
+  )
+}
+
+function atomWithHashAndStorage<Value>(
   key: string,
   initialValue: Value,
 ) {
@@ -24,37 +40,26 @@ export function atomWithHashInLocalStorage<Value>(
       `${window.location.pathname}${window.location.search}#${searchParams.toString()}`,
     );
   };
-  const innerAtom = atomWithStorage<Value>(
-    key,
-    initialValue,
-    {
-      getItem: (key, initialValue) => {
-        const hash = localStorage.getItem(key)
-        if (hash !== null && hash !== "undefined") {
-          setHash(hash);
-          return JSON.parse(hash);
-        } else {
-          return initialValue;
-        }
-      },
-      setItem: (key, value) => {
-        const hash = JSON.stringify(value);
-        setHash(hash);
-        localStorage.setItem(key, hash)
-      },
-      removeItem: (key) => {
-        localStorage.removeItem(key)
-      }
-    }
+  const innerAtom = atomWithStorage(key, initialValue);
+
+  return atom(
+    (get) => {
+      const value = get(innerAtom);
+      setHash(JSON.stringify(value))
+      return value;
+    },
+    (get, set, newValue: Value) => {
+      set(innerAtom, newValue);
+      setHash(JSON.stringify(newValue));
+    },
   );
-  return innerAtom;
 }
 
-export const paginationAtom = atomWithHashInLocalStorage("page", 1);
+export const paginationAtom = atomWithHashAndStorage("page", 1);
 
-export const avtalePaginationAtom = atomWithHashInLocalStorage("avtalePage", 1);
+export const avtalePaginationAtom = atomWithHashAndStorage("avtalePage", 1);
 
-export const faneAtom = atomWithHashInLocalStorage("fane", "tab_notifikasjoner_1");
+export const faneAtom = atomWithHashAndStorage("fane", "tab_notifikasjoner_1");
 
 export interface TiltakstypeFilter {
   sok?: string;
@@ -70,7 +75,7 @@ export const defaultTiltakstypeFilter: TiltakstypeFilter = {
   sortering: SorteringTiltakstyper.NAVN_ASCENDING,
 };
 
-export const tiltakstypeFilter = atomWithHashInLocalStorage<TiltakstypeFilter>(
+export const tiltakstypeFilter = atomWithHashAndStorage<TiltakstypeFilter>(
   "tiltakstypefilter",
   defaultTiltakstypeFilter,
 );
@@ -100,7 +105,7 @@ export const defaultTiltaksgjennomforingfilter: Tiltaksgjennomforingfilter = {
 };
 
 export const tiltaksgjennomforingfilter =
-  atomWithHashInLocalStorage<Tiltaksgjennomforingfilter>(
+  atomWithHashAndStorage<Tiltaksgjennomforingfilter>(
     "tiltaksgjennomforingFilter",
     defaultTiltaksgjennomforingfilter,
   );
@@ -133,24 +138,22 @@ export const defaultAvtaleFilter: AvtaleFilterProps = {
   avtaleTab: "avtaleinfo",
 };
 
-const avtaleFilter = atomWithHashInLocalStorage<AvtaleFilterProps>(
+export const avtaleFilter = atomWithHashAndStorage<AvtaleFilterProps>(
   "avtalefilter",
   defaultAvtaleFilter,
 );
 
 export type TiltakstypeAvtaleTabs = "arenaInfo" | "avtaler";
 
-export const avtaleTabAtom = atomWithHashInLocalStorage<TiltakstypeAvtaleTabs>(
+export const avtaleTabAtom = atomWithHashAndStorage<TiltakstypeAvtaleTabs>(
   "avtaleTab",
   "arenaInfo",
 );
 
-export { avtaleFilter };
-
 export type TiltaksgjennomforingerTabs = "detaljer" | "nokkeltall";
 
 export const tiltaksgjennomforingTabAtom =
-  atomWithHashInLocalStorage<TiltaksgjennomforingerTabs>(
+  atomWithHashAndStorage<TiltaksgjennomforingerTabs>(
     "tiltaksgjennomforingTab",
     "detaljer",
   );
