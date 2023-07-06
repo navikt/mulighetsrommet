@@ -3,13 +3,14 @@ import { ErrorBoundary } from "react-error-boundary";
 import { getEnvironment } from "../../api/getEnvironment";
 import { useManifest } from "../../api/useManifest";
 import { Laster } from "../../components/laster/Laster";
-import { pocManifestUrl, DELTAKERLISTE_KOMET } from "../../urls";
+import { deltakerlisteKometManifestUrl, DELTAKERLISTE_KOMET } from "../../urls";
 import { DELTAKERLISTE_ENTRY, DELTAKERLISTE_MODULE } from "../entrypoints";
 import { Alert, Button } from "@navikt/ds-react";
 
 export function DeltakerListe() {
-  const { data: manifest, isLoading: isLoadingManifest } =
-    useManifest(pocManifestUrl);
+  const { data: manifest, isLoading: isLoadingManifest } = useManifest(
+    deltakerlisteKometManifestUrl
+  );
   if (isLoadingManifest) {
     return <Laster />;
   }
