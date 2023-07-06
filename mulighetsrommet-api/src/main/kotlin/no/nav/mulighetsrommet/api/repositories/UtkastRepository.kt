@@ -24,11 +24,13 @@ class UtkastRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            insert into utkast(id,
-                               opprettet_av,
-                               utkast_data,
-                               utkast_type)
+            insert into utkast( id,
+                                avtale_id,
+                                opprettet_av,
+                                utkast_data,
+                                utkast_type)
             values (:id::uuid,
+                    :avtale_id::uuid,
                     :opprettet_av,
                     :utkast_data::jsonb,
                     :utkast_type::utkasttype)
@@ -57,6 +59,33 @@ class UtkastRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
+    fun getAll(filter: UtkastFilter): QueryResult<List<UtkastDto>> = query {
+        logger.info("Henter utkast med filter: $filter")
+
+        val params = mapOf(
+            "utkast_type" to filter.type.name,
+            "opprettetAv" to filter.opprettetAv,
+            "avtaleId" to filter.avtaleId,
+        )
+
+        val where = DatabaseUtils.andWhereParameterNotNull(
+            filter.type to "utkast_type = :utkast_type::utkasttype",
+            filter.opprettetAv to "opprettet_av = :opprettetAv",
+            filter.avtaleId to "avtale_id = :avtaleId::uuid",
+        )
+
+        @Language("PostgreSQL")
+        val query = """
+            select * from utkast $where
+            order by updated_at asc
+        """.trimIndent()
+
+        queryOf(query, params)
+            .map { it.toUtkastDto() }
+            .asList
+            .let { db.run(it) }
+    }
+
     fun delete(id: UUID) = query {
         logger.info("Sletter utkast med id: $id")
         @Language("PostgreSQL")
@@ -71,6 +100,7 @@ class UtkastRepository(private val db: Database) {
 
     private fun UtkastDbo.toSqlParams() = mapOf(
         "id" to id,
+        "avtale_id" to avtaleId,
         "opprettet_av" to opprettetAv,
         "utkast_data" to utkastData.toString(),
         "utkast_type" to type.name,
@@ -79,6 +109,7 @@ class UtkastRepository(private val db: Database) {
     private fun Row.toUtkastDto(): UtkastDto {
         return UtkastDto(
             id = uuid("id"),
+            avtaleId = uuid("avtale_id"),
             opprettetAv = string("opprettet_av"),
             utkastData = Json.decodeFromString(string("utkast_data")),
             createdAt = localDateTime("created_at"),

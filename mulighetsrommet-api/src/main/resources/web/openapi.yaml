@@ -5,7 +5,7 @@ info:
   title: Mulighetsrommet API
 
 security:
-  - bearerAuth: []
+  - bearerAuth: [ ]
 
 paths:
   /api/v1/internal/bruker:
@@ -472,7 +472,7 @@ paths:
           description: Sanity query result
           content:
             application/json:
-              schema: {}
+              schema: { }
 
   /api/v1/internal/sanity/innsatsgrupper:
     get:
@@ -993,6 +993,84 @@ paths:
         200:
           description: OK
 
+  /api/v1/internal/utkast:
+    get:
+      parameters:
+        - $ref: "#/components/parameters/Utkasttype"
+        - $ref: "#/components/parameters/AvtaleId"
+      tags:
+        - Utkast
+      operationId: getAlleUtkast
+      responses:
+        200:
+          description: Liste med utkast
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Utkast"
+
+    put:
+      tags:
+        - Utkast
+      operationId: lagreUtkast
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Utkast"
+      responses:
+        200:
+          description: Data om utkast
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Utkast"
+
+  /api/v1/internal/utkast/mine:
+    get:
+      parameters:
+        - $ref: "#/components/parameters/Utkasttype"
+        - $ref: "#/components/parameters/AvtaleId"
+      tags:
+        - Utkast
+      operationId: getMineUtkast
+      responses:
+        200:
+          description: Liste med utkast for innlogget bruker
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Utkast"
+
+  /api/v1/internal/utkast/{id}:
+    parameters:
+      - $ref: "#/components/parameters/ID"
+    get:
+      tags:
+        - Utkast
+      operationId: getUtkast
+      responses:
+        200:
+          description: Data om utkast
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Utkast"
+
+    delete:
+      tags:
+        - Utkast
+      operationId: deleteUtkast
+      responses:
+        200:
+          description: Om utkastet ble slettet eller ikke
+        500:
+          description: Hvis noe gikk galt ved sletting av utkast
+
 components:
   securitySchemes:
     bearerAuth:
@@ -1019,6 +1097,23 @@ components:
       name: fnr
       in: query
       description: Fødselsnummer
+      required: true
+      schema:
+        type: string
+    Utkasttype:
+      in: query
+      name: utkasttype
+      description: Typen for utkastet
+      required: true
+      schema:
+        type: string
+        enum:
+          - Avtale
+          - Tiltaksgjennomforing
+    AvtaleId:
+      in: query
+      name: avtaleId
+      description: Avtalen utkastene gjelder for
       required: true
       schema:
         type: string
@@ -2246,3 +2341,34 @@ components:
       required:
         - navIdent
         - navEnheter
+
+    Utkast:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        avtaleId:
+          type: string
+          format: uuid
+        opprettetAv:
+          type: string
+          nullable: true
+        utkastData:
+          type: object
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        type:
+          type: string
+          enum:
+            - Avtale
+            - Tiltaksgjennomforing
+      required:
+        - id
+        - avtaleId
+        - utkastData
+        - type
