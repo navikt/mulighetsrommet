@@ -63,6 +63,11 @@ spec:
           "auth": {
             "loginProvider": "AZURE_AD"
           },
+          "header": {
+            "csp": {
+              "connectSrc": ["'self'", "esm.sh"]
+            }
+          },
           "proxies": [
             {
               "fromPath": "/unleash",
