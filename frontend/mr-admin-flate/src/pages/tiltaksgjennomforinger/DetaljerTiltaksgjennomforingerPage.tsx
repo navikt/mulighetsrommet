@@ -61,7 +61,11 @@ export function DetaljerTiltaksgjennomforingerPage() {
             label="Detaljer"
             data-testid="tab_detaljer"
           />
-          <Tabs.Tab value="poc" label="Deltakerliste" />
+
+          {data?.["mulighetsrommet.admin-flate-vis-deltakerliste-fra-komet"] ? (
+            <Tabs.Tab value="poc" label="Deltakerliste" />
+          ) : null}
+
           {data?.["mulighetsrommet.admin-flate-vis-nokkeltall"] ? (
             <Tabs.Tab
               value="nokkeltall"

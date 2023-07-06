@@ -3,8 +3,9 @@ import { ErrorBoundary } from "react-error-boundary";
 import { getEnvironment } from "../../api/getEnvironment";
 import { useManifest } from "../../api/useManifest";
 import { Laster } from "../../components/laster/Laster";
-import { pocManifestUrl, POC_BASE_URL } from "../../urls";
+import { pocManifestUrl, DELTAKERLISTE_KOMET } from "../../urls";
 import { DELTAKERLISTE_ENTRY, DELTAKERLISTE_MODULE } from "../entrypoints";
+import { Alert, Button } from "@navikt/ds-react";
 
 export function DeltakerListe() {
   const { data: manifest, isLoading: isLoadingManifest } =
@@ -16,7 +17,7 @@ export function DeltakerListe() {
   const DeltakerlisteMikrofrontend = React.lazy(
     () =>
       import(
-        `${POC_BASE_URL[getEnvironment()]}/${
+        `${DELTAKERLISTE_KOMET[getEnvironment()]}/${
           manifest[DELTAKERLISTE_ENTRY][DELTAKERLISTE_MODULE]
         }`
       )
@@ -25,7 +26,22 @@ export function DeltakerListe() {
   return (
     <React.Suspense fallback="Laster...">
       <ErrorBoundary
-        FallbackComponent={() => <p>Klarte ikke laste inn deltakerlisten</p>}
+        FallbackComponent={({ resetErrorBoundary }) => {
+          return (
+            <>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "1rem",
+                }}
+              >
+                <Alert variant="error">Klarte ikke laste deltakerliste</Alert>
+                <Button onClick={resetErrorBoundary}>Prøv på nytt</Button>
+              </div>
+            </>
+          );
+        }}
       >
         <DeltakerlisteMikrofrontend />
       </ErrorBoundary>
