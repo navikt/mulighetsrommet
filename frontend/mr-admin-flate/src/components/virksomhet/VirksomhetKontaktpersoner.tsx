@@ -24,12 +24,13 @@ interface State {
 interface VirksomhetKontaktpersonerProps {
   orgnr: string;
   formValueName: string;
+  title: string;
 }
 
 export const VirksomhetKontaktpersoner = (
   props: VirksomhetKontaktpersonerProps
 ) => {
-  const { orgnr, formValueName } = props;
+  const { orgnr, formValueName, title } = props;
   const { register, watch, setValue } = useFormContext();
   const mutation = usePutVirksomhetKontaktperson(orgnr);
   const {
@@ -86,91 +87,90 @@ export const VirksomhetKontaktpersoner = (
 
   return (
     <>
-      <div className={styles.container}>
-        <SokeSelect
+      <SokeSelect
+        size="small"
+        placeholder="Søk etter kontaktpersoner"
+        onClearValue={() => setValue(formValueName, null)}
+        label={title}
+        {...register(formValueName)}
+        options={kontaktpersoner.map((person) => ({
+          value: person.id,
+          label: person.navn,
+        }))}
+      />
+      {person &&
+        <div className={styles.kontaktperson_info_container}>
+          <label>{`Navn: ${person.navn}`}</label>
+          <label>{`Telefon: ${person.telefon}`}</label>
+          <label>{`Epost: ${person.epost}`}</label>
+        </div>
+      }
+      {!state.leggTil &&
+        <Button
+          className={classNames(
+            styles.kontaktperson_button,
+            styles.kontaktperson_fjern_button
+          )}
           size="small"
-          placeholder="Søk etter kontaktpersoner"
-          onClearValue={() => setValue(formValueName, null)}
-          label={"Velg kontaktperson"}
-          {...register(formValueName)}
-          options={kontaktpersoner.map((person) => ({
-            value: person.id,
-            label: person.navn,
-          }))}
-        />
-        {person &&
-          <div className={styles.kontaktperson_info_container}>
-            <label>{`Navn: ${person.navn}`}</label>
-            <label>{`Telefon: ${person.telefon}`}</label>
-            <label>{`Epost: ${person.epost}`}</label>
+          type="button"
+          onClick={() => setState({ ...state, leggTil: !state.leggTil })}
+        >
+          <PlusIcon /> eller opprett ny kontaktperson
+        </Button>
+      }
+      {state.leggTil &&
+        <div className={styles.input_container}>
+          <TextField
+            size="small"
+            label={"Navn"}
+            error={state.navnError}
+            onChange={(e) => {
+              setState({ ...state, navn: e.target.value, navnError: undefined });
+            }}
+          />
+          <div className={styles.telefonepost_input}>
+            <div className={styles.telefon_input}>
+              <TextField
+                size="small"
+                label="Telefon"
+                error={state.telefonError}
+                onChange={(e) => {
+                  setState({ ...state, telefon: e.target.value, telefonError: undefined });
+                }}
+              />
+            </div>
+            <div className={styles.epost_input}>
+              <TextField
+                size="small"
+                label="Epost"
+                error={state.epostError}
+                onChange={(e) => {
+                  setState({ ...state, epost: e.target.value, epostError: undefined });
+                }}
+              />
+            </div>
           </div>
-        }
-        {!state.leggTil &&
-          <Button
-            className={classNames(
-              styles.kontaktperson_button,
-              styles.kontaktperson_fjern_button
-            )}
-            type="button"
-            onClick={() => setState({ ...state, leggTil: !state.leggTil })}
-          >
-            <PlusIcon /> eller opprett ny kontaktperson
-          </Button>
-        }
-        {state.leggTil &&
-          <div className={styles.input_container}>
-            <TextField
+          <div className={styles.button_container}>
+            <Button
               size="small"
-              label={"Navn"}
-              error={state.navnError}
-              onChange={(e) => {
-                setState({ ...state, navn: e.target.value, navnError: undefined });
-              }}
-            />
-            <div className={styles.telefonepost_input}>
-              <div className={styles.telefon_input}>
-                <TextField
-                  size="small"
-                  label="Telefon"
-                  error={state.telefonError}
-                  onChange={(e) => {
-                    setState({ ...state, telefon: e.target.value, telefonError: undefined });
-                  }}
-                />
-              </div>
-              <div className={styles.epost_input}>
-                <TextField
-                  size="small"
-                  label="Epost"
-                  error={state.epostError}
-                  onChange={(e) => {
-                    setState({ ...state, epost: e.target.value, epostError: undefined });
-                  }}
-                />
-              </div>
-            </div>
-            <div className={styles.button_container}>
-              <Button
-                size="small"
-                className={styles.button}
-                type="button"
-                onClick={opprettKontaktperson}
-              >
-                Opprett kontaktperson
-              </Button>
-              <Button
-                size="small"
-                variant="secondary"
-                className={styles.button}
-                type="button"
-                onClick={() => setState(initialState)}
-              >
-                Avbryt
-              </Button>
-            </div>
+              className={styles.button}
+              type="button"
+              onClick={opprettKontaktperson}
+            >
+              Opprett kontaktperson
+            </Button>
+            <Button
+              size="small"
+              variant="secondary"
+              className={styles.button}
+              type="button"
+              onClick={() => setState(initialState)}
+            >
+              Avbryt
+            </Button>
           </div>
-        }
-      </div>
+        </div>
+      }
     </>
   );
 }

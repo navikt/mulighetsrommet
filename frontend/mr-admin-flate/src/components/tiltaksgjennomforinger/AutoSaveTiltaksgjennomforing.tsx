@@ -71,7 +71,7 @@ export const AutoSaveTiltaksgjennomforing = memo(
             : undefined,
           tiltakstypeId: avtale?.tiltakstype.id,
           avtaleId: avtale?.id,
-          arrangorKontaktpersonId: { id: values?.arrangorKontaktpersonId },
+          arrangorKontaktpersonId: { id: values?.arrangorKontaktpersonId ?? undefined },
           arrangorOrganisasjonsnummer:
             values.tiltaksArrangorUnderenhetOrganisasjonsnummer,
           kontaktpersoner:
