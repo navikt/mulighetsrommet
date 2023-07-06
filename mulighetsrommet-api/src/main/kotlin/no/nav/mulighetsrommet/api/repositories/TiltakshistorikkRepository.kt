@@ -107,7 +107,7 @@ class TiltakshistorikkRepository(private val db: Database) {
                     status = Deltakerstatus.valueOf(string("status")),
                     fraDato = localDateTimeOrNull("fra_dato"),
                     tilDato = localDateTimeOrNull("til_dato"),
-                    registrertIArenaDato = localDateTimeOrNull("registrert_i_arena_dato"),
+                    registrertIArenaDato = localDateTime("registrert_i_arena_dato"),
                 )
             }
             ?: TiltakshistorikkDbo.IndividueltTiltak(
@@ -116,7 +116,7 @@ class TiltakshistorikkRepository(private val db: Database) {
                 status = Deltakerstatus.valueOf(string("status")),
                 fraDato = localDateTimeOrNull("fra_dato"),
                 tilDato = localDateTimeOrNull("til_dato"),
-                registrertIArenaDato = localDateTimeOrNull("registrert_i_arena_dato"),
+                registrertIArenaDato = localDateTime("registrert_i_arena_dato"),
                 beskrivelse = string("beskrivelse"),
                 tiltakstypeId = uuid("tiltakstypeid"),
                 arrangorOrganisasjonsnummer = string("arrangor_organisasjonsnummer"),
