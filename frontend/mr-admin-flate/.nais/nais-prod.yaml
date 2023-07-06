@@ -67,7 +67,7 @@ spec:
           },
           "header": {
             "csp": {
-              "connectSrc": ["'self'", "esm.sh"]
+              "scriptSrc": ["'self'", "esm.sh"]
             }
           },
           "proxies": [
