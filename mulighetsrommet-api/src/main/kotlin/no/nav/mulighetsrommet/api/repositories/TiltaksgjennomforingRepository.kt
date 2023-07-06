@@ -4,7 +4,7 @@ import io.ktor.utils.io.core.*
 import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingDbo
+import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.utils.AdminTiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.api.utils.DatabaseUtils
 import no.nav.mulighetsrommet.api.utils.PaginationParams

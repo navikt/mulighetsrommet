@@ -1,29 +1,20 @@
 package no.nav.mulighetsrommet.api.domain.dbo
 
-import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
-import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
-import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import java.time.LocalDate
 import java.util.*
 
-@Serializable
 data class AvtaleDbo(
-    @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val navn: String,
-    @Serializable(with = UUIDSerializer::class)
     val tiltakstypeId: UUID,
     val avtalenummer: String? = null,
     val leverandorOrganisasjonsnummer: String,
     val leverandorUnderenheter: List<String>,
-    @Serializable(with = UUIDSerializer::class)
     val leverandorKontaktpersonId: UUID? = null,
-    @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate,
-    @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate,
     val arenaAnsvarligEnhet: String?,
     val navRegion: String?,
