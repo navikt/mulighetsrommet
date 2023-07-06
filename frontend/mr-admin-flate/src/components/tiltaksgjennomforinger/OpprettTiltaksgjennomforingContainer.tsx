@@ -515,6 +515,7 @@ export const OpprettTiltaksgjennomforingContainer = (
             error={errors.navn?.message}
             label="Tiltaksnavn"
             autoFocus
+            data-testid="tiltaksgjennomforingnavn-input"
             {...register("navn")}
           />
         </FormGroup>

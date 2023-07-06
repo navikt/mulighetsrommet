@@ -15,6 +15,8 @@ import { Laster } from "../laster/Laster";
 import { OpprettTiltaksgjennomforingModal } from "../modal/OpprettTiltaksgjennomforingModal";
 import { DocPencilIcon } from "@navikt/aksel-icons";
 import styles from "./TiltaksgjennomforingUtkast.module.scss";
+import { z } from "zod";
+import { ErrorBoundary } from "react-error-boundary";
 
 export function TiltaksgjennomforingUtkast() {
   // TODO Hent utkast basert på om man har valgt "mine" (default) eller alles utkast.
@@ -85,6 +87,10 @@ interface UtkastKortProps {
   onEdit: () => void;
 }
 
+const UtkastDataSchema = z.object({
+  navn: z.string(),
+});
+
 function UtkastKort({ utkast, onEdit }: UtkastKortProps) {
   const slettMutation = useDeleteUtkast();
   const { refetch } = useMineUtkast(Utkast.type.TILTAKSGJENNOMFORING);
@@ -93,8 +99,7 @@ function UtkastKort({ utkast, onEdit }: UtkastKortProps) {
     slettMutation.mutate(utkast.id, { onSuccess: async () => await refetch() });
   }
 
-  // TODO Parse data
-  const data: any = utkast.utkastData;
+  const data = UtkastDataSchema.parse(utkast.utkastData);
   return (
     <div className={styles.utkast}>
       <div>

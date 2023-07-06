@@ -351,24 +351,49 @@ export const apiHandlers = [
   rest.put<Utkast, any, any>(
     "*/api/v1/internal/utkast",
     async (req, res, ctx) => {
-      const responsErOk = Math.random() > 0.2;
-      if (responsErOk) {
-        const data = await req.json();
+      const data = await req.json<Utkast>();
 
-        const payload: Utkast = {
-          ...data,
-          createdAt:
-            formaterDatoTid(data.createdAt) || formaterDatoTid(new Date()),
-          updatedAt: formaterDatoTid(new Date()),
+      const lagretUtkastIndex = mockUtkast.findIndex((ut) => ut.id === data.id);
+
+      let payload: Utkast = {
+        ...data,
+        createdAt: new Date().toDateString(),
+        updatedAt: new Date().toDateString(),
+      };
+
+      if (lagretUtkastIndex > -1) {
+        const lagretUtkast = mockUtkast[lagretUtkastIndex];
+        payload = {
+          ...payload,
+          ...lagretUtkast,
+          utkastData: { ...data.utkastData },
         };
-
-        return res(
-          ctx.status(200),
-          ctx.delay(),
-          ctx.json<Utkast>({ ...payload })
-        );
+        mockUtkast[lagretUtkastIndex] = payload;
+        console.log("Upserted", mockUtkast);
+      } else {
+        mockUtkast.push(data);
+        console.log("Pushed", data);
       }
-      return res.networkError("Klarte ikke lagre utkast");
+
+      return res(
+        ctx.status(200),
+        ctx.delay(),
+        ctx.json<Utkast>({ ...payload })
+      );
+    }
+  ),
+  rest.get<Utkast, any, any>(
+    "*/api/v1/internal/utkast/:id",
+    async (req, res, ctx) => {
+      return res(ctx.status(200), ctx.delay(), ctx.json(mockUtkast));
+    }
+  ),
+  rest.delete<Utkast, any, any>(
+    "*/api/v1/internal/utkast/:id",
+    async (req, res, ctx) => {
+      const { id } = req.params;
+      const updated = mockUtkast.filter((ut) => ut.id !== id);
+      return res(ctx.status(200), ctx.delay(), ctx.json(updated));
     }
   ),
   rest.get<Utkast, any, any>(

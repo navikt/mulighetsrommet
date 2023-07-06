@@ -58,7 +58,7 @@ export const QueryKeys = {
     orgnr,
     "virksomhet-kontaktpersoner",
   ],
-  alleUtkast: (avtaleId: string = "") => ["alleUtkast", avtaleId],
+  alleUtkast: (avtaleId: string = "") => ["utkast", "alleUtkast", avtaleId],
   mineUtkast: (avtaleId: string) => ["utkast", avtaleId],
   utkast: (utkastId: string) => ["utkast", utkastId],
 };
