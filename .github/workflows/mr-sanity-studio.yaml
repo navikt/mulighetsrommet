@@ -24,6 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
     steps:
+      - uses: GitHubSecurityLab/actions-permissions/monitor@v1
       - uses: actions/checkout@v3
       - name: Setup frontend og installer avhengigheter
         uses: ./.github/actions/setup-frontend
@@ -47,6 +48,7 @@ jobs:
     needs: [ bygg-studio ]
     if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
     steps:
+      - uses: GitHubSecurityLab/actions-permissions/monitor@v1
       - uses: actions/checkout@v3
       - uses: nais/deploy/actions/deploy@v1
         env:

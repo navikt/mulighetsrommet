@@ -70,6 +70,7 @@ jobs:
     needs: [build-and-test]
     if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
     steps:
+      - uses: GitHubSecurityLab/actions-permissions/monitor@v1
       - name: Checkout
         uses: actions/checkout@v3
       - name: Deploy
@@ -86,6 +87,7 @@ jobs:
     needs: [build-and-test, deploy-dev]
     if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'dev_and_prod'
     steps:
+      - uses: GitHubSecurityLab/actions-permissions/monitor@v1
       - name: Checkout
         uses: actions/checkout@v3
       - name: Deploy

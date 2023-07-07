@@ -11,6 +11,7 @@ jobs:
     permissions:
       id-token: 'write' # Used to authenticate with Google Cloud
     steps:
+      - uses: GitHubSecurityLab/actions-permissions/monitor@v1
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:

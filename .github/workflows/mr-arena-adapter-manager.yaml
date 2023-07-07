@@ -32,6 +32,7 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     steps:
+      - uses: GitHubSecurityLab/actions-permissions/monitor@v1
       - uses: actions/checkout@v3
       - name: Setup frontend
         uses: ./.github/actions/setup-frontend
@@ -50,6 +51,7 @@ jobs:
       id-token: 'write' # Used to authenticate with Google Cloud
     if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
     steps:
+      - uses: GitHubSecurityLab/actions-permissions/monitor@v1
       - uses: actions/download-artifact@v3
         with:
           name: dist
@@ -72,6 +74,7 @@ jobs:
       id-token: 'write' # Used to authenticate with Google Cloud
     if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'dev_and_prod'
     steps:
+      - uses: GitHubSecurityLab/actions-permissions/monitor@v1
       - uses: actions/download-artifact@v3
         with:
           name: dist

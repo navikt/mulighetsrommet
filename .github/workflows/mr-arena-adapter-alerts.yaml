@@ -12,6 +12,7 @@ jobs:
     name: Apply alerts to cluster
     runs-on: ubuntu-latest
     steps:
+      - uses: GitHubSecurityLab/actions-permissions/monitor@v1
       - name: Checkout code
         uses: actions/checkout@v3
       - name: deploy to dev
