@@ -19,8 +19,6 @@ export const REDIGER_TILTAKSGJENNOMFORING_ADMIN_FLATE =
   "mulighetsrommet.admin-flate-rediger-tiltaksgjennomforing";
 export const SLETT_TILTAKSGJENNOMFORING_ADMIN_FLATE =
   "mulighetsrommet.admin-flate-slett-tiltaksgjennomforing";
-export const KOBLE_TILTAKSANSVARLIGE_TIL_GJENNOMFORING =
-  "mulighetsrommet.admin-flate-koble-tiltaksansvarlig-til-gjennomforing";
 export const LAGRE_UTKAST = "mulighetsrommet.admin-flate-lagre-utkast";
 export const VIS_DELTAKERLISTE_KOMET =
   "mulighetsrommet.admin-flate-vis-deltakerliste-fra-komet";
@@ -36,7 +34,6 @@ export const ALL_TOGGLES = [
   SLETTE_AVTALE,
   REDIGER_TILTAKSGJENNOMFORING_ADMIN_FLATE,
   SLETT_TILTAKSGJENNOMFORING_ADMIN_FLATE,
-  KOBLE_TILTAKSANSVARLIGE_TIL_GJENNOMFORING,
   LAGRE_UTKAST,
   VIS_DELTAKERLISTE_KOMET,
 ] as const;
@@ -54,7 +51,6 @@ export const initialFeatures: Features = {
   "mulighetsrommet.admin-flate-slett-avtale": false,
   "mulighetsrommet.admin-flate-slett-tiltaksgjennomforing": false,
   "mulighetsrommet.admin-flate-rediger-tiltaksgjennomforing": false,
-  "mulighetsrommet.admin-flate-koble-tiltaksansvarlig-til-gjennomforing": false,
   "mulighetsrommet.admin-flate-lagre-utkast": false,
   "mulighetsrommet.admin-flate-vis-deltakerliste-fra-komet": false,
 };
