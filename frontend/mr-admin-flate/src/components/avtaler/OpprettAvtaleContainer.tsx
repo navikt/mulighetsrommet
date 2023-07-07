@@ -1,3 +1,4 @@
+import { faro } from "@grafana/faro-web-sdk";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Textarea, TextField } from "@navikt/ds-react";
 import classNames from "classnames";
@@ -9,14 +10,18 @@ import {
   NavAnsatt,
   Norg2Type,
   Opphav,
+  Utkast,
 } from "mulighetsrommet-api-client";
 import { NavEnhet } from "mulighetsrommet-api-client/build/models/NavEnhet";
 import { Tiltakstype } from "mulighetsrommet-api-client/build/models/Tiltakstype";
 import { StatusModal } from "mulighetsrommet-veileder-flate/src/components/modal/delemodal/StatusModal";
-import { ReactNode, useState } from "react";
+import { ReactNode, useRef, useState } from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
+import { toast, ToastContainer, Slide } from "react-toastify";
+import { v4 as uuidv4 } from "uuid";
 import { usePutAvtale } from "../../api/avtaler/usePutAvtale";
 import { useFeatureToggles } from "../../api/features/feature-toggles";
+import { useMutateUtkast } from "../../api/utkast/useMutateUtkast";
 import { useSokVirksomheter } from "../../api/virksomhet/useSokVirksomhet";
 import { useVirksomhet } from "../../api/virksomhet/useVirksomhet";
 import { arenaKodeErAftEllerVta } from "../../utils/tiltakskoder";
@@ -25,14 +30,34 @@ import {
   formaterDatoSomYYYYMMDD,
   tiltakstypekodeErAnskaffetTiltak,
 } from "../../utils/Utils";
+import { Separator } from "../detaljside/Metadata";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
+import { SokeSelect } from "../skjema/SokeSelect";
+import { AutoSaveUtkast } from "../tiltaksgjennomforinger/AutoSaveUtkast";
+import { VirksomhetKontaktpersoner } from "../virksomhet/VirksomhetKontaktpersoner";
 import { AvtaleSchema, inferredSchema } from "./AvtaleSchema";
 import styles from "./OpprettAvtaleContainer.module.scss";
-import { faro } from "@grafana/faro-web-sdk";
-import { VirksomhetKontaktpersoner } from "../virksomhet/VirksomhetKontaktpersoner";
-import { SokeSelect } from "../skjema/SokeSelect";
-import { Separator } from "../detaljside/Metadata";
+
+type UtkastData = Pick<
+  Avtale,
+  | "navn"
+  | "tiltakstype"
+  | "navRegion"
+  | "navEnheter"
+  | "ansvarlig"
+  | "avtaletype"
+  | "leverandor"
+  | "leverandorUnderenheter"
+  | "leverandorKontaktperson"
+  | "startDato"
+  | "sluttDato"
+  | "url"
+  | "prisbetingelser"
+> & {
+  avtaleId: string;
+  id: string;
+};
 
 interface OpprettAvtaleContainerProps {
   onClose: () => void;
@@ -62,6 +87,57 @@ export function OpprettAvtaleContainer({
   const { data: leverandorVirksomheter = [] } =
     useSokVirksomheter(sokLeverandor);
   const { data: features } = useFeatureToggles();
+  const mutationUtkast = useMutateUtkast();
+  const utkastIdRef = useRef(avtale?.id || uuidv4());
+
+  const saveUtkast = (values: inferredSchema) => {
+    const utkastData: UtkastData = {
+      navn: values?.avtalenavn,
+      tiltakstype: {
+        id: values?.tiltakstype,
+        arenaKode: "",
+        navn: "",
+      },
+      navRegion: {
+        navn: "",
+        enhetsnummer: values?.navRegion,
+      },
+      navEnheter: values?.navEnheter?.map((enhetsnummer) => ({
+        navn: "",
+        enhetsnummer,
+      })),
+      ansvarlig: values?.avtaleansvarlig,
+      avtaletype: values?.avtaletype,
+      leverandor: {
+        navn: "",
+        organisasjonsnummer: values?.leverandor,
+      },
+      leverandorUnderenheter: values?.leverandorUnderenheter?.map(
+        (organisasjonsnummer) => ({ navn: "", organisasjonsnummer })
+      ),
+      startDato: values?.startOgSluttDato?.startDato?.toDateString(),
+      sluttDato: values?.startOgSluttDato?.sluttDato?.toDateString(),
+      url: values?.url,
+      prisbetingelser: values?.prisOgBetalingsinfo || "",
+      avtaleId: avtale?.id || utkastIdRef.current,
+      id: avtale?.id || utkastIdRef.current,
+    };
+
+    if (!values.avtalenavn) {
+      toast.info("For å lagre utkast må du gi utkastet et navn", {
+        autoClose: 10000,
+      });
+      return;
+    }
+
+    mutationUtkast.mutate({
+      id: utkastIdRef.current,
+      utkastData,
+      type: Utkast.type.AVTALE,
+      opprettetAv: ansatt?.navIdent,
+      avtaleId: utkastIdRef.current,
+    });
+  };
 
   const defaultEnhet = () => {
     if (avtale?.navRegion?.enhetsnummer) {
@@ -88,9 +164,9 @@ export function OpprettAvtaleContainer({
       tiltakstype: avtale?.tiltakstype?.id,
       navRegion: defaultEnhet(),
       navEnheter:
-        avtale?.navEnheter.length === 0
+        avtale?.navEnheter?.length === 0
           ? ["alle_enheter"]
-          : avtale?.navEnheter.map((e) => e.enhetsnummer),
+          : avtale?.navEnheter?.map((e) => e.enhetsnummer),
       avtaleansvarlig: avtale?.ansvarlig || ansatt.navIdent || "",
       avtalenavn: getValueOrDefault(avtale?.navn, ""),
       avtaletype: getValueOrDefault(avtale?.avtaletype, Avtaletype.AVTALE),
@@ -99,11 +175,11 @@ export function OpprettAvtaleContainer({
         ""
       ),
       leverandorUnderenheter:
-        avtale?.leverandorUnderenheter.length === 0
+        avtale?.leverandorUnderenheter?.length === 0
           ? []
           : avtale?.leverandorUnderenheter?.map(
-            (enhet) => enhet.organisasjonsnummer
-          ),
+              (enhet) => enhet.organisasjonsnummer
+            ),
       leverandorKontaktpersonId: avtale?.leverandorKontaktperson?.id,
       startOgSluttDato: {
         startDato: avtale?.startDato ? new Date(avtale.startDato) : undefined,
@@ -119,7 +195,7 @@ export function OpprettAvtaleContainer({
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, defaultValues },
     watch,
     setValue,
   } = form;
@@ -221,8 +297,8 @@ export function OpprettAvtaleContainer({
             {(mutation.error as ApiError).status === 400
               ? (mutation.error as ApiError).body
               : "Avtalen kunne ikke opprettes på grunn av en teknisk feil hos oss. " +
-              "Forsøk på nytt eller ta <a href={porten}>kontakt</a> i Porten dersom " +
-              "du trenger mer hjelp."}
+                "Forsøk på nytt eller ta <a href={porten}>kontakt</a> i Porten dersom " +
+                "du trenger mer hjelp."}
           </>
         }
         onClose={onClose}
@@ -294,6 +370,7 @@ export function OpprettAvtaleContainer({
                   readOnly={arenaOpphav}
                   error={errors.avtalenavn?.message}
                   label="Avtalenavn"
+                  autoFocus
                   {...register("avtalenavn")}
                 />
               </FormGroup>
@@ -467,7 +544,9 @@ export function OpprettAvtaleContainer({
               type="submit"
               onClick={() => {
                 faro?.api?.pushEvent(
-                  `Bruker ${redigeringsModus ? "redigerer" : "oppretter"} avtale`,
+                  `Bruker ${
+                    redigeringsModus ? "redigerer" : "oppretter"
+                  } avtale`,
                   { handling: redigeringsModus ? "redigerer" : "oppretter" },
                   "avtale"
                 );
@@ -478,6 +557,24 @@ export function OpprettAvtaleContainer({
           </div>
         </div>
       </form>
+      {features?.["mulighetsrommet.admin-flate-lagre-utkast"] ? (
+        <AutoSaveUtkast
+          defaultValues={defaultValues}
+          utkastId={utkastIdRef.current}
+          onSave={() => saveUtkast(watch())}
+          mutation={mutationUtkast}
+        />
+      ) : null}
+      <ToastContainer
+        position="bottom-right"
+        newestOnTop={true}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        transition={Slide}
+      />
     </FormProvider>
   );
 }

@@ -15,6 +15,7 @@ import no.nav.mulighetsrommet.api.routes.v1.responses.StatusResponse
 import no.nav.mulighetsrommet.api.routes.v1.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.services.AvtaleService
 import no.nav.mulighetsrommet.api.services.ExcelService
+import no.nav.mulighetsrommet.api.services.UtkastService
 import no.nav.mulighetsrommet.api.utils.getAvtaleFilter
 import no.nav.mulighetsrommet.api.utils.getPaginationParams
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
@@ -29,6 +30,7 @@ import java.util.*
 fun Route.avtaleRoutes() {
     val avtaler: AvtaleService by inject()
     val excelService: ExcelService by inject()
+    val utkastService: UtkastService by inject()
 
     val logger = application.environment.log
 
@@ -92,6 +94,7 @@ fun Route.avtaleRoutes() {
 
             val result = avtaleRequest.toDbo()
                 .flatMap { avtaler.upsert(it) }
+                .onRight { utkastService.deleteUtkast(it.id) }
                 .onLeft {
                     logger.error(it.message)
                 }

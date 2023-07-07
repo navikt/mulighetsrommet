@@ -1,0 +1,38 @@
+.utkast {
+  background-color: white;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 15rem;
+
+  &:hover {
+    box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+  }
+}
+
+.tekst_med_ikon {
+  display: flex;
+  align-items: center;
+  text-align: center;
+}
+
+.knappe_container {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  justify-content: space-between;
+  align-items: end;
+}
+
+.knapper {
+  display: flex;
+  gap: 1rem;
+}
+
+.truncate {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
