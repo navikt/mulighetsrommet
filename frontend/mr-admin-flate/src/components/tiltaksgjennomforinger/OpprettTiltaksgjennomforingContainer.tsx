@@ -888,7 +888,9 @@ export const OpprettTiltaksgjennomforingContainer = (
           </div>
         </div>
       </form>
-      {features?.["mulighetsrommet.admin-flate-lagre-utkast"] && avtale ? (
+      {features?.["mulighetsrommet.admin-flate-lagre-utkast"] &&
+      features?.["mulighetsrommet.admin-flate-opprett-tiltaksgjennomforing"] &&
+      avtale ? (
         <AutoSaveUtkast
           defaultValues={defaultValues}
           utkastId={utkastIdRef.current}
