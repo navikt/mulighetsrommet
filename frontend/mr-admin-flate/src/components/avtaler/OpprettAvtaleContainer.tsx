@@ -17,14 +17,13 @@ import { Tiltakstype } from "mulighetsrommet-api-client/build/models/Tiltakstype
 import { StatusModal } from "mulighetsrommet-veileder-flate/src/components/modal/delemodal/StatusModal";
 import { ReactNode, useRef, useState } from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
-import { toast, ToastContainer, Slide } from "react-toastify";
+import { Slide, toast, ToastContainer } from "react-toastify";
 import { v4 as uuidv4 } from "uuid";
 import { usePutAvtale } from "../../api/avtaler/usePutAvtale";
 import { useFeatureToggles } from "../../api/features/feature-toggles";
 import { useMutateUtkast } from "../../api/utkast/useMutateUtkast";
 import { useSokVirksomheter } from "../../api/virksomhet/useSokVirksomhet";
 import { useVirksomhet } from "../../api/virksomhet/useVirksomhet";
-import { arenaKodeErAftEllerVta } from "../../utils/tiltakskoder";
 import {
   capitalize,
   formaterDatoSomYYYYMMDD,
@@ -219,23 +218,6 @@ export function OpprettAvtaleContainer({
   const postData: SubmitHandler<inferredSchema> = async (
     data
   ): Promise<void> => {
-    const arenaKodeForTiltakstype = tiltakstyper.find(
-      (type) => type.id === data.tiltakstype
-    )?.arenaKode;
-
-    const avtaleErVtaEllerAft = arenaKodeErAftEllerVta(arenaKodeForTiltakstype);
-
-    const enableAvtale = avtaleErVtaEllerAft
-      ? true
-      : features?.["mulighetsrommet.admin-flate-lagre-data-fra-admin-flate"];
-
-    if (!enableAvtale) {
-      alert(
-        "Opprettelse av avtale er ikke skrudd på enda. Kontakt Team Valp ved spørsmål."
-      );
-      return;
-    }
-
     const {
       navRegion,
       navEnheter,
