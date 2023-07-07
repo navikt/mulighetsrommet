@@ -1114,7 +1114,7 @@ components:
       in: query
       name: avtaleId
       description: Avtalen utkastene gjelder for
-      required: true
+      required: false
       schema:
         type: string
 
@@ -2351,6 +2351,7 @@ components:
         avtaleId:
           type: string
           format: uuid
+          nullable: true
         opprettetAv:
           type: string
           nullable: true
@@ -2369,6 +2370,5 @@ components:
             - Tiltaksgjennomforing
       required:
         - id
-        - avtaleId
         - utkastData
         - type

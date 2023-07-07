@@ -1,4 +1,6 @@
+import { faro } from "@grafana/faro-web-sdk";
 import { Button, Search } from "@navikt/ds-react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useAtom } from "jotai";
 import {
   Norg2Type,
@@ -7,9 +9,10 @@ import {
 } from "mulighetsrommet-api-client";
 import { useEffect, useRef, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
 import {
-  avtaleFilter,
   AvtaleFilterProps,
+  avtaleFilter,
   avtalePaginationAtom,
   defaultAvtaleFilter,
 } from "../../api/atoms";
@@ -25,8 +28,6 @@ import { resetPaginering, valueOrDefault } from "../../utils/Utils";
 import OpprettAvtaleModal from "../avtaler/OpprettAvtaleModal";
 import { SokeSelect } from "../skjema/SokeSelect";
 import styles from "./Filter.module.scss";
-import { faro } from "@grafana/faro-web-sdk";
-import { useNavigate } from "react-router-dom";
 import { FilterTag } from "./FilterTag";
 
 type Filters = "tiltakstype";
@@ -38,7 +39,7 @@ interface Props {
 export function Avtalefilter(props: Props) {
   const [filter, setFilter] = useAtom(avtaleFilter);
   const navigate = useNavigate();
-
+  const queryClient = useQueryClient();
   const form = useForm<AvtaleFilterProps>({
     defaultValues: {
       ...filter,
@@ -219,7 +220,10 @@ export function Avtalefilter(props: Props) {
                 </Button>
                 <OpprettAvtaleModal
                   modalOpen={modalOpen}
-                  onClose={() => setModalOpen(false)}
+                  onClose={() => {
+                    queryClient.refetchQueries({ queryKey: ["utkast"] });
+                    setModalOpen(false);
+                  }}
                   onSuccess={(id) => navigate(`/avtaler/${id}`)}
                 />
               </>

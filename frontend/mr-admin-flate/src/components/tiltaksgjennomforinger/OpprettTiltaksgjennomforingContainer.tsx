@@ -9,6 +9,7 @@ import {
   TiltaksgjennomforingKontaktpersoner,
   TiltaksgjennomforingOppstartstype,
   TiltaksgjennomforingRequest,
+  Utkast,
 } from "mulighetsrommet-api-client";
 import { Opphav } from "mulighetsrommet-api-client/build/models/Opphav";
 import { Tilgjengelighetsstatus } from "mulighetsrommet-api-client/build/models/Tilgjengelighetsstatus";
@@ -21,7 +22,7 @@ import {
   useForm,
 } from "react-hook-form";
 import { Link } from "react-router-dom";
-import { ToastContainer, Slide } from "react-toastify";
+import { Slide, ToastContainer, toast } from "react-toastify";
 import { v4 as uuidv4 } from "uuid";
 import z from "zod";
 import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
@@ -30,6 +31,7 @@ import { usePutGjennomforing } from "../../api/avtaler/usePutGjennomforing";
 import { mulighetsrommetClient } from "../../api/clients";
 import { useAlleEnheter } from "../../api/enhet/useAlleEnheter";
 import { useFeatureToggles } from "../../api/features/feature-toggles";
+import { useMutateUtkast } from "../../api/utkast/useMutateUtkast";
 import { useVirksomhet } from "../../api/virksomhet/useVirksomhet";
 import {
   capitalize,
@@ -38,13 +40,13 @@ import {
 } from "../../utils/Utils";
 import { isTiltakMedFellesOppstart } from "../../utils/tiltakskoder";
 import { FormGroup } from "../avtaler/OpprettAvtaleContainer";
+import { Separator } from "../detaljside/Metadata";
 import { Laster } from "../laster/Laster";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
 import { SokeSelect } from "../skjema/SokeSelect";
 import { VirksomhetKontaktpersoner } from "../virksomhet/VirksomhetKontaktpersoner";
-import { Separator } from "../detaljside/Metadata";
-import { AutoSaveTiltaksgjennomforing } from "./AutoSaveTiltaksgjennomforing";
+import { AutoSaveUtkast } from "./AutoSaveUtkast";
 import styles from "./OpprettTiltaksgjennomforingContainer.module.scss";
 
 export const TiltaksgjennomforingSchema = z
@@ -228,14 +230,95 @@ function defaultValuesForKontaktpersoner(
   }));
 }
 
+type UtkastData = Pick<
+  Tiltaksgjennomforing,
+  | "navn"
+  | "antallPlasser"
+  | "startDato"
+  | "sluttDato"
+  | "navEnheter"
+  | "stengtFra"
+  | "stengtTil"
+  | "arrangorOrganisasjonsnummer"
+  | "kontaktpersoner"
+  | "estimertVentetid"
+  | "lokasjonArrangor"
+> & {
+  tiltakstypeId: string;
+  avtaleId: string;
+  arrangorKontaktpersonId?: { id?: string };
+  id: string;
+};
+
 export const OpprettTiltaksgjennomforingContainer = (
   props: OpprettTiltaksgjennomforingContainerProps
 ) => {
   const { data: kontaktpersoner, isLoading: isLoadingKontaktpersoner } =
     useHentKontaktpersoner();
   const mutation = usePutGjennomforing();
+  const mutationUtkast = useMutateUtkast();
+  const {
+    data: ansatt,
+    isLoading: isLoadingAnsatt,
+    isError: isErrorAnsatt,
+  } = useHentAnsatt();
   const { avtale, tiltaksgjennomforing, setError, onClose, onSuccess } = props;
   const utkastIdRef = useRef(tiltaksgjennomforing?.id || uuidv4());
+  const saveUtkast = (values: inferredTiltaksgjennomforingSchema) => {
+    if (!avtale) {
+      return;
+    }
+
+    const utkastData: UtkastData = {
+      navn: values?.navn,
+      antallPlasser: values?.antallPlasser,
+      startDato: values?.startOgSluttDato?.startDato?.toDateString(),
+      sluttDato: values?.startOgSluttDato?.sluttDato?.toDateString(),
+      navEnheter: values?.navEnheter?.map((enhetsnummer) => ({
+        navn: "",
+        enhetsnummer,
+      })),
+      stengtFra: values?.midlertidigStengt?.erMidlertidigStengt
+        ? values?.midlertidigStengt?.stengtFra?.toString()
+        : undefined,
+      stengtTil: values?.midlertidigStengt?.erMidlertidigStengt
+        ? values?.midlertidigStengt?.stengtTil?.toString()
+        : undefined,
+      tiltakstypeId: avtale?.tiltakstype.id,
+      avtaleId: avtale?.id,
+      arrangorKontaktpersonId: {
+        id: values?.arrangorKontaktpersonId ?? undefined,
+      },
+      arrangorOrganisasjonsnummer:
+        values.tiltaksArrangorUnderenhetOrganisasjonsnummer,
+      kontaktpersoner: values?.kontaktpersoner?.map((kp) => ({ ...kp })) || [],
+      id: utkastIdRef.current,
+      lokasjonArrangor: values?.lokasjonArrangor,
+      estimertVentetid: values?.estimertVentetid,
+    };
+
+    if (!values.navn) {
+      toast.info("For å lagre utkast må du gi utkastet et navn", {
+        autoClose: 10000,
+      });
+      return;
+    }
+
+    if (!avtale) {
+      toast.info("Kan ikke lagre utkast uten avtale", {
+        autoClose: 10000,
+      });
+      return;
+    }
+
+    mutationUtkast.mutate({
+      id: utkastIdRef.current,
+      utkastData,
+      type: Utkast.type.TILTAKSGJENNOMFORING,
+      opprettetAv: ansatt?.navIdent,
+      avtaleId: avtale.id,
+    });
+  };
 
   const form = useForm<inferredTiltaksgjennomforingSchema>({
     resolver: zodResolver(TiltaksgjennomforingSchema),
@@ -304,12 +387,6 @@ export const OpprettTiltaksgjennomforingContainer = (
     isLoading: isLoadingEnheter,
     isError: isErrorEnheter,
   } = useAlleEnheter();
-
-  const {
-    data: ansatt,
-    isLoading: isLoadingAnsatt,
-    isError: isErrorAnsatt,
-  } = useHentAnsatt();
 
   const { data: virksomhet } = useVirksomhet(
     avtale?.leverandor.organisasjonsnummer || ""
@@ -404,8 +481,8 @@ export const OpprettTiltaksgjennomforingContainer = (
 
   const navn = ansatt
     ? [ansatt.fornavn, ansatt.etternavn ?? ""]
-      .map((it) => capitalize(it))
-      .join(" ")
+        .map((it) => capitalize(it))
+        .join(" ")
     : "";
 
   if (!enheter) {
@@ -646,7 +723,9 @@ export const OpprettTiltaksgjennomforingContainer = (
                   />
                   <ControlledMultiSelect
                     size="small"
-                    placeholder={isLoadingEnheter ? "Laster enheter..." : "Velg en"}
+                    placeholder={
+                      isLoadingEnheter ? "Laster enheter..." : "Velg en"
+                    }
                     label={"NAV enhet (kontorer)"}
                     {...register("navEnheter")}
                     options={enheterOptions()}
@@ -660,7 +739,10 @@ export const OpprettTiltaksgjennomforingContainer = (
                     <div>
                       {kontaktpersonFields?.map((field, index) => {
                         return (
-                          <div className={styles.kontaktperson_container} key={field.id}>
+                          <div
+                            className={styles.kontaktperson_container}
+                            key={field.id}
+                          >
                             <button
                               className={classNames(
                                 styles.kontaktperson_button,
@@ -688,9 +770,12 @@ export const OpprettTiltaksgjennomforingContainer = (
                                     : "Velg en"
                                 }
                                 label={"Kontaktperson i NAV"}
-                                {...register(`kontaktpersoner.${index}.navIdent`, {
-                                  shouldUnregister: true,
-                                })}
+                                {...register(
+                                  `kontaktpersoner.${index}.navIdent`,
+                                  {
+                                    shouldUnregister: true,
+                                  }
+                                )}
                                 options={kontaktpersonerOption()}
                               />
                               <ControlledMultiSelect
@@ -701,9 +786,12 @@ export const OpprettTiltaksgjennomforingContainer = (
                                     : "Velg en"
                                 }
                                 label={"Område"}
-                                {...register(`kontaktpersoner.${index}.navEnheter`, {
-                                  shouldUnregister: true,
-                                })}
+                                {...register(
+                                  `kontaktpersoner.${index}.navEnheter`,
+                                  {
+                                    shouldUnregister: true,
+                                  }
+                                )}
                                 options={enheterOptions()}
                               />
                             </div>
@@ -737,30 +825,39 @@ export const OpprettTiltaksgjennomforingContainer = (
                     size="small"
                     label="Tiltaksarrangør underenhet"
                     placeholder="Velg underenhet for tiltaksarrangør"
-                    {...register("tiltaksArrangorUnderenhetOrganisasjonsnummer")}
+                    {...register(
+                      "tiltaksArrangorUnderenhetOrganisasjonsnummer"
+                    )}
                     onChange={getLokasjonForArrangor}
                     onClearValue={() =>
-                      setValue("tiltaksArrangorUnderenhetOrganisasjonsnummer", "")
+                      setValue(
+                        "tiltaksArrangorUnderenhetOrganisasjonsnummer",
+                        ""
+                      )
                     }
                     readOnly={!avtale?.leverandor.organisasjonsnummer}
                     options={arrangorUnderenheterOptions()}
                   />
-                  {watch('tiltaksArrangorUnderenhetOrganisasjonsnummer') &&
+                  {watch("tiltaksArrangorUnderenhetOrganisasjonsnummer") && (
                     <div className={styles.virksomhet_kontaktperson_container}>
                       <VirksomhetKontaktpersoner
                         title={"Kontaktperson hos arrangøren"}
-                        orgnr={watch("tiltaksArrangorUnderenhetOrganisasjonsnummer")}
+                        orgnr={watch(
+                          "tiltaksArrangorUnderenhetOrganisasjonsnummer"
+                        )}
                         formValueName={"arrangorKontaktpersonId"}
                       />
                     </div>
-                  }
+                  )}
                   <TextField
                     size="small"
                     label="Sted for gjennomføring"
                     description="Sted for gjennomføring, f.eks. Fredrikstad eller Tromsø. Veileder kan filtrere på verdiene i dette feltet, så ikke skriv fulle adresser."
                     {...register("lokasjonArrangor")}
                     error={
-                      errors.lokasjonArrangor ? errors.lokasjonArrangor.message : null
+                      errors.lokasjonArrangor
+                        ? errors.lokasjonArrangor.message
+                        : null
                     }
                   />
                 </FormGroup>
@@ -785,17 +882,20 @@ export const OpprettTiltaksgjennomforingContainer = (
               {mutation.isLoading
                 ? "Lagrer..."
                 : redigeringsModus
-                  ? "Lagre gjennomføring"
-                  : "Opprett"}
+                ? "Lagre gjennomføring"
+                : "Opprett"}
             </Button>
           </div>
         </div>
       </form>
-      {features?.["mulighetsrommet.admin-flate-lagre-utkast"] && avtale ? (
-        <AutoSaveTiltaksgjennomforing
+      {features?.["mulighetsrommet.admin-flate-lagre-utkast"] &&
+      features?.["mulighetsrommet.admin-flate-opprett-tiltaksgjennomforing"] &&
+      avtale ? (
+        <AutoSaveUtkast
           defaultValues={defaultValues}
           utkastId={utkastIdRef.current}
-          avtale={avtale}
+          onSave={() => saveUtkast(watch())}
+          mutation={mutationUtkast}
         />
       ) : null}
 

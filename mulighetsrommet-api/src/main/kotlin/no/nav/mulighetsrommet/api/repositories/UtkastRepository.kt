@@ -34,8 +34,7 @@ class UtkastRepository(private val db: Database) {
                     :opprettet_av,
                     :utkast_data::jsonb,
                     :utkast_type::utkasttype)
-            on conflict (id) do update set  opprettet_av        = excluded.opprettet_av,
-                                            utkast_data         = excluded.utkast_data,
+            on conflict (id) do update set  utkast_data         = excluded.utkast_data,
                                             utkast_type         = excluded.utkast_type
             returning *
         """.trimIndent()

@@ -6,17 +6,10 @@ import { mulighetsrommetClient } from "../clients";
 
 export function useMineUtkast(utkasttype: Utkast.type) {
   const avtaleId = useGetAvtaleIdFromUrl();
-  if (!avtaleId)
-    throw new Error("AvtaleID ble ikke funnet ved henting av 'Mine utkast'");
-  return useQuery(
-    QueryKeys.mineUtkast(avtaleId),
-    () =>
-      mulighetsrommetClient.utkast.getMineUtkast({
-        utkasttype,
-        avtaleId,
-      }),
-    {
-      enabled: !!avtaleId,
-    }
+  return useQuery(QueryKeys.mineUtkast(avtaleId, utkasttype), () =>
+    mulighetsrommetClient.utkast.getMineUtkast({
+      utkasttype,
+      avtaleId,
+    })
   );
 }

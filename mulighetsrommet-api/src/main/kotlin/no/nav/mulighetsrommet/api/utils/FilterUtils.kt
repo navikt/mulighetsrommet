@@ -80,7 +80,7 @@ enum class VirksomhetTil {
 data class UtkastFilter(
     val type: Utkasttype,
     val opprettetAv: String?,
-    val avtaleId: UUID,
+    val avtaleId: UUID?,
 )
 
 fun <T : Any> PipelineContext<T, ApplicationCall>.getVirksomhetFilter(): VirksomhetFilter {
@@ -204,7 +204,7 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getNavAnsattFilter(): NavAnsat
 
 fun <T : Any> PipelineContext<T, ApplicationCall>.getUtkastFilter(): UtkastFilter {
     val type = Utkasttype.valueOf(call.request.queryParameters.getOrFail("utkasttype"))
-    val avtaleId = call.request.queryParameters.getOrFail<UUID>("avtaleId")
+    val avtaleId = call.request.queryParameters["avtaleId"]?.let { UUID.fromString(it) }
     return UtkastFilter(
         type = type,
         opprettetAv = null,

@@ -128,4 +128,25 @@ describe("Utkast", () => {
       cy.contains("Tester data");
     });
   });
+
+  context.only("Tab for utkast for avtaler", () => {
+    it("Skal finnes en tab for 'Mine utkast'", () => {
+      cy.visit("/avtaler");
+      cy.getByTestId("mine-utkast-tab").should("exist").click();
+      cy.getByTestId("rediger-utkast-knapp").should("exist");
+      cy.getByTestId("slett-utkast-knapp").should("exist");
+      cy.checkPageA11y();
+    });
+
+    it("Skal kunne opprette et utkast og se det i oversikten over utkast", () => {
+      cy.visit("/avtaler");
+      cy.getByTestId("registrer-ny-avtale").click();
+      cy.getByTestId("avtalenavn-input").type("Avtale som utkast");
+      cy.wait(1100); // Simuler en bruker som bruker over 1 sek på å skrive
+      cy.get(".navds-button--tertiary-neutral").click();
+      cy.wait(150);
+      cy.getByTestId("mine-utkast-tab").should("exist").click();
+      cy.contains("Avtale som utkast");
+    });
+  });
 });
