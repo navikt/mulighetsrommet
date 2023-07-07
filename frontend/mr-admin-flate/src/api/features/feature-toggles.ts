@@ -15,8 +15,6 @@ export const SE_NOTIFIKASJONER_ADMIN_FLATE =
 export const LAGRE_DATA_FRA_ADMIN_FLATE =
   "mulighetsrommet.admin-flate-lagre-data-fra-admin-flate";
 export const SLETTE_AVTALE = "mulighetsrommet.admin-flate-slett-avtale";
-export const VIS_LAST_NED_EXCEL_KNAPP =
-  "mulighetsrommet.admin-flate-vis-last-ned-excel-knapp";
 export const REDIGER_TILTAKSGJENNOMFORING_ADMIN_FLATE =
   "mulighetsrommet.admin-flate-rediger-tiltaksgjennomforing";
 export const SLETT_TILTAKSGJENNOMFORING_ADMIN_FLATE =
@@ -36,7 +34,6 @@ export const ALL_TOGGLES = [
   SE_NOTIFIKASJONER_ADMIN_FLATE,
   LAGRE_DATA_FRA_ADMIN_FLATE,
   SLETTE_AVTALE,
-  VIS_LAST_NED_EXCEL_KNAPP,
   REDIGER_TILTAKSGJENNOMFORING_ADMIN_FLATE,
   SLETT_TILTAKSGJENNOMFORING_ADMIN_FLATE,
   KOBLE_TILTAKSANSVARLIGE_TIL_GJENNOMFORING,
@@ -55,7 +52,6 @@ export const initialFeatures: Features = {
   "mulighetsrommet.admin-flate-se-notifikasjoner": false,
   "mulighetsrommet.admin-flate-lagre-data-fra-admin-flate": false,
   "mulighetsrommet.admin-flate-slett-avtale": false,
-  "mulighetsrommet.admin-flate-vis-last-ned-excel-knapp": false,
   "mulighetsrommet.admin-flate-slett-tiltaksgjennomforing": false,
   "mulighetsrommet.admin-flate-rediger-tiltaksgjennomforing": false,
   "mulighetsrommet.admin-flate-koble-tiltaksansvarlig-til-gjennomforing": false,

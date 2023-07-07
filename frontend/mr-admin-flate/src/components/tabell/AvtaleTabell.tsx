@@ -1,14 +1,17 @@
+import { faro } from "@grafana/faro-web-sdk";
 import { Alert, Button, Pagination, Table } from "@navikt/ds-react";
 import classNames from "classnames";
 import { useAtom } from "jotai";
 import { OpenAPI, SorteringAvtaler } from "mulighetsrommet-api-client";
 import Lenke from "mulighetsrommet-veileder-flate/src/components/lenke/Lenke";
+import { createRef, useEffect, useState } from "react";
 import {
   AvtaleFilterProps,
   avtaleFilter,
   avtalePaginationAtom,
 } from "../../api/atoms";
 import { useAvtaler } from "../../api/avtaler/useAvtaler";
+import { APPLICATION_NAME } from "../../constants";
 import { useSort } from "../../hooks/useSort";
 import {
   capitalizeEveryWord,
@@ -20,10 +23,6 @@ import { PagineringContainer } from "../paginering/PagineringContainer";
 import { PagineringsOversikt } from "../paginering/PagineringOversikt";
 import { Avtalestatus } from "../statuselementer/Avtalestatus";
 import styles from "./Tabell.module.scss";
-import { APPLICATION_NAME } from "../../constants";
-import { createRef, useEffect, useState } from "react";
-import { useFeatureToggles } from "../../api/features/feature-toggles";
-import { faro } from "@grafana/faro-web-sdk";
 
 async function lastNedFil(filter: AvtaleFilterProps) {
   const headers = new Headers();
@@ -69,7 +68,6 @@ async function lastNedFil(filter: AvtaleFilterProps) {
 
 export const AvtaleTabell = () => {
   const { data, isLoading, isError } = useAvtaler();
-  const { data: features } = useFeatureToggles();
   const [filter, setFilter] = useAtom(avtaleFilter);
   const [page, setPage] = useAtom(avtalePaginationAtom);
   const [sort, setSort] = useSort("navn");
@@ -152,22 +150,20 @@ export const AvtaleTabell = () => {
             setFilter({ ...filter, antallAvtalerVises: value });
           }}
         />
-        {features?.["mulighetsrommet.admin-flate-vis-last-ned-excel-knapp"] ? (
-          <div>
-            <Button
-              icon={<ExcelIkon />}
-              variant="tertiary"
-              onClick={lastNedExcel}
-              disabled={lasterExcel}
-              type="button"
-            >
-              {lasterExcel
-                ? "Henter Excel-fil..."
-                : "Eksporter tabellen til Excel"}
-            </Button>
-            <a style={{ display: "none" }} ref={link}></a>
-          </div>
-        ) : null}
+        <div>
+          <Button
+            icon={<ExcelIkon />}
+            variant="tertiary"
+            onClick={lastNedExcel}
+            disabled={lasterExcel}
+            type="button"
+          >
+            {lasterExcel
+              ? "Henter Excel-fil..."
+              : "Eksporter tabellen til Excel"}
+          </Button>
+          <a style={{ display: "none" }} ref={link}></a>
+        </div>
       </div>
 
       <Table
