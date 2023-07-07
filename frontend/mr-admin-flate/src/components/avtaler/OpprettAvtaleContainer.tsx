@@ -371,6 +371,7 @@ export function OpprettAvtaleContainer({
                   error={errors.avtalenavn?.message}
                   label="Avtalenavn"
                   autoFocus
+                  data-testid="avtalenavn-input"
                   {...register("avtalenavn")}
                 />
               </FormGroup>

@@ -18,6 +18,7 @@ export function DeltakerListe() {
   const DeltakerlisteMikrofrontend = React.lazy(
     () =>
       import(
+        /* @vite-ignore */
         `${DELTAKERLISTE_KOMET[getEnvironment()]}/${
           manifest[DELTAKERLISTE_ENTRY][DELTAKERLISTE_MODULE]
         }`
