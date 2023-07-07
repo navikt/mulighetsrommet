@@ -42,5 +42,5 @@ spec:
             "csp": {
               "scriptSrc": ["'self'", "'unsafe-inline'", "esm.sh", "*.intern.dev.nav.no"]
             }
-          },
+          }
         }
