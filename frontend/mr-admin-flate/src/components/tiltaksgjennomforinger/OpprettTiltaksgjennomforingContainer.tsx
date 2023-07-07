@@ -424,13 +424,6 @@ export const OpprettTiltaksgjennomforingContainer = (
   const postData: SubmitHandler<inferredTiltaksgjennomforingSchema> = async (
     data
   ): Promise<void> => {
-    if (!features?.["mulighetsrommet.admin-flate-lagre-data-fra-admin-flate"]) {
-      alert(
-        "Opprettelse av tiltaksgjennomføring er ikke skrudd på enda. Kontakt Team Valp ved spørsmål."
-      );
-      return;
-    }
-
     const body: TiltaksgjennomforingRequest = {
       id: tiltaksgjennomforing ? tiltaksgjennomforing.id : uuidv4(),
       antallPlasser: data.antallPlasser,

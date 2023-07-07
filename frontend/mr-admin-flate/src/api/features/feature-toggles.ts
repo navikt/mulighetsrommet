@@ -12,8 +12,6 @@ export const OPPRETT_TILTAKSGJENNOMFORING_ADMIN_FLATE =
   "mulighetsrommet.admin-flate-opprett-tiltaksgjennomforing";
 export const SE_NOTIFIKASJONER_ADMIN_FLATE =
   "mulighetsrommet.admin-flate-se-notifikasjoner";
-export const LAGRE_DATA_FRA_ADMIN_FLATE =
-  "mulighetsrommet.admin-flate-lagre-data-fra-admin-flate";
 export const SLETTE_AVTALE = "mulighetsrommet.admin-flate-slett-avtale";
 export const REDIGER_TILTAKSGJENNOMFORING_ADMIN_FLATE =
   "mulighetsrommet.admin-flate-rediger-tiltaksgjennomforing";
@@ -30,7 +28,6 @@ export const ALL_TOGGLES = [
   REDIGER_AVTALE_ADMIN_FLATE,
   OPPRETT_TILTAKSGJENNOMFORING_ADMIN_FLATE,
   SE_NOTIFIKASJONER_ADMIN_FLATE,
-  LAGRE_DATA_FRA_ADMIN_FLATE,
   SLETTE_AVTALE,
   REDIGER_TILTAKSGJENNOMFORING_ADMIN_FLATE,
   SLETT_TILTAKSGJENNOMFORING_ADMIN_FLATE,
@@ -47,7 +44,6 @@ export const initialFeatures: Features = {
   "mulighetsrommet.admin-flate-rediger-avtale": false,
   "mulighetsrommet.admin-flate-opprett-tiltaksgjennomforing": false,
   "mulighetsrommet.admin-flate-se-notifikasjoner": false,
-  "mulighetsrommet.admin-flate-lagre-data-fra-admin-flate": false,
   "mulighetsrommet.admin-flate-slett-avtale": false,
   "mulighetsrommet.admin-flate-slett-tiltaksgjennomforing": false,
   "mulighetsrommet.admin-flate-rediger-tiltaksgjennomforing": false,
