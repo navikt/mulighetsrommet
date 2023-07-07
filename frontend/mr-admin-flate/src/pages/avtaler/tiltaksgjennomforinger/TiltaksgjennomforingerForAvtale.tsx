@@ -33,7 +33,10 @@ export function TiltaksgjennomforingerForAvtale() {
       <Tabs defaultValue="gjennomforinger">
         <Tabs.List>
           <Tabs.Tab value="gjennomforinger" label="Gjennomføringer" />
-          {features?.["mulighetsrommet.admin-flate-lagre-utkast"] ? (
+          {features?.["mulighetsrommet.admin-flate-lagre-utkast"] &&
+          features?.[
+            "mulighetsrommet.admin-flate-opprett-tiltaksgjennomforing"
+          ] ? (
             <Tabs.Tab
               data-testid="mine-utkast-tab"
               value="utkast"
