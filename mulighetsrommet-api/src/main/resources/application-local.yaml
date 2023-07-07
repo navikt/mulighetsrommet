@@ -85,6 +85,7 @@ app:
   tasks:
     deleteExpiredTiltakshistorikk:
       disabled: true
+      cronPattern: "0 0 1 * * *" # Hver morgen kl. 01:00
     synchronizeNorgEnheter:
       disabled: true
       delayOfMinutes: 360 # Hver 6. time
