@@ -82,7 +82,7 @@ export const tiltakstypeFilter = atomWithHashAndStorage<TiltakstypeFilter>(
 
 export interface Tiltaksgjennomforingfilter {
   search: string;
-  enhet: string;
+  navEnhet: string;
   tiltakstype: string;
   status: TiltaksgjennomforingStatus | "";
   sortering: SorteringTiltaksgjennomforinger;
@@ -94,7 +94,7 @@ export interface Tiltaksgjennomforingfilter {
 
 export const defaultTiltaksgjennomforingfilter: Tiltaksgjennomforingfilter = {
   search: "",
-  enhet: "",
+  navEnhet: "",
   tiltakstype: "",
   status: TiltaksgjennomforingStatus.GJENNOMFORES,
   sortering: SorteringTiltaksgjennomforinger.NAVN_ASCENDING,

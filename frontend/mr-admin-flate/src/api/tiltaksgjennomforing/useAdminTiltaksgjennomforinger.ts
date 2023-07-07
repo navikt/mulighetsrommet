@@ -15,10 +15,10 @@ export function useAdminTiltaksgjennomforinger() {
       mulighetsrommetClient.tiltaksgjennomforinger.getTiltaksgjennomforinger({
         page,
         search: debouncedSok || undefined,
-        enhet: filter.enhet ? filter.enhet : undefined,
+        navEnhet: filter.navEnhet ? filter.navEnhet : undefined,
         tiltakstypeId: filter.tiltakstype ? filter.tiltakstype : undefined,
         status: filter.status ? filter.status : undefined,
-        fylkesenhet: filter.navRegion ? filter.navRegion : undefined,
+        navRegion: filter.navRegion ? filter.navRegion : undefined,
         sort: filter.sortering ? filter.sortering : undefined,
         size: filter.antallGjennomforingerVises,
         avtaleId: filter.avtale ? filter.avtale : undefined,

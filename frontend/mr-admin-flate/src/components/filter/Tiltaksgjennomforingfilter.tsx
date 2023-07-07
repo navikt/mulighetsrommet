@@ -9,7 +9,7 @@ import {
   Tiltakstypestatus,
   VirksomhetTil,
 } from "mulighetsrommet-api-client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import {
   Tiltaksgjennomforingfilter as TiltaksgjennomforingAtomFilter,
@@ -74,6 +74,10 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
     inneholderUrl("/avtaler/");
 
   const erAFTellerVTA = arenaKodeErAftEllerVta(avtale?.tiltakstype.arenaKode);
+
+  useEffect(() => {
+    setFilter({...filter, avtale: avtale?.id ?? ""});
+  }, [avtale])
 
   const regionOptions = () => {
     const options =
@@ -172,7 +176,7 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
                 resetPaginering(setPage);
                 setFilter({
                   ...filter,
-                  enhet: "",
+                  navEnhet: "",
                   navRegion: valueOrDefault(
                     navRegion,
                     defaultTiltaksgjennomforingfilter.navRegion
@@ -188,14 +192,14 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
               label="Filtrer på enhet"
               placeholder="Filtrer på enhet"
               hideLabel
-              {...register("enhet")}
+              {...register("navEnhet")}
               onChange={(enhet) => {
                 resetPaginering(setPage);
                 setFilter({
                   ...filter,
-                  enhet: valueOrDefault(
+                  navEnhet: valueOrDefault(
                     enhet,
-                    defaultTiltaksgjennomforingfilter.enhet
+                    defaultTiltaksgjennomforingfilter.navEnhet
                   ),
                 });
               }}
@@ -333,17 +337,17 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
                 }}
               />
             )}
-            {filter.enhet && (
+            {filter.navEnhet && (
               <FilterTag
                 label={
-                  enheter?.find((e) => e.enhetsnummer === filter.enhet)?.navn
+                  enheter?.find((e) => e.enhetsnummer === filter.navEnhet)?.navn
                 }
                 onClick={() => {
                   setFilter({
                     ...filter,
-                    enhet: defaultTiltaksgjennomforingfilter.enhet,
+                    navEnhet: defaultTiltaksgjennomforingfilter.navEnhet,
                   });
-                  setValue("enhet", defaultTiltaksgjennomforingfilter.enhet);
+                  setValue("navEnhet", defaultTiltaksgjennomforingfilter.navEnhet);
                 }}
               />
             )}
@@ -397,7 +401,7 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
               />
             )}
             {(filter.navRegion ||
-              filter.enhet ||
+              filter.navEnhet ||
               filter.tiltakstype ||
               filter.status ||
               filter.arrangorOrgnr) && (
@@ -412,7 +416,7 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
                     avtale: filter.avtale,
                   });
                   setValue("status", "");
-                  setValue("enhet", defaultTiltaksgjennomforingfilter.enhet);
+                  setValue("navEnhet", defaultTiltaksgjennomforingfilter.navEnhet);
                   setValue(
                     "navRegion",
                     defaultTiltaksgjennomforingfilter.navRegion

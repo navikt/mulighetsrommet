@@ -362,25 +362,25 @@ class TiltaksgjennomforingRepository(private val db: Database) {
     ): QueryResult<Pair<Int, List<TiltaksgjennomforingAdminDto>>> = query {
         val parameters = mapOf(
             "search" to "%${filter.search}%",
-            "enhet" to filter.enhet,
+            "navEnhet" to filter.navEnhet,
             "tiltakstypeId" to filter.tiltakstypeId,
             "status" to filter.status,
             "limit" to pagination.limit,
             "offset" to pagination.offset,
             "cutoffdato" to filter.sluttDatoCutoff,
             "today" to filter.dagensDato,
-            "fylkesenhet" to filter.fylkesenhet,
+            "navRegion" to filter.navRegion,
             "avtaleId" to filter.avtaleId,
             "arrangor_organisasjonsnummer" to filter.arrangorOrgnr,
         )
 
         val where = DatabaseUtils.andWhereParameterNotNull(
             filter.search to "((lower(navn) like lower(:search)) or (tiltaksnummer like :search))",
-            filter.enhet to "lower(arena_ansvarlig_enhet) = lower(:enhet)",
+            filter.navEnhet to "(:navEnhet in (select enhetsnummer from tiltaksgjennomforing_nav_enhet tg_e where tg_e.tiltaksgjennomforing_id = id) or arena_ansvarlig_enhet = :navEnhet)",
             filter.tiltakstypeId to "tiltakstype_id = :tiltakstypeId",
             filter.status to filter.status?.toDbStatement(),
             filter.sluttDatoCutoff to "(slutt_dato >= :cutoffdato or slutt_dato is null)",
-            filter.fylkesenhet to "arena_ansvarlig_enhet in (select enhetsnummer from nav_enhet where overordnet_enhet = :fylkesenhet)",
+            filter.navRegion to "(arena_ansvarlig_enhet in (select enhetsnummer from nav_enhet where overordnet_enhet = :navRegion) or :navRegion in (select overordnet_enhet from nav_enhet inner join tiltaksgjennomforing_nav_enhet tg_e using(enhetsnummer) where tg_e.tiltaksgjennomforing_id = id))",
             filter.avtaleId to "avtale_id = :avtaleId",
             filter.arrangorOrgnr to "arrangor_organisasjonsnummer = :arrangor_organisasjonsnummer",
         )

@@ -763,6 +763,91 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             result.second shouldHaveSize 1
             result.second[0].id shouldBe tiltaksgjennomforingPlanlagt.id
         }
+
+        test("filtrer på nav_enhet") {
+            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
+            val enhetRepository = NavEnhetRepository(database.db)
+            enhetRepository.upsert(
+                NavEnhetDbo(
+                    navn = "Navn1",
+                    enhetsnummer = "1",
+                    status = NavEnhetStatus.AKTIV,
+                    type = Norg2Type.LOKAL,
+                    overordnetEnhet = null,
+                ),
+            ).shouldBeRight()
+            enhetRepository.upsert(
+                NavEnhetDbo(
+                    navn = "Navn2",
+                    enhetsnummer = "2",
+                    status = NavEnhetStatus.AKTIV,
+                    type = Norg2Type.LOKAL,
+                    overordnetEnhet = null,
+                ),
+            ).shouldBeRight()
+
+            val gj1 = gjennomforing1.copy(id = UUID.randomUUID(), navEnheter = listOf("1"))
+            val gj2 = gjennomforing1.copy(id = UUID.randomUUID(), arenaAnsvarligEnhet = "1")
+            val gj3 = gjennomforing1.copy(id = UUID.randomUUID(), navEnheter = listOf("2"))
+            val gj4 = gjennomforing1.copy(id = UUID.randomUUID(), navEnheter = listOf("1", "2"))
+
+            tiltaksgjennomforinger.upsert(gj1).shouldBeRight()
+            tiltaksgjennomforinger.upsert(gj2).shouldBeRight()
+            tiltaksgjennomforinger.upsert(gj3).shouldBeRight()
+            tiltaksgjennomforinger.upsert(gj4).shouldBeRight()
+
+            tiltaksgjennomforinger.getAll(filter = defaultFilter.copy(navEnhet = "1")).shouldBeRight().should {
+                it.first shouldBe 3
+                it.second.map { it.id } shouldContainAll listOf(gj1.id, gj2.id, gj4.id)
+            }
+        }
+
+        test("filtrer på nav_region") {
+            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
+            val enhetRepository = NavEnhetRepository(database.db)
+            enhetRepository.upsert(
+                NavEnhetDbo(
+                    navn = "NavRegion",
+                    enhetsnummer = "nav_region",
+                    status = NavEnhetStatus.AKTIV,
+                    type = Norg2Type.LOKAL,
+                    overordnetEnhet = null,
+                ),
+            ).shouldBeRight()
+            enhetRepository.upsert(
+                NavEnhetDbo(
+                    navn = "Navn1",
+                    enhetsnummer = "1",
+                    status = NavEnhetStatus.AKTIV,
+                    type = Norg2Type.LOKAL,
+                    overordnetEnhet = null,
+                ),
+            ).shouldBeRight()
+            enhetRepository.upsert(
+                NavEnhetDbo(
+                    navn = "Navn2",
+                    enhetsnummer = "2",
+                    status = NavEnhetStatus.AKTIV,
+                    type = Norg2Type.LOKAL,
+                    overordnetEnhet = "nav_region",
+                ),
+            ).shouldBeRight()
+
+            val gj1 = gjennomforing1.copy(id = UUID.randomUUID(), navEnheter = listOf("1"))
+            val gj2 = gjennomforing1.copy(id = UUID.randomUUID(), arenaAnsvarligEnhet = "1")
+            val gj3 = gjennomforing1.copy(id = UUID.randomUUID(), navEnheter = listOf("2"))
+            val gj4 = gjennomforing1.copy(id = UUID.randomUUID(), navEnheter = listOf("1", "2"))
+
+            tiltaksgjennomforinger.upsert(gj1).shouldBeRight()
+            tiltaksgjennomforinger.upsert(gj2).shouldBeRight()
+            tiltaksgjennomforinger.upsert(gj3).shouldBeRight()
+            tiltaksgjennomforinger.upsert(gj4).shouldBeRight()
+
+            tiltaksgjennomforinger.getAll(filter = defaultFilter.copy(navRegion = "nav_region")).shouldBeRight().should {
+                it.first shouldBe 2
+                it.second.map { it.id } shouldContainAll listOf(gj4.id, gj3.id)
+            }
+        }
     }
 
     context("pagination") {
