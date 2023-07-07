@@ -18,7 +18,7 @@ const UtkastDataSchema = z.object({
 
 export function UtkastKort({ utkast, onEdit }: UtkastKortProps) {
   const slettMutation = useDeleteUtkast();
-  const { refetch } = useMineUtkast(Utkast.type.TILTAKSGJENNOMFORING);
+  const { refetch } = useMineUtkast(utkast.type);
 
   async function slettUtkast() {
     slettMutation.mutate(utkast.id, { onSuccess: async () => await refetch() });
