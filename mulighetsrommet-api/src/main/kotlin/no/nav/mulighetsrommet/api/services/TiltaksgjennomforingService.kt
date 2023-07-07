@@ -2,7 +2,7 @@ package no.nav.mulighetsrommet.api.services
 
 import arrow.core.Either
 import arrow.core.flatMap
-import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingDbo
+import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingNokkeltallDto
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.DeltakerRepository

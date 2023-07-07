@@ -50,6 +50,7 @@ fun createTestApplicationConfig(oauth: MockOAuth2Server) = AppConfig(
     msGraphConfig = createServiceClientConfig("ms-graph"),
     arenaAdapter = createServiceClientConfig("arena-adapter"),
     tasks = TaskConfig(
+        deleteExpiredTiltakshistorikk = DeleteExpiredTiltakshistorikk.Config(disabled = true),
         synchronizeNorgEnheter = SynchronizeNorgEnheter.Config(
             delayOfMinutes = 10,
             disabled = true,

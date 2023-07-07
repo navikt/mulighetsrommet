@@ -75,7 +75,7 @@ class ArenaAdapterService(
             }
     }
 
-    fun upsertTiltakshistorikk(tiltakshistorikk: TiltakshistorikkDbo): QueryResult<TiltakshistorikkDbo> {
+    fun upsertTiltakshistorikk(tiltakshistorikk: ArenaTiltakshistorikkDbo): QueryResult<ArenaTiltakshistorikkDbo> {
         return this.tiltakshistorikk.upsert(tiltakshistorikk)
     }
 

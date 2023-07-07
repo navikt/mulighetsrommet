@@ -5,7 +5,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
-import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingDbo
+import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.domain.dto.TiltakshistorikkDto
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakshistorikkRepository
@@ -57,7 +57,7 @@ class TiltakshistorikkServiceTest : FunSpec({
         estimertVentetid = null,
     )
 
-    val tiltakshistorikkGruppe = TiltakshistorikkDbo.Gruppetiltak(
+    val tiltakshistorikkGruppe = ArenaTiltakshistorikkDbo.Gruppetiltak(
         id = UUID.randomUUID(),
         tiltaksgjennomforingId = tiltaksgjennomforing.id,
         norskIdent = "12345678910",
@@ -78,7 +78,7 @@ class TiltakshistorikkServiceTest : FunSpec({
         tilDato = LocalDate.of(2023, 1, 12),
     )
 
-    val tiltakshistorikkIndividuell = TiltakshistorikkDbo.IndividueltTiltak(
+    val tiltakshistorikkIndividuell = ArenaTiltakshistorikkDbo.IndividueltTiltak(
         id = UUID.randomUUID(),
         norskIdent = "12345678910",
         status = Deltakerstatus.VENTER,

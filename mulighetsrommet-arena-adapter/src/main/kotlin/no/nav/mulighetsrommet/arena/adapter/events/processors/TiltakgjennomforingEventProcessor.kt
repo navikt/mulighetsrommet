@@ -20,8 +20,8 @@ import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.models.db.Sak
 import no.nav.mulighetsrommet.arena.adapter.models.db.Tiltaksgjennomforing
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
-import no.nav.mulighetsrommet.arena.adapter.utils.AktivitetsplanenLaunchDate
 import no.nav.mulighetsrommet.arena.adapter.utils.ArenaUtils
+import no.nav.mulighetsrommet.domain.Tiltakshistorikk
 import no.nav.mulighetsrommet.domain.Tiltakskoder.hasFellesOppstart
 import no.nav.mulighetsrommet.domain.Tiltakskoder.isGruppetiltak
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
@@ -44,10 +44,10 @@ class TiltakgjennomforingEventProcessor(
         val data = event.decodePayload<ArenaTiltaksgjennomforing>()
 
         val isGruppetiltak = isGruppetiltak(data.TILTAKSKODE)
-        if (!isGruppetiltak && isRegisteredBeforeAktivitetsplanen(data)) {
+        if (!isGruppetiltak && isNoLongerRelevantForBrukersTiltakshistorikk(data)) {
             return@either ProcessingResult(
                 Ignored,
-                "Tiltaksgjennomføring ignorert fordi den ble opprettet før Aktivitetsplanen",
+                "Tiltaksgjennomføring ignorert fordi den ikke lengre er relevant for brukers tiltakshistorikk",
             )
         }
 
@@ -128,8 +128,8 @@ class TiltakgjennomforingEventProcessor(
         response.mapLeft { ProcessingError.fromResponseException(it) }.map { ProcessingResult(Handled) }.bind()
     }
 
-    private fun isRegisteredBeforeAktivitetsplanen(data: ArenaTiltaksgjennomforing): Boolean {
-        return ArenaUtils.parseTimestamp(data.REG_DATO).isBefore(AktivitetsplanenLaunchDate)
+    private fun isNoLongerRelevantForBrukersTiltakshistorikk(data: ArenaTiltaksgjennomforing): Boolean {
+        return !Tiltakshistorikk.isRelevantTiltakshistorikk(ArenaUtils.parseTimestamp(data.REG_DATO))
     }
 
     private fun ArenaTiltaksgjennomforing.toTiltaksgjennomforing(id: UUID, avtaleId: Int?) = Either

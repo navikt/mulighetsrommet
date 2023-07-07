@@ -71,7 +71,7 @@ class ArenaAdapterServiceTest : FunSpec({
         avtaleId = null,
     )
 
-    val tiltakshistorikkGruppe = TiltakshistorikkDbo.Gruppetiltak(
+    val tiltakshistorikkGruppe = ArenaTiltakshistorikkDbo.Gruppetiltak(
         id = UUID.randomUUID(),
         tiltaksgjennomforingId = tiltaksgjennomforing.id,
         norskIdent = "12345678910",
@@ -92,7 +92,7 @@ class ArenaAdapterServiceTest : FunSpec({
         tilDato = LocalDate.of(2023, 1, 12),
     )
 
-    val tiltakshistorikkIndividuell = TiltakshistorikkDbo.IndividueltTiltak(
+    val tiltakshistorikkIndividuell = ArenaTiltakshistorikkDbo.IndividueltTiltak(
         id = UUID.randomUUID(),
         norskIdent = "12345678910",
         status = Deltakerstatus.VENTER,

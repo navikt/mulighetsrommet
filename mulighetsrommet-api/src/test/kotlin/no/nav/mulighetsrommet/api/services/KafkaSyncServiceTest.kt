@@ -4,7 +4,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.mockk.mockk
 import io.mockk.verifyAll
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
-import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingDbo
+import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.api.producers.TiltakstypeKafkaProducer
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository

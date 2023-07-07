@@ -10,8 +10,8 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingDbo
-import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingKontaktpersonDbo
+import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
+import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingKontaktpersonDbo
 import no.nav.mulighetsrommet.api.routes.v1.responses.*
 import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
 import no.nav.mulighetsrommet.api.services.UtkastService

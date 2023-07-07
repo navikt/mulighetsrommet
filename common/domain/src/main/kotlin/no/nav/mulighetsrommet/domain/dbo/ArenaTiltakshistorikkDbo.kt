@@ -9,7 +9,7 @@ import java.util.*
 
 @Serializable
 @Polymorphic
-sealed class TiltakshistorikkDbo {
+sealed class ArenaTiltakshistorikkDbo {
     @Serializable(with = UUIDSerializer::class)
     abstract val id: UUID
     abstract val norskIdent: String
@@ -22,7 +22,7 @@ sealed class TiltakshistorikkDbo {
     abstract val tilDato: LocalDateTime?
 
     @Serializable(with = LocalDateTimeSerializer::class)
-    abstract val registrertIArenaDato: LocalDateTime?
+    abstract val registrertIArenaDato: LocalDateTime
 
     @Serializable
     data class Gruppetiltak(
@@ -35,10 +35,10 @@ sealed class TiltakshistorikkDbo {
         @Serializable(with = LocalDateTimeSerializer::class)
         override val tilDato: LocalDateTime?,
         @Serializable(with = LocalDateTimeSerializer::class)
-        override val registrertIArenaDato: LocalDateTime?,
+        override val registrertIArenaDato: LocalDateTime,
         @Serializable(with = UUIDSerializer::class)
         val tiltaksgjennomforingId: UUID,
-    ) : TiltakshistorikkDbo()
+    ) : ArenaTiltakshistorikkDbo()
 
     @Serializable
     data class IndividueltTiltak(
@@ -51,10 +51,10 @@ sealed class TiltakshistorikkDbo {
         @Serializable(with = LocalDateTimeSerializer::class)
         override val tilDato: LocalDateTime?,
         @Serializable(with = LocalDateTimeSerializer::class)
-        override val registrertIArenaDato: LocalDateTime?,
+        override val registrertIArenaDato: LocalDateTime,
         val beskrivelse: String,
         @Serializable(with = UUIDSerializer::class)
         val tiltakstypeId: UUID,
         val arrangorOrganisasjonsnummer: String,
-    ) : TiltakshistorikkDbo()
+    ) : ArenaTiltakshistorikkDbo()
 }

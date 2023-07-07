@@ -9,8 +9,8 @@ import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
-import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingDbo
-import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingKontaktpersonDbo
+import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
+import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingKontaktpersonDbo
 import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain

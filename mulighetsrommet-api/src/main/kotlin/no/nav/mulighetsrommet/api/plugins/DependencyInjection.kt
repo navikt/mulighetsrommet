@@ -268,6 +268,11 @@ private fun services(appConfig: AppConfig) = module {
 
 private fun tasks(config: TaskConfig) = module {
     single {
+        val deleteExpiredTiltakshistorikk = DeleteExpiredTiltakshistorikk(
+            config.deleteExpiredTiltakshistorikk,
+            get(),
+            get(),
+        )
         val synchronizeTiltaksgjennomforingsstatuserToKafka = SynchronizeTiltaksgjennomforingsstatuserToKafka(
             get(),
             get(),
@@ -286,8 +291,12 @@ private fun tasks(config: TaskConfig) = module {
             get(),
             get(),
         )
-        val notifySluttdatoForAvtalerNarmerSeg =
-            NotifySluttdatoForAvtalerNarmerSeg(config.notifySluttdatoForAvtalerNarmerSeg, get(), get(), get())
+        val notifySluttdatoForAvtalerNarmerSeg = NotifySluttdatoForAvtalerNarmerSeg(
+            config.notifySluttdatoForAvtalerNarmerSeg,
+            get(),
+            get(),
+            get(),
+        )
         val notifyFailedKafkaEvents = NotifyFailedKafkaEvents(
             config.notifyFailedKafkaEvents,
             get(),
@@ -309,6 +318,7 @@ private fun tasks(config: TaskConfig) = module {
         Scheduler
             .create(db.getDatasource(), notificationService.getScheduledNotificationTask())
             .startTasks(
+                deleteExpiredTiltakshistorikk.task,
                 synchronizeNorgEnheterTask.task,
                 synchronizeTiltaksgjennomforingsstatuserToKafka.task,
                 synchronizeTiltakstypestatuserToKafka.task,

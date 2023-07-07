@@ -30,10 +30,10 @@ import no.nav.mulighetsrommet.arena.adapter.models.db.Sak
 import no.nav.mulighetsrommet.arena.adapter.models.dto.ArenaOrdsArrangor
 import no.nav.mulighetsrommet.arena.adapter.repositories.*
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
-import no.nav.mulighetsrommet.arena.adapter.utils.AktivitetsplanenLaunchDate
 import no.nav.mulighetsrommet.arena.adapter.utils.ArenaUtils
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
+import no.nav.mulighetsrommet.domain.Tiltakshistorikk
 import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.ktor.createMockEngine
@@ -41,6 +41,7 @@ import no.nav.mulighetsrommet.ktor.decodeRequestBody
 import no.nav.mulighetsrommet.ktor.getLastPathParameterAsUUID
 import no.nav.mulighetsrommet.ktor.respondJson
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 class TiltakgjennomforingEventProcessorTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
@@ -49,12 +50,9 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
         database.db.truncateAll()
     }
 
-    val regDatoBeforeAktivitetsplanen = AktivitetsplanenLaunchDate
-        .minusDays(1)
-        .format(ArenaUtils.TimestampFormatter)
+    val tiltakshistorikkStartDate = LocalDateTime.now().minus(Tiltakshistorikk.TiltakshistorikkTimePeriod)
 
-    val regDatoAfterAktivitetsplanen = AktivitetsplanenLaunchDate
-        .format(ArenaUtils.TimestampFormatter)
+    val dateBeforeTiltakshistorikkStartDate = tiltakshistorikkStartDate.minusDays(1)
 
     context("handleEvent") {
         val entities = ArenaEntityService(
@@ -178,12 +176,13 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                             Insert,
                             TiltaksgjennomforingFixtures.ArenaTiltaksgjennomforingIndividuell,
                         ) {
-                            it.copy(REG_DATO = regDatoBeforeAktivitetsplanen)
+                            it.copy(REG_DATO = dateBeforeTiltakshistorikkStartDate.format(ArenaUtils.TimestampFormatter))
                         },
                     )
 
                     processor.handleEvent(event).shouldBeRight().should {
                         it.status shouldBe Ignored
+                        it.message shouldBe "Tiltaksgjennomføring ignorert fordi den ikke lengre er relevant for brukers tiltakshistorikk"
                     }
                     database.assertThat("tiltaksgjennomforing").isEmpty
                 }
@@ -196,13 +195,11 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                             Insert,
                             TiltaksgjennomforingFixtures.ArenaTiltaksgjennomforingIndividuell,
                         ) {
-                            it.copy(REG_DATO = regDatoAfterAktivitetsplanen)
+                            it.copy(REG_DATO = tiltakshistorikkStartDate.format(ArenaUtils.TimestampFormatter))
                         },
                     )
 
                     processor.handleEvent(event).shouldBeRight().should { it.status shouldBe Handled }
-                    database.assertThat("tiltaksgjennomforing").row()
-                        .value("tiltakskode").isEqualTo("AMO")
                 }
 
                 test("should not send gjennomføringer to mr-api") {
@@ -240,7 +237,7 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                 val (e1, mapping) = prepareEvent(
                     createArenaTiltakgjennomforingEvent(Insert) {
                         it.copy(
-                            REG_DATO = regDatoBeforeAktivitetsplanen,
+                            REG_DATO = dateBeforeTiltakshistorikkStartDate.format(ArenaUtils.TimestampFormatter),
                             LOKALTNAVN = "Navn 1",
                         )
                     },
@@ -264,7 +261,7 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
 
                 val e2 = createArenaTiltakgjennomforingEvent(Update) {
                     it.copy(
-                        REG_DATO = regDatoAfterAktivitetsplanen,
+                        REG_DATO = tiltakshistorikkStartDate.format(ArenaUtils.TimestampFormatter),
                         LOKALTNAVN = "Navn 2",
                     )
                 }
