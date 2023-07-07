@@ -49,7 +49,12 @@ class DeleteExpiredTiltakshistorikk(
         }
         .execute { _, _ ->
             logger.info("Sletter utgått tiltakshistorikk...")
+
             val expirationDate = LocalDate.now().minus(Tiltakshistorikk.TiltakshistorikkTimePeriod)
-            tiltakshistorikk.deleteByExpirationDate(expirationDate).getOrThrow()
+            tiltakshistorikk.deleteByExpirationDate(expirationDate)
+                .onRight {
+                    logger.info("Slettet $it rader med tiltakshistorikk")
+                }
+                .getOrThrow()
         }
 }

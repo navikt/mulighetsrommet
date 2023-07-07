@@ -57,7 +57,7 @@ class TiltakshistorikkRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    fun deleteByExpirationDate(date: LocalDate): QueryResult<Unit> = query {
+    fun deleteByExpirationDate(date: LocalDate): QueryResult<Int> = query {
         @Language("PostgreSQL")
         val query = """
             delete from tiltakshistorikk
@@ -65,7 +65,7 @@ class TiltakshistorikkRepository(private val db: Database) {
         """.trimIndent()
 
         run { queryOf(query, mapOf("date" to date)) }
-            .asExecute
+            .asUpdate
             .let { db.run(it) }
     }
 

@@ -61,7 +61,7 @@ class TiltakshistorikkRepositoryTest : FunSpec({
             tiltakshistorikk.upsert(historikkUtenTilDato).shouldBeRight()
             tiltakshistorikk.upsert(historikkMedTilDato).shouldBeRight()
 
-            tiltakshistorikk.deleteByExpirationDate(LocalDate.of(2015, 1, 1)).shouldBeRight()
+            tiltakshistorikk.deleteByExpirationDate(LocalDate.of(2015, 1, 1)).shouldBeRight(0)
 
             tiltakshistorikk.getTiltakshistorikkForBruker("12345678910").shouldHaveSize(2)
         }
@@ -71,11 +71,11 @@ class TiltakshistorikkRepositoryTest : FunSpec({
             tiltakshistorikk.upsert(historikkUtenTilDato).shouldBeRight()
             tiltakshistorikk.upsert(historikkMedTilDato).shouldBeRight()
 
-            tiltakshistorikk.deleteByExpirationDate(LocalDate.of(2019, 1, 1)).shouldBeRight()
+            tiltakshistorikk.deleteByExpirationDate(LocalDate.of(2019, 1, 1)).shouldBeRight(1)
 
             tiltakshistorikk.getTiltakshistorikkForBruker("12345678910").shouldHaveSize(1)
 
-            tiltakshistorikk.deleteByExpirationDate(LocalDate.of(2020, 1, 1)).shouldBeRight()
+            tiltakshistorikk.deleteByExpirationDate(LocalDate.of(2020, 1, 1)).shouldBeRight(1)
 
             tiltakshistorikk.getTiltakshistorikkForBruker("12345678910").shouldHaveSize(0)
         }
