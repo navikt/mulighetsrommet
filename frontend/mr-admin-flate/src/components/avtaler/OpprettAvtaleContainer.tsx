@@ -110,7 +110,7 @@ export function OpprettAvtaleContainer({
         navn: "",
         enhetsnummer,
       })),
-      ansvarlig: { navident: values?.avtaleansvarlig },
+      ansvarlig: { navident: values?.avtaleansvarlig, navn: "" },
       avtaletype: values?.avtaletype,
       leverandor: {
         navn: "",
@@ -581,7 +581,7 @@ export const FormGroup = ({
 
 export const ansvarligOptions = (
   ansatt?: NavAnsatt,
-  ansvarlig?: { navident?: string; navn?: string },
+  ansvarlig?: { navident: string; navn: string },
   betabrukere?: NavAnsatt[]
 ): SelectOption[] => {
   if (!ansatt || !betabrukere) {

@@ -1250,6 +1250,9 @@ components:
               type: string
             navn:
               type: string
+          required:
+            - navident
+            - navn
         url:
           type: string
           nullable: true
@@ -1453,6 +1456,9 @@ components:
               type: string
             navn:
               type: string
+          required:
+            - navident
+            - navn
         antallPlasser:
           type: integer
         avtaleId:
