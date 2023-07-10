@@ -32,7 +32,7 @@ import { Separator } from "../detaljside/Metadata";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
 import { SelectOption, SokeSelect } from "../skjema/SokeSelect";
-import { AutoSaveUtkast } from "../tiltaksgjennomforinger/AutoSaveUtkast";
+import { AutoSaveUtkast } from "../autosave/AutoSaveUtkast";
 import { VirksomhetKontaktpersoner } from "../virksomhet/VirksomhetKontaktpersoner";
 import { AvtaleSchema, inferredSchema } from "./AvtaleSchema";
 import styles from "./OpprettAvtaleContainer.module.scss";
