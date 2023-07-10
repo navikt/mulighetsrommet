@@ -18,7 +18,6 @@ interface State {
   telefon?: string;
   navnError?: string;
   epostError?: string;
-  telefonError?: string;
 }
 
 interface VirksomhetKontaktpersonerProps {
@@ -45,7 +44,6 @@ export const VirksomhetKontaktpersoner = (
     telefon: undefined,
     epost: undefined,
     navnError: undefined,
-    telefonError: undefined,
     epostError: undefined,
   };
 
@@ -75,21 +73,15 @@ export const VirksomhetKontaktpersoner = (
       epostError: !validEmail(state.epost)
         ? "Epost må være en gyldig epost adresse"
         : undefined,
-      telefonError: !state.telefon ? "Telefon må være satt" : undefined,
     });
-    if (
-      !state.navn ||
-      !state.epost ||
-      !validEmail(state.epost) ||
-      !state.telefon
-    ) {
+    if (!state.navn || !state.epost || !validEmail(state.epost)) {
       return;
     }
 
     mutation.mutate({
       id: uuidv4(),
       navn: state.navn,
-      telefon: state.telefon,
+      telefon: state.telefon || null,
       epost: state.epost,
     });
   };
@@ -110,7 +102,9 @@ export const VirksomhetKontaktpersoner = (
       {person && (
         <div className={styles.kontaktperson_info_container}>
           <label>{`Navn: ${person.navn}`}</label>
-          <label>{`Telefon: ${person.telefon}`}</label>
+          <label>{`Telefon: ${
+            person?.telefon || "Telefonnummer eksisterer ikke"
+          }`}</label>
           <label>{`Epost: ${person.epost}`}</label>
         </div>
       )}
@@ -146,12 +140,10 @@ export const VirksomhetKontaktpersoner = (
               <TextField
                 size="small"
                 label="Telefon"
-                error={state.telefonError}
                 onChange={(e) => {
                   setState({
                     ...state,
                     telefon: e.target.value,
-                    telefonError: undefined,
                   });
                 }}
               />

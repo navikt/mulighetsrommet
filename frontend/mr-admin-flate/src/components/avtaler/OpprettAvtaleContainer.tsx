@@ -547,7 +547,7 @@ export function OpprettAvtaleContainer({
         />
       ) : null}
       <ToastContainer
-        position="bottom-right"
+        position="bottom-left"
         newestOnTop={true}
         closeOnClick
         rtl={false}

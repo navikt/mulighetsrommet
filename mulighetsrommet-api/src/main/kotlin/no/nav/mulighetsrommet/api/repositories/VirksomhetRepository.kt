@@ -253,7 +253,7 @@ class VirksomhetRepository(private val db: Database) {
         id = uuid("id"),
         organisasjonsnummer = string("organisasjonsnummer"),
         navn = string("navn"),
-        telefon = string("telefon"),
+        telefon = stringOrNull("telefon"),
         epost = string("epost"),
     )
 
