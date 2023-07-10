@@ -29,7 +29,7 @@ export function AvtaleUtkast() {
     );
   }
 
-  if (!data && isLoading) {
+  if (data.length === 0 && isLoading) {
     return <Laster tekst="Henter utkast..." />;
   }
 
