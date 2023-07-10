@@ -12,13 +12,12 @@ import { Laster } from "../laster/Laster";
 import { validEmail } from "../../utils/Utils";
 
 interface State {
-  leggTil: boolean
+  leggTil: boolean;
   navn?: string;
   epost?: string;
   telefon?: string;
   navnError?: string;
   epostError?: string;
-  telefonError?: string;
 }
 
 interface VirksomhetKontaktpersonerProps {
@@ -36,7 +35,7 @@ export const VirksomhetKontaktpersoner = (
   const {
     data: kontaktpersoner,
     isLoading: isLoadingKontaktpersoner,
-    refetch
+    refetch,
   } = useVirksomhetKontaktpersoner(orgnr);
 
   const initialState: State = {
@@ -45,42 +44,44 @@ export const VirksomhetKontaktpersoner = (
     telefon: undefined,
     epost: undefined,
     navnError: undefined,
-    telefonError: undefined,
     epostError: undefined,
-  }
+  };
 
   const [state, setState] = useState<State>(initialState);
 
   useEffect(() => {
     if (mutation.isSuccess) {
-      setValue(formValueName, mutation.data.id)
+      setValue(formValueName, mutation.data.id);
       setState(initialState);
       refetch();
       mutation.reset();
     }
-  }, [mutation])
+  }, [mutation]);
 
   if (!kontaktpersoner || isLoadingKontaktpersoner) {
-    return <Laster />
+    return <Laster />;
   }
 
-  const person = kontaktpersoner.find((person) => person.id === watch(formValueName))
+  const person = kontaktpersoner.find(
+    (person) => person.id === watch(formValueName)
+  );
 
   const opprettKontaktperson = () => {
     setState({
       ...state,
       navnError: !state.navn ? "Navn må være satt" : undefined,
-      epostError: !validEmail(state.epost) ? "Epost må være en gyldig epost adresse" : undefined,
-      telefonError: !state.telefon ? "Telefon må være satt" : undefined,
+      epostError: !validEmail(state.epost)
+        ? "Epost må være en gyldig epost adresse"
+        : undefined,
     });
-    if (!state.navn || !state.epost || !validEmail(state.epost) || !state.telefon) {
+    if (!state.navn || !state.epost || !validEmail(state.epost)) {
       return;
     }
 
     mutation.mutate({
       id: uuidv4(),
       navn: state.navn,
-      telefon: state.telefon,
+      telefon: state.telefon || null,
       epost: state.epost,
     });
   };
@@ -98,14 +99,16 @@ export const VirksomhetKontaktpersoner = (
           label: person.navn,
         }))}
       />
-      {person &&
+      {person && (
         <div className={styles.kontaktperson_info_container}>
           <label>{`Navn: ${person.navn}`}</label>
-          <label>{`Telefon: ${person.telefon}`}</label>
+          <label>{`Telefon: ${
+            person?.telefon || "Telefonnummer eksisterer ikke"
+          }`}</label>
           <label>{`Epost: ${person.epost}`}</label>
         </div>
-      }
-      {!state.leggTil &&
+      )}
+      {!state.leggTil && (
         <Button
           className={classNames(
             styles.kontaktperson_button,
@@ -117,15 +120,19 @@ export const VirksomhetKontaktpersoner = (
         >
           <PlusIcon /> eller opprett ny kontaktperson
         </Button>
-      }
-      {state.leggTil &&
+      )}
+      {state.leggTil && (
         <div className={styles.input_container}>
           <TextField
             size="small"
             label={"Navn"}
             error={state.navnError}
             onChange={(e) => {
-              setState({ ...state, navn: e.target.value, navnError: undefined });
+              setState({
+                ...state,
+                navn: e.target.value,
+                navnError: undefined,
+              });
             }}
           />
           <div className={styles.telefonepost_input}>
@@ -133,9 +140,11 @@ export const VirksomhetKontaktpersoner = (
               <TextField
                 size="small"
                 label="Telefon"
-                error={state.telefonError}
                 onChange={(e) => {
-                  setState({ ...state, telefon: e.target.value, telefonError: undefined });
+                  setState({
+                    ...state,
+                    telefon: e.target.value,
+                  });
                 }}
               />
             </div>
@@ -145,7 +154,11 @@ export const VirksomhetKontaktpersoner = (
                 label="Epost"
                 error={state.epostError}
                 onChange={(e) => {
-                  setState({ ...state, epost: e.target.value, epostError: undefined });
+                  setState({
+                    ...state,
+                    epost: e.target.value,
+                    epostError: undefined,
+                  });
                 }}
               />
             </div>
@@ -170,7 +183,7 @@ export const VirksomhetKontaktpersoner = (
             </Button>
           </div>
         </div>
-      }
+      )}
     </>
   );
-}
+};

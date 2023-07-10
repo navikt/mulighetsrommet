@@ -88,11 +88,11 @@ data class VirksomhetKontaktpersonRequest(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val navn: String,
-    val telefon: String,
+    val telefon: String?,
     val epost: String,
 ) {
     fun toDto(orgnr: String): StatusResponse<VirksomhetKontaktperson> {
-        if (navn.isEmpty() || telefon.isEmpty() || epost.isEmpty()) {
+        if (navn.isEmpty() || epost.isEmpty()) {
             return Either.Left(BadRequest("Verdier kan ikke være tomme"))
         }
 
@@ -101,7 +101,7 @@ data class VirksomhetKontaktpersonRequest(
                 id = id,
                 organisasjonsnummer = orgnr,
                 navn = navn,
-                telefon = telefon,
+                telefon = telefon?.let { it },
                 epost = epost,
             ),
         )

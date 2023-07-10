@@ -1903,12 +1903,12 @@ components:
           type: string
         telefon:
           type: string
+          nullable: true
         epost:
           type: string
       required:
         - id
         - navn
-        - telefon
         - epost
 
     VirksomhetKontaktperson:
