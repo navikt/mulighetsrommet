@@ -80,7 +80,7 @@ dependencies {
     }
     implementation(libs.nav.common.tokenClient)
     constraints {
-        implementation("net.minidev:json-smart:2.4.11") {
+        implementation("net.minidev:json-smart:2.5.0") {
             because("sikkerhetshull i transitiv avhengighet rapportert via snyk")
         }
     }
