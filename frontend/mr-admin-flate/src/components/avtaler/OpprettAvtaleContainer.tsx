@@ -15,7 +15,7 @@ import {
 import { NavEnhet } from "mulighetsrommet-api-client/build/models/NavEnhet";
 import { Tiltakstype } from "mulighetsrommet-api-client/build/models/Tiltakstype";
 import { StatusModal } from "mulighetsrommet-veileder-flate/src/components/modal/delemodal/StatusModal";
-import { ReactNode, useRef, useState } from "react";
+import { ReactNode, useEffect, useRef, useState } from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { Slide, toast, ToastContainer } from "react-toastify";
 import { v4 as uuidv4 } from "uuid";
@@ -89,6 +89,10 @@ export function OpprettAvtaleContainer({
   const { data: features } = useFeatureToggles();
   const mutationUtkast = useMutateUtkast();
   const utkastIdRef = useRef(avtale?.id || uuidv4());
+
+  const getTiltakstypeFromId = (id: string): Tiltakstype | undefined => {
+    return tiltakstyper.find((type) => type.id === id);
+  };
 
   const saveUtkast = (values: inferredSchema) => {
     const utkastData: UtkastData = {
@@ -200,6 +204,15 @@ export function OpprettAvtaleContainer({
     setValue,
   } = form;
 
+  const watchedTiltakstype = watch("tiltakstype");
+
+  useEffect(() => {
+    const arenaKode = getTiltakstypeFromId(watchedTiltakstype)?.arenaKode || "";
+    if (["ARBFORB", "VASV"].includes(arenaKode)) {
+      setValue("avtaletype", Avtaletype.FORHAANDSGODKJENT);
+    }
+  }, [watchedTiltakstype]);
+
   const { data: leverandorData } = useVirksomhet(watch("leverandor"));
   const underenheterForLeverandor = getValueOrDefault(
     leverandorData?.underenheter,
@@ -207,7 +220,7 @@ export function OpprettAvtaleContainer({
   );
 
   const erAnskaffetTiltak = (tiltakstypeId: string): boolean => {
-    const tiltakstype = tiltakstyper.find((type) => type.id === tiltakstypeId);
+    const tiltakstype = getTiltakstypeFromId(tiltakstypeId);
     return tiltakstypekodeErAnskaffetTiltak(tiltakstype?.arenaKode);
   };
 
@@ -289,8 +302,6 @@ export function OpprettAvtaleContainer({
       />
     );
   }
-
-  
 
   const enheterOptions = () => {
     if (!navRegion) {
@@ -422,7 +433,11 @@ export function OpprettAvtaleContainer({
                   label={"Avtaleansvarlig"}
                   {...register("avtaleansvarlig")}
                   onClearValue={() => setValue("avtaleansvarlig", "")}
-                  options={ansvarligOptions(ansatt, avtale?.ansvarlig, betabrukere)}
+                  options={ansvarligOptions(
+                    ansatt,
+                    avtale?.ansvarlig,
+                    betabrukere
+                  )}
                 />
               </FormGroup>
             </div>
@@ -566,22 +581,21 @@ export const FormGroup = ({
 
 export const ansvarligOptions = (
   ansatt?: NavAnsatt,
-  ansvarlig?: { navident?: string, navn?: string },
+  ansvarlig?: { navident?: string; navn?: string },
   betabrukere?: NavAnsatt[]
 ): SelectOption[] => {
   if (!ansatt || !betabrukere) {
-    return [{ value: "", label: "Laster..." }]
+    return [{ value: "", label: "Laster..." }];
   }
 
-  const options = [{
-    value: ansatt.navIdent ?? "",
-    label: `${ansatt.fornavn} ${ansatt?.etternavn} - ${ansatt?.navIdent}`,
-  }];
+  const options = [
+    {
+      value: ansatt.navIdent ?? "",
+      label: `${ansatt.fornavn} ${ansatt?.etternavn} - ${ansatt?.navIdent}`,
+    },
+  ];
 
-  if (
-    ansvarlig?.navident &&
-    ansvarlig.navident !== ansatt?.navIdent
-  ) {
+  if (ansvarlig?.navident && ansvarlig.navident !== ansatt?.navIdent) {
     options.push({
       value: ansvarlig.navident,
       label: `${ansvarlig.navn} - ${ansvarlig.navident}`,
@@ -589,11 +603,16 @@ export const ansvarligOptions = (
   }
 
   betabrukere
-    .filter((b: NavAnsatt) => b.navIdent !== ansatt.navIdent && b.navIdent !== ansvarlig?.navident)
-    .forEach((b: NavAnsatt) => options.push({
-      value: b.navIdent,
-      label: `${b.fornavn} ${b.etternavn} - ${b.navIdent}`,
-    }));
+    .filter(
+      (b: NavAnsatt) =>
+        b.navIdent !== ansatt.navIdent && b.navIdent !== ansvarlig?.navident
+    )
+    .forEach((b: NavAnsatt) =>
+      options.push({
+        value: b.navIdent,
+        label: `${b.fornavn} ${b.etternavn} - ${b.navIdent}`,
+      })
+    );
 
   return options;
 };
