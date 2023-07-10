@@ -1244,8 +1244,12 @@ components:
           type: string
           nullable: true
         ansvarlig:
-          type: string
-          nullable: true
+          type: object
+          properties:
+            navident:
+              type: string
+            navn:
+              type: string
         url:
           type: string
           nullable: true
@@ -1443,7 +1447,12 @@ components:
         navRegion:
           type: string
         ansvarlig:
-          type: string
+          type: object
+          properties:
+            navident:
+              type: string
+            navn:
+              type: string
         antallPlasser:
           type: integer
         avtaleId:

@@ -116,9 +116,12 @@ export function Avtaleinfo() {
             {lenketekst()}
           </a>
         </VisHvisVerdi>
-        <VisHvisVerdi verdi={avtale.ansvarlig}>
+        <VisHvisVerdi verdi={avtale.ansvarlig?.navident}>
           <Bolk aria-label="Avtaleansvarlig">
-            <Metadata header="Avtaleansvarlig" verdi={avtale.ansvarlig} />
+            <Metadata
+              header="Avtaleansvarlig"
+              verdi={`${avtale.ansvarlig?.navn} - ${avtale.ansvarlig?.navident}`}
+            />
           </Bolk>
         </VisHvisVerdi>
       </div>
@@ -146,7 +149,12 @@ export function Avtaleinfo() {
         <Bolk aria-label="Tiltaksleverandør hovedenhet">
           <Metadata
             header="Tiltaksleverandør hovedenhet"
-            verdi={`${avtale.leverandor.navn} - ${avtale.leverandor.organisasjonsnummer}`}
+            verdi={[
+              avtale.leverandor.navn,
+              avtale.leverandor.organisasjonsnummer,
+            ]
+              .filter(Boolean)
+              .join(" - ")}
           />
         </Bolk>
 

@@ -547,7 +547,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
     )
 
     private fun Row.toTiltaksgjennomforingAdminDto(): TiltaksgjennomforingAdminDto {
-        val ansvarlige = arrayOrNull<String?>("ansvarlige")?.asList()?.filterNotNull() ?: emptyList()
+        val ansvarlige = Json.decodeFromString<List<TiltaksgjennomforingAdminDto.Ansvarlig?>>(string("ansvarlige")).filterNotNull()
         val navEnheter = Json.decodeFromString<List<NavEnhet?>>(string("nav_enheter")).filterNotNull()
         val kontaktpersoner =
             Json.decodeFromString<List<TiltaksgjennomforingKontaktperson?>>(string("kontaktpersoner")).filterNotNull()

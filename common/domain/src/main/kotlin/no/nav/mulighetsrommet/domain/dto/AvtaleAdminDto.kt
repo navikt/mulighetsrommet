@@ -25,7 +25,7 @@ data class AvtaleAdminDto(
     val avtaletype: Avtaletype,
     val avtalestatus: Avtalestatus,
     val prisbetingelser: String?,
-    val ansvarlig: String?,
+    val ansvarlig: Avtaleansvarlig?,
     val url: String?,
     val antallPlasser: Int?,
     val navEnheter: List<NavEnhet>,
@@ -42,6 +42,12 @@ data class AvtaleAdminDto(
     @Serializable
     data class Leverandor(
         val organisasjonsnummer: String,
+        val navn: String? = null,
+    )
+
+    @Serializable
+    data class Avtaleansvarlig(
+        val navident: String? = null,
         val navn: String? = null,
     )
 }
