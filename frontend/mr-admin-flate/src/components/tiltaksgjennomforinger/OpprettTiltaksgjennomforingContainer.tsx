@@ -542,7 +542,6 @@ export const OpprettTiltaksgjennomforingContainer = (
     return options;
   };
 
-
   return (
     <FormProvider {...form}>
       {!redigeringsModus ? (
@@ -672,7 +671,11 @@ export const OpprettTiltaksgjennomforingContainer = (
                   }
                   label={"Tiltaksansvarlig"}
                   {...register("ansvarlig")}
-                  options={ansvarligOptions(ansatt, tiltaksgjennomforing?.ansvarlig, betabrukere)}
+                  options={ansvarligOptions(
+                    ansatt,
+                    tiltaksgjennomforing?.ansvarlig,
+                    betabrukere
+                  )}
                   onClearValue={() => setValue("ansvarlig", "")}
                 />
               </FormGroup>
@@ -862,7 +865,7 @@ export const OpprettTiltaksgjennomforingContainer = (
       ) : null}
 
       <ToastContainer
-        position="bottom-right"
+        position="bottom-left"
         newestOnTop={true}
         closeOnClick
         rtl={false}
