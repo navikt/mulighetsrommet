@@ -105,7 +105,7 @@ export function OpprettAvtaleContainer({
         navn: "",
         enhetsnummer,
       })),
-      ansvarlig: values?.avtaleansvarlig,
+      ansvarlig: { navident: values?.avtaleansvarlig },
       avtaletype: values?.avtaletype,
       leverandor: {
         navn: "",
@@ -166,7 +166,7 @@ export function OpprettAvtaleContainer({
         avtale?.navEnheter?.length === 0
           ? ["alle_enheter"]
           : avtale?.navEnheter?.map((e) => e.enhetsnummer),
-      avtaleansvarlig: avtale?.ansvarlig || ansatt.navIdent || "",
+      avtaleansvarlig: avtale?.ansvarlig?.navident || ansatt.navIdent || "",
       avtalenavn: getValueOrDefault(avtale?.navn, ""),
       avtaletype: getValueOrDefault(avtale?.avtaletype, Avtaletype.AVTALE),
       leverandor: getValueOrDefault(
@@ -294,10 +294,13 @@ export function OpprettAvtaleContainer({
 
   const ansvarligOptions = () => {
     const options = [];
-    if (avtale?.ansvarlig && avtale.ansvarlig !== ansatt?.navIdent) {
+    if (
+      avtale?.ansvarlig?.navident &&
+      avtale.ansvarlig.navident !== ansatt?.navIdent
+    ) {
       options.push({
-        value: avtale?.ansvarlig,
-        label: avtale?.ansvarlig,
+        value: avtale?.ansvarlig.navident,
+        label: `${avtale?.ansvarlig.navn} - ${avtale?.ansvarlig.navident}`,
       });
     }
 

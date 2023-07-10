@@ -916,7 +916,7 @@ class AvtaleRepositoryTest : FunSpec({
             avtaletype = Avtaletype.Avtale,
             avtalestatus = Avtalestatus.Avsluttet,
             prisbetingelser = "Alt er dyrt",
-            ansvarlig = null,
+            ansvarlig = AvtaleAdminDto.Avtaleansvarlig(navident = null, navn = " "),
             url = null,
             antallPlasser = null,
             navEnheter = emptyList(),

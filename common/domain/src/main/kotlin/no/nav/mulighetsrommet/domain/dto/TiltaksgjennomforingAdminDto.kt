@@ -30,7 +30,7 @@ data class TiltaksgjennomforingAdminDto(
     val antallPlasser: Int?,
     @Serializable(with = UUIDSerializer::class)
     val avtaleId: UUID?,
-    val ansvarlig: String?,
+    val ansvarlig: Ansvarlig?,
     val navEnheter: List<NavEnhet>,
     val navRegion: String?,
     val sanityId: String?,
@@ -49,5 +49,11 @@ data class TiltaksgjennomforingAdminDto(
         val id: UUID,
         val navn: String,
         val arenaKode: String,
+    )
+
+    @Serializable
+    data class Ansvarlig(
+        val navident: String? = null,
+        val navn: String? = null,
     )
 }

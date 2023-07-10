@@ -206,13 +206,14 @@ export function TiltaksgjennomforingInfo() {
           <Metadata
             header="Ansvarlig for gjennomføringen"
             verdi={
-              tiltaksgjennomforing.ansvarlig ? (
+              tiltaksgjennomforing.ansvarlig?.navident ? (
                 <a
                   target="_blank"
                   rel="noopener noreferrer"
-                  href={`https://nom.nav.no/ressurs/${tiltaksgjennomforing.ansvarlig}`}
+                  href={`https://nom.nav.no/ressurs/${tiltaksgjennomforing.ansvarlig?.navident}`}
                 >
-                  {tiltaksgjennomforing.ansvarlig} <ExternalLinkIcon />
+                  {`${tiltaksgjennomforing.ansvarlig?.navn} - ${tiltaksgjennomforing.ansvarlig?.navident}`}{" "}
+                  <ExternalLinkIcon />
                 </a>
               ) : (
                 "Ingen ansvarlig satt for gjennomføringen"
@@ -287,7 +288,12 @@ export function TiltaksgjennomforingInfo() {
           <Bolk aria-label="Tiltaksleverandør hovedenhet">
             <Metadata
               header="Tiltaksleverandør hovedenhet"
-              verdi={`${avtale?.leverandor.navn} - ${avtale?.leverandor.organisasjonsnummer}`}
+              verdi={[
+                avtale?.leverandor.navn,
+                avtale?.leverandor.organisasjonsnummer,
+              ]
+                .filter(Boolean)
+                .join(" - ")}
             />
           </Bolk>
         </VisHvisVerdi>

@@ -20,7 +20,10 @@ export const mockAvtaler: PaginertAvtale = {
         arenaKode: "AVKLARAG",
       },
       navn: "Testtiltak Varig",
-      ansvarlig: "M165757",
+      ansvarlig: {
+        navident: "B123456",
+        navn: "Bertil Betabruker",
+      },
       opphav: Opphav.MR_ADMIN_FLATE,
       avtalenummer: "2021#10579",
       leverandor: {
@@ -77,6 +80,10 @@ export const mockAvtaler: PaginertAvtale = {
         navn: "ÅMLI KOMMUNE",
       },
       opphav: Opphav.ARENA,
+      ansvarlig: {
+        navident: "B123456",
+        navn: "Bertil Betabruker",
+      },
       leverandorUnderenheter: [
         { organisasjonsnummer: "456798321", navn: "Underenhet 1" },
         { organisasjonsnummer: "456798322", navn: "Underenhet 2" },
@@ -97,6 +104,10 @@ export const mockAvtaler: PaginertAvtale = {
     {
       id: "6374b285-989d-4f78-a59e-29481b64ba92",
       opphav: Opphav.ARENA,
+      ansvarlig: {
+        navident: "B123456",
+        navn: "Bertil Betabruker",
+      },
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "Oppfølging",
@@ -131,6 +142,10 @@ export const mockAvtaler: PaginertAvtale = {
       navn: "Avtale hos Arbeids- og sosialdepartementet",
       avtalenummer: "2020#4993",
       opphav: Opphav.ARENA,
+      ansvarlig: {
+        navident: "B123456",
+        navn: "Bertil Betabruker",
+      },
       leverandor: {
         organisasjonsnummer: "983887457",
         navn: "ARBEIDS- OG INKLUDERINGSDEPARTEMENTET",
@@ -151,6 +166,10 @@ export const mockAvtaler: PaginertAvtale = {
     {
       id: "8a4a4dee-98c7-4a07-bc0c-f677a46c406f",
       opphav: Opphav.ARENA,
+      ansvarlig: {
+        navident: "B123456",
+        navn: "Bertil Betabruker",
+      },
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "Oppfølging",
@@ -189,6 +208,10 @@ export const mockAvtaler: PaginertAvtale = {
       },
       leverandorUnderenheter: [],
       opphav: Opphav.ARENA,
+      ansvarlig: {
+        navident: "B123456",
+        navn: "Bertil Betabruker",
+      },
       startDato: "2021-11-01",
       sluttDato: "2023-10-31",
       navEnheter: [],
@@ -208,6 +231,10 @@ export const mockAvtaler: PaginertAvtale = {
         arenaKode: "INDOPPFAG",
       },
       opphav: Opphav.ARENA,
+      ansvarlig: {
+        navident: "B123456",
+        navn: "Bertil Betabruker",
+      },
       navn: "Avtale hos ASKØY KOMMUNE KOMM TEKNISK AVD",
       avtalenummer: "2021#17845",
       leverandor: {
@@ -229,6 +256,10 @@ export const mockAvtaler: PaginertAvtale = {
     {
       id: "e26c53cd-cafd-4a57-b7e0-c774cf33ea0d",
       opphav: Opphav.ARENA,
+      ansvarlig: {
+        navident: "B123456",
+        navn: "Bertil Betabruker",
+      },
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "Oppfølging",
@@ -255,6 +286,10 @@ export const mockAvtaler: PaginertAvtale = {
     {
       id: "6267aed1-1d7a-419a-83aa-1c42488b6bf1",
       opphav: Opphav.ARENA,
+      ansvarlig: {
+        navident: "B123456",
+        navn: "Bertil Betabruker",
+      },
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "Oppfølging",
@@ -292,6 +327,10 @@ export const mockAvtaler: PaginertAvtale = {
         navn: "KRISTIANSAND KOMMUNE SAMHANDLING OG INNOVASJON",
       },
       opphav: Opphav.ARENA,
+      ansvarlig: {
+        navident: "B123456",
+        navn: "Bertil Betabruker",
+      },
       leverandorUnderenheter: [],
       startDato: "2021-10-01",
       sluttDato: "2024-12-31",
@@ -347,6 +386,10 @@ export const mockAvtaler: PaginertAvtale = {
       avtalestatus: Avtalestatus.AKTIV,
       prisbetingelser: "Maskert prisbetingelser",
       opphav: Opphav.MR_ADMIN_FLATE,
+      ansvarlig: {
+        navident: "B123456",
+        navn: "Bertil Betabruker",
+      },
     },
     {
       id: "f80817a4-4602-46e4-ae62-46ad28b023be",
@@ -373,6 +416,10 @@ export const mockAvtaler: PaginertAvtale = {
       avtalestatus: Avtalestatus.AKTIV,
       prisbetingelser: "Maskert prisbetingelser",
       opphav: Opphav.MR_ADMIN_FLATE,
+      ansvarlig: {
+        navident: "B123456",
+        navn: "Bertil Betabruker",
+      },
     },
     {
       id: "03d8e390-6c4d-4d8c-b42d-d9f39406086b",
@@ -399,6 +446,10 @@ export const mockAvtaler: PaginertAvtale = {
       avtalestatus: Avtalestatus.AKTIV,
       prisbetingelser: "Maskert prisbetingelser",
       opphav: Opphav.MR_ADMIN_FLATE,
+      ansvarlig: {
+        navident: "B123456",
+        navn: "Bertil Betabruker",
+      },
     },
     {
       id: "21ab610d-5ed9-4d08-bdba-0650e2a56601",
@@ -425,6 +476,10 @@ export const mockAvtaler: PaginertAvtale = {
       avtalestatus: Avtalestatus.AKTIV,
       prisbetingelser: "Maskert prisbetingelser",
       opphav: Opphav.MR_ADMIN_FLATE,
+      ansvarlig: {
+        navident: "B123456",
+        navn: "Bertil Betabruker",
+      },
     },
     {
       id: "f671039e-796b-456f-a4b3-c95172e2142c",
@@ -451,6 +506,10 @@ export const mockAvtaler: PaginertAvtale = {
       avtalestatus: Avtalestatus.AKTIV,
       prisbetingelser: "Maskert prisbetingelser",
       opphav: Opphav.MR_ADMIN_FLATE,
+      ansvarlig: {
+        navident: "B123456",
+        navn: "Bertil Betabruker",
+      },
     },
     {
       id: "8179667d-4cdb-4307-ac34-d459bda709a3",
@@ -470,6 +529,10 @@ export const mockAvtaler: PaginertAvtale = {
       sluttDato: "2024-12-31",
       navEnheter: [],
       opphav: Opphav.MR_ADMIN_FLATE,
+      ansvarlig: {
+        navident: "B123456",
+        navn: "Bertil Betabruker",
+      },
       navRegion: {
         enhetsnummer: "1287",
         navn: "NAV Innlandet",

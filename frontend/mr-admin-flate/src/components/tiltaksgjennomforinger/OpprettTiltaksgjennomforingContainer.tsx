@@ -330,7 +330,7 @@ export const OpprettTiltaksgjennomforingContainer = (
           : tiltaksgjennomforing?.navEnheter?.map(
               (enhet) => enhet.enhetsnummer
             ),
-      ansvarlig: tiltaksgjennomforing?.ansvarlig,
+      ansvarlig: tiltaksgjennomforing?.ansvarlig?.navident,
       antallPlasser: tiltaksgjennomforing?.antallPlasser,
       startOgSluttDato: {
         startDato: tiltaksgjennomforing?.startDato
@@ -553,12 +553,12 @@ export const OpprettTiltaksgjennomforingContainer = (
     }
     const options = [];
     if (
-      tiltaksgjennomforing?.ansvarlig &&
-      tiltaksgjennomforing.ansvarlig !== ansatt?.navIdent
+      tiltaksgjennomforing?.ansvarlig?.navident &&
+      tiltaksgjennomforing.ansvarlig.navident !== ansatt?.navIdent
     ) {
       options.push({
-        value: tiltaksgjennomforing?.ansvarlig,
-        label: tiltaksgjennomforing?.ansvarlig,
+        value: tiltaksgjennomforing?.ansvarlig.navident,
+        label: `${tiltaksgjennomforing?.ansvarlig.navn} - ${tiltaksgjennomforing?.ansvarlig.navident}`,
       });
     }
 
