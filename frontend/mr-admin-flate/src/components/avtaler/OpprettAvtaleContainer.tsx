@@ -25,18 +25,18 @@ import { useMutateUtkast } from "../../api/utkast/useMutateUtkast";
 import { useSokVirksomheter } from "../../api/virksomhet/useSokVirksomhet";
 import { useVirksomhet } from "../../api/virksomhet/useVirksomhet";
 import {
-  capitalize,
   formaterDatoSomYYYYMMDD,
   tiltakstypekodeErAnskaffetTiltak,
 } from "../../utils/Utils";
 import { Separator } from "../detaljside/Metadata";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
-import { SokeSelect } from "../skjema/SokeSelect";
+import { SelectOption, SokeSelect } from "../skjema/SokeSelect";
 import { AutoSaveUtkast } from "../tiltaksgjennomforinger/AutoSaveUtkast";
 import { VirksomhetKontaktpersoner } from "../virksomhet/VirksomhetKontaktpersoner";
 import { AvtaleSchema, inferredSchema } from "./AvtaleSchema";
 import styles from "./OpprettAvtaleContainer.module.scss";
+import { useHentBetabrukere } from "../../api/ansatt/useHentBetabrukere";
 
 type UtkastData = Pick<
   Avtale,
@@ -85,6 +85,7 @@ export function OpprettAvtaleContainer({
   );
   const { data: leverandorVirksomheter = [] } =
     useSokVirksomheter(sokLeverandor);
+  const { data: betabrukere } = useHentBetabrukere();
   const { data: features } = useFeatureToggles();
   const mutationUtkast = useMutateUtkast();
   const utkastIdRef = useRef(avtale?.id || uuidv4());
@@ -211,9 +212,6 @@ export function OpprettAvtaleContainer({
   };
 
   const arenaOpphav = avtale?.opphav === Opphav.ARENA;
-  const navn = [ansatt.fornavn, ansatt.etternavn]
-    .map((it) => capitalize(it))
-    .join(" ");
 
   const postData: SubmitHandler<inferredSchema> = async (
     data
@@ -292,25 +290,7 @@ export function OpprettAvtaleContainer({
     );
   }
 
-  const ansvarligOptions = () => {
-    const options = [];
-    if (
-      avtale?.ansvarlig?.navident &&
-      avtale.ansvarlig.navident !== ansatt?.navIdent
-    ) {
-      options.push({
-        value: avtale?.ansvarlig.navident,
-        label: `${avtale?.ansvarlig.navn} - ${avtale?.ansvarlig.navident}`,
-      });
-    }
-
-    options.push({
-      value: ansatt.navIdent,
-      label: `${navn} - ${ansatt.navIdent}`,
-    });
-
-    return options;
-  };
+  
 
   const enheterOptions = () => {
     if (!navRegion) {
@@ -442,7 +422,7 @@ export function OpprettAvtaleContainer({
                   label={"Avtaleansvarlig"}
                   {...register("avtaleansvarlig")}
                   onClearValue={() => setValue("avtaleansvarlig", "")}
-                  options={ansvarligOptions()}
+                  options={ansvarligOptions(ansatt, avtale?.ansvarlig, betabrukere)}
                 />
               </FormGroup>
             </div>
@@ -583,3 +563,37 @@ export const FormGroup = ({
     </div>
   </div>
 );
+
+export const ansvarligOptions = (
+  ansatt?: NavAnsatt,
+  ansvarlig?: { navident?: string, navn?: string },
+  betabrukere?: NavAnsatt[]
+): SelectOption[] => {
+  if (!ansatt || !betabrukere) {
+    return [{ value: "", label: "Laster..." }]
+  }
+
+  const options = [{
+    value: ansatt.navIdent ?? "",
+    label: `${ansatt.fornavn} ${ansatt?.etternavn} - ${ansatt?.navIdent}`,
+  }];
+
+  if (
+    ansvarlig?.navident &&
+    ansvarlig.navident !== ansatt?.navIdent
+  ) {
+    options.push({
+      value: ansvarlig.navident,
+      label: `${ansvarlig.navn} - ${ansvarlig.navident}`,
+    });
+  }
+
+  betabrukere
+    .filter((b: NavAnsatt) => b.navIdent !== ansatt.navIdent && b.navIdent !== ansvarlig?.navident)
+    .forEach((b: NavAnsatt) => options.push({
+      value: b.navIdent,
+      label: `${b.fornavn} ${b.etternavn} - ${b.navIdent}`,
+    }));
+
+  return options;
+};

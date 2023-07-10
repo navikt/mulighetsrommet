@@ -55,6 +55,7 @@ export const QueryKeys = {
     filter,
   ],
   kontaktpersoner: () => ["nav-kontaktpersoner"],
+  betabrukere: () => ["nav-betabrukere"],
   virksomhetKontaktpersoner: (orgnr: string) => [
     orgnr,
     "virksomhet-kontaktpersoner",
