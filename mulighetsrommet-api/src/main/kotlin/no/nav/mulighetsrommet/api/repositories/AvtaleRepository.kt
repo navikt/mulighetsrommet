@@ -462,7 +462,7 @@ class AvtaleRepository(private val db: Database) {
                     id = it,
                     organisasjonsnummer = string("leverandor_kontaktperson_organisasjonsnummer"),
                     navn = string("leverandor_kontaktperson_navn"),
-                    telefon = string("leverandor_kontaktperson_telefon"),
+                    telefon = stringOrNull("leverandor_kontaktperson_telefon"),
                     epost = string("leverandor_kontaktperson_epost"),
                 )
             },
