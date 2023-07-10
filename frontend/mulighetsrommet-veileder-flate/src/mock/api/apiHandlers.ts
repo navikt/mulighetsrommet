@@ -182,7 +182,7 @@ export const apiHandlers: RestHandler[] = [
     }
   }`;
 
-    const client = getSanityClient('all');
+    const client = getSanityClient('raw');
     const result = await client.fetch(query);
     return ok(result);
   }),
