@@ -23,7 +23,7 @@ class SanityClient(engine: HttpClientEngine = CIO.create(), val config: Config) 
     data class Config(
         val projectId: String,
         val dataset: String,
-        val apiVersion: String = "v2023-01-01", // https://www.sanity.io/docs/api-versioning
+        val apiVersion: String = "v2023-10-07", // https://www.sanity.io/docs/api-versioning
         val token: String?,
         val useCdn: Boolean = true,
     ) {
@@ -82,10 +82,11 @@ class SanityClient(engine: HttpClientEngine = CIO.create(), val config: Config) 
         }
     }
 
-    internal suspend fun query(query: String): SanityResponse {
+    internal suspend fun query(query: String, perspective: SanityPerspective = SanityPerspective.PUBLISHED): SanityResponse {
         val response = client.get(config.queryUrl) {
             url {
                 parameters.append("query", query)
+                parameters.append("perspective", perspective.navn)
             }
         }
 
@@ -111,4 +112,10 @@ class SanityClient(engine: HttpClientEngine = CIO.create(), val config: Config) 
 
         return response
     }
+}
+
+enum class SanityPerspective(val navn: String) {
+    PREVIEW_DRAFTS("previewDrafts"),
+    PUBLISHED("published"),
+    RAW("raw"),
 }

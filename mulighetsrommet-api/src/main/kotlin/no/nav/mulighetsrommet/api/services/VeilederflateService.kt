@@ -4,6 +4,7 @@ import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import io.prometheus.client.cache.caffeine.CacheMetricsCollector
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
+import no.nav.mulighetsrommet.api.clients.sanity.SanityPerspective
 import no.nav.mulighetsrommet.api.domain.dto.FylkeResponse
 import no.nav.mulighetsrommet.api.domain.dto.KontaktinfoTiltaksansvarlige
 import no.nav.mulighetsrommet.api.domain.dto.SanityResponse
@@ -46,7 +47,7 @@ class VeilederflateService(
         return CacheUtils.tryCacheFirstNotNull(sanityCache, "innsatsgrupper") {
             sanityClient.query(
                 """
-                *[_type == "innsatsgruppe" && !(_id in path("drafts.**"))] | order(order asc)
+                *[_type == "innsatsgruppe"] | order(order asc)
                 """.trimIndent(),
             )
         }
@@ -56,7 +57,7 @@ class VeilederflateService(
         return CacheUtils.tryCacheFirstNotNull(sanityCache, "tiltakstyper") {
             sanityClient.query(
                 """
-                    *[_type == "tiltakstype" && !(_id in path("drafts.**"))]
+                    *[_type == "tiltakstype"]
                 """.trimIndent(),
             )
         }
@@ -81,7 +82,7 @@ class VeilederflateService(
         val enhetsId = brukerData.geografiskEnhet?.enhetsnummer ?: ""
         val fylkeId = getFylkeIdBasertPaaEnhetsId(enhetsId) ?: ""
         val query = """
-            *[_type == "tiltaksgjennomforing" && !(_id in path("drafts.**"))
+            *[_type == "tiltaksgjennomforing"
               ${byggInnsatsgruppeFilter(filter.innsatsgruppe)}
               ${byggTiltakstypeFilter(filter.tiltakstypeIder)}
               ${byggSokeFilter(filter.sokestreng)}
@@ -149,7 +150,7 @@ class VeilederflateService(
               }
         """.trimIndent()
 
-        return when (val result = sanityClient.query(query)) {
+        return when (val result = sanityClient.query(query, SanityPerspective.RAW)) {
             is SanityResponse.Result -> {
                 val gjennomforinger = result.decode<List<VeilederflateTiltaksgjennomforing>>()
                 supplerDataFraDB(gjennomforinger, enhetsId)

@@ -1,4 +1,4 @@
-import { createClient, SanityClient } from '@sanity/client';
+import { ClientConfig, createClient, SanityClient } from '@sanity/client';
 import groq from 'groq';
 import { rest, RestHandler } from 'msw';
 import {
@@ -91,21 +91,21 @@ export const apiHandlers: RestHandler[] = [
   }),
 
   rest.get<any, any, any>('*/api/v1/internal/sanity/innsatsgrupper', async () => {
-    const query = groq`*[_type == "innsatsgruppe" && !(_id in path("drafts.**"))]`;
+    const query = groq`*[_type == "innsatsgruppe"]`;
     const client = getSanityClient();
     const result = await client.fetch(query);
     return ok(result);
   }),
 
   rest.get<any, any, any>('*/api/v1/internal/sanity/tiltakstyper', async () => {
-    const query = groq`*[_type == "tiltakstype" && !(_id in path("drafts.**"))]`;
+    const query = groq`*[_type == "tiltakstype"]`;
     const client = getSanityClient();
     const result = await client.fetch(query);
     return ok(result);
   }),
 
   rest.get<any, any, any>('*/api/v1/internal/sanity/lokasjoner', async () => {
-    const query = groq`array::unique(*[_type == "tiltaksgjennomforing" && !(_id in path("drafts.**"))
+    const query = groq`array::unique(*[_type == "tiltaksgjennomforing"
     ${enhetOgFylkeFilter()}]
     {
       lokasjon
@@ -120,7 +120,7 @@ export const apiHandlers: RestHandler[] = [
     const tiltakstypeIder = req.url.searchParams.getAll('tiltakstypeIder');
     const sokestreng = req.url.searchParams.get('sokestreng') || '';
     const lokasjoner = req.url.searchParams.getAll('lokasjoner');
-    const sanityQueryString = groq`*[_type == "tiltaksgjennomforing" && !(_id in path("drafts.**"))
+    const sanityQueryString = groq`*[_type == "tiltaksgjennomforing"
     ${byggInnsatsgruppeFilter(innsatsgruppe)}
     ${byggTiltakstypeFilter(tiltakstypeIder)}
     ${byggSokefilter(sokestreng)}
@@ -182,7 +182,7 @@ export const apiHandlers: RestHandler[] = [
     }
   }`;
 
-    const client = getSanityClient();
+    const client = getSanityClient('raw');
     const result = await client.fetch(query);
     return ok(result);
   }),
@@ -212,15 +212,16 @@ export const apiHandlers: RestHandler[] = [
 
 let cachedClient: SanityClient | null = null;
 
-function getSanityClient() {
+function getSanityClient(perspective: ClientConfig['perspective'] = 'published') {
   if (cachedClient) {
     return cachedClient;
   }
 
   cachedClient = createClient({
-    apiVersion: '2022-06-20',
+    apiVersion: '2023-07-10',
     projectId: import.meta.env.VITE_SANITY_PROJECT_ID,
     dataset: import.meta.env.VITE_SANITY_DATASET,
+    perspective,
   });
 
   return cachedClient;
