@@ -88,7 +88,7 @@ data class VirksomhetKontaktpersonRequest(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val navn: String,
-    val telefon: String? = null,
+    val telefon: String?,
     val epost: String,
 ) {
     fun toDto(orgnr: String): StatusResponse<VirksomhetKontaktperson> {

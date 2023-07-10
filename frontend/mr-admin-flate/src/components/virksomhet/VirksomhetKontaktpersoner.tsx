@@ -81,7 +81,7 @@ export const VirksomhetKontaktpersoner = (
     mutation.mutate({
       id: uuidv4(),
       navn: state.navn,
-      telefon: state.telefon,
+      telefon: state.telefon || null,
       epost: state.epost,
     });
   };
