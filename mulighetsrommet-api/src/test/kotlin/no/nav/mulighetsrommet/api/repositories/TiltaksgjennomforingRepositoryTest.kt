@@ -57,7 +57,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
     }
 
     context("CRUD") {
-        test("CRUD") {
+        test("CRUD adminflate-tiltaksgjennomføringer") {
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
 
             tiltaksgjennomforinger.upsert(gjennomforing1).shouldBeRight()
@@ -79,7 +79,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.LEDIG,
                 antallPlasser = null,
                 avtaleId = gjennomforing1.avtaleId,
-                ansvarlig = null,
+                ansvarlig = TiltaksgjennomforingAdminDto.Ansvarlig(navident = null, navn = " "),
                 navEnheter = emptyList(),
                 sanityId = null,
                 oppstart = TiltaksgjennomforingOppstartstype.FELLES,
@@ -140,7 +140,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 arrangorKontaktperson = null,
                 status = Tiltaksgjennomforingsstatus.AVSLUTTET,
                 estimertVentetid = null,
-                ansvarlig = null,
+                ansvarlig = TiltaksgjennomforingAdminDto.Ansvarlig(navident = null, navn = " "),
                 navEnheter = emptyList(),
                 navRegion = null,
                 sanityId = null,
@@ -484,7 +484,10 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             tiltaksgjennomforinger.upsert(gjennomforing).shouldBeRight()
 
             tiltaksgjennomforinger.get(gjennomforing.id).shouldBeRight().should {
-                it!!.ansvarlig shouldBe domain.ansatt1.navIdent
+                it!!.ansvarlig shouldBe TiltaksgjennomforingAdminDto.Ansvarlig(
+                    navident = domain.ansatt1.navIdent,
+                    navn = "Donald Duck",
+                )
             }
             database.assertThat("tiltaksgjennomforing_ansvarlig").hasNumberOfRows(1)
         }
@@ -843,10 +846,11 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             tiltaksgjennomforinger.upsert(gj3).shouldBeRight()
             tiltaksgjennomforinger.upsert(gj4).shouldBeRight()
 
-            tiltaksgjennomforinger.getAll(filter = defaultFilter.copy(navRegion = "nav_region")).shouldBeRight().should {
-                it.first shouldBe 2
-                it.second.map { it.id } shouldContainAll listOf(gj4.id, gj3.id)
-            }
+            tiltaksgjennomforinger.getAll(filter = defaultFilter.copy(navRegion = "nav_region")).shouldBeRight()
+                .should {
+                    it.first shouldBe 2
+                    it.second.map { it.id } shouldContainAll listOf(gj4.id, gj3.id)
+                }
         }
     }
 
