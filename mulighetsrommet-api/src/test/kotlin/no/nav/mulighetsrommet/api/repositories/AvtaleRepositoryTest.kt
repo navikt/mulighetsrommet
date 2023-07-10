@@ -837,6 +837,7 @@ class AvtaleRepositoryTest : FunSpec({
                 navn = "Navn Navnesen",
                 telefon = "22232322",
                 epost = "navn@gmail.com",
+                beskrivelse = "beskrivelse",
             )
             virksomhetRepository.upsertKontaktperson(leverandorKontaktperson)
 

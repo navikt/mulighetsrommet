@@ -188,6 +188,9 @@ export function Avtaleinfo() {
                   <a href={`mailto:${avtale.leverandorKontaktperson?.epost}`}>
                     {avtale.leverandorKontaktperson?.epost}
                   </a>
+                  {
+                    <label>{avtale.leverandorKontaktperson?.beskrivelse}</label>
+                  }
                 </div>
               }
             />

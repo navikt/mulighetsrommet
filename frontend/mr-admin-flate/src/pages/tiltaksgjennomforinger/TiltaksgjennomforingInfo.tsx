@@ -331,6 +331,11 @@ export function TiltaksgjennomforingInfo() {
                 >
                   {tiltaksgjennomforing.arrangorKontaktperson?.epost}
                 </a>
+                { tiltaksgjennomforing.arrangorKontaktperson?.beskrivelse &&
+                  <label>
+                    {tiltaksgjennomforing.arrangorKontaktperson?.beskrivelse}
+                  </label>
+                }
               </div>
             }
           />

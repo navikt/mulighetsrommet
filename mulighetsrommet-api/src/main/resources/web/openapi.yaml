@@ -1904,12 +1904,17 @@ components:
         telefon:
           type: string
           nullable: true
+        beskrivelse:
+          type: string
+          nullable: true
         epost:
           type: string
       required:
         - id
         - navn
         - epost
+        - telefon
+        - beskrivelse
 
     VirksomhetKontaktperson:
       type: object
@@ -1923,6 +1928,10 @@ components:
           type: string
         telefon:
           type: string
+          nullable: true
+        beskrivelse:
+          type: string
+          nullable: true
         epost:
           type: string
       required:
@@ -1930,6 +1939,7 @@ components:
         - navn
         - organisasjonsnummer
         - telefon
+        - beskrivelse
         - epost
 
     EmbeddedNavEnhet:

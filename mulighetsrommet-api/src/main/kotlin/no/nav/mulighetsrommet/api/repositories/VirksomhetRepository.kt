@@ -205,13 +205,14 @@ class VirksomhetRepository(private val db: Database) {
     fun upsertKontaktperson(virksomhetKontaktperson: VirksomhetKontaktperson): VirksomhetKontaktperson {
         @Language("PostgreSQL")
         val upsertVirksomhetKontaktperson = """
-            insert into virksomhet_kontaktperson(id, organisasjonsnummer, navn, telefon, epost)
-            values (:id::uuid, :organisasjonsnummer, :navn, :telefon, :epost)
+            insert into virksomhet_kontaktperson(id, organisasjonsnummer, navn, telefon, epost, beskrivelse)
+            values (:id::uuid, :organisasjonsnummer, :navn, :telefon, :epost, :beskrivelse)
             on conflict (id) do update set
                 navn                = excluded.navn,
                 organisasjonsnummer = excluded.organisasjonsnummer,
                 telefon             = excluded.telefon,
-                epost               = excluded.epost
+                epost               = excluded.epost,
+                beskrivelse         = excluded.beskrivelse
             returning *
         """.trimIndent()
 
@@ -229,7 +230,8 @@ class VirksomhetRepository(private val db: Database) {
                 vk.organisasjonsnummer,
                 vk.navn,
                 vk.telefon,
-                vk.epost
+                vk.epost,
+                vk.beskrivelse
             from virksomhet_kontaktperson vk
             where vk.organisasjonsnummer = ?
         """.trimIndent()
@@ -255,6 +257,7 @@ class VirksomhetRepository(private val db: Database) {
         navn = string("navn"),
         telefon = stringOrNull("telefon"),
         epost = string("epost"),
+        beskrivelse = stringOrNull("beskrivelse"),
     )
 
     private fun VirksomhetDto.toSqlParameters() = mapOf(
@@ -271,6 +274,7 @@ class VirksomhetRepository(private val db: Database) {
         "navn" to navn,
         "telefon" to telefon,
         "epost" to epost,
+        "beskrivelse" to beskrivelse,
     )
 
     private fun OverordnetEnhetDbo.toSqlParameters() = mapOf(
