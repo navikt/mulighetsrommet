@@ -13,7 +13,7 @@ import {
 } from "mulighetsrommet-api-client";
 import { Opphav } from "mulighetsrommet-api-client/build/models/Opphav";
 import { Tilgjengelighetsstatus } from "mulighetsrommet-api-client/build/models/Tilgjengelighetsstatus";
-import { porten } from "mulighetsrommet-frontend-common/constants";
+
 import React, { Dispatch, SetStateAction, useEffect, useRef } from "react";
 import {
   FormProvider,
@@ -21,15 +21,15 @@ import {
   useFieldArray,
   useForm,
 } from "react-hook-form";
-import { Link } from "react-router-dom";
 import { Slide, ToastContainer, toast } from "react-toastify";
 import { v4 as uuidv4 } from "uuid";
-import z from "zod";
 import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
+import { useHentBetabrukere } from "../../api/ansatt/useHentBetabrukere";
 import { useHentKontaktpersoner } from "../../api/ansatt/useHentKontaktpersoner";
 import { usePutGjennomforing } from "../../api/avtaler/usePutGjennomforing";
 import { mulighetsrommetClient } from "../../api/clients";
 import { useAlleEnheter } from "../../api/enhet/useAlleEnheter";
+import { useFeatureToggles } from "../../api/features/feature-toggles";
 import { useMutateUtkast } from "../../api/utkast/useMutateUtkast";
 import { useVirksomhet } from "../../api/virksomhet/useVirksomhet";
 import {
@@ -44,108 +44,18 @@ import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
 import { SokeSelect } from "../skjema/SokeSelect";
 import { VirksomhetKontaktpersoner } from "../virksomhet/VirksomhetKontaktpersoner";
-import { AutoSaveUtkast } from "./AutoSaveUtkast";
+import { AutoSaveUtkast } from "../autosave/AutoSaveUtkast";
 import styles from "./OpprettTiltaksgjennomforingContainer.module.scss";
-import { useFeatureToggles } from "../../api/features/feature-toggles";
-import { useHentBetabrukere } from "../../api/ansatt/useHentBetabrukere";
-
-export const TiltaksgjennomforingSchema = z
-  .object({
-    navn: z.string().min(1, "Du må skrive inn tittel"),
-    startOgSluttDato: z
-      .object({
-        startDato: z.date({
-          required_error: "En gjennomføring må ha en startdato",
-        }),
-        sluttDato: z.date({
-          required_error: "En gjennomføring må ha en sluttdato",
-        }),
-      })
-      .refine(
-        (data) =>
-          !data.startDato || !data.sluttDato || data.sluttDato > data.startDato,
-        {
-          message: "Startdato må være før sluttdato",
-          path: ["startDato"],
-        }
-      ),
-    antallPlasser: z
-      .number({
-        invalid_type_error:
-          "Du må skrive inn antall plasser for gjennomføringen som et positivt heltall",
-      })
-      .int()
-      .positive(),
-    navEnheter: z
-      .string()
-      .array()
-      .nonempty({ message: "Du må velge minst én enhet" }),
-    kontaktpersoner: z
-      .object({
-        navIdent: z.string({ required_error: "Du må velge en kontaktperson" }),
-        navEnheter: z
-          .string({ required_error: "Du må velge minst et område" })
-          .array(),
-      })
-      .array()
-      .optional(),
-    tiltaksArrangorUnderenhetOrganisasjonsnummer: z
-      .string({
-        required_error: "Du må velge en underenhet for tiltaksarrangør",
-      })
-      .min(1, "Du må velge en underenhet for tiltaksarrangør"),
-    lokasjonArrangor: z.string().refine((data) => data?.length > 0, {
-      message: "Du må skrive inn lokasjon for hvor gjennomføringen finner sted",
-    }),
-    arrangorKontaktpersonId: z.string().nullable().optional(),
-    ansvarlig: z.string({ required_error: "Du må velge en ansvarlig" }),
-    midlertidigStengt: z
-      .object({
-        erMidlertidigStengt: z.boolean(),
-        stengtFra: z.date().optional(),
-        stengtTil: z.date().optional(),
-      })
-      .refine((data) => !data.erMidlertidigStengt || Boolean(data.stengtFra), {
-        message: "Midlertidig stengt må ha en start dato",
-        path: ["stengtFra"],
-      })
-      .refine((data) => !data.erMidlertidigStengt || Boolean(data.stengtTil), {
-        message: "Midlertidig stengt må ha en til dato",
-        path: ["stengtTil"],
-      })
-      .refine(
-        (data) =>
-          !data.erMidlertidigStengt ||
-          !data.stengtTil ||
-          !data.stengtFra ||
-          data.stengtTil > data.stengtFra,
-        {
-          message: "Midlertidig stengt fra dato må være før til dato",
-          path: ["stengtFra"],
-        }
-      ),
-    oppstart: z.custom<TiltaksgjennomforingOppstartstype>(
-      (val) => !!val,
-      "Du må velge oppstartstype"
-    ),
-    apenForInnsok: z.boolean(),
-    estimertVentetid: z.string().optional(),
-  })
-  .refine(
-    (data) =>
-      !data.midlertidigStengt.erMidlertidigStengt ||
-      !data.midlertidigStengt.stengtTil ||
-      !data.startOgSluttDato.sluttDato ||
-      data.midlertidigStengt.stengtTil <= data.startOgSluttDato.sluttDato,
-    {
-      message: "Stengt til dato må være før sluttdato",
-      path: ["midlertidigStengt.stengtTil"],
-    }
-  );
-
-export type inferredTiltaksgjennomforingSchema = z.infer<
-  typeof TiltaksgjennomforingSchema
->;
+import {
+  TiltaksgjennomforingSchema,
+  inferredTiltaksgjennomforingSchema,
+} from "./OpprettTiltaksgjennomforingSchema";
+import {
+  tekniskFeilError,
+  avtaleFinnesIkke,
+  avtalenErAvsluttet,
+  avtaleManglerNavRegionError,
+} from "./OpprettTiltaksgjennomforingErrors";
 
 interface OpprettTiltaksgjennomforingContainerProps {
   onClose: () => void;
@@ -154,56 +64,6 @@ interface OpprettTiltaksgjennomforingContainerProps {
   avtale?: Avtale;
   tiltaksgjennomforing?: Tiltaksgjennomforing;
 }
-
-const tekniskFeilError = () => (
-  <>
-    Gjennomføringen kunne ikke opprettes på grunn av en teknisk feil hos oss.
-    Forsøk på nytt eller ta <a href={porten}>kontakt</a> i Porten dersom du
-    trenger mer hjelp.
-  </>
-);
-
-const avtaleManglerNavRegionError = (avtaleId?: string) => (
-  <>
-    Avtalen mangler NAV region. Du må oppdatere avtalens NAV region for å kunne
-    opprette en gjennomføring.
-    {avtaleId ? (
-      <>
-        <br />
-        <br />
-        <Link reloadDocument to={`/avtaler/${avtaleId}`}>
-          Klikk her for å fikse avtalen
-        </Link>
-        <br />
-        <br />
-      </>
-    ) : null}
-    Ta <a href={porten}>kontakt</a> i Porten dersom du trenger mer hjelp.
-  </>
-);
-
-const avtaleFinnesIkke = () => (
-  <>
-    Det finnes ingen avtale koblet til tiltaksgjennomføringen. Hvis
-    gjennomføringen er en AFT- eller VTA-gjennomføring kan du koble
-    gjennomføringen til riktig avtale.
-    <br />
-    <br />
-    <Link to={`/avtaler`}>Gå til avtaler her</Link>
-    <br />
-    <br />
-    Ta <a href={porten}>kontakt</a> i Porten dersom du trenger mer hjelp.
-  </>
-);
-
-const avtalenErAvsluttet = () => (
-  <>
-    Kan ikke opprette gjennomføring fordi avtalens sluttdato har passert.
-    <br />
-    <br />
-    Ta <a href={porten}>kontakt</a> i Porten dersom du trenger mer hjelp.
-  </>
-);
 
 function defaultOppstartType(
   avtale?: Avtale
@@ -405,12 +265,12 @@ export const OpprettTiltaksgjennomforingContainer = (
     }
   }, [mutation]);
 
-  async function getLokasjonForArrangor(arrangorOrgnr?: string) {
-    if (!arrangorOrgnr) return;
+  async function getLokasjonForArrangor(orgnr?: string) {
+    if (!orgnr) return;
 
     const { postnummer = "", poststed = "" } =
       await mulighetsrommetClient.virksomhet.hentVirksomhet({
-        orgnr: arrangorOrgnr,
+        orgnr,
       });
 
     const lokasjonsStreng = `${postnummer} ${poststed}`.trim();

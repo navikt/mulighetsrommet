@@ -5,7 +5,7 @@ import { memo, useCallback, useEffect } from "react";
 import { useFormContext, useWatch } from "react-hook-form";
 import { toast } from "react-toastify";
 import useDeepCompareEffect from "use-deep-compare-effect";
-import { inferredTiltaksgjennomforingSchema } from "./OpprettTiltaksgjennomforingContainer";
+import { inferredTiltaksgjennomforingSchema } from "../tiltaksgjennomforinger/OpprettTiltaksgjennomforingSchema";
 
 type Props = {
   defaultValues: any;
@@ -59,4 +59,4 @@ export const AutoSaveUtkast = memo(
   }
 );
 
-AutoSaveUtkast.displayName = "AutoSaveTiltaksgjennomforing";
+AutoSaveUtkast.displayName = "AutoSaveUtkast";
