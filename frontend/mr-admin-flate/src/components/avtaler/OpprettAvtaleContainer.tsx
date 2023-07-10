@@ -207,8 +207,8 @@ export function OpprettAvtaleContainer({
   const watchedTiltakstype = watch("tiltakstype");
 
   useEffect(() => {
-    const arenaKode = getTiltakstypeFromId(watchedTiltakstype)?.arenaKode;
-    if (arenaKode === "ARBFORB") {
+    const arenaKode = getTiltakstypeFromId(watchedTiltakstype)?.arenaKode || "";
+    if (["ARBFORB", "VASV"].includes(arenaKode)) {
       setValue("avtaletype", Avtaletype.FORHAANDSGODKJENT);
     }
   }, [watchedTiltakstype]);
