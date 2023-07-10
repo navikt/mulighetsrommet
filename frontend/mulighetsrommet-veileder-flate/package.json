@@ -24,7 +24,7 @@
     "**/fsevents": "^1.2.9"
   },
   "dependencies": {
-    "@grafana/faro-web-sdk": "^1.0.5",
+    "@grafana/faro-web-sdk": "^1.1.2",
     "@navikt/aksel-icons": "^4.5.0",
     "@navikt/ds-css": "^4.5.0",
     "@navikt/ds-react": "^4.4.1",
