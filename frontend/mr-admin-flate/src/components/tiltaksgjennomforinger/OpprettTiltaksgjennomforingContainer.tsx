@@ -33,12 +33,11 @@ import { useAlleEnheter } from "../../api/enhet/useAlleEnheter";
 import { useMutateUtkast } from "../../api/utkast/useMutateUtkast";
 import { useVirksomhet } from "../../api/virksomhet/useVirksomhet";
 import {
-  capitalize,
   formaterDatoSomYYYYMMDD,
   tilgjengelighetsstatusTilTekst,
 } from "../../utils/Utils";
 import { isTiltakMedFellesOppstart } from "../../utils/tiltakskoder";
-import { FormGroup } from "../avtaler/OpprettAvtaleContainer";
+import { FormGroup, ansvarligOptions } from "../avtaler/OpprettAvtaleContainer";
 import { Separator } from "../detaljside/Metadata";
 import { Laster } from "../laster/Laster";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
@@ -48,6 +47,7 @@ import { VirksomhetKontaktpersoner } from "../virksomhet/VirksomhetKontaktperson
 import { AutoSaveUtkast } from "./AutoSaveUtkast";
 import styles from "./OpprettTiltaksgjennomforingContainer.module.scss";
 import { useFeatureToggles } from "../../api/features/feature-toggles";
+import { useHentBetabrukere } from "../../api/ansatt/useHentBetabrukere";
 
 export const TiltaksgjennomforingSchema = z
   .object({
@@ -262,6 +262,7 @@ export const OpprettTiltaksgjennomforingContainer = (
     isLoading: isLoadingAnsatt,
     isError: isErrorAnsatt,
   } = useHentAnsatt();
+  const { data: betabrukere } = useHentBetabrukere();
   const { avtale, tiltaksgjennomforing, setError, onClose, onSuccess } = props;
   const utkastIdRef = useRef(tiltaksgjennomforing?.id || uuidv4());
   const saveUtkast = (values: inferredTiltaksgjennomforingSchema) => {
@@ -472,12 +473,6 @@ export const OpprettTiltaksgjennomforingContainer = (
 
   const arenaOpphav = tiltaksgjennomforing?.opphav === Opphav.ARENA;
 
-  const navn = ansatt
-    ? [ansatt.fornavn, ansatt.etternavn ?? ""]
-        .map((it) => capitalize(it))
-        .join(" ")
-    : "";
-
   if (!enheter) {
     return <Laster />;
   }
@@ -547,28 +542,6 @@ export const OpprettTiltaksgjennomforingContainer = (
     return options;
   };
 
-  const ansvarligOptions = () => {
-    if (isLoadingAnsatt) {
-      return [{ label: "Laster...", value: "" }];
-    }
-    const options = [];
-    if (
-      tiltaksgjennomforing?.ansvarlig?.navident &&
-      tiltaksgjennomforing.ansvarlig.navident !== ansatt?.navIdent
-    ) {
-      options.push({
-        value: tiltaksgjennomforing?.ansvarlig.navident,
-        label: `${tiltaksgjennomforing?.ansvarlig.navn} - ${tiltaksgjennomforing?.ansvarlig.navident}`,
-      });
-    }
-
-    options.push({
-      value: ansatt?.navIdent ?? "",
-      label: `${navn} - ${ansatt?.navIdent}`,
-    });
-
-    return options;
-  };
 
   return (
     <FormProvider {...form}>
@@ -699,7 +672,7 @@ export const OpprettTiltaksgjennomforingContainer = (
                   }
                   label={"Tiltaksansvarlig"}
                   {...register("ansvarlig")}
-                  options={ansvarligOptions()}
+                  options={ansvarligOptions(ansatt, tiltaksgjennomforing?.ansvarlig, betabrukere)}
                   onClearValue={() => setValue("ansvarlig", "")}
                 />
               </FormGroup>
