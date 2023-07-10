@@ -265,12 +265,12 @@ export const OpprettTiltaksgjennomforingContainer = (
     }
   }, [mutation]);
 
-  async function getLokasjonForArrangor(arrangorOrgnr?: string) {
-    if (!arrangorOrgnr) return;
+  async function getLokasjonForArrangor(orgnr?: string) {
+    if (!orgnr) return;
 
     const { postnummer = "", poststed = "" } =
       await mulighetsrommetClient.virksomhet.hentVirksomhet({
-        orgnr: arrangorOrgnr,
+        orgnr,
       });
 
     const lokasjonsStreng = `${postnummer} ${poststed}`.trim();
