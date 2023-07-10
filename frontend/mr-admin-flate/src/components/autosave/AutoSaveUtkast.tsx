@@ -6,6 +6,7 @@ import { useFormContext, useWatch } from "react-hook-form";
 import { toast } from "react-toastify";
 import useDeepCompareEffect from "use-deep-compare-effect";
 import { inferredTiltaksgjennomforingSchema } from "../tiltaksgjennomforinger/OpprettTiltaksgjennomforingSchema";
+import { AutoSaveToastContainer } from "./AutoSaveToastContainer";
 
 type Props = {
   defaultValues: any;
@@ -55,7 +56,7 @@ export const AutoSaveUtkast = memo(
       }
     }, [watchedData]);
 
-    return null;
+    return <AutoSaveToastContainer />;
   }
 );
 
