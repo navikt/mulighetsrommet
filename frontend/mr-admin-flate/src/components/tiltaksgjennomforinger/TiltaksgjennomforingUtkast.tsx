@@ -37,7 +37,7 @@ export function TiltaksgjennomforingUtkast() {
     );
   }
 
-  if (!data && !avtale && isLoading) {
+  if (data.length === 0 && !avtale && isLoading) {
     return <Laster tekst="Henter utkast..." />;
   }
 
