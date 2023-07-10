@@ -14,7 +14,7 @@ metrics = "4.2.19"
 flyway = { id = "org.flywaydb.flyway", version.ref = "flyway" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
-ktlint = "org.jlleitschuh.gradle.ktlint:11.4.2"
+ktlint = "org.jlleitschuh.gradle.ktlint:11.5.0"
 shadow = "com.github.johnrengelman.shadow:8.1.1"
 
 [libraries]
