@@ -87,8 +87,8 @@ data class VeilederflateTiltaksgjennomforing(
     val stengtTil: LocalDate? = null,
     val delingMedBruker: String? = null,
     val varighet: String? = null,
-    val pameldingOgVarighet: List<PameldingOgVarighet> = emptyList(),
-    val kontaktinfoTiltaksansvarlige: List<KontaktinfoTiltaksansvarlige> = emptyList(),
+    val pameldingOgVarighet: List<PameldingOgVarighet>? = emptyList(),
+    val kontaktinfoTiltaksansvarlige: List<KontaktinfoTiltaksansvarlige>? = emptyList(),
     val faneinnhold: Faneinnhold? = null,
 )
 
