@@ -56,6 +56,7 @@ import {
   avtalenErAvsluttet,
   avtaleManglerNavRegionError,
 } from "./OpprettTiltaksgjennomforingErrors";
+import { AutoSaveToastContainer } from "../autosave/AutoSaveToastContainer";
 
 interface OpprettTiltaksgjennomforingContainerProps {
   onClose: () => void;
@@ -723,17 +724,6 @@ export const OpprettTiltaksgjennomforingContainer = (
           mutation={mutationUtkast}
         />
       ) : null}
-
-      <ToastContainer
-        position="bottom-left"
-        newestOnTop={true}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        transition={Slide}
-      />
     </FormProvider>
   );
 };

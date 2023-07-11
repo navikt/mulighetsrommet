@@ -17,8 +17,9 @@ import { Tiltakstype } from "mulighetsrommet-api-client/build/models/Tiltakstype
 import { StatusModal } from "mulighetsrommet-veileder-flate/src/components/modal/delemodal/StatusModal";
 import { ReactNode, useEffect, useRef, useState } from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
-import { Slide, toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import { v4 as uuidv4 } from "uuid";
+import { useHentBetabrukere } from "../../api/ansatt/useHentBetabrukere";
 import { usePutAvtale } from "../../api/avtaler/usePutAvtale";
 import { useFeatureToggles } from "../../api/features/feature-toggles";
 import { useMutateUtkast } from "../../api/utkast/useMutateUtkast";
@@ -28,15 +29,14 @@ import {
   formaterDatoSomYYYYMMDD,
   tiltakstypekodeErAnskaffetTiltak,
 } from "../../utils/Utils";
+import { AutoSaveUtkast } from "../autosave/AutoSaveUtkast";
 import { Separator } from "../detaljside/Metadata";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
 import { SelectOption, SokeSelect } from "../skjema/SokeSelect";
-import { AutoSaveUtkast } from "../autosave/AutoSaveUtkast";
 import { VirksomhetKontaktpersoner } from "../virksomhet/VirksomhetKontaktpersoner";
 import { AvtaleSchema, inferredSchema } from "./AvtaleSchema";
 import styles from "./OpprettAvtaleContainer.module.scss";
-import { useHentBetabrukere } from "../../api/ansatt/useHentBetabrukere";
 
 type UtkastData = Pick<
   Avtale,
@@ -546,16 +546,6 @@ export function OpprettAvtaleContainer({
           mutation={mutationUtkast}
         />
       ) : null}
-      <ToastContainer
-        position="bottom-left"
-        newestOnTop={true}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        transition={Slide}
-      />
     </FormProvider>
   );
 }
