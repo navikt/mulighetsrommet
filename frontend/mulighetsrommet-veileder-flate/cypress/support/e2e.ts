@@ -1,55 +1,34 @@
-// ***********************************************************
-// This example support/index.js is processed and
-// loaded automatically before your test files.
-//
-// This is a great place to put global configuration and
-// behavior that modifies Cypress.
-//
-// You can change the location of this file or turn off
-// automatically serving support files with the
-// 'supportFile' configuration option.
-//
-// You can read more here:
-// https://on.cypress.io/configuration
-// ***********************************************************
-
-// Import e2e.js using ES2015 syntax:
 import './e2e';
 import 'cypress-axe';
+import axe from 'axe-core';
 import 'cypress-localstorage-commands';
 
-// Alternatively you can use CommonJS syntax:
-// require('cypress-dark');
+declare global {
+  namespace Cypress {
+    interface Chainable {
+      resetSide(): Chainable<JQuery<HTMLElement>>;
+      getByTestId(selector: string, ...rest: any): Chainable<JQuery<HTMLElement>>;
+      terminalLog(vialations: axe.Result[]): Chainable<JQuery<HTMLElement>>;
+      checkPageA11y(): Chainable<JQuery<HTMLElement>>;
+      velgFilter(filternavn: string): Chainable<JQuery<HTMLElement>>;
+      fjernFilter(filternavn: string): Chainable<JQuery<HTMLElement>>;
+      forventetAntallFiltertags(forventetAntall: number): Chainable<JQuery<HTMLElement>>;
+      apneLukketFilterAccordion(filternavn: string, apne: boolean): Chainable<JQuery<HTMLElement>>;
+      tilbakeTilListevisning(): Chainable<JQuery<HTMLElement>>;
+      sortering(testid: string): Chainable<JQuery<HTMLElement>>;
+      resetSortering(): Chainable<JQuery<HTMLElement>>;
+      antallFiltertagsKvalifiseringsgruppe(
+        kvalifiseringsgruppe: string,
+        antallFilter: number
+      ): Chainable<JQuery<HTMLElement>>;
+      skruAvJoyride(): Chainable<JQuery<HTMLElement>>;
+    }
+  }
+}
 
-// ***********************************************
-// This example commands.js shows you how to
-// create various custom commands and overwrite
-// existing commands.
-//
-// For more comprehensive examples of custom
-// commands please read more here:
-// https://on.cypress.io/custom-commands
-// ***********************************************
-//
-// -- This is a parent command --
-// Cypress.Commands.add('login', (email, password) => { ... })
-//
-//
-// -- This is a child command --
-// Cypress.Commands.add('drag', { prevSubject: 'element'}, (subject, options) => { ... })
-//
-// -- This is a dual command --
-// Cypress.Commands.add('dismiss', { prevSubject: 'optional'}, (subject, options) => { ... })
-//
-//
-// -- This will overwrite an existing command --
-// Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
-
-// https://github.com/cypress-io/cypress/issues/7362#issuecomment-944273204
-// Hide fetch/XHR requests
 const app = window.top;
 
-if (!app.document.head.querySelector('[data-hide-command-log-request]')) {
+if (app && !app.document.head.querySelector('[data-hide-command-log-request]')) {
   const style = app.document.createElement('style');
   style.innerHTML = '.command-name-request, .command-name-xhr { display: none }';
   style.setAttribute('data-hide-command-log-request', '');
@@ -133,11 +112,11 @@ Cypress.Commands.add('skruAvJoyride', () => {
   );
 });
 
-function terminalLog(violations) {
+function terminalLog(violations: axe.Result[]) {
   cy.task(
     'log',
-    `${violations.length} accessibility violation${violations.length === 1 ? '' : 's'} ${
-      violations.length === 1 ? 'was' : 'were'
+    `${violations?.length} accessibility violation${violations?.length === 1 ? '' : 's'} ${
+      violations?.length === 1 ? 'was' : 'were'
     } detected`
   );
   // pluck specific keys to keep the table readable
@@ -159,7 +138,18 @@ Cypress.Commands.add('checkPageA11y', () => {
         id: 'svg-img-alt',
         enabled: false,
       },
+      //Skrur av fordi checkA11y ikke vet at div er en gyldig children av <dl>-elementer
+      {
+        id: 'dlitem',
+        enabled: false,
+      },
     ],
   });
-  cy.checkA11y({ exclude: [[['.Toastify', '#floating-ui-root', '.navds-tabs__tab-inner']]] }, null, terminalLog);
+  cy.checkA11y(
+    {
+      exclude: [[['.Toastify', '#floating-ui-root', '.navds-tabs__tab-inner']]],
+    },
+    undefined,
+    terminalLog
+  );
 });
