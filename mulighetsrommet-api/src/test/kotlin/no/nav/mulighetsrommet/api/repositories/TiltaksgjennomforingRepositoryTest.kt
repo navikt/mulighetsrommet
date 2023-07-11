@@ -385,6 +385,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 epost = "thomas@thetrain.co.uk",
                 id = UUID.randomUUID(),
                 organisasjonsnummer = "999888777",
+                beskrivelse = "beskrivelse",
             )
             virksomhetRepository.upsertKontaktperson(thomas)
 

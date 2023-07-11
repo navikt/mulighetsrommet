@@ -16,6 +16,7 @@ interface State {
   navn?: string;
   epost?: string;
   telefon?: string;
+  beskrivelse?: string;
   navnError?: string;
   epostError?: string;
 }
@@ -42,6 +43,7 @@ export const VirksomhetKontaktpersoner = (
     leggTil: false,
     navn: undefined,
     telefon: undefined,
+    beskrivelse: undefined,
     epost: undefined,
     navnError: undefined,
     epostError: undefined,
@@ -82,6 +84,7 @@ export const VirksomhetKontaktpersoner = (
       id: uuidv4(),
       navn: state.navn,
       telefon: state.telefon || null,
+      beskrivelse: state.beskrivelse || null,
       epost: state.epost,
     });
   };
@@ -106,6 +109,7 @@ export const VirksomhetKontaktpersoner = (
             person?.telefon || "Telefonnummer eksisterer ikke"
           }`}</label>
           <label>{`Epost: ${person.epost}`}</label>
+          { person.beskrivelse && <label>{`Beskrivelse: ${person.beskrivelse}`}</label>}
         </div>
       )}
       {!state.leggTil && (
@@ -163,6 +167,17 @@ export const VirksomhetKontaktpersoner = (
               />
             </div>
           </div>
+          <TextField
+            size="small"
+            label={"Beskrivelse"}
+            onChange={(e) => {
+              setState({
+                ...state,
+                beskrivelse: e.target.value,
+              });
+            }}
+          />
+
           <div className={styles.button_container}>
             <Button
               size="small"

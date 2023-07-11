@@ -89,6 +89,7 @@ data class VirksomhetKontaktpersonRequest(
     val id: UUID,
     val navn: String,
     val telefon: String?,
+    val beskrivelse: String?,
     val epost: String,
 ) {
     fun toDto(orgnr: String): StatusResponse<VirksomhetKontaktperson> {
@@ -101,8 +102,9 @@ data class VirksomhetKontaktpersonRequest(
                 id = id,
                 organisasjonsnummer = orgnr,
                 navn = navn,
-                telefon = telefon?.let { it },
+                telefon = telefon,
                 epost = epost,
+                beskrivelse = beskrivelse,
             ),
         )
     }

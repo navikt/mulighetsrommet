@@ -59,6 +59,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
         navn: "Johnny Bravo",
         organisasjonsnummer: "123456789",
         telefon: "67543215",
+        beskrivelse: null,
       },
       kontaktpersoner: [
         {

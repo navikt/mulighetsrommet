@@ -224,6 +224,7 @@ class AvtaleRepository(private val db: Database) {
                 vk.navn as leverandor_kontaktperson_navn,
                 vk.telefon as leverandor_kontaktperson_telefon,
                 vk.epost as leverandor_kontaktperson_epost,
+                vk.beskrivelse as leverandor_kontaktperson_beskrivelse,
                 v.navn as leverandor_navn,
                 a.start_dato,
                 a.slutt_dato,
@@ -337,6 +338,7 @@ class AvtaleRepository(private val db: Database) {
                    vk.navn as leverandor_kontaktperson_navn,
                    vk.telefon as leverandor_kontaktperson_telefon,
                    vk.epost as leverandor_kontaktperson_epost,
+                   vk.beskrivelse as leverandor_kontaktperson_beskrivelse,
                    v.navn as leverandor_navn,
                    a.start_dato,
                    a.slutt_dato,
@@ -464,6 +466,7 @@ class AvtaleRepository(private val db: Database) {
                     navn = string("leverandor_kontaktperson_navn"),
                     telefon = stringOrNull("leverandor_kontaktperson_telefon"),
                     epost = string("leverandor_kontaktperson_epost"),
+                    beskrivelse = stringOrNull("leverandor_kontaktperson_beskrivelse"),
                 )
             },
             navEnheter = navEnheter,

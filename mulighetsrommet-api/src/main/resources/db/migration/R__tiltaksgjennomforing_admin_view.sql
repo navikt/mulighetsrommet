@@ -42,7 +42,8 @@ select tg.id::uuid,
        vk.organisasjonsnummer as arrangor_kontaktperson_organisasjonsnummer,
        vk.navn as arrangor_kontaktperson_navn,
        vk.telefon as arrangor_kontaktperson_telefon,
-       vk.epost as arrangor_kontaktperson_epost
+       vk.epost as arrangor_kontaktperson_epost,
+       vk.beskrivelse as arrangor_kontaktperson_beskrivelse
 from tiltaksgjennomforing tg
          inner join tiltakstype t on tg.tiltakstype_id = t.id
          left join tiltaksgjennomforing_ansvarlig tg_a on tg_a.tiltaksgjennomforing_id = tg.id
