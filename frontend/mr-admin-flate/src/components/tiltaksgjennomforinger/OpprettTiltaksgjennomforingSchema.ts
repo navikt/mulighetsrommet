@@ -19,7 +19,7 @@ export const TiltaksgjennomforingSchema = z
         {
           message: "Startdato må være før sluttdato",
           path: ["startDato"],
-        }
+        },
       ),
     antallPlasser: z
       .number({
@@ -28,10 +28,9 @@ export const TiltaksgjennomforingSchema = z
       })
       .int()
       .positive(),
-    navEnheter: z
-      .string()
-      .array()
-      .nonempty({ message: "Du må velge minst én enhet" }),
+    navEnheter: z.string().array().nonempty({
+      message: "Du må velge minst én enhet",
+    }),
     kontaktpersoner: z
       .object({
         navIdent: z.string({ required_error: "Du må velge en kontaktperson" }),
@@ -74,11 +73,11 @@ export const TiltaksgjennomforingSchema = z
         {
           message: "Midlertidig stengt fra dato må være før til dato",
           path: ["stengtFra"],
-        }
+        },
       ),
     oppstart: z.custom<TiltaksgjennomforingOppstartstype>(
       (val) => !!val,
-      "Du må velge oppstartstype"
+      "Du må velge oppstartstype",
     ),
     apenForInnsok: z.boolean(),
     estimertVentetid: z.string().optional(),
@@ -92,7 +91,7 @@ export const TiltaksgjennomforingSchema = z
     {
       message: "Stengt til dato må være før sluttdato",
       path: ["midlertidigStengt.stengtTil"],
-    }
+    },
   );
 
 export type inferredTiltaksgjennomforingSchema = z.infer<
