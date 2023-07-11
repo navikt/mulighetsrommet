@@ -35,7 +35,7 @@ import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
 import { SelectOption, SokeSelect } from "../skjema/SokeSelect";
 import { VirksomhetKontaktpersoner } from "../virksomhet/VirksomhetKontaktpersoner";
-import { AvtaleSchema, inferredSchema } from "./AvtaleSchema";
+import { AvtaleSchema, inferredAvtaleSchema } from "./AvtaleSchema";
 import styles from "./OpprettAvtaleContainer.module.scss";
 
 type UtkastData = Pick<
@@ -78,10 +78,10 @@ export function OpprettAvtaleContainer({
   const mutation = usePutAvtale();
   const redigeringsModus = !!avtale;
   const [navRegion, setNavRegion] = useState<string | undefined>(
-    avtale?.navRegion?.enhetsnummer
+    avtale?.navRegion?.enhetsnummer,
   );
   const [sokLeverandor, setSokLeverandor] = useState(
-    avtale?.leverandor.organisasjonsnummer || ""
+    avtale?.leverandor.organisasjonsnummer || "",
   );
   const { data: leverandorVirksomheter = [] } =
     useSokVirksomheter(sokLeverandor);
@@ -94,7 +94,7 @@ export function OpprettAvtaleContainer({
     return tiltakstyper.find((type) => type.id === id);
   };
 
-  const saveUtkast = (values: inferredSchema) => {
+  const saveUtkast = (values: inferredAvtaleSchema) => {
     const utkastData: UtkastData = {
       navn: values?.avtalenavn,
       tiltakstype: {
@@ -117,7 +117,7 @@ export function OpprettAvtaleContainer({
         organisasjonsnummer: values?.leverandor,
       },
       leverandorUnderenheter: values?.leverandorUnderenheter?.map(
-        (organisasjonsnummer) => ({ navn: "", organisasjonsnummer })
+        (organisasjonsnummer) => ({ navn: "", organisasjonsnummer }),
       ),
       startDato: values?.startOgSluttDato?.startDato?.toDateString(),
       sluttDato: values?.startOgSluttDato?.sluttDato?.toDateString(),
@@ -157,12 +157,12 @@ export function OpprettAvtaleContainer({
 
   function getValueOrDefault<T>(
     value: T | undefined | null,
-    defaultValue: T
+    defaultValue: T,
   ): T {
     return value || defaultValue;
   }
 
-  const form = useForm<inferredSchema>({
+  const form = useForm<inferredAvtaleSchema>({
     resolver: zodResolver(AvtaleSchema),
     defaultValues: {
       tiltakstype: avtale?.tiltakstype?.id,
@@ -170,19 +170,19 @@ export function OpprettAvtaleContainer({
       navEnheter:
         avtale?.navEnheter?.length === 0
           ? ["alle_enheter"]
-          : avtale?.navEnheter?.map((e) => e.enhetsnummer),
+          : avtale?.navEnheter?.map((e) => e.enhetsnummer) || [],
       avtaleansvarlig: avtale?.ansvarlig?.navident || ansatt.navIdent || "",
       avtalenavn: getValueOrDefault(avtale?.navn, ""),
       avtaletype: getValueOrDefault(avtale?.avtaletype, Avtaletype.AVTALE),
       leverandor: getValueOrDefault(
         avtale?.leverandor?.organisasjonsnummer,
-        ""
+        "",
       ),
       leverandorUnderenheter:
         avtale?.leverandorUnderenheter?.length === 0
           ? []
           : avtale?.leverandorUnderenheter?.map(
-              (enhet) => enhet.organisasjonsnummer
+              (enhet) => enhet.organisasjonsnummer,
             ),
       leverandorKontaktpersonId: avtale?.leverandorKontaktperson?.id,
       startOgSluttDato: {
@@ -192,7 +192,7 @@ export function OpprettAvtaleContainer({
       url: getValueOrDefault(avtale?.url, ""),
       prisOgBetalingsinfo: getValueOrDefault(
         avtale?.prisbetingelser,
-        undefined
+        undefined,
       ),
     },
   });
@@ -216,7 +216,7 @@ export function OpprettAvtaleContainer({
   const { data: leverandorData } = useVirksomhet(watch("leverandor"));
   const underenheterForLeverandor = getValueOrDefault(
     leverandorData?.underenheter,
-    []
+    [],
   );
 
   const erAnskaffetTiltak = (tiltakstypeId: string): boolean => {
@@ -226,8 +226,8 @@ export function OpprettAvtaleContainer({
 
   const arenaOpphav = avtale?.opphav === Opphav.ARENA;
 
-  const postData: SubmitHandler<inferredSchema> = async (
-    data
+  const postData: SubmitHandler<inferredAvtaleSchema> = async (
+    data,
   ): Promise<void> => {
     const {
       navRegion,
@@ -250,7 +250,7 @@ export function OpprettAvtaleContainer({
       avtalenummer: getValueOrDefault(avtale?.avtalenummer, ""),
       leverandorOrganisasjonsnummer,
       leverandorUnderenheter: leverandorUnderenheter.includes(
-        "alle_underenheter"
+        "alle_underenheter",
       )
         ? []
         : leverandorUnderenheter,
@@ -436,7 +436,7 @@ export function OpprettAvtaleContainer({
                   options={ansvarligOptions(
                     ansatt,
                     avtale?.ansvarlig,
-                    betabrukere
+                    betabrukere,
                   )}
                 />
               </FormGroup>
@@ -529,7 +529,7 @@ export function OpprettAvtaleContainer({
                     redigeringsModus ? "redigerer" : "oppretter"
                   } avtale`,
                   { handling: redigeringsModus ? "redigerer" : "oppretter" },
-                  "avtale"
+                  "avtale",
                 );
               }}
             >
@@ -572,7 +572,7 @@ export const FormGroup = ({
 export const ansvarligOptions = (
   ansatt?: NavAnsatt,
   ansvarlig?: { navident: string; navn: string },
-  betabrukere?: NavAnsatt[]
+  betabrukere?: NavAnsatt[],
 ): SelectOption[] => {
   if (!ansatt || !betabrukere) {
     return [{ value: "", label: "Laster..." }];
@@ -595,13 +595,13 @@ export const ansvarligOptions = (
   betabrukere
     .filter(
       (b: NavAnsatt) =>
-        b.navIdent !== ansatt.navIdent && b.navIdent !== ansvarlig?.navident
+        b.navIdent !== ansatt.navIdent && b.navIdent !== ansvarlig?.navident,
     )
     .forEach((b: NavAnsatt) =>
       options.push({
         value: b.navIdent,
         label: `${b.fornavn} ${b.etternavn} - ${b.navIdent}`,
-      })
+      }),
     );
 
   return options;

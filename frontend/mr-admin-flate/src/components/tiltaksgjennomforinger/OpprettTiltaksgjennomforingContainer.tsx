@@ -190,7 +190,7 @@ export const OpprettTiltaksgjennomforingContainer = (
           ? ["alle_enheter"]
           : tiltaksgjennomforing?.navEnheter?.map(
               (enhet) => enhet.enhetsnummer,
-            ),
+            ) || [],
       ansvarlig: tiltaksgjennomforing?.ansvarlig?.navident,
       antallPlasser: tiltaksgjennomforing?.antallPlasser,
       startOgSluttDato: {

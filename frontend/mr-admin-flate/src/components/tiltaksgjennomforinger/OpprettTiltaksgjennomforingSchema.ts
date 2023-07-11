@@ -28,10 +28,9 @@ export const TiltaksgjennomforingSchema = z
       })
       .int()
       .positive(),
-    navEnheter: z
-      .string()
-      .array()
-      .nonempty({ message: "Du må velge minst én enhet" }),
+    navEnheter: z.string().array().nonempty({
+      message: "Du må velge minst én enhet",
+    }),
     kontaktpersoner: z
       .object({
         navIdent: z.string({ required_error: "Du må velge en kontaktperson" }),

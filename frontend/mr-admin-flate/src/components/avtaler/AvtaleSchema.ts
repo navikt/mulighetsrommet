@@ -35,7 +35,7 @@ export const AvtaleSchema = z.object({
       {
         message: "Startdato må være før sluttdato",
         path: ["startDato"],
-      }
+      },
     ),
   avtaleansvarlig: z.string().refine((data) => data.length > 0, {
     message: "Du må velge en avtaleansvarlig",
@@ -44,4 +44,4 @@ export const AvtaleSchema = z.object({
   prisOgBetalingsinfo: z.string().optional(),
 });
 
-export type inferredSchema = z.infer<typeof AvtaleSchema>;
+export type inferredAvtaleSchema = z.infer<typeof AvtaleSchema>;

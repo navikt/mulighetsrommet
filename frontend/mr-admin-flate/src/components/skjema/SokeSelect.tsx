@@ -79,63 +79,66 @@ const SokeSelect = React.forwardRef((props: SelectProps, _) => {
         render={({
           field: { onChange, value, name, ref },
           fieldState: { error },
-        }) => (
-          <div>
-            <label
-              className={classnames(styles.label, {
-                "navds-sr-only": hideLabel,
-              })}
-              style={{
-                fontSize: size === "small" ? "16px" : "18px",
-              }}
-              htmlFor={name}
-            >
-              <b>{label}</b>
-            </label>
+        }) => {
+          console.log(error, name);
+          return (
+            <div>
+              <label
+                className={classnames(styles.label, {
+                  "navds-sr-only": hideLabel,
+                })}
+                style={{
+                  fontSize: size === "small" ? "16px" : "18px",
+                }}
+                htmlFor={name}
+              >
+                <b>{label}</b>
+              </label>
 
-            <ReactSelect
-              placeholder={placeholder}
-              isDisabled={!!readOnly}
-              isClearable={!!onClearValue}
-              ref={ref}
-              inputId={name}
-              noOptionsMessage={() => "Ingen funnet"}
-              name={name}
-              value={options.find((c) => c.value === value)}
-              onChange={(e) => {
-                onChange(e?.value);
-                providedOnChange?.(e?.value);
-                if (!e) {
-                  onClearValue?.();
-                }
-              }}
-              onInputChange={(e) => {
-                providedOnInputChange?.(e);
-              }}
-              styles={customStyles(Boolean(error))}
-              options={options}
-              className={className}
-              theme={(theme: any) => ({
-                ...theme,
-                spacing: {
-                  ...theme.spacing,
-                  controlHeight: size === "small" ? 32 : 48,
-                  baseUnit: 2,
-                },
-                colors: {
-                  ...theme.colors,
-                  primary25: "#cce1ff",
-                  primary: "#0067c5",
-                },
-              })}
-            />
-            {error && (
-              <div className={styles.errormsg}>
-                <b>• {error.message}</b>
-              </div>
-            )}
-          </div>
-        )}
+              <ReactSelect
+                placeholder={placeholder}
+                isDisabled={!!readOnly}
+                isClearable={!!onClearValue}
+                ref={ref}
+                inputId={name}
+                noOptionsMessage={() => "Ingen funnet"}
+                name={name}
+                value={options.find((c) => c.value === value)}
+                onChange={(e) => {
+                  onChange(e?.value);
+                  providedOnChange?.(e?.value);
+                  if (!e) {
+                    onClearValue?.();
+                  }
+                }}
+                onInputChange={(e) => {
+                  providedOnInputChange?.(e);
+                }}
+                styles={customStyles(Boolean(error))}
+                options={options}
+                className={className}
+                theme={(theme: any) => ({
+                  ...theme,
+                  spacing: {
+                    ...theme.spacing,
+                    controlHeight: size === "small" ? 32 : 48,
+                    baseUnit: 2,
+                  },
+                  colors: {
+                    ...theme.colors,
+                    primary25: "#cce1ff",
+                    primary: "#0067c5",
+                  },
+                })}
+              />
+              {error && (
+                <div className={styles.errormsg}>
+                  <b>• {error.message}</b>
+                </div>
+              )}
+            </div>
+          );
+        }}
       />
     </>
   );
