@@ -42,12 +42,12 @@ data class AvtaleAdminDto(
     @Serializable
     data class Leverandor(
         val organisasjonsnummer: String,
-        val navn: String? = null,
+        val navn: String?,
     )
 
     @Serializable
     data class Avtaleansvarlig(
-        val navident: String? = null,
-        val navn: String? = null,
+        val navident: String,
+        val navn: String,
     )
 }

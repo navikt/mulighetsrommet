@@ -7,12 +7,10 @@ import { Notifikasjonsbjelle } from "../notifikasjoner/Notifikasjonsbjelle";
 import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
 
 export function AdministratorHeader() {
-  const response = useHentAnsatt();
+  const { data } = useHentAnsatt();
 
-  const ansattNavn = response.data
-    ? [response.data.fornavn, response.data.etternavn]
-        .map((it) => capitalize(it))
-        .join(" ")
+  const ansattNavn = data
+    ? [data.fornavn, data.etternavn].map((it) => capitalize(it)).join(" ")
     : "Team Valp";
 
   return (
@@ -29,7 +27,7 @@ export function AdministratorHeader() {
       <Header.User
         data-testid="header-navident"
         name={ansattNavn}
-        description={response?.data?.navIdent ?? "..."}
+        description={data?.navIdent ?? "..."}
         className={styles.user}
       />
     </Header>

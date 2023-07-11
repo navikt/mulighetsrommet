@@ -213,50 +213,54 @@ class AvtaleRepository(private val db: Database) {
     fun get(id: UUID): QueryResult<AvtaleAdminDto?> = query {
         @Language("PostgreSQL")
         val query = """
-            select a.id,
-       a.navn,
-       a.tiltakstype_id,
-       a.avtalenummer,
-       a.leverandor_organisasjonsnummer,
-       vk.id as leverandor_kontaktperson_id,
-       vk.organisasjonsnummer as leverandor_kontaktperson_organisasjonsnummer,
-       vk.navn as leverandor_kontaktperson_navn,
-       vk.telefon as leverandor_kontaktperson_telefon,
-       vk.epost as leverandor_kontaktperson_epost,
-       vk.beskrivelse as leverandor_kontaktperson_beskrivelse,
-       v.navn as leverandor_navn,
-       a.start_dato,
-       a.slutt_dato,
-       a.nav_region,
-       a.avtaletype,
-       a.opphav,
-       a.avslutningsstatus,
-       a.prisbetingelser,
-       a.url,
-       a.antall_plasser,
-       nav_enhet.navn as nav_enhet_navn,
-       t.navn as tiltakstype_navn,
-       t.tiltakskode,
-       au.leverandor_underenheter,
-       an.nav_enheter,
-       jsonb_build_object('navident', aa.navident, 'navn', concat(na.fornavn, ' ', na.etternavn)) as ansvarlig
-from avtale a
-         join tiltakstype t on t.id = a.tiltakstype_id
-         left join avtale_ansvarlig aa on a.id = aa.avtale_id
-         left join nav_ansatt na on na.nav_ident = aa.navident
-         left join nav_enhet on a.nav_region = nav_enhet.enhetsnummer
-         left join lateral (
-    SELECT an.avtale_id, jsonb_strip_nulls(jsonb_agg(jsonb_build_object('enhetsnummer', an.enhetsnummer, 'navn', ne.navn))) as nav_enheter
-    FROM avtale_nav_enhet an left join nav_enhet ne on ne.enhetsnummer = an.enhetsnummer WHERE an.avtale_id = a.id GROUP BY 1
-    ) an on true
-         left join lateral (
-    SELECT au.avtale_id, jsonb_strip_nulls(jsonb_agg(jsonb_build_object('organisasjonsnummer', au.organisasjonsnummer, 'navn', v.navn))) as leverandor_underenheter
-    FROM avtale_underleverandor au left join virksomhet v on v.organisasjonsnummer = au.organisasjonsnummer WHERE au.avtale_id = a.id GROUP BY 1
-    ) au on true
-         left join virksomhet v on v.organisasjonsnummer = a.leverandor_organisasjonsnummer
-         left join virksomhet_kontaktperson vk on vk.id = a.leverandor_kontaktperson_id
-where a.id = ?::uuid
-group by a.id, t.tiltakskode, t.navn, aa.navident, nav_enhet.navn, v.navn, au.leverandor_underenheter, an.nav_enheter, vk.id, na.fornavn, na.etternavn
+            select
+                a.id,
+                a.navn,
+                a.tiltakstype_id,
+                a.avtalenummer,
+                a.leverandor_organisasjonsnummer,
+                vk.id as leverandor_kontaktperson_id,
+                vk.organisasjonsnummer as leverandor_kontaktperson_organisasjonsnummer,
+                vk.navn as leverandor_kontaktperson_navn,
+                vk.telefon as leverandor_kontaktperson_telefon,
+                vk.epost as leverandor_kontaktperson_epost,
+                vk.beskrivelse as leverandor_kontaktperson_beskrivelse,
+                v.navn as leverandor_navn,
+                a.start_dato,
+                a.slutt_dato,
+                a.nav_region,
+                a.avtaletype,
+                a.opphav,
+                a.avslutningsstatus,
+                a.prisbetingelser,
+                a.url,
+                a.antall_plasser,
+                nav_enhet.navn as nav_enhet_navn,
+                t.navn as tiltakstype_navn,
+                t.tiltakskode,
+                au.leverandor_underenheter,
+                an.nav_enheter,
+                case
+                    when aa.navident is null then null::jsonb
+                    else jsonb_build_object('navident', aa.navident, 'navn', concat(na.fornavn, ' ', na.etternavn))
+                end as ansvarlig
+            from avtale a
+                join tiltakstype t on t.id = a.tiltakstype_id
+                left join avtale_ansvarlig aa on a.id = aa.avtale_id
+                left join nav_ansatt na on na.nav_ident = aa.navident
+                left join nav_enhet on a.nav_region = nav_enhet.enhetsnummer
+                left join lateral (
+                    SELECT an.avtale_id, jsonb_strip_nulls(jsonb_agg(jsonb_build_object('enhetsnummer', an.enhetsnummer, 'navn', ne.navn))) as nav_enheter
+                    FROM avtale_nav_enhet an left join nav_enhet ne on ne.enhetsnummer = an.enhetsnummer WHERE an.avtale_id = a.id GROUP BY 1
+                ) an on true
+                left join lateral (
+                    SELECT au.avtale_id, jsonb_strip_nulls(jsonb_agg(jsonb_build_object('organisasjonsnummer', au.organisasjonsnummer, 'navn', v.navn))) as leverandor_underenheter
+                    FROM avtale_underleverandor au left join virksomhet v on v.organisasjonsnummer = au.organisasjonsnummer WHERE au.avtale_id = a.id GROUP BY 1
+                ) au on true
+                left join virksomhet v on v.organisasjonsnummer = a.leverandor_organisasjonsnummer
+                left join virksomhet_kontaktperson vk on vk.id = a.leverandor_kontaktperson_id
+            where a.id = ?::uuid
+            group by a.id, t.tiltakskode, t.navn, aa.navident, nav_enhet.navn, v.navn, au.leverandor_underenheter, an.nav_enheter, vk.id, na.fornavn, na.etternavn
         """.trimIndent()
 
         queryOf(query, id)
@@ -351,7 +355,10 @@ group by a.id, t.tiltakskode, t.navn, aa.navident, nav_enhet.navn, v.navn, au.le
                    aa.navident as navident,
                    an.nav_enheter,
                    au.leverandor_underenheter,
-                   jsonb_build_object('navident', aa.navident, 'navn', concat(na.fornavn, ' ', na.etternavn)) as ansvarlig,
+                   case
+                    when aa.navident is null then null::jsonb
+                    else jsonb_build_object('navident', aa.navident, 'navn', concat(na.fornavn, ' ', na.etternavn))
+                   end as ansvarlig,
                    count(*) over () as full_count
             from avtale a
                      join tiltakstype t on a.tiltakstype_id = t.id
@@ -435,7 +442,7 @@ group by a.id, t.tiltakskode, t.navn, aa.navident, nav_enhet.navn, v.navn, au.le
             Json.decodeFromString<List<AvtaleAdminDto.Leverandor?>>(it).filterNotNull()
         } ?: emptyList()
         val ansvarlig = stringOrNull("ansvarlig")?.let {
-            Json.decodeFromString<AvtaleAdminDto.Avtaleansvarlig>(it)
+            Json.decodeFromString<AvtaleAdminDto.Avtaleansvarlig?>(it)
         }
 
         return AvtaleAdminDto(
@@ -457,7 +464,7 @@ group by a.id, t.tiltakskode, t.navn, aa.navident, nav_enhet.navn, v.navn, au.le
                     id = it,
                     organisasjonsnummer = string("leverandor_kontaktperson_organisasjonsnummer"),
                     navn = string("leverandor_kontaktperson_navn"),
-                    telefon = string("leverandor_kontaktperson_telefon"),
+                    telefon = stringOrNull("leverandor_kontaktperson_telefon"),
                     epost = string("leverandor_kontaktperson_epost"),
                     beskrivelse = stringOrNull("leverandor_kontaktperson_beskrivelse"),
                 )
