@@ -66,7 +66,7 @@ interface OpprettTiltaksgjennomforingContainerProps {
 }
 
 function defaultOppstartType(
-  avtale?: Avtale
+  avtale?: Avtale,
 ): TiltaksgjennomforingOppstartstype {
   if (!avtale) {
     return TiltaksgjennomforingOppstartstype.LOPENDE;
@@ -79,7 +79,7 @@ function defaultOppstartType(
 }
 
 function defaultValuesForKontaktpersoner(
-  kontaktpersoner?: TiltaksgjennomforingKontaktpersoner[]
+  kontaktpersoner?: TiltaksgjennomforingKontaktpersoner[],
 ): TiltaksgjennomforingKontaktpersoner[] {
   if (!kontaktpersoner) return [{ navIdent: "", navEnheter: [] }];
 
@@ -111,7 +111,7 @@ type UtkastData = Pick<
 };
 
 export const OpprettTiltaksgjennomforingContainer = (
-  props: OpprettTiltaksgjennomforingContainerProps
+  props: OpprettTiltaksgjennomforingContainerProps,
 ) => {
   const { data: kontaktpersoner, isLoading: isLoadingKontaktpersoner } =
     useHentKontaktpersoner();
@@ -189,7 +189,7 @@ export const OpprettTiltaksgjennomforingContainer = (
         tiltaksgjennomforing?.navEnheter?.length === 0
           ? ["alle_enheter"]
           : tiltaksgjennomforing?.navEnheter?.map(
-              (enhet) => enhet.enhetsnummer
+              (enhet) => enhet.enhetsnummer,
             ),
       ansvarlig: tiltaksgjennomforing?.ansvarlig?.navident,
       antallPlasser: tiltaksgjennomforing?.antallPlasser,
@@ -216,7 +216,7 @@ export const OpprettTiltaksgjennomforingContainer = (
       apenForInnsok:
         tiltaksgjennomforing?.tilgjengelighet !== Tilgjengelighetsstatus.STENGT,
       kontaktpersoner: defaultValuesForKontaktpersoner(
-        tiltaksgjennomforing?.kontaktpersoner
+        tiltaksgjennomforing?.kontaktpersoner,
       ),
       estimertVentetid: tiltaksgjennomforing?.estimertVentetid,
       lokasjonArrangor: tiltaksgjennomforing?.lokasjonArrangor,
@@ -239,7 +239,7 @@ export const OpprettTiltaksgjennomforingContainer = (
   } = useFieldArray({ name: "kontaktpersoner", control });
 
   const watchErMidlertidigStengt = watch(
-    "midlertidigStengt.erMidlertidigStengt"
+    "midlertidigStengt.erMidlertidigStengt",
   );
 
   const { data: features } = useFeatureToggles();
@@ -250,7 +250,7 @@ export const OpprettTiltaksgjennomforingContainer = (
   } = useAlleEnheter();
 
   const { data: virksomhet } = useVirksomhet(
-    avtale?.leverandor.organisasjonsnummer || ""
+    avtale?.leverandor.organisasjonsnummer || "",
   );
 
   useEffect(() => {
@@ -283,7 +283,7 @@ export const OpprettTiltaksgjennomforingContainer = (
   const redigeringsModus = !!tiltaksgjennomforing;
 
   const postData: SubmitHandler<inferredTiltaksgjennomforingSchema> = async (
-    data
+    data,
   ): Promise<void> => {
     const body: TiltaksgjennomforingRequest = {
       id: tiltaksgjennomforing ? tiltaksgjennomforing.id : uuidv4(),
@@ -325,7 +325,7 @@ export const OpprettTiltaksgjennomforingContainer = (
     };
 
     try {
-      await mutation.mutate(body);
+      mutation.mutate(body);
     } catch {
       setError(tekniskFeilError());
     }
@@ -357,12 +357,12 @@ export const OpprettTiltaksgjennomforingContainer = (
     const options = enheter
       .filter(
         (enhet: NavEnhet) =>
-          avtale?.navRegion?.enhetsnummer === enhet.overordnetEnhet
+          avtale?.navRegion?.enhetsnummer === enhet.overordnetEnhet,
       )
       .filter(
         (enhet: NavEnhet) =>
           avtale?.navEnheter?.length === 0 ||
-          avtale?.navEnheter.find((e) => e.enhetsnummer === enhet.enhetsnummer)
+          avtale?.navEnheter.find((e) => e.enhetsnummer === enhet.enhetsnummer),
       )
       .map((enhet) => ({
         label: enhet.navn,
@@ -511,7 +511,7 @@ export const OpprettTiltaksgjennomforingContainer = (
                   label="Tilgjengelighetsstatus"
                   description="Statusen vises til veileder i Modia"
                   value={tilgjengelighetsstatusTilTekst(
-                    tiltaksgjennomforing?.tilgjengelighet
+                    tiltaksgjennomforing?.tilgjengelighet,
                   )}
                 />
                 <TextField
@@ -534,7 +534,7 @@ export const OpprettTiltaksgjennomforingContainer = (
                   options={ansvarligOptions(
                     ansatt,
                     tiltaksgjennomforing?.ansvarlig,
-                    betabrukere
+                    betabrukere,
                   )}
                   onClearValue={() => setValue("ansvarlig", "")}
                 />
@@ -572,7 +572,7 @@ export const OpprettTiltaksgjennomforingContainer = (
                           <button
                             className={classNames(
                               styles.kontaktperson_button,
-                              styles.kontaktperson_fjern_button
+                              styles.kontaktperson_fjern_button,
                             )}
                             type="button"
                             onClick={() => {
@@ -600,7 +600,7 @@ export const OpprettTiltaksgjennomforingContainer = (
                                 `kontaktpersoner.${index}.navIdent`,
                                 {
                                   shouldUnregister: true,
-                                }
+                                },
                               )}
                               options={kontaktpersonerOption()}
                             />
@@ -616,7 +616,7 @@ export const OpprettTiltaksgjennomforingContainer = (
                                 `kontaktpersoner.${index}.navEnheter`,
                                 {
                                   shouldUnregister: true,
-                                }
+                                },
                               )}
                               options={enheterOptions()}
                             />
@@ -651,13 +651,13 @@ export const OpprettTiltaksgjennomforingContainer = (
                     label="Tiltaksarrangør underenhet"
                     placeholder="Velg underenhet for tiltaksarrangør"
                     {...register(
-                      "tiltaksArrangorUnderenhetOrganisasjonsnummer"
+                      "tiltaksArrangorUnderenhetOrganisasjonsnummer",
                     )}
                     onChange={getLokasjonForArrangor}
                     onClearValue={() =>
                       setValue(
                         "tiltaksArrangorUnderenhetOrganisasjonsnummer",
-                        ""
+                        "",
                       )
                     }
                     readOnly={!avtale?.leverandor.organisasjonsnummer}
@@ -668,7 +668,7 @@ export const OpprettTiltaksgjennomforingContainer = (
                       <VirksomhetKontaktpersoner
                         title={"Kontaktperson hos arrangøren"}
                         orgnr={watch(
-                          "tiltaksArrangorUnderenhetOrganisasjonsnummer"
+                          "tiltaksArrangorUnderenhetOrganisasjonsnummer",
                         )}
                         formValueName={"arrangorKontaktpersonId"}
                       />
