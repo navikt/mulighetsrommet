@@ -325,7 +325,7 @@ export const OpprettTiltaksgjennomforingContainer = (
     };
 
     try {
-      await mutation.mutate(body);
+      mutation.mutate(body);
     } catch {
       setError(tekniskFeilError());
     }
@@ -463,7 +463,7 @@ export const OpprettTiltaksgjennomforingContainer = (
                   }}
                   til={{
                     label: "Sluttdato",
-                    readOnly: arenaOpphav,
+                    readOnly: arenaOpphav && !!tiltaksgjennomforing?.sluttDato,
                     ...register("startOgSluttDato.sluttDato"),
                   }}
                 />
