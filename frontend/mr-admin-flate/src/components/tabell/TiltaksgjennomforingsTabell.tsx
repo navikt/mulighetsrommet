@@ -67,7 +67,7 @@ const SkjulKolonne = ({
 };
 
 export const TiltaksgjennomforingsTabell = ({ skjulKolonner }: Props) => {
-  const { data, isLoading, isError } = useAdminTiltaksgjennomforinger();
+  const { data, isLoading } = useAdminTiltaksgjennomforinger();
   const [page, setPage] = useAtom(paginationAtom);
   const [sort, setSort] = useSort("navn");
   const [filter, setFilter] = useAtom(tiltaksgjennomforingfilter);
@@ -83,22 +83,6 @@ export const TiltaksgjennomforingsTabell = ({ skjulKolonner }: Props) => {
 
   if (tiltaksgjennomforinger.length === 0) {
     return <Alert variant="info">Fant ingen tiltaksgjennomføringer</Alert>;
-  }
-
-  if (isError) {
-    return (
-      <Alert variant="error">
-        Vi hadde problemer med henting av tiltaksgjennomføringer
-      </Alert>
-    );
-  }
-
-  if (tiltaksgjennomforinger.length === 0) {
-    return (
-      <Alert variant="info">
-        Det finnes ingen tiltaksgjennomføringer for avtalen.
-      </Alert>
-    );
   }
 
   const handleSort = (sortKey: string) => {
@@ -123,7 +107,7 @@ export const TiltaksgjennomforingsTabell = ({ skjulKolonner }: Props) => {
 
   const formaterNavEnheter = (
     navRegion: string = "",
-    navEnheter?: { navn?: string | null; enhetsnummer?: string }[]
+    navEnheter?: { navn?: string | null; enhetsnummer?: string }[],
   ): string => {
     const liste = [...(navEnheter || [])];
     if (!liste) return "";
@@ -206,7 +190,7 @@ export const TiltaksgjennomforingsTabell = ({ skjulKolonner }: Props) => {
                     >
                       {formaterNavEnheter(
                         tiltaksgjennomforing.navRegion,
-                        tiltaksgjennomforing.navEnheter
+                        tiltaksgjennomforing.navEnheter,
                       )}
                     </Table.DataCell>
                   </SkjulKolonne>
@@ -238,10 +222,10 @@ export const TiltaksgjennomforingsTabell = ({ skjulKolonner }: Props) => {
                   <SkjulKolonne skjul={!!skjulKolonner?.startdato}>
                     <Table.DataCell
                       title={`Startdato ${formaterDato(
-                        tiltaksgjennomforing.startDato
+                        tiltaksgjennomforing.startDato,
                       )}`}
                       aria-label={`Startdato: ${formaterDato(
-                        tiltaksgjennomforing.startDato
+                        tiltaksgjennomforing.startDato,
                       )}`}
                     >
                       {formaterDato(tiltaksgjennomforing.startDato)}
@@ -251,13 +235,13 @@ export const TiltaksgjennomforingsTabell = ({ skjulKolonner }: Props) => {
                   <SkjulKolonne skjul={!!skjulKolonner?.sluttdato}>
                     <Table.DataCell
                       title={`Sluttdato ${formaterDato(
-                        tiltaksgjennomforing.sluttDato
+                        tiltaksgjennomforing.sluttDato,
                       )}, "-"`}
                       aria-label={
                         tiltaksgjennomforing.sluttDato
                           ? `Sluttdato: ${formaterDato(
                               tiltaksgjennomforing.sluttDato,
-                              "-"
+                              "-",
                             )}`
                           : undefined // Noen gjennomføringer har ikke sluttdato så da setter vi heller ikke aria-label for da klager reactA11y
                       }
@@ -296,7 +280,7 @@ export const TiltaksgjennomforingsTabell = ({ skjulKolonner }: Props) => {
             onPageChange={setPage}
             count={Math.ceil(
               (pagination?.totalCount ?? filter.antallGjennomforingerVises) /
-                filter.antallGjennomforingerVises
+                filter.antallGjennomforingerVises,
             )}
             data-version="v1"
           />

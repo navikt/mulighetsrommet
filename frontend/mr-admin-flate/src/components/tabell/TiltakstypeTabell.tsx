@@ -1,24 +1,24 @@
 import { Alert, Pagination, Table } from "@navikt/ds-react";
-import { useAtom } from "jotai";
-import { paginationAtom, tiltakstypeFilter } from "../../api/atoms";
-import { SorteringTiltakstyper } from "../../../../mulighetsrommet-api-client";
-import { Laster } from "../laster/Laster";
-import { PagineringsOversikt } from "../paginering/PagineringOversikt";
-import styles from "./Tabell.module.scss";
-import { PAGE_SIZE } from "../../constants";
-import { formaterDato } from "../../utils/Utils";
-import Lenke from "mulighetsrommet-veileder-flate/src/components/lenke/Lenke";
-import { Tiltakstypestatus } from "../statuselementer/Tiltakstypestatus";
-import pageStyles from "../../pages/Page.module.scss";
-import { PagineringContainer } from "../paginering/PagineringContainer";
-import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
-import { useSort } from "../../hooks/useSort";
 import classNames from "classnames";
+import { useAtom } from "jotai";
+import Lenke from "mulighetsrommet-veileder-flate/src/components/lenke/Lenke";
+import { SorteringTiltakstyper } from "../../../../mulighetsrommet-api-client";
+import { paginationAtom, tiltakstypeFilter } from "../../api/atoms";
+import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
+import { PAGE_SIZE } from "../../constants";
+import { useSort } from "../../hooks/useSort";
+import pageStyles from "../../pages/Page.module.scss";
+import { formaterDato } from "../../utils/Utils";
+import { Laster } from "../laster/Laster";
+import { PagineringContainer } from "../paginering/PagineringContainer";
+import { PagineringsOversikt } from "../paginering/PagineringOversikt";
+import { Tiltakstypestatus } from "../statuselementer/Tiltakstypestatus";
+import styles from "./Tabell.module.scss";
 
 export const TiltakstypeTabell = () => {
   const [page, setPage] = useAtom(paginationAtom);
   const [filter, setFilter] = useAtom(tiltakstypeFilter);
-  const { data, isLoading, isError } = useTiltakstyper(filter, page);
+  const { data, isLoading } = useTiltakstyper(filter, page);
   const [sort, setSort] = useSort("navn");
   const pagination = data?.pagination;
   const tiltakstyper = data?.data ?? [];
@@ -29,14 +29,6 @@ export const TiltakstypeTabell = () => {
 
   if (tiltakstyper.length === 0) {
     return <Alert variant="info">Fant ingen tiltakstyper</Alert>;
-  }
-
-  if (isError) {
-    return (
-      <Alert variant="error">
-        Vi hadde problemer med henting av tiltakstyper
-      </Alert>
-    );
   }
 
   const handleSort = (sortKey: string) => {
@@ -101,14 +93,14 @@ export const TiltakstypeTabell = () => {
 
                   <Table.DataCell
                     aria-label={`Startdato: ${formaterDato(
-                      tiltakstype.fraDato
+                      tiltakstype.fraDato,
                     )}`}
                   >
                     {formaterDato(tiltakstype.fraDato)}
                   </Table.DataCell>
                   <Table.DataCell
                     aria-label={`Sluttdato: ${formaterDato(
-                      tiltakstype.tilDato
+                      tiltakstype.tilDato,
                     )}`}
                   >
                     {formaterDato(tiltakstype.tilDato)}

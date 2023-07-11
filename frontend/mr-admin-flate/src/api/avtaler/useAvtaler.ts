@@ -23,6 +23,7 @@ export function useAvtaler() {
         size: filter.antallAvtalerVises,
         leverandorOrgnr: filter.leverandor_orgnr || undefined,
       });
-    }
+    },
+    { useErrorBoundary: true },
   );
 }

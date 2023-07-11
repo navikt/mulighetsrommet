@@ -4,6 +4,8 @@ import { ContainerLayoutOversikt } from "../../layouts/ContainerLayout";
 import { MainContainer } from "../../layouts/MainContainer";
 import styles from "../Page.module.scss";
 import { TiltaksgjennomforingsTabell } from "../../components/tabell/TiltaksgjennomforingsTabell";
+import { ErrorBoundary } from "react-error-boundary";
+import { ErrorFallback } from "../../main";
 
 export function TiltaksgjennomforingerPage() {
   return (
@@ -13,7 +15,9 @@ export function TiltaksgjennomforingerPage() {
           Oversikt over tiltaksgjennomføringer
         </Heading>
         <Tiltaksgjennomforingfilter />
+        <ErrorBoundary FallbackComponent={ErrorFallback}>
         <TiltaksgjennomforingsTabell />
+        </ErrorBoundary>
       </ContainerLayoutOversikt>
     </MainContainer>
   );

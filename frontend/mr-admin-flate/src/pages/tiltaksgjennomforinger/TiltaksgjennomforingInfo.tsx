@@ -38,7 +38,7 @@ export function TiltaksgjennomforingInfo() {
     refetch,
   } = useTiltaksgjennomforingById();
   const { data: avtale, isLoading: isLoadingAvtale } = useAvtale(
-    tiltaksgjennomforing?.avtaleId
+    tiltaksgjennomforing?.avtaleId,
   );
   const { data: features } = useFeatureToggles();
 
@@ -51,7 +51,7 @@ export function TiltaksgjennomforingInfo() {
   const lukkSlettModal = () => setSlettModal(false);
 
   const navnPaaNavEnheterForKontaktperson = (
-    enheterForKontaktperson: string[]
+    enheterForKontaktperson: string[],
   ): string => {
     return (
       tiltaksgjennomforing?.navEnheter
@@ -191,7 +191,7 @@ export function TiltaksgjennomforingInfo() {
           <Metadata
             header="Tilgjengelighetsstatus"
             verdi={tilgjengelighetsstatusTilTekst(
-              tiltaksgjennomforing.tilgjengelighet
+              tiltaksgjennomforing.tilgjengelighet,
             )}
           />
           <VisHvisVerdi verdi={tiltaksgjennomforing.estimertVentetid}>
@@ -268,13 +268,13 @@ export function TiltaksgjennomforingInfo() {
           return (
             <Bolk
               aria-label={`Kontaktperson hos ${navnPaaNavEnheterForKontaktperson(
-                kp.navEnheter
+                kp.navEnheter,
               )}`}
               key={index}
             >
               <Metadata
                 header={`Kontaktperson hos ${navnPaaNavEnheterForKontaktperson(
-                  kp.navEnheter
+                  kp.navEnheter,
                 )}`}
                 verdi={<Kontaktperson kontaktperson={kp} />}
               />
@@ -331,11 +331,11 @@ export function TiltaksgjennomforingInfo() {
                 >
                   {tiltaksgjennomforing.arrangorKontaktperson?.epost}
                 </a>
-                { tiltaksgjennomforing.arrangorKontaktperson?.beskrivelse &&
+                {tiltaksgjennomforing.arrangorKontaktperson?.beskrivelse && (
                   <label>
                     {tiltaksgjennomforing.arrangorKontaktperson?.beskrivelse}
                   </label>
-                }
+                )}
               </div>
             }
           />

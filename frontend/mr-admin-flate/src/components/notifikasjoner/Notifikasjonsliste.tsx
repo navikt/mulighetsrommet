@@ -5,6 +5,8 @@ import { NotificationStatus } from "mulighetsrommet-api-client";
 import { EmptyState } from "./EmptyState";
 import styles from "./Notifikasjoner.module.scss";
 import { Notifikasjonssrad } from "./Notifikasjonsrad";
+import { ErrorBoundary } from "react-error-boundary";
+import { ErrorFallback } from "../../main";
 
 interface Props {
   lest: boolean;
@@ -47,10 +49,12 @@ export function Notifikasjonsliste({ lest }: Props) {
   }
 
   return (
+    <ErrorBoundary FallbackComponent={ErrorFallback}>
     <ul className={styles.notifikasjonsliste_ul}>
       {data.map((n) => {
         return <Notifikasjonssrad lest={lest} key={n.id} notifikasjon={n} />;
       })}
     </ul>
+    </ErrorBoundary>
   );
 }

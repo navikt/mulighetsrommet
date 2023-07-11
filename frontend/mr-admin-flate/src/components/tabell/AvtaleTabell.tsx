@@ -31,7 +31,7 @@ async function lastNedFil(filter: AvtaleFilterProps) {
   if (import.meta.env.VITE_MULIGHETSROMMET_API_AUTH_TOKEN) {
     headers.append(
       "Authorization",
-      `Bearer ${import.meta.env.VITE_MULIGHETSROMMET_API_AUTH_TOKEN}`
+      `Bearer ${import.meta.env.VITE_MULIGHETSROMMET_API_AUTH_TOKEN}`,
     );
   }
   headers.append("accept", "application/json");
@@ -62,12 +62,12 @@ async function lastNedFil(filter: AvtaleFilterProps) {
     `${OpenAPI.BASE}/api/v1/internal/avtaler/excel?${queryParams}`,
     {
       headers,
-    }
+    },
   );
 }
 
 export const AvtaleTabell = () => {
-  const { data, isLoading, isError } = useAvtaler();
+  const { data, isLoading } = useAvtaler();
   const [filter, setFilter] = useAtom(avtaleFilter);
   const [page, setPage] = useAtom(avtalePaginationAtom);
   const [sort, setSort] = useSort("navn");
@@ -128,12 +128,6 @@ export const AvtaleTabell = () => {
 
   if (avtaler.length === 0) {
     return <Alert variant="info">Fant ingen avtaler</Alert>;
-  }
-
-  if (isError) {
-    return (
-      <Alert variant="error">Vi hadde problemer med henting av avtaler</Alert>
-    );
   }
 
   return (
@@ -251,7 +245,7 @@ export const AvtaleTabell = () => {
             onPageChange={setPage}
             count={Math.ceil(
               (pagination?.totalCount ?? filter.antallAvtalerVises) /
-                filter.antallAvtalerVises
+                filter.antallAvtalerVises,
             )}
             data-version="v1"
           />

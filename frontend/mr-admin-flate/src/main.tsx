@@ -1,8 +1,9 @@
 import "@navikt/ds-css";
 import "@navikt/ds-css-internal";
-import { Alert, Heading } from "@navikt/ds-react";
+import { Alert, BodyShort, Heading } from "@navikt/ds-react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { porten } from "mulighetsrommet-frontend-common/constants";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { ErrorBoundary, FallbackProps } from "react-error-boundary";
@@ -17,6 +18,7 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       refetchOnWindowFocus: import.meta.env.PROD,
+      retry: import.meta.env.PROD,
     },
   },
 });
@@ -30,14 +32,17 @@ if (!import.meta.env.PROD || import.meta.env.VITE_INCLUDE_MOCKS === "true") {
   render();
 }
 
-function ErrorFallback({ error, resetErrorBoundary }: FallbackProps) {
+export function ErrorFallback({ error }: FallbackProps) {
   return (
     <div className="error">
       <Alert variant="error">
         <Heading size="medium" level="2">
-          En feil oppsto: {error.message}
+          {error.body?.message || "Det oppsto dessverre en feil"}
         </Heading>
-        <Link to="/" onClick={resetErrorBoundary}>
+        <BodyShort>
+          Hvis problemet vedvarer opprett en sak via <a href={porten}>Porten</a>
+        </BodyShort>
+        <Link to="/" reloadDocument className="error-link">
           Ta meg til forsiden og prøv igjen
         </Link>
       </Alert>
@@ -58,6 +63,6 @@ function render() {
         </Router>
         <ReactQueryDevtools initialIsOpen={false} />
       </QueryClientProvider>
-    </React.StrictMode>
+    </React.StrictMode>,
   );
 }

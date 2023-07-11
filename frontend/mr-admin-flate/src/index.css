@@ -6,6 +6,11 @@ html {
   padding: 1rem;
 }
 
+.error-link {
+  display: block;
+  margin-top: 1rem;
+}
+
 /* Siden vi ønsker en custom read-only styling (gråa ut) overstyrer noen av
  * navds sine read-only stylinger */
 .navds-text-field__input:read-only {
