@@ -463,7 +463,7 @@ export const OpprettTiltaksgjennomforingContainer = (
                   }}
                   til={{
                     label: "Sluttdato",
-                    readOnly: arenaOpphav,
+                    readOnly: arenaOpphav && !!tiltaksgjennomforing?.sluttDato,
                     ...register("startOgSluttDato.sluttDato"),
                   }}
                 />
