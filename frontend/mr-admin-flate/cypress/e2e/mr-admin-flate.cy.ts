@@ -129,7 +129,7 @@ describe("Utkast", () => {
     });
   });
 
-  context.only("Tab for utkast for avtaler", () => {
+  context("Tab for utkast for avtaler", () => {
     it("Skal finnes en tab for 'Mine utkast'", () => {
       cy.visit("/avtaler");
       cy.getByTestId("mine-utkast-tab").should("exist").click();
