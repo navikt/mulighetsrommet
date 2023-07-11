@@ -11,17 +11,17 @@ export function capitalize(text?: string): string {
 
 export function capitalizeEveryWord(
   text: string = "",
-  ignoreWords: string[] = []
+  ignoreWords: string[] = [],
 ): string {
   return text
-    .split(" ")
-    .map((it) => {
+    ?.split(" ")
+    ?.map((it) => {
       if (ignoreWords.includes(it.toLowerCase())) {
         return it.toLowerCase();
       }
       return capitalize(it);
     })
-    .join(" ");
+    ?.join(" ");
 }
 
 export function formaterDato(dato?: string | Date, fallback = ""): string {
@@ -56,7 +56,7 @@ export function formaterDatoTid(dato: string | Date, fallback = ""): string {
 
 export function formaterDatoSomYYYYMMDD(
   dato?: Date | null,
-  fallback = ""
+  fallback = "",
 ): string {
   if (!dato) return fallback;
   const year = dato.getFullYear();
@@ -81,7 +81,7 @@ export function kalkulerStatusBasertPaaFraOgTilDato(
     fraDato: string;
     tilDato: string;
   },
-  now: Date = new Date()
+  now: Date = new Date(),
 ): "Aktiv" | "Planlagt" | "Avsluttet" | " - " {
   const { fraDato, tilDato } = datoer;
   const fraDatoAsDate = new Date(fraDato);
@@ -103,7 +103,7 @@ export const resetPaginering = (setPage: (number: number) => void) => {
 };
 
 export const oversettStatusForTiltaksgjennomforing = (
-  status?: TiltaksgjennomforingStatus
+  status?: TiltaksgjennomforingStatus,
 ) => {
   switch (status) {
     case TiltaksgjennomforingStatus.GJENNOMFORES:
@@ -122,7 +122,7 @@ export const oversettStatusForTiltaksgjennomforing = (
 };
 
 export const tiltakstypekodeErAnskaffetTiltak = (
-  tiltakstypekode?: string
+  tiltakstypekode?: string,
 ): boolean => {
   if (!tiltakstypekode) return false;
 
@@ -134,7 +134,7 @@ export const inneholderUrl = (string: string) => {
 };
 
 export function tilgjengelighetsstatusTilTekst(
-  status?: Tilgjengelighetsstatus
+  status?: Tilgjengelighetsstatus,
 ): "Åpent" | "Stengt" | "Venteliste" | "" {
   switch (status) {
     case Tilgjengelighetsstatus.LEDIG:
@@ -149,7 +149,7 @@ export function tilgjengelighetsstatusTilTekst(
 }
 
 export function avtaletypeTilTekst(
-  type: Avtaletype
+  type: Avtaletype,
 ): "Avtale" | "Rammeavtale" | "Forhåndsgodkjent" {
   switch (type) {
     case Avtaletype.AVTALE:
@@ -163,7 +163,7 @@ export function avtaletypeTilTekst(
 
 export function valueOrDefault<T, X>(
   value: T | undefined,
-  defaultValue: X
+  defaultValue: X,
 ): T | X {
   return value !== undefined ? value : defaultValue;
 }
@@ -174,6 +174,7 @@ export const validEmail = (email: string | undefined): Boolean => {
     email
       .toLowerCase()
       .match(
-        /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-      ));
-}
+        /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+      ),
+  );
+};
