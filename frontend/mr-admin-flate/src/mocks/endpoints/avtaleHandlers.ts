@@ -10,6 +10,22 @@ import { mockAvtaler } from "../fixtures/mock_avtaler";
 import { mockAvtaleNokkeltall } from "../fixtures/mock_avtale_nokkeltall";
 
 export const avtaleHandlers = [
+  rest.get<any, any, PaginertAvtale | undefined>(
+    "*/api/v1/internal/avtaler",
+    (req, res, ctx) => {
+      return res(ctx.status(200), ctx.json(mockAvtaler));
+    },
+  ),
+
+  rest.get<any, any, Avtale | undefined>(
+    "*/api/v1/internal/avtaler/:id",
+    (req, res, ctx) => {
+      const { id } = req.params as { id: string };
+      const avtale = mockAvtaler.data.find((a) => a.id === id) ?? undefined;
+      return res(ctx.status(200), ctx.json(avtale));
+    },
+  ),
+
   rest.delete<SletteAvtale>("/api/v1/internal/avtaler/:id", (req, res, ctx) => {
     const responsErOk = Math.random() > 0.5;
     if (responsErOk) {
@@ -18,7 +34,7 @@ export const avtaleHandlers = [
         ctx.json<SletteAvtale>({
           statusCode: 200,
           message: "Avtalen ble slettet",
-        })
+        }),
       );
     }
 
@@ -33,37 +49,21 @@ export const avtaleHandlers = [
       ctx.json<SletteAvtale>({
         statusCode: 400,
         message: responses[randomIndex],
-      })
+      }),
     );
   }),
-
-  rest.get<any, any, PaginertAvtale | undefined>(
-    "*/api/v1/internal/avtaler",
-    (req, res, ctx) => {
-      return res(ctx.status(200), ctx.json(mockAvtaler));
-    }
-  ),
-
-  rest.get<any, any, Avtale | undefined>(
-    "*/api/v1/internal/avtaler/:id",
-    (req, res, ctx) => {
-      const { id } = req.params as { id: string };
-      const avtale = mockAvtaler.data.find((a) => a.id === id) ?? undefined;
-      return res(ctx.status(200), ctx.json(avtale));
-    }
-  ),
 
   rest.get<any, any, AvtaleNokkeltall | undefined>(
     "*/api/v1/internal/avtaler/:id/nokkeltall",
     (req, res, ctx) => {
       return res(ctx.status(200), ctx.json(mockAvtaleNokkeltall));
-    }
+    },
   ),
 
   rest.put<AvtaleRequest>("*/api/v1/internal/avtaler", (req, res, ctx) => {
     return res(
       ctx.status(200),
-      ctx.json({ id: "d1f163b7-1a41-4547-af16-03fd4492b7ba" })
+      ctx.json({ id: "d1f163b7-1a41-4547-af16-03fd4492b7ba" }),
     );
   }),
 ];

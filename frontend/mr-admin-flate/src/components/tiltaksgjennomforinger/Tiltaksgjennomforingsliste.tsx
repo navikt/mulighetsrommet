@@ -59,7 +59,7 @@ export const Tiltaksgjennomforingsliste = () => {
 
   const handleLeggTil = (
     tiltaksgjennomforing: Tiltaksgjennomforing,
-    avtaleId?: string
+    avtaleId?: string,
   ) => {
     mutate(
       { gjennomforingId: tiltaksgjennomforing.id, avtaleId },
@@ -74,13 +74,13 @@ export const Tiltaksgjennomforingsliste = () => {
                 : "fjerner gjennomføring fra avtale"
             }`,
             { handling: avtaleId ? "kobler til" : "fjerner kobling" },
-            "avtale"
+            "avtale",
           );
         },
         onError: () => {
           setError(`Klarte ikke koble gjennomføring til avtale`);
         },
-      }
+      },
     );
   };
 
@@ -98,7 +98,7 @@ export const Tiltaksgjennomforingsliste = () => {
           <ul className={styles.gjennomforingsliste}>
             {tiltaksgjennomforinger
               .filter((gjennomforing) =>
-                arenaKodeErAftEllerVta(gjennomforing.tiltakstype.arenaKode)
+                arenaKodeErAftEllerVta(gjennomforing.tiltakstype.arenaKode),
               )
               .map((gjennomforing: Tiltaksgjennomforing, index: number) => (
                 <li key={index} className={styles.gjennomforingsliste_element}>

@@ -118,7 +118,7 @@ const SlettTiltaksgjennomforingModal = ({
         onClose={clickCancel}
         className={classNames(
           styles.overstyrte_styles_fra_ds_modal,
-          styles.text_center
+          styles.text_center,
         )}
         aria-label="modal"
       >

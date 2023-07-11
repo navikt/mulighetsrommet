@@ -23,6 +23,7 @@ export function useAdminTiltaksgjennomforinger() {
         size: filter.antallGjennomforingerVises,
         avtaleId: filter.avtale ? filter.avtale : undefined,
         arrangorOrgnr: filter.arrangorOrgnr ? filter.arrangorOrgnr : undefined,
-      })
+      }),
+    { useErrorBoundary: true },
   );
 }

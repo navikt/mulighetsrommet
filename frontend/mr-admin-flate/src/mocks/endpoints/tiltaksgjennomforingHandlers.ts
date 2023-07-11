@@ -8,7 +8,7 @@ import { mockTiltaksgjennomforinger } from "../fixtures/mock_tiltaksgjennomforin
 import { mockTiltaksgjennomforingerNokkeltall } from "../fixtures/mock_tiltaksgjennomforinger_nokkeltall";
 
 export const tiltaksgjennomforingHandlers = [
-  rest.get<any, any, PaginertTiltaksgjennomforing>(
+  rest.get<any, any, PaginertTiltaksgjennomforing | { x: string }>(
     "*/api/v1/internal/tiltaksgjennomforinger",
     (req, res, ctx) => {
       return res(ctx.status(200), ctx.json(mockTiltaksgjennomforinger));

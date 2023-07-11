@@ -5,6 +5,8 @@ import { useGetAvtaleIdFromUrl } from "../../../hooks/useGetAvtaleIdFromUrl";
 import { Tabs } from "@navikt/ds-react";
 import { TiltaksgjennomforingUtkast } from "../../../components/tiltaksgjennomforinger/TiltaksgjennomforingUtkast";
 import { useFeatureToggles } from "../../../api/features/feature-toggles";
+import { ErrorBoundary } from "react-error-boundary";
+import { ErrorFallback } from "../../../main";
 
 export function TiltaksgjennomforingerForAvtale() {
   const avtaleId = useGetAvtaleIdFromUrl();
@@ -33,17 +35,19 @@ export function TiltaksgjennomforingerForAvtale() {
             />
           ) : null}
         </Tabs.List>
-        <Tabs.Panel value="gjennomforinger">
-          <TiltaksgjennomforingsTabell
-            skjulKolonner={{
-              tiltakstype: true,
-              arrangor: true,
-            }}
-          />
-        </Tabs.Panel>
-        <Tabs.Panel value="utkast">
-          <TiltaksgjennomforingUtkast />
-        </Tabs.Panel>
+        <ErrorBoundary FallbackComponent={ErrorFallback}>
+          <Tabs.Panel value="gjennomforinger">
+            <TiltaksgjennomforingsTabell
+              skjulKolonner={{
+                tiltakstype: true,
+                arrangor: true,
+              }}
+            />
+          </Tabs.Panel>
+          <Tabs.Panel value="utkast">
+            <TiltaksgjennomforingUtkast />
+          </Tabs.Panel>
+        </ErrorBoundary>
       </Tabs>
     </>
   );

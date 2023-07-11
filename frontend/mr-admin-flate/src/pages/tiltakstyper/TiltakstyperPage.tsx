@@ -4,6 +4,8 @@ import { ContainerLayoutOversikt } from "../../layouts/ContainerLayout";
 import { MainContainer } from "../../layouts/MainContainer";
 import styles from "../Page.module.scss";
 import { TiltakstypeTabell } from "../../components/tabell/TiltakstypeTabell";
+import { ErrorBoundary } from "react-error-boundary";
+import { ErrorFallback } from "../../main";
 
 export function TiltakstyperPage() {
   return (
@@ -13,7 +15,9 @@ export function TiltakstyperPage() {
           Oversikt over tiltakstyper
         </Heading>
         <Tiltakstypefilter />
-        <TiltakstypeTabell />
+        <ErrorBoundary FallbackComponent={ErrorFallback}>
+          <TiltakstypeTabell />
+        </ErrorBoundary>
       </ContainerLayoutOversikt>
     </MainContainer>
   );
