@@ -1,6 +1,5 @@
 import { defineConfig } from "cypress";
 import { plugin } from "./cypress/plugins/index";
-console.log(plugin);
 
 export default defineConfig({
   viewportHeight: 1300,

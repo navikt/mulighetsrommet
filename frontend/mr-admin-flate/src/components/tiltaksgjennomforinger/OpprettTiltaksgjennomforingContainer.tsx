@@ -21,7 +21,7 @@ import {
   useFieldArray,
   useForm,
 } from "react-hook-form";
-import { Slide, ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import { v4 as uuidv4 } from "uuid";
 import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
 import { useHentBetabrukere } from "../../api/ansatt/useHentBetabrukere";
@@ -37,6 +37,7 @@ import {
   tilgjengelighetsstatusTilTekst,
 } from "../../utils/Utils";
 import { isTiltakMedFellesOppstart } from "../../utils/tiltakskoder";
+import { AutoSaveUtkast } from "../autosave/AutoSaveUtkast";
 import { FormGroup, ansvarligOptions } from "../avtaler/OpprettAvtaleContainer";
 import { Separator } from "../detaljside/Metadata";
 import { Laster } from "../laster/Laster";
@@ -44,19 +45,17 @@ import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
 import { SokeSelect } from "../skjema/SokeSelect";
 import { VirksomhetKontaktpersoner } from "../virksomhet/VirksomhetKontaktpersoner";
-import { AutoSaveUtkast } from "../autosave/AutoSaveUtkast";
 import styles from "./OpprettTiltaksgjennomforingContainer.module.scss";
+import {
+  avtaleFinnesIkke,
+  avtaleManglerNavRegionError,
+  avtalenErAvsluttet,
+  tekniskFeilError,
+} from "./OpprettTiltaksgjennomforingErrors";
 import {
   TiltaksgjennomforingSchema,
   inferredTiltaksgjennomforingSchema,
 } from "./OpprettTiltaksgjennomforingSchema";
-import {
-  tekniskFeilError,
-  avtaleFinnesIkke,
-  avtalenErAvsluttet,
-  avtaleManglerNavRegionError,
-} from "./OpprettTiltaksgjennomforingErrors";
-import { AutoSaveToastContainer } from "../autosave/AutoSaveToastContainer";
 
 interface OpprettTiltaksgjennomforingContainerProps {
   onClose: () => void;

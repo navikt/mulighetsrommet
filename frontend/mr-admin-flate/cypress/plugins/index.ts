@@ -16,16 +16,16 @@
  * @type {Cypress.PluginConfig}
  */
 // eslint-disable-next-line no-unused-vars
-export const plugin = (on, config) => {
+export const plugin: Cypress.PluginConfig = (on: Cypress.PluginEvents) => {
   // `on` is used to hook into various events Cypress emits
   // `config` is the resolved Cypress config
   on("task", {
-    log(message) {
+    log(message: string) {
       console.log(message);
 
       return null;
     },
-    table(message) {
+    table(message: string) {
       console.table(message);
 
       return null;
