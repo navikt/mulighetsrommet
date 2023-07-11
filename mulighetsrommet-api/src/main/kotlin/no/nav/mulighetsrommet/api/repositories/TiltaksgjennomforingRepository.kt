@@ -570,7 +570,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                     id = it,
                     organisasjonsnummer = string("arrangor_kontaktperson_organisasjonsnummer"),
                     navn = string("arrangor_kontaktperson_navn"),
-                    telefon = string("arrangor_kontaktperson_telefon"),
+                    telefon = stringOrNull("arrangor_kontaktperson_telefon"),
                     epost = string("arrangor_kontaktperson_epost"),
                     beskrivelse = stringOrNull("arrangor_kontaktperson_beskrivelse"),
                 )
