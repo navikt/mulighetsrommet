@@ -41,6 +41,7 @@ export const mockAvtaler: PaginertAvtale = {
         epost: "ole.kjetil.martinsen@arrangor.no",
         telefon: "90123456",
         organisasjonsnummer: "123456789",
+        beskrivelse: "Direktør",
       },
       startDato: "2021-08-02",
       sluttDato: "2026-08-01",
