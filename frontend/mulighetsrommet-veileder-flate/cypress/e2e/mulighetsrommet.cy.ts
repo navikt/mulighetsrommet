@@ -10,8 +10,8 @@ before('Start server', () => {
 });
 
 describe('Tiltaksoversikt', () => {
-  let antallTiltak;
-  let kvalifiseringsgruppe;
+  let antallTiltak: number;
+  let kvalifiseringsgruppe: string;
   const servicegruppe = 'service';
   const innsatsgruppe = 'innsats';
 
@@ -50,7 +50,7 @@ describe('Tiltaksoversikt', () => {
   context('Filtrering', () => {
     it('Lagre antall tiltak uten filtrering', () => {
       cy.getByTestId('antall-tiltak').then($navn => {
-        antallTiltak = $navn.text();
+        antallTiltak = Number.parseInt($navn.text());
       });
     });
 
