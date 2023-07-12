@@ -80,7 +80,6 @@ const SokeSelect = React.forwardRef((props: SelectProps, _) => {
           field: { onChange, value, name, ref },
           fieldState: { error },
         }) => {
-          console.log(error, name);
           return (
             <div>
               <label
