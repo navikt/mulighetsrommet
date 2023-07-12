@@ -13,6 +13,8 @@ import { validEmail } from "../../utils/Utils";
 
 interface State {
   leggTil: boolean;
+  rediger: boolean;
+  selectedId?: string;
   navn?: string;
   epost?: string;
   telefon?: string;
@@ -32,43 +34,43 @@ export const VirksomhetKontaktpersoner = (
 ) => {
   const { orgnr, formValueName, title } = props;
   const { register, watch, setValue } = useFormContext();
-  const mutation = usePutVirksomhetKontaktperson(orgnr);
+  const putMutation = usePutVirksomhetKontaktperson(orgnr);
   const {
     data: kontaktpersoner,
     isLoading: isLoadingKontaktpersoner,
     refetch,
   } = useVirksomhetKontaktpersoner(orgnr);
 
-  const initialState: State = {
+  const [state, setState] = useState<State>({
     leggTil: false,
+    rediger: false,
+    selectedId: watch(formValueName),
     navn: undefined,
     telefon: undefined,
     beskrivelse: undefined,
     epost: undefined,
     navnError: undefined,
     epostError: undefined,
-  };
-
-  const [state, setState] = useState<State>(initialState);
+  });
 
   useEffect(() => {
-    if (mutation.isSuccess) {
-      setValue(formValueName, mutation.data.id);
-      setState(initialState);
+    if (putMutation.isSuccess) {
+      setValue(formValueName, putMutation.data.id);
+      setState({
+        ...state,
+        leggTil: false,
+        rediger: false,
+      });
       refetch();
-      mutation.reset();
+      putMutation.reset();
     }
-  }, [mutation]);
+  }, [putMutation]);
 
   if (!kontaktpersoner || isLoadingKontaktpersoner) {
     return <Laster />;
   }
 
-  const person = kontaktpersoner.find(
-    (person) => person.id === watch(formValueName)
-  );
-
-  const opprettKontaktperson = () => {
+  const opprettEllerLagreKontaktperson = () => {
     setState({
       ...state,
       navnError: !state.navn ? "Navn må være satt" : undefined,
@@ -80,14 +82,17 @@ export const VirksomhetKontaktpersoner = (
       return;
     }
 
-    mutation.mutate({
-      id: uuidv4(),
+    putMutation.mutate({
+      id: state.selectedId ?? uuidv4(),
       navn: state.navn,
       telefon: state.telefon || null,
       beskrivelse: state.beskrivelse || null,
       epost: state.epost,
     });
   };
+
+  const valgtPerson = () =>
+    kontaktpersoner.find(person => person.id === state.selectedId)
 
   return (
     <>
@@ -97,39 +102,75 @@ export const VirksomhetKontaktpersoner = (
         onClearValue={() => setValue(formValueName, null)}
         label={title}
         {...register(formValueName)}
+        onChange={(id) => setState({
+          ...state,
+          selectedId: id,
+        })}
         options={kontaktpersoner.map((person) => ({
           value: person.id,
           label: person.navn,
         }))}
       />
-      {person && (
+      {(state.selectedId && !state.rediger) && (
         <div className={styles.kontaktperson_info_container}>
-          <label>{`Navn: ${person.navn}`}</label>
+          <label>{`Navn: ${valgtPerson()?.navn}`}</label>
           <label>{`Telefon: ${
-            person?.telefon || "Telefonnummer eksisterer ikke"
+            valgtPerson()?.telefon || "Telefonnummer eksisterer ikke"
           }`}</label>
-          <label>{`Epost: ${person.epost}`}</label>
-          { person.beskrivelse && <label>{`Beskrivelse: ${person.beskrivelse}`}</label>}
+          <label>{`Epost: ${valgtPerson()?.epost}`}</label>
+          { valgtPerson()?.beskrivelse && <label>{`Beskrivelse: ${valgtPerson()?.beskrivelse}`}</label>}
+
         </div>
       )}
-      {!state.leggTil && (
-        <Button
-          className={classNames(
-            styles.kontaktperson_button,
-            styles.kontaktperson_fjern_button
-          )}
-          size="small"
-          type="button"
-          onClick={() => setState({ ...state, leggTil: !state.leggTil })}
-        >
-          <PlusIcon /> eller opprett ny kontaktperson
-        </Button>
+      {!state.leggTil && !state.rediger && (
+        <div className={styles.button_container}>
+          { state.selectedId &&
+            <Button
+              className={classNames(
+                styles.kontaktperson_button,
+                styles.kontaktperson_fjern_button
+              )}
+              type="button"
+              size="small"
+              variant="tertiary"
+              onClick={() => setState({
+                ...state,
+                navn: valgtPerson()?.navn,
+                epost: valgtPerson()?.epost,
+                telefon: valgtPerson()?.telefon ?? undefined,
+                beskrivelse: valgtPerson()?.beskrivelse ?? undefined,
+                rediger: true
+              })}
+            >
+              Rediger
+            </Button>
+          }
+          <Button
+            className={classNames(
+              styles.kontaktperson_button,
+              styles.kontaktperson_fjern_button
+            )}
+            size="small"
+            type="button"
+            onClick={() => setState({
+              ...state,
+              leggTil: !state.leggTil,
+              navn: undefined,
+              epost: undefined,
+              telefon: undefined,
+              beskrivelse: undefined,
+            })}
+          >
+            <PlusIcon /> eller opprett ny kontaktperson
+          </Button>
+        </div>
       )}
-      {state.leggTil && (
+      {(state.leggTil || state.rediger) && (
         <div className={styles.input_container}>
           <TextField
             size="small"
             label={"Navn"}
+            value={state.navn}
             error={state.navnError}
             onChange={(e) => {
               setState({
@@ -144,6 +185,7 @@ export const VirksomhetKontaktpersoner = (
               <TextField
                 size="small"
                 label="Telefon"
+                value={state.telefon}
                 onChange={(e) => {
                   setState({
                     ...state,
@@ -156,6 +198,7 @@ export const VirksomhetKontaktpersoner = (
               <TextField
                 size="small"
                 label="Epost"
+                value={state.epost}
                 error={state.epostError}
                 onChange={(e) => {
                   setState({
@@ -170,6 +213,7 @@ export const VirksomhetKontaktpersoner = (
           <TextField
             size="small"
             label={"Beskrivelse"}
+            value={state.beskrivelse}
             onChange={(e) => {
               setState({
                 ...state,
@@ -177,22 +221,25 @@ export const VirksomhetKontaktpersoner = (
               });
             }}
           />
-
           <div className={styles.button_container}>
             <Button
               size="small"
               className={styles.button}
               type="button"
-              onClick={opprettKontaktperson}
+              onClick={opprettEllerLagreKontaktperson}
             >
-              Opprett kontaktperson
+              { state.leggTil ? "Opprett kontaktperson" : "Lagre" }
             </Button>
             <Button
               size="small"
               variant="secondary"
               className={styles.button}
               type="button"
-              onClick={() => setState(initialState)}
+              onClick={() => setState({
+                ...state,
+                leggTil: false,
+                rediger: false,
+              })}
             >
               Avbryt
             </Button>
