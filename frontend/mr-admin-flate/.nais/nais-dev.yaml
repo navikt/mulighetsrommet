@@ -65,7 +65,8 @@ spec:
           },
           "header": {
             "csp": {
-              "scriptSrc": ["'self'", "'unsafe-inline'", "*.intern.dev.nav.no", "*.nav.no"]
+              "scriptSrc": ["'self'", "'unsafe-inline'", "*.intern.dev.nav.no", "*.nav.no"],
+              "connectSrc": ["login.microsoftonline.com"]
             }
           },
           "proxies": [
