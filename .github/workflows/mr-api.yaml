@@ -67,6 +67,9 @@ jobs:
   deploy-dev:
     name: Deploy (dev)
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: read
     needs: [build-and-test]
     if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
     steps:
