@@ -64,6 +64,16 @@ spec:
                 "namespace": "team-mulighetsrommet",
                 "cluster": "prod-gcp"
               }
+            },
+            {
+              "fromPath": "/mulighetsrommet-api",
+              "toUrl": "http://mulighetsrommet-api",
+              "preserveFromPath": false,
+              "toApp": {
+                "name": "mulighetsrommet-api",
+                "namespace": "team-mulighetsrommet",
+                "cluster": "prod-gcp"
+              }
             }
           ]
         }
