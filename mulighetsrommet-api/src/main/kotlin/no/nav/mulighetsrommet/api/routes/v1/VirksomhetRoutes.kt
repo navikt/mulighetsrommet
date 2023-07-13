@@ -86,8 +86,8 @@ fun Route.virksomhetRoutes() {
             check(orgnr.isNotEmpty())
 
             log.info("Oppdaterer virksomhet med orgnr: $orgnr")
-            virksomhetService.syncEnhetFraBrreg(orgnr)
-            call.respond("Ok")
+            val response = virksomhetService.syncEnhetFraBrreg(orgnr)
+            call.respond("${response?.navn} oppdatert")
         }
     }
 }
