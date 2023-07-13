@@ -29,7 +29,6 @@ class BrregClientImpl(
     private val client = httpJsonClient(clientEngine).config {
         install(HttpCache)
     }
-    private val size = 20
 
     data class Config(
         val baseUrl: String,
@@ -98,7 +97,7 @@ class BrregClientImpl(
         }
 
         val hovedenhetResponse = client.get("$baseUrl/enheter") {
-            parameter("size", size)
+            parameter("size", 20)
             parameter(sokEllerOppslag, orgnr)
         }
 
@@ -116,7 +115,7 @@ class BrregClientImpl(
         validerOrgnr(orgnrOverordnetEnhet)
 
         val underenheterResponse = client.get("$baseUrl/underenheter") {
-            parameter("size", size)
+            parameter("size", 1000)
             parameter("overordnetEnhet", orgnrOverordnetEnhet)
         }
 
