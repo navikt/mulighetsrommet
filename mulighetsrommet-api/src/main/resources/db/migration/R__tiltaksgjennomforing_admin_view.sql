@@ -21,7 +21,8 @@ select tg.id::uuid,
        tg.opphav,
        tg.stengt_fra,
        tg.stengt_til,
-       avtale_ne.navn           as navRegionForAvtale,
+       avtale_ne.navn as navRegionForAvtale,
+       avtale_ne.enhetsnummer as navRegionEnhetsnummerForAvtale,
        jsonb_agg(jsonb_build_object('navident', tg_a.navident, 'navn', concat(na_tg.fornavn, ' ', na_tg.etternavn))) as ansvarlige,
        jsonb_agg(distinct
                  case
@@ -56,4 +57,4 @@ from tiltaksgjennomforing tg
          left join nav_ansatt na on na.nav_ident = tgk.kontaktperson_nav_ident
          left join nav_ansatt na_tg on na_tg.nav_ident = tg_a.navident
          left join virksomhet_kontaktperson vk on vk.id = tg.arrangor_kontaktperson_id
-group by tg.id, t.id, v.navn, avtale_ne.navn, vk.id;
+group by tg.id, t.id, v.navn, avtale_ne.navn, vk.id, avtale_ne.enhetsnummer;
