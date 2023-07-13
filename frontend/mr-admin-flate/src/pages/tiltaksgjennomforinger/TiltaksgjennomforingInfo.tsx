@@ -76,7 +76,7 @@ export function TiltaksgjennomforingInfo() {
     (inneholderUrl("intern.nav.no") ? "prod" : "test") +
     "/desk/tiltaksgjennomforinger;alleTiltaksgjennomforinger;";
 
-  if (isLoadingTiltaksgjennomforing || isLoadingAvtale) {
+  if (isLoadingTiltaksgjennomforing && isLoadingAvtale) {
     return <Laster tekst="Laster informasjon om tiltaksgjennomføring..." />;
   }
 
