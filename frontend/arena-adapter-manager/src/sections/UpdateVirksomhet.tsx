@@ -21,12 +21,12 @@ function UpdateVirksomhet() {
       />
       <Button
         onClick={async () => {
-          if (orgnr.length === 9) {
-            for (const nr of orgnr.split(",")) {
-              await syncVirksomhet(nr.trim());
+          for (const nr of orgnr.split(",")) {
+            if (nr.trim().length !== 9) {
+              alert(`${nr} er ikke 9 siffer. Orgnr er 9 siffer.`);
+              return;
             }
-          } else {
-            alert("Orgnr må være 9 siffer");
+            await syncVirksomhet(nr.trim());
           }
         }}
       >
