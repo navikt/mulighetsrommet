@@ -76,6 +76,13 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
           navn: "Nikoline Madsen",
           navEnheter: ["5703", "0501"],
         },
+        {
+          epost: "petrus.pilsen@nav.no",
+          mobilnummer: "78654323",
+          navIdent: "M887654",
+          navn: "Petrus Pilsen",
+          navEnheter: [],
+        },
       ],
     },
     {
