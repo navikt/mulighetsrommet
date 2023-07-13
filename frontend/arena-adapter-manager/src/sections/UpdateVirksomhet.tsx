@@ -16,15 +16,14 @@ function UpdateVirksomhet() {
         placeholder="Organisasjonsnummer, gjerne kommaseparert hvis du trenger flere nr samtidig"
         value={orgnr}
         onChange={({ currentTarget }) => {
-          setOrgnr(currentTarget.value.trim());
+          setOrgnr(currentTarget.value);
         }}
-        type="number"
       />
       <Button
         onClick={async () => {
           if (orgnr.length === 9) {
             for (const nr of orgnr.split(",")) {
-              await syncVirksomhet(nr);
+              await syncVirksomhet(nr.trim());
             }
           } else {
             alert("Orgnr må være 9 siffer");
