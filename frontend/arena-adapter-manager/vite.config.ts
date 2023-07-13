@@ -11,6 +11,11 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/mulighetsrommet-arena-adapter/, ""),
       },
+      "^/mulighetsrommet-api": {
+        target: "http://0.0.0.0:8080",
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/mulighetsrommet-api/, ""),
+      },
     },
   },
 });

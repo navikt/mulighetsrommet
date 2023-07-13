@@ -41,7 +41,7 @@ class VirksomhetService(
         return virksomhetRepository.get(orgnr).getOrThrow() ?: syncEnhetFraBrreg(orgnr)
     }
 
-    private suspend fun syncEnhetFraBrreg(orgnr: String): VirksomhetDto? {
+    suspend fun syncEnhetFraBrreg(orgnr: String): VirksomhetDto? {
         log.info("Skal synkronisere enhet med orgnr: $orgnr fra Brreg")
         val enhet = CacheUtils.tryCacheFirstNullable(brregServiceCache, orgnr) {
             brregClient.hentEnhet(orgnr)

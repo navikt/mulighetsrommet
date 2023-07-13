@@ -80,6 +80,15 @@ fun Route.virksomhetRoutes() {
 
             call.respond(virksomhetService.sokEtterEnhet(sokestreng))
         }
+
+        get("/update") {
+            val orgnr = call.request.queryParameters.getOrFail("orgnr")
+            check(orgnr.isNotEmpty())
+
+            log.info("Oppdaterer virksomhet med orgnr: $orgnr")
+            virksomhetService.syncEnhetFraBrreg(orgnr)
+            call.respond("Ok")
+        }
     }
 }
 
