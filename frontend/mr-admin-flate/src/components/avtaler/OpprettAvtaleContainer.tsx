@@ -81,7 +81,7 @@ export function OpprettAvtaleContainer({
     avtale?.navRegion?.enhetsnummer,
   );
   const [sokLeverandor, setSokLeverandor] = useState(
-    avtale?.leverandor.organisasjonsnummer || "",
+    avtale?.leverandor?.organisasjonsnummer || "",
   );
   const { data: leverandorVirksomheter = [] } =
     useSokVirksomheter(sokLeverandor);

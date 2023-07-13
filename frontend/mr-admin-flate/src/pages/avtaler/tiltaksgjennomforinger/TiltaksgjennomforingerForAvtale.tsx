@@ -16,11 +16,6 @@ export function TiltaksgjennomforingerForAvtale() {
 
   return (
     <>
-      <Tiltaksgjennomforingfilter
-        skjulFilter={{ tiltakstype: true }}
-        avtale={avtale}
-      />
-
       <Tabs defaultValue="gjennomforinger">
         <Tabs.List>
           <Tabs.Tab value="gjennomforinger" label="Gjennomføringer" />
@@ -37,6 +32,10 @@ export function TiltaksgjennomforingerForAvtale() {
         </Tabs.List>
         <ErrorBoundary FallbackComponent={ErrorFallback}>
           <Tabs.Panel value="gjennomforinger">
+            <Tiltaksgjennomforingfilter
+              skjulFilter={{ tiltakstype: true }}
+              avtale={avtale}
+            />
             <TiltaksgjennomforingsTabell
               skjulKolonner={{
                 tiltakstype: true,
