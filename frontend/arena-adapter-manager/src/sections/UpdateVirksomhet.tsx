@@ -13,7 +13,7 @@ function UpdateVirksomhet() {
       isLoading={false}
     >
       <Input
-        placeholder="Organisasjonsnummer"
+        placeholder="Organisasjonsnummer, gjerne kommaseparert hvis du trenger flere nr samtidig"
         value={orgnr}
         onChange={({ currentTarget }) => {
           setOrgnr(currentTarget.value.trim());
@@ -21,9 +21,11 @@ function UpdateVirksomhet() {
         type="number"
       />
       <Button
-        onClick={() => {
+        onClick={async () => {
           if (orgnr.length === 9) {
-            syncVirksomhet(orgnr);
+            for (const nr of orgnr.split(",")) {
+              await syncVirksomhet(nr);
+            }
           } else {
             alert("Orgnr må være 9 siffer");
           }
