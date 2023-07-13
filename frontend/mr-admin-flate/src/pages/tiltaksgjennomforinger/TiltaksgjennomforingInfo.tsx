@@ -67,7 +67,7 @@ export function TiltaksgjennomforingInfo() {
           return enhetNavn;
         })
         .filter(Boolean)
-        .join(", ") || ""
+        .join(", ") || "alle enheter"
     );
   };
 
