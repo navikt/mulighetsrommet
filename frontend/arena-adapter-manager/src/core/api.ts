@@ -22,7 +22,7 @@ export const putTopicRunningState = async (topics: Topic[]) => {
 
 export const replayEvents = async (
   arenaTable: string | null,
-  status: string | null
+  status: string | null,
 ) => {
   return await fetch("/mulighetsrommet-arena-adapter/events/replay", {
     method: "PUT",
@@ -61,4 +61,16 @@ export const deleteEvents = async (arenaTable: string, arenaIds: string) => {
       arenaIds: arenaIdsAsList,
     }),
   });
+};
+
+export const syncVirksomhet = async (orgnr: string) => {
+  return await fetch(
+    `/mulighetsrommet-api/api/v1/internal/virksomhet/update?orgnr=${orgnr}`,
+    {
+      method: "GET",
+      headers: {
+        "content-type": "application/json",
+      },
+    },
+  );
 };
