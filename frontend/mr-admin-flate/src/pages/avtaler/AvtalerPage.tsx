@@ -18,7 +18,6 @@ export function AvtalerPage() {
           Oversikt over avtaler
         </Heading>
         <ErrorBoundary FallbackComponent={ErrorFallback}>
-          <Avtalefilter />
           <Tabs defaultValue="avtaler">
             <Tabs.List>
               <Tabs.Tab value="avtaler" label="Avtaler" />
@@ -31,6 +30,7 @@ export function AvtalerPage() {
               ) : null}
             </Tabs.List>
             <Tabs.Panel value="avtaler">
+              <Avtalefilter />
               <AvtaleTabell />
             </Tabs.Panel>
             <Tabs.Panel value="utkast">
