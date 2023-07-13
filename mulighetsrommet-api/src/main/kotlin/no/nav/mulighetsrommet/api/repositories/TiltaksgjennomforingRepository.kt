@@ -380,7 +380,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             filter.tiltakstypeId to "tiltakstype_id = :tiltakstypeId",
             filter.status to filter.status?.toDbStatement(),
             filter.sluttDatoCutoff to "(slutt_dato >= :cutoffdato or slutt_dato is null)",
-            filter.navRegion to "(arena_ansvarlig_enhet in (select enhetsnummer from nav_enhet where overordnet_enhet = :navRegion) or :navRegion in (select overordnet_enhet from nav_enhet inner join tiltaksgjennomforing_nav_enhet tg_e using(enhetsnummer) where tg_e.tiltaksgjennomforing_id = id))",
+            filter.navRegion to "(arena_ansvarlig_enhet in (select enhetsnummer from nav_enhet where overordnet_enhet = :navRegion) or :navRegion in (select overordnet_enhet from nav_enhet inner join tiltaksgjennomforing_nav_enhet tg_e using(enhetsnummer) where tg_e.tiltaksgjennomforing_id = id) or :navRegion = navRegionEnhetsnummerForAvtale)",
             filter.avtaleId to "avtale_id = :avtaleId",
             filter.arrangorOrgnr to "arrangor_organisasjonsnummer = :arrangor_organisasjonsnummer",
         )

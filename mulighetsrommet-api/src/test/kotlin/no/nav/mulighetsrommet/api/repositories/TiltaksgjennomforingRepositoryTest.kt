@@ -837,20 +837,29 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 ),
             ).shouldBeRight()
 
+            val avtale = avtale1.copy(navRegion = "nav_region")
+            avtaleFixtures.upsertAvtaler(listOf(avtale))
             val gj1 = gjennomforing1.copy(id = UUID.randomUUID(), navEnheter = listOf("1"))
             val gj2 = gjennomforing1.copy(id = UUID.randomUUID(), arenaAnsvarligEnhet = "1")
             val gj3 = gjennomforing1.copy(id = UUID.randomUUID(), navEnheter = listOf("2"))
             val gj4 = gjennomforing1.copy(id = UUID.randomUUID(), navEnheter = listOf("1", "2"))
+            val gj5 = gjennomforing1.copy(
+                id = UUID.randomUUID(),
+                navEnheter = emptyList(),
+                arenaAnsvarligEnhet = null,
+                avtaleId = avtale.id,
+            )
 
             tiltaksgjennomforinger.upsert(gj1).shouldBeRight()
             tiltaksgjennomforinger.upsert(gj2).shouldBeRight()
             tiltaksgjennomforinger.upsert(gj3).shouldBeRight()
             tiltaksgjennomforinger.upsert(gj4).shouldBeRight()
+            tiltaksgjennomforinger.upsert(gj5).shouldBeRight()
 
             tiltaksgjennomforinger.getAll(filter = defaultFilter.copy(navRegion = "nav_region")).shouldBeRight()
                 .should {
-                    it.first shouldBe 2
-                    it.second.map { it.id } shouldContainAll listOf(gj4.id, gj3.id)
+                    it.first shouldBe 3
+                    it.second.map { it.id } shouldContainAll listOf(gj4.id, gj3.id, gj5.id)
                 }
         }
     }
