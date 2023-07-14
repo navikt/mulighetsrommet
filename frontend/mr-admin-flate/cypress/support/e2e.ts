@@ -42,7 +42,7 @@ function terminalLog(violations: axe.Result[]) {
     "log",
     `${violations?.length} accessibility violation${
       violations?.length === 1 ? "" : "s"
-    } ${violations?.length === 1 ? "was" : "were"} detected`
+    } ${violations?.length === 1 ? "was" : "were"} detected`,
   );
   // pluck specific keys to keep the table readable
   const violationData = violations.map(
@@ -51,7 +51,7 @@ function terminalLog(violations: axe.Result[]) {
       impact,
       description,
       nodes: nodes.length,
-    })
+    }),
   );
 
   cy.task("table", violationData);
@@ -77,6 +77,6 @@ Cypress.Commands.add("checkPageA11y", () => {
       exclude: [[[".Toastify", "#floating-ui-root", ".navds-tabs__tab-inner"]]],
     },
     undefined,
-    terminalLog
+    terminalLog,
   );
 });

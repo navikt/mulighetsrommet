@@ -103,7 +103,7 @@ describe("Notifikasjoner", () => {
   });
 });
 
-describe.only("Utkast", () => {
+describe("Utkast", () => {
   context("Tab for utkast for gjennomføringer knyttet til en avtale", () => {
     it("Skal finnes en tab for 'Mine utkast'", () => {
       cy.visit("/avtaler");

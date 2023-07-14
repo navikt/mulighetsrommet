@@ -1,16 +1,35 @@
-.header_wrapper {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  margin: 1rem 0;
-  border-bottom: solid 1px var(--a-border-divider);
-  padding-left: 0.5rem;
-}
+.header_container {
+  background-color: white;
 
-.header {
-  display: flex;
-  gap: 1rem;
-  align-items: flex-start;
+  &_border {
+    border-bottom: solid 1px var(--a-border-divider);
+  }
+
+  .header_wrapper {
+    max-width: 1920px;
+    margin: 0 auto;
+    padding-left: 1rem;
+    padding-top: 1rem;
+    padding-bottom: .5rem;
+  }
+
+  &_tabs {
+    border-bottom: solid 1px var(--a-border-divider);
+    background-color: white;
+
+    :global(.navds-tabs__tablist-wrapper) {
+      max-width: 1920px;
+      margin: 0 auto;
+      padding-left: 0.5rem;
+      box-shadow: none;
+    }
+  }
+
+  .header {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+  }
 }
 
 .list {
