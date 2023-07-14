@@ -14,8 +14,8 @@ export function AvtalerPage() {
   const { data: features } = useFeatureToggles();
   return (
     <>
+      <HeaderBanner heading="Oversikt over avtaler" harUndermeny />
       <ErrorBoundary FallbackComponent={ErrorFallback}>
-        <HeaderBanner heading="Oversikt over avtaler" harUndermeny />
         <Tabs defaultValue="avtaler">
           <div className={styles.header_container_tabs} role="contentinfo">
             <Tabs.List>

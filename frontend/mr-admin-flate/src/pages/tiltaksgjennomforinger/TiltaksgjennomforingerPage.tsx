@@ -9,15 +9,15 @@ import { HeaderBanner } from "../../layouts/HeaderBanner";
 export function TiltaksgjennomforingerPage() {
   return (
     <>
-      <ErrorBoundary FallbackComponent={ErrorFallback}>
-        <HeaderBanner heading="Oversikt over tiltaksgjennomføringer" />
-        <MainContainer>
-          <ContainerLayoutOversikt>
-            <Tiltaksgjennomforingfilter />
+      <HeaderBanner heading="Oversikt over tiltaksgjennomføringer" />
+      <MainContainer>
+        <ContainerLayoutOversikt>
+          <Tiltaksgjennomforingfilter />
+          <ErrorBoundary FallbackComponent={ErrorFallback}>
             <TiltaksgjennomforingsTabell />
-          </ContainerLayoutOversikt>
-        </MainContainer>
-      </ErrorBoundary>
+          </ErrorBoundary>
+        </ContainerLayoutOversikt>
+      </MainContainer>
     </>
   );
 }

@@ -9,15 +9,15 @@ import { HeaderBanner } from "../../layouts/HeaderBanner";
 export function TiltakstyperPage() {
   return (
     <>
-      <ErrorBoundary FallbackComponent={ErrorFallback}>
-        <HeaderBanner heading="Oversikt over tiltakstyper" />
-        <MainContainer>
-          <ContainerLayoutOversikt>
-            <Tiltakstypefilter />
+      <HeaderBanner heading="Oversikt over tiltakstyper" />
+      <MainContainer>
+        <ContainerLayoutOversikt>
+          <Tiltakstypefilter />
+          <ErrorBoundary FallbackComponent={ErrorFallback}>
             <TiltakstypeTabell />
-          </ContainerLayoutOversikt>
-        </MainContainer>
-      </ErrorBoundary>
+          </ErrorBoundary>
+        </ContainerLayoutOversikt>
+      </MainContainer>
     </>
   );
 }
