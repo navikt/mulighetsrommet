@@ -37,6 +37,7 @@ module.exports = {
     "cypress/no-async-tests": "error",
     "cypress/no-pause": "error",
     "react/react-in-jsx-scope": "off",
+    "no-console": "warn",
   },
   settings: {
     react: {
