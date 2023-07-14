@@ -9,16 +9,20 @@ import { ErrorFallback } from "../../main";
 
 export function TiltakstyperPage() {
   return (
-    <MainContainer>
-      <ContainerLayoutOversikt>
-        <Heading level="2" size="large" className={styles.header_wrapper}>
-          Oversikt over tiltakstyper
-        </Heading>
-        <Tiltakstypefilter />
-        <ErrorBoundary FallbackComponent={ErrorFallback}>
-          <TiltakstypeTabell />
-        </ErrorBoundary>
-      </ContainerLayoutOversikt>
-    </MainContainer>
+    <>
+      <ErrorBoundary FallbackComponent={ErrorFallback}>
+        <div className={styles.header_container}>
+          <Heading level="2" size="large" className={styles.header_wrapper}>
+            Oversikt over tiltakstyper
+          </Heading>
+        </div>
+        <MainContainer>
+          <ContainerLayoutOversikt>
+            <Tiltakstypefilter />
+            <TiltakstypeTabell />
+          </ContainerLayoutOversikt>
+        </MainContainer>
+      </ErrorBoundary>
+    </>
   );
 }

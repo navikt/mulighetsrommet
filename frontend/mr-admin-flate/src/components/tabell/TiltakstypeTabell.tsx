@@ -27,7 +27,7 @@ export const TiltakstypeTabell = () => {
     return <Laster size="xlarge" tekst="Laster tiltakstyper..." />;
   }
 
-  if (tiltakstyper.length === 0) {
+  if (tiltakstyper.length > 0) {
     return <Alert variant="info">Fant ingen tiltakstyper</Alert>;
   }
 

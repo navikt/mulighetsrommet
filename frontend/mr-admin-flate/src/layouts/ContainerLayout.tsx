@@ -6,7 +6,7 @@ interface Props {
 }
 
 export function ContainerLayoutOversikt({ children }: Props) {
-  return <div className={styles.container_layout_tabell}>{children}</div>;
+  return <div className={styles.container_layout_oversikt}>{children}</div>;
 }
 
 export function ContainerLayoutDetaljer({ children }: Props) {

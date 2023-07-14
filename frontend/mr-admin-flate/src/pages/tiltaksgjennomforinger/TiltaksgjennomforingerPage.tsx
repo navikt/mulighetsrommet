@@ -9,16 +9,20 @@ import { ErrorFallback } from "../../main";
 
 export function TiltaksgjennomforingerPage() {
   return (
-    <MainContainer>
-      <ContainerLayoutOversikt>
-        <Heading level="2" size="large" className={styles.header_wrapper}>
-          Oversikt over tiltaksgjennomføringer
-        </Heading>
-        <Tiltaksgjennomforingfilter />
-        <ErrorBoundary FallbackComponent={ErrorFallback}>
-        <TiltaksgjennomforingsTabell />
-        </ErrorBoundary>
-      </ContainerLayoutOversikt>
-    </MainContainer>
+    <>
+      <ErrorBoundary FallbackComponent={ErrorFallback}>
+        <div className={styles.header_container}>
+          <Heading level="2" size="large" className={styles.header_wrapper}>
+            Oversikt over tiltaksgjennomføringer
+          </Heading>
+        </div>
+        <MainContainer>
+          <ContainerLayoutOversikt>
+            <Tiltaksgjennomforingfilter />
+            <TiltaksgjennomforingsTabell />
+          </ContainerLayoutOversikt>
+        </MainContainer>
+      </ErrorBoundary>
+    </>
   );
 }
