@@ -34,7 +34,6 @@ export function AvbrytAvtale({ onAvbryt }: Props) {
     }
   }, [mutation]);
 
-  console.log(avtale);
   if (avtale?.avtalestatus === Avtalestatus.AVSLUTTET) {
     // Trenger ikke avbryt en avtale som allerede er avsluttet
     return null;
