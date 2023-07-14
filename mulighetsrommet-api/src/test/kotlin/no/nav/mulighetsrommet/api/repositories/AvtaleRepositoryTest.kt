@@ -928,4 +928,20 @@ class AvtaleRepositoryTest : FunSpec({
         avtaleRepository.upsertArenaAvtale(avtale).shouldBeRight()
         avtaleRepository.get(avtale.id).shouldBeRight(avtaleDto)
     }
+
+    context("Avbryt avtale") {
+        avtaleFixture.runBeforeTests()
+        val avtale = avtaleFixture.createAvtaleForTiltakstype(id = UUID.randomUUID(), startDato = LocalDate.of(2023, 1, 7), sluttDato = LocalDate.of(2099, 1, 1))
+        avtaleFixture.upsertAvtaler(listOf(avtale))
+
+        val avtaler = AvtaleRepository(database.db)
+
+        avtaler.get(avtale.id).shouldBeRight().should {
+            it?.avtalestatus shouldBe Avtalestatus.Aktiv
+        }
+        avtaler.avbrytAvtale(avtale.id)
+        avtaler.get(avtale.id).shouldBeRight().should {
+            it?.avtalestatus shouldBe Avtalestatus.Avbrutt
+        }
+    }
 })

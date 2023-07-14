@@ -131,4 +131,110 @@ class AvtaleServiceTest : FunSpec({
             avtaleService.delete(avtale.id, currentDate = currentDate).shouldBeRight()
         }
     }
+
+    context("Avbryte avtale") {
+        val avtaleRepository = AvtaleRepository(database.db)
+        val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
+
+        val avtaleService = AvtaleService(
+            avtaler = avtaleRepository,
+            tiltaksgjennomforinger = tiltaksgjennomforinger,
+            virksomhetService = virksomhetService,
+        )
+
+        test("Man skal ikke få avbryte dersom avtalen ikke finnes") {
+            val avtale = avtaleFixture.createAvtaleForTiltakstype(navn = "Avtale som eksisterer")
+            val avtaleIdSomIkkeFinnes = "3c9f3d26-50ec-45a7-a7b2-c2d8a3653945".toUUID()
+            avtaleFixture.upsertAvtaler(listOf(avtale))
+
+            avtaleService.avbrytAvtale(avtaleIdSomIkkeFinnes).shouldBeLeft().should {
+                it.status shouldBe HttpStatusCode.NotFound
+            }
+        }
+
+        test("Man skal ikke få avbryte, men få en melding dersom opphav for avtalen ikke er admin-flate") {
+            val currentDate = LocalDate.of(2023, 6, 1)
+            val avtale = avtaleFixture.createAvtaleForTiltakstype(
+                navn = "Avtale som eksisterer",
+                startDato = LocalDate.of(2023, 6, 1),
+                sluttDato = LocalDate.of(2023, 7, 1),
+                opphav = ArenaMigrering.Opphav.ARENA,
+            )
+            avtaleFixture.upsertAvtaler(listOf(avtale))
+
+            avtaleService.avbrytAvtale(avtale.id, currentDate = currentDate).shouldBeLeft().should {
+                it.status shouldBe HttpStatusCode.BadRequest
+                it.message shouldBe "Avtalen har opprinnelse fra Arena og kan ikke bli avbrutt fra admin-flate."
+            }
+        }
+
+        test("Man skal ikke få avbryte, men få en melding dersom avtalen allerede er avsluttet") {
+            val currentDate = LocalDate.of(2023, 7, 1)
+            val avtale = avtaleFixture.createAvtaleForTiltakstype(
+                navn = "Avtale som eksisterer",
+                startDato = LocalDate.of(2023, 5, 1),
+                sluttDato = LocalDate.of(2023, 6, 1),
+                opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
+            )
+            avtaleFixture.upsertAvtaler(listOf(avtale))
+
+            avtaleService.avbrytAvtale(avtale.id, currentDate = currentDate).shouldBeLeft().should {
+                it.status shouldBe HttpStatusCode.BadRequest
+                it.message shouldBe "Avtalen er allerede avsluttet og kan derfor ikke avbrytes."
+            }
+        }
+
+        test("Man skal ikke få avbryte, men få en melding dersom det finnes gjennomføringer koblet til avtalen") {
+            val currentDate = LocalDate.of(2023, 6, 1)
+            val avtale = avtaleFixture.createAvtaleForTiltakstype(
+                navn = "Avtale som eksisterer",
+                startDato = LocalDate.of(2024, 5, 17),
+                sluttDato = LocalDate.of(2025, 7, 1),
+            )
+            val avtaleSomErUinteressant = avtaleFixture.createAvtaleForTiltakstype(
+                navn = "Avtale som vi ikke bryr oss om",
+                startDato = LocalDate.of(2024, 5, 17),
+                sluttDato = LocalDate.of(2025, 7, 1),
+            )
+            avtaleFixture.upsertAvtaler(listOf(avtale, avtaleSomErUinteressant))
+            val oppfolging = TiltaksgjennomforingFixtures.Oppfolging1.copy(
+                avtaleId = avtale.id,
+                tiltakstypeId = avtaleFixture.tiltakstypeId,
+                startDato = LocalDate.of(2023, 5, 1),
+                sluttDato = null,
+            )
+            val arbeidstrening = TiltaksgjennomforingFixtures.Arbeidstrening1.copy(
+                avtaleId = avtale.id,
+                tiltakstypeId = avtaleFixture.tiltakstypeId,
+                startDato = LocalDate.of(2023, 5, 1),
+                sluttDato = null,
+            )
+            val oppfolging2 = TiltaksgjennomforingFixtures.Oppfolging2.copy(
+                avtaleId = avtaleSomErUinteressant.id,
+                tiltakstypeId = avtaleFixture.tiltakstypeId,
+                startDato = LocalDate.of(2023, 5, 1),
+                sluttDato = null,
+            )
+            tiltaksgjennomforinger.upsert(oppfolging).shouldBeRight()
+            tiltaksgjennomforinger.upsert(arbeidstrening).shouldBeRight()
+            tiltaksgjennomforinger.upsert(oppfolging2).shouldBeRight()
+
+            avtaleService.avbrytAvtale(avtale.id, currentDate = currentDate).shouldBeLeft().should {
+                it.status shouldBe HttpStatusCode.BadRequest
+                it.message shouldBe "Avtalen har 2 tiltaksgjennomføringer koblet til seg. Du må frikoble gjennomføringene før du kan avbryte avtalen."
+            }
+        }
+
+        test("Skal få avbryte avtale hvis alle sjekkene er ok") {
+            val currentDate = LocalDate.of(2023, 6, 1)
+
+            val avtale = avtaleFixture.createAvtaleForTiltakstype(
+                startDato = LocalDate.of(2023, 7, 1),
+                sluttDato = LocalDate.of(2024, 7, 1),
+            )
+            avtaleRepository.upsert(avtale).right()
+
+            avtaleService.avbrytAvtale(avtale.id, currentDate = currentDate).shouldBeRight()
+        }
+    }
 })

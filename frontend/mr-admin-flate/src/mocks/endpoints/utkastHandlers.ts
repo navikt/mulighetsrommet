@@ -24,25 +24,23 @@ export const utkastHandlers = [
           utkastData: { ...data.utkastData },
         };
         mockUtkast[lagretUtkastIndex] = payload;
-        console.log("Upserted", mockUtkast);
       } else {
         mockUtkast.push(data);
-        console.log("Pushed", data);
       }
 
       return res(
         ctx.status(200),
         ctx.delay(),
-        ctx.json<Utkast>({ ...payload })
+        ctx.json<Utkast>({ ...payload }),
       );
-    }
+    },
   ),
 
   rest.get<Utkast, any, any>(
     "*/api/v1/internal/utkast/:id",
     async (req, res, ctx) => {
       return res(ctx.status(200), ctx.delay(), ctx.json(mockUtkast));
-    }
+    },
   ),
   rest.delete<Utkast, any, any>(
     "*/api/v1/internal/utkast/:id",
@@ -50,12 +48,12 @@ export const utkastHandlers = [
       const { id } = req.params;
       const updated = mockUtkast.filter((ut) => ut.id !== id);
       return res(ctx.status(200), ctx.delay(), ctx.json(updated));
-    }
+    },
   ),
   rest.get<Utkast, any, any>(
     "*/api/v1/internal/utkast/mine",
     async (req, res, ctx) => {
       return res(ctx.status(200), ctx.delay(), ctx.json(mockUtkast));
-    }
+    },
   ),
 ];

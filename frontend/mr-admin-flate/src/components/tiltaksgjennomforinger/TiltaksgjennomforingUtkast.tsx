@@ -8,14 +8,12 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAvtale } from "../../api/avtaler/useAvtale";
 import { useMineUtkast } from "../../api/utkast/useMineUtkast";
-import { useGetAvtaleIdFromUrl } from "../../hooks/useGetAvtaleIdFromUrl";
 import { Laster } from "../laster/Laster";
 import { OpprettTiltaksgjennomforingModal } from "../modal/OpprettTiltaksgjennomforingModal";
 import { UtkastKort } from "../utkast/Utkastkort";
 import styles from "./TiltaksgjennomforingUtkast.module.scss";
 
 export function TiltaksgjennomforingUtkast() {
-  const avtaleId = useGetAvtaleIdFromUrl();
   const {
     data = [],
     isLoading,
@@ -23,9 +21,9 @@ export function TiltaksgjennomforingUtkast() {
     refetch,
   } = useMineUtkast(Utkast.type.TILTAKSGJENNOMFORING);
   const [utkastForRedigering, setUtkastForRedigering] = useState<Utkast | null>(
-    null
+    null,
   );
-  const { data: avtale } = useAvtale(avtaleId);
+  const { data: avtale } = useAvtale();
   const navigate = useNavigate();
 
   if (error as ApiError) {

@@ -568,4 +568,16 @@ class AvtaleRepository(private val db: Database) {
             ansvarlige = ansvarlige,
         )
     }
+
+    fun avbrytAvtale(avtaleId: UUID): QueryResult<Unit> = query {
+        logger.info("Avbryter avtale med id: '$avtaleId'")
+        @Language("PostgreSQL")
+        val patchAvslutningsstatusQuery = """
+            update avtale
+            set avslutningsstatus = 'AVBRUTT'
+            where id::uuid = ?
+        """.trimIndent()
+
+        queryOf(patchAvslutningsstatusQuery, avtaleId).asUpdate.let { db.run(it) }
+    }
 }
