@@ -1,12 +1,13 @@
 import { Alert, Tabs } from "@navikt/ds-react";
 import { useAtom } from "jotai";
-import { Link, useParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { AvtaleTabs, avtaleFilter } from "../../api/atoms";
 import { useAvtale } from "../../api/avtaler/useAvtale";
 import { useFeatureToggles } from "../../api/features/feature-toggles";
 import { Header } from "../../components/detaljside/Header";
 import { Laster } from "../../components/laster/Laster";
 import { Avtalestatus } from "../../components/statuselementer/Avtalestatus";
+import { useGetAvtaleIdFromUrl } from "../../hooks/useGetAvtaleIdFromUrl";
 import { ContainerLayoutDetaljer } from "../../layouts/ContainerLayout";
 import commonStyles from "../Page.module.scss";
 import { Avtaleinfo } from "./Avtaleinfo";
@@ -14,11 +15,11 @@ import { NokkeltallForAvtale } from "./nokkeltall/NokkeltallForAvtale";
 import { TiltaksgjennomforingerForAvtale } from "./tiltaksgjennomforinger/TiltaksgjennomforingerForAvtale";
 
 export function DetaljerAvtalePage() {
-  const { avtaleId } = useParams<{ avtaleId: string }>();
+  const avtaleId = useGetAvtaleIdFromUrl();
   if (!avtaleId) {
     throw new Error("Fant ingen avtaleId i url");
   }
-  const { data: avtale, isLoading } = useAvtale(avtaleId);
+  const { data: avtale, isLoading } = useAvtale();
   const [filter, setFilter] = useAtom(avtaleFilter);
   const { data } = useFeatureToggles();
 

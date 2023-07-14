@@ -1,19 +1,18 @@
+import { faro } from "@grafana/faro-web-sdk";
 import { Alert, BodyShort, Button, HelpText } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { Tiltaksgjennomforing } from "mulighetsrommet-api-client";
+import { useState } from "react";
+import { Link } from "react-router-dom";
 import { tiltaksgjennomforingTilAvtaleFilter } from "../../api/atoms";
 import { useAvtale } from "../../api/avtaler/useAvtale";
 import { useAdminTiltaksgjennomforinger } from "../../api/tiltaksgjennomforing/useAdminTiltaksgjennomforinger";
 import { useAdminTiltaksgjennomforingerForAvtale } from "../../api/tiltaksgjennomforing/useAdminTiltaksgjennomforingerForAvtale";
 import { useMutateKobleGjennomforingForAvtale } from "../../api/tiltaksgjennomforing/useMutateKobleGjennomforingForAvtale";
-import { useGetAvtaleIdFromUrl } from "../../hooks/useGetAvtaleIdFromUrl";
+import { arenaKodeErAftEllerVta } from "../../utils/tiltakskoder";
 import { Laster } from "../laster/Laster";
 import { Tiltaksgjennomforingstatus } from "../statuselementer/Tiltaksgjennomforingstatus";
 import styles from "./Tiltaksgjennomforingsliste.module.scss";
-import { useState } from "react";
-import { Link } from "react-router-dom";
-import { arenaKodeErAftEllerVta } from "../../utils/tiltakskoder";
-import { faro } from "@grafana/faro-web-sdk";
 
 export const Tiltaksgjennomforingsliste = () => {
   const {
@@ -26,8 +25,7 @@ export const Tiltaksgjennomforingsliste = () => {
     useAdminTiltaksgjennomforinger();
   const { mutate, isLoading: isLoadingKobleGjennomforingForAvtale } =
     useMutateKobleGjennomforingForAvtale();
-  const avtaleId = useGetAvtaleIdFromUrl();
-  const { data: avtale } = useAvtale(avtaleId);
+  const { data: avtale } = useAvtale();
   const [error, setError] = useState("");
 
   const [filter] = useAtom(tiltaksgjennomforingTilAvtaleFilter);

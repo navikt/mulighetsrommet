@@ -37,6 +37,7 @@ import { SelectOption, SokeSelect } from "../skjema/SokeSelect";
 import { VirksomhetKontaktpersoner } from "../virksomhet/VirksomhetKontaktpersoner";
 import { AvtaleSchema, inferredAvtaleSchema } from "./AvtaleSchema";
 import styles from "./OpprettAvtaleContainer.module.scss";
+import { AvbrytAvtale } from "./AvbrytAvtale";
 
 type UtkastData = Pick<
   Avtale,
@@ -401,6 +402,7 @@ export function OpprettAvtaleContainer({
                     label: "Sluttdato",
                   }}
                 />
+                {redigeringsModus ? <AvbrytAvtale onAvbryt={onClose} /> : null}
               </FormGroup>
               <Separator />
               <FormGroup>

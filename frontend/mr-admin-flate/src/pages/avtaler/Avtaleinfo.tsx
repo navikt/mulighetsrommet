@@ -1,7 +1,6 @@
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
 import { Alert, Button, Heading } from "@navikt/ds-react";
 import { useState } from "react";
-import { useParams } from "react-router-dom";
 import { useAvtale } from "../../api/avtaler/useAvtale";
 import { useFeatureToggles } from "../../api/features/feature-toggles";
 import OpprettAvtaleModal from "../../components/avtaler/OpprettAvtaleModal";
@@ -14,6 +13,7 @@ import {
 } from "../../components/detaljside/Metadata";
 import { VisHvisVerdi } from "../../components/detaljside/VisHvisVerdi";
 import { Laster } from "../../components/laster/Laster";
+import { useGetAvtaleIdFromUrl } from "../../hooks/useGetAvtaleIdFromUrl";
 import {
   avtaletypeTilTekst,
   formaterDato,
@@ -22,11 +22,11 @@ import {
 import styles from "../DetaljerInfo.module.scss";
 
 export function Avtaleinfo() {
-  const { avtaleId } = useParams<{ avtaleId: string }>();
+  const avtaleId = useGetAvtaleIdFromUrl();
   if (!avtaleId) {
     throw new Error("Fant ingen avtaleId i url");
   }
-  const { data: avtale, isLoading, error, refetch } = useAvtale(avtaleId);
+  const { data: avtale, isLoading, error, refetch } = useAvtale();
   const { data: features } = useFeatureToggles();
   const [redigerModal, setRedigerModal] = useState(false);
   const [slettModal, setSlettModal] = useState(false);
@@ -188,9 +188,7 @@ export function Avtaleinfo() {
                   <a href={`mailto:${avtale.leverandorKontaktperson?.epost}`}>
                     {avtale.leverandorKontaktperson?.epost}
                   </a>
-                  {
-                    <label>{avtale.leverandorKontaktperson?.beskrivelse}</label>
-                  }
+                  {<label>{avtale.leverandorKontaktperson?.beskrivelse}</label>}
                 </div>
               }
             />

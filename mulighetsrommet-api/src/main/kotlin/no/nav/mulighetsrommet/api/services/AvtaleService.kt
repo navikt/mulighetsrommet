@@ -3,7 +3,6 @@ package no.nav.mulighetsrommet.api.services
 import arrow.core.Either
 import arrow.core.flatMap
 import arrow.core.getOrElse
-import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleNokkeltallDto
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
@@ -16,6 +15,7 @@ import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.AvtaleAdminDto
 import no.nav.mulighetsrommet.domain.dto.AvtaleNotificationDto
+import no.nav.mulighetsrommet.domain.dto.Avtalestatus
 import java.time.LocalDate
 import java.util.*
 
@@ -59,7 +59,7 @@ class AvtaleService(
             )
                 .getOrElse { Pair(0, emptyList()) }
         if (gjennomforingerForAvtale.first > 0) {
-            return Either.Left(BadRequest(message = "Avtalen har ${gjennomforingerForAvtale.first} ${if (gjennomforingerForAvtale.first > 1) "tiltaksgjennomføringer" else "tiltaksgjennomføring"} koblet til seg. Du må frikoble gjennomføringene før du kan slette avtalen."))
+            return Either.Left(BadRequest(message = "Avtalen har ${gjennomforingerForAvtale.first} ${if (gjennomforingerForAvtale.first > 1) "tiltaksgjennomføringer" else "tiltaksgjennomføring"} koblet til seg. Du må frikoble ${if (gjennomforingerForAvtale.first > 1) "gjennomføringene" else "gjennomføringen"} før du kan slette avtalen."))
         }
 
         return avtaler
@@ -98,11 +98,33 @@ class AvtaleService(
     fun getAllAvtalerSomNarmerSegSluttdato(): List<AvtaleNotificationDto> {
         return avtaler.getAllAvtalerSomNarmerSegSluttdato()
     }
-}
 
-@Serializable
-data class SletteAvtaleDto(
-    val statusCode: Int,
-    val message: String,
-    val cause: String? = null,
-)
+    fun avbrytAvtale(avtaleId: UUID, currentDate: LocalDate = LocalDate.now()): StatusResponse<Boolean> {
+        val avtaleForAvbryting = avtaler.get(avtaleId).getOrNull()
+            ?: return Either.Left(NotFound("Fant ikke avtale for avbrytelse med id '$avtaleId'"))
+
+        if (avtaleForAvbryting.opphav == ArenaMigrering.Opphav.ARENA) {
+            return Either.Left(BadRequest(message = "Avtalen har opprinnelse fra Arena og kan ikke bli avbrutt fra admin-flate."))
+        }
+
+        if (avtaleForAvbryting.avtalestatus === Avtalestatus.Avsluttet) {
+            return Either.Left(BadRequest(message = "Avtalen er allerede avsluttet og kan derfor ikke avbrytes."))
+        }
+
+        val gjennomforingerForAvtale =
+            tiltaksgjennomforinger.getAll(
+                filter = AdminTiltaksgjennomforingFilter(
+                    avtaleId = avtaleForAvbryting.id,
+                    dagensDato = currentDate,
+                ),
+            )
+                .getOrElse { Pair(0, emptyList()) }
+        if (gjennomforingerForAvtale.first > 0) {
+            return Either.Left(BadRequest(message = "Avtalen har ${gjennomforingerForAvtale.first} ${if (gjennomforingerForAvtale.first > 1) "tiltaksgjennomføringer" else "tiltaksgjennomføring"} koblet til seg. Du må frikoble ${if (gjennomforingerForAvtale.first > 1) "gjennomføringene" else "gjennomføringen"} før du kan avbryte avtalen."))
+        }
+
+        return avtaler.avbrytAvtale(avtaleId).map {
+            true
+        }.mapLeft { ServerError("Internal server error when 'Avbryt avtale'") }
+    }
+}

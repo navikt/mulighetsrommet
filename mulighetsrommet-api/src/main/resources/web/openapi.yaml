@@ -67,6 +67,23 @@ paths:
               schema:
                 type: string
 
+  /api/v1/internal/avtaler/{id}/avbryt:
+    parameters:
+      - $ref: "#/components/parameters/ID"
+    put:
+      tags:
+        - Avtaler
+      operationId: avbrytAvtale
+      responses:
+        200:
+          description: True if avtale was avbrutt, false otherwise
+        404:
+          description: "The specified avtale was not found and could not be avbrutt"
+          content:
+            application/json:
+              schema:
+                type: string
+
   /api/v1/internal/avtaler/{id}/nokkeltall:
     parameters:
       - $ref: "#/components/parameters/ID"
@@ -1324,6 +1341,10 @@ components:
             type: string
         opphav:
           $ref: "#/components/schemas/Opphav"
+        avslutningsstatus:
+          $ref: "#/components/schemas/AvtaleAvslutningsstatus"
+          nullable: true
+          required: false
       required:
         - tiltakstypeId
         - navn
@@ -1368,6 +1389,14 @@ components:
         - Aktiv
         - Avsluttet
         - Avbrutt
+
+    AvtaleAvslutningsstatus:
+      type: string
+      enum:
+        - AVLYST
+        - AVBRUTT
+        - AVSLUTTET
+        - IKKE_AVSLUTTET
 
     NotificationStatus:
       type: string

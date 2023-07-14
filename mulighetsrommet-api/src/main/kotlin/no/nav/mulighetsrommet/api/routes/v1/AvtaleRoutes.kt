@@ -101,6 +101,11 @@ fun Route.avtaleRoutes() {
             call.respondWithStatusResponse(result)
         }
 
+        put("{id}/avbryt") {
+            val id = call.parameters.getOrFail<UUID>("id")
+            call.respondWithStatusResponse(avtaler.avbrytAvtale(id))
+        }
+
         delete("{id}") {
             val id = call.parameters.getOrFail<UUID>("id")
             call.respondWithStatusResponse(avtaler.delete(id))
@@ -131,6 +136,7 @@ data class AvtaleRequest(
     val prisOgBetalingsinformasjon: String? = null,
     val navEnheter: List<String> = emptyList(),
     val opphav: ArenaMigrering.Opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
+    val avslutningsstatus: Avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
 ) {
     fun toDbo(): StatusResponse<AvtaleDbo> {
         if (!startDato.isBefore(sluttDato)) {
@@ -151,7 +157,7 @@ data class AvtaleRequest(
                 arenaAnsvarligEnhet = null,
                 navRegion = navRegion,
                 avtaletype = avtaletype,
-                avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
+                avslutningsstatus = avslutningsstatus,
                 antallPlasser = null,
                 url = url,
                 ansvarlige = listOf(ansvarlig),

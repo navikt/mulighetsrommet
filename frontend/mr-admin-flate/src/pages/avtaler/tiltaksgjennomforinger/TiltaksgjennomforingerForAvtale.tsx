@@ -1,18 +1,16 @@
+import { Tabs } from "@navikt/ds-react";
+import { ErrorBoundary } from "react-error-boundary";
 import { useAvtale } from "../../../api/avtaler/useAvtale";
+import { useFeatureToggles } from "../../../api/features/feature-toggles";
 import { Tiltaksgjennomforingfilter } from "../../../components/filter/Tiltaksgjennomforingfilter";
 import { TiltaksgjennomforingsTabell } from "../../../components/tabell/TiltaksgjennomforingsTabell";
-import { useGetAvtaleIdFromUrl } from "../../../hooks/useGetAvtaleIdFromUrl";
-import { Tabs } from "@navikt/ds-react";
 import { TiltaksgjennomforingUtkast } from "../../../components/tiltaksgjennomforinger/TiltaksgjennomforingUtkast";
-import { useFeatureToggles } from "../../../api/features/feature-toggles";
-import { ErrorBoundary } from "react-error-boundary";
 import { ErrorFallback } from "../../../main";
 
 export function TiltaksgjennomforingerForAvtale() {
-  const avtaleId = useGetAvtaleIdFromUrl();
   const { data: features } = useFeatureToggles();
 
-  const { data: avtale } = useAvtale(avtaleId);
+  const { data: avtale } = useAvtale();
 
   return (
     <>

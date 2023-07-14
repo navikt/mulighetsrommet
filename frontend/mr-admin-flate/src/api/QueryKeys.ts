@@ -17,11 +17,11 @@ export const QueryKeys = {
     status: Tiltakstypestatus | "",
     kategori?: Tiltakstypekategori | "",
     sortering?: SorteringTiltakstyper,
-    page?: number
+    page?: number,
   ) => [sokestreng, status, kategori, sortering, page, "tiltakstyper"] as const,
   tiltaksgjennomforinger: (
     tiltaksgjennomforingfilter: Tiltaksgjennomforingfilter,
-    page?: number
+    page?: number,
   ) =>
     [
       { ...tiltaksgjennomforingfilter },
