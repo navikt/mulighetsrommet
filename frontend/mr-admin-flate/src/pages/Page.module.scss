@@ -1,6 +1,10 @@
 .header_container {
   background-color: white;
 
+  &_border {
+    border-bottom: solid 1px var(--a-border-divider);
+  }
+
   .header_wrapper {
     max-width: 1920px;
     margin: 0 auto;
