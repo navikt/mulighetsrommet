@@ -41,9 +41,10 @@ export const avtaleFinnesIkke = () => (
   </>
 );
 
-export const avtalenErAvsluttet = () => (
+export const avtalenErAvsluttet = (erRedigeringsmodus: boolean) => (
   <>
-    Kan ikke opprette gjennomføring fordi avtalens sluttdato har passert.
+    Kan ikke {erRedigeringsmodus ? "redigere" : "opprette"} gjennomføring fordi
+    avtalens sluttdato har passert.
     <br />
     <br />
     Ta <a href={porten}>kontakt</a> i Porten dersom du trenger mer hjelp.
