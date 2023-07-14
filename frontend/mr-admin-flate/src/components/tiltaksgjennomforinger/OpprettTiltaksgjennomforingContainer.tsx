@@ -342,7 +342,7 @@ export const OpprettTiltaksgjennomforingContainer = (
   }
 
   if (avtale && avtale?.sluttDato && new Date(avtale.sluttDato) < new Date()) {
-    setError(avtalenErAvsluttet());
+    setError(avtalenErAvsluttet(redigeringsModus));
   }
 
   if (avtale && !avtale?.navRegion) {
