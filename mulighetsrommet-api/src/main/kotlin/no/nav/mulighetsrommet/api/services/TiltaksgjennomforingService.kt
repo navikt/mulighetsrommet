@@ -30,7 +30,10 @@ class TiltaksgjennomforingService(
 ) {
     private val log: Logger = LoggerFactory.getLogger(javaClass)
 
-    suspend fun upsert(dbo: TiltaksgjennomforingDbo, currentDate: LocalDate = LocalDate.now()): StatusResponse<TiltaksgjennomforingAdminDto> {
+    suspend fun upsert(
+        dbo: TiltaksgjennomforingDbo,
+        currentDate: LocalDate = LocalDate.now(),
+    ): StatusResponse<TiltaksgjennomforingAdminDto> {
         if (dbo.avtaleId == null) {
             return Either.Left(BadRequest("Avtale id kan ikke være null"))
         }
@@ -118,5 +121,21 @@ class TiltaksgjennomforingService(
 
     fun getLokasjonerForBrukersEnhet(enhetsId: String, fylkeId: String): List<String> {
         return tiltaksgjennomforingRepository.getLokasjonerForEnhet(enhetsId, fylkeId)
+    }
+
+    fun avbrytGjennomforing(gjennomforingId: UUID): StatusResponse<Int> {
+        val gjennomforing = tiltaksgjennomforingRepository.get(gjennomforingId).getOrNull()
+            ?: return Either.Left(NotFound("Fant ikke gjennomføringen med id $gjennomforingId"))
+
+        if (gjennomforing.opphav == ArenaMigrering.Opphav.ARENA) {
+            return Either.Left(BadRequest(message = "Gjennomføringen har opprinnelse fra Arena og kan ikke bli avbrutt i admin-flate."))
+        }
+
+        val antallDeltagere = deltakerRepository.getAll(gjennomforingId).size
+        if (antallDeltagere > 0) {
+            return Either.Left(BadRequest(message = "Gjennomføringen kan ikke avbrytes fordi den har $antallDeltagere deltager(e) koblet til seg."))
+        }
+        return tiltaksgjennomforingRepository.avbrytGjennomforing(gjennomforingId)
+            .mapLeft { error -> ServerError("Internal server error when 'Avbryt gjennomføring': Error: $error") }
     }
 }
