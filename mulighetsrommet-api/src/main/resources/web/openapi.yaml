@@ -326,6 +326,27 @@ paths:
               schema:
                 type: string
 
+  /api/v1/internal/tiltaksgjennomforinger/{id}/avbryt:
+    parameters:
+      - $ref: "#/components/parameters/ID"
+    get:
+      tags:
+        - Tiltaksgjennomforinger
+      operationId: avbrytTiltaksgjennomforing
+      responses:
+        200:
+          description: The specified tiltaksgjennomføring you want to 'Avbryte'
+          content:
+            application/json:
+              schema:
+                type: string
+        404:
+          description: "Mangler eller ugyldig id."
+          content:
+            application/json:
+              schema:
+                type: string
+
   /api/v1/internal/tiltaksgjennomforinger/{id}/nokkeltall:
     get:
       tags:

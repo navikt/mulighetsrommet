@@ -46,7 +46,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
         )
     }
 
-    context("Slette gjennomforing") {
+    context("Slette gjennomføring") {
         val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
         val deltagerRepository = DeltakerRepository(database.db)
         val avtaleRepository = AvtaleRepository(database.db)
@@ -58,7 +58,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             virksomhetService,
         )
 
-        test("Man skal ikke få slette dersom avtalen ikke finnes") {
+        test("Man skal ikke få slette dersom gjennomføringen ikke finnes") {
             tiltaksgjennomforingService.delete(UUID.randomUUID()).shouldBeLeft().should {
                 it.status shouldBe HttpStatusCode.NotFound
             }
@@ -102,7 +102,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             }
         }
 
-        test("Man skal ikke få slette dersom det finnes deltagere koblet til avtalen") {
+        test("Man skal ikke få slette dersom det finnes deltagere koblet til gjennomføringen") {
             val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1.copy(
                 avtaleId = avtaleId,
                 opphav = ArenaMigrering.Opphav.ARENA,
@@ -123,6 +123,63 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             tiltaksgjennomforingRepository.upsert(gjennomforing)
 
             tiltaksgjennomforingService.delete(gjennomforing.id, currentDate = LocalDate.of(2023, 6, 16))
+                .shouldBeRight().should {
+                    it shouldBe 1
+                }
+        }
+    }
+
+    context("Avbryte gjennomføring") {
+        val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
+        val deltagerRepository = DeltakerRepository(database.db)
+        val avtaleRepository = AvtaleRepository(database.db)
+        val tiltaksgjennomforingService = TiltaksgjennomforingService(
+            tiltaksgjennomforingRepository,
+            deltagerRepository,
+            avtaleRepository,
+            sanityTiltaksgjennomforingService,
+            virksomhetService,
+        )
+
+        test("Man skal ikke få avbryte dersom gjennomføringen ikke finnes") {
+            tiltaksgjennomforingService.delete(UUID.randomUUID()).shouldBeLeft().should {
+                it.status shouldBe HttpStatusCode.NotFound
+            }
+        }
+
+        test("Man skal ikke få avbryte dersom opphav for gjennomføringen ikke er admin-flate") {
+            val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1.copy(
+                avtaleId = avtaleId,
+                opphav = ArenaMigrering.Opphav.ARENA,
+            )
+            tiltaksgjennomforingRepository.upsert(gjennomforing).shouldBeRight()
+
+            tiltaksgjennomforingService.avbrytGjennomforing(gjennomforing.id).shouldBeLeft().should {
+                it.status shouldBe HttpStatusCode.BadRequest
+            }
+        }
+
+        test("Man skal ikke få avbryte dersom det finnes deltagere koblet til gjennomføringen") {
+            val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1.copy(
+                avtaleId = avtaleId,
+                opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
+            )
+            tiltaksgjennomforingRepository.upsert(gjennomforing).shouldBeRight()
+
+            val deltager = DeltakerFixture.Deltaker.copy(tiltaksgjennomforingId = gjennomforing.id)
+            deltagerRepository.upsert(deltager)
+
+            tiltaksgjennomforingService.avbrytGjennomforing(gjennomforing.id).shouldBeLeft().should {
+                it.status shouldBe HttpStatusCode.BadRequest
+            }
+        }
+
+        test("Skal få avbryte tiltaksgjennomføring hvis alle sjekkene er ok") {
+            val gjennomforing =
+                TiltaksgjennomforingFixtures.Oppfolging1.copy(avtaleId = avtaleId, startDato = LocalDate.of(2023, 7, 1))
+            tiltaksgjennomforingRepository.upsert(gjennomforing)
+
+            tiltaksgjennomforingService.avbrytGjennomforing(gjennomforing.id)
                 .shouldBeRight().should {
                     it shouldBe 1
                 }

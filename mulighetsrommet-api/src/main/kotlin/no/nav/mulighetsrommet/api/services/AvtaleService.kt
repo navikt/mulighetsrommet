@@ -125,6 +125,6 @@ class AvtaleService(
 
         return avtaler.avbrytAvtale(avtaleId).map {
             true
-        }.mapLeft { ServerError("Internal server error when 'Avbryt avtale'") }
+        }.mapLeft { error -> ServerError("Internal server error when 'Avbryt avtale'. Error: $error") }
     }
 }

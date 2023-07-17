@@ -547,7 +547,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
     )
 
     private fun Row.toTiltaksgjennomforingAdminDto(): TiltaksgjennomforingAdminDto {
-        val ansvarlige = Json.decodeFromString<List<TiltaksgjennomforingAdminDto.Ansvarlig?>>(string("ansvarlige")).filterNotNull()
+        val ansvarlige =
+            Json.decodeFromString<List<TiltaksgjennomforingAdminDto.Ansvarlig?>>(string("ansvarlige")).filterNotNull()
         val navEnheter = Json.decodeFromString<List<NavEnhet?>>(string("nav_enheter")).filterNotNull()
         val kontaktpersoner =
             Json.decodeFromString<List<TiltaksgjennomforingKontaktperson?>>(string("kontaktpersoner")).filterNotNull()
@@ -730,5 +731,16 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             .map { it.stringOrNull("lokasjon_arrangor") }
             .asList
             .let { db.run(it) }
+    }
+
+    fun avbrytGjennomforing(gjennomforingId: UUID): QueryResult<Int> = query {
+        @Language("PostgreSQL")
+        val query = """
+            update tiltaksgjennomforing
+            set avslutningsstatus = 'AVBRUTT'
+            where id = ?::uuid
+        """.trimIndent()
+
+        queryOf(query, gjennomforingId).asUpdate.let { db.run(it) }
     }
 }
