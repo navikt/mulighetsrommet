@@ -1,14 +1,16 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { mulighetsrommetClient } from "../clients";
 
-export function useAvbrytAvtale() {
+export function useAvbrytTiltaksgjennomforing() {
   const client = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => {
-      return mulighetsrommetClient.avtaler.avbrytAvtale({ id });
+      return mulighetsrommetClient.tiltaksgjennomforinger.avbrytTiltaksgjennomforing(
+        { id },
+      );
     },
     onSuccess: () => {
-      client.invalidateQueries({ queryKey: ["avtale"] });
+      client.invalidateQueries({ queryKey: ["tiltaksgjennomforing"] });
     },
   });
 }

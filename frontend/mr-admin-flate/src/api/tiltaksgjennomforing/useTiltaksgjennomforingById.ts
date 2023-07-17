@@ -8,13 +8,12 @@ export function useTiltaksgjennomforingById() {
     tiltaksgjennomforingId: string;
   }>();
 
-  if (!tiltaksgjennomforingId) {
-    throw new Error("Fant ingen tiltaksgjennomførings-id i URL");
-  }
-
-  return useQuery(QueryKeys.tiltaksgjennomforing(tiltaksgjennomforingId), () =>
-    mulighetsrommetClient.tiltaksgjennomforinger.getTiltaksgjennomforing({
-      id: tiltaksgjennomforingId,
-    })
+  return useQuery(
+    QueryKeys.tiltaksgjennomforing(tiltaksgjennomforingId),
+    () =>
+      mulighetsrommetClient.tiltaksgjennomforinger.getTiltaksgjennomforing({
+        id: tiltaksgjennomforingId!!,
+      }),
+    { enabled: !!tiltaksgjennomforingId },
   );
 }

@@ -12,14 +12,14 @@ export const tiltaksgjennomforingHandlers = [
     "*/api/v1/internal/tiltaksgjennomforinger",
     (req, res, ctx) => {
       return res(ctx.status(200), ctx.json(mockTiltaksgjennomforinger));
-    }
+    },
   ),
 
   rest.put<any, any, Tiltaksgjennomforing>(
     "*/api/v1/internal/tiltaksgjennomforinger",
     (req, res, ctx) => {
       return res(ctx.status(200), ctx.json(mockTiltaksgjennomforinger.data[0]));
-    }
+    },
   ),
 
   rest.get<any, any, Tiltaksgjennomforing[]>(
@@ -32,11 +32,11 @@ export const tiltaksgjennomforingHandlers = [
       }
 
       const gjennomforing = mockTiltaksgjennomforinger.data.filter((tg) =>
-        tg.tiltaksnummer.toString().includes(tiltaksnummer)
+        tg.tiltaksnummer.toString().includes(tiltaksnummer),
       );
 
       return res(ctx.status(200), ctx.json(gjennomforing));
-    }
+    },
   ),
   rest.get<any, { id: string }, TiltaksgjennomforingNokkeltall | undefined>(
     "*/api/v1/internal/tiltaksgjennomforinger/:id/nokkeltall",
@@ -44,9 +44,9 @@ export const tiltaksgjennomforingHandlers = [
       return res(
         ctx.status(200),
 
-        ctx.json(mockTiltaksgjennomforingerNokkeltall)
+        ctx.json(mockTiltaksgjennomforingerNokkeltall),
       );
-    }
+    },
   ),
 
   rest.get<any, { id: string }, Tiltaksgjennomforing | undefined>(
@@ -55,14 +55,21 @@ export const tiltaksgjennomforingHandlers = [
       const { id } = req.params;
 
       const gjennomforing = mockTiltaksgjennomforinger.data.find(
-        (gj) => gj.id === id
+        (gj) => gj.id === id,
       );
       if (!gjennomforing) {
         return res(ctx.status(404), ctx.json(undefined));
       }
 
       return res(ctx.status(200), ctx.json(gjennomforing));
-    }
+    },
+  ),
+
+  rest.put<any, { id: string }, Number>(
+    "*/api/v1/internal/tiltaksgjennomforinger/:id/avbryt",
+    (req, res, ctx) => {
+      return res(ctx.status(200), ctx.json(1));
+    },
   ),
 
   rest.get<any, { id: string }, PaginertTiltaksgjennomforing | undefined>(
@@ -71,7 +78,7 @@ export const tiltaksgjennomforingHandlers = [
       const { id } = req.params as { id: string };
 
       const gjennomforinger = mockTiltaksgjennomforinger.data.filter(
-        (gj) => gj.tiltakstype.id === id
+        (gj) => gj.tiltakstype.id === id,
       );
       if (!gjennomforinger) {
         return res(ctx.status(404), ctx.json(undefined));
@@ -87,9 +94,9 @@ export const tiltaksgjennomforingHandlers = [
             pageSize: 50,
           },
           data: gjennomforinger,
-        })
+        }),
       );
-    }
+    },
   ),
 
   rest.get<any, { tiltakskode: string }, PaginertTiltaksgjennomforing>(
@@ -97,7 +104,7 @@ export const tiltaksgjennomforingHandlers = [
     (req, res, ctx) => {
       const { tiltakskode } = req.params;
       const gjennomforinger = mockTiltaksgjennomforinger.data.filter(
-        (gj) => gj.tiltakstype.arenaKode === tiltakskode
+        (gj) => gj.tiltakstype.arenaKode === tiltakskode,
       );
       return res(
         ctx.status(200),
@@ -109,9 +116,9 @@ export const tiltaksgjennomforingHandlers = [
             pageSize: 50,
           },
           data: gjennomforinger,
-        })
+        }),
       );
-    }
+    },
   ),
 
   rest.get<any, { enhet: string }, PaginertTiltaksgjennomforing>(
@@ -119,7 +126,7 @@ export const tiltaksgjennomforingHandlers = [
     (req, res, ctx) => {
       const { enhet } = req.params;
       const gjennomforinger = mockTiltaksgjennomforinger.data.filter(
-        (gj) => gj.arenaAnsvarligEnhet === enhet
+        (gj) => gj.arenaAnsvarligEnhet === enhet,
       );
       return res(
         ctx.status(200),
@@ -131,8 +138,8 @@ export const tiltaksgjennomforingHandlers = [
             pageSize: 50,
           },
           data: gjennomforinger,
-        })
+        }),
       );
-    }
+    },
   ),
 ];

@@ -329,7 +329,7 @@ paths:
   /api/v1/internal/tiltaksgjennomforinger/{id}/avbryt:
     parameters:
       - $ref: "#/components/parameters/ID"
-    get:
+    put:
       tags:
         - Tiltaksgjennomforinger
       operationId: avbrytTiltaksgjennomforing
