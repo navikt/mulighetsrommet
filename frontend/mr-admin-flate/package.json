@@ -50,7 +50,7 @@
     "@types/debounce": "^1.2.1",
     "@types/react": "^18.2.14",
     "@rollup/plugin-terser": "^0.4.3",
-    "@types/react-dom": "^18.2.6",
+    "@types/react-dom": "^18.2.7",
     "@typescript-eslint/eslint-plugin": "^5.61.0",
     "@typescript-eslint/parser": "^5.62.0",
     "@vitejs/plugin-react": "^4.0.3",
