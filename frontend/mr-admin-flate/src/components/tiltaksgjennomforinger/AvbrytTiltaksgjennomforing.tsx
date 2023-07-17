@@ -57,7 +57,7 @@ export function AvbrytTiltaksgjennomforing({ onAvbryt }: Props) {
         <BodyLong>
           Hvis gjennomføringens startdato er passert kan du avbryte
           gjennomføringen. Den vil da bli satt som avbrutt i systemet. Du kan
-          ikke avbryte en gjennomføringer som har deltakere tilknyttet seg.
+          ikke avbryte en gjennomføring som har deltakere tilknyttet seg.
         </BodyLong>
       </ReadMore>
 
