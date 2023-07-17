@@ -54,6 +54,7 @@ fun Application.configure(config: AppConfig) {
             virksomhetRoutes()
             notificationRoutes()
             utkastRoutes()
+            avtaleNotatRoutes()
         }
 
         authenticate(AuthProvider.AzureAdDefaultApp.name) {

@@ -155,6 +155,7 @@ private fun repositories() = module {
     single { KafkaConsumerRepository(get()) }
     single { MetrikkRepository(get()) }
     single { UtkastRepository(get()) }
+    single { AvtaleNotatRepository(get()) }
 }
 
 private fun services(appConfig: AppConfig) = module {
@@ -264,6 +265,7 @@ private fun services(appConfig: AppConfig) = module {
     single { ExcelService() }
     single { MetrikkService(get()) }
     single { UtkastService(get()) }
+    single { AvtaleNotatService(get()) }
 }
 
 private fun tasks(config: TaskConfig) = module {
