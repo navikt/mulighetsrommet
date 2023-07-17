@@ -403,7 +403,7 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
             {(filter.navRegion ||
               filter.navEnhet ||
               filter.tiltakstype ||
-              filter.status ||
+              filter.status !== defaultTiltaksgjennomforingfilter.status ||
               filter.arrangorOrgnr) && (
               <Button
                 type="button"
@@ -412,10 +412,9 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
                 onClick={() => {
                   setFilter({
                     ...defaultTiltaksgjennomforingfilter,
-                    status: "",
                     avtale: filter.avtale,
                   });
-                  setValue("status", "");
+                  setValue("status", defaultTiltaksgjennomforingfilter.status);
                   setValue("navEnhet", defaultTiltaksgjennomforingfilter.navEnhet);
                   setValue(
                     "navRegion",

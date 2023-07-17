@@ -288,7 +288,7 @@ export function Avtalefilter(props: Props) {
                 }}
               />
             )}
-            {(filter.status ||
+            {(filter.status !== defaultAvtaleFilter.status ||
               filter.navRegion ||
               filter.tiltakstype ||
               filter.leverandor_orgnr) && (
@@ -297,8 +297,8 @@ export function Avtalefilter(props: Props) {
                 size="small"
                 variant="tertiary"
                 onClick={() => {
-                  setFilter({ ...defaultAvtaleFilter, status: "" });
-                  setValue("status", "");
+                  setFilter(defaultAvtaleFilter);
+                  setValue("status", defaultAvtaleFilter.status);
                   setValue("navRegion", defaultAvtaleFilter.navRegion);
                   setValue("tiltakstype", defaultAvtaleFilter.tiltakstype);
                   setValue(

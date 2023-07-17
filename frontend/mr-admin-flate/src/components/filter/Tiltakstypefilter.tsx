@@ -114,16 +114,17 @@ export function Tiltakstypefilter() {
                 }}
               />
             }
-            { (filter.status || filter.kategori) &&
+            { (filter.status !== defaultTiltakstypeFilter.status ||
+               filter.kategori !== defaultTiltakstypeFilter.kategori) &&
               <Button
                 style={{ height: "16px", maxHeight: "16px" }}
                 type="button"
                 size="small"
                 variant="tertiary"
                 onClick={() => {
-                  setFilter({ status: "", kategori: "" });
-                  setValue('status', "");
-                  setValue('kategori', "");
+                  setFilter(defaultTiltakstypeFilter);
+                  setValue('status', defaultTiltakstypeFilter.status);
+                  setValue('kategori', defaultTiltakstypeFilter.kategori);
                 }}
               >
                 Tilbakestill filter
