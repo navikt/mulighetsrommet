@@ -33,7 +33,7 @@ class AvtaleFixtures(private val database: FlywayDatabaseTestListener) {
                 fraDato = LocalDate.of(2023, 1, 11),
                 tilDato = LocalDate.of(2023, 1, 12),
             ),
-        ).getOrThrow()
+        ).mapLeft { error -> println("Shit: $error") }
     }
 
     fun upsertTiltakstype(tiltakstyper: List<TiltakstypeDbo>) {

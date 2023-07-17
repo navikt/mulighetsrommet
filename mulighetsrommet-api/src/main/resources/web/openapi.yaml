@@ -194,6 +194,92 @@ paths:
                 type: string
                 format: binary
 
+  /api/v1/internal/avtale-notater:
+    get:
+      tags:
+        - AvtaleNotater
+      operationId: getNotaterForAvtale
+      parameters:
+        - in: query
+          name: avtaleId
+          required: true
+          schema:
+            type: string
+          description: ID for avtalen med tilhørende notater
+      responses:
+        200:
+          description: Liste med notater for tilhørende avtale
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AvtaleNotat"
+
+  /api/v1/internal/avtale-notater/mine:
+    get:
+      tags:
+        - AvtaleNotater
+      operationId: getMineAvtaleNotater
+      parameters:
+        - in: query
+          name: avtaleId
+          required: true
+          schema:
+            type: string
+          description: ID for avtalen med tilhørende notater
+      responses:
+        200:
+          description: Liste med dine notater for tilhørende avtale
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AvtaleNotat"
+
+    put:
+      tags:
+        - AvtaleNotater
+      operationId: lagreAvtalenotat
+      requestBody:
+        description: Avtalenotat som skal lagres
+        content:
+          application/json:
+            schema:
+              type:
+                $ref: "#/components/schemas/AvtaleNotatRequest"
+      responses:
+        200:
+          description: Liste med notater for tilhørende avtale
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AvtaleNotat"
+
+
+  /api/v1/internal/avtale-notater/{id}:
+    delete:
+      tags:
+        - AvtaleNotater
+      operationId: slettAvtalenotat
+      parameters:
+        - in: query
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID for avtalen som skal slettes
+      responses:
+        200:
+          description:
+          content:
+            application/json:
+              schema:
+                type: string
+
   /api/v1/internal/tiltaksgjennomforinger:
     get:
       tags:
@@ -2447,3 +2533,52 @@ components:
         - id
         - utkastData
         - type
+
+    AvtaleNotat:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        avtaleId:
+          type: string
+          format: uuid
+        createdAt:
+          type: string
+          format: date
+        updatedAt:
+          type: string
+          format: date
+        opprettetAv:
+          type: object
+          properties:
+            navIdent:
+              type: string
+            navn:
+              type: string
+              nullable: true
+        innhold:
+          type: string
+      required:
+        - id
+        - avtaleId
+        - createdAt
+        - updatedAt
+        - opprettetAv
+        - innhold
+
+    AvtaleNotatRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        avtaleId:
+          type: string
+          format: uuid
+        innhold:
+          type: string
+      required:
+        - id
+        - avtaleId
+        - innhold

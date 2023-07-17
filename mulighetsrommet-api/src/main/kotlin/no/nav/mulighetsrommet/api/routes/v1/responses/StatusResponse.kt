@@ -19,6 +19,8 @@ class BadRequest(message: String? = null) : StatusResponseError(HttpStatusCode.B
 
 class NotFound(message: String? = null) : StatusResponseError(HttpStatusCode.NotFound, message)
 
+class Forbidden(message: String? = null) : StatusResponseError(HttpStatusCode.Forbidden, message)
+
 suspend inline fun <reified T : Any> ApplicationCall.respondWithStatusResponse(result: StatusResponse<T>) {
     result
         .onRight { message ->
