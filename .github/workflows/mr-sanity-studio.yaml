@@ -23,8 +23,7 @@ jobs:
   bygg-studio:
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
-    permissions:
-      id-token: write
+    permissions: write-all
     steps:
       - uses: actions/checkout@v3
       - name: Setup frontend og installer avhengigheter
