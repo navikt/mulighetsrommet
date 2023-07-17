@@ -46,7 +46,10 @@ export function TiltaksgjennomforingInfo() {
   const [redigerModal, setRedigerModal] = useState(false);
 
   const handleRediger = () => setRedigerModal(true);
-  const lukkRedigerModal = () => setRedigerModal(false);
+  const lukkRedigerModal = () => {
+    refetch();
+    setRedigerModal(false);
+  };
   const handleSlett = () => setSlettModal(true);
   const lukkSlettModal = () => setSlettModal(false);
 

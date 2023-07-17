@@ -34,37 +34,26 @@ export const QueryKeys = {
   ansatt: () => ["ansatt"] as const,
   tiltaksgjennomforingerByEnhet: (enhet: string = "enhet", page?: number) =>
     [enhet, page, "tiltaksgjennomforinger"] as const,
-  avtaler: (avtaleFilter: AvtaleFilterProps, page: number) => [
-    { ...avtaleFilter },
-    page,
-    "avtaler",
-  ],
+  avtaler: (avtaleFilter: AvtaleFilterProps, page: number) =>
+    [{ ...avtaleFilter }, page, "avtaler"] as const,
   avtale: (avtaleId: string) => [avtaleId, "avtale"],
   nokkeltallAvtale: (avtaleId: string) => [avtaleId, "nokkeltallAvtale"],
   enheter: () => ["enheter"],
   virksomheter: (til: VirksomhetTil) => [til, "virksomheter"],
   antallUlesteNotifikasjoner: () => ["antallUlesteNotifikasjoner"],
-  notifikasjonerForAnsatt: (status: NotificationStatus) => [
-    "notifikasjoner",
-    status,
-  ],
+  notifikasjonerForAnsatt: (status: NotificationStatus) =>
+    ["notifikasjoner", status] as const,
   virksomhetSok: (sokestreng: string) => ["virksomhetSok", sokestreng],
   virksomhetOppslag: (orgnr: string) => ["virksometOppslag", orgnr],
-  tiltaksgjennomforingerTilAvtale: (filter: string) => [
-    "tiltaksgjennomforinger",
-    filter,
-  ],
+  tiltaksgjennomforingerTilAvtale: (filter: string) =>
+    ["tiltaksgjennomforinger", filter] as const,
   kontaktpersoner: () => ["nav-kontaktpersoner"],
   betabrukere: () => ["nav-betabrukere"],
-  virksomhetKontaktpersoner: (orgnr: string) => [
-    orgnr,
-    "virksomhet-kontaktpersoner",
-  ],
-  alleUtkast: (avtaleId: string = "") => ["utkast", "alleUtkast", avtaleId],
-  mineUtkast: (avtaleId?: string, utkasttype?: Utkast.type) => [
-    "utkast",
-    avtaleId,
-    utkasttype,
-  ],
-  utkast: (utkastId: string) => ["utkast", utkastId],
+  virksomhetKontaktpersoner: (orgnr: string) =>
+    [orgnr, "virksomhet-kontaktpersoner"] as const,
+  alleUtkast: (avtaleId: string = "") =>
+    ["utkast", "alleUtkast", avtaleId] as const,
+  mineUtkast: (avtaleId?: string, utkasttype?: Utkast.type) =>
+    ["utkast", avtaleId, utkasttype] as const,
+  utkast: (utkastId: string) => ["utkast", utkastId] as const,
 };

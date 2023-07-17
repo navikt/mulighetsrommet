@@ -26,7 +26,7 @@ const OpprettAvtaleModal = ({
       {
         status: Tiltakstypestatus.AKTIV,
       },
-      1
+      1,
     );
   const { data: ansatt, isLoading: isLoadingAnsatt } = useHentAnsatt();
   const { data: enheter, isLoading: isLoadingEnheter } = useAlleEnheter();

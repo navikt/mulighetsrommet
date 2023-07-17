@@ -56,6 +56,7 @@ import {
   TiltaksgjennomforingSchema,
   inferredTiltaksgjennomforingSchema,
 } from "./OpprettTiltaksgjennomforingSchema";
+import { AvbrytTiltaksgjennomforing } from "./AvbrytTiltaksgjennomforing";
 
 interface OpprettTiltaksgjennomforingContainerProps {
   onClose: () => void;
@@ -502,6 +503,9 @@ export const OpprettTiltaksgjennomforingContainer = (
                   label="Antall plasser"
                   {...register("antallPlasser", { valueAsNumber: true })}
                 />
+                {!arenaOpphav && redigeringsModus ? (
+                  <AvbrytTiltaksgjennomforing onAvbryt={onClose} />
+                ) : null}
               </FormGroup>
               <Separator />
               <FormGroup>

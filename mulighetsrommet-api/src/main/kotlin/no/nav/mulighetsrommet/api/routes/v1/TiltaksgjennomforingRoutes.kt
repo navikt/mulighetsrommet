@@ -74,7 +74,7 @@ fun Route.tiltaksgjennomforingRoutes() {
 
         put("{id}/avbryt") {
             val gjennomforingId = call.parameters.getOrFail<UUID>("id")
-            call.respond(tiltaksgjennomforingService.avbrytGjennomforing(gjennomforingId))
+            call.respondWithStatusResponse(tiltaksgjennomforingService.avbrytGjennomforing(gjennomforingId))
         }
 
         get("{id}/nokkeltall") {
