@@ -10,7 +10,7 @@
     margin: 0 auto;
     padding-left: 1rem;
     padding-top: 1rem;
-    padding-bottom: .5rem;
+    padding-bottom: 0.5rem;
   }
 
   &_tabs {
@@ -24,12 +24,11 @@
       box-shadow: none;
     }
   }
-
-  .header {
-    display: flex;
-    gap: 1rem;
-    align-items: flex-start;
-  }
+}
+.header {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
 }
 
 .list {
