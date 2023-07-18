@@ -14,8 +14,7 @@ import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingNotatDbo
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.routes.v1.responses.StatusResponse
 import no.nav.mulighetsrommet.api.routes.v1.responses.respondWithStatusResponse
-import no.nav.mulighetsrommet.api.services.AvtaleNotatService
-import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingNotatService
+import no.nav.mulighetsrommet.api.services.NotatServiceImpl
 import no.nav.mulighetsrommet.api.utils.getAvtaleNotatFilter
 import no.nav.mulighetsrommet.api.utils.getTiltaksgjennomforingNotatFlter
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
@@ -23,28 +22,27 @@ import org.koin.ktor.ext.inject
 import java.util.*
 
 fun Route.avtaleNotatRoutes() {
-    val avtaleNotatService: AvtaleNotatService by inject()
-    val tiltaksgjennomforingNotatService: TiltaksgjennomforingNotatService by inject()
+    val notatService: NotatServiceImpl by inject()
     val logger = application.environment.log
 
     route("/api/v1/internal/notater") {
         get("avtaler") {
             val filter = getAvtaleNotatFilter()
-            val result = avtaleNotatService.getAll(filter = filter)
+            val result = notatService.getAllAvtaleNotater(filter = filter)
 
             call.respondWithStatusResponse(result)
         }
 
         get("avtaler/mine") {
             val filter = getAvtaleNotatFilter()
-            val result = avtaleNotatService.getAll(filter = filter.copy(opprettetAv = getNavIdent()))
+            val result = notatService.getAllAvtaleNotater(filter = filter.copy(opprettetAv = getNavIdent()))
 
             call.respondWithStatusResponse(result)
         }
         get("avtaler/{id}") {
             val id = call.parameters.getOrFail<UUID>("id")
 
-            avtaleNotatService.get(id)
+            notatService.getAvtaleNotat(id)
                 .onRight {
                     if (it == null) {
                         return@get call.respondText(
@@ -64,7 +62,7 @@ fun Route.avtaleNotatRoutes() {
             val avtaleRequest = call.receive<AvtaleNotatRequest>()
 
             val result = avtaleRequest.copy(opprettetAv = getNavIdent()).toDbo()
-                .flatMap { avtaleNotatService.upsert(it) }
+                .flatMap { notatService.upsertAvtaleNotat(it) }
                 .onLeft { logger.error(it.message) }
 
             call.respondWithStatusResponse(result)
@@ -73,26 +71,26 @@ fun Route.avtaleNotatRoutes() {
         delete("avtaler/{id}") {
             val id = call.parameters.getOrFail<UUID>("id")
             val navIdent = getNavIdent()
-            call.respondWithStatusResponse(avtaleNotatService.delete(id, navIdent))
+            call.respondWithStatusResponse(notatService.deleteAvtaleNotat(id, navIdent))
         }
 
         get("tiltaksgjennomforinger") {
             val filter = getTiltaksgjennomforingNotatFlter()
-            val result = tiltaksgjennomforingNotatService.getAll(filter = filter)
+            val result = notatService.getAllTiltaksgjennomforingNotater(filter = filter)
 
             call.respondWithStatusResponse(result)
         }
 
         get("tiltaksgjennomforinger/mine") {
             val filter = getTiltaksgjennomforingNotatFlter()
-            val result = tiltaksgjennomforingNotatService.getAll(filter = filter.copy(opprettetAv = getNavIdent()))
+            val result = notatService.getAllTiltaksgjennomforingNotater(filter = filter.copy(opprettetAv = getNavIdent()))
 
             call.respondWithStatusResponse(result)
         }
         get("tiltaksgjennomforinger/{id}") {
             val id = call.parameters.getOrFail<UUID>("id")
 
-            tiltaksgjennomforingNotatService.get(id)
+            notatService.getTiltaksgjennomforingNotat(id)
                 .onRight {
                     if (it == null) {
                         return@get call.respondText(
@@ -112,7 +110,7 @@ fun Route.avtaleNotatRoutes() {
             val tiltaksgjennomforingNotatRequest = call.receive<TiltaksgjennomforingNotatRequest>()
 
             val result = tiltaksgjennomforingNotatRequest.copy(opprettetAv = getNavIdent()).toDbo()
-                .flatMap { tiltaksgjennomforingNotatService.upsert(it) }
+                .flatMap { notatService.upsertTiltaksgjennomforingNotat((it)) }
                 .onLeft { logger.error(it.message) }
 
             call.respondWithStatusResponse(result)
@@ -121,7 +119,7 @@ fun Route.avtaleNotatRoutes() {
         delete("tiltaksgjennomforinger/{id}") {
             val id = call.parameters.getOrFail<UUID>("id")
             val navIdent = getNavIdent()
-            call.respondWithStatusResponse(tiltaksgjennomforingNotatService.delete(id, navIdent))
+            call.respondWithStatusResponse(notatService.deleteTiltaksgjennomforingNotat(id, navIdent))
         }
     }
 }
