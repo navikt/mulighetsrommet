@@ -156,6 +156,7 @@ private fun repositories() = module {
     single { MetrikkRepository(get()) }
     single { UtkastRepository(get()) }
     single { AvtaleNotatRepository(get()) }
+    single { TiltaksgjennomforingNotatRepository(get()) }
 }
 
 private fun services(appConfig: AppConfig) = module {
@@ -266,6 +267,7 @@ private fun services(appConfig: AppConfig) = module {
     single { MetrikkService(get()) }
     single { UtkastService(get()) }
     single { AvtaleNotatService(get()) }
+    single { TiltaksgjennomforingNotatService(get()) }
 }
 
 private fun tasks(config: TaskConfig) = module {

@@ -7,11 +7,11 @@ import java.time.LocalDateTime
 import java.util.*
 
 @Serializable
-data class AvtaleNotatDto(
+data class TiltaksgjennomforingNotatDto(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     @Serializable(with = UUIDSerializer::class)
-    val avtaleId: UUID,
+    val tiltaksgjennomforingId: UUID,
     @Serializable(with = LocalDateTimeSerializer::class)
     val createdAt: LocalDateTime,
     @Serializable(with = LocalDateTimeSerializer::class)
