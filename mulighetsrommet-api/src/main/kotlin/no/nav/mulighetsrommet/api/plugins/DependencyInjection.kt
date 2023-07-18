@@ -266,8 +266,7 @@ private fun services(appConfig: AppConfig) = module {
     single { ExcelService() }
     single { MetrikkService(get()) }
     single { UtkastService(get()) }
-    single { AvtaleNotatService(get()) }
-    single { TiltaksgjennomforingNotatService(get()) }
+    single { NotatServiceImpl(get(), get()) }
 }
 
 private fun tasks(config: TaskConfig) = module {
