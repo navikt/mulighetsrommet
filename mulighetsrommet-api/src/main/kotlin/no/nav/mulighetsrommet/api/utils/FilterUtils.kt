@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.utils
 
 import io.ktor.server.application.*
+import io.ktor.server.plugins.*
 import io.ktor.server.util.*
 import io.ktor.util.pipeline.*
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
@@ -81,6 +82,11 @@ data class UtkastFilter(
     val type: Utkasttype,
     val opprettetAv: String?,
     val avtaleId: UUID?,
+)
+
+data class AvtaleNotatFilter(
+    val avtaleId: UUID,
+    val opprettetAv: String?,
 )
 
 fun <T : Any> PipelineContext<T, ApplicationCall>.getVirksomhetFilter(): VirksomhetFilter {
@@ -209,5 +215,15 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getUtkastFilter(): UtkastFilte
         type = type,
         opprettetAv = null,
         avtaleId = avtaleId,
+    )
+}
+
+fun <T : Any> PipelineContext<T, ApplicationCall>.getAvtaleNotatFilter(): AvtaleNotatFilter {
+    val avtaleId = call.request.queryParameters["avtaleId"]?.let { it.toUUID() }
+        ?: throw BadRequestException(message = "avtaleId er ikke oppgitt ved henting av notater for avtale")
+
+    return AvtaleNotatFilter(
+        avtaleId = avtaleId,
+        opprettetAv = null,
     )
 }
