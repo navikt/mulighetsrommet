@@ -206,6 +206,14 @@ paths:
           schema:
             type: string
           description: ID for avtalen med tilhørende notater
+        - in: query
+          name: order
+          schema:
+            type: string
+            enum:
+              - dato-created-asc
+              - dato-created-desc
+          description: Rekkefølge på notater
       responses:
         200:
           description: Liste med notater for tilhørende avtale
@@ -228,6 +236,14 @@ paths:
           schema:
             type: string
           description: ID for avtalen med tilhørende notater
+        - in: query
+          name: order
+          schema:
+            type: string
+            enum:
+              - dato-created-asc
+              - dato-created-desc
+          description: Rekkefølge på notater
       responses:
         200:
           description: Liste med dine notater for tilhørende avtale
@@ -288,6 +304,14 @@ paths:
           schema:
             type: string
           description: ID for tiltaksgjennomføringen med tilhørende notater
+        - in: query
+          name: order
+          schema:
+            type: string
+            enum:
+              - dato-created-asc
+              - dato-created-desc
+          description: Rekkefølge på notater
       responses:
         200:
           description: Liste med notater for tilhørende tiltaksgjennomføring
@@ -310,6 +334,14 @@ paths:
           schema:
             type: string
           description: ID for tiltaksgjennomføringen med tilhørende notater
+        - in: query
+          name: order
+          schema:
+            type: string
+            enum:
+              - dato-created-asc
+              - dato-created-desc
+          description: Rekkefølge på notater
       responses:
         200:
           description: Liste med dine notater for tilhørende tiltaksgjennomføring
