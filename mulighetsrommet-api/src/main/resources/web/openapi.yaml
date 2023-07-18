@@ -247,8 +247,7 @@ paths:
         content:
           application/json:
             schema:
-              type:
-                $ref: "#/components/schemas/AvtaleNotatRequest"
+              $ref: "#/components/schemas/AvtaleNotatRequest"
       responses:
         200:
           description: Liste med notater for tilhørende avtale
@@ -274,7 +273,7 @@ paths:
           description: ID for avtalen som skal slettes
       responses:
         200:
-          description:
+          description: 200 ok hvis avtalen ble slettet
           content:
             application/json:
               schema:
@@ -1450,8 +1449,6 @@ components:
           $ref: "#/components/schemas/Opphav"
         avslutningsstatus:
           $ref: "#/components/schemas/AvtaleAvslutningsstatus"
-          nullable: true
-          required: false
       required:
         - tiltakstypeId
         - navn
