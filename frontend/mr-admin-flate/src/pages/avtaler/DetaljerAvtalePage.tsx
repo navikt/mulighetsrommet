@@ -1,7 +1,7 @@
 import { Alert, Tabs } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { Link } from "react-router-dom";
-import { AvtaleTabs, avtaleFilter } from "../../api/atoms";
+import { avtaleFilter, AvtaleTabs } from "../../api/atoms";
 import { useAvtale } from "../../api/avtaler/useAvtale";
 import { useFeatureToggles } from "../../api/features/feature-toggles";
 import { Header } from "../../components/detaljside/Header";
@@ -13,6 +13,7 @@ import commonStyles from "../Page.module.scss";
 import { Avtaleinfo } from "./Avtaleinfo";
 import { NokkeltallForAvtale } from "./nokkeltall/NokkeltallForAvtale";
 import { TiltaksgjennomforingerForAvtale } from "./tiltaksgjennomforinger/TiltaksgjennomforingerForAvtale";
+import Notater from "../../components/notater/Notater";
 
 export function DetaljerAvtalePage() {
   const avtaleId = useGetAvtaleIdFromUrl();
@@ -58,6 +59,7 @@ export function DetaljerAvtalePage() {
       >
         <Tabs.List className={commonStyles.list}>
           <Tabs.Tab value="avtaleinfo" label="Avtaleinfo" />
+          <Tabs.Tab value="avtalenotater" label="Notater" />
           <Tabs.Tab
             data-testid="avtale-tiltaksgjennomforing-tab"
             value="tiltaksgjennomforinger"
@@ -72,11 +74,19 @@ export function DetaljerAvtalePage() {
             <Avtaleinfo />
           </ContainerLayoutDetaljer>
         </Tabs.Panel>
+
+        <Tabs.Panel value="avtalenotater">
+          <ContainerLayoutDetaljer>
+            <Notater />
+          </ContainerLayoutDetaljer>
+        </Tabs.Panel>
+
         <Tabs.Panel value="tiltaksgjennomforinger">
           <ContainerLayoutDetaljer>
             <TiltaksgjennomforingerForAvtale />
           </ContainerLayoutDetaljer>
         </Tabs.Panel>
+
         <Tabs.Panel value="nokkeltall">
           <ContainerLayoutDetaljer>
             <NokkeltallForAvtale />
