@@ -15,8 +15,7 @@ import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.routes.v1.responses.StatusResponse
 import no.nav.mulighetsrommet.api.routes.v1.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.services.NotatServiceImpl
-import no.nav.mulighetsrommet.api.utils.getAvtaleNotatFilter
-import no.nav.mulighetsrommet.api.utils.getTiltaksgjennomforingNotatFlter
+import no.nav.mulighetsrommet.api.utils.getNotatFilter
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
 import java.util.*
@@ -27,14 +26,14 @@ fun Route.avtaleNotatRoutes() {
 
     route("/api/v1/internal/notater") {
         get("avtaler") {
-            val filter = getAvtaleNotatFilter()
+            val filter = getNotatFilter()
             val result = notatService.getAllAvtaleNotater(filter = filter)
 
             call.respondWithStatusResponse(result)
         }
 
         get("avtaler/mine") {
-            val filter = getAvtaleNotatFilter()
+            val filter = getNotatFilter()
             val result = notatService.getAllAvtaleNotater(filter = filter.copy(opprettetAv = getNavIdent()))
 
             call.respondWithStatusResponse(result)
@@ -75,15 +74,14 @@ fun Route.avtaleNotatRoutes() {
         }
 
         get("tiltaksgjennomforinger") {
-            val filter = getTiltaksgjennomforingNotatFlter()
-            val result = notatService.getAllTiltaksgjennomforingNotater(filter = filter)
+            val result = notatService.getAllTiltaksgjennomforingNotater(filter = getNotatFilter())
 
             call.respondWithStatusResponse(result)
         }
 
         get("tiltaksgjennomforinger/mine") {
-            val filter = getTiltaksgjennomforingNotatFlter()
-            val result = notatService.getAllTiltaksgjennomforingNotater(filter = filter.copy(opprettetAv = getNavIdent()))
+            val result =
+                notatService.getAllTiltaksgjennomforingNotater(filter = getNotatFilter().copy(opprettetAv = getNavIdent()))
 
             call.respondWithStatusResponse(result)
         }
@@ -102,7 +100,10 @@ fun Route.avtaleNotatRoutes() {
                 }
                 .onLeft {
                     log.error("$it")
-                    call.respond(HttpStatusCode.InternalServerError, "Kunne ikke hente notat for tiltaksgjennomføring med id: '$id'")
+                    call.respond(
+                        HttpStatusCode.InternalServerError,
+                        "Kunne ikke hente notat for tiltaksgjennomføring med id: '$id'",
+                    )
                 }
         }
 

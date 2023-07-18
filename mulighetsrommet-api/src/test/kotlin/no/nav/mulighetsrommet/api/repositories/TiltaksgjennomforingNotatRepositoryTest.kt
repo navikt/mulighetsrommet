@@ -10,7 +10,7 @@ import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
-import no.nav.mulighetsrommet.api.utils.TiltaksgjennomforingNotatFilter
+import no.nav.mulighetsrommet.api.utils.NotatFilter
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import java.util.*
 
@@ -79,7 +79,13 @@ class TiltaksgjennomforingNotatRepositoryTest : FunSpec({
             notater.upsert(notat2).shouldBeRight()
             notater.upsert(notat3).shouldBeRight()
 
-            notater.getAll(filter = TiltaksgjennomforingNotatFilter(tiltaksgjennomforingId = gjennomforing.id, opprettetAv = null)).shouldBeRight()
+            notater.getAll(
+                filter = NotatFilter(
+                    tiltaksgjennomforingId = gjennomforing.id,
+                    opprettetAv = null,
+                    avtaleId = UUID.randomUUID(),
+                ),
+            ).shouldBeRight()
                 .should { it.size shouldBe 3 }
 
             // Les notater
@@ -98,7 +104,13 @@ class TiltaksgjennomforingNotatRepositoryTest : FunSpec({
             notater.delete(notat1.id).shouldBeRight()
             notater.get(notat1.id).shouldBeRight(null)
 
-            notater.getAll(filter = TiltaksgjennomforingNotatFilter(tiltaksgjennomforingId = gjennomforing.id, opprettetAv = null)).shouldBeRight()
+            notater.getAll(
+                filter = NotatFilter(
+                    tiltaksgjennomforingId = gjennomforing.id,
+                    opprettetAv = null,
+                    avtaleId = UUID.randomUUID(),
+                ),
+            ).shouldBeRight()
                 .should { it.size shouldBe 2 }
         }
     }

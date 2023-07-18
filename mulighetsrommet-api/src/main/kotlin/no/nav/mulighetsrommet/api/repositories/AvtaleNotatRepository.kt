@@ -73,7 +73,7 @@ class AvtaleNotatRepository(private val db: Database) {
     }
 
     fun getAll(
-        filter: AvtaleNotatFilter,
+        filter: NotatFilter,
     ): QueryResult<List<AvtaleNotatDto>> = query {
         val parameters = mapOf(
             "avtaleId" to filter.avtaleId,
@@ -85,6 +85,12 @@ class AvtaleNotatRepository(private val db: Database) {
             filter.opprettetAv to "opprettet_av = :opprettetAv",
         )
 
+        val order = when (filter.sortering) {
+            "dato-sortering-asc" -> "created_at asc"
+            "dato-sortering-desc" -> "created_at desc"
+            else -> "created_at asc"
+        }
+
         @Language("PostgreSQL")
         val query = """
             select id,
@@ -95,7 +101,7 @@ class AvtaleNotatRepository(private val db: Database) {
             jsonb_build_object('navIdent', na.nav_ident, 'navn', concat(na.fornavn, ' ', na.etternavn)) as opprettetAv
             from avtale_notat an join nav_ansatt na on an.opprettet_av = na.nav_ident
             $where
-            order by created_at desc
+            order by $order
         """.trimIndent()
 
         queryOf(query, parameters)
