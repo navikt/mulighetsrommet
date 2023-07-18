@@ -116,7 +116,7 @@ fun Route.avtaleRoutes() {
 @Serializable
 data class AvtaleRequest(
     @Serializable(with = UUIDSerializer::class)
-    val id: UUID? = null,
+    val id: UUID,
     val navn: String,
     @Serializable(with = UUIDSerializer::class)
     val tiltakstypeId: UUID,
@@ -145,7 +145,7 @@ data class AvtaleRequest(
 
         return Either.Right(
             AvtaleDbo(
-                id = id ?: UUID.randomUUID(),
+                id = id,
                 navn = navn,
                 avtalenummer = avtalenummer,
                 tiltakstypeId = tiltakstypeId,
