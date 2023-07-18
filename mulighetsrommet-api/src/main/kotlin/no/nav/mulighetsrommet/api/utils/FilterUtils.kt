@@ -89,6 +89,11 @@ data class AvtaleNotatFilter(
     val opprettetAv: String?,
 )
 
+data class TiltaksgjennomforingNotatFilter(
+    val tiltaksgjennomforingId: UUID,
+    val opprettetAv: String?,
+)
+
 fun <T : Any> PipelineContext<T, ApplicationCall>.getVirksomhetFilter(): VirksomhetFilter {
     val til = call.request.queryParameters["til"]
     return VirksomhetFilter(
@@ -224,6 +229,16 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getAvtaleNotatFilter(): Avtale
 
     return AvtaleNotatFilter(
         avtaleId = avtaleId,
+        opprettetAv = null,
+    )
+}
+
+fun <T : Any> PipelineContext<T, ApplicationCall>.getTiltaksgjennomforingNotatFlter(): TiltaksgjennomforingNotatFilter {
+    val tiltaksgjennomforingId = call.request.queryParameters["tiltaksgjennomforingId"]?.let { it.toUUID() }
+        ?: throw BadRequestException(message = "tiltaksgjennomforingId er ikke oppgitt ved henting av notater for tiltaksgjennomføring")
+
+    return TiltaksgjennomforingNotatFilter(
+        tiltaksgjennomforingId = tiltaksgjennomforingId,
         opprettetAv = null,
     )
 }

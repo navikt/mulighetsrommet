@@ -194,7 +194,7 @@ paths:
                 type: string
                 format: binary
 
-  /api/v1/internal/avtale-notater:
+  /api/v1/internal/notater/avtaler:
     get:
       tags:
         - AvtaleNotater
@@ -216,7 +216,7 @@ paths:
                 items:
                   $ref: "#/components/schemas/AvtaleNotat"
 
-  /api/v1/internal/avtale-notater/mine:
+  /api/v1/internal/notater/avtaler/mine:
     get:
       tags:
         - AvtaleNotater
@@ -254,12 +254,9 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/AvtaleNotat"
+                $ref: "#/components/schemas/AvtaleNotat"
 
-
-  /api/v1/internal/avtale-notater/{id}:
+  /api/v1/internal/notater/avtaler/{id}:
     delete:
       tags:
         - AvtaleNotater
@@ -270,10 +267,93 @@ paths:
           required: true
           schema:
             type: string
-          description: ID for avtalen som skal slettes
+          description: ID for notatet som skal slettes
       responses:
         200:
-          description: 200 ok hvis avtalen ble slettet
+          description: 200 ok hvis notatet ble slettet
+          content:
+            application/json:
+              schema:
+                type: string
+
+  /api/v1/internal/notater/tiltaksgjennomforinger:
+    get:
+      tags:
+        - TiltaksgjennomforingNotater
+      operationId: getNotaterForTiltaksgjennomforing
+      parameters:
+        - in: query
+          name: tiltaksgjennomforingId
+          required: true
+          schema:
+            type: string
+          description: ID for tiltaksgjennomføringen med tilhørende notater
+      responses:
+        200:
+          description: Liste med notater for tilhørende tiltaksgjennomføring
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TiltaksgjennomforingNotat"
+
+  /api/v1/internal/notater/tiltaksgjennomforinger/mine:
+    get:
+      tags:
+        - TiltaksgjennomforingNotater
+      operationId: getMineTiltaksgjennomforingNotater
+      parameters:
+        - in: query
+          name: tiltaksgjennomforingId
+          required: true
+          schema:
+            type: string
+          description: ID for tiltaksgjennomføringen med tilhørende notater
+      responses:
+        200:
+          description: Liste med dine notater for tilhørende tiltaksgjennomføring
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TiltaksgjennomforingNotat"
+
+    put:
+      tags:
+        - TiltaksgjennomforingNotater
+      operationId: lagreTiltaksgjennomforingNotat
+      requestBody:
+        description: Notat for tiltaksgjennomføring som skal lagres
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TiltaksgjennomforingNotatRequest"
+      responses:
+        200:
+          description: Liste med notater for tilhørende avtale
+          content:
+            application/json:
+              schema:
+                  $ref: "#/components/schemas/AvtaleNotat"
+
+
+  /api/v1/internal/notater/tiltaksgjennomforinger/{id}:
+    delete:
+      tags:
+        - TiltaksgjennomforingNotater
+      operationId: slettTiltaksgjennomforingNotat
+      parameters:
+        - in: query
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID for notatet som skal slettes
+      responses:
+        200:
+          description: 200 ok hvis notatet ble slettet
           content:
             application/json:
               schema:
@@ -2578,4 +2658,53 @@ components:
       required:
         - id
         - avtaleId
+        - innhold
+
+    TiltaksgjennomforingNotat:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        tiltaksgjennomforingId:
+          type: string
+          format: uuid
+        createdAt:
+          type: string
+          format: date
+        updatedAt:
+          type: string
+          format: date
+        opprettetAv:
+          type: object
+          properties:
+            navIdent:
+              type: string
+            navn:
+              type: string
+              nullable: true
+        innhold:
+          type: string
+      required:
+        - id
+        - tiltaksgjennomforingId
+        - createdAt
+        - updatedAt
+        - opprettetAv
+        - innhold
+
+    TiltaksgjennomforingNotatRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        tiltaksgjennomforingId:
+          type: string
+          format: uuid
+        innhold:
+          type: string
+      required:
+        - id
+        - tiltaksgjennomforingId
         - innhold

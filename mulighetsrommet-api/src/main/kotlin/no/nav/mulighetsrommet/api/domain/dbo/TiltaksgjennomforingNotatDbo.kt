@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.domain.dto
+package no.nav.mulighetsrommet.api.domain.dbo
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.domain.serializers.LocalDateTimeSerializer
@@ -7,21 +7,15 @@ import java.time.LocalDateTime
 import java.util.*
 
 @Serializable
-data class AvtaleNotatDto(
+data class TiltaksgjennomforingNotatDbo(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     @Serializable(with = UUIDSerializer::class)
-    val avtaleId: UUID,
+    val tiltaksgjennomforingId: UUID,
     @Serializable(with = LocalDateTimeSerializer::class)
-    val createdAt: LocalDateTime,
+    val createdAt: LocalDateTime?,
     @Serializable(with = LocalDateTimeSerializer::class)
-    val updatedAt: LocalDateTime,
-    val opprettetAv: OpprettetAv,
+    val updatedAt: LocalDateTime?,
+    val opprettetAv: String,
     val innhold: String,
-) {
-    @Serializable
-    data class OpprettetAv(
-        val navIdent: String,
-        val navn: String?,
-    )
-}
+)
