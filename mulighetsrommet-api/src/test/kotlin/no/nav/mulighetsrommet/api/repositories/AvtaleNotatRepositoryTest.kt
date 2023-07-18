@@ -8,7 +8,7 @@ import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleNotatDbo
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
-import no.nav.mulighetsrommet.api.utils.AvtaleNotatFilter
+import no.nav.mulighetsrommet.api.utils.NotatFilter
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import java.util.*
 
@@ -69,7 +69,7 @@ class AvtaleNotatRepositoryTest : FunSpec({
             avtaleNotater.upsert(notat2).shouldBeRight()
             avtaleNotater.upsert(notat3).shouldBeRight()
 
-            avtaleNotater.getAll(filter = AvtaleNotatFilter(avtaleId = avtale.id, opprettetAv = null)).shouldBeRight()
+            avtaleNotater.getAll(filter = NotatFilter(avtaleId = avtale.id, opprettetAv = null)).shouldBeRight()
                 .should { it.size shouldBe 3 }
 
             // Les notater
@@ -88,7 +88,7 @@ class AvtaleNotatRepositoryTest : FunSpec({
             avtaleNotater.delete(notat1.id).shouldBeRight()
             avtaleNotater.get(notat1.id).shouldBeRight(null)
 
-            avtaleNotater.getAll(filter = AvtaleNotatFilter(avtaleId = avtale.id, opprettetAv = null)).shouldBeRight()
+            avtaleNotater.getAll(filter = NotatFilter(avtaleId = avtale.id, opprettetAv = null)).shouldBeRight()
                 .should { it.size shouldBe 2 }
         }
     }

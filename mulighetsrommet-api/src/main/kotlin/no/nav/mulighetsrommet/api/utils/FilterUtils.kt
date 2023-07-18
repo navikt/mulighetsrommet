@@ -84,14 +84,11 @@ data class UtkastFilter(
     val avtaleId: UUID?,
 )
 
-data class AvtaleNotatFilter(
+data class NotatFilter(
     val avtaleId: UUID,
-    val opprettetAv: String?,
-)
-
-data class TiltaksgjennomforingNotatFilter(
-    val tiltaksgjennomforingId: UUID,
-    val opprettetAv: String?,
+    val tiltaksgjennomforingId: UUID? = null,
+    val opprettetAv: String? = null,
+    val sortering: String? = "dato-created-asc",
 )
 
 fun <T : Any> PipelineContext<T, ApplicationCall>.getVirksomhetFilter(): VirksomhetFilter {
@@ -223,22 +220,16 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getUtkastFilter(): UtkastFilte
     )
 }
 
-fun <T : Any> PipelineContext<T, ApplicationCall>.getAvtaleNotatFilter(): AvtaleNotatFilter {
-    val avtaleId = call.request.queryParameters["avtaleId"]?.let { it.toUUID() }
+fun <T : Any> PipelineContext<T, ApplicationCall>.getNotatFilter(): NotatFilter {
+    val avtaleId = call.request.queryParameters["avtaleId"]?.toUUID()
         ?: throw BadRequestException(message = "avtaleId er ikke oppgitt ved henting av notater for avtale")
+    val tiltaksgjennomforingId = call.request.queryParameters["tiltaksgjennomforingID"]?.toUUID()
+    val sortering = call.request.queryParameters["order"]
 
-    return AvtaleNotatFilter(
+    return NotatFilter(
         avtaleId = avtaleId,
-        opprettetAv = null,
-    )
-}
-
-fun <T : Any> PipelineContext<T, ApplicationCall>.getTiltaksgjennomforingNotatFlter(): TiltaksgjennomforingNotatFilter {
-    val tiltaksgjennomforingId = call.request.queryParameters["tiltaksgjennomforingId"]?.let { it.toUUID() }
-        ?: throw BadRequestException(message = "tiltaksgjennomforingId er ikke oppgitt ved henting av notater for tiltaksgjennomføring")
-
-    return TiltaksgjennomforingNotatFilter(
         tiltaksgjennomforingId = tiltaksgjennomforingId,
         opprettetAv = null,
+        sortering = sortering,
     )
 }

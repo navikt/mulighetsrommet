@@ -12,8 +12,7 @@ import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingNotatReposito
 import no.nav.mulighetsrommet.api.routes.v1.responses.Forbidden
 import no.nav.mulighetsrommet.api.routes.v1.responses.ServerError
 import no.nav.mulighetsrommet.api.routes.v1.responses.StatusResponse
-import no.nav.mulighetsrommet.api.utils.AvtaleNotatFilter
-import no.nav.mulighetsrommet.api.utils.TiltaksgjennomforingNotatFilter
+import no.nav.mulighetsrommet.api.utils.NotatFilter
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.getOrThrow
 import org.slf4j.LoggerFactory
@@ -26,7 +25,7 @@ class NotatServiceImpl(
     private val logger = LoggerFactory.getLogger(this.javaClass)
 
     override fun getAllAvtaleNotater(
-        filter: AvtaleNotatFilter,
+        filter: NotatFilter,
     ): StatusResponse<List<AvtaleNotatDto>> {
         return avtaleNotatRepository.getAll(filter = filter)
             .mapLeft { error -> ServerError(message = "Det oppsto en feil ved henting av notater for avtale. Error: $error") }
@@ -60,7 +59,7 @@ class NotatServiceImpl(
             }
     }
 
-    override fun getAllTiltaksgjennomforingNotater(filter: TiltaksgjennomforingNotatFilter): StatusResponse<List<TiltaksgjennomforingNotatDto>> {
+    override fun getAllTiltaksgjennomforingNotater(filter: NotatFilter): StatusResponse<List<TiltaksgjennomforingNotatDto>> {
         return tiltaksgjennomforingNotatRepository.getAll(filter = filter)
             .mapLeft { error -> ServerError(message = "Det oppsto en feil ved henting av notater for tiltaksgjennomføring. Error: $error") }
     }
