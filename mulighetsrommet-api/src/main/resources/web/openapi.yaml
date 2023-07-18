@@ -1530,6 +1530,7 @@ components:
         avslutningsstatus:
           $ref: "#/components/schemas/AvtaleAvslutningsstatus"
       required:
+        - id
         - tiltakstypeId
         - navn
         - avtalenummer

@@ -246,6 +246,7 @@ export function OpprettAvtaleContainer({
     } = data;
 
     const requestBody: AvtaleRequest = {
+      id: utkastIdRef.current,
       navRegion,
       navEnheter: navEnheter.includes("alle_enheter") ? [] : navEnheter,
       avtalenummer: getValueOrDefault(avtale?.avtalenummer, ""),
