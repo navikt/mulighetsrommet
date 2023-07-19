@@ -6,7 +6,6 @@ export const mockFeatures: Features = {
   "mulighetsrommet.admin-flate-opprett-avtale": true,
   "mulighetsrommet.admin-flate-rediger-avtale": true,
   "mulighetsrommet.admin-flate-opprett-tiltaksgjennomforing": true,
-  "mulighetsrommet.admin-flate-se-notifikasjoner": true,
   "mulighetsrommet.admin-flate-slett-avtale": true,
   "mulighetsrommet.admin-flate-rediger-tiltaksgjennomforing": true,
   "mulighetsrommet.admin-flate-slett-tiltaksgjennomforing": true,
