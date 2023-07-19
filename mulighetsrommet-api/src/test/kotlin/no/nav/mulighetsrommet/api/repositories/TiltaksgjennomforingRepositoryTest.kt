@@ -12,10 +12,7 @@ import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingKontaktpersonDbo
 import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
-import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
-import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
-import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
-import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
+import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.utils.AdminTiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.api.utils.DEFAULT_PAGINATION_LIMIT
 import no.nav.mulighetsrommet.api.utils.PaginationParams
@@ -36,15 +33,14 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 
     val tiltakstype2 = TiltakstypeFixtures.Oppfolging
 
-    val avtaleFixtures = AvtaleFixtures(database)
+    val avtale1 = AvtaleFixtures.avtale1
 
-    val avtale1 = avtaleFixtures.createAvtaleForTiltakstype(tiltakstypeId = tiltakstype1.id)
-
-    val avtale2 = avtaleFixtures.createAvtaleForTiltakstype(tiltakstypeId = tiltakstype2.id)
+    val avtale2 = AvtaleFixtures.avtale1.copy(tiltakstypeId = tiltakstype2.id)
 
     val gjennomforing1 = TiltaksgjennomforingFixtures.Arbeidstrening1
 
     val gjennomforing2 = TiltaksgjennomforingFixtures.Oppfolging1
+    val domain = MulighetsrommetTestDomain()
 
     beforeAny {
         database.db.truncateAll()
@@ -53,10 +49,11 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         tiltakstyper.upsert(tiltakstype1)
         tiltakstyper.upsert(tiltakstype2)
 
-        avtaleFixtures.upsertAvtaler(listOf(avtale1, avtale2))
+        domain.initialize(database.db)
     }
 
     context("CRUD") {
+        val avtaler = AvtaleRepository(database.db)
         test("CRUD adminflate-tiltaksgjennomføringer") {
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
 
@@ -190,7 +187,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 ),
             )
             val avtale = avtale1.copy(navRegion = "2990")
-            avtaleFixtures.upsertAvtaler(listOf(avtale))
+            avtaler.upsert(avtale).shouldBeRight()
             val tiltaksgjennomforing =
                 TiltaksgjennomforingFixtures.Oppfolging1.copy(avtaleId = avtale.id, navEnheter = listOf("2980"))
             tiltaksgjennomforinger.upsert(tiltaksgjennomforing).shouldBeRight()
@@ -261,12 +258,12 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1.copy(
                 kontaktpersoner = listOf(
                     TiltaksgjennomforingKontaktpersonDbo(
-                        navIdent = domain.ansatt1.navIdent,
-                        navEnheter = listOf(domain.ansatt1.hovedenhet),
+                        navIdent = NavAnsattFixture.ansatt1.navIdent,
+                        navEnheter = listOf(NavAnsattFixture.ansatt1.hovedenhet),
                     ),
                     TiltaksgjennomforingKontaktpersonDbo(
-                        navIdent = domain.ansatt2.navIdent,
-                        navEnheter = listOf(domain.ansatt2.hovedenhet),
+                        navIdent = NavAnsattFixture.ansatt2.navIdent,
+                        navEnheter = listOf(NavAnsattFixture.ansatt2.hovedenhet),
                     ),
                 ),
             )
@@ -294,8 +291,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             val gjennomforingFjernetKontaktperson = gjennomforing.copy(
                 kontaktpersoner = listOf(
                     TiltaksgjennomforingKontaktpersonDbo(
-                        navIdent = domain.ansatt1.navIdent,
-                        navEnheter = listOf(domain.ansatt1.hovedenhet),
+                        navIdent = NavAnsattFixture.ansatt1.navIdent,
+                        navEnheter = listOf(NavAnsattFixture.ansatt1.hovedenhet),
                     ),
                 ),
             )
@@ -481,12 +478,12 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             val domain = MulighetsrommetTestDomain()
             domain.initialize(database.db)
 
-            val gjennomforing = gjennomforing1.copy(ansvarlige = listOf(domain.ansatt1.navIdent))
+            val gjennomforing = gjennomforing1.copy(ansvarlige = listOf(NavAnsattFixture.ansatt1.navIdent))
             tiltaksgjennomforinger.upsert(gjennomforing).shouldBeRight()
 
             tiltaksgjennomforinger.get(gjennomforing.id).shouldBeRight().should {
                 it!!.ansvarlig shouldBe TiltaksgjennomforingAdminDto.Ansvarlig(
-                    navident = domain.ansatt1.navIdent,
+                    navident = NavAnsattFixture.ansatt1.navIdent,
                     navn = "Donald Duck",
                 )
             }
@@ -676,6 +673,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
     }
 
     context("Filtrering på tiltaksgjennomforingstatus") {
+        val avtaler = AvtaleRepository(database.db)
         val defaultFilter = AdminTiltaksgjennomforingFilter(
             dagensDato = LocalDate.of(2023, 2, 1),
         )
@@ -838,7 +836,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             ).shouldBeRight()
 
             val avtale = avtale1.copy(navRegion = "nav_region")
-            avtaleFixtures.upsertAvtaler(listOf(avtale))
+            avtaler.upsert(avtale).shouldBeRight()
             val gj1 = gjennomforing1.copy(id = UUID.randomUUID(), navEnheter = listOf("1"))
             val gj2 = gjennomforing1.copy(id = UUID.randomUUID(), arenaAnsvarligEnhet = "1")
             val gj3 = gjennomforing1.copy(id = UUID.randomUUID(), navEnheter = listOf("2"))
@@ -961,8 +959,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
     }
 
     context("Lokasjon til veilederflate fra gjennomføringer") {
+        val avtaler = AvtaleRepository(database.db)
         test("Skal hente ut distinkt liste med lokasjoner basert på brukers enhet eller fylkesenhet") {
-            avtaleFixtures.runBeforeTests()
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
             val enhetRepository = NavEnhetRepository(database.db)
             enhetRepository.upsert(
@@ -984,29 +982,29 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 ),
             ).shouldBeRight()
 
-            val avtale = avtaleFixtures.createAvtaleForTiltakstype(navRegion = "0400")
+            val avtale = AvtaleFixtures.avtale1.copy(navRegion = "0400")
             val gjennomforing01 = TiltaksgjennomforingFixtures.Oppfolging1.copy(
                 lokasjonArrangor = "0139 Oslo",
                 id = UUID.randomUUID(),
                 navEnheter = listOf("0482"),
                 avtaleId = avtale.id,
-                tiltakstypeId = avtaleFixtures.tiltakstypeId,
+                tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
             )
             val gjennomforing02 = TiltaksgjennomforingFixtures.Oppfolging1.copy(
                 lokasjonArrangor = "8756 Kristiansand",
                 id = UUID.randomUUID(),
                 navEnheter = listOf("0482"),
                 avtaleId = avtale.id,
-                tiltakstypeId = avtaleFixtures.tiltakstypeId,
+                tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
             )
             val gjennomforing03 = TiltaksgjennomforingFixtures.Oppfolging1.copy(
                 lokasjonArrangor = "0139 Oslo",
                 id = UUID.randomUUID(),
                 navEnheter = listOf("0482"),
                 avtaleId = avtale.id,
-                tiltakstypeId = avtaleFixtures.tiltakstypeId,
+                tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
             )
-            avtaleFixtures.upsertAvtaler(listOf(avtale))
+            avtaler.upsert(avtale).shouldBeRight()
             tiltaksgjennomforinger.upsert(gjennomforing01).shouldBeRight()
             tiltaksgjennomforinger.upsert(gjennomforing02).shouldBeRight()
             tiltaksgjennomforinger.upsert(gjennomforing03).shouldBeRight()

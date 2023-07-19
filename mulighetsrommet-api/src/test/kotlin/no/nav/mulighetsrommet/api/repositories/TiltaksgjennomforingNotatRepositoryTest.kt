@@ -6,22 +6,14 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingNotatDbo
-import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
-import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
-import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
-import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
+import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.utils.NotatFilter
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import java.util.*
 
 class TiltaksgjennomforingNotatRepositoryTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
-    val avtaleFixture = AvtaleFixtures(database)
     val domain = MulighetsrommetTestDomain()
-
-    beforeEach {
-        avtaleFixture.runBeforeTests()
-    }
 
     context("Notater for tiltaksgjennomføring - CRUD") {
         test("CRUD") {
@@ -30,8 +22,7 @@ class TiltaksgjennomforingNotatRepositoryTest : FunSpec({
             val tiltakstyper = TiltakstypeRepository(database.db)
             tiltakstyper.upsert(tiltakstypeFixture.Arbeidstrening).shouldBeRight()
             tiltakstyper.upsert(tiltakstypeFixture.Oppfolging).shouldBeRight()
-            val avtale = avtaleFixture.createAvtaleForTiltakstype(id = UUID.randomUUID())
-            avtaleFixture.upsertAvtaler(listOf(avtale))
+            val avtale = AvtaleFixtures.avtale1
             val tiltaksgjennomforingFixtures = TiltaksgjennomforingFixtures
             val gjennomforing = tiltaksgjennomforingFixtures.Oppfolging1.copy(avtaleId = avtale.id)
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
@@ -43,7 +34,7 @@ class TiltaksgjennomforingNotatRepositoryTest : FunSpec({
                 tiltaksgjennomforingId = gjennomforing.id,
                 createdAt = null,
                 updatedAt = null,
-                opprettetAv = domain.ansatt1.navIdent,
+                opprettetAv = NavAnsattFixture.ansatt1.navIdent,
                 innhold = "Mitt første notat",
             )
 
@@ -52,7 +43,7 @@ class TiltaksgjennomforingNotatRepositoryTest : FunSpec({
                 tiltaksgjennomforingId = gjennomforing.id,
                 createdAt = null,
                 updatedAt = null,
-                opprettetAv = domain.ansatt1.navIdent,
+                opprettetAv = NavAnsattFixture.ansatt1.navIdent,
                 innhold = "Mitt andre notat",
             )
 
@@ -61,7 +52,7 @@ class TiltaksgjennomforingNotatRepositoryTest : FunSpec({
                 tiltaksgjennomforingId = gjennomforing.id,
                 createdAt = null,
                 updatedAt = null,
-                opprettetAv = domain.ansatt2.navIdent,
+                opprettetAv = NavAnsattFixture.ansatt2.navIdent,
                 innhold = "En kollega sitt notat",
             )
 
@@ -70,7 +61,7 @@ class TiltaksgjennomforingNotatRepositoryTest : FunSpec({
                 tiltaksgjennomforingId = gjennomforing.id,
                 createdAt = null,
                 updatedAt = null,
-                opprettetAv = domain.ansatt2.navIdent,
+                opprettetAv = NavAnsattFixture.ansatt2.navIdent,
                 innhold = "En kollega sitt notat",
             )
 
