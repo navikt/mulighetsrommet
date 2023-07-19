@@ -5,10 +5,10 @@
   grid-template-areas:
     "venstre hoyre"
     "knapperad knapperad";
+  background: white;
 }
 
 .detaljer {
-  background: white;
   padding: 1rem;
   display: flex;
   flex-direction: column;
