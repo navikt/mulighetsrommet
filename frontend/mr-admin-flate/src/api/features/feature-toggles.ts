@@ -10,8 +10,6 @@ export const REDIGER_AVTALE_ADMIN_FLATE =
   "mulighetsrommet.admin-flate-rediger-avtale";
 export const OPPRETT_TILTAKSGJENNOMFORING_ADMIN_FLATE =
   "mulighetsrommet.admin-flate-opprett-tiltaksgjennomforing";
-export const SE_NOTIFIKASJONER_ADMIN_FLATE =
-  "mulighetsrommet.admin-flate-se-notifikasjoner";
 export const SLETTE_AVTALE = "mulighetsrommet.admin-flate-slett-avtale";
 export const REDIGER_TILTAKSGJENNOMFORING_ADMIN_FLATE =
   "mulighetsrommet.admin-flate-rediger-tiltaksgjennomforing";
@@ -27,7 +25,6 @@ export const ALL_TOGGLES = [
   OPPRETT_AVTALE_ADMIN_FLATE,
   REDIGER_AVTALE_ADMIN_FLATE,
   OPPRETT_TILTAKSGJENNOMFORING_ADMIN_FLATE,
-  SE_NOTIFIKASJONER_ADMIN_FLATE,
   SLETTE_AVTALE,
   REDIGER_TILTAKSGJENNOMFORING_ADMIN_FLATE,
   SLETT_TILTAKSGJENNOMFORING_ADMIN_FLATE,
@@ -43,7 +40,6 @@ export const initialFeatures: Features = {
   "mulighetsrommet.admin-flate-opprett-avtale": false,
   "mulighetsrommet.admin-flate-rediger-avtale": false,
   "mulighetsrommet.admin-flate-opprett-tiltaksgjennomforing": false,
-  "mulighetsrommet.admin-flate-se-notifikasjoner": false,
   "mulighetsrommet.admin-flate-slett-avtale": false,
   "mulighetsrommet.admin-flate-slett-tiltaksgjennomforing": false,
   "mulighetsrommet.admin-flate-rediger-tiltaksgjennomforing": false,
@@ -60,6 +56,6 @@ export const useFeatureToggles = () => {
   return useQuery<Features>(["features"], () =>
     fetch(`/unleash/api/feature?${toggles}`, fetchConfig).then((Response) => {
       return Response.ok ? Response.json() : initialFeatures;
-    })
+    }),
   );
 };
