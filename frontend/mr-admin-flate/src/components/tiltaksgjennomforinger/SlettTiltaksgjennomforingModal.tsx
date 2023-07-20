@@ -7,9 +7,9 @@ import {
 import { useEffect } from "react";
 import classNames from "classnames";
 import { useNavigate } from "react-router-dom";
-import styles from "../avtaler/Modal.module.scss";
-import { VarselIkon } from "../avtaler/SlettAvtaleModal";
 import { useDeleteTiltaksgjennomforing } from "../../api/tiltaksgjennomforing/useDeleteTiltaksgjennomforing";
+import { XMarkOctagonFillIcon } from "@navikt/aksel-icons";
+import styles from "../modal/Modal.module.scss";
 
 interface SlettTiltaksgjennomforingModalprops {
   modalOpen: boolean;
@@ -59,7 +59,8 @@ const SlettTiltaksgjennomforingModal = ({
   function headerInnhold(tiltaksgjennomforing: Tiltaksgjennomforing) {
     return (
       <div className={styles.heading}>
-        <VarselIkon />
+        <XMarkOctagonFillIcon className={styles.warningicon} />
+
         {tiltaksgjennomforing.opphav === Opphav.ARENA ? (
           <span>Gjennomføringen kan ikke slettes</span>
         ) : mutation.isError ? (
@@ -82,13 +83,7 @@ const SlettTiltaksgjennomforingModal = ({
         ) : mutation?.isError ? (
           <p>{(mutation.error as ApiError).body}</p>
         ) : (
-          <>
-            <p>
-              Er du sikker på at du ønsker å slette gjennomføringen «
-              {tiltaksgjennomforing.navn}»?
-            </p>
-            <p>Du kan ikke angre denne handlingen</p>
-          </>
+          <p>Du kan ikke angre denne handlingen</p>
         )}
         <div className={styles.knapperad}>
           {tiltaksgjennomforing.opphav ===

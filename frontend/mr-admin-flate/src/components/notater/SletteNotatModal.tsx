@@ -1,29 +1,30 @@
 import { Button, Heading, Modal } from "@navikt/ds-react";
-import { ApiError, Avtale, Opphav } from "mulighetsrommet-api-client";
+import { ApiError, Avtale } from "mulighetsrommet-api-client";
 import { useEffect } from "react";
-import classNames from "classnames";
 import { useNavigate } from "react-router-dom";
-import { useDeleteAvtale } from "../../api/avtaler/useDeleteAvtale";
 import styles from "../modal/Modal.module.scss";
-import { XMarkOctagonFillIcon } from "@navikt/aksel-icons";
+import {
+  ExclamationmarkTriangleFillIcon,
+  XMarkOctagonFillIcon,
+} from "@navikt/aksel-icons";
+import classNames from "classnames";
+import { useDeleteAvtalenotat } from "../../api/avtaler/avtalenotat/useDeleteAvtalenotat";
 
-interface SlettAvtaleModalprops {
+interface SletteNotatModalProps {
   modalOpen: boolean;
   onClose: () => void;
   handleForm?: () => void;
   handleCancel?: () => void;
-  handleRediger?: () => void;
   avtale?: Avtale;
 }
 
-const SlettAvtaleModal = ({
+const SletteNotatModal = ({
   modalOpen,
   onClose,
   handleCancel,
-  handleRediger,
   avtale,
-}: SlettAvtaleModalprops) => {
-  const mutation = useDeleteAvtale();
+}: SletteNotatModalProps) => {
+  const mutation = useDeleteAvtalenotat();
   const navigate = useNavigate();
   useEffect(() => {
     Modal.setAppElement("#root");
@@ -31,7 +32,7 @@ const SlettAvtaleModal = ({
 
   useEffect(() => {
     if (mutation.isSuccess) {
-      navigate("/avtaler");
+      navigate("/notater/avtaler");
       return;
     }
   }, [mutation]);
@@ -47,47 +48,39 @@ const SlettAvtaleModal = ({
     }
   };
 
-  const handleRedigerAvtale = () => {
-    clickCancel();
-    mutation.reset();
-    handleRediger?.();
-  };
-
-  function headerInnhold(avtale?: Avtale) {
+  function headerInnhold() {
     return (
       <div className={styles.heading}>
-        <XMarkOctagonFillIcon className={styles.warningicon} />
-        {avtale?.opphav === Opphav.ARENA ? (
-          <span>Avtalen kan ikke slettes</span>
-        ) : mutation.isError ? (
-          <span>Kan ikke slette «{avtale?.navn}»</span>
+        {mutation.isError ? (
+          <>
+            <ExclamationmarkTriangleFillIcon className={styles.erroricon} />
+            <span>Kan ikke slette notatet.</span>
+          </>
         ) : (
-          <span>Ønsker du å slette «{avtale?.navn}»?</span>
+          <>
+            <XMarkOctagonFillIcon className={styles.warningicon} />
+            <span>Ønsker du å slette notatet?</span>
+          </>
         )}
       </div>
     );
   }
 
-  function modalInnhold(avtale?: Avtale) {
+  function modalInnhold() {
     return (
       <>
-        {avtale?.opphav === Opphav.ARENA ? (
-          <p>Avtalen {avtale?.navn} kommer fra Arena og kan ikke slettes her</p>
-        ) : mutation?.isError ? (
+        {mutation?.isError ? (
           <p>{(mutation.error as ApiError).body}</p>
         ) : (
           <p>Du kan ikke angre denne handlingen</p>
         )}
         <div className={styles.knapperad}>
-          {avtale?.opphav === Opphav.ARENA ? null : mutation?.isError ? (
-            <Button variant="primary" onClick={handleRedigerAvtale}>
-              Rediger avtale
-            </Button>
-          ) : (
+          {mutation?.isError ? null : (
             <Button variant="danger" onClick={handleDelete}>
-              Slett avtale
+              Slett notat
             </Button>
           )}
+
           <Button variant="secondary-neutral" onClick={clickCancel}>
             Avbryt
           </Button>
@@ -115,13 +108,13 @@ const SlettAvtaleModal = ({
             level="2"
             data-testid="slett_avtale_modal_header"
           >
-            {headerInnhold(avtale)}
+            {headerInnhold()}
           </Heading>
-          {modalInnhold(avtale)}
+          {modalInnhold()}
         </Modal.Content>
       </Modal>
     </>
   );
 };
 
-export default SlettAvtaleModal;
+export default SletteNotatModal;

@@ -9,6 +9,7 @@
     display: flex;
     flex-direction: column;
     gap: 1rem;
+    max-height: 36.5rem;
 
     .notater_input {
       :global(.navds-textarea__input) {
@@ -28,6 +29,8 @@
     display: flex;
     flex-direction: column;
     gap: 1rem;
+    max-height: 80vh;
+    overflow-y: auto;
 
     .notater_heading {
       border-bottom: 1px solid var(--border-divider, rgba(0, 0, 0, 0.19));
@@ -56,8 +59,32 @@
           display: flex;
           flex-direction: row;
           justify-content: space-between;
+
+          &_bruker {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+          }
+          &_egen_bruker {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            button {
+              padding: 0.3rem 0.5rem 0;
+              color: black;
+            }
+          }
+            &_navn {
+              font-weight: bold;
+            }
         }
       }
     }
+  }
+}
+
+.slette_notat_modal {
+  .warningicon {
+    color: #c30000;
   }
 }
