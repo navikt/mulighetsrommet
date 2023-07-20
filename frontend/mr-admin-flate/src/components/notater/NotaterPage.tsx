@@ -3,7 +3,7 @@ import { Button, Checkbox, Heading, Loader, Textarea } from "@navikt/ds-react";
 import Notatliste from "./Notatliste";
 import { useAvtalenotater } from "../../api/avtaler/avtalenotat/useAvtalenotater";
 import { useMineAvtalenotater } from "../../api/avtaler/avtalenotat/useMineAvtalenotater";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { usePutAvtalenotat } from "../../api/avtaler/avtalenotat/usePutAvtalenotat";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { inferredAvtalenotatSchema, NotatSchema } from "./NotatSchema";
@@ -30,8 +30,9 @@ export default function NotaterPage() {
 
   const {
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitSuccessful },
     register,
+    reset,
   } = form;
 
   const postData: SubmitHandler<inferredAvtalenotatSchema> = async (
@@ -47,6 +48,12 @@ export default function NotaterPage() {
 
     mutation.mutate(requestBody);
   };
+
+  useEffect(() => {
+    if (isSubmitSuccessful) {
+      reset({ innhold: "" });
+    }
+  }, [isSubmitSuccessful, reset]);
 
   return (
     <div className={styles.notater}>
