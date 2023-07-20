@@ -6,7 +6,10 @@ import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture.ansatt1
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture.ansatt2
-import no.nav.mulighetsrommet.api.repositories.*
+import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
+import no.nav.mulighetsrommet.api.repositories.NavAnsattRepository
+import no.nav.mulighetsrommet.api.repositories.NavEnhetRepository
+import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
 
 data class MulighetsrommetTestDomain(
@@ -33,10 +36,5 @@ data class MulighetsrommetTestDomain(
 
         val avtaler = AvtaleRepository(database)
         avtaler.upsert(AvtaleFixtures.avtale1)
-
-        val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database)
-        tiltaksgjennomforinger.upsert(TiltaksgjennomforingFixtures.Oppfolging1).shouldBeRight()
-        tiltaksgjennomforinger.upsert(TiltaksgjennomforingFixtures.Oppfolging2).shouldBeRight()
-        tiltaksgjennomforinger.upsert(TiltaksgjennomforingFixtures.Arbeidstrening1).shouldBeRight()
     }
 }

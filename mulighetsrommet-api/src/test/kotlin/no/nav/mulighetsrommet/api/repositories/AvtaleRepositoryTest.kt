@@ -753,14 +753,12 @@ class AvtaleRepositoryTest : FunSpec({
 
                 val avtale1 =
                     AvtaleFixtures.avtale1.copy(id = UUID.randomUUID(), tiltakstypeId = tiltakstypeIdSomIkkeSkalMatche)
-
-                val tiltakstype = TiltakstypeFixtures.Oppfolging.copy(id = TiltakstypeFixtures.Oppfolging.id)
                 val tiltakstypeUtenAvtaler = TiltakstypeFixtures.Oppfolging.copy(id = tiltakstypeIdSomIkkeSkalMatche)
 
                 val gjennomforing1 = TiltaksgjennomforingFixtures.Oppfolging1.copy(
                     tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
                     startDato = LocalDate.of(2021, 1, 1),
-                    sluttDato = LocalDate.of(2022, 10, 15),
+                    sluttDato = LocalDate.of(2023, 10, 15),
                 )
                 val gjennomforing2 = TiltaksgjennomforingFixtures.Oppfolging2.copy(
                     tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
@@ -781,7 +779,6 @@ class AvtaleRepositoryTest : FunSpec({
                     sluttDato = LocalDate.of(2050, 10, 15),
                 )
 
-                tiltakstypeRepository.upsert(tiltakstype).getOrThrow()
                 tiltakstypeRepository.upsert(tiltakstypeUtenAvtaler).getOrThrow()
 
                 avtaler.upsert(avtale1).shouldBeRight()
