@@ -25,7 +25,7 @@ const ControlledDateInput = forwardRef((props: DateInputProps, _) => {
             inputProps: startdatoInputProps,
             selectedDay: selectedStartdato,
           } = useDatepicker({
-            onDateChange: (val: any) => {
+            onDateChange: (val) => {
               if (val) {
                 onChange(val);
               } else {
@@ -88,7 +88,7 @@ const pastDate = () => {
 const futureDate = () => {
   const newDate = new Date();
   const yearsFromNow = newDate.setFullYear(
-    newDate.getFullYear() + offsetAntallAar
+    newDate.getFullYear() + offsetAntallAar,
   );
   return new Date(yearsFromNow);
 };

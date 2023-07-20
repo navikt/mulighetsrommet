@@ -1,10 +1,10 @@
 import { ReactNode } from "react";
 
-export function VisHvisVerdi({
+export function VisHvisVerdi<T>({
   verdi,
   children,
 }: {
-  verdi?: any;
+  verdi?: T;
   children: ReactNode;
 }) {
   return verdi ? children : null;

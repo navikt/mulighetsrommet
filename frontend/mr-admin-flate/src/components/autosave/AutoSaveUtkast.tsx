@@ -25,7 +25,7 @@ export const AutoSaveUtkast = memo(
       debounce(() => {
         onSave();
       }, 1000),
-      []
+      [],
     );
 
     useEffect(() => {
@@ -57,7 +57,7 @@ export const AutoSaveUtkast = memo(
     }, [watchedData]);
 
     return <AutoSaveToastContainer />;
-  }
+  },
 );
 
 AutoSaveUtkast.displayName = "AutoSaveUtkast";
