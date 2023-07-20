@@ -7,33 +7,33 @@ import { AvtaleNotat } from "mulighetsrommet-api-client";
 import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
 
 interface NotatkortProps {
-  notatkort: AvtaleNotat;
-  handleSlett: () => void;
+  notat: AvtaleNotat;
+  handleSlett: (id: string) => void;
 }
 
-export function Notatkort({ handleSlett, notatkort }: NotatkortProps) {
+export function Notat({ handleSlett, notat }: NotatkortProps) {
   const { data: bruker } = useHentAnsatt();
 
-  const innloggetBruker = (notatkort: AvtaleNotat) => {
+  const lagtTilAv = (notat: AvtaleNotat) => {
     return (
       <div className={styles.notatinformasjon_bruker}>
         <BodyShort>Lagt til av: </BodyShort>
-        {notatkort.opprettetAv.navIdent === bruker!.navIdent ? (
+        {notat.opprettetAv.navIdent === bruker!.navIdent ? (
           <span className={styles.notatinformasjon_egen_bruker}>
             <BodyShort className={styles.notatinformasjon_navn}>
-              {notatkort.opprettetAv.navn}
+              {notat.opprettetAv.navn}
             </BodyShort>
-            <Button variant="tertiary" onClick={handleSlett}>
+            <Button variant="tertiary" onClick={() => handleSlett(notat.id)}>
               <TrashIcon fontSize={"1.5rem"} />
             </Button>
           </span>
         ) : (
           <Lenke
-            to={`https://nom.nav.no/ressurs/${notatkort.opprettetAv.navIdent}`}
+            to={`https://nom.nav.no/ressurs/${notat.opprettetAv.navIdent}`}
             target={"_blank"}
             className={styles.notatinformasjon_navn}
           >
-            {notatkort.opprettetAv.navn}
+            {notat.opprettetAv.navn}
           </Lenke>
         )}
       </div>
@@ -43,10 +43,10 @@ export function Notatkort({ handleSlett, notatkort }: NotatkortProps) {
   return (
     <div className={styles.notatkort}>
       <span className={styles.notatinformasjon}>
-        {innloggetBruker(notatkort)}
-        <BodyShort>{formaterDatoTid(notatkort.createdAt)}</BodyShort>
+        {lagtTilAv(notat)}
+        <BodyShort>{formaterDatoTid(notat.createdAt)}</BodyShort>
       </span>
-      <BodyLong>{notatkort.innhold}</BodyLong>
+      <BodyLong>{notat.innhold}</BodyLong>
     </div>
   );
 }

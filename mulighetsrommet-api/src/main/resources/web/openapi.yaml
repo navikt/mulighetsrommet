@@ -5,7 +5,7 @@ info:
   title: Mulighetsrommet API
 
 security:
-  - bearerAuth: [ ]
+  - bearerAuth: []
 
 paths:
   /api/v1/internal/bruker:
@@ -223,6 +223,23 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/AvtaleNotat"
+    put:
+      tags:
+        - AvtaleNotater
+      operationId: lagreAvtalenotat
+      requestBody:
+        description: Avtalenotat som skal lagres
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AvtaleNotatRequest"
+      responses:
+        200:
+          description: Liste med notater for tilhørende avtale
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AvtaleNotat"
 
   /api/v1/internal/notater/avtaler/mine:
     get:
@@ -253,24 +270,6 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/AvtaleNotat"
-
-    put:
-      tags:
-        - AvtaleNotater
-      operationId: lagreAvtalenotat
-      requestBody:
-        description: Avtalenotat som skal lagres
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/AvtaleNotatRequest"
-      responses:
-        200:
-          description: Liste med notater for tilhørende avtale
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/AvtaleNotat"
 
   /api/v1/internal/notater/avtaler/{id}:
     delete:
@@ -368,8 +367,7 @@ paths:
           content:
             application/json:
               schema:
-                  $ref: "#/components/schemas/AvtaleNotat"
-
+                $ref: "#/components/schemas/AvtaleNotat"
 
   /api/v1/internal/notater/tiltaksgjennomforinger/{id}:
     delete:
@@ -707,7 +705,7 @@ paths:
           description: Sanity query result
           content:
             application/json:
-              schema: { }
+              schema: {}
 
   /api/v1/internal/sanity/innsatsgrupper:
     get:

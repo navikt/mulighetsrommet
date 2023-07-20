@@ -1,7 +1,6 @@
 import { Button, Heading, Modal } from "@navikt/ds-react";
-import { ApiError, Avtale } from "mulighetsrommet-api-client";
+import { ApiError } from "mulighetsrommet-api-client";
 import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import styles from "../modal/Modal.module.scss";
 import {
   ExclamationmarkTriangleFillIcon,
@@ -15,27 +14,20 @@ interface SletteNotatModalProps {
   onClose: () => void;
   handleForm?: () => void;
   handleCancel?: () => void;
-  avtale?: Avtale;
+  notatIdForSletting: string | null;
 }
 
 const SletteNotatModal = ({
   modalOpen,
   onClose,
   handleCancel,
-  avtale,
+  notatIdForSletting,
 }: SletteNotatModalProps) => {
   const mutation = useDeleteAvtalenotat();
-  const navigate = useNavigate();
+
   useEffect(() => {
     Modal.setAppElement("#root");
   }, []);
-
-  useEffect(() => {
-    if (mutation.isSuccess) {
-      navigate("/notater/avtaler");
-      return;
-    }
-  }, [mutation]);
 
   const clickCancel = () => {
     onClose();
@@ -43,8 +35,8 @@ const SletteNotatModal = ({
   };
 
   const handleDelete = () => {
-    if (avtale?.id) {
-      mutation.mutate(avtale?.id);
+    if (notatIdForSletting) {
+      mutation.mutate(notatIdForSletting, { onSuccess: onClose });
     }
   };
 
@@ -103,11 +95,7 @@ const SletteNotatModal = ({
         aria-label="modal"
       >
         <Modal.Content>
-          <Heading
-            size="medium"
-            level="2"
-            data-testid="slett_avtale_modal_header"
-          >
+          <Heading size="medium" level="2">
             {headerInnhold()}
           </Heading>
           {modalInnhold()}
