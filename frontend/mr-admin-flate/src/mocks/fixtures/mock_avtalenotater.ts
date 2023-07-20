@@ -13,7 +13,7 @@ export const mockAvtalenotater: AvtaleNotat[] = [
   {
     id: faker.string.uuid(),
     avtaleId: "d1f163b7-1a41-4547-af16-03fd4492b7bc",
-    createdAt: new Date("07.29.2020 02:15:14").toISOString(),
+    createdAt: new Date("07.09.2023 02:15:14").toISOString(),
     updatedAt: new Date().toISOString(),
     opprettetAv: { navIdent: "B123456", navn: "Solo Polo" },
     innhold:
