@@ -1,4 +1,4 @@
-import { rest } from 'msw';
+import { DefaultBodyType, PathParams, rest } from 'msw';
 import { HistorikkForBruker } from 'mulighetsrommet-api-client';
 import { historikk } from '../../fixtures/historikk';
 

@@ -1,10 +1,10 @@
+import { ClientConfig, SanityClient, createClient } from '@sanity/client';
 import groq from 'groq';
 import { DefaultBodyType, PathParams, rest } from 'msw';
-import { utledInnsatsgrupperFraInnsatsgruppe } from '../../../core/api/queries/useTiltaksgjennomforinger';
-import { badReq, ok } from '../responses';
-import { SanityClient, ClientConfig, createClient } from '@sanity/client';
-import { ENHET_FREDRIKSTAD, FYLKE_NAV_OST_VIKEN } from '../../mock_constants';
 import { SanityInnsatsgruppe, SanityTiltakstype } from 'mulighetsrommet-api-client';
+import { utledInnsatsgrupperFraInnsatsgruppe } from '../../../core/api/queries/useTiltaksgjennomforinger';
+import { ENHET_FREDRIKSTAD, FYLKE_NAV_OST_VIKEN } from '../../mock_constants';
+import { ok } from '../responses';
 
 let cachedClient: SanityClient | null = null;
 

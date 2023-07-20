@@ -1,4 +1,4 @@
-import { rest } from 'msw';
+import { DefaultBodyType, PathParams, rest } from 'msw';
 import { NavVeileder } from 'mulighetsrommet-api-client';
 
 export const veilederHandlers = [
