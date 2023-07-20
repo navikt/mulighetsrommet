@@ -8,7 +8,7 @@ export function useLagreAvtalenotat() {
       return mulighetsrommetClient.avtaleNotater.lagreAvtalenotat({});
     },
     onSuccess: () => {
-      client.invalidateQueries({ queryKey: ["avtalenotat"] });
+      client.invalidateQueries({ queryKey: ["avtalenotater"] });
     },
   });
 }
