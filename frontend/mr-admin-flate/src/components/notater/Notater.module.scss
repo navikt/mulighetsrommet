@@ -1,6 +1,6 @@
 .notater {
   display: grid;
-  grid-template-columns: 30rem auto;
+  grid-template-columns: 1fr 2fr;
   gap: 1rem;
 
   &_opprett {
@@ -13,7 +13,7 @@
 
     .notater_input {
       :global(.navds-textarea__input) {
-        height: 30rem !important;
+        height: 15rem !important;
       }
     }
 
