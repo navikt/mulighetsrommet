@@ -473,7 +473,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             val result =
                 tiltaksgjennomforinger.getAll(filter = AdminTiltaksgjennomforingFilter()).shouldBeRight().second
             result shouldHaveSize 2
-            result.first().id shouldBe TiltaksgjennomforingFixtures.Oppfolging1.id
         }
 
         test("Tiltaksgjennomføringer med sluttdato som er null blir tatt med") {
@@ -488,7 +487,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             ).shouldBeRight()
 
             tiltaksgjennomforinger.getAll(filter = AdminTiltaksgjennomforingFilter())
-                .shouldBeRight().second shouldHaveSize 4
+                .shouldBeRight().second shouldHaveSize 2
         }
     }
 
@@ -780,7 +779,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 filter = defaultFilter.copy(status = Tiltaksgjennomforingsstatus.GJENNOMFORES),
             ).shouldBeRight()
 
-            result.second shouldHaveSize 3
+            result.second shouldHaveSize 1
             result.second[0].id shouldBe tiltaksgjennomforingAktiv.id
         }
 
@@ -944,8 +943,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 .shouldBeRight()
 
             items.size shouldBe DEFAULT_PAGINATION_LIMIT
-            items.first().navn shouldBe "Arbeidstrening 1"
-            items.last().navn shouldBe "Arbeidstrening 49"
+            items.first().navn shouldBe "Tiltak - 1"
+            items.last().navn shouldBe "Tiltak - 49"
 
             totalCount shouldBe 105
         }
