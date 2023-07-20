@@ -1,4 +1,4 @@
-import { rest } from "msw";
+import { DefaultBodyType, PathParams, rest } from "msw";
 import {
   Virksomhet,
   VirksomhetKontaktperson,
@@ -7,43 +7,46 @@ import { mockVirksomheter } from "../fixtures/mock_virksomheter";
 import { mockVirksomhetKontaktperson } from "../fixtures/mock_virksomhet_kontaktperson";
 
 export const virksomhetHandlers = [
-  rest.get<any, any, Virksomhet[]>(
+  rest.get<DefaultBodyType, { sok: string }, Virksomhet[]>(
     "*/api/v1/internal/virksomhet/sok/:sok",
     (req, res, ctx) => {
       return res(
         ctx.status(200),
         ctx.json(
-          mockVirksomheter.filter((enhet) =>
-            enhet.navn?.toLowerCase().includes(req.params.sok.toLowerCase())
-          )
-        )
+          mockVirksomheter.filter(
+            (enhet) =>
+              enhet.navn
+                ?.toLowerCase()
+                .includes(req.params.sok.toLocaleLowerCase()),
+          ),
+        ),
       );
-    }
+    },
   ),
-  rest.get<any, any, Virksomhet | undefined>(
+  rest.get<DefaultBodyType, PathParams, Virksomhet | undefined>(
     "*/api/v1/internal/virksomhet/:orgnr",
     (req, res, ctx) => {
       return res(
         ctx.status(200),
         ctx.json(
           mockVirksomheter.find(
-            (enhet) => enhet.organisasjonsnummer === req.params.orgnr
-          )
-        )
+            (enhet) => enhet.organisasjonsnummer === req.params.orgnr,
+          ),
+        ),
       );
-    }
+    },
   ),
-  rest.get<any, any, Virksomhet[] | undefined>(
+  rest.get<DefaultBodyType, PathParams, Virksomhet[] | undefined>(
     "*/api/v1/internal/virksomhet",
     (req, res, ctx) => {
       return res(ctx.status(200), ctx.json(mockVirksomheter));
-    }
+    },
   ),
 
-  rest.get<any, any, VirksomhetKontaktperson[]>(
+  rest.get<DefaultBodyType, PathParams, VirksomhetKontaktperson[]>(
     "*/api/v1/internal/*/kontaktperson",
     (req, res, ctx) => {
       return res(ctx.status(200), ctx.json(mockVirksomhetKontaktperson));
-    }
+    },
   ),
 ];

@@ -1,13 +1,13 @@
-import { rest } from 'msw';
+import { rest, DefaultBodyType, PathParams } from 'msw';
 import { DelMedBruker, DialogResponse } from 'mulighetsrommet-api-client';
 
 export const delMedBrukerHandlers = [
-  rest.post<DelMedBruker, any, DelMedBruker>('*/api/v1/internal/delMedBruker', async (req, res, ctx) => {
-    const data = (await req.json()) as DelMedBruker;
+  rest.post<DelMedBruker, PathParams, DelMedBruker>('*/api/v1/internal/delMedBruker', async (req, res, ctx) => {
+    const data = await req.json<DelMedBruker>();
     return res(ctx.status(200), ctx.json(data));
   }),
 
-  rest.get<any, any, DelMedBruker>('*/api/v1/internal/delMedBruker/*', (_, res, ctx) => {
+  rest.get<DefaultBodyType, PathParams, DelMedBruker>('*/api/v1/internal/delMedBruker/*', (req, res, ctx) => {
     return res(
       ctx.status(200),
       ctx.json({
@@ -20,7 +20,7 @@ export const delMedBrukerHandlers = [
     );
   }),
 
-  rest.post<any, any, DialogResponse>('*/api/v1/internal/dialog', (_, res, ctx) => {
+  rest.post<DefaultBodyType, PathParams, DialogResponse>('*/api/v1/internal/dialog', (req, res, ctx) => {
     return res(
       ctx.status(200),
       ctx.json({

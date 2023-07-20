@@ -1,9 +1,9 @@
-import { rest } from "msw";
+import { DefaultBodyType, PathParams, rest } from "msw";
 import { Utkast } from "mulighetsrommet-api-client";
 import { mockUtkast } from "../fixtures/mock_utkast";
 
 export const utkastHandlers = [
-  rest.put<Utkast, any, any>(
+  rest.put<DefaultBodyType, PathParams, Utkast>(
     "*/api/v1/internal/utkast",
     async (req, res, ctx) => {
       const data = await req.json<Utkast>();
@@ -36,13 +36,13 @@ export const utkastHandlers = [
     },
   ),
 
-  rest.get<Utkast, any, any>(
+  rest.get<DefaultBodyType, PathParams, Utkast[]>(
     "*/api/v1/internal/utkast/:id",
     async (req, res, ctx) => {
       return res(ctx.status(200), ctx.delay(), ctx.json(mockUtkast));
     },
   ),
-  rest.delete<Utkast, any, any>(
+  rest.delete<DefaultBodyType, PathParams, Utkast[]>(
     "*/api/v1/internal/utkast/:id",
     async (req, res, ctx) => {
       const { id } = req.params;
@@ -50,7 +50,7 @@ export const utkastHandlers = [
       return res(ctx.status(200), ctx.delay(), ctx.json(updated));
     },
   ),
-  rest.get<Utkast, any, any>(
+  rest.get<DefaultBodyType, PathParams, Utkast[]>(
     "*/api/v1/internal/utkast/mine",
     async (req, res, ctx) => {
       return res(ctx.status(200), ctx.delay(), ctx.json(mockUtkast));

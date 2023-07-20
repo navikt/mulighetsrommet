@@ -1,4 +1,4 @@
-import { rest } from "msw";
+import { DefaultBodyType, PathParams, rest } from "msw";
 import {
   PaginertTiltaksgjennomforing,
   Tiltaksgjennomforing,
@@ -8,21 +8,22 @@ import { mockTiltaksgjennomforinger } from "../fixtures/mock_tiltaksgjennomforin
 import { mockTiltaksgjennomforingerNokkeltall } from "../fixtures/mock_tiltaksgjennomforinger_nokkeltall";
 
 export const tiltaksgjennomforingHandlers = [
-  rest.get<any, any, PaginertTiltaksgjennomforing | { x: string }>(
-    "*/api/v1/internal/tiltaksgjennomforinger",
-    (req, res, ctx) => {
-      return res(ctx.status(200), ctx.json(mockTiltaksgjennomforinger));
-    },
-  ),
+  rest.get<
+    DefaultBodyType,
+    PathParams,
+    PaginertTiltaksgjennomforing | { x: string }
+  >("*/api/v1/internal/tiltaksgjennomforinger", (req, res, ctx) => {
+    return res(ctx.status(200), ctx.json(mockTiltaksgjennomforinger));
+  }),
 
-  rest.put<any, any, Tiltaksgjennomforing>(
+  rest.put<DefaultBodyType, PathParams, Tiltaksgjennomforing>(
     "*/api/v1/internal/tiltaksgjennomforinger",
     (req, res, ctx) => {
       return res(ctx.status(200), ctx.json(mockTiltaksgjennomforinger.data[0]));
     },
   ),
 
-  rest.get<any, any, Tiltaksgjennomforing[]>(
+  rest.get<DefaultBodyType, PathParams, Tiltaksgjennomforing[]>(
     "*/api/v1/internal/tiltaksgjennomforinger/sok",
     (req, res, ctx) => {
       const tiltaksnummer = req.url.searchParams.get("tiltaksnummer");
@@ -38,7 +39,11 @@ export const tiltaksgjennomforingHandlers = [
       return res(ctx.status(200), ctx.json(gjennomforing));
     },
   ),
-  rest.get<any, { id: string }, TiltaksgjennomforingNokkeltall | undefined>(
+  rest.get<
+    DefaultBodyType,
+    { id: string },
+    TiltaksgjennomforingNokkeltall | undefined
+  >(
     "*/api/v1/internal/tiltaksgjennomforinger/:id/nokkeltall",
     (req, res, ctx) => {
       return res(
@@ -49,7 +54,7 @@ export const tiltaksgjennomforingHandlers = [
     },
   ),
 
-  rest.get<any, { id: string }, Tiltaksgjennomforing | undefined>(
+  rest.get<DefaultBodyType, { id: string }, Tiltaksgjennomforing | undefined>(
     "*/api/v1/internal/tiltaksgjennomforinger/:id",
     (req, res, ctx) => {
       const { id } = req.params;
@@ -65,14 +70,18 @@ export const tiltaksgjennomforingHandlers = [
     },
   ),
 
-  rest.put<any, { id: string }, Number>(
+  rest.put<DefaultBodyType, { id: string }, Number>(
     "*/api/v1/internal/tiltaksgjennomforinger/:id/avbryt",
     (req, res, ctx) => {
       return res(ctx.status(200), ctx.json(1));
     },
   ),
 
-  rest.get<any, { id: string }, PaginertTiltaksgjennomforing | undefined>(
+  rest.get<
+    DefaultBodyType,
+    { id: string },
+    PaginertTiltaksgjennomforing | undefined
+  >(
     "*/api/v1/internal/tiltaksgjennomforinger/tiltakstype/:id",
     (req, res, ctx) => {
       const { id } = req.params as { id: string };
@@ -99,7 +108,11 @@ export const tiltaksgjennomforingHandlers = [
     },
   ),
 
-  rest.get<any, { tiltakskode: string }, PaginertTiltaksgjennomforing>(
+  rest.get<
+    DefaultBodyType,
+    { tiltakskode: string },
+    PaginertTiltaksgjennomforing
+  >(
     "*/api/v1/internal/tiltaksgjennomforinger/tiltakskode/:tiltakskode",
     (req, res, ctx) => {
       const { tiltakskode } = req.params;
@@ -121,7 +134,7 @@ export const tiltaksgjennomforingHandlers = [
     },
   ),
 
-  rest.get<any, { enhet: string }, PaginertTiltaksgjennomforing>(
+  rest.get<DefaultBodyType, { enhet: string }, PaginertTiltaksgjennomforing>(
     "*/api/v1/internal/tiltaksgjennomforinger/enhet/:enhet",
     (req, res, ctx) => {
       const { enhet } = req.params;
