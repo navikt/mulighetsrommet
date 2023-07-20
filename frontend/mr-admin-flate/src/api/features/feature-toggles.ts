@@ -36,11 +36,6 @@ export const ALL_TOGGLES = [
 ] as const;
 
 export type Features = Record<(typeof ALL_TOGGLES)[number], boolean>;
-// export interface Features {
-//   [ENABLE_ADMIN_FLATE]: boolean;
-//   [VIS_NOKKELTALL_ADMIN_FLATE]: boolean;
-//   [VIS_JOYRIDE]: boolean;
-// }
 
 export const initialFeatures: Features = {
   "mulighetsrommet.enable-admin-flate": false,
