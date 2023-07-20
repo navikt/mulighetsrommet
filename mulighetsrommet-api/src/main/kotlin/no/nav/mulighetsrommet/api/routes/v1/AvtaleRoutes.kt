@@ -66,19 +66,8 @@ fun Route.avtaleRoutes() {
             val id = call.parameters.getOrFail<UUID>("id")
 
             avtaler.get(id)
-                .onRight {
-                    if (it == null) {
-                        return@get call.respondText(
-                            text = "Det finnes ikke noen avtale med id $id",
-                            status = HttpStatusCode.NotFound,
-                        )
-                    }
-                    return@get call.respond(it)
-                }
-                .onLeft {
-                    log.error("$it")
-                    call.respond(HttpStatusCode.InternalServerError, "Kunne ikke hente avtale")
-                }
+                ?.let { call.respond(it) }
+                ?: call.respond(HttpStatusCode.NotFound, "Det finnes ikke noen avtale med id $id")
         }
 
         get("{id}/nokkeltall") {

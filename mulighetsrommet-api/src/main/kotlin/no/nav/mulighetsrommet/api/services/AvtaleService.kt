@@ -1,8 +1,6 @@
 package no.nav.mulighetsrommet.api.services
 
 import arrow.core.Either
-import arrow.core.flatMap
-import arrow.core.getOrElse
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleNokkeltallDto
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
@@ -11,7 +9,6 @@ import no.nav.mulighetsrommet.api.routes.v1.responses.*
 import no.nav.mulighetsrommet.api.utils.AdminTiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.api.utils.AvtaleFilter
 import no.nav.mulighetsrommet.api.utils.PaginationParams
-import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.AvtaleAdminDto
 import no.nav.mulighetsrommet.domain.dto.AvtaleNotificationDto
@@ -24,7 +21,7 @@ class AvtaleService(
     private val tiltaksgjennomforinger: TiltaksgjennomforingRepository,
     private val virksomhetService: VirksomhetService,
 ) {
-    fun get(id: UUID): QueryResult<AvtaleAdminDto?> {
+    fun get(id: UUID): AvtaleAdminDto? {
         return avtaler.get(id)
     }
 
@@ -32,14 +29,12 @@ class AvtaleService(
         virksomhetService.hentEnhet(avtale.leverandorOrganisasjonsnummer)
             ?: return Either.Left(BadRequest(message = "leverandør ${avtale.leverandorOrganisasjonsnummer} finnes ikke"))
 
-        return avtaler.upsert(avtale)
-            .flatMap { avtaler.get(avtale.id) }
-            .map { it!! } // If upsert is succesfull it should exist here
-            .mapLeft { ServerError("Internal Error while upserting avtale: $it") }
+        avtaler.upsert(avtale)
+        return Either.Right(avtaler.get(avtale.id)!!)
     }
 
     fun delete(id: UUID, currentDate: LocalDate = LocalDate.now()): StatusResponse<Unit> {
-        val optionalAvtale = avtaler.get(id).getOrNull()
+        val optionalAvtale = avtaler.get(id)
             ?: return Either.Left(NotFound("Fant ikke avtale for sletting"))
 
         if (optionalAvtale.opphav == ArenaMigrering.Opphav.ARENA) {
@@ -57,17 +52,12 @@ class AvtaleService(
                     dagensDato = currentDate,
                 ),
             )
-                .getOrElse { Pair(0, emptyList()) }
+
         if (gjennomforingerForAvtale.first > 0) {
             return Either.Left(BadRequest(message = "Avtalen har ${gjennomforingerForAvtale.first} ${if (gjennomforingerForAvtale.first > 1) "tiltaksgjennomføringer" else "tiltaksgjennomføring"} koblet til seg. Du må frikoble ${if (gjennomforingerForAvtale.first > 1) "gjennomføringene" else "gjennomføringen"} før du kan slette avtalen."))
         }
 
-        return avtaler
-            .delete(id)
-            .map {}
-            .mapLeft {
-                ServerError(message = "Det oppsto en feil ved sletting av avtalen")
-            }
+        return Either.Right(avtaler.delete(id))
     }
 
     fun getAll(
@@ -99,8 +89,8 @@ class AvtaleService(
         return avtaler.getAllAvtalerSomNarmerSegSluttdato()
     }
 
-    fun avbrytAvtale(avtaleId: UUID, currentDate: LocalDate = LocalDate.now()): StatusResponse<Boolean> {
-        val avtaleForAvbryting = avtaler.get(avtaleId).getOrNull()
+    fun avbrytAvtale(avtaleId: UUID, currentDate: LocalDate = LocalDate.now()): StatusResponse<Unit> {
+        val avtaleForAvbryting = avtaler.get(avtaleId)
             ?: return Either.Left(NotFound("Fant ikke avtale for avbrytelse med id '$avtaleId'"))
 
         if (avtaleForAvbryting.opphav == ArenaMigrering.Opphav.ARENA) {
@@ -118,13 +108,11 @@ class AvtaleService(
                     dagensDato = currentDate,
                 ),
             )
-                .getOrElse { Pair(0, emptyList()) }
+
         if (gjennomforingerForAvtale.first > 0) {
             return Either.Left(BadRequest(message = "Avtalen har ${gjennomforingerForAvtale.first} ${if (gjennomforingerForAvtale.first > 1) "tiltaksgjennomføringer" else "tiltaksgjennomføring"} koblet til seg. Du må frikoble ${if (gjennomforingerForAvtale.first > 1) "gjennomføringene" else "gjennomføringen"} før du kan avbryte avtalen."))
         }
 
-        return avtaler.avbrytAvtale(avtaleId).map {
-            true
-        }.mapLeft { error -> ServerError("Internal server error when 'Avbryt avtale'. Error: $error") }
+        return Either.Right(avtaler.avbrytAvtale(avtaleId))
     }
 }

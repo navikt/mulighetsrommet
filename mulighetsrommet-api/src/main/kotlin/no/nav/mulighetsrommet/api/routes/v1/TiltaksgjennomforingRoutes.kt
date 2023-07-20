@@ -1,9 +1,7 @@
 package no.nav.mulighetsrommet.api.routes.v1
 
 import arrow.core.Either
-import arrow.core.flatMap
-import arrow.core.left
-import arrow.core.right
+import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
@@ -35,35 +33,22 @@ fun Route.tiltaksgjennomforingRoutes() {
         put {
             val request = call.receive<TiltaksgjennomforingRequest>()
 
-            val result = request.toDbo()
-                .flatMap {
-                    tiltaksgjennomforingService.upsert(it)
-                        .onRight { utkastService.deleteUtkast(it.id) }
-                        .mapLeft { ServerError("Klarte ikke lagre tiltaksgjennomføring.") }
-                }
-
-            call.respondWithStatusResponse(result)
+            call.respondWithStatusResponse(tiltaksgjennomforingService.upsert(request))
         }
 
         get {
             val paginationParams = getPaginationParams()
             val filter = getAdminTiltaksgjennomforingsFilter()
 
-            val result = tiltaksgjennomforingService.getAll(paginationParams, filter)
-                .onLeft { log.error("${it.error}") }
-                .mapLeft { ServerError("Klarte ikke hente tiltaksgjennomføringer") }
-
-            call.respondWithStatusResponse(result)
+            call.respond(tiltaksgjennomforingService.getAll(paginationParams, filter))
         }
 
         get("{id}") {
             val id = call.parameters.getOrFail<UUID>("id")
 
-            val result = tiltaksgjennomforingService.get(id)
-                .flatMap { it?.right() ?: NotFound("Ingen tiltaksgjennomføring med id=$id").left() }
-                .mapLeft { ServerError("Klarte ikke hente tiltaksgjennomføring med id=$id") }
-
-            call.respondWithStatusResponse(result)
+            tiltaksgjennomforingService.get(id)
+                ?.let { call.respond(it) }
+                ?: call.respond(HttpStatusCode.Companion.NotFound, "Ingen tiltaksgjennomføring med id=$id")
         }
 
         put("{id}") {

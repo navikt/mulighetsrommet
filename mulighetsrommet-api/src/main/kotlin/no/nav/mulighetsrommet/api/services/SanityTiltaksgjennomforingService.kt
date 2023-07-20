@@ -7,7 +7,6 @@ import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.api.repositories.VirksomhetRepository
-import no.nav.mulighetsrommet.database.utils.getOrThrow
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingAdminDto
 import org.slf4j.LoggerFactory
 import java.util.*
@@ -34,7 +33,7 @@ class SanityTiltaksgjennomforingService(
         tiltaksgjennomforingRepository.updateSanityTiltaksgjennomforingId(
             tiltaksgjennomforing.id,
             UUID.fromString(sanityTiltaksgjennomforinger[0]._id),
-        ).getOrThrow()
+        )
         return true
     }
 
@@ -44,7 +43,7 @@ class SanityTiltaksgjennomforingService(
         }
 
         val sanityTiltaksgjennomforingId = UUID.randomUUID()
-        val avtale = tiltaksgjennomforing.avtaleId?.let { avtaleRepository.get(it).getOrThrow() }
+        val avtale = tiltaksgjennomforing.avtaleId?.let { avtaleRepository.get(it) }
         val tiltakstype = tiltakstypeRepository.get(tiltaksgjennomforing.tiltakstype.id)
         val enhet = virksomhetRepository.get(tiltaksgjennomforing.arrangorOrganisasjonsnummer).getOrNull()
         val lokasjonForVirksomhetFraBrreg = "${enhet?.postnummer ?: ""} ${enhet?.poststed ?: ""}"
@@ -78,7 +77,6 @@ class SanityTiltaksgjennomforingService(
             tiltaksgjennomforing.id,
             sanityTiltaksgjennomforingId,
         )
-            .getOrThrow()
     }
 
     private suspend fun hentTiltaksgjennomforinger(tiltaksnummer: String): List<SanityTiltaksgjennomforingResponse> {

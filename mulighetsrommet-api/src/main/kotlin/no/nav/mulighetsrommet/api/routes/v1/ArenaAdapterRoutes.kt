@@ -46,23 +46,14 @@ fun Route.arenaAdapterRoutes() {
         put("avtale") {
             val dbo = call.receive<ArenaAvtaleDbo>()
 
-            arenaAdapterService.upsertAvtale(dbo)
-                .map { call.respond(it) }
-                .mapLeft {
-                    logError(logger, it.error)
-                    call.respond(HttpStatusCode.InternalServerError, "Kunne ikke opprette avtale")
-                }
+            call.respond(arenaAdapterService.upsertAvtale(dbo))
         }
 
         delete("avtale/{id}") {
             val id = call.parameters.getOrFail<UUID>("id")
 
             arenaAdapterService.removeAvtale(id)
-                .map { call.response.status(HttpStatusCode.OK) }
-                .mapLeft {
-                    logError(logger, it.error)
-                    call.respond(HttpStatusCode.InternalServerError, "Kunne ikke slette avtale")
-                }
+            call.response.status(HttpStatusCode.OK)
         }
 
         put("tiltaksgjennomforing") {

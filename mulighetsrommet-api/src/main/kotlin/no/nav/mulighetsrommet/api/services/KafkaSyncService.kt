@@ -5,7 +5,6 @@ import no.nav.mulighetsrommet.api.producers.TiltakstypeKafkaProducer
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.api.utils.DatabaseUtils.paginate
-import no.nav.mulighetsrommet.database.utils.getOrThrow
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingDto
 import org.slf4j.LoggerFactory
@@ -28,10 +27,10 @@ class KafkaSyncService(
                 dateIntervalEnd = today,
                 avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
                 pagination = paginationParams,
-            ).getOrThrow()
+            )
 
             tiltaksgjennomforinger.forEach { id ->
-                tiltaksgjennomforingRepository.get(id).getOrThrow()
+                tiltaksgjennomforingRepository.get(id)
                     ?.let {
                         tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingDto.from(it))
                     }

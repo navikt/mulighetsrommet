@@ -31,8 +31,8 @@ class DeltakerRepositoryTest : FunSpec({
             tiltak.upsert(TiltakstypeFixtures.Oppfolging).getOrThrow()
 
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-            tiltaksgjennomforinger.upsert(TiltaksgjennomforingFixtures.Oppfolging1).getOrThrow()
-            tiltaksgjennomforinger.upsert(TiltaksgjennomforingFixtures.Oppfolging2).getOrThrow()
+            tiltaksgjennomforinger.upsert(TiltaksgjennomforingFixtures.Oppfolging1)
+            tiltaksgjennomforinger.upsert(TiltaksgjennomforingFixtures.Oppfolging2)
         }
 
         val deltakere = DeltakerRepository(database.db)
@@ -106,9 +106,10 @@ class DeltakerRepositoryTest : FunSpec({
 
             tiltakstypeRepository.upsert(tiltakstype)
             tiltakstypeRepository.upsert(tiltakstype2)
-            tiltaksgjennomforingRepository.upsert(TiltaksgjennomforingFixtures.Oppfolging1).getOrThrow()
-            tiltaksgjennomforingRepository.upsert(TiltaksgjennomforingFixtures.Oppfolging2.copy(tiltakstypeId = tiltakstype2.id))
-                .getOrThrow()
+            tiltaksgjennomforingRepository.upsert(TiltaksgjennomforingFixtures.Oppfolging1)
+            tiltaksgjennomforingRepository.upsert(
+                TiltaksgjennomforingFixtures.Oppfolging2.copy(tiltakstypeId = tiltakstype2.id),
+            )
             deltakerRepository.upsert(deltaker1)
             deltakerRepository.upsert(deltaker2)
             deltakerRepository.upsert(deltaker3)

@@ -31,7 +31,7 @@ class AmtDeltakerV1TopicConsumerTest : FunSpec({
             tiltak.upsert(TiltakstypeFixtures.Oppfolging).getOrThrow()
 
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-            tiltaksgjennomforinger.upsert(TiltaksgjennomforingFixtures.Oppfolging1).getOrThrow()
+            tiltaksgjennomforinger.upsert(TiltaksgjennomforingFixtures.Oppfolging1)
         }
 
         beforeEach {
