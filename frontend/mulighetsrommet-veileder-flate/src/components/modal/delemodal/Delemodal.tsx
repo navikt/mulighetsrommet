@@ -12,7 +12,7 @@ import { DelMedBrukerContent } from './DelMedBrukerContent';
 import { useNavigerTilDialogen } from '../../../hooks/useNavigerTilDialogen';
 import { useHentFnrFraUrl } from '../../../hooks/useHentFnrFraUrl';
 import { StatusModal } from './StatusModal';
-import { porten } from 'mulighetsrommet-frontend-common/constants';
+import { PORTEN } from 'mulighetsrommet-frontend-common/constants';
 
 export const logDelMedbrukerEvent = (
   action: 'Åpnet dialog' | 'Delte med bruker' | 'Del med bruker feilet' | 'Avbrutt del med bruker' | 'Sett hilsen'
@@ -148,7 +148,7 @@ const Delemodal = ({
           text={
             <>
               Tiltaket kunne ikke deles på grunn av en teknisk feil hos oss. Forsøk på nytt eller ta{' '}
-              <a href={porten}>kontakt</a> i Porten dersom du trenger mer hjelp.
+              <a href={PORTEN}>kontakt</a> i Porten dersom du trenger mer hjelp.
             </>
           }
           onClose={clickCancel}

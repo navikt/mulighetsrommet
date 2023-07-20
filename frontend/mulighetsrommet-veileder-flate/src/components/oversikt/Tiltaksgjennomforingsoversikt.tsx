@@ -2,7 +2,7 @@ import { Alert, BodyShort, Button, Loader, Pagination } from '@navikt/ds-react';
 import { useAtom } from 'jotai';
 import { RESET } from 'jotai/utils';
 import { ApiError, SanityTiltaksgjennomforing } from 'mulighetsrommet-api-client';
-import { porten } from 'mulighetsrommet-frontend-common/constants';
+import { PORTEN } from 'mulighetsrommet-frontend-common/constants';
 import { useEffect, useRef, useState } from 'react';
 import { logEvent } from '../../core/api/logger';
 import { useHentBrukerdata } from '../../core/api/queries/useHentBrukerdata';
@@ -56,7 +56,7 @@ const Tiltaksgjennomforingsoversikt = () => {
         <Alert variant="error">
           Det har dessverre skjedd en feil. Om feilen gjentar seg, ta kontakt i{' '}
           {
-            <Lenke to={porten} target={'_blank'}>
+            <Lenke to={PORTEN} target={'_blank'}>
               Porten
             </Lenke>
           }
@@ -68,7 +68,7 @@ const Tiltaksgjennomforingsoversikt = () => {
         <Alert variant="error">
           Det har dessverre skjedd en feil. Om feilen gjentar seg, ta kontakt i{' '}
           {
-            <Lenke to={porten} target={'_blank'}>
+            <Lenke to={PORTEN} target={'_blank'}>
               Porten
             </Lenke>
           }

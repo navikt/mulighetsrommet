@@ -27,8 +27,10 @@ import {
   tilgjengelighetsstatusTilTekst,
 } from "../../utils/Utils";
 import styles from "../DetaljerInfo.module.scss";
-
-const TEAMS_DYPLENKE = "https://teams.microsoft.com/l/chat/0/0?users=";
+import {
+  NOM_ANSATT_SIDE,
+  TEAMS_DYPLENKE,
+} from "mulighetsrommet-frontend-common/constants";
 
 export function TiltaksgjennomforingInfo() {
   const {
@@ -213,7 +215,7 @@ export function TiltaksgjennomforingInfo() {
                 <a
                   target="_blank"
                   rel="noopener noreferrer"
-                  href={`https://nom.nav.no/ressurs/${tiltaksgjennomforing.ansvarlig?.navident}`}
+                  href={`${NOM_ANSATT_SIDE}${tiltaksgjennomforing.ansvarlig?.navident}`}
                 >
                   {`${tiltaksgjennomforing.ansvarlig?.navn} - ${tiltaksgjennomforing.ansvarlig?.navident}`}{" "}
                   <ExternalLinkIcon />

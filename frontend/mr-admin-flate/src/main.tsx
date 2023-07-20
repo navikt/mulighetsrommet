@@ -3,11 +3,11 @@ import "@navikt/ds-css-internal";
 import { Alert, BodyShort, Heading } from "@navikt/ds-react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { porten } from "mulighetsrommet-frontend-common/constants";
+import { PORTEN } from "mulighetsrommet-frontend-common/constants";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { ErrorBoundary, FallbackProps } from "react-error-boundary";
-import { Link, BrowserRouter as Router } from "react-router-dom";
+import { BrowserRouter as Router, Link } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
 import { App } from "./App";
 import { AdministratorHeader } from "./components/administrator/AdministratorHeader";
@@ -37,10 +37,13 @@ export function ErrorFallback({ error }: FallbackProps) {
     <div className="error">
       <Alert variant="error">
         <Heading size="medium" level="2">
-          {error.body?.message || "Det oppsto dessverre en feil"}
+          {error.message ||
+            error.body.message ||
+            "Det oppsto dessverre en feil"}
         </Heading>
         <BodyShort>
-          Hvis problemet vedvarer opprett en sak via <a href={porten}>Porten</a>
+          Hvis problemet vedvarer opprett en sak via <a href={PORTEN}>Porten</a>
+          .
         </BodyShort>
         <Link to="/" reloadDocument className="error-link">
           Ta meg til forsiden og prøv igjen

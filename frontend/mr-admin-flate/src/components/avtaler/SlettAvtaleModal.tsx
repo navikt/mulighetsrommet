@@ -4,7 +4,8 @@ import { useEffect } from "react";
 import classNames from "classnames";
 import { useNavigate } from "react-router-dom";
 import { useDeleteAvtale } from "../../api/avtaler/useDeleteAvtale";
-import styles from "./Modal.module.scss";
+import styles from "../modal/Modal.module.scss";
+import { XMarkOctagonFillIcon } from "@navikt/aksel-icons";
 
 interface SlettAvtaleModalprops {
   modalOpen: boolean;
@@ -55,7 +56,7 @@ const SlettAvtaleModal = ({
   function headerInnhold(avtale?: Avtale) {
     return (
       <div className={styles.heading}>
-        <VarselIkon />
+        <XMarkOctagonFillIcon className={styles.warningicon} />
         {avtale?.opphav === Opphav.ARENA ? (
           <span>Avtalen kan ikke slettes</span>
         ) : mutation.isError ? (
@@ -75,10 +76,7 @@ const SlettAvtaleModal = ({
         ) : mutation?.isError ? (
           <p>{(mutation.error as ApiError).body}</p>
         ) : (
-          <>
-            <p>Er du sikker på at du ønsker å slette avtalen «{avtale?.navn}»?</p>
-            <p>Du kan ikke angre denne handlingen</p>
-          </>
+          <p>Du kan ikke angre denne handlingen</p>
         )}
         <div className={styles.knapperad}>
           {avtale?.opphav === Opphav.ARENA ? null : mutation?.isError ? (
@@ -107,7 +105,7 @@ const SlettAvtaleModal = ({
         onClose={clickCancel}
         className={classNames(
           styles.overstyrte_styles_fra_ds_modal,
-          styles.text_center
+          styles.text_center,
         )}
         aria-label="modal"
       >
@@ -125,21 +123,5 @@ const SlettAvtaleModal = ({
     </>
   );
 };
-
-export const VarselIkon = () =>
-    <svg
-      width="32"
-      height="32"
-      viewBox="0 0 32 32"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path
-        fillRule="evenodd"
-        clipRule="evenodd"
-        d="M3.14138e-05 15.968C0.016727 7.16242 7.19306 0 15.9986 0C24.8529 0.0166956 32.0167 7.20833 32 16.0292C31.9819 24.8361 24.8042 31.9999 16 31.9999H15.9694C11.6953 31.9916 7.68002 30.3192 4.66367 27.2918C1.64733 24.2629 -0.0083164 20.242 3.14138e-05 15.968ZM22.6666 11.2381L20.7619 9.33332L16 14.096L11.2381 9.33332L9.33332 11.2381L14.096 16L9.33332 20.7619L11.2381 22.6666L16 17.904L20.7619 22.6666L22.6666 20.7619L17.904 16L22.6666 11.2381Z"
-        fill="#C30000"
-      />
-    </svg>
 
 export default SlettAvtaleModal;

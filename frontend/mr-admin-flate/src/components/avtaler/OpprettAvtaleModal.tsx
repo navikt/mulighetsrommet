@@ -5,7 +5,7 @@ import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
 import { useAlleEnheter } from "../../api/enhet/useAlleEnheter";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
 import { Laster } from "../laster/Laster";
-import styles from "./Modal.module.scss";
+import styles from "../modal/Modal.module.scss";
 import { OpprettAvtaleContainer } from "./OpprettAvtaleContainer";
 
 interface OpprettAvtaleModalProps {

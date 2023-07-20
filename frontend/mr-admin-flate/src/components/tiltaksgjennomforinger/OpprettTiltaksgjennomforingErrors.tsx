@@ -1,9 +1,10 @@
-import { porten } from "mulighetsrommet-frontend-common/constants";
+import { PORTEN } from "mulighetsrommet-frontend-common/constants";
 import { Link } from "react-router-dom";
+
 export const tekniskFeilError = () => (
   <>
     Gjennomføringen kunne ikke opprettes på grunn av en teknisk feil hos oss.
-    Forsøk på nytt eller ta <a href={porten}>kontakt</a> i Porten dersom du
+    Forsøk på nytt eller ta <a href={PORTEN}>kontakt</a> i Porten dersom du
     trenger mer hjelp.
   </>
 );
@@ -23,7 +24,7 @@ export const avtaleManglerNavRegionError = (avtaleId?: string) => (
         <br />
       </>
     ) : null}
-    Ta <a href={porten}>kontakt</a> i Porten dersom du trenger mer hjelp.
+    Ta <a href={PORTEN}>kontakt</a> i Porten dersom du trenger mer hjelp.
   </>
 );
 
@@ -37,7 +38,7 @@ export const avtaleFinnesIkke = () => (
     <Link to={`/avtaler`}>Gå til avtaler her</Link>
     <br />
     <br />
-    Ta <a href={porten}>kontakt</a> i Porten dersom du trenger mer hjelp.
+    Ta <a href={PORTEN}>kontakt</a> i Porten dersom du trenger mer hjelp.
   </>
 );
 
@@ -47,6 +48,6 @@ export const avtalenErAvsluttet = (erRedigeringsmodus: boolean) => (
     avtalens sluttdato har passert.
     <br />
     <br />
-    Ta <a href={porten}>kontakt</a> i Porten dersom du trenger mer hjelp.
+    Ta <a href={PORTEN}>kontakt</a> i Porten dersom du trenger mer hjelp.
   </>
 );

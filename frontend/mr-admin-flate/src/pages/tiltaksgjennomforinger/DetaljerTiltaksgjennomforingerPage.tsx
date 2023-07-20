@@ -5,7 +5,11 @@ import {
   TiltaksgjennomforingerTabs,
   tiltaksgjennomforingTabAtom,
 } from "../../api/atoms";
-import { useFeatureToggles } from "../../api/features/feature-toggles";
+import {
+  useFeatureToggles,
+  VIS_DELTAKERLISTE_KOMET,
+  VIS_NOKKELTALL_ADMIN_FLATE,
+} from "../../api/features/feature-toggles";
 import { useTiltaksgjennomforingById } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforingById";
 import { Header } from "../../components/detaljside/Header";
 import { Laster } from "../../components/laster/Laster";
@@ -19,7 +23,13 @@ import { DeltakerListe } from "../../microfrontends/team_komet/Deltakerliste";
 export function DetaljerTiltaksgjennomforingerPage() {
   const optionalTiltaksgjennomforing = useTiltaksgjennomforingById();
   const [tabValgt, setTabValgt] = useAtom(tiltaksgjennomforingTabAtom);
-  const { data } = useFeatureToggles();
+  const features = useFeatureToggles();
+
+  const visDeltakerlisteFraKometFeature =
+    features.isSuccess && features.data[VIS_DELTAKERLISTE_KOMET];
+
+  const visNokkeltallFeature =
+    features.isSuccess && features.data[VIS_NOKKELTALL_ADMIN_FLATE];
 
   if (
     !optionalTiltaksgjennomforing.data &&
@@ -62,11 +72,11 @@ export function DetaljerTiltaksgjennomforingerPage() {
             data-testid="tab_detaljer"
           />
 
-          {data?.["mulighetsrommet.admin-flate-vis-deltakerliste-fra-komet"] ? (
+          {visDeltakerlisteFraKometFeature ? (
             <Tabs.Tab value="poc" label="Deltakerliste" />
           ) : null}
 
-          {data?.["mulighetsrommet.admin-flate-vis-nokkeltall"] ? (
+          {visNokkeltallFeature ? (
             <Tabs.Tab
               value="nokkeltall"
               label="Nøkkeltall"
