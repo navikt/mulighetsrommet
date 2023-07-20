@@ -1,9 +1,10 @@
 import groq from 'groq';
-import { rest } from 'msw';
+import { DefaultBodyType, PathParams, rest } from 'msw';
 import { utledInnsatsgrupperFraInnsatsgruppe } from '../../../core/api/queries/useTiltaksgjennomforinger';
 import { badReq, ok } from '../responses';
 import { SanityClient, ClientConfig, createClient } from '@sanity/client';
 import { ENHET_FREDRIKSTAD, FYLKE_NAV_OST_VIKEN } from '../../mock_constants';
+import { SanityInnsatsgruppe, SanityTiltakstype } from 'mulighetsrommet-api-client';
 
 let cachedClient: SanityClient | null = null;
 
@@ -23,36 +24,21 @@ function getSanityClient(perspective: ClientConfig['perspective'] = 'published')
 }
 
 export const sanityHandlers = [
-  rest.get<any, any, any>('*/api/v1/internal/sanity', async req => {
-    const query = req.url.searchParams.get('query');
-
-    if (!query) {
-      return badReq("'query' must be specified");
-    }
-
-    const client = getSanityClient();
-    const result = await client.fetch(query, {
-      enhetsId: `enhet.lokal.${ENHET_FREDRIKSTAD}`,
-      fylkeId: `enhet.fylke.${FYLKE_NAV_OST_VIKEN}`,
-    });
-    return ok(result);
-  }),
-
-  rest.get<any, any, any>('*/api/v1/internal/sanity/innsatsgrupper', async () => {
+  rest.get<DefaultBodyType, PathParams, SanityInnsatsgruppe[]>('*/api/v1/internal/sanity/innsatsgrupper', async () => {
     const query = groq`*[_type == "innsatsgruppe"]`;
     const client = getSanityClient();
-    const result = await client.fetch(query);
+    const result = await client.fetch<SanityInnsatsgruppe[]>(query);
     return ok(result);
   }),
 
-  rest.get<any, any, any>('*/api/v1/internal/sanity/tiltakstyper', async () => {
+  rest.get<DefaultBodyType, PathParams, SanityTiltakstype[]>('*/api/v1/internal/sanity/tiltakstyper', async () => {
     const query = groq`*[_type == "tiltakstype"]`;
     const client = getSanityClient();
-    const result = await client.fetch(query);
+    const result = await client.fetch<SanityTiltakstype[]>(query);
     return ok(result);
   }),
 
-  rest.get<any, any, any>('*/api/v1/internal/sanity/lokasjoner', async () => {
+  rest.get<DefaultBodyType, PathParams, any>('*/api/v1/internal/sanity/lokasjoner', async () => {
     const query = groq`array::unique(*[_type == "tiltaksgjennomforing"
     ${enhetOgFylkeFilter()}]
     {
@@ -63,7 +49,7 @@ export const sanityHandlers = [
     return ok(result);
   }),
 
-  rest.get<any, any, any>('*/api/v1/internal/sanity/tiltaksgjennomforinger', async req => {
+  rest.get<DefaultBodyType, PathParams, any>('*/api/v1/internal/sanity/tiltaksgjennomforinger', async req => {
     const innsatsgruppe = req.url.searchParams.get('innsatsgruppe') || '';
     const tiltakstypeIder = req.url.searchParams.getAll('tiltakstypeIder');
     const sokestreng = req.url.searchParams.get('sokestreng') || '';
@@ -93,7 +79,7 @@ export const sanityHandlers = [
     return ok(result);
   }),
 
-  rest.get<any, any, any>('*/api/v1/internal/sanity/tiltaksgjennomforing/:id', async req => {
+  rest.get<DefaultBodyType, PathParams, any>('*/api/v1/internal/sanity/tiltaksgjennomforing/:id', async req => {
     const id = req.params.id;
     const matchIdForProdEllerDrafts = `(_id == '${id}' || _id == 'drafts.${id}')`;
     const query = groq`*[_type == "tiltaksgjennomforing" && ${matchIdForProdEllerDrafts}] {
