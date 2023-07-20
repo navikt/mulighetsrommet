@@ -9,7 +9,6 @@ import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
-import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingKontaktpersonDbo
 import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
 import no.nav.mulighetsrommet.api.fixtures.*
@@ -908,7 +907,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
             (1..105).forEach {
                 tiltaksgjennomforinger.upsert(
-                    TiltaksgjennomforingDbo(
+                    TiltaksgjennomforingFixtures.Oppfolging1.copy(
                         id = UUID.randomUUID(),
                         navn = "Tiltak - $it",
                         tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
@@ -918,18 +917,9 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                         avslutningsstatus = Avslutningsstatus.AVSLUTTET,
                         startDato = LocalDate.of(2022, 1, 1),
                         tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.LEDIG,
-                        antallPlasser = null,
-                        ansvarlige = emptyList(),
-                        navEnheter = emptyList(),
                         oppstart = TiltaksgjennomforingOppstartstype.FELLES,
                         opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
-                        kontaktpersoner = emptyList(),
                         lokasjonArrangor = "0139 Oslo",
-                        sluttDato = null,
-                        arrangorKontaktpersonId = null,
-                        stengtFra = null,
-                        stengtTil = null,
-                        estimertVentetid = null,
                     ),
                 )
             }
