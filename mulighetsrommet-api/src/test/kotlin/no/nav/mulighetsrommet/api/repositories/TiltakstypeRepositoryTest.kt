@@ -337,8 +337,7 @@ class TiltakstypeRepositoryTest : FunSpec({
         test("Skal telle korrekt antall deltakere tilknyttet en avtale") {
             val tiltakstypeIdSomIkkeSkalMatche = UUID.randomUUID()
 
-            val avtale =
-                AvtaleFixtures(database).createAvtaleForTiltakstype(tiltakstypeId = tiltaksgjennomforingFixture.Oppfolging1.tiltakstypeId)
+            val avtale = AvtaleFixtures.avtale1
 
             val gjennomforing1 = TiltaksgjennomforingFixtures.Oppfolging1.copy(
                 id = UUID.randomUUID(),

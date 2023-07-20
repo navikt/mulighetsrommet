@@ -9,10 +9,7 @@ import io.ktor.http.*
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleNotatDbo
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingNotatDbo
-import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
-import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
-import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
-import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
+import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.repositories.AvtaleNotatRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingNotatRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
@@ -23,11 +20,9 @@ import java.util.*
 class NotatServiceTest : FunSpec({
     context("NotatService") {
         val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
-        val avtaleFixture = AvtaleFixtures(database)
         val domain = MulighetsrommetTestDomain()
 
         beforeEach {
-            avtaleFixture.runBeforeTests()
             domain.initialize(database.db)
         }
 
@@ -35,16 +30,15 @@ class NotatServiceTest : FunSpec({
             val avtaleNotatRepository = AvtaleNotatRepository(database.db)
             val tiltaksgjennomforingNotatRepository = TiltaksgjennomforingNotatRepository(database.db)
             val notatService = NotatServiceImpl(avtaleNotatRepository, tiltaksgjennomforingNotatRepository)
-            val avtale = avtaleFixture.createAvtaleForTiltakstype(id = UUID.randomUUID())
+            val avtale = AvtaleFixtures.avtale1
             val avtaleNotater = AvtaleNotatRepository(database.db)
-            avtaleFixture.upsertAvtaler(listOf(avtale))
 
             val notat1 = AvtaleNotatDbo(
                 id = UUID.randomUUID(),
                 avtaleId = avtale.id,
                 createdAt = null,
                 updatedAt = null,
-                opprettetAv = domain.ansatt1.navIdent,
+                opprettetAv = NavAnsattFixture.ansatt1.navIdent,
                 innhold = "Mitt første notat",
             )
 
@@ -53,7 +47,7 @@ class NotatServiceTest : FunSpec({
                 avtaleId = avtale.id,
                 createdAt = null,
                 updatedAt = null,
-                opprettetAv = domain.ansatt1.navIdent,
+                opprettetAv = NavAnsattFixture.ansatt1.navIdent,
                 innhold = "Mitt andre notat",
             )
 
@@ -62,7 +56,7 @@ class NotatServiceTest : FunSpec({
                 avtaleId = avtale.id,
                 createdAt = null,
                 updatedAt = null,
-                opprettetAv = domain.ansatt2.navIdent,
+                opprettetAv = NavAnsattFixture.ansatt2.navIdent,
                 innhold = "En kollega sitt notat",
             )
 
@@ -71,23 +65,22 @@ class NotatServiceTest : FunSpec({
             avtaleNotater.upsert(notat2).shouldBeRight()
             avtaleNotater.upsert(notat3).shouldBeRight()
 
-            notatService.deleteAvtaleNotat(notat1.id, domain.ansatt1.navIdent).shouldBeRight(1)
+            notatService.deleteAvtaleNotat(notat1.id, NavAnsattFixture.ansatt1.navIdent).shouldBeRight(1)
         }
 
         test("Skal ikke få slette notat for avtale når du ikke har opprettet notatet selv") {
             val avtaleNotatRepository = AvtaleNotatRepository(database.db)
             val tiltaksgjennomforingNotatRepository = TiltaksgjennomforingNotatRepository(database.db)
             val notatService = NotatServiceImpl(avtaleNotatRepository, tiltaksgjennomforingNotatRepository)
-            val avtale = avtaleFixture.createAvtaleForTiltakstype(id = UUID.randomUUID())
+            val avtale = AvtaleFixtures.avtale1
             val avtaleNotater = AvtaleNotatRepository(database.db)
-            avtaleFixture.upsertAvtaler(listOf(avtale))
 
             val notat1 = AvtaleNotatDbo(
                 id = UUID.randomUUID(),
                 avtaleId = avtale.id,
                 createdAt = null,
                 updatedAt = null,
-                opprettetAv = domain.ansatt1.navIdent,
+                opprettetAv = NavAnsattFixture.ansatt1.navIdent,
                 innhold = "Mitt første notat",
             )
 
@@ -96,7 +89,7 @@ class NotatServiceTest : FunSpec({
                 avtaleId = avtale.id,
                 createdAt = null,
                 updatedAt = null,
-                opprettetAv = domain.ansatt1.navIdent,
+                opprettetAv = NavAnsattFixture.ansatt1.navIdent,
                 innhold = "Mitt andre notat",
             )
 
@@ -105,7 +98,7 @@ class NotatServiceTest : FunSpec({
                 avtaleId = avtale.id,
                 createdAt = null,
                 updatedAt = null,
-                opprettetAv = domain.ansatt2.navIdent,
+                opprettetAv = NavAnsattFixture.ansatt2.navIdent,
                 innhold = "En kollega sitt notat",
             )
 
@@ -114,7 +107,7 @@ class NotatServiceTest : FunSpec({
             avtaleNotater.upsert(notat2).shouldBeRight()
             avtaleNotater.upsert(notat3).shouldBeRight()
 
-            notatService.deleteAvtaleNotat(notat3.id, domain.ansatt1.navIdent).shouldBeLeft().should {
+            notatService.deleteAvtaleNotat(notat3.id, NavAnsattFixture.ansatt1.navIdent).shouldBeLeft().should {
                 it.status shouldBe HttpStatusCode.Forbidden
                 it.message shouldBe "Kan ikke slette notat som du ikke har opprettet selv."
             }
@@ -128,8 +121,7 @@ class NotatServiceTest : FunSpec({
             val tiltakstyper = TiltakstypeRepository(database.db)
             tiltakstyper.upsert(tiltakstypeFixture.Arbeidstrening).shouldBeRight()
             tiltakstyper.upsert(tiltakstypeFixture.Oppfolging).shouldBeRight()
-            val avtale = avtaleFixture.createAvtaleForTiltakstype(id = UUID.randomUUID())
-            avtaleFixture.upsertAvtaler(listOf(avtale))
+            val avtale = AvtaleFixtures.avtale1
             val tiltaksgjennomforingFixtures = TiltaksgjennomforingFixtures
             val gjennomforing = tiltaksgjennomforingFixtures.Oppfolging1.copy(avtaleId = avtale.id)
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
@@ -140,7 +132,7 @@ class NotatServiceTest : FunSpec({
                 tiltaksgjennomforingId = gjennomforing.id,
                 createdAt = null,
                 updatedAt = null,
-                opprettetAv = domain.ansatt1.navIdent,
+                opprettetAv = NavAnsattFixture.ansatt1.navIdent,
                 innhold = "Mitt første notat",
             )
 
@@ -149,7 +141,7 @@ class NotatServiceTest : FunSpec({
                 tiltaksgjennomforingId = gjennomforing.id,
                 createdAt = null,
                 updatedAt = null,
-                opprettetAv = domain.ansatt1.navIdent,
+                opprettetAv = NavAnsattFixture.ansatt1.navIdent,
                 innhold = "Mitt andre notat",
             )
 
@@ -158,7 +150,7 @@ class NotatServiceTest : FunSpec({
                 tiltaksgjennomforingId = gjennomforing.id,
                 createdAt = null,
                 updatedAt = null,
-                opprettetAv = domain.ansatt2.navIdent,
+                opprettetAv = NavAnsattFixture.ansatt2.navIdent,
                 innhold = "En kollega sitt notat",
             )
 
@@ -167,7 +159,7 @@ class NotatServiceTest : FunSpec({
             tiltaksgjennomforingNotatRepository.upsert(notat2).shouldBeRight()
             tiltaksgjennomforingNotatRepository.upsert(notat3).shouldBeRight()
 
-            notatService.deleteTiltaksgjennomforingNotat(notat1.id, domain.ansatt1.navIdent).shouldBeRight(1)
+            notatService.deleteTiltaksgjennomforingNotat(notat1.id, NavAnsattFixture.ansatt1.navIdent).shouldBeRight(1)
         }
 
         test("Skal ikke få slette notat for tiltaksgjennomføring når du ikke har opprettet notatet selv") {
@@ -178,8 +170,7 @@ class NotatServiceTest : FunSpec({
             val tiltakstyper = TiltakstypeRepository(database.db)
             tiltakstyper.upsert(tiltakstypeFixture.Arbeidstrening).shouldBeRight()
             tiltakstyper.upsert(tiltakstypeFixture.Oppfolging).shouldBeRight()
-            val avtale = avtaleFixture.createAvtaleForTiltakstype(id = UUID.randomUUID())
-            avtaleFixture.upsertAvtaler(listOf(avtale))
+            val avtale = AvtaleFixtures.avtale1
             val tiltaksgjennomforingFixtures = TiltaksgjennomforingFixtures
             val gjennomforing = tiltaksgjennomforingFixtures.Oppfolging1.copy(avtaleId = avtale.id)
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
@@ -190,7 +181,7 @@ class NotatServiceTest : FunSpec({
                 tiltaksgjennomforingId = gjennomforing.id,
                 createdAt = null,
                 updatedAt = null,
-                opprettetAv = domain.ansatt1.navIdent,
+                opprettetAv = NavAnsattFixture.ansatt1.navIdent,
                 innhold = "Mitt første notat",
             )
 
@@ -199,7 +190,7 @@ class NotatServiceTest : FunSpec({
                 tiltaksgjennomforingId = gjennomforing.id,
                 createdAt = null,
                 updatedAt = null,
-                opprettetAv = domain.ansatt1.navIdent,
+                opprettetAv = NavAnsattFixture.ansatt1.navIdent,
                 innhold = "Mitt andre notat",
             )
 
@@ -208,7 +199,7 @@ class NotatServiceTest : FunSpec({
                 tiltaksgjennomforingId = gjennomforing.id,
                 createdAt = null,
                 updatedAt = null,
-                opprettetAv = domain.ansatt2.navIdent,
+                opprettetAv = NavAnsattFixture.ansatt2.navIdent,
                 innhold = "En kollega sitt notat",
             )
 
@@ -217,10 +208,11 @@ class NotatServiceTest : FunSpec({
             tiltaksgjennomforingNotatRepository.upsert(notat2).shouldBeRight()
             tiltaksgjennomforingNotatRepository.upsert(notat3).shouldBeRight()
 
-            notatService.deleteTiltaksgjennomforingNotat(notat3.id, domain.ansatt1.navIdent).shouldBeLeft().should {
-                it.status shouldBe HttpStatusCode.Forbidden
-                it.message shouldBe "Kan ikke slette notat som du ikke har opprettet selv."
-            }
+            notatService.deleteTiltaksgjennomforingNotat(notat3.id, NavAnsattFixture.ansatt1.navIdent).shouldBeLeft()
+                .should {
+                    it.status shouldBe HttpStatusCode.Forbidden
+                    it.message shouldBe "Kan ikke slette notat som du ikke har opprettet selv."
+                }
         }
     }
 })

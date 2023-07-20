@@ -241,6 +241,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/AvtaleNotat"
 
+
   /api/v1/internal/notater/avtaler/mine:
     get:
       tags:
@@ -367,7 +368,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/AvtaleNotat"
+                  $ref: "#/components/schemas/AvtaleNotat"
 
   /api/v1/internal/notater/tiltaksgjennomforinger/{id}:
     delete:

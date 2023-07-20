@@ -1,95 +1,136 @@
 package no.nav.mulighetsrommet.api.repositories
 
-import io.kotest.assertions.arrow.core.shouldBeRight
-import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.should
-import io.kotest.matchers.shouldBe
-import no.nav.mulighetsrommet.api.createDatabaseTestConfig
+import kotlinx.serialization.json.Json
+import kotliquery.Row
+import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleNotatDbo
-import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
-import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
-import no.nav.mulighetsrommet.api.utils.NotatFilter
-import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
+import no.nav.mulighetsrommet.api.domain.dto.AvtaleNotatDto
+import no.nav.mulighetsrommet.api.utils.*
+import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.database.utils.QueryResult
+import no.nav.mulighetsrommet.database.utils.query
+import no.nav.mulighetsrommet.domain.dto.*
+import org.intellij.lang.annotations.Language
+import org.slf4j.LoggerFactory
 import java.util.*
 
-class AvtaleNotatRepositoryTest : FunSpec({
-    val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
-    val avtaleFixture = AvtaleFixtures(database)
-    val domain = MulighetsrommetTestDomain()
+class AvtaleNotatRepository(private val db: Database) {
 
-    beforeEach {
-        avtaleFixture.runBeforeTests()
+    private val logger = LoggerFactory.getLogger(javaClass)
+
+    fun upsert(avtaleNotat: AvtaleNotatDbo): QueryResult<Unit> = query {
+        logger.info("Lagrer notat for avtale id=${avtaleNotat.id}, avtaleId: ${avtaleNotat.avtaleId}")
+
+        @Language("PostgreSQL")
+        val query = """
+            insert into avtale_notat(id,
+                               avtale_id,
+                               opprettet_av,
+                               innhold
+                               )
+            values (:id::uuid,
+                    :avtaleId::uuid,
+                    :opprettet_av,
+                    :innhold)
+            on conflict (id) do update set innhold = excluded.innhold
+            returning *
+        """.trimIndent()
+
+        queryOf(query, avtaleNotat.toSqlParameters()).asExecute.let { db.run(it) }
     }
 
-    context("Notater for avtale - CRUD") {
-        test("CRUD") {
-            domain.initialize(database.db)
-            val avtale = avtaleFixture.createAvtaleForTiltakstype(id = UUID.randomUUID())
-            val avtaleNotater = AvtaleNotatRepository(database.db)
-            avtaleFixture.upsertAvtaler(listOf(avtale))
+    fun get(id: UUID): QueryResult<AvtaleNotatDto?> = query {
+        @Language("PostgreSQL")
+        val query = """
+            select id,
+            avtale_id,
+            created_at,
+            updated_at,
+            innhold,
+            jsonb_build_object('navIdent', na.nav_ident, 'navn', concat(na.fornavn, ' ', na.etternavn)) as opprettetAv
+            from avtale_notat an join nav_ansatt na on an.opprettet_av = na.nav_ident
+            where id = ?::uuid
+        """.trimIndent()
 
-            val notat1 = AvtaleNotatDbo(
-                id = UUID.randomUUID(),
-                avtaleId = avtale.id,
-                createdAt = null,
-                updatedAt = null,
-                opprettetAv = domain.ansatt1.navIdent,
-                innhold = "Mitt første notat",
-            )
+        queryOf(query, id)
+            .map { it.toAvtaleNotatDto() }
+            .asSingle
+            .let { db.run(it) }
+    }
 
-            val notat2 = AvtaleNotatDbo(
-                id = UUID.randomUUID(),
-                avtaleId = avtale.id,
-                createdAt = null,
-                updatedAt = null,
-                opprettetAv = domain.ansatt1.navIdent,
-                innhold = "Mitt andre notat",
-            )
+    fun delete(id: UUID): QueryResult<Int> = query {
+        logger.info("Sletter notat for avtale med id=$id")
 
-            val notat3 = AvtaleNotatDbo(
-                id = UUID.randomUUID(),
-                avtaleId = avtale.id,
-                createdAt = null,
-                updatedAt = null,
-                opprettetAv = domain.ansatt2.navIdent,
-                innhold = "En kollega sitt notat",
-            )
+        @Language("PostgreSQL")
+        val query = """
+            delete from avtale_notat
+            where id = ?::uuid
+        """.trimIndent()
 
-            val notatSomIkkeEksisterer = AvtaleNotatDbo(
-                id = UUID.randomUUID(),
-                avtaleId = avtale.id,
-                createdAt = null,
-                updatedAt = null,
-                opprettetAv = domain.ansatt2.navIdent,
-                innhold = "En kollega sitt notat",
-            )
+        queryOf(query, id)
+            .asUpdate
+            .let { db.run(it) }
+    }
 
-            // Upsert notater
-            avtaleNotater.upsert(notat1).shouldBeRight()
-            avtaleNotater.upsert(notat2).shouldBeRight()
-            avtaleNotater.upsert(notat3).shouldBeRight()
+    fun getAll(
+        filter: NotatFilter,
+    ): QueryResult<List<AvtaleNotatDto>> = query {
+        val parameters = mapOf(
+            "avtaleId" to filter.avtaleId,
+            "opprettetAv" to filter.opprettetAv,
+        )
 
-            avtaleNotater.getAll(filter = NotatFilter(avtaleId = avtale.id, opprettetAv = null)).shouldBeRight()
-                .should { it.size shouldBe 3 }
+        val where = DatabaseUtils.andWhereParameterNotNull(
+            filter.avtaleId to "avtale_id = :avtaleId::uuid",
+            filter.opprettetAv to "opprettet_av = :opprettetAv",
+        )
 
-            // Les notater
-            avtaleNotater.get(notat1.id).shouldBeRight().should {
-                it?.innhold shouldBe "Mitt første notat"
-            }
-
-            avtaleNotater.upsert(notat1.copy(innhold = "Mitt første notat med oppdatert innhold")).shouldBeRight()
-            avtaleNotater.get(notat1.id).shouldBeRight().should {
-                it?.innhold shouldBe "Mitt første notat med oppdatert innhold"
-            }
-
-            avtaleNotater.get(notatSomIkkeEksisterer.id).shouldBeRight(null)
-
-            // Slett notater
-            avtaleNotater.delete(notat1.id).shouldBeRight()
-            avtaleNotater.get(notat1.id).shouldBeRight(null)
-
-            avtaleNotater.getAll(filter = NotatFilter(avtaleId = avtale.id, opprettetAv = null)).shouldBeRight()
-                .should { it.size shouldBe 2 }
+        val order = when (filter.sortering) {
+            "dato-sortering-asc" -> "created_at asc"
+            "dato-sortering-desc" -> "created_at desc"
+            else -> "created_at asc"
         }
+
+        @Language("PostgreSQL")
+        val query = """
+            select id,
+            avtale_id,
+            created_at,
+            updated_at,
+            innhold,
+            jsonb_build_object('navIdent', na.nav_ident, 'navn', concat(na.fornavn, ' ', na.etternavn)) as opprettetAv
+            from avtale_notat an join nav_ansatt na on an.opprettet_av = na.nav_ident
+            $where
+            order by $order
+        """.trimIndent()
+
+        queryOf(query, parameters)
+            .map {
+                it.toAvtaleNotatDto()
+            }
+            .asList
+            .let { db.run(it) }
     }
-})
+
+    private fun AvtaleNotatDbo.toSqlParameters() = mapOf(
+        "id" to id,
+        "avtaleId" to avtaleId,
+        "opprettet_av" to opprettetAv,
+        "innhold" to innhold,
+    )
+
+    private fun Row.toAvtaleNotatDto(): AvtaleNotatDto {
+        val opprettetAv = string("opprettetAv").let {
+            Json.decodeFromString<AvtaleNotatDto.OpprettetAv>(it)
+        }
+
+        return AvtaleNotatDto(
+            id = uuid("id"),
+            avtaleId = uuid("avtale_id"),
+            createdAt = localDateTime("created_at"),
+            updatedAt = localDateTime("updated_at"),
+            opprettetAv = opprettetAv,
+            innhold = string("innhold"),
+        )
+    }
+}
