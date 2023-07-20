@@ -5,6 +5,7 @@ import { TrashIcon } from "@navikt/aksel-icons";
 import Lenke from "mulighetsrommet-veileder-flate/src/components/lenke/Lenke";
 import { AvtaleNotat } from "mulighetsrommet-api-client";
 import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
+import { NOM_ANSATT_SIDE } from "mulighetsrommet-frontend-common/constants";
 
 interface NotatkortProps {
   notat: AvtaleNotat;
@@ -18,30 +19,28 @@ export function Notat({ handleSlett, notat }: NotatkortProps) {
     return (
       <div className={styles.notatinformasjon_bruker}>
         <BodyShort>Lagt til av: </BodyShort>
+        <Lenke
+          to={`${NOM_ANSATT_SIDE}${notat.opprettetAv.navIdent}`}
+          target={"_blank"}
+          className={styles.notatinformasjon_navn}
+        >
+          {notat.opprettetAv.navn}
+        </Lenke>
         {notat.opprettetAv.navIdent === bruker!.navIdent ? (
-          <span className={styles.notatinformasjon_egen_bruker}>
-            <BodyShort className={styles.notatinformasjon_navn}>
-              {notat.opprettetAv.navn}
-            </BodyShort>
-            <Button variant="tertiary" onClick={() => handleSlett(notat.id)}>
-              <TrashIcon fontSize={"1.5rem"} />
-            </Button>
-          </span>
-        ) : (
-          <Lenke
-            to={`https://nom.nav.no/ressurs/${notat.opprettetAv.navIdent}`}
-            target={"_blank"}
-            className={styles.notatinformasjon_navn}
+          <Button
+            variant="tertiary"
+            onClick={() => handleSlett(notat.id)}
+            className={styles.slette_notat}
           >
-            {notat.opprettetAv.navn}
-          </Lenke>
-        )}
+            <TrashIcon fontSize={"1.5rem"} />
+          </Button>
+        ) : null}
       </div>
     );
   };
 
   return (
-    <div className={styles.notatkort}>
+    <div className={styles.notat}>
       <span className={styles.notatinformasjon}>
         {lagtTilAv(notat)}
         <BodyShort>{formaterDatoTid(notat.createdAt)}</BodyShort>

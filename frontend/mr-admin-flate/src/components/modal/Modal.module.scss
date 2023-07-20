@@ -16,12 +16,12 @@
 }
 
 .warningicon {
-  color: #c30000;
+  color: var(--a-nav-red);
   width: 3rem;
   height: auto;
 }
 .erroricon {
-  color: #ff9100;
+  color: var(--a-orange-500);
   width: 3rem;
   height: auto;
 }

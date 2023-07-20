@@ -5,7 +5,6 @@ import { avtaleFilter, AvtaleTabs } from "../../api/atoms";
 import { useAvtale } from "../../api/avtaler/useAvtale";
 import {
   useFeatureToggles,
-  VIS_AVTALENOTATER,
   VIS_NOKKELTALL_ADMIN_FLATE,
 } from "../../api/features/feature-toggles";
 import { Header } from "../../components/detaljside/Header";
@@ -27,9 +26,6 @@ export function DetaljerAvtalePage() {
   const { data: avtale, isLoading } = useAvtale();
   const [filter, setFilter] = useAtom(avtaleFilter);
   const features = useFeatureToggles();
-
-  const visAvtaleNotaterFeature =
-    features.isSuccess && features.data[VIS_AVTALENOTATER];
 
   const visNokkeltallFeature =
     features.isSuccess && features.data[VIS_NOKKELTALL_ADMIN_FLATE];
@@ -69,9 +65,7 @@ export function DetaljerAvtalePage() {
       >
         <Tabs.List className={commonStyles.list}>
           <Tabs.Tab value="avtaleinfo" label="Avtaleinfo" />
-          {visAvtaleNotaterFeature ? (
-            <Tabs.Tab value="avtalenotater" label="Notater" />
-          ) : null}
+          <Tabs.Tab value="avtalenotater" label="Notater" />
           <Tabs.Tab
             data-testid="avtale-tiltaksgjennomforing-tab"
             value="tiltaksgjennomforinger"
@@ -87,13 +81,11 @@ export function DetaljerAvtalePage() {
           </ContainerLayoutDetaljer>
         </Tabs.Panel>
 
-        {visAvtaleNotaterFeature ? (
-          <Tabs.Panel value="avtalenotater">
-            <ContainerLayoutDetaljer>
-              <NotaterPage />
-            </ContainerLayoutDetaljer>
-          </Tabs.Panel>
-        ) : null}
+        <Tabs.Panel value="avtalenotater">
+          <ContainerLayoutDetaljer>
+            <NotaterPage />
+          </ContainerLayoutDetaljer>
+        </Tabs.Panel>
 
         <Tabs.Panel value="tiltaksgjennomforinger">
           <ContainerLayoutDetaljer>

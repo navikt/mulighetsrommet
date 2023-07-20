@@ -11,5 +11,4 @@ export const mockFeatures: Features = {
   "mulighetsrommet.admin-flate-slett-tiltaksgjennomforing": true,
   "mulighetsrommet.admin-flate-lagre-utkast": true,
   "mulighetsrommet.admin-flate-vis-deltakerliste-fra-komet": false,
-  "mulighetsrommet.admin-flate-vis-avtalenotater": true,
 };

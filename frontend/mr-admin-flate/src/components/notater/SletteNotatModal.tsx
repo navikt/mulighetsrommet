@@ -8,22 +8,21 @@ import {
 } from "@navikt/aksel-icons";
 import classNames from "classnames";
 import { useDeleteAvtalenotat } from "../../api/avtaler/avtalenotat/useDeleteAvtalenotat";
+import invariant from "tiny-invariant";
 
-interface SletteNotatModalProps {
+interface Props {
   modalOpen: boolean;
   onClose: () => void;
-  handleForm?: () => void;
-  handleCancel?: () => void;
-  notatIdForSletting: string | null;
+  notatIdForSletting: string;
 }
 
 const SletteNotatModal = ({
   modalOpen,
   onClose,
-  handleCancel,
   notatIdForSletting,
-}: SletteNotatModalProps) => {
+}: Props) => {
   const mutation = useDeleteAvtalenotat();
+  invariant(notatIdForSletting, "Fant ikke id for å slette notat.");
 
   useEffect(() => {
     Modal.setAppElement("#root");
@@ -31,13 +30,10 @@ const SletteNotatModal = ({
 
   const clickCancel = () => {
     onClose();
-    handleCancel?.();
   };
 
   const handleDelete = () => {
-    if (notatIdForSletting) {
-      mutation.mutate(notatIdForSletting, { onSuccess: onClose });
-    }
+    mutation.mutate(notatIdForSletting, { onSuccess: onClose });
   };
 
   function headerInnhold() {
@@ -66,6 +62,7 @@ const SletteNotatModal = ({
         ) : (
           <p>Du kan ikke angre denne handlingen</p>
         )}
+
         <div className={styles.knapperad}>
           {mutation?.isError ? null : (
             <Button variant="danger" onClick={handleDelete}>
@@ -82,26 +79,24 @@ const SletteNotatModal = ({
   }
 
   return (
-    <>
-      <Modal
-        shouldCloseOnOverlayClick={false}
-        closeButton
-        open={modalOpen}
-        onClose={clickCancel}
-        className={classNames(
-          styles.overstyrte_styles_fra_ds_modal,
-          styles.text_center,
-        )}
-        aria-label="modal"
-      >
-        <Modal.Content>
-          <Heading size="medium" level="2">
-            {headerInnhold()}
-          </Heading>
-          {modalInnhold()}
-        </Modal.Content>
-      </Modal>
-    </>
+    <Modal
+      shouldCloseOnOverlayClick={false}
+      closeButton
+      open={modalOpen}
+      onClose={clickCancel}
+      className={classNames(
+        styles.overstyrte_styles_fra_ds_modal,
+        styles.text_center,
+      )}
+      aria-label="modal"
+    >
+      <Modal.Content>
+        <Heading size="medium" level="2">
+          {headerInnhold()}
+        </Heading>
+        {modalInnhold()}
+      </Modal.Content>
+    </Modal>
   );
 };
 

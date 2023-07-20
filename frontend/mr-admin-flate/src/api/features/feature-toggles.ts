@@ -18,8 +18,6 @@ export const SLETT_TILTAKSGJENNOMFORING_ADMIN_FLATE =
 export const LAGRE_UTKAST = "mulighetsrommet.admin-flate-lagre-utkast";
 export const VIS_DELTAKERLISTE_KOMET =
   "mulighetsrommet.admin-flate-vis-deltakerliste-fra-komet";
-export const VIS_AVTALENOTATER =
-  "mulighetsrommet.admin-flate-vis-avtalenotater";
 
 export const ALL_TOGGLES = [
   ENABLE_ADMIN_FLATE,
@@ -32,7 +30,6 @@ export const ALL_TOGGLES = [
   SLETT_TILTAKSGJENNOMFORING_ADMIN_FLATE,
   LAGRE_UTKAST,
   VIS_DELTAKERLISTE_KOMET,
-  VIS_AVTALENOTATER,
 ] as const;
 
 export type Features = Record<(typeof ALL_TOGGLES)[number], boolean>;
@@ -48,7 +45,6 @@ export const initialFeatures: Features = {
   "mulighetsrommet.admin-flate-rediger-tiltaksgjennomforing": false,
   "mulighetsrommet.admin-flate-lagre-utkast": false,
   "mulighetsrommet.admin-flate-vis-deltakerliste-fra-komet": false,
-  "mulighetsrommet.admin-flate-vis-avtalenotater": false,
 };
 
 const toggles = ALL_TOGGLES.map((element) => "feature=" + element).join("&");

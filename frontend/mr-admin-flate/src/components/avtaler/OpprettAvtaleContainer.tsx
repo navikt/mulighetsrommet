@@ -292,7 +292,7 @@ export function OpprettAvtaleContainer({
             {(mutation.error as ApiError).status === 400
               ? (mutation.error as ApiError).body
               : "Avtalen kunne ikke opprettes på grunn av en teknisk feil hos oss. " +
-                "Forsøk på nytt eller ta <a href={porten}>kontakt</a> i Porten dersom " +
+                "Forsøk på nytt eller ta <a href={porten:PORTEN}>kontakt</a> i Porten dersom " +
                 "du trenger mer hjelp."}
           </>
         }

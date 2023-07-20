@@ -6,33 +6,41 @@ import { useState } from "react";
 import { Notat } from "./Notat";
 
 interface Props {
-  notatListe: AvtaleNotat[];
+  notater: AvtaleNotat[];
+  visMineNotater: boolean;
 }
-export default function Notatliste({ notatListe }: Props) {
+export default function Notatliste({ notater, visMineNotater }: Props) {
   const [notatIdForSletting, setNotatIdForSletting] = useState<null | string>(
     null,
   );
 
   return (
-    <div className={styles.notatkortliste}>
-      {notatListe === undefined || notatListe.length === 0 ? (
-        <Alert variant="info">Det finnes ingen notater.</Alert>
+    <div className={styles.notater}>
+      {notater === undefined || notater.length === 0 ? (
+        <Alert variant="info">
+          {visMineNotater
+            ? "Du har ingen notater."
+            : "Det finnes ingen notater."}
+        </Alert>
       ) : (
-        notatListe!.map((notatkort) => {
+        notater.map((notat) => {
           return (
             <Notat
-              notat={notatkort}
+              notat={notat}
               handleSlett={(id: string) => setNotatIdForSletting(id)}
-              key={notatkort.id}
+              key={notat.id}
             />
           );
         })
       )}
-      <SletteNotatModal
-        modalOpen={!!notatIdForSletting}
-        onClose={() => setNotatIdForSletting(null)}
-        notatIdForSletting={notatIdForSletting}
-      />
+
+      {notatIdForSletting ? (
+        <SletteNotatModal
+          modalOpen={!!notatIdForSletting}
+          onClose={() => setNotatIdForSletting(null)}
+          notatIdForSletting={notatIdForSletting}
+        />
+      ) : null}
     </div>
   );
 }
