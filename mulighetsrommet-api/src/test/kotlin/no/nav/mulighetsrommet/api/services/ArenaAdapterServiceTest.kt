@@ -190,7 +190,7 @@ class ArenaAdapterServiceTest : FunSpec({
         test("CRUD") {
             service.upsertTiltakstype(tiltakstype)
 
-            service.upsertAvtale(avtale).getOrThrow()
+            service.upsertAvtale(avtale)
             database.assertThat("avtale").row()
                 .value("id").isEqualTo(avtale.id)
                 .value("navn").isEqualTo(avtale.navn)

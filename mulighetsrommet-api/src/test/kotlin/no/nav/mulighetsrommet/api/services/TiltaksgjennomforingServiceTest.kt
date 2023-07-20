@@ -23,6 +23,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
 
     val sanityTiltaksgjennomforingService: SanityTiltaksgjennomforingService = mockk(relaxed = true)
     val virksomhetService: VirksomhetService = mockk(relaxed = true)
+    val utkastService: UtkastService = mockk(relaxed = true)
 
     val avtaleId = AvtaleFixtures.avtale1.id
     val domain = MulighetsrommetTestDomain()
@@ -42,6 +43,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             avtaleRepository,
             sanityTiltaksgjennomforingService,
             virksomhetService,
+            utkastService,
         )
 
         test("Man skal ikke få slette dersom gjennomføringen ikke finnes") {
@@ -63,8 +65,8 @@ class TiltaksgjennomforingServiceTest : FunSpec({
                 startDato = LocalDate.of(2023, 1, 1),
                 sluttDato = null,
             )
-            tiltaksgjennomforingRepository.upsert(gjennomforingMedSlutt).shouldBeRight()
-            tiltaksgjennomforingRepository.upsert(gjennomforingUtenSlutt).shouldBeRight()
+            tiltaksgjennomforingRepository.upsert(gjennomforingMedSlutt)
+            tiltaksgjennomforingRepository.upsert(gjennomforingUtenSlutt)
 
             tiltaksgjennomforingService.delete(gjennomforingMedSlutt.id, currentDate = currentDate).shouldBeLeft()
                 .should {
@@ -81,7 +83,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
                 avtaleId = avtaleId,
                 opphav = ArenaMigrering.Opphav.ARENA,
             )
-            tiltaksgjennomforingRepository.upsert(gjennomforing).shouldBeRight()
+            tiltaksgjennomforingRepository.upsert(gjennomforing)
 
             tiltaksgjennomforingService.delete(gjennomforing.id).shouldBeLeft().should {
                 it.status shouldBe HttpStatusCode.BadRequest
@@ -93,7 +95,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
                 avtaleId = avtaleId,
                 opphav = ArenaMigrering.Opphav.ARENA,
             )
-            tiltaksgjennomforingRepository.upsert(gjennomforing).shouldBeRight()
+            tiltaksgjennomforingRepository.upsert(gjennomforing)
 
             val deltager = DeltakerFixture.Deltaker.copy(tiltaksgjennomforingId = gjennomforing.id)
             deltagerRepository.upsert(deltager)
@@ -125,6 +127,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             avtaleRepository,
             sanityTiltaksgjennomforingService,
             virksomhetService,
+            utkastService,
         )
 
         test("Man skal ikke få avbryte dersom gjennomføringen ikke finnes") {
@@ -138,7 +141,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
                 avtaleId = avtaleId,
                 opphav = ArenaMigrering.Opphav.ARENA,
             )
-            tiltaksgjennomforingRepository.upsert(gjennomforing).shouldBeRight()
+            tiltaksgjennomforingRepository.upsert(gjennomforing)
 
             tiltaksgjennomforingService.avbrytGjennomforing(gjennomforing.id).shouldBeLeft().should {
                 it.status shouldBe HttpStatusCode.BadRequest
@@ -150,7 +153,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
                 avtaleId = avtaleId,
                 opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
             )
-            tiltaksgjennomforingRepository.upsert(gjennomforing).shouldBeRight()
+            tiltaksgjennomforingRepository.upsert(gjennomforing)
 
             val deltager = DeltakerFixture.Deltaker.copy(tiltaksgjennomforingId = gjennomforing.id)
             deltagerRepository.upsert(deltager)
@@ -182,6 +185,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             avtaleRepository,
             sanityTiltaksgjennomforingService,
             virksomhetService,
+            utkastService,
         )
 
         test("Man skal ikke få lov og opprette dersom avtalen er avsluttet") {
@@ -192,10 +196,22 @@ class TiltaksgjennomforingServiceTest : FunSpec({
                     sluttDato = LocalDate.of(2022, 1, 1),
                 ),
             )
-            val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1.copy(avtaleId = avtaleId)
+            val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1Request(avtaleId)
             tiltaksgjennomforingService.upsert(gjennomforing, LocalDate.of(2022, 2, 2)).shouldBeLeft().should {
                 it.status shouldBe HttpStatusCode.BadRequest
             }
+        }
+
+        test("Antall plasser må være større enn null") {
+            avtaleRepository.upsert(
+                AvtaleFixtures.avtale1.copy(
+                    id = avtaleId,
+                    tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
+                    sluttDato = LocalDate.of(2022, 1, 1),
+                ),
+            )
+            val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1Request(avtaleId).copy(antallPlasser = 0)
+            tiltaksgjennomforingService.upsert(gjennomforing, LocalDate.of(2022, 2, 2)).shouldBeLeft()
         }
     }
 })

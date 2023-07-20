@@ -125,7 +125,7 @@ class NotatServiceTest : FunSpec({
             val tiltaksgjennomforingFixtures = TiltaksgjennomforingFixtures
             val gjennomforing = tiltaksgjennomforingFixtures.Oppfolging1.copy(avtaleId = avtale.id)
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-            tiltaksgjennomforinger.upsert(gjennomforing).shouldBeRight()
+            tiltaksgjennomforinger.upsert(gjennomforing)
 
             val notat1 = TiltaksgjennomforingNotatDbo(
                 id = UUID.randomUUID(),
@@ -174,7 +174,7 @@ class NotatServiceTest : FunSpec({
             val tiltaksgjennomforingFixtures = TiltaksgjennomforingFixtures
             val gjennomforing = tiltaksgjennomforingFixtures.Oppfolging1.copy(avtaleId = avtale.id)
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-            tiltaksgjennomforinger.upsert(gjennomforing).shouldBeRight()
+            tiltaksgjennomforinger.upsert(gjennomforing)
 
             val notat1 = TiltaksgjennomforingNotatDbo(
                 id = UUID.randomUUID(),
