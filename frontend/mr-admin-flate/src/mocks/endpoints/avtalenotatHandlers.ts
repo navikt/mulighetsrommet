@@ -43,11 +43,7 @@ export const avtalenotatHandlers = [
     "*/api/v1/internal/notater/avtaler/:id",
     (req, res, ctx) => {
       const id = req.url.searchParams.get("id");
-
-      console.log("id", id);
-      console.log("FØR", avtalenotater);
       avtalenotater = [...avtalenotater.filter((notat) => notat.id !== id)];
-      console.log("ETTER", avtalenotater);
       return res(ctx.status(200));
     },
   ),
