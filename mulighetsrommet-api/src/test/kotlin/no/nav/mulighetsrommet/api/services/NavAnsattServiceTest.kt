@@ -19,8 +19,10 @@ import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle.KONTAKTPERSON
 import no.nav.mulighetsrommet.api.domain.dto.AdGruppe
 import no.nav.mulighetsrommet.api.domain.dto.NavAnsattDto
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
+import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.repositories.NavAnsattRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
+import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import java.time.LocalDate
 import java.util.*
 
@@ -29,7 +31,8 @@ class NavAnsattServiceTest : FunSpec({
 
     val domain = MulighetsrommetTestDomain()
 
-    beforeAny {
+    beforeEach {
+        database.db.truncateAll()
         domain.initialize(database.db)
     }
 
@@ -44,8 +47,8 @@ class NavAnsattServiceTest : FunSpec({
         epost = dbo.epost,
     )
 
-    val ansatt1 = toAzureAdNavAnsattDto(domain.ansatt1)
-    val ansatt2 = toAzureAdNavAnsattDto(domain.ansatt2)
+    val ansatt1 = toAzureAdNavAnsattDto(NavAnsattFixture.ansatt1)
+    val ansatt2 = toAzureAdNavAnsattDto(NavAnsattFixture.ansatt2)
 
     val betabruker = AdGruppeNavAnsattRolleMapping(adGruppeId = UUID.randomUUID(), rolle = BETABRUKER)
     val kontaktperson = AdGruppeNavAnsattRolleMapping(adGruppeId = UUID.randomUUID(), rolle = KONTAKTPERSON)

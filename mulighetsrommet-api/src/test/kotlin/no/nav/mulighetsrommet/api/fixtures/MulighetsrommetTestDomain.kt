@@ -2,14 +2,15 @@ package no.nav.mulighetsrommet.api.fixtures
 
 import io.kotest.assertions.arrow.core.shouldBeRight
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
-import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattDbo
-import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
+import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture.ansatt1
+import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture.ansatt2
+import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.NavAnsattRepository
 import no.nav.mulighetsrommet.api.repositories.NavEnhetRepository
+import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
-import java.util.*
 
 data class MulighetsrommetTestDomain(
     val enhet: NavEnhetDbo = NavEnhetDbo(
@@ -19,26 +20,7 @@ data class MulighetsrommetTestDomain(
         type = Norg2Type.DIR,
         overordnetEnhet = null,
     ),
-    val ansatt1: NavAnsattDbo = NavAnsattDbo(
-        navIdent = "DD1",
-        fornavn = "Donald",
-        etternavn = "Duck",
-        hovedenhet = "2990",
-        azureId = UUID.randomUUID(),
-        mobilnummer = "12345678",
-        epost = "donald.duck@nav.no",
-        roller = setOf(NavAnsattRolle.BETABRUKER),
-    ),
-    val ansatt2: NavAnsattDbo = NavAnsattDbo(
-        navIdent = "DD2",
-        fornavn = "Dolly",
-        etternavn = "Duck",
-        hovedenhet = "2990",
-        azureId = UUID.randomUUID(),
-        mobilnummer = "48243214",
-        epost = "dolly.duck@nav.no",
-        roller = setOf(NavAnsattRolle.BETABRUKER),
-    ),
+
 ) {
     fun initialize(database: FlywayDatabaseAdapter) {
         val enheter = NavEnhetRepository(database)
@@ -47,5 +29,12 @@ data class MulighetsrommetTestDomain(
         val ansatte = NavAnsattRepository(database)
         ansatte.upsert(ansatt1).shouldBeRight()
         ansatte.upsert(ansatt2).shouldBeRight()
+
+        val tiltakstyper = TiltakstypeRepository(database)
+        tiltakstyper.upsert(TiltakstypeFixtures.Oppfolging).shouldBeRight()
+        tiltakstyper.upsert(TiltakstypeFixtures.Arbeidstrening).shouldBeRight()
+
+        val avtaler = AvtaleRepository(database)
+        avtaler.upsert(AvtaleFixtures.avtale1)
     }
 }

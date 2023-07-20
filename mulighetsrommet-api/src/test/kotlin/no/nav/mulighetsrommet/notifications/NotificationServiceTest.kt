@@ -9,6 +9,7 @@ import io.kotest.matchers.should
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
+import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.tasks.DbSchedulerKotlinSerializer
 import java.time.Instant
@@ -19,17 +20,15 @@ import java.util.*
 import kotlin.time.Duration.Companion.seconds
 
 class NotificationServiceTest : FunSpec({
-
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
-
     val domain = MulighetsrommetTestDomain()
 
     beforeEach {
         domain.initialize(database.db)
     }
 
-    val user1 = domain.ansatt1.navIdent
-    val user2 = domain.ansatt2.navIdent
+    val user1 = NavAnsattFixture.ansatt1.navIdent
+    val user2 = NavAnsattFixture.ansatt2.navIdent
 
     context("NotificationService") {
         val notifications = NotificationRepository(database.db)

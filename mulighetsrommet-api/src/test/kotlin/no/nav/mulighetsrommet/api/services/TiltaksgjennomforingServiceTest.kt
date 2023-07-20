@@ -8,14 +8,10 @@ import io.kotest.matchers.shouldBe
 import io.ktor.http.*
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
-import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
-import no.nav.mulighetsrommet.api.fixtures.DeltakerFixture
-import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
-import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
+import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
-import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
@@ -27,23 +23,13 @@ class TiltaksgjennomforingServiceTest : FunSpec({
 
     val sanityTiltaksgjennomforingService: SanityTiltaksgjennomforingService = mockk(relaxed = true)
     val virksomhetService: VirksomhetService = mockk(relaxed = true)
-    val avtaleFixtures = AvtaleFixtures(database)
 
-    val avtaleId = UUID.randomUUID()
+    val avtaleId = AvtaleFixtures.avtale1.id
+    val domain = MulighetsrommetTestDomain()
 
     beforeEach {
         database.db.truncateAll()
-
-        val tiltakstypeRepository = TiltakstypeRepository(database.db)
-        tiltakstypeRepository.upsert(TiltakstypeFixtures.Oppfolging)
-
-        val avtaleRepository = AvtaleRepository(database.db)
-        avtaleRepository.upsert(
-            avtaleFixtures.createAvtaleForTiltakstype(
-                id = avtaleId,
-                tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
-            ),
-        )
+        domain.initialize(database.db)
     }
 
     context("Slette gjennomføring") {
@@ -200,7 +186,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
 
         test("Man skal ikke få lov og opprette dersom avtalen er avsluttet") {
             avtaleRepository.upsert(
-                avtaleFixtures.createAvtaleForTiltakstype(
+                AvtaleFixtures.avtale1.copy(
                     id = avtaleId,
                     tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
                     sluttDato = LocalDate.of(2022, 1, 1),

@@ -4,6 +4,7 @@ import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
+import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import java.time.Instant
@@ -23,8 +24,8 @@ class NotificationRepositoryTest : FunSpec({
         domain.initialize(database.db)
     }
 
-    val user1 = domain.ansatt1.navIdent
-    val user2 = domain.ansatt2.navIdent
+    val user1 = NavAnsattFixture.ansatt1.navIdent
+    val user2 = NavAnsattFixture.ansatt2.navIdent
 
     val now = Instant.now().truncatedTo(ChronoUnit.MILLIS)
 
