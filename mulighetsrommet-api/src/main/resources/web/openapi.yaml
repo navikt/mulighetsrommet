@@ -376,7 +376,7 @@ paths:
         - TiltaksgjennomforingNotater
       operationId: slettTiltaksgjennomforingNotat
       parameters:
-        - in: query
+        - in: path
           name: id
           required: true
           schema:
