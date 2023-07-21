@@ -284,7 +284,7 @@ export function OpprettAvtaleContainer({
   if (mutation.isError) {
     return (
       <StatusModal
-        modalOpen={true}
+        modalOpen={!!mutation.isError}
         ikonVariant="error"
         heading="Kunne ikke opprette avtale"
         text={
