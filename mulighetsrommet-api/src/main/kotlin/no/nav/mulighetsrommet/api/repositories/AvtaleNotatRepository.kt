@@ -88,7 +88,7 @@ class AvtaleNotatRepository(private val db: Database) {
         val order = when (filter.sortering) {
             "dato-sortering-asc" -> "created_at asc"
             "dato-sortering-desc" -> "created_at desc"
-            else -> "created_at asc"
+            else -> "created_at desc"
         }
 
         @Language("PostgreSQL")

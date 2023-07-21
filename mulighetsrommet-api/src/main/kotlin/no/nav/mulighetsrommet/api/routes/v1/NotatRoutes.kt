@@ -131,7 +131,7 @@ data class AvtaleNotatRequest(
     val id: UUID,
     @Serializable(with = UUIDSerializer::class)
     val avtaleId: UUID,
-    val opprettetAv: String,
+    val opprettetAv: String? = null,
     val innhold: String,
 ) {
     fun toDbo(): StatusResponse<AvtaleNotatDbo> {
