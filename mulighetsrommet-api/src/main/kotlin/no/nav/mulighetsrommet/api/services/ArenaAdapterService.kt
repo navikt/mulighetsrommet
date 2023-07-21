@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.services
 
-import arrow.core.flatMap
 import no.nav.mulighetsrommet.api.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.api.producers.TiltakstypeKafkaProducer
 import no.nav.mulighetsrommet.api.repositories.*
@@ -40,39 +39,33 @@ class ArenaAdapterService(
         }
     }
 
-    suspend fun upsertAvtale(avtale: ArenaAvtaleDbo): QueryResult<AvtaleAdminDto> {
+    suspend fun upsertAvtale(avtale: ArenaAvtaleDbo): AvtaleAdminDto {
         virksomhetService.hentEnhet(avtale.leverandorOrganisasjonsnummer)
-        return avtaler.upsertArenaAvtale(avtale)
-            .flatMap { avtaler.get(avtale.id) }
-            .map { it!! }
+        avtaler.upsertArenaAvtale(avtale)
+        return avtaler.get(avtale.id)!!
     }
 
-    fun removeAvtale(id: UUID): QueryResult<Int> {
-        return avtaler.delete(id)
+    fun removeAvtale(id: UUID) {
+        avtaler.delete(id)
     }
 
     suspend fun upsertTiltaksgjennomforing(tiltaksgjennomforing: ArenaTiltaksgjennomforingDbo): QueryResult<TiltaksgjennomforingAdminDto> {
         virksomhetService.hentEnhet(tiltaksgjennomforing.arrangorOrganisasjonsnummer)
-        return tiltaksgjennomforinger.upsertArenaTiltaksgjennomforing(tiltaksgjennomforing)
-            .flatMap { tiltaksgjennomforinger.get(tiltaksgjennomforing.id) }
-            .map { it!! }
-            .onRight {
-                tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingDto.from(it))
-            }
-            .onRight {
-                if (it.sluttDato == null || it.sluttDato?.isAfter(TiltaksgjennomforingSluttDatoCutoffDate) == true) {
-                    sanityTiltaksgjennomforingService.opprettSanityTiltaksgjennomforing(it)
-                }
-            }
+        tiltaksgjennomforinger.upsertArenaTiltaksgjennomforing(tiltaksgjennomforing)
+        val gjennomforing = tiltaksgjennomforinger.get(tiltaksgjennomforing.id)!!
+        tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingDto.from(gjennomforing))
+        if (gjennomforing.sluttDato == null || gjennomforing.sluttDato?.isAfter(TiltaksgjennomforingSluttDatoCutoffDate) == true) {
+            sanityTiltaksgjennomforingService.opprettSanityTiltaksgjennomforing(gjennomforing)
+        }
+        return query { gjennomforing }
     }
 
     fun removeTiltaksgjennomforing(id: UUID): QueryResult<Int> {
-        return tiltaksgjennomforinger.delete(id)
-            .onRight { deletedRows ->
-                if (deletedRows != 0) {
-                    tiltaksgjennomforingKafkaProducer.retract(id)
-                }
-            }
+        val i = tiltaksgjennomforinger.delete(id)
+        if (i != 0) {
+            tiltaksgjennomforingKafkaProducer.retract(id)
+        }
+        return query { i }
     }
 
     fun upsertTiltakshistorikk(tiltakshistorikk: ArenaTiltakshistorikkDbo): QueryResult<ArenaTiltakshistorikkDbo> {

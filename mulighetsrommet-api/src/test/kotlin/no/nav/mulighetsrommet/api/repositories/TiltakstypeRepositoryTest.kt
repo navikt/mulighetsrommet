@@ -319,14 +319,14 @@ class TiltakstypeRepositoryTest : FunSpec({
             tiltakstypeRepository.upsert(tiltakstype).getOrThrow()
             tiltakstypeRepository.upsert(tiltakstypeUtenGjennomforinger).getOrThrow()
 
-            tiltaksgjennomforingRepository.upsert(gjennomforing1).getOrThrow()
-            tiltaksgjennomforingRepository.upsert(gjennomforing2).getOrThrow()
-            tiltaksgjennomforingRepository.upsert(gjennomforing3).getOrThrow()
-            tiltaksgjennomforingRepository.upsert(gjennomforing4).getOrThrow()
+            tiltaksgjennomforingRepository.upsert(gjennomforing1)
+            tiltaksgjennomforingRepository.upsert(gjennomforing2)
+            tiltaksgjennomforingRepository.upsert(gjennomforing3)
+            tiltaksgjennomforingRepository.upsert(gjennomforing4)
 
             val antallGjennomforinger = tiltaksgjennomforingRepository.getAll(
                 filter = AdminTiltaksgjennomforingFilter(),
-            ).getOrThrow()
+            )
             antallGjennomforinger.first shouldBe 3
 
             val antallGjennomforingerForTiltakstype =
@@ -386,12 +386,12 @@ class TiltakstypeRepositoryTest : FunSpec({
             tiltakstypeRepository.upsert(tiltakstype).getOrThrow()
             tiltakstypeRepository.upsert(tiltakstypeUtenGjennomforinger).getOrThrow()
 
-            avtaleRepository.upsert(avtale).getOrThrow()
+            avtaleRepository.upsert(avtale)
 
-            tiltaksgjennomforingRepository.upsert(gjennomforing1).getOrThrow()
-            tiltaksgjennomforingRepository.upsert(gjennomforing2).getOrThrow()
-            tiltaksgjennomforingRepository.upsert(gjennomforing3).getOrThrow()
-            tiltaksgjennomforingRepository.upsert(gjennomforing4).getOrThrow()
+            tiltaksgjennomforingRepository.upsert(gjennomforing1)
+            tiltaksgjennomforingRepository.upsert(gjennomforing2)
+            tiltaksgjennomforingRepository.upsert(gjennomforing3)
+            tiltaksgjennomforingRepository.upsert(gjennomforing4)
 
             deltakerRepository.upsert(deltaker1)
             deltakerRepository.upsert(deltaker2)

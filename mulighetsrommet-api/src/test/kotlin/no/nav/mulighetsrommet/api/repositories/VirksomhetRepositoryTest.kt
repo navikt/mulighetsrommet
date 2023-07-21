@@ -228,7 +228,7 @@ class VirksomhetRepositoryTest : FunSpec({
                 avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
                 opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
             )
-            avtaleRepository.upsert(avtale).shouldBeRight()
+            avtaleRepository.upsert(avtale)
             val tiltaksgjennomforing = TiltaksgjennomforingDbo(
                 id = UUID.randomUUID(),
                 navn = "Navn",
@@ -252,7 +252,7 @@ class VirksomhetRepositoryTest : FunSpec({
                 lokasjonArrangor = null,
                 estimertVentetid = null,
             )
-            tiltaksgjennomforingRepository.upsert(tiltaksgjennomforing).shouldBeRight()
+            tiltaksgjennomforingRepository.upsert(tiltaksgjennomforing)
 
             val virksomhet1 = VirksomhetDto(
                 navn = "REMA 1000 AS",

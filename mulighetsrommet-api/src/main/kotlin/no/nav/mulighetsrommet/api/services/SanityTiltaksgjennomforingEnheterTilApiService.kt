@@ -4,7 +4,6 @@ import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.domain.dto.SanityResponse
 import no.nav.mulighetsrommet.api.domain.dto.SanityTiltaksgjennomforingResponse
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
-import no.nav.mulighetsrommet.database.utils.getOrThrow
 import org.slf4j.LoggerFactory
 
 class SanityTiltaksgjennomforingEnheterTilApiService(
@@ -40,7 +39,6 @@ class SanityTiltaksgjennomforingEnheterTilApiService(
                     .map { enhet -> enhet._ref.takeLast(4) }
 
                 tiltaksgjennomforingRepository.updateEnheter(it.tiltaksnummer!!.current, enheter)
-                    .getOrThrow()
             }
 
         logger.info(

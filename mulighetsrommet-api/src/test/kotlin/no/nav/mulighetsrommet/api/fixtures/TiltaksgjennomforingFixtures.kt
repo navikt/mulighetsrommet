@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.fixtures
 
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
+import no.nav.mulighetsrommet.api.routes.v1.TiltaksgjennomforingRequest
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
@@ -31,6 +32,28 @@ object TiltaksgjennomforingFixtures {
         stengtTil = null,
         lokasjonArrangor = null,
         estimertVentetid = null,
+    )
+
+    fun Oppfolging1Request(avtaleId: UUID) = TiltaksgjennomforingRequest(
+        id = UUID.fromString("20ecff07-18e4-4dba-ada3-0ee7cab5892e"),
+        navn = "Oppfølging 1",
+        tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
+        tiltaksnummer = "2023#1",
+        arrangorOrganisasjonsnummer = "976663934",
+        startDato = LocalDate.of(2023, 1, 1),
+        sluttDato = LocalDate.of(2023, 2, 1),
+        antallPlasser = 1,
+        ansvarlig = "Z123456",
+        navEnheter = emptyList(),
+        oppstart = TiltaksgjennomforingOppstartstype.FELLES,
+        kontaktpersoner = emptyList(),
+        arrangorKontaktpersonId = null,
+        stengtFra = null,
+        stengtTil = null,
+        lokasjonArrangor = null,
+        estimertVentetid = null,
+        avtaleId = avtaleId,
+        apenForInnsok = true,
     )
 
     val Oppfolging2 = TiltaksgjennomforingDbo(

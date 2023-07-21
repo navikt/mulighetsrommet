@@ -57,7 +57,7 @@ class AvtaleServiceTest : FunSpec({
                 startDato = LocalDate.of(2023, 6, 1),
                 sluttDato = LocalDate.of(2023, 7, 1),
             )
-            avtaler.upsert(avtale).shouldBeRight()
+            avtaler.upsert(avtale)
 
             avtaleService.delete(avtale.id, currentDate = currentDate).shouldBeLeft().should {
                 it.status shouldBe HttpStatusCode.BadRequest
@@ -73,7 +73,7 @@ class AvtaleServiceTest : FunSpec({
                 sluttDato = LocalDate.of(2023, 7, 1),
                 opphav = ArenaMigrering.Opphav.ARENA,
             )
-            avtaler.upsert(avtale).shouldBeRight()
+            avtaler.upsert(avtale)
 
             avtaleService.delete(avtale.id, currentDate = currentDate).shouldBeLeft().should {
                 it.status shouldBe HttpStatusCode.BadRequest
@@ -95,8 +95,8 @@ class AvtaleServiceTest : FunSpec({
                 startDato = LocalDate.of(2024, 5, 17),
                 sluttDato = LocalDate.of(2025, 7, 1),
             )
-            avtaler.upsert(avtale).shouldBeRight()
-            avtaler.upsert(avtaleSomErUinteressant).shouldBeRight()
+            avtaler.upsert(avtale)
+            avtaler.upsert(avtaleSomErUinteressant)
             val oppfolging = TiltaksgjennomforingFixtures.Oppfolging1.copy(
                 avtaleId = avtale.id,
                 tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
@@ -115,9 +115,9 @@ class AvtaleServiceTest : FunSpec({
                 startDato = LocalDate.of(2023, 5, 1),
                 sluttDato = null,
             )
-            tiltaksgjennomforinger.upsert(oppfolging).shouldBeRight()
-            tiltaksgjennomforinger.upsert(arbeidstrening).shouldBeRight()
-            tiltaksgjennomforinger.upsert(oppfolging2).shouldBeRight()
+            tiltaksgjennomforinger.upsert(oppfolging)
+            tiltaksgjennomforinger.upsert(arbeidstrening)
+            tiltaksgjennomforinger.upsert(oppfolging2)
 
             avtaleService.delete(avtale.id, currentDate = currentDate).shouldBeLeft().should {
                 it.status shouldBe HttpStatusCode.BadRequest
@@ -151,7 +151,7 @@ class AvtaleServiceTest : FunSpec({
         test("Man skal ikke få avbryte dersom avtalen ikke finnes") {
             val avtale = AvtaleFixtures.avtale1.copy(navn = "Avtale som eksisterer")
             val avtaleIdSomIkkeFinnes = "3c9f3d26-50ec-45a7-a7b2-c2d8a3653945".toUUID()
-            avtaleRepository.upsert(avtale).shouldBeRight()
+            avtaleRepository.upsert(avtale)
 
             avtaleService.avbrytAvtale(avtaleIdSomIkkeFinnes).shouldBeLeft().should {
                 it.status shouldBe HttpStatusCode.NotFound
@@ -166,7 +166,7 @@ class AvtaleServiceTest : FunSpec({
                 sluttDato = LocalDate.of(2023, 7, 1),
                 opphav = ArenaMigrering.Opphav.ARENA,
             )
-            avtaleRepository.upsert(avtale).shouldBeRight()
+            avtaleRepository.upsert(avtale)
 
             avtaleService.avbrytAvtale(avtale.id, currentDate = currentDate).shouldBeLeft().should {
                 it.status shouldBe HttpStatusCode.BadRequest
@@ -182,7 +182,7 @@ class AvtaleServiceTest : FunSpec({
                 sluttDato = LocalDate.of(2023, 6, 1),
                 opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
             )
-            avtaleRepository.upsert(avtale).shouldBeRight()
+            avtaleRepository.upsert(avtale)
 
             avtaleService.avbrytAvtale(avtale.id, currentDate = currentDate).shouldBeLeft().should {
                 it.status shouldBe HttpStatusCode.BadRequest
@@ -204,8 +204,8 @@ class AvtaleServiceTest : FunSpec({
                 startDato = LocalDate.of(2024, 5, 17),
                 sluttDato = LocalDate.of(2025, 7, 1),
             )
-            avtaleRepository.upsert(avtale).shouldBeRight()
-            avtaleRepository.upsert(avtaleSomErUinteressant).shouldBeRight()
+            avtaleRepository.upsert(avtale)
+            avtaleRepository.upsert(avtaleSomErUinteressant)
             val oppfolging = TiltaksgjennomforingFixtures.Oppfolging1.copy(
                 avtaleId = avtale.id,
                 tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
@@ -224,9 +224,9 @@ class AvtaleServiceTest : FunSpec({
                 startDato = LocalDate.of(2023, 5, 1),
                 sluttDato = null,
             )
-            tiltaksgjennomforinger.upsert(oppfolging).shouldBeRight()
-            tiltaksgjennomforinger.upsert(arbeidstrening).shouldBeRight()
-            tiltaksgjennomforinger.upsert(oppfolging2).shouldBeRight()
+            tiltaksgjennomforinger.upsert(oppfolging)
+            tiltaksgjennomforinger.upsert(arbeidstrening)
+            tiltaksgjennomforinger.upsert(oppfolging2)
 
             avtaleService.avbrytAvtale(avtale.id, currentDate = currentDate).shouldBeLeft().should {
                 it.status shouldBe HttpStatusCode.BadRequest
@@ -243,7 +243,7 @@ class AvtaleServiceTest : FunSpec({
             )
             avtaleRepository.upsert(avtale).right()
 
-            avtaleService.avbrytAvtale(avtale.id, currentDate = currentDate).shouldBeRight()
+            avtaleService.avbrytAvtale(avtale.id, currentDate = currentDate)
         }
     }
 })

@@ -9,8 +9,6 @@ import no.nav.mulighetsrommet.api.utils.AdminTiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.api.utils.DatabaseUtils
 import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.Database
-import no.nav.mulighetsrommet.database.utils.QueryResult
-import no.nav.mulighetsrommet.database.utils.query
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
@@ -26,7 +24,7 @@ import java.util.*
 class TiltaksgjennomforingRepository(private val db: Database) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    fun upsert(tiltaksgjennomforing: TiltaksgjennomforingDbo): QueryResult<Unit> = query {
+    fun upsert(tiltaksgjennomforing: TiltaksgjennomforingDbo) {
         logger.info("Lagrer tiltaksgjennomføring id=${tiltaksgjennomforing.id}")
         @Language("PostgreSQL")
         val query = """
@@ -194,7 +192,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         }
     }
 
-    fun upsertArenaTiltaksgjennomforing(tiltaksgjennomforing: ArenaTiltaksgjennomforingDbo): QueryResult<Unit> = query {
+    fun upsertArenaTiltaksgjennomforing(tiltaksgjennomforing: ArenaTiltaksgjennomforingDbo) {
         logger.info("Lagrer tiltaksgjennomføring fra Arena id=${tiltaksgjennomforing.id}")
         @Language("PostgreSQL")
         val query = """
@@ -250,7 +248,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         queryOf(query, tiltaksgjennomforing.toSqlParameters()).asExecute.let { db.run(it) }
     }
 
-    fun updateEnheter(tiltaksnummer: String, navEnheter: List<String>): QueryResult<Int> = query {
+    fun updateEnheter(tiltaksnummer: String, navEnheter: List<String>): Int {
         @Language("PostgreSQL")
         val findId = """
             select id from tiltaksgjennomforing
@@ -282,7 +280,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             }
         }
 
-        db.transaction { tx ->
+        return db.transaction { tx ->
             val ider = queryOf(findId, mapOf("aar" to aar, "lopenr" to lopenr))
                 .map { it.string("id") }
                 .asList
@@ -323,20 +321,21 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             .associateBy { it.sanityId!! }
     }
 
-    fun get(id: UUID): QueryResult<TiltaksgjennomforingAdminDto?> = query {
+    fun get(id: UUID): TiltaksgjennomforingAdminDto? {
         @Language("PostgreSQL")
         val query = """
             select *
             from tiltaksgjennomforing_admin_dto_view
             where id = ?::uuid
         """.trimIndent()
-        queryOf(query, id)
+
+        return queryOf(query, id)
             .map { it.toTiltaksgjennomforingAdminDto() }
             .asSingle
             .let { db.run(it) }
     }
 
-    fun updateSanityTiltaksgjennomforingId(id: UUID, sanityId: UUID): QueryResult<Unit> = query {
+    fun updateSanityTiltaksgjennomforingId(id: UUID, sanityId: UUID) {
         @Language("PostgreSQL")
         val query = """
             update tiltaksgjennomforing
@@ -359,7 +358,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
     fun getAll(
         pagination: PaginationParams = PaginationParams(),
         filter: AdminTiltaksgjennomforingFilter,
-    ): QueryResult<Pair<Int, List<TiltaksgjennomforingAdminDto>>> = query {
+    ): Pair<Int, List<TiltaksgjennomforingAdminDto>> {
         val parameters = mapOf(
             "search" to "%${filter.search}%",
             "navEnhet" to filter.navEnhet,
@@ -420,7 +419,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         val tiltaksgjennomforinger = results.map { it.second }
         val totaltAntall = results.firstOrNull()?.first ?: 0
 
-        Pair(totaltAntall, tiltaksgjennomforinger)
+        return Pair(totaltAntall, tiltaksgjennomforinger)
     }
 
     fun getAllByDateIntervalAndAvslutningsstatus(
@@ -428,7 +427,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         dateIntervalEnd: LocalDate,
         avslutningsstatus: Avslutningsstatus,
         pagination: PaginationParams,
-    ): QueryResult<List<UUID>> = query {
+    ): List<UUID> {
         logger.info("Henter alle tiltaksgjennomføringer med start- eller sluttdato mellom $dateIntervalStart og $dateIntervalEnd, med avslutningsstatus $avslutningsstatus")
 
         @Language("PostgreSQL")
@@ -442,7 +441,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             limit :limit offset :offset
         """.trimIndent()
 
-        queryOf(
+        return queryOf(
             query,
             mapOf(
                 "avslutningsstatus" to avslutningsstatus.name,
@@ -457,7 +456,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    fun delete(id: UUID): QueryResult<Int> = query {
+    fun delete(id: UUID): Int {
         logger.info("Sletter tiltaksgjennomføring id=$id")
 
         @Language("PostgreSQL")
@@ -466,7 +465,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             where id = ?::uuid
         """.trimIndent()
 
-        queryOf(query, id)
+        return queryOf(query, id)
             .asUpdate
             .let { db.run(it) }
     }
@@ -733,7 +732,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    fun avbrytGjennomforing(gjennomforingId: UUID): QueryResult<Int> = query {
+    fun avbrytGjennomforing(gjennomforingId: UUID): Int {
         @Language("PostgreSQL")
         val query = """
             update tiltaksgjennomforing
@@ -741,6 +740,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             where id = ?::uuid
         """.trimIndent()
 
-        queryOf(query, gjennomforingId).asUpdate.let { db.run(it) }
+        return queryOf(query, gjennomforingId).asUpdate.let { db.run(it) }
     }
 }

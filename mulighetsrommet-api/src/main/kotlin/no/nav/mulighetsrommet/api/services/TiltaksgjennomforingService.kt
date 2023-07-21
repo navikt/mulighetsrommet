@@ -1,23 +1,17 @@
 package no.nav.mulighetsrommet.api.services
 
 import arrow.core.Either
-import arrow.core.flatMap
-import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingNokkeltallDto
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
+import no.nav.mulighetsrommet.api.routes.v1.TiltaksgjennomforingRequest
 import no.nav.mulighetsrommet.api.routes.v1.responses.*
 import no.nav.mulighetsrommet.api.utils.AdminTiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.api.utils.PaginationParams
-import no.nav.mulighetsrommet.database.utils.DatabaseOperationError
-import no.nav.mulighetsrommet.database.utils.QueryResult
-import no.nav.mulighetsrommet.database.utils.getOrThrow
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingAdminDto
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingNotificationDto
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import java.time.LocalDate
 import java.util.*
 
@@ -27,43 +21,37 @@ class TiltaksgjennomforingService(
     private val avtaleRepository: AvtaleRepository,
     private val sanityTiltaksgjennomforingService: SanityTiltaksgjennomforingService,
     private val virksomhetService: VirksomhetService,
+    private val utkastService: UtkastService,
 ) {
-    private val log: Logger = LoggerFactory.getLogger(javaClass)
-
     suspend fun upsert(
-        dbo: TiltaksgjennomforingDbo,
+        request: TiltaksgjennomforingRequest,
         currentDate: LocalDate = LocalDate.now(),
     ): StatusResponse<TiltaksgjennomforingAdminDto> {
-        if (dbo.avtaleId == null) {
-            return Either.Left(BadRequest("Avtale id kan ikke være null"))
-        }
-        val avtale = avtaleRepository.get(dbo.avtaleId!!).getOrThrow()
+        val avtale = avtaleRepository.get(request.avtaleId)
             ?: return Either.Left(BadRequest("Avtalen finnes ikke"))
 
         if (avtale.sluttDato.isBefore(currentDate)) {
             return Either.Left(BadRequest("Avtalens sluttdato har passert"))
         }
 
-        virksomhetService.hentEnhet(dbo.arrangorOrganisasjonsnummer)
-        return tiltaksgjennomforingRepository.upsert(dbo)
-            .flatMap { tiltaksgjennomforingRepository.get(dbo.id) }
-            .map { it!! }
-            .mapLeft { ServerError("Feil ved upsert av tiltaksgjennomføring") }
+        return request.toDbo()
+            .onRight { virksomhetService.hentEnhet(it.arrangorOrganisasjonsnummer) }
+            .onRight { tiltaksgjennomforingRepository.upsert(it) }
+            .map { tiltaksgjennomforingRepository.get(request.id)!! }
             .onRight { sanityTiltaksgjennomforingService.opprettSanityTiltaksgjennomforing(it) }
+            .onRight { utkastService.deleteUtkast(it.id) }
     }
 
-    fun get(id: UUID): QueryResult<TiltaksgjennomforingAdminDto?> =
+    fun get(id: UUID): TiltaksgjennomforingAdminDto? =
         tiltaksgjennomforingRepository.get(id)
-            .onLeft { log.error("Klarte ikke hente tiltaksgjennomføring", it.error) }
 
     fun getAll(
         pagination: PaginationParams,
         filter: AdminTiltaksgjennomforingFilter,
-    ): Either<DatabaseOperationError, PaginatedResponse<TiltaksgjennomforingAdminDto>> =
+    ): PaginatedResponse<TiltaksgjennomforingAdminDto> =
         tiltaksgjennomforingRepository
             .getAll(pagination, filter)
-            .onLeft { log.error("Klarte ikke hente tiltaksgjennomføringer", it.error) }
-            .map { (totalCount, data) ->
+            .let { (totalCount, data) ->
                 PaginatedResponse(
                     pagination = Pagination(
                         totalCount = totalCount,
@@ -92,7 +80,7 @@ class TiltaksgjennomforingService(
     }
 
     fun delete(id: UUID, currentDate: LocalDate = LocalDate.now()): StatusResponse<Int> {
-        val gjennomforing = tiltaksgjennomforingRepository.get(id).getOrNull()
+        val gjennomforing = tiltaksgjennomforingRepository.get(id)
             ?: return Either.Left(NotFound("Fant ikke gjennomføringen med id $id"))
 
         if (gjennomforing.opphav == ArenaMigrering.Opphav.ARENA) {
@@ -108,11 +96,7 @@ class TiltaksgjennomforingService(
             return Either.Left(BadRequest(message = "Gjennomføringen kan ikke slettes fordi den har $antallDeltagere deltager(e) koblet til seg."))
         }
 
-        return tiltaksgjennomforingRepository
-            .delete(id)
-            .mapLeft {
-                ServerError(message = "Det oppsto en feil ved sletting av gjennomføringen")
-            }
+        return Either.Right(tiltaksgjennomforingRepository.delete(id))
     }
 
     fun getAllMidlertidigStengteGjennomforingerSomNarmerSegSluttdato(): List<TiltaksgjennomforingNotificationDto> {
@@ -124,7 +108,7 @@ class TiltaksgjennomforingService(
     }
 
     fun avbrytGjennomforing(gjennomforingId: UUID): StatusResponse<Int> {
-        val gjennomforing = tiltaksgjennomforingRepository.get(gjennomforingId).getOrNull()
+        val gjennomforing = tiltaksgjennomforingRepository.get(gjennomforingId)
             ?: return Either.Left(NotFound("Fant ikke gjennomføringen med id $gjennomforingId"))
 
         if (gjennomforing.opphav == ArenaMigrering.Opphav.ARENA) {
@@ -135,7 +119,6 @@ class TiltaksgjennomforingService(
         if (antallDeltagere > 0) {
             return Either.Left(BadRequest(message = "Gjennomføringen kan ikke avbrytes fordi den har $antallDeltagere deltager(e) koblet til seg."))
         }
-        return tiltaksgjennomforingRepository.avbrytGjennomforing(gjennomforingId)
-            .mapLeft { error -> ServerError("Internal server error when 'Avbryt gjennomføring': Error: $error") }
+        return Either.Right(tiltaksgjennomforingRepository.avbrytGjennomforing(gjennomforingId))
     }
 }

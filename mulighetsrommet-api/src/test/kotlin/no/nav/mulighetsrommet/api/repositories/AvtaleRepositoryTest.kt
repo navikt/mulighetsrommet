@@ -48,13 +48,13 @@ class AvtaleRepositoryTest : FunSpec({
                 ansvarlige = listOf(ansatt1.navIdent),
             )
 
-            avtaler.upsert(avtale1).shouldBeRight()
+            avtaler.upsert(avtale1)
 
             database.assertThat("avtale_ansvarlig").row()
                 .value("avtale_id").isEqualTo(avtale1.id)
                 .value("navident").isEqualTo(ansatt1.navIdent)
 
-            avtaler.upsert(avtale1.copy(ansvarlige = listOf(ansatt1.navIdent, ansatt2.navIdent))).shouldBeRight()
+            avtaler.upsert(avtale1.copy(ansvarlige = listOf(ansatt1.navIdent, ansatt2.navIdent)))
 
             database.assertThat("avtale_ansvarlig")
                 .hasNumberOfRows(2)
@@ -74,7 +74,7 @@ class AvtaleRepositoryTest : FunSpec({
             val avtale1 = AvtaleFixtures.avtale1.copy(
                 leverandorUnderenheter = listOf(underenhet),
             )
-            avtaler.upsert(avtale1).shouldBeRight()
+            avtaler.upsert(avtale1)
             database.assertThat("avtale_underleverandor").row()
                 .value("organisasjonsnummer").isEqualTo(underenhet)
                 .value("avtale_id").isEqualTo(avtale1.id)
@@ -105,8 +105,8 @@ class AvtaleRepositoryTest : FunSpec({
                 leverandorUnderenheter = listOf("888888888", "777777777"),
             )
 
-            avtaler.upsert(avtale1).shouldBeRight()
-            avtaler.get(avtale1.id).shouldBeRight().should {
+            avtaler.upsert(avtale1)
+            avtaler.get(avtale1.id).should {
                 it!!.leverandorUnderenheter shouldContainExactlyInAnyOrder listOf(
                     AvtaleAdminDto.Leverandor(
                         organisasjonsnummer = "777777777",
@@ -141,8 +141,8 @@ class AvtaleRepositoryTest : FunSpec({
                     id = UUID.randomUUID(),
                     navn = "Avtale om undervisning av underlige ulver",
                 )
-                avtaler.upsert(avtale1).shouldBeRight()
-                avtaler.upsert(avtale2).shouldBeRight()
+                avtaler.upsert(avtale1)
+                avtaler.upsert(avtale2)
                 val result = avtaler.getAll(
                     filter = defaultFilter.copy(
                         tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
@@ -181,11 +181,11 @@ class AvtaleRepositoryTest : FunSpec({
                     startDato = LocalDate.of(2023, 2, 2),
                 )
 
-                avtaler.upsert(avtaleAktiv).shouldBeRight()
-                avtaler.upsert(avtaleAvbrutt).shouldBeRight()
-                avtaler.upsert(avtalePlanlagt).shouldBeRight()
-                avtaler.upsert(avtaleAvsluttetDato).shouldBeRight()
-                avtaler.upsert(avtaleAvsluttetStatus).shouldBeRight()
+                avtaler.upsert(avtaleAktiv)
+                avtaler.upsert(avtaleAvbrutt)
+                avtaler.upsert(avtalePlanlagt)
+                avtaler.upsert(avtaleAvsluttetDato)
+                avtaler.upsert(avtaleAvsluttetStatus)
 
                 val result = avtaler.getAll(
                     filter = defaultFilter.copy(
@@ -222,11 +222,11 @@ class AvtaleRepositoryTest : FunSpec({
                     startDato = LocalDate.of(2023, 2, 2),
                 )
 
-                avtaler.upsert(avtaleAktiv).shouldBeRight()
-                avtaler.upsert(avtaleAvbrutt).shouldBeRight()
-                avtaler.upsert(avtalePlanlagt).shouldBeRight()
-                avtaler.upsert(avtaleAvsluttetDato).shouldBeRight()
-                avtaler.upsert(avtaleAvsluttetStatus).shouldBeRight()
+                avtaler.upsert(avtaleAktiv)
+                avtaler.upsert(avtaleAvbrutt)
+                avtaler.upsert(avtalePlanlagt)
+                avtaler.upsert(avtaleAvsluttetDato)
+                avtaler.upsert(avtaleAvsluttetStatus)
 
                 val result = avtaler.getAll(
                     filter = defaultFilter.copy(
@@ -273,10 +273,10 @@ class AvtaleRepositoryTest : FunSpec({
                     navRegion = "1900",
                 )
 
-                avtaler.upsert(avtale1).shouldBeRight()
-                avtaler.upsert(avtale2).shouldBeRight()
+                avtaler.upsert(avtale1)
+                avtaler.upsert(avtale2)
 
-                val aa = avtaler.get(avtale1.id).shouldBeRight()
+                val aa = avtaler.get(avtale1.id)
                 aa?.navRegion?.enhetsnummer shouldBe "1801"
 
                 val result = avtaler.getAll(
@@ -316,8 +316,8 @@ class AvtaleRepositoryTest : FunSpec({
                     navRegion = "1900",
                     navEnheter = listOf("1901"),
                 )
-                avtaler.upsert(avtale1).shouldBeRight()
-                avtaler.get(avtale1.id).shouldBeRight().should {
+                avtaler.upsert(avtale1)
+                avtaler.get(avtale1.id).should {
                     it!!.navRegion?.enhetsnummer shouldBe "1900"
                     it.navEnheter shouldContainExactly listOf(NavEnhet(enhetsnummer = "1901", navn = "Oppland 1"))
                 }
@@ -354,9 +354,9 @@ class AvtaleRepositoryTest : FunSpec({
                 ),
             )
 
-            avtaler.upsert(avtale1).shouldBeRight()
-            avtaler.upsert(avtale2).shouldBeRight()
-            avtaler.upsert(avtale3).shouldBeRight()
+            avtaler.upsert(avtale1)
+            avtaler.upsert(avtale2)
+            avtaler.upsert(avtale3)
             val result = avtaler.getAll(
                 filter = defaultFilter.copy(
                     tiltakstypeId = tiltakstypeId,
@@ -390,11 +390,11 @@ class AvtaleRepositoryTest : FunSpec({
                     id = UUID.randomUUID(),
                     navn = "Avtale hos Ærfuglen Ærle",
                 )
-                avtaler.upsert(avtale1).shouldBeRight()
-                avtaler.upsert(avtale2).shouldBeRight()
-                avtaler.upsert(avtale3).shouldBeRight()
-                avtaler.upsert(avtale4).shouldBeRight()
-                avtaler.upsert(avtale5).shouldBeRight()
+                avtaler.upsert(avtale1)
+                avtaler.upsert(avtale2)
+                avtaler.upsert(avtale3)
+                avtaler.upsert(avtale4)
+                avtaler.upsert(avtale5)
                 val result = avtaler.getAll(
                     filter = defaultFilter.copy(
                         sortering = "navn-ascending",
@@ -429,11 +429,11 @@ class AvtaleRepositoryTest : FunSpec({
                     id = UUID.randomUUID(),
                     navn = "Avtale hos Ærfuglen Ærle",
                 )
-                avtaler.upsert(avtale1).shouldBeRight()
-                avtaler.upsert(avtale2).shouldBeRight()
-                avtaler.upsert(avtale3).shouldBeRight()
-                avtaler.upsert(avtale4).shouldBeRight()
-                avtaler.upsert(avtale5).shouldBeRight()
+                avtaler.upsert(avtale1)
+                avtaler.upsert(avtale2)
+                avtaler.upsert(avtale3)
+                avtaler.upsert(avtale4)
+                avtaler.upsert(avtale5)
                 val result = avtaler.getAll(
                     filter = defaultFilter.copy(
                         sortering = "navn-descending",
@@ -493,9 +493,9 @@ class AvtaleRepositoryTest : FunSpec({
                     arenaAnsvarligEnhet = "0300",
                     tiltakstypeId = tiltakstypeId,
                 )
-                avtaler.upsert(avtale1).shouldBeRight()
-                avtaler.upsert(avtale2).shouldBeRight()
-                avtaler.upsert(avtale3).shouldBeRight()
+                avtaler.upsert(avtale1)
+                avtaler.upsert(avtale2)
+                avtaler.upsert(avtale3)
                 val result = avtaler.getAll(
                     filter = defaultFilter.copy(
                         tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
@@ -540,9 +540,9 @@ class AvtaleRepositoryTest : FunSpec({
                     navRegion = null,
                     navn = "Avtale hos Øyvind",
                 )
-                avtaler.upsert(avtale1).shouldBeRight()
-                avtaler.upsert(avtale2).shouldBeRight()
-                avtaler.upsert(avtale3).shouldBeRight()
+                avtaler.upsert(avtale1)
+                avtaler.upsert(avtale2)
+                avtaler.upsert(avtale3)
 
                 val ascending = avtaler.getAll(
                     filter = defaultFilter.copy(
@@ -590,8 +590,8 @@ class AvtaleRepositoryTest : FunSpec({
                     leverandorOrganisasjonsnummer = "987654321",
                     navn = "Avtale hos Åse",
                 )
-                avtaler.upsert(avtale1).shouldBeRight()
-                avtaler.upsert(avtale2).shouldBeRight()
+                avtaler.upsert(avtale1)
+                avtaler.upsert(avtale2)
 
                 val ascending = avtaler.getAll(
                     filter = defaultFilter.copy(
@@ -656,12 +656,12 @@ class AvtaleRepositoryTest : FunSpec({
                     sluttDato = LocalDate.of(2023, 1, 1),
                     navn = "Avtale hos Christina",
                 )
-                avtaler.upsert(avtale1).shouldBeRight()
-                avtaler.upsert(avtale2).shouldBeRight()
-                avtaler.upsert(avtale3).shouldBeRight()
-                avtaler.upsert(avtale4).shouldBeRight()
-                avtaler.upsert(avtale5).shouldBeRight()
-                avtaler.upsert(avtale6).shouldBeRight()
+                avtaler.upsert(avtale1)
+                avtaler.upsert(avtale2)
+                avtaler.upsert(avtale3)
+                avtaler.upsert(avtale4)
+                avtaler.upsert(avtale5)
+                avtaler.upsert(avtale6)
 
                 val result = avtaler.getAll(
                     filter = defaultFilter.copy(
@@ -714,12 +714,12 @@ class AvtaleRepositoryTest : FunSpec({
                     sluttDato = LocalDate.of(2023, 1, 1),
                     navn = "Avtale hos Christina",
                 )
-                avtaler.upsert(avtale1).shouldBeRight()
-                avtaler.upsert(avtale2).shouldBeRight()
-                avtaler.upsert(avtale3).shouldBeRight()
-                avtaler.upsert(avtale4).shouldBeRight()
-                avtaler.upsert(avtale5).shouldBeRight()
-                avtaler.upsert(avtale6).shouldBeRight()
+                avtaler.upsert(avtale1)
+                avtaler.upsert(avtale2)
+                avtaler.upsert(avtale3)
+                avtaler.upsert(avtale4)
+                avtaler.upsert(avtale5)
+                avtaler.upsert(avtale6)
 
                 val result = avtaler.getAll(
                     filter = defaultFilter.copy(
@@ -781,15 +781,15 @@ class AvtaleRepositoryTest : FunSpec({
 
                 tiltakstypeRepository.upsert(tiltakstypeUtenAvtaler).getOrThrow()
 
-                avtaler.upsert(avtale1).shouldBeRight()
+                avtaler.upsert(avtale1)
 
-                tiltaksgjennomforingRepository.upsert(gjennomforing1).getOrThrow()
-                tiltaksgjennomforingRepository.upsert(gjennomforing2).getOrThrow()
-                tiltaksgjennomforingRepository.upsert(gjennomforing3).getOrThrow()
-                tiltaksgjennomforingRepository.upsert(gjennomforing4).getOrThrow()
+                tiltaksgjennomforingRepository.upsert(gjennomforing1)
+                tiltaksgjennomforingRepository.upsert(gjennomforing2)
+                tiltaksgjennomforingRepository.upsert(gjennomforing3)
+                tiltaksgjennomforingRepository.upsert(gjennomforing4)
 
                 val filter = AdminTiltaksgjennomforingFilter()
-                val gjennomforinger = tiltaksgjennomforingRepository.getAll(filter = filter).shouldBeRight()
+                val gjennomforinger = tiltaksgjennomforingRepository.getAll(filter = filter)
                 gjennomforinger.first shouldBe 4
 
                 val antallGjennomforingerForAvtale =
@@ -827,11 +827,11 @@ class AvtaleRepositoryTest : FunSpec({
                 tiltakstypeRepository.upsert(tiltakstype).getOrThrow()
                 tiltakstypeRepository.upsert(tiltakstypeUtenAvtaler).getOrThrow()
 
-                avtaler.upsert(avtale1).shouldBeRight()
-                avtaler.upsert(avtale2).shouldBeRight()
-                avtaler.upsert(avtale3).shouldBeRight()
-                avtaler.upsert(avtale4).shouldBeRight()
-                avtaler.upsert(avtale5).shouldBeRight()
+                avtaler.upsert(avtale1)
+                avtaler.upsert(avtale2)
+                avtaler.upsert(avtale3)
+                avtaler.upsert(avtale4)
+                avtaler.upsert(avtale5)
 
                 val alleAvtaler = avtaler.getAll(filter = defaultFilter)
                 alleAvtaler.first shouldBe 5
@@ -878,11 +878,11 @@ class AvtaleRepositoryTest : FunSpec({
 
                 tiltakstypeRepository.upsert(tiltakstype).getOrThrow()
 
-                avtaler.upsert(avtale6Mnd).shouldBeRight()
-                avtaler.upsert(avtale3Mnd).shouldBeRight()
-                avtaler.upsert(avtale14Dag).shouldBeRight()
-                avtaler.upsert(avtale7Dag).shouldBeRight()
-                avtaler.upsert(avtaleSomIkkeSkalMatche).shouldBeRight()
+                avtaler.upsert(avtale6Mnd)
+                avtaler.upsert(avtale3Mnd)
+                avtaler.upsert(avtale14Dag)
+                avtaler.upsert(avtale7Dag)
+                avtaler.upsert(avtaleSomIkkeSkalMatche)
 
                 val result = avtaler.getAllAvtalerSomNarmerSegSluttdato(
                     currentDate = LocalDate.of(2023, 5, 31),
@@ -916,8 +916,8 @@ class AvtaleRepositoryTest : FunSpec({
                 id = UUID.randomUUID(),
                 leverandorKontaktpersonId = leverandorKontaktperson.id,
             )
-            avtaler.upsert(avtale).shouldBeRight()
-            avtaler.get(avtale.id).shouldBeRight().should {
+            avtaler.upsert(avtale)
+            avtaler.get(avtale.id).should {
                 it!!.leverandorKontaktperson shouldBe leverandorKontaktperson
             }
 
@@ -931,8 +931,8 @@ class AvtaleRepositoryTest : FunSpec({
             avtale = avtale.copy(
                 leverandorKontaktpersonId = nyPerson.id,
             )
-            avtaler.upsert(avtale).shouldBeRight()
-            avtaler.get(avtale.id).shouldBeRight().should {
+            avtaler.upsert(avtale)
+            avtaler.get(avtale.id).should {
                 it!!.leverandorKontaktperson shouldBe nyPerson
             }
 
@@ -940,8 +940,8 @@ class AvtaleRepositoryTest : FunSpec({
             avtale = avtale.copy(
                 leverandorKontaktpersonId = null,
             )
-            avtaler.upsert(avtale).shouldBeRight()
-            avtaler.get(avtale.id).shouldBeRight().should {
+            avtaler.upsert(avtale)
+            avtaler.get(avtale.id).should {
                 it!!.leverandorKontaktperson shouldBe null
             }
         }
@@ -996,19 +996,19 @@ class AvtaleRepositoryTest : FunSpec({
 
         )
 
-        avtaler.upsertArenaAvtale(avtale).shouldBeRight()
-        avtaler.get(avtale.id).shouldBeRight(avtaleDto)
+        avtaler.upsertArenaAvtale(avtale)
+        avtaler.get(avtale.id).shouldBe(avtaleDto)
     }
 
     context("Avbryt avtale") {
         test("Skal kunne avbryte avtale") {
             val avtaler = AvtaleRepository(database.db)
 
-            avtaler.get(AvtaleFixtures.avtale1.id).shouldBeRight().should {
+            avtaler.get(AvtaleFixtures.avtale1.id).should {
                 it?.avtalestatus shouldBe Avtalestatus.Avsluttet
             }
             avtaler.avbrytAvtale(AvtaleFixtures.avtale1.id)
-            avtaler.get(AvtaleFixtures.avtale1.id).shouldBeRight().should {
+            avtaler.get(AvtaleFixtures.avtale1.id).should {
                 it?.avtalestatus shouldBe Avtalestatus.Avbrutt
             }
         }

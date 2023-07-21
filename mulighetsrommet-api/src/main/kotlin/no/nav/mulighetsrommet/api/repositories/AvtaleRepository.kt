@@ -6,8 +6,6 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.api.utils.*
 import no.nav.mulighetsrommet.database.Database
-import no.nav.mulighetsrommet.database.utils.QueryResult
-import no.nav.mulighetsrommet.database.utils.query
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.ArenaAvtaleDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
@@ -21,7 +19,7 @@ class AvtaleRepository(private val db: Database) {
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    fun upsert(avtale: AvtaleDbo): QueryResult<Unit> = query {
+    fun upsert(avtale: AvtaleDbo) {
         logger.info("Lagrer avtale id=${avtale.id}")
 
         @Language("PostgreSQL")
@@ -162,7 +160,7 @@ class AvtaleRepository(private val db: Database) {
         }
     }
 
-    fun upsertArenaAvtale(avtale: ArenaAvtaleDbo): QueryResult<Unit> = query {
+    fun upsertArenaAvtale(avtale: ArenaAvtaleDbo) {
         logger.info("Lagrer avtale fra Arena id=${avtale.id}")
 
         @Language("PostgreSQL")
@@ -210,7 +208,7 @@ class AvtaleRepository(private val db: Database) {
         queryOf(query, avtale.toSqlParameters()).asExecute.let { db.run(it) }
     }
 
-    fun get(id: UUID): QueryResult<AvtaleAdminDto?> = query {
+    fun get(id: UUID): AvtaleAdminDto? {
         @Language("PostgreSQL")
         val query = """
             select
@@ -263,13 +261,13 @@ class AvtaleRepository(private val db: Database) {
             group by a.id, t.tiltakskode, t.navn, aa.navident, nav_enhet.navn, v.navn, au.leverandor_underenheter, an.nav_enheter, vk.id, na.fornavn, na.etternavn
         """.trimIndent()
 
-        queryOf(query, id)
+        return queryOf(query, id)
             .map { it.toAvtaleAdminDto() }
             .asSingle
             .let { db.run(it) }
     }
 
-    fun delete(id: UUID): QueryResult<Int> = query {
+    fun delete(id: UUID) {
         logger.info("Sletter avtale id=$id")
 
         @Language("PostgreSQL")
@@ -569,7 +567,7 @@ class AvtaleRepository(private val db: Database) {
         )
     }
 
-    fun avbrytAvtale(avtaleId: UUID): QueryResult<Unit> = query {
+    fun avbrytAvtale(avtaleId: UUID) {
         logger.info("Avbryter avtale med id: '$avtaleId'")
         @Language("PostgreSQL")
         val patchAvslutningsstatusQuery = """

@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.routes.v1
 
-import arrow.core.flatMap
 import arrow.core.left
 import arrow.core.right
 import io.ktor.http.*
@@ -11,7 +10,6 @@ import io.ktor.server.util.*
 import no.nav.mulighetsrommet.api.clients.arenaadapter.ArenaAdapterClient
 import no.nav.mulighetsrommet.api.routes.v1.responses.NotFound
 import no.nav.mulighetsrommet.api.routes.v1.responses.PaginatedResponse
-import no.nav.mulighetsrommet.api.routes.v1.responses.ServerError
 import no.nav.mulighetsrommet.api.routes.v1.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
 import no.nav.mulighetsrommet.api.utils.AdminTiltaksgjennomforingFilter
@@ -32,24 +30,21 @@ fun Route.externalRoutes() {
             val paginationParams = getPaginationParams()
 
             val result = tiltaksgjennomforingService.getAll(paginationParams, filter)
-                .mapLeft { ServerError("Klarte ikke hente tiltaksgjennomføringer") }
-                .map {
+                .let {
                     val data = it.data.map { dto -> TiltaksgjennomforingDto.from(dto) }
                     PaginatedResponse(pagination = it.pagination, data = data)
                 }
 
-            call.respondWithStatusResponse(result)
+            call.respond(result)
         }
 
         get("{id}") {
             val id = call.parameters.getOrFail<UUID>("id")
 
             val result = tiltaksgjennomforingService.get(id)
-                .mapLeft { ServerError("Klarte ikke hente tiltaksgjennomføring med id=$id") }
-                .flatMap { it?.right() ?: NotFound("Ingen tiltaksgjennomføring med id=$id").left() }
-                .map { TiltaksgjennomforingDto.from(it) }
+                ?: return@get call.respond(HttpStatusCode.Companion.NotFound, "Ingen tiltaksgjennomføring med id=$id")
 
-            call.respondWithStatusResponse(result)
+            call.respond(result)
         }
 
         get("id/{arenaId}") {
@@ -66,13 +61,12 @@ fun Route.externalRoutes() {
             val id = call.parameters.getOrFail<UUID>("id")
 
             val result = tiltaksgjennomforingService.get(id)
-                .mapLeft { ServerError("Klarte ikke hente tiltaksgjennomføring med id=$id") }
-                .flatMap { it?.right() ?: NotFound("Ingen tiltaksgjennomføring med id=$id").left() }
-                .flatMap { gjennomforing ->
+                ?.let { gjennomforing ->
                     arenaAdapterService.hentTiltaksgjennomforingsstatus(id)
                         ?.let { TiltaksgjennomforingsArenadataDto.from(gjennomforing, it.status).right() }
                         ?: NotFound("Ingen tiltaksgjennomføring med id=$id").left()
                 }
+                ?: return@get call.respond(HttpStatusCode.Companion.NotFound, "Ingen tiltaksgjennomføring med id=$id")
 
             call.respondWithStatusResponse(result)
         }
