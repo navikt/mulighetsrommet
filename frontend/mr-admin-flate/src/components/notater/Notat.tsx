@@ -3,19 +3,22 @@ import { BodyLong, BodyShort, Button } from "@navikt/ds-react";
 import { formaterDatoTid } from "../../utils/Utils";
 import { TrashIcon } from "@navikt/aksel-icons";
 import Lenke from "mulighetsrommet-veileder-flate/src/components/lenke/Lenke";
-import { AvtaleNotat } from "mulighetsrommet-api-client";
+import {
+  AvtaleNotat,
+  TiltaksgjennomforingNotat,
+} from "mulighetsrommet-api-client";
 import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
 import { NOM_ANSATT_SIDE } from "mulighetsrommet-frontend-common/constants";
 
-interface NotatkortProps {
-  notat: AvtaleNotat;
+interface Props {
+  notat: AvtaleNotat | TiltaksgjennomforingNotat;
   handleSlett: (id: string) => void;
 }
 
-export function Notat({ handleSlett, notat }: NotatkortProps) {
+export function Notat({ handleSlett, notat }: Props) {
   const { data: bruker } = useHentAnsatt();
 
-  const lagtTilAv = (notat: AvtaleNotat) => {
+  const lagtTilAv = (notat: AvtaleNotat | TiltaksgjennomforingNotat) => {
     return (
       <div className={styles.notatinformasjon_bruker}>
         <BodyShort>Lagt til av: </BodyShort>

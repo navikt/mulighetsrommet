@@ -7,21 +7,22 @@ import {
   XMarkOctagonFillIcon,
 } from "@navikt/aksel-icons";
 import classNames from "classnames";
-import { useDeleteAvtalenotat } from "../../api/avtaler/avtalenotat/useDeleteAvtalenotat";
 import invariant from "tiny-invariant";
+import { UseMutationResult } from "@tanstack/react-query";
 
 interface Props {
   modalOpen: boolean;
   onClose: () => void;
   notatIdForSletting: string;
+  mutation: UseMutationResult<string, unknown, string>;
 }
 
 const SletteNotatModal = ({
   modalOpen,
   onClose,
   notatIdForSletting,
+  mutation,
 }: Props) => {
-  const mutation = useDeleteAvtalenotat();
   invariant(notatIdForSletting, "Fant ikke id for å slette notat.");
 
   useEffect(() => {

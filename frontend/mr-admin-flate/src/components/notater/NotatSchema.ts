@@ -2,6 +2,7 @@ import z from "zod";
 
 const minAntallTegn = 10;
 const maxAntallTegn = 500;
+
 export const NotatSchema = z.object({
   innhold: z
     .string()
@@ -12,4 +13,4 @@ export const NotatSchema = z.object({
     ),
 });
 
-export type inferredAvtalenotatSchema = z.infer<typeof NotatSchema>;
+export type inferredNotatSchema = z.infer<typeof NotatSchema>;

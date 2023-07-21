@@ -59,4 +59,8 @@ export const QueryKeys = {
   avtalenotater: (avtaleId: string) => ["avtalenotater", avtaleId] as const,
   mineAvtalenotater: (avtaleId: string) =>
     ["avtalenotater", "mine", avtaleId] as const,
+  tiltaksgjennomforingsnotater: (tiltaksgjennomforingsId: string) =>
+    ["tiltaksgjennomforingsnotater", tiltaksgjennomforingsId] as const,
+  mineTiltaksgjennomforingsnotater: (tiltaksgjennomforingsId: string) =>
+    ["tiltaksgjennomforingsnotater", "mine", tiltaksgjennomforingsId] as const,
 };

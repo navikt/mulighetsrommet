@@ -16,7 +16,7 @@ import commonStyles from "../Page.module.scss";
 import { Avtaleinfo } from "./Avtaleinfo";
 import { NokkeltallForAvtale } from "./nokkeltall/NokkeltallForAvtale";
 import { TiltaksgjennomforingerForAvtale } from "./tiltaksgjennomforinger/TiltaksgjennomforingerForAvtale";
-import NotaterPage from "../../components/notater/NotaterPage";
+import NotaterAvtalePage from "../../components/avtaler/NotaterAvtalePage";
 
 export function DetaljerAvtalePage() {
   const avtaleId = useGetAvtaleIdFromUrl();
@@ -83,7 +83,7 @@ export function DetaljerAvtalePage() {
 
         <Tabs.Panel value="avtalenotater">
           <ContainerLayoutDetaljer>
-            <NotaterPage />
+            <NotaterAvtalePage />
           </ContainerLayoutDetaljer>
         </Tabs.Panel>
 

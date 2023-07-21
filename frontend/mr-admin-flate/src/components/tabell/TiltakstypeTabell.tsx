@@ -2,7 +2,7 @@ import { Alert, Pagination, Table } from "@navikt/ds-react";
 import classNames from "classnames";
 import { useAtom } from "jotai";
 import Lenke from "mulighetsrommet-veileder-flate/src/components/lenke/Lenke";
-import { SorteringTiltakstyper } from "../../../../mulighetsrommet-api-client";
+import { SorteringTiltakstyper } from "mulighetsrommet-api-client";
 import { paginationAtom, tiltakstypeFilter } from "../../api/atoms";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
 import { PAGE_SIZE } from "../../constants";
