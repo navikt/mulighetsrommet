@@ -278,7 +278,7 @@ paths:
         - AvtaleNotater
       operationId: slettAvtalenotat
       parameters:
-        - in: query
+        - in: path
           name: id
           required: true
           schema:

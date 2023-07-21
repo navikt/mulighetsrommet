@@ -16,6 +16,6 @@ data class AvtaleNotatDbo(
     val createdAt: LocalDateTime?,
     @Serializable(with = LocalDateTimeSerializer::class)
     val updatedAt: LocalDateTime?,
-    val opprettetAv: String,
+    val opprettetAv: String?,
     val innhold: String,
 )
