@@ -1,6 +1,6 @@
 .notater {
   display: grid;
-  grid-template-columns: 1fr 2fr;
+  grid-template-columns: auto 2fr;
   gap: 1rem;
 
   &_opprett {
@@ -10,6 +10,12 @@
     flex-direction: column;
     gap: 1rem;
     max-height: fit-content;
+
+    textarea {
+      min-width: 9rem;
+      width: 25rem;
+      min-height: 4rem;
+    }
 
     .notater_knapp {
       display: flex;

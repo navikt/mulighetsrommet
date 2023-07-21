@@ -69,7 +69,7 @@ export default function NotaterPage() {
               hideLabel
               className={styles.notater_input}
               error={errors.innhold?.message}
-              minRows={15}
+              minRows={10}
               maxRows={25}
               resize
               maxLength={500}
