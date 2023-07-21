@@ -1,5 +1,6 @@
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
 import { Alert, Button, Heading } from "@navikt/ds-react";
+import { Avtalestatus } from "mulighetsrommet-api-client";
 import { useState } from "react";
 import { useAvtale } from "../../api/avtaler/useAvtale";
 import { useFeatureToggles } from "../../api/features/feature-toggles";
@@ -20,10 +21,6 @@ import {
   tiltakstypekodeErAnskaffetTiltak,
 } from "../../utils/Utils";
 import styles from "../DetaljerInfo.module.scss";
-import {
-  AvtaleAvslutningsstatus,
-  Avtalestatus,
-} from "mulighetsrommet-api-client";
 
 export function Avtaleinfo() {
   const avtaleId = useGetAvtaleIdFromUrl();
