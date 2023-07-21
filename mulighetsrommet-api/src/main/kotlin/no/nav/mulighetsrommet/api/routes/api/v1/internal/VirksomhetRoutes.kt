@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.routes.v1
+package no.nav.mulighetsrommet.api.routes.api.v1.internal
 
 import arrow.core.Either
 import io.ktor.http.*
@@ -10,9 +10,9 @@ import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.clients.brreg.OrgnummerUtil
-import no.nav.mulighetsrommet.api.routes.v1.responses.BadRequest
-import no.nav.mulighetsrommet.api.routes.v1.responses.StatusResponse
-import no.nav.mulighetsrommet.api.routes.v1.responses.respondWithStatusResponse
+import no.nav.mulighetsrommet.api.domain.responses.BadRequest
+import no.nav.mulighetsrommet.api.domain.responses.StatusResponse
+import no.nav.mulighetsrommet.api.domain.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.services.VirksomhetService
 import no.nav.mulighetsrommet.api.utils.getVirksomhetFilter
 import no.nav.mulighetsrommet.domain.dto.VirksomhetKontaktperson

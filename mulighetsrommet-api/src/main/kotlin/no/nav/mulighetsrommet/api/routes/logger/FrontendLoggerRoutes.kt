@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.routes.internal
+package no.nav.mulighetsrommet.api.routes.logger
 
 import io.ktor.server.application.*
 import io.ktor.server.request.*

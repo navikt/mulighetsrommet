@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.routes.v1.responses
+package no.nav.mulighetsrommet.api.domain.responses
 
 import kotlinx.serialization.Serializable
 

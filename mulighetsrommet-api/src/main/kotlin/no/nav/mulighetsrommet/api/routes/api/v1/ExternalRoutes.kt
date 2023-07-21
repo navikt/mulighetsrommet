@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.routes.v1
+package no.nav.mulighetsrommet.api.routes.api.v1
 
 import arrow.core.left
 import arrow.core.right
@@ -8,9 +8,9 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import no.nav.mulighetsrommet.api.clients.arenaadapter.ArenaAdapterClient
-import no.nav.mulighetsrommet.api.routes.v1.responses.NotFound
-import no.nav.mulighetsrommet.api.routes.v1.responses.PaginatedResponse
-import no.nav.mulighetsrommet.api.routes.v1.responses.respondWithStatusResponse
+import no.nav.mulighetsrommet.api.domain.responses.NotFound
+import no.nav.mulighetsrommet.api.domain.responses.PaginatedResponse
+import no.nav.mulighetsrommet.api.domain.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
 import no.nav.mulighetsrommet.api.utils.AdminTiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.api.utils.getPaginationParams

@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.routes.v1
+package no.nav.mulighetsrommet.api.routes.api.v1.internal
 
 import arrow.core.Either
 import arrow.core.flatMap
@@ -11,9 +11,9 @@ import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleNotatDbo
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingNotatDbo
+import no.nav.mulighetsrommet.api.domain.responses.StatusResponse
+import no.nav.mulighetsrommet.api.domain.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
-import no.nav.mulighetsrommet.api.routes.v1.responses.StatusResponse
-import no.nav.mulighetsrommet.api.routes.v1.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.services.NotatServiceImpl
 import no.nav.mulighetsrommet.api.utils.getNotatFilter
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer

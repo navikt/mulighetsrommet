@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.routes.v1
+package no.nav.mulighetsrommet.api.routes.api.v1.internal
 
 import arrow.core.Either
 import io.ktor.http.*
@@ -10,7 +10,9 @@ import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingKontaktpersonDbo
-import no.nav.mulighetsrommet.api.routes.v1.responses.*
+import no.nav.mulighetsrommet.api.domain.responses.BadRequest
+import no.nav.mulighetsrommet.api.domain.responses.StatusResponse
+import no.nav.mulighetsrommet.api.domain.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
 import no.nav.mulighetsrommet.api.services.UtkastService
 import no.nav.mulighetsrommet.api.utils.getAdminTiltaksgjennomforingsFilter
@@ -48,7 +50,7 @@ fun Route.tiltaksgjennomforingRoutes() {
 
             tiltaksgjennomforingService.get(id)
                 ?.let { call.respond(it) }
-                ?: call.respond(HttpStatusCode.Companion.NotFound, "Ingen tiltaksgjennomføring med id=$id")
+                ?: call.respond(HttpStatusCode.NotFound, "Ingen tiltaksgjennomføring med id=$id")
         }
 
         put("{id}") {

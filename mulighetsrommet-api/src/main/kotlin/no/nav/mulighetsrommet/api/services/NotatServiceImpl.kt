@@ -7,11 +7,11 @@ import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingNotatDbo
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleNotatDto
 import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingNotatDto
 import no.nav.mulighetsrommet.api.domain.int.NotatService
+import no.nav.mulighetsrommet.api.domain.responses.Forbidden
+import no.nav.mulighetsrommet.api.domain.responses.ServerError
+import no.nav.mulighetsrommet.api.domain.responses.StatusResponse
 import no.nav.mulighetsrommet.api.repositories.AvtaleNotatRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingNotatRepository
-import no.nav.mulighetsrommet.api.routes.v1.responses.Forbidden
-import no.nav.mulighetsrommet.api.routes.v1.responses.ServerError
-import no.nav.mulighetsrommet.api.routes.v1.responses.StatusResponse
 import no.nav.mulighetsrommet.api.utils.NotatFilter
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.getOrThrow

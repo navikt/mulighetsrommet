@@ -1,12 +1,12 @@
-package no.nav.mulighetsrommet.api.routes.v1
+package no.nav.mulighetsrommet.api.routes.api.v1.internal
 
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import no.nav.mulighetsrommet.api.domain.dto.UtkastDto
+import no.nav.mulighetsrommet.api.domain.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
-import no.nav.mulighetsrommet.api.routes.v1.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.services.UtkastService
 import no.nav.mulighetsrommet.api.utils.getUtkastFilter
 import org.koin.ktor.ext.inject

@@ -3,9 +3,13 @@ package no.nav.mulighetsrommet.api.services
 import arrow.core.Either
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleNokkeltallDto
+import no.nav.mulighetsrommet.api.domain.responses.BadRequest
+import no.nav.mulighetsrommet.api.domain.responses.NotFound
+import no.nav.mulighetsrommet.api.domain.responses.PaginatedResponse
+import no.nav.mulighetsrommet.api.domain.responses.Pagination
+import no.nav.mulighetsrommet.api.domain.responses.StatusResponse
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
-import no.nav.mulighetsrommet.api.routes.v1.responses.*
 import no.nav.mulighetsrommet.api.utils.AdminTiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.api.utils.AvtaleFilter
 import no.nav.mulighetsrommet.api.utils.PaginationParams

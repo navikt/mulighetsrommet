@@ -4,10 +4,10 @@ import arrow.core.Either
 import arrow.core.flatMap
 import no.nav.mulighetsrommet.api.domain.dbo.UtkastDbo
 import no.nav.mulighetsrommet.api.domain.dto.UtkastDto
+import no.nav.mulighetsrommet.api.domain.responses.NotFound
+import no.nav.mulighetsrommet.api.domain.responses.ServerError
+import no.nav.mulighetsrommet.api.domain.responses.StatusResponse
 import no.nav.mulighetsrommet.api.repositories.UtkastRepository
-import no.nav.mulighetsrommet.api.routes.v1.responses.NotFound
-import no.nav.mulighetsrommet.api.routes.v1.responses.ServerError
-import no.nav.mulighetsrommet.api.routes.v1.responses.StatusResponse
 import no.nav.mulighetsrommet.api.utils.UtkastFilter
 import java.util.*
 
