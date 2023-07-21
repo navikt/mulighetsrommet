@@ -228,7 +228,7 @@ paths:
         - AvtaleNotater
       operationId: lagreAvtalenotat
       requestBody:
-        description: Avtalenotat som skal lagres
+        description: Notat for avtale som skal lagres
         content:
           application/json:
             schema:
@@ -321,6 +321,23 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/TiltaksgjennomforingNotat"
+    put:
+      tags:
+        - TiltaksgjennomforingNotater
+      operationId: lagreTiltaksgjennomforingNotat
+      requestBody:
+        description: Notat for tiltaksgjennomføring som skal lagres
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TiltaksgjennomforingNotatRequest"
+      responses:
+        200:
+          description: Liste med notater for tilhørende tiltaksgjennomforing
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TiltaksgjennomforingNotat"
 
   /api/v1/internal/notater/tiltaksgjennomforinger/mine:
     get:
@@ -352,23 +369,6 @@ paths:
                 items:
                   $ref: "#/components/schemas/TiltaksgjennomforingNotat"
 
-    put:
-      tags:
-        - TiltaksgjennomforingNotater
-      operationId: lagreTiltaksgjennomforingNotat
-      requestBody:
-        description: Notat for tiltaksgjennomføring som skal lagres
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/TiltaksgjennomforingNotatRequest"
-      responses:
-        200:
-          description: Liste med notater for tilhørende avtale
-          content:
-            application/json:
-              schema:
-                  $ref: "#/components/schemas/AvtaleNotat"
 
   /api/v1/internal/notater/tiltaksgjennomforinger/{id}:
     delete:

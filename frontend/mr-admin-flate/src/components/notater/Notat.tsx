@@ -3,21 +3,27 @@ import { BodyLong, BodyShort, Button } from "@navikt/ds-react";
 import { formaterDatoTid } from "../../utils/Utils";
 import { TrashIcon } from "@navikt/aksel-icons";
 import Lenke from "mulighetsrommet-veileder-flate/src/components/lenke/Lenke";
-import { AvtaleNotat } from "mulighetsrommet-api-client";
+import {
+  AvtaleNotat,
+  TiltaksgjennomforingNotat,
+} from "mulighetsrommet-api-client";
 import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
 import { NOM_ANSATT_SIDE } from "mulighetsrommet-frontend-common/constants";
 
-interface NotatkortProps {
-  notat: AvtaleNotat;
+interface Props {
+  notat: AvtaleNotat | TiltaksgjennomforingNotat;
   handleSlett: (id: string) => void;
 }
 
-export function Notat({ handleSlett, notat }: NotatkortProps) {
+export function Notat({ handleSlett, notat }: Props) {
   const { data: bruker } = useHentAnsatt();
 
-  const lagtTilAv = (notat: AvtaleNotat) => {
+  const lagtTilAv = (notat: AvtaleNotat | TiltaksgjennomforingNotat) => {
     return (
-      <div className={styles.notatinformasjon_bruker}>
+      <div
+        className={styles.notatinformasjon_bruker}
+        data-testid="notat_brukerinformasjon"
+      >
         <BodyShort>Lagt til av: </BodyShort>
         <Lenke
           to={`${NOM_ANSATT_SIDE}${notat.opprettetAv.navIdent}`}
@@ -31,6 +37,7 @@ export function Notat({ handleSlett, notat }: NotatkortProps) {
             variant="tertiary"
             onClick={() => handleSlett(notat.id)}
             className={styles.slette_notat}
+            data-testid="slette-notat_btn"
           >
             <TrashIcon fontSize={"1.5rem"} />
           </Button>
@@ -40,7 +47,7 @@ export function Notat({ handleSlett, notat }: NotatkortProps) {
   };
 
   return (
-    <div className={styles.notat}>
+    <div className={styles.notat} data-testid="notat">
       <span className={styles.notatinformasjon}>
         {lagtTilAv(notat)}
         <BodyShort>{formaterDatoTid(notat.createdAt)}</BodyShort>

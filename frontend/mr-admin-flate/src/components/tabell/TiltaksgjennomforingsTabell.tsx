@@ -2,7 +2,7 @@ import { Alert, Pagination, Table } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import Lenke from "mulighetsrommet-veileder-flate/src/components/lenke/Lenke";
 import React from "react";
-import { SorteringTiltaksgjennomforinger } from "../../../../mulighetsrommet-api-client";
+import { SorteringTiltaksgjennomforinger } from "mulighetsrommet-api-client";
 import { paginationAtom, tiltaksgjennomforingfilter } from "../../api/atoms";
 import { useAdminTiltaksgjennomforinger } from "../../api/tiltaksgjennomforing/useAdminTiltaksgjennomforinger";
 import { useSort } from "../../hooks/useSort";

@@ -1,4 +1,4 @@
-import styles from "./Notater.module.scss";
+import styles from "../notater/Notater.module.scss";
 import {
   Button,
   Checkbox,
@@ -6,30 +6,31 @@ import {
   Heading,
   Textarea,
 } from "@navikt/ds-react";
-import Notatliste from "./Notatliste";
-import { useAvtalenotater } from "../../api/avtaler/avtalenotat/useAvtalenotater";
-import { useMineAvtalenotater } from "../../api/avtaler/avtalenotat/useMineAvtalenotater";
 import { useState } from "react";
-import { usePutAvtalenotat } from "../../api/avtaler/avtalenotat/usePutAvtalenotat";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
-import { inferredAvtalenotatSchema, NotatSchema } from "./NotatSchema";
-import { AvtaleNotatRequest } from "mulighetsrommet-api-client";
-import { useAvtale } from "../../api/avtaler/useAvtale";
+import { TiltaksgjennomforingNotatRequest } from "mulighetsrommet-api-client";
 import { v4 as uuidv4 } from "uuid";
 import { zodResolver } from "@hookform/resolvers/zod";
 import invariant from "tiny-invariant";
 import { Laster } from "../laster/Laster";
+import { inferredNotatSchema, NotatSchema } from "../notater/NotatSchema";
+import Notatliste from "../notater/Notatliste";
+import { useTiltaksgjennomforingsnotater } from "../../api/notater/gjennomforingsnotat/useTiltaksgjennomforingsnotater";
+import { useMineTiltaksgjennomforingsnotater } from "../../api/notater/gjennomforingsnotat/useMineTiltaksgjennomforingsnotater";
+import { useTiltaksgjennomforing } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforing";
+import { usePutTiltaksgjennomforingsnotat } from "../../api/notater/gjennomforingsnotat/usePutTiltaksgjennomforingsnotat";
+import { useDeleteTiltaksgjennomforingsnotat } from "../../api/notater/gjennomforingsnotat/useDeleteTiltaksgjennomforingsnotat";
 
-export default function NotaterPage() {
-  const { data: notater = [] } = useAvtalenotater();
-  const { data: mineNotater = [] } = useMineAvtalenotater();
-  const { data: avtaleData } = useAvtale();
+export default function NotaterTiltaksgjennomforingerPage() {
+  const { data: notater = [] } = useTiltaksgjennomforingsnotater();
+  const { data: mineNotater = [] } = useMineTiltaksgjennomforingsnotater();
+  const { data: tiltaksgjennomforingsData } = useTiltaksgjennomforing();
 
-  const mutation = usePutAvtalenotat();
+  const mutation = usePutTiltaksgjennomforingsnotat();
   const [visMineNotater, setVisMineNotater] = useState(false);
   const liste = visMineNotater ? mineNotater : notater;
 
-  const form = useForm<inferredAvtalenotatSchema>({
+  const form = useForm<inferredNotatSchema>({
     resolver: zodResolver(NotatSchema),
     defaultValues: {
       innhold: "",
@@ -44,18 +45,20 @@ export default function NotaterPage() {
     watch,
   } = form;
 
-  const postData: SubmitHandler<inferredAvtalenotatSchema> = async (
+  const postData: SubmitHandler<inferredNotatSchema> = async (
     data,
   ): Promise<void> => {
     const { innhold } = data;
-    invariant(avtaleData, "Klarte ikke hente avtale.");
+    invariant(
+      tiltaksgjennomforingsData,
+      "Klarte ikke hente tiltaksgjennomføring.",
+    );
 
-    const requestBody: AvtaleNotatRequest = {
+    const requestBody: TiltaksgjennomforingNotatRequest = {
       id: uuidv4(),
-      avtaleId: avtaleData.id,
+      tiltaksgjennomforingId: tiltaksgjennomforingsData.id,
       innhold,
     };
-
     mutation.mutate(requestBody, { onSuccess: () => reset() });
   };
 
@@ -69,7 +72,7 @@ export default function NotaterPage() {
               hideLabel
               className={styles.notater_input}
               error={errors.innhold?.message}
-              minRows={10}
+              minRows={15}
               maxRows={25}
               resize
               maxLength={500}
@@ -101,7 +104,11 @@ export default function NotaterPage() {
           </Checkbox>
         </div>
 
-        <Notatliste notater={liste} visMineNotater={visMineNotater} />
+        <Notatliste
+          notater={liste}
+          visMineNotater={visMineNotater}
+          mutation={useDeleteTiltaksgjennomforingsnotat()}
+        />
       </div>
     </div>
   );

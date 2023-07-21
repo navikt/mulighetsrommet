@@ -1,21 +1,30 @@
 import styles from "./Notater.module.scss";
 import { Alert } from "@navikt/ds-react";
-import { AvtaleNotat } from "mulighetsrommet-api-client";
+import {
+  AvtaleNotat,
+  TiltaksgjennomforingNotat,
+} from "mulighetsrommet-api-client";
 import SletteNotatModal from "./SletteNotatModal";
 import { useState } from "react";
 import { Notat } from "./Notat";
+import { UseMutationResult } from "@tanstack/react-query";
 
 interface Props {
-  notater: AvtaleNotat[];
+  notater: AvtaleNotat[] | TiltaksgjennomforingNotat[];
   visMineNotater: boolean;
+  mutation: UseMutationResult<string, unknown, string>;
 }
-export default function Notatliste({ notater, visMineNotater }: Props) {
+export default function Notatliste({
+  notater,
+  visMineNotater,
+  mutation,
+}: Props) {
   const [notatIdForSletting, setNotatIdForSletting] = useState<null | string>(
     null,
   );
 
   return (
-    <div className={styles.notater}>
+    <div className={styles.notater} data-testid="notatliste">
       {notater === undefined || notater.length === 0 ? (
         <Alert variant="info">
           {visMineNotater
@@ -39,6 +48,7 @@ export default function Notatliste({ notater, visMineNotater }: Props) {
           modalOpen={!!notatIdForSletting}
           onClose={() => setNotatIdForSletting(null)}
           notatIdForSletting={notatIdForSletting}
+          mutation={mutation}
         />
       ) : null}
     </div>

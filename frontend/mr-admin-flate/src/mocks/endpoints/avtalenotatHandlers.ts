@@ -42,7 +42,7 @@ export const avtalenotatHandlers = [
   rest.delete<any, any, any>(
     "*/api/v1/internal/notater/avtaler/:id",
     (req, res, ctx) => {
-      const id = req.url.searchParams.get("id");
+      const { id } = req.params;
       avtalenotater = [...avtalenotater.filter((notat) => notat.id !== id)];
       return res(ctx.status(200));
     },

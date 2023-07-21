@@ -19,6 +19,7 @@ import commonStyles from "../Page.module.scss";
 import { TiltaksgjennomforingInfo } from "./TiltaksgjennomforingInfo";
 import { NokkeltallForTiltaksgjennomforing } from "./nokkeltall/NokkeltallForTiltaksgjennomforing";
 import { DeltakerListe } from "../../microfrontends/team_komet/Deltakerliste";
+import NotaterTiltaksgjennomforingerPage from "../../components/tiltaksgjennomforinger/NotaterTiltaksgjennomforingerPage";
 
 export function DetaljerTiltaksgjennomforingerPage() {
   const optionalTiltaksgjennomforing = useTiltaksgjennomforingById();
@@ -72,6 +73,8 @@ export function DetaljerTiltaksgjennomforingerPage() {
             data-testid="tab_detaljer"
           />
 
+          <Tabs.Tab value="tiltaksgjennomforingsnotater" label="Notater" />
+
           {visDeltakerlisteFraKometFeature ? (
             <Tabs.Tab value="poc" label="Deltakerliste" />
           ) : null}
@@ -84,16 +87,25 @@ export function DetaljerTiltaksgjennomforingerPage() {
             />
           ) : null}
         </Tabs.List>
+
         <Tabs.Panel value="detaljer">
           <ContainerLayoutDetaljer>
             <TiltaksgjennomforingInfo />
           </ContainerLayoutDetaljer>
         </Tabs.Panel>
+
+        <Tabs.Panel value="tiltaksgjennomforingsnotater">
+          <ContainerLayoutDetaljer>
+            <NotaterTiltaksgjennomforingerPage />
+          </ContainerLayoutDetaljer>
+        </Tabs.Panel>
+
         <Tabs.Panel value="poc">
           <ContainerLayoutDetaljer>
             <DeltakerListe />
           </ContainerLayoutDetaljer>
         </Tabs.Panel>
+
         <Tabs.Panel value="nokkeltall">
           <ContainerLayoutDetaljer>
             <NokkeltallForTiltaksgjennomforing />

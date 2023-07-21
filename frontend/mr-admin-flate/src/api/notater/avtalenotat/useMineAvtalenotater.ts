@@ -6,7 +6,7 @@ import invariant from "tiny-invariant";
 
 export function useMineAvtalenotater() {
   const avtaleId = useGetAvtaleIdFromUrl();
-  invariant(avtaleId, "AvtaleId er ikke satt");
+  invariant(avtaleId, "Id for avtale er ikke satt");
 
   return useQuery(
     QueryKeys.mineAvtalenotater(avtaleId!!),
