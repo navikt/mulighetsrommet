@@ -6,6 +6,7 @@ import { Alert, Button, Heading, Link } from "@navikt/ds-react";
 import {
   TiltaksgjennomforingKontaktpersoner,
   TiltaksgjennomforingOppstartstype,
+  TiltaksgjennomforingStatus,
 } from "mulighetsrommet-api-client";
 import { useState } from "react";
 import { useAvtale } from "../../api/avtaler/useAvtale";
@@ -31,6 +32,7 @@ import {
   NOM_ANSATT_SIDE,
   TEAMS_DYPLENKE,
 } from "mulighetsrommet-frontend-common/constants";
+import invariant from "tiny-invariant";
 
 export function TiltaksgjennomforingInfo() {
   const {
@@ -99,6 +101,11 @@ export function TiltaksgjennomforingInfo() {
 
   const todayDate = new Date();
   const kontaktpersonerFraNav = tiltaksgjennomforing.kontaktpersoner ?? [];
+
+  invariant(
+    tiltaksgjennomforing?.status,
+    "Klarte ikke finne status for tiltaksgjennomføringen",
+  );
 
   return (
     <div className={styles.container}>
@@ -346,31 +353,33 @@ export function TiltaksgjennomforingInfo() {
           />
         )}
       </div>
-      <div className={styles.knapperad}>
-        {features?.[
-          "mulighetsrommet.admin-flate-slett-tiltaksgjennomforing"
-        ] ? (
-          <Button
-            variant="tertiary-neutral"
-            onClick={handleSlett}
-            data-testid="slett-gjennomforing"
-            className={styles.slett_knapp}
-          >
-            Feilregistrering
-          </Button>
-        ) : null}
-        {features?.[
-          "mulighetsrommet.admin-flate-rediger-tiltaksgjennomforing"
-        ] ? (
-          <Button
-            variant="tertiary"
-            onClick={handleRediger}
-            data-testid="endre-gjennomforing"
-          >
-            Endre
-          </Button>
-        ) : null}
-      </div>
+      {visKnapperad(tiltaksgjennomforing.status) ? (
+        <div className={styles.knapperad}>
+          {features?.[
+            "mulighetsrommet.admin-flate-slett-tiltaksgjennomforing"
+          ] ? (
+            <Button
+              variant="tertiary-neutral"
+              onClick={handleSlett}
+              data-testid="slett-gjennomforing"
+              className={styles.slett_knapp}
+            >
+              Feilregistrering
+            </Button>
+          ) : null}
+          {features?.[
+            "mulighetsrommet.admin-flate-rediger-tiltaksgjennomforing"
+          ] ? (
+            <Button
+              variant="tertiary"
+              onClick={handleRediger}
+              data-testid="endre-gjennomforing"
+            >
+              Endre
+            </Button>
+          ) : null}
+        </div>
+      ) : null}
       <OpprettTiltaksgjennomforingModal
         modalOpen={redigerModal}
         onClose={lukkRedigerModal}
@@ -406,4 +415,13 @@ function Kontaktperson({ kontaktperson }: KontaktpersonProps) {
       </a>
     </div>
   );
+}
+
+function visKnapperad(status: TiltaksgjennomforingStatus): boolean {
+  const whitelist: TiltaksgjennomforingStatus[] = [
+    TiltaksgjennomforingStatus.GJENNOMFORES,
+    TiltaksgjennomforingStatus.APENT_FOR_INNSOK,
+  ];
+
+  return whitelist.includes(status);
 }

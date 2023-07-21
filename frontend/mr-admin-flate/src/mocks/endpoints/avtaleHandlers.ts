@@ -13,7 +13,17 @@ export const avtaleHandlers = [
   rest.get<DefaultBodyType, PathParams, PaginertAvtale | undefined>(
     "*/api/v1/internal/avtaler",
     (req, res, ctx) => {
-      return res(ctx.status(200), ctx.json(mockAvtaler));
+      const avtalestatus = req.url.searchParams.get("avtalestatus");
+
+      return res(
+        ctx.status(200),
+        ctx.json({
+          ...mockAvtaler,
+          data: mockAvtaler.data.filter(
+            (a) => a.avtalestatus === avtalestatus || avtalestatus === null,
+          ),
+        }),
+      );
     },
   ),
 
