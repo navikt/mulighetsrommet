@@ -1,5 +1,6 @@
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
 import { Alert, Button, Heading } from "@navikt/ds-react";
+import { Avtalestatus } from "mulighetsrommet-api-client";
 import { useState } from "react";
 import { useAvtale } from "../../api/avtaler/useAvtale";
 import { useFeatureToggles } from "../../api/features/feature-toggles";
@@ -196,31 +197,33 @@ export function Avtaleinfo() {
         </VisHvisVerdi>
       </div>
 
-      <div className={styles.knapperad}>
-        <div>
-          {features?.["mulighetsrommet.admin-flate-slett-avtale"] ? (
-            <Button
-              variant="tertiary-neutral"
-              onClick={handleSlett}
-              data-testid="slett-avtale"
-              className={styles.slett_knapp}
-            >
-              Feilregistrering
-            </Button>
-          ) : null}
+      {visKnapperad(avtale.avtalestatus) ? (
+        <div className={styles.knapperad}>
+          <div>
+            {features?.["mulighetsrommet.admin-flate-slett-avtale"] ? (
+              <Button
+                variant="tertiary-neutral"
+                onClick={handleSlett}
+                data-testid="slett-avtale"
+                className={styles.slett_knapp}
+              >
+                Feilregistrering
+              </Button>
+            ) : null}
+          </div>
+          <div>
+            {features?.["mulighetsrommet.admin-flate-rediger-avtale"] ? (
+              <Button
+                variant="tertiary"
+                onClick={handleRediger}
+                data-testid="endre-avtale"
+              >
+                Endre
+              </Button>
+            ) : null}
+          </div>
         </div>
-        <div>
-          {features?.["mulighetsrommet.admin-flate-rediger-avtale"] ? (
-            <Button
-              variant="tertiary"
-              onClick={handleRediger}
-              data-testid="endre-avtale"
-            >
-              Endre
-            </Button>
-          ) : null}
-        </div>
-      </div>
+      ) : null}
       <OpprettAvtaleModal
         modalOpen={redigerModal}
         onClose={lukkRedigerModal}
@@ -238,4 +241,10 @@ export function Avtaleinfo() {
       />
     </div>
   );
+}
+
+function visKnapperad(avtalestatus: Avtalestatus): boolean {
+  const whitelist: Avtalestatus[] = [Avtalestatus.AKTIV, Avtalestatus.PLANLAGT];
+
+  return whitelist.includes(avtalestatus);
 }
