@@ -48,7 +48,7 @@ export const tiltaksgjennomforingNotatHandlers = [
   rest.delete<any, any, any>(
     "*/api/v1/internal/notater/tiltaksgjennomforinger/:id",
     (req, res, ctx) => {
-      const id = req.url.searchParams.get("id");
+      const { id } = req.params;
       tiltaksgjennomforingNotater = [
         ...tiltaksgjennomforingNotater.filter((notat) => notat.id !== id),
       ];

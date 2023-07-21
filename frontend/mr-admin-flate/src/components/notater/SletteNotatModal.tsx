@@ -66,7 +66,11 @@ const SletteNotatModal = ({
 
         <div className={styles.knapperad}>
           {mutation?.isError ? null : (
-            <Button variant="danger" onClick={handleDelete}>
+            <Button
+              variant="danger"
+              onClick={handleDelete}
+              data-testid="bekrefte-slette-notat_btn"
+            >
               Slett notat
             </Button>
           )}

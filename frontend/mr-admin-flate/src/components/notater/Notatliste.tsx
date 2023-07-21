@@ -24,7 +24,7 @@ export default function Notatliste({
   );
 
   return (
-    <div className={styles.notater}>
+    <div className={styles.notater} data-testid="notatliste">
       {notater === undefined || notater.length === 0 ? (
         <Alert variant="info">
           {visMineNotater

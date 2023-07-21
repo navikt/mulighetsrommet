@@ -5,15 +5,18 @@ import invariant from "tiny-invariant";
 import { useGetAdminTiltaksgjennomforingsIdFraUrl } from "../../../hooks/useGetAdminTiltaksgjennomforingsIdFraUrl";
 
 export function useMineTiltaksgjennomforingsnotater() {
-  const gjennomforingsId = useGetAdminTiltaksgjennomforingsIdFraUrl();
-  invariant(gjennomforingsId, "Id for tiltaksgjennomføring er ikke satt.");
+  const tiltaksgjennomforingId = useGetAdminTiltaksgjennomforingsIdFraUrl();
+  invariant(
+    tiltaksgjennomforingId,
+    "Id for tiltaksgjennomføring er ikke satt.",
+  );
 
   return useQuery(
-    QueryKeys.mineTiltaksgjennomforingsnotater(gjennomforingsId!!),
+    QueryKeys.mineTiltaksgjennomforingsnotater(tiltaksgjennomforingId),
     () =>
       mulighetsrommetClient.tiltaksgjennomforingNotater.getMineTiltaksgjennomforingNotater(
         {
-          tiltaksgjennomforingId: gjennomforingsId!,
+          tiltaksgjennomforingId,
         },
       ),
     {},

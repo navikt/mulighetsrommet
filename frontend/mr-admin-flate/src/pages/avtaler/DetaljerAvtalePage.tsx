@@ -65,7 +65,11 @@ export function DetaljerAvtalePage() {
       >
         <Tabs.List className={commonStyles.list}>
           <Tabs.Tab value="avtaleinfo" label="Avtaleinfo" />
-          <Tabs.Tab value="avtalenotater" label="Notater" />
+          <Tabs.Tab
+            value="avtalenotater"
+            label="Notater"
+            data-testid="tab_avtalenotater"
+          />
           <Tabs.Tab
             data-testid="avtale-tiltaksgjennomforing-tab"
             value="tiltaksgjennomforinger"

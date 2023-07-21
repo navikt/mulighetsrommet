@@ -11,6 +11,7 @@ declare global {
       ): Chainable<JQuery<HTMLElement>>;
       terminalLog(vialations: axe.Result[]): Chainable<JQuery<HTMLElement>>;
       checkPageA11y(): Chainable<JQuery<HTMLElement>>;
+      gaTilForsteAvtale(): Chainable<JQuery<HTMLElement>>;
     }
   }
 }
@@ -35,6 +36,11 @@ Cypress.Commands.add("resetSide", () => {
 
 Cypress.Commands.add("getByTestId", (selector, ...args) => {
   return cy.get(`[data-testid=${selector}]`, ...args);
+});
+
+Cypress.Commands.add("gaTilForsteAvtale", () => {
+  cy.visit("/avtaler");
+  cy.getByTestId("avtalerad").eq(0).click();
 });
 
 function terminalLog(violations: axe.Result[]) {
