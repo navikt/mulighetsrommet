@@ -28,7 +28,7 @@ const redaktorAvdirStructure = (S, context) => [
                   const result = await context
                     .getClient({ apiVersion: API_VERSION })
                     .fetch(
-                      `*[_type == 'tiltaksgjennomforing' && tiltakstype._ref == '${tiltakstype}']{kontaktinfoTiltaksansvarlige[]->}`
+                      `*[_type == 'tiltaksgjennomforing' && tiltakstype._ref == '${tiltakstype}']{kontaktinfoTiltaksansvarlige[]->}`,
                     );
                   const kontaktPersonIder = result?.map((r) => {
                     return r.kontaktinfoTiltaksansvarlige?.[0]?._id;
@@ -36,7 +36,7 @@ const redaktorAvdirStructure = (S, context) => [
                   return S.documentList()
                     .title("NAV-kontaktperson")
                     .filter(
-                      `_type == 'navKontaktperson' && _id in $kontaktPersonIder`
+                      `_type == 'navKontaktperson' && _id in $kontaktPersonIder`,
                     )
                     .defaultOrdering([
                       {
@@ -45,9 +45,9 @@ const redaktorAvdirStructure = (S, context) => [
                       },
                     ])
                     .params({ kontaktPersonIder });
-                })
+                }),
             ),
-        ])
+        ]),
     ),
   ...S.documentTypeListItems().filter(
     (listItem) =>
@@ -62,18 +62,17 @@ const redaktorAvdirStructure = (S, context) => [
         // fjernet frem til vi har innsiktsfanen på plass
         // "forskningsrapport",
         "innsatsgruppe",
-        "statistikkfil",
         "redaktor",
-      ].includes(listItem.getId())
+      ].includes(listItem.getId()),
   ),
   S.divider(),
   ...S.documentTypeListItems().filter((listItem) =>
-    ["navKontaktperson", "arrangor"].includes(listItem.getId())
+    ["navKontaktperson", "arrangor"].includes(listItem.getId()),
   ),
   S.divider(),
   ...S.documentTypeListItems().filter((listItem) =>
     // ["regelverkfil", "regelverklenke", "forskningsrapport"].includes(
-    ["regelverkfil", "regelverklenke"].includes(listItem.getId())
+    ["regelverkfil", "regelverklenke"].includes(listItem.getId()),
   ),
 ];
 
