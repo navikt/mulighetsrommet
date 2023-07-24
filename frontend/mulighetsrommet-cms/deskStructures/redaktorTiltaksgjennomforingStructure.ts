@@ -9,10 +9,10 @@ const redaktorTiltaksgjennomforingStructure = (S, context) => [
       S.documentList()
         .title("Mine tiltaksgjennomføringer")
         .filter(
-          '_type == "tiltaksgjennomforing" && $redaktorNavn in redaktor[]->navn'
+          '_type == "tiltaksgjennomforing" && $redaktorNavn in redaktor[]->navn',
         )
         .params({ redaktorNavn: context.currentUser.name })
-        .defaultOrdering([{ field: "_createdAt", direction: "desc" }])
+        .defaultOrdering([{ field: "_createdAt", direction: "desc" }]),
     ),
   ...commonStructure(S, context),
   ...S.documentTypeListItems().filter(
@@ -27,13 +27,12 @@ const redaktorTiltaksgjennomforingStructure = (S, context) => [
         "regelverklenke",
         // "forskningsrapport",
         "innsatsgruppe",
-        "statistikkfil",
         "redaktor",
-      ].includes(listItem.getId())
+      ].includes(listItem.getId()),
   ),
   S.divider(),
   ...S.documentTypeListItems().filter((listItem) =>
-    ["navKontaktperson", "arrangor", "redaktor"].includes(listItem.getId())
+    ["navKontaktperson", "arrangor", "redaktor"].includes(listItem.getId()),
   ),
 ];
 

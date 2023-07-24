@@ -6,7 +6,6 @@ import { navKontaktperson } from "./navKontaktperson";
 import { enhet } from "./enhet";
 import { regelverklenke } from "./regelverklenke";
 import { innsatsgruppe } from "./innsatsgruppe";
-import { statistikkfil } from "./statistikkfil";
 import { nokkelinfo } from "./nokkelinfo";
 import { faneinnhold } from "./faneinnhold";
 import { forskningsrapport } from "./forskningsrapport";
@@ -23,7 +22,6 @@ export const schemas = [
   enhet,
   regelverklenke,
   innsatsgruppe,
-  statistikkfil,
   nokkelinfo,
   faneinnhold,
   lenke,
