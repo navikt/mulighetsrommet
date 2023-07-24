@@ -42,6 +42,7 @@ fun Route.externalRoutes() {
             val id = call.parameters.getOrFail<UUID>("id")
 
             val result = tiltaksgjennomforingService.get(id)
+                ?.let { TiltaksgjennomforingDto.from(it) }
                 ?: return@get call.respond(HttpStatusCode.Companion.NotFound, "Ingen tiltaksgjennomføring med id=$id")
 
             call.respond(result)
