@@ -16,7 +16,7 @@ export function AvtaleUtkast() {
     refetch,
   } = useMineUtkast(Utkast.type.AVTALE);
   const [utkastForRedigering, setUtkastForRedigering] = useState<Utkast | null>(
-    null
+    null,
   );
   const navigate = useNavigate();
 
