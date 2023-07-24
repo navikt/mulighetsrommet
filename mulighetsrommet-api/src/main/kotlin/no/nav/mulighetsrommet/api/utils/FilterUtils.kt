@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.api.utils
 
 import io.ktor.server.application.*
-import io.ktor.server.plugins.*
 import io.ktor.server.util.*
 import io.ktor.util.pipeline.*
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
@@ -85,7 +84,7 @@ data class UtkastFilter(
 )
 
 data class NotatFilter(
-    val avtaleId: UUID,
+    val avtaleId: UUID? = null,
     val tiltaksgjennomforingId: UUID? = null,
     val opprettetAv: String? = null,
     val sortering: String? = "dato-created-asc",
@@ -222,7 +221,6 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getUtkastFilter(): UtkastFilte
 
 fun <T : Any> PipelineContext<T, ApplicationCall>.getNotatFilter(): NotatFilter {
     val avtaleId = call.request.queryParameters["avtaleId"]?.toUUID()
-        ?: throw BadRequestException(message = "avtaleId er ikke oppgitt ved henting av notater for avtale")
     val tiltaksgjennomforingId = call.request.queryParameters["tiltaksgjennomforingID"]?.toUUID()
     val sortering = call.request.queryParameters["order"]
 
