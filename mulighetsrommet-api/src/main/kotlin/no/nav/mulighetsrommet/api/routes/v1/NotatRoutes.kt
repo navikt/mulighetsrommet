@@ -154,7 +154,7 @@ data class TiltaksgjennomforingNotatRequest(
     val id: UUID,
     @Serializable(with = UUIDSerializer::class)
     val tiltaksgjennomforingId: UUID,
-    val opprettetAv: String,
+    val opprettetAv: String? = null,
     val innhold: String,
 ) {
     fun toDbo(): StatusResponse<TiltaksgjennomforingNotatDbo> {
