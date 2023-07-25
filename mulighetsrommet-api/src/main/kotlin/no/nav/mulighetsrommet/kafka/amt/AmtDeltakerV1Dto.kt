@@ -24,7 +24,7 @@ data class AmtDeltakerV1Dto(
     val registrertDato: LocalDateTime,
     @Serializable(with = LocalDateTimeSerializer::class)
     val endretDato: LocalDateTime,
-    val dagerPerUke: Int?,
+    val dagerPerUke: Float?,
     val prosentStilling: Float?,
 )
 
