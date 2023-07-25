@@ -9,7 +9,7 @@ spec:
   unleashInstance:
     apiVersion: unleash.nais.io/v1
     kind: RemoteUnleash
-    name: team-mulighetsrommet
+    name: teamvalp
   secretName: mr-admin-flate-unleash-api-token
 
   # Specify which environment the API token should be created for.
