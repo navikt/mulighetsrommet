@@ -69,6 +69,9 @@ dependencies {
     implementation(libs.apache.poi)
     implementation(libs.apache.poi.ooxml)
 
+    // Unleash
+    implementation(libs.unleash)
+
     implementation(libs.nav.common.auditLog)
     constraints {
         implementation(libs.logback.core) {
