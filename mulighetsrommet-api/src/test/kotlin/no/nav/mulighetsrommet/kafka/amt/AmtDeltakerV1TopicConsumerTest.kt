@@ -59,12 +59,13 @@ class AmtDeltakerV1TopicConsumerTest : FunSpec({
             ),
             registrertDato = deltakelsesdato,
             endretDato = deltakelsesdato,
-            dagerPerUke = null,
+            dagerPerUke = 2.5f,
             prosentStilling = null,
         )
         val amtDeltaker2 = amtDeltaker1.copy(
             id = UUID.randomUUID(),
             personIdent = "10101010101",
+            dagerPerUke = 1f,
         )
         val deltaker1Dbo = DeltakerDbo(
             id = amtDeltaker1.id,
