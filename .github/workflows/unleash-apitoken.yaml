@@ -9,7 +9,7 @@ on:
       - mulighetsrommet-api/.nais/unleash-apitoken-prod.yaml
 
 jobs:
-  apply-alerts:
+  apply-apitoken-unleash:
     name: Apply ApiToken for Unleash to cluster
     runs-on: ubuntu-latest
     steps:
