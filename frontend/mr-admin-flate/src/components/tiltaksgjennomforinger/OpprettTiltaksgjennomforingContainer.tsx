@@ -657,13 +657,16 @@ export const OpprettTiltaksgjennomforingContainer = (
                     {...register(
                       "tiltaksArrangorUnderenhetOrganisasjonsnummer",
                     )}
-                    onChange={getLokasjonForArrangor}
-                    onClearValue={() =>
+                    onChange={() => {
+                      getLokasjonForArrangor();
+                      setValue("arrangorKontaktpersonId", null);
+                    }}
+                    onClearValue={() => {
                       setValue(
                         "tiltaksArrangorUnderenhetOrganisasjonsnummer",
                         "",
-                      )
-                    }
+                      );
+                    }}
                     readOnly={!avtale?.leverandor.organisasjonsnummer}
                     options={arrangorUnderenheterOptions()}
                   />

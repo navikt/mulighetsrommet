@@ -222,6 +222,41 @@ class VirksomhetRepository(private val db: Database) {
             .let { db.run(it)!! }
     }
 
+    fun koblingerTilKontaktperson(id: UUID): Pair<List<UUID>, List<UUID>> {
+        @Language("PostgreSQL")
+        val gjennomforingQuery = """
+            select id from tiltaksgjennomforing tg where arrangor_kontaktperson_id = ?
+        """.trimIndent()
+
+        val gjennomforinger = queryOf(gjennomforingQuery, id)
+            .map { it.uuid("id") }
+            .asList
+            .let { db.run(it) }
+
+        @Language("PostgreSQL")
+        val avtaleQuery = """
+            select id from avtale tg where leverandor_kontaktperson_id = ?
+        """.trimIndent()
+
+        val avtaler = queryOf(avtaleQuery, id)
+            .map { it.uuid("id") }
+            .asList
+            .let { db.run(it) }
+
+        return gjennomforinger to avtaler
+    }
+
+    fun deleteKontaktperson(id: UUID) {
+        @Language("PostgreSQL")
+        val query = """
+            delete from virksomhet_kontaktperson where id = ?
+        """.trimIndent()
+
+        queryOf(query, id)
+            .asUpdate
+            .let { db.run(it) }
+    }
+
     fun getKontaktpersoner(orgnr: String): List<VirksomhetKontaktperson> {
         @Language("PostgreSQL")
         val query = """
