@@ -1,17 +1,15 @@
 import { Tabs } from "@navikt/ds-react";
-import { useFeatureToggles } from "../../api/features/feature-toggles";
+import { ErrorBoundary } from "react-error-boundary";
+import { AvtaleUtkast } from "../../components/avtaler/AvtaleUtkast";
 import { Avtalefilter } from "../../components/filter/Avtalefilter";
 import { AvtaleTabell } from "../../components/tabell/AvtaleTabell";
 import { ContainerLayoutOversikt } from "../../layouts/ContainerLayout";
-import { MainContainer } from "../../layouts/MainContainer";
-import styles from "../Page.module.scss";
-import { AvtaleUtkast } from "../../components/avtaler/AvtaleUtkast";
-import { ErrorBoundary } from "react-error-boundary";
-import { ErrorFallback } from "../../main";
 import { HeaderBanner } from "../../layouts/HeaderBanner";
+import { MainContainer } from "../../layouts/MainContainer";
+import { ErrorFallback } from "../../main";
+import styles from "../Page.module.scss";
 
 export function AvtalerPage() {
-  const { data: features } = useFeatureToggles();
   return (
     <>
       <HeaderBanner heading="Oversikt over avtaler" harUndermeny />
@@ -20,13 +18,11 @@ export function AvtalerPage() {
           <div className={styles.header_container_tabs} role="contentinfo">
             <Tabs.List>
               <Tabs.Tab value="avtaler" label="Avtaler" />
-              {features?.["mulighetsrommet.admin-flate-lagre-utkast"] && (
-                <Tabs.Tab
-                  data-testid="mine-utkast-tab"
-                  value="utkast"
-                  label="Mine utkast"
-                />
-              )}
+              <Tabs.Tab
+                data-testid="mine-utkast-tab"
+                value="utkast"
+                label="Mine utkast"
+              />
             </Tabs.List>
           </div>
           <MainContainer>

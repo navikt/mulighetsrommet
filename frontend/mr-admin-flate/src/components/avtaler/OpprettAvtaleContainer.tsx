@@ -21,7 +21,6 @@ import { toast } from "react-toastify";
 import { v4 as uuidv4 } from "uuid";
 import { useHentBetabrukere } from "../../api/ansatt/useHentBetabrukere";
 import { usePutAvtale } from "../../api/avtaler/usePutAvtale";
-import { useFeatureToggles } from "../../api/features/feature-toggles";
 import { useMutateUtkast } from "../../api/utkast/useMutateUtkast";
 import { useSokVirksomheter } from "../../api/virksomhet/useSokVirksomhet";
 import { useVirksomhet } from "../../api/virksomhet/useVirksomhet";
@@ -35,9 +34,9 @@ import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
 import { SelectOption, SokeSelect } from "../skjema/SokeSelect";
 import { VirksomhetKontaktpersoner } from "../virksomhet/VirksomhetKontaktpersoner";
+import { AvbrytAvtale } from "./AvbrytAvtale";
 import { AvtaleSchema, inferredAvtaleSchema } from "./AvtaleSchema";
 import styles from "./OpprettAvtaleContainer.module.scss";
-import { AvbrytAvtale } from "./AvbrytAvtale";
 
 type UtkastData = Pick<
   Avtale,
@@ -87,7 +86,6 @@ export function OpprettAvtaleContainer({
   const { data: leverandorVirksomheter = [] } =
     useSokVirksomheter(sokLeverandor);
   const { data: betabrukere } = useHentBetabrukere();
-  const { data: features } = useFeatureToggles();
   const mutationUtkast = useMutateUtkast();
   const utkastIdRef = useRef(avtale?.id || uuidv4());
 
@@ -541,14 +539,12 @@ export function OpprettAvtaleContainer({
           </div>
         </div>
       </form>
-      {features?.["mulighetsrommet.admin-flate-lagre-utkast"] ? (
-        <AutoSaveUtkast
-          defaultValues={defaultValues}
-          utkastId={utkastIdRef.current}
-          onSave={() => saveUtkast(watch())}
-          mutation={mutationUtkast}
-        />
-      ) : null}
+      <AutoSaveUtkast
+        defaultValues={defaultValues}
+        utkastId={utkastIdRef.current}
+        onSave={() => saveUtkast(watch())}
+        mutation={mutationUtkast}
+      />
     </FormProvider>
   );
 }
