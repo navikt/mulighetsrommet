@@ -1305,6 +1305,36 @@ paths:
         500:
           description: Hvis noe gikk galt ved sletting av utkast
 
+  /api/v1/internal/features:
+    parameters:
+      - in: query
+        name: feature
+        description: Navn på feature toggle
+        required: true
+        schema:
+          type: string
+          enum:
+            - mulighetsrommet.enable-admin-flate
+            - mulighetsrommet.admin-flate-vis-nokkeltall
+            - mulighetsrommet.admin-flate-opprett-avtale
+            - mulighetsrommet.admin-flate-rediger-avtale
+            - mulighetsrommet.admin-flate-opprett-tiltaksgjennomforing
+            - mulighetsrommet.admin-flate-slett-avtale
+            - mulighetsrommet.admin-flate-slett-tiltaksgjennomforing
+            - mulighetsrommet.admin-flate-rediger-tiltaksgjennomforing
+            - mulighetsrommet.admin-flate-vis-deltakerliste-fra-komet
+    get:
+      tags:
+        - Features
+      operationId: getFeatureToggle
+      responses:
+        200:
+          description: Hent verdi for feature toggle
+          content:
+            application/json:
+              schema:
+                type: boolean
+
 components:
   securitySchemes:
     bearerAuth:

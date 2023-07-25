@@ -3,7 +3,6 @@ package no.nav.mulighetsrommet.api.plugins
 import com.github.kagkarlsson.scheduler.Scheduler
 import com.nimbusds.jose.jwk.KeyUse
 import com.nimbusds.jose.jwk.RSAKey
-import io.getunleash.util.UnleashConfig
 import io.ktor.server.application.*
 import no.nav.common.kafka.producer.util.KafkaProducerClientBuilder
 import no.nav.common.kafka.util.KafkaPropertiesBuilder
@@ -271,8 +270,7 @@ private fun services(appConfig: AppConfig) = module {
     single { NotatServiceImpl(get(), get()) }
     single {
         UnleashService(
-            UnleashConfig.builder().appName(appConfig.unleash.appName).instanceId(appConfig.unleash.instanceId)
-                .unleashAPI(appConfig.unleash.url).apiKey(appConfig.unleash.token).build(),
+            appConfig.unleash.toUnleashConfig(),
         )
     }
 }
