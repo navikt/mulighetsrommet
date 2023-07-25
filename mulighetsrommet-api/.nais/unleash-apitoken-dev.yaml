@@ -3,6 +3,8 @@ kind: ApiToken
 metadata:
   name: mulighetsrommet-api
   namespace: team-mulighetsrommet
+  labels:
+    team: team-mulighetsrommet
 spec:
   unleashInstance:
     apiVersion: unleash.nais.io/v1
