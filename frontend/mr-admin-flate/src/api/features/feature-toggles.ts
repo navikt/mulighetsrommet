@@ -1,8 +1,7 @@
-import { FeaturesService } from "mulighetsrommet-api-client";
-import { headers } from "../headers";
 import { useQuery } from "@tanstack/react-query";
-import { mulighetsrommetClient } from "../clients";
 import { QueryKeys } from "../QueryKeys";
+import { mulighetsrommetClient } from "../clients";
+import { headers } from "../headers";
 
 export const ENABLE_ADMIN_FLATE = "mulighetsrommet.enable-admin-flate";
 export const VIS_NOKKELTALL_ADMIN_FLATE =
