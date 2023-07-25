@@ -7,6 +7,7 @@ import io.ktor.server.plugins.swagger.*
 import io.ktor.server.routing.*
 import no.nav.mulighetsrommet.api.plugins.*
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
+import no.nav.mulighetsrommet.api.routes.featuretoggles.featureTogglesRoute
 import no.nav.mulighetsrommet.api.routes.internal.frontendLoggerRoutes
 import no.nav.mulighetsrommet.api.routes.v1.*
 import no.nav.mulighetsrommet.database.Database
@@ -55,6 +56,7 @@ fun Application.configure(config: AppConfig) {
             notificationRoutes()
             utkastRoutes()
             avtaleNotatRoutes()
+            featureTogglesRoute()
         }
 
         authenticate(AuthProvider.AzureAdDefaultApp.name) {

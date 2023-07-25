@@ -117,3 +117,9 @@ app:
     token: ${SLACK_TOKEN}
     channel: "#team-valp-monitoring"
     enable: true
+
+  unleash:
+    appName: ${NAIS_APP_NAME}
+    url: ${UNLEASH_SERVER_API_URL}
+    token: ${UNLEASH_SERVER_API_TOKEN}
+    instanceId: ${NAIS_CLIENT_ID}

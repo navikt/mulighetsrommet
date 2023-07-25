@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.api.tasks.*
 import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
 import no.nav.mulighetsrommet.database.kotest.extensions.createDatabaseTestSchema
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
+import no.nav.mulighetsrommet.unleash.UnleashService
 import no.nav.security.mock.oauth2.MockOAuth2Server
 
 var databaseConfig: FlywayDatabaseAdapter.Config? = null
@@ -87,6 +88,12 @@ fun createTestApplicationConfig(oauth: MockOAuth2Server) = AppConfig(
     ),
     brreg = BrregClientImpl.Config(baseUrl = ""),
     navAnsattService = NavAnsattServiceConfig(roller = listOf()),
+    unleash = UnleashService.Config(
+        appName = "",
+        url = "",
+        token = "",
+        instanceId = "",
+    ),
 )
 
 fun createKafkaConfig(): KafkaConfig {
