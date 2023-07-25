@@ -273,7 +273,7 @@ private fun services(appConfig: AppConfig) = module {
         UnleashService(
             UnleashConfig.builder().appName(appConfig.unleash.appName).instanceId(appConfig.unleash.instanceId)
                 .unleashAPI(appConfig.unleash.url).apiKey(appConfig.unleash.token).build(),
-        ).get()
+        )
     }
 }
 
