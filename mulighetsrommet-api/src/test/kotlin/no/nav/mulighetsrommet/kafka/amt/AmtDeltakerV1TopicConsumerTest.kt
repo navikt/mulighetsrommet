@@ -59,7 +59,7 @@ class AmtDeltakerV1TopicConsumerTest : FunSpec({
             ),
             registrertDato = deltakelsesdato,
             endretDato = deltakelsesdato,
-            dagerPerUke = 2.5F,
+            dagerPerUke = 2.5f,
             prosentStilling = null,
         )
         val amtDeltaker2 = amtDeltaker1.copy(
