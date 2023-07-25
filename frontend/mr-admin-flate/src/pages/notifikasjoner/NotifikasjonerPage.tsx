@@ -3,8 +3,8 @@ import { useAtom } from "jotai/index";
 import { logEvent } from "mulighetsrommet-veileder-flate/src/core/api/logger";
 import { kebabCase } from "mulighetsrommet-veileder-flate/src/utils/Utils";
 import { faneAtom } from "../../api/atoms";
-import styles from "./NotifikasjonerPage.module.scss";
 import { Notifikasjonsliste } from "../../components/notifikasjoner/Notifikasjonsliste";
+import styles from "./NotifikasjonerPage.module.scss";
 
 export function NotifikasjonerPage() {
   const [fane, setFane] = useAtom(faneAtom);

@@ -1,5 +1,7 @@
-import { headers } from "../headers";
 import { useQuery } from "@tanstack/react-query";
+import { QueryKeys } from "../QueryKeys";
+import { mulighetsrommetClient } from "../clients";
+import { headers } from "../headers";
 
 export const ENABLE_ADMIN_FLATE = "mulighetsrommet.enable-admin-flate";
 export const VIS_NOKKELTALL_ADMIN_FLATE =
@@ -54,5 +56,18 @@ export const useFeatureToggles = () => {
     fetch(`/unleash/api/feature?${toggles}`, fetchConfig).then((Response) => {
       return Response.ok ? Response.json() : initialFeatures;
     }),
+  );
+};
+
+/**
+ * Hook for å bruke en spesifikk feature toggle for å skjule eller vise funksjonalitet
+ * @param feature Navn på feature-toggle du vil bruke
+ * @returns true hvis toggle er skrudd på, eller false hvis ikke
+ */
+export const useFeatureToggle = (feature: keyof Features) => {
+  return useQuery<boolean>(
+    QueryKeys.features(feature),
+    () => mulighetsrommetClient.features.getFeatureToggle({ feature }),
+    { initialData: false },
   );
 };

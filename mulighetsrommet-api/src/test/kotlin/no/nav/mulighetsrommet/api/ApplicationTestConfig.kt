@@ -93,6 +93,7 @@ fun createTestApplicationConfig(oauth: MockOAuth2Server) = AppConfig(
         url = "",
         token = "",
         instanceId = "",
+        environment = "",
     ),
 )
 

@@ -17,5 +17,11 @@ class UnleashService(config: UnleashConfig) {
         val url: String,
         val token: String,
         val instanceId: String,
-    )
+        val environment: String,
+    ) {
+        fun toUnleashConfig(): UnleashConfig {
+            return UnleashConfig.builder().appName(appName).instanceId(instanceId)
+                .unleashAPI(url).apiKey(token).environment(environment).build()
+        }
+    }
 }

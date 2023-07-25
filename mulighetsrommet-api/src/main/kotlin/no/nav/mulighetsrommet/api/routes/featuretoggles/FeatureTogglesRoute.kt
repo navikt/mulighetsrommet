@@ -32,7 +32,7 @@ fun Route.featureTogglesRoute() {
     }
 }
 
-private fun ApplicationCall.generateSessionId(): String? {
+private fun ApplicationCall.generateSessionId(): String {
     val uuid = UUID.randomUUID()
     val sessionId =
         java.lang.Long.toHexString(uuid.mostSignificantBits) + java.lang.Long.toHexString(uuid.leastSignificantBits)

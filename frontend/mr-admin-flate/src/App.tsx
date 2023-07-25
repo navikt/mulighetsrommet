@@ -62,7 +62,7 @@ export function App() {
     !ansatt.roller?.some(
       (rolle) =>
         rolle === NavAnsattRolle.BETABRUKER ||
-        rolle === NavAnsattRolle.TEAM_MULIGHETSROMMET
+        rolle === NavAnsattRolle.TEAM_MULIGHETSROMMET,
     )
   ) {
     return <IkkeAutentisertApp />;

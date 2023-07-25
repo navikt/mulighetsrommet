@@ -127,3 +127,4 @@ app:
     url: ${UNLEASH_SERVER_API_URL}
     token: ${UNLEASH_SERVER_API_TOKEN}
     instanceId: ${NAIS_CLIENT_ID:-mulighetsrommet-api}
+    environment: development
