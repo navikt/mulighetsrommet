@@ -1,7 +1,7 @@
 apiVersion: unleash.nais.io/v1
 kind: ApiToken
 metadata:
-  name: mr-admin-flate
+  name: mulighetsrommet-api
   namespace: team-mulighetsrommet
 spec:
   unleashInstance:
