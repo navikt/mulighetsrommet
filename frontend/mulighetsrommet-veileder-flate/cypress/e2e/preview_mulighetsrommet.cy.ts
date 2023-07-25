@@ -7,7 +7,7 @@ describe('Preview-funksjonalitet for redaktører', () => {
   });
 
   beforeEach(() => {
-    cy.visit('/preview/11888');
+    cy.visit('/preview/f4cea25b-c372-4d4c-8106-535ab10cd586');
     cy.skruAvJoyride();
     cy.url().should('include', '/preview/');
   });
