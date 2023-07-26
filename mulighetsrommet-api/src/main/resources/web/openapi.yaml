@@ -1314,7 +1314,6 @@ paths:
         schema:
           type: string
           enum:
-            - mulighetsrommet.enable-admin-flate
             - mulighetsrommet.admin-flate-vis-nokkeltall
             - mulighetsrommet.admin-flate-opprett-avtale
             - mulighetsrommet.admin-flate-rediger-avtale
