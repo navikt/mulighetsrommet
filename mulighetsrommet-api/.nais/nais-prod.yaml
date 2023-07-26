@@ -91,7 +91,7 @@ spec:
         - host: slack.com
         - host: xegcworx.apicdn.sanity.io
         - host: data.brreg.no
-        - host: teamvalp-unleash-api.nav.cloud.nais.io
+        - host: team-mulighetsrommet-unleash-api.nav.cloud.nais.io
         - host: axsys.prod-fss-pub.nais.io
   envFrom:
     - secret: mulighetsrommet-api
