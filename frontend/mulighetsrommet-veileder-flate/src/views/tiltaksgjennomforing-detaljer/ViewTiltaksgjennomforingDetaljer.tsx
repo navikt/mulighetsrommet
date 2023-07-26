@@ -13,7 +13,6 @@ import { TilgjengelighetsstatusComponent } from '../../components/oversikt/Tilgj
 import SidemenyDetaljer from '../../components/sidemeny/SidemenyDetaljer';
 import TiltaksdetaljerFane from '../../components/tabs/TiltaksdetaljerFane';
 import Tilbakeknapp from '../../components/tilbakeknapp/Tilbakeknapp';
-import { useFeatureToggles, VIS_JOYRIDE } from '../../core/api/feature-toggles';
 import { logEvent } from '../../core/api/logger';
 import { useGetTiltaksgjennomforingIdFraUrl } from '../../core/api/queries/useGetTiltaksgjennomforingIdFraUrl';
 import { useHentBrukerdata } from '../../core/api/queries/useHentBrukerdata';
@@ -80,8 +79,6 @@ const ViewTiltaksgjennomforingDetaljer = () => {
   const { brukerHarRettPaaTiltak } = useBrukerHarRettPaaTiltak();
   const { harDeltMedBruker } = useHentDeltMedBrukerStatus();
   const datoSidenSistDelt = harDeltMedBruker && formaterDato(new Date(harDeltMedBruker.createdAt!!));
-  const features = useFeatureToggles();
-  const visJoyride = features.isSuccess && features.data[VIS_JOYRIDE];
 
   const handleClickApneModal = () => {
     setDelemodalApen(true);
@@ -148,7 +145,7 @@ const ViewTiltaksgjennomforingDetaljer = () => {
               tekst="Tilbake til tiltaksoversikten"
             />
           )}
-          {visJoyride && !erPreview && (
+          {!erPreview && (
             <>
               <DetaljerJoyride opprettAvtale={opprettAvtale} />
               {opprettAvtale ? <DetaljerOpprettAvtaleJoyride opprettAvtale={opprettAvtale} /> : null}
