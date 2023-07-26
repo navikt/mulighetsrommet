@@ -77,6 +77,10 @@ app:
     url: http://0.0.0.0:8084
     scope: default
 
+  axsys:
+    url: https://axsys.dev-fss-pub.nais.io # TODO Url for wiremock for axsys
+    scope: default # TODO scope for wiremock for axsys
+
   navAnsattService:
     roller:
       - adGruppeId: ee45478c-57a5-4ee6-b28d-b65f8c1733fe
