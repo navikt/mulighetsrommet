@@ -1,7 +1,6 @@
 import { Features } from "../../api/features/feature-toggles";
 
 export const mockFeatures: Features = {
-  "mulighetsrommet.enable-admin-flate": true,
   "mulighetsrommet.admin-flate-vis-nokkeltall": false,
   "mulighetsrommet.admin-flate-opprett-avtale": true,
   "mulighetsrommet.admin-flate-rediger-avtale": true,
@@ -9,6 +8,5 @@ export const mockFeatures: Features = {
   "mulighetsrommet.admin-flate-slett-avtale": true,
   "mulighetsrommet.admin-flate-rediger-tiltaksgjennomforing": true,
   "mulighetsrommet.admin-flate-slett-tiltaksgjennomforing": true,
-  "mulighetsrommet.admin-flate-lagre-utkast": true,
   "mulighetsrommet.admin-flate-vis-deltakerliste-fra-komet": false,
 };

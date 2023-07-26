@@ -5,10 +5,7 @@ import com.github.benmanes.caffeine.cache.Caffeine
 import io.prometheus.client.cache.caffeine.CacheMetricsCollector
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityPerspective
-import no.nav.mulighetsrommet.api.domain.dto.FylkeResponse
-import no.nav.mulighetsrommet.api.domain.dto.KontaktinfoTiltaksansvarlige
-import no.nav.mulighetsrommet.api.domain.dto.SanityResponse
-import no.nav.mulighetsrommet.api.domain.dto.VeilederflateTiltaksgjennomforing
+import no.nav.mulighetsrommet.api.domain.dto.*
 import no.nav.mulighetsrommet.api.utils.*
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingAdminDto
 import no.nav.mulighetsrommet.metrics.Metrikker
@@ -22,6 +19,7 @@ class VeilederflateService(
     private val sanityClient: SanityClient,
     private val brukerService: BrukerService,
     private val tiltaksgjennomforingService: TiltaksgjennomforingService,
+    private val virksomhetService: VirksomhetService,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
     private val fylkenummerCache = mutableMapOf<String?, String>()
@@ -160,7 +158,7 @@ class VeilederflateService(
         }
     }
 
-    private fun supplerDataFraDB(
+    private suspend fun supplerDataFraDB(
         gjennomforingerFraSanity: List<VeilederflateTiltaksgjennomforing>,
         enhetsId: String,
     ): List<VeilederflateTiltaksgjennomforing> {
@@ -179,6 +177,14 @@ class VeilederflateService(
             .map { sanityData ->
                 val apiGjennomforing = gjennomforingerFraDb[sanityData._id]
                 val kontaktpersoner = apiGjennomforing?.let { hentKontaktpersoner(it, enhetsId) } ?: emptyList()
+                val kontaktpersonerArrangor = apiGjennomforing?.arrangorKontaktperson?.let {
+                    KontaktInfoArrangor(
+                        selskapsnavn = virksomhetService.hentEnhet(it.organisasjonsnummer)?.navn,
+                        telefonnummer = it.telefon,
+                        adresse = apiGjennomforing.lokasjonArrangor,
+                        epost = it?.epost,
+                    )
+                }
                 val oppstart = apiGjennomforing?.oppstart?.name?.lowercase() ?: sanityData.oppstart
                 val oppstartsdato = apiGjennomforing?.startDato ?: sanityData.oppstartsdato
                 val sluttdato = apiGjennomforing?.sluttDato ?: sanityData.sluttdato
@@ -193,6 +199,7 @@ class VeilederflateService(
                     estimert_ventetid = apiGjennomforing?.estimertVentetid,
                     tiltakstype = sanityData.tiltakstype?.copy(arenakode = apiGjennomforing?.tiltakstype?.arenaKode),
                     lokasjon = apiGjennomforing?.lokasjonArrangor,
+                    kontaktinfoArrangor = kontaktpersonerArrangor,
                 )
             }
     }

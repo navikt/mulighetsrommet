@@ -29,7 +29,6 @@ import { useHentKontaktpersoner } from "../../api/ansatt/useHentKontaktpersoner"
 import { usePutGjennomforing } from "../../api/avtaler/usePutGjennomforing";
 import { mulighetsrommetClient } from "../../api/clients";
 import { useAlleEnheter } from "../../api/enhet/useAlleEnheter";
-import { useFeatureToggles } from "../../api/features/feature-toggles";
 import { useMutateUtkast } from "../../api/utkast/useMutateUtkast";
 import { useVirksomhet } from "../../api/virksomhet/useVirksomhet";
 import {
@@ -45,6 +44,7 @@ import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
 import { SokeSelect } from "../skjema/SokeSelect";
 import { VirksomhetKontaktpersoner } from "../virksomhet/VirksomhetKontaktpersoner";
+import { AvbrytTiltaksgjennomforing } from "./AvbrytTiltaksgjennomforing";
 import styles from "./OpprettTiltaksgjennomforingContainer.module.scss";
 import {
   avtaleFinnesIkke,
@@ -56,7 +56,6 @@ import {
   TiltaksgjennomforingSchema,
   inferredTiltaksgjennomforingSchema,
 } from "./OpprettTiltaksgjennomforingSchema";
-import { AvbrytTiltaksgjennomforing } from "./AvbrytTiltaksgjennomforing";
 
 interface OpprettTiltaksgjennomforingContainerProps {
   onClose: () => void;
@@ -243,7 +242,6 @@ export const OpprettTiltaksgjennomforingContainer = (
     "midlertidigStengt.erMidlertidigStengt",
   );
 
-  const { data: features } = useFeatureToggles();
   const {
     data: enheter,
     isLoading: isLoadingEnheter,
@@ -720,16 +718,12 @@ export const OpprettTiltaksgjennomforingContainer = (
           </div>
         </div>
       </form>
-      {features?.["mulighetsrommet.admin-flate-lagre-utkast"] &&
-      features?.["mulighetsrommet.admin-flate-opprett-tiltaksgjennomforing"] &&
-      avtale ? (
-        <AutoSaveUtkast
-          defaultValues={defaultValues}
-          utkastId={utkastIdRef.current}
-          onSave={() => saveUtkast(watch())}
-          mutation={mutationUtkast}
-        />
-      ) : null}
+      <AutoSaveUtkast
+        defaultValues={defaultValues}
+        utkastId={utkastIdRef.current}
+        onSave={() => saveUtkast(watch())}
+        mutation={mutationUtkast}
+      />
     </FormProvider>
   );
 };

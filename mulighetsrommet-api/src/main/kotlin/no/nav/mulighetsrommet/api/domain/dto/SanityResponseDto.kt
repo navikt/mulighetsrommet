@@ -120,6 +120,7 @@ data class KontaktInfoArrangor(
     val _type: String? = null,
     val adresse: String? = null,
     val telefonnummer: String? = null,
+    val epost: String? = null,
 )
 
 @Serializable

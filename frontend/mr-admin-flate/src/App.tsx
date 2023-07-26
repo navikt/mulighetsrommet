@@ -1,20 +1,19 @@
-import { Alert, BodyShort, Heading } from "@navikt/ds-react";
+import { initializeFaro } from "@grafana/faro-web-sdk";
+import { Alert, BodyShort } from "@navikt/ds-react";
+import { NavAnsattRolle } from "mulighetsrommet-api-client";
 import { Route, Routes } from "react-router-dom";
-import { useFeatureToggles } from "./api/features/feature-toggles";
-import { useHentAnsatt } from "./api/ansatt/useHentAnsatt";
-import { Laster } from "./components/laster/Laster";
 import { Forside } from "./Forside";
 import IkkeAutentisertApp from "./IkkeAutentisertApp";
+import { useHentAnsatt } from "./api/ansatt/useHentAnsatt";
+import { Laster } from "./components/laster/Laster";
+import { ErrorPage } from "./pages/ErrorPage";
 import { AvtalerPage } from "./pages/avtaler/AvtalerPage";
 import { DetaljerAvtalePage } from "./pages/avtaler/DetaljerAvtalePage";
-import { NavAnsattRolle } from "mulighetsrommet-api-client";
-import { ErrorPage } from "./pages/ErrorPage";
+import { NotifikasjonerPage } from "./pages/notifikasjoner/NotifikasjonerPage";
+import { DetaljerTiltaksgjennomforingerPage } from "./pages/tiltaksgjennomforinger/DetaljerTiltaksgjennomforingerPage";
+import { TiltaksgjennomforingerPage } from "./pages/tiltaksgjennomforinger/TiltaksgjennomforingerPage";
 import { DetaljerTiltakstypePage } from "./pages/tiltakstyper/DetaljerTiltakstypePage";
 import { TiltakstyperPage } from "./pages/tiltakstyper/TiltakstyperPage";
-import { TiltaksgjennomforingerPage } from "./pages/tiltaksgjennomforinger/TiltaksgjennomforingerPage";
-import { DetaljerTiltaksgjennomforingerPage } from "./pages/tiltaksgjennomforinger/DetaljerTiltaksgjennomforingerPage";
-import { NotifikasjonerPage } from "./pages/notifikasjoner/NotifikasjonerPage";
-import { initializeFaro } from "@grafana/faro-web-sdk";
 
 if (import.meta.env.PROD) {
   initializeFaro({
@@ -27,15 +26,6 @@ if (import.meta.env.PROD) {
 
 export function App() {
   const { data: ansatt, isLoading: ansattIsLoading, error } = useHentAnsatt();
-  const { data, isLoading } = useFeatureToggles();
-
-  if (!data?.["mulighetsrommet.enable-admin-flate"] && !isLoading) {
-    return (
-      <Heading data-testid="admin-heading" size="xlarge">
-        Admin-flate er skrudd av 💤
-      </Heading>
-    );
-  }
 
   if (error) {
     return (
@@ -62,7 +52,7 @@ export function App() {
     !ansatt.roller?.some(
       (rolle) =>
         rolle === NavAnsattRolle.BETABRUKER ||
-        rolle === NavAnsattRolle.TEAM_MULIGHETSROMMET
+        rolle === NavAnsattRolle.TEAM_MULIGHETSROMMET,
     )
   ) {
     return <IkkeAutentisertApp />;

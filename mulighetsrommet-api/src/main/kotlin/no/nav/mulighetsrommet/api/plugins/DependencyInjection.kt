@@ -51,6 +51,7 @@ import no.nav.mulighetsrommet.notifications.NotificationService
 import no.nav.mulighetsrommet.slack.SlackNotifier
 import no.nav.mulighetsrommet.slack.SlackNotifierImpl
 import no.nav.mulighetsrommet.tasks.DbSchedulerKotlinSerializer
+import no.nav.mulighetsrommet.unleash.UnleashService
 import no.nav.poao_tilgang.client.PoaoTilgangClient
 import no.nav.poao_tilgang.client.PoaoTilgangHttpClient
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
@@ -244,7 +245,7 @@ private fun services(appConfig: AppConfig) = module {
     single { ArenaAdapterService(get(), get(), get(), get(), get(), get(), get(), get(), get()) }
     single { AvtaleService(get(), get(), get()) }
     single { TiltakshistorikkService(get(), get()) }
-    single { VeilederflateService(get(), get(), get()) }
+    single { VeilederflateService(get(), get(), get(), get()) }
     single { SanityTiltaksgjennomforingEnheterTilApiService(get(), get()) }
     single { ArrangorService(get()) }
     single { BrukerService(get(), get(), get()) }
@@ -267,6 +268,11 @@ private fun services(appConfig: AppConfig) = module {
     single { MetrikkService(get()) }
     single { UtkastService(get()) }
     single { NotatServiceImpl(get(), get()) }
+    single {
+        UnleashService(
+            appConfig.unleash.toUnleashConfig(),
+        )
+    }
 }
 
 private fun tasks(config: TaskConfig) = module {

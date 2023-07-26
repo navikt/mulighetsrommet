@@ -63,4 +63,5 @@ export const QueryKeys = {
     ["tiltaksgjennomforingsnotater", tiltaksgjennomforingsId] as const,
   mineTiltaksgjennomforingsnotater: (tiltaksgjennomforingsId: string) =>
     ["tiltaksgjennomforingsnotater", "mine", tiltaksgjennomforingsId] as const,
+  features: (feature: string) => [feature, "feature"],
 };

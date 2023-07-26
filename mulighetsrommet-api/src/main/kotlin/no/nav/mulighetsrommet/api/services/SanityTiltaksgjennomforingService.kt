@@ -49,7 +49,7 @@ class SanityTiltaksgjennomforingService(
         val lokasjonForVirksomhetFraBrreg = "${enhet?.postnummer ?: ""} ${enhet?.poststed ?: ""}"
 
         val sanityTiltaksgjennomforing = SanityTiltaksgjennomforing(
-            _id = sanityTiltaksgjennomforingId.toString(),
+            _id = "drafts.$sanityTiltaksgjennomforingId", // For å ikke autopublisere dokument i Sanity før redaktør manuelt publiserer
             tiltaksgjennomforingNavn = tiltaksgjennomforing.navn,
             enheter = tiltaksgjennomforing.navEnheter.map {
                 EnhetRef(_ref = "enhet.lokal.${it.enhetsnummer}", _key = it.enhetsnummer)
