@@ -39,7 +39,7 @@ export const QueryKeys = {
   avtale: (avtaleId: string) => [avtaleId, "avtale"],
   nokkeltallAvtale: (avtaleId: string) => [avtaleId, "nokkeltallAvtale"],
   enheter: () => ["enheter"],
-  virksomheter: (til: VirksomhetTil) => [til, "virksomheter"],
+  virksomheter: (til?: VirksomhetTil) => [til, "virksomheter"],
   antallUlesteNotifikasjoner: () => ["antallUlesteNotifikasjoner"],
   notifikasjonerForAnsatt: (status: NotificationStatus) =>
     ["notifikasjoner", status] as const,

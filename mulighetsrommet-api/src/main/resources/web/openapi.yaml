@@ -1151,6 +1151,24 @@ paths:
               schema:
                 $ref: "#/components/schemas/VirksomhetKontaktperson"
 
+  /api/v1/internal/virksomhet/kontaktperson/{id}:
+    delete:
+      tags:
+        - VirksomhetKontaktperson
+      operationId: deleteVirksomhetkontaktperson
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: uuid til kontaktpersonen
+      responses:
+        200:
+          description: Om kontaktpersonen ble slettet eller ikke
+        500:
+          description: Hvis noe gikk galt ved sletting av kontaktperson
+
   /api/v1/internal/virksomhet/sok/{sok}:
     get:
       tags:

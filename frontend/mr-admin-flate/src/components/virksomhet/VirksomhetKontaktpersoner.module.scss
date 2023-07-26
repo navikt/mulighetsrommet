@@ -54,6 +54,11 @@
   justify-content: space-between;
 }
 
+.button_container_left {
+  display: flex;
+  gap: 8px;
+}
+
 .rediger_button {
   width: 30%;
 }
