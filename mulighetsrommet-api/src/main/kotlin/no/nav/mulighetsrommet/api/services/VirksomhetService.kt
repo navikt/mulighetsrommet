@@ -84,7 +84,12 @@ class VirksomhetService(
 
     fun deleteKontaktperson(id: UUID): StatusResponse<Unit> {
         val (gjennomforinger, avtaler) = virksomhetRepository.koblingerTilKontaktperson(id)
-        if (gjennomforinger.isNotEmpty() || avtaler.isNotEmpty()) {
+        if (gjennomforinger.isNotEmpty()) {
+            log.warn("Prøvde slette kontaktperson med koblinger til disse gjennomføringer: ${gjennomforinger.joinToString()}")
+            return Either.Left(BadRequest("Kontaktpersonen er i bruk."))
+        }
+        if (avtaler.isNotEmpty()) {
+            log.warn("Prøvde slette kontaktperson med koblinger til disse avtaler: ${avtaler.joinToString()}")
             return Either.Left(BadRequest("Kontaktpersonen er i bruk."))
         }
 
