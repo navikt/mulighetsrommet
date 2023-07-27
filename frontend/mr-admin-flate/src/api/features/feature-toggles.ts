@@ -1,7 +1,8 @@
-import { headers } from "../headers";
 import { useQuery } from "@tanstack/react-query";
+import { QueryKeys } from "../QueryKeys";
+import { mulighetsrommetClient } from "../clients";
+import { headers } from "../headers";
 
-export const ENABLE_ADMIN_FLATE = "mulighetsrommet.enable-admin-flate";
 export const OPPRETT_AVTALE_ADMIN_FLATE =
   "mulighetsrommet.admin-flate-opprett-avtale";
 export const REDIGER_AVTALE_ADMIN_FLATE =
@@ -17,7 +18,6 @@ export const VIS_DELTAKERLISTE_KOMET =
   "mulighetsrommet.admin-flate-vis-deltakerliste-fra-komet";
 
 export const ALL_TOGGLES = [
-  ENABLE_ADMIN_FLATE,
   OPPRETT_AVTALE_ADMIN_FLATE,
   REDIGER_AVTALE_ADMIN_FLATE,
   OPPRETT_TILTAKSGJENNOMFORING_ADMIN_FLATE,
@@ -30,7 +30,6 @@ export const ALL_TOGGLES = [
 export type Features = Record<(typeof ALL_TOGGLES)[number], boolean>;
 
 export const initialFeatures: Features = {
-  "mulighetsrommet.enable-admin-flate": false,
   "mulighetsrommet.admin-flate-opprett-avtale": false,
   "mulighetsrommet.admin-flate-rediger-avtale": false,
   "mulighetsrommet.admin-flate-opprett-tiltaksgjennomforing": false,
@@ -50,5 +49,18 @@ export const useFeatureToggles = () => {
     fetch(`/unleash/api/feature?${toggles}`, fetchConfig).then((Response) => {
       return Response.ok ? Response.json() : initialFeatures;
     }),
+  );
+};
+
+/**
+ * Hook for å bruke en spesifikk feature toggle for å skjule eller vise funksjonalitet
+ * @param feature Navn på feature-toggle du vil bruke
+ * @returns true hvis toggle er skrudd på, eller false hvis ikke
+ */
+export const useFeatureToggle = (feature: keyof Features) => {
+  return useQuery<boolean>(
+    QueryKeys.features(feature),
+    () => mulighetsrommetClient.features.getFeatureToggle({ feature }),
+    { initialData: false },
   );
 };

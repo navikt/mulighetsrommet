@@ -1,0 +1,29 @@
+name: Unleash api-tokens (mr-api)
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/unleash-apitoken.yaml
+      - mulighetsrommet-api/.nais/unleash-apitoken-dev.yaml
+      - mulighetsrommet-api/.nais/unleash-apitoken-prod.yaml
+
+jobs:
+  apply-apitoken-unleash:
+    name: Apply ApiToken for Unleash to cluster
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: deploy to dev
+        uses: nais/deploy/actions/deploy@v1
+        env:
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+          CLUSTER: dev-gcp
+          RESOURCE: mulighetsrommet-api/.nais/unleash-apitoken-dev.yaml
+      - name: deploy to prod
+        uses: nais/deploy/actions/deploy@v1
+        env:
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+          CLUSTER: prod-gcp
+          RESOURCE: mulighetsrommet-api/.nais/unleash-apitoken-prod.yaml

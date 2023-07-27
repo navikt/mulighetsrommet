@@ -1,14 +1,14 @@
-import { Link } from "react-router-dom";
-import styles from "./Forside.module.scss";
-import { forsideKort } from "./constants";
-import { BrukerNotifikasjoner } from "./components/notifikasjoner/BrukerNotifikasjoner";
 import { faro } from "@grafana/faro-web-sdk";
-import { BodyShort, Heading } from "@navikt/ds-react";
 import {
   FileCheckmarkIcon,
   HandshakeIcon,
   TokenIcon,
 } from "@navikt/aksel-icons";
+import { BodyShort, Heading } from "@navikt/ds-react";
+import { Link } from "react-router-dom";
+import styles from "./Forside.module.scss";
+import { BrukerNotifikasjoner } from "./components/notifikasjoner/BrukerNotifikasjoner";
+import { forsideKort } from "./constants";
 
 export function Forside() {
   return (
@@ -32,7 +32,7 @@ export function Forside() {
                 faro?.api?.pushEvent(
                   `Bruker trykket på inngang fra forside: ${card.navn}`,
                   { inngang: card.navn },
-                  "forside"
+                  "forside",
                 )
               }
             >

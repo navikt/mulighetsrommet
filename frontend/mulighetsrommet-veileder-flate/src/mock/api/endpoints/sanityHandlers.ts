@@ -75,8 +75,14 @@ export const sanityHandlers = [
     }`;
 
     const client = getSanityClient();
-    const result = await client.fetch(sanityQueryString);
-    return ok(result);
+    const result: any[] = await client.fetch(sanityQueryString);
+    const resultMedDatoer = result.map(r => ({
+      ...r,
+      oppstart: 'lopende',
+      oppstartsdato: new Date(),
+    }));
+    console.log({ resultMedDatoer });
+    return ok(resultMedDatoer);
   }),
 
   rest.get<DefaultBodyType, PathParams, any>('*/api/v1/internal/sanity/tiltaksgjennomforing/:id', async req => {

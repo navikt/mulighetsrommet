@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.api.tasks.*
 import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.ktor.ServerConfig
+import no.nav.mulighetsrommet.unleash.UnleashService
 
 data class Config(
     val server: ServerConfig,
@@ -34,6 +35,8 @@ data class AppConfig(
     val norg2: Norg2Config,
     val slack: SlackConfig,
     val brreg: BrregClientImpl.Config,
+    val unleash: UnleashService.Config,
+    val axsys: ServiceClientConfig,
 )
 
 data class AuthConfig(

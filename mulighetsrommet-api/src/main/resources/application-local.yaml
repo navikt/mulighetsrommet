@@ -77,6 +77,10 @@ app:
     url: http://0.0.0.0:8084
     scope: default
 
+  axsys:
+    url: https://axsys.dev-fss-pub.nais.io # TODO Url for wiremock for axsys
+    scope: default # TODO scope for wiremock for axsys
+
   navAnsattService:
     roller:
       - adGruppeId: ee45478c-57a5-4ee6-b28d-b65f8c1733fe
@@ -120,3 +124,11 @@ app:
     token: ${SLACK_TOKEN:-}
     channel: "#team-valp-monitoring"
     enable: false
+
+  # TODO Skriv i readme at lokalt må url og token settes som env-variabler i intellij, eller annet sted på maskinen
+  unleash:
+    appName: mulighetsrommet-api
+    url: ${UNLEASH_SERVER_API_URL}
+    token: ${UNLEASH_SERVER_API_TOKEN}
+    instanceId: ${NAIS_CLIENT_ID:-mulighetsrommet-api}
+    environment: development

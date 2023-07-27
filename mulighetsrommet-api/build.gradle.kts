@@ -60,6 +60,7 @@ dependencies {
 
     implementation(libs.nav.common.auditLog)
     implementation(libs.nav.common.tokenClient)
+    implementation(libs.nav.common.client)
 
     // Dependency injection
     implementation(libs.koin.ktor)
@@ -68,6 +69,9 @@ dependencies {
     // Excel
     implementation(libs.apache.poi)
     implementation(libs.apache.poi.ooxml)
+
+    // Unleash
+    implementation(libs.unleash)
 
     implementation(libs.nav.common.auditLog)
     constraints {

@@ -51,6 +51,8 @@ import no.nav.mulighetsrommet.notifications.NotificationService
 import no.nav.mulighetsrommet.slack.SlackNotifier
 import no.nav.mulighetsrommet.slack.SlackNotifierImpl
 import no.nav.mulighetsrommet.tasks.DbSchedulerKotlinSerializer
+import no.nav.mulighetsrommet.unleash.UnleashService
+import no.nav.mulighetsrommet.unleash.strategies.ByEnhetStrategy
 import no.nav.poao_tilgang.client.PoaoTilgangClient
 import no.nav.poao_tilgang.client.PoaoTilgangHttpClient
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
@@ -74,6 +76,7 @@ fun Application.configureDependencyInjection(appConfig: AppConfig) {
             services(appConfig),
             tasks(appConfig.tasks),
             slack(appConfig.slack),
+            unleashStrategies(),
         )
     }
 }
@@ -267,6 +270,13 @@ private fun services(appConfig: AppConfig) = module {
     single { MetrikkService(get()) }
     single { UtkastService(get()) }
     single { NotatServiceImpl(get(), get()) }
+    single {
+        UnleashService(
+            appConfig.unleash.toUnleashConfig(),
+            get(),
+        )
+    }
+    single { AxsysService(appConfig.axsys) { m2mTokenProvider.createMachineToMachineToken(appConfig.axsys.scope) } }
 }
 
 private fun tasks(config: TaskConfig) = module {
@@ -337,6 +347,10 @@ private fun tasks(config: TaskConfig) = module {
             .registerShutdownHook()
             .build()
     }
+}
+
+private fun unleashStrategies() = module {
+    single { ByEnhetStrategy(get()) }
 }
 
 private fun createOboTokenClient(config: AppConfig): OnBehalfOfTokenClient {

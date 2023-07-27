@@ -34,7 +34,7 @@ export const QueryKeys = {
     [{ ...avtaleFilter }, page, "avtaler"] as const,
   avtale: (avtaleId: string) => [avtaleId, "avtale"],
   enheter: () => ["enheter"],
-  virksomheter: (til: VirksomhetTil) => [til, "virksomheter"],
+  virksomheter: (til?: VirksomhetTil) => [til, "virksomheter"],
   antallUlesteNotifikasjoner: () => ["antallUlesteNotifikasjoner"],
   notifikasjonerForAnsatt: (status: NotificationStatus) =>
     ["notifikasjoner", status] as const,
@@ -58,4 +58,5 @@ export const QueryKeys = {
     ["tiltaksgjennomforingsnotater", tiltaksgjennomforingsId] as const,
   mineTiltaksgjennomforingsnotater: (tiltaksgjennomforingsId: string) =>
     ["tiltaksgjennomforingsnotater", "mine", tiltaksgjennomforingsId] as const,
+  features: (feature: string) => [feature, "feature"],
 };
