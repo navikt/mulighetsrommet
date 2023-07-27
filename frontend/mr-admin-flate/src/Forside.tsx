@@ -7,17 +7,10 @@ import {
 import { BodyShort, Heading } from "@navikt/ds-react";
 import { Link } from "react-router-dom";
 import styles from "./Forside.module.scss";
-import { useFeatureToggle } from "./api/features/feature-toggles";
 import { BrukerNotifikasjoner } from "./components/notifikasjoner/BrukerNotifikasjoner";
 import { forsideKort } from "./constants";
 
 export function Forside() {
-  const { data: enabled } = useFeatureToggle("test-sindre");
-
-  if (enabled) {
-    console.log("test-sindre er skrudd på"); /* eslint-disable-line */
-  }
-
   return (
     <main>
       <div className={styles.hero}>
