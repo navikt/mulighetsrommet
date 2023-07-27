@@ -36,6 +36,7 @@ data class AppConfig(
     val slack: SlackConfig,
     val brreg: BrregClientImpl.Config,
     val unleash: UnleashService.Config,
+    val axsys: ServiceClientConfig,
 )
 
 data class AuthConfig(

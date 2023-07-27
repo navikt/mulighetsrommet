@@ -77,6 +77,10 @@ app:
     url: http://mulighetsrommet-arena-adapter
     scope: api://dev-gcp.team-mulighetsrommet.mulighetsrommet-arena-adapter/.default
 
+  axsys:
+    url: https://axsys.dev-fss-pub.nais.io
+    scope: api://dev-fss.org.axsys/.default
+
   navAnsattService:
     roller:
       - adGruppeId: 639e2806-4cc2-484c-a72a-51b4308c52a1 # team-mulighetsrommet
@@ -123,4 +127,4 @@ app:
     url: ${UNLEASH_SERVER_API_URL}
     token: ${UNLEASH_SERVER_API_TOKEN}
     instanceId: ${NAIS_CLIENT_ID}
-
+    environment: development

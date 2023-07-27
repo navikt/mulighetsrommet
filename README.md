@@ -63,6 +63,19 @@ Det finnes noen tilgjengelige dashboards, men nytten med disse kan variere:
 
 ## Feature toggles
 
+Grensesnitt for å definere toggles finner du her: https://team-mulighetsrommet-unleash-web.nav.cloud.nais.io.
+Logg inn med @nav-brukeren din.
+
+### Oppsett av feature toggles lokalt
+For å hente feature toggles definert for dev-miljø lokalt, så kan du gjøre følgende:
+1. Opprett miljøvariabelen `UNLEASH_SERVER_API_URL` med verdi: https://team-mulighetsrommet-unleash-api.nav.cloud.nais.io/api
+2. Opprett miljøvariabelen `UNLEASH_SERVER_API_TOKEN` og finn token via Unleash
+
+Start opp app som normalt.
+
+
+
+#### Unleash.nais.io er på vei til å bli skrinlagt i løpet av høsten 2023
 Vi bruker Unleash for å skru av eller på funksjonalitet tilknyttet
 løsningen: [https://unleash.nais.io/#/features](https://unleash.nais.io/#/features)
 

@@ -7,10 +7,12 @@ import {
   Norg2Type,
   TiltaksgjennomforingStatus,
   Tiltakstypestatus,
+  Toggles,
   VirksomhetTil,
 } from "mulighetsrommet-api-client";
 import { useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
 import {
   defaultTiltaksgjennomforingfilter,
   paginationAtom,
@@ -18,10 +20,7 @@ import {
   tiltaksgjennomforingfilter,
 } from "../../api/atoms";
 import { useAlleEnheter } from "../../api/enhet/useAlleEnheter";
-import {
-  OPPRETT_TILTAKSGJENNOMFORING_ADMIN_FLATE,
-  useFeatureToggles,
-} from "../../api/features/feature-toggles";
+import { useFeatureToggle } from "../../api/features/feature-toggles";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
 import { useVirksomheter } from "../../api/virksomhet/useVirksomheter";
 import {
@@ -34,7 +33,6 @@ import { LeggTilGjennomforingModal } from "../modal/LeggTilGjennomforingModal";
 import { OpprettTiltaksgjennomforingModal } from "../modal/OpprettTiltaksgjennomforingModal";
 import { SokeSelect } from "../skjema/SokeSelect";
 import styles from "./Filter.module.scss";
-import { useNavigate } from "react-router-dom";
 import { FilterTag } from "./FilterTag";
 
 type Filters = "tiltakstype";
@@ -67,11 +65,11 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
   });
   const { register, setValue } = form;
 
-  const features = useFeatureToggles();
+  const { data: opprettGjennomforingIsEnabled } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_ADMIN_FLATE_OPPRETT_TILTAKSGJENNOMFORING,
+  );
   const visOpprettTiltaksgjennomforingKnapp =
-    features.isSuccess &&
-    features.data[OPPRETT_TILTAKSGJENNOMFORING_ADMIN_FLATE] &&
-    inneholderUrl("/avtaler/");
+    opprettGjennomforingIsEnabled && inneholderUrl("/avtaler/");
 
   const erAFTellerVTA = arenaKodeErAftEllerVta(avtale?.tiltakstype.arenaKode);
 

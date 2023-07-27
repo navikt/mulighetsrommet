@@ -3,6 +3,7 @@ import { useAtom } from "jotai";
 import {
   Norg2Type,
   Tiltakstypestatus,
+  Toggles,
   VirksomhetTil,
 } from "mulighetsrommet-api-client";
 import { useEffect, useRef } from "react";
@@ -15,10 +16,7 @@ import {
 } from "../../api/atoms";
 import { useAvtaler } from "../../api/avtaler/useAvtaler";
 import { useAlleEnheter } from "../../api/enhet/useAlleEnheter";
-import {
-  OPPRETT_AVTALE_ADMIN_FLATE,
-  useFeatureToggles,
-} from "../../api/features/feature-toggles";
+import { useFeatureToggle } from "../../api/features/feature-toggles";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
 import { useVirksomheter } from "../../api/virksomhet/useVirksomheter";
 import { resetPaginering, valueOrDefault } from "../../utils/Utils";
@@ -26,6 +24,7 @@ import { SokeSelect } from "../skjema/SokeSelect";
 import styles from "./Filter.module.scss";
 import { FilterTag } from "./FilterTag";
 import Lenke from "mulighetsrommet-veileder-flate/src/components/lenke/Lenke";
+import { faro } from "@grafana/faro-web-sdk";
 
 type Filters = "tiltakstype";
 
@@ -52,9 +51,9 @@ export function Avtalefilter(props: Props) {
   const [, setPage] = useAtom(avtalePaginationAtom);
   const searchRef = useRef<HTMLDivElement | null>(null);
 
-  const features = useFeatureToggles();
-  const visOpprettAvtaleknapp =
-    features.isSuccess && features.data[OPPRETT_AVTALE_ADMIN_FLATE];
+  const { data: visOpprettAvtaleknapp } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_ADMIN_FLATE_OPPRETT_AVTALE,
+  );
 
   useEffect(() => {
     // Hold fokus på søkefelt dersom bruker skriver i søkefelt
@@ -199,10 +198,13 @@ export function Avtalefilter(props: Props) {
             {visOpprettAvtaleknapp && (
               <Lenke to={`/avtaler/skjema`}>
                 <Button
-                  className={styles.registrer_avtale_knapp}
+                  onClick={() => {
+                    faro?.api?.pushEvent(
+                      "Bruker trykket på 'Opprett avtale'-knapp",
+                    );
+                  }}
                   data-testid="opprett-avtale"
                   size="small"
-                  type="button"
                 >
                   Opprett avtale
                 </Button>

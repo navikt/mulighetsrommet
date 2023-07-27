@@ -3,7 +3,6 @@ package no.nav.mulighetsrommet.api.plugins
 import com.github.kagkarlsson.scheduler.Scheduler
 import com.nimbusds.jose.jwk.KeyUse
 import com.nimbusds.jose.jwk.RSAKey
-import io.getunleash.util.UnleashConfig
 import io.ktor.server.application.*
 import no.nav.common.kafka.producer.util.KafkaProducerClientBuilder
 import no.nav.common.kafka.util.KafkaPropertiesBuilder
@@ -53,6 +52,7 @@ import no.nav.mulighetsrommet.slack.SlackNotifier
 import no.nav.mulighetsrommet.slack.SlackNotifierImpl
 import no.nav.mulighetsrommet.tasks.DbSchedulerKotlinSerializer
 import no.nav.mulighetsrommet.unleash.UnleashService
+import no.nav.mulighetsrommet.unleash.strategies.ByEnhetStrategy
 import no.nav.poao_tilgang.client.PoaoTilgangClient
 import no.nav.poao_tilgang.client.PoaoTilgangHttpClient
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
@@ -76,6 +76,7 @@ fun Application.configureDependencyInjection(appConfig: AppConfig) {
             services(appConfig),
             tasks(appConfig.tasks),
             slack(appConfig.slack),
+            unleashStrategies(),
         )
     }
 }
@@ -271,10 +272,11 @@ private fun services(appConfig: AppConfig) = module {
     single { NotatServiceImpl(get(), get()) }
     single {
         UnleashService(
-            UnleashConfig.builder().appName(appConfig.unleash.appName).instanceId(appConfig.unleash.instanceId)
-                .unleashAPI(appConfig.unleash.url).apiKey(appConfig.unleash.token).build(),
+            appConfig.unleash.toUnleashConfig(),
+            get(),
         )
     }
+    single { AxsysService(appConfig.axsys) { m2mTokenProvider.createMachineToMachineToken(appConfig.axsys.scope) } }
 }
 
 private fun tasks(config: TaskConfig) = module {
@@ -345,6 +347,10 @@ private fun tasks(config: TaskConfig) = module {
             .registerShutdownHook()
             .build()
     }
+}
+
+private fun unleashStrategies() = module {
+    single { ByEnhetStrategy(get()) }
 }
 
 private fun createOboTokenClient(config: AppConfig): OnBehalfOfTokenClient {

@@ -1,8 +1,13 @@
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
 import { Alert, Heading } from "@navikt/ds-react";
 import { Avtalestatus } from "mulighetsrommet-api-client";
+import { Alert, Button, Heading } from "@navikt/ds-react";
+import { Avtalestatus, Toggles } from "mulighetsrommet-api-client";
 import { useState } from "react";
 import { useAvtale } from "../../api/avtaler/useAvtale";
+import { useFeatureToggle } from "../../api/features/feature-toggles";
+import OpprettAvtaleModal from "../../components/avtaler/OpprettAvtaleModal";
+import SlettAvtaleModal from "../../components/avtaler/SlettAvtaleModal";
 import { Bolk } from "../../components/detaljside/Bolk";
 import {
   Liste,

@@ -2,10 +2,8 @@ import { DefaultBodyType, PathParams, rest } from "msw";
 import {
   PaginertTiltaksgjennomforing,
   Tiltaksgjennomforing,
-  TiltaksgjennomforingNokkeltall,
 } from "mulighetsrommet-api-client";
 import { mockTiltaksgjennomforinger } from "../fixtures/mock_tiltaksgjennomforinger";
-import { mockTiltaksgjennomforingerNokkeltall } from "../fixtures/mock_tiltaksgjennomforinger_nokkeltall";
 
 export const tiltaksgjennomforingHandlers = [
   rest.get<
@@ -37,20 +35,6 @@ export const tiltaksgjennomforingHandlers = [
       );
 
       return res(ctx.status(200), ctx.json(gjennomforing));
-    },
-  ),
-  rest.get<
-    DefaultBodyType,
-    { id: string },
-    TiltaksgjennomforingNokkeltall | undefined
-  >(
-    "*/api/v1/internal/tiltaksgjennomforinger/:id/nokkeltall",
-    (req, res, ctx) => {
-      return res(
-        ctx.status(200),
-
-        ctx.json(mockTiltaksgjennomforingerNokkeltall),
-      );
     },
   ),
 

@@ -2,11 +2,10 @@ package no.nav.mulighetsrommet.unleash
 
 import io.getunleash.DefaultUnleash
 import io.getunleash.util.UnleashConfig
+import no.nav.mulighetsrommet.unleash.strategies.ByEnhetStrategy
 
-class UnleashService(config: UnleashConfig) {
-    // Skriv noen tester
-    // Test at ny unleash funker med en test-toggle for min egen bruker
-    private val unleash = DefaultUnleash(config)
+class UnleashService(config: UnleashConfig, byEnhetStrategy: ByEnhetStrategy) {
+    private val unleash = DefaultUnleash(config, byEnhetStrategy)
 
     fun get(): DefaultUnleash {
         return unleash
@@ -17,5 +16,11 @@ class UnleashService(config: UnleashConfig) {
         val url: String,
         val token: String,
         val instanceId: String,
-    )
+        val environment: String,
+    ) {
+        fun toUnleashConfig(): UnleashConfig {
+            return UnleashConfig.builder().appName(appName).instanceId(instanceId)
+                .unleashAPI("$url/api").apiKey(token).environment(environment).build()
+        }
+    }
 }

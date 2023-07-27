@@ -1,12 +1,9 @@
 import { Alert, Tabs } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { Link } from "react-router-dom";
-import { avtaleFilter, AvtaleTabs } from "../../api/atoms";
+import { AvtaleTabs, avtaleFilter } from "../../api/atoms";
 import { useAvtale } from "../../api/avtaler/useAvtale";
-import {
-  useFeatureToggles,
-  VIS_NOKKELTALL_ADMIN_FLATE,
-} from "../../api/features/feature-toggles";
+import NotaterAvtalePage from "../../components/avtaler/NotaterAvtalePage";
 import { Header } from "../../components/detaljside/Header";
 import { Laster } from "../../components/laster/Laster";
 import { Avtalestatus } from "../../components/statuselementer/Avtalestatus";
@@ -14,9 +11,7 @@ import { useGetAvtaleIdFromUrl } from "../../hooks/useGetAvtaleIdFromUrl";
 import { ContainerLayoutDetaljer } from "../../layouts/ContainerLayout";
 import commonStyles from "../Page.module.scss";
 import { Avtaleinfo } from "./Avtaleinfo";
-import { NokkeltallForAvtale } from "./nokkeltall/NokkeltallForAvtale";
 import { TiltaksgjennomforingerForAvtale } from "./tiltaksgjennomforinger/TiltaksgjennomforingerForAvtale";
-import NotaterAvtalePage from "../../components/avtaler/NotaterAvtalePage";
 
 export function DetaljerAvtalePage() {
   const avtaleId = useGetAvtaleIdFromUrl();
@@ -25,10 +20,6 @@ export function DetaljerAvtalePage() {
   }
   const { data: avtale, isLoading } = useAvtale();
   const [filter, setFilter] = useAtom(avtaleFilter);
-  const features = useFeatureToggles();
-
-  const visNokkeltallFeature =
-    features.isSuccess && features.data[VIS_NOKKELTALL_ADMIN_FLATE];
 
   if (!avtale && isLoading) {
     return (
@@ -75,9 +66,6 @@ export function DetaljerAvtalePage() {
             value="tiltaksgjennomforinger"
             label="Gjennomføringer"
           />
-          {visNokkeltallFeature ? (
-            <Tabs.Tab value="nokkeltall" label="Nøkkeltall" />
-          ) : null}
         </Tabs.List>
         <Tabs.Panel value="avtaleinfo">
           <ContainerLayoutDetaljer>
@@ -94,12 +82,6 @@ export function DetaljerAvtalePage() {
         <Tabs.Panel value="tiltaksgjennomforinger">
           <ContainerLayoutDetaljer>
             <TiltaksgjennomforingerForAvtale />
-          </ContainerLayoutDetaljer>
-        </Tabs.Panel>
-
-        <Tabs.Panel value="nokkeltall">
-          <ContainerLayoutDetaljer>
-            <NokkeltallForAvtale />
           </ContainerLayoutDetaljer>
         </Tabs.Panel>
       </Tabs>

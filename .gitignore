@@ -35,3 +35,4 @@ docker-compose.override.yml
 dist
 
 .vscode
+frontend/mr-admin-flate/cypress/downloads/

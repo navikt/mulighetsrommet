@@ -31,10 +31,10 @@ class NotatServiceImpl(
             .mapLeft { error -> ServerError(message = "Det oppsto en feil ved henting av notater for avtale. Error: $error") }
     }
 
-    override fun upsertAvtaleNotat(avtaleNotat: AvtaleNotatDbo): StatusResponse<AvtaleNotatDto> {
-        logger.info("Upserter avtalenotat med id: $avtaleNotat.id")
-        return avtaleNotatRepository.upsert(avtaleNotat)
-            .flatMap { avtaleNotatRepository.get(avtaleNotat.id) }
+    override fun upsertAvtaleNotat(notat: AvtaleNotatDbo): StatusResponse<AvtaleNotatDto> {
+        logger.info("Upserter avtalenotat med id: $notat.id")
+        return avtaleNotatRepository.upsert(notat)
+            .flatMap { avtaleNotatRepository.get(notat.id) }
             .map { it!! } // If upsert is succesfull it should exist here
             .mapLeft { ServerError("Internal Error while upserting notat for avtale: $it") }
     }

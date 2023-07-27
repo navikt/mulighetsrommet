@@ -1,36 +1,26 @@
 import { Tabs } from '@navikt/ds-react';
 import { useAtom } from 'jotai';
-import { useFeatureToggles, VIS_INNSIKTSFANE } from '../../core/api/feature-toggles';
 import { logEvent } from '../../core/api/logger';
 import useTiltaksgjennomforingById from '../../core/api/queries/useTiltaksgjennomforingById';
 import { faneAtom } from '../../core/atoms/atoms';
 import { kebabCase } from '../../utils/Utils';
 import DetaljerFane from './DetaljerFane';
-import KontaktinfoFane from './kontaktinfofane/KontaktinfoFane';
 import styles from './TiltaksdetaljerFane.module.scss';
+import KontaktinfoFane from './kontaktinfofane/KontaktinfoFane';
 
 const TiltaksdetaljerFane = () => {
   const { data } = useTiltaksgjennomforingById();
   const [fane, setFane] = useAtom(faneAtom);
-  const features = useFeatureToggles();
-  const visInnsiktsfane = features.isSuccess && features.data[VIS_INNSIKTSFANE];
 
   if (!data) return null;
 
   const { tiltakstype, faneinnhold } = data;
-  const faneoverskrifter = [
-    'For hvem',
-    'Detaljer og innhold',
-    'Påmelding og varighet',
-    'Kontaktinfo',
-    'Innsikt',
-  ] as const;
+  const faneoverskrifter = ['For hvem', 'Detaljer og innhold', 'Påmelding og varighet', 'Kontaktinfo'] as const;
   const tabValueTilFaneoverSkrifter: { [key: string]: string } = {
     tab1: faneoverskrifter[0],
     tab2: faneoverskrifter[1],
     tab3: faneoverskrifter[2],
     tab4: faneoverskrifter[3],
-    tab5: faneoverskrifter[4],
   };
 
   return (
@@ -45,19 +35,15 @@ const TiltaksdetaljerFane = () => {
       }}
     >
       <Tabs.List className={styles.fane_liste} id="fane_liste">
-        {faneoverskrifter
-          .filter(fane => {
-            return !(!visInnsiktsfane && fane === 'Innsikt');
-          })
-          .map((fane, index) => (
-            <Tabs.Tab
-              key={index}
-              value={`tab${index + 1}`}
-              label={fane}
-              className={styles.btn_tab}
-              data-testid={`fane_${kebabCase(fane)}`}
-            />
-          ))}
+        {faneoverskrifter.map((fane, index) => (
+          <Tabs.Tab
+            key={index}
+            value={`tab${index + 1}`}
+            label={fane}
+            className={styles.btn_tab}
+            data-testid={`fane_${kebabCase(fane)}`}
+          />
+        ))}
       </Tabs.List>
       <div className={styles.fane_panel}>
         <Tabs.Panel value="tab1" data-testid="tab1">

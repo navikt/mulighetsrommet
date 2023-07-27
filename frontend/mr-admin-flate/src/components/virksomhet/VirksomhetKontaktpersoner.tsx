@@ -10,6 +10,7 @@ import { SokeSelect } from "../skjema/SokeSelect";
 import { useFormContext } from "react-hook-form";
 import { Laster } from "../laster/Laster";
 import { validEmail } from "../../utils/Utils";
+import { DeleteVirksomhetKontaktpersonModal } from "./DeleteVirksomhetKontaktpersonModal";
 
 interface State {
   leggTil: boolean;
@@ -41,6 +42,8 @@ export const VirksomhetKontaktpersoner = (
     refetch,
   } = useVirksomhetKontaktpersoner(orgnr);
 
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+
   const [state, setState] = useState<State>({
     leggTil: false,
     rediger: false,
@@ -54,12 +57,20 @@ export const VirksomhetKontaktpersoner = (
   });
 
   useEffect(() => {
+    setState({
+      ...state,
+      selectedId: watch(formValueName),
+    });
+  }, [watch(formValueName)])
+
+  useEffect(() => {
     if (putMutation.isSuccess) {
       setValue(formValueName, putMutation.data.id);
       setState({
         ...state,
         leggTil: false,
         rediger: false,
+        selectedId: putMutation.data.id,
       });
       refetch();
       putMutation.reset();
@@ -83,7 +94,7 @@ export const VirksomhetKontaktpersoner = (
     }
 
     putMutation.mutate({
-      id: state.selectedId ?? uuidv4(),
+      id: state.leggTil ? uuidv4() : state.selectedId!!,
       navn: state.navn,
       telefon: state.telefon || null,
       beskrivelse: state.beskrivelse || null,
@@ -114,17 +125,16 @@ export const VirksomhetKontaktpersoner = (
       {(state.selectedId && !state.rediger) && (
         <div className={styles.kontaktperson_info_container}>
           <label>{`Navn: ${valgtPerson()?.navn}`}</label>
-          <label>{`Telefon: ${
-            valgtPerson()?.telefon || "Telefonnummer eksisterer ikke"
-          }`}</label>
+          <label>{`Telefon: ${valgtPerson()?.telefon || "Telefonnummer eksisterer ikke"
+            }`}</label>
           <label>{`Epost: ${valgtPerson()?.epost}`}</label>
-          { valgtPerson()?.beskrivelse && <label>{`Beskrivelse: ${valgtPerson()?.beskrivelse}`}</label>}
+          {valgtPerson()?.beskrivelse && <label>{`Beskrivelse: ${valgtPerson()?.beskrivelse}`}</label>}
 
         </div>
       )}
       {!state.leggTil && !state.rediger && (
         <div className={styles.button_container}>
-          { state.selectedId &&
+          {state.selectedId &&
             <Button
               className={classNames(
                 styles.kontaktperson_button,
@@ -222,18 +232,28 @@ export const VirksomhetKontaktpersoner = (
             }}
           />
           <div className={styles.button_container}>
-            <Button
-              size="small"
-              className={styles.button}
-              type="button"
-              onClick={opprettEllerLagreKontaktperson}
-            >
-              { state.leggTil ? "Opprett kontaktperson" : "Lagre" }
-            </Button>
+            <div className={styles.button_container_left}>
+              <Button
+                size="small"
+                type="button"
+                onClick={opprettEllerLagreKontaktperson}
+              >
+                {state.leggTil ? "Opprett kontaktperson" : "Lagre"}
+              </Button>
+              {state.rediger &&
+                <Button
+                  size="small"
+                  type="button"
+                  variant="danger"
+                  onClick={() => setDeleteModalOpen(true)}
+                >
+                  Slett
+                </Button>
+              }
+            </div>
             <Button
               size="small"
               variant="secondary"
-              className={styles.button}
               type="button"
               onClick={() => setState({
                 ...state,
@@ -246,6 +266,20 @@ export const VirksomhetKontaktpersoner = (
           </div>
         </div>
       )}
+      <DeleteVirksomhetKontaktpersonModal
+        kontaktpersonId={state.selectedId}
+        modalOpen={deleteModalOpen}
+        onClose={() => {
+          setDeleteModalOpen(false);
+          setValue(formValueName, null);
+          refetch();
+          setState({
+            ...state,
+            selectedId: undefined,
+            rediger: false,
+          })
+        }}
+      />
     </>
   );
 };

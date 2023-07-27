@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.services
 
+import arrow.core.Either
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import io.prometheus.client.cache.caffeine.CacheMetricsCollector
@@ -7,12 +8,15 @@ import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
 import no.nav.mulighetsrommet.api.domain.dbo.toOverordnetEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
 import no.nav.mulighetsrommet.api.repositories.VirksomhetRepository
+import no.nav.mulighetsrommet.api.routes.v1.responses.BadRequest
+import no.nav.mulighetsrommet.api.routes.v1.responses.StatusResponse
 import no.nav.mulighetsrommet.api.utils.VirksomhetFilter
 import no.nav.mulighetsrommet.database.utils.getOrThrow
 import no.nav.mulighetsrommet.domain.dto.VirksomhetKontaktperson
 import no.nav.mulighetsrommet.metrics.Metrikker
 import no.nav.mulighetsrommet.utils.CacheUtils
 import org.slf4j.LoggerFactory
+import java.util.*
 import java.util.concurrent.TimeUnit
 
 class VirksomhetService(
@@ -77,4 +81,18 @@ class VirksomhetService(
 
     fun hentKontaktpersoner(orgnr: String): List<VirksomhetKontaktperson> =
         virksomhetRepository.getKontaktpersoner(orgnr)
+
+    fun deleteKontaktperson(id: UUID): StatusResponse<Unit> {
+        val (gjennomforinger, avtaler) = virksomhetRepository.koblingerTilKontaktperson(id)
+        if (gjennomforinger.isNotEmpty()) {
+            log.warn("Prøvde slette kontaktperson med koblinger til disse gjennomføringer: ${gjennomforinger.joinToString()}")
+            return Either.Left(BadRequest("Kontaktpersonen er i bruk."))
+        }
+        if (avtaler.isNotEmpty()) {
+            log.warn("Prøvde slette kontaktperson med koblinger til disse avtaler: ${avtaler.joinToString()}")
+            return Either.Left(BadRequest("Kontaktpersonen er i bruk."))
+        }
+
+        return Either.Right(virksomhetRepository.deleteKontaktperson(id))
+    }
 }

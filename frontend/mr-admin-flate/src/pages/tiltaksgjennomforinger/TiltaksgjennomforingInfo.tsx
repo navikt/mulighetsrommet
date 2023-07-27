@@ -7,10 +7,16 @@ import {
   TiltaksgjennomforingKontaktpersoner,
   TiltaksgjennomforingOppstartstype,
   TiltaksgjennomforingStatus,
+  Toggles,
 } from "mulighetsrommet-api-client";
+import {
+  NOM_ANSATT_SIDE,
+  TEAMS_DYPLENKE,
+} from "mulighetsrommet-frontend-common/constants";
 import { useState } from "react";
+import invariant from "tiny-invariant";
 import { useAvtale } from "../../api/avtaler/useAvtale";
-import { useFeatureToggles } from "../../api/features/feature-toggles";
+import { useFeatureToggle } from "../../api/features/feature-toggles";
 import { useTiltaksgjennomforingById } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforingById";
 import { Bolk } from "../../components/detaljside/Bolk";
 import {
@@ -28,11 +34,6 @@ import {
   tilgjengelighetsstatusTilTekst,
 } from "../../utils/Utils";
 import styles from "../DetaljerInfo.module.scss";
-import {
-  NOM_ANSATT_SIDE,
-  TEAMS_DYPLENKE,
-} from "mulighetsrommet-frontend-common/constants";
-import invariant from "tiny-invariant";
 
 export function TiltaksgjennomforingInfo() {
   const {
@@ -44,7 +45,12 @@ export function TiltaksgjennomforingInfo() {
   const { data: avtale, isLoading: isLoadingAvtale } = useAvtale(
     tiltaksgjennomforing?.avtaleId,
   );
-  const { data: features } = useFeatureToggles();
+  const { data: slettGjennomforingIsEnabled } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_ADMIN_FLATE_SLETT_TILTAKSGJENNOMFORING,
+  );
+  const { data: redigerGjennomforingIsEnabled } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_ADMIN_FLATE_REDIGER_TILTAKSGJENNOMFORING,
+  );
 
   const [slettModal, setSlettModal] = useState(false);
   const [redigerModal, setRedigerModal] = useState(false);
@@ -355,9 +361,7 @@ export function TiltaksgjennomforingInfo() {
       </div>
       {visKnapperad(tiltaksgjennomforing.status) ? (
         <div className={styles.knapperad}>
-          {features?.[
-            "mulighetsrommet.admin-flate-slett-tiltaksgjennomforing"
-          ] ? (
+          {slettGjennomforingIsEnabled ? (
             <Button
               variant="tertiary-neutral"
               onClick={handleSlett}
@@ -367,9 +371,7 @@ export function TiltaksgjennomforingInfo() {
               Feilregistrering
             </Button>
           ) : null}
-          {features?.[
-            "mulighetsrommet.admin-flate-rediger-tiltaksgjennomforing"
-          ] ? (
+          {redigerGjennomforingIsEnabled ? (
             <Button
               variant="tertiary"
               onClick={handleRediger}

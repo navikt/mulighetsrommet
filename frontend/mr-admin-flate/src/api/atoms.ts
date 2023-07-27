@@ -15,29 +15,32 @@ import { AVTALE_PAGE_SIZE, PAGE_SIZE } from "../constants";
  * finnes i storage (https://github.com/pmndrs/jotai/discussions/1879#discussioncomment-5626120)
  * Dette er anbefalt måte og ha en sync versjon av atomWithStorage
  */
-function atomWithStorage<Value>(key: string, initialValue: Value, storage = localStorage) {
-  const baseAtom = atom(storage.getItem(key) ?? JSON.stringify(initialValue))
+function atomWithStorage<Value>(
+  key: string,
+  initialValue: Value,
+  storage = localStorage,
+) {
+  const baseAtom = atom(storage.getItem(key) ?? JSON.stringify(initialValue));
   return atom(
     (get) => JSON.parse(get(baseAtom)),
     (get, set, nextValue: Value) => {
       const str = JSON.stringify(nextValue);
       set(baseAtom, str);
       storage.setItem(key, str);
-    }
-  )
+    },
+  );
 }
 
-function atomWithHashAndStorage<Value>(
-  key: string,
-  initialValue: Value,
-) {
+function atomWithHashAndStorage<Value>(key: string, initialValue: Value) {
   const setHash = (hash: string) => {
     const searchParams = new URLSearchParams(window.location.hash.slice(1));
-    searchParams.set(key, hash)
+    searchParams.set(key, hash);
     window.history.replaceState(
       null,
-      '',
-      `${window.location.pathname}${window.location.search}#${searchParams.toString()}`,
+      "",
+      `${window.location.pathname}${
+        window.location.search
+      }#${searchParams.toString()}`,
     );
   };
   const innerAtom = atomWithStorage(key, initialValue);
@@ -45,7 +48,7 @@ function atomWithHashAndStorage<Value>(
   return atom(
     (get) => {
       const value = get(innerAtom);
-      setHash(JSON.stringify(value))
+      setHash(JSON.stringify(value));
       return value;
     },
     (get, set, newValue: Value) => {
@@ -114,7 +117,7 @@ export const tiltaksgjennomforingTilAvtaleFilter = atom<
   Pick<Tiltaksgjennomforingfilter, "search">
 >({ search: "" });
 
-export type AvtaleTabs = "avtaleinfo" | "tiltaksgjennomforinger" | "nokkeltall";
+export type AvtaleTabs = "avtaleinfo" | "tiltaksgjennomforinger";
 
 export interface AvtaleFilterProps {
   sok: string;
@@ -150,7 +153,7 @@ export const avtaleTabAtom = atomWithHashAndStorage<TiltakstypeAvtaleTabs>(
   "arenaInfo",
 );
 
-export type TiltaksgjennomforingerTabs = "detaljer" | "nokkeltall";
+export type TiltaksgjennomforingerTabs = "detaljer";
 
 export const tiltaksgjennomforingTabAtom =
   atomWithHashAndStorage<TiltaksgjennomforingerTabs>(

@@ -60,6 +60,7 @@ dependencies {
 
     implementation(libs.nav.common.auditLog)
     implementation(libs.nav.common.tokenClient)
+    implementation(libs.nav.common.client)
 
     // Dependency injection
     implementation(libs.koin.ktor)
