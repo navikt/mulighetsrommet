@@ -43,9 +43,6 @@ spec:
   accessPolicy:
     outbound:
       rules:
-        - application: poao-unleash
-          namespace: poao
-          cluster: dev-gcp
         - application: mulighetsrommet-api
   env:
     - name: JSON_CONFIG
@@ -61,16 +58,6 @@ spec:
             "origin": "https://veilarbpersonflate.intern.dev.nav.no"
           },
           "proxies": [
-            {
-              "fromPath": "/veilarbpersonflatefs",
-              "toUrl": "http://poao-unleash.poao.svc.cluster.local",
-              "preserveFromPath": false,
-               "toApp": {
-                "name": "poao-unleash",
-                "namespace": "poao",
-                "cluster": "dev-gcp"
-              }
-            },
             {
               "fromPath": "/mulighetsrommet-api",
               "toUrl": "http://mulighetsrommet-api",

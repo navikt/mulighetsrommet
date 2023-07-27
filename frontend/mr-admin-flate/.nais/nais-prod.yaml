@@ -51,9 +51,6 @@ spec:
   accessPolicy:
     outbound:
       rules:
-        - application: poao-unleash
-          namespace: poao
-          cluster: prod-gcp
         - application: mulighetsrommet-api
   env:
     - name: JSON_CONFIG
@@ -72,16 +69,6 @@ spec:
             }
           },
           "proxies": [
-            {
-              "fromPath": "/unleash",
-              "toUrl": "http://poao-unleash.poao.svc.cluster.local",
-              "preserveFromPath": false,
-               "toApp": {
-                "name": "poao-unleash",
-                "namespace": "poao",
-                "cluster": "prod-gcp"
-              }
-            },
             {
               "fromPath": "/mulighetsrommet-api",
               "toUrl": "http://mulighetsrommet-api",
