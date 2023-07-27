@@ -40,6 +40,7 @@ Cypress.Commands.add("getByTestId", (selector, ...args) => {
 
 Cypress.Commands.add("gaTilForsteAvtale", () => {
   cy.visit("/avtaler");
+  cy.getByTestId("avtaler-tab").click();
   cy.getByTestId("avtalerad").eq(0).click();
 });
 

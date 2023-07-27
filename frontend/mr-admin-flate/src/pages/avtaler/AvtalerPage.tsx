@@ -25,7 +25,11 @@ export function AvtalerPage() {
         >
           <div className={styles.header_container_tabs} role="contentinfo">
             <Tabs.List>
-              <Tabs.Tab value="avtaler" label="Avtaler" />
+              <Tabs.Tab
+                data-testid="avtaler-tab"
+                value="avtaler"
+                label="Avtaler"
+              />
               <Tabs.Tab
                 data-testid="mine-utkast-tab"
                 value="utkast"
