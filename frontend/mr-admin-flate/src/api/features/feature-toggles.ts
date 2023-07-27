@@ -18,10 +18,8 @@ export const SLETT_TILTAKSGJENNOMFORING_ADMIN_FLATE =
   "mulighetsrommet.admin-flate-slett-tiltaksgjennomforing";
 export const VIS_DELTAKERLISTE_KOMET =
   "mulighetsrommet.admin-flate-vis-deltakerliste-fra-komet";
-export const TEST_SINDRE = "test-sindre";
 
 export const ALL_TOGGLES = [
-  TEST_SINDRE,
   VIS_NOKKELTALL_ADMIN_FLATE,
   OPPRETT_AVTALE_ADMIN_FLATE,
   REDIGER_AVTALE_ADMIN_FLATE,
@@ -35,7 +33,6 @@ export const ALL_TOGGLES = [
 export type Features = Record<(typeof ALL_TOGGLES)[number], boolean>;
 
 export const initialFeatures: Features = {
-  "test-sindre": false,
   "mulighetsrommet.admin-flate-vis-nokkeltall": false,
   "mulighetsrommet.admin-flate-opprett-avtale": false,
   "mulighetsrommet.admin-flate-rediger-avtale": false,

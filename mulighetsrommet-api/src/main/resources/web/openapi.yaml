@@ -1332,7 +1332,6 @@ paths:
         schema:
           type: string
           enum:
-            - test-sindre
             - mulighetsrommet.admin-flate-vis-nokkeltall
             - mulighetsrommet.admin-flate-opprett-avtale
             - mulighetsrommet.admin-flate-rediger-avtale
