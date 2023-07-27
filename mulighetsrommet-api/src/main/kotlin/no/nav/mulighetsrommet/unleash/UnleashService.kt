@@ -20,7 +20,7 @@ class UnleashService(config: UnleashConfig, byEnhetStrategy: ByEnhetStrategy) {
     ) {
         fun toUnleashConfig(): UnleashConfig {
             return UnleashConfig.builder().appName(appName).instanceId(instanceId)
-                .unleashAPI(url).apiKey(token).environment(environment).build()
+                .unleashAPI("$url/api").apiKey(token).environment(environment).build()
         }
     }
 }
