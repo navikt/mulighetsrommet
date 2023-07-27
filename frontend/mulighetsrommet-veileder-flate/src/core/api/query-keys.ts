@@ -18,4 +18,5 @@ export const QueryKeys = {
     ],
     tiltaksgjennomforing: (id: string) => ['tiltaksgjennomforing', id],
   },
+  features: (feature: string) => [feature, 'feature'],
 };

@@ -16,6 +16,7 @@ export const initialFeatures: Features = {
   "mulighetsrommet.admin-flate-slett-tiltaksgjennomforing": false,
   "mulighetsrommet.admin-flate-rediger-tiltaksgjennomforing": false,
   "mulighetsrommet.admin-flate-vis-deltakerliste-fra-komet": false,
+  "mulighetsrommet.enable-arbeidsflate": true,
 };
 
 const toggles = ALL_TOGGLES.map((element) => "feature=" + element).join("&");
@@ -39,13 +40,8 @@ export const useFeatureToggles = () => {
  * @param initialValue Overstyr initiell verdi
  * @returns Verdi for initialValue før nettverkskall er ferdig
  */
-export const useFeatureToggle = (
-  feature: Toggles,
-  initialValue: boolean = false,
-) => {
-  return useQuery<boolean>(
-    QueryKeys.features(feature),
-    () => mulighetsrommetClient.features.getFeatureToggle({ feature }),
-    { initialData: initialValue },
+export const useFeatureToggle = (feature: Toggles) => {
+  return useQuery<boolean>(QueryKeys.features(feature), () =>
+    mulighetsrommetClient.features.getFeatureToggle({ feature }),
   );
 };

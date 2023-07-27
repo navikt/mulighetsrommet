@@ -1,19 +1,20 @@
+import { WebVitalsInstrumentation, initializeFaro } from '@grafana/faro-web-sdk';
 import { Modal } from '@navikt/ds-react';
+import { Toggles } from 'mulighetsrommet-api-client';
 import { ErrorBoundary } from 'react-error-boundary';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { ReactQueryDevtools } from 'react-query/devtools';
-import { BrowserRouter as Router, Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, Route, BrowserRouter as Router, Routes } from 'react-router-dom';
+import styles from './App.module.scss';
+import RoutesConfig from './RoutesConfig';
 import FakeDoor from './components/fakedoor/FakeDoor';
 import { APPLICATION_NAME, MODAL_ACCESSIBILITY_WRAPPER } from './constants';
-import { ENABLE_ARBEIDSFLATE, useFeatureToggles } from './core/api/feature-toggles';
+import { useFeatureToggle } from './core/api/feature-toggles';
 import { useHentVeilederdata } from './core/api/queries/useHentVeilederdata';
 import { useHentFnrFraUrl } from './hooks/useHentFnrFraUrl';
 import { useInitialBrukerfilter } from './hooks/useInitialBrukerfilter';
-import RoutesConfig from './RoutesConfig';
 import { ErrorFallback } from './utils/ErrorFallback';
-import styles from './App.module.scss';
 import { SanityPreview } from './views/Preview/SanityPreview';
-import { WebVitalsInstrumentation, initializeFaro } from '@grafana/faro-web-sdk';
 
 if (import.meta.env.PROD) {
   initializeFaro({
@@ -37,13 +38,13 @@ const queryClient = new QueryClient({
 });
 
 function AppWrapper() {
-  const features = useFeatureToggles();
   useInitialBrukerfilter();
   useHentVeilederdata(); // Pre-fetch veilederdata så slipper vi å vente på data når vi trenger det i appen senere
 
-  const enableArbeidsflate = features.isSuccess && features.data[ENABLE_ARBEIDSFLATE];
+  const feature = useFeatureToggle(Toggles.MULIGHETSROMMET_ENABLE_ARBEIDSFLATE);
+  const enableArbeidsflate = feature.isSuccess && feature.data;
 
-  if (features.isLoading) {
+  if (feature.isLoading) {
     // Passer på at vi ikke flash-viser løsningen før vi har hentet toggle for fake-door
     return null;
   }

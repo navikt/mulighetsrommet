@@ -3,16 +3,16 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "backend": "cross-env VITE_MULIGHETSROMMET_API_MOCK=false VITE_MULIGHETSROMMET_API_BASE='http://localhost:8080' VITE_EKSTERNE_SYSTEMER_MOCK=true vite",
+    "backend": "cross-env VITE_MULIGHETSROMMET_API_MOCK=false VITE_MULIGHETSROMMET_API_BASE='http://localhost:8080' vite",
     "build": "cross-env VITE_ENVIRONMENT=production VITE_FARO_URL=https://telemetry.nav.no/collect VITE_MULIGHETSROMMET_API_BASE='/mulighetsrommet-api' vite build --base=https://mulighetsrommet-veileder-flate.intern.nav.no/",
     "build:dev": "cross-env VITE_ENVIRONMENT=dev VITE_FARO_URL=https://telemetry.ekstern.dev.nav.no/collect VITE_MULIGHETSROMMET_API_BASE='/mulighetsrommet-api' vite build --base=https://mulighetsrommet-veileder-flate.intern.dev.nav.no/",
-    "build:demo": "cross-env VITE_MULIGHETSROMMET_API_MOCK=true VITE_EKSTERNE_SYSTEMER_MOCK=true VITE_FARO_URL=https://telemetry.ekstern.dev.nav.no/collect vite build",
+    "build:demo": "cross-env VITE_MULIGHETSROMMET_API_MOCK=true VITE_FARO_URL=https://telemetry.ekstern.dev.nav.no/collect vite build",
     "cy:run": "npx cypress run --e2e --browser chrome",
     "cypress": "npx cypress open",
     "lint": "eslint src --ext .js,.ts,.tsx && tsc",
     "prettier": "prettier --write 'src/**/*.ts{,x}'",
     "serve": "vite preview",
-    "start": "cross-env VITE_ENVIRONMENT=localhost VITE_MULIGHETSROMMET_API_MOCK=true VITE_EKSTERNE_SYSTEMER_MOCK=true vite"
+    "start": "cross-env VITE_ENVIRONMENT=localhost VITE_MULIGHETSROMMET_API_MOCK=true vite"
   },
   "browserslist": [
     ">0.2%",
