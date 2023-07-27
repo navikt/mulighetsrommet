@@ -3,8 +3,6 @@ import { QueryKeys } from "../QueryKeys";
 import { mulighetsrommetClient } from "../clients";
 import { headers } from "../headers";
 
-export const VIS_NOKKELTALL_ADMIN_FLATE =
-  "mulighetsrommet.admin-flate-vis-nokkeltall";
 export const OPPRETT_AVTALE_ADMIN_FLATE =
   "mulighetsrommet.admin-flate-opprett-avtale";
 export const REDIGER_AVTALE_ADMIN_FLATE =
@@ -20,7 +18,6 @@ export const VIS_DELTAKERLISTE_KOMET =
   "mulighetsrommet.admin-flate-vis-deltakerliste-fra-komet";
 
 export const ALL_TOGGLES = [
-  VIS_NOKKELTALL_ADMIN_FLATE,
   OPPRETT_AVTALE_ADMIN_FLATE,
   REDIGER_AVTALE_ADMIN_FLATE,
   OPPRETT_TILTAKSGJENNOMFORING_ADMIN_FLATE,
@@ -33,7 +30,6 @@ export const ALL_TOGGLES = [
 export type Features = Record<(typeof ALL_TOGGLES)[number], boolean>;
 
 export const initialFeatures: Features = {
-  "mulighetsrommet.admin-flate-vis-nokkeltall": false,
   "mulighetsrommet.admin-flate-opprett-avtale": false,
   "mulighetsrommet.admin-flate-rediger-avtale": false,
   "mulighetsrommet.admin-flate-opprett-tiltaksgjennomforing": false,

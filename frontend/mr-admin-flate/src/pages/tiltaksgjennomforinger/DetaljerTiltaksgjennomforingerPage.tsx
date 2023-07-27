@@ -6,20 +6,18 @@ import {
   tiltaksgjennomforingTabAtom,
 } from "../../api/atoms";
 import {
-  useFeatureToggles,
   VIS_DELTAKERLISTE_KOMET,
-  VIS_NOKKELTALL_ADMIN_FLATE,
+  useFeatureToggles,
 } from "../../api/features/feature-toggles";
 import { useTiltaksgjennomforingById } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforingById";
 import { Header } from "../../components/detaljside/Header";
 import { Laster } from "../../components/laster/Laster";
 import { Tiltaksgjennomforingstatus } from "../../components/statuselementer/Tiltaksgjennomforingstatus";
+import NotaterTiltaksgjennomforingerPage from "../../components/tiltaksgjennomforinger/NotaterTiltaksgjennomforingerPage";
 import { ContainerLayoutDetaljer } from "../../layouts/ContainerLayout";
+import { DeltakerListe } from "../../microfrontends/team_komet/Deltakerliste";
 import commonStyles from "../Page.module.scss";
 import { TiltaksgjennomforingInfo } from "./TiltaksgjennomforingInfo";
-import { NokkeltallForTiltaksgjennomforing } from "./nokkeltall/NokkeltallForTiltaksgjennomforing";
-import { DeltakerListe } from "../../microfrontends/team_komet/Deltakerliste";
-import NotaterTiltaksgjennomforingerPage from "../../components/tiltaksgjennomforinger/NotaterTiltaksgjennomforingerPage";
 
 export function DetaljerTiltaksgjennomforingerPage() {
   const optionalTiltaksgjennomforing = useTiltaksgjennomforingById();
@@ -28,9 +26,6 @@ export function DetaljerTiltaksgjennomforingerPage() {
 
   const visDeltakerlisteFraKometFeature =
     features.isSuccess && features.data[VIS_DELTAKERLISTE_KOMET];
-
-  const visNokkeltallFeature =
-    features.isSuccess && features.data[VIS_NOKKELTALL_ADMIN_FLATE];
 
   if (
     !optionalTiltaksgjennomforing.data &&
@@ -78,14 +73,6 @@ export function DetaljerTiltaksgjennomforingerPage() {
           {visDeltakerlisteFraKometFeature ? (
             <Tabs.Tab value="poc" label="Deltakerliste" />
           ) : null}
-
-          {visNokkeltallFeature ? (
-            <Tabs.Tab
-              value="nokkeltall"
-              label="Nøkkeltall"
-              data-testid="tab_nokkeltall"
-            />
-          ) : null}
         </Tabs.List>
 
         <Tabs.Panel value="detaljer">
@@ -103,12 +90,6 @@ export function DetaljerTiltaksgjennomforingerPage() {
         <Tabs.Panel value="poc">
           <ContainerLayoutDetaljer>
             <DeltakerListe />
-          </ContainerLayoutDetaljer>
-        </Tabs.Panel>
-
-        <Tabs.Panel value="nokkeltall">
-          <ContainerLayoutDetaljer>
-            <NokkeltallForTiltaksgjennomforing />
           </ContainerLayoutDetaljer>
         </Tabs.Panel>
       </Tabs>
