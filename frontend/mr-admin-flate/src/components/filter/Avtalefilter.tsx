@@ -5,6 +5,7 @@ import { useAtom } from "jotai";
 import {
   Norg2Type,
   Tiltakstypestatus,
+  Toggles,
   VirksomhetTil,
 } from "mulighetsrommet-api-client";
 import { useEffect, useRef, useState } from "react";
@@ -18,10 +19,7 @@ import {
 } from "../../api/atoms";
 import { useAvtaler } from "../../api/avtaler/useAvtaler";
 import { useAlleEnheter } from "../../api/enhet/useAlleEnheter";
-import {
-  OPPRETT_AVTALE_ADMIN_FLATE,
-  useFeatureToggles,
-} from "../../api/features/feature-toggles";
+import { useFeatureToggle } from "../../api/features/feature-toggles";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
 import { useVirksomheter } from "../../api/virksomhet/useVirksomheter";
 import { resetPaginering, valueOrDefault } from "../../utils/Utils";
@@ -50,7 +48,7 @@ export function Avtalefilter(props: Props) {
   const { data: enheter } = useAlleEnheter();
   const { data: tiltakstyper } = useTiltakstyper(
     { status: Tiltakstypestatus.AKTIV, kategori: "" },
-    1
+    1,
   );
   const { data: avtaler } = useAvtaler();
   const { data: leverandorer } = useVirksomheter(VirksomhetTil.AVTALE);
@@ -58,9 +56,9 @@ export function Avtalefilter(props: Props) {
   const searchRef = useRef<HTMLDivElement | null>(null);
   const [modalOpen, setModalOpen] = useState<boolean>(false);
 
-  const features = useFeatureToggles();
-  const visOpprettAvtaleknapp =
-    features.isSuccess && features.data[OPPRETT_AVTALE_ADMIN_FLATE];
+  const { data: visOpprettAvtaleknapp } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_ADMIN_FLATE_OPPRETT_AVTALE,
+  );
 
   useEffect(() => {
     // Hold fokus på søkefelt dersom bruker skriver i søkefelt
@@ -173,7 +171,7 @@ export function Avtalefilter(props: Props) {
                     ...filter,
                     tiltakstype: valueOrDefault(
                       e,
-                      defaultAvtaleFilter.tiltakstype
+                      defaultAvtaleFilter.tiltakstype,
                     ),
                   });
                 }}
@@ -193,7 +191,7 @@ export function Avtalefilter(props: Props) {
                   ...filter,
                   leverandor_orgnr: valueOrDefault(
                     e,
-                    defaultAvtaleFilter.leverandor_orgnr
+                    defaultAvtaleFilter.leverandor_orgnr,
                   ),
                 });
               }}
@@ -207,7 +205,7 @@ export function Avtalefilter(props: Props) {
                 <Button
                   onClick={() => {
                     faro?.api?.pushEvent(
-                      "Bruker trykket på 'Registrer avtale'-knapp"
+                      "Bruker trykket på 'Registrer avtale'-knapp",
                     );
                     setModalOpen(true);
                   }}
@@ -273,7 +271,7 @@ export function Avtalefilter(props: Props) {
               <FilterTag
                 label={
                   leverandorer?.find(
-                    (l) => l.organisasjonsnummer === filter.leverandor_orgnr
+                    (l) => l.organisasjonsnummer === filter.leverandor_orgnr,
                   )?.navn
                 }
                 onClick={() => {
@@ -283,7 +281,7 @@ export function Avtalefilter(props: Props) {
                   });
                   setValue(
                     "leverandor_orgnr",
-                    defaultAvtaleFilter.leverandor_orgnr
+                    defaultAvtaleFilter.leverandor_orgnr,
                   );
                 }}
               />
@@ -303,7 +301,7 @@ export function Avtalefilter(props: Props) {
                   setValue("tiltakstype", defaultAvtaleFilter.tiltakstype);
                   setValue(
                     "leverandor_orgnr",
-                    defaultAvtaleFilter.leverandor_orgnr
+                    defaultAvtaleFilter.leverandor_orgnr,
                   );
                 }}
               >

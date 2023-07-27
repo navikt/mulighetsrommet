@@ -1,14 +1,12 @@
 import { Alert, Tabs } from "@navikt/ds-react";
 import { useAtom } from "jotai";
+import { Toggles } from "mulighetsrommet-api-client";
 import { Link } from "react-router-dom";
 import {
   TiltaksgjennomforingerTabs,
   tiltaksgjennomforingTabAtom,
 } from "../../api/atoms";
-import {
-  VIS_DELTAKERLISTE_KOMET,
-  useFeatureToggles,
-} from "../../api/features/feature-toggles";
+import { useFeatureToggle } from "../../api/features/feature-toggles";
 import { useTiltaksgjennomforingById } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforingById";
 import { Header } from "../../components/detaljside/Header";
 import { Laster } from "../../components/laster/Laster";
@@ -22,10 +20,10 @@ import { TiltaksgjennomforingInfo } from "./TiltaksgjennomforingInfo";
 export function DetaljerTiltaksgjennomforingerPage() {
   const optionalTiltaksgjennomforing = useTiltaksgjennomforingById();
   const [tabValgt, setTabValgt] = useAtom(tiltaksgjennomforingTabAtom);
-  const features = useFeatureToggles();
 
-  const visDeltakerlisteFraKometFeature =
-    features.isSuccess && features.data[VIS_DELTAKERLISTE_KOMET];
+  const { data: visDeltakerlisteFraKometFeature } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_ADMIN_FLATE_VIS_DELTAKERLISTE_FRA_KOMET,
+  );
 
   if (
     !optionalTiltaksgjennomforing.data &&

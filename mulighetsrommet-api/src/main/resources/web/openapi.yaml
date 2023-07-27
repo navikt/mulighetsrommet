@@ -1330,15 +1330,7 @@ paths:
         description: Navn på feature toggle
         required: true
         schema:
-          type: string
-          enum:
-            - mulighetsrommet.admin-flate-opprett-avtale
-            - mulighetsrommet.admin-flate-rediger-avtale
-            - mulighetsrommet.admin-flate-opprett-tiltaksgjennomforing
-            - mulighetsrommet.admin-flate-slett-avtale
-            - mulighetsrommet.admin-flate-slett-tiltaksgjennomforing
-            - mulighetsrommet.admin-flate-rediger-tiltaksgjennomforing
-            - mulighetsrommet.admin-flate-vis-deltakerliste-fra-komet
+         $ref: "#/components/schemas/Toggles"
     get:
       tags:
         - Features
@@ -2786,3 +2778,14 @@ components:
         - id
         - tiltaksgjennomforingId
         - innhold
+
+    Toggles:
+      type: string
+      enum:
+        - mulighetsrommet.admin-flate-opprett-avtale
+        - mulighetsrommet.admin-flate-rediger-avtale
+        - mulighetsrommet.admin-flate-opprett-tiltaksgjennomforing
+        - mulighetsrommet.admin-flate-slett-avtale
+        - mulighetsrommet.admin-flate-slett-tiltaksgjennomforing
+        - mulighetsrommet.admin-flate-rediger-tiltaksgjennomforing
+        - mulighetsrommet.admin-flate-vis-deltakerliste-fra-komet
