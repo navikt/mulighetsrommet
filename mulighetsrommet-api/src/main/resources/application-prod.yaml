@@ -79,7 +79,7 @@ app:
 
   axsys:
     url: https://axsys.prod-fss-pub.nais.io
-    scope: api://dev-prod.org.axsys/.default
+    scope: api://prod-fss.org.axsys/.default
 
   navAnsattService:
     roller:
