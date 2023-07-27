@@ -3,7 +3,6 @@ import { Alert, Heading } from "@navikt/ds-react";
 import { Avtalestatus } from "mulighetsrommet-api-client";
 import { useState } from "react";
 import { useAvtale } from "../../api/avtaler/useAvtale";
-import SlettAvtaleModal from "../../components/avtaler/SlettAvtaleModal";
 import { Bolk } from "../../components/detaljside/Bolk";
 import {
   Liste,
@@ -20,11 +19,12 @@ import {
 } from "../../utils/Utils";
 import styles from "../DetaljerInfo.module.scss";
 import { AvtaleKnapperad } from "./AvtaleKnapperad";
+import SlettAvtaleModal from "../../components/avtaler/SlettAvtaleModal";
 
 export function Avtaleinfo() {
   const avtaleId = useGetAvtaleIdFromUrl();
 
-  const [redigerModal, setRedigerModal] = useState(false);
+  const [, setRedigerModal] = useState(false);
   const { data: avtale, isLoading, error } = useAvtale();
   const [slettModal, setSlettModal] = useState(false);
 
@@ -228,7 +228,6 @@ export function Avtaleinfo() {
         modalOpen={slettModal}
         onClose={() => setSlettModal(false)}
         avtale={avtale}
-        handleRediger={() => setRedigerModal(true)}
       />
     </>
   );

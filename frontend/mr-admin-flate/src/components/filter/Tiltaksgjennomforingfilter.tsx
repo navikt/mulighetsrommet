@@ -280,7 +280,6 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
                     <Button
                       size="small"
                       onClick={() => setOpprettModalOpen(true)}
-                      type="button"
                       data-testid="opprett-ny-gjennomforing-knapp"
                     >
                       Opprett gjennomføring

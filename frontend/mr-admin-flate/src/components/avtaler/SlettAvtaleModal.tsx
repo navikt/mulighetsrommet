@@ -6,13 +6,13 @@ import { useNavigate } from "react-router-dom";
 import { useDeleteAvtale } from "../../api/avtaler/useDeleteAvtale";
 import styles from "../modal/Modal.module.scss";
 import { XMarkOctagonFillIcon } from "@navikt/aksel-icons";
+import Lenke from "mulighetsrommet-veileder-flate/src/components/lenke/Lenke";
 
 interface SlettAvtaleModalprops {
   modalOpen: boolean;
   onClose: () => void;
   handleForm?: () => void;
   handleCancel?: () => void;
-  handleRediger?: () => void;
   avtale?: Avtale;
 }
 
@@ -20,7 +20,6 @@ const SlettAvtaleModal = ({
   modalOpen,
   onClose,
   handleCancel,
-  handleRediger,
   avtale,
 }: SlettAvtaleModalprops) => {
   const mutation = useDeleteAvtale();
@@ -52,7 +51,6 @@ const SlettAvtaleModal = ({
   const handleRedigerAvtale = () => {
     clickCancel();
     mutation.reset();
-    handleRediger?.();
   };
 
   function headerInnhold(avtale?: Avtale) {
@@ -82,9 +80,11 @@ const SlettAvtaleModal = ({
         )}
         <div className={styles.knapperad}>
           {avtaleFraArena ? null : mutation?.isError ? (
-            <Button variant="primary" onClick={handleRedigerAvtale}>
-              Rediger avtale
-            </Button>
+            <Lenke to={`/avtaler/skjema?avtaleId=${avtale?.id}`}>
+              <Button variant="primary" onClick={handleRedigerAvtale}>
+                Rediger avtale
+              </Button>
+            </Lenke>
           ) : (
             <Button variant="danger" onClick={handleDelete}>
               Slett avtale

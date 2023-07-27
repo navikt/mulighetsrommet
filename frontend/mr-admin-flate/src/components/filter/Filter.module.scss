@@ -68,17 +68,6 @@
   }
 }
 
-.tiltaksgjennomforingform_med_knapperad {
-  @media (width < 1280px) {
-    .filter_container {
-      grid-template-columns: 5fr 1fr;
-      .knapperad {
-        flex-direction: column;
-      }
-    }
-  }
-}
-
 .avtaleform {
   .knapperad {
     border-left: 1px solid var(--border-default, rgba(0, 0, 0, 0.44));

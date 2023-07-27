@@ -8,7 +8,6 @@ import { useDeleteUtkast } from "../../api/utkast/useDeleteUtkast";
 
 export function AvtaleUtkast() {
   const { data = [], isLoading, error } = useMineUtkast(Utkast.type.AVTALE);
-  const mutation = useDeleteUtkast();
 
   if (error as ApiError) {
     const apiError = error as ApiError;
@@ -32,7 +31,7 @@ export function AvtaleUtkast() {
         {data?.map((utkast) => {
           return (
             <li key={utkast.id}>
-              <UtkastKort utkast={utkast} mutation={mutation} />
+              <UtkastKort utkast={utkast} mutation={useDeleteUtkast()} />
             </li>
           );
         })}

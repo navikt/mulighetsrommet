@@ -12,6 +12,7 @@ import { Laster } from "../laster/Laster";
 import { OpprettTiltaksgjennomforingModal } from "../modal/OpprettTiltaksgjennomforingModal";
 import { UtkastKort } from "../utkast/Utkastkort";
 import styles from "./TiltaksgjennomforingUtkast.module.scss";
+import { useDeleteUtkast } from "../../api/utkast/useDeleteUtkast";
 
 export function TiltaksgjennomforingUtkast() {
   const {
@@ -48,10 +49,7 @@ export function TiltaksgjennomforingUtkast() {
         {data?.map((utkast) => {
           return (
             <li key={utkast.id}>
-              <UtkastKort
-                utkast={utkast}
-                onEdit={() => setUtkastForRedigering(utkast)}
-              />
+              <UtkastKort utkast={utkast} mutation={useDeleteUtkast()} />
             </li>
           );
         })}
