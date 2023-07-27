@@ -9,15 +9,11 @@ import { Laster } from "./components/laster/Laster";
 import { ErrorPage } from "./pages/ErrorPage";
 import { AvtalerPage } from "./pages/avtaler/AvtalerPage";
 import { DetaljerAvtalePage } from "./pages/avtaler/DetaljerAvtalePage";
-import { NotifikasjonerPage } from "./pages/notifikasjoner/NotifikasjonerPage";
-import { DetaljerTiltaksgjennomforingerPage } from "./pages/tiltaksgjennomforinger/DetaljerTiltaksgjennomforingerPage";
-import { TiltaksgjennomforingerPage } from "./pages/tiltaksgjennomforinger/TiltaksgjennomforingerPage";
 import { DetaljerTiltakstypePage } from "./pages/tiltakstyper/DetaljerTiltakstypePage";
 import { TiltakstyperPage } from "./pages/tiltakstyper/TiltakstyperPage";
 import { TiltaksgjennomforingerPage } from "./pages/tiltaksgjennomforinger/TiltaksgjennomforingerPage";
 import { DetaljerTiltaksgjennomforingerPage } from "./pages/tiltaksgjennomforinger/DetaljerTiltaksgjennomforingerPage";
 import { NotifikasjonerPage } from "./pages/notifikasjoner/NotifikasjonerPage";
-import { initializeFaro } from "@grafana/faro-web-sdk";
 import AvtaleSkjemaPage from "./components/avtaler/AvtaleSkjemaPage";
 
 if (import.meta.env.PROD) {
