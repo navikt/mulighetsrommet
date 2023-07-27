@@ -1,20 +1,26 @@
 import styles from "../DetaljerInfo.module.scss";
 import { Button } from "@navikt/ds-react";
-import { useFeatureToggles } from "../../api/features/feature-toggles";
+import { useFeatureToggle } from "../../api/features/feature-toggles";
 import { useGetAvtaleIdFromUrl } from "../../hooks/useGetAvtaleIdFromUrl";
 import Lenke from "mulighetsrommet-veileder-flate/src/components/lenke/Lenke";
+import { Toggles } from "mulighetsrommet-api-client";
 
 interface Props {
   handleSlett: () => void;
 }
 
 export function AvtaleKnapperad({ handleSlett }: Props) {
-  const { data: features } = useFeatureToggles();
+  const { data: slettAvtaleEnabled } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_ADMIN_FLATE_SLETT_AVTALE,
+  );
+  const { data: redigerAvtaleEnabled } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_ADMIN_FLATE_REDIGER_AVTALE,
+  );
   const avtaleId = useGetAvtaleIdFromUrl();
 
   return (
     <div className={styles.knapperad}>
-      {features?.["mulighetsrommet.admin-flate-slett-avtale"] ? (
+      {slettAvtaleEnabled ? (
         <Button
           variant="tertiary-neutral"
           onClick={() => handleSlett()}
@@ -25,7 +31,7 @@ export function AvtaleKnapperad({ handleSlett }: Props) {
         </Button>
       ) : null}
 
-      {features?.["mulighetsrommet.admin-flate-rediger-avtale"] ? (
+      {redigerAvtaleEnabled ? (
         <Lenke to={`/avtaler/skjema?avtaleId=${avtaleId}`}>
           <Button variant="tertiary" data-testid="endre-avtale">
             Endre

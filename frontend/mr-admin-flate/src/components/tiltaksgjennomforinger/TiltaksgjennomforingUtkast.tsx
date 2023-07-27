@@ -26,6 +26,7 @@ export function TiltaksgjennomforingUtkast() {
   );
   const { data: avtale } = useAvtale();
   const navigate = useNavigate();
+  const mutation = useDeleteUtkast();
 
   if (error as ApiError) {
     const apiError = error as ApiError;
@@ -49,7 +50,7 @@ export function TiltaksgjennomforingUtkast() {
         {data?.map((utkast) => {
           return (
             <li key={utkast.id}>
-              <UtkastKort utkast={utkast} mutation={useDeleteUtkast()} />
+              <UtkastKort utkast={utkast} mutation={mutation} />
             </li>
           );
         })}
