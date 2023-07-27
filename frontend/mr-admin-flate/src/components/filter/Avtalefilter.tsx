@@ -1,18 +1,15 @@
-import { faro } from "@grafana/faro-web-sdk";
 import { Button, Search } from "@navikt/ds-react";
-import { useQueryClient } from "@tanstack/react-query";
 import { useAtom } from "jotai";
 import {
   Norg2Type,
   Tiltakstypestatus,
   VirksomhetTil,
 } from "mulighetsrommet-api-client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { FormProvider, useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
 import {
-  AvtaleFilterProps,
   avtaleFilter,
+  AvtaleFilterProps,
   avtalePaginationAtom,
   defaultAvtaleFilter,
 } from "../../api/atoms";
@@ -25,10 +22,10 @@ import {
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
 import { useVirksomheter } from "../../api/virksomhet/useVirksomheter";
 import { resetPaginering, valueOrDefault } from "../../utils/Utils";
-import OpprettAvtaleModal from "../avtaler/OpprettAvtaleModal";
 import { SokeSelect } from "../skjema/SokeSelect";
 import styles from "./Filter.module.scss";
 import { FilterTag } from "./FilterTag";
+import Lenke from "mulighetsrommet-veileder-flate/src/components/lenke/Lenke";
 
 type Filters = "tiltakstype";
 
@@ -38,8 +35,6 @@ interface Props {
 
 export function Avtalefilter(props: Props) {
   const [filter, setFilter] = useAtom(avtaleFilter);
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
   const form = useForm<AvtaleFilterProps>({
     defaultValues: {
       ...filter,
@@ -50,13 +45,12 @@ export function Avtalefilter(props: Props) {
   const { data: enheter } = useAlleEnheter();
   const { data: tiltakstyper } = useTiltakstyper(
     { status: Tiltakstypestatus.AKTIV, kategori: "" },
-    1
+    1,
   );
   const { data: avtaler } = useAvtaler();
   const { data: leverandorer } = useVirksomheter(VirksomhetTil.AVTALE);
   const [, setPage] = useAtom(avtalePaginationAtom);
   const searchRef = useRef<HTMLDivElement | null>(null);
-  const [modalOpen, setModalOpen] = useState<boolean>(false);
 
   const features = useFeatureToggles();
   const visOpprettAvtaleknapp =
@@ -173,7 +167,7 @@ export function Avtalefilter(props: Props) {
                     ...filter,
                     tiltakstype: valueOrDefault(
                       e,
-                      defaultAvtaleFilter.tiltakstype
+                      defaultAvtaleFilter.tiltakstype,
                     ),
                   });
                 }}
@@ -193,7 +187,7 @@ export function Avtalefilter(props: Props) {
                   ...filter,
                   leverandor_orgnr: valueOrDefault(
                     e,
-                    defaultAvtaleFilter.leverandor_orgnr
+                    defaultAvtaleFilter.leverandor_orgnr,
                   ),
                 });
               }}
@@ -203,30 +197,16 @@ export function Avtalefilter(props: Props) {
 
           <div className={styles.knapperad}>
             {visOpprettAvtaleknapp && (
-              <>
+              <Lenke to={`/avtaler/skjema`}>
                 <Button
-                  onClick={() => {
-                    faro?.api?.pushEvent(
-                      "Bruker trykket på 'Registrer avtale'-knapp"
-                    );
-                    setModalOpen(true);
-                  }}
-                  data-testid="registrer-ny-avtale"
+                  className={styles.registrer_avtale_knapp}
+                  data-testid="opprett-avtale"
                   size="small"
                   type="button"
-                  className={styles.registrer_avtale_knapp}
                 >
-                  Registrer avtale
+                  Opprett avtale
                 </Button>
-                <OpprettAvtaleModal
-                  modalOpen={modalOpen}
-                  onClose={() => {
-                    queryClient.refetchQueries({ queryKey: ["utkast"] });
-                    setModalOpen(false);
-                  }}
-                  onSuccess={(id) => navigate(`/avtaler/${id}`)}
-                />
-              </>
+              </Lenke>
             )}
           </div>
           <div className={styles.tags_container}>
@@ -273,7 +253,7 @@ export function Avtalefilter(props: Props) {
               <FilterTag
                 label={
                   leverandorer?.find(
-                    (l) => l.organisasjonsnummer === filter.leverandor_orgnr
+                    (l) => l.organisasjonsnummer === filter.leverandor_orgnr,
                   )?.navn
                 }
                 onClick={() => {
@@ -283,7 +263,7 @@ export function Avtalefilter(props: Props) {
                   });
                   setValue(
                     "leverandor_orgnr",
-                    defaultAvtaleFilter.leverandor_orgnr
+                    defaultAvtaleFilter.leverandor_orgnr,
                   );
                 }}
               />
@@ -303,7 +283,7 @@ export function Avtalefilter(props: Props) {
                   setValue("tiltakstype", defaultAvtaleFilter.tiltakstype);
                   setValue(
                     "leverandor_orgnr",
-                    defaultAvtaleFilter.leverandor_orgnr
+                    defaultAvtaleFilter.leverandor_orgnr,
                   );
                 }}
               >

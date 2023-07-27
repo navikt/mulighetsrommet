@@ -25,6 +25,8 @@ const SlettAvtaleModal = ({
 }: SlettAvtaleModalprops) => {
   const mutation = useDeleteAvtale();
   const navigate = useNavigate();
+  const avtaleFraArena = avtale?.opphav === Opphav.ARENA;
+
   useEffect(() => {
     Modal.setAppElement("#root");
   }, []);
@@ -57,7 +59,7 @@ const SlettAvtaleModal = ({
     return (
       <div className={styles.heading}>
         <XMarkOctagonFillIcon className={styles.warningicon} />
-        {avtale?.opphav === Opphav.ARENA ? (
+        {avtaleFraArena ? (
           <span>Avtalen kan ikke slettes</span>
         ) : mutation.isError ? (
           <span>Kan ikke slette «{avtale?.navn}»</span>
@@ -71,7 +73,7 @@ const SlettAvtaleModal = ({
   function modalInnhold(avtale?: Avtale) {
     return (
       <>
-        {avtale?.opphav === Opphav.ARENA ? (
+        {avtaleFraArena ? (
           <p>Avtalen {avtale?.navn} kommer fra Arena og kan ikke slettes her</p>
         ) : mutation?.isError ? (
           <p>{(mutation.error as ApiError).body}</p>
@@ -79,7 +81,7 @@ const SlettAvtaleModal = ({
           <p>Du kan ikke angre denne handlingen</p>
         )}
         <div className={styles.knapperad}>
-          {avtale?.opphav === Opphav.ARENA ? null : mutation?.isError ? (
+          {avtaleFraArena ? null : mutation?.isError ? (
             <Button variant="primary" onClick={handleRedigerAvtale}>
               Rediger avtale
             </Button>

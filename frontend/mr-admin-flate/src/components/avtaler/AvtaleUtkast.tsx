@@ -1,24 +1,14 @@
 import { Alert } from "@navikt/ds-react";
-import { ApiError, Avtale, Utkast } from "mulighetsrommet-api-client";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { ApiError, Utkast } from "mulighetsrommet-api-client";
 import { useMineUtkast } from "../../api/utkast/useMineUtkast";
 import { Laster } from "../laster/Laster";
 import { UtkastKort } from "../utkast/Utkastkort";
 import styles from "./AvtaleUtkast.module.scss";
-import OpprettAvtaleModal from "./OpprettAvtaleModal";
+import { useDeleteUtkast } from "../../api/utkast/useDeleteUtkast";
 
 export function AvtaleUtkast() {
-  const {
-    data = [],
-    isLoading,
-    error,
-    refetch,
-  } = useMineUtkast(Utkast.type.AVTALE);
-  const [utkastForRedigering, setUtkastForRedigering] = useState<Utkast | null>(
-    null,
-  );
-  const navigate = useNavigate();
+  const { data = [], isLoading, error } = useMineUtkast(Utkast.type.AVTALE);
+  const mutation = useDeleteUtkast();
 
   if (error as ApiError) {
     const apiError = error as ApiError;
@@ -42,25 +32,11 @@ export function AvtaleUtkast() {
         {data?.map((utkast) => {
           return (
             <li key={utkast.id}>
-              <UtkastKort
-                utkast={utkast}
-                onEdit={() => setUtkastForRedigering(utkast)}
-              />
+              <UtkastKort utkast={utkast} mutation={mutation} />
             </li>
           );
         })}
       </ul>
-      {utkastForRedigering ? (
-        <OpprettAvtaleModal
-          modalOpen={!!utkastForRedigering}
-          avtale={utkastForRedigering?.utkastData as Avtale}
-          onClose={async () => {
-            refetch();
-            setUtkastForRedigering(null);
-          }}
-          onSuccess={(id) => navigate(`/avtaler/${id}`)}
-        />
-      ) : null}
     </div>
   );
 }

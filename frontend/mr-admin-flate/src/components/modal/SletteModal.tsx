@@ -7,23 +7,28 @@ import {
   XMarkOctagonFillIcon,
 } from "@navikt/aksel-icons";
 import classNames from "classnames";
-import invariant from "tiny-invariant";
 import { UseMutationResult } from "@tanstack/react-query";
 
 interface Props {
   modalOpen: boolean;
   onClose: () => void;
-  notatIdForSletting: string;
   mutation: UseMutationResult<string, unknown, string>;
+  invariantFunksjon: () => void;
+  handleDelete: () => void;
+  headerText: string;
+  headerTextError: string;
 }
 
-const SletteNotatModal = ({
+const SletteModal = ({
   modalOpen,
   onClose,
-  notatIdForSletting,
   mutation,
+  invariantFunksjon,
+  handleDelete,
+  headerText,
+  headerTextError,
 }: Props) => {
-  invariant(notatIdForSletting, "Fant ikke id for å slette notat.");
+  invariantFunksjon();
 
   useEffect(() => {
     Modal.setAppElement("#root");
@@ -33,22 +38,18 @@ const SletteNotatModal = ({
     onClose();
   };
 
-  const handleDelete = () => {
-    mutation.mutate(notatIdForSletting, { onSuccess: onClose });
-  };
-
   function headerInnhold() {
     return (
       <div className={styles.heading}>
         {mutation.isError ? (
           <>
             <ExclamationmarkTriangleFillIcon className={styles.erroricon} />
-            <span>Kan ikke slette notatet.</span>
+            <span>{headerTextError}</span>
           </>
         ) : (
           <>
             <XMarkOctagonFillIcon className={styles.warningicon} />
-            <span>Ønsker du å slette notatet?</span>
+            <span>{headerText}</span>
           </>
         )}
       </div>
@@ -61,17 +62,13 @@ const SletteNotatModal = ({
         {mutation?.isError ? (
           <p>{(mutation.error as ApiError).body}</p>
         ) : (
-          <p>Du kan ikke angre denne handlingen</p>
+          <p>Du kan ikke angre denne handlingen.</p>
         )}
 
         <div className={styles.knapperad}>
           {mutation?.isError ? null : (
-            <Button
-              variant="danger"
-              onClick={handleDelete}
-              data-testid="bekrefte-slette-notat_btn"
-            >
-              Slett notat
+            <Button variant="danger" onClick={handleDelete}>
+              Slett
             </Button>
           )}
 
@@ -105,4 +102,4 @@ const SletteNotatModal = ({
   );
 };
 
-export default SletteNotatModal;
+export default SletteModal;

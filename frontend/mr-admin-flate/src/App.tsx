@@ -15,6 +15,7 @@ import { TiltaksgjennomforingerPage } from "./pages/tiltaksgjennomforinger/Tilta
 import { DetaljerTiltaksgjennomforingerPage } from "./pages/tiltaksgjennomforinger/DetaljerTiltaksgjennomforingerPage";
 import { NotifikasjonerPage } from "./pages/notifikasjoner/NotifikasjonerPage";
 import { initializeFaro } from "@grafana/faro-web-sdk";
+import AvtaleSkjemaPage from "./components/avtaler/AvtaleSkjemaPage";
 
 if (import.meta.env.PROD) {
   initializeFaro({
@@ -62,7 +63,7 @@ export function App() {
     !ansatt.roller?.some(
       (rolle) =>
         rolle === NavAnsattRolle.BETABRUKER ||
-        rolle === NavAnsattRolle.TEAM_MULIGHETSROMMET
+        rolle === NavAnsattRolle.TEAM_MULIGHETSROMMET,
     )
   ) {
     return <IkkeAutentisertApp />;
@@ -88,6 +89,11 @@ export function App() {
       <Route
         path="avtaler/:avtaleId"
         element={<DetaljerAvtalePage />}
+        errorElement={<ErrorPage />}
+      />
+      <Route
+        path="avtaler/skjema"
+        element={<AvtaleSkjemaPage />}
         errorElement={<ErrorPage />}
       />
       <Route

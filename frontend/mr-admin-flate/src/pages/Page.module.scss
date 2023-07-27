@@ -1,5 +1,5 @@
 .header_container {
-  background-color: white;
+  background-color: var(--a-white);
 
   &_border {
     border-bottom: solid 1px var(--a-border-divider);
@@ -15,7 +15,7 @@
 
   &_tabs {
     border-bottom: solid 1px var(--a-border-divider);
-    background-color: white;
+    background-color: var(--a-white);
 
     :global(.navds-tabs__tablist-wrapper) {
       max-width: 1920px;
@@ -44,6 +44,6 @@
 }
 
 :global(.navds-tabs__tablist-wrapper) {
-  background-color: white;
+  background-color: var(--a-white);
   width: 100%;
 }

@@ -37,7 +37,6 @@ import {
 } from "../../utils/Utils";
 import { isTiltakMedFellesOppstart } from "../../utils/tiltakskoder";
 import { AutoSaveUtkast } from "../autosave/AutoSaveUtkast";
-import { FormGroup, ansvarligOptions } from "../avtaler/OpprettAvtaleContainer";
 import { Separator } from "../detaljside/Metadata";
 import { Laster } from "../laster/Laster";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
@@ -53,9 +52,11 @@ import {
   tekniskFeilError,
 } from "./OpprettTiltaksgjennomforingErrors";
 import {
-  TiltaksgjennomforingSchema,
   inferredTiltaksgjennomforingSchema,
-} from "./OpprettTiltaksgjennomforingSchema";
+  TiltaksgjennomforingSchema,
+} from "./TiltaksgjennomforingSchema";
+import { AnsvarligOptions } from "../skjema/AnsvarligOptions";
+import { FormGroup } from "../skjema/FormGroup";
 
 interface OpprettTiltaksgjennomforingContainerProps {
   onClose: () => void;
@@ -110,7 +111,7 @@ type UtkastData = Pick<
   id: string;
 };
 
-export const OpprettTiltaksgjennomforingContainer = (
+export const TiltaksgjennomforingSkjemaContainer = (
   props: OpprettTiltaksgjennomforingContainerProps,
 ) => {
   const { data: kontaktpersoner, isLoading: isLoadingKontaktpersoner } =
@@ -533,7 +534,7 @@ export const OpprettTiltaksgjennomforingContainer = (
                   }
                   label={"Tiltaksansvarlig"}
                   {...register("ansvarlig")}
-                  options={ansvarligOptions(
+                  options={AnsvarligOptions(
                     ansatt,
                     tiltaksgjennomforing?.ansvarlig,
                     betabrukere,
