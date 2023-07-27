@@ -1,7 +1,7 @@
 import { Alert, Tabs } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { Link } from "react-router-dom";
-import { avtaleTabAtom, TiltakstypeAvtaleTabs } from "../../api/atoms";
+import { TiltakstypeAvtaleTabs, tiltakstypeTabAtom } from "../../api/atoms";
 import {
   useFeatureToggles,
   VIS_NOKKELTALL_ADMIN_FLATE,
@@ -18,7 +18,7 @@ import commonStyles from "../Page.module.scss";
 
 export function DetaljerTiltakstypePage() {
   const optionalTiltakstype = useTiltakstypeById();
-  const [tabValgt, setTabValgt] = useAtom(avtaleTabAtom);
+  const [tabValgt, setTabValgt] = useAtom(tiltakstypeTabAtom);
   const features = useFeatureToggles();
 
   const visNokkeltallFeature =

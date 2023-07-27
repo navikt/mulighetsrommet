@@ -8,13 +8,21 @@ import { HeaderBanner } from "../../layouts/HeaderBanner";
 import { MainContainer } from "../../layouts/MainContainer";
 import { ErrorFallback } from "../../main";
 import styles from "../Page.module.scss";
+import { AvtaleUtkastTabs, avtaleOversiktTabAtom } from "../../api/atoms";
+import { useAtom } from "jotai";
 
 export function AvtalerPage() {
+  const [tabValgt, setTabValgt] = useAtom(avtaleOversiktTabAtom);
+
   return (
     <>
       <HeaderBanner heading="Oversikt over avtaler" harUndermeny />
       <ErrorBoundary FallbackComponent={ErrorFallback}>
-        <Tabs defaultValue="avtaler">
+        <Tabs
+          value={tabValgt}
+          defaultValue="avtaler"
+          onChange={(value) => setTabValgt(value as AvtaleUtkastTabs)}
+        >
           <div className={styles.header_container_tabs} role="contentinfo">
             <Tabs.List>
               <Tabs.Tab value="avtaler" label="Avtaler" />
@@ -32,7 +40,7 @@ export function AvtalerPage() {
                 <AvtaleTabell />
               </Tabs.Panel>
               <Tabs.Panel value="utkast">
-                <AvtaleUtkast />
+                <AvtaleUtkast/>
               </Tabs.Panel>
             </ContainerLayoutOversikt>
           </MainContainer>
