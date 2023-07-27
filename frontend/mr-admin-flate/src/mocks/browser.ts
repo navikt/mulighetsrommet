@@ -1,15 +1,11 @@
 // src/mocks/browser.js
 import { setupWorker } from "msw";
 import { apiHandlers } from "./apiHandlers";
-import { eksterneSystemerHandlers } from "./eksterneSystemerhandlers";
 
 // This configures a Service Worker with the given request handlers.
 const handlers = [
   ...(import.meta.env.VITE_MULIGHETSROMMET_API_MOCK === "true"
     ? apiHandlers
-    : []),
-  ...(import.meta.env.VITE_EKSTERNE_SYSTEMER_MOCK === "true"
-    ? eksterneSystemerHandlers
     : []),
 ];
 

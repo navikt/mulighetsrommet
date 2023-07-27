@@ -71,6 +71,12 @@ fun Route.virksomhetRoutes() {
             call.respondWithStatusResponse(result)
         }
 
+        delete("kontaktperson/{id}") {
+            val id = call.parameters.getOrFail<UUID>("id")
+
+            call.respondWithStatusResponse(virksomhetService.deleteKontaktperson(id))
+        }
+
         get("sok/{sok}") {
             val sokestreng = call.parameters.getOrFail("sok")
 

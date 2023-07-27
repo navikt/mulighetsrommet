@@ -1,9 +1,9 @@
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
 import { Alert, Button, Heading } from "@navikt/ds-react";
-import { Avtalestatus } from "mulighetsrommet-api-client";
+import { Avtalestatus, Toggles } from "mulighetsrommet-api-client";
 import { useState } from "react";
 import { useAvtale } from "../../api/avtaler/useAvtale";
-import { useFeatureToggles } from "../../api/features/feature-toggles";
+import { useFeatureToggle } from "../../api/features/feature-toggles";
 import OpprettAvtaleModal from "../../components/avtaler/OpprettAvtaleModal";
 import SlettAvtaleModal from "../../components/avtaler/SlettAvtaleModal";
 import { Bolk } from "../../components/detaljside/Bolk";
@@ -28,7 +28,12 @@ export function Avtaleinfo() {
     throw new Error("Fant ingen avtaleId i url");
   }
   const { data: avtale, isLoading, error, refetch } = useAvtale();
-  const { data: features } = useFeatureToggles();
+  const { data: slettAvtaleEnabled } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_ADMIN_FLATE_SLETT_AVTALE,
+  );
+  const { data: redigerAvtaleEnabled } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_ADMIN_FLATE_REDIGER_AVTALE,
+  );
   const [redigerModal, setRedigerModal] = useState(false);
   const [slettModal, setSlettModal] = useState(false);
 
@@ -200,7 +205,7 @@ export function Avtaleinfo() {
       {visKnapperad(avtale.avtalestatus) ? (
         <div className={styles.knapperad}>
           <div>
-            {features?.["mulighetsrommet.admin-flate-slett-avtale"] ? (
+            {slettAvtaleEnabled ? (
               <Button
                 variant="tertiary-neutral"
                 onClick={handleSlett}
@@ -212,7 +217,7 @@ export function Avtaleinfo() {
             ) : null}
           </div>
           <div>
-            {features?.["mulighetsrommet.admin-flate-rediger-avtale"] ? (
+            {redigerAvtaleEnabled ? (
               <Button
                 variant="tertiary"
                 onClick={handleRediger}

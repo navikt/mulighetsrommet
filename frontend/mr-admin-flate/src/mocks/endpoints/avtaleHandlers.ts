@@ -1,13 +1,11 @@
 import { DefaultBodyType, PathParams, rest } from "msw";
 import {
   Avtale,
-  AvtaleNokkeltall,
   AvtaleRequest,
   PaginertAvtale,
   SletteAvtale,
 } from "mulighetsrommet-api-client";
 import { mockAvtaler } from "../fixtures/mock_avtaler";
-import { mockAvtaleNokkeltall } from "../fixtures/mock_avtale_nokkeltall";
 
 export const avtaleHandlers = [
   rest.get<DefaultBodyType, PathParams, PaginertAvtale | undefined>(
@@ -62,13 +60,6 @@ export const avtaleHandlers = [
       }),
     );
   }),
-
-  rest.get<DefaultBodyType, PathParams, AvtaleNokkeltall | undefined>(
-    "*/api/v1/internal/avtaler/:id/nokkeltall",
-    (req, res, ctx) => {
-      return res(ctx.status(200), ctx.json(mockAvtaleNokkeltall));
-    },
-  ),
 
   rest.put<AvtaleRequest>("*/api/v1/internal/avtaler", (req, res, ctx) => {
     return res(

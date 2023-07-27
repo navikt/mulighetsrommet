@@ -36,6 +36,10 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/PaginertTiltaksgjennomforing"
+        400:
+          description: Bad Request
+        401:
+          description: Unauthorized
         500:
           description: Noe gikk galt.
           content:
@@ -57,10 +61,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Tiltaksgjennomforing"
+        400:
+          description: Bad Request
+        401:
+          description: Unauthorized
         404:
           description: Gjennomføring ble ikke funnet.
           content:
-            application/json:
+            text/plain:
               schema:
                 type: string
         500:
@@ -88,6 +96,10 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/TiltaksgjennomforingIdResponse"
+        400:
+          description: Bad Request
+        401:
+          description: Unauthorized
         404:
           description: |
             Fant ikke id for gitt arenaId.
@@ -96,7 +108,7 @@ paths:
             enda ikke finnes. Mange applikasjoner får med seg endringer i data fra Arena via Kafka, inkludert
             Mulighetsrommet, men vi har ikke implementert noen egne returkoder som indikerer denne forskjellen (enda).
           content:
-            application/json:
+            text/plain:
               schema:
                 type: string
         500:
@@ -125,6 +137,10 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/TiltaksgjennomforingArenadata"
+        400:
+          description: Bad Request
+        401:
+          description: Unauthorized
         404:
           description: |
             Fant ikke id for gitt arenaId.
@@ -133,7 +149,7 @@ paths:
             enda ikke finnes. Mange applikasjoner får med seg endringer i data fra Arena via Kafka, inkludert
             Mulighetsrommet, men vi har ikke implementert noen egne returkoder som indikerer denne forskjellen (enda).
           content:
-            application/json:
+            text/plain:
               schema:
                 type: string
         500:

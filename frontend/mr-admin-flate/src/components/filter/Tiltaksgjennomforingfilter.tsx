@@ -7,10 +7,12 @@ import {
   Norg2Type,
   TiltaksgjennomforingStatus,
   Tiltakstypestatus,
+  Toggles,
   VirksomhetTil,
 } from "mulighetsrommet-api-client";
 import { useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
 import {
   Tiltaksgjennomforingfilter as TiltaksgjennomforingAtomFilter,
   defaultTiltaksgjennomforingfilter,
@@ -18,10 +20,7 @@ import {
   tiltaksgjennomforingfilter,
 } from "../../api/atoms";
 import { useAlleEnheter } from "../../api/enhet/useAlleEnheter";
-import {
-  OPPRETT_TILTAKSGJENNOMFORING_ADMIN_FLATE,
-  useFeatureToggles,
-} from "../../api/features/feature-toggles";
+import { useFeatureToggle } from "../../api/features/feature-toggles";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
 import { useVirksomheter } from "../../api/virksomhet/useVirksomheter";
 import {
@@ -34,7 +33,6 @@ import { LeggTilGjennomforingModal } from "../modal/LeggTilGjennomforingModal";
 import { OpprettTiltaksgjennomforingModal } from "../modal/OpprettTiltaksgjennomforingModal";
 import { SokeSelect } from "../skjema/SokeSelect";
 import styles from "./Filter.module.scss";
-import { useNavigate } from "react-router-dom";
 import { FilterTag } from "./FilterTag";
 
 type Filters = "tiltakstype";
@@ -51,11 +49,11 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
   const [, setPage] = useAtom(paginationAtom);
   const { data: enheter } = useAlleEnheter();
   const { data: virksomheter } = useVirksomheter(
-    VirksomhetTil.TILTAKSGJENNOMFORING
+    VirksomhetTil.TILTAKSGJENNOMFORING,
   );
   const { data: tiltakstyper } = useTiltakstyper(
     { status: Tiltakstypestatus.AKTIV },
-    1
+    1,
   );
   const [opprettModal, setOpprettModalOpen] = useState<boolean>(false);
   const [modalOpen, setModalOpen] = useState<boolean>(false);
@@ -67,17 +65,17 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
   });
   const { register, setValue } = form;
 
-  const features = useFeatureToggles();
+  const { data: opprettGjennomforingIsEnabled } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_ADMIN_FLATE_OPPRETT_TILTAKSGJENNOMFORING,
+  );
   const visOpprettTiltaksgjennomforingKnapp =
-    features.isSuccess &&
-    features.data[OPPRETT_TILTAKSGJENNOMFORING_ADMIN_FLATE] &&
-    inneholderUrl("/avtaler/");
+    opprettGjennomforingIsEnabled && inneholderUrl("/avtaler/");
 
   const erAFTellerVTA = arenaKodeErAftEllerVta(avtale?.tiltakstype.arenaKode);
 
   useEffect(() => {
-    setFilter({...filter, avtale: avtale?.id ?? ""});
-  }, [avtale])
+    setFilter({ ...filter, avtale: avtale?.id ?? "" });
+  }, [avtale]);
 
   const regionOptions = () => {
     const options =
@@ -179,7 +177,7 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
                   navEnhet: "",
                   navRegion: valueOrDefault(
                     navRegion,
-                    defaultTiltaksgjennomforingfilter.navRegion
+                    defaultTiltaksgjennomforingfilter.navRegion,
                   ),
                 });
               }}
@@ -199,7 +197,7 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
                   ...filter,
                   navEnhet: valueOrDefault(
                     enhet,
-                    defaultTiltaksgjennomforingfilter.navEnhet
+                    defaultTiltaksgjennomforingfilter.navEnhet,
                   ),
                 });
               }}
@@ -219,7 +217,7 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
                     ...filter,
                     tiltakstype: valueOrDefault(
                       tiltakstype,
-                      defaultTiltaksgjennomforingfilter.tiltakstype
+                      defaultTiltaksgjennomforingfilter.tiltakstype,
                     ),
                   });
                 }}
@@ -239,7 +237,7 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
                   ...filter,
                   status: valueOrDefault(
                     status,
-                    defaultTiltaksgjennomforingfilter.status
+                    defaultTiltaksgjennomforingfilter.status,
                   ),
                 });
               }}
@@ -258,7 +256,7 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
                   ...filter,
                   arrangorOrgnr: valueOrDefault(
                     arrangorOrgnr,
-                    defaultTiltaksgjennomforingfilter.arrangorOrgnr
+                    defaultTiltaksgjennomforingfilter.arrangorOrgnr,
                   ),
                 });
               }}
@@ -271,7 +269,7 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
             <div
               className={classNames(
                 styles.knapperad,
-                styles.tiltaksgjennomforings_knapperad
+                styles.tiltaksgjennomforings_knapperad,
               )}
             >
               <>
@@ -332,7 +330,7 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
                   });
                   setValue(
                     "navRegion",
-                    defaultTiltaksgjennomforingfilter.navRegion
+                    defaultTiltaksgjennomforingfilter.navRegion,
                   );
                 }}
               />
@@ -347,7 +345,10 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
                     ...filter,
                     navEnhet: defaultTiltaksgjennomforingfilter.navEnhet,
                   });
-                  setValue("navEnhet", defaultTiltaksgjennomforingfilter.navEnhet);
+                  setValue(
+                    "navEnhet",
+                    defaultTiltaksgjennomforingfilter.navEnhet,
+                  );
                 }}
               />
             )}
@@ -364,7 +365,7 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
                   });
                   setValue(
                     "tiltakstype",
-                    defaultTiltaksgjennomforingfilter.tiltakstype
+                    defaultTiltaksgjennomforingfilter.tiltakstype,
                   );
                 }}
               />
@@ -384,7 +385,7 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
               <FilterTag
                 label={
                   virksomheter?.find(
-                    (v) => v.organisasjonsnummer === filter.arrangorOrgnr
+                    (v) => v.organisasjonsnummer === filter.arrangorOrgnr,
                   )?.navn
                 }
                 onClick={() => {
@@ -395,7 +396,7 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
                   });
                   setValue(
                     "arrangorOrgnr",
-                    defaultTiltaksgjennomforingfilter.arrangorOrgnr
+                    defaultTiltaksgjennomforingfilter.arrangorOrgnr,
                   );
                 }}
               />
@@ -415,18 +416,21 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
                     avtale: filter.avtale,
                   });
                   setValue("status", defaultTiltaksgjennomforingfilter.status);
-                  setValue("navEnhet", defaultTiltaksgjennomforingfilter.navEnhet);
+                  setValue(
+                    "navEnhet",
+                    defaultTiltaksgjennomforingfilter.navEnhet,
+                  );
                   setValue(
                     "navRegion",
-                    defaultTiltaksgjennomforingfilter.navRegion
+                    defaultTiltaksgjennomforingfilter.navRegion,
                   );
                   setValue(
                     "tiltakstype",
-                    defaultTiltaksgjennomforingfilter.tiltakstype
+                    defaultTiltaksgjennomforingfilter.tiltakstype,
                   );
                   setValue(
                     "arrangorOrgnr",
-                    defaultTiltaksgjennomforingfilter.arrangorOrgnr
+                    defaultTiltaksgjennomforingfilter.arrangorOrgnr,
                   );
                 }}
               >

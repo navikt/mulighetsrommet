@@ -1151,6 +1151,24 @@ paths:
               schema:
                 $ref: "#/components/schemas/VirksomhetKontaktperson"
 
+  /api/v1/internal/virksomhet/kontaktperson/{id}:
+    delete:
+      tags:
+        - VirksomhetKontaktperson
+      operationId: deleteVirksomhetkontaktperson
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: uuid til kontaktpersonen
+      responses:
+        200:
+          description: Om kontaktpersonen ble slettet eller ikke
+        500:
+          description: Hvis noe gikk galt ved sletting av kontaktperson
+
   /api/v1/internal/virksomhet/sok/{sok}:
     get:
       tags:
@@ -1312,16 +1330,7 @@ paths:
         description: Navn på feature toggle
         required: true
         schema:
-          type: string
-          enum:
-            - mulighetsrommet.admin-flate-vis-nokkeltall
-            - mulighetsrommet.admin-flate-opprett-avtale
-            - mulighetsrommet.admin-flate-rediger-avtale
-            - mulighetsrommet.admin-flate-opprett-tiltaksgjennomforing
-            - mulighetsrommet.admin-flate-slett-avtale
-            - mulighetsrommet.admin-flate-slett-tiltaksgjennomforing
-            - mulighetsrommet.admin-flate-rediger-tiltaksgjennomforing
-            - mulighetsrommet.admin-flate-vis-deltakerliste-fra-komet
+         $ref: "#/components/schemas/Toggles"
     get:
       tags:
         - Features
@@ -2769,3 +2778,15 @@ components:
         - id
         - tiltaksgjennomforingId
         - innhold
+
+    Toggles:
+      type: string
+      enum:
+        - mulighetsrommet.admin-flate-opprett-avtale
+        - mulighetsrommet.admin-flate-rediger-avtale
+        - mulighetsrommet.admin-flate-opprett-tiltaksgjennomforing
+        - mulighetsrommet.admin-flate-slett-avtale
+        - mulighetsrommet.admin-flate-slett-tiltaksgjennomforing
+        - mulighetsrommet.admin-flate-rediger-tiltaksgjennomforing
+        - mulighetsrommet.admin-flate-vis-deltakerliste-fra-komet
+        - mulighetsrommet.enable-arbeidsflate

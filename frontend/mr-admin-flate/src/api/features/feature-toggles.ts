@@ -2,38 +2,13 @@ import { useQuery } from "@tanstack/react-query";
 import { QueryKeys } from "../QueryKeys";
 import { mulighetsrommetClient } from "../clients";
 import { headers } from "../headers";
+import { Toggles } from "mulighetsrommet-api-client";
 
-export const VIS_NOKKELTALL_ADMIN_FLATE =
-  "mulighetsrommet.admin-flate-vis-nokkeltall";
-export const OPPRETT_AVTALE_ADMIN_FLATE =
-  "mulighetsrommet.admin-flate-opprett-avtale";
-export const REDIGER_AVTALE_ADMIN_FLATE =
-  "mulighetsrommet.admin-flate-rediger-avtale";
-export const OPPRETT_TILTAKSGJENNOMFORING_ADMIN_FLATE =
-  "mulighetsrommet.admin-flate-opprett-tiltaksgjennomforing";
-export const SLETTE_AVTALE = "mulighetsrommet.admin-flate-slett-avtale";
-export const REDIGER_TILTAKSGJENNOMFORING_ADMIN_FLATE =
-  "mulighetsrommet.admin-flate-rediger-tiltaksgjennomforing";
-export const SLETT_TILTAKSGJENNOMFORING_ADMIN_FLATE =
-  "mulighetsrommet.admin-flate-slett-tiltaksgjennomforing";
-export const VIS_DELTAKERLISTE_KOMET =
-  "mulighetsrommet.admin-flate-vis-deltakerliste-fra-komet";
+export const ALL_TOGGLES = [...Object.values(Toggles)] as const;
 
-export const ALL_TOGGLES = [
-  VIS_NOKKELTALL_ADMIN_FLATE,
-  OPPRETT_AVTALE_ADMIN_FLATE,
-  REDIGER_AVTALE_ADMIN_FLATE,
-  OPPRETT_TILTAKSGJENNOMFORING_ADMIN_FLATE,
-  SLETTE_AVTALE,
-  REDIGER_TILTAKSGJENNOMFORING_ADMIN_FLATE,
-  SLETT_TILTAKSGJENNOMFORING_ADMIN_FLATE,
-  VIS_DELTAKERLISTE_KOMET,
-] as const;
-
-export type Features = Record<(typeof ALL_TOGGLES)[number], boolean>;
+export type Features = Record<Toggles, boolean>;
 
 export const initialFeatures: Features = {
-  "mulighetsrommet.admin-flate-vis-nokkeltall": false,
   "mulighetsrommet.admin-flate-opprett-avtale": false,
   "mulighetsrommet.admin-flate-rediger-avtale": false,
   "mulighetsrommet.admin-flate-opprett-tiltaksgjennomforing": false,
@@ -41,6 +16,7 @@ export const initialFeatures: Features = {
   "mulighetsrommet.admin-flate-slett-tiltaksgjennomforing": false,
   "mulighetsrommet.admin-flate-rediger-tiltaksgjennomforing": false,
   "mulighetsrommet.admin-flate-vis-deltakerliste-fra-komet": false,
+  "mulighetsrommet.enable-arbeidsflate": true,
 };
 
 const toggles = ALL_TOGGLES.map((element) => "feature=" + element).join("&");
@@ -60,11 +36,12 @@ export const useFeatureToggles = () => {
  * Hook for å bruke en spesifikk feature toggle for å skjule eller vise funksjonalitet
  * @param feature Navn på feature-toggle du vil bruke
  * @returns true hvis toggle er skrudd på, eller false hvis ikke
+ *
+ * @param initialValue Overstyr initiell verdi
+ * @returns Verdi for initialValue før nettverkskall er ferdig
  */
-export const useFeatureToggle = (feature: keyof Features) => {
-  return useQuery<boolean>(
-    QueryKeys.features(feature),
-    () => mulighetsrommetClient.features.getFeatureToggle({ feature }),
-    { initialData: false },
+export const useFeatureToggle = (feature: Toggles) => {
+  return useQuery<boolean>(QueryKeys.features(feature), () =>
+    mulighetsrommetClient.features.getFeatureToggle({ feature }),
   );
 };

@@ -95,6 +95,7 @@ const SokeSelect = React.forwardRef((props: SelectProps, _) => {
               </label>
 
               <ReactSelect
+                key={`${value}`} // Force rerender when value changes. If set to null outside f. ex
                 placeholder={placeholder}
                 isDisabled={!!readOnly}
                 isClearable={!!onClearValue}

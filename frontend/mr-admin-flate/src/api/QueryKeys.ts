@@ -10,8 +10,6 @@ import { AvtaleFilterProps, Tiltaksgjennomforingfilter } from "./atoms";
 
 export const QueryKeys = {
   tiltakstype: (id?: string) => [id, "tiltakstype"] as const,
-  nokkeltallTiltakstype: (id?: string) =>
-    [id, "nokkeltallTiltakstype"] as const,
   tiltakstyper: (
     sokestreng: string,
     status: Tiltakstypestatus | "",
@@ -28,8 +26,6 @@ export const QueryKeys = {
       page,
       "tiltaksgjennomforinger",
     ] as const,
-  nokkeltallTiltaksgjennomforing: (id?: string) =>
-    [id, "nokkeltallTiltaksgjennomforing"] as const,
   tiltaksgjennomforing: (id?: string) => [id, "tiltaksgjennomforing"] as const,
   ansatt: () => ["ansatt"] as const,
   tiltaksgjennomforingerByEnhet: (enhet: string = "enhet", page?: number) =>
@@ -37,9 +33,8 @@ export const QueryKeys = {
   avtaler: (avtaleFilter: AvtaleFilterProps, page: number) =>
     [{ ...avtaleFilter }, page, "avtaler"] as const,
   avtale: (avtaleId: string) => [avtaleId, "avtale"],
-  nokkeltallAvtale: (avtaleId: string) => [avtaleId, "nokkeltallAvtale"],
   enheter: () => ["enheter"],
-  virksomheter: (til: VirksomhetTil) => [til, "virksomheter"],
+  virksomheter: (til?: VirksomhetTil) => [til, "virksomheter"],
   antallUlesteNotifikasjoner: () => ["antallUlesteNotifikasjoner"],
   notifikasjonerForAnsatt: (status: NotificationStatus) =>
     ["notifikasjoner", status] as const,

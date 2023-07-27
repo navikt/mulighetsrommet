@@ -95,6 +95,7 @@ fun createTestApplicationConfig(oauth: MockOAuth2Server) = AppConfig(
         instanceId = "",
         environment = "",
     ),
+    axsys = ServiceClientConfig(url = "", scope = ""),
 )
 
 fun createKafkaConfig(): KafkaConfig {
