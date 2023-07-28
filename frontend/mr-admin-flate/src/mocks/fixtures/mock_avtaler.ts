@@ -71,8 +71,8 @@ export const mockAvtaler: PaginertAvtale = {
       id: "d1f163b7-1a41-4547-af16-03fd4492b7bc",
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
-        navn: "Oppfølging",
-        arenaKode: "INDOPPFAG",
+        navn: "Arbeidsforberedende trening",
+        arenaKode: "ARBFORB",
       },
       navn: "Avtale hos ÅMLI KOMMUNE SAMFUNNSAVDELINGA",
       avtalenummer: "2021#10579",

@@ -272,15 +272,16 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
                 styles.tiltaksgjennomforings_knapperad,
               )}
             >
-              <>
+              <div className={styles.flex_row}>
                 {visOpprettTiltaksgjennomforingKnapp && (
                   <>
                     <Button
                       size="small"
                       onClick={() => setOpprettModalOpen(true)}
                       data-testid="opprett-gjennomforing-knapp"
+                      title="Opprett en helt ny tiltaksgjennomføring"
                     >
-                      Opprett gjennomføring
+                      Opprett ny gjennomføring
                     </Button>
 
                     <OpprettTiltaksgjennomforingModal
@@ -303,6 +304,7 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
                       onClick={() => setModalOpen(true)}
                       variant="secondary"
                       type="button"
+                      title="Legg til en eksisterende gjennomføring til avtalen"
                     >
                       Legg til gjennomføring
                     </Button>
@@ -312,7 +314,7 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
                     />
                   </>
                 )}
-              </>
+              </div>
             </div>
           )}
           <div className={styles.tags_container}>
