@@ -5,7 +5,7 @@ import style from "./Lenkeknapp.module.scss";
 interface Props {
   to: string;
   lenketekst: string;
-  variant: string;
+  variant: "primary" | "secondary" | "tertiary";
   handleClick?: () => void;
   className?: string;
   dataTestId?: string;
@@ -20,16 +20,6 @@ export function Lenkeknapp({
   dataTestId,
   size,
 }: Props) {
-  const variantType = () => {
-    if (variant === "primary") {
-      return "navds-button--primary";
-    } else if (variant === "secondary") {
-      return "navds-button--secondary";
-    } else if (variant === "tertiary") {
-      return "navds-button--tertiary";
-    }
-  };
-
   const fontSize = () => {
     if (size === "small") {
       return "navds-button--small" && "navds-label--small";
@@ -44,7 +34,7 @@ export function Lenkeknapp({
         style.lenkeknapp,
         "navds-button",
         "button",
-        variantType(),
+        `navds-button--${variant}`,
         fontSize(),
         className,
       )}
