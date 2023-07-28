@@ -205,7 +205,7 @@ export function Avtalefilter(props: Props) {
                     "Bruker trykket på 'Opprett avtale'-knapp",
                   );
                 }}
-                data-testid="opprett-avtale"
+                dataTestId="opprett-avtale"
               />
             )}
           </div>
