@@ -68,7 +68,7 @@ Logg inn med @nav-brukeren din.
 
 ### Oppsett av feature toggles lokalt
 For å hente feature toggles definert for dev-miljø lokalt, så kan du gjøre følgende:
-1. Opprett miljøvariabelen `UNLEASH_SERVER_API_URL` med verdi: https://team-mulighetsrommet-unleash-api.nav.cloud.nais.io/api
+1. Opprett miljøvariabelen `UNLEASH_SERVER_API_URL` med verdi: https://team-mulighetsrommet-unleash-api.nav.cloud.nais.io
 2. Opprett miljøvariabelen `UNLEASH_SERVER_API_TOKEN` og finn token via Unleash
 
 Start opp app som normalt.

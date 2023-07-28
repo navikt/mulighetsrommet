@@ -1,7 +1,9 @@
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
+import { Alert, Heading } from "@navikt/ds-react";
 import { Avtalestatus } from "mulighetsrommet-api-client";
 import { useState } from "react";
 import { useAvtale } from "../../api/avtaler/useAvtale";
+import AvbrytAvtaleModal from "../../components/avtaler/AvbrytAvtaleModal";
 import SlettAvtaleModal from "../../components/avtaler/SlettAvtaleModal";
 import { Bolk } from "../../components/detaljside/Bolk";
 import {
@@ -11,7 +13,6 @@ import {
 } from "../../components/detaljside/Metadata";
 import { VisHvisVerdi } from "../../components/detaljside/VisHvisVerdi";
 import { Laster } from "../../components/laster/Laster";
-import { useGetAvtaleIdFromUrl } from "../../hooks/useGetAvtaleIdFromUrl";
 import {
   avtaletypeTilTekst,
   formaterDato,
@@ -19,17 +20,11 @@ import {
 } from "../../utils/Utils";
 import styles from "../DetaljerInfo.module.scss";
 import { AvtaleKnapperad } from "./AvtaleKnapperad";
-import { Alert, Heading } from "@navikt/ds-react";
 
 export function Avtaleinfo() {
-  const avtaleId = useGetAvtaleIdFromUrl();
-
-  const { data: avtale, isLoading, error } = useAvtale();
+  const { data: avtale, isLoading, error, refetch } = useAvtale();
   const [slettModal, setSlettModal] = useState(false);
-
-  if (!avtaleId) {
-    throw new Error("Fant ingen avtaleId i url");
-  }
+  const [avbrytModal, setAvbrytModal] = useState(false);
 
   if (!avtale && isLoading) {
     return <Laster tekst="Laster avtaleinformasjon..." />;
@@ -219,13 +214,25 @@ export function Avtaleinfo() {
         </div>
 
         {visKnapperad(avtale.avtalestatus) ? (
-          <AvtaleKnapperad handleSlett={() => setSlettModal(true)} />
+          <AvtaleKnapperad
+            avtale={avtale}
+            handleSlett={() => setSlettModal(true)}
+            handleAvbryt={() => setAvbrytModal(true)}
+          />
         ) : null}
       </div>
 
       <SlettAvtaleModal
         modalOpen={slettModal}
         onClose={() => setSlettModal(false)}
+        avtale={avtale}
+      />
+      <AvbrytAvtaleModal
+        modalOpen={avbrytModal}
+        onClose={() => {
+          refetch();
+          setAvbrytModal(false);
+        }}
         avtale={avtale}
       />
     </>
