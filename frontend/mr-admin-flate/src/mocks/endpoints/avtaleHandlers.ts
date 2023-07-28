@@ -34,6 +34,15 @@ export const avtaleHandlers = [
     },
   ),
 
+  rest.get<DefaultBodyType, PathParams, Avtale | undefined>(
+    "*/api/v1/internal/avtaler/skjema",
+    (req, res, ctx) => {
+      const { id } = req.params as { id: string };
+      const avtale = mockAvtaler.data.find((a) => a.id === id) ?? undefined;
+      return res(ctx.status(200), ctx.json(avtale));
+    },
+  ),
+
   rest.delete<SletteAvtale>("/api/v1/internal/avtaler/:id", (req, res, ctx) => {
     const responsErOk = Math.random() > 0.5;
     if (responsErOk) {

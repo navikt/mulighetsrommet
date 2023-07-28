@@ -14,9 +14,9 @@ import { useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import {
-  Tiltaksgjennomforingfilter as TiltaksgjennomforingAtomFilter,
   defaultTiltaksgjennomforingfilter,
   paginationAtom,
+  Tiltaksgjennomforingfilter as TiltaksgjennomforingAtomFilter,
   tiltaksgjennomforingfilter,
 } from "../../api/atoms";
 import { useAlleEnheter } from "../../api/enhet/useAlleEnheter";
@@ -278,10 +278,9 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
                     <Button
                       size="small"
                       onClick={() => setOpprettModalOpen(true)}
-                      type="button"
-                      data-testid="opprett-ny-gjennomforing-knapp"
+                      data-testid="opprett-gjennomforing-knapp"
                     >
-                      Opprett ny gjennomføring
+                      Opprett gjennomføring
                     </Button>
 
                     <OpprettTiltaksgjennomforingModal

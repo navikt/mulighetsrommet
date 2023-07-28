@@ -4,7 +4,7 @@
   gap: 1rem;
 
   &_opprett {
-    background-color: white;
+    background-color: var(--a-white);
     padding: 1rem;
     display: flex;
     flex-direction: column;
@@ -27,7 +27,7 @@
   }
 
   &_notatvegg {
-    background-color: white;
+    background-color: var(--a-white);
     padding: 1rem;
     display: flex;
     flex-direction: column;

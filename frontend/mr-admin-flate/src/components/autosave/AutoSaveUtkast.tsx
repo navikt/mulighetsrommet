@@ -5,7 +5,7 @@ import { memo, useCallback, useEffect } from "react";
 import { useFormContext, useWatch } from "react-hook-form";
 import { toast } from "react-toastify";
 import useDeepCompareEffect from "use-deep-compare-effect";
-import { inferredTiltaksgjennomforingSchema } from "../tiltaksgjennomforinger/OpprettTiltaksgjennomforingSchema";
+import { inferredTiltaksgjennomforingSchema } from "../tiltaksgjennomforinger/TiltaksgjennomforingSchema";
 import { AutoSaveToastContainer } from "./AutoSaveToastContainer";
 
 type Props = {

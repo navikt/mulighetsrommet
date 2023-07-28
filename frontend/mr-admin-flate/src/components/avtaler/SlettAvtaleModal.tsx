@@ -6,13 +6,13 @@ import { useNavigate } from "react-router-dom";
 import { useDeleteAvtale } from "../../api/avtaler/useDeleteAvtale";
 import styles from "../modal/Modal.module.scss";
 import { XMarkOctagonFillIcon } from "@navikt/aksel-icons";
+import { Lenkeknapp } from "../lenkeknapp/Lenkeknapp";
 
 interface SlettAvtaleModalprops {
   modalOpen: boolean;
   onClose: () => void;
   handleForm?: () => void;
   handleCancel?: () => void;
-  handleRediger?: () => void;
   avtale?: Avtale;
 }
 
@@ -20,11 +20,12 @@ const SlettAvtaleModal = ({
   modalOpen,
   onClose,
   handleCancel,
-  handleRediger,
   avtale,
 }: SlettAvtaleModalprops) => {
   const mutation = useDeleteAvtale();
   const navigate = useNavigate();
+  const avtaleFraArena = avtale?.opphav === Opphav.ARENA;
+
   useEffect(() => {
     Modal.setAppElement("#root");
   }, []);
@@ -50,14 +51,13 @@ const SlettAvtaleModal = ({
   const handleRedigerAvtale = () => {
     clickCancel();
     mutation.reset();
-    handleRediger?.();
   };
 
   function headerInnhold(avtale?: Avtale) {
     return (
       <div className={styles.heading}>
         <XMarkOctagonFillIcon className={styles.warningicon} />
-        {avtale?.opphav === Opphav.ARENA ? (
+        {avtaleFraArena ? (
           <span>Avtalen kan ikke slettes</span>
         ) : mutation.isError ? (
           <span>Kan ikke slette «{avtale?.navn}»</span>
@@ -71,7 +71,7 @@ const SlettAvtaleModal = ({
   function modalInnhold(avtale?: Avtale) {
     return (
       <>
-        {avtale?.opphav === Opphav.ARENA ? (
+        {avtaleFraArena ? (
           <p>Avtalen {avtale?.navn} kommer fra Arena og kan ikke slettes her</p>
         ) : mutation?.isError ? (
           <p>{(mutation.error as ApiError).body}</p>
@@ -79,10 +79,13 @@ const SlettAvtaleModal = ({
           <p>Du kan ikke angre denne handlingen</p>
         )}
         <div className={styles.knapperad}>
-          {avtale?.opphav === Opphav.ARENA ? null : mutation?.isError ? (
-            <Button variant="primary" onClick={handleRedigerAvtale}>
-              Rediger avtale
-            </Button>
+          {avtaleFraArena ? null : mutation?.isError ? (
+            <Lenkeknapp
+              to={`/avtaler/skjema?avtaleId=${avtale?.id}`}
+              handleClick={handleRedigerAvtale}
+              lenketekst={"Rediger avtale"}
+              variant="primary"
+            />
           ) : (
             <Button variant="danger" onClick={handleDelete}>
               Slett avtale

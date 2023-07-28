@@ -76,7 +76,7 @@ export default function NotaterAvtalePage() {
               maxLength={500}
               {...register("innhold")}
               value={watch("innhold")}
-              data-testId="notater_innhold"
+              data-testid="notater_innhold"
             />
             {mutation.isError ? (
               <ErrorMessage>
@@ -87,7 +87,7 @@ export default function NotaterAvtalePage() {
               <Button
                 type="submit"
                 disabled={mutation.isLoading}
-                data-testId="notater_legg-til-knapp"
+                data-testid="notater_legg-til-knapp"
               >
                 {mutation.isLoading ? <Laster /> : "Legg til notat"}
               </Button>

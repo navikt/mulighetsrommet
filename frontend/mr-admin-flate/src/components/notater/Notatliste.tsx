@@ -4,16 +4,17 @@ import {
   AvtaleNotat,
   TiltaksgjennomforingNotat,
 } from "mulighetsrommet-api-client";
-import SletteNotatModal from "./SletteNotatModal";
 import { useState } from "react";
 import { Notat } from "./Notat";
 import { UseMutationResult } from "@tanstack/react-query";
+import SletteModal from "../modal/SletteModal";
 
 interface Props {
   notater: AvtaleNotat[] | TiltaksgjennomforingNotat[];
   visMineNotater: boolean;
   mutation: UseMutationResult<string, unknown, string>;
 }
+
 export default function Notatliste({
   notater,
   visMineNotater,
@@ -44,11 +45,18 @@ export default function Notatliste({
       )}
 
       {notatIdForSletting ? (
-        <SletteNotatModal
+        <SletteModal
           modalOpen={!!notatIdForSletting}
           onClose={() => setNotatIdForSletting(null)}
-          notatIdForSletting={notatIdForSletting}
           mutation={mutation}
+          headerText="Ønsker du å slette notatet?"
+          headerTextError="Kan ikke slette notatet."
+          handleDelete={() =>
+            mutation.mutate(notatIdForSletting, {
+              onSuccess: () => setNotatIdForSletting(null),
+            })
+          }
+          dataTestId="bekrefte-slette-notat_btn"
         />
       ) : null}
     </div>

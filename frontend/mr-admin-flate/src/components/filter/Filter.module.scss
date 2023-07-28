@@ -1,5 +1,5 @@
 .filter_container {
-  background-color: white;
+  background-color: var(--a-white);
   margin-bottom: 2rem;
   padding: 1rem;
   border-radius: 0.25rem;
@@ -44,6 +44,7 @@
     grid-row-end: 3;
     padding-left: 1.5rem;
     height: 100%;
+    min-width: max-content;
 
     .registrer_avtale_knapp {
       height: 2rem;
@@ -65,17 +66,6 @@
 .tiltakstypeform {
   .filter_container {
     grid-template-columns: auto;
-  }
-}
-
-.tiltaksgjennomforingform_med_knapperad {
-  @media (width < 1280px) {
-    .filter_container {
-      grid-template-columns: 5fr 1fr;
-      .knapperad {
-        flex-direction: column;
-      }
-    }
   }
 }
 

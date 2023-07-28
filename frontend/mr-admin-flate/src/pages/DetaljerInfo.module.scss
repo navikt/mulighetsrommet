@@ -23,16 +23,26 @@
 }
 
 .knapperad {
-  margin-top: 1rem;
   display: flex;
   justify-content: flex-end;
   grid-area: knapperad;
   border-top: 1px solid var(--a-border-divider);
   margin: 1rem;
+  padding-top: 1rem;
 }
 
 .slett_knapp {
   color: var(--a-text-danger);
+
+  &:hover {
+    color: var(--a-text-danger);
+    background-color: var(--a-surface-danger-subtle);
+  }
+
+  &:active {
+    color: var(--a-white);
+    background-color: var(--a-surface-danger-active) !important; //siden dette er en hacket komponent
+  }
 }
 
 .leverandor_kontaktinfo {

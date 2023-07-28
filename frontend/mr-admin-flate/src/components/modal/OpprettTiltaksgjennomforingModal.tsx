@@ -2,7 +2,7 @@ import { Heading, Modal } from "@navikt/ds-react";
 import React, { useEffect, useState } from "react";
 import styles from "./Modal.module.scss";
 import { StatusModal } from "mulighetsrommet-veileder-flate/src/components/modal/delemodal/StatusModal";
-import { OpprettTiltaksgjennomforingContainer } from "../tiltaksgjennomforinger/OpprettTiltaksgjennomforingContainer";
+import { TiltaksgjennomforingSkjemaContainer } from "../tiltaksgjennomforinger/TiltaksgjennomforingSkjemaContainer";
 import { Avtale, Tiltaksgjennomforing } from "mulighetsrommet-api-client";
 
 interface ModalProps {
@@ -44,9 +44,9 @@ export const OpprettTiltaksgjennomforingModal = ({
             <Heading size="medium" level="2" data-testid="modal_header">
               {redigeringsModus
                 ? "Rediger gjennomføring"
-                : "Opprett ny gjennomføring"}
+                : "Opprett gjennomføring"}
             </Heading>
-            <OpprettTiltaksgjennomforingContainer
+            <TiltaksgjennomforingSkjemaContainer
               onClose={onClose}
               onSuccess={onSuccess}
               setError={setError}

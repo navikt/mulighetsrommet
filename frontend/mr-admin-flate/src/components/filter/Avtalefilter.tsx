@@ -1,6 +1,4 @@
-import { faro } from "@grafana/faro-web-sdk";
 import { Button, Search } from "@navikt/ds-react";
-import { useQueryClient } from "@tanstack/react-query";
 import { useAtom } from "jotai";
 import {
   Norg2Type,
@@ -8,12 +6,11 @@ import {
   Toggles,
   VirksomhetTil,
 } from "mulighetsrommet-api-client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { FormProvider, useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
 import {
-  AvtaleFilterProps,
   avtaleFilter,
+  AvtaleFilterProps,
   avtalePaginationAtom,
   defaultAvtaleFilter,
 } from "../../api/atoms";
@@ -23,10 +20,11 @@ import { useFeatureToggle } from "../../api/features/feature-toggles";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
 import { useVirksomheter } from "../../api/virksomhet/useVirksomheter";
 import { resetPaginering, valueOrDefault } from "../../utils/Utils";
-import OpprettAvtaleModal from "../avtaler/OpprettAvtaleModal";
 import { SokeSelect } from "../skjema/SokeSelect";
 import styles from "./Filter.module.scss";
 import { FilterTag } from "./FilterTag";
+import { faro } from "@grafana/faro-web-sdk";
+import { Lenkeknapp } from "../lenkeknapp/Lenkeknapp";
 
 type Filters = "tiltakstype";
 
@@ -36,8 +34,6 @@ interface Props {
 
 export function Avtalefilter(props: Props) {
   const [filter, setFilter] = useAtom(avtaleFilter);
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
   const form = useForm<AvtaleFilterProps>({
     defaultValues: {
       ...filter,
@@ -54,7 +50,6 @@ export function Avtalefilter(props: Props) {
   const { data: leverandorer } = useVirksomheter(VirksomhetTil.AVTALE);
   const [, setPage] = useAtom(avtalePaginationAtom);
   const searchRef = useRef<HTMLDivElement | null>(null);
-  const [modalOpen, setModalOpen] = useState<boolean>(false);
 
   const { data: visOpprettAvtaleknapp } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_ADMIN_FLATE_OPPRETT_AVTALE,
@@ -201,30 +196,17 @@ export function Avtalefilter(props: Props) {
 
           <div className={styles.knapperad}>
             {visOpprettAvtaleknapp && (
-              <>
-                <Button
-                  onClick={() => {
-                    faro?.api?.pushEvent(
-                      "Bruker trykket på 'Registrer avtale'-knapp",
-                    );
-                    setModalOpen(true);
-                  }}
-                  data-testid="registrer-ny-avtale"
-                  size="small"
-                  type="button"
-                  className={styles.registrer_avtale_knapp}
-                >
-                  Registrer avtale
-                </Button>
-                <OpprettAvtaleModal
-                  modalOpen={modalOpen}
-                  onClose={() => {
-                    queryClient.refetchQueries({ queryKey: ["utkast"] });
-                    setModalOpen(false);
-                  }}
-                  onSuccess={(id) => navigate(`/avtaler/${id}`)}
-                />
-              </>
+              <Lenkeknapp
+                to={`/avtaler/skjema`}
+                lenketekst="Opprett avtale"
+                variant="primary"
+                handleClick={() => {
+                  faro?.api?.pushEvent(
+                    "Bruker trykket på 'Opprett avtale'-knapp",
+                  );
+                }}
+                dataTestId="opprett-avtale"
+              />
             )}
           </div>
           <div className={styles.tags_container}>

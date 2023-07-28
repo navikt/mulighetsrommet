@@ -1,3 +1,15 @@
+.avtaleskjema {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  &_content {
+    padding: 1.5rem;
+    background-color: var(--a-white);
+    margin: 0 0.5rem;
+  }
+}
+
 .container {
   display: flex;
   flex-direction: column;
@@ -7,10 +19,7 @@
   display: flex;
   flex-direction: row;
   justify-content: start;
-}
-
-@media (max-width: 900px) {
-  .input_container {
+  @media (max-width: 900px) {
     flex-wrap: wrap;
   }
 }
@@ -64,7 +73,7 @@
   width: 100%;
   margin-top: 0.5rem;
   margin-bottom: 0.5rem;
-  background-color: #f1f1f1;
+  background-color: var(--a-gray-100);
   padding: 0.5rem;
   border: 1px solid var(--a-border-divider);
   border-radius: 0.25rem;
