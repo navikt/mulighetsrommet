@@ -13,7 +13,6 @@ interface Props {
   modalOpen: boolean;
   onClose: () => void;
   mutation: UseMutationResult<string, unknown, string>;
-  invariantFunksjon: () => void;
   handleDelete: () => void;
   headerText: string;
   headerTextError: string;
@@ -24,14 +23,11 @@ const SletteModal = ({
   modalOpen,
   onClose,
   mutation,
-  invariantFunksjon,
   handleDelete,
   headerText,
   headerTextError,
   dataTestId,
 }: Props) => {
-  invariantFunksjon();
-
   useEffect(() => {
     Modal.setAppElement("#root");
   }, []);
@@ -46,12 +42,12 @@ const SletteModal = ({
         {mutation.isError ? (
           <>
             <ExclamationmarkTriangleFillIcon className={styles.erroricon} />
-            <span>{headerTextError}</span>
+            <Heading size={"medium"}>{headerTextError}</Heading>
           </>
         ) : (
           <>
             <XMarkOctagonFillIcon className={styles.warningicon} />
-            <span>{headerText}</span>
+            <Heading size="medium">{headerText}</Heading>
           </>
         )}
       </div>

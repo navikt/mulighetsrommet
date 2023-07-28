@@ -8,7 +8,6 @@ import { useState } from "react";
 import { Notat } from "./Notat";
 import { UseMutationResult } from "@tanstack/react-query";
 import SletteModal from "../modal/SletteModal";
-import invariant from "tiny-invariant";
 
 interface Props {
   notater: AvtaleNotat[] | TiltaksgjennomforingNotat[];
@@ -56,9 +55,6 @@ export default function Notatliste({
             mutation.mutate(notatIdForSletting, {
               onSuccess: () => setNotatIdForSletting(null),
             })
-          }
-          invariantFunksjon={() =>
-            invariant(notatIdForSletting, "Fant ikke id for å slette notat.")
           }
           dataTestId="bekrefte-slette-notat_btn"
         />

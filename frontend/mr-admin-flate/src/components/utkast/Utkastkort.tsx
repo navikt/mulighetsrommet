@@ -8,7 +8,6 @@ import classNames from "classnames";
 import { useState } from "react";
 import { UseMutationResult } from "@tanstack/react-query";
 import SletteModal from "../modal/SletteModal";
-import invariant from "tiny-invariant";
 import { Lenkeknapp } from "../lenkeknapp/Lenkeknapp";
 
 interface UtkastKortProps {
@@ -80,9 +79,6 @@ export function UtkastKort({ utkast, mutation }: UtkastKortProps) {
             mutation.mutate(utkast.id, {
               onSuccess: () => setUtkastIdForSletting(null),
             })
-          }
-          invariantFunksjon={() =>
-            invariant(utkastIdForSletting, "Fant ikke id for å slette utkast.")
           }
         />
       ) : null}
