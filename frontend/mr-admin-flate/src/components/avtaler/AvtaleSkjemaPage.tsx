@@ -10,6 +10,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useAvtale } from "../../api/avtaler/useAvtale";
 import { Header } from "../detaljside/Header";
 import { inneholderUrl } from "../../utils/Utils";
+import { MainContainer } from "../../layouts/MainContainer";
 
 const AvtaleSkjemaPage = () => {
   const navigate = useNavigate();
@@ -29,34 +30,36 @@ const AvtaleSkjemaPage = () => {
   };
 
   return (
-    <div className={styles.avtaleskjema}>
-      <Header
-        dataTestId={
-          redigeringsModus ? "rediger-avtale-header" : "opprett-avtale-header"
-        }
-      >
-        {redigeringsModus ? "Rediger avtale" : "Opprett avtale"}
-      </Header>
-      {isLoadingAnsatt || isLoadingTiltakstyper || isLoadingEnheter ? (
-        <Laster />
-      ) : null}
-      <div className={styles.avtaleskjema_content}>
-        {!tiltakstyper?.data || !ansatt || !enheter ? null : (
-          <AvtaleSkjemaContainer
-            onClose={() => {
-              queryClient.refetchQueries({ queryKey: ["utkast"] });
-              navigerTilbake();
-            }}
-            onSuccess={(id) => navigate(`/avtaler/${id}`)}
-            tiltakstyper={tiltakstyper.data}
-            ansatt={ansatt}
-            enheter={enheter}
-            avtale={avtale}
-            redigeringsModus={redigeringsModus!}
-          />
-        )}
+    <MainContainer>
+      <div className={styles.avtaleskjema}>
+        <Header
+          dataTestId={
+            redigeringsModus ? "rediger-avtale-header" : "opprett-avtale-header"
+          }
+        >
+          {redigeringsModus ? "Rediger avtale" : "Opprett avtale"}
+        </Header>
+        {isLoadingAnsatt || isLoadingTiltakstyper || isLoadingEnheter ? (
+          <Laster />
+        ) : null}
+        <div className={styles.avtaleskjema_content}>
+          {!tiltakstyper?.data || !ansatt || !enheter ? null : (
+            <AvtaleSkjemaContainer
+              onClose={() => {
+                queryClient.refetchQueries({ queryKey: ["utkast"] });
+                navigerTilbake();
+              }}
+              onSuccess={(id) => navigate(`/avtaler/${id}`)}
+              tiltakstyper={tiltakstyper.data}
+              ansatt={ansatt}
+              enheter={enheter}
+              avtale={avtale}
+              redigeringsModus={redigeringsModus!}
+            />
+          )}
+        </div>
       </div>
-    </div>
+    </MainContainer>
   );
 };
 
