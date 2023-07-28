@@ -5,6 +5,7 @@ import { useState } from "react";
 import { formaterDatoTid } from "../../utils/Utils";
 import { CheckmarkButton } from "./CheckmarkButton";
 import styles from "./Notifikasjoner.module.scss";
+import { Slide, ToastContainer } from "react-toastify";
 
 interface NotifikasjonssradProps {
   notifikasjon: UserNotification;
@@ -23,7 +24,7 @@ export function Notifikasjonssrad({
     <li
       className={classNames(
         styles.list_element,
-        lest ? styles.leste : styles.uleste
+        lest ? styles.leste : styles.uleste,
       )}
     >
       <div className={styles.flex}>
@@ -42,6 +43,16 @@ export function Notifikasjonssrad({
       </div>
       <div>
         <CheckmarkButton id={notifikasjon.id} read={read} setRead={setRead} />
+        <ToastContainer
+          position="bottom-left"
+          newestOnTop={true}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          transition={Slide}
+        />
       </div>
     </li>
   );
