@@ -23,16 +23,15 @@ describe("Avtaler", () => {
       cy.gaTilForsteAvtale();
       cy.checkPageA11y();
       cy.getByTestId("endre-avtale").should("exist").click();
-      cy.getByTestId("avtale_modal_header").contains("Rediger avtale");
+      cy.getByTestId("rediger-avtale-header").contains("Rediger avtale");
     });
   });
 
   context("Oversikt over avtaler", () => {
-    //TODO
-    // it("Skal kunne registrere en ny avtale", () => {
-    //   cy.visit("/avtaler");
-    //   cy.getByTestId("opprett-avtale").should("exist").click();
-    //   cy.getByTestId("avtale_modal_header").contains("Registrer ny avtale");
-    // });
+    it("Skal kunne opprette en ny avtale", () => {
+      cy.visit("/avtaler");
+      cy.getByTestId("opprett-avtale").should("exist").click();
+      cy.getByTestId("opprett-avtale-header").contains("Opprett avtale");
+    });
   });
 });

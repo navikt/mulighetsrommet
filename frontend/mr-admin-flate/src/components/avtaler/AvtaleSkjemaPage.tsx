@@ -30,7 +30,13 @@ const AvtaleSkjemaPage = () => {
 
   return (
     <div className={styles.avtaleskjema}>
-      <Header>{redigeringsModus ? "Rediger avtale" : "Opprett avtale"}</Header>
+      <Header
+        dataTestId={
+          redigeringsModus ? "rediger-avtale-header" : "opprett-avtale-header"
+        }
+      >
+        {redigeringsModus ? "Rediger avtale" : "Opprett avtale"}
+      </Header>
       {isLoadingAnsatt || isLoadingTiltakstyper || isLoadingEnheter ? (
         <Laster />
       ) : null}
