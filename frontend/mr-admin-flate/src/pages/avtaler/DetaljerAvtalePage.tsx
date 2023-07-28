@@ -1,7 +1,7 @@
 import { Alert, Tabs } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { Link } from "react-router-dom";
-import { AvtaleTabs, avtaleFilter } from "../../api/atoms";
+import { avtaleTabAtom, AvtaleTabs } from "../../api/atoms";
 import { useAvtale } from "../../api/avtaler/useAvtale";
 import NotaterAvtalePage from "../../components/avtaler/NotaterAvtalePage";
 import { Header } from "../../components/detaljside/Header";
@@ -19,7 +19,7 @@ export function DetaljerAvtalePage() {
     throw new Error("Fant ingen avtaleId i url");
   }
   const { data: avtale, isLoading } = useAvtale();
-  const [filter, setFilter] = useAtom(avtaleFilter);
+  const [tabValgt, setTabValgt] = useAtom(avtaleTabAtom);
 
   if (!avtale && isLoading) {
     return (
@@ -49,10 +49,8 @@ export function DetaljerAvtalePage() {
         </div>
       </Header>
       <Tabs
-        value={filter.avtaleTab}
-        onChange={(tab) =>
-          setFilter({ ...filter, avtaleTab: tab as AvtaleTabs })
-        }
+        value={tabValgt}
+        onChange={(tab) => setTabValgt(tab as AvtaleTabs)}
       >
         <Tabs.List className={commonStyles.list}>
           <Tabs.Tab value="avtaleinfo" label="Avtaleinfo" />

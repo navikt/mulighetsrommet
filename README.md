@@ -73,12 +73,6 @@ For å hente feature toggles definert for dev-miljø lokalt, så kan du gjøre f
 
 Start opp app som normalt.
 
-
-
-#### Unleash.nais.io er på vei til å bli skrinlagt i løpet av høsten 2023
-Vi bruker Unleash for å skru av eller på funksjonalitet tilknyttet
-løsningen: [https://unleash.nais.io/#/features](https://unleash.nais.io/#/features)
-
 ## Moduler
 
 ### `mulighetsrommet-veileder-flate`
