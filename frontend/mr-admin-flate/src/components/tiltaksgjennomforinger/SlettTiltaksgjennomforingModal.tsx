@@ -30,9 +30,6 @@ const SlettTiltaksgjennomforingModal = ({
 }: SlettTiltaksgjennomforingModalprops) => {
   const mutation = useDeleteTiltaksgjennomforing();
   const navigate = useNavigate();
-  useEffect(() => {
-    Modal.setAppElement("#root");
-  }, []);
 
   useEffect(() => {
     if (mutation.isSuccess) {

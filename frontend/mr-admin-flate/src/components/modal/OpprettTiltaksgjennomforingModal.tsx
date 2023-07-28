@@ -1,5 +1,5 @@
 import { Heading, Modal } from "@navikt/ds-react";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import styles from "./Modal.module.scss";
 import { StatusModal } from "mulighetsrommet-veileder-flate/src/components/modal/delemodal/StatusModal";
 import { TiltaksgjennomforingSkjemaContainer } from "../tiltaksgjennomforinger/TiltaksgjennomforingSkjemaContainer";
@@ -20,10 +20,6 @@ export const OpprettTiltaksgjennomforingModal = ({
   tiltaksgjennomforing,
   avtale,
 }: ModalProps) => {
-  useEffect(() => {
-    Modal.setAppElement("#root");
-  });
-
   const [error, setError] = useState<React.ReactNode | null>(null);
 
   const redigeringsModus = !!tiltaksgjennomforing;

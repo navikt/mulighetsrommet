@@ -18,9 +18,6 @@ export const DeleteVirksomhetKontaktpersonModal = ({
   kontaktpersonId,
 }: Props) => {
   const mutation = useDeleteVirksomhetKontaktperson();
-  useEffect(() => {
-    Modal.setAppElement("#root");
-  }, []);
 
   useEffect(() => {
     if (mutation.isSuccess) {
@@ -39,7 +36,7 @@ export const DeleteVirksomhetKontaktpersonModal = ({
   const close = () => {
     mutation.reset();
     onClose();
-  }
+  };
 
   return (
     <>
@@ -75,11 +72,11 @@ export const DeleteVirksomhetKontaktpersonModal = ({
             <p>Du kan ikke angre denne handlingen</p>
           )}
           <div className={styles.knapperad}>
-            {!mutation?.isError &&
+            {!mutation?.isError && (
               <Button variant="danger" onClick={handleDelete}>
                 Slett kontaktperson
               </Button>
-            }
+            )}
             <Button variant="secondary-neutral" onClick={close}>
               Avbryt
             </Button>

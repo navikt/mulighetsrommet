@@ -1,5 +1,5 @@
 import { initializeFaro } from "@grafana/faro-web-sdk";
-import { Alert, BodyShort } from "@navikt/ds-react";
+import { Alert, BodyShort, Modal } from "@navikt/ds-react";
 import { NavAnsattRolle } from "mulighetsrommet-api-client";
 import { Route, Routes } from "react-router-dom";
 import { Forside } from "./Forside";
@@ -24,6 +24,9 @@ if (import.meta.env.PROD) {
     },
   });
 }
+
+// Trengs for at tab og fokus ikke skal gå utenfor modal når den er åpen.
+Modal.setAppElement?.(`#root`);
 
 export function App() {
   const { data: ansatt, isLoading: ansattIsLoading, error } = useHentAnsatt();

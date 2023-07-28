@@ -27,10 +27,6 @@ const SlettAvtaleModal = ({
   const avtaleFraArena = avtale?.opphav === Opphav.ARENA;
 
   useEffect(() => {
-    Modal.setAppElement("#root");
-  }, []);
-
-  useEffect(() => {
     if (mutation.isSuccess) {
       navigate("/avtaler");
       return;

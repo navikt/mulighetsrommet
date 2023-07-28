@@ -1,6 +1,5 @@
 import { Button, Heading, Modal } from "@navikt/ds-react";
 import { ApiError } from "mulighetsrommet-api-client";
-import { useEffect } from "react";
 import styles from "../modal/Modal.module.scss";
 import {
   ExclamationmarkTriangleFillIcon,
@@ -28,10 +27,6 @@ const SletteModal = ({
   headerTextError,
   dataTestId,
 }: Props) => {
-  useEffect(() => {
-    Modal.setAppElement("#root");
-  }, []);
-
   const clickCancel = () => {
     onClose();
   };

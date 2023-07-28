@@ -9,6 +9,7 @@ import { useState } from "react";
 import { UseMutationResult } from "@tanstack/react-query";
 import SletteModal from "../modal/SletteModal";
 import { Lenkeknapp } from "../lenkeknapp/Lenkeknapp";
+import { useMineUtkast } from "../../api/utkast/useMineUtkast";
 
 interface UtkastKortProps {
   utkast: Utkast;
@@ -24,6 +25,8 @@ export function UtkastKort({ utkast, mutation }: UtkastKortProps) {
     null,
   );
 
+  const { refetch } = useMineUtkast(utkast.type);
+
   const utkasttypeTekst = (type: Utkast.type): "gjennomføring" | "avtale" => {
     switch (type) {
       case Utkast.type.AVTALE:
@@ -34,6 +37,16 @@ export function UtkastKort({ utkast, mutation }: UtkastKortProps) {
   };
 
   const data = UtkastDataSchema.parse(utkast.utkastData);
+
+  async function handleDelete() {
+    mutation.mutate(utkast.id, {
+      onSuccess: async () => {
+        setUtkastIdForSletting(null);
+        await refetch();
+      },
+    });
+  }
+
   return (
     <div className={styles.utkast}>
       <div className={styles.header}>
@@ -75,11 +88,7 @@ export function UtkastKort({ utkast, mutation }: UtkastKortProps) {
           mutation={mutation}
           headerText="Ønsker du å slette utkastet?"
           headerTextError="Kan ikke slette utkastet."
-          handleDelete={() =>
-            mutation.mutate(utkast.id, {
-              onSuccess: () => setUtkastIdForSletting(null),
-            })
-          }
+          handleDelete={handleDelete}
         />
       ) : null}
     </div>
