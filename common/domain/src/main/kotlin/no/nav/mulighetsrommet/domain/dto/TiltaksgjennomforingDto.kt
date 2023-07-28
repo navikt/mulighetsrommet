@@ -42,7 +42,7 @@ data class TiltaksgjennomforingDto(
                 startDato = startDato,
                 sluttDato = sluttDato,
                 status = status,
-                virksomhetsnummer = arrangorOrganisasjonsnummer,
+                virksomhetsnummer = arrangor.organisasjonsnummer,
                 oppstart = oppstart,
             )
         }

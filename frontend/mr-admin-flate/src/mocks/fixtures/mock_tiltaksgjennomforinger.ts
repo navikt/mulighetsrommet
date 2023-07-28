@@ -17,8 +17,19 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       navn: "Yrkesnorsk med praksis med en veldig lang tittel som ikke er helt utenkelig at de skriver inn",
       tiltaksnummer: "123456",
       antallPlasser: 50,
-      arrangorOrganisasjonsnummer: "123456789",
-      arrangorNavn: "Valp AS",
+      arrangor: {
+        organisasjonsnummer: "123456789",
+        navn: "Fretex",
+        slettet: false,
+        kontaktperson: {
+          epost: "johnny.bravo@bravissimo.no",
+          id: "123",
+          navn: "Johnny Bravo",
+          organisasjonsnummer: "123456789",
+          telefon: "67543215",
+          beskrivelse: null,
+        },
+      },
       avtaleId: "d1f163b7-1a41-4547-af16-03fd4492b7ba",
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
@@ -53,15 +64,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       opphav: Opphav.MR_ADMIN_FLATE,
       tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
       lokasjonArrangor: "Brummundal",
-      arrangorKontaktperson: {
-        epost: "johnny.bravo@bravissimo.no",
-        id: "123",
-        navn: "Johnny Bravo",
-        organisasjonsnummer: "123456789",
-        telefon: "67543215",
-        beskrivelse: null,
-      },
-      kontaktpersoner: [
+            kontaktpersoner: [
         {
           epost: "per.richard.olsen@nav.no",
           mobilnummer: "90567894",
@@ -89,8 +92,11 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee362",
       navn: "Spillbasert kvalifisering",
       tiltaksnummer: "123456",
-      arrangorOrganisasjonsnummer: "1000",
-      arrangorNavn: "SoloPolo",
+      arrangor: {
+        organisasjonsnummer: "1000",
+        navn: "SoloPolo",
+        slettet: false,
+      },
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "TILTAKSTYPENAVN",
@@ -109,8 +115,11 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee363",
       navn: "Midlertidig lønnstilskudd",
       tiltaksnummer: "654434",
-      arrangorOrganisasjonsnummer: "1000",
-      arrangorNavn: "Solo",
+      arrangor: {
+        organisasjonsnummer: "1000",
+        navn: "Solon",
+        slettet: false,
+      },
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "TILTAKSTYPENAVN",
@@ -129,8 +138,11 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee364",
       navn: "AFT - Unikom",
       tiltaksnummer: "768672",
-      arrangorOrganisasjonsnummer: "1000",
-      arrangorNavn: "Valp AS",
+      arrangor: {
+        organisasjonsnummer: "1000",
+        navn: "Valp AS",
+        slettet: false,
+      },
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "TILTAKSTYPENAVN",
@@ -149,8 +161,11 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee365",
       navn: "Varig lønnstilskudd",
       tiltaksnummer: "65645",
-      arrangorOrganisasjonsnummer: "1000",
-      arrangorNavn: "Valp AS",
+      arrangor: {
+        organisasjonsnummer: "1000",
+        navn: "Valp AS",
+        slettet: false,
+      },
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "TILTAKSTYPENAVN",
@@ -169,8 +184,11 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee366",
       navn: "Arbeidsrettet rehabilitering - Trondheim",
       tiltaksnummer: "32557",
-      arrangorOrganisasjonsnummer: "1000",
-      arrangorNavn: "Utvikler AS",
+      arrangor: {
+        organisasjonsnummer: "1000",
+        navn: "Utvikler AS",
+        slettet: false,
+      },
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "TILTAKSTYPENAVN",
@@ -189,8 +207,11 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee367",
       navn: "Arbeidsrettet rehabilitering - Trondheim",
       tiltaksnummer: "98643",
-      arrangorOrganisasjonsnummer: "1000",
-      arrangorNavn: "Lady Grey",
+      arrangor: {
+        organisasjonsnummer: "1000",
+        navn: "Lady Grey",
+        slettet: false,
+      },
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "TILTAKSTYPENAVN",
@@ -209,8 +230,11 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee368",
       navn: "Arbeidsrettet rehabilitering - Trondheim",
       tiltaksnummer: "575685",
-      arrangorOrganisasjonsnummer: "1000",
-      arrangorNavn: "Lady Grey",
+      arrangor: {
+        organisasjonsnummer: "1000",
+        navn: "Lady Grey",
+        slettet: false,
+      },
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "TILTAKSTYPENAVN",
@@ -229,8 +253,11 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee369",
       navn: "Arbeidsrettet rehabilitering - Trondheim",
       tiltaksnummer: "54353",
-      arrangorOrganisasjonsnummer: "1000",
-      arrangorNavn: "Lady Grey",
+      arrangor: {
+        organisasjonsnummer: "1000",
+        navn: "Lady Grey",
+        slettet: false,
+      },
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "TILTAKSTYPENAVN",
@@ -249,8 +276,11 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee310",
       navn: "Arbeidsrettet rehabilitering - Trondheim",
       tiltaksnummer: "23213",
-      arrangorOrganisasjonsnummer: "1000",
-      arrangorNavn: "Lady Grey",
+      arrangor: {
+        organisasjonsnummer: "1000",
+        navn: "Lady Grey",
+        slettet: false,
+      },
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "TILTAKSTYPENAVN",
@@ -269,8 +299,11 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee311",
       navn: "Arbeidsrettet rehabilitering - Trondheim",
       tiltaksnummer: "76575",
-      arrangorOrganisasjonsnummer: "1000",
-      arrangorNavn: "Lady Grey",
+      arrangor: {
+        organisasjonsnummer: "1000",
+        navn: "Lady Grey",
+        slettet: false,
+      },
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "TILTAKSTYPENAVN",
@@ -289,8 +322,11 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee312",
       navn: "Arbeidsrettet rehabilitering - Trondheim",
       tiltaksnummer: "23123",
-      arrangorOrganisasjonsnummer: "1000",
-      arrangorNavn: "Lady Grey",
+      arrangor: {
+        organisasjonsnummer: "1000",
+        navn: "Lady Grey",
+        slettet: false,
+      },
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "TILTAKSTYPENAVN",
@@ -311,8 +347,11 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee313",
       navn: "Arbeidsrettet rehabilitering - Trondheim",
       tiltaksnummer: "686585",
-      arrangorOrganisasjonsnummer: "1000",
-      arrangorNavn: "SoloPolo",
+      arrangor: {
+        organisasjonsnummer: "1000",
+        navn: "SoloPolo",
+        slettet: false,
+      },
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "TILTAKSTYPENAVN",
@@ -333,8 +372,11 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee314",
       navn: "Arbeidsrettet rehabilitering - Trondheim",
       tiltaksnummer: "43242",
-      arrangorOrganisasjonsnummer: "1000",
-      arrangorNavn: "SoloPolo",
+      arrangor: {
+        organisasjonsnummer: "1000",
+        navn: "SoloPolo",
+        slettet: false,
+      },
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "TILTAKSTYPENAVN",
@@ -353,8 +395,11 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee315",
       navn: "Arbeidsrettet rehabilitering - Trondheim",
       tiltaksnummer: "4367",
-      arrangorOrganisasjonsnummer: "1000",
-      arrangorNavn: "SoloPolo",
+      arrangor: {
+        organisasjonsnummer: "1000",
+        navn: "SoloPolo",
+        slettet: false,
+      },
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "TILTAKSTYPENAVN",
@@ -373,8 +418,11 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee316",
       navn: "Arbeidsrettet rehabilitering - Trondheim",
       tiltaksnummer: "7685",
-      arrangorOrganisasjonsnummer: "1000",
-      arrangorNavn: "SoloPolo",
+      arrangor: {
+        organisasjonsnummer: "1000",
+        navn: "SoloPolo",
+        slettet: false,
+      },
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "TILTAKSTYPENAVN",
@@ -393,8 +441,11 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee317",
       navn: "Arbeidsrettet rehabilitering - Trondheim",
       tiltaksnummer: "5435356",
-      arrangorOrganisasjonsnummer: "1000",
-      arrangorNavn: "SoloPolo",
+      arrangor: {
+        organisasjonsnummer: "1000",
+        navn: "SoloPolo",
+        slettet: false,
+      },
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "TILTAKSTYPENAVN",
@@ -413,8 +464,11 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee318",
       navn: "Arbeidsrettet rehabilitering - Trondheim",
       tiltaksnummer: "987643",
-      arrangorOrganisasjonsnummer: "1000",
-      arrangorNavn: "Solo",
+      arrangor: {
+        organisasjonsnummer: "1000",
+        navn: "Solo",
+        slettet: false,
+      },
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "TILTAKSTYPENAVN",

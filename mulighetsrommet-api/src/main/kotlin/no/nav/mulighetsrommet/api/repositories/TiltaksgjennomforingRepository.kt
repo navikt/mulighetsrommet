@@ -563,18 +563,21 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             ),
             navn = string("navn"),
             tiltaksnummer = stringOrNull("tiltaksnummer"),
-            arrangorOrganisasjonsnummer = string("arrangor_organisasjonsnummer"),
-            arrangorNavn = stringOrNull("arrangor_navn"),
-            arrangorKontaktperson = uuidOrNull("arrangor_kontaktperson_id")?.let {
-                VirksomhetKontaktperson(
-                    id = it,
-                    organisasjonsnummer = string("arrangor_kontaktperson_organisasjonsnummer"),
-                    navn = string("arrangor_kontaktperson_navn"),
-                    telefon = stringOrNull("arrangor_kontaktperson_telefon"),
-                    epost = string("arrangor_kontaktperson_epost"),
-                    beskrivelse = stringOrNull("arrangor_kontaktperson_beskrivelse"),
-                )
-            },
+            arrangor = TiltaksgjennomforingAdminDto.Arrangor(
+                organisasjonsnummer = string("arrangor_organisasjonsnummer"),
+                navn = stringOrNull("arrangor_navn"),
+                slettet = stringOrNull("arrangor_navn") == null,
+                kontaktperson = uuidOrNull("arrangor_kontaktperson_id")?.let {
+                    VirksomhetKontaktperson(
+                        id = it,
+                        organisasjonsnummer = string("arrangor_kontaktperson_organisasjonsnummer"),
+                        navn = string("arrangor_kontaktperson_navn"),
+                        telefon = stringOrNull("arrangor_kontaktperson_telefon"),
+                        epost = string("arrangor_kontaktperson_epost"),
+                        beskrivelse = stringOrNull("arrangor_kontaktperson_beskrivelse"),
+                    )
+                },
+            ),
             startDato = startDato,
             sluttDato = sluttDato,
             arenaAnsvarligEnhet = stringOrNull("arena_ansvarlig_enhet"),
