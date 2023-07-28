@@ -1,15 +1,17 @@
-import styles from "../DetaljerInfo.module.scss";
 import { Button } from "@navikt/ds-react";
+import { Avtale, Avtalestatus, Toggles } from "mulighetsrommet-api-client";
 import { useFeatureToggle } from "../../api/features/feature-toggles";
-import { useGetAvtaleIdFromUrl } from "../../hooks/useGetAvtaleIdFromUrl";
-import { Toggles } from "mulighetsrommet-api-client";
 import { Lenkeknapp } from "../../components/lenkeknapp/Lenkeknapp";
+import { useGetAvtaleIdFromUrl } from "../../hooks/useGetAvtaleIdFromUrl";
+import styles from "../DetaljerInfo.module.scss";
 
 interface Props {
   handleSlett: () => void;
+  handleAvbryt: () => void;
+  avtale: Avtale;
 }
 
-export function AvtaleKnapperad({ handleSlett }: Props) {
+export function AvtaleKnapperad({ handleSlett, handleAvbryt, avtale }: Props) {
   const { data: slettAvtaleEnabled } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_ADMIN_FLATE_SLETT_AVTALE,
   );
@@ -21,14 +23,24 @@ export function AvtaleKnapperad({ handleSlett }: Props) {
   return (
     <div className={styles.knapperad}>
       {slettAvtaleEnabled ? (
-        <Button
-          variant="tertiary-neutral"
-          onClick={() => handleSlett()}
-          data-testid="slett-avtale"
-          className={styles.slett_knapp}
-        >
-          Feilregistrering
-        </Button>
+        avtale.avtalestatus === Avtalestatus.AKTIV ? (
+          <Button
+            variant="danger"
+            onClick={handleAvbryt}
+            data-testid="avbryt-avtale"
+          >
+            Avbryt
+          </Button>
+        ) : (
+          <Button
+            variant="tertiary-neutral"
+            onClick={handleSlett}
+            data-testid="slett-avtale"
+            className={styles.slett_knapp}
+          >
+            Feilregistrering
+          </Button>
+        )
       ) : null}
 
       {redigerAvtaleEnabled ? (
