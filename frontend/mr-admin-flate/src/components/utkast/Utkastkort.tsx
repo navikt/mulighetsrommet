@@ -9,7 +9,7 @@ import { useState } from "react";
 import { UseMutationResult } from "@tanstack/react-query";
 import SletteModal from "../modal/SletteModal";
 import invariant from "tiny-invariant";
-import Lenke from "mulighetsrommet-veileder-flate/src/components/lenke/Lenke";
+import { Lenkeknapp } from "../lenkeknapp/Lenkeknapp";
 
 interface UtkastKortProps {
   utkast: Utkast;
@@ -52,15 +52,13 @@ export function UtkastKort({ utkast, mutation }: UtkastKortProps) {
         </BodyShort>
       </div>
       <div className={styles.knapper}>
-        <Lenke to={`/avtaler/skjema?avtaleId=${utkast.avtaleId}`}>
-          <Button
-            data-testid="rediger-utkast-knapp"
-            size="small"
-            variant="primary"
-          >
-            Rediger utkast
-          </Button>
-        </Lenke>
+        <Lenkeknapp
+          to={`/avtaler/skjema?avtaleId=${utkast.avtaleId}`}
+          lenketekst="Rediger utkast"
+          dataTestId="rediger-utkast-knapp"
+          variant="primary"
+          size="small"
+        />
         <Button
           data-testid="slett-utkast-knapp"
           size="small"

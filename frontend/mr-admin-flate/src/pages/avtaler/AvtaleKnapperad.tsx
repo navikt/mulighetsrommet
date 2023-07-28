@@ -2,8 +2,8 @@ import styles from "../DetaljerInfo.module.scss";
 import { Button } from "@navikt/ds-react";
 import { useFeatureToggle } from "../../api/features/feature-toggles";
 import { useGetAvtaleIdFromUrl } from "../../hooks/useGetAvtaleIdFromUrl";
-import Lenke from "mulighetsrommet-veileder-flate/src/components/lenke/Lenke";
 import { Toggles } from "mulighetsrommet-api-client";
+import { Lenkeknapp } from "../../components/lenkeknapp/Lenkeknapp";
 
 interface Props {
   handleSlett: () => void;
@@ -32,11 +32,12 @@ export function AvtaleKnapperad({ handleSlett }: Props) {
       ) : null}
 
       {redigerAvtaleEnabled ? (
-        <Lenke to={`/avtaler/skjema?avtaleId=${avtaleId}`}>
-          <Button variant="tertiary" data-testid="endre-avtale">
-            Endre
-          </Button>
-        </Lenke>
+        <Lenkeknapp
+          to={`/avtaler/skjema?avtaleId=${avtaleId}`}
+          lenketekst="Endre"
+          variant="tertiary"
+          dataTestId="endre-avtale"
+        />
       ) : null}
     </div>
   );

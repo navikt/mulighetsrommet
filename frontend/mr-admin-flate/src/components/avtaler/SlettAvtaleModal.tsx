@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { useDeleteAvtale } from "../../api/avtaler/useDeleteAvtale";
 import styles from "../modal/Modal.module.scss";
 import { XMarkOctagonFillIcon } from "@navikt/aksel-icons";
-import Lenke from "mulighetsrommet-veileder-flate/src/components/lenke/Lenke";
+import { Lenkeknapp } from "../lenkeknapp/Lenkeknapp";
 
 interface SlettAvtaleModalprops {
   modalOpen: boolean;
@@ -80,11 +80,12 @@ const SlettAvtaleModal = ({
         )}
         <div className={styles.knapperad}>
           {avtaleFraArena ? null : mutation?.isError ? (
-            <Lenke to={`/avtaler/skjema?avtaleId=${avtale?.id}`}>
-              <Button variant="primary" onClick={handleRedigerAvtale}>
-                Rediger avtale
-              </Button>
-            </Lenke>
+            <Lenkeknapp
+              to={`/avtaler/skjema?avtaleId=${avtale?.id}`}
+              handleClick={handleRedigerAvtale}
+              lenketekst={"Rediger avtale"}
+              variant="primary"
+            />
           ) : (
             <Button variant="danger" onClick={handleDelete}>
               Slett avtale

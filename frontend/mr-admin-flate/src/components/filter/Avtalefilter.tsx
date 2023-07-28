@@ -23,8 +23,8 @@ import { resetPaginering, valueOrDefault } from "../../utils/Utils";
 import { SokeSelect } from "../skjema/SokeSelect";
 import styles from "./Filter.module.scss";
 import { FilterTag } from "./FilterTag";
-import Lenke from "mulighetsrommet-veileder-flate/src/components/lenke/Lenke";
 import { faro } from "@grafana/faro-web-sdk";
+import { Lenkeknapp } from "../lenkeknapp/Lenkeknapp";
 
 type Filters = "tiltakstype";
 
@@ -196,19 +196,17 @@ export function Avtalefilter(props: Props) {
 
           <div className={styles.knapperad}>
             {visOpprettAvtaleknapp && (
-              <Lenke to={`/avtaler/skjema`}>
-                <Button
-                  onClick={() => {
-                    faro?.api?.pushEvent(
-                      "Bruker trykket på 'Opprett avtale'-knapp",
-                    );
-                  }}
-                  data-testid="opprett-avtale"
-                  size="small"
-                >
-                  Opprett avtale
-                </Button>
-              </Lenke>
+              <Lenkeknapp
+                to={`/avtaler/skjema`}
+                lenketekst="Opprett avtale"
+                variant="primary"
+                handleClick={() => {
+                  faro?.api?.pushEvent(
+                    "Bruker trykket på 'Opprett avtale'-knapp",
+                  );
+                }}
+                data-testid="opprett-avtale"
+              />
             )}
           </div>
           <div className={styles.tags_container}>
