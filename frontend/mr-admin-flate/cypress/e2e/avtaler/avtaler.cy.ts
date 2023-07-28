@@ -30,6 +30,7 @@ describe("Avtaler", () => {
   context("Oversikt over avtaler", () => {
     it("Skal kunne opprette en ny avtale", () => {
       cy.visit("/avtaler");
+      cy.getByTestId("avtaler-tab").click();
       cy.getByTestId("opprett-avtale").should("exist").click();
       cy.getByTestId("opprett-avtale-header").contains("Opprett avtale");
     });

@@ -43,6 +43,7 @@ describe("Utkast", () => {
 
     it("Skal kunne opprette et utkast og se det i oversikten over utkast", () => {
       cy.visit("/avtaler");
+      cy.getByTestId("avtaler-tab").click();
       cy.getByTestId("opprett-avtale").click();
       cy.getByTestId("avtalenavn-input").type("Avtale som utkast");
       cy.wait(1100); // Simuler en bruker som bruker over 1 sek på å skrive
