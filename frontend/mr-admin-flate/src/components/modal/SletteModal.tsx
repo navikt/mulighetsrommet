@@ -17,6 +17,7 @@ interface Props {
   handleDelete: () => void;
   headerText: string;
   headerTextError: string;
+  dataTestId?: string;
 }
 
 const SletteModal = ({
@@ -27,6 +28,7 @@ const SletteModal = ({
   handleDelete,
   headerText,
   headerTextError,
+  dataTestId,
 }: Props) => {
   invariantFunksjon();
 
@@ -67,7 +69,11 @@ const SletteModal = ({
 
         <div className={styles.knapperad}>
           {mutation?.isError ? null : (
-            <Button variant="danger" onClick={handleDelete}>
+            <Button
+              variant="danger"
+              onClick={handleDelete}
+              data-testid={dataTestId}
+            >
               Slett
             </Button>
           )}

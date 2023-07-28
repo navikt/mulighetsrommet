@@ -60,6 +60,7 @@ export default function Notatliste({
           invariantFunksjon={() =>
             invariant(notatIdForSletting, "Fant ikke id for å slette notat.")
           }
+          dataTestId="bekrefte-slette-notat_btn"
         />
       ) : null}
     </div>

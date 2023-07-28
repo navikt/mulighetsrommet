@@ -278,7 +278,7 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
                     <Button
                       size="small"
                       onClick={() => setOpprettModalOpen(true)}
-                      data-testid="opprett-ny-gjennomforing-knapp"
+                      data-testid="opprett-gjennomforing-knapp"
                     >
                       Opprett gjennomføring
                     </Button>

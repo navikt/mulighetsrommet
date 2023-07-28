@@ -9,7 +9,12 @@ interface Props {
 export function AvtaleSkjemaKnapperad({ redigeringsModus, onClose }: Props) {
   return (
     <div className={styles.button_row}>
-      <Button className={styles.button} onClick={onClose} variant="secondary">
+      <Button
+        className={styles.button}
+        onClick={onClose}
+        variant="secondary"
+        data-testid="avtaleskjema-avbrytknapp"
+      >
         Avbryt
       </Button>
       <Button
