@@ -117,8 +117,6 @@ export const tiltaksgjennomforingTilAvtaleFilter = atom<
   Pick<Tiltaksgjennomforingfilter, "search">
 >({ search: "" });
 
-export type AvtaleTabs = "avtaleinfo" | "tiltaksgjennomforinger";
-
 export interface AvtaleFilterProps {
   sok: string;
   status: Avtalestatus | "";
@@ -127,7 +125,6 @@ export interface AvtaleFilterProps {
   sortering: SorteringAvtaler;
   leverandor_orgnr: string;
   antallAvtalerVises: number;
-  avtaleTab: AvtaleTabs;
 }
 
 export const defaultAvtaleFilter: AvtaleFilterProps = {
@@ -138,7 +135,6 @@ export const defaultAvtaleFilter: AvtaleFilterProps = {
   sortering: SorteringAvtaler.NAVN_ASCENDING,
   leverandor_orgnr: "",
   antallAvtalerVises: AVTALE_PAGE_SIZE,
-  avtaleTab: "avtaleinfo",
 };
 
 export const avtaleFilter = atomWithHashAndStorage<AvtaleFilterProps>(
@@ -148,10 +144,18 @@ export const avtaleFilter = atomWithHashAndStorage<AvtaleFilterProps>(
 
 export type TiltakstypeAvtaleTabs = "arenaInfo" | "avtaler";
 
-export const avtaleTabAtom = atomWithHashAndStorage<TiltakstypeAvtaleTabs>(
-  "avtaleTab",
+export const tiltakstypeTabAtom = atomWithHashAndStorage<TiltakstypeAvtaleTabs>(
+  "tiltakstypeTab",
   "arenaInfo",
 );
+
+export type AvtaleTabs = "avtaleinfo" | "tiltaksgjennomforinger";
+
+export const avtaleTabAtom =
+  atomWithHashAndStorage<AvtaleTabs>(
+    "avtaleTab",
+    "avtaleinfo",
+  );
 
 export type TiltaksgjennomforingerTabs = "detaljer";
 
@@ -160,3 +164,11 @@ export const tiltaksgjennomforingTabAtom =
     "tiltaksgjennomforingTab",
     "detaljer",
   );
+
+export type AvtaleUtkastTabs = "avtaler" | "utkast";
+
+export const avtaleOversiktTabAtom = atomWithHashAndStorage<AvtaleUtkastTabs>(
+  "avtaleOversiktTab",
+  "utkast",
+);
+

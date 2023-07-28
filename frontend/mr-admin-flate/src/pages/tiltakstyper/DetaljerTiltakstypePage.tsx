@@ -1,7 +1,7 @@
 import { Alert, Tabs } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { Link } from "react-router-dom";
-import { TiltakstypeAvtaleTabs, avtaleTabAtom } from "../../api/atoms";
+import { TiltakstypeAvtaleTabs, tiltakstypeTabAtom } from "../../api/atoms";
 import { useTiltakstypeById } from "../../api/tiltakstyper/useTiltakstypeById";
 import { Header } from "../../components/detaljside/Header";
 import { Laster } from "../../components/laster/Laster";
@@ -13,7 +13,7 @@ import { AvtalerForTiltakstype } from "./avtaler/AvtalerForTiltakstype";
 
 export function DetaljerTiltakstypePage() {
   const optionalTiltakstype = useTiltakstypeById();
-  const [tabValgt, setTabValgt] = useAtom(avtaleTabAtom);
+  const [tabValgt, setTabValgt] = useAtom(tiltakstypeTabAtom);
 
   if (!optionalTiltakstype.data && optionalTiltakstype.isLoading) {
     return <Laster tekst="Laster tiltakstype" />;
