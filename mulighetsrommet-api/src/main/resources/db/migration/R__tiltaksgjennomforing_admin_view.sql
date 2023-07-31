@@ -5,11 +5,11 @@ select tg.id::uuid,
        tg.tiltakstype_id,
        tg.tiltaksnummer,
        tg.arrangor_organisasjonsnummer,
-       v.navn                   as arrangor_navn,
+       v.navn                 as arrangor_navn,
        tg.start_dato,
        tg.slutt_dato,
        t.tiltakskode,
-       t.navn                   as tiltakstype_navn,
+       t.navn                 as tiltakstype_navn,
        tg.arena_ansvarlig_enhet,
        tg.avslutningsstatus,
        tg.tilgjengelighet,
@@ -21,15 +21,22 @@ select tg.id::uuid,
        tg.opphav,
        tg.stengt_fra,
        tg.stengt_til,
-       avtale_ne.navn as navRegionForAvtale,
+       avtale_ne.navn         as navRegionForAvtale,
        avtale_ne.enhetsnummer as navRegionEnhetsnummerForAvtale,
-       jsonb_agg(jsonb_build_object('navident', tg_a.navident, 'navn', concat(na_tg.fornavn, ' ', na_tg.etternavn))) as ansvarlige,
+       jsonb_agg(
+               distinct
+               case
+                   when tg_a.navident is null then null::jsonb
+                   else jsonb_build_object('navident', tg_a.navident, 'navn',
+                                           concat(na_tg.fornavn, ' ', na_tg.etternavn))
+                   end
+           )                  as ansvarlige,
        jsonb_agg(distinct
                  case
                      when tg_e.enhetsnummer is null then null::jsonb
                      else jsonb_build_object('enhetsnummer', tg_e.enhetsnummer, 'navn', ne.navn)
                      end
-           )                    as nav_enheter,
+           )                  as nav_enheter,
        jsonb_agg(distinct
                  case
                      when tgk.tiltaksgjennomforing_id is null then null::jsonb
@@ -37,14 +44,14 @@ select tg.id::uuid,
                                              concat(na.fornavn, ' ', na.etternavn), 'epost', na.epost, 'mobilnummer',
                                              na.mobilnummer, 'navEnheter', tgk.enheter, 'hovedenhet', na.hovedenhet)
                      end
-           )                    as kontaktpersoner,
+           )                  as kontaktpersoner,
        tg.lokasjon_arrangor,
        tg.arrangor_kontaktperson_id,
        vk.organisasjonsnummer as arrangor_kontaktperson_organisasjonsnummer,
-       vk.navn as arrangor_kontaktperson_navn,
-       vk.telefon as arrangor_kontaktperson_telefon,
-       vk.epost as arrangor_kontaktperson_epost,
-       vk.beskrivelse as arrangor_kontaktperson_beskrivelse
+       vk.navn                as arrangor_kontaktperson_navn,
+       vk.telefon             as arrangor_kontaktperson_telefon,
+       vk.epost               as arrangor_kontaktperson_epost,
+       vk.beskrivelse         as arrangor_kontaktperson_beskrivelse
 from tiltaksgjennomforing tg
          inner join tiltakstype t on tg.tiltakstype_id = t.id
          left join tiltaksgjennomforing_ansvarlig tg_a on tg_a.tiltaksgjennomforing_id = tg.id

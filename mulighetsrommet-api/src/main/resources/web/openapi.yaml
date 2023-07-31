@@ -180,6 +180,59 @@ paths:
               schema:
                 type: string
 
+  /api/v1/internal/avtaler/mine:
+    get:
+      tags:
+        - Avtaler
+      operationId: getMineAvtaler
+      parameters:
+        - in: query
+          name: tiltakstypeId
+          schema:
+            type: string
+          description: ID for tiltakstyper om du ønsker avtaler for en spesifikk tiltakstype
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: Search for avtaler by the name
+        - in: query
+          name: avtalestatus
+          schema:
+            $ref: "#/components/schemas/Avtalestatus"
+          description: Status for avtale
+        - in: query
+          name: navRegion
+          schema:
+            type: string
+          description: 4 digit enhetskode
+        - in: query
+          name: page
+          schema:
+            type: number
+          description: Page number, default 1
+        - in: query
+          name: size
+          schema:
+            type: number
+          description: Page size, default 50
+        - in: query
+          name: sort
+          schema:
+            $ref: "#/components/schemas/SorteringAvtaler"
+        - in: query
+          name: leverandorOrgnr
+          schema:
+            type: string
+          description: Organisasjonsnummer til leverandør for avtaler
+      responses:
+        200:
+          description: Object of paginated avtaler connected to specified tiltakstype-id where logged in user is responsible for avtale.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginertAvtale"
+
   /api/v1/internal/avtaler/excel:
     get:
       tags:
@@ -471,6 +524,66 @@ paths:
             application/json:
               schema:
                 type: string
+
+  /api/v1/internal/tiltaksgjennomforinger/mine:
+    get:
+      tags:
+        - Tiltaksgjennomforinger
+      operationId: getMineTiltaksgjennomforinger
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: number
+          description: Page number, default 1
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: Search for tiltaksgjennomføringer by the name
+        - in: query
+          name: navEnhet
+          schema:
+            type: string
+          description: 4 digit enhetskode
+        - in: query
+          name: tiltakstypeId
+          schema:
+            type: string
+          description: Id for tiltakstype knyttet til tiltaksgjennomføringer
+        - in: query
+          name: status
+          schema:
+            $ref: "#/components/schemas/TiltaksgjennomforingStatus"
+          description: Status for tiltaksgjennomføring
+        - in: query
+          name: size
+          schema:
+            type: number
+          description: Page size, default 50
+        - in: query
+          name: sort
+          schema:
+            $ref: "#/components/schemas/SorteringTiltaksgjennomforinger"
+        - in: query
+          name: navRegion
+          schema:
+            type: string
+        - in: query
+          name: avtaleId
+          schema:
+            type: string
+        - in: query
+          name: arrangorOrgnr
+          schema:
+            type: string
+      responses:
+        200:
+          description: Object of paginated tiltaksgjennomføringer where logged in user is responsible for gjennomføringen.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginertTiltaksgjennomforing"
 
   /api/v1/internal/tiltaksgjennomforinger/{id}:
     parameters:

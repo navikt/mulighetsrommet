@@ -1,8 +1,8 @@
-import { Alert, Pagination, Table } from "@navikt/ds-react";
+import { Alert, Checkbox, Pagination, Table } from "@navikt/ds-react";
 import { useAtom } from "jotai";
+import { SorteringTiltaksgjennomforinger } from "mulighetsrommet-api-client";
 import Lenke from "mulighetsrommet-veileder-flate/src/components/lenke/Lenke";
 import React from "react";
-import { SorteringTiltaksgjennomforinger } from "mulighetsrommet-api-client";
 import { paginationAtom, tiltaksgjennomforingfilter } from "../../api/atoms";
 import { useAdminTiltaksgjennomforinger } from "../../api/tiltaksgjennomforing/useAdminTiltaksgjennomforinger";
 import { useSort } from "../../hooks/useSort";
@@ -122,18 +122,30 @@ export const TiltaksgjennomforingsTabell = ({ skjulKolonner }: Props) => {
 
   return (
     <div className={styles.tabell_wrapper}>
-      <PagineringsOversikt
-        page={page}
-        antall={tiltaksgjennomforinger.length}
-        maksAntall={pagination?.totalCount}
-        type="tiltaksgjennomføringer"
-        antallVises={filter.antallGjennomforingerVises}
-        setAntallVises={(size) => {
-          resetPaginering(setPage);
-          setFilter({ ...filter, antallGjennomforingerVises: size });
-        }}
-      />
-
+      <div>
+        <PagineringsOversikt
+          page={page}
+          antall={tiltaksgjennomforinger.length}
+          maksAntall={pagination?.totalCount}
+          type="tiltaksgjennomføringer"
+          antallVises={filter.antallGjennomforingerVises}
+          setAntallVises={(size) => {
+            resetPaginering(setPage);
+            setFilter({ ...filter, antallGjennomforingerVises: size });
+          }}
+        />
+        <Checkbox
+          checked={filter.visMineGjennomforinger}
+          onChange={(event) => {
+            setFilter({
+              ...filter,
+              visMineGjennomforinger: event.currentTarget.checked,
+            });
+          }}
+        >
+          Vis mine gjennomføringer
+        </Checkbox>
+      </div>
       <Table
         sort={sort!}
         onSortChange={(sortKey) => handleSort(sortKey!)}

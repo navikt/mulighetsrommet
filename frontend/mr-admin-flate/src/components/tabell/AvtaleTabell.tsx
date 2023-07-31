@@ -1,5 +1,5 @@
 import { faro } from "@grafana/faro-web-sdk";
-import { Alert, Button, Pagination, Table } from "@navikt/ds-react";
+import { Alert, Button, Checkbox, Pagination, Table } from "@navikt/ds-react";
 import classNames from "classnames";
 import { useAtom } from "jotai";
 import { OpenAPI, SorteringAvtaler } from "mulighetsrommet-api-client";
@@ -67,12 +67,12 @@ async function lastNedFil(filter: AvtaleFilterProps) {
 }
 
 export const AvtaleTabell = () => {
-  const { data, isLoading } = useAvtaler();
+  const { data: alleAvtaler, isLoading } = useAvtaler();
   const [filter, setFilter] = useAtom(avtaleFilter);
   const [page, setPage] = useAtom(avtalePaginationAtom);
   const [sort, setSort] = useSort("navn");
-  const pagination = data?.pagination;
-  const avtaler = data?.data ?? [];
+  const pagination = alleAvtaler?.pagination;
+  const avtaler = alleAvtaler?.data || [];
   const [lasterExcel, setLasterExcel] = useState(false);
   const [excelUrl, setExcelUrl] = useState("");
 
@@ -133,17 +133,30 @@ export const AvtaleTabell = () => {
   return (
     <div className={classNames(styles.tabell_wrapper, styles.avtaletabell)}>
       <div className={styles.tabell_topp_container}>
-        <PagineringsOversikt
-          page={page}
-          antall={avtaler.length}
-          maksAntall={pagination?.totalCount}
-          type="avtaler"
-          antallVises={filter.antallAvtalerVises}
-          setAntallVises={(value) => {
-            resetPaginering(setPage);
-            setFilter({ ...filter, antallAvtalerVises: value });
-          }}
-        />
+        <div>
+          <PagineringsOversikt
+            page={page}
+            antall={avtaler.length}
+            maksAntall={pagination?.totalCount}
+            type="avtaler"
+            antallVises={filter.antallAvtalerVises}
+            setAntallVises={(value) => {
+              resetPaginering(setPage);
+              setFilter({ ...filter, antallAvtalerVises: value });
+            }}
+          />
+          <Checkbox
+            checked={filter.visMineAvtaler}
+            onChange={(event) => {
+              setFilter({
+                ...filter,
+                visMineAvtaler: event.currentTarget.checked,
+              });
+            }}
+          >
+            Vis mine avtaler
+          </Checkbox>
+        </div>
         <div>
           <Button
             icon={<ExcelIkon />}
