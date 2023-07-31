@@ -11,6 +11,7 @@ import { Header } from "../detaljside/Header";
 import { Laster } from "../laster/Laster";
 import styles from "./AvtaleSkjema.module.scss";
 import { AvtaleSkjemaContainer } from "./AvtaleSkjemaContainer";
+import { MainContainer } from "../../layouts/MainContainer";
 
 const AvtaleSkjemaPage = () => {
   const navigate = useNavigate();
@@ -30,36 +31,38 @@ const AvtaleSkjemaPage = () => {
   };
 
   return (
-    <div className={styles.avtaleskjema}>
-      <Header
-        dataTestId={
-          redigeringsModus ? "rediger-avtale-header" : "opprett-avtale-header"
-        }
-      >
-        {redigeringsModus ? "Rediger avtale" : "Opprett avtale"}
-      </Header>
-      {isLoadingAnsatt || isLoadingTiltakstyper || isLoadingEnheter ? (
-        <Laster />
-      ) : null}
-      <ContainerLayoutOversikt>
-        <div className={styles.avtaleskjema_content}>
-          {!tiltakstyper?.data || !ansatt || !enheter ? null : (
-            <AvtaleSkjemaContainer
-              onClose={() => {
-                queryClient.refetchQueries({ queryKey: ["utkast"] });
-                navigerTilbake();
-              }}
-              onSuccess={(id) => navigate(`/avtaler/${id}`)}
-              tiltakstyper={tiltakstyper.data}
-              ansatt={ansatt}
-              enheter={enheter}
-              avtale={avtale}
-              redigeringsModus={redigeringsModus!}
-            />
-          )}
-        </div>
-      </ContainerLayoutOversikt>
-    </div>
+    <MainContainer>
+      <div className={styles.avtaleskjema}>
+        <Header
+          dataTestId={
+            redigeringsModus ? "rediger-avtale-header" : "opprett-avtale-header"
+          }
+        >
+          {redigeringsModus ? "Rediger avtale" : "Opprett avtale"}
+        </Header>
+        {isLoadingAnsatt || isLoadingTiltakstyper || isLoadingEnheter ? (
+          <Laster />
+        ) : null}
+        <ContainerLayoutOversikt>
+          <div className={styles.avtaleskjema_content}>
+            {!tiltakstyper?.data || !ansatt || !enheter ? null : (
+              <AvtaleSkjemaContainer
+                onClose={() => {
+                  queryClient.refetchQueries({ queryKey: ["utkast"] });
+                  navigerTilbake();
+                }}
+                onSuccess={(id) => navigate(`/avtaler/${id}`)}
+                tiltakstyper={tiltakstyper.data}
+                ansatt={ansatt}
+                enheter={enheter}
+                avtale={avtale}
+                redigeringsModus={redigeringsModus!}
+              />
+            )}
+          </div>
+        </ContainerLayoutOversikt>
+      </div>
+    </MainContainer>
   );
 };
 
