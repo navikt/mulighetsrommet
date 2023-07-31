@@ -27,6 +27,7 @@ fun Route.featureTogglesRoute() {
                         emptyMap(),
                     ),
                 )
+
             call.respond(isEnabled)
         }
     }

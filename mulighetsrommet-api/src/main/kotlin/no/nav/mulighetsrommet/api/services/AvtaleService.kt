@@ -27,7 +27,6 @@ class AvtaleService(
 
     suspend fun upsert(avtale: AvtaleDbo): StatusResponse<AvtaleAdminDto> {
         virksomhetService.hentEnhet(avtale.leverandorOrganisasjonsnummer)
-            ?: return Either.Left(BadRequest(message = "leverandør ${avtale.leverandorOrganisasjonsnummer} finnes ikke"))
 
         avtaler.upsert(avtale)
         return Either.Right(avtaler.get(avtale.id)!!)

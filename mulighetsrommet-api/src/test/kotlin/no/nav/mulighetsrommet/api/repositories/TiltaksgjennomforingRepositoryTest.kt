@@ -56,7 +56,12 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     ),
                     navn = TiltaksgjennomforingFixtures.Oppfolging1.navn,
                     tiltaksnummer = TiltaksgjennomforingFixtures.Oppfolging1.tiltaksnummer,
-                    arrangorOrganisasjonsnummer = TiltaksgjennomforingFixtures.Oppfolging1.arrangorOrganisasjonsnummer,
+                    arrangor = TiltaksgjennomforingAdminDto.Arrangor(
+                        organisasjonsnummer = TiltaksgjennomforingFixtures.Oppfolging1.arrangorOrganisasjonsnummer,
+                        slettet = true,
+                        navn = null,
+                        kontaktperson = null,
+                    ),
                     startDato = TiltaksgjennomforingFixtures.Oppfolging1.startDato,
                     sluttDato = TiltaksgjennomforingFixtures.Oppfolging1.sluttDato,
                     arenaAnsvarligEnhet = TiltaksgjennomforingFixtures.Oppfolging1.arenaAnsvarligEnhet,
@@ -73,10 +78,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     kontaktpersoner = listOf(),
                     lokasjonArrangor = null,
                     stengtTil = null,
-                    arrangorNavn = null,
                     navRegion = null,
                     estimertVentetid = null,
-                    arrangorKontaktperson = null,
                 )
 
             tiltaksgjennomforinger.delete(TiltaksgjennomforingFixtures.Oppfolging1.id)
@@ -113,7 +116,12 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     arenaKode = TiltakstypeFixtures.Oppfolging.tiltakskode,
                 ),
                 tiltaksnummer = "2023#1",
-                arrangorOrganisasjonsnummer = "123456789",
+                arrangor = TiltaksgjennomforingAdminDto.Arrangor(
+                    organisasjonsnummer = "123456789",
+                    slettet = true,
+                    navn = null,
+                    kontaktperson = null,
+                ),
                 startDato = LocalDate.of(2023, 1, 1),
                 sluttDato = LocalDate.of(2023, 2, 2),
                 arenaAnsvarligEnhet = "0400",
@@ -121,8 +129,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 antallPlasser = 10,
                 avtaleId = avtale1.id,
                 oppstart = TiltaksgjennomforingOppstartstype.FELLES,
-                arrangorNavn = null,
-                arrangorKontaktperson = null,
                 status = Tiltaksgjennomforingsstatus.AVSLUTTET,
                 estimertVentetid = null,
                 ansvarlig = TiltaksgjennomforingAdminDto.Ansvarlig(navident = null, navn = " "),
@@ -380,12 +386,12 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 
             tiltaksgjennomforinger.upsert(gjennomforing)
             tiltaksgjennomforinger.get(gjennomforing.id).should {
-                it!!.arrangorKontaktperson shouldBe thomas
+                it!!.arrangor.kontaktperson shouldBe thomas
             }
 
             tiltaksgjennomforinger.upsert(gjennomforing.copy(arrangorKontaktpersonId = null))
             tiltaksgjennomforinger.get(gjennomforing.id).should {
-                it!!.arrangorKontaktperson shouldBe null
+                it!!.arrangor.kontaktperson shouldBe null
             }
         }
     }

@@ -205,9 +205,9 @@ export const TiltaksgjennomforingsTabell = ({ skjulKolonner }: Props) => {
 
                   <SkjulKolonne skjul={!!skjulKolonner?.arrangor}>
                     <Table.DataCell
-                      aria-label={`Virksomhetsnavn: ${tiltaksgjennomforing.arrangorNavn}`}
+                      aria-label={`Virksomhetsnavn: ${tiltaksgjennomforing.arrangor.navn}`}
                     >
-                      {tiltaksgjennomforing.arrangorNavn}
+                      {tiltaksgjennomforing.arrangor.navn}
                     </Table.DataCell>
                   </SkjulKolonne>
 

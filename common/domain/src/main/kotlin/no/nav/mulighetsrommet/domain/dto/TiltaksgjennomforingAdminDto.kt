@@ -16,9 +16,7 @@ data class TiltaksgjennomforingAdminDto(
     val tiltakstype: Tiltakstype,
     val navn: String,
     val tiltaksnummer: String?,
-    val arrangorOrganisasjonsnummer: String,
-    val arrangorNavn: String?,
-    val arrangorKontaktperson: VirksomhetKontaktperson?,
+    val arrangor: Arrangor,
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
@@ -55,5 +53,13 @@ data class TiltaksgjennomforingAdminDto(
     data class Ansvarlig(
         val navident: String? = null,
         val navn: String? = null,
+    )
+
+    @Serializable
+    data class Arrangor(
+        val organisasjonsnummer: String,
+        val navn: String?,
+        val kontaktperson: VirksomhetKontaktperson?,
+        val slettet: Boolean,
     )
 }

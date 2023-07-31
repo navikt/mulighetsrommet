@@ -1499,7 +1499,7 @@ components:
         leverandorUnderenheter:
           type: array
           items:
-            $ref: "#/components/schemas/Leverandor"
+            $ref: "#/components/schemas/LeverandorUnderenhet"
         startDato:
           type: string
           format: date
@@ -1710,12 +1710,8 @@ components:
           type: string
         tiltaksnummer:
           type: string
-        arrangorOrganisasjonsnummer:
-          type: string
-        arrangorNavn:
-          type: string
-        arrangorKontaktperson:
-          $ref: "#/components/schemas/VirksomhetKontaktperson"
+        arrangor:
+          $ref: "#/components/schemas/Arrangor"
         arenaAnsvarligEnhet:
           type: string
         status:
@@ -1774,7 +1770,7 @@ components:
         - tiltakstype
         - navn
         - tiltaksnummer
-        - arrangorOrganisasjonsnummer
+        - arrangor
         - navEnheter
         - opphav
         - midlertidigStengt
@@ -2172,7 +2168,35 @@ components:
         - status
         - type
 
+    Arrangor:
+      type: object
+      properties:
+        organisasjonsnummer:
+          type: string
+        navn:
+          type: string
+        kontaktperson:
+          $ref: "#/components/schemas/VirksomhetKontaktperson"
+        slettet:
+          type: boolean
+      required:
+        - organisasjonsnummer
+        - slettet
+
     Leverandor:
+      type: object
+      properties:
+        navn:
+          type: string
+        organisasjonsnummer:
+          type: string
+        slettet:
+          type: boolean
+      required:
+        - organisasjonsnummer
+        - slettet
+
+    LeverandorUnderenhet:
       type: object
       properties:
         navn:
@@ -2181,6 +2205,7 @@ components:
           type: string
       required:
         - organisasjonsnummer
+        - navn
 
     VirksomhetKontaktpersonRequest:
       type: object

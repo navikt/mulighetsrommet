@@ -177,7 +177,7 @@ class VeilederflateService(
             .map { sanityData ->
                 val apiGjennomforing = gjennomforingerFraDb[sanityData._id]
                 val kontaktpersoner = apiGjennomforing?.let { hentKontaktpersoner(it, enhetsId) } ?: emptyList()
-                val kontaktpersonerArrangor = apiGjennomforing?.arrangorKontaktperson?.let {
+                val kontaktpersonerArrangor = apiGjennomforing?.arrangor?.kontaktperson?.let {
                     KontaktInfoArrangor(
                         selskapsnavn = virksomhetService.hentEnhet(it.organisasjonsnummer)?.navn,
                         telefonnummer = it.telefon,

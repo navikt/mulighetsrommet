@@ -108,11 +108,11 @@ class AvtaleRepositoryTest : FunSpec({
             avtaler.upsert(avtale1)
             avtaler.get(avtale1.id).should {
                 it!!.leverandorUnderenheter shouldContainExactlyInAnyOrder listOf(
-                    AvtaleAdminDto.Leverandor(
+                    AvtaleAdminDto.LeverandorUnderenhet(
                         organisasjonsnummer = "777777777",
                         navn = "u7",
                     ),
-                    AvtaleAdminDto.Leverandor(
+                    AvtaleAdminDto.LeverandorUnderenhet(
                         organisasjonsnummer = "888888888",
                         navn = "u8",
                     ),
@@ -120,6 +120,7 @@ class AvtaleRepositoryTest : FunSpec({
                 it.leverandor shouldBe AvtaleAdminDto.Leverandor(
                     organisasjonsnummer = "999999999",
                     navn = "overordnet",
+                    slettet = false,
                 )
             }
         }
@@ -603,10 +604,12 @@ class AvtaleRepositoryTest : FunSpec({
                 ascending.second[0].leverandor shouldBe AvtaleAdminDto.Leverandor(
                     organisasjonsnummer = "987654321",
                     navn = "alvdal",
+                    slettet = false,
                 )
                 ascending.second[1].leverandor shouldBe AvtaleAdminDto.Leverandor(
                     organisasjonsnummer = "123456789",
                     navn = "bjarne",
+                    slettet = false,
                 )
 
                 val descending = avtaler.getAll(
@@ -619,10 +622,12 @@ class AvtaleRepositoryTest : FunSpec({
                 descending.second[0].leverandor shouldBe AvtaleAdminDto.Leverandor(
                     organisasjonsnummer = "123456789",
                     navn = "bjarne",
+                    slettet = false,
                 )
                 descending.second[1].leverandor shouldBe AvtaleAdminDto.Leverandor(
                     organisasjonsnummer = "987654321",
                     navn = "alvdal",
+                    slettet = false,
                 )
             }
 
@@ -979,7 +984,7 @@ class AvtaleRepositoryTest : FunSpec({
             ),
             navn = "Avtale til test",
             avtalenummer = "2023#123",
-            leverandor = AvtaleAdminDto.Leverandor(organisasjonsnummer = "123456789", navn = null),
+            leverandor = AvtaleAdminDto.Leverandor(organisasjonsnummer = "123456789", navn = null, slettet = true),
             leverandorUnderenheter = emptyList(),
             leverandorKontaktperson = null,
             startDato = LocalDate.of(2023, 1, 1),
