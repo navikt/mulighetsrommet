@@ -96,10 +96,12 @@ export function AvtaleSkjemaContainer({
         "",
       ),
       leverandorUnderenheter:
-        avtale?.leverandorUnderenheter?.length === 0
+        avtale?.leverandorUnderenheter?.length === 0 ||
+        !avtale?.leverandorUnderenheter
           ? []
           : avtale?.leverandorUnderenheter?.map(
-              (leverandor: LeverandorUnderenhet) => leverandor.organisasjonsnummer,
+              (leverandor: LeverandorUnderenhet) =>
+                leverandor.organisasjonsnummer,
             ),
       leverandorKontaktpersonId: avtale?.leverandorKontaktperson?.id,
       startOgSluttDato: {
