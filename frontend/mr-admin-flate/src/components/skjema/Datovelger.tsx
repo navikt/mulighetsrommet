@@ -1,4 +1,4 @@
-import { UNSAFE_DatePicker, UNSAFE_useDatepicker } from "@navikt/ds-react";
+import { DatePicker, useDatepicker} from "@navikt/ds-react";
 import { useController } from "react-hook-form";
 import { formaterDato } from "../../utils/Utils";
 import styles from "./Datovelger.module.scss";
@@ -42,7 +42,7 @@ export function Datovelger({ fra, til }: { fra: DatoProps; til: DatoProps }) {
     datepickerProps: startdatoProps,
     inputProps: startdatoInputProps,
     selectedDay: selectedStartdato,
-  } = UNSAFE_useDatepicker({
+  } = useDatepicker({
     onDateChange: (val) => {
       if (val) {
         startDato.onChange(val);
@@ -61,7 +61,7 @@ export function Datovelger({ fra, til }: { fra: DatoProps; til: DatoProps }) {
     datepickerProps: sluttdatoProps,
     inputProps: sluttdatoInputProps,
     selectedDay: selectedSluttdato,
-  } = UNSAFE_useDatepicker({
+  } = useDatepicker({
     onDateChange: (val) => {
       if (val) {
         sluttDato.onChange(val);
@@ -78,7 +78,7 @@ export function Datovelger({ fra, til }: { fra: DatoProps; til: DatoProps }) {
 
   return (
     <div className={styles.dato_container}>
-      <UNSAFE_DatePicker {...startdatoProps} dropdownCaption>
+      <DatePicker {...startdatoProps} dropdownCaption>
         <DatoFelt
           {...fra}
           {...startdatoInputProps}
@@ -86,8 +86,8 @@ export function Datovelger({ fra, til }: { fra: DatoProps; til: DatoProps }) {
             selectedStartdato ? formaterDato(selectedStartdato) : undefined
           }
         />
-      </UNSAFE_DatePicker>
-      <UNSAFE_DatePicker {...sluttdatoProps} dropdownCaption>
+      </DatePicker>
+      <DatePicker {...sluttdatoProps} dropdownCaption>
         <DatoFelt
           {...til}
           {...sluttdatoInputProps}
@@ -95,7 +95,7 @@ export function Datovelger({ fra, til }: { fra: DatoProps; til: DatoProps }) {
             selectedSluttdato ? formaterDato(selectedSluttdato) : undefined
           }
         />
-      </UNSAFE_DatePicker>
+      </DatePicker>
     </div>
   );
 }
@@ -103,7 +103,7 @@ export function Datovelger({ fra, til }: { fra: DatoProps; til: DatoProps }) {
 const DatoFelt = forwardRef(function DatoFeltInput(props: any, ref: any) {
   const { name, label, ...rest } = props;
   return (
-    <UNSAFE_DatePicker.Input
+    <DatePicker.Input
       {...rest}
       label={label}
       name={name}
