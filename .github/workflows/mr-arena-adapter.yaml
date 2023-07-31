@@ -20,7 +20,6 @@ on:
         options:
           - dev
           - dev_and_prod
-  merge_group:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
