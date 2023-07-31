@@ -21,20 +21,12 @@ export function useAvtaler() {
     leverandorOrgnr: filter.leverandor_orgnr || undefined,
   };
 
-  if (filter.visMineAvtaler) {
-    return useQuery(
-      QueryKeys.mineAvtaler({ ...filter, sok: debouncedSok }, page),
-      () => {
-        return mulighetsrommetClient.avtaler.getMineAvtaler({ ...queryFilter });
-      },
-      { useErrorBoundary: true },
-    );
-  }
-
   return useQuery(
     QueryKeys.avtaler({ ...filter, sok: debouncedSok }, page),
     () => {
-      return mulighetsrommetClient.avtaler.getAvtaler({ ...queryFilter });
+      return filter.visMineAvtaler
+        ? mulighetsrommetClient.avtaler.getMineAvtaler({ ...queryFilter })
+        : mulighetsrommetClient.avtaler.getAvtaler({ ...queryFilter });
     },
     { useErrorBoundary: true },
   );

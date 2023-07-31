@@ -23,26 +23,16 @@ export function useAdminTiltaksgjennomforinger() {
     arrangorOrgnr: filter.arrangorOrgnr ? filter.arrangorOrgnr : undefined,
   };
 
-  if (filter.visMineGjennomforinger) {
-    return useQuery(
-      QueryKeys.mineTiltaksgjennomforinger(
-        { ...filter, search: debouncedSok },
-        page,
-      ),
-      () =>
-        mulighetsrommetClient.tiltaksgjennomforinger.getMineTiltaksgjennomforinger(
-          { ...queryFilter },
-        ),
-      { useErrorBoundary: true, enabled: filter.visMineGjennomforinger },
-    );
-  }
-
   return useQuery(
     QueryKeys.tiltaksgjennomforinger({ ...filter, search: debouncedSok }, page),
     () =>
-      mulighetsrommetClient.tiltaksgjennomforinger.getTiltaksgjennomforinger({
-        ...queryFilter,
-      }),
+      filter.visMineGjennomforinger
+        ? mulighetsrommetClient.tiltaksgjennomforinger.getMineTiltaksgjennomforinger(
+            { ...queryFilter },
+          )
+        : mulighetsrommetClient.tiltaksgjennomforinger.getTiltaksgjennomforinger(
+            { ...queryFilter },
+          ),
     { useErrorBoundary: true },
   );
 }
