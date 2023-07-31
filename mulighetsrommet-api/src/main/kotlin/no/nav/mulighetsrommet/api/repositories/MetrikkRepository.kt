@@ -114,7 +114,7 @@ class MetrikkRepository(private val db: Database) {
     fun hentAntallTiltaksgjennomforingNotater(): Int {
         @Language("PostgreSQL")
         val query = """
-            select count(id) as antallTiltaksgjennomforingNotater from "mulighetsrommet-api-db".public.tiltaksgjennomforing_notat
+            select count(id) as antallTiltaksgjennomforingNotater from tiltaksgjennomforing_notat
         """.trimIndent()
 
         return queryOf(query).map { it.int("antallTiltaksgjennomforingNotater") }.asSingle.let { db.run(it) } ?: 0
