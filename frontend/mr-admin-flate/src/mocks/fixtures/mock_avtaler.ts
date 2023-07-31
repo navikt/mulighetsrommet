@@ -29,6 +29,7 @@ export const mockAvtaler: PaginertAvtale = {
       leverandor: {
         organisasjonsnummer: "864965962",
         navn: "ÅMLI KOMMUNE",
+        slettet: false,
       },
       leverandorUnderenheter: [
         { organisasjonsnummer: "456798321", navn: "Underenhet 1" },
@@ -79,6 +80,7 @@ export const mockAvtaler: PaginertAvtale = {
       leverandor: {
         organisasjonsnummer: "864965962",
         navn: "ÅMLI KOMMUNE",
+        slettet: false,
       },
       opphav: Opphav.ARENA,
       ansvarlig: {
@@ -120,6 +122,7 @@ export const mockAvtaler: PaginertAvtale = {
       leverandor: {
         organisasjonsnummer: "911830868",
         navn: "KRIMINALOMSORGSDIREKTORATET",
+        slettet: false,
       },
       leverandorUnderenheter: [],
       startDato: "2020-07-01",
@@ -150,6 +153,7 @@ export const mockAvtaler: PaginertAvtale = {
       leverandor: {
         organisasjonsnummer: "983887457",
         navn: "ARBEIDS- OG INKLUDERINGSDEPARTEMENTET",
+        slettet: false,
       },
       leverandorUnderenheter: [],
       startDato: "2020-07-01",
@@ -181,6 +185,7 @@ export const mockAvtaler: PaginertAvtale = {
       leverandor: {
         organisasjonsnummer: "911830868",
         navn: "KRIMINALOMSORGSDIREKTORATET",
+        slettet: false,
       },
       leverandorUnderenheter: [],
       startDato: "2020-07-01",
@@ -206,6 +211,7 @@ export const mockAvtaler: PaginertAvtale = {
       leverandor: {
         organisasjonsnummer: "911615649",
         navn: "ASKØY KOMMUNE BARNEHAGE",
+        slettet: false,
       },
       leverandorUnderenheter: [],
       opphav: Opphav.ARENA,
@@ -241,6 +247,7 @@ export const mockAvtaler: PaginertAvtale = {
       leverandor: {
         organisasjonsnummer: "964338442",
         navn: "ASKØY KOMMUNE",
+        slettet: false,
       },
       leverandorUnderenheter: [],
       startDato: "2021-11-01",
@@ -271,6 +278,7 @@ export const mockAvtaler: PaginertAvtale = {
       leverandor: {
         organisasjonsnummer: "974760983",
         navn: "DIREKTORATET FOR SAMFUNNSSIKKERHET OG BEREDSKAP (DSB)",
+        slettet: false,
       },
       leverandorUnderenheter: [],
       startDato: "2019-08-20",
@@ -301,6 +309,7 @@ export const mockAvtaler: PaginertAvtale = {
       leverandor: {
         organisasjonsnummer: "995448394",
         navn: "BÆRUM KOMMUNE MILJØTEKNISK",
+        slettet: false,
       },
       leverandorUnderenheter: [],
       startDato: "2022-01-01",
@@ -326,6 +335,7 @@ export const mockAvtaler: PaginertAvtale = {
       leverandor: {
         organisasjonsnummer: "918781390",
         navn: "KRISTIANSAND KOMMUNE SAMHANDLING OG INNOVASJON",
+        slettet: false,
       },
       opphav: Opphav.ARENA,
       ansvarlig: {
@@ -365,6 +375,7 @@ export const mockAvtaler: PaginertAvtale = {
       leverandor: {
         organisasjonsnummer: "976821580",
         navn: "BERGEN KOMMUNE BYRÅDSAVDELING FOR KLIMA, MILJØ OG BYUTVIKLING",
+        slettet: false,
       },
       leverandorUnderenheter: [],
       startDato: "2020-07-01",
@@ -404,6 +415,7 @@ export const mockAvtaler: PaginertAvtale = {
       leverandor: {
         organisasjonsnummer: "870534612",
         navn: "OSLO KOMMUNE BYDEL 2 GRUNERLØKKA",
+        slettet: false,
       },
       leverandorUnderenheter: [],
       startDato: "2019-07-01",
@@ -434,6 +446,7 @@ export const mockAvtaler: PaginertAvtale = {
       leverandor: {
         organisasjonsnummer: "984054408",
         navn: "DRAMMENSREGIONENS BRANNVESEN IKS",
+        slettet: false,
       },
       leverandorUnderenheter: [],
       startDato: "2020-10-01",
@@ -462,6 +475,7 @@ export const mockAvtaler: PaginertAvtale = {
       navn: "Avtale hos HÅ KOMMUNE SENTRALADMINISTRASJON",
       avtalenummer: "2021#18282",
       leverandor: {
+        slettet: false,
         organisasjonsnummer: "964969590",
         navn: "HÅ KOMMUNE",
       },
@@ -492,6 +506,7 @@ export const mockAvtaler: PaginertAvtale = {
       navn: "Avtale hos Hardanger likningskontor",
       avtalenummer: "2021#20250",
       leverandor: {
+        slettet: false,
         organisasjonsnummer: "974761076",
         navn: "SKATTEETATEN",
       },
@@ -522,6 +537,7 @@ export const mockAvtaler: PaginertAvtale = {
       navn: "Avtale hos Hardanger likningskontor",
       avtalenummer: "2021#20172",
       leverandor: {
+        slettet: false,
         organisasjonsnummer: "974761076",
         navn: "SKATTEETATEN",
       },

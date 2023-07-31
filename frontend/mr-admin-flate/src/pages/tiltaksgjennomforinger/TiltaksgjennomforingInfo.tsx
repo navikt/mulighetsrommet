@@ -315,11 +315,11 @@ export function TiltaksgjennomforingInfo() {
             />
           </Bolk>
         </VisHvisVerdi>
-        <VisHvisVerdi verdi={tiltaksgjennomforing.arrangorNavn}>
+        <VisHvisVerdi verdi={tiltaksgjennomforing.arrangor.navn}>
           <Bolk aria-label="Arrangør underenhet">
             <Metadata
               header="Arrangør underenhet"
-              verdi={`${tiltaksgjennomforing.arrangorNavn} - ${tiltaksgjennomforing.arrangorOrganisasjonsnummer}`}
+              verdi={`${tiltaksgjennomforing.arrangor.navn} - ${tiltaksgjennomforing.arrangor.organisasjonsnummer}`}
             />
           </Bolk>
         </VisHvisVerdi>
@@ -333,25 +333,25 @@ export function TiltaksgjennomforingInfo() {
           </Bolk>
         </VisHvisVerdi>
 
-        {tiltaksgjennomforing.arrangorKontaktperson && (
+        {tiltaksgjennomforing.arrangor.kontaktperson && (
           <Metadata
             header="Kontaktperson hos arrangør"
             verdi={
               <div className={styles.leverandor_kontaktinfo}>
                 <label>
-                  {tiltaksgjennomforing.arrangorKontaktperson?.navn}
+                  {tiltaksgjennomforing.arrangor.kontaktperson?.navn}
                 </label>
                 <label>
-                  {tiltaksgjennomforing.arrangorKontaktperson?.telefon}
+                  {tiltaksgjennomforing.arrangor.kontaktperson?.telefon}
                 </label>
                 <a
-                  href={`mailto:${tiltaksgjennomforing.arrangorKontaktperson?.epost}`}
+                  href={`mailto:${tiltaksgjennomforing.arrangor.kontaktperson?.epost}`}
                 >
-                  {tiltaksgjennomforing.arrangorKontaktperson?.epost}
+                  {tiltaksgjennomforing.arrangor.kontaktperson?.epost}
                 </a>
-                {tiltaksgjennomforing.arrangorKontaktperson?.beskrivelse && (
+                {tiltaksgjennomforing.arrangor.kontaktperson?.beskrivelse && (
                   <label>
-                    {tiltaksgjennomforing.arrangorKontaktperson?.beskrivelse}
+                    {tiltaksgjennomforing.arrangor.kontaktperson?.beskrivelse}
                   </label>
                 )}
               </div>

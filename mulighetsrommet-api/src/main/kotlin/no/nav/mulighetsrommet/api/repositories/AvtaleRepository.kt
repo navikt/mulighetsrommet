@@ -253,7 +253,7 @@ class AvtaleRepository(private val db: Database) {
                 ) an on true
                 left join lateral (
                     SELECT au.avtale_id, jsonb_strip_nulls(jsonb_agg(jsonb_build_object('organisasjonsnummer', au.organisasjonsnummer, 'navn', v.navn))) as leverandor_underenheter
-                    FROM avtale_underleverandor au left join virksomhet v on v.organisasjonsnummer = au.organisasjonsnummer WHERE au.avtale_id = a.id GROUP BY 1
+                    FROM avtale_underleverandor au inner join virksomhet v on v.organisasjonsnummer = au.organisasjonsnummer WHERE au.avtale_id = a.id GROUP BY 1
                 ) au on true
                 left join virksomhet v on v.organisasjonsnummer = a.leverandor_organisasjonsnummer
                 left join virksomhet_kontaktperson vk on vk.id = a.leverandor_kontaktperson_id
@@ -437,7 +437,7 @@ class AvtaleRepository(private val db: Database) {
             Json.decodeFromString<List<NavEnhet?>>(it).filterNotNull()
         } ?: emptyList()
         val underenheter = stringOrNull("leverandor_underenheter")?.let {
-            Json.decodeFromString<List<AvtaleAdminDto.Leverandor?>>(it).filterNotNull()
+            Json.decodeFromString<List<AvtaleAdminDto.LeverandorUnderenhet?>>(it).filterNotNull()
         } ?: emptyList()
         val ansvarlig = stringOrNull("ansvarlig")?.let {
             Json.decodeFromString<AvtaleAdminDto.Avtaleansvarlig?>(it)
@@ -455,6 +455,7 @@ class AvtaleRepository(private val db: Database) {
             leverandor = AvtaleAdminDto.Leverandor(
                 organisasjonsnummer = string("leverandor_organisasjonsnummer"),
                 navn = stringOrNull("leverandor_navn"),
+                slettet = stringOrNull("leverandor_navn") == null,
             ),
             leverandorUnderenheter = underenheter,
             leverandorKontaktperson = uuidOrNull("leverandor_kontaktperson_id")?.let {

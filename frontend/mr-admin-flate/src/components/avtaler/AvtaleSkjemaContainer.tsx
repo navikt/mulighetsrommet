@@ -4,7 +4,7 @@ import {
   Avtale,
   AvtaleRequest,
   Avtaletype,
-  Leverandor,
+  LeverandorUnderenhet,
   NavAnsatt,
   Norg2Type,
   Opphav,
@@ -99,7 +99,7 @@ export function AvtaleSkjemaContainer({
         avtale?.leverandorUnderenheter?.length === 0
           ? []
           : avtale?.leverandorUnderenheter?.map(
-              (leverandor: Leverandor) => leverandor.organisasjonsnummer,
+              (leverandor: LeverandorUnderenhet) => leverandor.organisasjonsnummer,
             ),
       leverandorKontaktpersonId: avtale?.leverandorKontaktperson?.id,
       startOgSluttDato: {
@@ -388,7 +388,7 @@ export function AvtaleSkjemaContainer({
                     options={underenheterOptions(underenheterForLeverandor)}
                   />
                 </FormGroup>
-                {watch("leverandor") && (
+                {watch("leverandor") && !avtale?.leverandor?.slettet && (
                   <FormGroup>
                     <div className={styles.kontaktperson_container}>
                       <VirksomhetKontaktpersoner

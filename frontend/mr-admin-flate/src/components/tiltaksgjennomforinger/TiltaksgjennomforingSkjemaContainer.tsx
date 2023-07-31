@@ -100,7 +100,7 @@ type UtkastData = Pick<
   | "navEnheter"
   | "stengtFra"
   | "stengtTil"
-  | "arrangorOrganisasjonsnummer"
+  | "arrangor"
   | "kontaktpersoner"
   | "estimertVentetid"
   | "lokasjonArrangor"
@@ -151,8 +151,10 @@ export const TiltaksgjennomforingSkjemaContainer = (
       arrangorKontaktpersonId: {
         id: values?.arrangorKontaktpersonId ?? undefined,
       },
-      arrangorOrganisasjonsnummer:
-        values.tiltaksArrangorUnderenhetOrganisasjonsnummer,
+      arrangor: {
+        organisasjonsnummer: values.tiltaksArrangorUnderenhetOrganisasjonsnummer,
+        slettet: false,
+      },
       kontaktpersoner: values?.kontaktpersoner?.map((kp) => ({ ...kp })) || [],
       id: utkastIdRef.current,
       lokasjonArrangor: values?.lokasjonArrangor,
@@ -203,7 +205,7 @@ export const TiltaksgjennomforingSkjemaContainer = (
           : undefined,
       },
       tiltaksArrangorUnderenhetOrganisasjonsnummer:
-        tiltaksgjennomforing?.arrangorOrganisasjonsnummer || "",
+        tiltaksgjennomforing?.arrangor?.organisasjonsnummer || "",
       midlertidigStengt: {
         erMidlertidigStengt: Boolean(tiltaksgjennomforing?.stengtFra),
         stengtFra: tiltaksgjennomforing?.stengtFra
@@ -221,7 +223,7 @@ export const TiltaksgjennomforingSkjemaContainer = (
       ),
       estimertVentetid: tiltaksgjennomforing?.estimertVentetid,
       lokasjonArrangor: tiltaksgjennomforing?.lokasjonArrangor,
-      arrangorKontaktpersonId: tiltaksgjennomforing?.arrangorKontaktperson?.id,
+      arrangorKontaktpersonId: tiltaksgjennomforing?.arrangor?.kontaktperson?.id,
     },
   });
   const {
@@ -299,7 +301,7 @@ export const TiltaksgjennomforingSkjemaContainer = (
       ansvarlig: data.ansvarlig,
       arrangorOrganisasjonsnummer:
         data.tiltaksArrangorUnderenhetOrganisasjonsnummer ||
-        tiltaksgjennomforing?.arrangorOrganisasjonsnummer ||
+        tiltaksgjennomforing?.arrangor?.organisasjonsnummer ||
         "",
       tiltaksnummer: tiltaksgjennomforing?.tiltaksnummer ?? null,
       oppstart: data.oppstart,
@@ -401,6 +403,7 @@ export const TiltaksgjennomforingSkjemaContainer = (
     }
     return options;
   };
+
 
   return (
     <FormProvider {...form}>
@@ -669,8 +672,9 @@ export const TiltaksgjennomforingSkjemaContainer = (
                     readOnly={!avtale?.leverandor.organisasjonsnummer}
                     options={arrangorUnderenheterOptions()}
                   />
-                  {watch("tiltaksArrangorUnderenhetOrganisasjonsnummer") && (
-                    <div className={styles.virksomhet_kontaktperson_container}>
+                  {watch("tiltaksArrangorUnderenhetOrganisasjonsnummer") &&
+                    !tiltaksgjennomforing?.arrangor?.slettet && (
+                  <div className={styles.virksomhet_kontaktperson_container}>
                       <VirksomhetKontaktpersoner
                         title={"Kontaktperson hos arrangøren"}
                         orgnr={watch(

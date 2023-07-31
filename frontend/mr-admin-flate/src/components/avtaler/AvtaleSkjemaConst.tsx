@@ -2,7 +2,7 @@ import { inferredAvtaleSchema } from "./AvtaleSchema";
 import { toast } from "react-toastify";
 import {
   Avtale,
-  Leverandor,
+  LeverandorUnderenhet,
   NavAnsatt,
   NavEnhet,
   Utkast,
@@ -59,6 +59,7 @@ export const saveUtkast = (
     leverandor: {
       navn: "",
       organisasjonsnummer: values?.leverandor,
+      slettet: false,
     },
     leverandorUnderenheter: values?.leverandorUnderenheter?.map(
       (organisasjonsnummer) => ({ navn: "", organisasjonsnummer }),
@@ -136,7 +137,7 @@ export const enheterOptions = (navRegion: string, enheter: NavEnhet[]) => {
 export const underenheterOptions = (
   underenheterForLeverandor: Virksomhet[],
 ) => {
-  const options = underenheterForLeverandor.map((leverandor: Leverandor) => ({
+  const options = underenheterForLeverandor.map((leverandor: LeverandorUnderenhet) => ({
     value: leverandor.organisasjonsnummer,
     label: `${leverandor.navn} - ${leverandor.organisasjonsnummer}`,
   }));
