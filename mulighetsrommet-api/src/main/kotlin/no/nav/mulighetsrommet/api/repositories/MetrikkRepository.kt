@@ -101,4 +101,22 @@ class MetrikkRepository(private val db: Database) {
 
         return queryOf(query, params).map { it.int("antallAvtaler") }.asSingle.let { db.run(it) } ?: 0
     }
+
+    fun hentAntallAvtaleNotater(): Int {
+        @Language("PostgreSQL")
+        val query = """
+            select count(id) as antallAvtaleNotater from avtale_notat
+        """.trimIndent()
+
+        return queryOf(query).map { it.int("antallAvtaleNotater") }.asSingle.let { db.run(it) } ?: 0
+    }
+
+    fun hentAntallTiltaksgjennomforingNotater(): Int {
+        @Language("PostgreSQL")
+        val query = """
+            select count(id) as antallTiltaksgjennomforingNotater from tiltaksgjennomforing_notat
+        """.trimIndent()
+
+        return queryOf(query).map { it.int("antallTiltaksgjennomforingNotater") }.asSingle.let { db.run(it) } ?: 0
+    }
 }
