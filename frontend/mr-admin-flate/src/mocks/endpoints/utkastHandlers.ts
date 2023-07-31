@@ -36,12 +36,6 @@ export const utkastHandlers = [
     },
   ),
 
-  rest.get<DefaultBodyType, PathParams, Utkast[]>(
-    "*/api/v1/internal/utkast/:id",
-    async (req, res, ctx) => {
-      return res(ctx.status(200), ctx.delay(), ctx.json(mockUtkast));
-    },
-  ),
   rest.delete<DefaultBodyType, PathParams, Utkast[]>(
     "*/api/v1/internal/utkast/:id",
     async (req, res, ctx) => {
@@ -53,7 +47,22 @@ export const utkastHandlers = [
   rest.get<DefaultBodyType, PathParams, Utkast[]>(
     "*/api/v1/internal/utkast/mine",
     async (req, res, ctx) => {
-      return res(ctx.status(200), ctx.delay(), ctx.json(mockUtkast));
+      const utkasttype = req.url.searchParams.get("utkasttype");
+      return res(
+        ctx.status(200),
+        ctx.delay(),
+        ctx.json(mockUtkast.filter((utkast) => utkast.type === utkasttype)),
+      );
+    },
+  ),
+  rest.get<DefaultBodyType, PathParams, Utkast | undefined>(
+    "*/api/v1/internal/utkast/:id",
+    async (req, res, ctx) => {
+      return res(
+        ctx.status(200),
+        ctx.delay(),
+        ctx.json([...mockUtkast].find((utkast) => utkast.id === req.params.id)),
+      );
     },
   ),
 ];
