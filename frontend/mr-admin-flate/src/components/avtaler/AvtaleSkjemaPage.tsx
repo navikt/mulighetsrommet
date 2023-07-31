@@ -1,16 +1,16 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { Tiltakstypestatus } from "mulighetsrommet-api-client";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
+import { useAvtale } from "../../api/avtaler/useAvtale";
 import { useAlleEnheter } from "../../api/enhet/useAlleEnheter";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
-import { Laster } from "../laster/Laster";
-import { AvtaleSkjemaContainer } from "./AvtaleSkjemaContainer";
-import styles from "./AvtaleSkjema.module.scss";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import { useQueryClient } from "@tanstack/react-query";
-import { useAvtale } from "../../api/avtaler/useAvtale";
-import { Header } from "../detaljside/Header";
+import { ContainerLayoutOversikt } from "../../layouts/ContainerLayout";
 import { inneholderUrl } from "../../utils/Utils";
-import { MainContainer } from "../../layouts/MainContainer";
+import { Header } from "../detaljside/Header";
+import { Laster } from "../laster/Laster";
+import styles from "./AvtaleSkjema.module.scss";
+import { AvtaleSkjemaContainer } from "./AvtaleSkjemaContainer";
 
 const AvtaleSkjemaPage = () => {
   const navigate = useNavigate();
@@ -30,18 +30,18 @@ const AvtaleSkjemaPage = () => {
   };
 
   return (
-    <MainContainer>
-      <div className={styles.avtaleskjema}>
-        <Header
-          dataTestId={
-            redigeringsModus ? "rediger-avtale-header" : "opprett-avtale-header"
-          }
-        >
-          {redigeringsModus ? "Rediger avtale" : "Opprett avtale"}
-        </Header>
-        {isLoadingAnsatt || isLoadingTiltakstyper || isLoadingEnheter ? (
-          <Laster />
-        ) : null}
+    <div className={styles.avtaleskjema}>
+      <Header
+        dataTestId={
+          redigeringsModus ? "rediger-avtale-header" : "opprett-avtale-header"
+        }
+      >
+        {redigeringsModus ? "Rediger avtale" : "Opprett avtale"}
+      </Header>
+      {isLoadingAnsatt || isLoadingTiltakstyper || isLoadingEnheter ? (
+        <Laster />
+      ) : null}
+      <ContainerLayoutOversikt>
         <div className={styles.avtaleskjema_content}>
           {!tiltakstyper?.data || !ansatt || !enheter ? null : (
             <AvtaleSkjemaContainer
@@ -58,8 +58,8 @@ const AvtaleSkjemaPage = () => {
             />
           )}
         </div>
-      </div>
-    </MainContainer>
+      </ContainerLayoutOversikt>
+    </div>
   );
 };
 
