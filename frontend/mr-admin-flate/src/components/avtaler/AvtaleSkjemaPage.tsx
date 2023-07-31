@@ -1,5 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { Tiltakstypestatus } from "mulighetsrommet-api-client";
+import { Avtale, Tiltakstypestatus } from "mulighetsrommet-api-client";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
 import { useAvtale } from "../../api/avtaler/useAvtale";
@@ -71,7 +71,7 @@ const AvtaleSkjemaPage = () => {
                 tiltakstyper={tiltakstyper.data}
                 ansatt={ansatt}
                 enheter={enheter}
-                avtale={avtale}
+                avtale={(utkast?.utkastData as Avtale) || avtale}
                 redigeringsModus={redigeringsModus!}
               />
             )}
