@@ -30,7 +30,7 @@
     "@tanstack/react-query-devtools": "^4.29.25",
     "classnames": "^2.3.2",
     "debounce": "^1.2.1",
-    "eslint": "8.45.0",
+    "eslint": "8.46.0",
     "jotai": "^2.2.2",
     "mulighetsrommet-api-client": "*",
     "mulighetsrommet-frontend-common": "*",
