@@ -65,7 +65,7 @@ export function UtkastKort({ utkast, mutation }: UtkastKortProps) {
       </div>
       <div className={styles.knapper}>
         <Lenkeknapp
-          to={`/avtaler/skjema?avtaleId=${utkast.avtaleId}`}
+          to={`/avtaler/skjema?utkastId=${utkast.id}`}
           lenketekst="Rediger utkast"
           dataTestId="rediger-utkast-knapp"
           variant="primary"
