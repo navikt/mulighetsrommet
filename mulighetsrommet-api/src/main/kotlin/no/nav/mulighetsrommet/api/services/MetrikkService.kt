@@ -31,6 +31,10 @@ class MetrikkService(private val metrikkRepository: MetrikkRepository) {
         Metrikker.appMicrometerRegistry.gauge("antall.avtaler.fra.adminflate", AtomicInteger(0))
     private val antallAvtalerFraArenaGauge: AtomicInteger =
         Metrikker.appMicrometerRegistry.gauge("antall.avtaler.fra.arena", AtomicInteger(0))
+    private val antallAvtaleNotater: AtomicInteger =
+        Metrikker.appMicrometerRegistry.gauge("antall.avtaler.notater", AtomicInteger(0))
+    private val antallTiltaksgjennomforingNotater: AtomicInteger =
+        Metrikker.appMicrometerRegistry.gauge("antall.tiltaksgjennomforinger.notater", AtomicInteger(0))
 
     fun oppdaterMetrikker() {
         antallUlesteGauge.set(metrikkRepository.hentAntallUlesteNotifikasjoner())
@@ -45,5 +49,7 @@ class MetrikkService(private val metrikkRepository: MetrikkRepository) {
         antallAvtalerFraArenaGauge.set(metrikkRepository.hentAntallAvtalerMedOpphav(opphav = ArenaMigrering.Opphav.ARENA))
         antallGjennomforingerMedOpphavArenaGauge.set(metrikkRepository.hentAntallTiltaksgjennomforingerMedOpphav(opphav = ArenaMigrering.Opphav.ARENA))
         antallGjennomforingerMedOpphavAdminflateGauge.set(metrikkRepository.hentAntallTiltaksgjennomforingerMedOpphav(opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE))
+        antallAvtaleNotater.set(metrikkRepository.hentAntallAvtaleNotater())
+        antallTiltaksgjennomforingNotater.set(metrikkRepository.hentAntallTiltaksgjennomforingNotater())
     }
 }
