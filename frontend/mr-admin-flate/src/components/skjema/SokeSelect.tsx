@@ -20,6 +20,7 @@ export interface SelectProps {
   className?: string;
   size?: "small" | "medium";
   onClearValue?: () => void;
+  description?: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -32,6 +33,7 @@ const SokeSelect = React.forwardRef((props: SelectProps, _) => {
     readOnly,
     onChange: providedOnChange,
     onInputChange: providedOnInputChange,
+    description,
     className,
     size,
     onClearValue,
@@ -81,7 +83,7 @@ const SokeSelect = React.forwardRef((props: SelectProps, _) => {
           fieldState: { error },
         }) => {
           return (
-            <div>
+            <div className={styles.container}>
               <label
                 className={classnames(styles.label, {
                   "navds-sr-only": hideLabel,
@@ -93,7 +95,18 @@ const SokeSelect = React.forwardRef((props: SelectProps, _) => {
               >
                 <b>{label}</b>
               </label>
-
+              { description &&
+                <label
+                  className={classnames(styles.description, {
+                    "navds-sr-only": hideLabel,
+                  })}
+                  style={{
+                    fontSize: size === "small" ? "16px" : "18px",
+                  }}
+                >
+                  { description }
+                </label>
+              }
               <ReactSelect
                 key={`${value}`} // Force rerender when value changes. If set to null outside f. ex
                 placeholder={placeholder}
