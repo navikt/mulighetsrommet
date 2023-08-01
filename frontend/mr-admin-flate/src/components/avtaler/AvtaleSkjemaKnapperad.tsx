@@ -12,7 +12,7 @@ export function AvtaleSkjemaKnapperad({ redigeringsModus, onClose }: Props) {
       <Button
         className={styles.button}
         onClick={onClose}
-        variant="secondary"
+        variant="tertiary"
         data-testid="avtaleskjema-avbrytknapp"
       >
         Avbryt

@@ -59,6 +59,9 @@ const SletteModal = ({
         )}
 
         <div className={styles.knapperad}>
+          <Button variant="secondary" onClick={clickCancel}>
+            Avbryt
+          </Button>
           {mutation?.isError ? null : (
             <Button
               variant="danger"
@@ -68,10 +71,6 @@ const SletteModal = ({
               Slett
             </Button>
           )}
-
-          <Button variant="secondary-neutral" onClick={clickCancel}>
-            Avbryt
-          </Button>
         </div>
       </>
     );
