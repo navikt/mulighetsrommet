@@ -29,7 +29,7 @@ export function AvtaleKnapperad({ handleSlett, handleAvbryt, avtale }: Props) {
             onClick={handleAvbryt}
             data-testid="avbryt-avtale"
           >
-            Avbryt
+            Avbryt avtale
           </Button>
         ) : (
           <Button
@@ -46,8 +46,8 @@ export function AvtaleKnapperad({ handleSlett, handleAvbryt, avtale }: Props) {
       {redigerAvtaleEnabled ? (
         <Lenkeknapp
           to={`/avtaler/skjema?avtaleId=${avtaleId}`}
-          lenketekst="Endre"
-          variant="tertiary"
+          lenketekst="Rediger avtale"
+          variant="primary"
           dataTestId="endre-avtale"
         />
       ) : null}

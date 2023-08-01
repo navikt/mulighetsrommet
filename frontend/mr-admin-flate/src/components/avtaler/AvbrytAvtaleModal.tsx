@@ -69,6 +69,9 @@ const AvbrytAvtaleModal = ({ modalOpen, onClose, avtale }: Props) => {
           <p>Du kan ikke angre denne handlingen</p>
         )}
         <div className={styles.knapperad}>
+          <Button variant="secondary" onClick={clickCancel}>
+            Avbryt handling
+          </Button>
           {avtaleFraArena ? null : mutation?.isError ? (
             <Lenkeknapp
               to={`/avtaler/skjema?avtaleId=${avtale?.id}`}
@@ -81,9 +84,6 @@ const AvbrytAvtaleModal = ({ modalOpen, onClose, avtale }: Props) => {
               Avbryt avtale
             </Button>
           )}
-          <Button variant="secondary-neutral" onClick={clickCancel}>
-            Avbryt handling
-          </Button>
         </div>
       </>
     );
@@ -103,11 +103,7 @@ const AvbrytAvtaleModal = ({ modalOpen, onClose, avtale }: Props) => {
         aria-label="modal"
       >
         <Modal.Content>
-          <Heading
-            size="medium"
-            level="2"
-            data-testid="slett_avtale_modal_header"
-          >
+          <Heading size="medium" level="2">
             {headerInnhold(avtale)}
           </Heading>
           {modalInnhold(avtale)}

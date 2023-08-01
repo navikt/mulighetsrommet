@@ -52,11 +52,7 @@ export const DeleteVirksomhetKontaktpersonModal = ({
         aria-label="modal"
       >
         <Modal.Content>
-          <Heading
-            size="medium"
-            level="2"
-            data-testid="slett_avtale_modal_header"
-          >
+          <Heading size="medium" level="2">
             <div className={styles.heading}>
               <XMarkOctagonFillIcon className={styles.warningicon} />
               {mutation.isError ? (
