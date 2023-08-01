@@ -327,6 +327,7 @@ export function AvtaleSkjemaContainer({
                   label={"Avtaleansvarlig"}
                   {...register("avtaleansvarlig")}
                   onClearValue={() => setValue("avtaleansvarlig", "")}
+                  description="Den som blir satt som ansvarlig vil få en notifikasjon."
                   options={AnsvarligOptions(
                     ansatt,
                     avtale?.ansvarlig,

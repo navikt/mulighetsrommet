@@ -30,7 +30,7 @@ object TiltaksgjennomforingFixtures {
         arrangorKontaktpersonId = null,
         stengtFra = null,
         stengtTil = null,
-        lokasjonArrangor = null,
+        lokasjonArrangor = "Oslo",
         estimertVentetid = null,
     )
 
@@ -50,7 +50,7 @@ object TiltaksgjennomforingFixtures {
         arrangorKontaktpersonId = null,
         stengtFra = null,
         stengtTil = null,
-        lokasjonArrangor = null,
+        lokasjonArrangor = "Oslo",
         estimertVentetid = null,
         avtaleId = avtaleId,
         apenForInnsok = true,

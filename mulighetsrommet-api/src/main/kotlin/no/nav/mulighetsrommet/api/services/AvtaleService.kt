@@ -1,10 +1,10 @@
 package no.nav.mulighetsrommet.api.services
 
 import arrow.core.Either
-import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleNokkeltallDto
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
+import no.nav.mulighetsrommet.api.routes.v1.AvtaleRequest
 import no.nav.mulighetsrommet.api.routes.v1.responses.*
 import no.nav.mulighetsrommet.api.utils.AdminTiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.api.utils.AvtaleFilter
@@ -13,6 +13,10 @@ import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.AvtaleAdminDto
 import no.nav.mulighetsrommet.domain.dto.AvtaleNotificationDto
 import no.nav.mulighetsrommet.domain.dto.Avtalestatus
+import no.nav.mulighetsrommet.notifications.NotificationService
+import no.nav.mulighetsrommet.notifications.NotificationType
+import no.nav.mulighetsrommet.notifications.ScheduledNotification
+import java.time.Instant
 import java.time.LocalDate
 import java.util.*
 
@@ -20,16 +24,26 @@ class AvtaleService(
     private val avtaler: AvtaleRepository,
     private val tiltaksgjennomforinger: TiltaksgjennomforingRepository,
     private val virksomhetService: VirksomhetService,
+    private val notificationService: NotificationService,
+    private val utkastService: UtkastService,
 ) {
     fun get(id: UUID): AvtaleAdminDto? {
         return avtaler.get(id)
     }
 
-    suspend fun upsert(avtale: AvtaleDbo): StatusResponse<AvtaleAdminDto> {
-        virksomhetService.hentEnhet(avtale.leverandorOrganisasjonsnummer)
+    suspend fun upsert(request: AvtaleRequest, navIdent: String): StatusResponse<AvtaleAdminDto> {
+        virksomhetService.hentEnhet(request.leverandorOrganisasjonsnummer)
 
-        avtaler.upsert(avtale)
-        return Either.Right(avtaler.get(avtale.id)!!)
+        val previousAnsvarlig = avtaler.get(request.id)?.ansvarlig?.navident
+        return request.toDbo()
+            .onRight { avtaler.upsert(it) }
+            .onRight { utkastService.deleteUtkast(it.id) }
+            .onRight {
+                if (navIdent != request.ansvarlig && previousAnsvarlig != request.ansvarlig) {
+                    sattSomAnsvarligNotification(it.navn, request.ansvarlig)
+                }
+            }
+            .map { avtaler.get(it.id)!! }
     }
 
     fun delete(id: UUID, currentDate: LocalDate = LocalDate.now()): StatusResponse<Unit> {
@@ -113,5 +127,15 @@ class AvtaleService(
         }
 
         return Either.Right(avtaler.avbrytAvtale(avtaleId))
+    }
+
+    private fun sattSomAnsvarligNotification(avtaleNavn: String, ansvarlig: String) {
+        val notification = ScheduledNotification(
+            type = NotificationType.NOTIFICATION,
+            title = "Du har blitt satt som ansvarlig på avtalen \"$avtaleNavn\"",
+            targets = listOf(ansvarlig),
+            createdAt = Instant.now(),
+        )
+        notificationService.scheduleNotification(notification)
     }
 }

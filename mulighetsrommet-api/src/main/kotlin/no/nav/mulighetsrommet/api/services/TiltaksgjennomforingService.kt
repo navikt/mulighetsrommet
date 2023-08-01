@@ -12,6 +12,10 @@ import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingAdminDto
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingNotificationDto
+import no.nav.mulighetsrommet.notifications.NotificationService
+import no.nav.mulighetsrommet.notifications.NotificationType
+import no.nav.mulighetsrommet.notifications.ScheduledNotification
+import java.time.Instant
 import java.time.LocalDate
 import java.util.*
 
@@ -22,9 +26,11 @@ class TiltaksgjennomforingService(
     private val sanityTiltaksgjennomforingService: SanityTiltaksgjennomforingService,
     private val virksomhetService: VirksomhetService,
     private val utkastService: UtkastService,
+    private val notificationService: NotificationService,
 ) {
     suspend fun upsert(
         request: TiltaksgjennomforingRequest,
+        navIdent: String,
         currentDate: LocalDate = LocalDate.now(),
     ): StatusResponse<TiltaksgjennomforingAdminDto> {
         val avtale = avtaleRepository.get(request.avtaleId)
@@ -34,9 +40,16 @@ class TiltaksgjennomforingService(
             return Either.Left(BadRequest("Avtalens sluttdato har passert"))
         }
 
+        val previousAnsvarlig = tiltaksgjennomforingRepository.get(request.id)?.ansvarlig?.navident
+
         return request.toDbo()
             .onRight { virksomhetService.hentEnhet(it.arrangorOrganisasjonsnummer) }
             .onRight { tiltaksgjennomforingRepository.upsert(it) }
+            .onRight {
+                if (navIdent != request.ansvarlig && request.ansvarlig != previousAnsvarlig) {
+                    sattSomAnsvarligNotification(it.navn, request.ansvarlig)
+                }
+            }
             .map { tiltaksgjennomforingRepository.get(request.id)!! }
             .onRight { sanityTiltaksgjennomforingService.opprettSanityTiltaksgjennomforing(it) }
             .onRight { utkastService.deleteUtkast(it.id) }
@@ -120,5 +133,15 @@ class TiltaksgjennomforingService(
             return Either.Left(BadRequest(message = "Gjennomføringen kan ikke avbrytes fordi den har $antallDeltagere deltager(e) koblet til seg."))
         }
         return Either.Right(tiltaksgjennomforingRepository.avbrytGjennomforing(gjennomforingId))
+    }
+
+    private fun sattSomAnsvarligNotification(gjennomforingNavn: String, ansvarlig: String) {
+        val notification = ScheduledNotification(
+            type = NotificationType.NOTIFICATION,
+            title = "Du har blitt satt som ansvarlig på gjennomføringen \"${gjennomforingNavn}\"",
+            targets = listOf(ansvarlig),
+            createdAt = Instant.now(),
+        )
+        notificationService.scheduleNotification(notification)
     }
 }
