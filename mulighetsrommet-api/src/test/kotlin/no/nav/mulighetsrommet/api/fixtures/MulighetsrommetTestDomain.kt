@@ -20,7 +20,6 @@ data class MulighetsrommetTestDomain(
         type = Norg2Type.DIR,
         overordnetEnhet = null,
     ),
-
 ) {
     fun initialize(database: FlywayDatabaseAdapter) {
         val enheter = NavEnhetRepository(database)

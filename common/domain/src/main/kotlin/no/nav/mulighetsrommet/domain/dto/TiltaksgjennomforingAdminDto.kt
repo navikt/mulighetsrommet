@@ -30,7 +30,7 @@ data class TiltaksgjennomforingAdminDto(
     val avtaleId: UUID?,
     val ansvarlig: Ansvarlig?,
     val navEnheter: List<NavEnhet>,
-    val navRegion: String?,
+    val navRegion: NavEnhet?,
     val sanityId: String?,
     val oppstart: TiltaksgjennomforingOppstartstype,
     val opphav: ArenaMigrering.Opphav,

@@ -10,6 +10,7 @@ import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingKontaktpersonDbo
+import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.routes.v1.responses.*
 import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
 import no.nav.mulighetsrommet.api.services.UtkastService
@@ -32,8 +33,9 @@ fun Route.tiltaksgjennomforingRoutes() {
     route("/api/v1/internal/tiltaksgjennomforinger") {
         put {
             val request = call.receive<TiltaksgjennomforingRequest>()
+            val navIdent = getNavIdent()
 
-            call.respondWithStatusResponse(tiltaksgjennomforingService.upsert(request))
+            call.respondWithStatusResponse(tiltaksgjennomforingService.upsert(request, navIdent))
         }
 
         get {

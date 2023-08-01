@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.api.routes.v1
 
 import arrow.core.Either
-import arrow.core.flatMap
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
@@ -10,12 +9,12 @@ import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
+import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.routes.v1.responses.BadRequest
 import no.nav.mulighetsrommet.api.routes.v1.responses.StatusResponse
 import no.nav.mulighetsrommet.api.routes.v1.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.services.AvtaleService
 import no.nav.mulighetsrommet.api.services.ExcelService
-import no.nav.mulighetsrommet.api.services.UtkastService
 import no.nav.mulighetsrommet.api.utils.getAvtaleFilter
 import no.nav.mulighetsrommet.api.utils.getPaginationParams
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
@@ -30,9 +29,6 @@ import java.util.*
 fun Route.avtaleRoutes() {
     val avtaler: AvtaleService by inject()
     val excelService: ExcelService by inject()
-    val utkastService: UtkastService by inject()
-
-    val logger = application.environment.log
 
     route("/api/v1/internal/avtaler") {
         get {
@@ -81,13 +77,7 @@ fun Route.avtaleRoutes() {
         put {
             val avtaleRequest = call.receive<AvtaleRequest>()
 
-            val result = avtaleRequest.toDbo()
-                .flatMap { avtaler.upsert(it) }
-                .onRight { utkastService.deleteUtkast(it.id) }
-                .onLeft {
-                    logger.error(it.message)
-                }
-            call.respondWithStatusResponse(result)
+            call.respondWithStatusResponse(avtaler.upsert(avtaleRequest, getNavIdent()))
         }
 
         put("{id}/avbryt") {
