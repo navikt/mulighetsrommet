@@ -595,7 +595,12 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             avtaleId = uuidOrNull("avtale_id"),
             ansvarlig = ansvarlige.getOrNull(0),
             navEnheter = navEnheter,
-            navRegion = stringOrNull("navRegionForAvtale"),
+            navRegion = stringOrNull("navRegionEnhetsnummerForAvtale")?.let {
+                NavEnhet(
+                    enhetsnummer = it,
+                    navn = string("navRegionForAvtale"),
+                )
+            },
             sanityId = stringOrNull("sanity_id"),
             oppstart = TiltaksgjennomforingOppstartstype.valueOf(string("oppstart")),
             opphav = ArenaMigrering.Opphav.valueOf(string("opphav")),

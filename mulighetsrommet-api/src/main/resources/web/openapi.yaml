@@ -1840,7 +1840,7 @@ components:
           items:
             $ref: "#/components/schemas/EmbeddedNavEnhet"
         navRegion:
-          type: string
+          $ref: "#/components/schemas/EmbeddedNavEnhet"
         ansvarlig:
           type: object
           properties:

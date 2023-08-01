@@ -1,5 +1,15 @@
-.label {
+.container {
+  display: flex;
+  flex-direction: column;
+}
+
+.description {
   margin-bottom: 8px;
+  display: inline-block;
+  color: var(--ac-form-description, var(--a-text-subtle));
+}
+
+.label {
   display: inline-block;
 }
 

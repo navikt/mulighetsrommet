@@ -536,14 +536,13 @@ class AvtaleRepositoryTest : FunSpec({
                     navRegion = "2",
                     navn = "Avtale hos Åse",
                 )
-                val avtale3 = AvtaleFixtures.avtale1.copy(
+                val avtale3 = AvtaleFixtures.arenaAvtale1.copy(
                     id = UUID.randomUUID(),
-                    navRegion = null,
                     navn = "Avtale hos Øyvind",
                 )
                 avtaler.upsert(avtale1)
                 avtaler.upsert(avtale2)
-                avtaler.upsert(avtale3)
+                avtaler.upsertArenaAvtale(avtale3)
 
                 val ascending = avtaler.getAll(
                     filter = defaultFilter.copy(
