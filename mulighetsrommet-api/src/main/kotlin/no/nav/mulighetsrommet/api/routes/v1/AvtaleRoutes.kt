@@ -10,6 +10,7 @@ import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
+import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.routes.v1.responses.BadRequest
 import no.nav.mulighetsrommet.api.routes.v1.responses.StatusResponse
 import no.nav.mulighetsrommet.api.routes.v1.responses.respondWithStatusResponse
@@ -38,6 +39,14 @@ fun Route.avtaleRoutes() {
         get {
             val pagination = getPaginationParams()
             val filter = getAvtaleFilter()
+            val result = avtaler.getAll(filter, pagination)
+
+            call.respond(result)
+        }
+
+        get("mine") {
+            val pagination = getPaginationParams()
+            val filter = getAvtaleFilter().copy(ansvarligAnsattIdent = getNavIdent())
             val result = avtaler.getAll(filter, pagination)
 
             call.respond(result)

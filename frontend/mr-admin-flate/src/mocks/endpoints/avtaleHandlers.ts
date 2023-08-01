@@ -12,14 +12,44 @@ export const avtaleHandlers = [
     "*/api/v1/internal/avtaler",
     (req, res, ctx) => {
       const avtalestatus = req.url.searchParams.get("avtalestatus");
+      const data = mockAvtaler.data.filter(
+        (a) => a.avtalestatus === avtalestatus || avtalestatus === null,
+      );
 
       return res(
         ctx.status(200),
         ctx.json({
-          ...mockAvtaler,
-          data: mockAvtaler.data.filter(
-            (a) => a.avtalestatus === avtalestatus || avtalestatus === null,
-          ),
+          pagination: {
+            currentPage: 1,
+            pageSize: 15,
+            totalCount: data.length,
+          },
+          data,
+        }),
+      );
+    },
+  ),
+
+  rest.get<DefaultBodyType, PathParams, PaginertAvtale | undefined>(
+    "*/api/v1/internal/avtaler/mine",
+    (req, res, ctx) => {
+      const avtalestatus = req.url.searchParams.get("avtalestatus");
+      const brukerident = "B123456";
+      const data = mockAvtaler.data.filter(
+        (a) =>
+          (a.avtalestatus === avtalestatus || avtalestatus === null) &&
+          a.ansvarlig?.navident === brukerident,
+      );
+
+      return res(
+        ctx.status(200),
+        ctx.json({
+          pagination: {
+            currentPage: 1,
+            pageSize: 15,
+            totalCount: data.length,
+          },
+          data,
         }),
       );
     },

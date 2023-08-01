@@ -24,7 +24,7 @@ export const tiltaksgjennomforingNotatHandlers = [
         ctx.status(200),
         ctx.json(
           tiltaksgjennomforingNotater
-            .filter((notat) => notat.opprettetAv.navIdent === "B99876")
+            .filter((notat) => notat.opprettetAv.navIdent === "B123456")
             .sort(sortByDate),
         ),
       );
@@ -39,7 +39,7 @@ export const tiltaksgjennomforingNotatHandlers = [
         ...payload,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
-        opprettetAv: { navIdent: "B99876", navn: "Bertil Betabruker" },
+        opprettetAv: { navIdent: "B123456", navn: "Bertil Betabruker" },
       });
       return res(ctx.status(200));
     },

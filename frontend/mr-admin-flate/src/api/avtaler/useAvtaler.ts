@@ -10,19 +10,23 @@ export function useAvtaler() {
   const [filter] = useAtom(avtaleFilter);
   const debouncedSok = useDebounce(filter.sok, 300);
 
+  const queryFilter = {
+    tiltakstypeId: filter.tiltakstype || undefined,
+    search: debouncedSok || undefined,
+    avtalestatus: filter.status ? filter.status : undefined,
+    navRegion: filter.navRegion ? filter.navRegion : undefined,
+    sort: filter.sortering,
+    page,
+    size: filter.antallAvtalerVises,
+    leverandorOrgnr: filter.leverandor_orgnr || undefined,
+  };
+
   return useQuery(
     QueryKeys.avtaler({ ...filter, sok: debouncedSok }, page),
     () => {
-      return mulighetsrommetClient.avtaler.getAvtaler({
-        tiltakstypeId: filter.tiltakstype || undefined,
-        search: debouncedSok || undefined,
-        avtalestatus: filter.status ? filter.status : undefined,
-        navRegion: filter.navRegion ? filter.navRegion : undefined,
-        sort: filter.sortering,
-        page,
-        size: filter.antallAvtalerVises,
-        leverandorOrgnr: filter.leverandor_orgnr || undefined,
-      });
+      return filter.visMineAvtaler
+        ? mulighetsrommetClient.avtaler.getMineAvtaler({ ...queryFilter })
+        : mulighetsrommetClient.avtaler.getAvtaler({ ...queryFilter });
     },
     { useErrorBoundary: true },
   );

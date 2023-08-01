@@ -7,7 +7,7 @@ export const mockTiltaksgjennomforingnotater: TiltaksgjennomforingNotat[] = [
     tiltaksgjennomforingId: "a7d63fb0-4366-412c-84b7-7c15518ee361",
     createdAt: new Date("07.20.2023 11:47:53").toISOString(),
     updatedAt: new Date().toISOString(),
-    opprettetAv: { navIdent: "B99876", navn: "Bertil Betabruker" },
+    opprettetAv: { navIdent: "B123456", navn: "Bertil Betabruker" },
     innhold: "Dette er den beste tiltaksgjennomføringen i verden!",
   },
   {

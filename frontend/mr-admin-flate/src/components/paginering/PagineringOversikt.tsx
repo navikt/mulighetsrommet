@@ -20,8 +20,6 @@ export function PagineringsOversikt({
   antallVises = antall,
   setAntallVises,
 }: Props) {
-  if (antall === 0) return null;
-
   return (
     <Heading
       level="1"
