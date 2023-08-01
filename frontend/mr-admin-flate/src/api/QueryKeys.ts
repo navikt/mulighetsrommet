@@ -26,14 +26,12 @@ export const QueryKeys = {
       page,
       "tiltaksgjennomforinger",
     ] as const,
-
   tiltaksgjennomforing: (id?: string) => [id, "tiltaksgjennomforing"] as const,
   ansatt: () => ["ansatt"] as const,
   tiltaksgjennomforingerByEnhet: (enhet: string = "enhet", page?: number) =>
     [enhet, page, "tiltaksgjennomforinger"] as const,
   avtaler: (avtaleFilter: AvtaleFilterProps, page: number) =>
     [{ ...avtaleFilter }, page, "avtaler"] as const,
-
   avtale: (avtaleId: string) => [avtaleId, "avtale"],
   enheter: () => ["enheter"],
   virksomheter: (til?: VirksomhetTil) => [til, "virksomheter"],
