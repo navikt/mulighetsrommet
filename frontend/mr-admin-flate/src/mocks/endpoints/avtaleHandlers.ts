@@ -29,7 +29,7 @@ export const avtaleHandlers = [
     "*/api/v1/internal/avtaler/mine",
     (req, res, ctx) => {
       const avtalestatus = req.url.searchParams.get("avtalestatus");
-      const brukerident = "B99876";
+      const brukerident = "B123456";
 
       return res(
         ctx.status(200),

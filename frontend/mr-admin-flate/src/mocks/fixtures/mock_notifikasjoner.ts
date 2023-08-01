@@ -17,7 +17,7 @@ export const mockNotifikasjoner: PaginertUserNotifications = {
         "Avtalen Oppfølging, tjenesteområde F - Moss utløper den 30.06.2023",
       description:
         "Beskrivelse med en ganske lang tekst fordi vi har så komplekse prosesser så det viktig at det blir gitt nøyaktig beskjed om hva som skal til for å løse denne vanskelige problemstillingen.",
-      user: "B99876",
+      user: "B123456",
       createdAt: "2023-01-26T13:51:50.417-07:00",
       doneAt: "2023-01-26T13:51:50.417-07:00",
     },
@@ -28,7 +28,7 @@ export const mockNotifikasjoner: PaginertUserNotifications = {
         "Avtalen Oppfølging, tjenesteområde E - Moss utløper den 31.07.2023",
       description:
         "Beskrivelsen her er ikke så lang som den forrige, men sånn er det av og til.",
-      user: "B99876",
+      user: "B123456",
       createdAt: "2023-01-26T13:51:50.417-07:00",
       doneAt: "2023-01-26T13:51:50.417-07:00",
     },
@@ -38,7 +38,7 @@ export const mockNotifikasjoner: PaginertUserNotifications = {
       title: "Du må fikse noe greier",
       description:
         "Dette er en 'TASK' som betyr at du må få den late rumpen din opp av stolen og gjøre noe fornuftig",
-      user: "B99876",
+      user: "B123456",
       createdAt: "2023-01-26T13:51:50.417-07:00",
       doneAt: "2023-01-26T13:51:50.417-07:00",
     },

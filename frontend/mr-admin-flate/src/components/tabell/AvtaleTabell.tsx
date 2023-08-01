@@ -129,7 +129,7 @@ export const AvtaleTabell = () => {
   return (
     <div className={classNames(styles.tabell_wrapper, styles.avtaletabell)}>
       <div className={styles.tabell_topp_container}>
-        <div>
+        <div className={styles.flex}>
           <PagineringsOversikt
             page={page}
             antall={avtaler.length}
@@ -150,7 +150,7 @@ export const AvtaleTabell = () => {
               });
             }}
           >
-            Vis mine avtaler
+            Vis kun mine
           </Checkbox>
         </div>
         <div>

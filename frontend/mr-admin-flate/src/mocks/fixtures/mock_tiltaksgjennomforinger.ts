@@ -37,7 +37,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
         arenaKode: "AVKLAR",
       },
       ansvarlig: {
-        navident: "B99876",
+        navident: "B123456",
         navn: "Bertil Betabruker",
       },
       sanityId: "1234",

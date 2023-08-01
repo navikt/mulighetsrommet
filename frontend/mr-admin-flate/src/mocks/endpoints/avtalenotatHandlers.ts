@@ -18,7 +18,7 @@ export const avtalenotatHandlers = [
         ctx.status(200),
         ctx.json(
           avtalenotater
-            .filter((notat) => notat.opprettetAv.navIdent === "B99876")
+            .filter((notat) => notat.opprettetAv.navIdent === "B123456")
             .sort(sortByDate),
         ),
       );
@@ -33,7 +33,7 @@ export const avtalenotatHandlers = [
         ...payload,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
-        opprettetAv: { navIdent: "B99876", navn: "Bertil Betabruker" },
+        opprettetAv: { navIdent: "B123456", navn: "Bertil Betabruker" },
       });
       return res(ctx.status(200));
     },

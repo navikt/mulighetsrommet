@@ -118,7 +118,7 @@ export const TiltaksgjennomforingsTabell = ({ skjulKolonner }: Props) => {
 
   return (
     <div className={styles.tabell_wrapper}>
-      <div>
+      <div className={styles.flex}>
         <PagineringsOversikt
           page={page}
           antall={tiltaksgjennomforinger.length}
@@ -139,7 +139,7 @@ export const TiltaksgjennomforingsTabell = ({ skjulKolonner }: Props) => {
             });
           }}
         >
-          Vis mine gjennomføringer
+          Vis kun mine
         </Checkbox>
       </div>
       {tiltaksgjennomforinger.length === 0 ? (

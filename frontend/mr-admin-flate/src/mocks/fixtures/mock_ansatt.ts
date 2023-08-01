@@ -2,7 +2,7 @@ import { NavAnsatt, NavAnsattRolle } from "mulighetsrommet-api-client";
 
 const bertil = {
   azureId: "8c133e5e-fd93-4226-8567-41d699a3efee",
-  navIdent: "B99876",
+  navIdent: "B123456",
   fornavn: "Bertil",
   etternavn: "Betabruker",
   hovedenhet: {

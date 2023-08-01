@@ -19,7 +19,7 @@ export const tiltaksgjennomforingHandlers = [
     PathParams,
     PaginertTiltaksgjennomforing | { x: string }
   >("*/api/v1/internal/tiltaksgjennomforinger/mine", (req, res, ctx) => {
-    const brukerident = "B99876";
+    const brukerident = "B123456";
     return res(
       ctx.status(200),
       ctx.json({

@@ -21,7 +21,7 @@ export const mockAvtaler: PaginertAvtale = {
       },
       navn: "Testtiltak Varig",
       ansvarlig: {
-        navident: "B99876",
+        navident: "B123456",
         navn: "Bertil Betabruker",
       },
       opphav: Opphav.MR_ADMIN_FLATE,
@@ -84,7 +84,7 @@ export const mockAvtaler: PaginertAvtale = {
       },
       opphav: Opphav.ARENA,
       ansvarlig: {
-        navident: "B99876",
+        navident: "B123456",
         navn: "Bertil Betabruker",
       },
       leverandorUnderenheter: [
@@ -108,7 +108,7 @@ export const mockAvtaler: PaginertAvtale = {
       id: "6374b285-989d-4f78-a59e-29481b64ba92",
       opphav: Opphav.ARENA,
       ansvarlig: {
-        navident: "B99876",
+        navident: "B123456",
         navn: "Bertil Betabruker",
       },
       tiltakstype: {
@@ -147,8 +147,8 @@ export const mockAvtaler: PaginertAvtale = {
       avtalenummer: "2020#4993",
       opphav: Opphav.ARENA,
       ansvarlig: {
-        navident: "B99876",
-        navn: "Bertil Betabruker",
+        navident: "P123456",
+        navn: "Pelle Pioner",
       },
       leverandor: {
         organisasjonsnummer: "983887457",
@@ -171,10 +171,7 @@ export const mockAvtaler: PaginertAvtale = {
     {
       id: "8a4a4dee-98c7-4a07-bc0c-f677a46c406f",
       opphav: Opphav.ARENA,
-      ansvarlig: {
-        navident: "B99876",
-        navn: "Bertil Betabruker",
-      },
+      ansvarlig: { navident: "P123456", navn: "Pelle Pioner" },
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "Oppfølging",
@@ -215,10 +212,7 @@ export const mockAvtaler: PaginertAvtale = {
       },
       leverandorUnderenheter: [],
       opphav: Opphav.ARENA,
-      ansvarlig: {
-        navident: "B123456",
-        navn: "Bertil Betabruker",
-      },
+      ansvarlig: { navident: "P123456", navn: "Pelle Pioner" },
       startDato: "2021-11-01",
       sluttDato: "2023-10-31",
       navEnheter: [],
@@ -238,10 +232,7 @@ export const mockAvtaler: PaginertAvtale = {
         arenaKode: "INDOPPFAG",
       },
       opphav: Opphav.ARENA,
-      ansvarlig: {
-        navident: "B123456",
-        navn: "Bertil Betabruker",
-      },
+      ansvarlig: { navident: "P123456", navn: "Pelle Pioner" },
       navn: "Avtale hos ASKØY KOMMUNE KOMM TEKNISK AVD",
       avtalenummer: "2021#17845",
       leverandor: {
@@ -264,10 +255,7 @@ export const mockAvtaler: PaginertAvtale = {
     {
       id: "e26c53cd-cafd-4a57-b7e0-c774cf33ea0d",
       opphav: Opphav.ARENA,
-      ansvarlig: {
-        navident: "B123456",
-        navn: "Bertil Betabruker",
-      },
+      ansvarlig: { navident: "P123456", navn: "Pelle Pioner" },
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "Oppfølging",
