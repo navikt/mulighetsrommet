@@ -11,9 +11,10 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingKontaktpersonDbo
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
-import no.nav.mulighetsrommet.api.routes.v1.responses.*
+import no.nav.mulighetsrommet.api.routes.v1.responses.BadRequest
+import no.nav.mulighetsrommet.api.routes.v1.responses.StatusResponse
+import no.nav.mulighetsrommet.api.routes.v1.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
-import no.nav.mulighetsrommet.api.services.UtkastService
 import no.nav.mulighetsrommet.api.utils.getAdminTiltaksgjennomforingsFilter
 import no.nav.mulighetsrommet.api.utils.getPaginationParams
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
@@ -28,7 +29,6 @@ import java.util.*
 
 fun Route.tiltaksgjennomforingRoutes() {
     val tiltaksgjennomforingService: TiltaksgjennomforingService by inject()
-    val utkastService: UtkastService by inject()
 
     route("/api/v1/internal/tiltaksgjennomforinger") {
         put {
@@ -41,6 +41,13 @@ fun Route.tiltaksgjennomforingRoutes() {
         get {
             val paginationParams = getPaginationParams()
             val filter = getAdminTiltaksgjennomforingsFilter()
+
+            call.respond(tiltaksgjennomforingService.getAll(paginationParams, filter))
+        }
+
+        get("mine") {
+            val paginationParams = getPaginationParams()
+            val filter = getAdminTiltaksgjennomforingsFilter().copy(ansvarligAnsattIdent = getNavIdent())
 
             call.respond(tiltaksgjennomforingService.getAll(paginationParams, filter))
         }

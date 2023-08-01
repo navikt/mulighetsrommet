@@ -39,6 +39,14 @@ fun Route.avtaleRoutes() {
             call.respond(result)
         }
 
+        get("mine") {
+            val pagination = getPaginationParams()
+            val filter = getAvtaleFilter().copy(ansvarligAnsattIdent = getNavIdent())
+            val result = avtaler.getAll(filter, pagination)
+
+            call.respond(result)
+        }
+
         get("/excel") {
             val pagination = getPaginationParams()
             val filter = getAvtaleFilter()

@@ -371,6 +371,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             "navRegion" to filter.navRegion,
             "avtaleId" to filter.avtaleId,
             "arrangor_organisasjonsnummer" to filter.arrangorOrgnr,
+            "ansvarligAnsattIdent" to filter.ansvarligAnsattIdent?.let { "[{\"navident\": \"$it\"}]" },
         )
 
         val where = DatabaseUtils.andWhereParameterNotNull(
@@ -382,6 +383,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             filter.navRegion to "(arena_ansvarlig_enhet in (select enhetsnummer from nav_enhet where overordnet_enhet = :navRegion) or :navRegion in (select overordnet_enhet from nav_enhet inner join tiltaksgjennomforing_nav_enhet tg_e using(enhetsnummer) where tg_e.tiltaksgjennomforing_id = id) or :navRegion = navRegionEnhetsnummerForAvtale)",
             filter.avtaleId to "avtale_id = :avtaleId",
             filter.arrangorOrgnr to "arrangor_organisasjonsnummer = :arrangor_organisasjonsnummer",
+            filter.ansvarligAnsattIdent to "ansvarlige @> :ansvarligAnsattIdent::jsonb",
         )
 
         val order = when (filter.sortering) {

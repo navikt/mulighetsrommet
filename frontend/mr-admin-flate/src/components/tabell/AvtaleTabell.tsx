@@ -1,5 +1,5 @@
 import { faro } from "@grafana/faro-web-sdk";
-import { Alert, Button, Pagination, Table } from "@navikt/ds-react";
+import { Alert, Button, Checkbox, Pagination, Table } from "@navikt/ds-react";
 import classNames from "classnames";
 import { useAtom } from "jotai";
 import { OpenAPI, SorteringAvtaler } from "mulighetsrommet-api-client";
@@ -67,12 +67,12 @@ async function lastNedFil(filter: AvtaleFilterProps) {
 }
 
 export const AvtaleTabell = () => {
-  const { data, isLoading } = useAvtaler();
+  const { data: alleAvtaler, isLoading } = useAvtaler();
   const [filter, setFilter] = useAtom(avtaleFilter);
   const [page, setPage] = useAtom(avtalePaginationAtom);
   const [sort, setSort] = useSort("navn");
-  const pagination = data?.pagination;
-  const avtaler = data?.data ?? [];
+  const pagination = alleAvtaler?.pagination;
+  const avtaler = alleAvtaler?.data || [];
   const [lasterExcel, setLasterExcel] = useState(false);
   const [excelUrl, setExcelUrl] = useState("");
 
@@ -126,24 +126,33 @@ export const AvtaleTabell = () => {
     return <Laster size="xlarge" tekst="Laster avtaler..." />;
   }
 
-  if (avtaler.length === 0) {
-    return <Alert variant="info">Fant ingen avtaler</Alert>;
-  }
-
   return (
     <div className={classNames(styles.tabell_wrapper, styles.avtaletabell)}>
       <div className={styles.tabell_topp_container}>
-        <PagineringsOversikt
-          page={page}
-          antall={avtaler.length}
-          maksAntall={pagination?.totalCount}
-          type="avtaler"
-          antallVises={filter.antallAvtalerVises}
-          setAntallVises={(value) => {
-            resetPaginering(setPage);
-            setFilter({ ...filter, antallAvtalerVises: value });
-          }}
-        />
+        <div className={styles.flex}>
+          <PagineringsOversikt
+            page={page}
+            antall={avtaler.length}
+            maksAntall={pagination?.totalCount}
+            type="avtaler"
+            antallVises={filter.antallAvtalerVises}
+            setAntallVises={(value) => {
+              resetPaginering(setPage);
+              setFilter({ ...filter, antallAvtalerVises: value });
+            }}
+          />
+          <Checkbox
+            checked={filter.visMineAvtaler}
+            onChange={(event) => {
+              setFilter({
+                ...filter,
+                visMineAvtaler: event.currentTarget.checked,
+              });
+            }}
+          >
+            Vis kun mine
+          </Checkbox>
+        </div>
         <div>
           <Button
             icon={<ExcelIkon />}
@@ -159,75 +168,80 @@ export const AvtaleTabell = () => {
           <a style={{ display: "none" }} ref={link}></a>
         </div>
       </div>
-
-      <Table
-        sort={sort!}
-        onSortChange={(sortKey) => handleSort(sortKey!)}
-        className={styles.tabell}
-      >
-        <Table.Header>
-          <Table.Row className={styles.avtale_tabellrad}>
-            <Table.ColumnHeader sortKey="navn" sortable>
-              Tittel
-            </Table.ColumnHeader>
-            <Table.ColumnHeader sortKey="leverandor" sortable>
-              Leverandør
-            </Table.ColumnHeader>
-            <Table.ColumnHeader sortKey="nav-enhet" sortable>
-              Region
-            </Table.ColumnHeader>
-            <Table.ColumnHeader sortKey="startdato" sortable>
-              Startdato
-            </Table.ColumnHeader>
-            <Table.ColumnHeader sortKey="sluttdato" sortable>
-              Sluttdato
-            </Table.ColumnHeader>
-            <Table.ColumnHeader>Status</Table.ColumnHeader>
-          </Table.Row>
-        </Table.Header>
-        <Table.Body>
-          {avtaler.map((avtale, index) => {
-            return (
-              <Table.Row key={index} className={styles.avtale_tabellrad}>
-                <Table.DataCell
-                  aria-label={`Avtalenavn: ${avtale.navn}`}
-                  className={styles.title}
-                >
-                  <Lenke to={`/avtaler/${avtale.id}`} data-testid="avtalerad">
-                    {avtale.navn}
-                  </Lenke>
-                </Table.DataCell>
-                <Table.DataCell
-                  aria-label={`Leverandør: ${avtale.leverandor?.navn}`}
-                >
-                  {capitalizeEveryWord(avtale.leverandor?.navn, ["og", "i"]) ||
-                    ""}
-                </Table.DataCell>
-                <Table.DataCell
-                  aria-label={`NAV-region: ${
-                    avtale.navRegion?.navn || avtale.navRegion?.enhetsnummer
-                  }`}
-                >
-                  {avtale.navRegion?.navn || avtale.navRegion?.enhetsnummer}
-                </Table.DataCell>
-                <Table.DataCell
-                  aria-label={`Startdato: ${formaterDato(avtale.startDato)}`}
-                >
-                  {formaterDato(avtale.startDato)}
-                </Table.DataCell>
-                <Table.DataCell
-                  aria-label={`Sluttdato: ${formaterDato(avtale.sluttDato)}`}
-                >
-                  {formaterDato(avtale.sluttDato)}
-                </Table.DataCell>
-                <Table.DataCell>
-                  <Avtalestatus avtale={avtale} />
-                </Table.DataCell>
-              </Table.Row>
-            );
-          })}
-        </Table.Body>
-      </Table>
+      {avtaler.length === 0 ? (
+        <Alert variant="info">Fant ingen avtaler</Alert>
+      ) : (
+        <Table
+          sort={sort!}
+          onSortChange={(sortKey) => handleSort(sortKey!)}
+          className={styles.tabell}
+        >
+          <Table.Header>
+            <Table.Row className={styles.avtale_tabellrad}>
+              <Table.ColumnHeader sortKey="navn" sortable>
+                Tittel
+              </Table.ColumnHeader>
+              <Table.ColumnHeader sortKey="leverandor" sortable>
+                Leverandør
+              </Table.ColumnHeader>
+              <Table.ColumnHeader sortKey="nav-enhet" sortable>
+                Region
+              </Table.ColumnHeader>
+              <Table.ColumnHeader sortKey="startdato" sortable>
+                Startdato
+              </Table.ColumnHeader>
+              <Table.ColumnHeader sortKey="sluttdato" sortable>
+                Sluttdato
+              </Table.ColumnHeader>
+              <Table.ColumnHeader>Status</Table.ColumnHeader>
+            </Table.Row>
+          </Table.Header>
+          <Table.Body>
+            {avtaler.map((avtale, index) => {
+              return (
+                <Table.Row key={index} className={styles.avtale_tabellrad}>
+                  <Table.DataCell
+                    aria-label={`Avtalenavn: ${avtale.navn}`}
+                    className={styles.title}
+                  >
+                    <Lenke to={`/avtaler/${avtale.id}`} data-testid="avtalerad">
+                      {avtale.navn}
+                    </Lenke>
+                  </Table.DataCell>
+                  <Table.DataCell
+                    aria-label={`Leverandør: ${avtale.leverandor?.navn}`}
+                  >
+                    {capitalizeEveryWord(avtale.leverandor?.navn, [
+                      "og",
+                      "i",
+                    ]) || ""}
+                  </Table.DataCell>
+                  <Table.DataCell
+                    aria-label={`NAV-region: ${
+                      avtale.navRegion?.navn || avtale.navRegion?.enhetsnummer
+                    }`}
+                  >
+                    {avtale.navRegion?.navn || avtale.navRegion?.enhetsnummer}
+                  </Table.DataCell>
+                  <Table.DataCell
+                    aria-label={`Startdato: ${formaterDato(avtale.startDato)}`}
+                  >
+                    {formaterDato(avtale.startDato)}
+                  </Table.DataCell>
+                  <Table.DataCell
+                    aria-label={`Sluttdato: ${formaterDato(avtale.sluttDato)}`}
+                  >
+                    {formaterDato(avtale.sluttDato)}
+                  </Table.DataCell>
+                  <Table.DataCell>
+                    <Avtalestatus avtale={avtale} />
+                  </Table.DataCell>
+                </Table.Row>
+              );
+            })}
+          </Table.Body>
+        </Table>
+      )}
       {avtaler.length > 0 ? (
         <PagineringContainer>
           <PagineringsOversikt
