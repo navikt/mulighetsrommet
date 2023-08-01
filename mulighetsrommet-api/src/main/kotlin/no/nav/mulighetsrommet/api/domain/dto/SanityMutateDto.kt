@@ -34,6 +34,7 @@ data class SanityTiltaksgjennomforing(
     val lokasjon: String? = null,
 )
 
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
 data class SanityEnhet(
     val _id: String,
@@ -46,6 +47,7 @@ data class SanityEnhet(
     val fylke: FylkeRef?,
 )
 
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
 data class EnhetSlug(
     @EncodeDefault
@@ -53,6 +55,7 @@ data class EnhetSlug(
     val current: String,
 )
 
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
 data class TiltakstypeRef(
     @EncodeDefault
@@ -66,6 +69,7 @@ data class TiltakstypeIdResponse(
     val _id: String,
 )
 
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
 data class FylkeRef(
     @EncodeDefault
