@@ -182,7 +182,7 @@ class VeilederflateService(
                         selskapsnavn = virksomhetService.hentEnhet(it.organisasjonsnummer)?.navn,
                         telefonnummer = it.telefon,
                         adresse = apiGjennomforing.lokasjonArrangor,
-                        epost = it?.epost,
+                        epost = it.epost,
                     )
                 }
                 val oppstart = apiGjennomforing?.oppstart?.name?.lowercase() ?: sanityData.oppstart

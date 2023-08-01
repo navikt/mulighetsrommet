@@ -1,8 +1,8 @@
 package no.nav.mulighetsrommet.api.services
 
 import arrow.core.Either
-import arrow.core.continuations.either
 import arrow.core.flatMap
+import arrow.core.raise.either
 import arrow.core.right
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle

@@ -8,33 +8,33 @@ import java.util.concurrent.atomic.AtomicInteger
 
 class MetrikkService(private val metrikkRepository: MetrikkRepository) {
     private val antallUlesteGauge: AtomicInteger =
-        Metrikker.appMicrometerRegistry.gauge("antall.uleste.notifikasjoner", AtomicInteger(0))
+        Metrikker.appMicrometerRegistry.gauge("antall.uleste.notifikasjoner", AtomicInteger(0))!!
     private val antallLesteGauge: AtomicInteger =
-        Metrikker.appMicrometerRegistry.gauge("antall.leste.notifikasjoner", AtomicInteger(0))
+        Metrikker.appMicrometerRegistry.gauge("antall.leste.notifikasjoner", AtomicInteger(0))!!
     private val antallAvtalerMedAnsvarligGauge: AtomicInteger =
-        Metrikker.appMicrometerRegistry.gauge("antall.avtaler.med.ansvarlig", AtomicInteger(0))
+        Metrikker.appMicrometerRegistry.gauge("antall.avtaler.med.ansvarlig", AtomicInteger(0))!!
     private val antallLeverandorer: AtomicInteger =
-        Metrikker.appMicrometerRegistry.gauge("antall.leverandorer", AtomicInteger(0))
+        Metrikker.appMicrometerRegistry.gauge("antall.leverandorer", AtomicInteger(0))!!
     private val antallArrangorer: AtomicInteger =
-        Metrikker.appMicrometerRegistry.gauge("antall.arrangorer", AtomicInteger(0))
+        Metrikker.appMicrometerRegistry.gauge("antall.arrangorer", AtomicInteger(0))!!
     private val antallAnsvarligeForGjennomforingGauge: AtomicInteger =
-        Metrikker.appMicrometerRegistry.gauge("antall.tiltaksgjennomforinger.med.ansvarlig", AtomicInteger(0))
+        Metrikker.appMicrometerRegistry.gauge("antall.tiltaksgjennomforinger.med.ansvarlig", AtomicInteger(0))!!
     private val antallGjennomforingerMedOpphavArenaGauge: AtomicInteger =
-        Metrikker.appMicrometerRegistry.gauge("antall.tiltaksgjennomforinger.fra.arena", AtomicInteger(0))
+        Metrikker.appMicrometerRegistry.gauge("antall.tiltaksgjennomforinger.fra.arena", AtomicInteger(0))!!
     private val antallGjennomforingerMedOpphavAdminflateGauge: AtomicInteger =
-        Metrikker.appMicrometerRegistry.gauge("antall.tiltaksgjennomforinger.fra.adminflate", AtomicInteger(0))
+        Metrikker.appMicrometerRegistry.gauge("antall.tiltaksgjennomforinger.fra.adminflate", AtomicInteger(0))!!
     private val antallDeltakereMedOpphavAmt: AtomicInteger =
-        Metrikker.appMicrometerRegistry.gauge("antall.deltakere.fra.komet", AtomicInteger(0))
+        Metrikker.appMicrometerRegistry.gauge("antall.deltakere.fra.komet", AtomicInteger(0))!!
     private val antallDeltakereMedOpphavArena: AtomicInteger =
-        Metrikker.appMicrometerRegistry.gauge("antall.deltakere.fra.arena", AtomicInteger(0))
+        Metrikker.appMicrometerRegistry.gauge("antall.deltakere.fra.arena", AtomicInteger(0))!!
     private val antallAvtalerFraAdminFlateGauge: AtomicInteger =
-        Metrikker.appMicrometerRegistry.gauge("antall.avtaler.fra.adminflate", AtomicInteger(0))
+        Metrikker.appMicrometerRegistry.gauge("antall.avtaler.fra.adminflate", AtomicInteger(0))!!
     private val antallAvtalerFraArenaGauge: AtomicInteger =
-        Metrikker.appMicrometerRegistry.gauge("antall.avtaler.fra.arena", AtomicInteger(0))
+        Metrikker.appMicrometerRegistry.gauge("antall.avtaler.fra.arena", AtomicInteger(0))!!
     private val antallAvtaleNotater: AtomicInteger =
-        Metrikker.appMicrometerRegistry.gauge("antall.avtaler.notater", AtomicInteger(0))
+        Metrikker.appMicrometerRegistry.gauge("antall.avtaler.notater", AtomicInteger(0))!!
     private val antallTiltaksgjennomforingNotater: AtomicInteger =
-        Metrikker.appMicrometerRegistry.gauge("antall.tiltaksgjennomforinger.notater", AtomicInteger(0))
+        Metrikker.appMicrometerRegistry.gauge("antall.tiltaksgjennomforinger.notater", AtomicInteger(0))!!
 
     fun oppdaterMetrikker() {
         antallUlesteGauge.set(metrikkRepository.hentAntallUlesteNotifikasjoner())
