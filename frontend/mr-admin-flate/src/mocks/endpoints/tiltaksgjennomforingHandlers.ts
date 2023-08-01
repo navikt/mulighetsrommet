@@ -20,13 +20,18 @@ export const tiltaksgjennomforingHandlers = [
     PaginertTiltaksgjennomforing | { x: string }
   >("*/api/v1/internal/tiltaksgjennomforinger/mine", (req, res, ctx) => {
     const brukerident = "B123456";
+    const data = mockTiltaksgjennomforinger.data.filter(
+      (gj) => gj.ansvarlig?.navident === brukerident,
+    );
     return res(
       ctx.status(200),
       ctx.json({
-        ...mockTiltaksgjennomforinger,
-        data: mockTiltaksgjennomforinger.data.filter(
-          (gj) => gj.ansvarlig?.navident === brukerident,
-        ),
+        pagination: {
+          pageSize: 15,
+          currentPage: 1,
+          totalCount: data.length,
+        },
+        data,
       }),
     );
   }),
