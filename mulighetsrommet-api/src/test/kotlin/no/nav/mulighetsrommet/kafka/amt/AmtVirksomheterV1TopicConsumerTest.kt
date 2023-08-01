@@ -13,8 +13,10 @@ import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
+import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures.avtale1
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
+import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.api.repositories.VirksomhetRepository
@@ -30,6 +32,8 @@ class AmtVirksomheterV1TopicConsumerTest : FunSpec({
         beforeTest {
             val tiltak = TiltakstypeRepository(database.db)
             tiltak.upsert(TiltakstypeFixtures.Oppfolging).getOrThrow()
+            val avtaler = AvtaleRepository(database.db)
+            avtaler.upsert(avtale1)
 
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
             tiltaksgjennomforinger.upsert(TiltaksgjennomforingFixtures.Oppfolging1)

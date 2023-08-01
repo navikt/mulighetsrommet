@@ -239,7 +239,7 @@ class VirksomhetRepositoryTest : FunSpec({
                 arenaAnsvarligEnhet = null,
                 avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
                 tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.LEDIG,
-                antallPlasser = null,
+                antallPlasser = 12,
                 ansvarlige = emptyList(),
                 navEnheter = emptyList(),
                 oppstart = TiltaksgjennomforingOppstartstype.FELLES,
@@ -249,8 +249,9 @@ class VirksomhetRepositoryTest : FunSpec({
                 arrangorKontaktpersonId = null,
                 stengtFra = null,
                 stengtTil = null,
-                lokasjonArrangor = null,
+                lokasjonArrangor = "Oslo",
                 estimertVentetid = null,
+                avtaleId = avtale.id,
             )
             tiltaksgjennomforingRepository.upsert(tiltaksgjennomforing)
 

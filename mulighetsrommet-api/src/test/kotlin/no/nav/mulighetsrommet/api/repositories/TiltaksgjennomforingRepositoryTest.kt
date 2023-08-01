@@ -67,7 +67,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     arenaAnsvarligEnhet = TiltaksgjennomforingFixtures.Oppfolging1.arenaAnsvarligEnhet,
                     status = Tiltaksgjennomforingsstatus.AVSLUTTET,
                     tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.LEDIG,
-                    antallPlasser = null,
+                    antallPlasser = 12,
                     avtaleId = TiltaksgjennomforingFixtures.Oppfolging1.avtaleId,
                     ansvarlig = null,
                     navEnheter = emptyList(),
@@ -76,7 +76,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
                     stengtFra = null,
                     kontaktpersoner = listOf(),
-                    lokasjonArrangor = null,
+                    lokasjonArrangor = "Oslo",
                     stengtTil = null,
                     navRegion = null,
                     estimertVentetid = null,
@@ -246,9 +246,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         }
 
         test("kontaktpersoner på tiltaksgjennomføring CRUD") {
-            val domain = MulighetsrommetTestDomain()
-            domain.initialize(database.db)
-
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
 
             val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1.copy(
@@ -494,10 +491,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
     context("TiltaksgjennomforingAnsvarlig") {
         test("Ansvarlige crud") {
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-
-            val domain = MulighetsrommetTestDomain()
-            domain.initialize(database.db)
-
             val gjennomforing =
                 TiltaksgjennomforingFixtures.Oppfolging1.copy(ansvarlige = listOf(NavAnsattFixture.ansatt1.navIdent))
             tiltaksgjennomforinger.upsert(gjennomforing)
@@ -638,8 +631,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         context("when there are no limits to available seats") {
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
             beforeAny {
-                tiltaksgjennomforinger.upsert(
-                    TiltaksgjennomforingFixtures.Oppfolging1.copy(
+                tiltaksgjennomforinger.upsertArenaTiltaksgjennomforing(
+                    TiltaksgjennomforingFixtures.ArenaOppfolging1.copy(
                         tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.LEDIG,
                         antallPlasser = null,
                     ),
@@ -647,7 +640,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             }
 
             test("should have tilgjengelighet set to Ledig") {
-                tiltaksgjennomforinger.get(TiltaksgjennomforingFixtures.Oppfolging1.id)
+                tiltaksgjennomforinger.get(TiltaksgjennomforingFixtures.ArenaOppfolging1.id)
                     ?.tilgjengelighet shouldBe TiltaksgjennomforingTilgjengelighetsstatus.LEDIG
             }
         }
@@ -875,7 +868,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 ),
             ).shouldBeRight()
 
-            val avtale = avtale1.copy(navRegion = "nav_region")
+            val avtale = avtale1.copy(id = UUID.randomUUID(), navRegion = "nav_region")
             avtaler.upsert(avtale)
             val gj1 = TiltaksgjennomforingFixtures.Oppfolging1.copy(id = UUID.randomUUID(), navEnheter = listOf("1"))
             val gj2 = TiltaksgjennomforingFixtures.Oppfolging1.copy(id = UUID.randomUUID(), arenaAnsvarligEnhet = "1")

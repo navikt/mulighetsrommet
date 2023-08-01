@@ -8,8 +8,9 @@ import java.time.LocalDate
 import java.util.*
 
 object AvtaleFixtures {
+    val avtale1Id = UUID.randomUUID()
     val avtale1 = AvtaleDbo(
-        id = UUID.randomUUID(),
+        id = avtale1Id,
         navn = "Avtalenavn",
         avtalenummer = "2023#1",
         tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,

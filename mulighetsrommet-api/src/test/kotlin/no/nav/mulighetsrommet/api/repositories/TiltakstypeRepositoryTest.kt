@@ -5,7 +5,7 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import kotliquery.Query
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
-import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
+import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures.avtale1
 import no.nav.mulighetsrommet.api.fixtures.DeltakerFixture
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
@@ -318,6 +318,7 @@ class TiltakstypeRepositoryTest : FunSpec({
 
             tiltakstypeRepository.upsert(tiltakstype).getOrThrow()
             tiltakstypeRepository.upsert(tiltakstypeUtenGjennomforinger).getOrThrow()
+            avtaleRepository.upsert(avtale1)
 
             tiltaksgjennomforingRepository.upsert(gjennomforing1)
             tiltaksgjennomforingRepository.upsert(gjennomforing2)
@@ -337,7 +338,7 @@ class TiltakstypeRepositoryTest : FunSpec({
         test("Skal telle korrekt antall deltakere tilknyttet en avtale") {
             val tiltakstypeIdSomIkkeSkalMatche = UUID.randomUUID()
 
-            val avtale = AvtaleFixtures.avtale1
+            val avtale = avtale1.copy(id = UUID.randomUUID())
 
             val gjennomforing1 = TiltaksgjennomforingFixtures.Oppfolging1.copy(
                 id = UUID.randomUUID(),
@@ -386,6 +387,7 @@ class TiltakstypeRepositoryTest : FunSpec({
             tiltakstypeRepository.upsert(tiltakstype).getOrThrow()
             tiltakstypeRepository.upsert(tiltakstypeUtenGjennomforinger).getOrThrow()
 
+            avtaleRepository.upsert(avtale1)
             avtaleRepository.upsert(avtale)
 
             tiltaksgjennomforingRepository.upsert(gjennomforing1)

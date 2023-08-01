@@ -4,6 +4,8 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
+import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
+import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures.avtale1
 import no.nav.mulighetsrommet.api.fixtures.DeltakerFixture
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
@@ -28,7 +30,9 @@ class DeltakerRepositoryTest : FunSpec({
     context("consume deltakere") {
         beforeTest {
             val tiltak = TiltakstypeRepository(database.db)
+            val avtale = AvtaleRepository(database.db)
             tiltak.upsert(TiltakstypeFixtures.Oppfolging).getOrThrow()
+            avtale.upsert(AvtaleFixtures.avtale1)
 
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
             tiltaksgjennomforinger.upsert(TiltaksgjennomforingFixtures.Oppfolging1)
@@ -85,6 +89,7 @@ class DeltakerRepositoryTest : FunSpec({
         val tiltakstypeRepository = TiltakstypeRepository(database.db)
         val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
         val deltakerRepository = DeltakerRepository(database.db)
+        val avtaleRepository = AvtaleRepository(database.db)
 
         test("Skal telle korrekt antall deltakere for en tiltakstype hittil i år") {
             val tiltakstype = TiltakstypeFixtures.Oppfolging
@@ -106,6 +111,7 @@ class DeltakerRepositoryTest : FunSpec({
 
             tiltakstypeRepository.upsert(tiltakstype)
             tiltakstypeRepository.upsert(tiltakstype2)
+            avtaleRepository.upsert(avtale1)
             tiltaksgjennomforingRepository.upsert(TiltaksgjennomforingFixtures.Oppfolging1)
             tiltaksgjennomforingRepository.upsert(
                 TiltaksgjennomforingFixtures.Oppfolging2.copy(tiltakstypeId = tiltakstype2.id),

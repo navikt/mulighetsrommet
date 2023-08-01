@@ -287,17 +287,22 @@ export const TiltaksgjennomforingSkjemaContainer = (
   const postData: SubmitHandler<inferredTiltaksgjennomforingSchema> = async (
     data,
   ): Promise<void> => {
+    if (!avtale) {
+      setError(tekniskFeilError());
+      return;
+    }
+
     const body: TiltaksgjennomforingRequest = {
       id: tiltaksgjennomforing ? tiltaksgjennomforing.id : uuidv4(),
       antallPlasser: data.antallPlasser,
-      tiltakstypeId: avtale?.tiltakstype.id || "",
+      tiltakstypeId: avtale.tiltakstype.id,
       navEnheter: data.navEnheter.includes("alle_enheter")
         ? []
         : data.navEnheter,
       navn: data.navn,
       sluttDato: formaterDatoSomYYYYMMDD(data.startOgSluttDato.sluttDato),
       startDato: formaterDatoSomYYYYMMDD(data.startOgSluttDato.startDato),
-      avtaleId: avtale?.id || "",
+      avtaleId: avtale.id,
       ansvarlig: data.ansvarlig,
       arrangorOrganisasjonsnummer:
         data.tiltaksArrangorUnderenhetOrganisasjonsnummer ||

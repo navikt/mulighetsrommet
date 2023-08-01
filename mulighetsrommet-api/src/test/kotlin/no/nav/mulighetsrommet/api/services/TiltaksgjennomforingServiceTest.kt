@@ -196,7 +196,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
                     sluttDato = LocalDate.of(2022, 1, 1),
                 ),
             )
-            val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1Request(avtaleId)
+            val gjennomforing = TiltaksgjennomforingFixtures.oppfolging1Request(avtaleId)
             tiltaksgjennomforingService.upsert(gjennomforing, LocalDate.of(2022, 2, 2)).shouldBeLeft().should {
                 it.status shouldBe HttpStatusCode.BadRequest
             }
@@ -210,7 +210,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
                     sluttDato = LocalDate.of(2022, 1, 1),
                 ),
             )
-            val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1Request(avtaleId).copy(antallPlasser = 0)
+            val gjennomforing = TiltaksgjennomforingFixtures.oppfolging1Request(avtaleId).copy(antallPlasser = 0)
             tiltaksgjennomforingService.upsert(gjennomforing, LocalDate.of(2022, 2, 2)).shouldBeLeft()
         }
     }
