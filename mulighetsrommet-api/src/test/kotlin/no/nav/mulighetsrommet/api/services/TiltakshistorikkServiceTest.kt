@@ -7,9 +7,8 @@ import io.mockk.mockk
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.domain.dto.TiltakshistorikkDto
-import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures.avtale1
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures.avtale1Id
-import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
+import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakshistorikkRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
@@ -95,11 +94,10 @@ class TiltakshistorikkServiceTest : FunSpec({
     )
 
     beforeSpec {
+        MulighetsrommetTestDomain().initialize(database.db)
         val tiltakstyper = TiltakstypeRepository(database.db)
         tiltakstyper.upsert(tiltakstype)
         tiltakstyper.upsert(tiltakstypeIndividuell)
-        val avtaler = AvtaleRepository(database.db)
-        avtaler.upsert(avtale1)
 
         val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
         tiltaksgjennomforinger.upsert(tiltaksgjennomforing)

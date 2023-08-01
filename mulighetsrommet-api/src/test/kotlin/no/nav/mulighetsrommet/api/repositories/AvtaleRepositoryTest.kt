@@ -563,7 +563,7 @@ class AvtaleRepositoryTest : FunSpec({
 
                 descending.second shouldHaveSize 3
                 descending.second[0].navRegion shouldBe NavEnhet(enhetsnummer = "2", navn = "zorro")
-                descending.second[1].navRegion shouldBe NavEnhet(enhetsnummer = "2", navn = "zorro")
+                descending.second[1].navRegion shouldBe NavEnhet(enhetsnummer = "1", navn = "alvdal")
                 descending.second[2].navRegion shouldBe NavEnhet(enhetsnummer = "1", navn = "alvdal")
             }
 
