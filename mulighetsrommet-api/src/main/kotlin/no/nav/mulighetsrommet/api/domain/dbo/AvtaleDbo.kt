@@ -17,7 +17,7 @@ data class AvtaleDbo(
     val startDato: LocalDate,
     val sluttDato: LocalDate,
     val arenaAnsvarligEnhet: String?,
-    val navRegion: String?,
+    val navRegion: String,
     val navEnheter: List<String>,
     val avtaletype: Avtaletype,
     val avslutningsstatus: Avslutningsstatus,

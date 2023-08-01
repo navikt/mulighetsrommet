@@ -5,8 +5,11 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.*
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
+import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
+import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
+import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.domain.dbo.OverordnetEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
@@ -198,6 +201,16 @@ class VirksomhetRepositoryTest : FunSpec({
             val avtaleRepository = AvtaleRepository(database.db)
             val tiltakstypeRepository = TiltakstypeRepository(database.db)
             val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
+            val navEnhetRepository = NavEnhetRepository(database.db)
+            navEnhetRepository.upsert(
+                NavEnhetDbo(
+                    navn = "Oslo",
+                    enhetsnummer = "0100",
+                    status = NavEnhetStatus.AKTIV,
+                    type = Norg2Type.FYLKE,
+                    overordnetEnhet = null,
+                ),
+            ).shouldBeRight()
 
             val tiltakstypeId = UUID.randomUUID()
             tiltakstypeRepository.upsert(
@@ -222,7 +235,7 @@ class VirksomhetRepositoryTest : FunSpec({
                 startDato = LocalDate.now(),
                 sluttDato = LocalDate.now(),
                 arenaAnsvarligEnhet = null,
-                navRegion = null,
+                navRegion = "0100",
                 navEnheter = emptyList(),
                 avtaletype = Avtaletype.Avtale,
                 avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,

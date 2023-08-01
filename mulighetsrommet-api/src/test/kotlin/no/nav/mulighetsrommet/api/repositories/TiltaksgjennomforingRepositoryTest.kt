@@ -78,7 +78,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     kontaktpersoner = listOf(),
                     lokasjonArrangor = "Oslo",
                     stengtTil = null,
-                    navRegion = null,
+                    navRegion = NavEnhet(navn = "IT", enhetsnummer = "2990"),
                     estimertVentetid = null,
                 )
 
@@ -102,7 +102,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 avslutningsstatus = Avslutningsstatus.AVSLUTTET,
                 tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.STENGT,
                 antallPlasser = 10,
-                avtaleId = avtale1.id,
+                avtaleId = null,
                 oppstart = TiltaksgjennomforingOppstartstype.FELLES,
                 opphav = ArenaMigrering.Opphav.ARENA,
             )
@@ -127,7 +127,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 arenaAnsvarligEnhet = "0400",
                 tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.STENGT,
                 antallPlasser = 10,
-                avtaleId = avtale1.id,
+                avtaleId = null,
                 oppstart = TiltaksgjennomforingOppstartstype.FELLES,
                 status = Tiltaksgjennomforingsstatus.AVSLUTTET,
                 estimertVentetid = null,
@@ -187,7 +187,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 TiltaksgjennomforingFixtures.Oppfolging1.copy(avtaleId = avtale.id, navEnheter = listOf("2980"))
             tiltaksgjennomforinger.upsert(tiltaksgjennomforing)
             tiltaksgjennomforinger.get(tiltaksgjennomforing.id).should {
-                it?.navRegion shouldBe "NAV Andeby"
+                it?.navRegion?.navn shouldBe "NAV Andeby"
                 it?.navEnheter?.shouldContain(NavEnhet(enhetsnummer = "2980", "NAV Gåseby"))
             }
         }

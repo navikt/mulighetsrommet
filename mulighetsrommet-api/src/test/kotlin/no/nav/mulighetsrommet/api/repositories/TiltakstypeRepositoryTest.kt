@@ -4,7 +4,10 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import kotliquery.Query
+import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
+import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
+import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures.avtale1
 import no.nav.mulighetsrommet.api.fixtures.DeltakerFixture
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
@@ -283,6 +286,7 @@ class TiltakstypeRepositoryTest : FunSpec({
         val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
         val deltakerRepository = DeltakerRepository(database.db)
         val avtaleRepository = AvtaleRepository(database.db)
+        val navEnhetRepository = NavEnhetRepository(database.db)
 
         test("Skal telle korrekt antall tiltaksgjennomføringer tilknyttet en tiltakstype") {
             val tiltakstypeIdSomIkkeSkalMatche = UUID.randomUUID()
@@ -318,6 +322,15 @@ class TiltakstypeRepositoryTest : FunSpec({
 
             tiltakstypeRepository.upsert(tiltakstype).getOrThrow()
             tiltakstypeRepository.upsert(tiltakstypeUtenGjennomforinger).getOrThrow()
+            navEnhetRepository.upsert(
+                NavEnhetDbo(
+                    navn = "IT",
+                    enhetsnummer = "2990",
+                    status = NavEnhetStatus.AKTIV,
+                    type = Norg2Type.FYLKE,
+                    overordnetEnhet = null,
+                ),
+            )
             avtaleRepository.upsert(avtale1)
 
             tiltaksgjennomforingRepository.upsert(gjennomforing1)
@@ -337,6 +350,15 @@ class TiltakstypeRepositoryTest : FunSpec({
 
         test("Skal telle korrekt antall deltakere tilknyttet en avtale") {
             val tiltakstypeIdSomIkkeSkalMatche = UUID.randomUUID()
+            navEnhetRepository.upsert(
+                NavEnhetDbo(
+                    navn = "IT",
+                    enhetsnummer = "2990",
+                    status = NavEnhetStatus.AKTIV,
+                    type = Norg2Type.FYLKE,
+                    overordnetEnhet = null,
+                ),
+            )
 
             val avtale = avtale1.copy(id = UUID.randomUUID())
 

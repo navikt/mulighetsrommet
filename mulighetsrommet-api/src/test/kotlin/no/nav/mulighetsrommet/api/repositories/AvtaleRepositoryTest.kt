@@ -538,7 +538,6 @@ class AvtaleRepositoryTest : FunSpec({
                 )
                 val avtale3 = avtale1.copy(
                     id = UUID.randomUUID(),
-                    navRegion = null,
                     navn = "Avtale hos Øyvind",
                 )
                 avtaler.upsert(avtale1)
@@ -553,8 +552,8 @@ class AvtaleRepositoryTest : FunSpec({
 
                 ascending.second shouldHaveSize 3
                 ascending.second[0].navRegion shouldBe NavEnhet(enhetsnummer = "1", navn = "alvdal")
-                ascending.second[1].navRegion shouldBe NavEnhet(enhetsnummer = "2", navn = "zorro")
-                ascending.second[2].navRegion shouldBe null
+                ascending.second[1].navRegion shouldBe NavEnhet(enhetsnummer = "1", navn = "alvdal")
+                ascending.second[2].navRegion shouldBe NavEnhet(enhetsnummer = "2", navn = "zorro")
 
                 val descending = avtaler.getAll(
                     filter = defaultFilter.copy(
@@ -563,7 +562,7 @@ class AvtaleRepositoryTest : FunSpec({
                 )
 
                 descending.second shouldHaveSize 3
-                descending.second[0].navRegion shouldBe null
+                descending.second[0].navRegion shouldBe NavEnhet(enhetsnummer = "2", navn = "zorro")
                 descending.second[1].navRegion shouldBe NavEnhet(enhetsnummer = "2", navn = "zorro")
                 descending.second[2].navRegion shouldBe NavEnhet(enhetsnummer = "1", navn = "alvdal")
             }

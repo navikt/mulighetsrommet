@@ -7,6 +7,7 @@ import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures.avtale1
 import no.nav.mulighetsrommet.api.fixtures.DeltakerFixture
+import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
@@ -25,15 +26,11 @@ class DeltakerRepositoryTest : FunSpec({
 
     beforeEach {
         database.db.truncateAll()
+        MulighetsrommetTestDomain().initialize(database.db)
     }
 
     context("consume deltakere") {
         beforeTest {
-            val tiltak = TiltakstypeRepository(database.db)
-            val avtale = AvtaleRepository(database.db)
-            tiltak.upsert(TiltakstypeFixtures.Oppfolging).getOrThrow()
-            avtale.upsert(AvtaleFixtures.avtale1)
-
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
             tiltaksgjennomforinger.upsert(TiltaksgjennomforingFixtures.Oppfolging1)
             tiltaksgjennomforinger.upsert(TiltaksgjennomforingFixtures.Oppfolging2)

@@ -8,16 +8,20 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.ktor.http.*
 import io.mockk.mockk
+import io.mockk.verify
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
+import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattDbo
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
+import no.nav.mulighetsrommet.api.repositories.NavAnsattRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
+import no.nav.mulighetsrommet.notifications.NotificationService
 import no.nav.mulighetsrommet.utils.toUUID
 import java.time.LocalDate
 import java.util.*
@@ -25,6 +29,8 @@ import java.util.*
 class AvtaleServiceTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
     val virksomhetService: VirksomhetService = mockk(relaxed = true)
+    val notificationService: NotificationService = mockk(relaxed = true)
+    val utkastService: UtkastService = mockk(relaxed = true)
     val domain = MulighetsrommetTestDomain()
 
     beforeEach {
@@ -40,6 +46,8 @@ class AvtaleServiceTest : FunSpec({
             avtaler = avtaler,
             tiltaksgjennomforinger = tiltaksgjennomforinger,
             virksomhetService = virksomhetService,
+            utkastService = utkastService,
+            notificationService = notificationService,
         )
 
         test("Man skal ikke få slette dersom avtalen ikke finnes") {
@@ -146,6 +154,8 @@ class AvtaleServiceTest : FunSpec({
             avtaler = avtaleRepository,
             tiltaksgjennomforinger = tiltaksgjennomforinger,
             virksomhetService = virksomhetService,
+            utkastService = utkastService,
+            notificationService = notificationService,
         )
 
         test("Man skal ikke få avbryte dersom avtalen ikke finnes") {
@@ -244,6 +254,73 @@ class AvtaleServiceTest : FunSpec({
             avtaleRepository.upsert(avtale).right()
 
             avtaleService.avbrytAvtale(avtale.id, currentDate = currentDate)
+        }
+    }
+
+    context("Ansvarlig notification") {
+        val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
+        val avtaler = AvtaleRepository(database.db)
+        val avtaleService = AvtaleService(
+            avtaler = avtaler,
+            tiltaksgjennomforinger = tiltaksgjennomforinger,
+            virksomhetService = virksomhetService,
+            utkastService = utkastService,
+            notificationService = notificationService,
+        )
+        val navAnsattRepository = NavAnsattRepository(database.db)
+
+        test("Ingen ansvarlig notification hvis ansvarlig er samme som opprettet") {
+            navAnsattRepository.upsert(
+                NavAnsattDbo(
+                    navIdent = "B123456",
+                    fornavn = "Bertil",
+                    etternavn = "Betabruker",
+                    hovedenhet = "2990",
+                    azureId = UUID.randomUUID(),
+                    mobilnummer = null,
+                    epost = "",
+                    roller = emptySet(),
+                    skalSlettesDato = null,
+                ),
+            )
+            val avtale = AvtaleFixtures.avtaleRequest.copy(ansvarlig = "B123456")
+            avtaleService.upsert(avtale, "B123456").shouldBeRight()
+
+            verify(exactly = 0) { notificationService.scheduleNotification(any(), any()) }
+        }
+
+        test("Bare én ansvarlig notification når man endrer gjennomforing") {
+            navAnsattRepository.upsert(
+                NavAnsattDbo(
+                    navIdent = "B123456",
+                    fornavn = "Bertil",
+                    etternavn = "Betabruker",
+                    hovedenhet = "2990",
+                    azureId = UUID.randomUUID(),
+                    mobilnummer = null,
+                    epost = "",
+                    roller = emptySet(),
+                    skalSlettesDato = null,
+                ),
+            )
+            navAnsattRepository.upsert(
+                NavAnsattDbo(
+                    navIdent = "Z654321",
+                    fornavn = "Zorre",
+                    etternavn = "Betabruker",
+                    hovedenhet = "2990",
+                    azureId = UUID.randomUUID(),
+                    mobilnummer = null,
+                    epost = "",
+                    roller = emptySet(),
+                    skalSlettesDato = null,
+                ),
+            )
+            val avtale = AvtaleFixtures.avtaleRequest.copy(ansvarlig = "Z654321")
+            avtaleService.upsert(avtale, "B123456").shouldBeRight()
+            avtaleService.upsert(avtale.copy(navn = "nytt navn"), "B123456").shouldBeRight()
+
+            verify(exactly = 1) { notificationService.scheduleNotification(any(), any()) }
         }
     }
 })
