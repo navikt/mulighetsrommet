@@ -38,7 +38,10 @@ object Tiltakskoder {
         "ARBRRHDAG",
         "AVKLARAG",
         "DIGIOPPARB",
+        "GRUFAGYRKE",
+        "GRUPPEAMO",
         "INDOPPFAG",
+        "JOBBK",
         "VASV",
     )
 
