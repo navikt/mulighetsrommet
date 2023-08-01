@@ -21,7 +21,7 @@ export const mockAvtaler: PaginertAvtale = {
       },
       navn: "Testtiltak Varig",
       ansvarlig: {
-        navident: "B123456",
+        navident: "B99876",
         navn: "Bertil Betabruker",
       },
       opphav: Opphav.MR_ADMIN_FLATE,
@@ -84,7 +84,7 @@ export const mockAvtaler: PaginertAvtale = {
       },
       opphav: Opphav.ARENA,
       ansvarlig: {
-        navident: "B123456",
+        navident: "B99876",
         navn: "Bertil Betabruker",
       },
       leverandorUnderenheter: [
@@ -108,7 +108,7 @@ export const mockAvtaler: PaginertAvtale = {
       id: "6374b285-989d-4f78-a59e-29481b64ba92",
       opphav: Opphav.ARENA,
       ansvarlig: {
-        navident: "B123456",
+        navident: "B99876",
         navn: "Bertil Betabruker",
       },
       tiltakstype: {
@@ -147,7 +147,7 @@ export const mockAvtaler: PaginertAvtale = {
       avtalenummer: "2020#4993",
       opphav: Opphav.ARENA,
       ansvarlig: {
-        navident: "B123456",
+        navident: "B99876",
         navn: "Bertil Betabruker",
       },
       leverandor: {
@@ -172,7 +172,7 @@ export const mockAvtaler: PaginertAvtale = {
       id: "8a4a4dee-98c7-4a07-bc0c-f677a46c406f",
       opphav: Opphav.ARENA,
       ansvarlig: {
-        navident: "B123456",
+        navident: "B99876",
         navn: "Bertil Betabruker",
       },
       tiltakstype: {

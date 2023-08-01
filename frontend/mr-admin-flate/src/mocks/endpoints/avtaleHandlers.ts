@@ -25,6 +25,26 @@ export const avtaleHandlers = [
     },
   ),
 
+  rest.get<DefaultBodyType, PathParams, PaginertAvtale | undefined>(
+    "*/api/v1/internal/avtaler/mine",
+    (req, res, ctx) => {
+      const avtalestatus = req.url.searchParams.get("avtalestatus");
+      const brukerident = "B99876";
+
+      return res(
+        ctx.status(200),
+        ctx.json({
+          ...mockAvtaler,
+          data: mockAvtaler.data.filter(
+            (a) =>
+              (a.avtalestatus === avtalestatus || avtalestatus === null) &&
+              a.ansvarlig?.navident === brukerident,
+          ),
+        }),
+      );
+    },
+  ),
+
   rest.get<DefaultBodyType, PathParams, Avtale | undefined>(
     "*/api/v1/internal/avtaler/:id",
     (req, res, ctx) => {

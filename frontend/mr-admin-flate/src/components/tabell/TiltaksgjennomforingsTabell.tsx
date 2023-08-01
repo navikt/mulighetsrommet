@@ -81,10 +81,6 @@ export const TiltaksgjennomforingsTabell = ({ skjulKolonner }: Props) => {
     return <Laster size="xlarge" tekst="Laster tiltaksgjennomføringer..." />;
   }
 
-  if (tiltaksgjennomforinger.length === 0) {
-    return <Alert variant="info">Fant ingen tiltaksgjennomføringer</Alert>;
-  }
-
   const handleSort = (sortKey: string) => {
     // Hvis man bytter sortKey starter vi med ascending
     const direction =
@@ -146,135 +142,139 @@ export const TiltaksgjennomforingsTabell = ({ skjulKolonner }: Props) => {
           Vis mine gjennomføringer
         </Checkbox>
       </div>
-      <Table
-        sort={sort!}
-        onSortChange={(sortKey) => handleSort(sortKey!)}
-        className={styles.tabell}
-      >
-        <Table.Header>
-          <Table.Row className={styles.tiltaksgjennomforing_tabellrad}>
-            {headers
-              .filter((header) => {
-                return skjulKolonner ? !skjulKolonner[header.sortKey] : true;
-              })
-              .map((header) => (
-                <Table.ColumnHeader
-                  key={header.sortKey}
-                  sortKey={header.sortKey}
-                  sortable={header.sortable}
-                  style={{ width: header.width }}
-                >
-                  {header.tittel}
-                </Table.ColumnHeader>
-              ))}
-          </Table.Row>
-        </Table.Header>
-        {tiltaksgjennomforinger.length > 0 ? (
-          <Table.Body>
-            {tiltaksgjennomforinger.map((tiltaksgjennomforing, index) => {
-              return (
-                <Table.Row
-                  key={index}
-                  className={styles.tiltaksgjennomforing_tabellrad}
-                >
-                  <SkjulKolonne skjul={!!skjulKolonner?.navn}>
-                    <Table.DataCell
-                      aria-label={`Navn på tiltaksgjennomforing: ${tiltaksgjennomforing.navn}`}
-                      className={styles.title}
-                    >
-                      <Lenke
-                        to={`/tiltaksgjennomforinger/${tiltaksgjennomforing.id}`}
-                        data-testid="tiltaksgjennomforingrad"
+      {tiltaksgjennomforinger.length === 0 ? (
+        <Alert variant="info">Fant ingen tiltaksgjennomføringer</Alert>
+      ) : (
+        <Table
+          sort={sort!}
+          onSortChange={(sortKey) => handleSort(sortKey!)}
+          className={styles.tabell}
+        >
+          <Table.Header>
+            <Table.Row className={styles.tiltaksgjennomforing_tabellrad}>
+              {headers
+                .filter((header) => {
+                  return skjulKolonner ? !skjulKolonner[header.sortKey] : true;
+                })
+                .map((header) => (
+                  <Table.ColumnHeader
+                    key={header.sortKey}
+                    sortKey={header.sortKey}
+                    sortable={header.sortable}
+                    style={{ width: header.width }}
+                  >
+                    {header.tittel}
+                  </Table.ColumnHeader>
+                ))}
+            </Table.Row>
+          </Table.Header>
+          {tiltaksgjennomforinger.length > 0 ? (
+            <Table.Body>
+              {tiltaksgjennomforinger.map((tiltaksgjennomforing, index) => {
+                return (
+                  <Table.Row
+                    key={index}
+                    className={styles.tiltaksgjennomforing_tabellrad}
+                  >
+                    <SkjulKolonne skjul={!!skjulKolonner?.navn}>
+                      <Table.DataCell
+                        aria-label={`Navn på tiltaksgjennomforing: ${tiltaksgjennomforing.navn}`}
+                        className={styles.title}
                       >
-                        {tiltaksgjennomforing.navn}
-                      </Lenke>
-                    </Table.DataCell>
-                  </SkjulKolonne>
+                        <Lenke
+                          to={`/tiltaksgjennomforinger/${tiltaksgjennomforing.id}`}
+                          data-testid="tiltaksgjennomforingrad"
+                        >
+                          {tiltaksgjennomforing.navn}
+                        </Lenke>
+                      </Table.DataCell>
+                    </SkjulKolonne>
 
-                  <SkjulKolonne skjul={!!skjulKolonner?.enhet}>
-                    <Table.DataCell
-                      aria-label={`Enheter: ${tiltaksgjennomforing?.navEnheter
-                        .map((enhet) => enhet?.navn)
-                        .join(", ")}`}
-                      title={`Enheter: ${tiltaksgjennomforing?.navEnheter
-                        .map((enhet) => enhet?.navn)
-                        .join(", ")}`}
-                    >
-                      {formaterNavEnheter(
-                        tiltaksgjennomforing.navRegion,
-                        tiltaksgjennomforing.navEnheter,
-                      )}
-                    </Table.DataCell>
-                  </SkjulKolonne>
+                    <SkjulKolonne skjul={!!skjulKolonner?.enhet}>
+                      <Table.DataCell
+                        aria-label={`Enheter: ${tiltaksgjennomforing?.navEnheter
+                          .map((enhet) => enhet?.navn)
+                          .join(", ")}`}
+                        title={`Enheter: ${tiltaksgjennomforing?.navEnheter
+                          .map((enhet) => enhet?.navn)
+                          .join(", ")}`}
+                      >
+                        {formaterNavEnheter(
+                          tiltaksgjennomforing.navRegion,
+                          tiltaksgjennomforing.navEnheter,
+                        )}
+                      </Table.DataCell>
+                    </SkjulKolonne>
 
-                  <SkjulKolonne skjul={!!skjulKolonner?.tiltaksnummer}>
-                    <Table.DataCell
-                      aria-label={`Tiltaksnummer: ${tiltaksgjennomforing.tiltaksnummer}`}
-                    >
-                      {tiltaksgjennomforing.tiltaksnummer}
-                    </Table.DataCell>
-                  </SkjulKolonne>
+                    <SkjulKolonne skjul={!!skjulKolonner?.tiltaksnummer}>
+                      <Table.DataCell
+                        aria-label={`Tiltaksnummer: ${tiltaksgjennomforing.tiltaksnummer}`}
+                      >
+                        {tiltaksgjennomforing.tiltaksnummer}
+                      </Table.DataCell>
+                    </SkjulKolonne>
 
-                  <SkjulKolonne skjul={!!skjulKolonner?.arrangor}>
-                    <Table.DataCell
-                      aria-label={`Virksomhetsnavn: ${tiltaksgjennomforing.arrangor.navn}`}
-                    >
-                      {tiltaksgjennomforing.arrangor.navn}
-                    </Table.DataCell>
-                  </SkjulKolonne>
+                    <SkjulKolonne skjul={!!skjulKolonner?.arrangor}>
+                      <Table.DataCell
+                        aria-label={`Virksomhetsnavn: ${tiltaksgjennomforing.arrangor.navn}`}
+                      >
+                        {tiltaksgjennomforing.arrangor.navn}
+                      </Table.DataCell>
+                    </SkjulKolonne>
 
-                  <SkjulKolonne skjul={!!skjulKolonner?.tiltakstype}>
-                    <Table.DataCell
-                      aria-label={`Tiltakstypenavn: ${tiltaksgjennomforing.tiltakstype.navn}`}
-                    >
-                      {tiltaksgjennomforing.tiltakstype.navn}
-                    </Table.DataCell>
-                  </SkjulKolonne>
+                    <SkjulKolonne skjul={!!skjulKolonner?.tiltakstype}>
+                      <Table.DataCell
+                        aria-label={`Tiltakstypenavn: ${tiltaksgjennomforing.tiltakstype.navn}`}
+                      >
+                        {tiltaksgjennomforing.tiltakstype.navn}
+                      </Table.DataCell>
+                    </SkjulKolonne>
 
-                  <SkjulKolonne skjul={!!skjulKolonner?.startdato}>
-                    <Table.DataCell
-                      title={`Startdato ${formaterDato(
-                        tiltaksgjennomforing.startDato,
-                      )}`}
-                      aria-label={`Startdato: ${formaterDato(
-                        tiltaksgjennomforing.startDato,
-                      )}`}
-                    >
-                      {formaterDato(tiltaksgjennomforing.startDato)}
-                    </Table.DataCell>
-                  </SkjulKolonne>
+                    <SkjulKolonne skjul={!!skjulKolonner?.startdato}>
+                      <Table.DataCell
+                        title={`Startdato ${formaterDato(
+                          tiltaksgjennomforing.startDato,
+                        )}`}
+                        aria-label={`Startdato: ${formaterDato(
+                          tiltaksgjennomforing.startDato,
+                        )}`}
+                      >
+                        {formaterDato(tiltaksgjennomforing.startDato)}
+                      </Table.DataCell>
+                    </SkjulKolonne>
 
-                  <SkjulKolonne skjul={!!skjulKolonner?.sluttdato}>
-                    <Table.DataCell
-                      title={`Sluttdato ${formaterDato(
-                        tiltaksgjennomforing.sluttDato,
-                      )}, "-"`}
-                      aria-label={
-                        tiltaksgjennomforing.sluttDato
-                          ? `Sluttdato: ${formaterDato(
-                              tiltaksgjennomforing.sluttDato,
-                              "-",
-                            )}`
-                          : undefined // Noen gjennomføringer har ikke sluttdato så da setter vi heller ikke aria-label for da klager reactA11y
-                      }
-                    >
-                      {formaterDato(tiltaksgjennomforing.sluttDato)}
-                    </Table.DataCell>
-                  </SkjulKolonne>
+                    <SkjulKolonne skjul={!!skjulKolonner?.sluttdato}>
+                      <Table.DataCell
+                        title={`Sluttdato ${formaterDato(
+                          tiltaksgjennomforing.sluttDato,
+                        )}, "-"`}
+                        aria-label={
+                          tiltaksgjennomforing.sluttDato
+                            ? `Sluttdato: ${formaterDato(
+                                tiltaksgjennomforing.sluttDato,
+                                "-",
+                              )}`
+                            : undefined // Noen gjennomføringer har ikke sluttdato så da setter vi heller ikke aria-label for da klager reactA11y
+                        }
+                      >
+                        {formaterDato(tiltaksgjennomforing.sluttDato)}
+                      </Table.DataCell>
+                    </SkjulKolonne>
 
-                  <SkjulKolonne skjul={!!skjulKolonner?.status}>
-                    <Table.DataCell>
-                      <Tiltaksgjennomforingstatus
-                        tiltaksgjennomforing={tiltaksgjennomforing}
-                      />
-                    </Table.DataCell>
-                  </SkjulKolonne>
-                </Table.Row>
-              );
-            })}
-          </Table.Body>
-        ) : null}
-      </Table>
+                    <SkjulKolonne skjul={!!skjulKolonner?.status}>
+                      <Table.DataCell>
+                        <Tiltaksgjennomforingstatus
+                          tiltaksgjennomforing={tiltaksgjennomforing}
+                        />
+                      </Table.DataCell>
+                    </SkjulKolonne>
+                  </Table.Row>
+                );
+              })}
+            </Table.Body>
+          ) : null}
+        </Table>
+      )}
       {tiltaksgjennomforinger.length > 0 ? (
         <PagineringContainer>
           <PagineringsOversikt

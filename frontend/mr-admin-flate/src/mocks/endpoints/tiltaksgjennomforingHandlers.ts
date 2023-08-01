@@ -14,6 +14,23 @@ export const tiltaksgjennomforingHandlers = [
     return res(ctx.status(200), ctx.json(mockTiltaksgjennomforinger));
   }),
 
+  rest.get<
+    DefaultBodyType,
+    PathParams,
+    PaginertTiltaksgjennomforing | { x: string }
+  >("*/api/v1/internal/tiltaksgjennomforinger/mine", (req, res, ctx) => {
+    const brukerident = "B99876";
+    return res(
+      ctx.status(200),
+      ctx.json({
+        ...mockTiltaksgjennomforinger,
+        data: mockTiltaksgjennomforinger.data.filter(
+          (gj) => gj.ansvarlig?.navident === brukerident,
+        ),
+      }),
+    );
+  }),
+
   rest.put<DefaultBodyType, PathParams, Tiltaksgjennomforing>(
     "*/api/v1/internal/tiltaksgjennomforinger",
     (req, res, ctx) => {

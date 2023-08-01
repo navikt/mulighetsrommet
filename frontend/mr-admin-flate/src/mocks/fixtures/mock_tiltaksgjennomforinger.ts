@@ -37,7 +37,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
         arenaKode: "AVKLAR",
       },
       ansvarlig: {
-        navident: "B123456",
+        navident: "B99876",
         navn: "Bertil Betabruker",
       },
       sanityId: "1234",
@@ -64,7 +64,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       opphav: Opphav.MR_ADMIN_FLATE,
       tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
       lokasjonArrangor: "Brummundal",
-            kontaktpersoner: [
+      kontaktpersoner: [
         {
           epost: "per.richard.olsen@nav.no",
           mobilnummer: "90567894",
