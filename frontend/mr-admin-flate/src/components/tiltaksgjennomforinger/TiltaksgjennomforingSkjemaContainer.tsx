@@ -246,7 +246,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
     data,
   ): Promise<void> => {
     if (!avtale) {
-      setError(tekniskFeilError());
+      <Alert variant="error">{tekniskFeilError()}</Alert>;
       return;
     }
 
