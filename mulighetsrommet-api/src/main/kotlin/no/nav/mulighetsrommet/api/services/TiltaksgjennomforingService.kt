@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.services
 
 import arrow.core.Either
+import arrow.core.flatMap
 import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingNokkeltallDto
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
@@ -9,6 +10,7 @@ import no.nav.mulighetsrommet.api.routes.v1.TiltaksgjennomforingRequest
 import no.nav.mulighetsrommet.api.routes.v1.responses.*
 import no.nav.mulighetsrommet.api.utils.AdminTiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.api.utils.PaginationParams
+import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingAdminDto
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingNotificationDto
@@ -27,6 +29,7 @@ class TiltaksgjennomforingService(
     private val virksomhetService: VirksomhetService,
     private val utkastService: UtkastService,
     private val notificationService: NotificationService,
+    private val db: Database,
 ) {
     suspend fun upsert(
         request: TiltaksgjennomforingRequest,
@@ -41,18 +44,26 @@ class TiltaksgjennomforingService(
         }
 
         val previousAnsvarlig = tiltaksgjennomforingRepository.get(request.id)?.ansvarlig?.navident
+        virksomhetService.hentEnhet(request.arrangorOrganisasjonsnummer)
 
         return request.toDbo()
-            .onRight { virksomhetService.hentEnhet(it.arrangorOrganisasjonsnummer) }
-            .onRight { tiltaksgjennomforingRepository.upsert(it) }
+            .flatMap { dbo ->
+                Either.catch {
+                    db.transaction { tx ->
+                        tiltaksgjennomforingRepository.upsert(dbo, tx)
+                        publishKafka()
+                    }
+                }
+                    .mapLeft { ServerError("db error") }
+            }
+            .map { tiltaksgjennomforingRepository.get(request.id)!! }
+            .onRight { utkastService.deleteUtkast(it.id) }
             .onRight {
                 if (navIdent != request.ansvarlig && request.ansvarlig != previousAnsvarlig) {
                     sattSomAnsvarligNotification(it.navn, request.ansvarlig)
                 }
             }
-            .map { tiltaksgjennomforingRepository.get(request.id)!! }
             .onRight { sanityTiltaksgjennomforingService.opprettSanityTiltaksgjennomforing(it) }
-            .onRight { utkastService.deleteUtkast(it.id) }
     }
 
     fun get(id: UUID): TiltaksgjennomforingAdminDto? =
@@ -145,3 +156,5 @@ class TiltaksgjennomforingService(
         notificationService.scheduleNotification(notification)
     }
 }
+
+fun publishKafka() {}

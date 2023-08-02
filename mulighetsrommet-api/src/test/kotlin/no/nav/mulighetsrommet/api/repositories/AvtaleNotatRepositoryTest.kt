@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.repositories
 
 import io.kotest.assertions.arrow.core.shouldBeRight
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
@@ -24,6 +25,22 @@ class AvtaleNotatRepositoryTest : FunSpec({
     }
 
     context("Notater for avtale - CRUD") {
+        test("tx") {
+            val avtaleNotater = AvtaleNotatRepository(database.db)
+            val notat1 = AvtaleNotatFixture.Notat1.copy(id = UUID.randomUUID(), innhold = "Mitt første notat")
+            val notat2 = AvtaleNotatFixture.Notat1.copy(id = UUID.randomUUID(), innhold = "Mitt andre notat")
+
+            shouldThrow<Exception> {
+                database.db.transaction { tx ->
+                    avtaleNotater.upsert(notat1, tx).shouldBeRight()
+                    avtaleNotater.upsert(notat2, tx).shouldBeRight()
+                    throw Exception("asdf")
+                }
+            }
+
+            avtaleNotater.get(notat1.id).shouldBeRight(null)
+        }
+
         test("CRUD") {
             val avtaleNotater = AvtaleNotatRepository(database.db)
 

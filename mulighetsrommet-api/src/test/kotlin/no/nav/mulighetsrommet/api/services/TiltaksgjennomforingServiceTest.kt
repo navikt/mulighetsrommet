@@ -5,8 +5,11 @@ import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import io.ktor.http.*
+import io.mockk.every
 import io.mockk.mockk
+import io.mockk.mockkStatic
 import io.mockk.verify
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattDbo
@@ -50,6 +53,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             virksomhetService,
             utkastService,
             notificationService,
+            database.db,
         )
 
         test("Man skal ikke få slette dersom gjennomføringen ikke finnes") {
@@ -135,6 +139,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             virksomhetService,
             utkastService,
             notificationService,
+            database.db,
         )
 
         test("Man skal ikke få avbryte dersom gjennomføringen ikke finnes") {
@@ -194,6 +199,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             virksomhetService,
             utkastService,
             notificationService,
+            database.db,
         )
 
         test("Man skal ikke få lov og opprette dersom avtalen er avsluttet") {
@@ -235,6 +241,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             virksomhetService,
             utkastService,
             notificationService,
+            database.db,
         )
         val navAnsattRepository = NavAnsattRepository(database.db)
 
@@ -307,6 +314,43 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             tiltaksgjennomforingService.upsert(gjennomforing.copy(navn = "nytt navn"), "B123456", LocalDate.of(2023, 1, 1)).shouldBeRight()
 
             verify(exactly = 1) { notificationService.scheduleNotification(any(), any()) }
+        }
+    }
+
+    context("transaction testing") {
+        val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
+        val deltagerRepository = DeltakerRepository(database.db)
+        val avtaleRepository = AvtaleRepository(database.db)
+        val tiltaksgjennomforingService = TiltaksgjennomforingService(
+            tiltaksgjennomforingRepository,
+            deltagerRepository,
+            avtaleRepository,
+            sanityTiltaksgjennomforingService,
+            virksomhetService,
+            utkastService,
+            notificationService,
+            database.db,
+        )
+        mockkStatic(::publishKafka)
+
+        test("Hvis publish kaster rulles upsert tilbake") {
+            val gjennomforing = TiltaksgjennomforingFixtures.oppfolging1Request(avtaleId)
+
+            every { publishKafka() } throws Exception()
+
+            tiltaksgjennomforingService.upsert(gjennomforing, "B123456", LocalDate.of(2023, 1, 1)).shouldBeLeft()
+
+            tiltaksgjennomforingService.get(gjennomforing.id) shouldBe null
+        }
+
+        test("Hvis publish _ikke_ kaster blir upsert værende") {
+            val gjennomforing = TiltaksgjennomforingFixtures.oppfolging1Request(avtaleId)
+
+            every { publishKafka() } returns Unit
+
+            tiltaksgjennomforingService.upsert(gjennomforing, "B123456", LocalDate.of(2023, 1, 1)).shouldBeRight()
+
+            tiltaksgjennomforingService.get(gjennomforing.id) shouldNotBe null
         }
     }
 })

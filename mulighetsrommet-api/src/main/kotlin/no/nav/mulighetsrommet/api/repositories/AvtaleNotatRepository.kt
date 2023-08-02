@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.repositories
 
 import kotlinx.serialization.json.Json
 import kotliquery.Row
+import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleNotatDbo
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleNotatDto
@@ -19,6 +20,12 @@ class AvtaleNotatRepository(private val db: Database) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
     fun upsert(avtaleNotat: AvtaleNotatDbo): QueryResult<Unit> = query {
+        db.transaction {
+            upsert(avtaleNotat, it)
+        }
+    }
+
+    fun upsert(avtaleNotat: AvtaleNotatDbo, tx: Session): QueryResult<Unit> = query {
         logger.info("Lagrer notat for avtale id=${avtaleNotat.id}, avtaleId: ${avtaleNotat.avtaleId}")
 
         @Language("PostgreSQL")
@@ -36,7 +43,7 @@ class AvtaleNotatRepository(private val db: Database) {
             returning *
         """.trimIndent()
 
-        queryOf(query, avtaleNotat.toSqlParameters()).asExecute.let { db.run(it) }
+        tx.run(queryOf(query, avtaleNotat.toSqlParameters()).asExecute)
     }
 
     fun get(id: UUID): QueryResult<AvtaleNotatDto?> = query {

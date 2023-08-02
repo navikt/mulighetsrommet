@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.repositories
 import io.ktor.utils.io.core.*
 import kotlinx.serialization.json.Json
 import kotliquery.Row
+import kotliquery.TransactionalSession
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.utils.AdminTiltaksgjennomforingFilter
@@ -24,7 +25,10 @@ import java.util.*
 class TiltaksgjennomforingRepository(private val db: Database) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    fun upsert(tiltaksgjennomforing: TiltaksgjennomforingDbo) {
+    fun upsert(tiltaksgjennomforing: TiltaksgjennomforingDbo) =
+        db.transaction { upsert(tiltaksgjennomforing, it) }
+
+    fun upsert(tiltaksgjennomforing: TiltaksgjennomforingDbo, tx: TransactionalSession) {
         logger.info("Lagrer tiltaksgjennomføring id=${tiltaksgjennomforing.id}")
         @Language("PostgreSQL")
         val query = """
@@ -131,65 +135,63 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             where tiltaksgjennomforing_id = ?::uuid and not (kontaktperson_nav_ident = any (?))
         """.trimIndent()
 
-        db.transaction { tx ->
-            tx.run(queryOf(query, tiltaksgjennomforing.toSqlParameters()).asExecute)
+        tx.run(queryOf(query, tiltaksgjennomforing.toSqlParameters()).asExecute)
 
-            tiltaksgjennomforing.ansvarlige.forEach { ansvarlig ->
-                tx.run(
-                    queryOf(
-                        upsertAnsvarlig,
-                        tiltaksgjennomforing.id,
-                        ansvarlig,
-                    ).asExecute,
-                )
-            }
-
+        tiltaksgjennomforing.ansvarlige.forEach { ansvarlig ->
             tx.run(
                 queryOf(
-                    deleteAnsvarlige,
+                    upsertAnsvarlig,
                     tiltaksgjennomforing.id,
-                    db.createTextArray(tiltaksgjennomforing.ansvarlige),
-                ).asExecute,
-            )
-
-            tiltaksgjennomforing.navEnheter.forEach { enhetId ->
-                tx.run(
-                    queryOf(
-                        upsertEnhet,
-                        tiltaksgjennomforing.id,
-                        enhetId,
-                    ).asExecute,
-                )
-            }
-
-            tx.run(
-                queryOf(
-                    deleteEnheter,
-                    tiltaksgjennomforing.id,
-                    db.createTextArray(tiltaksgjennomforing.navEnheter),
-                ).asExecute,
-            )
-
-            tiltaksgjennomforing.kontaktpersoner.forEach { kontakt ->
-                tx.run(
-                    queryOf(
-                        upsertKontaktperson,
-                        tiltaksgjennomforing.id,
-                        db.createTextArray(kontakt.navEnheter),
-                        kontakt.navIdent,
-                        db.createTextArray(kontakt.navEnheter),
-                    ).asExecute,
-                )
-            }
-
-            tx.run(
-                queryOf(
-                    deleteKontaktpersoner,
-                    tiltaksgjennomforing.id,
-                    tiltaksgjennomforing.kontaktpersoner.let { kontakt -> db.createTextArray(kontakt.map { it.navIdent }) },
+                    ansvarlig,
                 ).asExecute,
             )
         }
+
+        tx.run(
+            queryOf(
+                deleteAnsvarlige,
+                tiltaksgjennomforing.id,
+                db.createTextArray(tiltaksgjennomforing.ansvarlige),
+            ).asExecute,
+        )
+
+        tiltaksgjennomforing.navEnheter.forEach { enhetId ->
+            tx.run(
+                queryOf(
+                    upsertEnhet,
+                    tiltaksgjennomforing.id,
+                    enhetId,
+                ).asExecute,
+            )
+        }
+
+        tx.run(
+            queryOf(
+                deleteEnheter,
+                tiltaksgjennomforing.id,
+                db.createTextArray(tiltaksgjennomforing.navEnheter),
+            ).asExecute,
+        )
+
+        tiltaksgjennomforing.kontaktpersoner.forEach { kontakt ->
+            tx.run(
+                queryOf(
+                    upsertKontaktperson,
+                    tiltaksgjennomforing.id,
+                    db.createTextArray(kontakt.navEnheter),
+                    kontakt.navIdent,
+                    db.createTextArray(kontakt.navEnheter),
+                ).asExecute,
+            )
+        }
+
+        tx.run(
+            queryOf(
+                deleteKontaktpersoner,
+                tiltaksgjennomforing.id,
+                tiltaksgjennomforing.kontaktpersoner.let { kontakt -> db.createTextArray(kontakt.map { it.navIdent }) },
+            ).asExecute,
+        )
     }
 
     fun upsertArenaTiltaksgjennomforing(tiltaksgjennomforing: ArenaTiltaksgjennomforingDbo) {

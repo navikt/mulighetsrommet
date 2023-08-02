@@ -63,7 +63,7 @@ object TiltaksgjennomforingFixtures {
         startDato = LocalDate.of(2023, 1, 1),
         sluttDato = LocalDate.of(2023, 2, 1),
         antallPlasser = 1,
-        ansvarlig = "Z123456",
+        ansvarlig = "DD1",
         navEnheter = emptyList(),
         oppstart = TiltaksgjennomforingOppstartstype.FELLES,
         kontaktpersoner = emptyList(),
