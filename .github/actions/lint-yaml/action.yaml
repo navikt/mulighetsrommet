@@ -1,0 +1,20 @@
+name: Lint YAML
+description: Runs yamllint on the specified input
+inputs:
+  path:
+    description: Path to yaml
+    required: true
+  config:
+    description: |
+      Configuration passed to yamllint.
+      Docs: https://yamllint.readthedocs.io/en/stable/configuration.html#custom-configuration-without-a-config-file
+    required: true
+    default: relaxed
+
+runs:
+  using: composite
+  steps:
+    - name: Lint
+      shell: bash
+      run: |
+        yamllint -f github -d ${{ inputs.config }} ${{ inputs.path }}

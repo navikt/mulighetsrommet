@@ -1,15 +1,28 @@
 name: Deploy kafka topics to dev
+
 on:
   push:
-    branches:
-      - main
     paths:
-      - "iac/kafka-topics/dev/*.yaml"
+      - .github/workflows/kafka-topics-dev.yaml
+      - iac/kafka-topics/dev/*.yaml
 
 jobs:
+  ci:
+    name: CI
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Lint
+        uses: ./.github/actions/lint-yaml
+        with:
+          path: iac/kafka-topics/dev
+
   deploy-dev:
     name: Deploy kafka topics to dev
     runs-on: ubuntu-latest
+    needs: [ci]
+    if: github.ref_name == 'main'
     steps:
       - name: Checkout
         uses: actions/checkout@v3

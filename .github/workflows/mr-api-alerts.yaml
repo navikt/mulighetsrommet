@@ -1,16 +1,28 @@
 name: Alerts (mr-api)
+
 on:
   push:
-    branches:
-      - main
     paths:
       - .github/workflows/mr-api-alerts.yaml
       - mulighetsrommet-api/.nais/alerts.yaml
 
 jobs:
+  ci:
+    name: CI
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Lint
+        uses: ./.github/actions/lint-yaml
+        with:
+          path: mulighetsrommet-api/.nais/alerts.yaml
+
   apply-alerts:
     name: Apply alerts to cluster
     runs-on: ubuntu-latest
+    needs: [ci]
+    if: github.ref_name == 'main'
     steps:
       - name: Checkout code
         uses: actions/checkout@v3

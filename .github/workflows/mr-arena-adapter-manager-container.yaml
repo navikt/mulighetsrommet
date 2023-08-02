@@ -2,8 +2,6 @@ name: POAO-frontend (mr-arena-adapter-manager)
 
 on:
   push:
-    branches:
-      - main
     paths:
       - .github/workflows/mr-arena-adapter-manager-container.yaml
       - frontend/arena-adapter-manager/.nais/**
@@ -26,8 +24,21 @@ env:
   APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
 
 jobs:
+  ci:
+    name: CI
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Lint
+        uses: ./.github/actions/lint-yaml
+        with:
+          path: frontend/arena-adapter-manager/.nais
+
   deploy-dev:
     runs-on: ubuntu-latest
+    needs: [ci]
+    if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
     steps:
       - uses: actions/checkout@v3
       - name: deploy gcp dev
@@ -37,9 +48,9 @@ jobs:
           RESOURCE: frontend/arena-adapter-manager/.nais/nais-dev.yaml
 
   deploy-prod:
-    if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'dev_and_prod'
     runs-on: ubuntu-latest
-    needs: [ "deploy-dev" ]
+    needs: [ci, deploy-dev]
+    if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'dev_and_prod'
     steps:
       - uses: actions/checkout@v3
       - name: deploy gcp prod
