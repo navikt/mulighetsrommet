@@ -30,13 +30,11 @@ jobs:
       - name: Setup backend
         uses: ./.github/actions/setup-backend
 
-      - run: |
-          echo "Build mulighetsrommet-api"
-          ./gradlew :mulighetsrommet-api:build
+      - name: Build mulighetsrommet-api
+        run: ./gradlew :mulighetsrommet-api:build
 
-      - run: |
-          echo "Build mulighetsrommet-arena-adapter"
-          ./gradlew :mulighetsrommet-arena-adapter:build
+      - name: Build mulighetsrommet-arena-adapter
+        run: ./gradlew :mulighetsrommet-arena-adapter:build
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v2
@@ -62,6 +60,9 @@ jobs:
         uses: github/codeql-action/init@v2
         with:
           languages: javascript
+
+      - name: Setup frontend
+        uses: ./.github/actions/setup-frontend # For å trigge post-install script for mulighetsrommet-api-client
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v2
