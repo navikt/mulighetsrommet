@@ -1,5 +1,4 @@
 import { Button, Search } from "@navikt/ds-react";
-import { useQueryClient } from "@tanstack/react-query";
 import classNames from "classnames";
 import { useAtom } from "jotai";
 import {
@@ -12,7 +11,6 @@ import {
 } from "mulighetsrommet-api-client";
 import { useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
 import {
   defaultTiltaksgjennomforingfilter,
   paginationAtom,
@@ -30,10 +28,11 @@ import {
 } from "../../utils/Utils";
 import { arenaKodeErAftEllerVta } from "../../utils/tiltakskoder";
 import { LeggTilGjennomforingModal } from "../modal/LeggTilGjennomforingModal";
-import { OpprettTiltaksgjennomforingModal } from "../modal/OpprettTiltaksgjennomforingModal";
 import { SokeSelect } from "../skjema/SokeSelect";
 import styles from "./Filter.module.scss";
 import { FilterTag } from "./FilterTag";
+import { Lenkeknapp } from "../lenkeknapp/Lenkeknapp";
+import { faro } from "@grafana/faro-web-sdk";
 
 type Filters = "tiltakstype";
 
@@ -43,8 +42,8 @@ interface Props {
 }
 
 export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
+  // const navigate = useNavigate();
+  // const queryClient = useQueryClient();
   const [filter, setFilter] = useAtom(tiltaksgjennomforingfilter);
   const [, setPage] = useAtom(paginationAtom);
   const { data: enheter } = useAlleEnheter();
@@ -55,7 +54,7 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
     { status: Tiltakstypestatus.AKTIV },
     1,
   );
-  const [opprettModal, setOpprettModalOpen] = useState<boolean>(false);
+  // const [opprettModal, setOpprettModalOpen] = useState<boolean>(false);
   const [modalOpen, setModalOpen] = useState<boolean>(false);
 
   const form = useForm<TiltaksgjennomforingAtomFilter>({
@@ -274,33 +273,21 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
             >
               <div className={styles.flex_row}>
                 {visOpprettTiltaksgjennomforingKnapp && (
-                  <>
-                    <Button
-                      size="small"
-                      onClick={() => setOpprettModalOpen(true)}
-                      data-testid="opprett-gjennomforing-knapp"
-                      title="Opprett en helt ny tiltaksgjennomføring"
-                    >
-                      Opprett ny gjennomføring
-                    </Button>
-
-                    <OpprettTiltaksgjennomforingModal
-                      modalOpen={opprettModal}
-                      avtale={avtale}
-                      onClose={() => {
-                        queryClient.refetchQueries({ queryKey: ["utkast"] });
-                        setOpprettModalOpen(false);
-                      }}
-                      onSuccess={(id) =>
-                        navigate(`/tiltaksgjennomforinger/${id}`)
-                      }
-                    />
-                  </>
+                  <Lenkeknapp
+                    to={`/tiltaksgjennomforinger/skjema`}
+                    lenketekst="Opprett ny tiltaksgjennomføring"
+                    variant="primary"
+                    handleClick={() => {
+                      faro?.api?.pushEvent(
+                        "Bruker trykket på 'Opprett ny tiltaksgjennomføring'-knapp",
+                      );
+                    }}
+                    dataTestId="opprett-gjennomforing-knapp"
+                  />
                 )}
                 {erAFTellerVTA && (
                   <>
                     <Button
-                      size="small"
                       onClick={() => setModalOpen(true)}
                       variant="secondary"
                       type="button"

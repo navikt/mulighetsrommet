@@ -15,6 +15,7 @@ import { TiltaksgjennomforingerPage } from "./pages/tiltaksgjennomforinger/Tilta
 import { DetaljerTiltaksgjennomforingerPage } from "./pages/tiltaksgjennomforinger/DetaljerTiltaksgjennomforingerPage";
 import { NotifikasjonerPage } from "./pages/notifikasjoner/NotifikasjonerPage";
 import AvtaleSkjemaPage from "./components/avtaler/AvtaleSkjemaPage";
+import TiltaksgjennomforingSkjemaPage from "./components/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaPage";
 
 if (import.meta.env.PROD) {
   initializeFaro({
@@ -97,6 +98,11 @@ export function App() {
       <Route
         path="tiltaksgjennomforinger/:tiltaksgjennomforingId"
         element={<DetaljerTiltaksgjennomforingerPage />}
+        errorElement={<ErrorPage />}
+      />
+      <Route
+        path="tiltaksgjennomforinger/skjema"
+        element={<TiltaksgjennomforingSkjemaPage />}
         errorElement={<ErrorPage />}
       />
       <Route

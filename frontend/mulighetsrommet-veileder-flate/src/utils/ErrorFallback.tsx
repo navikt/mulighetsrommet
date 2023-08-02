@@ -6,7 +6,7 @@ export function ErrorFallback({ error }: any) {
     <>
       Arbeidsmarkedstiltakene kunne ikke hentes på grunn av en feil hos oss. Vennligst {forsokPaNyttLink()} eller
       ta&nbsp;
-      <a href={PORTEN}>kontakt</a> i Porten dersom du trenger mer hjelp.
+      <a href={PORTEN}>kontakt i Porten</a> dersom du trenger mer hjelp.
     </>
   );
 

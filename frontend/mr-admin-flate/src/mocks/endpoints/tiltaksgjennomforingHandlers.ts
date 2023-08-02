@@ -43,6 +43,16 @@ export const tiltaksgjennomforingHandlers = [
     },
   ),
 
+  rest.get<DefaultBodyType, PathParams, Tiltaksgjennomforing | undefined>(
+    "*/api/v1/internal/tiltaksgjennomforinger/skjema",
+    (req, res, ctx) => {
+      const { id } = req.params as { id: string };
+      const avtale =
+        mockTiltaksgjennomforinger.data.find((a) => a.id === id) ?? undefined;
+      return res(ctx.status(200), ctx.json(avtale));
+    },
+  ),
+
   rest.get<DefaultBodyType, PathParams, Tiltaksgjennomforing[]>(
     "*/api/v1/internal/tiltaksgjennomforinger/sok",
     (req, res, ctx) => {

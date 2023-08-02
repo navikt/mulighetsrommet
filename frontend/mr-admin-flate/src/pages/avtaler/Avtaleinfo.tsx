@@ -1,10 +1,8 @@
-import { ExternalLinkIcon } from "@navikt/aksel-icons";
 import { Alert, Heading } from "@navikt/ds-react";
 import { Avtalestatus } from "mulighetsrommet-api-client";
 import { useState } from "react";
 import { useAvtale } from "../../api/avtaler/useAvtale";
 import AvbrytAvtaleModal from "../../components/avtaler/AvbrytAvtaleModal";
-import SlettAvtaleModal from "../../components/avtaler/SlettAvtaleModal";
 import { Bolk } from "../../components/detaljside/Bolk";
 import {
   Liste,
@@ -20,11 +18,14 @@ import {
 } from "../../utils/Utils";
 import styles from "../DetaljerInfo.module.scss";
 import { AvtaleKnapperad } from "./AvtaleKnapperad";
+import SlettAvtaleGjennomforingModal from "../../components/modal/SlettAvtaleGjennomforingModal";
+import { useDeleteTiltaksgjennomforing } from "../../api/tiltaksgjennomforing/useDeleteTiltaksgjennomforing";
 
 export function Avtaleinfo() {
   const { data: avtale, isLoading, error, refetch } = useAvtale();
   const [slettModal, setSlettModal] = useState(false);
   const [avbrytModal, setAvbrytModal] = useState(false);
+  const mutation = useDeleteTiltaksgjennomforing();
 
   if (!avtale && isLoading) {
     return <Laster tekst="Laster avtaleinformasjon..." />;
@@ -39,24 +40,15 @@ export function Avtaleinfo() {
   }
 
   const lenketekst = () => {
+    let tekst;
     if (avtale?.url?.includes("mercell")) {
-      return (
-        <>
-          Se originalavtale i Mercell <ExternalLinkIcon />
-        </>
-      );
+      tekst = `Se originalavtale i Mercell <ExternalLinkIcon />`;
     } else if (avtale?.url?.includes("websak")) {
-      return (
-        <>
-          Se originalavtale i WebSak <ExternalLinkIcon />
-        </>
-      );
-    } else
-      return (
-        <>
-          Se originalavtale <ExternalLinkIcon />
-        </>
-      );
+      tekst = `Se originalavtale i WebSak <ExternalLinkIcon />`;
+    } else {
+      tekst = `Se originalavtale <ExternalLinkIcon />`;
+    }
+    return <>{tekst}</>;
   };
 
   function visKnapperad(avtalestatus: Avtalestatus): boolean {
@@ -221,11 +213,12 @@ export function Avtaleinfo() {
           />
         ) : null}
       </div>
-
-      <SlettAvtaleModal
+      <SlettAvtaleGjennomforingModal
         modalOpen={slettModal}
-        onClose={() => setSlettModal(false)}
-        avtale={avtale}
+        handleCancel={() => setSlettModal(false)}
+        data={avtale}
+        mutation={mutation}
+        dataType="avtale"
       />
       <AvbrytAvtaleModal
         modalOpen={avbrytModal}

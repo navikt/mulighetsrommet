@@ -1,4 +1,4 @@
-import styles from "./AvtaleSkjema.module.scss";
+import styles from "../skjema/Skjema.module.scss";
 import { Button } from "@navikt/ds-react";
 import { faro } from "@grafana/faro-web-sdk";
 
@@ -28,7 +28,7 @@ export function AvtaleSkjemaKnapperad({ redigeringsModus, onClose }: Props) {
           );
         }}
       >
-        {redigeringsModus ? "Lagre redigert avtale" : "Opprett avtale"}
+        {redigeringsModus ? "Lagre redigert avtale" : "Opprett ny avtale"}
       </Button>
     </div>
   );

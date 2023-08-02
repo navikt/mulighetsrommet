@@ -32,7 +32,7 @@ describe("Avtaler", () => {
       cy.visit("/avtaler");
       cy.getByTestId("avtaler-tab").click();
       cy.getByTestId("opprett-avtale").should("exist").click();
-      cy.getByTestId("opprett-avtale-header").contains("Opprett avtale");
+      cy.getByTestId("opprett-avtale-header").contains("Opprett ny avtale");
     });
   });
 });
