@@ -1840,7 +1840,7 @@ components:
           items:
             $ref: "#/components/schemas/EmbeddedNavEnhet"
         navRegion:
-          type: string
+          $ref: "#/components/schemas/EmbeddedNavEnhet"
         ansvarlig:
           type: object
           properties:
@@ -1947,7 +1947,6 @@ components:
           nullable: true
         lokasjonArrangor:
           type: string
-          nullable: true
       required:
         - id
         - tiltakstypeId
@@ -1956,6 +1955,7 @@ components:
         - startDato
         - sluttDato
         - antallPlasser
+        - avtaleId
         - arrangorOrganisasjonsnummer
         - arrangorKontaktpersonId
         - tiltaksnummer

@@ -7,6 +7,8 @@ import io.mockk.mockk
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.domain.dto.TiltakshistorikkDto
+import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures.avtale1Id
+import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakshistorikkRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
@@ -43,7 +45,7 @@ class TiltakshistorikkServiceTest : FunSpec({
         avslutningsstatus = Avslutningsstatus.AVSLUTTET,
         startDato = LocalDate.of(2022, 1, 1),
         tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.LEDIG,
-        antallPlasser = null,
+        antallPlasser = 12,
         ansvarlige = emptyList(),
         navEnheter = emptyList(),
         oppstart = TiltaksgjennomforingOppstartstype.FELLES,
@@ -53,8 +55,9 @@ class TiltakshistorikkServiceTest : FunSpec({
         arrangorKontaktpersonId = null,
         stengtFra = null,
         stengtTil = null,
-        lokasjonArrangor = null,
+        lokasjonArrangor = "Oslo",
         estimertVentetid = null,
+        avtaleId = avtale1Id,
     )
 
     val tiltakshistorikkGruppe = ArenaTiltakshistorikkDbo.Gruppetiltak(
@@ -91,6 +94,7 @@ class TiltakshistorikkServiceTest : FunSpec({
     )
 
     beforeSpec {
+        MulighetsrommetTestDomain().initialize(database.db)
         val tiltakstyper = TiltakstypeRepository(database.db)
         tiltakstyper.upsert(tiltakstype)
         tiltakstyper.upsert(tiltakstypeIndividuell)

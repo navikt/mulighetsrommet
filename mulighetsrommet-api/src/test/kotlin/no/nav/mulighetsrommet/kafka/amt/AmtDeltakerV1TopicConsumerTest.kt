@@ -7,14 +7,12 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
+import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
-import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
-import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
-import no.nav.mulighetsrommet.database.utils.getOrThrow
 import no.nav.mulighetsrommet.domain.dbo.DeltakerDbo
 import no.nav.mulighetsrommet.domain.dbo.Deltakeropphav
 import no.nav.mulighetsrommet.domain.dbo.Deltakerstatus
@@ -27,8 +25,7 @@ class AmtDeltakerV1TopicConsumerTest : FunSpec({
 
     context("consume deltakere") {
         beforeTest {
-            val tiltak = TiltakstypeRepository(database.db)
-            tiltak.upsert(TiltakstypeFixtures.Oppfolging).getOrThrow()
+            MulighetsrommetTestDomain().initialize(database.db)
 
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
             tiltaksgjennomforinger.upsert(TiltaksgjennomforingFixtures.Oppfolging1)

@@ -7,14 +7,18 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.ktor.http.*
 import io.mockk.mockk
+import io.mockk.verify
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
+import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattDbo
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
+import no.nav.mulighetsrommet.api.repositories.NavAnsattRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
+import no.nav.mulighetsrommet.notifications.NotificationService
 import java.time.LocalDate
 import java.util.*
 
@@ -24,6 +28,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
     val sanityTiltaksgjennomforingService: SanityTiltaksgjennomforingService = mockk(relaxed = true)
     val virksomhetService: VirksomhetService = mockk(relaxed = true)
     val utkastService: UtkastService = mockk(relaxed = true)
+    val notificationService: NotificationService = mockk(relaxed = true)
 
     val avtaleId = AvtaleFixtures.avtale1.id
     val domain = MulighetsrommetTestDomain()
@@ -44,6 +49,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             sanityTiltaksgjennomforingService,
             virksomhetService,
             utkastService,
+            notificationService,
         )
 
         test("Man skal ikke få slette dersom gjennomføringen ikke finnes") {
@@ -128,6 +134,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             sanityTiltaksgjennomforingService,
             virksomhetService,
             utkastService,
+            notificationService,
         )
 
         test("Man skal ikke få avbryte dersom gjennomføringen ikke finnes") {
@@ -186,6 +193,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             sanityTiltaksgjennomforingService,
             virksomhetService,
             utkastService,
+            notificationService,
         )
 
         test("Man skal ikke få lov og opprette dersom avtalen er avsluttet") {
@@ -196,8 +204,8 @@ class TiltaksgjennomforingServiceTest : FunSpec({
                     sluttDato = LocalDate.of(2022, 1, 1),
                 ),
             )
-            val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1Request(avtaleId)
-            tiltaksgjennomforingService.upsert(gjennomforing, LocalDate.of(2022, 2, 2)).shouldBeLeft().should {
+            val gjennomforing = TiltaksgjennomforingFixtures.oppfolging1Request(avtaleId)
+            tiltaksgjennomforingService.upsert(gjennomforing, "B123456", LocalDate.of(2022, 2, 2)).shouldBeLeft().should {
                 it.status shouldBe HttpStatusCode.BadRequest
             }
         }
@@ -210,8 +218,95 @@ class TiltaksgjennomforingServiceTest : FunSpec({
                     sluttDato = LocalDate.of(2022, 1, 1),
                 ),
             )
-            val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1Request(avtaleId).copy(antallPlasser = 0)
-            tiltaksgjennomforingService.upsert(gjennomforing, LocalDate.of(2022, 2, 2)).shouldBeLeft()
+            val gjennomforing = TiltaksgjennomforingFixtures.oppfolging1Request(avtaleId).copy(antallPlasser = 0)
+            tiltaksgjennomforingService.upsert(gjennomforing, "B123456", LocalDate.of(2022, 2, 2)).shouldBeLeft()
+        }
+    }
+
+    context("Ansvarlig notification") {
+        val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
+        val deltagerRepository = DeltakerRepository(database.db)
+        val avtaleRepository = AvtaleRepository(database.db)
+        val tiltaksgjennomforingService = TiltaksgjennomforingService(
+            tiltaksgjennomforingRepository,
+            deltagerRepository,
+            avtaleRepository,
+            sanityTiltaksgjennomforingService,
+            virksomhetService,
+            utkastService,
+            notificationService,
+        )
+        val navAnsattRepository = NavAnsattRepository(database.db)
+
+        test("Ingen ansvarlig notification hvis ansvarlig er samme som opprettet") {
+            navAnsattRepository.upsert(
+                NavAnsattDbo(
+                    navIdent = "B123456",
+                    fornavn = "Bertil",
+                    etternavn = "Betabruker",
+                    hovedenhet = "2990",
+                    azureId = UUID.randomUUID(),
+                    mobilnummer = null,
+                    epost = "",
+                    roller = emptySet(),
+                    skalSlettesDato = null,
+                ),
+            )
+            avtaleRepository.upsert(
+                AvtaleFixtures.avtale1.copy(
+                    id = avtaleId,
+                    tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
+                    sluttDato = LocalDate.of(2025, 1, 1),
+                ),
+            )
+            val gjennomforing = TiltaksgjennomforingFixtures.oppfolging1Request(avtaleId)
+                .copy(ansvarlig = "B123456")
+            tiltaksgjennomforingService.upsert(gjennomforing, "B123456", LocalDate.of(2023, 1, 1)).shouldBeRight()
+
+            verify(exactly = 0) { notificationService.scheduleNotification(any(), any()) }
+        }
+
+        test("Bare én ansvarlig notification når man endrer gjennomforing") {
+            navAnsattRepository.upsert(
+                NavAnsattDbo(
+                    navIdent = "B123456",
+                    fornavn = "Bertil",
+                    etternavn = "Betabruker",
+                    hovedenhet = "2990",
+                    azureId = UUID.randomUUID(),
+                    mobilnummer = null,
+                    epost = "",
+                    roller = emptySet(),
+                    skalSlettesDato = null,
+                ),
+            )
+            navAnsattRepository.upsert(
+                NavAnsattDbo(
+                    navIdent = "Z654321",
+                    fornavn = "Zorre",
+                    etternavn = "Betabruker",
+                    hovedenhet = "2990",
+                    azureId = UUID.randomUUID(),
+                    mobilnummer = null,
+                    epost = "",
+                    roller = emptySet(),
+                    skalSlettesDato = null,
+                ),
+            )
+            avtaleRepository.upsert(
+                AvtaleFixtures.avtale1.copy(
+                    id = avtaleId,
+                    tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
+                    sluttDato = LocalDate.of(2025, 1, 1),
+                ),
+            )
+            val gjennomforing = TiltaksgjennomforingFixtures.oppfolging1Request(avtaleId)
+                .copy(ansvarlig = "Z654321")
+
+            tiltaksgjennomforingService.upsert(gjennomforing, "B123456", LocalDate.of(2023, 1, 1)).shouldBeRight()
+            tiltaksgjennomforingService.upsert(gjennomforing.copy(navn = "nytt navn"), "B123456", LocalDate.of(2023, 1, 1)).shouldBeRight()
+
+            verify(exactly = 1) { notificationService.scheduleNotification(any(), any()) }
         }
     }
 })

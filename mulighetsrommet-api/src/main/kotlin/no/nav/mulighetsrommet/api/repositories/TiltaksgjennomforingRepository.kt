@@ -360,7 +360,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         filter: AdminTiltaksgjennomforingFilter,
     ): Pair<Int, List<TiltaksgjennomforingAdminDto>> {
         val parameters = mapOf(
-            "search" to "%${filter.search}%",
+            "search" to "%${filter.search?.replace("/", "#")?.trim()}%",
             "navEnhet" to filter.navEnhet,
             "tiltakstypeId" to filter.tiltakstypeId,
             "status" to filter.status,
@@ -380,7 +380,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             filter.tiltakstypeId to "tiltakstype_id = :tiltakstypeId",
             filter.status to filter.status?.toDbStatement(),
             filter.sluttDatoCutoff to "(slutt_dato >= :cutoffdato or slutt_dato is null)",
-            filter.navRegion to "(arena_ansvarlig_enhet in (select enhetsnummer from nav_enhet where overordnet_enhet = :navRegion) or :navRegion in (select overordnet_enhet from nav_enhet inner join tiltaksgjennomforing_nav_enhet tg_e using(enhetsnummer) where tg_e.tiltaksgjennomforing_id = id) or :navRegion = navRegionEnhetsnummerForAvtale)",
+            filter.navRegion to "(arena_ansvarlig_enhet in (select enhetsnummer from nav_enhet where overordnet_enhet = :navRegion) or :navRegion in (select overordnet_enhet from nav_enhet inner join tiltaksgjennomforing_nav_enhet tg_e using(enhetsnummer) where tg_e.tiltaksgjennomforing_id = id) or :navRegion = arena_ansvarlig_enhet or :navRegion = navRegionEnhetsnummerForAvtale)",
             filter.avtaleId to "avtale_id = :avtaleId",
             filter.arrangorOrgnr to "arrangor_organisasjonsnummer = :arrangor_organisasjonsnummer",
             filter.ansvarligAnsattIdent to "ansvarlige @> :ansvarligAnsattIdent::jsonb",
@@ -595,7 +595,12 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             avtaleId = uuidOrNull("avtale_id"),
             ansvarlig = ansvarlige.getOrNull(0),
             navEnheter = navEnheter,
-            navRegion = stringOrNull("navRegionForAvtale"),
+            navRegion = stringOrNull("navRegionEnhetsnummerForAvtale")?.let {
+                NavEnhet(
+                    enhetsnummer = it,
+                    navn = string("navRegionForAvtale"),
+                )
+            },
             sanityId = stringOrNull("sanity_id"),
             oppstart = TiltaksgjennomforingOppstartstype.valueOf(string("oppstart")),
             opphav = ArenaMigrering.Opphav.valueOf(string("opphav")),

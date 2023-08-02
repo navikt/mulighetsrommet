@@ -2,8 +2,6 @@ name: POAO-frontend (mr-veileder-flate)
 
 on:
   push:
-    branches:
-      - main
     paths:
       - .github/workflows/mr-veileder-flate-container.yaml
       - frontend/mulighetsrommet-veileder-flate/.nais/**
@@ -26,8 +24,21 @@ env:
   APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
 
 jobs:
+  ci:
+    name: CI
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Lint
+        uses: ./.github/actions/lint-yaml
+        with:
+          path: frontend/mulighetsrommet-veileder-flate/.nais
+
   deploy-dev:
     runs-on: ubuntu-latest
+    needs: [ci]
+    if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
     steps:
       - uses: actions/checkout@v3
       - name: Deploy (dev)
@@ -38,6 +49,8 @@ jobs:
 
   deploy-demo:
     runs-on: ubuntu-latest
+    needs: [ci]
+    if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
     steps:
       - uses: actions/checkout@v3
       - name: Deploy (demo)
@@ -47,9 +60,9 @@ jobs:
           RESOURCE: frontend/mulighetsrommet-veileder-flate/.nais/nais-demo.yaml
 
   deploy-prod:
-    if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'dev_and_prod'
     runs-on: ubuntu-latest
     needs: [deploy-dev, deploy-demo]
+    if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'dev_and_prod'
     steps:
       - uses: actions/checkout@v3
       - name: Deploy (prod)

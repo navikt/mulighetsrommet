@@ -15,7 +15,6 @@ import no.nav.mulighetsrommet.api.routes.v1.responses.BadRequest
 import no.nav.mulighetsrommet.api.routes.v1.responses.StatusResponse
 import no.nav.mulighetsrommet.api.routes.v1.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
-import no.nav.mulighetsrommet.api.services.UtkastService
 import no.nav.mulighetsrommet.api.utils.getAdminTiltaksgjennomforingsFilter
 import no.nav.mulighetsrommet.api.utils.getPaginationParams
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
@@ -30,13 +29,13 @@ import java.util.*
 
 fun Route.tiltaksgjennomforingRoutes() {
     val tiltaksgjennomforingService: TiltaksgjennomforingService by inject()
-    val utkastService: UtkastService by inject()
 
     route("/api/v1/internal/tiltaksgjennomforinger") {
         put {
             val request = call.receive<TiltaksgjennomforingRequest>()
+            val navIdent = getNavIdent()
 
-            call.respondWithStatusResponse(tiltaksgjennomforingService.upsert(request))
+            call.respondWithStatusResponse(tiltaksgjennomforingService.upsert(request, navIdent))
         }
 
         get {
@@ -112,7 +111,7 @@ data class TiltaksgjennomforingRequest(
     val apenForInnsok: Boolean,
     val kontaktpersoner: List<NavKontaktpersonForGjennomforing>,
     val estimertVentetid: String?,
-    val lokasjonArrangor: String?,
+    val lokasjonArrangor: String,
 ) {
     fun toDbo(): StatusResponse<TiltaksgjennomforingDbo> {
         if (!startDato.isBefore(sluttDato)) {
@@ -126,9 +125,6 @@ data class TiltaksgjennomforingRequest(
         }
         if (antallPlasser <= 0) {
             return Either.Left(BadRequest("Antall plasser må være større enn 0"))
-        }
-        if (lokasjonArrangor.isNullOrEmpty()) {
-            return Either.Left(BadRequest("Lokasjon for gjennomføring må være satt"))
         }
 
         return Either.Right(

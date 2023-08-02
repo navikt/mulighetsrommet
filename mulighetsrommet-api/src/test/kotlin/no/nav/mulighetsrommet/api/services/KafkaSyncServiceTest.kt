@@ -4,7 +4,6 @@ import io.kotest.core.spec.style.FunSpec
 import io.mockk.mockk
 import io.mockk.verifyAll
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
-import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.api.producers.TiltakstypeKafkaProducer
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
@@ -12,6 +11,7 @@ import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
+import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingTilgjengelighetsstatus
@@ -45,12 +45,12 @@ class KafkaSyncServiceTest : FunSpec({
         tilDato = LocalDate.of(2099, 1, 12),
     )
 
-    fun createTiltaksgjennomforing(
+    fun createArenaTiltaksgjennomforing(
         startDato: LocalDate = LocalDate.of(2023, 2, 15),
         sluttDato: LocalDate = LocalDate.of(2023, 11, 11),
         avslutningsstatus: Avslutningsstatus = Avslutningsstatus.AVSLUTTET,
-    ): TiltaksgjennomforingDbo {
-        return TiltaksgjennomforingDbo(
+    ): ArenaTiltaksgjennomforingDbo {
+        return ArenaTiltaksgjennomforingDbo(
             id = UUID.randomUUID(),
             navn = "Arbeidstrening",
             tiltakstypeId = tiltakstype.id,
@@ -61,21 +61,14 @@ class KafkaSyncServiceTest : FunSpec({
             arenaAnsvarligEnhet = "2990",
             avslutningsstatus = avslutningsstatus,
             tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.LEDIG,
-            antallPlasser = null,
-            ansvarlige = emptyList(),
-            navEnheter = emptyList(),
+            antallPlasser = 12,
             oppstart = TiltaksgjennomforingOppstartstype.FELLES,
             opphav = ArenaMigrering.Opphav.ARENA,
-            kontaktpersoner = emptyList(),
-            arrangorKontaktpersonId = null,
-            stengtFra = null,
-            stengtTil = null,
-            lokasjonArrangor = null,
-            estimertVentetid = null,
+            avtaleId = null,
         )
     }
 
-    fun TiltaksgjennomforingDbo.toDto(tiltaksgjennomforingsstatus: Tiltaksgjennomforingsstatus): TiltaksgjennomforingDto {
+    fun ArenaTiltaksgjennomforingDbo.toDto(tiltaksgjennomforingsstatus: Tiltaksgjennomforingsstatus): TiltaksgjennomforingDto {
         return TiltaksgjennomforingDto(
             id = id,
             tiltakstype = TiltaksgjennomforingDto.Tiltakstype(
@@ -119,20 +112,20 @@ class KafkaSyncServiceTest : FunSpec({
                 mockk(),
             )
 
-        val startdatoInnenforMenAvsluttetStatus = createTiltaksgjennomforing()
+        val startdatoInnenforMenAvsluttetStatus = createArenaTiltaksgjennomforing()
         val startdatoInnenfor =
-            createTiltaksgjennomforing(avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET)
-        val sluttdatoInnenforMenAvbruttStatus = createTiltaksgjennomforing(
+            createArenaTiltaksgjennomforing(avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET)
+        val sluttdatoInnenforMenAvbruttStatus = createArenaTiltaksgjennomforing(
             startDato = lastSuccessDate,
             sluttDato = lastSuccessDate,
             avslutningsstatus = Avslutningsstatus.AVBRUTT,
         )
-        val sluttdatoInnenfor = createTiltaksgjennomforing(
+        val sluttdatoInnenfor = createArenaTiltaksgjennomforing(
             startDato = lastSuccessDate,
             sluttDato = lastSuccessDate,
             avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
         )
-        val datoerUtenfor = createTiltaksgjennomforing(
+        val datoerUtenfor = createArenaTiltaksgjennomforing(
             startDato = lastSuccessDate,
             avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
         )
@@ -140,11 +133,11 @@ class KafkaSyncServiceTest : FunSpec({
         test("oppdater statuser på kafka på relevante tiltaksgjennomføringer") {
             tiltakstypeRepository.upsert(tiltakstype)
 
-            tiltaksgjennomforingRepository.upsert(startdatoInnenforMenAvsluttetStatus)
-            tiltaksgjennomforingRepository.upsert(startdatoInnenfor)
-            tiltaksgjennomforingRepository.upsert(sluttdatoInnenforMenAvbruttStatus)
-            tiltaksgjennomforingRepository.upsert(sluttdatoInnenfor)
-            tiltaksgjennomforingRepository.upsert(datoerUtenfor)
+            tiltaksgjennomforingRepository.upsertArenaTiltaksgjennomforing(startdatoInnenforMenAvsluttetStatus)
+            tiltaksgjennomforingRepository.upsertArenaTiltaksgjennomforing(startdatoInnenfor)
+            tiltaksgjennomforingRepository.upsertArenaTiltaksgjennomforing(sluttdatoInnenforMenAvbruttStatus)
+            tiltaksgjennomforingRepository.upsertArenaTiltaksgjennomforing(sluttdatoInnenfor)
+            tiltaksgjennomforingRepository.upsertArenaTiltaksgjennomforing(datoerUtenfor)
 
             kafkaSyncService.oppdaterTiltaksgjennomforingsstatus(today, lastSuccessDate)
 
