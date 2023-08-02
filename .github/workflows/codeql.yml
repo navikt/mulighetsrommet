@@ -79,8 +79,12 @@ jobs:
       uses: ./.github/actions/setup-backend
 
     - run: |
-       echo "Run, Build Application using script"
-       ./gradlew build
+       echo "Build mulighetsrommet-api"
+       ./gradlew :mulighetsrommet-api:build
+
+    - run: |
+        echo "Build mulighetsrommet-arena-adapter"
+        ./gradlew :mulighetsrommet-arena-adapter:build
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2
