@@ -5,14 +5,13 @@ import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
 import { useAvtale } from "../../api/avtaler/useAvtale";
 import { useAlleEnheter } from "../../api/enhet/useAlleEnheter";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
-import { ContainerLayoutOversikt } from "../../layouts/ContainerLayout";
+import { ContainerLayoutDetaljer } from "../../layouts/ContainerLayout";
 import { inneholderUrl } from "../../utils/Utils";
 import { Header } from "../detaljside/Header";
 import { Laster } from "../laster/Laster";
-import styles from "./AvtaleSkjema.module.scss";
 import { AvtaleSkjemaContainer } from "./AvtaleSkjemaContainer";
-import { MainContainer } from "../../layouts/MainContainer";
 import { useUtkast } from "../../api/utkast/useUtkast";
+import styles from "../skjema/Skjema.module.scss";
 
 const AvtaleSkjemaPage = () => {
   const navigate = useNavigate();
@@ -47,20 +46,24 @@ const AvtaleSkjemaPage = () => {
   }
 
   return (
-    <MainContainer>
-      <div className={styles.avtaleskjema}>
-        <Header
-          dataTestId={
-            redigeringsModus ? "rediger-avtale-header" : "opprett-avtale-header"
-          }
-        >
-          {redigeringsModus ? "Rediger avtale" : "Opprett avtale"}
-        </Header>
-        {isLoadingAnsatt || isLoadingTiltakstyper || isLoadingEnheter ? (
-          <Laster />
-        ) : null}
-        <ContainerLayoutOversikt>
-          <div className={styles.avtaleskjema_content}>
+    <main>
+      <Header
+        dataTestId={
+          redigeringsModus ? "rediger-avtale-header" : "opprett-avtale-header"
+        }
+      >
+        {redigeringsModus
+          ? utkastModus
+            ? "Rediger utkast"
+            : "Rediger avtale"
+          : "Opprett ny avtale"}
+      </Header>
+      <ContainerLayoutDetaljer>
+        <div className={styles.skjema}>
+          {isLoadingAnsatt || isLoadingTiltakstyper || isLoadingEnheter ? (
+            <Laster />
+          ) : null}
+          <div className={styles.skjema_content}>
             {!tiltakstyper?.data || !ansatt || !enheter ? null : (
               <AvtaleSkjemaContainer
                 onClose={() => {
@@ -76,9 +79,9 @@ const AvtaleSkjemaPage = () => {
               />
             )}
           </div>
-        </ContainerLayoutOversikt>
-      </div>
-    </MainContainer>
+        </div>
+      </ContainerLayoutDetaljer>
+    </main>
   );
 };
 

@@ -198,11 +198,11 @@ export function Avtalefilter(props: Props) {
             {visOpprettAvtaleknapp && (
               <Lenkeknapp
                 to={`/avtaler/skjema`}
-                lenketekst="Opprett avtale"
+                lenketekst="Opprett ny avtale"
                 variant="primary"
                 handleClick={() => {
                   faro?.api?.pushEvent(
-                    "Bruker trykket på 'Opprett avtale'-knapp",
+                    "Bruker trykket på 'Opprett ny avtale'-knapp",
                   );
                 }}
                 dataTestId="opprett-avtale"

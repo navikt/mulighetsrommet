@@ -1,6 +1,5 @@
 import { Tabs } from "@navikt/ds-react";
 import { ErrorBoundary } from "react-error-boundary";
-import { AvtaleUtkast } from "../../components/avtaler/AvtaleUtkast";
 import { Avtalefilter } from "../../components/filter/Avtalefilter";
 import { AvtaleTabell } from "../../components/tabell/AvtaleTabell";
 import { ContainerLayoutOversikt } from "../../layouts/ContainerLayout";
@@ -8,8 +7,9 @@ import { HeaderBanner } from "../../layouts/HeaderBanner";
 import { MainContainer } from "../../layouts/MainContainer";
 import { ErrorFallback } from "../../main";
 import styles from "../Page.module.scss";
-import { AvtaleUtkastTabs, avtaleOversiktTabAtom } from "../../api/atoms";
+import { avtaleOversiktTabAtom, AvtaleUtkastTabs } from "../../api/atoms";
 import { useAtom } from "jotai";
+import { UtkastListe } from "../../components/utkast/Utkastliste";
 
 export function AvtalerPage() {
   const [tabValgt, setTabValgt] = useAtom(avtaleOversiktTabAtom);
@@ -44,7 +44,7 @@ export function AvtalerPage() {
                 <AvtaleTabell />
               </Tabs.Panel>
               <Tabs.Panel value="utkast">
-                <AvtaleUtkast/>
+                <UtkastListe dataType="avtale" />
               </Tabs.Panel>
             </ContainerLayoutOversikt>
           </MainContainer>

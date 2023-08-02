@@ -3,8 +3,8 @@ import { ErrorBoundary } from "react-error-boundary";
 import { useAvtale } from "../../../api/avtaler/useAvtale";
 import { Tiltaksgjennomforingfilter } from "../../../components/filter/Tiltaksgjennomforingfilter";
 import { TiltaksgjennomforingsTabell } from "../../../components/tabell/TiltaksgjennomforingsTabell";
-import { TiltaksgjennomforingUtkast } from "../../../components/tiltaksgjennomforinger/TiltaksgjennomforingUtkast";
 import { ErrorFallback } from "../../../main";
+import { UtkastListe } from "../../../components/utkast/Utkastliste";
 
 export function TiltaksgjennomforingerForAvtale() {
   const { data: avtale } = useAvtale();
@@ -34,7 +34,7 @@ export function TiltaksgjennomforingerForAvtale() {
             />
           </Tabs.Panel>
           <Tabs.Panel value="utkast">
-            <TiltaksgjennomforingUtkast />
+            <UtkastListe dataType="tiltaksgjennomforing" />
           </Tabs.Panel>
         </ErrorBoundary>
       </Tabs>

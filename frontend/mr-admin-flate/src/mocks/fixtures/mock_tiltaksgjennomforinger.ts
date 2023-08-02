@@ -42,7 +42,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       },
       sanityId: "1234",
       startDato: "2022-01-01",
-      sluttDato: "2022-12-12",
+      sluttDato: "2029-12-12",
       stengtFra: "2023-6-1",
       stengtTil: "2023-8-1",
       arenaAnsvarligEnhet: "2990",

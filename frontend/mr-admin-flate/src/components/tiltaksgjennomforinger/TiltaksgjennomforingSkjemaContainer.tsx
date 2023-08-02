@@ -1,132 +1,105 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { PlusIcon, XMarkIcon } from "@navikt/aksel-icons";
 import { Alert, Button, Checkbox, TextField } from "@navikt/ds-react";
-import classNames from "classnames";
 import {
   Avtale,
-  NavEnhet,
   Tiltaksgjennomforing,
-  TiltaksgjennomforingKontaktpersoner,
   TiltaksgjennomforingOppstartstype,
   TiltaksgjennomforingRequest,
   Utkast,
 } from "mulighetsrommet-api-client";
-import { Opphav } from "mulighetsrommet-api-client/build/models/Opphav";
 import { Tilgjengelighetsstatus } from "mulighetsrommet-api-client/build/models/Tilgjengelighetsstatus";
-
-import React, { Dispatch, SetStateAction, useEffect, useRef } from "react";
+import skjemastyles from "../skjema/Skjema.module.scss";
+import React, { useEffect, useRef } from "react";
 import {
   FormProvider,
   SubmitHandler,
   useFieldArray,
   useForm,
 } from "react-hook-form";
-import { toast } from "react-toastify";
 import { v4 as uuidv4 } from "uuid";
-import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
-import { useHentBetabrukere } from "../../api/ansatt/useHentBetabrukere";
-import { useHentKontaktpersoner } from "../../api/ansatt/useHentKontaktpersoner";
-import { usePutGjennomforing } from "../../api/avtaler/usePutGjennomforing";
-import { mulighetsrommetClient } from "../../api/clients";
-import { useAlleEnheter } from "../../api/enhet/useAlleEnheter";
-import { useMutateUtkast } from "../../api/utkast/useMutateUtkast";
-import { useVirksomhet } from "../../api/virksomhet/useVirksomhet";
 import {
   formaterDatoSomYYYYMMDD,
   tilgjengelighetsstatusTilTekst,
 } from "../../utils/Utils";
-import { isTiltakMedFellesOppstart } from "../../utils/tiltakskoder";
 import { AutoSaveUtkast } from "../autosave/AutoSaveUtkast";
-import { Separator } from "../detaljside/Metadata";
 import { Laster } from "../laster/Laster";
-import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
-import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
-import { SokeSelect } from "../skjema/SokeSelect";
-import { VirksomhetKontaktpersoner } from "../virksomhet/VirksomhetKontaktpersoner";
-import { AvbrytTiltaksgjennomforing } from "./AvbrytTiltaksgjennomforing";
-import styles from "./OpprettTiltaksgjennomforingContainer.module.scss";
-import {
-  avtaleFinnesIkke,
-  avtaleManglerNavRegionError,
-  avtalenErAvsluttet,
-  tekniskFeilError,
-} from "./OpprettTiltaksgjennomforingErrors";
+import { tekniskFeilError } from "./TiltaksgjennomforingSkjemaErrors";
 import {
   inferredTiltaksgjennomforingSchema,
   TiltaksgjennomforingSchema,
 } from "./TiltaksgjennomforingSchema";
-import { AnsvarligOptions } from "../skjema/AnsvarligOptions";
+import {
+  arenaOpphav,
+  arrangorUnderenheterOptions,
+  defaultOppstartType,
+  defaultValuesForKontaktpersoner,
+  enheterOptions,
+  UtkastData,
+} from "./TiltaksgjennomforingSkjemaConst";
+import { useAlleEnheter } from "../../api/enhet/useAlleEnheter";
+import { mulighetsrommetClient } from "../../api/clients";
+import { useHentKontaktpersoner } from "../../api/ansatt/useHentKontaktpersoner";
+import { usePutGjennomforing } from "../../api/avtaler/usePutGjennomforing";
+import { useMutateUtkast } from "../../api/utkast/useMutateUtkast";
+import { useHentBetabrukere } from "../../api/ansatt/useHentBetabrukere";
+import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
+import { toast } from "react-toastify";
+import { SokeSelect } from "../skjema/SokeSelect";
 import { FormGroup } from "../skjema/FormGroup";
+import { AvbrytTiltaksgjennomforing } from "./AvbrytTiltaksgjennomforing";
+import { TiltaksgjennomforingSkjemaKnapperad } from "./TiltaksgjennomforingSkjemaKnapperad";
+import { useVirksomhet } from "../../api/virksomhet/useVirksomhet";
+import { PlusIcon, XMarkIcon } from "@navikt/aksel-icons";
+import { AnsvarligOptions } from "../skjema/AnsvarligOptions";
+import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
+import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
+import { VirksomhetKontaktpersoner } from "../virksomhet/VirksomhetKontaktpersoner";
+import { Separator } from "../detaljside/Metadata";
+import classNames from "classnames";
 
-interface OpprettTiltaksgjennomforingContainerProps {
+interface Props {
   onClose: () => void;
   onSuccess: (id: string) => void;
-  setError: Dispatch<SetStateAction<React.ReactNode | null>>;
   avtale?: Avtale;
   tiltaksgjennomforing?: Tiltaksgjennomforing;
 }
 
-function defaultOppstartType(
-  avtale?: Avtale,
-): TiltaksgjennomforingOppstartstype {
-  if (!avtale) {
-    return TiltaksgjennomforingOppstartstype.LOPENDE;
-  }
-
-  const tiltakskode = avtale.tiltakstype.arenaKode;
-  return isTiltakMedFellesOppstart(tiltakskode)
-    ? TiltaksgjennomforingOppstartstype.FELLES
-    : TiltaksgjennomforingOppstartstype.LOPENDE;
-}
-
-function defaultValuesForKontaktpersoner(
-  kontaktpersoner?: TiltaksgjennomforingKontaktpersoner[],
-): TiltaksgjennomforingKontaktpersoner[] {
-  if (!kontaktpersoner) return [{ navIdent: "", navEnheter: [] }];
-
-  return kontaktpersoner?.map((person) => ({
-    navIdent: person.navIdent,
-    navEnheter:
-      person.navEnheter?.length === 0 ? ["alle_enheter"] : person.navEnheter,
-  }));
-}
-
-type UtkastData = Pick<
-  Tiltaksgjennomforing,
-  | "navn"
-  | "antallPlasser"
-  | "startDato"
-  | "sluttDato"
-  | "navEnheter"
-  | "stengtFra"
-  | "stengtTil"
-  | "arrangor"
-  | "kontaktpersoner"
-  | "estimertVentetid"
-  | "lokasjonArrangor"
-> & {
-  tiltakstypeId: string;
-  avtaleId: string;
-  arrangorKontaktpersonId?: { id?: string };
-  id: string;
-};
-
-export const TiltaksgjennomforingSkjemaContainer = (
-  props: OpprettTiltaksgjennomforingContainerProps,
-) => {
-  const { data: kontaktpersoner, isLoading: isLoadingKontaktpersoner } =
-    useHentKontaktpersoner();
+export const TiltaksgjennomforingSkjemaContainer = ({
+  avtale,
+  tiltaksgjennomforing,
+  onClose,
+  onSuccess,
+}: Props) => {
+  const utkastIdRef = useRef(tiltaksgjennomforing?.id || uuidv4());
+  const redigeringsModus = !!tiltaksgjennomforing;
+  const { data: virksomhet } = useVirksomhet(
+    avtale?.leverandor.organisasjonsnummer || "",
+  );
   const mutation = usePutGjennomforing();
   const mutationUtkast = useMutateUtkast();
-  const {
-    data: ansatt,
-    isLoading: isLoadingAnsatt,
-    isError: isErrorAnsatt,
-  } = useHentAnsatt();
   const { data: betabrukere } = useHentBetabrukere();
-  const { avtale, tiltaksgjennomforing, setError, onClose, onSuccess } = props;
-  const utkastIdRef = useRef(tiltaksgjennomforing?.id || uuidv4());
-  const saveUtkast = (values: inferredTiltaksgjennomforingSchema) => {
+
+  const { data: ansatt, isLoading: isLoadingAnsatt } = useHentAnsatt();
+
+  const { data: enheter, isLoading: isLoadingEnheter } = useAlleEnheter();
+
+  const { data: kontaktpersoner, isLoading: isLoadingKontaktpersoner } =
+    useHentKontaktpersoner();
+
+  const kontaktpersonerOption = () => {
+    const options = kontaktpersoner?.map((kontaktperson) => ({
+      label: `${kontaktperson.fornavn} ${kontaktperson.etternavn} - ${kontaktperson.navIdent}`,
+      value: kontaktperson.navIdent,
+    }));
+
+    return options || [];
+  };
+
+  const saveUtkast = (
+    values: inferredTiltaksgjennomforingSchema,
+    avtale: Avtale,
+    utkastIdRef: React.MutableRefObject<string>,
+  ) => {
     if (!avtale) {
       return;
     }
@@ -152,7 +125,8 @@ export const TiltaksgjennomforingSkjemaContainer = (
         id: values?.arrangorKontaktpersonId ?? undefined,
       },
       arrangor: {
-        organisasjonsnummer: values.tiltaksArrangorUnderenhetOrganisasjonsnummer,
+        organisasjonsnummer:
+          values.tiltaksArrangorUnderenhetOrganisasjonsnummer,
         slettet: false,
       },
       kontaktpersoner: values?.kontaktpersoner?.map((kp) => ({ ...kp })) || [],
@@ -223,9 +197,11 @@ export const TiltaksgjennomforingSkjemaContainer = (
       ),
       estimertVentetid: tiltaksgjennomforing?.estimertVentetid,
       lokasjonArrangor: tiltaksgjennomforing?.lokasjonArrangor,
-      arrangorKontaktpersonId: tiltaksgjennomforing?.arrangor?.kontaktperson?.id,
+      arrangorKontaktpersonId:
+        tiltaksgjennomforing?.arrangor?.kontaktperson?.id,
     },
   });
+
   const {
     register,
     handleSubmit,
@@ -245,27 +221,11 @@ export const TiltaksgjennomforingSkjemaContainer = (
     "midlertidigStengt.erMidlertidigStengt",
   );
 
-  const {
-    data: enheter,
-    isLoading: isLoadingEnheter,
-    isError: isErrorEnheter,
-  } = useAlleEnheter();
-
-  const { data: virksomhet } = useVirksomhet(
-    avtale?.leverandor.organisasjonsnummer || "",
-  );
-
   useEffect(() => {
     if (ansatt && !isLoadingAnsatt && !tiltaksgjennomforing?.ansvarlig) {
       setValue("ansvarlig", ansatt.navIdent);
     }
   }, [ansatt, isLoadingAnsatt, setValue]);
-
-  useEffect(() => {
-    if (mutation.data?.id) {
-      onSuccess(mutation.data.id);
-    }
-  }, [mutation]);
 
   async function getLokasjonForArrangor(orgnr?: string) {
     if (!orgnr) return;
@@ -282,13 +242,11 @@ export const TiltaksgjennomforingSkjemaContainer = (
     }
   }
 
-  const redigeringsModus = !!tiltaksgjennomforing;
-
   const postData: SubmitHandler<inferredTiltaksgjennomforingSchema> = async (
     data,
   ): Promise<void> => {
     if (!avtale) {
-      setError(tekniskFeilError());
+      <Alert variant="error">{tekniskFeilError()}</Alert>;
       return;
     }
 
@@ -334,81 +292,17 @@ export const TiltaksgjennomforingSkjemaContainer = (
     try {
       mutation.mutate(body);
     } catch {
-      setError(tekniskFeilError());
+      <Alert variant="error">{tekniskFeilError()}</Alert>;
     }
   };
-
-  const arenaOpphav = tiltaksgjennomforing?.opphav === Opphav.ARENA;
 
   if (!enheter) {
     return <Laster />;
   }
 
-  if (!avtale) {
-    setError(avtaleFinnesIkke());
+  if (mutation.isSuccess) {
+    onSuccess(mutation.data.id);
   }
-
-  if (avtale && avtale?.sluttDato && new Date(avtale.sluttDato) < new Date()) {
-    setError(avtalenErAvsluttet(redigeringsModus));
-  }
-
-  if (avtale && !avtale?.navRegion) {
-    setError(avtaleManglerNavRegionError(avtale?.id));
-  }
-
-  if (isErrorAnsatt || isErrorEnheter) {
-    setError(tekniskFeilError());
-  }
-
-  const enheterOptions = () => {
-    const options = enheter
-      .filter(
-        (enhet: NavEnhet) =>
-          avtale?.navRegion?.enhetsnummer === enhet.overordnetEnhet,
-      )
-      .filter(
-        (enhet: NavEnhet) =>
-          avtale?.navEnheter?.length === 0 ||
-          avtale?.navEnheter.find((e) => e.enhetsnummer === enhet.enhetsnummer),
-      )
-      .map((enhet) => ({
-        label: enhet.navn,
-        value: enhet.enhetsnummer,
-      }));
-
-    options?.unshift({ value: "alle_enheter", label: "Alle enheter" });
-    return options || [];
-  };
-
-  const kontaktpersonerOption = () => {
-    const options = kontaktpersoner?.map((kontaktperson) => ({
-      label: `${kontaktperson.fornavn} ${kontaktperson.etternavn} - ${kontaktperson.navIdent}`,
-      value: kontaktperson.navIdent,
-    }));
-
-    return options || [];
-  };
-
-  const arrangorUnderenheterOptions = () => {
-    const options =
-      avtale?.leverandorUnderenheter.map((lev) => {
-        return {
-          label: `${lev.navn} - ${lev.organisasjonsnummer}`,
-          value: lev.organisasjonsnummer,
-        };
-      }) || [];
-
-    // Ingen underenheter betyr at alle er valgt, må gi valg om alle underenheter fra virksomhet
-    if (options?.length === 0) {
-      const enheter = virksomhet?.underenheter || [];
-      return enheter.map((enhet) => ({
-        value: enhet.organisasjonsnummer,
-        label: `${enhet?.navn} - ${enhet?.organisasjonsnummer}`,
-      }));
-    }
-    return options;
-  };
-
 
   return (
     <FormProvider {...form}>
@@ -419,14 +313,14 @@ export const TiltaksgjennomforingSkjemaContainer = (
         </Alert>
       ) : null}
       <form onSubmit={handleSubmit(postData)}>
-        <div className={styles.container}>
+        <div className={skjemastyles.container}>
           <Separator />
-          <div className={styles.input_container}>
-            <div className={styles.column}>
+          <div className={skjemastyles.input_container}>
+            <div className={skjemastyles.column}>
               <FormGroup>
                 <TextField
                   size="small"
-                  readOnly={arenaOpphav}
+                  readOnly={arenaOpphav(tiltaksgjennomforing)}
                   error={errors.navn?.message}
                   label="Tiltaksnavn"
                   autoFocus
@@ -448,7 +342,7 @@ export const TiltaksgjennomforingSkjemaContainer = (
                 <SokeSelect
                   size="small"
                   label="Oppstartstype"
-                  readOnly={arenaOpphav}
+                  readOnly={arenaOpphav(tiltaksgjennomforing)}
                   placeholder="Velg oppstart"
                   {...register("oppstart")}
                   options={[
@@ -466,18 +360,20 @@ export const TiltaksgjennomforingSkjemaContainer = (
                   size="small"
                   fra={{
                     label: "Startdato",
-                    readOnly: arenaOpphav,
+                    readOnly: arenaOpphav(tiltaksgjennomforing),
                     ...register("startOgSluttDato.startDato"),
                   }}
                   til={{
                     label: "Sluttdato",
-                    readOnly: arenaOpphav && !!tiltaksgjennomforing?.sluttDato,
+                    readOnly:
+                      arenaOpphav(tiltaksgjennomforing) &&
+                      !!tiltaksgjennomforing?.sluttDato,
                     ...register("startOgSluttDato.sluttDato"),
                   }}
                 />
                 <Checkbox
                   size="small"
-                  readOnly={arenaOpphav}
+                  readOnly={arenaOpphav(tiltaksgjennomforing)}
                   {...register("apenForInnsok")}
                 >
                   Åpen for innsøk
@@ -503,14 +399,14 @@ export const TiltaksgjennomforingSkjemaContainer = (
                 )}
                 <TextField
                   size="small"
-                  readOnly={arenaOpphav}
+                  readOnly={arenaOpphav(tiltaksgjennomforing)}
                   error={errors.antallPlasser?.message}
                   type="number"
                   style={{ width: "180px" }}
                   label="Antall plasser"
                   {...register("antallPlasser", { valueAsNumber: true })}
                 />
-                {!arenaOpphav && redigeringsModus ? (
+                {!arenaOpphav(tiltaksgjennomforing) && redigeringsModus ? (
                   <AvbrytTiltaksgjennomforing onAvbryt={onClose} />
                 ) : null}
               </FormGroup>
@@ -551,9 +447,9 @@ export const TiltaksgjennomforingSkjemaContainer = (
                 />
               </FormGroup>
             </div>
-            <div className={styles.vertical_separator} />
-            <div className={styles.column}>
-              <div className={styles.gray_container}>
+            <div className={skjemastyles.vertical_separator} />
+            <div className={skjemastyles.column}>
+              <div className={skjemastyles.gray_container}>
                 <FormGroup>
                   <TextField
                     size="small"
@@ -568,7 +464,7 @@ export const TiltaksgjennomforingSkjemaContainer = (
                     }
                     label={"NAV enhet (kontorer)"}
                     {...register("navEnheter")}
-                    options={enheterOptions()}
+                    options={enheterOptions(enheter, avtale)}
                   />
                 </FormGroup>
                 <Separator />
@@ -577,13 +473,13 @@ export const TiltaksgjennomforingSkjemaContainer = (
                     {kontaktpersonFields?.map((field, index) => {
                       return (
                         <div
-                          className={styles.kontaktperson_container}
+                          className={skjemastyles.kontaktperson_container}
                           key={field.id}
                         >
                           <button
                             className={classNames(
-                              styles.kontaktperson_button,
-                              styles.kontaktperson_fjern_button,
+                              skjemastyles.kontaktperson_button,
+                              skjemastyles.kontaktperson_fjern_button,
                             )}
                             type="button"
                             onClick={() => {
@@ -598,7 +494,7 @@ export const TiltaksgjennomforingSkjemaContainer = (
                           >
                             <XMarkIcon />
                           </button>
-                          <div className={styles.kontaktperson_inputs}>
+                          <div className={skjemastyles.kontaktperson_inputs}>
                             <SokeSelect
                               size="small"
                               placeholder={
@@ -629,14 +525,14 @@ export const TiltaksgjennomforingSkjemaContainer = (
                                   shouldUnregister: true,
                                 },
                               )}
-                              options={enheterOptions()}
+                              options={enheterOptions(enheter, avtale)}
                             />
                           </div>
                         </div>
                       );
                     })}
                     <Button
-                      className={styles.kontaktperson_button}
+                      className={skjemastyles.kontaktperson_button}
                       type="button"
                       size="small"
                       onClick={() =>
@@ -648,7 +544,7 @@ export const TiltaksgjennomforingSkjemaContainer = (
                   </div>
                 </FormGroup>
               </div>
-              <div className={styles.gray_container}>
+              <div className={skjemastyles.gray_container}>
                 <FormGroup>
                   <TextField
                     size="small"
@@ -675,20 +571,24 @@ export const TiltaksgjennomforingSkjemaContainer = (
                       );
                     }}
                     readOnly={!avtale?.leverandor.organisasjonsnummer}
-                    options={arrangorUnderenheterOptions()}
+                    options={arrangorUnderenheterOptions(avtale!, virksomhet)}
                   />
                   {watch("tiltaksArrangorUnderenhetOrganisasjonsnummer") &&
                     !tiltaksgjennomforing?.arrangor?.slettet && (
-                  <div className={styles.virksomhet_kontaktperson_container}>
-                      <VirksomhetKontaktpersoner
-                        title={"Kontaktperson hos arrangøren"}
-                        orgnr={watch(
-                          "tiltaksArrangorUnderenhetOrganisasjonsnummer",
-                        )}
-                        formValueName={"arrangorKontaktpersonId"}
-                      />
-                    </div>
-                  )}
+                      <div
+                        className={
+                          skjemastyles.virksomhet_kontaktperson_container
+                        }
+                      >
+                        <VirksomhetKontaktpersoner
+                          title={"Kontaktperson hos arrangøren"}
+                          orgnr={watch(
+                            "tiltaksArrangorUnderenhetOrganisasjonsnummer",
+                          )}
+                          formValueName={"arrangorKontaktpersonId"}
+                        />
+                      </div>
+                    )}
                   <TextField
                     size="small"
                     label="Sted for gjennomføring"
@@ -705,33 +605,17 @@ export const TiltaksgjennomforingSkjemaContainer = (
             </div>
           </div>
           <Separator />
-          <div className={styles.button_row}>
-            <Button
-              className={styles.button}
-              onClick={onClose}
-              variant="tertiary"
-              type="button"
-            >
-              Avbryt
-            </Button>
-            <Button
-              className={styles.button}
-              type="submit"
-              disabled={mutation.isLoading}
-            >
-              {mutation.isLoading
-                ? "Lagrer..."
-                : redigeringsModus
-                ? "Lagre gjennomføring"
-                : "Opprett"}
-            </Button>
-          </div>
+          <TiltaksgjennomforingSkjemaKnapperad
+            redigeringsModus={redigeringsModus}
+            onClose={onClose}
+            mutation={mutation}
+          />
         </div>
       </form>
       <AutoSaveUtkast
         defaultValues={defaultValues}
         utkastId={utkastIdRef.current}
-        onSave={() => saveUtkast(watch())}
+        onSave={() => saveUtkast(watch(), avtale!, utkastIdRef)}
         mutation={mutationUtkast}
       />
     </FormProvider>

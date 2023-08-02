@@ -1,4 +1,4 @@
-import { Textarea, TextField } from "@navikt/ds-react";
+import { Alert, Textarea, TextField } from "@navikt/ds-react";
 import {
   ApiError,
   Avtale,
@@ -11,7 +11,6 @@ import {
 } from "mulighetsrommet-api-client";
 import { NavEnhet } from "mulighetsrommet-api-client/build/models/NavEnhet";
 import { Tiltakstype } from "mulighetsrommet-api-client/build/models/Tiltakstype";
-import { StatusModal } from "mulighetsrommet-veileder-flate/src/components/modal/delemodal/StatusModal";
 import { useEffect, useRef, useState } from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { v4 as uuidv4 } from "uuid";
@@ -29,7 +28,7 @@ import { SokeSelect } from "../skjema/SokeSelect";
 import { VirksomhetKontaktpersoner } from "../virksomhet/VirksomhetKontaktpersoner";
 import { AvbrytAvtale } from "./AvbrytAvtale";
 import { AvtaleSchema, inferredAvtaleSchema } from "./AvtaleSchema";
-import styles from "./AvtaleSkjema.module.scss";
+import skjemastyles from "../skjema/Skjema.module.scss";
 
 import {
   defaultEnhet,
@@ -205,34 +204,22 @@ export function AvtaleSkjemaContainer({
 
   if (mutation.isError) {
     return (
-      <StatusModal
-        modalOpen={mutation.isError}
-        ikonVariant="error"
-        heading="Kunne ikke opprette avtale"
-        text={
-          <>
-            {(mutation.error as ApiError).status === 400
-              ? (mutation.error as ApiError).body
-              : "Avtalen kunne ikke opprettes på grunn av en teknisk feil hos oss. " +
-                "Forsøk på nytt eller ta <a href={PORTEN}>kontakt</a> i Porten dersom " +
-                "du trenger mer hjelp."}
-          </>
-        }
-        onClose={onClose}
-        primaryButtonOnClick={() => mutation.reset()}
-        primaryButtonText="Prøv igjen"
-        secondaryButtonOnClick={onClose}
-        secondaryButtonText="Avbryt"
-      />
+      <Alert variant="error">
+        {(mutation.error as ApiError).status === 400
+          ? (mutation.error as ApiError).body
+          : "Avtalen kunne ikke opprettes på grunn av en teknisk feil hos oss. " +
+            "Forsøk på nytt eller ta <a href={PORTEN}>kontakt i Porten</a> dersom " +
+            "du trenger mer hjelp."}
+      </Alert>
     );
   }
 
   return (
     <FormProvider {...form}>
       <form onSubmit={handleSubmit(postData)}>
-        <div className={styles.container}>
-          <div className={styles.input_container}>
-            <div className={styles.column}>
+        <div className={skjemastyles.container}>
+          <div className={skjemastyles.input_container}>
+            <div className={skjemastyles.column}>
               <FormGroup>
                 <TextField
                   size="small"
@@ -336,9 +323,9 @@ export function AvtaleSkjemaContainer({
                 />
               </FormGroup>
             </div>
-            <div className={styles.vertical_separator} />
-            <div className={styles.column}>
-              <div className={styles.gray_container}>
+            <div className={skjemastyles.vertical_separator} />
+            <div className={skjemastyles.column}>
+              <div className={skjemastyles.gray_container}>
                 <FormGroup>
                   <SokeSelect
                     size="small"
@@ -367,7 +354,7 @@ export function AvtaleSkjemaContainer({
                   />
                 </FormGroup>
               </div>
-              <div className={styles.gray_container}>
+              <div className={skjemastyles.gray_container}>
                 <FormGroup>
                   <SokeSelect
                     size="small"
@@ -393,7 +380,7 @@ export function AvtaleSkjemaContainer({
                 </FormGroup>
                 {watch("leverandor") && !avtale?.leverandor?.slettet && (
                   <FormGroup>
-                    <div className={styles.kontaktperson_container}>
+                    <div className={skjemastyles.kontaktperson_container}>
                       <VirksomhetKontaktpersoner
                         title={"Kontaktperson hos leverandøren"}
                         orgnr={watch("leverandor")}

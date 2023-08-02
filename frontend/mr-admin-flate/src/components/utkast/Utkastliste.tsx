@@ -2,12 +2,23 @@ import { Alert } from "@navikt/ds-react";
 import { ApiError, Utkast } from "mulighetsrommet-api-client";
 import { useMineUtkast } from "../../api/utkast/useMineUtkast";
 import { Laster } from "../laster/Laster";
-import { UtkastKort } from "../utkast/Utkastkort";
-import styles from "./AvtaleUtkast.module.scss";
+import { UtkastKort } from "./Utkastkort";
+import styles from "../avtaler/AvtaleUtkast.module.scss";
 import { useDeleteUtkast } from "../../api/utkast/useDeleteUtkast";
 
-export function AvtaleUtkast() {
-  const { data = [], isLoading, error } = useMineUtkast(Utkast.type.AVTALE);
+interface Props {
+  dataType: "tiltaksgjennomforing" | "avtale";
+}
+
+export function UtkastListe({ dataType }: Props) {
+  const {
+    data = [],
+    isLoading,
+    error,
+  } = dataType === "tiltaksgjennomforing"
+    ? useMineUtkast(Utkast.type.TILTAKSGJENNOMFORING)
+    : useMineUtkast(Utkast.type.AVTALE);
+
   const mutation = useDeleteUtkast();
   if (error as ApiError) {
     const apiError = error as ApiError;

@@ -3,8 +3,12 @@ import { mulighetsrommetClient } from "mulighetsrommet-veileder-flate/src/core/a
 import { useGetAdminTiltaksgjennomforingsIdFraUrl } from "../../hooks/useGetAdminTiltaksgjennomforingsIdFraUrl";
 import { QueryKeys } from "../QueryKeys";
 
-export function useTiltaksgjennomforing() {
-  const tiltaksgjennomforingId = useGetAdminTiltaksgjennomforingsIdFraUrl();
+export function useTiltaksgjennomforing(
+  overstyrTiltaksgjennomforingsId?: string,
+) {
+  const tiltaksgjennomforingId =
+    overstyrTiltaksgjennomforingsId ||
+    useGetAdminTiltaksgjennomforingsIdFraUrl();
 
   return useQuery(
     QueryKeys.tiltaksgjennomforing(tiltaksgjennomforingId!!),

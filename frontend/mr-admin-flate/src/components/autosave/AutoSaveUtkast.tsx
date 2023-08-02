@@ -12,7 +12,7 @@ type Props = {
   defaultValues: any;
   utkastId: string;
   onSave: () => void;
-  mutation: UseMutationResult<Utkast, unknown, Utkast, unknown>;
+  mutation: UseMutationResult<Utkast, unknown, Utkast>;
 };
 
 export const AutoSaveUtkast = memo(

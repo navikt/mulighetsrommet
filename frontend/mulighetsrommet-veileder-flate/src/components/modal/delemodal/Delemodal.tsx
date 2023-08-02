@@ -148,7 +148,7 @@ const Delemodal = ({
           text={
             <>
               Tiltaket kunne ikke deles på grunn av en teknisk feil hos oss. Forsøk på nytt eller ta{' '}
-              <a href={PORTEN}>kontakt</a> i Porten dersom du trenger mer hjelp.
+              <a href={PORTEN}>kontakt i Porten</a> dersom du trenger mer hjelp.
             </>
           }
           onClose={clickCancel}

@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import styles from "../avtaler/AvtaleSkjema.module.scss";
+import styles from "../skjema/Skjema.module.scss";
 import classNames from "classnames";
 
 export const FormGroup = ({
