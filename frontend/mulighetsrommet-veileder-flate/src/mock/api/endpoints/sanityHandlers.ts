@@ -81,7 +81,6 @@ export const sanityHandlers = [
       oppstart: 'lopende',
       oppstartsdato: new Date(),
     }));
-    console.log({ resultMedDatoer });
     return ok(resultMedDatoer);
   }),
 
