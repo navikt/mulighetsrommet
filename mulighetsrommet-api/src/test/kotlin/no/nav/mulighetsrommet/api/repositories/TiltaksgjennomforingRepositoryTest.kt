@@ -894,6 +894,55 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     it.second.map { it.id } shouldContainAll listOf(gj4.id, gj3.id, gj5.id)
                 }
         }
+
+        test("filtrer på nav_region når ingen avtale er koblet til gjennomføringen") {
+            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
+            val enhetRepository = NavEnhetRepository(database.db)
+            enhetRepository.upsert(
+                NavEnhetDbo(
+                    navn = "NAV Nordland",
+                    enhetsnummer = "1800",
+                    status = NavEnhetStatus.AKTIV,
+                    type = Norg2Type.LOKAL,
+                    overordnetEnhet = null,
+                ),
+            ).shouldBeRight()
+            enhetRepository.upsert(
+                NavEnhetDbo(
+                    navn = "Nordland 1",
+                    enhetsnummer = "1898",
+                    status = NavEnhetStatus.AKTIV,
+                    type = Norg2Type.LOKAL,
+                    overordnetEnhet = null,
+                ),
+            ).shouldBeRight()
+            enhetRepository.upsert(
+                NavEnhetDbo(
+                    navn = "Nordland 2",
+                    enhetsnummer = "1854",
+                    status = NavEnhetStatus.AKTIV,
+                    type = Norg2Type.LOKAL,
+                    overordnetEnhet = "1800",
+                ),
+            ).shouldBeRight()
+
+            val gj1 = TiltaksgjennomforingFixtures.Oppfolging1.copy(id = UUID.randomUUID(), navEnheter = listOf("1898"))
+            val gj2 = TiltaksgjennomforingFixtures.Oppfolging1.copy(id = UUID.randomUUID(), arenaAnsvarligEnhet = "1800")
+            val gj3 = TiltaksgjennomforingFixtures.Oppfolging1.copy(id = UUID.randomUUID(), navEnheter = listOf("1898"))
+            val gj4 =
+                TiltaksgjennomforingFixtures.Oppfolging1.copy(id = UUID.randomUUID(), navEnheter = listOf("1800"))
+
+            tiltaksgjennomforinger.upsert(gj1)
+            tiltaksgjennomforinger.upsert(gj2)
+            tiltaksgjennomforinger.upsert(gj3)
+            tiltaksgjennomforinger.upsert(gj4)
+
+            tiltaksgjennomforinger.getAll(filter = defaultFilter.copy(navRegion = "1800"))
+                .should {
+                    it.first shouldBe 1
+                    it.second.map { it.id } shouldContainAll listOf(gj2.id)
+                }
+        }
     }
 
     context("pagination") {
