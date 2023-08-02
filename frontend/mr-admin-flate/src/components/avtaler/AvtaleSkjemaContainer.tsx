@@ -227,7 +227,7 @@ export function AvtaleSkjemaContainer({
                   error={errors.avtalenavn?.message}
                   label="Avtalenavn"
                   autoFocus
-                  data-testid="@avtalenavn-input"
+                  data-testid="avtalenavn-input"
                   {...register("avtalenavn")}
                 />
               </FormGroup>

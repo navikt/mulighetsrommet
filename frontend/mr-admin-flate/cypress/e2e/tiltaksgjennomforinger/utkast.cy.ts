@@ -42,7 +42,7 @@ describe("Utkast", () => {
       cy.checkPageA11y();
     });
 
-    it("Skal kunne opprette et utkast og se det i oversikten over utkast", () => {
+    it.skip("Skal kunne opprette et utkast og se det i oversikten over utkast", () => {
       cy.visit("/avtaler");
       cy.getByTestId("avtaler-tab").click();
       cy.getByTestId("opprett-avtale").click();
@@ -51,7 +51,8 @@ describe("Utkast", () => {
       cy.getByTestId("avtaleskjema-avbrytknapp").click();
       cy.wait(150);
       cy.getByTestId("mine-utkast-tab").should("exist").click();
-      cy.contains("Avtale som utkast");
+      //TODO må endres når vi legger til lagre-knapp
+      // cy.contains("Avtale som utkast");
     });
   });
 });

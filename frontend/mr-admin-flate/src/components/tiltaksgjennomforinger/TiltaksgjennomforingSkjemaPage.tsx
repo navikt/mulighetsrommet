@@ -5,7 +5,6 @@ import {
 } from "mulighetsrommet-api-client";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
-import { useAvtale } from "../../api/avtaler/useAvtale";
 import { useAlleEnheter } from "../../api/enhet/useAlleEnheter";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
 import { ContainerLayoutDetaljer } from "../../layouts/ContainerLayout";
@@ -19,34 +18,19 @@ import { useTiltaksgjennomforing } from "../../api/tiltaksgjennomforing/useTilta
 import styles from "../skjema/Skjema.module.scss";
 import { Alert } from "@navikt/ds-react";
 import { ErrorMeldinger } from "./TiltaksgjennomforingSkjemaErrors";
+import { useAvtale } from "../../api/avtaler/useAvtale";
 
 const TiltaksgjennomforingSkjemaPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const queryClient = useQueryClient();
-  // const [error, setError] = useState<React.ReactNode | null>(null);
-  const error = () => {
-    return (
-      !avtale ||
-      (avtale &&
-        avtale?.sluttDato &&
-        new Date(avtale.sluttDato) < new Date()) ||
-      (avtale && !avtale?.navRegion) ||
-      isErrorAnsatt ||
-      isErrorEnheter
-    );
-  };
-
-  const { data: avtale } = useAvtale(
-    searchParams.get("tiltaksgjennomforingId") || undefined,
-  );
-
   const {
     data: tiltaksgjennomforing,
     isFetching: tiltaksgjennomforingFetching,
   } = useTiltaksgjennomforing(
     searchParams.get("tiltaksgjennomforingId") || undefined,
   );
+  const { data: avtale } = useAvtale(tiltaksgjennomforing?.avtaleId);
   const { data: utkast, isFetching: utkastFetching } = useUtkast(
     searchParams.get("utkastId") || undefined,
   );
@@ -72,6 +56,13 @@ const TiltaksgjennomforingSkjemaPage = () => {
     navigate(-1);
   };
 
+  const isError =
+    !avtale ||
+    (avtale && avtale?.sluttDato && new Date(avtale.sluttDato) < new Date()) ||
+    (avtale && !avtale?.navRegion) ||
+    isErrorAnsatt ||
+    isErrorEnheter;
+
   if (utkastFetching || tiltaksgjennomforingFetching) {
     return (
       <Laster
@@ -84,55 +75,52 @@ const TiltaksgjennomforingSkjemaPage = () => {
   }
 
   return (
-    <>
-      <main>
-        <Header
-          dataTestId={
-            redigeringsModus
-              ? "rediger-tiltaksgjennomforing-header"
-              : "opprett-tiltaksgjennomforing-header"
-          }
-        >
-          {redigeringsModus
-            ? "Rediger tiltaksgjennomforing"
-            : "Opprett ny tiltaksgjennomforing"}
-        </Header>
-        <ContainerLayoutDetaljer>
-          <div className={styles.skjema}>
-            {isLoadingAnsatt || isLoadingTiltakstyper || isLoadingEnheter ? (
-              <Laster />
-            ) : null}
-            <div className={styles.skjema_content}>
-              {error() &&
-              (redigeringsModus !== undefined || redigeringsModus) ? (
-                <Alert variant="error">
-                  {ErrorMeldinger(
-                    avtale!,
-                    redigeringsModus,
-                    isErrorAnsatt,
-                    isErrorEnheter,
-                  )}
-                </Alert>
-              ) : (!tiltakstyper?.data || !ansatt || !enheter) &&
-                !error ? null : (
-                <TiltaksgjennomforingSkjemaContainer
-                  onClose={() => {
-                    queryClient.refetchQueries({ queryKey: ["utkast"] });
-                    navigerTilbake();
-                  }}
-                  onSuccess={(id) => navigate(`tiltaksgjennomforinger/${id}`)}
-                  avtale={avtale}
-                  tiltaksgjennomforing={
-                    (utkast?.utkastData as Tiltaksgjennomforing) ||
-                    tiltaksgjennomforing
-                  }
-                />
-              )}
-            </div>
+    <main>
+      <Header
+        dataTestId={
+          redigeringsModus
+            ? "rediger-tiltaksgjennomforing-header"
+            : "opprett-tiltaksgjennomforing-header"
+        }
+      >
+        {redigeringsModus
+          ? "Rediger tiltaksgjennomføring"
+          : "Opprett ny tiltaksgjennomforing"}
+      </Header>
+      <ContainerLayoutDetaljer>
+        <div className={styles.skjema}>
+          {isLoadingAnsatt || isLoadingTiltakstyper || isLoadingEnheter ? (
+            <Laster />
+          ) : null}
+          <div className={styles.skjema_content}>
+            {isError && redigeringsModus ? (
+              <Alert variant="error">
+                {ErrorMeldinger(
+                  avtale!,
+                  redigeringsModus,
+                  isErrorAnsatt,
+                  isErrorEnheter,
+                )}
+              </Alert>
+            ) : (!tiltakstyper?.data || !ansatt || !enheter) &&
+              !isError ? null : (
+              <TiltaksgjennomforingSkjemaContainer
+                onClose={() => {
+                  queryClient.refetchQueries({ queryKey: ["utkast"] });
+                  navigerTilbake();
+                }}
+                onSuccess={(id) => navigate(`/tiltaksgjennomforinger/${id}`)}
+                avtale={avtale}
+                tiltaksgjennomforing={
+                  (utkast?.utkastData as Tiltaksgjennomforing) ||
+                  tiltaksgjennomforing
+                }
+              />
+            )}
           </div>
-        </ContainerLayoutDetaljer>
-      </main>
-    </>
+        </div>
+      </ContainerLayoutDetaljer>
+    </main>
   );
 };
 

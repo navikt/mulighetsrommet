@@ -42,8 +42,6 @@ interface Props {
 }
 
 export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
-  // const navigate = useNavigate();
-  // const queryClient = useQueryClient();
   const [filter, setFilter] = useAtom(tiltaksgjennomforingfilter);
   const [, setPage] = useAtom(paginationAtom);
   const { data: enheter } = useAlleEnheter();
@@ -54,7 +52,6 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
     { status: Tiltakstypestatus.AKTIV },
     1,
   );
-  // const [opprettModal, setOpprettModalOpen] = useState<boolean>(false);
   const [modalOpen, setModalOpen] = useState<boolean>(false);
 
   const form = useForm<TiltaksgjennomforingAtomFilter>({

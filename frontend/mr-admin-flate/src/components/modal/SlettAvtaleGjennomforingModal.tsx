@@ -13,7 +13,7 @@ import styles from "../modal/Modal.module.scss";
 import { Lenkeknapp } from "../lenkeknapp/Lenkeknapp";
 import { UseMutationResult } from "@tanstack/react-query";
 
-interface SlettTiltaksgjennomforingModalprops {
+interface Props {
   modalOpen: boolean;
   handleCancel: () => void;
   data: Tiltaksgjennomforing | Avtale;
@@ -27,7 +27,7 @@ const SlettAvtaleGjennomforingModal = ({
   data,
   mutation,
   dataType,
-}: SlettTiltaksgjennomforingModalprops) => {
+}: Props) => {
   const navigate = useNavigate();
 
   const fraArena = data?.opphav === Opphav.ARENA;
@@ -42,6 +42,10 @@ const SlettAvtaleGjennomforingModal = ({
   const handleDelete = () => {
     mutation.mutate(data.id);
   };
+  const tekster = {
+    tiltaksgjennomforing: { navnPlural: "Gjennomføringen" },
+    avtale: { navnPlural: "Avtalen" },
+  };
 
   function headerInnhold() {
     return (
@@ -49,12 +53,7 @@ const SlettAvtaleGjennomforingModal = ({
         <XMarkOctagonFillIcon className={styles.warningicon} />
 
         {fraArena ? (
-          <span>
-            {dataType === "tiltaksgjennomforing"
-              ? "Gjennomføringen"
-              : "Avtalen"}{" "}
-            kan ikke slettes
-          </span>
+          <span>{tekster[dataType].navnPlural} kan ikke slettes</span>
         ) : mutation.isError ? (
           <span>Kan ikke slette «{data.navn}»</span>
         ) : (
@@ -69,10 +68,8 @@ const SlettAvtaleGjennomforingModal = ({
       <>
         {fraArena ? (
           <p>
-            {dataType === "tiltaksgjennomforing"
-              ? "Gjennomføringen"
-              : "Avtalen"}{" "}
-            «{data.navn}» kommer fra Arena og kan ikke slettes her
+            {tekster[dataType].navnPlural} «{data.navn}» kommer fra Arena og kan
+            ikke slettes her
           </p>
         ) : mutation?.isError ? (
           <p>{(mutation.error as ApiError).body}</p>
@@ -82,7 +79,7 @@ const SlettAvtaleGjennomforingModal = ({
         <div className={styles.knapperad}>
           {fraArena ? null : mutation?.isError ? (
             <Lenkeknapp
-              to={`/avtaler/skjema?tiltaksgjennomforingId=${data?.id}`}
+              to={`/tiltaksgjennomforinger/skjema?tiltaksgjennomforingId=${data?.id}`}
               lenketekst="Rediger tiltaksgjennomføring"
               variant="primary"
             />

@@ -19,13 +19,13 @@ import {
 import styles from "../DetaljerInfo.module.scss";
 import { AvtaleKnapperad } from "./AvtaleKnapperad";
 import SlettAvtaleGjennomforingModal from "../../components/modal/SlettAvtaleGjennomforingModal";
-import { useDeleteTiltaksgjennomforing } from "../../api/tiltaksgjennomforing/useDeleteTiltaksgjennomforing";
+import { useDeleteAvtale } from "../../api/avtaler/useDeleteAvtale";
 
 export function Avtaleinfo() {
   const { data: avtale, isLoading, error, refetch } = useAvtale();
   const [slettModal, setSlettModal] = useState(false);
   const [avbrytModal, setAvbrytModal] = useState(false);
-  const mutation = useDeleteTiltaksgjennomforing();
+  const mutation = useDeleteAvtale();
 
   if (!avtale && isLoading) {
     return <Laster tekst="Laster avtaleinformasjon..." />;

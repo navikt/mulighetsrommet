@@ -11,8 +11,5 @@
   "packageManager": "npm@8.5.2",
   "scripts": {
     "prepare": "husky install"
-  },
-  "dependencies": {
-    "gitmoji-cli": "^8.4.0"
   }
 }
