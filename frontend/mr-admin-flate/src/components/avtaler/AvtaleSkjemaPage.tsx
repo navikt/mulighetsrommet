@@ -46,44 +46,42 @@ const AvtaleSkjemaPage = () => {
   }
 
   return (
-    <>
-      <main>
-        <Header
-          dataTestId={
-            redigeringsModus ? "rediger-avtale-header" : "opprett-avtale-header"
-          }
-        >
-          {redigeringsModus
-            ? utkastModus
-              ? "Rediger utkast"
-              : "Rediger tiltaksgjennomføring"
-            : "Opprett ny tiltaksgjennomforing"}
-        </Header>
-        <ContainerLayoutDetaljer>
-          <div className={styles.skjema}>
-            {isLoadingAnsatt || isLoadingTiltakstyper || isLoadingEnheter ? (
-              <Laster />
-            ) : null}
-            <div className={styles.skjema_content}>
-              {!tiltakstyper?.data || !ansatt || !enheter ? null : (
-                <AvtaleSkjemaContainer
-                  onClose={() => {
-                    queryClient.refetchQueries({ queryKey: ["utkast"] });
-                    navigerTilbake();
-                  }}
-                  onSuccess={(id) => navigate(`/avtaler/${id}`)}
-                  tiltakstyper={tiltakstyper.data}
-                  ansatt={ansatt}
-                  enheter={enheter}
-                  avtale={(utkast?.utkastData as Avtale) || avtale}
-                  redigeringsModus={redigeringsModus!}
-                />
-              )}
-            </div>
+    <main>
+      <Header
+        dataTestId={
+          redigeringsModus ? "rediger-avtale-header" : "opprett-avtale-header"
+        }
+      >
+        {redigeringsModus
+          ? utkastModus
+            ? "Rediger utkast"
+            : "Rediger tiltaksgjennomføring"
+          : "Opprett ny tiltaksgjennomforing"}
+      </Header>
+      <ContainerLayoutDetaljer>
+        <div className={styles.skjema}>
+          {isLoadingAnsatt || isLoadingTiltakstyper || isLoadingEnheter ? (
+            <Laster />
+          ) : null}
+          <div className={styles.skjema_content}>
+            {!tiltakstyper?.data || !ansatt || !enheter ? null : (
+              <AvtaleSkjemaContainer
+                onClose={() => {
+                  queryClient.refetchQueries({ queryKey: ["utkast"] });
+                  navigerTilbake();
+                }}
+                onSuccess={(id) => navigate(`/avtaler/${id}`)}
+                tiltakstyper={tiltakstyper.data}
+                ansatt={ansatt}
+                enheter={enheter}
+                avtale={(utkast?.utkastData as Avtale) || avtale}
+                redigeringsModus={redigeringsModus!}
+              />
+            )}
           </div>
-        </ContainerLayoutDetaljer>
-      </main>
-    </>
+        </div>
+      </ContainerLayoutDetaljer>
+    </main>
   );
 };
 
