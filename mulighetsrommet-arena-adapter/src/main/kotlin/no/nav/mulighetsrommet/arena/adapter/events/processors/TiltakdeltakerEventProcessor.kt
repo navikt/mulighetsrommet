@@ -1,9 +1,9 @@
 package no.nav.mulighetsrommet.arena.adapter.events.processors
 
 import arrow.core.Either
-import arrow.core.continuations.either
 import arrow.core.flatMap
 import arrow.core.left
+import arrow.core.raise.either
 import arrow.core.right
 import io.ktor.client.statement.*
 import io.ktor.http.*

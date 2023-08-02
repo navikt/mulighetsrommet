@@ -1,8 +1,8 @@
 package no.nav.mulighetsrommet.arena.adapter.events.processors
 
 import arrow.core.Either
-import arrow.core.continuations.either
 import arrow.core.flatMap
+import arrow.core.raise.either
 import io.ktor.http.*
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.arena.adapter.models.ProcessingError
