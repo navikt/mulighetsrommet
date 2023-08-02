@@ -138,7 +138,7 @@ class AvtaleRepositoryTest : FunSpec({
                     id = UUID.randomUUID(),
                     navn = "Avtale om opplæring av blinde krokodiller",
                 )
-                val avtale2 = AvtaleFixtures.avtale1.copy(
+                val avtale2 = avtale1.copy(
                     id = UUID.randomUUID(),
                     navn = "Avtale om undervisning av underlige ulver",
                 )
@@ -269,7 +269,7 @@ class AvtaleRepositoryTest : FunSpec({
                     id = UUID.randomUUID(),
                     navRegion = "1801",
                 )
-                val avtale2 = AvtaleFixtures.avtale1.copy(
+                val avtale2 = avtale1.copy(
                     id = UUID.randomUUID(),
                     navRegion = "1900",
                 )
@@ -333,11 +333,11 @@ class AvtaleRepositoryTest : FunSpec({
             val avtale1 = AvtaleFixtures.avtale1.copy(
                 tiltakstypeId = tiltakstypeId,
             )
-            val avtale2 = AvtaleFixtures.avtale1.copy(
+            val avtale2 = avtale1.copy(
                 id = UUID.randomUUID(),
                 tiltakstypeId = tiltakstypeId,
             )
-            val avtale3 = AvtaleFixtures.avtale1.copy(
+            val avtale3 = avtale1.copy(
                 id = UUID.randomUUID(),
                 tiltakstypeId = tiltakstypeIdForAvtale3,
             )
@@ -375,19 +375,19 @@ class AvtaleRepositoryTest : FunSpec({
                 val avtale1 = AvtaleFixtures.avtale1.copy(
                     navn = "Avtale hos Anders",
                 )
-                val avtale2 = AvtaleFixtures.avtale1.copy(
+                val avtale2 = avtale1.copy(
                     id = UUID.randomUUID(),
                     navn = "Avtale hos Åse",
                 )
-                val avtale3 = AvtaleFixtures.avtale1.copy(
+                val avtale3 = avtale1.copy(
                     id = UUID.randomUUID(),
                     navn = "Avtale hos Øyvind",
                 )
-                val avtale4 = AvtaleFixtures.avtale1.copy(
+                val avtale4 = avtale1.copy(
                     id = UUID.randomUUID(),
                     navn = "Avtale hos Kjetil",
                 )
-                val avtale5 = AvtaleFixtures.avtale1.copy(
+                val avtale5 = avtale1.copy(
                     id = UUID.randomUUID(),
                     navn = "Avtale hos Ærfuglen Ærle",
                 )
@@ -414,19 +414,19 @@ class AvtaleRepositoryTest : FunSpec({
                 val avtale1 = AvtaleFixtures.avtale1.copy(
                     navn = "Avtale hos Anders",
                 )
-                val avtale2 = AvtaleFixtures.avtale1.copy(
+                val avtale2 = avtale1.copy(
                     id = UUID.randomUUID(),
                     navn = "Avtale hos Åse",
                 )
-                val avtale3 = AvtaleFixtures.avtale1.copy(
+                val avtale3 = avtale1.copy(
                     id = UUID.randomUUID(),
                     navn = "Avtale hos Øyvind",
                 )
-                val avtale4 = AvtaleFixtures.avtale1.copy(
+                val avtale4 = avtale1.copy(
                     id = UUID.randomUUID(),
                     navn = "Avtale hos Kjetil",
                 )
-                val avtale5 = AvtaleFixtures.avtale1.copy(
+                val avtale5 = avtale1.copy(
                     id = UUID.randomUUID(),
                     navn = "Avtale hos Ærfuglen Ærle",
                 )
@@ -483,12 +483,12 @@ class AvtaleRepositoryTest : FunSpec({
                     arenaAnsvarligEnhet = "0300",
 
                 )
-                val avtale2 = AvtaleFixtures.avtale1.copy(
+                val avtale2 = avtale1.copy(
                     id = UUID.randomUUID(),
                     navn = "Avtale hos Åse",
                     arenaAnsvarligEnhet = "0300",
                 )
-                val avtale3 = AvtaleFixtures.avtale1.copy(
+                val avtale3 = avtale1.copy(
                     id = UUID.randomUUID(),
                     navn = "Avtale hos Øyvind",
                     arenaAnsvarligEnhet = "0300",
@@ -531,18 +531,18 @@ class AvtaleRepositoryTest : FunSpec({
                     navRegion = "1",
                     navn = "Avtale hos Anders",
                 )
-                val avtale2 = AvtaleFixtures.avtale1.copy(
+                val avtale2 = avtale1.copy(
                     id = UUID.randomUUID(),
                     navRegion = "2",
                     navn = "Avtale hos Åse",
                 )
-                val avtale3 = AvtaleFixtures.arenaAvtale1.copy(
+                val avtale3 = avtale1.copy(
                     id = UUID.randomUUID(),
                     navn = "Avtale hos Øyvind",
                 )
                 avtaler.upsert(avtale1)
                 avtaler.upsert(avtale2)
-                avtaler.upsertArenaAvtale(avtale3)
+                avtaler.upsert(avtale3)
 
                 val ascending = avtaler.getAll(
                     filter = defaultFilter.copy(
@@ -552,8 +552,8 @@ class AvtaleRepositoryTest : FunSpec({
 
                 ascending.second shouldHaveSize 3
                 ascending.second[0].navRegion shouldBe NavEnhet(enhetsnummer = "1", navn = "alvdal")
-                ascending.second[1].navRegion shouldBe NavEnhet(enhetsnummer = "2", navn = "zorro")
-                ascending.second[2].navRegion shouldBe null
+                ascending.second[1].navRegion shouldBe NavEnhet(enhetsnummer = "1", navn = "alvdal")
+                ascending.second[2].navRegion shouldBe NavEnhet(enhetsnummer = "2", navn = "zorro")
 
                 val descending = avtaler.getAll(
                     filter = defaultFilter.copy(
@@ -562,8 +562,8 @@ class AvtaleRepositoryTest : FunSpec({
                 )
 
                 descending.second shouldHaveSize 3
-                descending.second[0].navRegion shouldBe null
-                descending.second[1].navRegion shouldBe NavEnhet(enhetsnummer = "2", navn = "zorro")
+                descending.second[0].navRegion shouldBe NavEnhet(enhetsnummer = "2", navn = "zorro")
+                descending.second[1].navRegion shouldBe NavEnhet(enhetsnummer = "1", navn = "alvdal")
                 descending.second[2].navRegion shouldBe NavEnhet(enhetsnummer = "1", navn = "alvdal")
             }
 
@@ -585,7 +585,7 @@ class AvtaleRepositoryTest : FunSpec({
                     leverandorOrganisasjonsnummer = "123456789",
                     navn = "Avtale hos Anders",
                 )
-                val avtale2 = AvtaleFixtures.avtale1.copy(
+                val avtale2 = avtale1.copy(
                     id = UUID.randomUUID(),
                     leverandorOrganisasjonsnummer = "987654321",
                     navn = "Avtale hos Åse",
@@ -635,27 +635,27 @@ class AvtaleRepositoryTest : FunSpec({
                     sluttDato = LocalDate.of(2010, 1, 31),
                     navn = "Avtale hos Anders",
                 )
-                val avtale2 = AvtaleFixtures.avtale1.copy(
+                val avtale2 = avtale1.copy(
                     id = UUID.randomUUID(),
                     sluttDato = LocalDate.of(2009, 1, 1),
                     navn = "Avtale hos Åse",
                 )
-                val avtale3 = AvtaleFixtures.avtale1.copy(
+                val avtale3 = avtale1.copy(
                     id = UUID.randomUUID(),
                     sluttDato = LocalDate.of(2010, 1, 1),
                     navn = "Avtale hos Øyvind",
                 )
-                val avtale4 = AvtaleFixtures.avtale1.copy(
+                val avtale4 = avtale1.copy(
                     id = UUID.randomUUID(),
                     sluttDato = LocalDate.of(2011, 1, 1),
                     navn = "Avtale hos Kjetil",
                 )
-                val avtale5 = AvtaleFixtures.avtale1.copy(
+                val avtale5 = avtale1.copy(
                     id = UUID.randomUUID(),
                     sluttDato = LocalDate.of(2023, 1, 1),
                     navn = "Avtale hos Benny",
                 )
-                val avtale6 = AvtaleFixtures.avtale1.copy(
+                val avtale6 = avtale1.copy(
                     id = UUID.randomUUID(),
                     sluttDato = LocalDate.of(2023, 1, 1),
                     navn = "Avtale hos Christina",
@@ -693,27 +693,27 @@ class AvtaleRepositoryTest : FunSpec({
                     sluttDato = LocalDate.of(2010, 1, 31),
                     navn = "Avtale hos Anders",
                 )
-                val avtale2 = AvtaleFixtures.avtale1.copy(
+                val avtale2 = avtale1.copy(
                     id = UUID.randomUUID(),
                     sluttDato = LocalDate.of(2009, 1, 1),
                     navn = "Avtale hos Åse",
                 )
-                val avtale3 = AvtaleFixtures.avtale1.copy(
+                val avtale3 = avtale1.copy(
                     id = UUID.randomUUID(),
                     sluttDato = LocalDate.of(2010, 1, 1),
                     navn = "Avtale hos Øyvind",
                 )
-                val avtale4 = AvtaleFixtures.avtale1.copy(
+                val avtale4 = avtale1.copy(
                     id = UUID.randomUUID(),
                     sluttDato = LocalDate.of(2011, 1, 1),
                     navn = "Avtale hos Kjetil",
                 )
-                val avtale5 = AvtaleFixtures.avtale1.copy(
+                val avtale5 = avtale1.copy(
                     id = UUID.randomUUID(),
                     sluttDato = LocalDate.of(2023, 1, 1),
                     navn = "Avtale hos Benny",
                 )
-                val avtale6 = AvtaleFixtures.avtale1.copy(
+                val avtale6 = avtale1.copy(
                     id = UUID.randomUUID(),
                     sluttDato = LocalDate.of(2023, 1, 1),
                     navn = "Avtale hos Christina",
@@ -758,6 +758,7 @@ class AvtaleRepositoryTest : FunSpec({
                 val avtale1 =
                     AvtaleFixtures.avtale1.copy(id = UUID.randomUUID(), tiltakstypeId = tiltakstypeIdSomIkkeSkalMatche)
                 val tiltakstypeUtenAvtaler = TiltakstypeFixtures.Oppfolging.copy(id = tiltakstypeIdSomIkkeSkalMatche)
+                val avtaleId = UUID.randomUUID()
 
                 val gjennomforing1 = TiltaksgjennomforingFixtures.Oppfolging1.copy(
                     tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
@@ -768,7 +769,7 @@ class AvtaleRepositoryTest : FunSpec({
                     tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
                     startDato = LocalDate.of(2021, 1, 1),
                     sluttDato = LocalDate.of(2050, 10, 15),
-                    avtaleId = AvtaleFixtures.avtale1.id,
+                    avtaleId = avtaleId,
                 )
                 val gjennomforing3 = TiltaksgjennomforingFixtures.Oppfolging1.copy(
                     id = UUID.randomUUID(),
@@ -785,7 +786,7 @@ class AvtaleRepositoryTest : FunSpec({
 
                 tiltakstypeRepository.upsert(tiltakstypeUtenAvtaler).getOrThrow()
 
-                avtaler.upsert(avtale1)
+                avtaler.upsert(avtale1.copy(id = avtaleId))
 
                 tiltaksgjennomforingRepository.upsert(gjennomforing1)
                 tiltaksgjennomforingRepository.upsert(gjennomforing2)
@@ -797,7 +798,7 @@ class AvtaleRepositoryTest : FunSpec({
                 gjennomforinger.first shouldBe 4
 
                 val antallGjennomforingerForAvtale =
-                    avtaler.countTiltaksgjennomforingerForAvtaleWithId(AvtaleFixtures.avtale1.id)
+                    avtaler.countTiltaksgjennomforingerForAvtaleWithId(avtaleId)
                 antallGjennomforingerForAvtale shouldBe 1
             }
 
@@ -811,23 +812,22 @@ class AvtaleRepositoryTest : FunSpec({
                     startDato = LocalDate.of(2021, 1, 1),
                     sluttDato = LocalDate.of(2022, 10, 15),
                 )
-                val avtale2 = AvtaleFixtures.avtale1.copy(
+                val avtale2 = avtale1.copy(
                     id = UUID.randomUUID(),
                     startDato = LocalDate.of(2021, 1, 1),
                     sluttDato = LocalDate.of(2050, 10, 15),
                 )
-                val avtale3 = AvtaleFixtures.avtale1.copy(
+                val avtale3 = avtale1.copy(
                     id = UUID.randomUUID(),
                     startDato = LocalDate.of(2021, 1, 1),
                     sluttDato = LocalDate.of(2050, 10, 15),
                 )
-                val avtale4 = AvtaleFixtures.avtale1.copy(
+                val avtale4 = avtale1.copy(
                     id = UUID.randomUUID(),
                     startDato = LocalDate.of(2021, 1, 1),
                     sluttDato = LocalDate.of(2050, 10, 15),
                 )
-                val avtale5 =
-                    AvtaleFixtures.avtale1.copy(id = UUID.randomUUID(), tiltakstypeId = tiltakstypeIdSomIkkeSkalMatche)
+                val avtale5 = avtale1.copy(id = UUID.randomUUID(), tiltakstypeId = tiltakstypeIdSomIkkeSkalMatche)
                 tiltakstypeRepository.upsert(tiltakstype).getOrThrow()
                 tiltakstypeRepository.upsert(tiltakstypeUtenAvtaler).getOrThrow()
 

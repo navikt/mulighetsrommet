@@ -20,8 +20,8 @@ data class TiltaksgjennomforingDbo(
     val avslutningsstatus: Avslutningsstatus,
     val tilgjengelighet: TiltaksgjennomforingTilgjengelighetsstatus,
     val estimertVentetid: String?,
-    val antallPlasser: Int?,
-    val avtaleId: UUID? = null,
+    val antallPlasser: Int,
+    val avtaleId: UUID,
     val ansvarlige: List<String>,
     val navEnheter: List<String>,
     val oppstart: TiltaksgjennomforingOppstartstype,
@@ -29,7 +29,7 @@ data class TiltaksgjennomforingDbo(
     val stengtFra: LocalDate?,
     val stengtTil: LocalDate?,
     val kontaktpersoner: List<TiltaksgjennomforingKontaktpersonDbo>,
-    val lokasjonArrangor: String?,
+    val lokasjonArrangor: String,
 )
 
 data class TiltaksgjennomforingKontaktpersonDbo(

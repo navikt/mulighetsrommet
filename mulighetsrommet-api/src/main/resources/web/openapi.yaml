@@ -1947,7 +1947,6 @@ components:
           nullable: true
         lokasjonArrangor:
           type: string
-          nullable: true
       required:
         - id
         - tiltakstypeId
@@ -1956,6 +1955,7 @@ components:
         - startDato
         - sluttDato
         - antallPlasser
+        - avtaleId
         - arrangorOrganisasjonsnummer
         - arrangorKontaktpersonId
         - tiltaksnummer

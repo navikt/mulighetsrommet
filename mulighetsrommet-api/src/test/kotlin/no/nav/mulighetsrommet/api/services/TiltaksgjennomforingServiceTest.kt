@@ -204,7 +204,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
                     sluttDato = LocalDate.of(2022, 1, 1),
                 ),
             )
-            val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1Request(avtaleId)
+            val gjennomforing = TiltaksgjennomforingFixtures.oppfolging1Request(avtaleId)
             tiltaksgjennomforingService.upsert(gjennomforing, "B123456", LocalDate.of(2022, 2, 2)).shouldBeLeft().should {
                 it.status shouldBe HttpStatusCode.BadRequest
             }
@@ -218,7 +218,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
                     sluttDato = LocalDate.of(2022, 1, 1),
                 ),
             )
-            val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1Request(avtaleId).copy(antallPlasser = 0)
+            val gjennomforing = TiltaksgjennomforingFixtures.oppfolging1Request(avtaleId).copy(antallPlasser = 0)
             tiltaksgjennomforingService.upsert(gjennomforing, "B123456", LocalDate.of(2022, 2, 2)).shouldBeLeft()
         }
     }
@@ -259,7 +259,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
                     sluttDato = LocalDate.of(2025, 1, 1),
                 ),
             )
-            val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1Request(avtaleId)
+            val gjennomforing = TiltaksgjennomforingFixtures.oppfolging1Request(avtaleId)
                 .copy(ansvarlig = "B123456")
             tiltaksgjennomforingService.upsert(gjennomforing, "B123456", LocalDate.of(2023, 1, 1)).shouldBeRight()
 
@@ -300,7 +300,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
                     sluttDato = LocalDate.of(2025, 1, 1),
                 ),
             )
-            val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1Request(avtaleId)
+            val gjennomforing = TiltaksgjennomforingFixtures.oppfolging1Request(avtaleId)
                 .copy(ansvarlig = "Z654321")
 
             tiltaksgjennomforingService.upsert(gjennomforing, "B123456", LocalDate.of(2023, 1, 1)).shouldBeRight()
