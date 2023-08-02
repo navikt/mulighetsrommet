@@ -4,12 +4,15 @@
     "frontend/*"
   ],
   "devDependencies": {
+    "husky": "^8.0.3",
     "prettier": "^3.0.0",
-    "turbo": "^1.10.12",
-    "husky": "^8.0.3"
+    "turbo": "^1.10.12"
   },
   "packageManager": "npm@8.5.2",
   "scripts": {
     "prepare": "husky install"
+  },
+  "dependencies": {
+    "gitmoji-cli": "^8.4.0"
   }
 }
