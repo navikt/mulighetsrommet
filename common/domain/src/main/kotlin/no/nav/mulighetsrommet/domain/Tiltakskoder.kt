@@ -2,24 +2,21 @@ package no.nav.mulighetsrommet.domain
 
 object Tiltakskoder {
     /**
-     * Tiltakskoder for de forhåndsgodkjente og anskaffede tiltakene, kalt "gruppetilak" (av oss i hvert fall).
+     * Tiltakskoder for de forhåndsgodkjente og anskaffede tiltakene, kalt "gruppetilak" (av oss i hvert fall), og som
+     * skal migreres fra Arena som del av P4.
      */
     val Gruppetiltak = listOf(
         "ARBFORB",
         "ARBRRHDAG",
         "AVKLARAG",
         "DIGIOPPARB",
-        "FORSAMOGRU",
-        "FORSFAGGRU",
         "GRUFAGYRKE",
         "GRUPPEAMO",
         "INDJOBSTOT",
         "INDOPPFAG",
-        "INDOPPRF",
         "IPSUNG",
         "JOBBK",
         "UTVAOONAV",
-        "UTVOPPFOPL",
         "VASV",
     )
 
@@ -41,7 +38,10 @@ object Tiltakskoder {
         "ARBRRHDAG",
         "AVKLARAG",
         "DIGIOPPARB",
+        "GRUFAGYRKE",
+        "GRUPPEAMO",
         "INDOPPFAG",
+        "JOBBK",
         "VASV",
     )
 
