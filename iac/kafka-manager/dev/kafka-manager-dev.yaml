@@ -6,7 +6,7 @@ metadata:
   labels:
     team: team-mulighetsrommet
 spec:
-  image: ghcr.io/navikt/kafka-manager/kafka-manager:2.2022.01.13_14.52-999e3c414924
+  image: europe-north1-docker.pkg.dev/nais-management-233d/poao/kafka-manager:2023.08.02-07.02-45dfb71
   port: 8080
   webproxy: true
   ingresses:
