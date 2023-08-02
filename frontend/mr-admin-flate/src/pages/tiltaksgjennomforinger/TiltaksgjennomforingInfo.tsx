@@ -51,7 +51,7 @@ export function TiltaksgjennomforingInfo() {
     return (
       tiltaksgjennomforing?.navEnheter
         .map((enhet) => {
-          const enhetNavn = enheterForKontaktperson
+          return enheterForKontaktperson
             .map((kp) => {
               if (enhet.enhetsnummer === kp) {
                 return enhet.navn;
@@ -59,7 +59,6 @@ export function TiltaksgjennomforingInfo() {
               return null;
             })
             .join("");
-          return enhetNavn;
         })
         .filter(Boolean)
         .join(", ") || "alle enheter"

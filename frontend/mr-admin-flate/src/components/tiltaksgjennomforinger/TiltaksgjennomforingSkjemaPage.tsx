@@ -84,7 +84,9 @@ const TiltaksgjennomforingSkjemaPage = () => {
         }
       >
         {redigeringsModus
-          ? "Rediger tiltaksgjennomføring"
+          ? utkastModus
+            ? "Rediger utkast"
+            : "Rediger tiltaksgjennomføring"
           : "Opprett ny tiltaksgjennomforing"}
       </Header>
       <ContainerLayoutDetaljer>

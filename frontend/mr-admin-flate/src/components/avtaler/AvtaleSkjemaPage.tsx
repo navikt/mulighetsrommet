@@ -53,7 +53,11 @@ const AvtaleSkjemaPage = () => {
             redigeringsModus ? "rediger-avtale-header" : "opprett-avtale-header"
           }
         >
-          {redigeringsModus ? "Rediger avtale" : "Opprett ny avtale"}
+          {redigeringsModus
+            ? utkastModus
+              ? "Rediger utkast"
+              : "Rediger tiltaksgjennomføring"
+            : "Opprett ny tiltaksgjennomforing"}
         </Header>
         <ContainerLayoutDetaljer>
           <div className={styles.skjema}>
