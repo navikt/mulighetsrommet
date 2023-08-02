@@ -30,7 +30,9 @@ const TiltaksgjennomforingSkjemaPage = () => {
   } = useTiltaksgjennomforing(
     searchParams.get("tiltaksgjennomforingId") || undefined,
   );
-  const { data: avtale } = useAvtale(tiltaksgjennomforing?.avtaleId);
+  const { data: avtale } = useAvtale(
+    searchParams.get("avtaleId") || tiltaksgjennomforing?.avtaleId,
+  );
   const { data: utkast, isFetching: utkastFetching } = useUtkast(
     searchParams.get("utkastId") || undefined,
   );
