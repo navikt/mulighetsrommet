@@ -11,7 +11,7 @@ interface StatusModalProps {
   onClose: () => void;
   ikonVariant: string;
   heading?: string | null;
-  text: React.ReactNode;
+  text: string | React.ReactNode;
   primaryButtonText: string | React.ReactNode;
   primaryButtonOnClick: () => void;
   secondaryButtonText?: string | null;
