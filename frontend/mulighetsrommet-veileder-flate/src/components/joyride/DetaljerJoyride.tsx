@@ -33,7 +33,7 @@ export function DetaljerJoyride({ opprettAvtale }: Props) {
       setJoyride(joyride => ({ ...joyride, joyrideDetaljerHarVistOpprettAvtale: false }));
 
       //hopper over steget med opprett avtale for at den skal kjøre videre til neste steg
-      if (isStep(data.step, 'opprett-avtale') && !opprettAvtale) {
+      if (isStep(data.step, 'opprett-avtale')) {
         setState(prevState => ({ ...prevState, stepIndex: nextStepIndex }));
       }
     }
