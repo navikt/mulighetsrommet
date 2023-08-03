@@ -48,6 +48,7 @@ import no.nav.mulighetsrommet.kafka.amt.AmtVirksomheterV1TopicConsumer
 import no.nav.mulighetsrommet.metrics.Metrikker
 import no.nav.mulighetsrommet.notifications.NotificationRepository
 import no.nav.mulighetsrommet.notifications.NotificationService
+import no.nav.mulighetsrommet.notifications.SindreTesterCodeql
 import no.nav.mulighetsrommet.slack.SlackNotifier
 import no.nav.mulighetsrommet.slack.SlackNotifierImpl
 import no.nav.mulighetsrommet.tasks.DbSchedulerKotlinSerializer
@@ -277,6 +278,7 @@ private fun services(appConfig: AppConfig) = module {
         )
     }
     single { AxsysService(appConfig.axsys) { m2mTokenProvider.createMachineToMachineToken(appConfig.axsys.scope) } }
+    single { SindreTesterCodeql() }
 }
 
 private fun tasks(config: TaskConfig) = module {
