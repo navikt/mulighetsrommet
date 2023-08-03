@@ -161,12 +161,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
     resolver: zodResolver(TiltaksgjennomforingSchema),
     defaultValues: {
       navn: tiltaksgjennomforing?.navn,
-      navEnheter:
-        tiltaksgjennomforing?.navEnheter?.length === 0
-          ? ["alle_enheter"]
-          : tiltaksgjennomforing?.navEnheter?.map(
-              (enhet) => enhet.enhetsnummer,
-            ) || [],
+      navEnheter: tiltaksgjennomforing?.navEnheter?.map((enhet) => enhet.enhetsnummer) || [],
       ansvarlig: tiltaksgjennomforing?.ansvarlig?.navident,
       antallPlasser: tiltaksgjennomforing?.antallPlasser,
       startOgSluttDato: {
@@ -253,9 +248,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
       id: tiltaksgjennomforing ? tiltaksgjennomforing.id : uuidv4(),
       antallPlasser: data.antallPlasser,
       tiltakstypeId: avtale.tiltakstype.id,
-      navEnheter: data.navEnheter.includes("alle_enheter")
-        ? []
-        : data.navEnheter,
+      navEnheter: data.navEnheter,
       navn: data.navn,
       sluttDato: formaterDatoSomYYYYMMDD(data.startOgSluttDato.sluttDato),
       startDato: formaterDatoSomYYYYMMDD(data.startOgSluttDato.startDato),
@@ -279,9 +272,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
           ?.filter((kontakt) => kontakt.navIdent !== "")
           ?.map((kontakt) => ({
             ...kontakt,
-            navEnheter: kontakt.navEnheter.includes("alle_enheter")
-              ? []
-              : kontakt.navEnheter,
+            navEnheter: kontakt.navEnheter,
           })) || [],
       estimertVentetid: data.estimertVentetid ?? null,
       lokasjonArrangor: data.lokasjonArrangor,
