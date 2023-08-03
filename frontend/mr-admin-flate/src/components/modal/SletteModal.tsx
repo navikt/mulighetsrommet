@@ -11,7 +11,7 @@ import { UseMutationResult } from "@tanstack/react-query";
 interface Props {
   modalOpen: boolean;
   onClose: () => void;
-  mutation: UseMutationResult<string, unknown, string>;
+  mutation?: UseMutationResult<string, unknown, string>;
   handleDelete: () => void;
   headerText: string;
   headerTextError: string;
@@ -34,7 +34,7 @@ const SletteModal = ({
   function headerInnhold() {
     return (
       <div className={styles.heading}>
-        {mutation.isError ? (
+        {mutation?.isError ? (
           <>
             <ExclamationmarkTriangleFillIcon className={styles.erroricon} />
             <Heading size={"medium"}>{headerTextError}</Heading>

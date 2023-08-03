@@ -3,6 +3,8 @@ import { Button } from "@navikt/ds-react";
 import { faro } from "@grafana/faro-web-sdk";
 import { useNavigate } from "react-router-dom";
 import { useMutateUtkast } from "../../api/utkast/useMutateUtkast";
+import { useState } from "react";
+import SletteModal from "../modal/SletteModal";
 
 interface Props {
   onClose: () => void;
@@ -16,6 +18,7 @@ export function AvtaleSkjemaKnapperadOpprett({
 }: Props) {
   const navigate = useNavigate();
   const mutationUtkast = useMutateUtkast();
+  const [sletteModal, setSletteModal] = useState(false);
 
   console.log(mutationUtkast);
   const handleLagreUtkast = () => {
@@ -31,7 +34,11 @@ export function AvtaleSkjemaKnapperadOpprett({
 
   return (
     <div className={styles.button_row}>
-      <Button variant="danger" type="button" onClick={onClose}>
+      <Button
+        variant="danger"
+        type="button"
+        onClick={() => setSletteModal(true)}
+      >
         Slett utkast
       </Button>
       <div>
@@ -66,6 +73,13 @@ export function AvtaleSkjemaKnapperadOpprett({
           Opprett avtalen
         </Button>
       </div>
+      <SletteModal
+        modalOpen={sletteModal}
+        onClose={() => setSletteModal(false)}
+        headerText="Ønsker du å slette utkastet?"
+        headerTextError="Kan ikke slette notatet."
+        handleDelete={onClose}
+      />
     </div>
   );
 }
