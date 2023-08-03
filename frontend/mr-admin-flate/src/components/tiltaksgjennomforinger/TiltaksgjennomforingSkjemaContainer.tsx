@@ -16,6 +16,7 @@ import {
   useFieldArray,
   useForm,
 } from "react-hook-form";
+import removeMd from "remove-markdown";
 import { v4 as uuidv4 } from "uuid";
 import {
   formaterDatoSomYYYYMMDD,
@@ -257,7 +258,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
       navEnheter: data.navEnheter.includes("alle_enheter")
         ? []
         : data.navEnheter,
-      navn: data.navn,
+      navn: removeMd(data.navn),
       sluttDato: formaterDatoSomYYYYMMDD(data.startOgSluttDato.sluttDato),
       startDato: formaterDatoSomYYYYMMDD(data.startOgSluttDato.startDato),
       avtaleId: avtale.id,

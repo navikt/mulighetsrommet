@@ -98,7 +98,7 @@ app:
     synchronizeNavAnsatte:
       disabled: true
     notifySluttdatoForGjennomforingerNarmerSeg:
-      disabled: false
+      disabled: true
       cronPattern: "0 */1 * * * *" # Hvert 1 minutt
     notifySluttdatoForAvtalerNarmerSeg:
       disabled: true
@@ -108,7 +108,7 @@ app:
       maxRetries: 5
       delayOfMinutes: 15
     notifySluttdatoForMidlertidigStengtGjennomforingerNarmerSeg:
-      disabled: false
+      disabled: true
       cronPattern: "0 */1 * * * *" # Hvert 1 minutt
     oppdaterMetrikker:
       disabled: true
