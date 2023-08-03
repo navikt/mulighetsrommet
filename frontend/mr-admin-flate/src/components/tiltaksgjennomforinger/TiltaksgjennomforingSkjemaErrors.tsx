@@ -69,11 +69,11 @@ export function ErrorMeldinger(
     return avtaleFinnesIkke();
   }
 
-  if (avtale && avtale?.sluttDato && new Date(avtale.sluttDato) < new Date()) {
+  if (avtale?.sluttDato && new Date(avtale.sluttDato) < new Date()) {
     return avtalenErAvsluttet(redigeringsModus!);
   }
 
-  if (avtale && !avtale?.navRegion) {
+  if (!avtale?.navRegion) {
     return avtaleManglerNavRegionError(avtale?.id);
   }
 

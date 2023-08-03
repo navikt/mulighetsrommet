@@ -74,7 +74,7 @@ export function TiltaksgjennomforingInfo() {
     return <Laster tekst="Laster informasjon om tiltaksgjennomføring..." />;
   }
 
-  if (isErrorTiltaksgjennomforing || !tiltaksgjennomforing) {
+  if (isErrorTiltaksgjennomforing) {
     return (
       <Alert variant="error">
         Klarte ikke hente informasjon om tiltaksgjennomføring
