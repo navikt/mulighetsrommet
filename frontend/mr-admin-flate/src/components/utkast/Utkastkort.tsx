@@ -81,16 +81,14 @@ export function UtkastKort({ utkast, mutation }: UtkastKortProps) {
         />
       </div>
 
-      {utkastIdForSletting ? (
-        <SletteModal
-          modalOpen={!!utkastIdForSletting}
-          onClose={() => setUtkastIdForSletting(null)}
-          mutation={mutation}
-          headerText="Ønsker du å slette utkastet?"
-          headerTextError="Kan ikke slette utkastet."
-          handleDelete={handleDelete}
-        />
-      ) : null}
+      <SletteModal
+        modalOpen={!!utkastIdForSletting}
+        onClose={() => setUtkastIdForSletting(null)}
+        mutation={mutation}
+        headerText="Ønsker du å slette utkastet?"
+        headerTextError="Kan ikke slette utkastet."
+        handleDelete={handleDelete}
+      />
     </div>
   );
 }

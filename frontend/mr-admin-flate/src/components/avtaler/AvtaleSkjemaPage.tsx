@@ -87,6 +87,7 @@ const AvtaleSkjemaPage = () => {
                 enheter={enheter}
                 avtale={(utkast?.utkastData as Avtale) || avtale}
                 redigeringsModus={redigeringsModus!}
+                utkastModus={utkastModus!}
               />
             )}
           </div>

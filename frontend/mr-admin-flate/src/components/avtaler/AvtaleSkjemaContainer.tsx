@@ -42,6 +42,7 @@ import { FormGroup } from "../skjema/FormGroup";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AvtaleSkjemaKnapperadOpprett } from "./AvtaleSkjemaKnapperadOpprett";
 import { AvtaleSkjemaKnapperadRediger } from "./AvtaleSkjemaKnapperadRediger";
+import { AvtaleSkjemaKnapperadUtkast } from "./AvtaleSkjemaKnapperadUtkast";
 
 interface Props {
   onClose: () => void;
@@ -52,6 +53,7 @@ interface Props {
   avtale?: Avtale;
   enheter: NavEnhet[];
   redigeringsModus: boolean;
+  utkastModus: boolean;
 }
 
 export function AvtaleSkjemaContainer({
@@ -63,6 +65,7 @@ export function AvtaleSkjemaContainer({
   enheter,
   avtale,
   redigeringsModus,
+  utkastModus,
 }: Props) {
   const [navRegion, setNavRegion] = useState<string | undefined>(
     avtale?.navRegion?.enhetsnummer,
@@ -396,7 +399,18 @@ export function AvtaleSkjemaContainer({
           </div>
           <Separator />
           {redigeringsModus ? (
-            <AvtaleSkjemaKnapperadRediger onClose={onClose} avtale={avtale!} />
+            utkastModus ? (
+              <AvtaleSkjemaKnapperadUtkast
+                avtale={avtale!}
+                utkastModus={utkastModus}
+                onClose={onClose}
+              />
+            ) : (
+              <AvtaleSkjemaKnapperadRediger
+                onClose={onClose}
+                avtale={avtale!}
+              />
+            )
           ) : (
             <AvtaleSkjemaKnapperadOpprett
               onClose={onClose}
