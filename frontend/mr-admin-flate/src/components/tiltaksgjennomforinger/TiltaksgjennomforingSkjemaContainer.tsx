@@ -55,7 +55,6 @@ import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
 import { VirksomhetKontaktpersoner } from "../virksomhet/VirksomhetKontaktpersoner";
 import { Separator } from "../detaljside/Metadata";
-import classNames from "classnames";
 
 interface Props {
   onClose: () => void;
@@ -477,10 +476,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
                           key={field.id}
                         >
                           <button
-                            className={classNames(
-                              skjemastyles.kontaktperson_button,
-                              skjemastyles.kontaktperson_fjern_button,
-                            )}
+                            className={skjemastyles.kontaktperson_button}
                             type="button"
                             onClick={() => {
                               if (watch("kontaktpersoner")!.length > 1) {
@@ -492,7 +488,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
                               }
                             }}
                           >
-                            <XMarkIcon />
+                            <XMarkIcon fontSize="1.5rem" />
                           </button>
                           <div className={skjemastyles.kontaktperson_inputs}>
                             <SokeSelect
