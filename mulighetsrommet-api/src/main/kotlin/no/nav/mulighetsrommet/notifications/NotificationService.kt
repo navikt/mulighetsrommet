@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory
 import java.time.Instant
 import java.time.LocalDateTime
 import java.util.*
+import java.util.regex.Pattern
 
 class NotificationService(
     database: Database,
@@ -53,6 +54,8 @@ class NotificationService(
      */
     fun scheduleNotification(notification: ScheduledNotification, instant: Instant = Instant.now()) {
         val id = notification.id
+
+        val p = Pattern.compile("^$", Pattern.MULTILINE) // Codeql should complain about this line
 
         logger.info("Scheduling notification id=$id for time=$instant")
 
