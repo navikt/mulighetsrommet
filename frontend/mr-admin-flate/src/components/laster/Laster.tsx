@@ -3,7 +3,6 @@ import styles from "./Laster.module.scss";
 
 interface Props {
   tekst?: string;
-  sentrert?: boolean;
   size?:
     | "3xlarge"
     | "2xlarge"
@@ -14,19 +13,12 @@ interface Props {
     | "xsmall";
 }
 
-export function Laster({ tekst, sentrert = true, ...rest }: Props) {
-  if (sentrert) {
+export function Laster({ tekst, ...rest }: Props) {
+  if (tekst) {
     return (
       <div className={styles.laster}>
         <Loader {...rest} />
         <BodyShort>{tekst}</BodyShort>
-      </div>
-    );
-  } else if (!sentrert && tekst) {
-    return (
-      <div className={styles.laster_inline}>
-        <Loader {...rest} />
-        <span>{tekst}</span>
       </div>
     );
   }
