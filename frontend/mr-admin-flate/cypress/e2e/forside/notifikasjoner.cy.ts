@@ -20,4 +20,17 @@ describe("Notifikasjoner", () => {
       cy.checkPageA11y();
     });
   });
+
+  it("Skal navigere til ressurs hvis det er lenket til ressurs i notifikasjonstittel eller beskrivelse", () => {
+    cy.visit("/notifikasjoner");
+    cy.getByTestId("notifikasjon")
+      .eq(0)
+      .get("[data-testid=notifikasjon] a")
+      .should("have.attr", "href")
+      .then((href) => {
+        cy.visit(String(href));
+        cy.contains("Avtale hos ÅMLI KOMMUNE SAMFUNNSAVDELINGA");
+      });
+    cy.checkPageA11y();
+  });
 });

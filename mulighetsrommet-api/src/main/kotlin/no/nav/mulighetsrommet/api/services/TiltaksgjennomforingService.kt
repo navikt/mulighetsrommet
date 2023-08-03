@@ -1,12 +1,14 @@
 package no.nav.mulighetsrommet.api.services
 
 import arrow.core.Either
+import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingNokkeltallDto
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.routes.v1.TiltaksgjennomforingRequest
 import no.nav.mulighetsrommet.api.routes.v1.responses.*
+import no.nav.mulighetsrommet.api.tasks.FrontendRoutes
 import no.nav.mulighetsrommet.api.utils.AdminTiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
@@ -47,7 +49,7 @@ class TiltaksgjennomforingService(
             .onRight { tiltaksgjennomforingRepository.upsert(it) }
             .onRight {
                 if (navIdent != request.ansvarlig && request.ansvarlig != previousAnsvarlig) {
-                    sattSomAnsvarligNotification(it.navn, request.ansvarlig)
+                    sattSomAnsvarligNotification(it, request.ansvarlig)
                 }
             }
             .map { tiltaksgjennomforingRepository.get(request.id)!! }
@@ -135,10 +137,15 @@ class TiltaksgjennomforingService(
         return Either.Right(tiltaksgjennomforingRepository.avbrytGjennomforing(gjennomforingId))
     }
 
-    private fun sattSomAnsvarligNotification(gjennomforingNavn: String, ansvarlig: String) {
+    private fun sattSomAnsvarligNotification(gjennomforing: TiltaksgjennomforingDbo, ansvarlig: String) {
         val notification = ScheduledNotification(
             type = NotificationType.NOTIFICATION,
-            title = "Du har blitt satt som ansvarlig på gjennomføringen \"${gjennomforingNavn}\"",
+            title = "Du har blitt satt som ansvarlig på gjennomføringen ${
+                FrontendRoutes.lenkeTilGjennomforing(
+                    "\"${gjennomforing.navn}\"",
+                    gjennomforing.id,
+                )
+            }",
             targets = listOf(ansvarlig),
             createdAt = Instant.now(),
         )

@@ -63,7 +63,12 @@ class NotifySluttdatoForGjennomforingerNarmerSeg(
                     } else {
                         val notification = ScheduledNotification(
                             type = NotificationType.NOTIFICATION,
-                            title = "Gjennomføringen \"${it.navn} ${if (it.tiltaksnummer != null) "(${it.tiltaksnummer})" else ""}\"  utløper ${
+                            title = "${
+                                FrontendRoutes.lenkeTilGjennomforing(
+                                    "Gjennomføringen \"${it.navn}\"",
+                                    it.id,
+                                )
+                            } ${if (it.tiltaksnummer != null) "(${it.tiltaksnummer})" else ""} utløper ${
                                 it.sluttDato?.format(
                                     DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT),
                                 )

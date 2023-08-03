@@ -6,6 +6,8 @@ import { Slide, ToastContainer } from "react-toastify";
 import { formaterDatoTid } from "../../utils/Utils";
 import { CheckmarkButton } from "./CheckmarkButton";
 import styles from "./Notifikasjoner.module.scss";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 interface NotifikasjonssradProps {
   notifikasjon: UserNotification;
@@ -49,17 +51,24 @@ export function Notifikasjonssrad({
         styles.list_element,
         lest ? styles.leste : styles.uleste,
       )}
+      data-testid="notifikasjon"
     >
       <div className={styles.flex}>
         <Heading
           level="2"
           size="small"
           title={title}
-          className={styles.truncate}
+          className={classNames(styles.truncate, styles.header)}
         >
-          {title}
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>
+            {title || ""}
+          </ReactMarkdown>
         </Heading>
-        <BodyLong size="small">{description}</BodyLong>
+        <BodyLong size="small">
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>
+            {description || ""}
+          </ReactMarkdown>
+        </BodyLong>
         <BodyShort size="small" title={createdAt} className={styles.muted}>
           {formaterDatoTid(createdAt)}
         </BodyShort>

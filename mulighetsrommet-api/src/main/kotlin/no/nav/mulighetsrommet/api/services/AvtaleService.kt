@@ -1,11 +1,13 @@
 package no.nav.mulighetsrommet.api.services
 
 import arrow.core.Either
+import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleNokkeltallDto
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.routes.v1.AvtaleRequest
 import no.nav.mulighetsrommet.api.routes.v1.responses.*
+import no.nav.mulighetsrommet.api.tasks.FrontendRoutes
 import no.nav.mulighetsrommet.api.utils.AdminTiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.api.utils.AvtaleFilter
 import no.nav.mulighetsrommet.api.utils.PaginationParams
@@ -40,7 +42,7 @@ class AvtaleService(
             .onRight { utkastService.deleteUtkast(it.id) }
             .onRight {
                 if (navIdent != request.ansvarlig && previousAnsvarlig != request.ansvarlig) {
-                    sattSomAnsvarligNotification(it.navn, request.ansvarlig)
+                    sattSomAnsvarligNotification(it, request.ansvarlig)
                 }
             }
             .map { avtaler.get(it.id)!! }
@@ -129,10 +131,15 @@ class AvtaleService(
         return Either.Right(avtaler.avbrytAvtale(avtaleId))
     }
 
-    private fun sattSomAnsvarligNotification(avtaleNavn: String, ansvarlig: String) {
+    private fun sattSomAnsvarligNotification(avtale: AvtaleDbo, ansvarlig: String) {
         val notification = ScheduledNotification(
             type = NotificationType.NOTIFICATION,
-            title = "Du har blitt satt som ansvarlig på avtalen \"$avtaleNavn\"",
+            title = "Du har blitt satt som ansvarlig på avtalen ${
+                FrontendRoutes.lenkeTilAvtale(
+                    "\"${avtale.navn}\"",
+                    avtale.id,
+                )
+            }",
             targets = listOf(ansvarlig),
             createdAt = Instant.now(),
         )

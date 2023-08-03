@@ -63,7 +63,7 @@ class NotifySluttdatoForMidlertidigStengtGjennomforingerNarmerSeg(
                     } else {
                         val notification = ScheduledNotification(
                             type = NotificationType.NOTIFICATION,
-                            title = "Midlertidig stengt periode for gjennomføring \"${it.navn} ${if (it.tiltaksnummer != null) "(${it.tiltaksnummer})" else ""}\" utløper ${
+                            title = "Midlertidig stengt periode for ${FrontendRoutes.lenkeTilGjennomforing("gjennomføring \"${it.navn}\"", it.id)} ${if (it.tiltaksnummer != null) "(${it.tiltaksnummer})" else ""}\" utløper ${
                                 it.stengtTil?.format(
                                     DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT),
                                 )

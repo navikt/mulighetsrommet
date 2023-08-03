@@ -14,7 +14,7 @@ export const mockNotifikasjoner: PaginertUserNotifications = {
       id: "d65c2be1-980d-4782-a51f-0ad9b52c3fda",
       type: NotificationType.NOTIFICATION,
       title:
-        "Avtalen Oppfølging, tjenesteområde F - Moss utløper den 30.06.2023",
+        "[Avtale hos ÅMLI KOMMUNE SAMFUNNSAVDELINGA](/avtaler/d1f163b7-1a41-4547-af16-03fd4492b7bc) utløper den 30.06.2023",
       description:
         "Beskrivelse med en ganske lang tekst fordi vi har så komplekse prosesser så det viktig at det blir gitt nøyaktig beskjed om hva som skal til for å løse denne vanskelige problemstillingen.",
       user: "B123456",
@@ -37,7 +37,7 @@ export const mockNotifikasjoner: PaginertUserNotifications = {
       type: NotificationType.TASK,
       title: "Du må fikse noe greier",
       description:
-        "Dette er en 'TASK' som betyr at du må få den late rumpen din opp av stolen og gjøre noe fornuftig",
+        "Dette er en 'TASK' som betyr at du må få den late rumpen din opp av stolen og gjøre noe fornuftig. Feks. kan du søke opp [tiltaksgjennomføring her](/tiltaksgjennomforinger) og utvide sluttdato på dem.",
       user: "B123456",
       createdAt: "2023-01-26T13:51:50.417-07:00",
       doneAt: "2023-01-26T13:51:50.417-07:00",
