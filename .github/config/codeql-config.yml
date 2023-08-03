@@ -1,3 +1,0 @@
-name: Codeql config
-paths-ignore:
-  - .gradle
