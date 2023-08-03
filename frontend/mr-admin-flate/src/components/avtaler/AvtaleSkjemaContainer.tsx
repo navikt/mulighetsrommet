@@ -382,9 +382,9 @@ export function AvtaleSkjemaContainer({
                   <FormGroup>
                     <div className={skjemastyles.kontaktperson_container}>
                       <VirksomhetKontaktpersoner
-                        title={"Kontaktperson hos leverandøren"}
+                        title="Kontaktperson hos leverandøren"
                         orgnr={watch("leverandor")}
-                        formValueName={"leverandorKontaktpersonId"}
+                        formValueName="leverandorKontaktpersonId"
                       />
                     </div>
                   </FormGroup>
