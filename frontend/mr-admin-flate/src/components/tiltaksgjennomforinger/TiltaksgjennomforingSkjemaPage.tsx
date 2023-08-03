@@ -61,7 +61,7 @@ const TiltaksgjennomforingSkjemaPage = () => {
   const isError =
     !avtale ||
     (avtale && avtale?.sluttDato && new Date(avtale.sluttDato) < new Date()) ||
-    (avtale && !avtale?.navRegion) ||
+    !avtale?.navRegion ||
     isErrorAnsatt ||
     isErrorEnheter;
 
