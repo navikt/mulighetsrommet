@@ -39,6 +39,11 @@
   margin-left: 16px;
 }
 
+.rediger_avtaleheader_status {
+  display: flex;
+  gap: 1rem;
+}
+
 .kontaktperson {
   &_container {
     background-color: var(--a-surface-selected);

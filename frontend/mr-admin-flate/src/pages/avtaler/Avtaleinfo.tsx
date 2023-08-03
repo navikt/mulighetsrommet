@@ -1,8 +1,6 @@
 import { Alert, Heading } from "@navikt/ds-react";
 import { Avtalestatus } from "mulighetsrommet-api-client";
-import { useState } from "react";
 import { useAvtale } from "../../api/avtaler/useAvtale";
-import AvbrytAvtaleModal from "../../components/avtaler/AvbrytAvtaleModal";
 import { Bolk } from "../../components/detaljside/Bolk";
 import {
   Liste,
@@ -18,14 +16,9 @@ import {
 } from "../../utils/Utils";
 import styles from "../DetaljerInfo.module.scss";
 import { AvtaleKnapperad } from "./AvtaleKnapperad";
-import SlettAvtaleGjennomforingModal from "../../components/modal/SlettAvtaleGjennomforingModal";
-import { useDeleteAvtale } from "../../api/avtaler/useDeleteAvtale";
 
 export function Avtaleinfo() {
-  const { data: avtale, isLoading, error, refetch } = useAvtale();
-  const [slettModal, setSlettModal] = useState(false);
-  const [avbrytModal, setAvbrytModal] = useState(false);
-  const mutation = useDeleteAvtale();
+  const { data: avtale, isLoading, error } = useAvtale();
 
   if (!avtale && isLoading) {
     return <Laster tekst="Laster avtaleinformasjon..." />;
@@ -203,31 +196,32 @@ export function Avtaleinfo() {
               />
             </Bolk>
           </VisHvisVerdi>
+
+          <VisHvisVerdi verdi={avtale.leverandorKontaktperson}>
+            <Bolk aria-label="Kontaktperson">
+              <Metadata
+                header="Kontaktperson"
+                verdi={
+                  <div className={styles.leverandor_kontaktinfo}>
+                    <label>{avtale.leverandorKontaktperson?.navn}</label>
+                    <label>{avtale.leverandorKontaktperson?.telefon}</label>
+                    <a href={`mailto:${avtale.leverandorKontaktperson?.epost}`}>
+                      {avtale.leverandorKontaktperson?.epost}
+                    </a>
+                    {
+                      <label>
+                        {avtale.leverandorKontaktperson?.beskrivelse}
+                      </label>
+                    }
+                  </div>
+                }
+              />
+            </Bolk>
+          </VisHvisVerdi>
         </div>
 
-        {visKnapperad(avtale.avtalestatus) ? (
-          <AvtaleKnapperad
-            avtale={avtale}
-            handleSlett={() => setSlettModal(true)}
-            handleAvbryt={() => setAvbrytModal(true)}
-          />
-        ) : null}
+        {visKnapperad(avtale.avtalestatus) ? <AvtaleKnapperad /> : null}
       </div>
-      <SlettAvtaleGjennomforingModal
-        modalOpen={slettModal}
-        handleCancel={() => setSlettModal(false)}
-        data={avtale}
-        mutation={mutation}
-        dataType="avtale"
-      />
-      <AvbrytAvtaleModal
-        modalOpen={avbrytModal}
-        onClose={() => {
-          refetch();
-          setAvbrytModal(false);
-        }}
-        avtale={avtale}
-      />
     </>
   );
 }

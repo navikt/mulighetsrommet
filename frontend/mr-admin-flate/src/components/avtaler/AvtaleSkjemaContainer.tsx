@@ -26,7 +26,6 @@ import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
 import { SokeSelect } from "../skjema/SokeSelect";
 import { VirksomhetKontaktpersoner } from "../virksomhet/VirksomhetKontaktpersoner";
-import { AvbrytAvtale } from "./AvbrytAvtale";
 import { AvtaleSchema, inferredAvtaleSchema } from "./AvtaleSchema";
 import skjemastyles from "../skjema/Skjema.module.scss";
 
@@ -284,7 +283,7 @@ export function AvtaleSkjemaContainer({
                     label: "Sluttdato",
                   }}
                 />
-                {redigeringsModus ? <AvbrytAvtale onAvbryt={onClose} /> : null}
+                {/*{redigeringsModus ? <AvbrytAvtale onAvbryt={onClose} /> : null}*/}
               </FormGroup>
               <Separator />
               <FormGroup>
@@ -397,7 +396,7 @@ export function AvtaleSkjemaContainer({
           </div>
           <Separator />
           {redigeringsModus ? (
-            <AvtaleSkjemaKnapperadRediger onClose={onClose} />
+            <AvtaleSkjemaKnapperadRediger onClose={onClose} avtale={avtale!} />
           ) : (
             <AvtaleSkjemaKnapperadOpprett
               onClose={onClose}

@@ -12,6 +12,7 @@ import { Laster } from "../laster/Laster";
 import { AvtaleSkjemaContainer } from "./AvtaleSkjemaContainer";
 import { useUtkast } from "../../api/utkast/useUtkast";
 import styles from "../skjema/Skjema.module.scss";
+import { Avtalestatus } from "../statuselementer/Avtalestatus";
 
 const AvtaleSkjemaPage = () => {
   const navigate = useNavigate();
@@ -52,11 +53,18 @@ const AvtaleSkjemaPage = () => {
           redigeringsModus ? "rediger-avtale-header" : "opprett-avtale-header"
         }
       >
-        {redigeringsModus
-          ? utkastModus
-            ? "Rediger utkast"
-            : "Rediger avtale"
-          : "Opprett ny avtale"}
+        {redigeringsModus ? (
+          utkastModus ? (
+            "Rediger utkast"
+          ) : (
+            <div className={styles.rediger_avtaleheader_status}>
+              Rediger avtale
+              <Avtalestatus avtale={avtale!} />
+            </div>
+          )
+        ) : (
+          "Opprett ny avtale"
+        )}
       </Header>
       <ContainerLayoutDetaljer>
         <div className={styles.skjema}>

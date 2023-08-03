@@ -1,16 +1,14 @@
 import { XMarkOctagonFillIcon } from "@navikt/aksel-icons";
-import { Button, Heading, Modal } from "@navikt/ds-react";
+import { BodyShort, Button, Heading, Modal } from "@navikt/ds-react";
 import classNames from "classnames";
 import { ApiError, Avtale, Opphav } from "mulighetsrommet-api-client";
 import { useEffect } from "react";
 import { useAvbrytAvtale } from "../../api/avtaler/useAvbrytAvtale";
-import { Lenkeknapp } from "../lenkeknapp/Lenkeknapp";
 import styles from "../modal/Modal.module.scss";
 
 interface Props {
   modalOpen: boolean;
   onClose: () => void;
-  handleForm?: () => void;
   avtale?: Avtale;
 }
 
@@ -36,22 +34,15 @@ const AvbrytAvtaleModal = ({ modalOpen, onClose, avtale }: Props) => {
     }
   };
 
-  const handleRedigerAvtale = () => {
-    clickCancel();
-    mutation.reset();
-  };
-
   function headerInnhold(avtale?: Avtale) {
     return (
       <div className={styles.heading}>
         <XMarkOctagonFillIcon className={styles.warningicon} />
-        {avtaleFraArena ? (
-          <span>Avtalen kan ikke avbrytes</span>
-        ) : mutation.isError ? (
-          <span>Kan ikke avbryte «{avtale?.navn}»</span>
-        ) : (
-          <span>Ønsker du å avbryte «{avtale?.navn}»?</span>
-        )}
+        {avtaleFraArena
+          ? "Avtalen kan ikke avbrytes"
+          : mutation.isError
+          ? `Kan ikke avbryte «${avtale?.navn}»`
+          : `Ønsker du å avbryte «${avtale?.navn}»?`}
       </div>
     );
   }
@@ -59,31 +50,32 @@ const AvbrytAvtaleModal = ({ modalOpen, onClose, avtale }: Props) => {
   function modalInnhold(avtale?: Avtale) {
     return (
       <>
-        {avtaleFraArena ? (
-          <p>
-            Avtalen {avtale?.navn} kommer fra Arena og kan ikke avbrytes her
-          </p>
-        ) : mutation?.isError ? (
-          <p>{(mutation.error as ApiError).body}</p>
-        ) : (
-          <p>Du kan ikke angre denne handlingen</p>
-        )}
-        <div className={styles.knapperad}>
-          <Button variant="secondary" onClick={clickCancel}>
-            Avbryt handling
-          </Button>
-          {avtaleFraArena ? null : mutation?.isError ? (
-            <Lenkeknapp
-              to={`/avtaler/skjema?avtaleId=${avtale?.id}`}
-              handleClick={handleRedigerAvtale}
-              lenketekst={"Rediger avtale"}
-              variant="primary"
-            />
+        <div className={styles.modal_innhold}>
+          {avtaleFraArena ? (
+            <BodyShort>
+              Avtalen {avtale?.navn} kommer fra Arena og kan ikke avbrytes her.
+            </BodyShort>
+          ) : mutation?.isError ? (
+            <BodyShort>{(mutation.error as ApiError).body}</BodyShort>
           ) : (
+            <BodyShort>Du kan ikke angre denne handlingen.</BodyShort>
+          )}
+        </div>
+        <div className={styles.knapperad}>
+          {mutation?.isError ? (
+            <Button variant="secondary" onClick={clickCancel}>
+              Lukk
+            </Button>
+          ) : (
+            <Button variant="secondary" onClick={clickCancel}>
+              Avbryt handling
+            </Button>
+          )}
+          {!avtaleFraArena && !mutation?.isError ? (
             <Button variant="danger" onClick={handleAvbrytAvtale}>
               Avbryt avtale
             </Button>
-          )}
+          ) : null}
         </div>
       </>
     );
