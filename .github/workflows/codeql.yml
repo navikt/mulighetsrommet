@@ -27,6 +27,9 @@ jobs:
         with:
           languages: java
           queries: security-and-quality
+          config: |
+            paths-ignore:
+              - .gradle
 
       - name: Setup backend
         uses: ./.github/actions/setup-backend

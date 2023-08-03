@@ -32,17 +32,6 @@ fun Route.frontendLoggerRoutes() {
                 )
             }
         }
-
-        get(":id") {
-            val regex = call.parameters["regex"]
-            val input = call.parameters["input"]
-
-            if (input != null) {
-                if (regex != null) {
-                    call.respondText(input.matches(regex.toRegex()).toString())
-                }
-            }
-        }
     }
 }
 
