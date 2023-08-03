@@ -18,6 +18,12 @@ class Archive implements Closeable {
         zipStream.closeEntry();
     }
 
+    void writeZipEntry(ZipEntry entry, File destinationDir) throws FileNotFoundException {
+        File file = new File(destinationDir, entry.getName());
+        FileOutputStream fos = new FileOutputStream(file); // BAD
+        // ... write entry to fos ...
+    }
+
     public void close() throws IOException {
         zipStream.close();
     }
