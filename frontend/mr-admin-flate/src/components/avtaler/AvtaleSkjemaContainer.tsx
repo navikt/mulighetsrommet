@@ -41,10 +41,12 @@ import {
 import { AnsvarligOptions } from "../skjema/AnsvarligOptions";
 import { FormGroup } from "../skjema/FormGroup";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AvtaleSkjemaKnapperad } from "./AvtaleSkjemaKnapperad";
+import { AvtaleSkjemaKnapperadOpprett } from "./AvtaleSkjemaKnapperadOpprett";
+import { AvtaleSkjemaKnapperadRediger } from "./AvtaleSkjemaKnapperadRediger";
 
 interface Props {
   onClose: () => void;
+  onLagreUtkast: () => void;
   onSuccess: (id: string) => void;
   tiltakstyper: Tiltakstype[];
   ansatt: NavAnsatt;
@@ -55,6 +57,7 @@ interface Props {
 
 export function AvtaleSkjemaContainer({
   onClose,
+  onLagreUtkast,
   onSuccess,
   tiltakstyper,
   ansatt,
@@ -77,7 +80,6 @@ export function AvtaleSkjemaContainer({
     useSokVirksomheter(sokLeverandor);
 
   const utkastIdRef = useRef(avtale?.id || uuidv4());
-
   const form = useForm<inferredAvtaleSchema>({
     resolver: zodResolver(AvtaleSchema),
     defaultValues: {
@@ -121,6 +123,7 @@ export function AvtaleSkjemaContainer({
     formState: { errors, defaultValues },
     watch,
     setValue,
+    setError,
   } = form;
 
   const watchedTiltakstype = watch("tiltakstype");
@@ -393,10 +396,21 @@ export function AvtaleSkjemaContainer({
             </div>
           </div>
           <Separator />
-          <AvtaleSkjemaKnapperad
-            redigeringsModus={redigeringsModus!}
-            onClose={onClose}
-          />
+          {redigeringsModus ? (
+            <AvtaleSkjemaKnapperadRediger onClose={onClose} />
+          ) : (
+            <AvtaleSkjemaKnapperadOpprett
+              onClose={onClose}
+              onLagreUtkast={onLagreUtkast}
+              error={() => {
+                register("avtalenavn", { minLength: 5 });
+                setError("avtalenavn", {
+                  type: "custom",
+                  message: "Et avtalenavn må minst være 5 tegn langt",
+                });
+              }}
+            />
+          )}
         </div>
       </form>
       <AutoSaveUtkast
