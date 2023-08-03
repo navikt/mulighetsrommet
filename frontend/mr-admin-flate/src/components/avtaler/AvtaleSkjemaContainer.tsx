@@ -29,7 +29,7 @@ import { VirksomhetKontaktpersoner } from "../virksomhet/VirksomhetKontaktperson
 import { AvbrytAvtale } from "./AvbrytAvtale";
 import { AvtaleSchema, inferredAvtaleSchema } from "./AvtaleSchema";
 import skjemastyles from "../skjema/Skjema.module.scss";
-
+import removeMd from "remove-markdown";
 import {
   defaultEnhet,
   enheterOptions,
@@ -174,7 +174,7 @@ export function AvtaleSkjemaContainer({
       )
         ? []
         : leverandorUnderenheter,
-      navn,
+      navn: removeMd(navn),
       sluttDato: formaterDatoSomYYYYMMDD(startOgSluttDato.sluttDato),
       startDato: formaterDatoSomYYYYMMDD(startOgSluttDato.startDato),
       tiltakstypeId,
