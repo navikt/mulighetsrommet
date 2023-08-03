@@ -31,10 +31,10 @@ jobs:
         uses: ./.github/actions/setup-backend
 
       - name: Build mulighetsrommet-api
-        run: ./gradlew :mulighetsrommet-api:build
+        run: ./gradlew :mulighetsrommet-api:build --no-build-cache --no-configuration-cache
 
       - name: Build mulighetsrommet-arena-adapter
-        run: ./gradlew :mulighetsrommet-arena-adapter:build
+        run: ./gradlew :mulighetsrommet-arena-adapter:build --no-build-cache --no-configuration-cache
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v2
