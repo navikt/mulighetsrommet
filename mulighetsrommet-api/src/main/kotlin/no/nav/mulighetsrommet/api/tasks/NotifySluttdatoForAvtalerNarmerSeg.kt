@@ -63,7 +63,7 @@ class NotifySluttdatoForAvtalerNarmerSeg(
                     } else {
                         val notification = ScheduledNotification(
                             type = NotificationType.NOTIFICATION,
-                            title = "Avtalen ${FrontendRoutes.lenkeTilAvtale("\"${it.navn}\"", it.id)} utløper ${
+                            title = "Avtalen \"${it.navn}\" utløper ${
                                 it.sluttDato?.format(
                                     DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT),
                                 )

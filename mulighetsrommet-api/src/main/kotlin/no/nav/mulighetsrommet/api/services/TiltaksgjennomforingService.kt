@@ -8,7 +8,6 @@ import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.routes.v1.TiltaksgjennomforingRequest
 import no.nav.mulighetsrommet.api.routes.v1.responses.*
-import no.nav.mulighetsrommet.api.tasks.FrontendRoutes
 import no.nav.mulighetsrommet.api.utils.AdminTiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
@@ -140,12 +139,7 @@ class TiltaksgjennomforingService(
     private fun sattSomAnsvarligNotification(gjennomforing: TiltaksgjennomforingDbo, ansvarlig: String) {
         val notification = ScheduledNotification(
             type = NotificationType.NOTIFICATION,
-            title = "Du har blitt satt som ansvarlig på gjennomføringen ${
-                FrontendRoutes.lenkeTilGjennomforing(
-                    "\"${gjennomforing.navn}\"",
-                    gjennomforing.id,
-                )
-            }",
+            title = "Du har blitt satt som ansvarlig på gjennomføringen \"${gjennomforing.navn}\"",
             targets = listOf(ansvarlig),
             createdAt = Instant.now(),
         )

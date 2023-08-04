@@ -7,7 +7,6 @@ import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.routes.v1.AvtaleRequest
 import no.nav.mulighetsrommet.api.routes.v1.responses.*
-import no.nav.mulighetsrommet.api.tasks.FrontendRoutes
 import no.nav.mulighetsrommet.api.utils.AdminTiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.api.utils.AvtaleFilter
 import no.nav.mulighetsrommet.api.utils.PaginationParams
@@ -134,12 +133,7 @@ class AvtaleService(
     private fun sattSomAnsvarligNotification(avtale: AvtaleDbo, ansvarlig: String) {
         val notification = ScheduledNotification(
             type = NotificationType.NOTIFICATION,
-            title = "Du har blitt satt som ansvarlig på avtalen ${
-                FrontendRoutes.lenkeTilAvtale(
-                    "\"${avtale.navn}\"",
-                    avtale.id,
-                )
-            }",
+            title = "Du har blitt satt som ansvarlig på avtalen \"${avtale.navn}\"",
             targets = listOf(ansvarlig),
             createdAt = Instant.now(),
         )
