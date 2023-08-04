@@ -141,13 +141,6 @@ export const TiltaksgjennomforingSkjemaContainer = ({
       return;
     }
 
-    if (!avtale) {
-      toast.info("Kan ikke lagre utkast uten avtale", {
-        autoClose: 10000,
-      });
-      return;
-    }
-
     mutationUtkast.mutate({
       id: utkastIdRef.current,
       utkastData,

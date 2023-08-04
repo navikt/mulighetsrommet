@@ -104,8 +104,6 @@ export const VirksomhetKontaktpersoner = (
   const valgtPerson = () =>
     kontaktpersoner.find((person) => person.id === state.selectedId);
 
-  console.log("person", valgtPerson());
-
   return (
     <>
       <SokeSelect
