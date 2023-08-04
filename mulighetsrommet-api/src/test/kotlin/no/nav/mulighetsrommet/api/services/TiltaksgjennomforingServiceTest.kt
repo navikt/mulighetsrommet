@@ -260,7 +260,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
                 ),
             )
             val gjennomforing = TiltaksgjennomforingFixtures.oppfolging1Request(avtaleId)
-                .copy(ansvarlig = "B123456")
+                .copy(ansvarlig = "B123456", navEnheter = listOf("2990"))
             tiltaksgjennomforingService.upsert(gjennomforing, "B123456", LocalDate.of(2023, 1, 1)).shouldBeRight()
 
             verify(exactly = 0) { notificationService.scheduleNotification(any(), any()) }
@@ -301,7 +301,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
                 ),
             )
             val gjennomforing = TiltaksgjennomforingFixtures.oppfolging1Request(avtaleId)
-                .copy(ansvarlig = "Z654321")
+                .copy(ansvarlig = "Z654321", navEnheter = listOf("2990"))
 
             tiltaksgjennomforingService.upsert(gjennomforing, "B123456", LocalDate.of(2023, 1, 1)).shouldBeRight()
             tiltaksgjennomforingService.upsert(gjennomforing.copy(navn = "nytt navn"), "B123456", LocalDate.of(2023, 1, 1)).shouldBeRight()
