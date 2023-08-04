@@ -37,7 +37,7 @@ object AvtaleFixtures {
         avtalenummer = "2023#1",
         tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
         leverandorOrganisasjonsnummer = "123456789",
-        leverandorUnderenheter = emptyList(),
+        leverandorUnderenheter = listOf("123456789"),
         startDato = LocalDate.of(2023, 1, 11),
         sluttDato = LocalDate.of(2023, 2, 28),
         navRegion = "2990",
@@ -46,7 +46,7 @@ object AvtaleFixtures {
         opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
         ansvarlig = "B123456",
         url = "google.com",
-        navEnheter = emptyList(),
+        navEnheter = listOf("2990"),
         leverandorKontaktpersonId = null,
     )
 

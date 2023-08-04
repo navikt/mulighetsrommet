@@ -29,8 +29,7 @@ export function defaultValuesForKontaktpersoner(
 
   return kontaktpersoner?.map((person) => ({
     navIdent: person.navIdent,
-    navEnheter:
-      person.navEnheter?.length === 0 ? ["alle_enheter"] : person.navEnheter,
+    navEnheter: person.navEnheter,
   }));
 }
 
@@ -81,7 +80,6 @@ export const enheterOptions = (
       value: enhet.enhetsnummer,
     }));
 
-  options?.unshift({ value: "alle_enheter", label: "Alle enheter" });
   return options || [];
 };
 

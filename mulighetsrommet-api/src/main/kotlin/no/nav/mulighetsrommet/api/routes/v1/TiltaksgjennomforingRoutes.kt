@@ -126,6 +126,9 @@ data class TiltaksgjennomforingRequest(
         if (antallPlasser <= 0) {
             return Either.Left(BadRequest("Antall plasser må være større enn 0"))
         }
+        if (navEnheter.isEmpty()) {
+            return Either.Left(BadRequest("Navenheter kan ikke være tom"))
+        }
 
         return Either.Right(
             TiltaksgjennomforingDbo(

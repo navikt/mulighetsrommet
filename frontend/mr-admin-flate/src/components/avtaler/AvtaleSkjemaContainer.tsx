@@ -83,10 +83,7 @@ export function AvtaleSkjemaContainer({
     defaultValues: {
       tiltakstype: avtale?.tiltakstype?.id,
       navRegion: defaultEnhet(avtale!, enheter, ansatt),
-      navEnheter:
-        avtale?.navEnheter?.length === 0
-          ? ["alle_enheter"]
-          : avtale?.navEnheter?.map((e) => e.enhetsnummer) || [],
+      navEnheter: avtale?.navEnheter?.map((e) => e.enhetsnummer) || [],
       avtaleansvarlig: avtale?.ansvarlig?.navident || ansatt.navIdent || "",
       avtalenavn: getValueOrDefault(avtale?.navn, ""),
       avtaletype: getValueOrDefault(avtale?.avtaletype, Avtaletype.AVTALE),
@@ -166,7 +163,7 @@ export function AvtaleSkjemaContainer({
     const requestBody: AvtaleRequest = {
       id: utkastIdRef.current,
       navRegion,
-      navEnheter: navEnheter.includes("alle_enheter") ? [] : navEnheter,
+      navEnheter,
       avtalenummer: getValueOrDefault(avtale?.avtalenummer, ""),
       leverandorOrganisasjonsnummer,
       leverandorUnderenheter: leverandorUnderenheter.includes(
