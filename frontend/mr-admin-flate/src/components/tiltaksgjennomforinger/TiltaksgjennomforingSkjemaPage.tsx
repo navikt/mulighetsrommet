@@ -113,6 +113,10 @@ const TiltaksgjennomforingSkjemaPage = () => {
                   queryClient.refetchQueries({ queryKey: ["utkast"] });
                   navigerTilbake();
                 }}
+                onLagreUtkast={() => {
+                  queryClient.refetchQueries({ queryKey: ["utkast"] });
+                  navigate(`/avtaler#avtaleOversiktTab="utkast"`);
+                }}
                 onSuccess={(id) => navigate(`/tiltaksgjennomforinger/${id}`)}
                 avtale={avtale}
                 tiltaksgjennomforing={

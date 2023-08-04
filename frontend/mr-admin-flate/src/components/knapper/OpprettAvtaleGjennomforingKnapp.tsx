@@ -4,8 +4,14 @@ import { faro } from "@grafana/faro-web-sdk";
 
 interface Props {
   type: "avtale" | "gjennomføring";
+  mutation: any;
+  dataTestId?: string;
 }
-export function OpprettAvtaleGjennomforingKnapp({ type }: Props) {
+export function OpprettAvtaleGjennomforingKnapp({
+  type,
+  mutation,
+  dataTestId,
+}: Props) {
   return (
     <Button
       className={styles.button}
@@ -17,8 +23,10 @@ export function OpprettAvtaleGjennomforingKnapp({ type }: Props) {
           type,
         );
       }}
+      data-testId={dataTestId}
+      disabled={mutation.isLoading}
     >
-      Opprett {type}
+      {mutation.isLoading ? "Lagrer..." : `Opprett ${type}`}
     </Button>
   );
 }

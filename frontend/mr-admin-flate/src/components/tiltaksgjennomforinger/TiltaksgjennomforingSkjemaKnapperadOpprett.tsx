@@ -1,25 +1,33 @@
 import styles from "../skjema/Skjema.module.scss";
-import { useNavigate } from "react-router-dom";
-import { useMutateUtkast } from "../../api/utkast/useMutateUtkast";
-import { useState } from "react";
-import SletteModal from "../modal/SletteModal";
+import React, { useState } from "react";
+import { UseMutationResult } from "@tanstack/react-query";
+import {
+  Tiltaksgjennomforing,
+  TiltaksgjennomforingRequest,
+} from "mulighetsrommet-api-client";
 import { SlettUtkastKnapp } from "../knapper/SlettUtkastKnapp";
 import { LagreUtkastKnapp } from "../knapper/LagreUtkastKnapp";
 import { OpprettAvtaleGjennomforingKnapp } from "../knapper/OpprettAvtaleGjennomforingKnapp";
-import { UseMutationResult } from "@tanstack/react-query";
-import { Avtale, AvtaleRequest } from "mulighetsrommet-api-client";
+import SletteModal from "../modal/SletteModal";
+import { useMutateUtkast } from "../../api/utkast/useMutateUtkast";
+import { useNavigate } from "react-router-dom";
 
 interface Props {
   onClose: () => void;
+  mutation: UseMutationResult<
+    Tiltaksgjennomforing,
+    unknown,
+    TiltaksgjennomforingRequest,
+    unknown
+  >;
   onLagreUtkast: () => void;
   error: () => void;
-  mutation: UseMutationResult<Avtale, unknown, AvtaleRequest, unknown>;
 }
-export function AvtaleSkjemaKnapperadOpprett({
-  onLagreUtkast,
-  error,
+export function TiltaksgjennomforingSkjemaKnapperadOpprett({
   onClose,
   mutation,
+  onLagreUtkast,
+  error,
 }: Props) {
   const navigate = useNavigate();
   const mutationUtkast = useMutateUtkast();

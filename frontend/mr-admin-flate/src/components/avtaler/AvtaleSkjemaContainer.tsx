@@ -422,6 +422,7 @@ export function AvtaleSkjemaContainer({
                   message: "Et avtalenavn må minst være 5 tegn langt",
                 });
               }}
+              mutation={mutation}
             />
           )}
         </div>

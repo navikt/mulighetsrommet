@@ -47,7 +47,7 @@ import { toast } from "react-toastify";
 import { SokeSelect } from "../skjema/SokeSelect";
 import { FormGroup } from "../skjema/FormGroup";
 import { AvbrytTiltaksgjennomforing } from "./AvbrytTiltaksgjennomforing";
-import { TiltaksgjennomforingSkjemaKnapperad } from "./TiltaksgjennomforingSkjemaKnapperad";
+import { TiltaksgjennomforingSkjemaKnapperadOpprett } from "./TiltaksgjennomforingSkjemaKnapperadOpprett";
 import { useVirksomhet } from "../../api/virksomhet/useVirksomhet";
 import { PlusIcon, XMarkIcon } from "@navikt/aksel-icons";
 import { AnsvarligOptions } from "../skjema/AnsvarligOptions";
@@ -62,6 +62,7 @@ interface Props {
   onSuccess: (id: string) => void;
   avtale?: Avtale;
   tiltaksgjennomforing?: Tiltaksgjennomforing;
+  onLagreUtkast: () => void;
 }
 
 export const TiltaksgjennomforingSkjemaContainer = ({
@@ -69,6 +70,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
   tiltaksgjennomforing,
   onClose,
   onSuccess,
+  onLagreUtkast,
 }: Props) => {
   const utkastIdRef = useRef(tiltaksgjennomforing?.id || uuidv4());
   const redigeringsModus = !!tiltaksgjennomforing;
@@ -209,6 +211,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
     formState: { errors, defaultValues },
     setValue,
     watch,
+    setError,
   } = form;
 
   const {
@@ -605,10 +608,17 @@ export const TiltaksgjennomforingSkjemaContainer = ({
             </div>
           </div>
           <Separator />
-          <TiltaksgjennomforingSkjemaKnapperad
-            redigeringsModus={redigeringsModus}
+          <TiltaksgjennomforingSkjemaKnapperadOpprett
             onClose={onClose}
             mutation={mutation}
+            onLagreUtkast={onLagreUtkast}
+            error={() => {
+              register("navn", { minLength: 5 });
+              setError("navn", {
+                type: "custom",
+                message: "Et tiltaksnavn må minst være 5 tegn langt",
+              });
+            }}
           />
         </div>
       </form>
