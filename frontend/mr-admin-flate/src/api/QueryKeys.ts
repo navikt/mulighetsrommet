@@ -1,4 +1,5 @@
 import {
+  NavAnsattRolle,
   NotificationStatus,
   SorteringTiltakstyper,
   Tiltakstypekategori,
@@ -42,7 +43,7 @@ export const QueryKeys = {
   virksomhetOppslag: (orgnr: string) => ["virksometOppslag", orgnr],
   tiltaksgjennomforingerTilAvtale: (filter: string) =>
     ["tiltaksgjennomforinger", filter] as const,
-  kontaktpersoner: () => ["nav-kontaktpersoner"],
+  kontaktpersoner: (rolle: NavAnsattRolle) => [rolle, "nav-kontaktpersoner"],
   betabrukere: () => ["nav-betabrukere"],
   virksomhetKontaktpersoner: (orgnr: string) =>
     [orgnr, "virksomhet-kontaktpersoner"] as const,
