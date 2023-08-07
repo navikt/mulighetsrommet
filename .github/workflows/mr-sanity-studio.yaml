@@ -28,10 +28,8 @@ jobs:
     permissions: write-all
     steps:
       - uses: actions/checkout@v3
-      - name: Setup frontend og installer avhengigheter
+      - name: Setup frontend
         uses: ./.github/actions/setup-frontend
-      - name: Install dependencies
-        run: npm install @sanity/cli
       - name: Bygg studio
         run: npx turbo run build --filter=mulighetsrommet-cms
       - name: Build and publish Docker image
