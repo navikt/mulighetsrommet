@@ -5,8 +5,6 @@ on:
     paths:
       - .github/workflows/kafka-topics-prod.yaml
       - iac/kafka-topics/prod/*.yaml
-  merge_group:
-    types: [checks_requested]
 
 jobs:
   ci:

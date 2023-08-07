@@ -19,8 +19,6 @@ on:
         options:
           - dev
           - dev_and_prod
-  merge_group:
-    types: [checks_requested]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

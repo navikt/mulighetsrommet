@@ -1,10 +1,9 @@
-name: "CodeQL"
+name: CodeQL
 
 on:
-  push:
-    branches: [ "main" ]
   schedule:
-    - cron: '16 3 * * 0'
+    # At 05:30 on every day-of-week from Monday through Friday.
+    - cron: "30 5 * * 1-5"
 
 jobs:
   analyze-java:

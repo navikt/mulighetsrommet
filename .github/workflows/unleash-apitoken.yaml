@@ -18,8 +18,6 @@ jobs:
         uses: ./.github/actions/lint-yaml
         with:
           path: mulighetsrommet-api/.nais
-  merge_group:
-    types: [checks_requested]
 
   apply-apitoken-unleash:
     name: Apply ApiToken for Unleash to cluster
