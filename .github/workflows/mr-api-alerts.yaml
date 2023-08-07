@@ -17,8 +17,6 @@ jobs:
         uses: ./.github/actions/lint-yaml
         with:
           path: mulighetsrommet-api/.nais/alerts.yaml
-  merge_group:
-    types: [checks_requested]
 
   apply-alerts:
     name: Apply alerts to cluster

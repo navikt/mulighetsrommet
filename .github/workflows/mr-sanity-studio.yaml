@@ -9,8 +9,6 @@ on:
       - turbo.json
       - frontend/mulighetsrommet-cms/**
   workflow_dispatch:
-  merge_group:
-    types: [checks_requested]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
