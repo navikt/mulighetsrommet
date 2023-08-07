@@ -53,7 +53,7 @@
     "@types/progress-stream": "^2.0.2",
     "@types/react-modal": "^3.16.0",
     "@types/react-router-dom": "^5.3.3",
-    "@typescript-eslint/eslint-plugin": "^6.2.0",
+    "@typescript-eslint/eslint-plugin": "^6.2.1",
     "@typescript-eslint/parser": "^6.2.0",
     "@vitejs/plugin-react": "^4.0.3",
     "cross-env": "^7.0.3",
