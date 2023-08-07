@@ -5,6 +5,8 @@ on:
     paths:
       - .github/workflows/kafka-manager.yaml
       - iac/kafka-manager/**
+  merge_group:
+    types: [checks_requested]
 
 jobs:
   ci:
