@@ -1,7 +1,7 @@
 [versions]
 common-java-modules = "3.2023.07.07_09.10-85326e9557f0"
 flyway = "9.21.1"
-hoplite = "2.7.4"
+hoplite = "2.7.5"
 koin = "3.4.3"
 kotest = "5.6.2"
 kotest-testcontainers = "2.0.2"
