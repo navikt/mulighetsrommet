@@ -20,6 +20,7 @@ import styles from "../DetaljerInfo.module.scss";
 import { AvtaleKnapperad } from "./AvtaleKnapperad";
 import SlettAvtaleGjennomforingModal from "../../components/modal/SlettAvtaleGjennomforingModal";
 import { useDeleteAvtale } from "../../api/avtaler/useDeleteAvtale";
+import { ExternalLinkIcon } from "@navikt/aksel-icons";
 
 export function Avtaleinfo() {
   const { data: avtale, isLoading, error, refetch } = useAvtale();
@@ -42,13 +43,13 @@ export function Avtaleinfo() {
   const lenketekst = () => {
     let tekst;
     if (avtale?.url?.includes("mercell")) {
-      tekst = `Se originalavtale i Mercell <ExternalLinkIcon />`;
+      tekst = `Se originalavtale i Mercell `;
     } else if (avtale?.url?.includes("websak")) {
-      tekst = `Se originalavtale i WebSak <ExternalLinkIcon />`;
+      tekst = `Se originalavtale i WebSak `;
     } else {
-      tekst = `Se originalavtale <ExternalLinkIcon />`;
+      tekst = `Se originalavtale `;
     }
-    return <>{tekst}</>;
+    return <>{tekst}<ExternalLinkIcon /></>;
   };
 
   function visKnapperad(avtalestatus: Avtalestatus): boolean {
