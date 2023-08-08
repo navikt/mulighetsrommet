@@ -5,7 +5,7 @@ import { TiltakstypeAvtaleTabs, tiltakstypeTabAtom } from "../../api/atoms";
 import { useTiltakstypeById } from "../../api/tiltakstyper/useTiltakstypeById";
 import { Header } from "../../components/detaljside/Header";
 import { Laster } from "../../components/laster/Laster";
-import { Tiltakstypestatus } from "../../components/statuselementer/Tiltakstypestatus";
+import { TiltakstypestatusTag } from "../../components/statuselementer/TiltakstypestatusTag";
 import { ContainerLayoutDetaljer } from "../../layouts/ContainerLayout";
 import commonStyles from "../Page.module.scss";
 import { TiltakstypeInfo } from "./TiltakstypeInfo";
@@ -36,7 +36,7 @@ export function DetaljerTiltakstypePage() {
       <Header>
         <div className={commonStyles.header}>
           <span>{tiltakstype?.navn ?? "..."}</span>
-          <Tiltakstypestatus tiltakstype={tiltakstype} />
+          <TiltakstypestatusTag tiltakstype={tiltakstype} />
         </div>
       </Header>
 

@@ -11,7 +11,7 @@ import { useAdminTiltaksgjennomforingerForAvtale } from "../../api/tiltaksgjenno
 import { useMutateKobleGjennomforingForAvtale } from "../../api/tiltaksgjennomforing/useMutateKobleGjennomforingForAvtale";
 import { arenaKodeErAftEllerVta } from "../../utils/tiltakskoder";
 import { Laster } from "../laster/Laster";
-import { Tiltaksgjennomforingstatus } from "../statuselementer/Tiltaksgjennomforingstatus";
+import { TiltaksgjennomforingstatusTag } from "../statuselementer/TiltaksgjennomforingstatusTag";
 import styles from "./Tiltaksgjennomforingsliste.module.scss";
 
 export const Tiltaksgjennomforingsliste = () => {
@@ -66,10 +66,9 @@ export const Tiltaksgjennomforingsliste = () => {
           await refetchAvtaler();
           await refetchTiltaksgjennomforinger();
           faro?.api?.pushEvent(
-            `Bruker ${
-              avtaleId
-                ? "kobler gjennomføring til avtale"
-                : "fjerner gjennomføring fra avtale"
+            `Bruker ${avtaleId
+              ? "kobler gjennomføring til avtale"
+              : "fjerner gjennomføring fra avtale"
             }`,
             { handling: avtaleId ? "kobler til" : "fjerner kobling" },
             "avtale",
@@ -102,7 +101,7 @@ export const Tiltaksgjennomforingsliste = () => {
                 <li key={index} className={styles.gjennomforingsliste_element}>
                   <BodyShort>{gjennomforing.navn}</BodyShort>
                   <BodyShort>{gjennomforing.tiltaksnummer}</BodyShort>
-                  <Tiltaksgjennomforingstatus
+                  <TiltaksgjennomforingstatusTag
                     tiltaksgjennomforing={gjennomforing}
                   />
                   {!gjennomforing.avtaleId ? (

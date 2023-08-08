@@ -6,7 +6,7 @@ import { useAvtale } from "../../api/avtaler/useAvtale";
 import NotaterAvtalePage from "../../components/avtaler/NotaterAvtalePage";
 import { Header } from "../../components/detaljside/Header";
 import { Laster } from "../../components/laster/Laster";
-import { Avtalestatus } from "../../components/statuselementer/Avtalestatus";
+import { AvtalestatusTag } from "../../components/statuselementer/AvtalestatusTag";
 import { useGetAvtaleIdFromUrl } from "../../hooks/useGetAvtaleIdFromUrl";
 import { ContainerLayoutDetaljer } from "../../layouts/ContainerLayout";
 import commonStyles from "../Page.module.scss";
@@ -45,7 +45,7 @@ export function DetaljerAvtalePage() {
       <Header>
         <div className={commonStyles.header}>
           <span>{avtale?.navn ?? "..."}</span>
-          <Avtalestatus avtale={avtale} />
+          <AvtalestatusTag avtale={avtale} />
         </div>
       </Header>
       <Tabs

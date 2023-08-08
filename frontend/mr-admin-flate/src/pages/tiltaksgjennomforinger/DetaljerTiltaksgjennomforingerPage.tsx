@@ -10,7 +10,7 @@ import { useFeatureToggle } from "../../api/features/feature-toggles";
 import { useTiltaksgjennomforingById } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforingById";
 import { Header } from "../../components/detaljside/Header";
 import { Laster } from "../../components/laster/Laster";
-import { Tiltaksgjennomforingstatus } from "../../components/statuselementer/Tiltaksgjennomforingstatus";
+import { TiltaksgjennomforingstatusTag } from "../../components/statuselementer/TiltaksgjennomforingstatusTag";
 import NotaterTiltaksgjennomforingerPage from "../../components/tiltaksgjennomforinger/NotaterTiltaksgjennomforingerPage";
 import { ContainerLayoutDetaljer } from "../../layouts/ContainerLayout";
 import { DeltakerListe } from "../../microfrontends/team_komet/Deltakerliste";
@@ -49,7 +49,7 @@ export function DetaljerTiltaksgjennomforingerPage() {
       <Header>
         <div className={commonStyles.header}>
           <span>{tiltaksgjennomforing?.navn ?? "..."}</span>
-          <Tiltaksgjennomforingstatus
+          <TiltaksgjennomforingstatusTag
             tiltaksgjennomforing={tiltaksgjennomforing}
           />
         </div>
