@@ -12,7 +12,7 @@ import { formaterDato } from "../../utils/Utils";
 import { Laster } from "../laster/Laster";
 import { PagineringContainer } from "../paginering/PagineringContainer";
 import { PagineringsOversikt } from "../paginering/PagineringOversikt";
-import { Tiltakstypestatus } from "../statuselementer/Tiltakstypestatus";
+import { TiltakstypestatusTag } from "../statuselementer/TiltakstypestatusTag";
 import styles from "./Tabell.module.scss";
 
 export const TiltakstypeTabell = () => {
@@ -106,7 +106,7 @@ export const TiltakstypeTabell = () => {
                     {formaterDato(tiltakstype.tilDato)}
                   </Table.DataCell>
                   <Table.DataCell>
-                    <Tiltakstypestatus tiltakstype={tiltakstype} />
+                    <TiltakstypestatusTag tiltakstype={tiltakstype} />
                   </Table.DataCell>
                 </Table.Row>
               );
