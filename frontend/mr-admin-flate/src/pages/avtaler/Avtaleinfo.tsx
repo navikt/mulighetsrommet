@@ -5,7 +5,6 @@ import { useAvtale } from "../../api/avtaler/useAvtale";
 import AvbrytAvtaleModal from "../../components/avtaler/AvbrytAvtaleModal";
 import { Bolk } from "../../components/detaljside/Bolk";
 import {
-  Liste,
   Metadata,
   Separator,
 } from "../../components/detaljside/Metadata";
@@ -139,13 +138,11 @@ export function Avtaleinfo() {
             <Metadata
               header="NAV-enheter (kontorer)"
               verdi={
-                <Liste
-                  elementer={avtale.navEnheter.map((enhet) => ({
-                    key: enhet.enhetsnummer,
-                    value: enhet.navn,
-                  }))}
-                  tekstHvisTom="Alle enheter"
-                />
+                <ul>
+                  {avtale.navEnheter.map((enhet) => (
+                    <li key={enhet.enhetsnummer}>{enhet.navn}</li>
+                  ))}
+                </ul>
               }
             />{" "}
           </Bolk>
@@ -168,15 +165,13 @@ export function Avtaleinfo() {
             <Metadata
               header="Arrangører underenheter"
               verdi={
-                <Liste
-                  elementer={avtale.leverandorUnderenheter
+                <ul>
+                  {avtale.leverandorUnderenheter
                     .filter((enhet) => enhet.navn)
-                    .map((enhet) => ({
-                      key: enhet.organisasjonsnummer,
-                      value: `${enhet.navn} - ${enhet.organisasjonsnummer}`,
-                    }))}
-                  tekstHvisTom="Alle underenheter for arrangør"
-                />
+                    .map((enhet) => (
+                      <li key={enhet.organisasjonsnummer}>{enhet.navn}</li>
+                  ))}
+                </ul>
               }
             />
           </Bolk>
