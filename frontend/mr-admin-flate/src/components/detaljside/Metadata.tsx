@@ -19,19 +19,3 @@ export function Metadata({
 export function Separator() {
   return <hr className={styles.separator} />;
 }
-
-interface ListeProps {
-  elementer: { key: string; value: string }[];
-  tekstHvisTom: string;
-}
-
-export function Liste({ elementer, tekstHvisTom }: ListeProps) {
-  if (elementer.length === 0) return tekstHvisTom;
-  return (
-    <ul>
-      {elementer.map(({ key, value }) => (
-        <li key={key}>{value}</li>
-      ))}
-    </ul>
-  );
-}
