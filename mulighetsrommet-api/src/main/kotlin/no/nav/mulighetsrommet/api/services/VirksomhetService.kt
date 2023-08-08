@@ -41,11 +41,11 @@ class VirksomhetService(
         return virksomhetRepository.getAll(filter).getOrThrow()
     }
 
-    suspend fun hentEnhet(orgnr: String): VirksomhetDto? {
-        return virksomhetRepository.get(orgnr).getOrThrow() ?: syncEnhetFraBrreg(orgnr)
+    suspend fun getOrSyncVirksomhet(orgnr: String): VirksomhetDto? {
+        return virksomhetRepository.get(orgnr).getOrThrow() ?: syncVirksomhetFraBrreg(orgnr)
     }
 
-    suspend fun syncEnhetFraBrreg(orgnr: String): VirksomhetDto? {
+    suspend fun syncVirksomhetFraBrreg(orgnr: String): VirksomhetDto? {
         log.info("Skal synkronisere enhet med orgnr: $orgnr fra Brreg")
         val enhet = CacheUtils.tryCacheFirstNullable(brregServiceCache, orgnr) {
             brregClient.hentEnhet(orgnr)

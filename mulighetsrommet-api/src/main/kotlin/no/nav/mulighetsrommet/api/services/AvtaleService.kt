@@ -1,19 +1,22 @@
 package no.nav.mulighetsrommet.api.services
 
 import arrow.core.Either
+import kotliquery.Session
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleNokkeltallDto
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
+import no.nav.mulighetsrommet.api.repositories.UtkastRepository
 import no.nav.mulighetsrommet.api.routes.v1.AvtaleRequest
 import no.nav.mulighetsrommet.api.routes.v1.responses.*
 import no.nav.mulighetsrommet.api.utils.AdminTiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.api.utils.AvtaleFilter
 import no.nav.mulighetsrommet.api.utils.PaginationParams
+import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.AvtaleAdminDto
 import no.nav.mulighetsrommet.domain.dto.AvtaleNotificationDto
 import no.nav.mulighetsrommet.domain.dto.Avtalestatus
-import no.nav.mulighetsrommet.notifications.NotificationService
+import no.nav.mulighetsrommet.notifications.NotificationRepository
 import no.nav.mulighetsrommet.notifications.NotificationType
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
 import java.time.Instant
@@ -24,26 +27,29 @@ class AvtaleService(
     private val avtaler: AvtaleRepository,
     private val tiltaksgjennomforinger: TiltaksgjennomforingRepository,
     private val virksomhetService: VirksomhetService,
-    private val notificationService: NotificationService,
-    private val utkastService: UtkastService,
+    private val notificationRepository: NotificationRepository,
+    private val utkastRepository: UtkastRepository,
+    private val db: Database,
 ) {
     fun get(id: UUID): AvtaleAdminDto? {
         return avtaler.get(id)
     }
 
     suspend fun upsert(request: AvtaleRequest, navIdent: String): StatusResponse<AvtaleAdminDto> {
-        virksomhetService.hentEnhet(request.leverandorOrganisasjonsnummer)
+        virksomhetService.getOrSyncVirksomhet(request.leverandorOrganisasjonsnummer)
 
         val previousAnsvarlig = avtaler.get(request.id)?.ansvarlig?.navident
         return request.toDbo()
-            .onRight { avtaler.upsert(it) }
-            .onRight { utkastService.deleteUtkast(it.id) }
-            .onRight {
-                if (navIdent != request.ansvarlig && previousAnsvarlig != request.ansvarlig) {
-                    sattSomAnsvarligNotification(it.navn, request.ansvarlig)
+            .map {
+                db.transaction { tx ->
+                    avtaler.upsert(it, tx)
+                    utkastRepository.delete(it.id, tx)
+                    if (navIdent != request.ansvarlig && previousAnsvarlig != request.ansvarlig) {
+                        sattSomAnsvarligNotification(it.navn, request.ansvarlig, tx)
+                    }
+                    avtaler.get(it.id, tx)!!
                 }
             }
-            .map { avtaler.get(it.id)!! }
     }
 
     fun delete(id: UUID, currentDate: LocalDate = LocalDate.now()): StatusResponse<Unit> {
@@ -129,13 +135,13 @@ class AvtaleService(
         return Either.Right(avtaler.avbrytAvtale(avtaleId))
     }
 
-    private fun sattSomAnsvarligNotification(avtaleNavn: String, ansvarlig: String) {
+    private fun sattSomAnsvarligNotification(avtaleNavn: String, ansvarlig: String, tx: Session) {
         val notification = ScheduledNotification(
             type = NotificationType.NOTIFICATION,
             title = "Du har blitt satt som ansvarlig på avtalen \"$avtaleNavn\"",
             targets = listOf(ansvarlig),
             createdAt = Instant.now(),
         )
-        notificationService.scheduleNotification(notification)
+        notificationRepository.insert(notification, tx)
     }
 }

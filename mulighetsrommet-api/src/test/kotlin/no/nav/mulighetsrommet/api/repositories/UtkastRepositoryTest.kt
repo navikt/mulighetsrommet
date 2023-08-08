@@ -115,7 +115,7 @@ class UtkastRepositoryTest : FunSpec({
                 it?.type shouldBe Utkasttype.Tiltaksgjennomforing
             }
 
-            utkastRepository.delete(utkastId).shouldBeRight()
+            utkastRepository.delete(utkastId)
 
             utkastRepository.get(utkastId).shouldBeRight(null)
         }

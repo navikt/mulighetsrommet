@@ -179,7 +179,7 @@ class VeilederflateService(
                 val kontaktpersoner = apiGjennomforing?.let { hentKontaktpersoner(it, enhetsId) } ?: emptyList()
                 val kontaktpersonerArrangor = apiGjennomforing?.arrangor?.kontaktperson?.let {
                     KontaktInfoArrangor(
-                        selskapsnavn = virksomhetService.hentEnhet(it.organisasjonsnummer)?.navn,
+                        selskapsnavn = virksomhetService.getOrSyncVirksomhet(it.organisasjonsnummer)?.navn,
                         telefonnummer = it.telefon,
                         adresse = apiGjennomforing.lokasjonArrangor,
                         epost = it.epost,

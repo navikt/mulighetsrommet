@@ -26,10 +26,11 @@ class UtkastService(
     }
 
     fun deleteUtkast(id: UUID): StatusResponse<Unit> {
-        return utkastRepository.delete(id).map {}
-            .mapLeft {
-                ServerError(message = "Det oppsto en feil ved sletting av utkastet")
-            }
+        return Either.catch {
+            utkastRepository.delete(id)
+        }.mapLeft {
+            ServerError(message = "Det oppsto en feil ved sletting av utkastet")
+        }
     }
 
     fun getAll(filter: UtkastFilter): StatusResponse<List<UtkastDto>> {

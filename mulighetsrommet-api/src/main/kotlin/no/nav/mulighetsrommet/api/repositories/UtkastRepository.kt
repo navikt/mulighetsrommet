@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.repositories
 
 import kotlinx.serialization.json.Json
 import kotliquery.Row
+import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.domain.dbo.UtkastDbo
 import no.nav.mulighetsrommet.api.domain.dbo.Utkasttype
@@ -85,16 +86,16 @@ class UtkastRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    fun delete(id: UUID) = query {
+    fun delete(id: UUID) = db.transaction { delete(id, it) }
+
+    fun delete(id: UUID, tx: Session) {
         logger.info("Sletter utkast med id: $id")
         @Language("PostgreSQL")
         val query = """
             delete from utkast where id = ?::uuid
         """.trimIndent()
 
-        queryOf(query, id)
-            .asUpdate
-            .let { db.run(it) }
+        tx.run(queryOf(query, id).asUpdate)
     }
 
     private fun UtkastDbo.toSqlParams() = mapOf(
