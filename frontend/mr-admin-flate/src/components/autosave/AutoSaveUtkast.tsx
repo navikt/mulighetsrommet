@@ -24,7 +24,7 @@ export const AutoSaveUtkast = memo(
     const debouncedSave = useCallback(
       debounce(() => {
         onSave();
-      }, 1000),
+      }, 500),
       [],
     );
 

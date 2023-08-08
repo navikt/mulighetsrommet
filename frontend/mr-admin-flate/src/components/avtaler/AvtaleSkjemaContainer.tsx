@@ -28,7 +28,6 @@ import { SokeSelect } from "../skjema/SokeSelect";
 import { VirksomhetKontaktpersoner } from "../virksomhet/VirksomhetKontaktpersoner";
 import { AvtaleSchema, inferredAvtaleSchema } from "./AvtaleSchema";
 import skjemastyles from "../skjema/Skjema.module.scss";
-
 import {
   defaultEnhet,
   enheterOptions,
@@ -43,10 +42,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { AvtaleSkjemaKnapperadOpprett } from "./AvtaleSkjemaKnapperadOpprett";
 import { AvtaleSkjemaKnapperadRediger } from "./AvtaleSkjemaKnapperadRediger";
 import { AvtaleSkjemaKnapperadUtkast } from "./AvtaleSkjemaKnapperadUtkast";
+import { faro } from "@grafana/faro-web-sdk";
+import { useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface Props {
   onClose: () => void;
-  onLagreUtkast: () => void;
   onSuccess: (id: string) => void;
   tiltakstyper: Tiltakstype[];
   ansatt: NavAnsatt;
@@ -58,7 +59,6 @@ interface Props {
 
 export function AvtaleSkjemaContainer({
   onClose,
-  onLagreUtkast,
   onSuccess,
   tiltakstyper,
   ansatt,
@@ -75,8 +75,8 @@ export function AvtaleSkjemaContainer({
   );
 
   const mutation = usePutAvtale();
-  const { data: betabrukere } = useHentBetabrukere();
   const mutationUtkast = useMutateUtkast();
+  const { data: betabrukere } = useHentBetabrukere();
 
   const { data: leverandorVirksomheter = [] } =
     useSokVirksomheter(sokLeverandor);
@@ -126,9 +126,11 @@ export function AvtaleSkjemaContainer({
     watch,
     setValue,
     setError,
+    clearErrors,
   } = form;
 
   const watchedTiltakstype = watch("tiltakstype");
+  const navigate = useNavigate();
 
   const getTiltakstypeFromId = (id: string): Tiltakstype | undefined => {
     return tiltakstyper.find((type) => type.id === id);
@@ -142,6 +144,7 @@ export function AvtaleSkjemaContainer({
   }, [watchedTiltakstype]);
 
   const { data: leverandorData } = useVirksomhet(watch("leverandor"));
+  const queryClient = useQueryClient();
 
   const underenheterForLeverandor = getValueOrDefault(
     leverandorData?.underenheter,
@@ -200,7 +203,17 @@ export function AvtaleSkjemaContainer({
       requestBody.id = avtale.id; // Ved oppdatering av eksisterende avtale
     }
 
-    mutation.mutate(requestBody);
+    //alle submit-knapper
+    mutation.mutate(requestBody, {
+      onSuccess: () => {
+        faro?.api?.pushEvent(
+          "Bruker oppretter eller lagrer avtale",
+          { handling: "lagrer" },
+          "avtale",
+        );
+        navigate(`/avtaler#avtaleOversiktTab="avtaler"`);
+      },
+    });
   };
 
   if (mutation.isSuccess) {
@@ -218,6 +231,20 @@ export function AvtaleSkjemaContainer({
       </Alert>
     );
   }
+
+  const handleLagreUtkast = () => {
+    if (mutationUtkast.isSuccess) {
+      queryClient.refetchQueries({ queryKey: ["utkast"] });
+      navigate(`/avtaler#avtaleOversiktTab="utkast"`);
+    } else {
+      register("avtalenavn", { minLength: 5 });
+      clearErrors();
+      setError("avtalenavn", {
+        type: "custom",
+        message: "Et avtalenavn må minst være 5 tegn langt",
+      });
+    }
+  };
 
   return (
     <FormProvider {...form}>
@@ -286,7 +313,6 @@ export function AvtaleSkjemaContainer({
                     label: "Sluttdato",
                   }}
                 />
-                {/*{redigeringsModus ? <AvbrytAvtale onAvbryt={onClose} /> : null}*/}
               </FormGroup>
               <Separator />
               <FormGroup>
@@ -404,25 +430,22 @@ export function AvtaleSkjemaContainer({
                 avtale={avtale!}
                 utkastModus={utkastModus}
                 onClose={onClose}
+                mutation={mutation}
+                onLagreUtkast={handleLagreUtkast}
+                mutationUtkast={mutationUtkast}
               />
             ) : (
               <AvtaleSkjemaKnapperadRediger
-                onClose={onClose}
                 avtale={avtale!}
+                mutationUtkast={mutationUtkast}
               />
             )
           ) : (
             <AvtaleSkjemaKnapperadOpprett
               onClose={onClose}
-              onLagreUtkast={onLagreUtkast}
-              error={() => {
-                register("avtalenavn", { minLength: 5 });
-                setError("avtalenavn", {
-                  type: "custom",
-                  message: "Et avtalenavn må minst være 5 tegn langt",
-                });
-              }}
               mutation={mutation}
+              onLagreUtkast={handleLagreUtkast}
+              mutationUtkast={mutationUtkast}
             />
           )}
         </div>

@@ -37,7 +37,7 @@ export const saveUtkast = (
   avtale: Avtale,
   ansatt: NavAnsatt,
   utkastIdRef: MutableRefObject<string>,
-  mutationUtkast: UseMutationResult<Utkast, unknown, Utkast, unknown>,
+  mutationUtkast: UseMutationResult<Utkast, unknown, Utkast>,
 ) => {
   const utkastData: UtkastData = {
     navn: values?.avtalenavn,
@@ -137,10 +137,12 @@ export const enheterOptions = (navRegion: string, enheter: NavEnhet[]) => {
 export const underenheterOptions = (
   underenheterForLeverandor: Virksomhet[],
 ) => {
-  const options = underenheterForLeverandor.map((leverandor: LeverandorUnderenhet) => ({
-    value: leverandor.organisasjonsnummer,
-    label: `${leverandor.navn} - ${leverandor.organisasjonsnummer}`,
-  }));
+  const options = underenheterForLeverandor.map(
+    (leverandor: LeverandorUnderenhet) => ({
+      value: leverandor.organisasjonsnummer,
+      label: `${leverandor.navn} - ${leverandor.organisasjonsnummer}`,
+    }),
+  );
 
   options?.unshift({
     value: "alle_underenheter",

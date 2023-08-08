@@ -16,6 +16,7 @@ import {
 } from "../../utils/Utils";
 import styles from "../DetaljerInfo.module.scss";
 import { AvtaleKnapperad } from "./AvtaleKnapperad";
+import { ExternalLinkIcon } from "@navikt/aksel-icons";
 
 export function Avtaleinfo() {
   const { data: avtale, isLoading, error } = useAvtale();
@@ -35,13 +36,25 @@ export function Avtaleinfo() {
   const lenketekst = () => {
     let tekst;
     if (avtale?.url?.includes("mercell")) {
-      tekst = `Se originalavtale i Mercell <ExternalLinkIcon />`;
+      tekst = (
+        <>
+          Se originalavtale i Mercell <ExternalLinkIcon />
+        </>
+      );
     } else if (avtale?.url?.includes("websak")) {
-      tekst = `Se originalavtale i WebSak <ExternalLinkIcon />`;
+      tekst = (
+        <>
+          Se originalavtale i WebSak <ExternalLinkIcon />
+        </>
+      );
     } else {
-      tekst = `Se originalavtale <ExternalLinkIcon />`;
+      tekst = (
+        <>
+          Se originalavtale <ExternalLinkIcon />
+        </>
+      );
     }
-    return <>{tekst}</>;
+    return tekst;
   };
 
   function visKnapperad(avtalestatus: Avtalestatus): boolean {
@@ -52,7 +65,6 @@ export function Avtaleinfo() {
 
     return whitelist.includes(avtalestatus);
   }
-
   return (
     <>
       <div className={styles.container}>
@@ -174,28 +186,6 @@ export function Avtaleinfo() {
           </Bolk>
 
           <Separator />
-
-          <VisHvisVerdi verdi={avtale.leverandorKontaktperson}>
-            <Bolk aria-label="Kontaktperson">
-              <Metadata
-                header="Kontaktperson"
-                verdi={
-                  <div className={styles.leverandor_kontaktinfo}>
-                    <label>{avtale.leverandorKontaktperson?.navn}</label>
-                    <label>{avtale.leverandorKontaktperson?.telefon}</label>
-                    <a href={`mailto:${avtale.leverandorKontaktperson?.epost}`}>
-                      {avtale.leverandorKontaktperson?.epost}
-                    </a>
-                    {
-                      <label>
-                        {avtale.leverandorKontaktperson?.beskrivelse}
-                      </label>
-                    }
-                  </div>
-                }
-              />
-            </Bolk>
-          </VisHvisVerdi>
 
           <VisHvisVerdi verdi={avtale.leverandorKontaktperson}>
             <Bolk aria-label="Kontaktperson">

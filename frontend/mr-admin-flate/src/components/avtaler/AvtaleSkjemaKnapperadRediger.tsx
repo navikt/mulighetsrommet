@@ -1,17 +1,26 @@
 import styles from "../skjema/Skjema.module.scss";
 import { useFeatureToggle } from "../../api/features/feature-toggles";
-import { Avtale, Avtalestatus, Toggles } from "mulighetsrommet-api-client";
+import {
+  Avtale,
+  Avtalestatus,
+  Toggles,
+  Utkast,
+} from "mulighetsrommet-api-client";
 import AvbrytAvtaleModal from "./AvbrytAvtaleModal";
 import { useState } from "react";
 import { LagreEndringerKnapp } from "../knapper/LagreEndringerKnapp";
 import { AvbrytAvtaleGjennomforingKnapp } from "../knapper/AvbrytAvtaleGjennomforingKnapp";
-import { ForkastEndringerKnapp } from "../knapper/ForkastEndringerKnapp";
+import { UseMutationResult } from "@tanstack/react-query";
 
 interface Props {
-  onClose: () => void;
   avtale: Avtale;
+  mutationUtkast: UseMutationResult<Utkast, unknown, Utkast>;
 }
-export function AvtaleSkjemaKnapperadRediger({ onClose, avtale }: Props) {
+
+export function AvtaleSkjemaKnapperadRediger({
+  avtale,
+  mutationUtkast,
+}: Props) {
   const { data: slettAvtaleEnabled } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_ADMIN_FLATE_SLETT_AVTALE,
   );
@@ -27,12 +36,11 @@ export function AvtaleSkjemaKnapperadRediger({ onClose, avtale }: Props) {
         />
       ) : null}
       <div>
-        <ForkastEndringerKnapp
-          type="avtale"
-          dataTestId="avtaleskjema-avbrytknapp"
-          onClose={onClose}
+        <LagreEndringerKnapp
+          onLagreUtkast={() => null}
+          // disableLagreKnapp={disableLagreKnapp}
+          mutationUtkast={mutationUtkast}
         />
-        <LagreEndringerKnapp />
       </div>
       <AvbrytAvtaleModal
         modalOpen={avbrytModalOpen}

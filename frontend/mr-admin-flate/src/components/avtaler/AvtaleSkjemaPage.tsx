@@ -78,9 +78,6 @@ const AvtaleSkjemaPage = () => {
                   queryClient.refetchQueries({ queryKey: ["utkast"] });
                   navigerTilbake();
                 }}
-                onLagreUtkast={() => {
-                  queryClient.refetchQueries({ queryKey: ["utkast"] });
-                }}
                 onSuccess={(id) => navigate(`/avtaler/${id}`)}
                 tiltakstyper={tiltakstyper.data}
                 ansatt={ansatt}

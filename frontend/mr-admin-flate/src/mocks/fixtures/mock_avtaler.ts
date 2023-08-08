@@ -4,6 +4,7 @@ import {
   Opphav,
   PaginertAvtale,
 } from "mulighetsrommet-api-client";
+import { mockVirksomhetKontaktperson } from "./mock_virksomhet_kontaktperson";
 
 export const mockAvtaler: PaginertAvtale = {
   pagination: {
@@ -37,12 +38,7 @@ export const mockAvtaler: PaginertAvtale = {
         { organisasjonsnummer: "456798323", navn: "Underenhet 3" },
       ],
       leverandorKontaktperson: {
-        navn: "Ole Kjetil Martinsen",
-        id: "1234",
-        epost: "ole.kjetil.martinsen@arrangor.no",
-        telefon: "90123456",
-        organisasjonsnummer: "123456789",
-        beskrivelse: "Direktør",
+        ...mockVirksomhetKontaktperson[0],
       },
       startDato: "2021-08-02",
       sluttDato: "2026-08-01",

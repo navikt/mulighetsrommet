@@ -1,29 +1,29 @@
 import { Button } from "@navikt/ds-react";
 import styles from "../skjema/Skjema.module.scss";
-import { faro } from "@grafana/faro-web-sdk";
+import { UseMutationResult } from "@tanstack/react-query";
+import { Utkast } from "mulighetsrommet-api-client";
+import { Laster } from "../laster/Laster";
 
 interface Props {
-  onLagreUtkast: () => void;
-  type: "avtale" | "gjennomføring";
   dataTestId?: string;
+  onLagreUtkast: () => void;
+  mutationUtkast: UseMutationResult<Utkast, unknown, Utkast>;
 }
-export function LagreUtkastKnapp({ onLagreUtkast, type, dataTestId }: Props) {
+export function LagreUtkastKnapp({
+  dataTestId,
+  onLagreUtkast,
+  mutationUtkast,
+}: Props) {
   return (
     <Button
       className={styles.button}
       type="button"
-      onClick={() => {
-        onLagreUtkast();
-        faro?.api?.pushEvent(
-          "Bruker lagrer utkast",
-          { handling: "lagrer" },
-          type,
-        );
-      }}
       variant="secondary"
       data-testid={dataTestId}
+      onClick={onLagreUtkast}
+      disabled={!mutationUtkast.isSuccess}
     >
-      Lagre som utkast
+      {mutationUtkast.isLoading ? <Laster /> : "Lagre som utkast"}
     </Button>
   );
 }

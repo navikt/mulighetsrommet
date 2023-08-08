@@ -33,7 +33,6 @@ export function TiltaksgjennomforingSkjemaKnapperadOpprett({
   const mutationUtkast = useMutateUtkast();
   const [sletteModal, setSletteModal] = useState(false);
 
-  //Todo funker ikke helt
   const handleLagreUtkast = () => {
     if (mutationUtkast.error === 0) {
       onLagreUtkast();
@@ -48,9 +47,9 @@ export function TiltaksgjennomforingSkjemaKnapperadOpprett({
       <SlettUtkastKnapp setSletteModal={setSletteModal} />
       <div>
         <LagreUtkastKnapp
-          onLagreUtkast={handleLagreUtkast}
-          type="avtale"
           dataTestId="avtaleskjema-lagre-utkast"
+          onLagreUtkast={handleLagreUtkast}
+          mutationUtkast={mutationUtkast}
         />
 
         <OpprettAvtaleGjennomforingKnapp type="avtale" mutation={mutation} />
