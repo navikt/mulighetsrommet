@@ -1,38 +1,27 @@
 import { Alert, Tabs } from "@navikt/ds-react";
-import { useAtom } from "jotai";
 import { Toggles } from "mulighetsrommet-api-client";
-import { Link } from "react-router-dom";
-import {
-  TiltaksgjennomforingerTabs,
-  tiltaksgjennomforingTabAtom,
-} from "../../api/atoms";
+import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 import { useFeatureToggle } from "../../api/features/feature-toggles";
 import { useTiltaksgjennomforingById } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforingById";
 import { Header } from "../../components/detaljside/Header";
 import { Laster } from "../../components/laster/Laster";
 import { TiltaksgjennomforingstatusTag } from "../../components/statuselementer/TiltaksgjennomforingstatusTag";
-import NotaterTiltaksgjennomforingerPage from "../../components/tiltaksgjennomforinger/NotaterTiltaksgjennomforingerPage";
 import { ContainerLayoutDetaljer } from "../../layouts/ContainerLayout";
-import { DeltakerListe } from "../../microfrontends/team_komet/Deltakerliste";
 import commonStyles from "../Page.module.scss";
-import { TiltaksgjennomforingInfo } from "./TiltaksgjennomforingInfo";
 
 export function DetaljerTiltaksgjennomforingerPage() {
-  const optionalTiltaksgjennomforing = useTiltaksgjennomforingById();
-  const [tabValgt, setTabValgt] = useAtom(tiltaksgjennomforingTabAtom);
+  const { pathname } = useLocation();
+  const { data: tiltaksgjennomforing, isLoading } = useTiltaksgjennomforingById();
 
   const { data: visDeltakerlisteFraKometFeature } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_ADMIN_FLATE_VIS_DELTAKERLISTE_FRA_KOMET,
   );
 
-  if (
-    !optionalTiltaksgjennomforing.data &&
-    optionalTiltaksgjennomforing.isLoading
-  ) {
+  if (!tiltaksgjennomforing && isLoading) {
     return <Laster tekst="Laster tiltaksgjennomføring" />;
   }
 
-  if (!optionalTiltaksgjennomforing.data) {
+  if (!tiltaksgjennomforing) {
     return (
       <Alert variant="warning">
         Klarte ikke finne tiltaksgjennømforing
@@ -43,7 +32,16 @@ export function DetaljerTiltaksgjennomforingerPage() {
     );
   }
 
-  const tiltaksgjennomforing = optionalTiltaksgjennomforing.data;
+  const currentTab = () => {
+    if (pathname.includes("deltakere")) {
+      return "poc";
+    } else if (pathname.includes("notater")) {
+      return "notater";
+    } else {
+      return "info";
+    }
+  }
+
   return (
     <main>
       <Header>
@@ -55,41 +53,28 @@ export function DetaljerTiltaksgjennomforingerPage() {
         </div>
       </Header>
 
-      <Tabs
-        value={tabValgt}
-        onChange={(value) => setTabValgt(value as TiltaksgjennomforingerTabs)}
-      >
+      <Tabs value={currentTab()} >
         <Tabs.List className={commonStyles.list}>
-          <Tabs.Tab
-            value="detaljer"
-            label="Detaljer"
-            data-testid="tab_detaljer"
-          />
-
-          <Tabs.Tab value="tiltaksgjennomforingsnotater" label="Notater" />
+          <NavLink to={`/tiltaksgjennomforinger/${tiltaksgjennomforing.id}`} >
+            <Tabs.Tab
+              value="info"
+              label="Info"
+              data-testid="tab_detaljer"
+            />
+          </NavLink>
+          <NavLink to={`/tiltaksgjennomforinger/${tiltaksgjennomforing.id}/notater`} >
+            <Tabs.Tab value="notater" label="Notater" />
+          </NavLink>
 
           {visDeltakerlisteFraKometFeature ? (
-            <Tabs.Tab value="poc" label="Deltakerliste" />
+            <NavLink to={`/tiltaksgjennomforinger/${tiltaksgjennomforing.id}/deltakere`} >
+              <Tabs.Tab value="poc" label="Deltakerliste" />
+            </NavLink>
           ) : null}
         </Tabs.List>
-
-        <Tabs.Panel value="detaljer">
-          <ContainerLayoutDetaljer>
-            <TiltaksgjennomforingInfo />
-          </ContainerLayoutDetaljer>
-        </Tabs.Panel>
-
-        <Tabs.Panel value="tiltaksgjennomforingsnotater">
-          <ContainerLayoutDetaljer>
-            <NotaterTiltaksgjennomforingerPage />
-          </ContainerLayoutDetaljer>
-        </Tabs.Panel>
-
-        <Tabs.Panel value="poc">
-          <ContainerLayoutDetaljer>
-            <DeltakerListe />
-          </ContainerLayoutDetaljer>
-        </Tabs.Panel>
+        <ContainerLayoutDetaljer>
+          <Outlet />
+        </ContainerLayoutDetaljer>
       </Tabs>
     </main>
   );

@@ -1,25 +1,20 @@
 import { Alert, Tabs } from "@navikt/ds-react";
-import { useAtom } from "jotai";
-import { Link } from "react-router-dom";
-import { avtaleTabAtom, AvtaleTabs } from "../../api/atoms";
+import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 import { useAvtale } from "../../api/avtaler/useAvtale";
-import NotaterAvtalePage from "../../components/avtaler/NotaterAvtalePage";
 import { Header } from "../../components/detaljside/Header";
 import { Laster } from "../../components/laster/Laster";
 import { AvtalestatusTag } from "../../components/statuselementer/AvtalestatusTag";
 import { useGetAvtaleIdFromUrl } from "../../hooks/useGetAvtaleIdFromUrl";
-import { ContainerLayoutDetaljer } from "../../layouts/ContainerLayout";
 import commonStyles from "../Page.module.scss";
-import { Avtaleinfo } from "./Avtaleinfo";
-import { TiltaksgjennomforingerForAvtale } from "./tiltaksgjennomforinger/TiltaksgjennomforingerForAvtale";
+import { ContainerLayoutDetaljer } from "../../layouts/ContainerLayout";
 
 export function DetaljerAvtalePage() {
   const avtaleId = useGetAvtaleIdFromUrl();
+  const location = useLocation();
   if (!avtaleId) {
     throw new Error("Fant ingen avtaleId i url");
   }
   const { data: avtale, isLoading } = useAvtale();
-  const [tabValgt, setTabValgt] = useAtom(avtaleTabAtom);
 
   if (!avtale && isLoading) {
     return (
@@ -40,6 +35,16 @@ export function DetaljerAvtalePage() {
     );
   }
 
+  const currentTab = () => {
+      if (location.pathname.includes("notater")) {
+        return "notater";
+      } else if (location.pathname.includes("tiltaksgjennomforinger")) {
+        return "tiltaksgjennomforinger";
+      } else {
+        return "info"
+      }
+  }
+
   return (
     <main>
       <Header>
@@ -48,40 +53,29 @@ export function DetaljerAvtalePage() {
           <AvtalestatusTag avtale={avtale} />
         </div>
       </Header>
-      <Tabs
-        value={tabValgt}
-        onChange={(tab) => setTabValgt(tab as AvtaleTabs)}
-      >
+      <Tabs value={currentTab()} >
         <Tabs.List className={commonStyles.list}>
-          <Tabs.Tab value="avtaleinfo" label="Avtaleinfo" />
-          <Tabs.Tab
-            value="avtalenotater"
-            label="Notater"
-            data-testid="tab_avtalenotater"
-          />
-          <Tabs.Tab
-            data-testid="avtale-tiltaksgjennomforing-tab"
-            value="tiltaksgjennomforinger"
-            label="Gjennomføringer"
-          />
+          <NavLink to={`/avtaler/${avtaleId}`} >
+            <Tabs.Tab value="info" label="Avtaleinfo" />
+          </NavLink>
+          <NavLink to={`/avtaler/${avtaleId}/notater`} >
+            <Tabs.Tab
+              value="notater"
+              label="Notater"
+              data-testid="tab_avtalenotater"
+            />
+          </NavLink>
+          <NavLink to={`/avtaler/${avtaleId}/tiltaksgjennomforinger`} >
+            <Tabs.Tab
+              data-testid="avtale-tiltaksgjennomforing-tab"
+              value="tiltaksgjennomforinger"
+              label="Gjennomføringer"
+            />
+          </NavLink>
         </Tabs.List>
-        <Tabs.Panel value="avtaleinfo">
-          <ContainerLayoutDetaljer>
-            <Avtaleinfo />
-          </ContainerLayoutDetaljer>
-        </Tabs.Panel>
-
-        <Tabs.Panel value="avtalenotater">
-          <ContainerLayoutDetaljer>
-            <NotaterAvtalePage />
-          </ContainerLayoutDetaljer>
-        </Tabs.Panel>
-
-        <Tabs.Panel value="tiltaksgjennomforinger">
-          <ContainerLayoutDetaljer>
-            <TiltaksgjennomforingerForAvtale />
-          </ContainerLayoutDetaljer>
-        </Tabs.Panel>
+        <ContainerLayoutDetaljer>
+          <Outlet />
+        </ContainerLayoutDetaljer>
       </Tabs>
     </main>
   );

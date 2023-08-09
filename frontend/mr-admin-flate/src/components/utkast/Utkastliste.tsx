@@ -4,22 +4,18 @@ import { useMineUtkast } from "../../api/utkast/useMineUtkast";
 import { Laster } from "../laster/Laster";
 import { UtkastKort } from "./Utkastkort";
 import styles from "../avtaler/AvtaleUtkast.module.scss";
-import { useDeleteUtkast } from "../../api/utkast/useDeleteUtkast";
 
 interface Props {
-  dataType: "tiltaksgjennomforing" | "avtale";
+  utkastType: Utkast.type;
 }
 
-export function UtkastListe({ dataType }: Props) {
+export function UtkastListe({ utkastType }: Props) {
   const {
     data = [],
     isLoading,
     error,
-  } = dataType === "tiltaksgjennomforing"
-    ? useMineUtkast(Utkast.type.TILTAKSGJENNOMFORING)
-    : useMineUtkast(Utkast.type.AVTALE);
+  } = useMineUtkast(utkastType);
 
-  const mutation = useDeleteUtkast();
   if (error as ApiError) {
     const apiError = error as ApiError;
     return (
@@ -42,7 +38,7 @@ export function UtkastListe({ dataType }: Props) {
         {data?.map((utkast) => {
           return (
             <li key={utkast.id}>
-              <UtkastKort utkast={utkast} mutation={mutation} />
+              <UtkastKort utkastType={utkastType} utkast={utkast} />
             </li>
           );
         })}

@@ -1,25 +1,21 @@
 import { Alert, Tabs } from "@navikt/ds-react";
-import { useAtom } from "jotai";
-import { Link } from "react-router-dom";
-import { TiltakstypeAvtaleTabs, tiltakstypeTabAtom } from "../../api/atoms";
+import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 import { useTiltakstypeById } from "../../api/tiltakstyper/useTiltakstypeById";
 import { Header } from "../../components/detaljside/Header";
 import { Laster } from "../../components/laster/Laster";
 import { TiltakstypestatusTag } from "../../components/statuselementer/TiltakstypestatusTag";
 import { ContainerLayoutDetaljer } from "../../layouts/ContainerLayout";
 import commonStyles from "../Page.module.scss";
-import { TiltakstypeInfo } from "./TiltakstypeInfo";
-import { AvtalerForTiltakstype } from "./avtaler/AvtalerForTiltakstype";
 
 export function DetaljerTiltakstypePage() {
-  const optionalTiltakstype = useTiltakstypeById();
-  const [tabValgt, setTabValgt] = useAtom(tiltakstypeTabAtom);
+  const { pathname } = useLocation();
+  const { data: tiltakstype, isLoading } = useTiltakstypeById();
 
-  if (!optionalTiltakstype.data && optionalTiltakstype.isLoading) {
+  if (!tiltakstype && isLoading) {
     return <Laster tekst="Laster tiltakstype" />;
   }
 
-  if (!optionalTiltakstype.data) {
+  if (!tiltakstype) {
     return (
       <Alert variant="warning">
         Klarte ikke finne tiltakstype
@@ -30,7 +26,6 @@ export function DetaljerTiltakstypePage() {
     );
   }
 
-  const tiltakstype = optionalTiltakstype.data;
   return (
     <main>
       <Header>
@@ -40,28 +35,22 @@ export function DetaljerTiltakstypePage() {
         </div>
       </Header>
 
-      <Tabs
-        value={tabValgt}
-        onChange={(value) => setTabValgt(value as TiltakstypeAvtaleTabs)}
-      >
+      <Tabs value={pathname.includes("avtaler") ? "avtaler" : "arenainfo"} >
         <Tabs.List className={commonStyles.list}>
-          <Tabs.Tab
-            value="arenaInfo"
-            label="Arenainfo"
-            data-testid="tab_arenainfo"
-          />
-          <Tabs.Tab value="avtaler" label="Avtaler" data-testid="tab_avtaler" />
+          <NavLink to={`/tiltakstyper/${tiltakstype.id}`} >
+            <Tabs.Tab
+              value="arenainfo"
+              label="Arenainfo"
+              data-testid="tab_arenainfo"
+            />
+          </NavLink>
+          <NavLink to={`/tiltakstyper/${tiltakstype.id}/avtaler`} >
+            <Tabs.Tab value="avtaler" label="Avtaler" data-testid="tab_avtaler" />
+          </NavLink>
         </Tabs.List>
-        <Tabs.Panel value="arenaInfo">
-          <ContainerLayoutDetaljer>
-            <TiltakstypeInfo />
-          </ContainerLayoutDetaljer>
-        </Tabs.Panel>
-        <Tabs.Panel value="avtaler">
-          <ContainerLayoutDetaljer>
-            <AvtalerForTiltakstype />
-          </ContainerLayoutDetaljer>
-        </Tabs.Panel>
+        <ContainerLayoutDetaljer>
+          <Outlet />
+        </ContainerLayoutDetaljer>
       </Tabs>
     </main>
   );
