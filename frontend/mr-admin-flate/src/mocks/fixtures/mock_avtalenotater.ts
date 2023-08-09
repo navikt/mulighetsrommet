@@ -5,7 +5,7 @@ export const mockAvtalenotater: AvtaleNotat[] = [
   {
     id: faker.string.uuid(),
     avtaleId: "d1f163b7-1a41-4547-af16-03fd4492b7ba",
-    createdAt: new Date("07.20.2023 11:47:53").toISOString(),
+    createdAt: new Date("2023-07-20 11:47:53").toISOString(),
     updatedAt: new Date().toISOString(),
     opprettetAv: { navIdent: "B123456", navn: "Bertil Betabruker" },
     innhold: "Dette er den beste avtalen i verden!",
@@ -13,7 +13,7 @@ export const mockAvtalenotater: AvtaleNotat[] = [
   {
     id: faker.string.uuid(),
     avtaleId: "d1f163b7-1a41-4547-af16-03fd4492b7bc",
-    createdAt: new Date("08.29.2021 15:33:05").toISOString(),
+    createdAt: new Date("2021-08-29 15:33:05").toISOString(),
     updatedAt: new Date().toISOString(),
     opprettetAv: { navIdent: "H987654", navn: "Captain Jack Sparrow" },
     innhold:
@@ -22,7 +22,7 @@ export const mockAvtalenotater: AvtaleNotat[] = [
   {
     id: faker.string.uuid(),
     avtaleId: "d1f163b7-1a41-4547-af16-03fd4492b7bc",
-    createdAt: new Date("05.22.2021 05:45:11").toISOString(),
+    createdAt: new Date("2021-05-22 05:45:11").toISOString(),
     updatedAt: new Date().toISOString(),
     opprettetAv: { navIdent: "H060500", navn: "Hodor" },
     innhold:

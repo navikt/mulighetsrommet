@@ -5,7 +5,7 @@ export const mockTiltaksgjennomforingnotater: TiltaksgjennomforingNotat[] = [
   {
     id: faker.string.uuid(),
     tiltaksgjennomforingId: "a7d63fb0-4366-412c-84b7-7c15518ee361",
-    createdAt: new Date("07.20.2023 11:47:53").toISOString(),
+    createdAt: new Date("2023-07-20 11:47:53").toISOString(),
     updatedAt: new Date().toISOString(),
     opprettetAv: { navIdent: "B123456", navn: "Bertil Betabruker" },
     innhold: "Dette er den beste tiltaksgjennomføringen i verden!",
@@ -13,7 +13,7 @@ export const mockTiltaksgjennomforingnotater: TiltaksgjennomforingNotat[] = [
   {
     id: faker.string.uuid(),
     tiltaksgjennomforingId: "a7d63fb0-4366-412c-84b7-7c15518ee361",
-    createdAt: new Date("07.09.2023 02:15:14").toISOString(),
+    createdAt: new Date("2023-07-09 02:15:14").toISOString(),
     updatedAt: new Date().toISOString(),
     opprettetAv: { navIdent: "B123456", navn: "Solo Polo" },
     innhold:
@@ -22,7 +22,7 @@ export const mockTiltaksgjennomforingnotater: TiltaksgjennomforingNotat[] = [
   {
     id: faker.string.uuid(),
     tiltaksgjennomforingId: "a7d63fb0-4366-412c-84b7-7c15518ee361",
-    createdAt: new Date("12.26.2022 19:00:02").toISOString(),
+    createdAt: new Date("2022-12-26 19:00:02").toISOString(),
     updatedAt: new Date().toISOString(),
     opprettetAv: { navIdent: "C300000", navn: "C3PO" },
     innhold:
