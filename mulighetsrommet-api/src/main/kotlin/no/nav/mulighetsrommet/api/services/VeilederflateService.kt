@@ -101,7 +101,7 @@ class VeilederflateService(
             is SanityResponse.Result -> {
                 val gjennomforinger = result.decode<List<VeilederflateTiltaksgjennomforing>>()
                 val gjennomforingerMedDbData = supplerDataFraDB(gjennomforinger, enhetsId)
-                return gjennomforingerMedDbData.filter { filter.lokasjoner.isEmpty() || filter.lokasjoner.contains(it.lokasjon) }
+                gjennomforingerMedDbData.filter { filter.lokasjoner.isEmpty() || filter.lokasjoner.contains(it.lokasjon) }
             }
 
             is SanityResponse.Error -> throw Exception(result.error.toString())
