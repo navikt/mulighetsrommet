@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.routes.featuretoggles
 
-import io.getunleash.UnleashContext
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.*
@@ -8,25 +7,25 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
+import no.nav.mulighetsrommet.unleash.FeatureToggleContext
 import no.nav.mulighetsrommet.unleash.UnleashService
 import org.koin.ktor.ext.inject
 import java.util.*
 
 fun Route.featureTogglesRoute() {
+    val unleashService: UnleashService by inject()
+
     route("/api/v1/internal/features") {
-        val unleashService: UnleashService by inject()
         get {
             val feature: String = call.request.queryParameters.getOrFail("feature")
-            val isEnabled = unleashService.get()
-                .isEnabled(
-                    feature,
-                    UnleashContext(
-                        getNavIdent(),
-                        call.generateSessionId(),
-                        call.request.origin.remoteAddress,
-                        emptyMap(),
-                    ),
-                )
+
+            val context = FeatureToggleContext(
+                userId = getNavIdent(),
+                sessionId = call.generateSessionId(),
+                remoteAddress = call.request.origin.remoteAddress,
+            )
+
+            val isEnabled = unleashService.isEnabled(feature, context)
 
             call.respond(isEnabled)
         }

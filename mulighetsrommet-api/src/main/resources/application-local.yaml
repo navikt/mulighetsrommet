@@ -128,7 +128,7 @@ app:
   # TODO Skriv i readme at lokalt må url og token settes som env-variabler i intellij, eller annet sted på maskinen
   unleash:
     appName: mulighetsrommet-api
-    url: ${UNLEASH_SERVER_API_URL}
-    token: ${UNLEASH_SERVER_API_TOKEN}
+    url: ${UNLEASH_SERVER_API_URL:-http://localhost:8090/unleash}
+    token: ${UNLEASH_SERVER_API_TOKEN:-}
     instanceId: ${NAIS_CLIENT_ID:-mulighetsrommet-api}
     environment: development
