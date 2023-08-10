@@ -38,7 +38,7 @@ export function UtkastListe({ utkastType }: Props) {
         {data?.map((utkast) => {
           return (
             <li key={utkast.id}>
-              <UtkastKort utkastType={utkastType} utkast={utkast} />
+              <UtkastKort utkast={utkast} />
             </li>
           );
         })}

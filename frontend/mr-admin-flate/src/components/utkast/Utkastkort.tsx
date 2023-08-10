@@ -12,7 +12,6 @@ import { useMineUtkast } from "../../api/utkast/useMineUtkast";
 import { useDeleteUtkast } from "../../api/utkast/useDeleteUtkast";
 
 interface UtkastKortProps {
-  utkastType: Utkast.type;
   utkast: Utkast;
 }
 
@@ -20,7 +19,7 @@ const UtkastDataSchema = z.object({
   navn: z.string(),
 });
 
-export function UtkastKort({ utkast, utkastType }: UtkastKortProps) {
+export function UtkastKort({ utkast }: UtkastKortProps) {
   const mutation = useDeleteUtkast();
   const [utkastIdForSletting, setUtkastIdForSletting] = useState<null | string>(
     null,
@@ -74,7 +73,7 @@ export function UtkastKort({ utkast, utkastType }: UtkastKortProps) {
           Slett utkast
         </Button>
         <Lenkeknapp
-          to={ utkastType === Utkast.type.AVTALE
+          to={ utkast.type === Utkast.type.AVTALE
             ? `/avtaler/skjema?utkastId=${utkast.id}`
             : `/tiltaksgjennomforinger/skjema?utkastId=${utkast.id}`
           }
