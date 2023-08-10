@@ -1,6 +1,6 @@
 import { Alert, Tabs } from "@navikt/ds-react";
 import { Toggles } from "mulighetsrommet-api-client";
-import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useFeatureToggle } from "../../api/features/feature-toggles";
 import { useTiltaksgjennomforingById } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforingById";
 import { Header } from "../../components/detaljside/Header";
@@ -11,6 +11,7 @@ import commonStyles from "../Page.module.scss";
 
 export function DetaljerTiltaksgjennomforingerPage() {
   const { pathname } = useLocation();
+  const navigate = useNavigate();
   const { data: tiltaksgjennomforing, isLoading } = useTiltaksgjennomforingById();
 
   const { data: visDeltakerlisteFraKometFeature } = useFeatureToggle(
@@ -55,25 +56,32 @@ export function DetaljerTiltaksgjennomforingerPage() {
 
       <Tabs value={currentTab()} >
         <Tabs.List className={commonStyles.list}>
-          <NavLink to={`/tiltaksgjennomforinger/${tiltaksgjennomforing.id}`} >
-            <Tabs.Tab
-              value="info"
-              label="Info"
-              data-testid="tab_detaljer"
-            />
-          </NavLink>
-          <NavLink to={`/tiltaksgjennomforinger/${tiltaksgjennomforing.id}/notater`} >
-            <Tabs.Tab value="notater" label="Notater" />
-          </NavLink>
-
+          <Tabs.Tab
+            value="info"
+            label="Info"
+            data-testid="tab_detaljer"
+            onClick={() => navigate(`/tiltaksgjennomforinger/${tiltaksgjennomforing.id}`)}
+            aria-controls="panel"
+          />
+          <Tabs.Tab
+            value="notater"
+            label="Notater"
+            onClick={() => navigate(`/tiltaksgjennomforinger/${tiltaksgjennomforing.id}/notater`)}
+            aria-controls="panel"
+          />
           {visDeltakerlisteFraKometFeature ? (
-            <NavLink to={`/tiltaksgjennomforinger/${tiltaksgjennomforing.id}/deltakere`} >
-              <Tabs.Tab value="poc" label="Deltakerliste" />
-            </NavLink>
+            <Tabs.Tab
+              value="poc"
+              label="Deltakerliste"
+              onClick={() => navigate(`/tiltaksgjennomforinger/${tiltaksgjennomforing.id}/deltakere`)}
+              aria-controls="panel"
+            />
           ) : null}
         </Tabs.List>
         <ContainerLayoutDetaljer>
-          <Outlet />
+          <div id="panel">
+            <Outlet />
+          </div>
         </ContainerLayoutDetaljer>
       </Tabs>
     </main>

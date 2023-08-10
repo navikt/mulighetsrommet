@@ -1,5 +1,5 @@
 import { Alert, Tabs } from "@navikt/ds-react";
-import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useAvtale } from "../../api/avtaler/useAvtale";
 import { Header } from "../../components/detaljside/Header";
 import { Laster } from "../../components/laster/Laster";
@@ -10,7 +10,8 @@ import { ContainerLayoutDetaljer } from "../../layouts/ContainerLayout";
 
 export function DetaljerAvtalePage() {
   const avtaleId = useGetAvtaleIdFromUrl();
-  const location = useLocation();
+  const { pathname } = useLocation();
+  const navigate = useNavigate();
   if (!avtaleId) {
     throw new Error("Fant ingen avtaleId i url");
   }
@@ -36,13 +37,13 @@ export function DetaljerAvtalePage() {
   }
 
   const currentTab = () => {
-      if (location.pathname.includes("notater")) {
-        return "notater";
-      } else if (location.pathname.includes("tiltaksgjennomforinger")) {
-        return "tiltaksgjennomforinger";
-      } else {
-        return "info"
-      }
+    if (pathname.includes("notater")) {
+      return "notater";
+    } else if (pathname.includes("tiltaksgjennomforinger")) {
+      return "tiltaksgjennomforinger";
+    } else {
+      return "info"
+    }
   }
 
   return (
@@ -55,26 +56,31 @@ export function DetaljerAvtalePage() {
       </Header>
       <Tabs value={currentTab()} >
         <Tabs.List className={commonStyles.list}>
-          <NavLink to={`/avtaler/${avtaleId}`} >
-            <Tabs.Tab value="info" label="Avtaleinfo" />
-          </NavLink>
-          <NavLink to={`/avtaler/${avtaleId}/notater`} >
-            <Tabs.Tab
-              value="notater"
-              label="Notater"
-              data-testid="tab_avtalenotater"
-            />
-          </NavLink>
-          <NavLink to={`/avtaler/${avtaleId}/tiltaksgjennomforinger`} >
-            <Tabs.Tab
-              data-testid="avtale-tiltaksgjennomforing-tab"
-              value="tiltaksgjennomforinger"
-              label="Gjennomføringer"
-            />
-          </NavLink>
+          <Tabs.Tab
+            value="info"
+            label="Avtaleinfo"
+            onClick={() => navigate(`/avtaler/${avtaleId}`)}
+            aria-controls="panel"
+          />
+          <Tabs.Tab
+            value="notater"
+            label="Notater"
+            data-testid="tab_avtalenotater"
+            onClick={() => navigate(`/avtaler/${avtaleId}/notater`)}
+            aria-controls="panel"
+          />
+          <Tabs.Tab
+            data-testid="avtale-tiltaksgjennomforing-tab"
+            value="tiltaksgjennomforinger"
+            label="Gjennomføringer"
+            onClick={() => navigate(`/avtaler/${avtaleId}/tiltaksgjennomforinger`)}
+            aria-controls="panel"
+          />
         </Tabs.List>
         <ContainerLayoutDetaljer>
-          <Outlet />
+          <div id="panel">
+            <Outlet />
+          </div>
         </ContainerLayoutDetaljer>
       </Tabs>
     </main>

@@ -1,10 +1,11 @@
 import { Heading, Tabs } from "@navikt/ds-react";
 import { kebabCase } from "mulighetsrommet-veileder-flate/src/utils/Utils";
 import styles from "./NotifikasjonerPage.module.scss";
-import { NavLink, Outlet, useLocation } from "react-router-dom";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 
 export function NotifikasjonerPage() {
   const { pathname } = useLocation();
+  const navigate = useNavigate();
 
   return (
     <main className={styles.notifikasjoner}>
@@ -18,24 +19,24 @@ export function NotifikasjonerPage() {
         className={styles.fane_root}
       >
         <Tabs.List className={styles.fane_liste} id="fane_liste">
-          <NavLink to={"/notifikasjoner"} >
-            <Tabs.Tab
-              value="nye"
-              label="Nye notifikasjoner"
-              className={styles.btn_tab}
-              data-testid={`fane_${kebabCase("Nye notifikasjoner")}`}
-            />
-          </NavLink>
-          <NavLink to={"/notifikasjoner/tidligere"} >
-            <Tabs.Tab
-              value="tidligere"
-              label="Tidligere notifikasjoner"
-              className={styles.btn_tab}
-              data-testid={`fane_${kebabCase("Tidligere notifikasjoner")}`}
-            />
-          </NavLink>
+          <Tabs.Tab
+            value="nye"
+            label="Nye notifikasjoner"
+            className={styles.btn_tab}
+            data-testid={`fane_${kebabCase("Nye notifikasjoner")}`}
+            onClick={() => navigate("/notifikasjoner")}
+            aria-controls="panel"
+          />
+          <Tabs.Tab
+            value="tidligere"
+            label="Tidligere notifikasjoner"
+            className={styles.btn_tab}
+            data-testid={`fane_${kebabCase("Tidligere notifikasjoner")}`}
+            onClick={() => navigate("/notifikasjoner/tidligere")}
+            aria-controls="panel"
+          />
         </Tabs.List>
-        <div className={styles.fane_panel}>
+        <div id="panel" className={styles.fane_panel}>
           <Outlet />
         </div>
       </Tabs>
