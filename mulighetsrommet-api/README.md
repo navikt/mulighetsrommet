@@ -12,9 +12,7 @@ Et API med endepunkter for å hente ut informasjon om forskjellige tiltak NAV ka
 - [Overvåking og alarmer](#overvåking-og-alarmer)
 - [Kom i gang](#kom-i-gang)
     - [Forutsetninger](#forutsetninger)
-        - [JDK 11](#jdk-11)
-        - [Docker](#docker)
-        - [Miljøvariabler](#miljøvariabler)
+    - [Miljøvariabler](#miljøvariabler)
     - [Steg for steg](#steg-for-steg)
         - [Autentisering](#autentisering)
 
@@ -45,27 +43,13 @@ under [Forutsetinger](#forutsetninger).
 
 ## <a name="forutsetninger"></a>Forutsetninger
 
+Sørg for at du har fulgt oppsettet beskrevet i prosjektets [README](../README.md#oppsett).
+
 Under er det satt opp et par ting som må på plass for at applikasjonen og databasen skal fungere.
-
-### JDK 11
-
-JDK 11 må være installert. Enkleste måten å installere riktig versjon av Java er ved å
-bruke [sdkman](https://sdkman.io/install).
-
-### Docker
-
-Vår database kjører i en docker container og da må `docker` og `docker-compose` være installert (Captain Obvious). For å
-installere disse kan du følge oppskriften på [Dockers](https://www.docker.com/) offisielle side. For installering på Mac
-trykk [her](https://docs.docker.com/desktop/mac/install/) eller
-trykk [her](https://docs.docker.com/engine/install/ubuntu/) for Ubuntu.
-
-Man må også installere `docker-compose` som en separat greie
-for [Ubuntu](https://docs.docker.com/compose/install/#install-compose-on-linux-systems). For Mac følger dette med når
-man installerer Docker Desktop.
 
 ### Miljøvariabler
 
-Disse miljøvariablene må være satt opp:
+Disse miljøvariablene må være konfigurert og tilgjengelige for prosessen som skal kjøre applikasjonen:
 
 ```sh
 export DB_HOST=localhost
@@ -76,22 +60,36 @@ export DB_PASSWORD=valp
 export DB_URL=jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_DATABASE}
 ```
 
-Legg til disse enten i `.bashrc` eller `.zshrc` eller kjør dem per session rett i terminalen. Eller bruk et verktøy
-som [direnv](https://direnv.net/). PS: Lukk terminalen for å oppdatere miljøvariablene.
+Benytt et et verktøy som f.eks. [direnv](https://direnv.net/), konfigurerer de som
+miljøvariabler under en
+egen [Run Configuration i IntelliJ](https://www.jetbrains.com/idea/guide/tutorials/hello-world/creating-a-run-configuration/),
+eller legg de direkte til i setup for shell'et du bruker (f.eks. `.bashrc` eller `.zshrc`) om du foretrekker dette.
 
 ## <a name="steg-for-steg"></a>Steg for steg
 
-For å komme fort i gang fra en terminal gjør følgende:
+For å komme fort i gang fra en terminal gjør følgende (antar at du står i rot av prosjektet):
 
-1. Fyr opp avhengigheter (database etc.) med å kjøre `docker compose --profile dev up -d` i terminalen. For å
-   få med mock data for enhet og innsatsgruppe kan man kjøre `docker-compose --profile dev --profile wiremock up` i
-   stedet for å også kjøre opp en wiremock instans.
-2. Hent avhengigheter og installer applikasjonen lokalt med `./gradlew build`.
-3. Migrer endringer og data til databasen ved å kjøre `./gradlew flywayMigrate`. (For å slette databasen og migrere alt
-   på nytt kan man kjøre `./gradlew flywayClean` før migrate)
-4. Start applikasjonen med å kjøre `./gradlew run`.
+1. Sørg for at du kjører avhengigheter (database, wiremock etc.) som beskrevet i oppsettet
+   til [Docker](../README.md#docker).
+2. Hent avhengigheter og installer applikasjonen lokalt med `./gradlew mulighetsrommet-api:build`.
+3. Start applikasjonen med å kjøre `./gradlew mulighetsrommet-api:run`.
 
 Hvis alt gikk knirkefritt skal nå applikasjonen kjøre på <http://0.0.0.0:8080>.
+
+### Databasemigrasjoner
+
+Databasemigrasjoner administreres via Flyway og prosjektet inkluderer en
+[Gradle plugin](https://plugins.gradle.org/plugin/org.flywaydb.flyway) for å gjøre det enklere å teste
+databaseendringer med Flyway lokalt. Hvis du ønsker å benytte deg av dette må du overstyre noen Gradle-instillinger
+pga. manglende support for [configuration cache](https://docs.gradle.org/current/userguide/configuration_cache.html) i
+Flyway sin Gradle plugin.
+
+Opprett filen `~/.gradle/gradle.properties` med følgende innhold for å komme deg rundt dette problemet:
+
+```
+# Overstyrt lokalt fordi flyway ikke funker med configuration-cache
+org.gradle.configuration-cache=false
+```
 
 ### Autentisering
 
@@ -100,22 +98,26 @@ For å kalle APIet lokalt må man være autentisert med et Bearer token.
 Vi benytter [mock-ouath2-server](https://github.com/navikt/mock-oauth2-server) til å utstede tokens på lokal maskin.
 Følgende steg kan benyttes til å generere opp et token:
 
-1. Sørg for at containeren for `mock-oauth2-server` kjører lokalt (`docker-compose up --profile dev -d`)
-2. Naviger til [mock-oauth2-server sin side for debugging av tokens](http://localhost:8081/azure/debugger)
+1. Sørg for at containeren for `mock-oauth2-server` kjører lokalt (se [oppsett for Docker](../README.md#docker)).
+2. Naviger til [mock-oauth2-server sin side for debugging av tokens](http://localhost:8081/azure/debugger).
 3. Generer et token
     1. Trykk på knappen `Get a token`
-    2. Skriv inn et random username og B123456 som NAVIdent (fordi det er B123456 som returneres av ms-graph wiremock'en) i `optional claims`, f.eks.
-       `{
-       "NAVident": "B123456",
-       "roles": [
-       "access_as_application"
-       ],
-       "oid": "0bab029e-e84e-4842-8a27-d153b29782cf",
-       "azp_name": "test name",
-       "groups": ["0000-GA-mr-admin-flate_betabruker"]
-       }`
+    2. Skriv inn et random username og B123456 som NAVIdent (fordi det er B123456 som returneres av ms-graph
+       wiremock'en) i `optional claims`, f.eks.
+       ```json
+       {
+         "NAVident": "B123456",
+         "roles": [
+           "access_as_application"
+         ],
+         "oid": "0bab029e-e84e-4842-8a27-d153b29782cf",
+         "azp_name": "test name",
+         "groups": ["0000-GA-mr-admin-flate_betabruker"]
+       }
+       ```
     4. Trykk `Sign in`
-4. Kopier verdien for `access_token` og benytt denne som `Bearer` i `Authorization`-header i .env-filen du har opprettet
+4. Kopier verdien for `access_token` og benytt denne som `Bearer` i `Authorization`-header i `.env`-filen du har
+   opprettet
    i `/mr-admin-flate`
 
 Eksempel:
@@ -124,9 +126,30 @@ Eksempel:
 $ curl localhost:8080/api/v1/innsatsgrupper -H 'Authorization: Bearer <access_token>'
 ```
 
+### Feature toggles
+
+Vi administrerer en del feature toggles via [NAIS og Unleash](https://doc.nais.io/addons/unleash/).
+Grensesnitt for å definere toggles finner du her: https://team-mulighetsrommet-unleash-web.nav.cloud.nais.io (logg inn
+med @nav-brukeren din).
+
+Standard oppsett er at Unleash blir [mocket lokalt](../README.md#mocks-via-wiremock), så husk gjerne å oppdatere mocken
+med nye feature toggles etter hvert som de legges til.
+Hvis du heller ønsker å peke lokal applikasjon direkte mot Unleash kan du gjøre følgende:
+
+1. Konfigurer miljøvariabelen `UNLEASH_SERVER_API_URL` med riktig
+   URL: https://team-mulighetsrommet-unleash-api.nav.cloud.nais.io
+2. Opprett et
+   personlig [Unleash token](https://team-mulighetsrommet-unleash-web.nav.cloud.nais.io/profile/personal-api-tokens)
+   og konfigurerer miljøvariabelen `UNLEASH_SERVER_API_TOKEN` med dette tokenet
+3. Start applikasjonen
+
 ## Automatiske jobber
-Vi har flere automatiske jobber som kjører til gitte intervaller. Disse finner man under mappen `/tasks`. Jobbene bruker `db-scheduler` for å vite når de skal kjøre.
+
+Vi har flere automatiske jobber som kjører til gitte intervaller. Disse finner man under mappen `/tasks`. Jobbene
+bruker `db-scheduler` for å vite når de skal kjøre.
 
 ### Oppdatere enheter fra NORG til Sanity
+
 Jobben `synchronize-norg2-enheter-to-sanity` brukes for å oppdatere enheter i Sanity med fasit fra NORG2.
-Jobben benytter seg av tokenet `Token for task: synchronize-norg2-enheter-to-sanity fra api (PROD | TEST)` som har create/update-tilgang til enheter-dokumentene i Sanity.
+Jobben benytter seg av tokenet `Token for task: synchronize-norg2-enheter-to-sanity fra api (PROD | TEST)` som har
+create/update-tilgang til enheter-dokumentene i Sanity.
