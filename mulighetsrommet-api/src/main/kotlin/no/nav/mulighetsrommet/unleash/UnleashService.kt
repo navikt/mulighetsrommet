@@ -1,15 +1,13 @@
 package no.nav.mulighetsrommet.unleash
 
 import io.getunleash.DefaultUnleash
+import io.getunleash.Unleash
+import io.getunleash.UnleashContext
 import io.getunleash.util.UnleashConfig
 import no.nav.mulighetsrommet.unleash.strategies.ByEnhetStrategy
 
-class UnleashService(config: UnleashConfig, byEnhetStrategy: ByEnhetStrategy) {
-    private val unleash = DefaultUnleash(config, byEnhetStrategy)
-
-    fun get(): DefaultUnleash {
-        return unleash
-    }
+class UnleashService(config: Config, byEnhetStrategy: ByEnhetStrategy) {
+    private val unleash: Unleash
 
     data class Config(
         val appName: String,
@@ -17,10 +15,25 @@ class UnleashService(config: UnleashConfig, byEnhetStrategy: ByEnhetStrategy) {
         val token: String,
         val instanceId: String,
         val environment: String,
-    ) {
-        fun toUnleashConfig(): UnleashConfig {
-            return UnleashConfig.builder().appName(appName).instanceId(instanceId)
-                .unleashAPI("$url/api").apiKey(token).environment(environment).build()
-        }
+    )
+
+    init {
+        val unleashConfig = UnleashConfig.builder()
+            .appName(config.appName)
+            .instanceId(config.instanceId)
+            .unleashAPI("${config.url}/api")
+            .apiKey(config.token)
+            .environment(config.environment)
+            .build()
+        unleash = DefaultUnleash(unleashConfig, byEnhetStrategy)
+    }
+
+    fun isEnabled(feature: String, context: FeatureToggleContext): Boolean {
+        val ctx = UnleashContext.builder()
+            .userId(context.userId)
+            .sessionId(context.sessionId)
+            .remoteAddress(context.remoteAddress)
+            .build()
+        return unleash.isEnabled(feature, ctx)
     }
 }

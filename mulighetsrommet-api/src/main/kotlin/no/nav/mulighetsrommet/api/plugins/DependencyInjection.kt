@@ -76,7 +76,6 @@ fun Application.configureDependencyInjection(appConfig: AppConfig) {
             services(appConfig),
             tasks(appConfig.tasks),
             slack(appConfig.slack),
-            unleashStrategies(),
         )
     }
 }
@@ -271,10 +270,8 @@ private fun services(appConfig: AppConfig) = module {
     single { UtkastService(get()) }
     single { NotatServiceImpl(get(), get()) }
     single {
-        UnleashService(
-            appConfig.unleash.toUnleashConfig(),
-            get(),
-        )
+        val byEnhetStrategy = ByEnhetStrategy(get())
+        UnleashService(appConfig.unleash, byEnhetStrategy)
     }
     single { AxsysService(appConfig.axsys) { m2mTokenProvider.createMachineToMachineToken(appConfig.axsys.scope) } }
 }
@@ -347,10 +344,6 @@ private fun tasks(config: TaskConfig) = module {
             .registerShutdownHook()
             .build()
     }
-}
-
-private fun unleashStrategies() = module {
-    single { ByEnhetStrategy(get()) }
 }
 
 private fun createOboTokenClient(config: AppConfig): OnBehalfOfTokenClient {
