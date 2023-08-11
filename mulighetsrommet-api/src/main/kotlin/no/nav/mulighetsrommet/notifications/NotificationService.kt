@@ -9,7 +9,6 @@ import io.ktor.http.HttpStatusCode.Companion.BadRequest
 import io.ktor.http.HttpStatusCode.Companion.InternalServerError
 import no.nav.mulighetsrommet.api.utils.NotificationFilter
 import no.nav.mulighetsrommet.database.Database
-import no.nav.mulighetsrommet.database.utils.getOrThrow
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.slack.SlackNotifier
 import no.nav.mulighetsrommet.tasks.DbSchedulerKotlinSerializer
@@ -38,7 +37,7 @@ class NotificationService(
 
             logger.info("Running task ${instance.taskName} for notification id=${notification.id}")
 
-            notifications.insert(notification).getOrThrow()
+            notifications.insert(notification)
         }
 
     private val client = SchedulerClient.Builder

@@ -9,11 +9,14 @@ import no.nav.mulighetsrommet.api.routes.v1.responses.NotFound
 import no.nav.mulighetsrommet.api.routes.v1.responses.ServerError
 import no.nav.mulighetsrommet.api.routes.v1.responses.StatusResponse
 import no.nav.mulighetsrommet.api.utils.UtkastFilter
+import org.slf4j.LoggerFactory
 import java.util.*
 
 class UtkastService(
     private val utkastRepository: UtkastRepository,
 ) {
+    private val log = LoggerFactory.getLogger(javaClass)
+
     fun get(id: UUID): StatusResponse<UtkastDto> {
         return utkastRepository.get(id)
             .mapLeft { ServerError("Feil ved henting av utkast med id: $id") }
@@ -26,10 +29,12 @@ class UtkastService(
     }
 
     fun deleteUtkast(id: UUID): StatusResponse<Unit> {
-        return utkastRepository.delete(id).map {}
-            .mapLeft {
-                ServerError(message = "Det oppsto en feil ved sletting av utkastet")
-            }
+        return Either.catch {
+            utkastRepository.delete(id)
+        }.mapLeft {
+            log.error("Det oppsto en feil ved sletting av utkast $it")
+            ServerError(message = "Det oppsto en feil ved sletting av utkastet")
+        }
     }
 
     fun getAll(filter: UtkastFilter): StatusResponse<List<UtkastDto>> {

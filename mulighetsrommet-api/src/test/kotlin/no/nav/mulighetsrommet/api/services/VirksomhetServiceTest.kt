@@ -53,9 +53,9 @@ class VirksomhetServiceTest : FunSpec({
     }
 
     test("Hent enhet skal hente enhet") {
-        virksomhetService.hentEnhet("123456789")?.organisasjonsnummer shouldBe "123456789"
-        virksomhetService.hentEnhet("123456789")?.navn shouldBe "Testbedriften AS"
-        virksomhetService.hentEnhet("123456789")?.underenheter?.shouldContain(
+        virksomhetService.getOrSyncVirksomhet("123456789")?.organisasjonsnummer shouldBe "123456789"
+        virksomhetService.getOrSyncVirksomhet("123456789")?.navn shouldBe "Testbedriften AS"
+        virksomhetService.getOrSyncVirksomhet("123456789")?.underenheter?.shouldContain(
             VirksomhetDto(
                 organisasjonsnummer = "234567891",
                 navn = "Underenhet til Testbedriften AS",
@@ -65,7 +65,7 @@ class VirksomhetServiceTest : FunSpec({
 
     test("Hent enhet skal returnere 404 not found hvis ingen enhet finnes") {
         val exception = shouldThrow<NotFoundException> {
-            virksomhetService.hentEnhet("999999999")
+            virksomhetService.getOrSyncVirksomhet("999999999")
         }
 
         exception.message shouldBe "Fant ingen enhet i Brreg med orgnr: '999999999'"

@@ -3,10 +3,13 @@ package no.nav.mulighetsrommet.api.services
 import arrow.core.right
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import io.ktor.http.*
+import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
@@ -18,10 +21,11 @@ import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.NavAnsattRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
+import no.nav.mulighetsrommet.api.repositories.UtkastRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
-import no.nav.mulighetsrommet.notifications.NotificationService
+import no.nav.mulighetsrommet.notifications.NotificationRepository
 import no.nav.mulighetsrommet.utils.toUUID
 import java.time.LocalDate
 import java.util.*
@@ -29,8 +33,8 @@ import java.util.*
 class AvtaleServiceTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
     val virksomhetService: VirksomhetService = mockk(relaxed = true)
-    val notificationService: NotificationService = mockk(relaxed = true)
-    val utkastService: UtkastService = mockk(relaxed = true)
+    val notificationRepository: NotificationRepository = mockk(relaxed = true)
+    val utkastRepository: UtkastRepository = mockk(relaxed = true)
     val domain = MulighetsrommetTestDomain()
 
     beforeEach {
@@ -43,11 +47,12 @@ class AvtaleServiceTest : FunSpec({
         val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
 
         val avtaleService = AvtaleService(
-            avtaler = avtaler,
-            tiltaksgjennomforinger = tiltaksgjennomforinger,
-            virksomhetService = virksomhetService,
-            utkastService = utkastService,
-            notificationService = notificationService,
+            avtaler,
+            tiltaksgjennomforinger,
+            virksomhetService,
+            notificationRepository,
+            utkastRepository,
+            database.db,
         )
 
         test("Man skal ikke få slette dersom avtalen ikke finnes") {
@@ -151,11 +156,12 @@ class AvtaleServiceTest : FunSpec({
         val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
 
         val avtaleService = AvtaleService(
-            avtaler = avtaleRepository,
-            tiltaksgjennomforinger = tiltaksgjennomforinger,
-            virksomhetService = virksomhetService,
-            utkastService = utkastService,
-            notificationService = notificationService,
+            avtaleRepository,
+            tiltaksgjennomforinger,
+            virksomhetService,
+            notificationRepository,
+            utkastRepository,
+            database.db,
         )
 
         test("Man skal ikke få avbryte dersom avtalen ikke finnes") {
@@ -261,11 +267,12 @@ class AvtaleServiceTest : FunSpec({
         val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
         val avtaler = AvtaleRepository(database.db)
         val avtaleService = AvtaleService(
-            avtaler = avtaler,
-            tiltaksgjennomforinger = tiltaksgjennomforinger,
-            virksomhetService = virksomhetService,
-            utkastService = utkastService,
-            notificationService = notificationService,
+            avtaler,
+            tiltaksgjennomforinger,
+            virksomhetService,
+            notificationRepository,
+            utkastRepository,
+            database.db,
         )
         val navAnsattRepository = NavAnsattRepository(database.db)
 
@@ -286,7 +293,7 @@ class AvtaleServiceTest : FunSpec({
             val avtale = AvtaleFixtures.avtaleRequest.copy(ansvarlig = "B123456")
             avtaleService.upsert(avtale, "B123456").shouldBeRight()
 
-            verify(exactly = 0) { notificationService.scheduleNotification(any(), any()) }
+            verify(exactly = 0) { notificationRepository.insert(any(), any()) }
         }
 
         test("Bare én ansvarlig notification når man endrer gjennomforing") {
@@ -320,7 +327,38 @@ class AvtaleServiceTest : FunSpec({
             avtaleService.upsert(avtale, "B123456").shouldBeRight()
             avtaleService.upsert(avtale.copy(navn = "nytt navn"), "B123456").shouldBeRight()
 
-            verify(exactly = 1) { notificationService.scheduleNotification(any(), any()) }
+            verify(exactly = 1) { notificationRepository.insert(any(), any()) }
+        }
+    }
+
+    context("trasanctions") {
+        val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
+        val avtaler = AvtaleRepository(database.db)
+        val avtaleService = AvtaleService(
+            avtaler,
+            tiltaksgjennomforinger,
+            virksomhetService,
+            notificationRepository,
+            utkastRepository,
+            database.db,
+        )
+
+        test("Hvis is utkast _ikke_ kaster blir upsert værende") {
+            val avtale = AvtaleFixtures.avtaleRequest.copy(id = UUID.randomUUID())
+
+            avtaleService.upsert(avtale, "Z123456").shouldBeRight()
+
+            avtaleService.get(avtale.id) shouldNotBe null
+        }
+
+        test("Hvis utkast kaster rulles upsert tilbake") {
+            val avtale = AvtaleFixtures.avtaleRequest.copy(id = UUID.randomUUID())
+
+            every { utkastRepository.delete(any(), any()) } throws Exception()
+
+            shouldThrow<Throwable> { avtaleService.upsert(avtale, "B123456") }
+
+            avtaleService.get(avtale.id) shouldBe null
         }
     }
 })

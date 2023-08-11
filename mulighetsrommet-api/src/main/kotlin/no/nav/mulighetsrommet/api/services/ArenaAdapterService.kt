@@ -40,7 +40,7 @@ class ArenaAdapterService(
     }
 
     suspend fun upsertAvtale(avtale: ArenaAvtaleDbo): AvtaleAdminDto {
-        virksomhetService.hentEnhet(avtale.leverandorOrganisasjonsnummer)
+        virksomhetService.getOrSyncVirksomhet(avtale.leverandorOrganisasjonsnummer)
         avtaler.upsertArenaAvtale(avtale)
         return avtaler.get(avtale.id)!!
     }
@@ -50,7 +50,7 @@ class ArenaAdapterService(
     }
 
     suspend fun upsertTiltaksgjennomforing(tiltaksgjennomforing: ArenaTiltaksgjennomforingDbo): QueryResult<TiltaksgjennomforingAdminDto> {
-        virksomhetService.hentEnhet(tiltaksgjennomforing.arrangorOrganisasjonsnummer)
+        virksomhetService.getOrSyncVirksomhet(tiltaksgjennomforing.arrangorOrganisasjonsnummer)
         tiltaksgjennomforinger.upsertArenaTiltaksgjennomforing(tiltaksgjennomforing)
         val gjennomforing = tiltaksgjennomforinger.get(tiltaksgjennomforing.id)!!
         tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingDto.from(gjennomforing))

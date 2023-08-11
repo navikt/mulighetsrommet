@@ -59,8 +59,8 @@ class NotificationRepositoryTest : FunSpec({
     test("CRUD") {
         val notifications = NotificationRepository(database.db)
 
-        notifications.insert(notification1).shouldBeRight()
-        notifications.insert(notification2).shouldBeRight()
+        notifications.insert(notification1)
+        notifications.insert(notification2)
 
         notifications.getAll() shouldBeRight listOf(
             notification1.asUserNotification(user1),
@@ -79,8 +79,8 @@ class NotificationRepositoryTest : FunSpec({
     test("get notifications for specified user") {
         val notifications = NotificationRepository(database.db)
 
-        notifications.insert(notification1).shouldBeRight()
-        notifications.insert(notification2).shouldBeRight()
+        notifications.insert(notification1)
+        notifications.insert(notification2)
 
         notifications.getUserNotifications(user1) shouldBeRight listOf(
             notification1.asUserNotification(user1),
@@ -96,8 +96,8 @@ class NotificationRepositoryTest : FunSpec({
         val doneAtTime = LocalDateTime.of(2023, 1, 1, 0, 0, 0)
         val notifications = NotificationRepository(database.db)
 
-        notifications.insert(notification1).shouldBeRight()
-        notifications.insert(notification2).shouldBeRight()
+        notifications.insert(notification1)
+        notifications.insert(notification2)
 
         notifications.setNotificationDoneAt(notification1.id, user1, doneAtTime).shouldBeRight()
 
@@ -113,8 +113,8 @@ class NotificationRepositoryTest : FunSpec({
         val notifications = NotificationRepository(database.db)
 
         val task = notification1.copy(type = NotificationType.TASK)
-        notifications.insert(task).shouldBeRight()
-        notifications.insert(notification2).shouldBeRight()
+        notifications.insert(task)
+        notifications.insert(notification2)
 
         notifications.setNotificationDoneAt(task.id, user1, doneAtTime).shouldBeRight()
 
@@ -129,8 +129,8 @@ class NotificationRepositoryTest : FunSpec({
         val doneAtTime = LocalDateTime.of(2023, 1, 1, 0, 0, 0)
         val notifications = NotificationRepository(database.db)
 
-        notifications.insert(notification1).shouldBeRight()
-        notifications.insert(notification2).shouldBeRight()
+        notifications.insert(notification1)
+        notifications.insert(notification2)
 
         notifications.getUserNotifications(user1, NotificationStatus.NOT_DONE) shouldBeRight listOf(
             notification1.asUserNotification(user1),
@@ -154,7 +154,7 @@ class NotificationRepositoryTest : FunSpec({
         val doneAtTime = LocalDateTime.of(2023, 1, 1, 0, 0, 0)
         val notifications = NotificationRepository(database.db)
 
-        notifications.insert(notification2).shouldBeRight()
+        notifications.insert(notification2)
 
         notifications.setNotificationDoneAt(notification2.id, user2, doneAtTime).shouldBeRight(0)
 
@@ -167,8 +167,8 @@ class NotificationRepositoryTest : FunSpec({
     test("get notification summary for user") {
         val notifications = NotificationRepository(database.db)
 
-        notifications.insert(notification1).shouldBeRight()
-        notifications.insert(notification2).shouldBeRight()
+        notifications.insert(notification1)
+        notifications.insert(notification2)
 
         notifications.getUserNotificationSummary(user1) shouldBeRight UserNotificationSummary(
             notDoneCount = 2,

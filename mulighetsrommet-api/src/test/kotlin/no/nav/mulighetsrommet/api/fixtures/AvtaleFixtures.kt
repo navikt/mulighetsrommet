@@ -44,7 +44,7 @@ object AvtaleFixtures {
         avtaletype = Avtaletype.Rammeavtale,
         avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
         opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
-        ansvarlig = "B123456",
+        ansvarlig = "DD1",
         url = "google.com",
         navEnheter = listOf("2990"),
         leverandorKontaktpersonId = null,
