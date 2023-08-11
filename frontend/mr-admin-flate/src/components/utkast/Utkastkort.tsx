@@ -6,21 +6,21 @@ import { formaterDatoTid } from "../../utils/Utils";
 import styles from "./Utkastkort.module.scss";
 import classNames from "classnames";
 import { useState } from "react";
-import { UseMutationResult } from "@tanstack/react-query";
 import SletteModal from "../modal/SletteModal";
 import { Lenkeknapp } from "../lenkeknapp/Lenkeknapp";
 import { useMineUtkast } from "../../api/utkast/useMineUtkast";
+import { useDeleteUtkast } from "../../api/utkast/useDeleteUtkast";
 
 interface UtkastKortProps {
   utkast: Utkast;
-  mutation: UseMutationResult<string, unknown, string>;
 }
 
 const UtkastDataSchema = z.object({
   navn: z.string(),
 });
 
-export function UtkastKort({ utkast, mutation }: UtkastKortProps) {
+export function UtkastKort({ utkast }: UtkastKortProps) {
+  const mutation = useDeleteUtkast();
   const [utkastIdForSletting, setUtkastIdForSletting] = useState<null | string>(
     null,
   );
@@ -73,7 +73,10 @@ export function UtkastKort({ utkast, mutation }: UtkastKortProps) {
           Slett utkast
         </Button>
         <Lenkeknapp
-          to={`/avtaler/skjema?utkastId=${utkast.id}`}
+          to={ utkast.type === Utkast.type.AVTALE
+            ? `/avtaler/skjema?utkastId=${utkast.id}`
+            : `/tiltaksgjennomforinger/skjema?utkastId=${utkast.id}`
+          }
           lenketekst="Rediger utkast"
           dataTestId="rediger-utkast-knapp"
           variant="primary"

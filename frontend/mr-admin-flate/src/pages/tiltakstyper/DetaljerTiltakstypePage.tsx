@@ -1,25 +1,22 @@
 import { Alert, Tabs } from "@navikt/ds-react";
-import { useAtom } from "jotai";
-import { Link } from "react-router-dom";
-import { TiltakstypeAvtaleTabs, tiltakstypeTabAtom } from "../../api/atoms";
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useTiltakstypeById } from "../../api/tiltakstyper/useTiltakstypeById";
 import { Header } from "../../components/detaljside/Header";
 import { Laster } from "../../components/laster/Laster";
 import { TiltakstypestatusTag } from "../../components/statuselementer/TiltakstypestatusTag";
 import { ContainerLayoutDetaljer } from "../../layouts/ContainerLayout";
 import commonStyles from "../Page.module.scss";
-import { TiltakstypeInfo } from "./TiltakstypeInfo";
-import { AvtalerForTiltakstype } from "./avtaler/AvtalerForTiltakstype";
 
 export function DetaljerTiltakstypePage() {
-  const optionalTiltakstype = useTiltakstypeById();
-  const [tabValgt, setTabValgt] = useAtom(tiltakstypeTabAtom);
+  const { pathname } = useLocation();
+  const navigate = useNavigate();
+  const { data: tiltakstype, isLoading } = useTiltakstypeById();
 
-  if (!optionalTiltakstype.data && optionalTiltakstype.isLoading) {
+  if (!tiltakstype && isLoading) {
     return <Laster tekst="Laster tiltakstype" />;
   }
 
-  if (!optionalTiltakstype.data) {
+  if (!tiltakstype) {
     return (
       <Alert variant="warning">
         Klarte ikke finne tiltakstype
@@ -30,7 +27,6 @@ export function DetaljerTiltakstypePage() {
     );
   }
 
-  const tiltakstype = optionalTiltakstype.data;
   return (
     <main>
       <Header>
@@ -40,28 +36,28 @@ export function DetaljerTiltakstypePage() {
         </div>
       </Header>
 
-      <Tabs
-        value={tabValgt}
-        onChange={(value) => setTabValgt(value as TiltakstypeAvtaleTabs)}
-      >
+      <Tabs value={pathname.includes("avtaler") ? "avtaler" : "arenainfo"} >
         <Tabs.List className={commonStyles.list}>
           <Tabs.Tab
-            value="arenaInfo"
+            value="arenainfo"
             label="Arenainfo"
             data-testid="tab_arenainfo"
+            onClick={() => navigate(`/tiltakstyper/${tiltakstype.id}`)}
+            aria-controls="panel"
           />
-          <Tabs.Tab value="avtaler" label="Avtaler" data-testid="tab_avtaler" />
+          <Tabs.Tab
+            value="avtaler"
+            label="Avtaler"
+            data-testid="tab_avtaler"
+            onClick={() => navigate(`/tiltakstyper/${tiltakstype.id}/avtaler`)}
+            aria-controls="panel"
+          />
         </Tabs.List>
-        <Tabs.Panel value="arenaInfo">
-          <ContainerLayoutDetaljer>
-            <TiltakstypeInfo />
-          </ContainerLayoutDetaljer>
-        </Tabs.Panel>
-        <Tabs.Panel value="avtaler">
-          <ContainerLayoutDetaljer>
-            <AvtalerForTiltakstype />
-          </ContainerLayoutDetaljer>
-        </Tabs.Panel>
+        <ContainerLayoutDetaljer>
+          <div id="panel">
+            <Outlet />
+          </div>
+        </ContainerLayoutDetaljer>
       </Tabs>
     </main>
   );

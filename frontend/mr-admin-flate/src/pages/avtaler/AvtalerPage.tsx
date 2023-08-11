@@ -1,52 +1,40 @@
 import { Tabs } from "@navikt/ds-react";
 import { ErrorBoundary } from "react-error-boundary";
-import { Avtalefilter } from "../../components/filter/Avtalefilter";
-import { AvtaleTabell } from "../../components/tabell/AvtaleTabell";
-import { ContainerLayoutOversikt } from "../../layouts/ContainerLayout";
 import { HeaderBanner } from "../../layouts/HeaderBanner";
 import { MainContainer } from "../../layouts/MainContainer";
 import { ErrorFallback } from "../../main";
 import styles from "../Page.module.scss";
-import { avtaleOversiktTabAtom, AvtaleUtkastTabs } from "../../api/atoms";
-import { useAtom } from "jotai";
-import { UtkastListe } from "../../components/utkast/Utkastliste";
+import { Outlet, useNavigate } from "react-router-dom";
 
 export function AvtalerPage() {
-  const [tabValgt, setTabValgt] = useAtom(avtaleOversiktTabAtom);
-
+  const navigate = useNavigate();
   return (
     <>
       <HeaderBanner heading="Oversikt over avtaler" harUndermeny />
       <ErrorBoundary FallbackComponent={ErrorFallback}>
-        <Tabs
-          value={tabValgt}
-          defaultValue="avtaler"
-          onChange={(value) => setTabValgt(value as AvtaleUtkastTabs)}
-        >
+        <Tabs defaultValue="avtaler" >
           <div className={styles.header_container_tabs} role="contentinfo">
             <Tabs.List>
               <Tabs.Tab
                 data-testid="avtaler-tab"
                 value="avtaler"
                 label="Avtaler"
+                aria-controls="panel"
+                onClick={() => navigate("/avtaler")}
               />
               <Tabs.Tab
                 data-testid="mine-utkast-tab"
                 value="utkast"
-                label="Mine utkast"
+                label="Utkast"
+                aria-controls="panel"
+                onClick={() => navigate("/avtaler/utkast")}
               />
             </Tabs.List>
           </div>
           <MainContainer>
-            <ContainerLayoutOversikt>
-              <Tabs.Panel value="avtaler">
-                <Avtalefilter />
-                <AvtaleTabell />
-              </Tabs.Panel>
-              <Tabs.Panel value="utkast">
-                <UtkastListe dataType="avtale" />
-              </Tabs.Panel>
-            </ContainerLayoutOversikt>
+            <div id="panel">
+              <Outlet />
+            </div>
           </MainContainer>
         </Tabs>
       </ErrorBoundary>

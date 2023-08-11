@@ -2,7 +2,6 @@ import { Button, Search } from "@navikt/ds-react";
 import classNames from "classnames";
 import { useAtom } from "jotai";
 import {
-  Avtale,
   Norg2Type,
   TiltaksgjennomforingStatus,
   Tiltakstypestatus,
@@ -33,15 +32,16 @@ import styles from "./Filter.module.scss";
 import { FilterTag } from "./FilterTag";
 import { Lenkeknapp } from "../lenkeknapp/Lenkeknapp";
 import { faro } from "@grafana/faro-web-sdk";
+import { useAvtale } from "../../api/avtaler/useAvtale";
 
 type Filters = "tiltakstype";
 
 interface Props {
   skjulFilter?: Record<Filters, boolean>;
-  avtale?: Avtale;
 }
 
-export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
+export function Tiltaksgjennomforingfilter({ skjulFilter }: Props) {
+  const { data: avtale } = useAvtale();
   const [filter, setFilter] = useAtom(tiltaksgjennomforingfilter);
   const [, setPage] = useAtom(paginationAtom);
   const { data: enheter } = useAlleEnheter();
