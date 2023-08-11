@@ -26,14 +26,14 @@ const TiltaksgjennomforingSkjemaPage = () => {
   const queryClient = useQueryClient();
   const {
     data: tiltaksgjennomforing,
-    isFetching: tiltaksgjennomforingFetching,
+    isLoading: tiltaksgjennomforingLoading,
   } = useTiltaksgjennomforing(
     searchParams.get("tiltaksgjennomforingId") || undefined,
   );
   const { data: avtale } = useAvtale(
     searchParams.get("avtaleId") || tiltaksgjennomforing?.avtaleId,
   );
-  const { data: utkast, isFetching: utkastFetching } = useUtkast(
+  const { data: utkast, isLoading: utkastLoading } = useUtkast(
     searchParams.get("utkastId") || undefined,
   );
   const { data: tiltakstyper, isLoading: isLoadingTiltakstyper } =
@@ -65,12 +65,12 @@ const TiltaksgjennomforingSkjemaPage = () => {
     isErrorAnsatt ||
     isErrorEnheter;
 
-  if (utkastFetching || tiltaksgjennomforingFetching) {
+  if (utkastLoading || tiltaksgjennomforingLoading) {
     return (
       <Laster
         size="xlarge"
         tekst={
-          utkastFetching ? "Laster utkast..." : "Laster tiltaksgjennomføring..."
+          utkastLoading ? "Laster utkast..." : "Laster tiltaksgjennomføring..."
         }
       />
     );

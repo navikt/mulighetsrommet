@@ -10,7 +10,7 @@ export function useTiltaksgjennomforing(
     overstyrTiltaksgjennomforingsId ||
     useGetAdminTiltaksgjennomforingsIdFraUrl();
 
-  return useQuery(
+  const query = useQuery(
     QueryKeys.tiltaksgjennomforing(tiltaksgjennomforingId!!),
     () =>
       mulighetsrommetClient.tiltaksgjennomforinger.getTiltaksgjennomforing({
@@ -18,4 +18,8 @@ export function useTiltaksgjennomforing(
       }),
     { enabled: !!tiltaksgjennomforingId },
   );
+  return {
+    ...query,
+    isLoading: !!tiltaksgjennomforingId && query.isLoading, // https://github.com/TanStack/query/issues/3584
+  }
 }

@@ -18,10 +18,10 @@ const AvtaleSkjemaPage = () => {
   const queryClient = useQueryClient();
 
   const [searchParams] = useSearchParams();
-  const { data: avtale, isFetching: avtaleFetching } = useAvtale(
+  const { data: avtale, isLoading: avtaleLoading } = useAvtale(
     searchParams.get("avtaleId") || undefined,
   );
-  const { data: utkast, isFetching: utkastFetching } = useUtkast(
+  const { data: utkast, isLoading: utkastLoading } = useUtkast(
     searchParams.get("utkastId") || undefined,
   );
   const { data: tiltakstyper, isLoading: isLoadingTiltakstyper } =
@@ -36,11 +36,11 @@ const AvtaleSkjemaPage = () => {
     navigate(-1);
   };
 
-  if (utkastFetching || avtaleFetching) {
+  if (utkastLoading || avtaleLoading) {
     return (
       <Laster
         size="xlarge"
-        tekst={utkastFetching ? "Laster utkast..." : "Laster avtale..."}
+        tekst={utkastLoading ? "Laster utkast..." : "Laster avtale..."}
       />
     );
   }
