@@ -1969,14 +1969,6 @@ components:
         - estimertVentetid
         - lokasjonArrangor
 
-    TiltaksgjennomforingAvslutningsstatus:
-      type: string
-      enum:
-        - AVLYST
-        - AVBRUTT
-        - AVSLUTTET
-        - IKKE_AVSLUTTET
-
     TiltaksgjennomforingStatus:
       type: string
       enum:
@@ -2739,20 +2731,6 @@ components:
           type: string
           format: UUID
           nullable: true
-
-    SletteAvtale:
-      type: object
-      properties:
-        statusCode:
-          type: number
-        message:
-          type: string
-        cause:
-          type: string
-          nullable: true
-      required:
-        - statusCode
-        - message
 
     TiltaksgjennomforingKontaktpersoner:
       type: object
