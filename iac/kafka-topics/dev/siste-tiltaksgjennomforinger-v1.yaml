@@ -36,3 +36,6 @@ spec:
     - team: amt
       application: amt-tiltaksarrangor-bff
       access: read
+    - team: teamoppfolging
+      application: teamoppfolging-kafka-manager
+      access: read
