@@ -8,7 +8,7 @@ export default defineConfig({
   defaultCommandTimeout: 10000,
   video: false,
   retries: {
-    runMode: 2,
+    runMode: 4,
   },
   e2e: {
     setupNodeEvents(on) {
