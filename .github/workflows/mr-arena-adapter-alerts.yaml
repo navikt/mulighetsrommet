@@ -1,7 +1,7 @@
 name: Alerts (mr-arena-adapter)
 
 on:
-  merge_queue:
+  merge_group:
   pull_request:
     paths:
       - .github/workflows/mr-arena-adapter-alerts.yaml
