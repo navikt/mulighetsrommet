@@ -1,7 +1,8 @@
 name: Alerts (mr-arena-adapter)
 
 on:
-  push:
+  merge_queue:
+  pull_request:
     paths:
       - .github/workflows/mr-arena-adapter-alerts.yaml
       - mulighetsrommet-arena-adapter/.nais/alerts.yaml

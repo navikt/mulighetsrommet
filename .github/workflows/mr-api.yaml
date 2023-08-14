@@ -1,7 +1,8 @@
 name: CI/CD (mr-api)
 
 on:
-  push:
+  merge_queue:
+  pull_request:
     paths:
       - .github/workflows/mr-api.yaml
       - build.gradle.kts

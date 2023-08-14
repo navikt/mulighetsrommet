@@ -1,7 +1,8 @@
 name: CI/CD (mr-arena-adapter)
 
 on:
-  push:
+  merge_queue:
+  pull_request:
     paths:
       - .github/workflows/mr-arena-adapter.yaml
       - build.gradle.kts
