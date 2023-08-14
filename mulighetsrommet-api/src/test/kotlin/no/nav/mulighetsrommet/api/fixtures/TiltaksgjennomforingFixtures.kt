@@ -74,6 +74,7 @@ object TiltaksgjennomforingFixtures {
         estimertVentetid = null,
         avtaleId = avtaleId,
         apenForInnsok = true,
+        opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
     )
 
     val Oppfolging2 = TiltaksgjennomforingDbo(

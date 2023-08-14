@@ -112,6 +112,7 @@ data class TiltaksgjennomforingRequest(
     val kontaktpersoner: List<NavKontaktpersonForGjennomforing>,
     val estimertVentetid: String?,
     val lokasjonArrangor: String,
+    val opphav: ArenaMigrering.Opphav?,
 ) {
     fun toDbo(): StatusResponse<TiltaksgjennomforingDbo> {
         if (!startDato.isBefore(sluttDato)) {
@@ -153,7 +154,7 @@ data class TiltaksgjennomforingRequest(
                 ansvarlige = listOf(ansvarlig),
                 navEnheter = navEnheter,
                 oppstart = oppstart,
-                opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
+                opphav = opphav ?: ArenaMigrering.Opphav.MR_ADMIN_FLATE,
                 stengtFra = stengtFra,
                 stengtTil = stengtTil,
                 kontaktpersoner = kontaktpersoner.map {
