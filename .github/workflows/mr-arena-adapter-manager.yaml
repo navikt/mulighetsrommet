@@ -1,7 +1,7 @@
 name: CI/CD (mr-arena-adapter-manager)
 
 on:
-  merge_queue:
+  merge_group:
   pull_request:
     paths:
       - .github/workflows/mr-arena-adapter-manager.yaml
