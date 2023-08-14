@@ -50,6 +50,7 @@ export function TiltaksgjennomforingSkjemaKnapperadRediger({
       <LagreEndringerKnapp
         onLagreUtkast={() => null}
         mutationUtkast={mutationUtkast}
+        submit
       />
 
       <AvbrytAvtaleGjennomforingModal

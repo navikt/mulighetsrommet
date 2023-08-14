@@ -41,6 +41,7 @@ export function AvtaleSkjemaKnapperadRediger({
         <LagreEndringerKnapp
           onLagreUtkast={() => null}
           mutationUtkast={mutationUtkast}
+          submit
         />
       </div>
       <AvbrytAvtaleGjennomforingModal

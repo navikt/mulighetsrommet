@@ -7,9 +7,9 @@ import {
   Utkast,
 } from "mulighetsrommet-api-client";
 import { SlettUtkastKnapp } from "../knapper/SlettUtkastKnapp";
-import { LagreUtkastKnapp } from "../knapper/LagreUtkastKnapp";
 import { OpprettAvtaleGjennomforingKnapp } from "../knapper/OpprettAvtaleGjennomforingKnapp";
 import SletteModal from "../modal/SletteModal";
+import { LagreEndringerKnapp } from "../knapper/LagreEndringerKnapp";
 
 interface Props {
   onClose: () => void;
@@ -43,10 +43,12 @@ export function TiltaksgjennomforingSkjemaKnapperadOpprett({
     <div className={styles.button_row}>
       <SlettUtkastKnapp setSletteModal={setSletteModal} />
       <div>
-        <LagreUtkastKnapp
-          dataTestId="tiltaksgjennomforingsskjema-lagre-utkast"
+        <LagreEndringerKnapp
           onLagreUtkast={onLagreUtkast}
           mutationUtkast={mutationUtkast}
+          dataTestId="tiltaksgjennomforingsskjema-lagre-utkast"
+          submit={false}
+          knappetekst="Lagre som utkast"
         />
 
         <OpprettAvtaleGjennomforingKnapp

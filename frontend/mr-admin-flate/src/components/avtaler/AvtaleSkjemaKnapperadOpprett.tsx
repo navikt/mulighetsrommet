@@ -2,10 +2,10 @@ import styles from "../skjema/Skjema.module.scss";
 import { useState } from "react";
 import SletteModal from "../modal/SletteModal";
 import { SlettUtkastKnapp } from "../knapper/SlettUtkastKnapp";
-import { LagreUtkastKnapp } from "../knapper/LagreUtkastKnapp";
 import { OpprettAvtaleGjennomforingKnapp } from "../knapper/OpprettAvtaleGjennomforingKnapp";
 import { UseMutationResult } from "@tanstack/react-query";
 import { Avtale, AvtaleRequest, Utkast } from "mulighetsrommet-api-client";
+import { LagreEndringerKnapp } from "../knapper/LagreEndringerKnapp";
 
 interface Props {
   onClose: () => void;
@@ -25,12 +25,13 @@ export function AvtaleSkjemaKnapperadOpprett({
     <div className={styles.button_row}>
       <SlettUtkastKnapp setSletteModal={setSletteModal} />
       <div>
-        <LagreUtkastKnapp
-          dataTestId="avtaleskjema-lagre-utkast"
+        <LagreEndringerKnapp
           onLagreUtkast={onLagreUtkast}
           mutationUtkast={mutationUtkast}
+          dataTestId="avtaleskjema-lagre-utkast"
+          submit={false}
+          knappetekst="Lagre som utkast"
         />
-
         <OpprettAvtaleGjennomforingKnapp type="avtale" mutation={mutation} />
       </div>
       <SletteModal
