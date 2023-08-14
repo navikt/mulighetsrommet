@@ -1,4 +1,3 @@
-import { useQueryClient } from "@tanstack/react-query";
 import {
   Tiltaksgjennomforing,
   Tiltakstypestatus,
@@ -16,14 +15,14 @@ import { TiltaksgjennomforingSkjemaContainer } from "./TiltaksgjennomforingSkjem
 import React from "react";
 import { useTiltaksgjennomforing } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforing";
 import styles from "../skjema/Skjema.module.scss";
-import { Alert } from "@navikt/ds-react";
-import { ErrorMeldinger } from "./TiltaksgjennomforingSkjemaErrors";
 import { useAvtale } from "../../api/avtaler/useAvtale";
+import { TiltaksgjennomforingStatus } from "../statuselementer/TiltaksgjennomforingStatus";
+import { ErrorMeldinger } from "./TiltaksgjennomforingSkjemaErrors";
+import { Alert } from "@navikt/ds-react";
 
 const TiltaksgjennomforingSkjemaPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const queryClient = useQueryClient();
   const {
     data: tiltaksgjennomforing,
     isFetching: tiltaksgjennomforingFetching,
@@ -33,16 +32,20 @@ const TiltaksgjennomforingSkjemaPage = () => {
   const { data: avtale } = useAvtale(
     searchParams.get("avtaleId") || tiltaksgjennomforing?.avtaleId,
   );
+
   const { data: utkast, isFetching: utkastFetching } = useUtkast(
     searchParams.get("utkastId") || undefined,
   );
+
   const { data: tiltakstyper, isLoading: isLoadingTiltakstyper } =
     useTiltakstyper({ status: Tiltakstypestatus.AKTIV }, 1);
+
   const {
     data: ansatt,
     isLoading: isLoadingAnsatt,
     isError: isErrorAnsatt,
   } = useHentAnsatt();
+
   const {
     data: enheter,
     isLoading: isLoadingEnheter,
@@ -53,10 +56,6 @@ const TiltaksgjennomforingSkjemaPage = () => {
   const redigeringsModus =
     utkastModus ||
     (tiltaksgjennomforing && inneholderUrl(tiltaksgjennomforing?.id));
-
-  const navigerTilbake = () => {
-    navigate(-1);
-  };
 
   const isError =
     !avtale ||
@@ -85,11 +84,20 @@ const TiltaksgjennomforingSkjemaPage = () => {
             : "opprett-tiltaksgjennomforing-header"
         }
       >
-        {redigeringsModus
-          ? utkastModus
-            ? "Rediger utkast"
-            : "Rediger tiltaksgjennomføring"
-          : "Opprett ny tiltaksgjennomforing"}
+        {redigeringsModus ? (
+          utkastModus ? (
+            "Rediger utkast"
+          ) : (
+            <div className={styles.rediger_header_status}>
+              Rediger tiltaksgjennomføring
+              <TiltaksgjennomforingStatus
+                tiltaksgjennomforing={tiltaksgjennomforing!}
+              />
+            </div>
+          )
+        ) : (
+          "Opprett ny tiltaksgjennomføring"
+        )}
       </Header>
       <ContainerLayoutDetaljer>
         <div className={styles.skjema}>
@@ -109,20 +117,13 @@ const TiltaksgjennomforingSkjemaPage = () => {
             ) : (!tiltakstyper?.data || !ansatt || !enheter) &&
               !isError ? null : (
               <TiltaksgjennomforingSkjemaContainer
-                onClose={() => {
-                  queryClient.refetchQueries({ queryKey: ["utkast"] });
-                  navigerTilbake();
-                }}
-                onLagreUtkast={() => {
-                  queryClient.refetchQueries({ queryKey: ["utkast"] });
-                  navigate(`/avtaler#avtaleOversiktTab="utkast"`);
-                }}
                 onSuccess={(id) => navigate(`/tiltaksgjennomforinger/${id}`)}
                 avtale={avtale}
                 tiltaksgjennomforing={
                   (utkast?.utkastData as Tiltaksgjennomforing) ||
                   tiltaksgjennomforing
                 }
+                utkastModus={utkastModus!}
               />
             )}
           </div>

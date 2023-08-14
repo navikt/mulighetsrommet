@@ -1,8 +1,8 @@
-import { Toggles } from "mulighetsrommet-api-client";
-import { useFeatureToggle } from "../../api/features/feature-toggles";
 import { Lenkeknapp } from "../../components/lenkeknapp/Lenkeknapp";
 import { useGetAvtaleIdFromUrl } from "../../hooks/useGetAvtaleIdFromUrl";
 import styles from "../DetaljerInfo.module.scss";
+import { useFeatureToggle } from "../../api/features/feature-toggles";
+import { Toggles } from "mulighetsrommet-api-client";
 
 export function AvtaleKnapperad() {
   const { data: redigerAvtaleEnabled } = useFeatureToggle(

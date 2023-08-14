@@ -11,7 +11,7 @@ import { useAdminTiltaksgjennomforingerForAvtale } from "../../api/tiltaksgjenno
 import { useMutateKobleGjennomforingForAvtale } from "../../api/tiltaksgjennomforing/useMutateKobleGjennomforingForAvtale";
 import { arenaKodeErAftEllerVta } from "../../utils/tiltakskoder";
 import { Laster } from "../laster/Laster";
-import { Tiltaksgjennomforingstatus } from "../statuselementer/Tiltaksgjennomforingstatus";
+import { TiltaksgjennomforingStatus } from "../statuselementer/TiltaksgjennomforingStatus";
 import styles from "./Tiltaksgjennomforingsliste.module.scss";
 
 export const Tiltaksgjennomforingsliste = () => {
@@ -102,7 +102,7 @@ export const Tiltaksgjennomforingsliste = () => {
                 <li key={index} className={styles.gjennomforingsliste_element}>
                   <BodyShort>{gjennomforing.navn}</BodyShort>
                   <BodyShort>{gjennomforing.tiltaksnummer}</BodyShort>
-                  <Tiltaksgjennomforingstatus
+                  <TiltaksgjennomforingStatus
                     tiltaksgjennomforing={gjennomforing}
                   />
                   {!gjennomforing.avtaleId ? (

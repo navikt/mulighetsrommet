@@ -21,11 +21,10 @@ const UtkastDataSchema = z.object({
 });
 
 export function UtkastKort({ utkast, mutation }: UtkastKortProps) {
+  const { refetch } = useMineUtkast(utkast.type);
   const [utkastIdForSletting, setUtkastIdForSletting] = useState<null | string>(
     null,
   );
-
-  const { refetch } = useMineUtkast(utkast.type);
 
   const utkasttypeTekst = (type: Utkast.type): "gjennomføring" | "avtale" => {
     switch (type) {
@@ -55,14 +54,16 @@ export function UtkastKort({ utkast, mutation }: UtkastKortProps) {
           <DocPencilIcon /> Utkast for {utkasttypeTekst(utkast.type)}
         </small>
       </div>
+
       <div className={styles.content}>
         <Heading size="medium" className={styles.truncate} title={data?.navn}>
-          {data?.navn || "Utkast uten tittel"}
+          {data?.navn}
         </Heading>
         <BodyShort className={styles.muted}>
           Opprettet: {formaterDatoTid(utkast.createdAt!)}
         </BodyShort>
       </div>
+
       <div className={styles.knapper}>
         <Button
           data-testid="slett-utkast-knapp"
@@ -73,7 +74,11 @@ export function UtkastKort({ utkast, mutation }: UtkastKortProps) {
           Slett utkast
         </Button>
         <Lenkeknapp
-          to={`/avtaler/skjema?utkastId=${utkast.id}`}
+          to={
+            utkasttypeTekst(utkast.type) === "avtale"
+              ? `/avtaler/skjema?utkastId=${utkast.id}`
+              : `/tiltaksgjennomforinger/skjema?utkastId=${utkast.id}`
+          }
           lenketekst="Rediger utkast"
           dataTestId="rediger-utkast-knapp"
           variant="primary"

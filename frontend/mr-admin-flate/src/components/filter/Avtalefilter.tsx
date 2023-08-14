@@ -16,7 +16,6 @@ import {
 } from "../../api/atoms";
 import { useAvtaler } from "../../api/avtaler/useAvtaler";
 import { useAlleEnheter } from "../../api/enhet/useAlleEnheter";
-import { useFeatureToggle } from "../../api/features/feature-toggles";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
 import { useVirksomheter } from "../../api/virksomhet/useVirksomheter";
 import { resetPaginering, valueOrDefault } from "../../utils/Utils";
@@ -25,6 +24,7 @@ import styles from "./Filter.module.scss";
 import { FilterTag } from "./FilterTag";
 import { faro } from "@grafana/faro-web-sdk";
 import { Lenkeknapp } from "../lenkeknapp/Lenkeknapp";
+import { useFeatureToggle } from "../../api/features/feature-toggles";
 
 type Filters = "tiltakstype";
 

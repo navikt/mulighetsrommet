@@ -7,7 +7,7 @@ import styles from "../avtaler/AvtaleUtkast.module.scss";
 import { useDeleteUtkast } from "../../api/utkast/useDeleteUtkast";
 
 interface Props {
-  dataType: "tiltaksgjennomforing" | "avtale";
+  dataType: "avtale" | "gjennomforing";
 }
 
 export function UtkastListe({ dataType }: Props) {
@@ -15,11 +15,12 @@ export function UtkastListe({ dataType }: Props) {
     data = [],
     isLoading,
     error,
-  } = dataType === "tiltaksgjennomforing"
-    ? useMineUtkast(Utkast.type.TILTAKSGJENNOMFORING)
-    : useMineUtkast(Utkast.type.AVTALE);
+  } = dataType === "avtale"
+    ? useMineUtkast(Utkast.type.AVTALE)
+    : useMineUtkast(Utkast.type.TILTAKSGJENNOMFORING);
 
   const mutation = useDeleteUtkast();
+
   if (error as ApiError) {
     const apiError = error as ApiError;
     return (
@@ -38,6 +39,7 @@ export function UtkastListe({ dataType }: Props) {
       {data.length === 0 ? (
         <Alert variant="info">Du har ingen utkast</Alert>
       ) : null}
+
       <ul className={styles.liste}>
         {data?.map((utkast) => {
           return (

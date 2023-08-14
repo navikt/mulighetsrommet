@@ -11,7 +11,7 @@ import { formaterDato, resetPaginering } from "../../utils/Utils";
 import { Laster } from "../laster/Laster";
 import { PagineringContainer } from "../paginering/PagineringContainer";
 import { PagineringsOversikt } from "../paginering/PagineringOversikt";
-import { Tiltaksgjennomforingstatus } from "../statuselementer/Tiltaksgjennomforingstatus";
+import { TiltaksgjennomforingStatus } from "../statuselementer/TiltaksgjennomforingStatus";
 import styles from "./Tabell.module.scss";
 
 interface ColumnHeader {
@@ -263,7 +263,7 @@ export const TiltaksgjennomforingsTabell = ({ skjulKolonner }: Props) => {
 
                     <SkjulKolonne skjul={!!skjulKolonner?.status}>
                       <Table.DataCell>
-                        <Tiltaksgjennomforingstatus
+                        <TiltaksgjennomforingStatus
                           tiltaksgjennomforing={tiltaksgjennomforing}
                         />
                       </Table.DataCell>

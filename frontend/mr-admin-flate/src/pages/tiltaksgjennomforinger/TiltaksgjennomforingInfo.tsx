@@ -8,7 +8,6 @@ import {
   TiltaksgjennomforingStatus,
 } from "mulighetsrommet-api-client";
 import { NOM_ANSATT_SIDE } from "mulighetsrommet-frontend-common/constants";
-import { useState } from "react";
 import invariant from "tiny-invariant";
 import { useAvtale } from "../../api/avtaler/useAvtale";
 import { useTiltaksgjennomforingById } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforingById";
@@ -28,8 +27,6 @@ import {
 import styles from "../DetaljerInfo.module.scss";
 import { TiltaksgjennomforingKnapperad } from "./TiltaksgjennomforingKnapperad";
 import { Kontaktperson } from "./Kontaktperson";
-import SlettAvtaleGjennomforingModal from "../../components/modal/SlettAvtaleGjennomforingModal";
-import { useDeleteTiltaksgjennomforing } from "../../api/tiltaksgjennomforing/useDeleteTiltaksgjennomforing";
 
 export function TiltaksgjennomforingInfo() {
   const {
@@ -41,9 +38,6 @@ export function TiltaksgjennomforingInfo() {
   const { data: avtale, isLoading: isLoadingAvtale } = useAvtale(
     tiltaksgjennomforing?.avtaleId,
   );
-
-  const [slettModal, setSlettModal] = useState(false);
-  const mutation = useDeleteTiltaksgjennomforing();
 
   const navnPaaNavEnheterForKontaktperson = (
     enheterForKontaktperson: string[],
@@ -366,17 +360,15 @@ export function TiltaksgjennomforingInfo() {
         </div>
 
         {visKnapperad(tiltaksgjennomforing.status) ? (
-          <TiltaksgjennomforingKnapperad
-            handleSlett={() => setSlettModal(true)}
-          />
+          <TiltaksgjennomforingKnapperad />
         ) : null}
-        <SlettAvtaleGjennomforingModal
-          modalOpen={slettModal}
-          handleCancel={() => setSlettModal(false)}
-          data={tiltaksgjennomforing}
-          mutation={mutation}
-          dataType={"tiltaksgjennomforing"}
-        />
+        {/*<SlettAvtaleGjennomforingModal*/}
+        {/*  modalOpen={slettModal}*/}
+        {/*  handleCancel={() => setSlettModal(false)}*/}
+        {/*  data={tiltaksgjennomforing}*/}
+        {/*  mutation={mutation}*/}
+        {/*  dataType={"tiltaksgjennomforing"}*/}
+        {/*/>*/}
       </div>
     </>
   );

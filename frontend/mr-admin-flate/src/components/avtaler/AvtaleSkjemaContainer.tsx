@@ -45,6 +45,7 @@ import { AvtaleSkjemaKnapperadUtkast } from "./AvtaleSkjemaKnapperadUtkast";
 import { faro } from "@grafana/faro-web-sdk";
 import { useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
+import { PORTEN } from "mulighetsrommet-frontend-common/constants";
 
 interface Props {
   onClose: () => void;
@@ -73,15 +74,13 @@ export function AvtaleSkjemaContainer({
   const [sokLeverandor, setSokLeverandor] = useState(
     avtale?.leverandor?.organisasjonsnummer || "",
   );
-
   const mutation = usePutAvtale();
   const mutationUtkast = useMutateUtkast();
   const { data: betabrukere } = useHentBetabrukere();
-
+  const utkastIdRef = useRef(avtale?.id || uuidv4());
   const { data: leverandorVirksomheter = [] } =
     useSokVirksomheter(sokLeverandor);
 
-  const utkastIdRef = useRef(avtale?.id || uuidv4());
   const form = useForm<inferredAvtaleSchema>({
     resolver: zodResolver(AvtaleSchema),
     defaultValues: {
@@ -203,7 +202,6 @@ export function AvtaleSkjemaContainer({
       requestBody.id = avtale.id; // Ved oppdatering av eksisterende avtale
     }
 
-    //alle submit-knapper
     mutation.mutate(requestBody, {
       onSuccess: () => {
         faro?.api?.pushEvent(
@@ -223,11 +221,15 @@ export function AvtaleSkjemaContainer({
   if (mutation.isError) {
     return (
       <Alert variant="error">
-        {(mutation.error as ApiError).status === 400
-          ? (mutation.error as ApiError).body
-          : "Avtalen kunne ikke opprettes på grunn av en teknisk feil hos oss. " +
-            "Forsøk på nytt eller ta <a href={PORTEN}>kontakt i Porten</a> dersom " +
-            "du trenger mer hjelp."}
+        {(mutation.error as ApiError).status === 400 ? (
+          (mutation.error as ApiError).body
+        ) : (
+          <>
+            Avtalen kunne ikke opprettes på grunn av en teknisk feil hos oss.
+            Forsøk på nytt eller ta <a href={PORTEN}>kontakt i Porten</a> dersom
+            du trenger mer hjelp.
+          </>
+        )}
       </Alert>
     );
   }

@@ -18,7 +18,6 @@ import {
   tiltaksgjennomforingfilter,
 } from "../../api/atoms";
 import { useAlleEnheter } from "../../api/enhet/useAlleEnheter";
-import { useFeatureToggle } from "../../api/features/feature-toggles";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
 import { useVirksomheter } from "../../api/virksomhet/useVirksomheter";
 import {
@@ -33,6 +32,7 @@ import styles from "./Filter.module.scss";
 import { FilterTag } from "./FilterTag";
 import { Lenkeknapp } from "../lenkeknapp/Lenkeknapp";
 import { faro } from "@grafana/faro-web-sdk";
+import { useFeatureToggle } from "../../api/features/feature-toggles";
 
 type Filters = "tiltakstype";
 

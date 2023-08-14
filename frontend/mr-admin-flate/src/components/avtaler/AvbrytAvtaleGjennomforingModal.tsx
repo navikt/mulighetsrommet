@@ -1,59 +1,70 @@
 import { XMarkOctagonFillIcon } from "@navikt/aksel-icons";
 import { BodyShort, Button, Heading, Modal } from "@navikt/ds-react";
 import classNames from "classnames";
-import { ApiError, Avtale, Opphav } from "mulighetsrommet-api-client";
+import {
+  ApiError,
+  Avtale,
+  Opphav,
+  Tiltaksgjennomforing,
+} from "mulighetsrommet-api-client";
 import { useEffect } from "react";
-import { useAvbrytAvtale } from "../../api/avtaler/useAvbrytAvtale";
 import styles from "../modal/Modal.module.scss";
 
 interface Props {
   modalOpen: boolean;
   onClose: () => void;
-  avtale?: Avtale;
+  data: Avtale | Tiltaksgjennomforing;
+  mutation: any;
+  type: "avtale" | "gjennomforing";
 }
 
-const AvbrytAvtaleModal = ({ modalOpen, onClose, avtale }: Props) => {
-  const mutation = useAvbrytAvtale();
-  const avtaleFraArena = avtale?.opphav === Opphav.ARENA;
+const AvbrytAvtaleGjennomforingModal = ({
+  modalOpen,
+  onClose,
+  data,
+  mutation,
+  type,
+}: Props) => {
+  const dataFraArena = data?.opphav === Opphav.ARENA;
+  const erAvtale = type === "avtale";
 
   useEffect(() => {
     if (mutation.isSuccess) {
-      clickCancel();
+      onClose();
       mutation.reset();
       return;
     }
   }, [mutation]);
 
-  const clickCancel = () => {
-    onClose();
-  };
-
-  const handleAvbrytAvtale = () => {
-    if (avtale?.id) {
-      mutation.mutate(avtale?.id);
+  const handleAvbryt = () => {
+    if (data?.id) {
+      mutation.mutate(data?.id);
     }
   };
 
-  function headerInnhold(avtale?: Avtale) {
+  function headerInnhold() {
     return (
       <div className={styles.heading}>
         <XMarkOctagonFillIcon className={styles.warningicon} />
-        {avtaleFraArena
-          ? "Avtalen kan ikke avbrytes"
+        {dataFraArena
+          ? `${
+              erAvtale ? "Avtalen" : "Tiltaksgjennomføringen"
+            } kan ikke avbrytes`
           : mutation.isError
-          ? `Kan ikke avbryte «${avtale?.navn}»`
-          : `Ønsker du å avbryte «${avtale?.navn}»?`}
+          ? `Kan ikke avbryte «${data?.navn}»`
+          : `Ønsker du å avbryte «${data?.navn}»?`}
       </div>
     );
   }
 
-  function modalInnhold(avtale?: Avtale) {
+  function modalInnhold() {
     return (
       <>
         <div className={styles.modal_innhold}>
-          {avtaleFraArena ? (
+          {dataFraArena ? (
             <BodyShort>
-              Avtalen {avtale?.navn} kommer fra Arena og kan ikke avbrytes her.
+              {erAvtale ? "Avtalen" : "Tiltaksgjennomføringen"} {data?.navn}{" "}
+              kommer fra Arena og kan ikke avbrytes her.
             </BodyShort>
           ) : mutation?.isError ? (
             <BodyShort>{(mutation.error as ApiError).body}</BodyShort>
@@ -63,17 +74,17 @@ const AvbrytAvtaleModal = ({ modalOpen, onClose, avtale }: Props) => {
         </div>
         <div className={styles.knapperad}>
           {mutation?.isError ? (
-            <Button variant="secondary" onClick={clickCancel}>
+            <Button variant="secondary" onClick={onClose}>
               Lukk
             </Button>
           ) : (
-            <Button variant="secondary" onClick={clickCancel}>
+            <Button variant="secondary" onClick={onClose}>
               Avbryt handling
             </Button>
           )}
-          {!avtaleFraArena && !mutation?.isError ? (
-            <Button variant="danger" onClick={handleAvbrytAvtale}>
-              Avbryt avtale
+          {!dataFraArena && !mutation?.isError ? (
+            <Button variant="danger" onClick={handleAvbryt}>
+              Avbryt {erAvtale ? "avtale" : "tiltaksgjennomføring"}
             </Button>
           ) : null}
         </div>
@@ -87,7 +98,7 @@ const AvbrytAvtaleModal = ({ modalOpen, onClose, avtale }: Props) => {
         shouldCloseOnOverlayClick={false}
         closeButton
         open={modalOpen}
-        onClose={clickCancel}
+        onClose={onClose}
         className={classNames(
           styles.overstyrte_styles_fra_ds_modal,
           styles.text_center,
@@ -96,13 +107,13 @@ const AvbrytAvtaleModal = ({ modalOpen, onClose, avtale }: Props) => {
       >
         <Modal.Content>
           <Heading size="medium" level="2">
-            {headerInnhold(avtale)}
+            {headerInnhold()}
           </Heading>
-          {modalInnhold(avtale)}
+          {modalInnhold()}
         </Modal.Content>
       </Modal>
     </>
   );
 };
 
-export default AvbrytAvtaleModal;
+export default AvbrytAvtaleGjennomforingModal;

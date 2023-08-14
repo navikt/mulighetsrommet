@@ -1,6 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Alert, Button, Checkbox, TextField } from "@navikt/ds-react";
 import {
+  ApiError,
   Avtale,
   Tiltaksgjennomforing,
   TiltaksgjennomforingOppstartstype,
@@ -46,7 +47,6 @@ import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
 import { toast } from "react-toastify";
 import { SokeSelect } from "../skjema/SokeSelect";
 import { FormGroup } from "../skjema/FormGroup";
-import { AvbrytTiltaksgjennomforing } from "./AvbrytTiltaksgjennomforing";
 import { TiltaksgjennomforingSkjemaKnapperadOpprett } from "./TiltaksgjennomforingSkjemaKnapperadOpprett";
 import { useVirksomhet } from "../../api/virksomhet/useVirksomhet";
 import { PlusIcon, XMarkIcon } from "@navikt/aksel-icons";
@@ -56,21 +56,24 @@ import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
 import { VirksomhetKontaktpersoner } from "../virksomhet/VirksomhetKontaktpersoner";
 import { Separator } from "../detaljside/Metadata";
 import classNames from "classnames";
+import { useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
+import { faro } from "@grafana/faro-web-sdk";
+import { TiltaksgjennomforingSkjemaKnapperadRediger } from "./TiltaksgjennomforingSkjemaKnapperadRediger";
+import { TiltaksgjennomforingSkjemaKnapperadUtkast } from "./TiltaksgjennomforingSkjemaKnapperadUtkast";
 
 interface Props {
-  onClose: () => void;
   onSuccess: (id: string) => void;
   avtale?: Avtale;
   tiltaksgjennomforing?: Tiltaksgjennomforing;
-  onLagreUtkast: () => void;
+  utkastModus: boolean;
 }
 
 export const TiltaksgjennomforingSkjemaContainer = ({
   avtale,
   tiltaksgjennomforing,
-  onClose,
   onSuccess,
-  onLagreUtkast,
+  utkastModus,
 }: Props) => {
   const utkastIdRef = useRef(tiltaksgjennomforing?.id || uuidv4());
   const redigeringsModus = !!tiltaksgjennomforing;
@@ -80,13 +83,12 @@ export const TiltaksgjennomforingSkjemaContainer = ({
   const mutation = usePutGjennomforing();
   const mutationUtkast = useMutateUtkast();
   const { data: betabrukere } = useHentBetabrukere();
-
   const { data: ansatt, isLoading: isLoadingAnsatt } = useHentAnsatt();
-
   const { data: enheter, isLoading: isLoadingEnheter } = useAlleEnheter();
-
   const { data: kontaktpersoner, isLoading: isLoadingKontaktpersoner } =
     useHentKontaktpersoner();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const kontaktpersonerOption = () => {
     const options = kontaktpersoner?.map((kontaktperson) => ({
@@ -212,6 +214,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
     setValue,
     watch,
     setError,
+    clearErrors,
   } = form;
 
   const {
@@ -253,7 +256,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
       return;
     }
 
-    const body: TiltaksgjennomforingRequest = {
+    const requestBody: TiltaksgjennomforingRequest = {
       id: tiltaksgjennomforing ? tiltaksgjennomforing.id : uuidv4(),
       antallPlasser: data.antallPlasser,
       tiltakstypeId: avtale.tiltakstype.id,
@@ -292,11 +295,16 @@ export const TiltaksgjennomforingSkjemaContainer = ({
       arrangorKontaktpersonId: data.arrangorKontaktpersonId ?? null,
     };
 
-    try {
-      mutation.mutate(body);
-    } catch {
-      <Alert variant="error">{tekniskFeilError()}</Alert>;
-    }
+    mutation.mutate(requestBody, {
+      onSuccess: () => {
+        faro?.api?.pushEvent(
+          "Bruker oppretter eller lagrer tiltaksgjennomføring",
+          { handling: "lagrer" },
+          "tiltaksgjennomforing",
+        );
+        navigate(`/tiltaksgjennomforinger`);
+      },
+    });
   };
 
   if (!enheter) {
@@ -306,6 +314,35 @@ export const TiltaksgjennomforingSkjemaContainer = ({
   if (mutation.isSuccess) {
     onSuccess(mutation.data.id);
   }
+
+  if (mutation.isError) {
+    return (
+      <Alert variant="error">
+        {(mutation.error as ApiError).status === 400
+          ? (mutation.error as ApiError).body
+          : tekniskFeilError()}
+      </Alert>
+    );
+  }
+
+  const handleLagreUtkast = () => {
+    if (mutationUtkast.isSuccess) {
+      queryClient.refetchQueries({ queryKey: ["utkast"] });
+      navigate(`/avtaler/${avtale?.id}#avtaleTab="tiltaksgjennomforinger"`);
+    } else {
+      register("navn", { minLength: 5 });
+      clearErrors();
+      setError("navn", {
+        type: "custom",
+        message: "Et tiltaksnavn må minst være 5 tegn langt",
+      });
+    }
+  };
+
+  const handleClose = () => {
+    queryClient.refetchQueries({ queryKey: ["utkast"] });
+    navigate(-1);
+  };
 
   return (
     <FormProvider {...form}>
@@ -409,9 +446,6 @@ export const TiltaksgjennomforingSkjemaContainer = ({
                   label="Antall plasser"
                   {...register("antallPlasser", { valueAsNumber: true })}
                 />
-                {!arenaOpphav(tiltaksgjennomforing) && redigeringsModus ? (
-                  <AvbrytTiltaksgjennomforing onAvbryt={onClose} />
-                ) : null}
               </FormGroup>
               <Separator />
               <FormGroup>
@@ -608,18 +642,31 @@ export const TiltaksgjennomforingSkjemaContainer = ({
             </div>
           </div>
           <Separator />
-          <TiltaksgjennomforingSkjemaKnapperadOpprett
-            onClose={onClose}
-            mutation={mutation}
-            onLagreUtkast={onLagreUtkast}
-            error={() => {
-              register("navn", { minLength: 5 });
-              setError("navn", {
-                type: "custom",
-                message: "Et tiltaksnavn må minst være 5 tegn langt",
-              });
-            }}
-          />
+          {redigeringsModus ? (
+            utkastModus ? (
+              <TiltaksgjennomforingSkjemaKnapperadUtkast
+                tiltaksgjennomforing={tiltaksgjennomforing}
+                utkastModus={utkastModus}
+                onClose={handleClose}
+                mutation={mutation}
+                onLagreUtkast={handleLagreUtkast}
+                mutationUtkast={mutationUtkast}
+              />
+            ) : (
+              <TiltaksgjennomforingSkjemaKnapperadRediger
+                tiltaksgjennomforing={tiltaksgjennomforing}
+                mutationUtkast={mutationUtkast}
+                mutation={mutation}
+              />
+            )
+          ) : (
+            <TiltaksgjennomforingSkjemaKnapperadOpprett
+              onClose={handleClose}
+              mutation={mutation}
+              onLagreUtkast={handleLagreUtkast}
+              mutationUtkast={mutationUtkast}
+            />
+          )}
         </div>
       </form>
       <AutoSaveUtkast

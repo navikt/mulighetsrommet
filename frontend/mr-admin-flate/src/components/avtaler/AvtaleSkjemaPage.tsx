@@ -57,7 +57,7 @@ const AvtaleSkjemaPage = () => {
           utkastModus ? (
             "Rediger utkast"
           ) : (
-            <div className={styles.rediger_avtaleheader_status}>
+            <div className={styles.rediger_header_status}>
               Rediger avtale
               <Avtalestatus avtale={avtale!} />
             </div>

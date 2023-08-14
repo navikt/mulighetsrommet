@@ -2,18 +2,18 @@ import { Button } from "@navikt/ds-react";
 
 interface Props {
   dataTestId?: string;
-  setAvbrytModalOpen: (state: boolean) => void;
+  onClick: () => void;
   type: "avtale" | "gjennomføring";
 }
 export function AvbrytAvtaleGjennomforingKnapp({
   dataTestId,
-  setAvbrytModalOpen,
+  onClick,
   type,
 }: Props) {
   return (
     <Button
       variant="danger"
-      onClick={() => setAvbrytModalOpen(true)}
+      onClick={onClick}
       data-testid={dataTestId}
       type="button"
     >

@@ -3,7 +3,7 @@ import { useGetAvtaleIdFromUrl } from "../../hooks/useGetAvtaleIdFromUrl";
 import { QueryKeys } from "../QueryKeys";
 import { mulighetsrommetClient } from "../clients";
 
-export function useAvtale(overstyrAvtaleId?: string) {
+export function useAvtale(overstyrAvtaleId?: string | null) {
   const avtaleId = overstyrAvtaleId || useGetAvtaleIdFromUrl();
 
   return useQuery(

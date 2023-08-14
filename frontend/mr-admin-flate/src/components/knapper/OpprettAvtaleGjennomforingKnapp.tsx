@@ -18,12 +18,12 @@ export function OpprettAvtaleGjennomforingKnapp({
       type="submit"
       onClick={() => {
         faro?.api?.pushEvent(
-          "Bruker oppretter avtale",
+          `Bruker oppretter ${type}`,
           { handling: "oppretter" },
           type,
         );
       }}
-      data-testId={dataTestId}
+      data-testid={dataTestId}
       disabled={mutation.isLoading}
     >
       {mutation.isLoading ? "Lagrer..." : `Opprett ${type}`}

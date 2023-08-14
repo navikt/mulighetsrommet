@@ -6,16 +6,16 @@ import {
   TiltaksgjennomforingerTabs,
   tiltaksgjennomforingTabAtom,
 } from "../../api/atoms";
-import { useFeatureToggle } from "../../api/features/feature-toggles";
 import { useTiltaksgjennomforingById } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforingById";
 import { Header } from "../../components/detaljside/Header";
 import { Laster } from "../../components/laster/Laster";
-import { Tiltaksgjennomforingstatus } from "../../components/statuselementer/Tiltaksgjennomforingstatus";
+import { TiltaksgjennomforingStatus } from "../../components/statuselementer/TiltaksgjennomforingStatus";
 import NotaterTiltaksgjennomforingerPage from "../../components/tiltaksgjennomforinger/NotaterTiltaksgjennomforingerPage";
 import { ContainerLayoutDetaljer } from "../../layouts/ContainerLayout";
 import { DeltakerListe } from "../../microfrontends/team_komet/Deltakerliste";
 import commonStyles from "../Page.module.scss";
 import { TiltaksgjennomforingInfo } from "./TiltaksgjennomforingInfo";
+import { useFeatureToggle } from "../../api/features/feature-toggles";
 
 export function DetaljerTiltaksgjennomforingerPage() {
   const optionalTiltaksgjennomforing = useTiltaksgjennomforingById();
@@ -49,7 +49,7 @@ export function DetaljerTiltaksgjennomforingerPage() {
       <Header>
         <div className={commonStyles.header}>
           <span>{tiltaksgjennomforing?.navn ?? "..."}</span>
-          <Tiltaksgjennomforingstatus
+          <TiltaksgjennomforingStatus
             tiltaksgjennomforing={tiltaksgjennomforing}
           />
         </div>

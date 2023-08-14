@@ -9,7 +9,7 @@ interface Props {
   tiltaksgjennomforing: Tiltaksgjennomforing;
 }
 
-export function Tiltaksgjennomforingstatus({ tiltaksgjennomforing }: Props) {
+export function TiltaksgjennomforingStatus({ tiltaksgjennomforing }: Props) {
   const status = tiltaksgjennomforing.status;
 
   return (

@@ -37,7 +37,7 @@ export function AvtaleSkjemaKnapperadOpprett({
         modalOpen={sletteModal}
         onClose={() => setSletteModal(false)}
         headerText="Ønsker du å slette utkastet?"
-        headerTextError="Kan ikke slette notatet."
+        headerTextError="Kan ikke slette utkastet."
         handleDelete={onClose}
       />
     </div>

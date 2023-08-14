@@ -34,7 +34,7 @@ export function TiltaksgjennomforingerForAvtale() {
             />
           </Tabs.Panel>
           <Tabs.Panel value="utkast">
-            <UtkastListe dataType="tiltaksgjennomforing" />
+            <UtkastListe dataType="gjennomforing" />
           </Tabs.Panel>
         </ErrorBoundary>
       </Tabs>
