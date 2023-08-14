@@ -23,7 +23,7 @@ arrow-core = "io.arrow-kt:arrow-core:1.2.0"
 
 assertj-db = "org.assertj:assertj-db:2.0.2"
 
-caffeine = "com.github.ben-manes.caffeine:caffeine:3.1.7"
+caffeine = "com.github.ben-manes.caffeine:caffeine:3.1.8"
 
 dbScheduler = "com.github.kagkarlsson:db-scheduler:12.4.0"
 
