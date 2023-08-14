@@ -1,5 +1,5 @@
 import { defineConfig } from "cypress";
-import { plugin } from "./cypress/plugins/index";
+import { plugin } from "./cypress/plugins";
 
 export default defineConfig({
   viewportHeight: 1300,
@@ -11,9 +11,8 @@ export default defineConfig({
     runMode: 2,
   },
   e2e: {
-    //@ts-ignore
-    setupNodeEvents(on, config) {
-      return plugin(on, config);
+    setupNodeEvents(on) {
+      plugin(on);
     },
     baseUrl: "http://localhost:5173",
   },
