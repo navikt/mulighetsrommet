@@ -2,6 +2,7 @@ before('Start server', () => {
   cy.visit('/');
   cy.url().should('include', '/');
   Cypress.on('uncaught:exception', err => {
+    // eslint-disable-next-line no-console
     console.log(err);
     return false;
   });

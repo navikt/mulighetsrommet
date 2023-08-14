@@ -1,0 +1,57 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPathPattern": "/unleash/api/client/features"
+  },
+  "response": {
+    "status": 200,
+    "jsonBody": {
+      "version": 1,
+      "features": [
+        {
+          "name": "mulighetsrommet.admin-flate-opprett-avtale",
+          "enabled": true,
+          "strategies": []
+        },
+        {
+          "name": "mulighetsrommet.admin-flate-rediger-avtale",
+          "enabled": true,
+          "strategies": []
+        },
+        {
+          "name": "mulighetsrommet.admin-flate-opprett-tiltaksgjennomforing",
+          "enabled": true,
+          "strategies": []
+        },
+        {
+          "name": "mulighetsrommet.admin-flate-slett-avtale",
+          "enabled": true,
+          "strategies": []
+        },
+        {
+          "name": "mulighetsrommet.admin-flate-slett-tiltaksgjennomforing",
+          "enabled": true,
+          "strategies": []
+        },
+        {
+          "name": "mulighetsrommet.admin-flate-rediger-tiltaksgjennomforing",
+          "enabled": true,
+          "strategies": []
+        },
+        {
+          "name": "mulighetsrommet.admin-flate-vis-deltakerliste-fra-komet",
+          "enabled": true,
+          "strategies": []
+        },
+        {
+          "name": "mulighetsrommet.enable-arbeidsflate",
+          "enabled": true,
+          "strategies": []
+        }
+      ]
+    },
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}

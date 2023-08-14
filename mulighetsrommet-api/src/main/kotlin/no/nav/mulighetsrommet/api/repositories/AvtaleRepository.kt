@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.repositories
 
 import kotlinx.serialization.json.Json
 import kotliquery.Row
+import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.api.utils.*
@@ -19,7 +20,9 @@ class AvtaleRepository(private val db: Database) {
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    fun upsert(avtale: AvtaleDbo) {
+    fun upsert(avtale: AvtaleDbo) = db.transaction { upsert(avtale, it) }
+
+    fun upsert(avtale: AvtaleDbo, tx: Session) {
         logger.info("Lagrer avtale id=${avtale.id}")
 
         @Language("PostgreSQL")
@@ -113,51 +116,49 @@ class AvtaleRepository(private val db: Database) {
              where avtale_id = ?::uuid and not (organisasjonsnummer = any (?))
         """.trimIndent()
 
-        db.transaction { tx ->
-            tx.run(queryOf(query, avtale.toSqlParameters()).asExecute)
+        tx.run(queryOf(query, avtale.toSqlParameters()).asExecute)
 
-            avtale.ansvarlige.forEach { ansvarlig ->
-                queryOf(
-                    upsertAnsvarlig,
-                    avtale.id,
-                    ansvarlig,
-                ).asExecute.let { tx.run(it) }
-            }
-
+        avtale.ansvarlige.forEach { ansvarlig ->
             queryOf(
-                deleteAnsvarlige,
+                upsertAnsvarlig,
                 avtale.id,
-                db.createTextArray(avtale.ansvarlige),
-            ).asExecute.let { tx.run(it) }
-
-            avtale.navEnheter.forEach { enhet ->
-                queryOf(
-                    upsertEnhet,
-                    avtale.id,
-                    enhet,
-                ).asExecute.let { tx.run(it) }
-            }
-
-            queryOf(
-                deleteEnheter,
-                avtale.id,
-                db.createTextArray(avtale.navEnheter),
-            ).asExecute.let { tx.run(it) }
-
-            avtale.leverandorUnderenheter.forEach { underenhet ->
-                queryOf(
-                    upsertUnderenheter,
-                    avtale.id,
-                    underenhet,
-                ).asExecute.let { tx.run(it) }
-            }
-
-            queryOf(
-                deleteUnderenheter,
-                avtale.id,
-                db.createTextArray(avtale.leverandorUnderenheter),
+                ansvarlig,
             ).asExecute.let { tx.run(it) }
         }
+
+        queryOf(
+            deleteAnsvarlige,
+            avtale.id,
+            db.createTextArray(avtale.ansvarlige),
+        ).asExecute.let { tx.run(it) }
+
+        avtale.navEnheter.forEach { enhet ->
+            queryOf(
+                upsertEnhet,
+                avtale.id,
+                enhet,
+            ).asExecute.let { tx.run(it) }
+        }
+
+        queryOf(
+            deleteEnheter,
+            avtale.id,
+            db.createTextArray(avtale.navEnheter),
+        ).asExecute.let { tx.run(it) }
+
+        avtale.leverandorUnderenheter.forEach { underenhet ->
+            queryOf(
+                upsertUnderenheter,
+                avtale.id,
+                underenhet,
+            ).asExecute.let { tx.run(it) }
+        }
+
+        queryOf(
+            deleteUnderenheter,
+            avtale.id,
+            db.createTextArray(avtale.leverandorUnderenheter),
+        ).asExecute.let { tx.run(it) }
     }
 
     fun upsertArenaAvtale(avtale: ArenaAvtaleDbo) {
@@ -208,7 +209,9 @@ class AvtaleRepository(private val db: Database) {
         queryOf(query, avtale.toSqlParameters()).asExecute.let { db.run(it) }
     }
 
-    fun get(id: UUID): AvtaleAdminDto? {
+    fun get(id: UUID): AvtaleAdminDto? = db.transaction { get(id, it) }
+
+    fun get(id: UUID, tx: Session): AvtaleAdminDto? {
         @Language("PostgreSQL")
         val query = """
             select
@@ -261,10 +264,11 @@ class AvtaleRepository(private val db: Database) {
             group by a.id, t.tiltakskode, t.navn, aa.navident, nav_enhet.navn, v.navn, au.leverandor_underenheter, an.nav_enheter, vk.id, na.fornavn, na.etternavn
         """.trimIndent()
 
-        return queryOf(query, id)
-            .map { it.toAvtaleAdminDto() }
-            .asSingle
-            .let { db.run(it) }
+        return tx.run(
+            queryOf(query, id)
+                .map { it.toAvtaleAdminDto() }
+                .asSingle,
+        )
     }
 
     fun delete(id: UUID) {

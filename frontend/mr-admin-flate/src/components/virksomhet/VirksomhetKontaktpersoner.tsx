@@ -1,6 +1,5 @@
 import { PlusIcon } from "@navikt/aksel-icons";
 import { Button, TextField } from "@navikt/ds-react";
-import classNames from "classnames";
 import { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { useVirksomhetKontaktpersoner } from "../../api/virksomhet/useVirksomhetKontaktpersoner";

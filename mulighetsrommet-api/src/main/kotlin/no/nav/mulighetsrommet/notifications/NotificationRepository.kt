@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.notifications
 
 import kotliquery.Row
+import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.utils.*
 import no.nav.mulighetsrommet.database.Database
@@ -14,7 +15,10 @@ import java.util.*
 class NotificationRepository(private val db: Database) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    fun insert(notification: ScheduledNotification): QueryResult<Unit> = query {
+    fun insert(notification: ScheduledNotification) =
+        db.transaction { insert(notification, it) }
+
+    fun insert(notification: ScheduledNotification, tx: Session) {
         logger.info("Saving notification id=${notification.id}")
 
         @Language("PostgreSQL")
@@ -31,7 +35,7 @@ class NotificationRepository(private val db: Database) {
             returning notification_id, user_id, done_at
         """.trimIndent()
 
-        db.transaction { tx ->
+        tx.run(
             queryOf(
                 insertNotification,
                 mapOf(
@@ -41,11 +45,11 @@ class NotificationRepository(private val db: Database) {
                     "description" to notification.description,
                     "created_at" to notification.createdAt,
                 ),
-            )
-                .asExecute
-                .let { tx.run(it) }
+            ).asExecute,
+        )
 
-            notification.targets.forEach { userId ->
+        notification.targets.forEach { userId ->
+            tx.run(
                 queryOf(
                     insertUserNotification,
                     mapOf(
@@ -53,10 +57,8 @@ class NotificationRepository(private val db: Database) {
                         "user_id" to userId,
                         "done_at" to null,
                     ),
-                )
-                    .asExecute
-                    .let { tx.run(it) }
-            }
+                ).asExecute,
+            )
         }
     }
 

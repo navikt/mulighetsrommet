@@ -1,13 +1,34 @@
+import org.openapitools.generator.gradle.plugin.tasks.ValidateTask
+
 plugins {
     application
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.flyway)
+    alias(libs.plugins.openapi.generator)
     alias(libs.plugins.shadow)
 }
 
 application {
     mainClass.set("no.nav.mulighetsrommet.api.ApplicationKt")
+}
+
+val validateOpenapiSpec = tasks.register<ValidateTask>("validateOpenapiSpec") {
+    inputSpec.set("$rootDir/mulighetsrommet-api/src/main/resources/web/openapi.yaml")
+    recommend.set(true)
+}
+
+val validateOpenapiExternalSpec = tasks.register<ValidateTask>("validateOpenapiExternalSpec") {
+    inputSpec.set("$rootDir/mulighetsrommet-api/src/main/resources/web/openapi-external.yaml")
+    recommend.set(true)
+}
+
+val validateOpenapiSpecs = tasks.register<Task>("validateOpenapiSpecs") {
+    dependsOn(validateOpenapiSpec.name, validateOpenapiExternalSpec.name)
+}
+
+tasks.build {
+    dependsOn(validateOpenapiSpecs.name)
 }
 
 flyway {
@@ -92,7 +113,7 @@ dependencies {
     // Tilgangskontroll
     implementation(libs.nav.poaoTilgang.client)
     constraints {
-        implementation("org.yaml:snakeyaml:2.0") {
+        implementation("org.yaml:snakeyaml:2.1") {
             because("sikkerhetshull i transitiv avhengighet rapportert via snyk")
         }
         implementation("org.apache.tomcat.embed:tomcat-embed-core:9.0.78") {

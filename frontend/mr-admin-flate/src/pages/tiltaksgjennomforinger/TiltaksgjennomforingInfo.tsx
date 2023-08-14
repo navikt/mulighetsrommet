@@ -13,7 +13,6 @@ import { useAvtale } from "../../api/avtaler/useAvtale";
 import { useTiltaksgjennomforingById } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforingById";
 import { Bolk } from "../../components/detaljside/Bolk";
 import {
-  Liste,
   Metadata,
   Separator,
 } from "../../components/detaljside/Metadata";
@@ -68,7 +67,7 @@ export function TiltaksgjennomforingInfo() {
     return <Laster tekst="Laster informasjon om tiltaksgjennomføring..." />;
   }
 
-  if (isErrorTiltaksgjennomforing || !tiltaksgjennomforing) {
+  if (isErrorTiltaksgjennomforing) {
     return (
       <Alert variant="error">
         Klarte ikke hente informasjon om tiltaksgjennomføring
@@ -270,13 +269,11 @@ export function TiltaksgjennomforingInfo() {
             <Metadata
               header="Nav-enhet (kontorer)"
               verdi={
-                <Liste
-                  elementer={tiltaksgjennomforing.navEnheter.map((enhet) => ({
-                    key: enhet.enhetsnummer,
-                    value: enhet.navn,
-                  }))}
-                  tekstHvisTom="Alle enheter"
-                />
+                <ul>
+                  {tiltaksgjennomforing.navEnheter.map((enhet) => (
+                    <li key={enhet.enhetsnummer}>{enhet.navn}</li>
+                  ))}
+                </ul>
               }
             />
           </Bolk>

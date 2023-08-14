@@ -62,8 +62,6 @@ export const paginationAtom = atomWithHashAndStorage("page", 1);
 
 export const avtalePaginationAtom = atomWithHashAndStorage("avtalePage", 1);
 
-export const faneAtom = atomWithHashAndStorage("fane", "tab_notifikasjoner_1");
-
 export interface TiltakstypeFilter {
   sok?: string;
   status: Tiltakstypestatus | "";
@@ -144,33 +142,4 @@ export const defaultAvtaleFilter: AvtaleFilterProps = {
 export const avtaleFilter = atomWithHashAndStorage<AvtaleFilterProps>(
   "avtalefilter",
   defaultAvtaleFilter,
-);
-
-export type TiltakstypeAvtaleTabs = "arenaInfo" | "avtaler";
-
-export const tiltakstypeTabAtom = atomWithHashAndStorage<TiltakstypeAvtaleTabs>(
-  "tiltakstypeTab",
-  "arenaInfo",
-);
-
-export type AvtaleTabs = "avtaleinfo" | "tiltaksgjennomforinger";
-
-export const avtaleTabAtom = atomWithHashAndStorage<AvtaleTabs>(
-  "avtaleTab",
-  "avtaleinfo",
-);
-
-export type TiltaksgjennomforingerTabs = "detaljer";
-
-export const tiltaksgjennomforingTabAtom =
-  atomWithHashAndStorage<TiltaksgjennomforingerTabs>(
-    "tiltaksgjennomforingTab",
-    "detaljer",
-  );
-
-export type AvtaleUtkastTabs = "avtaler" | "utkast";
-
-export const avtaleOversiktTabAtom = atomWithHashAndStorage<AvtaleUtkastTabs>(
-  "avtaleOversiktTab",
-  "avtaler",
 );

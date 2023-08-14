@@ -125,10 +125,9 @@ app:
     channel: "#team-valp-monitoring"
     enable: false
 
-  # TODO Skriv i readme at lokalt må url og token settes som env-variabler i intellij, eller annet sted på maskinen
   unleash:
     appName: mulighetsrommet-api
-    url: ${UNLEASH_SERVER_API_URL:-}
+    url: ${UNLEASH_SERVER_API_URL:-http://localhost:8090/unleash}
     token: ${UNLEASH_SERVER_API_TOKEN:-}
-    instanceId: ${NAIS_CLIENT_ID:-mulighetsrommet-api}
+    instanceId: mulighetsrommet-api
     environment: development

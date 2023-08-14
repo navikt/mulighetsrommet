@@ -21,7 +21,7 @@ import {
 import { Laster } from "../laster/Laster";
 import { PagineringContainer } from "../paginering/PagineringContainer";
 import { PagineringsOversikt } from "../paginering/PagineringOversikt";
-import { Avtalestatus } from "../statuselementer/Avtalestatus";
+import { AvtalestatusTag } from "../statuselementer/AvtalestatusTag";
 import styles from "./Tabell.module.scss";
 
 async function lastNedFil(filter: AvtaleFilterProps) {
@@ -234,7 +234,7 @@ export const AvtaleTabell = () => {
                     {formaterDato(avtale.sluttDato)}
                   </Table.DataCell>
                   <Table.DataCell>
-                    <Avtalestatus avtale={avtale} />
+                    <AvtalestatusTag avtale={avtale} />
                   </Table.DataCell>
                 </Table.Row>
               );

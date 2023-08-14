@@ -83,16 +83,6 @@ class UtkastRepositoryTest : FunSpec({
         )
 
         test("Upsert, Get og Delete") {
-            val utkastId = UUID.randomUUID()
-            val utkast = UtkastDbo(
-                id = utkastId,
-                opprettetAv = NavAnsattFixture.ansatt1.navIdent,
-                utkastData = Json.parseToJsonElement("{\"id\":\"123\",\"navn\":\"Min gjennomføring er kul\"}"),
-                createdAt = LocalDateTime.now(),
-                updatedAt = LocalDateTime.now(),
-                type = Utkasttype.Tiltaksgjennomforing,
-                avtaleId = avtale.id,
-            )
             utkastRepository.upsert(utkast).shouldBeRight().should {
                 it?.opprettetAv shouldBe NavAnsattFixture.ansatt1.navIdent
                 Json.encodeToString(it?.utkastData) shouldContain "Min gjennomføring er kul"
@@ -115,7 +105,7 @@ class UtkastRepositoryTest : FunSpec({
                 it?.type shouldBe Utkasttype.Tiltaksgjennomforing
             }
 
-            utkastRepository.delete(utkastId).shouldBeRight()
+            utkastRepository.delete(utkastId)
 
             utkastRepository.get(utkastId).shouldBeRight(null)
         }

@@ -101,7 +101,7 @@ class VeilederflateService(
             is SanityResponse.Result -> {
                 val gjennomforinger = result.decode<List<VeilederflateTiltaksgjennomforing>>()
                 val gjennomforingerMedDbData = supplerDataFraDB(gjennomforinger, enhetsId)
-                return gjennomforingerMedDbData.filter { filter.lokasjoner.isEmpty() || filter.lokasjoner.contains(it.lokasjon) }
+                gjennomforingerMedDbData.filter { filter.lokasjoner.isEmpty() || filter.lokasjoner.contains(it.lokasjon) }
             }
 
             is SanityResponse.Error -> throw Exception(result.error.toString())
@@ -179,7 +179,7 @@ class VeilederflateService(
                 val kontaktpersoner = apiGjennomforing?.let { hentKontaktpersoner(it, enhetsId) } ?: emptyList()
                 val kontaktpersonerArrangor = apiGjennomforing?.arrangor?.kontaktperson?.let {
                     KontaktInfoArrangor(
-                        selskapsnavn = virksomhetService.hentEnhet(it.organisasjonsnummer)?.navn,
+                        selskapsnavn = virksomhetService.getOrSyncVirksomhet(it.organisasjonsnummer)?.navn,
                         telefonnummer = it.telefon,
                         adresse = apiGjennomforing.lokasjonArrangor,
                         epost = it.epost,

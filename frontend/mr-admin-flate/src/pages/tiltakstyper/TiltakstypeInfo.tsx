@@ -1,7 +1,7 @@
 import classNames from "classnames";
 import { useTiltakstypeById } from "../../api/tiltakstyper/useTiltakstypeById";
 import { Metadata, Separator } from "../../components/detaljside/Metadata";
-import { Tiltakstypestatus } from "../../components/statuselementer/Tiltakstypestatus";
+import { TiltakstypestatusTag } from "../../components/statuselementer/TiltakstypestatusTag";
 import { formaterDato } from "../../utils/Utils";
 import styles from "../DetaljerInfo.module.scss";
 
@@ -22,7 +22,7 @@ export function TiltakstypeInfo() {
       <Separator />
       <Metadata
         header="Status"
-        verdi={<Tiltakstypestatus tiltakstype={tiltakstype} />}
+        verdi={<TiltakstypestatusTag tiltakstype={tiltakstype} />}
       />
       <Separator />
       <div className={styles.bolk}>

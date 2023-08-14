@@ -1,6 +1,6 @@
 import { initializeFaro } from "@grafana/faro-web-sdk";
 import { Alert, BodyShort, Modal } from "@navikt/ds-react";
-import { NavAnsattRolle } from "mulighetsrommet-api-client";
+import { NavAnsattRolle, Utkast } from "mulighetsrommet-api-client";
 import { Route, Routes } from "react-router-dom";
 import { Forside } from "./Forside";
 import IkkeAutentisertApp from "./IkkeAutentisertApp";
@@ -16,6 +16,20 @@ import { DetaljerTiltaksgjennomforingerPage } from "./pages/tiltaksgjennomforing
 import { NotifikasjonerPage } from "./pages/notifikasjoner/NotifikasjonerPage";
 import AvtaleSkjemaPage from "./components/avtaler/AvtaleSkjemaPage";
 import TiltaksgjennomforingSkjemaPage from "./components/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaPage";
+import { UtkastListe } from "./components/utkast/Utkastliste";
+import { Avtalefilter } from "./components/filter/Avtalefilter";
+import { AvtaleTabell } from "./components/tabell/AvtaleTabell";
+import { Avtaleinfo } from "./pages/avtaler/Avtaleinfo";
+import NotaterAvtalePage from "./components/avtaler/NotaterAvtalePage";
+import { TiltaksgjennomforingerForAvtale } from "./pages/avtaler/tiltaksgjennomforinger/TiltaksgjennomforingerForAvtale";
+import { Tiltaksgjennomforingfilter } from "./components/filter/Tiltaksgjennomforingfilter";
+import { TiltaksgjennomforingsTabell } from "./components/tabell/TiltaksgjennomforingsTabell";
+import NotaterTiltaksgjennomforingerPage from "./components/tiltaksgjennomforinger/NotaterTiltaksgjennomforingerPage";
+import { DeltakerListe } from "./microfrontends/team_komet/Deltakerliste";
+import { TiltaksgjennomforingInfo } from "./pages/tiltaksgjennomforinger/TiltaksgjennomforingInfo";
+import { TiltakstypeInfo } from "./pages/tiltakstyper/TiltakstypeInfo";
+import { AvtalerForTiltakstype } from "./pages/tiltakstyper/avtaler/AvtalerForTiltakstype";
+import { Notifikasjonsliste } from "./components/notifikasjoner/Notifikasjonsliste";
 
 if (import.meta.env.PROD) {
   initializeFaro({
@@ -74,17 +88,70 @@ export function App() {
         path="tiltakstyper/:tiltakstypeId"
         element={<DetaljerTiltakstypePage />}
         errorElement={<ErrorPage />}
-      />
+      >
+        <Route
+          index
+          element={<TiltakstypeInfo />}
+          errorElement={<ErrorPage />}
+        />
+        <Route
+          path="avtaler"
+          element={<AvtalerForTiltakstype />}
+          errorElement={<ErrorPage />}
+        />
+      </Route>
       <Route
         path="avtaler/"
         element={<AvtalerPage />}
         errorElement={<ErrorPage />}
-      />
+      >
+        <Route
+          index
+          element={<><Avtalefilter/><AvtaleTabell/></>}
+        />
+        <Route
+          path="utkast"
+          element={<UtkastListe utkastType={Utkast.type.AVTALE} />}
+          errorElement={<ErrorPage />}
+        />
+      </Route>
       <Route
         path="avtaler/:avtaleId"
         element={<DetaljerAvtalePage />}
         errorElement={<ErrorPage />}
-      />
+      >
+        <Route
+          index
+          element={<Avtaleinfo />}
+          errorElement={<ErrorPage />}
+        />
+        <Route
+          path="notater"
+          element={<NotaterAvtalePage />}
+          errorElement={<ErrorPage />}
+        />
+        <Route
+          path="tiltaksgjennomforinger"
+          element={<TiltaksgjennomforingerForAvtale />}
+          errorElement={<ErrorPage />}
+        >
+          <Route
+            index
+            element={
+              <>
+                <Tiltaksgjennomforingfilter skjulFilter={{ tiltakstype: true }} />
+                <TiltaksgjennomforingsTabell skjulKolonner={{ tiltakstype: true, arrangor: true, }} />
+              </>
+            }
+            errorElement={<ErrorPage />}
+          />
+          <Route
+            path="utkast"
+            element={<UtkastListe utkastType={Utkast.type.TILTAKSGJENNOMFORING} />}
+            errorElement={<ErrorPage />}
+          />
+        </Route>
+      </Route>
       <Route
         path="avtaler/skjema"
         element={<AvtaleSkjemaPage />}
@@ -99,7 +166,23 @@ export function App() {
         path="tiltaksgjennomforinger/:tiltaksgjennomforingId"
         element={<DetaljerTiltaksgjennomforingerPage />}
         errorElement={<ErrorPage />}
-      />
+      >
+        <Route
+          index
+          element={<TiltaksgjennomforingInfo />}
+          errorElement={<ErrorPage />}
+        />
+        <Route
+          path="notater"
+          element={<NotaterTiltaksgjennomforingerPage />}
+          errorElement={<ErrorPage />}
+        />
+        <Route
+          path="deltakere"
+          element={<DeltakerListe />}
+          errorElement={<ErrorPage />}
+        />
+      </Route>
       <Route
         path="tiltaksgjennomforinger/skjema"
         element={<TiltaksgjennomforingSkjemaPage />}
@@ -109,8 +192,18 @@ export function App() {
         path="notifikasjoner"
         element={<NotifikasjonerPage />}
         errorElement={<ErrorPage />}
-      />
-
+      >
+        <Route
+          index
+          element={<Notifikasjonsliste lest={false} />}
+          errorElement={<ErrorPage />}
+        />
+        <Route
+          path="tidligere"
+          element={<Notifikasjonsliste lest={true} />}
+          errorElement={<ErrorPage />}
+        />
+      </Route>
       <Route index element={<Forside />} />
     </Routes>
   );

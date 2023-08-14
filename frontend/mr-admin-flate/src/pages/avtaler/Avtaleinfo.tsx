@@ -3,7 +3,6 @@ import { Avtalestatus } from "mulighetsrommet-api-client";
 import { useAvtale } from "../../api/avtaler/useAvtale";
 import { Bolk } from "../../components/detaljside/Bolk";
 import {
-  Liste,
   Metadata,
   Separator,
 } from "../../components/detaljside/Metadata";
@@ -16,6 +15,8 @@ import {
 } from "../../utils/Utils";
 import styles from "../DetaljerInfo.module.scss";
 import { AvtaleKnapperad } from "./AvtaleKnapperad";
+import SlettAvtaleGjennomforingModal from "../../components/modal/SlettAvtaleGjennomforingModal";
+import { useDeleteAvtale } from "../../api/avtaler/useDeleteAvtale";
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
 
 export function Avtaleinfo() {
@@ -36,25 +37,13 @@ export function Avtaleinfo() {
   const lenketekst = () => {
     let tekst;
     if (avtale?.url?.includes("mercell")) {
-      tekst = (
-        <>
-          Se originalavtale i Mercell <ExternalLinkIcon />
-        </>
-      );
+      tekst = `Se originalavtale i Mercell `;
     } else if (avtale?.url?.includes("websak")) {
-      tekst = (
-        <>
-          Se originalavtale i WebSak <ExternalLinkIcon />
-        </>
-      );
+      tekst = `Se originalavtale i WebSak `;
     } else {
-      tekst = (
-        <>
-          Se originalavtale <ExternalLinkIcon />
-        </>
-      );
+      tekst = `Se originalavtale `;
     }
-    return tekst;
+    return <>{tekst}<ExternalLinkIcon /></>;
   };
 
   function visKnapperad(avtalestatus: Avtalestatus): boolean {
@@ -143,13 +132,11 @@ export function Avtaleinfo() {
             <Metadata
               header="NAV-enheter (kontorer)"
               verdi={
-                <Liste
-                  elementer={avtale.navEnheter.map((enhet) => ({
-                    key: enhet.enhetsnummer,
-                    value: enhet.navn,
-                  }))}
-                  tekstHvisTom="Alle enheter"
-                />
+                <ul>
+                  {avtale.navEnheter.map((enhet) => (
+                    <li key={enhet.enhetsnummer}>{enhet.navn}</li>
+                  ))}
+                </ul>
               }
             />{" "}
           </Bolk>
@@ -172,15 +159,13 @@ export function Avtaleinfo() {
             <Metadata
               header="Arrangører underenheter"
               verdi={
-                <Liste
-                  elementer={avtale.leverandorUnderenheter
+                <ul>
+                  {avtale.leverandorUnderenheter
                     .filter((enhet) => enhet.navn)
-                    .map((enhet) => ({
-                      key: enhet.organisasjonsnummer,
-                      value: `${enhet.navn} - ${enhet.organisasjonsnummer}`,
-                    }))}
-                  tekstHvisTom="Alle underenheter for arrangør"
-                />
+                    .map((enhet) => (
+                      <li key={enhet.organisasjonsnummer}>{enhet.navn}</li>
+                  ))}
+                </ul>
               }
             />
           </Bolk>

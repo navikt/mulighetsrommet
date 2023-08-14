@@ -130,23 +130,13 @@ export const enheterOptions = (navRegion: string, enheter: NavEnhet[]) => {
       label: enhet.navn,
       value: enhet.enhetsnummer,
     }));
-  options?.unshift({ value: "alle_enheter", label: "Alle enheter" });
   return options || [];
 };
 
 export const underenheterOptions = (
   underenheterForLeverandor: Virksomhet[],
-) => {
-  const options = underenheterForLeverandor.map(
-    (leverandor: LeverandorUnderenhet) => ({
-      value: leverandor.organisasjonsnummer,
-      label: `${leverandor.navn} - ${leverandor.organisasjonsnummer}`,
-    }),
-  );
-
-  options?.unshift({
-    value: "alle_underenheter",
-    label: "Alle underenheter",
-  });
-  return options;
-};
+) =>
+  underenheterForLeverandor.map((leverandor: LeverandorUnderenhet) => ({
+    value: leverandor.organisasjonsnummer,
+    label: `${leverandor.navn} - ${leverandor.organisasjonsnummer}`,
+  }));

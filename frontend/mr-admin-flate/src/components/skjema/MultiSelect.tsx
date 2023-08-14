@@ -77,9 +77,19 @@ const MultiSelect = React.forwardRef((props: MultiSelectProps, _) => {
       noOptionsMessage={() => "Ingen funnet"}
       name={name}
       value={value}
-      onChange={onChange}
+      onChange={(e) => {
+        if (e.find(o => o.value === "*")) {
+          if (value.length === options.length) {
+            onChange([]);
+          } else {
+            onChange(options);
+          }
+        } else {
+            onChange(e);
+        }
+      }}
       styles={customStyles(Boolean(error))}
-      options={options}
+      options={[{ label: "Velg alle", value: "*" }, ...options ]}
       theme={(theme: any) => ({
         ...theme,
         spacing: {

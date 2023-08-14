@@ -25,7 +25,7 @@ const TiltaksgjennomforingSkjemaPage = () => {
   const [searchParams] = useSearchParams();
   const {
     data: tiltaksgjennomforing,
-    isFetching: tiltaksgjennomforingFetching,
+    isLoading: tiltaksgjennomforingLoading,
   } = useTiltaksgjennomforing(
     searchParams.get("tiltaksgjennomforingId") || undefined,
   );
@@ -33,7 +33,7 @@ const TiltaksgjennomforingSkjemaPage = () => {
     searchParams.get("avtaleId") || tiltaksgjennomforing?.avtaleId,
   );
 
-  const { data: utkast, isFetching: utkastFetching } = useUtkast(
+  const { data: utkast, isLoading: utkastLoading } = useUtkast(
     searchParams.get("utkastId") || undefined,
   );
 
@@ -59,17 +59,17 @@ const TiltaksgjennomforingSkjemaPage = () => {
 
   const isError =
     !avtale ||
-    (avtale && avtale?.sluttDato && new Date(avtale.sluttDato) < new Date()) ||
-    (avtale && !avtale?.navRegion) ||
+    (avtale?.sluttDato && new Date(avtale.sluttDato) < new Date()) ||
+    !avtale?.navRegion ||
     isErrorAnsatt ||
     isErrorEnheter;
 
-  if (utkastFetching || tiltaksgjennomforingFetching) {
+  if (utkastLoading || tiltaksgjennomforingLoading) {
     return (
       <Laster
         size="xlarge"
         tekst={
-          utkastFetching ? "Laster utkast..." : "Laster tiltaksgjennomføring..."
+          utkastLoading ? "Laster utkast..." : "Laster tiltaksgjennomføring..."
         }
       />
     );

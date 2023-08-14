@@ -129,6 +129,12 @@ data class AvtaleRequest(
         if (!startDato.isBefore(sluttDato)) {
             return Either.Left(BadRequest("Startdato må være før sluttdato"))
         }
+        if (navEnheter.isEmpty()) {
+            return Either.Left(BadRequest("Minst étt nav kontor må være valgt"))
+        }
+        if (leverandorUnderenheter.isEmpty()) {
+            return Either.Left(BadRequest("Minst én underenhet til leverandøren må være valgt"))
+        }
 
         return Either.Right(
             AvtaleDbo(

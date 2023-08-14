@@ -1,38 +1,28 @@
 import { Alert, Tabs } from "@navikt/ds-react";
-import { useAtom } from "jotai";
 import { Toggles } from "mulighetsrommet-api-client";
-import { Link } from "react-router-dom";
-import {
-  TiltaksgjennomforingerTabs,
-  tiltaksgjennomforingTabAtom,
-} from "../../api/atoms";
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { useFeatureToggle } from "../../api/features/feature-toggles";
 import { useTiltaksgjennomforingById } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforingById";
 import { Header } from "../../components/detaljside/Header";
 import { Laster } from "../../components/laster/Laster";
-import { TiltaksgjennomforingStatus } from "../../components/statuselementer/TiltaksgjennomforingStatus";
-import NotaterTiltaksgjennomforingerPage from "../../components/tiltaksgjennomforinger/NotaterTiltaksgjennomforingerPage";
+import { TiltaksgjennomforingstatusTag } from "../../components/statuselementer/TiltaksgjennomforingstatusTag";
 import { ContainerLayoutDetaljer } from "../../layouts/ContainerLayout";
-import { DeltakerListe } from "../../microfrontends/team_komet/Deltakerliste";
 import commonStyles from "../Page.module.scss";
-import { TiltaksgjennomforingInfo } from "./TiltaksgjennomforingInfo";
-import { useFeatureToggle } from "../../api/features/feature-toggles";
 
 export function DetaljerTiltaksgjennomforingerPage() {
-  const optionalTiltaksgjennomforing = useTiltaksgjennomforingById();
-  const [tabValgt, setTabValgt] = useAtom(tiltaksgjennomforingTabAtom);
+  const { pathname } = useLocation();
+  const navigate = useNavigate();
+  const { data: tiltaksgjennomforing, isLoading } = useTiltaksgjennomforingById();
 
   const { data: visDeltakerlisteFraKometFeature } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_ADMIN_FLATE_VIS_DELTAKERLISTE_FRA_KOMET,
   );
 
-  if (
-    !optionalTiltaksgjennomforing.data &&
-    optionalTiltaksgjennomforing.isLoading
-  ) {
+  if (!tiltaksgjennomforing && isLoading) {
     return <Laster tekst="Laster tiltaksgjennomføring" />;
   }
 
-  if (!optionalTiltaksgjennomforing.data) {
+  if (!tiltaksgjennomforing) {
     return (
       <Alert variant="warning">
         Klarte ikke finne tiltaksgjennømforing
@@ -43,53 +33,56 @@ export function DetaljerTiltaksgjennomforingerPage() {
     );
   }
 
-  const tiltaksgjennomforing = optionalTiltaksgjennomforing.data;
+  const currentTab = () => {
+    if (pathname.includes("deltakere")) {
+      return "poc";
+    } else if (pathname.includes("notater")) {
+      return "notater";
+    } else {
+      return "info";
+    }
+  }
+
   return (
     <main>
       <Header>
         <div className={commonStyles.header}>
           <span>{tiltaksgjennomforing?.navn ?? "..."}</span>
-          <TiltaksgjennomforingStatus
+          <TiltaksgjennomforingstatusTag
             tiltaksgjennomforing={tiltaksgjennomforing}
           />
         </div>
       </Header>
 
-      <Tabs
-        value={tabValgt}
-        onChange={(value) => setTabValgt(value as TiltaksgjennomforingerTabs)}
-      >
+      <Tabs value={currentTab()} >
         <Tabs.List className={commonStyles.list}>
           <Tabs.Tab
-            value="detaljer"
-            label="Detaljer"
+            value="info"
+            label="Info"
             data-testid="tab_detaljer"
+            onClick={() => navigate(`/tiltaksgjennomforinger/${tiltaksgjennomforing.id}`)}
+            aria-controls="panel"
           />
-
-          <Tabs.Tab value="tiltaksgjennomforingsnotater" label="Notater" />
-
+          <Tabs.Tab
+            value="notater"
+            label="Notater"
+            onClick={() => navigate(`/tiltaksgjennomforinger/${tiltaksgjennomforing.id}/notater`)}
+            aria-controls="panel"
+          />
           {visDeltakerlisteFraKometFeature ? (
-            <Tabs.Tab value="poc" label="Deltakerliste" />
+            <Tabs.Tab
+              value="poc"
+              label="Deltakerliste"
+              onClick={() => navigate(`/tiltaksgjennomforinger/${tiltaksgjennomforing.id}/deltakere`)}
+              aria-controls="panel"
+            />
           ) : null}
         </Tabs.List>
-
-        <Tabs.Panel value="detaljer">
-          <ContainerLayoutDetaljer>
-            <TiltaksgjennomforingInfo />
-          </ContainerLayoutDetaljer>
-        </Tabs.Panel>
-
-        <Tabs.Panel value="tiltaksgjennomforingsnotater">
-          <ContainerLayoutDetaljer>
-            <NotaterTiltaksgjennomforingerPage />
-          </ContainerLayoutDetaljer>
-        </Tabs.Panel>
-
-        <Tabs.Panel value="poc">
-          <ContainerLayoutDetaljer>
-            <DeltakerListe />
-          </ContainerLayoutDetaljer>
-        </Tabs.Panel>
+        <ContainerLayoutDetaljer>
+          <div id="panel">
+            <Outlet />
+          </div>
+        </ContainerLayoutDetaljer>
       </Tabs>
     </main>
   );

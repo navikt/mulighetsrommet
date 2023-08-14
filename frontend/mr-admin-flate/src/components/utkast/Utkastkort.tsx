@@ -6,10 +6,10 @@ import { formaterDatoTid } from "../../utils/Utils";
 import styles from "./Utkastkort.module.scss";
 import classNames from "classnames";
 import { useState } from "react";
-import { UseMutationResult } from "@tanstack/react-query";
 import SletteModal from "../modal/SletteModal";
 import { Lenkeknapp } from "../lenkeknapp/Lenkeknapp";
 import { useMineUtkast } from "../../api/utkast/useMineUtkast";
+import { UseMutationResult } from "@tanstack/react-query";
 
 interface UtkastKortProps {
   utkast: Utkast;
@@ -75,7 +75,7 @@ export function UtkastKort({ utkast, mutation }: UtkastKortProps) {
         </Button>
         <Lenkeknapp
           to={
-            utkasttypeTekst(utkast.type) === "avtale"
+            utkast.type === Utkast.type.AVTALE
               ? `/avtaler/skjema?utkastId=${utkast.id}`
               : `/tiltaksgjennomforinger/skjema?utkastId=${utkast.id}`
           }

@@ -55,12 +55,11 @@ import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
 import { VirksomhetKontaktpersoner } from "../virksomhet/VirksomhetKontaktpersoner";
 import { Separator } from "../detaljside/Metadata";
-import classNames from "classnames";
-import { useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
+import { TiltaksgjennomforingSkjemaKnapperadUtkast } from "./TiltaksgjennomforingSkjemaKnapperadUtkast";
+import { useNavigate } from "react-router-dom";
 import { faro } from "@grafana/faro-web-sdk";
 import { TiltaksgjennomforingSkjemaKnapperadRediger } from "./TiltaksgjennomforingSkjemaKnapperadRediger";
-import { TiltaksgjennomforingSkjemaKnapperadUtkast } from "./TiltaksgjennomforingSkjemaKnapperadUtkast";
 
 interface Props {
   onSuccess: (id: string) => void;
@@ -146,13 +145,6 @@ export const TiltaksgjennomforingSkjemaContainer = ({
       return;
     }
 
-    if (!avtale) {
-      toast.info("Kan ikke lagre utkast uten avtale", {
-        autoClose: 10000,
-      });
-      return;
-    }
-
     mutationUtkast.mutate({
       id: utkastIdRef.current,
       utkastData,
@@ -167,11 +159,8 @@ export const TiltaksgjennomforingSkjemaContainer = ({
     defaultValues: {
       navn: tiltaksgjennomforing?.navn,
       navEnheter:
-        tiltaksgjennomforing?.navEnheter?.length === 0
-          ? ["alle_enheter"]
-          : tiltaksgjennomforing?.navEnheter?.map(
-              (enhet) => enhet.enhetsnummer,
-            ) || [],
+        tiltaksgjennomforing?.navEnheter?.map((enhet) => enhet.enhetsnummer) ||
+        [],
       ansvarlig: tiltaksgjennomforing?.ansvarlig?.navident,
       antallPlasser: tiltaksgjennomforing?.antallPlasser,
       startOgSluttDato: {
@@ -260,9 +249,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
       id: tiltaksgjennomforing ? tiltaksgjennomforing.id : uuidv4(),
       antallPlasser: data.antallPlasser,
       tiltakstypeId: avtale.tiltakstype.id,
-      navEnheter: data.navEnheter.includes("alle_enheter")
-        ? []
-        : data.navEnheter,
+      navEnheter: data.navEnheter,
       navn: data.navn,
       sluttDato: formaterDatoSomYYYYMMDD(data.startOgSluttDato.sluttDato),
       startDato: formaterDatoSomYYYYMMDD(data.startOgSluttDato.startDato),
@@ -286,9 +273,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
           ?.filter((kontakt) => kontakt.navIdent !== "")
           ?.map((kontakt) => ({
             ...kontakt,
-            navEnheter: kontakt.navEnheter.includes("alle_enheter")
-              ? []
-              : kontakt.navEnheter,
+            navEnheter: kontakt.navEnheter,
           })) || [],
       estimertVentetid: data.estimertVentetid ?? null,
       lokasjonArrangor: data.lokasjonArrangor,
@@ -514,10 +499,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
                           key={field.id}
                         >
                           <button
-                            className={classNames(
-                              skjemastyles.kontaktperson_button,
-                              skjemastyles.kontaktperson_fjern_button,
-                            )}
+                            className={skjemastyles.kontaktperson_button}
                             type="button"
                             onClick={() => {
                               if (watch("kontaktpersoner")!.length > 1) {
@@ -529,7 +511,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
                               }
                             }}
                           >
-                            <XMarkIcon />
+                            <XMarkIcon fontSize="1.5rem" />
                           </button>
                           <div className={skjemastyles.kontaktperson_inputs}>
                             <SokeSelect

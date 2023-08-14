@@ -24,17 +24,15 @@ jobs:
     name: CI
     runs-on: ubuntu-latest
     permissions: write-all
-    if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
     steps:
       - uses: actions/checkout@v3
-      - name: Setup frontend og installer avhengigheter
+      - name: Setup frontend
         uses: ./.github/actions/setup-frontend
-      - name: Install dependencies
-        run: npm install @sanity/cli
       - name: Bygg studio
         run: npx turbo run build --filter=mulighetsrommet-cms
       - name: Build and publish Docker image
         working-directory: frontend/mulighetsrommet-cms
+        if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |

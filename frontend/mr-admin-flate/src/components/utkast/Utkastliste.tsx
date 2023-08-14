@@ -7,17 +7,11 @@ import styles from "../avtaler/AvtaleUtkast.module.scss";
 import { useDeleteUtkast } from "../../api/utkast/useDeleteUtkast";
 
 interface Props {
-  dataType: "avtale" | "gjennomforing";
+  utkastType: Utkast.type;
 }
 
-export function UtkastListe({ dataType }: Props) {
-  const {
-    data = [],
-    isLoading,
-    error,
-  } = dataType === "avtale"
-    ? useMineUtkast(Utkast.type.AVTALE)
-    : useMineUtkast(Utkast.type.TILTAKSGJENNOMFORING);
+export function UtkastListe({ utkastType }: Props) {
+  const { data = [], isLoading, error } = useMineUtkast(utkastType);
 
   const mutation = useDeleteUtkast();
 

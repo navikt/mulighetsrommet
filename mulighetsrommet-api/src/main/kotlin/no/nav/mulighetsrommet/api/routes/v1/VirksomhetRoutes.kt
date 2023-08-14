@@ -36,7 +36,7 @@ fun Route.virksomhetRoutes() {
                 throw BadRequestException("Verdi sendt inn er ikke et organisasjonsnummer. Organisasjonsnummer er 9 siffer og bare tall.")
             }
 
-            val enhet = virksomhetService.hentEnhet(orgnr)
+            val enhet = virksomhetService.getOrSyncVirksomhet(orgnr)
             if (enhet == null) {
                 call.respond(HttpStatusCode.NotFound, "Fant ikke enhet med orgnr: $orgnr")
             } else {
@@ -92,7 +92,7 @@ fun Route.virksomhetRoutes() {
             check(orgnr.isNotEmpty())
 
             log.info("Oppdaterer virksomhet med orgnr: $orgnr")
-            val response = virksomhetService.syncEnhetFraBrreg(orgnr)
+            val response = virksomhetService.syncVirksomhetFraBrreg(orgnr)
             call.respond("${response?.navn} oppdatert")
         }
     }

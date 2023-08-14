@@ -24,22 +24,39 @@ prosjektet lokalt.
 Dette prosjektet inkluderer en `asdf` [.tool-versions](https://asdf-vm.com/manage/configuration.html#tool-versions)-fil
 som spesifiserer versjoner for runtime-avhengigheter som matcher det vi kjører på Github Actions (CI) og på NAIS.
 
-For å benytte `asdf` så holder det å [installere asdf](https://asdf-vm.com/guide/getting-started.html) og deretter kjøre
-kommandoen `asdf install` i rot av prosjektet.
-Foreløpig liste over verktøy som blir håndtert via `asdf` for dette prosjektet er som følger:
-
-- java
-- gradle
-- nodejs
-- kubectl
-
-Om du får beskjed om at du mangler plugins fra noen av verktøyene over kan du kjøre
+For å benytte `asdf` så må du [installere programmet](https://asdf-vm.com/guide/getting-started.html) og deretter
+plugins for hver toolchain eller verktøy du ønsker å administrere med `asdf` (du kan utelate plugins etter eget ønske
+hvis du ønsker å administrere dette manuelt i stedet):
 
 ```bash
 asdf plugin-add java
 asdf plugin-add gradle https://github.com/rfrancis/asdf-gradle.git
 asdf plugin-add nodejs
 asdf plugin-add kubectl https://github.com/asdf-community/asdf-kubectl.git
+```
+
+Når plugins er installert så kan du kjøre kommandoen `asdf install` i rot av prosjektet, samt for hver
+gang `.tools-versions` har endret seg.
+
+### Docker
+
+For å gjøre utvikling på lokal maskin enklere benytter vi Docker og Docker Compose til å kjøre databaser og mocks av
+tredjeparts tjenester.
+Sørg for å ha [Docker](https://www.docker.com) installert, se instruksjoner
+for [Mac](https://docs.docker.com/desktop/mac/install) eller [Ubuntu](https://docs.docker.com/engine/install/ubuntu).
+
+Når installasjon er fullført kan du bl.a. benytte følgende kommandoer til å administrere containere definert
+i `docker-compose.yaml`:
+
+```bash
+# Starter alle containere som trengs for lokal utvikling
+docker compose --profile dev up -d
+
+# Stopper alle containere
+docker compose -p mulighetsrommet down
+
+# Stopper alle containere og sletter samtidig tilhørende volumer
+docker compose -p mulighetsrommet down -v
 ```
 
 ### Git hooks
@@ -52,6 +69,19 @@ liste, blir oppdatert etter hvert som behovet oppstår):
 - Installasjon av pre-commit hook for å kjøre `ktlintCheck` på endrede filer: Kjør
   kommando `./gradlew addKtlintCheckGitPreCommitHook`
 
+## Utvikling
+
+### Mocks via Wiremock
+
+Vi har en rekke mocks for tredjeparts tjenester som blir administrert via Wiremock i [docker-compose.yaml](docker-compose.yaml) og som blir
+benyttet når du kjører tjenestene i dette prosjektet på lokal maskin.
+Se konfigurasjonen der for hvor mockene er definert hvis du ønsker å utvide med flere responser.
+
+Følgende endepunkter kan være kjekke for benytte under testing:
+
+- Get all mocks: `curl -XGET http://localhost:8090/__admin/mappings`
+- Reload mocks: `curl -I -XPOST http://localhost:8090/__admin/mappings/reset`
+
 ## Overvåking av løsninger
 
 Det finnes noen tilgjengelige dashboards, men nytten med disse kan variere:
@@ -60,18 +90,6 @@ Det finnes noen tilgjengelige dashboards, men nytten med disse kan variere:
 - [Opentelemetry-metrikker fra frontend](https://grafana.nav.cloud.nais.io/d/k8g_nks4z/frontend-web-vitals?orgId=1&var-app=mulighetsrommet-veileder-flate&var-env=prod-gcp-loki&from=now-15m&to=now)
 - [Metrikker fra frontend](<https://logs.adeo.no/app/dashboards#/view/b9e91b00-01ba-11ed-9b1a-4723a5e7a9db?_a=(viewMode:edit)&_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:now-15m,to:now))>)
 - [Metrikker fra backend](https://grafana.nais.io/d/8W2DNq6nk/mulighetsrommet-api?orgId=1&refresh=5m&var-datasource=prod-gcp&var-duration=30m&var-team=team-mulighetsrommet&from=now-15m&to=now)
-
-## Feature toggles
-
-Grensesnitt for å definere toggles finner du her: https://team-mulighetsrommet-unleash-web.nav.cloud.nais.io.
-Logg inn med @nav-brukeren din.
-
-### Oppsett av feature toggles lokalt
-For å hente feature toggles definert for dev-miljø lokalt, så kan du gjøre følgende:
-1. Opprett miljøvariabelen `UNLEASH_SERVER_API_URL` med verdi: https://team-mulighetsrommet-unleash-api.nav.cloud.nais.io
-2. Opprett miljøvariabelen `UNLEASH_SERVER_API_TOKEN` og finn token via Unleash
-
-Start opp app som normalt.
 
 ## Moduler
 
