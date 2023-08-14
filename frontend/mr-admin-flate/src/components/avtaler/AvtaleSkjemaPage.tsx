@@ -12,7 +12,7 @@ import { Laster } from "../laster/Laster";
 import { AvtaleSkjemaContainer } from "./AvtaleSkjemaContainer";
 import { useUtkast } from "../../api/utkast/useUtkast";
 import styles from "../skjema/Skjema.module.scss";
-import { Avtalestatus } from "../statuselementer/Avtalestatus";
+import { AvtalestatusTag } from "../statuselementer/AvtalestatusTag";
 
 const AvtaleSkjemaPage = () => {
   const navigate = useNavigate();
@@ -59,7 +59,7 @@ const AvtaleSkjemaPage = () => {
           ) : (
             <div className={styles.rediger_header_status}>
               Rediger avtale
-              <Avtalestatus avtale={avtale!} />
+              <AvtalestatusTag avtale={avtale!} />
             </div>
           )
         ) : (

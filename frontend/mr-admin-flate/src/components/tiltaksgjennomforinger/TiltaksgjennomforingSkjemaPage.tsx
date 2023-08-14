@@ -16,19 +16,17 @@ import React from "react";
 import { useTiltaksgjennomforing } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforing";
 import styles from "../skjema/Skjema.module.scss";
 import { useAvtale } from "../../api/avtaler/useAvtale";
-import { TiltaksgjennomforingStatus } from "../statuselementer/TiltaksgjennomforingStatus";
 import { ErrorMeldinger } from "./TiltaksgjennomforingSkjemaErrors";
 import { Alert } from "@navikt/ds-react";
+import { TiltaksgjennomforingstatusTag } from "../statuselementer/TiltaksgjennomforingstatusTag";
 
 const TiltaksgjennomforingSkjemaPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const {
-    data: tiltaksgjennomforing,
-    isLoading: tiltaksgjennomforingLoading,
-  } = useTiltaksgjennomforing(
-    searchParams.get("tiltaksgjennomforingId") || undefined,
-  );
+  const { data: tiltaksgjennomforing, isLoading: tiltaksgjennomforingLoading } =
+    useTiltaksgjennomforing(
+      searchParams.get("tiltaksgjennomforingId") || undefined,
+    );
   const { data: avtale } = useAvtale(
     searchParams.get("avtaleId") || tiltaksgjennomforing?.avtaleId,
   );
@@ -90,7 +88,7 @@ const TiltaksgjennomforingSkjemaPage = () => {
           ) : (
             <div className={styles.rediger_header_status}>
               Rediger tiltaksgjennomføring
-              <TiltaksgjennomforingStatus
+              <TiltaksgjennomforingstatusTag
                 tiltaksgjennomforing={tiltaksgjennomforing!}
               />
             </div>

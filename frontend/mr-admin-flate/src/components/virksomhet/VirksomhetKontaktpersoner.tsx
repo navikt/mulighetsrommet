@@ -10,6 +10,7 @@ import { useFormContext } from "react-hook-form";
 import { Laster } from "../laster/Laster";
 import { validEmail } from "../../utils/Utils";
 import { DeleteVirksomhetKontaktpersonModal } from "./DeleteVirksomhetKontaktpersonModal";
+import classNames from "classnames";
 
 interface State {
   leggTil: boolean;
