@@ -1,7 +1,8 @@
 name: POAO-frontend (mr-arena-adapter-manager)
 
 on:
-  push:
+  merge_queue:
+  pull_request:
     paths:
       - .github/workflows/mr-arena-adapter-manager-container.yaml
       - frontend/arena-adapter-manager/.nais/**

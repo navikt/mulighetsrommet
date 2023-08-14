@@ -1,7 +1,8 @@
 name: Unleash api-tokens (mr-api)
 
 on:
-  push:
+  merge_queue:
+  pull_request:
     paths:
       - .github/workflows/unleash-apitoken.yaml
       - mulighetsrommet-api/.nais/unleash-apitoken-dev.yaml

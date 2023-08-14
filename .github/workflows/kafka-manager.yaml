@@ -1,7 +1,8 @@
 name: Kafka manager
 
 on:
-  push:
+  merge_queue:
+  pull_request:
     paths:
       - .github/workflows/kafka-manager.yaml
       - iac/kafka-manager/**
