@@ -270,6 +270,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
       estimertVentetid: data.estimertVentetid ?? null,
       lokasjonArrangor: data.lokasjonArrangor,
       arrangorKontaktpersonId: data.arrangorKontaktpersonId ?? null,
+      opphav: tiltaksgjennomforing?.opphav,
     };
 
     try {

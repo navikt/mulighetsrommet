@@ -166,11 +166,7 @@ export function AvtaleSkjemaContainer({
       navEnheter,
       avtalenummer: getValueOrDefault(avtale?.avtalenummer, ""),
       leverandorOrganisasjonsnummer,
-      leverandorUnderenheter: leverandorUnderenheter.includes(
-        "alle_underenheter",
-      )
-        ? []
-        : leverandorUnderenheter,
+      leverandorUnderenheter,
       navn,
       sluttDato: formaterDatoSomYYYYMMDD(startOgSluttDato.sluttDato),
       startDato: formaterDatoSomYYYYMMDD(startOgSluttDato.startDato),

@@ -1947,6 +1947,8 @@ components:
           nullable: true
         lokasjonArrangor:
           type: string
+        opphav:
+          $ref: "#/components/schemas/Opphav"
       required:
         - id
         - tiltakstypeId
