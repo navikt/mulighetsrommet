@@ -10,6 +10,9 @@ on:
       - turbo.json
       - frontend/mulighetsrommet-veileder-flate/**
       - mulighetsrommet-api/src/main/resources/web/openapi.yaml
+  push:
+    branches:
+      - main
   workflow_dispatch:
     inputs:
       environment:
