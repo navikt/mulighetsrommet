@@ -70,7 +70,7 @@
     "eslint-plugin-react": "^7.33.1",
     "msw": "1.2.3",
     "rollup-plugin-visualizer": "^5.9.2",
-    "sass": "^1.64.1",
+    "sass": "^1.65.1",
     "typescript": "^5.1.6",
     "vite": "^4.4.7",
     "vite-plugin-require": "^1.1.10"
