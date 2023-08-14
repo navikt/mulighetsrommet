@@ -11,6 +11,9 @@ on:
       - gradle/libs.versions.toml
       - common/**
       - mulighetsrommet-arena-adapter/**
+  push:
+    branches:
+      - main
   workflow_dispatch:
     inputs:
       environment:

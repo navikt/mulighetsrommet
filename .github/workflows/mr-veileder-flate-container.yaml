@@ -6,6 +6,9 @@ on:
     paths:
       - .github/workflows/mr-veileder-flate-container.yaml
       - frontend/mulighetsrommet-veileder-flate/.nais/**
+  push:
+    branches:
+      - main
   workflow_dispatch:
     inputs:
       environment:

@@ -9,6 +9,9 @@ on:
       - package-lock.json
       - turbo.json
       - frontend/arena-adapter-manager/**
+  push:
+    branches:
+      - main
   workflow_dispatch:
     inputs:
       environment:
