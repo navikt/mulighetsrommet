@@ -15,7 +15,11 @@ interface Props {
   mutation: UseMutationResult<string, unknown, string>;
 }
 
-export default function Notatliste({ notater, visMineNotater }: Props) {
+export default function Notatliste({
+  notater,
+  visMineNotater,
+  mutation,
+}: Props) {
   const [notatIdForSletting, setNotatIdForSletting] = useState<null | string>(
     null,
   );
