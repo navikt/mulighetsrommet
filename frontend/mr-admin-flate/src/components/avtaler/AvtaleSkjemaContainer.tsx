@@ -41,7 +41,7 @@ import {
 import { AnsvarligOptions } from "../skjema/AnsvarligOptions";
 import { FormGroup } from "../skjema/FormGroup";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AvtaleSkjemaKnapperad } from "./AvtaleSkjemaKnapperad";
+import { AvtaleSkjemaKnapperadOpprett } from "./AvtaleSkjemaKnapperad";
 
 interface Props {
   onClose: () => void;
@@ -50,7 +50,7 @@ interface Props {
   ansatt: NavAnsatt;
   avtale?: Avtale;
   enheter: NavEnhet[];
-  redigeringsModus: boolean;
+  redigeringsmodus: boolean;
 }
 
 export function AvtaleSkjemaContainer({
@@ -60,7 +60,7 @@ export function AvtaleSkjemaContainer({
   ansatt,
   enheter,
   avtale,
-  redigeringsModus,
+  redigeringsmodus,
 }: Props) {
   const [navRegion, setNavRegion] = useState<string | undefined>(
     avtale?.navRegion?.enhetsnummer,
@@ -69,7 +69,7 @@ export function AvtaleSkjemaContainer({
     avtale?.leverandor?.organisasjonsnummer || "",
   );
 
-  const mutation = usePutAvtale();
+  const opprettAvtaleMutation = usePutAvtale();
   const { data: betabrukere } = useHentBetabrukere();
   const mutationUtkast = useMutateUtkast();
 
@@ -188,18 +188,18 @@ export function AvtaleSkjemaContainer({
       requestBody.id = avtale.id; // Ved oppdatering av eksisterende avtale
     }
 
-    mutation.mutate(requestBody);
+    opprettAvtaleMutation.mutate(requestBody);
   };
 
-  if (mutation.isSuccess) {
-    onSuccess(mutation.data.id);
+  if (opprettAvtaleMutation.isSuccess) {
+    onSuccess(opprettAvtaleMutation.data.id);
   }
 
-  if (mutation.isError) {
+  if (opprettAvtaleMutation.isError) {
     return (
       <Alert variant="error">
-        {(mutation.error as ApiError).status === 400
-          ? (mutation.error as ApiError).body
+        {(opprettAvtaleMutation.error as ApiError).status === 400
+          ? (opprettAvtaleMutation.error as ApiError).body
           : "Avtalen kunne ikke opprettes på grunn av en teknisk feil hos oss. " +
             "Forsøk på nytt eller ta <a href={PORTEN}>kontakt i Porten</a> dersom " +
             "du trenger mer hjelp."}
@@ -274,7 +274,7 @@ export function AvtaleSkjemaContainer({
                     label: "Sluttdato",
                   }}
                 />
-                {redigeringsModus ? <AvbrytAvtale onAvbryt={onClose} /> : null}
+                {redigeringsmodus ? <AvbrytAvtale onAvbryt={onClose} /> : null}
               </FormGroup>
               <Separator />
               <FormGroup>
@@ -386,9 +386,11 @@ export function AvtaleSkjemaContainer({
             </div>
           </div>
           <Separator />
-          <AvtaleSkjemaKnapperad
-            redigeringsModus={redigeringsModus!}
-            onClose={onClose}
+          <AvtaleSkjemaKnapperadOpprett
+            opprettMutation={opprettAvtaleMutation}
+            handleDelete={onClose} // nå avbryter den bare, sletter også utkastet?
+            redigeringsmodus={redigeringsmodus}
+            mutationUtkast={mutationUtkast}
           />
         </div>
       </form>

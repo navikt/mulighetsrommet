@@ -24,12 +24,10 @@ const TiltaksgjennomforingSkjemaPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const queryClient = useQueryClient();
-  const {
-    data: tiltaksgjennomforing,
-    isLoading: tiltaksgjennomforingLoading,
-  } = useTiltaksgjennomforing(
-    searchParams.get("tiltaksgjennomforingId") || undefined,
-  );
+  const { data: tiltaksgjennomforing, isLoading: tiltaksgjennomforingLoading } =
+    useTiltaksgjennomforing(
+      searchParams.get("tiltaksgjennomforingId") || undefined,
+    );
   const { data: avtale } = useAvtale(
     searchParams.get("avtaleId") || tiltaksgjennomforing?.avtaleId,
   );
@@ -50,7 +48,7 @@ const TiltaksgjennomforingSkjemaPage = () => {
   } = useAlleEnheter();
 
   const utkastModus = utkast && inneholderUrl(utkast?.id);
-  const redigeringsModus =
+  const redigeringsmodus =
     utkastModus ||
     (tiltaksgjennomforing && inneholderUrl(tiltaksgjennomforing?.id));
 
@@ -80,16 +78,16 @@ const TiltaksgjennomforingSkjemaPage = () => {
     <main>
       <Header
         dataTestId={
-          redigeringsModus
+          redigeringsmodus
             ? "rediger-tiltaksgjennomforing-header"
             : "opprett-tiltaksgjennomforing-header"
         }
       >
-        {redigeringsModus
+        {redigeringsmodus
           ? utkastModus
             ? "Rediger utkast"
             : "Rediger tiltaksgjennomføring"
-          : "Opprett ny tiltaksgjennomforing"}
+          : "Opprett ny tiltaksgjennomføring"}
       </Header>
       <ContainerLayoutDetaljer>
         <div className={styles.skjema}>
@@ -97,11 +95,11 @@ const TiltaksgjennomforingSkjemaPage = () => {
             <Laster />
           ) : null}
           <div className={styles.skjema_content}>
-            {isError && redigeringsModus ? (
+            {isError && redigeringsmodus ? (
               <Alert variant="error">
                 {ErrorMeldinger(
                   avtale!,
-                  redigeringsModus,
+                  redigeringsmodus,
                   isErrorAnsatt,
                   isErrorEnheter,
                 )}
@@ -119,6 +117,7 @@ const TiltaksgjennomforingSkjemaPage = () => {
                   (utkast?.utkastData as Tiltaksgjennomforing) ||
                   tiltaksgjennomforing
                 }
+                redigeringsmodus={redigeringsmodus!}
               />
             )}
           </div>

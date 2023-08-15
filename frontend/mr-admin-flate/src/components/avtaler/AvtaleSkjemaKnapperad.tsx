@@ -1,35 +1,51 @@
 import styles from "../skjema/Skjema.module.scss";
-import { Button } from "@navikt/ds-react";
-import { faro } from "@grafana/faro-web-sdk";
+import { SubmitSkjemaKnapp } from "../skjemaknapper/SubmitSkjemaKnapp";
+import { SlettUtkastKnapp } from "../skjemaknapper/SlettUtkastKnapp";
+import { useState } from "react";
+import SletteModal from "../modal/SletteModal";
+import { useDeleteUtkast } from "../../api/utkast/useDeleteUtkast";
+import { UseMutationResult } from "@tanstack/react-query";
+import { Avtale, AvtaleRequest, Utkast } from "mulighetsrommet-api-client";
 
-interface Props {
-  redigeringsModus: boolean;
-  onClose: () => void;
+interface OpprettProps {
+  opprettMutation: UseMutationResult<Avtale, unknown, AvtaleRequest>;
+  handleDelete: () => void;
+  redigeringsmodus: boolean;
+  mutationUtkast: UseMutationResult<Utkast, unknown, Utkast>;
 }
-export function AvtaleSkjemaKnapperad({ redigeringsModus, onClose }: Props) {
+
+export function AvtaleSkjemaKnapperadOpprett({
+  opprettMutation,
+  handleDelete,
+  redigeringsmodus,
+  mutationUtkast,
+}: OpprettProps) {
+  const [slettemodal, setSlettemodal] = useState(false);
+  const mutationDeleteUtkast = useDeleteUtkast();
+
   return (
-    <div className={styles.button_row}>
-      <Button
-        className={styles.button}
-        onClick={onClose}
-        variant="tertiary"
-        data-testid="avtaleskjema-avbrytknapp"
-      >
-        Avbryt
-      </Button>
-      <Button
-        className={styles.button}
-        type="submit"
-        onClick={() => {
-          faro?.api?.pushEvent(
-            `Bruker ${redigeringsModus ? "redigerer" : "oppretter"} avtale`,
-            { handling: redigeringsModus ? "redigerer" : "oppretter" },
-            "avtale",
-          );
-        }}
-      >
-        {redigeringsModus ? "Lagre redigert avtale" : "Opprett ny avtale"}
-      </Button>
-    </div>
+    <>
+      <div className={styles.button_row}>
+        <SlettUtkastKnapp
+          setSlettemodal={() => setSlettemodal(true)}
+          disabled={!mutationUtkast.isSuccess}
+        />
+        <SubmitSkjemaKnapp
+          type="avtale"
+          mutation={opprettMutation}
+          dataTestId="lagre-opprett-knapp"
+          redigeringsmodus={redigeringsmodus}
+        />
+      </div>
+
+      <SletteModal
+        modalOpen={slettemodal}
+        onClose={() => setSlettemodal(false)}
+        headerText="Ønsker du å slette utkastet?"
+        headerTextError="Kan ikke slette utkastet."
+        handleDelete={handleDelete}
+        mutation={mutationDeleteUtkast}
+      />
+    </>
   );
 }

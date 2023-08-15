@@ -1,50 +1,59 @@
 import styles from "../skjema/Skjema.module.scss";
-import { Button } from "@navikt/ds-react";
-import React from "react";
+import React, { useState } from "react";
 import { UseMutationResult } from "@tanstack/react-query";
 import {
   Tiltaksgjennomforing,
   TiltaksgjennomforingRequest,
+  Utkast,
 } from "mulighetsrommet-api-client";
+import { SubmitSkjemaKnapp } from "../skjemaknapper/SubmitSkjemaKnapp";
+import SletteModal from "../modal/SletteModal";
+import { SlettUtkastKnapp } from "../skjemaknapper/SlettUtkastKnapp";
+import { useDeleteUtkast } from "../../api/utkast/useDeleteUtkast";
 
-interface Props {
-  redigeringsModus: boolean;
-  onClose: () => void;
-  mutation: UseMutationResult<
+interface PropsOpprett {
+  opprettMutation: UseMutationResult<
     Tiltaksgjennomforing,
     unknown,
     TiltaksgjennomforingRequest,
     unknown
   >;
+  handleDelete: () => void;
+  redigeringsmodus: boolean;
+  mutationUtkast: UseMutationResult<Utkast, unknown, Utkast>;
 }
-export function TiltaksgjennomforingSkjemaKnapperad({
-  redigeringsModus,
-  onClose,
-  mutation,
-}: Props) {
+export function TiltaksgjennomforingSkjemaKnapperadOpprett({
+  opprettMutation,
+  handleDelete,
+  redigeringsmodus,
+  mutationUtkast,
+}: PropsOpprett) {
+  const [slettemodal, setSlettemodal] = useState(false);
+  const mutationDeleteUtkast = useDeleteUtkast();
+
   return (
-    <div className={styles.button_row}>
-      <Button
-        className={styles.button}
-        onClick={onClose}
-        variant="tertiary"
-        type="button"
-        data-testid="avbryt-knapp"
-      >
-        Avbryt
-      </Button>
-      <Button
-        className={styles.button}
-        type="submit"
-        disabled={mutation.isLoading}
-        data-testid="lagre-opprett-knapp"
-      >
-        {mutation.isLoading
-          ? "Lagrer..."
-          : redigeringsModus
-          ? "Lagre gjennomføring"
-          : "Opprett"}
-      </Button>
-    </div>
+    <>
+      <div className={styles.button_row}>
+        <SlettUtkastKnapp
+          setSlettemodal={() => setSlettemodal(true)}
+          disabled={!mutationUtkast.isSuccess}
+        />
+        <SubmitSkjemaKnapp
+          type="gjennomføring"
+          mutation={opprettMutation}
+          dataTestId="lagre-opprett-knapp"
+          redigeringsmodus={redigeringsmodus}
+        />
+      </div>
+
+      <SletteModal
+        modalOpen={slettemodal}
+        onClose={() => setSlettemodal(false)}
+        headerText="Ønsker du å slette utkastet?"
+        headerTextError="Kan ikke slette utkastet."
+        handleDelete={handleDelete}
+        mutation={mutationDeleteUtkast}
+      />
+    </>
   );
 }

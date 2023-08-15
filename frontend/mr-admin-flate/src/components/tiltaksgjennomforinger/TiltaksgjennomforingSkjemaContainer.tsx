@@ -47,7 +47,7 @@ import { toast } from "react-toastify";
 import { SokeSelect } from "../skjema/SokeSelect";
 import { FormGroup } from "../skjema/FormGroup";
 import { AvbrytTiltaksgjennomforing } from "./AvbrytTiltaksgjennomforing";
-import { TiltaksgjennomforingSkjemaKnapperad } from "./TiltaksgjennomforingSkjemaKnapperad";
+import { TiltaksgjennomforingSkjemaKnapperadOpprett } from "./TiltaksgjennomforingSkjemaKnapperad";
 import { useVirksomhet } from "../../api/virksomhet/useVirksomhet";
 import { PlusIcon, XMarkIcon } from "@navikt/aksel-icons";
 import { AnsvarligOptions } from "../skjema/AnsvarligOptions";
@@ -61,6 +61,7 @@ interface Props {
   onSuccess: (id: string) => void;
   avtale?: Avtale;
   tiltaksgjennomforing?: Tiltaksgjennomforing;
+  redigeringsmodus: boolean;
 }
 
 export const TiltaksgjennomforingSkjemaContainer = ({
@@ -68,13 +69,14 @@ export const TiltaksgjennomforingSkjemaContainer = ({
   tiltaksgjennomforing,
   onClose,
   onSuccess,
+  redigeringsmodus,
 }: Props) => {
   const utkastIdRef = useRef(tiltaksgjennomforing?.id || uuidv4());
   const redigeringsModus = !!tiltaksgjennomforing;
   const { data: virksomhet } = useVirksomhet(
     avtale?.leverandor.organisasjonsnummer || "",
   );
-  const mutation = usePutGjennomforing();
+  const opprettGjennomforingMutation = usePutGjennomforing();
   const mutationUtkast = useMutateUtkast();
   const { data: betabrukere } = useHentBetabrukere();
 
@@ -154,7 +156,9 @@ export const TiltaksgjennomforingSkjemaContainer = ({
     resolver: zodResolver(TiltaksgjennomforingSchema),
     defaultValues: {
       navn: tiltaksgjennomforing?.navn,
-      navEnheter: tiltaksgjennomforing?.navEnheter?.map((enhet) => enhet.enhetsnummer) || [],
+      navEnheter:
+        tiltaksgjennomforing?.navEnheter?.map((enhet) => enhet.enhetsnummer) ||
+        [],
       ansvarlig: tiltaksgjennomforing?.ansvarlig?.navident,
       antallPlasser: tiltaksgjennomforing?.antallPlasser,
       startOgSluttDato: {
@@ -274,7 +278,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
     };
 
     try {
-      mutation.mutate(body);
+      opprettGjennomforingMutation.mutate(body);
     } catch {
       <Alert variant="error">{tekniskFeilError()}</Alert>;
     }
@@ -284,8 +288,8 @@ export const TiltaksgjennomforingSkjemaContainer = ({
     return <Laster />;
   }
 
-  if (mutation.isSuccess) {
-    onSuccess(mutation.data.id);
+  if (opprettGjennomforingMutation.isSuccess) {
+    onSuccess(opprettGjennomforingMutation.data.id);
   }
 
   return (
@@ -586,10 +590,11 @@ export const TiltaksgjennomforingSkjemaContainer = ({
             </div>
           </div>
           <Separator />
-          <TiltaksgjennomforingSkjemaKnapperad
-            redigeringsModus={redigeringsModus}
-            onClose={onClose}
-            mutation={mutation}
+          <TiltaksgjennomforingSkjemaKnapperadOpprett
+            handleDelete={onClose} // nå avbryter den bare, sletter også utkastet?
+            opprettMutation={opprettGjennomforingMutation}
+            redigeringsmodus={redigeringsmodus}
+            mutationUtkast={mutationUtkast}
           />
         </div>
       </form>
