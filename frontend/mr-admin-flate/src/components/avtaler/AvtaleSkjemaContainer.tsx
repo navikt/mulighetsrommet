@@ -425,12 +425,8 @@ export function AvtaleSkjemaContainer({
           {redigeringsModus ? (
             utkastModus ? (
               <AvtaleSkjemaKnapperadUtkast
-                avtale={avtale!}
                 utkastModus={utkastModus}
-                handleDelete={onClose}
                 mutation={mutation}
-                onLagreUtkast={handleLagreUtkast}
-                utkast={utkast}
               />
             ) : (
               <AvtaleSkjemaKnapperadRediger avtale={avtale!} />
