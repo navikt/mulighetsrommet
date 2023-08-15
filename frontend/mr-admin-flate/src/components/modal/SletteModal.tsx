@@ -6,12 +6,11 @@ import {
   XMarkOctagonFillIcon,
 } from "@navikt/aksel-icons";
 import classNames from "classnames";
-import { UseMutationResult } from "@tanstack/react-query";
 
 interface Props {
   modalOpen: boolean;
   onClose: () => void;
-  mutation?: UseMutationResult<string, unknown, string>;
+  mutation: any;
   handleDelete: () => void;
   headerText: string;
   headerTextError: string;
@@ -37,7 +36,7 @@ const SletteModal = ({
         {mutation?.isError ? (
           <>
             <ExclamationmarkTriangleFillIcon className={styles.erroricon} />
-            <Heading size={"medium"}>{headerTextError}</Heading>
+            <Heading size="medium">{headerTextError}</Heading>
           </>
         ) : (
           <>

@@ -3,7 +3,6 @@ import {
   Tiltaksgjennomforing,
   TiltaksgjennomforingRequest,
   Toggles,
-  Utkast,
 } from "mulighetsrommet-api-client";
 import { useState } from "react";
 import { SlettUtkastKnapp } from "../knapper/SlettUtkastKnapp";
@@ -13,6 +12,8 @@ import { UseMutationResult } from "@tanstack/react-query";
 import { LagreEndringerKnapp } from "../knapper/LagreEndringerKnapp";
 import { useFeatureToggle } from "../../api/features/feature-toggles";
 import AvbrytAvtaleGjennomforingModal from "../avtaler/AvbrytAvtaleGjennomforingModal";
+import { useMutateUtkast } from "../../api/utkast/useMutateUtkast";
+import { useDeleteUtkast } from "../../api/utkast/useDeleteUtkast";
 
 interface Props {
   onClose: () => void;
@@ -24,7 +25,6 @@ interface Props {
     TiltaksgjennomforingRequest
   >;
   onLagreUtkast: () => void;
-  mutationUtkast: UseMutationResult<Utkast, unknown, Utkast>;
 }
 
 export function TiltaksgjennomforingSkjemaKnapperadUtkast({
@@ -33,26 +33,23 @@ export function TiltaksgjennomforingSkjemaKnapperadUtkast({
   utkastModus,
   mutation,
   onLagreUtkast,
-  mutationUtkast,
 }: Props) {
   const { data: slettTiltaksgjennomforingEnabled } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_ADMIN_FLATE_SLETT_TILTAKSGJENNOMFORING,
   );
   const [avbrytModalOpen, setAvbrytModalOpen] = useState(false);
   const [sletteModalOpen, setSletteModalOpen] = useState(false);
+  const mutationUtkast = useMutateUtkast();
+  const mutationDeleteUtkast = useDeleteUtkast();
 
   return utkastModus ? (
     <>
       <div className={styles.button_row}>
         {slettTiltaksgjennomforingEnabled ? (
-          <SlettUtkastKnapp setSletteModal={setSletteModalOpen} />
+          <SlettUtkastKnapp setSletteModal={() => setSletteModalOpen(true)} />
         ) : null}
         <div>
-          <LagreEndringerKnapp
-            submit={false}
-            onLagreUtkast={onLagreUtkast}
-            mutationUtkast={mutationUtkast}
-          />
+          <LagreEndringerKnapp submit={false} onLagreUtkast={onLagreUtkast} />
           <OpprettAvtaleGjennomforingKnapp
             type="gjennomføring"
             mutation={mutation}
@@ -65,7 +62,7 @@ export function TiltaksgjennomforingSkjemaKnapperadUtkast({
         onClose={() => {
           setAvbrytModalOpen(false);
         }}
-        mutation={mutationUtkast}
+        mutationAvbryt={mutationDeleteUtkast}
         data={tiltaksgjennomforing}
         type="gjennomforing"
       />
@@ -75,6 +72,7 @@ export function TiltaksgjennomforingSkjemaKnapperadUtkast({
         headerText="Ønsker du å slette utkastet?"
         headerTextError="Kan ikke slette utkastet."
         handleDelete={onClose}
+        mutation={mutationUtkast}
       />
     </>
   ) : null;

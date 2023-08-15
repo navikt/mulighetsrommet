@@ -4,30 +4,28 @@ import SletteModal from "../modal/SletteModal";
 import { SlettUtkastKnapp } from "../knapper/SlettUtkastKnapp";
 import { OpprettAvtaleGjennomforingKnapp } from "../knapper/OpprettAvtaleGjennomforingKnapp";
 import { UseMutationResult } from "@tanstack/react-query";
-import { Avtale, AvtaleRequest, Utkast } from "mulighetsrommet-api-client";
+import { Avtale, AvtaleRequest } from "mulighetsrommet-api-client";
 import { LagreEndringerKnapp } from "../knapper/LagreEndringerKnapp";
+import { useMutateUtkast } from "../../api/utkast/useMutateUtkast";
 
 interface Props {
-  onClose: () => void;
+  handleDelete: () => void;
   mutation: UseMutationResult<Avtale, unknown, AvtaleRequest>;
-  mutationUtkast: UseMutationResult<Utkast, unknown, Utkast>;
   onLagreUtkast: () => void;
 }
 export function AvtaleSkjemaKnapperadOpprett({
-  onClose,
+  handleDelete,
   mutation,
   onLagreUtkast,
-  mutationUtkast,
 }: Props) {
   const [sletteModal, setSletteModal] = useState(false);
 
   return (
     <div className={styles.button_row}>
-      <SlettUtkastKnapp setSletteModal={setSletteModal} />
+      <SlettUtkastKnapp setSletteModal={() => setSletteModal(true)} />
       <div>
         <LagreEndringerKnapp
           onLagreUtkast={onLagreUtkast}
-          mutationUtkast={mutationUtkast}
           dataTestId="avtaleskjema-lagre-utkast"
           submit={false}
           knappetekst="Lagre som utkast"
@@ -39,7 +37,8 @@ export function AvtaleSkjemaKnapperadOpprett({
         onClose={() => setSletteModal(false)}
         headerText="Ønsker du å slette utkastet?"
         headerTextError="Kan ikke slette utkastet."
-        handleDelete={onClose}
+        handleDelete={handleDelete}
+        mutation={useMutateUtkast()}
       />
     </div>
   );

@@ -6,8 +6,8 @@ import {
 } from "mulighetsrommet-api-client";
 import { useState } from "react";
 import { Notat } from "./Notat";
-import { UseMutationResult } from "@tanstack/react-query";
 import SletteModal from "../modal/SletteModal";
+import { UseMutationResult } from "@tanstack/react-query";
 
 interface Props {
   notater: AvtaleNotat[] | TiltaksgjennomforingNotat[];
@@ -15,11 +15,7 @@ interface Props {
   mutation: UseMutationResult<string, unknown, string>;
 }
 
-export default function Notatliste({
-  notater,
-  visMineNotater,
-  mutation,
-}: Props) {
+export default function Notatliste({ notater, visMineNotater }: Props) {
   const [notatIdForSletting, setNotatIdForSletting] = useState<null | string>(
     null,
   );

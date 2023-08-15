@@ -13,41 +13,59 @@ import { OpprettAvtaleGjennomforingKnapp } from "../knapper/OpprettAvtaleGjennom
 import { UseMutationResult } from "@tanstack/react-query";
 import { LagreEndringerKnapp } from "../knapper/LagreEndringerKnapp";
 import { useFeatureToggle } from "../../api/features/feature-toggles";
+import { useMineUtkast } from "../../api/utkast/useMineUtkast";
+import { useMutateUtkast } from "../../api/utkast/useMutateUtkast";
+import { useDeleteUtkast } from "../../api/utkast/useDeleteUtkast";
+import { useAvbrytAvtale } from "../../api/avtaler/useAvbrytAvtale";
 
 interface Props {
-  onClose: () => void;
+  handleDelete: () => void;
   avtale: Avtale;
+  utkast: Utkast;
   utkastModus: boolean;
   mutation: UseMutationResult<Avtale, unknown, AvtaleRequest>;
   onLagreUtkast: () => void;
-  mutationUtkast: UseMutationResult<Utkast, unknown, Utkast>;
 }
 export function AvtaleSkjemaKnapperadUtkast({
-  onClose,
+  handleDelete,
   avtale,
+  utkast,
   utkastModus,
   mutation,
   onLagreUtkast,
-  mutationUtkast,
 }: Props) {
   const { data: slettAvtaleEnabled } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_ADMIN_FLATE_SLETT_AVTALE,
   );
   const [avbrytModalOpen, setAvbrytModalOpen] = useState(false);
-  const [sletteModalOpen, setSletteModalOpen] = useState(false);
+  const { refetch } = useMineUtkast(utkast.type);
+  const [utkastIdForSletting, setUtkastIdForSletting] = useState<null | string>(
+    null,
+  );
+  const mutationDeleteUtkast = useDeleteUtkast();
+  const mutationUtkast = useMutateUtkast();
+  const mutationAvbryt = useAvbrytAvtale();
+
+  async function onDelete() {
+    mutationDeleteUtkast.mutate(utkast.id, {
+      onSuccess: async () => {
+        handleDelete();
+        setUtkastIdForSletting(null);
+        await refetch();
+      },
+    });
+  }
 
   return utkastModus ? (
     <>
       <div className={styles.button_row}>
         {slettAvtaleEnabled ? (
-          <SlettUtkastKnapp setSletteModal={setSletteModalOpen} />
+          <SlettUtkastKnapp
+            setSletteModal={() => setUtkastIdForSletting(utkast.id)}
+          />
         ) : null}
         <div>
-          <LagreEndringerKnapp
-            submit={false}
-            onLagreUtkast={onLagreUtkast}
-            mutationUtkast={mutationUtkast}
-          />
+          <LagreEndringerKnapp submit={false} onLagreUtkast={onLagreUtkast} />
           <OpprettAvtaleGjennomforingKnapp type="avtale" mutation={mutation} />
         </div>
       </div>
@@ -58,15 +76,16 @@ export function AvtaleSkjemaKnapperadUtkast({
           setAvbrytModalOpen(false);
         }}
         data={avtale}
-        mutation={mutationUtkast}
+        mutationAvbryt={mutationAvbryt}
         type="avtale"
       />
       <SletteModal
-        modalOpen={sletteModalOpen}
-        onClose={() => setSletteModalOpen(false)}
+        modalOpen={!!utkastIdForSletting}
+        onClose={() => setUtkastIdForSletting(null)}
         headerText="Ønsker du å slette utkastet?"
         headerTextError="Kan ikke slette utkastet."
-        handleDelete={onClose}
+        handleDelete={onDelete}
+        mutation={mutationUtkast}
       />
     </>
   ) : null;

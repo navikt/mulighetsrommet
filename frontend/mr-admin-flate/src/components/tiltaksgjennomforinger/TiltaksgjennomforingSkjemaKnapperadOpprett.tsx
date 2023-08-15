@@ -4,12 +4,12 @@ import { UseMutationResult } from "@tanstack/react-query";
 import {
   Tiltaksgjennomforing,
   TiltaksgjennomforingRequest,
-  Utkast,
 } from "mulighetsrommet-api-client";
 import { SlettUtkastKnapp } from "../knapper/SlettUtkastKnapp";
 import { OpprettAvtaleGjennomforingKnapp } from "../knapper/OpprettAvtaleGjennomforingKnapp";
 import SletteModal from "../modal/SletteModal";
 import { LagreEndringerKnapp } from "../knapper/LagreEndringerKnapp";
+import { useMutateUtkast } from "../../api/utkast/useMutateUtkast";
 
 interface Props {
   onClose: () => void;
@@ -20,13 +20,11 @@ interface Props {
     unknown
   >;
   onLagreUtkast: () => void;
-  mutationUtkast: UseMutationResult<Utkast, unknown, Utkast>;
 }
 export function TiltaksgjennomforingSkjemaKnapperadOpprett({
   onClose,
   mutation,
   onLagreUtkast,
-  mutationUtkast,
 }: Props) {
   const [sletteModal, setSletteModal] = useState(false);
 
@@ -41,11 +39,10 @@ export function TiltaksgjennomforingSkjemaKnapperadOpprett({
 
   return (
     <div className={styles.button_row}>
-      <SlettUtkastKnapp setSletteModal={setSletteModal} />
+      <SlettUtkastKnapp setSletteModal={() => setSletteModal(true)} />
       <div>
         <LagreEndringerKnapp
           onLagreUtkast={onLagreUtkast}
-          mutationUtkast={mutationUtkast}
           dataTestId="tiltaksgjennomforingsskjema-lagre-utkast"
           submit={false}
           knappetekst="Lagre som utkast"
@@ -62,6 +59,7 @@ export function TiltaksgjennomforingSkjemaKnapperadOpprett({
         headerText="Ønsker du å slette utkastet?"
         headerTextError="Kan ikke slette utkastet."
         handleDelete={onClose}
+        mutation={useMutateUtkast()}
       />
     </div>
   );

@@ -14,7 +14,7 @@ interface Props {
   modalOpen: boolean;
   onClose: () => void;
   data: Avtale | Tiltaksgjennomforing;
-  mutation: any;
+  mutationAvbryt: any;
   type: "avtale" | "gjennomforing";
 }
 
@@ -22,23 +22,23 @@ const AvbrytAvtaleGjennomforingModal = ({
   modalOpen,
   onClose,
   data,
-  mutation,
+  mutationAvbryt,
   type,
 }: Props) => {
   const dataFraArena = data?.opphav === Opphav.ARENA;
   const erAvtale = type === "avtale";
 
   useEffect(() => {
-    if (mutation.isSuccess) {
+    if (mutationAvbryt.isSuccess) {
       onClose();
-      mutation.reset();
+      mutationAvbryt.reset();
       return;
     }
-  }, [mutation]);
+  }, [mutationAvbryt]);
 
   const handleAvbryt = () => {
     if (data?.id) {
-      mutation.mutate(data?.id);
+      mutationAvbryt.mutate(data?.id);
     }
   };
 
@@ -50,7 +50,7 @@ const AvbrytAvtaleGjennomforingModal = ({
           ? `${
               erAvtale ? "Avtalen" : "Tiltaksgjennomføringen"
             } kan ikke avbrytes`
-          : mutation.isError
+          : mutationAvbryt.isError
           ? `Kan ikke avbryte «${data?.navn}»`
           : `Ønsker du å avbryte «${data?.navn}»?`}
       </div>
@@ -66,14 +66,14 @@ const AvbrytAvtaleGjennomforingModal = ({
               {erAvtale ? "Avtalen" : "Tiltaksgjennomføringen"} {data?.navn}{" "}
               kommer fra Arena og kan ikke avbrytes her.
             </BodyShort>
-          ) : mutation?.isError ? (
-            <BodyShort>{(mutation.error as ApiError).body}</BodyShort>
+          ) : mutationAvbryt?.isError ? (
+            <BodyShort>{(mutationAvbryt.error as ApiError).body}</BodyShort>
           ) : (
             <BodyShort>Du kan ikke angre denne handlingen.</BodyShort>
           )}
         </div>
         <div className={styles.knapperad}>
-          {mutation?.isError ? (
+          {mutationAvbryt?.isError ? (
             <Button variant="secondary" onClick={onClose}>
               Lukk
             </Button>
@@ -82,7 +82,7 @@ const AvbrytAvtaleGjennomforingModal = ({
               Avbryt handling
             </Button>
           )}
-          {!dataFraArena && !mutation?.isError ? (
+          {!dataFraArena && !mutationAvbryt?.isError ? (
             <Button variant="danger" onClick={handleAvbryt}>
               Avbryt {erAvtale ? "avtale" : "tiltaksgjennomføring"}
             </Button>

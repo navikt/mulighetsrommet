@@ -1,14 +1,12 @@
 import styles from "../skjema/Skjema.module.scss";
 import { Button } from "@navikt/ds-react";
 import { faro } from "@grafana/faro-web-sdk";
-import { UseMutationResult } from "@tanstack/react-query";
-import { Utkast } from "mulighetsrommet-api-client";
 import { useEffect, useState } from "react";
+import { useMutateUtkast } from "../../api/utkast/useMutateUtkast";
 
 interface Props {
   submit?: boolean;
   onLagreUtkast: () => void;
-  mutationUtkast: UseMutationResult<Utkast, unknown, Utkast>;
   dataTestId?: string;
   knappetekst?: string;
 }
@@ -16,11 +14,11 @@ interface Props {
 export function LagreEndringerKnapp({
   submit,
   onLagreUtkast,
-  mutationUtkast,
   dataTestId,
   knappetekst,
 }: Props) {
   const [mutationIsSuccess, setMutationIsSuccess] = useState(false);
+  const mutationUtkast = useMutateUtkast();
 
   //måtte sette denne fordi knappen ikke ble enabled på utkast
   useEffect(() => {

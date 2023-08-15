@@ -1,27 +1,17 @@
 import styles from "../skjema/Skjema.module.scss";
-import {
-  Avtale,
-  Avtalestatus,
-  Toggles,
-  Utkast,
-} from "mulighetsrommet-api-client";
+import { Avtale, Avtalestatus, Toggles } from "mulighetsrommet-api-client";
 import AvbrytAvtaleGjennomforingModal from "./AvbrytAvtaleGjennomforingModal";
 import { useState } from "react";
 import { LagreEndringerKnapp } from "../knapper/LagreEndringerKnapp";
 import { AvbrytAvtaleGjennomforingKnapp } from "../knapper/AvbrytAvtaleGjennomforingKnapp";
-import { UseMutationResult } from "@tanstack/react-query";
 import { useFeatureToggle } from "../../api/features/feature-toggles";
 import { useAvbrytAvtale } from "../../api/avtaler/useAvbrytAvtale";
 
 interface Props {
   avtale: Avtale;
-  mutationUtkast: UseMutationResult<Utkast, unknown, Utkast>;
 }
 
-export function AvtaleSkjemaKnapperadRediger({
-  avtale,
-  mutationUtkast,
-}: Props) {
+export function AvtaleSkjemaKnapperadRediger({ avtale }: Props) {
   const { data: slettAvtaleEnabled } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_ADMIN_FLATE_SLETT_AVTALE,
   );
@@ -38,11 +28,7 @@ export function AvtaleSkjemaKnapperadRediger({
         />
       ) : null}
       <div>
-        <LagreEndringerKnapp
-          onLagreUtkast={() => null}
-          mutationUtkast={mutationUtkast}
-          submit
-        />
+        <LagreEndringerKnapp onLagreUtkast={() => null} submit />
       </div>
       <AvbrytAvtaleGjennomforingModal
         modalOpen={avbrytModalOpen}
@@ -50,7 +36,7 @@ export function AvtaleSkjemaKnapperadRediger({
           setAvbrytModalOpen(false);
         }}
         data={avtale}
-        mutation={mutationAvbryt}
+        mutationAvbryt={mutationAvbryt}
         type="avtale"
       />
     </div>

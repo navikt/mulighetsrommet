@@ -27,9 +27,9 @@ export default function NotaterAvtalePage() {
   const { data: avtaleData } = useAvtale();
 
   const mutation = usePutAvtalenotat();
+  const mutationDeleteAvtaleNotat = useDeleteAvtalenotat();
   const [visMineNotater, setVisMineNotater] = useState(false);
   const liste = visMineNotater ? mineNotater : notater;
-
   const form = useForm<inferredNotatSchema>({
     resolver: zodResolver(NotatSchema),
     defaultValues: {
@@ -113,7 +113,7 @@ export default function NotaterAvtalePage() {
         <Notatliste
           notater={liste}
           visMineNotater={visMineNotater}
-          mutation={useDeleteAvtalenotat()}
+          mutation={mutationDeleteAvtaleNotat}
         />
       </div>
     </div>

@@ -27,6 +27,8 @@ export default function NotaterTiltaksgjennomforingerPage() {
   const { data: tiltaksgjennomforingsData } = useTiltaksgjennomforing();
 
   const mutation = usePutTiltaksgjennomforingsnotat();
+  const mutationDeleteGjennomforingNotat =
+    useDeleteTiltaksgjennomforingsnotat();
   const [visMineNotater, setVisMineNotater] = useState(false);
   const liste = visMineNotater ? mineNotater : notater;
 
@@ -107,7 +109,7 @@ export default function NotaterTiltaksgjennomforingerPage() {
         <Notatliste
           notater={liste}
           visMineNotater={visMineNotater}
-          mutation={useDeleteTiltaksgjennomforingsnotat()}
+          mutation={mutationDeleteGjennomforingNotat}
         />
       </div>
     </div>

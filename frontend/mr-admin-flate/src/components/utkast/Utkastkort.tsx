@@ -1,6 +1,6 @@
 import { Utkast } from "mulighetsrommet-api-client";
 import { DocPencilIcon } from "@navikt/aksel-icons";
-import { BodyShort, Button, Heading } from "@navikt/ds-react";
+import { BodyShort, Heading } from "@navikt/ds-react";
 import { z } from "zod";
 import { formaterDatoTid } from "../../utils/Utils";
 import styles from "./Utkastkort.module.scss";
@@ -10,6 +10,7 @@ import SletteModal from "../modal/SletteModal";
 import { Lenkeknapp } from "../lenkeknapp/Lenkeknapp";
 import { useMineUtkast } from "../../api/utkast/useMineUtkast";
 import { UseMutationResult } from "@tanstack/react-query";
+import { SlettUtkastKnapp } from "../knapper/SlettUtkastKnapp";
 
 interface UtkastKortProps {
   utkast: Utkast;
@@ -65,14 +66,11 @@ export function UtkastKort({ utkast, mutation }: UtkastKortProps) {
       </div>
 
       <div className={styles.knapper}>
-        <Button
-          data-testid="slett-utkast-knapp"
+        <SlettUtkastKnapp
+          setSletteModal={() => setUtkastIdForSletting(utkast.id)}
+          dataTestId="slett-utkast-knapp"
           size="small"
-          variant="danger"
-          onClick={() => setUtkastIdForSletting(utkast.id)}
-        >
-          Slett utkast
-        </Button>
+        />
         <Lenkeknapp
           to={
             utkast.type === Utkast.type.AVTALE

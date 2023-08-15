@@ -632,13 +632,10 @@ export const TiltaksgjennomforingSkjemaContainer = ({
                 onClose={handleClose}
                 mutation={mutation}
                 onLagreUtkast={handleLagreUtkast}
-                mutationUtkast={mutationUtkast}
               />
             ) : (
               <TiltaksgjennomforingSkjemaKnapperadRediger
                 tiltaksgjennomforing={tiltaksgjennomforing}
-                mutationUtkast={mutationUtkast}
-                mutation={mutation}
               />
             )
           ) : (
@@ -646,7 +643,6 @@ export const TiltaksgjennomforingSkjemaContainer = ({
               onClose={handleClose}
               mutation={mutation}
               onLagreUtkast={handleLagreUtkast}
-              mutationUtkast={mutationUtkast}
             />
           )}
         </div>
