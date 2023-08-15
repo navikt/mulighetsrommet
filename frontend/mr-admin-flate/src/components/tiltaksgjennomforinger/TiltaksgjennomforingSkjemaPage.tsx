@@ -100,7 +100,7 @@ const TiltaksgjennomforingSkjemaPage = () => {
             {isError && redigeringsModus ? (
               <Alert variant="error">
                 {ErrorMeldinger(
-                  avtale!,
+                  avtale,
                   redigeringsModus,
                   isErrorAnsatt,
                   isErrorEnheter,
