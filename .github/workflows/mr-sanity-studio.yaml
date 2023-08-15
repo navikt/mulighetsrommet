@@ -1,13 +1,17 @@
 name: Deploy Sanity Studio
 
 on:
-  push:
+  merge_group:
+  pull_request:
     paths:
       - .github/workflows/mr-sanity-studio.yaml
       - package.json
       - package-lock.json
       - turbo.json
       - frontend/mulighetsrommet-cms/**
+  push:
+    branches:
+      - main
   workflow_dispatch:
 
 concurrency:

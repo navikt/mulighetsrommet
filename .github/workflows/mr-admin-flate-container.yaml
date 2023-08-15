@@ -1,10 +1,14 @@
 name: POAO-frontend (mr-admin-flate)
 
 on:
-  push:
+  merge_group:
+  pull_request:
     paths:
       - .github/workflows/mr-admin-flate-container.yaml
       - frontend/mr-admin-flate/.nais/**
+  push:
+    branches:
+      - main
   workflow_dispatch:
     inputs:
       environment:

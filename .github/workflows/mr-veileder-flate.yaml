@@ -1,7 +1,8 @@
 name: CI/CD (mr-veileder-flate)
 
 on:
-  push:
+  merge_group:
+  pull_request:
     paths:
       - .github/workflows/mr-veileder-flate.yaml
       - package.json
@@ -9,6 +10,9 @@ on:
       - turbo.json
       - frontend/mulighetsrommet-veileder-flate/**
       - mulighetsrommet-api/src/main/resources/web/openapi.yaml
+  push:
+    branches:
+      - main
   workflow_dispatch:
     inputs:
       environment:

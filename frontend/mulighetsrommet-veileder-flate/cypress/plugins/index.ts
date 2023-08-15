@@ -9,16 +9,7 @@
 // https://on.cypress.io/plugins-guide
 // ***********************************************************
 
-// This function is called when a project is opened or re-opened (e.g. due to
-// the project's config changing)
-
-/**
- * @type {Cypress.PluginConfig}
- */
-// eslint-disable-next-line no-unused-vars
-export const plugin: Cypress.PluginConfig = (on: Cypress.PluginEvents) => {
-  // `on` is used to hook into various events Cypress emits
-  // `config` is the resolved Cypress config
+export const plugin = (on: Cypress.PluginEvents) => {
   on('task', {
     log(message: string) {
       console.log(message);

@@ -6,15 +6,15 @@ koin = "3.4.3"
 kotest = "5.6.2"
 kotest-testcontainers = "2.0.2"
 kotlin = "1.9.0"
-ktor = "2.3.2"
-logback = "1.4.9"
+ktor = "2.3.3"
+logback = "1.4.11"
 metrics = "4.2.19"
 
 [plugins]
 flyway = { id = "org.flywaydb.flyway", version.ref = "flyway" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
-ktlint = "org.jlleitschuh.gradle.ktlint:11.5.0"
+ktlint = "org.jlleitschuh.gradle.ktlint:11.5.1"
 shadow = "com.github.johnrengelman.shadow:8.1.1"
 openapi-generator = "org.openapi.generator:6.6.0"
 
@@ -23,7 +23,7 @@ arrow-core = "io.arrow-kt:arrow-core:1.2.0"
 
 assertj-db = "org.assertj:assertj-db:2.0.2"
 
-caffeine = "com.github.ben-manes.caffeine:caffeine:3.1.7"
+caffeine = "com.github.ben-manes.caffeine:caffeine:3.1.8"
 
 dbScheduler = "com.github.kagkarlsson:db-scheduler:12.4.0"
 
@@ -110,4 +110,4 @@ slf4j = "org.slf4j:slf4j-api:2.0.7"
 apache-poi = "org.apache.poi:poi:5.2.3"
 apache-poi-ooxml = "org.apache.poi:poi-ooxml:5.2.3"
 
-unleash = "io.getunleash:unleash-client-java:8.2.0"
+unleash = "io.getunleash:unleash-client-java:8.2.1"
