@@ -1,6 +1,9 @@
 package no.nav.mulighetsrommet.api.services
 
+import io.kotest.common.runBlocking
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.data.blocking.forAll
+import io.kotest.data.row
 import io.mockk.clearAllMocks
 import io.mockk.mockk
 import io.mockk.verify
@@ -277,6 +280,44 @@ class ArenaAdapterServiceTest : FunSpec({
                 tiltaksgjennomforingKafkaProducer.retract(
                     tiltaksgjennomforing.id,
                 )
+            }
+        }
+
+        test("should keep references to existing avtale when avtale is managed in Mulighetsrommet") {
+            forAll(row("VASV"), row("ARBFORB")) { tiltakskode ->
+                runBlocking {
+                    val type = tiltakstype.copy(tiltakskode = tiltakskode)
+
+                    service.upsertTiltakstype(type)
+                    service.upsertAvtale(avtale)
+
+                    service.upsertTiltaksgjennomforing(tiltaksgjennomforing.copy(avtaleId = avtale.id))
+                    database.assertThat("tiltaksgjennomforing").row()
+                        .value("avtale_id").isEqualTo(avtale.id)
+
+                    service.upsertTiltaksgjennomforing(tiltaksgjennomforing.copy(avtaleId = null))
+                    database.assertThat("tiltaksgjennomforing").row()
+                        .value("avtale_id").isEqualTo(avtale.id)
+                }
+            }
+        }
+
+        test("should overwrite references to existing avtale when avtale is managed in Arena") {
+            forAll(row("JOBBK"), row("GRUPPEAMO")) { tiltakskode ->
+                runBlocking {
+                    val type = tiltakstype.copy(tiltakskode = tiltakskode)
+
+                    service.upsertTiltakstype(type)
+                    service.upsertAvtale(avtale)
+
+                    service.upsertTiltaksgjennomforing(tiltaksgjennomforing.copy(avtaleId = avtale.id))
+                    database.assertThat("tiltaksgjennomforing").row()
+                        .value("avtale_id").isEqualTo(avtale.id)
+
+                    service.upsertTiltaksgjennomforing(tiltaksgjennomforing.copy(avtaleId = null))
+                    database.assertThat("tiltaksgjennomforing").row()
+                        .value("avtale_id").isNull
+                }
             }
         }
     }

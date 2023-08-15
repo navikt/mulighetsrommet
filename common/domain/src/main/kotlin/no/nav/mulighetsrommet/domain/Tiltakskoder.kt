@@ -45,6 +45,11 @@ object Tiltakskoder {
         "VASV",
     )
 
+    val TiltakMedAvtalerFraMulighetsrommet = listOf(
+        "ARBFORB",
+        "VASV",
+    )
+
     fun isGruppetiltak(tiltakskode: String): Boolean {
         return tiltakskode in Gruppetiltak
     }
@@ -55,5 +60,9 @@ object Tiltakskoder {
 
     fun isAmtTiltak(tiltakskode: String): Boolean {
         return tiltakskode in AmtTiltak
+    }
+
+    fun isTiltakMedAvtalerFraMulighetsrommet(tiltakskode: String): Boolean {
+        return tiltakskode in TiltakMedAvtalerFraMulighetsrommet
     }
 }
