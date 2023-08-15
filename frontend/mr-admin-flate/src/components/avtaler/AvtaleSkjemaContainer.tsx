@@ -8,7 +8,6 @@ import {
   NavAnsatt,
   Norg2Type,
   Opphav,
-  Utkast,
 } from "mulighetsrommet-api-client";
 import { NavEnhet } from "mulighetsrommet-api-client/build/models/NavEnhet";
 import { Tiltakstype } from "mulighetsrommet-api-client/build/models/Tiltakstype";
@@ -54,7 +53,6 @@ interface Props {
   tiltakstyper: Tiltakstype[];
   ansatt: NavAnsatt;
   avtale?: Avtale;
-  utkast: Utkast;
   enheter: NavEnhet[];
   redigeringsModus: boolean;
   utkastModus: boolean;
@@ -67,7 +65,6 @@ export function AvtaleSkjemaContainer({
   ansatt,
   enheter,
   avtale,
-  utkast,
   redigeringsModus,
   utkastModus,
 }: Props) {
