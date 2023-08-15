@@ -25,7 +25,9 @@ const queryClient = new QueryClient({
 
 if (!import.meta.env.PROD || import.meta.env.VITE_INCLUDE_MOCKS === "true") {
   import("./mocks/browser").then(({ worker }) => {
-    worker.start();
+    worker.start({
+      onUnhandledRequest: "bypass",
+    });
     render();
   });
 } else {

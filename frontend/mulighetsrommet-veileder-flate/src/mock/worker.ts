@@ -7,6 +7,8 @@ export function initializeMockWorker() {
   const handlers = [...(import.meta.env.VITE_MULIGHETSROMMET_API_MOCK === 'true' ? apiHandlers : [])];
   if (handlers.length !== 0) {
     const worker = setupWorker(...handlers);
-    worker.start();
+    worker.start({
+      onUnhandledRequest: 'bypass',
+    });
   }
 }
