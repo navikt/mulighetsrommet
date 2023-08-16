@@ -24,17 +24,17 @@ const TiltaksgjennomforingSkjemaPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const queryClient = useQueryClient();
-  const {
-    data: tiltaksgjennomforing,
-    isLoading: tiltaksgjennomforingLoading,
-  } = useTiltaksgjennomforing(
-    searchParams.get("tiltaksgjennomforingId") || undefined,
-  );
-  const { data: avtale } = useAvtale(
-    searchParams.get("avtaleId") || tiltaksgjennomforing?.avtaleId,
-  );
+  const { data: tiltaksgjennomforing, isLoading: tiltaksgjennomforingLoading } =
+    useTiltaksgjennomforing(
+      searchParams.get("tiltaksgjennomforingId") || undefined,
+    );
   const { data: utkast, isLoading: utkastLoading } = useUtkast(
     searchParams.get("utkastId") || undefined,
+  );
+  const { data: avtale } = useAvtale(
+    searchParams.get("avtaleId") ??
+      tiltaksgjennomforing?.avtaleId ??
+      utkast?.utkastData?.avtaleId,
   );
   const { data: tiltakstyper, isLoading: isLoadingTiltakstyper } =
     useTiltakstyper({ status: Tiltakstypestatus.AKTIV }, 1);
