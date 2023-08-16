@@ -9,7 +9,7 @@
     "backend": "cross-env VITE_MULIGHETSROMMET_API_BASE='http://localhost:8080' vite",
     "build": "cross-env VITE_MULIGHETSROMMET_API_BASE='/mulighetsrommet-api' VITE_FARO_URL=https://telemetry.nav.no/collect vite build",
     "build:local": "cross-env VITE_MULIGHETSROMMET_API_BASE='http://localhost:8080' VITE_FARO_URL=http://localhost:1234 vite build",
-    "build:demo": "cross-env VITE_INCLUDE_MOCKS=true VITE_MULIGHETSROMMET_API_MOCK=true VITE_FARO_URL=https://telemetry.ekstern.dev.nav.no/collect vite build",
+    "build:demo": "cross-env VITE_MULIGHETSROMMET_API_MOCK=true VITE_FARO_URL=https://telemetry.ekstern.dev.nav.no/collect vite build",
     "preview": "vite preview",
     "cy:run": "npx cypress run --e2e --browser chrome",
     "cypress": "npx cypress open",
