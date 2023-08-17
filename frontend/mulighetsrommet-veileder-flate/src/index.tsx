@@ -14,7 +14,7 @@ Navspa.eksporter(APPLICATION_NAME, App);
 const container = document.getElementById(APPLICATION_NAME);
 if (container) {
   const root = createRoot(container);
-  const MulighetsrommetVeilederFlate = Navspa.importer(APPLICATION_NAME);
+  const MulighetsrommetVeilederFlate = Navspa.importer<{ fnr: string }>(APPLICATION_NAME);
 
-  root.render(<MulighetsrommetVeilederFlate />);
+  root.render(<MulighetsrommetVeilederFlate fnr={'12345678910'} />);
 }
