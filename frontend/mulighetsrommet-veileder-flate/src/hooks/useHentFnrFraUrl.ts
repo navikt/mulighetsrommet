@@ -1,6 +1,7 @@
-import { useParams } from 'react-router-dom';
+import React, { useContext } from 'react';
+
+export const FnrContext = React.createContext<string>('12345678910');
 
 export function useHentFnrFraUrl() {
-  const { fnr = '12345678910' } = useParams();
-  return fnr;
+  return useContext(FnrContext);
 }

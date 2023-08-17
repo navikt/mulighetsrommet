@@ -1,20 +1,21 @@
-import { WebVitalsInstrumentation, initializeFaro } from '@grafana/faro-web-sdk';
+import { initializeFaro, WebVitalsInstrumentation } from '@grafana/faro-web-sdk';
 import { Modal } from '@navikt/ds-react';
 import { Toggles } from 'mulighetsrommet-api-client';
 import { ErrorBoundary } from 'react-error-boundary';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { ReactQueryDevtools } from 'react-query/devtools';
-import { Navigate, Route, BrowserRouter as Router, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import styles from './App.module.scss';
 import RoutesConfig from './RoutesConfig';
 import FakeDoor from './components/fakedoor/FakeDoor';
 import { APPLICATION_NAME, MODAL_ACCESSIBILITY_WRAPPER } from './constants';
 import { useFeatureToggle } from './core/api/feature-toggles';
 import { useHentVeilederdata } from './core/api/queries/useHentVeilederdata';
-import { useHentFnrFraUrl } from './hooks/useHentFnrFraUrl';
+import { FnrContext } from './hooks/useHentFnrFraUrl';
 import { useInitialBrukerfilter } from './hooks/useInitialBrukerfilter';
 import { ErrorFallback } from './utils/ErrorFallback';
 import { SanityPreview } from './views/Preview/SanityPreview';
+import React from 'react';
 
 if (import.meta.env.PROD) {
   initializeFaro({
@@ -54,23 +55,25 @@ function AppWrapper() {
   return <RoutesConfig />;
 }
 
-function App() {
-  const fnr = useHentFnrFraUrl();
+interface Props {
+  enhet: string;
+  fnr: string;
+}
 
+function App(props: Props) {
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback}>
       <div className={styles.app_container}>
         <div className={APPLICATION_NAME}>
           <QueryClientProvider client={queryClient}>
-            <Router>
-              <Routes>
-                <Route path=":fnr/*" element={<AppWrapper />} />
-                <Route path="preview/:tiltaksnummer" element={<SanityPreview />} />
-                <Route path="*" element={<Navigate to={`${fnr}`} />}>
-                  {/* Fallback-rute dersom ingenting matcher. Returner bruker til startside */}
-                </Route>
-              </Routes>
-            </Router>
+            <FnrContext.Provider value={props.fnr}>
+              <Router>
+                <Routes>
+                  <Route path="preview/:tiltaksnummer" element={<SanityPreview />} />
+                  <Route path="*" element={<AppWrapper />} />
+                </Routes>
+              </Router>
+            </FnrContext.Provider>
             <ReactQueryDevtools initialIsOpen={false} />
           </QueryClientProvider>
         </div>
