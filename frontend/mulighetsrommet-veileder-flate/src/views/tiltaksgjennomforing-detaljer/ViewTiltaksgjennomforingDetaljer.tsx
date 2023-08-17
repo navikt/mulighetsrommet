@@ -212,7 +212,7 @@ const ViewTiltaksgjennomforingDetaljer = () => {
             )}
             {harDeltMedBruker && !erPreview && (
               <div className={styles.dialogknapp}>
-                <Link href={getUrlTilDialogen(harDeltMedBruker.norskIdent!!, harDeltMedBruker.dialogId!!)}>
+                <Link href={getUrlTilDialogen(harDeltMedBruker.dialogId!!)}>
                   Åpne i dialogen
                   <Chat2Icon />
                 </Link>
