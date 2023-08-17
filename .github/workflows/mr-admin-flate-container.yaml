@@ -9,6 +9,9 @@ on:
   push:
     branches:
       - main
+    paths:
+      - .github/workflows/mr-admin-flate-container.yaml
+      - frontend/mr-admin-flate/.nais/**
   workflow_dispatch:
     inputs:
       environment:
