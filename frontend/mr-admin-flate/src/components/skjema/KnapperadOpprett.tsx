@@ -1,41 +1,53 @@
 import styles from "../skjema/Skjema.module.scss";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { UseMutationResult } from "@tanstack/react-query";
-import {
-  Tiltaksgjennomforing,
-  TiltaksgjennomforingRequest,
-  Utkast,
-} from "mulighetsrommet-api-client";
+import { Utkast } from "mulighetsrommet-api-client";
 import { SubmitSkjemaKnapp } from "../skjemaknapper/SubmitSkjemaKnapp";
 import SletteModal from "../modal/SletteModal";
 import { SlettUtkastKnapp } from "../skjemaknapper/SlettUtkastKnapp";
 import { useDeleteUtkast } from "../../api/utkast/useDeleteUtkast";
+import { useUtkast } from "../../api/utkast/useUtkast";
 
 interface PropsOpprett {
-  opprettMutation: UseMutationResult<
-    Tiltaksgjennomforing,
-    unknown,
-    TiltaksgjennomforingRequest,
-    unknown
-  >;
+  opprettMutation: UseMutationResult<any, unknown, any, unknown>;
   handleDelete: () => void;
   redigeringsmodus: boolean;
   mutationUtkast: UseMutationResult<Utkast, unknown, Utkast>;
 }
-export function TiltaksgjennomforingSkjemaKnapperadOpprett({
+export function KnapperadOpprett({
   opprettMutation,
   handleDelete,
   redigeringsmodus,
   mutationUtkast,
 }: PropsOpprett) {
-  const [slettemodal, setSlettemodal] = useState(false);
+  const [utkastIdForSletting, setUtkastIdForSletting] = useState<null | string>(
+    null,
+  );
   const mutationDeleteUtkast = useDeleteUtkast();
+  const { refetch } = useUtkast();
+
+  async function onDelete() {
+    mutationDeleteUtkast.mutate(utkastIdForSletting!, {
+      onSuccess: async () => {
+        setUtkastIdForSletting(null);
+        handleDelete();
+        await refetch();
+      },
+    });
+  }
+
+  let utkastId: string | null = null;
+  useEffect(() => {
+    if (mutationUtkast.isSuccess) {
+      utkastId = mutationUtkast.data.id;
+    }
+  }, [mutationUtkast.isSuccess]);
 
   return (
     <>
       <div className={styles.button_row}>
         <SlettUtkastKnapp
-          setSlettemodal={() => setSlettemodal(true)}
+          setSlettemodal={() => setUtkastIdForSletting(utkastId)}
           disabled={!mutationUtkast.isSuccess}
         />
         <SubmitSkjemaKnapp
@@ -47,11 +59,11 @@ export function TiltaksgjennomforingSkjemaKnapperadOpprett({
       </div>
 
       <SletteModal
-        modalOpen={slettemodal}
-        onClose={() => setSlettemodal(false)}
+        modalOpen={!!utkastIdForSletting}
+        onClose={() => setUtkastIdForSletting(null)}
         headerText="Ønsker du å slette utkastet?"
         headerTextError="Kan ikke slette utkastet."
-        handleDelete={handleDelete}
+        handleDelete={onDelete}
         mutation={mutationDeleteUtkast}
       />
     </>

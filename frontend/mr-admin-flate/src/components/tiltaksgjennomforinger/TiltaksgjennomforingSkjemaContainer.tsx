@@ -47,7 +47,6 @@ import { toast } from "react-toastify";
 import { SokeSelect } from "../skjema/SokeSelect";
 import { FormGroup } from "../skjema/FormGroup";
 import { AvbrytTiltaksgjennomforing } from "./AvbrytTiltaksgjennomforing";
-import { TiltaksgjennomforingSkjemaKnapperadOpprett } from "./TiltaksgjennomforingSkjemaKnapperad";
 import { useVirksomhet } from "../../api/virksomhet/useVirksomhet";
 import { PlusIcon, XMarkIcon } from "@navikt/aksel-icons";
 import { AnsvarligOptions } from "../skjema/AnsvarligOptions";
@@ -55,6 +54,7 @@ import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
 import { VirksomhetKontaktpersoner } from "../virksomhet/VirksomhetKontaktpersoner";
 import { Separator } from "../detaljside/Metadata";
+import { KnapperadOpprett } from "../skjema/KnapperadOpprett";
 
 interface Props {
   onClose: () => void;
@@ -590,8 +590,8 @@ export const TiltaksgjennomforingSkjemaContainer = ({
             </div>
           </div>
           <Separator />
-          <TiltaksgjennomforingSkjemaKnapperadOpprett
-            handleDelete={onClose} // nå avbryter den bare, sletter også utkastet?
+          <KnapperadOpprett
+            handleDelete={onClose}
             opprettMutation={opprettGjennomforingMutation}
             redigeringsmodus={redigeringsmodus}
             mutationUtkast={mutationUtkast}

@@ -8,6 +8,7 @@ import {
   NavAnsatt,
   Norg2Type,
   Opphav,
+  Utkast,
 } from "mulighetsrommet-api-client";
 import { NavEnhet } from "mulighetsrommet-api-client/build/models/NavEnhet";
 import { Tiltakstype } from "mulighetsrommet-api-client/build/models/Tiltakstype";
@@ -41,7 +42,7 @@ import {
 import { AnsvarligOptions } from "../skjema/AnsvarligOptions";
 import { FormGroup } from "../skjema/FormGroup";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AvtaleSkjemaKnapperadOpprett } from "./AvtaleSkjemaKnapperad";
+import { KnapperadOpprett } from "../skjema/KnapperadOpprett";
 
 interface Props {
   onClose: () => void;
@@ -51,6 +52,7 @@ interface Props {
   avtale?: Avtale;
   enheter: NavEnhet[];
   redigeringsmodus: boolean;
+  utkast: Utkast;
 }
 
 export function AvtaleSkjemaContainer({
@@ -61,6 +63,7 @@ export function AvtaleSkjemaContainer({
   enheter,
   avtale,
   redigeringsmodus,
+  utkast,
 }: Props) {
   const [navRegion, setNavRegion] = useState<string | undefined>(
     avtale?.navRegion?.enhetsnummer,
@@ -386,9 +389,9 @@ export function AvtaleSkjemaContainer({
             </div>
           </div>
           <Separator />
-          <AvtaleSkjemaKnapperadOpprett
+          <KnapperadOpprett
             opprettMutation={opprettAvtaleMutation}
-            handleDelete={onClose} // nå avbryter den bare, sletter også utkastet?
+            handleDelete={onClose}
             redigeringsmodus={redigeringsmodus}
             mutationUtkast={mutationUtkast}
           />
