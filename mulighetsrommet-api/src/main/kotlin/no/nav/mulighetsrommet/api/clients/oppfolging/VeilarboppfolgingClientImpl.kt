@@ -60,7 +60,7 @@ class VeilarboppfolgingClientImpl(
 
                 response.body()
             } catch (exe: Exception) {
-                SecureLog.logger.error("Klarte ikke hente oppfølgingsstatus for bruker med fnr: $fnr")
+                SecureLog.logger.error("Klarte ikke hente oppfølgingsstatus for bruker med fnr: $fnr", exe)
                 log.error("Klarte ikke hente oppfølgingsstatus. Se secureLogs for detaljer.")
                 return null
             }
