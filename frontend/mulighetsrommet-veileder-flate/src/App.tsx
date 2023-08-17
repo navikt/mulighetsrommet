@@ -11,7 +11,7 @@ import FakeDoor from './components/fakedoor/FakeDoor';
 import { APPLICATION_NAME, MODAL_ACCESSIBILITY_WRAPPER } from './constants';
 import { useFeatureToggle } from './core/api/feature-toggles';
 import { useHentVeilederdata } from './core/api/queries/useHentVeilederdata';
-import { FnrContext } from './hooks/useHentFnrFraUrl';
+import { FnrContext } from './hooks/useFnr';
 import { useInitialBrukerfilter } from './hooks/useInitialBrukerfilter';
 import { ErrorFallback } from './utils/ErrorFallback';
 import { SanityPreview } from './views/Preview/SanityPreview';
@@ -55,12 +55,12 @@ function AppWrapper() {
   return <RoutesConfig />;
 }
 
-interface Props {
+export interface AppProps {
   enhet: string;
   fnr: string;
 }
 
-function App(props: Props) {
+function App(props: AppProps) {
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback}>
       <div className={styles.app_container}>

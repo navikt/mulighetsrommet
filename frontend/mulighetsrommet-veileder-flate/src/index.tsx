@@ -1,7 +1,7 @@
 import './polyfill';
 import Navspa from '@navikt/navspa';
 import { createRoot } from 'react-dom/client';
-import App from './App';
+import App, { AppProps } from './App';
 import '@navikt/ds-css'; // Importer global css etter app så blir det seende likt ut lokalt og i dev/prod-miljø
 import { APPLICATION_NAME } from './constants';
 import { initializeMockWorker } from './mock/worker';
@@ -14,7 +14,7 @@ Navspa.eksporter(APPLICATION_NAME, App);
 const container = document.getElementById(APPLICATION_NAME);
 if (container) {
   const root = createRoot(container);
-  const MulighetsrommetVeilederFlate = Navspa.importer<{ fnr: string }>(APPLICATION_NAME);
+  const MulighetsrommetVeilederFlate = Navspa.importer<AppProps>(APPLICATION_NAME);
 
-  root.render(<MulighetsrommetVeilederFlate fnr={'12345678910'} />);
+  root.render(<MulighetsrommetVeilederFlate fnr={'12345678910'} enhet={'0106'} />);
 }

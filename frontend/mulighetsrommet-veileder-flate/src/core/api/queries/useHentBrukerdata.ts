@@ -1,12 +1,12 @@
 import { Bruker } from 'mulighetsrommet-api-client';
 import { useQuery } from 'react-query';
 import { QueryKeys } from '../query-keys';
-import { useHentFnrFraUrl } from '../../../hooks/useHentFnrFraUrl';
+import { useFnr } from '../../../hooks/useFnr';
 import { mulighetsrommetClient } from '../clients';
 import { erPreview } from '../../../utils/Utils';
 
 export function useHentBrukerdata() {
-  const fnr = useHentFnrFraUrl();
+  const fnr = useFnr();
 
   return useQuery<Bruker, Error>(
     [QueryKeys.Brukerdata, fnr],

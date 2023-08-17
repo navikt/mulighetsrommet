@@ -1,6 +1,6 @@
 import { DelMedBruker } from 'mulighetsrommet-api-client';
 import { useQuery } from 'react-query';
-import { useHentFnrFraUrl } from '../../../hooks/useHentFnrFraUrl';
+import { useFnr } from '../../../hooks/useFnr';
 import { erPreview } from '../../../utils/Utils';
 import { mulighetsrommetClient } from '../clients';
 import { QueryKeys } from '../query-keys';
@@ -10,7 +10,7 @@ import useTiltaksgjennomforingById from './useTiltaksgjennomforingById';
 export function useHentDeltMedBrukerStatus() {
   const { data: tiltaksgjennomforing } = useTiltaksgjennomforingById();
   const { data: veilederData } = useHentVeilederdata();
-  const norskIdent = useHentFnrFraUrl();
+  const norskIdent = useFnr();
 
   const { data: sistDeltMedBruker, refetch: refetchDelMedBruker } = useQuery<DelMedBruker>(
     [QueryKeys.DeltMedBrukerStatus, norskIdent, tiltaksgjennomforing?._id],

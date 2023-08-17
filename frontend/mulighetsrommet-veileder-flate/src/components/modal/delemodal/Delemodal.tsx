@@ -10,7 +10,6 @@ import { useHentBrukerdata } from '../../../core/api/queries/useHentBrukerdata';
 import { KanIkkeDeleMedBrukerModal } from './KanIkkeDeleMedBrukerModal';
 import { DelMedBrukerContent } from './DelMedBrukerContent';
 import { useNavigerTilDialogen } from '../../../hooks/useNavigerTilDialogen';
-import { useHentFnrFraUrl } from '../../../hooks/useHentFnrFraUrl';
 import { StatusModal } from './StatusModal';
 import { PORTEN } from 'mulighetsrommet-frontend-common/constants';
 
@@ -84,7 +83,6 @@ const Delemodal = ({
   const originalHilsen = sySammenHilsenTekst(veiledernavn);
   const [state, dispatch] = useReducer(reducer, { deletekst, originalHilsen }, initInitialState);
   const { navigerTilDialogen } = useNavigerTilDialogen();
-  const fnr = useHentFnrFraUrl();
 
   const brukerdata = useHentBrukerdata();
   const manuellOppfolging = brukerdata.data?.manuellStatus?.erUnderManuellOppfolging;
@@ -166,7 +164,7 @@ const Delemodal = ({
           heading="Tiltaket er delt med brukeren"
           text="Det er opprettet en ny tråd i Dialogen der du kan fortsette kommunikasjonen rundt dette tiltaket med brukeren."
           primaryButtonText="Gå til dialogen"
-          primaryButtonOnClick={() => navigerTilDialogen(fnr, state.dialogId)}
+          primaryButtonOnClick={() => navigerTilDialogen(state.dialogId)}
           secondaryButtonText="Lukk"
           secondaryButtonOnClick={() => clickCancel(false)}
         />

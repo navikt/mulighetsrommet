@@ -5,12 +5,12 @@ import { tiltaksgjennomforingsfilter } from '../../atoms/atoms';
 import { mulighetsrommetClient } from '../clients';
 import { QueryKeys } from '../query-keys';
 import { useHentBrukerdata } from './useHentBrukerdata';
-import { useHentFnrFraUrl } from '../../../hooks/useHentFnrFraUrl';
+import { useFnr } from '../../../hooks/useFnr';
 
 export default function useTiltaksgjennomforinger() {
   const [filter] = useAtom(tiltaksgjennomforingsfilter);
   const brukerData = useHentBrukerdata();
-  const fnr = useHentFnrFraUrl();
+  const fnr = useFnr();
 
   return useQuery(QueryKeys.sanity.tiltaksgjennomforinger(brukerData.data, filter), () =>
     mulighetsrommetClient.sanity.getTiltaksgjennomforingForBruker({
