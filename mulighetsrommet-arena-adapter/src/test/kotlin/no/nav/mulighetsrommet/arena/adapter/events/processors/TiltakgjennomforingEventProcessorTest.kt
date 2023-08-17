@@ -30,10 +30,10 @@ import no.nav.mulighetsrommet.arena.adapter.models.db.Sak
 import no.nav.mulighetsrommet.arena.adapter.models.dto.ArenaOrdsArrangor
 import no.nav.mulighetsrommet.arena.adapter.repositories.*
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
-import no.nav.mulighetsrommet.arena.adapter.utils.ArenaUtils
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.Tiltakshistorikk
+import no.nav.mulighetsrommet.domain.constants.ArenaMigrering.ArenaTimestampFormatter
 import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.ktor.createMockEngine
@@ -176,7 +176,7 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                             Insert,
                             TiltaksgjennomforingFixtures.ArenaTiltaksgjennomforingIndividuell,
                         ) {
-                            it.copy(REG_DATO = dateBeforeTiltakshistorikkStartDate.format(ArenaUtils.TimestampFormatter))
+                            it.copy(REG_DATO = dateBeforeTiltakshistorikkStartDate.format(ArenaTimestampFormatter))
                         },
                     )
 
@@ -195,7 +195,7 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                             Insert,
                             TiltaksgjennomforingFixtures.ArenaTiltaksgjennomforingIndividuell,
                         ) {
-                            it.copy(REG_DATO = tiltakshistorikkStartDate.format(ArenaUtils.TimestampFormatter))
+                            it.copy(REG_DATO = tiltakshistorikkStartDate.format(ArenaTimestampFormatter))
                         },
                     )
 
@@ -237,7 +237,7 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                 val (e1, mapping) = prepareEvent(
                     createArenaTiltakgjennomforingEvent(Insert) {
                         it.copy(
-                            REG_DATO = dateBeforeTiltakshistorikkStartDate.format(ArenaUtils.TimestampFormatter),
+                            REG_DATO = dateBeforeTiltakshistorikkStartDate.format(ArenaTimestampFormatter),
                             LOKALTNAVN = "Navn 1",
                         )
                     },
@@ -261,7 +261,7 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
 
                 val e2 = createArenaTiltakgjennomforingEvent(Update) {
                     it.copy(
-                        REG_DATO = tiltakshistorikkStartDate.format(ArenaUtils.TimestampFormatter),
+                        REG_DATO = tiltakshistorikkStartDate.format(ArenaTimestampFormatter),
                         LOKALTNAVN = "Navn 2",
                     )
                 }

@@ -1,7 +1,5 @@
 package no.nav.mulighetsrommet.api.services
 
-import no.nav.mulighetsrommet.api.producers.TiltaksgjennomforingKafkaProducer
-import no.nav.mulighetsrommet.api.producers.TiltakstypeKafkaProducer
 import no.nav.mulighetsrommet.api.repositories.*
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
@@ -11,6 +9,8 @@ import no.nav.mulighetsrommet.domain.dbo.*
 import no.nav.mulighetsrommet.domain.dto.AvtaleAdminDto
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingAdminDto
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingDto
+import no.nav.mulighetsrommet.kafka.producers.TiltaksgjennomforingKafkaProducer
+import no.nav.mulighetsrommet.kafka.producers.TiltakstypeKafkaProducer
 import java.util.*
 
 class ArenaAdapterService(

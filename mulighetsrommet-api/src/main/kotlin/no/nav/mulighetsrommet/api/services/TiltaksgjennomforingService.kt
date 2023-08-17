@@ -3,8 +3,8 @@ package no.nav.mulighetsrommet.api.services
 import arrow.core.Either
 import arrow.core.right
 import kotliquery.Session
+import no.nav.mulighetsrommet.api.domain.dto.ArenaMigreringTiltaksgjennomforingDto
 import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingNokkeltallDto
-import no.nav.mulighetsrommet.api.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
@@ -18,6 +18,8 @@ import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingAdminDto
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingDto
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingNotificationDto
+import no.nav.mulighetsrommet.kafka.producers.ArenaMigreringTiltaksgjennomforingKafkaProducer
+import no.nav.mulighetsrommet.kafka.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.notifications.NotificationRepository
 import no.nav.mulighetsrommet.notifications.NotificationType
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
@@ -29,8 +31,8 @@ class TiltaksgjennomforingService(
     private val tiltaksgjennomforingRepository: TiltaksgjennomforingRepository,
     private val deltakerRepository: DeltakerRepository,
     private val avtaleRepository: AvtaleRepository,
-    private val sanityTiltaksgjennomforingService: SanityTiltaksgjennomforingService,
     private val virksomhetService: VirksomhetService,
+    private val arenaMigreringTiltaksgjennomforingKafkaProducer: ArenaMigreringTiltaksgjennomforingKafkaProducer,
     private val utkastRepository: UtkastRepository,
     private val tiltaksgjennomforingKafkaProducer: TiltaksgjennomforingKafkaProducer,
     private val notificationRepository: NotificationRepository,
@@ -66,7 +68,6 @@ class TiltaksgjennomforingService(
                     dto
                 }
             }
-            .onRight { sanityTiltaksgjennomforingService.opprettSanityTiltaksgjennomforing(it) }
     }
 
     fun get(id: UUID): TiltaksgjennomforingAdminDto? =
@@ -127,6 +128,7 @@ class TiltaksgjennomforingService(
             tiltaksgjennomforingRepository.delete(id, tx)
             tiltaksgjennomforingKafkaProducer.retract(id)
         }.right()
+            .onRight { arenaMigreringTiltaksgjennomforingKafkaProducer.retract(id) }
     }
 
     fun getAllMidlertidigStengteGjennomforingerSomNarmerSegSluttdato(): List<TiltaksgjennomforingNotificationDto> {
@@ -154,7 +156,16 @@ class TiltaksgjennomforingService(
             tiltaksgjennomforingRepository.avbrytGjennomforing(gjennomforingId, tx)
             val dto = tiltaksgjennomforingRepository.get(gjennomforingId, tx)!!
             tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingDto.from(dto))
+            dto
         }.right()
+            .onRight {
+                tiltaksgjennomforingRepository.getArenaMigreringTiltaksgjennomforing(it.id)?.let {
+                    arenaMigreringTiltaksgjennomforingKafkaProducer.publish(
+                        ArenaMigreringTiltaksgjennomforingDto.from(it),
+                    )
+                }
+            }
+            .map {}
     }
 
     private fun sattSomAnsvarligNotification(gjennomforingNavn: String, ansvarlig: String, tx: Session) {

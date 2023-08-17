@@ -5,6 +5,7 @@ import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.api.domain.dbo.ArenaMigreringTiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.utils.AdminTiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.api.utils.DatabaseUtils
@@ -323,6 +324,32 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             .associateBy { it.sanityId!! }
     }
 
+    fun getArenaMigreringTiltaksgjennomforing(id: UUID): ArenaMigreringTiltaksgjennomforingDbo? {
+        @Language("PostgreSQL")
+        val query = """
+            select
+                tg.id,
+                t.tiltakskode,
+                tg.navn,
+                tg.arrangor_organisasjonsnummer,
+                tg.start_dato,
+                tg.slutt_dato,
+                tg.avslutningsstatus,
+                tg.tilgjengelighet,
+                tg.antall_plasser,
+                tg.avtale_id,
+                tg.created_at
+            from tiltaksgjennomforing tg
+                left join tiltakstype t on t.id = tg.tiltakstype_id
+            where tg.id = ?::uuid
+        """.trimIndent()
+
+        return queryOf(query, id)
+            .map { it.toArenaMigreringTiltaksgjennomforingDbo() }
+            .asSingle
+            .let { db.run(it) }
+    }
+
     fun get(id: UUID): TiltaksgjennomforingAdminDto? =
         db.transaction { get(id, it) }
 
@@ -552,6 +579,20 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         "oppstart" to oppstart.name,
         "opphav" to opphav.name,
     )
+
+    private fun Row.toArenaMigreringTiltaksgjennomforingDbo() =
+        ArenaMigreringTiltaksgjennomforingDbo(
+            id = uuid("id"),
+            tiltakskode = string("tiltakskode"),
+            navn = string("navn"),
+            arrangorOrganisasjonsnummer = string("arrangor_organisasjonsnummer"),
+            startDato = localDate("start_dato"),
+            sluttDato = localDateOrNull("slutt_dato"),
+            avslutningsstatus = Avslutningsstatus.valueOf(string("avslutningsstatus")),
+            tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.valueOf(string("tilgjengelighet")),
+            antallPlasser = int("antall_plasser"),
+            createdAt = localDateTime("created_at"),
+        )
 
     private fun Row.toTiltaksgjennomforingAdminDto(): TiltaksgjennomforingAdminDto {
         val ansvarlige =

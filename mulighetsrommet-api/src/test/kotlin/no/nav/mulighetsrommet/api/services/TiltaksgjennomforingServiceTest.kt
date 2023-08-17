@@ -14,7 +14,10 @@ import io.mockk.verify
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattDbo
 import no.nav.mulighetsrommet.api.fixtures.*
-import no.nav.mulighetsrommet.api.producers.TiltaksgjennomforingKafkaProducer
+import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
+import no.nav.mulighetsrommet.api.fixtures.DeltakerFixture
+import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
+import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.repositories.NavAnsattRepository
@@ -24,6 +27,8 @@ import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListe
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
+import no.nav.mulighetsrommet.kafka.producers.ArenaMigreringTiltaksgjennomforingKafkaProducer
+import no.nav.mulighetsrommet.kafka.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.notifications.NotificationRepository
 import java.time.LocalDate
 import java.util.*
@@ -34,6 +39,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
     val tiltaksgjennomforingKafkaProducer: TiltaksgjennomforingKafkaProducer = mockk(relaxed = true)
     val sanityTiltaksgjennomforingService: SanityTiltaksgjennomforingService = mockk(relaxed = true)
     val virksomhetService: VirksomhetService = mockk(relaxed = true)
+    val arenaMigreringTiltaksgjennomforingKafkaProducer: ArenaMigreringTiltaksgjennomforingKafkaProducer = mockk(relaxed = true)
     val notificationRepository: NotificationRepository = mockk(relaxed = true)
     val utkastRepository: UtkastRepository = mockk(relaxed = true)
 
@@ -53,8 +59,8 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             tiltaksgjennomforingRepository,
             deltagerRepository,
             avtaleRepository,
-            sanityTiltaksgjennomforingService,
             virksomhetService,
+            arenaMigreringTiltaksgjennomforingKafkaProducer,
             utkastRepository,
             tiltaksgjennomforingKafkaProducer,
             notificationRepository,
@@ -137,8 +143,8 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             tiltaksgjennomforingRepository,
             deltagerRepository,
             avtaleRepository,
-            sanityTiltaksgjennomforingService,
             virksomhetService,
+            arenaMigreringTiltaksgjennomforingKafkaProducer,
             utkastRepository,
             tiltaksgjennomforingKafkaProducer,
             notificationRepository,
@@ -195,8 +201,8 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             tiltaksgjennomforingRepository,
             deltagerRepository,
             avtaleRepository,
-            sanityTiltaksgjennomforingService,
             virksomhetService,
+            arenaMigreringTiltaksgjennomforingKafkaProducer,
             utkastRepository,
             tiltaksgjennomforingKafkaProducer,
             notificationRepository,
@@ -238,8 +244,8 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             tiltaksgjennomforingRepository,
             deltagerRepository,
             avtaleRepository,
-            sanityTiltaksgjennomforingService,
             virksomhetService,
+            arenaMigreringTiltaksgjennomforingKafkaProducer,
             utkastRepository,
             tiltaksgjennomforingKafkaProducer,
             notificationRepository,
@@ -327,8 +333,8 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             tiltaksgjennomforingRepository,
             deltagerRepository,
             avtaleRepository,
-            sanityTiltaksgjennomforingService,
             virksomhetService,
+            arenaMigreringTiltaksgjennomforingKafkaProducer,
             utkastRepository,
             tiltaksgjennomforingKafkaProducer,
             notificationRepository,

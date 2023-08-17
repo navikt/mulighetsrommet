@@ -2,12 +2,13 @@ package no.nav.mulighetsrommet.api
 
 import no.nav.mulighetsrommet.api.clients.brreg.BrregClientImpl
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
-import no.nav.mulighetsrommet.api.producers.TiltaksgjennomforingKafkaProducer
-import no.nav.mulighetsrommet.api.producers.TiltakstypeKafkaProducer
 import no.nav.mulighetsrommet.api.services.AdGruppeNavAnsattRolleMapping
 import no.nav.mulighetsrommet.api.tasks.*
 import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
+import no.nav.mulighetsrommet.kafka.producers.ArenaMigreringTiltaksgjennomforingKafkaProducer
+import no.nav.mulighetsrommet.kafka.producers.TiltaksgjennomforingKafkaProducer
+import no.nav.mulighetsrommet.kafka.producers.TiltakstypeKafkaProducer
 import no.nav.mulighetsrommet.ktor.ServerConfig
 import no.nav.mulighetsrommet.unleash.UnleashService
 
@@ -54,6 +55,7 @@ data class KafkaConfig(
 data class KafkaProducers(
     val tiltaksgjennomforinger: TiltaksgjennomforingKafkaProducer.Config,
     val tiltakstyper: TiltakstypeKafkaProducer.Config,
+    val arenaMigreringTiltaksgjennomforinger: ArenaMigreringTiltaksgjennomforingKafkaProducer.Config,
 )
 
 data class KafkaConsumers(

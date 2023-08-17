@@ -1,13 +1,13 @@
-package no.nav.mulighetsrommet.api.producers
+package no.nav.mulighetsrommet.kafka.producers
 
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import no.nav.common.kafka.producer.KafkaProducerClient
-import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingDto
+import no.nav.mulighetsrommet.api.domain.dto.ArenaMigreringTiltaksgjennomforingDto
 import org.apache.kafka.clients.producer.ProducerRecord
 import java.util.*
 
-class TiltaksgjennomforingKafkaProducer(
+class ArenaMigreringTiltaksgjennomforingKafkaProducer(
     private val kafkaProducerClient: KafkaProducerClient<String, String?>,
     private val config: Config,
 ) {
@@ -15,13 +15,14 @@ class TiltaksgjennomforingKafkaProducer(
         val topic: String,
     )
 
-    fun publish(value: TiltaksgjennomforingDto) {
+    fun publish(value: ArenaMigreringTiltaksgjennomforingDto) {
         val record: ProducerRecord<String, String?> = ProducerRecord(
             config.topic,
-            value.id.toString(),
+            value.ID.toString(),
             Json.encodeToString(value),
         )
-        kafkaProducerClient.sendSync(record)
+        // TODO: Disabled
+        // kafkaProducerClient.sendSync(record)
     }
 
     fun retract(id: UUID) {
@@ -30,6 +31,7 @@ class TiltaksgjennomforingKafkaProducer(
             id.toString(),
             null,
         )
-        kafkaProducerClient.sendSync(record)
+        // TODO: Disabled
+        // kafkaProducerClient.sendSync(record)
     }
 }

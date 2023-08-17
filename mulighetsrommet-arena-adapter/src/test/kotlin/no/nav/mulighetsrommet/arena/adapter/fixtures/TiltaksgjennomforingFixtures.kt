@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.arena.adapter.fixtures
 
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTiltaksgjennomforing
-import no.nav.mulighetsrommet.arena.adapter.models.arena.JaNeiStatus
+import no.nav.mulighetsrommet.domain.dto.JaNeiStatus
 
 object TiltaksgjennomforingFixtures {
     val ArenaTiltaksgjennomforingGruppe = ArenaTiltaksgjennomforing(

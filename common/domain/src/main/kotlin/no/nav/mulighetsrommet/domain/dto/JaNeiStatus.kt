@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.arena.adapter.models.arena
+package no.nav.mulighetsrommet.domain.dto
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
