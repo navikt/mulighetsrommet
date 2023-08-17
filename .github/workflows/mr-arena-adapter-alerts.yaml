@@ -9,6 +9,9 @@ on:
   push:
     branches:
       - main
+    paths:
+      - .github/workflows/mr-arena-adapter-alerts.yaml
+      - mulighetsrommet-arena-adapter/.nais/alerts.yaml
 
 jobs:
   ci:
