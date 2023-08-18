@@ -7,6 +7,7 @@ import {
 } from "sanity";
 import { Information } from "../components/Information";
 import { ShowFieldIfTiltakstypeMatches } from "../components/ShowFieldIfTiltakstypeMatches";
+import { isIndividueltTiltak } from "../components/ShowFieldIfIndividueltTiltak";
 import { API_VERSION } from "../sanity.config";
 import { EnhetType } from "./enhet";
 
@@ -165,7 +166,11 @@ export const tiltaksgjennomforing = defineType({
           type: EnhetType.Fylke,
         },
       },
-      validation: (rule) => rule.required(),
+      hidden: ({document} ) => {
+        console.log(14, document.tiltakstype);
+        return document.tiltakstype?._ref === "d03363e0-7d46-411b-aec4-fb9449e30eb8";
+      },
+      //validation: (rule) => rule.required(),
     }),
     defineField({
       name: "enheter",
