@@ -1949,6 +1949,7 @@ components:
           type: string
         opphav:
           $ref: "#/components/schemas/Opphav"
+          nullable: true
       required:
         - id
         - tiltakstypeId
@@ -1970,6 +1971,7 @@ components:
         - kontaktpersoner
         - estimertVentetid
         - lokasjonArrangor
+        - opphav
 
     TiltaksgjennomforingStatus:
       type: string
