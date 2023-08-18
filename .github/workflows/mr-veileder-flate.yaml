@@ -13,6 +13,13 @@ on:
   push:
     branches:
       - main
+    paths:
+      - .github/workflows/mr-veileder-flate.yaml
+      - package.json
+      - package-lock.json
+      - turbo.json
+      - frontend/mulighetsrommet-veileder-flate/**
+      - mulighetsrommet-api/src/main/resources/web/openapi.yaml
   workflow_dispatch:
     inputs:
       environment:

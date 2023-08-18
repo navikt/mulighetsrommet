@@ -22,11 +22,11 @@ import useTiltaksgjennomforingById from '../../core/api/queries/useTiltaksgjenno
 import { paginationAtom, tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
 import { environments } from '../../env';
 import { useBrukerHarRettPaaTiltak } from '../../hooks/useBrukerHarRettPaaTiltak';
-import { useHentFnrFraUrl } from '../../hooks/useHentFnrFraUrl';
-import { useNavigerTilDialogen } from '../../hooks/useNavigerTilDialogen';
 import TiltaksgjennomforingsHeader from '../../layouts/TiltaksgjennomforingsHeader';
 import { capitalize, erPreview, formaterDato } from '../../utils/Utils';
 import styles from './ViewTiltaksgjennomforingDetaljer.module.scss';
+import { getDialogLenke } from '../../utils/DialogFlateUtils';
+import { useFnr } from '../../hooks/useFnr';
 
 const whiteListOpprettAvtaleKnapp: SanityTiltakstype.arenakode[] = [
   SanityTiltakstype.arenakode.MIDLONTIL,
@@ -66,15 +66,14 @@ function resolveName(ansatt?: NavVeileder) {
 }
 
 const ViewTiltaksgjennomforingDetaljer = () => {
+  const fnr = useFnr();
   const gjennomforingsId = useGetTiltaksgjennomforingIdFraUrl();
   const [filter] = useAtom(tiltaksgjennomforingsfilter);
   const [page] = useAtom(paginationAtom);
-  const fnr = useHentFnrFraUrl();
   const { data: tiltaksgjennomforing, isLoading, isError } = useTiltaksgjennomforingById();
   const [delemodalApen, setDelemodalApen] = useState<boolean>(false);
   const brukerdata = useHentBrukerdata();
   const veilederdata = useHentVeilederdata();
-  const { getUrlTilDialogen } = useNavigerTilDialogen();
   const veiledernavn = resolveName(veilederdata.data);
   const { brukerHarRettPaaTiltak } = useBrukerHarRettPaaTiltak();
   const { harDeltMedBruker } = useHentDeltMedBrukerStatus();
@@ -141,7 +140,7 @@ const ViewTiltaksgjennomforingDetaljer = () => {
         <div className={styles.top_wrapper}>
           {!erPreview && (
             <Tilbakeknapp
-              tilbakelenke={`/${fnr}/#filter=${encodeURIComponent(JSON.stringify(filter))}&page=${page}`}
+              tilbakelenke={`/#filter=${encodeURIComponent(JSON.stringify(filter))}&page=${page}`}
               tekst="Tilbake til tiltaksoversikten"
             />
           )}
@@ -214,7 +213,7 @@ const ViewTiltaksgjennomforingDetaljer = () => {
             )}
             {harDeltMedBruker && !erPreview && (
               <div className={styles.dialogknapp}>
-                <Link href={getUrlTilDialogen(harDeltMedBruker.norskIdent!!, harDeltMedBruker.dialogId!!)}>
+                <Link href={getDialogLenke({ fnr, dialogId: harDeltMedBruker.dialogId!! })}>
                   Åpne i dialogen
                   <Chat2Icon />
                 </Link>

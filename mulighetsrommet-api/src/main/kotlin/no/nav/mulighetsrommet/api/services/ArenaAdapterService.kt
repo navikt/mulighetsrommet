@@ -5,6 +5,7 @@ import no.nav.mulighetsrommet.api.producers.TiltakstypeKafkaProducer
 import no.nav.mulighetsrommet.api.repositories.*
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
+import no.nav.mulighetsrommet.domain.Tiltakskoder
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate
 import no.nav.mulighetsrommet.domain.dbo.*
 import no.nav.mulighetsrommet.domain.dto.AvtaleAdminDto
@@ -50,14 +51,29 @@ class ArenaAdapterService(
     }
 
     suspend fun upsertTiltaksgjennomforing(tiltaksgjennomforing: ArenaTiltaksgjennomforingDbo): QueryResult<TiltaksgjennomforingAdminDto> {
-        virksomhetService.getOrSyncVirksomhet(tiltaksgjennomforing.arrangorOrganisasjonsnummer)
-        tiltaksgjennomforinger.upsertArenaTiltaksgjennomforing(tiltaksgjennomforing)
+        val mulighetsrommetAvtaleId = lookForExistingAvtale(tiltaksgjennomforing)
+        tiltaksgjennomforing.copy(avtaleId = mulighetsrommetAvtaleId).let {
+            virksomhetService.getOrSyncVirksomhet(it.arrangorOrganisasjonsnummer)
+            tiltaksgjennomforinger.upsertArenaTiltaksgjennomforing(it)
+        }
+
         val gjennomforing = tiltaksgjennomforinger.get(tiltaksgjennomforing.id)!!
         tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingDto.from(gjennomforing))
         if (gjennomforing.sluttDato == null || gjennomforing.sluttDato?.isAfter(TiltaksgjennomforingSluttDatoCutoffDate) == true) {
             sanityTiltaksgjennomforingService.opprettSanityTiltaksgjennomforing(gjennomforing)
         }
         return query { gjennomforing }
+    }
+
+    private fun lookForExistingAvtale(tiltaksgjennomforing: ArenaTiltaksgjennomforingDbo): UUID? {
+        val tiltakstype = tiltakstyper.get(tiltaksgjennomforing.tiltakstypeId)
+            ?: throw IllegalStateException("Ukjent tiltakstype id=${tiltaksgjennomforing.tiltakstypeId}")
+
+        return if (Tiltakskoder.isTiltakMedAvtalerFraMulighetsrommet(tiltakstype.arenaKode)) {
+            tiltaksgjennomforinger.get(tiltaksgjennomforing.id)?.avtaleId ?: tiltaksgjennomforing.avtaleId
+        } else {
+            tiltaksgjennomforing.avtaleId
+        }
     }
 
     fun removeTiltaksgjennomforing(id: UUID): QueryResult<Int> {

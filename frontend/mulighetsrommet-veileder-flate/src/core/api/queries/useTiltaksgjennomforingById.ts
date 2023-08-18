@@ -4,11 +4,11 @@ import { erPreview } from '../../../utils/Utils';
 import { mulighetsrommetClient } from '../clients';
 import { QueryKeys } from '../query-keys';
 import { useGetTiltaksgjennomforingIdFraUrl } from './useGetTiltaksgjennomforingIdFraUrl';
-import { useHentFnrFraUrl } from '../../../hooks/useHentFnrFraUrl';
+import { useFnr } from '../../../hooks/useFnr';
 
 export default function useTiltaksgjennomforingById() {
   const tiltaksgjennomforingId = useGetTiltaksgjennomforingIdFraUrl().replace('drafts.', '');
-  const fnrForBruker = useHentFnrFraUrl();
+  const fnrForBruker = useFnr();
   const response = useQuery(QueryKeys.sanity.tiltaksgjennomforing(tiltaksgjennomforingId), () =>
     mulighetsrommetClient.sanity.getSanityTiltaksgjennomforing({ id: tiltaksgjennomforingId, fnr: fnrForBruker })
   );

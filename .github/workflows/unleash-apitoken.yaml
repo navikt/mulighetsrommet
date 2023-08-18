@@ -10,6 +10,10 @@ on:
   push:
     branches:
       - main
+    paths:
+      - .github/workflows/unleash-apitoken.yaml
+      - mulighetsrommet-api/.nais/unleash-apitoken-dev.yaml
+      - mulighetsrommet-api/.nais/unleash-apitoken-prod.yaml
 
 jobs:
   ci:
