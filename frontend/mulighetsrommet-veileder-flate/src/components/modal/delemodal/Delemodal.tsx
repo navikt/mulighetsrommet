@@ -9,9 +9,10 @@ import { Actions, State } from './DelemodalActions';
 import { useHentBrukerdata } from '../../../core/api/queries/useHentBrukerdata';
 import { KanIkkeDeleMedBrukerModal } from './KanIkkeDeleMedBrukerModal';
 import { DelMedBrukerContent } from './DelMedBrukerContent';
-import { useNavigerTilDialogen } from '../../../hooks/useNavigerTilDialogen';
 import { StatusModal } from './StatusModal';
 import { PORTEN } from 'mulighetsrommet-frontend-common/constants';
+import { byttTilDialogFlate } from '../../../utils/DialogFlateUtils';
+import { useFnr } from '../../../hooks/useFnr';
 
 export const logDelMedbrukerEvent = (
   action: 'Åpnet dialog' | 'Delte med bruker' | 'Del med bruker feilet' | 'Avbrutt del med bruker' | 'Sett hilsen'
@@ -79,10 +80,10 @@ const Delemodal = ({
   chattekst,
   veiledernavn,
 }: DelemodalProps) => {
+  const fnr = useFnr();
   const deletekst = sySammenBrukerTekst(chattekst, tiltaksgjennomforingsnavn, brukernavn);
   const originalHilsen = sySammenHilsenTekst(veiledernavn);
   const [state, dispatch] = useReducer(reducer, { deletekst, originalHilsen }, initInitialState);
-  const { navigerTilDialogen } = useNavigerTilDialogen();
 
   const brukerdata = useHentBrukerdata();
   const manuellOppfolging = brukerdata.data?.manuellStatus?.erUnderManuellOppfolging;
@@ -164,7 +165,7 @@ const Delemodal = ({
           heading="Tiltaket er delt med brukeren"
           text="Det er opprettet en ny tråd i Dialogen der du kan fortsette kommunikasjonen rundt dette tiltaket med brukeren."
           primaryButtonText="Gå til dialogen"
-          primaryButtonOnClick={() => navigerTilDialogen(state.dialogId)}
+          primaryButtonOnClick={(event) => byttTilDialogFlate({ event, dialogId: state.dialogId, fnr })}
           secondaryButtonText="Lukk"
           secondaryButtonOnClick={() => clickCancel(false)}
         />
