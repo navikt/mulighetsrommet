@@ -34,6 +34,13 @@ export const mockEnheter: NavEnhet[] = [
     overordnetEnhet: "1500",
   },
   {
+    navn: "NAV Østre Aker",
+    enhetsnummer: "0332",
+    status: NavEnhetStatus.AKTIV,
+    type: Norg2Type.LOKAL,
+    overordnetEnhet: "0400",
+  },
+  {
     navn: "NAV Sogn og Fjordane",
     enhetsnummer: "1400",
     status: NavEnhetStatus.AKTIV,

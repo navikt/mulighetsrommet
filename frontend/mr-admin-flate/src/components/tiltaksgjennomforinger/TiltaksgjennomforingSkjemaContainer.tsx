@@ -77,13 +77,11 @@ export const TiltaksgjennomforingSkjemaContainer = ({
     avtale?.leverandor.organisasjonsnummer || "",
   );
   const opprettGjennomforingMutation = usePutGjennomforing();
-  const mutationUtkast = useMutateUtkast();
   const { data: betabrukere } = useHentBetabrukere();
+  const mutationUtkast = useMutateUtkast();
 
   const { data: ansatt, isLoading: isLoadingAnsatt } = useHentAnsatt();
-
   const { data: enheter, isLoading: isLoadingEnheter } = useAlleEnheter();
-
   const { data: kontaktpersoner, isLoading: isLoadingKontaktpersoner } =
     useHentKontaktpersoner();
 
@@ -591,10 +589,11 @@ export const TiltaksgjennomforingSkjemaContainer = ({
           </div>
           <Separator />
           <KnapperadOpprett
-            handleDelete={onClose}
             opprettMutation={opprettGjennomforingMutation}
+            handleDelete={onClose}
             redigeringsmodus={redigeringsmodus}
             mutationUtkast={mutationUtkast}
+            type="gjennomføring"
           />
         </div>
       </form>

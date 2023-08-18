@@ -9,16 +9,18 @@ import { useDeleteUtkast } from "../../api/utkast/useDeleteUtkast";
 import { useUtkast } from "../../api/utkast/useUtkast";
 
 interface PropsOpprett {
-  opprettMutation: UseMutationResult<any, unknown, any, unknown>;
+  opprettMutation: UseMutationResult<any, unknown, any>;
   handleDelete: () => void;
   redigeringsmodus: boolean;
   mutationUtkast: UseMutationResult<Utkast, unknown, Utkast>;
+  type: "avtale" | "gjennomføring";
 }
 export function KnapperadOpprett({
   opprettMutation,
   handleDelete,
   redigeringsmodus,
   mutationUtkast,
+  type,
 }: PropsOpprett) {
   const [utkastIdForSletting, setUtkastIdForSletting] = useState<null | string>(
     null,
@@ -51,9 +53,8 @@ export function KnapperadOpprett({
           disabled={!mutationUtkast.isSuccess}
         />
         <SubmitSkjemaKnapp
-          type="gjennomføring"
+          type={type}
           mutation={opprettMutation}
-          dataTestId="lagre-opprett-knapp"
           redigeringsmodus={redigeringsmodus}
         />
       </div>

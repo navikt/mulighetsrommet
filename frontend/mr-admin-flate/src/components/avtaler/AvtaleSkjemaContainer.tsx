@@ -8,7 +8,6 @@ import {
   NavAnsatt,
   Norg2Type,
   Opphav,
-  Utkast,
 } from "mulighetsrommet-api-client";
 import { NavEnhet } from "mulighetsrommet-api-client/build/models/NavEnhet";
 import { Tiltakstype } from "mulighetsrommet-api-client/build/models/Tiltakstype";
@@ -52,7 +51,6 @@ interface Props {
   avtale?: Avtale;
   enheter: NavEnhet[];
   redigeringsmodus: boolean;
-  utkast: Utkast;
 }
 
 export function AvtaleSkjemaContainer({
@@ -63,7 +61,6 @@ export function AvtaleSkjemaContainer({
   enheter,
   avtale,
   redigeringsmodus,
-  utkast,
 }: Props) {
   const [navRegion, setNavRegion] = useState<string | undefined>(
     avtale?.navRegion?.enhetsnummer,
@@ -75,10 +72,8 @@ export function AvtaleSkjemaContainer({
   const opprettAvtaleMutation = usePutAvtale();
   const { data: betabrukere } = useHentBetabrukere();
   const mutationUtkast = useMutateUtkast();
-
   const { data: leverandorVirksomheter = [] } =
     useSokVirksomheter(sokLeverandor);
-
   const utkastIdRef = useRef(avtale?.id || uuidv4());
 
   const form = useForm<inferredAvtaleSchema>({
@@ -394,6 +389,7 @@ export function AvtaleSkjemaContainer({
             handleDelete={onClose}
             redigeringsmodus={redigeringsmodus}
             mutationUtkast={mutationUtkast}
+            type="avtale"
           />
         </div>
       </form>

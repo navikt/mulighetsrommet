@@ -47,8 +47,8 @@ export const mockAvtaler: PaginertAvtale = {
       startDato: "2021-08-02",
       sluttDato: "2026-08-01",
       navEnheter: [
-        { enhetsnummer: "0418", navn: "NAV Nord-Odal" },
-        { enhetsnummer: "0403", navn: "NAV Hamar" },
+        { enhetsnummer: "1164", navn: "NAV Hillevåg og Hinna" },
+        { enhetsnummer: "0332", navn: "NAV Østre Aker" },
       ],
       navRegion: {
         enhetsnummer: "0400",
