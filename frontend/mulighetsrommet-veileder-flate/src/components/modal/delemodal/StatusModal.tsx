@@ -13,7 +13,7 @@ interface StatusModalProps {
   heading?: string | null;
   text: string | React.ReactNode;
   primaryButtonText: string | React.ReactNode;
-  primaryButtonOnClick: () => void;
+  primaryButtonOnClick: (event: any) => void;
   secondaryButtonText?: string | null;
   secondaryButtonOnClick?: () => void;
 }
@@ -53,7 +53,7 @@ export function StatusModal({
           )}
           <BodyShort className={style.text}>{text}</BodyShort>
           <div className={style.modal_btngroup}>
-            <Button variant="primary" onClick={primaryButtonOnClick}>
+            <Button variant="primary" onClick={(event) => primaryButtonOnClick(event)}>
               {primaryButtonText}
             </Button>
             {secondaryButtonText && (
