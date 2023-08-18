@@ -26,7 +26,7 @@ export const byttTilDialogFlate = ({
     );
 };
 
-export const getDialogLenke = ({
+const getDialogLenke = ({
     dialogId,
     fnr,
 }: {

@@ -1,5 +1,5 @@
 import { Chat2Icon, CheckmarkIcon } from '@navikt/aksel-icons';
-import { Alert, Button, Link, Loader } from '@navikt/ds-react';
+import { Alert, Button, Loader } from '@navikt/ds-react';
 import { useAtom } from 'jotai';
 import { NavVeileder, SanityTiltakstype } from 'mulighetsrommet-api-client';
 import { useState } from 'react';
@@ -25,7 +25,7 @@ import { useBrukerHarRettPaaTiltak } from '../../hooks/useBrukerHarRettPaaTiltak
 import TiltaksgjennomforingsHeader from '../../layouts/TiltaksgjennomforingsHeader';
 import { capitalize, erPreview, formaterDato } from '../../utils/Utils';
 import styles from './ViewTiltaksgjennomforingDetaljer.module.scss';
-import { getDialogLenke } from '../../utils/DialogFlateUtils';
+import { byttTilDialogFlate } from '../../utils/DialogFlateUtils';
 import { useFnr } from '../../hooks/useFnr';
 
 const whiteListOpprettAvtaleKnapp: SanityTiltakstype.arenakode[] = [
@@ -213,10 +213,14 @@ const ViewTiltaksgjennomforingDetaljer = () => {
             )}
             {harDeltMedBruker && !erPreview && (
               <div className={styles.dialogknapp}>
-                <Link href={getDialogLenke({ fnr, dialogId: harDeltMedBruker.dialogId!! })}>
+                <Button
+                  size="small"
+                  variant="tertiary"
+                  onClick={(event) => byttTilDialogFlate({ event, fnr, dialogId: harDeltMedBruker.dialogId!! })}
+                >
                   Åpne i dialogen
                   <Chat2Icon />
-                </Link>
+                </Button>
               </div>
             )}
           </div>
