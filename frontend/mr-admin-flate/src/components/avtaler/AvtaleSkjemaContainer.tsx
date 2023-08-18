@@ -26,7 +26,6 @@ import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
 import { SokeSelect } from "../skjema/SokeSelect";
 import { VirksomhetKontaktpersoner } from "../virksomhet/VirksomhetKontaktpersoner";
-import { AvbrytAvtale } from "./AvbrytAvtale";
 import { AvtaleSchema, inferredAvtaleSchema } from "./AvtaleSchema";
 import skjemastyles from "../skjema/Skjema.module.scss";
 
@@ -42,6 +41,7 @@ import { AnsvarligOptions } from "../skjema/AnsvarligOptions";
 import { FormGroup } from "../skjema/FormGroup";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { KnapperadOpprett } from "../skjema/KnapperadOpprett";
+import { KnapperadRediger } from "../skjema/KnapperadRediger";
 
 interface Props {
   onClose: () => void;
@@ -272,7 +272,9 @@ export function AvtaleSkjemaContainer({
                     label: "Sluttdato",
                   }}
                 />
-                {redigeringsmodus ? <AvbrytAvtale onAvbryt={onClose} /> : null}
+                {/*{redigeringsmodus ? (*/}
+                {/*  <AvbrytAvtaleKnapp onAvbryt={onClose} />*/}
+                {/*) : null}*/}
               </FormGroup>
               <Separator />
               <FormGroup>
@@ -384,13 +386,24 @@ export function AvtaleSkjemaContainer({
             </div>
           </div>
           <Separator />
-          <KnapperadOpprett
-            opprettMutation={opprettAvtaleMutation}
-            handleDelete={onClose}
-            redigeringsmodus={redigeringsmodus}
-            mutationUtkast={mutationUtkast}
-            type="avtale"
-          />
+          {redigeringsmodus ? (
+            <KnapperadRediger
+              opprettMutation={opprettAvtaleMutation}
+              handleDelete={onClose}
+              redigeringsmodus={redigeringsmodus}
+              mutationUtkast={mutationUtkast}
+              type={"avtale"}
+              avtale={avtale!}
+            />
+          ) : (
+            <KnapperadOpprett
+              opprettMutation={opprettAvtaleMutation}
+              handleDelete={onClose}
+              redigeringsmodus={redigeringsmodus}
+              mutationUtkast={mutationUtkast}
+              type="avtale"
+            />
+          )}
         </div>
       </form>
       <AutoSaveUtkast

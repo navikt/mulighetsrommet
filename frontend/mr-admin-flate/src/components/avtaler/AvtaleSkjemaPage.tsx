@@ -12,6 +12,7 @@ import { Laster } from "../laster/Laster";
 import { AvtaleSkjemaContainer } from "./AvtaleSkjemaContainer";
 import { useUtkast } from "../../api/utkast/useUtkast";
 import styles from "../skjema/Skjema.module.scss";
+import { AvtalestatusTag } from "../statuselementer/AvtalestatusTag";
 
 const AvtaleSkjemaPage = () => {
   const navigate = useNavigate();
@@ -45,6 +46,17 @@ const AvtaleSkjemaPage = () => {
     );
   }
 
+  const redigerAvtaleHeader = () => {
+    return (
+      <div className={styles.avtaleheader}>
+        Rediger avtale{" "}
+        {avtale!.avtalestatus === "Aktiv" ? (
+          <AvtalestatusTag avtale={avtale!} />
+        ) : null}
+      </div>
+    );
+  };
+
   return (
     <main>
       <Header
@@ -55,7 +67,7 @@ const AvtaleSkjemaPage = () => {
         {redigeringsModus
           ? utkastModus
             ? "Rediger utkast"
-            : "Rediger avtale"
+            : redigerAvtaleHeader()
           : "Opprett ny avtale"}
       </Header>
       <ContainerLayoutDetaljer>

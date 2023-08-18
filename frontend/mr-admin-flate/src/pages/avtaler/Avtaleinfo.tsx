@@ -2,12 +2,8 @@ import { Alert, Heading } from "@navikt/ds-react";
 import { Avtalestatus } from "mulighetsrommet-api-client";
 import { useState } from "react";
 import { useAvtale } from "../../api/avtaler/useAvtale";
-import AvbrytAvtaleModal from "../../components/avtaler/AvbrytAvtaleModal";
 import { Bolk } from "../../components/detaljside/Bolk";
-import {
-  Metadata,
-  Separator,
-} from "../../components/detaljside/Metadata";
+import { Metadata, Separator } from "../../components/detaljside/Metadata";
 import { VisHvisVerdi } from "../../components/detaljside/VisHvisVerdi";
 import { Laster } from "../../components/laster/Laster";
 import {
@@ -16,10 +12,10 @@ import {
   tiltakstypekodeErAnskaffetTiltak,
 } from "../../utils/Utils";
 import styles from "../DetaljerInfo.module.scss";
-import { AvtaleKnapperad } from "./AvtaleKnapperad";
 import SlettAvtaleGjennomforingModal from "../../components/modal/SlettAvtaleGjennomforingModal";
 import { useDeleteAvtale } from "../../api/avtaler/useDeleteAvtale";
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
+import { AvtaleKnapperad } from "./AvtaleKnapperad";
 
 export function Avtaleinfo() {
   const { data: avtale, isLoading, error, refetch } = useAvtale();
@@ -48,7 +44,12 @@ export function Avtaleinfo() {
     } else {
       tekst = `Se originalavtale `;
     }
-    return <>{tekst}<ExternalLinkIcon /></>;
+    return (
+      <>
+        {tekst}
+        <ExternalLinkIcon />
+      </>
+    );
   };
 
   function visKnapperad(avtalestatus: Avtalestatus): boolean {
@@ -170,7 +171,7 @@ export function Avtaleinfo() {
                     .filter((enhet) => enhet.navn)
                     .map((enhet) => (
                       <li key={enhet.organisasjonsnummer}>{enhet.navn}</li>
-                  ))}
+                    ))}
                 </ul>
               }
             />
@@ -201,13 +202,7 @@ export function Avtaleinfo() {
           </VisHvisVerdi>
         </div>
 
-        {visKnapperad(avtale.avtalestatus) ? (
-          <AvtaleKnapperad
-            avtale={avtale}
-            handleSlett={() => setSlettModal(true)}
-            handleAvbryt={() => setAvbrytModal(true)}
-          />
-        ) : null}
+        {visKnapperad(avtale.avtalestatus) ? <AvtaleKnapperad /> : null}
       </div>
       <SlettAvtaleGjennomforingModal
         modalOpen={slettModal}
@@ -216,14 +211,14 @@ export function Avtaleinfo() {
         mutation={mutation}
         dataType="avtale"
       />
-      <AvbrytAvtaleModal
-        modalOpen={avbrytModal}
-        onClose={() => {
-          refetch();
-          setAvbrytModal(false);
-        }}
-        avtale={avtale}
-      />
+      {/*<AvbrytAvtaleModal*/}
+      {/*  modalOpen={avbrytModal}*/}
+      {/*  onClose={() => {*/}
+      {/*    refetch();*/}
+      {/*    setAvbrytModal(false);*/}
+      {/*  }}*/}
+      {/*  avtale={avtale}*/}
+      {/*/>*/}
     </>
   );
 }
