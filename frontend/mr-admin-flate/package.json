@@ -21,7 +21,7 @@
     "@eik/rollup-plugin": "^4.0.50",
     "@hookform/resolvers": "^3.2.0",
     "@navikt/aksel-icons": "^4.11.0",
-    "@navikt/ds-css": "^4.8.0",
+    "@navikt/ds-css": "^5.0.2",
     "@navikt/ds-css-internal": "^3.4.3",
     "@navikt/ds-react": "^4.7.2",
     "@navikt/ds-react-internal": "^3.4.3",
