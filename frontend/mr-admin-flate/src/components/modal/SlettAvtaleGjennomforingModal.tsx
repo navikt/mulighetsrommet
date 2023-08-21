@@ -1,4 +1,4 @@
-import { Button, Heading, Modal } from "@navikt/ds-react";
+import { Button, Modal } from "@navikt/ds-react";
 import {
   ApiError,
   Avtale,
@@ -103,8 +103,6 @@ const SlettAvtaleGjennomforingModal = ({
 
   return (
     <Modal
-      shouldCloseOnOverlayClick={false}
-      closeButton
       open={modalOpen}
       onClose={handleCancel}
       className={classNames(
@@ -113,12 +111,8 @@ const SlettAvtaleGjennomforingModal = ({
       )}
       aria-label="modal"
     >
-      <Modal.Content>
-        <Heading size="medium" level="2">
-          {headerInnhold()}
-        </Heading>
-        {modalInnhold()}
-      </Modal.Content>
+      <Modal.Header closeButton>{headerInnhold()}</Modal.Header>
+      <Modal.Body>{modalInnhold()}</Modal.Body>
     </Modal>
   );
 };

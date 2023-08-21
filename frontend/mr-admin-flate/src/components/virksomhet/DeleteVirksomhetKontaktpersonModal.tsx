@@ -1,6 +1,6 @@
 import { ApiError } from "mulighetsrommet-api-client";
 import { useDeleteVirksomhetKontaktperson } from "../../api/virksomhet/useDeleteVirksomhetKontaktperson";
-import { Button, Heading, Modal } from "@navikt/ds-react";
+import { Button, Modal } from "@navikt/ds-react";
 import { useEffect } from "react";
 import { XMarkOctagonFillIcon } from "@navikt/aksel-icons";
 import styles from "../modal/Modal.module.scss";
@@ -41,8 +41,6 @@ export const DeleteVirksomhetKontaktpersonModal = ({
   return (
     <>
       <Modal
-        shouldCloseOnOverlayClick={false}
-        closeButton
         open={modalOpen}
         className={classNames(
           styles.overstyrte_styles_fra_ds_modal,
@@ -51,17 +49,17 @@ export const DeleteVirksomhetKontaktpersonModal = ({
         onClose={close}
         aria-label="modal"
       >
-        <Modal.Content>
-          <Heading size="medium" level="2">
-            <div className={styles.heading}>
-              <XMarkOctagonFillIcon className={styles.warningicon} />
-              {mutation.isError ? (
-                <span>Kan ikke slette</span>
-              ) : (
-                <span>Ønsker du å slette?</span>
-              )}
-            </div>
-          </Heading>
+        <Modal.Header closeButton>
+          <div className={styles.heading}>
+            <XMarkOctagonFillIcon className={styles.warningicon} />
+            {mutation.isError ? (
+              <span>Kan ikke slette</span>
+            ) : (
+              <span>Ønsker du å slette?</span>
+            )}
+          </div>
+        </Modal.Header>
+        <Modal.Body>
           {mutation?.isError ? (
             <p>{(mutation.error as ApiError).body}</p>
           ) : (
@@ -77,7 +75,7 @@ export const DeleteVirksomhetKontaktpersonModal = ({
               Avbryt
             </Button>
           </div>
-        </Modal.Content>
+        </Modal.Body>
       </Modal>
     </>
   );

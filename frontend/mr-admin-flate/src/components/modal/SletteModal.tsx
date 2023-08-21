@@ -78,8 +78,6 @@ const SletteModal = ({
 
   return (
     <Modal
-      shouldCloseOnOverlayClick={false}
-      closeButton
       open={modalOpen}
       onClose={clickCancel}
       className={classNames(
@@ -88,12 +86,8 @@ const SletteModal = ({
       )}
       aria-label="modal"
     >
-      <Modal.Content>
-        <Heading size="medium" level="2">
-          {headerInnhold()}
-        </Heading>
-        {modalInnhold()}
-      </Modal.Content>
+      <Modal.Header closeButton>{headerInnhold()}</Modal.Header>
+      <Modal.Body>{modalInnhold()}</Modal.Body>
     </Modal>
   );
 };

@@ -1,5 +1,5 @@
 import { initializeFaro } from "@grafana/faro-web-sdk";
-import { Alert, BodyShort, Modal } from "@navikt/ds-react";
+import { Alert, BodyShort } from "@navikt/ds-react";
 import { NavAnsattRolle, Utkast } from "mulighetsrommet-api-client";
 import { Route, Routes } from "react-router-dom";
 import { Forside } from "./Forside";
@@ -39,9 +39,6 @@ if (import.meta.env.PROD) {
     },
   });
 }
-
-// Trengs for at tab og fokus ikke skal gå utenfor modal når den er åpen.
-Modal.setAppElement?.(`#root`);
 
 export function App() {
   const { data: ansatt, isLoading: ansattIsLoading, error } = useHentAnsatt();
@@ -107,7 +104,12 @@ export function App() {
       >
         <Route
           index
-          element={<><Avtalefilter/><AvtaleTabell/></>}
+          element={
+            <>
+              <Avtalefilter />
+              <AvtaleTabell />
+            </>
+          }
         />
         <Route
           path="utkast"
@@ -120,11 +122,7 @@ export function App() {
         element={<DetaljerAvtalePage />}
         errorElement={<ErrorPage />}
       >
-        <Route
-          index
-          element={<Avtaleinfo />}
-          errorElement={<ErrorPage />}
-        />
+        <Route index element={<Avtaleinfo />} errorElement={<ErrorPage />} />
         <Route
           path="notater"
           element={<NotaterAvtalePage />}
@@ -139,15 +137,21 @@ export function App() {
             index
             element={
               <>
-                <Tiltaksgjennomforingfilter skjulFilter={{ tiltakstype: true }} />
-                <TiltaksgjennomforingsTabell skjulKolonner={{ tiltakstype: true, arrangor: true, }} />
+                <Tiltaksgjennomforingfilter
+                  skjulFilter={{ tiltakstype: true }}
+                />
+                <TiltaksgjennomforingsTabell
+                  skjulKolonner={{ tiltakstype: true, arrangor: true }}
+                />
               </>
             }
             errorElement={<ErrorPage />}
           />
           <Route
             path="utkast"
-            element={<UtkastListe utkastType={Utkast.type.TILTAKSGJENNOMFORING} />}
+            element={
+              <UtkastListe utkastType={Utkast.type.TILTAKSGJENNOMFORING} />
+            }
             errorElement={<ErrorPage />}
           />
         </Route>

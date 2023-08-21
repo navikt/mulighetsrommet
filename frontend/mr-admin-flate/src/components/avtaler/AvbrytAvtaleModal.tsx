@@ -1,5 +1,5 @@
 import { XMarkOctagonFillIcon } from "@navikt/aksel-icons";
-import { Button, Heading, Modal } from "@navikt/ds-react";
+import { Button, Modal } from "@navikt/ds-react";
 import classNames from "classnames";
 import { ApiError, Avtale, Opphav } from "mulighetsrommet-api-client";
 import { useEffect } from "react";
@@ -92,8 +92,6 @@ const AvbrytAvtaleModal = ({ modalOpen, onClose, avtale }: Props) => {
   return (
     <>
       <Modal
-        shouldCloseOnOverlayClick={false}
-        closeButton
         open={modalOpen}
         onClose={clickCancel}
         className={classNames(
@@ -102,12 +100,10 @@ const AvbrytAvtaleModal = ({ modalOpen, onClose, avtale }: Props) => {
         )}
         aria-label="modal"
       >
-        <Modal.Content>
-          <Heading size="medium" level="2">
-            {headerInnhold(avtale)}
-          </Heading>
+        <Modal.Body>
+          <Modal.Header closeButton>{headerInnhold(avtale)}</Modal.Header>
           {modalInnhold(avtale)}
-        </Modal.Content>
+        </Modal.Body>
       </Modal>
     </>
   );
