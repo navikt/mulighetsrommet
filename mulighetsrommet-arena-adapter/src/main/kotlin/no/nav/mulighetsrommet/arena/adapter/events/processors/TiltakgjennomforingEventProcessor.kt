@@ -43,14 +43,6 @@ class TiltakgjennomforingEventProcessor(
     override suspend fun handleEvent(event: ArenaEvent) = either {
         val data = event.decodePayload<ArenaTiltaksgjennomforing>()
 
-        val isGruppetiltak = isGruppetiltak(data.TILTAKSKODE)
-        if (!isGruppetiltak && isNoLongerRelevantForBrukersTiltakshistorikk(data)) {
-            return@either ProcessingResult(
-                Ignored,
-                "Tiltaksgjennomføring ignorert fordi den ikke lengre er relevant for brukers tiltakshistorikk",
-            )
-        }
-
         if (data.DATO_FRA == null) {
             return@either ProcessingResult(Ignored, "Tiltaksgjennomføring ignorert fordi DATO_FRA er null")
         }
@@ -61,6 +53,14 @@ class TiltakgjennomforingEventProcessor(
 
         if (data.ARBGIV_ID_ARRANGOR == null) {
             return@either ProcessingResult(Ignored, "Tiltaksgjennomføring ignorert fordi ARBGIV_ID_ARRANGOR er null")
+        }
+
+        val isGruppetiltak = isGruppetiltak(data.TILTAKSKODE)
+        if (!isGruppetiltak && !isRelevantForBrukersTiltakshistorikk(data)) {
+            return@either ProcessingResult(
+                Ignored,
+                "Tiltaksgjennomføring ignorert fordi den ikke lengre er relevant for brukers tiltakshistorikk",
+            )
         }
 
         val avtaleId = data.AVTALE_ID?.let { resolveFromMappingStatus(it).bind() }
@@ -128,8 +128,10 @@ class TiltakgjennomforingEventProcessor(
         response.mapLeft { ProcessingError.fromResponseException(it) }.map { ProcessingResult(Handled) }.bind()
     }
 
-    private fun isNoLongerRelevantForBrukersTiltakshistorikk(data: ArenaTiltaksgjennomforing): Boolean {
-        return !Tiltakshistorikk.isRelevantTiltakshistorikk(ArenaUtils.parseTimestamp(data.REG_DATO))
+    private fun isRelevantForBrukersTiltakshistorikk(data: ArenaTiltaksgjennomforing): Boolean {
+        return ArenaUtils.parseNullableTimestamp(data.DATO_TIL)
+            ?.let { Tiltakshistorikk.isRelevantTiltakshistorikk(it) }
+            ?: Tiltakshistorikk.isRelevantTiltakshistorikk(ArenaUtils.parseTimestamp(data.REG_DATO))
     }
 
     private fun ArenaTiltaksgjennomforing.toTiltaksgjennomforing(id: UUID, avtaleId: Int?) = Either
