@@ -4,7 +4,8 @@ import { QueryKeys } from "../QueryKeys";
 import { mulighetsrommetClient } from "../clients";
 
 export function useAvtale(overstyrAvtaleId?: string) {
-  const avtaleId = overstyrAvtaleId || useGetAvtaleIdFromUrl();
+  const avtaleIdFromUrl = useGetAvtaleIdFromUrl();
+  const avtaleId = overstyrAvtaleId ?? avtaleIdFromUrl;
 
   const query = useQuery(
     QueryKeys.avtale(avtaleId!!),

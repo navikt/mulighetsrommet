@@ -60,7 +60,7 @@ export const tekniskFeilError = () => (
 );
 
 export function ErrorMeldinger(
-  avtale: Avtale,
+  avtale: Avtale | undefined,
   redigeringsModus: boolean | undefined,
   isErrorAnsatt: boolean,
   isErrorEnheter: boolean,

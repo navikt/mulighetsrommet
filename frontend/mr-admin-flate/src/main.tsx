@@ -23,11 +23,16 @@ const queryClient = new QueryClient({
   },
 });
 
-if (!import.meta.env.PROD || import.meta.env.VITE_INCLUDE_MOCKS === "true") {
-  import("./mocks/browser").then(({ worker }) => {
-    worker.start();
-    render();
-  });
+if (import.meta.env.VITE_MULIGHETSROMMET_API_MOCK === "true") {
+  import("./mocks/browser")
+    .then(({ worker }) => {
+      return worker.start({
+        onUnhandledRequest: "bypass",
+      });
+    })
+    .then(() => {
+      render();
+    });
 } else {
   render();
 }
