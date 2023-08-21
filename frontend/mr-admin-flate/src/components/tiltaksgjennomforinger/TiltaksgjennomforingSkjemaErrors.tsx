@@ -1,6 +1,5 @@
 import { PORTEN } from "mulighetsrommet-frontend-common/constants";
 import { Link } from "react-router-dom";
-import React from "react";
 import { Avtale } from "mulighetsrommet-api-client";
 import { BodyShort } from "@navikt/ds-react";
 

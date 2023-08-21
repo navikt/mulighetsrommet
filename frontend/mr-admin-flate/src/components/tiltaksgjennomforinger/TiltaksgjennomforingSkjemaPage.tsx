@@ -25,16 +25,13 @@ const TiltaksgjennomforingSkjemaPage = () => {
   const [searchParams] = useSearchParams();
   const queryClient = useQueryClient();
   const { data: tiltaksgjennomforing, isLoading: tiltaksgjennomforingLoading } =
-    useTiltaksgjennomforing(
-      searchParams.get("tiltaksgjennomforingId") || undefined,
-    );
+    useTiltaksgjennomforing();
   const { data: utkast, isLoading: utkastLoading } = useUtkast(
     searchParams.get("utkastId") || undefined,
   );
   const { data: avtale } = useAvtale(
-    searchParams.get("avtaleId") ??
       tiltaksgjennomforing?.avtaleId ??
-      utkast?.utkastData?.avtaleId,
+      utkast?.utkastData?.avtaleId
   );
   const { data: tiltakstyper, isLoading: isLoadingTiltakstyper } =
     useTiltakstyper({ status: Tiltakstypestatus.AKTIV }, 1);
