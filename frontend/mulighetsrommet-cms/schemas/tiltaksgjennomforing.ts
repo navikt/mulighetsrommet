@@ -110,17 +110,6 @@ export const tiltaksgjennomforing = defineType({
       readOnly: erIkkeAdmin,
     }),
     defineField({
-      name: "kontaktinfoArrangor",
-      title: "Arrangør",
-      description:
-        "Ikke velg arrangør dersom tiltakstypen gjelder individuelle tiltak.",
-      type: "reference",
-      to: [{ type: "arrangor" }],
-      hidden: ({document} ) => {
-        return !isIndividueltTiltak(document.tiltakstype?._ref);
-      },
-    }),
-    defineField({
       name: "beskrivelse",
       title: "Beskrivelse",
       description: "Beskrivelse av formålet med tiltaksgjennomføringen.",
