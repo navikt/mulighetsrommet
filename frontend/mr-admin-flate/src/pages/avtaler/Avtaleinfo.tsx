@@ -2,12 +2,9 @@ import { Alert, Heading } from "@navikt/ds-react";
 import { Avtalestatus } from "mulighetsrommet-api-client";
 import { useState } from "react";
 import { useAvtale } from "../../api/avtaler/useAvtale";
-import AvbrytAvtaleModal from "../../components/avtaler/AvbrytAvtaleModal";
+import AvbrytAvtaleModal from "../../components/modal/AvbrytAvtaleModal";
 import { Bolk } from "../../components/detaljside/Bolk";
-import {
-  Metadata,
-  Separator,
-} from "../../components/detaljside/Metadata";
+import { Metadata, Separator } from "../../components/detaljside/Metadata";
 import { VisHvisVerdi } from "../../components/detaljside/VisHvisVerdi";
 import { Laster } from "../../components/laster/Laster";
 import {
@@ -48,7 +45,12 @@ export function Avtaleinfo() {
     } else {
       tekst = `Se originalavtale `;
     }
-    return <>{tekst}<ExternalLinkIcon /></>;
+    return (
+      <>
+        {tekst}
+        <ExternalLinkIcon />
+      </>
+    );
   };
 
   function visKnapperad(avtalestatus: Avtalestatus): boolean {
@@ -170,7 +172,7 @@ export function Avtaleinfo() {
                     .filter((enhet) => enhet.navn)
                     .map((enhet) => (
                       <li key={enhet.organisasjonsnummer}>{enhet.navn}</li>
-                  ))}
+                    ))}
                 </ul>
               }
             />

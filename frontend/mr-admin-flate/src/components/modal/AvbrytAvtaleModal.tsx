@@ -5,7 +5,7 @@ import { ApiError, Avtale, Opphav } from "mulighetsrommet-api-client";
 import { useEffect } from "react";
 import { useAvbrytAvtale } from "../../api/avtaler/useAvbrytAvtale";
 import { Lenkeknapp } from "../lenkeknapp/Lenkeknapp";
-import styles from "../modal/Modal.module.scss";
+import styles from "./Modal.module.scss";
 
 interface Props {
   modalOpen: boolean;
