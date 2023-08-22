@@ -98,7 +98,7 @@ export const syncVirksomhet = (orgnr: string) =>
   fetch(
     `/mulighetsrommet-api/api/v1/internal/virksomhet/update?orgnr=${orgnr}`,
     {
-      method: "GET",
+      method: "POST",
       headers: {
         "content-type": "application/json",
       },
