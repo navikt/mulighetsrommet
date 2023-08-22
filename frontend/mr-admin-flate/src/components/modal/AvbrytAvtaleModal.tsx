@@ -77,7 +77,7 @@ const AvbrytAvtaleModal = ({ modalOpen, onClose, avtale }: Props) => {
           variant={avtaleFraArena ? "primary" : "secondary"}
           onClick={clickCancel}
         >
-          Avbryt handling
+          Lukk
         </Button>
         {avtaleFraArena ? null : mutation?.isError ? (
           <Lenkeknapp
