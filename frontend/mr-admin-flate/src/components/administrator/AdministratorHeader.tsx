@@ -1,4 +1,4 @@
-import { Header } from "@navikt/ds-react-internal";
+import { InternalHeader } from "@navikt/ds-react";
 import { Link } from "react-router-dom";
 import { NavigeringHeader } from "../../pages/forside/NavigeringHeader";
 import { capitalize } from "../../utils/Utils";
@@ -14,22 +14,22 @@ export function AdministratorHeader() {
     : "Team Valp";
 
   return (
-    <Header>
-      <Header.Title className={styles.title} as="h1">
+    <InternalHeader>
+      <InternalHeader.Title className={styles.title} as="h1">
         <Link className={styles.link} to="/">
           NAV arbeidsmarkedstiltak
         </Link>
-      </Header.Title>
+      </InternalHeader.Title>
       <div className={styles.content}>
         <NavigeringHeader />
         <Notifikasjonsbjelle />
       </div>
-      <Header.User
+      <InternalHeader.User
         data-testid="header-navident"
         name={ansattNavn}
         description={data?.navIdent ?? "..."}
         className={styles.user}
       />
-    </Header>
+    </InternalHeader>
   );
 }
