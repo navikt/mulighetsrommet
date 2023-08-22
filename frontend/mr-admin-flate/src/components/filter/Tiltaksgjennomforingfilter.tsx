@@ -271,7 +271,7 @@ export function Tiltaksgjennomforingfilter({ skjulFilter }: Props) {
               <div className={styles.flex_row}>
                 {visOpprettTiltaksgjennomforingKnapp && (
                   <Lenkeknapp
-                    to={`/tiltaksgjennomforinger/skjema?avtaleId=${avtale.id}`}
+                    to={`skjema`}
                     lenketekst="Opprett ny tiltaksgjennomføring"
                     variant="primary"
                     handleClick={() => {

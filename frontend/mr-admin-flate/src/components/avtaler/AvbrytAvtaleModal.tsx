@@ -11,7 +11,7 @@ interface Props {
   modalOpen: boolean;
   onClose: () => void;
   handleForm?: () => void;
-  avtale?: Avtale;
+  avtale: Avtale;
 }
 
 const AvbrytAvtaleModal = ({ modalOpen, onClose, avtale }: Props) => {
@@ -56,12 +56,12 @@ const AvbrytAvtaleModal = ({ modalOpen, onClose, avtale }: Props) => {
     );
   }
 
-  function modalInnhold(avtale?: Avtale) {
+  function modalInnhold(avtale: Avtale) {
     return (
       <>
         {avtaleFraArena ? (
           <p>
-            Avtalen {avtale?.navn} kommer fra Arena og kan ikke avbrytes her
+            Avtalen {avtale.navn} kommer fra Arena og kan ikke avbrytes her
           </p>
         ) : mutation?.isError ? (
           <p>{(mutation.error as ApiError).body}</p>
@@ -74,7 +74,7 @@ const AvbrytAvtaleModal = ({ modalOpen, onClose, avtale }: Props) => {
           </Button>
           {avtaleFraArena ? null : mutation?.isError ? (
             <Lenkeknapp
-              to={`/avtaler/skjema?avtaleId=${avtale?.id}`}
+              to={`/avtaler/${avtale.id}/skjema`}
               handleClick={handleRedigerAvtale}
               lenketekst={"Rediger avtale"}
               variant="primary"

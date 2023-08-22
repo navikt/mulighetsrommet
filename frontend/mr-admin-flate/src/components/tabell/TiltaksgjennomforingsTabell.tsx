@@ -182,7 +182,7 @@ export const TiltaksgjennomforingsTabell = ({ skjulKolonner }: Props) => {
                         className={styles.title}
                       >
                         <Lenke
-                          to={`/tiltaksgjennomforinger/${tiltaksgjennomforing.id}`}
+                          to={`${tiltaksgjennomforing.id}`}
                           data-testid="tiltaksgjennomforingrad"
                         >
                           {tiltaksgjennomforing.navn}

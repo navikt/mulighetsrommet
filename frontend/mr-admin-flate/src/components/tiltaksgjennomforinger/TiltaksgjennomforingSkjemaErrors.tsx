@@ -1,6 +1,5 @@
 import { PORTEN } from "mulighetsrommet-frontend-common/constants";
 import { Link } from "react-router-dom";
-import React from "react";
 import { Avtale } from "mulighetsrommet-api-client";
 import { BodyShort } from "@navikt/ds-react";
 
@@ -9,8 +8,8 @@ const avtaleFinnesIkke = () => (
     <BodyShort>
       Det finnes ingen avtale koblet til tiltaksgjennomføringen. Hvis
       gjennomføringen er en AFT- eller VTA-gjennomføring kan du koble
-      gjennomføringen til riktig avtale.{" "}
-      <Link to={`/avtaler`}>Gå til avtaler her.</Link>
+      gjennomføringen til riktig avtale. Gå til{" "}
+      <Link to={`/avtaler`}>avtaler</Link>{" "}, finn riktig avtale og trykk «Legg til gjennomføring».
     </BodyShort>
     <BodyShort>
       Ta <a href={PORTEN}>kontakt i Porten</a> dersom du trenger mer hjelp.

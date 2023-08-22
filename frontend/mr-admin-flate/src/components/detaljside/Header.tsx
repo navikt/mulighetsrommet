@@ -12,7 +12,7 @@ export function Header({ children, dataTestId }: Props) {
   return (
     <div className={styles.header_container} data-testid={dataTestId}>
       <div className={styles.header}>
-        <Tilbakelenke>Tilbake</Tilbakelenke>
+        <Tilbakelenke />
         <Heading size="large" level="2">
           {children}
         </Heading>

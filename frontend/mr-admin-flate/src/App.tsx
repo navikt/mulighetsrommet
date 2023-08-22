@@ -160,6 +160,11 @@ export function App() {
         </Route>
       </Route>
       <Route
+        path="avtaler/:avtaleId/skjema"
+        element={<AvtaleSkjemaPage />}
+        errorElement={<ErrorPage />}
+      />
+      <Route
         path="avtaler/skjema"
         element={<AvtaleSkjemaPage />}
         errorElement={<ErrorPage />}
@@ -169,6 +174,27 @@ export function App() {
         element={<TiltaksgjennomforingerPage />}
         errorElement={<ErrorPage />}
       />
+      <Route
+        path="avtaler/:avtaleId/tiltaksgjennomforinger/:tiltaksgjennomforingId"
+        element={<DetaljerTiltaksgjennomforingerPage />}
+        errorElement={<ErrorPage />}
+      >
+        <Route
+          index
+          element={<TiltaksgjennomforingInfo />}
+          errorElement={<ErrorPage />}
+        />
+        <Route
+          path="notater"
+          element={<NotaterTiltaksgjennomforingerPage />}
+          errorElement={<ErrorPage />}
+        />
+        <Route
+          path="deltakere"
+          element={<DeltakerListe />}
+          errorElement={<ErrorPage />}
+        />
+      </Route>
       <Route
         path="tiltaksgjennomforinger/:tiltaksgjennomforingId"
         element={<DetaljerTiltaksgjennomforingerPage />}
@@ -191,7 +217,12 @@ export function App() {
         />
       </Route>
       <Route
-        path="tiltaksgjennomforinger/skjema"
+        path="avtaler/:avtaleId/tiltaksgjennomforinger/:tiltaksgjennomforingId/skjema"
+        element={<TiltaksgjennomforingSkjemaPage />}
+        errorElement={<ErrorPage />}
+      />
+      <Route
+        path="tiltaksgjennomforinger/:tiltaksgjennomforingId/skjema"
         element={<TiltaksgjennomforingSkjemaPage />}
         errorElement={<ErrorPage />}
       />
