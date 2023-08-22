@@ -1,4 +1,4 @@
-import { Modal, Search } from "@navikt/ds-react";
+import { Heading, Modal, Search } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { tiltaksgjennomforingTilAvtaleFilter } from "../../api/atoms";
 import { Tiltaksgjennomforingsliste } from "../tiltaksgjennomforinger/Tiltaksgjennomforingsliste";
@@ -32,7 +32,7 @@ export const LeggTilGjennomforingModal = ({
       aria-label="modal"
     >
       <Modal.Header closeButton>
-        Legg til ny gjennomføring til avtalen
+        <Heading size="medium">Legg til ny gjennomføring til avtalen</Heading>
       </Modal.Header>
       <Modal.Body className={styles.modal_content}>
         <Search

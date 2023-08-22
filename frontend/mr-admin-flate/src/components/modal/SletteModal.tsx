@@ -1,4 +1,4 @@
-import { Button, Heading, Modal } from "@navikt/ds-react";
+import { BodyShort, Button, Heading, Modal } from "@navikt/ds-react";
 import { ApiError } from "mulighetsrommet-api-client";
 import styles from "../modal/Modal.module.scss";
 import {
@@ -36,12 +36,16 @@ const SletteModal = ({
       <div className={styles.heading}>
         {mutation.isError ? (
           <>
-            <ExclamationmarkTriangleFillIcon className={styles.erroricon} />
+            <ExclamationmarkTriangleFillIcon
+              className={classNames(styles.icon_error, styles.icon)}
+            />
             <Heading size={"medium"}>{headerTextError}</Heading>
           </>
         ) : (
           <>
-            <XMarkOctagonFillIcon className={styles.warningicon} />
+            <XMarkOctagonFillIcon
+              className={classNames(styles.icon_warning, styles.icon)}
+            />
             <Heading size="medium">{headerText}</Heading>
           </>
         )}
@@ -53,41 +57,38 @@ const SletteModal = ({
     return (
       <>
         {mutation?.isError ? (
-          <p>{(mutation.error as ApiError).body}</p>
+          <BodyShort>{(mutation.error as ApiError).body}</BodyShort>
         ) : (
-          <p>Du kan ikke angre denne handlingen.</p>
+          <BodyShort>Du kan ikke angre denne handlingen.</BodyShort>
         )}
-
-        <div className={styles.knapperad}>
-          <Button variant="secondary" onClick={clickCancel}>
-            Avbryt
-          </Button>
-          {mutation?.isError ? null : (
-            <Button
-              variant="danger"
-              onClick={handleDelete}
-              data-testid={dataTestId}
-            >
-              Slett
-            </Button>
-          )}
-        </div>
       </>
     );
   }
 
+  function footerInnhold() {
+    return (
+      <div className={styles.knapperad}>
+        <Button variant="secondary" onClick={clickCancel}>
+          Avbryt
+        </Button>
+        {mutation?.isError ? null : (
+          <Button
+            variant="danger"
+            onClick={handleDelete}
+            data-testid={dataTestId}
+          >
+            Slett
+          </Button>
+        )}
+      </div>
+    );
+  }
+
   return (
-    <Modal
-      open={modalOpen}
-      onClose={clickCancel}
-      className={classNames(
-        styles.overstyrte_styles_fra_ds_modal,
-        styles.text_center,
-      )}
-      aria-label="modal"
-    >
-      <Modal.Header closeButton>{headerInnhold()}</Modal.Header>
+    <Modal open={modalOpen} onClose={clickCancel} aria-label="modal">
+      <Modal.Header closeButton={false}>{headerInnhold()}</Modal.Header>
       <Modal.Body>{modalInnhold()}</Modal.Body>
+      <Modal.Footer>{footerInnhold()}</Modal.Footer>
     </Modal>
   );
 };

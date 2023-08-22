@@ -1,6 +1,6 @@
 import { ApiError } from "mulighetsrommet-api-client";
 import { useDeleteVirksomhetKontaktperson } from "../../api/virksomhet/useDeleteVirksomhetKontaktperson";
-import { Button, Modal } from "@navikt/ds-react";
+import { BodyShort, Button, Heading, Modal } from "@navikt/ds-react";
 import { useEffect } from "react";
 import { XMarkOctagonFillIcon } from "@navikt/aksel-icons";
 import styles from "../modal/Modal.module.scss";
@@ -38,45 +38,53 @@ export const DeleteVirksomhetKontaktpersonModal = ({
     onClose();
   };
 
-  return (
-    <>
-      <Modal
-        open={modalOpen}
-        className={classNames(
-          styles.overstyrte_styles_fra_ds_modal,
-          styles.text_center,
+  function headerInnhold() {
+    return (
+      <div className={styles.heading}>
+        <XMarkOctagonFillIcon
+          className={classNames(styles.icon_warning, styles.icon)}
+        />
+        {mutation.isError ? (
+          <Heading size="medium">Kan ikke slette</Heading>
+        ) : (
+          <Heading size="medium">Ønsker du å slette?</Heading>
         )}
-        onClose={close}
-        aria-label="modal"
-      >
-        <Modal.Header closeButton>
-          <div className={styles.heading}>
-            <XMarkOctagonFillIcon className={styles.warningicon} />
-            {mutation.isError ? (
-              <span>Kan ikke slette</span>
-            ) : (
-              <span>Ønsker du å slette?</span>
-            )}
-          </div>
-        </Modal.Header>
-        <Modal.Body>
-          {mutation?.isError ? (
-            <p>{(mutation.error as ApiError).body}</p>
-          ) : (
-            <p>Du kan ikke angre denne handlingen</p>
-          )}
-          <div className={styles.knapperad}>
-            {!mutation?.isError && (
-              <Button variant="danger" onClick={handleDelete}>
-                Slett kontaktperson
-              </Button>
-            )}
-            <Button variant="secondary-neutral" onClick={close}>
-              Avbryt
-            </Button>
-          </div>
-        </Modal.Body>
-      </Modal>
-    </>
+      </div>
+    );
+  }
+
+  function modalInnhold() {
+    return (
+      <>
+        {mutation?.isError ? (
+          <BodyShort>{(mutation.error as ApiError).body}</BodyShort>
+        ) : (
+          <BodyShort>Du kan ikke angre denne handlingen.</BodyShort>
+        )}
+      </>
+    );
+  }
+
+  function footerInnhold() {
+    return (
+      <div className={styles.knapperad}>
+        <Button variant="secondary" onClick={close}>
+          Avbryt
+        </Button>
+        {!mutation?.isError && (
+          <Button variant="danger" onClick={handleDelete}>
+            Slett kontaktperson
+          </Button>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <Modal open={modalOpen} onClose={close} aria-label="modal">
+      <Modal.Header closeButton={false}>{headerInnhold()}</Modal.Header>
+      <Modal.Body>{modalInnhold()}</Modal.Body>
+      <Modal.Footer>{footerInnhold()}</Modal.Footer>
+    </Modal>
   );
 };
