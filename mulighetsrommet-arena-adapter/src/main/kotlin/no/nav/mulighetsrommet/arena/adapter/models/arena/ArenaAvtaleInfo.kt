@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.arena.adapter.models.arena
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+@Suppress("PropertyName")
 @Serializable
 data class ArenaAvtaleInfo(
     val AVTALE_ID: Int,

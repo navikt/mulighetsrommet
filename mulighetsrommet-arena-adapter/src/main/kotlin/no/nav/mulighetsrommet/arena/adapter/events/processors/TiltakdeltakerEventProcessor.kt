@@ -39,13 +39,6 @@ class TiltakdeltakerEventProcessor(
     override suspend fun handleEvent(event: ArenaEvent) = either {
         val data = event.decodePayload<ArenaTiltakdeltaker>()
 
-        if (isNoLongerRelevantForBrukersTiltakshistorikk(data)) {
-            return@either ProcessingResult(
-                Ignored,
-                "Deltaker ignorert fordi den ikke lengre er relevant for brukers tiltakshistorikk",
-            )
-        }
-
         val tiltaksgjennomforingIsIgnored = entities
             .isIgnored(ArenaTable.Tiltaksgjennomforing, data.TILTAKGJENNOMFORING_ID.toString())
             .bind()
@@ -53,6 +46,13 @@ class TiltakdeltakerEventProcessor(
             return@either ProcessingResult(
                 Ignored,
                 "Deltaker ignorert fordi tilhørende tiltaksgjennomføring også er ignorert",
+            )
+        }
+
+        if (!isRelevantForBrukersTiltakshistorikk(data)) {
+            return@either ProcessingResult(
+                Ignored,
+                "Deltaker ignorert fordi den ikke lengre er relevant for brukers tiltakshistorikk",
             )
         }
 
@@ -139,8 +139,10 @@ class TiltakdeltakerEventProcessor(
         entities.deleteDeltaker(mapping.entityId).bind()
     }
 
-    private fun isNoLongerRelevantForBrukersTiltakshistorikk(data: ArenaTiltakdeltaker): Boolean {
-        return !Tiltakshistorikk.isRelevantTiltakshistorikk(ArenaUtils.parseTimestamp(data.REG_DATO))
+    private fun isRelevantForBrukersTiltakshistorikk(data: ArenaTiltakdeltaker): Boolean {
+        return ArenaUtils.parseNullableTimestamp(data.DATO_TIL)
+            ?.let { Tiltakshistorikk.isRelevantTiltakshistorikk(it) }
+            ?: Tiltakshistorikk.isRelevantTiltakshistorikk(ArenaUtils.parseTimestamp(data.REG_DATO))
     }
 
     private fun ArenaTiltakdeltaker.toDeltaker(id: UUID) = Either

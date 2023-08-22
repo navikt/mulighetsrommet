@@ -3,6 +3,8 @@ package no.nav.mulighetsrommet.arena.adapter.events.processors
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.data.blocking.forAll
+import io.kotest.data.row
 import io.kotest.matchers.collections.shouldHaveSingleElement
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
@@ -11,11 +13,13 @@ import io.kotest.matchers.types.shouldBeInstanceOf
 import io.ktor.client.engine.*
 import io.ktor.client.engine.mock.*
 import io.ktor.http.*
+import kotlinx.coroutines.runBlocking
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClientImpl
 import no.nav.mulighetsrommet.arena.adapter.createDatabaseTestConfig
 import no.nav.mulighetsrommet.arena.adapter.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.arena.adapter.fixtures.createArenaTiltakdeltakerEvent
+import no.nav.mulighetsrommet.arena.adapter.models.ProcessingResult
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.Handled
@@ -177,20 +181,26 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
             }
 
             test("should be ignored when it's no longer relevant for brukers tiltakshistorikk") {
-                val regDatoBeforeTiltakshistorikkStart = LocalDateTime.now()
+                val datoBeforeTiltakshistorikkStart = LocalDateTime.now()
                     .minus(Tiltakshistorikk.TiltakshistorikkTimePeriod)
                     .minusDays(1)
                     .format(ArenaUtils.TimestampFormatter)
 
                 val processor = createProcessor()
 
-                val event = createArenaTiltakdeltakerEvent(Insert) {
-                    it.copy(REG_DATO = regDatoBeforeTiltakshistorikkStart)
+                val eventWithOldSluttDato = createArenaTiltakdeltakerEvent(Insert) {
+                    it.copy(DATO_TIL = datoBeforeTiltakshistorikkStart)
                 }
-
-                processor.handleEvent(event).shouldBeRight().should {
-                    it.status shouldBe Ignored
-                    it.message shouldBe "Deltaker ignorert fordi den ikke lengre er relevant for brukers tiltakshistorikk"
+                val eventWithOldRegDato = createArenaTiltakdeltakerEvent(Insert) {
+                    it.copy(REG_DATO = datoBeforeTiltakshistorikkStart)
+                }
+                forAll(row(eventWithOldSluttDato), row(eventWithOldRegDato)) { event ->
+                    runBlocking {
+                        processor.handleEvent(event) shouldBeRight ProcessingResult(
+                            Ignored,
+                            "Deltaker ignorert fordi den ikke lengre er relevant for brukers tiltakshistorikk",
+                        )
+                    }
                 }
             }
 
