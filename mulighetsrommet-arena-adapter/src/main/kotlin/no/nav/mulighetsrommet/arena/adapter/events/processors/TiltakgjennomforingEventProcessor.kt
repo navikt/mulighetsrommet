@@ -80,7 +80,8 @@ class TiltakgjennomforingEventProcessor(
         val mapping = entities.getMapping(event.arenaTable, event.arenaId).bind()
         client.request<Any>(HttpMethod.Delete, "/api/v1/internal/arena/tiltaksgjennomforing/${mapping.entityId}")
             .mapLeft { ProcessingError.fromResponseException(it) }
-            .flatMap { entities.deleteTiltaksgjennomforing(mapping.entityId) }.bind()
+            .flatMap { entities.deleteTiltaksgjennomforing(mapping.entityId) }
+            .bind()
     }
 
     private fun resolveFromMappingStatus(avtaleId: Int): Either<ProcessingError, Int?> {
