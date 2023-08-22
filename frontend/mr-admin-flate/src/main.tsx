@@ -1,5 +1,4 @@
 import "@navikt/ds-css";
-import "@navikt/ds-css-internal";
 import { Alert, BodyShort, Heading } from "@navikt/ds-react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
