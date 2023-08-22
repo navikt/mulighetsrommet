@@ -26,6 +26,15 @@ updates:
       time: "07:00"
       timezone: Europe/Oslo
     open-pull-requests-limit: 10
+    groups:
+      nav-designsystem:
+        patterns:
+          - "@navikt/aksel-*"
+          - "@navikt/ds-*"
+      react:
+        patterns:
+          - "react"
+          - "react-dom"
 
   # Test versjonsoppdatering av docker images i nais config
   - package-ecosystem: docker

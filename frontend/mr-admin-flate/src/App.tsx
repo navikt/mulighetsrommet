@@ -101,13 +101,18 @@ export function App() {
         />
       </Route>
       <Route
-        path="avtaler/"
+        path="avtaler"
         element={<AvtalerPage />}
         errorElement={<ErrorPage />}
       >
         <Route
           index
-          element={<><Avtalefilter/><AvtaleTabell/></>}
+          element={
+            <>
+              <Avtalefilter />
+              <AvtaleTabell />
+            </>
+          }
         />
         <Route
           path="utkast"
@@ -120,11 +125,7 @@ export function App() {
         element={<DetaljerAvtalePage />}
         errorElement={<ErrorPage />}
       >
-        <Route
-          index
-          element={<Avtaleinfo />}
-          errorElement={<ErrorPage />}
-        />
+        <Route index element={<Avtaleinfo />} errorElement={<ErrorPage />} />
         <Route
           path="notater"
           element={<NotaterAvtalePage />}
@@ -139,15 +140,21 @@ export function App() {
             index
             element={
               <>
-                <Tiltaksgjennomforingfilter skjulFilter={{ tiltakstype: true }} />
-                <TiltaksgjennomforingsTabell skjulKolonner={{ tiltakstype: true, arrangor: true, }} />
+                <Tiltaksgjennomforingfilter
+                  skjulFilter={{ tiltakstype: true }}
+                />
+                <TiltaksgjennomforingsTabell
+                  skjulKolonner={{ tiltakstype: true, arrangor: true }}
+                />
               </>
             }
             errorElement={<ErrorPage />}
           />
           <Route
             path="utkast"
-            element={<UtkastListe utkastType={Utkast.type.TILTAKSGJENNOMFORING} />}
+            element={
+              <UtkastListe utkastType={Utkast.type.TILTAKSGJENNOMFORING} />
+            }
             errorElement={<ErrorPage />}
           />
         </Route>

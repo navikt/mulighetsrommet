@@ -294,7 +294,6 @@ paths:
               schema:
                 $ref: "#/components/schemas/AvtaleNotat"
 
-
   /api/v1/internal/notater/avtaler/mine:
     get:
       tags:
@@ -421,7 +420,6 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/TiltaksgjennomforingNotat"
-
 
   /api/v1/internal/notater/tiltaksgjennomforinger/{id}:
     delete:
@@ -1443,7 +1441,7 @@ paths:
         description: Navn på feature toggle
         required: true
         schema:
-         $ref: "#/components/schemas/Toggles"
+          $ref: "#/components/schemas/Toggles"
     get:
       tags:
         - Features
@@ -1949,6 +1947,7 @@ components:
           type: string
         opphav:
           $ref: "#/components/schemas/Opphav"
+          nullable: true
       required:
         - id
         - tiltakstypeId
@@ -1970,6 +1969,7 @@ components:
         - kontaktpersoner
         - estimertVentetid
         - lokasjonArrangor
+        - opphav
 
     TiltaksgjennomforingStatus:
       type: string

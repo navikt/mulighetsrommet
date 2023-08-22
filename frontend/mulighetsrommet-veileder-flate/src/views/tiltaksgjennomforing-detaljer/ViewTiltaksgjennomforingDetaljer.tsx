@@ -1,5 +1,5 @@
 import { Chat2Icon, CheckmarkIcon } from '@navikt/aksel-icons';
-import { Alert, Button, Link, Loader } from '@navikt/ds-react';
+import { Alert, Button, Loader } from '@navikt/ds-react';
 import { useAtom } from 'jotai';
 import { NavVeileder, SanityTiltakstype } from 'mulighetsrommet-api-client';
 import { useState } from 'react';
@@ -22,10 +22,11 @@ import useTiltaksgjennomforingById from '../../core/api/queries/useTiltaksgjenno
 import { paginationAtom, tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
 import { environments } from '../../env';
 import { useBrukerHarRettPaaTiltak } from '../../hooks/useBrukerHarRettPaaTiltak';
-import { useNavigerTilDialogen } from '../../hooks/useNavigerTilDialogen';
 import TiltaksgjennomforingsHeader from '../../layouts/TiltaksgjennomforingsHeader';
 import { capitalize, erPreview, formaterDato } from '../../utils/Utils';
 import styles from './ViewTiltaksgjennomforingDetaljer.module.scss';
+import { byttTilDialogFlate } from '../../utils/DialogFlateUtils';
+import { useFnr } from '../../hooks/useFnr';
 
 const whiteListOpprettAvtaleKnapp: SanityTiltakstype.arenakode[] = [
   SanityTiltakstype.arenakode.MIDLONTIL,
@@ -65,6 +66,7 @@ function resolveName(ansatt?: NavVeileder) {
 }
 
 const ViewTiltaksgjennomforingDetaljer = () => {
+  const fnr = useFnr();
   const gjennomforingsId = useGetTiltaksgjennomforingIdFraUrl();
   const [filter] = useAtom(tiltaksgjennomforingsfilter);
   const [page] = useAtom(paginationAtom);
@@ -72,7 +74,6 @@ const ViewTiltaksgjennomforingDetaljer = () => {
   const [delemodalApen, setDelemodalApen] = useState<boolean>(false);
   const brukerdata = useHentBrukerdata();
   const veilederdata = useHentVeilederdata();
-  const { getUrlTilDialogen } = useNavigerTilDialogen();
   const veiledernavn = resolveName(veilederdata.data);
   const { brukerHarRettPaaTiltak } = useBrukerHarRettPaaTiltak();
   const { harDeltMedBruker } = useHentDeltMedBrukerStatus();
@@ -212,10 +213,14 @@ const ViewTiltaksgjennomforingDetaljer = () => {
             )}
             {harDeltMedBruker && !erPreview && (
               <div className={styles.dialogknapp}>
-                <Link href={getUrlTilDialogen(harDeltMedBruker.dialogId!!)}>
+                <Button
+                  size="small"
+                  variant="tertiary"
+                  onClick={(event) => byttTilDialogFlate({ event, fnr, dialogId: harDeltMedBruker.dialogId!! })}
+                >
                   Åpne i dialogen
                   <Chat2Icon />
-                </Link>
+                </Button>
               </div>
             )}
           </div>

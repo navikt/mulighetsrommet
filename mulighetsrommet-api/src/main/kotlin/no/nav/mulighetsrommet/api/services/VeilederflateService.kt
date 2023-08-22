@@ -198,8 +198,8 @@ class VeilederflateService(
                     tilgjengelighetsstatus = apiGjennomforing?.tilgjengelighet?.name,
                     estimert_ventetid = apiGjennomforing?.estimertVentetid,
                     tiltakstype = sanityData.tiltakstype?.copy(arenakode = apiGjennomforing?.tiltakstype?.arenaKode),
-                    lokasjon = apiGjennomforing?.lokasjonArrangor,
-                    kontaktinfoArrangor = kontaktpersonerArrangor,
+                    lokasjon = apiGjennomforing?.lokasjonArrangor ?: sanityData.lokasjon,
+                    kontaktinfoArrangor = kontaktpersonerArrangor ?: sanityData.kontaktinfoArrangor,
                 )
             }
     }
