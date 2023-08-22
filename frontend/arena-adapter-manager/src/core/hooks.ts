@@ -8,7 +8,7 @@ export function useTopics() {
   useEffect(() => {
     const fetchTopics = async () => {
       const t = await getTopics();
-      setTopics(t);
+      setTopics(t ?? []);
       setIsLoading(false);
     };
     fetchTopics();
@@ -22,7 +22,7 @@ export function useArenaTables() {
   useEffect(() => {
     const fetchArenaTables = async () => {
       const t = await getArenaTables();
-      setArenaTables(t);
+      setArenaTables(t ?? []);
       setIsLoading(false);
     };
     fetchArenaTables();

@@ -10,12 +10,12 @@ function ReplayEvent() {
   const [table, setTable] = useState<string>("");
   const [loading, setLoading] = useState(false);
 
-  const handleReplay = async (table: string, arenaId: string) => {
+  const handleReplay = async (table: string, arenaIdInput: string) => {
     setLoading(true);
-    const arenaIder = arenaId.split(",");
-    arenaIder.forEach(async (id) => {
+    const ids = arenaIdInput.split(",").map((id) => id.trim());
+    for (let id of ids) {
       await replayEvent(table, id);
-    });
+    }
     setLoading(false);
   };
 

@@ -5,12 +5,22 @@ import { syncVirksomhet } from "../core/api";
 
 function UpdateVirksomhet() {
   const [orgnr, setOrgnr] = useState<string>("");
+  const [loading, setLoading] = useState(false);
+
+  const syncVirksomheter = async (orgnrInput: string) => {
+    setLoading(true);
+    const nrs = orgnrInput.split(",").map((nr) => nr.trim());
+    for (const nr of nrs) {
+      await syncVirksomhet(nr);
+    }
+    setLoading(false);
+  };
 
   return (
     <Section
       headerText="Update virksomhet"
       loadingText={"Laster"}
-      isLoading={false}
+      isLoading={loading}
     >
       <Input
         placeholder="Organisasjonsnummer, gjerne kommaseparert hvis du trenger flere nr samtidig"
@@ -19,17 +29,7 @@ function UpdateVirksomhet() {
           setOrgnr(currentTarget.value);
         }}
       />
-      <Button
-        onClick={async () => {
-          for (const nr of orgnr.split(",")) {
-            if (nr.trim().length !== 9) {
-              alert(`${nr} er ikke 9 siffer. Orgnr er 9 siffer.`);
-              return;
-            }
-            await syncVirksomhet(nr.trim());
-          }
-        }}
-      >
+      <Button disabled={loading} onClick={() => syncVirksomheter(orgnr)}>
         Oppdater virksomhet
       </Button>
     </Section>
