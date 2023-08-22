@@ -26,8 +26,8 @@
   "dependencies": {
     "@grafana/faro-web-sdk": "^1.1.2",
     "@navikt/aksel-icons": "^4.11.0",
-    "@navikt/ds-css": "^4.8.0",
-    "@navikt/ds-react": "^4.7.2",
+    "@navikt/ds-css": "^5.0.2",
+    "@navikt/ds-react": "^5.0.2",
     "@navikt/navspa": "^6.0.1",
     "@portabletext/react": "^3.0.4",
     "@sanity/client": "^6.2.0",

@@ -7,10 +7,11 @@ interface LoaderModalProps {
 
 export const LoaderModal = ({ lukkModal, modalOpen }: LoaderModalProps) => {
   return (
-    <Modal onClose={lukkModal} open={modalOpen} closeButton={false}>
-      <Modal.Content>
+    <Modal onClose={lukkModal} open={modalOpen}>
+      <Modal.Header closeButton={false} />
+      <Modal.Body>
         <Loader size="xlarge" />
-      </Modal.Content>
+      </Modal.Body>
     </Modal>
   );
 };

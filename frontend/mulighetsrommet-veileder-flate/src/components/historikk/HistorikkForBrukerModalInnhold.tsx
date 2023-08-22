@@ -5,7 +5,7 @@ import styles from './HistorikkForBrukerModal.module.scss';
 import { StatusBadge } from './Statusbadge';
 import { formaterDato } from '../../utils/Utils';
 
-export function HistorikkForBrukerModal() {
+export function HistorikkForBrukerModalInnhold() {
   const { data, isLoading, isError } = useHentHistorikk();
   if (isLoading && !data) return <Loader />;
 
