@@ -4,6 +4,8 @@ import arrow.core.flatMap
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.data.blocking.forAll
+import io.kotest.data.row
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
@@ -11,6 +13,7 @@ import io.kotest.matchers.string.shouldContain
 import io.ktor.client.engine.*
 import io.ktor.client.engine.mock.*
 import io.ktor.http.*
+import kotlinx.coroutines.runBlocking
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClientImpl
 import no.nav.mulighetsrommet.arena.adapter.createDatabaseTestConfig
@@ -18,6 +21,7 @@ import no.nav.mulighetsrommet.arena.adapter.fixtures.TiltaksgjennomforingFixture
 import no.nav.mulighetsrommet.arena.adapter.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.arena.adapter.fixtures.createArenaAvtaleInfoEvent
 import no.nav.mulighetsrommet.arena.adapter.fixtures.createArenaTiltakgjennomforingEvent
+import no.nav.mulighetsrommet.arena.adapter.models.ProcessingResult
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaAvtaleInfo
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
@@ -168,23 +172,31 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
             }
 
             context("when tiltaksgjennomføring is individuelt tiltak") {
-                test("should ignore gjennomføringer created before Aktivitetsplanen") {
+                test("should ignore gjennomføringer when they're no longer relevant for tiltakshistorikk") {
                     val processor = createProcessor()
 
-                    val (event) = prepareEvent(
-                        createArenaTiltakgjennomforingEvent(
-                            Insert,
-                            TiltaksgjennomforingFixtures.ArenaTiltaksgjennomforingIndividuell,
-                        ) {
-                            it.copy(REG_DATO = dateBeforeTiltakshistorikkStartDate.format(ArenaUtils.TimestampFormatter))
-                        },
-                    )
-
-                    processor.handleEvent(event).shouldBeRight().should {
-                        it.status shouldBe Ignored
-                        it.message shouldBe "Tiltaksgjennomføring ignorert fordi den ikke lengre er relevant for brukers tiltakshistorikk"
+                    val eventWithOldSluttDato = createArenaTiltakgjennomforingEvent(
+                        Insert,
+                        TiltaksgjennomforingFixtures.ArenaTiltaksgjennomforingIndividuell,
+                    ) {
+                        it.copy(DATO_TIL = dateBeforeTiltakshistorikkStartDate.format(ArenaUtils.TimestampFormatter))
                     }
-                    database.assertThat("tiltaksgjennomforing").isEmpty
+                    val eventWithOldRegDato = createArenaTiltakgjennomforingEvent(
+                        Insert,
+                        TiltaksgjennomforingFixtures.ArenaTiltaksgjennomforingIndividuell,
+                    ) {
+                        it.copy(REG_DATO = dateBeforeTiltakshistorikkStartDate.format(ArenaUtils.TimestampFormatter))
+                    }
+
+                    forAll(row(eventWithOldSluttDato), row(eventWithOldRegDato)) { event ->
+                        runBlocking {
+                            val (e) = prepareEvent(event)
+                            processor.handleEvent(e) shouldBeRight ProcessingResult(
+                                Ignored,
+                                "Tiltaksgjennomføring ignorert fordi den ikke lengre er relevant for brukers tiltakshistorikk",
+                            )
+                        }
+                    }
                 }
 
                 test("should upsert gjennomføringer created after Aktivitetsplanen") {

@@ -88,7 +88,11 @@ class ArenaEventService(
                         .flatMap { result ->
                             if (mapping.status == Handled && result.status == Ignored) {
                                 logger.info("Sletter entity som tidligere var håndtert men nå skal ignoreres: table=${event.arenaTable}, id=${event.arenaId}")
-                                processor.deleteEntity(event).map { result }
+                                processor.deleteEntity(event)
+                                    .onLeft {
+                                        logger.warn("Klarte ikke slette entity: table=${event.arenaTable}, id=${event.arenaId}, status=${it.status}, message=${it.message}")
+                                    }
+                                    .map { result }
                             } else {
                                 result.right()
                             }
@@ -168,6 +172,9 @@ class ArenaEventService(
     }
 
     fun getStaleEvents(retriesGreaterThanOrEqual: Int): List<ArenaEvent> {
-        return events.getAll(retriesGreaterThanOrEqual = retriesGreaterThanOrEqual, status = ArenaEvent.ProcessingStatus.Failed)
+        return events.getAll(
+            retriesGreaterThanOrEqual = retriesGreaterThanOrEqual,
+            status = ArenaEvent.ProcessingStatus.Failed,
+        )
     }
 }
