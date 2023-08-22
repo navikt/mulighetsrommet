@@ -14,6 +14,15 @@ import { AdministratorHeader } from "./components/administrator/AdministratorHea
 import { MiljoBanner } from "./components/miljobanner/MiljoBanner";
 import "./index.css";
 
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: import.meta.env.PROD,
+      retry: import.meta.env.PROD,
+    },
+  },
+});
+
 if (import.meta.env.VITE_MULIGHETSROMMET_API_MOCK === "true") {
   import("./mocks/worker")
     .then(({ initializeMockServiceWorker }) => {
@@ -27,15 +36,6 @@ if (import.meta.env.VITE_MULIGHETSROMMET_API_MOCK === "true") {
 } else {
   render();
 }
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      refetchOnWindowFocus: import.meta.env.PROD,
-      retry: import.meta.env.PROD,
-    },
-  },
-});
 
 function render() {
   ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
