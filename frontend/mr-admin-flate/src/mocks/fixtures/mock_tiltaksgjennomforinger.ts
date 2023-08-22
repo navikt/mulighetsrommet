@@ -6,6 +6,10 @@ import {
 } from "mulighetsrommet-api-client";
 import { Tilgjengelighetsstatus } from "mulighetsrommet-api-client/build/models/Tilgjengelighetsstatus";
 import { mockTiltakstyper } from "./mock_tiltakstyper";
+import { nikolineKontaktperson, petrusKontaktperson } from "./mock_ansatt";
+import { mockEnheter } from "./mock_enheter";
+import { mockVirksomheter } from "./mock_virksomheter";
+import { mockVirksomhetKontaktperson } from "./mock_virksomhet_kontaktperson";
 
 export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
   {
@@ -14,19 +18,11 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     tiltaksnummer: "123456",
     antallPlasser: 50,
     arrangor: {
-      organisasjonsnummer: "123456789",
-      navn: "Fretex",
+      ...mockVirksomheter.fretex.underenheter!![0],
       slettet: false,
-      kontaktperson: {
-        epost: "johnny.bravo@bravissimo.no",
-        id: "123",
-        navn: "Johnny Bravo",
-        organisasjonsnummer: "123456789",
-        telefon: "67543215",
-        beskrivelse: null,
-      },
+      kontaktperson: mockVirksomhetKontaktperson[0],
     },
-    avtaleId: "d1f163b7-1a41-4547-af16-03fd4492b7ba",
+    avtaleId: "dd85e265-30ad-4474-b3e5-7f5670b978c3",
     tiltakstype: mockTiltakstyper.AVKLARAG,
     ansvarlig: {
       navident: "B123456",
@@ -38,56 +34,21 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     stengtFra: "2023-6-1",
     stengtTil: "2023-8-1",
     arenaAnsvarligEnhet: "2990",
-    navEnheter: [
-      {
-        enhetsnummer: "5701",
-        navn: "NAV Falkenborg",
-      },
-      {
-        enhetsnummer: "5703",
-        navn: "NAV Indre Fosen",
-      },
-      {
-        enhetsnummer: "0501",
-        navn: "NAV Lillehammer-Gausdal",
-      },
-    ],
+    navEnheter: [ mockEnheter._0313, mockEnheter._0315, mockEnheter._0330 ],
     status: TiltaksgjennomforingStatus.GJENNOMFORES,
     opphav: Opphav.MR_ADMIN_FLATE,
     tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
     lokasjonArrangor: "Brummundal",
-    kontaktpersoner: [
-      {
-        epost: "per.richard.olsen@nav.no",
-        mobilnummer: "90567894",
-        navIdent: "O123456",
-        navn: "Per Richard Olsen",
-        navEnheter: ["5701"],
-      },
-      {
-        epost: "nikoline.madsen@nav.no",
-        mobilnummer: "90764321",
-        navIdent: "M654378",
-        navn: "Nikoline Madsen",
-        navEnheter: ["5703", "0501"],
-      },
-      {
-        epost: "petrus.pilsen@nav.no",
-        mobilnummer: "78654323",
-        navIdent: "M887654",
-        navn: "Petrus Pilsen",
-        navEnheter: [],
-      },
-    ],
+    kontaktpersoner: [ petrusKontaktperson, nikolineKontaktperson ],
   },
   {
     id: "a7d63fb0-4366-412c-84b7-7c15518ee362",
     navn: "Spillbasert kvalifisering",
     tiltaksnummer: "123456",
     arrangor: {
-      organisasjonsnummer: "1000",
-      navn: "SoloPolo",
+      ...mockVirksomheter.fretex.underenheter!![0],
       slettet: false,
+      kontaktperson: mockVirksomhetKontaktperson[0],
     },
     tiltakstype: mockTiltakstyper.ABIST,
     startDato: "2022-01-01",
@@ -104,9 +65,9 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     navn: "Midlertidig lønnstilskudd",
     tiltaksnummer: "654434",
     arrangor: {
-      organisasjonsnummer: "1000",
-      navn: "Solon",
+      ...mockVirksomheter.fretex.underenheter!![0],
       slettet: false,
+      kontaktperson: mockVirksomhetKontaktperson[0],
     },
     tiltakstype: mockTiltakstyper.ABIST,
     startDato: "2022-01-01",
@@ -123,9 +84,9 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     navn: "AFT - Unikom",
     tiltaksnummer: "768672",
     arrangor: {
-      organisasjonsnummer: "1000",
-      navn: "Valp AS",
+      ...mockVirksomheter.fretex.underenheter!![0],
       slettet: false,
+      kontaktperson: mockVirksomhetKontaktperson[0],
     },
     tiltakstype: mockTiltakstyper.ABIST,
     startDato: "2022-01-01",
@@ -142,9 +103,9 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     navn: "Varig lønnstilskudd",
     tiltaksnummer: "65645",
     arrangor: {
-      organisasjonsnummer: "1000",
-      navn: "Valp AS",
+      ...mockVirksomheter.fretex.underenheter!![0],
       slettet: false,
+      kontaktperson: mockVirksomhetKontaktperson[0],
     },
     tiltakstype: mockTiltakstyper.ABIST,
     startDato: "2022-01-01",
@@ -161,9 +122,9 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     navn: "Arbeidsrettet rehabilitering - Trondheim",
     tiltaksnummer: "32557",
     arrangor: {
-      organisasjonsnummer: "1000",
-      navn: "Utvikler AS",
+      ...mockVirksomheter.fretex.underenheter!![0],
       slettet: false,
+      kontaktperson: mockVirksomhetKontaktperson[0],
     },
     tiltakstype: mockTiltakstyper.ABIST,
     startDato: "2022-01-01",
@@ -180,9 +141,9 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     navn: "Arbeidsrettet rehabilitering - Trondheim",
     tiltaksnummer: "98643",
     arrangor: {
-      organisasjonsnummer: "1000",
-      navn: "Lady Grey",
+      ...mockVirksomheter.fretex.underenheter!![0],
       slettet: false,
+      kontaktperson: mockVirksomhetKontaktperson[0],
     },
     tiltakstype: mockTiltakstyper.ABIST,
     startDato: "2022-01-01",
@@ -199,9 +160,9 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     navn: "Arbeidsrettet rehabilitering - Trondheim",
     tiltaksnummer: "575685",
     arrangor: {
-      organisasjonsnummer: "1000",
-      navn: "Lady Grey",
+      ...mockVirksomheter.fretex.underenheter!![0],
       slettet: false,
+      kontaktperson: mockVirksomhetKontaktperson[0],
     },
     tiltakstype: mockTiltakstyper.ABIST,
     startDato: "2022-01-01",
@@ -218,9 +179,9 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     navn: "Arbeidsrettet rehabilitering - Trondheim",
     tiltaksnummer: "54353",
     arrangor: {
-      organisasjonsnummer: "1000",
-      navn: "Lady Grey",
+      ...mockVirksomheter.fretex.underenheter!![0],
       slettet: false,
+      kontaktperson: mockVirksomhetKontaktperson[0],
     },
     tiltakstype: mockTiltakstyper.ABIST,
     startDato: "2022-01-01",
@@ -237,9 +198,9 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     navn: "Arbeidsrettet rehabilitering - Trondheim",
     tiltaksnummer: "23213",
     arrangor: {
-      organisasjonsnummer: "1000",
-      navn: "Lady Grey",
+      ...mockVirksomheter.fretex.underenheter!![0],
       slettet: false,
+      kontaktperson: mockVirksomhetKontaktperson[0],
     },
     tiltakstype: mockTiltakstyper.ABIST,
     startDato: "2022-01-01",
@@ -256,9 +217,9 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     navn: "Arbeidsrettet rehabilitering - Trondheim",
     tiltaksnummer: "76575",
     arrangor: {
-      organisasjonsnummer: "1000",
-      navn: "Lady Grey",
+      ...mockVirksomheter.fretex.underenheter!![0],
       slettet: false,
+      kontaktperson: mockVirksomhetKontaktperson[0],
     },
     tiltakstype: mockTiltakstyper.ABIST,
     startDato: "2022-01-01",
@@ -275,9 +236,9 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     navn: "Arbeidsrettet rehabilitering - Trondheim",
     tiltaksnummer: "23123",
     arrangor: {
-      organisasjonsnummer: "1000",
-      navn: "Lady Grey",
+      ...mockVirksomheter.fretex.underenheter!![0],
       slettet: false,
+      kontaktperson: mockVirksomhetKontaktperson[0],
     },
     tiltakstype: mockTiltakstyper.ABIST,
     startDato: "2022-01-01",
@@ -296,9 +257,9 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     navn: "Arbeidsrettet rehabilitering - Trondheim",
     tiltaksnummer: "686585",
     arrangor: {
-      organisasjonsnummer: "1000",
-      navn: "SoloPolo",
+      ...mockVirksomheter.fretex.underenheter!![0],
       slettet: false,
+      kontaktperson: mockVirksomhetKontaktperson[0],
     },
     tiltakstype: mockTiltakstyper.ABIST,
     startDato: "2022-01-01",
@@ -317,9 +278,9 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     navn: "Arbeidsrettet rehabilitering - Trondheim",
     tiltaksnummer: "43242",
     arrangor: {
-      organisasjonsnummer: "1000",
-      navn: "SoloPolo",
+      ...mockVirksomheter.fretex.underenheter!![0],
       slettet: false,
+      kontaktperson: mockVirksomhetKontaktperson[0],
     },
     tiltakstype: mockTiltakstyper.ABIST,
     startDato: "2022-01-01",
@@ -336,9 +297,9 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     navn: "Arbeidsrettet rehabilitering - Trondheim",
     tiltaksnummer: "4367",
     arrangor: {
-      organisasjonsnummer: "1000",
-      navn: "SoloPolo",
+      ...mockVirksomheter.fretex.underenheter!![0],
       slettet: false,
+      kontaktperson: mockVirksomhetKontaktperson[0],
     },
     tiltakstype: mockTiltakstyper.ABIST,
     startDato: "2022-01-01",
@@ -355,9 +316,9 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     navn: "Arbeidsrettet rehabilitering - Trondheim",
     tiltaksnummer: "7685",
     arrangor: {
-      organisasjonsnummer: "1000",
-      navn: "SoloPolo",
+      ...mockVirksomheter.fretex.underenheter!![0],
       slettet: false,
+      kontaktperson: mockVirksomhetKontaktperson[0],
     },
     tiltakstype: mockTiltakstyper.ABIST,
     startDato: "2022-01-01",
@@ -374,9 +335,9 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     navn: "Arbeidsrettet rehabilitering - Trondheim",
     tiltaksnummer: "5435356",
     arrangor: {
-      organisasjonsnummer: "1000",
-      navn: "SoloPolo",
+      ...mockVirksomheter.fretex.underenheter!![0],
       slettet: false,
+      kontaktperson: mockVirksomhetKontaktperson[0],
     },
     tiltakstype: mockTiltakstyper.ABIST,
     startDato: "2022-01-01",
@@ -393,9 +354,9 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     navn: "Arbeidsrettet rehabilitering - Trondheim",
     tiltaksnummer: "987643",
     arrangor: {
-      organisasjonsnummer: "1000",
-      navn: "Solo",
+      ...mockVirksomheter.fretex.underenheter!![0],
       slettet: false,
+      kontaktperson: mockVirksomhetKontaktperson[0],
     },
     tiltakstype: mockTiltakstyper.ABIST,
     startDato: "2022-01-01",
