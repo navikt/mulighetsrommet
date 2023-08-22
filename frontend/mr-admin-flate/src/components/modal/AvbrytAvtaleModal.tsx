@@ -60,17 +60,13 @@ const AvbrytAvtaleModal = ({ modalOpen, onClose, avtale }: Props) => {
 
   function modalInnhold() {
     return (
-      <>
-        {avtaleFraArena ? (
-          <BodyShort>
-            Avtalen {avtale?.navn} kommer fra Arena og kan ikke avbrytes her.
-          </BodyShort>
-        ) : mutation?.isError ? (
-          <BodyShort>{(mutation.error as ApiError).body}</BodyShort>
-        ) : (
-          <BodyShort>Du kan ikke angre denne handlingen.</BodyShort>
-        )}
-      </>
+      <BodyShort>
+        {avtaleFraArena
+          ? `Avtalen ${avtale?.navn} kommer fra Arena og kan ikke avbrytes her.`
+          : mutation?.isError
+          ? (mutation.error as ApiError).body
+          : "Du kan ikke angre denne handlingen."}
+      </BodyShort>
     );
   }
 

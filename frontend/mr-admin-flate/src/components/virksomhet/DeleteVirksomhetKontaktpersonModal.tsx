@@ -55,13 +55,11 @@ export const DeleteVirksomhetKontaktpersonModal = ({
 
   function modalInnhold() {
     return (
-      <>
-        {mutation?.isError ? (
-          <BodyShort>{(mutation.error as ApiError).body}</BodyShort>
-        ) : (
-          <BodyShort>Du kan ikke angre denne handlingen.</BodyShort>
-        )}
-      </>
+      <BodyShort>
+        {mutation?.isError
+          ? (mutation.error as ApiError).body
+          : "Du kan ikke angre denne handlingen."}
+      </BodyShort>
     );
   }
 

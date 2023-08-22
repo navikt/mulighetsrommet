@@ -30,6 +30,7 @@ export const LeggTilGjennomforingModal = ({
       onClose={clickCancel}
       className={styles.modal_container}
       aria-label="modal"
+      width="50rem"
     >
       <Modal.Header closeButton>
         <Heading size="medium">Legg til ny gjennomføring til avtalen</Heading>
