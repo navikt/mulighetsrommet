@@ -72,7 +72,7 @@ spec:
               "toApp": {
                 "name": "mulighetsrommet-api",
                 "namespace": "team-mulighetsrommet",
-                "cluster": "prod-gcp"
+                "cluster": "dev-gcp"
               }
             }
           ]
