@@ -47,13 +47,13 @@ const AvbrytAvtaleModal = ({ modalOpen, onClose, avtale }: Props) => {
         <XMarkOctagonFillIcon
           className={classNames(styles.icon_warning, styles.icon)}
         />
-        {avtaleFraArena ? (
-          <Heading size="medium">Avtalen kan ikke avbrytes</Heading>
-        ) : mutation.isError ? (
-          <Heading size="medium">Kan ikke avbryte «{avtale?.navn}»</Heading>
-        ) : (
-          <Heading size="medium">Ønsker du å avbryte «{avtale?.navn}»?</Heading>
-        )}
+        <Heading size="medium">
+          {avtaleFraArena
+            ? "Avtalen kan ikke avbrytes."
+            : mutation.isError
+            ? `Kan ikke avbryte «${avtale?.navn}»`
+            : `Ønsker du å avbryte «${avtale?.navn}»?`}
+        </Heading>
       </div>
     );
   }

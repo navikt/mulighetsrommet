@@ -44,11 +44,9 @@ export const DeleteVirksomhetKontaktpersonModal = ({
         <XMarkOctagonFillIcon
           className={classNames(styles.icon_warning, styles.icon)}
         />
-        {mutation.isError ? (
-          <Heading size="medium">Kan ikke slette</Heading>
-        ) : (
-          <Heading size="medium">Ønsker du å slette?</Heading>
-        )}
+        <Heading size="medium">
+          {mutation.isError ? "Kan ikke slette." : "Ønsker du å slette?"}
+        </Heading>
       </div>
     );
   }

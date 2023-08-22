@@ -56,15 +56,13 @@ const SlettAvtaleGjennomforingModal = ({
           className={classNames(styles.icon_warning, styles.icon)}
         />
 
-        {fraArena ? (
-          <Heading size="medium">
-            {tekster[dataType].navnPlural} kan ikke slettes
-          </Heading>
-        ) : mutation.isError ? (
-          <Heading size="medium">Kan ikke slette «{data.navn}»</Heading>
-        ) : (
-          <Heading size="medium">Ønsker du å slette «{data.navn}»?</Heading>
-        )}
+        <Heading size="medium">
+          {fraArena
+            ? `${tekster[dataType].navnPlural} kan ikke slettes`
+            : mutation.isError
+            ? `Kan ikke slette «${data.navn}»`
+            : `Ønsker du å slette «${data.navn}»?`}
+        </Heading>
       </div>
     );
   }
