@@ -11,7 +11,7 @@ export const avtaleHandlers = [
     "*/api/v1/internal/avtaler",
     (req, res, ctx) => {
       const avtalestatus = req.url.searchParams.get("avtalestatus");
-      const data = mockAvtaler.data.filter(
+      const data = mockAvtaler.filter(
         (a) => a.avtalestatus === avtalestatus || avtalestatus === null,
       );
 
@@ -34,7 +34,7 @@ export const avtaleHandlers = [
     (req, res, ctx) => {
       const avtalestatus = req.url.searchParams.get("avtalestatus");
       const brukerident = "B123456";
-      const data = mockAvtaler.data.filter(
+      const data = mockAvtaler.filter(
         (a) =>
           (a.avtalestatus === avtalestatus || avtalestatus === null) &&
           a.ansvarlig?.navident === brukerident,
@@ -58,7 +58,7 @@ export const avtaleHandlers = [
     "*/api/v1/internal/avtaler/:id",
     (req, res, ctx) => {
       const { id } = req.params as { id: string };
-      const avtale = mockAvtaler.data.find((a) => a.id === id) ?? undefined;
+      const avtale = mockAvtaler.find((a) => a.id === id) ?? undefined;
       return res(ctx.status(200), ctx.json(avtale));
     },
   ),
@@ -67,7 +67,7 @@ export const avtaleHandlers = [
     "*/api/v1/internal/avtaler/skjema",
     (req, res, ctx) => {
       const { id } = req.params as { id: string };
-      const avtale = mockAvtaler.data.find((a) => a.id === id) ?? undefined;
+      const avtale = mockAvtaler.find((a) => a.id === id) ?? undefined;
       return res(ctx.status(200), ctx.json(avtale));
     },
   ),

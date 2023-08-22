@@ -13,7 +13,7 @@ export const virksomhetHandlers = [
       return res(
         ctx.status(200),
         ctx.json(
-          mockVirksomheter.filter(
+          Object.values(mockVirksomheter).filter(
             (enhet) =>
               enhet.navn
                 ?.toLowerCase()
@@ -29,7 +29,7 @@ export const virksomhetHandlers = [
       return res(
         ctx.status(200),
         ctx.json(
-          mockVirksomheter.find(
+          Object.values(mockVirksomheter).find(
             (enhet) => enhet.organisasjonsnummer === req.params.orgnr,
           ),
         ),
@@ -39,7 +39,7 @@ export const virksomhetHandlers = [
   rest.get<DefaultBodyType, PathParams, Virksomhet[] | undefined>(
     "*/api/v1/internal/virksomhet",
     (req, res, ctx) => {
-      return res(ctx.status(200), ctx.json(mockVirksomheter));
+      return res(ctx.status(200), ctx.json(Object.values(mockVirksomheter)));
     },
   ),
 
