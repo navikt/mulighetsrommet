@@ -1,20 +1,19 @@
 import { Button, Heading, Modal } from '@navikt/ds-react';
 import React from 'react';
-import classNames from 'classnames';
 import styles from './Modal.module.scss';
 
 interface StandardModalModalProps {
   modalOpen: boolean;
-  heading: string;
+  heading: string | React.ReactNode;
   children: React.ReactNode;
   setModalOpen: () => void;
-  handleForm?: () => void;
+  handlePrimaryButton?: () => void;
   handleCancel?: () => void;
   className?: string;
   btnText?: string;
-  shouldCloseOnOverlayClick?: boolean;
   hideButtons?: boolean;
   id?: string;
+  closeButton?: boolean;
 }
 
 const StandardModal = ({
@@ -22,17 +21,17 @@ const StandardModal = ({
   heading,
   children,
   setModalOpen,
-  handleForm,
+  handlePrimaryButton,
   handleCancel,
   className,
   btnText,
-  shouldCloseOnOverlayClick,
   hideButtons = false,
   id,
+  closeButton = true,
 }: StandardModalModalProps) => {
-  const clickSend = () => {
+  const clickPrimaryButton = () => {
     setModalOpen();
-    handleForm?.();
+    handlePrimaryButton?.();
   };
 
   const clickCancel = () => {
@@ -41,30 +40,23 @@ const StandardModal = ({
   };
 
   return (
-    <Modal
-      shouldCloseOnOverlayClick={shouldCloseOnOverlayClick}
-      closeButton
-      open={modalOpen}
-      onClose={setModalOpen}
-      className={classNames(styles.overstyrte_styles_fra_ds_modal, className)}
-      aria-label="modal"
-    >
-      <Modal.Content id={id || ''}>
-        <Heading spacing level="1" size="medium" data-testid="modal_header">
+    <Modal open={modalOpen} onClose={setModalOpen} className={className} aria-label="modal">
+      <Modal.Header closeButton={closeButton}>
+        <Heading spacing size="medium" data-testid="modal_header">
           {heading}
         </Heading>
-        {children}
-        {!hideButtons ? (
-          <div className={styles.modal_btngroup}>
-            <Button onClick={clickSend} data-testid="modal_btn-send">
-              {btnText || 'Send'}
-            </Button>
+      </Modal.Header>
+      <Modal.Body id={id || ''}>{children}</Modal.Body>
+      {!hideButtons ? (
+        <Modal.Footer>
+          <div className={styles.knapperad}>
             <Button variant="tertiary" onClick={clickCancel} data-testid="modal_btn-cancel">
               Avbryt
             </Button>
+            <Button onClick={clickPrimaryButton}>{btnText}</Button>
           </div>
-        ) : null}
-      </Modal.Content>
+        </Modal.Footer>
+      ) : null}
     </Modal>
   );
 };

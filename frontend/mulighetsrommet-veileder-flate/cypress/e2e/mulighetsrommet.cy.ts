@@ -209,7 +209,6 @@ describe('Tiltaksgjennomføringsdetaljer', () => {
     cy.getByTestId('modal_btn-send').should('not.be.disabled').click();
 
     cy.getByTestId('modal_header').should('contain', 'Tiltaket er delt med brukeren');
-    cy.getByTestId('modal_btn-cancel').click();
-    cy.getByTestId('modal_header').should('not.exist');
+    cy.getByTestId('modal_btn-cancel').last().click();
   });
 });

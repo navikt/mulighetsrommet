@@ -9,7 +9,6 @@ interface ModalProps {
   onClose: () => void;
   handleForm?: () => void;
   handleCancel?: () => void;
-  shouldCloseOnOverlayClick?: boolean;
 }
 
 export const LeggTilGjennomforingModal = ({
@@ -26,31 +25,26 @@ export const LeggTilGjennomforingModal = ({
   };
 
   return (
-    <>
-      <Modal
-        shouldCloseOnOverlayClick={false}
-        closeButton
-        open={modalOpen}
-        onClose={clickCancel}
-        className={styles.modal_container}
-        aria-label="modal"
-      >
-        <Modal.Content className={styles.modal_content}>
-          <Heading size="medium" level="2">
-            Legg til ny gjennomføring til avtalen
-          </Heading>
-          <Search
-            label="Søk på navn eller tiltaksnummer"
-            variant="simple"
-            hideLabel={false}
-            autoFocus
-            onChange={(search) =>
-              setFilter({ ...filter, search: search.trim() })
-            }
-          />
-          <Tiltaksgjennomforingsliste />
-        </Modal.Content>
-      </Modal>
-    </>
+    <Modal
+      open={modalOpen}
+      onClose={clickCancel}
+      className={styles.modal_container}
+      aria-label="modal"
+      width="50rem"
+    >
+      <Modal.Header closeButton>
+        <Heading size="medium">Legg til ny gjennomføring til avtalen</Heading>
+      </Modal.Header>
+      <Modal.Body className={styles.modal_content}>
+        <Search
+          label="Søk på navn eller tiltaksnummer"
+          variant="simple"
+          hideLabel={false}
+          autoFocus
+          onChange={(search) => setFilter({ ...filter, search: search.trim() })}
+        />
+        <Tiltaksgjennomforingsliste />
+      </Modal.Body>
+    </Modal>
   );
 };

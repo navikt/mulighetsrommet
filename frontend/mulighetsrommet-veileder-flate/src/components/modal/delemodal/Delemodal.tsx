@@ -1,18 +1,20 @@
-import { BodyShort, Modal } from '@navikt/ds-react';
-import classNames from 'classnames';
-import { useReducer } from 'react';
+import { BodyShort, Button, Heading, Modal } from '@navikt/ds-react';
+import React, { useReducer } from 'react';
 import { logEvent } from '../../../core/api/logger';
-import { capitalize } from '../../../utils/Utils';
-import modalStyles from '../Modal.module.scss';
+import { capitalize, erPreview } from '../../../utils/Utils';
 import delemodalStyles from './Delemodal.module.scss';
 import { Actions, State } from './DelemodalActions';
 import { useHentBrukerdata } from '../../../core/api/queries/useHentBrukerdata';
 import { KanIkkeDeleMedBrukerModal } from './KanIkkeDeleMedBrukerModal';
 import { DelMedBrukerContent } from './DelMedBrukerContent';
-import { StatusModal } from './StatusModal';
+import { StatusModal } from '../StatusModal';
 import { PORTEN } from 'mulighetsrommet-frontend-common/constants';
 import { byttTilDialogFlate } from '../../../utils/DialogFlateUtils';
 import { useFnr } from '../../../hooks/useFnr';
+import { mulighetsrommetClient } from '../../../core/api/clients';
+import { useHentDeltMedBrukerStatus } from '../../../core/api/queries/useHentDeltMedbrukerStatus';
+import useTiltaksgjennomforingById from '../../../core/api/queries/useTiltaksgjennomforingById';
+import modalStyles from '../Modal.module.scss';
 
 export const logDelMedbrukerEvent = (
   action: 'Åpnet dialog' | 'Delte med bruker' | 'Del med bruker feilet' | 'Avbrutt del med bruker' | 'Sett hilsen'
@@ -91,13 +93,44 @@ const Delemodal = ({
   const kanVarsles = brukerdata?.data?.manuellStatus?.krrStatus?.kanVarsles;
   const kanIkkeDeleMedBruker = manuellOppfolging && krrStatusErReservert && !kanVarsles;
   const manuellStatus = !brukerdata.data?.manuellStatus;
-
   const feilmodal = manuellOppfolging || krrStatusErReservert || manuellStatus || kanIkkeDeleMedBruker;
+  const senderTilDialogen = state.sendtStatus === 'SENDER';
+  const { data: tiltaksgjennomforing } = useTiltaksgjennomforingById();
+  const tiltaksgjennomforingId = tiltaksgjennomforing?._id.toString();
+  const { lagreVeilederHarDeltTiltakMedBruker } = useHentDeltMedBrukerStatus();
+  const MAKS_ANTALL_TEGN_HILSEN = 300;
 
   const clickCancel = (log = true) => {
     lukkModal();
     dispatch({ type: 'Avbryt' });
     log && logDelMedbrukerEvent('Avbrutt del med bruker');
+  };
+
+  const getAntallTegn = () => {
+    return state.hilsen.length;
+  };
+
+  const sySammenDeletekst = () => {
+    return `${state.deletekst}\n\n${state.hilsen}`;
+  };
+
+  const handleSend = async () => {
+    if (state.hilsen.trim().length > getAntallTegn()) return;
+    logDelMedbrukerEvent('Delte med bruker');
+
+    dispatch({ type: 'Send melding' });
+    const overskrift = `Tiltak gjennom NAV: ${tiltaksgjennomforingsnavn}`;
+    const tekst = sySammenDeletekst();
+    try {
+      const res = await mulighetsrommetClient.dialogen.delMedDialogen({ fnr, requestBody: { overskrift, tekst } });
+      if (tiltaksgjennomforingId) {
+        await lagreVeilederHarDeltTiltakMedBruker(res.id, tiltaksgjennomforingId);
+      }
+      dispatch({ type: 'Sendt ok', payload: res.id });
+    } catch {
+      dispatch({ type: 'Sending feilet' });
+      logDelMedbrukerEvent('Del med bruker feilet');
+    }
   };
 
   return (
@@ -112,31 +145,50 @@ const Delemodal = ({
           manuellStatus={manuellStatus}
         />
       ) : (
-        <Modal
-          shouldCloseOnOverlayClick={false}
-          closeButton={true}
-          open={modalOpen}
-          onClose={clickCancel}
-          className={classNames(modalStyles.overstyrte_styles_fra_ds_modal, delemodalStyles.delemodal)}
-          aria-label="modal"
-        >
-          <Modal.Content>
+        <Modal open={modalOpen} className={delemodalStyles.delemodal} aria-label="modal">
+          <Modal.Header closeButton data-testid="modal_header">
+            <Heading size="xsmall">Del med bruker</Heading>
+            <Heading size="large" level="1" className={delemodalStyles.heading}>
+              {'Tiltak gjennom NAV: ' + tiltaksgjennomforingsnavn}
+            </Heading>
+          </Modal.Header>
+          <Modal.Body>
             {state.sendtStatus !== 'SENDT_OK' && state.sendtStatus !== 'SENDING_FEILET' && (
-              <>
-                <DelMedBrukerContent
-                  tiltaksgjennomforingsnavn={tiltaksgjennomforingsnavn}
-                  onCancel={clickCancel}
-                  state={state}
-                  dispatch={dispatch}
-                  veiledernavn={veiledernavn}
-                  brukernavn={brukernavn}
-                />
-                <BodyShort size="small">
-                  Kandidatene vil få et varsel fra NAV, og kan logge inn på nav.no for å lese meldingen.
-                </BodyShort>
-              </>
+              <DelMedBrukerContent
+                state={state}
+                dispatch={dispatch}
+                veiledernavn={veiledernavn}
+                brukernavn={brukernavn}
+              />
             )}
-          </Modal.Content>
+          </Modal.Body>
+          <Modal.Footer>
+            <div className={modalStyles.knapperad}>
+              <Button
+                variant="tertiary"
+                onClick={() => clickCancel(true)}
+                data-testid="modal_btn-cancel"
+                disabled={senderTilDialogen}
+              >
+                Avbryt
+              </Button>
+              <Button
+                onClick={handleSend}
+                data-testid="modal_btn-send"
+                disabled={
+                  senderTilDialogen ||
+                  state.hilsen.length === 0 ||
+                  state.hilsen.length > MAKS_ANTALL_TEGN_HILSEN ||
+                  erPreview
+                }
+              >
+                {senderTilDialogen ? 'Sender...' : 'Send via Dialogen'}
+              </Button>
+            </div>
+            <BodyShort size="small">
+              Kandidatene vil få et varsel fra NAV, og kan logge inn på nav.no for å lese meldingen.
+            </BodyShort>
+          </Modal.Footer>
         </Modal>
       )}
       {state.sendtStatus === 'SENDING_FEILET' && (
@@ -165,7 +217,7 @@ const Delemodal = ({
           heading="Tiltaket er delt med brukeren"
           text="Det er opprettet en ny tråd i Dialogen der du kan fortsette kommunikasjonen rundt dette tiltaket med brukeren."
           primaryButtonText="Gå til dialogen"
-          primaryButtonOnClick={(event) => byttTilDialogFlate({ event, dialogId: state.dialogId, fnr })}
+          primaryButtonOnClick={event => byttTilDialogFlate({ event, dialogId: state.dialogId, fnr })}
           secondaryButtonText="Lukk"
           secondaryButtonOnClick={() => clickCancel(false)}
         />

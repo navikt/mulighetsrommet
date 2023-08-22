@@ -1,19 +1,15 @@
-.overstyrte_styles_fra_ds_modal {
-  width: 40rem;
-  padding: 1rem;
-}
-
-.modal_btngroup {
+.heading {
   display: flex;
+  flex-direction: column;
   gap: 1rem;
-  margin-top: 1.5rem;
-  justify-content: space-between;
+  .icon {
+    width: 3rem;
+    height: auto;
+    align-self: center;
+  }
 }
 
-.muted {
-  color: var(--a-text-subtle);
-}
-
-.mt_0 {
-  margin-top: 0;
+.knapperad {
+  display: flex;
+  gap: 2rem;
 }

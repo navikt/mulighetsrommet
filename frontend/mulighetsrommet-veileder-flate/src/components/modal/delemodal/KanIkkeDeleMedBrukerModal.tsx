@@ -1,5 +1,5 @@
-import { StatusModal } from './StatusModal';
-import { LoaderModal } from '../loaderModal/LoaderModal';
+import { StatusModal } from '../StatusModal';
+import { LoaderModal } from '../LoaderModal';
 import { useState } from 'react';
 import { useHentBrukerdata } from '../../../core/api/queries/useHentBrukerdata';
 
@@ -29,10 +29,10 @@ export const KanIkkeDeleMedBrukerModal = ({
   const provIgjen = async () => {
     setData(brukerdata);
     setLoaderModalApen(true);
-    //tester om det er nødvendig med denne
     await sleep(500);
     setLoaderModalApen(false);
   };
+
   const feilmelding = () => {
     if (manuellOppfolging)
       return 'Brukeren er under manuell oppfølging og kan derfor ikke benytte seg av våre digitale tjenester.';
