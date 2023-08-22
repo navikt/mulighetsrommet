@@ -18,9 +18,7 @@ const AvtaleSkjemaPage = () => {
   const queryClient = useQueryClient();
 
   const [searchParams] = useSearchParams();
-  const { data: avtale, isLoading: avtaleLoading } = useAvtale(
-    searchParams.get("avtaleId") || undefined,
-  );
+  const { data: avtale, isLoading: avtaleLoading } = useAvtale();
   const { data: utkast, isLoading: utkastLoading } = useUtkast(
     searchParams.get("utkastId") || undefined,
   );

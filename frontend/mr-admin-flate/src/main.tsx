@@ -23,13 +23,35 @@ const queryClient = new QueryClient({
   },
 });
 
-if (!import.meta.env.PROD || import.meta.env.VITE_INCLUDE_MOCKS === "true") {
-  import("./mocks/browser").then(({ worker }) => {
-    worker.start();
-    render();
-  });
+if (import.meta.env.VITE_MULIGHETSROMMET_API_MOCK === "true") {
+  import("./mocks/worker")
+    .then(({ initializeMockServiceWorker }) => {
+      return initializeMockServiceWorker();
+    })
+    .then(render)
+    .catch((error) => {
+      // eslint-disable-next-line no-console
+      console.error("Error occurred while initializing MSW", error);
+    });
 } else {
   render();
+}
+
+function render() {
+  ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
+    <React.StrictMode>
+      <QueryClientProvider client={queryClient}>
+        <MiljoBanner />
+        <Router basename={import.meta.env.BASE_URL}>
+          <AdministratorHeader />
+          <ErrorBoundary FallbackComponent={ErrorFallback}>
+            <App />
+          </ErrorBoundary>
+        </Router>
+        <ReactQueryDevtools initialIsOpen={false} />
+      </QueryClientProvider>
+    </React.StrictMode>,
+  );
 }
 
 export function ErrorFallback({ error }: FallbackProps) {
@@ -50,22 +72,5 @@ export function ErrorFallback({ error }: FallbackProps) {
         </Link>
       </Alert>
     </div>
-  );
-}
-
-function render() {
-  ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
-    <React.StrictMode>
-      <QueryClientProvider client={queryClient}>
-        <MiljoBanner />
-        <Router basename={import.meta.env.BASE_URL}>
-          <AdministratorHeader />
-          <ErrorBoundary FallbackComponent={ErrorFallback}>
-            <App />
-          </ErrorBoundary>
-        </Router>
-        <ReactQueryDevtools initialIsOpen={false} />
-      </QueryClientProvider>
-    </React.StrictMode>,
   );
 }
