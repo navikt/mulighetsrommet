@@ -15,6 +15,7 @@ import { useInitialBrukerfilter } from './hooks/useInitialBrukerfilter';
 import { ErrorFallback } from './utils/ErrorFallback';
 import { SanityPreview } from './views/Preview/SanityPreview';
 import React from 'react';
+import '@navikt/ds-css';
 
 if (import.meta.env.PROD) {
   initializeFaro({

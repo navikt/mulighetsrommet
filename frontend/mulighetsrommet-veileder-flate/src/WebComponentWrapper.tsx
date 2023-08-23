@@ -1,4 +1,3 @@
-import dsStyles from '@navikt/ds-css/dist/index.css?inline';
 import React from 'react';
 import App from './App';
 import { createRoot } from 'react-dom/client';
@@ -18,7 +17,7 @@ export class Arbeidsmarkedstiltak extends HTMLElement {
 
     // Load styles under this shadowDom-node, not root element
     const styleElem = document.createElement('style');
-    styleElem.innerHTML = dsStyles;
+    // styleElem.innerHTML = dsStyles;
     shadowRoot.appendChild(styleElem);
     //TODO import resten av stilene
 
