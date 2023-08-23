@@ -53,10 +53,6 @@ export function StatusModal({
     );
   }
 
-  if (!modalOpen) {
-    return null;
-  }
-
   return (
     <Modal open={modalOpen} onClose={onClose}>
       <Modal.Header closeButton={false}>

@@ -39,10 +39,6 @@ const StandardModal = ({
     handleCancel!();
   };
 
-  if (!modalOpen) {
-    return null;
-  }
-
   return (
     <Modal open={modalOpen} onClose={setModalOpen} className={className} aria-label="modal">
       <Modal.Header closeButton={closeButton}>

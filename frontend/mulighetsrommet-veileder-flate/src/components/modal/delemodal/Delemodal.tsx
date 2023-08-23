@@ -133,10 +133,6 @@ const Delemodal = ({
     }
   };
 
-  if (!modalOpen) {
-    return null;
-  }
-
   return (
     <>
       {feilmodal ? (
