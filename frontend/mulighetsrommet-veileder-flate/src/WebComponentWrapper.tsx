@@ -51,6 +51,8 @@ export class Arbeidsmarkedstiltak extends HTMLElement {
         }
       })
       .catch(error => {
+        // TODO better error handling
+        // eslint-disable-next-line no-console
         console.log('ERROR', error);
       });
 
