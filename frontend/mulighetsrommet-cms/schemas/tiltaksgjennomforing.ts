@@ -179,7 +179,7 @@ export const tiltaksgjennomforing = defineType({
         "Hvilke enheter kan benytte seg av dette tiltaket? Hvis det gjelder for hele regionen kan dette feltet stå tomt.",
       type: "array",
       hidden: ({ document }) => {
-        return !document.fylke;
+        return !document.fylke || !isIndividueltTiltak(document.tiltakstype?._ref);
       },
       of: [
         {
