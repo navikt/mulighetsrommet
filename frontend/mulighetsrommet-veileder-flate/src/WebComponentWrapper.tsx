@@ -1,56 +1,76 @@
 import React from 'react';
-import App from './App';
 import { createRoot } from 'react-dom/client';
-import { ARBEIDSMARKEDSTILTAK } from './constants';
+import { APPLICATION_WEB_COMPONENT_NAME } from './constants';
+import { App } from './App';
+import { AppContext } from './AppContext';
+
+interface ViteAssetManifest {
+  'index.html': {
+    css: string[];
+  };
+}
 
 export class Arbeidsmarkedstiltak extends HTMLElement {
+  static get observedAttributes() {
+    return ['data-fnr'];
+  }
+
+  /**
+   * Blir satt etter at applikasjonen har mountet.
+   *
+   * Ved endringer på "data-fnr"-attributtet så blir denne funksjonen kalt slik at vi får
+   * propagert endringene til resten av applikasjonen.
+   */
   setFnr?: (fnr: string) => void;
+
   connectedCallback() {
     // Cant mount on shadowRoot, create a extra div for mounting modal
     const shadowDomFirstChild = document.createElement('div');
     // This will be app entry point, need to be outside modal-mount node
     const appRoot = document.createElement('div');
-    appRoot.id = ARBEIDSMARKEDSTILTAK;
+    appRoot.id = APPLICATION_WEB_COMPONENT_NAME;
     const shadowRoot = this.attachShadow({ mode: 'closed' });
     shadowRoot.appendChild(shadowDomFirstChild);
     shadowDomFirstChild.appendChild(appRoot);
 
-    // Load styles under this shadowDom-node, not root element
-    const styleElem = document.createElement('style');
-    // styleElem.innerHTML = dsStyles;
-    shadowRoot.appendChild(styleElem);
-    //TODO import resten av stilene
+    fetch(joinPaths(import.meta.env.BASE_URL, 'asset-manifest.json'))
+      .then(response => {
+        if (!response.ok) {
+          throw Error(`Failed to get resource '${response.url}'`);
+        }
+
+        return response.json();
+      })
+      .then((manifest: ViteAssetManifest) => {
+        for (const css of manifest['index.html'].css) {
+          const link = document.createElement('link');
+          link.rel = 'stylesheet';
+          link.href = joinPaths(import.meta.env.BASE_URL, css);
+
+          shadowRoot.appendChild(link);
+        }
+      })
+      .catch(error => {
+        console.log('ERROR', error);
+      });
 
     const fnr = this.getAttribute('data-fnr');
 
-    if (!fnr) {
-      return null;
-    }
-
-    window.localStorage.setItem('data-fnr', fnr);
-
-    // ReactDOM.render(
-    //   <ModalProvider appElement={appRoot} rootElement={shadowDomFirstChild}>
-    //TODO fiks setFnr
-    //     <Provider key={fnr} fnr={fnr} setFnrRef={(setFnr) => (this.setFnr = setFnr)}>
-    //       <App Routes={Routes} key={'1'} />
-    //     </Provider>
-    //   </ModalProvider>,
-    //   appRoot
-    // );
-
     const root = createRoot(appRoot);
-    root.render(<App fnr={fnr} />);
+    root.render(
+      <AppContext fnr={fnr} setFnrRef={setFnr => (this.setFnr = setFnr)}>
+        <App />
+      </AppContext>
+    );
   }
 
   attributeChangedCallback(name: string, oldValue: string, newValue: string) {
     if (name === 'data-fnr' && this.setFnr) {
-      window.localStorage.setItem('data-fnr', newValue);
       this.setFnr(newValue);
     }
   }
+}
 
-  static get observedAttributes() {
-    return ['data-fnr'];
-  }
+function joinPaths(...paths: (string | null | undefined)[]) {
+  return paths.filter(path => !!path).join('/');
 }

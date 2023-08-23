@@ -1,10 +1,10 @@
 import './polyfill';
 import { createRoot } from 'react-dom/client';
-import { APPLICATION_NAME, ARBEIDSMARKEDSTILTAK } from './constants';
-import { createElement } from 'react';
+import { APPLICATION_NAME, APPLICATION_WEB_COMPONENT_NAME } from './constants';
+import React from 'react';
 import { Arbeidsmarkedstiltak } from './WebComponentWrapper';
-
-customElements.define(ARBEIDSMARKEDSTILTAK, Arbeidsmarkedstiltak);
+import { App } from './App';
+import { AppContext } from './AppContext';
 
 if (import.meta.env.VITE_MULIGHETSROMMET_API_MOCK === 'true') {
   import('./mock/worker')
@@ -21,16 +21,27 @@ if (import.meta.env.VITE_MULIGHETSROMMET_API_MOCK === 'true') {
 }
 
 /**
- * Applikasjonen har blitt eksponert via NAVSPA og blir inkludert i `veilarbpersonflate`.
+ * Applikasjonen blir lastet inn i `veilarbpersonflate` i dev og prod ved at vi definerer et
+ * custom HTMLElement med navnet `APPLICATION_WEB_COMPONENT_NAME`, se Web Components for mer info [0].
+ * Dette lar oss enkapsulere stylingen til applikasjonen slik at vi slipper css-bleed på
+ * tvers av applikasjoner i `veilarbpersonflate`.
  *
- * Vi sjekker eksplisitt om finnes en node med navnet `APPLICATION_NAME` før vi rendrer applikasjonen, da denne også er
- * definert i `index.html` (men ikke i `veilarbpersonflate`).
+ * Når vi kjører applikasjonen lokalt sjekker vi eksplisitt om det finnes en node med navnet
+ * `APPLICATION_NAME` før vi rendrer applikasjonen fordi denne noden er definert i `index.html`
+ * (men ikke i `veilarbpersonflate`).
+ *
+ * [0]: https://developer.mozilla.org/en-US/docs/Web/API/Web_components
  */
 function render() {
-  const container = document.getElementById(APPLICATION_NAME);
-  if (container) {
-    const element = createElement(ARBEIDSMARKEDSTILTAK, { 'data-fnr': '12345678910' });
-    const root = createRoot(container);
-    root.render(element);
+  const demoContainer = document.getElementById(APPLICATION_NAME);
+  if (demoContainer) {
+    const root = createRoot(demoContainer);
+    root.render(
+      <AppContext fnr={'12345678910'}>
+        <App />
+      </AppContext>
+    );
+  } else {
+    customElements.define(APPLICATION_WEB_COMPONENT_NAME, Arbeidsmarkedstiltak);
   }
 }

@@ -1,8 +1,6 @@
 import { initializeFaro, WebVitalsInstrumentation } from '@grafana/faro-web-sdk';
 import { Toggles } from 'mulighetsrommet-api-client';
 import { ErrorBoundary } from 'react-error-boundary';
-import { QueryClient, QueryClientProvider } from 'react-query';
-import { ReactQueryDevtools } from 'react-query/devtools';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import styles from './App.module.scss';
 import RoutesConfig from './RoutesConfig';
@@ -10,7 +8,6 @@ import FakeDoor from './components/fakedoor/FakeDoor';
 import { APPLICATION_NAME } from './constants';
 import { useFeatureToggle } from './core/api/feature-toggles';
 import { useHentVeilederdata } from './core/api/queries/useHentVeilederdata';
-import { FnrContext } from './hooks/useFnr';
 import { useInitialBrukerfilter } from './hooks/useInitialBrukerfilter';
 import { ErrorFallback } from './utils/ErrorFallback';
 import { SanityPreview } from './views/Preview/SanityPreview';
@@ -26,15 +23,6 @@ if (import.meta.env.PROD) {
     },
   });
 }
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      refetchOnWindowFocus: import.meta.env.PROD,
-      retry: import.meta.env.PROD,
-    },
-  },
-});
 
 function AppWrapper() {
   useInitialBrukerfilter();
@@ -53,30 +41,19 @@ function AppWrapper() {
   return <RoutesConfig />;
 }
 
-export interface AppProps {
-  fnr: string;
-}
-
-function App(props: AppProps) {
+export function App() {
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback}>
       <div className={styles.app_container}>
         <div className={APPLICATION_NAME}>
-          <QueryClientProvider client={queryClient}>
-            <FnrContext.Provider value={props.fnr}>
-              <Router>
-                <Routes>
-                  <Route path="preview/:tiltaksnummer" element={<SanityPreview />} />
-                  <Route path="*" element={<AppWrapper />} />
-                </Routes>
-              </Router>
-            </FnrContext.Provider>
-            <ReactQueryDevtools initialIsOpen={false} />
-          </QueryClientProvider>
+          <Router>
+            <Routes>
+              <Route path="preview/:tiltaksnummer" element={<SanityPreview />} />
+              <Route path="*" element={<AppWrapper />} />
+            </Routes>
+          </Router>
         </div>
       </div>
     </ErrorBoundary>
   );
 }
-
-export default App;
