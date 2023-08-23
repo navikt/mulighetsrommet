@@ -2,12 +2,6 @@ package no.nav.mulighetsrommet.api.utils
 
 import no.nav.mulighetsrommet.api.clients.vedtak.Innsatsgruppe
 
-fun byggEnhetOgFylkeFilter(enhetsId: String, fylkeId: String): String {
-    return """
-            && ('enhet.lokal.$enhetsId' in enheter[]._ref || (enheter[0] == null && 'enhet.fylke.$fylkeId' == fylke._ref))
-    """.trimIndent()
-}
-
 fun byggTiltakstypeFilter(tiltakstyper: List<String>): String {
     if (tiltakstyper.isEmpty()) return ""
 
