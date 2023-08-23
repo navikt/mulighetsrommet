@@ -11,7 +11,7 @@
     "cypress": "npx cypress open",
     "lint": "eslint src --ext .js,.ts,.tsx && tsc",
     "prettier": "prettier --write 'src/**/*.ts{,x}'",
-    "serve": "vite preview",
+    "preview": "vite preview",
     "start": "cross-env VITE_ENVIRONMENT=localhost VITE_MULIGHETSROMMET_API_MOCK=true vite"
   },
   "browserslist": [
