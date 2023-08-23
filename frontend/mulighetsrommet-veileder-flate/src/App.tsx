@@ -53,7 +53,6 @@ function AppWrapper() {
 }
 
 export interface AppProps {
-  enhet: string;
   fnr: string;
 }
 

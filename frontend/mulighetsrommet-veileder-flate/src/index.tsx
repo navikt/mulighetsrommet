@@ -1,11 +1,7 @@
 import './polyfill';
-import Navspa from '@navikt/navspa';
 import { createRoot } from 'react-dom/client';
-import App, { AppProps } from './App';
-import '@navikt/ds-css'; // Importer global css etter app så blir det seende likt ut lokalt og i dev/prod-miljø
-import { APPLICATION_NAME } from './constants';
-
-Navspa.eksporter(APPLICATION_NAME, App);
+import { APPLICATION_NAME, ARBEIDSMARKEDSTILTAK } from './constants';
+import { createElement } from 'react';
 
 if (import.meta.env.VITE_MULIGHETSROMMET_API_MOCK === 'true') {
   import('./mock/worker')
@@ -28,11 +24,18 @@ if (import.meta.env.VITE_MULIGHETSROMMET_API_MOCK === 'true') {
  * definert i `index.html` (men ikke i `veilarbpersonflate`).
  */
 function render() {
-  const container = document.getElementById(APPLICATION_NAME);
-  if (container) {
-    const root = createRoot(container);
-    const MulighetsrommetVeilederFlate = Navspa.importer<AppProps>(APPLICATION_NAME);
-
-    root.render(<MulighetsrommetVeilederFlate fnr={'12345678910'} enhet={'0106'} />);
-  }
+  //TODO verifiser at dette stemmer
+  // Denne må lazy importeres fordi den laster inn all css selv inn under sin egen shadow-root
+  return import('./WebComponentWrapper')
+    .then(({ Arbeidsmarkedstiltak }) => {
+      customElements.define(ARBEIDSMARKEDSTILTAK, Arbeidsmarkedstiltak);
+    })
+    .then(() => {
+      const container = document.getElementById(APPLICATION_NAME);
+      if (container) {
+        const element = createElement(ARBEIDSMARKEDSTILTAK, { 'data-fnr': '12345678910' });
+        const root = createRoot(container);
+        root.render(element);
+      }
+    });
 }
