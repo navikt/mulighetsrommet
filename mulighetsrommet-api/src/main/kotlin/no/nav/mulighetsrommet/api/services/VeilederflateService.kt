@@ -84,7 +84,6 @@ class VeilederflateService(
               ${byggInnsatsgruppeFilter(filter.innsatsgruppe)}
               ${byggTiltakstypeFilter(filter.tiltakstypeIder)}
               ${byggSokeFilter(filter.sokestreng)}
-              ${byggEnhetOgFylkeFilter(enhetsId, fylkeId)}
               ]
               {
                 _id,
@@ -93,7 +92,9 @@ class VeilederflateService(
                 oppstartsdato,
                 "tiltaksnummer": tiltaksnummer.current,
                 kontaktinfoArrangor->{selskapsnavn},
-                tiltakstype->{tiltakstypeNavn}
+                tiltakstype->{tiltakstypeNavn},
+                fylke,
+                enheter
               }
         """.trimIndent()
 
@@ -101,9 +102,16 @@ class VeilederflateService(
             is SanityResponse.Result -> {
                 val gjennomforinger = result.decode<List<VeilederflateTiltaksgjennomforing>>()
                 val gjennomforingerMedDbData = supplerDataFraDB(gjennomforinger, enhetsId)
-                gjennomforingerMedDbData.filter { filter.lokasjoner.isEmpty() || filter.lokasjoner.contains(it.lokasjon) }
+                gjennomforingerMedDbData
+                    .filter {
+                        if (it.enheter.isNullOrEmpty()) {
+                            it.fylke?._ref == "enhet.fylke.$fylkeId"
+                        } else {
+                            it.enheter.any { it._ref == "enhet.lokal.$enhetsId" }
+                        }
+                    }
+                    .filter { filter.lokasjoner.isEmpty() || filter.lokasjoner.contains(it.lokasjon) }
             }
-
             is SanityResponse.Error -> throw Exception(result.error.toString())
         }
     }
@@ -188,6 +196,9 @@ class VeilederflateService(
                 val oppstart = apiGjennomforing?.oppstart?.name?.lowercase() ?: sanityData.oppstart
                 val oppstartsdato = apiGjennomforing?.startDato ?: sanityData.oppstartsdato
                 val sluttdato = apiGjennomforing?.sluttDato ?: sanityData.sluttdato
+                val fylke = apiGjennomforing?.navRegion?.let { FylkeRef(_ref = "enhet.fylke.${it.enhetsnummer}") } ?: sanityData.fylke
+                val enheter = apiGjennomforing?.navEnheter?.map { EnhetRef(_ref = "enhet.lokal.${it.enhetsnummer}") } ?: sanityData.enheter
+
                 sanityData.copy(
                     stengtFra = apiGjennomforing?.stengtFra,
                     stengtTil = apiGjennomforing?.stengtTil,
@@ -200,6 +211,8 @@ class VeilederflateService(
                     tiltakstype = sanityData.tiltakstype?.copy(arenakode = apiGjennomforing?.tiltakstype?.arenaKode),
                     lokasjon = apiGjennomforing?.lokasjonArrangor ?: sanityData.lokasjon,
                     kontaktinfoArrangor = kontaktpersonerArrangor ?: sanityData.kontaktinfoArrangor,
+                    fylke = fylke,
+                    enheter = enheter,
                 )
             }
     }

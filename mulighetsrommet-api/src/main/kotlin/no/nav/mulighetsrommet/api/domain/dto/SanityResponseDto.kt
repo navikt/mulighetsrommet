@@ -90,6 +90,8 @@ data class VeilederflateTiltaksgjennomforing(
     val pameldingOgVarighet: List<PameldingOgVarighet>? = emptyList(),
     val kontaktinfoTiltaksansvarlige: List<KontaktinfoTiltaksansvarlige>? = emptyList(),
     val faneinnhold: Faneinnhold? = null,
+    val fylke: FylkeRef? = null,
+    val enheter: List<EnhetRef>? = emptyList()
 )
 
 @Serializable
