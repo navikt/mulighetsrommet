@@ -11,7 +11,28 @@ import io.ktor.server.response.*
  */
 typealias StatusResponse<T> = Either<StatusResponseError, T>
 
-sealed class StatusResponseError(val status: HttpStatusCode, val message: String?)
+sealed class StatusResponseError(val status: HttpStatusCode, val message: String?) {
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is StatusResponseError) return false
+
+        if (status != other.status) return false
+        if (message != other.message) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = status.hashCode()
+        result = 31 * result + (message?.hashCode() ?: 0)
+        return result
+    }
+
+    override fun toString(): String {
+        return "StatusResponseError(status=$status, message=$message)"
+    }
+}
 
 class ServerError(message: String? = null) : StatusResponseError(HttpStatusCode.InternalServerError, message)
 

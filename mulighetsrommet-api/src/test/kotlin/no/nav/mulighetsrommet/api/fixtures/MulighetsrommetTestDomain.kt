@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.fixtures
 
 import io.kotest.assertions.arrow.core.shouldBeRight
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
+import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture.ansatt1
@@ -20,6 +21,7 @@ data class MulighetsrommetTestDomain(
         type = Norg2Type.DIR,
         overordnetEnhet = null,
     ),
+    val avtale: AvtaleDbo = AvtaleFixtures.avtale1,
 ) {
     fun initialize(database: FlywayDatabaseAdapter) {
         val enheter = NavEnhetRepository(database)
@@ -34,6 +36,6 @@ data class MulighetsrommetTestDomain(
         tiltakstyper.upsert(TiltakstypeFixtures.Arbeidstrening).shouldBeRight()
 
         val avtaler = AvtaleRepository(database)
-        avtaler.upsert(AvtaleFixtures.avtale1)
+        avtaler.upsert(avtale)
     }
 }

@@ -183,7 +183,6 @@ export function AvtaleSkjemaContainer({
         : null,
       opphav,
       leverandorKontaktpersonId: leverandorKontaktpersonId ?? null,
-      avslutningsstatus: AvtaleAvslutningsstatus.IKKE_AVSLUTTET,
     };
 
     if (avtale?.id) {

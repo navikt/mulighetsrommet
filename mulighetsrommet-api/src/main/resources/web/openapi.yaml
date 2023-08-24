@@ -1752,8 +1752,6 @@ components:
             type: string
         opphav:
           $ref: "#/components/schemas/Opphav"
-        avslutningsstatus:
-          $ref: "#/components/schemas/AvtaleAvslutningsstatus"
       required:
         - id
         - navn
@@ -1802,14 +1800,6 @@ components:
         - Aktiv
         - Avsluttet
         - Avbrutt
-
-    AvtaleAvslutningsstatus:
-      type: string
-      enum:
-        - AVLYST
-        - AVBRUTT
-        - AVSLUTTET
-        - IKKE_AVSLUTTET
 
     NotificationStatus:
       type: string

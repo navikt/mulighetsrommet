@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.routes.v1
 
-import arrow.core.Either
+import arrow.core.left
+import arrow.core.right
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
@@ -18,7 +19,6 @@ import no.nav.mulighetsrommet.api.services.ExcelService
 import no.nav.mulighetsrommet.api.utils.getAvtaleFilter
 import no.nav.mulighetsrommet.api.utils.getPaginationParams
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
-import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
@@ -123,40 +123,38 @@ data class AvtaleRequest(
     val prisOgBetalingsinformasjon: String?,
     val navEnheter: List<String>,
     val opphav: ArenaMigrering.Opphav,
-    val avslutningsstatus: Avslutningsstatus,
 ) {
-    fun toDbo(): StatusResponse<AvtaleDbo> {
-        if (!startDato.isBefore(sluttDato)) {
-            return Either.Left(BadRequest("Startdato må være før sluttdato"))
-        }
-        if (navEnheter.isEmpty()) {
-            return Either.Left(BadRequest("Minst étt nav kontor må være valgt"))
-        }
-        if (leverandorUnderenheter.isEmpty()) {
-            return Either.Left(BadRequest("Minst én underenhet til leverandøren må være valgt"))
+    fun toDbo(): StatusResponse<AvtaleDbo> = when {
+        !startDato.isBefore(sluttDato) -> {
+            BadRequest("Startdato må være før sluttdato").left()
         }
 
-        return Either.Right(
-            AvtaleDbo(
-                id = id,
-                navn = navn,
-                avtalenummer = avtalenummer,
-                tiltakstypeId = tiltakstypeId,
-                leverandorOrganisasjonsnummer = leverandorOrganisasjonsnummer,
-                leverandorUnderenheter = leverandorUnderenheter,
-                leverandorKontaktpersonId = leverandorKontaktpersonId,
-                startDato = startDato,
-                sluttDato = sluttDato,
-                navRegion = navRegion,
-                avtaletype = avtaletype,
-                avslutningsstatus = avslutningsstatus,
-                antallPlasser = null,
-                url = url,
-                administratorer = listOf(administrator),
-                prisbetingelser = prisOgBetalingsinformasjon,
-                navEnheter = navEnheter,
-                opphav = opphav,
-            ),
-        )
+        navEnheter.isEmpty() -> {
+            BadRequest("Minst ett NAV-kontor må være valgt").left()
+        }
+
+        leverandorUnderenheter.isEmpty() -> {
+            BadRequest("Minst én underenhet til leverandøren må være valgt").left()
+        }
+
+        else -> AvtaleDbo(
+            id = id,
+            navn = navn,
+            avtalenummer = avtalenummer,
+            tiltakstypeId = tiltakstypeId,
+            leverandorOrganisasjonsnummer = leverandorOrganisasjonsnummer,
+            leverandorUnderenheter = leverandorUnderenheter,
+            leverandorKontaktpersonId = leverandorKontaktpersonId,
+            startDato = startDato,
+            sluttDato = sluttDato,
+            navRegion = navRegion,
+            avtaletype = avtaletype,
+            antallPlasser = null,
+            url = url,
+            administratorer = listOf(administrator),
+            prisbetingelser = prisOgBetalingsinformasjon,
+            navEnheter = navEnheter,
+            opphav = opphav,
+        ).right()
     }
 }

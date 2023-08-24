@@ -2,6 +2,8 @@ package no.nav.mulighetsrommet.api.repositories
 
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.data.forAll
+import io.kotest.data.row
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
@@ -38,6 +40,58 @@ class AvtaleRepositoryTest : FunSpec({
     }
 
     context("CRUD") {
+        test("Upsert av Arena-avtaler") {
+            val tiltakstypeRepository = TiltakstypeRepository(database.db)
+            val avtaler = AvtaleRepository(database.db)
+
+            val tiltakstype = TiltakstypeFixtures.Oppfolging.copy(id = TiltakstypeFixtures.Oppfolging.id)
+            tiltakstypeRepository.upsert(tiltakstype).shouldBeRight()
+
+            val avtaleId = UUID.randomUUID()
+            val avtale = ArenaAvtaleDbo(
+                id = avtaleId,
+                navn = "Avtale til test",
+                tiltakstypeId = tiltakstype.id,
+                avtalenummer = "2023#123",
+                leverandorOrganisasjonsnummer = "123456789",
+                startDato = LocalDate.of(2023, 1, 1),
+                sluttDato = LocalDate.of(2023, 2, 2),
+                arenaAnsvarligEnhet = "0400",
+                avtaletype = Avtaletype.Avtale,
+                avslutningsstatus = Avslutningsstatus.AVSLUTTET,
+                opphav = ArenaMigrering.Opphav.ARENA,
+                prisbetingelser = "Alt er dyrt",
+            )
+
+            val avtaleDto = AvtaleAdminDto(
+                id = avtaleId,
+                tiltakstype = AvtaleAdminDto.Tiltakstype(
+                    id = tiltakstype.id,
+                    navn = tiltakstype.navn,
+                    arenaKode = tiltakstype.tiltakskode,
+                ),
+                navn = "Avtale til test",
+                avtalenummer = "2023#123",
+                leverandor = AvtaleAdminDto.Leverandor(organisasjonsnummer = "123456789", navn = null, slettet = true),
+                leverandorUnderenheter = emptyList(),
+                leverandorKontaktperson = null,
+                startDato = LocalDate.of(2023, 1, 1),
+                sluttDato = LocalDate.of(2023, 2, 2),
+                navRegion = null,
+                avtaletype = Avtaletype.Avtale,
+                avtalestatus = Avtalestatus.Avsluttet,
+                prisbetingelser = "Alt er dyrt",
+                administrator = null,
+                url = null,
+                antallPlasser = null,
+                navEnheter = emptyList(),
+                opphav = ArenaMigrering.Opphav.ARENA,
+            )
+
+            avtaler.upsertArenaAvtale(avtale)
+            avtaler.get(avtale.id).shouldBe(avtaleDto)
+        }
+
         test("administrator for avtale") {
             val avtaler = AvtaleRepository(database.db)
 
@@ -232,86 +286,50 @@ class AvtaleRepositoryTest : FunSpec({
         }
 
         context("Avtalestatus") {
-            test("filtrer på avbrutt") {
+            test("filtrering på Avtalestatus") {
                 val avtaleAktiv = AvtaleFixtures.avtale1.copy(
                     id = UUID.randomUUID(),
-                    avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
                 )
+                avtaler.upsert(avtaleAktiv)
+                avtaler.setAvslutningsstatus(avtaleAktiv.id, Avslutningsstatus.IKKE_AVSLUTTET)
+
                 val avtaleAvsluttetStatus = AvtaleFixtures.avtale1.copy(
                     id = UUID.randomUUID(),
-                    avslutningsstatus = Avslutningsstatus.AVSLUTTET,
                 )
+                avtaler.upsert(avtaleAvsluttetStatus)
+                avtaler.setAvslutningsstatus(avtaleAvsluttetStatus.id, Avslutningsstatus.AVSLUTTET)
+
                 val avtaleAvsluttetDato = AvtaleFixtures.avtale1.copy(
                     id = UUID.randomUUID(),
-                    avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
                     sluttDato = LocalDate.of(2023, 1, 31),
                 )
+                avtaler.upsert(avtaleAvsluttetDato)
+                avtaler.setAvslutningsstatus(avtaleAvsluttetDato.id, Avslutningsstatus.IKKE_AVSLUTTET)
+
                 val avtaleAvbrutt = AvtaleFixtures.avtale1.copy(
                     id = UUID.randomUUID(),
-                    avslutningsstatus = Avslutningsstatus.AVBRUTT,
                 )
+                avtaler.upsert(avtaleAvbrutt)
+                avtaler.setAvslutningsstatus(avtaleAvbrutt.id, Avslutningsstatus.AVBRUTT)
+
                 val avtalePlanlagt = AvtaleFixtures.avtale1.copy(
                     id = UUID.randomUUID(),
-                    avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
                     startDato = LocalDate.of(2023, 2, 2),
                 )
-
-                avtaler.upsert(avtaleAktiv)
-                avtaler.upsert(avtaleAvbrutt)
                 avtaler.upsert(avtalePlanlagt)
-                avtaler.upsert(avtaleAvsluttetDato)
-                avtaler.upsert(avtaleAvsluttetStatus)
+                avtaler.setAvslutningsstatus(avtalePlanlagt.id, Avslutningsstatus.IKKE_AVSLUTTET)
 
-                val result = avtaler.getAll(
-                    filter = defaultFilter.copy(
-                        tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
-                        avtalestatus = Avtalestatus.Avbrutt,
-                    ),
-                )
 
-                result.second shouldHaveSize 1
-                result.second[0].id shouldBe avtaleAvbrutt.id
-            }
-
-            test("filtrer på avsluttet") {
-                val avtaleAktiv = AvtaleFixtures.avtale1.copy(
-                    id = UUID.randomUUID(),
-                    avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
-                )
-                val avtaleAvsluttetStatus = AvtaleFixtures.avtale1.copy(
-                    id = UUID.randomUUID(),
-                    avslutningsstatus = Avslutningsstatus.AVSLUTTET,
-                )
-                val avtaleAvsluttetDato = AvtaleFixtures.avtale1.copy(
-                    id = UUID.randomUUID(),
-                    avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
-                    sluttDato = LocalDate.of(2023, 1, 31),
-                )
-                val avtaleAvbrutt = AvtaleFixtures.avtale1.copy(
-                    id = UUID.randomUUID(),
-                    avslutningsstatus = Avslutningsstatus.AVBRUTT,
-                )
-                val avtalePlanlagt = AvtaleFixtures.avtale1.copy(
-                    id = UUID.randomUUID(),
-                    avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
-                    startDato = LocalDate.of(2023, 2, 2),
-                )
-
-                avtaler.upsert(avtaleAktiv)
-                avtaler.upsert(avtaleAvbrutt)
-                avtaler.upsert(avtalePlanlagt)
-                avtaler.upsert(avtaleAvsluttetDato)
-                avtaler.upsert(avtaleAvsluttetStatus)
-
-                val result = avtaler.getAll(
-                    filter = defaultFilter.copy(
-                        tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
-                        avtalestatus = Avtalestatus.Avsluttet,
-                    ),
-                )
-
-                result.second shouldHaveSize 2
-                result.second.map { it.id }.shouldContainAll(avtaleAvsluttetStatus.id, avtaleAvsluttetDato.id)
+                forAll(
+                    row(Avtalestatus.Avbrutt, listOf(avtaleAvbrutt.id)),
+                    row(Avtalestatus.Avsluttet, listOf(avtaleAvsluttetStatus.id, avtaleAvsluttetDato.id))
+                ) { status, expected ->
+                    val result = avtaler.getAll(
+                        filter = defaultFilter.copy(avtalestatus = status),
+                    )
+                    result.second.map { it.id } shouldBe expected
+                    result.second.map { it.id } shouldContainAll expected
+                }
             }
         }
 
@@ -974,68 +992,28 @@ class AvtaleRepositoryTest : FunSpec({
         }
     }
 
-    test("Upsert av Arena-avtaler") {
-        val tiltakstypeRepository = TiltakstypeRepository(database.db)
-        val avtaler = AvtaleRepository(database.db)
+    context("Avslutningsstatus") {
+        test("endringer på avslutningsstatus påvirker avtalestatus") {
+            MulighetsrommetTestDomain(
+                avtale = AvtaleFixtures.avtale1.copy(
+                    sluttDato = LocalDate.now().plusWeeks(1),
+                ),
+            ).initialize(database.db)
 
-        val tiltakstype = TiltakstypeFixtures.Oppfolging.copy(id = TiltakstypeFixtures.Oppfolging.id)
-        tiltakstypeRepository.upsert(tiltakstype).shouldBeRight()
-
-        val avtaleId = UUID.randomUUID()
-        val avtale = ArenaAvtaleDbo(
-            id = avtaleId,
-            navn = "Avtale til test",
-            tiltakstypeId = tiltakstype.id,
-            avtalenummer = "2023#123",
-            leverandorOrganisasjonsnummer = "123456789",
-            startDato = LocalDate.of(2023, 1, 1),
-            sluttDato = LocalDate.of(2023, 2, 2),
-            arenaAnsvarligEnhet = "0400",
-            avtaletype = Avtaletype.Avtale,
-            avslutningsstatus = Avslutningsstatus.AVSLUTTET,
-            opphav = ArenaMigrering.Opphav.ARENA,
-            prisbetingelser = "Alt er dyrt",
-        )
-
-        val avtaleDto = AvtaleAdminDto(
-            id = avtaleId,
-            tiltakstype = AvtaleAdminDto.Tiltakstype(
-                id = tiltakstype.id,
-                navn = tiltakstype.navn,
-                arenaKode = tiltakstype.tiltakskode,
-            ),
-            navn = "Avtale til test",
-            avtalenummer = "2023#123",
-            leverandor = AvtaleAdminDto.Leverandor(organisasjonsnummer = "123456789", navn = null, slettet = true),
-            leverandorUnderenheter = emptyList(),
-            leverandorKontaktperson = null,
-            startDato = LocalDate.of(2023, 1, 1),
-            sluttDato = LocalDate.of(2023, 2, 2),
-            navRegion = null,
-            avtaletype = Avtaletype.Avtale,
-            avtalestatus = Avtalestatus.Avsluttet,
-            prisbetingelser = "Alt er dyrt",
-            administrator = null,
-            url = null,
-            antallPlasser = null,
-            navEnheter = emptyList(),
-            opphav = ArenaMigrering.Opphav.ARENA,
-        )
-
-        avtaler.upsertArenaAvtale(avtale)
-        avtaler.get(avtale.id).shouldBe(avtaleDto)
-    }
-
-    context("Avbryt avtale") {
-        test("Skal kunne avbryte avtale") {
             val avtaler = AvtaleRepository(database.db)
 
             avtaler.get(AvtaleFixtures.avtale1.id).should {
-                it?.avtalestatus shouldBe Avtalestatus.Avsluttet
+                it?.avtalestatus shouldBe Avtalestatus.Aktiv
             }
-            avtaler.avbrytAvtale(AvtaleFixtures.avtale1.id)
+
+            avtaler.setAvslutningsstatus(AvtaleFixtures.avtale1.id, Avslutningsstatus.AVBRUTT)
             avtaler.get(AvtaleFixtures.avtale1.id).should {
                 it?.avtalestatus shouldBe Avtalestatus.Avbrutt
+            }
+
+            avtaler.setAvslutningsstatus(AvtaleFixtures.avtale1.id, Avslutningsstatus.AVSLUTTET)
+            avtaler.get(AvtaleFixtures.avtale1.id).should {
+                it?.avtalestatus shouldBe Avtalestatus.Avsluttet
             }
         }
     }

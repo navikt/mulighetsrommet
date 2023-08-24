@@ -11,7 +11,8 @@ import no.nav.mulighetsrommet.api.routes.v1.responses.*
 import no.nav.mulighetsrommet.api.utils.AvtaleFilter
 import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.Database
-import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
+import no.nav.mulighetsrommet.domain.constants.ArenaMigrering.Opphav
+import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dto.AvtaleAdminDto
 import no.nav.mulighetsrommet.domain.dto.AvtaleNotificationDto
 import no.nav.mulighetsrommet.domain.dto.Avtalestatus
@@ -55,7 +56,7 @@ class AvtaleService(
         val optionalAvtale = avtaler.get(id)
             ?: return Either.Left(NotFound("Fant ikke avtale for sletting"))
 
-        if (optionalAvtale.opphav == ArenaMigrering.Opphav.ARENA) {
+        if (optionalAvtale.opphav == Opphav.ARENA) {
             return Either.Left(BadRequest(message = "Avtalen har opprinnelse fra Arena og kan ikke bli slettet i admin-flate."))
         }
 
@@ -105,7 +106,7 @@ class AvtaleService(
         val avtaleForAvbryting = avtaler.get(avtaleId)
             ?: return Either.Left(NotFound("Fant ikke avtale for avbrytelse med id '$avtaleId'"))
 
-        if (avtaleForAvbryting.opphav == ArenaMigrering.Opphav.ARENA) {
+        if (avtaleForAvbryting.opphav == Opphav.ARENA) {
             return Either.Left(BadRequest(message = "Avtalen har opprinnelse fra Arena og kan ikke bli avbrutt fra admin-flate."))
         }
 
@@ -119,7 +120,7 @@ class AvtaleService(
             return Either.Left(BadRequest(message = "Avtalen har ${gjennomforingerForAvtale.first} ${if (gjennomforingerForAvtale.first > 1) "tiltaksgjennomføringer" else "tiltaksgjennomføring"} koblet til seg. Du må frikoble ${if (gjennomforingerForAvtale.first > 1) "gjennomføringene" else "gjennomføringen"} før du kan avbryte avtalen."))
         }
 
-        return Either.Right(avtaler.avbrytAvtale(avtaleId))
+        return Either.Right(avtaler.setAvslutningsstatus(avtaleId, Avslutningsstatus.AVBRUTT))
     }
 
     private fun dispatchSattSomAdministratorNofication(avtaleNavn: String, administrator: String, tx: Session) {
