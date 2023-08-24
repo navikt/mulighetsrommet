@@ -13,6 +13,16 @@ interface ViteAssetManifest {
 export class Arbeidsmarkedstiltak extends HTMLElement {
   static FNR_PROP = 'data-fnr';
 
+  private readonly root: HTMLDivElement;
+
+  constructor() {
+    super();
+
+    // This will be app entry point
+    this.root = document.createElement('div');
+    this.root.id = APPLICATION_WEB_COMPONENT_NAME;
+  }
+
   static get observedAttributes() {
     return [Arbeidsmarkedstiltak.FNR_PROP];
   }
@@ -26,25 +36,19 @@ export class Arbeidsmarkedstiltak extends HTMLElement {
   setFnr?: (fnr: string) => void;
 
   connectedCallback() {
-    // This will be app entry point
-    const appRoot = document.createElement('div');
-    appRoot.id = APPLICATION_WEB_COMPONENT_NAME;
-
     // The ShadowRoot is rendered separately from the main DOM tree, ensuring that styling
     // does not bleed across trees
     const shadowRoot = this.attachShadow({ mode: 'closed' });
-    shadowRoot.appendChild(appRoot);
+    shadowRoot.appendChild(this.root);
 
-    this.loadStyles(shadowRoot);
-
-    const fnr = this.getAttribute(Arbeidsmarkedstiltak.FNR_PROP);
-
-    const root = createRoot(appRoot);
-    root.render(
-      <AppContext fnr={fnr} setFnrRef={setFnr => (this.setFnr = setFnr)}>
-        <App />
-      </AppContext>
-    );
+    this.loadStyles(shadowRoot)
+      .then(() => {
+        const fnr = this.getAttribute(Arbeidsmarkedstiltak.FNR_PROP);
+        this.renderApp(fnr);
+      })
+      .catch(error => {
+        this.displayError(error?.message ?? error);
+      });
   }
 
   attributeChangedCallback(name: string, oldValue: string, newValue: string) {
@@ -53,32 +57,36 @@ export class Arbeidsmarkedstiltak extends HTMLElement {
     }
   }
 
-  loadStyles(shadowRoot: ShadowRoot) {
-    fetch(joinPaths(import.meta.env.BASE_URL, 'asset-manifest.json'))
-      .then(response => {
-        if (!response.ok) {
-          throw Error(`Failed to get resource '${response.url}'`);
-        }
+  async loadStyles(shadowRoot: ShadowRoot) {
+    const response = await fetch(joinPaths(import.meta.env.BASE_URL, 'asset-manifest.json'));
+    if (!response.ok) {
+      throw Error(`Failed to get resource '${response.url}'`);
+    }
 
-        return response.json();
-      })
-      .then((manifest: ViteAssetManifest) => {
-        for (const css of manifest['index.html'].css) {
-          const link = document.createElement('link');
-          link.rel = 'stylesheet';
-          link.href = joinPaths(import.meta.env.BASE_URL, css);
+    const manifest: ViteAssetManifest = await response.json();
+    for (const css of manifest['index.html'].css) {
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = joinPaths(import.meta.env.BASE_URL, css);
 
-          shadowRoot.appendChild(link);
-        }
-      })
-      .catch(error => {
-        // TODO better error handling
-        // eslint-disable-next-line no-console
-        console.log('ERROR', error);
-      });
+      shadowRoot.appendChild(link);
+    }
+  }
+
+  renderApp(fnr: string | null) {
+    const root = createRoot(this.root);
+    root.render(
+      <AppContext fnr={fnr} setFnrRef={setFnr => (this.setFnr = setFnr)}>
+        <App />
+      </AppContext>
+    );
+  }
+
+  displayError(error: string | Error) {
+    this.root.innerHTML = `<p>${error}</p>`;
   }
 }
 
 function joinPaths(...paths: (string | null | undefined)[]) {
-  return paths.filter(path => !!path).join('/');
+  return paths.filter(path => !!path && path !== '/').join('/');
 }
