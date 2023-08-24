@@ -9,6 +9,7 @@ import { Information } from "../components/Information";
 import { ShowFieldIfTiltakstypeMatches } from "../components/ShowFieldIfTiltakstypeMatches";
 import { API_VERSION } from "../sanity.config";
 import { EnhetType } from "./enhet";
+import { hasDuplicates, isIndividueltTiltak } from "../utils/utils";
 
 function erIkkeAdmin(props: ConditionalPropertyCallbackContext): boolean {
   return (
@@ -109,14 +110,6 @@ export const tiltaksgjennomforing = defineType({
       readOnly: erIkkeAdmin,
     }),
     defineField({
-      name: "kontaktinfoArrangor",
-      title: "Arrangør",
-      description:
-        "Ikke velg arrangør dersom tiltakstypen gjelder individuelle tiltak.",
-      type: "reference",
-      to: [{ type: "arrangor" }],
-    }),
-    defineField({
       name: "beskrivelse",
       title: "Beskrivelse",
       description: "Beskrivelse av formålet med tiltaksgjennomføringen.",
@@ -151,6 +144,9 @@ export const tiltaksgjennomforing = defineType({
       description:
         "Sted for gjennomføring, f.eks. Fredrikstad eller Tromsø. Veileder kan filtrere på verdiene i dette feltet, så ikke skriv fulle adresser.",
       type: "string",
+      hidden: ({document} ) => {
+        return !isIndividueltTiltak(document.tiltakstype?._ref);
+      },
     }),
     defineField({
       name: "fylke",
@@ -165,7 +161,16 @@ export const tiltaksgjennomforing = defineType({
           type: EnhetType.Fylke,
         },
       },
-      validation: (rule) => rule.required(),
+      hidden: ({document} ) => {
+        return !isIndividueltTiltak(document.tiltakstype?._ref);
+      },
+      validation: (rule) =>
+        rule.custom((currentValue, { document }) => {
+          if (!isIndividueltTiltak(document.tiltakstype?._ref)) {
+            return true;
+          }
+          return currentValue === undefined ? "Fylke er påkrevd" : true;
+        }),
     }),
     defineField({
       name: "enheter",
@@ -174,7 +179,7 @@ export const tiltaksgjennomforing = defineType({
         "Hvilke enheter kan benytte seg av dette tiltaket? Hvis det gjelder for hele regionen kan dette feltet stå tomt.",
       type: "array",
       hidden: ({ document }) => {
-        return !document.fylke;
+        return !document.fylke || !isIndividueltTiltak(document.tiltakstype?._ref);
       },
       of: [
         {
@@ -194,8 +199,8 @@ export const tiltaksgjennomforing = defineType({
         },
       ],
       validation: (rule) =>
-        rule.required().custom(async (enheter, { document, getClient }) => {
-          if (!document.fylke || !enheter) {
+        rule.custom(async (enheter, { document, getClient }) => {
+          if (!document.fylke || !enheter || !isIndividueltTiltak(document.tiltakstype?._ref)) {
             return true;
           }
 
@@ -230,7 +235,23 @@ export const tiltaksgjennomforing = defineType({
       description: "Tiltaksansvarlige for tiltaksgjennomføringen.",
       type: "array",
       of: [{ type: "reference", to: [{ type: "navKontaktperson" }] }],
-      validation: (rule) => rule.required().min(1).unique(),
+      hidden: ({document} ) => {
+        return !isIndividueltTiltak(document.tiltakstype?._ref);
+      },
+      validation: (rule) =>
+        rule.custom((currentValue, { document }) => {
+          if (!isIndividueltTiltak(document.tiltakstype?._ref)) {
+            return true;
+          }
+          if (!currentValue || currentValue.length === 0) {
+            return "Må ha minst én tiltaksansvarlig";
+          }
+          if (hasDuplicates(currentValue.map(e => e.key))) {
+            return "Innholder duplikater";
+          }
+
+          return true;
+        }),
     }),
     defineField({
       name: "lenker",

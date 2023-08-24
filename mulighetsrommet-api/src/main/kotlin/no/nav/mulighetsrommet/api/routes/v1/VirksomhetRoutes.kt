@@ -87,9 +87,12 @@ fun Route.virksomhetRoutes() {
             call.respond(virksomhetService.sokEtterEnhet(sokestreng))
         }
 
-        get("/update") {
+        post("/update") {
             val orgnr = call.request.queryParameters.getOrFail("orgnr")
-            check(orgnr.isNotEmpty())
+
+            if (orgnr.length != 9) {
+                throw BadRequestException("'orgnr' må inneholde 9 siffer")
+            }
 
             log.info("Oppdaterer virksomhet med orgnr: $orgnr")
             val response = virksomhetService.syncVirksomhetFraBrreg(orgnr)

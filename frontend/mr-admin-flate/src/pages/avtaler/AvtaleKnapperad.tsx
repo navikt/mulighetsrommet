@@ -35,7 +35,7 @@ export function AvtaleKnapperad() {
 
       {redigerAvtaleEnabled ? (
         <Lenkeknapp
-          to={`/avtaler/skjema?avtaleId=${avtaleId}`}
+          to={`/avtaler/${avtaleId}/skjema`}
           lenketekst="Rediger avtale"
           variant="primary"
           dataTestId="endre-avtale"

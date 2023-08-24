@@ -1,5 +1,4 @@
 import { initializeFaro, WebVitalsInstrumentation } from '@grafana/faro-web-sdk';
-import { Modal } from '@navikt/ds-react';
 import { Toggles } from 'mulighetsrommet-api-client';
 import { ErrorBoundary } from 'react-error-boundary';
 import { QueryClient, QueryClientProvider } from 'react-query';
@@ -8,7 +7,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import styles from './App.module.scss';
 import RoutesConfig from './RoutesConfig';
 import FakeDoor from './components/fakedoor/FakeDoor';
-import { APPLICATION_NAME, MODAL_ACCESSIBILITY_WRAPPER } from './constants';
+import { APPLICATION_NAME } from './constants';
 import { useFeatureToggle } from './core/api/feature-toggles';
 import { useHentVeilederdata } from './core/api/queries/useHentVeilederdata';
 import { FnrContext } from './hooks/useFnr';
@@ -26,8 +25,6 @@ if (import.meta.env.PROD) {
     },
   });
 }
-// Trengs for at tab og fokus ikke skal gå utenfor modal når den er åpen.
-Modal.setAppElement?.(`#${MODAL_ACCESSIBILITY_WRAPPER}`);
 
 const queryClient = new QueryClient({
   defaultOptions: {

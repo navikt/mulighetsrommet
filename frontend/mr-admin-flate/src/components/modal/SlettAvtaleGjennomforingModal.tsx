@@ -1,4 +1,4 @@
-import { Button, Heading, Modal } from "@navikt/ds-react";
+import { BodyShort, Button, Heading, Modal } from "@navikt/ds-react";
 import {
   ApiError,
   Avtale,
@@ -6,12 +6,12 @@ import {
   Tiltaksgjennomforing,
 } from "mulighetsrommet-api-client";
 import { useEffect } from "react";
-import classNames from "classnames";
 import { useNavigate } from "react-router-dom";
 import { XMarkOctagonFillIcon } from "@navikt/aksel-icons";
 import styles from "../modal/Modal.module.scss";
 import { Lenkeknapp } from "../lenkeknapp/Lenkeknapp";
 import { UseMutationResult } from "@tanstack/react-query";
+import classNames from "classnames";
 
 interface Props {
   modalOpen: boolean;
@@ -52,73 +52,63 @@ const SlettAvtaleGjennomforingModal = ({
   function headerInnhold() {
     return (
       <div className={styles.heading}>
-        <XMarkOctagonFillIcon className={styles.warningicon} />
+        <XMarkOctagonFillIcon
+          className={classNames(styles.icon_warning, styles.icon)}
+        />
 
-        {fraArena ? (
-          <span>{tekster[dataType].navnPlural} kan ikke slettes</span>
-        ) : mutation.isError ? (
-          <span>Kan ikke slette «{data.navn}»</span>
-        ) : (
-          <span>Ønsker du å slette «{data.navn}»?</span>
-        )}
+        <Heading size="medium">
+          {fraArena
+            ? `${tekster[dataType].navnPlural} kan ikke slettes`
+            : mutation.isError
+            ? `Kan ikke slette «${data.navn}»`
+            : `Ønsker du å slette «${data.navn}»?`}
+        </Heading>
       </div>
     );
   }
 
   function modalInnhold() {
     return (
-      <>
-        {fraArena ? (
-          <p>
-            {tekster[dataType].navnPlural} «{data.navn}» kommer fra Arena og kan
-            ikke slettes her
-          </p>
-        ) : mutation?.isError ? (
-          <p>{(mutation.error as ApiError).body}</p>
+      <BodyShort>
+        {fraArena
+          ? `${tekster[dataType].navnPlural} «${data.navn}» kommer fra Arena og kan
+            ikke slettes her`
+          : mutation?.isError
+          ? (mutation.error as ApiError).body
+          : "Du kan ikke angre denne handlingen."}
+      </BodyShort>
+    );
+  }
+
+  function footerInnhold() {
+    return (
+      <div className={styles.knapperad}>
+        <Button variant="secondary" onClick={handleCancel}>
+          Avbryt
+        </Button>
+        {fraArena ? null : mutation?.isError ? (
+          <Lenkeknapp
+            to={`/tiltaksgjennomforinger/skjema?tiltaksgjennomforingId=${data?.id}`}
+            lenketekst="Rediger tiltaksgjennomføring"
+            variant="primary"
+          />
         ) : (
-          <p>Du kan ikke angre denne handlingen</p>
-        )}
-        <div className={styles.knapperad}>
-          {fraArena ? null : mutation?.isError ? (
-            <Lenkeknapp
-              to={`/tiltaksgjennomforinger/skjema?tiltaksgjennomforingId=${data?.id}`}
-              lenketekst="Rediger tiltaksgjennomføring"
-              variant="primary"
-            />
-          ) : (
-            <Button variant="danger" onClick={handleDelete}>
-              Slett{" "}
-              {dataType === "tiltaksgjennomforing"
-                ? "tiltaksgjennomføring"
-                : "avtale"}
-            </Button>
-          )}
-          <Button variant="secondary-neutral" onClick={handleCancel}>
-            Avbryt
+          <Button variant="danger" onClick={handleDelete}>
+            Slett{" "}
+            {dataType === "tiltaksgjennomforing"
+              ? "tiltaksgjennomføring"
+              : "avtale"}
           </Button>
-        </div>
-      </>
+        )}
+      </div>
     );
   }
 
   return (
-    <Modal
-      shouldCloseOnOverlayClick={false}
-      closeButton
-      open={modalOpen}
-      onClose={handleCancel}
-      className={classNames(
-        styles.overstyrte_styles_fra_ds_modal,
-        styles.text_center,
-      )}
-      aria-label="modal"
-    >
-      <Modal.Content>
-        <Heading size="medium" level="2">
-          {headerInnhold()}
-        </Heading>
-        {modalInnhold()}
-      </Modal.Content>
+    <Modal open={modalOpen} onClose={handleCancel} aria-label="modal">
+      <Modal.Header closeButton={false}>{headerInnhold()}</Modal.Header>
+      <Modal.Body>{modalInnhold()}</Modal.Body>
+      <Modal.Footer>{footerInnhold()}</Modal.Footer>
     </Modal>
   );
 };

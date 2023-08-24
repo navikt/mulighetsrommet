@@ -40,4 +40,8 @@ dependencies {
     // Config
     api(libs.hoplite.core)
     api(libs.hoplite.yaml)
+
+    // Test
+    testImplementation(libs.kotest.junit)
+    testImplementation(libs.kotest.assertions.core)
 }

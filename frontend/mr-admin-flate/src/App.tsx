@@ -1,5 +1,5 @@
 import { initializeFaro } from "@grafana/faro-web-sdk";
-import { Alert, BodyShort, Modal } from "@navikt/ds-react";
+import { Alert, BodyShort } from "@navikt/ds-react";
 import { NavAnsattRolle, Utkast } from "mulighetsrommet-api-client";
 import { Route, Routes } from "react-router-dom";
 import { Forside } from "./Forside";
@@ -39,9 +39,6 @@ if (import.meta.env.PROD) {
     },
   });
 }
-
-// Trengs for at tab og fokus ikke skal gå utenfor modal når den er åpen.
-Modal.setAppElement?.(`#root`);
 
 export function App() {
   const { data: ansatt, isLoading: ansattIsLoading, error } = useHentAnsatt();
@@ -101,13 +98,18 @@ export function App() {
         />
       </Route>
       <Route
-        path="avtaler/"
+        path="avtaler"
         element={<AvtalerPage />}
         errorElement={<ErrorPage />}
       >
         <Route
           index
-          element={<><Avtalefilter/><AvtaleTabell/></>}
+          element={
+            <>
+              <Avtalefilter />
+              <AvtaleTabell />
+            </>
+          }
         />
         <Route
           path="utkast"
@@ -120,11 +122,7 @@ export function App() {
         element={<DetaljerAvtalePage />}
         errorElement={<ErrorPage />}
       >
-        <Route
-          index
-          element={<Avtaleinfo />}
-          errorElement={<ErrorPage />}
-        />
+        <Route index element={<Avtaleinfo />} errorElement={<ErrorPage />} />
         <Route
           path="notater"
           element={<NotaterAvtalePage />}
@@ -139,19 +137,30 @@ export function App() {
             index
             element={
               <>
-                <Tiltaksgjennomforingfilter skjulFilter={{ tiltakstype: true }} />
-                <TiltaksgjennomforingsTabell skjulKolonner={{ tiltakstype: true, arrangor: true, }} />
+                <Tiltaksgjennomforingfilter
+                  skjulFilter={{ tiltakstype: true }}
+                />
+                <TiltaksgjennomforingsTabell
+                  skjulKolonner={{ tiltakstype: true, arrangor: true }}
+                />
               </>
             }
             errorElement={<ErrorPage />}
           />
           <Route
             path="utkast"
-            element={<UtkastListe utkastType={Utkast.type.TILTAKSGJENNOMFORING} />}
+            element={
+              <UtkastListe utkastType={Utkast.type.TILTAKSGJENNOMFORING} />
+            }
             errorElement={<ErrorPage />}
           />
         </Route>
       </Route>
+      <Route
+        path="avtaler/:avtaleId/skjema"
+        element={<AvtaleSkjemaPage />}
+        errorElement={<ErrorPage />}
+      />
       <Route
         path="avtaler/skjema"
         element={<AvtaleSkjemaPage />}
@@ -162,6 +171,27 @@ export function App() {
         element={<TiltaksgjennomforingerPage />}
         errorElement={<ErrorPage />}
       />
+      <Route
+        path="avtaler/:avtaleId/tiltaksgjennomforinger/:tiltaksgjennomforingId"
+        element={<DetaljerTiltaksgjennomforingerPage />}
+        errorElement={<ErrorPage />}
+      >
+        <Route
+          index
+          element={<TiltaksgjennomforingInfo />}
+          errorElement={<ErrorPage />}
+        />
+        <Route
+          path="notater"
+          element={<NotaterTiltaksgjennomforingerPage />}
+          errorElement={<ErrorPage />}
+        />
+        <Route
+          path="deltakere"
+          element={<DeltakerListe />}
+          errorElement={<ErrorPage />}
+        />
+      </Route>
       <Route
         path="tiltaksgjennomforinger/:tiltaksgjennomforingId"
         element={<DetaljerTiltaksgjennomforingerPage />}
@@ -184,7 +214,17 @@ export function App() {
         />
       </Route>
       <Route
-        path="tiltaksgjennomforinger/skjema"
+        path="avtaler/:avtaleId/tiltaksgjennomforinger/:tiltaksgjennomforingId/skjema"
+        element={<TiltaksgjennomforingSkjemaPage />}
+        errorElement={<ErrorPage />}
+      />
+      <Route
+        path="avtaler/:avtaleId/tiltaksgjennomforinger/skjema"
+        element={<TiltaksgjennomforingSkjemaPage />}
+        errorElement={<ErrorPage />}
+      />
+      <Route
+        path="tiltaksgjennomforinger/:tiltaksgjennomforingId/skjema"
         element={<TiltaksgjennomforingSkjemaPage />}
         errorElement={<ErrorPage />}
       />
