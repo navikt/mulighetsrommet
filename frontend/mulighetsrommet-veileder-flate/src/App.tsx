@@ -14,9 +14,9 @@ import { SanityPreview } from './views/Preview/SanityPreview';
 import React from 'react';
 import '@navikt/ds-css';
 
-if (import.meta.env.PROD) {
+if (import.meta.env.PROD && import.meta.env.VITE_FARO_URL) {
   initializeFaro({
-    url: import.meta.env.VITE_FARO_URL || 'http://localhost:3000/collect',
+    url: import.meta.env.VITE_FARO_URL,
     instrumentations: [new WebVitalsInstrumentation()],
     app: {
       name: 'mulighetsrommet-veileder-flate',
