@@ -34,12 +34,21 @@ if (import.meta.env.VITE_MULIGHETSROMMET_API_MOCK === 'true') {
  */
 function render() {
   const demoContainer = document.getElementById(APPLICATION_NAME);
-  if (demoContainer) {
+  if (import.meta.env.DEV && demoContainer) {
     const root = createRoot(demoContainer);
     root.render(
       <AppContext fnr={'12345678910'}>
         <App />
       </AppContext>
+    );
+  } else if (demoContainer) {
+    customElements.define(APPLICATION_WEB_COMPONENT_NAME, Arbeidsmarkedstiltak);
+
+    const root = createRoot(demoContainer);
+    root.render(
+      React.createElement(APPLICATION_WEB_COMPONENT_NAME, {
+        'data-fnr': '12345678910',
+      })
     );
   } else {
     customElements.define(APPLICATION_WEB_COMPONENT_NAME, Arbeidsmarkedstiltak);
