@@ -16,7 +16,6 @@ export default defineConfig({
       filename: 'bundle-stats.html',
     }),
   ],
-  base: './',
   build: {
     manifest: 'asset-manifest.json',
     chunkSizeWarningLimit: 1400,
