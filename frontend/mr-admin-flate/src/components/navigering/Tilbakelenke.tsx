@@ -1,5 +1,4 @@
-import { Link } from "@navikt/ds-react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import styles from "./Tilbakelenke.module.scss";
 import { useGetAvtaleIdFromUrl } from "../../hooks/useGetAvtaleIdFromUrl";
 import { useGetAdminTiltaksgjennomforingsIdFraUrl } from "../../hooks/useGetAdminTiltaksgjennomforingsIdFraUrl";
@@ -28,7 +27,7 @@ export function Tilbakelenke() {
   return (
     <Link
       className={styles.tilbakelenke}
-      href="#"
+      to="#"
       onClick={navigateTilbake}
       data-testid="tilbakelenke"
     >
