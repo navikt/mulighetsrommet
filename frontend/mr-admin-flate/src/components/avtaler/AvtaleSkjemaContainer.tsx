@@ -191,9 +191,11 @@ export function AvtaleSkjemaContainer({
     mutation.mutate(requestBody);
   };
 
-  if (mutation.isSuccess) {
-    onSuccess(mutation.data.id);
-  }
+  useEffect(() => {
+    if (mutation.isSuccess) {
+      onSuccess(mutation.data.id);
+    }
+  }, [mutation]);
 
   if (mutation.isError) {
     return (
