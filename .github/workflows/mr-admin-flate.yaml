@@ -50,7 +50,7 @@ jobs:
       - name: Test
         run: npx turbo run lint test:ci --filter=mr-admin-flate
       - name: Cypress run
-        uses: cypress-io/github-action@v5
+        uses: cypress-io/github-action@v6
         with:
           working-directory: frontend/mr-admin-flate
           browser: chrome
