@@ -52,6 +52,11 @@ dependencies {
     testImplementation(libs.ktor.server.tests)
 
     implementation(libs.nav.common.tokenClient)
+    constraints {
+        implementation("net.minidev:json-smart:2.5.0") {
+            because("sikkerhetshull i transitiv avhengighet rapportert via snyk")
+        }
+    }
 
     // Test
     testImplementation(libs.kotest.junit)
