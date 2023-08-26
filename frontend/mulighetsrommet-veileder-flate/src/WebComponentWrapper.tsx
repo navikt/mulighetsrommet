@@ -38,7 +38,7 @@ export class Arbeidsmarkedstiltak extends HTMLElement {
   connectedCallback() {
     // The ShadowRoot is rendered separately from the main DOM tree, ensuring that styling
     // does not bleed across trees
-    const shadowRoot = this.attachShadow({ mode: 'closed' });
+    const shadowRoot = this.attachShadow({ mode: 'open' });
     shadowRoot.appendChild(this.root);
 
     this.loadStyles(shadowRoot)

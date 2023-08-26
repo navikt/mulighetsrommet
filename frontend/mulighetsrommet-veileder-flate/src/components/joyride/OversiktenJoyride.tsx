@@ -1,9 +1,9 @@
 import Joyride, { ACTIONS, CallBackProps, EVENTS, STATUS } from 'react-joyride';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { locale, styling } from './config';
 import { JoyrideKnapp } from './JoyrideKnapp';
 import { logEvent } from '../../core/api/logger';
-import { getStepIndex, isStep, stepsOversikten } from './Steps';
+import { getStepIndex, isStep, oversiktenSteps, useSteps } from './Steps';
 import { useAtom } from 'jotai';
 import { joyrideAtom } from '../../core/atoms/atoms';
 
@@ -15,11 +15,14 @@ interface Props {
 
 export function OversiktenJoyride({ setHistorikkModalOpen, isHistorikkModalOpen, isTableFetched }: Props) {
   const [joyride, setJoyride] = useAtom(joyrideAtom);
-  const [stepIndex, setStepIndex] = useState(0);
+
+  const ready = joyride.joyrideOversikten && isTableFetched;
+
+  const { steps, stepIndex, setStepIndex } = useSteps(ready, oversiktenSteps);
 
   useEffect(() => {
     if (isHistorikkModalOpen) {
-      setStepIndex(getStepIndex(stepsOversikten, 'tiltakshistorikk-modal'));
+      setStepIndex(getStepIndex(steps, 'tiltakshistorikk-modal'));
       setHistorikkModalOpen(true);
     }
   }, [isHistorikkModalOpen]);
@@ -100,8 +103,8 @@ export function OversiktenJoyride({ setHistorikkModalOpen, isHistorikkModalOpen,
       <Joyride
         locale={locale}
         continuous
-        run={joyride.joyrideOversikten && isTableFetched}
-        steps={stepsOversikten}
+        run={ready}
+        steps={steps}
         hideCloseButton
         callback={handleJoyrideCallback}
         showSkipButton

@@ -1,9 +1,9 @@
 import Joyride, { ACTIONS, CallBackProps, STATUS } from 'react-joyride';
 import React from 'react';
-import { opprettAvtaleStep } from './Steps';
 import { locale, styling } from './config';
 import { useAtom } from 'jotai';
 import { joyrideAtom } from '../../core/atoms/atoms';
+import { opprettAvtaleSteps, useSteps } from './Steps';
 
 interface Props {
   opprettAvtale: boolean;
@@ -11,6 +11,8 @@ interface Props {
 
 export const DetaljerOpprettAvtaleJoyride = ({ opprettAvtale }: Props) => {
   const [joyride, setJoyride] = useAtom(joyrideAtom);
+
+  const { steps } = useSteps(joyride.joyrideDetaljerHarVistOpprettAvtale, opprettAvtaleSteps);
 
   if (opprettAvtale && joyride.joyrideDetaljerHarVistOpprettAvtale === null) {
     setJoyride({ ...joyride, joyrideDetaljerHarVistOpprettAvtale: true });
@@ -39,7 +41,7 @@ export const DetaljerOpprettAvtaleJoyride = ({ opprettAvtale }: Props) => {
       locale={locale}
       continuous
       run={!joyride.joyrideDetaljerHarVistOpprettAvtale}
-      steps={opprettAvtaleStep}
+      steps={steps}
       hideCloseButton
       callback={handleJoyrideCallbackOpprettAvtale}
       showSkipButton

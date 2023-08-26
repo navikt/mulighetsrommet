@@ -40,13 +40,13 @@ const StandardModal = ({
   };
 
   return (
-    <Modal open={modalOpen} onClose={setModalOpen} className={className} aria-label="modal">
+    <Modal open={modalOpen} onClose={setModalOpen} className={className} aria-label="modal" id={id}>
       <Modal.Header closeButton={closeButton}>
         <Heading spacing size="medium" data-testid="modal_header">
           {heading}
         </Heading>
       </Modal.Header>
-      <Modal.Body id={id || ''}>{children}</Modal.Body>
+      <Modal.Body>{children}</Modal.Body>
       {!hideButtons ? (
         <Modal.Footer>
           <div className={styles.knapperad}>
