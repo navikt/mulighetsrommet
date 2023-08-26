@@ -1,9 +1,9 @@
 import Joyride, { ACTIONS, CallBackProps, EVENTS, STATUS } from 'react-joyride';
-import { useEffect, useState } from 'react';
-import { joyrideStyling, localeStrings } from './Utils';
+import { useEffect } from 'react';
+import { locale, styling } from './config';
 import { JoyrideKnapp } from './JoyrideKnapp';
 import { logEvent } from '../../core/api/logger';
-import { getStepIndex, isStep, stepsOversikten } from './Steps';
+import { getStepIndex, isStep, oversiktenSteps, useSteps } from './Steps';
 import { useAtom } from 'jotai';
 import { joyrideAtom } from '../../core/atoms/atoms';
 
@@ -15,15 +15,14 @@ interface Props {
 
 export function OversiktenJoyride({ setHistorikkModalOpen, isHistorikkModalOpen, isTableFetched }: Props) {
   const [joyride, setJoyride] = useAtom(joyrideAtom);
-  const [state, setState] = useState({
-    run: false,
-    loading: false,
-    stepIndex: 0,
-  });
+
+  const ready = joyride.joyrideOversikten && isTableFetched;
+
+  const { steps, stepIndex, setStepIndex } = useSteps(ready, oversiktenSteps);
 
   useEffect(() => {
     if (isHistorikkModalOpen) {
-      setState(prevState => ({ ...prevState, stepIndex: getStepIndex(stepsOversikten, 'tiltakshistorikk-modal') }));
+      setStepIndex(getStepIndex(steps, 'tiltakshistorikk-modal'));
       setHistorikkModalOpen(true);
     }
   }, [isHistorikkModalOpen]);
@@ -34,13 +33,13 @@ export function OversiktenJoyride({ setHistorikkModalOpen, isHistorikkModalOpen,
 
     //kjører neste step når man klikker på neste
     if (EVENTS.STEP_AFTER === type) {
-      setState(prevState => ({ ...prevState, stepIndex: nextStepIndex }));
+      setStepIndex(nextStepIndex);
     }
 
     //resetter joyride ved error
     if (STATUS.ERROR === status) {
       setJoyride({ ...joyride, joyrideOversikten: true });
-      setState(prevState => ({ ...prevState, run: false, stepIndex: 0 }));
+      setStepIndex(0);
     }
 
     //resetter joyride når den er ferdig eller man klikker skip
@@ -51,13 +50,13 @@ export function OversiktenJoyride({ setHistorikkModalOpen, isHistorikkModalOpen,
       } else {
         setJoyride({ ...joyride, joyrideOversikten: false });
       }
-      setState(prevState => ({ ...prevState, run: false, stepIndex: 0 }));
+      setStepIndex(0);
     }
 
     //lukker joyride ved klikk på escape
     if (ACTIONS.CLOSE === action) {
       setJoyride({ ...joyride, joyrideOversikten: false });
-      setState(prevState => ({ ...prevState, run: true, stepIndex: 0 }));
+      setStepIndex(0);
       if (joyride.joyrideOversiktenLastStep === null) {
         setJoyride({ ...joyride, joyrideOversiktenLastStep: true, joyrideOversikten: false });
       }
@@ -97,21 +96,21 @@ export function OversiktenJoyride({ setHistorikkModalOpen, isHistorikkModalOpen,
       <JoyrideKnapp
         handleClick={() => {
           setJoyride({ ...joyride, joyrideOversikten: true });
-          setState(prevState => ({ ...prevState, run: true, stepIndex: 0 }));
+          setStepIndex(0);
           logEvent('mulighetsrommet.joyride', { value: 'oversikten' });
         }}
       />
       <Joyride
-        locale={localeStrings()}
+        locale={locale}
         continuous
-        run={joyride.joyrideOversikten && isTableFetched}
-        steps={stepsOversikten}
+        run={ready}
+        steps={steps}
         hideCloseButton
         callback={handleJoyrideCallback}
         showSkipButton
-        stepIndex={state.stepIndex}
+        stepIndex={stepIndex}
         disableScrolling
-        styles={joyrideStyling()}
+        styles={styling}
         disableCloseOnEsc={false}
         disableOverlayClose={true}
       />
