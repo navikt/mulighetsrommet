@@ -1,6 +1,14 @@
 name: Setup backend
 description: Steps for setup of the backend modules
 
+inputs:
+  # See the documentation for the different options:
+  # https://github.com/gradle/gradle-build-action#enable-dependency-graph-generation-for-a-workflow
+  dependency-graph:
+    description: 'Configuration for the gradle dependency graph'
+    required: true
+    default: 'disabled'
+
 runs:
   using: composite
   steps:
@@ -11,6 +19,8 @@ runs:
         java-version: 17
     - name: Setup Gradle
       uses: gradle/gradle-build-action@v2
+      with:
+        dependency-graph: ${{ inputs.dependency-graph }}
     - name: Set up test environment
       run: docker-compose --profile ci up -d
       shell: bash
