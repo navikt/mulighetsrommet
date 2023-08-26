@@ -25,14 +25,6 @@ dependencies {
 
     // Audit-logging
     implementation(libs.nav.common.auditLog)
-    constraints {
-        implementation(libs.logback.core) {
-            because("sikkerhetshull i transitiv avhengighet rapportert via snyk")
-        }
-        implementation(libs.logback.classic) {
-            because("sikkerhetshull i transitiv avhengighet rapportert via snyk")
-        }
-    }
 
     // Cache
     implementation(libs.caffeine)
