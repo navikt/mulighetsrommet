@@ -228,12 +228,6 @@ export const tiltaksgjennomforing = defineType({
         }),
     }),
 
-    //Faneinnhold
-    defineField({
-      name: "faneinnhold",
-      title: "Faneinnhold",
-      type: "faneinnhold",
-    }),
     defineField({
       name: "kontaktinfoTiltaksansvarlige",
       title: "Tiltaksansvarlig",
@@ -257,6 +251,12 @@ export const tiltaksgjennomforing = defineType({
 
           return true;
         }),
+    }),
+    //Faneinnhold
+    defineField({
+      name: "faneinnhold",
+      title: "Faneinnhold",
+      type: "faneinnhold",
     }),
     defineField({
       name: "lenker",
