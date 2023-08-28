@@ -245,7 +245,7 @@ export const tiltaksgjennomforing = defineType({
           if (!currentValue || currentValue.length === 0) {
             return "Må ha minst én tiltaksansvarlig";
           }
-          if (hasDuplicates(currentValue.map(e => e.key))) {
+          if (hasDuplicates(currentValue.map(e => e._key))) {
             return "Innholder duplikater";
           }
 
