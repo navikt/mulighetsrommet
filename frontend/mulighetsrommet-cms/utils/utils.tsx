@@ -10,6 +10,7 @@ const INDIVUDUELLE_TILTAK_PROD = [
   "d1521b2f-589b-4101-ae11-bd555314b905", // "Midlertidig lønnstilskudd",
   "bab45555-4631-4e5e-9a17-365fc7b335de", // "Arbeidstrening",
   "661e79e6-721b-452c-a6d4-8c71493f15e3", // VATIAROR | Varig tilrettelagt arbeid i ordinær virksomhet 
+  "9fbf9feb-aa4c-4e3c-bc0e-edee0ab957ad", // Arbeid med støtte
 ];
 
 const INDIVUDUELLE_TILTAK_DEV = [
