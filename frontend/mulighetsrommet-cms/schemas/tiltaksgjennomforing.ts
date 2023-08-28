@@ -78,6 +78,7 @@ export const tiltaksgjennomforing = defineType({
       description:
         "Hvis tiltakstypen gjelder individuelle tiltak skal du ikke fylle inn år.",
       type: "number",
+      hidden: true,
       initialValue: () => new Date().getFullYear(),
       readOnly: erIkkeAdmin,
     }),
@@ -87,6 +88,7 @@ export const tiltaksgjennomforing = defineType({
       description:
         "Hvis tiltakstypen gjelder individuelle tiltak skal du ikke fylle inn løpenummer.",
       type: "number",
+      hidden: true,
       readOnly: erIkkeAdmin,
     }),
     defineField({
@@ -95,6 +97,9 @@ export const tiltaksgjennomforing = defineType({
       description:
         "Hvis tiltakstypen gjelder individuelle tiltak skal du ikke fylle inn noe her. Tiltaksnummer utledes fra feltene år og løpenummer over",
       type: "slug",
+      hidden: ({document} ) => {
+        return isIndividueltTiltak(document.tiltakstype?._ref);
+      },
       options: {
         slugify: (input) => {
           return input;
