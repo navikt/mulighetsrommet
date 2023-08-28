@@ -45,6 +45,7 @@
     "react-joyride": "^2.5.5",
     "react-query": "^3.39.3",
     "react-router-dom": "^6.15.0",
+    "url-join": "^5.0.0",
     "uuid": "^9.0.0"
   },
   "devDependencies": {

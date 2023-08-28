@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { APPLICATION_WEB_COMPONENT_NAME } from './constants';
 import { App } from './App';
 import { AppContext } from './AppContext';
+import urlJoin from 'url-join';
 
 interface ViteAssetManifest {
   'index.html': {
@@ -58,7 +59,7 @@ export class Arbeidsmarkedstiltak extends HTMLElement {
   }
 
   async loadStyles(shadowRoot: ShadowRoot) {
-    const response = await fetch(joinPaths(import.meta.env.BASE_URL, 'asset-manifest.json'));
+    const response = await fetch(urlJoin(import.meta.env.BASE_URL, 'asset-manifest.json'));
     if (!response.ok) {
       throw Error(`Failed to get resource '${response.url}'`);
     }
@@ -67,7 +68,7 @@ export class Arbeidsmarkedstiltak extends HTMLElement {
     for (const css of manifest['index.html'].css) {
       const link = document.createElement('link');
       link.rel = 'stylesheet';
-      link.href = joinPaths(import.meta.env.BASE_URL, css);
+      link.href = urlJoin(import.meta.env.BASE_URL, css);
 
       shadowRoot.appendChild(link);
     }
@@ -85,8 +86,4 @@ export class Arbeidsmarkedstiltak extends HTMLElement {
   displayError(error: string | Error) {
     this.root.innerHTML = `<p>${error}</p>`;
   }
-}
-
-function joinPaths(...paths: (string | null | undefined)[]) {
-  return paths.filter(path => !!path && path !== '/').join('/');
 }
