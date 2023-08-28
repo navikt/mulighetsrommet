@@ -95,7 +95,7 @@ export const tiltaksgjennomforing = defineType({
       name: "tiltaksnummer",
       title: "Tiltaksnummer",
       description:
-        "Hvis tiltakstypen gjelder individuelle tiltak skal du ikke fylle inn noe her. Tiltaksnummer utledes fra feltene år og løpenummer over",
+        "Tiltaksnummeret er hentet fra Arena",
       type: "slug",
       hidden: ({document} ) => {
         return isIndividueltTiltak(document.tiltakstype?._ref);
