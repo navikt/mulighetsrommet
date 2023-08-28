@@ -1,11 +1,13 @@
 import Joyride, { ACTIONS, CallBackProps, EVENTS, STATUS } from 'react-joyride';
-import { joyrideStyling, localeStrings } from './Utils';
-import { stepsLastStep } from './Steps';
+import { oversiktenLastStep, useSteps } from './Steps';
+import { locale, styling } from './config';
 import { useAtom } from 'jotai';
 import { joyrideAtom } from '../../core/atoms/atoms';
 
 export const OversiktenLastStepJoyride = () => {
   const [joyride, setJoyride] = useAtom(joyrideAtom);
+
+  const { steps } = useSteps(joyride.joyrideOversiktenLastStep, oversiktenLastStep);
 
   const handleJoyrideCallbackLastStep = (data: CallBackProps) => {
     const { status, type, action } = data;
@@ -21,13 +23,13 @@ export const OversiktenLastStepJoyride = () => {
 
   return (
     <Joyride
-      locale={localeStrings()}
+      locale={locale}
       run={joyride.joyrideOversiktenLastStep === true}
-      steps={stepsLastStep}
+      steps={steps}
       callback={handleJoyrideCallbackLastStep}
       disableScrolling
       hideCloseButton
-      styles={joyrideStyling()}
+      styles={styling}
       disableCloseOnEsc={false}
       disableOverlayClose={true}
     />

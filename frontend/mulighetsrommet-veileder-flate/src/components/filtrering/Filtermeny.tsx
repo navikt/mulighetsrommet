@@ -14,7 +14,7 @@ const Filtermeny = () => {
 
   return (
     <div className={styles.tiltakstype_oversikt_filtermeny} id="tiltakstype_oversikt_filtermeny">
-      <Sokefelt sokefilter={filter.search!} setSokefilter={(search: string) => setFilter({ ...filter, search })} />
+      <Sokefelt sokefilter={filter.search} setSokefilter={(search: string) => setFilter({ ...filter, search })} />
       <Accordion>
         <InnsatsgruppeFilter />
         <Tiltakstypefilter />

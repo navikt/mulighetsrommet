@@ -219,6 +219,11 @@ export function App() {
         errorElement={<ErrorPage />}
       />
       <Route
+        path="avtaler/:avtaleId/tiltaksgjennomforinger/skjema"
+        element={<TiltaksgjennomforingSkjemaPage />}
+        errorElement={<ErrorPage />}
+      />
+      <Route
         path="tiltaksgjennomforinger/:tiltaksgjennomforingId/skjema"
         element={<TiltaksgjennomforingSkjemaPage />}
         errorElement={<ErrorPage />}

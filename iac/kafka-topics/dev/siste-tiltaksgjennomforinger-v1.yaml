@@ -39,3 +39,6 @@ spec:
     - team: teamoppfolging
       application: teamoppfolging-kafka-manager
       access: read
+    - team: amt
+      application: amt-aktivitetskort-publisher
+      access: read

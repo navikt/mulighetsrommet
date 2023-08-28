@@ -2,20 +2,57 @@ import { Step } from 'react-joyride';
 import Lenke from '../lenke/Lenke';
 import { BodyShort } from '@navikt/ds-react';
 import { PORTEN } from 'mulighetsrommet-frontend-common/constants';
-
-export function getStepIndex(steps: MulighetsrommetStep[], stepId: string): number {
-  return steps.findIndex(step => step.id === stepId);
-}
+import { APPLICATION_WEB_COMPONENT_NAME } from '../../constants';
+import { useEffect, useState } from 'react';
 
 export interface MulighetsrommetStep extends Step {
   id: string;
 }
 
-export function isStep(step: Step, stepId: string): boolean {
-  return (step as MulighetsrommetStep).id === stepId;
+export function isStep(step: Step | null, stepId: string): boolean {
+  return (step as MulighetsrommetStep | null)?.id === stepId;
 }
 
-export const stepsOversikten: MulighetsrommetStep[] = [
+export function getStepIndex(steps: MulighetsrommetStep[], stepId: string): number {
+  return steps.findIndex(step => step.id === stepId);
+}
+
+export function useSteps(ready: boolean | null, initialSteps: MulighetsrommetStep[]) {
+  const [stepIndex, setStepIndex] = useState(0);
+
+  const [steps, setSteps] = useState<MulighetsrommetStep[]>([]);
+  useEffect(() => {
+    setSteps(ready ? prepareSteps(initialSteps) : []);
+  }, [ready]);
+
+  return {
+    steps,
+    stepIndex,
+    setStepIndex,
+  };
+}
+
+/**
+ * If the application is contained within a web component we need to access each step's target contained by the
+ * ShadowRoot instead of querying the DOM directly.
+ *
+ * It's important that the ShadowRoot is "open" so that we can access the content of the shadow DOM.
+ */
+function prepareSteps(steps: MulighetsrommetStep[]): MulighetsrommetStep[] {
+  const shadowRoot = document.querySelector(APPLICATION_WEB_COMPONENT_NAME)?.shadowRoot;
+
+  const resolveTarget = shadowRoot
+    ? (target: string) => {
+        return shadowRoot.querySelector<HTMLElement>(target) ?? target;
+      }
+    : (target: string) => target;
+
+  return steps.map(step => {
+    return typeof step.target === 'string' ? { ...step, target: resolveTarget(step.target) } : step;
+  });
+}
+
+export const oversiktenSteps: MulighetsrommetStep[] = [
   {
     title: 'Velkommen til arbeidsmarkedstiltak!',
     content: 'Her får du hjelp til å finne arbeidsmarkedstiltak som passer brukerens ønsker og behov.',
@@ -86,7 +123,7 @@ export const stepsOversikten: MulighetsrommetStep[] = [
   },
 ];
 
-export const stepsDetaljer: MulighetsrommetStep[] = [
+export const detaljerSteps: MulighetsrommetStep[] = [
   {
     title: 'Detaljside',
     content: 'Her finner du detaljert informasjon om tiltaket, som formål, målgruppe, innhold og varighet.',
@@ -142,7 +179,7 @@ export const stepsDetaljer: MulighetsrommetStep[] = [
   },
 ];
 
-export const opprettAvtaleStep: MulighetsrommetStep[] = [
+export const opprettAvtaleSteps: MulighetsrommetStep[] = [
   {
     title: 'Opprett avtale',
     content: 'For enkelte av tiltakene vil det være mulig å opprette en avtale med bruker.',
@@ -152,7 +189,7 @@ export const opprettAvtaleStep: MulighetsrommetStep[] = [
   },
 ];
 
-export const stepsLastStep: MulighetsrommetStep[] = [
+export const oversiktenLastStep: MulighetsrommetStep[] = [
   {
     title: 'Se gjennomgang på nytt',
     content: 'Hvis du vil se denne gjennomgangen på nytt kan du klikke her.',

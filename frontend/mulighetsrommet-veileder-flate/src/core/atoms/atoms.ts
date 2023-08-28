@@ -3,7 +3,7 @@ import { Innsatsgruppe } from 'mulighetsrommet-api-client';
 import { atomWithStorage } from 'jotai/utils';
 
 export interface Tiltaksgjennomforingsfilter {
-  search?: string;
+  search: string;
   innsatsgruppe?: Tiltaksgjennomforingsfiltergruppe<Innsatsgruppe>;
   tiltakstyper: Tiltaksgjennomforingsfiltergruppe<string>[];
   lokasjoner: Tiltaksgjennomforingsfiltergruppe<string>[];
