@@ -78,6 +78,7 @@ export const tiltaksgjennomforing = defineType({
       description:
         "Hvis tiltakstypen gjelder individuelle tiltak skal du ikke fylle inn år.",
       type: "number",
+      hidden: true,
       initialValue: () => new Date().getFullYear(),
       readOnly: erIkkeAdmin,
     }),
@@ -87,14 +88,18 @@ export const tiltaksgjennomforing = defineType({
       description:
         "Hvis tiltakstypen gjelder individuelle tiltak skal du ikke fylle inn løpenummer.",
       type: "number",
+      hidden: true,
       readOnly: erIkkeAdmin,
     }),
     defineField({
       name: "tiltaksnummer",
       title: "Tiltaksnummer",
       description:
-        "Hvis tiltakstypen gjelder individuelle tiltak skal du ikke fylle inn noe her. Tiltaksnummer utledes fra feltene år og løpenummer over",
+        "Tiltaksnummeret er hentet fra Arena",
       type: "slug",
+      hidden: ({document} ) => {
+        return isIndividueltTiltak(document.tiltakstype?._ref);
+      },
       options: {
         slugify: (input) => {
           return input;
@@ -223,12 +228,6 @@ export const tiltaksgjennomforing = defineType({
         }),
     }),
 
-    //Faneinnhold
-    defineField({
-      name: "faneinnhold",
-      title: "Faneinnhold",
-      type: "faneinnhold",
-    }),
     defineField({
       name: "kontaktinfoTiltaksansvarlige",
       title: "Tiltaksansvarlig",
@@ -246,12 +245,18 @@ export const tiltaksgjennomforing = defineType({
           if (!currentValue || currentValue.length === 0) {
             return "Må ha minst én tiltaksansvarlig";
           }
-          if (hasDuplicates(currentValue.map(e => e.key))) {
+          if (hasDuplicates(currentValue.map(e => e._key))) {
             return "Innholder duplikater";
           }
 
           return true;
         }),
+    }),
+    //Faneinnhold
+    defineField({
+      name: "faneinnhold",
+      title: "Faneinnhold",
+      type: "faneinnhold",
     }),
     defineField({
       name: "lenker",
