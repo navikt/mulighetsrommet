@@ -89,6 +89,7 @@ class VeilederflateService(
                 _id,
                 tiltaksgjennomforingNavn,
                 oppstart,
+                lokasjon,
                 oppstartsdato,
                 "tiltaksnummer": tiltaksnummer.current,
                 kontaktinfoArrangor->{selskapsnavn},
@@ -130,7 +131,6 @@ class VeilederflateService(
                 tiltaksgjennomforingNavn,
                 beskrivelse,
                 "tiltaksnummer": tiltaksnummer.current,
-                lokasjon,
                 oppstart,
                 oppstartsdato,
                 sluttdato,
@@ -197,8 +197,8 @@ class VeilederflateService(
                 val oppstart = apiGjennomforing?.oppstart?.name?.lowercase() ?: sanityData.oppstart
                 val oppstartsdato = apiGjennomforing?.startDato ?: sanityData.oppstartsdato
                 val sluttdato = apiGjennomforing?.sluttDato ?: sanityData.sluttdato
-                val fylke = apiGjennomforing?.navRegion?.let { FylkeRef(_ref = "enhet.fylke.${it.enhetsnummer}") } ?: sanityData.fylke
-                val enheter = apiGjennomforing?.navEnheter?.map { EnhetRef(_ref = "enhet.fylke.${it.enhetsnummer}") } ?: sanityData.enheter
+                val fylke = apiGjennomforing?.navRegion?.let { FylkeRef(_ref = "enhet.fylke.${it.enhetsnummer}") }
+                val enheter = apiGjennomforing?.navEnheter?.map { EnhetRef(_ref = "enhet.fylke.${it.enhetsnummer}") } ?: emptyList()
 
                 sanityData.copy(
                     stengtFra = apiGjennomforing?.stengtFra,
@@ -212,8 +212,8 @@ class VeilederflateService(
                     tiltakstype = sanityData.tiltakstype?.copy(arenakode = apiGjennomforing?.tiltakstype?.arenaKode),
                     lokasjon = apiGjennomforing?.lokasjonArrangor ?: sanityData.lokasjon,
                     kontaktinfoArrangor = kontaktpersonerArrangor ?: sanityData.kontaktinfoArrangor,
-                    fylke = fylke,
-                    enheter = enheter,
+                    fylke = fylke ?: sanityData.fylke,
+                    enheter = enheter.ifEmpty { sanityData.enheter },
                 )
             }
     }
