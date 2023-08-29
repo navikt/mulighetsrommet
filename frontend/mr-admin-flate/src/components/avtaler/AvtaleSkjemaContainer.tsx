@@ -196,9 +196,11 @@ export function AvtaleSkjemaContainer({
     opprettAvtaleMutation.mutate(requestBody);
   };
 
-  if (opprettAvtaleMutation.isSuccess) {
-    onSuccess(opprettAvtaleMutation.data.id);
-  }
+  useEffect(() => {
+    if (opprettAvtaleMutation.isSuccess) {
+      return onSuccess(opprettAvtaleMutation.data.id);
+    }
+  }, [opprettAvtaleMutation]);
 
   if (opprettAvtaleMutation.isError) {
     return (

@@ -2,7 +2,7 @@ import {
   ExclamationmarkTriangleIcon,
   ExternalLinkIcon,
 } from "@navikt/aksel-icons";
-import { Alert, Heading, Link } from "@navikt/ds-react";
+import { Alert, Heading } from "@navikt/ds-react";
 import {
   TiltaksgjennomforingOppstartstype,
   TiltaksgjennomforingStatus,
@@ -27,6 +27,7 @@ import { InfoKnapperad } from "../InfoKnapperad";
 import { Kontaktperson } from "./Kontaktperson";
 import SlettAvtaleGjennomforingModal from "../../components/modal/SlettAvtaleGjennomforingModal";
 import { useDeleteTiltaksgjennomforing } from "../../api/tiltaksgjennomforing/useDeleteTiltaksgjennomforing";
+import { Link } from "react-router-dom";
 import { useFeatureToggle } from "../../api/features/feature-toggles";
 
 export function TiltaksgjennomforingInfo() {
@@ -130,7 +131,7 @@ export function TiltaksgjennomforingInfo() {
               verdi={
                 avtale?.id ? (
                   <>
-                    <Link href={`/avtaler/${avtale?.id}`}>
+                    <Link to={`/avtaler/${avtale?.id}`}>
                       {avtale?.navn}{" "}
                       {avtale?.avtalenummer
                         ? ` - ${avtale.avtalenummer}`
@@ -253,7 +254,7 @@ export function TiltaksgjennomforingInfo() {
                   <>
                     <Link
                       target="_blank"
-                      href={
+                      to={
                         sanityTiltaksgjennomforingUrl +
                         tiltaksgjennomforing.sanityId
                       }

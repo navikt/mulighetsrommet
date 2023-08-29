@@ -12,6 +12,12 @@ dependencies {
     implementation(libs.kotlinx.coroutines.core)
 
     api(libs.nav.common.kafka)
+    constraints {
+        implementation("org.xerial.snappy:snappy-java:1.1.10.3") {
+            because("dependabot warnings")
+        }
+    }
+
     implementation(libs.shedlock.jdbc)
 
     testImplementation(libs.kotest.junit)
