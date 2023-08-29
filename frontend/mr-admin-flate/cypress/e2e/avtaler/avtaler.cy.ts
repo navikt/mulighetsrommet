@@ -19,10 +19,10 @@ describe("Avtaler", () => {
       cy.checkPageA11y();
     });
 
-    it("Skal ha mulighet til å endre en avtale", () => {
+    it("Skal ha mulighet til å redigere en avtale", () => {
       cy.gaTilForsteAvtale();
       cy.checkPageA11y();
-      cy.getByTestId("endre-avtale").should("exist").click();
+      cy.getByTestId("rediger-avtale").should("exist").click();
       cy.getByTestId("rediger-avtale-header").contains("Rediger avtale");
     });
   });
