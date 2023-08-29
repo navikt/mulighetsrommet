@@ -12,6 +12,7 @@ export const mockTiltakstyper: { [navn: string]: Tiltakstype } = {
     fraDato: "2023-01-11",
     tilDato: "2023-05-15",
     status: Tiltakstypestatus.AKTIV,
+    sanityId: "afb69ca8-ddff-45be-9fd0-8f968519468d",
   },
   ABOPPF: {
     id: "a7d63fb0-4366-412c-84b7-7c15518ee36c",
@@ -20,6 +21,7 @@ export const mockTiltakstyper: { [navn: string]: Tiltakstype } = {
     fraDato: "2023-01-11",
     tilDato: "2023-01-15",
     status: Tiltakstypestatus.AKTIV,
+    sanityId: "afb69ca8-ddff-45be-9fd0-8f968519468d",
   },
   ABTBOPPF: {
     id: "186df85f-c773-4f34-8904-1983787a3caf",
@@ -28,6 +30,7 @@ export const mockTiltakstyper: { [navn: string]: Tiltakstype } = {
     fraDato: "2023-01-11",
     tilDato: "2023-01-15",
     status: Tiltakstypestatus.AKTIV,
+    sanityId: "afb69ca8-ddff-45be-9fd0-8f968519468d",
   },
   ABUOPPF: {
     id: "186df85f-c773-4f34-8904-1983787a3ca1",
@@ -36,6 +39,7 @@ export const mockTiltakstyper: { [navn: string]: Tiltakstype } = {
     fraDato: "2023-01-11",
     tilDato: "2023-01-15",
     status: Tiltakstypestatus.AKTIV,
+    sanityId: "afb69ca8-ddff-45be-9fd0-8f968519468d",
   },
   AMBFI: {
     id: "186df85f-c773-4f34-8904-1983787a3ca2",
@@ -44,6 +48,7 @@ export const mockTiltakstyper: { [navn: string]: Tiltakstype } = {
     fraDato: "2023-01-11",
     tilDato: "2023-01-15",
     status: Tiltakstypestatus.AKTIV,
+    sanityId: "afb69ca8-ddff-45be-9fd0-8f968519468d",
   },
   AMBF2: {
     id: "186df85f-c773-4f34-8904-1983787a3ca3",
@@ -52,6 +57,7 @@ export const mockTiltakstyper: { [navn: string]: Tiltakstype } = {
     fraDato: "2023-01-11",
     tilDato: "2023-01-15",
     status: Tiltakstypestatus.AKTIV,
+    sanityId: "afb69ca8-ddff-45be-9fd0-8f968519468d",
   },
   AMBF3: {
     id: "186df85f-c773-4f34-8904-1983787a3ca4",
@@ -60,6 +66,7 @@ export const mockTiltakstyper: { [navn: string]: Tiltakstype } = {
     fraDato: "2023-01-11",
     tilDato: "2023-01-15",
     status: Tiltakstypestatus.AKTIV,
+    sanityId: "afb69ca8-ddff-45be-9fd0-8f968519468d",
   },
   AMO: {
     id: "186df85f-c773-4f34-8904-1983787a3ca5",
@@ -68,6 +75,7 @@ export const mockTiltakstyper: { [navn: string]: Tiltakstype } = {
     fraDato: "2023-01-11",
     tilDato: "2023-01-15",
     status: Tiltakstypestatus.AKTIV,
+    sanityId: "afb69ca8-ddff-45be-9fd0-8f968519468d",
   },
   AMOB: {
     id: "186df85f-c773-4f34-8904-1983787a3caf6",
@@ -76,6 +84,7 @@ export const mockTiltakstyper: { [navn: string]: Tiltakstype } = {
     fraDato: "2023-01-11",
     tilDato: "2023-01-15",
     status: Tiltakstypestatus.AKTIV,
+    sanityId: "afb69ca8-ddff-45be-9fd0-8f968519468d",
   },
   AMOE: {
     id: "186df85f-c773-4f34-8904-1983787a3ca7",
@@ -84,6 +93,7 @@ export const mockTiltakstyper: { [navn: string]: Tiltakstype } = {
     fraDato: "2023-01-11",
     tilDato: "2023-01-15",
     status: Tiltakstypestatus.AKTIV,
+    sanityId: "afb69ca8-ddff-45be-9fd0-8f968519468d",
   },
   AMOY: {
     id: "186df85f-c773-4f34-8904-1983787a3ca8",
@@ -92,6 +102,7 @@ export const mockTiltakstyper: { [navn: string]: Tiltakstype } = {
     fraDato: "2023-01-11",
     tilDato: "2023-01-15",
     status: Tiltakstypestatus.AKTIV,
+    sanityId: "afb69ca8-ddff-45be-9fd0-8f968519468d",
   },
   ANNUTDANN: {
     id: "186df85f-c773-4f34-8904-1983787a3ca9",
@@ -100,6 +111,7 @@ export const mockTiltakstyper: { [navn: string]: Tiltakstype } = {
     fraDato: "2023-01-11",
     tilDato: "2023-01-15",
     status: Tiltakstypestatus.AKTIV,
+    sanityId: "afb69ca8-ddff-45be-9fd0-8f968519468d",
   },
   ARBDOGNSM: {
     id: "186df85f-c773-4f34-8904-1983787a3c10",
@@ -108,6 +120,7 @@ export const mockTiltakstyper: { [navn: string]: Tiltakstype } = {
     fraDato: "2023-01-11",
     tilDato: "2023-01-15",
     status: Tiltakstypestatus.AKTIV,
+    sanityId: "afb69ca8-ddff-45be-9fd0-8f968519468d",
   },
   ARBFORB: {
     id: "186df85f-c773-4f34-8904-1983787a3c14",
@@ -116,6 +129,7 @@ export const mockTiltakstyper: { [navn: string]: Tiltakstype } = {
     fraDato: "2023-01-11",
     tilDato: "2023-01-15",
     status: Tiltakstypestatus.AKTIV,
+    sanityId: "afb69ca8-ddff-45be-9fd0-8f968519468d",
   },
   ARBRDAGSM: {
     id: "186df85f-c773-4f34-8904-1983787a3c15",
@@ -124,6 +138,7 @@ export const mockTiltakstyper: { [navn: string]: Tiltakstype } = {
     fraDato: "2023-01-11",
     tilDato: "2023-01-15",
     status: Tiltakstypestatus.AKTIV,
+    sanityId: "afb69ca8-ddff-45be-9fd0-8f968519468d",
   },
   ARBRRDOGN: {
     id: "186df85f-c773-4f34-8904-1983787a3c16",
@@ -132,6 +147,7 @@ export const mockTiltakstyper: { [navn: string]: Tiltakstype } = {
     fraDato: "2023-01-11",
     tilDato: "2023-01-15",
     status: Tiltakstypestatus.AKTIV,
+    sanityId: "afb69ca8-ddff-45be-9fd0-8f968519468d",
   },
   ARBRRHBAG: {
     id: "186df85f-c773-4f34-8904-1983787a3c17",
@@ -140,6 +156,7 @@ export const mockTiltakstyper: { [navn: string]: Tiltakstype } = {
     fraDato: "2023-01-11",
     tilDato: "2023-01-15",
     status: Tiltakstypestatus.AKTIV,
+    sanityId: "afb69ca8-ddff-45be-9fd0-8f968519468d",
   },
   ARBRRHBSM: {
     id: "186df85f-c773-4f34-8904-1983787a3c18",
@@ -148,6 +165,7 @@ export const mockTiltakstyper: { [navn: string]: Tiltakstype } = {
     fraDato: "2023-01-11",
     tilDato: "2023-01-15",
     status: Tiltakstypestatus.AKTIV,
+    sanityId: "afb69ca8-ddff-45be-9fd0-8f968519468d",
   },
   ARBRRHDAG: {
     id: "186df85f-c773-4f34-8904-1983787a3c19",
@@ -156,6 +174,7 @@ export const mockTiltakstyper: { [navn: string]: Tiltakstype } = {
     fraDato: "2023-01-11",
     tilDato: "2023-01-15",
     status: Tiltakstypestatus.AKTIV,
+    sanityId: "afb69ca8-ddff-45be-9fd0-8f968519468d",
   },
   ARBTREN: {
     id: "186df85f-c773-4f34-8904-1983787a3c20",
@@ -164,6 +183,7 @@ export const mockTiltakstyper: { [navn: string]: Tiltakstype } = {
     fraDato: "2023-01-11",
     tilDato: "2023-01-15",
     status: Tiltakstypestatus.AKTIV,
+    sanityId: "afb69ca8-ddff-45be-9fd0-8f968519468d",
   },
   AVS: {
     id: "186df85f-c773-4f34-8904-1983787a3c21",
@@ -172,6 +192,7 @@ export const mockTiltakstyper: { [navn: string]: Tiltakstype } = {
     fraDato: "2023-01-11",
     tilDato: "2023-01-15",
     status: Tiltakstypestatus.AKTIV,
+    sanityId: "afb69ca8-ddff-45be-9fd0-8f968519468d",
   },
   ATG: {
     id: "186df85f-c773-4f34-8904-1983787a3c22",
@@ -180,6 +201,7 @@ export const mockTiltakstyper: { [navn: string]: Tiltakstype } = {
     fraDato: "2023-01-11",
     tilDato: "2023-01-15",
     status: Tiltakstypestatus.AKTIV,
+    sanityId: "afb69ca8-ddff-45be-9fd0-8f968519468d",
   },
   AVKLARAG: {
     id: "186df85f-c773-4f34-8904-1983787a3c23",
@@ -188,6 +210,7 @@ export const mockTiltakstyper: { [navn: string]: Tiltakstype } = {
     fraDato: "2023-01-11",
     tilDato: "2023-01-15",
     status: Tiltakstypestatus.AKTIV,
+    sanityId: "afb69ca8-ddff-45be-9fd0-8f968519468d",
   },
   AVKLARKV: {
     id: "186df85f-c773-4f34-8904-1983787a3c24",
@@ -196,6 +219,7 @@ export const mockTiltakstyper: { [navn: string]: Tiltakstype } = {
     fraDato: "2023-01-11",
     tilDato: "2023-01-15",
     status: Tiltakstypestatus.AKTIV,
+    sanityId: "afb69ca8-ddff-45be-9fd0-8f968519468d",
   },
   AVKLARSP: {
     id: "186df85f-c773-4f34-8904-1983787a3c25",
@@ -204,6 +228,7 @@ export const mockTiltakstyper: { [navn: string]: Tiltakstype } = {
     fraDato: "2023-01-11",
     tilDato: "2023-01-15",
     status: Tiltakstypestatus.AKTIV,
+    sanityId: "afb69ca8-ddff-45be-9fd0-8f968519468d",
   },
   AVKLARSV: {
     id: "186df85f-c773-4f34-8904-1983787a3c26",
@@ -212,6 +237,7 @@ export const mockTiltakstyper: { [navn: string]: Tiltakstype } = {
     fraDato: "2023-01-11",
     tilDato: "2023-01-15",
     status: Tiltakstypestatus.AKTIV,
+    sanityId: "afb69ca8-ddff-45be-9fd0-8f968519468d",
   },
   AVKLARUS: {
     id: "186df85f-c773-4f34-8904-1983787a3c27",
@@ -220,6 +246,7 @@ export const mockTiltakstyper: { [navn: string]: Tiltakstype } = {
     fraDato: "2023-01-11",
     tilDato: "2023-01-15",
     status: Tiltakstypestatus.AKTIV,
+    sanityId: "afb69ca8-ddff-45be-9fd0-8f968519468d",
   },
   BIA: {
     id: "186df85f-c773-4f34-8904-1983787a3c28",
@@ -228,6 +255,7 @@ export const mockTiltakstyper: { [navn: string]: Tiltakstype } = {
     fraDato: "2023-01-11",
     tilDato: "2023-01-15",
     status: Tiltakstypestatus.AKTIV,
+    sanityId: "afb69ca8-ddff-45be-9fd0-8f968519468d",
   },
   BIO: {
     id: "186df85f-c773-4f34-8904-1983787a3c29",
@@ -236,6 +264,7 @@ export const mockTiltakstyper: { [navn: string]: Tiltakstype } = {
     fraDato: "2023-01-11",
     tilDato: "2023-01-15",
     status: Tiltakstypestatus.AKTIV,
+    sanityId: "afb69ca8-ddff-45be-9fd0-8f968519468d",
   },
   BREVKURS: {
     id: "186df85f-c773-4f34-8904-1983787a3c30",
@@ -244,6 +273,7 @@ export const mockTiltakstyper: { [navn: string]: Tiltakstype } = {
     fraDato: "2023-01-11",
     tilDato: "2023-01-15",
     status: Tiltakstypestatus.AKTIV,
+    sanityId: "afb69ca8-ddff-45be-9fd0-8f968519468d",
   },
   DIGIOPPARB: {
     id: "186df85f-c773-4f34-8904-1983787a3c31",
@@ -252,6 +282,7 @@ export const mockTiltakstyper: { [navn: string]: Tiltakstype } = {
     fraDato: "2023-01-11",
     tilDato: "2023-01-15",
     status: Tiltakstypestatus.AKTIV,
+    sanityId: "afb69ca8-ddff-45be-9fd0-8f968519468d",
   },
   DIVTILT: {
     id: "186df85f-c773-4f34-8904-1983787a3c32",
@@ -260,6 +291,7 @@ export const mockTiltakstyper: { [navn: string]: Tiltakstype } = {
     fraDato: "2023-01-11",
     tilDato: "2023-01-15",
     status: Tiltakstypestatus.AKTIV,
+    sanityId: "afb69ca8-ddff-45be-9fd0-8f968519468d",
   },
   EKSPEBIST: {
     id: "186df85f-c773-4f34-8904-1983787a3c33",
@@ -268,6 +300,7 @@ export const mockTiltakstyper: { [navn: string]: Tiltakstype } = {
     fraDato: "2023-01-11",
     tilDato: "2023-01-15",
     status: Tiltakstypestatus.AKTIV,
+    sanityId: "afb69ca8-ddff-45be-9fd0-8f968519468d",
   },
   ENKELAMO: {
     id: "186df85f-c773-4f34-8904-1983787a3c34",
@@ -276,6 +309,7 @@ export const mockTiltakstyper: { [navn: string]: Tiltakstype } = {
     fraDato: "2023-01-11",
     tilDato: "2023-01-15",
     status: Tiltakstypestatus.AKTIV,
+    sanityId: "afb69ca8-ddff-45be-9fd0-8f968519468d",
   },
   ENKFAGYRKE: {
     id: "186df85f-c773-4f34-8904-1983787a3c35",
@@ -284,6 +318,7 @@ export const mockTiltakstyper: { [navn: string]: Tiltakstype } = {
     fraDato: "2023-01-11",
     tilDato: "2023-01-15",
     status: Tiltakstypestatus.AKTIV,
+    sanityId: "afb69ca8-ddff-45be-9fd0-8f968519468d",
   },
   ETAB: {
     id: "186df85f-c773-4f34-8904-1983787a3c36",
@@ -292,6 +327,7 @@ export const mockTiltakstyper: { [navn: string]: Tiltakstype } = {
     fraDato: "2023-01-11",
     tilDato: "2023-01-15",
     status: Tiltakstypestatus.AKTIV,
+    sanityId: "afb69ca8-ddff-45be-9fd0-8f968519468d",
   },
   FLEKSJOBB: {
     id: "186df85f-c773-4f34-8904-1983787a3c37",
@@ -300,6 +336,7 @@ export const mockTiltakstyper: { [navn: string]: Tiltakstype } = {
     fraDato: "2023-01-11",
     tilDato: "2023-01-15",
     status: Tiltakstypestatus.AKTIV,
+    sanityId: "afb69ca8-ddff-45be-9fd0-8f968519468d",
   },
   FORSAMOENK: {
     id: "186df85f-c773-4f34-8904-1983787a3c38",
@@ -308,6 +345,7 @@ export const mockTiltakstyper: { [navn: string]: Tiltakstype } = {
     fraDato: "2023-01-11",
     tilDato: "2023-01-15",
     status: Tiltakstypestatus.AKTIV,
+    sanityId: "afb69ca8-ddff-45be-9fd0-8f968519468d",
   },
   FORSAMOGRU: {
     id: "186df85f-c773-4f34-8904-1983787a3c39",
@@ -316,6 +354,7 @@ export const mockTiltakstyper: { [navn: string]: Tiltakstype } = {
     fraDato: "2023-01-11",
     tilDato: "2023-01-15",
     status: Tiltakstypestatus.AKTIV,
+    sanityId: "afb69ca8-ddff-45be-9fd0-8f968519468d",
   },
   FORSFAGENK: {
     id: "186df85f-c773-4f34-8904-1983787a3c40",
@@ -324,6 +363,7 @@ export const mockTiltakstyper: { [navn: string]: Tiltakstype } = {
     fraDato: "2023-01-11",
     tilDato: "2023-01-15",
     status: Tiltakstypestatus.AKTIV,
+    sanityId: "afb69ca8-ddff-45be-9fd0-8f968519468d",
   },
   FORSFAGGRU: {
     id: "186df85f-c773-4f34-8904-1983787a3c41",
@@ -332,6 +372,7 @@ export const mockTiltakstyper: { [navn: string]: Tiltakstype } = {
     fraDato: "2023-01-11",
     tilDato: "2023-01-15",
     status: Tiltakstypestatus.AKTIV,
+    sanityId: "afb69ca8-ddff-45be-9fd0-8f968519468d",
   },
   FORSHOYUTD: {
     id: "186df85f-c773-4f34-8904-1983787a3c42",
@@ -340,6 +381,7 @@ export const mockTiltakstyper: { [navn: string]: Tiltakstype } = {
     fraDato: "2023-01-11",
     tilDato: "2023-01-15",
     status: Tiltakstypestatus.AKTIV,
+    sanityId: "afb69ca8-ddff-45be-9fd0-8f968519468d",
   },
   FUNKSJASS: {
     id: "186df85f-c773-4f34-8904-1983787a3c43",
@@ -348,6 +390,7 @@ export const mockTiltakstyper: { [navn: string]: Tiltakstype } = {
     fraDato: "2023-01-11",
     tilDato: "2023-01-15",
     status: Tiltakstypestatus.AKTIV,
+    sanityId: "afb69ca8-ddff-45be-9fd0-8f968519468d",
   },
   GRUFAGYRKE: {
     id: "186df85f-c773-4f34-8904-1983787a3c44",
@@ -356,6 +399,7 @@ export const mockTiltakstyper: { [navn: string]: Tiltakstype } = {
     fraDato: "2023-01-11",
     tilDato: "2023-01-15",
     status: Tiltakstypestatus.AKTIV,
+    sanityId: "afb69ca8-ddff-45be-9fd0-8f968519468d",
   },
   GRUNNSKOLE: {
     id: "186df85f-c773-4f34-8904-1983787a3c45",
@@ -364,6 +408,7 @@ export const mockTiltakstyper: { [navn: string]: Tiltakstype } = {
     fraDato: "2023-01-11",
     tilDato: "2023-01-15",
     status: Tiltakstypestatus.AKTIV,
+    sanityId: "afb69ca8-ddff-45be-9fd0-8f968519468d",
   },
   GRUPPEAMO: {
     id: "186df85f-c773-4f34-8904-1983787a3c46",
@@ -372,6 +417,7 @@ export const mockTiltakstyper: { [navn: string]: Tiltakstype } = {
     fraDato: "2023-01-11",
     tilDato: "2023-01-15",
     status: Tiltakstypestatus.AKTIV,
+    sanityId: "afb69ca8-ddff-45be-9fd0-8f968519468d",
   },
   HOYEREUTD: {
     id: "186df85f-c773-4f34-8904-1983787a3c47",
@@ -380,6 +426,7 @@ export const mockTiltakstyper: { [navn: string]: Tiltakstype } = {
     fraDato: "2023-01-11",
     tilDato: "2023-01-15",
     status: Tiltakstypestatus.AKTIV,
+    sanityId: "afb69ca8-ddff-45be-9fd0-8f968519468d",
   },
   HOYSKOLE: {
     id: "186df85f-c773-4f34-8904-1983787a3c48",
@@ -388,6 +435,7 @@ export const mockTiltakstyper: { [navn: string]: Tiltakstype } = {
     fraDato: "2023-01-11",
     tilDato: "2023-01-15",
     status: Tiltakstypestatus.PLANLAGT,
+    sanityId: "afb69ca8-ddff-45be-9fd0-8f968519468d",
   },
   INDJOBSTOT: {
     id: "186df85f-c773-4f34-8904-1983787a3c49",
@@ -396,6 +444,7 @@ export const mockTiltakstyper: { [navn: string]: Tiltakstype } = {
     fraDato: "2023-01-11",
     tilDato: "2023-01-15",
     status: Tiltakstypestatus.AVSLUTTET,
+    sanityId: "afb69ca8-ddff-45be-9fd0-8f968519468d",
   },
   INDOPPFAG: {
     id: "186df85f-c773-4f34-8904-1983787a3c50",
@@ -404,6 +453,7 @@ export const mockTiltakstyper: { [navn: string]: Tiltakstype } = {
     fraDato: "2023-01-11",
     tilDato: "2023-01-15",
     status: Tiltakstypestatus.AVSLUTTET,
+    sanityId: "afb69ca8-ddff-45be-9fd0-8f968519468d",
   },
   VASV: {
     id: "186df85f-c773-4f34-8904-1983787a3c51",
@@ -412,6 +462,7 @@ export const mockTiltakstyper: { [navn: string]: Tiltakstype } = {
     fraDato: "2023-01-11",
     tilDato: "2050-01-15",
     status: Tiltakstypestatus.AKTIV,
+    sanityId: "afb69ca8-ddff-45be-9fd0-8f968519468d",
   },
 };
 
