@@ -33,7 +33,7 @@ export function Lenkeknapp({
       className={classNames(
         style.lenkeknapp,
         "navds-button",
-        "button",
+        "lagre_knapp",
         `navds-button--${variant}`,
         fontSize(),
         className,

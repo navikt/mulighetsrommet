@@ -1,5 +1,5 @@
 import { Alert, Heading } from "@navikt/ds-react";
-import { Avtalestatus } from "mulighetsrommet-api-client";
+import { Avtalestatus, Toggles } from "mulighetsrommet-api-client";
 import { useState } from "react";
 import { useAvtale } from "../../api/avtaler/useAvtale";
 import { Bolk } from "../../components/detaljside/Bolk";
@@ -15,13 +15,19 @@ import styles from "../DetaljerInfo.module.scss";
 import SlettAvtaleGjennomforingModal from "../../components/modal/SlettAvtaleGjennomforingModal";
 import { useDeleteAvtale } from "../../api/avtaler/useDeleteAvtale";
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
-import { AvtaleKnapperad } from "./AvtaleKnapperad";
+import { InfoKnapperad } from "../InfoKnapperad";
+import { useFeatureToggle } from "../../api/features/feature-toggles";
+import { useGetAvtaleIdFromUrl } from "../../hooks/useGetAvtaleIdFromUrl";
 
 export function Avtaleinfo() {
-  const { data: avtale, isLoading, error, refetch } = useAvtale();
+  const { data: avtale, isLoading, error } = useAvtale();
   const [slettModal, setSlettModal] = useState(false);
-  const [avbrytModal, setAvbrytModal] = useState(false);
   const mutation = useDeleteAvtale();
+  const avtaleId = useGetAvtaleIdFromUrl();
+
+  const { data: redigerAvtaleEnabled } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_ADMIN_FLATE_REDIGER_AVTALE,
+  );
 
   if (!avtale && isLoading) {
     return <Laster tekst="Laster avtaleinformasjon..." />;
@@ -202,7 +208,13 @@ export function Avtaleinfo() {
           </VisHvisVerdi>
         </div>
 
-        {visKnapperad(avtale.avtalestatus) ? <AvtaleKnapperad /> : null}
+        {visKnapperad(avtale.avtalestatus) ? (
+          <InfoKnapperad
+            redigerIsEnabled={redigerAvtaleEnabled!}
+            lenke={`/avtaler/${avtaleId}/skjema`}
+            lenketekst="Rediger avtale"
+          />
+        ) : null}
       </div>
       <SlettAvtaleGjennomforingModal
         modalOpen={slettModal}
@@ -211,14 +223,6 @@ export function Avtaleinfo() {
         mutation={mutation}
         dataType="avtale"
       />
-      {/*<AvbrytAvtaleModal*/}
-      {/*  modalOpen={avbrytModal}*/}
-      {/*  onClose={() => {*/}
-      {/*    refetch();*/}
-      {/*    setAvbrytModal(false);*/}
-      {/*  }}*/}
-      {/*  avtale={avtale}*/}
-      {/*/>*/}
     </>
   );
 }

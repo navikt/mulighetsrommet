@@ -8,6 +8,7 @@ import {
   NavAnsatt,
   Norg2Type,
   Opphav,
+  Utkast,
 } from "mulighetsrommet-api-client";
 import { NavEnhet } from "mulighetsrommet-api-client/build/models/NavEnhet";
 import { Tiltakstype } from "mulighetsrommet-api-client/build/models/Tiltakstype";
@@ -42,6 +43,8 @@ import { FormGroup } from "../skjema/FormGroup";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { KnapperadOpprett } from "../skjema/KnapperadOpprett";
 import { KnapperadRediger } from "../skjema/KnapperadRediger";
+import { AvbrytAvtale } from "../skjemaknapper/AvbrytAvtale";
+import { SlettUtkast } from "../skjemaknapper/SlettUtkast";
 
 interface Props {
   onClose: () => void;
@@ -49,8 +52,10 @@ interface Props {
   tiltakstyper: Tiltakstype[];
   ansatt: NavAnsatt;
   avtale?: Avtale;
+  utkast: Utkast;
   enheter: NavEnhet[];
   redigeringsmodus: boolean;
+  utkastmodus: boolean;
 }
 
 export function AvtaleSkjemaContainer({
@@ -60,7 +65,9 @@ export function AvtaleSkjemaContainer({
   ansatt,
   enheter,
   avtale,
+  utkast,
   redigeringsmodus,
+  utkastmodus,
 }: Props) {
   const [navRegion, setNavRegion] = useState<string | undefined>(
     avtale?.navRegion?.enhetsnummer,
@@ -272,9 +279,12 @@ export function AvtaleSkjemaContainer({
                     label: "Sluttdato",
                   }}
                 />
-                {/*{redigeringsmodus ? (*/}
-                {/*  <AvbrytAvtaleKnapp onAvbryt={onClose} />*/}
-                {/*) : null}*/}
+                {redigeringsmodus && !utkastmodus ? (
+                  <AvbrytAvtale handleAvbrytAvtale={onClose} />
+                ) : null}
+                {utkastmodus ? (
+                  <SlettUtkast utkast={utkast!} handleDelete={onClose} />
+                ) : null}
               </FormGroup>
               <Separator />
               <FormGroup>
@@ -392,8 +402,8 @@ export function AvtaleSkjemaContainer({
               handleDelete={onClose}
               redigeringsmodus={redigeringsmodus}
               mutationUtkast={mutationUtkast}
-              type={"avtale"}
-              avtale={avtale!}
+              type="avtale"
+              utkastmodus={utkastmodus}
             />
           ) : (
             <KnapperadOpprett

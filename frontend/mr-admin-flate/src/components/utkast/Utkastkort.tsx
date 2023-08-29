@@ -73,9 +73,10 @@ export function UtkastKort({ utkast }: UtkastKortProps) {
           Slett utkast
         </Button>
         <Lenkeknapp
-          to={ utkast.type === Utkast.type.AVTALE
-            ? `/avtaler/skjema?utkastId=${utkast.id}`
-            : `/tiltaksgjennomforinger/skjema?utkastId=${utkast.id}`
+          to={
+            utkast.type === Utkast.type.AVTALE
+              ? `/avtaler/skjema?utkastId=${utkast.id}`
+              : `/tiltaksgjennomforinger/skjema?utkastId=${utkast.id}`
           }
           lenketekst="Rediger utkast"
           dataTestId="rediger-utkast-knapp"

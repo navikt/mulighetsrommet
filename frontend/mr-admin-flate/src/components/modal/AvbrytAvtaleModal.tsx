@@ -8,19 +8,17 @@ import styles from "./Modal.module.scss";
 
 interface Props {
   modalOpen: boolean;
-  onClose: () => void;
-  handleForm?: () => void;
+  handleClose: () => void;
   avtale?: Avtale;
-  error: ApiError | null;
 }
 
-const AvbrytAvtaleModal = ({ modalOpen, onClose, avtale, error }: Props) => {
+const AvbrytAvtaleModal = ({ modalOpen, handleClose, avtale }: Props) => {
   const mutation = useAvbrytAvtale();
   const avtaleFraArena = avtale?.opphav === Opphav.ARENA;
 
   useEffect(() => {
     if (mutation.isSuccess) {
-      onClose();
+      handleClose();
       mutation.reset();
       return;
     }
@@ -31,6 +29,7 @@ const AvbrytAvtaleModal = ({ modalOpen, onClose, avtale, error }: Props) => {
       mutation.mutate(avtale?.id);
     }
   };
+
   function headerInnhold() {
     return (
       <div className={styles.heading}>
@@ -39,7 +38,7 @@ const AvbrytAvtaleModal = ({ modalOpen, onClose, avtale, error }: Props) => {
         />
         <Heading size="medium">
           {avtaleFraArena
-            ? "Avtalen kan ikke avbrytes."
+            ? "Avtalen kan ikke avbrytes"
             : mutation.isError
             ? `Kan ikke avbryte «${avtale?.navn}»`
             : `Ønsker du å avbryte «${avtale?.navn}»?`}
@@ -51,13 +50,12 @@ const AvbrytAvtaleModal = ({ modalOpen, onClose, avtale, error }: Props) => {
   function modalInnhold() {
     return (
       <BodyShort>
-        {error
-          ? avtaleFraArena
-            ? `Avtalen ${avtale?.navn} kommer fra Arena og kan ikke avbrytes her.`
-            : mutation?.isError
-            ? (mutation.error as ApiError).body
-            : "Du kan ikke angre denne handlingen."
-          : null}
+        {avtaleFraArena
+          ? `Avtalen "${avtale?.navn}" kommer fra Arena og kan ikke
+        avbrytes her`
+          : mutation?.isError
+          ? (mutation.error as ApiError).body
+          : "Du kan ikke angre denne handlingen"}
       </BodyShort>
     );
   }
@@ -65,10 +63,10 @@ const AvbrytAvtaleModal = ({ modalOpen, onClose, avtale, error }: Props) => {
   function footerInnhold() {
     return (
       <div className={styles.knapperad}>
-        <Button variant="secondary" onClick={onClose}>
-          Avbryt handling
+        <Button variant="secondary" onClick={handleClose}>
+          Lukk
         </Button>
-        {!avtaleFraArena && !mutation?.isError && error ? (
+        {!avtaleFraArena && !mutation?.isError ? (
           <Button variant="danger" onClick={handleAvbrytAvtale}>
             Avbryt avtale
           </Button>
@@ -77,7 +75,7 @@ const AvbrytAvtaleModal = ({ modalOpen, onClose, avtale, error }: Props) => {
     );
   }
   return (
-    <Modal open={modalOpen} onClose={onClose} aria-label="modal">
+    <Modal open={modalOpen} onClose={handleClose} aria-label="modal">
       <Modal.Header closeButton={false}>{headerInnhold()}</Modal.Header>
       <Modal.Body>{modalInnhold()}</Modal.Body>
       <Modal.Footer>{footerInnhold()}</Modal.Footer>

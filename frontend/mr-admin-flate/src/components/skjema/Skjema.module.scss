@@ -29,14 +29,20 @@
   flex-direction: column;
 }
 
-.button_row {
+.knapperad_skjema {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
 }
 
-.button {
-  margin-left: 16px;
+.knapperad_skjema_utkast {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+}
+
+.lagre_knapp {
+  grid-column: 2;
 }
 
 .kontaktperson {

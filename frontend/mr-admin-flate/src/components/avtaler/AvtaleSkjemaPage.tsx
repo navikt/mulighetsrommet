@@ -28,8 +28,8 @@ const AvtaleSkjemaPage = () => {
   const { data: ansatt, isLoading: isLoadingAnsatt } = useHentAnsatt();
   const { data: enheter, isLoading: isLoadingEnheter } = useAlleEnheter();
 
-  const utkastModus = utkast && inneholderUrl(utkast?.id);
-  const redigeringsModus = utkastModus || (avtale && inneholderUrl(avtale?.id));
+  const utkastmodus = utkast && inneholderUrl(utkast?.id);
+  const redigeringsmodus = utkastmodus || (avtale && inneholderUrl(avtale?.id));
 
   const navigerTilbake = () => {
     navigate(-1);
@@ -59,11 +59,11 @@ const AvtaleSkjemaPage = () => {
     <main>
       <Header
         dataTestId={
-          redigeringsModus ? "rediger-avtale-header" : "opprett-avtale-header"
+          redigeringsmodus ? "rediger-avtale-header" : "opprett-avtale-header"
         }
       >
-        {redigeringsModus
-          ? utkastModus
+        {redigeringsmodus
+          ? utkastmodus
             ? "Rediger utkast"
             : redigerAvtaleHeader()
           : "Opprett ny avtale"}
@@ -84,8 +84,10 @@ const AvtaleSkjemaPage = () => {
                 tiltakstyper={tiltakstyper.data}
                 ansatt={ansatt}
                 enheter={enheter}
+                utkast={utkast!}
                 avtale={(utkast?.utkastData as Avtale) || avtale}
-                redigeringsmodus={redigeringsModus!}
+                redigeringsmodus={redigeringsmodus!}
+                utkastmodus={utkastmodus!}
               />
             )}
           </div>

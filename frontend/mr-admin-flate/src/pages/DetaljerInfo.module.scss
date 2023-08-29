@@ -24,7 +24,7 @@
 
 .knapperad {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   grid-area: knapperad;
   border-top: 1px solid var(--a-border-divider);
   margin: 1rem;

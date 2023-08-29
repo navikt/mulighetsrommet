@@ -1,28 +1,34 @@
 import { Button } from "@navikt/ds-react";
+import { useNavigate } from "react-router-dom";
 
 interface Props {
   setSlettemodal: () => void;
   dataTestId?: string;
   size?: "small" | "medium" | "xsmall";
-  disabled: boolean;
+  dirtyForm: boolean;
 }
 
-export function SlettUtkastKnapp({
+export function AvbrytKnapp({
   setSlettemodal,
   dataTestId,
   size,
-  disabled,
+  dirtyForm,
 }: Props) {
+  const navigate = useNavigate();
+
+  const navigerTilbake = () => {
+    navigate(-1);
+  };
+
   return (
     <Button
-      variant="danger"
+      variant="tertiary"
       type="button"
-      onClick={setSlettemodal}
+      onClick={dirtyForm ? setSlettemodal : navigerTilbake}
       size={size}
       data-testid={dataTestId}
-      disabled={disabled}
     >
-      Slett utkast
+      Avbryt
     </Button>
   );
 }

@@ -14,8 +14,10 @@ interface Props {
   mutation: UseMutationResult<string, unknown, string>;
   handleDelete: () => void;
   headerText: string;
+  headerSubText?: string;
   headerTextError: string;
   dataTestId?: string;
+  avbryt?: boolean;
 }
 
 const SletteModal = ({
@@ -24,13 +26,11 @@ const SletteModal = ({
   mutation,
   handleDelete,
   headerText,
+  headerSubText,
   headerTextError,
   dataTestId,
+  avbryt = false,
 }: Props) => {
-  const clickCancel = () => {
-    onClose();
-  };
-
   function headerInnhold() {
     return (
       <div className={styles.heading}>
@@ -39,7 +39,7 @@ const SletteModal = ({
             <ExclamationmarkTriangleFillIcon
               className={classNames(styles.icon_error, styles.icon)}
             />
-            <Heading size={"medium"}>{headerTextError}</Heading>
+            <Heading size="medium">{headerTextError}</Heading>
           </>
         ) : (
           <>
@@ -58,7 +58,7 @@ const SletteModal = ({
       <BodyShort>
         {mutation?.isError
           ? (mutation.error as ApiError).body
-          : "Du kan ikke angre denne handlingen."}
+          : headerSubText || "Du kan ikke angre denne handlingen."}
       </BodyShort>
     );
   }
@@ -66,8 +66,8 @@ const SletteModal = ({
   function footerInnhold() {
     return (
       <div className={styles.knapperad}>
-        <Button variant="secondary" onClick={clickCancel}>
-          Avbryt
+        <Button variant="secondary" onClick={onClose}>
+          Lukk
         </Button>
         {mutation?.isError ? null : (
           <Button
@@ -75,7 +75,7 @@ const SletteModal = ({
             onClick={handleDelete}
             data-testid={dataTestId}
           >
-            Slett
+            {avbryt ? "Ja, avbryt" : "Slett"}
           </Button>
         )}
       </div>
@@ -83,7 +83,7 @@ const SletteModal = ({
   }
 
   return (
-    <Modal open={modalOpen} onClose={clickCancel} aria-label="modal">
+    <Modal open={modalOpen} onClose={onClose} aria-label="modal">
       <Modal.Header closeButton={false}>{headerInnhold()}</Modal.Header>
       <Modal.Body>{modalInnhold()}</Modal.Body>
       <Modal.Footer>{footerInnhold()}</Modal.Footer>

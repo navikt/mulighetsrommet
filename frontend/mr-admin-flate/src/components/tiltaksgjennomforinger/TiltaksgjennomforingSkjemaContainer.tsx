@@ -72,7 +72,6 @@ export const TiltaksgjennomforingSkjemaContainer = ({
   redigeringsmodus,
 }: Props) => {
   const utkastIdRef = useRef(tiltaksgjennomforing?.id || uuidv4());
-  const redigeringsModus = !!tiltaksgjennomforing;
   const { data: virksomhet } = useVirksomhet(
     avtale?.leverandor.organisasjonsnummer || "",
   );
@@ -292,7 +291,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
 
   return (
     <FormProvider {...form}>
-      {!redigeringsModus ? (
+      {!redigeringsmodus ? (
         <Alert variant="warning" style={{ margin: "1rem 0" }}>
           Opprettelse av gjennomføring her vil ikke opprette gjennomføringen i
           Arena.
@@ -392,7 +391,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
                   label="Antall plasser"
                   {...register("antallPlasser", { valueAsNumber: true })}
                 />
-                {!arenaOpphav(tiltaksgjennomforing) && redigeringsModus ? (
+                {!arenaOpphav(tiltaksgjennomforing) && redigeringsmodus ? (
                   <AvbrytTiltaksgjennomforing onAvbryt={onClose} />
                 ) : null}
               </FormGroup>

@@ -6,6 +6,7 @@ import { Alert, Heading, Link } from "@navikt/ds-react";
 import {
   TiltaksgjennomforingOppstartstype,
   TiltaksgjennomforingStatus,
+  Toggles,
 } from "mulighetsrommet-api-client";
 import { NOM_ANSATT_SIDE } from "mulighetsrommet-frontend-common/constants";
 import { useState } from "react";
@@ -13,10 +14,7 @@ import invariant from "tiny-invariant";
 import { useAvtale } from "../../api/avtaler/useAvtale";
 import { useTiltaksgjennomforingById } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforingById";
 import { Bolk } from "../../components/detaljside/Bolk";
-import {
-  Metadata,
-  Separator,
-} from "../../components/detaljside/Metadata";
+import { Metadata, Separator } from "../../components/detaljside/Metadata";
 import { VisHvisVerdi } from "../../components/detaljside/VisHvisVerdi";
 import { Laster } from "../../components/laster/Laster";
 import {
@@ -25,10 +23,11 @@ import {
   tilgjengelighetsstatusTilTekst,
 } from "../../utils/Utils";
 import styles from "../DetaljerInfo.module.scss";
-import { TiltaksgjennomforingKnapperad } from "./TiltaksgjennomforingKnapperad";
+import { InfoKnapperad } from "../InfoKnapperad";
 import { Kontaktperson } from "./Kontaktperson";
 import SlettAvtaleGjennomforingModal from "../../components/modal/SlettAvtaleGjennomforingModal";
 import { useDeleteTiltaksgjennomforing } from "../../api/tiltaksgjennomforing/useDeleteTiltaksgjennomforing";
+import { useFeatureToggle } from "../../api/features/feature-toggles";
 
 export function TiltaksgjennomforingInfo() {
   const {
@@ -43,6 +42,9 @@ export function TiltaksgjennomforingInfo() {
 
   const [slettModal, setSlettModal] = useState(false);
   const mutation = useDeleteTiltaksgjennomforing();
+  const { data: redigerGjennomforingIsEnabled } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_ADMIN_FLATE_REDIGER_TILTAKSGJENNOMFORING,
+  );
 
   const navnPaaNavEnheterForKontaktperson = (
     enheterForKontaktperson: string[],
@@ -363,8 +365,10 @@ export function TiltaksgjennomforingInfo() {
         </div>
 
         {visKnapperad(tiltaksgjennomforing.status) ? (
-          <TiltaksgjennomforingKnapperad
-            handleSlett={() => setSlettModal(true)}
+          <InfoKnapperad
+            redigerIsEnabled={redigerGjennomforingIsEnabled!}
+            lenke="skjema"
+            lenketekst={"Rediger tiltaksgjennomføring"}
           />
         ) : null}
         <SlettAvtaleGjennomforingModal

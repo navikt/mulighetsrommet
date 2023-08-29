@@ -3,10 +3,9 @@ import debounce from "debounce";
 import { Utkast } from "mulighetsrommet-api-client";
 import { memo, useCallback, useEffect } from "react";
 import { useFormContext, useWatch } from "react-hook-form";
-import { toast } from "react-toastify";
+import { Slide, toast, ToastContainer } from "react-toastify";
 import useDeepCompareEffect from "use-deep-compare-effect";
 import { inferredTiltaksgjennomforingSchema } from "../tiltaksgjennomforinger/TiltaksgjennomforingSchema";
-import { AutoSaveToastContainer } from "./AutoSaveToastContainer";
 
 type Props = {
   defaultValues: any;
@@ -56,7 +55,18 @@ export const AutoSaveUtkast = memo(
       }
     }, [watchedData]);
 
-    return <AutoSaveToastContainer />;
+    return (
+      <ToastContainer
+        position={"top-right"}
+        newestOnTop={true}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        transition={Slide}
+      />
+    );
   },
 );
 

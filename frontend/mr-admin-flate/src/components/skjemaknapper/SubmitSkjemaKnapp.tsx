@@ -7,16 +7,18 @@ interface Props {
   mutation: any;
   dataTestId?: string;
   redigeringsmodus: boolean;
+  utkastmodus?: boolean;
 }
 export function SubmitSkjemaKnapp({
   type,
   mutation,
   dataTestId,
   redigeringsmodus,
+  utkastmodus,
 }: Props) {
   return (
     <Button
-      className={styles.button}
+      className={styles.lagre_knapp}
       type="submit"
       onClick={() => {
         faro?.api?.pushEvent(
@@ -29,7 +31,9 @@ export function SubmitSkjemaKnapp({
       disabled={mutation.isLoading}
     >
       {redigeringsmodus
-        ? "Lagre endringer"
+        ? utkastmodus
+          ? "Opprett avtale"
+          : "Lagre endringer"
         : mutation.isLoading
         ? "Lagrer..."
         : `Opprett ${type}`}
