@@ -1,34 +1,32 @@
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import styles from "./Tilbakelenke.module.scss";
 import { useGetAvtaleIdFromUrl } from "../../hooks/useGetAvtaleIdFromUrl";
 import { useGetAdminTiltaksgjennomforingsIdFraUrl } from "../../hooks/useGetAdminTiltaksgjennomforingsIdFraUrl";
 import { ChevronLeftIcon } from "@navikt/aksel-icons";
 
 export function Tilbakelenke() {
-  const navigate = useNavigate();
   const { pathname } = useLocation();
   const avtaleId = useGetAvtaleIdFromUrl();
   const tiltaksgjennomforingId = useGetAdminTiltaksgjennomforingsIdFraUrl();
 
-  const navigateTilbake = () => {
+  const parentPath = () => {
     if (pathname.includes("avtaler")) {
       if (tiltaksgjennomforingId) {
-        navigate(`/avtaler/${avtaleId}`);
+        return `/avtaler/${avtaleId}`;
       } else {
-        navigate("/avtaler");
+        return "/avtaler";
       }
     } else if (tiltaksgjennomforingId) {
-      navigate("/tiltaksgjennomforinger");
+      return "/tiltaksgjennomforinger";
     } else {
-      navigate("/tiltakstyper");
+      return "/tiltakstyper";
     }
   }
 
   return (
     <Link
       className={styles.tilbakelenke}
-      to="#"
-      onClick={navigateTilbake}
+      to={parentPath()}
       data-testid="tilbakelenke"
     >
       <ChevronLeftIcon aria-label="Tilbakeknapp" />
