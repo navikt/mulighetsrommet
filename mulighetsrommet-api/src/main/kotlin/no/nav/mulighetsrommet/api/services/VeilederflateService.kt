@@ -131,6 +131,7 @@ class VeilederflateService(
                 tiltaksgjennomforingNavn,
                 beskrivelse,
                 "tiltaksnummer": tiltaksnummer.current,
+                lokasjon,
                 oppstart,
                 oppstartsdato,
                 sluttdato,

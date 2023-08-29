@@ -63,7 +63,7 @@ class VeilederflateServiceTest : FunSpec({
                 "enheter": [],
                 "oppstart": null,
                 "oppstartsdato": null,
-                "lokasjon": "Oslo",
+                "lokasjon": null,
                 "tiltaksnummer": "2023#176408",
                 "kontaktinfoArrangor": null,
                 "tiltakstype": {
@@ -76,7 +76,7 @@ class VeilederflateServiceTest : FunSpec({
                 "tiltaksgjennomforingNavn": "Oppf\u00f8lging Malvik",
                 "tiltaksnummer": "2023#199282",
                 "kontaktinfoArrangor": null,
-                "lokasjon": null,
+                "lokasjon": "Oslo",
                 "tiltakstype": {
                     "tiltakstypeNavn": "Oppf\u00f8lging"
                 },
@@ -181,5 +181,38 @@ class VeilederflateServiceTest : FunSpec({
         )
         gjennomforinger.size shouldBe 2
         gjennomforinger.find { it._id == "f21d1e35-d63b-4de7-a0a5-589e57111527" }!!.enheter!!.size shouldBe 1
+    }
+
+    test("Filtrer på lokasjon") {
+        val fnr = "01010199999"
+        val veilederFlateService = VeilederflateService(
+            sanityClient,
+            brukerService,
+            tiltaksgjennomforingService,
+            virksomhetService,
+        )
+        every { tiltaksgjennomforingService.getBySanityIds(any()) } returns mapOf(
+            "f21d1e35-d63b-4de7-a0a5-589e57111527" to dbGjennomforing.copy(lokasjonArrangor = "Oslo"),
+        )
+        coEvery { virksomhetService.getOrSyncVirksomhet(any()) } returns null
+        coEvery { brukerService.hentBrukerdata(any(), any()) } returns BrukerService.Brukerdata(
+            fnr,
+            geografiskEnhet = Enhet(navn = "A", enhetsnummer = "0430"),
+            innsatsgruppe = null,
+            oppfolgingsenhet = null,
+            servicegruppe = null,
+            fornavn = null,
+            manuellStatus = null,
+        )
+        coEvery { sanityClient.query(any()) } returns sanityResult
+        coEvery { sanityClient.query("*[_type == \"enhet\" && type == \"Lokal\" && nummer.current == \"0430\"][0]{fylke->}") } returns sanityFylkeResult
+
+        val gjennomforinger = veilederFlateService.hentTiltaksgjennomforingerForBrukerBasertPaEnhetOgFylke(
+            fnr,
+            "accessToken",
+            TiltaksgjennomforingFilter(lokasjoner = listOf("Oslo")),
+        )
+        gjennomforinger.size shouldBe 2
+        gjennomforinger.find { it._id == "8d8a73bc-b661-4efd-90fc-2c59b258200e" }!!.lokasjon!! shouldBe "Oslo"
     }
 })
