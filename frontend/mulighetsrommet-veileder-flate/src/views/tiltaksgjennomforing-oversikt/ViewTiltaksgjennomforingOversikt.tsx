@@ -30,8 +30,6 @@ const ViewTiltaksgjennomforingOversikt = () => {
           <div className={styles.knapperad}>
             <>
               <OversiktenJoyride
-                setHistorikkModalOpen={setIsHistorikkModalOpen}
-                isHistorikkModalOpen={isHistorikkModalOpen}
                 isTableFetched={isFetched}
               />
               <OversiktenLastStepJoyride />
