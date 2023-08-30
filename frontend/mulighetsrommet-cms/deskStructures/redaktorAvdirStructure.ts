@@ -49,25 +49,9 @@ const redaktorAvdirStructure = (S, context) => [
             ),
         ]),
     ),
-  ...S.documentTypeListItems().filter(
-    (listItem) =>
-      ![
-        "tiltakstype",
-        "tiltaksgjennomforing",
-        "enhet",
-        "navKontaktperson",
-        "arrangor",
-        "regelverkfil",
-        "regelverklenke",
-        // fjernet frem til vi har innsiktsfanen på plass
-        // "forskningsrapport",
-        "innsatsgruppe",
-        "redaktor",
-      ].includes(listItem.getId()),
-  ),
   S.divider(),
   ...S.documentTypeListItems().filter((listItem) =>
-    ["navKontaktperson", "arrangor"].includes(listItem.getId()),
+    ["navKontaktperson"].includes(listItem.getId()),
   ),
   S.divider(),
   ...S.documentTypeListItems().filter((listItem) =>
