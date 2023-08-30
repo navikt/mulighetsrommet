@@ -8,6 +8,7 @@ import { regelverklenke } from "./regelverklenke";
 import { innsatsgruppe } from "./innsatsgruppe";
 import { nokkelinfo } from "./nokkelinfo";
 import { faneinnhold } from "./faneinnhold";
+import { forskningsrapport } from "./forskningsrapport";
 import { lenke } from "./lenke";
 import { redaktor } from "./redaktor";
 
