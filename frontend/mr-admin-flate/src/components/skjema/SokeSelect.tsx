@@ -120,7 +120,7 @@ const SokeSelect = React.forwardRef((props: SelectProps, _) => {
                 value={options.find((c) => c.value === value)}
                 onChange={(e) => {
                   onChange(e?.value);
-                  providedOnChange?.({ target: { value: e?.value, name: e?.label } });
+                  providedOnChange?.(e?.value);
                   if (!e) {
                     onClearValue?.();
                   }
