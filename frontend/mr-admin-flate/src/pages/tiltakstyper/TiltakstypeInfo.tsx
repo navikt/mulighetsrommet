@@ -2,8 +2,11 @@ import classNames from "classnames";
 import { useTiltakstypeById } from "../../api/tiltakstyper/useTiltakstypeById";
 import { Metadata, Separator } from "../../components/detaljside/Metadata";
 import { TiltakstypestatusTag } from "../../components/statuselementer/TiltakstypestatusTag";
-import { formaterDato } from "../../utils/Utils";
+import { formaterDato, inneholderUrl } from "../../utils/Utils";
 import styles from "../DetaljerInfo.module.scss";
+import { Bolk } from "../../components/detaljside/Bolk";
+import { Link } from "react-router-dom";
+import { ExternalLinkIcon } from "@navikt/aksel-icons";
 
 export function TiltakstypeInfo() {
   const { data } = useTiltakstypeById();
@@ -11,6 +14,11 @@ export function TiltakstypeInfo() {
   if (!data) {
     return null;
   }
+
+  const sanityTiltakstypeUrl =
+    "https://mulighetsrommet-sanity-studio.intern.nav.no/" +
+    (inneholderUrl("intern.nav.no") ? "prod" : "test") +
+    "/desk/tiltakstype;";
 
   const tiltakstype = data;
   return (
@@ -35,6 +43,27 @@ export function TiltakstypeInfo() {
           verdi={formaterDato(tiltakstype.tilDato)}
         />
       </div>
+      {tiltakstype.sanityId &&
+        <>
+          <Separator />
+          <Bolk aria-label="Sanity-dokument">
+            <Metadata
+              header="Sanity dokument"
+              verdi={
+                <>
+                  <Link
+                    target="_blank"
+                    to={sanityTiltakstypeUrl + tiltakstype.sanityId}
+                  >
+                    Åpne tiltakstypen i Sanity{" "}
+                    <ExternalLinkIcon title="Åpner tiltakstypen i Sanity" />
+                  </Link>
+                </>
+              }
+            />
+          </Bolk>
+        </>
+      }
     </div>
   );
 }

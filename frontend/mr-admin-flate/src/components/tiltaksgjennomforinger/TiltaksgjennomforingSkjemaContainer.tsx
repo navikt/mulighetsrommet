@@ -285,9 +285,11 @@ export const TiltaksgjennomforingSkjemaContainer = ({
     return <Laster />;
   }
 
-  if (opprettGjennomforingMutation.isSuccess) {
-    onSuccess(opprettGjennomforingMutation.data.id);
-  }
+  useEffect(() => {
+    if (opprettGjennomforingMutation.isSuccess) {
+      onSuccess(opprettGjennomforingMutation.data.id);
+    }
+  }, [opprettGjennomforingMutation]);
 
   return (
     <FormProvider {...form}>
