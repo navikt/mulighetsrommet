@@ -1,5 +1,8 @@
-import { useQueryClient } from "@tanstack/react-query";
-import { Avtale, Tiltakstypestatus } from "mulighetsrommet-api-client";
+import {
+  Avtale,
+  Avtalestatus,
+  Tiltakstypestatus,
+} from "mulighetsrommet-api-client";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
 import { useAvtale } from "../../api/avtaler/useAvtale";
@@ -13,6 +16,7 @@ import { AvtaleSkjemaContainer } from "./AvtaleSkjemaContainer";
 import { useUtkast } from "../../api/utkast/useUtkast";
 import styles from "../skjema/Skjema.module.scss";
 import { AvtalestatusTag } from "../statuselementer/AvtalestatusTag";
+import { useQueryClient } from "@tanstack/react-query";
 
 const AvtaleSkjemaPage = () => {
   const navigate = useNavigate();
@@ -48,7 +52,7 @@ const AvtaleSkjemaPage = () => {
     return (
       <div className={styles.avtaleheader}>
         Rediger avtale{" "}
-        {avtale!.avtalestatus === "Aktiv" ? (
+        {avtale!.avtalestatus === Avtalestatus.AKTIV ? (
           <AvtalestatusTag avtale={avtale!} />
         ) : null}
       </div>

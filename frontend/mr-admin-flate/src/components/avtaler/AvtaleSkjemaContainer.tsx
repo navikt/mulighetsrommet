@@ -410,7 +410,7 @@ export function AvtaleSkjemaContainer({
           ) : (
             <KnapperadOpprett
               opprettMutation={opprettAvtaleMutation}
-              handleDelete={onClose}
+              onClose={onClose}
               redigeringsmodus={redigeringsmodus}
               mutationUtkast={mutationUtkast}
               type="avtale"

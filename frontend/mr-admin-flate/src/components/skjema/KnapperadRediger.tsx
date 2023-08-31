@@ -49,7 +49,11 @@ export function KnapperadRediger({
 
   return (
     <>
-      <div className={styles.knapperad_skjema_utkast}>
+      <div
+        className={
+          utkastmodus ? styles.knapperad_skjema_utkast : styles.knapperad_skjema
+        }
+      >
         {!utkastmodus && (
           <AvbrytKnapp
             setSlettemodal={() => setUtkastIdForSletting(utkastId)}
@@ -64,16 +68,18 @@ export function KnapperadRediger({
         />
       </div>
 
-      <SletteModal
-        modalOpen={!!utkastIdForSletting}
-        onClose={() => setUtkastIdForSletting(null)}
-        headerText="Ønsker du å avbryte?"
-        headerSubText="De siste endringene blir ikke lagret."
-        headerTextError="Kan ikke slette utkastet."
-        handleDelete={onDelete}
-        mutation={mutationDeleteUtkast}
-        avbryt
-      />
+      {utkastIdForSletting ? (
+        <SletteModal
+          modalOpen={!!utkastIdForSletting}
+          onClose={() => setUtkastIdForSletting(null)}
+          headerText="Ønsker du å avbryte?"
+          headerSubText="De siste endringene blir ikke lagret."
+          headerTextError="Kan ikke slette utkastet."
+          handleDelete={onDelete}
+          mutation={mutationDeleteUtkast}
+          avbryt
+        />
+      ) : null}
     </>
   );
 }

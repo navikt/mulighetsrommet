@@ -10,9 +10,15 @@ interface Props {
   modalOpen: boolean;
   handleClose: () => void;
   avtale?: Avtale;
+  erAktivAvtale: boolean;
 }
 
-const AvbrytAvtaleModal = ({ modalOpen, handleClose, avtale }: Props) => {
+const AvbrytAvtaleModal = ({
+  modalOpen,
+  handleClose,
+  avtale,
+  erAktivAvtale,
+}: Props) => {
   const mutation = useAvbrytAvtale();
   const avtaleFraArena = avtale?.opphav === Opphav.ARENA;
 
@@ -38,10 +44,14 @@ const AvbrytAvtaleModal = ({ modalOpen, handleClose, avtale }: Props) => {
         />
         <Heading size="medium">
           {avtaleFraArena
-            ? "Avtalen kan ikke avbrytes"
+            ? `Avtalen kan ikke ${erAktivAvtale ? "avbrytes" : "slettes"}`
             : mutation.isError
-            ? `Kan ikke avbryte «${avtale?.navn}»`
-            : `Ønsker du å avbryte «${avtale?.navn}»?`}
+            ? `Kan ikke ${
+                erAktivAvtale ? "avbryte" : "slette"
+              } «${avtale?.navn}»`
+            : `Ønsker du å ${
+                erAktivAvtale ? "avbryte" : "slette"
+              } «${avtale?.navn}»?`}
         </Heading>
       </div>
     );
@@ -52,7 +62,7 @@ const AvbrytAvtaleModal = ({ modalOpen, handleClose, avtale }: Props) => {
       <BodyShort>
         {avtaleFraArena
           ? `Avtalen "${avtale?.navn}" kommer fra Arena og kan ikke
-        avbrytes her`
+        ${erAktivAvtale ? "avbrytes" : "slettes"} her`
           : mutation?.isError
           ? (mutation.error as ApiError).body
           : "Du kan ikke angre denne handlingen"}
@@ -68,7 +78,7 @@ const AvbrytAvtaleModal = ({ modalOpen, handleClose, avtale }: Props) => {
         </Button>
         {!avtaleFraArena && !mutation?.isError ? (
           <Button variant="danger" onClick={handleAvbrytAvtale}>
-            Avbryt avtale
+            {erAktivAvtale ? "Avbryt avtale" : "Slett avtale"}
           </Button>
         ) : null}
       </div>

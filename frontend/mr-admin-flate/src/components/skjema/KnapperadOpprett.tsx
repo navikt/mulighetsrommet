@@ -10,7 +10,7 @@ import { useUtkast } from "../../api/utkast/useUtkast";
 
 interface PropsOpprett {
   opprettMutation: UseMutationResult<any, unknown, any>;
-  handleDelete: () => void;
+  onClose: () => void;
   redigeringsmodus: boolean;
   mutationUtkast: UseMutationResult<Utkast, unknown, Utkast>;
   type: "avtale" | "gjennomføring";
@@ -18,7 +18,7 @@ interface PropsOpprett {
 
 export function KnapperadOpprett({
   opprettMutation,
-  handleDelete,
+  onClose,
   redigeringsmodus,
   mutationUtkast,
   type,
@@ -35,7 +35,7 @@ export function KnapperadOpprett({
     mutationDeleteUtkast.mutate(utkastIdForSletting!, {
       onSuccess: async () => {
         setUtkastIdForSletting(null);
-        handleDelete();
+        onClose();
         await refetch();
       },
     });
@@ -63,16 +63,18 @@ export function KnapperadOpprett({
         />
       </div>
 
-      <SletteModal
-        modalOpen={!!utkastIdForSletting}
-        onClose={() => setUtkastIdForSletting(null)}
-        mutation={mutationDeleteUtkast}
-        handleDelete={slettUtkast}
-        headerText="Ønsker du å avbryte?"
-        headerSubText="Utkastet blir ikke lagret."
-        headerTextError="Kan ikke slette utkastet."
-        avbryt
-      />
+      {utkastIdForSletting ? (
+        <SletteModal
+          modalOpen={!!utkastIdForSletting}
+          onClose={() => setUtkastIdForSletting(null)}
+          mutation={mutationDeleteUtkast}
+          handleDelete={slettUtkast}
+          headerText="Ønsker du å avbryte?"
+          headerSubText="Utkastet blir ikke lagret."
+          headerTextError="Kan ikke slette utkastet."
+          avbryt
+        />
+      ) : null}
     </>
   );
 }

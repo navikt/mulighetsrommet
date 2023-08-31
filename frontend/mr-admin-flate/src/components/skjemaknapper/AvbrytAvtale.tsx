@@ -16,6 +16,8 @@ export function AvbrytAvtale({ handleAvbrytAvtale }: Props) {
   const [error, setError] = useState("");
   const [avbrytModal, setAvbrytModal] = useState(false);
 
+  const erAktivAvtale = avtale?.avtalestatus === Avtalestatus.AKTIV;
+
   const avbrytAvtale = () => {
     if (!avtale?.id) throw new Error("Fant ingen avtaleId");
     else setAvbrytModal(true);
@@ -40,13 +42,15 @@ export function AvbrytAvtale({ handleAvbrytAvtale }: Props) {
   return (
     <>
       <div className={styles.warning_container}>
-        <ReadMore header="Hva betyr det å avbryte avtalen?">
-          <BodyLong>
-            Hvis avtalens startdato er passert kan du avbryte avtalen. Den vil
-            da bli satt som avbrutt i systemet. Du kan ikke avbryte en avtale
-            som har tiltaksgjennomføringer tilknyttet seg.
-          </BodyLong>
-        </ReadMore>
+        {erAktivAvtale ? (
+          <ReadMore header="Hva betyr det å avbryte avtalen?">
+            <BodyLong>
+              Hvis avtalens startdato er passert kan du avbryte avtalen. Den vil
+              da bli satt som avbrutt i systemet. Du kan ikke avbryte en avtale
+              som har tiltaksgjennomføringer tilknyttet seg.
+            </BodyLong>
+          </ReadMore>
+        ) : null}
 
         <Button
           type="button"
@@ -54,7 +58,7 @@ export function AvbrytAvtale({ handleAvbrytAvtale }: Props) {
           variant="danger"
           onClick={avbrytAvtale}
         >
-          Avbryt avtalen
+          {erAktivAvtale ? "Avbryt avtalen" : "Slett avtalen"}
         </Button>
 
         {error ? (
@@ -71,6 +75,7 @@ export function AvbrytAvtale({ handleAvbrytAvtale }: Props) {
         modalOpen={avbrytModal}
         handleClose={() => setAvbrytModal(false)}
         avtale={avtale}
+        erAktivAvtale
       />
     </>
   );

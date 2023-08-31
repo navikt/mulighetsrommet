@@ -301,7 +301,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
       ) : null}
       <form onSubmit={handleSubmit(postData)}>
         <div className={skjemastyles.container}>
-          <Separator />
+          {!redigeringsmodus ? <Separator /> : null}
           <div className={skjemastyles.input_container}>
             <div className={skjemastyles.column}>
               <FormGroup>
@@ -591,7 +591,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
           <Separator />
           <KnapperadOpprett
             opprettMutation={opprettGjennomforingMutation}
-            handleDelete={onClose}
+            onClose={onClose}
             redigeringsmodus={redigeringsmodus}
             mutationUtkast={mutationUtkast}
             type="gjennomføring"

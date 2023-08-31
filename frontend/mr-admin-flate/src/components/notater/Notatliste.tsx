@@ -49,13 +49,13 @@ export default function Notatliste({
           modalOpen={!!notatIdForSletting}
           onClose={() => setNotatIdForSletting(null)}
           mutation={mutation}
-          headerText="Ønsker du å slette notatet?"
-          headerTextError="Kan ikke slette notatet."
           handleDelete={() =>
             mutation.mutate(notatIdForSletting, {
               onSuccess: () => setNotatIdForSletting(null),
             })
           }
+          headerText="Ønsker du å slette notatet?"
+          headerTextError="Kan ikke slette notatet."
           dataTestId="bekrefte-slette-notat_btn"
         />
       ) : null}
