@@ -67,10 +67,7 @@ class VeilederflateServiceTest : FunSpec({
                 "tiltakstype": {
                     "tiltakstypeNavn": "Oppf\u00f8lging"
                 },
-                "fylke": {
-                    "_ref": "enhet.fylke.0400",
-                    "_type": "reference"
-                },
+                "fylke": "0400",
                 "oppstart": null,
                 "oppstartsdato": null,
                 "enheter": []
@@ -82,23 +79,14 @@ class VeilederflateServiceTest : FunSpec({
                 "lokasjon": null,
                 "oppstartsdato": "2020-11-02",
                 "tiltaksnummer": "2022#116075",
-                "fylke": {
-                    "_ref": "enhet.fylke.0400",
-                    "_type": "reference"
-                },
+                "fylke": "0400",
                 "kontaktinfoArrangor": {
                     "selskapsnavn": "Signo Arbeid og deltakelse"
                 },
                 "tiltakstype": {
                     "tiltakstypeNavn": "Oppf\u00f8lging"
                 },
-                "enheter": [
-                    {
-                        "_ref": "enhet.lokal.0430",
-                        "_type": "reference",
-                        "_key": "21f3816b14ca"
-                    }
-                ]
+                "enheter": ["0430"]
             }
         ]
     """,

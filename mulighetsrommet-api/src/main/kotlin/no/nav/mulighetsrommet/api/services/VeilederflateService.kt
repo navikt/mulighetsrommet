@@ -92,8 +92,8 @@ class VeilederflateService(
               tiltaksgjennomforingNavn,
               "tiltaksnummer": tiltaksnummer.current,
               lokasjon,
-              fylke,
-              enheter,
+              "fylke": fylke->nummer.current,
+              "enheter": enheter[]->nummer.current,
               kontaktinfoArrangor->{
                 selskapsnavn
               },
@@ -127,9 +127,9 @@ class VeilederflateService(
             .filter { filter.lokasjoner.isEmpty() || filter.lokasjoner.contains(it.lokasjon) }
             .filter {
                 if (it.enheter.isNullOrEmpty()) {
-                    it.fylke?._ref == "enhet.fylke.$fylkeEnhetsnummer"
+                    it.fylke == fylkeEnhetsnummer
                 } else {
-                    it.enheter.any { enhet -> enhet._ref == "enhet.lokal.$enhetsnummer" }
+                    it.enheter.contains(enhetsnummer)
                 }
             }
             .filter {
@@ -273,8 +273,8 @@ class VeilederflateService(
         val oppstart = apiGjennomforing.oppstart.name.lowercase()
         val oppstartsdato = apiGjennomforing.startDato
         val sluttdato = apiGjennomforing.sluttDato
-        val fylke = apiGjennomforing.navRegion?.let { FylkeRef(_ref = "enhet.fylke.${it.enhetsnummer}") }
-        val enheter = apiGjennomforing.navEnheter.map { EnhetRef(_ref = "enhet.lokal.${it.enhetsnummer}") }
+        val fylke = apiGjennomforing.navRegion?.enhetsnummer
+        val enheter = apiGjennomforing.navEnheter.map { it.enhetsnummer }
 
         return sanityGjennomforing.run {
             VeilederflateTiltaksgjennomforing(

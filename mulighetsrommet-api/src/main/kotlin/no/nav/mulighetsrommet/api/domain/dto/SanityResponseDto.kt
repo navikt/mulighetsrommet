@@ -65,8 +65,8 @@ data class SanityTiltaksgjennomforing(
     val tiltaksnummer: String? = null,
     val beskrivelse: String? = null,
     val lokasjon: String? = null,
-    val fylke: FylkeRef? = null,
-    val enheter: List<EnhetRef>? = emptyList(),
+    val fylke: String? = null,
+    val enheter: List<String>? = emptyList(),
     val kontaktinfoTiltaksansvarlige: List<KontaktinfoTiltaksansvarlige>? = emptyList(),
     val faneinnhold: Faneinnhold? = null,
     val kontaktinfoArrangor: KontaktInfoArrangor? = null, // TODO: fjern fra sanity, denne finnes i db
@@ -102,7 +102,7 @@ data class KontaktInfoArrangor(
 data class SanityTiltaksgjennomforingResponse(
     val _id: String,
     val tiltaksgjennomforingNavn: String,
-    val enheter: List<EnhetRef>? = null,
+    val enheter: List<String>? = null,
     val lokasjon: String? = null,
     val tilgjengelighetsstatus: String? = null,
     val tiltakstype: TiltakstypeRef? = null,

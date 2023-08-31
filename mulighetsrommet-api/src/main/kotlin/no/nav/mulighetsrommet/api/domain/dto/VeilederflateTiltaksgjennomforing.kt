@@ -25,8 +25,8 @@ data class VeilederflateTiltaksgjennomforing(
     @Serializable(with = LocalDateSerializer::class)
     val stengtTil: LocalDate? = null,
     val kontaktinfoTiltaksansvarlige: List<KontaktinfoTiltaksansvarlige>? = emptyList(),
-    val fylke: FylkeRef? = null,
-    val enheter: List<EnhetRef>? = emptyList(),
+    val fylke: String? = null,
+    val enheter: List<String>? = emptyList(),
     val beskrivelse: String? = null,
     val faneinnhold: Faneinnhold? = null,
 )
