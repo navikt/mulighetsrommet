@@ -13,6 +13,7 @@ import no.nav.mulighetsrommet.api.utils.TiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingTilgjengelighetsstatus
+import no.nav.mulighetsrommet.domain.dto.NavEnhet
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingAdminDto
 import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
 import java.time.LocalDate
@@ -214,5 +215,38 @@ class VeilederflateServiceTest : FunSpec({
         )
         gjennomforinger.size shouldBe 2
         gjennomforinger.find { it._id == "8d8a73bc-b661-4efd-90fc-2c59b258200e" }!!.lokasjon!! shouldBe "Oslo"
+    }
+
+    test("Samme enhet overskrevet fra admin flate skal fungere") {
+        val fnr = "01010199999"
+        val veilederFlateService = VeilederflateService(
+            sanityClient,
+            brukerService,
+            tiltaksgjennomforingService,
+            virksomhetService,
+        )
+        every { tiltaksgjennomforingService.getBySanityIds(any()) } returns mapOf(
+            "f21d1e35-d63b-4de7-a0a5-589e57111527" to dbGjennomforing.copy(navEnheter = listOf(NavEnhet(enhetsnummer = "0430", navn = "navn"))),
+        )
+        coEvery { virksomhetService.getOrSyncVirksomhet(any()) } returns null
+        coEvery { brukerService.hentBrukerdata(any(), any()) } returns BrukerService.Brukerdata(
+            fnr,
+            geografiskEnhet = Enhet(navn = "A", enhetsnummer = "0430"),
+            innsatsgruppe = null,
+            oppfolgingsenhet = null,
+            servicegruppe = null,
+            fornavn = null,
+            manuellStatus = null,
+        )
+        coEvery { sanityClient.query(any()) } returns sanityResult
+        coEvery { sanityClient.query("*[_type == \"enhet\" && type == \"Lokal\" && nummer.current == \"0430\"][0]{fylke->}") } returns sanityFylkeResult
+
+        val gjennomforinger = veilederFlateService.hentTiltaksgjennomforingerForBrukerBasertPaEnhetOgFylke(
+            fnr,
+            "accessToken",
+            TiltaksgjennomforingFilter(),
+        )
+        gjennomforinger.size shouldBe 2
+        gjennomforinger.find { it._id == "f21d1e35-d63b-4de7-a0a5-589e57111527" }!!.enheter!!.size shouldBe 1
     }
 })

@@ -199,7 +199,7 @@ class VeilederflateService(
                 val oppstartsdato = apiGjennomforing?.startDato ?: sanityData.oppstartsdato
                 val sluttdato = apiGjennomforing?.sluttDato ?: sanityData.sluttdato
                 val fylke = apiGjennomforing?.navRegion?.let { FylkeRef(_ref = "enhet.fylke.${it.enhetsnummer}") }
-                val enheter = apiGjennomforing?.navEnheter?.map { EnhetRef(_ref = "enhet.fylke.${it.enhetsnummer}") } ?: emptyList()
+                val enheter = apiGjennomforing?.navEnheter?.map { EnhetRef(_ref = "enhet.lokal.${it.enhetsnummer}") } ?: emptyList()
 
                 sanityData.copy(
                     stengtFra = apiGjennomforing?.stengtFra,
