@@ -10,6 +10,14 @@ import {
 import { atom } from "jotai";
 import { AVTALE_PAGE_SIZE, PAGE_SIZE } from "../constants";
 
+
+// Bump version number when localStorage should be cleared
+const version = localStorage.getItem("version")
+if (version !== "0.1.0") {
+  localStorage.clear();
+  localStorage.setItem("version", "0.1.0");
+}
+
 /**
  * atomWithStorage fra jotai rendrer først alltid initial value selv om den
  * finnes i storage (https://github.com/pmndrs/jotai/discussions/1879#discussioncomment-5626120)
