@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "@eik/rollup-plugin": "^4.0.50",
-    "@hookform/resolvers": "^3.2.0",
+    "@hookform/resolvers": "^3.3.1",
     "@navikt/aksel-icons": "^5.3.1",
     "@navikt/ds-css": "^5.3.1",
     "@navikt/ds-react": "^5.3.1",
