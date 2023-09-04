@@ -216,7 +216,7 @@ const ViewTiltaksgjennomforingDetaljer = () => {
                 <Button
                   size="small"
                   variant="tertiary"
-                  onClick={(event) => byttTilDialogFlate({ event, fnr, dialogId: harDeltMedBruker.dialogId!! })}
+                  onClick={(event) => byttTilDialogFlate({ event, dialogId: harDeltMedBruker.dialogId!! })}
                 >
                   Åpne i dialogen
                   <Chat2Icon />

@@ -217,7 +217,7 @@ const Delemodal = ({
           heading="Tiltaket er delt med brukeren"
           text="Det er opprettet en ny tråd i Dialogen der du kan fortsette kommunikasjonen rundt dette tiltaket med brukeren."
           primaryButtonText="Gå til dialogen"
-          primaryButtonOnClick={event => byttTilDialogFlate({ event, dialogId: state.dialogId, fnr })}
+          primaryButtonOnClick={event => byttTilDialogFlate({ event, dialogId: state.dialogId })}
           secondaryButtonText="Lukk"
           secondaryButtonOnClick={() => clickCancel(false)}
         />
