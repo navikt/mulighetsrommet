@@ -18,6 +18,12 @@ data class Mutation<T>(
     val patch: T? = null,
 )
 
+@Serializable
+data class Patch<T>(
+    val id: String,
+    val set: T,
+)
+
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
 data class SanityTiltaksgjennomforing(
@@ -33,6 +39,29 @@ data class SanityTiltaksgjennomforing(
     val sluttdato: LocalDate? = null,
     val lokasjon: String? = null,
 )
+
+@Serializable
+data class SanityTiltaksgjennomforingFields(
+    val tiltaksgjennomforingNavn: String,
+    val fylke: FylkeRef? = null,
+    val enheter: List<EnhetRef>? = null,
+    val tiltakstype: TiltakstypeRef? = null,
+    val tiltaksnummer: TiltaksnummerSlug? = null,
+    @Serializable(with = LocalDateSerializer::class)
+    val sluttdato: LocalDate? = null,
+    val lokasjon: String? = null,
+) {
+    fun toSanityTiltaksgjennomforing(id: String) = SanityTiltaksgjennomforing(
+        _id = id,
+        tiltaksgjennomforingNavn = this.tiltaksgjennomforingNavn,
+        fylke = this.fylke,
+        enheter = this.enheter,
+        tiltakstype = this.tiltakstype,
+        tiltaksnummer = this.tiltaksnummer,
+        sluttdato = this.sluttdato,
+        lokasjon = this.lokasjon,
+    )
+}
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable

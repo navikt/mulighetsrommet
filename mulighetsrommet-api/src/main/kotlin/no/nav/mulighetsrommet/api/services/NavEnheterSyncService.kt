@@ -56,7 +56,7 @@ class NavEnheterSyncService(
 
     suspend fun lagreEnheterTilSanity(sanityEnheter: List<SanityEnhet>) {
         logger.info("Oppdaterer Sanity-enheter - Antall: ${sanityEnheter.size}")
-        val mutations = Mutations(mutations = sanityEnheter.map { Mutation(createOrReplace = it) })
+        val mutations = sanityEnheter.map { Mutation(createOrReplace = it) }
 
         val response = sanityClient.mutate(mutations)
 

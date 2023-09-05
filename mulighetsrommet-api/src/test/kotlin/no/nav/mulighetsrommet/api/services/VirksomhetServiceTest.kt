@@ -8,11 +8,13 @@ import io.ktor.server.plugins.*
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
+import kotlinx.serialization.InternalSerializationApi
 import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
 import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
 import no.nav.mulighetsrommet.api.repositories.VirksomhetRepository
 import no.nav.mulighetsrommet.database.utils.query
 
+@OptIn(InternalSerializationApi::class)
 class VirksomhetServiceTest : FunSpec({
 
     val brregClient: BrregClient = mockk()
