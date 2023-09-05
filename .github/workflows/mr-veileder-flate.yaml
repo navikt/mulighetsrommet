@@ -44,7 +44,7 @@ jobs:
     name: CI
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Setup frontend
         uses: ./.github/actions/setup-frontend
       - name: Lint
@@ -70,7 +70,7 @@ jobs:
       id-token: "write" # Used to authenticate with Google Cloud
     if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Setup frontend
         uses: ./.github/actions/setup-frontend
       - name: Build
@@ -93,7 +93,7 @@ jobs:
       id-token: "write" # Used to authenticate with Google Cloud
     if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Setup frontend
         uses: ./.github/actions/setup-frontend
       - name: Build
@@ -119,7 +119,7 @@ jobs:
       id-token: "write" # Used to authenticate with Google Cloud
     if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'dev_and_prod'
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Setup frontend
         uses: ./.github/actions/setup-frontend
       - name: Build

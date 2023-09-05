@@ -50,7 +50,7 @@ jobs:
       id-token: write # Needed for `nais/docker-build-push`
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Setup backend
         uses: ./.github/actions/setup-backend
       - name: Build with Gradle
@@ -82,7 +82,7 @@ jobs:
     if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Deploy
         uses: nais/deploy/actions/deploy@v1
         env:
@@ -98,7 +98,7 @@ jobs:
     if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'dev_and_prod'
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Deploy
         uses: nais/deploy/actions/deploy@v1
         env:

@@ -36,7 +36,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Lint
         uses: ./.github/actions/lint-yaml
         with:
@@ -47,7 +47,7 @@ jobs:
     needs: [ci]
     if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Deploy (dev)
         uses: nais/deploy/actions/deploy@v1
         env:
@@ -59,7 +59,7 @@ jobs:
     needs: [ci]
     if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Deploy (demo)
         uses: nais/deploy/actions/deploy@v1
         env:
@@ -71,7 +71,7 @@ jobs:
     needs: [deploy-dev, deploy-demo]
     if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'dev_and_prod'
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Deploy (prod)
         uses: nais/deploy/actions/deploy@v1
         env:
