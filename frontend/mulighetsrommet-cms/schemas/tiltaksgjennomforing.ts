@@ -71,7 +71,7 @@ export const tiltaksgjennomforing = defineType({
       type: "string",
       validation: (rule) => rule.required(),
       readOnly: ({document} ) => {
-        return isIndividueltTiltak(document.tiltakstype?._ref);
+        return !isIndividueltTiltak(document.tiltakstype?._ref);
       },
     }),
     defineField({
