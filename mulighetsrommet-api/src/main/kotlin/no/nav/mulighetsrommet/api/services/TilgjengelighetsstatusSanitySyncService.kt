@@ -10,6 +10,7 @@ import no.nav.mulighetsrommet.api.clients.norg2.*
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.domain.dto.*
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
+import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingTilgjengelighetsstatus
 
 @Serializable
 data class Tiltaksgjennomforing(
@@ -61,6 +62,10 @@ class TilgjengelighetsstatusSanitySyncService(
         }
     }
 
+    data class SetTilgjengelighetsstatus(
+        val tilgjengelighetsstatus: TiltaksgjennomforingTilgjengelighetsstatus,
+    )
+
     private suspend fun writeTilgjengelighetsstatus(
         channel: ReceiveChannel<Tiltaksgjennomforing>,
     ) {
@@ -70,20 +75,14 @@ class TilgjengelighetsstatusSanitySyncService(
 
             tilgjengelighet?.let {
                 sanityClient.mutate(
-                    """
-                {
-                    "mutations": [
-                        {
-                            "patch": {
-                                "id": "${tiltak._id}",
-                                "set": {
-                                    "tilgjengelighetsstatus": "$tilgjengelighet"
-                                }
-                            }
-                        }
-                    ]
-                }
-                    """.trimIndent(),
+                    listOf(
+                        Mutation(
+                            patch = Patch(
+                                id = tiltak._id,
+                                set = SetTilgjengelighetsstatus(tilgjengelighetsstatus = it),
+                            ),
+                        ),
+                    ),
                 )
             }
         }

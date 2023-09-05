@@ -66,7 +66,7 @@ class TiltaksgjennomforingService(
                     dto
                 }
             }
-            .onRight { sanityTiltaksgjennomforingService.opprettSanityTiltaksgjennomforing(it) }
+            .onRight { sanityTiltaksgjennomforingService.createOrPatchSanityTiltaksgjennomforing(it) }
     }
 
     fun get(id: UUID): TiltaksgjennomforingAdminDto? =
@@ -102,7 +102,7 @@ class TiltaksgjennomforingService(
         return tiltaksgjennomforingRepository.updateAvtaleIdForGjennomforing(gjennomforingId, avtaleId)
     }
 
-    fun getBySanityIds(sanityIds: List<UUID>): Map<String, TiltaksgjennomforingAdminDto> {
+    fun getBySanityIds(sanityIds: List<UUID>): Map<UUID, TiltaksgjennomforingAdminDto> {
         return tiltaksgjennomforingRepository.getBySanityIds(sanityIds)
     }
 

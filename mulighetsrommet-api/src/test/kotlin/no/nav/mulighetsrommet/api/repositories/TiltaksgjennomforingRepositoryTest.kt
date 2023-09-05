@@ -355,7 +355,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             tiltaksgjennomforinger.upsert(TiltaksgjennomforingFixtures.Oppfolging1)
             tiltaksgjennomforinger.updateSanityTiltaksgjennomforingId(TiltaksgjennomforingFixtures.Oppfolging1.id, id)
             tiltaksgjennomforinger.get(TiltaksgjennomforingFixtures.Oppfolging1.id).should {
-                it!!.sanityId.shouldBe(id.toString())
+                it!!.sanityId.shouldBe(id)
             }
         }
 

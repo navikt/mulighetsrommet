@@ -308,7 +308,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         }
     }
 
-    fun getBySanityIds(sanityIds: List<UUID>): Map<String, TiltaksgjennomforingAdminDto> {
+    fun getBySanityIds(sanityIds: List<UUID>): Map<UUID, TiltaksgjennomforingAdminDto> {
         @Language("PostgreSQL")
         val query = """
             select * from tiltaksgjennomforing_admin_dto_view
@@ -607,7 +607,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                     navn = string("navRegionForAvtale"),
                 )
             },
-            sanityId = stringOrNull("sanity_id"),
+            sanityId = uuidOrNull("sanity_id"),
             oppstart = TiltaksgjennomforingOppstartstype.valueOf(string("oppstart")),
             opphav = ArenaMigrering.Opphav.valueOf(string("opphav")),
             stengtFra = localDateOrNull("stengt_fra"),

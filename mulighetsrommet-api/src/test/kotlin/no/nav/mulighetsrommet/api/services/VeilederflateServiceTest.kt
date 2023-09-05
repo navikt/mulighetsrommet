@@ -142,7 +142,7 @@ class VeilederflateServiceTest : FunSpec({
         ansvarlig = null,
         navEnheter = emptyList(),
         navRegion = null,
-        sanityId = "f21d1e35-d63b-4de7-a0a5-589e57111527",
+        sanityId = UUID.fromString("f21d1e35-d63b-4de7-a0a5-589e57111527"),
         oppstart = TiltaksgjennomforingOppstartstype.FELLES,
         opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
         stengtFra = null,
@@ -160,7 +160,7 @@ class VeilederflateServiceTest : FunSpec({
             virksomhetService,
         )
         every { tiltaksgjennomforingService.getBySanityIds(any()) } returns mapOf(
-            "f21d1e35-d63b-4de7-a0a5-589e57111527" to dbGjennomforing,
+            UUID.fromString("f21d1e35-d63b-4de7-a0a5-589e57111527") to dbGjennomforing,
         )
         coEvery { virksomhetService.getOrSyncVirksomhet(any()) } returns null
         coEvery { brukerService.hentBrukerdata(any(), any()) } returns BrukerService.Brukerdata(
@@ -193,7 +193,7 @@ class VeilederflateServiceTest : FunSpec({
             virksomhetService,
         )
         every { tiltaksgjennomforingService.getBySanityIds(any()) } returns mapOf(
-            "f21d1e35-d63b-4de7-a0a5-589e57111527" to dbGjennomforing.copy(lokasjonArrangor = "Oslo"),
+            UUID.fromString("f21d1e35-d63b-4de7-a0a5-589e57111527") to dbGjennomforing.copy(lokasjonArrangor = "Oslo"),
         )
         coEvery { virksomhetService.getOrSyncVirksomhet(any()) } returns null
         coEvery { brukerService.hentBrukerdata(any(), any()) } returns BrukerService.Brukerdata(
@@ -226,7 +226,7 @@ class VeilederflateServiceTest : FunSpec({
             virksomhetService,
         )
         every { tiltaksgjennomforingService.getBySanityIds(any()) } returns mapOf(
-            "f21d1e35-d63b-4de7-a0a5-589e57111527" to dbGjennomforing.copy(navEnheter = listOf(NavEnhet(enhetsnummer = "0430", navn = "navn"))),
+            UUID.fromString("f21d1e35-d63b-4de7-a0a5-589e57111527") to dbGjennomforing.copy(navEnheter = listOf(NavEnhet(enhetsnummer = "0430", navn = "navn"))),
         )
         coEvery { virksomhetService.getOrSyncVirksomhet(any()) } returns null
         coEvery { brukerService.hentBrukerdata(any(), any()) } returns BrukerService.Brukerdata(
@@ -259,7 +259,7 @@ class VeilederflateServiceTest : FunSpec({
             virksomhetService,
         )
         every { tiltaksgjennomforingService.getBySanityIds(any()) } returns mapOf(
-            "f21d1e35-d63b-4de7-a0a5-589e57111527" to dbGjennomforing.copy(tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.STENGT),
+            UUID.fromString("f21d1e35-d63b-4de7-a0a5-589e57111527") to dbGjennomforing.copy(tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.STENGT),
         )
         coEvery { virksomhetService.getOrSyncVirksomhet(any()) } returns null
         coEvery { brukerService.hentBrukerdata(any(), any()) } returns BrukerService.Brukerdata(

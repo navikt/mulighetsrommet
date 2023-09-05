@@ -1858,6 +1858,7 @@ components:
           format: uuid
         sanityId:
           type: string
+          format: uuid
         oppstart:
           $ref: "#/components/schemas/TiltaksgjennomforingOppstartstype"
         opphav:
