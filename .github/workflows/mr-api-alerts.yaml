@@ -1,8 +1,7 @@
 name: Alerts (mr-api)
 
 on:
-  merge_queue:
-  pull_request:
+  push:
     paths:
       - .github/workflows/mr-api-alerts.yaml
       - mulighetsrommet-api/.nais/alerts.yaml

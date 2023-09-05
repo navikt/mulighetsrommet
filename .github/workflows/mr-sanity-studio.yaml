@@ -1,8 +1,7 @@
 name: Deploy Sanity Studio
 
 on:
-  merge_queue:
-  pull_request:
+  push:
     paths:
       - .github/workflows/mr-sanity-studio.yaml
       - package.json

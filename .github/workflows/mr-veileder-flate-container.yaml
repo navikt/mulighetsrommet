@@ -1,8 +1,7 @@
 name: POAO-frontend (mr-veileder-flate)
 
 on:
-  merge_queue:
-  pull_request:
+  push:
     paths:
       - .github/workflows/mr-veileder-flate-container.yaml
       - frontend/mulighetsrommet-veileder-flate/.nais/**
