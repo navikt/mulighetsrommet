@@ -5,7 +5,7 @@
   ],
   "devDependencies": {
     "husky": "^8.0.3",
-    "prettier": "^3.0.1",
+    "prettier": "^3.0.3",
     "turbo": "^1.10.13"
   },
   "packageManager": "npm@8.5.2",
