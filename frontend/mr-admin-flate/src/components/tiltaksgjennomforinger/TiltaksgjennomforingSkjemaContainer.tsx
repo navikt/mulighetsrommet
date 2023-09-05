@@ -208,12 +208,6 @@ export const TiltaksgjennomforingSkjemaContainer = ({
     "midlertidigStengt.erMidlertidigStengt",
   );
 
-  useEffect(() => {
-    if (ansatt && !isLoadingAnsatt && !tiltaksgjennomforing?.ansvarlig) {
-      setValue("ansvarlig", ansatt.navIdent);
-    }
-  }, [ansatt, isLoadingAnsatt, setValue]);
-
   async function getLokasjonForArrangor(orgnr?: string) {
     if (!orgnr) return;
 
