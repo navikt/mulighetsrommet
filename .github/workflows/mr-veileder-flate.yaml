@@ -1,7 +1,7 @@
 name: CI/CD (mr-veileder-flate)
 
 on:
-  merge_group:
+  merge_queue:
   pull_request:
     paths:
       - .github/workflows/mr-veileder-flate.yaml

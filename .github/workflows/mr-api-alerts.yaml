@@ -1,7 +1,7 @@
 name: Alerts (mr-api)
 
 on:
-  merge_group:
+  merge_queue:
   pull_request:
     paths:
       - .github/workflows/mr-api-alerts.yaml

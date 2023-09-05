@@ -1,7 +1,7 @@
 name: Unleash api-tokens (mr-api)
 
 on:
-  merge_group:
+  merge_queue:
   pull_request:
     paths:
       - .github/workflows/unleash-apitoken.yaml
