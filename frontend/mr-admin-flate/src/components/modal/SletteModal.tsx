@@ -66,7 +66,7 @@ const SletteModal = ({
   function footerInnhold() {
     return (
       <div className={styles.knapperad}>
-        <Button variant="secondary" onClick={onClose}>
+        <Button variant="secondary" onClick={onClose} type="button">
           Lukk
         </Button>
         {mutation?.isError ? null : (
@@ -74,6 +74,7 @@ const SletteModal = ({
             variant="danger"
             onClick={handleDelete}
             data-testid={dataTestId}
+            type="submit"
           >
             {avbryt ? "Ja, avbryt" : "Slett"}
           </Button>

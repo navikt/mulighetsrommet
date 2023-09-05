@@ -81,7 +81,7 @@ const AvtaleSkjemaPage = () => {
             {!tiltakstyper?.data || !ansatt || !enheter ? null : (
               <AvtaleSkjemaContainer
                 onClose={() => {
-                  queryClient.refetchQueries({ queryKey: ["utkast"] });
+                  //queryClient.refetchQueries({ queryKey: ["utkast"] });
                   navigerTilbake();
                 }}
                 onSuccess={(id) => navigate(`/avtaler/${id}`)}

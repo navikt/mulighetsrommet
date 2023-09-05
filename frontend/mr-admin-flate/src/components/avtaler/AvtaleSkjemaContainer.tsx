@@ -281,11 +281,12 @@ export function AvtaleSkjemaContainer({
                     label: "Sluttdato",
                   }}
                 />
-                {redigeringsmodus && !utkastmodus ? (
-                  <AvbrytAvtale handleAvbrytAvtale={onClose} />
-                ) : null}
-                {utkastmodus ? (
-                  <SlettUtkast utkast={utkast!} handleDelete={onClose} />
+                {redigeringsmodus ? (
+                  utkastmodus ? (
+                    <SlettUtkast utkast={utkast!} handleDelete={onClose} />
+                  ) : (
+                    <AvbrytAvtale handleAvbrytAvtale={onClose} />
+                  )
                 ) : null}
               </FormGroup>
               <Separator />
