@@ -259,7 +259,7 @@ class VeilederflateServiceTest : FunSpec({
             virksomhetService,
         )
         every { tiltaksgjennomforingService.getBySanityIds(any()) } returns mapOf(
-            "f21d1e35-d63b-4de7-a0a5-589e57111527" to dbGjennomforing.copy(tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.STENGT),
+            UUID.fromString("f21d1e35-d63b-4de7-a0a5-589e57111527") to dbGjennomforing.copy(tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.STENGT),
         )
         coEvery { virksomhetService.getOrSyncVirksomhet(any()) } returns null
         coEvery { brukerService.hentBrukerdata(any(), any()) } returns BrukerService.Brukerdata(
