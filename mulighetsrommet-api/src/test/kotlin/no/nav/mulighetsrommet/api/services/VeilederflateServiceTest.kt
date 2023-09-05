@@ -249,4 +249,37 @@ class VeilederflateServiceTest : FunSpec({
         gjennomforinger.size shouldBe 2
         gjennomforinger.find { it._id == "f21d1e35-d63b-4de7-a0a5-589e57111527" }!!.enheter!!.size shouldBe 1
     }
+
+    test("Stengte filtreres vekk") {
+        val fnr = "01010199999"
+        val veilederFlateService = VeilederflateService(
+            sanityClient,
+            brukerService,
+            tiltaksgjennomforingService,
+            virksomhetService,
+        )
+        every { tiltaksgjennomforingService.getBySanityIds(any()) } returns mapOf(
+            "f21d1e35-d63b-4de7-a0a5-589e57111527" to dbGjennomforing.copy(tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.STENGT),
+        )
+        coEvery { virksomhetService.getOrSyncVirksomhet(any()) } returns null
+        coEvery { brukerService.hentBrukerdata(any(), any()) } returns BrukerService.Brukerdata(
+            fnr,
+            geografiskEnhet = Enhet(navn = "A", enhetsnummer = "0430"),
+            innsatsgruppe = null,
+            oppfolgingsenhet = null,
+            servicegruppe = null,
+            fornavn = null,
+            manuellStatus = null,
+        )
+        coEvery { sanityClient.query(any()) } returns sanityResult
+        coEvery { sanityClient.query("*[_type == \"enhet\" && type == \"Lokal\" && nummer.current == \"0430\"][0]{fylke->}") } returns sanityFylkeResult
+
+        val gjennomforinger = veilederFlateService.hentTiltaksgjennomforingerForBrukerBasertPaEnhetOgFylke(
+            fnr,
+            "accessToken",
+            TiltaksgjennomforingFilter(),
+        )
+        gjennomforinger.size shouldBe 1
+        gjennomforinger.find { it._id == "f21d1e35-d63b-4de7-a0a5-589e57111527" } shouldBe null
+    }
 })

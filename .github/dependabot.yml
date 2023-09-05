@@ -35,6 +35,23 @@ updates:
         patterns:
           - "react"
           - "react-dom"
+      patches:
+        update-types:
+        - "patch"
+        exclude-patterns:
+        - "react"
+        - "react-dom"
+        - "@navikt/aksel-*"
+        - "@navikt/ds-*"
+      minorversions:
+        update-types:
+        - "minor"
+        exclude-patterns:
+        - "react"
+        - "react-dom"
+        - "@navikt/aksel-*"
+        - "@navikt/ds-*"
+
 
   # Test versjonsoppdatering av docker images i nais config
   - package-ecosystem: docker

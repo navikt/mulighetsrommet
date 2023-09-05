@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.domain.dto
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.*
+import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingTilgjengelighetsstatus
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import java.time.LocalDate
@@ -71,7 +72,7 @@ data class VeilederflateTiltaksgjennomforing(
     val _id: String,
     val tiltaksgjennomforingNavn: String,
     val lokasjon: String? = null,
-    val tilgjengelighetsstatus: String? = null,
+    val tilgjengelighetsstatus: TiltaksgjennomforingTilgjengelighetsstatus? = null,
     val tiltakstype: Tiltakstype? = null,
     val tiltaksnummer: String? = null,
     val oppstart: String? = null,
