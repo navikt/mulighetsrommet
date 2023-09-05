@@ -11,12 +11,6 @@ on:
   push:
     branches:
       - main
-    paths:
-      - .github/workflows/mr-sanity-studio.yaml
-      - package.json
-      - package-lock.json
-      - turbo.json
-      - frontend/mulighetsrommet-cms/**
   workflow_dispatch:
 
 concurrency:

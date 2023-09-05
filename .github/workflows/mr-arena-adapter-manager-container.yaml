@@ -8,9 +8,6 @@ on:
   push:
     branches:
       - main
-    paths:
-      - .github/workflows/mr-arena-adapter-manager-container.yaml
-      - frontend/arena-adapter-manager/.nais/**
   workflow_dispatch:
     inputs:
       environment:

@@ -8,9 +8,6 @@ on:
   push:
     branches:
       - main
-    paths:
-      - .github/workflows/kafka-topics-prod.yaml
-      - iac/kafka-topics/prod/*.yaml
 
 jobs:
   ci:

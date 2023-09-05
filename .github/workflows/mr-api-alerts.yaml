@@ -8,9 +8,6 @@ on:
   push:
     branches:
       - main
-    paths:
-      - .github/workflows/mr-api-alerts.yaml
-      - mulighetsrommet-api/.nais/alerts.yaml
 
 jobs:
   ci:

@@ -13,14 +13,6 @@ on:
   push:
     branches:
       - main
-    paths:
-      - .github/workflows/mr-api.yaml
-      - build.gradle.kts
-      - settings.gradle.kts
-      - gradle.properties
-      - gradle/libs.versions.toml
-      - common/**
-      - mulighetsrommet-api/**
   workflow_dispatch:
     inputs:
       environment:

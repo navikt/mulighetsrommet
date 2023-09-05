@@ -11,12 +11,6 @@ on:
   push:
     branches:
       - main
-    paths:
-      - .github/workflows/mr-arena-adapter-manager.yaml
-      - package.json
-      - package-lock.json
-      - turbo.json
-      - frontend/arena-adapter-manager/**
   workflow_dispatch:
     inputs:
       environment:
