@@ -75,7 +75,7 @@ export function AvbrytAvtale({ handleAvbrytAvtale }: Props) {
         modalOpen={avbrytModal}
         handleClose={() => setAvbrytModal(false)}
         avtale={avtale}
-        erAktivAvtale
+        erAktivAvtale={avtale?.avtalestatus === Avtalestatus.AKTIV}
       />
     </>
   );
