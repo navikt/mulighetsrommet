@@ -1,17 +1,7 @@
 name: CI/CD (mr-arena-adapter-manager)
 
 on:
-  merge_group:
-  pull_request:
-    paths:
-      - .github/workflows/mr-arena-adapter-manager.yaml
-      - package.json
-      - package-lock.json
-      - turbo.json
-      - frontend/arena-adapter-manager/**
   push:
-    branches:
-      - main
     paths:
       - .github/workflows/mr-arena-adapter-manager.yaml
       - package.json

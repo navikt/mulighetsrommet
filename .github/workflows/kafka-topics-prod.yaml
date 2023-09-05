@@ -1,14 +1,7 @@
 name: Deploy kafka topics to prod
 
 on:
-  merge_group:
-  pull_request:
-    paths:
-      - .github/workflows/kafka-topics-prod.yaml
-      - iac/kafka-topics/prod/*.yaml
   push:
-    branches:
-      - main
     paths:
       - .github/workflows/kafka-topics-prod.yaml
       - iac/kafka-topics/prod/*.yaml

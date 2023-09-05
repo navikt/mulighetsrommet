@@ -1,18 +1,7 @@
 name: CI/CD (mr-admin-flate)
 
 on:
-  merge_group:
-  pull_request:
-    paths:
-      - .github/workflows/mr-admin-flate.yaml
-      - package.json
-      - package-lock.json
-      - turbo.json
-      - frontend/mr-admin-flate/**
-      - mulighetsrommet-api/src/main/resources/web/openapi.yaml
   push:
-    branches:
-      - main
     paths:
       - .github/workflows/mr-admin-flate.yaml
       - package.json
