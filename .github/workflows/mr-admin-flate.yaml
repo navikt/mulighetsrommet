@@ -9,9 +9,6 @@ on:
       - turbo.json
       - frontend/mr-admin-flate/**
       - mulighetsrommet-api/src/main/resources/web/openapi.yaml
-  push:
-    branches:
-      - main
   workflow_dispatch:
     inputs:
       environment:

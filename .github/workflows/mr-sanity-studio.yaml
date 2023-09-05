@@ -8,9 +8,6 @@ on:
       - package-lock.json
       - turbo.json
       - frontend/mulighetsrommet-cms/**
-  push:
-    branches:
-      - main
   workflow_dispatch:
 
 concurrency:

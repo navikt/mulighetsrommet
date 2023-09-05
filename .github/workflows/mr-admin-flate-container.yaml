@@ -5,9 +5,6 @@ on:
     paths:
       - .github/workflows/mr-admin-flate-container.yaml
       - frontend/mr-admin-flate/.nais/**
-  push:
-    branches:
-      - main
   workflow_dispatch:
     inputs:
       environment:

@@ -10,9 +10,6 @@ on:
       - gradle/libs.versions.toml
       - common/**
       - mulighetsrommet-api/**
-  push:
-    branches:
-      - main
   workflow_dispatch:
     inputs:
       environment:
