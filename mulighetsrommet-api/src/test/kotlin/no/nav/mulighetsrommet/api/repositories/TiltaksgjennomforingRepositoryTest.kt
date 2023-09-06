@@ -403,8 +403,10 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             tiltaksgjennomforinger.upsert(TiltaksgjennomforingFixtures.Oppfolging1)
             tiltaksgjennomforinger.upsert(TiltaksgjennomforingFixtures.Arbeidstrening1)
 
-            val count = tiltaksgjennomforinger.getAll(skalMigreres = true).first
-            count shouldBe 1
+            tiltaksgjennomforinger.getAll(skalMigreres = true).should {
+                it.first shouldBe 1
+                it.second[0].id shouldBe TiltaksgjennomforingFixtures.Oppfolging1.id
+            }
         }
     }
 
