@@ -1,12 +1,12 @@
 [versions]
 common-java-modules = "3.2023.07.07_09.10-85326e9557f0"
-flyway = "9.21.1"
+flyway = "9.22.0"
 hoplite = "2.7.5"
 koin = "3.4.3"
-kotest = "5.6.2"
+kotest = "5.7.1"
 kotest-testcontainers = "2.0.2"
 kotlin = "1.9.10"
-ktor = "2.3.3"
+ktor = "2.3.4"
 logback = "1.4.11"
 metrics = "4.2.19"
 
@@ -103,11 +103,11 @@ prometheus-caffeine = "io.prometheus:simpleclient_caffeine:0.16.0"
 
 shedlock-jdbc = "net.javacrumbs.shedlock:shedlock-provider-jdbc:5.7.0"
 
-slack-client = "com.slack.api:slack-api-client:1.30.0"
+slack-client = "com.slack.api:slack-api-client:1.31.0"
 
-slf4j = "org.slf4j:slf4j-api:2.0.7"
+slf4j = "org.slf4j:slf4j-api:2.0.9"
 
 apache-poi = "org.apache.poi:poi:5.2.3"
 apache-poi-ooxml = "org.apache.poi:poi-ooxml:5.2.3"
 
-unleash = "io.getunleash:unleash-client-java:8.3.0"
+unleash = "io.getunleash:unleash-client-java:8.3.1"

@@ -31,7 +31,8 @@ data class TiltaksgjennomforingAdminDto(
     val ansvarlig: Ansvarlig?,
     val navEnheter: List<NavEnhet>,
     val navRegion: NavEnhet?,
-    val sanityId: String?,
+    @Serializable(with = UUIDSerializer::class)
+    val sanityId: UUID?,
     val oppstart: TiltaksgjennomforingOppstartstype,
     val opphav: ArenaMigrering.Opphav,
     @Serializable(with = LocalDateSerializer::class)

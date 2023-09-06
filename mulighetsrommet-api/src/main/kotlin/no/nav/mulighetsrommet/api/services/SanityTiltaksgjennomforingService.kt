@@ -20,36 +20,33 @@ class SanityTiltaksgjennomforingService(
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
-    private suspend fun oppdaterIdOmAlleredeFinnes(tiltaksgjennomforing: TiltaksgjennomforingAdminDto): Boolean {
-        val tiltaksnummer = tiltaksgjennomforing.tiltaksnummer ?: return false
+    private suspend fun oppdaterIdOmAlleredeFinnes(tiltaksgjennomforing: TiltaksgjennomforingAdminDto): UUID? {
+        val tiltaksnummer = tiltaksgjennomforing.tiltaksnummer ?: return null
 
         val sanityTiltaksgjennomforinger = hentTiltaksgjennomforinger(tiltaksnummer)
         if (sanityTiltaksgjennomforinger.size > 1) {
             throw Exception("Fant ${sanityTiltaksgjennomforinger.size} sanity dokumenter med tiltaksnummer: $tiltaksnummer")
         }
         if (sanityTiltaksgjennomforinger.isEmpty()) {
-            return false
+            return null
         }
+        val sanityId = UUID.fromString(sanityTiltaksgjennomforinger[0]._id)
         tiltaksgjennomforingRepository.updateSanityTiltaksgjennomforingId(
             tiltaksgjennomforing.id,
-            UUID.fromString(sanityTiltaksgjennomforinger[0]._id),
+            sanityId,
         )
-        return true
+        return sanityId
     }
 
-    suspend fun opprettSanityTiltaksgjennomforing(tiltaksgjennomforing: TiltaksgjennomforingAdminDto) {
-        if (tiltaksgjennomforing.sanityId != null || oppdaterIdOmAlleredeFinnes(tiltaksgjennomforing)) {
-            return
-        }
+    suspend fun createOrPatchSanityTiltaksgjennomforing(tiltaksgjennomforing: TiltaksgjennomforingAdminDto) {
+        val eksisterendeSanityId = tiltaksgjennomforing.sanityId ?: oppdaterIdOmAlleredeFinnes(tiltaksgjennomforing)
 
-        val sanityTiltaksgjennomforingId = UUID.randomUUID()
         val avtale = tiltaksgjennomforing.avtaleId?.let { avtaleRepository.get(it) }
         val tiltakstype = tiltakstypeRepository.get(tiltaksgjennomforing.tiltakstype.id)
         val enhet = virksomhetRepository.get(tiltaksgjennomforing.arrangor.organisasjonsnummer).getOrNull()
         val lokasjonForVirksomhetFraBrreg = "${enhet?.postnummer ?: ""} ${enhet?.poststed ?: ""}"
 
-        val sanityTiltaksgjennomforing = SanityTiltaksgjennomforing(
-            _id = "drafts.$sanityTiltaksgjennomforingId", // For å ikke autopublisere dokument i Sanity før redaktør manuelt publiserer
+        val sanityTiltaksgjennomforingFields = SanityTiltaksgjennomforingFields(
             tiltaksgjennomforingNavn = tiltaksgjennomforing.navn,
             enheter = tiltaksgjennomforing.navEnheter.map {
                 EnhetRef(_ref = "enhet.lokal.${it.enhetsnummer}", _key = it.enhetsnummer)
@@ -60,23 +57,54 @@ class SanityTiltaksgjennomforingService(
             tiltakstype = tiltakstype?.sanityId?.let { TiltakstypeRef(_ref = it.toString()) },
             tiltaksnummer = tiltaksgjennomforing.tiltaksnummer?.let { TiltaksnummerSlug(current = it) },
             sluttdato = tiltaksgjennomforing.sluttDato,
-            lokasjon = lokasjonForVirksomhetFraBrreg,
+            lokasjon = tiltaksgjennomforing.lokasjonArrangor ?: lokasjonForVirksomhetFraBrreg,
+        )
+
+        if (eksisterendeSanityId != null) {
+            patchSanityTiltaksgjennomforing(eksisterendeSanityId, sanityTiltaksgjennomforingFields)
+        } else {
+            val sanityId = UUID.randomUUID()
+            createSanityTiltaksgjennomforing(sanityId, sanityTiltaksgjennomforingFields)
+
+            tiltaksgjennomforingRepository.updateSanityTiltaksgjennomforingId(
+                tiltaksgjennomforing.id,
+                sanityId,
+            )
+        }
+    }
+
+    private suspend fun createSanityTiltaksgjennomforing(
+        sanityId: UUID,
+        sanityTiltaksgjennomforingFields: SanityTiltaksgjennomforingFields,
+    ) {
+        val sanityTiltaksgjennomforing = sanityTiltaksgjennomforingFields.toSanityTiltaksgjennomforing(
+            id = "drafts.$sanityId", // For å ikke autopublisere dokument i Sanity før redaktør manuelt publiserer
         )
 
         val response = sanityClient.mutate(
-            Mutations(mutations = listOf(Mutation(createIfNotExists = sanityTiltaksgjennomforing))),
+            listOf(Mutation(createOrReplace = sanityTiltaksgjennomforing)),
         )
 
         if (response.status.value != HttpStatusCode.OK.value) {
             throw Exception("Klarte ikke opprette tiltaksgjennomforing i sanity: ${response.status}")
         } else {
-            log.info("Opprettet tiltaksgjennomforing i Sanity med id: $sanityTiltaksgjennomforingId")
+            log.info("Opprettet tiltaksgjennomforing i Sanity med id: $sanityId")
         }
+    }
 
-        tiltaksgjennomforingRepository.updateSanityTiltaksgjennomforingId(
-            tiltaksgjennomforing.id,
-            sanityTiltaksgjennomforingId,
+    private suspend fun patchSanityTiltaksgjennomforing(
+        sanityId: UUID,
+        sanityTiltaksgjennomforingFields: SanityTiltaksgjennomforingFields,
+    ) {
+        val response = sanityClient.mutate(
+            listOf(Mutation(patch = Patch(id = sanityId.toString(), set = sanityTiltaksgjennomforingFields))),
         )
+
+        if (response.status.value != HttpStatusCode.OK.value) {
+            throw Exception("Klarte ikke patche tiltaksgjennomforing i sanity: ${response.status}")
+        } else {
+            log.info("Patchet tiltaksgjennomforing i Sanity med id: $sanityId")
+        }
     }
 
     private suspend fun hentTiltaksgjennomforinger(tiltaksnummer: String): List<SanityTiltaksgjennomforingResponse> {

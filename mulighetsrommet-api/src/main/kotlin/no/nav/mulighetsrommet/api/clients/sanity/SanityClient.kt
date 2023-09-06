@@ -12,6 +12,8 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
+import no.nav.mulighetsrommet.api.domain.dto.Mutation
+import no.nav.mulighetsrommet.api.domain.dto.Mutations
 import no.nav.mulighetsrommet.api.domain.dto.SanityResponse
 import no.nav.mulighetsrommet.ktor.clients.ClientResponseMetricPlugin
 import org.slf4j.LoggerFactory
@@ -94,14 +96,14 @@ class SanityClient(engine: HttpClientEngine = CIO.create(), val config: Config) 
     }
 
     internal suspend inline fun <reified T> mutate(
-        mutation: T,
+        mutations: List<Mutation<T>>,
         returnIds: Boolean = false,
         returnDocuments: Boolean = false,
         dryRun: Boolean = false,
         visibility: MutationVisibility = MutationVisibility.Sync,
     ): HttpResponse {
         val response = client.post(config.mutationUrl) {
-            setBody(mutation)
+            setBody(Mutations(mutations = mutations))
             url.parameters.apply {
                 append("returnIds", returnIds.toString())
                 append("returnDocuments", returnDocuments.toString())

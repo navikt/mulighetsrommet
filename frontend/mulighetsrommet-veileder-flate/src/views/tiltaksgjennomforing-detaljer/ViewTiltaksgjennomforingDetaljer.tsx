@@ -26,7 +26,6 @@ import TiltaksgjennomforingsHeader from '../../layouts/TiltaksgjennomforingsHead
 import { capitalize, erPreview, formaterDato } from '../../utils/Utils';
 import styles from './ViewTiltaksgjennomforingDetaljer.module.scss';
 import { byttTilDialogFlate } from '../../utils/DialogFlateUtils';
-import { useFnr } from '../../hooks/useFnr';
 
 const whiteListOpprettAvtaleKnapp: SanityTiltakstype.arenakode[] = [
   SanityTiltakstype.arenakode.MIDLONTIL,
@@ -66,7 +65,6 @@ function resolveName(ansatt?: NavVeileder) {
 }
 
 const ViewTiltaksgjennomforingDetaljer = () => {
-  const fnr = useFnr();
   const gjennomforingsId = useGetTiltaksgjennomforingIdFraUrl();
   const [filter] = useAtom(tiltaksgjennomforingsfilter);
   const [page] = useAtom(paginationAtom);
@@ -216,7 +214,7 @@ const ViewTiltaksgjennomforingDetaljer = () => {
                 <Button
                   size="small"
                   variant="tertiary"
-                  onClick={(event) => byttTilDialogFlate({ event, fnr, dialogId: harDeltMedBruker.dialogId!! })}
+                  onClick={(event) => byttTilDialogFlate({ event, dialogId: harDeltMedBruker.dialogId!! })}
                 >
                   Åpne i dialogen
                   <Chat2Icon />

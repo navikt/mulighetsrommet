@@ -1,18 +1,7 @@
 name: CI/CD (mr-veileder-flate)
 
 on:
-  merge_group:
-  pull_request:
-    paths:
-      - .github/workflows/mr-veileder-flate.yaml
-      - package.json
-      - package-lock.json
-      - turbo.json
-      - frontend/mulighetsrommet-veileder-flate/**
-      - mulighetsrommet-api/src/main/resources/web/openapi.yaml
   push:
-    branches:
-      - main
     paths:
       - .github/workflows/mr-veileder-flate.yaml
       - package.json

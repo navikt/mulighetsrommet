@@ -7,6 +7,7 @@ import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityPerspective
 import no.nav.mulighetsrommet.api.domain.dto.*
 import no.nav.mulighetsrommet.api.utils.*
+import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingTilgjengelighetsstatus
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingAdminDto
 import no.nav.mulighetsrommet.metrics.Metrikker
 import no.nav.mulighetsrommet.utils.CacheUtils
@@ -112,6 +113,9 @@ class VeilederflateService(
                             it.enheter.any { it._ref == "enhet.lokal.$enhetsId" }
                         }
                     }
+                    .filter {
+                        it.tilgjengelighetsstatus !== TiltaksgjennomforingTilgjengelighetsstatus.STENGT
+                    }
             }
 
             is SanityResponse.Error -> throw Exception(result.error.toString())
@@ -185,7 +189,7 @@ class VeilederflateService(
 
         return gjennomforingerFraSanity
             .map { sanityData ->
-                val apiGjennomforing = gjennomforingerFraDb[sanityData._id]
+                val apiGjennomforing = gjennomforingerFraDb[UUID.fromString(sanityData._id)]
                 val kontaktpersoner = apiGjennomforing?.let { hentKontaktpersoner(it, enhetsId) } ?: emptyList()
                 val kontaktpersonerArrangor = apiGjennomforing?.arrangor?.kontaktperson?.let {
                     KontaktInfoArrangor(
@@ -199,7 +203,7 @@ class VeilederflateService(
                 val oppstartsdato = apiGjennomforing?.startDato ?: sanityData.oppstartsdato
                 val sluttdato = apiGjennomforing?.sluttDato ?: sanityData.sluttdato
                 val fylke = apiGjennomforing?.navRegion?.let { FylkeRef(_ref = "enhet.fylke.${it.enhetsnummer}") }
-                val enheter = apiGjennomforing?.navEnheter?.map { EnhetRef(_ref = "enhet.fylke.${it.enhetsnummer}") } ?: emptyList()
+                val enheter = apiGjennomforing?.navEnheter?.map { EnhetRef(_ref = "enhet.lokal.${it.enhetsnummer}") } ?: emptyList()
 
                 sanityData.copy(
                     stengtFra = apiGjennomforing?.stengtFra,
@@ -208,7 +212,7 @@ class VeilederflateService(
                     oppstart = oppstart,
                     oppstartsdato = oppstartsdato,
                     sluttdato = sluttdato,
-                    tilgjengelighetsstatus = apiGjennomforing?.tilgjengelighet?.name,
+                    tilgjengelighetsstatus = apiGjennomforing?.tilgjengelighet,
                     estimert_ventetid = apiGjennomforing?.estimertVentetid,
                     tiltakstype = sanityData.tiltakstype?.copy(arenakode = apiGjennomforing?.tiltakstype?.arenaKode),
                     lokasjon = apiGjennomforing?.lokasjonArrangor ?: sanityData.lokasjon,

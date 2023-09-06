@@ -60,7 +60,7 @@ class ArenaAdapterService(
         val gjennomforing = tiltaksgjennomforinger.get(tiltaksgjennomforing.id)!!
         tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingDto.from(gjennomforing))
         if (gjennomforing.sluttDato == null || gjennomforing.sluttDato?.isAfter(TiltaksgjennomforingSluttDatoCutoffDate) == true) {
-            sanityTiltaksgjennomforingService.opprettSanityTiltaksgjennomforing(gjennomforing)
+            sanityTiltaksgjennomforingService.createOrPatchSanityTiltaksgjennomforing(gjennomforing)
         }
         return query { gjennomforing }
     }

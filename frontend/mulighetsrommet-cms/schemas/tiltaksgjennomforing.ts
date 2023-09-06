@@ -70,7 +70,9 @@ export const tiltaksgjennomforing = defineType({
       description: "Navnet kommer fra Arena/admin-flate",
       type: "string",
       validation: (rule) => rule.required(),
-      readOnly: erIkkeAdmin,
+      readOnly: ({document} ) => {
+        return !isIndividueltTiltak(document.tiltakstype?._ref);
+      },
     }),
     defineField({
       name: "aar",

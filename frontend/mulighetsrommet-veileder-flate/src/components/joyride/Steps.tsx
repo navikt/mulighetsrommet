@@ -101,19 +101,6 @@ export const oversiktenSteps: MulighetsrommetStep[] = [
     id: 'tiltakshistorikk-knapp',
   },
   {
-    title: 'Tiltakshistorikk',
-    content: 'I modalen får du oversikt over tiltakene brukeren har deltatt på, når, og hvor lenge.',
-    target: '#historikk_modal',
-    placement: 'bottom',
-    styles: {
-      options: {
-        zIndex: 10000,
-      },
-    },
-    disableBeacon: true,
-    id: 'tiltakshistorikk-modal',
-  },
-  {
     title: 'Detaljert visning',
     content: 'Ved å klikke på gjennomføringen vil du kunne se flere detaljer om tiltaket.',
     target: '#list_element_0',

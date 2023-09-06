@@ -1,14 +1,7 @@
 name: Deploy kafka topics to dev
 
 on:
-  merge_group:
-  pull_request:
-    paths:
-      - .github/workflows/kafka-topics-dev.yaml
-      - iac/kafka-topics/dev/*.yaml
   push:
-    branches:
-      - main
     paths:
       - .github/workflows/kafka-topics-dev.yaml
       - iac/kafka-topics/dev/*.yaml
