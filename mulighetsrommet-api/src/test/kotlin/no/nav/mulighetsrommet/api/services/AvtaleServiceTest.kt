@@ -175,7 +175,6 @@ class AvtaleServiceTest : FunSpec({
         }
 
         test("Man skal ikke få avbryte, men få en melding dersom opphav for avtalen ikke er admin-flate") {
-            val currentDate = LocalDate.of(2023, 6, 1)
             val avtale = AvtaleFixtures.avtale1.copy(
                 navn = "Avtale som eksisterer",
                 startDato = LocalDate.of(2023, 6, 1),
@@ -184,14 +183,13 @@ class AvtaleServiceTest : FunSpec({
             )
             avtaleRepository.upsert(avtale)
 
-            avtaleService.avbrytAvtale(avtale.id, currentDate = currentDate).shouldBeLeft().should {
+            avtaleService.avbrytAvtale(avtale.id).shouldBeLeft().should {
                 it.status shouldBe HttpStatusCode.BadRequest
                 it.message shouldBe "Avtalen har opprinnelse fra Arena og kan ikke bli avbrutt fra admin-flate."
             }
         }
 
         test("Man skal ikke få avbryte, men få en melding dersom avtalen allerede er avsluttet") {
-            val currentDate = LocalDate.of(2023, 7, 1)
             val avtale = AvtaleFixtures.avtale1.copy(
                 navn = "Avtale som eksisterer",
                 startDato = LocalDate.of(2023, 5, 1),
@@ -200,14 +198,13 @@ class AvtaleServiceTest : FunSpec({
             )
             avtaleRepository.upsert(avtale)
 
-            avtaleService.avbrytAvtale(avtale.id, currentDate = currentDate).shouldBeLeft().should {
+            avtaleService.avbrytAvtale(avtale.id).shouldBeLeft().should {
                 it.status shouldBe HttpStatusCode.BadRequest
                 it.message shouldBe "Avtalen er allerede avsluttet og kan derfor ikke avbrytes."
             }
         }
 
         test("Man skal ikke få avbryte, men få en melding dersom det finnes gjennomføringer koblet til avtalen") {
-            val currentDate = LocalDate.of(2023, 6, 1)
             val avtale = AvtaleFixtures.avtale1.copy(
                 id = UUID.randomUUID(),
                 navn = "Avtale som eksisterer",
@@ -244,22 +241,20 @@ class AvtaleServiceTest : FunSpec({
             tiltaksgjennomforinger.upsert(arbeidstrening)
             tiltaksgjennomforinger.upsert(oppfolging2)
 
-            avtaleService.avbrytAvtale(avtale.id, currentDate = currentDate).shouldBeLeft().should {
+            avtaleService.avbrytAvtale(avtale.id).shouldBeLeft().should {
                 it.status shouldBe HttpStatusCode.BadRequest
                 it.message shouldBe "Avtalen har 2 tiltaksgjennomføringer koblet til seg. Du må frikoble gjennomføringene før du kan avbryte avtalen."
             }
         }
 
         test("Skal få avbryte avtale hvis alle sjekkene er ok") {
-            val currentDate = LocalDate.of(2023, 6, 1)
-
             val avtale = AvtaleFixtures.avtale1.copy(
                 startDato = LocalDate.of(2023, 7, 1),
                 sluttDato = LocalDate.of(2024, 7, 1),
             )
             avtaleRepository.upsert(avtale).right()
 
-            avtaleService.avbrytAvtale(avtale.id, currentDate = currentDate)
+            avtaleService.avbrytAvtale(avtale.id)
         }
     }
 

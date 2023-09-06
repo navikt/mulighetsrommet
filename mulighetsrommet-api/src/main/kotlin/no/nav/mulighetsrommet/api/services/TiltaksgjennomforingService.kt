@@ -72,12 +72,56 @@ class TiltaksgjennomforingService(
     fun get(id: UUID): TiltaksgjennomforingAdminDto? =
         tiltaksgjennomforingRepository.get(id)
 
+    fun getAllSkalMigreres(
+        pagination: PaginationParams,
+        filter: AdminTiltaksgjennomforingFilter,
+    ): PaginatedResponse<TiltaksgjennomforingAdminDto> =
+        tiltaksgjennomforingRepository
+            .getAll(
+                pagination,
+                search = filter.search,
+                navEnhet = filter.navEnhet,
+                tiltakstypeId = filter.tiltakstypeId,
+                status = filter.status,
+                sortering = filter.sortering,
+                sluttDatoCutoff = filter.sluttDatoCutoff,
+                dagensDato = filter.dagensDato,
+                navRegion = filter.navRegion,
+                avtaleId = filter.avtaleId,
+                arrangorOrgnr = filter.arrangorOrgnr,
+                ansvarligAnsattIdent = filter.ansvarligAnsattIdent,
+                skalMigreres = true,
+            )
+            .let { (totalCount, data) ->
+                PaginatedResponse(
+                    pagination = Pagination(
+                        totalCount = totalCount,
+                        currentPage = pagination.page,
+                        pageSize = pagination.limit,
+                    ),
+                    data = data,
+                )
+            }
+
     fun getAll(
         pagination: PaginationParams,
         filter: AdminTiltaksgjennomforingFilter,
     ): PaginatedResponse<TiltaksgjennomforingAdminDto> =
         tiltaksgjennomforingRepository
-            .getAll(pagination, filter)
+            .getAll(
+                pagination,
+                search = filter.search,
+                navEnhet = filter.navEnhet,
+                tiltakstypeId = filter.tiltakstypeId,
+                status = filter.status,
+                sortering = filter.sortering,
+                sluttDatoCutoff = filter.sluttDatoCutoff,
+                dagensDato = filter.dagensDato,
+                navRegion = filter.navRegion,
+                avtaleId = filter.avtaleId,
+                arrangorOrgnr = filter.arrangorOrgnr,
+                ansvarligAnsattIdent = filter.ansvarligAnsattIdent,
+            )
             .let { (totalCount, data) ->
                 PaginatedResponse(
                     pagination = Pagination(

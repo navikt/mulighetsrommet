@@ -8,7 +8,6 @@ import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.UtkastRepository
 import no.nav.mulighetsrommet.api.routes.v1.AvtaleRequest
 import no.nav.mulighetsrommet.api.routes.v1.responses.*
-import no.nav.mulighetsrommet.api.utils.AdminTiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.api.utils.AvtaleFilter
 import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.Database
@@ -64,13 +63,7 @@ class AvtaleService(
             return Either.Left(BadRequest(message = "Avtalen er aktiv og kan derfor ikke slettes."))
         }
 
-        val gjennomforingerForAvtale =
-            tiltaksgjennomforinger.getAll(
-                filter = AdminTiltaksgjennomforingFilter(
-                    avtaleId = id,
-                    dagensDato = currentDate,
-                ),
-            )
+        val gjennomforingerForAvtale = tiltaksgjennomforinger.getAll(avtaleId = id)
 
         if (gjennomforingerForAvtale.first > 0) {
             return Either.Left(BadRequest(message = "Avtalen har ${gjennomforingerForAvtale.first} ${if (gjennomforingerForAvtale.first > 1) "tiltaksgjennomføringer" else "tiltaksgjennomføring"} koblet til seg. Du må frikoble ${if (gjennomforingerForAvtale.first > 1) "gjennomføringene" else "gjennomføringen"} før du kan slette avtalen."))
@@ -108,7 +101,7 @@ class AvtaleService(
         return avtaler.getAllAvtalerSomNarmerSegSluttdato()
     }
 
-    fun avbrytAvtale(avtaleId: UUID, currentDate: LocalDate = LocalDate.now()): StatusResponse<Unit> {
+    fun avbrytAvtale(avtaleId: UUID): StatusResponse<Unit> {
         val avtaleForAvbryting = avtaler.get(avtaleId)
             ?: return Either.Left(NotFound("Fant ikke avtale for avbrytelse med id '$avtaleId'"))
 
@@ -120,13 +113,7 @@ class AvtaleService(
             return Either.Left(BadRequest(message = "Avtalen er allerede avsluttet og kan derfor ikke avbrytes."))
         }
 
-        val gjennomforingerForAvtale =
-            tiltaksgjennomforinger.getAll(
-                filter = AdminTiltaksgjennomforingFilter(
-                    avtaleId = avtaleForAvbryting.id,
-                    dagensDato = currentDate,
-                ),
-            )
+        val gjennomforingerForAvtale = tiltaksgjennomforinger.getAll(avtaleId = avtaleId)
 
         if (gjennomforingerForAvtale.first > 0) {
             return Either.Left(BadRequest(message = "Avtalen har ${gjennomforingerForAvtale.first} ${if (gjennomforingerForAvtale.first > 1) "tiltaksgjennomføringer" else "tiltaksgjennomføring"} koblet til seg. Du må frikoble ${if (gjennomforingerForAvtale.first > 1) "gjennomføringene" else "gjennomføringen"} før du kan avbryte avtalen."))
