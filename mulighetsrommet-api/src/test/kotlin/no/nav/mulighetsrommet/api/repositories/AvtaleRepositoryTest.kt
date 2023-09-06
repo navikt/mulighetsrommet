@@ -15,7 +15,6 @@ import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.domain.dbo.OverordnetEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
 import no.nav.mulighetsrommet.api.fixtures.*
-import no.nav.mulighetsrommet.api.utils.AdminTiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.api.utils.AvtaleFilter
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
@@ -793,8 +792,7 @@ class AvtaleRepositoryTest : FunSpec({
                 tiltaksgjennomforingRepository.upsert(gjennomforing3)
                 tiltaksgjennomforingRepository.upsert(gjennomforing4)
 
-                val filter = AdminTiltaksgjennomforingFilter()
-                val gjennomforinger = tiltaksgjennomforingRepository.getAll(filter = filter)
+                val gjennomforinger = tiltaksgjennomforingRepository.getAll()
                 gjennomforinger.first shouldBe 4
 
                 val antallGjennomforingerForAvtale =

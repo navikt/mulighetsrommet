@@ -5,6 +5,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.*
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
+import kotliquery.Query
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
@@ -13,7 +14,6 @@ import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingKontaktpersonDb
 import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures.avtale1
-import no.nav.mulighetsrommet.api.utils.AdminTiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.api.utils.DEFAULT_PAGINATION_LIMIT
 import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
@@ -393,6 +393,23 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         }
     }
 
+    context("skal migreres") {
+        test("skal migreres henter kun der tiltakstypen skal_migreres er true") {
+            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
+
+            Query("update tiltakstype set skal_migreres = true where id = '${TiltaksgjennomforingFixtures.Oppfolging1.tiltakstypeId}'")
+                .asUpdate.let { database.db.run(it) }
+
+            tiltaksgjennomforinger.upsert(TiltaksgjennomforingFixtures.Oppfolging1)
+            tiltaksgjennomforinger.upsert(TiltaksgjennomforingFixtures.Arbeidstrening1)
+
+            tiltaksgjennomforinger.getAll(skalMigreres = true).should {
+                it.first shouldBe 1
+                it.second[0].id shouldBe TiltaksgjennomforingFixtures.Oppfolging1.id
+            }
+        }
+    }
+
     context("Filtrer på avtale") {
         test("Kun gjennomforinger tilhørende avtale blir tatt med") {
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
@@ -404,7 +421,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             )
 
             val result = tiltaksgjennomforinger.getAll(
-                filter = AdminTiltaksgjennomforingFilter(avtaleId = avtale1.id),
+                avtaleId = avtale1.id,
             )
                 .second
             result shouldHaveSize 1
@@ -428,14 +445,14 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             )
 
             tiltaksgjennomforinger.getAll(
-                filter = AdminTiltaksgjennomforingFilter(arrangorOrgnr = "111111111"),
+                arrangorOrgnr = "111111111",
             ).should {
                 it.second.size shouldBe 1
                 it.second[0].id shouldBe TiltaksgjennomforingFixtures.Oppfolging1.id
             }
 
             tiltaksgjennomforinger.getAll(
-                filter = AdminTiltaksgjennomforingFilter(arrangorOrgnr = "999999999"),
+                arrangorOrgnr = "999999999",
             ).should {
                 it.second.size shouldBe 1
                 it.second[0].id shouldBe TiltaksgjennomforingFixtures.Oppfolging2.id
@@ -468,7 +485,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             )
 
             val result =
-                tiltaksgjennomforinger.getAll(filter = AdminTiltaksgjennomforingFilter()).second
+                tiltaksgjennomforinger.getAll().second
             result shouldHaveSize 2
         }
 
@@ -483,7 +500,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 ),
             )
 
-            tiltaksgjennomforinger.getAll(filter = AdminTiltaksgjennomforingFilter())
+            tiltaksgjennomforinger.getAll()
                 .second shouldHaveSize 2
         }
     }
@@ -703,9 +720,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 
     context("Filtrering på tiltaksgjennomforingstatus") {
         val avtaler = AvtaleRepository(database.db)
-        val defaultFilter = AdminTiltaksgjennomforingFilter(
-            dagensDato = LocalDate.of(2023, 2, 1),
-        )
+        val dagensDato = LocalDate.of(2023, 2, 1)
 
         val tiltaksgjennomforingAktiv = TiltaksgjennomforingFixtures.Arbeidstrening1
         val tiltaksgjennomforingAvsluttetStatus =
@@ -746,7 +761,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
 
             val result = tiltaksgjennomforingRepository.getAll(
-                filter = defaultFilter.copy(status = Tiltaksgjennomforingsstatus.AVBRUTT),
+                dagensDato = dagensDato,
+                status = Tiltaksgjennomforingsstatus.AVBRUTT,
             )
 
             result.second shouldHaveSize 1
@@ -757,7 +773,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
 
             val result = tiltaksgjennomforingRepository.getAll(
-                filter = defaultFilter.copy(status = Tiltaksgjennomforingsstatus.AVSLUTTET),
+                dagensDato = dagensDato,
+                status = Tiltaksgjennomforingsstatus.AVSLUTTET,
             )
 
             result.second shouldHaveSize 2
@@ -769,7 +786,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
 
             val result = tiltaksgjennomforingRepository.getAll(
-                filter = defaultFilter.copy(status = Tiltaksgjennomforingsstatus.GJENNOMFORES),
+                status = Tiltaksgjennomforingsstatus.GJENNOMFORES,
+                dagensDato = dagensDato,
             )
 
             result.second shouldHaveSize 1
@@ -780,7 +798,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
 
             val result = tiltaksgjennomforingRepository.getAll(
-                filter = defaultFilter.copy(status = Tiltaksgjennomforingsstatus.AVLYST),
+                status = Tiltaksgjennomforingsstatus.AVLYST,
+                dagensDato = dagensDato,
             )
 
             result.second shouldHaveSize 1
@@ -791,7 +810,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
 
             val result = tiltaksgjennomforingRepository.getAll(
-                filter = defaultFilter.copy(status = Tiltaksgjennomforingsstatus.APENT_FOR_INNSOK),
+                status = Tiltaksgjennomforingsstatus.APENT_FOR_INNSOK,
+                dagensDato = dagensDato,
             )
 
             result.second shouldHaveSize 1
@@ -831,7 +851,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             tiltaksgjennomforinger.upsert(gj3)
             tiltaksgjennomforinger.upsert(gj4)
 
-            tiltaksgjennomforinger.getAll(filter = defaultFilter.copy(navEnhet = "1")).should {
+            tiltaksgjennomforinger.getAll(navEnhet = "1").should {
                 it.first shouldBe 3
                 it.second.map { it.id } shouldContainAll listOf(gj1.id, gj2.id, gj4.id)
             }
@@ -888,7 +908,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             tiltaksgjennomforinger.upsert(gj4)
             tiltaksgjennomforinger.upsert(gj5)
 
-            tiltaksgjennomforinger.getAll(filter = defaultFilter.copy(navRegion = "nav_region"))
+            tiltaksgjennomforinger.getAll(navRegion = "nav_region")
                 .should {
                     it.first shouldBe 3
                     it.second.map { it.id } shouldContainAll listOf(gj4.id, gj3.id, gj5.id)
@@ -937,7 +957,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             tiltaksgjennomforinger.upsert(gj3)
             tiltaksgjennomforinger.upsert(gj4)
 
-            tiltaksgjennomforinger.getAll(filter = defaultFilter.copy(navRegion = "1800"))
+            tiltaksgjennomforinger.getAll(navRegion = "1800")
                 .should {
                     it.first shouldBe 1
                     it.second.map { it.id } shouldContainAll listOf(gj2.id)
@@ -970,9 +990,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 
         test("default pagination gets first 50 tiltak") {
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-            val (totalCount, items) = tiltaksgjennomforinger.getAll(
-                filter = AdminTiltaksgjennomforingFilter(),
-            )
+            val (totalCount, items) = tiltaksgjennomforinger.getAll()
 
             items.size shouldBe DEFAULT_PAGINATION_LIMIT
             items.first().navn shouldBe "Tiltak - 1"
@@ -988,7 +1006,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     4,
                     20,
                 ),
-                AdminTiltaksgjennomforingFilter(),
             )
 
             items.size shouldBe 20
@@ -1004,7 +1021,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 PaginationParams(
                     3,
                 ),
-                AdminTiltaksgjennomforingFilter(),
             )
 
             items.size shouldBe 5
@@ -1020,7 +1036,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 PaginationParams(
                     nullableLimit = 200,
                 ),
-                AdminTiltaksgjennomforingFilter(),
             )
 
             items.size shouldBe 105

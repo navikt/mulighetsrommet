@@ -6,7 +6,6 @@ import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
-import no.nav.mulighetsrommet.api.utils.AdminTiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.api.utils.DatabaseUtils
 import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.Database
@@ -362,36 +361,49 @@ class TiltaksgjennomforingRepository(private val db: Database) {
 
     fun getAll(
         pagination: PaginationParams = PaginationParams(),
-        filter: AdminTiltaksgjennomforingFilter,
+        search: String? = null,
+        navEnhet: String? = null,
+        tiltakstypeId: UUID? = null,
+        status: Tiltaksgjennomforingsstatus? = null,
+        sortering: String? = null,
+        sluttDatoCutoff: LocalDate? = ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate,
+        dagensDato: LocalDate = LocalDate.now(),
+        navRegion: String? = null,
+        avtaleId: UUID? = null,
+        arrangorOrgnr: String? = null,
+        ansvarligAnsattIdent: String? = null,
+        skalMigreres: Boolean? = null,
     ): Pair<Int, List<TiltaksgjennomforingAdminDto>> {
         val parameters = mapOf(
-            "search" to "%${filter.search?.replace("/", "#")?.trim()}%",
-            "navEnhet" to filter.navEnhet,
-            "tiltakstypeId" to filter.tiltakstypeId,
-            "status" to filter.status,
+            "search" to "%${search?.replace("/", "#")?.trim()}%",
+            "navEnhet" to navEnhet,
+            "tiltakstypeId" to tiltakstypeId,
+            "status" to status,
             "limit" to pagination.limit,
             "offset" to pagination.offset,
-            "cutoffdato" to filter.sluttDatoCutoff,
-            "today" to filter.dagensDato,
-            "navRegion" to filter.navRegion,
-            "avtaleId" to filter.avtaleId,
-            "arrangor_organisasjonsnummer" to filter.arrangorOrgnr,
-            "ansvarligAnsattIdent" to filter.ansvarligAnsattIdent?.let { "[{\"navident\": \"$it\"}]" },
+            "cutoffdato" to sluttDatoCutoff,
+            "today" to dagensDato,
+            "navRegion" to navRegion,
+            "avtaleId" to avtaleId,
+            "arrangor_organisasjonsnummer" to arrangorOrgnr,
+            "ansvarligAnsattIdent" to ansvarligAnsattIdent?.let { "[{\"navident\": \"$it\"}]" },
+            "skalMigreres" to skalMigreres,
         )
 
         val where = DatabaseUtils.andWhereParameterNotNull(
-            filter.search to "((lower(navn) like lower(:search)) or (tiltaksnummer like :search))",
-            filter.navEnhet to "(:navEnhet in (select enhetsnummer from tiltaksgjennomforing_nav_enhet tg_e where tg_e.tiltaksgjennomforing_id = id) or arena_ansvarlig_enhet = :navEnhet)",
-            filter.tiltakstypeId to "tiltakstype_id = :tiltakstypeId",
-            filter.status to filter.status?.toDbStatement(),
-            filter.sluttDatoCutoff to "(slutt_dato >= :cutoffdato or slutt_dato is null)",
-            filter.navRegion to "(arena_ansvarlig_enhet in (select enhetsnummer from nav_enhet where overordnet_enhet = :navRegion) or :navRegion in (select overordnet_enhet from nav_enhet inner join tiltaksgjennomforing_nav_enhet tg_e using(enhetsnummer) where tg_e.tiltaksgjennomforing_id = id) or :navRegion = arena_ansvarlig_enhet or :navRegion = navRegionEnhetsnummerForAvtale)",
-            filter.avtaleId to "avtale_id = :avtaleId",
-            filter.arrangorOrgnr to "arrangor_organisasjonsnummer = :arrangor_organisasjonsnummer",
-            filter.ansvarligAnsattIdent to "ansvarlige @> :ansvarligAnsattIdent::jsonb",
+            search to "((lower(navn) like lower(:search)) or (tiltaksnummer like :search))",
+            navEnhet to "(:navEnhet in (select enhetsnummer from tiltaksgjennomforing_nav_enhet tg_e where tg_e.tiltaksgjennomforing_id = id) or arena_ansvarlig_enhet = :navEnhet)",
+            tiltakstypeId to "tiltakstype_id = :tiltakstypeId",
+            status to status?.toDbStatement(),
+            sluttDatoCutoff to "(slutt_dato >= :cutoffdato or slutt_dato is null)",
+            navRegion to "(arena_ansvarlig_enhet in (select enhetsnummer from nav_enhet where overordnet_enhet = :navRegion) or :navRegion in (select overordnet_enhet from nav_enhet inner join tiltaksgjennomforing_nav_enhet tg_e using(enhetsnummer) where tg_e.tiltaksgjennomforing_id = id) or :navRegion = arena_ansvarlig_enhet or :navRegion = navRegionEnhetsnummerForAvtale)",
+            avtaleId to "avtale_id = :avtaleId",
+            arrangorOrgnr to "arrangor_organisasjonsnummer = :arrangor_organisasjonsnummer",
+            ansvarligAnsattIdent to "ansvarlige @> :ansvarligAnsattIdent::jsonb",
+            skalMigreres to "skal_migreres = :skalMigreres",
         )
 
-        val order = when (filter.sortering) {
+        val order = when (sortering) {
             "navn-ascending" -> "navn asc"
             "navn-descending" -> "navn desc"
             "tiltaksnummer-ascending" -> "tiltaksnummer asc"

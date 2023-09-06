@@ -42,14 +42,14 @@ fun Route.tiltaksgjennomforingRoutes() {
             val paginationParams = getPaginationParams()
             val filter = getAdminTiltaksgjennomforingsFilter()
 
-            call.respond(tiltaksgjennomforingService.getAll(paginationParams, filter))
+            call.respond(tiltaksgjennomforingService.getAllSkalMigreres(paginationParams, filter))
         }
 
         get("mine") {
             val paginationParams = getPaginationParams()
             val filter = getAdminTiltaksgjennomforingsFilter().copy(ansvarligAnsattIdent = getNavIdent())
 
-            call.respond(tiltaksgjennomforingService.getAll(paginationParams, filter))
+            call.respond(tiltaksgjennomforingService.getAllSkalMigreres(paginationParams, filter))
         }
 
         get("{id}") {
