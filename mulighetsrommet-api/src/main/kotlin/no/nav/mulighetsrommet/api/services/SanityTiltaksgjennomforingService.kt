@@ -38,6 +38,22 @@ class SanityTiltaksgjennomforingService(
         return sanityId
     }
 
+    suspend fun deleteSanityTiltaksgjennomforing(sanityId: UUID) {
+        val response = sanityClient.mutate(
+            listOf(
+                // Deletes both drafts and published dokuments
+                Mutation<Unit>(delete = Delete(id = "drafts.$sanityId")),
+                Mutation(delete = Delete(id = "$sanityId")),
+            ),
+        )
+
+        if (response.status.value != HttpStatusCode.OK.value) {
+            throw Exception("Klarte ikke slette tiltaksgjennomforing i sanity: ${response.status}")
+        } else {
+            log.info("Slettet tiltaksgjennomforing i Sanity med id: $sanityId")
+        }
+    }
+
     suspend fun createOrPatchSanityTiltaksgjennomforing(tiltaksgjennomforing: TiltaksgjennomforingAdminDto) {
         val eksisterendeSanityId = tiltaksgjennomforing.sanityId ?: oppdaterIdOmAlleredeFinnes(tiltaksgjennomforing)
 

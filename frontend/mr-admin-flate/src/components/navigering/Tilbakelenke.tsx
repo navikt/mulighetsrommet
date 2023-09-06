@@ -9,24 +9,10 @@ export function Tilbakelenke() {
   const avtaleId = useGetAvtaleIdFromUrl();
   const tiltaksgjennomforingId = useGetAdminTiltaksgjennomforingsIdFraUrl();
 
-  const parentPath = () => {
-    if (pathname.includes("avtaler")) {
-      if (tiltaksgjennomforingId) {
-        return `/avtaler/${avtaleId}`;
-      } else {
-        return "/avtaler";
-      }
-    } else if (tiltaksgjennomforingId) {
-      return "/tiltaksgjennomforinger";
-    } else {
-      return "/tiltakstyper";
-    }
-  }
-
   return (
     <Link
       className={styles.tilbakelenke}
-      to={parentPath()}
+      to={parentPath(pathname, avtaleId, tiltaksgjennomforingId)}
       data-testid="tilbakelenke"
     >
       <ChevronLeftIcon aria-label="Tilbakeknapp" />
@@ -34,3 +20,18 @@ export function Tilbakelenke() {
     </Link>
   );
 }
+
+export const parentPath = (pathname: string, avtaleId?: string, tiltaksgjennomforingId?: string) => {
+  if (pathname.includes("avtaler")) {
+    if (tiltaksgjennomforingId) {
+      return `/avtaler/${avtaleId}`;
+    } else {
+      return "/avtaler";
+    }
+  } else if (tiltaksgjennomforingId) {
+    return "/tiltaksgjennomforinger";
+  } else {
+    return "/tiltakstyper";
+  }
+}
+

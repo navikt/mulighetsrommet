@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.services
 import no.nav.mulighetsrommet.api.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.api.producers.TiltakstypeKafkaProducer
 import no.nav.mulighetsrommet.api.repositories.*
+import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
 import no.nav.mulighetsrommet.domain.Tiltakskoder
@@ -23,6 +24,7 @@ class ArenaAdapterService(
     private val tiltakstypeKafkaProducer: TiltakstypeKafkaProducer,
     private val sanityTiltaksgjennomforingService: SanityTiltaksgjennomforingService,
     private val virksomhetService: VirksomhetService,
+    private val db: Database,
 ) {
     fun upsertTiltakstype(tiltakstype: TiltakstypeDbo): QueryResult<TiltakstypeDbo> {
         return tiltakstyper.upsert(tiltakstype).onRight {
@@ -52,13 +54,16 @@ class ArenaAdapterService(
 
     suspend fun upsertTiltaksgjennomforing(tiltaksgjennomforing: ArenaTiltaksgjennomforingDbo): QueryResult<TiltaksgjennomforingAdminDto> {
         val mulighetsrommetAvtaleId = lookForExistingAvtale(tiltaksgjennomforing)
-        tiltaksgjennomforing.copy(avtaleId = mulighetsrommetAvtaleId).let {
-            virksomhetService.getOrSyncVirksomhet(it.arrangorOrganisasjonsnummer)
-            tiltaksgjennomforinger.upsertArenaTiltaksgjennomforing(it)
+        virksomhetService.getOrSyncVirksomhet(tiltaksgjennomforing.arrangorOrganisasjonsnummer)
+        val tiltaksgjennomforingMedAvtale = tiltaksgjennomforing.copy(avtaleId = mulighetsrommetAvtaleId)
+
+        val gjennomforing = db.transaction { tx ->
+            tiltaksgjennomforinger.upsertArenaTiltaksgjennomforing(tiltaksgjennomforingMedAvtale, tx)
+            val gjennomforing = tiltaksgjennomforinger.get(tiltaksgjennomforing.id, tx)!!
+            tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingDto.from(gjennomforing))
+            gjennomforing
         }
 
-        val gjennomforing = tiltaksgjennomforinger.get(tiltaksgjennomforing.id)!!
-        tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingDto.from(gjennomforing))
         if (gjennomforing.sluttDato == null || gjennomforing.sluttDato?.isAfter(TiltaksgjennomforingSluttDatoCutoffDate) == true) {
             sanityTiltaksgjennomforingService.createOrPatchSanityTiltaksgjennomforing(gjennomforing)
         }
@@ -76,12 +81,19 @@ class ArenaAdapterService(
         }
     }
 
-    fun removeTiltaksgjennomforing(id: UUID): QueryResult<Int> {
-        val i = tiltaksgjennomforinger.delete(id)
-        if (i != 0) {
+    suspend fun removeTiltaksgjennomforing(id: UUID) {
+        val gjennomforing = tiltaksgjennomforinger.get(id)
+            ?: return
+        val sanityId = gjennomforing.sanityId
+
+        db.transaction { tx ->
+            tiltaksgjennomforinger.delete(id, tx)
             tiltaksgjennomforingKafkaProducer.retract(id)
         }
-        return query { i }
+
+        if (sanityId != null) {
+            sanityTiltaksgjennomforingService.deleteSanityTiltaksgjennomforing(sanityId)
+        }
     }
 
     fun upsertTiltakshistorikk(tiltakshistorikk: ArenaTiltakshistorikkDbo): QueryResult<ArenaTiltakshistorikkDbo> {

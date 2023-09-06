@@ -195,6 +195,10 @@ class TiltaksgjennomforingRepository(private val db: Database) {
     }
 
     fun upsertArenaTiltaksgjennomforing(tiltaksgjennomforing: ArenaTiltaksgjennomforingDbo) {
+        db.transaction { upsertArenaTiltaksgjennomforing(tiltaksgjennomforing, it) }
+    }
+
+    fun upsertArenaTiltaksgjennomforing(tiltaksgjennomforing: ArenaTiltaksgjennomforingDbo, tx: Session) {
         logger.info("Lagrer tiltaksgjennomføring fra Arena id=${tiltaksgjennomforing.id}")
         @Language("PostgreSQL")
         val query = """
@@ -247,7 +251,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             returning *
         """.trimIndent()
 
-        queryOf(query, tiltaksgjennomforing.toSqlParameters()).asExecute.let { db.run(it) }
+        queryOf(query, tiltaksgjennomforing.toSqlParameters()).asExecute.let { tx.run(it) }
     }
 
     fun updateEnheter(tiltaksnummer: String, navEnheter: List<String>): Int {
