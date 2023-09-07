@@ -16,6 +16,12 @@ data class Mutation<T>(
     val createIfNotExists: T? = null,
     val createOrReplace: T? = null,
     val patch: T? = null,
+    val delete: Delete? = null,
+)
+
+@Serializable
+data class Delete(
+    val id: String,
 )
 
 @Serializable

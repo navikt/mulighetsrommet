@@ -150,7 +150,7 @@ class TiltaksgjennomforingService(
         return tiltaksgjennomforingRepository.getBySanityIds(sanityIds)
     }
 
-    fun delete(id: UUID, currentDate: LocalDate = LocalDate.now()): StatusResponse<Unit> {
+    suspend fun delete(id: UUID, currentDate: LocalDate = LocalDate.now()): StatusResponse<Unit> {
         val gjennomforing = tiltaksgjennomforingRepository.get(id)
             ?: return Either.Left(NotFound("Fant ikke gjennomføringen med id $id"))
 
@@ -167,10 +167,17 @@ class TiltaksgjennomforingService(
             return Either.Left(BadRequest(message = "Gjennomføringen kan ikke slettes fordi den har $antallDeltagere deltager(e) koblet til seg."))
         }
 
+        val sanityId = gjennomforing.sanityId
+
         return db.transaction { tx ->
             tiltaksgjennomforingRepository.delete(id, tx)
             tiltaksgjennomforingKafkaProducer.retract(id)
         }.right()
+            .onRight {
+                if (sanityId != null) {
+                    sanityTiltaksgjennomforingService.deleteSanityTiltaksgjennomforing(sanityId)
+                }
+            }
     }
 
     fun getAllMidlertidigStengteGjennomforingerSomNarmerSegSluttdato(): List<TiltaksgjennomforingNotificationDto> {

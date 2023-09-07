@@ -6,12 +6,15 @@ import {
   Tiltaksgjennomforing,
 } from "mulighetsrommet-api-client";
 import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { XMarkOctagonFillIcon } from "@navikt/aksel-icons";
 import styles from "../modal/Modal.module.scss";
 import { Lenkeknapp } from "../lenkeknapp/Lenkeknapp";
 import { UseMutationResult } from "@tanstack/react-query";
 import classNames from "classnames";
+import { useGetAdminTiltaksgjennomforingsIdFraUrl } from "../../hooks/useGetAdminTiltaksgjennomforingsIdFraUrl";
+import { useGetAvtaleIdFromUrl } from "../../hooks/useGetAvtaleIdFromUrl";
+import { parentPath } from "../navigering/Tilbakelenke";
 
 interface Props {
   modalOpen: boolean;
@@ -29,14 +32,15 @@ const SlettAvtaleGjennomforingModal = ({
   dataType,
 }: Props) => {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const avtaleId = useGetAvtaleIdFromUrl();
+  const tiltaksgjennomforingId = useGetAdminTiltaksgjennomforingsIdFraUrl();
 
   const fraArena = data?.opphav === Opphav.ARENA;
 
   useEffect(() => {
     if (mutation.isSuccess) {
-      const path =
-        dataType === "avtale" ? "/avtaler" : "tiltaksgjennomforinger";
-      navigate(path);
+      navigate(parentPath(pathname, avtaleId, tiltaksgjennomforingId));
       return;
     }
   }, [mutation]);
@@ -60,8 +64,8 @@ const SlettAvtaleGjennomforingModal = ({
           {fraArena
             ? `${tekster[dataType].navnPlural} kan ikke slettes`
             : mutation.isError
-            ? `Kan ikke slette «${data.navn}»`
-            : `Ønsker du å slette «${data.navn}»?`}
+              ? `Kan ikke slette «${data.navn}»`
+              : `Ønsker du å slette «${data.navn}»?`}
         </Heading>
       </div>
     );
@@ -74,8 +78,8 @@ const SlettAvtaleGjennomforingModal = ({
           ? `${tekster[dataType].navnPlural} «${data.navn}» kommer fra Arena og kan
             ikke slettes her`
           : mutation?.isError
-          ? (mutation.error as ApiError).body
-          : "Du kan ikke angre denne handlingen."}
+            ? (mutation.error as ApiError).body
+            : "Du kan ikke angre denne handlingen."}
       </BodyShort>
     );
   }

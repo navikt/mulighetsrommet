@@ -22,6 +22,22 @@ class SanityTiltaksgjennomforingService(
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
+    suspend fun deleteSanityTiltaksgjennomforing(sanityId: UUID) {
+        val response = sanityClient.mutate(
+            listOf(
+                // Deletes both drafts and published dokuments
+                Mutation<Unit>(delete = Delete(id = "drafts.$sanityId")),
+                Mutation(delete = Delete(id = "$sanityId")),
+            ),
+        )
+
+        if (response.status.value != HttpStatusCode.OK.value) {
+            throw Exception("Klarte ikke slette tiltaksgjennomforing i sanity: ${response.status}")
+        } else {
+            log.info("Slettet tiltaksgjennomforing i Sanity med id: $sanityId")
+        }
+    }
+
     suspend fun createOrPatchSanityTiltaksgjennomforing(tiltaksgjennomforing: TiltaksgjennomforingAdminDto) {
         val avtale = tiltaksgjennomforing.avtaleId?.let { avtaleRepository.get(it) }
         val tiltakstype = tiltakstypeRepository.get(tiltaksgjennomforing.tiltakstype.id)
