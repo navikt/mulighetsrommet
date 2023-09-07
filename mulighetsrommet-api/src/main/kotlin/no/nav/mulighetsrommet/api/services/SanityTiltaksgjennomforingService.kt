@@ -1,7 +1,9 @@
 package no.nav.mulighetsrommet.api.services
 
 import io.ktor.http.*
+import kotlinx.serialization.json.JsonObject
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
+import no.nav.mulighetsrommet.api.clients.sanity.SanityPerspective
 import no.nav.mulighetsrommet.api.domain.dto.*
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
@@ -20,27 +22,7 @@ class SanityTiltaksgjennomforingService(
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
-    private suspend fun oppdaterIdOmAlleredeFinnes(tiltaksgjennomforing: TiltaksgjennomforingAdminDto): UUID? {
-        val tiltaksnummer = tiltaksgjennomforing.tiltaksnummer ?: return null
-
-        val sanityTiltaksgjennomforinger = hentTiltaksgjennomforinger(tiltaksnummer)
-        if (sanityTiltaksgjennomforinger.size > 1) {
-            throw Exception("Fant ${sanityTiltaksgjennomforinger.size} sanity dokumenter med tiltaksnummer: $tiltaksnummer")
-        }
-        if (sanityTiltaksgjennomforinger.isEmpty()) {
-            return null
-        }
-        val sanityId = UUID.fromString(sanityTiltaksgjennomforinger[0]._id)
-        tiltaksgjennomforingRepository.updateSanityTiltaksgjennomforingId(
-            tiltaksgjennomforing.id,
-            sanityId,
-        )
-        return sanityId
-    }
-
     suspend fun createOrPatchSanityTiltaksgjennomforing(tiltaksgjennomforing: TiltaksgjennomforingAdminDto) {
-        val eksisterendeSanityId = tiltaksgjennomforing.sanityId ?: oppdaterIdOmAlleredeFinnes(tiltaksgjennomforing)
-
         val avtale = tiltaksgjennomforing.avtaleId?.let { avtaleRepository.get(it) }
         val tiltakstype = tiltakstypeRepository.get(tiltaksgjennomforing.tiltakstype.id)
         val enhet = virksomhetRepository.get(tiltaksgjennomforing.arrangor.organisasjonsnummer).getOrNull()
@@ -60,8 +42,8 @@ class SanityTiltaksgjennomforingService(
             lokasjon = tiltaksgjennomforing.lokasjonArrangor ?: lokasjonForVirksomhetFraBrreg,
         )
 
-        if (eksisterendeSanityId != null) {
-            patchSanityTiltaksgjennomforing(eksisterendeSanityId, sanityTiltaksgjennomforingFields)
+        if (tiltaksgjennomforing.sanityId != null) {
+            patchSanityTiltaksgjennomforing(tiltaksgjennomforing.sanityId!!, sanityTiltaksgjennomforingFields)
         } else {
             val sanityId = UUID.randomUUID()
             createSanityTiltaksgjennomforing(sanityId, sanityTiltaksgjennomforingFields)
@@ -96,8 +78,16 @@ class SanityTiltaksgjennomforingService(
         sanityId: UUID,
         sanityTiltaksgjennomforingFields: SanityTiltaksgjennomforingFields,
     ) {
+        val id = if (isPublished(sanityId)) {
+            "$sanityId"
+        } else if (isDraft(sanityId)) {
+            "drafts.$sanityId"
+        } else {
+            throw Exception("Fant ikke sanityId i sanity: $sanityId")
+        }
+
         val response = sanityClient.mutate(
-            listOf(Mutation(patch = Patch(id = sanityId.toString(), set = sanityTiltaksgjennomforingFields))),
+            listOf(Mutation(patch = Patch(id = id, set = sanityTiltaksgjennomforingFields))),
         )
 
         if (response.status.value != HttpStatusCode.OK.value) {
@@ -107,17 +97,28 @@ class SanityTiltaksgjennomforingService(
         }
     }
 
-    private suspend fun hentTiltaksgjennomforinger(tiltaksnummer: String): List<SanityTiltaksgjennomforingResponse> {
+    private suspend fun isPublished(sanityId: UUID): Boolean {
         val query = """
-            *[_type == "tiltaksgjennomforing" &&
-            !(_id in path('drafts.**')) &&
-            (tiltaksnummer.current == "$tiltaksnummer" || tiltaksnummer.current == "${
-            tiltaksnummer.split("#").getOrNull(1)
-        }")]
+            *[_type == "tiltaksgjennomforing" && _id == "$sanityId"]{_id}
         """.trimIndent()
         return when (val response = sanityClient.query(query)) {
             is SanityResponse.Result -> {
-                response.decode()
+                response.decode<List<String>>().isNotEmpty()
+            }
+
+            is SanityResponse.Error -> {
+                throw RuntimeException("Feil ved henting av gjennomføringer fra Sanity: ${response.error}")
+            }
+        }
+    }
+
+    private suspend fun isDraft(sanityId: UUID): Boolean {
+        val query = """
+            *[_type == "tiltaksgjennomforing" && _id == "$sanityId"]{_id}
+        """.trimIndent()
+        return when (val response = sanityClient.query(query, perspective = SanityPerspective.PREVIEW_DRAFTS)) {
+            is SanityResponse.Result -> {
+                response.decode<List<JsonObject>>().isNotEmpty()
             }
 
             is SanityResponse.Error -> {
