@@ -36,33 +36,33 @@ class AvtaleRepositoryTest : FunSpec({
         domain.initialize(database.db)
     }
 
-    context("Avtaleansvarlig") {
-        test("Ansvarlig tabell blir oppdatert til å reflektere liste med ansvarlige i dbo") {
+    context("Avtaleadministrator") {
+        test("tabell med administratorer blir oppdatert til å reflektere liste med administratorer i dbo") {
             val avtaler = AvtaleRepository(database.db)
 
             val ansatt1 = NavAnsattFixture.ansatt1
             val ansatt2 = NavAnsattFixture.ansatt2
             val avtale1 = AvtaleFixtures.avtale1.copy(
                 id = UUID.randomUUID(),
-                ansvarlige = listOf(ansatt1.navIdent),
+                administratorer = listOf(ansatt1.navIdent),
             )
 
             avtaler.upsert(avtale1)
 
-            database.assertThat("avtale_ansvarlig").row()
+            database.assertThat("avtale_administrator").row()
                 .value("avtale_id").isEqualTo(avtale1.id)
-                .value("navident").isEqualTo(ansatt1.navIdent)
+                .value("nav_ident").isEqualTo(ansatt1.navIdent)
 
-            avtaler.upsert(avtale1.copy(ansvarlige = listOf(ansatt1.navIdent, ansatt2.navIdent)))
+            avtaler.upsert(avtale1.copy(administratorer = listOf(ansatt1.navIdent, ansatt2.navIdent)))
 
-            database.assertThat("avtale_ansvarlig")
+            database.assertThat("avtale_administrator")
                 .hasNumberOfRows(2)
                 .row()
                 .value("avtale_id").isEqualTo(avtale1.id)
-                .value("navident").isEqualTo(ansatt1.navIdent)
+                .value("nav_ident").isEqualTo(ansatt1.navIdent)
                 .row()
                 .value("avtale_id").isEqualTo(avtale1.id)
-                .value("navident").isEqualTo(ansatt2.navIdent)
+                .value("nav_ident").isEqualTo(ansatt2.navIdent)
         }
     }
 
@@ -480,7 +480,6 @@ class AvtaleRepositoryTest : FunSpec({
                     id = UUID.randomUUID(),
                     navn = "Avtale hos Anders",
                     arenaAnsvarligEnhet = "0300",
-
                 )
                 val avtale2 = avtale1.copy(
                     id = UUID.randomUUID(),
@@ -990,12 +989,11 @@ class AvtaleRepositoryTest : FunSpec({
             avtaletype = Avtaletype.Avtale,
             avtalestatus = Avtalestatus.Avsluttet,
             prisbetingelser = "Alt er dyrt",
-            ansvarlig = null,
+            administrator = null,
             url = null,
             antallPlasser = null,
             navEnheter = emptyList(),
             opphav = ArenaMigrering.Opphav.ARENA,
-
         )
 
         avtaler.upsertArenaAvtale(avtale)

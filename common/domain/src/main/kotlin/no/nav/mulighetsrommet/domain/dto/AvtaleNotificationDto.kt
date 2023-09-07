@@ -15,5 +15,5 @@ data class AvtaleNotificationDto(
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate? = null,
-    val ansvarlige: List<String>,
+    val administratorer: List<String>,
 )

@@ -25,5 +25,5 @@ data class AvtaleDbo(
     val prisbetingelser: String? = null,
     val antallPlasser: Int? = null,
     val url: String? = null,
-    val ansvarlige: List<String> = emptyList(),
+    val administratorer: List<String> = emptyList(),
 )

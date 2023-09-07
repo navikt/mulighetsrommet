@@ -58,8 +58,8 @@ class NotifySluttdatoForMidlertidigStengtGjennomforingerNarmerSeg(
                 val tiltaksgjennomforinger: List<TiltaksgjennomforingNotificationDto> =
                     tiltaksgjennomforingService.getAllMidlertidigStengteGjennomforingerSomNarmerSegSluttdato()
                 tiltaksgjennomforinger.forEach {
-                    if (it.ansvarlige.isEmpty()) {
-                        logger.info("Fant ingen ansvarlige for gjennomføring med id: ${it.id}")
+                    if (it.administratorer.isEmpty()) {
+                        logger.info("Fant ingen administratorer for gjennomføring med id: ${it.id}")
                     } else {
                         val notification = ScheduledNotification(
                             type = NotificationType.NOTIFICATION,
@@ -68,7 +68,7 @@ class NotifySluttdatoForMidlertidigStengtGjennomforingerNarmerSeg(
                                     DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT),
                                 )
                             }.",
-                            targets = it.ansvarlige,
+                            targets = it.administratorer,
                             createdAt = Instant.now(),
                         )
                         notificationService.scheduleNotification(notification)

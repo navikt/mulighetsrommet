@@ -3,7 +3,10 @@ import {
   PaginertTiltaksgjennomforing,
   Tiltaksgjennomforing,
 } from "mulighetsrommet-api-client";
-import { mockTiltaksgjennomforinger, paginertMockTiltaksgjennomforinger } from "../fixtures/mock_tiltaksgjennomforinger";
+import {
+  mockTiltaksgjennomforinger,
+  paginertMockTiltaksgjennomforinger,
+} from "../fixtures/mock_tiltaksgjennomforinger";
 
 export const tiltaksgjennomforingHandlers = [
   rest.get<
@@ -21,7 +24,7 @@ export const tiltaksgjennomforingHandlers = [
   >("*/api/v1/internal/tiltaksgjennomforinger/mine", (req, res, ctx) => {
     const brukerident = "B123456";
     const data = mockTiltaksgjennomforinger.filter(
-      (gj) => gj.ansvarlig?.navident === brukerident,
+      (gj) => gj.administrator?.navIdent === brukerident,
     );
     return res(
       ctx.status(200),

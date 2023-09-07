@@ -12,8 +12,8 @@ describe("Forside", () => {
     cy.visit("/");
   });
   context("Header", () => {
-    it("Sjekk at navident til admin er i header", () => {
-      cy.getByTestId("header-navident").should("exist");
+    it("Sjekk at navIdent til admin er i header", () => {
+      cy.getByTestId("header-navIdent").should("exist");
       cy.checkPageA11y();
     });
   });

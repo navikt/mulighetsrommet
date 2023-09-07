@@ -13,14 +13,14 @@ export const mockAvtaler: Avtale[] = [
     id: "d1f163b7-1a41-4547-af16-03fd4492b7ba",
     tiltakstype: mockTiltakstyper.AVKLARAG,
     navn: "Testtiltak Varig",
-    ansvarlig: {
-      navident: "B123456",
+    administrator: {
+      navIdent: "B123456",
       navn: "Bertil Betabruker",
     },
     opphav: Opphav.MR_ADMIN_FLATE,
     avtalenummer: "2021#10579",
     leverandor: { ...mockVirksomheter.fretex, slettet: false },
-    leverandorUnderenheter: 
+    leverandorUnderenheter:
       mockVirksomheter.fretex.underenheter!!.map(v => ({
         organisasjonsnummer: v.organisasjonsnummer,
         navn: v.navn,
@@ -58,11 +58,11 @@ export const mockAvtaler: Avtale[] = [
     avtalenummer: "2021#10579",
     leverandor: { ...mockVirksomheter.fretex, slettet: false },
     opphav: Opphav.ARENA,
-    ansvarlig: {
-      navident: "B123456",
+    administrator: {
+      navIdent: "B123456",
       navn: "Bertil Betabruker",
     },
-    leverandorUnderenheter: 
+    leverandorUnderenheter:
       mockVirksomheter.fretex.underenheter!!.map(v => ({
         organisasjonsnummer: v.organisasjonsnummer,
         navn: v.navn,
@@ -79,8 +79,8 @@ export const mockAvtaler: Avtale[] = [
   {
     id: "6374b285-989d-4f78-a59e-29481b64ba92",
     opphav: Opphav.ARENA,
-    ansvarlig: {
-      navident: "B123456",
+    administrator: {
+      navIdent: "B123456",
       navn: "Bertil Betabruker",
     },
     tiltakstype: mockTiltakstyper.INDOPPFAG,
@@ -88,7 +88,7 @@ export const mockAvtaler: Avtale[] = [
     avtalenummer: "2020#4929",
     url: "https://www.websak.no",
     leverandor: { ...mockVirksomheter.fretex, slettet: false },
-    leverandorUnderenheter: 
+    leverandorUnderenheter:
       mockVirksomheter.fretex.underenheter!!.map(v => ({
         organisasjonsnummer: v.organisasjonsnummer,
         navn: v.navn,
@@ -107,12 +107,12 @@ export const mockAvtaler: Avtale[] = [
     navn: "Avtale hos Arbeids- og sosialdepartementet",
     avtalenummer: "2020#4993",
     opphav: Opphav.ARENA,
-    ansvarlig: {
-      navident: "P123456",
+    administrator: {
+      navIdent: "P123456",
       navn: "Pelle Pioner",
     },
     leverandor: { ...mockVirksomheter.fretex, slettet: false },
-    leverandorUnderenheter: 
+    leverandorUnderenheter:
       mockVirksomheter.fretex.underenheter!!.map(v => ({
         organisasjonsnummer: v.organisasjonsnummer,
         navn: v.navn,
@@ -129,12 +129,12 @@ export const mockAvtaler: Avtale[] = [
   {
     id: "8a4a4dee-98c7-4a07-bc0c-f677a46c406f",
     opphav: Opphav.ARENA,
-    ansvarlig: { navident: "P123456", navn: "Pelle Pioner" },
+    administrator: { navIdent: "P123456", navn: "Pelle Pioner" },
     tiltakstype: mockTiltakstyper.INDOPPFAG,
     navn: "Avtale hos Arendal fengsel",
     avtalenummer: "2020#6480",
     leverandor: { ...mockVirksomheter.fretex, slettet: false },
-    leverandorUnderenheter: 
+    leverandorUnderenheter:
       mockVirksomheter.fretex.underenheter!!.map(v => ({
         organisasjonsnummer: v.organisasjonsnummer,
         navn: v.navn,
@@ -153,13 +153,13 @@ export const mockAvtaler: Avtale[] = [
     navn: "Avtale hos ASKØY KOMMUNE BARNEHAGEADMINISTRASJ",
     avtalenummer: "2021#13076",
     leverandor: { ...mockVirksomheter.fretex, slettet: false },
-    leverandorUnderenheter: 
+    leverandorUnderenheter:
       mockVirksomheter.fretex.underenheter!!.map(v => ({
         organisasjonsnummer: v.organisasjonsnummer,
         navn: v.navn,
       })),
     opphav: Opphav.ARENA,
-    ansvarlig: { navident: "P123456", navn: "Pelle Pioner" },
+    administrator: { navIdent: "P123456", navn: "Pelle Pioner" },
     startDato: "2021-11-01",
     sluttDato: "2023-10-31",
     navEnheter: [],
@@ -172,11 +172,11 @@ export const mockAvtaler: Avtale[] = [
     id: "bd429f41-0222-4374-82af-ccf932e2348d",
     tiltakstype: mockTiltakstyper.INDOPPFAG,
     opphav: Opphav.ARENA,
-    ansvarlig: { navident: "P123456", navn: "Pelle Pioner" },
+    administrator: { navIdent: "P123456", navn: "Pelle Pioner" },
     navn: "Avtale hos ASKØY KOMMUNE KOMM TEKNISK AVD",
     avtalenummer: "2021#17845",
     leverandor: { ...mockVirksomheter.fretex, slettet: false },
-    leverandorUnderenheter: 
+    leverandorUnderenheter:
       mockVirksomheter.fretex.underenheter!!.map(v => ({
         organisasjonsnummer: v.organisasjonsnummer,
         navn: v.navn,
@@ -192,12 +192,12 @@ export const mockAvtaler: Avtale[] = [
   {
     id: "e26c53cd-cafd-4a57-b7e0-c774cf33ea0d",
     opphav: Opphav.ARENA,
-    ansvarlig: { navident: "P123456", navn: "Pelle Pioner" },
+    administrator: { navIdent: "P123456", navn: "Pelle Pioner" },
     tiltakstype: mockTiltakstyper.INDOPPFAG,
     navn: "Avtale hos AUST-AGDER SIVILFORSVARSDISTRIKT",
     avtalenummer: "2019#6552",
     leverandor: { ...mockVirksomheter.fretex, slettet: false },
-    leverandorUnderenheter: 
+    leverandorUnderenheter:
       mockVirksomheter.fretex.underenheter!!.map(v => ({
         organisasjonsnummer: v.organisasjonsnummer,
         navn: v.navn,
@@ -213,15 +213,15 @@ export const mockAvtaler: Avtale[] = [
   {
     id: "6267aed1-1d7a-419a-83aa-1c42488b6bf1",
     opphav: Opphav.ARENA,
-    ansvarlig: {
-      navident: "B123456",
+    administrator: {
+      navIdent: "B123456",
       navn: "Bertil Betabruker",
     },
     tiltakstype: mockTiltakstyper.INDOPPFAG,
     navn: "Avtale hos Bærum kommune Vei Og Trafikk",
     avtalenummer: "2021#20070",
     leverandor: { ...mockVirksomheter.fretex, slettet: false },
-    leverandorUnderenheter: 
+    leverandorUnderenheter:
       mockVirksomheter.fretex.underenheter!!.map(v => ({
         organisasjonsnummer: v.organisasjonsnummer,
         navn: v.navn,
@@ -241,11 +241,11 @@ export const mockAvtaler: Avtale[] = [
     avtalenummer: "2021#14456",
     leverandor: { ...mockVirksomheter.fretex, slettet: false },
     opphav: Opphav.ARENA,
-    ansvarlig: {
-      navident: "B123456",
+    administrator: {
+      navIdent: "B123456",
       navn: "Bertil Betabruker",
     },
-    leverandorUnderenheter: 
+    leverandorUnderenheter:
       mockVirksomheter.fretex.underenheter!!.map(v => ({
         organisasjonsnummer: v.organisasjonsnummer,
         navn: v.navn,
@@ -264,7 +264,7 @@ export const mockAvtaler: Avtale[] = [
     navn: "Avtale hos BYBANEN - BYBANEKONTORET",
     avtalenummer: "2020#6620",
     leverandor: { ...mockVirksomheter.fretex, slettet: false },
-    leverandorUnderenheter: 
+    leverandorUnderenheter:
       mockVirksomheter.fretex.underenheter!!.map(v => ({
         organisasjonsnummer: v.organisasjonsnummer,
         navn: v.navn,
@@ -277,8 +277,8 @@ export const mockAvtaler: Avtale[] = [
     avtalestatus: Avtalestatus.AVBRUTT,
     prisbetingelser: "Maskert prisbetingelser",
     opphav: Opphav.MR_ADMIN_FLATE,
-    ansvarlig: {
-      navident: "B123456",
+    administrator: {
+      navIdent: "B123456",
       navn: "Bertil Betabruker",
     },
   },
@@ -288,7 +288,7 @@ export const mockAvtaler: Avtale[] = [
     navn: "Avtale hos Bydelsadm Bydel Grünerløkka",
     avtalenummer: "2019#2191",
     leverandor: { ...mockVirksomheter.fretex, slettet: false },
-    leverandorUnderenheter: 
+    leverandorUnderenheter:
       mockVirksomheter.fretex.underenheter!!.map(v => ({
         organisasjonsnummer: v.organisasjonsnummer,
         navn: v.navn,
@@ -301,8 +301,8 @@ export const mockAvtaler: Avtale[] = [
     avtalestatus: Avtalestatus.AKTIV,
     prisbetingelser: "Maskert prisbetingelser",
     opphav: Opphav.MR_ADMIN_FLATE,
-    ansvarlig: {
-      navident: "B123456",
+    administrator: {
+      navIdent: "B123456",
       navn: "Bertil Betabruker",
     },
   },
@@ -312,7 +312,7 @@ export const mockAvtaler: Avtale[] = [
     navn: "Avtale hos DRAMMENSREGIONENS BRANNVESEN IKS",
     avtalenummer: "2020#12202",
     leverandor: { ...mockVirksomheter.fretex, slettet: false },
-    leverandorUnderenheter: 
+    leverandorUnderenheter:
       mockVirksomheter.fretex.underenheter!!.map(v => ({
         organisasjonsnummer: v.organisasjonsnummer,
         navn: v.navn,
@@ -325,8 +325,8 @@ export const mockAvtaler: Avtale[] = [
     avtalestatus: Avtalestatus.AKTIV,
     prisbetingelser: "Maskert prisbetingelser",
     opphav: Opphav.MR_ADMIN_FLATE,
-    ansvarlig: {
-      navident: "B123456",
+    administrator: {
+      navIdent: "B123456",
       navn: "Bertil Betabruker",
     },
   },
@@ -336,7 +336,7 @@ export const mockAvtaler: Avtale[] = [
     navn: "Avtale hos HÅ KOMMUNE SENTRALADMINISTRASJON",
     avtalenummer: "2021#18282",
     leverandor: { ...mockVirksomheter.fretex, slettet: false },
-    leverandorUnderenheter: 
+    leverandorUnderenheter:
       mockVirksomheter.fretex.underenheter!!.map(v => ({
         organisasjonsnummer: v.organisasjonsnummer,
         navn: v.navn,
@@ -349,8 +349,8 @@ export const mockAvtaler: Avtale[] = [
     avtalestatus: Avtalestatus.AVSLUTTET,
     prisbetingelser: "Maskert prisbetingelser",
     opphav: Opphav.MR_ADMIN_FLATE,
-    ansvarlig: {
-      navident: "B123456",
+    administrator: {
+      navIdent: "B123456",
       navn: "Bertil Betabruker",
     },
   },
@@ -360,7 +360,7 @@ export const mockAvtaler: Avtale[] = [
     navn: "Avtale hos Hardanger likningskontor",
     avtalenummer: "2021#20250",
     leverandor: { ...mockVirksomheter.fretex, slettet: false },
-    leverandorUnderenheter: 
+    leverandorUnderenheter:
       mockVirksomheter.fretex.underenheter!!.map(v => ({
         organisasjonsnummer: v.organisasjonsnummer,
         navn: v.navn,
@@ -373,8 +373,8 @@ export const mockAvtaler: Avtale[] = [
     avtalestatus: Avtalestatus.PLANLAGT,
     prisbetingelser: "Maskert prisbetingelser",
     opphav: Opphav.MR_ADMIN_FLATE,
-    ansvarlig: {
-      navident: "B123456",
+    administrator: {
+      navIdent: "B123456",
       navn: "Bertil Betabruker",
     },
   },
@@ -384,7 +384,7 @@ export const mockAvtaler: Avtale[] = [
     navn: "Avtale hos Hardanger likningskontor",
     avtalenummer: "2021#20172",
     leverandor: { ...mockVirksomheter.fretex, slettet: false },
-    leverandorUnderenheter: 
+    leverandorUnderenheter:
       mockVirksomheter.fretex.underenheter!!.map(v => ({
         organisasjonsnummer: v.organisasjonsnummer,
         navn: v.navn,
@@ -393,8 +393,8 @@ export const mockAvtaler: Avtale[] = [
     sluttDato: "2024-12-31",
     navEnheter: [],
     opphav: Opphav.MR_ADMIN_FLATE,
-    ansvarlig: {
-      navident: "B123456",
+    administrator: {
+      navIdent: "B123456",
       navn: "Bertil Betabruker",
     },
     navRegion: mockEnheter._0400,

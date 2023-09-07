@@ -69,7 +69,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.LEDIG,
                     antallPlasser = 12,
                     avtaleId = TiltaksgjennomforingFixtures.Oppfolging1.avtaleId,
-                    ansvarlig = null,
+                    administrator = null,
                     navEnheter = emptyList(),
                     sanityId = null,
                     oppstart = TiltaksgjennomforingOppstartstype.FELLES,
@@ -131,7 +131,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 oppstart = TiltaksgjennomforingOppstartstype.FELLES,
                 status = Tiltaksgjennomforingsstatus.AVSLUTTET,
                 estimertVentetid = null,
-                ansvarlig = null,
+                administrator = null,
                 navEnheter = emptyList(),
                 navRegion = null,
                 sanityId = null,
@@ -505,20 +505,20 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         }
     }
 
-    context("TiltaksgjennomforingAnsvarlig") {
-        test("Ansvarlige crud") {
+    context("Tiltaksgjennomforingadministrator") {
+        test("Administratorer crud") {
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
             val gjennomforing =
-                TiltaksgjennomforingFixtures.Oppfolging1.copy(ansvarlige = listOf(NavAnsattFixture.ansatt1.navIdent))
+                TiltaksgjennomforingFixtures.Oppfolging1.copy(administratorer = listOf(NavAnsattFixture.ansatt1.navIdent))
             tiltaksgjennomforinger.upsert(gjennomforing)
 
             tiltaksgjennomforinger.get(gjennomforing.id).should {
-                it!!.ansvarlig shouldBe TiltaksgjennomforingAdminDto.Ansvarlig(
-                    navident = NavAnsattFixture.ansatt1.navIdent,
+                it!!.administrator shouldBe TiltaksgjennomforingAdminDto.Administrator(
+                    navIdent = NavAnsattFixture.ansatt1.navIdent,
                     navn = "Donald Duck",
                 )
             }
-            database.assertThat("tiltaksgjennomforing_ansvarlig").hasNumberOfRows(1)
+            database.assertThat("tiltaksgjennomforing_administrator").hasNumberOfRows(1)
         }
     }
 
@@ -947,7 +947,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             ).shouldBeRight()
 
             val gj1 = TiltaksgjennomforingFixtures.Oppfolging1.copy(id = UUID.randomUUID(), navEnheter = listOf("1898"))
-            val gj2 = TiltaksgjennomforingFixtures.Oppfolging1.copy(id = UUID.randomUUID(), arenaAnsvarligEnhet = "1800")
+            val gj2 =
+                TiltaksgjennomforingFixtures.Oppfolging1.copy(id = UUID.randomUUID(), arenaAnsvarligEnhet = "1800")
             val gj3 = TiltaksgjennomforingFixtures.Oppfolging1.copy(id = UUID.randomUUID(), navEnheter = listOf("1898"))
             val gj4 =
                 TiltaksgjennomforingFixtures.Oppfolging1.copy(id = UUID.randomUUID(), navEnheter = listOf("1800"))

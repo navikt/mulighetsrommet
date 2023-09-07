@@ -253,7 +253,7 @@ class VirksomhetRepositoryTest : FunSpec({
                 avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
                 tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.LEDIG,
                 antallPlasser = 12,
-                ansvarlige = emptyList(),
+                administratorer = emptyList(),
                 navEnheter = emptyList(),
                 oppstart = TiltaksgjennomforingOppstartstype.FELLES,
                 opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,

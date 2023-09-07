@@ -37,14 +37,14 @@ class AvtaleService(
     suspend fun upsert(request: AvtaleRequest, navIdent: String): StatusResponse<AvtaleAdminDto> {
         virksomhetService.getOrSyncVirksomhet(request.leverandorOrganisasjonsnummer)
 
-        val previousAnsvarlig = avtaler.get(request.id)?.ansvarlig?.navident
+        val prevAdministrator = avtaler.get(request.id)?.administrator?.navIdent
         return request.toDbo()
             .map {
                 db.transaction { tx ->
                     avtaler.upsert(it, tx)
                     utkastRepository.delete(it.id, tx)
-                    if (navIdent != request.ansvarlig && previousAnsvarlig != request.ansvarlig) {
-                        sattSomAnsvarligNotification(it.navn, request.ansvarlig, tx)
+                    if (navIdent != request.administrator && prevAdministrator != request.administrator) {
+                        dispatchSattSomAdministratorNofication(it.navn, request.administrator, tx)
                     }
                     avtaler.get(it.id, tx)!!
                 }
@@ -122,11 +122,11 @@ class AvtaleService(
         return Either.Right(avtaler.avbrytAvtale(avtaleId))
     }
 
-    private fun sattSomAnsvarligNotification(avtaleNavn: String, ansvarlig: String, tx: Session) {
+    private fun dispatchSattSomAdministratorNofication(avtaleNavn: String, administrator: String, tx: Session) {
         val notification = ScheduledNotification(
             type = NotificationType.NOTIFICATION,
-            title = "Du har blitt satt som ansvarlig på avtalen \"$avtaleNavn\"",
-            targets = listOf(ansvarlig),
+            title = "Du har blitt satt som administrator på avtalen \"$avtaleNavn\"",
+            targets = listOf(administrator),
             createdAt = Instant.now(),
         )
         notificationRepository.insert(notification, tx)

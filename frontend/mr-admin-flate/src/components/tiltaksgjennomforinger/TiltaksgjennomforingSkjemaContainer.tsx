@@ -50,7 +50,7 @@ import { AvbrytTiltaksgjennomforing } from "./AvbrytTiltaksgjennomforing";
 import { TiltaksgjennomforingSkjemaKnapperad } from "./TiltaksgjennomforingSkjemaKnapperad";
 import { useVirksomhet } from "../../api/virksomhet/useVirksomhet";
 import { PlusIcon, XMarkIcon } from "@navikt/aksel-icons";
-import { AnsvarligOptions } from "../skjema/AnsvarligOptions";
+import { AdministratorOptions } from "../skjema/AdministratorOptions";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
 import { VirksomhetKontaktpersoner } from "../virksomhet/VirksomhetKontaktpersoner";
@@ -155,7 +155,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
     defaultValues: {
       navn: tiltaksgjennomforing?.navn,
       navEnheter: tiltaksgjennomforing?.navEnheter?.map((enhet) => enhet.enhetsnummer) || [],
-      ansvarlig: tiltaksgjennomforing?.ansvarlig?.navident,
+      administrator: tiltaksgjennomforing?.administrator?.navIdent,
       antallPlasser: tiltaksgjennomforing?.antallPlasser,
       startOgSluttDato: {
         startDato: tiltaksgjennomforing?.startDato
@@ -240,7 +240,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
       sluttDato: formaterDatoSomYYYYMMDD(data.startOgSluttDato.sluttDato),
       startDato: formaterDatoSomYYYYMMDD(data.startOgSluttDato.startDato),
       avtaleId: avtale.id,
-      ansvarlig: data.ansvarlig,
+      administrator: data.administrator,
       arrangorOrganisasjonsnummer:
         data.tiltaksArrangorUnderenhetOrganisasjonsnummer ||
         tiltaksgjennomforing?.arrangor?.organisasjonsnummer ||
@@ -414,16 +414,16 @@ export const TiltaksgjennomforingSkjemaContainer = ({
                 <SokeSelect
                   size="small"
                   placeholder={
-                    isLoadingAnsatt ? "Laster Tiltaksansvarlig..." : "Velg en"
+                    isLoadingAnsatt ? "Laster..." : "Velg en"
                   }
-                  label={"Tiltaksansvarlig"}
-                  {...register("ansvarlig")}
-                  options={AnsvarligOptions(
+                  label={"Administrator for gjennomføringen"}
+                  {...register("administrator")}
+                  options={AdministratorOptions(
                     ansatt,
-                    tiltaksgjennomforing?.ansvarlig,
+                    tiltaksgjennomforing?.administrator,
                     betabrukere,
                   )}
-                  onClearValue={() => setValue("ansvarlig", "")}
+                  onClearValue={() => setValue("administrator", "")}
                 />
               </FormGroup>
             </div>

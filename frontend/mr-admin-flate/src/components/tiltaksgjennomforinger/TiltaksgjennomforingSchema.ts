@@ -48,7 +48,7 @@ export const TiltaksgjennomforingSchema = z
     lokasjonArrangor: z.string()
       .min(1, { message: "Du må skrive inn lokasjon for hvor gjennomføringen finner sted" }),
     arrangorKontaktpersonId: z.string().nullable().optional(),
-    ansvarlig: z.string({ required_error: "Du må velge en ansvarlig" }),
+    administrator: z.string({ required_error: "Du må velge en administrator" }),
     midlertidigStengt: z
       .object({
         erMidlertidigStengt: z.boolean(),
