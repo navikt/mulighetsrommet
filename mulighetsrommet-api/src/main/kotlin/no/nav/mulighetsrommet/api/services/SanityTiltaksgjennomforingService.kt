@@ -103,7 +103,7 @@ class SanityTiltaksgjennomforingService(
         """.trimIndent()
         return when (val response = sanityClient.query(query)) {
             is SanityResponse.Result -> {
-                response.decode<List<String>>().isNotEmpty()
+                response.decode<List<JsonObject>>().isNotEmpty()
             }
 
             is SanityResponse.Error -> {
