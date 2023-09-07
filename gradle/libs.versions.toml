@@ -103,11 +103,11 @@ prometheus-caffeine = "io.prometheus:simpleclient_caffeine:0.16.0"
 
 shedlock-jdbc = "net.javacrumbs.shedlock:shedlock-provider-jdbc:5.7.0"
 
-slack-client = "com.slack.api:slack-api-client:1.30.0"
+slack-client = "com.slack.api:slack-api-client:1.31.0"
 
 slf4j = "org.slf4j:slf4j-api:2.0.9"
 
 apache-poi = "org.apache.poi:poi:5.2.3"
 apache-poi-ooxml = "org.apache.poi:poi-ooxml:5.2.3"
 
-unleash = "io.getunleash:unleash-client-java:8.3.0"
+unleash = "io.getunleash:unleash-client-java:8.3.1"

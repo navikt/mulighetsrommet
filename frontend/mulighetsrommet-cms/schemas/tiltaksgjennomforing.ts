@@ -9,7 +9,7 @@ import { Information } from "../components/Information";
 import { ShowFieldIfTiltakstypeMatches } from "../components/ShowFieldIfTiltakstypeMatches";
 import { API_VERSION } from "../sanity.config";
 import { EnhetType } from "./enhet";
-import { hasDuplicates, isIndividueltTiltak } from "../utils/utils";
+import { hasDuplicates, isInAdminFlate, isEgenRegiTiltak } from "../utils/utils";
 
 function erIkkeAdmin(props: ConditionalPropertyCallbackContext): boolean {
   return (
@@ -71,7 +71,7 @@ export const tiltaksgjennomforing = defineType({
       type: "string",
       validation: (rule) => rule.required(),
       readOnly: ({document} ) => {
-        return !isIndividueltTiltak(document.tiltakstype?._ref);
+        return isInAdminFlate(document.tiltakstype?._ref);
       },
     }),
     defineField({
@@ -82,7 +82,6 @@ export const tiltaksgjennomforing = defineType({
       type: "number",
       hidden: true,
       initialValue: () => new Date().getFullYear(),
-      readOnly: erIkkeAdmin,
     }),
     defineField({
       name: "lopenummer",
@@ -91,7 +90,6 @@ export const tiltaksgjennomforing = defineType({
         "Hvis tiltakstypen gjelder individuelle tiltak skal du ikke fylle inn løpenummer.",
       type: "number",
       hidden: true,
-      readOnly: erIkkeAdmin,
     }),
     defineField({
       name: "tiltaksnummer",
@@ -100,8 +98,9 @@ export const tiltaksgjennomforing = defineType({
         "Tiltaksnummeret er hentet fra Arena",
       type: "slug",
       hidden: ({document} ) => {
-        return isIndividueltTiltak(document.tiltakstype?._ref);
+        return !isInAdminFlate(document.tiltakstype?._ref) && !isEgenRegiTiltak(document.tiltakstype?._ref);
       },
+      readOnly: true,
       options: {
         slugify: (input) => {
           return input;
@@ -114,7 +113,6 @@ export const tiltaksgjennomforing = defineType({
           }`;
         },
       },
-      readOnly: erIkkeAdmin,
     }),
     defineField({
       name: "beskrivelse",
@@ -152,7 +150,7 @@ export const tiltaksgjennomforing = defineType({
         "Sted for gjennomføring, f.eks. Fredrikstad eller Tromsø. Veileder kan filtrere på verdiene i dette feltet, så ikke skriv fulle adresser.",
       type: "string",
       hidden: ({document} ) => {
-        return !isIndividueltTiltak(document.tiltakstype?._ref);
+        return isInAdminFlate(document.tiltakstype?._ref);
       },
     }),
     defineField({
@@ -169,11 +167,11 @@ export const tiltaksgjennomforing = defineType({
         },
       },
       hidden: ({document} ) => {
-        return !isIndividueltTiltak(document.tiltakstype?._ref);
+        return isInAdminFlate(document.tiltakstype?._ref);
       },
       validation: (rule) =>
         rule.custom((currentValue, { document }) => {
-          if (!isIndividueltTiltak(document.tiltakstype?._ref)) {
+          if (isInAdminFlate(document.tiltakstype?._ref)) {
             return true;
           }
           return currentValue === undefined ? "Fylke er påkrevd" : true;
@@ -186,7 +184,7 @@ export const tiltaksgjennomforing = defineType({
         "Hvilke enheter kan benytte seg av dette tiltaket? Hvis det gjelder for hele regionen kan dette feltet stå tomt.",
       type: "array",
       hidden: ({ document }) => {
-        return !document.fylke || !isIndividueltTiltak(document.tiltakstype?._ref);
+        return !document.fylke || isInAdminFlate(document.tiltakstype?._ref);
       },
       of: [
         {
@@ -207,7 +205,7 @@ export const tiltaksgjennomforing = defineType({
       ],
       validation: (rule) =>
         rule.custom(async (enheter, { document, getClient }) => {
-          if (!document.fylke || !enheter || !isIndividueltTiltak(document.tiltakstype?._ref)) {
+          if (!document.fylke || !enheter || isInAdminFlate(document.tiltakstype?._ref)) {
             return true;
           }
 
@@ -237,11 +235,11 @@ export const tiltaksgjennomforing = defineType({
       type: "array",
       of: [{ type: "reference", to: [{ type: "navKontaktperson" }] }],
       hidden: ({document} ) => {
-        return !isIndividueltTiltak(document.tiltakstype?._ref);
+        return isInAdminFlate(document.tiltakstype?._ref);
       },
       validation: (rule) =>
         rule.custom((currentValue, { document }) => {
-          if (!isIndividueltTiltak(document.tiltakstype?._ref)) {
+          if (isInAdminFlate(document.tiltakstype?._ref)) {
             return true;
           }
           if (!currentValue || currentValue.length === 0) {

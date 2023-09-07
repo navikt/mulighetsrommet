@@ -45,9 +45,8 @@ export const TiltaksgjennomforingSchema = z
         required_error: "Du må velge en underenhet for tiltaksarrangør",
       })
       .min(1, "Du må velge en underenhet for tiltaksarrangør"),
-    lokasjonArrangor: z.string().refine((data) => data?.length > 0, {
-      message: "Du må skrive inn lokasjon for hvor gjennomføringen finner sted",
-    }),
+    lokasjonArrangor: z.string()
+      .min(1, { message: "Du må skrive inn lokasjon for hvor gjennomføringen finner sted" }),
     arrangorKontaktpersonId: z.string().nullable().optional(),
     ansvarlig: z.string({ required_error: "Du må velge en ansvarlig" }),
     midlertidigStengt: z
