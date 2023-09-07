@@ -83,14 +83,14 @@ export function commonStructure(S, Context) {
               ),
 
             S.listItem()
-              .title("Per redaktør")
+              .title("Per administrator")
               .icon(GrUserAdmin)
               .child(
                 S.documentTypeList("redaktor")
-                  .title("Per redaktør")
+                  .title("Per administrator")
                   .child((redaktorId) =>
                     S.documentList()
-                      .title("Per redaktør")
+                      .title("Per administrator")
                       .filter(
                         '_type == "tiltaksgjennomforing" && $redaktorId in redaktor[]._ref'
                       )
