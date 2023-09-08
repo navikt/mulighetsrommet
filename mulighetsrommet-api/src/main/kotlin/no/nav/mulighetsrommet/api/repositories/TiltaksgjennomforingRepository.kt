@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.repositories
 
-import io.ktor.utils.io.core.*
 import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
@@ -109,16 +108,16 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         """.trimIndent()
 
         @Language("PostgreSQL")
-        val upsertAnsvarlig = """
-             insert into tiltaksgjennomforing_ansvarlig (tiltaksgjennomforing_id, navident)
+        val upsertAdministrator = """
+             insert into tiltaksgjennomforing_administrator (tiltaksgjennomforing_id, nav_ident)
              values (?::uuid, ?)
-             on conflict (tiltaksgjennomforing_id, navident) do nothing
+             on conflict (tiltaksgjennomforing_id, nav_ident) do nothing
         """.trimIndent()
 
         @Language("PostgreSQL")
-        val deleteAnsvarlige = """
-             delete from tiltaksgjennomforing_ansvarlig
-             where tiltaksgjennomforing_id = ?::uuid and not (navident = any (?))
+        val deleteAdministratorer = """
+             delete from tiltaksgjennomforing_administrator
+             where tiltaksgjennomforing_id = ?::uuid and not (nav_ident = any (?))
         """.trimIndent()
 
         @Language("PostgreSQL")
@@ -136,21 +135,21 @@ class TiltaksgjennomforingRepository(private val db: Database) {
 
         tx.run(queryOf(query, tiltaksgjennomforing.toSqlParameters()).asExecute)
 
-        tiltaksgjennomforing.ansvarlige.forEach { ansvarlig ->
+        tiltaksgjennomforing.administratorer.forEach { administrator ->
             tx.run(
                 queryOf(
-                    upsertAnsvarlig,
+                    upsertAdministrator,
                     tiltaksgjennomforing.id,
-                    ansvarlig,
+                    administrator,
                 ).asExecute,
             )
         }
 
         tx.run(
             queryOf(
-                deleteAnsvarlige,
+                deleteAdministratorer,
                 tiltaksgjennomforing.id,
-                db.createTextArray(tiltaksgjennomforing.ansvarlige),
+                db.createTextArray(tiltaksgjennomforing.administratorer),
             ).asExecute,
         )
 
@@ -375,7 +374,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         navRegion: String? = null,
         avtaleId: UUID? = null,
         arrangorOrgnr: String? = null,
-        ansvarligAnsattIdent: String? = null,
+        administratorNavIdent: String? = null,
         skalMigreres: Boolean? = null,
     ): Pair<Int, List<TiltaksgjennomforingAdminDto>> {
         val parameters = mapOf(
@@ -390,7 +389,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             "navRegion" to navRegion,
             "avtaleId" to avtaleId,
             "arrangor_organisasjonsnummer" to arrangorOrgnr,
-            "ansvarligAnsattIdent" to ansvarligAnsattIdent?.let { "[{\"navident\": \"$it\"}]" },
+            "administrator_nav_ident" to administratorNavIdent?.let { """[{ "navIdent": "$it" }]""" },
             "skalMigreres" to skalMigreres,
         )
 
@@ -403,7 +402,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             navRegion to "(arena_ansvarlig_enhet in (select enhetsnummer from nav_enhet where overordnet_enhet = :navRegion) or :navRegion in (select overordnet_enhet from nav_enhet inner join tiltaksgjennomforing_nav_enhet tg_e using(enhetsnummer) where tg_e.tiltaksgjennomforing_id = id) or :navRegion = arena_ansvarlig_enhet or :navRegion = navRegionEnhetsnummerForAvtale)",
             avtaleId to "avtale_id = :avtaleId",
             arrangorOrgnr to "arrangor_organisasjonsnummer = :arrangor_organisasjonsnummer",
-            ansvarligAnsattIdent to "ansvarlige @> :ansvarligAnsattIdent::jsonb",
+            administratorNavIdent to "administratorer @> :administrator_nav_ident::jsonb",
             skalMigreres to "skal_migreres = :skalMigreres",
         )
 
@@ -570,11 +569,13 @@ class TiltaksgjennomforingRepository(private val db: Database) {
     )
 
     private fun Row.toTiltaksgjennomforingAdminDto(): TiltaksgjennomforingAdminDto {
-        val ansvarlige =
-            Json.decodeFromString<List<TiltaksgjennomforingAdminDto.Ansvarlig?>>(string("ansvarlige")).filterNotNull()
+        val administratorer = Json
+            .decodeFromString<List<TiltaksgjennomforingAdminDto.Administrator?>>(string("administratorer"))
+            .filterNotNull()
         val navEnheter = Json.decodeFromString<List<NavEnhet?>>(string("nav_enheter")).filterNotNull()
-        val kontaktpersoner =
-            Json.decodeFromString<List<TiltaksgjennomforingKontaktperson?>>(string("kontaktpersoner")).filterNotNull()
+        val kontaktpersoner = Json
+            .decodeFromString<List<TiltaksgjennomforingKontaktperson?>>(string("kontaktpersoner"))
+            .filterNotNull()
 
         val startDato = localDate("start_dato")
         val sluttDato = localDateOrNull("slutt_dato")
@@ -615,7 +616,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             estimertVentetid = stringOrNull("estimert_ventetid"),
             antallPlasser = intOrNull("antall_plasser"),
             avtaleId = uuidOrNull("avtale_id"),
-            ansvarlig = ansvarlige.getOrNull(0),
+            administrator = administratorer.getOrNull(0),
             navEnheter = navEnheter,
             navRegion = stringOrNull("navRegionEnhetsnummerForAvtale")?.let {
                 NavEnhet(
@@ -633,9 +634,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         )
     }
 
-    @Suppress("UNCHECKED_CAST")
     private fun Row.toTiltaksgjennomforingNotificationDto(): TiltaksgjennomforingNotificationDto {
-        val ansvarlige = arrayOrNull<String?>("ansvarlige")?.asList()?.filterNotNull() ?: emptyList()
+        val administratorer = arrayOrNull<String?>("administratorer")?.asList()?.filterNotNull() ?: emptyList()
 
         val startDato = localDate("start_dato")
         val sluttDato = localDateOrNull("slutt_dato")
@@ -644,7 +644,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             navn = string("navn"),
             startDato = startDato,
             sluttDato = sluttDato,
-            ansvarlige = ansvarlige,
+            administratorer = administratorer,
             tiltaksnummer = stringOrNull("tiltaksnummer"),
             stengtTil = localDateOrNull("stengt_til"),
         )
@@ -690,17 +690,17 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                    tg.navn,
                    tg.start_dato,
                    tg.slutt_dato,
-                   array_agg(distinct a.navident) as ansvarlige,
+                   array_agg(distinct a.nav_ident) as administratorer,
                    array_agg(e.enhetsnummer) as navEnheter,
                    tg.tiltaksnummer,
                    tg.stengt_til
             from tiltaksgjennomforing tg
-                     left join tiltaksgjennomforing_ansvarlig a on a.tiltaksgjennomforing_id = tg.id
+                     left join tiltaksgjennomforing_administrator a on a.tiltaksgjennomforing_id = tg.id
                     left join tiltaksgjennomforing_nav_enhet e on e.tiltaksgjennomforing_id = tg.id
             where (?::timestamp + interval '14' day) = tg.slutt_dato
                or (?::timestamp + interval '7' day) = tg.slutt_dato
                or (?::timestamp + interval '1' day) = tg.slutt_dato
-            group by tg.id, a.navident;
+            group by tg.id, a.nav_ident;
         """.trimIndent()
 
         return queryOf(query, currentDate, currentDate, currentDate).map { it.toTiltaksgjennomforingNotificationDto() }
@@ -727,16 +727,16 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                    tg.start_dato,
                    tg.slutt_dato,
                    tg.stengt_til,
-                   array_agg(distinct a.navident) as ansvarlige,
+                   array_agg(distinct a.nav_ident) as administratorer,
                    array_agg(e.enhetsnummer) as navEnheter,
                    tg.tiltaksnummer
             from tiltaksgjennomforing tg
-                    left join tiltaksgjennomforing_ansvarlig a on a.tiltaksgjennomforing_id = tg.id
+                    left join tiltaksgjennomforing_administrator a on a.tiltaksgjennomforing_id = tg.id
                     left join tiltaksgjennomforing_nav_enhet e on e.tiltaksgjennomforing_id = tg.id
             where tg.stengt_til is not null and
                (?::timestamp + interval '7' day) = tg.stengt_til
                or (?::timestamp + interval '1' day) = tg.stengt_til
-            group by tg.id, a.navident;
+            group by tg.id, a.nav_ident;
         """.trimIndent()
 
         return queryOf(query, currentDate, currentDate).map { it.toTiltaksgjennomforingNotificationDto() }

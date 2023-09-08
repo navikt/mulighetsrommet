@@ -1,9 +1,9 @@
 import { SelectOption } from "./SokeSelect";
 import { NavAnsatt } from "mulighetsrommet-api-client";
 
-export const AnsvarligOptions = (
+export const AdministratorOptions = (
   ansatt?: NavAnsatt,
-  ansvarlig?: { navident: string; navn: string },
+  administrator?: { navIdent: string; navn: string },
   betabrukere?: NavAnsatt[],
 ): SelectOption[] => {
   if (!ansatt || !betabrukere) {
@@ -17,17 +17,18 @@ export const AnsvarligOptions = (
     },
   ];
 
-  if (ansvarlig?.navident && ansvarlig.navident !== ansatt?.navIdent) {
+  if (administrator?.navIdent && administrator.navIdent !== ansatt?.navIdent) {
     options.push({
-      value: ansvarlig.navident,
-      label: `${ansvarlig.navn} - ${ansvarlig.navident}`,
+      value: administrator.navIdent,
+      label: `${administrator.navn} - ${administrator.navIdent}`,
     });
   }
 
   betabrukere
     .filter(
       (b: NavAnsatt) =>
-        b.navIdent !== ansatt.navIdent && b.navIdent !== ansvarlig?.navident,
+        b.navIdent !== ansatt.navIdent &&
+        b.navIdent !== administrator?.navIdent,
     )
     .forEach((b: NavAnsatt) =>
       options.push({

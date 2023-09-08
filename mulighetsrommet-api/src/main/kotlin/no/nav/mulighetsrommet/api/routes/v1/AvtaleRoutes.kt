@@ -41,7 +41,7 @@ fun Route.avtaleRoutes() {
 
         get("mine") {
             val pagination = getPaginationParams()
-            val filter = getAvtaleFilter().copy(ansvarligAnsattIdent = getNavIdent())
+            val filter = getAvtaleFilter().copy(administratorNavIdent = getNavIdent())
             val result = avtaler.getAll(filter, pagination)
 
             call.respond(result)
@@ -118,7 +118,7 @@ data class AvtaleRequest(
     val sluttDato: LocalDate,
     val navRegion: String,
     val url: String,
-    val ansvarlig: String,
+    val administrator: String,
     val avtaletype: Avtaletype,
     val prisOgBetalingsinformasjon: String? = null,
     val navEnheter: List<String> = emptyList(),
@@ -153,7 +153,7 @@ data class AvtaleRequest(
                 avslutningsstatus = avslutningsstatus,
                 antallPlasser = null,
                 url = url,
-                ansvarlige = listOf(ansvarlig),
+                administratorer = listOf(administrator),
                 prisbetingelser = prisOgBetalingsinformasjon,
                 navEnheter = navEnheter,
                 opphav = opphav,

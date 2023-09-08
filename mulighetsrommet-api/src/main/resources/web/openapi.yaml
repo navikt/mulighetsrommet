@@ -1628,16 +1628,8 @@ components:
         prisbetingelser:
           type: string
           nullable: true
-        ansvarlig:
-          type: object
-          properties:
-            navident:
-              type: string
-            navn:
-              type: string
-          required:
-            - navident
-            - navn
+        administrator:
+          $ref: "#/components/schemas/AvtaleAdministrator"
         url:
           type: string
           nullable: true
@@ -1697,7 +1689,7 @@ components:
           type: string
         url:
           type: string
-        ansvarlig:
+        administrator:
           type: string
         avtaletype:
           $ref: "#/components/schemas/Avtaletype"
@@ -1723,7 +1715,7 @@ components:
         - navRegion
         - avtalestatus
         - antallPlasser
-        - ansvarlig
+        - administrator
         - avtaletype
         - navEnheter
 
@@ -1841,16 +1833,8 @@ components:
             $ref: "#/components/schemas/EmbeddedNavEnhet"
         navRegion:
           $ref: "#/components/schemas/EmbeddedNavEnhet"
-        ansvarlig:
-          type: object
-          properties:
-            navident:
-              type: string
-            navn:
-              type: string
-          required:
-            - navident
-            - navn
+        administrator:
+          $ref: "#/components/schemas/TiltaksgjennomforingAdministrator"
         antallPlasser:
           type: integer
         avtaleId:
@@ -1921,7 +1905,7 @@ components:
         tiltaksnummer:
           type: string
           nullable: true
-        ansvarlig:
+        administrator:
           type: string
         navEnheter:
           type: array
@@ -1963,7 +1947,7 @@ components:
         - arrangorOrganisasjonsnummer
         - arrangorKontaktpersonId
         - tiltaksnummer
-        - ansvarlig
+        - administrator
         - navEnheter
         - oppstart
         - stengtFra
@@ -2376,6 +2360,28 @@ components:
       required:
         - navn
         - enhetsnummer
+
+    AvtaleAdministrator:
+      type: object
+      properties:
+        navIdent:
+          type: string
+        navn:
+          type: string
+      required:
+        - navIdent
+        - navn
+
+    TiltaksgjennomforingAdministrator:
+      type: object
+      properties:
+        navIdent:
+          type: string
+        navn:
+          type: string
+      required:
+        - navIdent
+        - navn
 
     SanityInnsatsgruppe:
       type: object

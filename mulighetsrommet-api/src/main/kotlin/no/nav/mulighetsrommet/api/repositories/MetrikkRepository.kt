@@ -25,12 +25,12 @@ class MetrikkRepository(private val db: Database) {
         return queryOf(query).map { it.int("antallLesteNotifikasjoner") }.asSingle.let { db.run(it) } ?: 0
     }
 
-    fun hentAntallAvtalerMedAnsvarlig(): Int {
+    fun hentAntallAvtalerMedAdministrator(): Int {
         @Language("PostgreSQL")
         val query = """
-            select count(*) as antallAvtalerMedAnsvarlig from avtale_ansvarlig
+            select count(distinct avtale_id) from avtale_administrator;
         """.trimIndent()
-        return queryOf(query).map { it.int("antallAvtalerMedAnsvarlig") }.asSingle.let { db.run(it) } ?: 0
+        return queryOf(query).map { it.int("count") }.asSingle.let { db.run(it) } ?: 0
     }
 
     fun hentAntallLeverandorer(): Int {
@@ -51,13 +51,13 @@ class MetrikkRepository(private val db: Database) {
         return queryOf(query).map { it.int("antallArrangorer") }.asSingle.let { db.run(it) } ?: 0
     }
 
-    fun hentAntallAnsvarligForTiltaksgjennomforing(): Int {
+    fun hentAntallTiltaksgjennomforingerMedAdministrator(): Int {
         @Language("PostgreSQL")
         val query = """
-            select count(*) as antallAnsvarligForGjennomforing from tiltaksgjennomforing_ansvarlig
+            select count(distinct tiltaksgjennomforing_id) from tiltaksgjennomforing_administrator;
         """.trimIndent()
 
-        return queryOf(query).map { it.int("antallAnsvarligForGjennomforing") }.asSingle.let { db.run(it) } ?: 0
+        return queryOf(query).map { it.int("count") }.asSingle.let { db.run(it) } ?: 0
     }
 
     fun hentAntallTiltaksgjennomforingerMedOpphav(opphav: ArenaMigrering.Opphav): Int {

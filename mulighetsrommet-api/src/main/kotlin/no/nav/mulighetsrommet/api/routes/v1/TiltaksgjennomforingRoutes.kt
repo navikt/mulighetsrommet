@@ -47,7 +47,7 @@ fun Route.tiltaksgjennomforingRoutes() {
 
         get("mine") {
             val paginationParams = getPaginationParams()
-            val filter = getAdminTiltaksgjennomforingsFilter().copy(ansvarligAnsattIdent = getNavIdent())
+            val filter = getAdminTiltaksgjennomforingsFilter().copy(administratorNavIdent = getNavIdent())
 
             call.respond(tiltaksgjennomforingService.getAllSkalMigreres(paginationParams, filter))
         }
@@ -101,7 +101,7 @@ data class TiltaksgjennomforingRequest(
     @Serializable(with = UUIDSerializer::class)
     val arrangorKontaktpersonId: UUID?,
     val tiltaksnummer: String?,
-    val ansvarlig: String,
+    val administrator: String,
     val navEnheter: List<String>,
     val oppstart: TiltaksgjennomforingOppstartstype,
     @Serializable(with = LocalDateSerializer::class)
@@ -151,7 +151,7 @@ data class TiltaksgjennomforingRequest(
                 tiltaksnummer = tiltaksnummer,
                 arrangorOrganisasjonsnummer = arrangorOrganisasjonsnummer,
                 arrangorKontaktpersonId = arrangorKontaktpersonId,
-                ansvarlige = listOf(ansvarlig),
+                administratorer = listOf(administrator),
                 navEnheter = navEnheter,
                 oppstart = oppstart,
                 opphav = opphav ?: ArenaMigrering.Opphav.MR_ADMIN_FLATE,

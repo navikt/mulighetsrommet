@@ -141,7 +141,7 @@ class VeilederflateServiceTest : FunSpec({
         estimertVentetid = null,
         antallPlasser = null,
         avtaleId = null,
-        ansvarlig = null,
+        administrator = null,
         navEnheter = emptyList(),
         navRegion = null,
         sanityId = UUID.fromString("f21d1e35-d63b-4de7-a0a5-589e57111527"),

@@ -22,7 +22,7 @@ data class TiltaksgjennomforingDbo(
     val estimertVentetid: String?,
     val antallPlasser: Int,
     val avtaleId: UUID,
-    val ansvarlige: List<String>,
+    val administratorer: List<String>,
     val navEnheter: List<String>,
     val oppstart: TiltaksgjennomforingOppstartstype,
     val opphav: ArenaMigrering.Opphav,

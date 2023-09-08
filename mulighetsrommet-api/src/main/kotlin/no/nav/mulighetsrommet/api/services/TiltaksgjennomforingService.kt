@@ -49,15 +49,15 @@ class TiltaksgjennomforingService(
         }
         virksomhetService.getOrSyncVirksomhet(request.arrangorOrganisasjonsnummer)
 
-        val previousAnsvarlig = tiltaksgjennomforingRepository.get(request.id)?.ansvarlig?.navident
+        val prevAdministrator = tiltaksgjennomforingRepository.get(request.id)?.administrator?.navIdent
 
         return request.toDbo()
             .map { dbo ->
                 db.transaction { tx ->
                     tiltaksgjennomforingRepository.upsert(dbo, tx)
                     utkastRepository.delete(dbo.id, tx)
-                    if (navIdent != request.ansvarlig && request.ansvarlig != previousAnsvarlig) {
-                        sattSomAnsvarligNotification(dbo.navn, request.ansvarlig, tx)
+                    if (navIdent != request.administrator && request.administrator != prevAdministrator) {
+                        dispatchSattSomAdministratorNotification(dbo.navn, request.administrator, tx)
                     }
 
                     val dto = tiltaksgjennomforingRepository.get(request.id, tx)!!
@@ -89,7 +89,7 @@ class TiltaksgjennomforingService(
                 navRegion = filter.navRegion,
                 avtaleId = filter.avtaleId,
                 arrangorOrgnr = filter.arrangorOrgnr,
-                ansvarligAnsattIdent = filter.ansvarligAnsattIdent,
+                administratorNavIdent = filter.administratorNavIdent,
                 skalMigreres = true,
             )
             .let { (totalCount, data) ->
@@ -120,7 +120,7 @@ class TiltaksgjennomforingService(
                 navRegion = filter.navRegion,
                 avtaleId = filter.avtaleId,
                 arrangorOrgnr = filter.arrangorOrgnr,
-                ansvarligAnsattIdent = filter.ansvarligAnsattIdent,
+                administratorNavIdent = filter.administratorNavIdent,
             )
             .let { (totalCount, data) ->
                 PaginatedResponse(
@@ -208,11 +208,11 @@ class TiltaksgjennomforingService(
         }.right()
     }
 
-    private fun sattSomAnsvarligNotification(gjennomforingNavn: String, ansvarlig: String, tx: Session) {
+    private fun dispatchSattSomAdministratorNotification(gjennomforingNavn: String, administrator: String, tx: Session) {
         val notification = ScheduledNotification(
             type = NotificationType.NOTIFICATION,
-            title = "Du har blitt satt som ansvarlig på gjennomføringen \"${gjennomforingNavn}\"",
-            targets = listOf(ansvarlig),
+            title = "Du har blitt satt som administrator på gjennomføringen \"${gjennomforingNavn}\"",
+            targets = listOf(administrator),
             createdAt = Instant.now(),
         )
         notificationRepository.insert(notification, tx)

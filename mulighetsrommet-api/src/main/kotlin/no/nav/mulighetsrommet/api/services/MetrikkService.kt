@@ -11,14 +11,14 @@ class MetrikkService(private val metrikkRepository: MetrikkRepository) {
         Metrikker.appMicrometerRegistry.gauge("antall.uleste.notifikasjoner", AtomicInteger(0))!!
     private val antallLesteGauge: AtomicInteger =
         Metrikker.appMicrometerRegistry.gauge("antall.leste.notifikasjoner", AtomicInteger(0))!!
-    private val antallAvtalerMedAnsvarligGauge: AtomicInteger =
-        Metrikker.appMicrometerRegistry.gauge("antall.avtaler.med.ansvarlig", AtomicInteger(0))!!
+    private val antallAvtalerMedAdministratorGauge: AtomicInteger =
+        Metrikker.appMicrometerRegistry.gauge("antall.avtaler.med.administrator", AtomicInteger(0))!!
     private val antallLeverandorer: AtomicInteger =
         Metrikker.appMicrometerRegistry.gauge("antall.leverandorer", AtomicInteger(0))!!
     private val antallArrangorer: AtomicInteger =
         Metrikker.appMicrometerRegistry.gauge("antall.arrangorer", AtomicInteger(0))!!
-    private val antallAnsvarligeForGjennomforingGauge: AtomicInteger =
-        Metrikker.appMicrometerRegistry.gauge("antall.tiltaksgjennomforinger.med.ansvarlig", AtomicInteger(0))!!
+    private val antallGjennomforingerMedAdministratorGauge: AtomicInteger =
+        Metrikker.appMicrometerRegistry.gauge("antall.tiltaksgjennomforinger.med.administrator", AtomicInteger(0))!!
     private val antallGjennomforingerMedOpphavArenaGauge: AtomicInteger =
         Metrikker.appMicrometerRegistry.gauge("antall.tiltaksgjennomforinger.fra.arena", AtomicInteger(0))!!
     private val antallGjennomforingerMedOpphavAdminflateGauge: AtomicInteger =
@@ -39,16 +39,20 @@ class MetrikkService(private val metrikkRepository: MetrikkRepository) {
     fun oppdaterMetrikker() {
         antallUlesteGauge.set(metrikkRepository.hentAntallUlesteNotifikasjoner())
         antallLesteGauge.set(metrikkRepository.hentAntallLesteNotifikasjoner())
-        antallAvtalerMedAnsvarligGauge.set(metrikkRepository.hentAntallAvtalerMedAnsvarlig())
+        antallAvtalerMedAdministratorGauge.set(metrikkRepository.hentAntallAvtalerMedAdministrator())
         antallLeverandorer.set(metrikkRepository.hentAntallLeverandorer())
         antallArrangorer.set(metrikkRepository.hentAntallArrangorer())
-        antallAnsvarligeForGjennomforingGauge.set(metrikkRepository.hentAntallAnsvarligForTiltaksgjennomforing())
+        antallGjennomforingerMedAdministratorGauge.set(metrikkRepository.hentAntallTiltaksgjennomforingerMedAdministrator())
         antallDeltakereMedOpphavAmt.set(metrikkRepository.hentAntallDeltakerMedOpphav(opphav = Deltakeropphav.AMT))
         antallDeltakereMedOpphavArena.set(metrikkRepository.hentAntallDeltakerMedOpphav(opphav = Deltakeropphav.ARENA))
         antallAvtalerFraAdminFlateGauge.set(metrikkRepository.hentAntallAvtalerMedOpphav(opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE))
         antallAvtalerFraArenaGauge.set(metrikkRepository.hentAntallAvtalerMedOpphav(opphav = ArenaMigrering.Opphav.ARENA))
         antallGjennomforingerMedOpphavArenaGauge.set(metrikkRepository.hentAntallTiltaksgjennomforingerMedOpphav(opphav = ArenaMigrering.Opphav.ARENA))
-        antallGjennomforingerMedOpphavAdminflateGauge.set(metrikkRepository.hentAntallTiltaksgjennomforingerMedOpphav(opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE))
+        antallGjennomforingerMedOpphavAdminflateGauge.set(
+            metrikkRepository.hentAntallTiltaksgjennomforingerMedOpphav(
+                opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
+            ),
+        )
         antallAvtaleNotater.set(metrikkRepository.hentAntallAvtaleNotater())
         antallTiltaksgjennomforingNotater.set(metrikkRepository.hentAntallTiltaksgjennomforingNotater())
     }
