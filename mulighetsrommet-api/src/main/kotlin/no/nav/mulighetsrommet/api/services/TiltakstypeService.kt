@@ -41,6 +41,10 @@ class TiltakstypeService(
         return tiltakstypeRepository.get(id)
     }
 
+    fun getBySanityId(sanityId: UUID): TiltakstypeDto? {
+        return tiltakstypeRepository.getBySanityId(sanityId)
+    }
+
     fun getNokkeltallForTiltakstype(tiltakstypeId: UUID): TiltakstypeNokkeltallDto {
         val antallGjennomforinger = tiltaksgjennomforingRepository.countGjennomforingerForTiltakstypeWithId(tiltakstypeId)
         val antallAvtaler = avtaleRepository.countAktiveAvtalerForTiltakstypeWithId(tiltakstypeId)
