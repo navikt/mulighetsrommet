@@ -206,6 +206,30 @@ class AvtaleRepositoryTest : FunSpec({
             }
         }
 
+        test("administrator") {
+            val a1 = AvtaleFixtures.avtale1.copy(
+                id = UUID.randomUUID(),
+                administratorer = listOf(NavAnsattFixture.ansatt1.navIdent),
+            )
+            val a2 = AvtaleFixtures.avtale1.copy(
+                id = UUID.randomUUID(),
+                administratorer = listOf(NavAnsattFixture.ansatt1.navIdent, NavAnsattFixture.ansatt2.navIdent),
+            )
+
+            avtaler.upsert(a1)
+            avtaler.upsert(a2)
+
+            avtaler.getAll(filter = AvtaleFilter(administratorNavIdent = NavAnsattFixture.ansatt1.navIdent)).should {
+                it.first shouldBe 2
+                it.second.map { tg -> tg.id } shouldContainAll listOf(a1.id, a2.id)
+            }
+
+            avtaler.getAll(filter = AvtaleFilter(administratorNavIdent = NavAnsattFixture.ansatt2.navIdent)).should {
+                it.first shouldBe 1
+                it.second.map { tg -> tg.id } shouldContainAll listOf(a2.id)
+            }
+        }
+
         context("Avtalestatus") {
             test("filtrer på avbrutt") {
                 val avtaleAktiv = AvtaleFixtures.avtale1.copy(
@@ -414,7 +438,6 @@ class AvtaleRepositoryTest : FunSpec({
             result.second[0].tiltakstype.id shouldBe tiltakstypeId
             result.second[1].tiltakstype.id shouldBe tiltakstypeId
         }
-
     }
 
     context("Sortering") {
