@@ -30,8 +30,7 @@ const TiltaksgjennomforingSkjemaPage = () => {
     searchParams.get("utkastId") || undefined,
   );
   const { data: avtale } = useAvtale(
-      tiltaksgjennomforing?.avtaleId ??
-      utkast?.utkastData?.avtaleId
+    tiltaksgjennomforing?.avtaleId ?? utkast?.utkastData?.avtaleId,
   );
   const { data: tiltakstyper, isLoading: isLoadingTiltakstyper } =
     useTiltakstyper({ status: Tiltakstypestatus.AKTIV }, 1);
@@ -86,7 +85,7 @@ const TiltaksgjennomforingSkjemaPage = () => {
           ? utkastModus
             ? "Rediger utkast"
             : "Rediger tiltaksgjennomføring"
-          : "Opprett ny tiltaksgjennomforing"}
+          : "Opprett ny tiltaksgjennomføring"}
       </Header>
       <ContainerLayoutDetaljer>
         <div className={styles.skjema}>
