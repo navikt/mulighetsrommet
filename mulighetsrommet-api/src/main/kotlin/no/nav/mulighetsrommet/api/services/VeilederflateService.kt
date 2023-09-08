@@ -6,7 +6,11 @@ import io.prometheus.client.cache.caffeine.CacheMetricsCollector
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityPerspective
 import no.nav.mulighetsrommet.api.domain.dto.*
-import no.nav.mulighetsrommet.api.utils.*
+import no.nav.mulighetsrommet.api.utils.TiltaksgjennomforingFilter
+import no.nav.mulighetsrommet.api.utils.byggInnsatsgruppeFilter
+import no.nav.mulighetsrommet.api.utils.byggSokeFilter
+import no.nav.mulighetsrommet.api.utils.byggTiltakstypeFilter
+import no.nav.mulighetsrommet.domain.Tiltakskoder
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingTilgjengelighetsstatus
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingAdminDto
 import no.nav.mulighetsrommet.metrics.Metrikker
@@ -21,6 +25,7 @@ class VeilederflateService(
     private val brukerService: BrukerService,
     private val tiltaksgjennomforingService: TiltaksgjennomforingService,
     private val virksomhetService: VirksomhetService,
+    private val tiltakstypeService: TiltakstypeService,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
     private val fylkenummerCache = mutableMapOf<String?, String>()
@@ -190,36 +195,51 @@ class VeilederflateService(
         return gjennomforingerFraSanity
             .map { sanityData ->
                 val apiGjennomforing = gjennomforingerFraDb[UUID.fromString(sanityData._id)]
-                val kontaktpersoner = apiGjennomforing?.let { hentKontaktpersoner(it, enhetsId) } ?: emptyList()
-                val kontaktpersonerArrangor = apiGjennomforing?.arrangor?.kontaktperson?.let {
-                    KontaktInfoArrangor(
-                        selskapsnavn = virksomhetService.getOrSyncVirksomhet(it.organisasjonsnummer)?.navn,
-                        telefonnummer = it.telefon,
-                        adresse = apiGjennomforing.lokasjonArrangor,
-                        epost = it.epost,
+
+                if (apiGjennomforing != null) {
+                    val kontaktpersoner = hentKontaktpersoner(apiGjennomforing, enhetsId)
+                    val kontaktpersonerArrangor = apiGjennomforing.arrangor.kontaktperson?.let {
+                        KontaktInfoArrangor(
+                            selskapsnavn = virksomhetService.getOrSyncVirksomhet(it.organisasjonsnummer)?.navn,
+                            telefonnummer = it.telefon,
+                            adresse = apiGjennomforing.lokasjonArrangor,
+                            epost = it.epost,
+                        )
+                    }
+                    val oppstart = apiGjennomforing.oppstart.name.lowercase()
+                    val oppstartsdato = apiGjennomforing.startDato
+                    val sluttdato = apiGjennomforing.sluttDato ?: sanityData.sluttdato
+                    val fylke = apiGjennomforing.navRegion?.let { FylkeRef(_ref = "enhet.fylke.${it.enhetsnummer}") }
+                    val enheter =
+                        apiGjennomforing.navEnheter.map { EnhetRef(_ref = "enhet.lokal.${it.enhetsnummer}") }
+
+                    return@map sanityData.copy(
+                        stengtFra = apiGjennomforing.stengtFra,
+                        stengtTil = apiGjennomforing.stengtTil,
+                        kontaktinfoTiltaksansvarlige = kontaktpersoner.ifEmpty { sanityData.kontaktinfoTiltaksansvarlige },
+                        oppstart = oppstart,
+                        oppstartsdato = oppstartsdato,
+                        sluttdato = sluttdato,
+                        tilgjengelighetsstatus = apiGjennomforing.tilgjengelighet,
+                        estimert_ventetid = apiGjennomforing.estimertVentetid,
+                        tiltakstype = sanityData.tiltakstype?.copy(arenakode = apiGjennomforing.tiltakstype.arenaKode),
+                        lokasjon = apiGjennomforing.lokasjonArrangor ?: sanityData.lokasjon,
+                        kontaktinfoArrangor = kontaktpersonerArrangor ?: sanityData.kontaktinfoArrangor,
+                        fylke = fylke ?: sanityData.fylke,
+                        enheter = enheter.ifEmpty { sanityData.enheter },
                     )
                 }
-                val oppstart = apiGjennomforing?.oppstart?.name?.lowercase() ?: sanityData.oppstart
-                val oppstartsdato = apiGjennomforing?.startDato ?: sanityData.oppstartsdato
-                val sluttdato = apiGjennomforing?.sluttDato ?: sanityData.sluttdato
-                val fylke = apiGjennomforing?.navRegion?.let { FylkeRef(_ref = "enhet.fylke.${it.enhetsnummer}") }
-                val enheter = apiGjennomforing?.navEnheter?.map { EnhetRef(_ref = "enhet.lokal.${it.enhetsnummer}") } ?: emptyList()
 
-                sanityData.copy(
-                    stengtFra = apiGjennomforing?.stengtFra,
-                    stengtTil = apiGjennomforing?.stengtTil,
-                    kontaktinfoTiltaksansvarlige = kontaktpersoner.ifEmpty { sanityData.kontaktinfoTiltaksansvarlige },
-                    oppstart = oppstart,
-                    oppstartsdato = oppstartsdato,
-                    sluttdato = sluttdato,
-                    tilgjengelighetsstatus = apiGjennomforing?.tilgjengelighet,
-                    estimert_ventetid = apiGjennomforing?.estimertVentetid,
-                    tiltakstype = sanityData.tiltakstype?.copy(arenakode = apiGjennomforing?.tiltakstype?.arenaKode),
-                    lokasjon = apiGjennomforing?.lokasjonArrangor ?: sanityData.lokasjon,
-                    kontaktinfoArrangor = kontaktpersonerArrangor ?: sanityData.kontaktinfoArrangor,
-                    fylke = fylke ?: sanityData.fylke,
-                    enheter = enheter.ifEmpty { sanityData.enheter },
-                )
+                val tiltakstypeFraDb = sanityData.tiltakstype?._id?.let {
+                    tiltakstypeService.getBySanityId(UUID.fromString(sanityData.tiltakstype._id))
+                }
+                if (tiltakstypeFraDb != null && !Tiltakskoder.isGruppetiltak(tiltakstypeFraDb.arenaKode)) {
+                    sanityData.copy(
+                        tiltakstype = sanityData.tiltakstype.copy(arenakode = tiltakstypeFraDb.arenaKode),
+                    )
+                } else {
+                    sanityData
+                }
             }
     }
 
