@@ -1,6 +1,6 @@
 import { Tabs } from '@navikt/ds-react';
 import { useAtom } from 'jotai';
-import { SanityTiltaksgjennomforing } from 'mulighetsrommet-api-client';
+import { VeilederflateTiltaksgjennomforing } from 'mulighetsrommet-api-client';
 import { logEvent } from '../../core/api/logger';
 import { faneAtom } from '../../core/atoms/atoms';
 import { kebabCase } from '../../utils/Utils';
@@ -9,7 +9,7 @@ import styles from './TiltaksdetaljerFane.module.scss';
 import KontaktinfoFane from './kontaktinfofane/KontaktinfoFane';
 
 interface Props {
-  tiltaksgjennomforing: SanityTiltaksgjennomforing;
+  tiltaksgjennomforing: VeilederflateTiltaksgjennomforing;
 }
 
 const TiltaksdetaljerFane = ({ tiltaksgjennomforing }: Props) => {

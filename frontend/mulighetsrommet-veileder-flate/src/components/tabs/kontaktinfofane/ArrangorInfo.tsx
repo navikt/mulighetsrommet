@@ -1,8 +1,9 @@
 import { BodyShort } from '@navikt/ds-react';
 import styles from './Kontaktinfo.module.scss';
+import { VeilederflateTiltaksgjennomforing } from 'mulighetsrommet-api-client';
 
 interface ArrangorInfoProps {
-  data: any;
+  data: VeilederflateTiltaksgjennomforing;
 }
 
 const ArrangorInfo = ({ data }: ArrangorInfoProps) => {

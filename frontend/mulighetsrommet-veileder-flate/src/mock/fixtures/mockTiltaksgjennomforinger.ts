@@ -1,16 +1,16 @@
 import {
   Innsatsgruppe,
   SanityInnsatsgruppe,
-  SanityTiltaksgjennomforing,
-  SanityTiltakstype,
   Tilgjengelighetsstatus,
+  VeilederflateTiltaksgjennomforing,
+  VeilederflateTiltakstype,
 } from 'mulighetsrommet-api-client';
 
-export const mockTiltaksgjennomforinger: SanityTiltaksgjennomforing[] = [
+export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
   {
     _id: 'f4cea25b-c372-4d4c-8106-535ab10cd586',
     tiltaksgjennomforingNavn: 'Avklaring - Fredrikstad',
-    oppstart: SanityTiltaksgjennomforing.oppstart.LOPENDE,
+    oppstart: VeilederflateTiltaksgjennomforing.oppstart.LOPENDE,
     lokasjon: '1424 SKI',
     tiltakstype: {
       _id: 'f9618e97-4510-49e2-b748-29cae84d9019',
@@ -28,7 +28,6 @@ export const mockTiltaksgjennomforinger: SanityTiltaksgjennomforing[] = [
           regelverkLenkeNavn: 'Rundskriv',
         },
       ],
-      regelverkFiler: undefined,
       innsatsgruppe: {
         _id: '123',
         tittel: SanityInnsatsgruppe.tittel.SITUASJONSBESTEMT_INNSATS,
@@ -253,7 +252,7 @@ export const mockTiltaksgjennomforinger: SanityTiltaksgjennomforing[] = [
   {
     _id: '91205ff2-ec72-4a7f-80b8-1c99d8535a06',
     tiltaksgjennomforingNavn: 'Sindres mentorordning med Yoda',
-    oppstart: SanityTiltaksgjennomforing.oppstart.LOPENDE,
+    oppstart: VeilederflateTiltaksgjennomforing.oppstart.LOPENDE,
     lokasjon: 'Oslo',
     tiltakstype: {
       _id: 'ad998fc6-310e-45d4-a056-57732fed87b4',
@@ -271,7 +270,6 @@ export const mockTiltaksgjennomforinger: SanityTiltaksgjennomforing[] = [
           regelverkLenkeNavn: 'Rundskriv',
         },
       ],
-      regelverkFiler: [],
       innsatsgruppe: {
         _id: '123',
         tittel: SanityInnsatsgruppe.tittel.SITUASJONSBESTEMT_INNSATS,
@@ -342,7 +340,7 @@ export const mockTiltaksgjennomforinger: SanityTiltaksgjennomforing[] = [
           },
         ],
       },
-      arenakode: SanityTiltakstype.arenakode.MENTOR,
+      arenakode: VeilederflateTiltakstype.arenakode.MENTOR,
     },
     kontaktinfoTiltaksansvarlige: [
       {
@@ -375,7 +373,6 @@ export const mockTiltaksgjennomforinger: SanityTiltaksgjennomforing[] = [
           regelverkLenkeNavn: 'Rundskriv',
         },
       ],
-      regelverkFiler: [],
       innsatsgruppe: {
         tittel: SanityInnsatsgruppe.tittel.SITUASJONSBESTEMT_INNSATS,
         nokkel: Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
@@ -454,9 +451,9 @@ export const mockTiltaksgjennomforinger: SanityTiltaksgjennomforing[] = [
       },
       delingMedBruker:
         'Hei <Fornavn>,   \n\nHar du vurdert utdanning for å få flere muligheter på arbeidsmarkedet?  \n\nDu kan lese mer om tiltaket på www.nav.no/opplaring \n\nEr dette aktuelt for deg? Gi meg tilbakemelding her i dialogen. \nSvaret ditt vil ikke endre din utbetaling fra NAV. \n\nVi holder kontakten!\nHilsen <Veiledernavn> \n',
-      arenakode: SanityTiltakstype.arenakode.GRUPPEAMO,
+      arenakode: VeilederflateTiltakstype.arenakode.GRUPPEAMO,
     },
-    oppstart: SanityTiltaksgjennomforing.oppstart.LOPENDE,
+    oppstart: VeilederflateTiltaksgjennomforing.oppstart.LOPENDE,
     oppstartsdato: '2023-11-01',
     sluttdato: '2023-11-30',
     kontaktinfoArrangor: {

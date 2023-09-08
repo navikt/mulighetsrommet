@@ -11,7 +11,6 @@ import no.nav.mulighetsrommet.api.utils.TiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.api.utils.byggInnsatsgruppeFilter
 import no.nav.mulighetsrommet.api.utils.byggSokeFilter
 import no.nav.mulighetsrommet.api.utils.byggTiltakstypeFilter
-import no.nav.mulighetsrommet.domain.Tiltakskoder
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingTilgjengelighetsstatus
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingAdminDto
 import no.nav.mulighetsrommet.metrics.Metrikker
@@ -44,35 +43,39 @@ class VeilederflateService(
 
     private fun tiltaksgjennomforingQuery(id: String) = """
         *[_type == "tiltaksgjennomforing" && _id == '$id'] {
-                _id,
-                tiltaksgjennomforingNavn,
-                beskrivelse,
-                "tiltaksnummer": tiltaksnummer.current,
-                lokasjon,
-                oppstart,
-                oppstartsdato,
-                sluttdato,
-                faneinnhold {
-                  forHvemInfoboks,
-                  forHvem,
-                  detaljerOgInnholdInfoboks,
-                  detaljerOgInnhold,
-                  pameldingOgVarighetInfoboks,
-                  pameldingOgVarighet,
-                },
-                kontaktinfoArrangor->,
-                kontaktinfoTiltaksansvarlige[]->,
-                tiltakstype->{
-                  ...,
-                  regelverkFiler[]-> {
-                    _id,
-                    "regelverkFilUrl": regelverkFilOpplastning.asset->url,
-                    regelverkFilNavn
-                  },
-                  regelverkLenker[]->,
-                  innsatsgruppe->,
-                }
-              }[0]
+          _id,
+          tiltakstype->{
+            _id,
+            tiltakstypeNavn,
+            beskrivelse,
+            nokkelinfoKomponenter,
+            innsatsgruppe->,
+            regelverkLenker[]->,
+            faneinnhold {
+              forHvemInfoboks,
+              forHvem,
+              detaljerOgInnholdInfoboks,
+              detaljerOgInnhold,
+              pameldingOgVarighetInfoboks,
+              pameldingOgVarighet,
+            },
+            delingMedBruker,
+          },
+          tiltaksgjennomforingNavn,
+          "tiltaksnummer": tiltaksnummer.current,
+          beskrivelse,
+          lokasjon,
+          kontaktinfoTiltaksansvarlige[]->,
+          faneinnhold {
+            forHvemInfoboks,
+            forHvem,
+            detaljerOgInnholdInfoboks,
+            detaljerOgInnhold,
+            pameldingOgVarighetInfoboks,
+            pameldingOgVarighet,
+          },
+          kontaktinfoArrangor->,
+        }[0]
     """.trimIndent()
 
     init {
@@ -127,21 +130,23 @@ class VeilederflateService(
               ]
               {
                 _id,
+                tiltakstype->{
+                  tiltakstypeNavn
+                },
                 tiltaksgjennomforingNavn,
-                oppstart,
-                lokasjon,
-                oppstartsdato,
                 "tiltaksnummer": tiltaksnummer.current,
-                kontaktinfoArrangor->{selskapsnavn},
-                tiltakstype->{tiltakstypeNavn},
+                lokasjon,
                 fylke,
-                enheter
+                enheter,
+                kontaktinfoArrangor->{
+                  selskapsnavn
+                },
               }
         """.trimIndent()
 
         return when (val result = sanityClient.query(query)) {
             is SanityResponse.Result -> {
-                val gjennomforinger = result.decode<List<VeilederflateTiltaksgjennomforing>>()
+                val gjennomforinger = result.decode<List<SanityTiltaksgjennomforing>>()
                 val gjennomforingerMedDbData = supplerDataFraDB(gjennomforinger, enhetsId)
                 gjennomforingerMedDbData
                     .filter { filter.lokasjoner.isEmpty() || filter.lokasjoner.contains(it.lokasjon) }
@@ -149,7 +154,7 @@ class VeilederflateService(
                         if (it.enheter.isNullOrEmpty()) {
                             it.fylke?._ref == "enhet.fylke.$fylkeId"
                         } else {
-                            it.enheter.any { it._ref == "enhet.lokal.$enhetsId" }
+                            it.enheter.any { enhet -> enhet._ref == "enhet.lokal.$enhetsId" }
                         }
                     }
                     .filter {
@@ -172,7 +177,7 @@ class VeilederflateService(
 
         return when (val result = sanityClient.query(query)) {
             is SanityResponse.Result -> {
-                val gjennomforing = result.decode<VeilederflateTiltaksgjennomforing>()
+                val gjennomforing = result.decode<SanityTiltaksgjennomforing>()
                 supplerDataFraDB(listOf(gjennomforing), enhetsId).getOrElse(0) {
                     throw NotFoundException("Fant ikke gjennomføringen med id: $id")
                 }
@@ -189,7 +194,7 @@ class VeilederflateService(
 
         return when (val result = sanityClient.query(query, SanityPerspective.PREVIEW_DRAFTS)) {
             is SanityResponse.Result -> {
-                val gjennomforing = result.decode<VeilederflateTiltaksgjennomforing>()
+                val gjennomforing = result.decode<SanityTiltaksgjennomforing>()
                 supplerDataFraDB(listOf(gjennomforing)).getOrElse(0) {
                     throw NotFoundException("Fant ikke gjennomføringen med id: $id")
                 }
@@ -200,7 +205,7 @@ class VeilederflateService(
     }
 
     private suspend fun supplerDataFraDB(
-        gjennomforingerFraSanity: List<VeilederflateTiltaksgjennomforing>,
+        gjennomforingerFraSanity: List<SanityTiltaksgjennomforing>,
         enhetsId: String? = null,
     ): List<VeilederflateTiltaksgjennomforing> {
         val sanityIds = gjennomforingerFraSanity
@@ -230,37 +235,74 @@ class VeilederflateService(
                     }
                     val oppstart = apiGjennomforing.oppstart.name.lowercase()
                     val oppstartsdato = apiGjennomforing.startDato
-                    val sluttdato = apiGjennomforing.sluttDato ?: sanityData.sluttdato
+                    val sluttdato = apiGjennomforing.sluttDato
                     val fylke = apiGjennomforing.navRegion?.let { FylkeRef(_ref = "enhet.fylke.${it.enhetsnummer}") }
                     val enheter =
                         apiGjennomforing.navEnheter.map { EnhetRef(_ref = "enhet.lokal.${it.enhetsnummer}") }
 
-                    return@map sanityData.copy(
-                        stengtFra = apiGjennomforing.stengtFra,
-                        stengtTil = apiGjennomforing.stengtTil,
-                        kontaktinfoTiltaksansvarlige = kontaktpersoner?.ifEmpty { sanityData.kontaktinfoTiltaksansvarlige },
-                        oppstart = oppstart,
-                        oppstartsdato = oppstartsdato,
-                        sluttdato = sluttdato,
-                        tilgjengelighetsstatus = apiGjennomforing.tilgjengelighet,
-                        estimert_ventetid = apiGjennomforing.estimertVentetid,
-                        tiltakstype = sanityData.tiltakstype?.copy(arenakode = apiGjennomforing.tiltakstype.arenaKode),
-                        lokasjon = apiGjennomforing.lokasjonArrangor ?: sanityData.lokasjon,
-                        kontaktinfoArrangor = kontaktpersonerArrangor ?: sanityData.kontaktinfoArrangor,
-                        fylke = fylke ?: sanityData.fylke,
-                        enheter = enheter.ifEmpty { sanityData.enheter },
-                    )
+                    return@map sanityData.run {
+                        VeilederflateTiltaksgjennomforing(
+                            _id = _id,
+                            tiltakstype = tiltakstype?.run {
+                                VeilederflateTiltakstype(
+                                    _id = _id,
+                                    tiltakstypeNavn = tiltakstypeNavn,
+                                    beskrivelse = beskrivelse,
+                                    nokkelinfoKomponenter = nokkelinfoKomponenter,
+                                    innsatsgruppe = innsatsgruppe,
+                                    regelverkLenker = regelverkLenker,
+                                    faneinnhold = faneinnhold,
+                                    delingMedBruker = delingMedBruker,
+                                    arenakode = apiGjennomforing.tiltakstype.arenaKode,
+                                )
+                            },
+                            tiltaksgjennomforingNavn = tiltaksgjennomforingNavn,
+                            tiltaksnummer = apiGjennomforing.tiltaksnummer,
+                            stengtFra = apiGjennomforing.stengtFra,
+                            stengtTil = apiGjennomforing.stengtTil,
+                            kontaktinfoTiltaksansvarlige = kontaktpersoner?.ifEmpty { sanityData.kontaktinfoTiltaksansvarlige },
+                            oppstart = oppstart,
+                            oppstartsdato = oppstartsdato,
+                            sluttdato = sluttdato,
+                            tilgjengelighetsstatus = apiGjennomforing.tilgjengelighet,
+                            estimert_ventetid = apiGjennomforing.estimertVentetid,
+                            kontaktinfoArrangor = kontaktpersonerArrangor ?: sanityData.kontaktinfoArrangor,
+                            lokasjon = apiGjennomforing.lokasjonArrangor ?: sanityData.lokasjon,
+                            fylke = fylke ?: sanityData.fylke,
+                            enheter = enheter.ifEmpty { sanityData.enheter },
+                            beskrivelse = beskrivelse,
+                            faneinnhold = faneinnhold,
+                        )
+                    }
                 }
 
-                val tiltakstypeFraDb = sanityData.tiltakstype?._id?.let {
-                    tiltakstypeService.getBySanityId(UUID.fromString(sanityData.tiltakstype._id))
-                }
-                if (tiltakstypeFraDb != null && !Tiltakskoder.isGruppetiltak(tiltakstypeFraDb.arenaKode)) {
-                    sanityData.copy(
-                        tiltakstype = sanityData.tiltakstype.copy(arenakode = tiltakstypeFraDb.arenaKode),
+                val arenaKode = sanityData.tiltakstype?._id
+                    ?.let { tiltakstypeService.getBySanityId(UUID.fromString(it)) }
+                    ?.arenaKode
+
+                sanityData.run {
+                    VeilederflateTiltaksgjennomforing(
+                        _id = _id,
+                        tiltakstype = tiltakstype?.run {
+                            VeilederflateTiltakstype(
+                                _id = _id,
+                                tiltakstypeNavn = tiltakstypeNavn,
+                                beskrivelse = beskrivelse,
+                                nokkelinfoKomponenter = nokkelinfoKomponenter,
+                                innsatsgruppe = innsatsgruppe,
+                                regelverkLenker = regelverkLenker,
+                                faneinnhold = faneinnhold,
+                                delingMedBruker = delingMedBruker,
+                                arenakode = arenaKode,
+                            )
+                        },
+                        tiltaksgjennomforingNavn = tiltaksgjennomforingNavn,
+                        lokasjon = lokasjon,
+                        fylke = fylke,
+                        enheter = enheter,
+                        kontaktinfoTiltaksansvarlige = kontaktinfoTiltaksansvarlige,
+                        faneinnhold = faneinnhold,
                     )
-                } else {
-                    sanityData
                 }
             }
     }
@@ -290,6 +332,7 @@ class VeilederflateService(
             }
     }
 
+    // TODO er vel ikke noe vits å gå mot Sanity her?
     private suspend fun getFylkeIdBasertPaaEnhetsId(enhetsId: String?): String? {
         if (fylkenummerCache[enhetsId] != null) {
             return fylkenummerCache[enhetsId]

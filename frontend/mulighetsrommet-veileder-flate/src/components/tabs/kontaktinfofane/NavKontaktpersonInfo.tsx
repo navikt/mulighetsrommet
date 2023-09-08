@@ -1,15 +1,15 @@
 import { Alert, BodyShort } from '@navikt/ds-react';
-import { SanityKontakinfoTiltaksansvarlige } from 'mulighetsrommet-api-client';
+import { SanityKontakinfoTiltaksansvarlige, VeilederflateTiltaksgjennomforing } from 'mulighetsrommet-api-client';
 import { logEvent } from '../../../core/api/logger';
 import styles from './Kontaktinfo.module.scss';
 
 const TEAMS_DYPLENKE = 'https://teams.microsoft.com/l/chat/0/0?users=';
 
-interface TiltaksansvarligInfoProps {
-  data: any;
+interface NavKontaktpersonInfoProps {
+  data: VeilederflateTiltaksgjennomforing;
 }
 
-const TiltaksansvarligInfo = ({ data }: TiltaksansvarligInfoProps) => {
+const NavKontaktpersonInfo = ({ data }: NavKontaktpersonInfoProps) => {
   const { kontaktinfoTiltaksansvarlige: tiltaksansvarlige } = data;
 
   if (tiltaksansvarlige?.length === 0 || !tiltaksansvarlige)
@@ -71,4 +71,4 @@ const TiltaksansvarligInfo = ({ data }: TiltaksansvarligInfoProps) => {
   );
 };
 
-export default TiltaksansvarligInfo;
+export default NavKontaktpersonInfo;

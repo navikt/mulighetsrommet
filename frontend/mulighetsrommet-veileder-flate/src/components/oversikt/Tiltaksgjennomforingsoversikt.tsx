@@ -1,7 +1,7 @@
 import { Alert, BodyShort, Button, Loader, Pagination } from '@navikt/ds-react';
 import { useAtom } from 'jotai';
 import { RESET } from 'jotai/utils';
-import { ApiError, SanityTiltaksgjennomforing } from 'mulighetsrommet-api-client';
+import { ApiError, VeilederflateTiltaksgjennomforing } from 'mulighetsrommet-api-client';
 import { PORTEN } from 'mulighetsrommet-frontend-common/constants';
 import { useEffect, useRef, useState } from 'react';
 import { logEvent } from '../../core/api/logger';
@@ -19,7 +19,7 @@ const Tiltaksgjennomforingsoversikt = () => {
   const [page, setPage] = useAtom(paginationAtom);
   const { forcePrepopulerFilter } = usePrepopulerFilter();
   const elementsPerPage = 15;
-  const pagination = (tiltaksgjennomforing: SanityTiltaksgjennomforing[]) => {
+  const pagination = (tiltaksgjennomforing: VeilederflateTiltaksgjennomforing[]) => {
     return Math.ceil(tiltaksgjennomforing.length / elementsPerPage);
   };
   const [, setFilter] = useAtom(tiltaksgjennomforingsfilter);
@@ -86,9 +86,9 @@ const Tiltaksgjennomforingsoversikt = () => {
   };
 
   const sorter = (
-    tiltaksgjennomforinger: SanityTiltaksgjennomforing[],
+    tiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[],
     forceOrder: 'ascending' | 'descending' = 'ascending'
-  ): SanityTiltaksgjennomforing[] => {
+  ): VeilederflateTiltaksgjennomforing[] => {
     return tiltaksgjennomforinger.sort((a, b) => {
       const sort = getSort(sortValue);
       const comparator = (a: any, b: any, orderBy: string | number) => {
@@ -114,10 +114,10 @@ const Tiltaksgjennomforingsoversikt = () => {
   };
 
   const lopendeOppstartForst = (
-    lopendeGjennomforinger: SanityTiltaksgjennomforing[],
-    gjennomforingerMedOppstartIFremtiden: SanityTiltaksgjennomforing[],
-    gjennomforingerMedOppstartHarVaert: SanityTiltaksgjennomforing[]
-  ): SanityTiltaksgjennomforing[] => {
+    lopendeGjennomforinger: VeilederflateTiltaksgjennomforing[],
+    gjennomforingerMedOppstartIFremtiden: VeilederflateTiltaksgjennomforing[],
+    gjennomforingerMedOppstartHarVaert: VeilederflateTiltaksgjennomforing[]
+  ): VeilederflateTiltaksgjennomforing[] => {
     return [
       ...lopendeGjennomforinger,
       ...sorter(gjennomforingerMedOppstartIFremtiden),

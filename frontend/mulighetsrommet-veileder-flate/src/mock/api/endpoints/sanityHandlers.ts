@@ -1,5 +1,9 @@
 import { DefaultBodyType, PathParams, rest } from 'msw';
-import { SanityInnsatsgruppe, SanityTiltaksgjennomforing, SanityTiltakstype } from 'mulighetsrommet-api-client';
+import {
+  SanityInnsatsgruppe,
+  VeilederflateTiltaksgjennomforing,
+  VeilederflateTiltakstype,
+} from 'mulighetsrommet-api-client';
 import { mockInnsatsgrupper } from '../../fixtures/mockInnsatsgrupper';
 import { mockTiltaksgjennomforinger } from '../../fixtures/mockTiltaksgjennomforinger';
 import { mockTiltakstyper } from '../../fixtures/mockTiltakstyper';
@@ -10,9 +14,12 @@ export const sanityHandlers = [
     return ok(mockInnsatsgrupper);
   }),
 
-  rest.get<DefaultBodyType, PathParams, SanityTiltakstype[]>('*/api/v1/internal/sanity/tiltakstyper', async () => {
-    return ok(mockTiltakstyper);
-  }),
+  rest.get<DefaultBodyType, PathParams, VeilederflateTiltakstype[]>(
+    '*/api/v1/internal/sanity/tiltakstyper',
+    async () => {
+      return ok(mockTiltakstyper);
+    }
+  ),
 
   rest.get<DefaultBodyType, PathParams, any>('*/api/v1/internal/sanity/lokasjoner', async () => {
     return ok(mockTiltaksgjennomforinger.map(gj => gj.lokasjon));
@@ -45,18 +52,18 @@ export const sanityHandlers = [
   }),
 ];
 
-function filtrerFritekst(gjennomforing: SanityTiltaksgjennomforing, sok: string): boolean {
+function filtrerFritekst(gjennomforing: VeilederflateTiltaksgjennomforing, sok: string): boolean {
   return sok === '' || gjennomforing.tiltaksgjennomforingNavn.toLocaleLowerCase().includes(sok.toLocaleLowerCase());
 }
 
-function filtrerLokasjoner(gjennomforing: SanityTiltaksgjennomforing, lokasjoner: string[]): boolean {
+function filtrerLokasjoner(gjennomforing: VeilederflateTiltaksgjennomforing, lokasjoner: string[]): boolean {
   return lokasjoner.length === 0 || lokasjoner.includes(gjennomforing.lokasjon || '');
 }
 
-function filtrerInnsatsgruppe(gjennomforing: SanityTiltaksgjennomforing, innsatsgruppe: string): boolean {
+function filtrerInnsatsgruppe(gjennomforing: VeilederflateTiltaksgjennomforing, innsatsgruppe: string): boolean {
   return innsatsgruppe === '' || gjennomforing.tiltakstype.innsatsgruppe.nokkel === innsatsgruppe;
 }
 
-function filtrerTiltakstyper(gjennomforing: SanityTiltaksgjennomforing, tiltakstyper: string[]): boolean {
+function filtrerTiltakstyper(gjennomforing: VeilederflateTiltaksgjennomforing, tiltakstyper: string[]): boolean {
   return tiltakstyper.length === 0 || tiltakstyper.includes(gjennomforing.tiltakstype._id);
 }
