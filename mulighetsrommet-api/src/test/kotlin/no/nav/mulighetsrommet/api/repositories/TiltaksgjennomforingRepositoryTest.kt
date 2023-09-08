@@ -41,9 +41,9 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 
     context("CRUD") {
         val avtaler = AvtaleRepository(database.db)
-        test("CRUD adminflate-tiltaksgjennomføringer") {
-            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
+        val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
 
+        test("CRUD adminflate-tiltaksgjennomføringer") {
             tiltaksgjennomforinger.upsert(TiltaksgjennomforingFixtures.Oppfolging1)
 
             tiltaksgjennomforinger.get(TiltaksgjennomforingFixtures.Oppfolging1.id) shouldBe
@@ -88,7 +88,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         }
 
         test("CRUD ArenaTiltaksgjennomforing") {
-            val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
             val gjennomforingId = UUID.randomUUID()
             val gjennomforingFraArena = ArenaTiltaksgjennomforingDbo(
                 id = gjennomforingId,
@@ -141,17 +140,19 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 kontaktpersoner = emptyList(),
                 lokasjonArrangor = null,
             )
-            tiltaksgjennomforingRepository.upsertArenaTiltaksgjennomforing(gjennomforingFraArena)
-            tiltaksgjennomforingRepository.get(gjennomforingFraArena.id).shouldBe(gjennomforingDto)
+
+            tiltaksgjennomforinger.upsertArenaTiltaksgjennomforing(gjennomforingFraArena)
+
+            tiltaksgjennomforinger.get(gjennomforingFraArena.id).shouldBe(gjennomforingDto)
         }
 
         test("midlertidig_stengt crud") {
-            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
             val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1.copy(
                 id = UUID.randomUUID(),
                 stengtFra = LocalDate.of(2020, 1, 22),
                 stengtTil = LocalDate.of(2020, 4, 22),
             )
+
             tiltaksgjennomforinger.upsert(gjennomforing)
 
             tiltaksgjennomforinger.get(gjennomforing.id).should {
@@ -161,7 +162,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         }
 
         test("Skal hente ut navRegion fra avtale for en gitt gjennomføring") {
-            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
             val navEnheter = NavEnhetRepository(database.db)
             navEnheter.upsert(
                 NavEnhetDbo(
@@ -183,9 +183,13 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             )
             val avtale = avtale1.copy(navRegion = "2990")
             avtaler.upsert(avtale)
-            val tiltaksgjennomforing =
-                TiltaksgjennomforingFixtures.Oppfolging1.copy(avtaleId = avtale.id, navEnheter = listOf("2980"))
+
+            val tiltaksgjennomforing = TiltaksgjennomforingFixtures.Oppfolging1.copy(
+                avtaleId = avtale.id,
+                navEnheter = listOf("2980"),
+            )
             tiltaksgjennomforinger.upsert(tiltaksgjennomforing)
+
             tiltaksgjennomforinger.get(tiltaksgjennomforing.id).should {
                 it?.navRegion?.navn shouldBe "NAV Andeby"
                 it?.navEnheter?.shouldContain(NavEnhet(enhetsnummer = "2980", "NAV Gåseby"))
@@ -193,7 +197,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         }
 
         test("navEnheter crud") {
-            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
             val enhetRepository = NavEnhetRepository(database.db)
             enhetRepository.upsert(
                 NavEnhetDbo(
@@ -223,8 +226,10 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 ),
             ).shouldBeRight()
 
-            val gjennomforing =
-                TiltaksgjennomforingFixtures.Oppfolging1.copy(id = UUID.randomUUID(), navEnheter = listOf("1", "2"))
+            val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1.copy(
+                id = UUID.randomUUID(),
+                navEnheter = listOf("1", "2"),
+            )
 
             tiltaksgjennomforinger.upsert(gjennomforing)
             tiltaksgjennomforinger.get(gjennomforing.id).should {
@@ -246,8 +251,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         }
 
         test("kontaktpersoner på tiltaksgjennomføring CRUD") {
-            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-
             val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1.copy(
                 kontaktpersoner = listOf(
                     TiltaksgjennomforingKontaktpersonDbo(
@@ -305,7 +308,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         }
 
         test("Oppdater navEnheter fra Sanity-tiltaksgjennomføringer til database") {
-            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
             val enhetRepository = NavEnhetRepository(database.db)
             enhetRepository.upsert(
                 NavEnhetDbo(
@@ -349,7 +351,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         }
 
         test("update sanity_id") {
-            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
             val id = UUID.randomUUID()
 
             tiltaksgjennomforinger.upsert(TiltaksgjennomforingFixtures.Oppfolging1)
@@ -360,7 +361,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         }
 
         test("virksomhet_kontaktperson") {
-            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
             val virksomhetRepository = VirksomhetRepository(database.db)
 
             virksomhetRepository.upsert(
@@ -719,7 +719,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
     }
 
     context("Filtrering på tiltaksgjennomforingstatus") {
-        val avtaler = AvtaleRepository(database.db)
         val dagensDato = LocalDate.of(2023, 2, 1)
 
         val tiltaksgjennomforingAktiv = TiltaksgjennomforingFixtures.Arbeidstrening1
@@ -817,11 +816,15 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             result.second shouldHaveSize 1
             result.second[0].id shouldBe tiltaksgjennomforingPlanlagt.id
         }
+    }
+
+    context("filtrering av tiltaksgjennomføringer") {
+        val avtaler = AvtaleRepository(database.db)
+        val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
+        val navEnheter = NavEnhetRepository(database.db)
 
         test("filtrer på nav_enhet") {
-            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-            val enhetRepository = NavEnhetRepository(database.db)
-            enhetRepository.upsert(
+            navEnheter.upsert(
                 NavEnhetDbo(
                     navn = "Navn1",
                     enhetsnummer = "1",
@@ -830,7 +833,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     overordnetEnhet = null,
                 ),
             ).shouldBeRight()
-            enhetRepository.upsert(
+            navEnheter.upsert(
                 NavEnhetDbo(
                     navn = "Navn2",
                     enhetsnummer = "2",
@@ -858,9 +861,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         }
 
         test("filtrer på nav_region") {
-            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-            val enhetRepository = NavEnhetRepository(database.db)
-            enhetRepository.upsert(
+            navEnheter.upsert(
                 NavEnhetDbo(
                     navn = "NavRegion",
                     enhetsnummer = "nav_region",
@@ -869,7 +870,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     overordnetEnhet = null,
                 ),
             ).shouldBeRight()
-            enhetRepository.upsert(
+            navEnheter.upsert(
                 NavEnhetDbo(
                     navn = "Navn1",
                     enhetsnummer = "1",
@@ -878,7 +879,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     overordnetEnhet = null,
                 ),
             ).shouldBeRight()
-            enhetRepository.upsert(
+            navEnheter.upsert(
                 NavEnhetDbo(
                     navn = "Navn2",
                     enhetsnummer = "2",
@@ -916,9 +917,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         }
 
         test("filtrer på nav_region når ingen avtale er koblet til gjennomføringen") {
-            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-            val enhetRepository = NavEnhetRepository(database.db)
-            enhetRepository.upsert(
+            navEnheter.upsert(
                 NavEnhetDbo(
                     navn = "NAV Nordland",
                     enhetsnummer = "1800",
@@ -927,7 +926,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     overordnetEnhet = null,
                 ),
             ).shouldBeRight()
-            enhetRepository.upsert(
+            navEnheter.upsert(
                 NavEnhetDbo(
                     navn = "Nordland 1",
                     enhetsnummer = "1898",
@@ -936,7 +935,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     overordnetEnhet = null,
                 ),
             ).shouldBeRight()
-            enhetRepository.upsert(
+            navEnheter.upsert(
                 NavEnhetDbo(
                     navn = "Nordland 2",
                     enhetsnummer = "1854",
@@ -963,6 +962,30 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     it.first shouldBe 1
                     it.second.map { it.id } shouldContainAll listOf(gj2.id)
                 }
+        }
+
+        test("administrator") {
+            val tg1 = TiltaksgjennomforingFixtures.Oppfolging1.copy(
+                id = UUID.randomUUID(),
+                administratorer = listOf(NavAnsattFixture.ansatt1.navIdent),
+            )
+            val tg2 = TiltaksgjennomforingFixtures.Oppfolging1.copy(
+                id = UUID.randomUUID(),
+                administratorer = listOf(NavAnsattFixture.ansatt1.navIdent, NavAnsattFixture.ansatt2.navIdent),
+            )
+
+            tiltaksgjennomforinger.upsert(tg1)
+            tiltaksgjennomforinger.upsert(tg2)
+
+            tiltaksgjennomforinger.getAll(administratorNavIdent = NavAnsattFixture.ansatt1.navIdent).should {
+                it.first shouldBe 2
+                it.second.map { tg -> tg.id } shouldContainAll listOf(tg1.id, tg2.id)
+            }
+
+            tiltaksgjennomforinger.getAll(administratorNavIdent = NavAnsattFixture.ansatt2.navIdent).should {
+                it.first shouldBe 1
+                it.second.map { tg -> tg.id } shouldContainAll listOf(tg2.id)
+            }
         }
     }
 
