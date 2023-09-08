@@ -5,7 +5,9 @@ import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
-import no.nav.mulighetsrommet.api.utils.*
+import no.nav.mulighetsrommet.api.utils.AvtaleFilter
+import no.nav.mulighetsrommet.api.utils.DatabaseUtils
+import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.ArenaAvtaleDbo
@@ -214,37 +216,39 @@ class AvtaleRepository(private val db: Database) {
     fun get(id: UUID, tx: Session): AvtaleAdminDto? {
         @Language("PostgreSQL")
         val query = """
-            select
-                a.id,
-                a.navn,
-                a.tiltakstype_id,
-                a.avtalenummer,
-                a.leverandor_organisasjonsnummer,
-                vk.id as leverandor_kontaktperson_id,
-                vk.organisasjonsnummer as leverandor_kontaktperson_organisasjonsnummer,
-                vk.navn as leverandor_kontaktperson_navn,
-                vk.telefon as leverandor_kontaktperson_telefon,
-                vk.epost as leverandor_kontaktperson_epost,
-                vk.beskrivelse as leverandor_kontaktperson_beskrivelse,
-                v.navn as leverandor_navn,
-                a.start_dato,
-                a.slutt_dato,
-                a.nav_region,
-                a.avtaletype,
-                a.opphav,
-                a.avslutningsstatus,
-                a.prisbetingelser,
-                a.url,
-                a.antall_plasser,
-                nav_enhet.navn as nav_enhet_navn,
-                t.navn as tiltakstype_navn,
-                t.tiltakskode,
-                au.leverandor_underenheter,
-                an.nav_enheter,
-                case
-                    when aa.nav_ident is null then null::jsonb
-                    else jsonb_build_object('navIdent', aa.nav_ident, 'navn', concat(na.fornavn, ' ', na.etternavn))
-                end as administrator
+            select a.id,
+                   a.navn,
+                   a.tiltakstype_id,
+                   a.avtalenummer,
+                   a.leverandor_organisasjonsnummer,
+                   vk.id                  as leverandor_kontaktperson_id,
+                   vk.organisasjonsnummer as leverandor_kontaktperson_organisasjonsnummer,
+                   vk.navn                as leverandor_kontaktperson_navn,
+                   vk.telefon             as leverandor_kontaktperson_telefon,
+                   vk.epost               as leverandor_kontaktperson_epost,
+                   vk.beskrivelse         as leverandor_kontaktperson_beskrivelse,
+                   v.navn                 as leverandor_navn,
+                   a.start_dato,
+                   a.slutt_dato,
+                   a.opphav,
+                   a.nav_region,
+                   a.avtaletype,
+                   a.avslutningsstatus,
+                   a.prisbetingelser,
+                   a.antall_plasser,
+                   a.url,
+                   nav_enhet.navn         as nav_enhet_navn,
+                   t.navn                 as tiltakstype_navn,
+                   t.tiltakskode,
+                   an.nav_enheter,
+                   au.leverandor_underenheter,
+                   jsonb_agg(
+                           distinct
+                           case
+                               when aa.nav_ident is null then null::jsonb
+                               else jsonb_build_object('navIdent', aa.nav_ident, 'navn', concat(na.fornavn, ' ', na.etternavn))
+                               end
+                       )                  as administratorer
             from avtale a
                 join tiltakstype t on t.id = a.tiltakstype_id
                 left join avtale_administrator aa on a.id = aa.avtale_id
@@ -261,7 +265,7 @@ class AvtaleRepository(private val db: Database) {
                 left join virksomhet v on v.organisasjonsnummer = a.leverandor_organisasjonsnummer
                 left join virksomhet_kontaktperson vk on vk.id = a.leverandor_kontaktperson_id
             where a.id = ?::uuid
-            group by a.id, t.tiltakskode, t.navn, aa.nav_ident, nav_enhet.navn, v.navn, au.leverandor_underenheter, an.nav_enheter, vk.id, na.fornavn, na.etternavn
+            group by a.id, t.navn, t.tiltakskode, nav_enhet.navn, v.navn, au.leverandor_underenheter, an.nav_enheter, vk.id
         """.trimIndent()
 
         return tx.run(
@@ -311,7 +315,7 @@ class AvtaleRepository(private val db: Database) {
             filter.avtalestatus to filter.avtalestatus?.toDbStatement(),
             filter.navRegion to "(lower(a.nav_region) = lower(:nav_region) or lower(a.arena_ansvarlig_enhet) = lower(:nav_region) or lower(a.arena_ansvarlig_enhet) in (select enhetsnummer from nav_enhet where overordnet_enhet = :nav_region))",
             filter.leverandorOrgnr to "a.leverandor_organisasjonsnummer = :leverandorOrgnr",
-            filter.administratorNavIdent to "nav_ident = :administrator_nav_ident",
+            filter.administratorNavIdent to "aa.nav_ident = :administrator_nav_ident",
         )
 
         val order = when (filter.sortering) {
@@ -332,18 +336,18 @@ class AvtaleRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-           select a.id,
+            select a.id,
                    a.navn,
                    a.tiltakstype_id,
                    a.avtalenummer,
                    a.leverandor_organisasjonsnummer,
-                   vk.id as leverandor_kontaktperson_id,
+                   vk.id                  as leverandor_kontaktperson_id,
                    vk.organisasjonsnummer as leverandor_kontaktperson_organisasjonsnummer,
-                   vk.navn as leverandor_kontaktperson_navn,
-                   vk.telefon as leverandor_kontaktperson_telefon,
-                   vk.epost as leverandor_kontaktperson_epost,
-                   vk.beskrivelse as leverandor_kontaktperson_beskrivelse,
-                   v.navn as leverandor_navn,
+                   vk.navn                as leverandor_kontaktperson_navn,
+                   vk.telefon             as leverandor_kontaktperson_telefon,
+                   vk.epost               as leverandor_kontaktperson_epost,
+                   vk.beskrivelse         as leverandor_kontaktperson_beskrivelse,
+                   v.navn                 as leverandor_navn,
                    a.start_dato,
                    a.slutt_dato,
                    a.opphav,
@@ -353,17 +357,19 @@ class AvtaleRepository(private val db: Database) {
                    a.prisbetingelser,
                    a.antall_plasser,
                    a.url,
-                   nav_enhet.navn as nav_enhet_navn,
-                   t.navn as tiltakstype_navn,
+                   nav_enhet.navn         as nav_enhet_navn,
+                   t.navn                 as tiltakstype_navn,
                    t.tiltakskode,
-                   aa.nav_ident as nav_ident,
                    an.nav_enheter,
                    au.leverandor_underenheter,
-                   case
-                    when aa.nav_ident is null then null::jsonb
-                    else jsonb_build_object('nav_ident', aa.nav_ident, 'navn', concat(na.fornavn, ' ', na.etternavn))
-                   end as administrator,
-                   count(*) over () as full_count
+                   jsonb_agg(
+                           distinct
+                           case
+                               when aa.nav_ident is null then null::jsonb
+                               else jsonb_build_object('navIdent', aa.nav_ident, 'navn', concat(na.fornavn, ' ', na.etternavn))
+                               end
+                       )                  as administratorer,
+                   count(*) over ()       as full_count
             from avtale a
                      join tiltakstype t on a.tiltakstype_id = t.id
                      left join nav_enhet on a.nav_region = nav_enhet.enhetsnummer
@@ -382,7 +388,7 @@ class AvtaleRepository(private val db: Database) {
                 ) au on true
                      left join virksomhet_kontaktperson vk on vk.id = a.leverandor_kontaktperson_id
             $where
-            group by a.id, t.navn, t.tiltakskode, aa.nav_ident, nav_enhet.navn, v.navn, au.leverandor_underenheter, an.nav_enheter, vk.id, na.fornavn, na.etternavn
+            group by a.id, t.navn, t.tiltakskode, nav_enhet.navn, v.navn, au.leverandor_underenheter, an.nav_enheter, vk.id
             order by $order
             limit :limit
             offset :offset
@@ -439,15 +445,15 @@ class AvtaleRepository(private val db: Database) {
         val startDato = localDate("start_dato")
         val sluttDato = localDate("slutt_dato")
         val navRegion = stringOrNull("nav_region")
-        val navEnheter = stringOrNull("nav_enheter")?.let {
-            Json.decodeFromString<List<NavEnhet?>>(it).filterNotNull()
-        } ?: emptyList()
-        val underenheter = stringOrNull("leverandor_underenheter")?.let {
-            Json.decodeFromString<List<AvtaleAdminDto.LeverandorUnderenhet?>>(it).filterNotNull()
-        } ?: emptyList()
-        val administrator = stringOrNull("administrator")?.let {
-            Json.decodeFromString<AvtaleAdminDto.Administrator?>(it)
-        }
+        val navEnheter = stringOrNull("nav_enheter")
+            ?.let { Json.decodeFromString<List<NavEnhet?>>(it).filterNotNull() }
+            ?: emptyList()
+        val underenheter = stringOrNull("leverandor_underenheter")
+            ?.let { Json.decodeFromString<List<AvtaleAdminDto.LeverandorUnderenhet?>>(it).filterNotNull() }
+            ?: emptyList()
+        val administratorer = Json
+            .decodeFromString<List<AvtaleAdminDto.Administrator?>>(string("administratorer"))
+            .filterNotNull()
 
         return AvtaleAdminDto(
             id = uuid("id"),
@@ -491,7 +497,7 @@ class AvtaleRepository(private val db: Database) {
                 Avslutningsstatus.valueOf(string("avslutningsstatus")),
             ),
             prisbetingelser = stringOrNull("prisbetingelser"),
-            administrator = administrator,
+            administrator = administratorer.getOrNull(0),
             url = stringOrNull("url"),
             antallPlasser = intOrNull("antall_plasser"),
             opphav = ArenaMigrering.Opphav.valueOf(string("opphav")),
