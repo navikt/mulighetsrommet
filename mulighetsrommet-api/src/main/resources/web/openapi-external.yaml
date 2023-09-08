@@ -129,7 +129,7 @@ paths:
         200:
           description: |
             Returnerer ymse data som finnes på gjennomføringen i Arena, men som enda ikke har blitt en del av
-            datamodellen for tiltaksgjennomføringer som blir eksponert i dette APIet. Hvis gjennomforingen er
+            datamodellen for tiltaksgjennomføringer som blir eksponert i dette APIet. Hvis gjennomføringen er
             laget i admin-flate (og ikke Arena) returneres 200 med tom body.
 
             Om dette endepunktet mangler noen datapunkter er det mulig å komme med egne bestillinger for dette.
