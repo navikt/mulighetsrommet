@@ -328,7 +328,7 @@ export function AvtaleSkjemaContainer({
                     label={"NAV region"}
                     {...register("navRegion")}
                     onChange={(e) => {
-                      setNavRegion(e);
+                      setNavRegion(e.target.value);
                       form.setValue("navEnheter", [] as any);
                     }}
                     onClearValue={() => setValue("navRegion", "")}
