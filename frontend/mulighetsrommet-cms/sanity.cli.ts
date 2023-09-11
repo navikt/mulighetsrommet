@@ -5,4 +5,9 @@ export default defineCliConfig({
     projectId: "xegcworx",
     dataset: "test",
   },
+  vite: {
+    build: {
+      target: 'esnext',
+    },
+  },
 });
