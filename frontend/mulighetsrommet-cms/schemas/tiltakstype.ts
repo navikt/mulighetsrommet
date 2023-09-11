@@ -23,6 +23,19 @@ export const tiltakstype = defineType({
       validation: (Rule) => Rule.required().min(2).max(200),
     }),
     defineField({
+      name: "redaktor",
+      title: "Redaktører",
+      type: "array",
+      description: "Eier av innholdet i denne tiltakstypen.",
+      of: [
+        {
+          type: "reference",
+          to: [{ type: "redaktor" }],
+        },
+      ],
+      validation: (rule) => rule.required().unique(),
+    }),
+     defineField({
       name: "beskrivelse",
       title: "Beskrivelse",
       type: "text",
