@@ -225,7 +225,7 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getUtkastFilter(): UtkastFilte
 
 fun <T : Any> PipelineContext<T, ApplicationCall>.getNotatFilter(): NotatFilter {
     val avtaleId = call.request.queryParameters["avtaleId"]?.toUUID()
-    val tiltaksgjennomforingId = call.request.queryParameters["tiltaksgjennomforingID"]?.toUUID()
+    val tiltaksgjennomforingId = call.request.queryParameters["tiltaksgjennomforingId"]?.toUUID()
     val sortering = call.request.queryParameters["order"]
 
     return NotatFilter(
