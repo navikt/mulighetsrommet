@@ -3,6 +3,7 @@ import { deskTool } from "sanity/desk";
 import { schemas } from "./schemas/schemas";
 import { visionTool } from "@sanity/vision";
 import { defaultDocumentNode, structure } from "./deskStructures/deskStrukture";
+import { createClient } from "@sanity/client";
 
 const PROJECT_ID = "xegcworx";
 export const API_VERSION = "2021-10-21";
@@ -90,11 +91,35 @@ const createCommonConfig = (
   }),
 });
 
-export default defineConfig([
-  {
-    ...createCommonConfig("production", "/prod"),
-  },
-  {
-    ...createCommonConfig("test", "/test"),
-  },
-]);
+export const client = createClient({
+  projectId: PROJECT_ID,
+  dataset: 'production',
+  useCdn: false,
+  apiVersion: API_VERSION,
+})
+
+const currentUser = await client.request({
+  uri: '/users/me',
+  withCredentials: true,
+});
+
+const isAdmin = Boolean(currentUser.roles.find((role) => role.name === "administrator"));
+
+
+export default isAdmin ?
+  defineConfig([
+    {
+      ...createCommonConfig("production", "/prod"),
+    },
+    {
+      ...createCommonConfig("test", "/test"),
+    },
+  ])
+  : defineConfig([
+    {
+      ...createCommonConfig("production", "/prod"),
+    },
+  ]);
+
+
+
