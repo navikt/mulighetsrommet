@@ -125,6 +125,47 @@ export const sanityHandlers = [
     const result = await client.fetch(query);
     return ok(result);
   }),
+  rest.get<DefaultBodyType, PathParams, any>('*/api/v1/internal/sanity/tiltaksgjennomforing/preview/:id', async req => {
+    const id = req.params.id;
+    const matchIdForProdEllerDrafts = `(_id == '${id}' || _id == 'drafts.${id}')`;
+    const query = groq`*[_type == "tiltaksgjennomforing" && ${matchIdForProdEllerDrafts}] {
+    _id,
+    tiltaksgjennomforingNavn,
+    beskrivelse,
+    "tiltaksnummer": tiltaksnummer.current,
+    tilgjengelighetsstatus,
+    estimert_ventetid,
+    lokasjon,
+    oppstart,
+    oppstartsdato,
+    sluttdato,
+    faneinnhold {
+      forHvemInfoboks,
+      forHvem,
+      detaljerOgInnholdInfoboks,
+      detaljerOgInnhold,
+      pameldingOgVarighetInfoboks,
+      pameldingOgVarighet,
+    },
+    kontaktinfoArrangor->,
+    kontaktinfoTiltaksansvarlige[]->,
+    tiltakstype->{
+      ...,
+      regelverkFiler[]-> {
+        _id,
+        "regelverkFilUrl": regelverkFilOpplastning.asset->url,
+        regelverkFilNavn
+      },
+      regelverkLenker[]->,
+      innsatsgruppe->,
+
+    }
+  }`;
+
+    const client = getSanityClient('raw');
+    const result = await client.fetch(query);
+    return ok(result);
+  }),
 ];
 
 function byggLokasjonsFilter(lokasjoner: string[]): string {

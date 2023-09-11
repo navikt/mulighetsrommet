@@ -129,11 +129,11 @@ class VeilederflateService(
 
     suspend fun hentTiltaksgjennomforing(
         id: String,
-        fnr: String,
+        fnr: String?,
         accessToken: String,
     ): List<VeilederflateTiltaksgjennomforing> {
-        val brukerData = brukerService.hentBrukerdata(fnr, accessToken)
-        val enhetsId = brukerData.geografiskEnhet?.enhetsnummer ?: ""
+        val brukerData = fnr?.let { brukerService.hentBrukerdata(fnr, accessToken) }
+        val enhetsId = brukerData?.geografiskEnhet?.enhetsnummer ?: ""
         val query = """
             *[_type == "tiltaksgjennomforing" && (_id == '$id' || _id == 'drafts.$id')] {
                 _id,

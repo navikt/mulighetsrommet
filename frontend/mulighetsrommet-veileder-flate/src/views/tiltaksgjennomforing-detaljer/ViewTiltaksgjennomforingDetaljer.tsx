@@ -66,15 +66,15 @@ function resolveName(ansatt?: NavVeileder) {
 
 const ViewTiltaksgjennomforingDetaljer = () => {
   const gjennomforingsId = useGetTiltaksgjennomforingIdFraUrl();
-  const [filter] = useAtom(tiltaksgjennomforingsfilter);
-  const [page] = useAtom(paginationAtom);
   const { data: tiltaksgjennomforing, isLoading, isError } = useTiltaksgjennomforingById();
-  const [delemodalApen, setDelemodalApen] = useState<boolean>(false);
   const brukerdata = useHentBrukerdata();
   const veilederdata = useHentVeilederdata();
-  const veiledernavn = resolveName(veilederdata.data);
   const { brukerHarRettPaaTiltak } = useBrukerHarRettPaaTiltak();
   const { harDeltMedBruker } = useHentDeltMedBrukerStatus();
+  const [filter] = useAtom(tiltaksgjennomforingsfilter);
+  const [page] = useAtom(paginationAtom);
+  const [delemodalApen, setDelemodalApen] = useState<boolean>(false);
+  const veiledernavn = resolveName(veilederdata.data);
   const datoSidenSistDelt = harDeltMedBruker && formaterDato(new Date(harDeltMedBruker.createdAt!!));
 
   const handleClickApneModal = () => {

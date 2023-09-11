@@ -19,7 +19,7 @@ export function useHentDeltMedBrukerStatus() {
         fnr: norskIdent,
         sanityId: tiltaksgjennomforing?._id!!,
       }),
-    { enabled: !erPreview || !tiltaksgjennomforing?.tiltaksnummer }
+    { enabled: !erPreview && !tiltaksgjennomforing?.tiltaksnummer }
   );
 
   async function lagreVeilederHarDeltTiltakMedBruker(dialogId: string, sanityId: string) {

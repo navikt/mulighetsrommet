@@ -45,11 +45,7 @@ function render() {
     customElements.define(APPLICATION_WEB_COMPONENT_NAME, Arbeidsmarkedstiltak);
 
     const root = createRoot(demoContainer);
-    root.render(
-      React.createElement(APPLICATION_WEB_COMPONENT_NAME, {
-        'data-fnr': '12345678910',
-      })
-    );
+    root.render(React.createElement(APPLICATION_WEB_COMPONENT_NAME, { 'data-fnr': null }));
   } else {
     customElements.define(APPLICATION_WEB_COMPONENT_NAME, Arbeidsmarkedstiltak);
   }

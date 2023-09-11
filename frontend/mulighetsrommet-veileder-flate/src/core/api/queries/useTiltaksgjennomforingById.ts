@@ -7,11 +7,15 @@ import { useGetTiltaksgjennomforingIdFraUrl } from './useGetTiltaksgjennomforing
 import { useFnr } from '../../../hooks/useFnr';
 
 export default function useTiltaksgjennomforingById() {
-  const tiltaksgjennomforingId = useGetTiltaksgjennomforingIdFraUrl().replace('drafts.', '');
-  const fnrForBruker = useFnr();
-  const response = useQuery(QueryKeys.sanity.tiltaksgjennomforing(tiltaksgjennomforingId), () =>
-    mulighetsrommetClient.sanity.getSanityTiltaksgjennomforing({ id: tiltaksgjennomforingId, fnr: fnrForBruker })
-  );
+  const id = useGetTiltaksgjennomforingIdFraUrl().replace('drafts.', '');
+  const fnr = useFnr();
+  const response = erPreview
+    ? useQuery(QueryKeys.sanity.tiltaksgjennomforingPreview(id), () =>
+        mulighetsrommetClient.sanity.getSanityTiltaksgjennomforingForPreview({ id })
+      )
+    : useQuery(QueryKeys.sanity.tiltaksgjennomforing(id), () =>
+        mulighetsrommetClient.sanity.getSanityTiltaksgjennomforing({ id, fnr })
+      );
 
   if (!response.data) {
     return response;
