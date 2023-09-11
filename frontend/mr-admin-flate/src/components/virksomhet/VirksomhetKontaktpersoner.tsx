@@ -112,10 +112,10 @@ export const VirksomhetKontaktpersoner = (
         onClearValue={() => setValue(formValueName, null)}
         label={title}
         {...register(formValueName)}
-        onChange={(id) =>
+        onChange={(e) =>
           setState({
             ...state,
-            selectedId: id,
+            selectedId: e.target.value,
           })
         }
         options={kontaktpersoner.map((person) => ({

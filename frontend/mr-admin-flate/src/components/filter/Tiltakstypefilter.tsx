@@ -68,12 +68,11 @@ export function Tiltakstypefilter() {
                 resetPaginering(setPage);
                 setFilter({
                   ...filter,
-                  status: valueOrDefault(e, defaultTiltakstypeFilter.status),
+                  status: valueOrDefault(e.target.value, defaultTiltakstypeFilter.status),
                 });
               }}
               options={statusOptions()}
             />
-
             <SokeSelect
               size="small"
               label="Gruppetiltak eller individuelle tiltak"
@@ -86,7 +85,7 @@ export function Tiltakstypefilter() {
                 setFilter({
                   ...filter,
                   kategori: valueOrDefault(
-                    e,
+                    e.target.value,
                     defaultTiltakstypeFilter.kategori
                   ),
                 });
