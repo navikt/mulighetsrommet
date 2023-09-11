@@ -57,7 +57,7 @@ fun Route.sanityRoutes() {
         get("/tiltaksgjennomforing/{id}") {
             poaoTilgangService.verfiyAccessToModia(getNavAnsattAzureId())
             val id = call.parameters.getOrFail("id")
-            val result = veilederflateService.hentTiltaksgjennomforing(
+            val result = veilederflateService.hentTiltaksgjennomforingMedBrukerdata(
                 id,
                 getNorskIdent(),
                 call.getAccessToken(),
@@ -71,8 +71,6 @@ fun Route.sanityRoutes() {
             val id = call.parameters.getOrFail("id")
             val result = veilederflateService.hentTiltaksgjennomforing(
                 id,
-                null,
-                call.getAccessToken(),
             )
 
             call.respond(result)

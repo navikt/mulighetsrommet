@@ -41,6 +41,39 @@ class VeilederflateService(
         .recordStats()
         .build()
 
+    private fun tiltaksgjennomforingQuery(id: String) = """
+        *[_type == "tiltaksgjennomforing" && (_id == '$id' || _id == 'drafts.$id')] {
+                _id,
+                tiltaksgjennomforingNavn,
+                beskrivelse,
+                "tiltaksnummer": tiltaksnummer.current,
+                lokasjon,
+                oppstart,
+                oppstartsdato,
+                sluttdato,
+                faneinnhold {
+                  forHvemInfoboks,
+                  forHvem,
+                  detaljerOgInnholdInfoboks,
+                  detaljerOgInnhold,
+                  pameldingOgVarighetInfoboks,
+                  pameldingOgVarighet,
+                },
+                kontaktinfoArrangor->,
+                kontaktinfoTiltaksansvarlige[]->,
+                tiltakstype->{
+                  ...,
+                  regelverkFiler[]-> {
+                    _id,
+                    "regelverkFilUrl": regelverkFilOpplastning.asset->url,
+                    regelverkFilNavn
+                  },
+                  regelverkLenker[]->,
+                  innsatsgruppe->,
+                }
+              }
+    """.trimIndent()
+
     init {
         val cacheMetrics: CacheMetricsCollector =
             CacheMetricsCollector().register(Metrikker.appMicrometerRegistry.prometheusRegistry)
@@ -127,50 +160,34 @@ class VeilederflateService(
         }
     }
 
-    suspend fun hentTiltaksgjennomforing(
+    suspend fun hentTiltaksgjennomforingMedBrukerdata(
         id: String,
-        fnr: String?,
+        fnr: String,
         accessToken: String,
     ): List<VeilederflateTiltaksgjennomforing> {
-        val brukerData = fnr?.let { brukerService.hentBrukerdata(fnr, accessToken) }
-        val enhetsId = brukerData?.geografiskEnhet?.enhetsnummer ?: ""
-        val query = """
-            *[_type == "tiltaksgjennomforing" && (_id == '$id' || _id == 'drafts.$id')] {
-                _id,
-                tiltaksgjennomforingNavn,
-                beskrivelse,
-                "tiltaksnummer": tiltaksnummer.current,
-                lokasjon,
-                oppstart,
-                oppstartsdato,
-                sluttdato,
-                faneinnhold {
-                  forHvemInfoboks,
-                  forHvem,
-                  detaljerOgInnholdInfoboks,
-                  detaljerOgInnhold,
-                  pameldingOgVarighetInfoboks,
-                  pameldingOgVarighet,
-                },
-                kontaktinfoArrangor->,
-                kontaktinfoTiltaksansvarlige[]->,
-                tiltakstype->{
-                  ...,
-                  regelverkFiler[]-> {
-                    _id,
-                    "regelverkFilUrl": regelverkFilOpplastning.asset->url,
-                    regelverkFilNavn
-                  },
-                  regelverkLenker[]->,
-                  innsatsgruppe->,
-                }
-              }
-        """.trimIndent()
+        val brukerData = brukerService.hentBrukerdata(fnr, accessToken)
+        val enhetsId = brukerData.geografiskEnhet?.enhetsnummer ?: ""
+        val query = tiltaksgjennomforingQuery(id)
 
         return when (val result = sanityClient.query(query, SanityPerspective.RAW)) {
             is SanityResponse.Result -> {
                 val gjennomforinger = result.decode<List<VeilederflateTiltaksgjennomforing>>()
                 supplerDataFraDB(gjennomforinger, enhetsId)
+            }
+
+            is SanityResponse.Error -> throw Exception(result.error.toString())
+        }
+    }
+
+    suspend fun hentTiltaksgjennomforing(
+        id: String,
+    ): List<VeilederflateTiltaksgjennomforing> {
+        val query = tiltaksgjennomforingQuery(id)
+
+        return when (val result = sanityClient.query(query, SanityPerspective.RAW)) {
+            is SanityResponse.Result -> {
+                val gjennomforinger = result.decode<List<VeilederflateTiltaksgjennomforing>>()
+                supplerDataFraDB(gjennomforinger, "")
             }
 
             is SanityResponse.Error -> throw Exception(result.error.toString())
