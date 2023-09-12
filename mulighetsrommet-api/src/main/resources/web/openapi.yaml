@@ -2491,7 +2491,7 @@ components:
         tiltaksnummer:
           type: string
         kontaktinfoArrangor:
-          $ref: "#/components/schemas/SanityKontaktinfoArrangor"
+          $ref: "#/components/schemas/VeilderflateArrangor"
         lokasjon:
           type: string
         oppstart:
@@ -2567,22 +2567,34 @@ components:
         pameldingOgVarighet:
           type: object
 
-    SanityKontaktinfoArrangor:
+    VeilderflateArrangor:
       type: object
       properties:
-        _id:
-          type: string
         selskapsnavn:
           type: string
-        telefonnummer:
+        organisasjonsnummer:
           type: string
+        lokasjon:
+          type: string
+        kontaktperson:
+          $ref: "#/components/schemas/VeilderflateArrangorKontaktperson"
+      required:
+        - selskapsnavn
+
+    VeilderflateArrangorKontaktperson:
+      type: object
+      properties:
+        navn:
+          type: string
+        telefon:
+          type: string
+          nullable: true
         epost:
           type: string
-        adresse:
-          type: string
       required:
-        - _id
-        - selskapsnavn
+        - navn
+        - telefon
+        - epost
 
     SanityKontakinfoTiltaksansvarlige:
       type: object

@@ -225,14 +225,18 @@ class VeilederflateService(
 
                 if (apiGjennomforing != null) {
                     val kontaktpersoner = enhetsId?.let { hentKontaktpersoner(apiGjennomforing, enhetsId) }
-                    val kontaktpersonerArrangor = apiGjennomforing.arrangor.kontaktperson?.let {
-                        KontaktInfoArrangor(
-                            selskapsnavn = virksomhetService.getOrSyncVirksomhet(it.organisasjonsnummer)?.navn,
-                            telefonnummer = it.telefon,
-                            adresse = apiGjennomforing.lokasjonArrangor,
-                            epost = it.epost,
-                        )
-                    }
+                    val arrangor = VeilederflateArrangor(
+                        selskapsnavn = apiGjennomforing.arrangor.navn,
+                        organisasjonsnummer = apiGjennomforing.arrangor.organisasjonsnummer,
+                        lokasjon = apiGjennomforing.lokasjonArrangor,
+                        kontaktperson = apiGjennomforing.arrangor.kontaktperson?.run {
+                            VeilederflateArrangor.Kontaktperson(
+                                navn = navn,
+                                telefon = telefon,
+                                epost = epost,
+                            )
+                        },
+                    )
                     val oppstart = apiGjennomforing.oppstart.name.lowercase()
                     val oppstartsdato = apiGjennomforing.startDato
                     val sluttdato = apiGjennomforing.sluttDato
@@ -266,7 +270,7 @@ class VeilederflateService(
                             sluttdato = sluttdato,
                             tilgjengelighetsstatus = apiGjennomforing.tilgjengelighet,
                             estimert_ventetid = apiGjennomforing.estimertVentetid,
-                            kontaktinfoArrangor = kontaktpersonerArrangor ?: sanityData.kontaktinfoArrangor,
+                            kontaktinfoArrangor = arrangor,
                             lokasjon = apiGjennomforing.lokasjonArrangor ?: sanityData.lokasjon,
                             fylke = fylke ?: sanityData.fylke,
                             enheter = enheter.ifEmpty { sanityData.enheter },

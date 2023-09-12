@@ -26,7 +26,7 @@ const NavKontaktpersonInfo = ({ data }: NavKontaktpersonInfoProps) => {
       </BodyShort>
       {tiltaksansvarlige.map((tiltaksansvarlig: SanityKontakinfoTiltaksansvarlige) => {
         return (
-          <div className={styles.container} key={tiltaksansvarlig._id}>
+          <div className={styles.container} key={tiltaksansvarlig.epost}>
             <BodyShort className={styles.navn} size="small">
               {tiltaksansvarlig.navn}
             </BodyShort>

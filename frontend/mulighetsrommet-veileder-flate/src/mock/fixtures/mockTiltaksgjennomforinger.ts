@@ -458,10 +458,12 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
     sluttdato: '2023-11-30',
     kontaktinfoArrangor: {
       selskapsnavn: 'JOBLEARN AS AVD 813201 ØST-VIKEN KURS',
-      adresse: '2050 JESSHEIM',
-      telefonnummer: '12345678',
-      epost: 'test@example.com',
-      _id: '12345',
+      lokasjon: '2050 JESSHEIM',
+      kontaktperson: {
+        navn: 'Ole Testesen',
+        telefon: '12345678',
+        epost: 'test@example.com',
+      },
     },
     estimert_ventetid: '',
     kontaktinfoTiltaksansvarlige: [

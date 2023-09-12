@@ -18,7 +18,7 @@ data class VeilederflateTiltaksgjennomforing(
     val oppstartsdato: LocalDate? = null,
     @Serializable(with = LocalDateSerializer::class)
     val sluttdato: LocalDate? = null,
-    val kontaktinfoArrangor: KontaktInfoArrangor? = null,
+    val kontaktinfoArrangor: VeilederflateArrangor? = null,
     val estimert_ventetid: String? = null, // TODO estimertVentetid
     @Serializable(with = LocalDateSerializer::class)
     val stengtFra: LocalDate? = null,
@@ -43,3 +43,18 @@ data class VeilederflateTiltakstype(
     val delingMedBruker: String? = null,
     val arenakode: String? = null,
 )
+
+@Serializable
+data class VeilederflateArrangor(
+    val selskapsnavn: String?,
+    val organisasjonsnummer: String?,
+    val lokasjon: String?,
+    val kontaktperson: Kontaktperson?,
+) {
+    @Serializable
+    data class Kontaktperson(
+        val navn: String,
+        val telefon: String?,
+        val epost: String,
+    )
+}
