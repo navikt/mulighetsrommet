@@ -10,7 +10,7 @@ export const API_VERSION = "2021-10-21";
 
 const createCommonConfig = (
   dataset: "production" | "test",
-  basePath: string
+  basePath: string,
 ) => ({
   name: dataset,
   title: `Mulighetsrommet - ${dataset}`,
@@ -29,12 +29,12 @@ const createCommonConfig = (
   tools: (prev, { currentUser }) => {
     // Check if the current user is an administrator or editor (Tom Stian og Marthe)
     const isAdmin = currentUser?.roles.some((role) =>
-      ["administrator", "editor"].includes(role.name)
+      ["administrator", "editor"].includes(role.name),
     );
 
     // Filter out the tools that should not be available to non-administrators
     const nonAdminDeskTools = prev.filter(
-      (tool) => !["visionTool"].includes(tool.name)
+      (tool) => !["visionTool"].includes(tool.name),
     );
 
     // Return tools available to non-administrators
@@ -93,33 +93,31 @@ const createCommonConfig = (
 
 export const client = createClient({
   projectId: PROJECT_ID,
-  dataset: 'production',
+  dataset: "production",
   useCdn: false,
   apiVersion: API_VERSION,
-})
+});
 
 const currentUser = await client.request({
-  uri: '/users/me',
+  uri: "/users/me",
   withCredentials: true,
 });
 
-const isAdmin = Boolean(currentUser.roles.find((role) => role.name === "administrator"));
+const isAdmin = Boolean(
+  currentUser.roles?.find((role) => role.name === "administrator"),
+);
 
-
-export default isAdmin ?
-  defineConfig([
-    {
-      ...createCommonConfig("production", "/prod"),
-    },
-    {
-      ...createCommonConfig("test", "/test"),
-    },
-  ])
+export default isAdmin
+  ? defineConfig([
+      {
+        ...createCommonConfig("production", "/prod"),
+      },
+      {
+        ...createCommonConfig("test", "/test"),
+      },
+    ])
   : defineConfig([
-    {
-      ...createCommonConfig("production", "/prod"),
-    },
-  ]);
-
-
-
+      {
+        ...createCommonConfig("production", "/prod"),
+      },
+    ]);
