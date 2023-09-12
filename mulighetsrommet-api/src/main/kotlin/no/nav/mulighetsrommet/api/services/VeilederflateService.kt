@@ -15,20 +15,16 @@ import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingTilgjengelighetssta
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingAdminDto
 import no.nav.mulighetsrommet.metrics.Metrikker
 import no.nav.mulighetsrommet.utils.CacheUtils
-import org.slf4j.LoggerFactory
 import java.util.*
 import java.util.concurrent.TimeUnit
-import kotlin.collections.set
 
 class VeilederflateService(
     private val sanityClient: SanityClient,
     private val brukerService: BrukerService,
     private val tiltaksgjennomforingService: TiltaksgjennomforingService,
-    private val virksomhetService: VirksomhetService,
     private val tiltakstypeService: TiltakstypeService,
+    private val navEnhetService: NavEnhetService,
 ) {
-    private val logger = LoggerFactory.getLogger(javaClass)
-    private val fylkenummerCache = mutableMapOf<String?, String>()
     private val sanityCache: Cache<String, SanityResponse> = Caffeine.newBuilder()
         .expireAfterWrite(30, TimeUnit.MINUTES)
         .maximumSize(500)
@@ -106,11 +102,13 @@ class VeilederflateService(
 
     suspend fun hentLokasjonerForBrukersEnhetOgFylke(fnr: String, accessToken: String): List<String> {
         val brukerData = brukerService.hentBrukerdata(fnr, accessToken)
-        val enhetsId = brukerData.geografiskEnhet?.enhetsnummer ?: ""
-        val fylkeId = getFylkeIdBasertPaaEnhetsId(enhetsId) ?: ""
+        val enhetsId = brukerData.geografiskEnhet?.enhetsnummer
+        val fylkeId = enhetsId
+            ?.let { navEnhetService.hentOverorndetFylkesenhet(it)?.enhetsnummer }
+            ?: ""
 
         return CacheUtils.tryCacheFirstNotNull(lokasjonCache, fnr) {
-            tiltaksgjennomforingService.getLokasjonerForBrukersEnhet(enhetsId, fylkeId)
+            tiltaksgjennomforingService.getLokasjonerForBrukersEnhet(enhetsId ?: "", fylkeId)
         }
     }
 
@@ -120,8 +118,10 @@ class VeilederflateService(
         filter: TiltaksgjennomforingFilter,
     ): List<VeilederflateTiltaksgjennomforing> {
         val brukerData = brukerService.hentBrukerdata(fnr, accessToken)
-        val enhetsId = brukerData.geografiskEnhet?.enhetsnummer ?: ""
-        val fylkeId = getFylkeIdBasertPaaEnhetsId(enhetsId) ?: ""
+        val enhetsId = brukerData.geografiskEnhet?.enhetsnummer
+        val fylkeId = enhetsId
+            ?.let { navEnhetService.hentOverorndetFylkesenhet(it)?.enhetsnummer }
+            ?: ""
         val query = """
             *[_type == "tiltaksgjennomforing"
               ${byggInnsatsgruppeFilter(filter.innsatsgruppe)}
@@ -334,34 +334,5 @@ class VeilederflateService(
                     _createdAt = null,
                 )
             }
-    }
-
-    // TODO er vel ikke noe vits å gå mot Sanity her?
-    private suspend fun getFylkeIdBasertPaaEnhetsId(enhetsId: String?): String? {
-        if (fylkenummerCache[enhetsId] != null) {
-            return fylkenummerCache[enhetsId]
-        }
-
-        val response =
-            sanityClient.query(query = "*[_type == \"enhet\" && type == \"Lokal\" && nummer.current == \"$enhetsId\"][0]{fylke->}")
-
-        logger.info("Henter data om fylkeskontor basert på enhetsId: '$enhetsId' - Response: {}", response)
-
-        val fylkeResponse = when (response) {
-            is SanityResponse.Result -> response.decode<FylkeResponse>()
-
-            else -> null
-        }
-
-        return try {
-            val fylkeNummer = fylkeResponse?.fylke?.nummer?.current
-            if (fylkeNummer != null && enhetsId != null) {
-                fylkenummerCache[enhetsId] = fylkeNummer
-            }
-            fylkeNummer
-        } catch (exception: Throwable) {
-            logger.warn("Spørring mot Sanity feilet", exception)
-            null
-        }
     }
 }

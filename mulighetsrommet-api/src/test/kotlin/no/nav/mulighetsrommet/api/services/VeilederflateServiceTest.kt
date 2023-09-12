@@ -6,8 +6,11 @@ import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.serialization.json.Json
+import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.clients.person.Enhet
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
+import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
+import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.domain.dto.SanityResponse
 import no.nav.mulighetsrommet.api.utils.TiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
@@ -25,32 +28,14 @@ class VeilederflateServiceTest : FunSpec({
     val tiltaksgjennomforingService: TiltaksgjennomforingService = mockk(relaxed = true)
     val virksomhetService: VirksomhetService = mockk(relaxed = true)
     val tiltakstypeService: TiltakstypeService = mockk(relaxed = true)
+    val navEnhetService: NavEnhetService = mockk()
 
-    val sanityFylkeResult = SanityResponse.Result(
-        ms = 12,
-        query = "",
-        result = Json.parseToJsonElement(
-            """
-        {
-            "fylke":
-                {
-                    "status": "Aktiv",
-                    "_createdAt": "2022-06-16T07:51:14Z",
-                    "_type": "enhet",
-                    "navn": "NAV Innlandet",
-                    "type": "Fylke",
-                    "nummer": {
-                        "current": "0400",
-                        "_type": "slug"
-                    },
-                    "fylke": null,
-                    "_rev": "pv5QzE4Lm79BNhDrjk8k4T",
-                    "_id": "enhet.fylke.0400",
-                    "_updatedAt": "2023-06-21T07:50:54Z"
-                }
-        }
-    """,
-        ),
+    every { navEnhetService.hentOverorndetFylkesenhet("0430") } returns NavEnhetDbo(
+        navn = "NAV Innlandet",
+        enhetsnummer = "0400",
+        status = NavEnhetStatus.AKTIV,
+        type = Norg2Type.FYLKE,
+        overordnetEnhet = null,
     )
 
     val sanityResult = SanityResponse.Result(
@@ -159,8 +144,8 @@ class VeilederflateServiceTest : FunSpec({
             sanityClient,
             brukerService,
             tiltaksgjennomforingService,
-            virksomhetService,
             tiltakstypeService,
+            navEnhetService,
         )
         every { tiltaksgjennomforingService.getBySanityIds(any()) } returns mapOf(
             UUID.fromString("f21d1e35-d63b-4de7-a0a5-589e57111527") to dbGjennomforing,
@@ -176,7 +161,6 @@ class VeilederflateServiceTest : FunSpec({
             manuellStatus = null,
         )
         coEvery { sanityClient.query(any()) } returns sanityResult
-        coEvery { sanityClient.query("*[_type == \"enhet\" && type == \"Lokal\" && nummer.current == \"0430\"][0]{fylke->}") } returns sanityFylkeResult
 
         val gjennomforinger = veilederFlateService.hentTiltaksgjennomforingerForBrukerBasertPaEnhetOgFylke(
             fnr,
@@ -193,8 +177,8 @@ class VeilederflateServiceTest : FunSpec({
             sanityClient,
             brukerService,
             tiltaksgjennomforingService,
-            virksomhetService,
             tiltakstypeService,
+            navEnhetService,
         )
         every { tiltaksgjennomforingService.getBySanityIds(any()) } returns mapOf(
             UUID.fromString("f21d1e35-d63b-4de7-a0a5-589e57111527") to dbGjennomforing.copy(lokasjonArrangor = "Oslo"),
@@ -210,7 +194,6 @@ class VeilederflateServiceTest : FunSpec({
             manuellStatus = null,
         )
         coEvery { sanityClient.query(any()) } returns sanityResult
-        coEvery { sanityClient.query("*[_type == \"enhet\" && type == \"Lokal\" && nummer.current == \"0430\"][0]{fylke->}") } returns sanityFylkeResult
 
         val gjennomforinger = veilederFlateService.hentTiltaksgjennomforingerForBrukerBasertPaEnhetOgFylke(
             fnr,
@@ -227,8 +210,8 @@ class VeilederflateServiceTest : FunSpec({
             sanityClient,
             brukerService,
             tiltaksgjennomforingService,
-            virksomhetService,
             tiltakstypeService,
+            navEnhetService,
         )
         every { tiltaksgjennomforingService.getBySanityIds(any()) } returns mapOf(
             UUID.fromString("f21d1e35-d63b-4de7-a0a5-589e57111527") to dbGjennomforing.copy(
@@ -251,7 +234,6 @@ class VeilederflateServiceTest : FunSpec({
             manuellStatus = null,
         )
         coEvery { sanityClient.query(any()) } returns sanityResult
-        coEvery { sanityClient.query("*[_type == \"enhet\" && type == \"Lokal\" && nummer.current == \"0430\"][0]{fylke->}") } returns sanityFylkeResult
 
         val gjennomforinger = veilederFlateService.hentTiltaksgjennomforingerForBrukerBasertPaEnhetOgFylke(
             fnr,
@@ -268,8 +250,8 @@ class VeilederflateServiceTest : FunSpec({
             sanityClient,
             brukerService,
             tiltaksgjennomforingService,
-            virksomhetService,
             tiltakstypeService,
+            navEnhetService,
         )
         every { tiltaksgjennomforingService.getBySanityIds(any()) } returns mapOf(
             UUID.fromString("f21d1e35-d63b-4de7-a0a5-589e57111527") to dbGjennomforing.copy(tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.STENGT),
@@ -285,7 +267,6 @@ class VeilederflateServiceTest : FunSpec({
             manuellStatus = null,
         )
         coEvery { sanityClient.query(any()) } returns sanityResult
-        coEvery { sanityClient.query("*[_type == \"enhet\" && type == \"Lokal\" && nummer.current == \"0430\"][0]{fylke->}") } returns sanityFylkeResult
 
         val gjennomforinger = veilederFlateService.hentTiltaksgjennomforingerForBrukerBasertPaEnhetOgFylke(
             fnr,
