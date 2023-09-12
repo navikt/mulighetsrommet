@@ -19,7 +19,7 @@ import { useHentBrukerdata } from '../../core/api/queries/useHentBrukerdata';
 import { useHentDeltMedBrukerStatus } from '../../core/api/queries/useHentDeltMedbrukerStatus';
 import { useHentVeilederdata } from '../../core/api/queries/useHentVeilederdata';
 import useTiltaksgjennomforingById from '../../core/api/queries/useTiltaksgjennomforingById';
-import { paginationAtom, tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
+import { paginationAtom } from '../../core/atoms/atoms';
 import { environments } from '../../env';
 import { useBrukerHarRettPaaTiltak } from '../../hooks/useBrukerHarRettPaaTiltak';
 import TiltaksgjennomforingsHeader from '../../layouts/TiltaksgjennomforingsHeader';
@@ -66,7 +66,6 @@ function resolveName(ansatt?: NavVeileder) {
 
 const ViewTiltaksgjennomforingDetaljer = () => {
   const gjennomforingsId = useGetTiltaksgjennomforingIdFraUrl();
-  const [filter] = useAtom(tiltaksgjennomforingsfilter);
   const [page] = useAtom(paginationAtom);
   const { data: tiltaksgjennomforing, isLoading, isError } = useTiltaksgjennomforingById();
   const [delemodalApen, setDelemodalApen] = useState<boolean>(false);
@@ -138,7 +137,7 @@ const ViewTiltaksgjennomforingDetaljer = () => {
         <div className={styles.top_wrapper}>
           {!erPreview && (
             <Tilbakeknapp
-              tilbakelenke={`/#filter=${encodeURIComponent(JSON.stringify(filter))}&page=${page}`}
+              tilbakelenke={`/#page=${page}`}
               tekst="Tilbake til tiltaksoversikten"
             />
           )}

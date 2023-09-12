@@ -15,19 +15,14 @@ export interface Tiltaksgjennomforingsfiltergruppe<T> {
   nokkel?: T;
 }
 
-export const initialTiltaksgjennomforingsfilter = {
-  search: '',
-  innsatsgruppe: undefined,
-  tiltakstyper: [],
-  lokasjoner: [],
-};
-
-export const tiltaksgjennomforingsfilter = atomWithHash<Tiltaksgjennomforingsfilter>(
+export const tiltaksgjennomforingsfilter = atomWithStorage<Tiltaksgjennomforingsfilter>(
   'filter',
-  initialTiltaksgjennomforingsfilter,
   {
-    setHash: 'replaceState',
-  }
+    search: '',
+    innsatsgruppe: undefined,
+    tiltakstyper: [],
+    lokasjoner: [],
+  },
 );
 
 export const paginationAtom = atomWithHash('page', 1);

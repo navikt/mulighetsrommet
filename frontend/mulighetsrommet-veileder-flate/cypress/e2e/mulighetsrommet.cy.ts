@@ -17,6 +17,7 @@ describe('Tiltaksoversikt', () => {
   const innsatsgruppe = 'innsats';
 
   beforeEach(() => {
+    cy.clearLocalStorage();
     cy.visit('/');
     cy.skruAvJoyride();
     cy.resetSortering();
@@ -174,6 +175,7 @@ describe('Tiltaksoversikt', () => {
 
 describe('Tiltaksgjennomføringsdetaljer', () => {
   beforeEach(() => {
+    cy.clearLocalStorage();
     cy.visit('/');
     cy.skruAvJoyride();
     cy.getByTestId('lenke_tiltaksgjennomforing').first().click();
