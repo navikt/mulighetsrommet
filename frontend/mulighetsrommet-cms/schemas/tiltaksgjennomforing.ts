@@ -34,9 +34,9 @@ export const tiltaksgjennomforing = defineType({
     }),
     defineField({
       name: "redaktor",
-      title: "Redaktører",
+      title: "Administratorer",
       type: "array",
-      description: "Eier av innholdet i denne tiltaksgjennomføringen.",
+      description: "Eiere av innholdet i denne tiltaksgjennomføringen.",
       of: [
         {
           type: "reference",
