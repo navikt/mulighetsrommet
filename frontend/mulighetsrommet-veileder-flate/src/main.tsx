@@ -45,7 +45,9 @@ function render() {
     customElements.define(APPLICATION_WEB_COMPONENT_NAME, Arbeidsmarkedstiltak);
 
     const root = createRoot(demoContainer);
-    root.render(React.createElement(APPLICATION_WEB_COMPONENT_NAME, { 'data-fnr': null }));
+    root.render(
+      React.createElement(APPLICATION_WEB_COMPONENT_NAME, { 'data-fnr': import.meta.env.VITE_DEMO_FNR ?? null })
+    );
   } else {
     customElements.define(APPLICATION_WEB_COMPONENT_NAME, Arbeidsmarkedstiltak);
   }

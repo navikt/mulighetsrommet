@@ -11,11 +11,15 @@ import Tiltaksgjennomforingsoversikt from '../../components/oversikt/Tiltaksgjen
 import useTiltaksgjennomforinger from '../../core/api/queries/useTiltaksgjennomforinger';
 import { tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
 import styles from './ViewTiltaksgjennomforingOversikt.module.scss';
+import { useHentBrukerdata } from '../../core/api/queries/useHentBrukerdata';
 
 const ViewTiltaksgjennomforingOversikt = () => {
   const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);
   const [isHistorikkModalOpen, setIsHistorikkModalOpen] = useState(false);
   const { isFetched } = useTiltaksgjennomforinger();
+  const brukerdata = useHentBrukerdata();
+
+  if (!brukerdata.data) return null;
 
   useEffect(() => {
     setIsHistorikkModalOpen(isHistorikkModalOpen);
@@ -29,9 +33,7 @@ const ViewTiltaksgjennomforingOversikt = () => {
           <Filtertags filter={filter} setFilter={setFilter} />
           <div className={styles.knapperad}>
             <>
-              <OversiktenJoyride
-                isTableFetched={isFetched}
-              />
+              <OversiktenJoyride isTableFetched={isFetched} />
               <OversiktenLastStepJoyride />
             </>
             <HistorikkButton
@@ -42,7 +44,7 @@ const ViewTiltaksgjennomforingOversikt = () => {
         </div>
         <div>
           <FiltrertFeilInnsatsgruppeVarsel filter={filter} />
-          <BrukerHarIkke14aVedtakVarsel />
+          <BrukerHarIkke14aVedtakVarsel brukerdata={brukerdata.data} />
           <Tiltaksgjennomforingsoversikt />
         </div>
       </div>

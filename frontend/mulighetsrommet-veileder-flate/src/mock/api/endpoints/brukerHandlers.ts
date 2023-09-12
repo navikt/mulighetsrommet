@@ -15,9 +15,7 @@ export const brukerHandlers = [
       ctx.status(200),
       ctx.json({
         fnr,
-        //En bruker har enten servicegruppe eller innsatsgruppe. Denne kan endres ved behov
         innsatsgruppe: Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
-        // servicegruppe: 'BATT',
         oppfolgingsenhet: {
           navn: 'NAV Fredrikstad',
           enhetId: ENHET_FREDRIKSTAD,
