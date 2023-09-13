@@ -5,6 +5,7 @@ import com.github.benmanes.caffeine.cache.Caffeine
 import io.ktor.server.plugins.*
 import io.prometheus.client.cache.caffeine.CacheMetricsCollector
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
+import no.nav.mulighetsrommet.api.clients.sanity.SanityPerspective
 import no.nav.mulighetsrommet.api.domain.dto.*
 import no.nav.mulighetsrommet.api.utils.TiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.api.utils.byggInnsatsgruppeFilter
@@ -186,8 +187,7 @@ class VeilederflateService(
     ): VeilederflateTiltaksgjennomforing {
         val query = tiltaksgjennomforingQuery(id)
 
-        // return when (val result = sanityClient.query(query, SanityPerspective.PREVIEW_DRAFTS)) {
-        return when (val result = sanityClient.query(query)) {
+        return when (val result = sanityClient.query(query, SanityPerspective.PREVIEW_DRAFTS)) {
             is SanityResponse.Result -> {
                 val gjennomforing = result.decode<VeilederflateTiltaksgjennomforing>()
                 supplerDataFraDB(listOf(gjennomforing)).getOrElse(0) {

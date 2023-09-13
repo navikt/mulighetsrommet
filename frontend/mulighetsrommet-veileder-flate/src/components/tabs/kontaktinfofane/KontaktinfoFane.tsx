@@ -6,6 +6,7 @@ import useTiltaksgjennomforingById from '../../../core/api/queries/useTiltaksgje
 import { erPreview } from '../../../utils/Utils';
 import { Alert } from '@navikt/ds-react';
 
+// TODO Ta inn gjennomføring som prop
 const KontaktinfoFane = () => {
   const { data } = useTiltaksgjennomforingById();
   return (
