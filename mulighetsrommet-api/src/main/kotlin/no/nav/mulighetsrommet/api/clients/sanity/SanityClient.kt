@@ -56,7 +56,7 @@ class SanityClient(engine: HttpClientEngine = CIO.create(), val config: Config) 
         install(ClientResponseMetricPlugin)
 
         install(HttpRequestRetry) {
-            retryOnServerErrors(maxRetries = 5)
+            // retryOnServerErrors(maxRetries = 5)
             exponentialDelay()
             modifyRequest {
                 response?.let {

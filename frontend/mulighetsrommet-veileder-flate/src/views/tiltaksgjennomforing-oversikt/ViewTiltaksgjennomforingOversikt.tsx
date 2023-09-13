@@ -19,11 +19,11 @@ const ViewTiltaksgjennomforingOversikt = () => {
   const { isFetched } = useTiltaksgjennomforinger();
   const brukerdata = useHentBrukerdata();
 
-  if (!brukerdata.data) return null;
-
   useEffect(() => {
     setIsHistorikkModalOpen(isHistorikkModalOpen);
   }, [isHistorikkModalOpen]);
+
+  if (!brukerdata.data) return null;
 
   return (
     <>
