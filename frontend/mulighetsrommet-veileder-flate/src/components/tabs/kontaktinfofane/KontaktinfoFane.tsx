@@ -1,22 +1,24 @@
+import { Alert } from '@navikt/ds-react';
+import { SanityTiltaksgjennomforing } from 'mulighetsrommet-api-client';
+import { erPreview } from '../../../utils/Utils';
+import FaneTiltaksinformasjon from '../FaneTiltaksinformasjon';
 import ArrangorInfo from './ArrangorInfo';
 import styles from './Kontaktinfo.module.scss';
 import TiltaksansvarligInfo from './TiltaksansvarligInfo';
-import FaneTiltaksinformasjon from '../FaneTiltaksinformasjon';
-import useTiltaksgjennomforingById from '../../../core/api/queries/useTiltaksgjennomforingById';
-import { erPreview } from '../../../utils/Utils';
-import { Alert } from '@navikt/ds-react';
 
-// TODO Ta inn gjennomføring som prop
-const KontaktinfoFane = () => {
-  const { data } = useTiltaksgjennomforingById();
+interface Props {
+  tiltaksgjennomforing: SanityTiltaksgjennomforing;
+}
+
+const KontaktinfoFane = ({ tiltaksgjennomforing }: Props) => {
   return (
-    <FaneTiltaksinformasjon harInnhold={!!data} className={styles.kontaktinfo_container}>
+    <FaneTiltaksinformasjon harInnhold={!!tiltaksgjennomforing} className={styles.kontaktinfo_container}>
       {erPreview ? (
         <Alert variant="info">Ved forhåndsvisning vises ikke kontaktinformasjon</Alert>
       ) : (
         <>
-          <ArrangorInfo data={data} />
-          <TiltaksansvarligInfo data={data} />
+          <ArrangorInfo data={tiltaksgjennomforing} />
+          <TiltaksansvarligInfo data={tiltaksgjennomforing} />
         </>
       )}
     </FaneTiltaksinformasjon>

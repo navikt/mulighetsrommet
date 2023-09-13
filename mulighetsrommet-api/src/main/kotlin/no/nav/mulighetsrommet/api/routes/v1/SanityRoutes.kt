@@ -69,10 +69,9 @@ fun Route.sanityRoutes() {
         get("/tiltaksgjennomforing/preview/{id}") {
             poaoTilgangService.verfiyAccessToModia(getNavAnsattAzureId())
             val id = call.parameters.getOrFail("id")
-            val result = veilederflateService.hentTiltaksgjennomforing(
+            val result = veilederflateService.hentPreviewTiltaksgjennomforing(
                 id,
             )
-
             call.respond(result)
         }
     }

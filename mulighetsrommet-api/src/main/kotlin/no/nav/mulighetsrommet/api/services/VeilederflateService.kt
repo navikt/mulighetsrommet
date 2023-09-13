@@ -182,7 +182,7 @@ class VeilederflateService(
         }
     }
 
-    suspend fun hentTiltaksgjennomforing(
+    suspend fun hentPreviewTiltaksgjennomforing(
         id: String,
     ): VeilederflateTiltaksgjennomforing {
         val query = tiltaksgjennomforingQuery(id)

@@ -72,7 +72,7 @@ const TiltaksdetaljerFane = ({ tiltaksgjennomforing }: Props) => {
           />
         </Tabs.Panel>
         <Tabs.Panel value="tab4" data-testid="tab4">
-          <KontaktinfoFane />
+          <KontaktinfoFane tiltaksgjennomforing={tiltaksgjennomforing} />
         </Tabs.Panel>
       </div>
     </Tabs>
