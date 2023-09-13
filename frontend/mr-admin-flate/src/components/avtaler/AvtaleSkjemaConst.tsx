@@ -18,7 +18,7 @@ type UtkastData = Pick<
   | "tiltakstype"
   | "navRegion"
   | "navEnheter"
-  | "ansvarlig"
+  | "administrator"
   | "avtaletype"
   | "leverandor"
   | "leverandorUnderenheter"
@@ -54,7 +54,7 @@ export const saveUtkast = (
       navn: "",
       enhetsnummer,
     })),
-    ansvarlig: { navident: values?.avtaleansvarlig, navn: "" },
+    administrator: { navIdent: values?.administrator, navn: "" },
     avtaletype: values?.avtaletype,
     leverandor: {
       navn: "",
@@ -133,9 +133,7 @@ export const enheterOptions = (navRegion: string, enheter: NavEnhet[]) => {
   return options || [];
 };
 
-export const underenheterOptions = (
-  underenheterForLeverandor: Virksomhet[],
-) =>
+export const underenheterOptions = (underenheterForLeverandor: Virksomhet[]) =>
   underenheterForLeverandor.map((leverandor: LeverandorUnderenhet) => ({
     value: leverandor.organisasjonsnummer,
     label: `${leverandor.navn} - ${leverandor.organisasjonsnummer}`,

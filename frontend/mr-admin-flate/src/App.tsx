@@ -19,7 +19,7 @@ import TiltaksgjennomforingSkjemaPage from "./components/tiltaksgjennomforinger/
 import { UtkastListe } from "./components/utkast/Utkastliste";
 import { Avtalefilter } from "./components/filter/Avtalefilter";
 import { AvtaleTabell } from "./components/tabell/AvtaleTabell";
-import { Avtaleinfo } from "./pages/avtaler/Avtaleinfo";
+import { AvtaleInfo } from "./pages/avtaler/AvtaleInfo";
 import NotaterAvtalePage from "./components/avtaler/NotaterAvtalePage";
 import { TiltaksgjennomforingerForAvtale } from "./pages/avtaler/tiltaksgjennomforinger/TiltaksgjennomforingerForAvtale";
 import { Tiltaksgjennomforingfilter } from "./components/filter/Tiltaksgjennomforingfilter";
@@ -122,7 +122,7 @@ export function App() {
         element={<DetaljerAvtalePage />}
         errorElement={<ErrorPage />}
       >
-        <Route index element={<Avtaleinfo />} errorElement={<ErrorPage />} />
+        <Route index element={<AvtaleInfo />} errorElement={<ErrorPage />} />
         <Route
           path="notater"
           element={<NotaterAvtalePage />}

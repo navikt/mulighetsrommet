@@ -18,7 +18,7 @@ import SlettAvtaleGjennomforingModal from "../../components/modal/SlettAvtaleGje
 import { useDeleteAvtale } from "../../api/avtaler/useDeleteAvtale";
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
 
-export function Avtaleinfo() {
+export function AvtaleInfo() {
   const { data: avtale, isLoading, error, refetch } = useAvtale();
   const [slettModal, setSlettModal] = useState(false);
   const [avbrytModal, setAvbrytModal] = useState(false);
@@ -121,11 +121,11 @@ export function Avtaleinfo() {
             </a>
           </VisHvisVerdi>
 
-          <VisHvisVerdi verdi={avtale.ansvarlig?.navident}>
-            <Bolk aria-label="Avtaleansvarlig">
+          <VisHvisVerdi verdi={avtale.administrator?.navIdent}>
+            <Bolk aria-label="Administrator for avtalen">
               <Metadata
-                header="Avtaleansvarlig"
-                verdi={`${avtale.ansvarlig?.navn} - ${avtale.ansvarlig?.navident}`}
+                header="Administrator for avtalen"
+                verdi={`${avtale.administrator?.navn} - ${avtale.administrator?.navIdent}`}
               />
             </Bolk>
           </VisHvisVerdi>

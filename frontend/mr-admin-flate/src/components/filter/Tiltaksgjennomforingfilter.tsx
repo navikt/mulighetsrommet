@@ -166,13 +166,13 @@ export function Tiltaksgjennomforingfilter({ skjulFilter }: Props) {
               placeholder="Filtrer på region"
               hideLabel
               {...register("navRegion")}
-              onChange={(navRegion) => {
+              onChange={(e) => {
                 resetPaginering(setPage);
                 setFilter({
                   ...filter,
                   navEnhet: "",
                   navRegion: valueOrDefault(
-                    navRegion,
+                    e.target.value,
                     defaultTiltaksgjennomforingfilter.navRegion,
                   ),
                 });
@@ -187,12 +187,12 @@ export function Tiltaksgjennomforingfilter({ skjulFilter }: Props) {
               placeholder="Filtrer på enhet"
               hideLabel
               {...register("navEnhet")}
-              onChange={(enhet) => {
+              onChange={(e) => {
                 resetPaginering(setPage);
                 setFilter({
                   ...filter,
                   navEnhet: valueOrDefault(
-                    enhet,
+                    e.target.value,
                     defaultTiltaksgjennomforingfilter.navEnhet,
                   ),
                 });
@@ -207,12 +207,12 @@ export function Tiltaksgjennomforingfilter({ skjulFilter }: Props) {
                 placeholder="Filtrer på tiltakstype"
                 hideLabel
                 {...register("tiltakstype")}
-                onChange={(tiltakstype) => {
+                onChange={(e) => {
                   resetPaginering(setPage);
                   setFilter({
                     ...filter,
                     tiltakstype: valueOrDefault(
-                      tiltakstype,
+                      e.target.value,
                       defaultTiltaksgjennomforingfilter.tiltakstype,
                     ),
                   });
@@ -227,12 +227,12 @@ export function Tiltaksgjennomforingfilter({ skjulFilter }: Props) {
               placeholder="Filtrer på status"
               hideLabel
               {...register("status")}
-              onChange={(status) => {
+              onChange={(e) => {
                 resetPaginering(setPage);
                 setFilter({
                   ...filter,
                   status: valueOrDefault(
-                    status,
+                    e.target.value,
                     defaultTiltaksgjennomforingfilter.status,
                   ),
                 });
@@ -246,12 +246,12 @@ export function Tiltaksgjennomforingfilter({ skjulFilter }: Props) {
               placeholder="Filtrer på arrangør"
               hideLabel
               {...register("arrangorOrgnr")}
-              onChange={(arrangorOrgnr) => {
+              onChange={(e) => {
                 resetPaginering(setPage);
                 setFilter({
                   ...filter,
                   arrangorOrgnr: valueOrDefault(
-                    arrangorOrgnr,
+                    e.target.value,
                     defaultTiltaksgjennomforingfilter.arrangorOrgnr,
                   ),
                 });

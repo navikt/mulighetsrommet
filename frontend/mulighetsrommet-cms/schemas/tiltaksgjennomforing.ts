@@ -34,9 +34,9 @@ export const tiltaksgjennomforing = defineType({
     }),
     defineField({
       name: "redaktor",
-      title: "Redaktører",
+      title: "Administratorer",
       type: "array",
-      description: "Eier av innholdet i denne tiltaksgjennomføringen.",
+      description: "Eiere av innholdet i denne tiltaksgjennomføringen.",
       of: [
         {
           type: "reference",
@@ -230,8 +230,8 @@ export const tiltaksgjennomforing = defineType({
 
     defineField({
       name: "kontaktinfoTiltaksansvarlige",
-      title: "Tiltaksansvarlig",
-      description: "Tiltaksansvarlige for tiltaksgjennomføringen.",
+      title: "Kontaktpersoner",
+      description: "Veileders lokale kontaktpersoner for tiltaksgjennomføringen.",
       type: "array",
       of: [{ type: "reference", to: [{ type: "navKontaktperson" }] }],
       hidden: ({document} ) => {
@@ -243,7 +243,7 @@ export const tiltaksgjennomforing = defineType({
             return true;
           }
           if (!currentValue || currentValue.length === 0) {
-            return "Må ha minst én tiltaksansvarlig";
+            return "Må ha minst én kontaktperson";
           }
           if (hasDuplicates(currentValue.map(e => e._key))) {
             return "Innholder duplikater";

@@ -26,7 +26,7 @@ object AvtaleFixtures {
         avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
         prisbetingelser = null,
         opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
-        ansvarlige = emptyList(),
+        administratorer = emptyList(),
         navEnheter = emptyList(),
         leverandorKontaktpersonId = null,
     )
@@ -44,7 +44,7 @@ object AvtaleFixtures {
         avtaletype = Avtaletype.Rammeavtale,
         avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
         opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
-        ansvarlig = "DD1",
+        administrator = "DD1",
         url = "google.com",
         navEnheter = listOf("2990"),
         leverandorKontaktpersonId = null,

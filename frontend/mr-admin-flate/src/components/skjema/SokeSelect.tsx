@@ -15,7 +15,7 @@ export interface SelectProps {
   placeholder: string;
   options: SelectOption[];
   readOnly?: boolean;
-  onChange?: (a0: any) => void;
+  onChange?: (a0: { target: { value: any, name?: string } }) => void,
   onInputChange?: (a0: any) => void;
   className?: string;
   size?: "small" | "medium";
@@ -120,7 +120,7 @@ const SokeSelect = React.forwardRef((props: SelectProps, _) => {
                 value={options.find((c) => c.value === value)}
                 onChange={(e) => {
                   onChange(e?.value);
-                  providedOnChange?.(e?.value);
+                  providedOnChange?.({ target: { value: e?.value, name: e?.label } });
                   if (!e) {
                     onClearValue?.();
                   }

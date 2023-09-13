@@ -38,7 +38,7 @@ import {
   saveUtkast,
   underenheterOptions,
 } from "./AvtaleSkjemaConst";
-import { AnsvarligOptions } from "../skjema/AnsvarligOptions";
+import { AdministratorOptions } from "../skjema/AdministratorOptions";
 import { FormGroup } from "../skjema/FormGroup";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AvtaleSkjemaKnapperad } from "./AvtaleSkjemaKnapperad";
@@ -84,7 +84,7 @@ export function AvtaleSkjemaContainer({
       tiltakstype: avtale?.tiltakstype?.id,
       navRegion: defaultEnhet(avtale!, enheter, ansatt),
       navEnheter: avtale?.navEnheter?.map((e) => e.enhetsnummer) || [],
-      avtaleansvarlig: avtale?.ansvarlig?.navident || ansatt.navIdent || "",
+      administrator: avtale?.administrator?.navIdent || ansatt.navIdent || "",
       avtalenavn: getValueOrDefault(avtale?.navn, ""),
       avtaletype: getValueOrDefault(avtale?.avtaletype, Avtaletype.AVTALE),
       leverandor: getValueOrDefault(
@@ -154,7 +154,7 @@ export function AvtaleSkjemaContainer({
       avtalenavn: navn,
       startOgSluttDato,
       tiltakstype: tiltakstypeId,
-      avtaleansvarlig: ansvarlig,
+      administrator,
       avtaletype,
       prisOgBetalingsinfo,
       url,
@@ -172,7 +172,7 @@ export function AvtaleSkjemaContainer({
       startDato: formaterDatoSomYYYYMMDD(startOgSluttDato.startDato),
       tiltakstypeId,
       url,
-      ansvarlig,
+      administrator,
       avtaletype,
       prisOgBetalingsinformasjon: erAnskaffetTiltak(
         tiltakstypeId,
@@ -306,13 +306,13 @@ export function AvtaleSkjemaContainer({
                 <SokeSelect
                   size="small"
                   placeholder="Velg en"
-                  label={"Avtaleansvarlig"}
-                  {...register("avtaleansvarlig")}
-                  onClearValue={() => setValue("avtaleansvarlig", "")}
-                  description="Den som blir satt som ansvarlig vil få en notifikasjon."
-                  options={AnsvarligOptions(
+                  label={"Administrator for avtalen"}
+                  {...register("administrator")}
+                  onClearValue={() => setValue("administrator", "")}
+                  description="Den som blir satt som administrator vil få en notifikasjon."
+                  options={AdministratorOptions(
                     ansatt,
-                    avtale?.ansvarlig,
+                    avtale?.administrator,
                     betabrukere,
                   )}
                 />
@@ -328,7 +328,7 @@ export function AvtaleSkjemaContainer({
                     label={"NAV region"}
                     {...register("navRegion")}
                     onChange={(e) => {
-                      setNavRegion(e);
+                      setNavRegion(e.target.value);
                       form.setValue("navEnheter", [] as any);
                     }}
                     onClearValue={() => setValue("navRegion", "")}

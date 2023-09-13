@@ -24,8 +24,8 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     },
     avtaleId: "dd85e265-30ad-4474-b3e5-7f5670b978c3",
     tiltakstype: mockTiltakstyper.AVKLARAG,
-    ansvarlig: {
-      navident: "B123456",
+    administrator: {
+      navIdent: "B123456",
       navn: "Bertil Betabruker",
     },
     sanityId: "1234",

@@ -21,7 +21,7 @@ export const structure = (S, context) => {
   // Innhold for tiltaksansvarlige
   if (roleNames.includes("redaktor-tiltaksgjennomforing")) {
     deskItems.push(...redaktorTiltaksgjennomforingStructure(S, context));
-    return S.list().title("Innhold for tiltaksansvarlig").items(deskItems);
+    return S.list().title("Administrasjon av tiltaksgjennomføringer").items(deskItems);
   }
 
   deskItems.push(...adminStructure(S, context));

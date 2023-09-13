@@ -58,10 +58,10 @@ class SanityUtilsTest : FunSpec({
         }
 
         test("Relevante statuser") {
-            NavEnhetUtils.relevanteStatuser(Norg2EnhetStatus.AKTIV) shouldBe true
-            NavEnhetUtils.relevanteStatuser(Norg2EnhetStatus.UNDER_AVVIKLING) shouldBe true
-            NavEnhetUtils.relevanteStatuser(Norg2EnhetStatus.UNDER_ETABLERING) shouldBe true
-            NavEnhetUtils.relevanteStatuser(Norg2EnhetStatus.NEDLAGT) shouldBe false
+            NavEnhetUtils.isRelevantEnhetStatus(Norg2EnhetStatus.AKTIV) shouldBe true
+            NavEnhetUtils.isRelevantEnhetStatus(Norg2EnhetStatus.UNDER_AVVIKLING) shouldBe true
+            NavEnhetUtils.isRelevantEnhetStatus(Norg2EnhetStatus.UNDER_ETABLERING) shouldBe true
+            NavEnhetUtils.isRelevantEnhetStatus(Norg2EnhetStatus.NEDLAGT) shouldBe false
         }
 
         test("toType skal returnere typer med stor forbokstav") {

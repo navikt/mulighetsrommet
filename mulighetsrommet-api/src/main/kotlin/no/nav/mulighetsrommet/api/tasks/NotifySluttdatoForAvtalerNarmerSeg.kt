@@ -58,8 +58,8 @@ class NotifySluttdatoForAvtalerNarmerSeg(
                 val avtaler: List<AvtaleNotificationDto> = avtaleService.getAllAvtalerSomNarmerSegSluttdato()
 
                 avtaler.forEach {
-                    if (it.ansvarlige.isEmpty()) {
-                        logger.info("Fant ingen ansvarlige for avtale med id: ${it.id}")
+                    if (it.administratorer.isEmpty()) {
+                        logger.info("Fant ingen administratorer for avtale med id: ${it.id}")
                     } else {
                         val notification = ScheduledNotification(
                             type = NotificationType.NOTIFICATION,
@@ -68,7 +68,7 @@ class NotifySluttdatoForAvtalerNarmerSeg(
                                     DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT),
                                 )
                             }",
-                            targets = it.ansvarlige,
+                            targets = it.administratorer,
                             createdAt = Instant.now(),
                         )
                         notificationService.scheduleNotification(notification)

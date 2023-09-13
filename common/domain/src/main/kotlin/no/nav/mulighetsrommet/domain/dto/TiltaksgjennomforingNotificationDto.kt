@@ -15,7 +15,7 @@ data class TiltaksgjennomforingNotificationDto(
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate? = null,
-    val ansvarlige: List<String>,
+    val administratorer: List<String>,
     val tiltaksnummer: String? = null,
     @Serializable(with = LocalDateSerializer::class)
     val stengtTil: LocalDate? = null,

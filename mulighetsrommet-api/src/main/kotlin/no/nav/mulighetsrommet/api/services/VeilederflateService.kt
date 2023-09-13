@@ -216,7 +216,7 @@ class VeilederflateService(
 
         return gjennomforingerFraSanity
             .map { sanityData ->
-                val apiGjennomforing = gjennomforingerFraDb[UUID.fromString(sanityData._id)]
+                val apiGjennomforing = gjennomforingerFraDb[UUID.fromString(sanityData._id.replace("drafts.", ""))]
 
                 if (apiGjennomforing != null) {
                     val kontaktpersoner = enhetsId?.let { hentKontaktpersoner(apiGjennomforing, enhetsId) }

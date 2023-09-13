@@ -28,7 +28,7 @@ data class TiltaksgjennomforingAdminDto(
     val antallPlasser: Int?,
     @Serializable(with = UUIDSerializer::class)
     val avtaleId: UUID?,
-    val ansvarlig: Ansvarlig?,
+    val administrator: Administrator?,
     val navEnheter: List<NavEnhet>,
     val navRegion: NavEnhet?,
     @Serializable(with = UUIDSerializer::class)
@@ -51,8 +51,8 @@ data class TiltaksgjennomforingAdminDto(
     )
 
     @Serializable
-    data class Ansvarlig(
-        val navident: String? = null,
+    data class Administrator(
+        val navIdent: String? = null,
         val navn: String? = null,
     )
 

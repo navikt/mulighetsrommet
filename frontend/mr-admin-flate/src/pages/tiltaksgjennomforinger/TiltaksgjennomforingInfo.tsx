@@ -13,10 +13,7 @@ import invariant from "tiny-invariant";
 import { useAvtale } from "../../api/avtaler/useAvtale";
 import { useTiltaksgjennomforingById } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforingById";
 import { Bolk } from "../../components/detaljside/Bolk";
-import {
-  Metadata,
-  Separator,
-} from "../../components/detaljside/Metadata";
+import { Metadata, Separator } from "../../components/detaljside/Metadata";
 import { VisHvisVerdi } from "../../components/detaljside/VisHvisVerdi";
 import { Laster } from "../../components/laster/Laster";
 import {
@@ -223,21 +220,21 @@ export function TiltaksgjennomforingInfo() {
 
           <Separator />
 
-          <Bolk aria-label="Anvarlig for gjennomføringen">
+          <Bolk aria-label="Administrator for gjennomføringen">
             <Metadata
-              header="Ansvarlig for gjennomføringen"
+              header="Administrator for gjennomføringen"
               verdi={
-                tiltaksgjennomforing.ansvarlig?.navident ? (
+                tiltaksgjennomforing.administrator?.navIdent ? (
                   <a
                     target="_blank"
                     rel="noopener noreferrer"
-                    href={`${NOM_ANSATT_SIDE}${tiltaksgjennomforing.ansvarlig?.navident}`}
+                    href={`${NOM_ANSATT_SIDE}${tiltaksgjennomforing.administrator?.navIdent}`}
                   >
-                    {`${tiltaksgjennomforing.ansvarlig?.navn} - ${tiltaksgjennomforing.ansvarlig?.navident}`}{" "}
+                    {`${tiltaksgjennomforing.administrator?.navn} - ${tiltaksgjennomforing.administrator?.navIdent}`}{" "}
                     <ExternalLinkIcon />
                   </a>
                 ) : (
-                  "Ingen ansvarlig satt for gjennomføringen"
+                  "Ingen administrator satt for gjennomføringen"
                 )
               }
             />

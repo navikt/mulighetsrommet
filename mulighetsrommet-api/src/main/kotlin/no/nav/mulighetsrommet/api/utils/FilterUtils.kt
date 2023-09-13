@@ -32,7 +32,7 @@ data class AvtaleFilter(
     val sortering: String? = null,
     val dagensDato: LocalDate = LocalDate.now(),
     val leverandorOrgnr: String? = null,
-    val ansvarligAnsattIdent: String? = null,
+    val administratorNavIdent: String? = null,
 )
 
 data class AdminTiltaksgjennomforingFilter(
@@ -46,7 +46,7 @@ data class AdminTiltaksgjennomforingFilter(
     val navRegion: String? = null,
     val avtaleId: UUID? = null,
     val arrangorOrgnr: String? = null,
-    val ansvarligAnsattIdent: String? = null,
+    val administratorNavIdent: String? = null,
 )
 
 data class EnhetFilter(
@@ -136,7 +136,7 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getAvtaleFilter(): AvtaleFilte
         navRegion = navRegion,
         sortering = sortering,
         leverandorOrgnr = leverandorOrgnr,
-        ansvarligAnsattIdent = null,
+        administratorNavIdent = null,
     )
 }
 
@@ -158,7 +158,7 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getAdminTiltaksgjennomforingsF
         navRegion = navRegion,
         avtaleId = avtaleId,
         arrangorOrgnr = arrangorOrgnr,
-        ansvarligAnsattIdent = null,
+        administratorNavIdent = null,
     )
 }
 
@@ -225,7 +225,7 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getUtkastFilter(): UtkastFilte
 
 fun <T : Any> PipelineContext<T, ApplicationCall>.getNotatFilter(): NotatFilter {
     val avtaleId = call.request.queryParameters["avtaleId"]?.toUUID()
-    val tiltaksgjennomforingId = call.request.queryParameters["tiltaksgjennomforingID"]?.toUUID()
+    val tiltaksgjennomforingId = call.request.queryParameters["tiltaksgjennomforingId"]?.toUUID()
     val sortering = call.request.queryParameters["order"]
 
     return NotatFilter(

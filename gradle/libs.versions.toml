@@ -3,7 +3,7 @@ common-java-modules = "3.2023.07.07_09.10-85326e9557f0"
 flyway = "9.22.0"
 hoplite = "2.7.5"
 koin = "3.4.3"
-kotest = "5.7.1"
+kotest = "5.7.2"
 kotest-testcontainers = "2.0.2"
 kotlin = "1.9.10"
 ktor = "2.3.4"
@@ -19,7 +19,7 @@ shadow = "com.github.johnrengelman.shadow:8.1.1"
 openapi-generator = "org.openapi.generator:7.0.0"
 
 [libraries]
-arrow-core = "io.arrow-kt:arrow-core:1.2.0"
+arrow-core = "io.arrow-kt:arrow-core:1.2.1"
 
 assertj-db = "org.assertj:assertj-db:2.0.2"
 
