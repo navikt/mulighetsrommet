@@ -45,7 +45,8 @@ private fun PipelineContext<Unit, ApplicationCall>.createAuditMessage(
     msg: String,
 ): CefMessage? {
     return CefMessage.builder()
-        .applicationName("mulighetsrommet-api")
+        .applicationName("modia")
+        .loggerName("mulighetsrommet-api")
         .event(CefMessageEvent.CREATE)
         .name("Arbeidsmarkedstiltak - Del med bruker")
         .severity(CefMessageSeverity.INFO)
