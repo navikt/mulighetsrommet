@@ -2,7 +2,7 @@
 import classNames from 'classnames';
 import { useAtom } from 'jotai';
 import { SanityTiltaksgjennomforing } from 'mulighetsrommet-api-client';
-import { paginationAtom, tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
+import { paginationAtom } from '../../core/atoms/atoms';
 import { formaterDato } from '../../utils/Utils';
 import Lenke from '../lenke/Lenke';
 import styles from './Gjennomforingsrad.module.scss';
@@ -25,7 +25,6 @@ const visOppstartsdato = (oppstart: SanityTiltaksgjennomforing.oppstart, oppstar
 };
 
 export function Gjennomforingsrad({ tiltaksgjennomforing, index }: Props) {
-  const [filter] = useAtom(tiltaksgjennomforingsfilter);
   const [page] = useAtom(paginationAtom);
   const {
     _id,
@@ -44,7 +43,7 @@ export function Gjennomforingsrad({ tiltaksgjennomforing, index }: Props) {
   return (
     <li className={styles.list_element} id={`list_element_${index}`}>
       <Lenke
-        to={`tiltak/${_id}#filter=${encodeURIComponent(JSON.stringify(filter))}&page=${page}`}
+        to={`tiltak/${_id}#page=${page}`}
         data-testid="lenke_tiltaksgjennomforing"
       >
         <div className={styles.gjennomforing_container}>

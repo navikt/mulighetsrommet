@@ -22,7 +22,7 @@ import TiltaksdetaljerFane from '../../components/tabs/TiltaksdetaljerFane';
 import Tilbakeknapp from '../../components/tilbakeknapp/Tilbakeknapp';
 import { logEvent } from '../../core/api/logger';
 import { useGetTiltaksgjennomforingIdFraUrl } from '../../core/api/queries/useGetTiltaksgjennomforingIdFraUrl';
-import { paginationAtom, tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
+import { paginationAtom } from '../../core/atoms/atoms';
 import { environments } from '../../env';
 import TiltaksgjennomforingsHeader from '../../layouts/TiltaksgjennomforingsHeader';
 import { byttTilDialogFlate } from '../../utils/DialogFlateUtils';
@@ -85,7 +85,6 @@ const ViewTiltaksgjennomforingDetaljer = ({
   brukerdata,
 }: Props) => {
   const gjennomforingsId = useGetTiltaksgjennomforingIdFraUrl();
-  const [filter] = useAtom(tiltaksgjennomforingsfilter);
   const [page] = useAtom(paginationAtom);
   const [delemodalApen, setDelemodalApen] = useState<boolean>(false);
   const veiledernavn = resolveName(veilederdata);
@@ -140,7 +139,7 @@ const ViewTiltaksgjennomforingDetaljer = ({
         <div className={styles.top_wrapper}>
           {!erPreview && (
             <Tilbakeknapp
-              tilbakelenke={`/#filter=${encodeURIComponent(JSON.stringify(filter))}&page=${page}`}
+              tilbakelenke={`/#page=${page}`}
               tekst="Tilbake til tiltaksoversikten"
             />
           )}
