@@ -61,7 +61,6 @@ data class Tiltakstype(
     val beskrivelse: String? = null,
     val regelverkLenker: List<RegelverkLenke>? = emptyList(),
     val regelverkFiler: List<String>? = emptyList(),
-    val nokkelinfoKomponenter: List<NokkelinfoKomponent>? = emptyList(),
     val innsatsgruppe: Innsatsgruppe? = null,
     val tiltaksgruppe: String? = null,
     val tiltakstypeNavn: String? = null,

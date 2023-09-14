@@ -1,7 +1,6 @@
 import { Innsatsgruppe, SanityInnsatsgruppe, SanityTiltakstype } from 'mulighetsrommet-api-client';
 export const mockTiltakstyper: SanityTiltakstype[] = [
   {
-    nokkelinfoKomponenter: undefined,
     _id: '02509279-0a0f-4bd6-b506-f40111e4ba14',
     regelverkLenker: [
       {
@@ -282,7 +281,6 @@ export const mockTiltakstyper: SanityTiltakstype[] = [
       nokkel: Innsatsgruppe.SPESIELT_TILPASSET_INNSATS,
       tittel: SanityInnsatsgruppe.tittel.SPESIELT_TILPASSET_INNSATS,
     },
-    nokkelinfoKomponenter: undefined,
     _id: '29c3d3cb-ffbf-4c22-8ffc-fea5d7f6c822',
     delingMedBruker:
       'Hei <Fornavn>, \n\nVi har nå et arbeidsmarkedstiltak som jeg tenker kan passe deg godt. Det heter <tiltaksnavn> og er et tilbud for deg som har helseplager eller sosiale problemer.\n\nTiltaket blir tilpasset behovet ditt ut fra mulighetene dine på arbeidsmarkedet, og kan blant annet inneholde:\n- motivasjons- og mestringsaktiviteter\n- individuelt treningsopplegg med veiledning\n- arbeidsutprøving i trygge omgivelser\n- veiledning i livsstil\n\nDu kan lese mer om kurset på www.nav.no/arbeidsrettet-rehabilitering ',
@@ -537,7 +535,6 @@ export const mockTiltakstyper: SanityTiltakstype[] = [
     },
   },
   {
-    nokkelinfoKomponenter: undefined,
     _id: '31e72dd8-ad05-4e81-a7f9-fd4c8f295864',
     delingMedBruker:
       'Hei <Fornavn>, \n\nVi har nå et arbeidsmarkedstiltak som jeg tenker kan passe deg godt. Det heter <tiltaksnavn> og er et kurs for de som er registrert som arbeidssøker hos NAV. \n\nJobbklubb er et kortvarig tiltak for deg som søker jobb. Når du deltar på jobbklubb, får du støtte og hjelp til å orientere deg på arbeidsmarkedet og være en aktiv jobbsøker.\n\nDu kan lese mer om kurset på www.nav.no/jobbklubb',
@@ -1286,7 +1283,6 @@ export const mockTiltakstyper: SanityTiltakstype[] = [
       ],
     },
 
-    nokkelinfoKomponenter: undefined,
     _id: '3526de0d-ad4c-4b81-b072-a13b3a4b4ed3',
     regelverkLenker: [
       {
@@ -1712,7 +1708,6 @@ export const mockTiltakstyper: SanityTiltakstype[] = [
       'Hei <Fornavn>, \n\nVi har nå et arbeidsmarkedstiltak som jeg tenker kan passe deg godt. Det heter <tiltaksnavn>  og vil tilpasses dine behov for støtte for å skaffe eller beholde en jobb.\n\nDu kan blant annet få veiledning, råd og bistand til\n- jobbsøking og karriereveiledning\n- tilpasning og tilrettelegging av arbeidet og arbeidssituasjonen\n- praktiske oppgaver knyttet til arbeid\n- opplæring i sosiale og arbeidsrelaterte ferdigheter i arbeidslivet\n\nDu kan lese mer om kurset på www.nav.no/oppfolging',
     tiltakstypeNavn: 'Oppfølging',
 
-    nokkelinfoKomponenter: undefined,
     _id: '5ac48c03-1f4c-4d4b-b862-050caca92080',
     regelverkLenker: [
       {
@@ -2495,7 +2490,6 @@ export const mockTiltakstyper: SanityTiltakstype[] = [
     beskrivelse:
       'AFT er et tiltak som skal bidra til å prøve ut tiltaksdeltakerens arbeidsevne og til å styrke mulighetene for å få ordinært arbeid. Det er et tiltak med individuell tilrettelegging som kan tilbys personer med sammensatte bistandsbehov som har fått sin arbeidsevne nedsatt og som har særlig usikre yrkesmessige forutsetninger.',
 
-    nokkelinfoKomponenter: undefined,
     regelverkLenker: [
       {
         _id: '123',

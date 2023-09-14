@@ -35,19 +35,13 @@ export const tiltakstype = defineType({
       ],
       validation: (rule) => rule.required().unique(),
     }),
-     defineField({
+    defineField({
       name: "beskrivelse",
       title: "Beskrivelse",
       type: "text",
       rows: 5,
       validation: (Rule) => Rule.max(1500),
       description: "Kort beskrivelse av formål med tiltaket. ",
-    }),
-    defineField({
-      name: "nokkelinfoKomponenter",
-      title: "Nøkkelinfo",
-      type: "array",
-      of: [{ type: "nokkelinfo" }],
     }),
     defineField({
       name: "innsatsgruppe",

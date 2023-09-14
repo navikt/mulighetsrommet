@@ -2444,10 +2444,6 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/SanityRegelverkLenke"
-        nokkelinfoKomponenter:
-          type: array
-          items:
-            $ref: "#/components/schemas/SanityNokkelinfo"
         faneinnhold:
           $ref: "#/components/schemas/SanityFaneinnhold"
         delingMedBruker:
