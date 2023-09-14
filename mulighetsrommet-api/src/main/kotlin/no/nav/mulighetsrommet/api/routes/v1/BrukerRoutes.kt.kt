@@ -51,7 +51,8 @@ fun Route.brukerRoutes() {
 
 private fun PipelineContext<Unit, ApplicationCall>.createAuditMessage(msg: String): CefMessage? {
     return CefMessage.builder()
-        .applicationName("mulighetsrommet-api")
+        .applicationName("modia")
+        .loggerName("mulighetsrommet-api")
         .event(CefMessageEvent.ACCESS)
         .name("Arbeidsmarkedstiltak - Vis tiltakshistorikk")
         .severity(CefMessageSeverity.INFO)
