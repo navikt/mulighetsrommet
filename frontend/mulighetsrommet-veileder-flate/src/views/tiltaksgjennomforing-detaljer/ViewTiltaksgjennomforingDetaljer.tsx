@@ -1,7 +1,14 @@
 import { Chat2Icon, CheckmarkIcon } from '@navikt/aksel-icons';
-import { Alert, Button, Loader } from '@navikt/ds-react';
+import { Alert, Button } from '@navikt/ds-react';
 import { useAtom } from 'jotai';
-import { NavVeileder, SanityTiltakstype } from 'mulighetsrommet-api-client';
+import {
+  Bruker,
+  DelMedBruker,
+  Innsatsgruppe,
+  NavVeileder,
+  SanityTiltaksgjennomforing,
+  SanityTiltakstype,
+} from 'mulighetsrommet-api-client';
 import { useState } from 'react';
 import { BrukerHarIkke14aVedtakVarsel } from '../../components/ikkeKvalifisertVarsel/BrukerHarIkke14aVedtakVarsel';
 import { BrukerKvalifisererIkkeVarsel } from '../../components/ikkeKvalifisertVarsel/BrukerKvalifisererIkkeVarsel';
@@ -15,17 +22,12 @@ import TiltaksdetaljerFane from '../../components/tabs/TiltaksdetaljerFane';
 import Tilbakeknapp from '../../components/tilbakeknapp/Tilbakeknapp';
 import { logEvent } from '../../core/api/logger';
 import { useGetTiltaksgjennomforingIdFraUrl } from '../../core/api/queries/useGetTiltaksgjennomforingIdFraUrl';
-import { useHentBrukerdata } from '../../core/api/queries/useHentBrukerdata';
-import { useHentDeltMedBrukerStatus } from '../../core/api/queries/useHentDeltMedbrukerStatus';
-import { useHentVeilederdata } from '../../core/api/queries/useHentVeilederdata';
-import useTiltaksgjennomforingById from '../../core/api/queries/useTiltaksgjennomforingById';
 import { paginationAtom } from '../../core/atoms/atoms';
 import { environments } from '../../env';
-import { useBrukerHarRettPaaTiltak } from '../../hooks/useBrukerHarRettPaaTiltak';
 import TiltaksgjennomforingsHeader from '../../layouts/TiltaksgjennomforingsHeader';
+import { byttTilDialogFlate } from '../../utils/DialogFlateUtils';
 import { capitalize, erPreview, formaterDato } from '../../utils/Utils';
 import styles from './ViewTiltaksgjennomforingDetaljer.module.scss';
-import { byttTilDialogFlate } from '../../utils/DialogFlateUtils';
 
 const whiteListOpprettAvtaleKnapp: SanityTiltakstype.arenakode[] = [
   SanityTiltakstype.arenakode.MIDLONTIL,
@@ -64,34 +66,34 @@ function resolveName(ansatt?: NavVeileder) {
     .join(' ');
 }
 
-const ViewTiltaksgjennomforingDetaljer = () => {
+interface Props {
+  tiltaksgjennomforing: SanityTiltaksgjennomforing;
+  brukerHarRettPaaTiltak: boolean;
+  brukersInnsatsgruppe?: Innsatsgruppe;
+  innsatsgruppeForGjennomforing: Innsatsgruppe;
+  harDeltMedBruker?: DelMedBruker;
+  veilederdata: NavVeileder;
+  brukerdata: Bruker;
+}
+
+const ViewTiltaksgjennomforingDetaljer = ({
+  tiltaksgjennomforing,
+  harDeltMedBruker,
+  brukerHarRettPaaTiltak,
+  innsatsgruppeForGjennomforing,
+  veilederdata,
+  brukerdata,
+}: Props) => {
   const gjennomforingsId = useGetTiltaksgjennomforingIdFraUrl();
   const [page] = useAtom(paginationAtom);
-  const { data: tiltaksgjennomforing, isLoading, isError } = useTiltaksgjennomforingById();
   const [delemodalApen, setDelemodalApen] = useState<boolean>(false);
-  const brukerdata = useHentBrukerdata();
-  const veilederdata = useHentVeilederdata();
-  const veiledernavn = resolveName(veilederdata.data);
-  const { brukerHarRettPaaTiltak } = useBrukerHarRettPaaTiltak();
-  const { harDeltMedBruker } = useHentDeltMedBrukerStatus();
+  const veiledernavn = resolveName(veilederdata);
   const datoSidenSistDelt = harDeltMedBruker && formaterDato(new Date(harDeltMedBruker.createdAt!!));
 
   const handleClickApneModal = () => {
     setDelemodalApen(true);
     logDelMedbrukerEvent('Åpnet dialog');
   };
-
-  if (isLoading && !tiltaksgjennomforing) {
-    return (
-      <div className={styles.filter_loader}>
-        <Loader size="xlarge" />
-      </div>
-    );
-  }
-
-  if (isError) {
-    return <Alert variant="error">Det har skjedd en feil</Alert>;
-  }
 
   if (!tiltaksgjennomforing) {
     return <Alert variant="warning">{`Det finnes ingen tiltaksgjennomføringer med id: "${gjennomforingsId}"`}</Alert>;
@@ -100,8 +102,8 @@ const ViewTiltaksgjennomforingDetaljer = () => {
   const kanBrukerFaaAvtale = () => {
     const tiltakstypeNavn = tiltaksgjennomforing.tiltakstype.tiltakstypeNavn;
     if (
-      tiltaksgjennomforing.tiltakstype.arenakode &&
-      tiltakstypeAsStringIsIndividuellTiltakstype(tiltaksgjennomforing.tiltakstype?.arenakode)
+      tiltaksgjennomforing.tiltakstype?.arenakode &&
+      tiltakstypeAsStringIsIndividuellTiltakstype(tiltaksgjennomforing.tiltakstype.arenakode)
     ) {
       const url = lenkeTilOpprettAvtaleForEnv();
       window.open(url, '_blank');
@@ -127,7 +129,7 @@ const ViewTiltaksgjennomforingDetaljer = () => {
   };
 
   const opprettAvtale =
-    !!tiltaksgjennomforing.tiltakstype.arenakode &&
+    !!tiltaksgjennomforing.tiltakstype?.arenakode &&
     tiltakstypeAsStringIsIndividuellTiltakstype(tiltaksgjennomforing.tiltakstype.arenakode) &&
     !erPreview;
 
@@ -148,11 +150,15 @@ const ViewTiltaksgjennomforingDetaljer = () => {
             </>
           )}
         </div>
-        <BrukerKvalifisererIkkeVarsel />
-        <BrukerHarIkke14aVedtakVarsel />
+        <BrukerKvalifisererIkkeVarsel
+          brukerdata={brukerdata}
+          brukerHarRettPaaTiltak={brukerHarRettPaaTiltak}
+          innsatsgruppeForGjennomforing={innsatsgruppeForGjennomforing}
+        />
+        <BrukerHarIkke14aVedtakVarsel brukerdata={brukerdata} />
         <div className={styles.tiltaksgjennomforing_detaljer} id="tiltaksgjennomforing_detaljer">
           <div className={styles.tiltakstype_header_maksbredde}>
-            <TiltaksgjennomforingsHeader />
+            <TiltaksgjennomforingsHeader tiltaksgjennomforing={tiltaksgjennomforing} />
             <div className={styles.flex}>
               {tiltaksgjennomforing.tiltakstype.nokkelinfoKomponenter && (
                 <div className={styles.nokkelinfo_container}>
@@ -170,7 +176,7 @@ const ViewTiltaksgjennomforingDetaljer = () => {
             </div>
           </div>
           <div className={styles.sidemeny}>
-            <SidemenyDetaljer />
+            <SidemenyDetaljer tiltaksgjennomforing={tiltaksgjennomforing} />
             <div className={styles.deleknapp_container}>
               {opprettAvtale && (
                 <Button
@@ -196,7 +202,7 @@ const ViewTiltaksgjennomforingDetaljer = () => {
                 {harDeltMedBruker && !erPreview ? `Delt med bruker ${datoSidenSistDelt}` : 'Del med bruker'}
               </Button>
             </div>
-            {!brukerdata.data?.manuellStatus && !erPreview && (
+            {!brukerdata?.manuellStatus && !erPreview && (
               <Alert
                 title="Vi kunne ikke opprette kontakte med KRR og vet derfor ikke om brukeren har reservert seg mot elektronisk kommunikasjon"
                 key="alert-innsatsgruppe"
@@ -221,14 +227,18 @@ const ViewTiltaksgjennomforingDetaljer = () => {
               </div>
             )}
           </div>
-          <TiltaksdetaljerFane />
+          <TiltaksdetaljerFane tiltaksgjennomforing={tiltaksgjennomforing} />
           <Delemodal
             modalOpen={delemodalApen}
             lukkModal={() => setDelemodalApen(false)}
             tiltaksgjennomforingsnavn={tiltaksgjennomforing.tiltaksgjennomforingNavn}
-            brukernavn={erPreview ? '{Navn}' : brukerdata?.data?.fornavn}
+            brukernavn={erPreview ? '{Navn}' : brukerdata?.fornavn}
             chattekst={tiltaksgjennomforing.tiltakstype.delingMedBruker ?? ''}
             veiledernavn={erPreview ? '{Veiledernavn}' : veiledernavn}
+            brukerFnr={brukerdata.fnr}
+            tiltaksgjennomforing={tiltaksgjennomforing}
+            brukerdata={brukerdata}
+            harDeltMedBruker={harDeltMedBruker}
           />
         </div>
       </div>

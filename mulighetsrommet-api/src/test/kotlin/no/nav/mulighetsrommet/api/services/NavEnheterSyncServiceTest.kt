@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.services
 
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import io.ktor.client.engine.mock.*
 import io.mockk.mockk
@@ -44,7 +45,7 @@ class NavEnheterSyncServiceTest : FunSpec({
                 overordnetEnhet = null,
             ),
             Norg2Response(
-                enhet = createEnhet("1300", Norg2Type.ALS),
+                enhet = createEnhet("1291", Norg2Type.ALS),
                 overordnetEnhet = null,
             ),
         )
@@ -52,9 +53,31 @@ class NavEnheterSyncServiceTest : FunSpec({
         val tilSanity = navEnheterSyncService.utledEnheterTilSanity(mockEnheter)
 
         tilSanity.size shouldBe 3
-        tilSanity[0]._id shouldBe "enhet.als.1300"
-        tilSanity[1]._id shouldBe "enhet.fylke.1200"
-        tilSanity[2]._id shouldBe "enhet.lokal.1001"
+        tilSanity[0]._id shouldBe "enhet.fylke.1200"
+        tilSanity[0].fylke.shouldBeNull()
+        tilSanity[1]._id shouldBe "enhet.lokal.1001"
+        tilSanity[1].fylke?._ref shouldBe "enhet.fylke.1200"
+        tilSanity[2]._id shouldBe "enhet.als.1291"
         tilSanity[2].fylke?._ref shouldBe "enhet.fylke.1200"
+    }
+
+    test("skal utlede TILTAK-enheter for synkronisering til sanity") {
+        val mockEnheter = listOf(
+            Norg2Response(
+                enhet = createEnhet("0300", Norg2Type.FYLKE),
+                overordnetEnhet = null,
+            ),
+            Norg2Response(
+                enhet = createEnhet("0387", Norg2Type.TILTAK),
+                overordnetEnhet = null,
+            ),
+        )
+
+        val tilSanity = navEnheterSyncService.utledEnheterTilSanity(mockEnheter)
+
+        tilSanity.size shouldBe 2
+        tilSanity[0]._id shouldBe "enhet.fylke.0300"
+        tilSanity[1]._id shouldBe "enhet.tiltak.0387"
+        tilSanity[1].fylke?._ref shouldBe "enhet.fylke.0300"
     }
 })

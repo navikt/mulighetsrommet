@@ -1,6 +1,7 @@
 describe('Preview-funksjonalitet for redaktører', () => {
   before(() => {
     Cypress.on('uncaught:exception', err => {
+      // eslint-disable-next-line no-console
       console.log(err);
       return false;
     });
@@ -18,7 +19,10 @@ describe('Preview-funksjonalitet for redaktører', () => {
 
   it('Skal kunne åpne del med bruker, men send via Dialog-knapp gir feilmodal', () => {
     cy.getByTestId('deleknapp').should('exist').click();
-    cy.getByTestId('modal_header').should('contain', 'Kunne ikke dele tiltaket');
+    cy.getByTestId('alert-preview-del-med-bruker').should(
+      'contain',
+      'Det er ikke mulig å dele tiltak med bruker i forhåndsvisning'
+    );
     cy.getByTestId('modal_btn-cancel').click();
   });
 });

@@ -1,7 +1,6 @@
 import { Alert, BodyShort, Button, ErrorMessage, Textarea } from '@navikt/ds-react';
+import { DelMedBruker, SanityTiltaksgjennomforing } from 'mulighetsrommet-api-client';
 import React, { Dispatch, useEffect, useRef, useState } from 'react';
-import { useHentDeltMedBrukerStatus } from '../../../core/api/queries/useHentDeltMedbrukerStatus';
-import useTiltaksgjennomforingById from '../../../core/api/queries/useTiltaksgjennomforingById';
 import { erPreview, formaterDato } from '../../../utils/Utils';
 import { logDelMedbrukerEvent } from './Delemodal';
 import delemodalStyles from './Delemodal.module.scss';
@@ -14,13 +13,20 @@ interface Props {
   dispatch: Dispatch<Actions>;
   veiledernavn?: string;
   brukernavn?: string;
+  harDeltMedBruker?: DelMedBruker;
+  tiltaksgjennomforing: SanityTiltaksgjennomforing;
 }
 
-export function DelMedBrukerContent({ state, dispatch, veiledernavn, brukernavn }: Props) {
+export function DelMedBrukerContent({
+  state,
+  dispatch,
+  veiledernavn,
+  brukernavn,
+  harDeltMedBruker,
+  tiltaksgjennomforing,
+}: Props) {
   const [visPersonligMelding, setVisPersonligMelding] = useState(false);
-  const { data: tiltaksgjennomforing } = useTiltaksgjennomforingById();
   const personligHilsenRef = useRef<HTMLTextAreaElement>(null);
-  const { harDeltMedBruker } = useHentDeltMedBrukerStatus();
   const datoSidenSistDelt = harDeltMedBruker?.createdAt && formaterDato(new Date(harDeltMedBruker.createdAt));
 
   useEffect(() => {

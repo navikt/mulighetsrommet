@@ -1,20 +1,21 @@
 import { Tabs } from '@navikt/ds-react';
 import { useAtom } from 'jotai';
+import { SanityTiltaksgjennomforing } from 'mulighetsrommet-api-client';
 import { logEvent } from '../../core/api/logger';
-import useTiltaksgjennomforingById from '../../core/api/queries/useTiltaksgjennomforingById';
 import { faneAtom } from '../../core/atoms/atoms';
 import { kebabCase } from '../../utils/Utils';
 import DetaljerFane from './DetaljerFane';
 import styles from './TiltaksdetaljerFane.module.scss';
 import KontaktinfoFane from './kontaktinfofane/KontaktinfoFane';
 
-const TiltaksdetaljerFane = () => {
-  const { data } = useTiltaksgjennomforingById();
+interface Props {
+  tiltaksgjennomforing: SanityTiltaksgjennomforing;
+}
+
+const TiltaksdetaljerFane = ({ tiltaksgjennomforing }: Props) => {
   const [fane, setFane] = useAtom(faneAtom);
 
-  if (!data) return null;
-
-  const { tiltakstype, faneinnhold } = data;
+  const { tiltakstype, faneinnhold } = tiltaksgjennomforing;
   const faneoverskrifter = ['For hvem', 'Detaljer og innhold', 'Påmelding og varighet', 'Kontaktinfo'] as const;
   const tabValueTilFaneoverSkrifter: { [key: string]: string } = {
     tab1: faneoverskrifter[0],
@@ -71,7 +72,7 @@ const TiltaksdetaljerFane = () => {
           />
         </Tabs.Panel>
         <Tabs.Panel value="tab4" data-testid="tab4">
-          <KontaktinfoFane />
+          <KontaktinfoFane tiltaksgjennomforing={tiltaksgjennomforing} />
         </Tabs.Panel>
       </div>
     </Tabs>

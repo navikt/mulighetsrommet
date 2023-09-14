@@ -1,20 +1,18 @@
 import { BodyShort, Button, Heading, Modal } from '@navikt/ds-react';
-import React, { useReducer } from 'react';
+import { Bruker, DelMedBruker, SanityTiltaksgjennomforing } from 'mulighetsrommet-api-client';
+import { PORTEN } from 'mulighetsrommet-frontend-common/constants';
+import { useReducer } from 'react';
+import { mulighetsrommetClient } from '../../../core/api/clients';
 import { logEvent } from '../../../core/api/logger';
+import { useHentDeltMedBrukerStatus } from '../../../core/api/queries/useHentDeltMedbrukerStatus';
+import { byttTilDialogFlate } from '../../../utils/DialogFlateUtils';
 import { capitalize, erPreview } from '../../../utils/Utils';
+import modalStyles from '../Modal.module.scss';
+import { StatusModal } from '../StatusModal';
+import { DelMedBrukerContent } from './DelMedBrukerContent';
 import delemodalStyles from './Delemodal.module.scss';
 import { Actions, State } from './DelemodalActions';
-import { useHentBrukerdata } from '../../../core/api/queries/useHentBrukerdata';
 import { KanIkkeDeleMedBrukerModal } from './KanIkkeDeleMedBrukerModal';
-import { DelMedBrukerContent } from './DelMedBrukerContent';
-import { StatusModal } from '../StatusModal';
-import { PORTEN } from 'mulighetsrommet-frontend-common/constants';
-import { byttTilDialogFlate } from '../../../utils/DialogFlateUtils';
-import { useFnr } from '../../../hooks/useFnr';
-import { mulighetsrommetClient } from '../../../core/api/clients';
-import { useHentDeltMedBrukerStatus } from '../../../core/api/queries/useHentDeltMedbrukerStatus';
-import useTiltaksgjennomforingById from '../../../core/api/queries/useTiltaksgjennomforingById';
-import modalStyles from '../Modal.module.scss';
 
 export const logDelMedbrukerEvent = (
   action: 'Åpnet dialog' | 'Delte med bruker' | 'Del med bruker feilet' | 'Avbrutt del med bruker' | 'Sett hilsen'
@@ -29,6 +27,10 @@ interface DelemodalProps {
   brukernavn?: string;
   chattekst: string;
   veiledernavn?: string;
+  brukerFnr: string;
+  tiltaksgjennomforing: SanityTiltaksgjennomforing;
+  brukerdata: Bruker;
+  harDeltMedBruker?: DelMedBruker;
 }
 
 export function reducer(state: State, action: Actions): State {
@@ -81,23 +83,24 @@ const Delemodal = ({
   brukernavn,
   chattekst,
   veiledernavn,
+  brukerFnr,
+  tiltaksgjennomforing,
+  brukerdata,
+  harDeltMedBruker,
 }: DelemodalProps) => {
-  const fnr = useFnr();
   const deletekst = sySammenBrukerTekst(chattekst, tiltaksgjennomforingsnavn, brukernavn);
   const originalHilsen = sySammenHilsenTekst(veiledernavn);
   const [state, dispatch] = useReducer(reducer, { deletekst, originalHilsen }, initInitialState);
 
-  const brukerdata = useHentBrukerdata();
-  const manuellOppfolging = brukerdata.data?.manuellStatus?.erUnderManuellOppfolging;
-  const krrStatusErReservert = brukerdata.data?.manuellStatus?.krrStatus?.erReservert;
-  const kanVarsles = brukerdata?.data?.manuellStatus?.krrStatus?.kanVarsles;
+  const manuellOppfolging = brukerdata?.manuellStatus?.erUnderManuellOppfolging;
+  const krrStatusErReservert = brukerdata?.manuellStatus?.krrStatus?.erReservert;
+  const kanVarsles = brukerdata?.manuellStatus?.krrStatus?.kanVarsles;
   const kanIkkeDeleMedBruker = manuellOppfolging && krrStatusErReservert && !kanVarsles;
-  const manuellStatus = !brukerdata.data?.manuellStatus;
+  const manuellStatus = !brukerdata?.manuellStatus;
   const feilmodal = manuellOppfolging || krrStatusErReservert || manuellStatus || kanIkkeDeleMedBruker;
   const senderTilDialogen = state.sendtStatus === 'SENDER';
-  const { data: tiltaksgjennomforing } = useTiltaksgjennomforingById();
   const tiltaksgjennomforingId = tiltaksgjennomforing?._id.toString();
-  const { lagreVeilederHarDeltTiltakMedBruker } = useHentDeltMedBrukerStatus();
+  const { lagreVeilederHarDeltTiltakMedBruker } = useHentDeltMedBrukerStatus(tiltaksgjennomforing?._id, brukerFnr);
   const MAKS_ANTALL_TEGN_HILSEN = 300;
 
   const clickCancel = (log = true) => {
@@ -122,7 +125,10 @@ const Delemodal = ({
     const overskrift = `Tiltak gjennom NAV: ${tiltaksgjennomforingsnavn}`;
     const tekst = sySammenDeletekst();
     try {
-      const res = await mulighetsrommetClient.dialogen.delMedDialogen({ fnr, requestBody: { overskrift, tekst } });
+      const res = await mulighetsrommetClient.dialogen.delMedDialogen({
+        fnr: brukerFnr,
+        requestBody: { overskrift, tekst },
+      });
       if (tiltaksgjennomforingId) {
         await lagreVeilederHarDeltTiltakMedBruker(res.id, tiltaksgjennomforingId);
       }
@@ -145,7 +151,7 @@ const Delemodal = ({
           manuellStatus={manuellStatus}
         />
       ) : (
-        <Modal open={modalOpen} className={delemodalStyles.delemodal} aria-label="modal">
+        <Modal open={modalOpen} onClose={() => clickCancel()} className={delemodalStyles.delemodal} aria-label="modal">
           <Modal.Header closeButton data-testid="modal_header">
             <Heading size="xsmall">Del med bruker</Heading>
             <Heading size="large" level="1" className={delemodalStyles.heading}>
@@ -159,6 +165,8 @@ const Delemodal = ({
                 dispatch={dispatch}
                 veiledernavn={veiledernavn}
                 brukernavn={brukernavn}
+                harDeltMedBruker={harDeltMedBruker}
+                tiltaksgjennomforing={tiltaksgjennomforing}
               />
             )}
           </Modal.Body>

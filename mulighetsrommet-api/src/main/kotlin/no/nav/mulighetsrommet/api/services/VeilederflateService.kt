@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.services
 
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
+import io.ktor.server.plugins.*
 import io.prometheus.client.cache.caffeine.CacheMetricsCollector
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityPerspective
@@ -40,6 +41,39 @@ class VeilederflateService(
         .maximumSize(500)
         .recordStats()
         .build()
+
+    private fun tiltaksgjennomforingQuery(id: String) = """
+        *[_type == "tiltaksgjennomforing" && _id == '$id'] {
+                _id,
+                tiltaksgjennomforingNavn,
+                beskrivelse,
+                "tiltaksnummer": tiltaksnummer.current,
+                lokasjon,
+                oppstart,
+                oppstartsdato,
+                sluttdato,
+                faneinnhold {
+                  forHvemInfoboks,
+                  forHvem,
+                  detaljerOgInnholdInfoboks,
+                  detaljerOgInnhold,
+                  pameldingOgVarighetInfoboks,
+                  pameldingOgVarighet,
+                },
+                kontaktinfoArrangor->,
+                kontaktinfoTiltaksansvarlige[]->,
+                tiltakstype->{
+                  ...,
+                  regelverkFiler[]-> {
+                    _id,
+                    "regelverkFilUrl": regelverkFilOpplastning.asset->url,
+                    regelverkFilNavn
+                  },
+                  regelverkLenker[]->,
+                  innsatsgruppe->,
+                }
+              }[0]
+    """.trimIndent()
 
     init {
         val cacheMetrics: CacheMetricsCollector =
@@ -127,50 +161,38 @@ class VeilederflateService(
         }
     }
 
-    suspend fun hentTiltaksgjennomforing(
+    suspend fun hentTiltaksgjennomforingMedBrukerdata(
         id: String,
         fnr: String,
         accessToken: String,
-    ): List<VeilederflateTiltaksgjennomforing> {
+    ): VeilederflateTiltaksgjennomforing {
         val brukerData = brukerService.hentBrukerdata(fnr, accessToken)
-        val enhetsId = brukerData.geografiskEnhet?.enhetsnummer ?: ""
-        val query = """
-            *[_type == "tiltaksgjennomforing" && (_id == '$id' || _id == 'drafts.$id')] {
-                _id,
-                tiltaksgjennomforingNavn,
-                beskrivelse,
-                "tiltaksnummer": tiltaksnummer.current,
-                lokasjon,
-                oppstart,
-                oppstartsdato,
-                sluttdato,
-                faneinnhold {
-                  forHvemInfoboks,
-                  forHvem,
-                  detaljerOgInnholdInfoboks,
-                  detaljerOgInnhold,
-                  pameldingOgVarighetInfoboks,
-                  pameldingOgVarighet,
-                },
-                kontaktinfoArrangor->,
-                kontaktinfoTiltaksansvarlige[]->,
-                tiltakstype->{
-                  ...,
-                  regelverkFiler[]-> {
-                    _id,
-                    "regelverkFilUrl": regelverkFilOpplastning.asset->url,
-                    regelverkFilNavn
-                  },
-                  regelverkLenker[]->,
-                  innsatsgruppe->,
-                }
-              }
-        """.trimIndent()
+        val enhetsId = brukerData.geografiskEnhet?.enhetsnummer
+        val query = tiltaksgjennomforingQuery(id)
 
-        return when (val result = sanityClient.query(query, SanityPerspective.RAW)) {
+        return when (val result = sanityClient.query(query)) {
             is SanityResponse.Result -> {
-                val gjennomforinger = result.decode<List<VeilederflateTiltaksgjennomforing>>()
-                supplerDataFraDB(gjennomforinger, enhetsId)
+                val gjennomforing = result.decode<VeilederflateTiltaksgjennomforing>()
+                supplerDataFraDB(listOf(gjennomforing), enhetsId).getOrElse(0) {
+                    throw NotFoundException("Fant ikke gjennomføringen med id: $id")
+                }
+            }
+
+            is SanityResponse.Error -> throw Exception(result.error.toString())
+        }
+    }
+
+    suspend fun hentPreviewTiltaksgjennomforing(
+        id: String,
+    ): VeilederflateTiltaksgjennomforing {
+        val query = tiltaksgjennomforingQuery(id)
+
+        return when (val result = sanityClient.query(query, SanityPerspective.PREVIEW_DRAFTS)) {
+            is SanityResponse.Result -> {
+                val gjennomforing = result.decode<VeilederflateTiltaksgjennomforing>()
+                supplerDataFraDB(listOf(gjennomforing)).getOrElse(0) {
+                    throw NotFoundException("Fant ikke gjennomføringen med id: $id")
+                }
             }
 
             is SanityResponse.Error -> throw Exception(result.error.toString())
@@ -179,7 +201,7 @@ class VeilederflateService(
 
     private suspend fun supplerDataFraDB(
         gjennomforingerFraSanity: List<VeilederflateTiltaksgjennomforing>,
-        enhetsId: String,
+        enhetsId: String? = null,
     ): List<VeilederflateTiltaksgjennomforing> {
         val sanityIds = gjennomforingerFraSanity
             .mapNotNull {
@@ -194,10 +216,10 @@ class VeilederflateService(
 
         return gjennomforingerFraSanity
             .map { sanityData ->
-                val apiGjennomforing = gjennomforingerFraDb[UUID.fromString(sanityData._id)]
+                val apiGjennomforing = gjennomforingerFraDb[UUID.fromString(sanityData._id.replace("drafts.", ""))]
 
                 if (apiGjennomforing != null) {
-                    val kontaktpersoner = hentKontaktpersoner(apiGjennomforing, enhetsId)
+                    val kontaktpersoner = enhetsId?.let { hentKontaktpersoner(apiGjennomforing, enhetsId) }
                     val kontaktpersonerArrangor = apiGjennomforing.arrangor.kontaktperson?.let {
                         KontaktInfoArrangor(
                             selskapsnavn = virksomhetService.getOrSyncVirksomhet(it.organisasjonsnummer)?.navn,
@@ -216,7 +238,7 @@ class VeilederflateService(
                     return@map sanityData.copy(
                         stengtFra = apiGjennomforing.stengtFra,
                         stengtTil = apiGjennomforing.stengtTil,
-                        kontaktinfoTiltaksansvarlige = kontaktpersoner.ifEmpty { sanityData.kontaktinfoTiltaksansvarlige },
+                        kontaktinfoTiltaksansvarlige = kontaktpersoner?.ifEmpty { sanityData.kontaktinfoTiltaksansvarlige },
                         oppstart = oppstart,
                         oppstartsdato = oppstartsdato,
                         sluttdato = sluttdato,

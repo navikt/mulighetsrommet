@@ -1,16 +1,17 @@
 import { BodyShort, Panel } from '@navikt/ds-react';
-import useTiltaksgjennomforingById from '../../core/api/queries/useTiltaksgjennomforingById';
+import { SanityTiltaksgjennomforing, SanityTiltakstype } from 'mulighetsrommet-api-client';
+import { formaterDato, utledLopenummerFraTiltaksnummer } from '../../utils/Utils';
 import Kopiknapp from '../kopiknapp/Kopiknapp';
 import Regelverksinfo from './Regelverksinfo';
 import styles from './Sidemenydetaljer.module.scss';
-import { formaterDato, utledLopenummerFraTiltaksnummer } from '../../utils/Utils';
-import { SanityTiltaksgjennomforing, SanityTiltakstype } from 'mulighetsrommet-api-client';
 
-const SidemenyDetaljer = () => {
-  const { data } = useTiltaksgjennomforingById();
-  if (!data) return null;
-  const { tiltaksnummer, kontaktinfoArrangor, tiltakstype, sluttdato, oppstartsdato, lokasjon } = data;
-  const oppstart = resolveOppstart(data);
+interface Props {
+  tiltaksgjennomforing: SanityTiltaksgjennomforing;
+}
+
+const SidemenyDetaljer = ({ tiltaksgjennomforing }: Props) => {
+  const { tiltaksnummer, kontaktinfoArrangor, tiltakstype, sluttdato, oppstartsdato, lokasjon } = tiltaksgjennomforing;
+  const oppstart = resolveOppstart(tiltaksgjennomforing);
 
   const visDato = (tiltakstype: SanityTiltakstype, oppstart: string, oppstartsdato?: string, sluttdato?: string) => {
     return (

@@ -1,14 +1,12 @@
 import { useQuery } from 'react-query';
-import { useFnr } from '../../../hooks/useFnr';
 import { mulighetsrommetClient } from '../clients';
 import { QueryKeys } from '../query-keys';
 import { useGetTiltaksgjennomforingIdFraUrl } from './useGetTiltaksgjennomforingIdFraUrl';
 
-export default function useTiltaksgjennomforingById() {
+export default function usePreviewTiltaksgjennomforingById() {
   const id = useGetTiltaksgjennomforingIdFraUrl();
-  const fnr = useFnr();
-  const response = useQuery(QueryKeys.sanity.tiltaksgjennomforing(id), () =>
-    mulighetsrommetClient.sanity.getSanityTiltaksgjennomforing({ id, fnr })
+  const response = useQuery(QueryKeys.sanity.tiltaksgjennomforingPreview(id), () =>
+    mulighetsrommetClient.sanity.getSanityTiltaksgjennomforingForPreview({ id })
   );
 
   return response;

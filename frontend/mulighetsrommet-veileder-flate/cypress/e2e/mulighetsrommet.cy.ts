@@ -12,15 +12,11 @@ before('Start server', () => {
 
 describe('Tiltaksoversikt', () => {
   let antallTiltak: number;
-  let kvalifiseringsgruppe: string;
-  const servicegruppe = 'service';
-  const innsatsgruppe = 'innsats';
 
   beforeEach(() => {
     cy.clearLocalStorage();
     cy.visit('/');
     cy.skruAvJoyride();
-    cy.resetSortering();
   });
 
   it('Sjekk at det er tiltaksgjennomføringer i oversikten', () => {
@@ -31,24 +27,6 @@ describe('Tiltaksoversikt', () => {
     cy.checkPageA11y();
   });
 
-  it('Sjekk om bruker har innsatsgruppe eller servicegruppe', () => {
-    const path = 'nokkel';
-
-    cy.url().then($url => {
-      if ($url.includes(path)) {
-        kvalifiseringsgruppe = innsatsgruppe;
-      } else {
-        kvalifiseringsgruppe = servicegruppe;
-      }
-    });
-  });
-
-  it('Sjekk at varsel vises hvis brukeren har servicegruppe', () => {
-    if (kvalifiseringsgruppe === servicegruppe) {
-      cy.getByTestId('varsel_servicesgruppe').should('be.visible');
-    }
-  });
-
   context('Filtrering', () => {
     it('Lagre antall tiltak uten filtrering', () => {
       cy.getByTestId('antall-tiltak').then($navn => {
@@ -56,28 +34,9 @@ describe('Tiltaksoversikt', () => {
       });
     });
 
-    it('Filtrer på Innsatsgrupper hvis brukeren har innsatsgruppe', () => {
-      if (kvalifiseringsgruppe === innsatsgruppe) {
-        cy.velgFilter('standardinnsats');
-
-        cy.forventetAntallFiltertags(2);
-        cy.getByTestId('knapp_tilbakestill-filter').should('exist');
-
-        cy.getByTestId('antall-tiltak').then($navn => {
-          expect(antallTiltak).not.to.eq($navn.text());
-        });
-
-        cy.forventetAntallFiltertags(2);
-        cy.getByTestId('knapp_tilbakestill-filter').should('exist').click();
-      }
-    });
-
     it('Filtrer på Tiltakstyper', () => {
       cy.apneLukketFilterAccordion('tiltakstyper', true);
-      cy.velgFilter('avklaring');
-      cy.velgFilter('oppfolging');
-
-      cy.antallFiltertagsKvalifiseringsgruppe(kvalifiseringsgruppe, 3);
+      cy.velgFilter('mentor');
 
       cy.getByTestId('antall-tiltak').then($navn => {
         expect(antallTiltak).not.to.eq($navn.text());
@@ -86,18 +45,14 @@ describe('Tiltaksoversikt', () => {
       cy.getByTestId('knapp_tilbakestill-filter').should('exist').click();
 
       cy.getByTestId('filter_checkbox_avklaring').should('not.be.checked');
-      cy.getByTestId('filter_checkbox_oppfolging').should('not.be.checked');
+      cy.getByTestId('filter_checkbox_mentor').should('not.be.checked');
 
-      cy.antallFiltertagsKvalifiseringsgruppe(kvalifiseringsgruppe, 1);
       cy.apneLukketFilterAccordion('tiltakstyper', false);
     });
 
     it('Filtrer på lokasjoner', () => {
       cy.apneLukketFilterAccordion('lokasjon', true);
       cy.getByTestId('checkboxgroup_lokasjon').children().children().first().click();
-
-      cy.antallFiltertagsKvalifiseringsgruppe(kvalifiseringsgruppe, 2);
-
       cy.getByTestId('knapp_tilbakestill-filter').should('exist').click();
 
       cy.getByTestId('checkboxgroup_lokasjon').children().children().should('not.be.checked');
@@ -105,25 +60,13 @@ describe('Tiltaksoversikt', () => {
     });
 
     it('Filtrer på søkefelt', () => {
-      if (kvalifiseringsgruppe === innsatsgruppe) {
-        cy.velgFilter('varig-tilpasset-innsats');
-      }
-      cy.getByTestId('filter_sokefelt').type('AFT');
-      cy.forventetAntallFiltertags(3);
-
-      cy.getByTestId('antall-tiltak').then($navn => {
-        expect(antallTiltak).not.to.eq($navn.text());
-      });
-
-      cy.getByTestId('filter_sokefelt').clear();
-      cy.forventetAntallFiltertags(2);
+      cy.getByTestId('filter_sokefelt').type('Yoda');
+      cy.getByTestId('lenke_tiltaksgjennomforing').contains('Yoda');
     });
 
     it('Skal vise tilbakestill filter-knapp når filter utenfor normalen hvis brukeren har innsatsgruppe', () => {
-      if (kvalifiseringsgruppe === innsatsgruppe) {
-        cy.velgFilter('standardinnsats');
-        cy.getByTestId('knapp_tilbakestill-filter').should('exist');
-      }
+      cy.velgFilter('standard-innsats');
+      cy.getByTestId('knapp_tilbakestill-filter').should('exist');
     });
   });
 
@@ -142,26 +85,24 @@ describe('Tiltaksoversikt', () => {
   });
 
   it('Skal ha ferdig utfylt brukers innsatsgruppe hvis bruker har innsatsgruppe', () => {
-    if (kvalifiseringsgruppe === innsatsgruppe) {
-      // Situasjonsbestemt innsats er innsatsgruppen som returneres når testene kjører med mock-data
-      cy.resetSide();
-      cy.getByTestId('filter_checkbox_situasjonsbestemt-innsats').should('be.checked');
-      cy.antallFiltertagsKvalifiseringsgruppe(kvalifiseringsgruppe, 1);
-      cy.getByTestId('knapp_tilbakestill-filter').should('not.exist');
+    cy.resetSide();
+    // Situasjonsbestemt innsats er innsatsgruppen som returneres når testene kjører med mock-data
+    cy.getByTestId('filter_checkbox_situasjonsbestemt-innsats').should('be.checked');
+    cy.getByTestId('knapp_tilbakestill-filter').should('not.exist');
 
-      cy.getByTestId('filtertag_situasjonsbestemt-innsats').then($value => {
-        expect($value.text()).to.eq('Situasjonsbestemt innsats');
-      });
-    }
+    cy.getByTestId('filtertag_situasjonsbestemt-innsats').then($value => {
+      expect($value.text()).to.eq('Situasjonsbestemt innsats');
+    });
   });
 
   it('Skal huske filtervalg mellom detaljvisning og listevisning', () => {
-    cy.getByTestId('filter_checkbox_standardinnsats').click();
+    cy.getByTestId('filter_checkbox_standard-innsats').click();
     cy.forventetAntallFiltertags(2);
+    cy.getByTestId('filter_checkbox_situasjonsbestemt-innsats').click();
 
     cy.getByTestId('lenke_tiltaksgjennomforing').first().click();
     cy.tilbakeTilListevisning();
-    cy.getByTestId('filter_checkbox_standardinnsats').should('be.checked');
+    cy.getByTestId('filter_checkbox_situasjonsbestemt-innsats').should('be.checked');
     cy.forventetAntallFiltertags(2);
   });
 

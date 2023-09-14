@@ -17,6 +17,7 @@ export const QueryKeys = {
       { ...tiltaksgjennomforingsfilter },
     ],
     tiltaksgjennomforing: (id: string) => ['tiltaksgjennomforing', id],
+    tiltaksgjennomforingPreview: (id: string) => ['tiltaksgjennomforing', 'preview', id],
   },
   features: (feature: string) => [feature, 'feature'],
 };
