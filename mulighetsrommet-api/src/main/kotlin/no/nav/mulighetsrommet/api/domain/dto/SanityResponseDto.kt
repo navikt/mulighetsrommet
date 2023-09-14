@@ -10,8 +10,11 @@ import java.time.LocalDate
 @Serializable
 data class Faneinnhold(
     val forHvem: List<Innhold>? = emptyList(),
+    val forHvemInfoboks: String? = null,
     val detaljerOgInnhold: List<Innhold>? = emptyList(),
+    val detaljerOgInnholdInfoboks: String? = null,
     val pameldingOgVarighet: List<Innhold>? = emptyList(),
+    val pameldingOgVarighetInfoboks: String? = null,
 )
 
 @Serializable
@@ -88,7 +91,6 @@ data class VeilederflateTiltaksgjennomforing(
     val stengtTil: LocalDate? = null,
     val delingMedBruker: String? = null,
     val varighet: String? = null,
-    val pameldingOgVarighet: List<PameldingOgVarighet>? = emptyList(),
     val kontaktinfoTiltaksansvarlige: List<KontaktinfoTiltaksansvarlige>? = emptyList(),
     val faneinnhold: Faneinnhold? = null,
     val fylke: FylkeRef? = null,
