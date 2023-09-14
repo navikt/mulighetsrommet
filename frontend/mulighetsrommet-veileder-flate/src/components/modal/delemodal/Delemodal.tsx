@@ -151,7 +151,7 @@ const Delemodal = ({
           manuellStatus={manuellStatus}
         />
       ) : (
-        <Modal open={modalOpen} className={delemodalStyles.delemodal} aria-label="modal">
+        <Modal open={modalOpen} onClose={() => clickCancel()} className={delemodalStyles.delemodal} aria-label="modal">
           <Modal.Header closeButton data-testid="modal_header">
             <Heading size="xsmall">Del med bruker</Heading>
             <Heading size="large" level="1" className={delemodalStyles.heading}>
