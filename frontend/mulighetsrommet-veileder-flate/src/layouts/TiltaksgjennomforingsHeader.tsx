@@ -1,10 +1,10 @@
 import { BodyLong, Heading } from '@navikt/ds-react';
-import { SanityTiltaksgjennomforing, SanityTiltakstype } from 'mulighetsrommet-api-client';
+import { VeilederflateTiltaksgjennomforing, VeilederflateTiltakstype } from 'mulighetsrommet-api-client';
 import { kebabCase } from '../utils/Utils';
 import styles from './TiltaksgjennomforingsHeader.module.scss';
 
 interface Props {
-  tiltaksgjennomforing: SanityTiltaksgjennomforing;
+  tiltaksgjennomforing: VeilederflateTiltaksgjennomforing;
 }
 
 const TiltaksgjennomforingsHeader = ({ tiltaksgjennomforing }: Props) => {
@@ -19,7 +19,7 @@ const TiltaksgjennomforingsHeader = ({ tiltaksgjennomforing }: Props) => {
       >
         {tiltaksgjennomforingNavn}
       </Heading>
-      {tiltakstype?.arenakode === SanityTiltakstype.arenakode.GRUPPEAMO
+      {tiltakstype?.arenakode === VeilederflateTiltakstype.arenakode.GRUPPEAMO
         ? beskrivelse && <BodyLong>{beskrivelse}</BodyLong>
         : null}
       {tiltakstype.beskrivelse && (

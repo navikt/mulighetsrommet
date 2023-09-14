@@ -310,6 +310,20 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         }
     }
 
+    fun getBySanityId(sanityId: UUID): TiltaksgjennomforingAdminDto? {
+        @Language("PostgreSQL")
+        val query = """
+            select *
+            from tiltaksgjennomforing_admin_dto_view
+            where sanity_id = ?
+        """.trimIndent()
+
+        return queryOf(query, sanityId)
+            .map { it.toTiltaksgjennomforingAdminDto() }
+            .asSingle
+            .let { db.run(it) }
+    }
+
     fun getBySanityIds(sanityIds: List<UUID>): Map<UUID, TiltaksgjennomforingAdminDto> {
         @Language("PostgreSQL")
         val query = """

@@ -1,5 +1,5 @@
 import { BodyShort, Button, Heading, Modal } from '@navikt/ds-react';
-import { Bruker, DelMedBruker, SanityTiltaksgjennomforing } from 'mulighetsrommet-api-client';
+import { Bruker, DelMedBruker, VeilederflateTiltaksgjennomforing } from 'mulighetsrommet-api-client';
 import { PORTEN } from 'mulighetsrommet-frontend-common/constants';
 import { useReducer } from 'react';
 import { mulighetsrommetClient } from '../../../core/api/clients';
@@ -28,7 +28,7 @@ interface DelemodalProps {
   chattekst: string;
   veiledernavn?: string;
   brukerFnr: string;
-  tiltaksgjennomforing: SanityTiltaksgjennomforing;
+  tiltaksgjennomforing: VeilederflateTiltaksgjennomforing;
   brukerdata: Bruker;
   harDeltMedBruker?: DelMedBruker;
 }

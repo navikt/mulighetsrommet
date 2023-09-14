@@ -11,7 +11,7 @@ interface InnsatsgruppeFilterProps<T extends { id: string; tittel: string; nokke
   accordionNavn: string;
   option?: Innsatsgruppe;
   setOption: (type: Innsatsgruppe) => void;
-  data: T[];
+  options: T[];
   isLoading: boolean;
   isError: boolean;
   defaultOpen?: boolean;
@@ -21,7 +21,7 @@ const InnsatsgruppeAccordion = <T extends { id: string; tittel: string; nokkel?:
   accordionNavn,
   option,
   setOption,
-  data,
+  options,
   isLoading,
   isError,
   defaultOpen = false,
@@ -44,8 +44,8 @@ const InnsatsgruppeAccordion = <T extends { id: string; tittel: string; nokkel?:
         {accordionNavn}
       </Accordion.Header>
       <Accordion.Content data-testid={`filter_accordioncontent_${kebabCase(accordionNavn)}`}>
-        {isLoading && !data ? <Loader size="xlarge" /> : null}
-        {data && (
+        {isLoading && <Loader size="xlarge" />}
+        {options.length !== 0 && (
           <RadioGroup
             legend=""
             hideLegend
@@ -53,9 +53,9 @@ const InnsatsgruppeAccordion = <T extends { id: string; tittel: string; nokkel?:
             onChange={(e: Innsatsgruppe) => {
               setOption(e);
             }}
-            value={option}
+            value={option ?? null}
           >
-            {data.map(radiobox)}
+            {options.map(radiobox)}
           </RadioGroup>
         )}
         {isError && <Alert variant="error">Det har skjedd en feil</Alert>}
@@ -83,6 +83,9 @@ function InnsatsgruppeFilter() {
     logEvent('mulighetsrommet.filtrering', { type: 'innsatsgruppe', value: kebabCase(innsatsgruppe) });
   };
 
+  const options = innsatsgrupper.data?.map(innsatsgruppe => {
+    return { id: innsatsgruppe._id, tittel: innsatsgruppe.tittel, nokkel: innsatsgruppe.nokkel };
+  });
   return (
     <InnsatsgruppeAccordion
       accordionNavn="Innsatsgruppe"
@@ -90,11 +93,7 @@ function InnsatsgruppeFilter() {
       setOption={innsatsgruppe => {
         handleEndreFilter(innsatsgruppe);
       }}
-      data={
-        innsatsgrupper.data?.map(innsatsgruppe => {
-          return { id: innsatsgruppe._id, tittel: innsatsgruppe.tittel, nokkel: innsatsgruppe.nokkel };
-        }) ?? []
-      }
+      options={options ?? []}
       isLoading={innsatsgrupper.isLoading}
       isError={innsatsgrupper.isError}
       defaultOpen

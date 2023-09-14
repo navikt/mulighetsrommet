@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.services
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import io.prometheus.client.cache.caffeine.CacheMetricsCollector
+import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.repositories.NavEnhetRepository
 import no.nav.mulighetsrommet.api.utils.EnhetFilter
@@ -27,6 +28,20 @@ class NavEnhetService(private val enhetRepository: NavEnhetRepository) {
     fun hentEnhet(enhetsnummer: String): NavEnhetDbo? {
         return CacheUtils.tryCacheFirstNullable(cache, enhetsnummer) {
             enhetRepository.get(enhetsnummer)
+        }
+    }
+
+    fun hentOverorndetFylkesenhet(enhetsnummer: String): NavEnhetDbo? {
+        val enhet = CacheUtils.tryCacheFirstNullable(cache, enhetsnummer) {
+            enhetRepository.get(enhetsnummer)
+        }
+
+        return if (enhet?.type == Norg2Type.FYLKE) {
+            enhet
+        } else if (enhet?.overordnetEnhet != null) {
+            hentOverorndetFylkesenhet(enhet.overordnetEnhet)
+        } else {
+            enhet
         }
     }
 

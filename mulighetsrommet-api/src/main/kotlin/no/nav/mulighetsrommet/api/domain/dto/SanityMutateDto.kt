@@ -32,7 +32,7 @@ data class Patch<T>(
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
-data class SanityTiltaksgjennomforing(
+data class CreateSanityTiltaksgjennomforingDto(
     val _id: String,
     @EncodeDefault
     val _type: String = "tiltaksgjennomforing",
@@ -57,7 +57,7 @@ data class SanityTiltaksgjennomforingFields(
     val sluttdato: LocalDate? = null,
     val lokasjon: String? = null,
 ) {
-    fun toSanityTiltaksgjennomforing(id: String) = SanityTiltaksgjennomforing(
+    fun toSanityTiltaksgjennomforing(id: String) = CreateSanityTiltaksgjennomforingDto(
         _id = id,
         tiltaksgjennomforingNavn = this.tiltaksgjennomforingNavn,
         fylke = this.fylke,

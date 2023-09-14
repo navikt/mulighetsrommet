@@ -6,8 +6,8 @@ import {
   DelMedBruker,
   Innsatsgruppe,
   NavVeileder,
-  SanityTiltaksgjennomforing,
-  SanityTiltakstype,
+  VeilederflateTiltaksgjennomforing,
+  VeilederflateTiltakstype,
 } from 'mulighetsrommet-api-client';
 import { useState } from 'react';
 import { BrukerHarIkke14aVedtakVarsel } from '../../components/ikkeKvalifisertVarsel/BrukerHarIkke14aVedtakVarsel';
@@ -29,19 +29,19 @@ import { byttTilDialogFlate } from '../../utils/DialogFlateUtils';
 import { capitalize, erPreview, formaterDato } from '../../utils/Utils';
 import styles from './ViewTiltaksgjennomforingDetaljer.module.scss';
 
-const whiteListOpprettAvtaleKnapp: SanityTiltakstype.arenakode[] = [
-  SanityTiltakstype.arenakode.MIDLONTIL,
-  SanityTiltakstype.arenakode.ARBTREN,
-  SanityTiltakstype.arenakode.VARLONTIL,
-  SanityTiltakstype.arenakode.MENTOR,
-  SanityTiltakstype.arenakode.INKLUTILS,
-  SanityTiltakstype.arenakode.TILSJOBB,
+const whiteListOpprettAvtaleKnapp: VeilederflateTiltakstype.arenakode[] = [
+  VeilederflateTiltakstype.arenakode.MIDLONTIL,
+  VeilederflateTiltakstype.arenakode.ARBTREN,
+  VeilederflateTiltakstype.arenakode.VARLONTIL,
+  VeilederflateTiltakstype.arenakode.MENTOR,
+  VeilederflateTiltakstype.arenakode.INKLUTILS,
+  VeilederflateTiltakstype.arenakode.TILSJOBB,
 ];
 
 type IndividuelleTiltak = (typeof whiteListOpprettAvtaleKnapp)[number];
 
 function tiltakstypeAsStringIsIndividuellTiltakstype(
-  arenakode: SanityTiltakstype.arenakode
+  arenakode: VeilederflateTiltakstype.arenakode
 ): arenakode is IndividuelleTiltak {
   return whiteListOpprettAvtaleKnapp.includes(arenakode);
 }
@@ -67,7 +67,7 @@ function resolveName(ansatt?: NavVeileder) {
 }
 
 interface Props {
-  tiltaksgjennomforing: SanityTiltaksgjennomforing;
+  tiltaksgjennomforing: VeilederflateTiltaksgjennomforing;
   brukerHarRettPaaTiltak: boolean;
   brukersInnsatsgruppe?: Innsatsgruppe;
   innsatsgruppeForGjennomforing: Innsatsgruppe;

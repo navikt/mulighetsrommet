@@ -1,13 +1,13 @@
 import { Alert } from '@navikt/ds-react';
-import { SanityTiltaksgjennomforing } from 'mulighetsrommet-api-client';
+import { VeilederflateTiltaksgjennomforing } from 'mulighetsrommet-api-client';
 import { erPreview } from '../../../utils/Utils';
 import FaneTiltaksinformasjon from '../FaneTiltaksinformasjon';
 import ArrangorInfo from './ArrangorInfo';
 import styles from './Kontaktinfo.module.scss';
-import TiltaksansvarligInfo from './TiltaksansvarligInfo';
+import NavKontaktpersonInfo from './NavKontaktpersonInfo';
 
 interface Props {
-  tiltaksgjennomforing: SanityTiltaksgjennomforing;
+  tiltaksgjennomforing: VeilederflateTiltaksgjennomforing;
 }
 
 const KontaktinfoFane = ({ tiltaksgjennomforing }: Props) => {
@@ -18,7 +18,7 @@ const KontaktinfoFane = ({ tiltaksgjennomforing }: Props) => {
       ) : (
         <>
           <ArrangorInfo data={tiltaksgjennomforing} />
-          <TiltaksansvarligInfo data={tiltaksgjennomforing} />
+          <NavKontaktpersonInfo data={tiltaksgjennomforing} />
         </>
       )}
     </FaneTiltaksinformasjon>

@@ -847,7 +847,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/SanityTiltakstype"
+                  $ref: "#/components/schemas/VeilederflateTiltakstype"
 
   /api/v1/internal/sanity/lokasjoner:
     parameters:
@@ -906,7 +906,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/SanityTiltaksgjennomforing"
+                  $ref: "#/components/schemas/VeilederflateTiltaksgjennomforing"
 
   /api/v1/internal/sanity/tiltaksgjennomforing/{id}:
     get:
@@ -931,7 +931,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/SanityTiltaksgjennomforing"
+                $ref: "#/components/schemas/VeilederflateTiltaksgjennomforing"
 
   /api/v1/internal/sanity/tiltaksgjennomforing/preview/{id}:
     get:
@@ -951,7 +951,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/SanityTiltaksgjennomforing"
+                $ref: "#/components/schemas/VeilederflateTiltaksgjennomforing"
 
   /api/v1/internal/dialog:
     parameters:
@@ -2423,7 +2423,7 @@ components:
         - tittel
         - nokkel
 
-    SanityTiltakstype:
+    VeilederflateTiltakstype:
       type: object
       properties:
         _id:
@@ -2432,22 +2432,16 @@ components:
           type: string
         beskrivelse:
           type: string
-        innsatsgruppe:
-          $ref: "#/components/schemas/SanityInnsatsgruppe"
-        varighet:
-          type: string
-        regelverkFiler:
-          type: array
-          items:
-            $ref: "#/components/schemas/SanityRegelverkFil"
-        regelverkLenker:
-          type: array
-          items:
-            $ref: "#/components/schemas/SanityRegelverkLenke"
         nokkelinfoKomponenter:
           type: array
           items:
             $ref: "#/components/schemas/SanityNokkelinfo"
+        innsatsgruppe:
+          $ref: "#/components/schemas/SanityInnsatsgruppe"
+        regelverkLenker:
+          type: array
+          items:
+            $ref: "#/components/schemas/SanityRegelverkLenke"
         faneinnhold:
           $ref: "#/components/schemas/SanityFaneinnhold"
         delingMedBruker:
@@ -2483,13 +2477,13 @@ components:
         - tiltakstypeNavn
         - innsatsgruppe
 
-    SanityTiltaksgjennomforing:
+    VeilederflateTiltaksgjennomforing:
       type: object
       properties:
         _id:
           type: string
         tiltakstype:
-          $ref: "#/components/schemas/SanityTiltakstype"
+          $ref: "#/components/schemas/VeilederflateTiltakstype"
         tiltaksgjennomforingNavn:
           type: string
         beskrivelse:
@@ -2497,7 +2491,7 @@ components:
         tiltaksnummer:
           type: string
         kontaktinfoArrangor:
-          $ref: "#/components/schemas/SanityKontaktinfoArrangor"
+          $ref: "#/components/schemas/VeilderflateArrangor"
         lokasjon:
           type: string
         oppstart:
@@ -2528,20 +2522,6 @@ components:
         - tiltaksgjennomforingNavn
         - tiltakstype
         - oppstart
-
-    SanityRegelverkFil:
-      type: object
-      properties:
-        _id:
-          type: string
-        regelverkFilUrl:
-          type: string
-        regelverkFilNavn:
-          type: string
-      required:
-        - _id
-        - regelverkFilUrl
-        - regelverkFilNavn
 
     SanityRegelverkLenke:
       type: object
@@ -2587,22 +2567,34 @@ components:
         pameldingOgVarighet:
           type: object
 
-    SanityKontaktinfoArrangor:
+    VeilderflateArrangor:
       type: object
       properties:
-        _id:
-          type: string
         selskapsnavn:
           type: string
-        telefonnummer:
+        organisasjonsnummer:
           type: string
+        lokasjon:
+          type: string
+        kontaktperson:
+          $ref: "#/components/schemas/VeilderflateArrangorKontaktperson"
+      required:
+        - selskapsnavn
+
+    VeilderflateArrangorKontaktperson:
+      type: object
+      properties:
+        navn:
+          type: string
+        telefon:
+          type: string
+          nullable: true
         epost:
           type: string
-        adresse:
-          type: string
       required:
-        - _id
-        - selskapsnavn
+        - navn
+        - telefon
+        - epost
 
     SanityKontakinfoTiltaksansvarlige:
       type: object
