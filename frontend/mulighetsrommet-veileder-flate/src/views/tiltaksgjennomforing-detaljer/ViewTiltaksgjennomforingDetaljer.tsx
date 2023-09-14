@@ -80,7 +80,6 @@ const ViewTiltaksgjennomforingDetaljer = ({
   tiltaksgjennomforing,
   harDeltMedBruker,
   brukerHarRettPaaTiltak,
-  brukersInnsatsgruppe,
   innsatsgruppeForGjennomforing,
   veilederdata,
   brukerdata,
@@ -155,7 +154,6 @@ const ViewTiltaksgjennomforingDetaljer = ({
         <BrukerKvalifisererIkkeVarsel
           brukerdata={brukerdata}
           brukerHarRettPaaTiltak={brukerHarRettPaaTiltak}
-          brukersInnsatsgruppe={brukersInnsatsgruppe}
           innsatsgruppeForGjennomforing={innsatsgruppeForGjennomforing}
         />
         <BrukerHarIkke14aVedtakVarsel brukerdata={brukerdata} />

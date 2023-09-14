@@ -12,7 +12,7 @@ export function ViewTiltaksgjennomforingDetaljerContainer() {
   const { data, isLoading, isError } = useTiltaksgjennomforingById();
   const fnr = useFnr();
   const { harDeltMedBruker } = useHentDeltMedBrukerStatus(data?._id, fnr);
-  const { brukerHarRettPaaTiltak, brukersInnsatsgruppe, innsatsgruppeForGjennomforing } = useBrukerHarRettPaaTiltak();
+  const { brukerHarRettPaaTiltak, innsatsgruppeForGjennomforing } = useBrukerHarRettPaaTiltak();
   const veilederdata = useHentVeilederdata();
   const brukerdata = useHentBrukerdata();
 
@@ -34,7 +34,6 @@ export function ViewTiltaksgjennomforingDetaljerContainer() {
     <ViewTiltaksgjennomforingDetaljer
       tiltaksgjennomforing={data}
       brukerHarRettPaaTiltak={brukerHarRettPaaTiltak}
-      brukersInnsatsgruppe={brukersInnsatsgruppe}
       innsatsgruppeForGjennomforing={innsatsgruppeForGjennomforing}
       harDeltMedBruker={harDeltMedBruker}
       veilederdata={veilederdata.data}
