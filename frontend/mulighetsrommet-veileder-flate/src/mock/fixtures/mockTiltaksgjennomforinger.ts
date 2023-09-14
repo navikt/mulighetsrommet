@@ -456,7 +456,7 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
     oppstart: VeilederflateTiltaksgjennomforing.oppstart.LOPENDE,
     oppstartsdato: '2023-11-01',
     sluttdato: '2023-11-30',
-    kontaktinfoArrangor: {
+    arrangor: {
       selskapsnavn: 'JOBLEARN AS AVD 813201 ØST-VIKEN KURS',
       lokasjon: '2050 JESSHEIM',
       kontaktperson: {

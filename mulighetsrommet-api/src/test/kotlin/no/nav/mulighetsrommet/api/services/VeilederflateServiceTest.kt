@@ -52,7 +52,6 @@ class VeilederflateServiceTest : FunSpec({
                 "oppstartsdato": null,
                 "lokasjon": null,
                 "tiltaksnummer": "2023#176408",
-                "kontaktinfoArrangor": null,
                 "tiltakstype": {
                     "tiltakstypeNavn": "Oppl\u00e6ring - Gruppe AMO"
                 },
@@ -62,7 +61,6 @@ class VeilederflateServiceTest : FunSpec({
                 "_id": "8d8a73bc-b661-4efd-90fc-2c59b258200e",
                 "tiltaksgjennomforingNavn": "Oppf\u00f8lging Malvik",
                 "tiltaksnummer": "2023#199282",
-                "kontaktinfoArrangor": null,
                 "lokasjon": "Oslo",
                 "tiltakstype": {
                     "tiltakstypeNavn": "Oppf\u00f8lging"
@@ -80,9 +78,6 @@ class VeilederflateServiceTest : FunSpec({
                 "oppstartsdato": "2020-11-02",
                 "tiltaksnummer": "2022#116075",
                 "fylke": "0400",
-                "kontaktinfoArrangor": {
-                    "selskapsnavn": "Signo Arbeid og deltakelse"
-                },
                 "tiltakstype": {
                     "tiltakstypeNavn": "Oppf\u00f8lging"
                 },

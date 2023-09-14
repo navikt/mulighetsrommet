@@ -2486,7 +2486,7 @@ components:
           type: string
         tiltaksnummer:
           type: string
-        kontaktinfoArrangor:
+        arrangor:
           $ref: "#/components/schemas/VeilderflateArrangor"
         lokasjon:
           type: string

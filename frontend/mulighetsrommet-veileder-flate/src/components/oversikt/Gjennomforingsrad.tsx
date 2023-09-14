@@ -29,7 +29,7 @@ export function Gjennomforingsrad({ tiltaksgjennomforing, index }: Props) {
   const {
     _id,
     tiltaksgjennomforingNavn,
-    kontaktinfoArrangor,
+    arrangor,
     tiltakstype,
     lokasjon,
     tilgjengelighetsstatus,
@@ -52,8 +52,8 @@ export function Gjennomforingsrad({ tiltaksgjennomforing, index }: Props) {
             >
               {tiltaksgjennomforingNavn}
             </BodyShort>
-            <BodyShort size="small" title={kontaktinfoArrangor?.selskapsnavn} className={styles.muted}>
-              {kontaktinfoArrangor?.selskapsnavn}
+            <BodyShort size="small" title={arrangor?.selskapsnavn} className={styles.muted}>
+              {arrangor?.selskapsnavn}
             </BodyShort>
           </div>
           <div className={classNames(styles.infogrid, styles.metadata)}>

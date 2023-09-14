@@ -10,7 +10,7 @@ interface Props {
 }
 
 const SidemenyDetaljer = ({ tiltaksgjennomforing }: Props) => {
-  const { tiltaksnummer, kontaktinfoArrangor, tiltakstype, sluttdato, oppstartsdato, lokasjon } = tiltaksgjennomforing;
+  const { tiltaksnummer, arrangor, tiltakstype, sluttdato, oppstartsdato, lokasjon } = tiltaksgjennomforing;
   const oppstart = resolveOppstart(tiltaksgjennomforing);
 
   const visDato = (
@@ -79,12 +79,12 @@ const SidemenyDetaljer = ({ tiltaksgjennomforing }: Props) => {
           <BodyShort size="small">{tiltakstype.tiltakstypeNavn} </BodyShort>
         </div>
 
-        {kontaktinfoArrangor?.selskapsnavn && (
+        {arrangor?.selskapsnavn && (
           <div className={styles.rad}>
             <BodyShort size="small" className={styles.tittel}>
               Arrangør
             </BodyShort>
-            <BodyShort size="small">{kontaktinfoArrangor.selskapsnavn}</BodyShort>
+            <BodyShort size="small">{arrangor.selskapsnavn}</BodyShort>
           </div>
         )}
 

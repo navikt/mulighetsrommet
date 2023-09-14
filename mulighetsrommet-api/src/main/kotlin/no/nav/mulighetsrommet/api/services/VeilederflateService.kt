@@ -94,9 +94,6 @@ class VeilederflateService(
               lokasjon,
               "fylke": fylke->nummer.current,
               "enheter": enheter[]->nummer.current,
-              kontaktinfoArrangor->{
-                selskapsnavn
-              },
             }
         """.trimIndent()
 
@@ -200,7 +197,6 @@ class VeilederflateService(
                 pameldingOgVarighetInfoboks,
                 pameldingOgVarighet,
               },
-              kontaktinfoArrangor->,
             }[0]
         """.trimIndent()
 
@@ -301,7 +297,7 @@ class VeilederflateService(
                 sluttdato = sluttdato,
                 tilgjengelighetsstatus = apiGjennomforing.tilgjengelighet,
                 estimert_ventetid = apiGjennomforing.estimertVentetid,
-                kontaktinfoArrangor = arrangor,
+                arrangor = arrangor,
                 lokasjon = apiGjennomforing.lokasjonArrangor ?: sanityGjennomforing.lokasjon,
                 fylke = fylke ?: sanityGjennomforing.fylke,
                 enheter = enheter.ifEmpty { sanityGjennomforing.enheter },
