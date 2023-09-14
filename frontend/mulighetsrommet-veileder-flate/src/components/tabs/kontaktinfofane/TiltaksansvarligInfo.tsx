@@ -1,7 +1,7 @@
 import { Alert, BodyShort } from '@navikt/ds-react';
-import styles from './Kontaktinfo.module.scss';
-import { logEvent } from '../../../core/api/logger';
 import { SanityKontakinfoTiltaksansvarlige } from 'mulighetsrommet-api-client';
+import { logEvent } from '../../../core/api/logger';
+import styles from './Kontaktinfo.module.scss';
 
 const TEAMS_DYPLENKE = 'https://teams.microsoft.com/l/chat/0/0?users=';
 
@@ -11,6 +11,7 @@ interface TiltaksansvarligInfoProps {
 
 const TiltaksansvarligInfo = ({ data }: TiltaksansvarligInfoProps) => {
   const { kontaktinfoTiltaksansvarlige: tiltaksansvarlige } = data;
+
   if (tiltaksansvarlige?.length === 0 || !tiltaksansvarlige)
     return (
       <Alert variant="info" inline>

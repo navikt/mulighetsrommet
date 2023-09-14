@@ -1,14 +1,14 @@
-import { Heading, Ingress } from '@navikt/ds-react';
-import useTiltaksgjennomforingById from '../core/api/queries/useTiltaksgjennomforingById';
+import { BodyLong, Heading } from '@navikt/ds-react';
+import { SanityTiltaksgjennomforing, SanityTiltakstype } from 'mulighetsrommet-api-client';
 import { kebabCase } from '../utils/Utils';
 import styles from './TiltaksgjennomforingsHeader.module.scss';
-import { SanityTiltakstype } from 'mulighetsrommet-api-client';
 
-const TiltaksgjennomforingsHeader = () => {
-  const { data } = useTiltaksgjennomforingById();
-  if (!data) return null;
+interface Props {
+  tiltaksgjennomforing: SanityTiltaksgjennomforing;
+}
 
-  const { tiltaksgjennomforingNavn, beskrivelse, tiltakstype } = data;
+const TiltaksgjennomforingsHeader = ({ tiltaksgjennomforing }: Props) => {
+  const { tiltaksgjennomforingNavn, beskrivelse, tiltakstype } = tiltaksgjennomforing;
   return (
     <>
       <Heading
@@ -20,9 +20,13 @@ const TiltaksgjennomforingsHeader = () => {
         {tiltaksgjennomforingNavn}
       </Heading>
       {tiltakstype?.arenakode === SanityTiltakstype.arenakode.GRUPPEAMO
-        ? beskrivelse && <Ingress>{beskrivelse}</Ingress>
+        ? beskrivelse && <BodyLong>{beskrivelse}</BodyLong>
         : null}
-      {tiltakstype.beskrivelse && <Ingress className={styles.beskrivelse}>{tiltakstype.beskrivelse}</Ingress>}
+      {tiltakstype.beskrivelse && (
+        <BodyLong size="large" className={styles.beskrivelse}>
+          {tiltakstype.beskrivelse}
+        </BodyLong>
+      )}
     </>
   );
 };

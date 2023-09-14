@@ -931,9 +931,27 @@ paths:
           content:
             application/json:
               schema:
-                type: array # Sanity kan returnere prod- og draft-versjon av dokument. Derfor array og ikke enkelt objekt
-                items:
-                  $ref: "#/components/schemas/SanityTiltaksgjennomforing"
+                $ref: "#/components/schemas/SanityTiltaksgjennomforing"
+
+  /api/v1/internal/sanity/tiltaksgjennomforing/preview/{id}:
+    get:
+      tags:
+        - Sanity
+      operationId: getSanityTiltaksgjennomforingForPreview
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID for tiltaksgjennomføring i Sanity
+      responses:
+        200:
+          description: Hent tiltaksgjennomføring for id uavhengig av fnr i kontekst
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SanityTiltaksgjennomforing"
 
   /api/v1/internal/dialog:
     parameters:

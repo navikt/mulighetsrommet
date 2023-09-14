@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 
-export const FnrContext = React.createContext<string | null>(null);
+export const FnrContext = React.createContext<string | null | undefined>(null);
 
 export function useFnr(): string {
   const fnr = useContext(FnrContext);
@@ -9,5 +9,5 @@ export function useFnr(): string {
     throw Error('Missing fnr');
   }
 
-  return fnr
+  return fnr;
 }

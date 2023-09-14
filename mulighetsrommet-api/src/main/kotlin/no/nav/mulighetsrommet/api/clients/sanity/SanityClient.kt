@@ -29,14 +29,14 @@ class SanityClient(engine: HttpClientEngine = CIO.create(), val config: Config) 
         val token: String?,
         val useCdn: Boolean = true,
     ) {
-        private val baseUrl
-            get() = "https://$projectId.${if (useCdn) "apicdn" else "api"}.sanity.io/$apiVersion"
+        private fun baseUrl(perspective: SanityPerspective = SanityPerspective.PUBLISHED): String {
+            val api = if (useCdn && perspective != SanityPerspective.PREVIEW_DRAFTS) "apicdn" else "api"
+            return "https://$projectId.$api.sanity.io/$apiVersion"
+        }
 
-        val queryUrl
-            get() = "$baseUrl/data/query/$dataset"
+        fun queryUrl(perspective: SanityPerspective) = "${baseUrl(perspective)}/data/query/$dataset"
 
-        val mutationUrl
-            get() = "$baseUrl/data/mutate/$dataset"
+        fun mutationUrl() = "${baseUrl()}/data/mutate/$dataset"
     }
 
     enum class MutationVisibility {
@@ -84,8 +84,11 @@ class SanityClient(engine: HttpClientEngine = CIO.create(), val config: Config) 
         }
     }
 
-    internal suspend fun query(query: String, perspective: SanityPerspective = SanityPerspective.PUBLISHED): SanityResponse {
-        val response = client.get(config.queryUrl) {
+    internal suspend fun query(
+        query: String,
+        perspective: SanityPerspective = SanityPerspective.PUBLISHED,
+    ): SanityResponse {
+        val response = client.get(config.queryUrl(perspective)) {
             url {
                 parameters.append("query", query)
                 parameters.append("perspective", perspective.navn)
@@ -102,7 +105,7 @@ class SanityClient(engine: HttpClientEngine = CIO.create(), val config: Config) 
         dryRun: Boolean = false,
         visibility: MutationVisibility = MutationVisibility.Sync,
     ): HttpResponse {
-        val response = client.post(config.mutationUrl) {
+        val response = client.post(config.mutationUrl()) {
             setBody(Mutations(mutations = mutations))
             url.parameters.apply {
                 append("returnIds", returnIds.toString())
