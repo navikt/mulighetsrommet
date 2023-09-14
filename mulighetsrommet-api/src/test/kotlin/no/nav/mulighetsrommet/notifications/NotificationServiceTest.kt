@@ -2,7 +2,7 @@ package no.nav.mulighetsrommet.notifications
 
 import com.github.kagkarlsson.scheduler.Scheduler
 import io.kotest.assertions.arrow.core.shouldBeRight
-import io.kotest.assertions.timing.eventually
+import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.should

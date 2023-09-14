@@ -1,6 +1,6 @@
 package no.nav.mulighetsrommet.kafka
 
-import io.kotest.assertions.timing.eventually
+import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.core.extensions.install
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.extensions.testcontainers.kafka.KafkaContainerExtension
