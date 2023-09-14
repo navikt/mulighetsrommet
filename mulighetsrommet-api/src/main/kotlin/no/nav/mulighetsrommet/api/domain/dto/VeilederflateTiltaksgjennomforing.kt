@@ -7,11 +7,11 @@ import java.time.LocalDate
 
 @Serializable
 data class VeilederflateTiltaksgjennomforing(
-    val _id: String, // TODO sanityId
+    val sanityId: String,
     val tiltakstype: VeilederflateTiltakstype? = null,
-    val tiltaksgjennomforingNavn: String, // TODO navn
+    val navn: String,
     val lokasjon: String? = null,
-    val tilgjengelighetsstatus: TiltaksgjennomforingTilgjengelighetsstatus? = null, // TODO tilgjengelighet
+    val tilgjengelighet: TiltaksgjennomforingTilgjengelighetsstatus? = null,
     val tiltaksnummer: String? = null,
     val oppstart: String? = null,
     @Serializable(with = LocalDateSerializer::class)
@@ -19,7 +19,7 @@ data class VeilederflateTiltaksgjennomforing(
     @Serializable(with = LocalDateSerializer::class)
     val sluttdato: LocalDate? = null,
     val arrangor: VeilederflateArrangor? = null,
-    val estimert_ventetid: String? = null, // TODO estimertVentetid
+    val estimertVentetid: String? = null,
     @Serializable(with = LocalDateSerializer::class)
     val stengtFra: LocalDate? = null,
     @Serializable(with = LocalDateSerializer::class)
@@ -33,8 +33,8 @@ data class VeilederflateTiltaksgjennomforing(
 
 @Serializable
 data class VeilederflateTiltakstype(
-    val _id: String? = null,
-    val tiltakstypeNavn: String? = null,
+    val sanityId: String? = null,
+    val navn: String? = null,
     val beskrivelse: String? = null,
     val innsatsgruppe: Innsatsgruppe? = null,
     val regelverkLenker: List<RegelverkLenke>? = emptyList(),

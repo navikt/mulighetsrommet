@@ -130,7 +130,7 @@ class VeilederflateService(
                 }
             }
             .filter {
-                it.tilgjengelighetsstatus !== TiltaksgjennomforingTilgjengelighetsstatus.STENGT
+                it.tilgjengelighet !== TiltaksgjennomforingTilgjengelighetsstatus.STENGT
             }
     }
 
@@ -225,11 +225,11 @@ class VeilederflateService(
 
         return sanityGjennomforing.run {
             VeilederflateTiltaksgjennomforing(
-                _id = _id,
+                sanityId = _id,
                 tiltakstype = tiltakstype?.run {
                     VeilederflateTiltakstype(
-                        _id = _id,
-                        tiltakstypeNavn = tiltakstypeNavn,
+                        sanityId = _id,
+                        navn = tiltakstypeNavn,
                         beskrivelse = beskrivelse,
                         innsatsgruppe = innsatsgruppe,
                         regelverkLenker = regelverkLenker,
@@ -238,7 +238,7 @@ class VeilederflateService(
                         arenakode = arenaKode,
                     )
                 },
-                tiltaksgjennomforingNavn = tiltaksgjennomforingNavn,
+                navn = tiltaksgjennomforingNavn,
                 lokasjon = lokasjon,
                 fylke = fylke,
                 enheter = enheter,
@@ -274,11 +274,11 @@ class VeilederflateService(
 
         return sanityGjennomforing.run {
             VeilederflateTiltaksgjennomforing(
-                _id = _id,
+                sanityId = _id,
                 tiltakstype = tiltakstype?.run {
                     VeilederflateTiltakstype(
-                        _id = _id,
-                        tiltakstypeNavn = tiltakstypeNavn,
+                        sanityId = _id,
+                        navn = tiltakstypeNavn,
                         beskrivelse = beskrivelse,
                         innsatsgruppe = innsatsgruppe,
                         regelverkLenker = regelverkLenker,
@@ -287,7 +287,7 @@ class VeilederflateService(
                         arenakode = apiGjennomforing.tiltakstype.arenaKode,
                     )
                 },
-                tiltaksgjennomforingNavn = tiltaksgjennomforingNavn,
+                navn = tiltaksgjennomforingNavn,
                 tiltaksnummer = apiGjennomforing.tiltaksnummer,
                 stengtFra = apiGjennomforing.stengtFra,
                 stengtTil = apiGjennomforing.stengtTil,
@@ -295,8 +295,8 @@ class VeilederflateService(
                 oppstart = oppstart,
                 oppstartsdato = oppstartsdato,
                 sluttdato = sluttdato,
-                tilgjengelighetsstatus = apiGjennomforing.tilgjengelighet,
-                estimert_ventetid = apiGjennomforing.estimertVentetid,
+                tilgjengelighet = apiGjennomforing.tilgjengelighet,
+                estimertVentetid = apiGjennomforing.estimertVentetid,
                 arrangor = arrangor,
                 lokasjon = apiGjennomforing.lokasjonArrangor ?: sanityGjennomforing.lokasjon,
                 fylke = fylke ?: sanityGjennomforing.fylke,

@@ -14,8 +14,8 @@ export function Tiltakstypefilter() {
       data={
         tiltakstyper.data?.map(tiltakstype => {
           return {
-            id: tiltakstype._id,
-            tittel: tiltakstype.tiltakstypeNavn,
+            id: tiltakstype.sanityId,
+            tittel: tiltakstype.navn,
           };
         }) ?? []
       }

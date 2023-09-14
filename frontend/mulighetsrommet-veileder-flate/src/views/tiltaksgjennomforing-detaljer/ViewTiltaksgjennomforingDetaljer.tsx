@@ -100,7 +100,7 @@ const ViewTiltaksgjennomforingDetaljer = ({
   }
 
   const kanBrukerFaaAvtale = () => {
-    const tiltakstypeNavn = tiltaksgjennomforing.tiltakstype.tiltakstypeNavn;
+    const tiltakstypeNavn = tiltaksgjennomforing.tiltakstype.navn;
     if (
       tiltaksgjennomforing.tiltakstype?.arenakode &&
       tiltakstypeAsStringIsIndividuellTiltakstype(tiltaksgjennomforing.tiltakstype.arenakode)
@@ -114,15 +114,15 @@ const ViewTiltaksgjennomforingDetaljer = ({
   const tilgjengelighetsstatusSomNokkelinfo: NokkelinfoProps = {
     nokkelinfoKomponenter: [
       {
-        _id: tiltaksgjennomforing._id,
+        _id: tiltaksgjennomforing.sanityId,
         innhold: (
           <TilgjengelighetsstatusComponent
-            status={tiltaksgjennomforing.tilgjengelighetsstatus}
+            status={tiltaksgjennomforing.tilgjengelighet}
             stengtFra={tiltaksgjennomforing.stengtFra}
             stengtTil={tiltaksgjennomforing.stengtTil}
           />
         ),
-        tittel: tiltaksgjennomforing.estimert_ventetid?.toString() ?? '',
+        tittel: tiltaksgjennomforing.estimertVentetid?.toString() ?? '',
         hjelpetekst: 'Tilgjengelighetsstatusen er beregnet ut i fra data som kommer fra Arena',
       },
     ],
@@ -223,7 +223,6 @@ const ViewTiltaksgjennomforingDetaljer = ({
           <Delemodal
             modalOpen={delemodalApen}
             lukkModal={() => setDelemodalApen(false)}
-            tiltaksgjennomforingsnavn={tiltaksgjennomforing.tiltaksgjennomforingNavn}
             brukernavn={erPreview ? '{Navn}' : brukerdata?.fornavn}
             chattekst={tiltaksgjennomforing.tiltakstype.delingMedBruker ?? ''}
             veiledernavn={erPreview ? '{Veiledernavn}' : veiledernavn}

@@ -2,9 +2,9 @@ import { Button, Search } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { FormProvider, useForm } from "react-hook-form";
 import {
-  TiltakstypeFilter,
   defaultTiltakstypeFilter,
   paginationAtom,
+  TiltakstypeFilter,
   tiltakstypeFilter,
 } from "../../api/atoms";
 import { resetPaginering, valueOrDefault } from "../../utils/Utils";
@@ -68,7 +68,10 @@ export function Tiltakstypefilter() {
                 resetPaginering(setPage);
                 setFilter({
                   ...filter,
-                  status: valueOrDefault(e.target.value, defaultTiltakstypeFilter.status),
+                  status: valueOrDefault(
+                    e.target.value,
+                    defaultTiltakstypeFilter.status,
+                  ),
                 });
               }}
               options={statusOptions()}
@@ -86,7 +89,7 @@ export function Tiltakstypefilter() {
                   ...filter,
                   kategori: valueOrDefault(
                     e.target.value,
-                    defaultTiltakstypeFilter.kategori
+                    defaultTiltakstypeFilter.kategori,
                   ),
                 });
               }}
@@ -95,26 +98,30 @@ export function Tiltakstypefilter() {
             />
           </div>
           <div className={styles.tags_container}>
-            {filter.status &&
+            {filter.status && (
               <FilterTag
                 label={filter.status}
                 onClick={() => {
                   setFilter({ ...filter, status: "" });
-                  setValue('status', "");
+                  setValue("status", "");
                 }}
               />
-            }
-            {filter.kategori && 
+            )}
+            {filter.kategori && (
               <FilterTag
-                label={filter.kategori === "GRUPPE" ? "Gruppetiltak" : "Individuelle tiltak"}
+                label={
+                  filter.kategori === "GRUPPE"
+                    ? "Gruppetiltak"
+                    : "Individuelle tiltak"
+                }
                 onClick={() => {
                   setFilter({ ...filter, kategori: "" });
-                  setValue('kategori', "");
+                  setValue("kategori", "");
                 }}
               />
-            }
-            { (filter.status !== defaultTiltakstypeFilter.status ||
-               filter.kategori !== defaultTiltakstypeFilter.kategori) &&
+            )}
+            {(filter.status !== defaultTiltakstypeFilter.status ||
+              filter.kategori !== defaultTiltakstypeFilter.kategori) && (
               <Button
                 style={{ height: "16px", maxHeight: "16px" }}
                 type="button"
@@ -122,13 +129,13 @@ export function Tiltakstypefilter() {
                 variant="tertiary"
                 onClick={() => {
                   setFilter(defaultTiltakstypeFilter);
-                  setValue('status', defaultTiltakstypeFilter.status);
-                  setValue('kategori', defaultTiltakstypeFilter.kategori);
+                  setValue("status", defaultTiltakstypeFilter.status);
+                  setValue("kategori", defaultTiltakstypeFilter.kategori);
                 }}
               >
                 Tilbakestill filter
               </Button>
-            }
+            )}
           </div>
         </div>
       </form>

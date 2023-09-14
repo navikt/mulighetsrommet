@@ -151,7 +151,7 @@ class VeilederflateServiceTest : FunSpec({
             TiltaksgjennomforingFilter(),
         )
         gjennomforinger.size shouldBe 2
-        gjennomforinger.find { it._id == "f21d1e35-d63b-4de7-a0a5-589e57111527" }!!.enheter!!.size shouldBe 1
+        gjennomforinger.find { it.sanityId == "f21d1e35-d63b-4de7-a0a5-589e57111527" }!!.enheter!!.size shouldBe 1
     }
 
     test("Filtrer på lokasjon") {
@@ -184,7 +184,7 @@ class VeilederflateServiceTest : FunSpec({
             TiltaksgjennomforingFilter(lokasjoner = listOf("Oslo")),
         )
         gjennomforinger.size shouldBe 2
-        gjennomforinger.find { it._id == "8d8a73bc-b661-4efd-90fc-2c59b258200e" }!!.lokasjon!! shouldBe "Oslo"
+        gjennomforinger.find { it.sanityId == "8d8a73bc-b661-4efd-90fc-2c59b258200e" }!!.lokasjon!! shouldBe "Oslo"
     }
 
     test("Samme enhet overskrevet fra admin flate skal fungere") {
@@ -224,7 +224,7 @@ class VeilederflateServiceTest : FunSpec({
             TiltaksgjennomforingFilter(),
         )
         gjennomforinger.size shouldBe 2
-        gjennomforinger.find { it._id == "f21d1e35-d63b-4de7-a0a5-589e57111527" }!!.enheter!!.size shouldBe 1
+        gjennomforinger.find { it.sanityId == "f21d1e35-d63b-4de7-a0a5-589e57111527" }!!.enheter!!.size shouldBe 1
     }
 
     test("Stengte filtreres vekk") {
@@ -257,6 +257,6 @@ class VeilederflateServiceTest : FunSpec({
             TiltaksgjennomforingFilter(),
         )
         gjennomforinger.size shouldBe 1
-        gjennomforinger.find { it._id == "f21d1e35-d63b-4de7-a0a5-589e57111527" } shouldBe null
+        gjennomforinger.find { it.sanityId == "f21d1e35-d63b-4de7-a0a5-589e57111527" } shouldBe null
     }
 })

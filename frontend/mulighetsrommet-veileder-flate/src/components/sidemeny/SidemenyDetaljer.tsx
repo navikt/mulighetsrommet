@@ -76,7 +76,7 @@ const SidemenyDetaljer = ({ tiltaksgjennomforing }: Props) => {
           <BodyShort size="small" className={styles.tittel}>
             Tiltakstype
           </BodyShort>
-          <BodyShort size="small">{tiltakstype.tiltakstypeNavn} </BodyShort>
+          <BodyShort size="small">{tiltakstype.navn} </BodyShort>
         </div>
 
         {arrangor?.selskapsnavn && (

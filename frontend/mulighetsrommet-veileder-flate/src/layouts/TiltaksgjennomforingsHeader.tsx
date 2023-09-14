@@ -8,16 +8,16 @@ interface Props {
 }
 
 const TiltaksgjennomforingsHeader = ({ tiltaksgjennomforing }: Props) => {
-  const { tiltaksgjennomforingNavn, beskrivelse, tiltakstype } = tiltaksgjennomforing;
+  const { navn, beskrivelse, tiltakstype } = tiltaksgjennomforing;
   return (
     <>
       <Heading
         level="1"
         size="xlarge"
         className={styles.tiltaksgjennomforing_title}
-        data-testid={`tiltaksgjennomforing-header_${kebabCase(tiltaksgjennomforingNavn)}`}
+        data-testid={`tiltaksgjennomforing-header_${kebabCase(navn)}`}
       >
-        {tiltaksgjennomforingNavn}
+        {navn}
       </Heading>
       {tiltakstype?.arenakode === VeilederflateTiltakstype.arenakode.GRUPPEAMO
         ? beskrivelse && <BodyLong>{beskrivelse}</BodyLong>

@@ -8,12 +8,12 @@ import {
 
 export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
   {
-    _id: 'f4cea25b-c372-4d4c-8106-535ab10cd586',
-    tiltaksgjennomforingNavn: 'Avklaring - Fredrikstad',
+    sanityId: 'f4cea25b-c372-4d4c-8106-535ab10cd586',
+    navn: 'Avklaring - Fredrikstad',
     oppstart: VeilederflateTiltaksgjennomforing.oppstart.LOPENDE,
     lokasjon: '1424 SKI',
     tiltakstype: {
-      _id: 'f9618e97-4510-49e2-b748-29cae84d9019',
+      sanityId: 'f9618e97-4510-49e2-b748-29cae84d9019',
       beskrivelse:
         'Avklaring skal kartlegge deltakerens muligheter for arbeid og behov for bistand til å skaffe eller beholde arbeid. Avklaringen skal bidra til at deltaker får økt innsikt i sine muligheter på arbeidsmarkedet og i egne ressurser og ferdigheter i jobbsammenheng.',
       regelverkLenker: [
@@ -34,7 +34,7 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
         nokkel: Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
         beskrivelse: 'Situasjonsbestemt innsats',
       },
-      tiltakstypeNavn: 'Avklaring',
+      navn: 'Avklaring',
       faneinnhold: {
         forHvem: [
           {
@@ -250,12 +250,12 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
     ],
   },
   {
-    _id: '91205ff2-ec72-4a7f-80b8-1c99d8535a06',
-    tiltaksgjennomforingNavn: 'Sindres mentorordning med Yoda',
+    sanityId: '91205ff2-ec72-4a7f-80b8-1c99d8535a06',
+    navn: 'Sindres mentorordning med Yoda',
     oppstart: VeilederflateTiltaksgjennomforing.oppstart.LOPENDE,
     lokasjon: 'Oslo',
     tiltakstype: {
-      _id: 'ad998fc6-310e-45d4-a056-57732fed87b4',
+      sanityId: 'ad998fc6-310e-45d4-a056-57732fed87b4',
       beskrivelse:
         'Mentor skal gi nødvendig bistand til å kunne gjennomføre arbeidsmarkedstiltak, eller for å kunne få eller beholde lønnet arbeid i en ordinær bedrift.',
       regelverkLenker: [
@@ -276,7 +276,7 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
         nokkel: Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
         beskrivelse: 'Situasjonsbestemt innsats',
       },
-      tiltakstypeNavn: 'Mentor',
+      navn: 'Mentor',
       faneinnhold: {
         forHvem: [
           {
@@ -353,12 +353,12 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
     ],
   },
   {
-    _id: '2a597090-1ba8-47a4-a82f-6aaad488994e',
-    tiltaksgjennomforingNavn: 'Kurs i overlevelsesteknikk med Lars Monsen',
+    sanityId: '2a597090-1ba8-47a4-a82f-6aaad488994e',
+    navn: 'Kurs i overlevelsesteknikk med Lars Monsen',
     lokasjon: '2050 JESSHEIM',
-    tilgjengelighetsstatus: Tilgjengelighetsstatus.LEDIG,
+    tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
     tiltakstype: {
-      _id: 'eadeb22c-bd89-4298-a5c2-145f112f8e7d',
+      sanityId: 'eadeb22c-bd89-4298-a5c2-145f112f8e7d',
       beskrivelse:
         'Opplæringstiltak i form av Gruppe AMO (jf. tiltaksforskriften § 7-2 a) skal bidra til at arbeidssøkere kvalifiseres til ledige jobber. ',
       regelverkLenker: [
@@ -379,7 +379,7 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
         beskrivelse: 'Situasjonsbestemt innsats',
         _id: '1245',
       },
-      tiltakstypeNavn: 'Opplæring - Gruppe AMO',
+      navn: 'Opplæring - Gruppe AMO',
       faneinnhold: {
         forHvem: [
           {
@@ -465,7 +465,7 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
         epost: 'test@example.com',
       },
     },
-    estimert_ventetid: '',
+    estimertVentetid: '',
     kontaktinfoTiltaksansvarlige: [
       {
         navn: 'Pelle Pilotbruker',

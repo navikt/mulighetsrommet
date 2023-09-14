@@ -2426,9 +2426,9 @@ components:
     VeilederflateTiltakstype:
       type: object
       properties:
-        _id:
+        sanityId:
           type: string
-        tiltakstypeNavn:
+        navn:
           type: string
         beskrivelse:
           type: string
@@ -2469,18 +2469,18 @@ components:
             - UTVAOONAV
           nullable: true
       required:
-        - _id
-        - tiltakstypeNavn
+        - sanityId
+        - navn
         - innsatsgruppe
 
     VeilederflateTiltaksgjennomforing:
       type: object
       properties:
-        _id:
+        sanityId:
           type: string
         tiltakstype:
           $ref: "#/components/schemas/VeilederflateTiltakstype"
-        tiltaksgjennomforingNavn:
+        navn:
           type: string
         beskrivelse:
           type: string
@@ -2499,7 +2499,7 @@ components:
           type: string
         sluttdato:
           type: string
-        estimert_ventetid:
+        estimertVentetid:
           type: string
         faneinnhold:
           $ref: "#/components/schemas/SanityFaneinnhold"
@@ -2507,15 +2507,15 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/SanityKontakinfoTiltaksansvarlige"
-        tilgjengelighetsstatus:
+        tilgjengelighet:
           $ref: "#/components/schemas/Tilgjengelighetsstatus"
         stengtFra:
           type: string
         stengtTil:
           type: string
       required:
-        - _id
-        - tiltaksgjennomforingNavn
+        - sanityId
+        - navn
         - tiltakstype
         - oppstart
 
