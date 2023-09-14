@@ -34,7 +34,7 @@ fun Route.sanityRoutes() {
         }
 
         get("/lokasjoner") {
-            poaoTilgangService.verfiyAccessToModia(getNavAnsattAzureId())
+            poaoTilgangService.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), getNorskIdent())
             call.respond(
                 veilederflateService.hentLokasjonerForBrukersEnhetOgFylke(
                     getNorskIdent(),
@@ -44,8 +44,7 @@ fun Route.sanityRoutes() {
         }
 
         get("/tiltaksgjennomforinger") {
-            poaoTilgangService.verfiyAccessToModia(getNavAnsattAzureId())
-
+            poaoTilgangService.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), getNorskIdent())
             val result = veilederflateService.hentTiltaksgjennomforingerForBrukerBasertPaEnhetOgFylke(
                 getNorskIdent(),
                 call.getAccessToken(),
@@ -55,7 +54,7 @@ fun Route.sanityRoutes() {
         }
 
         get("/tiltaksgjennomforing/{id}") {
-            poaoTilgangService.verfiyAccessToModia(getNavAnsattAzureId())
+            poaoTilgangService.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), getNorskIdent())
             val id = call.parameters.getOrFail("id")
             val result = veilederflateService.hentTiltaksgjennomforingMedBrukerdata(
                 id,
