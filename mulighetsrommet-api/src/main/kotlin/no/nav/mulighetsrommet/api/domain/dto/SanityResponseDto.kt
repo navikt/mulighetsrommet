@@ -42,13 +42,6 @@ data class RegelverkLenke(
 )
 
 @Serializable
-data class NokkelinfoKomponent(
-    val hjelpetekst: String? = null,
-    val innhold: String? = null,
-    val tittel: String? = null,
-)
-
-@Serializable
 data class Innsatsgruppe(
     val tittel: String? = null,
     val nokkel: String? = null,

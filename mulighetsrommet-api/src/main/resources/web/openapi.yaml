@@ -2553,20 +2553,6 @@ components:
         - regelverkUrl
         - regelverkLenkeNavn
 
-    SanityNokkelinfo:
-      type: object
-      properties:
-        _id:
-          type: string
-        tittel:
-          type: string
-        innhold:
-          type: string
-        hjelpetekst:
-          type: string
-      required:
-        - _id
-
     SanityFaneinnhold:
       type: object
       properties:
