@@ -1,5 +1,5 @@
 import styles from "../skjema/Skjema.module.scss";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { UseMutationResult } from "@tanstack/react-query";
 import { Utkast } from "mulighetsrommet-api-client";
 import { SubmitSkjemaKnapp } from "../skjemaknapper/SubmitSkjemaKnapp";
@@ -23,37 +23,36 @@ export function KnapperadOpprett({
   mutationUtkast,
   type,
 }: PropsOpprett) {
-  const [utkastIdForSletting, setUtkastIdForSletting] = useState<null | string>(
-    null,
-  );
+  const utkastIdRef = useRef<null | string>();
+
+  const [sletteModal, setSletteModal] = useState(false);
+
   const mutationDeleteUtkast = useDeleteUtkast();
   const { refetch } = useUtkast();
 
-  async function slettUtkast() {
-    if (!utkastIdForSletting) throw new Error("Fant ingen avtaleId");
+  useEffect(() => {
+    if (mutationUtkast.isSuccess) {
+      utkastIdRef.current = mutationUtkast.data.id;
+    }
+  }, [mutationUtkast.isSuccess]);
 
-    mutationDeleteUtkast.mutate(utkastIdForSletting!, {
+  async function slettUtkast() {
+    if (!utkastIdRef.current) throw new Error("Fant ingen utkastId");
+
+    mutationDeleteUtkast.mutate(utkastIdRef.current, {
       onSuccess: async () => {
-        setUtkastIdForSletting(null);
+        setSletteModal(false);
         onClose();
         await refetch();
       },
     });
   }
 
-  let utkastId: string | null = null;
-
-  useEffect(() => {
-    if (mutationUtkast.isSuccess) {
-      utkastId = mutationUtkast.data.id;
-    }
-  }, [mutationUtkast.isSuccess]);
-
   return (
     <>
       <div className={styles.knapperad_skjema}>
         <AvbrytKnapp
-          setSlettemodal={() => setUtkastIdForSletting(utkastId)}
+          setSlettemodal={() => setSletteModal(true)}
           dirtyForm={mutationUtkast.isSuccess}
         />
         <SubmitSkjemaKnapp
@@ -63,18 +62,16 @@ export function KnapperadOpprett({
         />
       </div>
 
-      {utkastIdForSletting ? (
-        <SletteModal
-          modalOpen={!!utkastIdForSletting}
-          onClose={() => setUtkastIdForSletting(null)}
-          mutation={mutationDeleteUtkast}
-          handleDelete={slettUtkast}
-          headerText="Ønsker du å avbryte?"
-          headerSubText="Utkastet blir ikke lagret."
-          headerTextError="Kan ikke slette utkastet."
-          avbryt
-        />
-      ) : null}
+      <SletteModal
+        modalOpen={sletteModal}
+        onClose={() => setSletteModal(false)}
+        mutation={mutationDeleteUtkast}
+        handleDelete={slettUtkast}
+        headerText="Ønsker du å avbryte?"
+        headerSubText="Utkastet blir ikke lagret."
+        headerTextError="Kan ikke slette utkastet."
+        avbryt
+      />
     </>
   );
 }

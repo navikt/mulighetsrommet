@@ -32,7 +32,7 @@ export function SubmitSkjemaKnapp({
     >
       {redigeringsmodus
         ? utkastmodus
-          ? //TODO hvis utkastet tilhører en aktiv avtale skal det stå "Lagre endringer"
+          ? //TODO hvis utkastet tilhører en avtale skal det stå "Lagre endringer"
             "Opprett avtale"
           : "Lagre endringer"
         : mutation.isLoading

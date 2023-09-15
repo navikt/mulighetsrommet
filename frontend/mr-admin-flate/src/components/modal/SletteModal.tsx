@@ -74,7 +74,7 @@ const SletteModal = ({
             variant="danger"
             onClick={handleDelete}
             data-testid={dataTestId}
-            type="submit"
+            type="button"
           >
             {avbryt ? "Ja, avbryt" : "Slett"}
           </Button>
