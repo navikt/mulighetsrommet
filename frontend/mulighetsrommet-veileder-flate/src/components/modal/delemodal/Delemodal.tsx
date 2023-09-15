@@ -64,7 +64,7 @@ export function initInitialState(tekster: { deletekst: string; originalHilsen: s
 
 function sySammenBrukerTekst(chattekst: string, tiltaksgjennomforingsnavn: string, brukernavn?: string) {
   return `${chattekst
-    .replace(' <Fornavn>', brukernavn ? ` ${capitalize(brukernavn)}` : '')
+    .replace(' <Fornavn>', brukernavn ? ` ${brukernavn}` : '')
     .replace('<tiltaksnavn>', tiltaksgjennomforingsnavn)}`;
 }
 
