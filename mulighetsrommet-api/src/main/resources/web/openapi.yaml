@@ -2432,10 +2432,6 @@ components:
           type: string
         beskrivelse:
           type: string
-        nokkelinfoKomponenter:
-          type: array
-          items:
-            $ref: "#/components/schemas/SanityNokkelinfo"
         innsatsgruppe:
           $ref: "#/components/schemas/SanityInnsatsgruppe"
         regelverkLenker:
@@ -2536,20 +2532,6 @@ components:
         - _id
         - regelverkUrl
         - regelverkLenkeNavn
-
-    SanityNokkelinfo:
-      type: object
-      properties:
-        _id:
-          type: string
-        tittel:
-          type: string
-        innhold:
-          type: string
-        hjelpetekst:
-          type: string
-      required:
-        - _id
 
     SanityFaneinnhold:
       type: object

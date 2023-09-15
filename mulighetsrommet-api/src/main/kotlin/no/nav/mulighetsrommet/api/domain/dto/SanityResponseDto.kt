@@ -39,13 +39,6 @@ data class RegelverkLenke(
 )
 
 @Serializable
-data class NokkelinfoKomponent(
-    val hjelpetekst: String? = null,
-    val innhold: String? = null,
-    val tittel: String? = null,
-)
-
-@Serializable
 data class Innsatsgruppe(
     val tittel: String? = null,
     val nokkel: String? = null,
@@ -57,8 +50,8 @@ data class SanityTiltakstype(
     val _id: String? = null,
     val tiltakstypeNavn: String? = null,
     val beskrivelse: String? = null,
-    val nokkelinfoKomponenter: List<NokkelinfoKomponent>? = emptyList(),
     val innsatsgruppe: Innsatsgruppe? = null,
+    val regelverkFiler: List<String>? = emptyList(),
     val regelverkLenker: List<RegelverkLenke>? = emptyList(),
     val faneinnhold: Faneinnhold? = null,
     val delingMedBruker: String? = null,
