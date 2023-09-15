@@ -1,4 +1,4 @@
-import { Alert, BodyShort } from '@navikt/ds-react';
+import { Alert, BodyShort, Heading } from '@navikt/ds-react';
 import { SanityKontakinfoTiltaksansvarlige, VeilederflateTiltaksgjennomforing } from 'mulighetsrommet-api-client';
 import { logEvent } from '../../../core/api/logger';
 import styles from './Kontaktinfo.module.scss';
@@ -21,34 +21,34 @@ const NavKontaktpersonInfo = ({ data }: NavKontaktpersonInfoProps) => {
 
   return (
     <div className={styles.tiltaksansvarlig_info}>
-      <BodyShort size="medium" className={styles.header}>
+      <Heading size="small" className={styles.header}>
         Tiltaksansvarlig
-      </BodyShort>
+      </Heading>
+
       {tiltaksansvarlige.map((tiltaksansvarlig: SanityKontakinfoTiltaksansvarlige) => {
         return (
-          <div className={styles.container} key={tiltaksansvarlig.epost}>
+          <div key={tiltaksansvarlig.epost} className={styles.container}>
             <BodyShort className={styles.navn} size="small">
               {tiltaksansvarlig.navn}
             </BodyShort>
-            <div className={styles.infofelt}>
-              <div className={styles.rad}>
-                <BodyShort size="small">Telefon</BodyShort>
-                <BodyShort size="small">{tiltaksansvarlig.telefonnummer}</BodyShort>
-              </div>
-              <div className={styles.rad}>
-                <BodyShort size="small">Epost</BodyShort>
-                <BodyShort size="small">
+
+            <BodyShort size="small">
+              <div className={styles.infofelt}>
+                <div className={styles.kolonne}>
+                  <span>Telefon:</span>
+                  <span>Epost:</span>
+                  <span>Teams:</span>
+                  <span>Enhet:</span>
+                </div>
+
+                <div className={styles.kolonne}>
+                  <span>{tiltaksansvarlig.telefonnummer}</span>
                   <a
                     href={`mailto:${tiltaksansvarlig.epost}`}
                     onClick={() => logEvent('mulighetsrommet.tiltaksansvarlig.epost')}
                   >
                     {tiltaksansvarlig.epost}
                   </a>
-                </BodyShort>
-              </div>
-              <div className={styles.rad}>
-                <BodyShort size="small">Teams</BodyShort>
-                <BodyShort size="small">
                   <a
                     target="_blank"
                     rel="noreferrer"
@@ -57,13 +57,10 @@ const NavKontaktpersonInfo = ({ data }: NavKontaktpersonInfoProps) => {
                   >
                     Kontakt meg på Teams
                   </a>
-                </BodyShort>
+                  <span>{tiltaksansvarlig.enhet}</span>
+                </div>
               </div>
-              <div className={styles.rad}>
-                <BodyShort size="small">Enhet</BodyShort>
-                <BodyShort size="small">{tiltaksansvarlig.enhet}</BodyShort>
-              </div>
-            </div>
+            </BodyShort>
           </div>
         );
       })}
