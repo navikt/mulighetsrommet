@@ -253,7 +253,6 @@ class VeilederflateService(
         apiGjennomforing: TiltaksgjennomforingAdminDto,
         enhetsnummer: String?,
     ): VeilederflateTiltaksgjennomforing {
-        val kontaktpersoner = enhetsnummer?.let { utledKontaktpersonerForEnhet(apiGjennomforing, enhetsnummer) }
         val arrangor = VeilederflateArrangor(
             selskapsnavn = apiGjennomforing.arrangor.navn,
             organisasjonsnummer = apiGjennomforing.arrangor.organisasjonsnummer,
@@ -266,11 +265,15 @@ class VeilederflateService(
                 )
             },
         )
-        val oppstart = apiGjennomforing.oppstart.name.lowercase()
-        val oppstartsdato = apiGjennomforing.startDato
-        val sluttdato = apiGjennomforing.sluttDato
-        val fylke = apiGjennomforing.navRegion?.enhetsnummer
-        val enheter = apiGjennomforing.navEnheter.map { it.enhetsnummer }
+
+        val kontaktpersoner = enhetsnummer
+            ?.let { utledKontaktpersonerForEnhet(apiGjennomforing, enhetsnummer) }
+            ?.ifEmpty { sanityGjennomforing.kontaktinfoTiltaksansvarlige }
+
+        val fylke = apiGjennomforing.navRegion?.enhetsnummer ?: sanityGjennomforing.fylke
+        val enheter = apiGjennomforing.navEnheter
+            .map { it.enhetsnummer }
+            .ifEmpty { sanityGjennomforing.enheter }
 
         return sanityGjennomforing.run {
             VeilederflateTiltaksgjennomforing(
@@ -291,16 +294,16 @@ class VeilederflateService(
                 tiltaksnummer = apiGjennomforing.tiltaksnummer,
                 stengtFra = apiGjennomforing.stengtFra,
                 stengtTil = apiGjennomforing.stengtTil,
-                kontaktinfoTiltaksansvarlige = kontaktpersoner?.ifEmpty { sanityGjennomforing.kontaktinfoTiltaksansvarlige },
-                oppstart = oppstart,
-                oppstartsdato = oppstartsdato,
-                sluttdato = sluttdato,
+                kontaktinfoTiltaksansvarlige = kontaktpersoner,
+                oppstart = apiGjennomforing.oppstart,
+                oppstartsdato = apiGjennomforing.startDato,
+                sluttdato = apiGjennomforing.sluttDato,
                 tilgjengelighet = apiGjennomforing.tilgjengelighet,
                 estimertVentetid = apiGjennomforing.estimertVentetid,
                 arrangor = arrangor,
                 lokasjon = apiGjennomforing.lokasjonArrangor ?: sanityGjennomforing.lokasjon,
-                fylke = fylke ?: sanityGjennomforing.fylke,
-                enheter = enheter.ifEmpty { sanityGjennomforing.enheter },
+                fylke = fylke,
+                enheter = enheter,
                 beskrivelse = beskrivelse,
                 faneinnhold = faneinnhold,
             )

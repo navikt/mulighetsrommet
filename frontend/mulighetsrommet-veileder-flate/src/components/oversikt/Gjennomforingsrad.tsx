@@ -1,7 +1,6 @@
-/* eslint-disable camelcase */
 import classNames from 'classnames';
 import { useAtom } from 'jotai';
-import { VeilederflateTiltaksgjennomforing } from 'mulighetsrommet-api-client';
+import { TiltaksgjennomforingOppstartstype, VeilederflateTiltaksgjennomforing } from 'mulighetsrommet-api-client';
 import { paginationAtom } from '../../core/atoms/atoms';
 import { formaterDato } from '../../utils/Utils';
 import Lenke from '../lenke/Lenke';
@@ -15,11 +14,11 @@ interface Props {
   index: number;
 }
 
-const visOppstartsdato = (oppstart: VeilederflateTiltaksgjennomforing.oppstart, oppstartsdato?: string) => {
+const visOppstartsdato = (oppstart: TiltaksgjennomforingOppstartstype, oppstartsdato?: string) => {
   switch (oppstart) {
-    case 'dato':
+    case TiltaksgjennomforingOppstartstype.FELLES:
       return formaterDato(oppstartsdato!);
-    case 'lopende':
+    case TiltaksgjennomforingOppstartstype.LOPENDE:
       return 'Løpende oppstart';
   }
 };
@@ -45,11 +44,7 @@ export function Gjennomforingsrad({ tiltaksgjennomforing, index }: Props) {
       <Lenke to={`tiltak/${sanityId}#page=${page}`} data-testid="lenke_tiltaksgjennomforing">
         <div className={styles.gjennomforing_container}>
           <div className={classNames(styles.flex, styles.navn)}>
-            <BodyShort
-              size="small"
-              title={navn}
-              className={classNames(styles.truncate, styles.as_link)}
-            >
+            <BodyShort size="small" title={navn} className={classNames(styles.truncate, styles.as_link)}>
               {navn}
             </BodyShort>
             <BodyShort size="small" title={arrangor?.selskapsnavn} className={styles.muted}>

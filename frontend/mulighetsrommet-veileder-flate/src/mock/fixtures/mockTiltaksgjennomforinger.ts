@@ -2,6 +2,7 @@ import {
   Innsatsgruppe,
   SanityInnsatsgruppe,
   Tilgjengelighetsstatus,
+  TiltaksgjennomforingOppstartstype,
   VeilederflateTiltaksgjennomforing,
   VeilederflateTiltakstype,
 } from 'mulighetsrommet-api-client';
@@ -10,7 +11,7 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
   {
     sanityId: 'f4cea25b-c372-4d4c-8106-535ab10cd586',
     navn: 'Avklaring - Fredrikstad',
-    oppstart: VeilederflateTiltaksgjennomforing.oppstart.LOPENDE,
+    oppstart: TiltaksgjennomforingOppstartstype.LOPENDE,
     lokasjon: '1424 SKI',
     tiltakstype: {
       sanityId: 'f9618e97-4510-49e2-b748-29cae84d9019',
@@ -252,7 +253,7 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
   {
     sanityId: '91205ff2-ec72-4a7f-80b8-1c99d8535a06',
     navn: 'Sindres mentorordning med Yoda',
-    oppstart: VeilederflateTiltaksgjennomforing.oppstart.LOPENDE,
+    oppstart: TiltaksgjennomforingOppstartstype.LOPENDE,
     lokasjon: 'Oslo',
     tiltakstype: {
       sanityId: 'ad998fc6-310e-45d4-a056-57732fed87b4',
@@ -453,7 +454,7 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
         'Hei <Fornavn>,   \n\nHar du vurdert utdanning for å få flere muligheter på arbeidsmarkedet?  \n\nDu kan lese mer om tiltaket på www.nav.no/opplaring \n\nEr dette aktuelt for deg? Gi meg tilbakemelding her i dialogen. \nSvaret ditt vil ikke endre din utbetaling fra NAV. \n\nVi holder kontakten!\nHilsen <Veiledernavn> \n',
       arenakode: VeilederflateTiltakstype.arenakode.GRUPPEAMO,
     },
-    oppstart: VeilederflateTiltaksgjennomforing.oppstart.LOPENDE,
+    oppstart: TiltaksgjennomforingOppstartstype.LOPENDE,
     oppstartsdato: '2023-11-01',
     sluttdato: '2023-11-30',
     arrangor: {

@@ -1,5 +1,9 @@
 import { BodyShort, Panel } from '@navikt/ds-react';
-import { VeilederflateTiltaksgjennomforing, VeilederflateTiltakstype } from 'mulighetsrommet-api-client';
+import {
+  TiltaksgjennomforingOppstartstype,
+  VeilederflateTiltaksgjennomforing,
+  VeilederflateTiltakstype,
+} from 'mulighetsrommet-api-client';
 import { formaterDato, utledLopenummerFraTiltaksnummer } from '../../utils/Utils';
 import Kopiknapp from '../kopiknapp/Kopiknapp';
 import Regelverksinfo from './Regelverksinfo';
@@ -97,7 +101,7 @@ const SidemenyDetaljer = ({ tiltaksgjennomforing }: Props) => {
 
         {visDato(tiltakstype, oppstart, oppstartsdato, sluttdato)}
 
-        {(tiltakstype.regelverkLenker) && (
+        {tiltakstype.regelverkLenker && (
           <div className={styles.rad}>
             <BodyShort size="small" className={styles.tittel}>
               Regelverk
@@ -111,7 +115,9 @@ const SidemenyDetaljer = ({ tiltaksgjennomforing }: Props) => {
 };
 
 function resolveOppstart({ oppstart, oppstartsdato }: VeilederflateTiltaksgjennomforing) {
-  return oppstart === 'dato' && oppstartsdato ? formaterDato(oppstartsdato) : 'Løpende';
+  return oppstart === TiltaksgjennomforingOppstartstype.FELLES && oppstartsdato
+    ? formaterDato(oppstartsdato)
+    : 'Løpende';
 }
 
 export default SidemenyDetaljer;

@@ -1997,7 +1997,7 @@ components:
       enum:
         - LOPENDE
         - FELLES
-        -
+
     Opphav:
       type: string
       enum:
@@ -2491,10 +2491,7 @@ components:
         lokasjon:
           type: string
         oppstart:
-          type: string
-          enum:
-            - dato
-            - lopende
+          $ref: "#/components/schemas/TiltaksgjennomforingOppstartstype"
         oppstartsdato:
           type: string
         sluttdato:
