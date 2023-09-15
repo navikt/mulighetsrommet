@@ -15,7 +15,7 @@ export function useHentDeltMedBrukerStatus(sanityId: string | undefined, norskId
         fnr: norskIdent,
         sanityId: sanityId!!,
       }),
-    { enabled: !erPreview || !!sanityId }
+    { enabled: !erPreview && !!sanityId }
   );
 
   async function lagreVeilederHarDeltTiltakMedBruker(dialogId: string, sanityId: string) {

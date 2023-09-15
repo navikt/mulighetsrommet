@@ -1,5 +1,5 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
-import { ViewTiltaksgjennomforingDetaljerContainer } from './views/tiltaksgjennomforing-detaljer/viewTiltaksgjennomforingDetaljerContainer';
+import { ViewTiltaksgjennomforingDetaljerContainer } from './views/tiltaksgjennomforing-detaljer/ViewTiltaksgjennomforingDetaljerContainer';
 import ViewTiltaksgjennomforingOversikt from './views/tiltaksgjennomforing-oversikt/ViewTiltaksgjennomforingOversikt';
 
 const RoutesConfig = () => {

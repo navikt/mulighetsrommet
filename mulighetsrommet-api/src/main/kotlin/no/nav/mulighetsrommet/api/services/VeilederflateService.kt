@@ -24,7 +24,7 @@ class VeilederflateService(
     private val tiltakstypeService: TiltakstypeService,
     private val navEnhetService: NavEnhetService,
 ) {
-    private val sanityCache: Cache<String, SanityResponse> = Caffeine.newBuilder()
+    private val sanityCache: Cache<String, SanityResponse.Result> = Caffeine.newBuilder()
         .expireAfterWrite(30, TimeUnit.MINUTES)
         .maximumSize(500)
         .recordStats()
@@ -42,24 +42,75 @@ class VeilederflateService(
         cacheMetrics.addCache("sanityCache", sanityCache)
     }
 
-    suspend fun hentInnsatsgrupper(): SanityResponse {
-        return CacheUtils.tryCacheFirstNotNull(sanityCache, "innsatsgrupper") {
-            sanityClient.query(
+    suspend fun hentInnsatsgrupper(): List<VeilederflateInnsatsgruppe> {
+        val result = CacheUtils.tryCacheFirstNotNull(sanityCache, "innsatsgrupper") {
+            val result = sanityClient.query(
                 """
                 *[_type == "innsatsgruppe"] | order(order asc)
                 """.trimIndent(),
             )
+            when (result) {
+                is SanityResponse.Result -> result
+                is SanityResponse.Error -> throw Exception(result.error.toString())
+            }
         }
+
+        return result.decode<List<SanityInnsatsgruppe>>()
+            .map {
+                VeilederflateInnsatsgruppe(
+                    sanityId = it._id,
+                    tittel = it.tittel,
+                    nokkel = it.nokkel,
+                    beskrivelse = it.beskrivelse,
+                    order = it.order,
+                )
+            }
     }
 
-    suspend fun hentTiltakstyper(): SanityResponse {
-        return CacheUtils.tryCacheFirstNotNull(sanityCache, "tiltakstyper") {
-            sanityClient.query(
+    suspend fun hentTiltakstyper(): List<VeilederflateTiltakstype> {
+        val result = CacheUtils.tryCacheFirstNotNull(sanityCache, "tiltakstyper") {
+            val result = sanityClient.query(
                 """
-                    *[_type == "tiltakstype"]
+                    *[_type == "tiltakstype"] {
+                      _id,
+                      tiltakstypeNavn,
+                      beskrivelse,
+                      nokkelinfoKomponenter,
+                      innsatsgruppe->,
+                      regelverkLenker[]->,
+                      faneinnhold {
+                        forHvemInfoboks,
+                        forHvem,
+                        detaljerOgInnholdInfoboks,
+                        detaljerOgInnhold,
+                        pameldingOgVarighetInfoboks,
+                        pameldingOgVarighet,
+                      },
+                      delingMedBruker,
+                    }
                 """.trimIndent(),
             )
+
+            when (result) {
+                is SanityResponse.Result -> result
+                is SanityResponse.Error -> throw Exception(result.error.toString())
+            }
         }
+
+        return result.decode<List<SanityTiltakstype>>()
+            .map {
+                val tiltakstype = tiltakstypeService.getBySanityId(UUID.fromString(it._id))
+                VeilederflateTiltakstype(
+                    sanityId = it._id,
+                    navn = it.tiltakstypeNavn,
+                    beskrivelse = it.beskrivelse,
+                    innsatsgruppe = it.innsatsgruppe,
+                    regelverkLenker = it.regelverkLenker,
+                    faneinnhold = it.faneinnhold,
+                    delingMedBruker = it.delingMedBruker,
+                    arenakode = tiltakstype?.arenaKode,
+                )
+            }
     }
 
     suspend fun hentLokasjonerForBrukersEnhetOgFylke(fnr: String, accessToken: String): List<String> {
@@ -92,11 +143,8 @@ class VeilederflateService(
               tiltaksgjennomforingNavn,
               "tiltaksnummer": tiltaksnummer.current,
               lokasjon,
-              fylke,
-              enheter,
-              kontaktinfoArrangor->{
-                selskapsnavn
-              },
+              "fylke": fylke->nummer.current,
+              "enheter": enheter[]->nummer.current,
             }
         """.trimIndent()
 
@@ -127,13 +175,13 @@ class VeilederflateService(
             .filter { filter.lokasjoner.isEmpty() || filter.lokasjoner.contains(it.lokasjon) }
             .filter {
                 if (it.enheter.isNullOrEmpty()) {
-                    it.fylke?._ref == "enhet.fylke.$fylkeEnhetsnummer"
+                    it.fylke == fylkeEnhetsnummer
                 } else {
-                    it.enheter.any { enhet -> enhet._ref == "enhet.lokal.$enhetsnummer" }
+                    it.enheter.contains(enhetsnummer)
                 }
             }
             .filter {
-                it.tilgjengelighetsstatus !== TiltaksgjennomforingTilgjengelighetsstatus.STENGT
+                it.tilgjengelighet !== TiltaksgjennomforingTilgjengelighetsstatus.STENGT
             }
     }
 
@@ -200,7 +248,6 @@ class VeilederflateService(
                 pameldingOgVarighetInfoboks,
                 pameldingOgVarighet,
               },
-              kontaktinfoArrangor->,
             }[0]
         """.trimIndent()
 
@@ -229,11 +276,11 @@ class VeilederflateService(
 
         return sanityGjennomforing.run {
             VeilederflateTiltaksgjennomforing(
-                _id = _id,
+                sanityId = _id,
                 tiltakstype = tiltakstype?.run {
                     VeilederflateTiltakstype(
-                        _id = _id,
-                        tiltakstypeNavn = tiltakstypeNavn,
+                        sanityId = _id,
+                        navn = tiltakstypeNavn,
                         beskrivelse = beskrivelse,
                         innsatsgruppe = innsatsgruppe,
                         regelverkLenker = regelverkLenker,
@@ -242,7 +289,7 @@ class VeilederflateService(
                         arenakode = arenaKode,
                     )
                 },
-                tiltaksgjennomforingNavn = tiltaksgjennomforingNavn,
+                navn = tiltaksgjennomforingNavn,
                 lokasjon = lokasjon,
                 fylke = fylke,
                 enheter = enheter,
@@ -257,7 +304,6 @@ class VeilederflateService(
         apiGjennomforing: TiltaksgjennomforingAdminDto,
         enhetsnummer: String?,
     ): VeilederflateTiltaksgjennomforing {
-        val kontaktpersoner = enhetsnummer?.let { utledKontaktpersonerForEnhet(apiGjennomforing, enhetsnummer) }
         val arrangor = VeilederflateArrangor(
             selskapsnavn = apiGjennomforing.arrangor.navn,
             organisasjonsnummer = apiGjennomforing.arrangor.organisasjonsnummer,
@@ -270,19 +316,23 @@ class VeilederflateService(
                 )
             },
         )
-        val oppstart = apiGjennomforing.oppstart.name.lowercase()
-        val oppstartsdato = apiGjennomforing.startDato
-        val sluttdato = apiGjennomforing.sluttDato
-        val fylke = apiGjennomforing.navRegion?.let { FylkeRef(_ref = "enhet.fylke.${it.enhetsnummer}") }
-        val enheter = apiGjennomforing.navEnheter.map { EnhetRef(_ref = "enhet.lokal.${it.enhetsnummer}") }
+
+        val kontaktpersoner = enhetsnummer
+            ?.let { utledKontaktpersonerForEnhet(apiGjennomforing, enhetsnummer) }
+            ?.ifEmpty { sanityGjennomforing.kontaktinfoTiltaksansvarlige }
+
+        val fylke = apiGjennomforing.navRegion?.enhetsnummer ?: sanityGjennomforing.fylke
+        val enheter = apiGjennomforing.navEnheter
+            .map { it.enhetsnummer }
+            .ifEmpty { sanityGjennomforing.enheter }
 
         return sanityGjennomforing.run {
             VeilederflateTiltaksgjennomforing(
-                _id = _id,
+                sanityId = _id,
                 tiltakstype = tiltakstype?.run {
                     VeilederflateTiltakstype(
-                        _id = _id,
-                        tiltakstypeNavn = tiltakstypeNavn,
+                        sanityId = _id,
+                        navn = tiltakstypeNavn,
                         beskrivelse = beskrivelse,
                         innsatsgruppe = innsatsgruppe,
                         regelverkLenker = regelverkLenker,
@@ -291,20 +341,20 @@ class VeilederflateService(
                         arenakode = apiGjennomforing.tiltakstype.arenaKode,
                     )
                 },
-                tiltaksgjennomforingNavn = tiltaksgjennomforingNavn,
+                navn = tiltaksgjennomforingNavn,
                 tiltaksnummer = apiGjennomforing.tiltaksnummer,
                 stengtFra = apiGjennomforing.stengtFra,
                 stengtTil = apiGjennomforing.stengtTil,
-                kontaktinfoTiltaksansvarlige = kontaktpersoner?.ifEmpty { sanityGjennomforing.kontaktinfoTiltaksansvarlige },
-                oppstart = oppstart,
-                oppstartsdato = oppstartsdato,
-                sluttdato = sluttdato,
-                tilgjengelighetsstatus = apiGjennomforing.tilgjengelighet,
-                estimert_ventetid = apiGjennomforing.estimertVentetid,
-                kontaktinfoArrangor = arrangor,
+                kontaktinfoTiltaksansvarlige = kontaktpersoner,
+                oppstart = apiGjennomforing.oppstart,
+                oppstartsdato = apiGjennomforing.startDato,
+                sluttdato = apiGjennomforing.sluttDato,
+                tilgjengelighet = apiGjennomforing.tilgjengelighet,
+                estimertVentetid = apiGjennomforing.estimertVentetid,
+                arrangor = arrangor,
                 lokasjon = apiGjennomforing.lokasjonArrangor ?: sanityGjennomforing.lokasjon,
-                fylke = fylke ?: sanityGjennomforing.fylke,
-                enheter = enheter.ifEmpty { sanityGjennomforing.enheter },
+                fylke = fylke,
+                enheter = enheter,
                 beskrivelse = beskrivelse,
                 faneinnhold = faneinnhold,
             )

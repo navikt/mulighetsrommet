@@ -23,7 +23,6 @@ export const logDelMedbrukerEvent = (
 interface DelemodalProps {
   modalOpen: boolean;
   lukkModal: () => void;
-  tiltaksgjennomforingsnavn: string;
   brukernavn?: string;
   chattekst: string;
   veiledernavn?: string;
@@ -79,7 +78,6 @@ function sySammenHilsenTekst(veiledernavn?: string) {
 const Delemodal = ({
   modalOpen,
   lukkModal,
-  tiltaksgjennomforingsnavn,
   brukernavn,
   chattekst,
   veiledernavn,
@@ -88,7 +86,7 @@ const Delemodal = ({
   brukerdata,
   harDeltMedBruker,
 }: DelemodalProps) => {
-  const deletekst = sySammenBrukerTekst(chattekst, tiltaksgjennomforingsnavn, brukernavn);
+  const deletekst = sySammenBrukerTekst(chattekst, tiltaksgjennomforing.navn, brukernavn);
   const originalHilsen = sySammenHilsenTekst(veiledernavn);
   const [state, dispatch] = useReducer(reducer, { deletekst, originalHilsen }, initInitialState);
 
@@ -99,8 +97,8 @@ const Delemodal = ({
   const manuellStatus = !brukerdata?.manuellStatus;
   const feilmodal = manuellOppfolging || krrStatusErReservert || manuellStatus || kanIkkeDeleMedBruker;
   const senderTilDialogen = state.sendtStatus === 'SENDER';
-  const tiltaksgjennomforingId = tiltaksgjennomforing?._id.toString();
-  const { lagreVeilederHarDeltTiltakMedBruker } = useHentDeltMedBrukerStatus(tiltaksgjennomforing?._id, brukerFnr);
+  const tiltaksgjennomforingSanityId = tiltaksgjennomforing.sanityId;
+  const { lagreVeilederHarDeltTiltakMedBruker } = useHentDeltMedBrukerStatus(tiltaksgjennomforingSanityId, brukerFnr);
   const MAKS_ANTALL_TEGN_HILSEN = 300;
 
   const clickCancel = (log = true) => {
@@ -122,15 +120,15 @@ const Delemodal = ({
     logDelMedbrukerEvent('Delte med bruker');
 
     dispatch({ type: 'Send melding' });
-    const overskrift = `Tiltak gjennom NAV: ${tiltaksgjennomforingsnavn}`;
+    const overskrift = `Tiltak gjennom NAV: ${tiltaksgjennomforing.navn}`;
     const tekst = sySammenDeletekst();
     try {
       const res = await mulighetsrommetClient.dialogen.delMedDialogen({
         fnr: brukerFnr,
         requestBody: { overskrift, tekst },
       });
-      if (tiltaksgjennomforingId) {
-        await lagreVeilederHarDeltTiltakMedBruker(res.id, tiltaksgjennomforingId);
+      if (tiltaksgjennomforingSanityId) {
+        await lagreVeilederHarDeltTiltakMedBruker(res.id, tiltaksgjennomforingSanityId);
       }
       dispatch({ type: 'Sendt ok', payload: res.id });
     } catch {
@@ -155,7 +153,7 @@ const Delemodal = ({
           <Modal.Header closeButton data-testid="modal_header">
             <Heading size="xsmall">Del med bruker</Heading>
             <Heading size="large" level="1" className={delemodalStyles.heading}>
-              {'Tiltak gjennom NAV: ' + tiltaksgjennomforingsnavn}
+              {'Tiltak gjennom NAV: ' + tiltaksgjennomforing.navn}
             </Heading>
           </Modal.Header>
           <Modal.Body>

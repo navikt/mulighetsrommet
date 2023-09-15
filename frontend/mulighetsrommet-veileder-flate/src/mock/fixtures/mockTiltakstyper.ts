@@ -1,8 +1,8 @@
-import { Innsatsgruppe, SanityInnsatsgruppe, VeilederflateTiltakstype } from 'mulighetsrommet-api-client';
+import { Innsatsgruppe, VeilederflateInnsatsgruppe, VeilederflateTiltakstype } from 'mulighetsrommet-api-client';
 
 export const mockTiltakstyper: VeilederflateTiltakstype[] = [
   {
-    _id: '02509279-0a0f-4bd6-b506-f40111e4ba14',
+    sanityId: '02509279-0a0f-4bd6-b506-f40111e4ba14',
     regelverkLenker: [
       {
         _id: '123',
@@ -157,19 +157,20 @@ export const mockTiltakstyper: VeilederflateTiltakstype[] = [
       'Hei <Fornavn>, \n\nVi har nå et arbeidsmarkedstiltak som jeg tenker kan passe deg godt. Det heter <tiltaksnavn> og  er et tilbud for deg som får uføretrygd. Du jobber i en skjermet bedrift med arbeidsoppgaver som er tilpasset deg. Du kan også jobbe i en ordinær bedrift.\n\nDu kan lese mer om tiltaket på www.nav.no/varig-tilrettelagt-arbeid',
     beskrivelse:
       'Varig tilrettelagt arbeid (VTA-S) skal gi brukeren arbeid med oppgaver tilpasset han eller hennes arbeidsevne, og tilby et individuelt tilpasset opplegg.',
-    tiltakstypeNavn: 'VTA - Varig tilrettelagt arbeid',
+    navn: 'VTA - Varig tilrettelagt arbeid',
     innsatsgruppe: {
-      _id: '123',
+      sanityId: '4193fdbe-78db-429b-9165-45abd5b3a224',
       beskrivelse: 'Varig tilpasset innsats',
       nokkel: Innsatsgruppe.VARIG_TILPASSET_INNSATS,
-      tittel: SanityInnsatsgruppe.tittel.VARIG_TILPASSET_INNSATS,
+      tittel: VeilederflateInnsatsgruppe.tittel.VARIG_TILPASSET_INNSATS,
+      order: 3,
     },
   },
   {
-    _id: '222a0065-9777-4e09-b2cf-4f48759f86e3',
+    sanityId: '222a0065-9777-4e09-b2cf-4f48759f86e3',
     beskrivelse:
       'Opplæringstiltak i form av Fag- og yrkesopplæring (jf. tiltaksforskriften § 7-2 b) er opplæring som fører frem mot fag- eller svennebrev, praksisbrev eller kompetansebevis som lærekandidat. \n\nOpplæringen skal bidra til at arbeidssøkere kvalifiseres til ledige jobber. ',
-    tiltakstypeNavn: 'Opplæring - Enkeltplass Fag- og yrkesopplæring',
+    navn: 'Opplæring - Enkeltplass Fag- og yrkesopplæring',
     faneinnhold: {
       forHvem: [
         {
@@ -269,20 +270,22 @@ export const mockTiltakstyper: VeilederflateTiltakstype[] = [
       ],
     },
     innsatsgruppe: {
-      _id: '123',
+      sanityId: '48a20a99-11d7-42ec-ba92-2245b7d88fa7',
       beskrivelse: 'Situasjonsbestemt innsats',
       nokkel: Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
-      tittel: SanityInnsatsgruppe.tittel.SITUASJONSBESTEMT_INNSATS,
+      tittel: VeilederflateInnsatsgruppe.tittel.SITUASJONSBESTEMT_INNSATS,
+      order: 1,
     },
   },
   {
     innsatsgruppe: {
-      _id: '123',
-      beskrivelse: 'Spesielt tilpasset innsats',
+      sanityId: '8dcfe56e-0018-48dd-a9f5-817f6aec0b0d',
+      beskrivelse: 'Spesielt tilpasset innsats ',
       nokkel: Innsatsgruppe.SPESIELT_TILPASSET_INNSATS,
-      tittel: SanityInnsatsgruppe.tittel.SPESIELT_TILPASSET_INNSATS,
+      tittel: VeilederflateInnsatsgruppe.tittel.SPESIELT_TILPASSET_INNSATS,
+      order: 2,
     },
-    _id: '29c3d3cb-ffbf-4c22-8ffc-fea5d7f6c822',
+    sanityId: '29c3d3cb-ffbf-4c22-8ffc-fea5d7f6c822',
     delingMedBruker:
       'Hei <Fornavn>, \n\nVi har nå et arbeidsmarkedstiltak som jeg tenker kan passe deg godt. Det heter <tiltaksnavn> og er et tilbud for deg som har helseplager eller sosiale problemer.\n\nTiltaket blir tilpasset behovet ditt ut fra mulighetene dine på arbeidsmarkedet, og kan blant annet inneholde:\n- motivasjons- og mestringsaktiviteter\n- individuelt treningsopplegg med veiledning\n- arbeidsutprøving i trygge omgivelser\n- veiledning i livsstil\n\nDu kan lese mer om kurset på www.nav.no/arbeidsrettet-rehabilitering ',
     regelverkLenker: [
@@ -299,7 +302,7 @@ export const mockTiltakstyper: VeilederflateTiltakstype[] = [
     ],
     beskrivelse:
       'Arbeidsrettet rehabilitering skal styrke den enkeltes arbeidsevne og bidra til mestring av helserelaterte og sosiale problemer som hindrer deltakelse i arbeidslivet. Målet med tiltaket er at deltakeren skal komme ut i eller forbli i arbeid, og passer spesielt godt for sykemeldte ',
-    tiltakstypeNavn: 'Arbeidsrettet rehabilitering',
+    navn: 'Arbeidsrettet rehabilitering',
     faneinnhold: {
       pameldingOgVarighet: [
         {
@@ -536,7 +539,7 @@ export const mockTiltakstyper: VeilederflateTiltakstype[] = [
     },
   },
   {
-    _id: '31e72dd8-ad05-4e81-a7f9-fd4c8f295864',
+    sanityId: '31e72dd8-ad05-4e81-a7f9-fd4c8f295864',
     delingMedBruker:
       'Hei <Fornavn>, \n\nVi har nå et arbeidsmarkedstiltak som jeg tenker kan passe deg godt. Det heter <tiltaksnavn> og er et kurs for de som er registrert som arbeidssøker hos NAV. \n\nJobbklubb er et kortvarig tiltak for deg som søker jobb. Når du deltar på jobbklubb, får du støtte og hjelp til å orientere deg på arbeidsmarkedet og være en aktiv jobbsøker.\n\nDu kan lese mer om kurset på www.nav.no/jobbklubb',
     regelverkLenker: [
@@ -802,27 +805,29 @@ export const mockTiltakstyper: VeilederflateTiltakstype[] = [
       ],
     },
     innsatsgruppe: {
-      _id: '123',
+      sanityId: '642a12cf-f32e-42a5-a079-0601b7a14ee8',
       beskrivelse: 'Standardinnsats',
       nokkel: Innsatsgruppe.STANDARD_INNSATS,
-      tittel: SanityInnsatsgruppe.tittel.STANDARD_INNSATS,
+      tittel: VeilederflateInnsatsgruppe.tittel.STANDARD_INNSATS,
+      order: 0,
     },
     beskrivelse:
       'Jobbklubb er et kortvarig tiltak for de som søker jobb. Ved deltagelse på jobbklubb får brukeren støtte og hjelp til å orientere seg på arbeidsmarkedet og være en aktiv jobbsøker.',
-    tiltakstypeNavn: 'Jobbklubb',
+    navn: 'Jobbklubb',
   },
   {
     innsatsgruppe: {
-      _id: '123',
+      sanityId: '642a12cf-f32e-42a5-a079-0601b7a14ee8',
       beskrivelse: 'Standardinnsats',
       nokkel: Innsatsgruppe.STANDARD_INNSATS,
-      tittel: SanityInnsatsgruppe.tittel.STANDARD_INNSATS,
+      tittel: VeilederflateInnsatsgruppe.tittel.STANDARD_INNSATS,
+      order: 0,
     },
     delingMedBruker:
       'Hei <Fornavn>, \n\nVi har nå et kurs som jeg tenker kan passe deg godt. Det heter <tiltaksnavn>, og er et heldigitalt jobbsøkings- og karriereveiledningskurs.\n\nMålet er at du skal komme i jobb. Du \n- trener på jobbintervju\n- lærer hvordan skrive CV og jobbsøknad\n- får individuell karriereveileding\n- lærer om arbeidsmarkedet og hvor du finner ledige jobber\n- deltar på gruppearbeid og deler erfaringer med andre arbeidssøkere\n- får hjelp til å søke jobber\n\nDu kan lese mer om kurset  på www.nav.no/digital-jobbklubb ',
     beskrivelse:
       'Digital oppfølgingstiltak er et kortvarig nettbasert kurs som skal gi  karriereveiledning, jobbsøkningsbistand og personlig oppfølging med egen rådgiver. Målet er at tiltaksdeltaker gjennom veiledning og et individuelt tilpasset opplegg  skal bli selvforsørget. ',
-    tiltakstypeNavn: 'Digitalt oppfølgingstiltak for arbeidsledige ("digital jobbklubb")',
+    navn: 'Digitalt oppfølgingstiltak for arbeidsledige ("digital jobbklubb")',
     faneinnhold: {
       forHvemInfoboks:
         'Avtalen med AS3 er sagt opp, så brukere fra Oslo. Øst-Viken, Vest-Viken og Innlandet har ikke lenger tilgang til Digital jobbklubb',
@@ -1283,8 +1288,7 @@ export const mockTiltakstyper: VeilederflateTiltakstype[] = [
         },
       ],
     },
-
-    _id: '3526de0d-ad4c-4b81-b072-a13b3a4b4ed3',
+    sanityId: '3526de0d-ad4c-4b81-b072-a13b3a4b4ed3',
     regelverkLenker: [
       {
         _id: '123',
@@ -1313,7 +1317,7 @@ export const mockTiltakstyper: VeilederflateTiltakstype[] = [
     ],
     beskrivelse:
       'Opplæringstiltak i form av fagskole (høyere yrkesfaglig utdanning - jf. tiltaksforskriften § 7-2 b) skal bidra til at arbeidssøkere kvalifiseres til ledige jobber. \n\nFagskole er yrkesfaglig utdanning på nivået over videregående opplæring.',
-    tiltakstypeNavn: 'Opplæring - Fagskole (høyere yrkesfaglig utdanning)',
+    navn: 'Opplæring - Fagskole (høyere yrkesfaglig utdanning)',
     faneinnhold: {
       forHvem: [
         {
@@ -1398,12 +1402,13 @@ export const mockTiltakstyper: VeilederflateTiltakstype[] = [
     },
 
     innsatsgruppe: {
-      _id: '123',
+      sanityId: '48a20a99-11d7-42ec-ba92-2245b7d88fa7',
       beskrivelse: 'Situasjonsbestemt innsats',
       nokkel: Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
-      tittel: SanityInnsatsgruppe.tittel.SITUASJONSBESTEMT_INNSATS,
+      tittel: VeilederflateInnsatsgruppe.tittel.SITUASJONSBESTEMT_INNSATS,
+      order: 1,
     },
-    _id: '50878ad5-90d0-496d-a0d0-a53091800760',
+    sanityId: '50878ad5-90d0-496d-a0d0-a53091800760',
   },
   {
     faneinnhold: {
@@ -1700,16 +1705,16 @@ export const mockTiltakstyper: VeilederflateTiltakstype[] = [
     },
 
     innsatsgruppe: {
-      _id: '123',
+      sanityId: '48a20a99-11d7-42ec-ba92-2245b7d88fa7',
       beskrivelse: 'Situasjonsbestemt innsats',
       nokkel: Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
-      tittel: SanityInnsatsgruppe.tittel.SITUASJONSBESTEMT_INNSATS,
+      tittel: VeilederflateInnsatsgruppe.tittel.SITUASJONSBESTEMT_INNSATS,
+      order: 1,
     },
     delingMedBruker:
       'Hei <Fornavn>, \n\nVi har nå et arbeidsmarkedstiltak som jeg tenker kan passe deg godt. Det heter <tiltaksnavn>  og vil tilpasses dine behov for støtte for å skaffe eller beholde en jobb.\n\nDu kan blant annet få veiledning, råd og bistand til\n- jobbsøking og karriereveiledning\n- tilpasning og tilrettelegging av arbeidet og arbeidssituasjonen\n- praktiske oppgaver knyttet til arbeid\n- opplæring i sosiale og arbeidsrelaterte ferdigheter i arbeidslivet\n\nDu kan lese mer om kurset på www.nav.no/oppfolging',
-    tiltakstypeNavn: 'Oppfølging',
-
-    _id: '5ac48c03-1f4c-4d4b-b862-050caca92080',
+    navn: 'Oppfølging',
+    sanityId: '5ac48c03-1f4c-4d4b-b862-050caca92080',
     regelverkLenker: [
       {
         _id: '123',
@@ -1742,7 +1747,7 @@ export const mockTiltakstyper: VeilederflateTiltakstype[] = [
         regelverkUrl: 'https://www.google.no',
       },
     ],
-    tiltakstypeNavn: 'Varig lønnstilskudd',
+    navn: 'Varig lønnstilskudd',
     faneinnhold: {
       forHvemInfoboks:
         'Arbeidsgiver kan ikke motta lønnstilskudd for lærlinger. Dette ble stanset i juli 2017 og gjelder til annet blir bestemt',
@@ -1901,12 +1906,13 @@ export const mockTiltakstyper: VeilederflateTiltakstype[] = [
     },
 
     innsatsgruppe: {
-      _id: '123',
+      sanityId: '4193fdbe-78db-429b-9165-45abd5b3a224',
       beskrivelse: 'Varig tilpasset innsats',
       nokkel: Innsatsgruppe.VARIG_TILPASSET_INNSATS,
-      tittel: SanityInnsatsgruppe.tittel.VARIG_TILPASSET_INNSATS,
+      tittel: VeilederflateInnsatsgruppe.tittel.VARIG_TILPASSET_INNSATS,
+      order: 3,
     },
-    _id: '6de22004-9fb8-4c84-9b75-dc8132a78cd2',
+    sanityId: '6de22004-9fb8-4c84-9b75-dc8132a78cd2',
   },
   {
     faneinnhold: {
@@ -1962,16 +1968,16 @@ export const mockTiltakstyper: VeilederflateTiltakstype[] = [
       ],
     },
     innsatsgruppe: {
-      _id: '123',
+      sanityId: '48a20a99-11d7-42ec-ba92-2245b7d88fa7',
       beskrivelse: 'Situasjonsbestemt innsats',
       nokkel: Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
-      tittel: SanityInnsatsgruppe.tittel.SITUASJONSBESTEMT_INNSATS,
+      tittel: VeilederflateInnsatsgruppe.tittel.SITUASJONSBESTEMT_INNSATS,
+      order: 1,
     },
     delingMedBruker:
       'Hei <Fornavn>, \n\nVi har nå et opplæringstiltak som jeg tenker kan passe deg godt. Det heter <tiltaksnavn>, og hensikten med tiltaket er å kvalifisere deg for ledige jobber.\n\nDu kan lese mer om tiltaket på www.nav.no/opplaring',
-    tiltakstypeNavn: 'Opplæring - Gruppe Fag- og yrkesopplæring',
-
-    _id: '7f353dcd-37c2-42f8-bab6-ac2a60669839',
+    navn: 'Opplæring - Gruppe Fag- og yrkesopplæring',
+    sanityId: '7f353dcd-37c2-42f8-bab6-ac2a60669839',
     beskrivelse:
       'Opplæringstiltak i form av Gruppe Fag- og yrkesopplæring (jf. tiltaksforskriften § 7-2 b) skal bidra til at arbeidssøkere kvalifiseres til ledige jobber. ',
   },
@@ -2013,10 +2019,11 @@ export const mockTiltakstyper: VeilederflateTiltakstype[] = [
         'Tiltaket er rettet mot personer som mottar eller i nær fremtid ventes å få innvilget uføretrygd, og som har behov for spesiell tilrettelegging og tett oppfølging. ',
     },
     innsatsgruppe: {
-      _id: '123',
+      sanityId: '4193fdbe-78db-429b-9165-45abd5b3a224',
       beskrivelse: 'Varig tilpasset innsats',
       nokkel: Innsatsgruppe.VARIG_TILPASSET_INNSATS,
-      tittel: SanityInnsatsgruppe.tittel.VARIG_TILPASSET_INNSATS,
+      tittel: VeilederflateInnsatsgruppe.tittel.VARIG_TILPASSET_INNSATS,
+      order: 3,
     },
     regelverkLenker: [
       {
@@ -2030,9 +2037,9 @@ export const mockTiltakstyper: VeilederflateTiltakstype[] = [
         regelverkUrl: 'https://www.google.no',
       },
     ],
-    tiltakstypeNavn: 'VTA-O - Varig tilrettelagt arbeid i ordinær virksomhet',
+    navn: 'VTA-O - Varig tilrettelagt arbeid i ordinær virksomhet',
 
-    _id: '8d8abebd-3617-494a-a687-d44810e0a7ee',
+    sanityId: '8d8abebd-3617-494a-a687-d44810e0a7ee',
     beskrivelse: 'VTA-O er et tiltak som skal gi brukeren arbeid med oppgaver tilpasset den enkeltes arbeidsevne.',
   },
   {
@@ -2230,17 +2237,18 @@ export const mockTiltakstyper: VeilederflateTiltakstype[] = [
     },
 
     innsatsgruppe: {
-      _id: '123',
+      sanityId: '48a20a99-11d7-42ec-ba92-2245b7d88fa7',
       beskrivelse: 'Situasjonsbestemt innsats',
       nokkel: Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
-      tittel: SanityInnsatsgruppe.tittel.SITUASJONSBESTEMT_INNSATS,
+      tittel: VeilederflateInnsatsgruppe.tittel.SITUASJONSBESTEMT_INNSATS,
+      order: 1,
     },
-    _id: 'a97fd87c-d7c1-49af-b3fb-cf5e5c10522a',
+    sanityId: 'a97fd87c-d7c1-49af-b3fb-cf5e5c10522a',
     delingMedBruker:
       'Hei <Fornavn>,   \n\nVi har et tilbud til personer som har behov for hjelp med å få eller beholde en fast jobb. Det heter <tiltaksnavn>, og er en støtteordning hvor NAV dekker en del av lønnen til en arbeidstaker i en periode.\n\nMålet er å hjelpe flere med å få eller beholde en fast jobb.  \n\nDu blir ansatt med vanlig lønn i en hel- eller deltidsstilling, mens arbeidsgiveren får et tilskudd til lønnen din fra NAV.  \n\nDu kan lese mer om tilskuddet på https://www.nav.no/midlertidig-lonnstilskudd \n',
     beskrivelse:
       'Lønnstilskudd skal gi bistand til tiltaksdeltakere slik at de skaffer seg og/eller beholder, lønnet arbeid. Målet er at tiltaksdeltaker i størst mulig grad skal bli selvforsørget med en varig tilknytning til arbeidslivet.',
-    tiltakstypeNavn: 'Midlertidig lønnstilskudd',
+    navn: 'Midlertidig lønnstilskudd',
   },
   {
     faneinnhold: {
@@ -2329,15 +2337,16 @@ export const mockTiltakstyper: VeilederflateTiltakstype[] = [
     },
     beskrivelse:
       'Mentor skal gi nødvendig bistand til å kunne gjennomføre arbeidsmarkedstiltak, eller for å kunne få eller beholde lønnet arbeid i en ordinær bedrift.',
-    tiltakstypeNavn: 'Mentor',
+    navn: 'Mentor',
 
     innsatsgruppe: {
-      _id: '123',
+      sanityId: '48a20a99-11d7-42ec-ba92-2245b7d88fa7',
       beskrivelse: 'Situasjonsbestemt innsats',
       nokkel: Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
-      tittel: SanityInnsatsgruppe.tittel.SITUASJONSBESTEMT_INNSATS,
+      tittel: VeilederflateInnsatsgruppe.tittel.SITUASJONSBESTEMT_INNSATS,
+      order: 1,
     },
-    _id: 'ad998fc6-310e-45d4-a056-57732fed87b4',
+    sanityId: 'ad998fc6-310e-45d4-a056-57732fed87b4',
     regelverkLenker: [
       {
         _id: '123',
@@ -2353,12 +2362,13 @@ export const mockTiltakstyper: VeilederflateTiltakstype[] = [
   },
   {
     innsatsgruppe: {
-      _id: '123',
+      sanityId: '48a20a99-11d7-42ec-ba92-2245b7d88fa7',
       beskrivelse: 'Situasjonsbestemt innsats',
       nokkel: Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
-      tittel: SanityInnsatsgruppe.tittel.SITUASJONSBESTEMT_INNSATS,
+      tittel: VeilederflateInnsatsgruppe.tittel.SITUASJONSBESTEMT_INNSATS,
+      order: 1,
     },
-    _id: 'bbb8d042-b30e-4e4a-8cd0-210019b19de3',
+    sanityId: 'bbb8d042-b30e-4e4a-8cd0-210019b19de3',
     regelverkLenker: [
       {
         _id: '123',
@@ -2485,7 +2495,7 @@ export const mockTiltakstyper: VeilederflateTiltakstype[] = [
     },
     beskrivelse:
       'Opplæringstiltak i form av Enkeltplass AMO (jf. tiltaksforskriften § 7-2 a) består av kortvarige kurs basert på behov i arbeidsmarkedet, og skal bidra til at arbeidssøkere kvalifiseres til ledige jobber.',
-    tiltakstypeNavn: 'Opplæring - Enkeltplass AMO',
+    navn: 'Opplæring - Enkeltplass AMO',
   },
   {
     beskrivelse:
@@ -2503,8 +2513,8 @@ export const mockTiltakstyper: VeilederflateTiltakstype[] = [
         regelverkUrl: 'https://www.google.no',
       },
     ],
-    _id: 'd03363e0-7d46-411b-aec4-fb9449e30eb8',
-    tiltakstypeNavn: 'AFT - Arbeidsforberedende trening',
+    sanityId: 'd03363e0-7d46-411b-aec4-fb9449e30eb8',
+    navn: 'AFT - Arbeidsforberedende trening',
     faneinnhold: {
       forHvem: [
         {
@@ -2680,23 +2690,25 @@ export const mockTiltakstyper: VeilederflateTiltakstype[] = [
       ],
     },
     innsatsgruppe: {
-      _id: '123',
-      beskrivelse: 'Spesielt tilpasset innsats',
+      sanityId: '8dcfe56e-0018-48dd-a9f5-817f6aec0b0d',
+      beskrivelse: 'Spesielt tilpasset innsats ',
       nokkel: Innsatsgruppe.SPESIELT_TILPASSET_INNSATS,
-      tittel: SanityInnsatsgruppe.tittel.SPESIELT_TILPASSET_INNSATS,
+      tittel: VeilederflateInnsatsgruppe.tittel.SPESIELT_TILPASSET_INNSATS,
+      order: 2,
     },
     delingMedBruker:
       'Hei <Fornavn>, \n\nVi har nå et arbeidsmarkedstiltak som jeg tenker kan passe deg godt. Det heter <tiltaksnavn> og er et tilbud for deg som deg som har nedsatt arbeidsevne og trenger hjelp for å komme i jobb.\n\nMålet er å avklare arbeidsevnen din gjennom arbeidstrening i ulike arbeidssituasjoner.\n\n- Etter en periode med forberedende arbeidstrening i et tilrettelagt arbeidsmiljø får du arbeidstrening i en vanlig bedrift.\n- Du får kartlagt kompetansen din og får karriereveiledning.\n- Du kan få tilrettelagt opplæring hvis du ønsker å gå videre med et yrkesfaglig utdanningsløp. Opplæringen skal bedre mulighetene dine til å komme i jobb.\n\nDu kan lese mer om kurset på www.nav.no/arbeidsforberedende-trening',
   },
   {
     innsatsgruppe: {
-      _id: '123',
+      sanityId: '48a20a99-11d7-42ec-ba92-2245b7d88fa7',
       beskrivelse: 'Situasjonsbestemt innsats',
       nokkel: Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
-      tittel: SanityInnsatsgruppe.tittel.SITUASJONSBESTEMT_INNSATS,
+      tittel: VeilederflateInnsatsgruppe.tittel.SITUASJONSBESTEMT_INNSATS,
+      order: 1,
     },
-    _id: 'e8406a67-fabe-4da6-804c-c77a33aaf67d',
-    tiltakstypeNavn: 'Arbeidstrening',
+    sanityId: 'e8406a67-fabe-4da6-804c-c77a33aaf67d',
+    navn: 'Arbeidstrening',
     faneinnhold: {
       pameldingOgVarighet: [
         {
@@ -2785,7 +2797,7 @@ export const mockTiltakstyper: VeilederflateTiltakstype[] = [
       'Arbeidstrening skal bidra til å styrke tiltaksdeltakers muligheter for å komme i jobb. Arbeidstrening kan ha flere ulike formål i form av arbeidserfaring for å mestre en bestemt jobb, eller behov for en referanse mens man søker ordinært arbeid',
   },
   {
-    _id: 'eadeb22c-bd89-4298-a5c2-145f112f8e7d',
+    sanityId: 'eadeb22c-bd89-4298-a5c2-145f112f8e7d',
     delingMedBruker:
       'Hei <Fornavn>,   \n\nHar du vurdert utdanning for å få flere muligheter på arbeidsmarkedet?  \n\nDu kan lese mer om tiltaket på www.nav.no/opplaring \n\nEr dette aktuelt for deg? Gi meg tilbakemelding her i dialogen. \nSvaret ditt vil ikke endre din utbetaling fra NAV. \n\nVi holder kontakten!\nHilsen <Veiledernavn> \n',
     regelverkLenker: [
@@ -2886,14 +2898,15 @@ export const mockTiltakstyper: VeilederflateTiltakstype[] = [
     },
 
     innsatsgruppe: {
-      _id: '123',
+      sanityId: '48a20a99-11d7-42ec-ba92-2245b7d88fa7',
       beskrivelse: 'Situasjonsbestemt innsats',
       nokkel: Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
-      tittel: SanityInnsatsgruppe.tittel.SITUASJONSBESTEMT_INNSATS,
+      tittel: VeilederflateInnsatsgruppe.tittel.SITUASJONSBESTEMT_INNSATS,
+      order: 1,
     },
     beskrivelse:
       'Opplæringstiltak i form av Gruppe AMO (jf. tiltaksforskriften § 7-2 a) skal bidra til at arbeidssøkere kvalifiseres til ledige jobber. ',
-    tiltakstypeNavn: 'Opplæring - Gruppe AMO',
+    navn: 'Opplæring - Gruppe AMO',
   },
   {
     regelverkLenker: [
@@ -3160,14 +3173,15 @@ export const mockTiltakstyper: VeilederflateTiltakstype[] = [
       ],
     },
     innsatsgruppe: {
-      _id: '123',
+      sanityId: '48a20a99-11d7-42ec-ba92-2245b7d88fa7',
       beskrivelse: 'Situasjonsbestemt innsats',
       nokkel: Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
-      tittel: SanityInnsatsgruppe.tittel.SITUASJONSBESTEMT_INNSATS,
+      tittel: VeilederflateInnsatsgruppe.tittel.SITUASJONSBESTEMT_INNSATS,
+      order: 1,
     },
-    _id: 'f9618e97-4510-49e2-b748-29cae84d9019',
+    sanityId: 'f9618e97-4510-49e2-b748-29cae84d9019',
     delingMedBruker:
       'Hei <Fornavn>, \n\nVi har nå et arbeidsmarkedstiltak som jeg tenker kan passe deg godt. Det heter <tiltaksnavn>.\n\nI tiltaket kan det være aktuelt å kartlegge og gi hjelp til å\n- tilpasse arbeidssituasjonen og -oppgaver slik at du kan utføre jobben\n- finne ut hva slags hjelp eller tilrettelegging som skal til for at du kan jobbe\n- se kompetansen din og mulighetene dine\n\nUnder avklaring kan du også få\n- informasjon om arbeidsmarkedet, yrker og jobbkrav\n- veiledning for å velge yrkesmål og arbeidsoppgaver\n- arbeidsutprøving på en arbeidsplass\n\nDu kan lese mer om kurset på www.nav.no/avklaring ',
-    tiltakstypeNavn: 'Avklaring',
+    navn: 'Avklaring',
   },
 ];

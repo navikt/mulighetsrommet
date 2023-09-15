@@ -11,7 +11,7 @@ import styles from './ViewTiltaksgjennomforingDetaljer.module.scss';
 export function ViewTiltaksgjennomforingDetaljerContainer() {
   const { data, isLoading, isError } = useTiltaksgjennomforingById();
   const fnr = useFnr();
-  const { harDeltMedBruker } = useHentDeltMedBrukerStatus(data?._id, fnr);
+  const { harDeltMedBruker } = useHentDeltMedBrukerStatus(data?.sanityId, fnr);
   const { brukerHarRettPaaTiltak, innsatsgruppeForGjennomforing } = useBrukerHarRettPaaTiltak();
   const veilederdata = useHentVeilederdata();
   const brukerdata = useHentBrukerdata();

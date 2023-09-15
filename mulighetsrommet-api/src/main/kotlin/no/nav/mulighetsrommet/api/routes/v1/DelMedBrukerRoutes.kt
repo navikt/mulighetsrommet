@@ -9,7 +9,6 @@ import no.nav.mulighetsrommet.api.domain.dbo.DelMedBrukerDbo
 import no.nav.mulighetsrommet.api.plugins.getNavAnsattAzureId
 import no.nav.mulighetsrommet.api.services.DelMedBrukerService
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
-import no.nav.mulighetsrommet.ktor.extensions.getNonEmptyPathParameter
 import no.nav.mulighetsrommet.ktor.extensions.getNonEmptyQueryParameter
 import no.nav.mulighetsrommet.securelog.SecureLog
 import org.koin.ktor.ext.inject
@@ -37,8 +36,8 @@ fun Route.delMedBrukerRoutes() {
                 }
         }
 
-        get("{sanityId}") {
-            val sanityId = call.getNonEmptyPathParameter("sanityId")
+        get {
+            val sanityId = call.getNonEmptyQueryParameter("sanityId")
             val fnr = call.getNonEmptyQueryParameter("fnr")
 
             poaoTilgang.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), fnr)

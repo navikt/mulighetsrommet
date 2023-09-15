@@ -247,7 +247,6 @@ private fun services(appConfig: AppConfig) = module {
     single { AvtaleService(get(), get(), get(), get(), get(), get()) }
     single { TiltakshistorikkService(get(), get()) }
     single { VeilederflateService(get(), get(), get(), get(), get()) }
-    single { SanityTiltaksgjennomforingEnheterTilApiService(get(), get()) }
     single { ArrangorService(get()) }
     single { BrukerService(get(), get(), get()) }
     single { DialogService(get()) }
@@ -289,11 +288,6 @@ private fun tasks(config: TaskConfig) = module {
         )
         val synchronizeTiltakstypestatuserToKafka = SynchronizeTiltakstypestatuserToKafka(get(), get())
         val synchronizeNorgEnheterTask = SynchronizeNorgEnheter(config.synchronizeNorgEnheter, get(), get())
-        val synchronizeTiltaksgjennomforingEnheter = SynchronizeTiltaksgjennomforingEnheter(
-            config.synchronizeEnheterFraSanityTilApi,
-            get(),
-            get(),
-        )
         val synchronizeNavAnsatte = SynchronizeNavAnsatte(config.synchronizeNavAnsatte, get(), get())
         val notifySluttdatoForGjennomforingerNarmerSeg = NotifySluttdatoForGjennomforingerNarmerSeg(
             config.notifySluttdatoForGjennomforingerNarmerSeg,
@@ -332,7 +326,6 @@ private fun tasks(config: TaskConfig) = module {
                 synchronizeNorgEnheterTask.task,
                 synchronizeTiltaksgjennomforingsstatuserToKafka.task,
                 synchronizeTiltakstypestatuserToKafka.task,
-                synchronizeTiltaksgjennomforingEnheter.task,
                 synchronizeNavAnsatte.task,
                 notifySluttdatoForGjennomforingerNarmerSeg.task,
                 notifySluttdatoForAvtalerNarmerSeg.task,

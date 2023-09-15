@@ -1,7 +1,11 @@
 import { Alert, BodyShort, Button, Loader, Pagination } from '@navikt/ds-react';
 import { useAtom } from 'jotai';
 import { RESET } from 'jotai/utils';
-import { ApiError, VeilederflateTiltaksgjennomforing } from 'mulighetsrommet-api-client';
+import {
+  ApiError,
+  TiltaksgjennomforingOppstartstype,
+  VeilederflateTiltaksgjennomforing,
+} from 'mulighetsrommet-api-client';
 import { PORTEN } from 'mulighetsrommet-frontend-common/constants';
 import { useEffect, useRef, useState } from 'react';
 import { logEvent } from '../../core/api/logger';
@@ -26,7 +30,7 @@ const Tiltaksgjennomforingsoversikt = () => {
   const brukerdata = useHentBrukerdata();
 
   const { data: tiltaksgjennomforinger = [], isLoading, isError, error, isFetching } = useTiltaksgjennomforinger();
-  const [sortValue, setSortValue] = useState<string>('tiltakstypeNavn-ascending');
+  const [sortValue, setSortValue] = useState<string>('tiltakstype-ascending');
   const didMountRef = useRef(false);
 
   useEffect(() => {
@@ -78,10 +82,13 @@ const Tiltaksgjennomforingsoversikt = () => {
     }
   }
 
-  const getSort = (sortValue: string) => {
+  const getSort = (
+    sortValue: string
+  ): { direction: 'ascending' | 'descending'; orderBy: keyof VeilederflateTiltaksgjennomforing } => {
+    const [orderBy, direction] = sortValue.split('-');
     return {
-      orderBy: sortValue.split('-')[0],
-      direction: sortValue.split('-')[1],
+      orderBy: orderBy as keyof VeilederflateTiltaksgjennomforing,
+      direction: direction as 'ascending' | 'descending',
     };
   };
 
@@ -91,7 +98,11 @@ const Tiltaksgjennomforingsoversikt = () => {
   ): VeilederflateTiltaksgjennomforing[] => {
     return tiltaksgjennomforinger.sort((a, b) => {
       const sort = getSort(sortValue);
-      const comparator = (a: any, b: any, orderBy: string | number) => {
+      const comparator = (
+        a: VeilederflateTiltaksgjennomforing,
+        b: VeilederflateTiltaksgjennomforing,
+        orderBy: keyof VeilederflateTiltaksgjennomforing
+      ) => {
         const compare = (item1: any, item2: any) => {
           if (item2 < item1 || item2 === undefined) return -1;
           if (item2 > item1) return 1;
@@ -99,11 +110,17 @@ const Tiltaksgjennomforingsoversikt = () => {
         };
 
         if (orderBy === 'oppstart') {
-          const dateB = b.oppstart === 'lopende' ? new Date() : new Date(b.oppstartsdato);
-          const dateA = a.oppstart === 'lopende' ? new Date() : new Date(a.oppstartsdato);
+          const dateB =
+            b.oppstart === TiltaksgjennomforingOppstartstype.FELLES
+              ? new Date(b.oppstartsdato!!) // Oppstartsdato skal alltid være tilgjengelig når oppstartstype er FELLES
+              : new Date();
+          const dateA =
+            a.oppstart === TiltaksgjennomforingOppstartstype.FELLES
+              ? new Date(a.oppstartsdato!!) // Oppstartsdato skal alltid være tilgjengelig når oppstartstype er FELLES
+              : new Date();
           return forceOrder === 'ascending' ? compare(dateA, dateB) : compare(dateB, dateA);
-        } else if (orderBy === 'tiltakstypeNavn') {
-          return compare(a.tiltakstype.tiltakstypeNavn, b.tiltakstype.tiltakstypeNavn);
+        } else if (orderBy === 'tiltakstype') {
+          return compare(a.tiltakstype.navn, b.tiltakstype.navn);
         } else {
           return compare(a[orderBy], b[orderBy]);
         }
@@ -125,12 +142,14 @@ const Tiltaksgjennomforingsoversikt = () => {
     ];
   };
 
-  const lopendeGjennomforinger = tiltaksgjennomforinger.filter(gj => gj.oppstart === 'lopende');
+  const lopendeGjennomforinger = tiltaksgjennomforinger.filter(
+    gj => gj.oppstart === TiltaksgjennomforingOppstartstype.LOPENDE
+  );
   const gjennomforingerMedOppstartIFremtiden = tiltaksgjennomforinger.filter(
-    gj => gj.oppstart !== 'lopende' && new Date(gj.oppstartsdato!!) >= new Date()
+    gj => gj.oppstart !== TiltaksgjennomforingOppstartstype.LOPENDE && new Date(gj.oppstartsdato!!) >= new Date()
   );
   const gjennomforingerMedOppstartHarVaert = tiltaksgjennomforinger.filter(
-    gj => gj.oppstart !== 'lopende' && new Date(gj.oppstartsdato!!) <= new Date()
+    gj => gj.oppstart !== TiltaksgjennomforingOppstartstype.LOPENDE && new Date(gj.oppstartsdato!!) <= new Date()
   );
 
   const gjennomforingerForSide = (
@@ -208,7 +227,7 @@ const Tiltaksgjennomforingsoversikt = () => {
       </div>
       <ul className={styles.gjennomforinger} data-testid="oversikt_tiltaksgjennomforinger">
         {gjennomforingerForSide.map((gjennomforing, index) => {
-          return <Gjennomforingsrad key={gjennomforing._id} index={index} tiltaksgjennomforing={gjennomforing} />;
+          return <Gjennomforingsrad key={gjennomforing.sanityId} index={index} tiltaksgjennomforing={gjennomforing} />;
         })}
       </ul>
       <div className={styles.under_oversikt}>

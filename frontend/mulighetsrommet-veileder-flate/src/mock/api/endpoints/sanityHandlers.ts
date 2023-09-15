@@ -1,6 +1,6 @@
 import { DefaultBodyType, PathParams, rest } from 'msw';
 import {
-  SanityInnsatsgruppe,
+  VeilederflateInnsatsgruppe,
   VeilederflateTiltaksgjennomforing,
   VeilederflateTiltakstype,
 } from 'mulighetsrommet-api-client';
@@ -10,7 +10,7 @@ import { mockTiltakstyper } from '../../fixtures/mockTiltakstyper';
 import { ok } from '../responses';
 
 export const sanityHandlers = [
-  rest.get<DefaultBodyType, PathParams, SanityInnsatsgruppe[]>('*/api/v1/internal/sanity/innsatsgrupper', async () => {
+  rest.get<DefaultBodyType, PathParams, VeilederflateInnsatsgruppe[]>('*/api/v1/internal/sanity/innsatsgrupper', async () => {
     return ok(mockInnsatsgrupper);
   }),
 
@@ -41,19 +41,19 @@ export const sanityHandlers = [
 
   rest.get<DefaultBodyType, PathParams, any>('*/api/v1/internal/sanity/tiltaksgjennomforing/:id', async req => {
     const id = req.params.id;
-    const gjennomforing = mockTiltaksgjennomforinger.find(gj => gj._id === id);
+    const gjennomforing = mockTiltaksgjennomforinger.find(gj => gj.sanityId === id);
     return ok(gjennomforing);
   }),
 
   rest.get<DefaultBodyType, PathParams, any>('*/api/v1/internal/sanity/tiltaksgjennomforing/preview/:id', async req => {
     const id = req.params.id;
-    const gjennomforing = mockTiltaksgjennomforinger.find(gj => gj._id === id);
+    const gjennomforing = mockTiltaksgjennomforinger.find(gj => gj.sanityId === id);
     return ok(gjennomforing);
   }),
 ];
 
 function filtrerFritekst(gjennomforing: VeilederflateTiltaksgjennomforing, sok: string): boolean {
-  return sok === '' || gjennomforing.tiltaksgjennomforingNavn.toLocaleLowerCase().includes(sok.toLocaleLowerCase());
+  return sok === '' || gjennomforing.navn.toLocaleLowerCase().includes(sok.toLocaleLowerCase());
 }
 
 function filtrerLokasjoner(gjennomforing: VeilederflateTiltaksgjennomforing, lokasjoner: string[]): boolean {
@@ -65,5 +65,5 @@ function filtrerInnsatsgruppe(gjennomforing: VeilederflateTiltaksgjennomforing, 
 }
 
 function filtrerTiltakstyper(gjennomforing: VeilederflateTiltaksgjennomforing, tiltakstyper: string[]): boolean {
-  return tiltakstyper.length === 0 || tiltakstyper.includes(gjennomforing.tiltakstype._id);
+  return tiltakstyper.length === 0 || tiltakstyper.includes(gjennomforing.tiltakstype.sanityId);
 }

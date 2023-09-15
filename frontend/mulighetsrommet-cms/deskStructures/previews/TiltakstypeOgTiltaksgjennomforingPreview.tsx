@@ -24,7 +24,7 @@ export function TiltakstypeOgTiltaksgjennomforingPreview({ document }: any) {
   useEffect(() => {
     const fetchData = async () => {
       const gjennomforingsdata = await client.fetch(
-        `*[_type == "tiltaksgjennomforing" && _id == "${document.displayed._id}"]{..., kontaktinfoArrangor->}[0]`
+        `*[_type == "tiltaksgjennomforing" && _id == "${document.displayed._id}"]{...}[0]`
       );
       const data = await client.fetch(
         `*[_type == "tiltakstype" && _id == "${document.displayed.tiltakstype._ref}"]{..., innsatsgruppe->, regelverkLenker[]->}[0]`
@@ -146,14 +146,6 @@ export function TiltakstypeOgTiltaksgjennomforingPreview({ document }: any) {
             {tiltaksdata?.tiltakstypeNavn}
           </SidemenyDetaljerRad>
         </TekstFraTiltakstype>
-
-        {gjennomforingsdata?.kontaktinfoArrangor && (
-          <TekstFraGjennomforing>
-            <SidemenyDetaljerRad navn="Arrangør">
-              {gjennomforingsdata?.kontaktinfoArrangor.selskapsnavn}
-            </SidemenyDetaljerRad>
-          </TekstFraGjennomforing>
-        )}
 
         <TekstFraTiltakstype>
           <SidemenyDetaljerRad navn="Innsatsgruppe">

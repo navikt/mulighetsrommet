@@ -74,7 +74,7 @@ function InnsatsgruppeFilter() {
       setFilter({
         ...filter,
         innsatsgruppe: {
-          id: foundInnsatsgruppe._id,
+          id: foundInnsatsgruppe.sanityId,
           tittel: foundInnsatsgruppe.tittel,
           nokkel: foundInnsatsgruppe.nokkel,
         },
@@ -84,7 +84,7 @@ function InnsatsgruppeFilter() {
   };
 
   const options = innsatsgrupper.data?.map(innsatsgruppe => {
-    return { id: innsatsgruppe._id, tittel: innsatsgruppe.tittel, nokkel: innsatsgruppe.nokkel };
+    return { id: innsatsgruppe.sanityId, tittel: innsatsgruppe.tittel, nokkel: innsatsgruppe.nokkel };
   });
   return (
     <InnsatsgruppeAccordion

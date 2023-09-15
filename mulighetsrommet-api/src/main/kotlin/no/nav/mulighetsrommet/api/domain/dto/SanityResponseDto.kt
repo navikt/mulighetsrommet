@@ -39,10 +39,12 @@ data class RegelverkLenke(
 )
 
 @Serializable
-data class Innsatsgruppe(
-    val tittel: String? = null,
-    val nokkel: String? = null,
-    val beskrivelse: String? = null,
+data class SanityInnsatsgruppe(
+    val _id: String,
+    val tittel: String,
+    val nokkel: String,
+    val beskrivelse: String,
+    val order: Int,
 )
 
 @Serializable
@@ -50,8 +52,7 @@ data class SanityTiltakstype(
     val _id: String? = null,
     val tiltakstypeNavn: String? = null,
     val beskrivelse: String? = null,
-    val innsatsgruppe: Innsatsgruppe? = null,
-    val regelverkFiler: List<String>? = emptyList(),
+    val innsatsgruppe: SanityInnsatsgruppe? = null,
     val regelverkLenker: List<RegelverkLenke>? = emptyList(),
     val faneinnhold: Faneinnhold? = null,
     val delingMedBruker: String? = null,
@@ -65,11 +66,10 @@ data class SanityTiltaksgjennomforing(
     val tiltaksnummer: String? = null,
     val beskrivelse: String? = null,
     val lokasjon: String? = null,
-    val fylke: FylkeRef? = null,
-    val enheter: List<EnhetRef>? = emptyList(),
+    val fylke: String? = null,
+    val enheter: List<String>? = emptyList(),
     val kontaktinfoTiltaksansvarlige: List<KontaktinfoTiltaksansvarlige>? = emptyList(),
     val faneinnhold: Faneinnhold? = null,
-    val kontaktinfoArrangor: KontaktInfoArrangor? = null, // TODO: fjern fra sanity, denne finnes i db
 )
 
 @Serializable
@@ -86,31 +86,6 @@ data class KontaktinfoTiltaksansvarlige(
 )
 
 @Serializable
-data class KontaktInfoArrangor(
-    val selskapsnavn: String? = null,
-    val _id: String? = null,
-    val _updatedAt: String? = null,
-    val _createdAt: String? = null,
-    val _rev: String? = null,
-    val _type: String? = null,
-    val adresse: String? = null,
-    val telefonnummer: String? = null,
-    val epost: String? = null,
-)
-
-@Serializable
-data class SanityTiltaksgjennomforingResponse(
-    val _id: String,
-    val tiltaksgjennomforingNavn: String,
-    val enheter: List<EnhetRef>? = null,
-    val lokasjon: String? = null,
-    val tilgjengelighetsstatus: String? = null,
-    val tiltakstype: TiltakstypeRef? = null,
-    val fylkeRef: FylkeRef? = null,
-    val tiltaksnummer: TiltaksnummerSlug? = null,
-)
-
-@Serializable
 data class EnhetRef(
     val _type: String = "reference",
     val _ref: String,
@@ -121,21 +96,6 @@ data class EnhetRef(
 data class TiltaksnummerSlug(
     val current: String,
     val _type: String = "slug",
-)
-
-@Serializable
-data class FylkeResponse(
-    val fylke: Fylke,
-)
-
-@Serializable
-data class Fylke(
-    val nummer: Slug,
-)
-
-@Serializable
-data class Slug(
-    val current: String,
 )
 
 @Serializable(with = SanityReponseSerializer::class)

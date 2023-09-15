@@ -8,13 +8,13 @@ interface ArrangorInfoProps {
 }
 
 const ArrangorInfo = ({ data }: ArrangorInfoProps) => {
-  const { kontaktinfoArrangor } = data;
+  const { arrangor } = data;
 
-  if (!kontaktinfoArrangor) {
+  if (!arrangor) {
     return null;
   }
 
-  const { kontaktperson } = kontaktinfoArrangor;
+  const { kontaktperson } = arrangor;
 
   return (
     <div className={styles.arrangor_info}>
@@ -24,13 +24,13 @@ const ArrangorInfo = ({ data }: ArrangorInfoProps) => {
 
       <div className={styles.container}>
         <BodyShort className={styles.navn} size="small">
-          {kontaktinfoArrangor.selskapsnavn}
+          {arrangor.selskapsnavn}
         </BodyShort>
 
         <BodyShort size="small">
           <div className={styles.infofelt}>
             <div className={styles.kolonne}>Lokasjon:</div>
-            <div className={styles.kolonne}>{kontaktinfoArrangor.lokasjon}</div>
+            <div className={styles.kolonne}>{arrangor.lokasjon}</div>
           </div>
         </BodyShort>
       </div>

@@ -95,8 +95,6 @@ app:
       cronPattern: "0 0 1 * * *" # Hver morgen kl. 01:00
     synchronizeNorgEnheter:
       delayOfMinutes: 360 # Hver 6. time
-    synchronizeEnheterFraSanityTilApi:
-      delayOfMinutes: 360 # Hver 6. time
     synchronizeNavAnsatte:
       cronPattern: "0 0 6 * * *" # Hver morgen kl. 06:00
     notifySluttdatoForGjennomforingerNarmerSeg:
