@@ -36,7 +36,6 @@ data class VeilederflateTiltakstype(
     val _id: String? = null,
     val tiltakstypeNavn: String? = null,
     val beskrivelse: String? = null,
-    val nokkelinfoKomponenter: List<NokkelinfoKomponent>? = emptyList(),
     val innsatsgruppe: Innsatsgruppe? = null,
     val regelverkLenker: List<RegelverkLenke>? = emptyList(),
     val faneinnhold: Faneinnhold? = null,
