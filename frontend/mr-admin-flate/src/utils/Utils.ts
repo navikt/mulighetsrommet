@@ -178,3 +178,5 @@ export const validEmail = (email: string | undefined): Boolean => {
       ),
   );
 };
+
+export const erDevMiljo = inneholderUrl("/dev.nav.no/");
