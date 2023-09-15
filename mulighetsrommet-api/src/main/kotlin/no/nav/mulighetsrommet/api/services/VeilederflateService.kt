@@ -24,7 +24,7 @@ class VeilederflateService(
     private val tiltakstypeService: TiltakstypeService,
     private val navEnhetService: NavEnhetService,
 ) {
-    private val sanityCache: Cache<String, SanityResponse> = Caffeine.newBuilder()
+    private val sanityCache: Cache<String, SanityResponse.Result> = Caffeine.newBuilder()
         .expireAfterWrite(30, TimeUnit.MINUTES)
         .maximumSize(500)
         .recordStats()
@@ -42,24 +42,75 @@ class VeilederflateService(
         cacheMetrics.addCache("sanityCache", sanityCache)
     }
 
-    suspend fun hentInnsatsgrupper(): SanityResponse {
-        return CacheUtils.tryCacheFirstNotNull(sanityCache, "innsatsgrupper") {
-            sanityClient.query(
+    suspend fun hentInnsatsgrupper(): List<VeilederflateInnsatsgruppe> {
+        val result = CacheUtils.tryCacheFirstNotNull(sanityCache, "innsatsgrupper") {
+            val result = sanityClient.query(
                 """
                 *[_type == "innsatsgruppe"] | order(order asc)
                 """.trimIndent(),
             )
+            when (result) {
+                is SanityResponse.Result -> result
+                is SanityResponse.Error -> throw Exception(result.error.toString())
+            }
         }
+
+        return result.decode<List<SanityInnsatsgruppe>>()
+            .map {
+                VeilederflateInnsatsgruppe(
+                    sanityId = it._id,
+                    tittel = it.tittel,
+                    nokkel = it.nokkel,
+                    beskrivelse = it.beskrivelse,
+                    order = it.order,
+                )
+            }
     }
 
-    suspend fun hentTiltakstyper(): SanityResponse {
-        return CacheUtils.tryCacheFirstNotNull(sanityCache, "tiltakstyper") {
-            sanityClient.query(
+    suspend fun hentTiltakstyper(): List<VeilederflateTiltakstype> {
+        val result = CacheUtils.tryCacheFirstNotNull(sanityCache, "tiltakstyper") {
+            val result = sanityClient.query(
                 """
-                    *[_type == "tiltakstype"]
+                    *[_type == "tiltakstype"] {
+                      _id,
+                      tiltakstypeNavn,
+                      beskrivelse,
+                      nokkelinfoKomponenter,
+                      innsatsgruppe->,
+                      regelverkLenker[]->,
+                      faneinnhold {
+                        forHvemInfoboks,
+                        forHvem,
+                        detaljerOgInnholdInfoboks,
+                        detaljerOgInnhold,
+                        pameldingOgVarighetInfoboks,
+                        pameldingOgVarighet,
+                      },
+                      delingMedBruker,
+                    }
                 """.trimIndent(),
             )
+
+            when (result) {
+                is SanityResponse.Result -> result
+                is SanityResponse.Error -> throw Exception(result.error.toString())
+            }
         }
+
+        return result.decode<List<SanityTiltakstype>>()
+            .map {
+                val tiltakstype = tiltakstypeService.getBySanityId(UUID.fromString(it._id))
+                VeilederflateTiltakstype(
+                    sanityId = it._id,
+                    navn = it.tiltakstypeNavn,
+                    beskrivelse = it.beskrivelse,
+                    innsatsgruppe = it.innsatsgruppe,
+                    regelverkLenker = it.regelverkLenker,
+                    faneinnhold = it.faneinnhold,
+                    delingMedBruker = it.delingMedBruker,
+                    arenakode = tiltakstype?.arenaKode,
+                )
+            }
     }
 
     suspend fun hentLokasjonerForBrukersEnhetOgFylke(fnr: String, accessToken: String): List<String> {

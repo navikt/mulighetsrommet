@@ -795,30 +795,6 @@ paths:
               schema:
                 type: string
 
-  /api/v1/internal/sanity:
-    get:
-      tags:
-        - Sanity
-      operationId: sanityQuery
-      parameters:
-        - in: query
-          name: query
-          schema:
-            type: string
-          description: Sanity query as a Groq-string. See https://www.sanity.io/docs/groq for more information.
-          required: true
-        - in: query
-          name: fnr
-          schema:
-            type: string
-          description: SSN for the user which will be used to filter based on the users 'oppfølgingsenhet'
-      responses:
-        200:
-          description: Sanity query result
-          content:
-            application/json:
-              schema: {}
-
   /api/v1/internal/sanity/innsatsgrupper:
     get:
       tags:
@@ -832,7 +808,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/SanityInnsatsgruppe"
+                  $ref: "#/components/schemas/VeilederflateInnsatsgruppe"
 
   /api/v1/internal/sanity/tiltakstyper:
     get:
@@ -2401,10 +2377,10 @@ components:
         - navIdent
         - navn
 
-    SanityInnsatsgruppe:
+    VeilederflateInnsatsgruppe:
       type: object
       properties:
-        _id:
+        sanityId:
           type: string
         beskrivelse:
           type: string
@@ -2417,11 +2393,14 @@ components:
             - "Varig tilpasset innsats"
         nokkel:
           $ref: "#/components/schemas/Innsatsgruppe"
+        order:
+          type: integer
       required:
-        - _id
+        - sanityId
         - beskrivelse
         - tittel
         - nokkel
+        - order
 
     VeilederflateTiltakstype:
       type: object
@@ -2433,7 +2412,7 @@ components:
         beskrivelse:
           type: string
         innsatsgruppe:
-          $ref: "#/components/schemas/SanityInnsatsgruppe"
+          $ref: "#/components/schemas/VeilederflateInnsatsgruppe"
         regelverkLenker:
           type: array
           items:

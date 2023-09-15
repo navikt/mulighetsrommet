@@ -1,6 +1,6 @@
 import { DefaultBodyType, PathParams, rest } from 'msw';
 import {
-  SanityInnsatsgruppe,
+  VeilederflateInnsatsgruppe,
   VeilederflateTiltaksgjennomforing,
   VeilederflateTiltakstype,
 } from 'mulighetsrommet-api-client';
@@ -10,7 +10,7 @@ import { mockTiltakstyper } from '../../fixtures/mockTiltakstyper';
 import { ok } from '../responses';
 
 export const sanityHandlers = [
-  rest.get<DefaultBodyType, PathParams, SanityInnsatsgruppe[]>('*/api/v1/internal/sanity/innsatsgrupper', async () => {
+  rest.get<DefaultBodyType, PathParams, VeilederflateInnsatsgruppe[]>('*/api/v1/internal/sanity/innsatsgrupper', async () => {
     return ok(mockInnsatsgrupper);
   }),
 

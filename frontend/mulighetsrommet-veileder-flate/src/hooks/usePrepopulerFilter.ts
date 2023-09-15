@@ -15,7 +15,7 @@ export function usePrepopulerFilter() {
       const search = resetFilterTilUtgangspunkt ? '' : filter.search;
       const lokasjoner = resetFilterTilUtgangspunkt ? [] : filter.lokasjoner;
       const innsatsgruppe = resetFilterTilUtgangspunkt
-        ? { id: matchedInnsatsgruppe._id, nokkel: matchedInnsatsgruppe.nokkel, tittel: matchedInnsatsgruppe.tittel }
+        ? { id: matchedInnsatsgruppe.sanityId, nokkel: matchedInnsatsgruppe.nokkel, tittel: matchedInnsatsgruppe.tittel }
         : filter.innsatsgruppe;
       setFilter({
         search,

@@ -39,10 +39,12 @@ data class RegelverkLenke(
 )
 
 @Serializable
-data class Innsatsgruppe(
-    val tittel: String? = null,
-    val nokkel: String? = null,
-    val beskrivelse: String? = null,
+data class SanityInnsatsgruppe(
+    val _id: String,
+    val tittel: String,
+    val nokkel: String,
+    val beskrivelse: String,
+    val order: Int,
 )
 
 @Serializable
@@ -50,8 +52,7 @@ data class SanityTiltakstype(
     val _id: String? = null,
     val tiltakstypeNavn: String? = null,
     val beskrivelse: String? = null,
-    val innsatsgruppe: Innsatsgruppe? = null,
-    val regelverkFiler: List<String>? = emptyList(),
+    val innsatsgruppe: SanityInnsatsgruppe? = null,
     val regelverkLenker: List<RegelverkLenke>? = emptyList(),
     val faneinnhold: Faneinnhold? = null,
     val delingMedBruker: String? = null,

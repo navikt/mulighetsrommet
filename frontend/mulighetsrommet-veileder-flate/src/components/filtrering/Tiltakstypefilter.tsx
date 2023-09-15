@@ -9,7 +9,7 @@ export function Tiltakstypefilter() {
   return (
     <CheckboxFilter
       accordionNavn="Tiltakstyper"
-      options={filter.tiltakstyper!}
+      options={filter.tiltakstyper}
       setOptions={tiltakstyper => setFilter({ ...filter, tiltakstyper })}
       data={
         tiltakstyper.data?.map(tiltakstype => {

@@ -7,6 +7,15 @@ import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import java.time.LocalDate
 
 @Serializable
+data class VeilederflateInnsatsgruppe(
+    val sanityId: String,
+    val tittel: String,
+    val nokkel: String,
+    val beskrivelse: String,
+    val order: Int,
+)
+
+@Serializable
 data class VeilederflateTiltaksgjennomforing(
     val sanityId: String,
     val tiltakstype: VeilederflateTiltakstype? = null,
@@ -37,7 +46,7 @@ data class VeilederflateTiltakstype(
     val sanityId: String? = null,
     val navn: String? = null,
     val beskrivelse: String? = null,
-    val innsatsgruppe: Innsatsgruppe? = null,
+    val innsatsgruppe: SanityInnsatsgruppe? = null,
     val regelverkLenker: List<RegelverkLenke>? = emptyList(),
     val faneinnhold: Faneinnhold? = null,
     val delingMedBruker: String? = null,

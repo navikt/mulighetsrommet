@@ -1,8 +1,8 @@
 import {
   Innsatsgruppe,
-  SanityInnsatsgruppe,
   Tilgjengelighetsstatus,
   TiltaksgjennomforingOppstartstype,
+  VeilederflateInnsatsgruppe,
   VeilederflateTiltaksgjennomforing,
   VeilederflateTiltakstype,
 } from 'mulighetsrommet-api-client';
@@ -30,10 +30,11 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
         },
       ],
       innsatsgruppe: {
-        _id: '123',
-        tittel: SanityInnsatsgruppe.tittel.SITUASJONSBESTEMT_INNSATS,
-        nokkel: Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
+        sanityId: '48a20a99-11d7-42ec-ba92-2245b7d88fa7',
         beskrivelse: 'Situasjonsbestemt innsats',
+        nokkel: Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
+        tittel: VeilederflateInnsatsgruppe.tittel.SITUASJONSBESTEMT_INNSATS,
+        order: 1,
       },
       navn: 'Avklaring',
       faneinnhold: {
@@ -272,10 +273,11 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
         },
       ],
       innsatsgruppe: {
-        _id: '123',
-        tittel: SanityInnsatsgruppe.tittel.SITUASJONSBESTEMT_INNSATS,
-        nokkel: Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
+        sanityId: '48a20a99-11d7-42ec-ba92-2245b7d88fa7',
         beskrivelse: 'Situasjonsbestemt innsats',
+        nokkel: Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
+        tittel: VeilederflateInnsatsgruppe.tittel.SITUASJONSBESTEMT_INNSATS,
+        order: 1,
       },
       navn: 'Mentor',
       faneinnhold: {
@@ -375,10 +377,11 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
         },
       ],
       innsatsgruppe: {
-        tittel: SanityInnsatsgruppe.tittel.SITUASJONSBESTEMT_INNSATS,
-        nokkel: Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
+        sanityId: '48a20a99-11d7-42ec-ba92-2245b7d88fa7',
         beskrivelse: 'Situasjonsbestemt innsats',
-        _id: '1245',
+        nokkel: Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
+        tittel: VeilederflateInnsatsgruppe.tittel.SITUASJONSBESTEMT_INNSATS,
+        order: 1,
       },
       navn: 'Opplæring - Gruppe AMO',
       faneinnhold: {
