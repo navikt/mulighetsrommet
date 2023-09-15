@@ -66,7 +66,7 @@ fun Route.virksomhetRoutes() {
                 .toDto(orgnr)
                 .map { virksomhetService.upsertKontaktperson(it) }
                 .onLeft {
-                    log.error(it.message)
+                    application.log.error(it.message)
                 }
             call.respondWithStatusResponse(result)
         }
@@ -94,7 +94,7 @@ fun Route.virksomhetRoutes() {
                 throw BadRequestException("'orgnr' må inneholde 9 siffer")
             }
 
-            log.info("Oppdaterer virksomhet med orgnr: $orgnr")
+            application.log.info("Oppdaterer virksomhet med orgnr: $orgnr")
             val response = virksomhetService.syncVirksomhetFraBrreg(orgnr)
             call.respond("${response?.navn} oppdatert")
         }

@@ -13,10 +13,6 @@ import no.nav.mulighetsrommet.api.services.VeilederflateService
 import no.nav.mulighetsrommet.api.utils.getAccessToken
 import no.nav.mulighetsrommet.api.utils.getTiltaksgjennomforingsFilter
 import org.koin.ktor.ext.inject
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
-
-val log: Logger = LoggerFactory.getLogger("sanityRouteLogger")
 
 fun Route.sanityRoutes() {
     val veilederflateService: VeilederflateService by inject()
