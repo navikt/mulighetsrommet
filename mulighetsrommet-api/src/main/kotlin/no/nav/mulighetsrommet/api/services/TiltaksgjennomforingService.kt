@@ -146,6 +146,10 @@ class TiltaksgjennomforingService(
         return tiltaksgjennomforingRepository.updateAvtaleIdForGjennomforing(gjennomforingId, avtaleId)
     }
 
+    fun getBySanityId(sanityId: UUID): TiltaksgjennomforingAdminDto? {
+        return tiltaksgjennomforingRepository.getBySanityId(sanityId)
+    }
+
     fun getBySanityIds(sanityIds: List<UUID>): Map<UUID, TiltaksgjennomforingAdminDto> {
         return tiltaksgjennomforingRepository.getBySanityIds(sanityIds)
     }

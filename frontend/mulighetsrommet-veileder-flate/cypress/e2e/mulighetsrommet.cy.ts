@@ -14,6 +14,7 @@ describe('Tiltaksoversikt', () => {
   let antallTiltak: number;
 
   beforeEach(() => {
+    cy.clearLocalStorage();
     cy.visit('/');
     cy.skruAvJoyride();
   });
@@ -115,6 +116,7 @@ describe('Tiltaksoversikt', () => {
 
 describe('Tiltaksgjennomføringsdetaljer', () => {
   beforeEach(() => {
+    cy.clearLocalStorage();
     cy.visit('/');
     cy.skruAvJoyride();
     cy.getByTestId('lenke_tiltaksgjennomforing').first().click();

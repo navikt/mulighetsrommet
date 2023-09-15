@@ -1,9 +1,9 @@
 import classNames from 'classnames';
-import React from 'react';
+import React, { ReactNode } from 'react';
 import styles from './Detaljerfane.module.scss';
 
 interface FaneMalTiltakProps {
-  children: any;
+  children: ReactNode;
   harInnhold: boolean;
   className?: string;
 }

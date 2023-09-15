@@ -2,10 +2,7 @@ package no.nav.mulighetsrommet.api.domain.dto
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.*
-import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingTilgjengelighetsstatus
-import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
-import java.time.LocalDate
 
 @Serializable
 data class Faneinnhold(
@@ -49,44 +46,30 @@ data class Innsatsgruppe(
 )
 
 @Serializable
-data class Tiltakstype(
+data class SanityTiltakstype(
     val _id: String? = null,
-    val beskrivelse: String? = null,
-    val regelverkLenker: List<RegelverkLenke>? = emptyList(),
-    val regelverkFiler: List<String>? = emptyList(),
-    val innsatsgruppe: Innsatsgruppe? = null,
-    val tiltaksgruppe: String? = null,
     val tiltakstypeNavn: String? = null,
+    val beskrivelse: String? = null,
+    val innsatsgruppe: Innsatsgruppe? = null,
+    val regelverkFiler: List<String>? = emptyList(),
+    val regelverkLenker: List<RegelverkLenke>? = emptyList(),
     val faneinnhold: Faneinnhold? = null,
     val delingMedBruker: String? = null,
-    val arenakode: String? = null,
 )
 
 @Serializable
-data class VeilederflateTiltaksgjennomforing(
+data class SanityTiltaksgjennomforing(
     val _id: String,
+    val tiltakstype: SanityTiltakstype? = null,
     val tiltaksgjennomforingNavn: String,
-    val lokasjon: String? = null,
-    val tilgjengelighetsstatus: TiltaksgjennomforingTilgjengelighetsstatus? = null,
-    val tiltakstype: Tiltakstype? = null,
     val tiltaksnummer: String? = null,
-    val oppstart: String? = null,
-    @Serializable(with = LocalDateSerializer::class)
-    val oppstartsdato: LocalDate? = null,
-    @Serializable(with = LocalDateSerializer::class)
-    val sluttdato: LocalDate? = null,
-    val kontaktinfoArrangor: KontaktInfoArrangor? = null,
-    val estimert_ventetid: String? = null,
-    @Serializable(with = LocalDateSerializer::class)
-    val stengtFra: LocalDate? = null,
-    @Serializable(with = LocalDateSerializer::class)
-    val stengtTil: LocalDate? = null,
-    val delingMedBruker: String? = null,
-    val varighet: String? = null,
-    val kontaktinfoTiltaksansvarlige: List<KontaktinfoTiltaksansvarlige>? = emptyList(),
-    val faneinnhold: Faneinnhold? = null,
+    val beskrivelse: String? = null,
+    val lokasjon: String? = null,
     val fylke: FylkeRef? = null,
     val enheter: List<EnhetRef>? = emptyList(),
+    val kontaktinfoTiltaksansvarlige: List<KontaktinfoTiltaksansvarlige>? = emptyList(),
+    val faneinnhold: Faneinnhold? = null,
+    val kontaktinfoArrangor: KontaktInfoArrangor? = null, // TODO: fjern fra sanity, denne finnes i db
 )
 
 @Serializable
@@ -100,11 +83,6 @@ data class KontaktinfoTiltaksansvarlige(
     val _updatedAt: String? = null,
     val _createdAt: String? = null,
     val epost: String? = null,
-)
-
-@Serializable
-data class PameldingOgVarighet(
-    val selskapsnavn: String? = null,
 )
 
 @Serializable

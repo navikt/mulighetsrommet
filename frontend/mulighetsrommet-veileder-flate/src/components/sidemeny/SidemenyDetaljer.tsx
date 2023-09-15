@@ -1,19 +1,24 @@
 import { BodyShort, Panel } from '@navikt/ds-react';
-import { SanityTiltaksgjennomforing, SanityTiltakstype } from 'mulighetsrommet-api-client';
+import { VeilederflateTiltaksgjennomforing, VeilederflateTiltakstype } from 'mulighetsrommet-api-client';
 import { formaterDato, utledLopenummerFraTiltaksnummer } from '../../utils/Utils';
 import Kopiknapp from '../kopiknapp/Kopiknapp';
 import Regelverksinfo from './Regelverksinfo';
 import styles from './Sidemenydetaljer.module.scss';
 
 interface Props {
-  tiltaksgjennomforing: SanityTiltaksgjennomforing;
+  tiltaksgjennomforing: VeilederflateTiltaksgjennomforing;
 }
 
 const SidemenyDetaljer = ({ tiltaksgjennomforing }: Props) => {
   const { tiltaksnummer, kontaktinfoArrangor, tiltakstype, sluttdato, oppstartsdato, lokasjon } = tiltaksgjennomforing;
   const oppstart = resolveOppstart(tiltaksgjennomforing);
 
-  const visDato = (tiltakstype: SanityTiltakstype, oppstart: string, oppstartsdato?: string, sluttdato?: string) => {
+  const visDato = (
+    tiltakstype: VeilederflateTiltakstype,
+    oppstart: string,
+    oppstartsdato?: string,
+    sluttdato?: string
+  ) => {
     return (
       <div className={styles.rad}>
         <BodyShort size="small" className={styles.tittel}>
@@ -28,17 +33,17 @@ const SidemenyDetaljer = ({ tiltaksgjennomforing }: Props) => {
     );
   };
 
-  const visSluttdato = (tiltakstype: SanityTiltakstype, sluttdato?: string, oppstartsdato?: string): boolean => {
+  const visSluttdato = (tiltakstype: VeilederflateTiltakstype, sluttdato?: string, oppstartsdato?: string): boolean => {
     return (
       !!oppstartsdato &&
       !!sluttdato &&
       !!tiltakstype?.arenakode &&
       [
-        SanityTiltakstype.arenakode.GRUPPEAMO,
-        SanityTiltakstype.arenakode.JOBBK,
-        SanityTiltakstype.arenakode.DIGIOPPARB,
-        SanityTiltakstype.arenakode.GRUFAGYRKE,
-        SanityTiltakstype.arenakode.ENKFAGYRKE,
+        VeilederflateTiltakstype.arenakode.GRUPPEAMO,
+        VeilederflateTiltakstype.arenakode.JOBBK,
+        VeilederflateTiltakstype.arenakode.DIGIOPPARB,
+        VeilederflateTiltakstype.arenakode.GRUFAGYRKE,
+        VeilederflateTiltakstype.arenakode.ENKFAGYRKE,
       ].includes(tiltakstype?.arenakode)
     );
   };
@@ -92,12 +97,12 @@ const SidemenyDetaljer = ({ tiltaksgjennomforing }: Props) => {
 
         {visDato(tiltakstype, oppstart, oppstartsdato, sluttdato)}
 
-        {(tiltakstype.regelverkFiler || tiltakstype.regelverkLenker) && (
+        {(tiltakstype.regelverkLenker) && (
           <div className={styles.rad}>
             <BodyShort size="small" className={styles.tittel}>
               Regelverk
             </BodyShort>
-            <Regelverksinfo regelverkFiler={tiltakstype.regelverkFiler} regelverkLenker={tiltakstype.regelverkLenker} />
+            <Regelverksinfo regelverkLenker={tiltakstype.regelverkLenker} />
           </div>
         )}
       </Panel>
@@ -105,7 +110,7 @@ const SidemenyDetaljer = ({ tiltaksgjennomforing }: Props) => {
   );
 };
 
-function resolveOppstart({ oppstart, oppstartsdato }: SanityTiltaksgjennomforing) {
+function resolveOppstart({ oppstart, oppstartsdato }: VeilederflateTiltaksgjennomforing) {
   return oppstart === 'dato' && oppstartsdato ? formaterDato(oppstartsdato) : 'Løpende';
 }
 

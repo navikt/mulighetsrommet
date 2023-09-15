@@ -1,5 +1,6 @@
-import { Innsatsgruppe, SanityInnsatsgruppe, SanityTiltakstype } from 'mulighetsrommet-api-client';
-export const mockTiltakstyper: SanityTiltakstype[] = [
+import { Innsatsgruppe, SanityInnsatsgruppe, VeilederflateTiltakstype } from 'mulighetsrommet-api-client';
+
+export const mockTiltakstyper: VeilederflateTiltakstype[] = [
   {
     _id: '02509279-0a0f-4bd6-b506-f40111e4ba14',
     regelverkLenker: [

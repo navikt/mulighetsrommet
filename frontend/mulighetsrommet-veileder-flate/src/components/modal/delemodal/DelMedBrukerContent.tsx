@@ -1,5 +1,5 @@
 import { Alert, BodyShort, Button, ErrorMessage, Textarea } from '@navikt/ds-react';
-import { DelMedBruker, SanityTiltaksgjennomforing } from 'mulighetsrommet-api-client';
+import { DelMedBruker, VeilederflateTiltaksgjennomforing } from 'mulighetsrommet-api-client';
 import React, { Dispatch, useEffect, useRef, useState } from 'react';
 import { erPreview, formaterDato } from '../../../utils/Utils';
 import { logDelMedbrukerEvent } from './Delemodal';
@@ -14,7 +14,7 @@ interface Props {
   veiledernavn?: string;
   brukernavn?: string;
   harDeltMedBruker?: DelMedBruker;
-  tiltaksgjennomforing: SanityTiltaksgjennomforing;
+  tiltaksgjennomforing: VeilederflateTiltaksgjennomforing;
 }
 
 export function DelMedBrukerContent({

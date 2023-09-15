@@ -1,8 +1,8 @@
 /* eslint-disable camelcase */
 import classNames from 'classnames';
 import { useAtom } from 'jotai';
-import { SanityTiltaksgjennomforing } from 'mulighetsrommet-api-client';
-import { paginationAtom, tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
+import { VeilederflateTiltaksgjennomforing } from 'mulighetsrommet-api-client';
+import { paginationAtom } from '../../core/atoms/atoms';
 import { formaterDato } from '../../utils/Utils';
 import Lenke from '../lenke/Lenke';
 import styles from './Gjennomforingsrad.module.scss';
@@ -11,11 +11,11 @@ import { BodyShort } from '@navikt/ds-react';
 import { ChevronRightIcon } from '@navikt/aksel-icons';
 
 interface Props {
-  tiltaksgjennomforing: SanityTiltaksgjennomforing;
+  tiltaksgjennomforing: VeilederflateTiltaksgjennomforing;
   index: number;
 }
 
-const visOppstartsdato = (oppstart: SanityTiltaksgjennomforing.oppstart, oppstartsdato?: string) => {
+const visOppstartsdato = (oppstart: VeilederflateTiltaksgjennomforing.oppstart, oppstartsdato?: string) => {
   switch (oppstart) {
     case 'dato':
       return formaterDato(oppstartsdato!);
@@ -25,7 +25,6 @@ const visOppstartsdato = (oppstart: SanityTiltaksgjennomforing.oppstart, oppstar
 };
 
 export function Gjennomforingsrad({ tiltaksgjennomforing, index }: Props) {
-  const [filter] = useAtom(tiltaksgjennomforingsfilter);
   const [page] = useAtom(paginationAtom);
   const {
     _id,
@@ -43,10 +42,7 @@ export function Gjennomforingsrad({ tiltaksgjennomforing, index }: Props) {
 
   return (
     <li className={styles.list_element} id={`list_element_${index}`}>
-      <Lenke
-        to={`tiltak/${_id}#filter=${encodeURIComponent(JSON.stringify(filter))}&page=${page}`}
-        data-testid="lenke_tiltaksgjennomforing"
-      >
+      <Lenke to={`tiltak/${_id}#page=${page}`} data-testid="lenke_tiltaksgjennomforing">
         <div className={styles.gjennomforing_container}>
           <div className={classNames(styles.flex, styles.navn)}>
             <BodyShort
