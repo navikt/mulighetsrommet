@@ -1051,18 +1051,19 @@ paths:
               schema:
                 type: string
 
-  /api/v1/internal/delMedBruker/{sanityId}:
+  /api/v1/internal/delMedBruker:
     get:
       tags:
         - Del med bruker
       operationId: getDelMedBruker
       parameters:
         - in: query
-          name: "fnr"
+          name: fnr
+          description: "Brukers fnr"
+          required: true
           schema:
             type: string
-          description: "Brukers fnr"
-        - in: path
+        - in: query
           name: sanityId
           description: "ID fra Sanity-dokument"
           required: true
@@ -1082,7 +1083,6 @@ paths:
               schema:
                 type: string
 
-  /api/v1/internal/delMedBruker:
     post:
       tags:
         - Del med bruker
