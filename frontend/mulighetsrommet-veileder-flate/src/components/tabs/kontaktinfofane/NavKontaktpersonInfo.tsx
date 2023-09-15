@@ -26,38 +26,36 @@ const NavKontaktpersonInfo = ({ data }: NavKontaktpersonInfoProps) => {
       </Heading>
 
       {tiltaksansvarlige.map((tiltaksansvarlig: SanityKontakinfoTiltaksansvarlige) => {
+        const { navn, epost, telefonnummer, enhet } = tiltaksansvarlig;
         return (
-          <div key={tiltaksansvarlig.epost} className={styles.container}>
+          <div key={epost} className={styles.container}>
             <BodyShort className={styles.navn} size="small">
-              {tiltaksansvarlig.navn}
+              {navn}
             </BodyShort>
 
             <BodyShort size="small">
               <div className={styles.infofelt}>
                 <div className={styles.kolonne}>
-                  <span>Telefon:</span>
+                  {telefonnummer && <span>Telefon:</span>}
                   <span>Epost:</span>
                   <span>Teams:</span>
                   <span>Enhet:</span>
                 </div>
 
                 <div className={styles.kolonne}>
-                  <span>{tiltaksansvarlig.telefonnummer}</span>
-                  <a
-                    href={`mailto:${tiltaksansvarlig.epost}`}
-                    onClick={() => logEvent('mulighetsrommet.tiltaksansvarlig.epost')}
-                  >
-                    {tiltaksansvarlig.epost}
+                  {telefonnummer && <span>{telefonnummer}</span>}
+                  <a href={`mailto:${epost}`} onClick={() => logEvent('mulighetsrommet.tiltaksansvarlig.epost')}>
+                    {epost}
                   </a>
                   <a
                     target="_blank"
                     rel="noreferrer"
-                    href={`${TEAMS_DYPLENKE}${encodeURIComponent(tiltaksansvarlig.epost)}`}
+                    href={`${TEAMS_DYPLENKE}${encodeURIComponent(epost)}`}
                     onClick={() => logEvent('mulighetsrommet.tiltaksansvarlig.teamslenke')}
                   >
                     Kontakt meg på Teams
                   </a>
-                  <span>{tiltaksansvarlig.enhet}</span>
+                  <span>{enhet}</span>
                 </div>
               </div>
             </BodyShort>
