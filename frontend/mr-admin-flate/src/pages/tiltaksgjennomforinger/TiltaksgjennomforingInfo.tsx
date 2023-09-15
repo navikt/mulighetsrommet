@@ -40,7 +40,8 @@ export function TiltaksgjennomforingInfo() {
     tiltaksgjennomforing?.avtaleId,
   );
 
-  const forhandsvisningMiljo = erDevMiljo ? "dev.nav.no" : "nav.no";
+  const forhandsvisningMiljo =
+    import.meta.env.dev || erDevMiljo ? "dev.nav.no" : "nav.no";
 
   const [slettModal, setSlettModal] = useState(false);
   const mutation = useDeleteTiltaksgjennomforing();
@@ -276,7 +277,7 @@ export function TiltaksgjennomforingInfo() {
                       to={`https://mulighetsrommet-veileder-flate.intern.${forhandsvisningMiljo}/preview/${tiltaksgjennomforing.sanityId}?preview=true`}
                     >
                       Forhåndsvis gjennomføringen{" "}
-                      <ExternalLinkIcon title="Åpner tiltaksgjennomføringen i veilederflate (Modia)" />
+                      <ExternalLinkIcon title="Forhåndsviser tiltaksgjennomføringen i veilederflate (Modia)" />
                     </Link>
                   </>
                 }
