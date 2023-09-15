@@ -8,10 +8,6 @@
     @media (width <= 1200px) {
       justify-content: space-evenly;
     }
-    .arrangor_info,
-    .tiltaksansvarlig_info {
-      max-width: 17rem;
-    }
   }
 
   .header {
@@ -22,20 +18,22 @@
   .navn {
     font-weight: bold;
   }
-}
 
-.container {
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 1rem;
-}
+  .container {
+    margin: 1.5rem 0;
+    max-width: 40rem;
+  }
 
-.infofelt {
-  margin-top: 0.5rem;
+  .infofelt {
+    margin-top: 0.5rem;
+    display: flex;
+    flex-direction: row;
+    gap: 2rem;
 
-  .rad {
-    display: grid;
-    grid-template-columns: 6rem auto;
-    margin-bottom: 0.25rem;
+    .kolonne {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 0.25rem;
+    }
   }
 }
