@@ -276,8 +276,8 @@ export function TiltaksgjennomforingInfo() {
                       target="_blank"
                       to={`https://mulighetsrommet-veileder-flate.intern.${forhandsvisningMiljo}/preview/${tiltaksgjennomforing.sanityId}?preview=true`}
                     >
-                      Forhåndsvis gjennomføringen{" "}
-                      <ExternalLinkIcon title="Forhåndsviser tiltaksgjennomføringen i veilederflate (Modia)" />
+                      Forhåndsviser gjennomføringen i veilederflate (Modia)
+                      <ExternalLinkIcon title="Forhåndsviser gjennomføringen i veilederflate (Modia)" />
                     </Link>
                   </>
                 }
