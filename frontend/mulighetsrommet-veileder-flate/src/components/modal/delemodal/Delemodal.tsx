@@ -6,7 +6,7 @@ import { mulighetsrommetClient } from '../../../core/api/clients';
 import { logEvent } from '../../../core/api/logger';
 import { useHentDeltMedBrukerStatus } from '../../../core/api/queries/useHentDeltMedbrukerStatus';
 import { byttTilDialogFlate } from '../../../utils/DialogFlateUtils';
-import { capitalize, erPreview } from '../../../utils/Utils';
+import { erPreview } from '../../../utils/Utils';
 import modalStyles from '../Modal.module.scss';
 import { StatusModal } from '../StatusModal';
 import { DelMedBrukerContent } from './DelMedBrukerContent';
