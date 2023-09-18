@@ -89,7 +89,7 @@ export const saveUtkast = (
 };
 
 export const defaultEnhet = (
-  avtale: Avtale,
+  avtale: Avtale | undefined,
   enheter: NavEnhet[],
   ansatt: NavAnsatt,
 ) => {
@@ -117,7 +117,7 @@ export const erAnskaffetTiltak = (
   return tiltakstypekodeErAnskaffetTiltak(tiltakstype?.arenaKode);
 };
 
-export const enheterOptions = (navRegion: string, enheter: NavEnhet[]) => {
+export const enheterOptions = (navRegion: string | undefined, enheter: NavEnhet[]) => {
   if (!navRegion) {
     return [];
   }

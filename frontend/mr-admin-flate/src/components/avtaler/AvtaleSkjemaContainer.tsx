@@ -82,7 +82,7 @@ export function AvtaleSkjemaContainer({
     resolver: zodResolver(AvtaleSchema),
     defaultValues: {
       tiltakstype: avtale?.tiltakstype?.id,
-      navRegion: defaultEnhet(avtale!, enheter, ansatt),
+      navRegion: defaultEnhet(avtale, enheter, ansatt),
       navEnheter: avtale?.navEnheter?.map((e) => e.enhetsnummer) || [],
       administrator: avtale?.administrator?.navIdent || ansatt.navIdent || "",
       avtalenavn: avtale?.navn ?? "",
@@ -337,7 +337,7 @@ export function AvtaleSkjemaContainer({
                     readOnly={!navRegion}
                     label={"NAV enhet (kontorer)"}
                     {...register("navEnheter")}
-                    options={enheterOptions(navRegion!, enheter)}
+                    options={enheterOptions(navRegion, enheter)}
                   />
                 </FormGroup>
               </div>

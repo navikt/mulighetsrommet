@@ -51,7 +51,6 @@ data class AdminTiltaksgjennomforingFilter(
 
 data class EnhetFilter(
     val statuser: List<NavEnhetStatus>? = null,
-    val tiltakstypeId: UUID? = null,
     val typer: List<Norg2Type>? = null,
 )
 
@@ -163,8 +162,6 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getAdminTiltaksgjennomforingsF
 }
 
 fun <T : Any> PipelineContext<T, ApplicationCall>.getEnhetFilter(): EnhetFilter {
-    val tiltakstypeId = call.request.queryParameters["tiltakstypeId"]?.toUUID()
-
     val statuser = call.parameters.getAll("statuser")
         ?.map { NavEnhetStatus.valueOf(it) }
         ?: listOf(
@@ -183,7 +180,6 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getEnhetFilter(): EnhetFilter 
         )
 
     return EnhetFilter(
-        tiltakstypeId = tiltakstypeId,
         statuser = statuser,
         typer = typer,
     )

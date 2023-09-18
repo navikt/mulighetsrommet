@@ -5,7 +5,7 @@ import {
 } from "mulighetsrommet-api-client";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
-import { useAlleEnheter } from "../../api/enhet/useAlleEnheter";
+import { useNavEnheter } from "../../api/enhet/useNavEnheter";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
 import { ContainerLayoutDetaljer } from "../../layouts/ContainerLayout";
 import { inneholderUrl } from "../../utils/Utils";
@@ -43,7 +43,7 @@ const TiltaksgjennomforingSkjemaPage = () => {
     data: enheter,
     isLoading: isLoadingEnheter,
     isError: isErrorEnheter,
-  } = useAlleEnheter();
+  } = useNavEnheter();
 
   const utkastModus = utkast && inneholderUrl(utkast?.id);
   const redigeringsModus =

@@ -36,7 +36,7 @@ import {
   enheterOptions,
   UtkastData,
 } from "./TiltaksgjennomforingSkjemaConst";
-import { useAlleEnheter } from "../../api/enhet/useAlleEnheter";
+import { useNavEnheter } from "../../api/enhet/useNavEnheter";
 import { mulighetsrommetClient } from "../../api/clients";
 import { useHentKontaktpersoner } from "../../api/ansatt/useHentKontaktpersoner";
 import { usePutGjennomforing } from "../../api/avtaler/usePutGjennomforing";
@@ -80,7 +80,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
 
   const { data: ansatt, isLoading: isLoadingAnsatt } = useHentAnsatt();
 
-  const { data: enheter, isLoading: isLoadingEnheter } = useAlleEnheter();
+  const { data: enheter, isLoading: isLoadingEnheter } = useNavEnheter();
 
   const { data: kontaktpersoner, isLoading: isLoadingKontaktpersoner } =
     useHentKontaktpersoner();
