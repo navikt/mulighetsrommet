@@ -147,7 +147,6 @@ data class AvtaleRequest(
                 leverandorKontaktpersonId = leverandorKontaktpersonId,
                 startDato = startDato,
                 sluttDato = sluttDato,
-                arenaAnsvarligEnhet = null,
                 navRegion = navRegion,
                 avtaletype = avtaletype,
                 avslutningsstatus = avslutningsstatus,

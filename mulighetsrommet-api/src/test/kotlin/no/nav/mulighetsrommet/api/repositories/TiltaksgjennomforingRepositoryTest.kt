@@ -69,7 +69,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 ),
                 startDato = Oppfolging1.startDato,
                 sluttDato = Oppfolging1.sluttDato,
-                arenaAnsvarligEnhet = Oppfolging1.arenaAnsvarligEnhet,
+                arenaAnsvarligEnhet = null,
                 status = Tiltaksgjennomforingsstatus.AVSLUTTET,
                 tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.LEDIG,
                 antallPlasser = 12,
@@ -842,19 +842,24 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 ),
             ).shouldBeRight()
 
-            val gj1 = Oppfolging1.copy(id = UUID.randomUUID(), navEnheter = listOf("1"))
-            val gj2 = Oppfolging1.copy(id = UUID.randomUUID(), arenaAnsvarligEnhet = "1")
-            val gj3 = Oppfolging1.copy(id = UUID.randomUUID(), navEnheter = listOf("2"))
-            val gj4 = Oppfolging1.copy(id = UUID.randomUUID(), navEnheter = listOf("1", "2"))
+            val tg1 = Oppfolging1.copy(id = UUID.randomUUID(), navEnheter = listOf("1"))
+            tiltaksgjennomforinger.upsert(tg1)
 
-            tiltaksgjennomforinger.upsert(gj1)
-            tiltaksgjennomforinger.upsert(gj2)
-            tiltaksgjennomforinger.upsert(gj3)
-            tiltaksgjennomforinger.upsert(gj4)
+            val tg2 = Oppfolging1.copy(id = UUID.randomUUID())
+            tiltaksgjennomforinger.upsert(tg2)
+            Query("update tiltaksgjennomforing set arena_ansvarlig_enhet = '1' where id = '${tg2.id}'")
+                .asUpdate
+                .let { database.db.run(it) }
+
+            val tg3 = Oppfolging1.copy(id = UUID.randomUUID(), navEnheter = listOf("2"))
+            tiltaksgjennomforinger.upsert(tg3)
+
+            val tg4 = Oppfolging1.copy(id = UUID.randomUUID(), navEnheter = listOf("1", "2"))
+            tiltaksgjennomforinger.upsert(tg4)
 
             tiltaksgjennomforinger.getAll(navEnhet = "1").should {
                 it.first shouldBe 3
-                it.second.map { it.id } shouldContainAll listOf(gj1.id, gj2.id, gj4.id)
+                it.second.map { tg -> tg.id } shouldContainAll listOf(tg1.id, tg2.id, tg4.id)
             }
         }
 
@@ -889,27 +894,28 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 
             val avtale = avtale1.copy(id = UUID.randomUUID(), navRegion = "nav_region")
             avtaler.upsert(avtale)
-            val gj1 = Oppfolging1.copy(id = UUID.randomUUID(), navEnheter = listOf("1"))
-            val gj2 = Oppfolging1.copy(id = UUID.randomUUID(), arenaAnsvarligEnhet = "1")
-            val gj3 = Oppfolging1.copy(id = UUID.randomUUID(), navEnheter = listOf("2"))
-            val gj4 = Oppfolging1.copy(id = UUID.randomUUID(), navEnheter = listOf("1", "2"))
-            val gj5 = Oppfolging1.copy(
-                id = UUID.randomUUID(),
-                navEnheter = emptyList(),
-                arenaAnsvarligEnhet = null,
-                avtaleId = avtale.id,
-            )
 
-            tiltaksgjennomforinger.upsert(gj1)
-            tiltaksgjennomforinger.upsert(gj2)
-            tiltaksgjennomforinger.upsert(gj3)
-            tiltaksgjennomforinger.upsert(gj4)
-            tiltaksgjennomforinger.upsert(gj5)
+            val tg1 = Oppfolging1.copy(id = UUID.randomUUID(), navEnheter = listOf("1"))
+            tiltaksgjennomforinger.upsert(tg1)
+
+            val tg2 = Oppfolging1.copy(id = UUID.randomUUID())
+            Query("update tiltaksgjennomforing set arena_ansvarlig_enhet = '1' where id = '${tg2.id}'")
+                .asUpdate
+                .let { database.db.run(it) }
+
+            val tg3 = Oppfolging1.copy(id = UUID.randomUUID(), navEnheter = listOf("2"))
+            tiltaksgjennomforinger.upsert(tg3)
+
+            val tg4 = Oppfolging1.copy(id = UUID.randomUUID(), navEnheter = listOf("1", "2"))
+            tiltaksgjennomforinger.upsert(tg4)
+
+            val tg5 = Oppfolging1.copy(id = UUID.randomUUID(), navEnheter = emptyList(), avtaleId = avtale.id)
+            tiltaksgjennomforinger.upsert(tg5)
 
             tiltaksgjennomforinger.getAll(navRegion = "nav_region")
                 .should {
                     it.first shouldBe 3
-                    it.second.map { it.id } shouldContainAll listOf(gj4.id, gj3.id, gj5.id)
+                    it.second.map { tg -> tg.id } shouldContainAll listOf(tg3.id, tg4.id, tg5.id)
                 }
         }
 
@@ -942,20 +948,25 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 ),
             ).shouldBeRight()
 
-            val gj1 = Oppfolging1.copy(id = UUID.randomUUID(), navEnheter = listOf("1898"))
-            val gj2 = Oppfolging1.copy(id = UUID.randomUUID(), arenaAnsvarligEnhet = "1800")
-            val gj3 = Oppfolging1.copy(id = UUID.randomUUID(), navEnheter = listOf("1898"))
-            val gj4 = Oppfolging1.copy(id = UUID.randomUUID(), navEnheter = listOf("1800"))
+            val tg1 = Oppfolging1.copy(id = UUID.randomUUID(), navEnheter = listOf("1898"))
+            tiltaksgjennomforinger.upsert(tg1)
 
-            tiltaksgjennomforinger.upsert(gj1)
-            tiltaksgjennomforinger.upsert(gj2)
-            tiltaksgjennomforinger.upsert(gj3)
-            tiltaksgjennomforinger.upsert(gj4)
+            val tg2 = Oppfolging1.copy(id = UUID.randomUUID())
+            tiltaksgjennomforinger.upsert(tg2)
+            Query("update tiltaksgjennomforing set arena_ansvarlig_enhet = '1800' where id = '${tg2.id}'")
+                .asUpdate
+                .let { database.db.run(it) }
+
+            val tg3 = Oppfolging1.copy(id = UUID.randomUUID(), navEnheter = listOf("1898"))
+            tiltaksgjennomforinger.upsert(tg3)
+
+            val tg4 = Oppfolging1.copy(id = UUID.randomUUID(), navEnheter = listOf("1800"))
+            tiltaksgjennomforinger.upsert(tg4)
 
             tiltaksgjennomforinger.getAll(navRegion = "1800")
                 .should {
                     it.first shouldBe 1
-                    it.second.map { it.id } shouldContainAll listOf(gj2.id)
+                    it.second.map { tg -> tg.id } shouldContainAll listOf(tg2.id)
                 }
         }
 
@@ -995,7 +1006,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                         tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
                         tiltaksnummer = "$it",
                         arrangorOrganisasjonsnummer = "123456789",
-                        arenaAnsvarligEnhet = "2990",
                         avslutningsstatus = Avslutningsstatus.AVSLUTTET,
                         startDato = LocalDate.of(2022, 1, 1),
                         tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.LEDIG,

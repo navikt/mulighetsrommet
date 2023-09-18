@@ -118,8 +118,8 @@ class VirksomhetRepositoryTest : FunSpec({
                 overordnet.copy(
                     postnummer = "9988",
                     poststed = "Olsenåsen",
-                    navn = "Stopp konflikten"
-                )
+                    navn = "Stopp konflikten",
+                ),
             ).shouldBeRight()
 
             virksomhetRepository.get(overordnet.organisasjonsnummer).shouldBeRight().should {
@@ -239,7 +239,6 @@ class VirksomhetRepositoryTest : FunSpec({
                 leverandorUnderenheter = emptyList(),
                 startDato = LocalDate.now(),
                 sluttDato = LocalDate.now(),
-                arenaAnsvarligEnhet = null,
                 navRegion = "0100",
                 navEnheter = emptyList(),
                 avtaletype = Avtaletype.Avtale,
@@ -260,7 +259,6 @@ class VirksomhetRepositoryTest : FunSpec({
                 tiltaksnummer = null,
                 arrangorOrganisasjonsnummer = "112254604",
                 startDato = LocalDate.now(),
-                arenaAnsvarligEnhet = null,
                 avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
                 tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.LEDIG,
                 antallPlasser = 12,
@@ -344,7 +342,7 @@ class VirksomhetRepositoryTest : FunSpec({
 
             virksomhetRepository.getKontaktpersoner("982254604") shouldContainExactlyInAnyOrder listOf(
                 kontaktperson,
-                kontaktperson2
+                kontaktperson2,
             )
         }
     }

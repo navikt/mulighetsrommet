@@ -16,7 +16,6 @@ data class TiltaksgjennomforingDbo(
     val arrangorKontaktpersonId: UUID?,
     val startDato: LocalDate,
     val sluttDato: LocalDate?,
-    val arenaAnsvarligEnhet: String?,
     val avslutningsstatus: Avslutningsstatus,
     val tilgjengelighet: TiltaksgjennomforingTilgjengelighetsstatus,
     val estimertVentetid: String?,

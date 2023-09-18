@@ -19,7 +19,6 @@ object AvtaleFixtures {
         leverandorUnderenheter = emptyList(),
         startDato = LocalDate.of(2023, 1, 11),
         sluttDato = LocalDate.of(2023, 2, 28),
-        arenaAnsvarligEnhet = null,
         navRegion = "2990",
         avtaletype = Avtaletype.Rammeavtale,
         avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
