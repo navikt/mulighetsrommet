@@ -17,6 +17,7 @@ import { Metadata, Separator } from "../../components/detaljside/Metadata";
 import { VisHvisVerdi } from "../../components/detaljside/VisHvisVerdi";
 import { Laster } from "../../components/laster/Laster";
 import {
+  erDevMiljo,
   formaterDato,
   inneholderUrl,
   tilgjengelighetsstatusTilTekst,
@@ -38,6 +39,9 @@ export function TiltaksgjennomforingInfo() {
   const { data: avtale, isLoading: isLoadingAvtale } = useAvtale(
     tiltaksgjennomforing?.avtaleId,
   );
+
+  const forhandsvisningMiljo =
+    import.meta.env.dev || erDevMiljo ? "dev.nav.no" : "nav.no";
 
   const [slettModal, setSlettModal] = useState(false);
   const mutation = useDeleteTiltaksgjennomforing();
@@ -256,6 +260,24 @@ export function TiltaksgjennomforingInfo() {
                     >
                       Åpne tiltaksgjennomføringen i Sanity{" "}
                       <ExternalLinkIcon title="Åpner tiltaksgjennomføringen i Sanity" />
+                    </Link>
+                  </>
+                }
+              />
+            </Bolk>
+          </VisHvisVerdi>
+          <VisHvisVerdi verdi={tiltaksgjennomforing.sanityId}>
+            <Bolk aria-label="Forhåndsvisning">
+              <Metadata
+                header="Forhåndsvisning i veilederflate (Modia)"
+                verdi={
+                  <>
+                    <Link
+                      target="_blank"
+                      to={`https://mulighetsrommet-veileder-flate.intern.${forhandsvisningMiljo}/preview/${tiltaksgjennomforing.sanityId}?preview=true`}
+                    >
+                      Forhåndsviser gjennomføringen i veilederflate (Modia)
+                      <ExternalLinkIcon title="Forhåndsviser gjennomføringen i veilederflate (Modia)" />
                     </Link>
                   </>
                 }
