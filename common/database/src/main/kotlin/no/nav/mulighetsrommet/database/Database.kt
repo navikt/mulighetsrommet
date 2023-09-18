@@ -30,4 +30,6 @@ interface Database {
     fun run(query: UpdateAndReturnGeneratedKeyQueryAction): Long?
 
     fun <T> transaction(operation: (TransactionalSession) -> T): T
+
+    suspend fun <T> transactionSuspend(operation: suspend (TransactionalSession) -> T): T
 }
