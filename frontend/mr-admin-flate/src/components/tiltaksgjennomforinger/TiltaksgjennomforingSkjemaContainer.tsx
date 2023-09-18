@@ -59,7 +59,7 @@ import { Separator } from "../detaljside/Metadata";
 interface Props {
   onClose: () => void;
   onSuccess: (id: string) => void;
-  avtale?: Avtale;
+  avtale: Avtale;
   tiltaksgjennomforing?: Tiltaksgjennomforing;
 }
 
@@ -72,7 +72,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
   const utkastIdRef = useRef(tiltaksgjennomforing?.id || uuidv4());
   const redigeringsModus = !!tiltaksgjennomforing;
   const { data: virksomhet } = useVirksomhet(
-    avtale?.leverandor.organisasjonsnummer || "",
+    avtale.leverandor.organisasjonsnummer || "",
   );
   const mutation = usePutGjennomforing();
   const mutationUtkast = useMutateUtkast();
@@ -118,8 +118,8 @@ export const TiltaksgjennomforingSkjemaContainer = ({
       stengtTil: values?.midlertidigStengt?.erMidlertidigStengt
         ? values?.midlertidigStengt?.stengtTil?.toString()
         : undefined,
-      tiltakstypeId: avtale?.tiltakstype.id,
-      avtaleId: avtale?.id,
+      tiltakstypeId: avtale.tiltakstype.id,
+      avtaleId: avtale.id,
       arrangorKontaktpersonId: {
         id: values?.arrangorKontaktpersonId ?? undefined,
       },
@@ -314,7 +314,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
                   size="small"
                   readOnly
                   label={"Avtale"}
-                  value={avtale?.navn || ""}
+                  value={avtale.navn || ""}
                 />
               </FormGroup>
               <Separator />
@@ -435,7 +435,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
                     size="small"
                     readOnly
                     label={"NAV-region"}
-                    value={avtale?.navRegion?.navn || ""}
+                    value={avtale.navRegion?.navn || ""}
                   />
                   <ControlledMultiSelect
                     size="small"
@@ -527,7 +527,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
                     size="small"
                     label="Tiltaksarrangør hovedenhet"
                     placeholder=""
-                    defaultValue={`${avtale?.leverandor.navn} - ${avtale?.leverandor.organisasjonsnummer}`}
+                    defaultValue={`${avtale.leverandor.navn} - ${avtale.leverandor.organisasjonsnummer}`}
                     readOnly
                   />
                   <SokeSelect
@@ -547,8 +547,8 @@ export const TiltaksgjennomforingSkjemaContainer = ({
                         "",
                       );
                     }}
-                    readOnly={!avtale?.leverandor.organisasjonsnummer}
-                    options={arrangorUnderenheterOptions(avtale!, virksomhet)}
+                    readOnly={!avtale.leverandor.organisasjonsnummer}
+                    options={arrangorUnderenheterOptions(avtale, virksomhet)}
                   />
                   {watch("tiltaksArrangorUnderenhetOrganisasjonsnummer") &&
                     !tiltaksgjennomforing?.arrangor?.slettet && (
@@ -592,7 +592,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
       <AutoSaveUtkast
         defaultValues={defaultValues}
         utkastId={utkastIdRef.current}
-        onSave={() => saveUtkast(watch(), avtale!, utkastIdRef)}
+        onSave={() => saveUtkast(watch(), avtale, utkastIdRef)}
         mutation={mutationUtkast}
       />
     </FormProvider>

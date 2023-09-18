@@ -72,6 +72,36 @@ const TiltaksgjennomforingSkjemaPage = () => {
     );
   }
 
+  let content = null;
+  if (isError && redigeringsModus) {
+    content = (
+      <Alert variant="error">
+        {ErrorMeldinger(
+          avtale,
+          redigeringsModus,
+          isErrorAnsatt,
+          isErrorEnheter,
+        )}
+      </Alert>
+    );
+  } else if ((!tiltakstyper?.data || !ansatt || !enheter) && !isError) {
+    content = null;
+  } else if (avtale) {
+    content = (
+      <TiltaksgjennomforingSkjemaContainer
+        onClose={() => {
+          queryClient.refetchQueries({ queryKey: ["utkast"] });
+          navigerTilbake();
+        }}
+        onSuccess={(id) => navigate(`/tiltaksgjennomforinger/${id}`)}
+        avtale={avtale}
+        tiltaksgjennomforing={
+          (utkast?.utkastData as Tiltaksgjennomforing) || tiltaksgjennomforing
+        }
+      />
+    );
+  }
+
   return (
     <main>
       <Header
@@ -89,35 +119,10 @@ const TiltaksgjennomforingSkjemaPage = () => {
       </Header>
       <ContainerLayoutDetaljer>
         <div className={styles.skjema}>
-          {isLoadingAnsatt || isLoadingTiltakstyper || isLoadingEnheter ? (
+          {(isLoadingAnsatt || isLoadingTiltakstyper || isLoadingEnheter) && (
             <Laster />
-          ) : null}
-          <div className={styles.skjema_content}>
-            {isError && redigeringsModus ? (
-              <Alert variant="error">
-                {ErrorMeldinger(
-                  avtale,
-                  redigeringsModus,
-                  isErrorAnsatt,
-                  isErrorEnheter,
-                )}
-              </Alert>
-            ) : (!tiltakstyper?.data || !ansatt || !enheter) &&
-              !isError ? null : (
-              <TiltaksgjennomforingSkjemaContainer
-                onClose={() => {
-                  queryClient.refetchQueries({ queryKey: ["utkast"] });
-                  navigerTilbake();
-                }}
-                onSuccess={(id) => navigate(`/tiltaksgjennomforinger/${id}`)}
-                avtale={avtale}
-                tiltaksgjennomforing={
-                  (utkast?.utkastData as Tiltaksgjennomforing) ||
-                  tiltaksgjennomforing
-                }
-              />
-            )}
-          </div>
+          )}
+          <div className={styles.skjema_content}>{content}</div>
         </div>
       </ContainerLayoutDetaljer>
     </main>
