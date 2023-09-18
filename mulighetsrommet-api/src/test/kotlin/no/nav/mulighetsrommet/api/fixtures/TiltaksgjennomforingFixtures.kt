@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.api.fixtures
 
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
-import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures.avtale1Id
 import no.nav.mulighetsrommet.api.routes.v1.TiltaksgjennomforingRequest
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
@@ -26,7 +25,7 @@ object TiltaksgjennomforingFixtures {
         antallPlasser = null,
         oppstart = TiltaksgjennomforingOppstartstype.FELLES,
         opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
-        avtaleId = avtale1Id,
+        avtaleId = AvtaleFixtures.avtale1.id,
     )
 
     val Oppfolging1 = TiltaksgjennomforingDbo(
@@ -51,7 +50,7 @@ object TiltaksgjennomforingFixtures {
         stengtTil = null,
         lokasjonArrangor = "Oslo",
         estimertVentetid = null,
-        avtaleId = avtale1Id,
+        avtaleId = AvtaleFixtures.avtale1.id,
     )
 
     fun oppfolging1Request(avtaleId: UUID) = TiltaksgjennomforingRequest(
@@ -99,7 +98,7 @@ object TiltaksgjennomforingFixtures {
         stengtTil = null,
         lokasjonArrangor = "Oslo",
         estimertVentetid = null,
-        avtaleId = avtale1Id,
+        avtaleId = AvtaleFixtures.avtale1.id,
     )
 
     val Arbeidstrening1 = TiltaksgjennomforingDbo(
@@ -124,6 +123,6 @@ object TiltaksgjennomforingFixtures {
         stengtTil = null,
         lokasjonArrangor = "Oslo",
         estimertVentetid = null,
-        avtaleId = avtale1Id,
+        avtaleId = AvtaleFixtures.avtale1.id,
     )
 }
