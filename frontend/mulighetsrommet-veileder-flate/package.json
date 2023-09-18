@@ -24,7 +24,7 @@
     "**/fsevents": "^1.2.9"
   },
   "dependencies": {
-    "@grafana/faro-web-sdk": "^1.1.4",
+    "@grafana/faro-web-sdk": "^1.2.0",
     "@navikt/aksel-icons": "^5.3.1",
     "@navikt/ds-css": "^5.3.1",
     "@navikt/ds-react": "^5.3.1",
@@ -44,7 +44,7 @@
     "react-error-boundary": "^4.0.11",
     "react-joyride": "^2.5.5",
     "react-query": "^3.39.3",
-    "react-router-dom": "^6.15.0",
+    "react-router-dom": "^6.16.0",
     "url-join": "^5.0.0",
     "uuid": "^9.0.1"
   },
@@ -53,10 +53,10 @@
     "@types/babel__core": "^7.20.2",
     "@types/progress-stream": "^2.0.2",
     "@types/react-modal": "^3.16.0",
-    "@typescript-eslint/eslint-plugin": "^6.6.0",
+    "@typescript-eslint/eslint-plugin": "^6.7.0",
     "@vitejs/plugin-react": "^4.0.4",
     "cross-env": "^7.0.3",
-    "cypress": "^13.1.0",
+    "cypress": "^13.2.0",
     "cypress-axe": "^1.5.0",
     "eslint": "^8.49.0",
     "eslint-config-prettier": "^9.0.0",
