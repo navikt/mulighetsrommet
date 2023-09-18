@@ -38,6 +38,7 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
       },
       navn: 'Avklaring',
       faneinnhold: {
+        forHvemInfoboks: 'En helt spesiell infoboks som viser veldig viktig informasjon',
         forHvem: [
           {
             style: 'normal',
