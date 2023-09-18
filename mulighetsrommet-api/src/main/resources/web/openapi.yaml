@@ -1664,11 +1664,13 @@ components:
           type: string
         avtalenummer:
           type: string
+          nullable: true
         leverandorOrganisasjonsnummer:
           type: string
         leverandorKontaktpersonId:
           type: string
           format: UUID
+          nullable: true
         leverandorUnderenheter:
           type: array
           items:
@@ -1683,12 +1685,14 @@ components:
           type: string
         url:
           type: string
+          nullable: true
         administrator:
           type: string
         avtaletype:
           $ref: "#/components/schemas/Avtaletype"
         prisOgBetalingsinformasjon:
           type: string
+          nullable: true
         navEnheter:
           type: array
           items:
@@ -1699,19 +1703,22 @@ components:
           $ref: "#/components/schemas/AvtaleAvslutningsstatus"
       required:
         - id
-        - tiltakstypeId
         - navn
-        - avtalenummer
+        - tiltakstypeId
         - leverandorOrganisasjonsnummer
         - leverandorUnderenheter
+        - leverandorKontaktpersonId
+        - avtalenummer
         - startDato
         - sluttDato
         - navRegion
-        - avtalestatus
-        - antallPlasser
+        - url
         - administrator
         - avtaletype
+        - prisOgBetalingsinformasjon
         - navEnheter
+        - opphav
+        - avslutningsstatus
 
     EmbeddedTiltakstype:
       type: object

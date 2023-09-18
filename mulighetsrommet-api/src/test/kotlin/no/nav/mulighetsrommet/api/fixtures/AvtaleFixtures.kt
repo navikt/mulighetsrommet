@@ -28,6 +28,8 @@ object AvtaleFixtures {
         administratorer = emptyList(),
         navEnheter = emptyList(),
         leverandorKontaktpersonId = null,
+        antallPlasser = null,
+        url = null,
     )
 
     val avtaleRequest = AvtaleRequest(
@@ -47,6 +49,7 @@ object AvtaleFixtures {
         url = "google.com",
         navEnheter = listOf("2990"),
         leverandorKontaktpersonId = null,
+        prisOgBetalingsinformasjon = null,
     )
 
     val arenaAvtale1 = ArenaAvtaleDbo(

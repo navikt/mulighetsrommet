@@ -2,6 +2,7 @@ import { Alert, Textarea, TextField } from "@navikt/ds-react";
 import {
   ApiError,
   Avtale,
+  AvtaleAvslutningsstatus,
   AvtaleRequest,
   Avtaletype,
   LeverandorUnderenhet,
@@ -34,7 +35,6 @@ import {
   defaultEnhet,
   enheterOptions,
   erAnskaffetTiltak,
-  getValueOrDefault,
   saveUtkast,
   underenheterOptions,
 } from "./AvtaleSkjemaConst";
@@ -85,12 +85,9 @@ export function AvtaleSkjemaContainer({
       navRegion: defaultEnhet(avtale!, enheter, ansatt),
       navEnheter: avtale?.navEnheter?.map((e) => e.enhetsnummer) || [],
       administrator: avtale?.administrator?.navIdent || ansatt.navIdent || "",
-      avtalenavn: getValueOrDefault(avtale?.navn, ""),
-      avtaletype: getValueOrDefault(avtale?.avtaletype, Avtaletype.AVTALE),
-      leverandor: getValueOrDefault(
-        avtale?.leverandor?.organisasjonsnummer,
-        "",
-      ),
+      avtalenavn: avtale?.navn ?? "",
+      avtaletype: avtale?.avtaletype ?? Avtaletype.AVTALE,
+      leverandor: avtale?.leverandor?.organisasjonsnummer ?? "",
       leverandorUnderenheter:
         avtale?.leverandorUnderenheter?.length === 0 ||
         !avtale?.leverandorUnderenheter
@@ -104,11 +101,8 @@ export function AvtaleSkjemaContainer({
         startDato: avtale?.startDato ? new Date(avtale.startDato) : undefined,
         sluttDato: avtale?.sluttDato ? new Date(avtale.sluttDato) : undefined,
       },
-      url: getValueOrDefault(avtale?.url, ""),
-      prisOgBetalingsinfo: getValueOrDefault(
-        avtale?.prisbetingelser,
-        undefined,
-      ),
+      url: avtale?.url ?? undefined,
+      prisOgBetalingsinfo: avtale?.prisbetingelser ?? undefined,
     },
   });
 
@@ -135,10 +129,7 @@ export function AvtaleSkjemaContainer({
 
   const { data: leverandorData } = useVirksomhet(watch("leverandor"));
 
-  const underenheterForLeverandor = getValueOrDefault(
-    leverandorData?.underenheter,
-    [],
-  );
+  const underenheterForLeverandor = leverandorData?.underenheter ?? [];
 
   const arenaOpphav = avtale?.opphav === Opphav.ARENA;
 
@@ -164,24 +155,25 @@ export function AvtaleSkjemaContainer({
       id: utkastIdRef.current,
       navRegion,
       navEnheter,
-      avtalenummer: getValueOrDefault(avtale?.avtalenummer, ""),
+      avtalenummer: avtale?.avtalenummer || null,
       leverandorOrganisasjonsnummer,
       leverandorUnderenheter,
       navn,
       sluttDato: formaterDatoSomYYYYMMDD(startOgSluttDato.sluttDato),
       startDato: formaterDatoSomYYYYMMDD(startOgSluttDato.startDato),
       tiltakstypeId,
-      url,
+      url: url || null,
       administrator,
       avtaletype,
       prisOgBetalingsinformasjon: erAnskaffetTiltak(
         tiltakstypeId,
         getTiltakstypeFromId,
       )
-        ? prisOgBetalingsinfo
-        : undefined,
-      opphav: avtale?.opphav,
-      leverandorKontaktpersonId,
+        ? prisOgBetalingsinfo || null
+        : null,
+      opphav: avtale?.opphav ?? Opphav.MR_ADMIN_FLATE,
+      leverandorKontaktpersonId: leverandorKontaktpersonId ?? null,
+      avslutningsstatus: AvtaleAvslutningsstatus.IKKE_AVSLUTTET,
     };
 
     if (avtale?.id) {
