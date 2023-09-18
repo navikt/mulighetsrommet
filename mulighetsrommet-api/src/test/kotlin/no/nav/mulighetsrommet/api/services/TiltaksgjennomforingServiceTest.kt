@@ -8,6 +8,7 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.ktor.http.*
+import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -401,6 +402,16 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             shouldThrow<Throwable> { tiltaksgjennomforingService.delete(gjennomforing.id) }
 
             tiltaksgjennomforingService.get(gjennomforing.id) shouldNotBe null
+        }
+
+        test("Hvis sanity create kaster rulles upsert tilbake") {
+            val gjennomforing = TiltaksgjennomforingFixtures.oppfolging1Request(avtaleId)
+
+            coEvery { sanityTiltaksgjennomforingService.createOrPatchSanityTiltaksgjennomforing(any()) } throws Exception()
+
+            shouldThrow<Throwable> { tiltaksgjennomforingService.upsert(gjennomforing, "B123456", LocalDate.of(2023, 1, 1)) }
+
+            tiltaksgjennomforingService.get(gjennomforing.id) shouldBe null
         }
     }
 })

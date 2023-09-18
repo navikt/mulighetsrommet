@@ -53,7 +53,7 @@ class TiltaksgjennomforingService(
 
         return request.toDbo()
             .map { dbo ->
-                db.transaction { tx ->
+                db.transactionSuspend { tx ->
                     tiltaksgjennomforingRepository.upsert(dbo, tx)
                     utkastRepository.delete(dbo.id, tx)
                     if (navIdent != request.administrator && request.administrator != prevAdministrator) {
@@ -62,11 +62,11 @@ class TiltaksgjennomforingService(
 
                     val dto = tiltaksgjennomforingRepository.get(request.id, tx)!!
 
+                    sanityTiltaksgjennomforingService.createOrPatchSanityTiltaksgjennomforing(dto)
                     tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingDto.from(dto))
                     dto
                 }
             }
-            .onRight { sanityTiltaksgjennomforingService.createOrPatchSanityTiltaksgjennomforing(it) }
     }
 
     fun get(id: UUID): TiltaksgjennomforingAdminDto? =
@@ -173,15 +173,13 @@ class TiltaksgjennomforingService(
 
         val sanityId = gjennomforing.sanityId
 
-        return db.transaction { tx ->
+        return db.transactionSuspend { tx ->
             tiltaksgjennomforingRepository.delete(id, tx)
+            if (sanityId != null) {
+                sanityTiltaksgjennomforingService.deleteSanityTiltaksgjennomforing(sanityId)
+            }
             tiltaksgjennomforingKafkaProducer.retract(id)
         }.right()
-            .onRight {
-                if (sanityId != null) {
-                    sanityTiltaksgjennomforingService.deleteSanityTiltaksgjennomforing(sanityId)
-                }
-            }
     }
 
     fun getAllMidlertidigStengteGjennomforingerSomNarmerSegSluttdato(): List<TiltaksgjennomforingNotificationDto> {
