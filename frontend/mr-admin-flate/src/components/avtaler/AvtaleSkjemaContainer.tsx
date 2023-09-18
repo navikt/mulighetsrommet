@@ -317,7 +317,7 @@ export function AvtaleSkjemaContainer({
                   <SokeSelect
                     size="small"
                     placeholder="Velg en"
-                    label={"NAV region"}
+                    label={"NAV-region"}
                     {...register("navRegion")}
                     onChange={(e) => {
                       setNavRegion(e.target.value);
@@ -335,7 +335,7 @@ export function AvtaleSkjemaContainer({
                     size="small"
                     placeholder="Velg en"
                     readOnly={!navRegion}
-                    label={"NAV enhet (kontorer)"}
+                    label={"NAV-enheter (kontorer)"}
                     {...register("navEnheter")}
                     options={enheterOptions(navRegion, enheter)}
                   />

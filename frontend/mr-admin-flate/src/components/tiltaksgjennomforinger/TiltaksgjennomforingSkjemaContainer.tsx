@@ -434,7 +434,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
                   <TextField
                     size="small"
                     readOnly
-                    label={"NAV region"}
+                    label={"NAV-region"}
                     value={avtale?.navRegion?.navn || ""}
                   />
                   <ControlledMultiSelect
@@ -442,7 +442,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
                     placeholder={
                       isLoadingEnheter ? "Laster enheter..." : "Velg en"
                     }
-                    label={"NAV enhet (kontorer)"}
+                    label={"NAV-enheter (kontorer)"}
                     {...register("navEnheter")}
                     options={enheterOptions(enheter, avtale)}
                   />
