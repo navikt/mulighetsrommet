@@ -5,6 +5,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.*
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
+import kotlinx.serialization.json.Json
 import kotliquery.Query
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
@@ -1124,6 +1125,39 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             val result = tiltaksgjennomforinger.getLokasjonerForEnhet("0482", "0400")
             result.size shouldBe 2
             result shouldContainExactly listOf("0139 Oslo", "8756 Kristiansand")
+        }
+    }
+
+    test("faneinnhold") {
+        val faneinnhold = Json.parseToJsonElement(
+            """
+            {
+                "_key": "edcad230384e",
+                "markDefs": [],
+                "children": [
+                {
+                    "marks": [],
+                    "text": "Oppl\u00e6ringen er beregnet p\u00e5 arbeidss\u00f8kere som \u00f8nsker og er egnet til \u00e5 ta arbeid som maskinf\u00f8rer. Deltakerne b\u00f8r ha f\u00f8rerkort kl. B.",
+                    "_key": "0e5849bf79a70",
+                    "_type": "span"
+                }
+                ],
+                "_type": "block",
+                "style": "normal"
+            }
+            """,
+        )
+
+        val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
+        val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1.copy(
+            id = UUID.randomUUID(),
+            faneinnhold = faneinnhold,
+        )
+
+        tiltaksgjennomforinger.upsert(gjennomforing)
+
+        tiltaksgjennomforinger.get(gjennomforing.id).should {
+            it!!.faneinnhold shouldBe faneinnhold
         }
     }
 })

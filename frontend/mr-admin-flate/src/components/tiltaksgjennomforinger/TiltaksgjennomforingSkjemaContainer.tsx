@@ -186,6 +186,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
       lokasjonArrangor: tiltaksgjennomforing?.lokasjonArrangor,
       arrangorKontaktpersonId:
         tiltaksgjennomforing?.arrangor?.kontaktperson?.id,
+      faneinnhold: tiltaksgjennomforing?.faneinnhold,
     },
   });
 
@@ -265,6 +266,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
       lokasjonArrangor: data.lokasjonArrangor,
       arrangorKontaktpersonId: data.arrangorKontaktpersonId ?? null,
       opphav: tiltaksgjennomforing?.opphav ?? null,
+      faneinnhold: data.faneinnhold ?? null,
     };
 
     try {
