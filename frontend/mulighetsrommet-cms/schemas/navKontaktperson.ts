@@ -32,7 +32,6 @@ export const navKontaktperson = defineType({
       name: "telefonnummer",
       title: "Telefonnummer",
       type: "string",
-      validation: (rule) => rule.required().min(2).max(200),
     }),
     defineField({
       name: "epost",

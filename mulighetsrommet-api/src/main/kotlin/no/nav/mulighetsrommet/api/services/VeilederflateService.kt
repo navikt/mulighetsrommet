@@ -227,6 +227,7 @@ class VeilederflateService(
               beskrivelse,
               lokasjon,
               kontaktinfoTiltaksansvarlige[]->,
+              kontaktpersoner[]{navKontaktperson->, "enheter": enheter[]->nummer.current},
               faneinnhold {
                 forHvemInfoboks,
                 forHvem,
@@ -250,13 +251,13 @@ class VeilederflateService(
         enhetsnummer: String? = null,
     ): VeilederflateTiltaksgjennomforing {
         return if (apiGjennomforing == null) {
-            toVeilederTiltaksgjennomforing(sanityGjennomforing)
+            toVeilederTiltaksgjennomforing(sanityGjennomforing, enhetsnummer)
         } else {
-            toVeilederTiltakagjennomforing(sanityGjennomforing, apiGjennomforing, enhetsnummer)
+            toVeilederTiltaksgjennomforing(sanityGjennomforing, apiGjennomforing, enhetsnummer)
         }
     }
 
-    private fun toVeilederTiltaksgjennomforing(sanityGjennomforing: SanityTiltaksgjennomforing): VeilederflateTiltaksgjennomforing {
+    private fun toVeilederTiltaksgjennomforing(sanityGjennomforing: SanityTiltaksgjennomforing, enhetsnummer: String?): VeilederflateTiltaksgjennomforing {
         val arenaKode = sanityGjennomforing.tiltakstype?._id
             ?.let { tiltakstypeService.getBySanityId(UUID.fromString(it)) }
             ?.arenaKode
@@ -280,13 +281,13 @@ class VeilederflateService(
                 lokasjon = lokasjon,
                 fylke = fylke,
                 enheter = enheter,
-                kontaktinfoTiltaksansvarlige = kontaktinfoTiltaksansvarlige,
+                kontaktinfoTiltaksansvarlige = kontaktpersoner?.filter { it.enheter.contains(enhetsnummer) }?.map { it.navKontaktperson } ?: kontaktinfoTiltaksansvarlige?.filter { it.enhet === enhetsnummer },
                 faneinnhold = faneinnhold,
             )
         }
     }
 
-    private fun toVeilederTiltakagjennomforing(
+    private fun toVeilederTiltaksgjennomforing(
         sanityGjennomforing: SanityTiltaksgjennomforing,
         apiGjennomforing: TiltaksgjennomforingAdminDto,
         enhetsnummer: String?,
