@@ -3,8 +3,6 @@ package no.nav.mulighetsrommet.api.domain.dto
 import kotlinx.serialization.EncodeDefault
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
-import java.time.LocalDate
 
 @Serializable
 data class Mutations<T>(
@@ -41,8 +39,6 @@ data class CreateSanityTiltaksgjennomforingDto(
     val enheter: List<EnhetRef>? = null,
     val tiltakstype: TiltakstypeRef? = null,
     val tiltaksnummer: TiltaksnummerSlug? = null,
-    @Serializable(with = LocalDateSerializer::class)
-    val sluttdato: LocalDate? = null,
     val lokasjon: String? = null,
 )
 
@@ -53,8 +49,6 @@ data class SanityTiltaksgjennomforingFields(
     val enheter: List<EnhetRef>? = null,
     val tiltakstype: TiltakstypeRef? = null,
     val tiltaksnummer: TiltaksnummerSlug? = null,
-    @Serializable(with = LocalDateSerializer::class)
-    val sluttdato: LocalDate? = null,
     val lokasjon: String? = null,
 ) {
     fun toSanityTiltaksgjennomforing(id: String) = CreateSanityTiltaksgjennomforingDto(
@@ -64,7 +58,6 @@ data class SanityTiltaksgjennomforingFields(
         enheter = this.enheter,
         tiltakstype = this.tiltakstype,
         tiltaksnummer = this.tiltaksnummer,
-        sluttdato = this.sluttdato,
         lokasjon = this.lokasjon,
     )
 }
