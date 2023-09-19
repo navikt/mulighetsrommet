@@ -186,10 +186,6 @@ class TiltaksgjennomforingService(
         return tiltaksgjennomforingRepository.getAllMidlertidigStengteGjennomforingerSomNarmerSegSluttdato()
     }
 
-    fun getLokasjonerForBrukersEnhet(enhetsId: String, fylkeId: String): List<String> {
-        return tiltaksgjennomforingRepository.getLokasjonerForEnhet(enhetsId, fylkeId)
-    }
-
     fun avbrytGjennomforing(gjennomforingId: UUID): StatusResponse<Unit> {
         val gjennomforing = tiltaksgjennomforingRepository.get(gjennomforingId)
             ?: return Either.Left(NotFound("Fant ikke gjennomføringen med id $gjennomforingId"))

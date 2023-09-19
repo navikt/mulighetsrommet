@@ -825,23 +825,6 @@ paths:
                 items:
                   $ref: "#/components/schemas/VeilederflateTiltakstype"
 
-  /api/v1/internal/sanity/lokasjoner:
-    parameters:
-      - $ref: "#/components/parameters/Fnr"
-    get:
-      tags:
-        - Sanity
-      operationId: getLokasjonerForBrukersEnhetOgFylke
-      responses:
-        200:
-          description: Lokasjoner fra tiltaksgjennomføringer basert på brukers enhet og fylke
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: string
-
   /api/v1/internal/sanity/tiltaksgjennomforinger:
     parameters:
       - $ref: "#/components/parameters/Fnr"
@@ -867,13 +850,6 @@ paths:
           schema:
             type: string
           description: Søkestreng for fritekstsøk etter tiltaksgjennomføringer
-        - in: query
-          name: lokasjoner
-          schema:
-            type: array
-            items:
-              type: string
-          description: Liste med lokasjoner man vil filtrere på
       responses:
         200:
           description: Hent tiltaksgjennomføringer som bruker har rett på

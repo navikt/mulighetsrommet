@@ -154,7 +154,9 @@ export const TiltaksgjennomforingSkjemaContainer = ({
     resolver: zodResolver(TiltaksgjennomforingSchema),
     defaultValues: {
       navn: tiltaksgjennomforing?.navn,
-      navEnheter: tiltaksgjennomforing?.navEnheter?.map((enhet) => enhet.enhetsnummer) || [],
+      navEnheter:
+        tiltaksgjennomforing?.navEnheter?.map((enhet) => enhet.enhetsnummer) ||
+        [],
       administrator: tiltaksgjennomforing?.administrator?.navIdent,
       antallPlasser: tiltaksgjennomforing?.antallPlasser,
       startOgSluttDato: {
@@ -413,9 +415,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
               <FormGroup>
                 <SokeSelect
                   size="small"
-                  placeholder={
-                    isLoadingAnsatt ? "Laster..." : "Velg en"
-                  }
+                  placeholder={isLoadingAnsatt ? "Laster..." : "Velg en"}
                   label={"Administrator for gjennomføringen"}
                   {...register("administrator")}
                   options={AdministratorOptions(
@@ -569,7 +569,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
                   <TextField
                     size="small"
                     label="Sted for gjennomføring"
-                    description="Sted for gjennomføring, f.eks. Fredrikstad eller Tromsø. Veileder kan filtrere på verdiene i dette feltet, så ikke skriv fulle adresser."
+                    description="Skriv inn stedet tiltaket skal gjennomføres, for eksempel Fredrikstad eller Tromsø. For tiltak uten eksplisitt lokasjon (for eksempel digital jobbklubb), kan du la feltet stå tomt."
                     {...register("lokasjonArrangor")}
                     error={
                       errors.lokasjonArrangor
