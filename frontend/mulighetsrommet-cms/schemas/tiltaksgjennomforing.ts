@@ -152,9 +152,9 @@ export const tiltaksgjennomforing = defineType({
     }),
     defineField({
       name: "lokasjon",
-      title: "Lokasjon",
+      title: "Sted for gjennomføring",
       description:
-        "Sted for gjennomføring, f.eks. Fredrikstad eller Tromsø. Veileder kan filtrere på verdiene i dette feltet, så ikke skriv fulle adresser.",
+        "Skriv inn stedet tiltaket skal gjennomføres, for eksempel Fredrikstad eller Tromsø. For tiltak uten eksplisitt lokasjon (for eksempel digital jobbklubb), kan du la feltet stå tomt.",
       type: "string",
       hidden: ({ document }) => {
         return isInAdminFlate(document.tiltakstype?._ref);

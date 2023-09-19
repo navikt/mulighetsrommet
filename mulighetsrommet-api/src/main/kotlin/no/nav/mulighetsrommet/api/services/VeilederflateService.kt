@@ -113,18 +113,6 @@ class VeilederflateService(
             }
     }
 
-    suspend fun hentLokasjonerForBrukersEnhetOgFylke(fnr: String, accessToken: String): List<String> {
-        val brukerData = brukerService.hentBrukerdata(fnr, accessToken)
-        val enhetsnummer = brukerData.geografiskEnhet?.enhetsnummer
-        val fylkeEnhetsnummer = enhetsnummer
-            ?.let { navEnhetService.hentOverorndetFylkesenhet(it)?.enhetsnummer }
-            ?: ""
-
-        return CacheUtils.tryCacheFirstNotNull(lokasjonCache, fnr) {
-            tiltaksgjennomforingService.getLokasjonerForBrukersEnhet(enhetsnummer ?: "", fylkeEnhetsnummer)
-        }
-    }
-
     suspend fun hentTiltaksgjennomforingerForBrukerBasertPaEnhetOgFylke(
         fnr: String,
         accessToken: String,
@@ -172,7 +160,6 @@ class VeilederflateService(
                     enhetsnummer,
                 )
             }
-            .filter { filter.lokasjoner.isEmpty() || filter.lokasjoner.contains(it.lokasjon) }
             .filter {
                 if (it.enheter.isNullOrEmpty()) {
                     it.fylke == fylkeEnhetsnummer

@@ -9,7 +9,8 @@ const avtaleFinnesIkke = () => (
       Det finnes ingen avtale koblet til tiltaksgjennomføringen. Hvis
       gjennomføringen er en AFT- eller VTA-gjennomføring kan du koble
       gjennomføringen til riktig avtale. Gå til{" "}
-      <Link to={`/avtaler`}>avtaler</Link>{" "}, finn riktig avtale og trykk «Legg til gjennomføring».
+      <Link to={`/avtaler`}>avtaler</Link>, finn riktig avtale og trykk «Legg
+      til gjennomføring».
     </BodyShort>
     <BodyShort>
       Ta <a href={PORTEN}>kontakt i Porten</a> dersom du trenger mer hjelp.
@@ -61,8 +62,6 @@ export const tekniskFeilError = () => (
 export function ErrorMeldinger(
   avtale: Avtale | undefined,
   redigeringsModus: boolean | undefined,
-  isErrorAnsatt: boolean,
-  isErrorEnheter: boolean,
 ) {
   if (!avtale) {
     return avtaleFinnesIkke();
@@ -74,9 +73,5 @@ export function ErrorMeldinger(
 
   if (!avtale?.navRegion) {
     return avtaleManglerNavRegionError(avtale?.id);
-  }
-
-  if (isErrorAnsatt || isErrorEnheter) {
-    return tekniskFeilError();
   }
 }

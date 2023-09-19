@@ -33,16 +33,6 @@ fun Route.sanityRoutes() {
             call.respond(tiltakstyper)
         }
 
-        get("/lokasjoner") {
-            poaoTilgangService.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), getNorskIdent())
-            call.respond(
-                veilederflateService.hentLokasjonerForBrukersEnhetOgFylke(
-                    getNorskIdent(),
-                    call.getAccessToken(),
-                ),
-            )
-        }
-
         get("/tiltaksgjennomforinger") {
             poaoTilgangService.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), getNorskIdent())
             val result = veilederflateService.hentTiltaksgjennomforingerForBrukerBasertPaEnhetOgFylke(

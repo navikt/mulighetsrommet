@@ -15,7 +15,7 @@ import {
   defaultAvtaleFilter,
 } from "../../api/atoms";
 import { useAvtaler } from "../../api/avtaler/useAvtaler";
-import { useAlleEnheter } from "../../api/enhet/useAlleEnheter";
+import { useNavEnheter } from "../../api/enhet/useNavEnheter";
 import { useFeatureToggle } from "../../api/features/feature-toggles";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
 import { useVirksomheter } from "../../api/virksomhet/useVirksomheter";
@@ -41,7 +41,7 @@ export function Avtalefilter(props: Props) {
   });
   const { register, setValue } = form;
 
-  const { data: enheter } = useAlleEnheter();
+  const { data: enheter } = useNavEnheter();
   const { data: tiltakstyper } = useTiltakstyper(
     { status: Tiltakstypestatus.AKTIV, kategori: "" },
     1,

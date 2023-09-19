@@ -68,37 +68,6 @@ class NavEnhetRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    fun getAllEnheterWithAvtale(
-        statuser: List<NavEnhetStatus>? = null,
-        tiltakstypeId: UUID? = null,
-    ): List<NavEnhetDbo> {
-        logger.info("Henter enheter med statuser=${statuser?.joinToString(", ")}, tiltakstypeId=$tiltakstypeId")
-
-        val parameters = mapOf(
-            "statuser" to statuser?.let { items -> db.createTextArray(items.map { it.name }) },
-            "tiltakstypeId" to tiltakstypeId,
-        )
-
-        val where = DatabaseUtils.andWhereParameterNotNull(
-            statuser to "e.status = any(:statuser)",
-            tiltakstypeId to "a.tiltakstype_id = :tiltakstypeId::uuid",
-        )
-
-        @Language("PostgreSQL")
-        val query = """
-            select distinct e.navn, e.enhetsnummer, e.status, e.type, e.overordnet_enhet
-            from nav_enhet e
-            join avtale a on a.enhet = e.enhetsnummer
-            $where
-            order by e.navn
-        """.trimIndent()
-
-        return queryOf(query, parameters)
-            .map { it.toEnhetDbo() }
-            .asList
-            .let { db.run(it) }
-    }
-
     fun get(enhet: String): NavEnhetDbo? {
         @Language("PostgreSQL")
         val query = """

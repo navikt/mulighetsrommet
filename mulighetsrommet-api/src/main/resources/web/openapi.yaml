@@ -825,23 +825,6 @@ paths:
                 items:
                   $ref: "#/components/schemas/VeilederflateTiltakstype"
 
-  /api/v1/internal/sanity/lokasjoner:
-    parameters:
-      - $ref: "#/components/parameters/Fnr"
-    get:
-      tags:
-        - Sanity
-      operationId: getLokasjonerForBrukersEnhetOgFylke
-      responses:
-        200:
-          description: Lokasjoner fra tiltaksgjennomføringer basert på brukers enhet og fylke
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: string
-
   /api/v1/internal/sanity/tiltaksgjennomforinger:
     parameters:
       - $ref: "#/components/parameters/Fnr"
@@ -867,13 +850,6 @@ paths:
           schema:
             type: string
           description: Søkestreng for fritekstsøk etter tiltaksgjennomføringer
-        - in: query
-          name: lokasjoner
-          schema:
-            type: array
-            items:
-              type: string
-          description: Liste med lokasjoner man vil filtrere på
       responses:
         200:
           description: Hent tiltaksgjennomføringer som bruker har rett på
@@ -1115,8 +1091,8 @@ paths:
   /api/v1/internal/enheter:
     get:
       tags:
-        - Hent enheter
-      operationId: hentAlleEnheter
+        - NavEnheter
+      operationId: getEnheter
       parameters:
         - in: query
           name: statuser
@@ -1135,34 +1111,6 @@ paths:
       responses:
         200:
           description: Alle enheter filterert på filter
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/NavEnhet"
-
-  /api/v1/internal/enheter/avtaler:
-    get:
-      tags:
-        - Hent enheter
-      operationId: hentEnheterMedAvtale
-      parameters:
-        - in: query
-          name: statuser
-          schema:
-            type: array
-            items:
-              $ref: "#/components/schemas/NavEnhetStatus"
-          description: Hvilke status skal enheten ha
-        - in: query
-          name: tiltakstypeId
-          schema:
-            type: string
-          description: ID for tiltakstype knyttet til avtaler
-      responses:
-        200:
-          description: "Enheter knyttet til avtaler"
           content:
             application/json:
               schema:
@@ -1664,11 +1612,13 @@ components:
           type: string
         avtalenummer:
           type: string
+          nullable: true
         leverandorOrganisasjonsnummer:
           type: string
         leverandorKontaktpersonId:
           type: string
           format: UUID
+          nullable: true
         leverandorUnderenheter:
           type: array
           items:
@@ -1683,12 +1633,14 @@ components:
           type: string
         url:
           type: string
+          nullable: true
         administrator:
           type: string
         avtaletype:
           $ref: "#/components/schemas/Avtaletype"
         prisOgBetalingsinformasjon:
           type: string
+          nullable: true
         navEnheter:
           type: array
           items:
@@ -1699,19 +1651,22 @@ components:
           $ref: "#/components/schemas/AvtaleAvslutningsstatus"
       required:
         - id
-        - tiltakstypeId
         - navn
-        - avtalenummer
+        - tiltakstypeId
         - leverandorOrganisasjonsnummer
         - leverandorUnderenheter
+        - leverandorKontaktpersonId
+        - avtalenummer
         - startDato
         - sluttDato
         - navRegion
-        - avtalestatus
-        - antallPlasser
+        - url
         - administrator
         - avtaletype
+        - prisOgBetalingsinformasjon
         - navEnheter
+        - opphav
+        - avslutningsstatus
 
     EmbeddedTiltakstype:
       type: object

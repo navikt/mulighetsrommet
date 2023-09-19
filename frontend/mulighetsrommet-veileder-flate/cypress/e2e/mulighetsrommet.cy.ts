@@ -50,15 +50,6 @@ describe('Tiltaksoversikt', () => {
       cy.apneLukketFilterAccordion('tiltakstyper', false);
     });
 
-    it('Filtrer på lokasjoner', () => {
-      cy.apneLukketFilterAccordion('lokasjon', true);
-      cy.getByTestId('checkboxgroup_lokasjon').children().children().first().click();
-      cy.getByTestId('knapp_tilbakestill-filter').should('exist').click();
-
-      cy.getByTestId('checkboxgroup_lokasjon').children().children().should('not.be.checked');
-      cy.apneLukketFilterAccordion('lokasjon', false);
-    });
-
     it('Filtrer på søkefelt', () => {
       cy.getByTestId('filter_sokefelt').type('Yoda');
       cy.getByTestId('lenke_tiltaksgjennomforing').contains('Yoda');

@@ -2,7 +2,7 @@
 common-java-modules = "3.2023.07.07_09.10-85326e9557f0"
 flyway = "9.22.1"
 hoplite = "2.7.5"
-koin = "3.4.3"
+koin = "3.5.1"
 kotest = "5.7.2"
 kotest-testcontainers = "2.0.2"
 kotlin = "1.9.10"
@@ -29,7 +29,7 @@ dbScheduler = "com.github.kagkarlsson:db-scheduler:12.5.0"
 
 flyway-core = { module = "org.flywaydb:flyway-core", version.ref = "flyway" }
 
-google-postgresSocketFactory = "com.google.cloud.sql:postgres-socket-factory:1.13.1"
+google-postgresSocketFactory = "com.google.cloud.sql:postgres-socket-factory:1.14.0"
 
 hikaricp = "com.zaxxer:HikariCP:5.0.1"
 
@@ -101,9 +101,9 @@ postgresql = "org.postgresql:postgresql:42.6.0"
 
 prometheus-caffeine = "io.prometheus:simpleclient_caffeine:0.16.0"
 
-shedlock-jdbc = "net.javacrumbs.shedlock:shedlock-provider-jdbc:5.7.0"
+shedlock-jdbc = "net.javacrumbs.shedlock:shedlock-provider-jdbc:5.8.0"
 
-slack-client = "com.slack.api:slack-api-client:1.31.0"
+slack-client = "com.slack.api:slack-api-client:1.32.0"
 
 slf4j = "org.slf4j:slf4j-api:2.0.9"
 

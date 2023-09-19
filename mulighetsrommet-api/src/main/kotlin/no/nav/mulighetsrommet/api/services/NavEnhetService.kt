@@ -48,8 +48,4 @@ class NavEnhetService(private val enhetRepository: NavEnhetRepository) {
     fun hentAlleEnheter(filter: EnhetFilter): List<NavEnhetDbo> {
         return enhetRepository.getAll(filter.statuser, filter.typer)
     }
-
-    fun hentEnheterForAvtale(filter: EnhetFilter): List<NavEnhetDbo> {
-        return enhetRepository.getAllEnheterWithAvtale(filter.statuser, filter.tiltakstypeId)
-    }
 }
