@@ -33,7 +33,7 @@ import skjemastyles from "../skjema/Skjema.module.scss";
 
 import {
   defaultEnhet,
-  enheterOptions,
+  getLokaleUnderenheterAsSelectOptions,
   erAnskaffetTiltak,
   saveUtkast,
   underenheterOptions,
@@ -337,7 +337,7 @@ export function AvtaleSkjemaContainer({
                     readOnly={!navRegion}
                     label={"NAV-enheter (kontorer)"}
                     {...register("navEnheter")}
-                    options={enheterOptions(navRegion, enheter)}
+                    options={getLokaleUnderenheterAsSelectOptions(navRegion, enheter)}
                   />
                 </FormGroup>
               </div>

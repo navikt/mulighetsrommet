@@ -22,7 +22,6 @@ import {
   tilgjengelighetsstatusTilTekst,
 } from "../../utils/Utils";
 import { AutoSaveUtkast } from "../autosave/AutoSaveUtkast";
-import { Laster } from "../laster/Laster";
 import { tekniskFeilError } from "./TiltaksgjennomforingSkjemaErrors";
 import {
   inferredTiltaksgjennomforingSchema,
@@ -33,10 +32,8 @@ import {
   arrangorUnderenheterOptions,
   defaultOppstartType,
   defaultValuesForKontaktpersoner,
-  enheterOptions,
   UtkastData,
 } from "./TiltaksgjennomforingSkjemaConst";
-import { useNavEnheter } from "../../api/enhet/useNavEnheter";
 import { mulighetsrommetClient } from "../../api/clients";
 import { useHentKontaktpersoner } from "../../api/ansatt/useHentKontaktpersoner";
 import { usePutGjennomforing } from "../../api/avtaler/usePutGjennomforing";
@@ -79,8 +76,6 @@ export const TiltaksgjennomforingSkjemaContainer = ({
   const { data: betabrukere } = useHentBetabrukere();
 
   const { data: ansatt, isLoading: isLoadingAnsatt } = useHentAnsatt();
-
-  const { data: enheter, isLoading: isLoadingEnheter } = useNavEnheter();
 
   const { data: kontaktpersoner, isLoading: isLoadingKontaktpersoner } =
     useHentKontaktpersoner();
@@ -154,7 +149,9 @@ export const TiltaksgjennomforingSkjemaContainer = ({
     resolver: zodResolver(TiltaksgjennomforingSchema),
     defaultValues: {
       navn: tiltaksgjennomforing?.navn,
-      navEnheter: tiltaksgjennomforing?.navEnheter?.map((enhet) => enhet.enhetsnummer) || [],
+      navEnheter:
+        tiltaksgjennomforing?.navEnheter?.map((enhet) => enhet.enhetsnummer) ||
+        [],
       administrator: tiltaksgjennomforing?.administrator?.navIdent,
       antallPlasser: tiltaksgjennomforing?.antallPlasser,
       startOgSluttDato: {
@@ -274,15 +271,16 @@ export const TiltaksgjennomforingSkjemaContainer = ({
     }
   };
 
-  if (!enheter) {
-    return <Laster />;
-  }
-
   useEffect(() => {
     if (mutation.isSuccess) {
       onSuccess(mutation.data.id);
     }
   }, [mutation]);
+
+  const navEnheterOptions = avtale.navEnheter.map((enhet) => ({
+    value: enhet.enhetsnummer,
+    label: enhet.navn,
+  }));
 
   return (
     <FormProvider {...form}>
@@ -413,9 +411,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
               <FormGroup>
                 <SokeSelect
                   size="small"
-                  placeholder={
-                    isLoadingAnsatt ? "Laster..." : "Velg en"
-                  }
+                  placeholder={isLoadingAnsatt ? "Laster..." : "Velg en"}
                   label={"Administrator for gjennomføringen"}
                   {...register("administrator")}
                   options={AdministratorOptions(
@@ -439,12 +435,10 @@ export const TiltaksgjennomforingSkjemaContainer = ({
                   />
                   <ControlledMultiSelect
                     size="small"
-                    placeholder={
-                      isLoadingEnheter ? "Laster enheter..." : "Velg en"
-                    }
+                    placeholder={"Velg en"}
                     label={"NAV-enheter (kontorer)"}
                     {...register("navEnheter")}
-                    options={enheterOptions(enheter, avtale)}
+                    options={navEnheterOptions}
                   />
                 </FormGroup>
                 <Separator />
@@ -502,7 +496,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
                                   shouldUnregister: true,
                                 },
                               )}
-                              options={enheterOptions(enheter, avtale)}
+                              options={navEnheterOptions}
                             />
                           </div>
                         </div>

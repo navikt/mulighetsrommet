@@ -1,7 +1,6 @@
 import { isTiltakMedFellesOppstart } from "../../utils/tiltakskoder";
 import {
   Avtale,
-  NavEnhet,
   Opphav,
   Tiltaksgjennomforing,
   TiltaksgjennomforingKontaktpersoner,
@@ -57,30 +56,6 @@ export const arenaOpphav = (
   tiltaksgjennomforing: Tiltaksgjennomforing | undefined,
 ) => {
   return tiltaksgjennomforing?.opphav === Opphav.ARENA;
-};
-
-export const enheterOptions = (
-  enheter: NavEnhet[],
-  avtale: Avtale | undefined,
-) => {
-  const options = enheter!
-    .filter(
-      (enhet: NavEnhet) =>
-        avtale?.navRegion?.enhetsnummer === enhet.overordnetEnhet,
-    )
-    .filter(
-      (enhet: NavEnhet) =>
-        avtale?.navEnheter?.length === 0 ||
-        avtale?.navEnheter.find(
-          (e: any) => e.enhetsnummer === enhet.enhetsnummer,
-        ),
-    )
-    .map((enhet) => ({
-      label: enhet.navn,
-      value: enhet.enhetsnummer,
-    }));
-
-  return options || [];
 };
 
 export const arrangorUnderenheterOptions = (
