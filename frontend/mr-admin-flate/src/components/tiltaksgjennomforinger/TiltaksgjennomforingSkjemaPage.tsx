@@ -1,12 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
-import {
-  Tiltaksgjennomforing,
-  Tiltakstypestatus,
-} from "mulighetsrommet-api-client";
+import { Tiltaksgjennomforing } from "mulighetsrommet-api-client";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
-import { useNavEnheter } from "../../api/enhet/useNavEnheter";
-import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
 import { ContainerLayoutDetaljer } from "../../layouts/ContainerLayout";
 import { inneholderUrl } from "../../utils/Utils";
 import { Header } from "../detaljside/Header";
@@ -29,21 +23,9 @@ const TiltaksgjennomforingSkjemaPage = () => {
   const { data: utkast, isLoading: utkastLoading } = useUtkast(
     searchParams.get("utkastId") || undefined,
   );
-  const { data: avtale } = useAvtale(
+  const { data: avtale, isLoading: avtaleIsLoading } = useAvtale(
     tiltaksgjennomforing?.avtaleId ?? utkast?.utkastData?.avtaleId,
   );
-  const { data: tiltakstyper, isLoading: isLoadingTiltakstyper } =
-    useTiltakstyper({ status: Tiltakstypestatus.AKTIV }, 1);
-  const {
-    data: ansatt,
-    isLoading: isLoadingAnsatt,
-    isError: isErrorAnsatt,
-  } = useHentAnsatt();
-  const {
-    data: enheter,
-    isLoading: isLoadingEnheter,
-    isError: isErrorEnheter,
-  } = useNavEnheter();
 
   const utkastModus = utkast && inneholderUrl(utkast?.id);
   const redigeringsModus =
@@ -57,11 +39,9 @@ const TiltaksgjennomforingSkjemaPage = () => {
   const isError =
     !avtale ||
     (avtale?.sluttDato && new Date(avtale.sluttDato) < new Date()) ||
-    !avtale?.navRegion ||
-    isErrorAnsatt ||
-    isErrorEnheter;
+    !avtale?.navRegion;
 
-  if (utkastLoading || tiltaksgjennomforingLoading) {
+  if (avtaleIsLoading || utkastLoading || tiltaksgjennomforingLoading) {
     return (
       <Laster
         size="xlarge"
@@ -73,19 +53,10 @@ const TiltaksgjennomforingSkjemaPage = () => {
   }
 
   let content = null;
-  if (isError && redigeringsModus) {
+  if (isError ) {
     content = (
-      <Alert variant="error">
-        {ErrorMeldinger(
-          avtale,
-          redigeringsModus,
-          isErrorAnsatt,
-          isErrorEnheter,
-        )}
-      </Alert>
+      <Alert variant="error">{ErrorMeldinger(avtale, redigeringsModus)}</Alert>
     );
-  } else if ((!tiltakstyper?.data || !ansatt || !enheter) && !isError) {
-    content = null;
   } else if (avtale) {
     content = (
       <TiltaksgjennomforingSkjemaContainer
@@ -119,9 +90,6 @@ const TiltaksgjennomforingSkjemaPage = () => {
       </Header>
       <ContainerLayoutDetaljer>
         <div className={styles.skjema}>
-          {(isLoadingAnsatt || isLoadingTiltakstyper || isLoadingEnheter) && (
-            <Laster />
-          )}
           <div className={styles.skjema_content}>{content}</div>
         </div>
       </ContainerLayoutDetaljer>
