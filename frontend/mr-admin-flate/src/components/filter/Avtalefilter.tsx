@@ -1,7 +1,7 @@
 import { Button, Search } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import {
-  Norg2Type,
+  NavEnhetType,
   Tiltakstypestatus,
   Toggles,
   VirksomhetTil,
@@ -66,7 +66,7 @@ export function Avtalefilter(props: Props) {
     const alleOptions = { value: "", label: "Alle regioner" };
     const regionOptions = enheter
       ? enheter
-          ?.filter((enhet) => enhet.type === Norg2Type.FYLKE)
+          ?.filter((enhet) => enhet.type === NavEnhetType.FYLKE)
           ?.map((enhet) => ({
             value: enhet.enhetsnummer,
             label: enhet.navn,
@@ -124,7 +124,10 @@ export function Avtalefilter(props: Props) {
               onChange={(e) => {
                 setFilter({
                   ...filter,
-                  status: valueOrDefault(e.target.value, defaultAvtaleFilter.status),
+                  status: valueOrDefault(
+                    e.target.value,
+                    defaultAvtaleFilter.status,
+                  ),
                 });
               }}
               options={[
@@ -147,7 +150,10 @@ export function Avtalefilter(props: Props) {
                 resetPaginering(setPage);
                 setFilter({
                   ...filter,
-                  navRegion: valueOrDefault(e.target.value, defaultAvtaleFilter.navRegion),
+                  navRegion: valueOrDefault(
+                    e.target.value,
+                    defaultAvtaleFilter.navRegion,
+                  ),
                 });
               }}
               options={regionOptions()}

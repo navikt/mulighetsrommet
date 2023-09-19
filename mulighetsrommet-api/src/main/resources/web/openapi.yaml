@@ -1106,7 +1106,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: "#/components/schemas/Norg2Type"
+              $ref: "#/components/schemas/NavEnhetType"
           description: Hvilke typer enheter man spør på
       responses:
         200:
@@ -2204,7 +2204,7 @@ components:
         status:
           $ref: "#/components/schemas/NavEnhetStatus"
         type:
-          $ref: "#/components/schemas/Norg2Type"
+          $ref: "#/components/schemas/NavEnhetType"
       required:
         - navn
         - enhetsnummer
@@ -2569,12 +2569,13 @@ components:
         - UNDER_AVVIKLING
         - NEDLAGT
 
-    Norg2Type:
+    NavEnhetType:
       type: string
       enum:
         - LOKAL
         - FYLKE
         - TILTAK
+        - ALS
 
     Virksomhet:
       type: object

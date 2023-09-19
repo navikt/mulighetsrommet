@@ -7,7 +7,7 @@ import {
   Avtaletype,
   LeverandorUnderenhet,
   NavAnsatt,
-  Norg2Type,
+  NavEnhetType,
   Opphav,
 } from "mulighetsrommet-api-client";
 import { NavEnhet } from "mulighetsrommet-api-client/build/models/NavEnhet";
@@ -33,8 +33,8 @@ import skjemastyles from "../skjema/Skjema.module.scss";
 
 import {
   defaultEnhet,
-  getLokaleUnderenheterAsSelectOptions,
   erAnskaffetTiltak,
+  getLokaleUnderenheterAsSelectOptions,
   saveUtkast,
   underenheterOptions,
 } from "./AvtaleSkjemaConst";
@@ -201,6 +201,13 @@ export function AvtaleSkjemaContainer({
     );
   }
 
+  const navRegionerOptions = enheter
+    .filter((enhet) => enhet.type === NavEnhetType.FYLKE)
+    .map((enhet) => ({
+      value: enhet.enhetsnummer,
+      label: enhet.navn,
+    }));
+
   return (
     <FormProvider {...form}>
       <form onSubmit={handleSubmit(postData)}>
@@ -324,12 +331,7 @@ export function AvtaleSkjemaContainer({
                       form.setValue("navEnheter", [] as any);
                     }}
                     onClearValue={() => setValue("navRegion", "")}
-                    options={enheter
-                      .filter((enhet) => enhet.type === Norg2Type.FYLKE)
-                      .map((enhet) => ({
-                        value: `${enhet.enhetsnummer}`,
-                        label: enhet.navn,
-                      }))}
+                    options={navRegionerOptions}
                   />
                   <ControlledMultiSelect
                     size="small"
@@ -337,7 +339,10 @@ export function AvtaleSkjemaContainer({
                     readOnly={!navRegion}
                     label={"NAV-enheter (kontorer)"}
                     {...register("navEnheter")}
-                    options={getLokaleUnderenheterAsSelectOptions(navRegion, enheter)}
+                    options={getLokaleUnderenheterAsSelectOptions(
+                      navRegion,
+                      enheter,
+                    )}
                   />
                 </FormGroup>
               </div>
