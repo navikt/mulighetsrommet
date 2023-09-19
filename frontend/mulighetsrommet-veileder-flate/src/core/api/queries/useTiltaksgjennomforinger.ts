@@ -17,7 +17,6 @@ export default function useTiltaksgjennomforinger() {
       fnr,
       innsatsgruppe: filter.innsatsgruppe?.nokkel,
       sokestreng: filter.search,
-      lokasjoner: filter.lokasjoner.map(({ tittel }) => tittel),
       tiltakstypeIder: filter.tiltakstyper.map(({ id }) => id),
     })
   );

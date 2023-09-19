@@ -51,7 +51,6 @@ data class AdminTiltaksgjennomforingFilter(
 
 data class EnhetFilter(
     val statuser: List<NavEnhetStatus>? = null,
-    val tiltakstypeId: UUID? = null,
     val typer: List<Norg2Type>? = null,
 )
 
@@ -59,7 +58,6 @@ data class TiltaksgjennomforingFilter(
     val innsatsgruppe: String? = null,
     val tiltakstypeIder: List<String> = emptyList(),
     val sokestreng: String = "",
-    val lokasjoner: List<String> = emptyList(),
 )
 
 data class NotificationFilter(
@@ -163,8 +161,6 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getAdminTiltaksgjennomforingsF
 }
 
 fun <T : Any> PipelineContext<T, ApplicationCall>.getEnhetFilter(): EnhetFilter {
-    val tiltakstypeId = call.request.queryParameters["tiltakstypeId"]?.toUUID()
-
     val statuser = call.parameters.getAll("statuser")
         ?.map { NavEnhetStatus.valueOf(it) }
         ?: listOf(
@@ -183,7 +179,6 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getEnhetFilter(): EnhetFilter 
         )
 
     return EnhetFilter(
-        tiltakstypeId = tiltakstypeId,
         statuser = statuser,
         typer = typer,
     )
@@ -193,12 +188,10 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getTiltaksgjennomforingsFilter
     val innsatsgruppe = call.parameters["innsatsgruppe"]
     val tiltakstypeIder = call.parameters.getAll("tiltakstypeIder") ?: emptyList()
     val sokestreng = call.parameters["sokestreng"] ?: ""
-    val lokasjoner = call.parameters.getAll("lokasjoner") ?: emptyList()
     return TiltaksgjennomforingFilter(
         innsatsgruppe = innsatsgruppe,
         tiltakstypeIder = tiltakstypeIder,
         sokestreng = sokestreng,
-        lokasjoner = lokasjoner,
     )
 }
 

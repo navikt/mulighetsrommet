@@ -7,11 +7,7 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
-import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
-import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
-import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
-import no.nav.mulighetsrommet.api.domain.dbo.OverordnetEnhetDbo
-import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
+import no.nav.mulighetsrommet.api.domain.dbo.*
 import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
 import no.nav.mulighetsrommet.api.utils.VirksomhetFilter
 import no.nav.mulighetsrommet.api.utils.VirksomhetTil
@@ -19,7 +15,10 @@ import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListe
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.database.utils.getOrThrow
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
-import no.nav.mulighetsrommet.domain.dbo.*
+import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
+import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
+import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingTilgjengelighetsstatus
+import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import no.nav.mulighetsrommet.domain.dto.VirksomhetKontaktperson
 import java.time.LocalDate
@@ -115,7 +114,13 @@ class VirksomhetRepositoryTest : FunSpec({
                 poststed = "Mathopen",
             )
             virksomhetRepository.upsertOverordnetEnhet(overordnet).shouldBeRight()
-            virksomhetRepository.upsertOverordnetEnhet(overordnet.copy(postnummer = "9988", poststed = "Olsenåsen", navn = "Stopp konflikten")).shouldBeRight()
+            virksomhetRepository.upsertOverordnetEnhet(
+                overordnet.copy(
+                    postnummer = "9988",
+                    poststed = "Olsenåsen",
+                    navn = "Stopp konflikten",
+                ),
+            ).shouldBeRight()
 
             virksomhetRepository.get(overordnet.organisasjonsnummer).shouldBeRight().should {
                 it!!.navn shouldBe "Stopp konflikten"
@@ -234,12 +239,17 @@ class VirksomhetRepositoryTest : FunSpec({
                 leverandorUnderenheter = emptyList(),
                 startDato = LocalDate.now(),
                 sluttDato = LocalDate.now(),
-                arenaAnsvarligEnhet = null,
                 navRegion = "0100",
                 navEnheter = emptyList(),
                 avtaletype = Avtaletype.Avtale,
                 avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
                 opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
+                avtalenummer = null,
+                leverandorKontaktpersonId = null,
+                prisbetingelser = null,
+                antallPlasser = null,
+                url = null,
+                administratorer = emptyList(),
             )
             avtaleRepository.upsert(avtale)
             val tiltaksgjennomforing = TiltaksgjennomforingDbo(
@@ -249,7 +259,6 @@ class VirksomhetRepositoryTest : FunSpec({
                 tiltaksnummer = null,
                 arrangorOrganisasjonsnummer = "112254604",
                 startDato = LocalDate.now(),
-                arenaAnsvarligEnhet = null,
                 avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
                 tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.LEDIG,
                 antallPlasser = 12,
@@ -289,10 +298,11 @@ class VirksomhetRepositoryTest : FunSpec({
                 it.size shouldBe 1
                 it[0] shouldBe virksomhet1
             }
-            virksomhetRepository.getAll(VirksomhetFilter(til = VirksomhetTil.TILTAKSGJENNOMFORING)).shouldBeRight().should {
-                it.size shouldBe 1
-                it[0] shouldBe virksomhet2
-            }
+            virksomhetRepository.getAll(VirksomhetFilter(til = VirksomhetTil.TILTAKSGJENNOMFORING)).shouldBeRight()
+                .should {
+                    it.size shouldBe 1
+                    it[0] shouldBe virksomhet2
+                }
             virksomhetRepository.getAll(VirksomhetFilter(til = null)).shouldBeRight().should {
                 it shouldContainExactlyInAnyOrder listOf(virksomhet1, virksomhet2)
             }
@@ -330,7 +340,10 @@ class VirksomhetRepositoryTest : FunSpec({
             virksomhetRepository.upsertKontaktperson(kontaktperson)
             virksomhetRepository.upsertKontaktperson(kontaktperson2)
 
-            virksomhetRepository.getKontaktpersoner("982254604") shouldContainExactlyInAnyOrder listOf(kontaktperson, kontaktperson2)
+            virksomhetRepository.getKontaktpersoner("982254604") shouldContainExactlyInAnyOrder listOf(
+                kontaktperson,
+                kontaktperson2,
+            )
         }
     }
 })

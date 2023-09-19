@@ -1,12 +1,11 @@
+import { Accordion } from '@navikt/ds-react';
 import { useAtom } from 'jotai';
 import { tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
 import { usePrepopulerFilter } from '../../hooks/usePrepopulerFilter';
 import styles from './Filtermeny.module.scss';
 import InnsatsgruppeFilter from './InnsatsgruppeFilter';
-import { LokasjonFilter } from './LokasjonFilter';
 import Sokefelt from './Sokefelt';
 import { Tiltakstypefilter } from './Tiltakstypefilter';
-import { Accordion } from '@navikt/ds-react';
 
 const Filtermeny = () => {
   usePrepopulerFilter();
@@ -18,7 +17,6 @@ const Filtermeny = () => {
       <Accordion>
         <InnsatsgruppeFilter />
         <Tiltakstypefilter />
-        <LokasjonFilter />
       </Accordion>
     </div>
   );

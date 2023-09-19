@@ -141,7 +141,6 @@ data class TiltaksgjennomforingRequest(
                 avtaleId = avtaleId,
                 startDato = startDato,
                 sluttDato = sluttDato,
-                arenaAnsvarligEnhet = null,
                 avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
                 antallPlasser = antallPlasser,
                 tilgjengelighet = if (apenForInnsok) {

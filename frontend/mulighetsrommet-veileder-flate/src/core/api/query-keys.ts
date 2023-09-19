@@ -10,7 +10,6 @@ export const QueryKeys = {
   sanity: {
     innsatsgrupper: ['innsatsgrupper'],
     tiltakstyper: ['tiltakstyper'],
-    lokasjoner: ['lokasjoner'],
     tiltaksgjennomforinger: (bruker?: Bruker, tiltaksgjennomforingsfilter?: Tiltaksgjennomforingsfilter) => [
       'tiltaksgjennomforinger',
       { ...bruker },

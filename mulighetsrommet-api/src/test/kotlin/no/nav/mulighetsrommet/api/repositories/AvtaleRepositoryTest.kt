@@ -8,6 +8,7 @@ import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
+import kotliquery.Query
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
@@ -552,22 +553,30 @@ class AvtaleRepositoryTest : FunSpec({
             val avtale1 = AvtaleFixtures.avtale1.copy(
                 id = UUID.randomUUID(),
                 navn = "Avtale hos Anders",
-                arenaAnsvarligEnhet = "0300",
             )
             val avtale2 = avtale1.copy(
                 id = UUID.randomUUID(),
                 navn = "Avtale hos Åse",
-                arenaAnsvarligEnhet = "0300",
             )
             val avtale3 = avtale1.copy(
                 id = UUID.randomUUID(),
                 navn = "Avtale hos Øyvind",
-                arenaAnsvarligEnhet = "0300",
                 tiltakstypeId = tiltakstypeId,
             )
+
             avtaler.upsert(avtale1)
+            Query("update avtale set arena_ansvarlig_enhet = '0300' where id = '${avtale1.id}'").asUpdate.let {
+                database.db.run(it)
+            }
             avtaler.upsert(avtale2)
+            Query("update avtale set arena_ansvarlig_enhet = '0300' where id = '${avtale2.id}'").asUpdate.let {
+                database.db.run(it)
+            }
             avtaler.upsert(avtale3)
+            Query("update avtale set arena_ansvarlig_enhet = '0300' where id = '${avtale3.id}'").asUpdate.let {
+                database.db.run(it)
+            }
+
             val result = avtaler.getAll(
                 filter = AvtaleFilter(
                     tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,

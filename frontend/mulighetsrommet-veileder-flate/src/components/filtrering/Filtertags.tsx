@@ -30,8 +30,7 @@ export function Filtertags({ filter, setFilter }: FiltertagsProps) {
   const skalResetteFilter =
     brukersInnsatsgruppeErIkkeValgt(filter.innsatsgruppe?.nokkel) ||
     filter.search !== '' ||
-    filter.tiltakstyper.length > 0 ||
-    filter.lokasjoner.length > 0;
+    filter.tiltakstyper.length > 0;
 
   return (
     <div className={styles.filtertags} data-testid="filtertags">
@@ -50,16 +49,6 @@ export function Filtertags({ filter, setFilter }: FiltertagsProps) {
           setFilter({
             ...filter,
             tiltakstyper: filter.tiltakstyper?.filter(tiltakstype => tiltakstype.id !== id),
-          })
-        }
-      />
-
-      <FilterTag
-        options={filter.lokasjoner!}
-        handleClick={(id: string) =>
-          setFilter({
-            ...filter,
-            lokasjoner: filter.lokasjoner?.filter(gruppe => gruppe.id !== id),
           })
         }
       />

@@ -15,9 +15,5 @@ fun Route.navEnhetRoutes() {
             val filter = getEnhetFilter()
             call.respond(navEnhetService.hentAlleEnheter(filter))
         }
-        get("/avtaler") {
-            val filter = getEnhetFilter()
-            call.respond(navEnhetService.hentEnheterForAvtale(filter))
-        }
     }
 }

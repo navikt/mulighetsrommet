@@ -22,7 +22,6 @@ import {
   tilgjengelighetsstatusTilTekst,
 } from "../../utils/Utils";
 import { AutoSaveUtkast } from "../autosave/AutoSaveUtkast";
-import { Laster } from "../laster/Laster";
 import { tekniskFeilError } from "./TiltaksgjennomforingSkjemaErrors";
 import {
   inferredTiltaksgjennomforingSchema,
@@ -33,10 +32,8 @@ import {
   arrangorUnderenheterOptions,
   defaultOppstartType,
   defaultValuesForKontaktpersoner,
-  enheterOptions,
   UtkastData,
 } from "./TiltaksgjennomforingSkjemaConst";
-import { useAlleEnheter } from "../../api/enhet/useAlleEnheter";
 import { mulighetsrommetClient } from "../../api/clients";
 import { useHentKontaktpersoner } from "../../api/ansatt/useHentKontaktpersoner";
 import { usePutGjennomforing } from "../../api/avtaler/usePutGjennomforing";
@@ -59,7 +56,7 @@ import { Separator } from "../detaljside/Metadata";
 interface Props {
   onClose: () => void;
   onSuccess: (id: string) => void;
-  avtale?: Avtale;
+  avtale: Avtale;
   tiltaksgjennomforing?: Tiltaksgjennomforing;
 }
 
@@ -72,15 +69,13 @@ export const TiltaksgjennomforingSkjemaContainer = ({
   const utkastIdRef = useRef(tiltaksgjennomforing?.id || uuidv4());
   const redigeringsModus = !!tiltaksgjennomforing;
   const { data: virksomhet } = useVirksomhet(
-    avtale?.leverandor.organisasjonsnummer || "",
+    avtale.leverandor.organisasjonsnummer || "",
   );
   const mutation = usePutGjennomforing();
   const mutationUtkast = useMutateUtkast();
   const { data: betabrukere } = useHentBetabrukere();
 
   const { data: ansatt, isLoading: isLoadingAnsatt } = useHentAnsatt();
-
-  const { data: enheter, isLoading: isLoadingEnheter } = useAlleEnheter();
 
   const { data: kontaktpersoner, isLoading: isLoadingKontaktpersoner } =
     useHentKontaktpersoner();
@@ -118,8 +113,8 @@ export const TiltaksgjennomforingSkjemaContainer = ({
       stengtTil: values?.midlertidigStengt?.erMidlertidigStengt
         ? values?.midlertidigStengt?.stengtTil?.toString()
         : undefined,
-      tiltakstypeId: avtale?.tiltakstype.id,
-      avtaleId: avtale?.id,
+      tiltakstypeId: avtale.tiltakstype.id,
+      avtaleId: avtale.id,
       arrangorKontaktpersonId: {
         id: values?.arrangorKontaktpersonId ?? undefined,
       },
@@ -154,7 +149,9 @@ export const TiltaksgjennomforingSkjemaContainer = ({
     resolver: zodResolver(TiltaksgjennomforingSchema),
     defaultValues: {
       navn: tiltaksgjennomforing?.navn,
-      navEnheter: tiltaksgjennomforing?.navEnheter?.map((enhet) => enhet.enhetsnummer) || [],
+      navEnheter:
+        tiltaksgjennomforing?.navEnheter?.map((enhet) => enhet.enhetsnummer) ||
+        [],
       administrator: tiltaksgjennomforing?.administrator?.navIdent,
       antallPlasser: tiltaksgjennomforing?.antallPlasser,
       startOgSluttDato: {
@@ -276,15 +273,16 @@ export const TiltaksgjennomforingSkjemaContainer = ({
     }
   };
 
-  if (!enheter) {
-    return <Laster />;
-  }
-
   useEffect(() => {
     if (mutation.isSuccess) {
       onSuccess(mutation.data.id);
     }
   }, [mutation]);
+
+  const navEnheterOptions = avtale.navEnheter.map((enhet) => ({
+    value: enhet.enhetsnummer,
+    label: enhet.navn,
+  }));
 
   return (
     <FormProvider {...form}>
@@ -316,7 +314,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
                   size="small"
                   readOnly
                   label={"Avtale"}
-                  value={avtale?.navn || ""}
+                  value={avtale.navn || ""}
                 />
               </FormGroup>
               <Separator />
@@ -415,9 +413,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
               <FormGroup>
                 <SokeSelect
                   size="small"
-                  placeholder={
-                    isLoadingAnsatt ? "Laster..." : "Velg en"
-                  }
+                  placeholder={isLoadingAnsatt ? "Laster..." : "Velg en"}
                   label={"Administrator for gjennomføringen"}
                   {...register("administrator")}
                   options={AdministratorOptions(
@@ -436,17 +432,15 @@ export const TiltaksgjennomforingSkjemaContainer = ({
                   <TextField
                     size="small"
                     readOnly
-                    label={"NAV region"}
-                    value={avtale?.navRegion?.navn || ""}
+                    label={"NAV-region"}
+                    value={avtale.navRegion?.navn || ""}
                   />
                   <ControlledMultiSelect
                     size="small"
-                    placeholder={
-                      isLoadingEnheter ? "Laster enheter..." : "Velg en"
-                    }
-                    label={"NAV enhet (kontorer)"}
+                    placeholder={"Velg en"}
+                    label={"NAV-enheter (kontorer)"}
                     {...register("navEnheter")}
-                    options={enheterOptions(enheter, avtale)}
+                    options={navEnheterOptions}
                   />
                 </FormGroup>
                 <Separator />
@@ -504,7 +498,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
                                   shouldUnregister: true,
                                 },
                               )}
-                              options={enheterOptions(enheter, avtale)}
+                              options={navEnheterOptions}
                             />
                           </div>
                         </div>
@@ -529,7 +523,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
                     size="small"
                     label="Tiltaksarrangør hovedenhet"
                     placeholder=""
-                    defaultValue={`${avtale?.leverandor.navn} - ${avtale?.leverandor.organisasjonsnummer}`}
+                    defaultValue={`${avtale.leverandor.navn} - ${avtale.leverandor.organisasjonsnummer}`}
                     readOnly
                   />
                   <SokeSelect
@@ -549,8 +543,8 @@ export const TiltaksgjennomforingSkjemaContainer = ({
                         "",
                       );
                     }}
-                    readOnly={!avtale?.leverandor.organisasjonsnummer}
-                    options={arrangorUnderenheterOptions(avtale!, virksomhet)}
+                    readOnly={!avtale.leverandor.organisasjonsnummer}
+                    options={arrangorUnderenheterOptions(avtale, virksomhet)}
                   />
                   {watch("tiltaksArrangorUnderenhetOrganisasjonsnummer") &&
                     !tiltaksgjennomforing?.arrangor?.slettet && (
@@ -571,7 +565,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
                   <TextField
                     size="small"
                     label="Sted for gjennomføring"
-                    description="Sted for gjennomføring, f.eks. Fredrikstad eller Tromsø. Veileder kan filtrere på verdiene i dette feltet, så ikke skriv fulle adresser."
+                    description="Skriv inn stedet tiltaket skal gjennomføres, for eksempel Fredrikstad eller Tromsø. For tiltak uten eksplisitt lokasjon (for eksempel digital jobbklubb), kan du la feltet stå tomt."
                     {...register("lokasjonArrangor")}
                     error={
                       errors.lokasjonArrangor
@@ -594,7 +588,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
       <AutoSaveUtkast
         defaultValues={defaultValues}
         utkastId={utkastIdRef.current}
-        onSave={() => saveUtkast(watch(), avtale!, utkastIdRef)}
+        onSave={() => saveUtkast(watch(), avtale, utkastIdRef)}
         mutation={mutationUtkast}
       />
     </FormProvider>

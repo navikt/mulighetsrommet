@@ -16,7 +16,7 @@ import {
   Tiltaksgjennomforingfilter as TiltaksgjennomforingAtomFilter,
   tiltaksgjennomforingfilter,
 } from "../../api/atoms";
-import { useAlleEnheter } from "../../api/enhet/useAlleEnheter";
+import { useNavEnheter } from "../../api/enhet/useNavEnheter";
 import { useFeatureToggle } from "../../api/features/feature-toggles";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
 import { useVirksomheter } from "../../api/virksomhet/useVirksomheter";
@@ -44,7 +44,7 @@ export function Tiltaksgjennomforingfilter({ skjulFilter }: Props) {
   const { data: avtale } = useAvtale();
   const [filter, setFilter] = useAtom(tiltaksgjennomforingfilter);
   const [, setPage] = useAtom(paginationAtom);
-  const { data: enheter } = useAlleEnheter();
+  const { data: enheter } = useNavEnheter();
   const { data: virksomheter } = useVirksomheter(
     VirksomhetTil.TILTAKSGJENNOMFORING,
   );

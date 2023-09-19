@@ -38,7 +38,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 tiltaksnummer,
                 arrangor_organisasjonsnummer,
                 arrangor_kontaktperson_id,
-                arena_ansvarlig_enhet,
                 start_dato,
                 slutt_dato,
                 avslutningsstatus,
@@ -60,7 +59,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 :tiltaksnummer,
                 :arrangor_organisasjonsnummer,
                 :arrangor_kontaktperson_id,
-                :arena_ansvarlig_enhet,
                 :start_dato,
                 :slutt_dato,
                 :avslutningsstatus::avslutningsstatus,
@@ -81,7 +79,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                               tiltaksnummer                = excluded.tiltaksnummer,
                               arrangor_organisasjonsnummer = excluded.arrangor_organisasjonsnummer,
                               arrangor_kontaktperson_id    = excluded.arrangor_kontaktperson_id,
-                              arena_ansvarlig_enhet        = excluded.arena_ansvarlig_enhet,
                               start_dato                   = excluded.start_dato,
                               slutt_dato                   = excluded.slutt_dato,
                               avslutningsstatus            = excluded.avslutningsstatus,
@@ -555,7 +552,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         "arrangor_organisasjonsnummer" to arrangorOrganisasjonsnummer,
         "arrangor_kontaktperson_id" to arrangorKontaktpersonId,
         "start_dato" to startDato,
-        "arena_ansvarlig_enhet" to arenaAnsvarligEnhet,
         "slutt_dato" to sluttDato,
         "avslutningsstatus" to avslutningsstatus.name,
         "tilgjengelighet" to tilgjengelighet.name,
@@ -766,29 +762,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             .asList
             .let { db.run(it) }
     }
-
-    fun getLokasjonerForEnhet(enhetsId: String, fylkeId: String): List<String> {
-        val params = mapOf(
-            "enhetsId" to enhetsId,
-            "fylkesId" to fylkeId,
-        )
-
-        @Language("PostgreSQL")
-        val query = """
-            select distinct tg.lokasjon_arrangor from tiltaksgjennomforing tg
-            left join tiltaksgjennomforing_nav_enhet tne on tg.id = tne.tiltaksgjennomforing_id
-            left join avtale a on a.id = tg.avtale_id
-            where tne.enhetsnummer = :enhetsId or (tne.enhetsnummer is null and a.nav_region = :fylkesId)
-        """.trimIndent()
-
-        return queryOf(query, params)
-            .map { it.stringOrNull("lokasjon_arrangor") }
-            .asList
-            .let { db.run(it) }
-    }
-
-    fun avbrytGjennomforing(gjennomforingId: UUID) =
-        db.transaction { avbrytGjennomforing(gjennomforingId, it) }
 
     fun avbrytGjennomforing(gjennomforingId: UUID, tx: Session): Int {
         @Language("PostgreSQL")

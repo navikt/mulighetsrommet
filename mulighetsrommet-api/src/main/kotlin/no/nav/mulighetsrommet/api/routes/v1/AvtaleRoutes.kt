@@ -108,22 +108,22 @@ data class AvtaleRequest(
     @Serializable(with = UUIDSerializer::class)
     val tiltakstypeId: UUID,
     val leverandorOrganisasjonsnummer: String,
-    val leverandorUnderenheter: List<String> = emptyList(),
+    val leverandorUnderenheter: List<String>,
     @Serializable(with = UUIDSerializer::class)
-    val leverandorKontaktpersonId: UUID? = null,
-    val avtalenummer: String,
+    val leverandorKontaktpersonId: UUID?,
+    val avtalenummer: String?,
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate,
     val navRegion: String,
-    val url: String,
+    val url: String?,
     val administrator: String,
     val avtaletype: Avtaletype,
-    val prisOgBetalingsinformasjon: String? = null,
-    val navEnheter: List<String> = emptyList(),
-    val opphav: ArenaMigrering.Opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
-    val avslutningsstatus: Avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
+    val prisOgBetalingsinformasjon: String?,
+    val navEnheter: List<String>,
+    val opphav: ArenaMigrering.Opphav,
+    val avslutningsstatus: Avslutningsstatus,
 ) {
     fun toDbo(): StatusResponse<AvtaleDbo> {
         if (!startDato.isBefore(sluttDato)) {
@@ -147,7 +147,6 @@ data class AvtaleRequest(
                 leverandorKontaktpersonId = leverandorKontaktpersonId,
                 startDato = startDato,
                 sluttDato = sluttDato,
-                arenaAnsvarligEnhet = null,
                 navRegion = navRegion,
                 avtaletype = avtaletype,
                 avslutningsstatus = avslutningsstatus,
