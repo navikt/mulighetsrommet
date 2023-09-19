@@ -7,7 +7,7 @@ import io.mockk.mockk
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.domain.dto.TiltakshistorikkDto
-import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures.avtale1Id
+import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakshistorikkRepository
@@ -41,7 +41,6 @@ class TiltakshistorikkServiceTest : FunSpec({
         tiltakstypeId = tiltakstype.id,
         tiltaksnummer = "12345",
         arrangorOrganisasjonsnummer = "123456789",
-        arenaAnsvarligEnhet = "2990",
         avslutningsstatus = Avslutningsstatus.AVSLUTTET,
         startDato = LocalDate.of(2022, 1, 1),
         tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.LEDIG,
@@ -57,7 +56,7 @@ class TiltakshistorikkServiceTest : FunSpec({
         stengtTil = null,
         lokasjonArrangor = "Oslo",
         estimertVentetid = null,
-        avtaleId = avtale1Id,
+        avtaleId = AvtaleFixtures.avtale1.id,
     )
 
     val tiltakshistorikkGruppe = ArenaTiltakshistorikkDbo.Gruppetiltak(
