@@ -30,7 +30,6 @@ export function Gjennomforingsrad({ tiltaksgjennomforing, index }: Props) {
     navn,
     arrangor,
     tiltakstype,
-    lokasjon,
     tilgjengelighet,
     oppstart,
     oppstartsdato,
@@ -55,9 +54,7 @@ export function Gjennomforingsrad({ tiltaksgjennomforing, index }: Props) {
             <BodyShort size="small" title={tiltakstype.navn} className={styles.truncate}>
               {tiltakstype.navn}
             </BodyShort>
-            <BodyShort size="small" title={lokasjon} className={styles.truncate}>
-              {lokasjon}
-            </BodyShort>
+
             <BodyShort size="small" title={visOppstartsdato(oppstart, oppstartsdato)} className={styles.truncate}>
               {visOppstartsdato(oppstart, oppstartsdato)}
             </BodyShort>

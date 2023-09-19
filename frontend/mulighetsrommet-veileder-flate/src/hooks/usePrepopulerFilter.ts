@@ -13,15 +13,17 @@ export function usePrepopulerFilter() {
     if (matchedInnsatsgruppe) {
       const tiltakstyper = resetFilterTilUtgangspunkt ? [] : filter.tiltakstyper;
       const search = resetFilterTilUtgangspunkt ? '' : filter.search;
-      const lokasjoner = resetFilterTilUtgangspunkt ? [] : filter.lokasjoner;
       const innsatsgruppe = resetFilterTilUtgangspunkt
-        ? { id: matchedInnsatsgruppe.sanityId, nokkel: matchedInnsatsgruppe.nokkel, tittel: matchedInnsatsgruppe.tittel }
+        ? {
+            id: matchedInnsatsgruppe.sanityId,
+            nokkel: matchedInnsatsgruppe.nokkel,
+            tittel: matchedInnsatsgruppe.tittel,
+          }
         : filter.innsatsgruppe;
       setFilter({
         search,
         tiltakstyper,
         innsatsgruppe,
-        lokasjoner,
       });
     }
   }

@@ -59,7 +59,6 @@ data class TiltaksgjennomforingFilter(
     val innsatsgruppe: String? = null,
     val tiltakstypeIder: List<String> = emptyList(),
     val sokestreng: String = "",
-    val lokasjoner: List<String> = emptyList(),
 )
 
 data class NotificationFilter(
@@ -193,12 +192,10 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getTiltaksgjennomforingsFilter
     val innsatsgruppe = call.parameters["innsatsgruppe"]
     val tiltakstypeIder = call.parameters.getAll("tiltakstypeIder") ?: emptyList()
     val sokestreng = call.parameters["sokestreng"] ?: ""
-    val lokasjoner = call.parameters.getAll("lokasjoner") ?: emptyList()
     return TiltaksgjennomforingFilter(
         innsatsgruppe = innsatsgruppe,
         tiltakstypeIder = tiltakstypeIder,
         sokestreng = sokestreng,
-        lokasjoner = lokasjoner,
     )
 }
 

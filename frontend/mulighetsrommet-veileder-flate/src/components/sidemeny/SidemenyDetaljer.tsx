@@ -70,7 +70,7 @@ const SidemenyDetaljer = ({ tiltaksgjennomforing }: Props) => {
         {lokasjon && (
           <div className={styles.rad}>
             <BodyShort size="small" className={styles.tittel}>
-              Lokasjon
+              Sted for gjennomføring
             </BodyShort>
             <BodyShort size="small">{lokasjon}</BodyShort>
           </div>

@@ -754,29 +754,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    fun getLokasjonerForEnhet(enhetsId: String, fylkeId: String): List<String> {
-        val params = mapOf(
-            "enhetsId" to enhetsId,
-            "fylkesId" to fylkeId,
-        )
-
-        @Language("PostgreSQL")
-        val query = """
-            select distinct tg.lokasjon_arrangor from tiltaksgjennomforing tg
-            left join tiltaksgjennomforing_nav_enhet tne on tg.id = tne.tiltaksgjennomforing_id
-            left join avtale a on a.id = tg.avtale_id
-            where tne.enhetsnummer = :enhetsId or (tne.enhetsnummer is null and a.nav_region = :fylkesId)
-        """.trimIndent()
-
-        return queryOf(query, params)
-            .map { it.stringOrNull("lokasjon_arrangor") }
-            .asList
-            .let { db.run(it) }
-    }
-
-    fun avbrytGjennomforing(gjennomforingId: UUID) =
-        db.transaction { avbrytGjennomforing(gjennomforingId, it) }
-
     fun avbrytGjennomforing(gjennomforingId: UUID, tx: Session): Int {
         @Language("PostgreSQL")
         val query = """

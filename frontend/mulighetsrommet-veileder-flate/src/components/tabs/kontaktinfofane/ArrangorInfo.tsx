@@ -26,13 +26,6 @@ const ArrangorInfo = ({ data }: ArrangorInfoProps) => {
         <BodyShort className={styles.navn} size="small">
           {arrangor.selskapsnavn}
         </BodyShort>
-
-        <BodyShort size="small">
-          <div className={styles.infofelt}>
-            <div className={styles.kolonne}>Lokasjon:</div>
-            <div className={styles.kolonne}>{arrangor.lokasjon}</div>
-          </div>
-        </BodyShort>
       </div>
 
       {kontaktperson && (
