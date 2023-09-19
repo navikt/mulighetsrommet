@@ -3,7 +3,7 @@ import { Avtale, Tiltakstypestatus } from "mulighetsrommet-api-client";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
 import { useAvtale } from "../../api/avtaler/useAvtale";
-import { useAlleEnheter } from "../../api/enhet/useAlleEnheter";
+import { useNavEnheter } from "../../api/enhet/useNavEnheter";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
 import { ContainerLayoutDetaljer } from "../../layouts/ContainerLayout";
 import { inneholderUrl } from "../../utils/Utils";
@@ -25,7 +25,7 @@ const AvtaleSkjemaPage = () => {
   const { data: tiltakstyper, isLoading: isLoadingTiltakstyper } =
     useTiltakstyper({ status: Tiltakstypestatus.AKTIV }, 1);
   const { data: ansatt, isLoading: isLoadingAnsatt } = useHentAnsatt();
-  const { data: enheter, isLoading: isLoadingEnheter } = useAlleEnheter();
+  const { data: enheter, isLoading: isLoadingEnheter } = useNavEnheter();
 
   const utkastModus = utkast && inneholderUrl(utkast?.id);
   const redigeringsModus = utkastModus || (avtale && inneholderUrl(avtale?.id));

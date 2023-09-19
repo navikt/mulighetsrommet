@@ -291,9 +291,9 @@ export function TiltaksgjennomforingInfo() {
             <Metadata header="NAV-region" verdi={avtale?.navRegion?.navn} />
           </Bolk>
 
-          <Bolk aria-label="Nav-enheter">
+          <Bolk aria-label="NAV-enheter">
             <Metadata
-              header="Nav-enhet (kontorer)"
+              header="NAV-enheter (kontorer)"
               verdi={
                 <ul>
                   {tiltaksgjennomforing.navEnheter.map((enhet) => (

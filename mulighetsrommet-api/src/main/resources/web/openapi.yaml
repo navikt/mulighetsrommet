@@ -1091,8 +1091,8 @@ paths:
   /api/v1/internal/enheter:
     get:
       tags:
-        - Hent enheter
-      operationId: hentAlleEnheter
+        - NavEnheter
+      operationId: getEnheter
       parameters:
         - in: query
           name: statuser
@@ -1111,34 +1111,6 @@ paths:
       responses:
         200:
           description: Alle enheter filterert på filter
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/NavEnhet"
-
-  /api/v1/internal/enheter/avtaler:
-    get:
-      tags:
-        - Hent enheter
-      operationId: hentEnheterMedAvtale
-      parameters:
-        - in: query
-          name: statuser
-          schema:
-            type: array
-            items:
-              $ref: "#/components/schemas/NavEnhetStatus"
-          description: Hvilke status skal enheten ha
-        - in: query
-          name: tiltakstypeId
-          schema:
-            type: string
-          description: ID for tiltakstype knyttet til avtaler
-      responses:
-        200:
-          description: "Enheter knyttet til avtaler"
           content:
             application/json:
               schema:

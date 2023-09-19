@@ -5,6 +5,7 @@ import {
   LeverandorUnderenhet,
   NavAnsatt,
   NavEnhet,
+  Norg2Type,
   Utkast,
   Virksomhet,
 } from "mulighetsrommet-api-client";
@@ -89,7 +90,7 @@ export const saveUtkast = (
 };
 
 export const defaultEnhet = (
-  avtale: Avtale,
+  avtale: Avtale | undefined,
   enheter: NavEnhet[],
   ansatt: NavAnsatt,
 ) => {
@@ -117,20 +118,24 @@ export const erAnskaffetTiltak = (
   return tiltakstypekodeErAnskaffetTiltak(tiltakstype?.arenaKode);
 };
 
-export const enheterOptions = (navRegion: string, enheter: NavEnhet[]) => {
+export const getLokaleUnderenheterAsSelectOptions = (
+  navRegion: string | undefined,
+  enheter: NavEnhet[],
+) => {
   if (!navRegion) {
     return [];
   }
 
-  const options = enheter
-    ?.filter((enhet: NavEnhet) => {
-      return navRegion === enhet.overordnetEnhet;
+  return enheter
+    .filter((enhet: NavEnhet) => {
+      return (
+        navRegion === enhet.overordnetEnhet && enhet.type === Norg2Type.LOKAL
+      );
     })
     .map((enhet: NavEnhet) => ({
       label: enhet.navn,
       value: enhet.enhetsnummer,
     }));
-  return options || [];
 };
 
 export const underenheterOptions = (underenheterForLeverandor: Virksomhet[]) =>
