@@ -8,7 +8,6 @@ import no.nav.mulighetsrommet.api.domain.dto.*
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
-import no.nav.mulighetsrommet.api.repositories.VirksomhetRepository
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingAdminDto
 import org.slf4j.LoggerFactory
 import java.util.*
@@ -18,7 +17,6 @@ class SanityTiltaksgjennomforingService(
     private val tiltaksgjennomforingRepository: TiltaksgjennomforingRepository,
     private val avtaleRepository: AvtaleRepository,
     private val tiltakstypeRepository: TiltakstypeRepository,
-    private val virksomhetRepository: VirksomhetRepository,
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
@@ -41,8 +39,6 @@ class SanityTiltaksgjennomforingService(
     suspend fun createOrPatchSanityTiltaksgjennomforing(tiltaksgjennomforing: TiltaksgjennomforingAdminDto) {
         val avtale = tiltaksgjennomforing.avtaleId?.let { avtaleRepository.get(it) }
         val tiltakstype = tiltakstypeRepository.get(tiltaksgjennomforing.tiltakstype.id)
-        val enhet = virksomhetRepository.get(tiltaksgjennomforing.arrangor.organisasjonsnummer).getOrNull()
-        val lokasjonForVirksomhetFraBrreg = "${enhet?.postnummer ?: ""} ${enhet?.poststed ?: ""}"
 
         val sanityTiltaksgjennomforingFields = SanityTiltaksgjennomforingFields(
             tiltaksgjennomforingNavn = tiltaksgjennomforing.navn,
@@ -55,7 +51,7 @@ class SanityTiltaksgjennomforingService(
             tiltakstype = tiltakstype?.sanityId?.let { TiltakstypeRef(_ref = it.toString()) },
             tiltaksnummer = tiltaksgjennomforing.tiltaksnummer?.let { TiltaksnummerSlug(current = it) },
             sluttdato = tiltaksgjennomforing.sluttDato,
-            lokasjon = tiltaksgjennomforing.lokasjonArrangor ?: lokasjonForVirksomhetFraBrreg,
+            lokasjon = tiltaksgjennomforing.lokasjonArrangor,
         )
 
         if (tiltaksgjennomforing.sanityId != null) {
