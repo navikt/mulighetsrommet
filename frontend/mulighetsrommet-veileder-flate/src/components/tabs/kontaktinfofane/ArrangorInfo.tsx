@@ -34,7 +34,7 @@ const ArrangorInfo = ({ data }: ArrangorInfoProps) => {
             {kontaktperson.navn}
           </BodyShort>
 
-          <BodyShort size="small">
+          <BodyShort as="div" size="small">
             <div className={styles.infofelt}>
               <div className={styles.kolonne}>
                 <span>Telefon:</span>

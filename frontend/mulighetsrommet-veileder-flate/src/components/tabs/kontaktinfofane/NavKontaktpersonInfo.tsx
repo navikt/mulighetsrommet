@@ -33,7 +33,7 @@ const NavKontaktpersonInfo = ({ data }: NavKontaktpersonInfoProps) => {
               {navn}
             </BodyShort>
 
-            <BodyShort size="small">
+            <BodyShort as="div" size="small">
               <div className={styles.infofelt}>
                 <div className={styles.kolonne}>
                   {telefonnummer && <span>Telefon:</span>}
