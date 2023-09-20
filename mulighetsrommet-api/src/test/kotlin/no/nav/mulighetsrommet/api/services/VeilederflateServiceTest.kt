@@ -12,7 +12,7 @@ import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.domain.dto.SanityResponse
-import no.nav.mulighetsrommet.api.utils.TiltaksgjennomforingFilter
+import no.nav.mulighetsrommet.api.routes.v1.GetRelevanteTiltaksgjennomforingerForBrukerRequest
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingTilgjengelighetsstatus
@@ -122,7 +122,7 @@ class VeilederflateServiceTest : FunSpec({
     )
 
     test("Tom enhetsliste fra db overskriver ikke sanity enheter") {
-        val fnr = "01010199999"
+        val norskIdent = "01010199999"
         val veilederFlateService = VeilederflateService(
             sanityClient,
             brukerService,
@@ -135,7 +135,7 @@ class VeilederflateServiceTest : FunSpec({
         )
         coEvery { virksomhetService.getOrSyncVirksomhet(any()) } returns null
         coEvery { brukerService.hentBrukerdata(any(), any()) } returns BrukerService.Brukerdata(
-            fnr,
+            norskIdent,
             geografiskEnhet = Enhet(navn = "A", enhetsnummer = "0430"),
             innsatsgruppe = null,
             oppfolgingsenhet = null,
@@ -146,9 +146,8 @@ class VeilederflateServiceTest : FunSpec({
         coEvery { sanityClient.query(any()) } returns sanityResult
 
         val gjennomforinger = veilederFlateService.hentTiltaksgjennomforingerForBrukerBasertPaEnhetOgFylke(
-            fnr,
+            GetRelevanteTiltaksgjennomforingerForBrukerRequest(norskIdent = norskIdent),
             "accessToken",
-            TiltaksgjennomforingFilter(),
         )
         gjennomforinger.size shouldBe 2
         gjennomforinger.find { it.sanityId == "f21d1e35-d63b-4de7-a0a5-589e57111527" }!!.enheter!!.size shouldBe 1
@@ -186,9 +185,8 @@ class VeilederflateServiceTest : FunSpec({
         coEvery { sanityClient.query(any()) } returns sanityResult
 
         val gjennomforinger = veilederFlateService.hentTiltaksgjennomforingerForBrukerBasertPaEnhetOgFylke(
-            fnr,
+            GetRelevanteTiltaksgjennomforingerForBrukerRequest(norskIdent = fnr),
             "accessToken",
-            TiltaksgjennomforingFilter(),
         )
         gjennomforinger.size shouldBe 2
         gjennomforinger.find { it.sanityId == "f21d1e35-d63b-4de7-a0a5-589e57111527" }!!.enheter!!.size shouldBe 1
@@ -219,9 +217,8 @@ class VeilederflateServiceTest : FunSpec({
         coEvery { sanityClient.query(any()) } returns sanityResult
 
         val gjennomforinger = veilederFlateService.hentTiltaksgjennomforingerForBrukerBasertPaEnhetOgFylke(
-            fnr,
+            GetRelevanteTiltaksgjennomforingerForBrukerRequest(norskIdent = fnr),
             "accessToken",
-            TiltaksgjennomforingFilter(),
         )
         gjennomforinger.size shouldBe 1
         gjennomforinger.find { it.sanityId == "f21d1e35-d63b-4de7-a0a5-589e57111527" } shouldBe null

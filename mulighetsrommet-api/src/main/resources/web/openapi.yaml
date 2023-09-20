@@ -9,12 +9,16 @@ security:
 
 paths:
   /api/v1/internal/bruker:
-    parameters:
-      - $ref: "#/components/parameters/Fnr"
-    get:
+    post:
       tags:
         - Bruker
       operationId: getBrukerdata
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GetBrukerRequest"
+        required: true
       responses:
         200:
           description: Data about the 'bruker' in the context of 'veileder'
@@ -814,7 +818,7 @@ paths:
     get:
       tags:
         - Sanity
-      operationId: getSanityTiltakstyper
+      operationId: getVeilederflateTiltakstyper
       responses:
         200:
           description: Tiltakstyper definert i Sanity
@@ -826,30 +830,16 @@ paths:
                   $ref: "#/components/schemas/VeilederflateTiltakstype"
 
   /api/v1/internal/sanity/tiltaksgjennomforinger:
-    parameters:
-      - $ref: "#/components/parameters/Fnr"
-    get:
+    post:
       tags:
         - Sanity
-      operationId: getTiltaksgjennomforingForBruker
-      parameters:
-        - in: query
-          name: innsatsgruppe
-          schema:
-            type: string
-          description: Innsatsgruppe du ønsker å filtrere på
-        - in: query
-          name: tiltakstypeIder
-          schema:
-            type: array
-            items:
-              type: string
-          description: Liste med id'er for tiltakstyper man er interessert i
-        - in: query
-          name: sokestreng
-          schema:
-            type: string
-          description: Søkestreng for fritekstsøk etter tiltaksgjennomføringer
+      operationId: getRelevanteTiltaksgjennomforingerForBruker
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GetRelevanteTiltaksgjennomforingerForBrukerRequest"
+        required: true
       responses:
         200:
           description: Hent tiltaksgjennomføringer som bruker har rett på
@@ -860,23 +850,17 @@ paths:
                 items:
                   $ref: "#/components/schemas/VeilederflateTiltaksgjennomforing"
 
-  /api/v1/internal/sanity/tiltaksgjennomforing/{id}:
-    get:
+  /api/v1/internal/sanity/tiltaksgjennomforing:
+    post:
       tags:
         - Sanity
-      operationId: getSanityTiltaksgjennomforing
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: string
-          description: ID for tiltaksgjennomføring i Sanity
-        - in: query
-          name: fnr
-          schema:
-            type: string
-          description: FNR for bruker
+      operationId: getTiltaksgjennomforingForBruker
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GetTiltaksgjennomforingForBrukerRequest"
+        required: true
       responses:
         200:
           description: Hent tiltaksgjennomføring for id
@@ -889,7 +873,7 @@ paths:
     get:
       tags:
         - Sanity
-      operationId: getSanityTiltaksgjennomforingForPreview
+      operationId: getTiltaksgjennomforingForPreview
       parameters:
         - in: path
           name: id
@@ -899,15 +883,13 @@ paths:
           description: ID for tiltaksgjennomføring i Sanity
       responses:
         200:
-          description: Hent tiltaksgjennomføring for id uavhengig av fnr i kontekst
+          description: Hent tiltaksgjennomføring for id uavhengig av bruker i kontekst
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/VeilederflateTiltaksgjennomforing"
 
   /api/v1/internal/dialog:
-    parameters:
-      - $ref: "#/components/parameters/Fnr"
     post:
       tags:
         - dialogen
@@ -932,12 +914,16 @@ paths:
                 type: string
 
   /api/v1/internal/bruker/historikk:
-    parameters:
-      - $ref: "#/components/parameters/Fnr"
-    get:
+    post:
       tags:
         - Historikk
       operationId: hentHistorikkForBruker
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GetHistorikkForBrukerRequest"
+        required: true
       responses:
         200:
           description: Historical data about the user
@@ -1027,24 +1013,17 @@ paths:
               schema:
                 type: string
 
-  /api/v1/internal/delMedBruker:
-    get:
+  /api/v1/internal/del-med-bruker:
+    post:
       tags:
         - Del med bruker
       operationId: getDelMedBruker
-      parameters:
-        - in: query
-          name: fnr
-          description: "Brukers fnr"
-          required: true
-          schema:
-            type: string
-        - in: query
-          name: sanityId
-          description: "ID fra Sanity-dokument"
-          required: true
-          schema:
-            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GetDelMedBrukerRequest"
+        required: true
       responses:
         200:
           description: "Last entry in database about share with user"
@@ -1059,10 +1038,10 @@ paths:
               schema:
                 type: string
 
-    post:
+    put:
       tags:
         - Del med bruker
-      operationId: postDelMedBruker
+      operationId: delMedBruker
       requestBody:
         content:
           application/json:
@@ -1418,13 +1397,6 @@ components:
       required: true
       schema:
         type: string
-    Fnr:
-      name: fnr
-      in: query
-      description: Fødselsnummer
-      required: true
-      schema:
-        type: string
     Utkasttype:
       in: query
       name: utkasttype
@@ -1444,6 +1416,63 @@ components:
         type: string
 
   schemas:
+    GetBrukerRequest:
+      type: object
+      properties:
+        norskIdent:
+          type: string
+      required:
+        - norskIdent
+
+    GetHistorikkForBrukerRequest:
+      type: object
+      properties:
+        norskIdent:
+          type: string
+      required:
+        - norskIdent
+
+    GetDelMedBrukerRequest:
+      type: object
+      properties:
+        norskIdent:
+          type: string
+        sanityId:
+          type: string
+          format: uuid
+      required:
+        - norskIdent
+        - sanityId
+
+    GetRelevanteTiltaksgjennomforingerForBrukerRequest:
+      type: object
+      properties:
+        norskIdent:
+          type: string
+        innsatsgruppe:
+          $ref: "#/components/schemas/Innsatsgruppe"
+        tiltakstypeIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+        search:
+          type: string
+      required:
+        - norskIdent
+
+    GetTiltaksgjennomforingForBrukerRequest:
+      type: object
+      properties:
+        sanityId:
+          type: string
+          format: uuid
+        norskIdent:
+          type: string
+      required:
+        - sanityId
+        - norskIdent
+
     ManuellStatus:
       type: object
       properties:
@@ -2106,11 +2135,14 @@ components:
     DialogRequest:
       type: object
       properties:
+        norskIdent:
+          type: string
         overskrift:
           type: string
         tekst:
           type: string
       required:
+        - norskIdent
         - overskrift
         - tekst
 

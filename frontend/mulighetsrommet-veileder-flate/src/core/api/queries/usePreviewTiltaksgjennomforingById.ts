@@ -5,9 +5,7 @@ import { useGetTiltaksgjennomforingIdFraUrl } from './useGetTiltaksgjennomforing
 
 export default function usePreviewTiltaksgjennomforingById() {
   const id = useGetTiltaksgjennomforingIdFraUrl();
-  const response = useQuery(QueryKeys.sanity.tiltaksgjennomforingPreview(id), () =>
-    mulighetsrommetClient.sanity.getSanityTiltaksgjennomforingForPreview({ id })
+  return useQuery(QueryKeys.sanity.tiltaksgjennomforingPreview(id), () =>
+    mulighetsrommetClient.sanity.getTiltaksgjennomforingForPreview({ id })
   );
-
-  return response;
 }

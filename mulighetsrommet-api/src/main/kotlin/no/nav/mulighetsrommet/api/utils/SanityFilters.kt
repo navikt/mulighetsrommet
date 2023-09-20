@@ -10,8 +10,10 @@ fun byggTiltakstypeFilter(tiltakstyper: List<String>): String {
     """.trimIndent()
 }
 
-fun byggSokeFilter(sokestreng: String): String {
-    if (sokestreng.isBlank()) return ""
+fun byggSokeFilter(sokestreng: String?): String {
+    if (sokestreng.isNullOrBlank()) {
+        return ""
+    }
 
     return """
             && [tiltaksgjennomforingNavn, string(tiltaksnummer.current), tiltakstype->tiltakstypeNavn, lokasjon, oppstartsdato] match "*$sokestreng*"

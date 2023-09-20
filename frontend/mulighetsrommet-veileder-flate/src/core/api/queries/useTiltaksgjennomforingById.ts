@@ -7,9 +7,10 @@ import { useGetTiltaksgjennomforingIdFraUrl } from './useGetTiltaksgjennomforing
 export default function useTiltaksgjennomforingById() {
   const id = useGetTiltaksgjennomforingIdFraUrl();
   const fnr = useFnr();
-  const response = useQuery(QueryKeys.sanity.tiltaksgjennomforing(id), () =>
-    mulighetsrommetClient.sanity.getSanityTiltaksgjennomforing({ id, fnr })
-  );
 
-  return response;
+  const requestBody = { sanityId: id, norskIdent: fnr };
+
+  return useQuery(QueryKeys.sanity.tiltaksgjennomforing(id), () =>
+    mulighetsrommetClient.sanity.getTiltaksgjennomforingForBruker({ requestBody })
+  );
 }

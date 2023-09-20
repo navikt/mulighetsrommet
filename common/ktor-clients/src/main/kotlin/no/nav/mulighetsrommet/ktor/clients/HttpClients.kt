@@ -12,6 +12,7 @@ import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.metrics.Metrikker
+import org.slf4j.LoggerFactory
 import org.slf4j.MDC
 
 val ClientResponseMetricPlugin = createClientPlugin("ClientResponseMetricPlugin") {
@@ -25,6 +26,18 @@ fun httpJsonClient(engine: HttpClientEngine = CIO.create()) = HttpClient(engine)
 
     install(Logging) {
         level = LogLevel.INFO
+
+        logger = object : Logger {
+            private val logger = LoggerFactory.getLogger(HttpClient::class.java)
+
+            private val fnrRegex = "\\d{11}".toRegex()
+
+            override fun log(message: String) {
+                val maskedMessage = message.replace(fnrRegex, replacement = "***********")
+                logger.info(maskedMessage)
+            }
+        }
+
     }
 
     install(ContentNegotiation) {

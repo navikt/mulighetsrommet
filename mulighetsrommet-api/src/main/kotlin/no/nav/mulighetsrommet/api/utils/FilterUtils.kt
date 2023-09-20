@@ -54,12 +54,6 @@ data class EnhetFilter(
     val typer: List<Norg2Type>? = null,
 )
 
-data class TiltaksgjennomforingFilter(
-    val innsatsgruppe: String? = null,
-    val tiltakstypeIder: List<String> = emptyList(),
-    val sokestreng: String = "",
-)
-
 data class NotificationFilter(
     val status: NotificationStatus? = null,
 )
@@ -181,17 +175,6 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getEnhetFilter(): EnhetFilter 
     return EnhetFilter(
         statuser = statuser,
         typer = typer,
-    )
-}
-
-fun <T : Any> PipelineContext<T, ApplicationCall>.getTiltaksgjennomforingsFilter(): TiltaksgjennomforingFilter {
-    val innsatsgruppe = call.parameters["innsatsgruppe"]
-    val tiltakstypeIder = call.parameters.getAll("tiltakstypeIder") ?: emptyList()
-    val sokestreng = call.parameters["sokestreng"] ?: ""
-    return TiltaksgjennomforingFilter(
-        innsatsgruppe = innsatsgruppe,
-        tiltakstypeIder = tiltakstypeIder,
-        sokestreng = sokestreng,
     )
 }
 
