@@ -3,14 +3,9 @@ package no.nav.mulighetsrommet.api.utils
 import io.ktor.server.plugins.*
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2EnhetDto
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2EnhetStatus
-import no.nav.mulighetsrommet.api.clients.norg2.Norg2Response
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 
 object NavEnhetUtils {
-    fun isUnderliggendeEnhet(fylke: Norg2EnhetDto, enhet: Norg2Response): Boolean {
-        return isRelevantEnhetStatus(enhet.enhet.status) && enhet.overordnetEnhet == fylke.enhetNr
-    }
-
     fun isRelevantEnhetStatus(status: Norg2EnhetStatus): Boolean {
         return status in listOf(
             Norg2EnhetStatus.UNDER_ETABLERING,
@@ -23,8 +18,6 @@ object NavEnhetUtils {
         return type in listOf(
             Norg2Type.FYLKE,
             Norg2Type.LOKAL,
-            Norg2Type.ALS,
-            Norg2Type.TILTAK,
         )
     }
 

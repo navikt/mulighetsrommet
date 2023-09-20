@@ -5,7 +5,7 @@ import {
   LeverandorUnderenhet,
   NavAnsatt,
   NavEnhet,
-  Norg2Type,
+  NavEnhetType,
   Utkast,
   Virksomhet,
 } from "mulighetsrommet-api-client";
@@ -129,7 +129,7 @@ export const getLokaleUnderenheterAsSelectOptions = (
   return enheter
     .filter((enhet: NavEnhet) => {
       return (
-        navRegion === enhet.overordnetEnhet && enhet.type === Norg2Type.LOKAL
+        navRegion === enhet.overordnetEnhet && enhet.type === NavEnhetType.LOKAL
       );
     })
     .map((enhet: NavEnhet) => ({

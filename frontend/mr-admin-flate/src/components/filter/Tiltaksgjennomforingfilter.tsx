@@ -2,7 +2,7 @@ import { Button, Search } from "@navikt/ds-react";
 import classNames from "classnames";
 import { useAtom } from "jotai";
 import {
-  Norg2Type,
+  NavEnhetType,
   TiltaksgjennomforingStatus,
   Tiltakstypestatus,
   Toggles,
@@ -76,7 +76,7 @@ export function Tiltaksgjennomforingfilter({ skjulFilter }: Props) {
   const regionOptions = () => {
     const options =
       enheter
-        ?.filter((enhet) => enhet.type === Norg2Type.FYLKE)
+        ?.filter((enhet) => enhet.type === NavEnhetType.FYLKE)
         ?.sort()
         ?.map((enhet) => ({ label: enhet.navn, value: enhet.enhetsnummer })) ||
       [];
@@ -89,7 +89,8 @@ export function Tiltaksgjennomforingfilter({ skjulFilter }: Props) {
       enheter
         ?.filter((enhet) => {
           const erLokalEllerTiltaksenhet =
-            enhet.type === Norg2Type.LOKAL || enhet.type === Norg2Type.TILTAK;
+            enhet.type === NavEnhetType.LOKAL ||
+            enhet.type === NavEnhetType.TILTAK;
           const enheterFraFylke =
             filter.navRegion === ""
               ? true
