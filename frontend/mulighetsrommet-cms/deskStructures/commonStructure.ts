@@ -1,6 +1,5 @@
-import { GrDocumentPerformance, GrLocation } from "react-icons/gr";
+import { GrDocumentPerformance, GrLocation, GrUserAdmin } from "react-icons/gr";
 import { FaWpforms } from "react-icons/fa";
-import { GrUserAdmin } from "react-icons/gr";
 import { ImOffice } from "react-icons/im";
 
 const ORDER_BY_CREATEDAT_FIELD = [{ field: "_createdAt", direction: "desc" }];
@@ -125,17 +124,6 @@ export function commonStructure(S, Context) {
                       )
                       .params({ tiltakstype })
                   )
-              ),
-            S.listItem()
-              .title("Sluttdato har passert")
-              .icon(GrDocumentPerformance)
-              .child(
-                S.documentList()
-                  .title("Sluttdato har passert")
-                  .filter(
-                    '_type == "tiltaksgjennomforing" && defined(sluttdato) && sluttdato < now()'
-                  )
-                  .defaultOrdering([{ field: "_createdAt", direction: "desc" }])
               ),
           ])
       ),

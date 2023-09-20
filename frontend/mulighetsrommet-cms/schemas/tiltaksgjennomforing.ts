@@ -2,6 +2,7 @@ import { GrDocumentPerformance } from "react-icons/gr";
 import {
   ConditionalPropertyCallbackContext,
   Rule,
+  defineArrayMember,
   defineField,
   defineType,
 } from "sanity";
@@ -9,7 +10,11 @@ import { Information } from "../components/Information";
 import { ShowFieldIfTiltakstypeMatches } from "../components/ShowFieldIfTiltakstypeMatches";
 import { API_VERSION } from "../sanity.config";
 import { EnhetType } from "./enhet";
-import { hasDuplicates, isInAdminFlate, isEgenRegiTiltak } from "../utils/utils";
+import {
+  hasDuplicates,
+  isInAdminFlate,
+  isEgenRegiTiltak,
+} from "../utils/utils";
 
 function erIkkeAdmin(props: ConditionalPropertyCallbackContext): boolean {
   return (
@@ -70,7 +75,7 @@ export const tiltaksgjennomforing = defineType({
       description: "Navnet kommer fra Arena/admin-flate",
       type: "string",
       validation: (rule) => rule.required(),
-      readOnly: ({document} ) => {
+      readOnly: ({ document }) => {
         return isInAdminFlate(document.tiltakstype?._ref);
       },
     }),
@@ -94,11 +99,13 @@ export const tiltaksgjennomforing = defineType({
     defineField({
       name: "tiltaksnummer",
       title: "Tiltaksnummer",
-      description:
-        "Tiltaksnummeret er hentet fra Arena",
+      description: "Tiltaksnummeret er hentet fra Arena",
       type: "slug",
-      hidden: ({document} ) => {
-        return !isInAdminFlate(document.tiltakstype?._ref) && !isEgenRegiTiltak(document.tiltakstype?._ref);
+      hidden: ({ document }) => {
+        return (
+          !isInAdminFlate(document.tiltakstype?._ref) &&
+          !isEgenRegiTiltak(document.tiltakstype?._ref)
+        );
       },
       readOnly: true,
       options: {
@@ -149,7 +156,7 @@ export const tiltaksgjennomforing = defineType({
       description:
         "Skriv inn stedet tiltaket skal gjennomføres, for eksempel Fredrikstad eller Tromsø. For tiltak uten eksplisitt lokasjon (for eksempel digital jobbklubb), kan du la feltet stå tomt.",
       type: "string",
-      hidden: ({document} ) => {
+      hidden: ({ document }) => {
         return isInAdminFlate(document.tiltakstype?._ref);
       },
     }),
@@ -166,7 +173,7 @@ export const tiltaksgjennomforing = defineType({
           type: EnhetType.Fylke,
         },
       },
-      hidden: ({document} ) => {
+      hidden: ({ document }) => {
         return isInAdminFlate(document.tiltakstype?._ref);
       },
       validation: (rule) =>
@@ -205,7 +212,11 @@ export const tiltaksgjennomforing = defineType({
       ],
       validation: (rule) =>
         rule.custom(async (enheter, { document, getClient }) => {
-          if (!document.fylke || !enheter || isInAdminFlate(document.tiltakstype?._ref)) {
+          if (
+            !document.fylke ||
+            !enheter ||
+            isInAdminFlate(document.tiltakstype?._ref)
+          ) {
             return true;
           }
 
@@ -215,7 +226,7 @@ export const tiltaksgjennomforing = defineType({
             "*[(_type == 'enhet' && fylke._ref == $fylke) || type == 'Als']._id",
             {
               fylke: document.fylke._ref,
-            }
+            },
           );
 
           const paths = enheter
@@ -227,14 +238,80 @@ export const tiltaksgjennomforing = defineType({
             : { message: "Alle enheter må tilhøre valgt fylke.", paths };
         }),
     }),
-
     defineField({
       name: "kontaktinfoTiltaksansvarlige",
-      title: "Kontaktpersoner",
-      description: "Veileders lokale kontaktpersoner for tiltaksgjennomføringen.",
+      title: "UTDATERT_FELT_Kontaktpersoner",
+      description:
+        "Dette feltet skal bort og erstattes av kontaktperson-feltet under",
       type: "array",
       of: [{ type: "reference", to: [{ type: "navKontaktperson" }] }],
-      hidden: ({document} ) => {
+      hidden: ({ document }) => {
+        return isInAdminFlate(document.tiltakstype?._ref);
+      },
+      validation: (rule) =>
+        rule.max(0).error("Ikke bruk dette feltet. Bruk kontaktpersoner under"),
+    }),
+    defineField({
+      name: "kontaktpersoner",
+      title: "Kontaktpersoner",
+      description:
+        "Veileders lokale kontaktpersoner for tiltaksgjennomføringen.",
+      type: "array",
+      of: [
+        defineArrayMember({
+          type: "object",
+          name: "kontaktperson",
+          fields: [
+            {
+              type: "reference",
+              name: "navKontaktperson",
+              to: [{ type: "navKontaktperson" }],
+            },
+            {
+              type: "array",
+              name: "enheter",
+              of: [
+                {
+                  type: "reference",
+                  to: [{ type: "enhet" }],
+                  options: {
+                    disableNew: true,
+                    filter: ({ document }) => {
+                      return {
+                        filter: `fylke._ref == $fylke`,
+                        params: {
+                          fylke: document.fylke._ref,
+                        },
+                      };
+                    },
+                  },
+                },
+              ],
+            },
+          ],
+          preview: {
+            select: {
+              navn: "navKontaktperson.navn",
+              enhet1: "enheter.0.navn",
+              enhet2: "enheter.1.navn",
+              enhet3: "enheter.2.navn",
+              enhet4: "enheter.3.navn",
+              enhet5: "enheter.4.navn",
+              // Må hardkode fordi det ikke er noen god måte å hente ut alle navn for alle enheter...
+            },
+            prepare: (data) => {
+              const { navn, enhet1, enhet2, enhet3, enhet4, enhet5 } = data;
+              return {
+                title: navn,
+                subtitle: [enhet1, enhet2, enhet3, enhet4, enhet5]
+                  .filter(Boolean)
+                  .join(", "),
+              };
+            },
+          },
+        }),
+      ],
+      hidden: ({ document }) => {
         return isInAdminFlate(document.tiltakstype?._ref);
       },
       validation: (rule) =>
@@ -245,7 +322,7 @@ export const tiltaksgjennomforing = defineType({
           if (!currentValue || currentValue.length === 0) {
             return "Må ha minst én kontaktperson";
           }
-          if (hasDuplicates(currentValue.map(e => e._key))) {
+          if (hasDuplicates(currentValue.map((e) => e._key))) {
             return "Innholder duplikater";
           }
 

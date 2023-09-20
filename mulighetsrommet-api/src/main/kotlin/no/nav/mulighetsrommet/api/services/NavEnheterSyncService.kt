@@ -62,7 +62,7 @@ class NavEnheterSyncService(
 
         return fylker.flatMap { fylke ->
             val underliggendeEnheter = relevanteEnheterMedJustertOverordnetEnhet
-                .filter { NavEnhetUtils.isUnderliggendeEnhet(fylke.enhet, it) }
+                .filter { it.overordnetEnhet == fylke.enhet.enhetNr }
                 .map { toSanityEnhet(it.enhet, fylke.enhet) }
 
             listOf(toSanityEnhet(fylke.enhet)) + underliggendeEnheter

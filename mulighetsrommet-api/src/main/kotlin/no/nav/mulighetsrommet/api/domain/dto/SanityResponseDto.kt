@@ -69,6 +69,7 @@ data class SanityTiltaksgjennomforing(
     val fylke: String? = null,
     val enheter: List<String>? = emptyList(),
     val kontaktinfoTiltaksansvarlige: List<KontaktinfoTiltaksansvarlige>? = emptyList(),
+    val kontaktpersoner: List<SanityKontaktperson>? = emptyList(),
     val faneinnhold: Faneinnhold? = null,
 )
 
@@ -83,6 +84,12 @@ data class KontaktinfoTiltaksansvarlige(
     val _updatedAt: String? = null,
     val _createdAt: String? = null,
     val epost: String? = null,
+)
+
+@Serializable
+data class SanityKontaktperson(
+    val navKontaktperson: KontaktinfoTiltaksansvarlige,
+    val enheter: List<String>,
 )
 
 @Serializable
