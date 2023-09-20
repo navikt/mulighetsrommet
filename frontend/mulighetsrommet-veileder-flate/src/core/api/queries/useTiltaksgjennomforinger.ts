@@ -12,13 +12,15 @@ export default function useTiltaksgjennomforinger() {
   const brukerData = useHentBrukerdata();
   const fnr = useFnr();
 
+  const requestBody = {
+    norskIdent: fnr,
+    innsatsgruppe: filter.innsatsgruppe?.nokkel,
+    search: filter.search,
+    tiltakstypeIds: filter.tiltakstyper.map(({ id }) => id),
+  };
+
   return useQuery(QueryKeys.sanity.tiltaksgjennomforinger(brukerData.data, filter), () =>
-    mulighetsrommetClient.sanity.getTiltaksgjennomforingForBruker({
-      fnr,
-      innsatsgruppe: filter.innsatsgruppe?.nokkel,
-      sokestreng: filter.search,
-      tiltakstypeIder: filter.tiltakstyper.map(({ id }) => id),
-    })
+    mulighetsrommetClient.sanity.getRelevanteTiltaksgjennomforingerForBruker({ requestBody })
   );
 }
 

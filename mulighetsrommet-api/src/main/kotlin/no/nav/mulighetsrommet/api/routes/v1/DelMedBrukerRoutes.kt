@@ -5,11 +5,11 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.domain.dbo.DelMedBrukerDbo
 import no.nav.mulighetsrommet.api.plugins.getNavAnsattAzureId
 import no.nav.mulighetsrommet.api.services.DelMedBrukerService
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
-import no.nav.mulighetsrommet.ktor.extensions.getNonEmptyQueryParameter
 import no.nav.mulighetsrommet.securelog.SecureLog
 import org.koin.ktor.ext.inject
 
@@ -17,8 +17,8 @@ fun Route.delMedBrukerRoutes() {
     val delMedBrukerService by inject<DelMedBrukerService>()
     val poaoTilgang: PoaoTilgangService by inject()
 
-    route("/api/v1/internal/delMedBruker") {
-        post {
+    route("/api/v1/internal/del-med-bruker") {
+        put {
             val payload = call.receive<DelMedBrukerDbo>()
 
             poaoTilgang.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), payload.norskIdent)
@@ -36,13 +36,12 @@ fun Route.delMedBrukerRoutes() {
                 }
         }
 
-        get {
-            val sanityId = call.getNonEmptyQueryParameter("sanityId")
-            val fnr = call.getNonEmptyQueryParameter("fnr")
+        post {
+            val request = call.receive<GetDelMedBrukerRequest>()
 
-            poaoTilgang.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), fnr)
+            poaoTilgang.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), request.norskIdent)
 
-            delMedBrukerService.getDeltMedBruker(fnr, sanityId)
+            delMedBrukerService.getDeltMedBruker(request.norskIdent, request.sanityId)
                 .onRight {
                     if (it == null) {
                         call.respondText(
@@ -62,3 +61,9 @@ fun Route.delMedBrukerRoutes() {
         }
     }
 }
+
+@Serializable
+data class GetDelMedBrukerRequest(
+    val sanityId: String,
+    val norskIdent: String,
+)

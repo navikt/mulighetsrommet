@@ -1,5 +1,7 @@
 import { DefaultBodyType, PathParams, rest } from 'msw';
 import {
+  GetRelevanteTiltaksgjennomforingerForBrukerRequest,
+  GetTiltaksgjennomforingForBrukerRequest,
   VeilederflateInnsatsgruppe,
   VeilederflateTiltaksgjennomforing,
   VeilederflateTiltakstype,
@@ -24,21 +26,24 @@ export const sanityHandlers = [
     }
   ),
 
-  rest.get<DefaultBodyType, PathParams, any>('*/api/v1/internal/sanity/tiltaksgjennomforinger', async req => {
-    const innsatsgruppe = req.url.searchParams.get('innsatsgruppe') || '';
-    const tiltakstypeIder = req.url.searchParams.getAll('tiltakstypeIder');
-    const sokestreng = req.url.searchParams.get('sokestreng') || '';
+  rest.post<DefaultBodyType, PathParams, any>('*/api/v1/internal/sanity/tiltaksgjennomforinger', async req => {
+    const {
+      innsatsgruppe = '',
+      search = '',
+      tiltakstypeIds = [],
+    } = await req.json<GetRelevanteTiltaksgjennomforingerForBrukerRequest>();
+
     const results = mockTiltaksgjennomforinger
-      .filter(gj => filtrerFritekst(gj, sokestreng))
+      .filter(gj => filtrerFritekst(gj, search))
       .filter(gj => filtrerInnsatsgruppe(gj, innsatsgruppe))
-      .filter(gj => filtrerTiltakstyper(gj, tiltakstypeIder));
+      .filter(gj => filtrerTiltakstyper(gj, tiltakstypeIds));
 
     return ok(results);
   }),
 
-  rest.get<DefaultBodyType, PathParams, any>('*/api/v1/internal/sanity/tiltaksgjennomforing/:id', async req => {
-    const id = req.params.id;
-    const gjennomforing = mockTiltaksgjennomforinger.find(gj => gj.sanityId === id);
+  rest.post<DefaultBodyType, PathParams, any>('*/api/v1/internal/sanity/tiltaksgjennomforing', async req => {
+    const { sanityId } = await req.json<GetTiltaksgjennomforingForBrukerRequest>();
+    const gjennomforing = mockTiltaksgjennomforinger.find(gj => gj.sanityId === sanityId);
     return ok(gjennomforing);
   }),
 

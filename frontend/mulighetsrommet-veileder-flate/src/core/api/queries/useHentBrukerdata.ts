@@ -8,9 +8,11 @@ import { erPreview } from '../../../utils/Utils';
 export function useHentBrukerdata() {
   const fnr = useFnr();
 
+  const requestBody = { norskIdent: fnr };
+
   return useQuery<Bruker, Error>(
     [QueryKeys.Brukerdata, fnr],
-    () => mulighetsrommetClient.bruker.getBrukerdata({ fnr }),
+    () => mulighetsrommetClient.bruker.getBrukerdata({ requestBody }),
     { enabled: !erPreview }
   );
 }

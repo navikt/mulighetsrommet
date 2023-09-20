@@ -1,67 +1,87 @@
 package no.nav.mulighetsrommet.api.routes.v1
 
 import io.ktor.server.application.*
+import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.ktor.util.pipeline.*
+import kotlinx.serialization.Serializable
 import no.nav.common.audit_log.cef.CefMessage
 import no.nav.common.audit_log.cef.CefMessageEvent
 import no.nav.common.audit_log.cef.CefMessageSeverity
 import no.nav.mulighetsrommet.api.plugins.getNavAnsattAzureId
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
-import no.nav.mulighetsrommet.api.plugins.getNorskIdent
 import no.nav.mulighetsrommet.api.services.BrukerService
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
 import no.nav.mulighetsrommet.api.services.TiltakshistorikkService
 import no.nav.mulighetsrommet.api.utils.getAccessToken
 import no.nav.mulighetsrommet.auditlog.AuditLog
-import no.nav.mulighetsrommet.securelog.SecureLog
 import org.koin.ktor.ext.inject
 
 fun Route.brukerRoutes() {
-    val auditLog = AuditLog.auditLogger
-    val secureLog = SecureLog.logger
     val brukerService: BrukerService by inject()
     val historikkService: TiltakshistorikkService by inject()
     val poaoTilgangService: PoaoTilgangService by inject()
 
     route("/api/v1/internal/bruker") {
-        get {
-            val fnr = getNorskIdent()
-            poaoTilgangService.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), fnr)
+        post {
+            val request = call.receive<GetBrukerRequest>()
+
+            poaoTilgangService.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), request.norskIdent)
 
             val accessToken = call.getAccessToken()
-            call.respond(brukerService.hentBrukerdata(fnr, accessToken))
+            call.respond(brukerService.hentBrukerdata(request.norskIdent, accessToken))
         }
     }
 
     route("/api/v1/internal/bruker/historikk") {
-        get {
-            poaoTilgangService.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), getNorskIdent()) {
-                auditLog.log(createAuditMessage("NAV-ansatt med ident: '${getNavIdent()}' forsøkte, men fikk ikke sett tiltakshistorikken for bruker med ident: '${getNorskIdent()}'."))
-                secureLog.warn("NAV-ansatt med ident: '${getNavIdent()}' har ikke tilgang til bruker med ident: '${getNorskIdent()}'")
+        post {
+            val request = call.receive<GetHistorikkForBrukerRequest>()
+            val norskIdent = request.norskIdent
+            val navIdent = getNavIdent()
+
+            poaoTilgangService.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), norskIdent) {
+                val message = createAuditMessage(
+                    msg = "NAV-ansatt med ident: '$navIdent' forsøkte, men fikk ikke sett tiltakshistorikken for bruker med ident: '$norskIdent'.",
+                    navIdent = navIdent,
+                    norskIdent = norskIdent,
+                )
+                AuditLog.auditLogger.log(message)
             }
-            historikkService.hentHistorikkForBruker(getNorskIdent()).let {
-                auditLog.log(createAuditMessage("NAV-ansatt med ident: '${getNavIdent()}' har sett på tiltakshistorikken for bruker med ident: '${getNorskIdent()}'."))
+
+            historikkService.hentHistorikkForBruker(norskIdent).let {
+                val message = createAuditMessage(
+                    msg = "NAV-ansatt med ident: '$navIdent' har sett på tiltakshistorikken for bruker med ident: '$norskIdent'.",
+                    navIdent = navIdent,
+                    norskIdent = norskIdent,
+                )
+                AuditLog.auditLogger.log(message)
+
                 call.respond(it)
             }
         }
     }
 }
 
-private fun PipelineContext<Unit, ApplicationCall>.createAuditMessage(msg: String): CefMessage? {
+@Serializable
+data class GetBrukerRequest(
+    val norskIdent: String,
+)
+
+@Serializable
+data class GetHistorikkForBrukerRequest(
+    val norskIdent: String,
+)
+
+private fun createAuditMessage(msg: String, navIdent: String, norskIdent: String): CefMessage {
     return CefMessage.builder()
         .applicationName("modia")
         .loggerName("mulighetsrommet-api")
         .event(CefMessageEvent.ACCESS)
         .name("Arbeidsmarkedstiltak - Vis tiltakshistorikk")
         .severity(CefMessageSeverity.INFO)
-        .sourceUserId(getNavIdent())
-        .destinationUserId(getNorskIdent())
+        .sourceUserId(navIdent)
+        .destinationUserId(norskIdent)
         .timeEnded(System.currentTimeMillis())
-        .extension(
-            "msg",
-            msg,
-        )
+        .extension("msg", msg)
         .build()
 }

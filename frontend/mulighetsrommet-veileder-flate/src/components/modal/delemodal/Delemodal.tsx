@@ -124,8 +124,7 @@ const Delemodal = ({
     const tekst = sySammenDeletekst();
     try {
       const res = await mulighetsrommetClient.dialogen.delMedDialogen({
-        fnr: brukerFnr,
-        requestBody: { overskrift, tekst },
+        requestBody: { norskIdent: brukerFnr, overskrift, tekst },
       });
       if (tiltaksgjennomforingSanityId) {
         await lagreVeilederHarDeltTiltakMedBruker(res.id, tiltaksgjennomforingSanityId);

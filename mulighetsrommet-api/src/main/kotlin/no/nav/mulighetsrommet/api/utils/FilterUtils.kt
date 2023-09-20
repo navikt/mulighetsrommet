@@ -57,7 +57,7 @@ data class EnhetFilter(
 data class TiltaksgjennomforingFilter(
     val innsatsgruppe: String? = null,
     val tiltakstypeIder: List<String> = emptyList(),
-    val sokestreng: String = "",
+    val sokestreng: String? = null,
 )
 
 data class NotificationFilter(

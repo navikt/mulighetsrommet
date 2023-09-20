@@ -6,7 +6,8 @@ import io.prometheus.client.cache.caffeine.CacheMetricsCollector
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityPerspective
 import no.nav.mulighetsrommet.api.domain.dto.*
-import no.nav.mulighetsrommet.api.utils.TiltaksgjennomforingFilter
+import no.nav.mulighetsrommet.api.routes.v1.GetRelevanteTiltaksgjennomforingerForBrukerRequest
+import no.nav.mulighetsrommet.api.routes.v1.GetTiltaksgjennomforingForBrukerRequest
 import no.nav.mulighetsrommet.api.utils.byggInnsatsgruppeFilter
 import no.nav.mulighetsrommet.api.utils.byggSokeFilter
 import no.nav.mulighetsrommet.api.utils.byggTiltakstypeFilter
@@ -114,15 +115,14 @@ class VeilederflateService(
     }
 
     suspend fun hentTiltaksgjennomforingerForBrukerBasertPaEnhetOgFylke(
-        fnr: String,
+        filter: GetRelevanteTiltaksgjennomforingerForBrukerRequest,
         accessToken: String,
-        filter: TiltaksgjennomforingFilter,
     ): List<VeilederflateTiltaksgjennomforing> {
         val query = """
             *[_type == "tiltaksgjennomforing"
               ${byggInnsatsgruppeFilter(filter.innsatsgruppe)}
-              ${byggTiltakstypeFilter(filter.tiltakstypeIder)}
-              ${byggSokeFilter(filter.sokestreng)}
+              ${byggTiltakstypeFilter(filter.tiltakstypeIds)}
+              ${byggSokeFilter(filter.search)}
             ] {
               _id,
               tiltakstype->{
@@ -145,7 +145,7 @@ class VeilederflateService(
             .map { UUID.fromString(it._id) }
             .let { tiltaksgjennomforingService.getBySanityIds(it) }
 
-        val brukerdata = brukerService.hentBrukerdata(fnr, accessToken)
+        val brukerdata = brukerService.hentBrukerdata(filter.norskIdent, accessToken)
         val enhetsnummer = brukerdata.geografiskEnhet?.enhetsnummer
         val fylkeEnhetsnummer = enhetsnummer
             ?.let { navEnhetService.hentOverorndetFylkesenhet(it)?.enhetsnummer }
@@ -173,14 +173,13 @@ class VeilederflateService(
     }
 
     suspend fun hentTiltaksgjennomforingMedBrukerdata(
-        id: String,
-        fnr: String,
+        request: GetTiltaksgjennomforingForBrukerRequest,
         accessToken: String,
     ): VeilederflateTiltaksgjennomforing {
-        val sanityGjennomforing = getSanityTiltaksgjennomforing(id, SanityPerspective.PUBLISHED)
-        val apiGjennomforing = tiltaksgjennomforingService.getBySanityId(UUID.fromString(id))
+        val sanityGjennomforing = getSanityTiltaksgjennomforing(request.sanityId.toString(), SanityPerspective.PUBLISHED)
+        val apiGjennomforing = tiltaksgjennomforingService.getBySanityId(request.sanityId)
 
-        val brukerdata = brukerService.hentBrukerdata(fnr, accessToken)
+        val brukerdata = brukerService.hentBrukerdata(request.norskIdent, accessToken)
         val enhetsnummer = brukerdata.geografiskEnhet?.enhetsnummer
 
         return mergeSanityTiltaksgjennomforingWithApiTiltaksgjennomforing(

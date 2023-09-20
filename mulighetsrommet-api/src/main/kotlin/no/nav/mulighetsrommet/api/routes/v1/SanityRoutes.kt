@@ -1,16 +1,18 @@
 package no.nav.mulighetsrommet.api.routes.v1
 
 import io.ktor.server.application.*
+import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
+import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.plugins.getNavAnsattAzureId
-import no.nav.mulighetsrommet.api.plugins.getNorskIdent
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
 import no.nav.mulighetsrommet.api.services.VeilederflateService
 import no.nav.mulighetsrommet.api.utils.getAccessToken
-import no.nav.mulighetsrommet.api.utils.getTiltaksgjennomforingsFilter
+import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
+import java.util.*
 
 fun Route.sanityRoutes() {
     val veilederflateService: VeilederflateService by inject()
@@ -33,22 +35,26 @@ fun Route.sanityRoutes() {
             call.respond(tiltakstyper)
         }
 
-        get("/tiltaksgjennomforinger") {
-            poaoTilgangService.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), getNorskIdent())
+        post("/tiltaksgjennomforinger") {
+            val request = call.receive<GetRelevanteTiltaksgjennomforingerForBrukerRequest>()
+
+            poaoTilgangService.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), request.norskIdent)
+
             val result = veilederflateService.hentTiltaksgjennomforingerForBrukerBasertPaEnhetOgFylke(
-                getNorskIdent(),
+                request,
                 call.getAccessToken(),
-                getTiltaksgjennomforingsFilter(),
             )
+
             call.respond(result)
         }
 
-        get("/tiltaksgjennomforing/{id}") {
-            poaoTilgangService.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), getNorskIdent())
-            val id = call.parameters.getOrFail("id")
+        post("/tiltaksgjennomforing") {
+            val request = call.receive<GetTiltaksgjennomforingForBrukerRequest>()
+
+            poaoTilgangService.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), request.norskIdent)
+
             val result = veilederflateService.hentTiltaksgjennomforingMedBrukerdata(
-                id,
-                getNorskIdent(),
+                request,
                 call.getAccessToken(),
             )
 
@@ -65,3 +71,18 @@ fun Route.sanityRoutes() {
         }
     }
 }
+
+@Serializable
+data class GetRelevanteTiltaksgjennomforingerForBrukerRequest(
+    val norskIdent: String,
+    val innsatsgruppe: String? = null,
+    val tiltakstypeIds: List<String> = emptyList(),
+    val search: String? = null,
+)
+
+@Serializable
+data class GetTiltaksgjennomforingForBrukerRequest(
+    val norskIdent: String,
+    @Serializable(with = UUIDSerializer::class)
+    val sanityId: UUID,
+)
