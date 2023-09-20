@@ -28,6 +28,7 @@ data class Innhold(
 data class InnholdChild(
     val text: String? = null,
     val _type: String? = null,
+    val marks: List<String>? = emptyList(),
 )
 
 @Serializable
