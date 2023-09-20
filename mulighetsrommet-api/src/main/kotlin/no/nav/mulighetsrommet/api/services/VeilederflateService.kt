@@ -257,12 +257,18 @@ class VeilederflateService(
         }
     }
 
-    private fun toVeilederTiltaksgjennomforing(sanityGjennomforing: SanityTiltaksgjennomforing, enhetsnummer: String?): VeilederflateTiltaksgjennomforing {
+    private fun toVeilederTiltaksgjennomforing(
+        sanityGjennomforing: SanityTiltaksgjennomforing,
+        enhetsnummer: String?,
+    ): VeilederflateTiltaksgjennomforing {
         val arenaKode = sanityGjennomforing.tiltakstype?._id
             ?.let { tiltakstypeService.getBySanityId(UUID.fromString(it)) }
             ?.arenaKode
 
         return sanityGjennomforing.run {
+            val kontaktpersoner =
+                kontaktpersoner?.filter { it.enheter.contains(enhetsnummer) }?.map { it.navKontaktperson }
+                    ?: kontaktinfoTiltaksansvarlige?.filter { it.enhet === enhetsnummer }
             VeilederflateTiltaksgjennomforing(
                 sanityId = _id,
                 tiltakstype = tiltakstype?.run {
@@ -281,7 +287,7 @@ class VeilederflateService(
                 lokasjon = lokasjon,
                 fylke = fylke,
                 enheter = enheter,
-                kontaktinfoTiltaksansvarlige = kontaktpersoner?.filter { it.enheter.contains(enhetsnummer) }?.map { it.navKontaktperson } ?: kontaktinfoTiltaksansvarlige?.filter { it.enhet === enhetsnummer },
+                kontaktinfoTiltaksansvarlige = kontaktpersoner,
                 faneinnhold = faneinnhold,
             )
         }
