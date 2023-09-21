@@ -56,12 +56,16 @@ class VeilarboppfolgingClientImpl(
                 if (response.status == HttpStatusCode.NotFound || response.status == HttpStatusCode.NoContent) {
                     log.info("Fant ikke oppfølgingsstatus for bruker. Det kan være fordi bruker ikke er under oppfølging eller ikke finnes i Arena")
                     null
+                } else if (!response.status.isSuccess()) {
+                    SecureLog.logger.error("Klarte ikke hente oppfølgingsstatus for bruker. Response: $response")
+                    log.warn("Klarte ikke hente oppfølgingsstatus for bruker. Se detaljer i SecureLog.")
+                    null
                 } else {
                     response.body()
                 }
             } catch (exe: Exception) {
-                SecureLog.logger.error("Klarte ikke hente oppfølgingsstatus for bruker med fnr: $fnr", exe)
-                log.error("Klarte ikke hente oppfølgingsstatus. Se secureLogs for detaljer.")
+                SecureLog.logger.error("Feil ved henting av oppfølgingsstatus for bruker med fnr: $fnr", exe)
+                log.error("Feil ved henting av oppfølgingsstatus for bruker. Se detaljer i SecureLog.")
                 null
             }
         }
@@ -74,15 +78,16 @@ class VeilarboppfolgingClientImpl(
                     bearerAuth(tokenProvider.invoke(accessToken))
                 }
 
-                if (response.status == HttpStatusCode.NotFound || response.status == HttpStatusCode.NoContent) {
-                    log.info("Fant ikke manuell status for bruker.")
+                if (!response.status.isSuccess()) {
+                    SecureLog.logger.error("Klarte ikke hente manuell status for bruker. Response: $response")
+                    log.warn("Klarte ikke hente manuell status for bruker. Se detaljer i SecureLog.")
                     null
                 } else {
                     response.body()
                 }
             } catch (exe: Exception) {
-                SecureLog.logger.error("Klarte ikke hente manuell status for bruker med fnr: $fnr", exe)
-                log.error("Klarte ikke hente manuell status. Se detaljer i secureLogs.")
+                SecureLog.logger.error("Feil ved henting av manuell status for bruker med fnr: $fnr", exe)
+                log.error("Feil ved henting av manuell status for bruker. Se detaljer i SecureLog.")
                 null
             }
         }

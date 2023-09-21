@@ -42,27 +42,33 @@ class VeilarbvedtaksstotteClientImpl(
 
     override suspend fun hentSiste14AVedtak(fnr: String, accessToken: String): VedtakDto? {
         return CacheUtils.tryCacheFirstNullable(siste14aVedtakCache, fnr) {
-            val response = client.get("$baseUrl/siste-14a-vedtak?fnr=$fnr") {
-                bearerAuth(tokenProvider.invoke(accessToken))
-            }
+            try {
+                val response = client.get("$baseUrl/siste-14a-vedtak?fnr=$fnr") {
+                    bearerAuth(tokenProvider.invoke(accessToken))
+                }
 
-            if (response.status == HttpStatusCode.NotFound || response.status == HttpStatusCode.NoContent) {
-                log.info("Fant ikke siste 14A-vedtak for bruker")
-                return@tryCacheFirstNullable null
-            }
+                if (response.status == HttpStatusCode.NotFound) {
+                    log.info("Fant ikke siste 14A-vedtak for bruker")
+                    return@tryCacheFirstNullable null
+                } else if (response.status == HttpStatusCode.Forbidden) {
+                    log.warn("Mangler tilgang til å hente siste 14A-vedtak for bruker. Har innlogget personen riktig AD-rolle for å hente siste 14A-vedtak?")
+                    return@tryCacheFirstNullable null
+                } else if (!response.status.isSuccess()) {
+                    SecureLog.logger.error("Klarte ikke hente siste 14A-vedtak. Response: $response")
+                    log.error("Klarte ikke hente siste 14A-vedtak. Se detaljer i SecureLog.")
+                    return@tryCacheFirstNullable null
+                }
 
-            val body = response.bodyAsText()
-            if (body.isBlank()) {
-                log.info("Fant ikke siste 14A-vedtak for bruker")
-                null
-            } else try {
-                JsonIgnoreUnknownKeys.decodeFromString(body)
+                val body = response.bodyAsText()
+                if (body.isBlank()) {
+                    log.info("Fant ikke siste 14A-vedtak for bruker")
+                    null
+                } else {
+                    JsonIgnoreUnknownKeys.decodeFromString(body)
+                }
             } catch (e: Throwable) {
-                SecureLog.logger.error(
-                    "Klarte ikke hente siste 14A-vedtak for bruker med fnr: $fnr, response: $response, body: $body",
-                    e,
-                )
-                log.error("Klarte ikke hente siste 14A-vedtak. Se detaljer i secureLogs.")
+                SecureLog.logger.error("Klarte ikke hente siste 14A-vedtak for bruker med fnr: $fnr", e)
+                log.error("Klarte ikke hente siste 14A-vedtak. Se detaljer i SecureLog.")
                 null
             }
         }
