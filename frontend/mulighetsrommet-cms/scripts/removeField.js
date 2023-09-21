@@ -14,7 +14,8 @@ import { createClient } from "@sanity/client";
 
 
 
-const FIELD_TO_REMOVE = 'kontaktinfoArrangor'
+const TYPE = 'tiltaksgjennomforing';
+const FIELD_TO_REMOVE = 'kontaktinfoArrangor';
 const TOKEN = '';
 const DATASET = 'test';
 
@@ -28,7 +29,7 @@ const client = createClient({
   token: TOKEN,
 });
 
-const fetchDocuments = () => client.fetch(`*[_type == 'tiltaksgjennomforing' && ${FIELD_TO_REMOVE} != null][0...10] {_id, _rev}`)
+const fetchDocuments = () => client.fetch(`*[_type == '${TYPE}' && defined(${FIELD_TO_REMOVE})][0...10] {_id, _rev}`)
 
 const buildPatches = docs => docs.map(doc => ({
   id: doc._id,
