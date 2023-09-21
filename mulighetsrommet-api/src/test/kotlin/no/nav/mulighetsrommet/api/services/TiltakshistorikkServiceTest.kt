@@ -4,6 +4,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
+import kotlinx.serialization.json.JsonNull
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.domain.dto.TiltakshistorikkDto
@@ -57,6 +58,7 @@ class TiltakshistorikkServiceTest : FunSpec({
         lokasjonArrangor = "Oslo",
         estimertVentetid = null,
         avtaleId = AvtaleFixtures.avtale1.id,
+        faneinnhold = JsonNull,
     )
 
     val tiltakshistorikkGruppe = ArenaTiltakshistorikkDbo.Gruppetiltak(

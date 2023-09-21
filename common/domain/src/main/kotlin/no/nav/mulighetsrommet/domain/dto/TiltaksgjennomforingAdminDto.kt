@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.domain.dto
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonElement
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingTilgjengelighetsstatus
@@ -41,6 +42,7 @@ data class TiltaksgjennomforingAdminDto(
     val stengtTil: LocalDate?,
     val kontaktpersoner: List<TiltaksgjennomforingKontaktperson>,
     val lokasjonArrangor: String?,
+    val faneinnhold: JsonElement,
 ) {
     @Serializable
     data class Tiltakstype(

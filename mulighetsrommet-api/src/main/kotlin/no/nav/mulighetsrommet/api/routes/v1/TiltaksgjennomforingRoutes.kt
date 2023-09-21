@@ -8,6 +8,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonElement
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingKontaktpersonDbo
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
@@ -113,6 +114,7 @@ data class TiltaksgjennomforingRequest(
     val estimertVentetid: String?,
     val lokasjonArrangor: String,
     val opphav: ArenaMigrering.Opphav?,
+    val faneinnhold: JsonElement,
 ) {
     fun toDbo(): StatusResponse<TiltaksgjennomforingDbo> {
         if (!startDato.isBefore(sluttDato)) {
@@ -163,6 +165,7 @@ data class TiltaksgjennomforingRequest(
                     )
                 },
                 lokasjonArrangor = lokasjonArrangor,
+                faneinnhold = faneinnhold,
             ),
         )
     }
