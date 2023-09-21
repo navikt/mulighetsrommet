@@ -1,5 +1,5 @@
 before('Start server', () => {
-  cy.visit('/');
+  cy.visit('/oversikt');
   cy.url().should('include', '/');
   Cypress.on('uncaught:exception', err => {
     // eslint-disable-next-line no-console
@@ -15,7 +15,7 @@ describe('Tiltaksoversikt', () => {
 
   beforeEach(() => {
     cy.clearLocalStorage();
-    cy.visit('/');
+    cy.visit('/oversikt');
     cy.skruAvJoyride();
   });
 
@@ -27,45 +27,41 @@ describe('Tiltaksoversikt', () => {
     cy.checkPageA11y();
   });
 
-  context('Filtrering', () => {
-    it('Lagre antall tiltak uten filtrering', () => {
-      cy.getByTestId('antall-tiltak').then($navn => {
-        antallTiltak = Number.parseInt($navn.text());
-      });
-    });
-
-    it('Filtrer på Tiltakstyper', () => {
-      cy.apneLukketFilterAccordion('tiltakstyper', true);
-      cy.velgFilter('mentor');
-
-      cy.getByTestId('antall-tiltak').then($navn => {
-        expect(antallTiltak).not.to.eq($navn.text());
-      });
-
-      cy.getByTestId('knapp_tilbakestill-filter').should('exist').click();
-
-      cy.getByTestId('filter_checkbox_avklaring').should('not.be.checked');
-      cy.getByTestId('filter_checkbox_mentor').should('not.be.checked');
-
-      cy.apneLukketFilterAccordion('tiltakstyper', false);
-    });
-
-    it('Filtrer på søkefelt', () => {
-      cy.getByTestId('filter_sokefelt').type('Yoda');
-      cy.getByTestId('lenke_tiltaksgjennomforing').contains('Yoda');
-    });
-
-    it('Skal vise tilbakestill filter-knapp når filter utenfor normalen hvis brukeren har innsatsgruppe', () => {
-      cy.velgFilter('standard-innsats');
-      cy.getByTestId('knapp_tilbakestill-filter').should('exist');
+  it('Lagre antall tiltak uten filtrering', () => {
+    cy.getByTestId('antall-tiltak').then($navn => {
+      antallTiltak = Number.parseInt($navn.text());
     });
   });
 
-  context('Sortering', () => {
-    it('Skal legge løpende tiltaksgjennomføringer først i rekken ved sortering på oppstartsdato', () => {
-      cy.getByTestId('sortering-select').select('oppstart-ascending');
-      cy.getByTestId('lenke_tiltaksgjennomforing').eq(0).contains('Løpende oppstart');
+  it('Filtrer på Tiltakstyper', () => {
+    cy.apneLukketFilterAccordion('tiltakstyper', true);
+    cy.velgFilter('mentor');
+
+    cy.getByTestId('antall-tiltak').then($navn => {
+      expect(antallTiltak).not.to.eq($navn.text());
     });
+
+    cy.getByTestId('knapp_tilbakestill-filter').should('exist').click();
+
+    cy.getByTestId('filter_checkbox_avklaring').should('not.be.checked');
+    cy.getByTestId('filter_checkbox_mentor').should('not.be.checked');
+
+    cy.apneLukketFilterAccordion('tiltakstyper', false);
+  });
+
+  it('Filtrer på søkefelt', () => {
+    cy.getByTestId('filter_sokefelt').type('Yoda', { delay: 250 });
+    cy.getByTestId('lenke_tiltaksgjennomforing').contains('Yoda');
+  });
+
+  it('Skal vise tilbakestill filter-knapp når filter utenfor normalen hvis brukeren har innsatsgruppe', () => {
+    cy.velgFilter('standard-innsats');
+    cy.getByTestId('knapp_tilbakestill-filter').should('exist');
+  });
+
+  it('Skal legge løpende tiltaksgjennomføringer først i rekken ved sortering på oppstartsdato', () => {
+    cy.getByTestId('sortering-select').select('oppstart-ascending');
+    cy.getByTestId('lenke_tiltaksgjennomforing').eq(0).contains('Løpende oppstart');
   });
 
   it('Skal kunne navigere mellom sider via paginering', () => {
@@ -98,7 +94,7 @@ describe('Tiltaksoversikt', () => {
   });
 
   it('Skal vise korrekt feilmelding dersom ingen tiltaksgjennomføringer blir funnet', () => {
-    cy.getByTestId('filter_sokefelt').type('blablablablabla');
+    cy.getByTestId('filter_sokefelt').type('blablablablabla', { delay: 250 });
     cy.getByTestId('feilmelding-container').should('be.visible');
     cy.getByTestId('feilmelding-container').should('have.attr', 'aria-live');
     cy.getByTestId('knapp_tilbakestill-filter').should('exist').click();
@@ -108,7 +104,7 @@ describe('Tiltaksoversikt', () => {
 describe('Tiltaksgjennomføringsdetaljer', () => {
   beforeEach(() => {
     cy.clearLocalStorage();
-    cy.visit('/');
+    cy.visit('/oversikt');
     cy.skruAvJoyride();
     cy.getByTestId('lenke_tiltaksgjennomforing').first().click();
   });
@@ -137,7 +133,7 @@ describe('Tiltaksgjennomføringsdetaljer', () => {
     cy.getByTestId('modal_header').should('be.visible');
     cy.getByTestId('personlig_hilsen_btn').click();
 
-    cy.getByTestId('textarea_hilsen').type('Test');
+    cy.getByTestId('textarea_hilsen').type('Test', { delay: 250 });
     cy.get('.navds-error-message').should('not.exist');
 
     cy.getByTestId('modal_btn-send').should('not.be.disabled').click();

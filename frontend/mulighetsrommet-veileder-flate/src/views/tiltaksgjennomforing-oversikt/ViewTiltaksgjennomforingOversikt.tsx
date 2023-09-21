@@ -12,12 +12,17 @@ import useTiltaksgjennomforinger from '../../core/api/queries/useTiltaksgjennomf
 import { tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
 import styles from './ViewTiltaksgjennomforingOversikt.module.scss';
 import { useHentBrukerdata } from '../../core/api/queries/useHentBrukerdata';
+import Tilbakeknapp from '../../components/tilbakeknapp/Tilbakeknapp';
+import { useFeatureToggle } from '../../core/api/feature-toggles';
+import { Toggles } from 'mulighetsrommet-api-client';
 
 const ViewTiltaksgjennomforingOversikt = () => {
   const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);
   const [isHistorikkModalOpen, setIsHistorikkModalOpen] = useState(false);
   const { isFetched } = useTiltaksgjennomforinger();
   const brukerdata = useHentBrukerdata();
+  const landingssideFeature = useFeatureToggle(Toggles.MULIGHETSROMMET_VEILEDERFLATE_LANDINGSSIDE);
+  const landingssideEnabled = landingssideFeature.isSuccess && landingssideFeature.data;
 
   useEffect(() => {
     setIsHistorikkModalOpen(isHistorikkModalOpen);
@@ -27,6 +32,7 @@ const ViewTiltaksgjennomforingOversikt = () => {
 
   return (
     <>
+      {landingssideEnabled ? <Tilbakeknapp tilbakelenke="/" /> : null}
       <div className={styles.tiltakstype_oversikt} data-testid="tiltakstype-oversikt">
         <Filtermeny />
         <div className={styles.filtertags_og_knapperad}>

@@ -40,7 +40,7 @@ export function Gjennomforingsrad({ tiltaksgjennomforing, index }: Props) {
 
   return (
     <li className={styles.list_element} id={`list_element_${index}`}>
-      <Lenke to={`tiltak/${sanityId}#page=${page}`} data-testid="lenke_tiltaksgjennomforing">
+      <Lenke to={`/tiltak/${sanityId}#page=${page}`} data-testid="lenke_tiltaksgjennomforing">
         <div className={styles.gjennomforing_container}>
           <div className={classNames(styles.flex, styles.navn)}>
             <BodyShort size="small" title={navn} className={classNames(styles.truncate, styles.as_link)}>
