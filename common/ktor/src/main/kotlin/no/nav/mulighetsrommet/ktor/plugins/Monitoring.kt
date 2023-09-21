@@ -22,7 +22,10 @@ fun Application.configureMonitoring(vararg resources: MonitoredResource) {
     }
 
     install(CallId) {
-        header("call-id")
+        retrieveFromHeader(HttpHeaders.XRequestId)
+        retrieveFromHeader(HttpHeaders.XCorrelationId)
+
+        replyToHeader(HttpHeaders.XRequestId)
 
         verify { callId ->
             callId.isNotEmpty()
