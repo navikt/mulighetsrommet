@@ -1841,6 +1841,8 @@ components:
             $ref: "#/components/schemas/TiltaksgjennomforingKontaktpersoner"
         lokasjonArrangor:
           type: string
+        faneinnhold:
+          type: object
       required:
         - id
         - tiltakstype
@@ -1913,6 +1915,9 @@ components:
         opphav:
           $ref: "#/components/schemas/Opphav"
           nullable: true
+        faneinnhold:
+          type: object
+          nullable: true
       required:
         - id
         - tiltakstypeId
@@ -1935,6 +1940,7 @@ components:
         - estimertVentetid
         - lokasjonArrangor
         - opphav
+        - faneinnhold
 
     TiltaksgjennomforingStatus:
       type: string

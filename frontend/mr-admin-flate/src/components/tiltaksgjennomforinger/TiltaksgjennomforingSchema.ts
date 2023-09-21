@@ -80,6 +80,7 @@ export const TiltaksgjennomforingSchema = z
     ),
     apenForInnsok: z.boolean(),
     estimertVentetid: z.string().optional(),
+    faneinnhold: z.any(),
   })
   .refine(
     (data) =>

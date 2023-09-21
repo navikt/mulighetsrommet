@@ -1,5 +1,4 @@
 import { initializeFaro, WebVitalsInstrumentation } from '@grafana/faro-web-sdk';
-import '@navikt/ds-css';
 import { Toggles } from 'mulighetsrommet-api-client';
 import { ErrorBoundary } from 'react-error-boundary';
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
@@ -12,6 +11,7 @@ import { useInitialBrukerfilter } from './hooks/useInitialBrukerfilter';
 import RoutesConfig from './RoutesConfig';
 import { ErrorFallback } from './utils/ErrorFallback';
 import { SanityPreview } from './views/Preview/SanityPreview';
+import '@navikt/ds-css';
 
 if (import.meta.env.PROD && import.meta.env.VITE_FARO_URL) {
   initializeFaro({

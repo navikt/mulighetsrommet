@@ -14,12 +14,15 @@ fun Application.configureHTTP() {
 
         allowMethod(HttpMethod.Options)
         allowMethod(HttpMethod.Put)
-        allowMethod(HttpMethod.Delete)
         allowMethod(HttpMethod.Patch)
+        allowMethod(HttpMethod.Delete)
+
         allowHeader(HttpHeaders.Authorization)
         allowHeader(HttpHeaders.ContentType)
         allowHeader(HttpHeaders.AccessControlAllowOrigin)
 
+        allowHeader(HttpHeaders.XRequestId)
+        allowHeader(HttpHeaders.XCorrelationId)
         allowHeadersPrefixed("nav-")
     }
 }

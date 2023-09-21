@@ -125,7 +125,7 @@ private fun repositories() = module {
 private fun services(services: ServiceConfig, tokenClient: MachineToMachineTokenClient): Module = module {
     single {
         MulighetsrommetApiClient(
-            config = MulighetsrommetApiClient.Config(maxRetries = 5),
+            config = MulighetsrommetApiClient.Config(maxRetries = 2),
             baseUri = services.mulighetsrommetApi.url,
         ) {
             tokenClient.createMachineToMachineToken(services.mulighetsrommetApi.scope)

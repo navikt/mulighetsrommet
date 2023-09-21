@@ -87,7 +87,7 @@ class ArenaEventService(
                     processor.handleEvent(event)
                         .flatMap { result ->
                             if (mapping.status == Handled && result.status == Ignored) {
-                                logger.info("Sletter entity som tidligere var håndtert men nå skal ignoreres: table=${event.arenaTable}, id=${event.arenaId}")
+                                logger.info("Sletter entity som tidligere var håndtert men nå skal ignoreres: table=${event.arenaTable}, id=${event.arenaId}, reason=${result.message}")
                                 processor.deleteEntity(event)
                                     .onLeft {
                                         logger.warn("Klarte ikke slette entity: table=${event.arenaTable}, id=${event.arenaId}, status=${it.status}, message=${it.message}")
