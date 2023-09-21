@@ -41,7 +41,7 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
   },
   {
     sanityId: '00097090-1ba8-47a4-a82f-6aaad488994e',
-    navn: 'Kurs i overlevelsesteknikk med Lars Monsen',
+    navn: 'Kurs i overlevelsesteknikk (Gruppe AMO)',
     lokasjon: '2050 JESSHEIM',
     tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
     tiltakstype: mockTiltakstyper.gruppe_amo,
@@ -57,6 +57,7 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
         epost: 'test@example.com',
       },
     },
+    beskrivelse: "Beskrivelse av gruppe amo tiltaket på gjennomføringsnivå.",
     estimertVentetid: '',
     kontaktinfoTiltaksansvarlige: [
       {
@@ -67,6 +68,55 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
         _id: '56767',
       },
     ],
+    faneinnhold: {
+      forHvemInfoboks: "Infoboks for hvem fane fra gjennomføringen",
+      forHvem: [
+        {
+          style: 'normal',
+          children: [
+            {
+              text: 'Spesifikk for hvem tekst for denne gjennomføringen.',
+              _type: 'span',
+            },
+          ],
+          _type: 'block',
+        },
+        {
+          children: [
+            {
+              _type: 'span',
+              text: 'Ny paragraf.',
+            },
+          ],
+          _type: 'block',
+          style: 'normal',
+        },
+        {
+          _type: "block",
+          listItem: "bullet",
+          markDefs: [{ _type: "link", _key: "vg.no", href: "https://vg.no" }],
+          children: [
+            { _type: "span", text: "Lenke til " },
+            { _type: "span", text: "vg ", marks: ["vg.no"] },
+            { _type: "span", text: " italicbold", marks: ["strong", "em"] },
+          ]
+        }
+      ],
+    detaljerOgInnhold: [
+        {
+          style: 'normal',
+          children: [ { text: 'Virksomheten skal gi tilpassede oppgaver etter den ansattes ønsker, behov og forutsetninger.', _type: 'span', }, ],
+          _type: 'block',
+        },
+      ],
+    pameldingOgVarighet: [
+        {
+          style: 'normal',
+          children: [ { text: 'Ta kontakt med NAV-kontoret der du bor. NAV vurderer sammen med deg om du har behov for tiltaket. NAV avgjør om du får tilbudet.', _type: 'span', }, ],
+          _type: 'block',
+        },
+      ],
+    }
   },
   {
     sanityId: '3b597090-1ba8-47a4-a82f-6aaad488994e',

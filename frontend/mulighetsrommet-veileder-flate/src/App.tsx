@@ -11,7 +11,6 @@ import { useHentVeilederdata } from './core/api/queries/useHentVeilederdata';
 import { useInitialBrukerfilter } from './hooks/useInitialBrukerfilter';
 import { ErrorFallback } from './utils/ErrorFallback';
 import { SanityPreview } from './views/Preview/SanityPreview';
-import React from 'react';
 import '@navikt/ds-css';
 
 if (import.meta.env.PROD && import.meta.env.VITE_FARO_URL) {

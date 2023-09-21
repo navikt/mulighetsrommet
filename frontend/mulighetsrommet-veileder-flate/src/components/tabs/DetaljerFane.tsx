@@ -1,7 +1,8 @@
-import { Alert } from '@navikt/ds-react';
+import { Alert, BodyLong } from '@navikt/ds-react';
 import { PortableText } from '@portabletext/react';
 import styles from './Detaljerfane.module.scss';
 import FaneTiltaksinformasjon from './FaneTiltaksinformasjon';
+import { Separator } from '../../utils/Separator';
 
 interface DetaljerFaneProps {
   tiltaksgjennomforingAlert?: string;
@@ -25,13 +26,20 @@ const DetaljerFane = ({
           {tiltakstypeAlert}
         </Alert>
       )}
+      <BodyLong size="small">
+        <PortableText value={tiltakstype} />
+      </BodyLong>
+      {(tiltaksgjennomforingAlert || tiltaksgjennomforing) &&
+        <Separator />
+      }
       {tiltaksgjennomforingAlert && (
         <Alert variant="info" className={styles.tiltaksdetaljer_alert}>
           {tiltaksgjennomforingAlert}
         </Alert>
       )}
-      <PortableText value={tiltakstype} />
-      <PortableText value={tiltaksgjennomforing} />
+      <BodyLong textColor="subtle" size="small">
+        <PortableText value={tiltaksgjennomforing} />
+      </BodyLong>
     </FaneTiltaksinformasjon>
   );
 };

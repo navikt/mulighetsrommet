@@ -19,16 +19,17 @@ const TiltaksgjennomforingsHeader = ({ tiltaksgjennomforing }: Props) => {
       >
         {navn}
       </Heading>
-      {tiltakstype?.arenakode === VeilederflateTiltakstype.arenakode.GRUPPEAMO
-        ? beskrivelse && <BodyLong>{beskrivelse}</BodyLong>
-        : null}
       {tiltakstype.beskrivelse && (
         <BodyLong size="large" className={styles.beskrivelse}>
           {tiltakstype.beskrivelse}
         </BodyLong>
       )}
+      {tiltakstype?.arenakode === VeilederflateTiltakstype.arenakode.GRUPPEAMO
+        ? beskrivelse && <BodyLong textColor="subtle" size="medium">{beskrivelse}</BodyLong>
+        : null}
     </>
   );
 };
 
 export default TiltaksgjennomforingsHeader;
+
