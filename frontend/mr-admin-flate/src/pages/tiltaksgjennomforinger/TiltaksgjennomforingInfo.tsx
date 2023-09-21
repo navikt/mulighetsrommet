@@ -17,9 +17,8 @@ import { Metadata, Separator } from "../../components/detaljside/Metadata";
 import { VisHvisVerdi } from "../../components/detaljside/VisHvisVerdi";
 import { Laster } from "../../components/laster/Laster";
 import {
-  erDevMiljo,
+  erProdMiljo,
   formaterDato,
-  inneholderUrl,
   tilgjengelighetsstatusTilTekst,
 } from "../../utils/Utils";
 import styles from "../DetaljerInfo.module.scss";
@@ -41,7 +40,7 @@ export function TiltaksgjennomforingInfo() {
   );
 
   const forhandsvisningMiljo =
-    import.meta.env.dev || erDevMiljo ? "dev.nav.no" : "nav.no";
+    import.meta.env.dev || erProdMiljo ? "nav.no" : "dev.nav.no";
 
   const [slettModal, setSlettModal] = useState(false);
   const mutation = useDeleteTiltaksgjennomforing();
@@ -68,7 +67,7 @@ export function TiltaksgjennomforingInfo() {
 
   const sanityTiltaksgjennomforingUrl =
     "https://mulighetsrommet-sanity-studio.intern.nav.no/" +
-    (inneholderUrl("intern.nav.no") ? "prod" : "test") +
+    (erProdMiljo ? "prod" : "test") +
     "/desk/tiltaksgjennomforinger;alleTiltaksgjennomforinger;";
 
   if (isLoadingTiltaksgjennomforing && isLoadingAvtale) {
