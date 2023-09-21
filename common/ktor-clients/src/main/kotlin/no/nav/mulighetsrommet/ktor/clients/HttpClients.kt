@@ -37,7 +37,6 @@ fun httpJsonClient(engine: HttpClientEngine = CIO.create()) = HttpClient(engine)
                 logger.info(maskedMessage)
             }
         }
-
     }
 
     install(ContentNegotiation) {
