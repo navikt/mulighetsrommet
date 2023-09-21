@@ -39,15 +39,16 @@ class VeilarbpersonClientImpl(
     }
 
     override suspend fun hentPersonInfo(fnr: String, accessToken: String): PersonDto? {
-        return CacheUtils.tryCacheFirstNotNull(personInfoCache, fnr) {
+        return CacheUtils.tryCacheFirstNullable(personInfoCache, fnr) {
             try {
-                client.get("$baseUrl/v2/person?fnr=$fnr") {
+                val response = client.get("$baseUrl/v2/person?fnr=$fnr") {
                     bearerAuth(tokenProvider.invoke(accessToken))
-                }.body()
+                }
+                response.body()
             } catch (exe: Exception) {
                 SecureLog.logger.error("Klarte ikke hente persondata for bruker med fnr: $fnr")
                 log.error("Klarte ikke hente persondata. Se detaljer i secureLog.")
-                return null
+                null
             }
         }
     }

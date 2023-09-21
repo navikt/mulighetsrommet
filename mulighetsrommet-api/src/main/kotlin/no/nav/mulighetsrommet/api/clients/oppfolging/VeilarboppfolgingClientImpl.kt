@@ -47,7 +47,7 @@ class VeilarboppfolgingClientImpl(
     }
 
     override suspend fun hentOppfolgingsstatus(fnr: String, accessToken: String): OppfolgingsstatusDto? {
-        return CacheUtils.tryCacheFirstNotNull(veilarboppfolgingCache, fnr) {
+        return CacheUtils.tryCacheFirstNullable(veilarboppfolgingCache, fnr) {
             try {
                 val response = client.get("$baseUrl/person/$fnr/oppfolgingsstatus") {
                     bearerAuth(tokenProvider.invoke(accessToken))
@@ -55,20 +55,20 @@ class VeilarboppfolgingClientImpl(
 
                 if (response.status == HttpStatusCode.NotFound || response.status == HttpStatusCode.NoContent) {
                     log.info("Fant ikke oppfølgingsstatus for bruker. Det kan være fordi bruker ikke er under oppfølging eller ikke finnes i Arena")
-                    return null
+                    null
+                } else {
+                    response.body()
                 }
-
-                response.body()
             } catch (exe: Exception) {
                 SecureLog.logger.error("Klarte ikke hente oppfølgingsstatus for bruker med fnr: $fnr", exe)
                 log.error("Klarte ikke hente oppfølgingsstatus. Se secureLogs for detaljer.")
-                return null
+                null
             }
         }
     }
 
     override suspend fun hentManuellStatus(fnr: String, accessToken: String): ManuellStatusDto? {
-        return CacheUtils.tryCacheFirstNotNull(manuellStatusCache, fnr) {
+        return CacheUtils.tryCacheFirstNullable(manuellStatusCache, fnr) {
             try {
                 val response = client.get("$baseUrl/v2/manuell/status?fnr=$fnr") {
                     bearerAuth(tokenProvider.invoke(accessToken))
@@ -76,14 +76,14 @@ class VeilarboppfolgingClientImpl(
 
                 if (response.status == HttpStatusCode.NotFound || response.status == HttpStatusCode.NoContent) {
                     log.info("Fant ikke manuell status for bruker.")
-                    return null
+                    null
+                } else {
+                    response.body()
                 }
-
-                response.body()
             } catch (exe: Exception) {
                 SecureLog.logger.error("Klarte ikke hente manuell status for bruker med fnr: $fnr", exe)
                 log.error("Klarte ikke hente manuell status. Se detaljer i secureLogs.")
-                return null
+                null
             }
         }
     }

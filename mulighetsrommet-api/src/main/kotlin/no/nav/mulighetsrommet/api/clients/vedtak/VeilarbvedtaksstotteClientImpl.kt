@@ -41,23 +41,21 @@ class VeilarbvedtaksstotteClientImpl(
     }
 
     override suspend fun hentSiste14AVedtak(fnr: String, accessToken: String): VedtakDto? {
-        return CacheUtils.tryCacheFirstNotNull(siste14aVedtakCache, fnr) {
+        return CacheUtils.tryCacheFirstNullable(siste14aVedtakCache, fnr) {
             val response = client.get("$baseUrl/siste-14a-vedtak?fnr=$fnr") {
                 bearerAuth(tokenProvider.invoke(accessToken))
             }
 
             if (response.status == HttpStatusCode.NotFound || response.status == HttpStatusCode.NoContent) {
                 log.info("Fant ikke siste 14A-vedtak for bruker")
-                return null
+                return@tryCacheFirstNullable null
             }
 
             val body = response.bodyAsText()
             if (body.isBlank()) {
                 log.info("Fant ikke siste 14A-vedtak for bruker")
-                return null
-            }
-
-            try {
+                null
+            } else try {
                 JsonIgnoreUnknownKeys.decodeFromString(body)
             } catch (e: Throwable) {
                 SecureLog.logger.error(
@@ -65,7 +63,7 @@ class VeilarbvedtaksstotteClientImpl(
                     e,
                 )
                 log.error("Klarte ikke hente siste 14A-vedtak. Se detaljer i secureLogs.")
-                return null
+                null
             }
         }
     }
