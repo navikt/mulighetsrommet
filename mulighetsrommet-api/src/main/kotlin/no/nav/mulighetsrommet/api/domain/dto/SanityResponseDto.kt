@@ -22,13 +22,16 @@ data class Innhold(
     val listItem: String? = null,
     val _type: String? = null,
     val children: List<InnholdChild>? = emptyList(),
+    val markDefs: List<InnholdChild>? = emptyList(),
 )
 
 @Serializable
 data class InnholdChild(
     val text: String? = null,
     val _type: String? = null,
+    val _key: String? = null,
     val marks: List<String>? = emptyList(),
+    val href: String? = null,
 )
 
 @Serializable
