@@ -2,7 +2,7 @@ import classNames from "classnames";
 import { useTiltakstypeById } from "../../api/tiltakstyper/useTiltakstypeById";
 import { Metadata, Separator } from "../../components/detaljside/Metadata";
 import { TiltakstypestatusTag } from "../../components/statuselementer/TiltakstypestatusTag";
-import { formaterDato, inneholderUrl } from "../../utils/Utils";
+import { erProdMiljo, formaterDato } from "../../utils/Utils";
 import styles from "../DetaljerInfo.module.scss";
 import { Bolk } from "../../components/detaljside/Bolk";
 import { Link } from "react-router-dom";
@@ -17,7 +17,7 @@ export function TiltakstypeInfo() {
 
   const sanityTiltakstypeUrl =
     "https://mulighetsrommet-sanity-studio.intern.nav.no/" +
-    (inneholderUrl("intern.nav.no") ? "prod" : "test") +
+    (erProdMiljo ? "prod" : "test") +
     "/desk/tiltakstype;";
 
   const tiltakstype = data;
