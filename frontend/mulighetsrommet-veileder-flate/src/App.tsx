@@ -2,7 +2,7 @@ import { initializeFaro, WebVitalsInstrumentation } from '@grafana/faro-web-sdk'
 import '@navikt/ds-css';
 import { Toggles } from 'mulighetsrommet-api-client';
 import { ErrorBoundary } from 'react-error-boundary';
-import { Navigate, Route, BrowserRouter as Router, Routes } from 'react-router-dom';
+import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import styles from './App.module.scss';
 import FakeDoor from './components/fakedoor/FakeDoor';
 import { APPLICATION_NAME } from './constants';
