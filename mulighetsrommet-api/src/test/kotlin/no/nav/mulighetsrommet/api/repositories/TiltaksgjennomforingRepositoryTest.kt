@@ -6,6 +6,7 @@ import io.kotest.matchers.collections.*
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonNull
 import kotliquery.Query
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
@@ -86,6 +87,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 stengtTil = null,
                 navRegion = NavEnhet(navn = "IT", enhetsnummer = "2990"),
                 estimertVentetid = null,
+                faneinnhold = JsonNull,
             )
 
             tiltaksgjennomforinger.delete(Oppfolging1.id)
@@ -145,6 +147,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 stengtTil = null,
                 kontaktpersoner = emptyList(),
                 lokasjonArrangor = null,
+                faneinnhold = JsonNull,
             )
 
             tiltaksgjennomforinger.upsertArenaTiltaksgjennomforing(gjennomforingFraArena)

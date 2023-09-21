@@ -6,6 +6,7 @@ import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonNull
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.clients.person.Enhet
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
@@ -119,6 +120,7 @@ class VeilederflateServiceTest : FunSpec({
         stengtTil = null,
         kontaktpersoner = emptyList(),
         lokasjonArrangor = null,
+        faneinnhold = JsonNull,
     )
 
     test("Tom enhetsliste fra db overskriver ikke sanity enheter") {

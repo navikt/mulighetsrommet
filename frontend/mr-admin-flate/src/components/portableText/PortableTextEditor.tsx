@@ -14,8 +14,6 @@ import { slateToPortableText } from "./slateToPortableText";
 const HOTKEYS: { [name: string]: string } = {
   "mod+b": "bold",
   "mod+i": "italic",
-  "mod+u": "underline",
-  "mod+`": "code"
 };
 
 const LIST_TYPES = ["numbered-list", "bulleted-list"];
@@ -52,11 +50,6 @@ export const PortableTextEditor = (props: PortableTextEditorProps) => {
           <MarkButton format="italic" icon={<div><em>I</em> italic</div>} />
           <BlockButton format="heading-one" icon={<div>Heading</div>} />
           <BlockButton format="bulleted-list" icon={<BulletListIcon />} />
-          {/* <MarkButton format="underline" icon="format_underlined" />
-          <MarkButton format="code" icon="code" />
-          <BlockButton format="heading-two" icon="looks_two" />
-          <BlockButton format="block-quote" icon="format_quote" />
-          <BlockButton format="numbered-list" icon="format_list_numbered" /> */}
         </Toolbar>
         <Editable
           renderElement={renderElement}
