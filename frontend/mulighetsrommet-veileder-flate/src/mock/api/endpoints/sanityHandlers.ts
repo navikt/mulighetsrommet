@@ -2,6 +2,7 @@ import { DefaultBodyType, PathParams, rest } from 'msw';
 import {
   GetRelevanteTiltaksgjennomforingerForBrukerRequest,
   GetTiltaksgjennomforingForBrukerRequest,
+  Innsatsgruppe,
   VeilederflateInnsatsgruppe,
   VeilederflateTiltaksgjennomforing,
   VeilederflateTiltakstype,
@@ -22,13 +23,13 @@ export const sanityHandlers = [
   rest.get<DefaultBodyType, PathParams, VeilederflateTiltakstype[]>(
     '*/api/v1/internal/sanity/tiltakstyper',
     async () => {
-      return ok(mockTiltakstyper);
+      return ok(Object.values(mockTiltakstyper));
     }
   ),
 
   rest.post<DefaultBodyType, PathParams, any>('*/api/v1/internal/sanity/tiltaksgjennomforinger', async req => {
     const {
-      innsatsgruppe = '',
+      innsatsgruppe,
       search = '',
       tiltakstypeIds = [],
     } = await req.json<GetRelevanteTiltaksgjennomforingerForBrukerRequest>();
@@ -58,8 +59,29 @@ function filtrerFritekst(gjennomforing: VeilederflateTiltaksgjennomforing, sok: 
   return sok === '' || gjennomforing.navn.toLocaleLowerCase().includes(sok.toLocaleLowerCase());
 }
 
-function filtrerInnsatsgruppe(gjennomforing: VeilederflateTiltaksgjennomforing, innsatsgruppe: string): boolean {
-  return innsatsgruppe === '' || gjennomforing.tiltakstype.innsatsgruppe.nokkel === innsatsgruppe;
+function filtrerInnsatsgruppe(gjennomforing: VeilederflateTiltaksgjennomforing, innsatsgruppe?: Innsatsgruppe): boolean {
+  switch (innsatsgruppe) {
+    case Innsatsgruppe.STANDARD_INNSATS: {
+      return gjennomforing.tiltakstype.innsatsgruppe.nokkel === innsatsgruppe;
+    }
+    case Innsatsgruppe.SITUASJONSBESTEMT_INNSATS: {
+      return [
+        Innsatsgruppe.STANDARD_INNSATS,
+        Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
+      ].includes(gjennomforing.tiltakstype.innsatsgruppe.nokkel);
+    }
+    case Innsatsgruppe.SPESIELT_TILPASSET_INNSATS: {
+      return [
+        Innsatsgruppe.STANDARD_INNSATS,
+        Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
+        Innsatsgruppe.SPESIELT_TILPASSET_INNSATS,
+      ].includes(gjennomforing.tiltakstype.innsatsgruppe.nokkel);
+    }
+    case Innsatsgruppe.VARIG_TILPASSET_INNSATS:
+    default: {
+      return true;
+    }
+  }
 }
 
 function filtrerTiltakstyper(gjennomforing: VeilederflateTiltaksgjennomforing, tiltakstyper: string[]): boolean {

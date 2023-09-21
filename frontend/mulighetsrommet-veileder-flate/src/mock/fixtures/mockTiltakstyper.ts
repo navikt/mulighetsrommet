@@ -1,7 +1,7 @@
 import { Innsatsgruppe, VeilederflateInnsatsgruppe, VeilederflateTiltakstype } from 'mulighetsrommet-api-client';
 
-export const mockTiltakstyper: VeilederflateTiltakstype[] = [
-  {
+export const mockTiltakstyper: {[name: string]: VeilederflateTiltakstype} = {
+  VTA: {
     sanityId: '02509279-0a0f-4bd6-b506-f40111e4ba14',
     regelverkLenker: [
       {
@@ -166,7 +166,7 @@ export const mockTiltakstyper: VeilederflateTiltakstype[] = [
       order: 3,
     },
   },
-  {
+  OpplaringEnkeltplassFagOgYrke: {
     sanityId: '222a0065-9777-4e09-b2cf-4f48759f86e3',
     beskrivelse:
       'Opplæringstiltak i form av Fag- og yrkesopplæring (jf. tiltaksforskriften § 7-2 b) er opplæring som fører frem mot fag- eller svennebrev, praksisbrev eller kompetansebevis som lærekandidat. \n\nOpplæringen skal bidra til at arbeidssøkere kvalifiseres til ledige jobber. ',
@@ -277,7 +277,7 @@ export const mockTiltakstyper: VeilederflateTiltakstype[] = [
       order: 1,
     },
   },
-  {
+  Arbeidsrettet_rehabilitering: {
     innsatsgruppe: {
       sanityId: '8dcfe56e-0018-48dd-a9f5-817f6aec0b0d',
       beskrivelse: 'Spesielt tilpasset innsats ',
@@ -538,7 +538,7 @@ export const mockTiltakstyper: VeilederflateTiltakstype[] = [
       ],
     },
   },
-  {
+  jobbklubb: {
     sanityId: '31e72dd8-ad05-4e81-a7f9-fd4c8f295864',
     delingMedBruker:
       'Hei <Fornavn>, \n\nVi har nå et arbeidsmarkedstiltak som jeg tenker kan passe deg godt. Det heter <tiltaksnavn> og er et kurs for de som er registrert som arbeidssøker hos NAV. \n\nJobbklubb er et kortvarig tiltak for deg som søker jobb. Når du deltar på jobbklubb, får du støtte og hjelp til å orientere deg på arbeidsmarkedet og være en aktiv jobbsøker.\n\nDu kan lese mer om kurset på www.nav.no/jobbklubb',
@@ -815,7 +815,7 @@ export const mockTiltakstyper: VeilederflateTiltakstype[] = [
       'Jobbklubb er et kortvarig tiltak for de som søker jobb. Ved deltagelse på jobbklubb får brukeren støtte og hjelp til å orientere seg på arbeidsmarkedet og være en aktiv jobbsøker.',
     navn: 'Jobbklubb',
   },
-  {
+  digital_jobbklubb: {
     innsatsgruppe: {
       sanityId: '642a12cf-f32e-42a5-a079-0601b7a14ee8',
       beskrivelse: 'Standardinnsats',
@@ -1302,7 +1302,7 @@ export const mockTiltakstyper: VeilederflateTiltakstype[] = [
       },
     ],
   },
-  {
+  opplaring_fagskole: {
     regelverkLenker: [
       {
         _id: '123',
@@ -1410,7 +1410,7 @@ export const mockTiltakstyper: VeilederflateTiltakstype[] = [
     },
     sanityId: '50878ad5-90d0-496d-a0d0-a53091800760',
   },
-  {
+  oppfolging: {
     faneinnhold: {
       detaljerOgInnhold: [
         {
@@ -1730,7 +1730,7 @@ export const mockTiltakstyper: VeilederflateTiltakstype[] = [
     beskrivelse:
       'Oppfølging skal gi bistand med sikte på at tiltaksdeltakere skaffer seg og/eller beholder lønnet arbeid. Målet er at tiltaksdeltaker i størst mulig grad skal bli selvforsørget med en varig tilknytning til arbeidslivet. ',
   },
-  {
+  varig_lonnstilskudd: {
     delingMedBruker:
       'Hei <Fornavn>, \n\nVi har et tilbud som jeg tenker kan passe for deg.  \n\nDet heter varig lønnstilskudd og er for deg med en varig og vesentlig nedsatt arbeidsevne. Tiltaket skal øke mulighetene for at du kan få en vanlig jobb. Du blir ansatt med vanlig lønn i en hel- eller deltidsstilling, mens arbeidsgiveren får et tilskudd til lønnen din. \n\nDu kan lese mer om tilbudet på https://www.nav.no/varig-lonnstilskudd',
     beskrivelse:
@@ -1914,7 +1914,7 @@ export const mockTiltakstyper: VeilederflateTiltakstype[] = [
     },
     sanityId: '6de22004-9fb8-4c84-9b75-dc8132a78cd2',
   },
-  {
+  grufagyrke: {
     faneinnhold: {
       forHvem: [
         {
@@ -1981,7 +1981,7 @@ export const mockTiltakstyper: VeilederflateTiltakstype[] = [
     beskrivelse:
       'Opplæringstiltak i form av Gruppe Fag- og yrkesopplæring (jf. tiltaksforskriften § 7-2 b) skal bidra til at arbeidssøkere kvalifiseres til ledige jobber. ',
   },
-  {
+  VTAO: {
     faneinnhold: {
       forHvem: [
         {
@@ -2042,7 +2042,7 @@ export const mockTiltakstyper: VeilederflateTiltakstype[] = [
     sanityId: '8d8abebd-3617-494a-a687-d44810e0a7ee',
     beskrivelse: 'VTA-O er et tiltak som skal gi brukeren arbeid med oppgaver tilpasset den enkeltes arbeidsevne.',
   },
-  {
+  midlertidig_lonnstilskudd: {
     faneinnhold: {
       forHvemInfoboks:
         'Arbeidsgiver kan ikke motta lønnstilskudd for lærlinger. Dette ble stanset i juli 2017 og gjelder til annet blir bestemt.',
@@ -2250,7 +2250,7 @@ export const mockTiltakstyper: VeilederflateTiltakstype[] = [
       'Lønnstilskudd skal gi bistand til tiltaksdeltakere slik at de skaffer seg og/eller beholder, lønnet arbeid. Målet er at tiltaksdeltaker i størst mulig grad skal bli selvforsørget med en varig tilknytning til arbeidslivet.',
     navn: 'Midlertidig lønnstilskudd',
   },
-  {
+  mentor: {
     faneinnhold: {
       pameldingOgVarighet: [
         {
@@ -2360,7 +2360,7 @@ export const mockTiltakstyper: VeilederflateTiltakstype[] = [
       },
     ],
   },
-  {
+  enkeltplass_amo: {
     innsatsgruppe: {
       sanityId: '48a20a99-11d7-42ec-ba92-2245b7d88fa7',
       beskrivelse: 'Situasjonsbestemt innsats',
@@ -2497,7 +2497,7 @@ export const mockTiltakstyper: VeilederflateTiltakstype[] = [
       'Opplæringstiltak i form av Enkeltplass AMO (jf. tiltaksforskriften § 7-2 a) består av kortvarige kurs basert på behov i arbeidsmarkedet, og skal bidra til at arbeidssøkere kvalifiseres til ledige jobber.',
     navn: 'Opplæring - Enkeltplass AMO',
   },
-  {
+  AFT: {
     beskrivelse:
       'AFT er et tiltak som skal bidra til å prøve ut tiltaksdeltakerens arbeidsevne og til å styrke mulighetene for å få ordinært arbeid. Det er et tiltak med individuell tilrettelegging som kan tilbys personer med sammensatte bistandsbehov som har fått sin arbeidsevne nedsatt og som har særlig usikre yrkesmessige forutsetninger.',
 
@@ -2699,7 +2699,7 @@ export const mockTiltakstyper: VeilederflateTiltakstype[] = [
     delingMedBruker:
       'Hei <Fornavn>, \n\nVi har nå et arbeidsmarkedstiltak som jeg tenker kan passe deg godt. Det heter <tiltaksnavn> og er et tilbud for deg som deg som har nedsatt arbeidsevne og trenger hjelp for å komme i jobb.\n\nMålet er å avklare arbeidsevnen din gjennom arbeidstrening i ulike arbeidssituasjoner.\n\n- Etter en periode med forberedende arbeidstrening i et tilrettelagt arbeidsmiljø får du arbeidstrening i en vanlig bedrift.\n- Du får kartlagt kompetansen din og får karriereveiledning.\n- Du kan få tilrettelagt opplæring hvis du ønsker å gå videre med et yrkesfaglig utdanningsløp. Opplæringen skal bedre mulighetene dine til å komme i jobb.\n\nDu kan lese mer om kurset på www.nav.no/arbeidsforberedende-trening',
   },
-  {
+  arbeidstrening: {
     innsatsgruppe: {
       sanityId: '48a20a99-11d7-42ec-ba92-2245b7d88fa7',
       beskrivelse: 'Situasjonsbestemt innsats',
@@ -2796,7 +2796,7 @@ export const mockTiltakstyper: VeilederflateTiltakstype[] = [
     beskrivelse:
       'Arbeidstrening skal bidra til å styrke tiltaksdeltakers muligheter for å komme i jobb. Arbeidstrening kan ha flere ulike formål i form av arbeidserfaring for å mestre en bestemt jobb, eller behov for en referanse mens man søker ordinært arbeid',
   },
-  {
+  gruppe_amo: {
     sanityId: 'eadeb22c-bd89-4298-a5c2-145f112f8e7d',
     delingMedBruker:
       'Hei <Fornavn>,   \n\nHar du vurdert utdanning for å få flere muligheter på arbeidsmarkedet?  \n\nDu kan lese mer om tiltaket på www.nav.no/opplaring \n\nEr dette aktuelt for deg? Gi meg tilbakemelding her i dialogen. \nSvaret ditt vil ikke endre din utbetaling fra NAV. \n\nVi holder kontakten!\nHilsen <Veiledernavn> \n',
@@ -2908,7 +2908,7 @@ export const mockTiltakstyper: VeilederflateTiltakstype[] = [
       'Opplæringstiltak i form av Gruppe AMO (jf. tiltaksforskriften § 7-2 a) skal bidra til at arbeidssøkere kvalifiseres til ledige jobber. ',
     navn: 'Opplæring - Gruppe AMO',
   },
-  {
+  avklaring: {
     regelverkLenker: [
       {
         _id: '123',
@@ -3184,4 +3184,4 @@ export const mockTiltakstyper: VeilederflateTiltakstype[] = [
       'Hei <Fornavn>, \n\nVi har nå et arbeidsmarkedstiltak som jeg tenker kan passe deg godt. Det heter <tiltaksnavn>.\n\nI tiltaket kan det være aktuelt å kartlegge og gi hjelp til å\n- tilpasse arbeidssituasjonen og -oppgaver slik at du kan utføre jobben\n- finne ut hva slags hjelp eller tilrettelegging som skal til for at du kan jobbe\n- se kompetansen din og mulighetene dine\n\nUnder avklaring kan du også få\n- informasjon om arbeidsmarkedet, yrker og jobbkrav\n- veiledning for å velge yrkesmål og arbeidsoppgaver\n- arbeidsutprøving på en arbeidsplass\n\nDu kan lese mer om kurset på www.nav.no/avklaring ',
     navn: 'Avklaring',
   },
-];
+};
