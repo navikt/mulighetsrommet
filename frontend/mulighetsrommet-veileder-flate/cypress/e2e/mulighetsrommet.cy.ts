@@ -34,7 +34,6 @@ describe('Tiltaksoversikt', () => {
   });
 
   it('Filtrer på Tiltakstyper', () => {
-    cy.getByTestId('');
     cy.apneLukketFilterAccordion('tiltakstyper', true);
     cy.velgFilter('mentor');
 
@@ -51,7 +50,7 @@ describe('Tiltaksoversikt', () => {
   });
 
   it('Filtrer på søkefelt', () => {
-    cy.getByTestId('filter_sokefelt').type('Yoda');
+    cy.getByTestId('filter_sokefelt').type('Yoda', { delay: 250 });
     cy.getByTestId('lenke_tiltaksgjennomforing').contains('Yoda');
   });
 
@@ -95,7 +94,7 @@ describe('Tiltaksoversikt', () => {
   });
 
   it('Skal vise korrekt feilmelding dersom ingen tiltaksgjennomføringer blir funnet', () => {
-    cy.getByTestId('filter_sokefelt').type('blablablablabla');
+    cy.getByTestId('filter_sokefelt').type('blablablablabla', { delay: 250 });
     cy.getByTestId('feilmelding-container').should('be.visible');
     cy.getByTestId('feilmelding-container').should('have.attr', 'aria-live');
     cy.getByTestId('knapp_tilbakestill-filter').should('exist').click();
@@ -134,7 +133,7 @@ describe('Tiltaksgjennomføringsdetaljer', () => {
     cy.getByTestId('modal_header').should('be.visible');
     cy.getByTestId('personlig_hilsen_btn').click();
 
-    cy.getByTestId('textarea_hilsen').type('Test');
+    cy.getByTestId('textarea_hilsen').type('Test', { delay: 250 });
     cy.get('.navds-error-message').should('not.exist');
 
     cy.getByTestId('modal_btn-send').should('not.be.disabled').click();
