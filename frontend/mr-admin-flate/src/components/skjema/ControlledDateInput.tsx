@@ -11,7 +11,10 @@ export interface DateInputProps {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const ControlledDateInput = forwardRef((props: DateInputProps, _) => {
+export const ControlledDateInput = forwardRef(function ControlledDateInput(
+  props: DateInputProps,
+  _,
+) {
   const { label, size, readOnly, ...rest } = props;
 
   return (
@@ -57,8 +60,6 @@ const ControlledDateInput = forwardRef((props: DateInputProps, _) => {
   );
 });
 
-ControlledDateInput.displayName = "ControlledDateInput";
-
 const DatoFelt = forwardRef(function DatoFeltInput(props: any, ref: any) {
   const { name, label, size, ...rest } = props;
   return (
@@ -86,5 +87,3 @@ const futureDate = () => {
   const yearsFromNow = newDate.setFullYear(newDate.getFullYear() + offsetAntallAar);
   return new Date(yearsFromNow);
 };
-
-export { ControlledDateInput };

@@ -12,7 +12,10 @@ export interface MultiSelectProps {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const ControlledMultiSelect = React.forwardRef((props: MultiSelectProps, _) => {
+export const ControlledMultiSelect = React.forwardRef(function ControlledMultiSelect(
+  props: MultiSelectProps,
+  _,
+) {
   const { size, label, placeholder, options, readOnly, ...rest } = props;
 
   return (
@@ -64,7 +67,3 @@ const ControlledMultiSelect = React.forwardRef((props: MultiSelectProps, _) => {
     </div>
   );
 });
-
-ControlledMultiSelect.displayName = "ControlledMultiSelect";
-
-export { ControlledMultiSelect };

@@ -1,27 +1,24 @@
 import classnames from "classnames";
-import React from "react";
+import React, { ForwardedRef } from "react";
 import { Controller } from "react-hook-form";
 import ReactSelect from "react-select";
 import styles from "./SokeSelect.module.scss";
 
-export interface SelectOption {
-  value?: string;
-  label?: string;
+export interface SelectOption<T = string> {
+  value: T;
+  label: string;
 }
 
-export interface SelectProps {
+export interface SelectProps<T> {
   label: string;
   hideLabel?: boolean;
   placeholder: string;
-  options: SelectOption[];
+  options: SelectOption<T>[];
   readOnly?: boolean;
-  onChange?: (a0: {
-    target: {
-      value: any;
-      name?: string;
-    };
-  }) => void;
-  onInputChange?: (a0: any) => void;
+  name: string;
+  isOptionEqualValue?: (option: T, value?: T) => boolean;
+  onChange?: (a0: { target: { value?: T; name?: string } }) => void;
+  onInputChange?: (input: string) => void;
   className?: string;
   size?: "small" | "medium";
   onClearValue?: () => void;
@@ -29,13 +26,14 @@ export interface SelectProps {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const SokeSelect = React.forwardRef((props: SelectProps, _) => {
+function SokeSelect<T>(props: SelectProps<T>, _: ForwardedRef<HTMLElement>) {
   const {
     label,
     hideLabel = false,
     placeholder,
     options,
     readOnly,
+    isOptionEqualValue = (option: T, value?: T) => option === value,
     onChange: providedOnChange,
     onInputChange: providedOnInputChange,
     description,
@@ -81,7 +79,6 @@ const SokeSelect = React.forwardRef((props: SelectProps, _) => {
   return (
     <>
       <Controller
-        name={label}
         {...rest}
         render={({ field: { onChange, value, name, ref }, fieldState: { error } }) => {
           return (
@@ -119,14 +116,11 @@ const SokeSelect = React.forwardRef((props: SelectProps, _) => {
                 inputId={name}
                 noOptionsMessage={() => "Ingen funnet"}
                 name={name}
-                value={options.find((c) => c.value === value)}
+                value={options.find((option) => isOptionEqualValue(option.value, value))}
                 onChange={(e) => {
                   onChange(e?.value);
                   providedOnChange?.({
-                    target: {
-                      value: e?.value,
-                      name: e?.label,
-                    },
+                    target: { value: e?.value, name: e?.label },
                   });
                   if (!e) {
                     onClearValue?.();
@@ -163,8 +157,8 @@ const SokeSelect = React.forwardRef((props: SelectProps, _) => {
       />
     </>
   );
-});
+}
 
-SokeSelect.displayName = "SokeSelect";
+const SokeSelectComponent = React.forwardRef(SokeSelect);
 
-export { SokeSelect };
+export { SokeSelectComponent as SokeSelect };

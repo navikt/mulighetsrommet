@@ -321,8 +321,11 @@ type ButtonProps = React.HTMLProps<HTMLButtonElement> & {
   active: boolean;
 };
 
-export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ active, children, ...props }, ref) => (
+export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(function Button(
+  { active, children, ...props },
+  ref,
+) {
+  return (
     <span
       {...props}
       ref={ref}
@@ -333,29 +336,29 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     >
       {children}
     </span>
-  ),
-);
-Button.displayName = "Button";
+  );
+});
 
 export const Toolbar = React.forwardRef<HTMLDivElement, { children: React.ReactNode }>(
-  ({ children, ...props }, ref) => (
-    <div
-      {...props}
-      ref={ref}
-      style={{
-        marginLeft: "15px",
-        display: "flex",
-        flexDirection: "row",
-        justifyContent: "space-around",
-        position: "relative",
-        padding: "1px 18px 17px",
-        margin: "0 -20px",
-        borderBottom: "2px solid #eee",
-        marginBottom: "20px",
-      }}
-    >
-      {children}
-    </div>
-  ),
+  function Toolbar({ children, ...props }, ref) {
+    return (
+      <div
+        {...props}
+        ref={ref}
+        style={{
+          marginLeft: "15px",
+          display: "flex",
+          flexDirection: "row",
+          justifyContent: "space-around",
+          position: "relative",
+          padding: "1px 18px 17px",
+          margin: "0 -20px",
+          borderBottom: "2px solid #eee",
+          marginBottom: "20px",
+        }}
+      >
+        {children}
+      </div>
+    );
+  },
 );
-Toolbar.displayName = "Toolbar";
