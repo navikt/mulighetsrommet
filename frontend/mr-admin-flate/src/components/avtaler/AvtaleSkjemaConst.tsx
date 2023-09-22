@@ -1,4 +1,4 @@
-import { inferredAvtaleSchema } from "./AvtaleSchema";
+import { InferredAvtaleSchema } from "./AvtaleSchema";
 import { toast } from "react-toastify";
 import {
   Avtale,
@@ -9,7 +9,6 @@ import {
   Utkast,
   Virksomhet,
 } from "mulighetsrommet-api-client";
-import { tiltakstypekodeErAnskaffetTiltak } from "../../utils/Utils";
 import { MutableRefObject } from "react";
 import { UseMutationResult } from "@tanstack/react-query";
 
@@ -34,7 +33,7 @@ type UtkastData = Pick<
 };
 
 export const saveUtkast = (
-  values: inferredAvtaleSchema,
+  values: InferredAvtaleSchema,
   avtale: Avtale,
   ansatt: NavAnsatt,
   utkastIdRef: MutableRefObject<string>,
@@ -55,10 +54,7 @@ export const saveUtkast = (
       navn: "",
       enhetsnummer,
     })),
-    administrator: {
-      navIdent: values?.administrator,
-      navn: "",
-    },
+    administrator: { navIdent: values?.administrator, navn: "" },
     avtaletype: values?.avtaletype,
     leverandor: {
       navn: "",
@@ -105,18 +101,6 @@ export const defaultEnhet = (
     return ansatt.hovedenhet.enhetsnummer;
   }
   return undefined;
-};
-
-export function getValueOrDefault<T>(value: T | undefined | null, defaultValue: T): T {
-  return value || defaultValue;
-}
-
-export const erAnskaffetTiltak = (
-  tiltakstypeId: string,
-  getTiltakstypeFromId: Function,
-): boolean => {
-  const tiltakstype = getTiltakstypeFromId(tiltakstypeId);
-  return tiltakstypekodeErAnskaffetTiltak(tiltakstype?.arenaKode);
 };
 
 export const getLokaleUnderenheterAsSelectOptions = (

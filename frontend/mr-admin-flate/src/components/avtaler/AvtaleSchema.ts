@@ -47,4 +47,4 @@ export const AvtaleSchema = z.object({
   prisOgBetalingsinfo: z.string().optional(),
 });
 
-export type inferredAvtaleSchema = z.infer<typeof AvtaleSchema>;
+export type InferredAvtaleSchema = z.infer<typeof AvtaleSchema>;
