@@ -1,4 +1,4 @@
---drop view if exists tiltaksgjennomforing_admin_dto_view;
+drop view if exists tiltaksgjennomforing_admin_dto_view;
 create or replace view tiltaksgjennomforing_admin_dto_view as
 select tg.id::uuid,
        tg.navn,
