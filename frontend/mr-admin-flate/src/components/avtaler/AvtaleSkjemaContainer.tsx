@@ -99,6 +99,7 @@ export function AvtaleSkjemaContainer({
       },
       url: avtale?.url ?? undefined,
       prisOgBetalingsinfo: avtale?.prisbetingelser ?? undefined,
+      opphav: avtale?.opphav ?? Opphav.MR_ADMIN_FLATE,
     },
   });
 
@@ -141,6 +142,7 @@ export function AvtaleSkjemaContainer({
       administrator,
       avtaletype,
       prisOgBetalingsinfo,
+      opphav,
       url,
     } = data;
 
@@ -161,7 +163,7 @@ export function AvtaleSkjemaContainer({
       prisOgBetalingsinformasjon: erAnskaffetTiltak(tiltakstype.arenaKode)
         ? prisOgBetalingsinfo || null
         : null,
-      opphav: avtale?.opphav ?? Opphav.MR_ADMIN_FLATE,
+      opphav,
       leverandorKontaktpersonId: leverandorKontaktpersonId ?? null,
       avslutningsstatus: AvtaleAvslutningsstatus.IKKE_AVSLUTTET,
     };

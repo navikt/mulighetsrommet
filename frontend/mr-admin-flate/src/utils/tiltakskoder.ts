@@ -10,7 +10,7 @@ export function isTiltakMedFellesOppstart(tiltakskode: Tiltakskode): boolean {
   return TILTAK_MED_FELLES_OPPSTART.includes(tiltakskode);
 }
 
-const TILTAK_MED_AVTALE_FRA_MULIGHETSROMMET: Tiltakskode[] = [
+export const TILTAK_MED_AVTALE_FRA_MULIGHETSROMMET: Tiltakskode[] = [
   Tiltakskode.ARBFORB,
   Tiltakskode.VASV,
 ];
