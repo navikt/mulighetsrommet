@@ -1,9 +1,4 @@
-import {
-  PaginertTiltakstype,
-  Tiltakskode,
-  Tiltakstype,
-  Tiltakstypestatus,
-} from "mulighetsrommet-api-client";
+import { PaginertTiltakstype, Tiltakskode, Tiltakstypestatus } from "mulighetsrommet-api-client";
 
 export const mockTiltakstyper = {
   ARBFORB: {

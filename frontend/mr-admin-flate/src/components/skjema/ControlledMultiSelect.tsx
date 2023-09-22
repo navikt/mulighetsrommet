@@ -11,9 +11,9 @@ export interface MultiSelectProps {
   size?: "small" | "medium";
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const ControlledMultiSelect = React.forwardRef(function ControlledMultiSelect(
   props: MultiSelectProps,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _,
 ) {
   const { size, label, placeholder, options, readOnly, ...rest } = props;

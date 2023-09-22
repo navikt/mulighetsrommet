@@ -10,9 +10,9 @@ export interface DateInputProps {
   size?: "small" | "medium";
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const ControlledDateInput = forwardRef(function ControlledDateInput(
   props: DateInputProps,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _,
 ) {
   const { label, size, readOnly, ...rest } = props;

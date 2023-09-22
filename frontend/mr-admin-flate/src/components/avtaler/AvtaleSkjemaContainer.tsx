@@ -4,6 +4,7 @@ import {
   AvtaleAvslutningsstatus,
   AvtaleRequest,
   Avtaletype,
+  EmbeddedTiltakstype,
   LeverandorUnderenhet,
   NavAnsatt,
   NavEnhetType,
@@ -78,7 +79,7 @@ export function AvtaleSkjemaContainer({
   const form = useForm<InferredAvtaleSchema>({
     resolver: zodResolver(AvtaleSchema),
     defaultValues: {
-      tiltakstype: avtale?.tiltakstype?.id,
+      tiltakstype: avtale?.tiltakstype,
       navRegion: defaultEnhet(avtale, enheter, ansatt),
       navEnheter: avtale?.navEnheter?.map((e) => e.enhetsnummer) || [],
       administrator: avtale?.administrator?.navIdent || ansatt.navIdent || "",
@@ -109,13 +110,8 @@ export function AvtaleSkjemaContainer({
     setValue,
   } = form;
 
-  const watchedTiltakstype = watch("tiltakstype");
-
-  const getTiltakstypeFromId = (id: string): Tiltakstype | undefined => {
-    return tiltakstyper.find((type) => type.id === id);
-  };
-
-  const arenaKode = getTiltakstypeFromId(watchedTiltakstype)?.arenaKode || "";
+  const watchedTiltakstype: EmbeddedTiltakstype | undefined = watch("tiltakstype");
+  const arenaKode = watchedTiltakstype?.arenaKode;
 
   useEffect(() => {
     // TODO: revurdere behovet for denne type logikk eller om det kan defineres som default felter på tiltakstype i stedet
@@ -230,8 +226,13 @@ export function AvtaleSkjemaContainer({
                   placeholder="Velg en"
                   label={"Tiltakstype"}
                   {...register("tiltakstype")}
+                  isOptionEqualValue={(option, value) => option.id === value?.id}
                   options={tiltakstyper.map((tiltakstype) => ({
-                    value: tiltakstype.id,
+                    value: {
+                      arenaKode: tiltakstype.arenaKode,
+                      navn: tiltakstype.navn,
+                      id: tiltakstype.id,
+                    },
                     label: tiltakstype.navn,
                   }))}
                 />

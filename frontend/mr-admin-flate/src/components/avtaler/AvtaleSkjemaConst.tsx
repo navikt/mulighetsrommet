@@ -41,11 +41,7 @@ export const saveUtkast = (
 ) => {
   const utkastData: UtkastData = {
     navn: values?.avtalenavn,
-    tiltakstype: {
-      id: values?.tiltakstype,
-      arenaKode: "",
-      navn: "",
-    },
+    tiltakstype: values?.tiltakstype,
     navRegion: {
       navn: "",
       enhetsnummer: values?.navRegion,
