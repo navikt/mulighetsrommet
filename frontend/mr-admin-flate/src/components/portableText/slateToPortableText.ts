@@ -1,4 +1,4 @@
-import { BaseText, BaseElement, Element, Text, Node, Descendant } from "slate";
+import { BaseText, BaseElement, Element, Node, Descendant } from "slate";
 import type {
   PortableTextBlock,
   PortableTextSpan,
@@ -20,26 +20,25 @@ declare module 'slate' {
 }
 
 export const slateToPortableText = (nodes: Descendant[]): PortableTextBlock[] => {
-  return nodes
-    .map((node: Element | Text) => {
-      if (!Element.isElement(node)) throw Error("Unsupported slate node");
+  const portableBlocks = [];
+  for (const node of nodes) {
+    if (!Element.isElement(node)) throw Error("Unsupported slate node");
 
-      // Only supported blocks as of now, is normal, bulleted, and heading
-      if (node.type === "bulleted-list") {
-        return bulletedListBlock(node);
-      }
-      if (node.type === "heading-one") {
-        return {
-          ...toPortableTextBlock(node),
-          style: "h1",
-        };
-      }
-      if (node.type && node.type !== "paragraph") {
-        throw Error(`Unsupported block type: ${node.type}`)
-      }
-      return toPortableTextBlock(node);
-    })
-    .filter(Boolean) as PortableTextBlock[];
+    // Only supported blocks as of now, is <none>, paragraph, bulleted, and heading
+    if (node.type === "bulleted-list") {
+      portableBlocks.push(...bulletedListBlocks(node));
+    } else if (node.type === "heading-one") {
+      portableBlocks.push({
+        ...toPortableTextBlock(node),
+        style: "h1",
+      });
+    } else if (node.type && node.type !== "paragraph") {
+      throw Error(`Unsupported block type: ${node.type}`)
+    } else {
+      portableBlocks.push(toPortableTextBlock(node));
+    }
+  }
+  return portableBlocks;
 }
 
 const toPortableTextSpan = (span: BaseText): PortableTextSpan => {
@@ -73,12 +72,14 @@ const toPortableTextBlock = (node: Descendant): PortableTextBlock => {
   if (!Element.isElement(node)) throw Error(`Unsupported slate node: ${node}`);
 
   const children = []
-  const markDefs = [];
+  const markDefs: PortableTextMarkDefinition[] = [];
 
   for (const child of node.children) {
     if (Element.isElementType(child, 'link')) {
       const [spans, markDef] = linkToPortableTextSpans(child);
-      markDefs.push(markDef);
+      if (!markDefs.find(m => m._key === markDef._key)) {
+        markDefs.push(markDef);
+      }
       children.push(...spans);
     } else {
       children.push(toPortableTextSpan(child));
@@ -92,15 +93,11 @@ const toPortableTextBlock = (node: Descendant): PortableTextBlock => {
   })
 }
 
-const bulletedListBlock = (node: BaseElement): PortableTextBlock => {
-  return ({
-    _type: "block",
-    markDefs: node.markDefs,
-    children: node.children.map(child => ({
+const bulletedListBlocks = (node: BaseElement): PortableTextBlock[] => {
+  return node.children.map(child => ({
       ...toPortableTextBlock(child),
-      listItem: "bullet",
-    })),
-  });
+      listItem: "bullet"
+  }));
 }
 
 function findMark(span: BaseText) {

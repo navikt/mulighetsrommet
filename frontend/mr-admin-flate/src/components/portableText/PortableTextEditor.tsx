@@ -10,6 +10,7 @@ import type {
   PortableTextBlock,
 } from '@portabletext/types'
 import { slateToPortableText } from "./slateToPortableText";
+import { portableTextToSlate } from "./portableTextToSlate";
 
 const HOTKEYS: { [name: string]: string } = {
   "mod+b": "bold",
@@ -30,13 +31,15 @@ export const PortableTextEditor = (props: PortableTextEditorProps) => {
     () => withLinks(withHistory(withReact(createEditor()))),
     []
   );
+  const initialValue = props.initialValue.length > 0
+    ? portableTextToSlate(props.initialValue)
+    : [{ "type": "paragraph", "children": [{ "text": "" }] }];
 
-  const initialValue: SlateElement[] = [{ type: "paragraph", children: [ { text: "This is editable " } ] }]
   return (
     <>
       <Slate
         editor={editor}
-        initialValue={initialValue} // TODO: use portableTextToSlate(props.initialValue)
+        initialValue={initialValue}
         onChange={
           value => {
             if (value) {
