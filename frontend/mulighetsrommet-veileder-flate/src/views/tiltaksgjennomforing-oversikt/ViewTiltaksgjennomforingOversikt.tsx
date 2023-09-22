@@ -33,7 +33,7 @@ const ViewTiltaksgjennomforingOversikt = () => {
 
   return (
     <>
-      {landingssideEnabled ? <Tilbakeknapp tilbakelenke={`/${routes.base()}`} /> : null}
+      {landingssideEnabled ? <Tilbakeknapp tilbakelenke={`/${routes.base}`} /> : null}
       <div className={styles.tiltakstype_oversikt} data-testid="tiltakstype-oversikt">
         <Filtermeny />
         <div className={styles.filtertags_og_knapperad}>

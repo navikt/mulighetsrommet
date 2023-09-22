@@ -12,9 +12,9 @@ const RoutesConfig = () => {
 
   return (
     <Routes>
-      {enableLandingsside ? <Route path={routes.base()} element={<Landingsside />} /> : null}
-      <Route path={routes.detaljer()} element={<ViewTiltaksgjennomforingDetaljerContainer />} />
-      <Route path={routes.oversikt()} element={<ViewTiltaksgjennomforingOversikt />} />
+      {enableLandingsside ? <Route path={routes.base} element={<Landingsside />} /> : null}
+      <Route path={routes.detaljer} element={<ViewTiltaksgjennomforingDetaljerContainer />} />
+      <Route path={routes.oversikt} element={<ViewTiltaksgjennomforingOversikt />} />
       <Route index element={enableLandingsside ? <Landingsside /> : <ViewTiltaksgjennomforingOversikt />} />
     </Routes>
   );

@@ -1,5 +1,7 @@
+const base = 'arbeidsmarkedstiltak';
+
 export const routes = {
-  base: () => 'arbeidsmarkedstiltak',
-  detaljer: () => `${routes.base()}/tiltak/:tiltaksnummer`,
-  oversikt: () => `${routes.base()}/oversikt`,
-};
+  base,
+  detaljer: `${base}/tiltak/:tiltaksnummer`,
+  oversikt: `${base}/oversikt`,
+} as const;
