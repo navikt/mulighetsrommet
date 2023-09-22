@@ -15,6 +15,7 @@ import { useHentBrukerdata } from '../../core/api/queries/useHentBrukerdata';
 import Tilbakeknapp from '../../components/tilbakeknapp/Tilbakeknapp';
 import { useFeatureToggle } from '../../core/api/feature-toggles';
 import { Toggles } from 'mulighetsrommet-api-client';
+import { routes } from '../../routes';
 
 const ViewTiltaksgjennomforingOversikt = () => {
   const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);
@@ -32,7 +33,7 @@ const ViewTiltaksgjennomforingOversikt = () => {
 
   return (
     <>
-      {landingssideEnabled ? <Tilbakeknapp tilbakelenke="/" /> : null}
+      {landingssideEnabled ? <Tilbakeknapp tilbakelenke={`/${routes.base}`} /> : null}
       <div className={styles.tiltakstype_oversikt} data-testid="tiltakstype-oversikt">
         <Filtermeny />
         <div className={styles.filtertags_og_knapperad}>

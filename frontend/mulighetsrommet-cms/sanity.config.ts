@@ -26,7 +26,7 @@ const createCommonConfig = (
 
       const id = document._id?.replace("drafts.", "");
       const miljo = dataset === "test" ? "dev.nav.no" : "nav.no";
-      return `https://mulighetsrommet-veileder-flate.intern.${miljo}/preview/${id}?preview=true`;
+      return `https://mulighetsrommet-veileder-flate.intern.${miljo}/preview/${id}`;
     },
   },
   tools: (prev, { currentUser }) => {

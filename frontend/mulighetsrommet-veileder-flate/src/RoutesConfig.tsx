@@ -1,6 +1,7 @@
 import { Toggles } from 'mulighetsrommet-api-client';
-import { Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import { useFeatureToggle } from './core/api/feature-toggles';
+import { routes } from './routes';
 import { Landingsside } from './views/landingsside/Landingsside';
 import { ViewTiltaksgjennomforingDetaljerContainer } from './views/tiltaksgjennomforing-detaljer/ViewTiltaksgjennomforingDetaljerContainer';
 import ViewTiltaksgjennomforingOversikt from './views/tiltaksgjennomforing-oversikt/ViewTiltaksgjennomforingOversikt';
@@ -8,12 +9,17 @@ import ViewTiltaksgjennomforingOversikt from './views/tiltaksgjennomforing-overs
 const RoutesConfig = () => {
   const enableLandingssideFeature = useFeatureToggle(Toggles.MULIGHETSROMMET_VEILEDERFLATE_LANDINGSSIDE);
   const enableLandingsside = enableLandingssideFeature.isSuccess && enableLandingssideFeature.data;
+
+  if (enableLandingssideFeature.isLoading) {
+    return null;
+  }
+
   return (
     <Routes>
-      <Route path="tiltak/:tiltaksnummer" element={<ViewTiltaksgjennomforingDetaljerContainer />} />
-      <Route path="oversikt" element={<ViewTiltaksgjennomforingOversikt />} />
-      {enableLandingsside ? <Route index element={<Landingsside />} /> : null}
-      <Route path="*" element={<ViewTiltaksgjennomforingOversikt />} />
+      {enableLandingsside ? <Route path={routes.base} element={<Landingsside />} /> : null}
+      <Route path={routes.detaljer} element={<ViewTiltaksgjennomforingDetaljerContainer />} />
+      <Route path={routes.oversikt} element={<ViewTiltaksgjennomforingOversikt />} />
+      <Route index element={<Navigate to={enableLandingsside ? routes.base : routes.oversikt} />} />
     </Routes>
   );
 };
