@@ -8,6 +8,9 @@ export function Landingsside() {
     <main className="mulighetsrommet-veileder-flate">
       <div className={styles.container}>
         <div>
+          {/**
+           * A-tag her istedenfor Link fra react-router-dom pga. merkelig oppførsel fra Aktivitetsplanen og Dialogen.
+           */}
           <a className={styles.cta_link} href={`/${routes.oversikt()}`}>
             <PlusIcon color="white" fontSize={30} aria-hidden /> Finn nytt arbeidsmarkedstiltak
           </a>
