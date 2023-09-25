@@ -32,7 +32,7 @@ function SokeSelect<T>(props: SelectProps<T>, _: ForwardedRef<HTMLElement>) {
     hideLabel = false,
     placeholder,
     options,
-    readOnly,
+    readOnly = false,
     isOptionEqualValue = (option: T, value?: T) => option === value,
     onChange: providedOnChange,
     onInputChange: providedOnInputChange,
@@ -42,39 +42,6 @@ function SokeSelect<T>(props: SelectProps<T>, _: ForwardedRef<HTMLElement>) {
     onClearValue,
     ...rest
   } = props;
-
-  const customStyles = (isError: boolean) => ({
-    control: (provided: any, state: any) => ({
-      ...provided,
-      background: readOnly ? "#f1f1f1" : "#fff",
-      borderColor: isError ? "#C30000" : readOnly ? "#0000001A" : "#0000008f",
-      borderWidth: isError ? "2px" : "1px",
-      boxShadow: state.isFocused ? null : null,
-    }),
-    clearIndicator: (provided: any) => ({
-      ...provided,
-      zIndex: "100",
-    }),
-    indicatorSeparator: () => ({
-      display: "none",
-    }),
-    dropdownIndicator: (provided: any) => ({
-      ...provided,
-      color: "black",
-    }),
-    placeholder: (provided: any) => ({
-      ...provided,
-      color: "#0000008f",
-    }),
-    singleValue: (provided: any) => ({
-      ...provided,
-      color: "black",
-    }),
-    menu: (provided: any) => ({
-      ...provided,
-      zIndex: "1000",
-    }),
-  });
 
   return (
     <>
@@ -110,7 +77,7 @@ function SokeSelect<T>(props: SelectProps<T>, _: ForwardedRef<HTMLElement>) {
               <ReactSelect
                 key={`${value}`} // Force rerender when value changes. If set to null outside f. ex
                 placeholder={placeholder}
-                isDisabled={!!readOnly}
+                isDisabled={readOnly}
                 isClearable={!!onClearValue}
                 ref={ref}
                 inputId={name}
@@ -129,10 +96,10 @@ function SokeSelect<T>(props: SelectProps<T>, _: ForwardedRef<HTMLElement>) {
                 onInputChange={(e) => {
                   providedOnInputChange?.(e);
                 }}
-                styles={customStyles(Boolean(error))}
+                styles={customStyles(readOnly, Boolean(error))}
                 options={options}
                 className={className}
-                theme={(theme: any) => ({
+                theme={(theme) => ({
                   ...theme,
                   spacing: {
                     ...theme.spacing,
@@ -158,6 +125,39 @@ function SokeSelect<T>(props: SelectProps<T>, _: ForwardedRef<HTMLElement>) {
     </>
   );
 }
+
+const customStyles = (readOnly: boolean, isError: boolean) => ({
+  control: (provided: any, state: any) => ({
+    ...provided,
+    background: readOnly ? "#f1f1f1" : "#fff",
+    borderColor: isError ? "#C30000" : readOnly ? "#0000001A" : "#0000008f",
+    borderWidth: isError ? "2px" : "1px",
+    boxShadow: state.isFocused ? null : null,
+  }),
+  clearIndicator: (provided: any) => ({
+    ...provided,
+    zIndex: "100",
+  }),
+  indicatorSeparator: () => ({
+    display: "none",
+  }),
+  dropdownIndicator: (provided: any) => ({
+    ...provided,
+    color: "black",
+  }),
+  placeholder: (provided: any) => ({
+    ...provided,
+    color: "#0000008f",
+  }),
+  singleValue: (provided: any) => ({
+    ...provided,
+    color: "black",
+  }),
+  menu: (provided: any) => ({
+    ...provided,
+    zIndex: "1000",
+  }),
+});
 
 const SokeSelectComponent = React.forwardRef(SokeSelect);
 
