@@ -11,7 +11,7 @@ export function TiltaksgjennomforingerForAvtale() {
 
   return (
     <>
-      <Tabs value={pathname.includes("utkast") ? "utkast" : "gjennomforinger"} >
+      <Tabs value={pathname.includes("utkast") ? "utkast" : "gjennomforinger"}>
         <Tabs.List>
           <Tabs.Tab
             value="gjennomforinger"
@@ -32,7 +32,7 @@ export function TiltaksgjennomforingerForAvtale() {
             <Outlet />
           </div>
         </ErrorBoundary>
-      </Tabs >
+      </Tabs>
     </>
   );
 }

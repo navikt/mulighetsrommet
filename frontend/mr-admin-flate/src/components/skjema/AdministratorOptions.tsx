@@ -3,7 +3,10 @@ import { NavAnsatt } from "mulighetsrommet-api-client";
 
 export const AdministratorOptions = (
   ansatt?: NavAnsatt,
-  administrator?: { navIdent: string; navn: string },
+  administrator?: {
+    navIdent: string;
+    navn: string;
+  },
   betabrukere?: NavAnsatt[],
 ): SelectOption[] => {
   if (!ansatt || !betabrukere) {
@@ -26,9 +29,7 @@ export const AdministratorOptions = (
 
   betabrukere
     .filter(
-      (b: NavAnsatt) =>
-        b.navIdent !== ansatt.navIdent &&
-        b.navIdent !== administrator?.navIdent,
+      (b: NavAnsatt) => b.navIdent !== ansatt.navIdent && b.navIdent !== administrator?.navIdent,
     )
     .forEach((b: NavAnsatt) =>
       options.push({

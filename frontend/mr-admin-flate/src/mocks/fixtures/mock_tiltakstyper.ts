@@ -1,10 +1,8 @@
-import {
-  PaginertTiltakstype,
-  Tiltakstype,
-  Tiltakstypestatus,
-} from "mulighetsrommet-api-client";
+import { PaginertTiltakstype, Tiltakstype, Tiltakstypestatus } from "mulighetsrommet-api-client";
 
-export const mockTiltakstyper: { [navn: string]: Tiltakstype } = {
+export const mockTiltakstyper: {
+  [navn: string]: Tiltakstype;
+} = {
   ABIST: {
     id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
     navn: "Arbeid med Bistand (AB)",

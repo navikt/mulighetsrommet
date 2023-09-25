@@ -16,23 +16,13 @@ export interface MultiSelectProps {
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const MultiSelect = React.forwardRef((props: MultiSelectProps, _) => {
-  const {
-    name,
-    placeholder,
-    options,
-    onChange,
-    value,
-    childRef,
-    error,
-    readOnly,
-    size,
-  } = props;
+  const { name, placeholder, options, onChange, value, childRef, error, readOnly, size } = props;
 
   const customStyles = (isError: boolean) => ({
     control: (provided: any, state: any) => ({
       ...provided,
       background: readOnly ? "#F1F1F1" : "#fff",
-      borderColor: isError ? "#C30000" : (readOnly ? "#0000001A" : "#0000008f"),
+      borderColor: isError ? "#C30000" : readOnly ? "#0000001A" : "#0000008f",
       borderWidth: isError ? "2px" : "1px",
       boxShadow: state.isFocused ? null : null,
     }),
@@ -78,24 +68,30 @@ const MultiSelect = React.forwardRef((props: MultiSelectProps, _) => {
       name={name}
       value={value}
       onChange={(e) => {
-        if (e.find(o => o.value === "*")) {
+        if (e.find((o) => o.value === "*")) {
           if (value.length === options.length) {
             onChange([]);
           } else {
             onChange(options);
           }
         } else {
-            onChange(e);
+          onChange(e);
         }
       }}
       styles={customStyles(Boolean(error))}
-      options={[{ label: "Velg alle", value: "*" }, ...options ]}
+      options={[
+        {
+          label: "Velg alle",
+          value: "*",
+        },
+        ...options,
+      ]}
       theme={(theme: any) => ({
         ...theme,
         spacing: {
           ...theme.spacing,
           controlHeight: size === "small" ? 32 : 48,
-          baseUnit: 2
+          baseUnit: 2,
         },
         colors: {
           ...theme.colors,

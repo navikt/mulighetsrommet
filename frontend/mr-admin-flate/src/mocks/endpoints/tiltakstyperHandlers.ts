@@ -1,9 +1,5 @@
 import { DefaultBodyType, PathParams, rest } from "msw";
-import {
-  PaginertTiltakstype,
-  Tiltakstype,
-  PaginertAvtale,
-} from "mulighetsrommet-api-client";
+import { PaginertTiltakstype, Tiltakstype, PaginertAvtale } from "mulighetsrommet-api-client";
 import { paginertMockTiltakstyper } from "../fixtures/mock_tiltakstyper";
 import { mockAvtaler } from "../fixtures/mock_avtaler";
 
@@ -30,9 +26,10 @@ export const tiltakstypeHandlers = [
   rest.get<DefaultBodyType, { id: string }, PaginertAvtale>(
     "*/api/v1/internal/avtaler/tiltakstype/:id",
     (req, res, ctx) => {
-      const { id } = req.params as { id: string };
-      const avtaler =
-        mockAvtaler.filter((a) => a.tiltakstype.id === id) ?? [];
+      const { id } = req.params as {
+        id: string;
+      };
+      const avtaler = mockAvtaler.filter((a) => a.tiltakstype.id === id) ?? [];
       return res(
         ctx.status(200),
 

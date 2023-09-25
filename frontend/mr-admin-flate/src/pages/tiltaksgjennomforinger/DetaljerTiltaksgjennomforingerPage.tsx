@@ -41,20 +41,18 @@ export function DetaljerTiltaksgjennomforingerPage() {
     } else {
       return "info";
     }
-  }
+  };
 
   return (
     <main>
       <Header>
         <div className={commonStyles.header}>
           <span>{tiltaksgjennomforing?.navn ?? "..."}</span>
-          <TiltaksgjennomforingstatusTag
-            tiltaksgjennomforing={tiltaksgjennomforing}
-          />
+          <TiltaksgjennomforingstatusTag tiltaksgjennomforing={tiltaksgjennomforing} />
         </div>
       </Header>
 
-      <Tabs value={currentTab()} >
+      <Tabs value={currentTab()}>
         <Tabs.List className={commonStyles.list}>
           <Tabs.Tab
             value="info"
@@ -73,7 +71,9 @@ export function DetaljerTiltaksgjennomforingerPage() {
             <Tabs.Tab
               value="poc"
               label="Deltakerliste"
-              onClick={() => navigate(`/tiltaksgjennomforinger/${tiltaksgjennomforing.id}/deltakere`)}
+              onClick={() =>
+                navigate(`/tiltaksgjennomforinger/${tiltaksgjennomforing.id}/deltakere`)
+              }
               aria-controls="panel"
             />
           ) : null}

@@ -2,20 +2,12 @@ import styles from "../skjema/Skjema.module.scss";
 import { Button } from "@navikt/ds-react";
 import React from "react";
 import { UseMutationResult } from "@tanstack/react-query";
-import {
-  Tiltaksgjennomforing,
-  TiltaksgjennomforingRequest,
-} from "mulighetsrommet-api-client";
+import { Tiltaksgjennomforing, TiltaksgjennomforingRequest } from "mulighetsrommet-api-client";
 
 interface Props {
   redigeringsModus: boolean;
   onClose: () => void;
-  mutation: UseMutationResult<
-    Tiltaksgjennomforing,
-    unknown,
-    TiltaksgjennomforingRequest,
-    unknown
-  >;
+  mutation: UseMutationResult<Tiltaksgjennomforing, unknown, TiltaksgjennomforingRequest, unknown>;
 }
 export function TiltaksgjennomforingSkjemaKnapperad({
   redigeringsModus,
@@ -39,11 +31,7 @@ export function TiltaksgjennomforingSkjemaKnapperad({
         disabled={mutation.isLoading}
         data-testid="lagre-opprett-knapp"
       >
-        {mutation.isLoading
-          ? "Lagrer..."
-          : redigeringsModus
-          ? "Lagre gjennomføring"
-          : "Opprett"}
+        {mutation.isLoading ? "Lagrer..." : redigeringsModus ? "Lagre gjennomføring" : "Opprett"}
       </Button>
     </div>
   );

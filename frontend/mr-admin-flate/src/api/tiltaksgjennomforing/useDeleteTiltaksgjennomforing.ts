@@ -4,6 +4,8 @@ import { mulighetsrommetClient } from "../clients";
 export function useDeleteTiltaksgjennomforing() {
   return useMutation({
     mutationFn: (tiltaksgjennomforingId: string) =>
-      mulighetsrommetClient.tiltaksgjennomforinger.deleteTiltaksgjennomforing({ id: tiltaksgjennomforingId }),
+      mulighetsrommetClient.tiltaksgjennomforinger.deleteTiltaksgjennomforing({
+        id: tiltaksgjennomforingId,
+      }),
   });
 }

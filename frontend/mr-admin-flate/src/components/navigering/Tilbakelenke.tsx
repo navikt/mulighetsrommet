@@ -21,7 +21,11 @@ export function Tilbakelenke() {
   );
 }
 
-export const parentPath = (pathname: string, avtaleId?: string, tiltaksgjennomforingId?: string) => {
+export const parentPath = (
+  pathname: string,
+  avtaleId?: string,
+  tiltaksgjennomforingId?: string,
+) => {
   if (pathname.includes("avtaler")) {
     if (tiltaksgjennomforingId) {
       return `/avtaler/${avtaleId}`;
@@ -33,5 +37,4 @@ export const parentPath = (pathname: string, avtaleId?: string, tiltaksgjennomfo
   } else {
     return "/tiltakstyper";
   }
-}
-
+};

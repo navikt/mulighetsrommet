@@ -8,7 +8,9 @@ export function useAvbrytAvtale() {
       return mulighetsrommetClient.avtaler.avbrytAvtale({ id });
     },
     onSuccess: () => {
-      client.invalidateQueries({ queryKey: ["avtale"] });
+      client.invalidateQueries({
+        queryKey: ["avtale"],
+      });
     },
   });
 }

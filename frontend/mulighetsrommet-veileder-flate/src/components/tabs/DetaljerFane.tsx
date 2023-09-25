@@ -1,8 +1,8 @@
-import { Alert, BodyLong } from '@navikt/ds-react';
-import { PortableText } from '@portabletext/react';
-import styles from './Detaljerfane.module.scss';
-import FaneTiltaksinformasjon from './FaneTiltaksinformasjon';
-import { Separator } from '../../utils/Separator';
+import { Alert, BodyLong } from "@navikt/ds-react";
+import { PortableText } from "@portabletext/react";
+import styles from "./Detaljerfane.module.scss";
+import FaneTiltaksinformasjon from "./FaneTiltaksinformasjon";
+import { Separator } from "../../utils/Separator";
 
 interface DetaljerFaneProps {
   tiltaksgjennomforingAlert?: string;
@@ -19,7 +19,9 @@ const DetaljerFane = ({
 }: DetaljerFaneProps) => {
   return (
     <FaneTiltaksinformasjon
-      harInnhold={tiltaksgjennomforingAlert || tiltakstypeAlert || tiltaksgjennomforing || tiltakstype}
+      harInnhold={
+        tiltaksgjennomforingAlert || tiltakstypeAlert || tiltaksgjennomforing || tiltakstype
+      }
     >
       {tiltakstypeAlert && (
         <Alert variant="info" className={styles.tiltaksdetaljer_alert}>
@@ -29,9 +31,7 @@ const DetaljerFane = ({
       <BodyLong size="small">
         <PortableText value={tiltakstype} />
       </BodyLong>
-      {(tiltaksgjennomforingAlert || tiltaksgjennomforing) &&
-        <Separator />
-      }
+      {(tiltaksgjennomforingAlert || tiltaksgjennomforing) && <Separator />}
       {tiltaksgjennomforingAlert && (
         <Alert variant="info" className={styles.tiltaksdetaljer_alert}>
           {tiltaksgjennomforingAlert}

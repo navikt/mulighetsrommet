@@ -15,49 +15,47 @@ type Props = {
   mutation: UseMutationResult<Utkast, unknown, Utkast>;
 };
 
-export const AutoSaveUtkast = memo(
-  ({ defaultValues, utkastId, onSave, mutation }: Props) => {
-    if (!utkastId) throw new Error("Ingen utkastId tilgjengelig");
+export const AutoSaveUtkast = memo(({ defaultValues, utkastId, onSave, mutation }: Props) => {
+  if (!utkastId) throw new Error("Ingen utkastId tilgjengelig");
 
-    const methods = useFormContext<inferredTiltaksgjennomforingSchema>();
+  const methods = useFormContext<inferredTiltaksgjennomforingSchema>();
 
-    const debouncedSave = useCallback(
-      debounce(() => {
-        onSave();
-      }, 1000),
-      [],
-    );
+  const debouncedSave = useCallback(
+    debounce(() => {
+      onSave();
+    }, 1000),
+    [],
+  );
 
-    useEffect(() => {
-      if (mutation.isSuccess) {
-        toast.success("Utkast lagret", {
-          toastId: `success-${utkastId}`, // For å hindre duplikate meldinger
-          hideProgressBar: true,
-          autoClose: 2000,
-        });
-      }
+  useEffect(() => {
+    if (mutation.isSuccess) {
+      toast.success("Utkast lagret", {
+        toastId: `success-${utkastId}`, // For å hindre duplikate meldinger
+        hideProgressBar: true,
+        autoClose: 2000,
+      });
+    }
 
-      if (mutation.isError) {
-        toast.error("Klarte ikke lagre utkast", {
-          toastId: `error-${utkastId}`, // For å hindre duplikate meldinger
-          hideProgressBar: true,
-        });
-      }
-    }, [mutation]);
+    if (mutation.isError) {
+      toast.error("Klarte ikke lagre utkast", {
+        toastId: `error-${utkastId}`, // For å hindre duplikate meldinger
+        hideProgressBar: true,
+      });
+    }
+  }, [mutation]);
 
-    const watchedData = useWatch({
-      control: methods.control,
-      defaultValue: defaultValues,
-    });
+  const watchedData = useWatch({
+    control: methods.control,
+    defaultValue: defaultValues,
+  });
 
-    useDeepCompareEffect(() => {
-      if (methods.formState.isDirty) {
-        debouncedSave();
-      }
-    }, [watchedData]);
+  useDeepCompareEffect(() => {
+    if (methods.formState.isDirty) {
+      debouncedSave();
+    }
+  }, [watchedData]);
 
-    return <AutoSaveToastContainer />;
-  },
-);
+  return <AutoSaveToastContainer />;
+});
 
 AutoSaveUtkast.displayName = "AutoSaveUtkast";

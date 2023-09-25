@@ -1,32 +1,33 @@
-import { BodyShort, Panel } from '@navikt/ds-react';
+import { BodyShort, Panel } from "@navikt/ds-react";
 import {
   TiltaksgjennomforingOppstartstype,
   VeilederflateTiltaksgjennomforing,
   VeilederflateTiltakstype,
-} from 'mulighetsrommet-api-client';
-import { formaterDato, utledLopenummerFraTiltaksnummer } from '../../utils/Utils';
-import Kopiknapp from '../kopiknapp/Kopiknapp';
-import Regelverksinfo from './Regelverksinfo';
-import styles from './Sidemenydetaljer.module.scss';
+} from "mulighetsrommet-api-client";
+import { formaterDato, utledLopenummerFraTiltaksnummer } from "../../utils/Utils";
+import Kopiknapp from "../kopiknapp/Kopiknapp";
+import Regelverksinfo from "./Regelverksinfo";
+import styles from "./Sidemenydetaljer.module.scss";
 
 interface Props {
   tiltaksgjennomforing: VeilederflateTiltaksgjennomforing;
 }
 
 const SidemenyDetaljer = ({ tiltaksgjennomforing }: Props) => {
-  const { tiltaksnummer, arrangor, tiltakstype, sluttdato, oppstartsdato, lokasjon } = tiltaksgjennomforing;
+  const { tiltaksnummer, arrangor, tiltakstype, sluttdato, oppstartsdato, lokasjon } =
+    tiltaksgjennomforing;
   const oppstart = resolveOppstart(tiltaksgjennomforing);
 
   const visDato = (
     tiltakstype: VeilederflateTiltakstype,
     oppstart: string,
     oppstartsdato?: string,
-    sluttdato?: string
+    sluttdato?: string,
   ) => {
     return (
       <div className={styles.rad}>
         <BodyShort size="small" className={styles.tittel}>
-          {visSluttdato(tiltakstype, sluttdato, oppstartsdato) ? 'Varighet' : 'Oppstart'}
+          {visSluttdato(tiltakstype, sluttdato, oppstartsdato) ? "Varighet" : "Oppstart"}
         </BodyShort>
         <BodyShort size="small">
           {visSluttdato(tiltakstype, sluttdato, oppstartsdato)
@@ -37,7 +38,11 @@ const SidemenyDetaljer = ({ tiltaksgjennomforing }: Props) => {
     );
   };
 
-  const visSluttdato = (tiltakstype: VeilederflateTiltakstype, sluttdato?: string, oppstartsdato?: string): boolean => {
+  const visSluttdato = (
+    tiltakstype: VeilederflateTiltakstype,
+    sluttdato?: string,
+    oppstartsdato?: string,
+  ): boolean => {
     return (
       !!oppstartsdato &&
       !!sluttdato &&
@@ -62,7 +67,10 @@ const SidemenyDetaljer = ({ tiltaksgjennomforing }: Props) => {
             </BodyShort>
             <div className={styles.tiltaksnummer}>
               <BodyShort size="small">{utledLopenummerFraTiltaksnummer(tiltaksnummer)}</BodyShort>
-              <Kopiknapp kopitekst={utledLopenummerFraTiltaksnummer(tiltaksnummer)} dataTestId="knapp_kopier" />
+              <Kopiknapp
+                kopitekst={utledLopenummerFraTiltaksnummer(tiltaksnummer)}
+                dataTestId="knapp_kopier"
+              />
             </div>
           </div>
         )}
@@ -117,7 +125,7 @@ const SidemenyDetaljer = ({ tiltaksgjennomforing }: Props) => {
 function resolveOppstart({ oppstart, oppstartsdato }: VeilederflateTiltaksgjennomforing) {
   return oppstart === TiltaksgjennomforingOppstartstype.FELLES && oppstartsdato
     ? formaterDato(oppstartsdato)
-    : 'Løpende';
+    : "Løpende";
 }
 
 export default SidemenyDetaljer;

@@ -1,8 +1,5 @@
 import { DefaultBodyType, PathParams, rest } from "msw";
-import {
-  Virksomhet,
-  VirksomhetKontaktperson,
-} from "mulighetsrommet-api-client";
+import { Virksomhet, VirksomhetKontaktperson } from "mulighetsrommet-api-client";
 import { mockVirksomheter } from "../fixtures/mock_virksomheter";
 import { mockVirksomhetKontaktperson } from "../fixtures/mock_virksomhet_kontaktperson";
 
@@ -14,10 +11,7 @@ export const virksomhetHandlers = [
         ctx.status(200),
         ctx.json(
           Object.values(mockVirksomheter).filter(
-            (enhet) =>
-              enhet.navn
-                ?.toLowerCase()
-                .includes(req.params.sok.toLocaleLowerCase()),
+            (enhet) => enhet.navn?.toLowerCase().includes(req.params.sok.toLocaleLowerCase()),
           ),
         ),
       );

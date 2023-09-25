@@ -1,5 +1,5 @@
-import { Select } from '@navikt/ds-react';
-import styles from './Sorteringsmeny.module.scss';
+import { Select } from "@navikt/ds-react";
+import styles from "./Sorteringsmeny.module.scss";
 
 interface Props {
   sortValue: string;
@@ -11,7 +11,7 @@ export const Sorteringsmeny = ({ sortValue, setSortValue }: Props) => {
     <Select
       className={styles.sorteringsmeny}
       value={sortValue}
-      onChange={change => setSortValue(change.currentTarget.value)}
+      onChange={(change) => setSortValue(change.currentTarget.value)}
       size="small"
       label="Hvilket felt ønsker du å sortere listen på?"
       hideLabel

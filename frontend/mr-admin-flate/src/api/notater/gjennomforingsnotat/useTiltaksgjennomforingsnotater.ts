@@ -10,11 +10,9 @@ export function useTiltaksgjennomforingsnotater() {
   return useQuery(
     QueryKeys.tiltaksgjennomforingsnotater(gjennomforingsId),
     () =>
-      mulighetsrommetClient.tiltaksgjennomforingNotater.getNotaterForTiltaksgjennomforing(
-        {
-          tiltaksgjennomforingId: gjennomforingsId,
-        },
-      ),
+      mulighetsrommetClient.tiltaksgjennomforingNotater.getNotaterForTiltaksgjennomforing({
+        tiltaksgjennomforingId: gjennomforingsId,
+      }),
     {
       enabled: !!gjennomforingsId,
     },

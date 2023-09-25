@@ -20,11 +20,7 @@ import { useNavEnheter } from "../../api/enhet/useNavEnheter";
 import { useFeatureToggle } from "../../api/features/feature-toggles";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
 import { useVirksomheter } from "../../api/virksomhet/useVirksomheter";
-import {
-  inneholderUrl,
-  resetPaginering,
-  valueOrDefault,
-} from "../../utils/Utils";
+import { inneholderUrl, resetPaginering, valueOrDefault } from "../../utils/Utils";
 import { arenaKodeErAftEllerVta } from "../../utils/tiltakskoder";
 import { LeggTilGjennomforingModal } from "../modal/LeggTilGjennomforingModal";
 import { SokeSelect } from "../skjema/SokeSelect";
@@ -45,11 +41,11 @@ export function Tiltaksgjennomforingfilter({ skjulFilter }: Props) {
   const [filter, setFilter] = useAtom(tiltaksgjennomforingfilter);
   const [, setPage] = useAtom(paginationAtom);
   const { data: enheter } = useNavEnheter();
-  const { data: virksomheter } = useVirksomheter(
-    VirksomhetTil.TILTAKSGJENNOMFORING,
-  );
+  const { data: virksomheter } = useVirksomheter(VirksomhetTil.TILTAKSGJENNOMFORING);
   const { data: tiltakstyper } = useTiltakstyper(
-    { status: Tiltakstypestatus.AKTIV },
+    {
+      status: Tiltakstypestatus.AKTIV,
+    },
     1,
   );
   const [modalOpen, setModalOpen] = useState<boolean>(false);
@@ -70,7 +66,10 @@ export function Tiltaksgjennomforingfilter({ skjulFilter }: Props) {
   const erAFTellerVTA = arenaKodeErAftEllerVta(avtale?.tiltakstype.arenaKode);
 
   useEffect(() => {
-    setFilter({ ...filter, avtale: avtale?.id ?? "" });
+    setFilter({
+      ...filter,
+      avtale: avtale?.id ?? "",
+    });
   }, [avtale]);
 
   const regionOptions = () => {
@@ -78,10 +77,18 @@ export function Tiltaksgjennomforingfilter({ skjulFilter }: Props) {
       enheter
         ?.filter((enhet) => enhet.type === NavEnhetType.FYLKE)
         ?.sort()
-        ?.map((enhet) => ({ label: enhet.navn, value: enhet.enhetsnummer })) ||
-      [];
+        ?.map((enhet) => ({
+          label: enhet.navn,
+          value: enhet.enhetsnummer,
+        })) || [];
 
-    return [{ value: "", label: "Alle regioner" }, ...options];
+    return [
+      {
+        value: "",
+        label: "Alle regioner",
+      },
+      ...options,
+    ];
   };
 
   const enhetOptions = () => {
@@ -89,12 +96,9 @@ export function Tiltaksgjennomforingfilter({ skjulFilter }: Props) {
       enheter
         ?.filter((enhet) => {
           const erLokalEllerTiltaksenhet =
-            enhet.type === NavEnhetType.LOKAL ||
-            enhet.type === NavEnhetType.TILTAK;
+            enhet.type === NavEnhetType.LOKAL || enhet.type === NavEnhetType.TILTAK;
           const enheterFraFylke =
-            filter.navRegion === ""
-              ? true
-              : filter.navRegion === enhet.overordnetEnhet;
+            filter.navRegion === "" ? true : filter.navRegion === enhet.overordnetEnhet;
           return erLokalEllerTiltaksenhet && enheterFraFylke;
         })
         ?.sort()
@@ -103,7 +107,13 @@ export function Tiltaksgjennomforingfilter({ skjulFilter }: Props) {
           value: enhet.enhetsnummer,
         })) || [];
 
-    return [{ value: "", label: "Alle enheter" }, ...options];
+    return [
+      {
+        value: "",
+        label: "Alle enheter",
+      },
+      ...options,
+    ];
   };
 
   const tiltakstypeOptions = () => {
@@ -113,19 +123,37 @@ export function Tiltaksgjennomforingfilter({ skjulFilter }: Props) {
         value: tiltakstype.id,
       })) || [];
 
-    return [{ value: "", label: "Alle tiltakstyper" }, ...options];
+    return [
+      {
+        value: "",
+        label: "Alle tiltakstyper",
+      },
+      ...options,
+    ];
   };
 
   const statusOptions = () => {
     return [
-      { label: "Gjennomføres", value: TiltaksgjennomforingStatus.GJENNOMFORES },
-      { label: "Avsluttet", value: TiltaksgjennomforingStatus.AVSLUTTET },
-      { label: "Avbrutt", value: TiltaksgjennomforingStatus.AVBRUTT },
+      {
+        label: "Gjennomføres",
+        value: TiltaksgjennomforingStatus.GJENNOMFORES,
+      },
+      {
+        label: "Avsluttet",
+        value: TiltaksgjennomforingStatus.AVSLUTTET,
+      },
+      {
+        label: "Avbrutt",
+        value: TiltaksgjennomforingStatus.AVBRUTT,
+      },
       {
         label: "Åpent for innsøk",
         value: TiltaksgjennomforingStatus.APENT_FOR_INNSOK,
       },
-      { label: "Alle statuser", value: "" },
+      {
+        label: "Alle statuser",
+        value: "",
+      },
     ];
   };
 
@@ -136,16 +164,20 @@ export function Tiltaksgjennomforingfilter({ skjulFilter }: Props) {
         value: virksomhet.organisasjonsnummer,
       })) || [];
 
-    return [{ value: "", label: "Alle arrangører" }, ...options];
+    return [
+      {
+        value: "",
+        label: "Alle arrangører",
+      },
+      ...options,
+    ];
   };
 
   return (
     <FormProvider {...form}>
       <form
         className={
-          avtale
-            ? styles.tiltaksgjennomforingform_med_knapperad
-            : styles.tiltaksgjennomforingform
+          avtale ? styles.tiltaksgjennomforingform_med_knapperad : styles.tiltaksgjennomforingform
         }
       >
         <div className={styles.filter_container}>
@@ -155,7 +187,12 @@ export function Tiltaksgjennomforingfilter({ skjulFilter }: Props) {
               hideLabel
               size="small"
               variant="simple"
-              onChange={(search: string) => setFilter({ ...filter, search })}
+              onChange={(search: string) =>
+                setFilter({
+                  ...filter,
+                  search,
+                })
+              }
               value={filter.search}
               aria-label="Søk etter tiltaksgjennomføring"
               data-testid="filter_sokefelt"
@@ -232,10 +269,7 @@ export function Tiltaksgjennomforingfilter({ skjulFilter }: Props) {
                 resetPaginering(setPage);
                 setFilter({
                   ...filter,
-                  status: valueOrDefault(
-                    e.target.value,
-                    defaultTiltaksgjennomforingfilter.status,
-                  ),
+                  status: valueOrDefault(e.target.value, defaultTiltaksgjennomforingfilter.status),
                 });
               }}
               options={statusOptions()}
@@ -263,12 +297,7 @@ export function Tiltaksgjennomforingfilter({ skjulFilter }: Props) {
           </div>
 
           {avtale && (
-            <div
-              className={classNames(
-                styles.knapperad,
-                styles.tiltaksgjennomforings_knapperad,
-              )}
-            >
+            <div className={classNames(styles.knapperad, styles.tiltaksgjennomforings_knapperad)}>
               <div className={styles.flex_row}>
                 {visOpprettTiltaksgjennomforingKnapp && (
                   <Lenkeknapp
@@ -305,64 +334,48 @@ export function Tiltaksgjennomforingfilter({ skjulFilter }: Props) {
           <div className={styles.tags_container}>
             {filter.navRegion && (
               <FilterTag
-                label={
-                  enheter?.find((e) => e.enhetsnummer === filter.navRegion)
-                    ?.navn
-                }
+                label={enheter?.find((e) => e.enhetsnummer === filter.navRegion)?.navn}
                 onClick={() => {
                   setFilter({
                     ...filter,
                     navRegion: defaultTiltaksgjennomforingfilter.navRegion,
                   });
-                  setValue(
-                    "navRegion",
-                    defaultTiltaksgjennomforingfilter.navRegion,
-                  );
+                  setValue("navRegion", defaultTiltaksgjennomforingfilter.navRegion);
                 }}
               />
             )}
             {filter.navEnhet && (
               <FilterTag
-                label={
-                  enheter?.find((e) => e.enhetsnummer === filter.navEnhet)?.navn
-                }
+                label={enheter?.find((e) => e.enhetsnummer === filter.navEnhet)?.navn}
                 onClick={() => {
                   setFilter({
                     ...filter,
                     navEnhet: defaultTiltaksgjennomforingfilter.navEnhet,
                   });
-                  setValue(
-                    "navEnhet",
-                    defaultTiltaksgjennomforingfilter.navEnhet,
-                  );
+                  setValue("navEnhet", defaultTiltaksgjennomforingfilter.navEnhet);
                 }}
               />
             )}
             {filter.tiltakstype && (
               <FilterTag
-                label={
-                  tiltakstyper?.data?.find((t) => t.id === filter.tiltakstype)
-                    ?.navn
-                }
+                label={tiltakstyper?.data?.find((t) => t.id === filter.tiltakstype)?.navn}
                 onClick={() => {
                   setFilter({
                     ...filter,
                     tiltakstype: defaultTiltaksgjennomforingfilter.tiltakstype,
                   });
-                  setValue(
-                    "tiltakstype",
-                    defaultTiltaksgjennomforingfilter.tiltakstype,
-                  );
+                  setValue("tiltakstype", defaultTiltaksgjennomforingfilter.tiltakstype);
                 }}
               />
             )}
             {filter.status && (
               <FilterTag
-                label={
-                  statusOptions().find((o) => o.value === filter.status)?.label
-                }
+                label={statusOptions().find((o) => o.value === filter.status)?.label}
                 onClick={() => {
-                  setFilter({ ...filter, status: "" });
+                  setFilter({
+                    ...filter,
+                    status: "",
+                  });
                   setValue("status", "");
                 }}
               />
@@ -370,20 +383,14 @@ export function Tiltaksgjennomforingfilter({ skjulFilter }: Props) {
             {filter.arrangorOrgnr && (
               <FilterTag
                 label={
-                  virksomheter?.find(
-                    (v) => v.organisasjonsnummer === filter.arrangorOrgnr,
-                  )?.navn
+                  virksomheter?.find((v) => v.organisasjonsnummer === filter.arrangorOrgnr)?.navn
                 }
                 onClick={() => {
                   setFilter({
                     ...filter,
-                    arrangorOrgnr:
-                      defaultTiltaksgjennomforingfilter.arrangorOrgnr,
+                    arrangorOrgnr: defaultTiltaksgjennomforingfilter.arrangorOrgnr,
                   });
-                  setValue(
-                    "arrangorOrgnr",
-                    defaultTiltaksgjennomforingfilter.arrangorOrgnr,
-                  );
+                  setValue("arrangorOrgnr", defaultTiltaksgjennomforingfilter.arrangorOrgnr);
                 }}
               />
             )}
@@ -402,22 +409,10 @@ export function Tiltaksgjennomforingfilter({ skjulFilter }: Props) {
                     avtale: filter.avtale,
                   });
                   setValue("status", defaultTiltaksgjennomforingfilter.status);
-                  setValue(
-                    "navEnhet",
-                    defaultTiltaksgjennomforingfilter.navEnhet,
-                  );
-                  setValue(
-                    "navRegion",
-                    defaultTiltaksgjennomforingfilter.navRegion,
-                  );
-                  setValue(
-                    "tiltakstype",
-                    defaultTiltaksgjennomforingfilter.tiltakstype,
-                  );
-                  setValue(
-                    "arrangorOrgnr",
-                    defaultTiltaksgjennomforingfilter.arrangorOrgnr,
-                  );
+                  setValue("navEnhet", defaultTiltaksgjennomforingfilter.navEnhet);
+                  setValue("navRegion", defaultTiltaksgjennomforingfilter.navRegion);
+                  setValue("tiltakstype", defaultTiltaksgjennomforingfilter.tiltakstype);
+                  setValue("arrangorOrgnr", defaultTiltaksgjennomforingfilter.arrangorOrgnr);
                 }}
               >
                 Tilbakestill filter

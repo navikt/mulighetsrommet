@@ -18,6 +18,6 @@ export function useTiltaksgjennomforingerByEnhet(enhet: string = "") {
       }),
     {
       enabled: !!enhet,
-    }
+    },
   );
 }

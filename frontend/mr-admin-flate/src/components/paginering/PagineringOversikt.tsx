@@ -21,15 +21,10 @@ export function PagineringsOversikt({
   setAntallVises,
 }: Props) {
   return (
-    <Heading
-      level="1"
-      size="xsmall"
-      data-testid="antall-tiltak"
-      className={styles.container}
-    >
+    <Heading level="1" size="xsmall" data-testid="antall-tiltak" className={styles.container}>
       <span>
-        Viser {(page - 1) * antallVises + 1}-{antall + (page - 1) * antallVises}{" "}
-        av {maksAntall} {type}{" "}
+        Viser {(page - 1) * antallVises + 1}-{antall + (page - 1) * antallVises} av {maksAntall}{" "}
+        {type}{" "}
       </span>
       {setAntallVises ? (
         <Select
@@ -38,9 +33,7 @@ export function PagineringsOversikt({
           hideLabel
           name="size"
           value={antallVises}
-          onChange={(e) =>
-            setAntallVises(Number.parseInt(e.currentTarget.value))
-          }
+          onChange={(e) => setAntallVises(Number.parseInt(e.currentTarget.value))}
         >
           {antallSize.map((ant) => (
             <option key={ant} value={ant}>

@@ -1,16 +1,16 @@
-import { Locale, Styles } from 'react-joyride';
+import { Locale, Styles } from "react-joyride";
 
 export const locale: Locale = {
-  next: 'Neste',
-  back: 'Forrige',
-  close: 'Lukk',
-  skip: 'Avslutt',
-  last: 'Ferdig',
+  next: "Neste",
+  back: "Forrige",
+  close: "Lukk",
+  skip: "Avslutt",
+  last: "Ferdig",
 };
 
 export const styling: Styles = {
   options: {
-    primaryColor: '#0067C5',
+    primaryColor: "#0067C5",
   },
   tooltip: {
     padding: 25,
@@ -19,6 +19,6 @@ export const styling: Styles = {
     width: 100,
   },
   tooltipContent: {
-    padding: '10px',
+    padding: "10px",
   },
 };

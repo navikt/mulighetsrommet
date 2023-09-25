@@ -3,11 +3,11 @@ import type {
   PortableTextBlock,
   PortableTextSpan,
   PortableTextMarkDefinition,
-} from '@portabletext/types'
+} from "@portabletext/types";
 
 // BaseElement doesn't expose the type property for some reason
 // https://github.com/ianstormtaylor/slate/issues/4915
-declare module 'slate' {
+declare module "slate" {
   export interface BaseElement {
     type: string;
     markDefs?: PortableTextMarkDefinition[];
@@ -33,51 +33,53 @@ export const slateToPortableText = (nodes: Descendant[]): PortableTextBlock[] =>
         style: "h1",
       });
     } else if (node.type && node.type !== "paragraph") {
-      throw Error(`Unsupported block type: ${node.type}`)
+      throw Error(`Unsupported block type: ${node.type}`);
     } else {
       portableBlocks.push(toPortableTextBlock(node));
     }
   }
   return portableBlocks;
-}
+};
 
 const toPortableTextSpan = (span: BaseText): PortableTextSpan => {
   return {
     _type: "span",
     text: Node.string(span),
-    marks: findMark(span)
-  }
-}
+    marks: findMark(span),
+  };
+};
 
-const linkToPortableTextSpans = (link: BaseElement): [PortableTextSpan[], PortableTextMarkDefinition] => {
+const linkToPortableTextSpans = (
+  link: BaseElement,
+): [PortableTextSpan[], PortableTextMarkDefinition] => {
   if (!link.url) throw Error("link does not have url");
 
   const markDef: PortableTextMarkDefinition = {
-      _type: "link",
-      _key: link.url,
-      href: link.url,
+    _type: "link",
+    _key: link.url,
+    href: link.url,
   };
 
   const spans = link.children
-    .map(s => toPortableTextSpan(s as BaseText))
-    .map(s => ({
+    .map((s) => toPortableTextSpan(s as BaseText))
+    .map((s) => ({
       ...s,
-      marks: [...(s?.marks || []), link.url]
+      marks: [...(s?.marks || []), link.url],
     })) as PortableTextSpan[];
 
   return [spans, markDef];
-}
+};
 
 const toPortableTextBlock = (node: Descendant): PortableTextBlock => {
   if (!Element.isElement(node)) throw Error(`Unsupported slate node: ${node}`);
 
-  const children = []
+  const children = [];
   const markDefs: PortableTextMarkDefinition[] = [];
 
   for (const child of node.children) {
-    if (Element.isElementType(child, 'link')) {
+    if (Element.isElementType(child, "link")) {
       const [spans, markDef] = linkToPortableTextSpans(child);
-      if (!markDefs.find(m => m._key === markDef._key)) {
+      if (!markDefs.find((m) => m._key === markDef._key)) {
         markDefs.push(markDef);
       }
       children.push(...spans);
@@ -86,19 +88,19 @@ const toPortableTextBlock = (node: Descendant): PortableTextBlock => {
     }
   }
 
-  return ({
+  return {
     _type: "block",
     markDefs,
     children,
-  })
-}
+  };
+};
 
 const bulletedListBlocks = (node: BaseElement): PortableTextBlock[] => {
-  return node.children.map(child => ({
-      ...toPortableTextBlock(child),
-      listItem: "bullet"
+  return node.children.map((child) => ({
+    ...toPortableTextBlock(child),
+    listItem: "bullet",
   }));
-}
+};
 
 function findMark(span: BaseText) {
   const marks = [];

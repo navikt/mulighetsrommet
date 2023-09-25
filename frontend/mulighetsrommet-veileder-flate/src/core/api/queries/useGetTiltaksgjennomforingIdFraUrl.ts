@@ -1,7 +1,7 @@
-import { useParams } from 'react-router-dom';
+import { useParams } from "react-router-dom";
 
 export function useGetTiltaksgjennomforingIdFraUrl() {
-  const { tiltaksnummer = '' } = useParams();
+  const { tiltaksnummer = "" } = useParams();
   return normalizeId(tiltaksnummer);
 }
 
@@ -12,7 +12,7 @@ export function useGetTiltaksgjennomforingIdFraUrl() {
  * @returns
  */
 function normalizeId(tiltaksnummer?: string): string {
-  if (!tiltaksnummer) throw new Error('Tiltaksnummer ikke satt');
+  if (!tiltaksnummer) throw new Error("Tiltaksnummer ikke satt");
 
-  return tiltaksnummer?.includes('_') ? tiltaksnummer?.replace('_', '.') : tiltaksnummer;
+  return tiltaksnummer?.includes("_") ? tiltaksnummer?.replace("_", ".") : tiltaksnummer;
 }

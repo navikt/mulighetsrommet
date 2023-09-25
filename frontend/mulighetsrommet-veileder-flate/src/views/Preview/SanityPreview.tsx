@@ -1,8 +1,8 @@
-import { Alert, Loader } from '@navikt/ds-react';
-import { Innsatsgruppe } from 'mulighetsrommet-api-client';
-import usePreviewTiltaksgjennomforingById from '../../core/api/queries/usePreviewTiltaksgjennomforingById';
-import ViewTiltaksgjennomforingDetaljer from '../tiltaksgjennomforing-detaljer/ViewTiltaksgjennomforingDetaljer';
-import styles from './SanityPreview.module.scss';
+import { Alert, Loader } from "@navikt/ds-react";
+import { Innsatsgruppe } from "mulighetsrommet-api-client";
+import usePreviewTiltaksgjennomforingById from "../../core/api/queries/usePreviewTiltaksgjennomforingById";
+import ViewTiltaksgjennomforingDetaljer from "../tiltaksgjennomforing-detaljer/ViewTiltaksgjennomforingDetaljer";
+import styles from "./SanityPreview.module.scss";
 
 export function SanityPreview() {
   const { data, isLoading, isError } = usePreviewTiltaksgjennomforingById();
@@ -24,7 +24,7 @@ export function SanityPreview() {
 
   return (
     <>
-      <Alert style={{ marginBottom: '2rem' }} variant="warning" data-testid="sanity-preview-alert">
+      <Alert style={{ marginBottom: "2rem" }} variant="warning" data-testid="sanity-preview-alert">
         Forhåndsvisning av informasjon fra Sanity
       </Alert>
       <ViewTiltaksgjennomforingDetaljer
@@ -34,17 +34,17 @@ export function SanityPreview() {
         innsatsgruppeForGjennomforing={Innsatsgruppe.VARIG_TILPASSET_INNSATS}
         harDeltMedBruker={undefined}
         veilederdata={{
-          etternavn: 'Veiledersen',
-          fornavn: 'Veileder',
-          hovedenhet: { enhetsnummer: '0519', navn: 'Hovedenhet veileder' },
-          navIdent: 'V123456',
+          etternavn: "Veiledersen",
+          fornavn: "Veileder",
+          hovedenhet: { enhetsnummer: "0519", navn: "Hovedenhet veileder" },
+          navIdent: "V123456",
         }}
         brukerdata={{
-          fnr: '99999999999',
-          fornavn: 'Forhånds',
+          fnr: "99999999999",
+          fornavn: "Forhånds",
           innsatsgruppe: brukersInnsatsgruppe,
-          geografiskEnhet: { enhetsnummer: '1234', navn: 'Forhåndsvisningsenhet' },
-          oppfolgingsenhet: { enhetId: '1234', navn: 'Oppfølgingsenhet' },
+          geografiskEnhet: { enhetsnummer: "1234", navn: "Forhåndsvisningsenhet" },
+          oppfolgingsenhet: { enhetId: "1234", navn: "Oppfølgingsenhet" },
           manuellStatus: {
             erUnderManuellOppfolging: false,
             krrStatus: {

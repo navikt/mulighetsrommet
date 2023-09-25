@@ -1,6 +1,8 @@
 import { Virksomhet } from "mulighetsrommet-api-client";
 
-export const mockVirksomheter: { [navn: string]: Virksomhet } = {
+export const mockVirksomheter: {
+  [navn: string]: Virksomhet;
+} = {
   fretex: {
     organisasjonsnummer: "123456789",
     navn: "Fretex AS",

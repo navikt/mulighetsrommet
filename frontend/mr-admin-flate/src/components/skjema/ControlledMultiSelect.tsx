@@ -20,10 +20,7 @@ const ControlledMultiSelect = React.forwardRef((props: MultiSelectProps, _) => {
       <Controller
         name={label}
         {...rest}
-        render={({
-          field: { onChange, value, name, ref },
-          fieldState: { error },
-        }) => {
+        render={({ field: { onChange, value, name, ref }, fieldState: { error } }) => {
           return (
             <>
               <label

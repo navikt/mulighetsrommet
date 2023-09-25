@@ -28,22 +28,13 @@ export function TiltakstypeInfo() {
         <Metadata header="Tiltakskode" verdi={tiltakstype.arenaKode} />
       </div>
       <Separator />
-      <Metadata
-        header="Status"
-        verdi={<TiltakstypestatusTag tiltakstype={tiltakstype} />}
-      />
+      <Metadata header="Status" verdi={<TiltakstypestatusTag tiltakstype={tiltakstype} />} />
       <Separator />
       <div className={styles.bolk}>
-        <Metadata
-          header="Startdato"
-          verdi={formaterDato(tiltakstype.fraDato)}
-        />
-        <Metadata
-          header="Sluttdato"
-          verdi={formaterDato(tiltakstype.tilDato)}
-        />
+        <Metadata header="Startdato" verdi={formaterDato(tiltakstype.fraDato)} />
+        <Metadata header="Sluttdato" verdi={formaterDato(tiltakstype.tilDato)} />
       </div>
-      {tiltakstype.sanityId &&
+      {tiltakstype.sanityId && (
         <>
           <Separator />
           <Bolk aria-label="Sanity-dokument">
@@ -51,10 +42,7 @@ export function TiltakstypeInfo() {
               header="Sanity dokument"
               verdi={
                 <>
-                  <Link
-                    target="_blank"
-                    to={sanityTiltakstypeUrl + tiltakstype.sanityId}
-                  >
+                  <Link target="_blank" to={sanityTiltakstypeUrl + tiltakstype.sanityId}>
                     Åpne tiltakstypen i Sanity{" "}
                     <ExternalLinkIcon title="Åpner tiltakstypen i Sanity" />
                   </Link>
@@ -63,7 +51,7 @@ export function TiltakstypeInfo() {
             />
           </Bolk>
         </>
-      }
+      )}
     </div>
   );
 }

@@ -5,12 +5,14 @@ export function useDeleteTiltaksgjennomforingsnotat() {
   const client = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => {
-      return mulighetsrommetClient.tiltaksgjennomforingNotater.slettTiltaksgjennomforingNotat(
-        { id },
-      );
+      return mulighetsrommetClient.tiltaksgjennomforingNotater.slettTiltaksgjennomforingNotat({
+        id,
+      });
     },
     onSuccess: () => {
-      client.invalidateQueries({ queryKey: ["tiltaksgjennomforingsnotater"] });
+      client.invalidateQueries({
+        queryKey: ["tiltaksgjennomforingsnotater"],
+      });
     },
   });
 }

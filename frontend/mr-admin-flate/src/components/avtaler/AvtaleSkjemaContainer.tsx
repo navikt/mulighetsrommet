@@ -62,19 +62,14 @@ export function AvtaleSkjemaContainer({
   avtale,
   redigeringsModus,
 }: Props) {
-  const [navRegion, setNavRegion] = useState<string | undefined>(
-    avtale?.navRegion?.enhetsnummer,
-  );
-  const [sokLeverandor, setSokLeverandor] = useState(
-    avtale?.leverandor?.organisasjonsnummer || "",
-  );
+  const [navRegion, setNavRegion] = useState<string | undefined>(avtale?.navRegion?.enhetsnummer);
+  const [sokLeverandor, setSokLeverandor] = useState(avtale?.leverandor?.organisasjonsnummer || "");
 
   const mutation = usePutAvtale();
   const { data: betabrukere } = useHentBetabrukere();
   const mutationUtkast = useMutateUtkast();
 
-  const { data: leverandorVirksomheter = [] } =
-    useSokVirksomheter(sokLeverandor);
+  const { data: leverandorVirksomheter = [] } = useSokVirksomheter(sokLeverandor);
 
   const utkastIdRef = useRef(avtale?.id || uuidv4());
 
@@ -89,12 +84,10 @@ export function AvtaleSkjemaContainer({
       avtaletype: avtale?.avtaletype ?? Avtaletype.AVTALE,
       leverandor: avtale?.leverandor?.organisasjonsnummer ?? "",
       leverandorUnderenheter:
-        avtale?.leverandorUnderenheter?.length === 0 ||
-        !avtale?.leverandorUnderenheter
+        avtale?.leverandorUnderenheter?.length === 0 || !avtale?.leverandorUnderenheter
           ? []
           : avtale?.leverandorUnderenheter?.map(
-              (leverandor: LeverandorUnderenhet) =>
-                leverandor.organisasjonsnummer,
+              (leverandor: LeverandorUnderenhet) => leverandor.organisasjonsnummer,
             ),
       leverandorKontaktpersonId: avtale?.leverandorKontaktperson?.id,
       startOgSluttDato: {
@@ -133,9 +126,7 @@ export function AvtaleSkjemaContainer({
 
   const arenaOpphav = avtale?.opphav === Opphav.ARENA;
 
-  const postData: SubmitHandler<inferredAvtaleSchema> = async (
-    data,
-  ): Promise<void> => {
+  const postData: SubmitHandler<inferredAvtaleSchema> = async (data): Promise<void> => {
     const {
       navRegion,
       navEnheter,
@@ -165,10 +156,7 @@ export function AvtaleSkjemaContainer({
       url: url || null,
       administrator,
       avtaletype,
-      prisOgBetalingsinformasjon: erAnskaffetTiltak(
-        tiltakstypeId,
-        getTiltakstypeFromId,
-      )
+      prisOgBetalingsinformasjon: erAnskaffetTiltak(tiltakstypeId, getTiltakstypeFromId)
         ? prisOgBetalingsinfo || null
         : null,
       opphav: avtale?.opphav ?? Opphav.MR_ADMIN_FLATE,
@@ -309,11 +297,7 @@ export function AvtaleSkjemaContainer({
                   {...register("administrator")}
                   onClearValue={() => setValue("administrator", "")}
                   description="Den som blir satt som administrator vil få en notifikasjon."
-                  options={AdministratorOptions(
-                    ansatt,
-                    avtale?.administrator,
-                    betabrukere,
-                  )}
+                  options={AdministratorOptions(ansatt, avtale?.administrator, betabrukere)}
                 />
               </FormGroup>
             </div>
@@ -339,10 +323,7 @@ export function AvtaleSkjemaContainer({
                     readOnly={!navRegion}
                     label={"NAV-enheter (kontorer)"}
                     {...register("navEnheter")}
-                    options={getLokaleUnderenheterAsSelectOptions(
-                      navRegion,
-                      enheter,
-                    )}
+                    options={getLokaleUnderenheterAsSelectOptions(navRegion, enheter)}
                   />
                 </FormGroup>
               </div>
@@ -385,18 +366,13 @@ export function AvtaleSkjemaContainer({
             </div>
           </div>
           <Separator />
-          <AvtaleSkjemaKnapperad
-            redigeringsModus={redigeringsModus!}
-            onClose={onClose}
-          />
+          <AvtaleSkjemaKnapperad redigeringsModus={redigeringsModus!} onClose={onClose} />
         </div>
       </form>
       <AutoSaveUtkast
         defaultValues={defaultValues}
         utkastId={utkastIdRef.current}
-        onSave={() =>
-          saveUtkast(watch(), avtale!, ansatt, utkastIdRef, mutationUtkast)
-        }
+        onSave={() => saveUtkast(watch(), avtale!, ansatt, utkastIdRef, mutationUtkast)}
         mutation={mutationUtkast}
       />
     </FormProvider>

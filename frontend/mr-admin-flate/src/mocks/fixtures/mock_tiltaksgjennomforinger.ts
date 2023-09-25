@@ -34,12 +34,12 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     stengtFra: "2023-6-1",
     stengtTil: "2023-8-1",
     arenaAnsvarligEnhet: "2990",
-    navEnheter: [ mockEnheter._0313, mockEnheter._0315, mockEnheter._0330 ],
+    navEnheter: [mockEnheter._0313, mockEnheter._0315, mockEnheter._0330],
     status: TiltaksgjennomforingStatus.GJENNOMFORES,
     opphav: Opphav.MR_ADMIN_FLATE,
     tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
     lokasjonArrangor: "Brummundal",
-    kontaktpersoner: [ petrusKontaktperson, nikolineKontaktperson ],
+    kontaktpersoner: [petrusKontaktperson, nikolineKontaktperson],
   },
   {
     id: "a7d63fb0-4366-412c-84b7-7c15518ee362",
@@ -377,5 +377,4 @@ export const paginertMockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = 
     pageSize: 50,
   },
   data: mockTiltaksgjennomforinger,
-}
-
+};

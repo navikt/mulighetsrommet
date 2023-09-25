@@ -22,8 +22,10 @@ const AvtaleSkjemaPage = () => {
   const { data: utkast, isLoading: utkastLoading } = useUtkast(
     searchParams.get("utkastId") || undefined,
   );
-  const { data: tiltakstyper, isLoading: isLoadingTiltakstyper } =
-    useTiltakstyper({ status: Tiltakstypestatus.AKTIV }, 1);
+  const { data: tiltakstyper, isLoading: isLoadingTiltakstyper } = useTiltakstyper(
+    { status: Tiltakstypestatus.AKTIV },
+    1,
+  );
   const { data: ansatt, isLoading: isLoadingAnsatt } = useHentAnsatt();
   const { data: enheter, isLoading: isLoadingEnheter } = useNavEnheter();
 
@@ -35,21 +37,12 @@ const AvtaleSkjemaPage = () => {
   };
 
   if (utkastLoading || avtaleLoading) {
-    return (
-      <Laster
-        size="xlarge"
-        tekst={utkastLoading ? "Laster utkast..." : "Laster avtale..."}
-      />
-    );
+    return <Laster size="xlarge" tekst={utkastLoading ? "Laster utkast..." : "Laster avtale..."} />;
   }
 
   return (
     <main>
-      <Header
-        dataTestId={
-          redigeringsModus ? "rediger-avtale-header" : "opprett-avtale-header"
-        }
-      >
+      <Header dataTestId={redigeringsModus ? "rediger-avtale-header" : "opprett-avtale-header"}>
         {redigeringsModus
           ? utkastModus
             ? "Rediger utkast"
@@ -58,14 +51,14 @@ const AvtaleSkjemaPage = () => {
       </Header>
       <ContainerLayoutDetaljer>
         <div className={styles.skjema}>
-          {isLoadingAnsatt || isLoadingTiltakstyper || isLoadingEnheter ? (
-            <Laster />
-          ) : null}
+          {isLoadingAnsatt || isLoadingTiltakstyper || isLoadingEnheter ? <Laster /> : null}
           <div className={styles.skjema_content}>
             {!tiltakstyper?.data || !ansatt || !enheter ? null : (
               <AvtaleSkjemaContainer
                 onClose={() => {
-                  queryClient.refetchQueries({ queryKey: ["utkast"] });
+                  queryClient.refetchQueries({
+                    queryKey: ["utkast"],
+                  });
                   navigerTilbake();
                 }}
                 onSuccess={(id) => navigate(`/avtaler/${id}`)}

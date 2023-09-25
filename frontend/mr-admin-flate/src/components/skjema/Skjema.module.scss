@@ -41,11 +41,14 @@
 
 .kontaktperson {
   &_container {
-    background-color: var(--a-surface-selected);
+    background-color: var(
+      --a-surface-selected
+    );
     margin-top: 1rem;
     padding: 0.5rem;
     position: relative;
-    border: 1px solid var(--a-border-divider);
+    border: 1px solid
+      var(--a-border-divider);
     border-radius: 0.25rem;
   }
 
@@ -78,9 +81,12 @@
   }
 
   .virksomhet_kontaktperson_container {
-    background-color: var(--a-surface-selected);
+    background-color: var(
+      --a-surface-selected
+    );
     padding: 0.5rem;
-    border: 1px solid var(--a-border-divider);
+    border: 1px solid
+      var(--a-border-divider);
     border-radius: 0.2rem;
   }
 }
@@ -91,12 +97,15 @@
   margin-bottom: 0.5rem;
   background-color: var(--a-gray-100);
   padding: 0.5rem;
-  border: 1px solid var(--a-border-divider);
+  border: 1px solid
+    var(--a-border-divider);
   border-radius: 0.25rem;
 }
 
 .vertical_separator {
-  background-color: var(--a-border-divider);
+  background-color: var(
+    --a-border-divider
+  );
   width: 1px;
   border: none;
   margin: 0 1.5rem;
@@ -122,11 +131,17 @@
     align-items: start;
 
     &_1 {
-      grid-template-columns: repeat(1, 1fr);
+      grid-template-columns: repeat(
+        1,
+        1fr
+      );
     }
 
     &_2 {
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: repeat(
+        2,
+        1fr
+      );
     }
   }
 }

@@ -6,11 +6,13 @@ export function useUtkast(utkastId?: string) {
   const query = useQuery(
     QueryKeys.utkast(utkastId),
     () => mulighetsrommetClient.utkast.getUtkast({ id: utkastId! }),
-    { enabled: !!utkastId },
+    {
+      enabled: !!utkastId,
+    },
   );
 
   return {
     ...query,
     isLoading: !!utkastId && query.isLoading, // https://github.com/TanStack/query/issues/3584
-  }
+  };
 }

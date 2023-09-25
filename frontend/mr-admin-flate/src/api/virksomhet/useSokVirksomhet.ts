@@ -14,6 +14,6 @@ export function useSokVirksomheter(sokestreng: string) {
       }),
     {
       enabled: !!debouncedSok,
-    }
+    },
   );
 }

@@ -5,19 +5,11 @@ import { useAtom } from "jotai";
 import { OpenAPI, SorteringAvtaler } from "mulighetsrommet-api-client";
 import Lenke from "mulighetsrommet-veileder-flate/src/components/lenke/Lenke";
 import { createRef, useEffect, useState } from "react";
-import {
-  AvtaleFilterProps,
-  avtaleFilter,
-  avtalePaginationAtom,
-} from "../../api/atoms";
+import { AvtaleFilterProps, avtaleFilter, avtalePaginationAtom } from "../../api/atoms";
 import { useAvtaler } from "../../api/avtaler/useAvtaler";
 import { APPLICATION_NAME } from "../../constants";
 import { useSort } from "../../hooks/useSort";
-import {
-  capitalizeEveryWord,
-  formaterDato,
-  resetPaginering,
-} from "../../utils/Utils";
+import { capitalizeEveryWord, formaterDato, resetPaginering } from "../../utils/Utils";
 import { Laster } from "../laster/Laster";
 import { PagineringContainer } from "../paginering/PagineringContainer";
 import { PagineringsOversikt } from "../paginering/PagineringOversikt";
@@ -58,12 +50,9 @@ async function lastNedFil(filter: AvtaleFilterProps) {
 
   queryParams.set("size", "10000");
 
-  return await fetch(
-    `${OpenAPI.BASE}/api/v1/internal/avtaler/excel?${queryParams}`,
-    {
-      headers,
-    },
-  );
+  return await fetch(`${OpenAPI.BASE}/api/v1/internal/avtaler/excel?${queryParams}`, {
+    headers,
+  });
 }
 
 export const AvtaleTabell = () => {
@@ -138,7 +127,10 @@ export const AvtaleTabell = () => {
             antallVises={filter.antallAvtalerVises}
             setAntallVises={(value) => {
               resetPaginering(setPage);
-              setFilter({ ...filter, antallAvtalerVises: value });
+              setFilter({
+                ...filter,
+                antallAvtalerVises: value,
+              });
             }}
           />
           <Checkbox
@@ -161,9 +153,7 @@ export const AvtaleTabell = () => {
             disabled={lasterExcel}
             type="button"
           >
-            {lasterExcel
-              ? "Henter Excel-fil..."
-              : "Eksporter tabellen til Excel"}
+            {lasterExcel ? "Henter Excel-fil..." : "Eksporter tabellen til Excel"}
           </Button>
           <a style={{ display: "none" }} ref={link}></a>
         </div>
@@ -208,13 +198,8 @@ export const AvtaleTabell = () => {
                       {avtale.navn}
                     </Lenke>
                   </Table.DataCell>
-                  <Table.DataCell
-                    aria-label={`Leverandør: ${avtale.leverandor?.navn}`}
-                  >
-                    {capitalizeEveryWord(avtale.leverandor?.navn, [
-                      "og",
-                      "i",
-                    ]) || ""}
+                  <Table.DataCell aria-label={`Leverandør: ${avtale.leverandor?.navn}`}>
+                    {capitalizeEveryWord(avtale.leverandor?.navn, ["og", "i"]) || ""}
                   </Table.DataCell>
                   <Table.DataCell
                     aria-label={`NAV-region: ${
@@ -223,14 +208,10 @@ export const AvtaleTabell = () => {
                   >
                     {avtale.navRegion?.navn || avtale.navRegion?.enhetsnummer}
                   </Table.DataCell>
-                  <Table.DataCell
-                    aria-label={`Startdato: ${formaterDato(avtale.startDato)}`}
-                  >
+                  <Table.DataCell aria-label={`Startdato: ${formaterDato(avtale.startDato)}`}>
                     {formaterDato(avtale.startDato)}
                   </Table.DataCell>
-                  <Table.DataCell
-                    aria-label={`Sluttdato: ${formaterDato(avtale.sluttDato)}`}
-                  >
+                  <Table.DataCell aria-label={`Sluttdato: ${formaterDato(avtale.sluttDato)}`}>
                     {formaterDato(avtale.sluttDato)}
                   </Table.DataCell>
                   <Table.DataCell>
@@ -258,8 +239,7 @@ export const AvtaleTabell = () => {
             page={page}
             onPageChange={setPage}
             count={Math.ceil(
-              (pagination?.totalCount ?? filter.antallAvtalerVises) /
-                filter.antallAvtalerVises,
+              (pagination?.totalCount ?? filter.antallAvtalerVises) / filter.antallAvtalerVises,
             )}
             data-version="v1"
           />
@@ -271,13 +251,7 @@ export const AvtaleTabell = () => {
 
 function ExcelIkon() {
   return (
-    <svg
-      width="24"
-      height="24"
-      viewBox="0 0 28 28"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg width="24" height="24" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path
         fillRule="evenodd"
         clipRule="evenodd"

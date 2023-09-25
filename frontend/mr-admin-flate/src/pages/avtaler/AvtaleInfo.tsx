@@ -54,10 +54,7 @@ export function AvtaleInfo() {
   };
 
   function visKnapperad(avtalestatus: Avtalestatus): boolean {
-    const whitelist: Avtalestatus[] = [
-      Avtalestatus.AKTIV,
-      Avtalestatus.PLANLAGT,
-    ];
+    const whitelist: Avtalestatus[] = [Avtalestatus.AKTIV, Avtalestatus.PLANLAGT];
 
     return whitelist.includes(avtalestatus);
   }
@@ -78,10 +75,7 @@ export function AvtaleInfo() {
           </Bolk>
 
           <Bolk aria-label="Avtaletype">
-            <Metadata
-              header="Avtaletype"
-              verdi={avtaletypeTilTekst(avtale.avtaletype)}
-            />
+            <Metadata header="Avtaletype" verdi={avtaletypeTilTekst(avtale.avtaletype)} />
           </Bolk>
 
           <Separator />
@@ -91,14 +85,8 @@ export function AvtaleInfo() {
           </Heading>
 
           <Bolk aria-label="Start- og sluttdato">
-            <Metadata
-              header="Startdato"
-              verdi={formaterDato(avtale.startDato)}
-            />
-            <Metadata
-              header="Sluttdato"
-              verdi={formaterDato(avtale.sluttDato)}
-            />
+            <Metadata header="Startdato" verdi={formaterDato(avtale.startDato)} />
+            <Metadata header="Sluttdato" verdi={formaterDato(avtale.sluttDato)} />
           </Bolk>
 
           <Separator />
@@ -154,10 +142,7 @@ export function AvtaleInfo() {
           <Bolk aria-label="Tiltaksleverandør hovedenhet">
             <Metadata
               header="Tiltaksleverandør hovedenhet"
-              verdi={[
-                avtale.leverandor.navn,
-                avtale.leverandor.organisasjonsnummer,
-              ]
+              verdi={[avtale.leverandor.navn, avtale.leverandor.organisasjonsnummer]
                 .filter(Boolean)
                 .join(" - ")}
             />
@@ -191,11 +176,7 @@ export function AvtaleInfo() {
                     <a href={`mailto:${avtale.leverandorKontaktperson?.epost}`}>
                       {avtale.leverandorKontaktperson?.epost}
                     </a>
-                    {
-                      <label>
-                        {avtale.leverandorKontaktperson?.beskrivelse}
-                      </label>
-                    }
+                    {<label>{avtale.leverandorKontaktperson?.beskrivelse}</label>}
                   </div>
                 }
               />

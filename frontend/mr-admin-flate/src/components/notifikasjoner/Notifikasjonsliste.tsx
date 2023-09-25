@@ -29,11 +29,7 @@ export function Notifikasjonsliste({ lest }: Props) {
   if (data.length === 0) {
     return (
       <EmptyState
-        tittel={
-          lest
-            ? "Du har ingen tidligere notifikasjoner"
-            : "Ingen nye notifikasjoner"
-        }
+        tittel={lest ? "Du har ingen tidligere notifikasjoner" : "Ingen nye notifikasjoner"}
         beskrivelse={
           lest
             ? "Når du har gjort en oppgave eller lest en beskjed havner de her"

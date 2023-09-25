@@ -1,10 +1,7 @@
 import { BodyShort, Button, Heading, Modal } from "@navikt/ds-react";
 import { ApiError } from "mulighetsrommet-api-client";
 import styles from "../modal/Modal.module.scss";
-import {
-  ExclamationmarkTriangleFillIcon,
-  XMarkOctagonFillIcon,
-} from "@navikt/aksel-icons";
+import { ExclamationmarkTriangleFillIcon, XMarkOctagonFillIcon } from "@navikt/aksel-icons";
 import classNames from "classnames";
 import { UseMutationResult } from "@tanstack/react-query";
 
@@ -43,9 +40,7 @@ const SletteModal = ({
           </>
         ) : (
           <>
-            <XMarkOctagonFillIcon
-              className={classNames(styles.icon_warning, styles.icon)}
-            />
+            <XMarkOctagonFillIcon className={classNames(styles.icon_warning, styles.icon)} />
             <Heading size="medium">{headerText}</Heading>
           </>
         )}
@@ -70,11 +65,7 @@ const SletteModal = ({
           Avbryt
         </Button>
         {mutation?.isError ? null : (
-          <Button
-            variant="danger"
-            onClick={handleDelete}
-            data-testid={dataTestId}
-          >
+          <Button variant="danger" onClick={handleDelete} data-testid={dataTestId}>
             Slett
           </Button>
         )}

@@ -1,9 +1,12 @@
-import { Alert, BodyShort, Heading } from '@navikt/ds-react';
-import { SanityKontakinfoTiltaksansvarlige, VeilederflateTiltaksgjennomforing } from 'mulighetsrommet-api-client';
-import { logEvent } from '../../../core/api/logger';
-import styles from './Kontaktinfo.module.scss';
+import { Alert, BodyShort, Heading } from "@navikt/ds-react";
+import {
+  SanityKontakinfoTiltaksansvarlige,
+  VeilederflateTiltaksgjennomforing,
+} from "mulighetsrommet-api-client";
+import { logEvent } from "../../../core/api/logger";
+import styles from "./Kontaktinfo.module.scss";
 
-const TEAMS_DYPLENKE = 'https://teams.microsoft.com/l/chat/0/0?users=';
+const TEAMS_DYPLENKE = "https://teams.microsoft.com/l/chat/0/0?users=";
 
 interface NavKontaktpersonInfoProps {
   data: VeilederflateTiltaksgjennomforing;
@@ -44,14 +47,17 @@ const NavKontaktpersonInfo = ({ data }: NavKontaktpersonInfoProps) => {
 
                 <div className={styles.kolonne}>
                   {telefonnummer && <span>{telefonnummer}</span>}
-                  <a href={`mailto:${epost}`} onClick={() => logEvent('mulighetsrommet.tiltaksansvarlig.epost')}>
+                  <a
+                    href={`mailto:${epost}`}
+                    onClick={() => logEvent("mulighetsrommet.tiltaksansvarlig.epost")}
+                  >
                     {epost}
                   </a>
                   <a
                     target="_blank"
                     rel="noreferrer"
                     href={`${TEAMS_DYPLENKE}${encodeURIComponent(epost)}`}
-                    onClick={() => logEvent('mulighetsrommet.tiltaksansvarlig.teamslenke')}
+                    onClick={() => logEvent("mulighetsrommet.tiltaksansvarlig.teamslenke")}
                   >
                     Kontakt meg på Teams
                   </a>

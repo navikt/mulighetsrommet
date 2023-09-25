@@ -29,46 +29,39 @@ const TiltaksgjennomforingSkjemaPage = () => {
 
   const utkastModus = utkast && inneholderUrl(utkast?.id);
   const redigeringsModus =
-    utkastModus ||
-    (tiltaksgjennomforing && inneholderUrl(tiltaksgjennomforing?.id));
+    utkastModus || (tiltaksgjennomforing && inneholderUrl(tiltaksgjennomforing?.id));
 
   const navigerTilbake = () => {
     navigate(-1);
   };
 
   const isError =
-    !avtale ||
-    (avtale?.sluttDato && new Date(avtale.sluttDato) < new Date()) ||
-    !avtale?.navRegion;
+    !avtale || (avtale?.sluttDato && new Date(avtale.sluttDato) < new Date()) || !avtale?.navRegion;
 
   if (avtaleIsLoading || utkastLoading || tiltaksgjennomforingLoading) {
     return (
       <Laster
         size="xlarge"
-        tekst={
-          utkastLoading ? "Laster utkast..." : "Laster tiltaksgjennomføring..."
-        }
+        tekst={utkastLoading ? "Laster utkast..." : "Laster tiltaksgjennomføring..."}
       />
     );
   }
 
   let content = null;
-  if (isError ) {
-    content = (
-      <Alert variant="error">{ErrorMeldinger(avtale, redigeringsModus)}</Alert>
-    );
+  if (isError) {
+    content = <Alert variant="error">{ErrorMeldinger(avtale, redigeringsModus)}</Alert>;
   } else if (avtale) {
     content = (
       <TiltaksgjennomforingSkjemaContainer
         onClose={() => {
-          queryClient.refetchQueries({ queryKey: ["utkast"] });
+          queryClient.refetchQueries({
+            queryKey: ["utkast"],
+          });
           navigerTilbake();
         }}
         onSuccess={(id) => navigate(`/tiltaksgjennomforinger/${id}`)}
         avtale={avtale}
-        tiltaksgjennomforing={
-          (utkast?.utkastData as Tiltaksgjennomforing) || tiltaksgjennomforing
-        }
+        tiltaksgjennomforing={(utkast?.utkastData as Tiltaksgjennomforing) || tiltaksgjennomforing}
       />
     );
   }

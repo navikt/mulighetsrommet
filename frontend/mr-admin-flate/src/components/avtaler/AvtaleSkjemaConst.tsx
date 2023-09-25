@@ -55,16 +55,20 @@ export const saveUtkast = (
       navn: "",
       enhetsnummer,
     })),
-    administrator: { navIdent: values?.administrator, navn: "" },
+    administrator: {
+      navIdent: values?.administrator,
+      navn: "",
+    },
     avtaletype: values?.avtaletype,
     leverandor: {
       navn: "",
       organisasjonsnummer: values?.leverandor,
       slettet: false,
     },
-    leverandorUnderenheter: values?.leverandorUnderenheter?.map(
-      (organisasjonsnummer) => ({ navn: "", organisasjonsnummer }),
-    ),
+    leverandorUnderenheter: values?.leverandorUnderenheter?.map((organisasjonsnummer) => ({
+      navn: "",
+      organisasjonsnummer,
+    })),
     startDato: values?.startOgSluttDato?.startDato?.toDateString(),
     sluttDato: values?.startOgSluttDato?.sluttDato?.toDateString(),
     url: values?.url,
@@ -103,10 +107,7 @@ export const defaultEnhet = (
   return undefined;
 };
 
-export function getValueOrDefault<T>(
-  value: T | undefined | null,
-  defaultValue: T,
-): T {
+export function getValueOrDefault<T>(value: T | undefined | null, defaultValue: T): T {
   return value || defaultValue;
 }
 
@@ -128,9 +129,7 @@ export const getLokaleUnderenheterAsSelectOptions = (
 
   return enheter
     .filter((enhet: NavEnhet) => {
-      return (
-        navRegion === enhet.overordnetEnhet && enhet.type === NavEnhetType.LOKAL
-      );
+      return navRegion === enhet.overordnetEnhet && enhet.type === NavEnhetType.LOKAL;
     })
     .map((enhet: NavEnhet) => ({
       label: enhet.navn,

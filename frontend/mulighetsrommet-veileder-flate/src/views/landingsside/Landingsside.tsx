@@ -1,7 +1,7 @@
-import { PlusIcon } from '@navikt/aksel-icons';
-import { HistorikkForBrukerModalInnhold } from '../../components/historikk/HistorikkForBrukerModalInnhold';
-import { routes } from '../../routes';
-import styles from './Landingsside.module.scss';
+import { PlusIcon } from "@navikt/aksel-icons";
+import { HistorikkForBrukerModalInnhold } from "../../components/historikk/HistorikkForBrukerModalInnhold";
+import { routes } from "../../routes";
+import styles from "./Landingsside.module.scss";
 
 export function Landingsside() {
   return (

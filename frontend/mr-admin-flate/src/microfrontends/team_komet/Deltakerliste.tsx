@@ -9,7 +9,7 @@ import { Alert, Button } from "@navikt/ds-react";
 
 export function DeltakerListe() {
   const { data: manifest, isLoading: isLoadingManifest } = useManifest(
-    deltakerlisteKometManifestUrl
+    deltakerlisteKometManifestUrl,
   );
   if (isLoadingManifest) {
     return <Laster />;
@@ -22,7 +22,7 @@ export function DeltakerListe() {
         `${DELTAKERLISTE_KOMET[getEnvironment()]}/${
           manifest[DELTAKERLISTE_ENTRY][DELTAKERLISTE_MODULE]
         }`
-      )
+      ),
   );
 
   return (

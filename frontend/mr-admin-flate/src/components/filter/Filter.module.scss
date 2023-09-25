@@ -13,7 +13,11 @@
     flex-wrap: wrap;
     padding-bottom: 0.75rem;
     padding-right: 1.5rem;
-    border-bottom: 1px solid var(--border-default, rgba(0, 0, 0, 0.44));
+    border-bottom: 1px solid
+      var(
+        --border-default,
+        rgba(0, 0, 0, 0.44)
+      );
 
     width: 100%;
     grid-row: 1;
@@ -58,7 +62,11 @@
 
 .tiltaksgjennomforingform_med_knapperad {
   .knapperad {
-    border-left: 1px solid var(--border-default, rgba(0, 0, 0, 0.44));
+    border-left: 1px solid
+      var(
+        --border-default,
+        rgba(0, 0, 0, 0.44)
+      );
   }
 }
 
@@ -71,7 +79,11 @@
 
 .avtaleform {
   .knapperad {
-    border-left: 1px solid var(--border-default, rgba(0, 0, 0, 0.44));
+    border-left: 1px solid
+      var(
+        --border-default,
+        rgba(0, 0, 0, 0.44)
+      );
   }
 }
 
@@ -83,7 +95,9 @@
 }
 
 .tag {
-  background-color: var(--a-surface-selected);
+  background-color: var(
+    --a-surface-selected
+  );
   border: none;
   margin-right: 0.5rem;
   border-radius: 0.25rem;

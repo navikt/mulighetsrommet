@@ -1,7 +1,7 @@
-import { useAtom } from 'jotai';
-import { useHentBrukerdata } from '../core/api/queries/useHentBrukerdata';
-import { useInnsatsgrupper } from '../core/api/queries/useInnsatsgrupper';
-import { tiltaksgjennomforingsfilter } from '../core/atoms/atoms';
+import { useAtom } from "jotai";
+import { useHentBrukerdata } from "../core/api/queries/useHentBrukerdata";
+import { useInnsatsgrupper } from "../core/api/queries/useInnsatsgrupper";
+import { tiltaksgjennomforingsfilter } from "../core/atoms/atoms";
 
 export function usePrepopulerFilter() {
   const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);
@@ -9,10 +9,12 @@ export function usePrepopulerFilter() {
   const { data: innsatsgrupper } = useInnsatsgrupper();
 
   function forcePrepopulerFilter(resetFilterTilUtgangspunkt: boolean) {
-    const matchedInnsatsgruppe = innsatsgrupper?.find(gruppe => gruppe.nokkel === brukerdata?.data?.innsatsgruppe);
+    const matchedInnsatsgruppe = innsatsgrupper?.find(
+      (gruppe) => gruppe.nokkel === brukerdata?.data?.innsatsgruppe,
+    );
     if (matchedInnsatsgruppe) {
       const tiltakstyper = resetFilterTilUtgangspunkt ? [] : filter.tiltakstyper;
-      const search = resetFilterTilUtgangspunkt ? '' : filter.search;
+      const search = resetFilterTilUtgangspunkt ? "" : filter.search;
       const innsatsgruppe = resetFilterTilUtgangspunkt
         ? {
             id: matchedInnsatsgruppe.sanityId,

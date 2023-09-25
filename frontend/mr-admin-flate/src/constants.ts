@@ -6,12 +6,22 @@ export const PAGE_SIZE = 15;
 export const AVTALE_PAGE_SIZE = 15;
 
 export const shortcuts: Shortcut[] = [
-  { url: "/tiltakstyper", navn: "Tiltakstyper" },
+  {
+    url: "/tiltakstyper",
+    navn: "Tiltakstyper",
+  },
   { url: "/avtaler", navn: "Avtaler" },
-  { url: "/tiltaksgjennomforinger", navn: "Tiltaksgjennomføringer" },
+  {
+    url: "/tiltaksgjennomforinger",
+    navn: "Tiltaksgjennomføringer",
+  },
 ];
 
-export const forsideKort: { navn: string; url: string; tekst?: string }[] = [
+export const forsideKort: {
+  navn: string;
+  url: string;
+  tekst?: string;
+}[] = [
   {
     navn: "Tiltakstyper",
     url: "tiltakstyper",

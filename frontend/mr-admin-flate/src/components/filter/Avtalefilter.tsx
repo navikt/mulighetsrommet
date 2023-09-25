@@ -43,7 +43,10 @@ export function Avtalefilter(props: Props) {
 
   const { data: enheter } = useNavEnheter();
   const { data: tiltakstyper } = useTiltakstyper(
-    { status: Tiltakstypestatus.AKTIV, kategori: "" },
+    {
+      status: Tiltakstypestatus.AKTIV,
+      kategori: "",
+    },
     1,
   );
   const { data: avtaler } = useAvtaler();
@@ -63,7 +66,10 @@ export function Avtalefilter(props: Props) {
   }, [avtaler]);
 
   const regionOptions = () => {
-    const alleOptions = { value: "", label: "Alle regioner" };
+    const alleOptions = {
+      value: "",
+      label: "Alle regioner",
+    };
     const regionOptions = enheter
       ? enheter
           ?.filter((enhet) => enhet.type === NavEnhetType.FYLKE)
@@ -76,7 +82,10 @@ export function Avtalefilter(props: Props) {
   };
 
   const tiltakstypeOptions = () => {
-    const alleOptions = { value: "", label: "Alle tiltakstyper" };
+    const alleOptions = {
+      value: "",
+      label: "Alle tiltakstyper",
+    };
     const tiltakstypeOptions = tiltakstyper
       ? tiltakstyper?.data?.map((tiltakstype) => ({
           label: tiltakstype.navn,
@@ -86,7 +95,10 @@ export function Avtalefilter(props: Props) {
     return [alleOptions, ...tiltakstypeOptions];
   };
   const leverandorOptions = () => {
-    const alleOptions = { value: "", label: "Alle leverandører" };
+    const alleOptions = {
+      value: "",
+      label: "Alle leverandører",
+    };
     const leverandorOptions = leverandorer
       ? leverandorer?.map(({ navn: label, organisasjonsnummer: value }) => ({
           label,
@@ -108,7 +120,10 @@ export function Avtalefilter(props: Props) {
               size="small"
               variant="simple"
               onChange={(sok: string) => {
-                setFilter({ ...filter, sok });
+                setFilter({
+                  ...filter,
+                  sok,
+                });
               }}
               value={filter.sok}
               aria-label="Søk etter avtale"
@@ -124,18 +139,30 @@ export function Avtalefilter(props: Props) {
               onChange={(e) => {
                 setFilter({
                   ...filter,
-                  status: valueOrDefault(
-                    e.target.value,
-                    defaultAvtaleFilter.status,
-                  ),
+                  status: valueOrDefault(e.target.value, defaultAvtaleFilter.status),
                 });
               }}
               options={[
-                { value: "Aktiv", label: "Aktiv" },
-                { value: "Planlagt", label: "Planlagt" },
-                { value: "Avsluttet", label: "Avsluttet" },
-                { value: "Avbrutt", label: "Avbrutt" },
-                { value: "", label: "Alle statuser" },
+                {
+                  value: "Aktiv",
+                  label: "Aktiv",
+                },
+                {
+                  value: "Planlagt",
+                  label: "Planlagt",
+                },
+                {
+                  value: "Avsluttet",
+                  label: "Avsluttet",
+                },
+                {
+                  value: "Avbrutt",
+                  label: "Avbrutt",
+                },
+                {
+                  value: "",
+                  label: "Alle statuser",
+                },
               ]}
             />
 
@@ -150,10 +177,7 @@ export function Avtalefilter(props: Props) {
                 resetPaginering(setPage);
                 setFilter({
                   ...filter,
-                  navRegion: valueOrDefault(
-                    e.target.value,
-                    defaultAvtaleFilter.navRegion,
-                  ),
+                  navRegion: valueOrDefault(e.target.value, defaultAvtaleFilter.navRegion),
                 });
               }}
               options={regionOptions()}
@@ -170,10 +194,7 @@ export function Avtalefilter(props: Props) {
                   resetPaginering(setPage);
                   setFilter({
                     ...filter,
-                    tiltakstype: valueOrDefault(
-                      e.target.value,
-                      defaultAvtaleFilter.tiltakstype,
-                    ),
+                    tiltakstype: valueOrDefault(e.target.value, defaultAvtaleFilter.tiltakstype),
                   });
                 }}
                 options={tiltakstypeOptions()}
@@ -207,9 +228,7 @@ export function Avtalefilter(props: Props) {
                 lenketekst="Opprett ny avtale"
                 variant="primary"
                 handleClick={() => {
-                  faro?.api?.pushEvent(
-                    "Bruker trykket på 'Opprett ny avtale'-knapp",
-                  );
+                  faro?.api?.pushEvent("Bruker trykket på 'Opprett ny avtale'-knapp");
                 }}
                 dataTestId="opprett-avtale"
               />
@@ -220,17 +239,17 @@ export function Avtalefilter(props: Props) {
               <FilterTag
                 label={filter.status}
                 onClick={() => {
-                  setFilter({ ...filter, status: "" });
+                  setFilter({
+                    ...filter,
+                    status: "",
+                  });
                   setValue("status", "");
                 }}
               />
             )}
             {filter.navRegion && (
               <FilterTag
-                label={
-                  enheter?.find((e) => e.enhetsnummer === filter.navRegion)
-                    ?.navn
-                }
+                label={enheter?.find((e) => e.enhetsnummer === filter.navRegion)?.navn}
                 onClick={() => {
                   setFilter({
                     ...filter,
@@ -242,10 +261,7 @@ export function Avtalefilter(props: Props) {
             )}
             {filter.tiltakstype && (
               <FilterTag
-                label={
-                  tiltakstyper?.data?.find((t) => t.id === filter.tiltakstype)
-                    ?.navn
-                }
+                label={tiltakstyper?.data?.find((t) => t.id === filter.tiltakstype)?.navn}
                 onClick={() => {
                   setFilter({
                     ...filter,
@@ -258,19 +274,14 @@ export function Avtalefilter(props: Props) {
             {filter.leverandor_orgnr && (
               <FilterTag
                 label={
-                  leverandorer?.find(
-                    (l) => l.organisasjonsnummer === filter.leverandor_orgnr,
-                  )?.navn
+                  leverandorer?.find((l) => l.organisasjonsnummer === filter.leverandor_orgnr)?.navn
                 }
                 onClick={() => {
                   setFilter({
                     ...filter,
                     leverandor_orgnr: defaultAvtaleFilter.leverandor_orgnr,
                   });
-                  setValue(
-                    "leverandor_orgnr",
-                    defaultAvtaleFilter.leverandor_orgnr,
-                  );
+                  setValue("leverandor_orgnr", defaultAvtaleFilter.leverandor_orgnr);
                 }}
               />
             )}
@@ -287,10 +298,7 @@ export function Avtalefilter(props: Props) {
                   setValue("status", defaultAvtaleFilter.status);
                   setValue("navRegion", defaultAvtaleFilter.navRegion);
                   setValue("tiltakstype", defaultAvtaleFilter.tiltakstype);
-                  setValue(
-                    "leverandor_orgnr",
-                    defaultAvtaleFilter.leverandor_orgnr,
-                  );
+                  setValue("leverandor_orgnr", defaultAvtaleFilter.leverandor_orgnr);
                 }}
               >
                 Tilbakestill filter

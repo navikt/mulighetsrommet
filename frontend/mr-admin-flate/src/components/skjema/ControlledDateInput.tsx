@@ -46,11 +46,7 @@ const ControlledDateInput = forwardRef((props: DateInputProps, _) => {
                 {...rest}
                 {...startdatoInputProps}
                 error={error?.message}
-                value={
-                  selectedStartdato
-                    ? formaterDato(selectedStartdato)
-                    : undefined
-                }
+                value={selectedStartdato ? formaterDato(selectedStartdato) : undefined}
                 readOnly={readOnly}
               />
             </DatePicker>
@@ -87,9 +83,7 @@ const pastDate = () => {
 
 const futureDate = () => {
   const newDate = new Date();
-  const yearsFromNow = newDate.setFullYear(
-    newDate.getFullYear() + offsetAntallAar,
-  );
+  const yearsFromNow = newDate.setFullYear(newDate.getFullYear() + offsetAntallAar);
   return new Date(yearsFromNow);
 };
 

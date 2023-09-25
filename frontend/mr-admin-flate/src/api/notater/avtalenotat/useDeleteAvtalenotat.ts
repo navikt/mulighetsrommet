@@ -8,7 +8,9 @@ export function useDeleteAvtalenotat() {
       return mulighetsrommetClient.avtaleNotater.slettAvtalenotat({ id });
     },
     onSuccess: () => {
-      client.invalidateQueries({ queryKey: ["avtalenotater"] });
+      client.invalidateQueries({
+        queryKey: ["avtalenotater"],
+      });
     },
   });
 }

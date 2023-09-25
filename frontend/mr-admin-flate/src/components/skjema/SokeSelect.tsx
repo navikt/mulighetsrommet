@@ -15,7 +15,12 @@ export interface SelectProps {
   placeholder: string;
   options: SelectOption[];
   readOnly?: boolean;
-  onChange?: (a0: { target: { value: any, name?: string } }) => void,
+  onChange?: (a0: {
+    target: {
+      value: any;
+      name?: string;
+    };
+  }) => void;
   onInputChange?: (a0: any) => void;
   className?: string;
   size?: "small" | "medium";
@@ -78,10 +83,7 @@ const SokeSelect = React.forwardRef((props: SelectProps, _) => {
       <Controller
         name={label}
         {...rest}
-        render={({
-          field: { onChange, value, name, ref },
-          fieldState: { error },
-        }) => {
+        render={({ field: { onChange, value, name, ref }, fieldState: { error } }) => {
           return (
             <div className={styles.container}>
               <label
@@ -95,7 +97,7 @@ const SokeSelect = React.forwardRef((props: SelectProps, _) => {
               >
                 <b>{label}</b>
               </label>
-              { description &&
+              {description && (
                 <label
                   className={classnames(styles.description, {
                     "navds-sr-only": hideLabel,
@@ -104,9 +106,9 @@ const SokeSelect = React.forwardRef((props: SelectProps, _) => {
                     fontSize: size === "small" ? "16px" : "18px",
                   }}
                 >
-                  { description }
+                  {description}
                 </label>
-              }
+              )}
 
               <ReactSelect
                 key={`${value}`} // Force rerender when value changes. If set to null outside f. ex
@@ -120,7 +122,12 @@ const SokeSelect = React.forwardRef((props: SelectProps, _) => {
                 value={options.find((c) => c.value === value)}
                 onChange={(e) => {
                   onChange(e?.value);
-                  providedOnChange?.({ target: { value: e?.value, name: e?.label } });
+                  providedOnChange?.({
+                    target: {
+                      value: e?.value,
+                      name: e?.label,
+                    },
+                  });
                   if (!e) {
                     onClearValue?.();
                   }

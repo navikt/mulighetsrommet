@@ -1,11 +1,11 @@
-import Joyride, { ACTIONS, CallBackProps, EVENTS, STATUS } from 'react-joyride';
-import { locale, styling } from './config';
-import { JoyrideKnapp } from './JoyrideKnapp';
-import { logEvent } from '../../core/api/logger';
-import { detaljerSteps, isStep, useSteps } from './Steps';
-import { useAtom } from 'jotai';
-import { joyrideAtom } from '../../core/atoms/atoms';
-import styles from './Joyride.module.scss';
+import Joyride, { ACTIONS, CallBackProps, EVENTS, STATUS } from "react-joyride";
+import { locale, styling } from "./config";
+import { JoyrideKnapp } from "./JoyrideKnapp";
+import { logEvent } from "../../core/api/logger";
+import { detaljerSteps, isStep, useSteps } from "./Steps";
+import { useAtom } from "jotai";
+import { joyrideAtom } from "../../core/atoms/atoms";
+import styles from "./Joyride.module.scss";
 
 interface Props {
   opprettAvtale: boolean;
@@ -27,30 +27,30 @@ export function DetaljerJoyride({ opprettAvtale }: Props) {
 
     if (!opprettAvtale) {
       //hvis brukeren ikke er inne på et tiltak med opprett avtale, settes opprett avtale-steps til false i localStorage
-      setJoyride(joyride => ({ ...joyride, joyrideDetaljerHarVistOpprettAvtale: false }));
+      setJoyride((joyride) => ({ ...joyride, joyrideDetaljerHarVistOpprettAvtale: false }));
 
       //hopper over steget med opprett avtale for at den skal kjøre videre til neste steg
-      if (isStep(data.step, 'opprett-avtale')) {
+      if (isStep(data.step, "opprett-avtale")) {
         setStepIndex(nextStepIndex);
       }
     }
 
     //resetter joyride ved error
     if (STATUS.ERROR === status) {
-      setJoyride(joyride => ({ ...joyride, joyrideDetaljer: true }));
+      setJoyride((joyride) => ({ ...joyride, joyrideDetaljer: true }));
       setStepIndex(0);
     }
 
     //resetter joyride når den er ferdig eller man klikker skip
     else if (([STATUS.FINISHED, STATUS.SKIPPED] as string[]).includes(status)) {
-      logEvent('mulighetsrommet.joyride', { value: 'detaljer', status });
-      setJoyride(joyride => ({ ...joyride, joyrideDetaljer: false }));
+      logEvent("mulighetsrommet.joyride", { value: "detaljer", status });
+      setJoyride((joyride) => ({ ...joyride, joyrideDetaljer: false }));
       setStepIndex(0);
     }
 
     //lukker joyride ved klikk på escape
     if (ACTIONS.CLOSE === action) {
-      setJoyride(joyride => ({ ...joyride, joyrideDetaljer: false }));
+      setJoyride((joyride) => ({ ...joyride, joyrideDetaljer: false }));
       setStepIndex(0);
     }
   };
@@ -59,8 +59,8 @@ export function DetaljerJoyride({ opprettAvtale }: Props) {
     <>
       <JoyrideKnapp
         handleClick={() => {
-          setJoyride(joyride => ({ ...joyride, joyrideDetaljer: true }));
-          logEvent('mulighetsrommet.joyride', { value: 'detaljer' });
+          setJoyride((joyride) => ({ ...joyride, joyrideDetaljer: true }));
+          logEvent("mulighetsrommet.joyride", { value: "detaljer" });
         }}
         className={styles.joyride_detaljer}
       />

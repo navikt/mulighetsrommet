@@ -71,6 +71,10 @@ liste, blir oppdatert etter hvert som behovet oppstår):
 
 ## Utvikling
 
+### Kodeformatering og linting i frontend
+Vi bruker prettier for kodeformatering og eslint for linting.
+Du kan kjøre `npm run fix-lint` for å formatere koden i forhold til Prettier-konfigurasjon, og samtidig fikse lintefeil.
+
 ### Mocks via Wiremock
 
 Vi har en rekke mocks for tredjeparts tjenester som blir administrert via Wiremock i [docker-compose.yaml](docker-compose.yaml) og som blir

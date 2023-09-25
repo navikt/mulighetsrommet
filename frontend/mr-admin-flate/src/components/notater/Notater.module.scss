@@ -36,14 +36,22 @@
     overflow-y: auto;
 
     .notater_heading {
-      border-bottom: 1px solid var(--border-divider, rgba(0, 0, 0, 0.19));
+      border-bottom: 1px solid
+        var(
+          --border-divider,
+          rgba(0, 0, 0, 0.19)
+        );
     }
 
     .notater_andrerad {
       display: flex;
       flex-direction: row;
       justify-content: space-between;
-      border-bottom: 1px solid var(--border-divider, rgba(0, 0, 0, 0.19));
+      border-bottom: 1px solid
+        var(
+          --border-divider,
+          rgba(0, 0, 0, 0.19)
+        );
     }
 
     .notater {
@@ -52,7 +60,11 @@
       gap: 1rem;
 
       .notat {
-        border-bottom: 1px solid var(--border-divider, rgba(0, 0, 0, 0.19));
+        border-bottom: 1px solid
+          var(
+            --border-divider,
+            rgba(0, 0, 0, 0.19)
+          );
         flex-direction: column;
         display: flex;
         gap: 1rem;

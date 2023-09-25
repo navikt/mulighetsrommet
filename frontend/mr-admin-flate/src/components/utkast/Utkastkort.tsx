@@ -21,9 +21,7 @@ const UtkastDataSchema = z.object({
 
 export function UtkastKort({ utkast }: UtkastKortProps) {
   const mutation = useDeleteUtkast();
-  const [utkastIdForSletting, setUtkastIdForSletting] = useState<null | string>(
-    null,
-  );
+  const [utkastIdForSletting, setUtkastIdForSletting] = useState<null | string>(null);
 
   const { refetch } = useMineUtkast(utkast.type);
 
@@ -73,9 +71,10 @@ export function UtkastKort({ utkast }: UtkastKortProps) {
           Slett utkast
         </Button>
         <Lenkeknapp
-          to={ utkast.type === Utkast.type.AVTALE
-            ? `/avtaler/skjema?utkastId=${utkast.id}`
-            : `/tiltaksgjennomforinger/skjema?utkastId=${utkast.id}`
+          to={
+            utkast.type === Utkast.type.AVTALE
+              ? `/avtaler/skjema?utkastId=${utkast.id}`
+              : `/tiltaksgjennomforinger/skjema?utkastId=${utkast.id}`
           }
           lenketekst="Rediger utkast"
           dataTestId="rediger-utkast-knapp"

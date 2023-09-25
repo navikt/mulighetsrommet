@@ -4,106 +4,214 @@ import { portableTextToSlate } from "./portableTextToSlate";
 
 describe("slate <-> PortableText - konvertering", () => {
   test("basic paragraph", () => {
-    const slate = [{ "type": "paragraph", "children": [{ "text": "This is editable" }] }]
-    const pt = [{ "_type": "block", "markDefs": [], "children": [{ "_type": "span", "text": "This is editable" }] }]
+    const slate = [
+      {
+        type: "paragraph",
+        children: [{ text: "This is editable" }],
+      },
+    ];
+    const pt = [
+      {
+        _type: "block",
+        markDefs: [],
+        children: [
+          {
+            _type: "span",
+            text: "This is editable",
+          },
+        ],
+      },
+    ];
 
     expect(slateToPortableText(slate)).toEqual(pt);
     expect(portableTextToSlate(pt)).toEqual(slate);
   });
 
   test("multi word link with bold and italic", () => {
-    const slate = [{
-      "type": "paragraph",
-      "children": [
-        { "text": "This " },
-        { "type": "link", "url": "vg.no", "children": [{ "text": "is " }] },
-        { "type": "link", "url": "vg.no", "children": [{ "text": "editable ", "bold": true, "italic": true }] },
-        { "text": "" }
-      ]
-    }]
-    const pt = [{
-      "_type": "block",
-      "markDefs": [{ "_type": "link", "_key": "vg.no", "href": "vg.no" }],
-      "children": [
-        { "_type": "span", "text": "This " },
-        { "_type": "span", "text": "is ", "marks": ["vg.no"] },
-        { "_type": "span", "text": "editable ", "marks": ["strong", "em", "vg.no"] },
-        { "_type": "span", "text": "" }
-      ]
-    }]
+    const slate = [
+      {
+        type: "paragraph",
+        children: [
+          { text: "This " },
+          {
+            type: "link",
+            url: "vg.no",
+            children: [{ text: "is " }],
+          },
+          {
+            type: "link",
+            url: "vg.no",
+            children: [
+              {
+                text: "editable ",
+                bold: true,
+                italic: true,
+              },
+            ],
+          },
+          { text: "" },
+        ],
+      },
+    ];
+    const pt = [
+      {
+        _type: "block",
+        markDefs: [
+          {
+            _type: "link",
+            _key: "vg.no",
+            href: "vg.no",
+          },
+        ],
+        children: [
+          {
+            _type: "span",
+            text: "This ",
+          },
+          {
+            _type: "span",
+            text: "is ",
+            marks: ["vg.no"],
+          },
+          {
+            _type: "span",
+            text: "editable ",
+            marks: ["strong", "em", "vg.no"],
+          },
+          { _type: "span", text: "" },
+        ],
+      },
+    ];
 
     expect(slateToPortableText(slate)).toEqual(pt);
     expect(portableTextToSlate(pt)).toEqual(slate);
   });
 
   test("paragraph with link", () => {
-    const slate = [{
-      "type": "paragraph",
-      "children": [
-        { "text": "This " },
-        { "type": "link", "url": "vg.no", "children": [{ "text": "is" }] },
-        { "text": " editable " }
-      ]
-    }];
-    const pt = [{
-      "_type": "block",
-      "markDefs": [{ "_type": "link", "_key": "vg.no", "href": "vg.no" }],
-      "children": [
-        { "_type": "span", "text": "This " },
-        { "_type": "span", "text": "is", "marks": ["vg.no"] },
-        { "_type": "span", "text": " editable " }
-      ]
-    }];
+    const slate = [
+      {
+        type: "paragraph",
+        children: [
+          { text: "This " },
+          {
+            type: "link",
+            url: "vg.no",
+            children: [{ text: "is" }],
+          },
+          { text: " editable " },
+        ],
+      },
+    ];
+    const pt = [
+      {
+        _type: "block",
+        markDefs: [
+          {
+            _type: "link",
+            _key: "vg.no",
+            href: "vg.no",
+          },
+        ],
+        children: [
+          {
+            _type: "span",
+            text: "This ",
+          },
+          {
+            _type: "span",
+            text: "is",
+            marks: ["vg.no"],
+          },
+          {
+            _type: "span",
+            text: " editable ",
+          },
+        ],
+      },
+    ];
 
     expect(slateToPortableText(slate)).toEqual(pt);
     expect(portableTextToSlate(pt)).toEqual(slate);
   });
 
   test("bullet list", () => {
-    const slate = [{
-      "type": "bulleted-list",
-      "children": [
-        { "type": "list-item", "children": [{ "text": "This is editable " }] }
-      ]
-    }];
-    const pt = [{
-      "_type": "block",
-      "children": [
-        { "_type": "span", "text": "This is editable " }
-      ],
-      "listItem": "bullet",
-      "markDefs": [],
-    }];
+    const slate = [
+      {
+        type: "bulleted-list",
+        children: [
+          {
+            type: "list-item",
+            children: [
+              {
+                text: "This is editable ",
+              },
+            ],
+          },
+        ],
+      },
+    ];
+    const pt = [
+      {
+        _type: "block",
+        children: [
+          {
+            _type: "span",
+            text: "This is editable ",
+          },
+        ],
+        listItem: "bullet",
+        markDefs: [],
+      },
+    ];
 
     expect(slateToPortableText(slate)).toEqual(pt);
     expect(portableTextToSlate(pt)).toEqual(slate);
   });
 
   test("bullet list 2 items", () => {
-    const slate = [{
-      "type": "bulleted-list",
-      "children": [
-        { "type": "list-item", "children": [{ "text": "This " }, { "text": "bold", "bold": true }] },
-        { "type": "list-item", "children": [{ "text": "2" }] }
-      ]
-    }]
+    const slate = [
+      {
+        type: "bulleted-list",
+        children: [
+          {
+            type: "list-item",
+            children: [
+              { text: "This " },
+              {
+                text: "bold",
+                bold: true,
+              },
+            ],
+          },
+          {
+            type: "list-item",
+            children: [{ text: "2" }],
+          },
+        ],
+      },
+    ];
     const pt = [
       {
-        "_type": "block",
-        "markDefs": [],
-        "children": [
-          { "_type": "span", "text": "This " },
-          { "_type": "span", "text": "bold", "marks": ["strong"] }
+        _type: "block",
+        markDefs: [],
+        children: [
+          {
+            _type: "span",
+            text: "This ",
+          },
+          {
+            _type: "span",
+            text: "bold",
+            marks: ["strong"],
+          },
         ],
-        "listItem": "bullet"
+        listItem: "bullet",
       },
       {
-        "_type": "block",
-        "markDefs": [],
-        "children": [
-          { "_type": "span", "text": "2" },
-        ],
-        "listItem": "bullet"
+        _type: "block",
+        markDefs: [],
+        children: [{ _type: "span", text: "2" }],
+        listItem: "bullet",
       },
     ];
 
@@ -112,31 +220,43 @@ describe("slate <-> PortableText - konvertering", () => {
   });
 
   test("heading and bulllet list", () => {
-    const slate = [{
-      "type": "heading-one",
-      "children": [
-        { "text": "This is editable " }]
-    },
-    {
-      "type": "bulleted-list", "children": [{ "type": "list-item", "children": [{ "text": "bullet" }] }
-      ]
-    }];
-    const pt = [
+    const slate = [
       {
-        "_type": "block",
-        "markDefs": [],
-        "children": [
-          { "_type": "span", "text": "This is editable " }
-        ],
-        "style": "h1"
+        type: "heading-one",
+        children: [{ text: "This is editable " }],
       },
       {
-        "_type": "block",
-        "markDefs": [],
-        "children": [
-          { "_type": "span", "text": "bullet" }
+        type: "bulleted-list",
+        children: [
+          {
+            type: "list-item",
+            children: [{ text: "bullet" }],
+          },
         ],
-        "listItem": "bullet"
+      },
+    ];
+    const pt = [
+      {
+        _type: "block",
+        markDefs: [],
+        children: [
+          {
+            _type: "span",
+            text: "This is editable ",
+          },
+        ],
+        style: "h1",
+      },
+      {
+        _type: "block",
+        markDefs: [],
+        children: [
+          {
+            _type: "span",
+            text: "bullet",
+          },
+        ],
+        listItem: "bullet",
       },
     ];
 
@@ -159,240 +279,227 @@ describe("slate <-> PortableText - konvertering", () => {
     */
     const slate = [
       {
-        "type": "heading-one",
-        "children": [
+        type: "heading-one",
+        children: [
           {
-            "text": "This is editable "
-          }
-        ]
+            text: "This is editable ",
+          },
+        ],
       },
       {
-        "type": "bulleted-list",
-        "children": [
+        type: "bulleted-list",
+        children: [
           {
-            "type": "list-item",
-            "children": [
+            type: "list-item",
+            children: [
               {
-                "text": ""
+                text: "",
               },
               {
-                "type": "link",
-                "url": "https://vg.no",
-                "children": [
+                type: "link",
+                url: "https://vg.no",
+                children: [
                   {
-                    "text": "adsf"
-                  }
-                ]
+                    text: "adsf",
+                  },
+                ],
               },
               {
-                "text": ""
-              }
-            ]
+                text: "",
+              },
+            ],
           },
           {
-            "type": "list-item",
-            "children": [
+            type: "list-item",
+            children: [
               {
-                "text": "fasdf",
-                "italic": true
-              }
-            ]
+                text: "fasdf",
+                italic: true,
+              },
+            ],
           },
           {
-            "type": "list-item",
-            "children": [
+            type: "list-item",
+            children: [
               {
-                "text": "Bold",
-                "bold": true
-              }
-            ]
-          }
-        ]
+                text: "Bold",
+                bold: true,
+              },
+            ],
+          },
+        ],
       },
       {
-        "type": "paragraph",
-        "children": [
+        type: "paragraph",
+        children: [
           {
-            "text": "Ny paragraf med "
+            text: "Ny paragraf med ",
           },
           {
-            "type": "link",
-            "url": "https://nrk.no",
-            "children": [
+            type: "link",
+            url: "https://nrk.no",
+            children: [
               {
-                "text": "link"
-              }
-            ]
+                text: "link",
+              },
+            ],
           },
           {
-            "text": ""
-          }
-        ]
+            text: "",
+          },
+        ],
       },
       {
-        "type": "bulleted-list",
-        "children": [
+        type: "bulleted-list",
+        children: [
           {
-            "type": "list-item",
-            "children": [
+            type: "list-item",
+            children: [
               {
-                "text": "ny liste "
+                text: "ny liste ",
               },
               {
-                "text": "bolditalic",
-                "bold": true,
-                "italic": true
+                text: "bolditalic",
+                bold: true,
+                italic: true,
               },
               {
-                "type": "link",
-                "url": "https://nrk.no",
-                "children": [
+                type: "link",
+                url: "https://nrk.no",
+                children: [
                   {
-                    "text": ""
-                  }
-                ]
+                    text: "",
+                  },
+                ],
               },
               {
-                "text": ""
-              }
-            ]
-          }
-        ]
-      }
+                text: "",
+              },
+            ],
+          },
+        ],
+      },
     ];
 
     const pt = [
       {
-        "_type": "block",
-        "markDefs": [],
-        "children": [
+        _type: "block",
+        markDefs: [],
+        children: [
           {
-            "_type": "span",
-            "marks": undefined,
-            "text": "This is editable "
-          }
+            _type: "span",
+            marks: undefined,
+            text: "This is editable ",
+          },
         ],
-        "style": "h1"
+        style: "h1",
       },
       {
-        "_type": "block",
-        "markDefs": [
+        _type: "block",
+        markDefs: [
           {
-            "_type": "link",
-            "_key": "https://vg.no",
-            "href": "https://vg.no"
-          }
+            _type: "link",
+            _key: "https://vg.no",
+            href: "https://vg.no",
+          },
         ],
-        "children": [
+        children: [
           {
-            "_type": "span",
-            "text": ""
+            _type: "span",
+            text: "",
           },
           {
-            "_type": "span",
-            "text": "adsf",
-            "marks": [
-              "https://vg.no"
-            ]
+            _type: "span",
+            text: "adsf",
+            marks: ["https://vg.no"],
           },
           {
-            "_type": "span",
-            "text": ""
-          }
+            _type: "span",
+            text: "",
+          },
         ],
-        "listItem": "bullet"
+        listItem: "bullet",
       },
       {
-        "_type": "block",
-        "markDefs": [],
-        "children": [
+        _type: "block",
+        markDefs: [],
+        children: [
           {
-            "_type": "span",
-            "text": "fasdf",
-            "marks": [
-              "em"
-            ]
-          }
+            _type: "span",
+            text: "fasdf",
+            marks: ["em"],
+          },
         ],
-        "listItem": "bullet"
+        listItem: "bullet",
       },
       {
-        "_type": "block",
-        "markDefs": [],
-        "children": [
+        _type: "block",
+        markDefs: [],
+        children: [
           {
-            "_type": "span",
-            "text": "Bold",
-            "marks": [
-              "strong"
-            ]
-          }
+            _type: "span",
+            text: "Bold",
+            marks: ["strong"],
+          },
         ],
-        "listItem": "bullet"
+        listItem: "bullet",
       },
       {
-        "_type": "block",
-        "markDefs": [
+        _type: "block",
+        markDefs: [
           {
-            "_type": "link",
-            "_key": "https://nrk.no",
-            "href": "https://nrk.no"
-          }
+            _type: "link",
+            _key: "https://nrk.no",
+            href: "https://nrk.no",
+          },
         ],
-        "children": [
+        children: [
           {
-            "_type": "span",
-            "text": "Ny paragraf med "
+            _type: "span",
+            text: "Ny paragraf med ",
           },
           {
-            "_type": "span",
-            "text": "link",
-            "marks": [
-              "https://nrk.no"
-            ]
+            _type: "span",
+            text: "link",
+            marks: ["https://nrk.no"],
           },
           {
-            "_type": "span",
-            "text": ""
-          }
-        ]
+            _type: "span",
+            text: "",
+          },
+        ],
       },
       {
-        "_type": "block",
-        "markDefs": [
+        _type: "block",
+        markDefs: [
           {
-            "_type": "link",
-            "_key": "https://nrk.no",
-            "href": "https://nrk.no"
-          }
+            _type: "link",
+            _key: "https://nrk.no",
+            href: "https://nrk.no",
+          },
         ],
-        "children": [
+        children: [
           {
-            "_type": "span",
-            "text": "ny liste "
+            _type: "span",
+            text: "ny liste ",
           },
           {
-            "_type": "span",
-            "text": "bolditalic",
-            "marks": [
-              "strong",
-              "em"
-            ]
+            _type: "span",
+            text: "bolditalic",
+            marks: ["strong", "em"],
           },
           {
-            "_type": "span",
-            "text": "",
-            "marks": [
-              "https://nrk.no"
-            ]
+            _type: "span",
+            text: "",
+            marks: ["https://nrk.no"],
           },
           {
-            "_type": "span",
-            "text": ""
-          }
+            _type: "span",
+            text: "",
+          },
         ],
-        "listItem": "bullet"
-      }
+        listItem: "bullet",
+      },
     ];
 
     expect(slateToPortableText(slate)).toEqual(pt);
