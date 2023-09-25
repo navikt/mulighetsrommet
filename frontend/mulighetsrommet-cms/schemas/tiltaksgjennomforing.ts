@@ -80,23 +80,6 @@ export const tiltaksgjennomforing = defineType({
       },
     }),
     defineField({
-      name: "aar",
-      title: "År",
-      description:
-        "Hvis tiltakstypen gjelder individuelle tiltak skal du ikke fylle inn år.",
-      type: "number",
-      hidden: true,
-      initialValue: () => new Date().getFullYear(),
-    }),
-    defineField({
-      name: "lopenummer",
-      title: "Løpenummer",
-      description:
-        "Hvis tiltakstypen gjelder individuelle tiltak skal du ikke fylle inn løpenummer.",
-      type: "number",
-      hidden: true,
-    }),
-    defineField({
       name: "tiltaksnummer",
       title: "Tiltaksnummer",
       description: "Tiltaksnummeret er hentet fra Arena",
@@ -108,18 +91,6 @@ export const tiltaksgjennomforing = defineType({
         );
       },
       readOnly: true,
-      options: {
-        slugify: (input) => {
-          return input;
-        },
-        source: (doc, _) => {
-          const aar = doc.aar as unknown as string;
-          const lopenummer = doc.lopenummer as unknown as string;
-          return `${aar ? aar : new Date().getFullYear()}#${
-            lopenummer ? lopenummer : 0
-          }`;
-        },
-      },
     }),
     defineField({
       name: "beskrivelse",
@@ -132,23 +103,6 @@ export const tiltaksgjennomforing = defineType({
           ShowFieldIfTiltakstypeMatches(props, "Opplæring - Gruppe AMO"), // Viser feltet hvis det er Gruppe AMO som er valgt som tiltakstype
       },
       validation: (rule: Rule) => rule.max(500),
-    }),
-
-    defineField({
-      name: "tilgjengelighetsstatus",
-      title: "Tilgjengelighetsstatus",
-      description:
-        "Tilgjengelighetsstatus utledes fra data i Arena og kan ikke overskrives i Sanity.",
-      readOnly: true,
-      type: "string",
-      hidden: true,
-      options: {
-        list: [
-          { title: "Åpent", value: "Ledig" },
-          { title: "Venteliste", value: "Venteliste" },
-          { title: "Stengt", value: "Stengt" },
-        ],
-      },
     }),
     defineField({
       name: "lokasjon",
@@ -334,19 +288,6 @@ export const tiltaksgjennomforing = defineType({
       name: "faneinnhold",
       title: "Faneinnhold",
       type: "faneinnhold",
-    }),
-    defineField({
-      name: "lenker",
-      title: "Lenker",
-      description:
-        "Dersom du har lenker som er interessant for tiltaksgjennomføringen kan det legges til her. PS: Per 05.10.2022 er dette feltet ikke synlig for veiledere enda.",
-      type: "array",
-      of: [
-        {
-          type: "lenke",
-        },
-      ],
-      hidden: true, // Skjules per 25.10.22 etter ønske fra Marthe pga. forvirring for redaktørene.
     }),
   ],
   orderings: [
