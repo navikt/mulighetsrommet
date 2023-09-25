@@ -123,7 +123,8 @@ export function AvtaleSkjemaContainer({
     }
   }, [arenaKode]);
 
-  const { data: leverandorData } = useVirksomhet(watch("leverandor"));
+  const watchedLeverandor = watch("leverandor");
+  const { data: leverandorData } = useVirksomhet(watchedLeverandor);
 
   const underenheterForLeverandor = leverandorData?.underenheter ?? [];
 
@@ -358,17 +359,17 @@ export function AvtaleSkjemaContainer({
                     size="small"
                     placeholder="Velg underenhet for tiltaksarrangør"
                     label={"Tiltaksarrangør underenhet"}
-                    readOnly={!watch("leverandor")}
+                    readOnly={!watchedLeverandor}
                     {...register("leverandorUnderenheter")}
                     options={underenheterOptions(underenheterForLeverandor)}
                   />
                 </FormGroup>
-                {watch("leverandor") && !avtale?.leverandor?.slettet && (
+                {watchedLeverandor && !avtale?.leverandor?.slettet && (
                   <FormGroup>
                     <div className={skjemastyles.kontaktperson_container}>
                       <VirksomhetKontaktpersoner
                         title="Kontaktperson hos leverandøren"
-                        orgnr={watch("leverandor")}
+                        orgnr={watchedLeverandor}
                         formValueName="leverandorKontaktpersonId"
                       />
                     </div>
