@@ -6,8 +6,7 @@ import { QueryKeys } from "../QueryKeys";
 export function useVirksomheter(til?: VirksomhetTil) {
   return useQuery(QueryKeys.virksomheter(til), () => {
     return mulighetsrommetClient.virksomhet.getVirksomheter({
-      til
+      til,
     });
   });
 }
-

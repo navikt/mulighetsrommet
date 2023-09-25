@@ -1,7 +1,7 @@
-import { Tag } from '@navikt/ds-react';
-import { useHentBrukerdata } from '../../core/api/queries/useHentBrukerdata';
-import { kebabCase } from '../../utils/Utils';
-import { ErrorTag } from '../tags/ErrorTag';
+import { Tag } from "@navikt/ds-react";
+import { useHentBrukerdata } from "../../core/api/queries/useHentBrukerdata";
+import { kebabCase } from "../../utils/Utils";
+import { ErrorTag } from "../tags/ErrorTag";
 
 export function BrukersGeografiskeEnhet() {
   const brukerdata = useHentBrukerdata();
@@ -14,19 +14,19 @@ export function BrukersGeografiskeEnhet() {
   return brukersGeografiskeEnhet ? (
     <Tag
       className="cypress-tag"
-      key={'navenhet'}
+      key={"navenhet"}
       size="small"
-      data-testid={`${kebabCase('filtertag_navenhet')}`}
+      data-testid={`${kebabCase("filtertag_navenhet")}`}
       title="Brukers geografiske enhet"
-      variant={'info'}
+      variant={"info"}
     >
       {brukersGeografiskeEnhet}
     </Tag>
   ) : (
     <ErrorTag
-      innhold={'Enhet mangler'}
-      title={'Kontroller om brukeren er under oppfølging og finnes i Arena'}
-      dataTestId={'alert-navenhet'}
+      innhold={"Enhet mangler"}
+      title={"Kontroller om brukeren er under oppfølging og finnes i Arena"}
+      dataTestId={"alert-navenhet"}
     />
   );
 }

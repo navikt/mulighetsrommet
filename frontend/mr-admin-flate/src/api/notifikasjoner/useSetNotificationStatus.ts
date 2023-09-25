@@ -10,14 +10,12 @@ export interface SetNotificationStatusParams {
 export function useSetNotificationStatus(id: string) {
   const { refetch: refetchNotificationSummary } = useNotificationSummary();
 
-  return useMutation(
-    async ({ status }: SetNotificationStatusParams): Promise<void> => {
-      await mulighetsrommetClient.notifications.setNotificationStatus({
-        id,
-        requestBody: { status },
-      });
+  return useMutation(async ({ status }: SetNotificationStatusParams): Promise<void> => {
+    await mulighetsrommetClient.notifications.setNotificationStatus({
+      id,
+      requestBody: { status },
+    });
 
-      await refetchNotificationSummary();
-    }
-  );
+    await refetchNotificationSummary();
+  });
 }

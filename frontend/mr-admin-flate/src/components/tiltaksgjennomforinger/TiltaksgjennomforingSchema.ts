@@ -13,14 +13,10 @@ export const TiltaksgjennomforingSchema = z
           required_error: "En gjennomføring må ha en sluttdato",
         }),
       })
-      .refine(
-        (data) =>
-          !data.startDato || !data.sluttDato || data.sluttDato > data.startDato,
-        {
-          message: "Startdato må være før sluttdato",
-          path: ["startDato"],
-        },
-      ),
+      .refine((data) => !data.startDato || !data.sluttDato || data.sluttDato > data.startDato, {
+        message: "Startdato må være før sluttdato",
+        path: ["startDato"],
+      }),
     antallPlasser: z
       .number({
         invalid_type_error:
@@ -33,9 +29,13 @@ export const TiltaksgjennomforingSchema = z
     }),
     kontaktpersoner: z
       .object({
-        navIdent: z.string({ required_error: "Du må velge en kontaktperson" }),
+        navIdent: z.string({
+          required_error: "Du må velge en kontaktperson",
+        }),
         navEnheter: z
-          .string({ required_error: "Du må velge minst et område" })
+          .string({
+            required_error: "Du må velge minst et område",
+          })
           .array(),
       })
       .array()
@@ -45,10 +45,13 @@ export const TiltaksgjennomforingSchema = z
         required_error: "Du må velge en underenhet for tiltaksarrangør",
       })
       .min(1, "Du må velge en underenhet for tiltaksarrangør"),
-    lokasjonArrangor: z.string()
-      .min(1, { message: "Du må skrive inn lokasjon for hvor gjennomføringen finner sted" }),
+    lokasjonArrangor: z.string().min(1, {
+      message: "Du må skrive inn lokasjon for hvor gjennomføringen finner sted",
+    }),
     arrangorKontaktpersonId: z.string().nullable().optional(),
-    administrator: z.string({ required_error: "Du må velge en administrator" }),
+    administrator: z.string({
+      required_error: "Du må velge en administrator",
+    }),
     midlertidigStengt: z
       .object({
         erMidlertidigStengt: z.boolean(),
@@ -94,6 +97,4 @@ export const TiltaksgjennomforingSchema = z
     },
   );
 
-export type inferredTiltaksgjennomforingSchema = z.infer<
-  typeof TiltaksgjennomforingSchema
->;
+export type inferredTiltaksgjennomforingSchema = z.infer<typeof TiltaksgjennomforingSchema>;

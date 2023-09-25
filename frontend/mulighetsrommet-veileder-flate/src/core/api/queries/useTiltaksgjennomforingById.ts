@@ -1,8 +1,8 @@
-import { useQuery } from 'react-query';
-import { useFnr } from '../../../hooks/useFnr';
-import { mulighetsrommetClient } from '../clients';
-import { QueryKeys } from '../query-keys';
-import { useGetTiltaksgjennomforingIdFraUrl } from './useGetTiltaksgjennomforingIdFraUrl';
+import { useQuery } from "react-query";
+import { useFnr } from "../../../hooks/useFnr";
+import { mulighetsrommetClient } from "../clients";
+import { QueryKeys } from "../query-keys";
+import { useGetTiltaksgjennomforingIdFraUrl } from "./useGetTiltaksgjennomforingIdFraUrl";
 
 export default function useTiltaksgjennomforingById() {
   const id = useGetTiltaksgjennomforingIdFraUrl();
@@ -11,6 +11,6 @@ export default function useTiltaksgjennomforingById() {
   const requestBody = { sanityId: id, norskIdent: fnr };
 
   return useQuery(QueryKeys.sanity.tiltaksgjennomforing(id), () =>
-    mulighetsrommetClient.sanity.getTiltaksgjennomforingForBruker({ requestBody })
+    mulighetsrommetClient.sanity.getTiltaksgjennomforingForBruker({ requestBody }),
   );
 }

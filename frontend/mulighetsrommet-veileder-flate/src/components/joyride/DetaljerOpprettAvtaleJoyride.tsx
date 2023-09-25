@@ -1,9 +1,9 @@
-import Joyride, { ACTIONS, CallBackProps, STATUS } from 'react-joyride';
-import React from 'react';
-import { locale, styling } from './config';
-import { useAtom } from 'jotai';
-import { joyrideAtom } from '../../core/atoms/atoms';
-import { opprettAvtaleSteps, useSteps } from './Steps';
+import Joyride, { ACTIONS, CallBackProps, STATUS } from "react-joyride";
+import React from "react";
+import { locale, styling } from "./config";
+import { useAtom } from "jotai";
+import { joyrideAtom } from "../../core/atoms/atoms";
+import { opprettAvtaleSteps, useSteps } from "./Steps";
 
 interface Props {
   opprettAvtale: boolean;

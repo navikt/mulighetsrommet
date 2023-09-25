@@ -29,12 +29,7 @@ const Ikon = () => {
     >
       <rect width="96" height="96" fill="url(#pattern0)" />
       <defs>
-        <pattern
-          id="pattern0"
-          patternContentUnits="objectBoundingBox"
-          width="1"
-          height="1"
-        >
+        <pattern id="pattern0" patternContentUnits="objectBoundingBox" width="1" height="1">
           <use xlinkHref="#image0_1766_67385" transform="scale(0.00195312)" />
         </pattern>
         <image

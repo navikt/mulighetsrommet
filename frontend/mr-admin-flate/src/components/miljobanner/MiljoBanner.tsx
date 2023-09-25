@@ -22,8 +22,8 @@ export function MiljoBanner() {
           Dette er en demo-tjeneste som er under utvikling
         </Heading>
         <BodyShort>
-          Her eksperimenterer vi med ny funksjonalitet. Demoen inneholder ikke
-          ekte data og kan til tider være ustabil.
+          Her eksperimenterer vi med ny funksjonalitet. Demoen inneholder ikke ekte data og kan til
+          tider være ustabil.
         </BodyShort>
         <Button onClick={() => setVis(false)}>Lukk melding</Button>
       </Alert>

@@ -1,5 +1,5 @@
 before('Start server', () => {
-  cy.visit('/oversikt');
+  cy.visit('/arbeidsmarkedstiltak/oversikt');
   cy.url().should('include', '/');
   Cypress.on('uncaught:exception', err => {
     // eslint-disable-next-line no-console
@@ -15,7 +15,7 @@ describe('Tiltaksoversikt', () => {
 
   beforeEach(() => {
     cy.clearLocalStorage();
-    cy.visit('/oversikt');
+    cy.visit('/arbeidsmarkedstiltak/oversikt');
     cy.skruAvJoyride();
   });
 
@@ -104,7 +104,7 @@ describe('Tiltaksoversikt', () => {
 describe('Tiltaksgjennomføringsdetaljer', () => {
   beforeEach(() => {
     cy.clearLocalStorage();
-    cy.visit('/oversikt');
+    cy.visit('/arbeidsmarkedstiltak/oversikt');
     cy.skruAvJoyride();
     cy.getByTestId('lenke_tiltaksgjennomforing').first().click();
   });

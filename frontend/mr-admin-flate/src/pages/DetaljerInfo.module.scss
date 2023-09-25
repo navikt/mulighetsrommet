@@ -14,7 +14,8 @@
   flex-direction: column;
 
   &:first-of-type {
-    border-right: 1px solid var(--a-border-divider);
+    border-right: 1px solid
+      var(--a-border-divider);
   }
 
   @media (width <= 1700px) {
@@ -26,10 +27,11 @@
   display: flex;
   justify-content: space-between;
   grid-area: knapperad;
-  border-top: 1px solid var(--a-border-divider);
+  border-top: 1px solid
+    var(--a-border-divider);
   margin: 1rem;
   padding-top: 1rem;
-  gap: .5rem;
+  gap: 0.5rem;
 }
 
 .slett_knapp {
@@ -37,12 +39,16 @@
 
   &:hover {
     color: var(--a-text-danger);
-    background-color: var(--a-surface-danger-subtle);
+    background-color: var(
+      --a-surface-danger-subtle
+    );
   }
 
   &:active {
     color: var(--a-white);
-    background-color: var(--a-surface-danger-active) !important; //siden dette er en hacket komponent
+    background-color: var(
+      --a-surface-danger-active
+    ) !important; //siden dette er en hacket komponent
   }
 }
 

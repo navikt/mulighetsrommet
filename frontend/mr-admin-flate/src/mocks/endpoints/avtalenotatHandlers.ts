@@ -5,25 +5,17 @@ import { mockAvtalenotater } from "../fixtures/mock_avtalenotater";
 let avtalenotater = [...mockAvtalenotater];
 
 export const avtalenotatHandlers = [
-  rest.get<any, any, AvtaleNotat[]>(
-    "*/api/v1/internal/notater/avtaler",
-    (req, res, ctx) => {
-      return res(ctx.status(200), ctx.json(avtalenotater.sort(sortByDate)));
-    },
-  ),
-  rest.get<any, any, AvtaleNotat[]>(
-    "*/api/v1/internal/notater/avtaler/mine",
-    (req, res, ctx) => {
-      return res(
-        ctx.status(200),
-        ctx.json(
-          avtalenotater
-            .filter((notat) => notat.opprettetAv.navIdent === "B123456")
-            .sort(sortByDate),
-        ),
-      );
-    },
-  ),
+  rest.get<any, any, AvtaleNotat[]>("*/api/v1/internal/notater/avtaler", (req, res, ctx) => {
+    return res(ctx.status(200), ctx.json(avtalenotater.sort(sortByDate)));
+  }),
+  rest.get<any, any, AvtaleNotat[]>("*/api/v1/internal/notater/avtaler/mine", (req, res, ctx) => {
+    return res(
+      ctx.status(200),
+      ctx.json(
+        avtalenotater.filter((notat) => notat.opprettetAv.navIdent === "B123456").sort(sortByDate),
+      ),
+    );
+  }),
 
   rest.put<AvtaleNotatRequest, any, any>(
     "*/api/v1/internal/notater/avtaler",
@@ -33,20 +25,20 @@ export const avtalenotatHandlers = [
         ...payload,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
-        opprettetAv: { navIdent: "B123456", navn: "Bertil Betabruker" },
+        opprettetAv: {
+          navIdent: "B123456",
+          navn: "Bertil Betabruker",
+        },
       });
       return res(ctx.status(200));
     },
   ),
 
-  rest.delete<any, any, any>(
-    "*/api/v1/internal/notater/avtaler/:id",
-    (req, res, ctx) => {
-      const { id } = req.params;
-      avtalenotater = [...avtalenotater.filter((notat) => notat.id !== id)];
-      return res(ctx.status(200));
-    },
-  ),
+  rest.delete<any, any, any>("*/api/v1/internal/notater/avtaler/:id", (req, res, ctx) => {
+    const { id } = req.params;
+    avtalenotater = [...avtalenotater.filter((notat) => notat.id !== id)];
+    return res(ctx.status(200));
+  }),
 ];
 
 function sortByDate(a: AvtaleNotat, b: AvtaleNotat) {

@@ -8,9 +8,7 @@ import {
   Virksomhet,
 } from "mulighetsrommet-api-client";
 
-export function defaultOppstartType(
-  avtale?: Avtale,
-): TiltaksgjennomforingOppstartstype {
+export function defaultOppstartType(avtale?: Avtale): TiltaksgjennomforingOppstartstype {
   if (!avtale) {
     return TiltaksgjennomforingOppstartstype.LOPENDE;
   }
@@ -48,20 +46,17 @@ export type UtkastData = Pick<
 > & {
   tiltakstypeId: string;
   avtaleId: string;
-  arrangorKontaktpersonId?: { id?: string };
+  arrangorKontaktpersonId?: {
+    id?: string;
+  };
   id: string;
 };
 
-export const arenaOpphav = (
-  tiltaksgjennomforing: Tiltaksgjennomforing | undefined,
-) => {
+export const arenaOpphav = (tiltaksgjennomforing: Tiltaksgjennomforing | undefined) => {
   return tiltaksgjennomforing?.opphav === Opphav.ARENA;
 };
 
-export const arrangorUnderenheterOptions = (
-  avtale: Avtale,
-  virksomhet: Virksomhet | undefined,
-) => {
+export const arrangorUnderenheterOptions = (avtale: Avtale, virksomhet: Virksomhet | undefined) => {
   const options =
     avtale?.leverandorUnderenheter.map((lev: any) => {
       return {

@@ -1,7 +1,7 @@
-import React from 'react';
-import { Accordion, Alert, Checkbox, CheckboxGroup, Loader } from '@navikt/ds-react';
-import { kebabCase } from '../../utils/Utils';
-import { logEvent } from '../../core/api/logger';
+import React from "react";
+import { Accordion, Alert, Checkbox, CheckboxGroup, Loader } from "@navikt/ds-react";
+import { kebabCase } from "../../utils/Utils";
+import { logEvent } from "../../core/api/logger";
 
 interface CheckboxFilterProps<T extends { id: string; tittel: string }> {
   accordionNavn: string;
@@ -24,7 +24,7 @@ const CheckboxFilter = <T extends { id: string; tittel: string }>({
   defaultOpen = false,
   sortert = false,
 }: CheckboxFilterProps<T>) => {
-  const valgteTypeIDer = options.map(type => type.id);
+  const valgteTypeIDer = options.map((type) => type.id);
   const kebabCaseAccordionNavn = kebabCase(accordionNavn);
 
   const handleEndreFilter = (filtertypeTittel: string, e: React.ChangeEvent<HTMLInputElement>) => {
@@ -32,7 +32,7 @@ const CheckboxFilter = <T extends { id: string; tittel: string }>({
     const valgteTyper = !valgteTypeIDer.includes(value)
       ? valgteTypeIDer.concat(value)
       : valgteTypeIDer.filter((id: string) => id !== value);
-    setOptions(data?.filter(type => valgteTyper.includes(type.id)) ?? []);
+    setOptions(data?.filter((type) => valgteTyper.includes(type.id)) ?? []);
 
     logEvent(`mulighetsrommet.filtrering`, {
       type: kebabCase(accordionNavn),
@@ -45,7 +45,7 @@ const CheckboxFilter = <T extends { id: string; tittel: string }>({
       <Checkbox
         key={`${filtertype.id}`}
         value={filtertype.id}
-        onChange={e => handleEndreFilter(filtertype.tittel, e)}
+        onChange={(e) => handleEndreFilter(filtertype.tittel, e)}
         data-testid={`filter_checkbox_${kebabCase(filtertype.tittel)}`}
       >
         {filtertype.tittel}
@@ -68,7 +68,9 @@ const CheckboxFilter = <T extends { id: string; tittel: string }>({
             value={valgteTypeIDer.map(String)}
             data-testid={`checkboxgroup_${kebabCaseAccordionNavn}`}
           >
-            {sortert ? data.sort((a, b) => a.tittel.localeCompare(b.tittel)).map(checkbox) : data.map(checkbox)}
+            {sortert
+              ? data.sort((a, b) => a.tittel.localeCompare(b.tittel)).map(checkbox)
+              : data.map(checkbox)}
           </CheckboxGroup>
         )}
         {isError && <Alert variant="error">Det har skjedd en feil</Alert>}

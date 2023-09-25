@@ -1,6 +1,5 @@
 import { BaseElement, Descendant } from "slate";
-import type { PortableTextBlock } from '@portabletext/types'
-
+import type { PortableTextBlock } from "@portabletext/types";
 
 export const portableTextToSlate = (pt: PortableTextBlock[]): Descendant[] => {
   const descendants: BaseElement[] = [];
@@ -18,10 +17,12 @@ export const portableTextToSlate = (pt: PortableTextBlock[]): Descendant[] => {
       } else {
         descendants.push({
           type: "bulleted-list",
-          children: [{
-            type: "list-item",
-            children: children(block),
-          }],
+          children: [
+            {
+              type: "list-item",
+              children: children(block),
+            },
+          ],
         });
       }
     } else {
@@ -33,20 +34,23 @@ export const portableTextToSlate = (pt: PortableTextBlock[]): Descendant[] => {
   }
 
   return descendants;
-}
+};
 
 const children = (block: PortableTextBlock): Descendant[] => {
   const children: Descendant[] = [];
   for (const child of block.children) {
-    const markDef = block.markDefs?.find(m => child.marks?.find((cm: string) => cm === m._key));
-    if (markDef) { // Found a link
+    const markDef = block.markDefs?.find((m) => child.marks?.find((cm: string) => cm === m._key));
+    if (markDef) {
+      // Found a link
       children.push({
         type: "link",
         url: markDef.href as string,
-        children: [{
-          text: child.text,
-          ...findMarks(child.marks),
-        }],
+        children: [
+          {
+            text: child.text,
+            ...findMarks(child.marks),
+          },
+        ],
       });
     } else {
       children.push({
@@ -57,14 +61,14 @@ const children = (block: PortableTextBlock): Descendant[] => {
   }
 
   return children;
-}
+};
 
 const findMarks = (marks?: string[]) => {
   if (!marks) {
     return undefined;
   }
   return {
-    ...(Boolean(marks.find(m => m === "strong")) && { bold: true }),
-    ...(Boolean(marks.find(m => m === "em")) && { italic: true })
-  }
-}
+    ...(Boolean(marks.find((m) => m === "strong")) && { bold: true }),
+    ...(Boolean(marks.find((m) => m === "em")) && { italic: true }),
+  };
+};

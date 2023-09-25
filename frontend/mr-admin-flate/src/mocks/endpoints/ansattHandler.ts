@@ -9,11 +9,7 @@ export const ansattHandlers = [
       const roller = req.url.searchParams.getAll("roller");
       return res(
         ctx.status(200),
-        ctx.json(
-          mockKontaktpersoner.filter((k) =>
-            k.roller.every((r) => roller.includes(r)),
-          ),
-        ),
+        ctx.json(mockKontaktpersoner.filter((k) => k.roller.every((r) => roller.includes(r)))),
       );
     },
   ),

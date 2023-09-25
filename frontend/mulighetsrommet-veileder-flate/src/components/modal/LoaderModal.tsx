@@ -1,4 +1,4 @@
-import { Loader, Modal } from '@navikt/ds-react';
+import { Loader, Modal } from "@navikt/ds-react";
 
 interface LoaderModalProps {
   lukkModal: () => void;

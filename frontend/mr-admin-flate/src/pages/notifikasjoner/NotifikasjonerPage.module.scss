@@ -16,7 +16,9 @@
     margin: 1rem 0;
   }
 
-  :global(.navds-tabs__tablist-wrapper) {
+  :global(
+      .navds-tabs__tablist-wrapper
+    ) {
     background-color: transparent;
   }
 }

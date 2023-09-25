@@ -6,9 +6,7 @@ export const DELTAKERLISTE_KOMET = {
   production: "", // URL til bundle som blir hostet et sted i prod
 };
 
-export const deltakerlisteKometCdnUrl = `${
-  DELTAKERLISTE_KOMET[getEnvironment()]
-}/bundle.js`;
+export const deltakerlisteKometCdnUrl = `${DELTAKERLISTE_KOMET[getEnvironment()]}/bundle.js`;
 export const deltakerlisteKometManifestUrl = `${
   DELTAKERLISTE_KOMET[getEnvironment()]
 }/manifest.json`;

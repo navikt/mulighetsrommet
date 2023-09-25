@@ -1,23 +1,23 @@
-import { Alert, BodyShort, Button, Loader, Pagination } from '@navikt/ds-react';
-import { useAtom } from 'jotai';
-import { RESET } from 'jotai/utils';
+import { Alert, BodyShort, Button, Loader, Pagination } from "@navikt/ds-react";
+import { useAtom } from "jotai";
+import { RESET } from "jotai/utils";
 import {
   ApiError,
   TiltaksgjennomforingOppstartstype,
   VeilederflateTiltaksgjennomforing,
-} from 'mulighetsrommet-api-client';
-import { PORTEN } from 'mulighetsrommet-frontend-common/constants';
-import { useEffect, useRef, useState } from 'react';
-import { logEvent } from '../../core/api/logger';
-import { useHentBrukerdata } from '../../core/api/queries/useHentBrukerdata';
-import useTiltaksgjennomforinger from '../../core/api/queries/useTiltaksgjennomforinger';
-import { paginationAtom, tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
-import { usePrepopulerFilter } from '../../hooks/usePrepopulerFilter';
-import { Feilmelding, forsokPaNyttLink } from '../feilmelding/Feilmelding';
-import Lenke from '../lenke/Lenke';
-import { Sorteringsmeny } from '../sorteringmeny/Sorteringsmeny';
-import { Gjennomforingsrad } from './Gjennomforingsrad';
-import styles from './Tiltaksgjennomforingsoversikt.module.scss';
+} from "mulighetsrommet-api-client";
+import { PORTEN } from "mulighetsrommet-frontend-common/constants";
+import { useEffect, useRef, useState } from "react";
+import { logEvent } from "../../core/api/logger";
+import { useHentBrukerdata } from "../../core/api/queries/useHentBrukerdata";
+import useTiltaksgjennomforinger from "../../core/api/queries/useTiltaksgjennomforinger";
+import { paginationAtom, tiltaksgjennomforingsfilter } from "../../core/atoms/atoms";
+import { usePrepopulerFilter } from "../../hooks/usePrepopulerFilter";
+import { Feilmelding, forsokPaNyttLink } from "../feilmelding/Feilmelding";
+import Lenke from "../lenke/Lenke";
+import { Sorteringsmeny } from "../sorteringmeny/Sorteringsmeny";
+import { Gjennomforingsrad } from "./Gjennomforingsrad";
+import styles from "./Tiltaksgjennomforingsoversikt.module.scss";
 
 const Tiltaksgjennomforingsoversikt = () => {
   const [page, setPage] = useAtom(paginationAtom);
@@ -29,8 +29,14 @@ const Tiltaksgjennomforingsoversikt = () => {
   const [, setFilter] = useAtom(tiltaksgjennomforingsfilter);
   const brukerdata = useHentBrukerdata();
 
-  const { data: tiltaksgjennomforinger = [], isLoading, isError, error, isFetching } = useTiltaksgjennomforinger();
-  const [sortValue, setSortValue] = useState<string>('tiltakstype-ascending');
+  const {
+    data: tiltaksgjennomforinger = [],
+    isLoading,
+    isError,
+    error,
+    isFetching,
+  } = useTiltaksgjennomforinger();
+  const [sortValue, setSortValue] = useState<string>("tiltakstype-ascending");
   const didMountRef = useRef(false);
 
   useEffect(() => {
@@ -42,7 +48,7 @@ const Tiltaksgjennomforingsoversikt = () => {
 
   useEffect(() => {
     //sørger for at vi ikke logger metrikker for første render
-    if (didMountRef.current) logEvent('mulighetsrommet.sortering', { value: sortValue });
+    if (didMountRef.current) logEvent("mulighetsrommet.sortering", { value: sortValue });
     didMountRef.current = true;
   }, [sortValue]);
 
@@ -58,21 +64,27 @@ const Tiltaksgjennomforingsoversikt = () => {
     if (error instanceof ApiError) {
       return (
         <Alert variant="error">
-          Det har dessverre skjedd en feil. Om feilen gjentar seg, ta kontakt i{' '}
+          Det har dessverre skjedd en feil. Om feilen gjentar seg, ta kontakt i{" "}
           {
-            <Lenke to={PORTEN} target={'_blank'}>
+            <Lenke to={PORTEN} target={"_blank"}>
               Porten
             </Lenke>
           }
-          <pre>{JSON.stringify({ message: error.message, status: error.status, url: error.url }, null, 2)}</pre>
+          <pre>
+            {JSON.stringify(
+              { message: error.message, status: error.status, url: error.url },
+              null,
+              2,
+            )}
+          </pre>
         </Alert>
       );
     } else {
       return (
         <Alert variant="error">
-          Det har dessverre skjedd en feil. Om feilen gjentar seg, ta kontakt i{' '}
+          Det har dessverre skjedd en feil. Om feilen gjentar seg, ta kontakt i{" "}
           {
-            <Lenke to={PORTEN} target={'_blank'}>
+            <Lenke to={PORTEN} target={"_blank"}>
               Porten
             </Lenke>
           }
@@ -83,22 +95,27 @@ const Tiltaksgjennomforingsoversikt = () => {
   }
 
   const getSort = (
-    sortValue: string
-  ): { direction: 'ascending' | 'descending'; orderBy: keyof VeilederflateTiltaksgjennomforing } => {
-    const [orderBy, direction] = sortValue.split('-');
+    sortValue: string,
+  ): {
+    direction: "ascending" | "descending";
+    orderBy: keyof VeilederflateTiltaksgjennomforing;
+  } => {
+    const [orderBy, direction] = sortValue.split("-");
     return {
       orderBy: orderBy as keyof VeilederflateTiltaksgjennomforing,
-      direction: direction as 'ascending' | 'descending',
+      direction: direction as "ascending" | "descending",
     };
   };
 
-  const sorter = (tiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[]): VeilederflateTiltaksgjennomforing[] => {
+  const sorter = (
+    tiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[],
+  ): VeilederflateTiltaksgjennomforing[] => {
     return tiltaksgjennomforinger.sort((a, b) => {
       const sort = getSort(sortValue);
       const comparator = (
         a: VeilederflateTiltaksgjennomforing,
         b: VeilederflateTiltaksgjennomforing,
-        orderBy: keyof VeilederflateTiltaksgjennomforing
+        orderBy: keyof VeilederflateTiltaksgjennomforing,
       ) => {
         const compare = (item1: any, item2: any) => {
           if (item2 < item1 || item2 === undefined) return 1;
@@ -106,7 +123,7 @@ const Tiltaksgjennomforingsoversikt = () => {
           return 0;
         };
 
-        if (orderBy === 'oppstart') {
+        if (orderBy === "oppstart") {
           const dateB =
             b.oppstart === TiltaksgjennomforingOppstartstype.FELLES
               ? new Date(b.oppstartsdato!!) // Oppstartsdato skal alltid være tilgjengelig når oppstartstype er FELLES
@@ -116,34 +133,40 @@ const Tiltaksgjennomforingsoversikt = () => {
               ? new Date(a.oppstartsdato!!) // Oppstartsdato skal alltid være tilgjengelig når oppstartstype er FELLES
               : new Date();
           return compare(dateA, dateB);
-        } else if (orderBy === 'tiltakstype') {
+        } else if (orderBy === "tiltakstype") {
           return compare(a.tiltakstype.navn, b.tiltakstype.navn);
         } else {
           return compare(a[orderBy], b[orderBy]);
         }
       };
 
-      return sort.direction === 'ascending' ? comparator(a, b, sort.orderBy) : comparator(b, a, sort.orderBy);
+      return sort.direction === "ascending"
+        ? comparator(a, b, sort.orderBy)
+        : comparator(b, a, sort.orderBy);
     });
   };
 
   const lopendeGjennomforinger = tiltaksgjennomforinger.filter(
-    gj => gj.oppstart === TiltaksgjennomforingOppstartstype.LOPENDE
+    (gj) => gj.oppstart === TiltaksgjennomforingOppstartstype.LOPENDE,
   );
   const gjennomforingerMedOppstartIFremtiden = tiltaksgjennomforinger.filter(
-    gj => gj.oppstart !== TiltaksgjennomforingOppstartstype.LOPENDE && new Date(gj.oppstartsdato!!) >= new Date()
+    (gj) =>
+      gj.oppstart !== TiltaksgjennomforingOppstartstype.LOPENDE &&
+      new Date(gj.oppstartsdato!!) >= new Date(),
   );
   const gjennomforingerMedOppstartHarVaert = tiltaksgjennomforinger.filter(
-    gj => gj.oppstart !== TiltaksgjennomforingOppstartstype.LOPENDE && new Date(gj.oppstartsdato!!) <= new Date()
+    (gj) =>
+      gj.oppstart !== TiltaksgjennomforingOppstartstype.LOPENDE &&
+      new Date(gj.oppstartsdato!!) <= new Date(),
   );
 
   const gjennomforingerForSide = (
-    getSort(sortValue).orderBy === 'oppstart'
+    getSort(sortValue).orderBy === "oppstart"
       ? [
-        ...lopendeGjennomforinger,
-        ...sorter(gjennomforingerMedOppstartIFremtiden),
-        ...sorter(gjennomforingerMedOppstartHarVaert).reverse(),
-      ]
+          ...lopendeGjennomforinger,
+          ...sorter(gjennomforingerMedOppstartIFremtiden),
+          ...sorter(gjennomforingerMedOppstartHarVaert).reverse(),
+        ]
       : sorter(tiltaksgjennomforinger)
   ).slice((page - 1) * elementsPerPage, page * elementsPerPage);
 
@@ -153,8 +176,8 @@ const Tiltaksgjennomforingsoversikt = () => {
         header="Kunne ikke hente brukers geografiske enhet"
         beskrivelse={
           <>
-            Brukers geografiske enhet kunne ikke hentes. Kontroller at brukeren er under oppfølging og finnes i Arena,
-            og {forsokPaNyttLink()}
+            Brukers geografiske enhet kunne ikke hentes. Kontroller at brukeren er under oppfølging
+            og finnes i Arena, og {forsokPaNyttLink()}
           </>
         }
         ikonvariant="error"
@@ -168,8 +191,8 @@ const Tiltaksgjennomforingsoversikt = () => {
         header="Kunne ikke hente brukers innsatsgruppe eller servicegruppe"
         beskrivelse={
           <>
-            Vi kan ikke hente brukerens innsatsgruppe eller servicegruppe. Kontroller at brukeren er under oppfølging og
-            finnes i Arena, og <br /> {forsokPaNyttLink()}
+            Vi kan ikke hente brukerens innsatsgruppe eller servicegruppe. Kontroller at brukeren er
+            under oppfølging og finnes i Arena, og <br /> {forsokPaNyttLink()}
           </>
         }
         ikonvariant="error"
@@ -204,7 +227,8 @@ const Tiltaksgjennomforingsoversikt = () => {
       <div className={styles.overskrift_og_sorteringsmeny}>
         {tiltaksgjennomforinger.length > 0 ? (
           <BodyShort data-testid="antall-tiltak-top">
-            Viser {(page - 1) * elementsPerPage + 1}-{gjennomforingerForSide.length + (page - 1) * elementsPerPage} av{' '}
+            Viser {(page - 1) * elementsPerPage + 1}-
+            {gjennomforingerForSide.length + (page - 1) * elementsPerPage} av{" "}
             {tiltaksgjennomforinger.length} tiltak
           </BodyShort>
         ) : null}
@@ -212,14 +236,21 @@ const Tiltaksgjennomforingsoversikt = () => {
       </div>
       <ul className={styles.gjennomforinger} data-testid="oversikt_tiltaksgjennomforinger">
         {gjennomforingerForSide.map((gjennomforing, index) => {
-          return <Gjennomforingsrad key={gjennomforing.sanityId} index={index} tiltaksgjennomforing={gjennomforing} />;
+          return (
+            <Gjennomforingsrad
+              key={gjennomforing.sanityId}
+              index={index}
+              tiltaksgjennomforing={gjennomforing}
+            />
+          );
         })}
       </ul>
       <div className={styles.under_oversikt}>
         {tiltaksgjennomforinger.length > 0 ? (
           <>
             <BodyShort data-testid="antall-tiltak">
-              Viser {(page - 1) * elementsPerPage + 1}-{gjennomforingerForSide.length + (page - 1) * elementsPerPage} av{' '}
+              Viser {(page - 1) * elementsPerPage + 1}-
+              {gjennomforingerForSide.length + (page - 1) * elementsPerPage} av{" "}
               {tiltaksgjennomforinger.length} tiltak
             </BodyShort>
             <Pagination
@@ -227,7 +258,9 @@ const Tiltaksgjennomforingsoversikt = () => {
               data-testid="paginering"
               page={page}
               onPageChange={setPage}
-              count={pagination(tiltaksgjennomforinger) === 0 ? 1 : pagination(tiltaksgjennomforinger)}
+              count={
+                pagination(tiltaksgjennomforinger) === 0 ? 1 : pagination(tiltaksgjennomforinger)
+              }
               data-version="v1"
             />
           </>

@@ -1,4 +1,8 @@
-import { NavAnsatt, NavAnsattRolle, TiltaksgjennomforingKontaktpersoner } from "mulighetsrommet-api-client";
+import {
+  NavAnsatt,
+  NavAnsattRolle,
+  TiltaksgjennomforingKontaktpersoner,
+} from "mulighetsrommet-api-client";
 
 const bertil: NavAnsatt = {
   azureId: "8c133e5e-fd93-4226-8567-41d699a3efee",
@@ -43,7 +47,7 @@ const perRichard: NavAnsatt = {
   },
   roller: [NavAnsattRolle.KONTAKTPERSON],
   skalSlettesDato: null,
-}
+};
 
 const nikoline: NavAnsatt = {
   azureId: "zz3d3a34-1071-42f5-aeec-38d37055271d",
@@ -58,7 +62,7 @@ const nikoline: NavAnsatt = {
   },
   roller: [NavAnsattRolle.KONTAKTPERSON],
   skalSlettesDato: null,
-}
+};
 
 const petrus: NavAnsatt = {
   azureId: "ab3d3a34-1071-42f5-aeec-38d37055271d",
@@ -66,29 +70,29 @@ const petrus: NavAnsatt = {
   mobilnummer: "78654323",
   navIdent: "M887654",
   fornavn: "Petrus",
-  etternavn:  "Pilsen",
+  etternavn: "Pilsen",
   hovedenhet: {
     enhetsnummer: "2990",
     navn: "IT Drift",
   },
   roller: [NavAnsattRolle.KONTAKTPERSON],
   skalSlettesDato: null,
-}
+};
 
 export const petrusKontaktperson: TiltaksgjennomforingKontaktpersoner = {
-    navIdent: petrus.navIdent,
-    navn: petrus.fornavn + " " + petrus.etternavn,
-    epost: petrus.epost,
-    mobilnummer: petrus.epost,
-    navEnheter: ["0315", "0330"],
+  navIdent: petrus.navIdent,
+  navn: petrus.fornavn + " " + petrus.etternavn,
+  epost: petrus.epost,
+  mobilnummer: petrus.epost,
+  navEnheter: ["0315", "0330"],
 };
 
 export const nikolineKontaktperson: TiltaksgjennomforingKontaktpersoner = {
-    navIdent: nikoline.navIdent,
-    navn: nikoline.fornavn + " " + nikoline.etternavn,
-    epost: nikoline.epost,
-    mobilnummer: nikoline.epost,
-    navEnheter: ["0313"],
+  navIdent: nikoline.navIdent,
+  navn: nikoline.fornavn + " " + nikoline.etternavn,
+  epost: nikoline.epost,
+  mobilnummer: nikoline.epost,
+  navEnheter: ["0313"],
 };
 
 export const mockBetabruker: NavAnsatt = bertil;

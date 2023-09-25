@@ -18,6 +18,6 @@ export function useAdminTiltaksgjennomforingerForAvtale() {
         search: search || undefined,
         size: 1000,
       }),
-    { enabled: !!search }
+    { enabled: !!search },
   );
 }

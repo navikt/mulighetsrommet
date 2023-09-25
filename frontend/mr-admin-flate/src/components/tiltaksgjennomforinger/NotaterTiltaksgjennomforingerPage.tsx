@@ -1,11 +1,5 @@
 import styles from "../notater/Notater.module.scss";
-import {
-  Button,
-  Checkbox,
-  ErrorMessage,
-  Heading,
-  Textarea,
-} from "@navikt/ds-react";
+import { Button, Checkbox, ErrorMessage, Heading, Textarea } from "@navikt/ds-react";
 import { useState } from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { TiltaksgjennomforingNotatRequest } from "mulighetsrommet-api-client";
@@ -45,21 +39,18 @@ export default function NotaterTiltaksgjennomforingerPage() {
     watch,
   } = form;
 
-  const postData: SubmitHandler<inferredNotatSchema> = async (
-    data,
-  ): Promise<void> => {
+  const postData: SubmitHandler<inferredNotatSchema> = async (data): Promise<void> => {
     const { innhold } = data;
-    invariant(
-      tiltaksgjennomforingsData,
-      "Klarte ikke hente tiltaksgjennomføring.",
-    );
+    invariant(tiltaksgjennomforingsData, "Klarte ikke hente tiltaksgjennomføring.");
 
     const requestBody: TiltaksgjennomforingNotatRequest = {
       id: uuidv4(),
       tiltaksgjennomforingId: tiltaksgjennomforingsData.id,
       innhold,
     };
-    mutation.mutate(requestBody, { onSuccess: () => reset() });
+    mutation.mutate(requestBody, {
+      onSuccess: () => reset(),
+    });
   };
 
   return (
@@ -80,9 +71,7 @@ export default function NotaterTiltaksgjennomforingerPage() {
               value={watch("innhold")}
             />
             {mutation.isError ? (
-              <ErrorMessage>
-                Det skjedde en feil. Notatet ble ikke lagret.
-              </ErrorMessage>
+              <ErrorMessage>Det skjedde en feil. Notatet ble ikke lagret.</ErrorMessage>
             ) : null}
             <span className={styles.notater_knapp}>
               <Button type="submit" disabled={mutation.isLoading}>

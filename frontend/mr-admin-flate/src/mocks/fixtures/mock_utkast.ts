@@ -19,7 +19,9 @@ export const mockUtkast: Utkast[] = [
     id: "b9264c5c-27dc-43fd-81ff-c93eb1dceb14",
     opprettetAv: "B123456",
     type: Utkast.type.TILTAKSGJENNOMFORING,
-    utkastData: { ...mockTiltaksgjennomforinger[1] },
+    utkastData: {
+      ...mockTiltaksgjennomforinger[1],
+    },
   },
   {
     avtaleId: "d1f163b7-1a41-4547-af16-03fd4492b7bc",
@@ -37,7 +39,9 @@ export const mockUtkast: Utkast[] = [
     id: "b9264c5c-27dc-43fd-81ff-c93eb1dceb15",
     opprettetAv: "B123456",
     type: Utkast.type.TILTAKSGJENNOMFORING,
-    utkastData: { ...mockTiltaksgjennomforinger[2] },
+    utkastData: {
+      ...mockTiltaksgjennomforinger[2],
+    },
   },
   {
     avtaleId: "d1f163b7-1a41-4547-af16-03fd4492b7bc",
@@ -55,6 +59,8 @@ export const mockUtkast: Utkast[] = [
     id: "b9264c5c-27dc-43fd-81ff-c93eb1dceb17",
     opprettetAv: "B123456",
     type: Utkast.type.TILTAKSGJENNOMFORING,
-    utkastData: { ...mockTiltaksgjennomforinger[3] },
+    utkastData: {
+      ...mockTiltaksgjennomforinger[3],
+    },
   },
 ];

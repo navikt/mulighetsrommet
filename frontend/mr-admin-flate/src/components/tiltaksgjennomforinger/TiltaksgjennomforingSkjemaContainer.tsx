@@ -10,17 +10,9 @@ import {
 import { Tilgjengelighetsstatus } from "mulighetsrommet-api-client/build/models/Tilgjengelighetsstatus";
 import skjemastyles from "../skjema/Skjema.module.scss";
 import React, { useEffect, useRef } from "react";
-import {
-  FormProvider,
-  SubmitHandler,
-  useFieldArray,
-  useForm,
-} from "react-hook-form";
+import { FormProvider, SubmitHandler, useFieldArray, useForm } from "react-hook-form";
 import { v4 as uuidv4 } from "uuid";
-import {
-  formaterDatoSomYYYYMMDD,
-  tilgjengelighetsstatusTilTekst,
-} from "../../utils/Utils";
+import { formaterDatoSomYYYYMMDD, tilgjengelighetsstatusTilTekst } from "../../utils/Utils";
 import { AutoSaveUtkast } from "../autosave/AutoSaveUtkast";
 import { tekniskFeilError } from "./TiltaksgjennomforingSkjemaErrors";
 import {
@@ -68,17 +60,14 @@ export const TiltaksgjennomforingSkjemaContainer = ({
 }: Props) => {
   const utkastIdRef = useRef(tiltaksgjennomforing?.id || uuidv4());
   const redigeringsModus = !!tiltaksgjennomforing;
-  const { data: virksomhet } = useVirksomhet(
-    avtale.leverandor.organisasjonsnummer || "",
-  );
+  const { data: virksomhet } = useVirksomhet(avtale.leverandor.organisasjonsnummer || "");
   const mutation = usePutGjennomforing();
   const mutationUtkast = useMutateUtkast();
   const { data: betabrukere } = useHentBetabrukere();
 
   const { data: ansatt, isLoading: isLoadingAnsatt } = useHentAnsatt();
 
-  const { data: kontaktpersoner, isLoading: isLoadingKontaktpersoner } =
-    useHentKontaktpersoner();
+  const { data: kontaktpersoner, isLoading: isLoadingKontaktpersoner } = useHentKontaktpersoner();
 
   const kontaktpersonerOption = () => {
     const options = kontaktpersoner?.map((kontaktperson) => ({
@@ -119,8 +108,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
         id: values?.arrangorKontaktpersonId ?? undefined,
       },
       arrangor: {
-        organisasjonsnummer:
-          values.tiltaksArrangorUnderenhetOrganisasjonsnummer,
+        organisasjonsnummer: values.tiltaksArrangorUnderenhetOrganisasjonsnummer,
         slettet: false,
       },
       kontaktpersoner: values?.kontaktpersoner?.map((kp) => ({ ...kp })) || [],
@@ -149,9 +137,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
     resolver: zodResolver(TiltaksgjennomforingSchema),
     defaultValues: {
       navn: tiltaksgjennomforing?.navn,
-      navEnheter:
-        tiltaksgjennomforing?.navEnheter?.map((enhet) => enhet.enhetsnummer) ||
-        [],
+      navEnheter: tiltaksgjennomforing?.navEnheter?.map((enhet) => enhet.enhetsnummer) || [],
       administrator: tiltaksgjennomforing?.administrator?.navIdent,
       antallPlasser: tiltaksgjennomforing?.antallPlasser,
       startOgSluttDato: {
@@ -174,15 +160,11 @@ export const TiltaksgjennomforingSkjemaContainer = ({
           : undefined,
       },
       oppstart: tiltaksgjennomforing?.oppstart ?? defaultOppstartType(avtale),
-      apenForInnsok:
-        tiltaksgjennomforing?.tilgjengelighet !== Tilgjengelighetsstatus.STENGT,
-      kontaktpersoner: defaultValuesForKontaktpersoner(
-        tiltaksgjennomforing?.kontaktpersoner,
-      ),
+      apenForInnsok: tiltaksgjennomforing?.tilgjengelighet !== Tilgjengelighetsstatus.STENGT,
+      kontaktpersoner: defaultValuesForKontaktpersoner(tiltaksgjennomforing?.kontaktpersoner),
       estimertVentetid: tiltaksgjennomforing?.estimertVentetid,
       lokasjonArrangor: tiltaksgjennomforing?.lokasjonArrangor,
-      arrangorKontaktpersonId:
-        tiltaksgjennomforing?.arrangor?.kontaktperson?.id,
+      arrangorKontaktpersonId: tiltaksgjennomforing?.arrangor?.kontaktperson?.id,
       faneinnhold: tiltaksgjennomforing?.faneinnhold,
     },
   });
@@ -200,11 +182,12 @@ export const TiltaksgjennomforingSkjemaContainer = ({
     fields: kontaktpersonFields,
     append: appendKontaktperson,
     remove: removeKontaktperson,
-  } = useFieldArray({ name: "kontaktpersoner", control });
+  } = useFieldArray({
+    name: "kontaktpersoner",
+    control,
+  });
 
-  const watchErMidlertidigStengt = watch(
-    "midlertidigStengt.erMidlertidigStengt",
-  );
+  const watchErMidlertidigStengt = watch("midlertidigStengt.erMidlertidigStengt");
 
   async function getLokasjonForArrangor(orgnr?: string) {
     if (!orgnr) return;
@@ -288,8 +271,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
     <FormProvider {...form}>
       {!redigeringsModus ? (
         <Alert variant="warning" style={{ margin: "1rem 0" }}>
-          Opprettelse av gjennomføring her vil ikke opprette gjennomføringen i
-          Arena.
+          Opprettelse av gjennomføring her vil ikke opprette gjennomføringen i Arena.
         </Alert>
       ) : null}
       <form onSubmit={handleSubmit(postData)}>
@@ -310,12 +292,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
               </FormGroup>
               <Separator />
               <FormGroup>
-                <TextField
-                  size="small"
-                  readOnly
-                  label={"Avtale"}
-                  value={avtale.navn || ""}
-                />
+                <TextField size="small" readOnly label={"Avtale"} value={avtale.navn || ""} />
               </FormGroup>
               <Separator />
               <FormGroup>
@@ -346,8 +323,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
                   til={{
                     label: "Sluttdato",
                     readOnly:
-                      arenaOpphav(tiltaksgjennomforing) &&
-                      !!tiltaksgjennomforing?.sluttDato,
+                      arenaOpphav(tiltaksgjennomforing) && !!tiltaksgjennomforing?.sluttDato,
                     ...register("startOgSluttDato.sluttDato"),
                   }}
                 />
@@ -358,10 +334,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
                 >
                   Åpen for innsøk
                 </Checkbox>
-                <Checkbox
-                  size="small"
-                  {...register("midlertidigStengt.erMidlertidigStengt")}
-                >
+                <Checkbox size="small" {...register("midlertidigStengt.erMidlertidigStengt")}>
                   Midlertidig stengt
                 </Checkbox>
                 {watchErMidlertidigStengt && (
@@ -382,9 +355,13 @@ export const TiltaksgjennomforingSkjemaContainer = ({
                   readOnly={arenaOpphav(tiltaksgjennomforing)}
                   error={errors.antallPlasser?.message}
                   type="number"
-                  style={{ width: "180px" }}
+                  style={{
+                    width: "180px",
+                  }}
                   label="Antall plasser"
-                  {...register("antallPlasser", { valueAsNumber: true })}
+                  {...register("antallPlasser", {
+                    valueAsNumber: true,
+                  })}
                 />
                 {!arenaOpphav(tiltaksgjennomforing) && redigeringsModus ? (
                   <AvbrytTiltaksgjennomforing onAvbryt={onClose} />
@@ -397,9 +374,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
                   size="small"
                   label="Tilgjengelighetsstatus"
                   description="Statusen vises til veileder i Modia"
-                  value={tilgjengelighetsstatusTilTekst(
-                    tiltaksgjennomforing?.tilgjengelighet,
-                  )}
+                  value={tilgjengelighetsstatusTilTekst(tiltaksgjennomforing?.tilgjengelighet)}
                 />
                 <TextField
                   size="small"
@@ -448,10 +423,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
                   <div>
                     {kontaktpersonFields?.map((field, index) => {
                       return (
-                        <div
-                          className={skjemastyles.kontaktperson_container}
-                          key={field.id}
-                        >
+                        <div className={skjemastyles.kontaktperson_container} key={field.id}>
                           <button
                             className={skjemastyles.kontaktperson_button}
                             type="button"
@@ -460,7 +432,10 @@ export const TiltaksgjennomforingSkjemaContainer = ({
                                 removeKontaktperson(index);
                               } else {
                                 setValue("kontaktpersoner", [
-                                  { navIdent: "", navEnheter: [] },
+                                  {
+                                    navIdent: "",
+                                    navEnheter: [],
+                                  },
                                 ]);
                               }
                             }}
@@ -471,33 +446,23 @@ export const TiltaksgjennomforingSkjemaContainer = ({
                             <SokeSelect
                               size="small"
                               placeholder={
-                                isLoadingKontaktpersoner
-                                  ? "Laster kontaktpersoner..."
-                                  : "Velg en"
+                                isLoadingKontaktpersoner ? "Laster kontaktpersoner..." : "Velg en"
                               }
                               label={"Kontaktperson i NAV"}
-                              {...register(
-                                `kontaktpersoner.${index}.navIdent`,
-                                {
-                                  shouldUnregister: true,
-                                },
-                              )}
+                              {...register(`kontaktpersoner.${index}.navIdent`, {
+                                shouldUnregister: true,
+                              })}
                               options={kontaktpersonerOption()}
                             />
                             <ControlledMultiSelect
                               size="small"
                               placeholder={
-                                isLoadingKontaktpersoner
-                                  ? "Laster enheter..."
-                                  : "Velg en"
+                                isLoadingKontaktpersoner ? "Laster enheter..." : "Velg en"
                               }
                               label={"Område"}
-                              {...register(
-                                `kontaktpersoner.${index}.navEnheter`,
-                                {
-                                  shouldUnregister: true,
-                                },
-                              )}
+                              {...register(`kontaktpersoner.${index}.navEnheter`, {
+                                shouldUnregister: true,
+                              })}
                               options={navEnheterOptions}
                             />
                           </div>
@@ -509,7 +474,10 @@ export const TiltaksgjennomforingSkjemaContainer = ({
                       type="button"
                       size="small"
                       onClick={() =>
-                        appendKontaktperson({ navIdent: "", navEnheter: [] })
+                        appendKontaktperson({
+                          navIdent: "",
+                          navEnheter: [],
+                        })
                       }
                     >
                       <PlusIcon /> Legg til ny kontaktperson
@@ -530,34 +498,23 @@ export const TiltaksgjennomforingSkjemaContainer = ({
                     size="small"
                     label="Tiltaksarrangør underenhet"
                     placeholder="Velg underenhet for tiltaksarrangør"
-                    {...register(
-                      "tiltaksArrangorUnderenhetOrganisasjonsnummer",
-                    )}
+                    {...register("tiltaksArrangorUnderenhetOrganisasjonsnummer")}
                     onChange={() => {
                       getLokasjonForArrangor();
                       setValue("arrangorKontaktpersonId", null);
                     }}
                     onClearValue={() => {
-                      setValue(
-                        "tiltaksArrangorUnderenhetOrganisasjonsnummer",
-                        "",
-                      );
+                      setValue("tiltaksArrangorUnderenhetOrganisasjonsnummer", "");
                     }}
                     readOnly={!avtale.leverandor.organisasjonsnummer}
                     options={arrangorUnderenheterOptions(avtale, virksomhet)}
                   />
                   {watch("tiltaksArrangorUnderenhetOrganisasjonsnummer") &&
                     !tiltaksgjennomforing?.arrangor?.slettet && (
-                      <div
-                        className={
-                          skjemastyles.virksomhet_kontaktperson_container
-                        }
-                      >
+                      <div className={skjemastyles.virksomhet_kontaktperson_container}>
                         <VirksomhetKontaktpersoner
                           title={"Kontaktperson hos arrangøren"}
-                          orgnr={watch(
-                            "tiltaksArrangorUnderenhetOrganisasjonsnummer",
-                          )}
+                          orgnr={watch("tiltaksArrangorUnderenhetOrganisasjonsnummer")}
                           formValueName={"arrangorKontaktpersonId"}
                         />
                       </div>
@@ -567,11 +524,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
                     label="Sted for gjennomføring"
                     description="Skriv inn stedet tiltaket skal gjennomføres, for eksempel Fredrikstad eller Tromsø. For tiltak uten eksplisitt lokasjon (for eksempel digital jobbklubb), kan du la feltet stå tomt."
                     {...register("lokasjonArrangor")}
-                    error={
-                      errors.lokasjonArrangor
-                        ? errors.lokasjonArrangor.message
-                        : null
-                    }
+                    error={errors.lokasjonArrangor ? errors.lokasjonArrangor.message : null}
                   />
                 </FormGroup>
               </div>

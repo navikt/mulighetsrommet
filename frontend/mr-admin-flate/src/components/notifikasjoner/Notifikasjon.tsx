@@ -11,11 +11,7 @@ interface NotifikasjonProps {
 export function Notifikasjon({ tittel, melding, href }: NotifikasjonProps) {
   return (
     <>
-      <LinkPanel
-        href={href}
-        className={styles.notifikasjon_container}
-        border={false}
-      >
+      <LinkPanel href={href} className={styles.notifikasjon_container} border={false}>
         <div className={styles.flex}>
           <div>
             <span className={styles.ikon_container}>

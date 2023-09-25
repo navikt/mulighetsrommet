@@ -1,6 +1,6 @@
-import React from 'react';
-import { Search } from '@navikt/ds-react';
-import styles from './Filtermeny.module.scss';
+import React from "react";
+import { Search } from "@navikt/ds-react";
+import styles from "./Filtermeny.module.scss";
 
 interface SokeFilterProps {
   sokefilter: string;

@@ -23,7 +23,9 @@ export function AvtaleSkjemaKnapperad({ redigeringsModus, onClose }: Props) {
         onClick={() => {
           faro?.api?.pushEvent(
             `Bruker ${redigeringsModus ? "redigerer" : "oppretter"} avtale`,
-            { handling: redigeringsModus ? "redigerer" : "oppretter" },
+            {
+              handling: redigeringsModus ? "redigerer" : "oppretter",
+            },
             "avtale",
           );
         }}

@@ -1,7 +1,7 @@
-import { useEffect } from 'react';
-import { useHentBrukerdata } from '../core/api/queries/useHentBrukerdata';
-import { useInnsatsgrupper } from '../core/api/queries/useInnsatsgrupper';
-import { usePrepopulerFilter } from './usePrepopulerFilter';
+import { useEffect } from "react";
+import { useHentBrukerdata } from "../core/api/queries/useHentBrukerdata";
+import { useInnsatsgrupper } from "../core/api/queries/useInnsatsgrupper";
+import { usePrepopulerFilter } from "./usePrepopulerFilter";
 
 export function useInitialBrukerfilter() {
   const brukerdata = useHentBrukerdata();

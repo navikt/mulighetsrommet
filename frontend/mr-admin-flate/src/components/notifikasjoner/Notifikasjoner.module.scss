@@ -17,7 +17,11 @@
 }
 
 .leste {
-  border-bottom: 1px solid var(--border-divider, rgba(0, 0, 0, 0.19));
+  border-bottom: 1px solid
+    var(
+      --border-divider,
+      rgba(0, 0, 0, 0.19)
+    );
 }
 
 .uleste {

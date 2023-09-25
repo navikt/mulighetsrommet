@@ -3,12 +3,9 @@ import { mulighetsrommetClient } from "mulighetsrommet-veileder-flate/src/core/a
 import { useGetAdminTiltaksgjennomforingsIdFraUrl } from "../../hooks/useGetAdminTiltaksgjennomforingsIdFraUrl";
 import { QueryKeys } from "../QueryKeys";
 
-export function useTiltaksgjennomforing(
-  overstyrTiltaksgjennomforingsId?: string,
-) {
+export function useTiltaksgjennomforing(overstyrTiltaksgjennomforingsId?: string) {
   const tiltaksgjennomforingId =
-    overstyrTiltaksgjennomforingsId ||
-    useGetAdminTiltaksgjennomforingsIdFraUrl();
+    overstyrTiltaksgjennomforingsId || useGetAdminTiltaksgjennomforingsIdFraUrl();
 
   const query = useQuery(
     QueryKeys.tiltaksgjennomforing(tiltaksgjennomforingId!!),
@@ -16,10 +13,12 @@ export function useTiltaksgjennomforing(
       mulighetsrommetClient.tiltaksgjennomforinger.getTiltaksgjennomforing({
         id: tiltaksgjennomforingId!!,
       }),
-    { enabled: !!tiltaksgjennomforingId },
+    {
+      enabled: !!tiltaksgjennomforingId,
+    },
   );
   return {
     ...query,
     isLoading: !!tiltaksgjennomforingId && query.isLoading, // https://github.com/TanStack/query/issues/3584
-  }
+  };
 }

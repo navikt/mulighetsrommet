@@ -6,31 +6,31 @@ export interface State {
   dialogId: string;
 }
 
-export type Status = 'IKKE_SENDT' | 'SENDER' | 'SENDT_OK' | 'SENDING_FEILET';
+export type Status = "IKKE_SENDT" | "SENDER" | "SENDT_OK" | "SENDING_FEILET";
 
 export interface SEND_MELDING_ACTION {
-  type: 'Send melding';
+  type: "Send melding";
 }
 
 export interface AVBRYT_ACTION {
-  type: 'Avbryt';
+  type: "Avbryt";
 }
 
 export interface SENDT_OK_ACTION {
-  type: 'Sendt ok';
+  type: "Sendt ok";
   payload: string;
 }
 
 export interface SENDING_FEILET_ACTION {
-  type: 'Sending feilet';
+  type: "Sending feilet";
 }
 
 export interface RESET_ACTION {
-  type: 'Reset';
+  type: "Reset";
 }
 
 export interface SETT_HILSEN_ACTION {
-  type: 'Sett hilsen';
+  type: "Sett hilsen";
   payload: string;
 }
 

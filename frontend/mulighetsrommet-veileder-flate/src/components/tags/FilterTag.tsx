@@ -1,8 +1,8 @@
-import { Tag } from '@navikt/ds-react';
-import { kebabCase } from '../../utils/Utils';
-import Ikonknapp from '../knapper/Ikonknapp';
-import styles from './Filtertag.module.scss';
-import { XMarkIcon } from '@navikt/aksel-icons';
+import { Tag } from "@navikt/ds-react";
+import { kebabCase } from "../../utils/Utils";
+import Ikonknapp from "../knapper/Ikonknapp";
+import styles from "./Filtertag.module.scss";
+import { XMarkIcon } from "@navikt/aksel-icons";
 
 interface FilterTagsProps {
   options: { id: string; tittel: string }[];
@@ -13,7 +13,7 @@ interface FilterTagsProps {
 const FilterTag = ({ options, handleClick, skjulIkon = false }: FilterTagsProps) => {
   return (
     <>
-      {options.map(filtertype => {
+      {options.map((filtertype) => {
         return (
           <Tag
             variant="info"

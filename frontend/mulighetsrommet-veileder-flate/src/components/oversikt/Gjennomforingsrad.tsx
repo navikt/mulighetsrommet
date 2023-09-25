@@ -1,13 +1,16 @@
-import classNames from 'classnames';
-import { useAtom } from 'jotai';
-import { TiltaksgjennomforingOppstartstype, VeilederflateTiltaksgjennomforing } from 'mulighetsrommet-api-client';
-import { paginationAtom } from '../../core/atoms/atoms';
-import { formaterDato } from '../../utils/Utils';
-import Lenke from '../lenke/Lenke';
-import styles from './Gjennomforingsrad.module.scss';
-import { TilgjengelighetsstatusComponent } from './Tilgjengelighetsstatus';
-import { BodyShort } from '@navikt/ds-react';
-import { ChevronRightIcon } from '@navikt/aksel-icons';
+import classNames from "classnames";
+import { useAtom } from "jotai";
+import {
+  TiltaksgjennomforingOppstartstype,
+  VeilederflateTiltaksgjennomforing,
+} from "mulighetsrommet-api-client";
+import { paginationAtom } from "../../core/atoms/atoms";
+import { formaterDato } from "../../utils/Utils";
+import Lenke from "../lenke/Lenke";
+import styles from "./Gjennomforingsrad.module.scss";
+import { TilgjengelighetsstatusComponent } from "./Tilgjengelighetsstatus";
+import { BodyShort } from "@navikt/ds-react";
+import { ChevronRightIcon } from "@navikt/aksel-icons";
 
 interface Props {
   tiltaksgjennomforing: VeilederflateTiltaksgjennomforing;
@@ -19,7 +22,7 @@ const visOppstartsdato = (oppstart: TiltaksgjennomforingOppstartstype, oppstarts
     case TiltaksgjennomforingOppstartstype.FELLES:
       return formaterDato(oppstartsdato!);
     case TiltaksgjennomforingOppstartstype.LOPENDE:
-      return 'Løpende oppstart';
+      return "Løpende oppstart";
   }
 };
 
@@ -40,10 +43,17 @@ export function Gjennomforingsrad({ tiltaksgjennomforing, index }: Props) {
 
   return (
     <li className={styles.list_element} id={`list_element_${index}`}>
-      <Lenke to={`/tiltak/${sanityId}#page=${page}`} data-testid="lenke_tiltaksgjennomforing">
+      <Lenke
+        to={`/arbeidsmarkedstiltak/tiltak/${sanityId}#page=${page}`}
+        data-testid="lenke_tiltaksgjennomforing"
+      >
         <div className={styles.gjennomforing_container}>
           <div className={classNames(styles.flex, styles.navn)}>
-            <BodyShort size="small" title={navn} className={classNames(styles.truncate, styles.as_link)}>
+            <BodyShort
+              size="small"
+              title={navn}
+              className={classNames(styles.truncate, styles.as_link)}
+            >
               {navn}
             </BodyShort>
             <BodyShort size="small" title={arrangor?.selskapsnavn} className={styles.muted}>
@@ -55,7 +65,11 @@ export function Gjennomforingsrad({ tiltaksgjennomforing, index }: Props) {
               {tiltakstype.navn}
             </BodyShort>
 
-            <BodyShort size="small" title={visOppstartsdato(oppstart, oppstartsdato)} className={styles.truncate}>
+            <BodyShort
+              size="small"
+              title={visOppstartsdato(oppstart, oppstartsdato)}
+              className={styles.truncate}
+            >
               {visOppstartsdato(oppstart, oppstartsdato)}
             </BodyShort>
             <TilgjengelighetsstatusComponent

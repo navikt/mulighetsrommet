@@ -3,7 +3,6 @@ import { mulighetsrommetClient } from "../clients";
 
 export function useDeleteAvtale() {
   return useMutation({
-    mutationFn: (avtaleId: string) =>
-      mulighetsrommetClient.avtaler.deleteAvtale({ id: avtaleId }),
+    mutationFn: (avtaleId: string) => mulighetsrommetClient.avtaler.deleteAvtale({ id: avtaleId }),
   });
 }

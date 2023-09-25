@@ -12,12 +12,17 @@
   padding: 0.5rem;
 
   &:hover {
-    background-color: var(--a-surface-inverted-hover);
+    background-color: var(
+      --a-surface-inverted-hover
+    );
   }
 
   &_active {
-    border-top: 2px solid var(--a-border-action);
+    border-top: 2px solid
+      var(--a-border-action);
     color: white;
-    background-color: var(--a-surface-inverted-hover);
+    background-color: var(
+      --a-surface-inverted-hover
+    );
   }
 }

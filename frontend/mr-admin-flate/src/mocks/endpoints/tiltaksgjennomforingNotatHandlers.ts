@@ -11,10 +11,7 @@ export const tiltaksgjennomforingNotatHandlers = [
   rest.get<any, any, TiltaksgjennomforingNotat[]>(
     "*/api/v1/internal/notater/tiltaksgjennomforinger",
     (req, res, ctx) => {
-      return res(
-        ctx.status(200),
-        ctx.json(tiltaksgjennomforingNotater.sort(sortByDate)),
-      );
+      return res(ctx.status(200), ctx.json(tiltaksgjennomforingNotater.sort(sortByDate)));
     },
   ),
   rest.get<any, any, TiltaksgjennomforingNotat[]>(
@@ -39,7 +36,10 @@ export const tiltaksgjennomforingNotatHandlers = [
         ...payload,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
-        opprettetAv: { navIdent: "B123456", navn: "Bertil Betabruker" },
+        opprettetAv: {
+          navIdent: "B123456",
+          navn: "Bertil Betabruker",
+        },
       });
       return res(ctx.status(200));
     },
@@ -57,9 +57,6 @@ export const tiltaksgjennomforingNotatHandlers = [
   ),
 ];
 
-function sortByDate(
-  a: TiltaksgjennomforingNotat,
-  b: TiltaksgjennomforingNotat,
-) {
+function sortByDate(a: TiltaksgjennomforingNotat, b: TiltaksgjennomforingNotat) {
   return new Date(b.createdAt).valueOf() - new Date(a.createdAt).valueOf();
 }

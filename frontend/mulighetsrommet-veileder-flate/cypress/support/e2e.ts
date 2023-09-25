@@ -37,7 +37,7 @@ if (app && !app.document.head.querySelector('[data-hide-command-log-request]')) 
 }
 
 Cypress.Commands.add('resetSide', () => {
-  cy.visit('/oversikt');
+  cy.visit('/arbeidsmarkedstiltak/oversikt');
 });
 
 Cypress.Commands.add('getByTestId', (selector, ...args) => {

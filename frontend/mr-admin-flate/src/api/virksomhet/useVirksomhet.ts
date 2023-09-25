@@ -6,6 +6,6 @@ export function useVirksomhet(orgnr: string) {
   return useQuery(
     QueryKeys.virksomhetOppslag(orgnr),
     () => mulighetsrommetClient.virksomhet.hentVirksomhet({ orgnr }),
-    { enabled: !!orgnr }
+    { enabled: !!orgnr },
   );
 }

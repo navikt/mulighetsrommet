@@ -10,18 +10,17 @@ export function TiltakstypestatusTag({ tiltakstype }: Props) {
 
   const variant = (status: Tiltakstypestatus) => {
     switch (status) {
-      case Tiltakstypestatus.AKTIV: return "success"
-      case Tiltakstypestatus.PLANLAGT: return "alt1"
-      case Tiltakstypestatus.AVSLUTTET: return "neutral"
+      case Tiltakstypestatus.AKTIV:
+        return "success";
+      case Tiltakstypestatus.PLANLAGT:
+        return "alt1";
+      case Tiltakstypestatus.AVSLUTTET:
+        return "neutral";
     }
-  }
+  };
 
   return (
-    <Tag
-      size="small"
-      aria-label={`Status for tiltakstype: ${status}`}
-      variant={variant(status)}
-    >
+    <Tag size="small" aria-label={`Status for tiltakstype: ${status}`} variant={variant(status)}>
       {status}
     </Tag>
   );

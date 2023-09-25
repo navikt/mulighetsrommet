@@ -19,7 +19,9 @@
 }
 
 .separator {
-  background-color: var(--a-border-divider);
+  background-color: var(
+    --a-border-divider
+  );
   height: 1px;
   border: none;
   width: 100%;

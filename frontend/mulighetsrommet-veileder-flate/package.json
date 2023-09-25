@@ -10,7 +10,7 @@
     "cy:run": "npx cypress run --e2e --browser chrome",
     "cypress": "npx cypress open",
     "lint": "eslint src --ext .js,.ts,.tsx && tsc",
-    "prettier": "prettier --write 'src/**/*.ts{,x}'",
+    "fix-lint": "eslint src --ext .js,.ts,.tsx --fix",
     "preview": "vite preview",
     "start": "cross-env VITE_ENVIRONMENT=localhost VITE_MULIGHETSROMMET_API_MOCK=true vite"
   },
@@ -24,14 +24,14 @@
     "**/fsevents": "^1.2.9"
   },
   "dependencies": {
-    "@grafana/faro-web-sdk": "^1.2.0",
+    "@grafana/faro-web-sdk": "^1.2.1",
     "@navikt/aksel-icons": "^5.5.0",
     "@navikt/ds-css": "^5.5.0",
     "@navikt/ds-react": "^5.5.0",
     "@navikt/navspa": "^6.0.1",
     "@portabletext/react": "^3.0.7",
     "@sanity/client": "^6.4.12",
-    "axe-core": "^4.8.1",
+    "axe-core": "^4.8.2",
     "classnames": "^2.3.2",
     "cypress-localstorage-commands": "^2.2.4",
     "groq": "^3.16.7",
@@ -49,16 +49,16 @@
     "uuid": "^9.0.1"
   },
   "devDependencies": {
-    "@faker-js/faker": "^8.0.2",
+    "@faker-js/faker": "^8.1.0",
     "@types/babel__core": "^7.20.2",
     "@types/progress-stream": "^2.0.2",
     "@types/react-modal": "^3.16.0",
     "@typescript-eslint/eslint-plugin": "^6.7.2",
-    "@vitejs/plugin-react": "^4.0.4",
+    "@vitejs/plugin-react": "^4.1.0",
     "cross-env": "^7.0.3",
     "cypress": "^13.2.0",
     "cypress-axe": "^1.5.0",
-    "eslint": "^8.49.0",
+    "eslint": "^8.50.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-config-standard": "^17.1.0",
     "eslint-plugin-cypress": "^2.15.1",
@@ -71,7 +71,7 @@
     "rollup-plugin-visualizer": "^5.9.2",
     "typescript": "^5.2.2",
     "vite": "^4.4.9",
-    "vite-plugin-require": "^1.1.10"
+    "vite-plugin-require": "^1.1.11"
   },
   "msw": {
     "workerDirectory": "public"

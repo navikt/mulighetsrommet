@@ -1,10 +1,5 @@
 import { BodyShort, Button, Heading, Modal } from "@navikt/ds-react";
-import {
-  ApiError,
-  Avtale,
-  Opphav,
-  Tiltaksgjennomforing,
-} from "mulighetsrommet-api-client";
+import { ApiError, Avtale, Opphav, Tiltaksgjennomforing } from "mulighetsrommet-api-client";
 import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { XMarkOctagonFillIcon } from "@navikt/aksel-icons";
@@ -49,23 +44,23 @@ const SlettAvtaleGjennomforingModal = ({
     mutation.mutate(data.id);
   };
   const tekster = {
-    tiltaksgjennomforing: { navnPlural: "Gjennomføringen" },
+    tiltaksgjennomforing: {
+      navnPlural: "Gjennomføringen",
+    },
     avtale: { navnPlural: "Avtalen" },
   };
 
   function headerInnhold() {
     return (
       <div className={styles.heading}>
-        <XMarkOctagonFillIcon
-          className={classNames(styles.icon_warning, styles.icon)}
-        />
+        <XMarkOctagonFillIcon className={classNames(styles.icon_warning, styles.icon)} />
 
         <Heading size="medium">
           {fraArena
             ? `${tekster[dataType].navnPlural} kan ikke slettes`
             : mutation.isError
-              ? `Kan ikke slette «${data.navn}»`
-              : `Ønsker du å slette «${data.navn}»?`}
+            ? `Kan ikke slette «${data.navn}»`
+            : `Ønsker du å slette «${data.navn}»?`}
         </Heading>
       </div>
     );
@@ -78,8 +73,8 @@ const SlettAvtaleGjennomforingModal = ({
           ? `${tekster[dataType].navnPlural} «${data.navn}» kommer fra Arena og kan
             ikke slettes her`
           : mutation?.isError
-            ? (mutation.error as ApiError).body
-            : "Du kan ikke angre denne handlingen."}
+          ? (mutation.error as ApiError).body
+          : "Du kan ikke angre denne handlingen."}
       </BodyShort>
     );
   }
@@ -98,10 +93,7 @@ const SlettAvtaleGjennomforingModal = ({
           />
         ) : (
           <Button variant="danger" onClick={handleDelete}>
-            Slett{" "}
-            {dataType === "tiltaksgjennomforing"
-              ? "tiltaksgjennomføring"
-              : "avtale"}
+            Slett {dataType === "tiltaksgjennomforing" ? "tiltaksgjennomføring" : "avtale"}
           </Button>
         )}
       </div>
