@@ -42,9 +42,9 @@ export function DetaljerAvtalePage() {
     } else if (pathname.includes("tiltaksgjennomforinger")) {
       return "tiltaksgjennomforinger";
     } else {
-      return "info"
+      return "info";
     }
-  }
+  };
 
   return (
     <main>
@@ -54,7 +54,7 @@ export function DetaljerAvtalePage() {
           <AvtalestatusTag avtale={avtale} />
         </div>
       </Header>
-      <Tabs value={currentTab()} >
+      <Tabs value={currentTab()}>
         <Tabs.List className={commonStyles.list}>
           <Tabs.Tab
             value="info"

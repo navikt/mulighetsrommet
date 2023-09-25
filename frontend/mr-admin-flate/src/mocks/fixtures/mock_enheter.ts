@@ -1,10 +1,8 @@
-import {
-  NavEnhet,
-  NavEnhetStatus,
-  NavEnhetType,
-} from "mulighetsrommet-api-client";
+import { NavEnhet, NavEnhetStatus, NavEnhetType } from "mulighetsrommet-api-client";
 
-export const mockEnheter: { [navn: string]: NavEnhet } = {
+export const mockEnheter: {
+  [navn: string]: NavEnhet;
+} = {
   // Innlandet
   _0425: {
     navn: "NAV Solør",

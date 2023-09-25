@@ -47,9 +47,7 @@ export function App() {
     return (
       <main>
         <Alert variant="error">
-          <BodyShort>
-            Vi klarte ikke hente brukerinformasjon. Prøv igjen senere.
-          </BodyShort>
+          <BodyShort>Vi klarte ikke hente brukerinformasjon. Prøv igjen senere.</BodyShort>
           <pre>{JSON.stringify(error, null, 2)}</pre>
         </Alert>
       </main>
@@ -67,8 +65,7 @@ export function App() {
   if (
     !ansatt.roller?.some(
       (rolle) =>
-        rolle === NavAnsattRolle.BETABRUKER ||
-        rolle === NavAnsattRolle.TEAM_MULIGHETSROMMET,
+        rolle === NavAnsattRolle.BETABRUKER || rolle === NavAnsattRolle.TEAM_MULIGHETSROMMET,
     )
   ) {
     return <IkkeAutentisertApp />;
@@ -76,32 +73,16 @@ export function App() {
 
   return (
     <Routes>
-      <Route
-        path="tiltakstyper"
-        element={<TiltakstyperPage />}
-        errorElement={<ErrorPage />}
-      />
+      <Route path="tiltakstyper" element={<TiltakstyperPage />} errorElement={<ErrorPage />} />
       <Route
         path="tiltakstyper/:tiltakstypeId"
         element={<DetaljerTiltakstypePage />}
         errorElement={<ErrorPage />}
       >
-        <Route
-          index
-          element={<TiltakstypeInfo />}
-          errorElement={<ErrorPage />}
-        />
-        <Route
-          path="avtaler"
-          element={<AvtalerForTiltakstype />}
-          errorElement={<ErrorPage />}
-        />
+        <Route index element={<TiltakstypeInfo />} errorElement={<ErrorPage />} />
+        <Route path="avtaler" element={<AvtalerForTiltakstype />} errorElement={<ErrorPage />} />
       </Route>
-      <Route
-        path="avtaler"
-        element={<AvtalerPage />}
-        errorElement={<ErrorPage />}
-      >
+      <Route path="avtaler" element={<AvtalerPage />} errorElement={<ErrorPage />}>
         <Route
           index
           element={
@@ -117,17 +98,9 @@ export function App() {
           errorElement={<ErrorPage />}
         />
       </Route>
-      <Route
-        path="avtaler/:avtaleId"
-        element={<DetaljerAvtalePage />}
-        errorElement={<ErrorPage />}
-      >
+      <Route path="avtaler/:avtaleId" element={<DetaljerAvtalePage />} errorElement={<ErrorPage />}>
         <Route index element={<AvtaleInfo />} errorElement={<ErrorPage />} />
-        <Route
-          path="notater"
-          element={<NotaterAvtalePage />}
-          errorElement={<ErrorPage />}
-        />
+        <Route path="notater" element={<NotaterAvtalePage />} errorElement={<ErrorPage />} />
         <Route
           path="tiltaksgjennomforinger"
           element={<TiltaksgjennomforingerForAvtale />}
@@ -138,10 +111,15 @@ export function App() {
             element={
               <>
                 <Tiltaksgjennomforingfilter
-                  skjulFilter={{ tiltakstype: true }}
+                  skjulFilter={{
+                    tiltakstype: true,
+                  }}
                 />
                 <TiltaksgjennomforingsTabell
-                  skjulKolonner={{ tiltakstype: true, arrangor: true }}
+                  skjulKolonner={{
+                    tiltakstype: true,
+                    arrangor: true,
+                  }}
                 />
               </>
             }
@@ -149,9 +127,7 @@ export function App() {
           />
           <Route
             path="utkast"
-            element={
-              <UtkastListe utkastType={Utkast.type.TILTAKSGJENNOMFORING} />
-            }
+            element={<UtkastListe utkastType={Utkast.type.TILTAKSGJENNOMFORING} />}
             errorElement={<ErrorPage />}
           />
         </Route>
@@ -161,11 +137,7 @@ export function App() {
         element={<AvtaleSkjemaPage />}
         errorElement={<ErrorPage />}
       />
-      <Route
-        path="avtaler/skjema"
-        element={<AvtaleSkjemaPage />}
-        errorElement={<ErrorPage />}
-      />
+      <Route path="avtaler/skjema" element={<AvtaleSkjemaPage />} errorElement={<ErrorPage />} />
       <Route
         path="tiltaksgjennomforinger/"
         element={<TiltaksgjennomforingerPage />}
@@ -176,42 +148,26 @@ export function App() {
         element={<DetaljerTiltaksgjennomforingerPage />}
         errorElement={<ErrorPage />}
       >
-        <Route
-          index
-          element={<TiltaksgjennomforingInfo />}
-          errorElement={<ErrorPage />}
-        />
+        <Route index element={<TiltaksgjennomforingInfo />} errorElement={<ErrorPage />} />
         <Route
           path="notater"
           element={<NotaterTiltaksgjennomforingerPage />}
           errorElement={<ErrorPage />}
         />
-        <Route
-          path="deltakere"
-          element={<DeltakerListe />}
-          errorElement={<ErrorPage />}
-        />
+        <Route path="deltakere" element={<DeltakerListe />} errorElement={<ErrorPage />} />
       </Route>
       <Route
         path="tiltaksgjennomforinger/:tiltaksgjennomforingId"
         element={<DetaljerTiltaksgjennomforingerPage />}
         errorElement={<ErrorPage />}
       >
-        <Route
-          index
-          element={<TiltaksgjennomforingInfo />}
-          errorElement={<ErrorPage />}
-        />
+        <Route index element={<TiltaksgjennomforingInfo />} errorElement={<ErrorPage />} />
         <Route
           path="notater"
           element={<NotaterTiltaksgjennomforingerPage />}
           errorElement={<ErrorPage />}
         />
-        <Route
-          path="deltakere"
-          element={<DeltakerListe />}
-          errorElement={<ErrorPage />}
-        />
+        <Route path="deltakere" element={<DeltakerListe />} errorElement={<ErrorPage />} />
       </Route>
       <Route
         path="avtaler/:avtaleId/tiltaksgjennomforinger/:tiltaksgjennomforingId/skjema"
@@ -228,16 +184,8 @@ export function App() {
         element={<TiltaksgjennomforingSkjemaPage />}
         errorElement={<ErrorPage />}
       />
-      <Route
-        path="notifikasjoner"
-        element={<NotifikasjonerPage />}
-        errorElement={<ErrorPage />}
-      >
-        <Route
-          index
-          element={<Notifikasjonsliste lest={false} />}
-          errorElement={<ErrorPage />}
-        />
+      <Route path="notifikasjoner" element={<NotifikasjonerPage />} errorElement={<ErrorPage />}>
+        <Route index element={<Notifikasjonsliste lest={false} />} errorElement={<ErrorPage />} />
         <Route
           path="tidligere"
           element={<Notifikasjonsliste lest={true} />}

@@ -11,11 +11,7 @@ interface ModalProps {
   handleCancel?: () => void;
 }
 
-export const LeggTilGjennomforingModal = ({
-  modalOpen,
-  onClose,
-  handleCancel,
-}: ModalProps) => {
+export const LeggTilGjennomforingModal = ({ modalOpen, onClose, handleCancel }: ModalProps) => {
   const [filter, setFilter] = useAtom(tiltaksgjennomforingTilAvtaleFilter);
 
   const clickCancel = () => {
@@ -41,7 +37,12 @@ export const LeggTilGjennomforingModal = ({
           variant="simple"
           hideLabel={false}
           autoFocus
-          onChange={(search) => setFilter({ ...filter, search: search.trim() })}
+          onChange={(search) =>
+            setFilter({
+              ...filter,
+              search: search.trim(),
+            })
+          }
         />
         <Tiltaksgjennomforingsliste />
       </Modal.Body>

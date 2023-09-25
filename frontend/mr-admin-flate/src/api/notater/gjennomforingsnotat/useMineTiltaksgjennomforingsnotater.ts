@@ -6,19 +6,14 @@ import { useGetAdminTiltaksgjennomforingsIdFraUrl } from "../../../hooks/useGetA
 
 export function useMineTiltaksgjennomforingsnotater() {
   const tiltaksgjennomforingId = useGetAdminTiltaksgjennomforingsIdFraUrl();
-  invariant(
-    tiltaksgjennomforingId,
-    "Id for tiltaksgjennomføring er ikke satt.",
-  );
+  invariant(tiltaksgjennomforingId, "Id for tiltaksgjennomføring er ikke satt.");
 
   return useQuery(
     QueryKeys.mineTiltaksgjennomforingsnotater(tiltaksgjennomforingId),
     () =>
-      mulighetsrommetClient.tiltaksgjennomforingNotater.getMineTiltaksgjennomforingNotater(
-        {
-          tiltaksgjennomforingId,
-        },
-      ),
+      mulighetsrommetClient.tiltaksgjennomforingNotater.getMineTiltaksgjennomforingNotater({
+        tiltaksgjennomforingId,
+      }),
     {},
   );
 }

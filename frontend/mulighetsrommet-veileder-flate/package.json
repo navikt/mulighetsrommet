@@ -10,7 +10,7 @@
     "cy:run": "npx cypress run --e2e --browser chrome",
     "cypress": "npx cypress open",
     "lint": "eslint src --ext .js,.ts,.tsx && tsc",
-    "prettier": "prettier --write 'src/**/*.ts{,x}'",
+    "fix-lint": "eslint src --ext .js,.ts,.tsx --fix",
     "preview": "vite preview",
     "start": "cross-env VITE_ENVIRONMENT=localhost VITE_MULIGHETSROMMET_API_MOCK=true vite"
   },

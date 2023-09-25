@@ -1,6 +1,6 @@
-import { BodyShort, Heading, HelpText } from '@navikt/ds-react';
-import styles from './Nokkelinfo.module.scss';
-import {JSX} from "react/ts5.0/jsx-runtime";
+import { BodyShort, Heading, HelpText } from "@navikt/ds-react";
+import styles from "./Nokkelinfo.module.scss";
+import { JSX } from "react/ts5.0/jsx-runtime";
 
 export interface NokkelinfoProps {
   nokkelinfoKomponenter: NokkelinfoElement[];
@@ -10,7 +10,7 @@ export interface NokkelinfoProps {
 export interface NokkelinfoElement {
   _id: string;
   tittel?: string;
-  innhold?: string | JSX.Element ;
+  innhold?: string | JSX.Element;
   hjelpetekst?: string;
 }
 
@@ -21,14 +21,14 @@ const Nokkelinfo = ({ nokkelinfoKomponenter, uuTitle, ...rest }: NokkelinfoProps
         return (
           <div className={styles.nokkelinfo} key={index}>
             <div className={styles.content}>
-              {typeof nokkelinfo.innhold === 'string' ? (
+              {typeof nokkelinfo.innhold === "string" ? (
                 <BodyShort className={styles.tekst}>{nokkelinfo.innhold}</BodyShort>
               ) : (
                 <div className={styles.tekst}>{nokkelinfo.innhold}</div>
               )}
 
               {nokkelinfo.hjelpetekst && (
-                <HelpText title={uuTitle} placement="right" style={{ maxWidth: '400px' }}>
+                <HelpText title={uuTitle} placement="right" style={{ maxWidth: "400px" }}>
                   {nokkelinfo.hjelpetekst}
                 </HelpText>
               )}

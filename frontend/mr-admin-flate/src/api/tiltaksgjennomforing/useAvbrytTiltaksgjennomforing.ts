@@ -5,12 +5,12 @@ export function useAvbrytTiltaksgjennomforing() {
   const client = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => {
-      return mulighetsrommetClient.tiltaksgjennomforinger.avbrytTiltaksgjennomforing(
-        { id },
-      );
+      return mulighetsrommetClient.tiltaksgjennomforinger.avbrytTiltaksgjennomforing({ id });
     },
     onSuccess: () => {
-      client.invalidateQueries({ queryKey: ["tiltaksgjennomforing"] });
+      client.invalidateQueries({
+        queryKey: ["tiltaksgjennomforing"],
+      });
     },
   });
 }

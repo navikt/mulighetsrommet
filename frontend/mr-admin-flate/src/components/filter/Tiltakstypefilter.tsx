@@ -25,18 +25,39 @@ export function Tiltakstypefilter() {
 
   const statusOptions = () => {
     return [
-      { label: "Aktiv", value: "Aktiv" },
-      { label: "Planlagt", value: "Planlagt" },
-      { label: "Avsluttet", value: "Avsluttet" },
-      { label: "Alle statuser", value: "" },
+      {
+        label: "Aktiv",
+        value: "Aktiv",
+      },
+      {
+        label: "Planlagt",
+        value: "Planlagt",
+      },
+      {
+        label: "Avsluttet",
+        value: "Avsluttet",
+      },
+      {
+        label: "Alle statuser",
+        value: "",
+      },
     ];
   };
 
   const kategoriOptions = () => {
     return [
-      { label: "Gruppetiltak", value: "GRUPPE" },
-      { label: "Individuelle tiltak", value: "INDIVIDUELL" },
-      { label: "Alle kategorier", value: "" },
+      {
+        label: "Gruppetiltak",
+        value: "GRUPPE",
+      },
+      {
+        label: "Individuelle tiltak",
+        value: "INDIVIDUELL",
+      },
+      {
+        label: "Alle kategorier",
+        value: "",
+      },
     ];
   };
 
@@ -50,7 +71,12 @@ export function Tiltakstypefilter() {
               hideLabel
               variant="simple"
               data-testid="filter_sokefelt"
-              onChange={(sok: string) => setFilter({ ...filter, sok })}
+              onChange={(sok: string) =>
+                setFilter({
+                  ...filter,
+                  sok,
+                })
+              }
               value={filter.sok}
               aria-label="Søk etter tiltakstype"
               size="small"
@@ -68,10 +94,7 @@ export function Tiltakstypefilter() {
                 resetPaginering(setPage);
                 setFilter({
                   ...filter,
-                  status: valueOrDefault(
-                    e.target.value,
-                    defaultTiltakstypeFilter.status,
-                  ),
+                  status: valueOrDefault(e.target.value, defaultTiltakstypeFilter.status),
                 });
               }}
               options={statusOptions()}
@@ -87,10 +110,7 @@ export function Tiltakstypefilter() {
                 resetPaginering(setPage);
                 setFilter({
                   ...filter,
-                  kategori: valueOrDefault(
-                    e.target.value,
-                    defaultTiltakstypeFilter.kategori,
-                  ),
+                  kategori: valueOrDefault(e.target.value, defaultTiltakstypeFilter.kategori),
                 });
               }}
               options={kategoriOptions()}
@@ -102,20 +122,22 @@ export function Tiltakstypefilter() {
               <FilterTag
                 label={filter.status}
                 onClick={() => {
-                  setFilter({ ...filter, status: "" });
+                  setFilter({
+                    ...filter,
+                    status: "",
+                  });
                   setValue("status", "");
                 }}
               />
             )}
             {filter.kategori && (
               <FilterTag
-                label={
-                  filter.kategori === "GRUPPE"
-                    ? "Gruppetiltak"
-                    : "Individuelle tiltak"
-                }
+                label={filter.kategori === "GRUPPE" ? "Gruppetiltak" : "Individuelle tiltak"}
                 onClick={() => {
-                  setFilter({ ...filter, kategori: "" });
+                  setFilter({
+                    ...filter,
+                    kategori: "",
+                  });
                   setValue("kategori", "");
                 }}
               />
@@ -123,7 +145,10 @@ export function Tiltakstypefilter() {
             {(filter.status !== defaultTiltakstypeFilter.status ||
               filter.kategori !== defaultTiltakstypeFilter.kategori) && (
               <Button
-                style={{ height: "16px", maxHeight: "16px" }}
+                style={{
+                  height: "16px",
+                  maxHeight: "16px",
+                }}
                 type="button"
                 size="small"
                 variant="tertiary"

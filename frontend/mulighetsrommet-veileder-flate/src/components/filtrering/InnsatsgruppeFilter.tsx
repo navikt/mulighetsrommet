@@ -1,13 +1,15 @@
-import { Accordion, Alert, Loader, Radio, RadioGroup } from '@navikt/ds-react';
-import { useAtom } from 'jotai';
-import { Innsatsgruppe } from 'mulighetsrommet-api-client';
-import { logEvent } from '../../core/api/logger';
-import { useInnsatsgrupper } from '../../core/api/queries/useInnsatsgrupper';
-import { tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
-import { kebabCase } from '../../utils/Utils';
-import './Filtermeny.module.scss';
+import { Accordion, Alert, Loader, Radio, RadioGroup } from "@navikt/ds-react";
+import { useAtom } from "jotai";
+import { Innsatsgruppe } from "mulighetsrommet-api-client";
+import { logEvent } from "../../core/api/logger";
+import { useInnsatsgrupper } from "../../core/api/queries/useInnsatsgrupper";
+import { tiltaksgjennomforingsfilter } from "../../core/atoms/atoms";
+import { kebabCase } from "../../utils/Utils";
+import "./Filtermeny.module.scss";
 
-interface InnsatsgruppeFilterProps<T extends { id: string; tittel: string; nokkel?: Innsatsgruppe }> {
+interface InnsatsgruppeFilterProps<
+  T extends { id: string; tittel: string; nokkel?: Innsatsgruppe },
+> {
   accordionNavn: string;
   option?: Innsatsgruppe;
   setOption: (type: Innsatsgruppe) => void;
@@ -31,7 +33,7 @@ const InnsatsgruppeAccordion = <T extends { id: string; tittel: string; nokkel?:
       <Radio
         value={option.nokkel}
         key={`${option.id}`}
-        data-testid={`filter_checkbox_${kebabCase(option?.tittel ?? '')}`}
+        data-testid={`filter_checkbox_${kebabCase(option?.tittel ?? "")}`}
       >
         {option.tittel}
       </Radio>
@@ -69,7 +71,9 @@ function InnsatsgruppeFilter() {
   const innsatsgrupper = useInnsatsgrupper();
 
   const handleEndreFilter = (innsatsgruppe: string) => {
-    const foundInnsatsgruppe = innsatsgrupper.data?.find(gruppe => gruppe.nokkel === innsatsgruppe);
+    const foundInnsatsgruppe = innsatsgrupper.data?.find(
+      (gruppe) => gruppe.nokkel === innsatsgruppe,
+    );
     if (foundInnsatsgruppe) {
       setFilter({
         ...filter,
@@ -80,17 +84,24 @@ function InnsatsgruppeFilter() {
         },
       });
     }
-    logEvent('mulighetsrommet.filtrering', { type: 'innsatsgruppe', value: kebabCase(innsatsgruppe) });
+    logEvent("mulighetsrommet.filtrering", {
+      type: "innsatsgruppe",
+      value: kebabCase(innsatsgruppe),
+    });
   };
 
-  const options = innsatsgrupper.data?.map(innsatsgruppe => {
-    return { id: innsatsgruppe.sanityId, tittel: innsatsgruppe.tittel, nokkel: innsatsgruppe.nokkel };
+  const options = innsatsgrupper.data?.map((innsatsgruppe) => {
+    return {
+      id: innsatsgruppe.sanityId,
+      tittel: innsatsgruppe.tittel,
+      nokkel: innsatsgruppe.nokkel,
+    };
   });
   return (
     <InnsatsgruppeAccordion
       accordionNavn="Innsatsgruppe"
       option={filter.innsatsgruppe?.nokkel}
-      setOption={innsatsgruppe => {
+      setOption={(innsatsgruppe) => {
         handleEndreFilter(innsatsgruppe);
       }}
       options={options ?? []}

@@ -1,6 +1,6 @@
-import { Alert } from '@navikt/ds-react';
-import { Bruker } from 'mulighetsrommet-api-client';
-import styles from './BrukerKvalifisererIkkeVarsel.module.scss';
+import { Alert } from "@navikt/ds-react";
+import { Bruker } from "mulighetsrommet-api-client";
+import styles from "./BrukerKvalifisererIkkeVarsel.module.scss";
 
 interface Props {
   brukerdata: Bruker;

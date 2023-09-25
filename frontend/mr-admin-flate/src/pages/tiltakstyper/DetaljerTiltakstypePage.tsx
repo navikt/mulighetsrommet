@@ -36,7 +36,7 @@ export function DetaljerTiltakstypePage() {
         </div>
       </Header>
 
-      <Tabs value={pathname.includes("avtaler") ? "avtaler" : "arenainfo"} >
+      <Tabs value={pathname.includes("avtaler") ? "avtaler" : "arenainfo"}>
         <Tabs.List className={commonStyles.list}>
           <Tabs.Tab
             value="arenainfo"

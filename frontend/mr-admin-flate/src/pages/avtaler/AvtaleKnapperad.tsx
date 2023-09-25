@@ -24,11 +24,7 @@ export function AvtaleKnapperad({ handleSlett, handleAvbryt, avtale }: Props) {
     <div className={styles.knapperad}>
       {slettAvtaleEnabled ? (
         avtale.avtalestatus === Avtalestatus.AKTIV ? (
-          <Button
-            variant="danger"
-            onClick={handleAvbryt}
-            data-testid="avbryt-avtale"
-          >
+          <Button variant="danger" onClick={handleAvbryt} data-testid="avbryt-avtale">
             Avbryt avtale
           </Button>
         ) : (

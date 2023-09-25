@@ -1,4 +1,4 @@
-const base = 'arbeidsmarkedstiltak';
+const base = "arbeidsmarkedstiltak";
 
 export const routes = {
   base,

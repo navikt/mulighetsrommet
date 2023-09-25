@@ -1,10 +1,10 @@
 /* eslint-disable camelcase */
-import { Tilgjengelighetsstatus } from 'mulighetsrommet-api-client';
-import StatusGronn from '../../ikoner/Sirkel-gronn.png';
-import StatusGul from '../../ikoner/Sirkel-gul.png';
-import StatusRod from '../../ikoner/Sirkel-rod.png';
-import { formaterDato } from '../../utils/Utils';
-import styles from './Tilgjengelighetsstatus.module.scss';
+import { Tilgjengelighetsstatus } from "mulighetsrommet-api-client";
+import StatusGronn from "../../ikoner/Sirkel-gronn.png";
+import StatusGul from "../../ikoner/Sirkel-gul.png";
+import StatusRod from "../../ikoner/Sirkel-rod.png";
+import { formaterDato } from "../../utils/Utils";
+import styles from "./Tilgjengelighetsstatus.module.scss";
 
 interface Props {
   status?: Tilgjengelighetsstatus;
@@ -14,18 +14,37 @@ interface Props {
 }
 
 function EstimertVentetid({ estimert_ventetid }: { estimert_ventetid?: string }) {
-  return estimert_ventetid ? <small className={styles.estimert_ventetid}>{estimert_ventetid}</small> : null;
+  return estimert_ventetid ? (
+    <small className={styles.estimert_ventetid}>{estimert_ventetid}</small>
+  ) : null;
 }
 
-export function TilgjengelighetsstatusComponent({ status, estimertVentetid, stengtFra, stengtTil }: Props) {
+export function TilgjengelighetsstatusComponent({
+  status,
+  estimertVentetid,
+  stengtFra,
+  stengtTil,
+}: Props) {
   const todayDate = new Date();
 
-  if (stengtFra && stengtTil && todayDate <= new Date(stengtTil) && todayDate >= new Date(stengtFra)) {
+  if (
+    stengtFra &&
+    stengtTil &&
+    todayDate <= new Date(stengtTil) &&
+    todayDate >= new Date(stengtFra)
+  ) {
     return (
       <div>
         <div className={styles.tilgjengelighetsstatus}>
-          <img src={StatusRod} alt="Rødt ikon som representerer at tiltaksgjennomføringen er stengt" />
-          <div title={`Midlertidig stengt mellom ${formaterDato(stengtFra)} og ${formaterDato(stengtTil)}`}>
+          <img
+            src={StatusRod}
+            alt="Rødt ikon som representerer at tiltaksgjennomføringen er stengt"
+          />
+          <div
+            title={`Midlertidig stengt mellom ${formaterDato(stengtFra)} og ${formaterDato(
+              stengtTil,
+            )}`}
+          >
             Midlertidig stengt
           </div>
         </div>
@@ -36,7 +55,10 @@ export function TilgjengelighetsstatusComponent({ status, estimertVentetid, sten
     return (
       <div>
         <div className={styles.tilgjengelighetsstatus}>
-          <img src={StatusGronn} alt="Grønt ikon som representerer at tilgjengelighetsstatus er åpent" />
+          <img
+            src={StatusGronn}
+            alt="Grønt ikon som representerer at tilgjengelighetsstatus er åpent"
+          />
           <div>Åpent</div>
         </div>
         <EstimertVentetid estimert_ventetid={estimertVentetid} />
@@ -44,9 +66,12 @@ export function TilgjengelighetsstatusComponent({ status, estimertVentetid, sten
     );
   } else if (status === Tilgjengelighetsstatus.STENGT) {
     return (
-      <div title={estimertVentetid ?? ''}>
+      <div title={estimertVentetid ?? ""}>
         <div className={styles.tilgjengelighetsstatus}>
-          <img src={StatusRod} alt="Rødt ikon som representerer at tilgjengelighetsstatus er stengt" />
+          <img
+            src={StatusRod}
+            alt="Rødt ikon som representerer at tilgjengelighetsstatus er stengt"
+          />
           <div>Stengt</div>
         </div>
         <EstimertVentetid estimert_ventetid={estimertVentetid} />
@@ -54,9 +79,12 @@ export function TilgjengelighetsstatusComponent({ status, estimertVentetid, sten
     );
   } else if (status === Tilgjengelighetsstatus.VENTELISTE) {
     return (
-      <div title={estimertVentetid ?? ''}>
+      <div title={estimertVentetid ?? ""}>
         <div className={styles.tilgjengelighetsstatus}>
-          <img src={StatusGul} alt="Gult ikon som representerer at tilgjengelighetsstatus er venteliste" />
+          <img
+            src={StatusGul}
+            alt="Gult ikon som representerer at tilgjengelighetsstatus er venteliste"
+          />
           <div>Venteliste</div>
         </div>
         <EstimertVentetid estimert_ventetid={estimertVentetid} />

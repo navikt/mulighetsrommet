@@ -1,18 +1,18 @@
-import React from 'react';
-import { createRoot } from 'react-dom/client';
-import { APPLICATION_WEB_COMPONENT_NAME } from './constants';
-import { App } from './App';
-import { AppContext } from './AppContext';
-import urlJoin from 'url-join';
+import React from "react";
+import { createRoot } from "react-dom/client";
+import { APPLICATION_WEB_COMPONENT_NAME } from "./constants";
+import { App } from "./App";
+import { AppContext } from "./AppContext";
+import urlJoin from "url-join";
 
 interface ViteAssetManifest {
-  'index.html': {
+  "index.html": {
     css: string[];
   };
 }
 
 export class Arbeidsmarkedstiltak extends HTMLElement {
-  static FNR_PROP = 'data-fnr';
+  static FNR_PROP = "data-fnr";
 
   private readonly root: HTMLDivElement;
 
@@ -20,7 +20,7 @@ export class Arbeidsmarkedstiltak extends HTMLElement {
     super();
 
     // This will be app entry point
-    this.root = document.createElement('div');
+    this.root = document.createElement("div");
     this.root.id = APPLICATION_WEB_COMPONENT_NAME;
   }
 
@@ -39,7 +39,7 @@ export class Arbeidsmarkedstiltak extends HTMLElement {
   connectedCallback() {
     // The ShadowRoot is rendered separately from the main DOM tree, ensuring that styling
     // does not bleed across trees
-    const shadowRoot = this.attachShadow({ mode: 'open' });
+    const shadowRoot = this.attachShadow({ mode: "open" });
     shadowRoot.appendChild(this.root);
 
     this.loadStyles(shadowRoot)
@@ -47,7 +47,7 @@ export class Arbeidsmarkedstiltak extends HTMLElement {
         const fnr = this.getAttribute(Arbeidsmarkedstiltak.FNR_PROP);
         this.renderApp(fnr);
       })
-      .catch(error => {
+      .catch((error) => {
         this.displayError(error?.message ?? error);
       });
   }
@@ -59,15 +59,15 @@ export class Arbeidsmarkedstiltak extends HTMLElement {
   }
 
   async loadStyles(shadowRoot: ShadowRoot) {
-    const response = await fetch(urlJoin(import.meta.env.BASE_URL, 'asset-manifest.json'));
+    const response = await fetch(urlJoin(import.meta.env.BASE_URL, "asset-manifest.json"));
     if (!response.ok) {
       throw Error(`Failed to get resource '${response.url}'`);
     }
 
     const manifest: ViteAssetManifest = await response.json();
-    for (const css of manifest['index.html'].css) {
-      const link = document.createElement('link');
-      link.rel = 'stylesheet';
+    for (const css of manifest["index.html"].css) {
+      const link = document.createElement("link");
+      link.rel = "stylesheet";
       link.href = urlJoin(import.meta.env.BASE_URL, css);
 
       shadowRoot.appendChild(link);
@@ -77,9 +77,9 @@ export class Arbeidsmarkedstiltak extends HTMLElement {
   renderApp(fnr: string | null) {
     const root = createRoot(this.root);
     root.render(
-      <AppContext fnr={fnr} setFnrRef={setFnr => (this.setFnr = setFnr)}>
+      <AppContext fnr={fnr} setFnrRef={(setFnr) => (this.setFnr = setFnr)}>
         <App />
-      </AppContext>
+      </AppContext>,
     );
   }
 

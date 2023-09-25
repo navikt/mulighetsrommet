@@ -43,18 +43,12 @@ export function AvbrytAvtale({ onAvbryt }: Props) {
     <div className={styles.warning_container}>
       <ReadMore header="Hva betyr det å avbryte avtalen?">
         <BodyLong>
-          Hvis avtalens startdato er passert kan du avbryte avtalen. Den vil da
-          bli satt som avbrutt i systemet. Du kan ikke avbryte en avtale som har
-          tiltaksgjennomføringer tilknyttet seg.
+          Hvis avtalens startdato er passert kan du avbryte avtalen. Den vil da bli satt som avbrutt
+          i systemet. Du kan ikke avbryte en avtale som har tiltaksgjennomføringer tilknyttet seg.
         </BodyLong>
       </ReadMore>
 
-      <Button
-        type="button"
-        size="small"
-        variant="danger"
-        onClick={avbrytAvtale}
-      >
+      <Button type="button" size="small" variant="danger" onClick={avbrytAvtale}>
         Jeg vil avbryte avtalen
       </Button>
       {error ? (

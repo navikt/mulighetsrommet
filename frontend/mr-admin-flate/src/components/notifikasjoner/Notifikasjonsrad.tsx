@@ -16,47 +16,28 @@ function tag(type: NotificationType, lest: boolean): ReactNode {
   switch (type) {
     case NotificationType.NOTIFICATION:
       return (
-        <Tag
-          data-testid="notifikasjon-tag"
-          variant={lest ? "warning-moderate" : "warning-filled"}
-        >
+        <Tag data-testid="notifikasjon-tag" variant={lest ? "warning-moderate" : "warning-filled"}>
           Notifikasjon
         </Tag>
       );
     case NotificationType.TASK:
       return (
-        <Tag
-          data-testid="oppgave-tag"
-          variant={lest ? "info-moderate" : "info-filled"}
-        >
+        <Tag data-testid="oppgave-tag" variant={lest ? "info-moderate" : "info-filled"}>
           Oppgave
         </Tag>
       );
   }
 }
 
-export function Notifikasjonssrad({
-  notifikasjon,
-  lest,
-}: NotifikasjonssradProps) {
+export function Notifikasjonssrad({ notifikasjon, lest }: NotifikasjonssradProps) {
   const { title, description, createdAt, type } = notifikasjon;
 
   const [read, setRead] = useState<boolean>(lest);
 
   return (
-    <li
-      className={classNames(
-        styles.list_element,
-        lest ? styles.leste : styles.uleste,
-      )}
-    >
+    <li className={classNames(styles.list_element, lest ? styles.leste : styles.uleste)}>
       <div className={styles.flex}>
-        <Heading
-          level="2"
-          size="small"
-          title={title}
-          className={styles.truncate}
-        >
+        <Heading level="2" size="small" title={title} className={styles.truncate}>
           {title}
         </Heading>
         <BodyLong size="small">{description}</BodyLong>

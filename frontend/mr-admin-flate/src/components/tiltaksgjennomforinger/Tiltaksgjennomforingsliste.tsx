@@ -21,8 +21,7 @@ export const Tiltaksgjennomforingsliste = () => {
     isError,
     refetch: refetchAvtaler,
   } = useAdminTiltaksgjennomforingerForAvtale();
-  const { refetch: refetchTiltaksgjennomforinger } =
-    useAdminTiltaksgjennomforinger();
+  const { refetch: refetchTiltaksgjennomforinger } = useAdminTiltaksgjennomforinger();
   const { mutate, isLoading: isLoadingKobleGjennomforingForAvtale } =
     useMutateKobleGjennomforingForAvtale();
   const { data: avtale } = useAvtale();
@@ -40,37 +39,30 @@ export const Tiltaksgjennomforingsliste = () => {
   }
 
   if (filter.search && tiltaksgjennomforinger.length === 0 && !isLoading) {
-    return (
-      <Alert variant="info">
-        Søk på tiltaksnummer for å finne tiltaksgjennomføringer
-      </Alert>
-    );
+    return <Alert variant="info">Søk på tiltaksnummer for å finne tiltaksgjennomføringer</Alert>;
   }
 
   if (isError) {
-    return (
-      <Alert variant="error">
-        Vi hadde problemer med henting av tiltaksgjennomføringer
-      </Alert>
-    );
+    return <Alert variant="error">Vi hadde problemer med henting av tiltaksgjennomføringer</Alert>;
   }
 
-  const handleLeggTil = (
-    tiltaksgjennomforing: Tiltaksgjennomforing,
-    avtaleId?: string,
-  ) => {
+  const handleLeggTil = (tiltaksgjennomforing: Tiltaksgjennomforing, avtaleId?: string) => {
     mutate(
-      { gjennomforingId: tiltaksgjennomforing.id, avtaleId },
+      {
+        gjennomforingId: tiltaksgjennomforing.id,
+        avtaleId,
+      },
       {
         onSettled: async () => {
           await refetchAvtaler();
           await refetchTiltaksgjennomforinger();
           faro?.api?.pushEvent(
-            `Bruker ${avtaleId
-              ? "kobler gjennomføring til avtale"
-              : "fjerner gjennomføring fra avtale"
+            `Bruker ${
+              avtaleId ? "kobler gjennomføring til avtale" : "fjerner gjennomføring fra avtale"
             }`,
-            { handling: avtaleId ? "kobler til" : "fjerner kobling" },
+            {
+              handling: avtaleId ? "kobler til" : "fjerner kobling",
+            },
             "avtale",
           );
         },
@@ -101,9 +93,7 @@ export const Tiltaksgjennomforingsliste = () => {
                 <li key={index} className={styles.gjennomforingsliste_element}>
                   <BodyShort>{gjennomforing.navn}</BodyShort>
                   <BodyShort>{gjennomforing.tiltaksnummer}</BodyShort>
-                  <TiltaksgjennomforingstatusTag
-                    tiltaksgjennomforing={gjennomforing}
-                  />
+                  <TiltaksgjennomforingstatusTag tiltaksgjennomforing={gjennomforing} />
                   {!gjennomforing.avtaleId ? (
                     <Button
                       variant="tertiary"
@@ -125,14 +115,15 @@ export const Tiltaksgjennomforingsliste = () => {
                       Fjern
                     </Button>
                   ) : (
-                    <div style={{ margin: "0 auto" }}>
+                    <div
+                      style={{
+                        margin: "0 auto",
+                      }}
+                    >
                       <HelpText title="Hvorfor har du ikke legg til eller fjern-knapp?">
-                        Denne tiltaksgjennomføringen er allerede koblet til en
-                        annen avtale.
+                        Denne tiltaksgjennomføringen er allerede koblet til en annen avtale.
                         <div>
-                          <Link to={`/avtaler/${gjennomforing.avtaleId}`}>
-                            Gå til avtalen
-                          </Link>
+                          <Link to={`/avtaler/${gjennomforing.avtaleId}`}>Gå til avtalen</Link>
                         </div>
                       </HelpText>
                     </div>

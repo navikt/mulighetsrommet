@@ -24,15 +24,21 @@ export function useAdminTiltaksgjennomforinger() {
   };
 
   return useQuery(
-    QueryKeys.tiltaksgjennomforinger({ ...filter, search: debouncedSok }, page),
+    QueryKeys.tiltaksgjennomforinger(
+      {
+        ...filter,
+        search: debouncedSok,
+      },
+      page,
+    ),
     () =>
       filter.visMineGjennomforinger
-        ? mulighetsrommetClient.tiltaksgjennomforinger.getMineTiltaksgjennomforinger(
-            { ...queryFilter },
-          )
-        : mulighetsrommetClient.tiltaksgjennomforinger.getTiltaksgjennomforinger(
-            { ...queryFilter },
-          ),
+        ? mulighetsrommetClient.tiltaksgjennomforinger.getMineTiltaksgjennomforinger({
+            ...queryFilter,
+          })
+        : mulighetsrommetClient.tiltaksgjennomforinger.getTiltaksgjennomforinger({
+            ...queryFilter,
+          }),
     { useErrorBoundary: true },
   );
 }

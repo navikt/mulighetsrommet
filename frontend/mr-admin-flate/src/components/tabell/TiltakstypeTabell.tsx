@@ -32,8 +32,7 @@ export const TiltakstypeTabell = () => {
   }
 
   const handleSort = (sortKey: string) => {
-    const direction =
-      sort.direction === "ascending" ? "descending" : "ascending";
+    const direction = sort.direction === "ascending" ? "descending" : "ascending";
 
     setSort({
       orderBy: sortKey,
@@ -46,9 +45,7 @@ export const TiltakstypeTabell = () => {
     });
   };
   return (
-    <div
-      className={classNames(styles.tabell_wrapper, styles.tiltakstypetabell)}
-    >
+    <div className={classNames(styles.tabell_wrapper, styles.tiltakstypetabell)}>
       <PagineringsOversikt
         page={page}
         antall={tiltakstyper.length}
@@ -83,26 +80,15 @@ export const TiltakstypeTabell = () => {
                     aria-label={`Navn på tiltakstype: ${tiltakstype.navn}`}
                     className={styles.title}
                   >
-                    <Lenke
-                      to={`/tiltakstyper/${tiltakstype.id}`}
-                      data-testid="tiltakstyperad"
-                    >
+                    <Lenke to={`/tiltakstyper/${tiltakstype.id}`} data-testid="tiltakstyperad">
                       {tiltakstype.navn}
                     </Lenke>
                   </Table.DataCell>
 
-                  <Table.DataCell
-                    aria-label={`Startdato: ${formaterDato(
-                      tiltakstype.fraDato,
-                    )}`}
-                  >
+                  <Table.DataCell aria-label={`Startdato: ${formaterDato(tiltakstype.fraDato)}`}>
                     {formaterDato(tiltakstype.fraDato)}
                   </Table.DataCell>
-                  <Table.DataCell
-                    aria-label={`Sluttdato: ${formaterDato(
-                      tiltakstype.tilDato,
-                    )}`}
-                  >
+                  <Table.DataCell aria-label={`Sluttdato: ${formaterDato(tiltakstype.tilDato)}`}>
                     {formaterDato(tiltakstype.tilDato)}
                   </Table.DataCell>
                   <Table.DataCell>

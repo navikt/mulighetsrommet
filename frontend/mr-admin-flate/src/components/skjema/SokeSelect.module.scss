@@ -6,7 +6,10 @@
 .description {
   margin-bottom: 8px;
   display: inline-block;
-  color: var(--ac-form-description, var(--a-text-subtle));
+  color: var(
+    --ac-form-description,
+    var(--a-text-subtle)
+  );
 }
 
 .label {

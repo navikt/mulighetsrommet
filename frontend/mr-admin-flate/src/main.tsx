@@ -58,13 +58,10 @@ export function ErrorFallback({ error }: FallbackProps) {
     <div className="error">
       <Alert variant="error">
         <Heading size="medium" level="2">
-          {error.message ||
-            error.body.message ||
-            "Det oppsto dessverre en feil"}
+          {error.message || error.body.message || "Det oppsto dessverre en feil"}
         </Heading>
         <BodyShort>
-          Hvis problemet vedvarer opprett en sak via <a href={PORTEN}>Porten</a>
-          .
+          Hvis problemet vedvarer opprett en sak via <a href={PORTEN}>Porten</a>.
         </BodyShort>
         <Link to="/" reloadDocument className="error-link">
           Ta meg til forsiden og prøv igjen

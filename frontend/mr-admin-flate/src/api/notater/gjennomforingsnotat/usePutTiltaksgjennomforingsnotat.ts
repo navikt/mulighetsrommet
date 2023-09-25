@@ -6,14 +6,14 @@ export function usePutTiltaksgjennomforingsnotat() {
   const client = useQueryClient();
   return useMutation({
     mutationFn: (notat: TiltaksgjennomforingNotatRequest) => {
-      return mulighetsrommetClient.tiltaksgjennomforingNotater.lagreTiltaksgjennomforingNotat(
-        {
-          requestBody: notat,
-        },
-      );
+      return mulighetsrommetClient.tiltaksgjennomforingNotater.lagreTiltaksgjennomforingNotat({
+        requestBody: notat,
+      });
     },
     onSuccess: () => {
-      client.invalidateQueries({ queryKey: ["tiltaksgjennomforingsnotater"] });
+      client.invalidateQueries({
+        queryKey: ["tiltaksgjennomforingsnotater"],
+      });
     },
   });
 }

@@ -1,6 +1,6 @@
-import { Button, Heading, Modal } from '@navikt/ds-react';
-import React from 'react';
-import styles from './Modal.module.scss';
+import { Button, Heading, Modal } from "@navikt/ds-react";
+import React from "react";
+import styles from "./Modal.module.scss";
 
 interface StandardModalModalProps {
   modalOpen: boolean;

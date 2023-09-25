@@ -1,20 +1,20 @@
-import './polyfill';
-import { createRoot } from 'react-dom/client';
-import { APPLICATION_NAME, APPLICATION_WEB_COMPONENT_NAME } from './constants';
-import React from 'react';
-import { Arbeidsmarkedstiltak } from './WebComponentWrapper';
-import { App } from './App';
-import { AppContext } from './AppContext';
+import "./polyfill";
+import { createRoot } from "react-dom/client";
+import { APPLICATION_NAME, APPLICATION_WEB_COMPONENT_NAME } from "./constants";
+import React from "react";
+import { Arbeidsmarkedstiltak } from "./WebComponentWrapper";
+import { App } from "./App";
+import { AppContext } from "./AppContext";
 
-if (import.meta.env.VITE_MULIGHETSROMMET_API_MOCK === 'true') {
-  import('./mock/worker')
+if (import.meta.env.VITE_MULIGHETSROMMET_API_MOCK === "true") {
+  import("./mock/worker")
     .then(({ initializeMockServiceWorker }) => {
       return initializeMockServiceWorker();
     })
     .then(render)
-    .catch(error => {
+    .catch((error) => {
       // eslint-disable-next-line no-console
-      console.error('Error occurred while initializing MSW', error);
+      console.error("Error occurred while initializing MSW", error);
     });
 } else {
   render();
@@ -37,16 +37,18 @@ function render() {
   if (import.meta.env.DEV && demoContainer) {
     const root = createRoot(demoContainer);
     root.render(
-      <AppContext fnr={'12345678910'}>
+      <AppContext fnr={"12345678910"}>
         <App />
-      </AppContext>
+      </AppContext>,
     );
   } else if (demoContainer) {
     customElements.define(APPLICATION_WEB_COMPONENT_NAME, Arbeidsmarkedstiltak);
 
     const root = createRoot(demoContainer);
     root.render(
-      React.createElement(APPLICATION_WEB_COMPONENT_NAME, { 'data-fnr': import.meta.env.VITE_DEMO_FNR ?? null })
+      React.createElement(APPLICATION_WEB_COMPONENT_NAME, {
+        "data-fnr": import.meta.env.VITE_DEMO_FNR ?? null,
+      }),
     );
   } else {
     customElements.define(APPLICATION_WEB_COMPONENT_NAME, Arbeidsmarkedstiltak);

@@ -1,10 +1,14 @@
-import { BodyShort, Button, Heading, Modal } from '@navikt/ds-react';
-import modalStyles from './Modal.module.scss';
-import svgStyle from '../../App.module.scss';
+import { BodyShort, Button, Heading, Modal } from "@navikt/ds-react";
+import modalStyles from "./Modal.module.scss";
+import svgStyle from "../../App.module.scss";
 
-import React from 'react';
-import { CheckmarkCircleFillIcon, ExclamationmarkTriangleFillIcon, XMarkOctagonFillIcon } from '@navikt/aksel-icons';
-import classNames from 'classnames';
+import React from "react";
+import {
+  CheckmarkCircleFillIcon,
+  ExclamationmarkTriangleFillIcon,
+  XMarkOctagonFillIcon,
+} from "@navikt/aksel-icons";
+import classNames from "classnames";
 
 interface StatusModalProps {
   modalOpen: boolean;
@@ -30,11 +34,17 @@ export function StatusModal({
   secondaryButtonOnClick,
 }: StatusModalProps) {
   const ikon = () => {
-    if (ikonVariant === 'success')
-      return <CheckmarkCircleFillIcon className={classNames(modalStyles.icon, svgStyle.svg_success)} />;
-    else if (ikonVariant === 'warning')
-      return <ExclamationmarkTriangleFillIcon className={classNames(modalStyles.icon, svgStyle.svg_warning)} />;
-    else if (ikonVariant === 'error')
+    if (ikonVariant === "success")
+      return (
+        <CheckmarkCircleFillIcon className={classNames(modalStyles.icon, svgStyle.svg_success)} />
+      );
+    else if (ikonVariant === "warning")
+      return (
+        <ExclamationmarkTriangleFillIcon
+          className={classNames(modalStyles.icon, svgStyle.svg_warning)}
+        />
+      );
+    else if (ikonVariant === "error")
       return <XMarkOctagonFillIcon className={classNames(modalStyles.icon, svgStyle.svg_error)} />;
   };
 
@@ -42,11 +52,15 @@ export function StatusModal({
     return (
       <div className={modalStyles.knapperad}>
         {secondaryButtonText ? (
-          <Button variant="secondary" onClick={secondaryButtonOnClick} data-testid="modal_btn-cancel">
+          <Button
+            variant="secondary"
+            onClick={secondaryButtonOnClick}
+            data-testid="modal_btn-cancel"
+          >
             {secondaryButtonText}
           </Button>
         ) : null}
-        <Button variant="primary" onClick={event => primaryButtonOnClick(event)}>
+        <Button variant="primary" onClick={(event) => primaryButtonOnClick(event)}>
           {primaryButtonText}
         </Button>
       </div>

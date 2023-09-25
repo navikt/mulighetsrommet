@@ -4,11 +4,11 @@ import { ControlledDateInput, DateInputProps } from "./ControlledDateInput";
 export function FraTilDatoVelger({
   fra,
   til,
-  size
+  size,
 }: {
   fra: DateInputProps;
   til: DateInputProps;
-  size?: "small" | "medium"
+  size?: "small" | "medium";
 }) {
   return (
     <div className={styles.dato_container}>

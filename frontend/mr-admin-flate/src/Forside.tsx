@@ -1,9 +1,5 @@
 import { faro } from "@grafana/faro-web-sdk";
-import {
-  FileCheckmarkIcon,
-  HandshakeIcon,
-  TokenIcon,
-} from "@navikt/aksel-icons";
+import { FileCheckmarkIcon, HandshakeIcon, TokenIcon } from "@navikt/aksel-icons";
 import { BodyShort, Heading } from "@navikt/ds-react";
 import { Link } from "react-router-dom";
 import styles from "./Forside.module.scss";
@@ -31,7 +27,9 @@ export function Forside() {
               onClick={() =>
                 faro?.api?.pushEvent(
                   `Bruker trykket på inngang fra forside: ${card.navn}`,
-                  { inngang: card.navn },
+                  {
+                    inngang: card.navn,
+                  },
                   "forside",
                 )
               }

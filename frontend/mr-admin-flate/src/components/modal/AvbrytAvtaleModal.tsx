@@ -44,9 +44,7 @@ const AvbrytAvtaleModal = ({ modalOpen, onClose, avtale }: Props) => {
   function headerInnhold() {
     return (
       <div className={styles.heading}>
-        <XMarkOctagonFillIcon
-          className={classNames(styles.icon_warning, styles.icon)}
-        />
+        <XMarkOctagonFillIcon className={classNames(styles.icon_warning, styles.icon)} />
         <Heading size="medium">
           {avtaleFraArena
             ? "Avtalen kan ikke avbrytes."
@@ -73,10 +71,7 @@ const AvbrytAvtaleModal = ({ modalOpen, onClose, avtale }: Props) => {
   function footerInnhold() {
     return (
       <div className={styles.knapperad}>
-        <Button
-          variant={avtaleFraArena ? "primary" : "secondary"}
-          onClick={clickCancel}
-        >
+        <Button variant={avtaleFraArena ? "primary" : "secondary"} onClick={clickCancel}>
           Lukk
         </Button>
         {avtaleFraArena ? null : mutation?.isError ? (

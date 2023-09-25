@@ -1,12 +1,12 @@
-import { Tabs } from '@navikt/ds-react';
-import { useAtom } from 'jotai';
-import { VeilederflateTiltaksgjennomforing } from 'mulighetsrommet-api-client';
-import { logEvent } from '../../core/api/logger';
-import { faneAtom } from '../../core/atoms/atoms';
-import { kebabCase } from '../../utils/Utils';
-import DetaljerFane from './DetaljerFane';
-import styles from './TiltaksdetaljerFane.module.scss';
-import KontaktinfoFane from './kontaktinfofane/KontaktinfoFane';
+import { Tabs } from "@navikt/ds-react";
+import { useAtom } from "jotai";
+import { VeilederflateTiltaksgjennomforing } from "mulighetsrommet-api-client";
+import { logEvent } from "../../core/api/logger";
+import { faneAtom } from "../../core/atoms/atoms";
+import { kebabCase } from "../../utils/Utils";
+import DetaljerFane from "./DetaljerFane";
+import styles from "./TiltaksdetaljerFane.module.scss";
+import KontaktinfoFane from "./kontaktinfofane/KontaktinfoFane";
 
 interface Props {
   tiltaksgjennomforing: VeilederflateTiltaksgjennomforing;
@@ -16,7 +16,12 @@ const TiltaksdetaljerFane = ({ tiltaksgjennomforing }: Props) => {
   const [fane, setFane] = useAtom(faneAtom);
 
   const { tiltakstype, faneinnhold } = tiltaksgjennomforing;
-  const faneoverskrifter = ['For hvem', 'Detaljer og innhold', 'Påmelding og varighet', 'Kontaktinfo'] as const;
+  const faneoverskrifter = [
+    "For hvem",
+    "Detaljer og innhold",
+    "Påmelding og varighet",
+    "Kontaktinfo",
+  ] as const;
   const tabValueTilFaneoverSkrifter: { [key: string]: string } = {
     tab1: faneoverskrifter[0],
     tab2: faneoverskrifter[1],
@@ -30,8 +35,8 @@ const TiltaksdetaljerFane = ({ tiltaksgjennomforing }: Props) => {
       size="small"
       selectionFollowsFocus
       className={styles.fane_root}
-      onChange={value => {
-        logEvent('mulighetsrommet.faner', { value: tabValueTilFaneoverSkrifter[value] });
+      onChange={(value) => {
+        logEvent("mulighetsrommet.faner", { value: tabValueTilFaneoverSkrifter[value] });
         setFane(value);
       }}
     >

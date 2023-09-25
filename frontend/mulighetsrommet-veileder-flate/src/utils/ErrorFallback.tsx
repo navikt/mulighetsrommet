@@ -1,26 +1,38 @@
-import { Feilmelding, forsokPaNyttLink } from '../components/feilmelding/Feilmelding';
-import { PORTEN } from 'mulighetsrommet-frontend-common/constants';
+import { Feilmelding, forsokPaNyttLink } from "../components/feilmelding/Feilmelding";
+import { PORTEN } from "mulighetsrommet-frontend-common/constants";
 
 export function ErrorFallback({ error }: any) {
   let feilmelding = (
     <>
-      Arbeidsmarkedstiltakene kunne ikke hentes på grunn av en feil hos oss. Vennligst {forsokPaNyttLink()} eller
-      ta&nbsp;
+      Arbeidsmarkedstiltakene kunne ikke hentes på grunn av en feil hos oss. Vennligst{" "}
+      {forsokPaNyttLink()} eller ta&nbsp;
       <a href={PORTEN}>kontakt i Porten</a> dersom du trenger mer hjelp.
     </>
   );
 
   if (error.status === 404) {
     feilmelding = (
-      <>Beklager, siden kan være slettet eller flyttet, eller det var en feil i lenken som førte deg hit.</>
+      <>
+        Beklager, siden kan være slettet eller flyttet, eller det var en feil i lenken som førte deg
+        hit.
+      </>
     );
   }
 
   if (error.status === 401 || error.status === 403) {
     feilmelding = (
-      <>Det oppstod en feil under behandlingen av forespørselen din. Ta kontakt med admin hvis problemene vedvarer</>
+      <>
+        Det oppstod en feil under behandlingen av forespørselen din. Ta kontakt med admin hvis
+        problemene vedvarer
+      </>
     );
   }
 
-  return <Feilmelding ikonvariant="error" header={<>Vi beklager, men noe gikk galt</>} beskrivelse={feilmelding} />;
+  return (
+    <Feilmelding
+      ikonvariant="error"
+      header={<>Vi beklager, men noe gikk galt</>}
+      beskrivelse={feilmelding}
+    />
+  );
 }

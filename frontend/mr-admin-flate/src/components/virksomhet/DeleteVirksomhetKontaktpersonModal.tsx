@@ -41,9 +41,7 @@ export const DeleteVirksomhetKontaktpersonModal = ({
   function headerInnhold() {
     return (
       <div className={styles.heading}>
-        <XMarkOctagonFillIcon
-          className={classNames(styles.icon_warning, styles.icon)}
-        />
+        <XMarkOctagonFillIcon className={classNames(styles.icon_warning, styles.icon)} />
         <Heading size="medium">
           {mutation.isError ? "Kan ikke slette." : "Ønsker du å slette?"}
         </Heading>

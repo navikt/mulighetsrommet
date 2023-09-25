@@ -1,10 +1,10 @@
-import { Alert, BodyShort, Button, ErrorMessage, Textarea } from '@navikt/ds-react';
-import { DelMedBruker, VeilederflateTiltaksgjennomforing } from 'mulighetsrommet-api-client';
-import React, { Dispatch, useEffect, useRef, useState } from 'react';
-import { erPreview, formaterDato } from '../../../utils/Utils';
-import { logDelMedbrukerEvent } from './Delemodal';
-import delemodalStyles from './Delemodal.module.scss';
-import { Actions, State } from './DelemodalActions';
+import { Alert, BodyShort, Button, ErrorMessage, Textarea } from "@navikt/ds-react";
+import { DelMedBruker, VeilederflateTiltaksgjennomforing } from "mulighetsrommet-api-client";
+import React, { Dispatch, useEffect, useRef, useState } from "react";
+import { erPreview, formaterDato } from "../../../utils/Utils";
+import { logDelMedbrukerEvent } from "./Delemodal";
+import delemodalStyles from "./Delemodal.module.scss";
+import { Actions, State } from "./DelemodalActions";
 
 const MAKS_ANTALL_TEGN_HILSEN = 300;
 
@@ -27,24 +27,25 @@ export function DelMedBrukerContent({
 }: Props) {
   const [visPersonligMelding, setVisPersonligMelding] = useState(false);
   const personligHilsenRef = useRef<HTMLTextAreaElement>(null);
-  const datoSidenSistDelt = harDeltMedBruker?.createdAt && formaterDato(new Date(harDeltMedBruker.createdAt));
+  const datoSidenSistDelt =
+    harDeltMedBruker?.createdAt && formaterDato(new Date(harDeltMedBruker.createdAt));
 
   useEffect(() => {
     personligHilsenRef?.current?.focus();
   }, [visPersonligMelding]);
 
   const enablePersonligMelding = () => {
-    dispatch({ type: 'Sett hilsen', payload: state.originalHilsen });
+    dispatch({ type: "Sett hilsen", payload: state.originalHilsen });
     setVisPersonligMelding(true);
-    logDelMedbrukerEvent('Sett hilsen');
+    logDelMedbrukerEvent("Sett hilsen");
   };
 
   const handleError = () => {
-    if (state.hilsen.length > MAKS_ANTALL_TEGN_HILSEN) return 'For mange tegn';
+    if (state.hilsen.length > MAKS_ANTALL_TEGN_HILSEN) return "For mange tegn";
   };
 
   const redigerHilsen = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    dispatch({ type: 'Sett hilsen', payload: e.currentTarget.value });
+    dispatch({ type: "Sett hilsen", payload: e.currentTarget.value });
   };
 
   return (
@@ -58,7 +59,7 @@ export function DelMedBrukerContent({
           title="Teksten er hentet fra tiltakstypen og kan ikke redigeres."
           className={delemodalStyles.deletekst}
         >
-          {`${state.deletekst}${visPersonligMelding ? '' : `\n\n${state.hilsen}`}`}
+          {`${state.deletekst}${visPersonligMelding ? "" : `\n\n${state.hilsen}`}`}
         </BodyShort>
       )}
       {visPersonligMelding ? null : (
@@ -92,20 +93,24 @@ export function DelMedBrukerContent({
         </>
       ) : null}
       {!veiledernavn ? (
-        <ErrorMessage className={delemodalStyles.feilmeldinger}>• Kunne ikke hente veileders navn</ErrorMessage>
+        <ErrorMessage className={delemodalStyles.feilmeldinger}>
+          • Kunne ikke hente veileders navn
+        </ErrorMessage>
       ) : null}
       {!brukernavn ? (
-        <ErrorMessage className={delemodalStyles.feilmeldinger}>• Kunne ikke hente brukers navn</ErrorMessage>
+        <ErrorMessage className={delemodalStyles.feilmeldinger}>
+          • Kunne ikke hente brukers navn
+        </ErrorMessage>
       ) : null}
       {!tiltaksgjennomforing?.tiltakstype?.delingMedBruker ? (
         <ErrorMessage className={delemodalStyles.feilmeldinger}>
-          • Mangler ferdigutfylt tekst som kan deles med bruker{' '}
+          • Mangler ferdigutfylt tekst som kan deles med bruker{" "}
         </ErrorMessage>
       ) : null}
       {erPreview ? (
         <Alert variant="warning" data-testid="alert-preview-del-med-bruker">
-          Det er ikke mulig å dele tiltak med bruker i forhåndsvisning. Brukers navn og veileders navn blir automatisk
-          satt utenfor forhåndsvisningsmodus.
+          Det er ikke mulig å dele tiltak med bruker i forhåndsvisning. Brukers navn og veileders
+          navn blir automatisk satt utenfor forhåndsvisningsmodus.
         </Alert>
       ) : null}
     </>

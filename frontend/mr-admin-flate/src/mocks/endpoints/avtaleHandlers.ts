@@ -1,9 +1,5 @@
 import { DefaultBodyType, PathParams, rest } from "msw";
-import {
-  Avtale,
-  AvtaleRequest,
-  PaginertAvtale,
-} from "mulighetsrommet-api-client";
+import { Avtale, AvtaleRequest, PaginertAvtale } from "mulighetsrommet-api-client";
 import { mockAvtaler } from "../fixtures/mock_avtaler";
 
 export const avtaleHandlers = [
@@ -57,7 +53,9 @@ export const avtaleHandlers = [
   rest.get<DefaultBodyType, PathParams, Avtale | undefined>(
     "*/api/v1/internal/avtaler/:id",
     (req, res, ctx) => {
-      const { id } = req.params as { id: string };
+      const { id } = req.params as {
+        id: string;
+      };
       const avtale = mockAvtaler.find((a) => a.id === id) ?? undefined;
       return res(ctx.status(200), ctx.json(avtale));
     },
@@ -66,7 +64,9 @@ export const avtaleHandlers = [
   rest.get<DefaultBodyType, PathParams, Avtale | undefined>(
     "*/api/v1/internal/avtaler/skjema",
     (req, res, ctx) => {
-      const { id } = req.params as { id: string };
+      const { id } = req.params as {
+        id: string;
+      };
       const avtale = mockAvtaler.find((a) => a.id === id) ?? undefined;
       return res(ctx.status(200), ctx.json(avtale));
     },
@@ -79,7 +79,9 @@ export const avtaleHandlers = [
   rest.put<AvtaleRequest>("*/api/v1/internal/avtaler", (req, res, ctx) => {
     return res(
       ctx.status(200),
-      ctx.json({ id: "d1f163b7-1a41-4547-af16-03fd4492b7ba" }),
+      ctx.json({
+        id: "d1f163b7-1a41-4547-af16-03fd4492b7ba",
+      }),
     );
   }),
 ];

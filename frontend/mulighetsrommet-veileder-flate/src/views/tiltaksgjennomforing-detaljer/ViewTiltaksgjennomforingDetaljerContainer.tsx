@@ -1,12 +1,12 @@
-import { Alert, Loader } from '@navikt/ds-react';
-import { useHentBrukerdata } from '../../core/api/queries/useHentBrukerdata';
-import { useHentDeltMedBrukerStatus } from '../../core/api/queries/useHentDeltMedbrukerStatus';
-import { useHentVeilederdata } from '../../core/api/queries/useHentVeilederdata';
-import useTiltaksgjennomforingById from '../../core/api/queries/useTiltaksgjennomforingById';
-import { useBrukerHarRettPaaTiltak } from '../../hooks/useBrukerHarRettPaaTiltak';
-import { useFnr } from '../../hooks/useFnr';
-import ViewTiltaksgjennomforingDetaljer from './ViewTiltaksgjennomforingDetaljer';
-import styles from './ViewTiltaksgjennomforingDetaljer.module.scss';
+import { Alert, Loader } from "@navikt/ds-react";
+import { useHentBrukerdata } from "../../core/api/queries/useHentBrukerdata";
+import { useHentDeltMedBrukerStatus } from "../../core/api/queries/useHentDeltMedbrukerStatus";
+import { useHentVeilederdata } from "../../core/api/queries/useHentVeilederdata";
+import useTiltaksgjennomforingById from "../../core/api/queries/useTiltaksgjennomforingById";
+import { useBrukerHarRettPaaTiltak } from "../../hooks/useBrukerHarRettPaaTiltak";
+import { useFnr } from "../../hooks/useFnr";
+import ViewTiltaksgjennomforingDetaljer from "./ViewTiltaksgjennomforingDetaljer";
+import styles from "./ViewTiltaksgjennomforingDetaljer.module.scss";
 
 export function ViewTiltaksgjennomforingDetaljerContainer() {
   const { data, isLoading, isError } = useTiltaksgjennomforingById();
