@@ -1478,16 +1478,19 @@ components:
       properties:
         erUnderManuellOppfolging:
           type: boolean
-          nullable: true
         krrStatus:
           type: object
           properties:
             kanVarsles:
               type: boolean
-              nullable: true
             erReservert:
               type: boolean
-              nullable: true
+          required:
+            - kanVarsles
+            - erReservert
+      required:
+        - erUnderManuellOppfolging
+        - krrStatus
 
     Pagination:
       type: object

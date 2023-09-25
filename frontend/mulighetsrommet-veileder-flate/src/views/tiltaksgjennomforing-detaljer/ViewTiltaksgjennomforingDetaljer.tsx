@@ -141,10 +141,7 @@ const ViewTiltaksgjennomforingDetaljer = ({
       <div className={styles.container}>
         <div className={styles.top_wrapper}>
           {!erPreview && (
-            <Tilbakeknapp
-              tilbakelenke={`/arbeidsmarkedstiltak/oversikt/#page=${page}`}
-              tekst="Tilbake til tiltaksoversikten"
-            />
+            <Tilbakeknapp tilbakelenke={`/#page=${page}`} tekst="Tilbake til tiltaksoversikten" />
           )}
           {!erPreview && (
             <>
@@ -203,14 +200,15 @@ const ViewTiltaksgjennomforingDetaljer = ({
             </div>
             {!brukerdata?.manuellStatus && !erPreview && (
               <Alert
-                title="Vi kunne ikke opprette kontakte med KRR og vet derfor ikke om brukeren har reservert seg mot elektronisk kommunikasjon"
+                title="Vi kunne ikke opprette kontakt med KRR og vet derfor ikke om brukeren har reservert seg mot elektronisk kommunikasjon"
                 key="alert-innsatsgruppe"
                 data-testid="alert-innsatsgruppe"
                 size="small"
                 variant="error"
                 className={styles.alert}
               >
-                Kunne ikke å opprette kontakt med Kontakt- og reservasjonsregisteret (KRR).
+                Vi kunne ikke opprette kontakt med KRR og vet derfor ikke om brukeren har reservert
+                seg mot elektronisk kommunikasjon
               </Alert>
             )}
             {harDeltMedBruker && !erPreview && (
@@ -219,7 +217,10 @@ const ViewTiltaksgjennomforingDetaljer = ({
                   size="small"
                   variant="tertiary"
                   onClick={(event) =>
-                    byttTilDialogFlate({ event, dialogId: harDeltMedBruker.dialogId!! })
+                    byttTilDialogFlate({
+                      event,
+                      dialogId: harDeltMedBruker.dialogId!!,
+                    })
                   }
                 >
                   Åpne i dialogen
