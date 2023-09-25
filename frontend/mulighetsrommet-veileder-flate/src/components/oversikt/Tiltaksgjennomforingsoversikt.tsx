@@ -109,7 +109,6 @@ const Tiltaksgjennomforingsoversikt = () => {
 
   const sorter = (
     tiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[],
-    forceOrder: "ascending" | "descending" = "ascending",
   ): VeilederflateTiltaksgjennomforing[] => {
     return tiltaksgjennomforinger.sort((a, b) => {
       const sort = getSort(sortValue);
@@ -119,8 +118,8 @@ const Tiltaksgjennomforingsoversikt = () => {
         orderBy: keyof VeilederflateTiltaksgjennomforing,
       ) => {
         const compare = (item1: any, item2: any) => {
-          if (item2 < item1 || item2 === undefined) return -1;
-          if (item2 > item1) return 1;
+          if (item2 < item1 || item2 === undefined) return 1;
+          if (item2 > item1) return -1;
           return 0;
         };
 
@@ -133,7 +132,7 @@ const Tiltaksgjennomforingsoversikt = () => {
             a.oppstart === TiltaksgjennomforingOppstartstype.FELLES
               ? new Date(a.oppstartsdato!!) // Oppstartsdato skal alltid være tilgjengelig når oppstartstype er FELLES
               : new Date();
-          return forceOrder === "ascending" ? compare(dateA, dateB) : compare(dateB, dateA);
+          return compare(dateA, dateB);
         } else if (orderBy === "tiltakstype") {
           return compare(a.tiltakstype.navn, b.tiltakstype.navn);
         } else {
@@ -142,21 +141,9 @@ const Tiltaksgjennomforingsoversikt = () => {
       };
 
       return sort.direction === "ascending"
-        ? comparator(b, a, sort.orderBy)
-        : comparator(a, b, sort.orderBy);
+        ? comparator(a, b, sort.orderBy)
+        : comparator(b, a, sort.orderBy);
     });
-  };
-
-  const lopendeOppstartForst = (
-    lopendeGjennomforinger: VeilederflateTiltaksgjennomforing[],
-    gjennomforingerMedOppstartIFremtiden: VeilederflateTiltaksgjennomforing[],
-    gjennomforingerMedOppstartHarVaert: VeilederflateTiltaksgjennomforing[],
-  ): VeilederflateTiltaksgjennomforing[] => {
-    return [
-      ...lopendeGjennomforinger,
-      ...sorter(gjennomforingerMedOppstartIFremtiden),
-      ...sorter(gjennomforingerMedOppstartHarVaert, "descending"),
-    ];
   };
 
   const lopendeGjennomforinger = tiltaksgjennomforinger.filter(
@@ -175,11 +162,11 @@ const Tiltaksgjennomforingsoversikt = () => {
 
   const gjennomforingerForSide = (
     getSort(sortValue).orderBy === "oppstart"
-      ? lopendeOppstartForst(
-          lopendeGjennomforinger,
-          gjennomforingerMedOppstartIFremtiden,
-          gjennomforingerMedOppstartHarVaert,
-        )
+      ? [
+          ...lopendeGjennomforinger,
+          ...sorter(gjennomforingerMedOppstartIFremtiden),
+          ...sorter(gjennomforingerMedOppstartHarVaert).reverse(),
+        ]
       : sorter(tiltaksgjennomforinger)
   ).slice((page - 1) * elementsPerPage, page * elementsPerPage);
 
