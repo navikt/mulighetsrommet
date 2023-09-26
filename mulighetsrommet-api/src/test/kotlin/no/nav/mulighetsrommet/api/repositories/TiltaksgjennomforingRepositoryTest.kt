@@ -83,7 +83,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
                 stengtFra = null,
                 kontaktpersoner = listOf(),
-                lokasjonArrangor = "Oslo",
+                stedForGjennomforing = "Oslo",
                 stengtTil = null,
                 navRegion = NavEnhet(navn = "IT", enhetsnummer = "2990"),
                 estimertVentetid = null,
@@ -146,7 +146,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 stengtFra = null,
                 stengtTil = null,
                 kontaktpersoner = emptyList(),
-                lokasjonArrangor = null,
+                stedForGjennomforing = null,
                 faneinnhold = JsonNull,
             )
 
@@ -1015,7 +1015,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                         tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.LEDIG,
                         oppstart = TiltaksgjennomforingOppstartstype.FELLES,
                         opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
-                        lokasjonArrangor = "0139 Oslo",
+                        stedForGjennomforing = "0139 Oslo",
                     ),
                 )
             }

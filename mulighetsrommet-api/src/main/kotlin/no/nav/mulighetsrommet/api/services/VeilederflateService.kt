@@ -31,12 +31,6 @@ class VeilederflateService(
         .recordStats()
         .build()
 
-    private val lokasjonCache: Cache<String, List<String>> = Caffeine.newBuilder()
-        .expireAfterWrite(30, TimeUnit.MINUTES)
-        .maximumSize(500)
-        .recordStats()
-        .build()
-
     init {
         val cacheMetrics: CacheMetricsCollector =
             CacheMetricsCollector().register(Metrikker.appMicrometerRegistry.prometheusRegistry)
@@ -130,7 +124,7 @@ class VeilederflateService(
               },
               tiltaksgjennomforingNavn,
               "tiltaksnummer": tiltaksnummer.current,
-              lokasjon,
+              stedForGjennomforing,
               "fylke": fylke->nummer.current,
               "enheter": enheter[]->nummer.current,
             }
@@ -224,7 +218,7 @@ class VeilederflateService(
               tiltaksgjennomforingNavn,
               "tiltaksnummer": tiltaksnummer.current,
               beskrivelse,
-              lokasjon,
+              stedForGjennomforing,
               kontaktinfoTiltaksansvarlige[]->,
               kontaktpersoner[]{navKontaktperson->, "enheter": enheter[]->nummer.current},
               faneinnhold {
@@ -283,7 +277,7 @@ class VeilederflateService(
                     )
                 },
                 navn = tiltaksgjennomforingNavn,
-                lokasjon = lokasjon,
+                stedForGjennomforing = stedForGjennomforing,
                 fylke = fylke,
                 enheter = enheter,
                 kontaktinfoTiltaksansvarlige = kontaktpersoner,
@@ -300,7 +294,6 @@ class VeilederflateService(
         val arrangor = VeilederflateArrangor(
             selskapsnavn = apiGjennomforing.arrangor.navn,
             organisasjonsnummer = apiGjennomforing.arrangor.organisasjonsnummer,
-            lokasjon = apiGjennomforing.lokasjonArrangor,
             kontaktperson = apiGjennomforing.arrangor.kontaktperson?.run {
                 VeilederflateArrangor.Kontaktperson(
                     navn = navn,
@@ -345,7 +338,7 @@ class VeilederflateService(
                 tilgjengelighet = apiGjennomforing.tilgjengelighet,
                 estimertVentetid = apiGjennomforing.estimertVentetid,
                 arrangor = arrangor,
-                lokasjon = apiGjennomforing.lokasjonArrangor ?: sanityGjennomforing.lokasjon,
+                stedForGjennomforing = apiGjennomforing.stedForGjennomforing ?: sanityGjennomforing.stedForGjennomforing,
                 fylke = fylke,
                 enheter = enheter,
                 beskrivelse = beskrivelse,

@@ -28,7 +28,7 @@ class SanityFiltersKtTest : FunSpec({
         test("byggSokefilter skal returnere korrekt Groq-uttrykk når søkestrengen ikke er tom") {
             val sokestreng = "Oppfølging"
             val result = byggSokeFilter(sokestreng)
-            result shouldBe "&& [tiltaksgjennomforingNavn, string(tiltaksnummer.current), tiltakstype->tiltakstypeNavn, lokasjon, oppstartsdato] match \"*Oppfølging*\""
+            result shouldBe "&& [tiltaksgjennomforingNavn, string(tiltaksnummer.current), tiltakstype->tiltakstypeNavn, stedForGjennomforing, oppstartsdato] match \"*Oppfølging*\""
         }
 
         test("byggInnsatsgruppeFilter skal returnere tom streng når ingen innsatsgrupper er valgt") {

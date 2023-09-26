@@ -69,7 +69,7 @@ data class SanityTiltaksgjennomforing(
     val tiltaksgjennomforingNavn: String,
     val tiltaksnummer: String? = null,
     val beskrivelse: String? = null,
-    val lokasjon: String? = null,
+    val stedForGjennomforing: String? = null,
     val fylke: String? = null,
     val enheter: List<String>? = emptyList(),
     val kontaktinfoTiltaksansvarlige: List<KontaktinfoTiltaksansvarlige>? = emptyList(),

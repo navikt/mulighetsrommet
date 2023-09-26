@@ -112,7 +112,7 @@ data class TiltaksgjennomforingRequest(
     val apenForInnsok: Boolean,
     val kontaktpersoner: List<NavKontaktpersonForGjennomforing>,
     val estimertVentetid: String?,
-    val lokasjonArrangor: String,
+    val stedForGjennomforing: String,
     val opphav: ArenaMigrering.Opphav?,
     val faneinnhold: JsonElement,
 ) {
@@ -164,7 +164,7 @@ data class TiltaksgjennomforingRequest(
                         navEnheter = it.navEnheter,
                     )
                 },
-                lokasjonArrangor = lokasjonArrangor,
+                stedForGjennomforing = stedForGjennomforing,
                 faneinnhold = faneinnhold,
             ),
         )

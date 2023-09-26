@@ -50,7 +50,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 opphav,
                 stengt_fra,
                 stengt_til,
-                lokasjon_arrangor,
+                sted_for_gjennomforing,
                 faneinnhold
             )
             values (
@@ -71,7 +71,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 :opphav::opphav,
                 :stengt_fra,
                 :stengt_til,
-                :lokasjon_arrangor,
+                :sted_for_gjennomforing,
                 :faneinnhold::jsonb
             )
             on conflict (id)
@@ -91,7 +91,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                               opphav                       = excluded.opphav,
                               stengt_fra                   = excluded.stengt_fra,
                               stengt_til                   = excluded.stengt_til,
-                              lokasjon_arrangor            = excluded.lokasjon_arrangor,
+                              sted_for_gjennomforing       = excluded.sted_for_gjennomforing,
                               faneinnhold                  = excluded.faneinnhold
             returning *
         """.trimIndent()
@@ -563,7 +563,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         "opphav" to opphav.name,
         "stengt_fra" to stengtFra,
         "stengt_til" to stengtTil,
-        "lokasjon_arrangor" to lokasjonArrangor,
+        "sted_for_gjennomforing" to stedForGjennomforing,
         "faneinnhold" to faneinnhold.toString(),
     )
 
@@ -649,7 +649,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             stengtFra = localDateOrNull("stengt_fra"),
             stengtTil = localDateOrNull("stengt_til"),
             kontaktpersoner = kontaktpersoner,
-            lokasjonArrangor = stringOrNull("lokasjon_arrangor"),
+            stedForGjennomforing = stringOrNull("sted_for_gjennomforing"),
             faneinnhold = faneinnhold,
         )
     }

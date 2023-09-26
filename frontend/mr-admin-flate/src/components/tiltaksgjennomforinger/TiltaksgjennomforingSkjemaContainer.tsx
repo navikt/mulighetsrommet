@@ -113,7 +113,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
       },
       kontaktpersoner: values?.kontaktpersoner?.map((kp) => ({ ...kp })) || [],
       id: utkastIdRef.current,
-      lokasjonArrangor: values?.lokasjonArrangor,
+      stedForGjennomforing: values?.stedForGjennomforing,
       estimertVentetid: values?.estimertVentetid,
     };
 
@@ -163,7 +163,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
       apenForInnsok: tiltaksgjennomforing?.tilgjengelighet !== Tilgjengelighetsstatus.STENGT,
       kontaktpersoner: defaultValuesForKontaktpersoner(tiltaksgjennomforing?.kontaktpersoner),
       estimertVentetid: tiltaksgjennomforing?.estimertVentetid,
-      lokasjonArrangor: tiltaksgjennomforing?.lokasjonArrangor,
+      stedForGjennomforing: tiltaksgjennomforing?.stedForGjennomforing,
       arrangorKontaktpersonId: tiltaksgjennomforing?.arrangor?.kontaktperson?.id,
       faneinnhold: tiltaksgjennomforing?.faneinnhold,
     },
@@ -199,8 +199,8 @@ export const TiltaksgjennomforingSkjemaContainer = ({
 
     const lokasjonsStreng = `${postnummer} ${poststed}`.trim();
 
-    if (lokasjonsStreng !== watch("lokasjonArrangor")) {
-      setValue("lokasjonArrangor", lokasjonsStreng);
+    if (lokasjonsStreng !== watch("stedForGjennomforing")) {
+      setValue("stedForGjennomforing", lokasjonsStreng);
     }
   }
 
@@ -243,7 +243,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
             navEnheter: kontakt.navEnheter,
           })) || [],
       estimertVentetid: data.estimertVentetid ?? null,
-      lokasjonArrangor: data.lokasjonArrangor,
+      stedForGjennomforing: data.stedForGjennomforing,
       arrangorKontaktpersonId: data.arrangorKontaktpersonId ?? null,
       opphav: tiltaksgjennomforing?.opphav ?? null,
       faneinnhold: data.faneinnhold ?? null,
@@ -523,8 +523,8 @@ export const TiltaksgjennomforingSkjemaContainer = ({
                     size="small"
                     label="Sted for gjennomføring"
                     description="Skriv inn stedet tiltaket skal gjennomføres, for eksempel Fredrikstad eller Tromsø. For tiltak uten eksplisitt lokasjon (for eksempel digital jobbklubb), kan du la feltet stå tomt."
-                    {...register("lokasjonArrangor")}
-                    error={errors.lokasjonArrangor ? errors.lokasjonArrangor.message : null}
+                    {...register("stedForGjennomforing")}
+                    error={errors.stedForGjennomforing ? errors.stedForGjennomforing.message : null}
                   />
                 </FormGroup>
               </div>

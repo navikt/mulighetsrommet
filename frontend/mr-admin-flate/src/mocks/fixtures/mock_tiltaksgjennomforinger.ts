@@ -38,7 +38,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     status: TiltaksgjennomforingStatus.GJENNOMFORES,
     opphav: Opphav.MR_ADMIN_FLATE,
     tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
-    lokasjonArrangor: "Brummundal",
+    stedForGjennomforing: "Brummundal",
     kontaktpersoner: [petrusKontaktperson, nikolineKontaktperson],
   },
   {

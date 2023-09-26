@@ -299,11 +299,11 @@ export function TiltaksgjennomforingInfo() {
             </Bolk>
           </VisHvisVerdi>
 
-          <VisHvisVerdi verdi={tiltaksgjennomforing.lokasjonArrangor}>
+          <VisHvisVerdi verdi={tiltaksgjennomforing.stedForGjennomforing}>
             <Bolk aria-label="Sted for gjennomføringen">
               <Metadata
                 header="Sted for gjennomføringen"
-                verdi={tiltaksgjennomforing.lokasjonArrangor}
+                verdi={tiltaksgjennomforing.stedForGjennomforing}
               />
             </Bolk>
           </VisHvisVerdi>

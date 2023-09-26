@@ -42,7 +42,7 @@ export type UtkastData = Pick<
   | "arrangor"
   | "kontaktpersoner"
   | "estimertVentetid"
-  | "lokasjonArrangor"
+  | "stedForGjennomforing"
 > & {
   tiltakstypeId: string;
   avtaleId: string;

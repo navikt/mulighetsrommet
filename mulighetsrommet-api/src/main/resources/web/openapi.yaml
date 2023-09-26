@@ -1839,7 +1839,7 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/TiltaksgjennomforingKontaktpersoner"
-        lokasjonArrangor:
+        stedForGjennomforing:
           type: string
         faneinnhold:
           type: object
@@ -1910,7 +1910,7 @@ components:
         estimertVentetid:
           type: string
           nullable: true
-        lokasjonArrangor:
+        stedForGjennomforing:
           type: string
         opphav:
           $ref: "#/components/schemas/Opphav"
@@ -1938,7 +1938,7 @@ components:
         - apenForInnsok
         - kontaktpersoner
         - estimertVentetid
-        - lokasjonArrangor
+        - stedForGjennomforing
         - opphav
         - faneinnhold
 
@@ -2460,7 +2460,7 @@ components:
           type: string
         arrangor:
           $ref: "#/components/schemas/VeilderflateArrangor"
-        lokasjon:
+        stedForGjennomforing:
           type: string
         oppstart:
           $ref: "#/components/schemas/TiltaksgjennomforingOppstartstype"
@@ -2524,8 +2524,6 @@ components:
         selskapsnavn:
           type: string
         organisasjonsnummer:
-          type: string
-        lokasjon:
           type: string
         kontaktperson:
           $ref: "#/components/schemas/VeilderflateArrangorKontaktperson"

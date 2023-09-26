@@ -50,7 +50,7 @@ class SanityTiltaksgjennomforingService(
             },
             tiltakstype = tiltakstype?.sanityId?.let { TiltakstypeRef(_ref = it.toString()) },
             tiltaksnummer = tiltaksgjennomforing.tiltaksnummer?.let { TiltaksnummerSlug(current = it) },
-            lokasjon = tiltaksgjennomforing.lokasjonArrangor,
+            stedForGjennomforing = tiltaksgjennomforing.stedForGjennomforing,
         )
 
         if (tiltaksgjennomforing.sanityId != null) {

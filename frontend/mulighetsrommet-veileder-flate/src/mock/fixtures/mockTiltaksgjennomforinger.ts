@@ -10,7 +10,7 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
     sanityId: "f4cea25b-c372-4d4c-8106-535ab10cd586",
     navn: "Avklaring - Fredrikstad",
     oppstart: TiltaksgjennomforingOppstartstype.LOPENDE,
-    lokasjon: "1424 SKI",
+    stedForGjennomforing: "1424 SKI",
     tiltakstype: mockTiltakstyper.avklaring,
     sluttdato: "2025-07-09",
     kontaktinfoTiltaksansvarlige: [
@@ -27,7 +27,7 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
     sanityId: "91205ff2-ec72-4a7f-80b8-1c99d8535a06",
     navn: "Sindres mentorordning med Yoda",
     oppstart: TiltaksgjennomforingOppstartstype.LOPENDE,
-    lokasjon: "Oslo",
+    stedForGjennomforing: "Oslo",
     tiltakstype: mockTiltakstyper.mentor,
     kontaktinfoTiltaksansvarlige: [
       {
@@ -42,7 +42,7 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
   {
     sanityId: "00097090-1ba8-47a4-a82f-6aaad488994e",
     navn: "Kurs i overlevelsesteknikk (Gruppe AMO)",
-    lokasjon: "2050 JESSHEIM",
+    stedForGjennomforing: "2050 JESSHEIM",
     tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
     tiltakstype: mockTiltakstyper.gruppe_amo,
     oppstart: TiltaksgjennomforingOppstartstype.LOPENDE,
@@ -50,7 +50,6 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
     sluttdato: "2023-11-30",
     arrangor: {
       selskapsnavn: "JOBLEARN AS AVD 813201 ØST-VIKEN KURS",
-      lokasjon: "2050 JESSHEIM",
       kontaktperson: {
         navn: "Ole Testesen",
         telefon: "12345678",
@@ -131,7 +130,7 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
   {
     sanityId: "3b597090-1ba8-47a4-a82f-6aaad488994e",
     navn: "VTA hos Fretex",
-    lokasjon: "2050",
+    stedForGjennomforing: "2050",
     tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
     tiltakstype: mockTiltakstyper.VTA,
     oppstart: TiltaksgjennomforingOppstartstype.LOPENDE,
@@ -139,7 +138,6 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
     sluttdato: "2023-11-30",
     arrangor: {
       selskapsnavn: "FRETEX",
-      lokasjon: "2050 JESSHEIM",
       kontaktperson: {
         navn: "Ole Testesen",
         telefon: "12345678",
@@ -208,7 +206,7 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
   {
     sanityId: "ff887090-1ba8-47a4-a82f-6aaad488994e",
     navn: "Jobbklubb (med Lars Monsen)",
-    lokasjon: "Kautokeino",
+    stedForGjennomforing: "Kautokeino",
     tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
     tiltakstype: mockTiltakstyper.jobbklubb,
     oppstart: TiltaksgjennomforingOppstartstype.LOPENDE,
@@ -216,7 +214,6 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
     sluttdato: "2030-11-30",
     arrangor: {
       selskapsnavn: "LARS MONSEN AS AVD FINNMARK",
-      lokasjon: "KAUTOKEINO",
       kontaktperson: {
         navn: "Mona Monsen",
         telefon: "12345678",
@@ -237,7 +234,7 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
   {
     sanityId: "bdfa7090-1ba8-47a4-a82f-6aaad488994e",
     navn: "AFT",
-    lokasjon: "Sinsen",
+    stedForGjennomforing: "Sinsen",
     tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
     tiltakstype: mockTiltakstyper.AFT,
     oppstart: TiltaksgjennomforingOppstartstype.LOPENDE,
@@ -245,7 +242,6 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
     sluttdato: "2030-11-30",
     arrangor: {
       selskapsnavn: "AFT GRUPPEN NORWAY",
-      lokasjon: "Sinsen",
       kontaktperson: {
         navn: "Louise Gran",
         telefon: "12345678",
@@ -266,7 +262,7 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
   {
     sanityId: "f1887090-1ba8-47a4-a82f-6aaad488994e",
     navn: "Oppæring Fag og Yrke",
-    lokasjon: "Oslo",
+    stedForGjennomforing: "Oslo",
     tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
     tiltakstype: mockTiltakstyper.OpplaringEnkeltplassFagOgYrke,
     oppstart: TiltaksgjennomforingOppstartstype.LOPENDE,

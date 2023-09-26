@@ -16,7 +16,7 @@ fun byggSokeFilter(sokestreng: String?): String {
     }
 
     return """
-            && [tiltaksgjennomforingNavn, string(tiltaksnummer.current), tiltakstype->tiltakstypeNavn, lokasjon, oppstartsdato] match "*$sokestreng*"
+            && [tiltaksgjennomforingNavn, string(tiltaksnummer.current), tiltakstype->tiltakstypeNavn, stedForGjennomforing, oppstartsdato] match "*$sokestreng*"
     """.trimIndent()
 }
 

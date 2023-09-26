@@ -29,7 +29,7 @@ data class TiltaksgjennomforingDbo(
     val stengtFra: LocalDate?,
     val stengtTil: LocalDate?,
     val kontaktpersoner: List<TiltaksgjennomforingKontaktpersonDbo>,
-    val lokasjonArrangor: String,
+    val stedForGjennomforing: String,
     val faneinnhold: JsonElement,
 )
 

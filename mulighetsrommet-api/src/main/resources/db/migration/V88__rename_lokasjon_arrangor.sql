@@ -1,0 +1,1 @@
+alter table tiltaksgjennomforing rename column lokasjon_arrangor to sted_for_gjennomforing;
