@@ -6,8 +6,8 @@ import io.ktor.server.routing.*
 import no.nav.mulighetsrommet.api.plugins.getNavAnsattAzureId
 import no.nav.mulighetsrommet.api.services.NavAnsattService
 import no.nav.mulighetsrommet.api.services.NavVeilederService
-import no.nav.mulighetsrommet.api.utils.getAccessToken
 import no.nav.mulighetsrommet.api.utils.getNavAnsattFilter
+import no.nav.mulighetsrommet.ktor.extensions.getAccessToken
 import org.koin.ktor.ext.inject
 
 fun Route.navAnsattRoutes() {
