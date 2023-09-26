@@ -51,7 +51,7 @@ class VeilederflateServiceTest : FunSpec({
                 "enheter": [],
                 "oppstart": null,
                 "oppstartsdato": null,
-                "lokasjon": null,
+                "stedForGjennomforing": null,
                 "tiltaksnummer": "2023#176408",
                 "tiltakstype": {
                     "tiltakstypeNavn": "Oppl\u00e6ring - Gruppe AMO"
@@ -62,7 +62,7 @@ class VeilederflateServiceTest : FunSpec({
                 "_id": "8d8a73bc-b661-4efd-90fc-2c59b258200e",
                 "tiltaksgjennomforingNavn": "Oppf\u00f8lging Malvik",
                 "tiltaksnummer": "2023#199282",
-                "lokasjon": "Oslo",
+                "stedForGjennomforing": "Oslo",
                 "tiltakstype": {
                     "tiltakstypeNavn": "Oppf\u00f8lging"
                 },
@@ -75,7 +75,7 @@ class VeilederflateServiceTest : FunSpec({
                 "_id": "f21d1e35-d63b-4de7-a0a5-589e57111527",
                 "tiltaksgjennomforingNavn": "Oppf\u00f8lging for d\u00f8ve og personer med h\u00f8rselshemming - Innlandet",
                 "oppstart": "dato",
-                "lokasjon": null,
+                "stedForGjennomforing": null,
                 "oppstartsdato": "2020-11-02",
                 "tiltaksnummer": "2022#116075",
                 "fylke": "0400",
@@ -119,7 +119,7 @@ class VeilederflateServiceTest : FunSpec({
         stengtFra = null,
         stengtTil = null,
         kontaktpersoner = emptyList(),
-        lokasjonArrangor = null,
+        stedForGjennomforing = null,
         faneinnhold = JsonNull,
     )
 

@@ -45,7 +45,7 @@ select tg.id::uuid,
                                              na.mobilnummer, 'navEnheter', tgk.enheter, 'hovedenhet', na.hovedenhet)
                      end
            )                  as kontaktpersoner,
-       tg.lokasjon_arrangor,
+       tg.sted_for_gjennomforing,
        tg.arrangor_kontaktperson_id,
        vk.organisasjonsnummer as arrangor_kontaktperson_organisasjonsnummer,
        vk.navn                as arrangor_kontaktperson_navn,

@@ -20,7 +20,7 @@ data class VeilederflateTiltaksgjennomforing(
     val sanityId: String,
     val tiltakstype: VeilederflateTiltakstype? = null,
     val navn: String,
-    val lokasjon: String? = null,
+    val stedForGjennomforing: String? = null,
     val tilgjengelighet: TiltaksgjennomforingTilgjengelighetsstatus? = null,
     val tiltaksnummer: String? = null,
     val oppstart: TiltaksgjennomforingOppstartstype? = null,
@@ -57,7 +57,6 @@ data class VeilederflateTiltakstype(
 data class VeilederflateArrangor(
     val selskapsnavn: String?,
     val organisasjonsnummer: String?,
-    val lokasjon: String?,
     val kontaktperson: Kontaktperson?,
 ) {
     @Serializable

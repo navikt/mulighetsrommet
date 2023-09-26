@@ -41,7 +41,7 @@ data class TiltaksgjennomforingAdminDto(
     @Serializable(with = LocalDateSerializer::class)
     val stengtTil: LocalDate?,
     val kontaktpersoner: List<TiltaksgjennomforingKontaktperson>,
-    val lokasjonArrangor: String?,
+    val stedForGjennomforing: String?,
     val faneinnhold: JsonElement,
 ) {
     @Serializable

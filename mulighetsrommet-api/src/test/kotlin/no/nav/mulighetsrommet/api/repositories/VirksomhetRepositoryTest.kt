@@ -272,7 +272,7 @@ class VirksomhetRepositoryTest : FunSpec({
                 arrangorKontaktpersonId = null,
                 stengtFra = null,
                 stengtTil = null,
-                lokasjonArrangor = "Oslo",
+                stedForGjennomforing = "Oslo",
                 estimertVentetid = null,
                 avtaleId = avtale.id,
                 faneinnhold = JsonNull,
