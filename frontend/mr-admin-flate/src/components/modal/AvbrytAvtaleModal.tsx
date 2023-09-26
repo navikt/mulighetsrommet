@@ -1,11 +1,12 @@
 import { XMarkOctagonFillIcon } from "@navikt/aksel-icons";
 import { BodyShort, Button, Heading, Modal } from "@navikt/ds-react";
 import classNames from "classnames";
-import { ApiError, Avtale, Opphav } from "mulighetsrommet-api-client";
+import { Avtale, Opphav } from "mulighetsrommet-api-client";
 import { useEffect } from "react";
 import { useAvbrytAvtale } from "../../api/avtaler/useAvbrytAvtale";
 import { Lenkeknapp } from "../lenkeknapp/Lenkeknapp";
 import styles from "./Modal.module.scss";
+import { resolveErrorMessage } from "../../api/errors";
 
 interface Props {
   modalOpen: boolean;
@@ -62,7 +63,7 @@ const AvbrytAvtaleModal = ({ modalOpen, onClose, avtale }: Props) => {
         {avtaleFraArena
           ? `Avtalen ${avtale?.navn} kommer fra Arena og kan ikke avbrytes her.`
           : mutation?.isError
-          ? (mutation.error as ApiError).body
+          ? resolveErrorMessage(mutation.error)
           : "Du kan ikke angre denne handlingen."}
       </BodyShort>
     );

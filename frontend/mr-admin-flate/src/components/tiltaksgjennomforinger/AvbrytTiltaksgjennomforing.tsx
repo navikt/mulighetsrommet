@@ -1,9 +1,10 @@
 import { Alert, BodyLong, Button, Heading, ReadMore } from "@navikt/ds-react";
-import { ApiError, TiltaksgjennomforingStatus } from "mulighetsrommet-api-client";
+import { TiltaksgjennomforingStatus } from "mulighetsrommet-api-client";
 import { useEffect, useState } from "react";
 import { useAvbrytTiltaksgjennomforing } from "../../api/tiltaksgjennomforing/useAvbrytTiltaksgjennomforing";
 import { useTiltaksgjennomforingById } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforingById";
 import styles from "./AvbrytTiltaksgjennomforing.module.scss";
+import { resolveErrorMessage } from "../../api/errors";
 
 interface Props {
   onAvbryt: () => void;
@@ -29,8 +30,8 @@ export function AvbrytTiltaksgjennomforing({ onAvbryt }: Props) {
     }
 
     if (mutation.isError) {
-      const error = mutation.error as ApiError;
-      setError(error.body);
+      const error = resolveErrorMessage(mutation.error);
+      setError(error);
     }
   }, [mutation]);
 

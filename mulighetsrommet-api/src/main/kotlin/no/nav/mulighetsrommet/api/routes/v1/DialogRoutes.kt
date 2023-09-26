@@ -13,8 +13,8 @@ import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.services.DialogRequest
 import no.nav.mulighetsrommet.api.services.DialogService
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
-import no.nav.mulighetsrommet.api.utils.getAccessToken
 import no.nav.mulighetsrommet.auditlog.AuditLog
+import no.nav.mulighetsrommet.ktor.extensions.getAccessToken
 import org.koin.ktor.ext.inject
 
 fun Route.dialogRoutes() {

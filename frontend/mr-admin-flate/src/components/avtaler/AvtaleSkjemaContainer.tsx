@@ -1,6 +1,5 @@
 import { Alert, Textarea, TextField } from "@navikt/ds-react";
 import {
-  ApiError,
   Avtale,
   AvtaleAvslutningsstatus,
   AvtaleRequest,
@@ -42,6 +41,8 @@ import { AdministratorOptions } from "../skjema/AdministratorOptions";
 import { FormGroup } from "../skjema/FormGroup";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AvtaleSkjemaKnapperad } from "./AvtaleSkjemaKnapperad";
+import { PORTEN } from "mulighetsrommet-frontend-common/constants";
+import { resolveErrorMessage } from "../../api/errors";
 
 interface Props {
   onClose: () => void;
@@ -180,11 +181,14 @@ export function AvtaleSkjemaContainer({
   if (mutation.isError) {
     return (
       <Alert variant="error">
-        {(mutation.error as ApiError).status === 400
-          ? (mutation.error as ApiError).body
-          : "Avtalen kunne ikke opprettes på grunn av en teknisk feil hos oss. " +
-            "Forsøk på nytt eller ta <a href={PORTEN}>kontakt i Porten</a> dersom " +
-            "du trenger mer hjelp."}
+        {mutation.error.status === 400 ? (
+          resolveErrorMessage(mutation.error)
+        ) : (
+          <>
+            Avtalen kunne ikke opprettes på grunn av en teknisk feil hos oss. Forsøk på nytt eller
+            ta <a href={PORTEN}>kontakt i Porten</a> dersom du trenger mer hjelp.
+          </>
+        )}
       </Alert>
     );
   }

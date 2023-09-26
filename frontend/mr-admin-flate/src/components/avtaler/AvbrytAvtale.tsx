@@ -1,9 +1,10 @@
 import { Alert, BodyLong, Button, Heading, ReadMore } from "@navikt/ds-react";
-import { ApiError, Avtalestatus } from "mulighetsrommet-api-client";
+import { Avtalestatus } from "mulighetsrommet-api-client";
 import { useEffect, useState } from "react";
 import { useAvbrytAvtale } from "../../api/avtaler/useAvbrytAvtale";
 import { useAvtale } from "../../api/avtaler/useAvtale";
 import styles from "./AvbrytAvtale.module.scss";
+import { resolveErrorMessage } from "../../api/errors";
 
 interface Props {
   onAvbryt: () => void;
@@ -29,8 +30,8 @@ export function AvbrytAvtale({ onAvbryt }: Props) {
     }
 
     if (mutation.isError) {
-      const error = mutation.error as ApiError;
-      setError(error.body);
+      const error = resolveErrorMessage(mutation.error);
+      setError(error);
     }
   }, [mutation]);
 

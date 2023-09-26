@@ -46,7 +46,7 @@ class PoaoTilgangService(
 
         if (!access) {
             errorBlock?.invoke()
-            throw StatusException(HttpStatusCode.Forbidden, "Veileder mangler tilgang til bruker")
+            throw StatusException(HttpStatusCode.Forbidden, "Mangler tilgang til bruker")
         }
     }
 
@@ -57,7 +57,7 @@ class PoaoTilgangService(
 
         if (!access) {
             SecureLog.logger.warn("Veileder med navAnsattAzureId $navAnsattAzureId har ikke tilgang til modia")
-            throw StatusException(HttpStatusCode.Forbidden, "Veileder har ikke tilgang til modia, se mer i secure logs")
+            throw StatusException(HttpStatusCode.Forbidden, "Mangler tilgang til Modia")
         }
     }
 }
