@@ -88,7 +88,7 @@ metrics-healthchecks = { module = "io.dropwizard.metrics:metrics-healthchecks", 
 
 micrometer-registry-prometheus = "io.micrometer:micrometer-registry-prometheus:1.11.4"
 
-mockk = "io.mockk:mockk:1.13.7"
+mockk = "io.mockk:mockk:1.13.8"
 
 nav-common-auditLog = { module = "com.github.navikt.common-java-modules:audit-log", version.ref = "common-java-modules" }
 nav-common-kafka = { module = "com.github.navikt.common-java-modules:kafka", version.ref = "common-java-modules" }
