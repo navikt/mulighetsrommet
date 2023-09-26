@@ -24,13 +24,7 @@ export function useAdminTiltaksgjennomforinger() {
   };
 
   return useQuery(
-    QueryKeys.tiltaksgjennomforinger(
-      {
-        ...filter,
-        search: debouncedSok,
-      },
-      page,
-    ),
+    QueryKeys.tiltaksgjennomforinger({ ...filter, search: debouncedSok }, page),
     () =>
       filter.visMineGjennomforinger
         ? mulighetsrommetClient.tiltaksgjennomforinger.getMineTiltaksgjennomforinger({
@@ -39,6 +33,5 @@ export function useAdminTiltaksgjennomforinger() {
         : mulighetsrommetClient.tiltaksgjennomforinger.getTiltaksgjennomforinger({
             ...queryFilter,
           }),
-    { useErrorBoundary: true },
   );
 }

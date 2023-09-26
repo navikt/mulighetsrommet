@@ -21,17 +21,20 @@ paths:
         required: true
       responses:
         200:
-          description: Data about the 'bruker' in the context of 'veileder'
+          description: Data om bruker
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Bruker"
-        404:
-          description: "Could not find data about 'bruker'"
+        403:
+          description: Mangler tilganger til å hente data om bruker
           content:
             application/json:
               schema:
-                type: string
+                type: object
+                properties:
+                  message:
+                    type: string
 
   /api/v1/internal/avtaler/{id}:
     parameters:

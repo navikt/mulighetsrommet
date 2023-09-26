@@ -4,12 +4,14 @@ import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import io.ktor.client.engine.*
 import io.ktor.client.engine.cio.*
+import io.ktor.client.plugins.*
 import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.prometheus.client.cache.caffeine.CacheMetricsCollector
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
+import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.metrics.Metrikker
 import no.nav.mulighetsrommet.securelog.SecureLog
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
@@ -42,23 +44,26 @@ class VeilarbvedtaksstotteClientImpl(
 
     override suspend fun hentSiste14AVedtak(fnr: String, accessToken: String): VedtakDto? {
         return CacheUtils.tryCacheFirstNullable(siste14aVedtakCache, fnr) {
+            val response = client.get("$baseUrl/siste-14a-vedtak?fnr=$fnr") {
+                bearerAuth(tokenProvider.invoke(accessToken))
+            }
+
+            if (response.status == HttpStatusCode.NotFound) {
+                log.info("Fant ikke siste 14A-vedtak for bruker")
+                return null
+            } else if (response.status == HttpStatusCode.Forbidden) {
+                log.warn("Mangler tilgang til å hente siste 14A-vedtak for bruker. Har innlogget personen riktig AD-rolle for å hente siste 14A-vedtak?")
+                throw StatusException(
+                    HttpStatusCode.Forbidden,
+                    "Mangler tilgang til å hente siste 14A-vedtak for bruker."
+                )
+            } else if (!response.status.isSuccess()) {
+                SecureLog.logger.error("Klarte ikke hente siste 14A-vedtak. Response: $response")
+                log.error("Klarte ikke hente siste 14A-vedtak. Se detaljer i SecureLog.")
+                return null
+            }
+
             try {
-                val response = client.get("$baseUrl/siste-14a-vedtak?fnr=$fnr") {
-                    bearerAuth(tokenProvider.invoke(accessToken))
-                }
-
-                if (response.status == HttpStatusCode.NotFound) {
-                    log.info("Fant ikke siste 14A-vedtak for bruker")
-                    return@tryCacheFirstNullable null
-                } else if (response.status == HttpStatusCode.Forbidden) {
-                    log.warn("Mangler tilgang til å hente siste 14A-vedtak for bruker. Har innlogget personen riktig AD-rolle for å hente siste 14A-vedtak?")
-                    return@tryCacheFirstNullable null
-                } else if (!response.status.isSuccess()) {
-                    SecureLog.logger.error("Klarte ikke hente siste 14A-vedtak. Response: $response")
-                    log.error("Klarte ikke hente siste 14A-vedtak. Se detaljer i SecureLog.")
-                    return@tryCacheFirstNullable null
-                }
-
                 val body = response.bodyAsText()
                 if (body.isBlank()) {
                     log.info("Fant ikke siste 14A-vedtak for bruker")

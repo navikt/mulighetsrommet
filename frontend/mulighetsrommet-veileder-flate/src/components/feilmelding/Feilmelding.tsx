@@ -52,7 +52,7 @@ export const Feilmelding = ({
       <Heading level="4" size={"small"}>
         {header}
       </Heading>
-      <BodyShort size={"small"} className={styles.beskrivelse}>
+      <BodyShort as="div" size={"small"} className={styles.beskrivelse}>
         {beskrivelse}
       </BodyShort>
       {children}
