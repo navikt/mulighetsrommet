@@ -70,6 +70,7 @@ class MicrosoftGraphClientImpl(
         val response = client.get("$baseUrl/v1.0/groups/$groupId/members") {
             bearerAuth(tokenProvider.invoke(null))
             parameter("\$select", "id,streetAddress,city,givenName,surname,onPremisesSamAccountName,mail,mobilePhone")
+            parameter("\$top", "999")
         }
 
         if (!response.status.isSuccess()) {
