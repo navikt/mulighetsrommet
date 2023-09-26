@@ -55,7 +55,7 @@ class VeilarbvedtaksstotteClientImpl(
                 log.warn("Mangler tilgang til å hente siste 14A-vedtak for bruker. Har innlogget personen riktig AD-rolle for å hente siste 14A-vedtak?")
                 throw StatusException(
                     HttpStatusCode.Forbidden,
-                    "Mangler tilgang til å hente siste 14A-vedtak for bruker."
+                    "Mangler tilgang til å hente siste 14A-vedtak for bruker.",
                 )
             } else if (!response.status.isSuccess()) {
                 SecureLog.logger.error("Klarte ikke hente siste 14A-vedtak. Response: $response")

@@ -10,12 +10,13 @@ import classNames from "classnames";
 import { useGetAdminTiltaksgjennomforingsIdFraUrl } from "../../hooks/useGetAdminTiltaksgjennomforingsIdFraUrl";
 import { useGetAvtaleIdFromUrl } from "../../hooks/useGetAvtaleIdFromUrl";
 import { parentPath } from "../navigering/Tilbakelenke";
+import { resolveErrorMessage } from "../../api/errors";
 
 interface Props {
   modalOpen: boolean;
   handleCancel: () => void;
   data: Tiltaksgjennomforing | Avtale;
-  mutation: UseMutationResult<string, unknown, string>;
+  mutation: UseMutationResult<string, ApiError, string>;
   dataType: "tiltaksgjennomforing" | "avtale";
 }
 
@@ -44,9 +45,7 @@ const SlettAvtaleGjennomforingModal = ({
     mutation.mutate(data.id);
   };
   const tekster = {
-    tiltaksgjennomforing: {
-      navnPlural: "Gjennomføringen",
-    },
+    tiltaksgjennomforing: { navnPlural: "Gjennomføringen" },
     avtale: { navnPlural: "Avtalen" },
   };
 
@@ -73,7 +72,7 @@ const SlettAvtaleGjennomforingModal = ({
           ? `${tekster[dataType].navnPlural} «${data.navn}» kommer fra Arena og kan
             ikke slettes her`
           : mutation?.isError
-          ? (mutation.error as ApiError).body
+          ? resolveErrorMessage(mutation.error)
           : "Du kan ikke angre denne handlingen."}
       </BodyShort>
     );

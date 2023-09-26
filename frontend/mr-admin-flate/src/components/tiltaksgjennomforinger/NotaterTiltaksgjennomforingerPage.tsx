@@ -20,7 +20,9 @@ export default function NotaterTiltaksgjennomforingerPage() {
   const { data: mineNotater = [] } = useMineTiltaksgjennomforingsnotater();
   const { data: tiltaksgjennomforingsData } = useTiltaksgjennomforing();
 
-  const mutation = usePutTiltaksgjennomforingsnotat();
+  const putTiltaksgjennomforingsnotat = usePutTiltaksgjennomforingsnotat();
+  const deleteTiltaksgjennomforingsnotat = useDeleteTiltaksgjennomforingsnotat();
+
   const [visMineNotater, setVisMineNotater] = useState(false);
   const liste = visMineNotater ? mineNotater : notater;
 
@@ -48,7 +50,7 @@ export default function NotaterTiltaksgjennomforingerPage() {
       tiltaksgjennomforingId: tiltaksgjennomforingsData.id,
       innhold,
     };
-    mutation.mutate(requestBody, {
+    putTiltaksgjennomforingsnotat.mutate(requestBody, {
       onSuccess: () => reset(),
     });
   };
@@ -70,12 +72,12 @@ export default function NotaterTiltaksgjennomforingerPage() {
               {...register("innhold")}
               value={watch("innhold")}
             />
-            {mutation.isError ? (
+            {putTiltaksgjennomforingsnotat.isError ? (
               <ErrorMessage>Det skjedde en feil. Notatet ble ikke lagret.</ErrorMessage>
             ) : null}
             <span className={styles.notater_knapp}>
-              <Button type="submit" disabled={mutation.isLoading}>
-                {mutation.isLoading ? <Laster /> : "Legg til notat"}
+              <Button type="submit" disabled={putTiltaksgjennomforingsnotat.isLoading}>
+                {putTiltaksgjennomforingsnotat.isLoading ? <Laster /> : "Legg til notat"}
               </Button>
             </span>
           </div>
@@ -96,7 +98,7 @@ export default function NotaterTiltaksgjennomforingerPage() {
         <Notatliste
           notater={liste}
           visMineNotater={visMineNotater}
-          mutation={useDeleteTiltaksgjennomforingsnotat()}
+          mutation={deleteTiltaksgjennomforingsnotat}
         />
       </div>
     </div>

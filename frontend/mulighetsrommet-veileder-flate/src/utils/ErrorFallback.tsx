@@ -4,6 +4,7 @@ import { ApiError } from "mulighetsrommet-api-client";
 import { BodyShort, Heading } from "@navikt/ds-react";
 import { ReactNode } from "react";
 import { FallbackProps } from "react-error-boundary";
+import { resolveErrorMessage, resolveRequestId } from "mr-admin-flate/src/api/errors";
 
 export function ErrorFallback({ error }: FallbackProps) {
   let feilmelding: ReactNode;
@@ -44,16 +45,26 @@ function renderApiError(error: ApiError) {
     description = "Det oppstod en feil under behandlingen av forespørselen din.";
   }
 
+  const message = resolveErrorMessage(error);
+  const requestId = resolveRequestId(error);
   return (
     <>
-      <BodyShort>{description}</BodyShort>
-      {error.body && (
-        <p>
+      <BodyShort spacing={true}>{description}</BodyShort>
+      {message && (
+        <BodyShort as="div" size="small" spacing={true}>
           <Heading level="5" size="small">
             Feilmelding
           </Heading>
-          <code>{error.body}</code>
-        </p>
+          <code>{message}</code>
+        </BodyShort>
+      )}
+      {requestId && (
+        <BodyShort as="div" size="small" spacing={true}>
+          <Heading level="5" size="small">
+            Sporingsnøkkel
+          </Heading>
+          <code>{requestId}</code>
+        </BodyShort>
       )}
       <BodyShort>
         <a href={PORTEN}>Meld sak i Porten</a> hvis problemene vedvarer.

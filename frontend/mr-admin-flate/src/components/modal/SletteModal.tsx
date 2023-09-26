@@ -4,11 +4,12 @@ import styles from "../modal/Modal.module.scss";
 import { ExclamationmarkTriangleFillIcon, XMarkOctagonFillIcon } from "@navikt/aksel-icons";
 import classNames from "classnames";
 import { UseMutationResult } from "@tanstack/react-query";
+import { resolveErrorMessage } from "../../api/errors";
 
 interface Props {
   modalOpen: boolean;
   onClose: () => void;
-  mutation: UseMutationResult<string, unknown, string>;
+  mutation: UseMutationResult<string, ApiError, string>;
   handleDelete: () => void;
   headerText: string;
   headerTextError: string;
@@ -52,7 +53,7 @@ const SletteModal = ({
     return (
       <BodyShort>
         {mutation?.isError
-          ? (mutation.error as ApiError).body
+          ? resolveErrorMessage(mutation.error)
           : "Du kan ikke angre denne handlingen."}
       </BodyShort>
     );

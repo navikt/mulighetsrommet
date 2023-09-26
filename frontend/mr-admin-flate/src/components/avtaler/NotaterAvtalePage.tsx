@@ -20,7 +20,9 @@ export default function NotaterAvtalePage() {
   const { data: mineNotater = [] } = useMineAvtalenotater();
   const { data: avtaleData } = useAvtale();
 
-  const mutation = usePutAvtalenotat();
+  const putAvtalenotat = usePutAvtalenotat();
+  const deleteAvtalenotat = useDeleteAvtalenotat();
+
   const [visMineNotater, setVisMineNotater] = useState(false);
   const liste = visMineNotater ? mineNotater : notater;
 
@@ -49,9 +51,7 @@ export default function NotaterAvtalePage() {
       innhold,
     };
 
-    mutation.mutate(requestBody, {
-      onSuccess: () => reset(),
-    });
+    putAvtalenotat.mutate(requestBody, { onSuccess: () => reset() });
   };
 
   return (
@@ -72,16 +72,16 @@ export default function NotaterAvtalePage() {
               value={watch("innhold")}
               data-testid="notater_innhold"
             />
-            {mutation.isError ? (
+            {putAvtalenotat.isError ? (
               <ErrorMessage>Det skjedde en feil. Notatet ble ikke lagret.</ErrorMessage>
             ) : null}
             <span className={styles.notater_knapp}>
               <Button
                 type="submit"
-                disabled={mutation.isLoading}
+                disabled={putAvtalenotat.isLoading}
                 data-testid="notater_legg-til-knapp"
               >
-                {mutation.isLoading ? <Laster /> : "Legg til notat"}
+                {putAvtalenotat.isLoading ? <Laster /> : "Legg til notat"}
               </Button>
             </span>
           </div>
@@ -102,11 +102,7 @@ export default function NotaterAvtalePage() {
           </Checkbox>
         </div>
 
-        <Notatliste
-          notater={liste}
-          visMineNotater={visMineNotater}
-          mutation={useDeleteAvtalenotat()}
-        />
+        <Notatliste notater={liste} visMineNotater={visMineNotater} mutation={deleteAvtalenotat} />
       </div>
     </div>
   );
