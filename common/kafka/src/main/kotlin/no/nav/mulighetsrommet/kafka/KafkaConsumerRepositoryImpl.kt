@@ -8,7 +8,7 @@ import no.nav.mulighetsrommet.database.Database
 import org.apache.kafka.common.TopicPartition
 import org.intellij.lang.annotations.Language
 
-class KafkaConsumerRepository(private val db: Database) : KafkaConsumerRepository {
+class KafkaConsumerRepositoryImpl(private val db: Database) : KafkaConsumerRepository {
     override fun storeRecord(record: StoredConsumerRecord): Long {
         @Language("PostgreSQL")
         val query = """

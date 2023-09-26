@@ -1,27 +1,10 @@
 import { GrDocumentPerformance } from "react-icons/gr";
-import {
-  ConditionalPropertyCallbackContext,
-  Rule,
-  defineArrayMember,
-  defineField,
-  defineType,
-} from "sanity";
+import { Rule, defineArrayMember, defineField, defineType } from "sanity";
 import { Information } from "../components/Information";
 import { ShowFieldIfTiltakstypeMatches } from "../components/ShowFieldIfTiltakstypeMatches";
 import { API_VERSION } from "../sanity.config";
+import { hasDuplicates, isEgenRegiTiltak, isInAdminFlate } from "../utils/utils";
 import { EnhetType } from "./enhet";
-import {
-  hasDuplicates,
-  isInAdminFlate,
-  isEgenRegiTiltak,
-} from "../utils/utils";
-
-function erIkkeAdmin(props: ConditionalPropertyCallbackContext): boolean {
-  return (
-    props.currentUser.roles.find((role) => role.name === "administrator") ===
-    undefined
-  );
-}
 
 export const tiltaksgjennomforing = defineType({
   name: "tiltaksgjennomforing",
@@ -99,8 +82,7 @@ export const tiltaksgjennomforing = defineType({
       type: "text",
       rows: 5,
       components: {
-        field: (props) =>
-          ShowFieldIfTiltakstypeMatches(props, "Opplæring - Gruppe AMO"), // Viser feltet hvis det er Gruppe AMO som er valgt som tiltakstype
+        field: (props) => ShowFieldIfTiltakstypeMatches(props, "Opplæring - Gruppe AMO"), // Viser feltet hvis det er Gruppe AMO som er valgt som tiltakstype
       },
       validation: (rule: Rule) => rule.max(500),
     }),
@@ -166,50 +148,38 @@ export const tiltaksgjennomforing = defineType({
       ],
       validation: (rule) =>
         rule.custom(async (enheter, { document, getClient }) => {
-          if (
-            !document.fylke ||
-            !enheter ||
-            isInAdminFlate(document.tiltakstype?._ref)
-          ) {
+          if (!document.fylke || !enheter || isInAdminFlate(document.tiltakstype?._ref)) {
             return true;
           }
 
           const validEnheter = await getClient({
             apiVersion: API_VERSION,
-          }).fetch(
-            "*[(_type == 'enhet' && fylke._ref == $fylke) || type == 'Als']._id",
-            {
-              fylke: document.fylke._ref,
-            },
-          );
+          }).fetch("*[(_type == 'enhet' && fylke._ref == $fylke) || type == 'Als']._id", {
+            fylke: document.fylke._ref,
+          });
 
           const paths = enheter
             ?.filter((enhet) => !validEnheter.includes(enhet._ref))
             ?.map((enhet) => [{ _key: enhet._key }]);
 
-          return !paths.length
-            ? true
-            : { message: "Alle enheter må tilhøre valgt fylke.", paths };
+          return !paths.length ? true : { message: "Alle enheter må tilhøre valgt fylke.", paths };
         }),
     }),
     defineField({
       name: "kontaktinfoTiltaksansvarlige",
       title: "UTDATERT_FELT_Kontaktpersoner",
-      description:
-        "Dette feltet skal bort og erstattes av kontaktperson-feltet under",
+      description: "Dette feltet skal bort og erstattes av kontaktperson-feltet under",
       type: "array",
       of: [{ type: "reference", to: [{ type: "navKontaktperson" }] }],
       hidden: ({ document }) => {
         return isInAdminFlate(document.tiltakstype?._ref);
       },
-      validation: (rule) =>
-        rule.max(0).error("Ikke bruk dette feltet. Bruk kontaktpersoner under"),
+      validation: (rule) => rule.max(0).error("Ikke bruk dette feltet. Bruk kontaktpersoner under"),
     }),
     defineField({
       name: "kontaktpersoner",
       title: "Kontaktpersoner",
-      description:
-        "Veileders lokale kontaktpersoner for tiltaksgjennomføringen.",
+      description: "Veileders lokale kontaktpersoner for tiltaksgjennomføringen.",
       type: "array",
       of: [
         defineArrayMember({
@@ -257,9 +227,7 @@ export const tiltaksgjennomforing = defineType({
               const { navn, enhet1, enhet2, enhet3, enhet4, enhet5 } = data;
               return {
                 title: navn,
-                subtitle: [enhet1, enhet2, enhet3, enhet4, enhet5]
-                  .filter(Boolean)
-                  .join(", "),
+                subtitle: [enhet1, enhet2, enhet3, enhet4, enhet5].filter(Boolean).join(", "),
               };
             },
           },

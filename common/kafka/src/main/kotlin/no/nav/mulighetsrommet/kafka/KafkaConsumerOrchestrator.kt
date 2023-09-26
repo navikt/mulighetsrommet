@@ -21,7 +21,7 @@ class KafkaConsumerOrchestrator(
     private val consumerRecordProcessor: KafkaConsumerRecordProcessor
     private val topicPoller: Poller
     private val topicRepository = TopicRepository(db)
-    private val kafkaConsumerRepository = KafkaConsumerRepository(db)
+    private val kafkaConsumerRepository = KafkaConsumerRepositoryImpl(db)
 
     data class Config(
         /**

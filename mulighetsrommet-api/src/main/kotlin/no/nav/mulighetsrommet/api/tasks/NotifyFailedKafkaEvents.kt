@@ -7,14 +7,14 @@ import com.github.kagkarlsson.scheduler.task.schedule.FixedDelay
 import com.github.kagkarlsson.scheduler.task.schedule.Schedule
 import kotlinx.coroutines.runBlocking
 import no.nav.mulighetsrommet.database.Database
-import no.nav.mulighetsrommet.kafka.KafkaConsumerRepository
+import no.nav.mulighetsrommet.kafka.KafkaConsumerRepositoryImpl
 import no.nav.mulighetsrommet.slack.SlackNotifier
 import org.slf4j.LoggerFactory
 
 class NotifyFailedKafkaEvents(
     private val config: Config,
     val database: Database,
-    private val kafkaConsumerRepository: KafkaConsumerRepository,
+    private val kafkaConsumerRepository: KafkaConsumerRepositoryImpl,
     private val slackNotifier: SlackNotifier,
 ) {
 
