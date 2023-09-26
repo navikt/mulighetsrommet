@@ -42,7 +42,7 @@ import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
 import no.nav.mulighetsrommet.env.NaisEnv
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
-import no.nav.mulighetsrommet.kafka.KafkaConsumerRepository
+import no.nav.mulighetsrommet.kafka.KafkaConsumerRepositoryImpl
 import no.nav.mulighetsrommet.kafka.amt.AmtDeltakerV1TopicConsumer
 import no.nav.mulighetsrommet.kafka.amt.AmtVirksomheterV1TopicConsumer
 import no.nav.mulighetsrommet.metrics.Metrikker
@@ -154,7 +154,7 @@ private fun repositories() = module {
     single { NotificationRepository(get()) }
     single { NavAnsattRepository(get()) }
     single { VirksomhetRepository(get()) }
-    single { KafkaConsumerRepository(get()) }
+    single { KafkaConsumerRepositoryImpl(get()) }
     single { MetrikkRepository(get()) }
     single { UtkastRepository(get()) }
     single { AvtaleNotatRepository(get()) }

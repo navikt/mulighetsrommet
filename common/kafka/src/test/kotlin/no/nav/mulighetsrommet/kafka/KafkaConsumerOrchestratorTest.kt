@@ -143,7 +143,7 @@ class KafkaConsumerOrchestratorTest : FunSpec({
     }
 
     test("failed events should be handled gracefully and kept in the topic consumer repository") {
-        val consumerRepository = KafkaConsumerRepository(database.db)
+        val consumerRepository = KafkaConsumerRepositoryImpl(database.db)
         val topic = uniqueTopicName()
 
         val producer = kafka.stringStringProducer()

@@ -261,7 +261,7 @@ class VeilederflateService(
         return sanityGjennomforing.run {
             val kontaktpersoner =
                 kontaktpersoner?.filter { it.enheter.contains(enhetsnummer) }?.map { it.navKontaktperson }
-                    ?: kontaktinfoTiltaksansvarlige?.filter { it.enhet === enhetsnummer }
+                    ?: kontaktinfoTiltaksansvarlige?.filter { it.enhet.equals(enhetsnummer) }
             VeilederflateTiltaksgjennomforing(
                 sanityId = _id,
                 tiltakstype = tiltakstype?.run {
