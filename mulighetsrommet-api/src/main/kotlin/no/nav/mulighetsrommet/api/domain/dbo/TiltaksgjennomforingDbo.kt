@@ -31,6 +31,7 @@ data class TiltaksgjennomforingDbo(
     val kontaktpersoner: List<TiltaksgjennomforingKontaktpersonDbo>,
     val stedForGjennomforing: String,
     val faneinnhold: JsonElement,
+    val beskrivelse: String?,
 )
 
 data class TiltaksgjennomforingKontaktpersonDbo(

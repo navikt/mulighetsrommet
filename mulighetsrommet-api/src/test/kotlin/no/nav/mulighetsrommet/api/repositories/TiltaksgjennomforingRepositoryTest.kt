@@ -88,6 +88,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 navRegion = NavEnhet(navn = "IT", enhetsnummer = "2990"),
                 estimertVentetid = null,
                 faneinnhold = JsonNull,
+                beskrivelse = null,
             )
 
             tiltaksgjennomforinger.delete(Oppfolging1.id)
@@ -148,6 +149,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 kontaktpersoner = emptyList(),
                 stedForGjennomforing = null,
                 faneinnhold = JsonNull,
+                beskrivelse = null,
             )
 
             tiltaksgjennomforinger.upsertArenaTiltaksgjennomforing(gjennomforingFraArena)

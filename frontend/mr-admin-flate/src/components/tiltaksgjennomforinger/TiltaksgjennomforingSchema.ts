@@ -83,7 +83,15 @@ export const TiltaksgjennomforingSchema = z
     ),
     apenForInnsok: z.boolean(),
     estimertVentetid: z.string().optional(),
-    faneinnhold: z.any(),
+    beskrivelse: z.string(),
+    faneinnhold: z.object({
+      forhvemInfoboks: z.string().optional(),
+      forhvem: z.any(),
+      detaljerOgInnholdInfoboks: z.string().optional(),
+      detaljerOgInnhold: z.any(),
+      pameldingOgVarighetInfoboks: z.string().optional(),
+      pameldingOgVarighet: z.any(),
+    }),
   })
   .refine(
     (data) =>

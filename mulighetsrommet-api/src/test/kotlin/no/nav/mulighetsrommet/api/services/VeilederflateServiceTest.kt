@@ -121,6 +121,7 @@ class VeilederflateServiceTest : FunSpec({
         kontaktpersoner = emptyList(),
         stedForGjennomforing = null,
         faneinnhold = JsonNull,
+        beskrivelse = null,
     )
 
     test("Tom enhetsliste fra db overskriver ikke sanity enheter") {

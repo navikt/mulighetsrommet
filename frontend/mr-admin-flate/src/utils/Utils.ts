@@ -158,4 +158,4 @@ export const validEmail = (email: string | undefined): Boolean => {
   );
 };
 
-export const erProdMiljo = inneholderUrl("intern.nav.no");
+export const erProdMiljo = () => inneholderUrl("intern.nav.no");

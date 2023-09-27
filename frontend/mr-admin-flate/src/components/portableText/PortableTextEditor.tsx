@@ -1,6 +1,7 @@
 import React, { useCallback, useMemo } from "react";
 import isUrl from "is-url";
 import { LinkIcon, BulletListIcon } from "@navikt/aksel-icons";
+import styles from "./PortableTextEditor.module.scss";
 
 import isHotkey from "is-hotkey";
 import { Editable, withReact, useSlate, Slate } from "slate-react";
@@ -9,6 +10,8 @@ import { withHistory } from "slate-history";
 import type { PortableTextBlock } from "@portabletext/types";
 import { slateToPortableText } from "./slateToPortableText";
 import { portableTextToSlate } from "./portableTextToSlate";
+import classnames from "classnames";
+import { Controller } from "react-hook-form";
 
 const HOTKEYS: {
   [name: string]: string;
@@ -20,75 +23,146 @@ const HOTKEYS: {
 const LIST_TYPES = ["numbered-list", "bulleted-list"];
 
 interface PortableTextEditorProps {
-  onChange: (arg0: any) => void;
-  initialValue: PortableTextBlock[];
+  size?: "small" | "medium";
+  label: string;
+  hideLabel?: boolean;
+  description?: string;
+  onChange?: (a0: {
+    target: {
+      value: PortableTextBlock[];
+      name?: string;
+    };
+  }) => void;
+  placeholder?: string;
+  value?: PortableTextBlock[];
 }
 
-export const PortableTextEditor = (props: PortableTextEditorProps) => {
+const emptySlateValue = [
+  {
+    type: "paragraph",
+    children: [{ text: "" }],
+  },
+];
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const PortableTextEditor = React.forwardRef((props: PortableTextEditorProps, _) => {
+  const {
+    placeholder,
+    onChange: providedOnChange,
+    label,
+    hideLabel = false,
+    size,
+    description,
+    ...rest
+  } = props;
+  const [focused, setFocused] = React.useState(false);
   const renderElement = useCallback((props: any) => <Element {...props} />, []);
   const renderLeaf = useCallback((props: any) => <Leaf {...props} />, []);
   const editor = useMemo(() => withLinks(withHistory(withReact(createEditor()))), []);
-  const initialValue =
-    props.initialValue.length > 0
-      ? portableTextToSlate(props.initialValue)
-      : [
-          {
-            type: "paragraph",
-            children: [{ text: "" }],
-          },
-        ];
 
   return (
     <>
-      <Slate
-        editor={editor}
-        initialValue={initialValue}
-        onChange={(value) => {
-          if (value) {
-            props.onChange(slateToPortableText(value));
-          }
+      <Controller
+        name={label}
+        {...rest}
+        render={({ field: { onChange, value, name }, fieldState: { error } }) => {
+          return (
+            <div className={styles.container}>
+              <label
+                className={classnames(styles.label, {
+                  "navds-sr-only": hideLabel,
+                })}
+                style={{
+                  fontSize: size === "small" ? "16px" : "18px",
+                }}
+                htmlFor={name}
+              >
+                <b>{label}</b>
+              </label>
+              {description && (
+                <label
+                  className={classnames(styles.description, {
+                    "navds-sr-only": hideLabel,
+                  })}
+                  style={{
+                    fontSize: size === "small" ? "16px" : "18px",
+                  }}
+                >
+                  {description}
+                </label>
+              )}
+              <Slate
+                editor={editor}
+                initialValue={
+                  value && value.length > 0 ? portableTextToSlate(value) : emptySlateValue
+                }
+                onChange={(value) => {
+                  const portableText = slateToPortableText(value);
+                  onChange(portableText);
+                  providedOnChange?.({
+                    target: { value: portableText },
+                  });
+                }}
+              >
+                <div
+                  className={classnames(styles.editor_wrapper, {
+                    [styles.editor_wrapper__focusVisible]: focused,
+                  })}
+                >
+                  <Toolbar>
+                    <LinkButton />
+                    <MarkButton
+                      format="bold"
+                      icon={
+                        <div>
+                          <b>B</b> bold
+                        </div>
+                      }
+                    />
+                    <MarkButton
+                      format="italic"
+                      icon={
+                        <div>
+                          <em>I</em> italic
+                        </div>
+                      }
+                    />
+                    <BlockButton format="heading-one" icon={<div>Heading</div>} />
+                    <BlockButton format="bulleted-list" icon={<BulletListIcon />} />
+                  </Toolbar>
+                  <Editable
+                    style={{
+                      outline: "none",
+                    }}
+                    renderElement={renderElement}
+                    renderLeaf={renderLeaf}
+                    placeholder={placeholder}
+                    onFocus={() => setFocused(true)}
+                    onBlur={() => setFocused(false)}
+                    onKeyDown={(event) => {
+                      for (const hotkey in HOTKEYS) {
+                        if (isHotkey(hotkey, event)) {
+                          event.preventDefault();
+                          const mark = HOTKEYS[hotkey];
+                          toggleMark(editor, mark);
+                        }
+                      }
+                    }}
+                  />
+                </div>
+              </Slate>
+              {error && (
+                <div className={styles.errormsg}>
+                  <b>• {error.message}</b>
+                </div>
+              )}
+            </div>
+          );
         }}
-      >
-        <Toolbar>
-          <LinkButton />
-          <MarkButton
-            format="bold"
-            icon={
-              <div>
-                <b>B</b> bold
-              </div>
-            }
-          />
-          <MarkButton
-            format="italic"
-            icon={
-              <div>
-                <em>I</em> italic
-              </div>
-            }
-          />
-          <BlockButton format="heading-one" icon={<div>Heading</div>} />
-          <BlockButton format="bulleted-list" icon={<BulletListIcon />} />
-        </Toolbar>
-        <Editable
-          renderElement={renderElement}
-          renderLeaf={renderLeaf}
-          placeholder="Enter some rich text…"
-          autoFocus
-          onKeyDown={(event) => {
-            for (const hotkey in HOTKEYS) {
-              if (isHotkey(hotkey, event)) {
-                event.preventDefault();
-                const mark = HOTKEYS[hotkey];
-                toggleMark(editor, mark);
-              }
-            }
-          }}
-        />
-      </Slate>
+      />
     </>
   );
-};
+});
 
 const withLinks = (editor: any) => {
   const { insertData, insertText, isInline } = editor;
@@ -339,23 +413,13 @@ Button.displayName = "Button";
 
 export const Toolbar = React.forwardRef<HTMLDivElement, { children: React.ReactNode }>(
   ({ children, ...props }, ref) => (
-    <div
-      {...props}
-      ref={ref}
-      style={{
-        marginLeft: "15px",
-        display: "flex",
-        flexDirection: "row",
-        justifyContent: "space-around",
-        position: "relative",
-        padding: "1px 18px 17px",
-        margin: "0 -20px",
-        borderBottom: "2px solid #eee",
-        marginBottom: "20px",
-      }}
-    >
+    <div {...props} ref={ref} className={styles.toolbar}>
       {children}
     </div>
   ),
 );
 Toolbar.displayName = "Toolbar";
+
+PortableTextEditor.displayName = "PortableTextEditor";
+
+export { PortableTextEditor };

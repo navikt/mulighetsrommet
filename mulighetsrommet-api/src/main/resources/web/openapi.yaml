@@ -799,6 +799,27 @@ paths:
               schema:
                 type: string
 
+  /api/v1/internal/tiltakstyper/{id}/sanity:
+    get:
+      tags:
+        - Tiltakstyper
+      operationId: getSanityDataForTiltakstypeWithId
+      parameters:
+        - $ref: "#/components/parameters/ID"
+      responses:
+        200:
+          description: Sanity data for the specified tiltakstype
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VeilederflateTiltakstype"
+        404:
+          description: "Sanity data for the specified tiltakstype was not found."
+          content:
+            text/plain:
+              schema:
+                type: string
+
   /api/v1/internal/sanity/innsatsgrupper:
     get:
       tags:

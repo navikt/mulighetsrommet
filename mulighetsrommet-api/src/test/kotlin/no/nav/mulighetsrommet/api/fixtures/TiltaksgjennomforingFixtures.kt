@@ -52,6 +52,7 @@ object TiltaksgjennomforingFixtures {
         estimertVentetid = null,
         avtaleId = AvtaleFixtures.avtale1.id,
         faneinnhold = JsonNull,
+        beskrivelse = null,
     )
 
     fun oppfolging1Request(avtaleId: UUID) = TiltaksgjennomforingRequest(
@@ -76,6 +77,7 @@ object TiltaksgjennomforingFixtures {
         apenForInnsok = true,
         opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
         faneinnhold = JsonNull,
+        beskrivelse = null,
     )
 
     val Oppfolging2 = TiltaksgjennomforingDbo(
@@ -101,6 +103,7 @@ object TiltaksgjennomforingFixtures {
         estimertVentetid = null,
         avtaleId = AvtaleFixtures.avtale1.id,
         faneinnhold = JsonNull,
+        beskrivelse = null,
     )
 
     val Arbeidstrening1 = TiltaksgjennomforingDbo(
@@ -126,5 +129,6 @@ object TiltaksgjennomforingFixtures {
         estimertVentetid = null,
         avtaleId = AvtaleFixtures.avtale1.id,
         faneinnhold = JsonNull,
+        beskrivelse = null,
     )
 }

@@ -276,6 +276,7 @@ class VirksomhetRepositoryTest : FunSpec({
                 estimertVentetid = null,
                 avtaleId = avtale.id,
                 faneinnhold = JsonNull,
+                beskrivelse = null,
             )
             tiltaksgjennomforingRepository.upsert(tiltaksgjennomforing)
 

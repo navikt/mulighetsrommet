@@ -51,7 +51,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 stengt_fra,
                 stengt_til,
                 sted_for_gjennomforing,
-                faneinnhold
+                faneinnhold,
+                beskrivelse
             )
             values (
                 :id::uuid,
@@ -72,7 +73,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 :stengt_fra,
                 :stengt_til,
                 :sted_for_gjennomforing,
-                :faneinnhold::jsonb
+                :faneinnhold::jsonb,
+                :beskrivelse
             )
             on conflict (id)
                 do update set navn                         = excluded.navn,
@@ -92,7 +94,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                               stengt_fra                   = excluded.stengt_fra,
                               stengt_til                   = excluded.stengt_til,
                               sted_for_gjennomforing       = excluded.sted_for_gjennomforing,
-                              faneinnhold                  = excluded.faneinnhold
+                              faneinnhold                  = excluded.faneinnhold,
+                              beskrivelse                  = excluded.beskrivelse
             returning *
         """.trimIndent()
 
@@ -565,6 +568,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         "stengt_til" to stengtTil,
         "sted_for_gjennomforing" to stedForGjennomforing,
         "faneinnhold" to faneinnhold.toString(),
+        "beskrivelse" to beskrivelse,
     )
 
     private fun ArenaTiltaksgjennomforingDbo.toSqlParameters() = mapOf(
@@ -651,6 +655,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             kontaktpersoner = kontaktpersoner,
             stedForGjennomforing = stringOrNull("sted_for_gjennomforing"),
             faneinnhold = faneinnhold,
+            beskrivelse = stringOrNull("beskrivelse"),
         )
     }
 

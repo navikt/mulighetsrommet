@@ -115,6 +115,7 @@ data class TiltaksgjennomforingRequest(
     val stedForGjennomforing: String,
     val opphav: ArenaMigrering.Opphav?,
     val faneinnhold: JsonElement,
+    val beskrivelse: String?,
 ) {
     fun toDbo(): StatusResponse<TiltaksgjennomforingDbo> {
         if (!startDato.isBefore(sluttDato)) {
@@ -166,6 +167,7 @@ data class TiltaksgjennomforingRequest(
                 },
                 stedForGjennomforing = stedForGjennomforing,
                 faneinnhold = faneinnhold,
+                beskrivelse = beskrivelse,
             ),
         )
     }

@@ -43,6 +43,7 @@ data class TiltaksgjennomforingAdminDto(
     val kontaktpersoner: List<TiltaksgjennomforingKontaktperson>,
     val stedForGjennomforing: String?,
     val faneinnhold: JsonElement,
+    val beskrivelse: String?,
 ) {
     @Serializable
     data class Tiltakstype(
