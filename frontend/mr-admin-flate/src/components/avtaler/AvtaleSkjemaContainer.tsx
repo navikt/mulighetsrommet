@@ -347,7 +347,13 @@ export function AvtaleSkjemaContainer({
                     placeholder="Søk etter tiltaksarrangør"
                     label={"Tiltaksarrangør hovedenhet"}
                     {...register("leverandor")}
-                    onInputChange={(value) => setSokLeverandor(value)}
+                    onInputChange={(value) => {
+                      // Beholder søket hvis input settes til "" for å sørge for at listen med options
+                      // ikke forsvinner når man velger en leverandør
+                      if (value) {
+                        setSokLeverandor(value);
+                      }
+                    }}
                     onClearValue={() => setValue("leverandor", "")}
                     options={leverandorVirksomheter.map((enhet) => ({
                       value: enhet.organisasjonsnummer,
