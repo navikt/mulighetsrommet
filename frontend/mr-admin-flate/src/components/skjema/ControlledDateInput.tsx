@@ -49,7 +49,7 @@ export const ControlledDateInput = forwardRef(function ControlledDateInput(
                 {...rest}
                 {...startdatoInputProps}
                 error={error?.message}
-                value={selectedStartdato ? formaterDato(selectedStartdato) : undefined}
+                value={selectedStartdato ? formaterDato(selectedStartdato) : ""}
                 readOnly={readOnly}
               />
             </DatePicker>
