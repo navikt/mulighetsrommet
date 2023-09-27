@@ -141,7 +141,10 @@ const ViewTiltaksgjennomforingDetaljer = ({
       <div className={styles.container}>
         <div className={styles.top_wrapper}>
           {!erPreview && (
-            <Tilbakeknapp tilbakelenke={`/#page=${page}`} tekst="Tilbake til tiltaksoversikten" />
+            <Tilbakeknapp
+              tilbakelenke={`/arbeidsmarkedstiltak/oversikt#page=${page}`}
+              tekst="Tilbake til tiltaksoversikten"
+            />
           )}
           {!erPreview && (
             <>
