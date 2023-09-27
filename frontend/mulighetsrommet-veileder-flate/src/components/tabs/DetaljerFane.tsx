@@ -28,7 +28,7 @@ const DetaljerFane = ({
           {tiltakstypeAlert}
         </Alert>
       )}
-      <BodyLong size="small">
+      <BodyLong as="div" size="small">
         <PortableText value={tiltakstype} />
       </BodyLong>
       {(tiltaksgjennomforingAlert || tiltaksgjennomforing) && <Separator />}
@@ -37,7 +37,7 @@ const DetaljerFane = ({
           {tiltaksgjennomforingAlert}
         </Alert>
       )}
-      <BodyLong textColor="subtle" size="small">
+      <BodyLong as="div" textColor="subtle" size="small">
         <PortableText value={tiltaksgjennomforing} />
       </BodyLong>
     </FaneTiltaksinformasjon>
