@@ -3,6 +3,7 @@ import React, { ForwardedRef } from "react";
 import { Controller } from "react-hook-form";
 import ReactSelect from "react-select";
 import styles from "./SokeSelect.module.scss";
+import { shallowEquals } from "../../utils/shallow-equals";
 
 export interface SelectOption<T = string> {
   value: T;
@@ -16,7 +17,6 @@ export interface SelectProps<T> {
   options: SelectOption<T>[];
   readOnly?: boolean;
   name: string;
-  isOptionEqualValue?: (option: T, value?: T) => boolean;
   onChange?: (a0: {
     target: {
       value?: T;
@@ -38,7 +38,6 @@ function SokeSelect<T>(props: SelectProps<T>, _: ForwardedRef<HTMLElement>) {
     placeholder,
     options,
     readOnly = false,
-    isOptionEqualValue = (option: T, value?: T) => option === value,
     onChange: providedOnChange,
     onInputChange: providedOnInputChange,
     description,
@@ -52,6 +51,7 @@ function SokeSelect<T>(props: SelectProps<T>, _: ForwardedRef<HTMLElement>) {
     <Controller
       {...rest}
       render={({ field: { onChange, value, name, ref }, fieldState: { error } }) => {
+        const selectedOption = options.find((option) => shallowEquals(option.value, value));
         return (
           <div className={styles.container}>
             <label
@@ -86,7 +86,7 @@ function SokeSelect<T>(props: SelectProps<T>, _: ForwardedRef<HTMLElement>) {
               inputId={name}
               noOptionsMessage={() => "Ingen funnet"}
               name={name}
-              value={options.find((option) => isOptionEqualValue(option.value, value)) ?? null}
+              value={selectedOption ?? null}
               onChange={(e) => {
                 onChange(e?.value);
                 providedOnChange?.({

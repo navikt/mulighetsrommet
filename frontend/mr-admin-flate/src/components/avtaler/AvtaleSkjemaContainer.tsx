@@ -229,7 +229,6 @@ export function AvtaleSkjemaContainer({
                   placeholder="Velg en"
                   label={"Tiltakstype"}
                   {...register("tiltakstype")}
-                  isOptionEqualValue={(option, value) => option.id === value?.id}
                   options={tiltakstyper.map((tiltakstype) => ({
                     value: {
                       arenaKode: tiltakstype.arenaKode,
