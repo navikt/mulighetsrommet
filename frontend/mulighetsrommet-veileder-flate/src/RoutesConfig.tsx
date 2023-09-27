@@ -21,7 +21,10 @@ const RoutesConfig = () => {
       {enableLandingsside ? <Route path={routes.base} element={<Landingsside />} /> : null}
       <Route path={routes.detaljer} element={<ViewTiltaksgjennomforingDetaljerContainer />} />
       <Route path={routes.oversikt} element={<ViewTiltaksgjennomforingOversikt />} />
-      <Route index element={<Navigate to={enableLandingsside ? routes.base : routes.oversikt} />} />
+      <Route
+        path="*"
+        element={<Navigate to={enableLandingsside ? routes.base : routes.oversikt} />}
+      />
     </Routes>
   );
 };
