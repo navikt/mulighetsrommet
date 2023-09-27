@@ -17,7 +17,12 @@ export interface SelectProps<T> {
   readOnly?: boolean;
   name: string;
   isOptionEqualValue?: (option: T, value?: T) => boolean;
-  onChange?: (a0: { target: { value?: T; name?: string } }) => void;
+  onChange?: (a0: {
+    target: {
+      value?: T;
+      name?: string;
+    };
+  }) => void;
   onInputChange?: (input: string) => void;
   className?: string;
   size?: "small" | "medium";
@@ -75,7 +80,6 @@ function SokeSelect<T>(props: SelectProps<T>, _: ForwardedRef<HTMLElement>) {
               )}
 
               <ReactSelect
-                key={`${value}`} // Force rerender when value changes. If set to null outside f. ex
                 placeholder={placeholder}
                 isDisabled={readOnly}
                 isClearable={!!onClearValue}
@@ -83,7 +87,7 @@ function SokeSelect<T>(props: SelectProps<T>, _: ForwardedRef<HTMLElement>) {
                 inputId={name}
                 noOptionsMessage={() => "Ingen funnet"}
                 name={name}
-                value={options.find((option) => isOptionEqualValue(option.value, value))}
+                value={options.find((option) => isOptionEqualValue(option.value, value)) ?? null}
                 onChange={(e) => {
                   onChange(e?.value);
                   providedOnChange?.({
