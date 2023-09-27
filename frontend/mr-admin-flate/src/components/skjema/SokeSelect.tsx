@@ -49,84 +49,82 @@ function SokeSelect<T>(props: SelectProps<T>, _: ForwardedRef<HTMLElement>) {
   } = props;
 
   return (
-    <>
-      <Controller
-        {...rest}
-        render={({ field: { onChange, value, name, ref }, fieldState: { error } }) => {
-          return (
-            <div className={styles.container}>
+    <Controller
+      {...rest}
+      render={({ field: { onChange, value, name, ref }, fieldState: { error } }) => {
+        return (
+          <div className={styles.container}>
+            <label
+              className={classnames(styles.label, {
+                "navds-sr-only": hideLabel,
+              })}
+              style={{
+                fontSize: size === "small" ? "16px" : "18px",
+              }}
+              htmlFor={name}
+            >
+              <b>{label}</b>
+            </label>
+            {description && (
               <label
-                className={classnames(styles.label, {
+                className={classnames(styles.description, {
                   "navds-sr-only": hideLabel,
                 })}
                 style={{
                   fontSize: size === "small" ? "16px" : "18px",
                 }}
-                htmlFor={name}
               >
-                <b>{label}</b>
+                {description}
               </label>
-              {description && (
-                <label
-                  className={classnames(styles.description, {
-                    "navds-sr-only": hideLabel,
-                  })}
-                  style={{
-                    fontSize: size === "small" ? "16px" : "18px",
-                  }}
-                >
-                  {description}
-                </label>
-              )}
+            )}
 
-              <ReactSelect
-                placeholder={placeholder}
-                isDisabled={readOnly}
-                isClearable={!!onClearValue}
-                ref={ref}
-                inputId={name}
-                noOptionsMessage={() => "Ingen funnet"}
-                name={name}
-                value={options.find((option) => isOptionEqualValue(option.value, value)) ?? null}
-                onChange={(e) => {
-                  onChange(e?.value);
-                  providedOnChange?.({
-                    target: { value: e?.value, name: e?.label },
-                  });
-                  if (!e) {
-                    onClearValue?.();
-                  }
-                }}
-                onInputChange={(e) => {
-                  providedOnInputChange?.(e);
-                }}
-                styles={customStyles(readOnly, Boolean(error))}
-                options={options}
-                className={className}
-                theme={(theme) => ({
-                  ...theme,
-                  spacing: {
-                    ...theme.spacing,
-                    controlHeight: size === "small" ? 32 : 48,
-                    baseUnit: 2,
-                  },
-                  colors: {
-                    ...theme.colors,
-                    primary25: "#cce1ff",
-                    primary: "#0067c5",
-                  },
-                })}
-              />
-              {error && (
-                <div className={styles.errormsg}>
-                  <b>• {error.message}</b>
-                </div>
-              )}
-            </div>
-          );
-        }}
-      />
-    </>
+            <ReactSelect
+              placeholder={placeholder}
+              isDisabled={readOnly}
+              isClearable={!!onClearValue}
+              ref={ref}
+              inputId={name}
+              noOptionsMessage={() => "Ingen funnet"}
+              name={name}
+              value={options.find((option) => isOptionEqualValue(option.value, value)) ?? null}
+              onChange={(e) => {
+                onChange(e?.value);
+                providedOnChange?.({
+                  target: { value: e?.value, name: e?.label },
+                });
+                if (!e) {
+                  onClearValue?.();
+                }
+              }}
+              onInputChange={(e) => {
+                providedOnInputChange?.(e);
+              }}
+              styles={customStyles(readOnly, Boolean(error))}
+              options={options}
+              className={className}
+              theme={(theme) => ({
+                ...theme,
+                spacing: {
+                  ...theme.spacing,
+                  controlHeight: size === "small" ? 32 : 48,
+                  baseUnit: 2,
+                },
+                colors: {
+                  ...theme.colors,
+                  primary25: "#cce1ff",
+                  primary: "#0067c5",
+                },
+              })}
+            />
+            {error && (
+              <div className={styles.errormsg}>
+                <b>• {error.message}</b>
+              </div>
+            )}
+          </div>
+        );
+      }}
+    />
   );
 }
 
