@@ -169,6 +169,14 @@ Botene finner man her:
 - Dev-monitorering: https://api.slack.com/apps/A04PW7S8J94/general
 - Prod-monitorering: https://api.slack.com/apps/A04Q2NNABDZ
 
+## Rutiner i teamet
+
+### Synkronisere kontaktpersoner til admin-flate
+For å legge til eller fjerne kontaktpersoner i admin-flate så går du til https://portal.azure.com/#view/Microsoft_AAD_IAM/GroupDetailsMenuBlade/~/Members/groupId/0fdd133a-f47f-4b95-9a5e-f3a5ec87a472/menuId/ og logger inn med din nav-bruker.
+
+Velg så Members -> Add members -> Søk opp personen med navn -> Huk av og velg Select.
+Synkronisering av kontaktpersoner kjører en gang i timen, så du må potensielt vente en time før kontaktpersonen blir tilgjengelig i admin-flate.
+
 ## Henvendelser
 
 Spørsmål knyttet til koden eller prosjektet kan stilles via issues her på GitHub.
