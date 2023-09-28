@@ -1960,6 +1960,7 @@ components:
         - avtaleId
         - navn
         - startDato
+        - sluttDato
         - antallPlasser
         - avtaleId
         - arrangorOrganisasjonsnummer

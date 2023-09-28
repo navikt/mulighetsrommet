@@ -101,18 +101,29 @@ export const TiltaksgjennomforingSchema = z
         message: "Du må legge til en sluttdato",
         path: ["startOgSluttDato.sluttDato"],
       });
-    }
 
-    if (
-      data.startOgSluttDato.sluttDato &&
-      bareDatoUtenTidspunkt(new Date(data.startOgSluttDato.sluttDato)) <
-        bareDatoUtenTidspunkt(new Date())
-    ) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Sluttdato kan ikke være før dagens dato",
-        path: ["startOgSluttDato.sluttDato"],
-      });
+      if (
+        data.startOgSluttDato.sluttDato &&
+        bareDatoUtenTidspunkt(new Date(data.startOgSluttDato.sluttDato)) <
+          bareDatoUtenTidspunkt(new Date())
+      ) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Sluttdato kan ikke være før dagens dato",
+          path: ["startOgSluttDato.sluttDato"],
+        });
+      }
+      if (
+        data.startOgSluttDato.sluttDato &&
+        bareDatoUtenTidspunkt(new Date(data.startOgSluttDato.sluttDato)) <
+          bareDatoUtenTidspunkt(new Date(data.startOgSluttDato.startDato))
+      ) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Sluttdato må være etter startdato",
+          path: ["startOgSluttDato.sluttDato"],
+        });
+      }
     }
 
     if (
@@ -124,18 +135,6 @@ export const TiltaksgjennomforingSchema = z
         code: z.ZodIssueCode.custom,
         message: "Startdato kan ikke være før dagens dato",
         path: ["startOgSluttDato.startDato"],
-      });
-    }
-
-    if (
-      data.startOgSluttDato.sluttDato &&
-      bareDatoUtenTidspunkt(new Date(data.startOgSluttDato.sluttDato)) <
-        bareDatoUtenTidspunkt(new Date(data.startOgSluttDato.startDato))
-    ) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Sluttdato må være etter startdato",
-        path: ["startOgSluttDato.sluttDato"],
       });
     }
   });
