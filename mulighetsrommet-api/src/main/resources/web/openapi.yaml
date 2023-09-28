@@ -1393,13 +1393,15 @@ components:
       schema:
         type: string
         format: uuid
-    Tiltakskode:
+
+    TiltakskodeParam:
       name: tiltakskode
       in: path
       description: Tiltakskode
       required: true
       schema:
-        type: string
+        $ref: "#/components/schemas/Tiltakskode"
+
     Utkasttype:
       in: query
       name: utkasttype
@@ -1410,6 +1412,7 @@ components:
         enum:
           - Avtale
           - Tiltaksgjennomforing
+
     AvtaleId:
       in: query
       name: avtaleId
@@ -1544,15 +1547,34 @@ components:
           items:
             $ref: "#/components/schemas/Avtale"
 
+    Tiltakskode:
+      type: string
+      enum:
+        - IPSUNG
+        - INKLUTILS
+        - HOYEREUTD
+        - ENKELAMO
+        - GRUFAGYRKE
+        - ARBTREN
+        - ARBFORB
+        - MIDLONTIL
+        - TILSJOBB
+        - ENKFAGYRKE
+        - INDJOBSTOT
+        - AVKLARAG
+        - DIGIOPPARB
+        - MENTOR
+        - INDOPPFAG
+        - GRUPPEAMO
+        - VASV
+        - ARBRRHDAG
+        - JOBBK
+        - VATIAROR
+        - VARLONTIL
+        - UTVAOONAV
+
     Tiltakstype:
       type: object
-      required:
-        - id
-        - navn
-        - arenaKode
-        - fraDato
-        - tilDato
-        - status
       properties:
         id:
           type: string
@@ -1560,7 +1582,7 @@ components:
         navn:
           type: string
         arenaKode:
-          type: string
+          $ref: "#/components/schemas/Tiltakskode"
         fraDato:
           type: string
         tilDato:
@@ -1569,6 +1591,13 @@ components:
           $ref: "#/components/schemas/Tiltakstypestatus"
         sanityId:
           type: string
+      required:
+        - id
+        - navn
+        - arenaKode
+        - fraDato
+        - tilDato
+        - status
 
     Avtale:
       type: object
@@ -1712,7 +1741,7 @@ components:
         navn:
           type: string
         arenaKode:
-          type: string
+          $ref: "#/components/schemas/Tiltakskode"
       required:
         - id
         - navn
@@ -2421,31 +2450,7 @@ components:
         delingMedBruker:
           type: string
         arenakode:
-          type: string
-          enum:
-            - IPSUNG
-            - INKLUTILS
-            - HOYEREUTD
-            - ENKELAMO
-            - GRUFAGYRKE
-            - ARBTREN
-            - ARBFORB
-            - MIDLONTIL
-            - TILSJOBB
-            - ENKFAGYRKE
-            - INDJOBSTOT
-            - AVKLARAG
-            - DIGIOPPARB
-            - MENTOR
-            - INDOPPFAG
-            - GRUPPEAMO
-            - VASV
-            - ARBRRHDAG
-            - JOBBK
-            - VATIAROR
-            - VARLONTIL
-            - UTVAOONAV
-          nullable: true
+          $ref: "#/components/schemas/Tiltakskode"
       required:
         - sanityId
         - navn

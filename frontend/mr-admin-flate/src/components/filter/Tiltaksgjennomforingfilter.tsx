@@ -3,6 +3,7 @@ import classNames from "classnames";
 import { useAtom } from "jotai";
 import {
   NavEnhetType,
+  Opphav,
   TiltaksgjennomforingStatus,
   Tiltakstypestatus,
   Toggles,
@@ -21,7 +22,6 @@ import { useFeatureToggle } from "../../api/features/feature-toggles";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
 import { useVirksomheter } from "../../api/virksomhet/useVirksomheter";
 import { inneholderUrl, resetPaginering, valueOrDefault } from "../../utils/Utils";
-import { arenaKodeErAftEllerVta } from "../../utils/tiltakskoder";
 import { LeggTilGjennomforingModal } from "../modal/LeggTilGjennomforingModal";
 import { SokeSelect } from "../skjema/SokeSelect";
 import styles from "./Filter.module.scss";
@@ -63,7 +63,7 @@ export function Tiltaksgjennomforingfilter({ skjulFilter }: Props) {
   const visOpprettTiltaksgjennomforingKnapp =
     opprettGjennomforingIsEnabled && inneholderUrl("/avtaler/");
 
-  const erAFTellerVTA = arenaKodeErAftEllerVta(avtale?.tiltakstype.arenaKode);
+  const avtaleErOpprettetIMulighetsrommet = avtale?.opphav === Opphav.MR_ADMIN_FLATE;
 
   useEffect(() => {
     setFilter({
@@ -312,7 +312,7 @@ export function Tiltaksgjennomforingfilter({ skjulFilter }: Props) {
                     dataTestId="opprett-gjennomforing-knapp"
                   />
                 )}
-                {erAFTellerVTA && (
+                {avtaleErOpprettetIMulighetsrommet && (
                   <>
                     <Button
                       onClick={() => setModalOpen(true)}

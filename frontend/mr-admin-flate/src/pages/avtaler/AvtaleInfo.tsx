@@ -7,16 +7,13 @@ import { Bolk } from "../../components/detaljside/Bolk";
 import { Metadata, Separator } from "../../components/detaljside/Metadata";
 import { VisHvisVerdi } from "../../components/detaljside/VisHvisVerdi";
 import { Laster } from "../../components/laster/Laster";
-import {
-  avtaletypeTilTekst,
-  formaterDato,
-  tiltakstypekodeErAnskaffetTiltak,
-} from "../../utils/Utils";
+import { avtaletypeTilTekst, formaterDato } from "../../utils/Utils";
 import styles from "../DetaljerInfo.module.scss";
 import { AvtaleKnapperad } from "./AvtaleKnapperad";
 import SlettAvtaleGjennomforingModal from "../../components/modal/SlettAvtaleGjennomforingModal";
 import { useDeleteAvtale } from "../../api/avtaler/useDeleteAvtale";
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
+import { erAnskaffetTiltak } from "../../utils/tiltakskoder";
 
 export function AvtaleInfo() {
   const { data: avtale, isLoading, error, refetch } = useAvtale();
@@ -92,7 +89,7 @@ export function AvtaleInfo() {
           <Separator />
 
           <Bolk aria-label="Pris- og betalingsbetingelser">
-            {tiltakstypekodeErAnskaffetTiltak(avtale.tiltakstype.arenaKode) ? (
+            {erAnskaffetTiltak(avtale.tiltakstype.arenaKode) && (
               <Metadata
                 header="Pris- og betalingsbetingelser"
                 verdi={
@@ -100,7 +97,7 @@ export function AvtaleInfo() {
                   "Det eksisterer ikke pris og betalingsbetingelser for denne avtalen"
                 }
               />
-            ) : null}
+            )}
           </Bolk>
 
           <VisHvisVerdi verdi={avtale?.url}>
