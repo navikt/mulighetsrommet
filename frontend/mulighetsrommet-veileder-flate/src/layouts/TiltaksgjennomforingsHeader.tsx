@@ -1,8 +1,5 @@
 import { BodyLong, Heading } from "@navikt/ds-react";
-import {
-  VeilederflateTiltaksgjennomforing,
-  VeilederflateTiltakstype,
-} from "mulighetsrommet-api-client";
+import { VeilederflateTiltaksgjennomforing } from "mulighetsrommet-api-client";
 import { kebabCase } from "../utils/Utils";
 import styles from "./TiltaksgjennomforingsHeader.module.scss";
 
@@ -27,13 +24,11 @@ const TiltaksgjennomforingsHeader = ({ tiltaksgjennomforing }: Props) => {
           {tiltakstype.beskrivelse}
         </BodyLong>
       )}
-      {tiltakstype?.arenakode === VeilederflateTiltakstype.arenakode.GRUPPEAMO
-        ? beskrivelse && (
-            <BodyLong textColor="subtle" size="medium">
-              {beskrivelse}
-            </BodyLong>
-          )
-        : null}
+      {beskrivelse && (
+        <BodyLong textColor="subtle" size="medium">
+          {beskrivelse}
+        </BodyLong>
+      )}
     </>
   );
 };

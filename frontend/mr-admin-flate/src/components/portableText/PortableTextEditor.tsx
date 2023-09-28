@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from "react";
+import React, { ForwardedRef, useCallback, useMemo } from "react";
 import isUrl from "is-url";
 import { LinkIcon, BulletListIcon } from "@navikt/aksel-icons";
 import styles from "./PortableTextEditor.module.scss";
@@ -45,7 +45,7 @@ const emptySlateValue = [
 ];
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const PortableTextEditor = React.forwardRef((props: PortableTextEditorProps, _) => {
+function PortableTextEditor(props: PortableTextEditorProps, _: ForwardedRef<HTMLElement>) {
   const {
     placeholder,
     onChange: providedOnChange,
@@ -109,7 +109,7 @@ const PortableTextEditor = React.forwardRef((props: PortableTextEditorProps, _) 
                     [styles.editor_wrapper__focusVisible]: focused,
                   })}
                 >
-                  <Toolbar>
+                  <ToolbarComponent>
                     <LinkButton />
                     <MarkButton
                       format="bold"
@@ -129,7 +129,7 @@ const PortableTextEditor = React.forwardRef((props: PortableTextEditorProps, _) 
                     />
                     <BlockButton format="heading-one" icon={<div>Heading</div>} />
                     <BlockButton format="bulleted-list" icon={<BulletListIcon />} />
-                  </Toolbar>
+                  </ToolbarComponent>
                   <Editable
                     style={{
                       outline: "none",
@@ -162,7 +162,7 @@ const PortableTextEditor = React.forwardRef((props: PortableTextEditorProps, _) 
       />
     </>
   );
-});
+}
 
 const withLinks = (editor: any) => {
   const { insertData, insertText, isInline } = editor;
@@ -395,8 +395,11 @@ type ButtonProps = React.HTMLProps<HTMLButtonElement> & {
   active: boolean;
 };
 
-export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ active, children, ...props }, ref) => (
+export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(function Button(
+  { active, children, ...props },
+  ref,
+) {
+  return (
     <span
       {...props}
       ref={ref}
@@ -407,19 +410,20 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     >
       {children}
     </span>
-  ),
-);
-Button.displayName = "Button";
+  );
+});
 
-export const Toolbar = React.forwardRef<HTMLDivElement, { children: React.ReactNode }>(
-  ({ children, ...props }, ref) => (
-    <div {...props} ref={ref} className={styles.toolbar}>
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function Toolbar({ children, ...props }: { children: any }, _: ForwardedRef<HTMLElement>) {
+  return (
+    <div {...props} className={styles.toolbar}>
       {children}
     </div>
-  ),
-);
-Toolbar.displayName = "Toolbar";
+  );
+}
 
-PortableTextEditor.displayName = "PortableTextEditor";
+const ToolbarComponent = React.forwardRef(Toolbar);
 
-export { PortableTextEditor };
+const PortableTextEditorComponent = React.forwardRef(PortableTextEditor);
+
+export { PortableTextEditorComponent as PortableTextEditor };

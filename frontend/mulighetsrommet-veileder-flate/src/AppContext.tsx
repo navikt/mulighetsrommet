@@ -6,6 +6,7 @@ import React, { Dispatch, ReactNode, useEffect, useState } from "react";
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
+      useErrorBoundary: true,
       refetchOnWindowFocus: import.meta.env.PROD,
       retry: import.meta.env.PROD,
     },

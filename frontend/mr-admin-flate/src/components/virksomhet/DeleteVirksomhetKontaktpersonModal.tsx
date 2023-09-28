@@ -1,10 +1,10 @@
-import { ApiError } from "mulighetsrommet-api-client";
 import { useDeleteVirksomhetKontaktperson } from "../../api/virksomhet/useDeleteVirksomhetKontaktperson";
 import { BodyShort, Button, Heading, Modal } from "@navikt/ds-react";
 import { useEffect } from "react";
 import { XMarkOctagonFillIcon } from "@navikt/aksel-icons";
 import styles from "../modal/Modal.module.scss";
 import classNames from "classnames";
+import { resolveErrorMessage } from "../../api/errors";
 
 interface Props {
   modalOpen: boolean;
@@ -53,7 +53,7 @@ export const DeleteVirksomhetKontaktpersonModal = ({
     return (
       <BodyShort>
         {mutation?.isError
-          ? (mutation.error as ApiError).body
+          ? resolveErrorMessage(mutation.error)
           : "Du kan ikke angre denne handlingen."}
       </BodyShort>
     );

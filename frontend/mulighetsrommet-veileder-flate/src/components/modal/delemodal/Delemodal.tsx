@@ -16,7 +16,6 @@ import { StatusModal } from "../StatusModal";
 import { DelMedBrukerContent } from "./DelMedBrukerContent";
 import delemodalStyles from "./Delemodal.module.scss";
 import { Actions, State } from "./DelemodalActions";
-import { KanIkkeDeleMedBrukerModal } from "./KanIkkeDeleMedBrukerModal";
 
 export const logDelMedbrukerEvent = (
   action:
@@ -103,13 +102,6 @@ const Delemodal = ({
   const originalHilsen = sySammenHilsenTekst(veiledernavn);
   const [state, dispatch] = useReducer(reducer, { deletekst, originalHilsen }, initInitialState);
 
-  const manuellOppfolging = brukerdata?.manuellStatus?.erUnderManuellOppfolging;
-  const krrStatusErReservert = brukerdata?.manuellStatus?.krrStatus?.erReservert;
-  const kanVarsles = brukerdata?.manuellStatus?.krrStatus?.kanVarsles;
-  const kanIkkeDeleMedBruker = manuellOppfolging && krrStatusErReservert && !kanVarsles;
-  const manuellStatus = !brukerdata?.manuellStatus;
-  const feilmodal =
-    manuellOppfolging || krrStatusErReservert || manuellStatus || kanIkkeDeleMedBruker;
   const senderTilDialogen = state.sendtStatus === "SENDER";
   const tiltaksgjennomforingSanityId = tiltaksgjennomforing.sanityId;
   const { lagreVeilederHarDeltTiltakMedBruker } = useHentDeltMedBrukerStatus(
@@ -153,16 +145,19 @@ const Delemodal = ({
     }
   };
 
+  const feilmelding = utledFeilmelding(brukerdata);
+
   return (
     <>
-      {feilmodal ? (
-        <KanIkkeDeleMedBrukerModal
+      {feilmelding ? (
+        <StatusModal
           modalOpen={modalOpen}
-          lukkModal={lukkModal}
-          manuellOppfolging={manuellOppfolging!}
-          kanIkkeDeleMedBruker={kanIkkeDeleMedBruker!}
-          krrStatusErReservert={krrStatusErReservert!}
-          manuellStatus={manuellStatus}
+          onClose={lukkModal}
+          ikonVariant="warning"
+          heading={"Kunne ikke dele tiltaket"}
+          text={feilmelding}
+          primaryButtonText={"OK"}
+          primaryButtonOnClick={() => lukkModal()}
         />
       ) : (
         <Modal
@@ -252,4 +247,19 @@ const Delemodal = ({
     </>
   );
 };
+
+function utledFeilmelding(brukerdata: Bruker) {
+  if (!brukerdata.manuellStatus) {
+    return "Vi kunne ikke opprette kontakt med KRR og vet derfor ikke om brukeren har reservert seg mot elektronisk kommunikasjon.";
+  } else if (brukerdata.manuellStatus.erUnderManuellOppfolging) {
+    return "Brukeren er under manuell oppfølging og kan derfor ikke benytte seg av våre digitale tjenester.";
+  } else if (brukerdata.manuellStatus.krrStatus && brukerdata.manuellStatus.krrStatus.erReservert) {
+    return "Brukeren har reservert seg mot elektronisk kommunikasjon i Kontakt- og reservasjonsregisteret (KRR).";
+  } else if (brukerdata.manuellStatus.krrStatus && !brukerdata.manuellStatus.krrStatus.kanVarsles) {
+    return "Brukeren er reservert mot elektronisk kommunikasjon i KRR. Vi kan derfor ikke kommunisere digitalt med denne brukeren.";
+  } else {
+    return null;
+  }
+}
+
 export default Delemodal;

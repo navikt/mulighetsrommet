@@ -282,6 +282,7 @@ class VeilederflateService(
                 enheter = enheter,
                 kontaktinfoTiltaksansvarlige = kontaktpersoner,
                 faneinnhold = faneinnhold,
+                beskrivelse = beskrivelse,
             )
         }
     }

@@ -139,6 +139,11 @@ export function App() {
       />
       <Route path="avtaler/skjema" element={<AvtaleSkjemaPage />} errorElement={<ErrorPage />} />
       <Route
+        path="tiltaksgjennomforinger/skjema"
+        element={<TiltaksgjennomforingSkjemaPage />}
+        errorElement={<ErrorPage />}
+      />
+      <Route
         path="tiltaksgjennomforinger/"
         element={<TiltaksgjennomforingerPage />}
         errorElement={<ErrorPage />}

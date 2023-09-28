@@ -12,10 +12,13 @@ import { App } from "./App";
 import { AdministratorHeader } from "./components/administrator/AdministratorHeader";
 import { MiljoBanner } from "./components/miljobanner/MiljoBanner";
 import "./index.css";
+import { ApiError } from "mulighetsrommet-api-client";
+import { resolveErrorMessage } from "./api/errors";
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
+      useErrorBoundary: true,
       refetchOnWindowFocus: import.meta.env.PROD,
       retry: import.meta.env.PROD,
     },
@@ -54,11 +57,12 @@ function render() {
 }
 
 export function ErrorFallback({ error }: FallbackProps) {
+  const heading = error instanceof ApiError ? resolveErrorMessage(error) : error.message;
   return (
     <div className="error">
       <Alert variant="error">
         <Heading size="medium" level="2">
-          {error.message || error.body.message || "Det oppsto dessverre en feil"}
+          {heading || "Det oppsto dessverre en feil"}
         </Heading>
         <BodyShort>
           Hvis problemet vedvarer opprett en sak via <a href={PORTEN}>Porten</a>.

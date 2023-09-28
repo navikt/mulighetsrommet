@@ -6,8 +6,8 @@ import {
   DelMedBruker,
   Innsatsgruppe,
   NavVeileder,
+  Tiltakskode,
   VeilederflateTiltaksgjennomforing,
-  VeilederflateTiltakstype,
 } from "mulighetsrommet-api-client";
 import { useState } from "react";
 import { BrukerHarIkke14aVedtakVarsel } from "../../components/ikkeKvalifisertVarsel/BrukerHarIkke14aVedtakVarsel";
@@ -29,19 +29,19 @@ import { byttTilDialogFlate } from "../../utils/DialogFlateUtils";
 import { capitalize, erPreview, formaterDato } from "../../utils/Utils";
 import styles from "./ViewTiltaksgjennomforingDetaljer.module.scss";
 
-const whiteListOpprettAvtaleKnapp: VeilederflateTiltakstype.arenakode[] = [
-  VeilederflateTiltakstype.arenakode.MIDLONTIL,
-  VeilederflateTiltakstype.arenakode.ARBTREN,
-  VeilederflateTiltakstype.arenakode.VARLONTIL,
-  VeilederflateTiltakstype.arenakode.MENTOR,
-  VeilederflateTiltakstype.arenakode.INKLUTILS,
-  VeilederflateTiltakstype.arenakode.TILSJOBB,
+const whiteListOpprettAvtaleKnapp: Tiltakskode[] = [
+  Tiltakskode.MIDLONTIL,
+  Tiltakskode.ARBTREN,
+  Tiltakskode.VARLONTIL,
+  Tiltakskode.MENTOR,
+  Tiltakskode.INKLUTILS,
+  Tiltakskode.TILSJOBB,
 ];
 
 type IndividuelleTiltak = (typeof whiteListOpprettAvtaleKnapp)[number];
 
 function tiltakstypeAsStringIsIndividuellTiltakstype(
-  arenakode: VeilederflateTiltakstype.arenakode,
+  arenakode: Tiltakskode,
 ): arenakode is IndividuelleTiltak {
   return whiteListOpprettAvtaleKnapp.includes(arenakode);
 }
@@ -142,7 +142,7 @@ const ViewTiltaksgjennomforingDetaljer = ({
         <div className={styles.top_wrapper}>
           {!erPreview && (
             <Tilbakeknapp
-              tilbakelenke={`/arbeidsmarkedstiltak/oversikt/#page=${page}`}
+              tilbakelenke={`/arbeidsmarkedstiltak/oversikt#page=${page}`}
               tekst="Tilbake til tiltaksoversikten"
             />
           )}
@@ -203,14 +203,15 @@ const ViewTiltaksgjennomforingDetaljer = ({
             </div>
             {!brukerdata?.manuellStatus && !erPreview && (
               <Alert
-                title="Vi kunne ikke opprette kontakte med KRR og vet derfor ikke om brukeren har reservert seg mot elektronisk kommunikasjon"
+                title="Vi kunne ikke opprette kontakt med KRR og vet derfor ikke om brukeren har reservert seg mot elektronisk kommunikasjon"
                 key="alert-innsatsgruppe"
                 data-testid="alert-innsatsgruppe"
                 size="small"
                 variant="error"
                 className={styles.alert}
               >
-                Kunne ikke å opprette kontakt med Kontakt- og reservasjonsregisteret (KRR).
+                Vi kunne ikke opprette kontakt med KRR og vet derfor ikke om brukeren har reservert
+                seg mot elektronisk kommunikasjon
               </Alert>
             )}
             {harDeltMedBruker && !erPreview && (
@@ -219,7 +220,10 @@ const ViewTiltaksgjennomforingDetaljer = ({
                   size="small"
                   variant="tertiary"
                   onClick={(event) =>
-                    byttTilDialogFlate({ event, dialogId: harDeltMedBruker.dialogId!! })
+                    byttTilDialogFlate({
+                      event,
+                      dialogId: harDeltMedBruker.dialogId!!,
+                    })
                   }
                 >
                   Åpne i dialogen

@@ -48,7 +48,7 @@ export function App() {
           <Router>
             <Routes>
               <Route path="preview/:tiltaksnummer" element={<SanityPreview />} />
-              <Route path="/*" element={<AppWrapper />} />
+              <Route path="*" element={<AppWrapper />} />
             </Routes>
           </Router>
         </div>

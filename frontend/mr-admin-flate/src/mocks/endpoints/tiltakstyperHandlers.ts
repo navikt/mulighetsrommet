@@ -1,6 +1,14 @@
 import { DefaultBodyType, PathParams, rest } from "msw";
-import { PaginertTiltakstype, Tiltakstype, PaginertAvtale } from "mulighetsrommet-api-client";
-import { paginertMockTiltakstyper } from "../fixtures/mock_tiltakstyper";
+import {
+  PaginertTiltakstype,
+  Tiltakstype,
+  PaginertAvtale,
+  VeilederflateTiltakstype,
+} from "mulighetsrommet-api-client";
+import {
+  paginertMockTiltakstyper,
+  mockVeilederflateTiltakstypeAFT,
+} from "../fixtures/mock_tiltakstyper";
 import { mockAvtaler } from "../fixtures/mock_avtaler";
 
 export const tiltakstypeHandlers = [
@@ -19,6 +27,17 @@ export const tiltakstypeHandlers = [
         ctx.status(200),
 
         ctx.json(paginertMockTiltakstyper.data.find((gj) => gj.id === id)),
+      );
+    },
+  ),
+
+  rest.get<DefaultBodyType, { id: string }, VeilederflateTiltakstype | undefined>(
+    "*/api/v1/internal/tiltakstyper/:id/sanity",
+    (_req, res, ctx) => {
+      return res(
+        ctx.status(200),
+
+        ctx.json(mockVeilederflateTiltakstypeAFT),
       );
     },
   ),

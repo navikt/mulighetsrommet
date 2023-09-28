@@ -15,7 +15,7 @@ export interface MultiSelectProps {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const MultiSelect = React.forwardRef((props: MultiSelectProps, _) => {
+export const MultiSelect = React.forwardRef(function MultiSelect(props: MultiSelectProps, _) {
   const { name, placeholder, options, onChange, value, childRef, error, readOnly, size } = props;
 
   const customStyles = (isError: boolean) => ({
@@ -79,13 +79,7 @@ const MultiSelect = React.forwardRef((props: MultiSelectProps, _) => {
         }
       }}
       styles={customStyles(Boolean(error))}
-      options={[
-        {
-          label: "Velg alle",
-          value: "*",
-        },
-        ...options,
-      ]}
+      options={[{ label: "Velg alle", value: "*" }, ...options]}
       theme={(theme: any) => ({
         ...theme,
         spacing: {
@@ -105,7 +99,3 @@ const MultiSelect = React.forwardRef((props: MultiSelectProps, _) => {
     />
   );
 });
-
-MultiSelect.displayName = "MultiSelect";
-
-export { MultiSelect };

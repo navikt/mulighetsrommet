@@ -27,7 +27,7 @@ export const TiltaksgjennomforingSkjemaRedInnhold = ({ avtale }: { avtale: Avtal
             <Tabs.Tab value="for_hvem" label="For hvem" />
             <Tabs.Tab value="detaljer_og_innhold" label="Detaljer og innhold" />
             <Tabs.Tab value="pamelding_og_varighet" label="Påmelding og varighet" />
-            <Tabs.Tab value="alle" label="Alle felt" />
+            <Tabs.Tab value="alle" label="Alle faner" />
           </Tabs.List>
           <Tabs.Panel value="for_hvem">
             <ForHvem tiltakstype={tiltakstypeSanityData} />

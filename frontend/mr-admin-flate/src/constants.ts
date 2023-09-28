@@ -38,13 +38,3 @@ export const forsideKort: {
     tekst: "Her finner du informasjon om tiltaksgjennomføringer",
   },
 ];
-
-export const ANSKAFFEDE_TILTAK = [
-  "ARBRRHDAG",
-  "AVKLARAG",
-  "GRUPPEAMO",
-  "INDOPPFAG",
-  "DIGIOPPARB",
-  "JOBBK",
-  "GRUFAGYRKE",
-];

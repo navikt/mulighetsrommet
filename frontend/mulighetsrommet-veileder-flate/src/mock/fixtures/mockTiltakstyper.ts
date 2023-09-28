@@ -1,5 +1,6 @@
 import {
   Innsatsgruppe,
+  Tiltakskode,
   VeilederflateInnsatsgruppe,
   VeilederflateTiltakstype,
 } from "mulighetsrommet-api-client";
@@ -2802,7 +2803,7 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
       "Arbeidstrening skal bidra til å styrke tiltaksdeltakers muligheter for å komme i jobb. Arbeidstrening kan ha flere ulike formål i form av arbeidserfaring for å mestre en bestemt jobb, eller behov for en referanse mens man søker ordinært arbeid",
   },
   gruppe_amo: {
-    arenakode: VeilederflateTiltakstype.arenakode.GRUPPEAMO,
+    arenakode: Tiltakskode.GRUPPEAMO,
     sanityId: "eadeb22c-bd89-4298-a5c2-145f112f8e7d",
     delingMedBruker:
       "Hei <Fornavn>,   \n\nHar du vurdert utdanning for å få flere muligheter på arbeidsmarkedet?  \n\nDu kan lese mer om tiltaket på www.nav.no/opplaring \n\nEr dette aktuelt for deg? Gi meg tilbakemelding her i dialogen. \nSvaret ditt vil ikke endre din utbetaling fra NAV. \n\nVi holder kontakten!\nHilsen <Veiledernavn> \n",
