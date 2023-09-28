@@ -8,7 +8,6 @@ import skjemastyles from "../skjema/Skjema.module.scss";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import { tilgjengelighetsstatusTilTekst } from "../../utils/Utils";
 import { arenaOpphav, arrangorUnderenheterOptions } from "./TiltaksgjennomforingSkjemaConst";
-import { mulighetsrommetClient } from "../../api/clients";
 import { useHentKontaktpersoner } from "../../api/ansatt/useHentKontaktpersoner";
 import { useHentBetabrukere } from "../../api/ansatt/useHentBetabrukere";
 import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
@@ -69,21 +68,6 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({
   });
 
   const watchErMidlertidigStengt = watch("midlertidigStengt.erMidlertidigStengt");
-
-  async function getLokasjonForArrangor(orgnr?: string) {
-    if (!orgnr) return;
-
-    const { postnummer = "", poststed = "" } =
-      await mulighetsrommetClient.virksomhet.hentVirksomhet({
-        orgnr,
-      });
-
-    const lokasjonsStreng = `${postnummer} ${poststed}`.trim();
-
-    if (lokasjonsStreng !== watch("stedForGjennomforing")) {
-      setValue("stedForGjennomforing", lokasjonsStreng);
-    }
-  }
 
   const navEnheterOptions = avtale.navEnheter.map((enhet) => ({
     value: enhet.enhetsnummer,
@@ -312,7 +296,6 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({
                 placeholder="Velg underenhet for tiltaksarrangør"
                 {...register("tiltaksArrangorUnderenhetOrganisasjonsnummer")}
                 onChange={() => {
-                  getLokasjonForArrangor();
                   setValue("arrangorKontaktpersonId", null);
                 }}
                 onClearValue={() => {
