@@ -223,7 +223,6 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     },
     tiltakstype: mockTiltakstyper.ARBRRHDAG,
     startDato: "2022-01-01",
-    sluttDato: "2022-12-12",
     arenaAnsvarligEnhet: "1190",
     navEnheter: [],
     status: TiltaksgjennomforingStatus.GJENNOMFORES,
