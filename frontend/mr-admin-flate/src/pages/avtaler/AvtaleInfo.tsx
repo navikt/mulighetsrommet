@@ -153,7 +153,9 @@ export function AvtaleInfo() {
                   {avtale.leverandorUnderenheter
                     .filter((enhet) => enhet.navn)
                     .map((enhet) => (
-                      <li key={enhet.organisasjonsnummer}>{enhet.navn}</li>
+                      <li key={enhet.organisasjonsnummer}>
+                        {enhet.navn} - {enhet.organisasjonsnummer}
+                      </li>
                     ))}
                 </ul>
               }
