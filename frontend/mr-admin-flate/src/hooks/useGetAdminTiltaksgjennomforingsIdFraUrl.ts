@@ -1,8 +1,9 @@
 import { useParams } from "react-router-dom";
 
 export function useGetAdminTiltaksgjennomforingsIdFraUrl() {
-  const { tiltaksgjennomforingId } = useParams<{
+  const { tiltaksgjennomforingId, utkastId } = useParams<{
     tiltaksgjennomforingId: string;
+    utkastId: string;
   }>();
-  return tiltaksgjennomforingId;
+  return tiltaksgjennomforingId || utkastId;
 }
