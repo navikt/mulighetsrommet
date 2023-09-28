@@ -21,6 +21,7 @@ export const TiltaksgjennomforingSkjemaRedInnhold = ({ avtale }: { avtale: Avtal
           </>
         )}
         <Textarea {...register("beskrivelse")} label="Beskrivelse" />
+        <Heading size="medium">Faneinnhold</Heading>
         <Tabs size="small" defaultValue="for_hvem">
           <Tabs.List>
             <Tabs.Tab value="for_hvem" label="For hvem" />
