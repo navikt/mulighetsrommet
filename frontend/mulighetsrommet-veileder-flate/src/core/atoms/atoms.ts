@@ -20,7 +20,7 @@ export const tiltaksgjennomforingsfilter = atomWithStorage<Tiltaksgjennomforings
   tiltakstyper: [],
 });
 
-export const paginationAtom = atomWithHash("page", 1);
+export const paginationAtom = atomWithHash("page", 1, { setHash: "replaceState" });
 export const faneAtom = atomWithHash("fane", "tab1", {
   setHash: "replaceState",
 });
