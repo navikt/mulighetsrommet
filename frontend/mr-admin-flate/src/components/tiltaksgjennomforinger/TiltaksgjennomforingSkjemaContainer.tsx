@@ -2,6 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Alert, Button, Checkbox, TextField } from "@navikt/ds-react";
 import {
   Avtale,
+  Opphav,
   Tiltaksgjennomforing,
   TiltaksgjennomforingOppstartstype,
   TiltaksgjennomforingRequest,
@@ -166,6 +167,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
       stedForGjennomforing: tiltaksgjennomforing?.stedForGjennomforing,
       arrangorKontaktpersonId: tiltaksgjennomforing?.arrangor?.kontaktperson?.id,
       faneinnhold: tiltaksgjennomforing?.faneinnhold,
+      opphav: tiltaksgjennomforing?.opphav ?? Opphav.MR_ADMIN_FLATE,
     },
   });
 
@@ -218,8 +220,10 @@ export const TiltaksgjennomforingSkjemaContainer = ({
       tiltakstypeId: avtale.tiltakstype.id,
       navEnheter: data.navEnheter,
       navn: data.navn,
-      sluttDato: formaterDatoSomYYYYMMDD(data.startOgSluttDato.sluttDato),
       startDato: formaterDatoSomYYYYMMDD(data.startOgSluttDato.startDato),
+      sluttDato: data.startOgSluttDato.sluttDato
+        ? formaterDatoSomYYYYMMDD(data.startOgSluttDato.sluttDato)
+        : null,
       avtaleId: avtale.id,
       administrator: data.administrator,
       arrangorOrganisasjonsnummer:
@@ -245,7 +249,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
       estimertVentetid: data.estimertVentetid ?? null,
       stedForGjennomforing: data.stedForGjennomforing,
       arrangorKontaktpersonId: data.arrangorKontaktpersonId ?? null,
-      opphav: tiltaksgjennomforing?.opphav ?? null,
+      opphav: data.opphav,
       faneinnhold: data.faneinnhold ?? null,
     };
 
@@ -322,8 +326,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
                   }}
                   til={{
                     label: "Sluttdato",
-                    readOnly:
-                      arenaOpphav(tiltaksgjennomforing) && !!tiltaksgjennomforing?.sluttDato,
+                    readOnly: arenaOpphav(tiltaksgjennomforing),
                     ...register("startOgSluttDato.sluttDato"),
                   }}
                 />
