@@ -64,12 +64,12 @@ const ForHvem = ({ tiltakstype }: { tiltakstype?: VeilederflateTiltakstype }) =>
 
       <div className={skjemastyles.description_richtext_container}>
         <Textarea
-          {...register("faneinnhold.forhvemInfoboks")}
+          {...register("faneinnhold.forHvemInfoboks")}
           label="Fremhevet informasjon til veileder som legger seg i blå infoboks i fanen «For hvem»"
           description="Bruk denne tekstboksen for informasjon som skal være ekstra fremtredende for veilederne."
         />
         <PortableTextEditor
-          {...register("faneinnhold.forhvem")}
+          {...register("faneinnhold.forHvem")}
           label="For hvem"
           description="Beskrivelse av hvem tiltakstypen passer for. Husk å bruke et kort og konsist språk."
         />

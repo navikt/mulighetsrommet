@@ -83,8 +83,8 @@ export const TiltaksgjennomforingSchema = z
     estimertVentetid: z.string().nullable(),
     beskrivelse: z.string().nullable(),
     faneinnhold: z.object({
-      forhvemInfoboks: z.string().optional(),
-      forhvem: z.any(),
+      forHvemInfoboks: z.string().optional(),
+      forHvem: z.any(),
       detaljerOgInnholdInfoboks: z.string().optional(),
       detaljerOgInnhold: z.any(),
       pameldingOgVarighetInfoboks: z.string().optional(),
