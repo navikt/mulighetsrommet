@@ -28,6 +28,7 @@ data class ScheduledNotification(
     val type: NotificationType,
     val title: String,
     val description: String? = null,
+    val metadata: NotificationMetadata? = null,
     @Serializable(with = InstantSerializer::class)
     val createdAt: Instant,
     /**
@@ -53,4 +54,10 @@ data class UserNotification(
 @Serializable
 data class UserNotificationSummary(
     val notDoneCount: Int,
+)
+
+@Serializable
+data class NotificationMetadata(
+    val linkText: String,
+    val link: String,
 )

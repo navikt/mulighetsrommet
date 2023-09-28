@@ -23,9 +23,9 @@ class NotificationRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val insertNotification = """
-            insert into notification (id, type, title, description, created_at)
-            values (:id::uuid, :type::notification_type, :title, :description, :created_at)
-            returning id, type, title, description, created_at
+            insert into notification (id, type, title, description, created_at, metadata)
+            values (:id::uuid, :type::notification_type, :title, :description, :created_at, :metadata::jsonb)
+            returning id, type, title, description, created_at, metadata::jsonb
         """.trimIndent()
 
         @Language("PostgreSQL")
@@ -44,6 +44,7 @@ class NotificationRepository(private val db: Database) {
                     "title" to notification.title,
                     "description" to notification.description,
                     "created_at" to notification.createdAt,
+                    "metadata" to notification.metadata,
                 ),
             ).asExecute,
         )
