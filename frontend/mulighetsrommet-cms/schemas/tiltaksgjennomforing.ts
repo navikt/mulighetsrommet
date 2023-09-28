@@ -300,10 +300,17 @@ export const tiltaksgjennomforing = defineType({
     select: {
       title: "tiltaksgjennomforingNavn",
       tiltaksnummer: "tiltaksnummer.current",
+      updatedAt: "_updatedAt",
     },
-    prepare: ({ title, tiltaksnummer }) => ({
+    prepare: ({ title, tiltaksnummer, updatedAt }) => ({
       title,
-      subtitle: tiltaksnummer ? tiltaksnummer : "",
+      subtitle: `${tiltaksnummer ? tiltaksnummer : ""} - Sist oppd: ${new Date(
+        updatedAt,
+      ).toLocaleTimeString("no-NO", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      })}`,
     }),
   },
 });
