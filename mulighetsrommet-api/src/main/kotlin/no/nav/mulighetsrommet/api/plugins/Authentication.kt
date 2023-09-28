@@ -5,7 +5,6 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
-import io.ktor.server.plugins.*
 import io.ktor.util.pipeline.*
 import no.nav.mulighetsrommet.api.AuthConfig
 import no.nav.mulighetsrommet.ktor.exception.StatusException
@@ -20,8 +19,8 @@ enum class AuthProvider {
 }
 
 object AppRoles {
-    const val AccessAsApplication = "access_as_application"
-    const val ReadTiltaksgjennomforing = "tiltaksgjennomforing-read"
+    const val ACCESS_AS_APPLICATION = "access_as_application"
+    const val READ_TILTAKSGJENNOMFORING = "tiltaksgjennomforing-read"
 }
 
 fun Application.configureAuthentication(
@@ -57,7 +56,7 @@ fun Application.configureAuthentication(
             }
 
             validate { credentials ->
-                if (!hasRoles(credentials, AppRoles.AccessAsApplication)) {
+                if (!hasRoles(credentials, AppRoles.ACCESS_AS_APPLICATION)) {
                     return@validate null
                 }
 
@@ -71,7 +70,7 @@ fun Application.configureAuthentication(
             }
 
             validate { credentials ->
-                if (!hasRoles(credentials, AppRoles.AccessAsApplication, AppRoles.ReadTiltaksgjennomforing)) {
+                if (!hasRoles(credentials, AppRoles.ACCESS_AS_APPLICATION, AppRoles.READ_TILTAKSGJENNOMFORING)) {
                     return@validate null
                 }
 

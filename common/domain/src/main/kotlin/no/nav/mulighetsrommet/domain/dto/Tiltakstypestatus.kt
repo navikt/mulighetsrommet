@@ -3,7 +3,10 @@ package no.nav.mulighetsrommet.domain.dto
 import java.time.LocalDate
 
 enum class Tiltakstypestatus {
-    Aktiv, Planlagt, Avsluttet;
+    Aktiv,
+    Planlagt,
+    Avsluttet,
+    ;
 
     companion object {
         fun resolveFromDates(
