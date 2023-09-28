@@ -361,14 +361,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             .let { tx.run(it) }
     }
 
-    fun updateSanityTiltaksgjennomforingId(id: UUID, sanityId: UUID, tx: Session? = null) =
-        if (tx == null) {
-            db.transaction { updateSanityTiltaksgjennomforingId(id, sanityId, it) }
-        } else {
-            updateSanityTiltaksgjennomforingId(id, sanityId, tx)
-        }
-
-    fun updateSanityTiltaksgjennomforingId(id: UUID, sanityId: UUID, tx: Session) {
+    fun updateSanityTiltaksgjennomforingId(id: UUID, sanityId: UUID, tx: Session? = null) {
         @Language("PostgreSQL")
         val query = """
             update tiltaksgjennomforing
@@ -377,7 +370,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 and sanity_id is null
         """.trimIndent()
 
-        queryOf(
+        val update = queryOf(
             query,
             mapOf(
                 "sanity_id" to sanityId,
@@ -385,7 +378,11 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             ),
         )
             .asUpdate
-            .let { tx.run(it) }
+        if (tx == null) {
+            db.run(update)
+        } else {
+            tx.run(update)
+        }
     }
 
     fun getAll(
