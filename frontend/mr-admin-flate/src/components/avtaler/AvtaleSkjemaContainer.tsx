@@ -1,7 +1,6 @@
-import { Alert, Button, DatePicker, Textarea, TextField, useDatepicker } from "@navikt/ds-react";
+import { Button, DatePicker, Textarea, TextField, useDatepicker } from "@navikt/ds-react";
 import {
   Avtale,
-  AvtaleAvslutningsstatus,
   AvtaleRequest,
   Avtalestatus,
   Avtaletype,
@@ -12,6 +11,7 @@ import {
   Opphav,
   Tiltakskode,
   Toggles,
+  ValidationErrorResponse,
 } from "mulighetsrommet-api-client";
 import { NavEnhet } from "mulighetsrommet-api-client/build/models/NavEnhet";
 import { Tiltakstype } from "mulighetsrommet-api-client/build/models/Tiltakstype";
@@ -34,9 +34,6 @@ import { VirksomhetKontaktpersoner } from "../virksomhet/VirksomhetKontaktperson
 import { AvtaleSchema, InferredAvtaleSchema } from "./AvtaleSchema";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { PORTEN } from "mulighetsrommet-frontend-common/constants";
-import { resolveErrorMessage } from "../../api/errors";
-import { erAnskaffetTiltak } from "../../utils/tiltakskoder";
 import { AdministratorOptions } from "../skjema/AdministratorOptions";
 import { FormGroup } from "../skjema/FormGroup";
 import {
@@ -48,6 +45,7 @@ import {
 import { AvtaleSkjemaKnapperad } from "./AvtaleSkjemaKnapperad";
 import { AvbrytAvtaleModal } from "../modal/AvbrytAvtaleModal";
 import { useFeatureToggle } from "../../api/features/feature-toggles";
+import { erAnskaffetTiltak } from "../../utils/tiltakskoder";
 
 interface Props {
   onClose: () => void;
@@ -148,46 +146,26 @@ export function AvtaleSkjemaContainer({
   const arenaOpphav = avtale?.opphav === Opphav.ARENA;
 
   const postData: SubmitHandler<InferredAvtaleSchema> = async (data): Promise<void> => {
-    const {
-      navRegion,
-      navEnheter,
-      leverandor: leverandorOrganisasjonsnummer,
-      leverandorUnderenheter,
-      leverandorKontaktpersonId,
-      avtalenavn: navn,
-      startOgSluttDato,
-      tiltakstype,
-      administrator,
-      avtaletype,
-      prisOgBetalingsinfo,
-      opphav,
-      url,
-    } = data;
-
     const requestBody: AvtaleRequest = {
-      id: utkastIdRef.current,
-      navRegion,
-      navEnheter,
+      id: avtale?.id ?? utkastIdRef.current,
+      navRegion: data.navRegion,
+      navEnheter: data.navEnheter,
       avtalenummer: avtale?.avtalenummer || null,
-      leverandorOrganisasjonsnummer,
-      leverandorUnderenheter,
-      navn,
-      sluttDato: formaterDatoSomYYYYMMDD(startOgSluttDato.sluttDato),
-      startDato: formaterDatoSomYYYYMMDD(startOgSluttDato.startDato),
-      tiltakstypeId: tiltakstype.id,
-      url: url || null,
-      administrator,
-      avtaletype,
-      prisOgBetalingsinformasjon: erAnskaffetTiltak(tiltakstype.arenaKode)
-        ? prisOgBetalingsinfo || null
+      leverandorOrganisasjonsnummer: data.leverandor,
+      leverandorUnderenheter: data.leverandorUnderenheter,
+      navn: data.avtalenavn,
+      sluttDato: formaterDatoSomYYYYMMDD(data.startOgSluttDato.sluttDato),
+      startDato: formaterDatoSomYYYYMMDD(data.startOgSluttDato.startDato),
+      tiltakstypeId: data.tiltakstype.id,
+      url: data.url || null,
+      administrator: data.administrator,
+      avtaletype: data.avtaletype,
+      prisOgBetalingsinformasjon: erAnskaffetTiltak(data.tiltakstype.arenaKode)
+        ? data.prisOgBetalingsinfo || null
         : null,
-      opphav,
-      leverandorKontaktpersonId: leverandorKontaktpersonId ?? null,
+      opphav: data.opphav,
+      leverandorKontaktpersonId: data.leverandorKontaktpersonId ?? null,
     };
-
-    if (avtale?.id) {
-      requestBody.id = avtale.id; // Ved oppdatering av eksisterende avtale
-    }
 
     mutation.mutate(requestBody);
   };
@@ -195,22 +173,25 @@ export function AvtaleSkjemaContainer({
   useEffect(() => {
     if (mutation.isSuccess) {
       onSuccess(mutation.data.id);
+    } else if (mutation.isError && mutation.error.status === 400) {
+      const response = mutation.error.body as ValidationErrorResponse;
+      response.errors.forEach((error) => {
+        const name = asSchemaPropertyName(error.name) as keyof InferredAvtaleSchema;
+        form.setError(name, { type: "custom", message: error.message });
+      });
+    } else if (mutation.isError) {
+      throw mutation.error;
     }
-  }, [mutation]);
+  }, [mutation.isSuccess, mutation.isError]);
 
-  if (mutation.isError) {
-    return (
-      <Alert variant="error">
-        {mutation.error.status === 400 ? (
-          resolveErrorMessage(mutation.error)
-        ) : (
-          <>
-            Avtalen kunne ikke opprettes på grunn av en teknisk feil hos oss. Forsøk på nytt eller
-            ta <a href={PORTEN}>kontakt i Porten</a> dersom du trenger mer hjelp.
-          </>
-        )}
-      </Alert>
-    );
+  function asSchemaPropertyName(name: string) {
+    const mapping: { [name: string]: string } = {
+      startDato: "startOgSluttDato.startDato",
+      sluttDato: "startOgSluttDato.sluttDato",
+      navn: "avtalenavn",
+      leverandorOrganisasjonsnummer: "leverandor",
+    };
+    return mapping[name] ?? name;
   }
 
   const navRegionerOptions = enheter

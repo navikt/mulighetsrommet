@@ -180,6 +180,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Avtale"
+        400:
+          description: Respons med valideringsfeil
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
         500:
           description: "Kunne ikke opprette avtale"
           content:
@@ -1463,6 +1469,24 @@ components:
         type: string
 
   schemas:
+    ValidationErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              message:
+                type: string
+            required:
+              - name
+              - message
+      required:
+        - errors
+
     GetBrukerRequest:
       type: object
       properties:

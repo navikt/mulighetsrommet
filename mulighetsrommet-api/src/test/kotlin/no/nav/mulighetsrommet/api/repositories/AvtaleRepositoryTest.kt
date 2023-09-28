@@ -4,7 +4,6 @@ import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.data.forAll
 import io.kotest.data.row
-import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
@@ -275,13 +274,11 @@ class AvtaleRepositoryTest : FunSpec({
             avtaler.upsert(a2)
 
             avtaler.getAll(filter = AvtaleFilter(administratorNavIdent = NavAnsattFixture.ansatt1.navIdent)).should {
-                it.first shouldBe 2
-                it.second.map { tg -> tg.id } shouldContainAll listOf(a1.id, a2.id)
+                it.second.map { tg -> tg.id } shouldContainExactlyInAnyOrder listOf(a1.id, a2.id)
             }
 
             avtaler.getAll(filter = AvtaleFilter(administratorNavIdent = NavAnsattFixture.ansatt2.navIdent)).should {
-                it.first shouldBe 1
-                it.second.map { tg -> tg.id } shouldContainAll listOf(a2.id)
+                it.second.map { tg -> tg.id } shouldContainExactlyInAnyOrder listOf(a2.id)
             }
         }
 
@@ -319,16 +316,14 @@ class AvtaleRepositoryTest : FunSpec({
                 avtaler.upsert(avtalePlanlagt)
                 avtaler.setAvslutningsstatus(avtalePlanlagt.id, Avslutningsstatus.IKKE_AVSLUTTET)
 
-
                 forAll(
                     row(Avtalestatus.Avbrutt, listOf(avtaleAvbrutt.id)),
-                    row(Avtalestatus.Avsluttet, listOf(avtaleAvsluttetStatus.id, avtaleAvsluttetDato.id))
+                    row(Avtalestatus.Avsluttet, listOf(avtaleAvsluttetStatus.id, avtaleAvsluttetDato.id)),
                 ) { status, expected ->
                     val result = avtaler.getAll(
                         filter = defaultFilter.copy(avtalestatus = status),
                     )
-                    result.second.map { it.id } shouldBe expected
-                    result.second.map { it.id } shouldContainAll expected
+                    result.second.map { it.id } shouldContainExactlyInAnyOrder expected
                 }
             }
         }

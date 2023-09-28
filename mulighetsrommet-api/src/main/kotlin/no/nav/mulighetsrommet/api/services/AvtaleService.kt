@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.services
 
 import arrow.core.Either
 import kotliquery.Session
+import no.nav.mulighetsrommet.api.avtaler.AvtaleRequestValidator
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleNokkeltallDto
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
@@ -29,38 +30,42 @@ class AvtaleService(
     private val virksomhetService: VirksomhetService,
     private val notificationRepository: NotificationRepository,
     private val utkastRepository: UtkastRepository,
+    private val validator: AvtaleRequestValidator,
     private val db: Database,
 ) {
     fun get(id: UUID): AvtaleAdminDto? {
         return avtaler.get(id)
     }
 
-    suspend fun upsert(request: AvtaleRequest, navIdent: String): StatusResponse<AvtaleAdminDto> {
+    suspend fun upsert(request: AvtaleRequest, navIdent: String): Either<List<ValidationError>, AvtaleAdminDto> {
         virksomhetService.getOrSyncVirksomhet(request.leverandorOrganisasjonsnummer)
 
-        val prevAdministrator = avtaler.get(request.id)?.administrator?.navIdent
-        return request.toDbo()
-            .map {
+        val currentAvtale = get(request.id)
+        return validator.validate(request)
+            .map { it.toDbo() }
+            .map { dbo ->
                 db.transaction { tx ->
-                    avtaler.upsert(it, tx)
-                    utkastRepository.delete(it.id, tx)
-                    if (navIdent != request.administrator && prevAdministrator != request.administrator) {
-                        dispatchSattSomAdministratorNofication(it.navn, request.administrator, tx)
+                    avtaler.upsert(dbo, tx)
+                    utkastRepository.delete(dbo.id, tx)
+
+                    val currentAdministrator = currentAvtale?.administrator?.navIdent
+                    if (navIdent != request.administrator && currentAdministrator != request.administrator) {
+                        dispatchSattSomAdministratorNofication(dbo.navn, request.administrator, tx)
                     }
-                    avtaler.get(it.id, tx)!!
+                    avtaler.get(dbo.id, tx)!!
                 }
             }
     }
 
     fun delete(id: UUID, currentDate: LocalDate = LocalDate.now()): StatusResponse<Unit> {
-        val optionalAvtale = avtaler.get(id)
+        val avtale = avtaler.get(id)
             ?: return Either.Left(NotFound("Fant ikke avtale for sletting"))
 
-        if (optionalAvtale.opphav == Opphav.ARENA) {
+        if (avtale.opphav == Opphav.ARENA) {
             return Either.Left(BadRequest(message = "Avtalen har opprinnelse fra Arena og kan ikke bli slettet i admin-flate."))
         }
 
-        if (optionalAvtale.startDato <= currentDate) {
+        if (avtale.startDato <= currentDate) {
             return Either.Left(BadRequest(message = "Avtalen er aktiv og kan derfor ikke slettes."))
         }
 
