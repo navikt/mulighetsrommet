@@ -2,6 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Alert, Tabs } from "@navikt/ds-react";
 import {
   Avtale,
+  Opphav,
   Tiltaksgjennomforing,
   TiltaksgjennomforingRequest,
   Toggles,
@@ -146,6 +147,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
       arrangorKontaktpersonId: tiltaksgjennomforing?.arrangor?.kontaktperson?.id,
       beskrivelse: tiltaksgjennomforing?.beskrivelse ?? null,
       faneinnhold: tiltaksgjennomforing?.faneinnhold ?? {},
+      opphav: tiltaksgjennomforing?.opphav ?? Opphav.MR_ADMIN_FLATE,
     },
   });
 
@@ -169,8 +171,10 @@ export const TiltaksgjennomforingSkjemaContainer = ({
       tiltakstypeId: avtale.tiltakstype.id,
       navEnheter: data.navEnheter,
       navn: data.navn,
-      sluttDato: formaterDatoSomYYYYMMDD(data.startOgSluttDato.sluttDato),
       startDato: formaterDatoSomYYYYMMDD(data.startOgSluttDato.startDato),
+      sluttDato: data.startOgSluttDato.sluttDato
+        ? formaterDatoSomYYYYMMDD(data.startOgSluttDato.sluttDato)
+        : null,
       avtaleId: avtale.id,
       administrator: data.administrator,
       arrangorOrganisasjonsnummer:
@@ -196,9 +200,9 @@ export const TiltaksgjennomforingSkjemaContainer = ({
       estimertVentetid: data.estimertVentetid ?? null,
       stedForGjennomforing: data.stedForGjennomforing,
       arrangorKontaktpersonId: data.arrangorKontaktpersonId ?? null,
-      opphav: tiltaksgjennomforing?.opphav ?? null,
       beskrivelse: data.beskrivelse,
       faneinnhold: data.faneinnhold,
+      opphav: data.opphav,
     };
 
     try {

@@ -1932,6 +1932,7 @@ components:
         sluttDato:
           type: string
           format: date
+          nullable: true
         antallPlasser:
           type: number
         arrangorOrganisasjonsnummer:

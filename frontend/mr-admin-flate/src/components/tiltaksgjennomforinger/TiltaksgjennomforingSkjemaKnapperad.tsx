@@ -24,6 +24,7 @@ export function TiltaksgjennomforingSkjemaKnapperad({
         variant="tertiary"
         type="button"
         data-testid="avbryt-knapp"
+        disabled={mutation.isLoading}
       >
         Avbryt
       </Button>

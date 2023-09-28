@@ -121,7 +121,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({
               }}
               til={{
                 label: "Sluttdato",
-                readOnly: arenaOpphav(tiltaksgjennomforing) && !!tiltaksgjennomforing?.sluttDato,
+                readOnly: arenaOpphav(tiltaksgjennomforing),
                 ...register("startOgSluttDato.sluttDato"),
               }}
             />

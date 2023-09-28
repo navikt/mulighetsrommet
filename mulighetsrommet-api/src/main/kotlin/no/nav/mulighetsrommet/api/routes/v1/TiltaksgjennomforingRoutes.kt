@@ -96,7 +96,7 @@ data class TiltaksgjennomforingRequest(
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
-    val sluttDato: LocalDate,
+    val sluttDato: LocalDate?,
     val antallPlasser: Int,
     val arrangorOrganisasjonsnummer: String,
     @Serializable(with = UUIDSerializer::class)
@@ -118,7 +118,7 @@ data class TiltaksgjennomforingRequest(
     val beskrivelse: String?,
 ) {
     fun toDbo(): StatusResponse<TiltaksgjennomforingDbo> {
-        if (!startDato.isBefore(sluttDato)) {
+        if (sluttDato != null && !startDato.isBefore(sluttDato)) {
             return Either.Left(BadRequest("Startdato må være før sluttdato"))
         }
         if ((stengtFra != null) != (stengtTil != null)) {

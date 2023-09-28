@@ -1,4 +1,4 @@
-import { TiltaksgjennomforingOppstartstype } from "mulighetsrommet-api-client";
+import { Opphav, TiltaksgjennomforingOppstartstype } from "mulighetsrommet-api-client";
 import z from "zod";
 
 export const TiltaksgjennomforingSchema = z
@@ -9,9 +9,7 @@ export const TiltaksgjennomforingSchema = z
         startDato: z.date({
           required_error: "En gjennomføring må ha en startdato",
         }),
-        sluttDato: z.date({
-          required_error: "En gjennomføring må ha en sluttdato",
-        }),
+        sluttDato: z.date().optional(),
       })
       .refine((data) => !data.startDato || !data.sluttDato || data.sluttDato > data.startDato, {
         message: "Startdato må være før sluttdato",
@@ -90,17 +88,67 @@ export const TiltaksgjennomforingSchema = z
       pameldingOgVarighetInfoboks: z.string().optional(),
       pameldingOgVarighet: z.any(),
     }),
+    opphav: z.nativeEnum(Opphav),
   })
-  .refine(
-    (data) =>
-      !data.midlertidigStengt.erMidlertidigStengt ||
-      !data.midlertidigStengt.stengtTil ||
-      !data.startOgSluttDato.sluttDato ||
-      data.midlertidigStengt.stengtTil <= data.startOgSluttDato.sluttDato,
-    {
-      message: "Stengt til dato må være før sluttdato",
-      path: ["midlertidigStengt.stengtTil"],
-    },
-  );
+  .superRefine((data, ctx) => {
+    if (
+      data.startOgSluttDato.sluttDato &&
+      data.midlertidigStengt.erMidlertidigStengt &&
+      data.midlertidigStengt.stengtTil &&
+      data.midlertidigStengt.stengtTil >= data.startOgSluttDato.sluttDato
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Stengt til dato må være før sluttdato",
+        path: ["midlertidigStengt.stengtTil"],
+      });
+    }
+    if (data.opphav === Opphav.MR_ADMIN_FLATE && !data.startOgSluttDato.sluttDato) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Du må legge til en sluttdato",
+        path: ["startOgSluttDato.sluttDato"],
+      });
+
+      if (
+        data.startOgSluttDato.sluttDato &&
+        bareDatoUtenTidspunkt(new Date(data.startOgSluttDato.sluttDato)) <
+          bareDatoUtenTidspunkt(new Date())
+      ) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Sluttdato kan ikke være før dagens dato",
+          path: ["startOgSluttDato.sluttDato"],
+        });
+      }
+      if (
+        data.startOgSluttDato.sluttDato &&
+        bareDatoUtenTidspunkt(new Date(data.startOgSluttDato.sluttDato)) <
+          bareDatoUtenTidspunkt(new Date(data.startOgSluttDato.startDato))
+      ) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Sluttdato må være etter startdato",
+          path: ["startOgSluttDato.sluttDato"],
+        });
+      }
+    }
+
+    if (
+      data.startOgSluttDato.startDato &&
+      bareDatoUtenTidspunkt(new Date(data.startOgSluttDato.startDato)) <
+        bareDatoUtenTidspunkt(new Date())
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Startdato kan ikke være før dagens dato",
+        path: ["startOgSluttDato.startDato"],
+      });
+    }
+  });
+
+function bareDatoUtenTidspunkt(date: Date): Date {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
 
 export type inferredTiltaksgjennomforingSchema = z.infer<typeof TiltaksgjennomforingSchema>;
