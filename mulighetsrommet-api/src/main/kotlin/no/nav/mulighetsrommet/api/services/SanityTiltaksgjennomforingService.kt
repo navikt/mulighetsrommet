@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.services
 
 import io.ktor.http.*
 import kotlinx.serialization.json.JsonObject
+import kotliquery.Session
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityPerspective
 import no.nav.mulighetsrommet.api.domain.dto.*
@@ -36,7 +37,10 @@ class SanityTiltaksgjennomforingService(
         }
     }
 
-    suspend fun createOrPatchSanityTiltaksgjennomforing(tiltaksgjennomforing: TiltaksgjennomforingAdminDto) {
+    suspend fun createOrPatchSanityTiltaksgjennomforing(
+        tiltaksgjennomforing: TiltaksgjennomforingAdminDto,
+        tx: Session? = null,
+    ) {
         val avtale = tiltaksgjennomforing.avtaleId?.let { avtaleRepository.get(it) }
         val tiltakstype = tiltakstypeRepository.get(tiltaksgjennomforing.tiltakstype.id)
 
@@ -62,6 +66,7 @@ class SanityTiltaksgjennomforingService(
             tiltaksgjennomforingRepository.updateSanityTiltaksgjennomforingId(
                 tiltaksgjennomforing.id,
                 sanityId,
+                tx,
             )
         }
     }

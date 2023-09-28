@@ -233,7 +233,7 @@ class VeilederflateService(
         """.trimIndent()
 
         return when (val result = sanityClient.query(query, perspective)) {
-            is SanityResponse.Result -> result.decode<SanityTiltaksgjennomforing>()
+            is SanityResponse.Result -> result.decode()
             is SanityResponse.Error -> throw Exception(result.error.toString())
         }
     }
