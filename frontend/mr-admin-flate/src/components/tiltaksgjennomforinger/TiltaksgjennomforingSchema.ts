@@ -82,8 +82,8 @@ export const TiltaksgjennomforingSchema = z
       "Du må velge oppstartstype",
     ),
     apenForInnsok: z.boolean(),
-    estimertVentetid: z.string().optional(),
-    beskrivelse: z.string(),
+    estimertVentetid: z.string().nullable(),
+    beskrivelse: z.string().nullable(),
     faneinnhold: z.object({
       forhvemInfoboks: z.string().optional(),
       forhvem: z.any(),

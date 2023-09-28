@@ -92,7 +92,8 @@ export const TiltaksgjennomforingSkjemaContainer = ({
       kontaktpersoner: values?.kontaktpersoner?.map((kp) => ({ ...kp })) || [],
       id: utkastIdRef.current,
       stedForGjennomforing: values?.stedForGjennomforing,
-      estimertVentetid: values?.estimertVentetid,
+      beskrivelse: values?.beskrivelse ?? undefined,
+      estimertVentetid: values?.estimertVentetid ?? undefined,
     };
 
     if (!values.navn) {
@@ -143,8 +144,8 @@ export const TiltaksgjennomforingSkjemaContainer = ({
       estimertVentetid: tiltaksgjennomforing?.estimertVentetid,
       stedForGjennomforing: tiltaksgjennomforing?.stedForGjennomforing,
       arrangorKontaktpersonId: tiltaksgjennomforing?.arrangor?.kontaktperson?.id,
-      beskrivelse: undefined,
-      faneinnhold: tiltaksgjennomforing?.faneinnhold,
+      beskrivelse: tiltaksgjennomforing?.beskrivelse ?? null,
+      faneinnhold: tiltaksgjennomforing?.faneinnhold ?? {},
     },
   });
 
@@ -196,8 +197,8 @@ export const TiltaksgjennomforingSkjemaContainer = ({
       stedForGjennomforing: data.stedForGjennomforing,
       arrangorKontaktpersonId: data.arrangorKontaktpersonId ?? null,
       opphav: tiltaksgjennomforing?.opphav ?? null,
-      //beskrivelse: data.beskrivelse ?? null,
-      faneinnhold: data.faneinnhold ?? null,
+      beskrivelse: data.beskrivelse,
+      faneinnhold: data.faneinnhold,
     };
 
     try {

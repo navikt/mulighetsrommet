@@ -1864,6 +1864,8 @@ components:
           type: string
         faneinnhold:
           type: object
+        beskrivelse:
+          type: string
       required:
         - id
         - tiltakstype
@@ -1939,6 +1941,9 @@ components:
         faneinnhold:
           type: object
           nullable: true
+        beskrivelse:
+          type: string
+          nullable: true
       required:
         - id
         - tiltakstypeId
@@ -1962,6 +1967,7 @@ components:
         - stedForGjennomforing
         - opphav
         - faneinnhold
+        - beskrivelse
 
     TiltaksgjennomforingStatus:
       type: string
@@ -2899,3 +2905,4 @@ components:
         - mulighetsrommet.admin-flate-vis-deltakerliste-fra-komet
         - mulighetsrommet.enable-arbeidsflate
         - mulighetsrommet-veilederflate-landingsside
+        - mulighetsrommet.admin-flate-faneinnhold
