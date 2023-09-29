@@ -49,6 +49,7 @@ data class UserNotification(
     val createdAt: LocalDateTime,
     @Serializable(with = LocalDateTimeSerializer::class)
     val doneAt: LocalDateTime?,
+    val metadata: NotificationMetadata? = null,
 )
 
 @Serializable

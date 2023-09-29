@@ -1,5 +1,7 @@
 package no.nav.mulighetsrommet.notifications
 
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
@@ -44,7 +46,7 @@ class NotificationRepository(private val db: Database) {
                     "title" to notification.title,
                     "description" to notification.description,
                     "created_at" to notification.createdAt,
-                    "metadata" to notification.metadata,
+                    "metadata" to Json.encodeToString(notification.metadata),
                 ),
             ).asExecute,
         )
@@ -89,7 +91,7 @@ class NotificationRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            select n.id, n.type, n.title, n.description, n.created_at, un.user_id, un.done_at
+            select n.id, n.type, n.title, n.description, n.created_at, un.user_id, un.done_at, n.metadata
             from notification n
                      left join user_notification un on n.id = un.notification_id
             where id = ?::uuid
@@ -104,7 +106,7 @@ class NotificationRepository(private val db: Database) {
     fun getAll(): QueryResult<List<UserNotification>> = query {
         @Language("PostgreSQL")
         val query = """
-            select n.id, n.type, n.title, n.description, n.created_at, un.user_id, un.done_at
+            select n.id, n.type, n.title, n.description, n.created_at, un.user_id, un.done_at, n.metadata
             from notification n
                      left join user_notification un on n.id = un.notification_id
             order by created_at desc
@@ -128,7 +130,7 @@ class NotificationRepository(private val db: Database) {
 
             @Language("PostgreSQL")
             val query = """
-            select n.id, n.type, n.title, n.description, n.created_at, un.user_id, un.done_at
+            select n.id, n.type, n.title, n.description, n.created_at, un.user_id, un.done_at, n.metadata
             from notification n
                      left join user_notification un on n.id = un.notification_id
             $where
@@ -183,6 +185,7 @@ class NotificationRepository(private val db: Database) {
         user = string("user_id"),
         createdAt = localDateTime("created_at"),
         doneAt = localDateTimeOrNull("done_at"),
+        metadata = stringOrNull("metadata")?.let { Json.decodeFromString(it) },
     )
 
     private fun NotificationStatus.toDbStatement(): String {
