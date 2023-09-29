@@ -8,6 +8,7 @@ import com.github.kagkarlsson.scheduler.task.schedule.Schedules
 import kotlinx.coroutines.runBlocking
 import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingNotificationDto
+import no.nav.mulighetsrommet.notifications.NotificationMetadata
 import no.nav.mulighetsrommet.notifications.NotificationService
 import no.nav.mulighetsrommet.notifications.NotificationType
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
@@ -70,6 +71,10 @@ class NotifySluttdatoForMidlertidigStengtGjennomforingerNarmerSeg(
                             }.",
                             targets = it.administratorer,
                             createdAt = Instant.now(),
+                            metadata = NotificationMetadata(
+                                linkText = "Gå til gjennomføringen",
+                                link = "/tiltaksgjennomforinger/${it.id}",
+                            ),
                         )
                         notificationService.scheduleNotification(notification)
                     }

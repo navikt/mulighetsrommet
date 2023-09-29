@@ -1,4 +1,4 @@
-import { BodyLong, BodyShort, Heading, Tag } from "@navikt/ds-react";
+import { BodyLong, BodyShort, Button, Heading, Link, Tag } from "@navikt/ds-react";
 import classNames from "classnames";
 import { NotificationType, UserNotification } from "mulighetsrommet-api-client";
 import { ReactNode, useState } from "react";
@@ -6,6 +6,7 @@ import { Slide, ToastContainer } from "react-toastify";
 import { formaterDatoTid } from "../../utils/Utils";
 import { CheckmarkButton } from "./CheckmarkButton";
 import styles from "./Notifikasjoner.module.scss";
+import { Lenkeknapp } from "../lenkeknapp/Lenkeknapp";
 
 interface NotifikasjonssradProps {
   notifikasjon: UserNotification;
@@ -16,13 +17,21 @@ function tag(type: NotificationType, lest: boolean): ReactNode {
   switch (type) {
     case NotificationType.NOTIFICATION:
       return (
-        <Tag data-testid="notifikasjon-tag" variant={lest ? "warning-moderate" : "warning-filled"}>
+        <Tag
+          size="xsmall"
+          data-testid="notifikasjon-tag"
+          variant={lest ? "warning-moderate" : "warning-filled"}
+        >
           Notifikasjon
         </Tag>
       );
     case NotificationType.TASK:
       return (
-        <Tag data-testid="oppgave-tag" variant={lest ? "info-moderate" : "info-filled"}>
+        <Tag
+          size="xsmall"
+          data-testid="oppgave-tag"
+          variant={lest ? "info-moderate" : "info-filled"}
+        >
           Oppgave
         </Tag>
       );
@@ -30,13 +39,14 @@ function tag(type: NotificationType, lest: boolean): ReactNode {
 }
 
 export function Notifikasjonssrad({ notifikasjon, lest }: NotifikasjonssradProps) {
-  const { title, description, createdAt, type } = notifikasjon;
+  const { title, description, createdAt, type, metadata } = notifikasjon;
 
   const [read, setRead] = useState<boolean>(lest);
 
   return (
     <li className={classNames(styles.list_element, lest ? styles.leste : styles.uleste)}>
       <div className={styles.flex}>
+        <BodyShort>{tag(type, lest)}</BodyShort>
         <Heading level="2" size="small" title={title} className={styles.truncate}>
           {title}
         </Heading>
@@ -44,7 +54,11 @@ export function Notifikasjonssrad({ notifikasjon, lest }: NotifikasjonssradProps
         <BodyShort size="small" title={createdAt} className={styles.muted}>
           {formaterDatoTid(createdAt)}
         </BodyShort>
-        <BodyShort>{tag(type, lest)}</BodyShort>
+        {metadata?.link && metadata?.linkText ? (
+          <BodyShort size="small">
+            <Link href={metadata.link}>{metadata.linkText}</Link>
+          </BodyShort>
+        ) : null}
       </div>
       <div>
         <CheckmarkButton id={notifikasjon.id} read={read} setRead={setRead} />
