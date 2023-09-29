@@ -261,7 +261,6 @@ private fun services(appConfig: AppConfig) = module {
     single { KafkaSyncService(get(), get(), get(), get()) }
     single { NavEnhetService(get()) }
     single { NavVeilederService(get()) }
-    single { TilgjengelighetsstatusSanitySyncService(get(), get()) }
     single { NotificationService(get(), get(), get()) }
     single { VirksomhetService(get(), get()) }
     single { ExcelService() }
