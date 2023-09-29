@@ -52,6 +52,10 @@ class NotificationServiceTest : FunSpec({
             title = "Notifikasjon for alle brukere",
             createdAt = now,
             targets = listOf(user1, user2),
+            metadata = NotificationMetadata(
+                linkText = "Trykk på meg",
+                link = "/spennende-side",
+            ),
         )
 
         fun ScheduledNotification.asUserNotification(user: String): UserNotification = run {
@@ -63,6 +67,10 @@ class NotificationServiceTest : FunSpec({
                 user = user,
                 createdAt = LocalDateTime.ofInstant(createdAt, ZoneOffset.systemDefault()),
                 doneAt = null,
+                metadata = NotificationMetadata(
+                    linkText = "Trykk på meg",
+                    link = "/spennende-side",
+                ),
             )
         }
 
