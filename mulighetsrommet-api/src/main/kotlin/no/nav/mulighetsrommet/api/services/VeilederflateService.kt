@@ -196,7 +196,7 @@ class VeilederflateService(
         perspective: SanityPerspective,
     ): SanityTiltaksgjennomforing {
         val query = """
-            *[_type == "tiltaksgjennomforing" && _id == '$id'] {
+            *[_type == "tiltaksgjennomforing" && _id == "$id"] {
               _id,
               tiltakstype->{
                 _id,
