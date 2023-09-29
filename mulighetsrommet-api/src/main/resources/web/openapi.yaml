@@ -2711,6 +2711,14 @@ components:
         doneAt:
           type: string
           format: date-time
+        metadata:
+          type: object
+          properties:
+            link:
+              type: string
+            linkText:
+              type: string
+          nullable: true
       required:
         - id
         - type
