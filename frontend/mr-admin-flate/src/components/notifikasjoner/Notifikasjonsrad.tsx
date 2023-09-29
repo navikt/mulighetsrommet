@@ -1,4 +1,4 @@
-import { BodyLong, BodyShort, Button, Heading, Link, Tag } from "@navikt/ds-react";
+import { BodyLong, BodyShort, Heading, Link, Tag } from "@navikt/ds-react";
 import classNames from "classnames";
 import { NotificationType, UserNotification } from "mulighetsrommet-api-client";
 import { ReactNode, useState } from "react";
@@ -6,7 +6,6 @@ import { Slide, ToastContainer } from "react-toastify";
 import { formaterDatoTid } from "../../utils/Utils";
 import { CheckmarkButton } from "./CheckmarkButton";
 import styles from "./Notifikasjoner.module.scss";
-import { Lenkeknapp } from "../lenkeknapp/Lenkeknapp";
 
 interface NotifikasjonssradProps {
   notifikasjon: UserNotification;
