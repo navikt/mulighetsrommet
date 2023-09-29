@@ -110,7 +110,6 @@ function PortableTextEditor(props: PortableTextEditorProps, _: ForwardedRef<HTML
                   })}
                 >
                   <ToolbarComponent>
-                    <LinkButton />
                     <MarkButton
                       format="bold"
                       icon={
@@ -127,8 +126,15 @@ function PortableTextEditor(props: PortableTextEditorProps, _: ForwardedRef<HTML
                         </div>
                       }
                     />
-                    <BlockButton format="heading-one" icon={<div>Heading</div>} />
-                    <BlockButton format="bulleted-list" icon={<BulletListIcon />} />
+                    <BlockButton
+                      format="bulleted-list"
+                      icon={
+                        <div>
+                          <BulletListIcon /> Bullet
+                        </div>
+                      }
+                    />
+                    <LinkButton />
                   </ToolbarComponent>
                   <Editable
                     style={{
@@ -200,17 +206,25 @@ const insertLink = (editor: any, url: string) => {
 
 const LinkButton = () => {
   const editor = useSlate();
+
   return (
     <Button
       active={isLinkActive(editor)}
       onMouseDown={(event: any) => {
         event.preventDefault();
-        const url = window.prompt("Enter the URL of the link:");
-        if (!url) return;
-        insertLink(editor, url);
+        const url = window.prompt("Legg til lenke");
+        if (!url || !isUrl(url)) {
+          alert("Ugyldig lenke. Husk `https://` foran");
+        } else {
+          insertLink(editor, url);
+        }
+        // Flytter cursor til slutten for å deaktivere link modus
+        Transforms.select(editor, Editor.end(editor, []));
       }}
     >
-      <LinkIcon />
+      <div>
+        <LinkIcon /> Link
+      </div>
     </Button>
   );
 };
