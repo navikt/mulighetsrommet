@@ -125,18 +125,6 @@ export const TiltaksgjennomforingSchema = z
         });
       }
     }
-
-    if (
-      data.startOgSluttDato.startDato &&
-      bareDatoUtenTidspunkt(new Date(data.startOgSluttDato.startDato)) <
-        bareDatoUtenTidspunkt(new Date())
-    ) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Startdato kan ikke være før dagens dato",
-        path: ["startOgSluttDato.startDato"],
-      });
-    }
   });
 
 function bareDatoUtenTidspunkt(date: Date): Date {
