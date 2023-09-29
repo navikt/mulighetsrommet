@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.fixtures
 
-import kotlinx.serialization.json.JsonNull
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.routes.v1.TiltaksgjennomforingRequest
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
@@ -51,7 +50,7 @@ object TiltaksgjennomforingFixtures {
         stedForGjennomforing = "Oslo",
         estimertVentetid = null,
         avtaleId = AvtaleFixtures.avtale1.id,
-        faneinnhold = JsonNull,
+        faneinnhold = null,
         beskrivelse = null,
     )
 
@@ -76,7 +75,7 @@ object TiltaksgjennomforingFixtures {
         avtaleId = avtaleId,
         apenForInnsok = true,
         opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
-        faneinnhold = JsonNull,
+        faneinnhold = null,
         beskrivelse = null,
     )
 
@@ -102,7 +101,7 @@ object TiltaksgjennomforingFixtures {
         stedForGjennomforing = "Oslo",
         estimertVentetid = null,
         avtaleId = AvtaleFixtures.avtale1.id,
-        faneinnhold = JsonNull,
+        faneinnhold = null,
         beskrivelse = null,
     )
 
@@ -128,7 +127,7 @@ object TiltaksgjennomforingFixtures {
         stedForGjennomforing = "Oslo",
         estimertVentetid = null,
         avtaleId = AvtaleFixtures.avtale1.id,
-        faneinnhold = JsonNull,
+        faneinnhold = null,
         beskrivelse = null,
     )
 }

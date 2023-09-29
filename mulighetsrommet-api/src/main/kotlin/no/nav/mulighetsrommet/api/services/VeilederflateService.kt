@@ -342,8 +342,8 @@ class VeilederflateService(
                 stedForGjennomforing = apiGjennomforing.stedForGjennomforing ?: sanityGjennomforing.stedForGjennomforing,
                 fylke = fylke,
                 enheter = enheter,
-                beskrivelse = beskrivelse,
-                faneinnhold = faneinnhold,
+                beskrivelse = apiGjennomforing.beskrivelse ?: beskrivelse,
+                faneinnhold = apiGjennomforing.faneinnhold ?: faneinnhold,
             )
         }
     }

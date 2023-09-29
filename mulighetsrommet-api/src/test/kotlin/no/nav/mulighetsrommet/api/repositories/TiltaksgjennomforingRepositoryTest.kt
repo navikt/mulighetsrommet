@@ -6,7 +6,6 @@ import io.kotest.matchers.collections.*
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonNull
 import kotliquery.Query
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
@@ -87,7 +86,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 stengtTil = null,
                 navRegion = NavEnhet(navn = "IT", enhetsnummer = "2990"),
                 estimertVentetid = null,
-                faneinnhold = JsonNull,
+                faneinnhold = null,
                 beskrivelse = null,
             )
 
@@ -148,7 +147,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 stengtTil = null,
                 kontaktpersoner = emptyList(),
                 stedForGjennomforing = null,
-                faneinnhold = JsonNull,
+                faneinnhold = null,
                 beskrivelse = null,
             )
 
@@ -1082,21 +1081,22 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
     }
 
     test("faneinnhold") {
-        val faneinnhold = Json.parseToJsonElement(
-            """
-            {
-                "_key": "edcad230384e",
-                "markDefs": [],
-                "children": [
-                {
-                    "marks": [],
-                    "text": "Oppl\u00e6ringen er beregnet p\u00e5 arbeidss\u00f8kere som \u00f8nsker og er egnet til \u00e5 ta arbeid som maskinf\u00f8rer. Deltakerne b\u00f8r ha f\u00f8rerkort kl. B.",
-                    "_key": "0e5849bf79a70",
-                    "_type": "span"
-                }
-                ],
-                "_type": "block",
-                "style": "normal"
+        val faneinnhold = Json.decodeFromString<Faneinnhold>(
+            """ {
+                "forHvem": [{
+                    "_key": "edcad230384e",
+                    "markDefs": [],
+                    "children": [
+                    {
+                        "marks": [],
+                        "text": "Oppl\u00e6ringen er beregnet p\u00e5 arbeidss\u00f8kere som \u00f8nsker og er egnet til \u00e5 ta arbeid som maskinf\u00f8rer. Deltakerne b\u00f8r ha f\u00f8rerkort kl. B.",
+                        "_key": "0e5849bf79a70",
+                        "_type": "span"
+                    }
+                    ],
+                    "_type": "block",
+                    "style": "normal"
+                }]
             }
             """,
         )
@@ -1110,7 +1110,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         tiltaksgjennomforinger.upsert(gjennomforing)
 
         tiltaksgjennomforinger.get(gjennomforing.id).should {
-            it!!.faneinnhold shouldBe faneinnhold
+            it!!.faneinnhold!!.forHvem!!.get(0) shouldBe faneinnhold.forHvem!!.get(0)
         }
     }
 })

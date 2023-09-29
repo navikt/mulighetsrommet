@@ -1898,7 +1898,7 @@ components:
         stedForGjennomforing:
           type: string
         faneinnhold:
-          type: object
+          $ref: "#/components/schemas/SanityFaneinnhold"
         beskrivelse:
           type: string
       required:
@@ -1975,7 +1975,7 @@ components:
           $ref: "#/components/schemas/Opphav"
           nullable: true
         faneinnhold:
-          type: object
+          $ref: "#/components/schemas/SanityFaneinnhold"
           nullable: true
         beskrivelse:
           type: string

@@ -1,10 +1,10 @@
 package no.nav.mulighetsrommet.api.domain.dbo
 
-import kotlinx.serialization.json.JsonElement
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingTilgjengelighetsstatus
+import no.nav.mulighetsrommet.domain.dto.Faneinnhold
 import java.time.LocalDate
 import java.util.*
 
@@ -30,7 +30,7 @@ data class TiltaksgjennomforingDbo(
     val stengtTil: LocalDate?,
     val kontaktpersoner: List<TiltaksgjennomforingKontaktpersonDbo>,
     val stedForGjennomforing: String,
-    val faneinnhold: JsonElement,
+    val faneinnhold: Faneinnhold?,
     val beskrivelse: String?,
 )
 
