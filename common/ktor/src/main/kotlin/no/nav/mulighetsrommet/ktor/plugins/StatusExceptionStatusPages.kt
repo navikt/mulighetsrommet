@@ -10,7 +10,7 @@ import org.slf4j.MDC
 fun Application.configureStatusPagesForStatusException() {
     install(StatusPages) {
         exception<StatusException> { call, cause ->
-            val requestId = MDC.get("call-id")
+            val requestId = MDC.get("correlationId")
 
             val message = ErrorMessage(
                 requestId = requestId,
