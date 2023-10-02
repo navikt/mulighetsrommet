@@ -6,7 +6,6 @@ import no.nav.mulighetsrommet.api.services.AdGruppeNavAnsattRolleMapping
 import no.nav.mulighetsrommet.api.tasks.*
 import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
-import no.nav.mulighetsrommet.kafka.consumers.TiltaksgjennomforingTopicConsumer
 import no.nav.mulighetsrommet.kafka.producers.ArenaMigreringTiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.kafka.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.kafka.producers.TiltakstypeKafkaProducer

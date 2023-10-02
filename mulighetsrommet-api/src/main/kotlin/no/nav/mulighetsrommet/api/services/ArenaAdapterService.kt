@@ -57,16 +57,17 @@ class ArenaAdapterService(
         virksomhetService.getOrSyncVirksomhet(tiltaksgjennomforing.arrangorOrganisasjonsnummer)
         val tiltaksgjennomforingMedAvtale = tiltaksgjennomforing.copy(avtaleId = mulighetsrommetAvtaleId)
 
-        val gjennomforing = db.transaction { tx ->
+        val gjennomforing = db.transactionSuspend { tx ->
             tiltaksgjennomforinger.upsertArenaTiltaksgjennomforing(tiltaksgjennomforingMedAvtale, tx)
             val gjennomforing = tiltaksgjennomforinger.get(tiltaksgjennomforing.id, tx)!!
             tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingDto.from(gjennomforing))
+            if (gjennomforing.sluttDato == null || gjennomforing.sluttDato?.isAfter(TiltaksgjennomforingSluttDatoCutoffDate) == true) {
+                sanityTiltaksgjennomforingService.createOrPatchSanityTiltaksgjennomforing(gjennomforing, tx)
+            }
+
             gjennomforing
         }
 
-        if (gjennomforing.sluttDato == null || gjennomforing.sluttDato?.isAfter(TiltaksgjennomforingSluttDatoCutoffDate) == true) {
-            sanityTiltaksgjennomforingService.createOrPatchSanityTiltaksgjennomforing(gjennomforing)
-        }
         return query { gjennomforing }
     }
 

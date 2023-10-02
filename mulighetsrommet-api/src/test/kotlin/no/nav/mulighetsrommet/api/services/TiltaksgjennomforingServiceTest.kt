@@ -8,7 +8,6 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.ktor.http.*
-import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -28,7 +27,6 @@ import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListe
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
-import no.nav.mulighetsrommet.kafka.producers.ArenaMigreringTiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.kafka.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.notifications.NotificationRepository
 import java.time.LocalDate
@@ -38,9 +36,8 @@ class TiltaksgjennomforingServiceTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
     val tiltaksgjennomforingKafkaProducer: TiltaksgjennomforingKafkaProducer = mockk(relaxed = true)
-    val sanityTiltaksgjennomforingService: SanityTiltaksgjennomforingService = mockk(relaxed = true)
     val virksomhetService: VirksomhetService = mockk(relaxed = true)
-    val arenaMigreringTiltaksgjennomforingKafkaProducer: ArenaMigreringTiltaksgjennomforingKafkaProducer = mockk(relaxed = true)
+    val sanityTiltaksgjennomforingService: SanityTiltaksgjennomforingService = mockk(relaxed = true)
     val notificationRepository: NotificationRepository = mockk(relaxed = true)
     val utkastRepository: UtkastRepository = mockk(relaxed = true)
 
@@ -61,10 +58,10 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             deltagerRepository,
             avtaleRepository,
             virksomhetService,
-            arenaMigreringTiltaksgjennomforingKafkaProducer,
             utkastRepository,
             tiltaksgjennomforingKafkaProducer,
             notificationRepository,
+            sanityTiltaksgjennomforingService,
             database.db,
         )
 
@@ -145,10 +142,10 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             deltagerRepository,
             avtaleRepository,
             virksomhetService,
-            arenaMigreringTiltaksgjennomforingKafkaProducer,
             utkastRepository,
             tiltaksgjennomforingKafkaProducer,
             notificationRepository,
+            sanityTiltaksgjennomforingService,
             database.db,
         )
 
@@ -203,10 +200,10 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             deltagerRepository,
             avtaleRepository,
             virksomhetService,
-            arenaMigreringTiltaksgjennomforingKafkaProducer,
             utkastRepository,
             tiltaksgjennomforingKafkaProducer,
             notificationRepository,
+            sanityTiltaksgjennomforingService,
             database.db,
         )
 
@@ -246,10 +243,10 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             deltagerRepository,
             avtaleRepository,
             virksomhetService,
-            arenaMigreringTiltaksgjennomforingKafkaProducer,
             utkastRepository,
             tiltaksgjennomforingKafkaProducer,
             notificationRepository,
+            sanityTiltaksgjennomforingService,
             database.db,
         )
         val navAnsattRepository = NavAnsattRepository(database.db)
@@ -335,10 +332,10 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             deltagerRepository,
             avtaleRepository,
             virksomhetService,
-            arenaMigreringTiltaksgjennomforingKafkaProducer,
             utkastRepository,
             tiltaksgjennomforingKafkaProducer,
             notificationRepository,
+            sanityTiltaksgjennomforingService,
             database.db,
         )
 
@@ -408,16 +405,6 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             shouldThrow<Throwable> { tiltaksgjennomforingService.delete(gjennomforing.id) }
 
             tiltaksgjennomforingService.get(gjennomforing.id) shouldNotBe null
-        }
-
-        test("Hvis sanity create kaster rulles upsert tilbake") {
-            val gjennomforing = TiltaksgjennomforingFixtures.oppfolging1Request(avtaleId)
-
-            coEvery { sanityTiltaksgjennomforingService.createOrPatchSanityTiltaksgjennomforing(any()) } throws Exception()
-
-            shouldThrow<Throwable> { tiltaksgjennomforingService.upsert(gjennomforing, "B123456", LocalDate.of(2023, 1, 1)) }
-
-            tiltaksgjennomforingService.get(gjennomforing.id) shouldBe null
         }
     }
 })

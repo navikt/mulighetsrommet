@@ -106,6 +106,7 @@ fun createKafkaConfig(): KafkaConfig {
         ),
         consumerGroupId = "mulighetsrommet-api-consumer",
         consumers = KafkaConsumers(
+            tiltaksgjennomforingerV1 = KafkaTopicConsumer.Config(id = "siste-tiltaksgjennomforinger", topic = "siste-tiltaksgjennomforinger-v1"),
             amtDeltakerV1 = KafkaTopicConsumer.Config(id = "amt-deltaker", topic = "amt-deltaker"),
             amtVirksomheterV1 = KafkaTopicConsumer.Config(id = "amt-virksomheter", topic = "amt-virksomheter"),
         ),

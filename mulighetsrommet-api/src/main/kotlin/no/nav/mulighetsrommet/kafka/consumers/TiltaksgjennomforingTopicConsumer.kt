@@ -13,7 +13,6 @@ import no.nav.mulighetsrommet.kafka.producers.ArenaMigreringTiltaksgjennomforing
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import no.nav.mulighetsrommet.utils.toUUID
-import org.slf4j.LoggerFactory
 
 class TiltaksgjennomforingTopicConsumer(
     config: Config,
@@ -40,9 +39,6 @@ class TiltaksgjennomforingTopicConsumer(
                             arenaTiltaksgjennomforingDto?.arenaId,
                         ),
                     )
-                }
-                tiltaksgjennomforingRepository.get(tiltaksgjennomforingDto.id)?.let {
-                    sanityTiltaksgjennomforingService.opprettSanityTiltaksgjennomforing(it)
                 }
             }
         }

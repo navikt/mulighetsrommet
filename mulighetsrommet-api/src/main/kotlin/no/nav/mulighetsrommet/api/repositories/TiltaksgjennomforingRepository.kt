@@ -358,7 +358,10 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             .let { tx.run(it) }
     }
 
-    fun updateSanityTiltaksgjennomforingId(id: UUID, sanityId: UUID) {
+    fun updateSanityTiltaksgjennomforingId(id: UUID, sanityId: UUID) =
+        db.transaction { updateSanityTiltaksgjennomforingId(id, sanityId, it) }
+
+    fun updateSanityTiltaksgjennomforingId(id: UUID, sanityId: UUID, tx: Session) {
         @Language("PostgreSQL")
         val query = """
             update tiltaksgjennomforing
@@ -375,7 +378,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             ),
         )
             .asUpdate
-            .let { db.run(it) }
+            .let { tx.run(it) }
     }
 
     fun getAll(

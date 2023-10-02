@@ -17,7 +17,6 @@ import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingAdminDto
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingDto
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingNotificationDto
-import no.nav.mulighetsrommet.kafka.producers.ArenaMigreringTiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.kafka.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.notifications.NotificationRepository
 import no.nav.mulighetsrommet.notifications.NotificationType
@@ -31,10 +30,10 @@ class TiltaksgjennomforingService(
     private val deltakerRepository: DeltakerRepository,
     private val avtaleRepository: AvtaleRepository,
     private val virksomhetService: VirksomhetService,
-    private val arenaMigreringTiltaksgjennomforingKafkaProducer: ArenaMigreringTiltaksgjennomforingKafkaProducer,
     private val utkastRepository: UtkastRepository,
     private val tiltaksgjennomforingKafkaProducer: TiltaksgjennomforingKafkaProducer,
     private val notificationRepository: NotificationRepository,
+    private val sanityTiltaksgjennomforingService: SanityTiltaksgjennomforingService,
     private val db: Database,
 ) {
     suspend fun upsert(
@@ -63,7 +62,7 @@ class TiltaksgjennomforingService(
 
                     val dto = tiltaksgjennomforingRepository.get(request.id, tx)!!
 
-                    sanityTiltaksgjennomforingService.createOrPatchSanityTiltaksgjennomforing(dto)
+                    sanityTiltaksgjennomforingService.createOrPatchSanityTiltaksgjennomforing(dto, tx)
                     tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingDto.from(dto))
                     dto
                 }

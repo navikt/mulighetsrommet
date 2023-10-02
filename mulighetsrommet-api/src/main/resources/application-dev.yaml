@@ -26,7 +26,7 @@ app:
     consumers:
       tiltaksgjennomforingerV1:
         id: siste-tiltaksgjennomforinger
-        topic: siste-tiltaksgjennomforinger-v1
+        topic: team-mulighetsrommet.siste-tiltaksgjennomforinger-v1
       amtDeltakerV1:
         id: amt-deltaker
         topic: amt.deltaker-v1
