@@ -128,7 +128,6 @@ class TiltaksgjennomforingService(
             tiltaksgjennomforingRepository.delete(id, tx)
             tiltaksgjennomforingKafkaProducer.retract(id)
         }.right()
-            .onRight { arenaMigreringTiltaksgjennomforingKafkaProducer.retract(id) }
     }
 
     fun getAllMidlertidigStengteGjennomforingerSomNarmerSegSluttdato(): List<TiltaksgjennomforingNotificationDto> {
@@ -156,16 +155,7 @@ class TiltaksgjennomforingService(
             tiltaksgjennomforingRepository.avbrytGjennomforing(gjennomforingId, tx)
             val dto = tiltaksgjennomforingRepository.get(gjennomforingId, tx)!!
             tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingDto.from(dto))
-            dto
         }.right()
-            .onRight {
-                tiltaksgjennomforingRepository.getArenaMigreringTiltaksgjennomforing(it.id)?.let {
-                    arenaMigreringTiltaksgjennomforingKafkaProducer.publish(
-                        ArenaMigreringTiltaksgjennomforingDto.from(it),
-                    )
-                }
-            }
-            .map {}
     }
 
     private fun sattSomAnsvarligNotification(gjennomforingNavn: String, ansvarlig: String, tx: Session) {

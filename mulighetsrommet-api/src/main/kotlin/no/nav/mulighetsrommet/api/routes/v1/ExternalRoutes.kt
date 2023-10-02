@@ -63,7 +63,7 @@ fun Route.externalRoutes() {
 
             val result = tiltaksgjennomforingService.get(id)
                 ?.let { gjennomforing ->
-                    arenaAdapterService.hentTiltaksgjennomforingsstatus(id)
+                    arenaAdapterService.hentArenadata(id)
                         ?.let { TiltaksgjennomforingsArenadataDto.from(gjennomforing, it.status).right() }
                         ?: NotFound("Ingen tiltaksgjennomføring med id=$id").left()
                 }

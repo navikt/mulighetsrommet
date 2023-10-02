@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.kafka.consumers
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.stringDeserializer
+import no.nav.mulighetsrommet.api.clients.arenaadapter.ArenaAdapterClient
 import no.nav.mulighetsrommet.api.domain.dto.ArenaMigreringTiltaksgjennomforingDto
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.services.SanityTiltaksgjennomforingService
@@ -19,6 +20,7 @@ class TiltaksgjennomforingTopicConsumer(
     private val tiltaksgjennomforingRepository: TiltaksgjennomforingRepository,
     private val arenaMigreringTiltaksgjennomforingKafkaProducer: ArenaMigreringTiltaksgjennomforingKafkaProducer,
     private val sanityTiltaksgjennomforingService: SanityTiltaksgjennomforingService,
+    private val arenaAdapterClient: ArenaAdapterClient,
 ) : KafkaTopicConsumer<String, JsonElement>(
     config,
     stringDeserializer(),
@@ -32,9 +34,13 @@ class TiltaksgjennomforingTopicConsumer(
                 arenaMigreringTiltaksgjennomforingKafkaProducer.retract(key.toUUID())
             }
             else -> {
-                tiltaksgjennomforingRepository.getArenaMigreringTiltaksgjennomforing(tiltaksgjennomforingDto.id)?.let {
+                val arenaTiltaksgjennomforingDto = arenaAdapterClient.hentArenadata(tiltaksgjennomforingDto.id)
+                tiltaksgjennomforingRepository.get(tiltaksgjennomforingDto.id)?.let {
                     arenaMigreringTiltaksgjennomforingKafkaProducer.publish(
-                        ArenaMigreringTiltaksgjennomforingDto.from(it),
+                        ArenaMigreringTiltaksgjennomforingDto.from(
+                            it,
+                            arenaTiltaksgjennomforingDto?.arenaId,
+                        ),
                     )
                 }
                 tiltaksgjennomforingRepository.get(tiltaksgjennomforingDto.id)?.let {
