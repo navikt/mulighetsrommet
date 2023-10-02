@@ -25,7 +25,8 @@ class SanityClient(engine: HttpClientEngine = CIO.create(), val config: Config) 
     data class Config(
         val projectId: String,
         val dataset: String,
-        val apiVersion: String = "v2023-10-07", // https://www.sanity.io/docs/api-versioning
+        // https://www.sanity.io/docs/api-versioning
+        val apiVersion: String = "v2023-10-07",
         val token: String?,
         val useCdn: Boolean = true,
     ) {
