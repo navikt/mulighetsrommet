@@ -24,6 +24,9 @@ app:
       tiltakstyper:
         topic: team-mulighetsrommet.siste-tiltakstyper-v1
     consumers:
+      tiltaksgjennomforingerV1:
+        id: siste-tiltaksgjennomforinger
+        topic: siste-tiltaksgjennomforinger-v1
       amtDeltakerV1:
         id: amt-deltaker
         topic: amt.deltaker-v1

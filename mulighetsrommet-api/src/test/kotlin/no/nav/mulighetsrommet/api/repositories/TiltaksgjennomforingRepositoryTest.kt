@@ -5,7 +5,6 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.*
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.shouldNotBe
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
@@ -391,29 +390,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             tiltaksgjennomforinger.get(gjennomforing.id).should {
                 it!!.arrangor.kontaktperson shouldBe null
             }
-        }
-
-        test("getArenaMigreringTiltaksgjennomforing henter alle opphav") {
-            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-
-            val gjennomforing1 = TiltaksgjennomforingFixtures.Oppfolging1.copy(antallPlasser = 3)
-            tiltaksgjennomforinger.upsert(gjennomforing1)
-
-            tiltaksgjennomforinger.getArenaMigreringTiltaksgjennomforing(gjennomforing1.id) should {
-                it!!.id shouldBe gjennomforing1.id
-                it.tiltakskode shouldBe TiltakstypeFixtures.Oppfolging.tiltakskode
-                it.navn shouldBe gjennomforing1.navn
-                it.arrangorOrganisasjonsnummer shouldBe gjennomforing1.arrangorOrganisasjonsnummer
-                it.startDato shouldBe gjennomforing1.startDato
-                it.sluttDato shouldBe gjennomforing1.sluttDato
-                it.tilgjengelighet shouldBe TiltaksgjennomforingTilgjengelighetsstatus.LEDIG
-                it.antallPlasser shouldBe 3
-                it.avslutningsstatus shouldBe gjennomforing1.avslutningsstatus
-            }
-
-            val gjennomforing2 = gjennomforing1.copy(id = UUID.randomUUID(), antallPlasser = 3)
-            tiltaksgjennomforinger.upsert(gjennomforing2.copy(opphav = ArenaMigrering.Opphav.ARENA))
-            tiltaksgjennomforinger.getArenaMigreringTiltaksgjennomforing(gjennomforing2.id) shouldNotBe null
         }
     }
 

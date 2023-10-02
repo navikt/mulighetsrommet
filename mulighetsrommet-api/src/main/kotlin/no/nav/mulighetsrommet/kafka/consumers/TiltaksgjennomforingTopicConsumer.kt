@@ -26,8 +26,6 @@ class TiltaksgjennomforingTopicConsumer(
     stringDeserializer(),
     JsonElementDeserializer(),
 ) {
-    private val logger = LoggerFactory.getLogger(javaClass)
-
     override suspend fun consume(key: String, message: JsonElement) {
         when (val tiltaksgjennomforingDto = JsonIgnoreUnknownKeys.decodeFromJsonElement<TiltaksgjennomforingDto?>(message)) {
             null -> {

@@ -3,7 +3,6 @@ package no.nav.mulighetsrommet.api.services
 import arrow.core.Either
 import arrow.core.right
 import kotliquery.Session
-import no.nav.mulighetsrommet.api.domain.dto.ArenaMigreringTiltaksgjennomforingDto
 import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingNokkeltallDto
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.DeltakerRepository

@@ -41,6 +41,7 @@ import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
 import no.nav.mulighetsrommet.env.NaisEnv
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.kafka.KafkaConsumerRepository
+import no.nav.mulighetsrommet.kafka.consumers.TiltaksgjennomforingTopicConsumer
 import no.nav.mulighetsrommet.kafka.consumers.amt.AmtDeltakerV1TopicConsumer
 import no.nav.mulighetsrommet.kafka.consumers.amt.AmtVirksomheterV1TopicConsumer
 import no.nav.mulighetsrommet.kafka.producers.ArenaMigreringTiltaksgjennomforingKafkaProducer
@@ -131,6 +132,13 @@ private fun kafka(config: KafkaConfig) = module {
 
     single {
         val consumers = listOf(
+            TiltaksgjennomforingTopicConsumer(
+                config = config.consumers.tiltaksgjennomforingerV1,
+                arenaAdapterClient = get(),
+                arenaMigreringTiltaksgjennomforingKafkaProducer = get(),
+                sanityTiltaksgjennomforingService = get(),
+                tiltaksgjennomforingRepository = get(),
+            ),
             AmtDeltakerV1TopicConsumer(config = config.consumers.amtDeltakerV1, deltakere = get()),
             AmtVirksomheterV1TopicConsumer(
                 config = config.consumers.amtVirksomheterV1,
