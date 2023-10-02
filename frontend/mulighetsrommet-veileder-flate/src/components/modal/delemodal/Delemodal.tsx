@@ -144,7 +144,7 @@ const Delemodal = ({
     tiltaksgjennomforingSanityId,
     brukerFnr,
   );
-  const MAKS_ANTALL_TEGN_HILSEN = 300;
+  const MAKS_ANTALL_TEGN_HILSEN = 500;
 
   const clickCancel = (log = true) => {
     lukkModal();
@@ -243,6 +243,8 @@ const Delemodal = ({
                   senderTilDialogen ||
                   state.hilsen.length === 0 ||
                   state.hilsen.length > MAKS_ANTALL_TEGN_HILSEN ||
+                  state.introtekst.length === 0 ||
+                  state.introtekst.length > MAKS_ANTALL_TEGN_HILSEN ||
                   erPreview
                 }
               >

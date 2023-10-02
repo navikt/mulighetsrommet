@@ -49,7 +49,7 @@ export function DelMedBrukerContent({
 
   const enablePersonligIntro = () => {
     dispatch({ type: "Skriv personlig intro", payload: true });
-    dispatch({ type: "Sett intro", payload: state.introtekst });
+    dispatch({ type: "Sett intro", payload: "" });
     logDelMedbrukerEvent("Sett intro");
   };
 
