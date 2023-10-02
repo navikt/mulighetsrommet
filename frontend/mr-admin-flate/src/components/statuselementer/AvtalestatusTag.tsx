@@ -10,12 +10,16 @@ export function AvtalestatusTag({ avtale }: Props) {
 
   const variant = (status: Avtalestatus) => {
     switch (status) {
-      case Avtalestatus.AKTIV: return "success"
-      case Avtalestatus.PLANLAGT: return "alt1"
-      case Avtalestatus.AVSLUTTET: return "neutral"
-      case Avtalestatus.AVBRUTT: return "error"
+      case Avtalestatus.AKTIV:
+        return "success";
+      case Avtalestatus.PLANLAGT:
+        return "alt1";
+      case Avtalestatus.AVSLUTTET:
+        return "neutral";
+      case Avtalestatus.AVBRUTT:
+        return "error";
     }
-  }
+  };
 
   return (
     <>

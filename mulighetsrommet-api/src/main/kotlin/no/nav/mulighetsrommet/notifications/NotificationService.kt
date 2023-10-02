@@ -63,7 +63,7 @@ class NotificationService(
         return notifications.getUserNotifications(userId, filter.status)
             .getOrElse {
                 logger.error("Failed to get notifications for user=$userId", it.error)
-                throw StatusException(InternalServerError, "Failed to get notifications for user=$userId")
+                throw StatusException(InternalServerError, "Klarte ikke hente notifikasjoner")
             }
     }
 
@@ -71,7 +71,7 @@ class NotificationService(
         return notifications.getUserNotificationSummary(userId)
             .getOrElse {
                 logger.error("Failed to get summary for user=$userId", it.error)
-                throw StatusException(InternalServerError, "Failed to get summary for user=$userId")
+                throw StatusException(InternalServerError, "Klarte ikke hente notifikasjoner")
             }
     }
 
@@ -83,14 +83,11 @@ class NotificationService(
         notifications.setNotificationDoneAt(id, userId, doneAt)
             .onLeft {
                 logger.error("Failed to set notification status", it.error)
-                throw StatusException(InternalServerError, "Failed to set notification status")
+                throw StatusException(InternalServerError, "Klarte ikke oppdatere notifikasjon med ny status")
             }
             .onRight { updated ->
                 if (updated == 0) {
-                    throw StatusException(
-                        BadRequest,
-                        "Could not set notification status for notification=$id and user=$userId",
-                    )
+                    throw StatusException(BadRequest, "Klarte ikke oppdatere notifikasjon med ny status")
                 }
             }
     }

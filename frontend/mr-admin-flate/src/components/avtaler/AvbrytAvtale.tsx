@@ -1,9 +1,10 @@
 import { Alert, BodyLong, Button, Heading, ReadMore } from "@navikt/ds-react";
-import { ApiError, Avtalestatus } from "mulighetsrommet-api-client";
+import { Avtalestatus } from "mulighetsrommet-api-client";
 import { useEffect, useState } from "react";
 import { useAvbrytAvtale } from "../../api/avtaler/useAvbrytAvtale";
 import { useAvtale } from "../../api/avtaler/useAvtale";
 import styles from "./AvbrytAvtale.module.scss";
+import { resolveErrorMessage } from "../../api/errors";
 
 interface Props {
   onAvbryt: () => void;
@@ -29,8 +30,8 @@ export function AvbrytAvtale({ onAvbryt }: Props) {
     }
 
     if (mutation.isError) {
-      const error = mutation.error as ApiError;
-      setError(error.body);
+      const error = resolveErrorMessage(mutation.error);
+      setError(error);
     }
   }, [mutation]);
 
@@ -43,18 +44,12 @@ export function AvbrytAvtale({ onAvbryt }: Props) {
     <div className={styles.warning_container}>
       <ReadMore header="Hva betyr det å avbryte avtalen?">
         <BodyLong>
-          Hvis avtalens startdato er passert kan du avbryte avtalen. Den vil da
-          bli satt som avbrutt i systemet. Du kan ikke avbryte en avtale som har
-          tiltaksgjennomføringer tilknyttet seg.
+          Hvis avtalens startdato er passert kan du avbryte avtalen. Den vil da bli satt som avbrutt
+          i systemet. Du kan ikke avbryte en avtale som har tiltaksgjennomføringer tilknyttet seg.
         </BodyLong>
       </ReadMore>
 
-      <Button
-        type="button"
-        size="small"
-        variant="danger"
-        onClick={avbrytAvtale}
-      >
+      <Button type="button" size="small" variant="danger" onClick={avbrytAvtale}>
         Jeg vil avbryte avtalen
       </Button>
       {error ? (

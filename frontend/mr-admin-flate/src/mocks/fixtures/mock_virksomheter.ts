@@ -1,23 +1,25 @@
 import { Virksomhet } from "mulighetsrommet-api-client";
 
-export const mockVirksomheter: Virksomhet[] = [
-  {
+export const mockVirksomheter: {
+  [navn: string]: Virksomhet;
+} = {
+  fretex: {
     organisasjonsnummer: "123456789",
-    navn: "Testbedrift AS",
+    navn: "Fretex AS",
     underenheter: [
       {
         organisasjonsnummer: "876543987",
-        navn: "Underenhet AS",
+        navn: "Fretex Oslo AS",
         overordnetEnhet: "123456789",
       },
     ],
   },
-  {
+  ikea: {
     organisasjonsnummer: "987654321",
     navn: "Ikea AS",
   },
-  {
+  rode_kors: {
     organisasjonsnummer: "134256789",
     navn: "Røde Kors AS",
   },
-];
+};

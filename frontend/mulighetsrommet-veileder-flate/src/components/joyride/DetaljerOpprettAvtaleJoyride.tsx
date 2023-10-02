@@ -1,9 +1,9 @@
-import Joyride, { ACTIONS, CallBackProps, STATUS } from 'react-joyride';
-import React, { useState } from 'react';
-import { joyrideStyling, localeStrings } from './Utils';
-import { opprettAvtaleStep } from './Steps';
-import { useAtom } from 'jotai';
-import { joyrideAtom } from '../../core/atoms/atoms';
+import Joyride, { ACTIONS, CallBackProps, STATUS } from "react-joyride";
+import React from "react";
+import { locale, styling } from "./config";
+import { useAtom } from "jotai";
+import { joyrideAtom } from "../../core/atoms/atoms";
+import { opprettAvtaleSteps, useSteps } from "./Steps";
 
 interface Props {
   opprettAvtale: boolean;
@@ -11,18 +11,13 @@ interface Props {
 
 export const DetaljerOpprettAvtaleJoyride = ({ opprettAvtale }: Props) => {
   const [joyride, setJoyride] = useAtom(joyrideAtom);
-  const [, setState] = useState({
-    run: false,
-    loading: false,
-    stepIndex: 0,
-  });
+
+  const { steps } = useSteps(joyride.joyrideDetaljerHarVistOpprettAvtale, opprettAvtaleSteps);
 
   if (opprettAvtale && joyride.joyrideDetaljerHarVistOpprettAvtale === null) {
     setJoyride({ ...joyride, joyrideDetaljerHarVistOpprettAvtale: true });
-    setState(prevState => ({ ...prevState, run: false }));
   } else if (!opprettAvtale && joyride.joyrideDetaljerHarVistOpprettAvtale === null) {
     setJoyride({ ...joyride, joyrideDetaljerHarVistOpprettAvtale: false });
-    setState(prevState => ({ ...prevState, run: true }));
   }
 
   const handleJoyrideCallbackOpprettAvtale = (data: CallBackProps) => {
@@ -33,27 +28,25 @@ export const DetaljerOpprettAvtaleJoyride = ({ opprettAvtale }: Props) => {
       ([STATUS.FINISHED, STATUS.SKIPPED] as string[]).includes(status)
     ) {
       setJoyride({ ...joyride, joyrideDetaljerHarVistOpprettAvtale: true });
-      setState(prevState => ({ ...prevState, run: false, stepIndex: 0 }));
     }
 
     //lukker joyride ved klikk på escape
     if (ACTIONS.CLOSE === action) {
       setJoyride({ ...joyride, joyrideDetaljerHarVistOpprettAvtale: true });
-      setState(prevState => ({ ...prevState, run: true, stepIndex: 0 }));
     }
   };
 
   return (
     <Joyride
-      locale={localeStrings()}
+      locale={locale}
       continuous
       run={!joyride.joyrideDetaljerHarVistOpprettAvtale}
-      steps={opprettAvtaleStep}
+      steps={steps}
       hideCloseButton
       callback={handleJoyrideCallbackOpprettAvtale}
       showSkipButton
       disableScrolling
-      styles={joyrideStyling()}
+      styles={styling}
       disableCloseOnEsc={false}
       disableOverlayClose={true}
     />

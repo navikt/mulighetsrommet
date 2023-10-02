@@ -8,7 +8,6 @@ import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.UtkastRepository
 import no.nav.mulighetsrommet.api.routes.v1.AvtaleRequest
 import no.nav.mulighetsrommet.api.routes.v1.responses.*
-import no.nav.mulighetsrommet.api.utils.AdminTiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.api.utils.AvtaleFilter
 import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.Database
@@ -38,14 +37,14 @@ class AvtaleService(
     suspend fun upsert(request: AvtaleRequest, navIdent: String): StatusResponse<AvtaleAdminDto> {
         virksomhetService.getOrSyncVirksomhet(request.leverandorOrganisasjonsnummer)
 
-        val previousAnsvarlig = avtaler.get(request.id)?.ansvarlig?.navident
+        val prevAdministrator = avtaler.get(request.id)?.administrator?.navIdent
         return request.toDbo()
             .map {
                 db.transaction { tx ->
                     avtaler.upsert(it, tx)
                     utkastRepository.delete(it.id, tx)
-                    if (navIdent != request.ansvarlig && previousAnsvarlig != request.ansvarlig) {
-                        sattSomAnsvarligNotification(it.navn, request.ansvarlig, tx)
+                    if (navIdent != request.administrator && prevAdministrator != request.administrator) {
+                        dispatchSattSomAdministratorNofication(it.navn, request.administrator, tx)
                     }
                     avtaler.get(it.id, tx)!!
                 }
@@ -64,13 +63,7 @@ class AvtaleService(
             return Either.Left(BadRequest(message = "Avtalen er aktiv og kan derfor ikke slettes."))
         }
 
-        val gjennomforingerForAvtale =
-            tiltaksgjennomforinger.getAll(
-                filter = AdminTiltaksgjennomforingFilter(
-                    avtaleId = id,
-                    dagensDato = currentDate,
-                ),
-            )
+        val gjennomforingerForAvtale = tiltaksgjennomforinger.getAll(avtaleId = id)
 
         if (gjennomforingerForAvtale.first > 0) {
             return Either.Left(BadRequest(message = "Avtalen har ${gjennomforingerForAvtale.first} ${if (gjennomforingerForAvtale.first > 1) "tiltaksgjennomføringer" else "tiltaksgjennomføring"} koblet til seg. Du må frikoble ${if (gjennomforingerForAvtale.first > 1) "gjennomføringene" else "gjennomføringen"} før du kan slette avtalen."))
@@ -108,7 +101,7 @@ class AvtaleService(
         return avtaler.getAllAvtalerSomNarmerSegSluttdato()
     }
 
-    fun avbrytAvtale(avtaleId: UUID, currentDate: LocalDate = LocalDate.now()): StatusResponse<Unit> {
+    fun avbrytAvtale(avtaleId: UUID): StatusResponse<Unit> {
         val avtaleForAvbryting = avtaler.get(avtaleId)
             ?: return Either.Left(NotFound("Fant ikke avtale for avbrytelse med id '$avtaleId'"))
 
@@ -120,13 +113,7 @@ class AvtaleService(
             return Either.Left(BadRequest(message = "Avtalen er allerede avsluttet og kan derfor ikke avbrytes."))
         }
 
-        val gjennomforingerForAvtale =
-            tiltaksgjennomforinger.getAll(
-                filter = AdminTiltaksgjennomforingFilter(
-                    avtaleId = avtaleForAvbryting.id,
-                    dagensDato = currentDate,
-                ),
-            )
+        val gjennomforingerForAvtale = tiltaksgjennomforinger.getAll(avtaleId = avtaleId)
 
         if (gjennomforingerForAvtale.first > 0) {
             return Either.Left(BadRequest(message = "Avtalen har ${gjennomforingerForAvtale.first} ${if (gjennomforingerForAvtale.first > 1) "tiltaksgjennomføringer" else "tiltaksgjennomføring"} koblet til seg. Du må frikoble ${if (gjennomforingerForAvtale.first > 1) "gjennomføringene" else "gjennomføringen"} før du kan avbryte avtalen."))
@@ -135,11 +122,11 @@ class AvtaleService(
         return Either.Right(avtaler.avbrytAvtale(avtaleId))
     }
 
-    private fun sattSomAnsvarligNotification(avtaleNavn: String, ansvarlig: String, tx: Session) {
+    private fun dispatchSattSomAdministratorNofication(avtaleNavn: String, administrator: String, tx: Session) {
         val notification = ScheduledNotification(
             type = NotificationType.NOTIFICATION,
-            title = "Du har blitt satt som ansvarlig på avtalen \"$avtaleNavn\"",
-            targets = listOf(ansvarlig),
+            title = "Du har blitt satt som administrator på avtalen \"$avtaleNavn\"",
+            targets = listOf(administrator),
             createdAt = Instant.now(),
         )
         notificationRepository.insert(notification, tx)

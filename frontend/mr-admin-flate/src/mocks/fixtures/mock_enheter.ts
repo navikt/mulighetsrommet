@@ -1,57 +1,100 @@
-import {
-  NavEnhet,
-  NavEnhetStatus,
-  Norg2Type,
-} from "mulighetsrommet-api-client";
+import { NavEnhet, NavEnhetStatus, NavEnhetType } from "mulighetsrommet-api-client";
 
-export const mockEnheter: NavEnhet[] = [
-  {
-    navn: "NAV Bærum",
-    enhetsnummer: "0219",
+export const mockEnheter: {
+  [navn: string]: NavEnhet;
+} = {
+  // Innlandet
+  _0425: {
+    navn: "NAV Solør",
+    type: NavEnhetType.LOKAL,
     status: NavEnhetStatus.AKTIV,
-    type: Norg2Type.LOKAL,
-    overordnetEnhet: "1400",
-  },
-  {
-    navn: "NAV Hillevåg og Hinna",
-    enhetsnummer: "1164",
-    status: NavEnhetStatus.AKTIV,
-    type: Norg2Type.LOKAL,
+    enhetsnummer: "0425",
     overordnetEnhet: "0400",
   },
-  {
-    navn: "NAV Hvaler",
-    enhetsnummer: "0111",
+  _0402: {
+    navn: "NAV Kongsvinger",
+    type: NavEnhetType.LOKAL,
     status: NavEnhetStatus.AKTIV,
-    type: Norg2Type.LOKAL,
-    overordnetEnhet: "1500",
+    enhetsnummer: "0402",
+    overordnetEnhet: "0400",
   },
-  {
-    navn: "NAV Nordre Aker",
-    enhetsnummer: "0331",
+  _0415: {
+    navn: "NAV Løten",
+    type: NavEnhetType.LOKAL,
     status: NavEnhetStatus.AKTIV,
-    type: Norg2Type.LOKAL,
-    overordnetEnhet: "1500",
+    enhetsnummer: "0415",
+    overordnetEnhet: "0400",
   },
-  {
-    navn: "NAV Sogn og Fjordane",
-    enhetsnummer: "1400",
+  _0428: {
+    navn: "NAV Trysil",
+    type: NavEnhetType.LOKAL,
     status: NavEnhetStatus.AKTIV,
-    type: Norg2Type.FYLKE,
-    overordnetEnhet: null,
+    enhetsnummer: "0428",
+    overordnetEnhet: "0400",
   },
-  {
-    navn: "NAV Møre og Romsdal",
-    enhetsnummer: "1500",
+  _0511: {
+    navn: "NAV Lesja - Dovre",
+    type: NavEnhetType.LOKAL,
     status: NavEnhetStatus.AKTIV,
-    type: Norg2Type.FYLKE,
-    overordnetEnhet: null,
+    enhetsnummer: "0511",
+    overordnetEnhet: "0400",
   },
-  {
+  _0420: {
+    navn: "NAV Eidskog",
+    type: NavEnhetType.LOKAL,
+    status: NavEnhetStatus.AKTIV,
+    enhetsnummer: "0420",
+    overordnetEnhet: "0400",
+  },
+  _0400: {
     navn: "NAV Innlandet",
-    enhetsnummer: "0400",
+    type: NavEnhetType.FYLKE,
     status: NavEnhetStatus.AKTIV,
-    type: Norg2Type.FYLKE,
+    enhetsnummer: "0400",
     overordnetEnhet: null,
   },
-];
+
+  // Oslo
+  _0313: {
+    navn: "NAV St. Hanshaugen",
+    type: NavEnhetType.LOKAL,
+    status: NavEnhetStatus.AKTIV,
+    enhetsnummer: "0313",
+    overordnetEnhet: "0300",
+  },
+  _0330: {
+    navn: "NAV Bjerke",
+    type: NavEnhetType.LOKAL,
+    status: NavEnhetStatus.AKTIV,
+    enhetsnummer: "0330",
+    overordnetEnhet: "0300",
+  },
+  _0318: {
+    navn: "NAV Nordstrand",
+    type: NavEnhetType.LOKAL,
+    status: NavEnhetStatus.AKTIV,
+    enhetsnummer: "0318",
+    overordnetEnhet: "0300",
+  },
+  _0334: {
+    navn: "NAV Vestre Aker",
+    type: NavEnhetType.LOKAL,
+    status: NavEnhetStatus.AKTIV,
+    enhetsnummer: "0334",
+    overordnetEnhet: "0300",
+  },
+  _0315: {
+    navn: "NAV Grünerløkka",
+    type: NavEnhetType.LOKAL,
+    status: NavEnhetStatus.AKTIV,
+    enhetsnummer: "0315",
+    overordnetEnhet: "0300",
+  },
+  _0300: {
+    navn: "NAV Oslo",
+    type: NavEnhetType.FYLKE,
+    status: NavEnhetStatus.AKTIV,
+    enhetsnummer: "0300",
+    overordnetEnhet: null,
+  },
+};

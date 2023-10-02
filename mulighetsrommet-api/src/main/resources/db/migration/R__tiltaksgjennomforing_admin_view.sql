@@ -26,11 +26,11 @@ select tg.id::uuid,
        jsonb_agg(
                distinct
                case
-                   when tg_a.navident is null then null::jsonb
-                   else jsonb_build_object('navident', tg_a.navident, 'navn',
+                   when tg_a.nav_ident is null then null::jsonb
+                   else jsonb_build_object('navIdent', tg_a.nav_ident, 'navn',
                                            concat(na_tg.fornavn, ' ', na_tg.etternavn))
                    end
-           )                  as ansvarlige,
+           )                  as administratorer,
        jsonb_agg(distinct
                  case
                      when tg_e.enhetsnummer is null then null::jsonb
@@ -45,16 +45,18 @@ select tg.id::uuid,
                                              na.mobilnummer, 'navEnheter', tgk.enheter, 'hovedenhet', na.hovedenhet)
                      end
            )                  as kontaktpersoner,
-       tg.lokasjon_arrangor,
+       tg.sted_for_gjennomforing,
        tg.arrangor_kontaktperson_id,
        vk.organisasjonsnummer as arrangor_kontaktperson_organisasjonsnummer,
        vk.navn                as arrangor_kontaktperson_navn,
        vk.telefon             as arrangor_kontaktperson_telefon,
        vk.epost               as arrangor_kontaktperson_epost,
-       vk.beskrivelse         as arrangor_kontaktperson_beskrivelse
+       vk.beskrivelse         as arrangor_kontaktperson_beskrivelse,
+       t.skal_migreres,
+       tg.faneinnhold
 from tiltaksgjennomforing tg
          inner join tiltakstype t on tg.tiltakstype_id = t.id
-         left join tiltaksgjennomforing_ansvarlig tg_a on tg_a.tiltaksgjennomforing_id = tg.id
+         left join tiltaksgjennomforing_administrator tg_a on tg_a.tiltaksgjennomforing_id = tg.id
          left join tiltaksgjennomforing_nav_enhet tg_e on tg_e.tiltaksgjennomforing_id = tg.id
          left join avtale a on a.id = tg.avtale_id
          left join nav_enhet ne on tg_e.enhetsnummer = ne.enhetsnummer
@@ -62,6 +64,6 @@ from tiltaksgjennomforing tg
          left join virksomhet v on v.organisasjonsnummer = tg.arrangor_organisasjonsnummer
          left join tiltaksgjennomforing_kontaktperson tgk on tgk.tiltaksgjennomforing_id = tg.id
          left join nav_ansatt na on na.nav_ident = tgk.kontaktperson_nav_ident
-         left join nav_ansatt na_tg on na_tg.nav_ident = tg_a.navident
+         left join nav_ansatt na_tg on na_tg.nav_ident = tg_a.nav_ident
          left join virksomhet_kontaktperson vk on vk.id = tg.arrangor_kontaktperson_id
 group by tg.id, t.id, v.navn, avtale_ne.navn, vk.id, avtale_ne.enhetsnummer;

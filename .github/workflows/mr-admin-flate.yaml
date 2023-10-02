@@ -1,8 +1,7 @@
 name: CI/CD (mr-admin-flate)
 
 on:
-  merge_group:
-  pull_request:
+  push:
     paths:
       - .github/workflows/mr-admin-flate.yaml
       - package.json
@@ -10,9 +9,6 @@ on:
       - turbo.json
       - frontend/mr-admin-flate/**
       - mulighetsrommet-api/src/main/resources/web/openapi.yaml
-  push:
-    branches:
-      - main
   workflow_dispatch:
     inputs:
       environment:
@@ -37,13 +33,13 @@ jobs:
     name: CI
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Setup frontend
         uses: ./.github/actions/setup-frontend
       - name: Test
         run: npx turbo run lint test:ci --filter=mr-admin-flate
       - name: Cypress run
-        uses: cypress-io/github-action@v5
+        uses: cypress-io/github-action@v6
         with:
           working-directory: frontend/mr-admin-flate
           browser: chrome
@@ -60,7 +56,7 @@ jobs:
       id-token: "write" # Used to authenticate with Google Cloud
     if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Setup frontend
         uses: ./.github/actions/setup-frontend
       - name: Build
@@ -83,7 +79,7 @@ jobs:
       id-token: "write" # Used to authenticate with Google Cloud
     if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Setup frontend
         uses: ./.github/actions/setup-frontend
       - name: Build
@@ -106,7 +102,7 @@ jobs:
       id-token: "write" # Used to authenticate with Google Cloud
     if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'dev_and_prod'
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Setup frontend
         uses: ./.github/actions/setup-frontend
       - name: Build

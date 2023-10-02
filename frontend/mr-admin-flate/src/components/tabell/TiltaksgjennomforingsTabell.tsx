@@ -22,24 +22,54 @@ interface ColumnHeader {
 }
 
 const headers: ColumnHeader[] = [
-  { sortKey: "navn", tittel: "Tittel", sortable: true, width: "3fr" },
-  { sortKey: "enhet", tittel: "Enhet", sortable: false, width: "2fr" },
+  {
+    sortKey: "navn",
+    tittel: "Tittel",
+    sortable: true,
+    width: "3fr",
+  },
+  {
+    sortKey: "enhet",
+    tittel: "Enhet",
+    sortable: false,
+    width: "2fr",
+  },
   {
     sortKey: "tiltaksnummer",
     tittel: "Tiltaksnr.",
     sortable: true,
     width: "1fr",
   },
-  { sortKey: "arrangor", tittel: "Arrangør", sortable: true, width: "3fr" },
+  {
+    sortKey: "arrangor",
+    tittel: "Arrangør",
+    sortable: true,
+    width: "3fr",
+  },
   {
     sortKey: "tiltakstype",
     tittel: "Tiltakstype",
     sortable: true,
     width: "3fr",
   },
-  { sortKey: "startdato", tittel: "Startdato", sortable: true, width: "1fr" },
-  { sortKey: "sluttdato", tittel: "Sluttdato", sortable: true, width: "1fr" },
-  { sortKey: "status", tittel: "Status", sortable: false, width: "1fr" },
+  {
+    sortKey: "startdato",
+    tittel: "Startdato",
+    sortable: true,
+    width: "1fr",
+  },
+  {
+    sortKey: "sluttdato",
+    tittel: "Sluttdato",
+    sortable: true,
+    width: "1fr",
+  },
+  {
+    sortKey: "status",
+    tittel: "Status",
+    sortable: false,
+    width: "1fr",
+  },
 ];
 
 type Kolonne =
@@ -56,13 +86,7 @@ interface Props {
   skjulKolonner?: Partial<Record<Kolonne, boolean>>;
 }
 
-const SkjulKolonne = ({
-  children,
-  skjul,
-}: {
-  children: React.ReactNode;
-  skjul: boolean;
-}) => {
+const SkjulKolonne = ({ children, skjul }: { children: React.ReactNode; skjul: boolean }) => {
   return skjul ? null : <>{children}</>;
 };
 
@@ -74,10 +98,7 @@ export const TiltaksgjennomforingsTabell = ({ skjulKolonner }: Props) => {
   const pagination = data?.pagination;
   const tiltaksgjennomforinger = data?.data ?? [];
 
-  if (
-    (!tiltaksgjennomforinger || tiltaksgjennomforinger.length === 0) &&
-    isLoading
-  ) {
+  if ((!tiltaksgjennomforinger || tiltaksgjennomforinger.length === 0) && isLoading) {
     return <Laster size="xlarge" tekst="Laster tiltaksgjennomføringer..." />;
   }
 
@@ -103,7 +124,10 @@ export const TiltaksgjennomforingsTabell = ({ skjulKolonner }: Props) => {
 
   const formaterNavEnheter = (
     navRegionNavn: string = "",
-    navEnheter?: { navn?: string | null; enhetsnummer?: string }[],
+    navEnheter?: {
+      navn?: string | null;
+      enhetsnummer?: string;
+    }[],
   ): string => {
     const liste = [...(navEnheter || [])];
     if (!liste) return "";
@@ -111,9 +135,7 @@ export const TiltaksgjennomforingsTabell = ({ skjulKolonner }: Props) => {
     const forsteEnhet = liste.shift();
     if (!forsteEnhet) return navRegionNavn;
 
-    return `${forsteEnhet?.navn} ${
-      liste.length > 0 ? `+ ${liste.length}` : ""
-    }`;
+    return `${forsteEnhet?.navn} ${liste.length > 0 ? `+ ${liste.length}` : ""}`;
   };
 
   return (
@@ -127,7 +149,10 @@ export const TiltaksgjennomforingsTabell = ({ skjulKolonner }: Props) => {
           antallVises={filter.antallGjennomforingerVises}
           setAntallVises={(size) => {
             resetPaginering(setPage);
-            setFilter({ ...filter, antallGjennomforingerVises: size });
+            setFilter({
+              ...filter,
+              antallGjennomforingerVises: size,
+            });
           }}
         />
         <Checkbox
@@ -161,7 +186,9 @@ export const TiltaksgjennomforingsTabell = ({ skjulKolonner }: Props) => {
                     key={header.sortKey}
                     sortKey={header.sortKey}
                     sortable={header.sortable}
-                    style={{ width: header.width }}
+                    style={{
+                      width: header.width,
+                    }}
                   >
                     {header.tittel}
                   </Table.ColumnHeader>
@@ -172,17 +199,14 @@ export const TiltaksgjennomforingsTabell = ({ skjulKolonner }: Props) => {
             <Table.Body>
               {tiltaksgjennomforinger.map((tiltaksgjennomforing, index) => {
                 return (
-                  <Table.Row
-                    key={index}
-                    className={styles.tiltaksgjennomforing_tabellrad}
-                  >
+                  <Table.Row key={index} className={styles.tiltaksgjennomforing_tabellrad}>
                     <SkjulKolonne skjul={!!skjulKolonner?.navn}>
                       <Table.DataCell
                         aria-label={`Navn på tiltaksgjennomforing: ${tiltaksgjennomforing.navn}`}
                         className={styles.title}
                       >
                         <Lenke
-                          to={`/tiltaksgjennomforinger/${tiltaksgjennomforing.id}`}
+                          to={`${tiltaksgjennomforing.id}`}
                           data-testid="tiltaksgjennomforingrad"
                         >
                           {tiltaksgjennomforing.navn}
@@ -232,12 +256,8 @@ export const TiltaksgjennomforingsTabell = ({ skjulKolonner }: Props) => {
 
                     <SkjulKolonne skjul={!!skjulKolonner?.startdato}>
                       <Table.DataCell
-                        title={`Startdato ${formaterDato(
-                          tiltaksgjennomforing.startDato,
-                        )}`}
-                        aria-label={`Startdato: ${formaterDato(
-                          tiltaksgjennomforing.startDato,
-                        )}`}
+                        title={`Startdato ${formaterDato(tiltaksgjennomforing.startDato)}`}
+                        aria-label={`Startdato: ${formaterDato(tiltaksgjennomforing.startDato)}`}
                       >
                         {formaterDato(tiltaksgjennomforing.startDato)}
                       </Table.DataCell>
@@ -245,15 +265,10 @@ export const TiltaksgjennomforingsTabell = ({ skjulKolonner }: Props) => {
 
                     <SkjulKolonne skjul={!!skjulKolonner?.sluttdato}>
                       <Table.DataCell
-                        title={`Sluttdato ${formaterDato(
-                          tiltaksgjennomforing.sluttDato,
-                        )}, "-"`}
+                        title={`Sluttdato ${formaterDato(tiltaksgjennomforing.sluttDato)}, "-"`}
                         aria-label={
                           tiltaksgjennomforing.sluttDato
-                            ? `Sluttdato: ${formaterDato(
-                                tiltaksgjennomforing.sluttDato,
-                                "-",
-                              )}`
+                            ? `Sluttdato: ${formaterDato(tiltaksgjennomforing.sluttDato, "-")}`
                             : undefined // Noen gjennomføringer har ikke sluttdato så da setter vi heller ikke aria-label for da klager reactA11y
                         }
                       >

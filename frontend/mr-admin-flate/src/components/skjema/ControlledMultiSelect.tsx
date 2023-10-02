@@ -11,8 +11,11 @@ export interface MultiSelectProps {
   size?: "small" | "medium";
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const ControlledMultiSelect = React.forwardRef((props: MultiSelectProps, _) => {
+export const ControlledMultiSelect = React.forwardRef(function ControlledMultiSelect(
+  props: MultiSelectProps,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _,
+) {
   const { size, label, placeholder, options, readOnly, ...rest } = props;
 
   return (
@@ -20,10 +23,7 @@ const ControlledMultiSelect = React.forwardRef((props: MultiSelectProps, _) => {
       <Controller
         name={label}
         {...rest}
-        render={({
-          field: { onChange, value, name, ref },
-          fieldState: { error },
-        }) => {
+        render={({ field: { onChange, value, name, ref }, fieldState: { error } }) => {
           return (
             <>
               <label
@@ -67,7 +67,3 @@ const ControlledMultiSelect = React.forwardRef((props: MultiSelectProps, _) => {
     </div>
   );
 });
-
-ControlledMultiSelect.displayName = "ControlledMultiSelect";
-
-export { ControlledMultiSelect };

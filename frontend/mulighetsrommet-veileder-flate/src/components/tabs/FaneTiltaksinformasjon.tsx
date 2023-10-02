@@ -1,15 +1,13 @@
-import classNames from 'classnames';
-import React from 'react';
-import styles from './Detaljerfane.module.scss';
+import { ReactNode } from "react";
 
 interface FaneMalTiltakProps {
-  children: any;
+  children: ReactNode;
   harInnhold: boolean;
   className?: string;
 }
 
 const FaneTiltaksinformasjon = ({ children, harInnhold, className }: FaneMalTiltakProps) => {
-  return <div className={classNames(styles.tiltaksdetaljer_maksbredde, className)}>{harInnhold ? children : null}</div>;
+  return <div className={className}>{harInnhold ? children : null}</div>;
 };
 
 export default FaneTiltaksinformasjon;

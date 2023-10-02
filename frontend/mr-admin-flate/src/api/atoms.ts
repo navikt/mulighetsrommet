@@ -10,16 +10,19 @@ import {
 import { atom } from "jotai";
 import { AVTALE_PAGE_SIZE, PAGE_SIZE } from "../constants";
 
+// Bump version number when localStorage should be cleared
+const version = localStorage.getItem("version");
+if (version !== "0.1.0") {
+  localStorage.clear();
+  localStorage.setItem("version", "0.1.0");
+}
+
 /**
  * atomWithStorage fra jotai rendrer først alltid initial value selv om den
  * finnes i storage (https://github.com/pmndrs/jotai/discussions/1879#discussioncomment-5626120)
  * Dette er anbefalt måte og ha en sync versjon av atomWithStorage
  */
-function atomWithStorage<Value>(
-  key: string,
-  initialValue: Value,
-  storage = localStorage,
-) {
+function atomWithStorage<Value>(key: string, initialValue: Value, storage = localStorage) {
   const baseAtom = atom(storage.getItem(key) ?? JSON.stringify(initialValue));
   return atom(
     (get) => JSON.parse(get(baseAtom)),
@@ -38,9 +41,7 @@ function atomWithHashAndStorage<Value>(key: string, initialValue: Value) {
     window.history.replaceState(
       null,
       "",
-      `${window.location.pathname}${
-        window.location.search
-      }#${searchParams.toString()}`,
+      `${window.location.pathname}${window.location.search}#${searchParams.toString()}`,
     );
   };
   const innerAtom = atomWithStorage(key, initialValue);
@@ -107,15 +108,14 @@ export const defaultTiltaksgjennomforingfilter: Tiltaksgjennomforingfilter = {
   visMineGjennomforinger: false,
 };
 
-export const tiltaksgjennomforingfilter =
-  atomWithHashAndStorage<Tiltaksgjennomforingfilter>(
-    "tiltaksgjennomforingFilter",
-    defaultTiltaksgjennomforingfilter,
-  );
+export const tiltaksgjennomforingfilter = atomWithHashAndStorage<Tiltaksgjennomforingfilter>(
+  "tiltaksgjennomforingFilter",
+  defaultTiltaksgjennomforingfilter,
+);
 
-export const tiltaksgjennomforingTilAvtaleFilter = atom<
-  Pick<Tiltaksgjennomforingfilter, "search">
->({ search: "" });
+export const tiltaksgjennomforingTilAvtaleFilter = atom<Pick<Tiltaksgjennomforingfilter, "search">>(
+  { search: "" },
+);
 
 export interface AvtaleFilterProps {
   sok: string;

@@ -2,9 +2,9 @@ import { Button, Search } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { FormProvider, useForm } from "react-hook-form";
 import {
-  TiltakstypeFilter,
   defaultTiltakstypeFilter,
   paginationAtom,
+  TiltakstypeFilter,
   tiltakstypeFilter,
 } from "../../api/atoms";
 import { resetPaginering, valueOrDefault } from "../../utils/Utils";
@@ -25,18 +25,39 @@ export function Tiltakstypefilter() {
 
   const statusOptions = () => {
     return [
-      { label: "Aktiv", value: "Aktiv" },
-      { label: "Planlagt", value: "Planlagt" },
-      { label: "Avsluttet", value: "Avsluttet" },
-      { label: "Alle statuser", value: "" },
+      {
+        label: "Aktiv",
+        value: "Aktiv",
+      },
+      {
+        label: "Planlagt",
+        value: "Planlagt",
+      },
+      {
+        label: "Avsluttet",
+        value: "Avsluttet",
+      },
+      {
+        label: "Alle statuser",
+        value: "",
+      },
     ];
   };
 
   const kategoriOptions = () => {
     return [
-      { label: "Gruppetiltak", value: "GRUPPE" },
-      { label: "Individuelle tiltak", value: "INDIVIDUELL" },
-      { label: "Alle kategorier", value: "" },
+      {
+        label: "Gruppetiltak",
+        value: "GRUPPE",
+      },
+      {
+        label: "Individuelle tiltak",
+        value: "INDIVIDUELL",
+      },
+      {
+        label: "Alle kategorier",
+        value: "",
+      },
     ];
   };
 
@@ -50,7 +71,12 @@ export function Tiltakstypefilter() {
               hideLabel
               variant="simple"
               data-testid="filter_sokefelt"
-              onChange={(sok: string) => setFilter({ ...filter, sok })}
+              onChange={(sok: string) =>
+                setFilter({
+                  ...filter,
+                  sok,
+                })
+              }
               value={filter.sok}
               aria-label="Søk etter tiltakstype"
               size="small"
@@ -68,12 +94,11 @@ export function Tiltakstypefilter() {
                 resetPaginering(setPage);
                 setFilter({
                   ...filter,
-                  status: valueOrDefault(e, defaultTiltakstypeFilter.status),
+                  status: valueOrDefault(e.target.value, defaultTiltakstypeFilter.status),
                 });
               }}
               options={statusOptions()}
             />
-
             <SokeSelect
               size="small"
               label="Gruppetiltak eller individuelle tiltak"
@@ -85,10 +110,7 @@ export function Tiltakstypefilter() {
                 resetPaginering(setPage);
                 setFilter({
                   ...filter,
-                  kategori: valueOrDefault(
-                    e,
-                    defaultTiltakstypeFilter.kategori
-                  ),
+                  kategori: valueOrDefault(e.target.value, defaultTiltakstypeFilter.kategori),
                 });
               }}
               options={kategoriOptions()}
@@ -96,40 +118,49 @@ export function Tiltakstypefilter() {
             />
           </div>
           <div className={styles.tags_container}>
-            {filter.status &&
+            {filter.status && (
               <FilterTag
                 label={filter.status}
                 onClick={() => {
-                  setFilter({ ...filter, status: "" });
-                  setValue('status', "");
+                  setFilter({
+                    ...filter,
+                    status: "",
+                  });
+                  setValue("status", "");
                 }}
               />
-            }
-            {filter.kategori && 
+            )}
+            {filter.kategori && (
               <FilterTag
                 label={filter.kategori === "GRUPPE" ? "Gruppetiltak" : "Individuelle tiltak"}
                 onClick={() => {
-                  setFilter({ ...filter, kategori: "" });
-                  setValue('kategori', "");
+                  setFilter({
+                    ...filter,
+                    kategori: "",
+                  });
+                  setValue("kategori", "");
                 }}
               />
-            }
-            { (filter.status !== defaultTiltakstypeFilter.status ||
-               filter.kategori !== defaultTiltakstypeFilter.kategori) &&
+            )}
+            {(filter.status !== defaultTiltakstypeFilter.status ||
+              filter.kategori !== defaultTiltakstypeFilter.kategori) && (
               <Button
-                style={{ height: "16px", maxHeight: "16px" }}
+                style={{
+                  height: "16px",
+                  maxHeight: "16px",
+                }}
                 type="button"
                 size="small"
                 variant="tertiary"
                 onClick={() => {
                   setFilter(defaultTiltakstypeFilter);
-                  setValue('status', defaultTiltakstypeFilter.status);
-                  setValue('kategori', defaultTiltakstypeFilter.kategori);
+                  setValue("status", defaultTiltakstypeFilter.status);
+                  setValue("kategori", defaultTiltakstypeFilter.kategori);
                 }}
               >
                 Tilbakestill filter
               </Button>
-            }
+            )}
           </div>
         </div>
       </form>

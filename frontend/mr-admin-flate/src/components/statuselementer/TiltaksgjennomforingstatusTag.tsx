@@ -1,8 +1,5 @@
 import { Tag } from "@navikt/ds-react";
-import {
-  Tiltaksgjennomforing,
-  TiltaksgjennomforingStatus,
-} from "mulighetsrommet-api-client";
+import { Tiltaksgjennomforing, TiltaksgjennomforingStatus } from "mulighetsrommet-api-client";
 import { oversettStatusForTiltaksgjennomforing } from "../../utils/Utils";
 
 interface Props {
@@ -14,14 +11,20 @@ export function TiltaksgjennomforingstatusTag({ tiltaksgjennomforing }: Props) {
 
   const variant = (status: TiltaksgjennomforingStatus | undefined) => {
     switch (status) {
-      case TiltaksgjennomforingStatus.GJENNOMFORES: return "success"
-      case TiltaksgjennomforingStatus.AVBRUTT: return "error"
-      case TiltaksgjennomforingStatus.AVLYST: return "neutral"
-      case TiltaksgjennomforingStatus.AVSLUTTET: return "neutral"
-      case TiltaksgjennomforingStatus.APENT_FOR_INNSOK: return "alt1"
-      case undefined: return "neutral"
+      case TiltaksgjennomforingStatus.GJENNOMFORES:
+        return "success";
+      case TiltaksgjennomforingStatus.AVBRUTT:
+        return "error";
+      case TiltaksgjennomforingStatus.AVLYST:
+        return "neutral";
+      case TiltaksgjennomforingStatus.AVSLUTTET:
+        return "neutral";
+      case TiltaksgjennomforingStatus.APENT_FOR_INNSOK:
+        return "alt1";
+      case undefined:
+        return "neutral";
     }
-  }
+  };
 
   return (
     <Tag

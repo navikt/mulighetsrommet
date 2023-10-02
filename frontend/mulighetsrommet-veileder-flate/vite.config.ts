@@ -7,6 +7,7 @@ export default defineConfig({
   server: {
     port: 3000,
     host: '127.0.0.1',
+    open: true,
   },
   plugins: [
     react(),
@@ -15,7 +16,6 @@ export default defineConfig({
       filename: 'bundle-stats.html',
     }),
   ],
-  base: './',
   build: {
     manifest: 'asset-manifest.json',
     chunkSizeWarningLimit: 1400,

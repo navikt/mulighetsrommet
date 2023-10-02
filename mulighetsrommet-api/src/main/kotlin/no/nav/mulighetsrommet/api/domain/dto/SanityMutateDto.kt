@@ -3,8 +3,6 @@ package no.nav.mulighetsrommet.api.domain.dto
 import kotlinx.serialization.EncodeDefault
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
-import java.time.LocalDate
 
 @Serializable
 data class Mutations<T>(
@@ -16,11 +14,23 @@ data class Mutation<T>(
     val createIfNotExists: T? = null,
     val createOrReplace: T? = null,
     val patch: T? = null,
+    val delete: Delete? = null,
+)
+
+@Serializable
+data class Delete(
+    val id: String,
+)
+
+@Serializable
+data class Patch<T>(
+    val id: String,
+    val set: T,
 )
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
-data class SanityTiltaksgjennomforing(
+data class CreateSanityTiltaksgjennomforingDto(
     val _id: String,
     @EncodeDefault
     val _type: String = "tiltaksgjennomforing",
@@ -29,10 +39,28 @@ data class SanityTiltaksgjennomforing(
     val enheter: List<EnhetRef>? = null,
     val tiltakstype: TiltakstypeRef? = null,
     val tiltaksnummer: TiltaksnummerSlug? = null,
-    @Serializable(with = LocalDateSerializer::class)
-    val sluttdato: LocalDate? = null,
-    val lokasjon: String? = null,
+    val stedForGjennomforing: String? = null,
 )
+
+@Serializable
+data class SanityTiltaksgjennomforingFields(
+    val tiltaksgjennomforingNavn: String,
+    val fylke: FylkeRef? = null,
+    val enheter: List<EnhetRef>? = null,
+    val tiltakstype: TiltakstypeRef? = null,
+    val tiltaksnummer: TiltaksnummerSlug? = null,
+    val stedForGjennomforing: String? = null,
+) {
+    fun toSanityTiltaksgjennomforing(id: String) = CreateSanityTiltaksgjennomforingDto(
+        _id = id,
+        tiltaksgjennomforingNavn = this.tiltaksgjennomforingNavn,
+        fylke = this.fylke,
+        enheter = this.enheter,
+        tiltakstype = this.tiltakstype,
+        tiltaksnummer = this.tiltaksnummer,
+        stedForGjennomforing = this.stedForGjennomforing,
+    )
+}
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable

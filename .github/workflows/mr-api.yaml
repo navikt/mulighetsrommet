@@ -1,8 +1,7 @@
 name: CI/CD (mr-api)
 
 on:
-  merge_group:
-  pull_request:
+  push:
     paths:
       - .github/workflows/mr-api.yaml
       - build.gradle.kts
@@ -11,9 +10,6 @@ on:
       - gradle/libs.versions.toml
       - common/**
       - mulighetsrommet-api/**
-  push:
-    branches:
-      - main
   workflow_dispatch:
     inputs:
       environment:
@@ -43,13 +39,13 @@ jobs:
       id-token: write # Needed for `nais/docker-build-push`
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Setup backend
         uses: ./.github/actions/setup-backend
       - name: Build with Gradle
         run: ./gradlew :mulighetsrommet-api:build
       - name: Submit Gradle dependencies
-        uses: mikepenz/gradle-dependency-submission@4c18b5f3e7cc4eda0bbeb2eb93aafec7f0980bc2 # TODO: replace hash with new version tag when it's available
+        uses: mikepenz/gradle-dependency-submission@v1
         if: github.ref_name == 'main'
         with:
           gradle-build-module: :mulighetsrommet-api
@@ -75,7 +71,7 @@ jobs:
     if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Deploy
         uses: nais/deploy/actions/deploy@v1
         env:
@@ -91,7 +87,7 @@ jobs:
     if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'dev_and_prod'
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Deploy
         uses: nais/deploy/actions/deploy@v1
         env:

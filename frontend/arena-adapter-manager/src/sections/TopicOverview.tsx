@@ -30,7 +30,7 @@ function TopicOverview() {
 
   const saveRunningState = async () => {
     setIsSaveLoading(true);
-    await putTopicRunningState(topics).then();
+    await putTopicRunningState(topics);
     setIsSaveLoading(false);
   };
 

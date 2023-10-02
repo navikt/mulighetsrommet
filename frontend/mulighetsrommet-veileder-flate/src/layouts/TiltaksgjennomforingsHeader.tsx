@@ -1,28 +1,34 @@
-import { Heading, Ingress } from '@navikt/ds-react';
-import useTiltaksgjennomforingById from '../core/api/queries/useTiltaksgjennomforingById';
-import { kebabCase } from '../utils/Utils';
-import styles from './TiltaksgjennomforingsHeader.module.scss';
-import { SanityTiltakstype } from 'mulighetsrommet-api-client';
+import { BodyLong, Heading } from "@navikt/ds-react";
+import { VeilederflateTiltaksgjennomforing } from "mulighetsrommet-api-client";
+import { kebabCase } from "../utils/Utils";
+import styles from "./TiltaksgjennomforingsHeader.module.scss";
 
-const TiltaksgjennomforingsHeader = () => {
-  const { data } = useTiltaksgjennomforingById();
-  if (!data) return null;
+interface Props {
+  tiltaksgjennomforing: VeilederflateTiltaksgjennomforing;
+}
 
-  const { tiltaksgjennomforingNavn, beskrivelse, tiltakstype } = data;
+const TiltaksgjennomforingsHeader = ({ tiltaksgjennomforing }: Props) => {
+  const { navn, beskrivelse, tiltakstype } = tiltaksgjennomforing;
   return (
     <>
       <Heading
         level="1"
         size="xlarge"
         className={styles.tiltaksgjennomforing_title}
-        data-testid={`tiltaksgjennomforing-header_${kebabCase(tiltaksgjennomforingNavn)}`}
+        data-testid={`tiltaksgjennomforing-header_${kebabCase(navn)}`}
       >
-        {tiltaksgjennomforingNavn}
+        {navn}
       </Heading>
-      {tiltakstype?.arenakode === SanityTiltakstype.arenakode.GRUPPEAMO
-        ? beskrivelse && <Ingress>{beskrivelse}</Ingress>
-        : null}
-      {tiltakstype.beskrivelse && <Ingress className={styles.beskrivelse}>{tiltakstype.beskrivelse}</Ingress>}
+      {tiltakstype.beskrivelse && (
+        <BodyLong size="large" className={styles.beskrivelse}>
+          {tiltakstype.beskrivelse}
+        </BodyLong>
+      )}
+      {beskrivelse && (
+        <BodyLong textColor="subtle" size="medium">
+          {beskrivelse}
+        </BodyLong>
+      )}
     </>
   );
 };

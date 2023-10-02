@@ -71,11 +71,7 @@ fun Route.arenaAdapterRoutes() {
             val id = call.parameters.getOrFail<UUID>("id")
 
             arenaAdapterService.removeTiltaksgjennomforing(id)
-                .map { call.response.status(HttpStatusCode.OK) }
-                .mapLeft {
-                    logError(logger, it.error)
-                    call.respond(HttpStatusCode.InternalServerError, "Kunne ikke slette tiltak")
-                }
+            call.response.status(HttpStatusCode.OK)
         }
 
         put("tiltakshistorikk") {

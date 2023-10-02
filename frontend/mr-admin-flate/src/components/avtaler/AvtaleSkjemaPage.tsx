@@ -3,7 +3,7 @@ import { Avtale, Tiltakstypestatus } from "mulighetsrommet-api-client";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
 import { useAvtale } from "../../api/avtaler/useAvtale";
-import { useAlleEnheter } from "../../api/enhet/useAlleEnheter";
+import { useNavEnheter } from "../../api/enhet/useNavEnheter";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
 import { ContainerLayoutDetaljer } from "../../layouts/ContainerLayout";
 import { inneholderUrl } from "../../utils/Utils";
@@ -18,16 +18,16 @@ const AvtaleSkjemaPage = () => {
   const queryClient = useQueryClient();
 
   const [searchParams] = useSearchParams();
-  const { data: avtale, isLoading: avtaleLoading } = useAvtale(
-    searchParams.get("avtaleId") || undefined,
-  );
+  const { data: avtale, isLoading: avtaleLoading } = useAvtale();
   const { data: utkast, isLoading: utkastLoading } = useUtkast(
     searchParams.get("utkastId") || undefined,
   );
-  const { data: tiltakstyper, isLoading: isLoadingTiltakstyper } =
-    useTiltakstyper({ status: Tiltakstypestatus.AKTIV }, 1);
+  const { data: tiltakstyper, isLoading: isLoadingTiltakstyper } = useTiltakstyper(
+    { status: Tiltakstypestatus.AKTIV },
+    1,
+  );
   const { data: ansatt, isLoading: isLoadingAnsatt } = useHentAnsatt();
-  const { data: enheter, isLoading: isLoadingEnheter } = useAlleEnheter();
+  const { data: enheter, isLoading: isLoadingEnheter } = useNavEnheter();
 
   const utkastModus = utkast && inneholderUrl(utkast?.id);
   const redigeringsModus = utkastModus || (avtale && inneholderUrl(avtale?.id));
@@ -37,21 +37,12 @@ const AvtaleSkjemaPage = () => {
   };
 
   if (utkastLoading || avtaleLoading) {
-    return (
-      <Laster
-        size="xlarge"
-        tekst={utkastLoading ? "Laster utkast..." : "Laster avtale..."}
-      />
-    );
+    return <Laster size="xlarge" tekst={utkastLoading ? "Laster utkast..." : "Laster avtale..."} />;
   }
 
   return (
     <main>
-      <Header
-        dataTestId={
-          redigeringsModus ? "rediger-avtale-header" : "opprett-avtale-header"
-        }
-      >
+      <Header dataTestId={redigeringsModus ? "rediger-avtale-header" : "opprett-avtale-header"}>
         {redigeringsModus
           ? utkastModus
             ? "Rediger utkast"
@@ -60,14 +51,14 @@ const AvtaleSkjemaPage = () => {
       </Header>
       <ContainerLayoutDetaljer>
         <div className={styles.skjema}>
-          {isLoadingAnsatt || isLoadingTiltakstyper || isLoadingEnheter ? (
-            <Laster />
-          ) : null}
+          {isLoadingAnsatt || isLoadingTiltakstyper || isLoadingEnheter ? <Laster /> : null}
           <div className={styles.skjema_content}>
             {!tiltakstyper?.data || !ansatt || !enheter ? null : (
               <AvtaleSkjemaContainer
                 onClose={() => {
-                  queryClient.refetchQueries({ queryKey: ["utkast"] });
+                  queryClient.refetchQueries({
+                    queryKey: ["utkast"],
+                  });
                   navigerTilbake();
                 }}
                 onSuccess={(id) => navigate(`/avtaler/${id}`)}

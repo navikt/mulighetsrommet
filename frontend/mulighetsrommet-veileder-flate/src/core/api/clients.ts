@@ -1,13 +1,13 @@
-import { MulighetsrommetClient, OpenAPI } from 'mulighetsrommet-api-client';
-import { headers, toRecord } from './headers';
-import { v4 as uuidv4 } from 'uuid';
+import { MulighetsrommetClient, OpenAPI } from "mulighetsrommet-api-client";
+import { headers, toRecord } from "./headers";
+import { v4 as uuidv4 } from "uuid";
 
 OpenAPI.HEADERS = async () => {
   const record = toRecord(headers);
-  record['call-id'] = uuidv4();
+  record["X-Request-ID"] = uuidv4();
   return record;
 };
 
-OpenAPI.BASE = String(import.meta.env.VITE_MULIGHETSROMMET_API_BASE ?? '');
+OpenAPI.BASE = String(import.meta.env.VITE_MULIGHETSROMMET_API_BASE ?? "");
 
 export const mulighetsrommetClient = new MulighetsrommetClient(OpenAPI);

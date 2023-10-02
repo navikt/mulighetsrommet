@@ -23,18 +23,25 @@ export const tiltakstype = defineType({
       validation: (Rule) => Rule.required().min(2).max(200),
     }),
     defineField({
+      name: "redaktor",
+      title: "Administratorer",
+      type: "array",
+      description: "Eiere av innholdet i denne tiltakstypen.",
+      of: [
+        {
+          type: "reference",
+          to: [{ type: "redaktor" }],
+        },
+      ],
+      validation: (rule) => rule.required().unique(),
+    }),
+    defineField({
       name: "beskrivelse",
       title: "Beskrivelse",
       type: "text",
       rows: 5,
       validation: (Rule) => Rule.max(1500),
       description: "Kort beskrivelse av formål med tiltaket. ",
-    }),
-    defineField({
-      name: "nokkelinfoKomponenter",
-      title: "Nøkkelinfo",
-      type: "array",
-      of: [{ type: "nokkelinfo" }],
     }),
     defineField({
       name: "innsatsgruppe",
@@ -74,7 +81,6 @@ export const tiltakstype = defineType({
       of: [{ type: "reference", to: [{ type: "forskningsrapport" }] }],
       hidden: true, //Skjules frem til innsiktsfanen er klar
     }),
-
   ],
   preview: {
     select: {

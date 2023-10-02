@@ -63,6 +63,26 @@ class TiltakstypeRepository(private val db: Database) {
         return db.run(queryResult)
     }
 
+    fun getBySanityId(sanityId: UUID): TiltakstypeDto? {
+        @Language("PostgreSQL")
+        val query = """
+            select
+                id::uuid,
+                navn,
+                tiltakskode,
+                registrert_dato_i_arena,
+                sist_endret_dato_i_arena,
+                fra_dato,
+                til_dato,
+                rett_paa_tiltakspenger,
+                sanity_id
+            from tiltakstype
+            where sanity_id = ?::uuid
+        """.trimIndent()
+        val queryResult = queryOf(query, sanityId).map { it.toTiltakstypeDto() }.asSingle
+        return db.run(queryResult)
+    }
+
     fun getAll(
         paginationParams: PaginationParams = PaginationParams(),
     ): Pair<Int, List<TiltakstypeDto>> {

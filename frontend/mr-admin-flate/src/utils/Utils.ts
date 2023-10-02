@@ -1,18 +1,12 @@
 import { TiltaksgjennomforingStatus } from "mulighetsrommet-api-client/build/models/TiltaksgjennomforingStatus";
-import { ANSKAFFEDE_TILTAK } from "../constants";
 import { Tilgjengelighetsstatus } from "mulighetsrommet-api-client/build/models/Tilgjengelighetsstatus";
 import { Avtaletype } from "mulighetsrommet-api-client/build/models/Avtaletype";
 
 export function capitalize(text?: string): string {
-  return text
-    ? text.slice(0, 1).toUpperCase() + text.slice(1, text.length).toLowerCase()
-    : "";
+  return text ? text.slice(0, 1).toUpperCase() + text.slice(1, text.length).toLowerCase() : "";
 }
 
-export function capitalizeEveryWord(
-  text: string = "",
-  ignoreWords: string[] = [],
-): string {
+export function capitalizeEveryWord(text: string = "", ignoreWords: string[] = []): string {
   return text
     ?.split(" ")
     ?.map((it) => {
@@ -54,21 +48,12 @@ export function formaterDatoTid(dato: string | Date, fallback = ""): string {
   return result.replace(",", " -");
 }
 
-export function formaterDatoSomYYYYMMDD(
-  dato?: Date | null,
-  fallback = "",
-): string {
+export function formaterDatoSomYYYYMMDD(dato?: Date | null, fallback = ""): string {
   if (!dato) return fallback;
   const year = dato.getFullYear();
   const month = (dato.getMonth() + 1).toString();
   const day = dato.getDate().toString();
-  return (
-    year +
-    "-" +
-    (month[1] ? month : "0" + month[0]) +
-    "-" +
-    (day[1] ? day : "0" + day[0])
-  );
+  return year + "-" + (month[1] ? month : "0" + month[0]) + "-" + (day[1] ? day : "0" + day[0]);
   // https://stackoverflow.com/questions/23593052/format-javascript-date-as-yyyy-mm-dd
 }
 
@@ -102,9 +87,7 @@ export const resetPaginering = (setPage: (number: number) => void) => {
   setPage(1);
 };
 
-export const oversettStatusForTiltaksgjennomforing = (
-  status?: TiltaksgjennomforingStatus,
-) => {
+export const oversettStatusForTiltaksgjennomforing = (status?: TiltaksgjennomforingStatus) => {
   switch (status) {
     case TiltaksgjennomforingStatus.GJENNOMFORES:
       return "Gjennomføres";
@@ -119,14 +102,6 @@ export const oversettStatusForTiltaksgjennomforing = (
     default:
       return "";
   }
-};
-
-export const tiltakstypekodeErAnskaffetTiltak = (
-  tiltakstypekode?: string,
-): boolean => {
-  if (!tiltakstypekode) return false;
-
-  return ANSKAFFEDE_TILTAK.includes(tiltakstypekode);
 };
 
 export const inneholderUrl = (string: string) => {
@@ -161,10 +136,7 @@ export function avtaletypeTilTekst(
   }
 }
 
-export function valueOrDefault<T, X>(
-  value: T | undefined,
-  defaultValue: X,
-): T | X {
+export function valueOrDefault<T, X>(value: T | undefined, defaultValue: X): T | X {
   return value !== undefined ? value : defaultValue;
 }
 
@@ -178,3 +150,5 @@ export const validEmail = (email: string | undefined): Boolean => {
       ),
   );
 };
+
+export const erProdMiljo = inneholderUrl("intern.nav.no");

@@ -1,17 +1,8 @@
 .tiltaksdetaljer {
   &_alert {
-    margin: 1rem 0;
-
     :global(.navds-body-long) {
       font-size: 16px;
-    }
-  }
-
-  &_maksbredde {
-    max-width: 600px;
-
-    @media (width <= 1200px) {
-      max-width: none;
+      min-width: 0;
     }
   }
 

@@ -1,8 +1,8 @@
-import { BodyShort, Tag } from '@navikt/ds-react';
-import { kebabCase } from '../../utils/Utils';
-import styles from './ErrorTag.module.scss';
-import { XMarkOctagonFillIcon } from '@navikt/aksel-icons';
-import React from 'react';
+import { BodyShort, Tag } from "@navikt/ds-react";
+import { kebabCase } from "../../utils/Utils";
+import styles from "./ErrorTag.module.scss";
+import { XMarkOctagonFillIcon } from "@navikt/aksel-icons";
+import React from "react";
 
 interface Props {
   innhold: string;

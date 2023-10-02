@@ -6,6 +6,9 @@ import io.ktor.client.engine.mock.*
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.clients.norg2.*
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
+import no.nav.mulighetsrommet.api.domain.dto.EnhetSlug
+import no.nav.mulighetsrommet.api.domain.dto.FylkeRef
+import no.nav.mulighetsrommet.api.domain.dto.SanityEnhet
 import no.nav.mulighetsrommet.api.repositories.NavEnhetRepository
 import no.nav.mulighetsrommet.slack.SlackNotifier
 
@@ -29,7 +32,7 @@ class NavEnheterSyncServiceTest : FunSpec({
         type = type,
     )
 
-    test("skal utlede ALS-, LOKAL- og FYLKE-enheter for synkronisering til sanity") {
+    test("skal utlede LOKAL- og FYLKE-enheter for synkronisering til sanity") {
         val mockEnheter = listOf(
             Norg2Response(
                 enhet = createEnhet("1000", Norg2Type.AAREG),
@@ -44,17 +47,46 @@ class NavEnheterSyncServiceTest : FunSpec({
                 overordnetEnhet = null,
             ),
             Norg2Response(
-                enhet = createEnhet("1300", Norg2Type.ALS),
+                enhet = createEnhet("1291", Norg2Type.ALS),
                 overordnetEnhet = null,
+            ),
+            Norg2Response(
+                enhet = createEnhet("0387", Norg2Type.TILTAK),
+                overordnetEnhet = null,
+            ),
+            Norg2Response(
+                enhet = createEnhet("1002", Norg2Type.LOKAL),
+                overordnetEnhet = "1200",
             ),
         )
 
         val tilSanity = navEnheterSyncService.utledEnheterTilSanity(mockEnheter)
 
-        tilSanity.size shouldBe 3
-        tilSanity[0]._id shouldBe "enhet.als.1300"
-        tilSanity[1]._id shouldBe "enhet.fylke.1200"
-        tilSanity[2]._id shouldBe "enhet.lokal.1001"
-        tilSanity[2].fylke?._ref shouldBe "enhet.fylke.1200"
+        tilSanity shouldBe listOf(
+            SanityEnhet(
+                _id = "enhet.fylke.1200",
+                navn = "Enhet 1200",
+                type = "Fylke",
+                nummer = EnhetSlug(current = "1200"),
+                status = "Aktiv",
+                fylke = null,
+            ),
+            SanityEnhet(
+                _id = "enhet.lokal.1001",
+                navn = "Enhet 1001",
+                type = "Lokal",
+                nummer = EnhetSlug(current = "1001"),
+                status = "Aktiv",
+                fylke = FylkeRef(_ref = "enhet.fylke.1200", _key = "1200"),
+            ),
+            SanityEnhet(
+                _id = "enhet.lokal.1002",
+                navn = "Enhet 1002",
+                type = "Lokal",
+                nummer = EnhetSlug(current = "1002"),
+                status = "Aktiv",
+                fylke = FylkeRef(_ref = "enhet.fylke.1200", _key = "1200"),
+            ),
+        )
     }
 })

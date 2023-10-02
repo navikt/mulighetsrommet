@@ -5,15 +5,23 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.*
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonNull
+import kotliquery.Query
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingKontaktpersonDbo
 import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
-import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures.avtale1
-import no.nav.mulighetsrommet.api.utils.AdminTiltaksgjennomforingFilter
+import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
+import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
+import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.Arbeidstrening1
+import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.ArenaOppfolging1
+import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.Oppfolging1
+import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.Oppfolging2
+import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.utils.DEFAULT_PAGINATION_LIMIT
 import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
@@ -41,54 +49,53 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 
     context("CRUD") {
         val avtaler = AvtaleRepository(database.db)
+        val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
+
         test("CRUD adminflate-tiltaksgjennomføringer") {
-            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
+            tiltaksgjennomforinger.upsert(Oppfolging1)
 
-            tiltaksgjennomforinger.upsert(TiltaksgjennomforingFixtures.Oppfolging1)
+            tiltaksgjennomforinger.get(Oppfolging1.id) shouldBe TiltaksgjennomforingAdminDto(
+                id = Oppfolging1.id,
+                tiltakstype = TiltaksgjennomforingAdminDto.Tiltakstype(
+                    id = TiltakstypeFixtures.Oppfolging.id,
+                    navn = TiltakstypeFixtures.Oppfolging.navn,
+                    arenaKode = TiltakstypeFixtures.Oppfolging.tiltakskode,
+                ),
+                navn = Oppfolging1.navn,
+                tiltaksnummer = Oppfolging1.tiltaksnummer,
+                arrangor = TiltaksgjennomforingAdminDto.Arrangor(
+                    organisasjonsnummer = Oppfolging1.arrangorOrganisasjonsnummer,
+                    slettet = true,
+                    navn = null,
+                    kontaktperson = null,
+                ),
+                startDato = Oppfolging1.startDato,
+                sluttDato = Oppfolging1.sluttDato,
+                arenaAnsvarligEnhet = null,
+                status = Tiltaksgjennomforingsstatus.AVSLUTTET,
+                tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.LEDIG,
+                antallPlasser = 12,
+                avtaleId = Oppfolging1.avtaleId,
+                administrator = null,
+                navEnheter = emptyList(),
+                sanityId = null,
+                oppstart = TiltaksgjennomforingOppstartstype.FELLES,
+                opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
+                stengtFra = null,
+                kontaktpersoner = listOf(),
+                stedForGjennomforing = "Oslo",
+                stengtTil = null,
+                navRegion = NavEnhet(navn = "IT", enhetsnummer = "2990"),
+                estimertVentetid = null,
+                faneinnhold = JsonNull,
+            )
 
-            tiltaksgjennomforinger.get(TiltaksgjennomforingFixtures.Oppfolging1.id) shouldBe
-                TiltaksgjennomforingAdminDto(
-                    id = TiltaksgjennomforingFixtures.Oppfolging1.id,
-                    tiltakstype = TiltaksgjennomforingAdminDto.Tiltakstype(
-                        id = TiltakstypeFixtures.Oppfolging.id,
-                        navn = TiltakstypeFixtures.Oppfolging.navn,
-                        arenaKode = TiltakstypeFixtures.Oppfolging.tiltakskode,
-                    ),
-                    navn = TiltaksgjennomforingFixtures.Oppfolging1.navn,
-                    tiltaksnummer = TiltaksgjennomforingFixtures.Oppfolging1.tiltaksnummer,
-                    arrangor = TiltaksgjennomforingAdminDto.Arrangor(
-                        organisasjonsnummer = TiltaksgjennomforingFixtures.Oppfolging1.arrangorOrganisasjonsnummer,
-                        slettet = true,
-                        navn = null,
-                        kontaktperson = null,
-                    ),
-                    startDato = TiltaksgjennomforingFixtures.Oppfolging1.startDato,
-                    sluttDato = TiltaksgjennomforingFixtures.Oppfolging1.sluttDato,
-                    arenaAnsvarligEnhet = TiltaksgjennomforingFixtures.Oppfolging1.arenaAnsvarligEnhet,
-                    status = Tiltaksgjennomforingsstatus.AVSLUTTET,
-                    tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.LEDIG,
-                    antallPlasser = 12,
-                    avtaleId = TiltaksgjennomforingFixtures.Oppfolging1.avtaleId,
-                    ansvarlig = null,
-                    navEnheter = emptyList(),
-                    sanityId = null,
-                    oppstart = TiltaksgjennomforingOppstartstype.FELLES,
-                    opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
-                    stengtFra = null,
-                    kontaktpersoner = listOf(),
-                    lokasjonArrangor = "Oslo",
-                    stengtTil = null,
-                    navRegion = NavEnhet(navn = "IT", enhetsnummer = "2990"),
-                    estimertVentetid = null,
-                )
+            tiltaksgjennomforinger.delete(Oppfolging1.id)
 
-            tiltaksgjennomforinger.delete(TiltaksgjennomforingFixtures.Oppfolging1.id)
-
-            tiltaksgjennomforinger.get(TiltaksgjennomforingFixtures.Oppfolging1.id) shouldBe null
+            tiltaksgjennomforinger.get(Oppfolging1.id) shouldBe null
         }
 
         test("CRUD ArenaTiltaksgjennomforing") {
-            val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
             val gjennomforingId = UUID.randomUUID()
             val gjennomforingFraArena = ArenaTiltaksgjennomforingDbo(
                 id = gjennomforingId,
@@ -131,7 +138,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 oppstart = TiltaksgjennomforingOppstartstype.FELLES,
                 status = Tiltaksgjennomforingsstatus.AVSLUTTET,
                 estimertVentetid = null,
-                ansvarlig = null,
+                administrator = null,
                 navEnheter = emptyList(),
                 navRegion = null,
                 sanityId = null,
@@ -139,19 +146,22 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 stengtFra = null,
                 stengtTil = null,
                 kontaktpersoner = emptyList(),
-                lokasjonArrangor = null,
+                stedForGjennomforing = null,
+                faneinnhold = JsonNull,
             )
-            tiltaksgjennomforingRepository.upsertArenaTiltaksgjennomforing(gjennomforingFraArena)
-            tiltaksgjennomforingRepository.get(gjennomforingFraArena.id).shouldBe(gjennomforingDto)
+
+            tiltaksgjennomforinger.upsertArenaTiltaksgjennomforing(gjennomforingFraArena)
+
+            tiltaksgjennomforinger.get(gjennomforingFraArena.id).shouldBe(gjennomforingDto)
         }
 
         test("midlertidig_stengt crud") {
-            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-            val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1.copy(
+            val gjennomforing = Oppfolging1.copy(
                 id = UUID.randomUUID(),
                 stengtFra = LocalDate.of(2020, 1, 22),
                 stengtTil = LocalDate.of(2020, 4, 22),
             )
+
             tiltaksgjennomforinger.upsert(gjennomforing)
 
             tiltaksgjennomforinger.get(gjennomforing.id).should {
@@ -161,7 +171,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         }
 
         test("Skal hente ut navRegion fra avtale for en gitt gjennomføring") {
-            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
             val navEnheter = NavEnhetRepository(database.db)
             navEnheter.upsert(
                 NavEnhetDbo(
@@ -183,9 +192,13 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             )
             val avtale = avtale1.copy(navRegion = "2990")
             avtaler.upsert(avtale)
-            val tiltaksgjennomforing =
-                TiltaksgjennomforingFixtures.Oppfolging1.copy(avtaleId = avtale.id, navEnheter = listOf("2980"))
+
+            val tiltaksgjennomforing = Oppfolging1.copy(
+                avtaleId = avtale.id,
+                navEnheter = listOf("2980"),
+            )
             tiltaksgjennomforinger.upsert(tiltaksgjennomforing)
+
             tiltaksgjennomforinger.get(tiltaksgjennomforing.id).should {
                 it?.navRegion?.navn shouldBe "NAV Andeby"
                 it?.navEnheter?.shouldContain(NavEnhet(enhetsnummer = "2980", "NAV Gåseby"))
@@ -193,7 +206,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         }
 
         test("navEnheter crud") {
-            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
             val enhetRepository = NavEnhetRepository(database.db)
             enhetRepository.upsert(
                 NavEnhetDbo(
@@ -223,8 +235,10 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 ),
             ).shouldBeRight()
 
-            val gjennomforing =
-                TiltaksgjennomforingFixtures.Oppfolging1.copy(id = UUID.randomUUID(), navEnheter = listOf("1", "2"))
+            val gjennomforing = Oppfolging1.copy(
+                id = UUID.randomUUID(),
+                navEnheter = listOf("1", "2"),
+            )
 
             tiltaksgjennomforinger.upsert(gjennomforing)
             tiltaksgjennomforinger.get(gjennomforing.id).should {
@@ -246,9 +260,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         }
 
         test("kontaktpersoner på tiltaksgjennomføring CRUD") {
-            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-
-            val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1.copy(
+            val gjennomforing = Oppfolging1.copy(
                 kontaktpersoner = listOf(
                     TiltaksgjennomforingKontaktpersonDbo(
                         navIdent = NavAnsattFixture.ansatt1.navIdent,
@@ -305,7 +317,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         }
 
         test("Oppdater navEnheter fra Sanity-tiltaksgjennomføringer til database") {
-            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
             val enhetRepository = NavEnhetRepository(database.db)
             enhetRepository.upsert(
                 NavEnhetDbo(
@@ -326,14 +337,12 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 ),
             ).shouldBeRight()
 
-            val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1
-
-            tiltaksgjennomforinger.upsert(gjennomforing)
-            tiltaksgjennomforinger.get(gjennomforing.id).should {
+            tiltaksgjennomforinger.upsert(Oppfolging1)
+            tiltaksgjennomforinger.get(Oppfolging1.id).should {
                 it!!.navEnheter.shouldBeEmpty()
             }
             tiltaksgjennomforinger.updateEnheter("1", listOf("1", "2"))
-            tiltaksgjennomforinger.get(gjennomforing.id).should {
+            tiltaksgjennomforinger.get(Oppfolging1.id).should {
                 it!!.navEnheter shouldContainExactlyInAnyOrder listOf(
                     NavEnhet(enhetsnummer = "1", navn = "Navn1"),
                     NavEnhet(enhetsnummer = "2", navn = "Navn2"),
@@ -342,25 +351,23 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             database.assertThat("tiltaksgjennomforing_nav_enhet").hasNumberOfRows(2)
 
             tiltaksgjennomforinger.updateEnheter("1", listOf("2"))
-            tiltaksgjennomforinger.get(gjennomforing.id).should {
+            tiltaksgjennomforinger.get(Oppfolging1.id).should {
                 it!!.navEnheter.shouldContainExactlyInAnyOrder(listOf(NavEnhet(enhetsnummer = "2", navn = "Navn2")))
             }
             database.assertThat("tiltaksgjennomforing_nav_enhet").hasNumberOfRows(1)
         }
 
         test("update sanity_id") {
-            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
             val id = UUID.randomUUID()
 
-            tiltaksgjennomforinger.upsert(TiltaksgjennomforingFixtures.Oppfolging1)
-            tiltaksgjennomforinger.updateSanityTiltaksgjennomforingId(TiltaksgjennomforingFixtures.Oppfolging1.id, id)
-            tiltaksgjennomforinger.get(TiltaksgjennomforingFixtures.Oppfolging1.id).should {
-                it!!.sanityId.shouldBe(id.toString())
+            tiltaksgjennomforinger.upsert(Oppfolging1)
+            tiltaksgjennomforinger.updateSanityTiltaksgjennomforingId(Oppfolging1.id, id)
+            tiltaksgjennomforinger.get(Oppfolging1.id).should {
+                it!!.sanityId.shouldBe(id)
             }
         }
 
         test("virksomhet_kontaktperson") {
-            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
             val virksomhetRepository = VirksomhetRepository(database.db)
 
             virksomhetRepository.upsert(
@@ -379,7 +386,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             )
             virksomhetRepository.upsertKontaktperson(thomas)
 
-            val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1.copy(arrangorKontaktpersonId = thomas.id)
+            val gjennomforing = Oppfolging1.copy(arrangorKontaktpersonId = thomas.id)
 
             tiltaksgjennomforinger.upsert(gjennomforing)
             tiltaksgjennomforinger.get(gjennomforing.id).should {
@@ -393,22 +400,39 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         }
     }
 
+    context("skal migreres") {
+        test("skal migreres henter kun der tiltakstypen skal_migreres er true") {
+            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
+
+            Query("update tiltakstype set skal_migreres = true where id = '${Oppfolging1.tiltakstypeId}'")
+                .asUpdate.let { database.db.run(it) }
+
+            tiltaksgjennomforinger.upsert(Oppfolging1)
+            tiltaksgjennomforinger.upsert(Arbeidstrening1)
+
+            tiltaksgjennomforinger.getAll(skalMigreres = true).should {
+                it.first shouldBe 1
+                it.second[0].id shouldBe Oppfolging1.id
+            }
+        }
+    }
+
     context("Filtrer på avtale") {
         test("Kun gjennomforinger tilhørende avtale blir tatt med") {
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
 
             tiltaksgjennomforinger.upsert(
-                TiltaksgjennomforingFixtures.Oppfolging1.copy(
+                Oppfolging1.copy(
                     avtaleId = avtale1.id,
                 ),
             )
 
             val result = tiltaksgjennomforinger.getAll(
-                filter = AdminTiltaksgjennomforingFilter(avtaleId = avtale1.id),
+                avtaleId = avtale1.id,
             )
                 .second
             result shouldHaveSize 1
-            result.first().id shouldBe TiltaksgjennomforingFixtures.Oppfolging1.id
+            result.first().id shouldBe Oppfolging1.id
         }
     }
 
@@ -417,28 +441,28 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
 
             tiltaksgjennomforinger.upsert(
-                TiltaksgjennomforingFixtures.Oppfolging1.copy(
+                Oppfolging1.copy(
                     arrangorOrganisasjonsnummer = "111111111",
                 ),
             )
             tiltaksgjennomforinger.upsert(
-                TiltaksgjennomforingFixtures.Oppfolging2.copy(
+                Oppfolging2.copy(
                     arrangorOrganisasjonsnummer = "999999999",
                 ),
             )
 
             tiltaksgjennomforinger.getAll(
-                filter = AdminTiltaksgjennomforingFilter(arrangorOrgnr = "111111111"),
+                arrangorOrgnr = "111111111",
             ).should {
                 it.second.size shouldBe 1
-                it.second[0].id shouldBe TiltaksgjennomforingFixtures.Oppfolging1.id
+                it.second[0].id shouldBe Oppfolging1.id
             }
 
             tiltaksgjennomforinger.getAll(
-                filter = AdminTiltaksgjennomforingFilter(arrangorOrgnr = "999999999"),
+                arrangorOrgnr = "999999999",
             ).should {
                 it.second.size shouldBe 1
-                it.second[0].id shouldBe TiltaksgjennomforingFixtures.Oppfolging2.id
+                it.second[0].id shouldBe Oppfolging2.id
             }
         }
     }
@@ -448,60 +472,60 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
 
             tiltaksgjennomforinger.upsert(
-                TiltaksgjennomforingFixtures.Oppfolging1.copy(
+                Oppfolging1.copy(
                     sluttDato = LocalDate.of(2023, 12, 31),
                 ),
             )
 
             tiltaksgjennomforinger.upsert(
-                TiltaksgjennomforingFixtures.Oppfolging1.copy(
+                Oppfolging1.copy(
                     id = UUID.randomUUID(),
                     sluttDato = LocalDate.of(2023, 6, 29),
                 ),
             )
 
             tiltaksgjennomforinger.upsert(
-                TiltaksgjennomforingFixtures.Oppfolging1.copy(
+                Oppfolging1.copy(
                     id = UUID.randomUUID(),
                     sluttDato = LocalDate.of(2022, 12, 31),
                 ),
             )
 
             val result =
-                tiltaksgjennomforinger.getAll(filter = AdminTiltaksgjennomforingFilter()).second
+                tiltaksgjennomforinger.getAll().second
             result shouldHaveSize 2
         }
 
         test("Tiltaksgjennomføringer med sluttdato som er null blir tatt med") {
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
 
-            tiltaksgjennomforinger.upsert(TiltaksgjennomforingFixtures.Oppfolging1)
+            tiltaksgjennomforinger.upsert(Oppfolging1)
             tiltaksgjennomforinger.upsert(
-                TiltaksgjennomforingFixtures.Oppfolging1.copy(
+                Oppfolging1.copy(
                     id = UUID.randomUUID(),
                     sluttDato = null,
                 ),
             )
 
-            tiltaksgjennomforinger.getAll(filter = AdminTiltaksgjennomforingFilter())
+            tiltaksgjennomforinger.getAll()
                 .second shouldHaveSize 2
         }
     }
 
-    context("TiltaksgjennomforingAnsvarlig") {
-        test("Ansvarlige crud") {
+    context("Tiltaksgjennomforingadministrator") {
+        test("Administratorer crud") {
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
             val gjennomforing =
-                TiltaksgjennomforingFixtures.Oppfolging1.copy(ansvarlige = listOf(NavAnsattFixture.ansatt1.navIdent))
+                Oppfolging1.copy(administratorer = listOf(NavAnsattFixture.ansatt1.navIdent))
             tiltaksgjennomforinger.upsert(gjennomforing)
 
             tiltaksgjennomforinger.get(gjennomforing.id).should {
-                it!!.ansvarlig shouldBe TiltaksgjennomforingAdminDto.Ansvarlig(
-                    navident = NavAnsattFixture.ansatt1.navIdent,
+                it!!.administrator shouldBe TiltaksgjennomforingAdminDto.Administrator(
+                    navIdent = NavAnsattFixture.ansatt1.navIdent,
                     navn = "Donald Duck",
                 )
             }
-            database.assertThat("tiltaksgjennomforing_ansvarlig").hasNumberOfRows(1)
+            database.assertThat("tiltaksgjennomforing_administrator").hasNumberOfRows(1)
         }
     }
 
@@ -509,23 +533,22 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         test("Skal hente gjennomføringer som er 14, 7 eller 1 dag til sluttdato") {
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
             val oppfolging14Dager =
-                TiltaksgjennomforingFixtures.Oppfolging1.copy(
+                Oppfolging1.copy(
                     id = UUID.randomUUID(),
                     sluttDato = LocalDate.of(2023, 5, 30),
                 )
-            val gjennomforing7Dager = TiltaksgjennomforingFixtures.Oppfolging1.copy(
+            val gjennomforing7Dager = Oppfolging1.copy(
                 id = UUID.randomUUID(),
                 sluttDato = LocalDate.of(2023, 5, 23),
             )
-            val oppfolging1Dager = TiltaksgjennomforingFixtures.Oppfolging1.copy(
+            val oppfolging1Dager = Oppfolging1.copy(
                 id = UUID.randomUUID(),
                 sluttDato = LocalDate.of(2023, 5, 17),
             )
-            val oppfolging10Dager =
-                TiltaksgjennomforingFixtures.Oppfolging1.copy(
-                    id = UUID.randomUUID(),
-                    sluttDato = LocalDate.of(2023, 5, 26),
-                )
+            val oppfolging10Dager = Oppfolging1.copy(
+                id = UUID.randomUUID(),
+                sluttDato = LocalDate.of(2023, 5, 26),
+            )
             tiltaksgjennomforinger.upsert(oppfolging14Dager)
             tiltaksgjennomforinger.upsert(gjennomforing7Dager)
             tiltaksgjennomforinger.upsert(oppfolging1Dager)
@@ -545,28 +568,26 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
     context("Hente tiltaksgjennomføringer som er midlertidig stengt og som nærmer seg sluttdato for den stengte perioden") {
         test("Skal hente gjennomføringer som er 7 eller 1 dag til stengt-til-datoen") {
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-            val oppfolging14Dager =
-                TiltaksgjennomforingFixtures.Oppfolging1.copy(
-                    id = UUID.randomUUID(),
-                    sluttDato = LocalDate.of(2023, 5, 30),
-                )
-            val gjennomforing7Dager = TiltaksgjennomforingFixtures.Oppfolging1.copy(
+            val oppfolging14Dager = Oppfolging1.copy(
+                id = UUID.randomUUID(),
+                sluttDato = LocalDate.of(2023, 5, 30),
+            )
+            val gjennomforing7Dager = Oppfolging1.copy(
                 id = UUID.randomUUID(),
                 sluttDato = LocalDate.of(2023, 5, 23),
                 stengtFra = LocalDate.of(2023, 6, 16),
                 stengtTil = LocalDate.of(2023, 5, 23),
             )
-            val oppfolging1Dager = TiltaksgjennomforingFixtures.Oppfolging1.copy(
+            val oppfolging1Dager = Oppfolging1.copy(
                 id = UUID.randomUUID(),
                 sluttDato = LocalDate.of(2023, 5, 17),
                 stengtFra = LocalDate.of(2023, 6, 16),
                 stengtTil = LocalDate.of(2023, 5, 17),
             )
-            val oppfolging10Dager =
-                TiltaksgjennomforingFixtures.Oppfolging1.copy(
-                    id = UUID.randomUUID(),
-                    sluttDato = LocalDate.of(2023, 5, 26),
-                )
+            val oppfolging10Dager = Oppfolging1.copy(
+                id = UUID.randomUUID(),
+                sluttDato = LocalDate.of(2023, 5, 26),
+            )
             tiltaksgjennomforinger.upsert(oppfolging14Dager)
             tiltaksgjennomforinger.upsert(gjennomforing7Dager)
             tiltaksgjennomforinger.upsert(oppfolging1Dager)
@@ -587,7 +608,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         val deltakere = DeltakerRepository(database.db)
         val deltaker = DeltakerDbo(
             id = UUID.randomUUID(),
-            tiltaksgjennomforingId = TiltaksgjennomforingFixtures.Oppfolging1.id,
+            tiltaksgjennomforingId = Oppfolging1.id,
             status = Deltakerstatus.DELTAR,
             opphav = Deltakeropphav.AMT,
             startDato = null,
@@ -599,14 +620,14 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
             beforeAny {
                 tiltaksgjennomforinger.upsert(
-                    TiltaksgjennomforingFixtures.Oppfolging1.copy(
+                    Oppfolging1.copy(
                         tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.STENGT,
                     ),
                 )
             }
 
             test("should have tilgjengelighet set to Stengt") {
-                tiltaksgjennomforinger.get(TiltaksgjennomforingFixtures.Oppfolging1.id)
+                tiltaksgjennomforinger.get(Oppfolging1.id)
                     ?.tilgjengelighet shouldBe TiltaksgjennomforingTilgjengelighetsstatus.STENGT
             }
         }
@@ -615,7 +636,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
             beforeAny {
                 tiltaksgjennomforinger.upsert(
-                    TiltaksgjennomforingFixtures.Oppfolging1.copy(
+                    Oppfolging1.copy(
                         tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.LEDIG,
                         avslutningsstatus = Avslutningsstatus.AVSLUTTET,
                     ),
@@ -623,7 +644,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             }
 
             test("should have tilgjengelighet set to Stengt") {
-                tiltaksgjennomforinger.get(TiltaksgjennomforingFixtures.Oppfolging1.id)
+                tiltaksgjennomforinger.get(Oppfolging1.id)
                     ?.tilgjengelighet shouldBe TiltaksgjennomforingTilgjengelighetsstatus.STENGT
             }
         }
@@ -632,7 +653,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
             beforeAny {
                 tiltaksgjennomforinger.upsertArenaTiltaksgjennomforing(
-                    TiltaksgjennomforingFixtures.ArenaOppfolging1.copy(
+                    ArenaOppfolging1.copy(
                         tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.LEDIG,
                         antallPlasser = null,
                     ),
@@ -640,7 +661,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             }
 
             test("should have tilgjengelighet set to Ledig") {
-                tiltaksgjennomforinger.get(TiltaksgjennomforingFixtures.ArenaOppfolging1.id)
+                tiltaksgjennomforinger.get(ArenaOppfolging1.id)
                     ?.tilgjengelighet shouldBe TiltaksgjennomforingTilgjengelighetsstatus.LEDIG
             }
         }
@@ -649,7 +670,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
             beforeAny {
                 tiltaksgjennomforinger.upsert(
-                    TiltaksgjennomforingFixtures.Oppfolging1.copy(
+                    Oppfolging1.copy(
                         tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.LEDIG,
                         antallPlasser = 0,
                     ),
@@ -657,7 +678,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             }
 
             test("should have tilgjengelighet set to Venteliste") {
-                tiltaksgjennomforinger.get(TiltaksgjennomforingFixtures.Oppfolging1.id)
+                tiltaksgjennomforinger.get(Oppfolging1.id)
                     ?.tilgjengelighet shouldBe TiltaksgjennomforingTilgjengelighetsstatus.VENTELISTE
             }
         }
@@ -666,7 +687,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
             beforeAny {
                 tiltaksgjennomforinger.upsert(
-                    TiltaksgjennomforingFixtures.Oppfolging1.copy(
+                    Oppfolging1.copy(
                         tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.LEDIG,
                         antallPlasser = 1,
                     ),
@@ -676,7 +697,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             }
 
             test("should have tilgjengelighet set to Venteliste") {
-                tiltaksgjennomforinger.get(TiltaksgjennomforingFixtures.Oppfolging1.id)
+                tiltaksgjennomforinger.get(Oppfolging1.id)
                     ?.tilgjengelighet shouldBe TiltaksgjennomforingTilgjengelighetsstatus.VENTELISTE
             }
         }
@@ -685,7 +706,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
             beforeAny {
                 tiltaksgjennomforinger.upsert(
-                    TiltaksgjennomforingFixtures.Oppfolging1.copy(
+                    Oppfolging1.copy(
                         tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.LEDIG,
                         antallPlasser = 1,
                     ),
@@ -695,38 +716,34 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             }
 
             test("should have tilgjengelighet set to Ledig") {
-                tiltaksgjennomforinger.get(TiltaksgjennomforingFixtures.Oppfolging1.id)
+                tiltaksgjennomforinger.get(Oppfolging1.id)
                     ?.tilgjengelighet shouldBe TiltaksgjennomforingTilgjengelighetsstatus.LEDIG
             }
         }
     }
 
     context("Filtrering på tiltaksgjennomforingstatus") {
-        val avtaler = AvtaleRepository(database.db)
-        val defaultFilter = AdminTiltaksgjennomforingFilter(
-            dagensDato = LocalDate.of(2023, 2, 1),
-        )
+        val dagensDato = LocalDate.of(2023, 2, 1)
 
-        val tiltaksgjennomforingAktiv = TiltaksgjennomforingFixtures.Arbeidstrening1
-        val tiltaksgjennomforingAvsluttetStatus =
-            TiltaksgjennomforingFixtures.Oppfolging1.copy(
-                id = UUID.randomUUID(),
-                avslutningsstatus = Avslutningsstatus.AVSLUTTET,
-            )
-        val tiltaksgjennomforingAvsluttetDato = TiltaksgjennomforingFixtures.Oppfolging1.copy(
+        val tiltaksgjennomforingAktiv = Arbeidstrening1
+        val tiltaksgjennomforingAvsluttetStatus = Oppfolging1.copy(
+            id = UUID.randomUUID(),
+            avslutningsstatus = Avslutningsstatus.AVSLUTTET,
+        )
+        val tiltaksgjennomforingAvsluttetDato = Oppfolging1.copy(
             id = UUID.randomUUID(),
             avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
             sluttDato = LocalDate.of(2023, 1, 31),
         )
-        val tiltaksgjennomforingAvbrutt = TiltaksgjennomforingFixtures.Oppfolging1.copy(
+        val tiltaksgjennomforingAvbrutt = Oppfolging1.copy(
             id = UUID.randomUUID(),
             avslutningsstatus = Avslutningsstatus.AVBRUTT,
         )
-        val tiltaksgjennomforingAvlyst = TiltaksgjennomforingFixtures.Oppfolging1.copy(
+        val tiltaksgjennomforingAvlyst = Oppfolging1.copy(
             id = UUID.randomUUID(),
             avslutningsstatus = Avslutningsstatus.AVLYST,
         )
-        val tiltaksgjennomforingPlanlagt = TiltaksgjennomforingFixtures.Oppfolging1.copy(
+        val tiltaksgjennomforingPlanlagt = Oppfolging1.copy(
             id = UUID.randomUUID(),
             avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
             startDato = LocalDate.of(2023, 2, 2),
@@ -746,7 +763,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
 
             val result = tiltaksgjennomforingRepository.getAll(
-                filter = defaultFilter.copy(status = Tiltaksgjennomforingsstatus.AVBRUTT),
+                dagensDato = dagensDato,
+                status = Tiltaksgjennomforingsstatus.AVBRUTT,
             )
 
             result.second shouldHaveSize 1
@@ -757,7 +775,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
 
             val result = tiltaksgjennomforingRepository.getAll(
-                filter = defaultFilter.copy(status = Tiltaksgjennomforingsstatus.AVSLUTTET),
+                dagensDato = dagensDato,
+                status = Tiltaksgjennomforingsstatus.AVSLUTTET,
             )
 
             result.second shouldHaveSize 2
@@ -769,7 +788,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
 
             val result = tiltaksgjennomforingRepository.getAll(
-                filter = defaultFilter.copy(status = Tiltaksgjennomforingsstatus.GJENNOMFORES),
+                status = Tiltaksgjennomforingsstatus.GJENNOMFORES,
+                dagensDato = dagensDato,
             )
 
             result.second shouldHaveSize 1
@@ -780,7 +800,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
 
             val result = tiltaksgjennomforingRepository.getAll(
-                filter = defaultFilter.copy(status = Tiltaksgjennomforingsstatus.AVLYST),
+                status = Tiltaksgjennomforingsstatus.AVLYST,
+                dagensDato = dagensDato,
             )
 
             result.second shouldHaveSize 1
@@ -791,17 +812,22 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
 
             val result = tiltaksgjennomforingRepository.getAll(
-                filter = defaultFilter.copy(status = Tiltaksgjennomforingsstatus.APENT_FOR_INNSOK),
+                status = Tiltaksgjennomforingsstatus.APENT_FOR_INNSOK,
+                dagensDato = dagensDato,
             )
 
             result.second shouldHaveSize 1
             result.second[0].id shouldBe tiltaksgjennomforingPlanlagt.id
         }
+    }
+
+    context("filtrering av tiltaksgjennomføringer") {
+        val avtaler = AvtaleRepository(database.db)
+        val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
+        val navEnheter = NavEnhetRepository(database.db)
 
         test("filtrer på nav_enhet") {
-            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-            val enhetRepository = NavEnhetRepository(database.db)
-            enhetRepository.upsert(
+            navEnheter.upsert(
                 NavEnhetDbo(
                     navn = "Navn1",
                     enhetsnummer = "1",
@@ -810,7 +836,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     overordnetEnhet = null,
                 ),
             ).shouldBeRight()
-            enhetRepository.upsert(
+            navEnheter.upsert(
                 NavEnhetDbo(
                     navn = "Navn2",
                     enhetsnummer = "2",
@@ -820,27 +846,29 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 ),
             ).shouldBeRight()
 
-            val gj1 = TiltaksgjennomforingFixtures.Oppfolging1.copy(id = UUID.randomUUID(), navEnheter = listOf("1"))
-            val gj2 = TiltaksgjennomforingFixtures.Oppfolging1.copy(id = UUID.randomUUID(), arenaAnsvarligEnhet = "1")
-            val gj3 = TiltaksgjennomforingFixtures.Oppfolging1.copy(id = UUID.randomUUID(), navEnheter = listOf("2"))
-            val gj4 =
-                TiltaksgjennomforingFixtures.Oppfolging1.copy(id = UUID.randomUUID(), navEnheter = listOf("1", "2"))
+            val tg1 = Oppfolging1.copy(id = UUID.randomUUID(), navEnheter = listOf("1"))
+            tiltaksgjennomforinger.upsert(tg1)
 
-            tiltaksgjennomforinger.upsert(gj1)
-            tiltaksgjennomforinger.upsert(gj2)
-            tiltaksgjennomforinger.upsert(gj3)
-            tiltaksgjennomforinger.upsert(gj4)
+            val tg2 = Oppfolging1.copy(id = UUID.randomUUID())
+            tiltaksgjennomforinger.upsert(tg2)
+            Query("update tiltaksgjennomforing set arena_ansvarlig_enhet = '1' where id = '${tg2.id}'")
+                .asUpdate
+                .let { database.db.run(it) }
 
-            tiltaksgjennomforinger.getAll(filter = defaultFilter.copy(navEnhet = "1")).should {
+            val tg3 = Oppfolging1.copy(id = UUID.randomUUID(), navEnheter = listOf("2"))
+            tiltaksgjennomforinger.upsert(tg3)
+
+            val tg4 = Oppfolging1.copy(id = UUID.randomUUID(), navEnheter = listOf("1", "2"))
+            tiltaksgjennomforinger.upsert(tg4)
+
+            tiltaksgjennomforinger.getAll(navEnhet = "1").should {
                 it.first shouldBe 3
-                it.second.map { it.id } shouldContainAll listOf(gj1.id, gj2.id, gj4.id)
+                it.second.map { tg -> tg.id } shouldContainAll listOf(tg1.id, tg2.id, tg4.id)
             }
         }
 
         test("filtrer på nav_region") {
-            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-            val enhetRepository = NavEnhetRepository(database.db)
-            enhetRepository.upsert(
+            navEnheter.upsert(
                 NavEnhetDbo(
                     navn = "NavRegion",
                     enhetsnummer = "nav_region",
@@ -849,7 +877,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     overordnetEnhet = null,
                 ),
             ).shouldBeRight()
-            enhetRepository.upsert(
+            navEnheter.upsert(
                 NavEnhetDbo(
                     navn = "Navn1",
                     enhetsnummer = "1",
@@ -858,7 +886,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     overordnetEnhet = null,
                 ),
             ).shouldBeRight()
-            enhetRepository.upsert(
+            navEnheter.upsert(
                 NavEnhetDbo(
                     navn = "Navn2",
                     enhetsnummer = "2",
@@ -870,35 +898,33 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 
             val avtale = avtale1.copy(id = UUID.randomUUID(), navRegion = "nav_region")
             avtaler.upsert(avtale)
-            val gj1 = TiltaksgjennomforingFixtures.Oppfolging1.copy(id = UUID.randomUUID(), navEnheter = listOf("1"))
-            val gj2 = TiltaksgjennomforingFixtures.Oppfolging1.copy(id = UUID.randomUUID(), arenaAnsvarligEnhet = "1")
-            val gj3 = TiltaksgjennomforingFixtures.Oppfolging1.copy(id = UUID.randomUUID(), navEnheter = listOf("2"))
-            val gj4 =
-                TiltaksgjennomforingFixtures.Oppfolging1.copy(id = UUID.randomUUID(), navEnheter = listOf("1", "2"))
-            val gj5 = TiltaksgjennomforingFixtures.Oppfolging1.copy(
-                id = UUID.randomUUID(),
-                navEnheter = emptyList(),
-                arenaAnsvarligEnhet = null,
-                avtaleId = avtale.id,
-            )
 
-            tiltaksgjennomforinger.upsert(gj1)
-            tiltaksgjennomforinger.upsert(gj2)
-            tiltaksgjennomforinger.upsert(gj3)
-            tiltaksgjennomforinger.upsert(gj4)
-            tiltaksgjennomforinger.upsert(gj5)
+            val tg1 = Oppfolging1.copy(id = UUID.randomUUID(), navEnheter = listOf("1"))
+            tiltaksgjennomforinger.upsert(tg1)
 
-            tiltaksgjennomforinger.getAll(filter = defaultFilter.copy(navRegion = "nav_region"))
+            val tg2 = Oppfolging1.copy(id = UUID.randomUUID())
+            Query("update tiltaksgjennomforing set arena_ansvarlig_enhet = '1' where id = '${tg2.id}'")
+                .asUpdate
+                .let { database.db.run(it) }
+
+            val tg3 = Oppfolging1.copy(id = UUID.randomUUID(), navEnheter = listOf("2"))
+            tiltaksgjennomforinger.upsert(tg3)
+
+            val tg4 = Oppfolging1.copy(id = UUID.randomUUID(), navEnheter = listOf("1", "2"))
+            tiltaksgjennomforinger.upsert(tg4)
+
+            val tg5 = Oppfolging1.copy(id = UUID.randomUUID(), navEnheter = emptyList(), avtaleId = avtale.id)
+            tiltaksgjennomforinger.upsert(tg5)
+
+            tiltaksgjennomforinger.getAll(navRegion = "nav_region")
                 .should {
                     it.first shouldBe 3
-                    it.second.map { it.id } shouldContainAll listOf(gj4.id, gj3.id, gj5.id)
+                    it.second.map { tg -> tg.id } shouldContainAll listOf(tg3.id, tg4.id, tg5.id)
                 }
         }
 
         test("filtrer på nav_region når ingen avtale er koblet til gjennomføringen") {
-            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-            val enhetRepository = NavEnhetRepository(database.db)
-            enhetRepository.upsert(
+            navEnheter.upsert(
                 NavEnhetDbo(
                     navn = "NAV Nordland",
                     enhetsnummer = "1800",
@@ -907,7 +933,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     overordnetEnhet = null,
                 ),
             ).shouldBeRight()
-            enhetRepository.upsert(
+            navEnheter.upsert(
                 NavEnhetDbo(
                     navn = "Nordland 1",
                     enhetsnummer = "1898",
@@ -916,7 +942,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     overordnetEnhet = null,
                 ),
             ).shouldBeRight()
-            enhetRepository.upsert(
+            navEnheter.upsert(
                 NavEnhetDbo(
                     navn = "Nordland 2",
                     enhetsnummer = "1854",
@@ -926,22 +952,50 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 ),
             ).shouldBeRight()
 
-            val gj1 = TiltaksgjennomforingFixtures.Oppfolging1.copy(id = UUID.randomUUID(), navEnheter = listOf("1898"))
-            val gj2 = TiltaksgjennomforingFixtures.Oppfolging1.copy(id = UUID.randomUUID(), arenaAnsvarligEnhet = "1800")
-            val gj3 = TiltaksgjennomforingFixtures.Oppfolging1.copy(id = UUID.randomUUID(), navEnheter = listOf("1898"))
-            val gj4 =
-                TiltaksgjennomforingFixtures.Oppfolging1.copy(id = UUID.randomUUID(), navEnheter = listOf("1800"))
+            val tg1 = Oppfolging1.copy(id = UUID.randomUUID(), navEnheter = listOf("1898"))
+            tiltaksgjennomforinger.upsert(tg1)
 
-            tiltaksgjennomforinger.upsert(gj1)
-            tiltaksgjennomforinger.upsert(gj2)
-            tiltaksgjennomforinger.upsert(gj3)
-            tiltaksgjennomforinger.upsert(gj4)
+            val tg2 = Oppfolging1.copy(id = UUID.randomUUID())
+            tiltaksgjennomforinger.upsert(tg2)
+            Query("update tiltaksgjennomforing set arena_ansvarlig_enhet = '1800' where id = '${tg2.id}'")
+                .asUpdate
+                .let { database.db.run(it) }
 
-            tiltaksgjennomforinger.getAll(filter = defaultFilter.copy(navRegion = "1800"))
+            val tg3 = Oppfolging1.copy(id = UUID.randomUUID(), navEnheter = listOf("1898"))
+            tiltaksgjennomforinger.upsert(tg3)
+
+            val tg4 = Oppfolging1.copy(id = UUID.randomUUID(), navEnheter = listOf("1800"))
+            tiltaksgjennomforinger.upsert(tg4)
+
+            tiltaksgjennomforinger.getAll(navRegion = "1800")
                 .should {
                     it.first shouldBe 1
-                    it.second.map { it.id } shouldContainAll listOf(gj2.id)
+                    it.second.map { tg -> tg.id } shouldContainAll listOf(tg2.id)
                 }
+        }
+
+        test("administrator") {
+            val tg1 = Oppfolging1.copy(
+                id = UUID.randomUUID(),
+                administratorer = listOf(NavAnsattFixture.ansatt1.navIdent),
+            )
+            val tg2 = Oppfolging1.copy(
+                id = UUID.randomUUID(),
+                administratorer = listOf(NavAnsattFixture.ansatt1.navIdent, NavAnsattFixture.ansatt2.navIdent),
+            )
+
+            tiltaksgjennomforinger.upsert(tg1)
+            tiltaksgjennomforinger.upsert(tg2)
+
+            tiltaksgjennomforinger.getAll(administratorNavIdent = NavAnsattFixture.ansatt1.navIdent).should {
+                it.first shouldBe 2
+                it.second.map { tg -> tg.id } shouldContainAll listOf(tg1.id, tg2.id)
+            }
+
+            tiltaksgjennomforinger.getAll(administratorNavIdent = NavAnsattFixture.ansatt2.navIdent).should {
+                it.first shouldBe 1
+                it.second.map { tg -> tg.id } shouldContainAll listOf(tg2.id)
+            }
         }
     }
 
@@ -950,19 +1004,18 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
             (1..105).forEach {
                 tiltaksgjennomforinger.upsert(
-                    TiltaksgjennomforingFixtures.Oppfolging1.copy(
+                    Oppfolging1.copy(
                         id = UUID.randomUUID(),
                         navn = "Tiltak - $it",
                         tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
                         tiltaksnummer = "$it",
                         arrangorOrganisasjonsnummer = "123456789",
-                        arenaAnsvarligEnhet = "2990",
                         avslutningsstatus = Avslutningsstatus.AVSLUTTET,
                         startDato = LocalDate.of(2022, 1, 1),
                         tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.LEDIG,
                         oppstart = TiltaksgjennomforingOppstartstype.FELLES,
                         opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
-                        lokasjonArrangor = "0139 Oslo",
+                        stedForGjennomforing = "0139 Oslo",
                     ),
                 )
             }
@@ -970,9 +1023,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 
         test("default pagination gets first 50 tiltak") {
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-            val (totalCount, items) = tiltaksgjennomforinger.getAll(
-                filter = AdminTiltaksgjennomforingFilter(),
-            )
+            val (totalCount, items) = tiltaksgjennomforinger.getAll()
 
             items.size shouldBe DEFAULT_PAGINATION_LIMIT
             items.first().navn shouldBe "Tiltak - 1"
@@ -988,7 +1039,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     4,
                     20,
                 ),
-                AdminTiltaksgjennomforingFilter(),
             )
 
             items.size shouldBe 20
@@ -1004,7 +1054,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 PaginationParams(
                     3,
                 ),
-                AdminTiltaksgjennomforingFilter(),
             )
 
             items.size shouldBe 5
@@ -1020,7 +1069,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 PaginationParams(
                     nullableLimit = 200,
                 ),
-                AdminTiltaksgjennomforingFilter(),
             )
 
             items.size shouldBe 105
@@ -1031,60 +1079,36 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         }
     }
 
-    context("Lokasjon til veilederflate fra gjennomføringer") {
-        val avtaler = AvtaleRepository(database.db)
-        test("Skal hente ut distinkt liste med lokasjoner basert på brukers enhet eller fylkesenhet") {
-            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-            val enhetRepository = NavEnhetRepository(database.db)
-            enhetRepository.upsert(
-                NavEnhetDbo(
-                    navn = "Navn1",
-                    enhetsnummer = "0400",
-                    status = NavEnhetStatus.AKTIV,
-                    type = Norg2Type.FYLKE,
-                    overordnetEnhet = null,
-                ),
-            ).shouldBeRight()
-            enhetRepository.upsert(
-                NavEnhetDbo(
-                    navn = "Navn2",
-                    enhetsnummer = "0482",
-                    status = NavEnhetStatus.AKTIV,
-                    type = Norg2Type.LOKAL,
-                    overordnetEnhet = "0400",
-                ),
-            ).shouldBeRight()
+    test("faneinnhold") {
+        val faneinnhold = Json.parseToJsonElement(
+            """
+            {
+                "_key": "edcad230384e",
+                "markDefs": [],
+                "children": [
+                {
+                    "marks": [],
+                    "text": "Oppl\u00e6ringen er beregnet p\u00e5 arbeidss\u00f8kere som \u00f8nsker og er egnet til \u00e5 ta arbeid som maskinf\u00f8rer. Deltakerne b\u00f8r ha f\u00f8rerkort kl. B.",
+                    "_key": "0e5849bf79a70",
+                    "_type": "span"
+                }
+                ],
+                "_type": "block",
+                "style": "normal"
+            }
+            """,
+        )
 
-            val avtale = AvtaleFixtures.avtale1.copy(navRegion = "0400")
-            val gjennomforing01 = TiltaksgjennomforingFixtures.Oppfolging1.copy(
-                lokasjonArrangor = "0139 Oslo",
-                id = UUID.randomUUID(),
-                navEnheter = listOf("0482"),
-                avtaleId = avtale.id,
-                tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
-            )
-            val gjennomforing02 = TiltaksgjennomforingFixtures.Oppfolging1.copy(
-                lokasjonArrangor = "8756 Kristiansand",
-                id = UUID.randomUUID(),
-                navEnheter = listOf("0482"),
-                avtaleId = avtale.id,
-                tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
-            )
-            val gjennomforing03 = TiltaksgjennomforingFixtures.Oppfolging1.copy(
-                lokasjonArrangor = "0139 Oslo",
-                id = UUID.randomUUID(),
-                navEnheter = listOf("0482"),
-                avtaleId = avtale.id,
-                tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
-            )
-            avtaler.upsert(avtale)
-            tiltaksgjennomforinger.upsert(gjennomforing01)
-            tiltaksgjennomforinger.upsert(gjennomforing02)
-            tiltaksgjennomforinger.upsert(gjennomforing03)
+        val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
+        val gjennomforing = Oppfolging1.copy(
+            id = UUID.randomUUID(),
+            faneinnhold = faneinnhold,
+        )
 
-            val result = tiltaksgjennomforinger.getLokasjonerForEnhet("0482", "0400")
-            result.size shouldBe 2
-            result shouldContainExactly listOf("0139 Oslo", "8756 Kristiansand")
+        tiltaksgjennomforinger.upsert(gjennomforing)
+
+        tiltaksgjennomforinger.get(gjennomforing.id).should {
+            it!!.faneinnhold shouldBe faneinnhold
         }
     }
 })

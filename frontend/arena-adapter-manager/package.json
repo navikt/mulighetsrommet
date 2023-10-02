@@ -9,19 +9,20 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@chakra-ui/react": "^2.8.0",
+    "@chakra-ui/react": "^2.8.1",
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-icons": "^4.10.1",
-    "react-router-dom": "^6.14.1"
+    "react-hot-toast": "^2.4.1",
+    "react-icons": "^4.11.0",
+    "react-router-dom": "^6.16.0"
   },
   "devDependencies": {
-    "@types/react": "^18.2.14",
-    "@types/react-dom": "^18.2.7",
-    "@vitejs/plugin-react": "^4.0.4",
-    "typescript": "^5.1.6",
+    "@types/react": "^18.2.24",
+    "@types/react-dom": "^18.2.8",
+    "@vitejs/plugin-react": "^4.1.0",
+    "typescript": "^5.2.2",
     "vite": "^4.4.9"
   }
 }

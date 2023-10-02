@@ -13,6 +13,7 @@ class DialogService(
 
 @Serializable
 data class DialogRequest(
+    val norskIdent: String,
     val overskrift: String,
     val tekst: String,
 )

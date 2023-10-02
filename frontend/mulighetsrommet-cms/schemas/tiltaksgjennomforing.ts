@@ -1,21 +1,9 @@
 import { GrDocumentPerformance } from "react-icons/gr";
-import {
-  ConditionalPropertyCallbackContext,
-  Rule,
-  defineField,
-  defineType,
-} from "sanity";
+import { Rule, defineArrayMember, defineField, defineType } from "sanity";
 import { Information } from "../components/Information";
-import { ShowFieldIfTiltakstypeMatches } from "../components/ShowFieldIfTiltakstypeMatches";
 import { API_VERSION } from "../sanity.config";
+import { hasDuplicates, isEgenRegiTiltak, isInAdminFlate } from "../utils/utils";
 import { EnhetType } from "./enhet";
-
-function erIkkeAdmin(props: ConditionalPropertyCallbackContext): boolean {
-  return (
-    props.currentUser.roles.find((role) => role.name === "administrator") ===
-    undefined
-  );
-}
 
 export const tiltaksgjennomforing = defineType({
   name: "tiltaksgjennomforing",
@@ -33,9 +21,9 @@ export const tiltaksgjennomforing = defineType({
     }),
     defineField({
       name: "redaktor",
-      title: "Redaktører",
+      title: "Administratorer",
       type: "array",
-      description: "Eier av innholdet i denne tiltaksgjennomføringen.",
+      description: "Eiere av innholdet i denne tiltaksgjennomføringen.",
       of: [
         {
           type: "reference",
@@ -69,52 +57,22 @@ export const tiltaksgjennomforing = defineType({
       description: "Navnet kommer fra Arena/admin-flate",
       type: "string",
       validation: (rule) => rule.required(),
-      readOnly: erIkkeAdmin,
-    }),
-    defineField({
-      name: "aar",
-      title: "År",
-      description:
-        "Hvis tiltakstypen gjelder individuelle tiltak skal du ikke fylle inn år.",
-      type: "number",
-      initialValue: () => new Date().getFullYear(),
-      readOnly: erIkkeAdmin,
-    }),
-    defineField({
-      name: "lopenummer",
-      title: "Løpenummer",
-      description:
-        "Hvis tiltakstypen gjelder individuelle tiltak skal du ikke fylle inn løpenummer.",
-      type: "number",
-      readOnly: erIkkeAdmin,
+      readOnly: ({ document }) => {
+        return isInAdminFlate(document.tiltakstype?._ref);
+      },
     }),
     defineField({
       name: "tiltaksnummer",
       title: "Tiltaksnummer",
-      description:
-        "Hvis tiltakstypen gjelder individuelle tiltak skal du ikke fylle inn noe her. Tiltaksnummer utledes fra feltene år og løpenummer over",
+      description: "Tiltaksnummeret er hentet fra Arena",
       type: "slug",
-      options: {
-        slugify: (input) => {
-          return input;
-        },
-        source: (doc, _) => {
-          const aar = doc.aar as unknown as string;
-          const lopenummer = doc.lopenummer as unknown as string;
-          return `${aar ? aar : new Date().getFullYear()}#${
-            lopenummer ? lopenummer : 0
-          }`;
-        },
+      hidden: ({ document }) => {
+        return (
+          !isInAdminFlate(document.tiltakstype?._ref) &&
+          !isEgenRegiTiltak(document.tiltakstype?._ref)
+        );
       },
-      readOnly: erIkkeAdmin,
-    }),
-    defineField({
-      name: "kontaktinfoArrangor",
-      title: "Arrangør",
-      description:
-        "Ikke velg arrangør dersom tiltakstypen gjelder individuelle tiltak.",
-      type: "reference",
-      to: [{ type: "arrangor" }],
+      readOnly: true,
     }),
     defineField({
       name: "beskrivelse",
@@ -122,35 +80,17 @@ export const tiltaksgjennomforing = defineType({
       description: "Beskrivelse av formålet med tiltaksgjennomføringen.",
       type: "text",
       rows: 5,
-      components: {
-        field: (props) =>
-          ShowFieldIfTiltakstypeMatches(props, "Opplæring - Gruppe AMO"), // Viser feltet hvis det er Gruppe AMO som er valgt som tiltakstype
-      },
       validation: (rule: Rule) => rule.max(500),
     }),
-
     defineField({
-      name: "tilgjengelighetsstatus",
-      title: "Tilgjengelighetsstatus",
+      name: "stedForGjennomforing",
+      title: "Sted for gjennomføring",
       description:
-        "Tilgjengelighetsstatus utledes fra data i Arena og kan ikke overskrives i Sanity.",
-      readOnly: true,
+        "Skriv inn stedet tiltaket skal gjennomføres, for eksempel Fredrikstad eller Tromsø. For tiltak uten eksplisitt lokasjon (for eksempel digital jobbklubb), kan du la feltet stå tomt.",
       type: "string",
-      hidden: true,
-      options: {
-        list: [
-          { title: "Åpent", value: "Ledig" },
-          { title: "Venteliste", value: "Venteliste" },
-          { title: "Stengt", value: "Stengt" },
-        ],
+      hidden: ({ document }) => {
+        return isInAdminFlate(document.tiltakstype?._ref);
       },
-    }),
-    defineField({
-      name: "lokasjon",
-      title: "Lokasjon",
-      description:
-        "Sted for gjennomføring, f.eks. Fredrikstad eller Tromsø. Veileder kan filtrere på verdiene i dette feltet, så ikke skriv fulle adresser.",
-      type: "string",
     }),
     defineField({
       name: "fylke",
@@ -165,7 +105,16 @@ export const tiltaksgjennomforing = defineType({
           type: EnhetType.Fylke,
         },
       },
-      validation: (rule) => rule.required(),
+      hidden: ({ document }) => {
+        return isInAdminFlate(document.tiltakstype?._ref);
+      },
+      validation: (rule) =>
+        rule.custom((currentValue, { document }) => {
+          if (isInAdminFlate(document.tiltakstype?._ref)) {
+            return true;
+          }
+          return currentValue === undefined ? "Fylke er påkrevd" : true;
+        }),
     }),
     defineField({
       name: "enheter",
@@ -174,7 +123,7 @@ export const tiltaksgjennomforing = defineType({
         "Hvilke enheter kan benytte seg av dette tiltaket? Hvis det gjelder for hele regionen kan dette feltet stå tomt.",
       type: "array",
       hidden: ({ document }) => {
-        return !document.fylke;
+        return !document.fylke || isInAdminFlate(document.tiltakstype?._ref);
       },
       of: [
         {
@@ -194,56 +143,115 @@ export const tiltaksgjennomforing = defineType({
         },
       ],
       validation: (rule) =>
-        rule.required().custom(async (enheter, { document, getClient }) => {
-          if (!document.fylke || !enheter) {
+        rule.custom(async (enheter, { document, getClient }) => {
+          if (!document.fylke || !enheter || isInAdminFlate(document.tiltakstype?._ref)) {
             return true;
           }
 
           const validEnheter = await getClient({
             apiVersion: API_VERSION,
-          }).fetch(
-            "*[(_type == 'enhet' && fylke._ref == $fylke) || type == 'Als']._id",
-            {
-              fylke: document.fylke._ref,
-            }
-          );
+          }).fetch("*[(_type == 'enhet' && fylke._ref == $fylke) || type == 'Als']._id", {
+            fylke: document.fylke._ref,
+          });
 
           const paths = enheter
             ?.filter((enhet) => !validEnheter.includes(enhet._ref))
             ?.map((enhet) => [{ _key: enhet._key }]);
 
-          return !paths.length
-            ? true
-            : { message: "Alle enheter må tilhøre valgt fylke.", paths };
+          return !paths.length ? true : { message: "Alle enheter må tilhøre valgt fylke.", paths };
         }),
     }),
+    defineField({
+      name: "kontaktinfoTiltaksansvarlige",
+      title: "UTDATERT_FELT_Kontaktpersoner",
+      description: "Dette feltet skal bort og erstattes av kontaktperson-feltet under",
+      type: "array",
+      of: [{ type: "reference", to: [{ type: "navKontaktperson" }] }],
+      hidden: ({ document }) => {
+        return isInAdminFlate(document.tiltakstype?._ref);
+      },
+      validation: (rule) => rule.max(0).error("Ikke bruk dette feltet. Bruk kontaktpersoner under"),
+    }),
+    defineField({
+      name: "kontaktpersoner",
+      title: "Kontaktpersoner",
+      description: "Veileders lokale kontaktpersoner for tiltaksgjennomføringen.",
+      type: "array",
+      of: [
+        defineArrayMember({
+          type: "object",
+          name: "kontaktperson",
+          fields: [
+            {
+              type: "reference",
+              name: "navKontaktperson",
+              to: [{ type: "navKontaktperson" }],
+            },
+            {
+              type: "array",
+              name: "enheter",
+              of: [
+                {
+                  type: "reference",
+                  to: [{ type: "enhet" }],
+                  options: {
+                    disableNew: true,
+                    filter: ({ document }) => {
+                      return {
+                        filter: `fylke._ref == $fylke`,
+                        params: {
+                          fylke: document.fylke._ref,
+                        },
+                      };
+                    },
+                  },
+                },
+              ],
+            },
+          ],
+          preview: {
+            select: {
+              navn: "navKontaktperson.navn",
+              enhet1: "enheter.0.navn",
+              enhet2: "enheter.1.navn",
+              enhet3: "enheter.2.navn",
+              enhet4: "enheter.3.navn",
+              enhet5: "enheter.4.navn",
+              // Må hardkode fordi det ikke er noen god måte å hente ut alle navn for alle enheter...
+            },
+            prepare: (data) => {
+              const { navn, enhet1, enhet2, enhet3, enhet4, enhet5 } = data;
+              return {
+                title: navn,
+                subtitle: [enhet1, enhet2, enhet3, enhet4, enhet5].filter(Boolean).join(", "),
+              };
+            },
+          },
+        }),
+      ],
+      hidden: ({ document }) => {
+        return isInAdminFlate(document.tiltakstype?._ref);
+      },
+      validation: (rule) =>
+        rule.custom((currentValue, { document }) => {
+          if (isInAdminFlate(document.tiltakstype?._ref)) {
+            return true;
+          }
+          if (!currentValue || currentValue.length === 0) {
+            return "Må ha minst én kontaktperson";
+          }
+          if (hasDuplicates(currentValue.map((e) => e._key))) {
+            return "Innholder duplikater";
+          }
 
+          return true;
+        }),
+    }),
     //Faneinnhold
     defineField({
       name: "faneinnhold",
       title: "Faneinnhold",
       type: "faneinnhold",
-    }),
-    defineField({
-      name: "kontaktinfoTiltaksansvarlige",
-      title: "Tiltaksansvarlig",
-      description: "Tiltaksansvarlige for tiltaksgjennomføringen.",
-      type: "array",
-      of: [{ type: "reference", to: [{ type: "navKontaktperson" }] }],
-      validation: (rule) => rule.required().min(1).unique(),
-    }),
-    defineField({
-      name: "lenker",
-      title: "Lenker",
-      description:
-        "Dersom du har lenker som er interessant for tiltaksgjennomføringen kan det legges til her. PS: Per 05.10.2022 er dette feltet ikke synlig for veiledere enda.",
-      type: "array",
-      of: [
-        {
-          type: "lenke",
-        },
-      ],
-      hidden: true, // Skjules per 25.10.22 etter ønske fra Marthe pga. forvirring for redaktørene.
     }),
   ],
   orderings: [
@@ -292,10 +300,17 @@ export const tiltaksgjennomforing = defineType({
     select: {
       title: "tiltaksgjennomforingNavn",
       tiltaksnummer: "tiltaksnummer.current",
+      updatedAt: "_updatedAt",
     },
-    prepare: ({ title, tiltaksnummer }) => ({
+    prepare: ({ title, tiltaksnummer, updatedAt }) => ({
       title,
-      subtitle: tiltaksnummer ? tiltaksnummer : "",
+      subtitle: `${tiltaksnummer ? tiltaksnummer : ""} - Sist oppd: ${new Date(
+        updatedAt,
+      ).toLocaleTimeString("no-NO", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      })}`,
     }),
   },
 });

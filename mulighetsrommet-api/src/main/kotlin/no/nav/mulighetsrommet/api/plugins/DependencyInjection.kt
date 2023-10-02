@@ -40,7 +40,7 @@ import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
 import no.nav.mulighetsrommet.env.NaisEnv
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
-import no.nav.mulighetsrommet.kafka.KafkaConsumerRepository
+import no.nav.mulighetsrommet.kafka.KafkaConsumerRepositoryImpl
 import no.nav.mulighetsrommet.kafka.consumers.TiltaksgjennomforingTopicConsumer
 import no.nav.mulighetsrommet.kafka.consumers.amt.AmtDeltakerV1TopicConsumer
 import no.nav.mulighetsrommet.kafka.consumers.amt.AmtVirksomheterV1TopicConsumer
@@ -164,7 +164,7 @@ private fun repositories() = module {
     single { NotificationRepository(get()) }
     single { NavAnsattRepository(get()) }
     single { VirksomhetRepository(get()) }
-    single { KafkaConsumerRepository(get()) }
+    single { KafkaConsumerRepositoryImpl(get()) }
     single { MetrikkRepository(get()) }
     single { UtkastRepository(get()) }
     single { AvtaleNotatRepository(get()) }
@@ -253,11 +253,10 @@ private fun services(appConfig: AppConfig) = module {
     single<BrregClient> {
         BrregClientImpl(baseUrl = appConfig.brreg.baseUrl)
     }
-    single { ArenaAdapterService(get(), get(), get(), get(), get(), get(), get(), get(), get()) }
+    single { ArenaAdapterService(get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
     single { AvtaleService(get(), get(), get(), get(), get(), get()) }
     single { TiltakshistorikkService(get(), get()) }
-    single { VeilederflateService(get(), get(), get(), get()) }
-    single { SanityTiltaksgjennomforingEnheterTilApiService(get(), get()) }
+    single { VeilederflateService(get(), get(), get(), get(), get()) }
     single { ArrangorService(get()) }
     single { BrukerService(get(), get(), get()) }
     single { DialogService(get()) }
@@ -266,13 +265,12 @@ private fun services(appConfig: AppConfig) = module {
     single { DelMedBrukerService(get()) }
     single { MicrosoftGraphService(get()) }
     single { TiltaksgjennomforingService(get(), get(), get(), get(), get(), get(), get(), get(), get()) }
-    single { SanityTiltaksgjennomforingService(get(), get(), get(), get(), get()) }
+    single { SanityTiltaksgjennomforingService(get(), get(), get(), get()) }
     single { TiltakstypeService(get(), get(), get(), get()) }
     single { NavEnheterSyncService(get(), get(), get(), get()) }
     single { KafkaSyncService(get(), get(), get(), get()) }
     single { NavEnhetService(get()) }
     single { NavVeilederService(get()) }
-    single { TilgjengelighetsstatusSanitySyncService(get(), get()) }
     single { NotificationService(get(), get(), get()) }
     single { VirksomhetService(get(), get()) }
     single { ExcelService() }
@@ -299,11 +297,6 @@ private fun tasks(config: TaskConfig) = module {
         )
         val synchronizeTiltakstypestatuserToKafka = SynchronizeTiltakstypestatuserToKafka(get(), get())
         val synchronizeNorgEnheterTask = SynchronizeNorgEnheter(config.synchronizeNorgEnheter, get(), get())
-        val synchronizeTiltaksgjennomforingEnheter = SynchronizeTiltaksgjennomforingEnheter(
-            config.synchronizeEnheterFraSanityTilApi,
-            get(),
-            get(),
-        )
         val synchronizeNavAnsatte = SynchronizeNavAnsatte(config.synchronizeNavAnsatte, get(), get())
         val notifySluttdatoForGjennomforingerNarmerSeg = NotifySluttdatoForGjennomforingerNarmerSeg(
             config.notifySluttdatoForGjennomforingerNarmerSeg,
@@ -342,7 +335,6 @@ private fun tasks(config: TaskConfig) = module {
                 synchronizeNorgEnheterTask.task,
                 synchronizeTiltaksgjennomforingsstatuserToKafka.task,
                 synchronizeTiltakstypestatuserToKafka.task,
-                synchronizeTiltaksgjennomforingEnheter.task,
                 synchronizeNavAnsatte.task,
                 notifySluttdatoForGjennomforingerNarmerSeg.task,
                 notifySluttdatoForAvtalerNarmerSeg.task,

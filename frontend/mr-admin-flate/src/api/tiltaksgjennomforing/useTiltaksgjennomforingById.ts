@@ -12,6 +12,8 @@ export function useTiltaksgjennomforingById() {
       mulighetsrommetClient.tiltaksgjennomforinger.getTiltaksgjennomforing({
         id: tiltaksgjennomforingId!!,
       }),
-    { enabled: !!tiltaksgjennomforingId },
+    {
+      enabled: !!tiltaksgjennomforingId,
+    },
   );
 }

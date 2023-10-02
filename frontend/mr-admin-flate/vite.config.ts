@@ -1,3 +1,4 @@
+/// <reference types="vitest" />
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { rollupImportMapPlugin } from "rollup-plugin-import-map";
@@ -27,5 +28,8 @@ export default defineConfig({
     manifest: "asset-manifest.json",
     chunkSizeWarningLimit: 1400,
     sourcemap: true,
+  },
+  test: {
+    environment: "jsdom",
   },
 });

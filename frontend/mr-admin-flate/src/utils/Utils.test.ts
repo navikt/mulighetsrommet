@@ -1,8 +1,5 @@
 import { describe, test, expect } from "vitest";
-import {
-  capitalizeEveryWord,
-  kalkulerStatusBasertPaaFraOgTilDato,
-} from "./Utils";
+import { capitalizeEveryWord, kalkulerStatusBasertPaaFraOgTilDato } from "./Utils";
 
 describe("Utils - kalkulerStatusBasertPaaFraOgTilDato", () => {
   test("Skal returnere status 'Aktiv' når nå er større eller lik fra-dato og nå er mindre eller lik til-dato", () => {
@@ -15,7 +12,7 @@ describe("Utils - kalkulerStatusBasertPaaFraOgTilDato", () => {
         fraDato,
         tilDato,
       },
-      now
+      now,
     );
 
     expect(result).toEqual("Aktiv");
@@ -31,7 +28,7 @@ describe("Utils - kalkulerStatusBasertPaaFraOgTilDato", () => {
         fraDato,
         tilDato,
       },
-      now
+      now,
     );
 
     expect(result).toEqual("Planlagt");
@@ -47,7 +44,7 @@ describe("Utils - kalkulerStatusBasertPaaFraOgTilDato", () => {
         fraDato,
         tilDato,
       },
-      now
+      now,
     );
 
     expect(result).toEqual("Avsluttet");
@@ -64,9 +61,7 @@ describe("Utils - capitalizeEveryWord", () => {
   test("Skal legge på stor forbokstav for alle ord bortsatt fra ignorerte ord", () => {
     const tekst = "EN TEKST MED STORE BOKSTAVER OG noen små bokstaver";
     const result = capitalizeEveryWord(tekst, ["og"]);
-    expect(result).toEqual(
-      "En Tekst Med Store Bokstaver og Noen Små Bokstaver"
-    );
+    expect(result).toEqual("En Tekst Med Store Bokstaver og Noen Små Bokstaver");
   });
 
   test("Skal ikke krasje ved tom streng", () => {

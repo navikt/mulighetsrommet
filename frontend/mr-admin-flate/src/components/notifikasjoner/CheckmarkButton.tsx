@@ -1,8 +1,5 @@
 import { Dispatch, SetStateAction } from "react";
-import {
-  CheckmarkCircleFillIcon,
-  CheckmarkCircleIcon,
-} from "@navikt/aksel-icons";
+import { CheckmarkCircleFillIcon, CheckmarkCircleIcon } from "@navikt/aksel-icons";
 import { NotificationStatus } from "mulighetsrommet-api-client";
 import classNames from "classnames";
 import styles from "./CheckmarkButton.module.scss";
@@ -26,9 +23,7 @@ export function CheckmarkButton({ id, read, setRead }: Props) {
         onSuccess: () => {
           setRead(status === NotificationStatus.DONE);
           toast.success(
-            `Notifikasjon markert som ${
-              status === NotificationStatus.DONE ? "lest" : "ulest"
-            }`,
+            `Notifikasjon markert som ${status === NotificationStatus.DONE ? "lest" : "ulest"}`,
             {
               hideProgressBar: true,
               autoClose: 1000,

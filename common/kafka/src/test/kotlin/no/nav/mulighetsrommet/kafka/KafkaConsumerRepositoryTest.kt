@@ -10,10 +10,10 @@ import java.time.ZoneOffset
 class KafkaConsumerRepositoryTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
-    lateinit var kafkaConsumerRepository: KafkaConsumerRepository
+    lateinit var kafkaConsumerRepository: KafkaConsumerRepositoryImpl
 
     beforeSpec {
-        kafkaConsumerRepository = KafkaConsumerRepository(database.db)
+        kafkaConsumerRepository = KafkaConsumerRepositoryImpl(database.db)
     }
 
     test("should store records") {

@@ -1,13 +1,15 @@
 import { Alert, Textarea, TextField } from "@navikt/ds-react";
 import {
-  ApiError,
   Avtale,
+  AvtaleAvslutningsstatus,
   AvtaleRequest,
   Avtaletype,
+  EmbeddedTiltakstype,
   LeverandorUnderenhet,
   NavAnsatt,
-  Norg2Type,
+  NavEnhetType,
   Opphav,
+  Tiltakskode,
 } from "mulighetsrommet-api-client";
 import { NavEnhet } from "mulighetsrommet-api-client/build/models/NavEnhet";
 import { Tiltakstype } from "mulighetsrommet-api-client/build/models/Tiltakstype";
@@ -27,21 +29,22 @@ import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
 import { SokeSelect } from "../skjema/SokeSelect";
 import { VirksomhetKontaktpersoner } from "../virksomhet/VirksomhetKontaktpersoner";
 import { AvbrytAvtale } from "./AvbrytAvtale";
-import { AvtaleSchema, inferredAvtaleSchema } from "./AvtaleSchema";
+import { AvtaleSchema, InferredAvtaleSchema } from "./AvtaleSchema";
 import skjemastyles from "../skjema/Skjema.module.scss";
 
 import {
   defaultEnhet,
-  enheterOptions,
-  erAnskaffetTiltak,
-  getValueOrDefault,
+  getLokaleUnderenheterAsSelectOptions,
   saveUtkast,
   underenheterOptions,
 } from "./AvtaleSkjemaConst";
-import { AnsvarligOptions } from "../skjema/AnsvarligOptions";
+import { AdministratorOptions } from "../skjema/AdministratorOptions";
 import { FormGroup } from "../skjema/FormGroup";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AvtaleSkjemaKnapperad } from "./AvtaleSkjemaKnapperad";
+import { PORTEN } from "mulighetsrommet-frontend-common/constants";
+import { resolveErrorMessage } from "../../api/errors";
+import { erAnskaffetTiltak } from "../../utils/tiltakskoder";
 
 interface Props {
   onClose: () => void;
@@ -62,53 +65,41 @@ export function AvtaleSkjemaContainer({
   avtale,
   redigeringsModus,
 }: Props) {
-  const [navRegion, setNavRegion] = useState<string | undefined>(
-    avtale?.navRegion?.enhetsnummer,
-  );
-  const [sokLeverandor, setSokLeverandor] = useState(
-    avtale?.leverandor?.organisasjonsnummer || "",
-  );
+  const [navRegion, setNavRegion] = useState<string | undefined>(avtale?.navRegion?.enhetsnummer);
+  const [sokLeverandor, setSokLeverandor] = useState(avtale?.leverandor?.organisasjonsnummer || "");
 
   const mutation = usePutAvtale();
   const { data: betabrukere } = useHentBetabrukere();
   const mutationUtkast = useMutateUtkast();
 
-  const { data: leverandorVirksomheter = [] } =
-    useSokVirksomheter(sokLeverandor);
+  const { data: leverandorVirksomheter = [] } = useSokVirksomheter(sokLeverandor);
 
   const utkastIdRef = useRef(avtale?.id || uuidv4());
 
-  const form = useForm<inferredAvtaleSchema>({
+  const form = useForm<InferredAvtaleSchema>({
     resolver: zodResolver(AvtaleSchema),
     defaultValues: {
-      tiltakstype: avtale?.tiltakstype?.id,
-      navRegion: defaultEnhet(avtale!, enheter, ansatt),
+      tiltakstype: avtale?.tiltakstype,
+      navRegion: defaultEnhet(avtale, enheter, ansatt),
       navEnheter: avtale?.navEnheter?.map((e) => e.enhetsnummer) || [],
-      avtaleansvarlig: avtale?.ansvarlig?.navident || ansatt.navIdent || "",
-      avtalenavn: getValueOrDefault(avtale?.navn, ""),
-      avtaletype: getValueOrDefault(avtale?.avtaletype, Avtaletype.AVTALE),
-      leverandor: getValueOrDefault(
-        avtale?.leverandor?.organisasjonsnummer,
-        "",
-      ),
+      administrator: avtale?.administrator?.navIdent || ansatt.navIdent || "",
+      avtalenavn: avtale?.navn ?? "",
+      avtaletype: avtale?.avtaletype ?? Avtaletype.AVTALE,
+      leverandor: avtale?.leverandor?.organisasjonsnummer ?? "",
       leverandorUnderenheter:
-        avtale?.leverandorUnderenheter?.length === 0 ||
-        !avtale?.leverandorUnderenheter
+        avtale?.leverandorUnderenheter?.length === 0 || !avtale?.leverandorUnderenheter
           ? []
           : avtale?.leverandorUnderenheter?.map(
-              (leverandor: LeverandorUnderenhet) =>
-                leverandor.organisasjonsnummer,
+              (leverandor: LeverandorUnderenhet) => leverandor.organisasjonsnummer,
             ),
       leverandorKontaktpersonId: avtale?.leverandorKontaktperson?.id,
       startOgSluttDato: {
         startDato: avtale?.startDato ? new Date(avtale.startDato) : undefined,
         sluttDato: avtale?.sluttDato ? new Date(avtale.sluttDato) : undefined,
       },
-      url: getValueOrDefault(avtale?.url, ""),
-      prisOgBetalingsinfo: getValueOrDefault(
-        avtale?.prisbetingelser,
-        undefined,
-      ),
+      url: avtale?.url ?? undefined,
+      prisOgBetalingsinfo: avtale?.prisbetingelser ?? undefined,
+      opphav: avtale?.opphav ?? Opphav.MR_ADMIN_FLATE,
     },
   });
 
@@ -120,31 +111,26 @@ export function AvtaleSkjemaContainer({
     setValue,
   } = form;
 
-  const watchedTiltakstype = watch("tiltakstype");
-
-  const getTiltakstypeFromId = (id: string): Tiltakstype | undefined => {
-    return tiltakstyper.find((type) => type.id === id);
-  };
+  const watchedTiltakstype: EmbeddedTiltakstype | undefined = watch("tiltakstype");
+  const arenaKode = watchedTiltakstype?.arenaKode;
 
   useEffect(() => {
-    const arenaKode = getTiltakstypeFromId(watchedTiltakstype)?.arenaKode || "";
-    if (["ARBFORB", "VASV"].includes(arenaKode)) {
+    // TODO: revurdere behovet for denne type logikk eller om det kan defineres som default felter på tiltakstype i stedet
+    // Er det slik at tiltakstype alltid styrer avtaletypen? Er det kun for forhåndsgodkjente avtaler?
+    // Hvis ARBFORB og VASV uansett alltid skal være av typen FORHAANDSGODKJENT burde det ikke være mulig å endre
+    if (arenaKode === Tiltakskode.ARBFORB || arenaKode === Tiltakskode.VASV) {
       setValue("avtaletype", Avtaletype.FORHAANDSGODKJENT);
     }
-  }, [watchedTiltakstype]);
+  }, [arenaKode]);
 
-  const { data: leverandorData } = useVirksomhet(watch("leverandor"));
+  const watchedLeverandor = watch("leverandor");
+  const { data: leverandorData } = useVirksomhet(watchedLeverandor);
 
-  const underenheterForLeverandor = getValueOrDefault(
-    leverandorData?.underenheter,
-    [],
-  );
+  const underenheterForLeverandor = leverandorData?.underenheter ?? [];
 
   const arenaOpphav = avtale?.opphav === Opphav.ARENA;
 
-  const postData: SubmitHandler<inferredAvtaleSchema> = async (
-    data,
-  ): Promise<void> => {
+  const postData: SubmitHandler<InferredAvtaleSchema> = async (data): Promise<void> => {
     const {
       navRegion,
       navEnheter,
@@ -153,10 +139,11 @@ export function AvtaleSkjemaContainer({
       leverandorKontaktpersonId,
       avtalenavn: navn,
       startOgSluttDato,
-      tiltakstype: tiltakstypeId,
-      avtaleansvarlig: ansvarlig,
+      tiltakstype,
+      administrator,
       avtaletype,
       prisOgBetalingsinfo,
+      opphav,
       url,
     } = data;
 
@@ -164,24 +151,22 @@ export function AvtaleSkjemaContainer({
       id: utkastIdRef.current,
       navRegion,
       navEnheter,
-      avtalenummer: getValueOrDefault(avtale?.avtalenummer, ""),
+      avtalenummer: avtale?.avtalenummer || null,
       leverandorOrganisasjonsnummer,
       leverandorUnderenheter,
       navn,
       sluttDato: formaterDatoSomYYYYMMDD(startOgSluttDato.sluttDato),
       startDato: formaterDatoSomYYYYMMDD(startOgSluttDato.startDato),
-      tiltakstypeId,
-      url,
-      ansvarlig,
+      tiltakstypeId: tiltakstype.id,
+      url: url || null,
+      administrator,
       avtaletype,
-      prisOgBetalingsinformasjon: erAnskaffetTiltak(
-        tiltakstypeId,
-        getTiltakstypeFromId,
-      )
-        ? prisOgBetalingsinfo
-        : undefined,
-      opphav: avtale?.opphav,
-      leverandorKontaktpersonId,
+      prisOgBetalingsinformasjon: erAnskaffetTiltak(tiltakstype.arenaKode)
+        ? prisOgBetalingsinfo || null
+        : null,
+      opphav,
+      leverandorKontaktpersonId: leverandorKontaktpersonId ?? null,
+      avslutningsstatus: AvtaleAvslutningsstatus.IKKE_AVSLUTTET,
     };
 
     if (avtale?.id) {
@@ -191,21 +176,33 @@ export function AvtaleSkjemaContainer({
     mutation.mutate(requestBody);
   };
 
-  if (mutation.isSuccess) {
-    onSuccess(mutation.data.id);
-  }
+  useEffect(() => {
+    if (mutation.isSuccess) {
+      onSuccess(mutation.data.id);
+    }
+  }, [mutation]);
 
   if (mutation.isError) {
     return (
       <Alert variant="error">
-        {(mutation.error as ApiError).status === 400
-          ? (mutation.error as ApiError).body
-          : "Avtalen kunne ikke opprettes på grunn av en teknisk feil hos oss. " +
-            "Forsøk på nytt eller ta <a href={PORTEN}>kontakt i Porten</a> dersom " +
-            "du trenger mer hjelp."}
+        {mutation.error.status === 400 ? (
+          resolveErrorMessage(mutation.error)
+        ) : (
+          <>
+            Avtalen kunne ikke opprettes på grunn av en teknisk feil hos oss. Forsøk på nytt eller
+            ta <a href={PORTEN}>kontakt i Porten</a> dersom du trenger mer hjelp.
+          </>
+        )}
       </Alert>
     );
   }
+
+  const navRegionerOptions = enheter
+    .filter((enhet) => enhet.type === NavEnhetType.FYLKE)
+    .map((enhet) => ({
+      value: enhet.enhetsnummer,
+      label: enhet.navn,
+    }));
 
   return (
     <FormProvider {...form}>
@@ -233,7 +230,11 @@ export function AvtaleSkjemaContainer({
                   label={"Tiltakstype"}
                   {...register("tiltakstype")}
                   options={tiltakstyper.map((tiltakstype) => ({
-                    value: tiltakstype.id,
+                    value: {
+                      arenaKode: tiltakstype.arenaKode,
+                      navn: tiltakstype.navn,
+                      id: tiltakstype.id,
+                    },
                     label: tiltakstype.navn,
                   }))}
                 />
@@ -281,12 +282,12 @@ export function AvtaleSkjemaContainer({
                 <TextField
                   size="small"
                   error={errors.url?.message}
-                  label="URL til avtale"
+                  label="URL til avtale fra Mercell eller Websak"
                   {...register("url")}
                 />
               </FormGroup>
               <Separator />
-              {erAnskaffetTiltak(watch("tiltakstype"), getTiltakstypeFromId) ? (
+              {arenaKode && erAnskaffetTiltak(arenaKode) && (
                 <>
                   <FormGroup>
                     <Textarea
@@ -299,20 +300,16 @@ export function AvtaleSkjemaContainer({
                   </FormGroup>
                   <Separator />
                 </>
-              ) : null}
+              )}
               <FormGroup>
                 <SokeSelect
                   size="small"
                   placeholder="Velg en"
-                  label={"Avtaleansvarlig"}
-                  {...register("avtaleansvarlig")}
-                  onClearValue={() => setValue("avtaleansvarlig", "")}
-                  description="Den som blir satt som ansvarlig vil få en notifikasjon."
-                  options={AnsvarligOptions(
-                    ansatt,
-                    avtale?.ansvarlig,
-                    betabrukere,
-                  )}
+                  label={"Administrator for avtalen"}
+                  {...register("administrator")}
+                  onClearValue={() => setValue("administrator", "")}
+                  description="Den som blir satt som administrator vil få en notifikasjon."
+                  options={AdministratorOptions(ansatt, avtale?.administrator, betabrukere)}
                 />
               </FormGroup>
             </div>
@@ -323,27 +320,22 @@ export function AvtaleSkjemaContainer({
                   <SokeSelect
                     size="small"
                     placeholder="Velg en"
-                    label={"NAV region"}
+                    label={"NAV-region"}
                     {...register("navRegion")}
                     onChange={(e) => {
-                      setNavRegion(e);
+                      setNavRegion(e.target.value);
                       form.setValue("navEnheter", [] as any);
                     }}
                     onClearValue={() => setValue("navRegion", "")}
-                    options={enheter
-                      .filter((enhet) => enhet.type === Norg2Type.FYLKE)
-                      .map((enhet) => ({
-                        value: `${enhet.enhetsnummer}`,
-                        label: enhet.navn,
-                      }))}
+                    options={navRegionerOptions}
                   />
                   <ControlledMultiSelect
                     size="small"
                     placeholder="Velg en"
                     readOnly={!navRegion}
-                    label={"NAV enhet (kontorer)"}
+                    label={"NAV-enheter (kontorer)"}
                     {...register("navEnheter")}
-                    options={enheterOptions(navRegion!, enheter)}
+                    options={getLokaleUnderenheterAsSelectOptions(navRegion, enheter)}
                   />
                 </FormGroup>
               </div>
@@ -355,7 +347,13 @@ export function AvtaleSkjemaContainer({
                     placeholder="Søk etter tiltaksarrangør"
                     label={"Tiltaksarrangør hovedenhet"}
                     {...register("leverandor")}
-                    onInputChange={(value) => setSokLeverandor(value)}
+                    onInputChange={(value) => {
+                      // Beholder søket hvis input settes til "" for å sørge for at listen med options
+                      // ikke forsvinner når man velger en leverandør
+                      if (value) {
+                        setSokLeverandor(value);
+                      }
+                    }}
                     onClearValue={() => setValue("leverandor", "")}
                     options={leverandorVirksomheter.map((enhet) => ({
                       value: enhet.organisasjonsnummer,
@@ -366,17 +364,17 @@ export function AvtaleSkjemaContainer({
                     size="small"
                     placeholder="Velg underenhet for tiltaksarrangør"
                     label={"Tiltaksarrangør underenhet"}
-                    readOnly={!watch("leverandor")}
+                    readOnly={!watchedLeverandor}
                     {...register("leverandorUnderenheter")}
                     options={underenheterOptions(underenheterForLeverandor)}
                   />
                 </FormGroup>
-                {watch("leverandor") && !avtale?.leverandor?.slettet && (
+                {watchedLeverandor && !avtale?.leverandor?.slettet && (
                   <FormGroup>
                     <div className={skjemastyles.kontaktperson_container}>
                       <VirksomhetKontaktpersoner
                         title="Kontaktperson hos leverandøren"
-                        orgnr={watch("leverandor")}
+                        orgnr={watchedLeverandor}
                         formValueName="leverandorKontaktpersonId"
                       />
                     </div>
@@ -386,18 +384,13 @@ export function AvtaleSkjemaContainer({
             </div>
           </div>
           <Separator />
-          <AvtaleSkjemaKnapperad
-            redigeringsModus={redigeringsModus!}
-            onClose={onClose}
-          />
+          <AvtaleSkjemaKnapperad redigeringsModus={redigeringsModus!} onClose={onClose} />
         </div>
       </form>
       <AutoSaveUtkast
         defaultValues={defaultValues}
         utkastId={utkastIdRef.current}
-        onSave={() =>
-          saveUtkast(watch(), avtale!, ansatt, utkastIdRef, mutationUtkast)
-        }
+        onSave={() => saveUtkast(watch(), avtale!, ansatt, utkastIdRef, mutationUtkast)}
         mutation={mutationUtkast}
       />
     </FormProvider>

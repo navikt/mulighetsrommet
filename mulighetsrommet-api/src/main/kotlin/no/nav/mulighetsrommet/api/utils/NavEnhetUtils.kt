@@ -3,21 +3,22 @@ package no.nav.mulighetsrommet.api.utils
 import io.ktor.server.plugins.*
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2EnhetDto
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2EnhetStatus
-import no.nav.mulighetsrommet.api.clients.norg2.Norg2Response
+import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 
 object NavEnhetUtils {
-    fun isUnderliggendeEnhet(fylke: Norg2EnhetDto, enhet: Norg2Response): Boolean {
-        return relevanteStatuser(enhet.enhet.status) && enhet.overordnetEnhet == fylke.enhetNr
+    fun isRelevantEnhetStatus(status: Norg2EnhetStatus): Boolean {
+        return status in listOf(
+            Norg2EnhetStatus.UNDER_ETABLERING,
+            Norg2EnhetStatus.UNDER_AVVIKLING,
+            Norg2EnhetStatus.AKTIV,
+        )
     }
 
-    fun relevanteStatuser(status: Norg2EnhetStatus): Boolean {
-        val relevanteStatuser =
-            listOf(
-                Norg2EnhetStatus.UNDER_ETABLERING.name,
-                Norg2EnhetStatus.UNDER_AVVIKLING.name,
-                Norg2EnhetStatus.AKTIV.name,
-            )
-        return relevanteStatuser.contains(status.name)
+    fun isRelevantEnhetType(type: Norg2Type): Boolean {
+        return type in listOf(
+            Norg2Type.FYLKE,
+            Norg2Type.LOKAL,
+        )
     }
 
     fun toEnhetId(enhet: Norg2EnhetDto): String {

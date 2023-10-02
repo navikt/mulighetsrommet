@@ -11,6 +11,7 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import no.nav.mulighetsrommet.metrics.Metrikker
+import java.util.*
 
 fun interface MonitoredResource {
     fun isAvailable(): Boolean
@@ -22,7 +23,14 @@ fun Application.configureMonitoring(vararg resources: MonitoredResource) {
     }
 
     install(CallId) {
-        header("call-id")
+        retrieveFromHeader(HttpHeaders.XRequestId)
+        retrieveFromHeader(HttpHeaders.XCorrelationId)
+
+        replyToHeader(HttpHeaders.XRequestId)
+
+        generate {
+            UUID.randomUUID().toString()
+        }
 
         verify { callId ->
             callId.isNotEmpty()
@@ -48,7 +56,7 @@ fun Application.configureMonitoring(vararg resources: MonitoredResource) {
             it.principal<JWTPrincipal>()?.get("azp_name")
         }
 
-        callIdMdc("call-id")
+        callIdMdc("correlationId")
     }
 
     routing {

@@ -1,4 +1,4 @@
-import { BodyLong, BodyShort, Heading, Tag } from "@navikt/ds-react";
+import { BodyLong, BodyShort, Heading, Link, Tag } from "@navikt/ds-react";
 import classNames from "classnames";
 import { NotificationType, UserNotification } from "mulighetsrommet-api-client";
 import { ReactNode, useState } from "react";
@@ -17,6 +17,7 @@ function tag(type: NotificationType, lest: boolean): ReactNode {
     case NotificationType.NOTIFICATION:
       return (
         <Tag
+          size="xsmall"
           data-testid="notifikasjon-tag"
           variant={lest ? "warning-moderate" : "warning-filled"}
         >
@@ -26,6 +27,7 @@ function tag(type: NotificationType, lest: boolean): ReactNode {
     case NotificationType.TASK:
       return (
         <Tag
+          size="xsmall"
           data-testid="oppgave-tag"
           variant={lest ? "info-moderate" : "info-filled"}
         >
@@ -35,35 +37,27 @@ function tag(type: NotificationType, lest: boolean): ReactNode {
   }
 }
 
-export function Notifikasjonssrad({
-  notifikasjon,
-  lest,
-}: NotifikasjonssradProps) {
-  const { title, description, createdAt, type } = notifikasjon;
+export function Notifikasjonssrad({ notifikasjon, lest }: NotifikasjonssradProps) {
+  const { title, description, createdAt, type, metadata } = notifikasjon;
 
   const [read, setRead] = useState<boolean>(lest);
 
   return (
-    <li
-      className={classNames(
-        styles.list_element,
-        lest ? styles.leste : styles.uleste,
-      )}
-    >
+    <li className={classNames(styles.list_element, lest ? styles.leste : styles.uleste)}>
       <div className={styles.flex}>
-        <Heading
-          level="2"
-          size="small"
-          title={title}
-          className={styles.truncate}
-        >
+        <BodyShort>{tag(type, lest)}</BodyShort>
+        <Heading level="2" size="small" title={title} className={styles.truncate}>
           {title}
         </Heading>
         <BodyLong size="small">{description}</BodyLong>
         <BodyShort size="small" title={createdAt} className={styles.muted}>
           {formaterDatoTid(createdAt)}
         </BodyShort>
-        <BodyShort>{tag(type, lest)}</BodyShort>
+        {metadata?.link && metadata?.linkText ? (
+          <BodyShort size="small">
+            <Link href={metadata.link}>{metadata.linkText}</Link>
+          </BodyShort>
+        ) : null}
       </div>
       <div>
         <CheckmarkButton id={notifikasjon.id} read={read} setRead={setRead} />

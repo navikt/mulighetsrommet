@@ -1,22 +1,34 @@
-import { BodyShort, Panel } from '@navikt/ds-react';
-import useTiltaksgjennomforingById from '../../core/api/queries/useTiltaksgjennomforingById';
-import Kopiknapp from '../kopiknapp/Kopiknapp';
-import Regelverksinfo from './Regelverksinfo';
-import styles from './Sidemenydetaljer.module.scss';
-import { formaterDato, utledLopenummerFraTiltaksnummer } from '../../utils/Utils';
-import { SanityTiltaksgjennomforing, SanityTiltakstype } from 'mulighetsrommet-api-client';
+import { BodyShort, Panel } from "@navikt/ds-react";
+import {
+  TiltaksgjennomforingOppstartstype,
+  Tiltakskode,
+  VeilederflateTiltaksgjennomforing,
+  VeilederflateTiltakstype,
+} from "mulighetsrommet-api-client";
+import { formaterDato, utledLopenummerFraTiltaksnummer } from "../../utils/Utils";
+import Kopiknapp from "../kopiknapp/Kopiknapp";
+import Regelverksinfo from "./Regelverksinfo";
+import styles from "./Sidemenydetaljer.module.scss";
 
-const SidemenyDetaljer = () => {
-  const { data } = useTiltaksgjennomforingById();
-  if (!data) return null;
-  const { tiltaksnummer, kontaktinfoArrangor, tiltakstype, sluttdato, oppstartsdato, lokasjon } = data;
-  const oppstart = resolveOppstart(data);
+interface Props {
+  tiltaksgjennomforing: VeilederflateTiltaksgjennomforing;
+}
 
-  const visDato = (tiltakstype: SanityTiltakstype, oppstart: string, oppstartsdato?: string, sluttdato?: string) => {
+const SidemenyDetaljer = ({ tiltaksgjennomforing }: Props) => {
+  const { tiltaksnummer, arrangor, tiltakstype, sluttdato, oppstartsdato, stedForGjennomforing } =
+    tiltaksgjennomforing;
+  const oppstart = resolveOppstart(tiltaksgjennomforing);
+
+  const visDato = (
+    tiltakstype: VeilederflateTiltakstype,
+    oppstart: string,
+    oppstartsdato?: string,
+    sluttdato?: string,
+  ) => {
     return (
       <div className={styles.rad}>
         <BodyShort size="small" className={styles.tittel}>
-          {visSluttdato(tiltakstype, sluttdato, oppstartsdato) ? 'Varighet' : 'Oppstart'}
+          {visSluttdato(tiltakstype, sluttdato, oppstartsdato) ? "Varighet" : "Oppstart"}
         </BodyShort>
         <BodyShort size="small">
           {visSluttdato(tiltakstype, sluttdato, oppstartsdato)
@@ -27,17 +39,21 @@ const SidemenyDetaljer = () => {
     );
   };
 
-  const visSluttdato = (tiltakstype: SanityTiltakstype, sluttdato?: string, oppstartsdato?: string): boolean => {
+  const visSluttdato = (
+    tiltakstype: VeilederflateTiltakstype,
+    sluttdato?: string,
+    oppstartsdato?: string,
+  ): boolean => {
     return (
       !!oppstartsdato &&
       !!sluttdato &&
       !!tiltakstype?.arenakode &&
       [
-        SanityTiltakstype.arenakode.GRUPPEAMO,
-        SanityTiltakstype.arenakode.JOBBK,
-        SanityTiltakstype.arenakode.DIGIOPPARB,
-        SanityTiltakstype.arenakode.GRUFAGYRKE,
-        SanityTiltakstype.arenakode.ENKFAGYRKE,
+        Tiltakskode.GRUPPEAMO,
+        Tiltakskode.JOBBK,
+        Tiltakskode.DIGIOPPARB,
+        Tiltakskode.GRUFAGYRKE,
+        Tiltakskode.ENKFAGYRKE,
       ].includes(tiltakstype?.arenakode)
     );
   };
@@ -52,17 +68,20 @@ const SidemenyDetaljer = () => {
             </BodyShort>
             <div className={styles.tiltaksnummer}>
               <BodyShort size="small">{utledLopenummerFraTiltaksnummer(tiltaksnummer)}</BodyShort>
-              <Kopiknapp kopitekst={utledLopenummerFraTiltaksnummer(tiltaksnummer)} dataTestId="knapp_kopier" />
+              <Kopiknapp
+                kopitekst={utledLopenummerFraTiltaksnummer(tiltaksnummer)}
+                dataTestId="knapp_kopier"
+              />
             </div>
           </div>
         )}
 
-        {lokasjon && (
+        {stedForGjennomforing && (
           <div className={styles.rad}>
             <BodyShort size="small" className={styles.tittel}>
-              Lokasjon
+              Sted for gjennomføring
             </BodyShort>
-            <BodyShort size="small">{lokasjon}</BodyShort>
+            <BodyShort size="small">{stedForGjennomforing}</BodyShort>
           </div>
         )}
 
@@ -70,15 +89,15 @@ const SidemenyDetaljer = () => {
           <BodyShort size="small" className={styles.tittel}>
             Tiltakstype
           </BodyShort>
-          <BodyShort size="small">{tiltakstype.tiltakstypeNavn} </BodyShort>
+          <BodyShort size="small">{tiltakstype.navn} </BodyShort>
         </div>
 
-        {kontaktinfoArrangor?.selskapsnavn && (
+        {arrangor?.selskapsnavn && (
           <div className={styles.rad}>
             <BodyShort size="small" className={styles.tittel}>
               Arrangør
             </BodyShort>
-            <BodyShort size="small">{kontaktinfoArrangor.selskapsnavn}</BodyShort>
+            <BodyShort size="small">{arrangor.selskapsnavn}</BodyShort>
           </div>
         )}
 
@@ -91,12 +110,12 @@ const SidemenyDetaljer = () => {
 
         {visDato(tiltakstype, oppstart, oppstartsdato, sluttdato)}
 
-        {(tiltakstype.regelverkFiler || tiltakstype.regelverkLenker) && (
+        {tiltakstype.regelverkLenker && (
           <div className={styles.rad}>
             <BodyShort size="small" className={styles.tittel}>
               Regelverk
             </BodyShort>
-            <Regelverksinfo regelverkFiler={tiltakstype.regelverkFiler} regelverkLenker={tiltakstype.regelverkLenker} />
+            <Regelverksinfo regelverkLenker={tiltakstype.regelverkLenker} />
           </div>
         )}
       </Panel>
@@ -104,8 +123,10 @@ const SidemenyDetaljer = () => {
   );
 };
 
-function resolveOppstart({ oppstart, oppstartsdato }: SanityTiltaksgjennomforing) {
-  return oppstart === 'dato' && oppstartsdato ? formaterDato(oppstartsdato) : 'Løpende';
+function resolveOppstart({ oppstart, oppstartsdato }: VeilederflateTiltaksgjennomforing) {
+  return oppstart === TiltaksgjennomforingOppstartstype.FELLES && oppstartsdato
+    ? formaterDato(oppstartsdato)
+    : "Løpende";
 }
 
 export default SidemenyDetaljer;

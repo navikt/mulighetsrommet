@@ -1,12 +1,7 @@
 .delemodal {
-  .container {
-    max-width: 65ch;
-  }
-
   .heading {
     margin-bottom: 1rem;
   }
-
 
   .feilmeldinger {
     margin-bottom: 1rem;
@@ -29,7 +24,6 @@
 
   .deletekst {
     margin-top: 1rem;
-    max-width: 65ch;
     white-space: pre-wrap;
     border-radius: 5px;
     padding: 1rem;
@@ -39,13 +33,4 @@
   .personligHilsen {
     margin-top: 0.5rem;
   }
-
-  .delemodal_btngroup {
-    display: flex;
-    gap: 1rem;
-    margin-top: 1.5rem;
-    margin-bottom: 1rem;
-    justify-content: space-between;
-  }
 }
-

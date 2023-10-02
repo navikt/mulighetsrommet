@@ -7,13 +7,6 @@ import no.nav.mulighetsrommet.api.clients.vedtak.Innsatsgruppe
 class SanityFiltersKtTest : FunSpec({
 
     context("Filter for Groq-spørringer") {
-        test("byggEnhetOgFylkeFilter skal korrekt Groq-uttrykk for brukers enhet og fylkeId") {
-            val enhetsId = "0200"
-            val fylkesId = "0400"
-            val result = byggEnhetOgFylkeFilter(enhetsId, fylkesId)
-            result shouldBe "&& ('enhet.lokal.0200' in enheter[]._ref || (enheter[0] == null && 'enhet.fylke.0400' == fylke._ref))"
-        }
-
         test("byggTiltakstypeFilter skal returnere tom streng når ingen tiltakstyper er valgt") {
             val tiltakstyper = emptyList<String>()
             val result = byggTiltakstypeFilter(tiltakstyper)
@@ -35,7 +28,7 @@ class SanityFiltersKtTest : FunSpec({
         test("byggSokefilter skal returnere korrekt Groq-uttrykk når søkestrengen ikke er tom") {
             val sokestreng = "Oppfølging"
             val result = byggSokeFilter(sokestreng)
-            result shouldBe "&& [tiltaksgjennomforingNavn, string(tiltaksnummer.current), tiltakstype->tiltakstypeNavn, lokasjon, kontaktinfoArrangor->selskapsnavn, oppstartsdato] match \"*Oppfølging*\""
+            result shouldBe "&& [tiltaksgjennomforingNavn, string(tiltaksnummer.current), tiltakstype->tiltakstypeNavn, stedForGjennomforing, oppstartsdato] match \"*Oppfølging*\""
         }
 
         test("byggInnsatsgruppeFilter skal returnere tom streng når ingen innsatsgrupper er valgt") {

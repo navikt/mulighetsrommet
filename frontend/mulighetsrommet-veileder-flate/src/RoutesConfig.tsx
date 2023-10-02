@@ -1,20 +1,30 @@
-import { Navigate, Route, Routes } from 'react-router-dom';
-import { useHentFnrFraUrl } from './hooks/useHentFnrFraUrl';
-import ViewTiltaksgjennomforingDetaljer from './views/tiltaksgjennomforing-detaljer/ViewTiltaksgjennomforingDetaljer';
-import ViewTiltaksgjennomforingOversikt from './views/tiltaksgjennomforing-oversikt/ViewTiltaksgjennomforingOversikt';
+import { Toggles } from "mulighetsrommet-api-client";
+import { Navigate, Route, Routes } from "react-router-dom";
+import { useFeatureToggle } from "./core/api/feature-toggles";
+import { routes } from "./routes";
+import { Landingsside } from "./views/landingsside/Landingsside";
+import { ViewTiltaksgjennomforingDetaljerContainer } from "./views/tiltaksgjennomforing-detaljer/ViewTiltaksgjennomforingDetaljerContainer";
+import ViewTiltaksgjennomforingOversikt from "./views/tiltaksgjennomforing-oversikt/ViewTiltaksgjennomforingOversikt";
 
 const RoutesConfig = () => {
-  const fnr = useHentFnrFraUrl();
+  const enableLandingssideFeature = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_VEILEDERFLATE_LANDINGSSIDE,
+  );
+  const enableLandingsside = enableLandingssideFeature.isSuccess && enableLandingssideFeature.data;
+
+  if (enableLandingssideFeature.isLoading) {
+    return null;
+  }
+
   return (
     <Routes>
-      (
-      <>
-        <Route path="/" element={<ViewTiltaksgjennomforingOversikt />} />
-        <Route path="tiltak/:tiltaksnummer" element={<ViewTiltaksgjennomforingDetaljer />} />
-        <Route path=":tiltaksnummer" element={<Navigate to={`/${fnr}`} />}></Route>
-        {/* Fallback dersom veileder navigerer fra Dialogen til Arbeidsmarkedstiltak */}
-      </>
-      )
+      {enableLandingsside ? <Route path={routes.base} element={<Landingsside />} /> : null}
+      <Route path={routes.detaljer} element={<ViewTiltaksgjennomforingDetaljerContainer />} />
+      <Route path={routes.oversikt} element={<ViewTiltaksgjennomforingOversikt />} />
+      <Route
+        path="*"
+        element={<Navigate to={enableLandingsside ? routes.base : routes.oversikt} />}
+      />
     </Routes>
   );
 };

@@ -1,17 +1,13 @@
 name: Deploy Sanity Studio
 
 on:
-  merge_group:
-  pull_request:
+  push:
     paths:
       - .github/workflows/mr-sanity-studio.yaml
       - package.json
       - package-lock.json
       - turbo.json
       - frontend/mulighetsrommet-cms/**
-  push:
-    branches:
-      - main
   workflow_dispatch:
 
 concurrency:
@@ -29,7 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions: write-all
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Setup frontend
         uses: ./.github/actions/setup-frontend
       - name: Bygg studio
@@ -51,7 +47,7 @@ jobs:
     needs: [ci]
     if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: nais/deploy/actions/deploy@v1
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}

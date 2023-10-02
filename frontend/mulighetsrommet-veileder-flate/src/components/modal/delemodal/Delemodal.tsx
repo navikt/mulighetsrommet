@@ -1,47 +1,58 @@
-import { BodyShort, Modal } from '@navikt/ds-react';
-import classNames from 'classnames';
-import { useReducer } from 'react';
-import { logEvent } from '../../../core/api/logger';
-import { capitalize } from '../../../utils/Utils';
-import modalStyles from '../Modal.module.scss';
-import delemodalStyles from './Delemodal.module.scss';
-import { Actions, State } from './DelemodalActions';
-import { useHentBrukerdata } from '../../../core/api/queries/useHentBrukerdata';
-import { KanIkkeDeleMedBrukerModal } from './KanIkkeDeleMedBrukerModal';
-import { DelMedBrukerContent } from './DelMedBrukerContent';
-import { useNavigerTilDialogen } from '../../../hooks/useNavigerTilDialogen';
-import { useHentFnrFraUrl } from '../../../hooks/useHentFnrFraUrl';
-import { StatusModal } from './StatusModal';
-import { PORTEN } from 'mulighetsrommet-frontend-common/constants';
+import { BodyShort, Button, Heading, Modal } from "@navikt/ds-react";
+import {
+  Bruker,
+  DelMedBruker,
+  VeilederflateTiltaksgjennomforing,
+} from "mulighetsrommet-api-client";
+import { PORTEN } from "mulighetsrommet-frontend-common/constants";
+import { useReducer } from "react";
+import { mulighetsrommetClient } from "../../../core/api/clients";
+import { logEvent } from "../../../core/api/logger";
+import { useHentDeltMedBrukerStatus } from "../../../core/api/queries/useHentDeltMedbrukerStatus";
+import { byttTilDialogFlate } from "../../../utils/DialogFlateUtils";
+import { erPreview } from "../../../utils/Utils";
+import modalStyles from "../Modal.module.scss";
+import { StatusModal } from "../StatusModal";
+import { DelMedBrukerContent } from "./DelMedBrukerContent";
+import delemodalStyles from "./Delemodal.module.scss";
+import { Actions, State } from "./DelemodalActions";
 
 export const logDelMedbrukerEvent = (
-  action: 'Åpnet dialog' | 'Delte med bruker' | 'Del med bruker feilet' | 'Avbrutt del med bruker' | 'Sett hilsen'
+  action:
+    | "Åpnet dialog"
+    | "Delte med bruker"
+    | "Del med bruker feilet"
+    | "Avbrutt del med bruker"
+    | "Sett hilsen",
 ) => {
-  logEvent('mulighetsrommet.del-med-bruker', { value: action });
+  logEvent("mulighetsrommet.del-med-bruker", { value: action });
 };
 
 interface DelemodalProps {
   modalOpen: boolean;
   lukkModal: () => void;
-  tiltaksgjennomforingsnavn: string;
   brukernavn?: string;
   chattekst: string;
   veiledernavn?: string;
+  brukerFnr: string;
+  tiltaksgjennomforing: VeilederflateTiltaksgjennomforing;
+  brukerdata: Bruker;
+  harDeltMedBruker?: DelMedBruker;
 }
 
 export function reducer(state: State, action: Actions): State {
   switch (action.type) {
-    case 'Avbryt':
-      return { ...state, sendtStatus: 'IKKE_SENDT', hilsen: state.originalHilsen };
-    case 'Send melding':
-      return { ...state, sendtStatus: 'SENDER' };
-    case 'Sendt ok':
-      return { ...state, sendtStatus: 'SENDT_OK', dialogId: action.payload };
-    case 'Sending feilet':
-      return { ...state, sendtStatus: 'SENDING_FEILET' };
-    case 'Sett hilsen':
-      return { ...state, hilsen: action.payload, sendtStatus: 'IKKE_SENDT' };
-    case 'Reset':
+    case "Avbryt":
+      return { ...state, sendtStatus: "IKKE_SENDT", hilsen: state.originalHilsen };
+    case "Send melding":
+      return { ...state, sendtStatus: "SENDER" };
+    case "Sendt ok":
+      return { ...state, sendtStatus: "SENDT_OK", dialogId: action.payload };
+    case "Sending feilet":
+      return { ...state, sendtStatus: "SENDING_FEILET" };
+    case "Sett hilsen":
+      return { ...state, hilsen: action.payload, sendtStatus: "IKKE_SENDT" };
+    case "Reset":
       return initInitialState({ originalHilsen: state.originalHilsen, deletekst: state.deletekst });
     default:
       return state;
@@ -53,20 +64,24 @@ export function initInitialState(tekster: { deletekst: string; originalHilsen: s
     deletekst: tekster.deletekst,
     originalHilsen: tekster.originalHilsen,
     hilsen: tekster.originalHilsen,
-    sendtStatus: 'IKKE_SENDT',
-    dialogId: '',
+    sendtStatus: "IKKE_SENDT",
+    dialogId: "",
   };
 }
 
-function sySammenBrukerTekst(chattekst: string, tiltaksgjennomforingsnavn: string, brukernavn?: string) {
+function sySammenBrukerTekst(
+  chattekst: string,
+  tiltaksgjennomforingsnavn: string,
+  brukernavn?: string,
+) {
   return `${chattekst
-    .replace(' <Fornavn>', brukernavn ? ` ${capitalize(brukernavn)}` : '')
-    .replace('<tiltaksnavn>', tiltaksgjennomforingsnavn)}`;
+    .replaceAll(" <Fornavn>", brukernavn ? ` ${brukernavn}` : "")
+    .replaceAll("<tiltaksnavn>", tiltaksgjennomforingsnavn)}`;
 }
 
 function sySammenHilsenTekst(veiledernavn?: string) {
   const interessant =
-    'Er dette aktuelt for deg? Gi meg tilbakemelding her i dialogen.\nSvaret ditt vil ikke endre din utbetaling fra NAV.';
+    "Er dette aktuelt for deg? Gi meg tilbakemelding her i dialogen.\nSvaret ditt vil ikke endre din utbetaling fra NAV.";
   return veiledernavn
     ? `${interessant}\n\nVi holder kontakten!\nHilsen ${veiledernavn}`
     : `${interessant}\n\nVi holder kontakten!\nHilsen `;
@@ -75,90 +90,148 @@ function sySammenHilsenTekst(veiledernavn?: string) {
 const Delemodal = ({
   modalOpen,
   lukkModal,
-  tiltaksgjennomforingsnavn,
   brukernavn,
   chattekst,
   veiledernavn,
+  brukerFnr,
+  tiltaksgjennomforing,
+  brukerdata,
+  harDeltMedBruker,
 }: DelemodalProps) => {
-  const deletekst = sySammenBrukerTekst(chattekst, tiltaksgjennomforingsnavn, brukernavn);
+  const deletekst = sySammenBrukerTekst(chattekst, tiltaksgjennomforing.navn, brukernavn);
   const originalHilsen = sySammenHilsenTekst(veiledernavn);
   const [state, dispatch] = useReducer(reducer, { deletekst, originalHilsen }, initInitialState);
-  const { navigerTilDialogen } = useNavigerTilDialogen();
-  const fnr = useHentFnrFraUrl();
 
-  const brukerdata = useHentBrukerdata();
-  const manuellOppfolging = brukerdata.data?.manuellStatus?.erUnderManuellOppfolging;
-  const krrStatusErReservert = brukerdata.data?.manuellStatus?.krrStatus?.erReservert;
-  const kanVarsles = brukerdata?.data?.manuellStatus?.krrStatus?.kanVarsles;
-  const kanIkkeDeleMedBruker = manuellOppfolging && krrStatusErReservert && !kanVarsles;
-  const manuellStatus = !brukerdata.data?.manuellStatus;
-
-  const feilmodal = manuellOppfolging || krrStatusErReservert || manuellStatus || kanIkkeDeleMedBruker;
+  const senderTilDialogen = state.sendtStatus === "SENDER";
+  const tiltaksgjennomforingSanityId = tiltaksgjennomforing.sanityId;
+  const { lagreVeilederHarDeltTiltakMedBruker } = useHentDeltMedBrukerStatus(
+    tiltaksgjennomforingSanityId,
+    brukerFnr,
+  );
+  const MAKS_ANTALL_TEGN_HILSEN = 300;
 
   const clickCancel = (log = true) => {
     lukkModal();
-    dispatch({ type: 'Avbryt' });
-    log && logDelMedbrukerEvent('Avbrutt del med bruker');
+    dispatch({ type: "Avbryt" });
+    log && logDelMedbrukerEvent("Avbrutt del med bruker");
   };
+
+  const getAntallTegn = () => {
+    return state.hilsen.length;
+  };
+
+  const sySammenDeletekst = () => {
+    return `${state.deletekst}\n\n${state.hilsen}`;
+  };
+
+  const handleSend = async () => {
+    if (state.hilsen.trim().length > getAntallTegn()) return;
+    logDelMedbrukerEvent("Delte med bruker");
+
+    dispatch({ type: "Send melding" });
+    const overskrift = `Tiltak gjennom NAV: ${tiltaksgjennomforing.navn}`;
+    const tekst = sySammenDeletekst();
+    try {
+      const res = await mulighetsrommetClient.dialogen.delMedDialogen({
+        requestBody: { norskIdent: brukerFnr, overskrift, tekst },
+      });
+      if (tiltaksgjennomforingSanityId) {
+        await lagreVeilederHarDeltTiltakMedBruker(res.id, tiltaksgjennomforingSanityId);
+      }
+      dispatch({ type: "Sendt ok", payload: res.id });
+    } catch {
+      dispatch({ type: "Sending feilet" });
+      logDelMedbrukerEvent("Del med bruker feilet");
+    }
+  };
+
+  const feilmelding = utledFeilmelding(brukerdata);
 
   return (
     <>
-      {feilmodal ? (
-        <KanIkkeDeleMedBrukerModal
+      {feilmelding ? (
+        <StatusModal
           modalOpen={modalOpen}
-          lukkModal={lukkModal}
-          manuellOppfolging={manuellOppfolging!}
-          kanIkkeDeleMedBruker={kanIkkeDeleMedBruker!}
-          krrStatusErReservert={krrStatusErReservert!}
-          manuellStatus={manuellStatus}
+          onClose={lukkModal}
+          ikonVariant="warning"
+          heading={"Kunne ikke dele tiltaket"}
+          text={feilmelding}
+          primaryButtonText={"OK"}
+          primaryButtonOnClick={() => lukkModal()}
         />
       ) : (
         <Modal
-          shouldCloseOnOverlayClick={false}
-          closeButton={true}
           open={modalOpen}
-          onClose={clickCancel}
-          className={classNames(modalStyles.overstyrte_styles_fra_ds_modal, delemodalStyles.delemodal)}
+          onClose={() => clickCancel()}
+          className={delemodalStyles.delemodal}
           aria-label="modal"
         >
-          <Modal.Content>
-            {state.sendtStatus !== 'SENDT_OK' && state.sendtStatus !== 'SENDING_FEILET' && (
-              <>
-                <DelMedBrukerContent
-                  tiltaksgjennomforingsnavn={tiltaksgjennomforingsnavn}
-                  onCancel={clickCancel}
-                  state={state}
-                  dispatch={dispatch}
-                  veiledernavn={veiledernavn}
-                  brukernavn={brukernavn}
-                />
-                <BodyShort size="small">
-                  Kandidatene vil få et varsel fra NAV, og kan logge inn på nav.no for å lese meldingen.
-                </BodyShort>
-              </>
+          <Modal.Header closeButton data-testid="modal_header">
+            <Heading size="xsmall">Del med bruker</Heading>
+            <Heading size="large" level="1" className={delemodalStyles.heading}>
+              {"Tiltak gjennom NAV: " + tiltaksgjennomforing.navn}
+            </Heading>
+          </Modal.Header>
+          <Modal.Body>
+            {state.sendtStatus !== "SENDT_OK" && state.sendtStatus !== "SENDING_FEILET" && (
+              <DelMedBrukerContent
+                state={state}
+                dispatch={dispatch}
+                veiledernavn={veiledernavn}
+                brukernavn={brukernavn}
+                harDeltMedBruker={harDeltMedBruker}
+                tiltaksgjennomforing={tiltaksgjennomforing}
+              />
             )}
-          </Modal.Content>
+          </Modal.Body>
+          <Modal.Footer>
+            <div className={modalStyles.knapperad}>
+              <Button
+                variant="tertiary"
+                onClick={() => clickCancel(true)}
+                data-testid="modal_btn-cancel"
+                disabled={senderTilDialogen}
+              >
+                Avbryt
+              </Button>
+              <Button
+                onClick={handleSend}
+                data-testid="modal_btn-send"
+                disabled={
+                  senderTilDialogen ||
+                  state.hilsen.length === 0 ||
+                  state.hilsen.length > MAKS_ANTALL_TEGN_HILSEN ||
+                  erPreview
+                }
+              >
+                {senderTilDialogen ? "Sender..." : "Send via Dialogen"}
+              </Button>
+            </div>
+            <BodyShort size="small">
+              Kandidatene vil få et varsel fra NAV, og kan logge inn på nav.no for å lese meldingen.
+            </BodyShort>
+          </Modal.Footer>
         </Modal>
       )}
-      {state.sendtStatus === 'SENDING_FEILET' && (
+      {state.sendtStatus === "SENDING_FEILET" && (
         <StatusModal
           modalOpen={modalOpen}
           ikonVariant="error"
           heading="Tiltaket kunne ikke deles"
           text={
             <>
-              Tiltaket kunne ikke deles på grunn av en teknisk feil hos oss. Forsøk på nytt eller ta{' '}
+              Tiltaket kunne ikke deles på grunn av en teknisk feil hos oss. Forsøk på nytt eller ta{" "}
               <a href={PORTEN}>kontakt i Porten</a> dersom du trenger mer hjelp.
             </>
           }
           onClose={clickCancel}
-          primaryButtonOnClick={() => dispatch({ type: 'Reset' })}
+          primaryButtonOnClick={() => dispatch({ type: "Reset" })}
           primaryButtonText="Prøv igjen"
           secondaryButtonOnClick={clickCancel}
           secondaryButtonText="Avbryt"
         />
       )}
-      {state.sendtStatus === 'SENDT_OK' && (
+      {state.sendtStatus === "SENDT_OK" && (
         <StatusModal
           modalOpen={modalOpen}
           onClose={clickCancel}
@@ -166,7 +239,7 @@ const Delemodal = ({
           heading="Tiltaket er delt med brukeren"
           text="Det er opprettet en ny tråd i Dialogen der du kan fortsette kommunikasjonen rundt dette tiltaket med brukeren."
           primaryButtonText="Gå til dialogen"
-          primaryButtonOnClick={() => navigerTilDialogen(fnr, state.dialogId)}
+          primaryButtonOnClick={(event) => byttTilDialogFlate({ event, dialogId: state.dialogId })}
           secondaryButtonText="Lukk"
           secondaryButtonOnClick={() => clickCancel(false)}
         />
@@ -174,4 +247,19 @@ const Delemodal = ({
     </>
   );
 };
+
+function utledFeilmelding(brukerdata: Bruker) {
+  if (!brukerdata.manuellStatus) {
+    return "Vi kunne ikke opprette kontakt med KRR og vet derfor ikke om brukeren har reservert seg mot elektronisk kommunikasjon.";
+  } else if (brukerdata.manuellStatus.erUnderManuellOppfolging) {
+    return "Brukeren er under manuell oppfølging og kan derfor ikke benytte seg av våre digitale tjenester.";
+  } else if (brukerdata.manuellStatus.krrStatus && brukerdata.manuellStatus.krrStatus.erReservert) {
+    return "Brukeren har reservert seg mot elektronisk kommunikasjon i Kontakt- og reservasjonsregisteret (KRR).";
+  } else if (brukerdata.manuellStatus.krrStatus && !brukerdata.manuellStatus.krrStatus.kanVarsles) {
+    return "Brukeren er reservert mot elektronisk kommunikasjon i KRR. Vi kan derfor ikke kommunisere digitalt med denne brukeren.";
+  } else {
+    return null;
+  }
+}
+
 export default Delemodal;

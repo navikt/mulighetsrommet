@@ -90,6 +90,7 @@ spec:
         - host: norg2.prod-fss-pub.nais.io
         - host: slack.com
         - host: xegcworx.apicdn.sanity.io
+        - host: xegcworx.api.sanity.io
         - host: data.brreg.no
         - host: team-mulighetsrommet-unleash-api.nav.cloud.nais.io
         - host: axsys.prod-fss-pub.nais.io

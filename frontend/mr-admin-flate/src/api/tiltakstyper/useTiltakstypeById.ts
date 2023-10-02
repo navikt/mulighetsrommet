@@ -16,6 +16,6 @@ export function useTiltakstypeById() {
       mulighetsrommetClient.tiltakstyper.getTiltakstypeById({
         id: tiltakstypeId!!,
       }),
-    { staleTime: 1000 }
+    { staleTime: 1000 },
   );
 }

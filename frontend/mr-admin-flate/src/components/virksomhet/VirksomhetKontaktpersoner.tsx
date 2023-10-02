@@ -29,9 +29,7 @@ interface VirksomhetKontaktpersonerProps {
   title: string;
 }
 
-export const VirksomhetKontaktpersoner = (
-  props: VirksomhetKontaktpersonerProps,
-) => {
+export const VirksomhetKontaktpersoner = (props: VirksomhetKontaktpersonerProps) => {
   const { orgnr, formValueName, title } = props;
   const { register, watch, setValue } = useFormContext();
   const putMutation = usePutVirksomhetKontaktperson(orgnr);
@@ -84,9 +82,7 @@ export const VirksomhetKontaktpersoner = (
     setState({
       ...state,
       navnError: !state.navn ? "Navn må være satt" : undefined,
-      epostError: !validEmail(state.epost)
-        ? "Epost må være en gyldig epost adresse"
-        : undefined,
+      epostError: !validEmail(state.epost) ? "Epost må være en gyldig epost adresse" : undefined,
     });
     if (!state.navn || !state.epost || !validEmail(state.epost)) {
       return;
@@ -101,8 +97,7 @@ export const VirksomhetKontaktpersoner = (
     });
   };
 
-  const valgtPerson = () =>
-    kontaktpersoner.find((person) => person.id === state.selectedId);
+  const valgtPerson = () => kontaktpersoner.find((person) => person.id === state.selectedId);
 
   return (
     <>
@@ -112,10 +107,10 @@ export const VirksomhetKontaktpersoner = (
         onClearValue={() => setValue(formValueName, null)}
         label={title}
         {...register(formValueName)}
-        onChange={(id) =>
+        onChange={(e) =>
           setState({
             ...state,
-            selectedId: id,
+            selectedId: e.target.value,
           })
         }
         options={kontaktpersoner.map((person) => ({
@@ -126,9 +121,7 @@ export const VirksomhetKontaktpersoner = (
       {state.selectedId && !state.rediger && (
         <div className={styles.kontaktperson_info_container}>
           <label>{`Navn: ${valgtPerson()?.navn}`}</label>
-          <label>{`Telefon: ${
-            valgtPerson()?.telefon || "Telefonnummer eksisterer ikke"
-          }`}</label>
+          <label>{`Telefon: ${valgtPerson()?.telefon || "Telefonnummer eksisterer ikke"}`}</label>
           <label>{`Epost: ${valgtPerson()?.epost}`}</label>
           {valgtPerson()?.beskrivelse && (
             <label>{`Beskrivelse: ${valgtPerson()?.beskrivelse}`}</label>
@@ -234,11 +227,7 @@ export const VirksomhetKontaktpersoner = (
           />
           <div className={styles.button_container}>
             <div className={styles.button_container_left}>
-              <Button
-                size="small"
-                type="button"
-                onClick={opprettEllerLagreKontaktperson}
-              >
+              <Button size="small" type="button" onClick={opprettEllerLagreKontaktperson}>
                 {state.leggTil ? "Opprett kontaktperson" : "Lagre"}
               </Button>
               {state.rediger && (

@@ -3,7 +3,10 @@ import { BodyShort, Heading } from "@navikt/ds-react";
 
 export function ErrorPage() {
   const error = useRouteError() as
-    | { statusText?: string; message?: string }
+    | {
+        statusText?: string;
+        message?: string;
+      }
     | undefined;
 
   return (

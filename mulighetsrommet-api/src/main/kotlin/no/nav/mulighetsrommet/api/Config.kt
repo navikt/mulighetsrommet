@@ -80,7 +80,6 @@ data class ServiceClientConfig(
 data class TaskConfig(
     val deleteExpiredTiltakshistorikk: DeleteExpiredTiltakshistorikk.Config,
     val synchronizeNorgEnheter: SynchronizeNorgEnheter.Config,
-    val synchronizeEnheterFraSanityTilApi: SynchronizeTiltaksgjennomforingEnheter.Config,
     val synchronizeNavAnsatte: SynchronizeNavAnsatte.Config,
     val notifySluttdatoForGjennomforingerNarmerSeg: NotifySluttdatoForGjennomforingerNarmerSeg.Config,
     val notifySluttdatoForAvtalerNarmerSeg: NotifySluttdatoForAvtalerNarmerSeg.Config,

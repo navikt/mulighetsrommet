@@ -50,19 +50,20 @@ class TiltaksgjennomforingService(
         }
         virksomhetService.getOrSyncVirksomhet(request.arrangorOrganisasjonsnummer)
 
-        val previousAnsvarlig = tiltaksgjennomforingRepository.get(request.id)?.ansvarlig?.navident
+        val prevAdministrator = tiltaksgjennomforingRepository.get(request.id)?.administrator?.navIdent
 
         return request.toDbo()
             .map { dbo ->
-                db.transaction { tx ->
+                db.transactionSuspend { tx ->
                     tiltaksgjennomforingRepository.upsert(dbo, tx)
                     utkastRepository.delete(dbo.id, tx)
-                    if (navIdent != request.ansvarlig && request.ansvarlig != previousAnsvarlig) {
-                        sattSomAnsvarligNotification(dbo.navn, request.ansvarlig, tx)
+                    if (navIdent != request.administrator && request.administrator != prevAdministrator) {
+                        dispatchSattSomAdministratorNotification(dbo.navn, request.administrator, tx)
                     }
 
                     val dto = tiltaksgjennomforingRepository.get(request.id, tx)!!
 
+                    sanityTiltaksgjennomforingService.createOrPatchSanityTiltaksgjennomforing(dto)
                     tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingDto.from(dto))
                     dto
                 }
@@ -72,12 +73,56 @@ class TiltaksgjennomforingService(
     fun get(id: UUID): TiltaksgjennomforingAdminDto? =
         tiltaksgjennomforingRepository.get(id)
 
+    fun getAllSkalMigreres(
+        pagination: PaginationParams,
+        filter: AdminTiltaksgjennomforingFilter,
+    ): PaginatedResponse<TiltaksgjennomforingAdminDto> =
+        tiltaksgjennomforingRepository
+            .getAll(
+                pagination,
+                search = filter.search,
+                navEnhet = filter.navEnhet,
+                tiltakstypeId = filter.tiltakstypeId,
+                status = filter.status,
+                sortering = filter.sortering,
+                sluttDatoCutoff = filter.sluttDatoCutoff,
+                dagensDato = filter.dagensDato,
+                navRegion = filter.navRegion,
+                avtaleId = filter.avtaleId,
+                arrangorOrgnr = filter.arrangorOrgnr,
+                administratorNavIdent = filter.administratorNavIdent,
+                skalMigreres = true,
+            )
+            .let { (totalCount, data) ->
+                PaginatedResponse(
+                    pagination = Pagination(
+                        totalCount = totalCount,
+                        currentPage = pagination.page,
+                        pageSize = pagination.limit,
+                    ),
+                    data = data,
+                )
+            }
+
     fun getAll(
         pagination: PaginationParams,
         filter: AdminTiltaksgjennomforingFilter,
     ): PaginatedResponse<TiltaksgjennomforingAdminDto> =
         tiltaksgjennomforingRepository
-            .getAll(pagination, filter)
+            .getAll(
+                pagination,
+                search = filter.search,
+                navEnhet = filter.navEnhet,
+                tiltakstypeId = filter.tiltakstypeId,
+                status = filter.status,
+                sortering = filter.sortering,
+                sluttDatoCutoff = filter.sluttDatoCutoff,
+                dagensDato = filter.dagensDato,
+                navRegion = filter.navRegion,
+                avtaleId = filter.avtaleId,
+                arrangorOrgnr = filter.arrangorOrgnr,
+                administratorNavIdent = filter.administratorNavIdent,
+            )
             .let { (totalCount, data) ->
                 PaginatedResponse(
                     pagination = Pagination(
@@ -102,11 +147,15 @@ class TiltaksgjennomforingService(
         return tiltaksgjennomforingRepository.updateAvtaleIdForGjennomforing(gjennomforingId, avtaleId)
     }
 
-    fun getBySanityIds(sanityIds: List<UUID>): Map<String, TiltaksgjennomforingAdminDto> {
+    fun getBySanityId(sanityId: UUID): TiltaksgjennomforingAdminDto? {
+        return tiltaksgjennomforingRepository.getBySanityId(sanityId)
+    }
+
+    fun getBySanityIds(sanityIds: List<UUID>): Map<UUID, TiltaksgjennomforingAdminDto> {
         return tiltaksgjennomforingRepository.getBySanityIds(sanityIds)
     }
 
-    fun delete(id: UUID, currentDate: LocalDate = LocalDate.now()): StatusResponse<Unit> {
+    suspend fun delete(id: UUID, currentDate: LocalDate = LocalDate.now()): StatusResponse<Unit> {
         val gjennomforing = tiltaksgjennomforingRepository.get(id)
             ?: return Either.Left(NotFound("Fant ikke gjennomføringen med id $id"))
 
@@ -123,18 +172,19 @@ class TiltaksgjennomforingService(
             return Either.Left(BadRequest(message = "Gjennomføringen kan ikke slettes fordi den har $antallDeltagere deltager(e) koblet til seg."))
         }
 
-        return db.transaction { tx ->
+        val sanityId = gjennomforing.sanityId
+
+        return db.transactionSuspend { tx ->
             tiltaksgjennomforingRepository.delete(id, tx)
+            if (sanityId != null) {
+                sanityTiltaksgjennomforingService.deleteSanityTiltaksgjennomforing(sanityId)
+            }
             tiltaksgjennomforingKafkaProducer.retract(id)
         }.right()
     }
 
     fun getAllMidlertidigStengteGjennomforingerSomNarmerSegSluttdato(): List<TiltaksgjennomforingNotificationDto> {
         return tiltaksgjennomforingRepository.getAllMidlertidigStengteGjennomforingerSomNarmerSegSluttdato()
-    }
-
-    fun getLokasjonerForBrukersEnhet(enhetsId: String, fylkeId: String): List<String> {
-        return tiltaksgjennomforingRepository.getLokasjonerForEnhet(enhetsId, fylkeId)
     }
 
     fun avbrytGjennomforing(gjennomforingId: UUID): StatusResponse<Unit> {
@@ -157,11 +207,11 @@ class TiltaksgjennomforingService(
         }.right()
     }
 
-    private fun sattSomAnsvarligNotification(gjennomforingNavn: String, ansvarlig: String, tx: Session) {
+    private fun dispatchSattSomAdministratorNotification(gjennomforingNavn: String, administrator: String, tx: Session) {
         val notification = ScheduledNotification(
             type = NotificationType.NOTIFICATION,
-            title = "Du har blitt satt som ansvarlig på gjennomføringen \"${gjennomforingNavn}\"",
-            targets = listOf(ansvarlig),
+            title = "Du har blitt satt som administrator på gjennomføringen \"${gjennomforingNavn}\"",
+            targets = listOf(administrator),
             createdAt = Instant.now(),
         )
         notificationRepository.insert(notification, tx)

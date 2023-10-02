@@ -25,10 +25,9 @@ class ArrangorService(
     }
 
     suspend fun hentVirksomhet(virksomhetsnummer: String): VirksomhetDto? {
-        return CacheUtils
-            .tryCacheFirstNullable(cache, virksomhetsnummer) {
-                amtEnhetsregisterClient.hentVirksomhet(virksomhetsnummer)
-            }
+        return CacheUtils.tryCacheFirstNullable(cache, virksomhetsnummer) {
+            amtEnhetsregisterClient.hentVirksomhet(virksomhetsnummer)
+        }
     }
 
     suspend fun hentOverordnetEnhetNavnForArrangor(virksomhetsnummer: String): String? {

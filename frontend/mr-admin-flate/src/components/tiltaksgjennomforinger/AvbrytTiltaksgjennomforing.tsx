@@ -1,12 +1,10 @@
 import { Alert, BodyLong, Button, Heading, ReadMore } from "@navikt/ds-react";
-import {
-  ApiError,
-  TiltaksgjennomforingStatus,
-} from "mulighetsrommet-api-client";
+import { TiltaksgjennomforingStatus } from "mulighetsrommet-api-client";
 import { useEffect, useState } from "react";
 import { useAvbrytTiltaksgjennomforing } from "../../api/tiltaksgjennomforing/useAvbrytTiltaksgjennomforing";
 import { useTiltaksgjennomforingById } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforingById";
 import styles from "./AvbrytTiltaksgjennomforing.module.scss";
+import { resolveErrorMessage } from "../../api/errors";
 
 interface Props {
   onAvbryt: () => void;
@@ -18,12 +16,9 @@ export function AvbrytTiltaksgjennomforing({ onAvbryt }: Props) {
   const [error, setError] = useState("");
 
   const avbrytAvtale = () => {
-    if (!gjennomforing?.id)
-      throw new Error("Fant ingen id for tiltaksgjennomføring");
+    if (!gjennomforing?.id) throw new Error("Fant ingen id for tiltaksgjennomføring");
 
-    const dialog = confirm(
-      "Er du sikker på at du vil avbryte gjennomføringen?",
-    );
+    const dialog = confirm("Er du sikker på at du vil avbryte gjennomføringen?");
     if (dialog) {
       mutation.mutate(gjennomforing.id);
     }
@@ -35,8 +30,8 @@ export function AvbrytTiltaksgjennomforing({ onAvbryt }: Props) {
     }
 
     if (mutation.isError) {
-      const error = mutation.error as ApiError;
-      setError(error.body);
+      const error = resolveErrorMessage(mutation.error);
+      setError(error);
     }
   }, [mutation]);
 
@@ -55,18 +50,13 @@ export function AvbrytTiltaksgjennomforing({ onAvbryt }: Props) {
     <div className={styles.warning_container}>
       <ReadMore header="Hva betyr det å avbryte gjennomføringen?">
         <BodyLong>
-          Hvis gjennomføringens startdato er passert kan du avbryte
-          gjennomføringen. Den vil da bli satt som avbrutt i systemet. Du kan
-          ikke avbryte en gjennomføring som har deltakere tilknyttet seg.
+          Hvis gjennomføringens startdato er passert kan du avbryte gjennomføringen. Den vil da bli
+          satt som avbrutt i systemet. Du kan ikke avbryte en gjennomføring som har deltakere
+          tilknyttet seg.
         </BodyLong>
       </ReadMore>
 
-      <Button
-        type="button"
-        size="small"
-        variant="danger"
-        onClick={avbrytAvtale}
-      >
+      <Button type="button" size="small" variant="danger" onClick={avbrytAvtale}>
         Jeg vil avbryte gjennomføringen
       </Button>
       {error ? (

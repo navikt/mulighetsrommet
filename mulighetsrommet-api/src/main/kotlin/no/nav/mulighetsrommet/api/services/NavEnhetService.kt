@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.services
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import io.prometheus.client.cache.caffeine.CacheMetricsCollector
+import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.repositories.NavEnhetRepository
 import no.nav.mulighetsrommet.api.utils.EnhetFilter
@@ -30,11 +31,21 @@ class NavEnhetService(private val enhetRepository: NavEnhetRepository) {
         }
     }
 
-    fun hentAlleEnheter(filter: EnhetFilter): List<NavEnhetDbo> {
-        return enhetRepository.getAll(filter.statuser, filter.typer)
+    fun hentOverorndetFylkesenhet(enhetsnummer: String): NavEnhetDbo? {
+        val enhet = CacheUtils.tryCacheFirstNullable(cache, enhetsnummer) {
+            hentEnhet(enhetsnummer)
+        }
+
+        return if (enhet?.type == Norg2Type.FYLKE) {
+            enhet
+        } else if (enhet?.overordnetEnhet != null) {
+            hentOverorndetFylkesenhet(enhet.overordnetEnhet)
+        } else {
+            enhet
+        }
     }
 
-    fun hentEnheterForAvtale(filter: EnhetFilter): List<NavEnhetDbo> {
-        return enhetRepository.getAllEnheterWithAvtale(filter.statuser, filter.tiltakstypeId)
+    fun hentAlleEnheter(filter: EnhetFilter): List<NavEnhetDbo> {
+        return enhetRepository.getAll(filter.statuser, filter.typer)
     }
 }

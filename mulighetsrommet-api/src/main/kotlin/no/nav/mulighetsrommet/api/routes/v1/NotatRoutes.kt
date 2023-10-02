@@ -52,7 +52,7 @@ fun Route.avtaleNotatRoutes() {
                     return@get call.respond(it)
                 }
                 .onLeft {
-                    log.error("$it")
+                    application.log.error("$it")
                     call.respond(HttpStatusCode.InternalServerError, "Kunne ikke hente notat for avtale med id: '$id'")
                 }
         }
@@ -99,7 +99,7 @@ fun Route.avtaleNotatRoutes() {
                     return@get call.respond(it)
                 }
                 .onLeft {
-                    log.error("$it")
+                    application.log.error("$it")
                     call.respond(
                         HttpStatusCode.InternalServerError,
                         "Kunne ikke hente notat for tiltaksgjennomføring med id: '$id'",

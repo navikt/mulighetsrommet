@@ -135,9 +135,7 @@ class TiltakstypeRepositoryTest : FunSpec({
         tiltakstyper.upsert(tiltakstypeAvsluttet)
         tiltakstyper.upsert(tiltakstypeSkalIkkeMigreres)
         Query("update tiltakstype set skal_migreres = true where id <> '$idSkalIkkeMigreres'").asUpdate.let {
-            database.db.run(
-                it,
-            )
+            database.db.run(it)
         }
 
         test("Filter for kun gruppetiltak returnerer bare gruppetiltak") {
@@ -338,9 +336,7 @@ class TiltakstypeRepositoryTest : FunSpec({
             tiltaksgjennomforingRepository.upsert(gjennomforing3)
             tiltaksgjennomforingRepository.upsert(gjennomforing4)
 
-            val antallGjennomforinger = tiltaksgjennomforingRepository.getAll(
-                filter = AdminTiltaksgjennomforingFilter(),
-            )
+            val antallGjennomforinger = tiltaksgjennomforingRepository.getAll()
             antallGjennomforinger.first shouldBe 3
 
             val antallGjennomforingerForTiltakstype =

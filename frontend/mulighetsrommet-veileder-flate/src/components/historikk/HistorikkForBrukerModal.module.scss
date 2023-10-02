@@ -2,59 +2,59 @@
   min-width: 40rem;
   width: 50rem;
   max-width: 70%;
+}
 
-  .historikk_for_bruker {
-    &_liste {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-      color: var(--navds-global-color-semantic-text);
-    }
+.historikk_for_bruker {
+  &_liste {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    color: var(--navds-global-color-semantic-text);
+  }
 
-    &_listeelement {
+  &_listeelement {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid #b8b8b8;
+  }
+
+  &_data {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &_arrangor_tiltakstype {
+    display: flex;
+    flex-direction: row;
+    gap: 0.5rem;
+  }
+
+  &_tiltakstype,
+  &_arrangor {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &_tiltakstype {
+    max-width: 17rem;
+  }
+
+  &_arrangor {
+    max-width: 10rem;
+  }
+
+  &_status_dato {
+    display: flex;
+    flex-direction: column;
+
+    .historikk_datoer {
       display: grid;
-      grid-template-columns: 1fr auto;
-      margin-bottom: 1rem;
-      border-bottom: 1px solid #b8b8b8;
-    }
-
-    &_data {
-      display: flex;
-      flex-direction: column;
-    }
-
-    &_arrangor_tiltakstype {
-      display: flex;
-      flex-direction: row;
-      gap: 0.5rem;
-    }
-
-    &_tiltakstype,
-    &_arrangor {
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    &_tiltakstype {
-      max-width: 17rem;
-    }
-
-    &_arrangor {
-      max-width: 10rem;
-    }
-
-    &_status_dato {
-      display: flex;
-      flex-direction: column;
-
-      .historikk_datoer {
-        display: grid;
-        grid-template-columns: 5rem 1rem 5rem;
-        grid-gap: 5px;
-        text-align: center;
-        margin: 0;
-      }
+      grid-template-columns: 5rem 1rem 5rem;
+      grid-gap: 5px;
+      text-align: center;
+      margin: 0;
     }
   }
 }

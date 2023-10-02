@@ -136,6 +136,7 @@ class ArenaAdapterServiceTest : FunSpec({
             tiltakstypeKafkaProducer = tiltakstypeKafkaProducer,
             sanityTiltaksgjennomforingService = mockk(relaxed = true),
             virksomhetService = mockk(relaxed = true),
+            db = database.db,
         )
 
         afterTest {
@@ -188,6 +189,7 @@ class ArenaAdapterServiceTest : FunSpec({
             tiltakstypeKafkaProducer = mockk(relaxed = true),
             sanityTiltaksgjennomforingService = mockk(relaxed = true),
             virksomhetService = mockk(relaxed = true),
+            db = database.db,
         )
 
         test("CRUD") {
@@ -229,6 +231,7 @@ class ArenaAdapterServiceTest : FunSpec({
             tiltakstypeKafkaProducer = mockk(relaxed = true),
             sanityTiltaksgjennomforingService = mockk(relaxed = true),
             virksomhetService = mockk(relaxed = true),
+            db = database.db,
         )
 
         afterTest {
@@ -333,6 +336,7 @@ class ArenaAdapterServiceTest : FunSpec({
             tiltakstypeKafkaProducer = mockk(relaxed = true),
             sanityTiltaksgjennomforingService = mockk(relaxed = true),
             virksomhetService = mockk(relaxed = true),
+            db = database.db,
         )
 
         beforeTest {

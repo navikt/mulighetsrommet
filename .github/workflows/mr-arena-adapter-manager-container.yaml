@@ -1,14 +1,10 @@
 name: POAO-frontend (mr-arena-adapter-manager)
 
 on:
-  merge_group:
-  pull_request:
+  push:
     paths:
       - .github/workflows/mr-arena-adapter-manager-container.yaml
       - frontend/arena-adapter-manager/.nais/**
-  push:
-    branches:
-      - main
   workflow_dispatch:
     inputs:
       environment:
@@ -33,7 +29,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Lint
         uses: ./.github/actions/lint-yaml
         with:
@@ -44,7 +40,7 @@ jobs:
     needs: [ci]
     if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: deploy gcp dev
         uses: nais/deploy/actions/deploy@v1
         env:
@@ -56,7 +52,7 @@ jobs:
     needs: [ci, deploy-dev]
     if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'dev_and_prod'
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: deploy gcp prod
         uses: nais/deploy/actions/deploy@v1
         env:

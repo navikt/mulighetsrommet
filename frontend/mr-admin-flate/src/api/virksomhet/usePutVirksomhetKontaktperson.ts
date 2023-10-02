@@ -5,6 +5,9 @@ import { mulighetsrommetClient } from "../clients";
 export function usePutVirksomhetKontaktperson(orgnr: string) {
   return useMutation({
     mutationFn: (requestBody: VirksomhetKontaktpersonRequest) =>
-      mulighetsrommetClient.virksomhetKontaktperson.opprettVirksomhetKontaktperson({ orgnr, requestBody }),
+      mulighetsrommetClient.virksomhetKontaktperson.opprettVirksomhetKontaktperson({
+        orgnr,
+        requestBody,
+      }),
   });
 }

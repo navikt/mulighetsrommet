@@ -1,15 +1,29 @@
-import ArrangorInfo from './ArrangorInfo';
-import styles from './Kontaktinfo.module.scss';
-import TiltaksansvarligInfo from './TiltaksansvarligInfo';
-import FaneTiltaksinformasjon from '../FaneTiltaksinformasjon';
-import useTiltaksgjennomforingById from '../../../core/api/queries/useTiltaksgjennomforingById';
+import { Alert } from "@navikt/ds-react";
+import { VeilederflateTiltaksgjennomforing } from "mulighetsrommet-api-client";
+import { erPreview } from "../../../utils/Utils";
+import FaneTiltaksinformasjon from "../FaneTiltaksinformasjon";
+import ArrangorInfo from "./ArrangorInfo";
+import styles from "./Kontaktinfo.module.scss";
+import NavKontaktpersonInfo from "./NavKontaktpersonInfo";
 
-const KontaktinfoFane = () => {
-  const { data } = useTiltaksgjennomforingById();
+interface Props {
+  tiltaksgjennomforing: VeilederflateTiltaksgjennomforing;
+}
+
+const KontaktinfoFane = ({ tiltaksgjennomforing }: Props) => {
   return (
-    <FaneTiltaksinformasjon harInnhold={!!data} className={styles.kontaktinfo_container}>
-      <ArrangorInfo data={data} />
-      <TiltaksansvarligInfo data={data} />
+    <FaneTiltaksinformasjon
+      harInnhold={!!tiltaksgjennomforing}
+      className={styles.kontaktinfo_container}
+    >
+      {erPreview ? (
+        <Alert variant="info">Ved forhåndsvisning vises ikke kontaktinformasjon</Alert>
+      ) : (
+        <>
+          <ArrangorInfo data={tiltaksgjennomforing} />
+          <NavKontaktpersonInfo data={tiltaksgjennomforing} />
+        </>
+      )}
     </FaneTiltaksinformasjon>
   );
 };

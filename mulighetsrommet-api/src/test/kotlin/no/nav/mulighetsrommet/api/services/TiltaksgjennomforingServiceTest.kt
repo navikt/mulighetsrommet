@@ -8,6 +8,7 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.ktor.http.*
+import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -236,7 +237,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
         }
     }
 
-    context("Ansvarlig notification") {
+    context("Administrator-notification") {
         val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
         val deltagerRepository = DeltakerRepository(database.db)
         val avtaleRepository = AvtaleRepository(database.db)
@@ -253,7 +254,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
         )
         val navAnsattRepository = NavAnsattRepository(database.db)
 
-        test("Ingen ansvarlig notification hvis ansvarlig er samme som opprettet") {
+        test("Ingen administrator-notification hvis administrator er samme som opprettet") {
             navAnsattRepository.upsert(
                 NavAnsattDbo(
                     navIdent = "B123456",
@@ -275,13 +276,13 @@ class TiltaksgjennomforingServiceTest : FunSpec({
                 ),
             )
             val gjennomforing = TiltaksgjennomforingFixtures.oppfolging1Request(avtaleId)
-                .copy(ansvarlig = "B123456", navEnheter = listOf("2990"))
+                .copy(administrator = "B123456", navEnheter = listOf("2990"))
             tiltaksgjennomforingService.upsert(gjennomforing, "B123456", LocalDate.of(2023, 1, 1)).shouldBeRight()
 
             verify(exactly = 0) { notificationRepository.insert(any(), any()) }
         }
 
-        test("Bare én ansvarlig notification når man endrer gjennomforing") {
+        test("Bare én administrator notification når man endrer gjennomforing") {
             navAnsattRepository.upsert(
                 NavAnsattDbo(
                     navIdent = "B123456",
@@ -316,7 +317,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
                 ),
             )
             val gjennomforing = TiltaksgjennomforingFixtures.oppfolging1Request(avtaleId)
-                .copy(ansvarlig = "Z654321", navEnheter = listOf("2990"))
+                .copy(administrator = "Z654321", navEnheter = listOf("2990"))
 
             tiltaksgjennomforingService.upsert(gjennomforing, "B123456", LocalDate.of(2023, 1, 1)).shouldBeRight()
             tiltaksgjennomforingService.upsert(gjennomforing.copy(navn = "nytt navn"), "B123456", LocalDate.of(2023, 1, 1)).shouldBeRight()
@@ -407,6 +408,16 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             shouldThrow<Throwable> { tiltaksgjennomforingService.delete(gjennomforing.id) }
 
             tiltaksgjennomforingService.get(gjennomforing.id) shouldNotBe null
+        }
+
+        test("Hvis sanity create kaster rulles upsert tilbake") {
+            val gjennomforing = TiltaksgjennomforingFixtures.oppfolging1Request(avtaleId)
+
+            coEvery { sanityTiltaksgjennomforingService.createOrPatchSanityTiltaksgjennomforing(any()) } throws Exception()
+
+            shouldThrow<Throwable> { tiltaksgjennomforingService.upsert(gjennomforing, "B123456", LocalDate.of(2023, 1, 1)) }
+
+            tiltaksgjennomforingService.get(gjennomforing.id) shouldBe null
         }
     }
 })

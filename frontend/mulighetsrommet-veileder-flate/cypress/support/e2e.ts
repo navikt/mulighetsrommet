@@ -37,7 +37,7 @@ if (app && !app.document.head.querySelector('[data-hide-command-log-request]')) 
 }
 
 Cypress.Commands.add('resetSide', () => {
-  cy.visit('/');
+  cy.visit('/arbeidsmarkedstiltak/oversikt');
 });
 
 Cypress.Commands.add('getByTestId', (selector, ...args) => {
@@ -45,7 +45,7 @@ Cypress.Commands.add('getByTestId', (selector, ...args) => {
 });
 
 Cypress.Commands.add('velgFilter', filternavn => {
-  cy.getByTestId(`filter_checkbox_${filternavn}`).click();
+  cy.getByTestId(`filter_checkbox_${filternavn}`).should('exist').click();
   cy.getByTestId(`filter_checkbox_${filternavn}`).should('be.checked');
   cy.getByTestId(`filtertag_${filternavn}`).should('exist');
 });

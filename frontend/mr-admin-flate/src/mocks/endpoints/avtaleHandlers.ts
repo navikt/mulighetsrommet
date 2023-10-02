@@ -1,9 +1,5 @@
 import { DefaultBodyType, PathParams, rest } from "msw";
-import {
-  Avtale,
-  AvtaleRequest,
-  PaginertAvtale,
-} from "mulighetsrommet-api-client";
+import { Avtale, AvtaleRequest, PaginertAvtale } from "mulighetsrommet-api-client";
 import { mockAvtaler } from "../fixtures/mock_avtaler";
 
 export const avtaleHandlers = [
@@ -11,7 +7,7 @@ export const avtaleHandlers = [
     "*/api/v1/internal/avtaler",
     (req, res, ctx) => {
       const avtalestatus = req.url.searchParams.get("avtalestatus");
-      const data = mockAvtaler.data.filter(
+      const data = mockAvtaler.filter(
         (a) => a.avtalestatus === avtalestatus || avtalestatus === null,
       );
 
@@ -34,10 +30,10 @@ export const avtaleHandlers = [
     (req, res, ctx) => {
       const avtalestatus = req.url.searchParams.get("avtalestatus");
       const brukerident = "B123456";
-      const data = mockAvtaler.data.filter(
+      const data = mockAvtaler.filter(
         (a) =>
           (a.avtalestatus === avtalestatus || avtalestatus === null) &&
-          a.ansvarlig?.navident === brukerident,
+          a.administrator?.navIdent === brukerident,
       );
 
       return res(
@@ -57,8 +53,10 @@ export const avtaleHandlers = [
   rest.get<DefaultBodyType, PathParams, Avtale | undefined>(
     "*/api/v1/internal/avtaler/:id",
     (req, res, ctx) => {
-      const { id } = req.params as { id: string };
-      const avtale = mockAvtaler.data.find((a) => a.id === id) ?? undefined;
+      const { id } = req.params as {
+        id: string;
+      };
+      const avtale = mockAvtaler.find((a) => a.id === id) ?? undefined;
       return res(ctx.status(200), ctx.json(avtale));
     },
   ),
@@ -66,8 +64,10 @@ export const avtaleHandlers = [
   rest.get<DefaultBodyType, PathParams, Avtale | undefined>(
     "*/api/v1/internal/avtaler/skjema",
     (req, res, ctx) => {
-      const { id } = req.params as { id: string };
-      const avtale = mockAvtaler.data.find((a) => a.id === id) ?? undefined;
+      const { id } = req.params as {
+        id: string;
+      };
+      const avtale = mockAvtaler.find((a) => a.id === id) ?? undefined;
       return res(ctx.status(200), ctx.json(avtale));
     },
   ),
@@ -79,7 +79,9 @@ export const avtaleHandlers = [
   rest.put<AvtaleRequest>("*/api/v1/internal/avtaler", (req, res, ctx) => {
     return res(
       ctx.status(200),
-      ctx.json({ id: "d1f163b7-1a41-4547-af16-03fd4492b7ba" }),
+      ctx.json({
+        id: "d1f163b7-1a41-4547-af16-03fd4492b7ba",
+      }),
     );
   }),
 ];

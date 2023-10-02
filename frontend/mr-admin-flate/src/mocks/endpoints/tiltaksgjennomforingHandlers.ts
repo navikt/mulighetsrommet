@@ -1,54 +1,53 @@
 import { DefaultBodyType, PathParams, rest } from "msw";
+import { PaginertTiltaksgjennomforing, Tiltaksgjennomforing } from "mulighetsrommet-api-client";
 import {
-  PaginertTiltaksgjennomforing,
-  Tiltaksgjennomforing,
-} from "mulighetsrommet-api-client";
-import { mockTiltaksgjennomforinger } from "../fixtures/mock_tiltaksgjennomforinger";
+  mockTiltaksgjennomforinger,
+  paginertMockTiltaksgjennomforinger,
+} from "../fixtures/mock_tiltaksgjennomforinger";
 
 export const tiltaksgjennomforingHandlers = [
-  rest.get<
-    DefaultBodyType,
-    PathParams,
-    PaginertTiltaksgjennomforing | { x: string }
-  >("*/api/v1/internal/tiltaksgjennomforinger", (req, res, ctx) => {
-    return res(ctx.status(200), ctx.json(mockTiltaksgjennomforinger));
-  }),
+  rest.get<DefaultBodyType, PathParams, PaginertTiltaksgjennomforing | { x: string }>(
+    "*/api/v1/internal/tiltaksgjennomforinger",
+    (req, res, ctx) => {
+      return res(ctx.status(200), ctx.json(paginertMockTiltaksgjennomforinger));
+    },
+  ),
 
-  rest.get<
-    DefaultBodyType,
-    PathParams,
-    PaginertTiltaksgjennomforing | { x: string }
-  >("*/api/v1/internal/tiltaksgjennomforinger/mine", (req, res, ctx) => {
-    const brukerident = "B123456";
-    const data = mockTiltaksgjennomforinger.data.filter(
-      (gj) => gj.ansvarlig?.navident === brukerident,
-    );
-    return res(
-      ctx.status(200),
-      ctx.json({
-        pagination: {
-          pageSize: 15,
-          currentPage: 1,
-          totalCount: data.length,
-        },
-        data,
-      }),
-    );
-  }),
+  rest.get<DefaultBodyType, PathParams, PaginertTiltaksgjennomforing | { x: string }>(
+    "*/api/v1/internal/tiltaksgjennomforinger/mine",
+    (req, res, ctx) => {
+      const brukerident = "B123456";
+      const data = mockTiltaksgjennomforinger.filter(
+        (gj) => gj.administrator?.navIdent === brukerident,
+      );
+      return res(
+        ctx.status(200),
+        ctx.json({
+          pagination: {
+            pageSize: 15,
+            currentPage: 1,
+            totalCount: data.length,
+          },
+          data,
+        }),
+      );
+    },
+  ),
 
   rest.put<DefaultBodyType, PathParams, Tiltaksgjennomforing>(
     "*/api/v1/internal/tiltaksgjennomforinger",
     (req, res, ctx) => {
-      return res(ctx.status(200), ctx.json(mockTiltaksgjennomforinger.data[0]));
+      return res(ctx.status(200), ctx.json(mockTiltaksgjennomforinger[0]));
     },
   ),
 
   rest.get<DefaultBodyType, PathParams, Tiltaksgjennomforing | undefined>(
     "*/api/v1/internal/tiltaksgjennomforinger/skjema",
     (req, res, ctx) => {
-      const { id } = req.params as { id: string };
-      const avtale =
-        mockTiltaksgjennomforinger.data.find((a) => a.id === id) ?? undefined;
+      const { id } = req.params as {
+        id: string;
+      };
+      const avtale = mockTiltaksgjennomforinger.find((a) => a.id === id) ?? undefined;
       return res(ctx.status(200), ctx.json(avtale));
     },
   ),
@@ -62,7 +61,7 @@ export const tiltaksgjennomforingHandlers = [
         throw new Error("Tiltaksnummer er ikke satt som query-param");
       }
 
-      const gjennomforing = mockTiltaksgjennomforinger.data.filter((tg) =>
+      const gjennomforing = mockTiltaksgjennomforinger.filter((tg) =>
         tg.tiltaksnummer.toString().includes(tiltaksnummer),
       );
 
@@ -75,9 +74,7 @@ export const tiltaksgjennomforingHandlers = [
     (req, res, ctx) => {
       const { id } = req.params;
 
-      const gjennomforing = mockTiltaksgjennomforinger.data.find(
-        (gj) => gj.id === id,
-      );
+      const gjennomforing = mockTiltaksgjennomforinger.find((gj) => gj.id === id);
       if (!gjennomforing) {
         return res(ctx.status(404), ctx.json(undefined));
       }
@@ -93,18 +90,14 @@ export const tiltaksgjennomforingHandlers = [
     },
   ),
 
-  rest.get<
-    DefaultBodyType,
-    { id: string },
-    PaginertTiltaksgjennomforing | undefined
-  >(
+  rest.get<DefaultBodyType, { id: string }, PaginertTiltaksgjennomforing | undefined>(
     "*/api/v1/internal/tiltaksgjennomforinger/tiltakstype/:id",
     (req, res, ctx) => {
-      const { id } = req.params as { id: string };
+      const { id } = req.params as {
+        id: string;
+      };
 
-      const gjennomforinger = mockTiltaksgjennomforinger.data.filter(
-        (gj) => gj.tiltakstype.id === id,
-      );
+      const gjennomforinger = mockTiltaksgjennomforinger.filter((gj) => gj.tiltakstype.id === id);
       if (!gjennomforinger) {
         return res(ctx.status(404), ctx.json(undefined));
       }
@@ -124,15 +117,11 @@ export const tiltaksgjennomforingHandlers = [
     },
   ),
 
-  rest.get<
-    DefaultBodyType,
-    { tiltakskode: string },
-    PaginertTiltaksgjennomforing
-  >(
+  rest.get<DefaultBodyType, { tiltakskode: string }, PaginertTiltaksgjennomforing>(
     "*/api/v1/internal/tiltaksgjennomforinger/tiltakskode/:tiltakskode",
     (req, res, ctx) => {
       const { tiltakskode } = req.params;
-      const gjennomforinger = mockTiltaksgjennomforinger.data.filter(
+      const gjennomforinger = mockTiltaksgjennomforinger.filter(
         (gj) => gj.tiltakstype.arenaKode === tiltakskode,
       );
       return res(
@@ -154,7 +143,7 @@ export const tiltaksgjennomforingHandlers = [
     "*/api/v1/internal/tiltaksgjennomforinger/enhet/:enhet",
     (req, res, ctx) => {
       const { enhet } = req.params;
-      const gjennomforinger = mockTiltaksgjennomforinger.data.filter(
+      const gjennomforinger = mockTiltaksgjennomforinger.filter(
         (gj) => gj.arenaAnsvarligEnhet === enhet,
       );
       return res(

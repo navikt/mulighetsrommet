@@ -7,10 +7,7 @@ interface HeaderBannerProps {
   harUndermeny?: boolean;
 }
 
-export function HeaderBanner({
-  heading,
-  harUndermeny = false,
-}: HeaderBannerProps) {
+export function HeaderBanner({ heading, harUndermeny = false }: HeaderBannerProps) {
   return (
     <aside
       className={classNames(

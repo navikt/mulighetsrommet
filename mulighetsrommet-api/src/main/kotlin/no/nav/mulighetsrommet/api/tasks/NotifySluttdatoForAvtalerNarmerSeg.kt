@@ -8,6 +8,7 @@ import com.github.kagkarlsson.scheduler.task.schedule.Schedules
 import kotlinx.coroutines.runBlocking
 import no.nav.mulighetsrommet.api.services.AvtaleService
 import no.nav.mulighetsrommet.domain.dto.AvtaleNotificationDto
+import no.nav.mulighetsrommet.notifications.NotificationMetadata
 import no.nav.mulighetsrommet.notifications.NotificationService
 import no.nav.mulighetsrommet.notifications.NotificationType
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
@@ -58,8 +59,8 @@ class NotifySluttdatoForAvtalerNarmerSeg(
                 val avtaler: List<AvtaleNotificationDto> = avtaleService.getAllAvtalerSomNarmerSegSluttdato()
 
                 avtaler.forEach {
-                    if (it.ansvarlige.isEmpty()) {
-                        logger.info("Fant ingen ansvarlige for avtale med id: ${it.id}")
+                    if (it.administratorer.isEmpty()) {
+                        logger.info("Fant ingen administratorer for avtale med id: ${it.id}")
                     } else {
                         val notification = ScheduledNotification(
                             type = NotificationType.NOTIFICATION,
@@ -68,8 +69,12 @@ class NotifySluttdatoForAvtalerNarmerSeg(
                                     DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT),
                                 )
                             }",
-                            targets = it.ansvarlige,
+                            targets = it.administratorer,
                             createdAt = Instant.now(),
+                            metadata = NotificationMetadata(
+                                linkText = "Gå til avtalen",
+                                link = "/avtaler/${it.id}",
+                            ),
                         )
                         notificationService.scheduleNotification(notification)
                     }

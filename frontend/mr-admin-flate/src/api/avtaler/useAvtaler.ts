@@ -21,13 +21,9 @@ export function useAvtaler() {
     leverandorOrgnr: filter.leverandor_orgnr || undefined,
   };
 
-  return useQuery(
-    QueryKeys.avtaler({ ...filter, sok: debouncedSok }, page),
-    () => {
-      return filter.visMineAvtaler
-        ? mulighetsrommetClient.avtaler.getMineAvtaler({ ...queryFilter })
-        : mulighetsrommetClient.avtaler.getAvtaler({ ...queryFilter });
-    },
-    { useErrorBoundary: true },
-  );
+  return useQuery(QueryKeys.avtaler({ ...filter, sok: debouncedSok }, page), () => {
+    return filter.visMineAvtaler
+      ? mulighetsrommetClient.avtaler.getMineAvtaler({ ...queryFilter })
+      : mulighetsrommetClient.avtaler.getAvtaler({ ...queryFilter });
+  });
 }

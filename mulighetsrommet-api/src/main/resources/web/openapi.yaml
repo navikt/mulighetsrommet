@@ -9,25 +9,32 @@ security:
 
 paths:
   /api/v1/internal/bruker:
-    parameters:
-      - $ref: "#/components/parameters/Fnr"
-    get:
+    post:
       tags:
         - Bruker
       operationId: getBrukerdata
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GetBrukerRequest"
+        required: true
       responses:
         200:
-          description: Data about the 'bruker' in the context of 'veileder'
+          description: Data om bruker
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Bruker"
-        404:
-          description: "Could not find data about 'bruker'"
+        403:
+          description: Mangler tilganger til å hente data om bruker
           content:
             application/json:
               schema:
-                type: string
+                type: object
+                properties:
+                  message:
+                    type: string
 
   /api/v1/internal/avtaler/{id}:
     parameters:
@@ -294,7 +301,6 @@ paths:
               schema:
                 $ref: "#/components/schemas/AvtaleNotat"
 
-
   /api/v1/internal/notater/avtaler/mine:
     get:
       tags:
@@ -421,7 +427,6 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/TiltaksgjennomforingNotat"
-
 
   /api/v1/internal/notater/tiltaksgjennomforinger/{id}:
     delete:
@@ -797,30 +802,6 @@ paths:
               schema:
                 type: string
 
-  /api/v1/internal/sanity:
-    get:
-      tags:
-        - Sanity
-      operationId: sanityQuery
-      parameters:
-        - in: query
-          name: query
-          schema:
-            type: string
-          description: Sanity query as a Groq-string. See https://www.sanity.io/docs/groq for more information.
-          required: true
-        - in: query
-          name: fnr
-          schema:
-            type: string
-          description: SSN for the user which will be used to filter based on the users 'oppfølgingsenhet'
-      responses:
-        200:
-          description: Sanity query result
-          content:
-            application/json:
-              schema: {}
-
   /api/v1/internal/sanity/innsatsgrupper:
     get:
       tags:
@@ -834,13 +815,13 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/SanityInnsatsgruppe"
+                  $ref: "#/components/schemas/VeilederflateInnsatsgruppe"
 
   /api/v1/internal/sanity/tiltakstyper:
     get:
       tags:
         - Sanity
-      operationId: getSanityTiltakstyper
+      operationId: getVeilederflateTiltakstyper
       responses:
         200:
           description: Tiltakstyper definert i Sanity
@@ -849,57 +830,19 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/SanityTiltakstype"
-
-  /api/v1/internal/sanity/lokasjoner:
-    parameters:
-      - $ref: "#/components/parameters/Fnr"
-    get:
-      tags:
-        - Sanity
-      operationId: getLokasjonerForBrukersEnhetOgFylke
-      responses:
-        200:
-          description: Lokasjoner fra tiltaksgjennomføringer basert på brukers enhet og fylke
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: string
+                  $ref: "#/components/schemas/VeilederflateTiltakstype"
 
   /api/v1/internal/sanity/tiltaksgjennomforinger:
-    parameters:
-      - $ref: "#/components/parameters/Fnr"
-    get:
+    post:
       tags:
         - Sanity
-      operationId: getTiltaksgjennomforingForBruker
-      parameters:
-        - in: query
-          name: innsatsgruppe
-          schema:
-            type: string
-          description: Innsatsgruppe du ønsker å filtrere på
-        - in: query
-          name: tiltakstypeIder
-          schema:
-            type: array
-            items:
-              type: string
-          description: Liste med id'er for tiltakstyper man er interessert i
-        - in: query
-          name: sokestreng
-          schema:
-            type: string
-          description: Søkestreng for fritekstsøk etter tiltaksgjennomføringer
-        - in: query
-          name: lokasjoner
-          schema:
-            type: array
-            items:
-              type: string
-          description: Liste med lokasjoner man vil filtrere på
+      operationId: getRelevanteTiltaksgjennomforingerForBruker
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GetRelevanteTiltaksgjennomforingerForBrukerRequest"
+        required: true
       responses:
         200:
           description: Hent tiltaksgjennomføringer som bruker har rett på
@@ -908,13 +851,32 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/SanityTiltaksgjennomforing"
+                  $ref: "#/components/schemas/VeilederflateTiltaksgjennomforing"
 
-  /api/v1/internal/sanity/tiltaksgjennomforing/{id}:
+  /api/v1/internal/sanity/tiltaksgjennomforing:
+    post:
+      tags:
+        - Sanity
+      operationId: getTiltaksgjennomforingForBruker
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GetTiltaksgjennomforingForBrukerRequest"
+        required: true
+      responses:
+        200:
+          description: Hent tiltaksgjennomføring for id
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VeilederflateTiltaksgjennomforing"
+
+  /api/v1/internal/sanity/tiltaksgjennomforing/preview/{id}:
     get:
       tags:
         - Sanity
-      operationId: getSanityTiltaksgjennomforing
+      operationId: getTiltaksgjennomforingForPreview
       parameters:
         - in: path
           name: id
@@ -922,24 +884,15 @@ paths:
           schema:
             type: string
           description: ID for tiltaksgjennomføring i Sanity
-        - in: query
-          name: fnr
-          schema:
-            type: string
-          description: FNR for bruker
       responses:
         200:
-          description: Hent tiltaksgjennomføring for id
+          description: Hent tiltaksgjennomføring for id uavhengig av bruker i kontekst
           content:
             application/json:
               schema:
-                type: array # Sanity kan returnere prod- og draft-versjon av dokument. Derfor array og ikke enkelt objekt
-                items:
-                  $ref: "#/components/schemas/SanityTiltaksgjennomforing"
+                $ref: "#/components/schemas/VeilederflateTiltaksgjennomforing"
 
   /api/v1/internal/dialog:
-    parameters:
-      - $ref: "#/components/parameters/Fnr"
     post:
       tags:
         - dialogen
@@ -964,12 +917,16 @@ paths:
                 type: string
 
   /api/v1/internal/bruker/historikk:
-    parameters:
-      - $ref: "#/components/parameters/Fnr"
-    get:
+    post:
       tags:
         - Historikk
       operationId: hentHistorikkForBruker
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GetHistorikkForBrukerRequest"
+        required: true
       responses:
         200:
           description: Historical data about the user
@@ -1059,23 +1016,17 @@ paths:
               schema:
                 type: string
 
-  /api/v1/internal/delMedBruker/{sanityId}:
-    get:
+  /api/v1/internal/del-med-bruker:
+    post:
       tags:
         - Del med bruker
       operationId: getDelMedBruker
-      parameters:
-        - in: query
-          name: "fnr"
-          schema:
-            type: string
-          description: "Brukers fnr"
-        - in: path
-          name: sanityId
-          description: "ID fra Sanity-dokument"
-          required: true
-          schema:
-            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GetDelMedBrukerRequest"
+        required: true
       responses:
         200:
           description: "Last entry in database about share with user"
@@ -1090,11 +1041,10 @@ paths:
               schema:
                 type: string
 
-  /api/v1/internal/delMedBruker:
-    post:
+    put:
       tags:
         - Del med bruker
-      operationId: postDelMedBruker
+      operationId: delMedBruker
       requestBody:
         content:
           application/json:
@@ -1123,8 +1073,8 @@ paths:
   /api/v1/internal/enheter:
     get:
       tags:
-        - Hent enheter
-      operationId: hentAlleEnheter
+        - NavEnheter
+      operationId: getEnheter
       parameters:
         - in: query
           name: statuser
@@ -1138,39 +1088,11 @@ paths:
           schema:
             type: array
             items:
-              $ref: "#/components/schemas/Norg2Type"
+              $ref: "#/components/schemas/NavEnhetType"
           description: Hvilke typer enheter man spør på
       responses:
         200:
           description: Alle enheter filterert på filter
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/NavEnhet"
-
-  /api/v1/internal/enheter/avtaler:
-    get:
-      tags:
-        - Hent enheter
-      operationId: hentEnheterMedAvtale
-      parameters:
-        - in: query
-          name: statuser
-          schema:
-            type: array
-            items:
-              $ref: "#/components/schemas/NavEnhetStatus"
-          description: Hvilke status skal enheten ha
-        - in: query
-          name: tiltakstypeId
-          schema:
-            type: string
-          description: ID for tiltakstype knyttet til avtaler
-      responses:
-        200:
-          description: "Enheter knyttet til avtaler"
           content:
             application/json:
               schema:
@@ -1443,7 +1365,7 @@ paths:
         description: Navn på feature toggle
         required: true
         schema:
-         $ref: "#/components/schemas/Toggles"
+          $ref: "#/components/schemas/Toggles"
     get:
       tags:
         - Features
@@ -1471,20 +1393,15 @@ components:
       schema:
         type: string
         format: uuid
-    Tiltakskode:
+
+    TiltakskodeParam:
       name: tiltakskode
       in: path
       description: Tiltakskode
       required: true
       schema:
-        type: string
-    Fnr:
-      name: fnr
-      in: query
-      description: Fødselsnummer
-      required: true
-      schema:
-        type: string
+        $ref: "#/components/schemas/Tiltakskode"
+
     Utkasttype:
       in: query
       name: utkasttype
@@ -1495,6 +1412,7 @@ components:
         enum:
           - Avtale
           - Tiltaksgjennomforing
+
     AvtaleId:
       in: query
       name: avtaleId
@@ -1504,21 +1422,81 @@ components:
         type: string
 
   schemas:
+    GetBrukerRequest:
+      type: object
+      properties:
+        norskIdent:
+          type: string
+      required:
+        - norskIdent
+
+    GetHistorikkForBrukerRequest:
+      type: object
+      properties:
+        norskIdent:
+          type: string
+      required:
+        - norskIdent
+
+    GetDelMedBrukerRequest:
+      type: object
+      properties:
+        norskIdent:
+          type: string
+        sanityId:
+          type: string
+          format: uuid
+      required:
+        - norskIdent
+        - sanityId
+
+    GetRelevanteTiltaksgjennomforingerForBrukerRequest:
+      type: object
+      properties:
+        norskIdent:
+          type: string
+        innsatsgruppe:
+          $ref: "#/components/schemas/Innsatsgruppe"
+        tiltakstypeIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+        search:
+          type: string
+      required:
+        - norskIdent
+
+    GetTiltaksgjennomforingForBrukerRequest:
+      type: object
+      properties:
+        sanityId:
+          type: string
+          format: uuid
+        norskIdent:
+          type: string
+      required:
+        - sanityId
+        - norskIdent
+
     ManuellStatus:
       type: object
       properties:
         erUnderManuellOppfolging:
           type: boolean
-          nullable: true
         krrStatus:
           type: object
           properties:
             kanVarsles:
               type: boolean
-              nullable: true
             erReservert:
               type: boolean
-              nullable: true
+          required:
+            - kanVarsles
+            - erReservert
+      required:
+        - erUnderManuellOppfolging
+        - krrStatus
 
     Pagination:
       type: object
@@ -1569,15 +1547,34 @@ components:
           items:
             $ref: "#/components/schemas/Avtale"
 
+    Tiltakskode:
+      type: string
+      enum:
+        - IPSUNG
+        - INKLUTILS
+        - HOYEREUTD
+        - ENKELAMO
+        - GRUFAGYRKE
+        - ARBTREN
+        - ARBFORB
+        - MIDLONTIL
+        - TILSJOBB
+        - ENKFAGYRKE
+        - INDJOBSTOT
+        - AVKLARAG
+        - DIGIOPPARB
+        - MENTOR
+        - INDOPPFAG
+        - GRUPPEAMO
+        - VASV
+        - ARBRRHDAG
+        - JOBBK
+        - VATIAROR
+        - VARLONTIL
+        - UTVAOONAV
+
     Tiltakstype:
       type: object
-      required:
-        - id
-        - navn
-        - arenaKode
-        - fraDato
-        - tilDato
-        - status
       properties:
         id:
           type: string
@@ -1585,13 +1582,22 @@ components:
         navn:
           type: string
         arenaKode:
-          type: string
+          $ref: "#/components/schemas/Tiltakskode"
         fraDato:
           type: string
         tilDato:
           type: string
         status:
           $ref: "#/components/schemas/Tiltakstypestatus"
+        sanityId:
+          type: string
+      required:
+        - id
+        - navn
+        - arenaKode
+        - fraDato
+        - tilDato
+        - status
 
     Avtale:
       type: object
@@ -1628,16 +1634,8 @@ components:
         prisbetingelser:
           type: string
           nullable: true
-        ansvarlig:
-          type: object
-          properties:
-            navident:
-              type: string
-            navn:
-              type: string
-          required:
-            - navident
-            - navn
+        administrator:
+          $ref: "#/components/schemas/AvtaleAdministrator"
         url:
           type: string
           nullable: true
@@ -1678,11 +1676,13 @@ components:
           type: string
         avtalenummer:
           type: string
+          nullable: true
         leverandorOrganisasjonsnummer:
           type: string
         leverandorKontaktpersonId:
           type: string
           format: UUID
+          nullable: true
         leverandorUnderenheter:
           type: array
           items:
@@ -1697,12 +1697,14 @@ components:
           type: string
         url:
           type: string
-        ansvarlig:
+          nullable: true
+        administrator:
           type: string
         avtaletype:
           $ref: "#/components/schemas/Avtaletype"
         prisOgBetalingsinformasjon:
           type: string
+          nullable: true
         navEnheter:
           type: array
           items:
@@ -1713,19 +1715,22 @@ components:
           $ref: "#/components/schemas/AvtaleAvslutningsstatus"
       required:
         - id
-        - tiltakstypeId
         - navn
-        - avtalenummer
+        - tiltakstypeId
         - leverandorOrganisasjonsnummer
         - leverandorUnderenheter
+        - leverandorKontaktpersonId
+        - avtalenummer
         - startDato
         - sluttDato
         - navRegion
-        - avtalestatus
-        - antallPlasser
-        - ansvarlig
+        - url
+        - administrator
         - avtaletype
+        - prisOgBetalingsinformasjon
         - navEnheter
+        - opphav
+        - avslutningsstatus
 
     EmbeddedTiltakstype:
       type: object
@@ -1736,7 +1741,7 @@ components:
         navn:
           type: string
         arenaKode:
-          type: string
+          $ref: "#/components/schemas/Tiltakskode"
       required:
         - id
         - navn
@@ -1841,16 +1846,8 @@ components:
             $ref: "#/components/schemas/EmbeddedNavEnhet"
         navRegion:
           $ref: "#/components/schemas/EmbeddedNavEnhet"
-        ansvarlig:
-          type: object
-          properties:
-            navident:
-              type: string
-            navn:
-              type: string
-          required:
-            - navident
-            - navn
+        administrator:
+          $ref: "#/components/schemas/TiltaksgjennomforingAdministrator"
         antallPlasser:
           type: integer
         avtaleId:
@@ -1858,6 +1855,7 @@ components:
           format: uuid
         sanityId:
           type: string
+          format: uuid
         oppstart:
           $ref: "#/components/schemas/TiltaksgjennomforingOppstartstype"
         opphav:
@@ -1876,8 +1874,10 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/TiltaksgjennomforingKontaktpersoner"
-        lokasjonArrangor:
+        stedForGjennomforing:
           type: string
+        faneinnhold:
+          type: object
       required:
         - id
         - tiltakstype
@@ -1909,6 +1909,7 @@ components:
         sluttDato:
           type: string
           format: date
+          nullable: true
         antallPlasser:
           type: number
         arrangorOrganisasjonsnummer:
@@ -1920,7 +1921,7 @@ components:
         tiltaksnummer:
           type: string
           nullable: true
-        ansvarlig:
+        administrator:
           type: string
         navEnheter:
           type: array
@@ -1945,10 +1946,14 @@ components:
         estimertVentetid:
           type: string
           nullable: true
-        lokasjonArrangor:
+        stedForGjennomforing:
           type: string
         opphav:
           $ref: "#/components/schemas/Opphav"
+          nullable: true
+        faneinnhold:
+          type: object
+          nullable: true
       required:
         - id
         - tiltakstypeId
@@ -1961,7 +1966,7 @@ components:
         - arrangorOrganisasjonsnummer
         - arrangorKontaktpersonId
         - tiltaksnummer
-        - ansvarlig
+        - administrator
         - navEnheter
         - oppstart
         - stengtFra
@@ -1969,7 +1974,9 @@ components:
         - apenForInnsok
         - kontaktpersoner
         - estimertVentetid
-        - lokasjonArrangor
+        - stedForGjennomforing
+        - opphav
+        - faneinnhold
 
     TiltaksgjennomforingStatus:
       type: string
@@ -1992,7 +1999,7 @@ components:
       enum:
         - LOPENDE
         - FELLES
-        -
+
     Opphav:
       type: string
       enum:
@@ -2170,11 +2177,14 @@ components:
     DialogRequest:
       type: object
       properties:
+        norskIdent:
+          type: string
         overskrift:
           type: string
         tekst:
           type: string
       required:
+        - norskIdent
         - overskrift
         - tekst
 
@@ -2268,7 +2278,7 @@ components:
         status:
           $ref: "#/components/schemas/NavEnhetStatus"
         type:
-          $ref: "#/components/schemas/Norg2Type"
+          $ref: "#/components/schemas/NavEnhetType"
       required:
         - navn
         - enhetsnummer
@@ -2374,10 +2384,32 @@ components:
         - navn
         - enhetsnummer
 
-    SanityInnsatsgruppe:
+    AvtaleAdministrator:
       type: object
       properties:
-        _id:
+        navIdent:
+          type: string
+        navn:
+          type: string
+      required:
+        - navIdent
+        - navn
+
+    TiltaksgjennomforingAdministrator:
+      type: object
+      properties:
+        navIdent:
+          type: string
+        navn:
+          type: string
+      required:
+        - navIdent
+        - navn
+
+    VeilederflateInnsatsgruppe:
+      type: object
+      properties:
+        sanityId:
           type: string
         beskrivelse:
           type: string
@@ -2390,99 +2422,65 @@ components:
             - "Varig tilpasset innsats"
         nokkel:
           $ref: "#/components/schemas/Innsatsgruppe"
+        order:
+          type: integer
       required:
-        - _id
+        - sanityId
         - beskrivelse
         - tittel
         - nokkel
+        - order
 
-    SanityTiltakstype:
+    VeilederflateTiltakstype:
       type: object
       properties:
-        _id:
+        sanityId:
           type: string
-        tiltakstypeNavn:
+        navn:
           type: string
         beskrivelse:
           type: string
         innsatsgruppe:
-          $ref: "#/components/schemas/SanityInnsatsgruppe"
-        varighet:
-          type: string
-        regelverkFiler:
-          type: array
-          items:
-            $ref: "#/components/schemas/SanityRegelverkFil"
+          $ref: "#/components/schemas/VeilederflateInnsatsgruppe"
         regelverkLenker:
           type: array
           items:
             $ref: "#/components/schemas/SanityRegelverkLenke"
-        nokkelinfoKomponenter:
-          type: array
-          items:
-            $ref: "#/components/schemas/SanityNokkelinfo"
         faneinnhold:
           $ref: "#/components/schemas/SanityFaneinnhold"
         delingMedBruker:
           type: string
         arenakode:
-          type: string
-          enum:
-            - IPSUNG
-            - INKLUTILS
-            - HOYEREUTD
-            - ENKELAMO
-            - GRUFAGYRKE
-            - ARBTREN
-            - ARBFORB
-            - MIDLONTIL
-            - TILSJOBB
-            - ENKFAGYRKE
-            - INDJOBSTOT
-            - AVKLARAG
-            - DIGIOPPARB
-            - MENTOR
-            - INDOPPFAG
-            - GRUPPEAMO
-            - VASV
-            - ARBRRHDAG
-            - JOBBK
-            - VATIAROR
-            - VARLONTIL
-            - UTVAOONAV
-          nullable: true
+          $ref: "#/components/schemas/Tiltakskode"
       required:
-        - _id
-        - tiltakstypeNavn
+        - sanityId
+        - navn
         - innsatsgruppe
 
-    SanityTiltaksgjennomforing:
+    VeilederflateTiltaksgjennomforing:
       type: object
       properties:
-        _id:
+        sanityId:
           type: string
         tiltakstype:
-          $ref: "#/components/schemas/SanityTiltakstype"
-        tiltaksgjennomforingNavn:
+          $ref: "#/components/schemas/VeilederflateTiltakstype"
+        navn:
           type: string
         beskrivelse:
           type: string
         tiltaksnummer:
           type: string
-        kontaktinfoArrangor:
-          $ref: "#/components/schemas/SanityKontaktinfoArrangor"
-        lokasjon:
+        arrangor:
+          $ref: "#/components/schemas/VeilderflateArrangor"
+        stedForGjennomforing:
           type: string
         oppstart:
-          type: string
-          enum:
-            - dato
-            - lopende
+          $ref: "#/components/schemas/TiltaksgjennomforingOppstartstype"
         oppstartsdato:
           type: string
         sluttdato:
           type: string
-        estimert_ventetid:
+        estimertVentetid:
           type: string
         faneinnhold:
           $ref: "#/components/schemas/SanityFaneinnhold"
@@ -2490,31 +2488,17 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/SanityKontakinfoTiltaksansvarlige"
-        tilgjengelighetsstatus:
+        tilgjengelighet:
           $ref: "#/components/schemas/Tilgjengelighetsstatus"
         stengtFra:
           type: string
         stengtTil:
           type: string
       required:
-        - _id
-        - tiltaksgjennomforingNavn
+        - sanityId
+        - navn
         - tiltakstype
         - oppstart
-
-    SanityRegelverkFil:
-      type: object
-      properties:
-        _id:
-          type: string
-        regelverkFilUrl:
-          type: string
-        regelverkFilNavn:
-          type: string
-      required:
-        - _id
-        - regelverkFilUrl
-        - regelverkFilNavn
 
     SanityRegelverkLenke:
       type: object
@@ -2529,20 +2513,6 @@ components:
         - _id
         - regelverkUrl
         - regelverkLenkeNavn
-
-    SanityNokkelinfo:
-      type: object
-      properties:
-        _id:
-          type: string
-        tittel:
-          type: string
-        innhold:
-          type: string
-        hjelpetekst:
-          type: string
-      required:
-        - _id
 
     SanityFaneinnhold:
       type: object
@@ -2560,22 +2530,32 @@ components:
         pameldingOgVarighet:
           type: object
 
-    SanityKontaktinfoArrangor:
+    VeilderflateArrangor:
       type: object
       properties:
-        _id:
-          type: string
         selskapsnavn:
           type: string
-        telefonnummer:
+        organisasjonsnummer:
           type: string
+        kontaktperson:
+          $ref: "#/components/schemas/VeilderflateArrangorKontaktperson"
+      required:
+        - selskapsnavn
+
+    VeilderflateArrangorKontaktperson:
+      type: object
+      properties:
+        navn:
+          type: string
+        telefon:
+          type: string
+          nullable: true
         epost:
           type: string
-        adresse:
-          type: string
       required:
-        - _id
-        - selskapsnavn
+        - navn
+        - telefon
+        - epost
 
     SanityKontakinfoTiltaksansvarlige:
       type: object
@@ -2637,12 +2617,13 @@ components:
         - UNDER_AVVIKLING
         - NEDLAGT
 
-    Norg2Type:
+    NavEnhetType:
       type: string
       enum:
         - LOKAL
         - FYLKE
         - TILTAK
+        - ALS
 
     Virksomhet:
       type: object
@@ -2703,6 +2684,14 @@ components:
         doneAt:
           type: string
           format: date-time
+        metadata:
+          type: object
+          properties:
+            link:
+              type: string
+            linkText:
+              type: string
+          nullable: true
       required:
         - id
         - type
@@ -2908,3 +2897,4 @@ components:
         - mulighetsrommet.admin-flate-rediger-tiltaksgjennomforing
         - mulighetsrommet.admin-flate-vis-deltakerliste-fra-komet
         - mulighetsrommet.enable-arbeidsflate
+        - mulighetsrommet-veilederflate-landingsside

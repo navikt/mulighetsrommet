@@ -4,6 +4,7 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.domain.dto.JaNeiStatus
 import no.nav.mulighetsrommet.domain.serializers.FloatToIntSerializer
 
+@Suppress("PropertyName")
 @Serializable
 data class ArenaTiltaksgjennomforing(
     val TILTAKGJENNOMFORING_ID: Int,

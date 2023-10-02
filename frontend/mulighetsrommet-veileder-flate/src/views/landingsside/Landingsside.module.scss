@@ -1,0 +1,23 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.cta_link {
+  background-color: var(--a-surface-action);
+  color: white;
+  text-decoration: none;
+  display: inline-flex;
+  padding: 1rem;
+  border-radius: 0.2rem;
+  align-items: center;
+  gap: 0.5rem;
+
+  &:focus-visible {
+    box-shadow:
+      inset 0 0 0 1px
+        var(--ac-button-primary-focus-border, var(--__ac-button-primary-focus-border, var(--a-surface-default))),
+      var(--a-shadow-focus);
+  }
+}

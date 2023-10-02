@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.arena.adapter.models.arena
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.domain.dto.JaNeiStatus
 
+@Suppress("PropertyName")
 @Serializable
 data class ArenaTiltak(
     val TILTAKSNAVN: String,

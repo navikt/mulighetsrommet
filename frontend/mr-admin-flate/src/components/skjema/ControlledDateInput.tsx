@@ -10,8 +10,11 @@ export interface DateInputProps {
   size?: "small" | "medium";
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const ControlledDateInput = forwardRef((props: DateInputProps, _) => {
+export const ControlledDateInput = forwardRef(function ControlledDateInput(
+  props: DateInputProps,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _,
+) {
   const { label, size, readOnly, ...rest } = props;
 
   return (
@@ -46,11 +49,7 @@ const ControlledDateInput = forwardRef((props: DateInputProps, _) => {
                 {...rest}
                 {...startdatoInputProps}
                 error={error?.message}
-                value={
-                  selectedStartdato
-                    ? formaterDato(selectedStartdato)
-                    : undefined
-                }
+                value={selectedStartdato ? formaterDato(selectedStartdato) : ""}
                 readOnly={readOnly}
               />
             </DatePicker>
@@ -60,8 +59,6 @@ const ControlledDateInput = forwardRef((props: DateInputProps, _) => {
     </div>
   );
 });
-
-ControlledDateInput.displayName = "ControlledDateInput";
 
 const DatoFelt = forwardRef(function DatoFeltInput(props: any, ref: any) {
   const { name, label, size, ...rest } = props;
@@ -87,10 +84,6 @@ const pastDate = () => {
 
 const futureDate = () => {
   const newDate = new Date();
-  const yearsFromNow = newDate.setFullYear(
-    newDate.getFullYear() + offsetAntallAar,
-  );
+  const yearsFromNow = newDate.setFullYear(newDate.getFullYear() + offsetAntallAar);
   return new Date(yearsFromNow);
 };
-
-export { ControlledDateInput };

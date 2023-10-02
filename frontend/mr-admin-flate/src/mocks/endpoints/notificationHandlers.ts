@@ -1,8 +1,5 @@
 import { DefaultBodyType, PathParams, rest } from "msw";
-import {
-  PaginertUserNotifications,
-  UserNotificationSummary,
-} from "mulighetsrommet-api-client";
+import { PaginertUserNotifications, UserNotificationSummary } from "mulighetsrommet-api-client";
 import { mockNotifikasjoner } from "../fixtures/mock_notifikasjoner";
 import { mockUserNotificationSummary } from "../fixtures/mock_userNotificationSummary";
 

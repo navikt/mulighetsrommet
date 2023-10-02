@@ -1,33 +1,35 @@
-import { DelMedBruker } from 'mulighetsrommet-api-client';
-import { useQuery } from 'react-query';
-import { useHentFnrFraUrl } from '../../../hooks/useHentFnrFraUrl';
-import { erPreview } from '../../../utils/Utils';
-import { mulighetsrommetClient } from '../clients';
-import { QueryKeys } from '../query-keys';
-import { useHentVeilederdata } from './useHentVeilederdata';
-import useTiltaksgjennomforingById from './useTiltaksgjennomforingById';
+import { DelMedBruker } from "mulighetsrommet-api-client";
+import { useQuery } from "react-query";
+import { erPreview } from "../../../utils/Utils";
+import { mulighetsrommetClient } from "../clients";
+import { QueryKeys } from "../query-keys";
+import { useHentVeilederdata } from "./useHentVeilederdata";
 
-export function useHentDeltMedBrukerStatus() {
-  const { data: tiltaksgjennomforing } = useTiltaksgjennomforingById();
+export function useHentDeltMedBrukerStatus(sanityId: string | undefined, norskIdent: string) {
   const { data: veilederData } = useHentVeilederdata();
-  const norskIdent = useHentFnrFraUrl();
+
+  const requestBody = {
+    norskIdent,
+    sanityId: sanityId ?? "",
+  };
 
   const { data: sistDeltMedBruker, refetch: refetchDelMedBruker } = useQuery<DelMedBruker>(
-    [QueryKeys.DeltMedBrukerStatus, norskIdent, tiltaksgjennomforing?._id],
-    () =>
-      mulighetsrommetClient.delMedBruker.getDelMedBruker({
-        fnr: norskIdent,
-        sanityId: tiltaksgjennomforing?._id!!,
-      }),
-    { enabled: !erPreview || !tiltaksgjennomforing?.tiltaksnummer }
+    [QueryKeys.DeltMedBrukerStatus, norskIdent, sanityId],
+    () => mulighetsrommetClient.delMedBruker.getDelMedBruker({ requestBody }),
+    { enabled: !erPreview && !!sanityId },
   );
 
   async function lagreVeilederHarDeltTiltakMedBruker(dialogId: string, sanityId: string) {
     if (!veilederData?.navIdent) return;
 
-    await mulighetsrommetClient.delMedBruker.postDelMedBruker({
-      requestBody: { norskIdent, navident: veilederData?.navIdent, sanityId, dialogId },
-    });
+    const requestBody = {
+      norskIdent,
+      navident: veilederData?.navIdent,
+      sanityId,
+      dialogId,
+    };
+
+    await mulighetsrommetClient.delMedBruker.delMedBruker({ requestBody });
 
     await refetchDelMedBruker();
   }

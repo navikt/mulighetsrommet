@@ -1,12 +1,11 @@
-import { atomWithHash } from 'jotai-location';
-import { Innsatsgruppe } from 'mulighetsrommet-api-client';
-import { atomWithStorage } from 'jotai/utils';
+import { atomWithHash } from "jotai-location";
+import { Innsatsgruppe } from "mulighetsrommet-api-client";
+import { atomWithStorage } from "jotai/utils";
 
 export interface Tiltaksgjennomforingsfilter {
-  search?: string;
+  search: string;
   innsatsgruppe?: Tiltaksgjennomforingsfiltergruppe<Innsatsgruppe>;
   tiltakstyper: Tiltaksgjennomforingsfiltergruppe<string>[];
-  lokasjoner: Tiltaksgjennomforingsfiltergruppe<string>[];
 }
 
 export interface Tiltaksgjennomforingsfiltergruppe<T> {
@@ -15,24 +14,15 @@ export interface Tiltaksgjennomforingsfiltergruppe<T> {
   nokkel?: T;
 }
 
-export const initialTiltaksgjennomforingsfilter = {
-  search: '',
+export const tiltaksgjennomforingsfilter = atomWithStorage<Tiltaksgjennomforingsfilter>("filter", {
+  search: "",
   innsatsgruppe: undefined,
   tiltakstyper: [],
-  lokasjoner: [],
-};
+});
 
-export const tiltaksgjennomforingsfilter = atomWithHash<Tiltaksgjennomforingsfilter>(
-  'filter',
-  initialTiltaksgjennomforingsfilter,
-  {
-    setHash: 'replaceState',
-  }
-);
-
-export const paginationAtom = atomWithHash('page', 1);
-export const faneAtom = atomWithHash('fane', 'tab1', {
-  setHash: 'replaceState',
+export const paginationAtom = atomWithHash("page", 1, { setHash: "replaceState" });
+export const faneAtom = atomWithHash("fane", "tab1", {
+  setHash: "replaceState",
 });
 
 type JoyrideStorage = {
@@ -42,7 +32,7 @@ type JoyrideStorage = {
   joyrideDetaljerHarVistOpprettAvtale: boolean;
 };
 
-export const joyrideAtom = atomWithStorage<JoyrideStorage>('joyride_mulighetsrommet', {
+export const joyrideAtom = atomWithStorage<JoyrideStorage>("joyride_mulighetsrommet", {
   joyrideOversikten: true,
   joyrideOversiktenLastStep: null,
   joyrideDetaljer: true,

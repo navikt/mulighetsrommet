@@ -14,7 +14,10 @@ export function AvtalerForTiltakstype() {
   useEffect(() => {
     if (tiltakstypeId) {
       // For å filtrere på avtaler for den spesifikke tiltakstypen
-      setFilter({ ...filter, tiltakstype: tiltakstypeId });
+      setFilter({
+        ...filter,
+        tiltakstype: tiltakstypeId,
+      });
     }
   }, [tiltakstypeId]);
 
@@ -24,7 +27,11 @@ export function AvtalerForTiltakstype() {
 
   return (
     <>
-      <Avtalefilter skjulFilter={{ tiltakstype: true }} />
+      <Avtalefilter
+        skjulFilter={{
+          tiltakstype: true,
+        }}
+      />
       <AvtaleTabell />
     </>
   );

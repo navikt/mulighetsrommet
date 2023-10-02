@@ -57,10 +57,6 @@ fun createTestApplicationConfig(oauth: MockOAuth2Server) = AppConfig(
             delayOfMinutes = 10,
             disabled = true,
         ),
-        synchronizeEnheterFraSanityTilApi = SynchronizeTiltaksgjennomforingEnheter.Config(
-            delayOfMinutes = 10,
-            disabled = true,
-        ),
         synchronizeNavAnsatte = SynchronizeNavAnsatte.Config(
             disabled = true,
         ),

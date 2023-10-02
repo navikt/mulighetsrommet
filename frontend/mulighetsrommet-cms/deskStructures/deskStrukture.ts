@@ -10,11 +10,6 @@ export const structure = (S, context) => {
 
   const deskItems = [];
 
-  if (roleNames.includes("administrator")) {
-    deskItems.push(...adminStructure(S, context));
-    return S.list().title("Administrator").items(deskItems);
-  }
-
   // Innhold for fagansvarlige i AV.Dir
   if (roleNames.includes("redaktor_av_dir")) {
     deskItems.push(...redaktorAvdirStructure(S, context));
@@ -26,12 +21,11 @@ export const structure = (S, context) => {
   // Innhold for tiltaksansvarlige
   if (roleNames.includes("redaktor-tiltaksgjennomforing")) {
     deskItems.push(...redaktorTiltaksgjennomforingStructure(S, context));
-    return S.list().title("Innhold for tiltaksansvarlig").items(deskItems);
+    return S.list().title("Administrasjon av tiltaksgjennomføringer").items(deskItems);
   }
 
-  return S.list()
-    .title("Innhold")
-    .items([...adminStructure(S, context)]);
+  deskItems.push(...adminStructure(S, context));
+  return S.list().title("Administrator").items(deskItems);
 };
 
 export const defaultDocumentNode = (S, { schemaType }) => {

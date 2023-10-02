@@ -8,6 +8,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonElement
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingKontaktpersonDbo
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
@@ -42,14 +43,14 @@ fun Route.tiltaksgjennomforingRoutes() {
             val paginationParams = getPaginationParams()
             val filter = getAdminTiltaksgjennomforingsFilter()
 
-            call.respond(tiltaksgjennomforingService.getAll(paginationParams, filter))
+            call.respond(tiltaksgjennomforingService.getAllSkalMigreres(paginationParams, filter))
         }
 
         get("mine") {
             val paginationParams = getPaginationParams()
-            val filter = getAdminTiltaksgjennomforingsFilter().copy(ansvarligAnsattIdent = getNavIdent())
+            val filter = getAdminTiltaksgjennomforingsFilter().copy(administratorNavIdent = getNavIdent())
 
-            call.respond(tiltaksgjennomforingService.getAll(paginationParams, filter))
+            call.respond(tiltaksgjennomforingService.getAllSkalMigreres(paginationParams, filter))
         }
 
         get("{id}") {
@@ -95,13 +96,13 @@ data class TiltaksgjennomforingRequest(
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
-    val sluttDato: LocalDate,
+    val sluttDato: LocalDate?,
     val antallPlasser: Int,
     val arrangorOrganisasjonsnummer: String,
     @Serializable(with = UUIDSerializer::class)
     val arrangorKontaktpersonId: UUID?,
     val tiltaksnummer: String?,
-    val ansvarlig: String,
+    val administrator: String,
     val navEnheter: List<String>,
     val oppstart: TiltaksgjennomforingOppstartstype,
     @Serializable(with = LocalDateSerializer::class)
@@ -111,11 +112,12 @@ data class TiltaksgjennomforingRequest(
     val apenForInnsok: Boolean,
     val kontaktpersoner: List<NavKontaktpersonForGjennomforing>,
     val estimertVentetid: String?,
-    val lokasjonArrangor: String,
+    val stedForGjennomforing: String,
     val opphav: ArenaMigrering.Opphav?,
+    val faneinnhold: JsonElement,
 ) {
     fun toDbo(): StatusResponse<TiltaksgjennomforingDbo> {
-        if (!startDato.isBefore(sluttDato)) {
+        if (sluttDato != null && !startDato.isBefore(sluttDato)) {
             return Either.Left(BadRequest("Startdato må være før sluttdato"))
         }
         if ((stengtFra != null) != (stengtTil != null)) {
@@ -139,7 +141,6 @@ data class TiltaksgjennomforingRequest(
                 avtaleId = avtaleId,
                 startDato = startDato,
                 sluttDato = sluttDato,
-                arenaAnsvarligEnhet = null,
                 avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
                 antallPlasser = antallPlasser,
                 tilgjengelighet = if (apenForInnsok) {
@@ -151,7 +152,7 @@ data class TiltaksgjennomforingRequest(
                 tiltaksnummer = tiltaksnummer,
                 arrangorOrganisasjonsnummer = arrangorOrganisasjonsnummer,
                 arrangorKontaktpersonId = arrangorKontaktpersonId,
-                ansvarlige = listOf(ansvarlig),
+                administratorer = listOf(administrator),
                 navEnheter = navEnheter,
                 oppstart = oppstart,
                 opphav = opphav ?: ArenaMigrering.Opphav.MR_ADMIN_FLATE,
@@ -163,7 +164,8 @@ data class TiltaksgjennomforingRequest(
                         navEnheter = it.navEnheter,
                     )
                 },
-                lokasjonArrangor = lokasjonArrangor,
+                stedForGjennomforing = stedForGjennomforing,
+                faneinnhold = faneinnhold,
             ),
         )
     }

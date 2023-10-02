@@ -1,36 +1,60 @@
-import { BodyShort } from '@navikt/ds-react';
-import styles from './Kontaktinfo.module.scss';
+import { BodyShort, Heading } from "@navikt/ds-react";
+import styles from "./Kontaktinfo.module.scss";
+import { VeilederflateTiltaksgjennomforing } from "mulighetsrommet-api-client";
+import { logEvent } from "../../../core/api/logger";
 
 interface ArrangorInfoProps {
-  data: any;
+  data: VeilederflateTiltaksgjennomforing;
 }
 
 const ArrangorInfo = ({ data }: ArrangorInfoProps) => {
-  const { kontaktinfoArrangor } = data;
+  const { arrangor } = data;
 
-  return kontaktinfoArrangor ? (
+  if (!arrangor) {
+    return null;
+  }
+
+  const { kontaktperson } = arrangor;
+
+  return (
     <div className={styles.arrangor_info}>
-      <BodyShort size="medium" className={styles.header}>
+      <Heading size="small" className={styles.header}>
         Arrangør
-      </BodyShort>
+      </Heading>
+
       <div className={styles.container}>
         <BodyShort className={styles.navn} size="small">
-          {kontaktinfoArrangor?.selskapsnavn}
+          {arrangor.selskapsnavn}
         </BodyShort>
-        <div className={styles.infofelt}>
-          <div className={styles.rad}>
-            <BodyShort size="small">Telefon</BodyShort>
-            <BodyShort size="small">{kontaktinfoArrangor?.telefonnummer}</BodyShort>
-          </div>
-          <div className={styles.rad}>
-            <BodyShort size="small">Adresse</BodyShort>
-            <BodyShort size="small">{kontaktinfoArrangor?.adresse}</BodyShort>
-          </div>
-        </div>
       </div>
+
+      {kontaktperson && (
+        <div className={styles.container}>
+          <BodyShort className={styles.navn} size="small">
+            {kontaktperson.navn}
+          </BodyShort>
+
+          <BodyShort as="div" size="small">
+            <div className={styles.infofelt}>
+              <div className={styles.kolonne}>
+                <span>Telefon:</span>
+                <span>Epost:</span>
+              </div>
+
+              <div className={styles.kolonne}>
+                <span>{kontaktperson.telefon}</span>
+                <a
+                  href={`mailto:${kontaktperson.epost}`}
+                  onClick={() => logEvent("mulighetsrommet.arrangor.kontaktperson.epost")}
+                >
+                  {kontaktperson.epost}
+                </a>
+              </div>
+            </div>
+          </BodyShort>
+        </div>
+      )}
     </div>
-  ) : (
-    <></>
   );
 };
 export default ArrangorInfo;

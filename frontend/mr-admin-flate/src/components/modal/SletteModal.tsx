@@ -1,17 +1,15 @@
-import { Button, Heading, Modal } from "@navikt/ds-react";
+import { BodyShort, Button, Heading, Modal } from "@navikt/ds-react";
 import { ApiError } from "mulighetsrommet-api-client";
 import styles from "../modal/Modal.module.scss";
-import {
-  ExclamationmarkTriangleFillIcon,
-  XMarkOctagonFillIcon,
-} from "@navikt/aksel-icons";
+import { ExclamationmarkTriangleFillIcon, XMarkOctagonFillIcon } from "@navikt/aksel-icons";
 import classNames from "classnames";
 import { UseMutationResult } from "@tanstack/react-query";
+import { resolveErrorMessage } from "../../api/errors";
 
 interface Props {
   modalOpen: boolean;
   onClose: () => void;
-  mutation: UseMutationResult<string, unknown, string>;
+  mutation: UseMutationResult<string, ApiError, string>;
   handleDelete: () => void;
   headerText: string;
   headerTextError: string;
@@ -36,12 +34,14 @@ const SletteModal = ({
       <div className={styles.heading}>
         {mutation.isError ? (
           <>
-            <ExclamationmarkTriangleFillIcon className={styles.erroricon} />
+            <ExclamationmarkTriangleFillIcon
+              className={classNames(styles.icon_error, styles.icon)}
+            />
             <Heading size={"medium"}>{headerTextError}</Heading>
           </>
         ) : (
           <>
-            <XMarkOctagonFillIcon className={styles.warningicon} />
+            <XMarkOctagonFillIcon className={classNames(styles.icon_warning, styles.icon)} />
             <Heading size="medium">{headerText}</Heading>
           </>
         )}
@@ -51,49 +51,34 @@ const SletteModal = ({
 
   function modalInnhold() {
     return (
-      <>
-        {mutation?.isError ? (
-          <p>{(mutation.error as ApiError).body}</p>
-        ) : (
-          <p>Du kan ikke angre denne handlingen.</p>
-        )}
+      <BodyShort>
+        {mutation?.isError
+          ? resolveErrorMessage(mutation.error)
+          : "Du kan ikke angre denne handlingen."}
+      </BodyShort>
+    );
+  }
 
-        <div className={styles.knapperad}>
-          <Button variant="secondary" onClick={clickCancel}>
-            Avbryt
+  function footerInnhold() {
+    return (
+      <div className={styles.knapperad}>
+        <Button variant="secondary" onClick={clickCancel}>
+          Avbryt
+        </Button>
+        {mutation?.isError ? null : (
+          <Button variant="danger" onClick={handleDelete} data-testid={dataTestId}>
+            Slett
           </Button>
-          {mutation?.isError ? null : (
-            <Button
-              variant="danger"
-              onClick={handleDelete}
-              data-testid={dataTestId}
-            >
-              Slett
-            </Button>
-          )}
-        </div>
-      </>
+        )}
+      </div>
     );
   }
 
   return (
-    <Modal
-      shouldCloseOnOverlayClick={false}
-      closeButton
-      open={modalOpen}
-      onClose={clickCancel}
-      className={classNames(
-        styles.overstyrte_styles_fra_ds_modal,
-        styles.text_center,
-      )}
-      aria-label="modal"
-    >
-      <Modal.Content>
-        <Heading size="medium" level="2">
-          {headerInnhold()}
-        </Heading>
-        {modalInnhold()}
-      </Modal.Content>
+    <Modal open={modalOpen} onClose={clickCancel} aria-label="modal">
+      <Modal.Header closeButton={false}>{headerInnhold()}</Modal.Header>
+      <Modal.Body>{modalInnhold()}</Modal.Body>
+      <Modal.Footer>{footerInnhold()}</Modal.Footer>
     </Modal>
   );
 };

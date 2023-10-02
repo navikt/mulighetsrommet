@@ -21,7 +21,9 @@ export const utkastHandlers = [
         payload = {
           ...payload,
           ...lagretUtkast,
-          utkastData: { ...data.utkastData },
+          utkastData: {
+            ...data.utkastData,
+          },
         };
         mockUtkast[lagretUtkastIndex] = payload;
       } else {
@@ -31,7 +33,9 @@ export const utkastHandlers = [
       return res(
         ctx.status(200),
         ctx.delay(),
-        ctx.json<Utkast>({ ...payload }),
+        ctx.json<Utkast>({
+          ...payload,
+        }),
       );
     },
   ),

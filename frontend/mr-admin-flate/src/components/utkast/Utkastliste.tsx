@@ -10,18 +10,12 @@ interface Props {
 }
 
 export function UtkastListe({ utkastType }: Props) {
-  const {
-    data = [],
-    isLoading,
-    error,
-  } = useMineUtkast(utkastType);
+  const { data = [], isLoading, error } = useMineUtkast(utkastType);
 
   if (error as ApiError) {
     const apiError = error as ApiError;
     return (
-      <Alert variant="error">
-        Det var problemer ved henting av utkast. {apiError.message}
-      </Alert>
+      <Alert variant="error">Det var problemer ved henting av utkast. {apiError.message}</Alert>
     );
   }
 
@@ -31,9 +25,7 @@ export function UtkastListe({ utkastType }: Props) {
 
   return (
     <div className={styles.container}>
-      {data.length === 0 ? (
-        <Alert variant="info">Du har ingen utkast</Alert>
-      ) : null}
+      {data.length === 0 ? <Alert variant="info">Du har ingen utkast</Alert> : null}
       <ul className={styles.liste}>
         {data?.map((utkast) => {
           return (

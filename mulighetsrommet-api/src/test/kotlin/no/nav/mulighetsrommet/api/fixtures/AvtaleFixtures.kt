@@ -10,9 +10,8 @@ import java.time.LocalDate
 import java.util.*
 
 object AvtaleFixtures {
-    val avtale1Id = UUID.randomUUID()
     val avtale1 = AvtaleDbo(
-        id = avtale1Id,
+        id = UUID.randomUUID(),
         navn = "Avtalenavn",
         avtalenummer = "2023#1",
         tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
@@ -20,15 +19,16 @@ object AvtaleFixtures {
         leverandorUnderenheter = emptyList(),
         startDato = LocalDate.of(2023, 1, 11),
         sluttDato = LocalDate.of(2023, 2, 28),
-        arenaAnsvarligEnhet = null,
         navRegion = "2990",
         avtaletype = Avtaletype.Rammeavtale,
         avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
         prisbetingelser = null,
         opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
-        ansvarlige = emptyList(),
+        administratorer = emptyList(),
         navEnheter = emptyList(),
         leverandorKontaktpersonId = null,
+        antallPlasser = null,
+        url = null,
     )
 
     val avtaleRequest = AvtaleRequest(
@@ -44,10 +44,11 @@ object AvtaleFixtures {
         avtaletype = Avtaletype.Rammeavtale,
         avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
         opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
-        ansvarlig = "DD1",
+        administrator = "DD1",
         url = "google.com",
         navEnheter = listOf("2990"),
         leverandorKontaktpersonId = null,
+        prisOgBetalingsinformasjon = null,
     )
 
     val arenaAvtale1 = ArenaAvtaleDbo(

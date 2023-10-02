@@ -80,8 +80,10 @@ class AvtaleInfoEventProcessor(
     }
 
     override suspend fun deleteEntity(event: ArenaEvent): Either<ProcessingError, Unit> = either {
-        entities.getMapping(event.arenaTable, event.arenaId)
-            .map { entities.deleteAvtale(it.entityId) }
+        val mapping = entities.getMapping(event.arenaTable, event.arenaId).bind()
+        client.request<Any>(HttpMethod.Delete, "/api/v1/internal/arena/avtale/${mapping.entityId}")
+            .mapLeft { ProcessingError.fromResponseException(it) }
+            .flatMap { entities.deleteAvtale(mapping.entityId) }
             .bind()
     }
 

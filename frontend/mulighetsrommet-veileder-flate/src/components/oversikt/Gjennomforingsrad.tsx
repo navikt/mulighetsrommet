@@ -1,42 +1,42 @@
-/* eslint-disable camelcase */
-import classNames from 'classnames';
-import { useAtom } from 'jotai';
-import { SanityTiltaksgjennomforing } from 'mulighetsrommet-api-client';
-import { paginationAtom, tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
-import { formaterDato } from '../../utils/Utils';
-import Lenke from '../lenke/Lenke';
-import styles from './Gjennomforingsrad.module.scss';
-import { TilgjengelighetsstatusComponent } from './Tilgjengelighetsstatus';
-import { BodyShort } from '@navikt/ds-react';
-import { ChevronRightIcon } from '@navikt/aksel-icons';
+import classNames from "classnames";
+import { useAtom } from "jotai";
+import {
+  TiltaksgjennomforingOppstartstype,
+  VeilederflateTiltaksgjennomforing,
+} from "mulighetsrommet-api-client";
+import { paginationAtom } from "../../core/atoms/atoms";
+import { formaterDato } from "../../utils/Utils";
+import Lenke from "../lenke/Lenke";
+import styles from "./Gjennomforingsrad.module.scss";
+import { TilgjengelighetsstatusComponent } from "./Tilgjengelighetsstatus";
+import { BodyShort } from "@navikt/ds-react";
+import { ChevronRightIcon } from "@navikt/aksel-icons";
 
 interface Props {
-  tiltaksgjennomforing: SanityTiltaksgjennomforing;
+  tiltaksgjennomforing: VeilederflateTiltaksgjennomforing;
   index: number;
 }
 
-const visOppstartsdato = (oppstart: SanityTiltaksgjennomforing.oppstart, oppstartsdato?: string) => {
+const visOppstartsdato = (oppstart: TiltaksgjennomforingOppstartstype, oppstartsdato?: string) => {
   switch (oppstart) {
-    case 'dato':
+    case TiltaksgjennomforingOppstartstype.FELLES:
       return formaterDato(oppstartsdato!);
-    case 'lopende':
-      return 'Løpende oppstart';
+    case TiltaksgjennomforingOppstartstype.LOPENDE:
+      return "Løpende oppstart";
   }
 };
 
 export function Gjennomforingsrad({ tiltaksgjennomforing, index }: Props) {
-  const [filter] = useAtom(tiltaksgjennomforingsfilter);
   const [page] = useAtom(paginationAtom);
   const {
-    _id,
-    tiltaksgjennomforingNavn,
-    kontaktinfoArrangor,
+    sanityId,
+    navn,
+    arrangor,
     tiltakstype,
-    lokasjon,
-    tilgjengelighetsstatus,
+    tilgjengelighet,
     oppstart,
     oppstartsdato,
-    estimert_ventetid,
+    estimertVentetid,
     stengtFra,
     stengtTil,
   } = tiltaksgjennomforing;
@@ -44,35 +44,37 @@ export function Gjennomforingsrad({ tiltaksgjennomforing, index }: Props) {
   return (
     <li className={styles.list_element} id={`list_element_${index}`}>
       <Lenke
-        to={`tiltak/${_id}#filter=${encodeURIComponent(JSON.stringify(filter))}&page=${page}`}
+        to={`/arbeidsmarkedstiltak/tiltak/${sanityId}#page=${page}`}
         data-testid="lenke_tiltaksgjennomforing"
       >
         <div className={styles.gjennomforing_container}>
           <div className={classNames(styles.flex, styles.navn)}>
             <BodyShort
               size="small"
-              title={tiltaksgjennomforingNavn}
+              title={navn}
               className={classNames(styles.truncate, styles.as_link)}
             >
-              {tiltaksgjennomforingNavn}
+              {navn}
             </BodyShort>
-            <BodyShort size="small" title={kontaktinfoArrangor?.selskapsnavn} className={styles.muted}>
-              {kontaktinfoArrangor?.selskapsnavn}
+            <BodyShort size="small" title={arrangor?.selskapsnavn} className={styles.muted}>
+              {arrangor?.selskapsnavn}
             </BodyShort>
           </div>
           <div className={classNames(styles.infogrid, styles.metadata)}>
-            <BodyShort size="small" title={tiltakstype.tiltakstypeNavn} className={styles.truncate}>
-              {tiltakstype.tiltakstypeNavn}
+            <BodyShort size="small" title={tiltakstype.navn} className={styles.truncate}>
+              {tiltakstype.navn}
             </BodyShort>
-            <BodyShort size="small" title={lokasjon} className={styles.truncate}>
-              {lokasjon}
-            </BodyShort>
-            <BodyShort size="small" title={visOppstartsdato(oppstart, oppstartsdato)} className={styles.truncate}>
+
+            <BodyShort
+              size="small"
+              title={visOppstartsdato(oppstart, oppstartsdato)}
+              className={styles.truncate}
+            >
               {visOppstartsdato(oppstart, oppstartsdato)}
             </BodyShort>
             <TilgjengelighetsstatusComponent
-              status={tilgjengelighetsstatus}
-              estimert_ventetid={estimert_ventetid}
+              status={tilgjengelighet}
+              estimertVentetid={estimertVentetid}
               stengtFra={stengtFra}
               stengtTil={stengtTil}
             />

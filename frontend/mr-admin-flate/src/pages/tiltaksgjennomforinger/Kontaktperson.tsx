@@ -11,9 +11,7 @@ export function Kontaktperson({ kontaktperson }: Props) {
     <div className={styles.leverandor_kontaktinfo}>
       <label>{kontaktperson.navn}</label>
       <label>{kontaktperson.mobilnummer}</label>
-      <a href={`${TEAMS_DYPLENKE}${kontaktperson.epost}`}>
-        {kontaktperson.epost}
-      </a>
+      <a href={`${TEAMS_DYPLENKE}${kontaktperson.epost}`}>{kontaktperson.epost}</a>
     </div>
   );
 }

@@ -4,6 +4,6 @@ import { mulighetsrommetClient } from "../clients";
 
 export const useVirksomhetKontaktpersoner = (orgnr: string) => {
   return useQuery(QueryKeys.virksomhetKontaktpersoner(orgnr), () =>
-    mulighetsrommetClient.virksomhetKontaktperson.hentVirksomhetKontaktpersoner({ orgnr })
+    mulighetsrommetClient.virksomhetKontaktperson.hentVirksomhetKontaktpersoner({ orgnr }),
   );
-}
+};

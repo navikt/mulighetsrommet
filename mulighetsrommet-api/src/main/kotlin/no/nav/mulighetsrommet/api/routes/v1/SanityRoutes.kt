@@ -1,22 +1,18 @@
 package no.nav.mulighetsrommet.api.routes.v1
 
-import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
-import no.nav.mulighetsrommet.api.domain.dto.SanityResponse
+import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.plugins.getNavAnsattAzureId
-import no.nav.mulighetsrommet.api.plugins.getNorskIdent
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
 import no.nav.mulighetsrommet.api.services.VeilederflateService
-import no.nav.mulighetsrommet.api.utils.getAccessToken
-import no.nav.mulighetsrommet.api.utils.getTiltaksgjennomforingsFilter
+import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
+import no.nav.mulighetsrommet.ktor.extensions.getAccessToken
 import org.koin.ktor.ext.inject
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
-
-val log: Logger = LoggerFactory.getLogger("sanityRouteLogger")
+import java.util.*
 
 fun Route.sanityRoutes() {
     val veilederflateService: VeilederflateService by inject()
@@ -25,75 +21,68 @@ fun Route.sanityRoutes() {
     route("/api/v1/internal/sanity") {
         get("/innsatsgrupper") {
             poaoTilgangService.verfiyAccessToModia(getNavAnsattAzureId())
-            call.respondWithData(veilederflateService.hentInnsatsgrupper().toResponse())
+
+            val innsatsgrupper = veilederflateService.hentInnsatsgrupper()
+
+            call.respond(innsatsgrupper)
         }
 
         get("/tiltakstyper") {
             poaoTilgangService.verfiyAccessToModia(getNavAnsattAzureId())
-            call.respondWithData(veilederflateService.hentTiltakstyper().toResponse())
+
+            val tiltakstyper = veilederflateService.hentTiltakstyper()
+
+            call.respond(tiltakstyper)
         }
 
-        get("/lokasjoner") {
-            poaoTilgangService.verfiyAccessToModia(getNavAnsattAzureId())
-            call.respond(
-                veilederflateService.hentLokasjonerForBrukersEnhetOgFylke(
-                    getNorskIdent(),
-                    call.getAccessToken(),
-                ),
-            )
-        }
+        post("/tiltaksgjennomforinger") {
+            val request = call.receive<GetRelevanteTiltaksgjennomforingerForBrukerRequest>()
 
-        get("/tiltaksgjennomforinger") {
-            poaoTilgangService.verfiyAccessToModia(getNavAnsattAzureId())
+            poaoTilgangService.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), request.norskIdent)
 
             val result = veilederflateService.hentTiltaksgjennomforingerForBrukerBasertPaEnhetOgFylke(
-                getNorskIdent(),
+                request,
                 call.getAccessToken(),
-                getTiltaksgjennomforingsFilter(),
             )
+
             call.respond(result)
         }
 
-        get("/tiltaksgjennomforing/{id}") {
+        post("/tiltaksgjennomforing") {
+            val request = call.receive<GetTiltaksgjennomforingForBrukerRequest>()
+
+            poaoTilgangService.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), request.norskIdent)
+
+            val result = veilederflateService.hentTiltaksgjennomforingMedBrukerdata(
+                request,
+                call.getAccessToken(),
+            )
+
+            call.respond(result)
+        }
+
+        get("/tiltaksgjennomforing/preview/{id}") {
             poaoTilgangService.verfiyAccessToModia(getNavAnsattAzureId())
             val id = call.parameters.getOrFail("id")
-            val result = veilederflateService.hentTiltaksgjennomforing(
+            val result = veilederflateService.hentPreviewTiltaksgjennomforing(
                 id,
-                getNorskIdent(),
-                call.getAccessToken(),
             )
-
             call.respond(result)
         }
     }
 }
 
-private suspend fun ApplicationCall.respondWithData(apiResponse: ApiResponse) {
-    this.response.call.respondText(
-        text = apiResponse.text,
-        contentType = apiResponse.contentType,
-        status = apiResponse.status,
-    )
-}
+@Serializable
+data class GetRelevanteTiltaksgjennomforingerForBrukerRequest(
+    val norskIdent: String,
+    val innsatsgruppe: String? = null,
+    val tiltakstypeIds: List<String> = emptyList(),
+    val search: String? = null,
+)
 
-private fun SanityResponse.toResponse(): ApiResponse {
-    return when (this) {
-        is SanityResponse.Result -> ApiResponse(
-            text = this.result.toString(),
-        )
-
-        is SanityResponse.Error -> {
-            log.warn("Error fra Sanity -> {}", this.error)
-            return ApiResponse(
-                text = this.error.toString(),
-                status = HttpStatusCode.InternalServerError,
-            )
-        }
-    }
-}
-
-data class ApiResponse(
-    val text: String,
-    val contentType: ContentType? = ContentType.Application.Json,
-    val status: HttpStatusCode? = HttpStatusCode.OK,
+@Serializable
+data class GetTiltaksgjennomforingForBrukerRequest(
+    val norskIdent: String,
+    @Serializable(with = UUIDSerializer::class)
+    val sanityId: UUID,
 )

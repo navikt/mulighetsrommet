@@ -14,17 +14,18 @@
     "sanity"
   ],
   "dependencies": {
-    "@navikt/aksel-icons": "^4.11.0",
-    "@portabletext/react": "^3.0.4",
-    "@sanity/vision": "^3.15.1",
+    "@navikt/aksel-icons": "^5.5.0",
+    "@portabletext/react": "^3.0.9",
+    "@sanity/client": "^6.4.12",
+    "@sanity/vision": "^3.16.7",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-icons": "^4.10.1",
+    "react-icons": "^4.11.0",
     "react-switch": "^7.0.0",
-    "sanity": "^3.14.4",
+    "sanity": "^3.16.7",
     "styled-components": "^5.3.11"
   },
   "devDependencies": {
-    "@types/react": "^18.2.14"
+    "@types/react": "^18.2.24"
   }
 }

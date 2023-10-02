@@ -1,5 +1,4 @@
 import "@navikt/ds-css";
-import "@navikt/ds-css-internal";
 import { Alert, BodyShort, Heading } from "@navikt/ds-react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
@@ -13,44 +12,31 @@ import { App } from "./App";
 import { AdministratorHeader } from "./components/administrator/AdministratorHeader";
 import { MiljoBanner } from "./components/miljobanner/MiljoBanner";
 import "./index.css";
+import { ApiError } from "mulighetsrommet-api-client";
+import { resolveErrorMessage } from "./api/errors";
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
+      useErrorBoundary: true,
       refetchOnWindowFocus: import.meta.env.PROD,
       retry: import.meta.env.PROD,
     },
   },
 });
 
-if (!import.meta.env.PROD || import.meta.env.VITE_INCLUDE_MOCKS === "true") {
-  import("./mocks/browser").then(({ worker }) => {
-    worker.start();
-    render();
-  });
+if (import.meta.env.VITE_MULIGHETSROMMET_API_MOCK === "true") {
+  import("./mocks/worker")
+    .then(({ initializeMockServiceWorker }) => {
+      return initializeMockServiceWorker();
+    })
+    .then(render)
+    .catch((error) => {
+      // eslint-disable-next-line no-console
+      console.error("Error occurred while initializing MSW", error);
+    });
 } else {
   render();
-}
-
-export function ErrorFallback({ error }: FallbackProps) {
-  return (
-    <div className="error">
-      <Alert variant="error">
-        <Heading size="medium" level="2">
-          {error.message ||
-            error.body.message ||
-            "Det oppsto dessverre en feil"}
-        </Heading>
-        <BodyShort>
-          Hvis problemet vedvarer opprett en sak via <a href={PORTEN}>Porten</a>
-          .
-        </BodyShort>
-        <Link to="/" reloadDocument className="error-link">
-          Ta meg til forsiden og prøv igjen
-        </Link>
-      </Alert>
-    </div>
-  );
 }
 
 function render() {
@@ -67,5 +53,24 @@ function render() {
         <ReactQueryDevtools initialIsOpen={false} />
       </QueryClientProvider>
     </React.StrictMode>,
+  );
+}
+
+export function ErrorFallback({ error }: FallbackProps) {
+  const heading = error instanceof ApiError ? resolveErrorMessage(error) : error.message;
+  return (
+    <div className="error">
+      <Alert variant="error">
+        <Heading size="medium" level="2">
+          {heading || "Det oppsto dessverre en feil"}
+        </Heading>
+        <BodyShort>
+          Hvis problemet vedvarer opprett en sak via <a href={PORTEN}>Porten</a>.
+        </BodyShort>
+        <Link to="/" reloadDocument className="error-link">
+          Ta meg til forsiden og prøv igjen
+        </Link>
+      </Alert>
+    </div>
   );
 }

@@ -5,7 +5,10 @@ import no.nav.mulighetsrommet.api.clients.norg2.*
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
-import no.nav.mulighetsrommet.api.domain.dto.*
+import no.nav.mulighetsrommet.api.domain.dto.EnhetSlug
+import no.nav.mulighetsrommet.api.domain.dto.FylkeRef
+import no.nav.mulighetsrommet.api.domain.dto.Mutation
+import no.nav.mulighetsrommet.api.domain.dto.SanityEnhet
 import no.nav.mulighetsrommet.api.repositories.NavEnhetRepository
 import no.nav.mulighetsrommet.api.utils.NavEnhetUtils
 import no.nav.mulighetsrommet.slack.SlackNotifier
@@ -18,8 +21,6 @@ class NavEnheterSyncService(
     private val slackNotifier: SlackNotifier,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
-    private val fylkerOgEnheterTyper = listOf(Norg2Type.FYLKE, Norg2Type.TILTAK, Norg2Type.LOKAL)
-    private val spesialEnheterTyper = listOf(Norg2Type.ALS)
 
     suspend fun synkroniserEnheter() {
         val enheter = norg2Client.hentEnheter()
@@ -42,21 +43,39 @@ class NavEnheterSyncService(
                     enhetsnummer = it.enhet.enhetNr,
                     status = NavEnhetStatus.valueOf(it.enhet.status.name),
                     type = Norg2Type.valueOf(it.enhet.type.name),
-                    overordnetEnhet = getOverordnetEnhet(it.enhet.enhetNr, it.enhet.type, it.enhet.status) ?: it.overordnetEnhet,
+                    overordnetEnhet = it.overordnetEnhet ?: tryResolveOverordnetEnhet(it.enhet),
                 ),
             )
         }
     }
 
     fun utledEnheterTilSanity(enheter: List<Norg2Response>): List<SanityEnhet> {
-        val spesialEnheterToSanity = spesialEnheterToSanityEnheter(enheter)
-        val fylkerOgEnheterToSanity = fylkeOgUnderenheterToSanity(enheter)
-        return spesialEnheterToSanity + fylkerOgEnheterToSanity
+        val relevanteEnheterMedJustertOverordnetEnhet = enheter
+            .filter { isRelevantEnhetForSanity(it) }
+            .map {
+                val overordnetEnhet = it.overordnetEnhet ?: tryResolveOverordnetEnhet(it.enhet)
+                it.copy(overordnetEnhet = overordnetEnhet)
+            }
+
+        val fylker = relevanteEnheterMedJustertOverordnetEnhet
+            .filter { it.enhet.type == Norg2Type.FYLKE }
+
+        return fylker.flatMap { fylke ->
+            val underliggendeEnheter = relevanteEnheterMedJustertOverordnetEnhet
+                .filter { it.overordnetEnhet == fylke.enhet.enhetNr }
+                .map { toSanityEnhet(it.enhet, fylke.enhet) }
+
+            listOf(toSanityEnhet(fylke.enhet)) + underliggendeEnheter
+        }
+    }
+
+    private fun isRelevantEnhetForSanity(it: Norg2Response): Boolean {
+        return NavEnhetUtils.isRelevantEnhetStatus(it.enhet.status) && NavEnhetUtils.isRelevantEnhetType(it.enhet.type)
     }
 
     suspend fun lagreEnheterTilSanity(sanityEnheter: List<SanityEnhet>) {
         logger.info("Oppdaterer Sanity-enheter - Antall: ${sanityEnheter.size}")
-        val mutations = Mutations(mutations = sanityEnheter.map { Mutation(createOrReplace = it) })
+        val mutations = sanityEnheter.map { Mutation(createOrReplace = it) }
 
         val response = sanityClient.mutate(mutations)
 
@@ -65,27 +84,6 @@ class NavEnheterSyncService(
             slackNotifier.sendMessage("Klarte ikke oppdatere enheter fra NORG til Sanity. Statuskode: ${response.status.value}. Dette må sees på av en utvikler.")
         } else {
             logger.info("Oppdaterte enheter fra NORG til Sanity.")
-        }
-    }
-
-    private fun spesialEnheterToSanityEnheter(enheter: List<Norg2Response>): List<SanityEnhet> {
-        return enheter
-            .filter { NavEnhetUtils.relevanteStatuser(it.enhet.status) && erSpesialenhet(it) }
-            .map { toSanityEnhet(it.enhet) }
-    }
-
-    private fun fylkeOgUnderenheterToSanity(enheter: List<Norg2Response>): List<SanityEnhet> {
-        val relevanteEnheter = enheter
-            .filter { erFylkeEllerUnderenhet(it) }
-
-        val fylker = relevanteEnheter
-            .filter { NavEnhetUtils.relevanteStatuser(it.enhet.status) && it.enhet.type == Norg2Type.FYLKE }
-
-        return fylker.flatMap { fylke ->
-            val underliggendeEnheter = relevanteEnheter
-                .filter { NavEnhetUtils.isUnderliggendeEnhet(fylke.enhet, it) }
-                .map { toSanityEnhet(it.enhet, fylke.enhet) }
-            listOf(toSanityEnhet(fylke.enhet)) + underliggendeEnheter
         }
     }
 
@@ -98,15 +96,6 @@ class NavEnheterSyncService(
                 _ref = NavEnhetUtils.toEnhetId(fylke),
                 _key = fylke.enhetNr,
             )
-        } else if (enhet.type == Norg2Type.ALS) {
-            val fylkesnummer = getOverordnetEnhet(enhet.enhetNr, enhet.type, enhet.status)
-            if (fylkesnummer != null) {
-                fylkeTilEnhet = FylkeRef(
-                    _type = "reference",
-                    _ref = "enhet.fylke.$fylkesnummer",
-                    _key = fylkesnummer,
-                )
-            }
         }
 
         return SanityEnhet(
@@ -123,8 +112,11 @@ class NavEnheterSyncService(
         )
     }
 
-    private fun getOverordnetEnhet(enhetNr: String, type: Norg2Type, status: Norg2EnhetStatus): String? {
-        if (!getWhitelistForStatus().contains(status) || !listOf(Norg2Type.ALS, Norg2Type.TILTAK).contains(type)) {
+    private fun tryResolveOverordnetEnhet(enhet: Norg2EnhetDto): String? {
+        if (!NavEnhetUtils.isRelevantEnhetStatus(enhet.status) || !listOf(Norg2Type.ALS, Norg2Type.TILTAK).contains(
+                enhet.type,
+            )
+        ) {
             return null
         }
 
@@ -154,23 +146,11 @@ class NavEnheterSyncService(
             "5771" to "5700", // NAV Tiltak Trøndelag
         )
 
-        val fantFylke = spesialEnheterTilFylkeMap[enhetNr]
+        val fantFylke = spesialEnheterTilFylkeMap[enhet.enhetNr]
         if (fantFylke == null) {
-            slackNotifier.sendMessage("Fant ikke fylke for spesialenhet med enhetsnummer: $enhetNr. En utvikler må sjekke om enheten skal mappe til et fylke.")
+            slackNotifier.sendMessage("Fant ikke fylke for spesialenhet med enhetsnummer: ${enhet.enhetNr}. En utvikler må sjekke om enheten skal mappe til et fylke.")
             return null
         }
         return fantFylke
-    }
-
-    private fun erSpesialenhet(enhet: Norg2Response): Boolean {
-        return enhet.enhet.type in spesialEnheterTyper && enhet.enhet.status in getWhitelistForStatus()
-    }
-
-    private fun erFylkeEllerUnderenhet(enhet: Norg2Response): Boolean {
-        return enhet.enhet.type in fylkerOgEnheterTyper && enhet.enhet.status in getWhitelistForStatus()
-    }
-
-    private fun getWhitelistForStatus(): List<Norg2EnhetStatus> {
-        return listOf(Norg2EnhetStatus.AKTIV, Norg2EnhetStatus.UNDER_AVVIKLING, Norg2EnhetStatus.UNDER_ETABLERING)
     }
 }

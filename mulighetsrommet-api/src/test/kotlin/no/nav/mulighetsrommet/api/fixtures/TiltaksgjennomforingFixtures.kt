@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.api.fixtures
 
+import kotlinx.serialization.json.JsonNull
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
-import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures.avtale1Id
 import no.nav.mulighetsrommet.api.routes.v1.TiltaksgjennomforingRequest
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
@@ -26,7 +26,7 @@ object TiltaksgjennomforingFixtures {
         antallPlasser = null,
         oppstart = TiltaksgjennomforingOppstartstype.FELLES,
         opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
-        avtaleId = avtale1Id,
+        avtaleId = AvtaleFixtures.avtale1.id,
     )
 
     val Oppfolging1 = TiltaksgjennomforingDbo(
@@ -37,11 +37,10 @@ object TiltaksgjennomforingFixtures {
         arrangorOrganisasjonsnummer = "976663934",
         startDato = LocalDate.of(2023, 1, 1),
         sluttDato = LocalDate.of(2023, 2, 1),
-        arenaAnsvarligEnhet = "2990",
         avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
         tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.LEDIG,
         antallPlasser = 12,
-        ansvarlige = emptyList(),
+        administratorer = emptyList(),
         navEnheter = emptyList(),
         oppstart = TiltaksgjennomforingOppstartstype.FELLES,
         opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
@@ -49,9 +48,10 @@ object TiltaksgjennomforingFixtures {
         arrangorKontaktpersonId = null,
         stengtFra = null,
         stengtTil = null,
-        lokasjonArrangor = "Oslo",
+        stedForGjennomforing = "Oslo",
         estimertVentetid = null,
-        avtaleId = avtale1Id,
+        avtaleId = AvtaleFixtures.avtale1.id,
+        faneinnhold = JsonNull,
     )
 
     fun oppfolging1Request(avtaleId: UUID) = TiltaksgjennomforingRequest(
@@ -63,18 +63,19 @@ object TiltaksgjennomforingFixtures {
         startDato = LocalDate.of(2023, 1, 1),
         sluttDato = LocalDate.of(2023, 2, 1),
         antallPlasser = 1,
-        ansvarlig = "DD1",
+        administrator = "DD1",
         navEnheter = listOf("2990"),
         oppstart = TiltaksgjennomforingOppstartstype.FELLES,
         kontaktpersoner = emptyList(),
         arrangorKontaktpersonId = null,
         stengtFra = null,
         stengtTil = null,
-        lokasjonArrangor = "Oslo",
+        stedForGjennomforing = "Oslo",
         estimertVentetid = null,
         avtaleId = avtaleId,
         apenForInnsok = true,
         opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
+        faneinnhold = JsonNull,
     )
 
     val Oppfolging2 = TiltaksgjennomforingDbo(
@@ -85,11 +86,10 @@ object TiltaksgjennomforingFixtures {
         arrangorOrganisasjonsnummer = "111111111",
         startDato = LocalDate.of(2023, 1, 1),
         sluttDato = LocalDate.of(2023, 2, 1),
-        arenaAnsvarligEnhet = "2990",
         avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
         tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.LEDIG,
         antallPlasser = 12,
-        ansvarlige = emptyList(),
+        administratorer = emptyList(),
         navEnheter = emptyList(),
         oppstart = TiltaksgjennomforingOppstartstype.FELLES,
         opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
@@ -97,9 +97,10 @@ object TiltaksgjennomforingFixtures {
         arrangorKontaktpersonId = null,
         stengtFra = null,
         stengtTil = null,
-        lokasjonArrangor = "Oslo",
+        stedForGjennomforing = "Oslo",
         estimertVentetid = null,
-        avtaleId = avtale1Id,
+        avtaleId = AvtaleFixtures.avtale1.id,
+        faneinnhold = JsonNull,
     )
 
     val Arbeidstrening1 = TiltaksgjennomforingDbo(
@@ -110,11 +111,10 @@ object TiltaksgjennomforingFixtures {
         arrangorOrganisasjonsnummer = "222222222",
         startDato = LocalDate.of(2023, 1, 1),
         sluttDato = LocalDate.of(2023, 2, 1),
-        arenaAnsvarligEnhet = "2990",
         avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
         tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.LEDIG,
         antallPlasser = 12,
-        ansvarlige = emptyList(),
+        administratorer = emptyList(),
         navEnheter = emptyList(),
         oppstart = TiltaksgjennomforingOppstartstype.FELLES,
         opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
@@ -122,8 +122,9 @@ object TiltaksgjennomforingFixtures {
         arrangorKontaktpersonId = null,
         stengtFra = null,
         stengtTil = null,
-        lokasjonArrangor = "Oslo",
+        stedForGjennomforing = "Oslo",
         estimertVentetid = null,
-        avtaleId = avtale1Id,
+        avtaleId = AvtaleFixtures.avtale1.id,
+        faneinnhold = JsonNull,
     )
 }

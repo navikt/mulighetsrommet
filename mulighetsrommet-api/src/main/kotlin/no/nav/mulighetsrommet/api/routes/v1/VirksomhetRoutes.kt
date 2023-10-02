@@ -66,7 +66,7 @@ fun Route.virksomhetRoutes() {
                 .toDto(orgnr)
                 .map { virksomhetService.upsertKontaktperson(it) }
                 .onLeft {
-                    log.error(it.message)
+                    application.log.error(it.message)
                 }
             call.respondWithStatusResponse(result)
         }
@@ -87,11 +87,14 @@ fun Route.virksomhetRoutes() {
             call.respond(virksomhetService.sokEtterEnhet(sokestreng))
         }
 
-        get("/update") {
+        post("/update") {
             val orgnr = call.request.queryParameters.getOrFail("orgnr")
-            check(orgnr.isNotEmpty())
 
-            log.info("Oppdaterer virksomhet med orgnr: $orgnr")
+            if (orgnr.length != 9) {
+                throw BadRequestException("'orgnr' må inneholde 9 siffer")
+            }
+
+            application.log.info("Oppdaterer virksomhet med orgnr: $orgnr")
             val response = virksomhetService.syncVirksomhetFraBrreg(orgnr)
             call.respond("${response?.navn} oppdatert")
         }

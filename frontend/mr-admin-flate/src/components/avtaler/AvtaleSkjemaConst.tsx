@@ -1,14 +1,14 @@
-import { inferredAvtaleSchema } from "./AvtaleSchema";
+import { InferredAvtaleSchema } from "./AvtaleSchema";
 import { toast } from "react-toastify";
 import {
   Avtale,
   LeverandorUnderenhet,
   NavAnsatt,
   NavEnhet,
+  NavEnhetType,
   Utkast,
   Virksomhet,
 } from "mulighetsrommet-api-client";
-import { tiltakstypekodeErAnskaffetTiltak } from "../../utils/Utils";
 import { MutableRefObject } from "react";
 import { UseMutationResult } from "@tanstack/react-query";
 
@@ -18,7 +18,7 @@ type UtkastData = Pick<
   | "tiltakstype"
   | "navRegion"
   | "navEnheter"
-  | "ansvarlig"
+  | "administrator"
   | "avtaletype"
   | "leverandor"
   | "leverandorUnderenheter"
@@ -33,7 +33,7 @@ type UtkastData = Pick<
 };
 
 export const saveUtkast = (
-  values: inferredAvtaleSchema,
+  values: InferredAvtaleSchema,
   avtale: Avtale,
   ansatt: NavAnsatt,
   utkastIdRef: MutableRefObject<string>,
@@ -41,11 +41,7 @@ export const saveUtkast = (
 ) => {
   const utkastData: UtkastData = {
     navn: values?.avtalenavn,
-    tiltakstype: {
-      id: values?.tiltakstype,
-      arenaKode: "",
-      navn: "",
-    },
+    tiltakstype: values?.tiltakstype,
     navRegion: {
       navn: "",
       enhetsnummer: values?.navRegion,
@@ -54,16 +50,17 @@ export const saveUtkast = (
       navn: "",
       enhetsnummer,
     })),
-    ansvarlig: { navident: values?.avtaleansvarlig, navn: "" },
+    administrator: { navIdent: values?.administrator, navn: "" },
     avtaletype: values?.avtaletype,
     leverandor: {
       navn: "",
       organisasjonsnummer: values?.leverandor,
       slettet: false,
     },
-    leverandorUnderenheter: values?.leverandorUnderenheter?.map(
-      (organisasjonsnummer) => ({ navn: "", organisasjonsnummer }),
-    ),
+    leverandorUnderenheter: values?.leverandorUnderenheter?.map((organisasjonsnummer) => ({
+      navn: "",
+      organisasjonsnummer,
+    })),
     startDato: values?.startOgSluttDato?.startDato?.toDateString(),
     sluttDato: values?.startOgSluttDato?.sluttDato?.toDateString(),
     url: values?.url,
@@ -89,7 +86,7 @@ export const saveUtkast = (
 };
 
 export const defaultEnhet = (
-  avtale: Avtale,
+  avtale: Avtale | undefined,
   enheter: NavEnhet[],
   ansatt: NavAnsatt,
 ) => {
@@ -102,40 +99,25 @@ export const defaultEnhet = (
   return undefined;
 };
 
-export function getValueOrDefault<T>(
-  value: T | undefined | null,
-  defaultValue: T,
-): T {
-  return value || defaultValue;
-}
-
-export const erAnskaffetTiltak = (
-  tiltakstypeId: string,
-  getTiltakstypeFromId: Function,
-): boolean => {
-  const tiltakstype = getTiltakstypeFromId(tiltakstypeId);
-  return tiltakstypekodeErAnskaffetTiltak(tiltakstype?.arenaKode);
-};
-
-export const enheterOptions = (navRegion: string, enheter: NavEnhet[]) => {
+export const getLokaleUnderenheterAsSelectOptions = (
+  navRegion: string | undefined,
+  enheter: NavEnhet[],
+) => {
   if (!navRegion) {
     return [];
   }
 
-  const options = enheter
-    ?.filter((enhet: NavEnhet) => {
-      return navRegion === enhet.overordnetEnhet;
+  return enheter
+    .filter((enhet: NavEnhet) => {
+      return navRegion === enhet.overordnetEnhet && enhet.type === NavEnhetType.LOKAL;
     })
     .map((enhet: NavEnhet) => ({
       label: enhet.navn,
       value: enhet.enhetsnummer,
     }));
-  return options || [];
 };
 
-export const underenheterOptions = (
-  underenheterForLeverandor: Virksomhet[],
-) =>
+export const underenheterOptions = (underenheterForLeverandor: Virksomhet[]) =>
   underenheterForLeverandor.map((leverandor: LeverandorUnderenhet) => ({
     value: leverandor.organisasjonsnummer,
     label: `${leverandor.navn} - ${leverandor.organisasjonsnummer}`,

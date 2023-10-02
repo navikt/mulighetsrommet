@@ -11,7 +11,9 @@ export function usePutAvtalenotat() {
       });
     },
     onSuccess: () => {
-      client.invalidateQueries({ queryKey: ["avtalenotater"] });
+      client.invalidateQueries({
+        queryKey: ["avtalenotater"],
+      });
     },
   });
 }

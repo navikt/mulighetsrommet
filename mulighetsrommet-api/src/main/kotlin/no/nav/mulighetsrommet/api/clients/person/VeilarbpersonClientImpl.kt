@@ -7,6 +7,7 @@ import io.ktor.client.engine.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
+import io.ktor.http.*
 import io.prometheus.client.cache.caffeine.CacheMetricsCollector
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import no.nav.mulighetsrommet.metrics.Metrikker
@@ -39,15 +40,23 @@ class VeilarbpersonClientImpl(
     }
 
     override suspend fun hentPersonInfo(fnr: String, accessToken: String): PersonDto? {
-        return CacheUtils.tryCacheFirstNotNull(personInfoCache, fnr) {
+        return CacheUtils.tryCacheFirstNullable(personInfoCache, fnr) {
             try {
-                client.get("$baseUrl/v2/person?fnr=$fnr") {
+                val response = client.get("$baseUrl/v2/person?fnr=$fnr") {
                     bearerAuth(tokenProvider.invoke(accessToken))
-                }.body()
+                }
+
+                if (!response.status.isSuccess()) {
+                    SecureLog.logger.error("Klarte ikke hente persondata. Response: $response")
+                    log.warn("Klarte ikke hente persondata. Se detaljer i SecureLog.")
+                    null
+                } else {
+                    response.body()
+                }
             } catch (exe: Exception) {
-                SecureLog.logger.error("Klarte ikke hente persondata for bruker med fnr: $fnr")
-                log.error("Klarte ikke hente persondata. Se detaljer i secureLog.")
-                return null
+                SecureLog.logger.error("Klarte ikke hente persondata for bruker med fnr: $fnr", exe)
+                log.error("Feil ved henting av persondata. Se detaljer i SecureLog.")
+                null
             }
         }
     }

@@ -18,7 +18,7 @@ abstract class KafkaTopicConsumer<K, V>(
         val initialRunningState: Boolean = false,
     )
 
-    internal fun toTopicConfig(kafkaConsumerRepository: KafkaConsumerRepository): TopicConfig<K, V> {
+    internal fun toTopicConfig(kafkaConsumerRepository: KafkaConsumerRepositoryImpl): TopicConfig<K, V> {
         return TopicConfig<K, V>()
             .withMetrics(Metrikker.appMicrometerRegistry)
             .withLogging()

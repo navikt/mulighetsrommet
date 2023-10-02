@@ -15,24 +15,9 @@ const redaktorTiltaksgjennomforingStructure = (S, context) => [
         .defaultOrdering([{ field: "_createdAt", direction: "desc" }]),
     ),
   ...commonStructure(S, context),
-  ...S.documentTypeListItems().filter(
-    (listItem) =>
-      ![
-        "tiltaksgjennomforing",
-        "tiltakstype",
-        "enhet",
-        "navKontaktperson",
-        "arrangor",
-        "regelverkfil",
-        "regelverklenke",
-        // "forskningsrapport",
-        "innsatsgruppe",
-        "redaktor",
-      ].includes(listItem.getId()),
-  ),
   S.divider(),
   ...S.documentTypeListItems().filter((listItem) =>
-    ["navKontaktperson", "arrangor", "redaktor"].includes(listItem.getId()),
+    ["navKontaktperson", "redaktor"].includes(listItem.getId()),
   ),
 ];
 

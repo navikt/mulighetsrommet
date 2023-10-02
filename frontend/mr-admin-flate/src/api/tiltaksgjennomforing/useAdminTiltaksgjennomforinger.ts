@@ -27,12 +27,11 @@ export function useAdminTiltaksgjennomforinger() {
     QueryKeys.tiltaksgjennomforinger({ ...filter, search: debouncedSok }, page),
     () =>
       filter.visMineGjennomforinger
-        ? mulighetsrommetClient.tiltaksgjennomforinger.getMineTiltaksgjennomforinger(
-            { ...queryFilter },
-          )
-        : mulighetsrommetClient.tiltaksgjennomforinger.getTiltaksgjennomforinger(
-            { ...queryFilter },
-          ),
-    { useErrorBoundary: true },
+        ? mulighetsrommetClient.tiltaksgjennomforinger.getMineTiltaksgjennomforinger({
+            ...queryFilter,
+          })
+        : mulighetsrommetClient.tiltaksgjennomforinger.getTiltaksgjennomforinger({
+            ...queryFilter,
+          }),
   );
 }

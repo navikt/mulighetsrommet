@@ -1,14 +1,10 @@
 name: Deploy kafka topics to prod
 
 on:
-  merge_group:
-  pull_request:
+  push:
     paths:
       - .github/workflows/kafka-topics-prod.yaml
       - iac/kafka-topics/prod/*.yaml
-  push:
-    branches:
-      - main
 
 jobs:
   ci:
@@ -16,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Lint
         uses: ./.github/actions/lint-yaml
         with:
@@ -29,7 +25,7 @@ jobs:
     if: github.event_name == 'push' && github.ref_name == 'main'
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: List resource files
         run: echo "RESOURCE_FILES=$(find iac/kafka-topics/prod -type f | tr '\n' ',' | sed 's/,$/\n/')" >> $GITHUB_ENV
       - name: Deploy kafka topics

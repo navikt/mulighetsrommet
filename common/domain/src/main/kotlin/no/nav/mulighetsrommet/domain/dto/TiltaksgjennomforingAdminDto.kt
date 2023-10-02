@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.domain.dto
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonElement
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingTilgjengelighetsstatus
@@ -28,10 +29,11 @@ data class TiltaksgjennomforingAdminDto(
     val antallPlasser: Int?,
     @Serializable(with = UUIDSerializer::class)
     val avtaleId: UUID?,
-    val ansvarlig: Ansvarlig?,
+    val administrator: Administrator?,
     val navEnheter: List<NavEnhet>,
     val navRegion: NavEnhet?,
-    val sanityId: String?,
+    @Serializable(with = UUIDSerializer::class)
+    val sanityId: UUID?,
     val oppstart: TiltaksgjennomforingOppstartstype,
     val opphav: ArenaMigrering.Opphav,
     @Serializable(with = LocalDateSerializer::class)
@@ -39,7 +41,8 @@ data class TiltaksgjennomforingAdminDto(
     @Serializable(with = LocalDateSerializer::class)
     val stengtTil: LocalDate?,
     val kontaktpersoner: List<TiltaksgjennomforingKontaktperson>,
-    val lokasjonArrangor: String?,
+    val stedForGjennomforing: String?,
+    val faneinnhold: JsonElement,
 ) {
     @Serializable
     data class Tiltakstype(
@@ -50,8 +53,8 @@ data class TiltaksgjennomforingAdminDto(
     )
 
     @Serializable
-    data class Ansvarlig(
-        val navident: String? = null,
+    data class Administrator(
+        val navIdent: String? = null,
         val navn: String? = null,
     )
 
