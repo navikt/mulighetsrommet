@@ -6,7 +6,7 @@ import { logDelMedbrukerEvent } from "./Delemodal";
 import delemodalStyles from "./Delemodal.module.scss";
 import { Actions, State } from "./DelemodalActions";
 
-const MAKS_ANTALL_TEGN = 500;
+export const MAKS_ANTALL_TEGN_DEL_MED_BRUKER = 500;
 
 interface Props {
   state: State;
@@ -53,9 +53,12 @@ export function DelMedBrukerContent({
     logDelMedbrukerEvent("Sett intro");
   };
 
+  const forMangeTegn = (tekst: string): boolean => {
+    return tekst.length > MAKS_ANTALL_TEGN_DEL_MED_BRUKER;
+  };
+
   const handleError = () => {
-    if (state.hilsen.length > MAKS_ANTALL_TEGN || state.introtekst.length > MAKS_ANTALL_TEGN)
-      return "For mange tegn";
+    if (forMangeTegn(state.hilsen) || forMangeTegn(state.introtekst)) return "For mange tegn";
   };
 
   const redigerHilsen = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -91,7 +94,7 @@ export function DelMedBrukerContent({
           label=""
           hideLabel
           onChange={redigerIntro}
-          maxLength={MAKS_ANTALL_TEGN}
+          maxLength={MAKS_ANTALL_TEGN_DEL_MED_BRUKER}
           data-testid="textarea_intro"
           error={handleError()}
         />
@@ -128,7 +131,7 @@ export function DelMedBrukerContent({
             label=""
             hideLabel
             onChange={redigerHilsen}
-            maxLength={MAKS_ANTALL_TEGN}
+            maxLength={MAKS_ANTALL_TEGN_DEL_MED_BRUKER}
             data-testid="textarea_hilsen"
             error={handleError()}
           />

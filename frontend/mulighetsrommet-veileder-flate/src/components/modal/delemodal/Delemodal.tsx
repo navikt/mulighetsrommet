@@ -13,7 +13,7 @@ import { byttTilDialogFlate } from "../../../utils/DialogFlateUtils";
 import { erPreview } from "../../../utils/Utils";
 import modalStyles from "../Modal.module.scss";
 import { StatusModal } from "../StatusModal";
-import { DelMedBrukerContent } from "./DelMedBrukerContent";
+import { DelMedBrukerContent, MAKS_ANTALL_TEGN_DEL_MED_BRUKER } from "./DelMedBrukerContent";
 import delemodalStyles from "./Delemodal.module.scss";
 import { Actions, State } from "./DelemodalActions";
 
@@ -144,7 +144,6 @@ const Delemodal = ({
     tiltaksgjennomforingSanityId,
     brukerFnr,
   );
-  const MAKS_ANTALL_TEGN_HILSEN = 500;
 
   const clickCancel = (log = true) => {
     lukkModal();
@@ -157,8 +156,7 @@ const Delemodal = ({
   };
 
   const sySammenDeletekst = () => {
-    const tekst = `${state.introtekst}${state.deletekst}\n\n${state.hilsen}`;
-    return tekst;
+    return `${state.introtekst}${state.deletekst}\n\n${state.hilsen}`;
   };
 
   const handleSend = async () => {
@@ -242,9 +240,9 @@ const Delemodal = ({
                 disabled={
                   senderTilDialogen ||
                   state.hilsen.length === 0 ||
-                  state.hilsen.length > MAKS_ANTALL_TEGN_HILSEN ||
+                  state.hilsen.length > MAKS_ANTALL_TEGN_DEL_MED_BRUKER ||
                   state.introtekst.length === 0 ||
-                  state.introtekst.length > MAKS_ANTALL_TEGN_HILSEN ||
+                  state.introtekst.length > MAKS_ANTALL_TEGN_DEL_MED_BRUKER ||
                   erPreview
                 }
               >
