@@ -75,8 +75,8 @@ function sySammenBrukerTekst(
   brukernavn?: string,
 ) {
   return `${chattekst
-    .replace(" <Fornavn>", brukernavn ? ` ${brukernavn}` : "")
-    .replace("<tiltaksnavn>", tiltaksgjennomforingsnavn)}`;
+    .replaceAll(" <Fornavn>", brukernavn ? ` ${brukernavn}` : "")
+    .replaceAll("<tiltaksnavn>", tiltaksgjennomforingsnavn)}`;
 }
 
 function sySammenHilsenTekst(veiledernavn?: string) {
