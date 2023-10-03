@@ -37,6 +37,7 @@ class SanityAnsattService(
 
         val sanityPatch = SanityNavKontaktperson(
             _id = sanityId.toString(),
+            _type = "navKontaktperson",
             enhet = "${ansatt.hovedenhet.enhetsnummer} ${ansatt.hovedenhet.navn}",
             telefonnummer = ansatt.mobilnummer,
             epost = ansatt.epost,
@@ -70,6 +71,7 @@ class SanityAnsattService(
 
         val sanityPatch = SanityRedaktor(
             _id = sanityId.toString(),
+            _type = "redaktor",
             enhet = "${ansatt.hovedenhet.enhetsnummer} ${ansatt.hovedenhet.navn}",
             epost = ansatt.epost,
             roller = ansatt.roller.map { it.name }.toList(),
@@ -91,6 +93,7 @@ class SanityAnsattService(
 
 data class SanityNavKontaktperson(
     val _id: String,
+    val _type: String,
     val enhet: String,
     val telefonnummer: String?,
     val epost: String,
@@ -99,6 +102,7 @@ data class SanityNavKontaktperson(
 
 data class SanityRedaktor(
     val _id: String,
+    val _type: String,
     val enhet: String,
     val epost: String,
     val roller: List<String>,
