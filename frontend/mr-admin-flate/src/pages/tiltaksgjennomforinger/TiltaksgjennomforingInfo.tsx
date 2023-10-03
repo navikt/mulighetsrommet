@@ -30,8 +30,6 @@ export function TiltaksgjennomforingInfo() {
 
   const { data: avtale, isLoading: isLoadingAvtale } = useAvtale(tiltaksgjennomforing?.avtaleId);
 
-  const forhandsvisningMiljo = import.meta.env.dev || erProdMiljo() ? "nav.no" : "dev.nav.no";
-
   const [slettModal, setSlettModal] = useState(false);
   const mutation = useDeleteTiltaksgjennomforing();
 
@@ -220,24 +218,6 @@ export function TiltaksgjennomforingInfo() {
                     >
                       Åpne tiltaksgjennomføringen i Sanity{" "}
                       <ExternalLinkIcon title="Åpner tiltaksgjennomføringen i Sanity" />
-                    </Link>
-                  </>
-                }
-              />
-            </Bolk>
-          </VisHvisVerdi>
-          <VisHvisVerdi verdi={tiltaksgjennomforing.sanityId}>
-            <Bolk aria-label="Forhåndsvisning">
-              <Metadata
-                header="Forhåndsvisning i veilederflate (Modia)"
-                verdi={
-                  <>
-                    <Link
-                      target="_blank"
-                      to={`https://mulighetsrommet-veileder-flate.intern.${forhandsvisningMiljo}/preview/${tiltaksgjennomforing.sanityId}`}
-                    >
-                      Forhåndsviser gjennomføringen i veilederflate (Modia)
-                      <ExternalLinkIcon title="Forhåndsviser gjennomføringen i veilederflate (Modia)" />
                     </Link>
                   </>
                 }

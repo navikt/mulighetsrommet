@@ -4,7 +4,7 @@ import style from "./Lenkeknapp.module.scss";
 
 interface Props {
   to: string;
-  lenketekst: string;
+  children: React.ReactNode;
   variant: "primary" | "secondary" | "tertiary";
   handleClick?: () => void;
   className?: string;
@@ -13,11 +13,11 @@ interface Props {
 }
 export function Lenkeknapp({
   to,
-  lenketekst,
   variant,
   handleClick,
   className,
   dataTestId,
+  children,
   size,
 }: Props) {
   const fontSize = () => {
@@ -40,7 +40,7 @@ export function Lenkeknapp({
       )}
       data-testid={dataTestId}
     >
-      {lenketekst}
+      {children}
     </Lenke>
   );
 }
