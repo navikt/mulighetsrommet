@@ -76,40 +76,28 @@ class NavAnsattServiceTest : FunSpec({
                     .contains("navKontaktperson")
             ) {
                 respondJson(
-                    content = SanityResponse.Result(
-                        ms = 100,
-                        query = "",
-                        result = Json.encodeToJsonElement(listOf("123", "456")),
-                    ),
+                    content = sanityContentResult(listOf("123", "456")),
                 )
             } else if (request.url.parameters.getOrFail<String>("query").contains("redaktor")) {
                 respondJson(
-                    content = SanityResponse.Result(
-                        ms = 100,
-                        query = "",
-                        result = Json.encodeToJsonElement(
-                            SanityRedaktor(
-                                _id = "123",
-                                _type = "navKontaktperson",
-                                enhet = "",
-                                epost = Slug(_type = "slug", current = "epost@epost.no"),
-                            ),
+                    content = sanityContentResult(
+                        SanityRedaktor(
+                            _id = "123",
+                            _type = "navKontaktperson",
+                            enhet = "",
+                            epost = Slug(_type = "slug", current = "epost@epost.no"),
                         ),
                     ),
                 )
             } else if (request.url.parameters.getOrFail("query").contains("navKontaktperson")) {
                 respondJson(
-                    content = SanityResponse.Result(
-                        ms = 100,
-                        query = "",
-                        result = Json.encodeToJsonElement(
-                            SanityNavKontaktperson(
-                                _id = "123",
-                                _type = "navKontaktperson",
-                                enhet = "",
-                                telefonnummer = null,
-                                epost = "",
-                            ),
+                    content = sanityContentResult(
+                        SanityNavKontaktperson(
+                            _id = "123",
+                            _type = "navKontaktperson",
+                            enhet = "",
+                            telefonnummer = null,
+                            epost = "",
                         ),
                     ),
                 )
@@ -119,9 +107,9 @@ class NavAnsattServiceTest : FunSpec({
         },
         config = SanityClient.Config("", "", "", "", false),
     )
-
     context("getNavAnsattFromAzure") {
         test("should get NavAnsatt with roles filtered by the configured roles") {
+
             val service = NavAnsattService(
                 microsoftGraphService = msGraph,
                 ansatte = NavAnsattRepository(database.db),
@@ -305,3 +293,7 @@ class NavAnsattServiceTest : FunSpec({
         }
     }
 })
+
+inline fun <reified T> sanityContentResult(value: T): SanityResponse.Result {
+    return SanityResponse.Result(ms = 100, query = "", result = Json.encodeToJsonElement(value))
+}
