@@ -12,7 +12,7 @@ import { ExternalLinkIcon } from "@navikt/aksel-icons";
 import { erProdMiljo } from "../../utils/Utils";
 import { Lenkeknapp } from "../../components/lenkeknapp/Lenkeknapp";
 
-export function DetaljerTiltaksgjennomforingerPage() {
+export function TiltaksgjennomforingPage() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const { data: tiltaksgjennomforing, isLoading } = useTiltaksgjennomforingById();

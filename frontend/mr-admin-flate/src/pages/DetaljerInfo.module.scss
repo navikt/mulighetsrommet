@@ -1,3 +1,16 @@
+.info_container {
+  margin: 0.5rem;
+  background: white;
+}
+
+.red_innhold_container {
+  margin: 1rem;
+  max-width: 900px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
 .container {
   display: grid;
   grid-template-columns: repeat(2, 1fr);

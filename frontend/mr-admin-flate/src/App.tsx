@@ -12,7 +12,7 @@ import { DetaljerAvtalePage } from "./pages/avtaler/DetaljerAvtalePage";
 import { DetaljerTiltakstypePage } from "./pages/tiltakstyper/DetaljerTiltakstypePage";
 import { TiltakstyperPage } from "./pages/tiltakstyper/TiltakstyperPage";
 import { TiltaksgjennomforingerPage } from "./pages/tiltaksgjennomforinger/TiltaksgjennomforingerPage";
-import { DetaljerTiltaksgjennomforingerPage } from "./pages/tiltaksgjennomforinger/DetaljerTiltaksgjennomforingerPage";
+import { TiltaksgjennomforingPage } from "./pages/tiltaksgjennomforinger/TiltaksgjennomforingPage";
 import { NotifikasjonerPage } from "./pages/notifikasjoner/NotifikasjonerPage";
 import AvtaleSkjemaPage from "./components/avtaler/AvtaleSkjemaPage";
 import TiltaksgjennomforingSkjemaPage from "./components/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaPage";
@@ -150,7 +150,7 @@ export function App() {
       />
       <Route
         path="avtaler/:avtaleId/tiltaksgjennomforinger/:tiltaksgjennomforingId"
-        element={<DetaljerTiltaksgjennomforingerPage />}
+        element={<TiltaksgjennomforingPage />}
         errorElement={<ErrorPage />}
       >
         <Route index element={<TiltaksgjennomforingInfo />} errorElement={<ErrorPage />} />
@@ -163,7 +163,7 @@ export function App() {
       </Route>
       <Route
         path="tiltaksgjennomforinger/:tiltaksgjennomforingId"
-        element={<DetaljerTiltaksgjennomforingerPage />}
+        element={<TiltaksgjennomforingPage />}
         errorElement={<ErrorPage />}
       >
         <Route index element={<TiltaksgjennomforingInfo />} errorElement={<ErrorPage />} />
