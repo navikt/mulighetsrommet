@@ -40,7 +40,7 @@ spec:
       tenant: nav.no
       claims:
         groups:
-          - id: 676673aa-ec8f-4606-8399-723dce26b361 # team-mulighetsrommet
+          - id: debefa6e-1865-446d-b22b-9579fc735de3 # team-mulighetsrommet
   env:
     - name: APP_CONFIG_JSON # Required
       value: >

@@ -56,7 +56,7 @@ fun Application.configureMonitoring(vararg resources: MonitoredResource) {
             it.principal<JWTPrincipal>()?.get("azp_name")
         }
 
-        callIdMdc("call-id")
+        callIdMdc("correlationId")
     }
 
     routing {

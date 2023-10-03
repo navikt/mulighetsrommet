@@ -8,7 +8,7 @@ kotest-testcontainers = "2.0.2"
 kotlin = "1.9.10"
 ktor = "2.3.4"
 logback = "1.4.11"
-metrics = "4.2.19"
+metrics = "4.2.20"
 
 [plugins]
 flyway = { id = "org.flywaydb.flyway", version.ref = "flyway" }
@@ -103,11 +103,11 @@ prometheus-caffeine = "io.prometheus:simpleclient_caffeine:0.16.0"
 
 shedlock-jdbc = "net.javacrumbs.shedlock:shedlock-provider-jdbc:5.8.0"
 
-slack-client = "com.slack.api:slack-api-client:1.32.1"
+slack-client = "com.slack.api:slack-api-client:1.32.2"
 
 slf4j = "org.slf4j:slf4j-api:2.0.9"
 
-apache-poi = "org.apache.poi:poi:5.2.3"
-apache-poi-ooxml = "org.apache.poi:poi-ooxml:5.2.3"
+apache-poi = "org.apache.poi:poi:5.2.4"
+apache-poi-ooxml = "org.apache.poi:poi-ooxml:5.2.4"
 
 unleash = "io.getunleash:unleash-client-java:8.3.1"

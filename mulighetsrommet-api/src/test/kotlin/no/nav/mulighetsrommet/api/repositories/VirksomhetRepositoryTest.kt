@@ -152,7 +152,7 @@ class VirksomhetRepositoryTest : FunSpec({
             val overordnet = VirksomhetDto(
                 navn = "REMA 1000 AS",
                 organisasjonsnummer = "982254604",
-                underenheter = listOf(), // Tom først
+                underenheter = listOf(),
                 postnummer = "5174",
                 poststed = "Mathopen",
             )

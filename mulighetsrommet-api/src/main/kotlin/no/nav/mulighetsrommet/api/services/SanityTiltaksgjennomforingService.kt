@@ -76,7 +76,8 @@ class SanityTiltaksgjennomforingService(
         sanityTiltaksgjennomforingFields: SanityTiltaksgjennomforingFields,
     ) {
         val sanityTiltaksgjennomforing = sanityTiltaksgjennomforingFields.toSanityTiltaksgjennomforing(
-            id = "drafts.$sanityId", // For å ikke autopublisere dokument i Sanity før redaktør manuelt publiserer
+            // For å ikke autopublisere dokument i Sanity før redaktør manuelt publiserer
+            id = "drafts.$sanityId",
         )
 
         val response = sanityClient.mutate(
