@@ -82,7 +82,11 @@ class NavAnsattService(
         logger.info("Oppdaterer ${ansatteToUpsert.size} NavAnsatt fra Azure")
         ansatteToUpsert.forEach { ansatt ->
             ansatte.upsert(NavAnsattDbo.fromNavAnsattDto(ansatt)).bind()
-            sanityAnsattService.upsertAnsatt(ansatt)
+            try {
+                sanityAnsattService.upsertAnsatt(ansatt)
+            } catch (error: Exception) {
+                logger.error(error.toString())
+            }
         }
 
         val ansatteAzureIds = ansatteToUpsert.map { it.azureId }

@@ -58,7 +58,6 @@ class NavAnsattServiceTest : FunSpec({
     coEvery { msGraph.getNavAnsatteInGroup(kontaktperson.adGruppeId) } returns listOf(ansatt2)
 
     val sanityAnsattService = mockk<SanityAnsattService>()
-    coEvery { sanityAnsattService.upsertAnsatt(any()) }
 
     context("getNavAnsattFromAzure") {
         test("should get NavAnsatt with roles filtered by the configured roles") {
