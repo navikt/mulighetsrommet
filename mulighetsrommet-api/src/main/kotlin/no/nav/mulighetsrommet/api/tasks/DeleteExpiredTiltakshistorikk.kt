@@ -37,7 +37,7 @@ class DeleteExpiredTiltakshistorikk(
         .recurring(javaClass.name, config.toSchedule())
         .onFailure { failure, _ ->
             val cause = failure.cause.getOrNull()?.message
-            val stackTrace = failure.cause.getOrNull()?.stackTrace
+            val stackTrace = failure.cause.getOrNull()?.stackTraceToString()
             slack.sendMessage(
                 """
                 Klarte ikke slette utgått tiltakshistorikk. Konsekvensen er at databasen kan inneholde tiltakshistorikk
