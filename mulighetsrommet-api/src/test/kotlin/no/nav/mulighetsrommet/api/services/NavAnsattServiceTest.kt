@@ -57,12 +57,16 @@ class NavAnsattServiceTest : FunSpec({
     coEvery { msGraph.getNavAnsatteInGroup(betabruker.adGruppeId) } returns listOf(ansatt1, ansatt2)
     coEvery { msGraph.getNavAnsatteInGroup(kontaktperson.adGruppeId) } returns listOf(ansatt2)
 
+    val sanityAnsattService = mockk<SanityAnsattService>()
+    coEvery { sanityAnsattService.upsertAnsatt(any()) }
+
     context("getNavAnsattFromAzure") {
         test("should get NavAnsatt with roles filtered by the configured roles") {
             val service = NavAnsattService(
                 microsoftGraphService = msGraph,
                 ansatte = NavAnsattRepository(database.db),
                 roles = listOf(betabruker),
+                sanityAnsattService = sanityAnsattService,
             )
 
             val azureId = UUID.randomUUID()
@@ -87,6 +91,7 @@ class NavAnsattServiceTest : FunSpec({
                 microsoftGraphService = msGraph,
                 ansatte = NavAnsattRepository(database.db),
                 roles = listOf(kontaktperson),
+                sanityAnsattService = sanityAnsattService,
             )
 
             val azureId = UUID.randomUUID()
@@ -129,6 +134,7 @@ class NavAnsattServiceTest : FunSpec({
                         microsoftGraphService = msGraph,
                         ansatte = NavAnsattRepository(database.db),
                         roles = roles,
+                        sanityAnsattService = sanityAnsattService,
                     )
 
                     val resolvedAnsatte = service.getNavAnsatteFromAzure()
@@ -187,6 +193,7 @@ class NavAnsattServiceTest : FunSpec({
                         microsoftGraphService = msGraph,
                         ansatte = ansatte,
                         roles = roles,
+                        sanityAnsattService = sanityAnsattService,
                     )
 
                     service.synchronizeNavAnsatte(today, deletionDate).shouldBeRight()
@@ -225,6 +232,7 @@ class NavAnsattServiceTest : FunSpec({
                         microsoftGraphService = msGraph,
                         ansatte = ansatte,
                         roles = roles,
+                        sanityAnsattService = sanityAnsattService,
                     )
 
                     service.synchronizeNavAnsatte(today, deletionDate = today).shouldBeRight()

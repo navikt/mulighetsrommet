@@ -1,12 +1,13 @@
-import { GrUserWorker } from "react-icons/gr";
-import { defineField, defineType } from "sanity";
-import { Information } from "../components/Information";
+import {GrUserWorker} from "react-icons/gr";
+import {defineField, defineType} from "sanity";
+import {Information} from "../components/Information";
 
 export const navKontaktperson = defineType({
   name: "navKontaktperson",
   title: "NAV kontaktperson",
   type: "document",
   icon: GrUserWorker,
+  readOnly: true,
   fields: [
     defineField({
       name: "info",
@@ -39,6 +40,13 @@ export const navKontaktperson = defineType({
       type: "string",
       validation: (rule) => rule.required().min(2).max(200),
     }),
+    defineField({
+      name: "roller",
+      title: "Roller",
+      type: "array",
+      of: [{type: "string"}],
+      validation: (rule) => rule.min(1),
+    })
   ],
   preview: {
     select: {

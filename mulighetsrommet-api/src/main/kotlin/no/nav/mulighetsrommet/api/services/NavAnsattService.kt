@@ -19,6 +19,7 @@ class NavAnsattService(
     private val microsoftGraphService: MicrosoftGraphService,
     private val ansatte: NavAnsattRepository,
     private val roles: List<AdGruppeNavAnsattRolleMapping>,
+    private val sanityAnsattService: SanityAnsattService,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -81,6 +82,7 @@ class NavAnsattService(
         logger.info("Oppdaterer ${ansatteToUpsert.size} NavAnsatt fra Azure")
         ansatteToUpsert.forEach { ansatt ->
             ansatte.upsert(NavAnsattDbo.fromNavAnsattDto(ansatt)).bind()
+            sanityAnsattService.upsertAnsatt(ansatt)
         }
 
         val ansatteAzureIds = ansatteToUpsert.map { it.azureId }

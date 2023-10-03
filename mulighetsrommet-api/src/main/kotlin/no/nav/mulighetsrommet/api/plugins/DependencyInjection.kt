@@ -250,12 +250,13 @@ private fun services(appConfig: AppConfig) = module {
     single { ArrangorService(get()) }
     single { BrukerService(get(), get(), get()) }
     single { DialogService(get()) }
-    single { NavAnsattService(get(), get(), appConfig.navAnsattService.roller) }
+    single { NavAnsattService(get(), get(), appConfig.navAnsattService.roller, get()) }
     single { PoaoTilgangService(get()) }
     single { DelMedBrukerService(get()) }
     single { MicrosoftGraphService(get()) }
     single { TiltaksgjennomforingService(get(), get(), get(), get(), get(), get(), get(), get(), get()) }
     single { SanityTiltaksgjennomforingService(get(), get(), get(), get()) }
+    single { SanityAnsattService(get()) }
     single { TiltakstypeService(get(), get(), get(), get()) }
     single { NavEnheterSyncService(get(), get(), get(), get()) }
     single { KafkaSyncService(get(), get(), get(), get()) }
