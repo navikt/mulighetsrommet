@@ -88,7 +88,7 @@ app:
 
   navAnsattService:
     roller:
-      - adGruppeId: 676673aa-ec8f-4606-8399-723dce26b361 # team-mulighetsrommet
+      - adGruppeId: debefa6e-1865-446d-b22b-9579fc735de3 # team-mulighetsrommet
         rolle: TEAM_MULIGHETSROMMET
       - adGruppeId: dde41c4b-42af-401f-bedf-9e537bcbdd37 # 0000-GA-mr-admin-flate_betabruker
         rolle: BETABRUKER

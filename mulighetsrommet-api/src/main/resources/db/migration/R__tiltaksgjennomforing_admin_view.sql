@@ -53,7 +53,8 @@ select tg.id::uuid,
        vk.epost               as arrangor_kontaktperson_epost,
        vk.beskrivelse         as arrangor_kontaktperson_beskrivelse,
        t.skal_migreres,
-       tg.faneinnhold
+       tg.faneinnhold,
+       tg.beskrivelse
 from tiltaksgjennomforing tg
          inner join tiltakstype t on tg.tiltakstype_id = t.id
          left join tiltaksgjennomforing_administrator tg_a on tg_a.tiltaksgjennomforing_id = tg.id

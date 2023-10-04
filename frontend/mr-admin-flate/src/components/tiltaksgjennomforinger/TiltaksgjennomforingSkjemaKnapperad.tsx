@@ -1,6 +1,5 @@
 import styles from "../skjema/Skjema.module.scss";
 import { Button } from "@navikt/ds-react";
-import React from "react";
 import { UseMutationResult } from "@tanstack/react-query";
 import { Tiltaksgjennomforing, TiltaksgjennomforingRequest } from "mulighetsrommet-api-client";
 
@@ -8,15 +7,18 @@ interface Props {
   redigeringsModus: boolean;
   onClose: () => void;
   mutation: UseMutationResult<Tiltaksgjennomforing, unknown, TiltaksgjennomforingRequest, unknown>;
+  size?: "small" | "medium";
 }
 export function TiltaksgjennomforingSkjemaKnapperad({
   redigeringsModus,
   onClose,
   mutation,
+  size = "medium",
 }: Props) {
   return (
-    <div className={styles.button_row}>
+    <div>
       <Button
+        size={size}
         className={styles.button}
         onClick={onClose}
         variant="tertiary"
@@ -27,6 +29,7 @@ export function TiltaksgjennomforingSkjemaKnapperad({
         Avbryt
       </Button>
       <Button
+        size={size}
         className={styles.button}
         type="submit"
         disabled={mutation.isLoading}

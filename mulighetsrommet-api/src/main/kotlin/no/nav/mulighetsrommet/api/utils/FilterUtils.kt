@@ -59,7 +59,8 @@ data class NotificationFilter(
 )
 
 enum class Tiltakstypekategori {
-    INDIVIDUELL, GRUPPE
+    INDIVIDUELL,
+    GRUPPE,
 }
 
 data class VirksomhetFilter(

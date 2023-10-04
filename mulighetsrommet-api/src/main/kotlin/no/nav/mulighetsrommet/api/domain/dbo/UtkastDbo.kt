@@ -15,5 +15,6 @@ data class UtkastDbo(
 )
 
 enum class Utkasttype {
-    Avtale, Tiltaksgjennomforing
+    Avtale,
+    Tiltaksgjennomforing,
 }

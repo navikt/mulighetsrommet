@@ -6,7 +6,8 @@ import no.nav.mulighetsrommet.database.Database
 import org.intellij.lang.annotations.Language
 
 enum class TopicType {
-    CONSUMER, PRODUCER
+    CONSUMER,
+    PRODUCER,
 }
 
 class TopicRepository(private val db: Database) {

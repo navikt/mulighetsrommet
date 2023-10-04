@@ -6,6 +6,7 @@ export const redaktor = defineType({
   title: "Administrator",
   type: "document",
   icon: GrUserAdmin,
+  readOnly: true,
   fields: [
     defineField({
       name: "navn",

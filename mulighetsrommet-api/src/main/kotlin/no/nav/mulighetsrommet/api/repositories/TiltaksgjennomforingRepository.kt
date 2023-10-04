@@ -1,8 +1,7 @@
 package no.nav.mulighetsrommet.api.repositories
 
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.JsonNull
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
@@ -51,7 +50,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 stengt_fra,
                 stengt_til,
                 sted_for_gjennomforing,
-                faneinnhold
+                faneinnhold,
+                beskrivelse
             )
             values (
                 :id::uuid,
@@ -72,7 +72,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 :stengt_fra,
                 :stengt_til,
                 :sted_for_gjennomforing,
-                :faneinnhold::jsonb
+                :faneinnhold::jsonb,
+                :beskrivelse
             )
             on conflict (id)
                 do update set navn                         = excluded.navn,
@@ -92,7 +93,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                               stengt_fra                   = excluded.stengt_fra,
                               stengt_til                   = excluded.stengt_til,
                               sted_for_gjennomforing       = excluded.sted_for_gjennomforing,
-                              faneinnhold                  = excluded.faneinnhold
+                              faneinnhold                  = excluded.faneinnhold,
+                              beskrivelse                  = excluded.beskrivelse
             returning *
         """.trimIndent()
 
@@ -567,7 +569,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         "stengt_fra" to stengtFra,
         "stengt_til" to stengtTil,
         "sted_for_gjennomforing" to stedForGjennomforing,
-        "faneinnhold" to faneinnhold.toString(),
+        "faneinnhold" to Json.encodeToString(faneinnhold),
+        "beskrivelse" to beskrivelse,
     )
 
     private fun ArenaTiltaksgjennomforingDbo.toSqlParameters() = mapOf(
@@ -595,9 +598,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         val kontaktpersoner = Json
             .decodeFromString<List<TiltaksgjennomforingKontaktperson?>>(string("kontaktpersoner"))
             .filterNotNull()
-        val faneinnhold = stringOrNull("faneinnhold")?.let {
-            Json.decodeFromString<JsonElement>(it)
-        } ?: JsonNull
 
         val startDato = localDate("start_dato")
         val sluttDato = localDateOrNull("slutt_dato")
@@ -653,7 +653,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             stengtTil = localDateOrNull("stengt_til"),
             kontaktpersoner = kontaktpersoner,
             stedForGjennomforing = stringOrNull("sted_for_gjennomforing"),
-            faneinnhold = faneinnhold,
+            faneinnhold = stringOrNull("faneinnhold")?.let { Json.decodeFromString(it) },
+            beskrivelse = stringOrNull("beskrivelse"),
         )
     }
 
