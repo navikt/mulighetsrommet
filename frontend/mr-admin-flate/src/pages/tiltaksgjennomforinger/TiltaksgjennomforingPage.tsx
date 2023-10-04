@@ -73,7 +73,7 @@ export function TiltaksgjennomforingPage() {
       </Header>
 
       <Tabs value={currentTab()}>
-        <Tabs.List>
+        <Tabs.List className={commonStyles.list}>
           <Tabs.Tab
             value="info"
             label="Info"
