@@ -86,6 +86,7 @@ class NavAnsattServiceTest : FunSpec({
                             _type = "navKontaktperson",
                             enhet = "",
                             epost = Slug(_type = "slug", current = "epost@epost.no"),
+                            navn = "Navn Navnesen",
                         ),
                     ),
                 )
@@ -98,6 +99,7 @@ class NavAnsattServiceTest : FunSpec({
                             enhet = "",
                             telefonnummer = null,
                             epost = "",
+                            navn = "Navn Navnesen",
                         ),
                     ),
                 )
