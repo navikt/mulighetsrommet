@@ -4,28 +4,23 @@ import style from "./Lenkeknapp.module.scss";
 
 interface Props {
   to: string;
-  lenketekst: string;
+  children: React.ReactNode;
   variant: "primary" | "secondary" | "tertiary";
   handleClick?: () => void;
   className?: string;
   dataTestId?: string;
-  size?: string;
+  size?: "small" | "medium";
 }
+
 export function Lenkeknapp({
   to,
-  lenketekst,
   variant,
   handleClick,
   className,
   dataTestId,
+  children,
   size,
 }: Props) {
-  const fontSize = () => {
-    if (size === "small") {
-      return "navds-button--small" && "navds-label--small";
-    }
-  };
-
   return (
     <Lenke
       to={to}
@@ -35,12 +30,15 @@ export function Lenkeknapp({
         "navds-button",
         "button",
         `navds-button--${variant}`,
-        fontSize(),
+        {
+          "navds-button--small": size === "small",
+          "navds-label--small": size === "small",
+        },
         className,
       )}
       data-testid={dataTestId}
     >
-      {lenketekst}
+      {children}
     </Lenke>
   );
 }

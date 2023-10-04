@@ -22,17 +22,11 @@
   }
 
   .tiltakstype_tabellrad {
-    grid-template-columns: 3fr repeat(
-        3,
-        1fr
-      );
+    grid-template-columns: 3fr repeat(3, 1fr);
   }
 
   .avtale_tabellrad {
-    grid-template-columns: 3fr 2fr 2fr repeat(
-        3,
-        1fr
-      );
+    grid-template-columns: 3fr 2fr 2fr repeat(3, 1fr);
   }
 }
 

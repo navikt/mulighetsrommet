@@ -47,6 +47,11 @@
           "name": "mulighetsrommet.enable-arbeidsflate",
           "enabled": true,
           "strategies": []
+        },
+        {
+          "name": "mulighetsrommet.admin-flate-faneinnhold",
+          "enabled": true,
+          "strategies": []
         }
       ]
     },

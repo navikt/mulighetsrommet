@@ -802,6 +802,27 @@ paths:
               schema:
                 type: string
 
+  /api/v1/internal/tiltakstyper/{id}/sanity:
+    get:
+      tags:
+        - Tiltakstyper
+      operationId: getSanityDataForTiltakstypeWithId
+      parameters:
+        - $ref: "#/components/parameters/ID"
+      responses:
+        200:
+          description: Sanity data for the specified tiltakstype
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VeilederflateTiltakstype"
+        404:
+          description: "Sanity data for the specified tiltakstype was not found."
+          content:
+            text/plain:
+              schema:
+                type: string
+
   /api/v1/internal/sanity/innsatsgrupper:
     get:
       tags:
@@ -1877,8 +1898,11 @@ components:
         stedForGjennomforing:
           type: string
         faneinnhold:
-          type: object
+          $ref: "#/components/schemas/SanityFaneinnhold"
+        beskrivelse:
+          type: string
       required:
+        - status
         - id
         - tiltakstype
         - navn
@@ -1952,7 +1976,10 @@ components:
           $ref: "#/components/schemas/Opphav"
           nullable: true
         faneinnhold:
-          type: object
+          $ref: "#/components/schemas/SanityFaneinnhold"
+          nullable: true
+        beskrivelse:
+          type: string
           nullable: true
       required:
         - id
@@ -1977,6 +2004,7 @@ components:
         - stedForGjennomforing
         - opphav
         - faneinnhold
+        - beskrivelse
 
     TiltaksgjennomforingStatus:
       type: string
@@ -2898,4 +2926,5 @@ components:
         - mulighetsrommet.admin-flate-vis-deltakerliste-fra-komet
         - mulighetsrommet.enable-arbeidsflate
         - mulighetsrommet-veilederflate-landingsside
+        - mulighetsrommet.admin-flate-faneinnhold
         - mulighetsrommet.admin-flate.opsjoner-for-avtaler

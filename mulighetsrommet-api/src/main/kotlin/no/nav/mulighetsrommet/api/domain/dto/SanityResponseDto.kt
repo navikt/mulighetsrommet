@@ -2,37 +2,8 @@ package no.nav.mulighetsrommet.api.domain.dto
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.*
+import no.nav.mulighetsrommet.domain.dto.Faneinnhold
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
-
-@Serializable
-data class Faneinnhold(
-    val forHvem: List<Innhold>? = emptyList(),
-    val forHvemInfoboks: String? = null,
-    val detaljerOgInnhold: List<Innhold>? = emptyList(),
-    val detaljerOgInnholdInfoboks: String? = null,
-    val pameldingOgVarighet: List<Innhold>? = emptyList(),
-    val pameldingOgVarighetInfoboks: String? = null,
-)
-
-@Serializable
-data class Innhold(
-    val style: String? = null,
-    val _key: String? = null,
-    val level: Int? = null,
-    val listItem: String? = null,
-    val _type: String? = null,
-    val children: List<InnholdChild>? = emptyList(),
-    val markDefs: List<InnholdChild>? = emptyList(),
-)
-
-@Serializable
-data class InnholdChild(
-    val text: String? = null,
-    val _type: String? = null,
-    val _key: String? = null,
-    val marks: List<String>? = emptyList(),
-    val href: String? = null,
-)
 
 @Serializable
 data class RegelverkLenke(

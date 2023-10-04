@@ -76,11 +76,12 @@ export function UtkastKort({ utkast }: UtkastKortProps) {
               ? `/avtaler/skjema?utkastId=${utkast.id}`
               : `/tiltaksgjennomforinger/skjema?utkastId=${utkast.id}`
           }
-          lenketekst="Rediger utkast"
           dataTestId="rediger-utkast-knapp"
           variant="primary"
           size="small"
-        />
+        >
+          Rediger utkast
+        </Lenkeknapp>
       </div>
 
       {utkastIdForSletting ? (

@@ -7,7 +7,6 @@ import { Header } from "../detaljside/Header";
 import { Laster } from "../laster/Laster";
 import { useUtkast } from "../../api/utkast/useUtkast";
 import { TiltaksgjennomforingSkjemaContainer } from "./TiltaksgjennomforingSkjemaContainer";
-import React from "react";
 import { useTiltaksgjennomforing } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforing";
 import styles from "../skjema/Skjema.module.scss";
 import { Alert } from "@navikt/ds-react";

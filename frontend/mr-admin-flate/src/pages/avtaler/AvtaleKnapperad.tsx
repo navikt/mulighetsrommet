@@ -40,12 +40,9 @@ export function AvtaleKnapperad({ handleSlett, handleAvbryt, avtale }: Props) {
       ) : null}
 
       {redigerAvtaleEnabled ? (
-        <Lenkeknapp
-          to={`/avtaler/${avtaleId}/skjema`}
-          lenketekst="Rediger avtale"
-          variant="primary"
-          dataTestId="endre-avtale"
-        />
+        <Lenkeknapp to={`/avtaler/${avtaleId}/skjema`} variant="primary" dataTestId="endre-avtale">
+          Rediger avtale
+        </Lenkeknapp>
       ) : null}
     </div>
   );

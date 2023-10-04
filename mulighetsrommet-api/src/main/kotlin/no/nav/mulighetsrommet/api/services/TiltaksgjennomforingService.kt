@@ -62,7 +62,7 @@ class TiltaksgjennomforingService(
 
                     val dto = tiltaksgjennomforingRepository.get(request.id, tx)!!
 
-                    sanityTiltaksgjennomforingService.createOrPatchSanityTiltaksgjennomforing(dto)
+                    sanityTiltaksgjennomforingService.createOrPatchSanityTiltaksgjennomforing(dto, tx)
                     tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingDto.from(dto))
                     dto
                 }
