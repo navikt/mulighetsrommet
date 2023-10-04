@@ -39,7 +39,7 @@ class SynchronizeNavAnsatte(
         .recurring("synchronize-nav-ansatte", config.toSchedule())
         .onFailure { failure, _ ->
             val cause = failure.cause.getOrNull()?.message
-            val stackTrace = failure.cause.getOrNull()?.stackTrace
+            val stackTrace = failure.cause.getOrNull()?.stackTraceToString()
             slack.sendMessage(
                 """
                 Klarte ikke synkronisere NAV-ansatte fra Azure AD.
