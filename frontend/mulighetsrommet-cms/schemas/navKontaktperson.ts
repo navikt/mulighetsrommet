@@ -7,6 +7,7 @@ export const navKontaktperson = defineType({
   title: "NAV kontaktperson",
   type: "document",
   icon: GrUserWorker,
+  readOnly: true,
   fields: [
     defineField({
       name: "info",

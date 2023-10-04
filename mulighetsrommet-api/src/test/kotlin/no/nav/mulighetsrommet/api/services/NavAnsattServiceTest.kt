@@ -9,20 +9,28 @@ import io.kotest.data.row
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
+import io.ktor.client.engine.mock.*
+import io.ktor.http.*
+import io.ktor.server.util.*
 import io.mockk.coEvery
 import io.mockk.mockk
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.api.clients.msgraph.AzureAdNavAnsatt
+import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle.BETABRUKER
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle.KONTAKTPERSON
 import no.nav.mulighetsrommet.api.domain.dto.AdGruppe
 import no.nav.mulighetsrommet.api.domain.dto.NavAnsattDto
+import no.nav.mulighetsrommet.api.domain.dto.SanityResponse
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.repositories.NavAnsattRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
+import no.nav.mulighetsrommet.ktor.respondJson
 import java.time.LocalDate
 import java.util.*
 
@@ -57,12 +65,58 @@ class NavAnsattServiceTest : FunSpec({
     coEvery { msGraph.getNavAnsatteInGroup(betabruker.adGruppeId) } returns listOf(ansatt1, ansatt2)
     coEvery { msGraph.getNavAnsatteInGroup(kontaktperson.adGruppeId) } returns listOf(ansatt2)
 
+    val sanityClient = SanityClient(
+        engine = MockEngine { request ->
+            if (request.method === HttpMethod.Post) {
+                respondOk()
+            } else if (request.method === HttpMethod.Delete) {
+                respondOk()
+            } else if (request.url.parameters.getOrFail<String>("query")
+                    .contains("redaktor") && request.url.parameters.getOrFail<String>("query")
+                    .contains("navKontaktperson")
+            ) {
+                respondJson(
+                    content = sanityContentResult(listOf("123", "456")),
+                )
+            } else if (request.url.parameters.getOrFail<String>("query").contains("redaktor")) {
+                respondJson(
+                    content = sanityContentResult(
+                        SanityRedaktor(
+                            _id = "123",
+                            _type = "navKontaktperson",
+                            enhet = "",
+                            epost = Slug(_type = "slug", current = "epost@epost.no"),
+                            navn = "Navn Navnesen",
+                        ),
+                    ),
+                )
+            } else if (request.url.parameters.getOrFail("query").contains("navKontaktperson")) {
+                respondJson(
+                    content = sanityContentResult(
+                        SanityNavKontaktperson(
+                            _id = "123",
+                            _type = "navKontaktperson",
+                            enhet = "",
+                            telefonnummer = null,
+                            epost = "",
+                            navn = "Navn Navnesen",
+                        ),
+                    ),
+                )
+            } else {
+                respondError(status = HttpStatusCode.BadRequest)
+            }
+        },
+        config = SanityClient.Config("", "", "", "", false),
+    )
     context("getNavAnsattFromAzure") {
         test("should get NavAnsatt with roles filtered by the configured roles") {
+
             val service = NavAnsattService(
                 microsoftGraphService = msGraph,
                 ansatte = NavAnsattRepository(database.db),
                 roles = listOf(betabruker),
+                sanityClient = sanityClient,
             )
 
             val azureId = UUID.randomUUID()
@@ -87,6 +141,7 @@ class NavAnsattServiceTest : FunSpec({
                 microsoftGraphService = msGraph,
                 ansatte = NavAnsattRepository(database.db),
                 roles = listOf(kontaktperson),
+                sanityClient = sanityClient,
             )
 
             val azureId = UUID.randomUUID()
@@ -129,6 +184,7 @@ class NavAnsattServiceTest : FunSpec({
                         microsoftGraphService = msGraph,
                         ansatte = NavAnsattRepository(database.db),
                         roles = roles,
+                        sanityClient = sanityClient,
                     )
 
                     val resolvedAnsatte = service.getNavAnsatteFromAzure()
@@ -187,6 +243,7 @@ class NavAnsattServiceTest : FunSpec({
                         microsoftGraphService = msGraph,
                         ansatte = ansatte,
                         roles = roles,
+                        sanityClient = sanityClient,
                     )
 
                     service.synchronizeNavAnsatte(today, deletionDate).shouldBeRight()
@@ -225,6 +282,7 @@ class NavAnsattServiceTest : FunSpec({
                         microsoftGraphService = msGraph,
                         ansatte = ansatte,
                         roles = roles,
+                        sanityClient = sanityClient,
                     )
 
                     service.synchronizeNavAnsatte(today, deletionDate = today).shouldBeRight()
@@ -237,3 +295,7 @@ class NavAnsattServiceTest : FunSpec({
         }
     }
 })
+
+inline fun <reified T> sanityContentResult(value: T): SanityResponse.Result {
+    return SanityResponse.Result(ms = 100, query = "", result = Json.encodeToJsonElement(value))
+}
