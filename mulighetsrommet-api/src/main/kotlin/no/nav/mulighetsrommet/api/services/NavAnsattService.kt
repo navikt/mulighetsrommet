@@ -226,7 +226,7 @@ data class SanityNavKontaktperson(
     val enhet: String,
     val telefonnummer: String?,
     val epost: String,
-    val navn: String,
+    val navn: String?,
 )
 
 @Serializable
@@ -235,7 +235,7 @@ data class SanityRedaktor(
     val _type: String,
     val enhet: String,
     val epost: Slug,
-    val navn: String,
+    val navn: String?,
 )
 
 @Serializable
