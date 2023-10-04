@@ -22,7 +22,7 @@ import { usePutAvtale } from "../../api/avtaler/usePutAvtale";
 import { useMutateUtkast } from "../../api/utkast/useMutateUtkast";
 import { useSokVirksomheter } from "../../api/virksomhet/useSokVirksomhet";
 import { useVirksomhet } from "../../api/virksomhet/useVirksomhet";
-import { addYear, formaterDatoSomYYYYMMDD } from "../../utils/Utils";
+import { addYear, formaterDato, formaterDatoSomYYYYMMDD } from "../../utils/Utils";
 import { AutoSaveUtkast } from "../autosave/AutoSaveUtkast";
 import { Separator } from "../detaljside/Metadata";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
@@ -121,7 +121,9 @@ export function AvtaleSkjemaContainer({
     inputProps: maksVarighetDatepickerInputProps,
   } = useDatepicker({
     fromDate: new Date(),
-    defaultSelected: addYear(watch("startOgSluttDato.startDato"), 5),
+    defaultSelected:
+      defaultValues?.startOgSluttDato?.startDato &&
+      addYear(defaultValues?.startOgSluttDato?.startDato, 5),
   });
 
   const watchedTiltakstype: EmbeddedTiltakstype | undefined = watch("tiltakstype");
@@ -288,13 +290,16 @@ export function AvtaleSkjemaContainer({
                     label: "Sluttdato",
                   }}
                 >
-                  {enableOpsjoner && watch("avtaletype") === Avtaletype.RAMMEAVTALE ? (
+                  {enableOpsjoner &&
+                  watch("avtaletype") === Avtaletype.RAMMEAVTALE &&
+                  !!watch("startOgSluttDato.startDato") ? (
                     <DatePicker {...maksVarighetDatepickerProps}>
                       <DatePicker.Input
                         {...maksVarighetDatepickerInputProps}
                         label="Maks varighet inkl. opsjon"
                         readOnly
                         size="small"
+                        value={formaterDato(addYear(watch("startOgSluttDato.startDato"), 5))}
                       />
                     </DatePicker>
                   ) : null}
