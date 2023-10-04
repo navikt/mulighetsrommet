@@ -51,7 +51,7 @@
     "use-deep-compare-effect": "^1.8.1",
     "uuid": "^9.0.1",
     "vite-plugin-require": "^1.1.11",
-    "zod": "^3.22.2"
+    "zod": "^3.22.3"
   },
   "devDependencies": {
     "@rollup/plugin-terser": "^0.4.3",
