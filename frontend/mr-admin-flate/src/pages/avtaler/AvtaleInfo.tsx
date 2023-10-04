@@ -1,5 +1,5 @@
 import { Alert, Heading } from "@navikt/ds-react";
-import { Avtalestatus } from "mulighetsrommet-api-client";
+import { Avtalestatus, Avtaletype, Toggles } from "mulighetsrommet-api-client";
 import { useState } from "react";
 import { useAvtale } from "../../api/avtaler/useAvtale";
 import AvbrytAvtaleModal from "../../components/modal/AvbrytAvtaleModal";
@@ -7,19 +7,23 @@ import { Bolk } from "../../components/detaljside/Bolk";
 import { Metadata, Separator } from "../../components/detaljside/Metadata";
 import { VisHvisVerdi } from "../../components/detaljside/VisHvisVerdi";
 import { Laster } from "../../components/laster/Laster";
-import { avtaletypeTilTekst, formaterDato } from "../../utils/Utils";
+import { addYear, avtaletypeTilTekst, formaterDato } from "../../utils/Utils";
 import styles from "../DetaljerInfo.module.scss";
 import { AvtaleKnapperad } from "./AvtaleKnapperad";
 import SlettAvtaleGjennomforingModal from "../../components/modal/SlettAvtaleGjennomforingModal";
 import { useDeleteAvtale } from "../../api/avtaler/useDeleteAvtale";
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
 import { erAnskaffetTiltak } from "../../utils/tiltakskoder";
+import { useFeatureToggle } from "../../api/features/feature-toggles";
 
 export function AvtaleInfo() {
   const { data: avtale, isLoading, error, refetch } = useAvtale();
   const [slettModal, setSlettModal] = useState(false);
   const [avbrytModal, setAvbrytModal] = useState(false);
   const mutation = useDeleteAvtale();
+  const { data: enableOpsjoner } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_ADMIN_FLATE_OPSJONER_FOR_AVTALER,
+  );
 
   if (!avtale && isLoading) {
     return <Laster tekst="Laster avtaleinformasjon..." />;
@@ -84,6 +88,12 @@ export function AvtaleInfo() {
           <Bolk aria-label="Start- og sluttdato">
             <Metadata header="Startdato" verdi={formaterDato(avtale.startDato)} />
             <Metadata header="Sluttdato" verdi={formaterDato(avtale.sluttDato)} />
+            {enableOpsjoner && avtale.avtaletype === Avtaletype.RAMMEAVTALE ? (
+              <Metadata
+                header="Maks varighet inkl. opsjon"
+                verdi={formaterDato(addYear(new Date(avtale.startDato), 5))}
+              />
+            ) : null}
           </Bolk>
 
           <Separator />
