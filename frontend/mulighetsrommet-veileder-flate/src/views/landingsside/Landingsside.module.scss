@@ -17,7 +17,10 @@
   &:focus-visible {
     box-shadow:
       inset 0 0 0 1px
-        var(--ac-button-primary-focus-border, var(--__ac-button-primary-focus-border, var(--a-surface-default))),
+        var(
+          --ac-button-primary-focus-border,
+          var(--__ac-button-primary-focus-border, var(--a-surface-default))
+        ),
       var(--a-shadow-focus);
   }
 }
