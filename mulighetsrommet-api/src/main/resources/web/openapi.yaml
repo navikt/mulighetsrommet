@@ -1902,6 +1902,7 @@ components:
         beskrivelse:
           type: string
       required:
+        - status
         - id
         - tiltakstype
         - navn

@@ -4,20 +4,14 @@ import {
   Avtale,
   Tiltaksgjennomforing,
   TiltaksgjennomforingOppstartstype,
-  TiltaksgjennomforingStatus,
 } from "mulighetsrommet-api-client";
 import { NOM_ANSATT_SIDE } from "mulighetsrommet-frontend-common/constants";
-import { useState } from "react";
-import invariant from "tiny-invariant";
 import { Bolk } from "../../components/detaljside/Bolk";
 import { Metadata, Separator } from "../../components/detaljside/Metadata";
 import { VisHvisVerdi } from "../../components/detaljside/VisHvisVerdi";
 import { erProdMiljo, formaterDato, tilgjengelighetsstatusTilTekst } from "../../utils/Utils";
 import styles from "../DetaljerInfo.module.scss";
-import { TiltaksgjennomforingKnapperad } from "./TiltaksgjennomforingKnapperad";
 import { Kontaktperson } from "./Kontaktperson";
-import SlettAvtaleGjennomforingModal from "../../components/modal/SlettAvtaleGjennomforingModal";
-import { useDeleteTiltaksgjennomforing } from "../../api/tiltaksgjennomforing/useDeleteTiltaksgjennomforing";
 import { Link } from "react-router-dom";
 
 interface Props {
@@ -27,9 +21,6 @@ interface Props {
 
 export function TiltaksgjennomforingDetaljer(props: Props) {
   const { tiltaksgjennomforing, avtale } = props;
-
-  const [slettModal, setSlettModal] = useState(false);
-  const mutation = useDeleteTiltaksgjennomforing();
 
   const navnPaaNavEnheterForKontaktperson = (enheterForKontaktperson: string[]): string => {
     return (
@@ -56,17 +47,6 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
 
   const todayDate = new Date();
   const kontaktpersonerFraNav = tiltaksgjennomforing.kontaktpersoner ?? [];
-
-  invariant(tiltaksgjennomforing?.status, "Klarte ikke finne status for tiltaksgjennomføringen");
-
-  function visKnapperad(status: TiltaksgjennomforingStatus): boolean {
-    const whitelist: TiltaksgjennomforingStatus[] = [
-      TiltaksgjennomforingStatus.GJENNOMFORES,
-      TiltaksgjennomforingStatus.APENT_FOR_INNSOK,
-    ];
-
-    return whitelist.includes(status);
-  }
 
   return (
     <>
@@ -292,17 +272,6 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
             />
           )}
         </div>
-
-        {visKnapperad(tiltaksgjennomforing.status) ? (
-          <TiltaksgjennomforingKnapperad handleSlett={() => setSlettModal(true)} />
-        ) : null}
-        <SlettAvtaleGjennomforingModal
-          modalOpen={slettModal}
-          handleCancel={() => setSlettModal(false)}
-          data={tiltaksgjennomforing}
-          mutation={mutation}
-          dataType={"tiltaksgjennomforing"}
-        />
       </div>
     </>
   );

@@ -176,7 +176,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
         ? formaterDatoSomYYYYMMDD(data.startOgSluttDato.sluttDato)
         : null,
       avtaleId: avtale.id,
-      administrator: data.administrator,
+      administrator: data.administrator!!,
       arrangorOrganisasjonsnummer:
         data.tiltaksArrangorUnderenhetOrganisasjonsnummer ||
         tiltaksgjennomforing?.arrangor?.organisasjonsnummer ||

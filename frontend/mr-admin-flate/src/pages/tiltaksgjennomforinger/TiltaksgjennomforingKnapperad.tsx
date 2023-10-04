@@ -6,9 +6,10 @@ import { Lenkeknapp } from "../../components/lenkeknapp/Lenkeknapp";
 
 interface Props {
   handleSlett: () => void;
+  style?: React.CSSProperties;
 }
 
-export function TiltaksgjennomforingKnapperad({ handleSlett }: Props) {
+export function TiltaksgjennomforingKnapperad({ handleSlett, style }: Props) {
   const { data: slettGjennomforingIsEnabled } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_ADMIN_FLATE_SLETT_TILTAKSGJENNOMFORING,
   );
@@ -17,9 +18,13 @@ export function TiltaksgjennomforingKnapperad({ handleSlett }: Props) {
   );
 
   return (
-    <div className={styles.knapperad}>
+    <div style={style}>
       {slettGjennomforingIsEnabled ? (
         <Button
+          style={{
+            marginRight: "1rem",
+          }}
+          size="small"
           variant="tertiary-neutral"
           onClick={handleSlett}
           data-testid="slett-gjennomforing"
@@ -30,7 +35,7 @@ export function TiltaksgjennomforingKnapperad({ handleSlett }: Props) {
       ) : null}
 
       {redigerGjennomforingIsEnabled ? (
-        <Lenkeknapp to={`skjema`} variant="primary">
+        <Lenkeknapp size="small" to={`skjema`} variant="primary">
           Rediger tiltaksgjennomføring
         </Lenkeknapp>
       ) : null}

@@ -9,8 +9,9 @@ interface Props {
   handleClick?: () => void;
   className?: string;
   dataTestId?: string;
-  size?: string;
+  size?: "small" | "medium";
 }
+
 export function Lenkeknapp({
   to,
   variant,
@@ -20,12 +21,6 @@ export function Lenkeknapp({
   children,
   size,
 }: Props) {
-  const fontSize = () => {
-    if (size === "small") {
-      return "navds-button--small" && "navds-label--small";
-    }
-  };
-
   return (
     <Lenke
       to={to}
@@ -35,7 +30,10 @@ export function Lenkeknapp({
         "navds-button",
         "button",
         `navds-button--${variant}`,
-        fontSize(),
+        {
+          "navds-button--small": size === "small",
+          "navds-label--small": size === "small",
+        },
         className,
       )}
       data-testid={dataTestId}

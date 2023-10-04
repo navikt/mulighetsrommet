@@ -60,7 +60,7 @@ export function TiltaksgjennomforingPage() {
             <span>{tiltaksgjennomforing?.navn ?? "..."}</span>
             <TiltaksgjennomforingstatusTag tiltaksgjennomforing={tiltaksgjennomforing} />
           </div>
-          {(true || tiltaksgjennomforing?.sanityId) && (
+          {tiltaksgjennomforing?.sanityId && (
             <Lenkeknapp
               size="small"
               variant="secondary"
@@ -73,7 +73,7 @@ export function TiltaksgjennomforingPage() {
       </Header>
 
       <Tabs value={currentTab()}>
-        <Tabs.List className={commonStyles.list}>
+        <Tabs.List>
           <Tabs.Tab
             value="info"
             label="Info"
