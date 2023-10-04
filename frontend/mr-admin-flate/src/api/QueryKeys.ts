@@ -21,6 +21,7 @@ export const QueryKeys = {
   tiltaksgjennomforinger: (tiltaksgjennomforingfilter: Tiltaksgjennomforingfilter, page?: number) =>
     [{ ...tiltaksgjennomforingfilter }, page, "tiltaksgjennomforinger"] as const,
   tiltaksgjennomforing: (id?: string) => [id, "tiltaksgjennomforing"] as const,
+  veilederflateTiltaksgjennomforing: (id: string) => [id, "tiltaksgjennomforing"] as const,
   ansatt: () => ["ansatt"] as const,
   tiltaksgjennomforingerByEnhet: (enhet: string = "enhet", page?: number) =>
     [enhet, page, "tiltaksgjennomforinger"] as const,

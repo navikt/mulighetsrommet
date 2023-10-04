@@ -79,9 +79,10 @@ const AvbrytAvtaleModal = ({ modalOpen, onClose, avtale }: Props) => {
           <Lenkeknapp
             to={`/avtaler/skjema?avtaleId=${avtale?.id}`}
             handleClick={handleRedigerAvtale}
-            lenketekst="Rediger avtale"
             variant="primary"
-          />
+          >
+            Rediger avtale
+          </Lenkeknapp>
         ) : (
           <Button variant="danger" onClick={handleAvbrytAvtale}>
             Avbryt avtale

@@ -87,9 +87,10 @@ const SlettAvtaleGjennomforingModal = ({
         {fraArena ? null : mutation?.isError ? (
           <Lenkeknapp
             to={`/tiltaksgjennomforinger/skjema?tiltaksgjennomforingId=${data?.id}`}
-            lenketekst="Rediger tiltaksgjennomføring"
             variant="primary"
-          />
+          >
+            Rediger tiltaksgjennomføring
+          </Lenkeknapp>
         ) : (
           <Button variant="danger" onClick={handleDelete}>
             Slett {dataType === "tiltaksgjennomforing" ? "tiltaksgjennomføring" : "avtale"}

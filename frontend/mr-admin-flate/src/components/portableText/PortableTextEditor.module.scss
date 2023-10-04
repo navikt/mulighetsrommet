@@ -1,0 +1,47 @@
+.editor_wrapper {
+  background-color: var(--ac-textarea-bg, var(--__ac-textarea-bg, var(--a-surface-default)));
+  border-radius: var(--a-border-radius-medium);
+  border: 1px solid var(--ac-textarea-border, var(--__ac-textarea-border, var(--a-border-default)));
+  color: var(--ac-textarea-text, var(--__ac-textarea-text, var(--a-text-default)));
+  min-height: 200px;
+
+  &:hover {
+    border-color: var(
+      --ac-textarea-hover-border,
+      var(--__ac-textarea-hover-border, var(--a-border-action))
+    );
+  }
+}
+
+.editor_wrapper__focusVisible {
+  outline: none;
+  box-shadow: var(--a-shadow-focus);
+}
+
+.toolbar {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  gap: 2rem;
+  border-bottom: 1px solid var(--ac-textarea-border, var(--__ac-textarea-border, var(--a-border-default)));
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+}
+
+.description {
+  margin-bottom: 8px;
+  display: inline-block;
+  color: var(--ac-form-description, var(--a-text-subtle));
+}
+
+.label {
+  display: inline-block;
+}
+
+.errormsg {
+  margin-top: 8px;
+  color: #c30000;
+}

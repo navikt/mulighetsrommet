@@ -45,9 +45,12 @@ export const TiltaksgjennomforingSchema = z
       .min(1, "Du må velge en underenhet for tiltaksarrangør"),
     stedForGjennomforing: z.string(),
     arrangorKontaktpersonId: z.string().nullable().optional(),
-    administrator: z.string({
-      required_error: "Du må velge en administrator",
-    }),
+    administrator: z
+      .string()
+      .nullish()
+      .refine((val) => !!val, {
+        message: "Du må velge en administrator",
+      }),
     midlertidigStengt: z
       .object({
         erMidlertidigStengt: z.boolean(),
@@ -78,8 +81,16 @@ export const TiltaksgjennomforingSchema = z
       "Du må velge oppstartstype",
     ),
     apenForInnsok: z.boolean(),
-    estimertVentetid: z.string().optional(),
-    faneinnhold: z.any(),
+    estimertVentetid: z.string().nullable(),
+    beskrivelse: z.string().nullable(),
+    faneinnhold: z.object({
+      forHvemInfoboks: z.string().optional(),
+      forHvem: z.any(),
+      detaljerOgInnholdInfoboks: z.string().optional(),
+      detaljerOgInnhold: z.any(),
+      pameldingOgVarighetInfoboks: z.string().optional(),
+      pameldingOgVarighet: z.any(),
+    }),
     opphav: z.nativeEnum(Opphav),
   })
   .superRefine((data, ctx) => {
