@@ -37,6 +37,7 @@ import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClientImpl
 import no.nav.mulighetsrommet.api.repositories.*
 import no.nav.mulighetsrommet.api.services.*
 import no.nav.mulighetsrommet.api.tasks.*
+import no.nav.mulighetsrommet.api.tiltaksgjennomforinger.TiltaksgjennomforingRequestValidator
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
 import no.nav.mulighetsrommet.env.NaisEnv
@@ -284,6 +285,7 @@ private fun services(appConfig: AppConfig) = module {
     }
     single { AxsysService(appConfig.axsys) { m2mTokenProvider.createMachineToMachineToken(appConfig.axsys.scope) } }
     single { AvtaleRequestValidator(get(), get(), get()) }
+    single { TiltaksgjennomforingRequestValidator(get(), get()) }
 }
 
 private fun tasks(config: TaskConfig) = module {
