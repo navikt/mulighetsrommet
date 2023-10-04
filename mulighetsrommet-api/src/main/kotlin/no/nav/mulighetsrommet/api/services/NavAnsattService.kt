@@ -159,6 +159,7 @@ class NavAnsattService(
             enhet = "${ansatt.hovedenhet.enhetsnummer} ${ansatt.hovedenhet.navn}",
             telefonnummer = ansatt.mobilnummer,
             epost = ansatt.epost,
+            navn = "${ansatt.fornavn} ${ansatt.etternavn}",
         )
 
         val response = sanityClient.mutate(
@@ -192,6 +193,7 @@ class NavAnsattService(
             _id = sanityId.toString(),
             _type = "redaktor",
             enhet = "${ansatt.hovedenhet.enhetsnummer} ${ansatt.hovedenhet.navn}",
+            navn = "${ansatt.fornavn} ${ansatt.etternavn}",
             epost = Slug(
                 _type = "slug",
                 current = ansatt.epost,
@@ -224,6 +226,7 @@ data class SanityNavKontaktperson(
     val enhet: String,
     val telefonnummer: String?,
     val epost: String,
+    val navn: String,
 )
 
 @Serializable
@@ -232,6 +235,7 @@ data class SanityRedaktor(
     val _type: String,
     val enhet: String,
     val epost: Slug,
+    val navn: String,
 )
 
 @Serializable
