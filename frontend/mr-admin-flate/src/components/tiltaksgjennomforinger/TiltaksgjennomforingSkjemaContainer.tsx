@@ -268,14 +268,12 @@ export const TiltaksgjennomforingSkjemaContainer = ({
           </>
         )}
       </form>
-      {false && (
-        <AutoSaveUtkast
-          defaultValues={defaultValues}
-          utkastId={utkastIdRef.current}
-          onSave={() => saveUtkast(watch(), avtale, utkastIdRef)}
-          mutation={mutationUtkast}
-        />
-      )}
+      <AutoSaveUtkast
+        defaultValues={defaultValues}
+        utkastId={utkastIdRef.current}
+        onSave={() => saveUtkast(watch(), avtale, utkastIdRef)}
+        mutation={mutationUtkast}
+      />
     </FormProvider>
   );
 };
