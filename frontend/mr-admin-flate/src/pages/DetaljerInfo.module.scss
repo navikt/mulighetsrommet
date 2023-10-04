@@ -27,8 +27,7 @@
   flex-direction: column;
 
   &:first-of-type {
-    border-right: 1px solid
-      var(--a-border-divider);
+    border-right: 1px solid var(--a-border-divider);
   }
 
   @media (width <= 1700px) {
@@ -41,9 +40,7 @@
 
   &:hover {
     color: var(--a-text-danger);
-    background-color: var(
-      --a-surface-danger-subtle
-    );
+    background-color: var(--a-surface-danger-subtle);
   }
 
   &:active {

@@ -23,7 +23,8 @@
   flex-direction: row;
   justify-content: flex-start;
   gap: 2rem;
-  border-bottom: 1px solid var(--ac-textarea-border, var(--__ac-textarea-border, var(--a-border-default)));
+  border-bottom: 1px solid
+    var(--ac-textarea-border, var(--__ac-textarea-border, var(--a-border-default)));
 }
 
 .container {
