@@ -194,7 +194,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({
                 tiltaksgjennomforing?.administrator,
                 betabrukere,
               )}
-              onClearValue={() => setValue("administrator", "")}
+              onClearValue={() => setValue("administrator", null)}
             />
           </FormGroup>
         </div>

@@ -20,7 +20,11 @@ export const TiltaksgjennomforingSkjemaRedInnhold = ({ avtale }: { avtale: Avtal
             <BodyLong>{tiltakstypeSanityData?.beskrivelse}</BodyLong>
           </>
         )}
-        <Textarea {...register("beskrivelse")} label="Beskrivelse" />
+        <Textarea
+          {...register("beskrivelse")}
+          description="Beskrivelse av formålet med tiltaksgjennomføringen."
+          label="Beskrivelse"
+        />
         <Heading size="medium">Faneinnhold</Heading>
         <Tabs size="small" defaultValue="for_hvem">
           <Tabs.List>
