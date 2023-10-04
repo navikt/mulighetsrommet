@@ -11,4 +11,5 @@ export const mockFeatures: Features = {
   "mulighetsrommet.enable-arbeidsflate": true,
   "mulighetsrommet-veilederflate-landingsside": true,
   "mulighetsrommet.admin-flate-faneinnhold": true,
+  "mulighetsrommet.admin-flate.opsjoner-for-avtaler": true,
 };

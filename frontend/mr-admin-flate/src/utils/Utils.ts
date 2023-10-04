@@ -152,3 +152,9 @@ export const validEmail = (email: string | undefined): Boolean => {
 };
 
 export const erProdMiljo = () => inneholderUrl("intern.nav.no");
+
+export function addYear(date: Date, numYears: number): Date {
+  const newDate = new Date(date);
+  newDate.setFullYear(date.getFullYear() + numYears);
+  return newDate;
+}

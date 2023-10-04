@@ -1,4 +1,4 @@
-import { Alert, Textarea, TextField } from "@navikt/ds-react";
+import { Alert, DatePicker, Textarea, TextField, useDatepicker } from "@navikt/ds-react";
 import {
   Avtale,
   AvtaleAvslutningsstatus,
@@ -10,6 +10,7 @@ import {
   NavEnhetType,
   Opphav,
   Tiltakskode,
+  Toggles,
 } from "mulighetsrommet-api-client";
 import { NavEnhet } from "mulighetsrommet-api-client/build/models/NavEnhet";
 import { Tiltakstype } from "mulighetsrommet-api-client/build/models/Tiltakstype";
@@ -21,7 +22,7 @@ import { usePutAvtale } from "../../api/avtaler/usePutAvtale";
 import { useMutateUtkast } from "../../api/utkast/useMutateUtkast";
 import { useSokVirksomheter } from "../../api/virksomhet/useSokVirksomhet";
 import { useVirksomhet } from "../../api/virksomhet/useVirksomhet";
-import { formaterDatoSomYYYYMMDD } from "../../utils/Utils";
+import { addYear, formaterDato, formaterDatoSomYYYYMMDD } from "../../utils/Utils";
 import { AutoSaveUtkast } from "../autosave/AutoSaveUtkast";
 import { Separator } from "../detaljside/Metadata";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
@@ -45,6 +46,7 @@ import { AvtaleSkjemaKnapperad } from "./AvtaleSkjemaKnapperad";
 import { PORTEN } from "mulighetsrommet-frontend-common/constants";
 import { resolveErrorMessage } from "../../api/errors";
 import { erAnskaffetTiltak } from "../../utils/tiltakskoder";
+import { useFeatureToggle } from "../../api/features/feature-toggles";
 
 interface Props {
   onClose: () => void;
@@ -67,6 +69,9 @@ export function AvtaleSkjemaContainer({
 }: Props) {
   const [navRegion, setNavRegion] = useState<string | undefined>(avtale?.navRegion?.enhetsnummer);
   const [sokLeverandor, setSokLeverandor] = useState(avtale?.leverandor?.organisasjonsnummer || "");
+  const { data: enableOpsjoner } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_ADMIN_FLATE_OPSJONER_FOR_AVTALER,
+  );
 
   const mutation = usePutAvtale();
   const { data: betabrukere } = useHentBetabrukere();
@@ -110,6 +115,16 @@ export function AvtaleSkjemaContainer({
     watch,
     setValue,
   } = form;
+
+  const {
+    datepickerProps: maksVarighetDatepickerProps,
+    inputProps: maksVarighetDatepickerInputProps,
+  } = useDatepicker({
+    fromDate: new Date(),
+    defaultSelected:
+      defaultValues?.startOgSluttDato?.startDato &&
+      addYear(defaultValues?.startOgSluttDato?.startDato, 5),
+  });
 
   const watchedTiltakstype: EmbeddedTiltakstype | undefined = watch("tiltakstype");
   const arenaKode = watchedTiltakstype?.arenaKode;
@@ -274,7 +289,21 @@ export function AvtaleSkjemaContainer({
                     ...register("startOgSluttDato.sluttDato"),
                     label: "Sluttdato",
                   }}
-                />
+                >
+                  {enableOpsjoner &&
+                  watch("avtaletype") === Avtaletype.RAMMEAVTALE &&
+                  !!watch("startOgSluttDato.startDato") ? (
+                    <DatePicker {...maksVarighetDatepickerProps}>
+                      <DatePicker.Input
+                        {...maksVarighetDatepickerInputProps}
+                        label="Maks varighet inkl. opsjon"
+                        readOnly
+                        size="small"
+                        value={formaterDato(addYear(watch("startOgSluttDato.startDato"), 5))}
+                      />
+                    </DatePicker>
+                  ) : null}
+                </FraTilDatoVelger>
                 {redigeringsModus ? <AvbrytAvtale onAvbryt={onClose} /> : null}
               </FormGroup>
               <Separator />
