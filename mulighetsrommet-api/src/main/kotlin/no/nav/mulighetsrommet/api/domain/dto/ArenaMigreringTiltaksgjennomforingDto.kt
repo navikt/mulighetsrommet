@@ -1,10 +1,13 @@
 package no.nav.mulighetsrommet.api.domain.dto
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.domain.constants.ArenaMigrering.ArenaTimestampFormatter
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingAdminDto
 import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
+import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
+import no.nav.mulighetsrommet.domain.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
+import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 @Serializable
@@ -13,8 +16,14 @@ data class ArenaMigreringTiltaksgjennomforingDto(
     val id: UUID,
     val arenaId: Int?,
     val tiltakskode: String,
-    val startDato: String,
-    val sluttDato: String?,
+    @Serializable(with = LocalDateSerializer::class)
+    val startDato: LocalDate,
+    @Serializable(with = LocalDateSerializer::class)
+    val sluttDato: LocalDate?,
+    @Serializable(with = LocalDateTimeSerializer::class)
+    val opprettetTidspunkt: LocalDateTime,
+    @Serializable(with = LocalDateTimeSerializer::class)
+    val endretTidspunkt: LocalDateTime,
     val navn: String,
     val orgnummer: String,
     val antallPlasser: Int?,
@@ -26,8 +35,10 @@ data class ArenaMigreringTiltaksgjennomforingDto(
             ArenaMigreringTiltaksgjennomforingDto(
                 id = tiltaksgjennomforing.id,
                 tiltakskode = tiltaksgjennomforing.tiltakstype.arenaKode,
-                startDato = ArenaTimestampFormatter.format(tiltaksgjennomforing.startDato.atStartOfDay()),
-                sluttDato = tiltaksgjennomforing.sluttDato?.let { ArenaTimestampFormatter.format(it.atStartOfDay()) },
+                startDato = tiltaksgjennomforing.startDato,
+                sluttDato = tiltaksgjennomforing.sluttDato,
+                opprettetTidspunkt = tiltaksgjennomforing.createdAt,
+                endretTidspunkt = tiltaksgjennomforing.updatedAt,
                 navn = tiltaksgjennomforing.navn,
                 orgnummer = tiltaksgjennomforing.arrangor.organisasjonsnummer,
                 antallPlasser = tiltaksgjennomforing.antallPlasser,

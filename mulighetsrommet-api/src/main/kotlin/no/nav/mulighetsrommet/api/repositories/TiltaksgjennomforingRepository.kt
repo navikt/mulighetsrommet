@@ -655,6 +655,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             stedForGjennomforing = stringOrNull("sted_for_gjennomforing"),
             faneinnhold = stringOrNull("faneinnhold")?.let { Json.decodeFromString(it) },
             beskrivelse = stringOrNull("beskrivelse"),
+            createdAt = localDateTime("created_at"),
+            updatedAt = localDateTime("updated_at"),
         )
     }
 
