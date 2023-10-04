@@ -7,10 +7,7 @@
   margin: 1rem 0;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(
-    auto-fill,
-    minmax(30rem, 1fr)
-  );
+  grid-template-columns: repeat(auto-fill, minmax(30rem, 1fr));
   gap: 1rem;
 }
 
@@ -24,8 +21,7 @@
   height: 15rem;
 
   &:hover {
-    box-shadow: rgba(100, 100, 111, 0.2)
-      0px 7px 29px 0px;
+    box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
   }
 }
 
