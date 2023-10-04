@@ -113,7 +113,7 @@ class NavAnsattService(
     private suspend fun deleteSanityAnsatt(ansatt: NavAnsattDto) {
         val queryResponse = sanityClient.query(
             """
-            *[_type == "navKontaktperson" && lower(epost) == lower(${ansatt.epost}) || _type == "redaktor" && lower(epost.current) == lower(${ansatt.epost})]._id
+            *[_type == "navKontaktperson" && lower(epost) == lower("${ansatt.epost}") || _type == "redaktor" && lower(epost.current) == lower("${ansatt.epost}")]._id
             """.trimIndent(),
         )
 
@@ -142,7 +142,7 @@ class NavAnsattService(
     private suspend fun upsertKontaktperson(ansatt: NavAnsattDto) {
         val queryResponse = sanityClient.query(
             """
-            *[_type == "navKontaktperson" && lower(epost) == lower(${ansatt.epost})][0]
+            *[_type == "navKontaktperson" && lower(epost) == lower("${ansatt.epost}")][0]
             """.trimIndent(),
         )
 
@@ -177,7 +177,7 @@ class NavAnsattService(
     private suspend fun upsertRedaktor(ansatt: NavAnsattDto) {
         val queryResponse = sanityClient.query(
             """
-            *[_type == "redaktor" && lower(epost.current) == lower(${ansatt.epost})][0]
+            *[_type == "redaktor" && lower(epost.current) == lower("${ansatt.epost}")][0]
             """.trimIndent(),
         )
 
