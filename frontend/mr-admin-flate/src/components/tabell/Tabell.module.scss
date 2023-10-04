@@ -1,9 +1,8 @@
 .tabell_wrapper {
   background-color: var(--a-white);
-  padding: 16px;
+  padding: 1rem;
   border-radius: 4px;
-  margin-bottom: 2rem;
-  margin-top: 1rem;
+  margin: 1rem 0.5rem 2rem;
 
   .tabell {
     background-color: var(--a-white);
@@ -22,17 +21,11 @@
   }
 
   .tiltakstype_tabellrad {
-    grid-template-columns: 3fr repeat(
-        3,
-        1fr
-      );
+    grid-template-columns: 3fr repeat(3, 1fr);
   }
 
   .avtale_tabellrad {
-    grid-template-columns: 3fr 2fr 2fr repeat(
-        3,
-        1fr
-      );
+    grid-template-columns: 3fr 2fr 2fr repeat(3, 1fr);
   }
 }
 
