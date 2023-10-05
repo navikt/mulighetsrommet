@@ -35,6 +35,16 @@
   }
 }
 
+.knapperad {
+  display: flex;
+  justify-content: space-between;
+  grid-area: knapperad;
+  border-top: 1px solid var(--a-border-divider);
+  margin: 1rem;
+  padding-top: 1rem;
+  gap: 0.5rem;
+}
+
 .slett_knapp {
   color: var(--a-text-danger);
 
