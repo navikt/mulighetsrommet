@@ -1,9 +1,9 @@
-import {GrDocumentPerformance} from "react-icons/gr";
-import {Rule, defineArrayMember, defineField, defineType} from "sanity";
-import {Information} from "../components/Information";
-import {API_VERSION} from "../sanity.config";
-import {hasDuplicates, isEgenRegiTiltak, isInAdminFlate} from "../utils/utils";
-import {EnhetType} from "./enhet";
+import { GrDocumentPerformance } from "react-icons/gr";
+import { Rule, defineArrayMember, defineField, defineType } from "sanity";
+import { Information } from "../components/Information";
+import { API_VERSION } from "../sanity.config";
+import { hasDuplicates, isEgenRegiTiltak, isInAdminFlate } from "../utils/utils";
+import { EnhetType } from "./enhet";
 
 export const tiltaksgjennomforing = defineType({
   name: "tiltaksgjennomforing",
@@ -27,11 +27,11 @@ export const tiltaksgjennomforing = defineType({
       of: [
         {
           type: "reference",
-          to: [{type: "redaktor"}],
+          to: [{ type: "redaktor" }],
         },
       ],
       validation: (rule) => rule.required().unique(),
-      initialValue: async (params, {currentUser, getClient}) => {
+      initialValue: async (params, { currentUser, getClient }) => {
         const foundRedaktor = await getClient({
           apiVersion: API_VERSION,
         }).fetch(`*[_type == "redaktor" && navn == '${currentUser.name}'][0]`);
@@ -48,7 +48,7 @@ export const tiltaksgjennomforing = defineType({
       name: "tiltakstype",
       title: "Tiltakstype",
       type: "reference",
-      to: [{type: "tiltakstype"}],
+      to: [{ type: "tiltakstype" }],
       validation: (rule) => rule.required(),
     }),
     defineField({
@@ -57,7 +57,7 @@ export const tiltaksgjennomforing = defineType({
       description: "Navnet kommer fra Arena/admin-flate",
       type: "string",
       validation: (rule) => rule.required(),
-      readOnly: ({document}) => {
+      readOnly: ({ document }) => {
         return isInAdminFlate(document.tiltakstype?._ref);
       },
     }),
@@ -66,7 +66,7 @@ export const tiltaksgjennomforing = defineType({
       title: "Tiltaksnummer",
       description: "Tiltaksnummeret er hentet fra Arena",
       type: "slug",
-      hidden: ({document}) => {
+      hidden: ({ document }) => {
         return (
           !isInAdminFlate(document.tiltakstype?._ref) &&
           !isEgenRegiTiltak(document.tiltakstype?._ref)
@@ -88,7 +88,7 @@ export const tiltaksgjennomforing = defineType({
       description:
         "Skriv inn stedet tiltaket skal gjennomføres, for eksempel Fredrikstad eller Tromsø. For tiltak uten eksplisitt lokasjon (for eksempel digital jobbklubb), kan du la feltet stå tomt.",
       type: "string",
-      hidden: ({document}) => {
+      hidden: ({ document }) => {
         return isInAdminFlate(document.tiltakstype?._ref);
       },
     }),
@@ -97,7 +97,7 @@ export const tiltaksgjennomforing = defineType({
       title: "Fylke",
       description: "Hvilket fylke gjelder tiltaket for.",
       type: "reference",
-      to: [{type: "enhet"}],
+      to: [{ type: "enhet" }],
       options: {
         disableNew: true,
         filter: "type == $type",
@@ -105,11 +105,11 @@ export const tiltaksgjennomforing = defineType({
           type: EnhetType.Fylke,
         },
       },
-      hidden: ({document}) => {
+      hidden: ({ document }) => {
         return isInAdminFlate(document.tiltakstype?._ref);
       },
       validation: (rule) =>
-        rule.custom((currentValue, {document}) => {
+        rule.custom((currentValue, { document }) => {
           if (isInAdminFlate(document.tiltakstype?._ref)) {
             return true;
           }
@@ -122,16 +122,16 @@ export const tiltaksgjennomforing = defineType({
       description:
         "Hvilke enheter kan benytte seg av dette tiltaket? Hvis det gjelder for hele regionen kan dette feltet stå tomt.",
       type: "array",
-      hidden: ({document}) => {
+      hidden: ({ document }) => {
         return !document.fylke || isInAdminFlate(document.tiltakstype?._ref);
       },
       of: [
         {
           type: "reference",
-          to: [{type: "enhet"}],
+          to: [{ type: "enhet" }],
           options: {
             disableNew: true,
-            filter: ({document}) => {
+            filter: ({ document }) => {
               return {
                 filter: `fylke._ref == $fylke || type == 'Als'`,
                 params: {
@@ -143,7 +143,7 @@ export const tiltaksgjennomforing = defineType({
         },
       ],
       validation: (rule) =>
-        rule.custom(async (enheter, {document, getClient}) => {
+        rule.custom(async (enheter, { document, getClient }) => {
           if (!document.fylke || !enheter || isInAdminFlate(document.tiltakstype?._ref)) {
             return true;
           }
@@ -156,9 +156,9 @@ export const tiltaksgjennomforing = defineType({
 
           const paths = enheter
             ?.filter((enhet) => !validEnheter.includes(enhet._ref))
-            ?.map((enhet) => [{_key: enhet._key}]);
+            ?.map((enhet) => [{ _key: enhet._key }]);
 
-          return !paths.length ? true : {message: "Alle enheter må tilhøre valgt fylke.", paths};
+          return !paths.length ? true : { message: "Alle enheter må tilhøre valgt fylke.", paths };
         }),
     }),
     defineField({
@@ -166,10 +166,7 @@ export const tiltaksgjennomforing = defineType({
       title: "UTDATERT_FELT_Kontaktpersoner",
       description: "Dette feltet skal bort og erstattes av kontaktperson-feltet under",
       type: "array",
-      of: [{type: "reference", to: [{type: "navKontaktperson"}]}],
-      hidden: ({document}) => {
-        return isInAdminFlate(document.tiltakstype?._ref);
-      },
+      of: [{ type: "reference", to: [{ type: "navKontaktperson" }] }],
       validation: (rule) => rule.max(0).error("Ikke bruk dette feltet. Bruk kontaktpersoner under"),
     }),
     defineField({
@@ -185,7 +182,7 @@ export const tiltaksgjennomforing = defineType({
             {
               type: "reference",
               name: "navKontaktperson",
-              to: [{type: "navKontaktperson"}],
+              to: [{ type: "navKontaktperson" }],
             },
             {
               type: "array",
@@ -193,10 +190,10 @@ export const tiltaksgjennomforing = defineType({
               of: [
                 {
                   type: "reference",
-                  to: [{type: "enhet"}],
+                  to: [{ type: "enhet" }],
                   options: {
                     disableNew: true,
-                    filter: ({document}) => {
+                    filter: ({ document }) => {
                       return {
                         filter: `fylke._ref == $fylke`,
                         params: {
@@ -220,7 +217,7 @@ export const tiltaksgjennomforing = defineType({
               // Må hardkode fordi det ikke er noen god måte å hente ut alle navn for alle enheter...
             },
             prepare: (data) => {
-              const {navn, enhet1, enhet2, enhet3, enhet4, enhet5} = data;
+              const { navn, enhet1, enhet2, enhet3, enhet4, enhet5 } = data;
               return {
                 title: navn,
                 subtitle: [enhet1, enhet2, enhet3, enhet4, enhet5].filter(Boolean).join(", "),
@@ -229,11 +226,11 @@ export const tiltaksgjennomforing = defineType({
           },
         }),
       ],
-      hidden: ({document}) => {
+      hidden: ({ document }) => {
         return isInAdminFlate(document.tiltakstype?._ref);
       },
       validation: (rule) =>
-        rule.custom((currentValue, {document}) => {
+        rule.custom((currentValue, { document }) => {
           if (isInAdminFlate(document.tiltakstype?._ref)) {
             return true;
           }
@@ -302,7 +299,7 @@ export const tiltaksgjennomforing = defineType({
       tiltaksnummer: "tiltaksnummer.current",
       updatedAt: "_updatedAt",
     },
-    prepare: ({title, tiltaksnummer, updatedAt}) => ({
+    prepare: ({ title, tiltaksnummer, updatedAt }) => ({
       title,
       subtitle: `${tiltaksnummer ? tiltaksnummer : ""} - Sist oppd: ${new Date(
         updatedAt,
