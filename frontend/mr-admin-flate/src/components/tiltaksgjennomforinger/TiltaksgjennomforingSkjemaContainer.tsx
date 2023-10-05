@@ -8,15 +8,13 @@ import {
   TiltaksgjennomforingRequest,
   Toggles,
   Utkast,
-  ValidationErrorResponse,
 } from "mulighetsrommet-api-client";
 import { Tilgjengelighetsstatus } from "mulighetsrommet-api-client/build/models/Tilgjengelighetsstatus";
-import React, { useEffect, useRef } from "react";
+import React, { useRef } from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { v4 as uuidv4 } from "uuid";
 import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
-import { usePutGjennomforing } from "../../api/avtaler/usePutGjennomforing";
 import { useFeatureToggle } from "../../api/features/feature-toggles";
 import { useMutateUtkast } from "../../api/utkast/useMutateUtkast";
 import { formaterDatoSomYYYYMMDD } from "../../utils/Utils";
@@ -34,6 +32,8 @@ import {
   defaultValuesForKontaktpersoner,
   UtkastData,
 } from "./TiltaksgjennomforingSkjemaConst";
+import { useUpsertTiltaksgjennomforing } from "../../api/tiltaksgjennomforing/useUpsertTiltaksgjennomforing";
+import { useHandleApiUpsertResponse } from "../../api/effects";
 import { TiltaksgjennomforingSkjemaDetaljer } from "./TiltaksgjennomforingSkjemaDetaljer";
 import { TiltaksgjennomforingSkjemaKnapperad } from "./TiltaksgjennomforingSkjemaKnapperad";
 import { TiltaksgjennomforingSkjemaRedInnhold } from "./TiltaksgjennomforingSkjemaRedInnhold";
@@ -53,7 +53,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
 }: Props) => {
   const utkastIdRef = useRef(tiltaksgjennomforing?.id || uuidv4());
   const redigeringsModus = !!tiltaksgjennomforing;
-  const mutation = usePutGjennomforing();
+  const mutation = useUpsertTiltaksgjennomforing();
   const mutationUtkast = useMutateUtkast();
   const { data: visFaneinnhold } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_ADMIN_FLATE_FANEINNHOLD,
@@ -215,30 +215,27 @@ export const TiltaksgjennomforingSkjemaContainer = ({
     mutation.mutate(body);
   };
 
-  useEffect(() => {
-    if (mutation.isSuccess) {
-      onSuccess(mutation.data.id);
-    } else if (mutation.isError && mutation.error.status === 400) {
-      const response = mutation.error.body as ValidationErrorResponse;
-      response.errors.forEach((error) => {
-        const name = asSchemaPropertyName(error.name) as keyof InferredTiltaksgjennomforingSchema;
+  useHandleApiUpsertResponse(
+    mutation,
+    (response) => onSuccess(response.id),
+    (validation) => {
+      validation.errors.forEach((error) => {
+        const name = mapErrorToSchemaPropertyName(error.name);
         form.setError(name, { type: "custom", message: error.message });
       });
-    } else if (mutation.isError) {
-      throw mutation.error;
-    }
-  }, [mutation.isSuccess, mutation.isError]);
 
-  function asSchemaPropertyName(name: string) {
-    const mapping: { [name: string]: string } = {
-      startDato: "startOgSluttDato.startDato",
-      sluttDato: "startOgSluttDato.sluttDato",
-      arrangorOrganisasjonsnummer: "tiltaksArrangorUnderenhetOrganisasjonsnummer",
-      stengtFra: "midlertidigStengt.erMidlertidigStengt",
-      stengtTil: "midlertidigStengt.erMidlertidigStengt",
-    };
-    return mapping[name] ?? name;
-  }
+      function mapErrorToSchemaPropertyName(name: string) {
+        const mapping: { [name: string]: string } = {
+          startDato: "startOgSluttDato.startDato",
+          sluttDato: "startOgSluttDato.sluttDato",
+          arrangorOrganisasjonsnummer: "tiltaksArrangorUnderenhetOrganisasjonsnummer",
+          stengtFra: "midlertidigStengt.erMidlertidigStengt",
+          stengtTil: "midlertidigStengt.erMidlertidigStengt",
+        };
+        return (mapping[name] ?? name) as keyof InferredTiltaksgjennomforingSchema;
+      }
+    },
+  );
 
   const hasErrors = () => Object.keys(errors).length > 0;
 

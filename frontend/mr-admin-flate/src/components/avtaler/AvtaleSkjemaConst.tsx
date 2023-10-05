@@ -40,7 +40,7 @@ export const saveUtkast = (
   mutationUtkast: UseMutationResult<Utkast, unknown, Utkast, unknown>,
 ) => {
   const utkastData: UtkastData = {
-    navn: values?.avtalenavn,
+    navn: values?.navn,
     tiltakstype: values?.tiltakstype,
     navRegion: {
       navn: "",
@@ -69,7 +69,7 @@ export const saveUtkast = (
     id: avtale?.id || utkastIdRef.current,
   };
 
-  if (!values.avtalenavn) {
+  if (!values.navn) {
     toast.info("For å lagre utkast må du gi utkastet et navn", {
       autoClose: 10000,
     });

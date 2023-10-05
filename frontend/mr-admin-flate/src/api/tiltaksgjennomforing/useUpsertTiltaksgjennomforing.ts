@@ -6,10 +6,10 @@ import {
 } from "mulighetsrommet-api-client";
 import { mulighetsrommetClient } from "../clients";
 
-export function usePutGjennomforing() {
+export function useUpsertTiltaksgjennomforing() {
   return useMutation<Tiltaksgjennomforing, ApiError, TiltaksgjennomforingRequest>({
     mutationFn: (requestBody: TiltaksgjennomforingRequest) =>
-      mulighetsrommetClient.tiltaksgjennomforinger.opprettTiltaksgjennomforing({
+      mulighetsrommetClient.tiltaksgjennomforinger.upsertTiltaksgjennomforing({
         requestBody,
       }),
   });

@@ -11,7 +11,6 @@ import {
   Opphav,
   Tiltakskode,
   Toggles,
-  ValidationErrorResponse,
 } from "mulighetsrommet-api-client";
 import { NavEnhet } from "mulighetsrommet-api-client/build/models/NavEnhet";
 import { Tiltakstype } from "mulighetsrommet-api-client/build/models/Tiltakstype";
@@ -19,7 +18,7 @@ import { useEffect, useRef, useState } from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { v4 as uuidv4 } from "uuid";
 import { useHentBetabrukere } from "../../api/ansatt/useHentBetabrukere";
-import { usePutAvtale } from "../../api/avtaler/usePutAvtale";
+import { useUpsertAvtale } from "../../api/avtaler/useUpsertAvtale";
 import { useMutateUtkast } from "../../api/utkast/useMutateUtkast";
 import { useSokVirksomheter } from "../../api/virksomhet/useSokVirksomhet";
 import { useVirksomhet } from "../../api/virksomhet/useVirksomhet";
@@ -46,6 +45,7 @@ import { AvtaleSkjemaKnapperad } from "./AvtaleSkjemaKnapperad";
 import { AvbrytAvtaleModal } from "../modal/AvbrytAvtaleModal";
 import { useFeatureToggle } from "../../api/features/feature-toggles";
 import { erAnskaffetTiltak } from "../../utils/tiltakskoder";
+import { useHandleApiUpsertResponse } from "../../api/effects";
 
 interface Props {
   onClose: () => void;
@@ -73,7 +73,7 @@ export function AvtaleSkjemaContainer({
   const { data: enableOpsjoner } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_ADMIN_FLATE_OPSJONER_FOR_AVTALER,
   );
-  const mutation = usePutAvtale();
+  const mutation = useUpsertAvtale();
   const { data: betabrukere } = useHentBetabrukere();
   const mutationUtkast = useMutateUtkast();
 
@@ -88,7 +88,7 @@ export function AvtaleSkjemaContainer({
       navRegion: defaultEnhet(avtale, enheter, ansatt),
       navEnheter: avtale?.navEnheter?.map((e) => e.enhetsnummer) || [],
       administrator: avtale?.administrator?.navIdent || ansatt.navIdent || "",
-      avtalenavn: avtale?.navn ?? "",
+      navn: avtale?.navn ?? "",
       avtaletype: avtale?.avtaletype ?? Avtaletype.AVTALE,
       leverandor: avtale?.leverandor?.organisasjonsnummer ?? "",
       leverandorUnderenheter:
@@ -153,7 +153,7 @@ export function AvtaleSkjemaContainer({
       avtalenummer: avtale?.avtalenummer || null,
       leverandorOrganisasjonsnummer: data.leverandor,
       leverandorUnderenheter: data.leverandorUnderenheter,
-      navn: data.avtalenavn,
+      navn: data.navn,
       sluttDato: formaterDatoSomYYYYMMDD(data.startOgSluttDato.sluttDato),
       startDato: formaterDatoSomYYYYMMDD(data.startOgSluttDato.startDato),
       tiltakstypeId: data.tiltakstype.id,
@@ -170,29 +170,27 @@ export function AvtaleSkjemaContainer({
     mutation.mutate(requestBody);
   };
 
-  useEffect(() => {
-    if (mutation.isSuccess) {
-      onSuccess(mutation.data.id);
-    } else if (mutation.isError && mutation.error.status === 400) {
-      const response = mutation.error.body as ValidationErrorResponse;
-      response.errors.forEach((error) => {
-        const name = asSchemaPropertyName(error.name) as keyof InferredAvtaleSchema;
+  useHandleApiUpsertResponse(
+    mutation,
+    (response) => onSuccess(response.id),
+    (validation) => {
+      validation.errors.forEach((error) => {
+        const name = mapErrorToSchemaPropertyName(error.name);
         form.setError(name, { type: "custom", message: error.message });
       });
-    } else if (mutation.isError) {
-      throw mutation.error;
-    }
-  }, [mutation.isSuccess, mutation.isError]);
 
-  function asSchemaPropertyName(name: string) {
-    const mapping: { [name: string]: string } = {
-      startDato: "startOgSluttDato.startDato",
-      sluttDato: "startOgSluttDato.sluttDato",
-      navn: "avtalenavn",
-      leverandorOrganisasjonsnummer: "leverandor",
-    };
-    return mapping[name] ?? name;
-  }
+      function mapErrorToSchemaPropertyName(name: string) {
+        const mapping: { [name: string]: string } = {
+          startDato: "startOgSluttDato.startDato",
+          sluttDato: "startOgSluttDato.sluttDato",
+          leverandorOrganisasjonsnummer: "leverandor",
+          prisOgBetalingsinformasjon: "prisOgBetalingsinfo",
+          tiltakstypeId: "tiltakstype",
+        };
+        return (mapping[name] ?? name) as keyof InferredAvtaleSchema;
+      }
+    },
+  );
 
   const navRegionerOptions = enheter
     .filter((enhet) => enhet.type === NavEnhetType.FYLKE)
@@ -213,11 +211,11 @@ export function AvtaleSkjemaContainer({
                 <TextField
                   size="small"
                   readOnly={arenaOpphav}
-                  error={errors.avtalenavn?.message}
+                  error={errors.navn?.message}
                   label="Avtalenavn"
                   autoFocus
                   data-testid="avtalenavn-input"
-                  {...register("avtalenavn")}
+                  {...register("navn")}
                 />
               </FormGroup>
               <Separator />

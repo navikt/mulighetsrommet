@@ -167,7 +167,7 @@ paths:
     put:
       tags:
         - Avtaler
-      operationId: opprettAvtale
+      operationId: upsertAvtale
       requestBody:
         content:
           application/json:
@@ -516,7 +516,7 @@ paths:
     put:
       tags:
         - Tiltaksgjennomforinger
-      operationId: opprettTiltaksgjennomforing
+      operationId: upsertTiltaksgjennomforing
       requestBody:
         content:
           application/json:
