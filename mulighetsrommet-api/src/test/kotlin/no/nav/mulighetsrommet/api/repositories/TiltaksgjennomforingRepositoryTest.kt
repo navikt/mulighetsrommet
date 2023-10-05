@@ -159,6 +159,25 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             }
         }
 
+        test("arena overskriver ikke oppstart") {
+            tiltaksgjennomforinger.upsertArenaTiltaksgjennomforing(ArenaOppfolging1)
+            tiltaksgjennomforinger.get(ArenaOppfolging1.id) should {
+                it!!.oppstart shouldBe TiltaksgjennomforingOppstartstype.FELLES
+            }
+
+            tiltaksgjennomforinger.upsert(
+                Oppfolging1.copy(
+                    id = ArenaOppfolging1.id,
+                    oppstart = TiltaksgjennomforingOppstartstype.LOPENDE,
+                ),
+            )
+
+            tiltaksgjennomforinger.upsertArenaTiltaksgjennomforing(ArenaOppfolging1)
+            tiltaksgjennomforinger.get(ArenaOppfolging1.id) should {
+                it!!.oppstart shouldBe TiltaksgjennomforingOppstartstype.LOPENDE
+            }
+        }
+
         test("midlertidig_stengt crud") {
             val gjennomforing = Oppfolging1.copy(
                 id = UUID.randomUUID(),

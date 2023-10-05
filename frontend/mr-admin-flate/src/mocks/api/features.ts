@@ -12,4 +12,5 @@ export const mockFeatures: Features = {
   "mulighetsrommet-veilederflate-landingsside": true,
   "mulighetsrommet.admin-flate-faneinnhold": true,
   "mulighetsrommet.admin-flate.opsjoner-for-avtaler": true,
+  "mulighetsrommet.admin-flate.rediger-oppstart": true,
 };

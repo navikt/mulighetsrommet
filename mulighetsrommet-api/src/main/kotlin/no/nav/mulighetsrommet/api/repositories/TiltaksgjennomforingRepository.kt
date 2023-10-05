@@ -248,7 +248,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                               tilgjengelighet              = excluded.tilgjengelighet,
                               antall_plasser               = excluded.antall_plasser,
                               avtale_id                    = excluded.avtale_id,
-                              oppstart                     = excluded.oppstart,
+                              oppstart                     = coalesce(tiltaksgjennomforing.oppstart, excluded.oppstart),
                               opphav                       = excluded.opphav
             returning *
         """.trimIndent()
