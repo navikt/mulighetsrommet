@@ -2,6 +2,7 @@
   display: grid;
   grid-template-columns: auto 2fr;
   gap: 1rem;
+  max-width: 1440px;
 
   &_opprett {
     background-color: var(--a-white);
