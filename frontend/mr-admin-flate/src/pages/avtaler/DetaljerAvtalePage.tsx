@@ -6,6 +6,7 @@ import { Laster } from "../../components/laster/Laster";
 import { AvtalestatusTag } from "../../components/statuselementer/AvtalestatusTag";
 import { useGetAvtaleIdFromUrl } from "../../hooks/useGetAvtaleIdFromUrl";
 import commonStyles from "../Page.module.scss";
+import styles from "./DetaljerAvtalePage.module.scss";
 import { ContainerLayoutDetaljer } from "../../layouts/ContainerLayout";
 
 export function DetaljerAvtalePage() {
@@ -47,7 +48,7 @@ export function DetaljerAvtalePage() {
   };
 
   return (
-    <main>
+    <main className={styles.avtaleinfo}>
       <Header>
         <div className={commonStyles.header}>
           <span>{avtale?.navn ?? "..."}</span>
