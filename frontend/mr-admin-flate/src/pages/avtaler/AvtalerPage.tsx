@@ -1,10 +1,11 @@
 import { Tabs } from "@navikt/ds-react";
 import { ErrorBoundary } from "react-error-boundary";
 import { HeaderBanner } from "../../layouts/HeaderBanner";
-import { MainContainer } from "../../layouts/MainContainer";
 import { ErrorFallback } from "../../main";
 import styles from "../Page.module.scss";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import { ContainerLayout } from "../../layouts/ContainerLayout";
+import { MainContainer } from "../../layouts/MainContainer";
 
 export function AvtalerPage() {
   const navigate = useNavigate();
@@ -33,9 +34,11 @@ export function AvtalerPage() {
             </Tabs.List>
           </div>
           <MainContainer>
-            <div id="panel">
-              <Outlet />
-            </div>
+            <ContainerLayout>
+              <div id="panel">
+                <Outlet />
+              </div>
+            </ContainerLayout>
           </MainContainer>
         </Tabs>
       </ErrorBoundary>

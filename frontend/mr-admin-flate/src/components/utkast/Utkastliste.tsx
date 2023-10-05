@@ -24,7 +24,7 @@ export function UtkastListe({ utkastType }: Props) {
   }
 
   return (
-    <div className={styles.container}>
+    <div className={styles.utkast_liste_container}>
       {data.length === 0 ? <Alert variant="info">Du har ingen utkast</Alert> : null}
       <ul className={styles.liste}>
         {data?.map((utkast) => {

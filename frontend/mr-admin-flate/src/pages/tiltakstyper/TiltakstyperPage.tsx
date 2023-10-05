@@ -1,5 +1,5 @@
 import { Tiltakstypefilter } from "../../components/filter/Tiltakstypefilter";
-import { ContainerLayoutOversikt } from "../../layouts/ContainerLayout";
+import { ContainerLayout } from "../../layouts/ContainerLayout";
 import { MainContainer } from "../../layouts/MainContainer";
 import { TiltakstypeTabell } from "../../components/tabell/TiltakstypeTabell";
 import { ErrorBoundary } from "react-error-boundary";
@@ -11,12 +11,12 @@ export function TiltakstyperPage() {
     <>
       <HeaderBanner heading="Oversikt over tiltakstyper" />
       <MainContainer>
-        <ContainerLayoutOversikt>
+        <ContainerLayout>
           <Tiltakstypefilter />
           <ErrorBoundary FallbackComponent={ErrorFallback}>
             <TiltakstypeTabell />
           </ErrorBoundary>
-        </ContainerLayoutOversikt>
+        </ContainerLayout>
       </MainContainer>
     </>
   );

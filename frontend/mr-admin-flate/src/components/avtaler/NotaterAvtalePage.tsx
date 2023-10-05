@@ -60,11 +60,11 @@ export default function NotaterAvtalePage() {
         <form onSubmit={handleSubmit(postData)}>
           <div className={styles.notater_opprett}>
             <Textarea
-              label={"Innhold for notat"}
+              label="Innhold for notat"
               hideLabel
               className={styles.notater_input}
               error={errors.innhold?.message}
-              minRows={10}
+              minRows={18}
               maxRows={25}
               resize
               maxLength={500}

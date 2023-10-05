@@ -1,6 +1,7 @@
 .info_container {
   padding: 1.5rem;
   background: white;
+  max-width: 1440px;
 }
 
 .red_innhold_container {
@@ -14,7 +15,7 @@
 .container {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  max-width: var(--a-breakpoint-xl);
+  max-width: 1440px;
   grid-template-areas:
     "venstre hoyre"
     "knapperad knapperad";
