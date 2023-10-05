@@ -4,7 +4,7 @@ import { useTiltakstypeById } from "../../api/tiltakstyper/useTiltakstypeById";
 import { Header } from "../../components/detaljside/Header";
 import { Laster } from "../../components/laster/Laster";
 import { TiltakstypestatusTag } from "../../components/statuselementer/TiltakstypestatusTag";
-import { ContainerLayoutDetaljer } from "../../layouts/ContainerLayout";
+import { ContainerLayout } from "../../layouts/ContainerLayout";
 import commonStyles from "../Page.module.scss";
 
 export function DetaljerTiltakstypePage() {
@@ -53,11 +53,11 @@ export function DetaljerTiltakstypePage() {
             aria-controls="panel"
           />
         </Tabs.List>
-        <ContainerLayoutDetaljer>
+        <ContainerLayout>
           <div id="panel">
             <Outlet />
           </div>
-        </ContainerLayoutDetaljer>
+        </ContainerLayout>
       </Tabs>
     </main>
   );

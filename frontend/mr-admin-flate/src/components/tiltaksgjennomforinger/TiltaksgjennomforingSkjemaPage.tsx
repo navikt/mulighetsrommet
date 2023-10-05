@@ -1,7 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { Tiltaksgjennomforing } from "mulighetsrommet-api-client";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { ContainerLayoutDetaljer } from "../../layouts/ContainerLayout";
+import { ContainerLayout } from "../../layouts/ContainerLayout";
 import { inneholderUrl } from "../../utils/Utils";
 import { Header } from "../detaljside/Header";
 import { Laster } from "../laster/Laster";
@@ -80,11 +80,11 @@ const TiltaksgjennomforingSkjemaPage = () => {
             : "Rediger tiltaksgjennomføring"
           : "Opprett ny tiltaksgjennomføring"}
       </Header>
-      <ContainerLayoutDetaljer>
+      <ContainerLayout>
         <div className={styles.skjema}>
           <div className={styles.skjema_content}>{content}</div>
         </div>
-      </ContainerLayoutDetaljer>
+      </ContainerLayout>
     </main>
   );
 };

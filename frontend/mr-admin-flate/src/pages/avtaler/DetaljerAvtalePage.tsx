@@ -7,7 +7,7 @@ import { AvtalestatusTag } from "../../components/statuselementer/AvtalestatusTa
 import { useGetAvtaleIdFromUrl } from "../../hooks/useGetAvtaleIdFromUrl";
 import commonStyles from "../Page.module.scss";
 import styles from "./DetaljerAvtalePage.module.scss";
-import { ContainerLayoutDetaljer } from "../../layouts/ContainerLayout";
+import { ContainerLayout } from "../../layouts/ContainerLayout";
 
 export function DetaljerAvtalePage() {
   const avtaleId = useGetAvtaleIdFromUrl();
@@ -78,11 +78,11 @@ export function DetaljerAvtalePage() {
             aria-controls="panel"
           />
         </Tabs.List>
-        <ContainerLayoutDetaljer>
+        <ContainerLayout>
           <div id="panel">
             <Outlet />
           </div>
-        </ContainerLayoutDetaljer>
+        </ContainerLayout>
       </Tabs>
     </main>
   );

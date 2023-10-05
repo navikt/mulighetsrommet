@@ -6,7 +6,7 @@ import { useTiltaksgjennomforingById } from "../../api/tiltaksgjennomforing/useT
 import { Header } from "../../components/detaljside/Header";
 import { Laster } from "../../components/laster/Laster";
 import { TiltaksgjennomforingstatusTag } from "../../components/statuselementer/TiltaksgjennomforingstatusTag";
-import { ContainerLayoutDetaljer } from "../../layouts/ContainerLayout";
+import { ContainerLayout } from "../../layouts/ContainerLayout";
 import commonStyles from "../Page.module.scss";
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
 import { erProdMiljo } from "../../utils/Utils";
@@ -98,11 +98,11 @@ export function TiltaksgjennomforingPage() {
             />
           ) : null}
         </Tabs.List>
-        <ContainerLayoutDetaljer>
+        <ContainerLayout>
           <div id="panel">
             <Outlet />
           </div>
-        </ContainerLayoutDetaljer>
+        </ContainerLayout>
       </Tabs>
     </main>
   );

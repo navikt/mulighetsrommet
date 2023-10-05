@@ -5,10 +5,6 @@ interface Props {
   children: ReactNode;
 }
 
-export function ContainerLayoutOversikt({ children }: Props) {
-  return <div className={styles.container_layout_oversikt}>{children}</div>;
-}
-
-export function ContainerLayoutDetaljer({ children }: Props) {
-  return <div className={styles.container_layout_detaljer}>{children}</div>;
+export function ContainerLayout({ children }: Props) {
+  return <div className={styles.container_layout}>{children}</div>;
 }
