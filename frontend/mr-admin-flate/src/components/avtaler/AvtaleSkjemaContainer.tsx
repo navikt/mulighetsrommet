@@ -10,7 +10,6 @@ import {
   NavEnhetType,
   Opphav,
   Tiltakskode,
-  Toggles,
 } from "mulighetsrommet-api-client";
 import { NavEnhet } from "mulighetsrommet-api-client/build/models/NavEnhet";
 import { Tiltakstype } from "mulighetsrommet-api-client/build/models/Tiltakstype";
@@ -27,26 +26,25 @@ import { AutoSaveUtkast } from "../autosave/AutoSaveUtkast";
 import { Separator } from "../detaljside/Metadata";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
+import skjemastyles from "../skjema/Skjema.module.scss";
 import { SokeSelect } from "../skjema/SokeSelect";
 import { VirksomhetKontaktpersoner } from "../virksomhet/VirksomhetKontaktpersoner";
 import { AvbrytAvtale } from "./AvbrytAvtale";
 import { AvtaleSchema, InferredAvtaleSchema } from "./AvtaleSchema";
-import skjemastyles from "../skjema/Skjema.module.scss";
 
+import { zodResolver } from "@hookform/resolvers/zod";
+import { PORTEN } from "mulighetsrommet-frontend-common/constants";
+import { resolveErrorMessage } from "../../api/errors";
+import { erAnskaffetTiltak } from "../../utils/tiltakskoder";
+import { AdministratorOptions } from "../skjema/AdministratorOptions";
+import { FormGroup } from "../skjema/FormGroup";
 import {
   defaultEnhet,
   getLokaleUnderenheterAsSelectOptions,
   saveUtkast,
   underenheterOptions,
 } from "./AvtaleSkjemaConst";
-import { AdministratorOptions } from "../skjema/AdministratorOptions";
-import { FormGroup } from "../skjema/FormGroup";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { AvtaleSkjemaKnapperad } from "./AvtaleSkjemaKnapperad";
-import { PORTEN } from "mulighetsrommet-frontend-common/constants";
-import { resolveErrorMessage } from "../../api/errors";
-import { erAnskaffetTiltak } from "../../utils/tiltakskoder";
-import { useFeatureToggle } from "../../api/features/feature-toggles";
 
 interface Props {
   onClose: () => void;
@@ -69,9 +67,6 @@ export function AvtaleSkjemaContainer({
 }: Props) {
   const [navRegion, setNavRegion] = useState<string | undefined>(avtale?.navRegion?.enhetsnummer);
   const [sokLeverandor, setSokLeverandor] = useState(avtale?.leverandor?.organisasjonsnummer || "");
-  const { data: enableOpsjoner } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_ADMIN_FLATE_OPSJONER_FOR_AVTALER,
-  );
 
   const mutation = usePutAvtale();
   const { data: betabrukere } = useHentBetabrukere();
@@ -290,16 +285,15 @@ export function AvtaleSkjemaContainer({
                     label: "Sluttdato",
                   }}
                 >
-                  {enableOpsjoner &&
-                  watch("avtaletype") === Avtaletype.RAMMEAVTALE &&
-                  !!watch("startOgSluttDato.startDato") ? (
+                  {watch("avtaletype") === Avtaletype.RAMMEAVTALE &&
+                  !!watch("startOgSluttDato.sluttDato") ? (
                     <DatePicker {...maksVarighetDatepickerProps}>
                       <DatePicker.Input
                         {...maksVarighetDatepickerInputProps}
                         label="Maks varighet inkl. opsjon"
                         readOnly
                         size="small"
-                        value={formaterDato(addYear(watch("startOgSluttDato.startDato"), 5))}
+                        value={formaterDato(addYear(watch("startOgSluttDato.sluttDato"), 5))}
                       />
                     </DatePicker>
                   ) : null}
