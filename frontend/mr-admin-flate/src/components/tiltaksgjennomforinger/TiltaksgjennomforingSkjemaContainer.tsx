@@ -8,6 +8,7 @@ import {
   TiltaksgjennomforingRequest,
   Toggles,
   Utkast,
+  ValidationErrorResponse,
 } from "mulighetsrommet-api-client";
 import { Tilgjengelighetsstatus } from "mulighetsrommet-api-client/build/models/Tilgjengelighetsstatus";
 import React, { useEffect, useRef } from "react";
@@ -24,17 +25,16 @@ import { Separator } from "../detaljside/Metadata";
 import { AvbrytTiltaksgjennomforingModal } from "../modal/AvbrytTiltaksgjennomforingModal";
 import skjemastyles from "../skjema/Skjema.module.scss";
 import {
+  InferredTiltaksgjennomforingSchema,
   TiltaksgjennomforingSchema,
-  inferredTiltaksgjennomforingSchema,
 } from "./TiltaksgjennomforingSchema";
 import {
-  UtkastData,
   arenaOpphav,
   defaultOppstartType,
   defaultValuesForKontaktpersoner,
+  UtkastData,
 } from "./TiltaksgjennomforingSkjemaConst";
 import { TiltaksgjennomforingSkjemaDetaljer } from "./TiltaksgjennomforingSkjemaDetaljer";
-import { tekniskFeilError } from "./TiltaksgjennomforingSkjemaErrors";
 import { TiltaksgjennomforingSkjemaKnapperad } from "./TiltaksgjennomforingSkjemaKnapperad";
 import { TiltaksgjennomforingSkjemaRedInnhold } from "./TiltaksgjennomforingSkjemaRedInnhold";
 
@@ -63,7 +63,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
   const { data: ansatt } = useHentAnsatt();
 
   const saveUtkast = (
-    values: inferredTiltaksgjennomforingSchema,
+    values: InferredTiltaksgjennomforingSchema,
     avtale: Avtale,
     utkastIdRef: React.MutableRefObject<string>,
   ) => {
@@ -118,7 +118,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
     });
   };
 
-  const form = useForm<inferredTiltaksgjennomforingSchema>({
+  const form = useForm<InferredTiltaksgjennomforingSchema>({
     resolver: zodResolver(TiltaksgjennomforingSchema),
     defaultValues: {
       navn: tiltaksgjennomforing?.navn,
@@ -169,14 +169,9 @@ export const TiltaksgjennomforingSkjemaContainer = ({
     watch,
   } = form;
 
-  const postData: SubmitHandler<inferredTiltaksgjennomforingSchema> = async (
+  const postData: SubmitHandler<InferredTiltaksgjennomforingSchema> = async (
     data,
   ): Promise<void> => {
-    if (!avtale) {
-      <Alert variant="error">{tekniskFeilError()}</Alert>;
-      return;
-    }
-
     const body: TiltaksgjennomforingRequest = {
       id: tiltaksgjennomforing ? tiltaksgjennomforing.id : uuidv4(),
       antallPlasser: data.antallPlasser,
@@ -217,18 +212,33 @@ export const TiltaksgjennomforingSkjemaContainer = ({
       opphav: data.opphav,
     };
 
-    try {
-      mutation.mutate(body);
-    } catch {
-      <Alert variant="error">{tekniskFeilError()}</Alert>;
-    }
+    mutation.mutate(body);
   };
 
   useEffect(() => {
     if (mutation.isSuccess) {
       onSuccess(mutation.data.id);
+    } else if (mutation.isError && mutation.error.status === 400) {
+      const response = mutation.error.body as ValidationErrorResponse;
+      response.errors.forEach((error) => {
+        const name = asSchemaPropertyName(error.name) as keyof InferredTiltaksgjennomforingSchema;
+        form.setError(name, { type: "custom", message: error.message });
+      });
+    } else if (mutation.isError) {
+      throw mutation.error;
     }
-  }, [mutation]);
+  }, [mutation.isSuccess, mutation.isError]);
+
+  function asSchemaPropertyName(name: string) {
+    const mapping: { [name: string]: string } = {
+      startDato: "startOgSluttDato.startDato",
+      sluttDato: "startOgSluttDato.sluttDato",
+      arrangorOrganisasjonsnummer: "tiltaksArrangorUnderenhetOrganisasjonsnummer",
+      stengtFra: "midlertidigStengt.erMidlertidigStengt",
+      stengtTil: "midlertidigStengt.erMidlertidigStengt",
+    };
+    return mapping[name] ?? name;
+  }
 
   const hasErrors = () => Object.keys(errors).length > 0;
 

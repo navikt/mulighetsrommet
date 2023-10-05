@@ -529,6 +529,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Tiltaksgjennomforing"
+        400:
+          description: Respons med valideringsfeil
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
         500:
           description: "Kunne ikke opprette tiltaksgennomforing"
           content:
