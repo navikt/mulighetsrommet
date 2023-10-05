@@ -98,7 +98,6 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({
             <SokeSelect
               size="small"
               label="Oppstartstype"
-              readOnly={arenaOpphav(tiltaksgjennomforing)}
               placeholder="Velg oppstart"
               {...register("oppstart")}
               options={[
