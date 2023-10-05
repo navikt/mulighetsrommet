@@ -117,8 +117,8 @@ export function AvtaleSkjemaContainer({
   } = useDatepicker({
     fromDate: new Date(),
     defaultSelected:
-      defaultValues?.startOgSluttDato?.startDato &&
-      addYear(defaultValues?.startOgSluttDato?.startDato, 5),
+      defaultValues?.startOgSluttDato?.sluttDato &&
+      addYear(defaultValues?.startOgSluttDato?.sluttDato, 5),
   });
 
   const watchedTiltakstype: EmbeddedTiltakstype | undefined = watch("tiltakstype");
