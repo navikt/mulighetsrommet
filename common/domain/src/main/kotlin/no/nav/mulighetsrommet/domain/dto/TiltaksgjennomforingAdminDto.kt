@@ -1,13 +1,14 @@
 package no.nav.mulighetsrommet.domain.dto
 
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.JsonElement
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingTilgjengelighetsstatus
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
+import no.nav.mulighetsrommet.domain.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 @Serializable
@@ -42,7 +43,12 @@ data class TiltaksgjennomforingAdminDto(
     val stengtTil: LocalDate?,
     val kontaktpersoner: List<TiltaksgjennomforingKontaktperson>,
     val stedForGjennomforing: String?,
-    val faneinnhold: JsonElement,
+    val faneinnhold: Faneinnhold?,
+    val beskrivelse: String?,
+    @Serializable(with = LocalDateTimeSerializer::class)
+    val createdAt: LocalDateTime,
+    @Serializable(with = LocalDateTimeSerializer::class)
+    val updatedAt: LocalDateTime,
 ) {
     @Serializable
     data class Tiltakstype(

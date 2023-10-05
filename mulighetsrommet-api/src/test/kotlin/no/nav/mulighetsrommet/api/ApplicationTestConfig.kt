@@ -3,12 +3,13 @@ package no.nav.mulighetsrommet.api
 import io.ktor.server.testing.*
 import no.nav.mulighetsrommet.api.clients.brreg.BrregClientImpl
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
-import no.nav.mulighetsrommet.api.producers.TiltaksgjennomforingKafkaProducer
-import no.nav.mulighetsrommet.api.producers.TiltakstypeKafkaProducer
 import no.nav.mulighetsrommet.api.tasks.*
 import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
 import no.nav.mulighetsrommet.database.kotest.extensions.createDatabaseTestSchema
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
+import no.nav.mulighetsrommet.kafka.producers.ArenaMigreringTiltaksgjennomforingKafkaProducer
+import no.nav.mulighetsrommet.kafka.producers.TiltaksgjennomforingKafkaProducer
+import no.nav.mulighetsrommet.kafka.producers.TiltakstypeKafkaProducer
 import no.nav.mulighetsrommet.unleash.UnleashService
 import no.nav.security.mock.oauth2.MockOAuth2Server
 
@@ -101,9 +102,11 @@ fun createKafkaConfig(): KafkaConfig {
         producers = KafkaProducers(
             tiltaksgjennomforinger = TiltaksgjennomforingKafkaProducer.Config(topic = "siste-tiltaksgjennomforinger-v1"),
             tiltakstyper = TiltakstypeKafkaProducer.Config(topic = "siste-tiltakstyper-v1"),
+            arenaMigreringTiltaksgjennomforinger = ArenaMigreringTiltaksgjennomforingKafkaProducer.Config(topic = "arena-migrering-tiltaksgjennomforinger-v1"),
         ),
         consumerGroupId = "mulighetsrommet-api-consumer",
         consumers = KafkaConsumers(
+            tiltaksgjennomforingerV1 = KafkaTopicConsumer.Config(id = "siste-tiltaksgjennomforinger", topic = "siste-tiltaksgjennomforinger-v1"),
             amtDeltakerV1 = KafkaTopicConsumer.Config(id = "amt-deltaker", topic = "amt-deltaker"),
             amtVirksomheterV1 = KafkaTopicConsumer.Config(id = "amt-virksomheter", topic = "amt-virksomheter"),
         ),

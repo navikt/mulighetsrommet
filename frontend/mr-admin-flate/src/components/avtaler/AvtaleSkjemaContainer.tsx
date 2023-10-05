@@ -1,4 +1,4 @@
-import { Alert, Textarea, TextField } from "@navikt/ds-react";
+import { Alert, DatePicker, Textarea, TextField, useDatepicker } from "@navikt/ds-react";
 import {
   Avtale,
   AvtaleAvslutningsstatus,
@@ -21,30 +21,30 @@ import { usePutAvtale } from "../../api/avtaler/usePutAvtale";
 import { useMutateUtkast } from "../../api/utkast/useMutateUtkast";
 import { useSokVirksomheter } from "../../api/virksomhet/useSokVirksomhet";
 import { useVirksomhet } from "../../api/virksomhet/useVirksomhet";
-import { formaterDatoSomYYYYMMDD } from "../../utils/Utils";
+import { addYear, formaterDato, formaterDatoSomYYYYMMDD } from "../../utils/Utils";
 import { AutoSaveUtkast } from "../autosave/AutoSaveUtkast";
 import { Separator } from "../detaljside/Metadata";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
+import skjemastyles from "../skjema/Skjema.module.scss";
 import { SokeSelect } from "../skjema/SokeSelect";
 import { VirksomhetKontaktpersoner } from "../virksomhet/VirksomhetKontaktpersoner";
 import { AvbrytAvtale } from "./AvbrytAvtale";
 import { AvtaleSchema, InferredAvtaleSchema } from "./AvtaleSchema";
-import skjemastyles from "../skjema/Skjema.module.scss";
 
+import { zodResolver } from "@hookform/resolvers/zod";
+import { PORTEN } from "mulighetsrommet-frontend-common/constants";
+import { resolveErrorMessage } from "../../api/errors";
+import { erAnskaffetTiltak } from "../../utils/tiltakskoder";
+import { AdministratorOptions } from "../skjema/AdministratorOptions";
+import { FormGroup } from "../skjema/FormGroup";
 import {
   defaultEnhet,
   getLokaleUnderenheterAsSelectOptions,
   saveUtkast,
   underenheterOptions,
 } from "./AvtaleSkjemaConst";
-import { AdministratorOptions } from "../skjema/AdministratorOptions";
-import { FormGroup } from "../skjema/FormGroup";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { AvtaleSkjemaKnapperad } from "./AvtaleSkjemaKnapperad";
-import { PORTEN } from "mulighetsrommet-frontend-common/constants";
-import { resolveErrorMessage } from "../../api/errors";
-import { erAnskaffetTiltak } from "../../utils/tiltakskoder";
 
 interface Props {
   onClose: () => void;
@@ -110,6 +110,16 @@ export function AvtaleSkjemaContainer({
     watch,
     setValue,
   } = form;
+
+  const {
+    datepickerProps: maksVarighetDatepickerProps,
+    inputProps: maksVarighetDatepickerInputProps,
+  } = useDatepicker({
+    fromDate: new Date(),
+    defaultSelected:
+      defaultValues?.startOgSluttDato?.sluttDato &&
+      addYear(defaultValues?.startOgSluttDato?.sluttDato, 5),
+  });
 
   const watchedTiltakstype: EmbeddedTiltakstype | undefined = watch("tiltakstype");
   const arenaKode = watchedTiltakstype?.arenaKode;
@@ -274,7 +284,20 @@ export function AvtaleSkjemaContainer({
                     ...register("startOgSluttDato.sluttDato"),
                     label: "Sluttdato",
                   }}
-                />
+                >
+                  {watch("avtaletype") === Avtaletype.RAMMEAVTALE &&
+                  !!watch("startOgSluttDato.sluttDato") ? (
+                    <DatePicker {...maksVarighetDatepickerProps}>
+                      <DatePicker.Input
+                        {...maksVarighetDatepickerInputProps}
+                        label="Maks varighet inkl. opsjon"
+                        readOnly
+                        size="small"
+                        value={formaterDato(addYear(watch("startOgSluttDato.sluttDato"), 5))}
+                      />
+                    </DatePicker>
+                  ) : null}
+                </FraTilDatoVelger>
                 {redigeringsModus ? <AvbrytAvtale onAvbryt={onClose} /> : null}
               </FormGroup>
               <Separator />

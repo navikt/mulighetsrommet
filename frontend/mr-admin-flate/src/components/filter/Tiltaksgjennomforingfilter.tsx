@@ -302,7 +302,6 @@ export function Tiltaksgjennomforingfilter({ skjulFilter }: Props) {
                 {visOpprettTiltaksgjennomforingKnapp && (
                   <Lenkeknapp
                     to={`skjema`}
-                    lenketekst="Opprett ny tiltaksgjennomføring"
                     variant="primary"
                     handleClick={() => {
                       faro?.api?.pushEvent(
@@ -310,7 +309,9 @@ export function Tiltaksgjennomforingfilter({ skjulFilter }: Props) {
                       );
                     }}
                     dataTestId="opprett-gjennomforing-knapp"
-                  />
+                  >
+                    Opprett ny tiltaksgjennomføring
+                  </Lenkeknapp>
                 )}
                 {avtaleErOpprettetIMulighetsrommet && (
                   <>

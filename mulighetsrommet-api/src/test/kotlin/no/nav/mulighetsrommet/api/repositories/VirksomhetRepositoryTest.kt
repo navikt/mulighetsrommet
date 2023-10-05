@@ -5,7 +5,6 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.*
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
-import kotlinx.serialization.json.JsonNull
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.*
@@ -275,7 +274,8 @@ class VirksomhetRepositoryTest : FunSpec({
                 stedForGjennomforing = "Oslo",
                 estimertVentetid = null,
                 avtaleId = avtale.id,
-                faneinnhold = JsonNull,
+                faneinnhold = null,
+                beskrivelse = null,
             )
             tiltaksgjennomforingRepository.upsert(tiltaksgjennomforing)
 

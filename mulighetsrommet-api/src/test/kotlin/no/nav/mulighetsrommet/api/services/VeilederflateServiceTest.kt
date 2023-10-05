@@ -6,7 +6,6 @@ import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonNull
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.clients.person.Enhet
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
@@ -17,10 +16,12 @@ import no.nav.mulighetsrommet.api.routes.v1.GetRelevanteTiltaksgjennomforingerFo
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingTilgjengelighetsstatus
+import no.nav.mulighetsrommet.domain.dto.Faneinnhold
 import no.nav.mulighetsrommet.domain.dto.NavEnhet
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingAdminDto
 import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 class VeilederflateServiceTest : FunSpec({
@@ -82,7 +83,8 @@ class VeilederflateServiceTest : FunSpec({
                 "tiltakstype": {
                     "tiltakstypeNavn": "Oppf\u00f8lging"
                 },
-                "enheter": ["0430"]
+                "enheter": ["0430"],
+                "faneinnhold": { "forHvemInfoboks": "infoboks" }
             }
         ]
     """,
@@ -120,7 +122,10 @@ class VeilederflateServiceTest : FunSpec({
         stengtTil = null,
         kontaktpersoner = emptyList(),
         stedForGjennomforing = null,
-        faneinnhold = JsonNull,
+        faneinnhold = null,
+        beskrivelse = null,
+        createdAt = LocalDateTime.now(),
+        updatedAt = LocalDateTime.now(),
     )
 
     test("Tom enhetsliste fra db overskriver ikke sanity enheter") {
@@ -192,6 +197,8 @@ class VeilederflateServiceTest : FunSpec({
         )
         gjennomforinger.size shouldBe 2
         gjennomforinger.find { it.sanityId == "f21d1e35-d63b-4de7-a0a5-589e57111527" }!!.enheter!!.size shouldBe 1
+        gjennomforinger.find { it.sanityId == "f21d1e35-d63b-4de7-a0a5-589e57111527" }!!
+            .faneinnhold!!.forHvemInfoboks shouldBe "infoboks"
     }
 
     test("Stengte filtreres vekk") {
@@ -224,5 +231,41 @@ class VeilederflateServiceTest : FunSpec({
         )
         gjennomforinger.size shouldBe 1
         gjennomforinger.find { it.sanityId == "f21d1e35-d63b-4de7-a0a5-589e57111527" } shouldBe null
+    }
+
+    test("Bruker db faneinnhold hvis det finnes") {
+        val fnr = "01010199999"
+        val veilederFlateService = VeilederflateService(
+            sanityClient,
+            brukerService,
+            tiltaksgjennomforingService,
+            tiltakstypeService,
+            navEnhetService,
+        )
+        every { tiltaksgjennomforingService.getBySanityIds(any()) } returns mapOf(
+            UUID.fromString("f21d1e35-d63b-4de7-a0a5-589e57111527") to dbGjennomforing.copy(
+                faneinnhold = Faneinnhold(forHvemInfoboks = "123"),
+            ),
+        )
+        coEvery { virksomhetService.getOrSyncVirksomhet(any()) } returns null
+        coEvery { brukerService.hentBrukerdata(any(), any()) } returns BrukerService.Brukerdata(
+            fnr,
+            geografiskEnhet = Enhet(navn = "A", enhetsnummer = "0430"),
+            innsatsgruppe = null,
+            oppfolgingsenhet = null,
+            servicegruppe = null,
+            fornavn = null,
+            manuellStatus = null,
+        )
+        coEvery { sanityClient.query(any()) } returns sanityResult
+
+        val gjennomforinger = veilederFlateService.hentTiltaksgjennomforingerForBrukerBasertPaEnhetOgFylke(
+            GetRelevanteTiltaksgjennomforingerForBrukerRequest(norskIdent = fnr),
+            "accessToken",
+        )
+        gjennomforinger.size shouldBe 2
+        gjennomforinger.find { it.sanityId == "f21d1e35-d63b-4de7-a0a5-589e57111527" }!!.enheter!!.size shouldBe 1
+        gjennomforinger.find { it.sanityId == "f21d1e35-d63b-4de7-a0a5-589e57111527" }!!
+            .faneinnhold!!.forHvemInfoboks shouldBe "123"
     }
 })

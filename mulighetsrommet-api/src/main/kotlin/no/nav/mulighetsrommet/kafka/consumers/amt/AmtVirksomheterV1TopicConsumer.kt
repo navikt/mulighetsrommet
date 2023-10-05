@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.kafka.amt
+package no.nav.mulighetsrommet.kafka.consumers.amt
 
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.decodeFromJsonElement

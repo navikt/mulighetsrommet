@@ -46,7 +46,7 @@ class NotificationRepository(private val db: Database) {
                     "title" to notification.title,
                     "description" to notification.description,
                     "created_at" to notification.createdAt,
-                    "metadata" to Json.encodeToString(notification.metadata),
+                    "metadata" to notification.metadata?.let { Json.encodeToString(it) },
                 ),
             ).asExecute,
         )

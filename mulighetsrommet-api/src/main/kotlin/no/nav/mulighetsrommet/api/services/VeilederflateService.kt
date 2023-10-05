@@ -196,7 +196,7 @@ class VeilederflateService(
         perspective: SanityPerspective,
     ): SanityTiltaksgjennomforing {
         val query = """
-            *[_type == "tiltaksgjennomforing" && _id == '$id'] {
+            *[_type == "tiltaksgjennomforing" && _id == "$id"] {
               _id,
               tiltakstype->{
                 _id,
@@ -233,7 +233,7 @@ class VeilederflateService(
         """.trimIndent()
 
         return when (val result = sanityClient.query(query, perspective)) {
-            is SanityResponse.Result -> result.decode<SanityTiltaksgjennomforing>()
+            is SanityResponse.Result -> result.decode()
             is SanityResponse.Error -> throw Exception(result.error.toString())
         }
     }
@@ -342,8 +342,8 @@ class VeilederflateService(
                 stedForGjennomforing = apiGjennomforing.stedForGjennomforing ?: sanityGjennomforing.stedForGjennomforing,
                 fylke = fylke,
                 enheter = enheter,
-                beskrivelse = beskrivelse,
-                faneinnhold = faneinnhold,
+                beskrivelse = apiGjennomforing.beskrivelse ?: beskrivelse,
+                faneinnhold = apiGjennomforing.faneinnhold ?: faneinnhold,
             )
         }
     }
