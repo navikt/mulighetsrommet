@@ -546,7 +546,7 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
   jobbklubb: {
     sanityId: "31e72dd8-ad05-4e81-a7f9-fd4c8f295864",
     delingMedBruker:
-      "Hei <Fornavn>, \n\nVi har nå et arbeidsmarkedstiltak som jeg tenker kan passe deg godt. Det heter <tiltaksnavn> og er et kurs for de som er registrert som arbeidssøker hos NAV. \n\nJobbklubb er et kortvarig tiltak for deg som søker jobb. Når du deltar på jobbklubb, får du støtte og hjelp til å orientere deg på arbeidsmarkedet og være en aktiv jobbsøker.\n\nDu kan lese mer om kurset på www.nav.no/jobbklubb",
+      "Jobbklubb er et kortvarig tiltak for deg som søker jobb. Når du deltar på jobbklubb, får du støtte og hjelp til å orientere deg på arbeidsmarkedet og være en aktiv jobbsøker.\n\nDu kan lese mer om kurset på www.nav.no/jobbklubb",
     regelverkLenker: [
       {
         _id: "123",

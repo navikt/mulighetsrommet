@@ -13,7 +13,7 @@ import { byttTilDialogFlate } from "../../../utils/DialogFlateUtils";
 import { erPreview } from "../../../utils/Utils";
 import modalStyles from "../Modal.module.scss";
 import { StatusModal } from "../StatusModal";
-import { DelMedBrukerContent } from "./DelMedBrukerContent";
+import { DelMedBrukerContent, MAKS_ANTALL_TEGN_DEL_MED_BRUKER } from "./DelMedBrukerContent";
 import delemodalStyles from "./Delemodal.module.scss";
 import { Actions, State } from "./DelemodalActions";
 
@@ -23,7 +23,8 @@ export const logDelMedbrukerEvent = (
     | "Delte med bruker"
     | "Del med bruker feilet"
     | "Avbrutt del med bruker"
-    | "Sett hilsen",
+    | "Sett hilsen"
+    | "Sett intro",
 ) => {
   logEvent("mulighetsrommet.del-med-bruker", { value: action });
 };
@@ -43,7 +44,15 @@ interface DelemodalProps {
 export function reducer(state: State, action: Actions): State {
   switch (action.type) {
     case "Avbryt":
-      return { ...state, sendtStatus: "IKKE_SENDT", hilsen: state.originalHilsen };
+      return {
+        ...state,
+        sendtStatus: "IKKE_SENDT",
+        hilsen: action.payload.tekster.originalHilsen,
+        skrivPersonligMelding: false,
+        skrivPersonligIntro: false,
+        deletekst: action.payload.tekster.deletekst,
+        introtekst: action.payload.tekster.introtekst,
+      };
     case "Send melding":
       return { ...state, sendtStatus: "SENDER" };
     case "Sendt ok":
@@ -52,21 +61,44 @@ export function reducer(state: State, action: Actions): State {
       return { ...state, sendtStatus: "SENDING_FEILET" };
     case "Sett hilsen":
       return { ...state, hilsen: action.payload, sendtStatus: "IKKE_SENDT" };
+    case "Sett intro":
+      return { ...state, introtekst: action.payload, sendtStatus: "IKKE_SENDT" };
+    case "Skriv personlig intro": {
+      return { ...state, skrivPersonligIntro: action.payload };
+    }
+    case "Skriv personlig melding":
+      return {
+        ...state,
+        skrivPersonligMelding: action.payload,
+      };
     case "Reset":
-      return initInitialState({ originalHilsen: state.originalHilsen, deletekst: state.deletekst });
-    default:
-      return state;
+      return initInitialState({
+        originalHilsen: state.originalHilsen,
+        deletekst: state.deletekst,
+        introtekst: state.introtekst,
+      });
   }
 }
 
-export function initInitialState(tekster: { deletekst: string; originalHilsen: string }): State {
+export function initInitialState(tekster: {
+  deletekst: string;
+  originalHilsen: string;
+  introtekst: string;
+}): State {
   return {
     deletekst: tekster.deletekst,
     originalHilsen: tekster.originalHilsen,
     hilsen: tekster.originalHilsen,
     sendtStatus: "IKKE_SENDT",
     dialogId: "",
+    introtekst: tekster.introtekst,
+    skrivPersonligIntro: false,
+    skrivPersonligMelding: false,
   };
+}
+
+function sySammenIntroTekst(brukernavn?: string) {
+  return `Hei ${brukernavn}\n`;
 }
 
 function sySammenBrukerTekst(
@@ -75,13 +107,12 @@ function sySammenBrukerTekst(
   brukernavn?: string,
 ) {
   return `${chattekst
-    .replaceAll(" <Fornavn>", brukernavn ? ` ${brukernavn}` : "")
+    .replaceAll("<Fornavn>", brukernavn ? `${brukernavn}` : "")
     .replaceAll("<tiltaksnavn>", tiltaksgjennomforingsnavn)}`;
 }
 
 function sySammenHilsenTekst(veiledernavn?: string) {
-  const interessant =
-    "Er dette aktuelt for deg? Gi meg tilbakemelding her i dialogen.\nSvaret ditt vil ikke endre din utbetaling fra NAV.";
+  const interessant = "Er dette aktuelt for deg? Gi meg tilbakemelding her i dialogen.";
   return veiledernavn
     ? `${interessant}\n\nVi holder kontakten!\nHilsen ${veiledernavn}`
     : `${interessant}\n\nVi holder kontakten!\nHilsen `;
@@ -98,9 +129,14 @@ const Delemodal = ({
   brukerdata,
   harDeltMedBruker,
 }: DelemodalProps) => {
+  const introtekst = sySammenIntroTekst(brukernavn);
   const deletekst = sySammenBrukerTekst(chattekst, tiltaksgjennomforing.navn, brukernavn);
   const originalHilsen = sySammenHilsenTekst(veiledernavn);
-  const [state, dispatch] = useReducer(reducer, { deletekst, originalHilsen }, initInitialState);
+  const [state, dispatch] = useReducer(
+    reducer,
+    { deletekst, originalHilsen, introtekst },
+    initInitialState,
+  );
 
   const senderTilDialogen = state.sendtStatus === "SENDER";
   const tiltaksgjennomforingSanityId = tiltaksgjennomforing.sanityId;
@@ -108,24 +144,28 @@ const Delemodal = ({
     tiltaksgjennomforingSanityId,
     brukerFnr,
   );
-  const MAKS_ANTALL_TEGN_HILSEN = 300;
 
   const clickCancel = (log = true) => {
     lukkModal();
-    dispatch({ type: "Avbryt" });
+    dispatch({ type: "Avbryt", payload: { tekster: { introtekst, deletekst, originalHilsen } } });
     log && logDelMedbrukerEvent("Avbrutt del med bruker");
   };
 
-  const getAntallTegn = () => {
-    return state.hilsen.length;
+  const getAntallTegn = (tekst: string) => {
+    return tekst.length;
   };
 
   const sySammenDeletekst = () => {
-    return `${state.deletekst}\n\n${state.hilsen}`;
+    return `${state.introtekst}${state.deletekst}\n\n${state.hilsen}`;
   };
 
   const handleSend = async () => {
-    if (state.hilsen.trim().length > getAntallTegn()) return;
+    if (
+      state.hilsen.trim().length > getAntallTegn(state.hilsen) ||
+      state.introtekst.length > getAntallTegn(state.introtekst)
+    ) {
+      return;
+    }
     logDelMedbrukerEvent("Delte med bruker");
 
     dispatch({ type: "Send melding" });
@@ -200,7 +240,9 @@ const Delemodal = ({
                 disabled={
                   senderTilDialogen ||
                   state.hilsen.length === 0 ||
-                  state.hilsen.length > MAKS_ANTALL_TEGN_HILSEN ||
+                  state.hilsen.length > MAKS_ANTALL_TEGN_DEL_MED_BRUKER ||
+                  state.introtekst.length === 0 ||
+                  state.introtekst.length > MAKS_ANTALL_TEGN_DEL_MED_BRUKER ||
                   erPreview
                 }
               >
