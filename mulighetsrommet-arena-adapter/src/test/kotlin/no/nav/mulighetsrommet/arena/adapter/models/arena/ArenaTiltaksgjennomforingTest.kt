@@ -4,6 +4,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromJsonElement
+import no.nav.mulighetsrommet.domain.dto.JaNeiStatus
 
 class ArenaTiltaksgjennomforingTest : FunSpec({
 

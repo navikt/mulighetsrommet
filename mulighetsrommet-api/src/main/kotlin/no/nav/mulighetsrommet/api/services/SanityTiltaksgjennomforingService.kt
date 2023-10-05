@@ -39,7 +39,7 @@ class SanityTiltaksgjennomforingService(
 
     suspend fun createOrPatchSanityTiltaksgjennomforing(
         tiltaksgjennomforing: TiltaksgjennomforingAdminDto,
-        tx: Session? = null,
+        tx: Session,
     ) {
         val avtale = tiltaksgjennomforing.avtaleId?.let { avtaleRepository.get(it) }
         val tiltakstype = tiltakstypeRepository.get(tiltaksgjennomforing.tiltakstype.id)

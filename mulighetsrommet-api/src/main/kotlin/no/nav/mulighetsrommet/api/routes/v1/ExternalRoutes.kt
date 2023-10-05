@@ -66,7 +66,7 @@ fun Route.externalRoutes() {
                 return@get call.respond(HttpStatusCode.OK)
             }
 
-            val arenaData = arenaAdapterService.hentTiltaksgjennomforingsstatus(id)
+            val arenaData = arenaAdapterService.hentArenadata(id)
                 ?.let { TiltaksgjennomforingsArenadataDto.from(gjennomforing, it.status) }
                 ?: return@get call.respond(HttpStatusCode.NotFound)
 

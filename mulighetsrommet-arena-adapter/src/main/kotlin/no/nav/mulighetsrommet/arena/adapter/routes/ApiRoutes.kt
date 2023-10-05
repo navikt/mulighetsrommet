@@ -7,7 +7,7 @@ import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
-import no.nav.mulighetsrommet.domain.dto.ArenaTiltaksgjennomforingsstatusDto
+import no.nav.mulighetsrommet.domain.dto.ArenaTiltaksgjennomforingDto
 import no.nav.mulighetsrommet.domain.dto.ExchangeArenaIdForIdResponse
 import org.koin.ktor.ext.inject
 import java.util.*
@@ -27,7 +27,7 @@ fun Route.apiRoutes() {
         call.respond(ExchangeArenaIdForIdResponse(mapping.entityId))
     }
 
-    get("/api/status/{id}") {
+    get("/api/arenadata/{id}") {
         val id = call.parameters.getOrFail<UUID>("id")
 
         val tiltaksgjennomforing = arenaEntityService.getTiltaksgjennomforingOrNull(id)
@@ -36,6 +36,6 @@ fun Route.apiRoutes() {
                 status = HttpStatusCode.NotFound,
             )
 
-        call.respond(ArenaTiltaksgjennomforingsstatusDto(tiltaksgjennomforing.status))
+        call.respond(ArenaTiltaksgjennomforingDto(tiltaksgjennomforing.tiltaksgjennomforingId, tiltaksgjennomforing.status))
     }
 }

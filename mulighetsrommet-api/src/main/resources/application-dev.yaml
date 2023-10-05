@@ -17,11 +17,16 @@ app:
     producerId: mulighetsrommet-api-kafka-producer.v1
     consumerGroupId: mulighetsrommet-api-kafka-consumer.v1
     producers:
+      arenaMigreringTiltaksgjennomforinger:
+        topic: arena-migrering-tiltaksgjennomforinger-v1
       tiltaksgjennomforinger:
         topic: team-mulighetsrommet.siste-tiltaksgjennomforinger-v1
       tiltakstyper:
         topic: team-mulighetsrommet.siste-tiltakstyper-v1
     consumers:
+      tiltaksgjennomforingerV1:
+        id: siste-tiltaksgjennomforinger
+        topic: team-mulighetsrommet.siste-tiltaksgjennomforinger-v1
       amtDeltakerV1:
         id: amt-deltaker
         topic: amt.deltaker-v1

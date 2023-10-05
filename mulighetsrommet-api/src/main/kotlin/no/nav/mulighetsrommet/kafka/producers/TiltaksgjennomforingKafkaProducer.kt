@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.producers
+package no.nav.mulighetsrommet.kafka.producers
 
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json

@@ -89,6 +89,12 @@ spec:
               "valueDeserializerType": "STRING"
             },
             {
+              "name": "team-mulighetsrommet.arena-migrering-tiltaksgjennomforinger-v1",
+              "location": "AIVEN",
+              "keyDeserializerType": "STRING",
+              "valueDeserializerType": "STRING"
+            },
+            {
               "name": "pto.siste-oppfolgingsperiode-v1",
               "location": "AIVEN",
               "keyDeserializerType": "STRING",

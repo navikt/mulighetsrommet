@@ -1,15 +1,13 @@
 package no.nav.mulighetsrommet.arena.adapter.utils
 
-import no.nav.mulighetsrommet.arena.adapter.models.arena.JaNeiStatus
+import no.nav.mulighetsrommet.domain.constants.ArenaMigrering.ArenaTimestampFormatter
 import no.nav.mulighetsrommet.domain.dbo.Deltakerstatus
+import no.nav.mulighetsrommet.domain.dto.JaNeiStatus
 import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 
 object ArenaUtils {
-    val TimestampFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
-
     fun parseTimestamp(value: String): LocalDateTime {
-        return LocalDateTime.parse(value, TimestampFormatter)
+        return LocalDateTime.parse(value, ArenaTimestampFormatter)
     }
 
     fun parseNullableTimestamp(value: String?): LocalDateTime? {

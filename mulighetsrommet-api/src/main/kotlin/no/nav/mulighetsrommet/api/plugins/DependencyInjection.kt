@@ -33,8 +33,6 @@ import no.nav.mulighetsrommet.api.clients.person.VeilarbpersonClientImpl
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClientImpl
-import no.nav.mulighetsrommet.api.producers.TiltaksgjennomforingKafkaProducer
-import no.nav.mulighetsrommet.api.producers.TiltakstypeKafkaProducer
 import no.nav.mulighetsrommet.api.repositories.*
 import no.nav.mulighetsrommet.api.services.*
 import no.nav.mulighetsrommet.api.tasks.*
@@ -43,8 +41,12 @@ import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
 import no.nav.mulighetsrommet.env.NaisEnv
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.kafka.KafkaConsumerRepositoryImpl
-import no.nav.mulighetsrommet.kafka.amt.AmtDeltakerV1TopicConsumer
-import no.nav.mulighetsrommet.kafka.amt.AmtVirksomheterV1TopicConsumer
+import no.nav.mulighetsrommet.kafka.consumers.TiltaksgjennomforingTopicConsumer
+import no.nav.mulighetsrommet.kafka.consumers.amt.AmtDeltakerV1TopicConsumer
+import no.nav.mulighetsrommet.kafka.consumers.amt.AmtVirksomheterV1TopicConsumer
+import no.nav.mulighetsrommet.kafka.producers.ArenaMigreringTiltaksgjennomforingKafkaProducer
+import no.nav.mulighetsrommet.kafka.producers.TiltaksgjennomforingKafkaProducer
+import no.nav.mulighetsrommet.kafka.producers.TiltakstypeKafkaProducer
 import no.nav.mulighetsrommet.metrics.Metrikker
 import no.nav.mulighetsrommet.notifications.NotificationRepository
 import no.nav.mulighetsrommet.notifications.NotificationService
@@ -113,6 +115,7 @@ private fun kafka(config: KafkaConfig) = module {
         .withMetrics(Metrikker.appMicrometerRegistry)
         .build()
 
+    single { ArenaMigreringTiltaksgjennomforingKafkaProducer(producerClient, config.producers.arenaMigreringTiltaksgjennomforinger) }
     single { TiltaksgjennomforingKafkaProducer(producerClient, config.producers.tiltaksgjennomforinger) }
     single { TiltakstypeKafkaProducer(producerClient, config.producers.tiltakstyper) }
 
@@ -129,6 +132,13 @@ private fun kafka(config: KafkaConfig) = module {
 
     single {
         val consumers = listOf(
+            TiltaksgjennomforingTopicConsumer(
+                config = config.consumers.tiltaksgjennomforingerV1,
+                arenaAdapterClient = get(),
+                arenaMigreringTiltaksgjennomforingKafkaProducer = get(),
+                sanityTiltaksgjennomforingService = get(),
+                tiltaksgjennomforingRepository = get(),
+            ),
             AmtDeltakerV1TopicConsumer(config = config.consumers.amtDeltakerV1, deltakere = get()),
             AmtVirksomheterV1TopicConsumer(
                 config = config.consumers.amtVirksomheterV1,

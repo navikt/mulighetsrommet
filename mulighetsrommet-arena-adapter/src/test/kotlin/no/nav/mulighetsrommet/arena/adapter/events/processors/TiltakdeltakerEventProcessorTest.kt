@@ -34,12 +34,12 @@ import no.nav.mulighetsrommet.arena.adapter.models.dto.ArenaOrdsArrangor
 import no.nav.mulighetsrommet.arena.adapter.models.dto.ArenaOrdsFnr
 import no.nav.mulighetsrommet.arena.adapter.repositories.*
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
-import no.nav.mulighetsrommet.arena.adapter.utils.ArenaUtils
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.database.utils.getOrThrow
 import no.nav.mulighetsrommet.domain.Tiltakshistorikk
 import no.nav.mulighetsrommet.domain.Tiltakskoder
+import no.nav.mulighetsrommet.domain.constants.ArenaMigrering.ArenaTimestampFormatter
 import no.nav.mulighetsrommet.domain.dbo.ArenaTiltakshistorikkDbo
 import no.nav.mulighetsrommet.domain.dbo.DeltakerDbo
 import no.nav.mulighetsrommet.ktor.createMockEngine
@@ -184,7 +184,7 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
                 val datoBeforeTiltakshistorikkStart = LocalDateTime.now()
                     .minus(Tiltakshistorikk.TiltakshistorikkTimePeriod)
                     .minusDays(1)
-                    .format(ArenaUtils.TimestampFormatter)
+                    .format(ArenaTimestampFormatter)
 
                 val processor = createProcessor()
 

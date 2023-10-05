@@ -21,6 +21,7 @@ import no.nav.mulighetsrommet.domain.dto.NavEnhet
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingAdminDto
 import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 class VeilederflateServiceTest : FunSpec({
@@ -123,6 +124,8 @@ class VeilederflateServiceTest : FunSpec({
         stedForGjennomforing = null,
         faneinnhold = null,
         beskrivelse = null,
+        createdAt = LocalDateTime.now(),
+        updatedAt = LocalDateTime.now(),
     )
 
     test("Tom enhetsliste fra db overskriver ikke sanity enheter") {
