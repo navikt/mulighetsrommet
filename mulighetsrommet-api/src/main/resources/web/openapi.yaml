@@ -2928,3 +2928,4 @@ components:
         - mulighetsrommet-veilederflate-landingsside
         - mulighetsrommet.admin-flate-faneinnhold
         - mulighetsrommet.admin-flate.opsjoner-for-avtaler
+        - mulighetsrommet.admin-flate.rediger-oppstart

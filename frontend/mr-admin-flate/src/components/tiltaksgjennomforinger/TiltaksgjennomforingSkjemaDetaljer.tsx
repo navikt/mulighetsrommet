@@ -3,6 +3,7 @@ import {
   Avtale,
   Tiltaksgjennomforing,
   TiltaksgjennomforingOppstartstype,
+  Toggles,
 } from "mulighetsrommet-api-client";
 import skjemastyles from "../skjema/Skjema.module.scss";
 import { useFieldArray, useFormContext } from "react-hook-form";
@@ -21,6 +22,7 @@ import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
 import { VirksomhetKontaktpersoner } from "../virksomhet/VirksomhetKontaktpersoner";
 import { Separator } from "../detaljside/Metadata";
+import { useFeatureToggle } from "../../api/features/feature-toggles";
 
 interface Props {
   tiltaksgjennomforing?: Tiltaksgjennomforing;
@@ -36,6 +38,9 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({
   const redigeringsModus = !!tiltaksgjennomforing;
   const { data: virksomhet } = useVirksomhet(avtale.leverandor.organisasjonsnummer || "");
   const { data: betabrukere } = useHentBetabrukere();
+  const { data: redigerOppstart } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_ADMIN_FLATE_REDIGER_OPPSTART,
+  );
 
   const { data: ansatt, isLoading: isLoadingAnsatt } = useHentAnsatt();
 
@@ -99,6 +104,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({
               size="small"
               label="Oppstartstype"
               placeholder="Velg oppstart"
+              readOnly={!redigerOppstart && arenaOpphav(tiltaksgjennomforing)}
               {...register("oppstart")}
               options={[
                 {
