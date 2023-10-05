@@ -569,7 +569,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         "stengt_fra" to stengtFra,
         "stengt_til" to stengtTil,
         "sted_for_gjennomforing" to stedForGjennomforing,
-        "faneinnhold" to Json.encodeToString(faneinnhold),
+        "faneinnhold" to faneinnhold?.let { Json.encodeToString(it) },
         "beskrivelse" to beskrivelse,
     )
 
