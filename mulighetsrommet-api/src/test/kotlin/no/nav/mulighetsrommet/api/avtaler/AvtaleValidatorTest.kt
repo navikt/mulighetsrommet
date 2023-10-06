@@ -1,24 +1,23 @@
 package no.nav.mulighetsrommet.api.avtaler
 
 import io.kotest.assertions.arrow.core.shouldBeLeft
+import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.data.forAll
 import io.kotest.data.row
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainAll
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.mockk.every
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
-import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
-import no.nav.mulighetsrommet.domain.dto.Avtalestatus
-import no.nav.mulighetsrommet.domain.dto.Avtaletype
-import no.nav.mulighetsrommet.domain.dto.TiltakstypeDto
+import no.nav.mulighetsrommet.domain.dto.*
 import java.time.LocalDate
 import java.util.*
 
@@ -26,7 +25,7 @@ class AvtaleValidatorTest : FunSpec({
     val newAvtaleId = UUID.randomUUID()
     val existingAvtaleId = UUID.randomUUID()
 
-    val avtale = AvtaleDbo(
+    val avtaleDbo = AvtaleDbo(
         id = newAvtaleId,
         navn = "Avtale",
         tiltakstypeId = TiltakstypeFixtures.AFT.id,
@@ -46,27 +45,86 @@ class AvtaleValidatorTest : FunSpec({
         antallPlasser = null,
     )
 
+    val avtaleAdminDto = avtaleDbo.run {
+        AvtaleAdminDto(
+            id = id,
+            tiltakstype = AvtaleAdminDto.Tiltakstype(
+                id = TiltakstypeFixtures.AFT.id,
+                navn = TiltakstypeFixtures.AFT.navn,
+                arenaKode = TiltakstypeFixtures.AFT.tiltakskode,
+            ),
+            navn = navn,
+            avtalenummer = avtalenummer,
+            leverandor = AvtaleAdminDto.Leverandor(
+                organisasjonsnummer = leverandorOrganisasjonsnummer,
+                navn = "Bedrift",
+                slettet = false,
+            ),
+            leverandorUnderenheter = leverandorUnderenheter.map {
+                AvtaleAdminDto.LeverandorUnderenhet(
+                    organisasjonsnummer = it,
+                    navn = it,
+                )
+            },
+            leverandorKontaktperson = null,
+            startDato = startDato,
+            sluttDato = sluttDato,
+            navRegion = NavEnhet(enhetsnummer = navRegion, navn = navRegion),
+            avtaletype = avtaletype,
+            avtalestatus = Avtalestatus.Aktiv,
+            prisbetingelser = prisbetingelser,
+            administrator = administratorer.firstOrNull()?.let {
+                AvtaleAdminDto.Administrator(navIdent = it, navn = it)
+            },
+            url = url,
+            antallPlasser = antallPlasser,
+            navEnheter = navEnheter.map { NavEnhet(enhetsnummer = it, navn = it) },
+            opphav = opphav,
+        )
+    }
+
     val tiltakstyper = mockk<TiltakstypeRepository>()
     every { tiltakstyper.get(TiltakstypeFixtures.AFT.id) } returns TiltakstypeDto.from(TiltakstypeFixtures.AFT)
     every { tiltakstyper.get(TiltakstypeFixtures.VTA.id) } returns TiltakstypeDto.from(TiltakstypeFixtures.VTA)
     every { tiltakstyper.get(TiltakstypeFixtures.Oppfolging.id) } returns TiltakstypeDto.from(TiltakstypeFixtures.Oppfolging)
 
     val avtaler = mockk<AvtaleRepository>()
-    every { avtaler.get(newAvtaleId) } returns null
 
     val gjennomforinger = mockk<TiltaksgjennomforingRepository>()
 
-    test("should accumulate errors when request has multiple issues") {
+    beforeEach {
+        every { avtaler.get(newAvtaleId) } returns null
+
+        every {
+            gjennomforinger.getAll(
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+            )
+        } returns Pair(0, emptyList())
+    }
+
+    test("should accumulate errors when dbo has multiple issues") {
         val validator = AvtaleValidator(tiltakstyper, avtaler, gjennomforinger)
 
-        val request = avtale.copy(
+        val dbo = avtaleDbo.copy(
             startDato = LocalDate.of(2023, 1, 1),
             sluttDato = LocalDate.of(2020, 1, 1),
             navEnheter = emptyList(),
             leverandorUnderenheter = emptyList(),
         )
 
-        validator.validate(request).shouldBeLeft().shouldContainAll(
+        validator.validate(dbo).shouldBeLeft().shouldContainAll(
             listOf(
                 ValidationError("startDato", "Startdato må være før sluttdato"),
                 ValidationError("navEnheter", "Minst ett NAV-kontor må være valgt"),
@@ -79,9 +137,9 @@ class AvtaleValidatorTest : FunSpec({
         test("should fail when tiltakstype is not VTA or AFT") {
             val validator = AvtaleValidator(tiltakstyper, avtaler, gjennomforinger)
 
-            val request = avtale.copy(tiltakstypeId = TiltakstypeFixtures.Oppfolging.id)
+            val dbo = avtaleDbo.copy(tiltakstypeId = TiltakstypeFixtures.Oppfolging.id)
 
-            validator.validate(request).shouldBeLeft().shouldContain(
+            validator.validate(dbo).shouldBeLeft().shouldContain(
                 ValidationError(
                     "tiltakstype",
                     "Avtaler kan bare opprettes når de gjelder for tiltakstypene AFT eller VTA",
@@ -92,48 +150,117 @@ class AvtaleValidatorTest : FunSpec({
         test("should fail when opphav is not MR_ADMIN_FLATE") {
             val validator = AvtaleValidator(tiltakstyper, avtaler, gjennomforinger)
 
-            val request = avtale.copy(opphav = ArenaMigrering.Opphav.ARENA)
+            val dbo = avtaleDbo.copy(opphav = ArenaMigrering.Opphav.ARENA)
 
-            validator.validate(request).shouldBeLeft().shouldContain(
+            validator.validate(dbo).shouldBeLeft().shouldContain(
                 ValidationError("opphav", "Opphav må være MR_ADMIN_FLATE"),
             )
         }
     }
 
-    context("when avtale already exists") {
-        test("should fail when opphav is different") {
-            every { avtaler.get(existingAvtaleId) } returns AvtaleFixtures.avtaleAdminDto.copy(
+    context("når avtalen allerede eksisterer") {
+        test("skal ikke kunne endre opphav") {
+            every { avtaler.get(existingAvtaleId) } returns avtaleAdminDto.copy(
                 opphav = ArenaMigrering.Opphav.ARENA,
             )
 
             val validator = AvtaleValidator(tiltakstyper, avtaler, gjennomforinger)
 
-            val request = avtale.copy(id = existingAvtaleId, opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE)
+            val dbo = avtaleDbo.copy(id = existingAvtaleId, opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE)
 
-            validator.validate(request).shouldBeLeft().shouldContain(
+            validator.validate(dbo).shouldBeLeft().shouldContain(
                 ValidationError("opphav", "Avtalens opphav kan ikke endres"),
             )
         }
 
-        test("should fail when status is Avsluttet") {
+        test("skal bare kunne endre aktive avtaler") {
             forAll(
                 row(Avtalestatus.Avsluttet),
                 row(Avtalestatus.Avbrutt),
             ) { status ->
-                every { avtaler.get(existingAvtaleId) } returns AvtaleFixtures.avtaleAdminDto.copy(
+                every { avtaler.get(existingAvtaleId) } returns avtaleAdminDto.copy(
                     avtalestatus = status,
                 )
 
                 val validator = AvtaleValidator(tiltakstyper, avtaler, gjennomforinger)
 
-                val request = avtale.copy(id = existingAvtaleId)
+                val dbo = avtaleDbo.copy(id = existingAvtaleId)
 
-                validator.validate(request).shouldBeLeft().shouldContain(
+                validator.validate(dbo).shouldBeLeft().shouldContain(
                     ValidationError(
                         "navn",
                         "Kan bare gjøre endringer når avtalen har status Planlagt eller Aktiv",
                     ),
                 )
+            }
+        }
+
+        context("når avtalen har status Aktiv") {
+            test("skal ikke kunne endre felter relatert til tilsagn/refursjon") {
+                val avtaleMedEndringer = AvtaleDbo(
+                    id = avtaleDbo.id,
+                    navn = "Nytt navn",
+                    tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
+                    leverandorOrganisasjonsnummer = "999999999",
+                    leverandorUnderenheter = listOf("888888888"),
+                    leverandorKontaktpersonId = null,
+                    avtalenummer = "123456",
+                    startDato = LocalDate.of(2023, 6, 2),
+                    sluttDato = LocalDate.of(2024, 6, 2),
+                    navRegion = "0400",
+                    url = "nav.no",
+                    administratorer = listOf("B123456"),
+                    avtaletype = Avtaletype.Rammeavtale,
+                    prisbetingelser = null,
+                    navEnheter = listOf("2990"),
+                    opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
+                    antallPlasser = null,
+                )
+
+                every { avtaler.get(avtaleMedEndringer.id) } returns avtaleAdminDto
+
+                val validator = AvtaleValidator(tiltakstyper, avtaler, gjennomforinger)
+
+                validator.validate(avtaleMedEndringer).shouldBeLeft().shouldContainExactlyInAnyOrder(
+                    listOf(
+                        ValidationError("avtaletype", "Avtaletype kan ikke endres når avtalen er aktiv"),
+                        ValidationError("startDato", "Startdato kan ikke endres når avtalen er aktiv"),
+                        ValidationError("sluttDato", "Sluttdato kan ikke endres når avtalen er aktiv"),
+                        ValidationError("navRegion", "NAV-region kan ikke endres når avtalen er aktiv"),
+                        ValidationError(
+                            "leverandorOrganisasjonsnummer",
+                            "Leverandøren kan ikke endres når avtalen er aktiv",
+                        ),
+                    ),
+                )
+            }
+
+            test("skal kunne endre felter relatert til tilsagn/refursjon når avtalen er AFT/VTA") {
+                val avtaleMedEndringer = AvtaleDbo(
+                    id = avtaleDbo.id,
+                    navn = "Nytt navn",
+                    tiltakstypeId = TiltakstypeFixtures.AFT.id,
+                    leverandorOrganisasjonsnummer = "999999999",
+                    leverandorUnderenheter = listOf("888888888"),
+                    leverandorKontaktpersonId = null,
+                    avtalenummer = "123456",
+                    startDato = LocalDate.of(2023, 6, 2),
+                    sluttDato = LocalDate.of(2024, 6, 2),
+                    navRegion = "0400",
+                    url = "nav.no",
+                    administratorer = listOf("B123456"),
+                    avtaletype = Avtaletype.Rammeavtale,
+                    prisbetingelser = null,
+                    navEnheter = listOf("2990"),
+                    opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
+                    antallPlasser = null,
+                )
+
+                every { avtaler.get(avtaleMedEndringer.id) } returns avtaleAdminDto
+
+                val validator = AvtaleValidator(tiltakstyper, avtaler, gjennomforinger)
+
+                validator.validate(avtaleMedEndringer).shouldBeRight()
             }
         }
     }

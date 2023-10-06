@@ -4,15 +4,18 @@ import arrow.core.Either
 import arrow.core.left
 import arrow.core.nel
 import arrow.core.raise.either
+import arrow.core.raise.ensure
 import arrow.core.right
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
-import no.nav.mulighetsrommet.domain.Tiltakskoder
+import no.nav.mulighetsrommet.domain.Tiltakskoder.isTiltakMedAvtalerFraMulighetsrommet
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
+import no.nav.mulighetsrommet.domain.dto.AvtaleAdminDto
 import no.nav.mulighetsrommet.domain.dto.Avtalestatus
+import no.nav.mulighetsrommet.domain.dto.TiltakstypeDto
 
 class AvtaleValidator(
     private val tiltakstyper: TiltakstypeRepository,
@@ -37,24 +40,8 @@ class AvtaleValidator(
             }
 
             avtaler.get(dbo.id)?.also { avtale ->
-                if (dbo.opphav != avtale.opphav) {
-                    add(ValidationError("opphav", "Avtalens opphav kan ikke endres"))
-                }
-
-                if (dbo.tiltakstypeId != avtale.tiltakstype.id) {
-                    val gjennomforinger = tiltaksgjennomforinger.getAll(avtaleId = dbo.id)
-                    if (gjennomforinger.first > 0) {
-                        add(
-                            ValidationError(
-                                "tiltakstypeId",
-                                "Kan ikke endre tiltakstype fordi det finnes gjennomføringer for avtalen",
-                            ),
-                        )
-                    }
-                }
-
-                if (avtale.avtalestatus !in listOf(Avtalestatus.Planlagt, Avtalestatus.Aktiv)) {
-                    add(
+                ensure(avtale.avtalestatus in listOf(Avtalestatus.Planlagt, Avtalestatus.Aktiv)) {
+                    plus(
                         ValidationError(
                             "navn",
                             "Kan bare gjøre endringer når avtalen har status Planlagt eller Aktiv",
@@ -62,7 +49,24 @@ class AvtaleValidator(
                     )
                 }
 
-                if (avtale.avtalestatus == Avtalestatus.Aktiv) {
+                ensure(dbo.opphav == avtale.opphav) {
+                    plus(ValidationError("opphav", "Avtalens opphav kan ikke endres"))
+                }
+
+                val (numGjennomforinger) = tiltaksgjennomforinger.getAll(avtaleId = dbo.id)
+                if (numGjennomforinger > 0) {
+                    if (dbo.tiltakstypeId != avtale.tiltakstype.id) {
+                        add(
+                            ValidationError(
+                                "tiltakstypeId",
+                                "Kan ikke endre tiltakstype fordi det finnes gjennomføringer for avtalen",
+                            ),
+                        )
+                    }
+                    // TODO validere at start- og slutt-dato passer med gjennomføringer... men ta høyde for dette ikke gjelder AFT/VTA?
+                }
+
+                if (avtaleIsLocked(avtale, tiltakstype)) {
                     if (dbo.tiltakstypeId != tiltakstype.id) {
                         add(ValidationError("tiltakstypeId", "Tiltakstype kan ikke endres når avtalen er aktiv"))
                     }
@@ -102,7 +106,7 @@ class AvtaleValidator(
                     }
                 }
             } ?: run {
-                if (!Tiltakskoder.isTiltakMedAvtalerFraMulighetsrommet(tiltakstype.arenaKode)) {
+                if (!isTiltakMedAvtalerFraMulighetsrommet(tiltakstype.arenaKode)) {
                     add(
                         ValidationError(
                             name = "tiltakstype",
@@ -118,5 +122,17 @@ class AvtaleValidator(
         }
 
         return errors.takeIf { it.isNotEmpty() }?.left() ?: dbo.right()
+    }
+
+    /**
+     * Når avtalen har blitt godkjent så skal alle datafelter som påvirker økonomien være låst.
+     *
+     * Vi mangler fortsatt en del innsikt og løsning rundt tilsagn og refursjon (f.eks. når blir avtalen godkjent?),
+     * så reglene for når en avtale er låst er foreløpig ganske naive...
+     */
+    private fun avtaleIsLocked(avtale: AvtaleAdminDto, tiltakstype: TiltakstypeDto): Boolean {
+        val avtaleErAktiv = avtale.avtalestatus == Avtalestatus.Aktiv
+        val avtaleErIkkeForhaandsgodkjent = !isTiltakMedAvtalerFraMulighetsrommet(tiltakstype.arenaKode)
+        return avtaleErAktiv && avtaleErIkkeForhaandsgodkjent
     }
 }

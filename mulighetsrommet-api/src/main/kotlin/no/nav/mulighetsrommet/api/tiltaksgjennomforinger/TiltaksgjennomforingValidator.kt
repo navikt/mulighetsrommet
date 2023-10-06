@@ -63,12 +63,12 @@ class TiltaksgjennomforingValidator(
             }
 
             tiltaksgjennomforinger.get(dbo.id)?.also { gjennomforing ->
-                if (dbo.opphav != gjennomforing.opphav) {
-                    add(ValidationError("opphav", "Avtalens opphav kan ikke endres"))
+                ensure(gjennomforing.status in listOf(APENT_FOR_INNSOK, GJENNOMFORES)) {
+                    plus(ValidationError("navn", "Kan bare gjøre endringer når gjennomføringen er aktiv"))
                 }
 
-                if (gjennomforing.status !in listOf(APENT_FOR_INNSOK, GJENNOMFORES)) {
-                    add(ValidationError("navn", "Kan bare gjøre endringer når gjennomføringen er aktiv"))
+                ensure(dbo.opphav == gjennomforing.opphav) {
+                    plus(ValidationError("opphav", "Avtalens opphav kan ikke endres"))
                 }
 
                 if (gjennomforing.status == GJENNOMFORES) {
