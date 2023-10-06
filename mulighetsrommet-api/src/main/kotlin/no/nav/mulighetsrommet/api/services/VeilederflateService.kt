@@ -219,7 +219,6 @@ class VeilederflateService(
               "tiltaksnummer": tiltaksnummer.current,
               beskrivelse,
               stedForGjennomforing,
-              kontaktinfoTiltaksansvarlige[]->,
               kontaktpersoner[]{navKontaktperson->, "enheter": enheter[]->nummer.current},
               faneinnhold {
                 forHvemInfoboks,
@@ -261,7 +260,7 @@ class VeilederflateService(
         return sanityGjennomforing.run {
             val kontaktpersoner =
                 kontaktpersoner?.filter { it.enheter.contains(enhetsnummer) }?.map { it.navKontaktperson }
-                    ?: kontaktinfoTiltaksansvarlige?.filter { it.enhet.equals(enhetsnummer) }
+                    ?: emptyList()
             VeilederflateTiltaksgjennomforing(
                 sanityId = _id,
                 tiltakstype = tiltakstype?.run {
@@ -306,7 +305,7 @@ class VeilederflateService(
 
         val kontaktpersoner = enhetsnummer
             ?.let { utledKontaktpersonerForEnhet(apiGjennomforing, enhetsnummer) }
-            ?.ifEmpty { sanityGjennomforing.kontaktinfoTiltaksansvarlige }
+            ?.ifEmpty { sanityGjennomforing.kontaktpersoner?.map { it.navKontaktperson } }
 
         val fylke = apiGjennomforing.navRegion?.enhetsnummer ?: sanityGjennomforing.fylke
         val enheter = apiGjennomforing.navEnheter
