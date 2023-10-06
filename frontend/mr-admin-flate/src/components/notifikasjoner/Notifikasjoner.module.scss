@@ -3,6 +3,7 @@
   padding-inline-start: unset;
   display: flex;
   flex-direction: column;
+  max-width: 1440px;
 }
 
 .list_element {
@@ -17,11 +18,7 @@
 }
 
 .leste {
-  border-bottom: 1px solid
-    var(
-      --border-divider,
-      rgba(0, 0, 0, 0.19)
-    );
+  border-bottom: 1px solid var(--border-divider, rgba(0, 0, 0, 0.19));
 }
 
 .uleste {
@@ -34,6 +31,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  max-width: 75ch;
 }
 
 .muted {
@@ -44,4 +42,10 @@
 .truncate {
   overflow: hidden;
   overflow-wrap: normal;
+}
+
+.right {
+  display: flex;
+  align-items: start;
+  gap: 0.4rem;
 }

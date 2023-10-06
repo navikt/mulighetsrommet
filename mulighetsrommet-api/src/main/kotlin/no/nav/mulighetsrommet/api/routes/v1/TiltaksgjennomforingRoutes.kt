@@ -8,7 +8,6 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.JsonElement
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingKontaktpersonDbo
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
@@ -22,6 +21,7 @@ import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingTilgjengelighetsstatus
+import no.nav.mulighetsrommet.domain.dto.Faneinnhold
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
@@ -96,7 +96,7 @@ data class TiltaksgjennomforingRequest(
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
-    val sluttDato: LocalDate,
+    val sluttDato: LocalDate?,
     val antallPlasser: Int,
     val arrangorOrganisasjonsnummer: String,
     @Serializable(with = UUIDSerializer::class)
@@ -114,10 +114,11 @@ data class TiltaksgjennomforingRequest(
     val estimertVentetid: String?,
     val stedForGjennomforing: String,
     val opphav: ArenaMigrering.Opphav?,
-    val faneinnhold: JsonElement,
+    val faneinnhold: Faneinnhold?,
+    val beskrivelse: String?,
 ) {
     fun toDbo(): StatusResponse<TiltaksgjennomforingDbo> {
-        if (!startDato.isBefore(sluttDato)) {
+        if (sluttDato != null && !startDato.isBefore(sluttDato)) {
             return Either.Left(BadRequest("Startdato må være før sluttdato"))
         }
         if ((stengtFra != null) != (stengtTil != null)) {
@@ -166,6 +167,7 @@ data class TiltaksgjennomforingRequest(
                 },
                 stedForGjennomforing = stedForGjennomforing,
                 faneinnhold = faneinnhold,
+                beskrivelse = beskrivelse,
             ),
         )
     }

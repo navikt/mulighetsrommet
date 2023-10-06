@@ -1,6 +1,7 @@
-import React, { useCallback, useMemo } from "react";
+import React, { ForwardedRef, useCallback, useMemo } from "react";
 import isUrl from "is-url";
 import { LinkIcon, BulletListIcon } from "@navikt/aksel-icons";
+import styles from "./PortableTextEditor.module.scss";
 
 import isHotkey from "is-hotkey";
 import { Editable, withReact, useSlate, Slate } from "slate-react";
@@ -9,6 +10,8 @@ import { withHistory } from "slate-history";
 import type { PortableTextBlock } from "@portabletext/types";
 import { slateToPortableText } from "./slateToPortableText";
 import { portableTextToSlate } from "./portableTextToSlate";
+import classnames from "classnames";
+import { Controller } from "react-hook-form";
 
 const HOTKEYS: {
   [name: string]: string;
@@ -20,75 +23,152 @@ const HOTKEYS: {
 const LIST_TYPES = ["numbered-list", "bulleted-list"];
 
 interface PortableTextEditorProps {
-  onChange: (arg0: any) => void;
-  initialValue: PortableTextBlock[];
+  size?: "small" | "medium";
+  label: string;
+  hideLabel?: boolean;
+  description?: string;
+  onChange?: (a0: {
+    target: {
+      value: PortableTextBlock[];
+      name?: string;
+    };
+  }) => void;
+  placeholder?: string;
+  value?: PortableTextBlock[];
 }
 
-export const PortableTextEditor = (props: PortableTextEditorProps) => {
+const emptySlateValue = [
+  {
+    type: "paragraph",
+    children: [{ text: "" }],
+  },
+];
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function PortableTextEditor(props: PortableTextEditorProps, _: ForwardedRef<HTMLElement>) {
+  const {
+    placeholder,
+    onChange: providedOnChange,
+    label,
+    hideLabel = false,
+    size,
+    description,
+    ...rest
+  } = props;
+  const [focused, setFocused] = React.useState(false);
   const renderElement = useCallback((props: any) => <Element {...props} />, []);
   const renderLeaf = useCallback((props: any) => <Leaf {...props} />, []);
   const editor = useMemo(() => withLinks(withHistory(withReact(createEditor()))), []);
-  const initialValue =
-    props.initialValue.length > 0
-      ? portableTextToSlate(props.initialValue)
-      : [
-          {
-            type: "paragraph",
-            children: [{ text: "" }],
-          },
-        ];
 
   return (
     <>
-      <Slate
-        editor={editor}
-        initialValue={initialValue}
-        onChange={(value) => {
-          if (value) {
-            props.onChange(slateToPortableText(value));
-          }
+      <Controller
+        name={label}
+        {...rest}
+        render={({ field: { onChange, value, name }, fieldState: { error } }) => {
+          return (
+            <div className={styles.container}>
+              <label
+                className={classnames(styles.label, {
+                  "navds-sr-only": hideLabel,
+                })}
+                style={{
+                  fontSize: size === "small" ? "16px" : "18px",
+                }}
+                htmlFor={name}
+              >
+                <b>{label}</b>
+              </label>
+              {description && (
+                <label
+                  className={classnames(styles.description, {
+                    "navds-sr-only": hideLabel,
+                  })}
+                  style={{
+                    fontSize: size === "small" ? "16px" : "18px",
+                  }}
+                >
+                  {description}
+                </label>
+              )}
+              <Slate
+                editor={editor}
+                initialValue={
+                  value && value.length > 0 ? portableTextToSlate(value) : emptySlateValue
+                }
+                onChange={(value) => {
+                  const portableText = slateToPortableText(value);
+                  onChange(portableText);
+                  providedOnChange?.({
+                    target: { value: portableText },
+                  });
+                }}
+              >
+                <div
+                  className={classnames(styles.editor_wrapper, {
+                    [styles.editor_wrapper__focusVisible]: focused,
+                  })}
+                >
+                  <ToolbarComponent>
+                    <MarkButton
+                      format="bold"
+                      icon={
+                        <div>
+                          <b>B</b> bold
+                        </div>
+                      }
+                    />
+                    <MarkButton
+                      format="italic"
+                      icon={
+                        <div>
+                          <em>I</em> italic
+                        </div>
+                      }
+                    />
+                    <BlockButton
+                      format="bulleted-list"
+                      icon={
+                        <div>
+                          <BulletListIcon /> Bullet
+                        </div>
+                      }
+                    />
+                    <LinkButton />
+                  </ToolbarComponent>
+                  <Editable
+                    style={{
+                      outline: "none",
+                    }}
+                    renderElement={renderElement}
+                    renderLeaf={renderLeaf}
+                    placeholder={placeholder}
+                    onFocus={() => setFocused(true)}
+                    onBlur={() => setFocused(false)}
+                    onKeyDown={(event) => {
+                      for (const hotkey in HOTKEYS) {
+                        if (isHotkey(hotkey, event)) {
+                          event.preventDefault();
+                          const mark = HOTKEYS[hotkey];
+                          toggleMark(editor, mark);
+                        }
+                      }
+                    }}
+                  />
+                </div>
+              </Slate>
+              {error && (
+                <div className={styles.errormsg}>
+                  <b>• {error.message}</b>
+                </div>
+              )}
+            </div>
+          );
         }}
-      >
-        <Toolbar>
-          <LinkButton />
-          <MarkButton
-            format="bold"
-            icon={
-              <div>
-                <b>B</b> bold
-              </div>
-            }
-          />
-          <MarkButton
-            format="italic"
-            icon={
-              <div>
-                <em>I</em> italic
-              </div>
-            }
-          />
-          <BlockButton format="heading-one" icon={<div>Heading</div>} />
-          <BlockButton format="bulleted-list" icon={<BulletListIcon />} />
-        </Toolbar>
-        <Editable
-          renderElement={renderElement}
-          renderLeaf={renderLeaf}
-          placeholder="Enter some rich text…"
-          autoFocus
-          onKeyDown={(event) => {
-            for (const hotkey in HOTKEYS) {
-              if (isHotkey(hotkey, event)) {
-                event.preventDefault();
-                const mark = HOTKEYS[hotkey];
-                toggleMark(editor, mark);
-              }
-            }
-          }}
-        />
-      </Slate>
+      />
     </>
   );
-};
+}
 
 const withLinks = (editor: any) => {
   const { insertData, insertText, isInline } = editor;
@@ -126,17 +206,25 @@ const insertLink = (editor: any, url: string) => {
 
 const LinkButton = () => {
   const editor = useSlate();
+
   return (
     <Button
       active={isLinkActive(editor)}
       onMouseDown={(event: any) => {
         event.preventDefault();
-        const url = window.prompt("Enter the URL of the link:");
-        if (!url) return;
-        insertLink(editor, url);
+        const url = window.prompt("Legg til lenke");
+        if (!url || !isUrl(url)) {
+          alert("Ugyldig lenke. Husk `https://` foran");
+        } else {
+          insertLink(editor, url);
+        }
+        // Flytter cursor til slutten for å deaktivere link modus
+        Transforms.select(editor, Editor.end(editor, []));
       }}
     >
-      <LinkIcon />
+      <div>
+        <LinkIcon /> Link
+      </div>
     </Button>
   );
 };
@@ -321,8 +409,11 @@ type ButtonProps = React.HTMLProps<HTMLButtonElement> & {
   active: boolean;
 };
 
-export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ active, children, ...props }, ref) => (
+export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(function Button(
+  { active, children, ...props },
+  ref,
+) {
+  return (
     <span
       {...props}
       ref={ref}
@@ -333,29 +424,20 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     >
       {children}
     </span>
-  ),
-);
-Button.displayName = "Button";
+  );
+});
 
-export const Toolbar = React.forwardRef<HTMLDivElement, { children: React.ReactNode }>(
-  ({ children, ...props }, ref) => (
-    <div
-      {...props}
-      ref={ref}
-      style={{
-        marginLeft: "15px",
-        display: "flex",
-        flexDirection: "row",
-        justifyContent: "space-around",
-        position: "relative",
-        padding: "1px 18px 17px",
-        margin: "0 -20px",
-        borderBottom: "2px solid #eee",
-        marginBottom: "20px",
-      }}
-    >
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function Toolbar({ children, ...props }: { children: any }, _: ForwardedRef<HTMLElement>) {
+  return (
+    <div {...props} className={styles.toolbar}>
       {children}
     </div>
-  ),
-);
-Toolbar.displayName = "Toolbar";
+  );
+}
+
+const ToolbarComponent = React.forwardRef(Toolbar);
+
+const PortableTextEditorComponent = React.forwardRef(PortableTextEditor);
+
+export { PortableTextEditorComponent as PortableTextEditor };

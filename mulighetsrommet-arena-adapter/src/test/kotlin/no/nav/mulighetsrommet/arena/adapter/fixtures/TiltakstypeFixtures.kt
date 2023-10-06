@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.arena.adapter.fixtures
 
 import no.nav.mulighetsrommet.arena.adapter.models.arena.*
 import no.nav.mulighetsrommet.arena.adapter.models.db.Tiltakstype
+import no.nav.mulighetsrommet.domain.dto.JaNeiStatus
 import java.time.LocalDateTime
 import java.util.*
 

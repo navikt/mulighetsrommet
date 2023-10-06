@@ -1,13 +1,16 @@
-import { Alert, Textarea, TextField } from "@navikt/ds-react";
+import { Alert, DatePicker, Textarea, TextField, useDatepicker } from "@navikt/ds-react";
 import {
   Avtale,
   AvtaleAvslutningsstatus,
   AvtaleRequest,
   Avtaletype,
+  EmbeddedTiltakstype,
   LeverandorUnderenhet,
   NavAnsatt,
   NavEnhetType,
   Opphav,
+  Tiltakskode,
+  Toggles,
 } from "mulighetsrommet-api-client";
 import { NavEnhet } from "mulighetsrommet-api-client/build/models/NavEnhet";
 import { Tiltakstype } from "mulighetsrommet-api-client/build/models/Tiltakstype";
@@ -19,30 +22,31 @@ import { usePutAvtale } from "../../api/avtaler/usePutAvtale";
 import { useMutateUtkast } from "../../api/utkast/useMutateUtkast";
 import { useSokVirksomheter } from "../../api/virksomhet/useSokVirksomhet";
 import { useVirksomhet } from "../../api/virksomhet/useVirksomhet";
-import { formaterDatoSomYYYYMMDD } from "../../utils/Utils";
+import { addYear, formaterDato, formaterDatoSomYYYYMMDD } from "../../utils/Utils";
 import { AutoSaveUtkast } from "../autosave/AutoSaveUtkast";
 import { Separator } from "../detaljside/Metadata";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
+import skjemastyles from "../skjema/Skjema.module.scss";
 import { SokeSelect } from "../skjema/SokeSelect";
 import { VirksomhetKontaktpersoner } from "../virksomhet/VirksomhetKontaktpersoner";
 import { AvbrytAvtale } from "./AvbrytAvtale";
-import { AvtaleSchema, inferredAvtaleSchema } from "./AvtaleSchema";
-import skjemastyles from "../skjema/Skjema.module.scss";
+import { AvtaleSchema, InferredAvtaleSchema } from "./AvtaleSchema";
 
+import { zodResolver } from "@hookform/resolvers/zod";
+import { PORTEN } from "mulighetsrommet-frontend-common/constants";
+import { resolveErrorMessage } from "../../api/errors";
+import { erAnskaffetTiltak } from "../../utils/tiltakskoder";
+import { AdministratorOptions } from "../skjema/AdministratorOptions";
+import { FormGroup } from "../skjema/FormGroup";
 import {
   defaultEnhet,
-  erAnskaffetTiltak,
   getLokaleUnderenheterAsSelectOptions,
   saveUtkast,
   underenheterOptions,
 } from "./AvtaleSkjemaConst";
-import { AdministratorOptions } from "../skjema/AdministratorOptions";
-import { FormGroup } from "../skjema/FormGroup";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { AvtaleSkjemaKnapperad } from "./AvtaleSkjemaKnapperad";
-import { PORTEN } from "mulighetsrommet-frontend-common/constants";
-import { resolveErrorMessage } from "../../api/errors";
+import { useFeatureToggle } from "../../api/features/feature-toggles";
 
 interface Props {
   onClose: () => void;
@@ -65,7 +69,9 @@ export function AvtaleSkjemaContainer({
 }: Props) {
   const [navRegion, setNavRegion] = useState<string | undefined>(avtale?.navRegion?.enhetsnummer);
   const [sokLeverandor, setSokLeverandor] = useState(avtale?.leverandor?.organisasjonsnummer || "");
-
+  const { data: enableOpsjoner } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_ADMIN_FLATE_OPSJONER_FOR_AVTALER,
+  );
   const mutation = usePutAvtale();
   const { data: betabrukere } = useHentBetabrukere();
   const mutationUtkast = useMutateUtkast();
@@ -74,10 +80,10 @@ export function AvtaleSkjemaContainer({
 
   const utkastIdRef = useRef(avtale?.id || uuidv4());
 
-  const form = useForm<inferredAvtaleSchema>({
+  const form = useForm<InferredAvtaleSchema>({
     resolver: zodResolver(AvtaleSchema),
     defaultValues: {
-      tiltakstype: avtale?.tiltakstype?.id,
+      tiltakstype: avtale?.tiltakstype,
       navRegion: defaultEnhet(avtale, enheter, ansatt),
       navEnheter: avtale?.navEnheter?.map((e) => e.enhetsnummer) || [],
       administrator: avtale?.administrator?.navIdent || ansatt.navIdent || "",
@@ -97,6 +103,7 @@ export function AvtaleSkjemaContainer({
       },
       url: avtale?.url ?? undefined,
       prisOgBetalingsinfo: avtale?.prisbetingelser ?? undefined,
+      opphav: avtale?.opphav ?? Opphav.MR_ADMIN_FLATE,
     },
   });
 
@@ -108,26 +115,36 @@ export function AvtaleSkjemaContainer({
     setValue,
   } = form;
 
-  const watchedTiltakstype = watch("tiltakstype");
+  const {
+    datepickerProps: maksVarighetDatepickerProps,
+    inputProps: maksVarighetDatepickerInputProps,
+  } = useDatepicker({
+    fromDate: new Date(),
+    defaultSelected:
+      defaultValues?.startOgSluttDato?.sluttDato &&
+      addYear(defaultValues?.startOgSluttDato?.sluttDato, 5),
+  });
 
-  const getTiltakstypeFromId = (id: string): Tiltakstype | undefined => {
-    return tiltakstyper.find((type) => type.id === id);
-  };
+  const watchedTiltakstype: EmbeddedTiltakstype | undefined = watch("tiltakstype");
+  const arenaKode = watchedTiltakstype?.arenaKode;
 
   useEffect(() => {
-    const arenaKode = getTiltakstypeFromId(watchedTiltakstype)?.arenaKode || "";
-    if (["ARBFORB", "VASV"].includes(arenaKode)) {
+    // TODO: revurdere behovet for denne type logikk eller om det kan defineres som default felter på tiltakstype i stedet
+    // Er det slik at tiltakstype alltid styrer avtaletypen? Er det kun for forhåndsgodkjente avtaler?
+    // Hvis ARBFORB og VASV uansett alltid skal være av typen FORHAANDSGODKJENT burde det ikke være mulig å endre
+    if (arenaKode === Tiltakskode.ARBFORB || arenaKode === Tiltakskode.VASV) {
       setValue("avtaletype", Avtaletype.FORHAANDSGODKJENT);
     }
-  }, [watchedTiltakstype]);
+  }, [arenaKode]);
 
-  const { data: leverandorData } = useVirksomhet(watch("leverandor"));
+  const watchedLeverandor = watch("leverandor");
+  const { data: leverandorData } = useVirksomhet(watchedLeverandor);
 
   const underenheterForLeverandor = leverandorData?.underenheter ?? [];
 
   const arenaOpphav = avtale?.opphav === Opphav.ARENA;
 
-  const postData: SubmitHandler<inferredAvtaleSchema> = async (data): Promise<void> => {
+  const postData: SubmitHandler<InferredAvtaleSchema> = async (data): Promise<void> => {
     const {
       navRegion,
       navEnheter,
@@ -136,10 +153,11 @@ export function AvtaleSkjemaContainer({
       leverandorKontaktpersonId,
       avtalenavn: navn,
       startOgSluttDato,
-      tiltakstype: tiltakstypeId,
+      tiltakstype,
       administrator,
       avtaletype,
       prisOgBetalingsinfo,
+      opphav,
       url,
     } = data;
 
@@ -153,14 +171,14 @@ export function AvtaleSkjemaContainer({
       navn,
       sluttDato: formaterDatoSomYYYYMMDD(startOgSluttDato.sluttDato),
       startDato: formaterDatoSomYYYYMMDD(startOgSluttDato.startDato),
-      tiltakstypeId,
+      tiltakstypeId: tiltakstype.id,
       url: url || null,
       administrator,
       avtaletype,
-      prisOgBetalingsinformasjon: erAnskaffetTiltak(tiltakstypeId, getTiltakstypeFromId)
+      prisOgBetalingsinformasjon: erAnskaffetTiltak(tiltakstype.arenaKode)
         ? prisOgBetalingsinfo || null
         : null,
-      opphav: avtale?.opphav ?? Opphav.MR_ADMIN_FLATE,
+      opphav,
       leverandorKontaktpersonId: leverandorKontaktpersonId ?? null,
       avslutningsstatus: AvtaleAvslutningsstatus.IKKE_AVSLUTTET,
     };
@@ -226,7 +244,11 @@ export function AvtaleSkjemaContainer({
                   label={"Tiltakstype"}
                   {...register("tiltakstype")}
                   options={tiltakstyper.map((tiltakstype) => ({
-                    value: tiltakstype.id,
+                    value: {
+                      arenaKode: tiltakstype.arenaKode,
+                      navn: tiltakstype.navn,
+                      id: tiltakstype.id,
+                    },
                     label: tiltakstype.navn,
                   }))}
                 />
@@ -266,7 +288,21 @@ export function AvtaleSkjemaContainer({
                     ...register("startOgSluttDato.sluttDato"),
                     label: "Sluttdato",
                   }}
-                />
+                >
+                  {enableOpsjoner &&
+                  watch("avtaletype") === Avtaletype.RAMMEAVTALE &&
+                  !!watch("startOgSluttDato.sluttDato") ? (
+                    <DatePicker {...maksVarighetDatepickerProps}>
+                      <DatePicker.Input
+                        {...maksVarighetDatepickerInputProps}
+                        label="Maks varighet inkl. opsjon"
+                        readOnly
+                        size="small"
+                        value={formaterDato(addYear(watch("startOgSluttDato.sluttDato"), 5))}
+                      />
+                    </DatePicker>
+                  ) : null}
+                </FraTilDatoVelger>
                 {redigeringsModus ? <AvbrytAvtale onAvbryt={onClose} /> : null}
               </FormGroup>
               <Separator />
@@ -279,7 +315,7 @@ export function AvtaleSkjemaContainer({
                 />
               </FormGroup>
               <Separator />
-              {erAnskaffetTiltak(watch("tiltakstype"), getTiltakstypeFromId) ? (
+              {arenaKode && erAnskaffetTiltak(arenaKode) && (
                 <>
                   <FormGroup>
                     <Textarea
@@ -292,7 +328,7 @@ export function AvtaleSkjemaContainer({
                   </FormGroup>
                   <Separator />
                 </>
-              ) : null}
+              )}
               <FormGroup>
                 <SokeSelect
                   size="small"
@@ -339,7 +375,13 @@ export function AvtaleSkjemaContainer({
                     placeholder="Søk etter tiltaksarrangør"
                     label={"Tiltaksarrangør hovedenhet"}
                     {...register("leverandor")}
-                    onInputChange={(value) => setSokLeverandor(value)}
+                    onInputChange={(value) => {
+                      // Beholder søket hvis input settes til "" for å sørge for at listen med options
+                      // ikke forsvinner når man velger en leverandør
+                      if (value) {
+                        setSokLeverandor(value);
+                      }
+                    }}
                     onClearValue={() => setValue("leverandor", "")}
                     options={leverandorVirksomheter.map((enhet) => ({
                       value: enhet.organisasjonsnummer,
@@ -350,17 +392,17 @@ export function AvtaleSkjemaContainer({
                     size="small"
                     placeholder="Velg underenhet for tiltaksarrangør"
                     label={"Tiltaksarrangør underenhet"}
-                    readOnly={!watch("leverandor")}
+                    readOnly={!watchedLeverandor}
                     {...register("leverandorUnderenheter")}
                     options={underenheterOptions(underenheterForLeverandor)}
                   />
                 </FormGroup>
-                {watch("leverandor") && !avtale?.leverandor?.slettet && (
+                {watchedLeverandor && !avtale?.leverandor?.slettet && (
                   <FormGroup>
                     <div className={skjemastyles.kontaktperson_container}>
                       <VirksomhetKontaktpersoner
                         title="Kontaktperson hos leverandøren"
-                        orgnr={watch("leverandor")}
+                        orgnr={watchedLeverandor}
                         formValueName="leverandorKontaktpersonId"
                       />
                     </div>

@@ -2,26 +2,22 @@
   background-color: var(--a-white);
 
   &_border {
-    border-bottom: solid 1px
-      var(--a-border-divider);
+    border-bottom: solid 1px var(--a-border-divider);
   }
 
   .header_wrapper {
     max-width: 1920px;
     margin: 0 auto;
-    padding-left: 1rem;
-    padding-top: 1rem;
+    padding-left: 0.5rem;
+    padding-top: 0.5rem;
     padding-bottom: 0.5rem;
   }
 
   &_tabs {
-    border-bottom: solid 1px
-      var(--a-border-divider);
+    border-bottom: solid 1px var(--a-border-divider);
     background-color: var(--a-white);
 
-    :global(
-        .navds-tabs__tablist-wrapper
-      ) {
+    :global(.navds-tabs__tablist-wrapper) {
       max-width: 1920px;
       margin: 0 auto;
       padding-left: 0.5rem;
@@ -31,20 +27,16 @@
 }
 .header {
   display: flex;
-  gap: 1rem;
+  gap: 1.5rem;
   align-items: center;
 }
 
 .list {
-  padding-left: 0.5rem;
+  padding: 0 0.5rem;
   width: 1920px;
   display: flex;
   justify-items: start;
   margin: 0 auto;
-
-  @media (width > 1930px) {
-    padding-left: 0;
-  }
 }
 
 :global(.navds-tabs__tablist-wrapper) {

@@ -1,5 +1,4 @@
 import { Link, useLocation } from "react-router-dom";
-import styles from "./Tilbakelenke.module.scss";
 import { useGetAvtaleIdFromUrl } from "../../hooks/useGetAvtaleIdFromUrl";
 import { useGetAdminTiltaksgjennomforingsIdFraUrl } from "../../hooks/useGetAdminTiltaksgjennomforingsIdFraUrl";
 import { ChevronLeftIcon } from "@navikt/aksel-icons";
@@ -10,11 +9,7 @@ export function Tilbakelenke() {
   const tiltaksgjennomforingId = useGetAdminTiltaksgjennomforingsIdFraUrl();
 
   return (
-    <Link
-      className={styles.tilbakelenke}
-      to={parentPath(pathname, avtaleId, tiltaksgjennomforingId)}
-      data-testid="tilbakelenke"
-    >
+    <Link to={parentPath(pathname, avtaleId, tiltaksgjennomforingId)} data-testid="tilbakelenke">
       <ChevronLeftIcon aria-label="Tilbakeknapp" />
       Tilbake
     </Link>

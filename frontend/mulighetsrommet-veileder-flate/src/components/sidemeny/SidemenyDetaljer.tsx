@@ -1,6 +1,7 @@
 import { BodyShort, Panel } from "@navikt/ds-react";
 import {
   TiltaksgjennomforingOppstartstype,
+  Tiltakskode,
   VeilederflateTiltaksgjennomforing,
   VeilederflateTiltakstype,
 } from "mulighetsrommet-api-client";
@@ -48,11 +49,11 @@ const SidemenyDetaljer = ({ tiltaksgjennomforing }: Props) => {
       !!sluttdato &&
       !!tiltakstype?.arenakode &&
       [
-        VeilederflateTiltakstype.arenakode.GRUPPEAMO,
-        VeilederflateTiltakstype.arenakode.JOBBK,
-        VeilederflateTiltakstype.arenakode.DIGIOPPARB,
-        VeilederflateTiltakstype.arenakode.GRUFAGYRKE,
-        VeilederflateTiltakstype.arenakode.ENKFAGYRKE,
+        Tiltakskode.GRUPPEAMO,
+        Tiltakskode.JOBBK,
+        Tiltakskode.DIGIOPPARB,
+        Tiltakskode.GRUFAGYRKE,
+        Tiltakskode.ENKFAGYRKE,
       ].includes(tiltakstype?.arenakode)
     );
   };

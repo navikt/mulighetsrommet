@@ -1,0 +1,21 @@
+apiVersion: kafka.nais.io/v1
+kind: Topic
+metadata:
+  name: arena-migrering-tiltaksgjennomforinger-v1
+  namespace: team-mulighetsrommet
+  labels:
+    team: team-mulighetsrommet
+spec:
+  pool: nav-prod
+  config:
+    cleanupPolicy: compact
+    minimumInSyncReplicas: 2
+    partitions: 2
+    replication: 3
+  acl:
+    - team: team-mulighetsrommet
+      application: mulighetsrommet-api
+      access: write
+    - team: team-mulighetsrommet
+      application: mulighetsrommet-kafka-manager
+      access: read

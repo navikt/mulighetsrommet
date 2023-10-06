@@ -5,7 +5,6 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.*
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
-import kotlinx.serialization.json.JsonNull
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.*
@@ -153,7 +152,7 @@ class VirksomhetRepositoryTest : FunSpec({
             val overordnet = VirksomhetDto(
                 navn = "REMA 1000 AS",
                 organisasjonsnummer = "982254604",
-                underenheter = listOf(), // Tom først
+                underenheter = listOf(),
                 postnummer = "5174",
                 poststed = "Mathopen",
             )
@@ -275,7 +274,8 @@ class VirksomhetRepositoryTest : FunSpec({
                 stedForGjennomforing = "Oslo",
                 estimertVentetid = null,
                 avtaleId = avtale.id,
-                faneinnhold = JsonNull,
+                faneinnhold = null,
+                beskrivelse = null,
             )
             tiltaksgjennomforingRepository.upsert(tiltaksgjennomforing)
 

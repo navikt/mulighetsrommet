@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.services
 
 import io.ktor.http.*
 import kotlinx.serialization.json.JsonObject
+import kotliquery.Session
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityPerspective
 import no.nav.mulighetsrommet.api.domain.dto.*
@@ -29,14 +30,17 @@ class SanityTiltaksgjennomforingService(
             ),
         )
 
-        if (response.status.value != HttpStatusCode.OK.value) {
+        if (response.status != HttpStatusCode.OK) {
             throw Exception("Klarte ikke slette tiltaksgjennomforing i sanity: ${response.status}")
         } else {
             log.info("Slettet tiltaksgjennomforing i Sanity med id: $sanityId")
         }
     }
 
-    suspend fun createOrPatchSanityTiltaksgjennomforing(tiltaksgjennomforing: TiltaksgjennomforingAdminDto) {
+    suspend fun createOrPatchSanityTiltaksgjennomforing(
+        tiltaksgjennomforing: TiltaksgjennomforingAdminDto,
+        tx: Session,
+    ) {
         val avtale = tiltaksgjennomforing.avtaleId?.let { avtaleRepository.get(it) }
         val tiltakstype = tiltakstypeRepository.get(tiltaksgjennomforing.tiltakstype.id)
 
@@ -62,6 +66,7 @@ class SanityTiltaksgjennomforingService(
             tiltaksgjennomforingRepository.updateSanityTiltaksgjennomforingId(
                 tiltaksgjennomforing.id,
                 sanityId,
+                tx,
             )
         }
     }
@@ -71,14 +76,15 @@ class SanityTiltaksgjennomforingService(
         sanityTiltaksgjennomforingFields: SanityTiltaksgjennomforingFields,
     ) {
         val sanityTiltaksgjennomforing = sanityTiltaksgjennomforingFields.toSanityTiltaksgjennomforing(
-            id = "drafts.$sanityId", // For å ikke autopublisere dokument i Sanity før redaktør manuelt publiserer
+            // For å ikke autopublisere dokument i Sanity før redaktør manuelt publiserer
+            id = "drafts.$sanityId",
         )
 
         val response = sanityClient.mutate(
             listOf(Mutation(createOrReplace = sanityTiltaksgjennomforing)),
         )
 
-        if (response.status.value != HttpStatusCode.OK.value) {
+        if (response.status != HttpStatusCode.OK) {
             throw Exception("Klarte ikke opprette tiltaksgjennomforing i sanity: ${response.status}")
         } else {
             log.info("Opprettet tiltaksgjennomforing i Sanity med id: $sanityId")
@@ -101,7 +107,7 @@ class SanityTiltaksgjennomforingService(
             listOf(Mutation(patch = Patch(id = id, set = sanityTiltaksgjennomforingFields))),
         )
 
-        if (response.status.value != HttpStatusCode.OK.value) {
+        if (response.status != HttpStatusCode.OK) {
             throw Exception("Klarte ikke patche tiltaksgjennomforing i sanity: ${response.status}")
         } else {
             log.info("Patchet tiltaksgjennomforing i Sanity med id: $sanityId")

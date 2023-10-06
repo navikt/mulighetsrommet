@@ -7,7 +7,7 @@ import io.ktor.client.plugins.*
 import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
 import io.ktor.http.*
-import no.nav.mulighetsrommet.domain.dto.ArenaTiltaksgjennomforingsstatusDto
+import no.nav.mulighetsrommet.domain.dto.ArenaTiltaksgjennomforingDto
 import no.nav.mulighetsrommet.domain.dto.ExchangeArenaIdForIdResponse
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import org.slf4j.LoggerFactory
@@ -41,8 +41,8 @@ class ArenaAdapterClientImpl(
         }
     }
 
-    override suspend fun hentTiltaksgjennomforingsstatus(id: UUID): ArenaTiltaksgjennomforingsstatusDto? {
-        val response = client.get("$baseUrl/api/status/$id") {
+    override suspend fun hentArenadata(id: UUID): ArenaTiltaksgjennomforingDto? {
+        val response = client.get("$baseUrl/api/arenadata/$id") {
             bearerAuth(
                 machineToMachineTokenClient.invoke(),
             )

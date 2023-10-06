@@ -1,5 +1,6 @@
 import {
   Innsatsgruppe,
+  Tiltakskode,
   VeilederflateInnsatsgruppe,
   VeilederflateTiltakstype,
 } from "mulighetsrommet-api-client";
@@ -545,7 +546,7 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
   jobbklubb: {
     sanityId: "31e72dd8-ad05-4e81-a7f9-fd4c8f295864",
     delingMedBruker:
-      "Hei <Fornavn>, \n\nVi har nå et arbeidsmarkedstiltak som jeg tenker kan passe deg godt. Det heter <tiltaksnavn> og er et kurs for de som er registrert som arbeidssøker hos NAV. \n\nJobbklubb er et kortvarig tiltak for deg som søker jobb. Når du deltar på jobbklubb, får du støtte og hjelp til å orientere deg på arbeidsmarkedet og være en aktiv jobbsøker.\n\nDu kan lese mer om kurset på www.nav.no/jobbklubb",
+      "Jobbklubb er et kortvarig tiltak for deg som søker jobb. Når du deltar på jobbklubb, får du støtte og hjelp til å orientere deg på arbeidsmarkedet og være en aktiv jobbsøker.\n\nDu kan lese mer om kurset på www.nav.no/jobbklubb",
     regelverkLenker: [
       {
         _id: "123",
@@ -2802,7 +2803,7 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
       "Arbeidstrening skal bidra til å styrke tiltaksdeltakers muligheter for å komme i jobb. Arbeidstrening kan ha flere ulike formål i form av arbeidserfaring for å mestre en bestemt jobb, eller behov for en referanse mens man søker ordinært arbeid",
   },
   gruppe_amo: {
-    arenakode: VeilederflateTiltakstype.arenakode.GRUPPEAMO,
+    arenakode: Tiltakskode.GRUPPEAMO,
     sanityId: "eadeb22c-bd89-4298-a5c2-145f112f8e7d",
     delingMedBruker:
       "Hei <Fornavn>,   \n\nHar du vurdert utdanning for å få flere muligheter på arbeidsmarkedet?  \n\nDu kan lese mer om tiltaket på www.nav.no/opplaring \n\nEr dette aktuelt for deg? Gi meg tilbakemelding her i dialogen. \nSvaret ditt vil ikke endre din utbetaling fra NAV. \n\nVi holder kontakten!\nHilsen <Veiledernavn> \n",

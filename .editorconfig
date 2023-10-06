@@ -11,6 +11,7 @@ indent_size = 4
 indent_style = space
 
 # Custom config to override `ktlint` defaults
+ktlint_code_style = intellij_idea
 ktlint_standard_no-wildcard-imports = disabled
 
 [*.{js,ts,tsx,json}]

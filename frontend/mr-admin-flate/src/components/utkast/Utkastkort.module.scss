@@ -6,18 +6,17 @@
   flex-direction: column;
   justify-content: space-between;
   height: 15rem;
+  max-width: 30rem;
 
   &:hover {
-    box-shadow: rgba(100, 100, 111, 0.2)
-      0px 7px 29px 0px;
+    box-shadow: rgba(100, 100, 111, 0.2) 0 7px 29px 0;
   }
 }
 
 .header {
   display: flex;
   justify-content: space-between;
-  border-bottom: 1px solid
-    var(--a-border-divider);
+  border-bottom: 1px solid var(--a-border-divider);
   padding-bottom: 0.2rem;
 }
 

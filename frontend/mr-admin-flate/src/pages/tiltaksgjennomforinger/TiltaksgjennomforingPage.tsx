@@ -6,13 +6,17 @@ import { useTiltaksgjennomforingById } from "../../api/tiltaksgjennomforing/useT
 import { Header } from "../../components/detaljside/Header";
 import { Laster } from "../../components/laster/Laster";
 import { TiltaksgjennomforingstatusTag } from "../../components/statuselementer/TiltaksgjennomforingstatusTag";
-import { ContainerLayoutDetaljer } from "../../layouts/ContainerLayout";
+import { ContainerLayout } from "../../layouts/ContainerLayout";
 import commonStyles from "../Page.module.scss";
+import { ExternalLinkIcon } from "@navikt/aksel-icons";
+import { erProdMiljo } from "../../utils/Utils";
+import { Lenkeknapp } from "../../components/lenkeknapp/Lenkeknapp";
 
-export function DetaljerTiltaksgjennomforingerPage() {
+export function TiltaksgjennomforingPage() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const { data: tiltaksgjennomforing, isLoading } = useTiltaksgjennomforingById();
+  const forhandsvisningMiljo = import.meta.env.dev || erProdMiljo() ? "nav.no" : "dev.nav.no";
 
   const { data: visDeltakerlisteFraKometFeature } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_ADMIN_FLATE_VIS_DELTAKERLISTE_FRA_KOMET,
@@ -46,9 +50,25 @@ export function DetaljerTiltaksgjennomforingerPage() {
   return (
     <main>
       <Header>
-        <div className={commonStyles.header}>
-          <span>{tiltaksgjennomforing?.navn ?? "..."}</span>
-          <TiltaksgjennomforingstatusTag tiltaksgjennomforing={tiltaksgjennomforing} />
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+          }}
+        >
+          <div className={commonStyles.header}>
+            <span>{tiltaksgjennomforing?.navn ?? "..."}</span>
+            <TiltaksgjennomforingstatusTag tiltaksgjennomforing={tiltaksgjennomforing} />
+          </div>
+          {tiltaksgjennomforing?.sanityId && (
+            <Lenkeknapp
+              size="small"
+              variant="secondary"
+              to={`https://mulighetsrommet-veileder-flate.intern.${forhandsvisningMiljo}/preview/${tiltaksgjennomforing.sanityId}`}
+            >
+              Forhåndsvis i Modia <ExternalLinkIcon title="Forhåndsvis gjennomføringen i Modia" />
+            </Lenkeknapp>
+          )}
         </div>
       </Header>
 
@@ -78,11 +98,11 @@ export function DetaljerTiltaksgjennomforingerPage() {
             />
           ) : null}
         </Tabs.List>
-        <ContainerLayoutDetaljer>
+        <ContainerLayout>
           <div id="panel">
             <Outlet />
           </div>
-        </ContainerLayoutDetaljer>
+        </ContainerLayout>
       </Tabs>
     </main>
   );

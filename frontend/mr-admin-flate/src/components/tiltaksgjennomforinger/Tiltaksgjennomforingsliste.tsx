@@ -9,7 +9,7 @@ import { useAvtale } from "../../api/avtaler/useAvtale";
 import { useAdminTiltaksgjennomforinger } from "../../api/tiltaksgjennomforing/useAdminTiltaksgjennomforinger";
 import { useAdminTiltaksgjennomforingerForAvtale } from "../../api/tiltaksgjennomforing/useAdminTiltaksgjennomforingerForAvtale";
 import { useMutateKobleGjennomforingForAvtale } from "../../api/tiltaksgjennomforing/useMutateKobleGjennomforingForAvtale";
-import { arenaKodeErAftEllerVta } from "../../utils/tiltakskoder";
+import { isTiltakMedAvtaleFraMulighetsrommet } from "../../utils/tiltakskoder";
 import { Laster } from "../laster/Laster";
 import { TiltaksgjennomforingstatusTag } from "../statuselementer/TiltaksgjennomforingstatusTag";
 import styles from "./Tiltaksgjennomforingsliste.module.scss";
@@ -87,7 +87,7 @@ export const Tiltaksgjennomforingsliste = () => {
           <ul className={styles.gjennomforingsliste}>
             {tiltaksgjennomforinger
               .filter((gjennomforing) =>
-                arenaKodeErAftEllerVta(gjennomforing.tiltakstype.arenaKode),
+                isTiltakMedAvtaleFraMulighetsrommet(gjennomforing.tiltakstype.arenaKode),
               )
               .map((gjennomforing: Tiltaksgjennomforing, index: number) => (
                 <li key={index} className={styles.gjennomforingsliste_element}>

@@ -5,8 +5,8 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.*
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonNull
 import kotliquery.Query
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
@@ -54,41 +54,44 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         test("CRUD adminflate-tiltaksgjennomføringer") {
             tiltaksgjennomforinger.upsert(Oppfolging1)
 
-            tiltaksgjennomforinger.get(Oppfolging1.id) shouldBe TiltaksgjennomforingAdminDto(
-                id = Oppfolging1.id,
-                tiltakstype = TiltaksgjennomforingAdminDto.Tiltakstype(
+            tiltaksgjennomforinger.get(Oppfolging1.id) should {
+                it!!.id shouldBe Oppfolging1.id
+                it.tiltakstype shouldBe TiltaksgjennomforingAdminDto.Tiltakstype(
                     id = TiltakstypeFixtures.Oppfolging.id,
                     navn = TiltakstypeFixtures.Oppfolging.navn,
                     arenaKode = TiltakstypeFixtures.Oppfolging.tiltakskode,
-                ),
-                navn = Oppfolging1.navn,
-                tiltaksnummer = Oppfolging1.tiltaksnummer,
-                arrangor = TiltaksgjennomforingAdminDto.Arrangor(
+                )
+                it.navn shouldBe Oppfolging1.navn
+                it.tiltaksnummer shouldBe Oppfolging1.tiltaksnummer
+                it.arrangor shouldBe TiltaksgjennomforingAdminDto.Arrangor(
                     organisasjonsnummer = Oppfolging1.arrangorOrganisasjonsnummer,
                     slettet = true,
                     navn = null,
                     kontaktperson = null,
-                ),
-                startDato = Oppfolging1.startDato,
-                sluttDato = Oppfolging1.sluttDato,
-                arenaAnsvarligEnhet = null,
-                status = Tiltaksgjennomforingsstatus.AVSLUTTET,
-                tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.LEDIG,
-                antallPlasser = 12,
-                avtaleId = Oppfolging1.avtaleId,
-                administrator = null,
-                navEnheter = emptyList(),
-                sanityId = null,
-                oppstart = TiltaksgjennomforingOppstartstype.FELLES,
-                opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
-                stengtFra = null,
-                kontaktpersoner = listOf(),
-                stedForGjennomforing = "Oslo",
-                stengtTil = null,
-                navRegion = NavEnhet(navn = "IT", enhetsnummer = "2990"),
-                estimertVentetid = null,
-                faneinnhold = JsonNull,
-            )
+                )
+                it.startDato shouldBe Oppfolging1.startDato
+                it.sluttDato shouldBe Oppfolging1.sluttDato
+                it.arenaAnsvarligEnhet shouldBe null
+                it.status shouldBe Tiltaksgjennomforingsstatus.AVSLUTTET
+                it.tilgjengelighet shouldBe TiltaksgjennomforingTilgjengelighetsstatus.LEDIG
+                it.antallPlasser shouldBe 12
+                it.avtaleId shouldBe Oppfolging1.avtaleId
+                it.administrator shouldBe null
+                it.navEnheter shouldBe emptyList()
+                it.sanityId shouldBe null
+                it.oppstart shouldBe TiltaksgjennomforingOppstartstype.FELLES
+                it.opphav shouldBe ArenaMigrering.Opphav.MR_ADMIN_FLATE
+                it.stengtFra shouldBe null
+                it.kontaktpersoner shouldBe listOf()
+                it.stedForGjennomforing shouldBe "Oslo"
+                it.stengtTil shouldBe null
+                it.navRegion shouldBe NavEnhet(navn = "IT", enhetsnummer = "2990")
+                it.estimertVentetid shouldBe null
+                it.faneinnhold shouldBe null
+                it.beskrivelse shouldBe null
+                it.createdAt shouldNotBe null
+                it.updatedAt shouldNotBe null
+            }
 
             tiltaksgjennomforinger.delete(Oppfolging1.id)
 
@@ -114,45 +117,65 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 opphav = ArenaMigrering.Opphav.ARENA,
             )
 
-            val gjennomforingDto = TiltaksgjennomforingAdminDto(
-                id = gjennomforingId,
-                navn = "Tiltak for dovne giraffer",
-                tiltakstype = TiltaksgjennomforingAdminDto.Tiltakstype(
+            tiltaksgjennomforinger.upsertArenaTiltaksgjennomforing(gjennomforingFraArena)
+
+            tiltaksgjennomforinger.get(gjennomforingFraArena.id) should {
+                it!!.id shouldBe gjennomforingId
+                it.navn shouldBe "Tiltak for dovne giraffer"
+                it.tiltakstype shouldBe TiltaksgjennomforingAdminDto.Tiltakstype(
                     id = TiltakstypeFixtures.Oppfolging.id,
                     navn = TiltakstypeFixtures.Oppfolging.navn,
                     arenaKode = TiltakstypeFixtures.Oppfolging.tiltakskode,
-                ),
-                tiltaksnummer = "2023#1",
-                arrangor = TiltaksgjennomforingAdminDto.Arrangor(
+                )
+                it.tiltaksnummer shouldBe "2023#1"
+                it.arrangor shouldBe TiltaksgjennomforingAdminDto.Arrangor(
                     organisasjonsnummer = "123456789",
                     slettet = true,
                     navn = null,
                     kontaktperson = null,
+                )
+                it.startDato shouldBe LocalDate.of(2023, 1, 1)
+                it.sluttDato shouldBe LocalDate.of(2023, 2, 2)
+                it.arenaAnsvarligEnhet shouldBe "0400"
+                it.tilgjengelighet shouldBe TiltaksgjennomforingTilgjengelighetsstatus.STENGT
+                it.antallPlasser shouldBe 10
+                it.avtaleId shouldBe null
+                it.oppstart shouldBe TiltaksgjennomforingOppstartstype.FELLES
+                it.status shouldBe Tiltaksgjennomforingsstatus.AVSLUTTET
+                it.estimertVentetid shouldBe null
+                it.administrator shouldBe null
+                it.navEnheter shouldBe emptyList()
+                it.navRegion shouldBe null
+                it.sanityId shouldBe null
+                it.opphav shouldBe ArenaMigrering.Opphav.ARENA
+                it.stengtFra shouldBe null
+                it.stengtTil shouldBe null
+                it.kontaktpersoner shouldBe emptyList()
+                it.stedForGjennomforing shouldBe null
+                it.faneinnhold shouldBe null
+                it.beskrivelse shouldBe null
+                it.createdAt shouldNotBe null
+                it.updatedAt shouldNotBe null
+            }
+        }
+
+        test("arena overskriver ikke oppstart") {
+            tiltaksgjennomforinger.upsertArenaTiltaksgjennomforing(ArenaOppfolging1)
+            tiltaksgjennomforinger.get(ArenaOppfolging1.id) should {
+                it!!.oppstart shouldBe TiltaksgjennomforingOppstartstype.FELLES
+            }
+
+            tiltaksgjennomforinger.upsert(
+                Oppfolging1.copy(
+                    id = ArenaOppfolging1.id,
+                    oppstart = TiltaksgjennomforingOppstartstype.LOPENDE,
                 ),
-                startDato = LocalDate.of(2023, 1, 1),
-                sluttDato = LocalDate.of(2023, 2, 2),
-                arenaAnsvarligEnhet = "0400",
-                tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.STENGT,
-                antallPlasser = 10,
-                avtaleId = null,
-                oppstart = TiltaksgjennomforingOppstartstype.FELLES,
-                status = Tiltaksgjennomforingsstatus.AVSLUTTET,
-                estimertVentetid = null,
-                administrator = null,
-                navEnheter = emptyList(),
-                navRegion = null,
-                sanityId = null,
-                opphav = ArenaMigrering.Opphav.ARENA,
-                stengtFra = null,
-                stengtTil = null,
-                kontaktpersoner = emptyList(),
-                stedForGjennomforing = null,
-                faneinnhold = JsonNull,
             )
 
-            tiltaksgjennomforinger.upsertArenaTiltaksgjennomforing(gjennomforingFraArena)
-
-            tiltaksgjennomforinger.get(gjennomforingFraArena.id).shouldBe(gjennomforingDto)
+            tiltaksgjennomforinger.upsertArenaTiltaksgjennomforing(ArenaOppfolging1)
+            tiltaksgjennomforinger.get(ArenaOppfolging1.id) should {
+                it!!.oppstart shouldBe TiltaksgjennomforingOppstartstype.LOPENDE
+            }
         }
 
         test("midlertidig_stengt crud") {
@@ -1080,21 +1103,22 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
     }
 
     test("faneinnhold") {
-        val faneinnhold = Json.parseToJsonElement(
-            """
-            {
-                "_key": "edcad230384e",
-                "markDefs": [],
-                "children": [
-                {
-                    "marks": [],
-                    "text": "Oppl\u00e6ringen er beregnet p\u00e5 arbeidss\u00f8kere som \u00f8nsker og er egnet til \u00e5 ta arbeid som maskinf\u00f8rer. Deltakerne b\u00f8r ha f\u00f8rerkort kl. B.",
-                    "_key": "0e5849bf79a70",
-                    "_type": "span"
-                }
-                ],
-                "_type": "block",
-                "style": "normal"
+        val faneinnhold = Json.decodeFromString<Faneinnhold>(
+            """ {
+                "forHvem": [{
+                    "_key": "edcad230384e",
+                    "markDefs": [],
+                    "children": [
+                    {
+                        "marks": [],
+                        "text": "Oppl\u00e6ringen er beregnet p\u00e5 arbeidss\u00f8kere som \u00f8nsker og er egnet til \u00e5 ta arbeid som maskinf\u00f8rer. Deltakerne b\u00f8r ha f\u00f8rerkort kl. B.",
+                        "_key": "0e5849bf79a70",
+                        "_type": "span"
+                    }
+                    ],
+                    "_type": "block",
+                    "style": "normal"
+                }]
             }
             """,
         )
@@ -1108,7 +1132,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         tiltaksgjennomforinger.upsert(gjennomforing)
 
         tiltaksgjennomforinger.get(gjennomforing.id).should {
-            it!!.faneinnhold shouldBe faneinnhold
+            it!!.faneinnhold!!.forHvem!![0] shouldBe faneinnhold.forHvem!![0]
         }
     }
 })

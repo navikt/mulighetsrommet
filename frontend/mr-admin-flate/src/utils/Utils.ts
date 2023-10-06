@@ -1,5 +1,4 @@
 import { TiltaksgjennomforingStatus } from "mulighetsrommet-api-client/build/models/TiltaksgjennomforingStatus";
-import { ANSKAFFEDE_TILTAK } from "../constants";
 import { Tilgjengelighetsstatus } from "mulighetsrommet-api-client/build/models/Tilgjengelighetsstatus";
 import { Avtaletype } from "mulighetsrommet-api-client/build/models/Avtaletype";
 
@@ -105,12 +104,6 @@ export const oversettStatusForTiltaksgjennomforing = (status?: Tiltaksgjennomfor
   }
 };
 
-export const tiltakstypekodeErAnskaffetTiltak = (tiltakstypekode?: string): boolean => {
-  if (!tiltakstypekode) return false;
-
-  return ANSKAFFEDE_TILTAK.includes(tiltakstypekode);
-};
-
 export const inneholderUrl = (string: string) => {
   return window.location.href.indexOf(string) > -1;
 };
@@ -158,4 +151,10 @@ export const validEmail = (email: string | undefined): Boolean => {
   );
 };
 
-export const erProdMiljo = inneholderUrl("intern.nav.no");
+export const erProdMiljo = () => inneholderUrl("intern.nav.no");
+
+export function addYear(date: Date, numYears: number): Date {
+  const newDate = new Date(date);
+  newDate.setFullYear(date.getFullYear() + numYears);
+  return newDate;
+}

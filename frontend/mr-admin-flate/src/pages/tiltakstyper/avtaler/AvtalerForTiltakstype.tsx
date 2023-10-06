@@ -5,6 +5,7 @@ import { useAvtaler } from "../../../api/avtaler/useAvtaler";
 import { Avtalefilter } from "../../../components/filter/Avtalefilter";
 import { useGetTiltakstypeIdFromUrl } from "../../../hooks/useGetTiltakstypeIdFromUrl";
 import { AvtaleTabell } from "../../../components/tabell/AvtaleTabell";
+import { ContainerLayout } from "../../../layouts/ContainerLayout";
 
 export function AvtalerForTiltakstype() {
   const tiltakstypeId = useGetTiltakstypeIdFromUrl();
@@ -26,13 +27,13 @@ export function AvtalerForTiltakstype() {
   }
 
   return (
-    <>
+    <ContainerLayout>
       <Avtalefilter
         skjulFilter={{
           tiltakstype: true,
         }}
       />
       <AvtaleTabell />
-    </>
+    </ContainerLayout>
   );
 }

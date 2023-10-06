@@ -1,5 +1,5 @@
 import { Tiltaksgjennomforingfilter } from "../../components/filter/Tiltaksgjennomforingfilter";
-import { ContainerLayoutOversikt } from "../../layouts/ContainerLayout";
+import { ContainerLayout } from "../../layouts/ContainerLayout";
 import { MainContainer } from "../../layouts/MainContainer";
 import { TiltaksgjennomforingsTabell } from "../../components/tabell/TiltaksgjennomforingsTabell";
 import { ErrorBoundary } from "react-error-boundary";
@@ -11,12 +11,12 @@ export function TiltaksgjennomforingerPage() {
     <>
       <HeaderBanner heading="Oversikt over tiltaksgjennomføringer" />
       <MainContainer>
-        <ContainerLayoutOversikt>
+        <ContainerLayout>
           <Tiltaksgjennomforingfilter />
           <ErrorBoundary FallbackComponent={ErrorFallback}>
             <TiltaksgjennomforingsTabell />
           </ErrorBoundary>
-        </ContainerLayoutOversikt>
+        </ContainerLayout>
       </MainContainer>
     </>
   );

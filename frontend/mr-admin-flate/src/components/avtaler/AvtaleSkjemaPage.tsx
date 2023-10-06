@@ -5,7 +5,7 @@ import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
 import { useAvtale } from "../../api/avtaler/useAvtale";
 import { useNavEnheter } from "../../api/enhet/useNavEnheter";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
-import { ContainerLayoutDetaljer } from "../../layouts/ContainerLayout";
+import { ContainerLayout } from "../../layouts/ContainerLayout";
 import { inneholderUrl } from "../../utils/Utils";
 import { Header } from "../detaljside/Header";
 import { Laster } from "../laster/Laster";
@@ -49,7 +49,7 @@ const AvtaleSkjemaPage = () => {
             : "Rediger avtale"
           : "Opprett ny avtale"}
       </Header>
-      <ContainerLayoutDetaljer>
+      <ContainerLayout>
         <div className={styles.skjema}>
           {isLoadingAnsatt || isLoadingTiltakstyper || isLoadingEnheter ? <Laster /> : null}
           <div className={styles.skjema_content}>
@@ -71,7 +71,7 @@ const AvtaleSkjemaPage = () => {
             )}
           </div>
         </div>
-      </ContainerLayoutDetaljer>
+      </ContainerLayout>
     </main>
   );
 };

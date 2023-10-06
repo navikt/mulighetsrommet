@@ -6,7 +6,8 @@ import { Laster } from "../../components/laster/Laster";
 import { AvtalestatusTag } from "../../components/statuselementer/AvtalestatusTag";
 import { useGetAvtaleIdFromUrl } from "../../hooks/useGetAvtaleIdFromUrl";
 import commonStyles from "../Page.module.scss";
-import { ContainerLayoutDetaljer } from "../../layouts/ContainerLayout";
+import styles from "./DetaljerAvtalePage.module.scss";
+import { ContainerLayout } from "../../layouts/ContainerLayout";
 
 export function DetaljerAvtalePage() {
   const avtaleId = useGetAvtaleIdFromUrl();
@@ -47,7 +48,7 @@ export function DetaljerAvtalePage() {
   };
 
   return (
-    <main>
+    <main className={styles.avtaleinfo}>
       <Header>
         <div className={commonStyles.header}>
           <span>{avtale?.navn ?? "..."}</span>
@@ -77,11 +78,11 @@ export function DetaljerAvtalePage() {
             aria-controls="panel"
           />
         </Tabs.List>
-        <ContainerLayoutDetaljer>
+        <ContainerLayout>
           <div id="panel">
             <Outlet />
           </div>
-        </ContainerLayoutDetaljer>
+        </ContainerLayout>
       </Tabs>
     </main>
   );

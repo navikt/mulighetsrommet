@@ -1,7 +1,6 @@
 import { GrDocumentPerformance } from "react-icons/gr";
 import { Rule, defineArrayMember, defineField, defineType } from "sanity";
 import { Information } from "../components/Information";
-import { ShowFieldIfTiltakstypeMatches } from "../components/ShowFieldIfTiltakstypeMatches";
 import { API_VERSION } from "../sanity.config";
 import { hasDuplicates, isEgenRegiTiltak, isInAdminFlate } from "../utils/utils";
 import { EnhetType } from "./enhet";
@@ -81,9 +80,6 @@ export const tiltaksgjennomforing = defineType({
       description: "Beskrivelse av formålet med tiltaksgjennomføringen.",
       type: "text",
       rows: 5,
-      components: {
-        field: (props) => ShowFieldIfTiltakstypeMatches(props, "Opplæring - Gruppe AMO"), // Viser feltet hvis det er Gruppe AMO som er valgt som tiltakstype
-      },
       validation: (rule: Rule) => rule.max(500),
     }),
     defineField({
@@ -293,10 +289,17 @@ export const tiltaksgjennomforing = defineType({
     select: {
       title: "tiltaksgjennomforingNavn",
       tiltaksnummer: "tiltaksnummer.current",
+      updatedAt: "_updatedAt",
     },
-    prepare: ({ title, tiltaksnummer }) => ({
+    prepare: ({ title, tiltaksnummer, updatedAt }) => ({
       title,
-      subtitle: tiltaksnummer ? tiltaksnummer : "",
+      subtitle: `${tiltaksnummer ? tiltaksnummer : ""} - Sist oppd: ${new Date(
+        updatedAt,
+      ).toLocaleTimeString("no-NO", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      })}`,
     }),
   },
 });

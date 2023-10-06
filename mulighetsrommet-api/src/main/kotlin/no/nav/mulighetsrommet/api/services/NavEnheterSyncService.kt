@@ -121,29 +121,52 @@ class NavEnheterSyncService(
         }
 
         val spesialEnheterTilFylkeMap = mapOf(
-            "1291" to "1200", // Vestland
-            "0291" to "0200", // Øst-Viken
-            "1591" to "1500", // Møre og Romsdal,
-            "1891" to "1800", // Nordland
-            "0491" to "0400", // Innlandet
-            "0691" to "0600", // Vest-Viken,
-            "0891" to "0800", // Vestfold og Telemark
-            "1091" to "1000", // Agder,
-            "1991" to "1900", // Troms og Finnmark
-            "5772" to "5700", // Trøndelag,
-            "0391" to "0300", // Oslo
-            "1191" to "1100", // Rogaland
-            "1287" to "1200", // NAV Tiltak Vestland
-            "1987" to "1900", // NAV Tiltak Troms og Finnmark,
-            "0287" to "0200", // NAV Tiltak Øst-Viken
-            "0387" to "0300", // NAV Tiltak Oslo
-            "0587" to "0400", // NAV Tiltak Innlandet,
-            "0687" to "0600", // NAV Forvaltningstjenester Vest-Viken
-            "1087" to "1000", // NAV Tiltak Agder
-            "1187" to "1100", // NAV Tiltak Rogaland
-            "1194" to "1100", // NAV Marked Sør-Rogaland
-            "1193" to "1100", // NAV Marked Nord-Rogaland
-            "5771" to "5700", // NAV Tiltak Trøndelag
+            // Vestland
+            "1291" to "1200",
+            // Øst-Viken
+            "0291" to "0200",
+            // Møre og Romsdal,
+            "1591" to "1500",
+            // Nordland
+            "1891" to "1800",
+            // Innlandet
+            "0491" to "0400",
+            // Vest-Viken,
+            "0691" to "0600",
+            // Vestfold og Telemark
+            "0891" to "0800",
+            // Agder,
+            "1091" to "1000",
+            // Troms og Finnmark
+            "1991" to "1900",
+            // Trøndelag,
+            "5772" to "5700",
+            // Oslo
+            "0391" to "0300",
+            // Rogaland
+            "1191" to "1100",
+            // NAV Tiltak Vestland
+            "1287" to "1200",
+            // NAV Tiltak Troms og Finnmark,
+            "1987" to "1900",
+            // NAV Tiltak Øst-Viken
+            "0287" to "0200",
+            // NAV Tiltak Oslo
+            "0387" to "0300",
+            // NAV Tiltak Innlandet,
+            "0587" to "0400",
+            // NAV Forvaltningstjenester Vest-Viken
+            "0687" to "0600",
+            // NAV Tiltak Agder
+            "1087" to "1000",
+            // NAV Tiltak Rogaland
+            "1187" to "1100",
+            // NAV Marked Sør-Rogaland
+            "1194" to "1100",
+            // NAV Marked Nord-Rogaland
+            "1193" to "1100",
+            // NAV Tiltak Trøndelag
+            "5771" to "5700",
         )
 
         val fantFylke = spesialEnheterTilFylkeMap[enhet.enhetNr]
