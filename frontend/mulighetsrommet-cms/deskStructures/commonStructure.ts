@@ -1,6 +1,7 @@
 import { GrDocumentPerformance, GrLocation, GrUserAdmin } from "react-icons/gr";
 import { FaWpforms } from "react-icons/fa";
 import { ImOffice } from "react-icons/im";
+import { API_VERSION } from "../sanity.config";
 
 const ORDER_BY_CREATEDAT_FIELD = [{ field: "_createdAt", direction: "desc" }];
 
@@ -19,10 +20,9 @@ export function commonStructure(S, Context) {
               .child(
                 S.documentList()
                   .title("Alle tiltaksgjennomføringer")
+                  .apiVersion(API_VERSION)
                   .filter('_type == "tiltaksgjennomforing"')
-                  .defaultOrdering([
-                    { field: "_createdAt", direction: "desc" },
-                  ]),
+                  .defaultOrdering([{ field: "_createdAt", direction: "desc" }]),
               ),
             S.divider(),
             S.listItem()
@@ -32,6 +32,7 @@ export function commonStructure(S, Context) {
                 S.documentTypeList("enhet")
                   .title("Per enhet")
                   .filter('type == "Lokal"')
+                  .apiVersion(API_VERSION)
                   .defaultOrdering([
                     {
                       field: "navn",
@@ -41,17 +42,12 @@ export function commonStructure(S, Context) {
                   ])
                   .child((enhet) =>
                     S.documentList()
+                      .apiVersion(API_VERSION)
                       .defaultOrdering(ORDER_BY_CREATEDAT_FIELD)
                       .title("Tiltaksgjennomføringer")
-                      .filter(
-                        '_type == "tiltaksgjennomforing" && $enhet in enheter[]._ref',
-                      )
+                      .filter('_type == "tiltaksgjennomforing" && $enhet in enheter[]._ref')
                       .params({ enhet })
-                      .menuItems([
-                        ...S.documentTypeList(
-                          "tiltaksgjennomforing",
-                        ).getMenuItems(),
-                      ]),
+                      .menuItems([...S.documentTypeList("tiltaksgjennomforing").getMenuItems()]),
                   ),
               ),
             S.listItem()
@@ -59,6 +55,7 @@ export function commonStructure(S, Context) {
               .icon(GrLocation)
               .child(
                 S.documentTypeList("enhet")
+                  .apiVersion(API_VERSION)
                   .title("Per fylke")
                   .filter('type == "Fylke"')
                   .defaultOrdering([
@@ -72,6 +69,7 @@ export function commonStructure(S, Context) {
                       .title("Per tiltakstype")
                       .child((tiltakstype) =>
                         S.documentList()
+                          .apiVersion(API_VERSION)
                           .defaultOrdering(ORDER_BY_CREATEDAT_FIELD)
                           .title("Tiltaksgjennomføringer")
                           .filter(
@@ -79,9 +77,7 @@ export function commonStructure(S, Context) {
                           )
                           .params({ enhet, tiltakstype })
                           .menuItems([
-                            ...S.documentTypeList(
-                              "tiltaksgjennomforing",
-                            ).getMenuItems(),
+                            ...S.documentTypeList("tiltaksgjennomforing").getMenuItems(),
                           ]),
                       ),
                   ),
@@ -95,17 +91,12 @@ export function commonStructure(S, Context) {
                   .title("Per administrator")
                   .child((redaktorId) =>
                     S.documentList()
+                      .apiVersion(API_VERSION)
                       .title("Per administrator")
-                      .filter(
-                        '_type == "tiltaksgjennomforing" && $redaktorId in redaktor[]._ref',
-                      )
+                      .filter('_type == "tiltaksgjennomforing" && $redaktorId in redaktor[]._ref')
                       .params({ redaktorId })
                       .defaultOrdering(ORDER_BY_CREATEDAT_FIELD)
-                      .menuItems([
-                        ...S.documentTypeList(
-                          "tiltaksgjennomforing",
-                        ).getMenuItems(),
-                      ]),
+                      .menuItems([...S.documentTypeList("tiltaksgjennomforing").getMenuItems()]),
                   ),
               ),
             S.listItem()
@@ -123,11 +114,10 @@ export function commonStructure(S, Context) {
                   ])
                   .child((tiltakstype) =>
                     S.documentList()
+                      .apiVersion(API_VERSION)
                       .defaultOrdering(ORDER_BY_CREATEDAT_FIELD)
                       .title("Tiltaksgjennomføringer")
-                      .filter(
-                        '_type == "tiltaksgjennomforing" && $tiltakstype == tiltakstype._ref',
-                      )
+                      .filter('_type == "tiltaksgjennomforing" && $tiltakstype == tiltakstype._ref')
                       .params({ tiltakstype }),
                   ),
               ),
