@@ -15,11 +15,11 @@ import io.mockk.mockk
 import io.mockk.verify
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattDbo
+import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.repositories.*
-import no.nav.mulighetsrommet.api.routes.v1.TiltaksgjennomforingRequest
 import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
-import no.nav.mulighetsrommet.api.tiltaksgjennomforinger.TiltaksgjennomforingRequestValidator
+import no.nav.mulighetsrommet.api.tiltaksgjennomforinger.TiltaksgjennomforingValidator
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
@@ -37,7 +37,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
     val virksomhetService: VirksomhetService = mockk(relaxed = true)
     val notificationRepository: NotificationRepository = mockk(relaxed = true)
     val utkastRepository: UtkastRepository = mockk(relaxed = true)
-    val validator = mockk<TiltaksgjennomforingRequestValidator>()
+    val validator = mockk<TiltaksgjennomforingValidator>()
 
     val avtaleId = AvtaleFixtures.avtale1.id
     val domain = MulighetsrommetTestDomain()
@@ -47,7 +47,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
         domain.initialize(database.db)
 
         every { validator.validate(any()) } answers {
-            firstArg<TiltaksgjennomforingRequest>().right()
+            firstArg<TiltaksgjennomforingDbo>().right()
         }
     }
 
@@ -213,7 +213,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
         test("Man skal ikke få lov til å opprette gjennomføring dersom det oppstår valideringsfeil") {
             val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1Request
 
-            every { validator.validate(gjennomforing) } returns listOf(ValidationError("navn", "Dårlig navn")).left()
+            every { validator.validate(gjennomforing.toDbo()) } returns listOf(ValidationError("navn", "Dårlig navn")).left()
 
             avtaleRepository.upsert(AvtaleFixtures.avtale1)
 

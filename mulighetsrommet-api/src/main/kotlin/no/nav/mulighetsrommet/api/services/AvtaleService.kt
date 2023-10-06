@@ -2,7 +2,7 @@ package no.nav.mulighetsrommet.api.services
 
 import arrow.core.Either
 import kotliquery.Session
-import no.nav.mulighetsrommet.api.avtaler.AvtaleRequestValidator
+import no.nav.mulighetsrommet.api.avtaler.AvtaleValidator
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleNokkeltallDto
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
@@ -30,7 +30,7 @@ class AvtaleService(
     private val virksomhetService: VirksomhetService,
     private val notificationRepository: NotificationRepository,
     private val utkastRepository: UtkastRepository,
-    private val validator: AvtaleRequestValidator,
+    private val validator: AvtaleValidator,
     private val db: Database,
 ) {
     fun get(id: UUID): AvtaleAdminDto? {
@@ -40,16 +40,15 @@ class AvtaleService(
     suspend fun upsert(request: AvtaleRequest, navIdent: String): Either<List<ValidationError>, AvtaleAdminDto> {
         virksomhetService.getOrSyncVirksomhet(request.leverandorOrganisasjonsnummer)
 
-        val currentAvtale = get(request.id)
-        return validator.validate(request)
-            .map { it.toDbo() }
+        return validator.validate(request.toDbo())
             .map { dbo ->
+                val currentAdministrator = get(request.id)?.administrator?.navIdent
                 db.transaction { tx ->
                     avtaler.upsert(dbo, tx)
                     utkastRepository.delete(dbo.id, tx)
 
-                    val currentAdministrator = currentAvtale?.administrator?.navIdent
-                    if (navIdent != request.administrator && currentAdministrator != request.administrator) {
+                    val nextAdministrator = dbo.administratorer.first()
+                    if (shouldNotifyNextAdministrator(navIdent, currentAdministrator, nextAdministrator)) {
                         dispatchSattSomAdministratorNofication(dbo.navn, request.administrator, tx)
                     }
                     avtaler.get(dbo.id, tx)!!
@@ -127,6 +126,12 @@ class AvtaleService(
 
         return Either.Right(avtaler.setAvslutningsstatus(avtaleId, Avslutningsstatus.AVBRUTT))
     }
+
+    private fun shouldNotifyNextAdministrator(
+        navIdent: String,
+        currentAdministrator: String?,
+        nextAdministrator: String,
+    ) = navIdent != nextAdministrator && currentAdministrator != nextAdministrator
 
     private fun dispatchSattSomAdministratorNofication(avtaleNavn: String, administrator: String, tx: Session) {
         val notification = ScheduledNotification(

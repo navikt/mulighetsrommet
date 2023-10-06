@@ -10,7 +10,7 @@ import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.UtkastRepository
 import no.nav.mulighetsrommet.api.routes.v1.TiltaksgjennomforingRequest
 import no.nav.mulighetsrommet.api.routes.v1.responses.*
-import no.nav.mulighetsrommet.api.tiltaksgjennomforinger.TiltaksgjennomforingRequestValidator
+import no.nav.mulighetsrommet.api.tiltaksgjennomforinger.TiltaksgjennomforingValidator
 import no.nav.mulighetsrommet.api.utils.AdminTiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.Database
@@ -34,7 +34,7 @@ class TiltaksgjennomforingService(
     private val utkastRepository: UtkastRepository,
     private val tiltaksgjennomforingKafkaProducer: TiltaksgjennomforingKafkaProducer,
     private val notificationRepository: NotificationRepository,
-    private val validator: TiltaksgjennomforingRequestValidator,
+    private val validator: TiltaksgjennomforingValidator,
     private val db: Database,
 ) {
     suspend fun upsert(
@@ -43,19 +43,19 @@ class TiltaksgjennomforingService(
     ): Either<List<ValidationError>, TiltaksgjennomforingAdminDto> {
         virksomhetService.getOrSyncVirksomhet(request.arrangorOrganisasjonsnummer)
 
-        val prevAdministrator = tiltaksgjennomforingRepository.get(request.id)?.administrator?.navIdent
-
-        return validator.validate(request)
-            .map { it.toDbo() }
+        return validator.validate(request.toDbo())
             .map { dbo ->
+                val currentAdministrator = tiltaksgjennomforingRepository.get(dbo.id)?.administrator?.navIdent
+
                 db.transactionSuspend { tx ->
                     tiltaksgjennomforingRepository.upsert(dbo, tx)
                     utkastRepository.delete(dbo.id, tx)
-                    if (navIdent != request.administrator && request.administrator != prevAdministrator) {
-                        dispatchSattSomAdministratorNotification(dbo.navn, request.administrator, tx)
+                    val nextAdministrator = dbo.administratorer.first()
+                    if (shouldNotifyNextAdministrator(navIdent, currentAdministrator, nextAdministrator)) {
+                        dispatchSattSomAdministratorNotification(dbo.navn, nextAdministrator, tx)
                     }
 
-                    val dto = tiltaksgjennomforingRepository.get(request.id, tx)!!
+                    val dto = tiltaksgjennomforingRepository.get(dbo.id, tx)!!
 
                     sanityTiltaksgjennomforingService.createOrPatchSanityTiltaksgjennomforing(dto, tx)
                     tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingDto.from(dto))
@@ -200,6 +200,12 @@ class TiltaksgjennomforingService(
             tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingDto.from(dto))
         }.right()
     }
+
+    private fun shouldNotifyNextAdministrator(
+        navIdent: String,
+        currentAdministrator: String?,
+        nextAdministrator: String,
+    ) = navIdent != nextAdministrator && currentAdministrator != nextAdministrator
 
     private fun dispatchSattSomAdministratorNotification(
         gjennomforingNavn: String,

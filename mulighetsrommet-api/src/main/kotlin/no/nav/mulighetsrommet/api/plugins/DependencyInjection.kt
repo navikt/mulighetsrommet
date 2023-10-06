@@ -14,7 +14,7 @@ import no.nav.mulighetsrommet.api.AppConfig
 import no.nav.mulighetsrommet.api.KafkaConfig
 import no.nav.mulighetsrommet.api.SlackConfig
 import no.nav.mulighetsrommet.api.TaskConfig
-import no.nav.mulighetsrommet.api.avtaler.AvtaleRequestValidator
+import no.nav.mulighetsrommet.api.avtaler.AvtaleValidator
 import no.nav.mulighetsrommet.api.clients.arenaadapter.ArenaAdapterClient
 import no.nav.mulighetsrommet.api.clients.arenaadapter.ArenaAdapterClientImpl
 import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
@@ -37,7 +37,7 @@ import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClientImpl
 import no.nav.mulighetsrommet.api.repositories.*
 import no.nav.mulighetsrommet.api.services.*
 import no.nav.mulighetsrommet.api.tasks.*
-import no.nav.mulighetsrommet.api.tiltaksgjennomforinger.TiltaksgjennomforingRequestValidator
+import no.nav.mulighetsrommet.api.tiltaksgjennomforinger.TiltaksgjennomforingValidator
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
 import no.nav.mulighetsrommet.env.NaisEnv
@@ -284,8 +284,8 @@ private fun services(appConfig: AppConfig) = module {
         UnleashService(appConfig.unleash, byEnhetStrategy)
     }
     single { AxsysService(appConfig.axsys) { m2mTokenProvider.createMachineToMachineToken(appConfig.axsys.scope) } }
-    single { AvtaleRequestValidator(get(), get(), get()) }
-    single { TiltaksgjennomforingRequestValidator(get(), get()) }
+    single { AvtaleValidator(get(), get(), get()) }
+    single { TiltaksgjennomforingValidator(get(), get()) }
 }
 
 private fun tasks(config: TaskConfig) = module {

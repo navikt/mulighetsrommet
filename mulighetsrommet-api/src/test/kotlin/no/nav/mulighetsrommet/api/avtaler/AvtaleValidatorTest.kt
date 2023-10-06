@@ -8,12 +8,12 @@ import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainAll
 import io.mockk.every
 import io.mockk.mockk
+import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
-import no.nav.mulighetsrommet.api.routes.v1.AvtaleRequest
 import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.Avtalestatus
@@ -22,11 +22,11 @@ import no.nav.mulighetsrommet.domain.dto.TiltakstypeDto
 import java.time.LocalDate
 import java.util.*
 
-class AvtaleRequestValidatorTest : FunSpec({
+class AvtaleValidatorTest : FunSpec({
     val newAvtaleId = UUID.randomUUID()
     val existingAvtaleId = UUID.randomUUID()
 
-    val avtale = AvtaleRequest(
+    val avtale = AvtaleDbo(
         id = newAvtaleId,
         navn = "Avtale",
         tiltakstypeId = TiltakstypeFixtures.AFT.id,
@@ -38,11 +38,12 @@ class AvtaleRequestValidatorTest : FunSpec({
         sluttDato = LocalDate.of(2024, 6, 1),
         navRegion = "2990",
         url = "http://localhost:8080",
-        administrator = "B123456",
+        administratorer = listOf("B123456"),
         avtaletype = Avtaletype.Avtale,
-        prisOgBetalingsinformasjon = null,
+        prisbetingelser = null,
         navEnheter = listOf("2990"),
         opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
+        antallPlasser = null,
     )
 
     val tiltakstyper = mockk<TiltakstypeRepository>()
@@ -56,7 +57,7 @@ class AvtaleRequestValidatorTest : FunSpec({
     val gjennomforinger = mockk<TiltaksgjennomforingRepository>()
 
     test("should accumulate errors when request has multiple issues") {
-        val validator = AvtaleRequestValidator(tiltakstyper, avtaler, gjennomforinger)
+        val validator = AvtaleValidator(tiltakstyper, avtaler, gjennomforinger)
 
         val request = avtale.copy(
             startDato = LocalDate.of(2023, 1, 1),
@@ -76,7 +77,7 @@ class AvtaleRequestValidatorTest : FunSpec({
 
     context("when avtale does not already exist") {
         test("should fail when tiltakstype is not VTA or AFT") {
-            val validator = AvtaleRequestValidator(tiltakstyper, avtaler, gjennomforinger)
+            val validator = AvtaleValidator(tiltakstyper, avtaler, gjennomforinger)
 
             val request = avtale.copy(tiltakstypeId = TiltakstypeFixtures.Oppfolging.id)
 
@@ -89,7 +90,7 @@ class AvtaleRequestValidatorTest : FunSpec({
         }
 
         test("should fail when opphav is not MR_ADMIN_FLATE") {
-            val validator = AvtaleRequestValidator(tiltakstyper, avtaler, gjennomforinger)
+            val validator = AvtaleValidator(tiltakstyper, avtaler, gjennomforinger)
 
             val request = avtale.copy(opphav = ArenaMigrering.Opphav.ARENA)
 
@@ -105,7 +106,7 @@ class AvtaleRequestValidatorTest : FunSpec({
                 opphav = ArenaMigrering.Opphav.ARENA,
             )
 
-            val validator = AvtaleRequestValidator(tiltakstyper, avtaler, gjennomforinger)
+            val validator = AvtaleValidator(tiltakstyper, avtaler, gjennomforinger)
 
             val request = avtale.copy(id = existingAvtaleId, opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE)
 
@@ -123,7 +124,7 @@ class AvtaleRequestValidatorTest : FunSpec({
                     avtalestatus = status,
                 )
 
-                val validator = AvtaleRequestValidator(tiltakstyper, avtaler, gjennomforinger)
+                val validator = AvtaleValidator(tiltakstyper, avtaler, gjennomforinger)
 
                 val request = avtale.copy(id = existingAvtaleId)
 

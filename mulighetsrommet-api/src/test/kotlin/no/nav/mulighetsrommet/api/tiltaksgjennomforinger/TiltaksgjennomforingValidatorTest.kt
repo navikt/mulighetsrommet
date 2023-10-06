@@ -20,7 +20,7 @@ import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
 import java.time.LocalDate
 import java.util.*
 
-class TiltaksgjennomforingRequestValidatorTest : FunSpec({
+class TiltaksgjennomforingValidatorTest : FunSpec({
 
     val tiltaksgjennomforinger = mockk<TiltaksgjennomforingRepository>()
     every { tiltaksgjennomforinger.get(any()) } returns null
@@ -31,11 +31,11 @@ class TiltaksgjennomforingRequestValidatorTest : FunSpec({
         val unknownAvtaleId = UUID.randomUUID()
         every { avtaler.get(unknownAvtaleId) } returns null
 
-        val validator = TiltaksgjennomforingRequestValidator(avtaler, tiltaksgjennomforinger)
+        val validator = TiltaksgjennomforingValidator(avtaler, tiltaksgjennomforinger)
 
-        val request = TiltaksgjennomforingFixtures.Oppfolging1Request.copy(avtaleId = unknownAvtaleId)
+        val dbo = Oppfolging1.copy(avtaleId = unknownAvtaleId)
 
-        validator.validate(request).shouldBeLeft().shouldContain(
+        validator.validate(dbo).shouldBeLeft().shouldContain(
             ValidationError("avtaleId", "Avtalen finnes ikke"),
         )
     }
@@ -43,11 +43,9 @@ class TiltaksgjennomforingRequestValidatorTest : FunSpec({
     test("should fail when tiltakstype does not match with avtale") {
         every { avtaler.get(AvtaleFixtures.avtale1.id) } returns AvtaleFixtures.avtaleAdminDto
 
-        val validator = TiltaksgjennomforingRequestValidator(avtaler, tiltaksgjennomforinger)
+        val validator = TiltaksgjennomforingValidator(avtaler, tiltaksgjennomforinger)
 
-        val request = TiltaksgjennomforingFixtures.Oppfolging1Request
-
-        validator.validate(request).shouldBeLeft().shouldContain(
+        validator.validate(Oppfolging1).shouldBeLeft().shouldContain(
             ValidationError("tiltakstypeId", "Tiltakstypen må være den samme som avtalen"),
         )
     }
@@ -58,18 +56,18 @@ class TiltaksgjennomforingRequestValidatorTest : FunSpec({
             sluttDato = LocalDate.of(2023, 2, 1),
         )
 
-        val validator = TiltaksgjennomforingRequestValidator(avtaler, tiltaksgjennomforinger)
+        val validator = TiltaksgjennomforingValidator(avtaler, tiltaksgjennomforinger)
 
         forAll(
             row(
-                TiltaksgjennomforingFixtures.Oppfolging1Request.copy(
+                Oppfolging1.copy(
                     startDato = LocalDate.of(2022, 12, 31),
                     sluttDato = LocalDate.of(2023, 1, 1),
                 ),
                 listOf(ValidationError("startDato", "Startdato må være etter avtalens startdato")),
             ),
             row(
-                TiltaksgjennomforingFixtures.Oppfolging1Request.copy(
+                Oppfolging1.copy(
                     startDato = LocalDate.of(2023, 3, 1),
                     sluttDato = LocalDate.of(2023, 3, 1),
                 ),
@@ -79,31 +77,31 @@ class TiltaksgjennomforingRequestValidatorTest : FunSpec({
                 ),
             ),
             row(
-                TiltaksgjennomforingFixtures.Oppfolging1Request.copy(
+                Oppfolging1.copy(
                     startDato = LocalDate.of(2023, 1, 2),
                     sluttDato = LocalDate.of(2023, 1, 1),
                 ),
                 listOf(ValidationError("startDato", "Startdato må være før sluttdato")),
             ),
             row(
-                TiltaksgjennomforingFixtures.Oppfolging1Request.copy(antallPlasser = 0),
+                Oppfolging1.copy(antallPlasser = 0),
                 listOf(ValidationError("antallPlasser", "Antall plasser må være større enn 0")),
             ),
-        ) { request, error ->
-            validator.validate(request).shouldBeLeft(error)
+        ) { dbo, error ->
+            validator.validate(dbo).shouldBeLeft(error)
         }
     }
 
     context("when gjennomføring does not already exist") {
         test("should fail when opphav is not MR_ADMIN_FLATE") {
             every { avtaler.get(AvtaleFixtures.avtale1.id) } returns AvtaleFixtures.oppfolgingAvtaleAdminDto
-            val validator = TiltaksgjennomforingRequestValidator(avtaler, tiltaksgjennomforinger)
+            val validator = TiltaksgjennomforingValidator(avtaler, tiltaksgjennomforinger)
 
-            val request = TiltaksgjennomforingFixtures.Oppfolging1Request.copy(
+            val dbo = Oppfolging1.copy(
                 opphav = ArenaMigrering.Opphav.ARENA,
             )
 
-            validator.validate(request).shouldBeLeft().shouldContain(
+            validator.validate(dbo).shouldBeLeft().shouldContain(
                 ValidationError("opphav", "Opphav må være MR_ADMIN_FLATE"),
             )
         }
@@ -111,16 +109,16 @@ class TiltaksgjennomforingRequestValidatorTest : FunSpec({
 
     context("when gjennomføring already exists") {
         test("should fail when opphav is different") {
-            val request = TiltaksgjennomforingFixtures.Oppfolging1Request.copy(
+            val dbo = Oppfolging1.copy(
                 opphav = ArenaMigrering.Opphav.ARENA,
             )
 
             every { avtaler.get(AvtaleFixtures.avtale1.id) } returns AvtaleFixtures.oppfolgingAvtaleAdminDto
-            every { tiltaksgjennomforinger.get(request.id) } returns TiltaksgjennomforingFixtures.Oppfolging1AdminDto
+            every { tiltaksgjennomforinger.get(dbo.id) } returns TiltaksgjennomforingFixtures.Oppfolging1AdminDto
 
-            val validator = TiltaksgjennomforingRequestValidator(avtaler, tiltaksgjennomforinger)
+            val validator = TiltaksgjennomforingValidator(avtaler, tiltaksgjennomforinger)
 
-            validator.validate(request).shouldBeLeft().shouldContain(
+            validator.validate(dbo).shouldBeLeft().shouldContain(
                 ValidationError("opphav", "Avtalens opphav kan ikke endres"),
             )
         }
@@ -131,16 +129,14 @@ class TiltaksgjennomforingRequestValidatorTest : FunSpec({
                 row(Tiltaksgjennomforingsstatus.AVLYST),
                 row(Tiltaksgjennomforingsstatus.AVSLUTTET),
             ) { status ->
-                val request = TiltaksgjennomforingFixtures.Oppfolging1Request
-
                 every { avtaler.get(AvtaleFixtures.avtale1.id) } returns AvtaleFixtures.oppfolgingAvtaleAdminDto
-                every { tiltaksgjennomforinger.get(request.id) } returns TiltaksgjennomforingFixtures.Oppfolging1AdminDto.copy(
+                every { tiltaksgjennomforinger.get(Oppfolging1.id) } returns TiltaksgjennomforingFixtures.Oppfolging1AdminDto.copy(
                     status = status,
                 )
 
-                val validator = TiltaksgjennomforingRequestValidator(avtaler, tiltaksgjennomforinger)
+                val validator = TiltaksgjennomforingValidator(avtaler, tiltaksgjennomforinger)
 
-                validator.validate(request).shouldBeLeft().shouldContain(
+                validator.validate(Oppfolging1).shouldBeLeft().shouldContain(
                     ValidationError("navn", "Kan bare gjøre endringer når gjennomføringen er aktiv"),
                 )
             }
@@ -150,14 +146,14 @@ class TiltaksgjennomforingRequestValidatorTest : FunSpec({
             test("skal ikke kunne endre felter relatert til tilsagn/refursjon") {
                 val differentAvtaleId = UUID.randomUUID()
 
-                val request = TiltaksgjennomforingFixtures.Oppfolging1Request.copy(
+                val dbo = Oppfolging1.copy(
                     navn = "Nytt navn",
                     avtaleId = differentAvtaleId,
                     arrangorOrganisasjonsnummer = Oppfolging1.arrangorOrganisasjonsnummer,
                     startDato = Oppfolging1.startDato.plusDays(1),
                     sluttDato = Oppfolging1.sluttDato?.minusDays(1),
                     antallPlasser = Oppfolging1.antallPlasser + 1,
-                    administrator = "Donald Duck",
+                    administratorer = listOf("Donald Duck"),
                     navEnheter = listOf("0400"),
                     oppstart = TiltaksgjennomforingOppstartstype.LOPENDE,
                     kontaktpersoner = emptyList(),
@@ -166,17 +162,16 @@ class TiltaksgjennomforingRequestValidatorTest : FunSpec({
                     stengtTil = LocalDate.of(2023, 10, 10),
                     stedForGjennomforing = "Hjemmekontor",
                     estimertVentetid = "Leeenge",
-                    apenForInnsok = false,
                 )
 
                 every { avtaler.get(differentAvtaleId) } returns AvtaleFixtures.oppfolgingAvtaleAdminDto.copy(
                     id = differentAvtaleId,
                 )
-                every { tiltaksgjennomforinger.get(request.id) } returns TiltaksgjennomforingFixtures.Oppfolging1AdminDto
+                every { tiltaksgjennomforinger.get(dbo.id) } returns TiltaksgjennomforingFixtures.Oppfolging1AdminDto
 
-                val validator = TiltaksgjennomforingRequestValidator(avtaler, tiltaksgjennomforinger)
+                val validator = TiltaksgjennomforingValidator(avtaler, tiltaksgjennomforinger)
 
-                validator.validate(request).shouldBeLeft().shouldContainExactlyInAnyOrder(
+                validator.validate(dbo).shouldBeLeft().shouldContainExactlyInAnyOrder(
                     listOf(
                         ValidationError("avtaleId", "Avtalen kan ikke endres når gjennomføringen er aktiv"),
                         ValidationError("oppstart", "Oppstartstype kan ikke endres når gjennomføringen er aktiv"),
