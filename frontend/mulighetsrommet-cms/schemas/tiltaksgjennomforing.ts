@@ -4,7 +4,7 @@ import { Information } from "../components/Information";
 import { API_VERSION } from "../sanity.config";
 import { hasDuplicates, isEgenRegiTiltak, isInAdminFlate } from "../utils/utils";
 import { EnhetType } from "./enhet";
-import { VelgAlleInput } from "../components/VelgAlleInput";
+import { VelgAlleEnheterForKontaktpersoner } from "../components/VelgAlleEnheterForKontaktpersoner";
 
 export const tiltaksgjennomforing = defineType({
   name: "tiltaksgjennomforing",
@@ -171,7 +171,7 @@ export const tiltaksgjennomforing = defineType({
         defineArrayMember({
           type: "object",
           name: "kontaktperson",
-          components: { input: (props, document) => VelgAlleInput(props, document) },
+          components: { input: VelgAlleEnheterForKontaktpersoner },
           fields: [
             {
               type: "reference",

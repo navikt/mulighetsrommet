@@ -1,5 +1,6 @@
 import { GrDocumentPerformance } from "react-icons/gr";
 import { commonStructure } from "./commonStructure";
+import { API_VERSION } from "../sanity.config";
 
 const redaktorTiltaksgjennomforingStructure = (S, context) => [
   S.listItem()
@@ -7,10 +8,9 @@ const redaktorTiltaksgjennomforingStructure = (S, context) => [
     .icon(GrDocumentPerformance)
     .child(
       S.documentList()
+        .apiVersion(API_VERSION)
         .title("Mine tiltaksgjennomføringer")
-        .filter(
-          '_type == "tiltaksgjennomforing" && $redaktorNavn in redaktor[]->navn',
-        )
+        .filter('_type == "tiltaksgjennomforing" && $redaktorNavn in redaktor[]->navn')
         .params({ redaktorNavn: context.currentUser.name })
         .defaultOrdering([{ field: "_createdAt", direction: "desc" }]),
     ),
