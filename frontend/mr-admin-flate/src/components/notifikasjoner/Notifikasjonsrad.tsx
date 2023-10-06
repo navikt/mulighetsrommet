@@ -1,4 +1,4 @@
-import { BodyLong, BodyShort, HStack, Heading, Link, Tag } from "@navikt/ds-react";
+import { BodyLong, BodyShort, Heading, Link, Tag } from "@navikt/ds-react";
 import classNames from "classnames";
 import { NotificationType, UserNotification } from "mulighetsrommet-api-client";
 import { ReactNode, useState } from "react";
