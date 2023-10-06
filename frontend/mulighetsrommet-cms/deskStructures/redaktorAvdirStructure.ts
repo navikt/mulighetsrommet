@@ -28,16 +28,19 @@ const redaktorAvdirStructure = (S, context) => [
                   const result = await context
                     .getClient({ apiVersion: API_VERSION })
                     .fetch(
-                      `*[_type == 'tiltaksgjennomforing' && tiltakstype._ref == '${tiltakstype}']{kontaktinfoTiltaksansvarlige[]->}`,
+                      `*[_type == 'tiltaksgjennomforing' && tiltakstype._ref == '${tiltakstype}']{kontaktpersoner[]{navKontaktperson->{_id}}}`,
                     );
-                  const kontaktPersonIder = result?.map((r) => {
-                    return r.kontaktinfoTiltaksansvarlige?.[0]?._id;
-                  });
+                  const kontaktPersonIder = result
+                    ?.flatMap((r) => {
+                      return r.kontaktpersoner;
+                    })
+                    .filter((r) => r?.navKontaktperson)
+                    .map((r) => {
+                      return r.navKontaktperson?._id;
+                    });
                   return S.documentList()
                     .title("NAV-kontaktperson")
-                    .filter(
-                      `_type == 'navKontaktperson' && _id in $kontaktPersonIder`,
-                    )
+                    .filter(`_type == 'navKontaktperson' && _id in $kontaktPersonIder`)
                     .defaultOrdering([
                       {
                         field: "navn",
