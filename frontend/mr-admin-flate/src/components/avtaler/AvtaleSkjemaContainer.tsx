@@ -103,7 +103,7 @@ export function AvtaleSkjemaContainer({
         sluttDato: avtale?.sluttDato ? new Date(avtale.sluttDato) : undefined,
       },
       url: avtale?.url ?? undefined,
-      prisOgBetalingsinfo: avtale?.prisbetingelser ?? undefined,
+      prisbetingelser: avtale?.prisbetingelser ?? undefined,
       opphav: avtale?.opphav ?? Opphav.MR_ADMIN_FLATE,
     },
   });
@@ -160,8 +160,8 @@ export function AvtaleSkjemaContainer({
       url: data.url || null,
       administrator: data.administrator,
       avtaletype: data.avtaletype,
-      prisOgBetalingsinformasjon: erAnskaffetTiltak(data.tiltakstype.arenaKode)
-        ? data.prisOgBetalingsinfo || null
+      prisbetingelser: erAnskaffetTiltak(data.tiltakstype.arenaKode)
+        ? data.prisbetingelser || null
         : null,
       opphav: data.opphav,
       leverandorKontaktpersonId: data.leverandorKontaktpersonId ?? null,
@@ -184,7 +184,6 @@ export function AvtaleSkjemaContainer({
           startDato: "startOgSluttDato.startDato",
           sluttDato: "startOgSluttDato.sluttDato",
           leverandorOrganisasjonsnummer: "leverandor",
-          prisOgBetalingsinformasjon: "prisOgBetalingsinfo",
           tiltakstypeId: "tiltakstype",
         };
         return (mapping[name] ?? name) as keyof InferredAvtaleSchema;
@@ -303,9 +302,9 @@ export function AvtaleSkjemaContainer({
                     <Textarea
                       size="small"
                       readOnly={arenaOpphav}
-                      error={errors.prisOgBetalingsinfo?.message}
+                      error={errors.prisbetingelser?.message}
                       label="Pris og betalingsinformasjon"
-                      {...register("prisOgBetalingsinfo")}
+                      {...register("prisbetingelser")}
                     />
                   </FormGroup>
                   <Separator />

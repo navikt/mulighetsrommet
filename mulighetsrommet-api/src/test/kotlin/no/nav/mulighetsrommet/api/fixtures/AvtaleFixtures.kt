@@ -49,7 +49,7 @@ object AvtaleFixtures {
         url = "google.com",
         navEnheter = listOf("2990"),
         leverandorKontaktpersonId = null,
-        prisOgBetalingsinformasjon = null,
+        prisbetingelser = null,
     )
 
     val arenaAvtale1 = ArenaAvtaleDbo(

@@ -64,7 +64,7 @@ export const saveUtkast = (
     startDato: values?.startOgSluttDato?.startDato?.toDateString(),
     sluttDato: values?.startOgSluttDato?.sluttDato?.toDateString(),
     url: values?.url,
-    prisbetingelser: values?.prisOgBetalingsinfo || "",
+    prisbetingelser: values?.prisbetingelser || "",
     avtaleId: avtale?.id || utkastIdRef.current,
     id: avtale?.id || utkastIdRef.current,
   };

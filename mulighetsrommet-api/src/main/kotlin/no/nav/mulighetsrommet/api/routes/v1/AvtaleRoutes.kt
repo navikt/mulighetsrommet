@@ -121,7 +121,7 @@ data class AvtaleRequest(
     val url: String?,
     val administrator: String,
     val avtaletype: Avtaletype,
-    val prisOgBetalingsinformasjon: String?,
+    val prisbetingelser: String?,
     val navEnheter: List<String>,
     val opphav: ArenaMigrering.Opphav,
 ) {
@@ -140,7 +140,7 @@ data class AvtaleRequest(
         antallPlasser = null,
         url = url,
         administratorer = listOf(administrator),
-        prisbetingelser = prisOgBetalingsinformasjon,
+        prisbetingelser = prisbetingelser,
         navEnheter = navEnheter,
         opphav = opphav,
     )

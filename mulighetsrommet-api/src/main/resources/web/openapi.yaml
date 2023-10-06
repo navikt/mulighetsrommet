@@ -1773,7 +1773,7 @@ components:
           type: string
         avtaletype:
           $ref: "#/components/schemas/Avtaletype"
-        prisOgBetalingsinformasjon:
+        prisbetingelser:
           type: string
           nullable: true
         navEnheter:
@@ -1796,7 +1796,7 @@ components:
         - url
         - administrator
         - avtaletype
-        - prisOgBetalingsinformasjon
+        - prisbetingelser
         - navEnheter
         - opphav
         - avslutningsstatus

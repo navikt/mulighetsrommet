@@ -43,7 +43,7 @@ export const AvtaleSchema = z
       message: "Du må velge en administrator",
     }),
     url: GyldigUrlHvisVerdi,
-    prisOgBetalingsinfo: z.string().optional(),
+    prisbetingelser: z.string().optional(),
     opphav: z.nativeEnum(Opphav),
   })
   .refine(
