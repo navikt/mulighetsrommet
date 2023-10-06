@@ -10,6 +10,7 @@ import {
   NavEnhetType,
   Opphav,
   Tiltakskode,
+  Toggles,
 } from "mulighetsrommet-api-client";
 import { NavEnhet } from "mulighetsrommet-api-client/build/models/NavEnhet";
 import { Tiltakstype } from "mulighetsrommet-api-client/build/models/Tiltakstype";
@@ -45,6 +46,7 @@ import {
   underenheterOptions,
 } from "./AvtaleSkjemaConst";
 import { AvtaleSkjemaKnapperad } from "./AvtaleSkjemaKnapperad";
+import { useFeatureToggle } from "../../api/features/feature-toggles";
 
 interface Props {
   onClose: () => void;
@@ -67,7 +69,9 @@ export function AvtaleSkjemaContainer({
 }: Props) {
   const [navRegion, setNavRegion] = useState<string | undefined>(avtale?.navRegion?.enhetsnummer);
   const [sokLeverandor, setSokLeverandor] = useState(avtale?.leverandor?.organisasjonsnummer || "");
-
+  const { data: enableOpsjoner } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_ADMIN_FLATE_OPSJONER_FOR_AVTALER,
+  );
   const mutation = usePutAvtale();
   const { data: betabrukere } = useHentBetabrukere();
   const mutationUtkast = useMutateUtkast();
@@ -285,7 +289,8 @@ export function AvtaleSkjemaContainer({
                     label: "Sluttdato",
                   }}
                 >
-                  {watch("avtaletype") === Avtaletype.RAMMEAVTALE &&
+                  {enableOpsjoner &&
+                  watch("avtaletype") === Avtaletype.RAMMEAVTALE &&
                   !!watch("startOgSluttDato.sluttDato") ? (
                     <DatePicker {...maksVarighetDatepickerProps}>
                       <DatePicker.Input
