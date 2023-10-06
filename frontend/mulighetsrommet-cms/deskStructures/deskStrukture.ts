@@ -11,7 +11,7 @@ export const structure = (S, context) => {
   const deskItems = [];
 
   // Innhold for fagansvarlige i AV.Dir
-  if (roleNames.includes("administrator")) {
+  if (roleNames.includes("redaktor_av_dir")) {
     deskItems.push(...redaktorAvdirStructure(S, context));
     return S.list().title("Innhold for fagansvarlige i AV.Dir").items(deskItems);
   }
