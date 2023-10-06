@@ -162,14 +162,6 @@ export const tiltaksgjennomforing = defineType({
         }),
     }),
     defineField({
-      name: "kontaktinfoTiltaksansvarlige",
-      title: "UTDATERT_FELT_Kontaktpersoner",
-      description: "Dette feltet skal bort og erstattes av kontaktperson-feltet under",
-      type: "array",
-      of: [{ type: "reference", to: [{ type: "navKontaktperson" }] }],
-      validation: (rule) => rule.max(0).error("Ikke bruk dette feltet. Bruk kontaktpersoner under"),
-    }),
-    defineField({
       name: "kontaktpersoner",
       title: "Kontaktpersoner",
       description: "Veileders lokale kontaktpersoner for tiltaksgjennomføringen.",
