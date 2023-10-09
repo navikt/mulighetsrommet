@@ -223,81 +223,79 @@ export const TiltaksgjennomforingSkjemaContainer = ({
   }, [mutation]);
 
   return (
-    <>
-      <FormProvider {...form}>
-        {!redigeringsModus ? (
-          <Alert variant="warning" style={{ margin: "1rem 0" }}>
-            Opprettelse av gjennomføring her vil ikke opprette gjennomføringen i Arena.
-          </Alert>
-        ) : null}
-        <form onSubmit={handleSubmit(postData)}>
-          {visFaneinnhold ? (
-            <Tabs defaultValue="detaljer">
-              <Tabs.List className={skjemastyles.tabslist}>
-                <div>
-                  <Tabs.Tab value="detaljer" label="Detaljer" />
-                  <Tabs.Tab value="redaksjonelt_innhold" label="Redaksjonelt innhold" />
-                </div>
-                <TiltaksgjennomforingSkjemaKnapperad
-                  size="small"
-                  redigeringsModus={redigeringsModus}
-                  onClose={onClose}
-                  mutation={mutation}
-                />
-              </Tabs.List>
-              <Tabs.Panel value="detaljer">
-                <TiltaksgjennomforingSkjemaDetaljer
-                  avtale={avtale}
-                  tiltaksgjennomforing={tiltaksgjennomforing}
-                />
-              </Tabs.Panel>
-              <Tabs.Panel value="redaksjonelt_innhold">
-                <TiltaksgjennomforingSkjemaRedInnhold avtale={avtale} />
-              </Tabs.Panel>
-            </Tabs>
-          ) : (
-            <>
-              <div className={skjemastyles.button_row}>
-                <TiltaksgjennomforingSkjemaKnapperad
-                  redigeringsModus={redigeringsModus}
-                  onClose={onClose}
-                  mutation={mutation}
-                />
+    <FormProvider {...form}>
+      {!redigeringsModus ? (
+        <Alert variant="warning" style={{ margin: "1rem 0" }}>
+          Opprettelse av gjennomføring her vil ikke opprette gjennomføringen i Arena.
+        </Alert>
+      ) : null}
+      <form onSubmit={handleSubmit(postData)}>
+        {visFaneinnhold ? (
+          <Tabs defaultValue="detaljer">
+            <Tabs.List className={skjemastyles.tabslist}>
+              <div>
+                <Tabs.Tab value="detaljer" label="Detaljer" />
+                <Tabs.Tab value="redaksjonelt_innhold" label="Redaksjonelt innhold" />
               </div>
+              <TiltaksgjennomforingSkjemaKnapperad
+                size="small"
+                redigeringsModus={redigeringsModus}
+                onClose={onClose}
+                mutation={mutation}
+              />
+            </Tabs.List>
+            <Tabs.Panel value="detaljer">
               <TiltaksgjennomforingSkjemaDetaljer
                 avtale={avtale}
                 tiltaksgjennomforing={tiltaksgjennomforing}
               />
-            </>
+            </Tabs.Panel>
+            <Tabs.Panel value="redaksjonelt_innhold">
+              <TiltaksgjennomforingSkjemaRedInnhold avtale={avtale} />
+            </Tabs.Panel>
+          </Tabs>
+        ) : (
+          <>
+            <div className={skjemastyles.button_row}>
+              <TiltaksgjennomforingSkjemaKnapperad
+                redigeringsModus={redigeringsModus}
+                onClose={onClose}
+                mutation={mutation}
+              />
+            </div>
+            <TiltaksgjennomforingSkjemaDetaljer
+              avtale={avtale}
+              tiltaksgjennomforing={tiltaksgjennomforing}
+            />
+          </>
+        )}
+        <Separator />
+        <div>
+          {!arenaOpphav(tiltaksgjennomforing) && redigeringsModus && (
+            <Button
+              size="small"
+              variant="danger"
+              type="button"
+              onClick={() => avbrytModalRef.current?.showModal()}
+              data-testid="avbryt-gjennomforing"
+            >
+              Avbryt gjennomføring
+            </Button>
           )}
-          <Separator />
-          <div>
-            {!arenaOpphav(tiltaksgjennomforing) && redigeringsModus && (
-              <Button
-                size="small"
-                variant="danger"
-                type="button"
-                onClick={() => avbrytModalRef.current?.showModal()}
-                data-testid="avbryt-gjennomforing"
-              >
-                Avbryt gjennomføring
-              </Button>
-            )}
-          </div>
-        </form>
-        <AutoSaveUtkast
-          defaultValues={defaultValues}
-          utkastId={utkastIdRef.current}
-          onSave={() => saveUtkast(watch(), avtale, utkastIdRef)}
-          mutation={mutationUtkast}
-        />
-      </FormProvider>
+        </div>
+      </form>
+      <AutoSaveUtkast
+        defaultValues={defaultValues}
+        utkastId={utkastIdRef.current}
+        onSave={() => saveUtkast(watch(), avtale, utkastIdRef)}
+        mutation={mutationUtkast}
+      />
       {tiltaksgjennomforing && (
         <AvbrytTiltaksgjennomforingModal
           modalRef={avbrytModalRef}
           tiltaksgjennomforing={tiltaksgjennomforing}
         />
       )}
-    </>
+    </FormProvider>
   );
 };
