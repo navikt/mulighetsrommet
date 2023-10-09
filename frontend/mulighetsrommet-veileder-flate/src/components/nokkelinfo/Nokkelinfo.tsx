@@ -1,6 +1,5 @@
 import { BodyShort, Heading, HelpText } from "@navikt/ds-react";
 import styles from "./Nokkelinfo.module.scss";
-import { JSX } from "react/ts5.0/jsx-runtime";
 
 export interface NokkelinfoProps {
   nokkelinfoKomponenter: NokkelinfoElement[];
@@ -10,7 +9,7 @@ export interface NokkelinfoProps {
 export interface NokkelinfoElement {
   _id: string;
   tittel?: string;
-  innhold?: string | JSX.Element;
+  innhold?: string | React.JSX.Element;
   hjelpetekst?: string;
 }
 

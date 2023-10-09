@@ -1,4 +1,4 @@
-import { Locale, Styles } from "react-joyride";
+import { Locale } from "react-joyride";
 
 export const locale: Locale = {
   next: "Neste",
@@ -8,7 +8,7 @@ export const locale: Locale = {
   last: "Ferdig",
 };
 
-export const styling: Styles = {
+export const styling = {
   options: {
     primaryColor: "#0067C5",
   },
