@@ -8,7 +8,6 @@ import { Bolk } from "../../components/detaljside/Bolk";
 import { Metadata, Separator } from "../../components/detaljside/Metadata";
 import { VisHvisVerdi } from "../../components/detaljside/VisHvisVerdi";
 import { Laster } from "../../components/laster/Laster";
-import AvbrytAvtaleModal from "../../components/modal/AvbrytAvtaleModal";
 import SlettAvtaleGjennomforingModal from "../../components/modal/SlettAvtaleGjennomforingModal";
 import { addYear, avtaletypeTilTekst, formaterDato } from "../../utils/Utils";
 import { erAnskaffetTiltak } from "../../utils/tiltakskoder";
@@ -17,9 +16,8 @@ import { AvtaleKnapperad } from "./AvtaleKnapperad";
 import { useFeatureToggle } from "../../api/features/feature-toggles";
 
 export function AvtaleInfo() {
-  const { data: avtale, isLoading, error, refetch } = useAvtale();
+  const { data: avtale, isLoading, error } = useAvtale();
   const [slettModal, setSlettModal] = useState(false);
-  const [avbrytModal, setAvbrytModal] = useState(false);
   const mutation = useDeleteAvtale();
   const { data: enableOpsjoner } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_ADMIN_FLATE_OPSJONER_FOR_AVTALER,
@@ -63,6 +61,12 @@ export function AvtaleInfo() {
   return (
     <>
       <div className={styles.container}>
+        <div>
+          {visKnapperad(avtale.avtalestatus) && (
+            <AvtaleKnapperad avtale={avtale} handleSlett={() => setSlettModal(true)} />
+          )}
+          <Separator />
+        </div>
         <div className={styles.detaljer}>
           <Bolk aria-label="Avtalenavn">
             <Metadata header="Avtalenavn" verdi={avtale.navn} />
@@ -192,14 +196,7 @@ export function AvtaleInfo() {
             </Bolk>
           </VisHvisVerdi>
         </div>
-
-        {visKnapperad(avtale.avtalestatus) ? (
-          <AvtaleKnapperad
-            avtale={avtale}
-            handleSlett={() => setSlettModal(true)}
-            handleAvbryt={() => setAvbrytModal(true)}
-          />
-        ) : null}
+        <Separator />
       </div>
       <SlettAvtaleGjennomforingModal
         modalOpen={slettModal}
@@ -207,14 +204,6 @@ export function AvtaleInfo() {
         data={avtale}
         mutation={mutation}
         dataType="avtale"
-      />
-      <AvbrytAvtaleModal
-        modalOpen={avbrytModal}
-        onClose={() => {
-          refetch();
-          setAvbrytModal(false);
-        }}
-        avtale={avtale}
       />
     </>
   );

@@ -50,24 +50,21 @@ export function TiltaksgjennomforingPage() {
   return (
     <main>
       <Header>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-          }}
-        >
+        <div className={commonStyles.header_outer_container}>
           <div className={commonStyles.header}>
             <span>{tiltaksgjennomforing?.navn ?? "..."}</span>
             <TiltaksgjennomforingstatusTag tiltaksgjennomforing={tiltaksgjennomforing} />
           </div>
           {tiltaksgjennomforing?.sanityId && (
-            <Lenkeknapp
-              size="small"
-              variant="secondary"
-              to={`https://mulighetsrommet-veileder-flate.intern.${forhandsvisningMiljo}/preview/${tiltaksgjennomforing.sanityId}`}
-            >
-              Forhåndsvis i Modia <ExternalLinkIcon title="Forhåndsvis gjennomføringen i Modia" />
-            </Lenkeknapp>
+            <div>
+              <Lenkeknapp
+                size="small"
+                variant="secondary"
+                to={`https://mulighetsrommet-veileder-flate.intern.${forhandsvisningMiljo}/preview/${tiltaksgjennomforing.sanityId}`}
+              >
+                Forhåndsvis i Modia <ExternalLinkIcon title="Forhåndsvis gjennomføringen i Modia" />
+              </Lenkeknapp>
+            </div>
           )}
         </div>
       </Header>
