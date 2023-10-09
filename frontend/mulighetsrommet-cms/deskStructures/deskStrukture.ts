@@ -13,9 +13,7 @@ export const structure = (S, context) => {
   // Innhold for fagansvarlige i AV.Dir
   if (roleNames.includes("redaktor_av_dir")) {
     deskItems.push(...redaktorAvdirStructure(S, context));
-    return S.list()
-      .title("Innhold for fagansvarlige i AV.Dir")
-      .items(deskItems);
+    return S.list().title("Innhold for fagansvarlige i AV.Dir").items(deskItems);
   }
 
   // Innhold for tiltaksansvarlige
@@ -41,9 +39,7 @@ export const defaultDocumentNode = (S, { schemaType }) => {
   if (schemaType === "tiltakstype") {
     return S.document().views([
       S.view.form(),
-      S.view
-        .component(TiltakstypePreview)
-        .title("Forhåndsvisning av tiltakstype"),
+      S.view.component(TiltakstypePreview).title("Forhåndsvisning av tiltakstype"),
     ]);
   }
 };

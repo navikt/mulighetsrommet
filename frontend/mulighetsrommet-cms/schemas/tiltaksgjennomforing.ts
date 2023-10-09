@@ -4,6 +4,7 @@ import { Information } from "../components/Information";
 import { API_VERSION } from "../sanity.config";
 import { hasDuplicates, isEgenRegiTiltak, isInAdminFlate } from "../utils/utils";
 import { EnhetType } from "./enhet";
+import { VelgAlleEnheterForKontaktpersoner } from "../components/VelgAlleEnheterForKontaktpersoner";
 
 export const tiltaksgjennomforing = defineType({
   name: "tiltaksgjennomforing",
@@ -162,14 +163,6 @@ export const tiltaksgjennomforing = defineType({
         }),
     }),
     defineField({
-      name: "kontaktinfoTiltaksansvarlige",
-      title: "UTDATERT_FELT_Kontaktpersoner",
-      description: "Dette feltet skal bort og erstattes av kontaktperson-feltet under",
-      type: "array",
-      of: [{ type: "reference", to: [{ type: "navKontaktperson" }] }],
-      validation: (rule) => rule.max(0).error("Ikke bruk dette feltet. Bruk kontaktpersoner under"),
-    }),
-    defineField({
       name: "kontaktpersoner",
       title: "Kontaktpersoner",
       description: "Veileders lokale kontaktpersoner for tiltaksgjennomføringen.",
@@ -178,6 +171,7 @@ export const tiltaksgjennomforing = defineType({
         defineArrayMember({
           type: "object",
           name: "kontaktperson",
+          components: { input: VelgAlleEnheterForKontaktpersoner },
           fields: [
             {
               type: "reference",

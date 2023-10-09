@@ -1,12 +1,12 @@
 [versions]
-common-java-modules = "3.2023.07.07_09.10-85326e9557f0"
+common-java-modules = "3.2023.09.13_04.55-a8ff452fbd94"
 flyway = "9.22.1"
 hoplite = "2.7.5"
 koin = "3.5.1"
 kotest = "5.7.2"
 kotest-testcontainers = "2.0.2"
 kotlin = "1.9.10"
-ktor = "2.3.4"
+ktor = "2.3.5"
 logback = "1.4.11"
 metrics = "4.2.20"
 
@@ -90,11 +90,11 @@ micrometer-registry-prometheus = "io.micrometer:micrometer-registry-prometheus:1
 
 mockk = "io.mockk:mockk:1.13.8"
 
-nav-common-auditLog = { module = "com.github.navikt.common-java-modules:audit-log", version.ref = "common-java-modules" }
-nav-common-kafka = { module = "com.github.navikt.common-java-modules:kafka", version.ref = "common-java-modules" }
-nav-common-tokenClient = { module = "com.github.navikt.common-java-modules:token-client", version.ref = "common-java-modules" }
-nav-common-client = { module = "com.github.navikt.common-java-modules:client", version.ref = "common-java-modules" }
-nav-poaoTilgang-client = "com.github.navikt.poao-tilgang:client:2023.08.15_13.28-71f15ca9c2c4"
+nav-common-auditLog = { module = "no.nav.common:audit-log", version.ref = "common-java-modules" }
+nav-common-kafka = { module = "no.nav.common:kafka", version.ref = "common-java-modules" }
+nav-common-tokenClient = { module = "no.nav.common:token-client", version.ref = "common-java-modules" }
+nav-common-client = { module = "no.nav.common:client", version.ref = "common-java-modules" }
+nav-poaoTilgang-client = "no.nav.poao-tilgang:client:2023.09.25_09.26-72043f243cad"
 nav-mockOauth2Server = "no.nav.security:mock-oauth2-server:2.0.0"
 
 postgresql = "org.postgresql:postgresql:42.6.0"
@@ -103,7 +103,7 @@ prometheus-caffeine = "io.prometheus:simpleclient_caffeine:0.16.0"
 
 shedlock-jdbc = "net.javacrumbs.shedlock:shedlock-provider-jdbc:5.8.0"
 
-slack-client = "com.slack.api:slack-api-client:1.32.2"
+slack-client = "com.slack.api:slack-api-client:1.34.0"
 
 slf4j = "org.slf4j:slf4j-api:2.0.9"
 

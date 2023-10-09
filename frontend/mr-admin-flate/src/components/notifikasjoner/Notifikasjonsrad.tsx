@@ -50,16 +50,16 @@ export function Notifikasjonssrad({ notifikasjon, lest }: NotifikasjonssradProps
           {title}
         </Heading>
         <BodyLong size="small">{description}</BodyLong>
-        <BodyShort size="small" title={createdAt} className={styles.muted}>
-          {formaterDatoTid(createdAt)}
-        </BodyShort>
         {metadata?.link && metadata?.linkText ? (
           <BodyShort size="small">
             <Link href={metadata.link}>{metadata.linkText}</Link>
           </BodyShort>
         ) : null}
       </div>
-      <div>
+      <div className={styles.right}>
+        <BodyShort size="small" title={createdAt} className={styles.muted}>
+          {formaterDatoTid(createdAt)}
+        </BodyShort>
         <CheckmarkButton id={notifikasjon.id} read={read} setRead={setRead} />
         <ToastContainer
           position="bottom-left"
