@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Alert, Tabs } from "@navikt/ds-react";
+import { Alert, Button, Tabs } from "@navikt/ds-react";
 import {
   Avtale,
   Opphav,
@@ -21,6 +21,7 @@ import {
   TiltaksgjennomforingSchema,
 } from "./TiltaksgjennomforingSchema";
 import {
+  arenaOpphav,
   defaultOppstartType,
   defaultValuesForKontaktpersoner,
   UtkastData,
@@ -33,6 +34,8 @@ import { TiltaksgjennomforingSkjemaKnapperad } from "./TiltaksgjennomforingSkjem
 import { TiltaksgjennomforingSkjemaDetaljer } from "./TiltaksgjennomforingSkjemaDetaljer";
 import { TiltaksgjennomforingSkjemaRedInnhold } from "./TiltaksgjennomforingSkjemaRedInnhold";
 import { useFeatureToggle } from "../../api/features/feature-toggles";
+import { Separator } from "../detaljside/Metadata";
+import { AvbrytTiltaksgjennomforingModal } from "../modal/AvbrytTiltaksgjennomforingModal";
 
 interface Props {
   onClose: () => void;
@@ -54,6 +57,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
   const { data: visFaneinnhold } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_ADMIN_FLATE_FANEINNHOLD,
   );
+  const avbrytModalRef = useRef<HTMLDialogElement>(null);
 
   const { data: ansatt } = useHentAnsatt();
 
@@ -219,61 +223,81 @@ export const TiltaksgjennomforingSkjemaContainer = ({
   }, [mutation]);
 
   return (
-    <FormProvider {...form}>
-      {!redigeringsModus ? (
-        <Alert variant="warning" style={{ margin: "1rem 0" }}>
-          Opprettelse av gjennomføring her vil ikke opprette gjennomføringen i Arena.
-        </Alert>
-      ) : null}
-      <form onSubmit={handleSubmit(postData)}>
-        {visFaneinnhold ? (
-          <Tabs defaultValue="detaljer">
-            <Tabs.List className={skjemastyles.tabslist}>
-              <div>
-                <Tabs.Tab value="detaljer" label="Detaljer" />
-                <Tabs.Tab value="redaksjonelt_innhold" label="Redaksjonelt innhold" />
+    <>
+      <FormProvider {...form}>
+        {!redigeringsModus ? (
+          <Alert variant="warning" style={{ margin: "1rem 0" }}>
+            Opprettelse av gjennomføring her vil ikke opprette gjennomføringen i Arena.
+          </Alert>
+        ) : null}
+        <form onSubmit={handleSubmit(postData)}>
+          {visFaneinnhold ? (
+            <Tabs defaultValue="detaljer">
+              <Tabs.List className={skjemastyles.tabslist}>
+                <div>
+                  <Tabs.Tab value="detaljer" label="Detaljer" />
+                  <Tabs.Tab value="redaksjonelt_innhold" label="Redaksjonelt innhold" />
+                </div>
+                <TiltaksgjennomforingSkjemaKnapperad
+                  size="small"
+                  redigeringsModus={redigeringsModus}
+                  onClose={onClose}
+                  mutation={mutation}
+                />
+              </Tabs.List>
+              <Tabs.Panel value="detaljer">
+                <TiltaksgjennomforingSkjemaDetaljer
+                  avtale={avtale}
+                  tiltaksgjennomforing={tiltaksgjennomforing}
+                />
+              </Tabs.Panel>
+              <Tabs.Panel value="redaksjonelt_innhold">
+                <TiltaksgjennomforingSkjemaRedInnhold avtale={avtale} />
+              </Tabs.Panel>
+            </Tabs>
+          ) : (
+            <>
+              <div className={skjemastyles.button_row}>
+                <TiltaksgjennomforingSkjemaKnapperad
+                  redigeringsModus={redigeringsModus}
+                  onClose={onClose}
+                  mutation={mutation}
+                />
               </div>
-              <TiltaksgjennomforingSkjemaKnapperad
-                size="small"
-                redigeringsModus={redigeringsModus}
-                onClose={onClose}
-                mutation={mutation}
-              />
-            </Tabs.List>
-            <Tabs.Panel value="detaljer">
               <TiltaksgjennomforingSkjemaDetaljer
                 avtale={avtale}
                 tiltaksgjennomforing={tiltaksgjennomforing}
-                onClose={onClose}
               />
-            </Tabs.Panel>
-            <Tabs.Panel value="redaksjonelt_innhold">
-              <TiltaksgjennomforingSkjemaRedInnhold avtale={avtale} />
-            </Tabs.Panel>
-          </Tabs>
-        ) : (
-          <>
-            <TiltaksgjennomforingSkjemaDetaljer
-              avtale={avtale}
-              tiltaksgjennomforing={tiltaksgjennomforing}
-              onClose={onClose}
-            />
-            <div className={skjemastyles.button_row}>
-              <TiltaksgjennomforingSkjemaKnapperad
-                redigeringsModus={redigeringsModus}
-                onClose={onClose}
-                mutation={mutation}
-              />
-            </div>
-          </>
-        )}
-      </form>
-      <AutoSaveUtkast
-        defaultValues={defaultValues}
-        utkastId={utkastIdRef.current}
-        onSave={() => saveUtkast(watch(), avtale, utkastIdRef)}
-        mutation={mutationUtkast}
-      />
-    </FormProvider>
+            </>
+          )}
+          <Separator />
+          <div>
+            {!arenaOpphav(tiltaksgjennomforing) && redigeringsModus && (
+              <Button
+                size="small"
+                variant="danger"
+                type="button"
+                onClick={() => avbrytModalRef.current?.showModal()}
+                data-testid="avbryt-gjennomforing"
+              >
+                Avbryt gjennomføring
+              </Button>
+            )}
+          </div>
+        </form>
+        <AutoSaveUtkast
+          defaultValues={defaultValues}
+          utkastId={utkastIdRef.current}
+          onSave={() => saveUtkast(watch(), avtale, utkastIdRef)}
+          mutation={mutationUtkast}
+        />
+      </FormProvider>
+      {tiltaksgjennomforing && (
+        <AvbrytTiltaksgjennomforingModal
+          modalRef={avbrytModalRef}
+          tiltaksgjennomforing={tiltaksgjennomforing}
+        />
+      )}
+    </>
   );
 };

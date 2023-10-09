@@ -36,7 +36,7 @@ export function TiltaksgjennomforingKnapperad({ handleSlett, style }: Props) {
 
       {redigerGjennomforingIsEnabled ? (
         <Lenkeknapp size="small" to={`skjema`} variant="primary">
-          Rediger tiltaksgjennomføring
+          Rediger
         </Lenkeknapp>
       ) : null}
     </div>
