@@ -150,7 +150,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
       stedForGjennomforing: tiltaksgjennomforing?.stedForGjennomforing,
       arrangorKontaktpersonId: tiltaksgjennomforing?.arrangor?.kontaktperson?.id,
       beskrivelse: tiltaksgjennomforing?.beskrivelse ?? null,
-      faneinnhold: tiltaksgjennomforing?.faneinnhold ?? {},
+      faneinnhold: tiltaksgjennomforing?.faneinnhold ?? null,
       opphav: tiltaksgjennomforing?.opphav ?? Opphav.MR_ADMIN_FLATE,
     },
   });
@@ -205,7 +205,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
       stedForGjennomforing: data.stedForGjennomforing,
       arrangorKontaktpersonId: data.arrangorKontaktpersonId ?? null,
       beskrivelse: data.beskrivelse,
-      faneinnhold: data.faneinnhold,
+      faneinnhold: data.faneinnhold ?? null,
       opphav: data.opphav,
     };
 
