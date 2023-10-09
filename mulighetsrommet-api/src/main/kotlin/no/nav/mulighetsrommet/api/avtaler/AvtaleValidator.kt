@@ -63,7 +63,6 @@ class AvtaleValidator(
                             ),
                         )
                     }
-                    // TODO validere at start- og slutt-dato passer med gjennomføringer... men ta høyde for dette ikke gjelder AFT/VTA?
                 }
 
                 if (avtaleIsLocked(avtale, tiltakstype)) {
