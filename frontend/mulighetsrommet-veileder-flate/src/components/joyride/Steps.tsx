@@ -1,9 +1,9 @@
-import { Step } from "react-joyride";
 import Lenke from "../lenke/Lenke";
 import { BodyShort } from "@navikt/ds-react";
 import { PORTEN } from "mulighetsrommet-frontend-common/constants";
 import { APPLICATION_WEB_COMPONENT_NAME } from "../../constants";
 import { useEffect, useState } from "react";
+import { Step } from "react-joyride";
 
 export interface MulighetsrommetStep extends Step {
   id: string;
