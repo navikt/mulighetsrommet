@@ -57,8 +57,8 @@ allprojects {
         }
 
         maven {
-            // Needed for common-java-modules
-            url = uri("https://jitpack.io")
+            // Needed for NAV-packages
+            url = uri("https://github-package-registry-mirror.gc.nav.no/cached/maven-release")
         }
     }
 }
