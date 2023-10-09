@@ -26,7 +26,7 @@ class TiltaksgjennomforingValidator(
         }
 
         ensure(avtale.tiltakstype.id == dbo.tiltakstypeId) {
-            ValidationError("tiltakstypeId", "Tiltakstypen må være den samme som avtalen").nel()
+            ValidationError("tiltakstypeId", "Tiltakstypen må være den samme som for avtalen").nel()
         }
 
         val errors = buildList {

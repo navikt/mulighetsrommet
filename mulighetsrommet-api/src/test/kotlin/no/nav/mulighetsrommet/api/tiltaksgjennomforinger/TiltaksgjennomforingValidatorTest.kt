@@ -46,7 +46,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
         val validator = TiltaksgjennomforingValidator(avtaler, tiltaksgjennomforinger)
 
         validator.validate(Oppfolging1).shouldBeLeft().shouldContain(
-            ValidationError("tiltakstypeId", "Tiltakstypen må være den samme som avtalen"),
+            ValidationError("tiltakstypeId", "Tiltakstypen må være den samme som for avtalen"),
         )
     }
 
