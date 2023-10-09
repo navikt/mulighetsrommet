@@ -10,6 +10,7 @@ export function AvtaleSkjemaKnapperad({ redigeringsModus, onClose }: Props) {
   return (
     <div className={styles.button_row}>
       <Button
+        size="small"
         className={styles.button}
         onClick={onClose}
         variant="tertiary"
@@ -19,6 +20,7 @@ export function AvtaleSkjemaKnapperad({ redigeringsModus, onClose }: Props) {
       </Button>
       <Button
         className={styles.button}
+        size="small"
         type="submit"
         onClick={() => {
           faro?.api?.pushEvent(

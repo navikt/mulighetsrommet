@@ -1,8 +1,9 @@
-import { Alert, DatePicker, Textarea, TextField, useDatepicker } from "@navikt/ds-react";
+import { Alert, Button, DatePicker, Textarea, TextField, useDatepicker } from "@navikt/ds-react";
 import {
   Avtale,
   AvtaleAvslutningsstatus,
   AvtaleRequest,
+  Avtalestatus,
   Avtaletype,
   EmbeddedTiltakstype,
   LeverandorUnderenhet,
@@ -30,7 +31,6 @@ import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
 import skjemastyles from "../skjema/Skjema.module.scss";
 import { SokeSelect } from "../skjema/SokeSelect";
 import { VirksomhetKontaktpersoner } from "../virksomhet/VirksomhetKontaktpersoner";
-import { AvbrytAvtale } from "./AvbrytAvtale";
 import { AvtaleSchema, InferredAvtaleSchema } from "./AvtaleSchema";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -46,6 +46,7 @@ import {
   underenheterOptions,
 } from "./AvtaleSkjemaConst";
 import { AvtaleSkjemaKnapperad } from "./AvtaleSkjemaKnapperad";
+import { AvbrytAvtaleModal } from "../modal/AvbrytAvtaleModal";
 import { useFeatureToggle } from "../../api/features/feature-toggles";
 
 interface Props {
@@ -69,6 +70,8 @@ export function AvtaleSkjemaContainer({
 }: Props) {
   const [navRegion, setNavRegion] = useState<string | undefined>(avtale?.navRegion?.enhetsnummer);
   const [sokLeverandor, setSokLeverandor] = useState(avtale?.leverandor?.organisasjonsnummer || "");
+  const avbrytModalRef = useRef<HTMLDialogElement>(null);
+
   const { data: enableOpsjoner } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_ADMIN_FLATE_OPSJONER_FOR_AVTALER,
   );
@@ -222,6 +225,8 @@ export function AvtaleSkjemaContainer({
     <FormProvider {...form}>
       <form onSubmit={handleSubmit(postData)}>
         <div className={skjemastyles.container}>
+          <AvtaleSkjemaKnapperad redigeringsModus={redigeringsModus!} onClose={onClose} />
+          <Separator />
           <div className={skjemastyles.input_container}>
             <div className={skjemastyles.column}>
               <FormGroup>
@@ -303,7 +308,6 @@ export function AvtaleSkjemaContainer({
                     </DatePicker>
                   ) : null}
                 </FraTilDatoVelger>
-                {redigeringsModus ? <AvbrytAvtale onAvbryt={onClose} /> : null}
               </FormGroup>
               <Separator />
               <FormGroup>
@@ -412,7 +416,19 @@ export function AvtaleSkjemaContainer({
             </div>
           </div>
           <Separator />
-          <AvtaleSkjemaKnapperad redigeringsModus={redigeringsModus!} onClose={onClose} />
+          <div>
+            {avtale && !arenaOpphav && avtale.avtalestatus === Avtalestatus.AKTIV && (
+              <Button
+                size="small"
+                variant="danger"
+                type="button"
+                onClick={() => avbrytModalRef.current?.showModal()}
+                data-testid="avbryt-avtale"
+              >
+                Avbryt avtale
+              </Button>
+            )}
+          </div>
         </div>
       </form>
       <AutoSaveUtkast
@@ -421,6 +437,7 @@ export function AvtaleSkjemaContainer({
         onSave={() => saveUtkast(watch(), avtale!, ansatt, utkastIdRef, mutationUtkast)}
         mutation={mutationUtkast}
       />
+      {avtale && <AvbrytAvtaleModal modalRef={avbrytModalRef} avtale={avtale} />}
     </FormProvider>
   );
 }

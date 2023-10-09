@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Alert, Tabs } from "@navikt/ds-react";
+import { Alert, Button, Tabs } from "@navikt/ds-react";
 import {
   Avtale,
   Opphav,
@@ -21,6 +21,7 @@ import {
   TiltaksgjennomforingSchema,
 } from "./TiltaksgjennomforingSchema";
 import {
+  arenaOpphav,
   defaultOppstartType,
   defaultValuesForKontaktpersoner,
   UtkastData,
@@ -33,6 +34,8 @@ import { TiltaksgjennomforingSkjemaKnapperad } from "./TiltaksgjennomforingSkjem
 import { TiltaksgjennomforingSkjemaDetaljer } from "./TiltaksgjennomforingSkjemaDetaljer";
 import { TiltaksgjennomforingSkjemaRedInnhold } from "./TiltaksgjennomforingSkjemaRedInnhold";
 import { useFeatureToggle } from "../../api/features/feature-toggles";
+import { Separator } from "../detaljside/Metadata";
+import { AvbrytTiltaksgjennomforingModal } from "../modal/AvbrytTiltaksgjennomforingModal";
 
 interface Props {
   onClose: () => void;
@@ -54,6 +57,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
   const { data: visFaneinnhold } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_ADMIN_FLATE_FANEINNHOLD,
   );
+  const avbrytModalRef = useRef<HTMLDialogElement>(null);
 
   const { data: ansatt } = useHentAnsatt();
 
@@ -244,7 +248,6 @@ export const TiltaksgjennomforingSkjemaContainer = ({
               <TiltaksgjennomforingSkjemaDetaljer
                 avtale={avtale}
                 tiltaksgjennomforing={tiltaksgjennomforing}
-                onClose={onClose}
               />
             </Tabs.Panel>
             <Tabs.Panel value="redaksjonelt_innhold">
@@ -253,11 +256,6 @@ export const TiltaksgjennomforingSkjemaContainer = ({
           </Tabs>
         ) : (
           <>
-            <TiltaksgjennomforingSkjemaDetaljer
-              avtale={avtale}
-              tiltaksgjennomforing={tiltaksgjennomforing}
-              onClose={onClose}
-            />
             <div className={skjemastyles.button_row}>
               <TiltaksgjennomforingSkjemaKnapperad
                 redigeringsModus={redigeringsModus}
@@ -265,8 +263,26 @@ export const TiltaksgjennomforingSkjemaContainer = ({
                 mutation={mutation}
               />
             </div>
+            <TiltaksgjennomforingSkjemaDetaljer
+              avtale={avtale}
+              tiltaksgjennomforing={tiltaksgjennomforing}
+            />
           </>
         )}
+        <Separator />
+        <div>
+          {!arenaOpphav(tiltaksgjennomforing) && redigeringsModus && (
+            <Button
+              size="small"
+              variant="danger"
+              type="button"
+              onClick={() => avbrytModalRef.current?.showModal()}
+              data-testid="avbryt-gjennomforing"
+            >
+              Avbryt gjennomføring
+            </Button>
+          )}
+        </div>
       </form>
       <AutoSaveUtkast
         defaultValues={defaultValues}
@@ -274,6 +290,12 @@ export const TiltaksgjennomforingSkjemaContainer = ({
         onSave={() => saveUtkast(watch(), avtale, utkastIdRef)}
         mutation={mutationUtkast}
       />
+      {tiltaksgjennomforing && (
+        <AvbrytTiltaksgjennomforingModal
+          modalRef={avbrytModalRef}
+          tiltaksgjennomforing={tiltaksgjennomforing}
+        />
+      )}
     </FormProvider>
   );
 };

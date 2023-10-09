@@ -25,10 +25,17 @@
     }
   }
 }
+
 .header {
   display: flex;
   gap: 1.5rem;
   align-items: center;
+}
+
+.header_outer_container {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
 }
 
 .list {

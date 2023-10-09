@@ -14,7 +14,6 @@ import { useHentBetabrukere } from "../../api/ansatt/useHentBetabrukere";
 import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
 import { SokeSelect } from "../skjema/SokeSelect";
 import { FormGroup } from "../skjema/FormGroup";
-import { AvbrytTiltaksgjennomforing } from "./AvbrytTiltaksgjennomforing";
 import { useVirksomhet } from "../../api/virksomhet/useVirksomhet";
 import { PlusIcon, XMarkIcon } from "@navikt/aksel-icons";
 import { AdministratorOptions } from "../skjema/AdministratorOptions";
@@ -27,15 +26,9 @@ import { useFeatureToggle } from "../../api/features/feature-toggles";
 interface Props {
   tiltaksgjennomforing?: Tiltaksgjennomforing;
   avtale: Avtale;
-  onClose: () => void;
 }
 
-export const TiltaksgjennomforingSkjemaDetaljer = ({
-  tiltaksgjennomforing,
-  avtale,
-  onClose,
-}: Props) => {
-  const redigeringsModus = !!tiltaksgjennomforing;
+export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtale }: Props) => {
   const { data: virksomhet } = useVirksomhet(avtale.leverandor.organisasjonsnummer || "");
   const { data: betabrukere } = useHentBetabrukere();
   const { data: redigerOppstart } = useFeatureToggle(
@@ -166,9 +159,6 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({
                 valueAsNumber: true,
               })}
             />
-            {!arenaOpphav(tiltaksgjennomforing) && redigeringsModus ? (
-              <AvbrytTiltaksgjennomforing onAvbryt={onClose} />
-            ) : null}
           </FormGroup>
           <Separator />
           <FormGroup>

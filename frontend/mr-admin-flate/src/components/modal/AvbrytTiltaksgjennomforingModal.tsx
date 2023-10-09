@@ -1,20 +1,20 @@
-import { XMarkOctagonFillIcon } from "@navikt/aksel-icons";
-import { BodyShort, Button, Heading, Modal } from "@navikt/ds-react";
-import classNames from "classnames";
-import { Avtale } from "mulighetsrommet-api-client";
-import { RefObject, useEffect } from "react";
-import { useAvbrytAvtale } from "../../api/avtaler/useAvbrytAvtale";
+import { useAvbrytTiltaksgjennomforing } from "../../api/tiltaksgjennomforing/useAvbrytTiltaksgjennomforing";
 import styles from "./Modal.module.scss";
 import { resolveErrorMessage } from "../../api/errors";
+import { XMarkOctagonFillIcon } from "@navikt/aksel-icons";
+import classNames from "classnames";
+import { Heading, BodyShort, Button, Modal } from "@navikt/ds-react";
+import { Tiltaksgjennomforing } from "mulighetsrommet-api-client";
+import { RefObject, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 interface Props {
   modalRef: RefObject<HTMLDialogElement>;
-  avtale: Avtale;
+  tiltaksgjennomforing: Tiltaksgjennomforing;
 }
 
-export const AvbrytAvtaleModal = ({ modalRef, avtale }: Props) => {
-  const mutation = useAvbrytAvtale();
+export const AvbrytTiltaksgjennomforingModal = ({ modalRef, tiltaksgjennomforing }: Props) => {
+  const mutation = useAvbrytTiltaksgjennomforing();
   const navigate = useNavigate();
 
   const onClose = () => {
@@ -24,13 +24,13 @@ export const AvbrytAvtaleModal = ({ modalRef, avtale }: Props) => {
 
   useEffect(() => {
     if (mutation.isSuccess) {
-      navigate(`/avtaler/${avtale.id}`);
+      navigate(`/tiltaksgjennomforinger/${tiltaksgjennomforing?.id}`);
     }
   }, [mutation]);
 
-  const handleAvbrytAvtale = () => {
-    if (avtale?.id) {
-      mutation.mutate(avtale?.id);
+  const handleAvbryt = () => {
+    if (tiltaksgjennomforing?.id) {
+      mutation.mutate(tiltaksgjennomforing?.id);
     }
   };
 
@@ -41,8 +41,8 @@ export const AvbrytAvtaleModal = ({ modalRef, avtale }: Props) => {
           <XMarkOctagonFillIcon className={classNames(styles.icon_warning, styles.icon)} />
           <Heading size="medium">
             {mutation.isError
-              ? `Kan ikke avbryte «${avtale?.navn}»`
-              : `Ønsker du å avbryte «${avtale?.navn}»?`}
+              ? `Kan ikke avbryte «${tiltaksgjennomforing?.navn}»`
+              : `Ønsker du å avbryte «${tiltaksgjennomforing?.navn}»?`}
           </Heading>
         </div>
       </Modal.Header>
@@ -50,19 +50,19 @@ export const AvbrytAvtaleModal = ({ modalRef, avtale }: Props) => {
         <BodyShort>
           {mutation?.isError
             ? resolveErrorMessage(mutation.error)
-            : `Hvis avtalens startdato er passert kan du avbryte avtalen. Den vil da bli satt som
-            avbrutt i systemet. Du kan ikke avbryte en avtale som har tiltaksgjennomføringer
+            : `Hvis gjennomføringens startdato er passert kan du avbryte gjennomføringen. Den vil da
+            bli satt som avbrutt i systemet. Du kan ikke avbryte en gjennomføring som har deltakere
             tilknyttet seg.`}
         </BodyShort>
       </Modal.Body>
       <Modal.Footer>
         <div className={styles.knapperad}>
-          <Button variant="secondary" onClick={onClose}>
+          <Button variant="secondary" type="button" onClick={onClose}>
             Lukk
           </Button>
           {!mutation?.isError && (
-            <Button variant="danger" onClick={handleAvbrytAvtale}>
-              Avbryt avtale
+            <Button variant="danger" onClick={handleAvbryt}>
+              Avbryt gjennomføring
             </Button>
           )}
         </div>

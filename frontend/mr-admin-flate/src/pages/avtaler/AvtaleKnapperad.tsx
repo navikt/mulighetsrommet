@@ -7,11 +7,10 @@ import styles from "../DetaljerInfo.module.scss";
 
 interface Props {
   handleSlett: () => void;
-  handleAvbryt: () => void;
   avtale: Avtale;
 }
 
-export function AvtaleKnapperad({ handleSlett, handleAvbryt, avtale }: Props) {
+export function AvtaleKnapperad({ handleSlett, avtale }: Props) {
   const { data: slettAvtaleEnabled } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_ADMIN_FLATE_SLETT_AVTALE,
   );
@@ -22,25 +21,24 @@ export function AvtaleKnapperad({ handleSlett, handleAvbryt, avtale }: Props) {
 
   return (
     <div className={styles.knapperad}>
-      {slettAvtaleEnabled ? (
-        avtale.avtalestatus === Avtalestatus.AKTIV ? (
-          <Button variant="danger" onClick={handleAvbryt} data-testid="avbryt-avtale">
-            Avbryt avtale
-          </Button>
-        ) : (
-          <Button
-            variant="tertiary-neutral"
-            onClick={handleSlett}
-            data-testid="slett-avtale"
-            className={styles.slett_knapp}
-          >
-            Feilregistrering
-          </Button>
-        )
-      ) : null}
-
+      {slettAvtaleEnabled && avtale.avtalestatus === Avtalestatus.AKTIV && (
+        <Button
+          size="small"
+          variant="tertiary-neutral"
+          onClick={handleSlett}
+          data-testid="slett-avtale"
+          className={styles.slett_knapp}
+        >
+          Feilregistrering
+        </Button>
+      )}
       {redigerAvtaleEnabled ? (
-        <Lenkeknapp to={`/avtaler/${avtaleId}/skjema`} variant="primary" dataTestId="endre-avtale">
+        <Lenkeknapp
+          size="small"
+          to={`/avtaler/${avtaleId}/skjema`}
+          variant="primary"
+          dataTestId="endre-avtale"
+        >
           Rediger avtale
         </Lenkeknapp>
       ) : null}
