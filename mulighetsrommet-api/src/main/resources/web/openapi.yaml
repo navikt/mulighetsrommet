@@ -2918,7 +2918,6 @@ components:
       type: string
       enum:
         - mulighetsrommet.admin-flate-opprett-avtale
-        - mulighetsrommet.admin-flate-rediger-avtale
         - mulighetsrommet.admin-flate-opprett-tiltaksgjennomforing
         - mulighetsrommet.admin-flate-slett-avtale
         - mulighetsrommet.admin-flate-slett-tiltaksgjennomforing
