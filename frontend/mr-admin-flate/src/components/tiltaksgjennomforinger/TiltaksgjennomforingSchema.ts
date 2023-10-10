@@ -83,14 +83,16 @@ export const TiltaksgjennomforingSchema = z
     apenForInnsok: z.boolean(),
     estimertVentetid: z.string().nullable(),
     beskrivelse: z.string().nullable(),
-    faneinnhold: z.object({
-      forHvemInfoboks: z.string().optional(),
-      forHvem: z.any(),
-      detaljerOgInnholdInfoboks: z.string().optional(),
-      detaljerOgInnhold: z.any(),
-      pameldingOgVarighetInfoboks: z.string().optional(),
-      pameldingOgVarighet: z.any(),
-    }),
+    faneinnhold: z
+      .object({
+        forHvemInfoboks: z.string().optional(),
+        forHvem: z.any(),
+        detaljerOgInnholdInfoboks: z.string().optional(),
+        detaljerOgInnhold: z.any(),
+        pameldingOgVarighetInfoboks: z.string().optional(),
+        pameldingOgVarighet: z.any(),
+      })
+      .nullable(),
     opphav: z.nativeEnum(Opphav),
   })
   .superRefine((data, ctx) => {
