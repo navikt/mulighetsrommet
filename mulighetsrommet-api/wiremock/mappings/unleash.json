@@ -34,11 +34,6 @@
           "strategies": []
         },
         {
-          "name": "mulighetsrommet.admin-flate-rediger-tiltaksgjennomforing",
-          "enabled": true,
-          "strategies": []
-        },
-        {
           "name": "mulighetsrommet.admin-flate-vis-deltakerliste-fra-komet",
           "enabled": true,
           "strategies": []
