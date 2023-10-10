@@ -2,6 +2,7 @@ import { PlusIcon } from "@navikt/aksel-icons";
 import { HistorikkForBrukerModalInnhold } from "../../components/historikk/HistorikkForBrukerModalInnhold";
 import { routes } from "../../routes";
 import styles from "./Landingsside.module.scss";
+import { Link } from "react-router-dom";
 
 export function Landingsside() {
   return (
@@ -11,9 +12,9 @@ export function Landingsside() {
           {/**
            * A-tag her istedenfor Link fra react-router-dom pga. merkelig oppførsel fra Aktivitetsplanen og Dialogen.
            */}
-          <a className={styles.cta_link} href={`/${routes.oversikt}`}>
+          <Link className={styles.cta_link} to={`/${routes.oversikt}`}>
             <PlusIcon color="white" fontSize={30} aria-hidden /> Finn nytt arbeidsmarkedstiltak
-          </a>
+          </Link>
         </div>
         <div>
           <h3>Tiltakshistorikk</h3>
