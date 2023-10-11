@@ -150,7 +150,14 @@ export const TiltaksgjennomforingSkjemaContainer = ({
       stedForGjennomforing: tiltaksgjennomforing?.stedForGjennomforing,
       arrangorKontaktpersonId: tiltaksgjennomforing?.arrangor?.kontaktperson?.id,
       beskrivelse: tiltaksgjennomforing?.beskrivelse ?? null,
-      faneinnhold: tiltaksgjennomforing?.faneinnhold ?? null,
+      faneinnhold: tiltaksgjennomforing?.faneinnhold ?? {
+        forHvem: null,
+        forHvemInfoboks: null,
+        pameldingOgVarighet: null,
+        pameldingOgVarighetInfoboks: null,
+        detaljerOgInnhold: null,
+        detaljerOgInnholdInfoboks: null,
+      },
       opphav: tiltaksgjennomforing?.opphav ?? Opphav.MR_ADMIN_FLATE,
     },
   });

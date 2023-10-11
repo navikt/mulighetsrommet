@@ -85,12 +85,12 @@ export const TiltaksgjennomforingSchema = z
     beskrivelse: z.string().nullable(),
     faneinnhold: z
       .object({
-        forHvemInfoboks: z.string().optional(),
-        forHvem: z.any(),
-        detaljerOgInnholdInfoboks: z.string().optional(),
-        detaljerOgInnhold: z.any(),
-        pameldingOgVarighetInfoboks: z.string().optional(),
-        pameldingOgVarighet: z.any(),
+        forHvemInfoboks: z.string().nullable(),
+        forHvem: z.any().nullable(),
+        detaljerOgInnholdInfoboks: z.string().nullable(),
+        detaljerOgInnhold: z.any().nullable(),
+        pameldingOgVarighetInfoboks: z.string().nullable(),
+        pameldingOgVarighet: z.any().nullable(),
       })
       .nullable(),
     opphav: z.nativeEnum(Opphav),

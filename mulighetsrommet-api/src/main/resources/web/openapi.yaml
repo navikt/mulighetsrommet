@@ -1976,7 +1976,7 @@ components:
           $ref: "#/components/schemas/Opphav"
           nullable: true
         faneinnhold:
-          $ref: "#/components/schemas/SanityFaneinnhold"
+          $ref: "#/components/schemas/SanityFaneinnholdRequest"
           nullable: true
         beskrivelse:
           type: string
@@ -2557,6 +2557,29 @@ components:
           type: string
         pameldingOgVarighet:
           type: object
+
+    SanityFaneinnholdRequest:
+      type: object
+      properties:
+        forHvemInfoboks:
+          type: string
+          nullable: true
+        forHvem:
+          type: object
+        detaljerOgInnholdInfoboks:
+          type: string
+          nullable: true
+        detaljerOgInnhold:
+          type: object
+        pameldingOgVarighetInfoboks:
+          type: string
+          nullable: true
+        pameldingOgVarighet:
+          type: object
+      required:
+        - forHvemInfoboks
+        - detaljerOgInnholdInfoboks
+        - pameldingOgVarighetInfoboks
 
     VeilderflateArrangor:
       type: object
