@@ -14,11 +14,6 @@
           "strategies": []
         },
         {
-          "name": "mulighetsrommet.admin-flate-rediger-avtale",
-          "enabled": true,
-          "strategies": []
-        },
-        {
           "name": "mulighetsrommet.admin-flate-opprett-tiltaksgjennomforing",
           "enabled": true,
           "strategies": []

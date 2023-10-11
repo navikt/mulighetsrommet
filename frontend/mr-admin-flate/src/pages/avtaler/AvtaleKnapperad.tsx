@@ -14,9 +14,6 @@ export function AvtaleKnapperad({ handleSlett, avtale }: Props) {
   const { data: slettAvtaleEnabled } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_ADMIN_FLATE_SLETT_AVTALE,
   );
-  const { data: redigerAvtaleEnabled } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_ADMIN_FLATE_REDIGER_AVTALE,
-  );
   const avtaleId = useGetAvtaleIdFromUrl();
 
   return (
@@ -32,16 +29,14 @@ export function AvtaleKnapperad({ handleSlett, avtale }: Props) {
           Feilregistrering
         </Button>
       )}
-      {redigerAvtaleEnabled ? (
-        <Lenkeknapp
-          size="small"
-          to={`/avtaler/${avtaleId}/skjema`}
-          variant="primary"
-          dataTestId="endre-avtale"
-        >
-          Rediger avtale
-        </Lenkeknapp>
-      ) : null}
+      <Lenkeknapp
+        size="small"
+        to={`/avtaler/${avtaleId}/skjema`}
+        variant="primary"
+        dataTestId="endre-avtale"
+      >
+        Rediger avtale
+      </Lenkeknapp>
     </div>
   );
 }
