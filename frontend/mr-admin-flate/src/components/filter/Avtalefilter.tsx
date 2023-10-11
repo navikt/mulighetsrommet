@@ -1,30 +1,24 @@
+import { faro } from "@grafana/faro-web-sdk";
 import { Button, Search } from "@navikt/ds-react";
 import { useAtom } from "jotai";
-import {
-  NavEnhetType,
-  Tiltakstypestatus,
-  Toggles,
-  VirksomhetTil,
-} from "mulighetsrommet-api-client";
+import { NavEnhetType, Tiltakstypestatus, VirksomhetTil } from "mulighetsrommet-api-client";
 import { useEffect, useRef } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import {
-  avtaleFilter,
   AvtaleFilterProps,
+  avtaleFilter,
   avtalePaginationAtom,
   defaultAvtaleFilter,
 } from "../../api/atoms";
 import { useAvtaler } from "../../api/avtaler/useAvtaler";
 import { useNavEnheter } from "../../api/enhet/useNavEnheter";
-import { useFeatureToggle } from "../../api/features/feature-toggles";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
 import { useVirksomheter } from "../../api/virksomhet/useVirksomheter";
 import { resetPaginering, valueOrDefault } from "../../utils/Utils";
+import { Lenkeknapp } from "../lenkeknapp/Lenkeknapp";
 import { SokeSelect } from "../skjema/SokeSelect";
 import styles from "./Filter.module.scss";
 import { FilterTag } from "./FilterTag";
-import { faro } from "@grafana/faro-web-sdk";
-import { Lenkeknapp } from "../lenkeknapp/Lenkeknapp";
 
 type Filters = "tiltakstype";
 
@@ -53,10 +47,6 @@ export function Avtalefilter(props: Props) {
   const { data: leverandorer } = useVirksomheter(VirksomhetTil.AVTALE);
   const [, setPage] = useAtom(avtalePaginationAtom);
   const searchRef = useRef<HTMLDivElement | null>(null);
-
-  const { data: visOpprettAvtaleknapp } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_ADMIN_FLATE_OPPRETT_AVTALE,
-  );
 
   useEffect(() => {
     // Hold fokus på søkefelt dersom bruker skriver i søkefelt
@@ -222,18 +212,16 @@ export function Avtalefilter(props: Props) {
           </div>
 
           <div className={styles.knapperad}>
-            {visOpprettAvtaleknapp && (
-              <Lenkeknapp
-                to={`/avtaler/skjema`}
-                variant="primary"
-                handleClick={() => {
-                  faro?.api?.pushEvent("Bruker trykket på 'Opprett ny avtale'-knapp");
-                }}
-                dataTestId="opprett-avtale"
-              >
-                Opprett ny avtale
-              </Lenkeknapp>
-            )}
+            <Lenkeknapp
+              to={`/avtaler/skjema`}
+              variant="primary"
+              handleClick={() => {
+                faro?.api?.pushEvent("Bruker trykket på 'Opprett ny avtale'-knapp");
+              }}
+              dataTestId="opprett-avtale"
+            >
+              Opprett ny avtale
+            </Lenkeknapp>
           </div>
           <div className={styles.tags_container}>
             {filter.status && (

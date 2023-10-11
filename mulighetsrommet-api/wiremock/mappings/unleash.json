@@ -9,11 +9,6 @@
       "version": 1,
       "features": [
         {
-          "name": "mulighetsrommet.admin-flate-opprett-avtale",
-          "enabled": true,
-          "strategies": []
-        },
-        {
           "name": "mulighetsrommet.admin-flate-opprett-tiltaksgjennomforing",
           "enabled": true,
           "strategies": []
