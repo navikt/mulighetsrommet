@@ -1,8 +1,8 @@
 import { Button } from "@navikt/ds-react";
 import { Toggles } from "mulighetsrommet-api-client";
 import { useFeatureToggle } from "../../api/features/feature-toggles";
-import styles from "../DetaljerInfo.module.scss";
 import { Lenkeknapp } from "../../components/lenkeknapp/Lenkeknapp";
+import styles from "../DetaljerInfo.module.scss";
 
 interface Props {
   handleSlett: () => void;
@@ -12,9 +12,6 @@ interface Props {
 export function TiltaksgjennomforingKnapperad({ handleSlett, style }: Props) {
   const { data: slettGjennomforingIsEnabled } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_ADMIN_FLATE_SLETT_TILTAKSGJENNOMFORING,
-  );
-  const { data: redigerGjennomforingIsEnabled } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_ADMIN_FLATE_REDIGER_TILTAKSGJENNOMFORING,
   );
 
   return (
@@ -34,11 +31,9 @@ export function TiltaksgjennomforingKnapperad({ handleSlett, style }: Props) {
         </Button>
       ) : null}
 
-      {redigerGjennomforingIsEnabled ? (
-        <Lenkeknapp size="small" to={`skjema`} variant="primary">
-          Rediger
-        </Lenkeknapp>
-      ) : null}
+      <Lenkeknapp size="small" to={`skjema`} variant="primary">
+        Rediger
+      </Lenkeknapp>
     </div>
   );
 }

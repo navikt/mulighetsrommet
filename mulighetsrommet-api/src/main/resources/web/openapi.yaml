@@ -2921,7 +2921,6 @@ components:
         - mulighetsrommet.admin-flate-opprett-tiltaksgjennomforing
         - mulighetsrommet.admin-flate-slett-avtale
         - mulighetsrommet.admin-flate-slett-tiltaksgjennomforing
-        - mulighetsrommet.admin-flate-rediger-tiltaksgjennomforing
         - mulighetsrommet.admin-flate-vis-deltakerliste-fra-komet
         - mulighetsrommet.enable-arbeidsflate
         - mulighetsrommet-veilederflate-landingsside
