@@ -9,6 +9,7 @@ import io.kotest.matchers.shouldNotBe
 import kotlinx.serialization.json.Json
 import kotliquery.Query
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
+import no.nav.mulighetsrommet.api.clients.vedtak.Innsatsgruppe
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
@@ -1148,6 +1149,64 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         tiltaksgjennomforinger.setTilgjengeligForVeileder(gjennomforing.id, true)
         tiltaksgjennomforinger.get(gjennomforing.id).should {
             it!!.tilgjengeligForVeileder shouldBe true
+        }
+    }
+
+    test("getAllVeilederflateTiltaksgjennomforing by tiltakstype sanity Id") {
+        val tiltakstypeSanityId = UUID.randomUUID()
+        Query("update tiltakstype set sanity_id = '$tiltakstypeSanityId' where id = '${TiltakstypeFixtures.Oppfolging.id}'")
+            .asUpdate
+            .let { database.db.run(it) }
+        Query("update tiltakstype set innsatsgruppe = '${Innsatsgruppe.STANDARD_INNSATS}' where id = '${TiltakstypeFixtures.Oppfolging.id}'")
+            .asUpdate
+            .let { database.db.run(it) }
+        Query("update tiltakstype set sanity_id = '${UUID.randomUUID()}' where id = '${TiltakstypeFixtures.Arbeidstrening.id}'")
+            .asUpdate
+            .let { database.db.run(it) }
+        Query("update tiltakstype set innsatsgruppe = '${Innsatsgruppe.STANDARD_INNSATS}' where id = '${TiltakstypeFixtures.Arbeidstrening.id}'")
+            .asUpdate
+            .let { database.db.run(it) }
+
+        val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
+        tiltaksgjennomforinger.upsert(Oppfolging1)
+        tiltaksgjennomforinger.setTilgjengeligForVeileder(Oppfolging1.id, true)
+
+        tiltaksgjennomforinger.upsert(Arbeidstrening1)
+        tiltaksgjennomforinger.setTilgjengeligForVeileder(Arbeidstrening1.id, true)
+
+        tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
+            search = null,
+            sanityTiltakstypeIds = listOf(tiltakstypeSanityId),
+            innsatsgrupper = listOf(Innsatsgruppe.STANDARD_INNSATS),
+        ).should {
+            it shouldHaveSize 1
+            it[0].navn shouldBe Oppfolging1.navn
+        }
+    }
+
+    test("getAllVeilederflateTiltaksgjennomforing by search") {
+        val tiltakstypeSanityId = UUID.randomUUID()
+        Query("update tiltakstype set sanity_id = '$tiltakstypeSanityId' where id = '${TiltakstypeFixtures.Oppfolging.id}'")
+            .asUpdate
+            .let { database.db.run(it) }
+        Query("update tiltakstype set innsatsgruppe = '${Innsatsgruppe.STANDARD_INNSATS}' where id = '${TiltakstypeFixtures.Oppfolging.id}'")
+            .asUpdate
+            .let { database.db.run(it) }
+
+        val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
+        tiltaksgjennomforinger.upsert(Oppfolging1.copy(navn = "erik"))
+        tiltaksgjennomforinger.setTilgjengeligForVeileder(Oppfolging1.id, true)
+
+        tiltaksgjennomforinger.upsert(Oppfolging2.copy(navn = "frank"))
+        tiltaksgjennomforinger.setTilgjengeligForVeileder(Oppfolging2.id, true)
+
+        tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
+            search = "rik",
+            sanityTiltakstypeIds = listOf(tiltakstypeSanityId),
+            innsatsgrupper = listOf(Innsatsgruppe.STANDARD_INNSATS),
+        ).should {
+            it shouldHaveSize 1
+            it.get(0).navn shouldBe "erik"
         }
     }
 })

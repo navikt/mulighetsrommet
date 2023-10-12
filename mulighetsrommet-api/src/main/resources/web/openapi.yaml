@@ -2531,6 +2531,9 @@ components:
     VeilederflateTiltaksgjennomforing:
       type: object
       properties:
+        id:
+          type: string
+          format: uuid
         sanityId:
           type: string
         tiltakstype:
@@ -2566,7 +2569,6 @@ components:
         stengtTil:
           type: string
       required:
-        - sanityId
         - navn
         - tiltakstype
         - oppstart
