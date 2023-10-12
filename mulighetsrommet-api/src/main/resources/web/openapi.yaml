@@ -1993,11 +1993,14 @@ components:
         stedForGjennomforing:
           type: string
         opphav:
-          $ref: "#/components/schemas/Opphav"
+          anyOf:
+            - type: "null"
+            - $ref: "#/components/schemas/Opphav"
           nullable: true
         faneinnhold:
-          $ref: "#/components/schemas/SanityFaneinnhold"
-          nullable: true
+          anyOf:
+            - type: "null"
+            - $ref: "#/components/schemas/SanityFaneinnhold"
         beskrivelse:
           type: string
           nullable: true
