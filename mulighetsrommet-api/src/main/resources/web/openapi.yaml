@@ -1541,14 +1541,14 @@ components:
     GetTiltaksgjennomforingForBrukerRequest:
       type: object
       properties:
-        sanityId:
+        id:
           type: string
           format: uuid
         norskIdent:
           type: string
       required:
-        - sanityId
         - norskIdent
+        - id
 
     ManuellStatus:
       type: object

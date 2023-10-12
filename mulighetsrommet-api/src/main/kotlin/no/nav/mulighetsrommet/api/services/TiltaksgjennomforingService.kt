@@ -105,7 +105,11 @@ class TiltaksgjennomforingService(
         sanityTiltakstypeIds: List<UUID>,
         innsatsgrupper: List<Innsatsgruppe>,
     ): List<VeilederflateTiltaksgjennomforing> =
-        tiltaksgjennomforingRepository.getAllVeilederflateTiltaksgjennomforing(search, sanityTiltakstypeIds, innsatsgrupper)
+        tiltaksgjennomforingRepository.getAllVeilederflateTiltaksgjennomforing(
+            search,
+            sanityTiltakstypeIds,
+            innsatsgrupper,
+        )
 
     fun getAll(
         pagination: PaginationParams,

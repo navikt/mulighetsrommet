@@ -48,8 +48,8 @@ export const sanityHandlers = [
   rest.post<DefaultBodyType, PathParams, any>(
     "*/api/v1/internal/sanity/tiltaksgjennomforing",
     async (req) => {
-      const { sanityId } = await req.json<GetTiltaksgjennomforingForBrukerRequest>();
-      const gjennomforing = mockTiltaksgjennomforinger.find((gj) => gj.sanityId === sanityId);
+      const { id } = await req.json<GetTiltaksgjennomforingForBrukerRequest>();
+      const gjennomforing = mockTiltaksgjennomforinger.find((gj) => gj.sanityId === id);
       return ok(gjennomforing);
     },
   ),

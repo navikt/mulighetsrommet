@@ -84,5 +84,5 @@ data class GetRelevanteTiltaksgjennomforingerForBrukerRequest(
 data class GetTiltaksgjennomforingForBrukerRequest(
     val norskIdent: String,
     @Serializable(with = UUIDSerializer::class)
-    val sanityId: UUID,
+    val id: UUID,
 )

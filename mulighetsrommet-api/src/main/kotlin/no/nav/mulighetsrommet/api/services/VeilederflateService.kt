@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.services
 
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
+import io.ktor.server.plugins.*
 import io.prometheus.client.cache.caffeine.CacheMetricsCollector
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityPerspective
@@ -15,7 +16,6 @@ import no.nav.mulighetsrommet.api.utils.byggTiltakstypeFilter
 import no.nav.mulighetsrommet.api.utils.utledInnsatsgrupper
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingTilgjengelighetsstatus
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingAdminDto
-import no.nav.mulighetsrommet.domain.dto.emptyOrNull
 import no.nav.mulighetsrommet.metrics.Metrikker
 import no.nav.mulighetsrommet.utils.CacheUtils
 import java.util.*
@@ -175,25 +175,36 @@ class VeilederflateService(
         request: GetTiltaksgjennomforingForBrukerRequest,
         accessToken: String,
     ): VeilederflateTiltaksgjennomforing {
-        val sanityGjennomforing = getSanityTiltaksgjennomforing(request.sanityId.toString(), SanityPerspective.PUBLISHED)
-        val apiGjennomforing = tiltaksgjennomforingService.getBySanityId(request.sanityId)
-
+        val apiGjennomforing = tiltaksgjennomforingService.get(request.id)
         val brukerdata = brukerService.hentBrukerdata(request.norskIdent, accessToken)
         val enhetsnummer = brukerdata.geografiskEnhet?.enhetsnummer
 
-        return mergeSanityTiltaksgjennomforingWithApiTiltaksgjennomforing(
-            sanityGjennomforing,
-            apiGjennomforing,
-            enhetsnummer,
-        )
+        if (apiGjennomforing != null) {
+            val tiltakstype = tiltakstypeService.getById(apiGjennomforing.tiltakstype.id)
+            val sanityTiltakstype = hentTiltakstyper().find { it.sanityId == tiltakstype?.sanityId.toString() }
+                ?: throw NotFoundException("Fant ikke tiltakstype for gjennomføring med id: '${request.id}'")
+            return toVeilederTiltaksgjennomforing(apiGjennomforing, sanityTiltakstype, enhetsnummer)
+        }
+
+        val sanityTiltaksgjennomforing =
+            getSanityTiltaksgjennomforing(request.id.toString(), SanityPerspective.PUBLISHED)
+        return toVeilederTiltaksgjennomforing(sanityTiltaksgjennomforing, enhetsnummer)
     }
 
     suspend fun hentPreviewTiltaksgjennomforing(id: String): VeilederflateTiltaksgjennomforing {
         val sanitizedSanityId = UUID.fromString(id.replace("drafts.", ""))
-        val sanityGjennomforing = getSanityTiltaksgjennomforing(id, SanityPerspective.PREVIEW_DRAFTS)
-        val apiGjennomforing = tiltaksgjennomforingService.getBySanityId(sanitizedSanityId)
+        val apiGjennomforing = tiltaksgjennomforingService.get(sanitizedSanityId)
 
-        return mergeSanityTiltaksgjennomforingWithApiTiltaksgjennomforing(sanityGjennomforing, apiGjennomforing)
+        if (apiGjennomforing != null) {
+            val tiltakstype = tiltakstypeService.getById(apiGjennomforing.tiltakstype.id)
+            val sanityTiltakstype = hentTiltakstyper()
+                .find { it.sanityId == tiltakstype?.sanityId.toString() }
+                ?: throw NotFoundException("Fant ikke tiltakstype for gjennomføring med id: '$sanitizedSanityId'")
+            return toVeilederTiltaksgjennomforing(apiGjennomforing, sanityTiltakstype, enhetsnummer = null)
+        }
+
+        val sanityGjennomforing = getSanityTiltaksgjennomforing(id, SanityPerspective.PREVIEW_DRAFTS)
+        return toVeilederTiltaksgjennomforing(sanityGjennomforing, enhetsnummer = null)
     }
 
     private suspend fun getSanityTiltaksgjennomforing(
@@ -242,18 +253,6 @@ class VeilederflateService(
         }
     }
 
-    private fun mergeSanityTiltaksgjennomforingWithApiTiltaksgjennomforing(
-        sanityGjennomforing: SanityTiltaksgjennomforing,
-        apiGjennomforing: TiltaksgjennomforingAdminDto?,
-        enhetsnummer: String? = null,
-    ): VeilederflateTiltaksgjennomforing {
-        return if (apiGjennomforing == null) {
-            toVeilederTiltaksgjennomforing(sanityGjennomforing, enhetsnummer)
-        } else {
-            toVeilederTiltaksgjennomforing(sanityGjennomforing, apiGjennomforing, enhetsnummer)
-        }
-    }
-
     private fun toVeilederTiltaksgjennomforing(
         sanityGjennomforing: SanityTiltaksgjennomforing,
         enhetsnummer: String?,
@@ -292,8 +291,8 @@ class VeilederflateService(
     }
 
     private fun toVeilederTiltaksgjennomforing(
-        sanityGjennomforing: SanityTiltaksgjennomforing,
         apiGjennomforing: TiltaksgjennomforingAdminDto,
+        veilederflateTiltakstype: VeilederflateTiltakstype,
         enhetsnummer: String?,
     ): VeilederflateTiltaksgjennomforing {
         val arrangor = VeilederflateArrangor(
@@ -310,29 +309,16 @@ class VeilederflateService(
 
         val kontaktpersoner = enhetsnummer
             ?.let { utledKontaktpersonerForEnhet(apiGjennomforing, enhetsnummer) }
-            ?.ifEmpty { sanityGjennomforing.kontaktpersoner?.map { it.navKontaktperson } }
 
-        val fylke = apiGjennomforing.navRegion?.enhetsnummer ?: sanityGjennomforing.fylke
+        val fylke = apiGjennomforing.navRegion?.enhetsnummer
         val enheter = apiGjennomforing.navEnheter
             .map { it.enhetsnummer }
-            .ifEmpty { sanityGjennomforing.enheter }
 
-        return sanityGjennomforing.run {
+        return apiGjennomforing.run {
             VeilederflateTiltaksgjennomforing(
-                sanityId = _id,
-                tiltakstype = tiltakstype?.run {
-                    VeilederflateTiltakstype(
-                        sanityId = _id,
-                        navn = tiltakstypeNavn,
-                        beskrivelse = beskrivelse,
-                        innsatsgruppe = innsatsgruppe,
-                        regelverkLenker = regelverkLenker,
-                        faneinnhold = faneinnhold,
-                        delingMedBruker = delingMedBruker,
-                        arenakode = apiGjennomforing.tiltakstype.arenaKode,
-                    )
-                },
-                navn = tiltaksgjennomforingNavn,
+                id = id,
+                tiltakstype = veilederflateTiltakstype,
+                navn = navn,
                 tiltaksnummer = apiGjennomforing.tiltaksnummer,
                 stengtFra = apiGjennomforing.stengtFra,
                 stengtTil = apiGjennomforing.stengtTil,
@@ -343,15 +329,11 @@ class VeilederflateService(
                 tilgjengelighet = apiGjennomforing.tilgjengelighet,
                 estimertVentetid = apiGjennomforing.estimertVentetid,
                 arrangor = arrangor,
-                stedForGjennomforing = apiGjennomforing.stedForGjennomforing ?: sanityGjennomforing.stedForGjennomforing,
+                stedForGjennomforing = apiGjennomforing.stedForGjennomforing,
                 fylke = fylke,
                 enheter = enheter,
                 beskrivelse = apiGjennomforing.beskrivelse ?: beskrivelse,
-                faneinnhold = if (apiGjennomforing.faneinnhold.emptyOrNull()) {
-                    faneinnhold
-                } else {
-                    apiGjennomforing.faneinnhold
-                },
+                faneinnhold = faneinnhold,
             )
         }
     }
