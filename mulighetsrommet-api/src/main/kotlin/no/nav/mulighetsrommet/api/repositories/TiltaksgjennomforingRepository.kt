@@ -472,12 +472,12 @@ class TiltaksgjennomforingRepository(private val db: Database) {
 
     fun getAllVeilederflateTiltaksgjennomforing(
         search: String? = null,
-        sanityTiltakstypeIds: List<UUID> = emptyList(),
+        sanityTiltakstypeIds: List<UUID>? = null,
         innsatsgrupper: List<Innsatsgruppe> = emptyList(),
     ): List<VeilederflateTiltaksgjennomforing> {
         val parameters = mapOf(
             "search" to "%${search?.replace("/", "#")?.trim()}%",
-            "sanityTiltakstypeIds" to db.createUuidArray(sanityTiltakstypeIds),
+            "sanityTiltakstypeIds" to sanityTiltakstypeIds?.let { db.createUuidArray(it) },
             "innsatsgrupper" to db.createTextArray(innsatsgrupper.map { it.name }),
         )
 
@@ -533,7 +533,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             $where
             and tg.tilgjengelig_for_veileder
             group by tg.id, t.id, v.navn, avtale_ne.navn, vk.id, avtale_ne.enhetsnummer
-
         """.trimIndent()
 
         return queryOf(query, parameters)
@@ -660,7 +659,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
     private fun Row.toVeilederflateTiltaksgjennomforing(): VeilederflateTiltaksgjennomforing {
         val navEnheter = arrayOrNull<String?>("nav_enheter")?.asList()?.filterNotNull() ?: emptyList()
         val kontaktpersoner = Json
-            .decodeFromString<List<TiltaksgjennomforingKontaktperson?>>(string("kontaktpersoner"))
+            .decodeFromString<List<KontaktinfoTiltaksansvarlige?>>(string("kontaktpersoner"))
             .filterNotNull()
 
         return VeilederflateTiltaksgjennomforing(
@@ -690,15 +689,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             estimertVentetid = stringOrNull("estimert_ventetid"),
             stengtFra = localDateOrNull("stengt_fra"),
             stengtTil = localDateOrNull("stengt_til"),
-            kontaktinfoTiltaksansvarlige = kontaktpersoner
-                .map {
-                    KontaktinfoTiltaksansvarlige(
-                        navn = it.navn,
-                        telefonnummer = it.mobilnummer,
-                        enhet = it.hovedenhet,
-                        epost = it.epost,
-                    )
-                },
+            kontaktinfoTiltaksansvarlige = kontaktpersoner,
             fylke = stringOrNull("navRegionEnhetsnummerForAvtale"),
             enheter = navEnheter,
             beskrivelse = stringOrNull("beskrivelse"),
