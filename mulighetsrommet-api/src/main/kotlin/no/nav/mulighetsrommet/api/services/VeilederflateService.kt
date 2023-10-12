@@ -5,12 +5,14 @@ import com.github.benmanes.caffeine.cache.Caffeine
 import io.prometheus.client.cache.caffeine.CacheMetricsCollector
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityPerspective
+import no.nav.mulighetsrommet.api.clients.vedtak.Innsatsgruppe
 import no.nav.mulighetsrommet.api.domain.dto.*
 import no.nav.mulighetsrommet.api.routes.v1.GetRelevanteTiltaksgjennomforingerForBrukerRequest
 import no.nav.mulighetsrommet.api.routes.v1.GetTiltaksgjennomforingForBrukerRequest
 import no.nav.mulighetsrommet.api.utils.byggInnsatsgruppeFilter
 import no.nav.mulighetsrommet.api.utils.byggSokeFilter
 import no.nav.mulighetsrommet.api.utils.byggTiltakstypeFilter
+import no.nav.mulighetsrommet.api.utils.utledInnsatsgrupper
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingTilgjengelighetsstatus
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingAdminDto
 import no.nav.mulighetsrommet.domain.dto.emptyOrNull
@@ -136,25 +138,27 @@ class VeilederflateService(
             is SanityResponse.Error -> throw Exception(result.error.toString())
         }
 
-        val apiGjennomforinger = sanityGjennomforinger
-            .map { UUID.fromString(it._id) }
-            .let { tiltaksgjennomforingService.getBySanityIds(it) }
-
         val brukerdata = brukerService.hentBrukerdata(filter.norskIdent, accessToken)
         val enhetsnummer = brukerdata.geografiskEnhet?.enhetsnummer
         val fylkeEnhetsnummer = enhetsnummer
             ?.let { navEnhetService.hentOverorndetFylkesenhet(it)?.enhetsnummer }
             ?: ""
 
-        return sanityGjennomforinger
-            .map { sanityGjennomforing ->
-                val apiGjennomforing = apiGjennomforinger[UUID.fromString(sanityGjennomforing._id)]
-                mergeSanityTiltaksgjennomforingWithApiTiltaksgjennomforing(
-                    sanityGjennomforing,
-                    apiGjennomforing,
-                    enhetsnummer,
-                )
-            }
+        val gruppeGjennomforinger = tiltaksgjennomforingService.getAllVeilederflateTiltaksgjennomforing(
+            search = filter.search,
+            sanityTiltakstypeIds = filter.tiltakstypeIds.map { UUID.fromString(it) },
+            innsatsgrupper = filter.innsatsgruppe?.let {
+                utledInnsatsgrupper(filter.innsatsgruppe).map { Innsatsgruppe.valueOf(it) }
+            } ?: emptyList(),
+        )
+
+        val gruppeSanityIds = gruppeGjennomforinger.map { it.sanityId }
+
+        val individuelleGjennomforinger = sanityGjennomforinger
+            .filter { it._id !in gruppeSanityIds }
+            .map { toVeilederTiltaksgjennomforing(it, enhetsnummer) }
+
+        return (individuelleGjennomforinger + gruppeGjennomforinger)
             .filter {
                 if (it.enheter.isNullOrEmpty()) {
                     it.fylke == fylkeEnhetsnummer

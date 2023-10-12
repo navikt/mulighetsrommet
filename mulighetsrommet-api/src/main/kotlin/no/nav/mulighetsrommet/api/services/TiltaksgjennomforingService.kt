@@ -4,7 +4,9 @@ import arrow.core.Either
 import arrow.core.right
 import io.ktor.server.plugins.*
 import kotliquery.Session
+import no.nav.mulighetsrommet.api.clients.vedtak.Innsatsgruppe
 import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingNokkeltallDto
+import no.nav.mulighetsrommet.api.domain.dto.VeilederflateTiltaksgjennomforing
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
@@ -103,6 +105,13 @@ class TiltaksgjennomforingService(
                     data = data,
                 )
             }
+
+    fun getAllVeilederflateTiltaksgjennomforing(
+        search: String?,
+        sanityTiltakstypeIds: List<UUID>,
+        innsatsgrupper: List<Innsatsgruppe>,
+    ): List<VeilederflateTiltaksgjennomforing> =
+        tiltaksgjennomforingRepository.getAllVeilederflateTiltaksgjennomforing(search, sanityTiltakstypeIds, innsatsgrupper)
 
     fun getAll(
         pagination: PaginationParams,

@@ -5,7 +5,9 @@ import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingTilgjengelighetsstatus
 import no.nav.mulighetsrommet.domain.dto.Faneinnhold
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
+import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import java.time.LocalDate
+import java.util.*
 
 @Serializable
 data class VeilederflateInnsatsgruppe(
@@ -18,7 +20,9 @@ data class VeilederflateInnsatsgruppe(
 
 @Serializable
 data class VeilederflateTiltaksgjennomforing(
-    val sanityId: String,
+    @Serializable(with = UUIDSerializer::class)
+    val id: UUID? = null,
+    val sanityId: String? = null,
     val tiltakstype: VeilederflateTiltakstype? = null,
     val navn: String,
     val stedForGjennomforing: String? = null,
