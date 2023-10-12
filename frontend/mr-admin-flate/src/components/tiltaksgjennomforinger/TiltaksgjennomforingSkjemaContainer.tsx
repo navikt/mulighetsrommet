@@ -150,14 +150,21 @@ export const TiltaksgjennomforingSkjemaContainer = ({
       stedForGjennomforing: tiltaksgjennomforing?.stedForGjennomforing,
       arrangorKontaktpersonId: tiltaksgjennomforing?.arrangor?.kontaktperson?.id,
       beskrivelse: tiltaksgjennomforing?.beskrivelse ?? null,
-      faneinnhold: tiltaksgjennomforing?.faneinnhold ?? null,
+      faneinnhold: tiltaksgjennomforing?.faneinnhold ?? {
+        forHvem: null,
+        forHvemInfoboks: null,
+        pameldingOgVarighet: null,
+        pameldingOgVarighetInfoboks: null,
+        detaljerOgInnhold: null,
+        detaljerOgInnholdInfoboks: null,
+      },
       opphav: tiltaksgjennomforing?.opphav ?? Opphav.MR_ADMIN_FLATE,
     },
   });
 
   const {
     handleSubmit,
-    formState: { defaultValues },
+    formState: { defaultValues, errors },
     watch,
   } = form;
 
@@ -222,6 +229,8 @@ export const TiltaksgjennomforingSkjemaContainer = ({
     }
   }, [mutation]);
 
+  const hasErrors = () => Object.keys(errors).length > 0;
+
   return (
     <FormProvider {...form}>
       {!redigeringsModus ? (
@@ -234,7 +243,11 @@ export const TiltaksgjennomforingSkjemaContainer = ({
           <Tabs defaultValue="detaljer">
             <Tabs.List className={skjemastyles.tabslist}>
               <div>
-                <Tabs.Tab value="detaljer" label="Detaljer" />
+                <Tabs.Tab
+                  style={{ border: hasErrors() ? "solid 1px red" : "" }}
+                  value="detaljer"
+                  label="Detaljer"
+                />
                 <Tabs.Tab value="redaksjonelt_innhold" label="Redaksjonelt innhold" />
               </div>
               <TiltaksgjennomforingSkjemaKnapperad
