@@ -27,6 +27,7 @@ import { environments } from "../../env";
 import TiltaksgjennomforingsHeader from "../../layouts/TiltaksgjennomforingsHeader";
 import { byttTilDialogFlate } from "../../utils/DialogFlateUtils";
 import { capitalize, erPreview, formaterDato } from "../../utils/Utils";
+import { v4 as uuid } from "uuid";
 import styles from "./ViewTiltaksgjennomforingDetaljer.module.scss";
 
 const whiteListOpprettAvtaleKnapp: Tiltakskode[] = [
@@ -117,7 +118,7 @@ const ViewTiltaksgjennomforingDetaljer = ({
   const tilgjengelighetsstatusSomNokkelinfo: NokkelinfoProps = {
     nokkelinfoKomponenter: [
       {
-        _id: tiltaksgjennomforing.sanityId,
+        _id: tiltaksgjennomforing.sanityId || uuid(),
         innhold: (
           <TilgjengelighetsstatusComponent
             status={tiltaksgjennomforing.tilgjengelighet}
