@@ -13,6 +13,9 @@ export const TiltaksgjennomforingSkjemaRedInnhold = ({ avtale }: { avtale: Avtal
 
   return (
     <div className={skjemastyles.container}>
+      <Alert size="small" variant="info">
+        Ikke del personopplysninger i fritekstfeltene
+      </Alert>
       <div className={skjemastyles.red_innhold_container}>
         {tiltakstypeSanityData?.beskrivelse && (
           <>
