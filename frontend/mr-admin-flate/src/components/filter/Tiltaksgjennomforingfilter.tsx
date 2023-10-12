@@ -2,6 +2,7 @@ import { Button, Search } from "@navikt/ds-react";
 import classNames from "classnames";
 import { useAtom } from "jotai";
 import {
+  Avtalestatus,
   NavEnhetType,
   Opphav,
   TiltaksgjennomforingStatus,
@@ -64,6 +65,8 @@ export function Tiltaksgjennomforingfilter({ skjulFilter }: Props) {
     opprettGjennomforingIsEnabled && inneholderUrl("/avtaler/");
 
   const avtaleErOpprettetIMulighetsrommet = avtale?.opphav === Opphav.MR_ADMIN_FLATE;
+  const avtalenErAktiv =
+    avtale?.avtalestatus === Avtalestatus.AKTIV || avtale?.avtalestatus === Avtalestatus.PLANLAGT;
 
   useEffect(() => {
     setFilter({
@@ -296,7 +299,7 @@ export function Tiltaksgjennomforingfilter({ skjulFilter }: Props) {
             />
           </div>
 
-          {avtale && (
+          {avtale && avtalenErAktiv && (
             <div className={classNames(styles.knapperad, styles.tiltaksgjennomforings_knapperad)}>
               <div className={styles.flex_row}>
                 {visOpprettTiltaksgjennomforingKnapp && (
