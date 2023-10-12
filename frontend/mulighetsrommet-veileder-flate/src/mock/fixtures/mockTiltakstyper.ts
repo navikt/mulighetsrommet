@@ -159,7 +159,7 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
       ],
     },
     delingMedBruker:
-      "Hei <Fornavn>, \n\nVi har nå et arbeidsmarkedstiltak som jeg tenker kan passe deg godt. Det heter <tiltaksnavn> og  er et tilbud for deg som får uføretrygd. Du jobber i en skjermet bedrift med arbeidsoppgaver som er tilpasset deg. Du kan også jobbe i en ordinær bedrift.\n\nDu kan lese mer om tiltaket på www.nav.no/varig-tilrettelagt-arbeid",
+      "Vi har nå et arbeidsmarkedstiltak som jeg tenker kan passe deg godt. Det heter <tiltaksnavn> og  er et tilbud for deg som får uføretrygd. Du jobber i en skjermet bedrift med arbeidsoppgaver som er tilpasset deg. Du kan også jobbe i en ordinær bedrift.\n\nDu kan lese mer om tiltaket på www.nav.no/varig-tilrettelagt-arbeid",
     beskrivelse:
       "Varig tilrettelagt arbeid (VTA-S) skal gi brukeren arbeid med oppgaver tilpasset han eller hennes arbeidsevne, og tilby et individuelt tilpasset opplegg.",
     navn: "VTA - Varig tilrettelagt arbeid",
@@ -292,7 +292,7 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
     },
     sanityId: "29c3d3cb-ffbf-4c22-8ffc-fea5d7f6c822",
     delingMedBruker:
-      "Hei <Fornavn>, \n\nVi har nå et arbeidsmarkedstiltak som jeg tenker kan passe deg godt. Det heter <tiltaksnavn> og er et tilbud for deg som har helseplager eller sosiale problemer.\n\nTiltaket blir tilpasset behovet ditt ut fra mulighetene dine på arbeidsmarkedet, og kan blant annet inneholde:\n- motivasjons- og mestringsaktiviteter\n- individuelt treningsopplegg med veiledning\n- arbeidsutprøving i trygge omgivelser\n- veiledning i livsstil\n\nDu kan lese mer om kurset på www.nav.no/arbeidsrettet-rehabilitering ",
+      "Vi har nå et arbeidsmarkedstiltak som jeg tenker kan passe deg godt. Det heter <tiltaksnavn> og er et tilbud for deg som har helseplager eller sosiale problemer.\n\nTiltaket blir tilpasset behovet ditt ut fra mulighetene dine på arbeidsmarkedet, og kan blant annet inneholde:\n- motivasjons- og mestringsaktiviteter\n- individuelt treningsopplegg med veiledning\n- arbeidsutprøving i trygge omgivelser\n- veiledning i livsstil\n\nDu kan lese mer om kurset på www.nav.no/arbeidsrettet-rehabilitering ",
     regelverkLenker: [
       {
         _id: "123",
@@ -829,7 +829,7 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
       order: 0,
     },
     delingMedBruker:
-      "Hei <Fornavn>, \n\nVi har nå et kurs som jeg tenker kan passe deg godt. Det heter <tiltaksnavn>, og er et heldigitalt jobbsøkings- og karriereveiledningskurs.\n\nMålet er at du skal komme i jobb. Du \n- trener på jobbintervju\n- lærer hvordan skrive CV og jobbsøknad\n- får individuell karriereveileding\n- lærer om arbeidsmarkedet og hvor du finner ledige jobber\n- deltar på gruppearbeid og deler erfaringer med andre arbeidssøkere\n- får hjelp til å søke jobber\n\nDu kan lese mer om kurset  på www.nav.no/digital-jobbklubb ",
+      "Vi har nå et kurs som jeg tenker kan passe deg godt. Det heter <tiltaksnavn>, og er et heldigitalt jobbsøkings- og karriereveiledningskurs.\n\nMålet er at du skal komme i jobb. Du \n- trener på jobbintervju\n- lærer hvordan skrive CV og jobbsøknad\n- får individuell karriereveileding\n- lærer om arbeidsmarkedet og hvor du finner ledige jobber\n- deltar på gruppearbeid og deler erfaringer med andre arbeidssøkere\n- får hjelp til å søke jobber\n\nDu kan lese mer om kurset  på www.nav.no/digital-jobbklubb ",
     beskrivelse:
       "Digital oppfølgingstiltak er et kortvarig nettbasert kurs som skal gi  karriereveiledning, jobbsøkningsbistand og personlig oppfølging med egen rådgiver. Målet er at tiltaksdeltaker gjennom veiledning og et individuelt tilpasset opplegg  skal bli selvforsørget. ",
     navn: 'Digitalt oppfølgingstiltak for arbeidsledige ("digital jobbklubb")',
@@ -1717,7 +1717,7 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
       order: 1,
     },
     delingMedBruker:
-      "Hei <Fornavn>, \n\nVi har nå et arbeidsmarkedstiltak som jeg tenker kan passe deg godt. Det heter <tiltaksnavn>  og vil tilpasses dine behov for støtte for å skaffe eller beholde en jobb.\n\nDu kan blant annet få veiledning, råd og bistand til\n- jobbsøking og karriereveiledning\n- tilpasning og tilrettelegging av arbeidet og arbeidssituasjonen\n- praktiske oppgaver knyttet til arbeid\n- opplæring i sosiale og arbeidsrelaterte ferdigheter i arbeidslivet\n\nDu kan lese mer om kurset på www.nav.no/oppfolging",
+      "Vi har nå et arbeidsmarkedstiltak som jeg tenker kan passe deg godt. Det heter <tiltaksnavn>  og vil tilpasses dine behov for støtte for å skaffe eller beholde en jobb.\n\nDu kan blant annet få veiledning, råd og bistand til\n- jobbsøking og karriereveiledning\n- tilpasning og tilrettelegging av arbeidet og arbeidssituasjonen\n- praktiske oppgaver knyttet til arbeid\n- opplæring i sosiale og arbeidsrelaterte ferdigheter i arbeidslivet\n\nDu kan lese mer om kurset på www.nav.no/oppfolging",
     navn: "Oppfølging",
     sanityId: "5ac48c03-1f4c-4d4b-b862-050caca92080",
     regelverkLenker: [
@@ -1737,7 +1737,7 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
   },
   varig_lonnstilskudd: {
     delingMedBruker:
-      "Hei <Fornavn>, \n\nVi har et tilbud som jeg tenker kan passe for deg.  \n\nDet heter varig lønnstilskudd og er for deg med en varig og vesentlig nedsatt arbeidsevne. Tiltaket skal øke mulighetene for at du kan få en vanlig jobb. Du blir ansatt med vanlig lønn i en hel- eller deltidsstilling, mens arbeidsgiveren får et tilskudd til lønnen din. \n\nDu kan lese mer om tilbudet på https://www.nav.no/varig-lonnstilskudd",
+      "Vi har et tilbud som jeg tenker kan passe for deg.  \n\nDet heter varig lønnstilskudd og er for deg med en varig og vesentlig nedsatt arbeidsevne. Tiltaket skal øke mulighetene for at du kan få en vanlig jobb. Du blir ansatt med vanlig lønn i en hel- eller deltidsstilling, mens arbeidsgiveren får et tilskudd til lønnen din. \n\nDu kan lese mer om tilbudet på https://www.nav.no/varig-lonnstilskudd",
     beskrivelse:
       "Varig lønnstilskudd skal bidra til å skaffe eller beholde arbeid, samt motvirke overgang til uføre for personer med varig og vesentlig nedsatt arbeidsevne",
     regelverkLenker: [
@@ -1980,7 +1980,7 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
       order: 1,
     },
     delingMedBruker:
-      "Hei <Fornavn>, \n\nVi har nå et opplæringstiltak som jeg tenker kan passe deg godt. Det heter <tiltaksnavn>, og hensikten med tiltaket er å kvalifisere deg for ledige jobber.\n\nDu kan lese mer om tiltaket på www.nav.no/opplaring",
+      "Vi har nå et opplæringstiltak som jeg tenker kan passe deg godt. Det heter <tiltaksnavn>, og hensikten med tiltaket er å kvalifisere deg for ledige jobber.\n\nDu kan lese mer om tiltaket på www.nav.no/opplaring",
     navn: "Opplæring - Gruppe Fag- og yrkesopplæring",
     sanityId: "7f353dcd-37c2-42f8-bab6-ac2a60669839",
     beskrivelse:
@@ -2703,7 +2703,7 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
       order: 2,
     },
     delingMedBruker:
-      "Hei <Fornavn>, \n\nVi har nå et arbeidsmarkedstiltak som jeg tenker kan passe deg godt. Det heter <tiltaksnavn> og er et tilbud for deg som deg som har nedsatt arbeidsevne og trenger hjelp for å komme i jobb.\n\nMålet er å avklare arbeidsevnen din gjennom arbeidstrening i ulike arbeidssituasjoner.\n\n- Etter en periode med forberedende arbeidstrening i et tilrettelagt arbeidsmiljø får du arbeidstrening i en vanlig bedrift.\n- Du får kartlagt kompetansen din og får karriereveiledning.\n- Du kan få tilrettelagt opplæring hvis du ønsker å gå videre med et yrkesfaglig utdanningsløp. Opplæringen skal bedre mulighetene dine til å komme i jobb.\n\nDu kan lese mer om kurset på www.nav.no/arbeidsforberedende-trening",
+      "Vi har nå et arbeidsmarkedstiltak som jeg tenker kan passe deg godt. Det heter <tiltaksnavn> og er et tilbud for deg som deg som har nedsatt arbeidsevne og trenger hjelp for å komme i jobb.\n\nMålet er å avklare arbeidsevnen din gjennom arbeidstrening i ulike arbeidssituasjoner.\n\n- Etter en periode med forberedende arbeidstrening i et tilrettelagt arbeidsmiljø får du arbeidstrening i en vanlig bedrift.\n- Du får kartlagt kompetansen din og får karriereveiledning.\n- Du kan få tilrettelagt opplæring hvis du ønsker å gå videre med et yrkesfaglig utdanningsløp. Opplæringen skal bedre mulighetene dine til å komme i jobb.\n\nDu kan lese mer om kurset på www.nav.no/arbeidsforberedende-trening",
   },
   arbeidstrening: {
     innsatsgruppe: {
@@ -2806,7 +2806,7 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
     arenakode: Tiltakskode.GRUPPEAMO,
     sanityId: "eadeb22c-bd89-4298-a5c2-145f112f8e7d",
     delingMedBruker:
-      "Hei <Fornavn>,   \n\nHar du vurdert utdanning for å få flere muligheter på arbeidsmarkedet?  \n\nDu kan lese mer om tiltaket på www.nav.no/opplaring \n\nEr dette aktuelt for deg? Gi meg tilbakemelding her i dialogen. \nSvaret ditt vil ikke endre din utbetaling fra NAV. \n\nVi holder kontakten!\nHilsen <Veiledernavn> \n",
+      "Har du vurdert utdanning for å få flere muligheter på arbeidsmarkedet?  \n\nDu kan lese mer om tiltaket på www.nav.no/opplaring \n\nEr dette aktuelt for deg? Gi meg tilbakemelding her i dialogen. \nSvaret ditt vil ikke endre din utbetaling fra NAV. \n\nVi holder kontakten!\nHilsen <Veiledernavn> \n",
     regelverkLenker: [
       {
         _id: "123",
@@ -2820,7 +2820,7 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
       },
     ],
     faneinnhold: {
-      forHvemInfoboks: "Veldig viktig",
+      forHvemInfoboks: "Det er viktig at man bruker korrekt innsøkingsprosess for dette tiltaket",
       forHvem: [
         {
           _type: "block",
@@ -3189,7 +3189,7 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
     },
     sanityId: "f9618e97-4510-49e2-b748-29cae84d9019",
     delingMedBruker:
-      "Hei <Fornavn>, \n\nVi har nå et arbeidsmarkedstiltak som jeg tenker kan passe deg godt. Det heter <tiltaksnavn>.\n\nI tiltaket kan det være aktuelt å kartlegge og gi hjelp til å\n- tilpasse arbeidssituasjonen og -oppgaver slik at du kan utføre jobben\n- finne ut hva slags hjelp eller tilrettelegging som skal til for at du kan jobbe\n- se kompetansen din og mulighetene dine\n\nUnder avklaring kan du også få\n- informasjon om arbeidsmarkedet, yrker og jobbkrav\n- veiledning for å velge yrkesmål og arbeidsoppgaver\n- arbeidsutprøving på en arbeidsplass\n\nDu kan lese mer om kurset på www.nav.no/avklaring ",
+      "Vi har nå et arbeidsmarkedstiltak som jeg tenker kan passe deg godt. Det heter <tiltaksnavn>.\n\nI tiltaket kan det være aktuelt å kartlegge og gi hjelp til å\n- tilpasse arbeidssituasjonen og -oppgaver slik at du kan utføre jobben\n- finne ut hva slags hjelp eller tilrettelegging som skal til for at du kan jobbe\n- se kompetansen din og mulighetene dine\n\nUnder avklaring kan du også få\n- informasjon om arbeidsmarkedet, yrker og jobbkrav\n- veiledning for å velge yrkesmål og arbeidsoppgaver\n- arbeidsutprøving på en arbeidsplass\n\nDu kan lese mer om kurset på www.nav.no/avklaring ",
     navn: "Avklaring",
   },
 };
