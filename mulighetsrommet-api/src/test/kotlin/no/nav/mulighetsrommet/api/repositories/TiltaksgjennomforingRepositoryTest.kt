@@ -1135,4 +1135,17 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             it!!.faneinnhold!!.forHvem!![0] shouldBe faneinnhold.forHvem!![0]
         }
     }
+
+    test("Tilgjengelig for veileder") {
+        val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
+        val gjennomforing = Oppfolging1.copy(id = UUID.randomUUID())
+        tiltaksgjennomforinger.upsert(gjennomforing)
+        tiltaksgjennomforinger.get(gjennomforing.id).should {
+            it!!.tilgjengeligForVeileder shouldBe false
+        }
+        tiltaksgjennomforinger.setTilgjengeligForVeileder(gjennomforing.id, true)
+        tiltaksgjennomforinger.get(gjennomforing.id).should {
+            it!!.tilgjengeligForVeileder shouldBe true
+        }
+    }
 })

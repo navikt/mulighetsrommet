@@ -682,6 +682,26 @@ paths:
               schema:
                 type: string
 
+  /api/v1/internal/tiltaksgjennomforinger/{id}/tilgjengeligForVeileder:
+    parameters:
+      - $ref: "#/components/parameters/ID"
+    put:
+      tags:
+        - Tiltaksgjennomforinger
+      operationId: setTilgjengeligForVeileder
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TilgjengeligForVeilederRequest"
+      responses:
+        200:
+          description: Update for 'tilgjengelig for veileder' was successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Tiltaksgjennomforing"
+
   /api/v1/internal/tiltaksgjennomforinger/enhet/{enhet}:
     parameters:
       - in: path
@@ -1901,6 +1921,8 @@ components:
           $ref: "#/components/schemas/SanityFaneinnhold"
         beskrivelse:
           type: string
+        tilgjengeligForVeileder:
+          type: boolean
       required:
         - status
         - id
@@ -1912,6 +1934,7 @@ components:
         - opphav
         - midlertidigStengt
         - tilgjengelighet
+        - tilgjengeligForVeileder
 
     TiltaksgjennomforingRequest:
       type: object
@@ -2949,3 +2972,11 @@ components:
         - mulighetsrommet.admin-flate-faneinnhold
         - mulighetsrommet.admin-flate.opsjoner-for-avtaler
         - mulighetsrommet.admin-flate.rediger-oppstart
+
+    TilgjengeligForVeilederRequest:
+      type: object
+      properties:
+        tilgjengeligForVeileder:
+          type: boolean
+      required:
+        - tilgjengeligForVeileder

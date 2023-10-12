@@ -49,6 +49,7 @@ data class TiltaksgjennomforingAdminDto(
     val createdAt: LocalDateTime,
     @Serializable(with = LocalDateTimeSerializer::class)
     val updatedAt: LocalDateTime,
+    val tilgjengeligForVeileder: Boolean,
 ) {
     @Serializable
     data class Tiltakstype(
