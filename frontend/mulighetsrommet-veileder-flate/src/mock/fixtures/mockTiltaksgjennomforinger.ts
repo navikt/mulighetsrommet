@@ -68,36 +68,25 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
       },
     ],
     faneinnhold: {
-      forHvemInfoboks: "Infoboks for hvem fane fra gjennomføringen",
+      forHvemInfoboks: "Deltakeren må være forberedt på dårlig vær under tiltaksperioden",
       forHvem: [
         {
           style: "normal",
           children: [
             {
-              text: "Spesifikk for hvem tekst for denne gjennomføringen.",
+              text: "Kurset holdes i Østmarka og vil foregå over en tre ukers periode. Deltaker bør ikke gå på spesielle medisiner, være skadet eller ha funksjonsnedsettelser i forbindelse med forflytting.",
               _type: "span",
             },
           ],
           _type: "block",
-        },
-        {
-          children: [
-            {
-              _type: "span",
-              text: "Ny paragraf.",
-            },
-          ],
-          _type: "block",
-          style: "normal",
         },
         {
           _type: "block",
           listItem: "bullet",
-          markDefs: [{ _type: "link", _key: "vg.no", href: "https://vg.no" }],
+          markDefs: [{ _type: "link", _key: "nav.no", href: "https://nav.no" }],
           children: [
-            { _type: "span", text: "Lenke til " },
-            { _type: "span", text: "vg ", marks: ["vg.no"] },
-            { _type: "span", text: " italicbold", marks: ["strong", "em"] },
+            { _type: "span", text: "Du kan lese mer om tiltaket på " },
+            { _type: "span", text: "NAV.no ", marks: ["nav.no"] },
           ],
         },
       ],
