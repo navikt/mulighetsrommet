@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.services
 
 import arrow.core.Either
 import arrow.core.right
+import io.ktor.server.plugins.*
 import kotliquery.Session
 import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingNokkeltallDto
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
@@ -206,7 +207,11 @@ class TiltaksgjennomforingService(
         }.right()
     }
 
-    private fun dispatchSattSomAdministratorNotification(gjennomforingNavn: String, administrator: String, tx: Session) {
+    private fun dispatchSattSomAdministratorNotification(
+        gjennomforingNavn: String,
+        administrator: String,
+        tx: Session,
+    ) {
         val notification = ScheduledNotification(
             type = NotificationType.NOTIFICATION,
             title = "Du har blitt satt som administrator på gjennomføringen \"${gjennomforingNavn}\"",
@@ -214,5 +219,10 @@ class TiltaksgjennomforingService(
             createdAt = Instant.now(),
         )
         notificationRepository.insert(notification, tx)
+    }
+
+    fun setTilgjengeligForVeileder(id: UUID, tilgjengeligForVeileder: Boolean) {
+        val updatedRows = tiltaksgjennomforingRepository.setTilgjengeligForVeileder(id, tilgjengeligForVeileder)
+        if (updatedRows != 1) throw NotFoundException("Fant ingen gjennomføring med id: $id")
     }
 }

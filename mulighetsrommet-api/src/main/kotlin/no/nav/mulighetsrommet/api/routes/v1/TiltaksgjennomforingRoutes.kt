@@ -62,14 +62,14 @@ fun Route.tiltaksgjennomforingRoutes() {
         }
 
         put("{id}") {
-            val gjennomforingId = call.parameters.getOrFail<UUID>("id")
+            val id = call.parameters.getOrFail<UUID>("id")
             val request = call.receive<GjennomforingTilAvtaleRequest>()
-            call.respond(tiltaksgjennomforingService.kobleGjennomforingTilAvtale(gjennomforingId, request.avtaleId))
+            call.respond(tiltaksgjennomforingService.kobleGjennomforingTilAvtale(id, request.avtaleId))
         }
 
         put("{id}/avbryt") {
-            val gjennomforingId = call.parameters.getOrFail<UUID>("id")
-            call.respondWithStatusResponse(tiltaksgjennomforingService.avbrytGjennomforing(gjennomforingId))
+            val id = call.parameters.getOrFail<UUID>("id")
+            call.respondWithStatusResponse(tiltaksgjennomforingService.avbrytGjennomforing(id))
         }
 
         get("{id}/nokkeltall") {
@@ -80,6 +80,17 @@ fun Route.tiltaksgjennomforingRoutes() {
         delete("{id}") {
             val id = call.parameters.getOrFail<UUID>("id")
             call.respondWithStatusResponse(tiltaksgjennomforingService.delete(id))
+        }
+
+        put("{id}/tilgjengeligForVeileder") {
+            val id = call.parameters.getOrFail<UUID>("id")
+            val request = call.receive<TilgjengeligForVeilederRequest>()
+            call.respond(
+                tiltaksgjennomforingService.setTilgjengeligForVeileder(
+                    id,
+                    request.tilgjengeligForVeileder,
+                ),
+            )
         }
     }
 }
@@ -183,4 +194,9 @@ data class GjennomforingTilAvtaleRequest(
 data class NavKontaktpersonForGjennomforing(
     val navIdent: String,
     val navEnheter: List<String>,
+)
+
+@Serializable
+data class TilgjengeligForVeilederRequest(
+    val tilgjengeligForVeileder: Boolean,
 )
