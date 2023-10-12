@@ -19,7 +19,6 @@ import no.nav.mulighetsrommet.api.routes.v1.GetRelevanteTiltaksgjennomforingerFo
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingTilgjengelighetsstatus
 import no.nav.mulighetsrommet.domain.dto.Faneinnhold
-import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingAdminDto
 import java.time.LocalDate
 import java.util.*
 
