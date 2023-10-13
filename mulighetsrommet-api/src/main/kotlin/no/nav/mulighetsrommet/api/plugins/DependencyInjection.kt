@@ -260,7 +260,7 @@ private fun services(appConfig: AppConfig) = module {
     single { ArrangorService(get()) }
     single { BrukerService(get(), get(), get()) }
     single { DialogService(get()) }
-    single { NavAnsattService(get(), get(), appConfig.navAnsattService.roller, get()) }
+    single { NavAnsattService(appConfig.auth.roles, get(), get(), get()) }
     single { PoaoTilgangService(get()) }
     single { DelMedBrukerService(get()) }
     single { MicrosoftGraphService(get()) }

@@ -41,7 +41,7 @@ fun Application.configure(config: AppConfig) {
 
     routing {
         swaggerUI(path = "/swagger-ui/internal", swaggerFile = "web/openapi.yaml")
-        authenticate(AuthProvider.AzureAdNavIdent.name) {
+        authenticate(AuthProvider.AZURE_AD_NAV_IDENT.name) {
             tiltakstypeRoutes()
             tiltaksgjennomforingRoutes()
             avtaleRoutes()
@@ -59,12 +59,12 @@ fun Application.configure(config: AppConfig) {
             featureTogglesRoute()
         }
 
-        authenticate(AuthProvider.AzureAdDefaultApp.name) {
+        authenticate(AuthProvider.AZURE_AD_DEFAULT_APP.name) {
             arenaAdapterRoutes()
         }
 
         swaggerUI(path = "/swagger-ui/external", swaggerFile = "web/openapi-external.yaml")
-        authenticate(AuthProvider.AzureAdTiltaksgjennomforingApp.name) {
+        authenticate(AuthProvider.AZURE_AD_TILTAKSGJENNOMFORING_APP.name) {
             externalRoutes()
         }
     }

@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api
 
+import io.ktor.server.application.*
 import io.ktor.server.testing.*
 import no.nav.mulighetsrommet.api.clients.brreg.BrregClientImpl
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
@@ -24,22 +25,23 @@ fun createDatabaseTestConfig() =
     }
 
 fun <R> withTestApplication(
-    oauth: MockOAuth2Server = MockOAuth2Server(),
-    config: AppConfig = createTestApplicationConfig(oauth),
+    config: AppConfig = createTestApplicationConfig(),
+    additionalConfiguration: (Application.() -> Unit)? = null,
     test: suspend ApplicationTestBuilder.() -> R,
 ) {
     testApplication {
         application {
             configure(config)
+            additionalConfiguration?.invoke(this)
         }
 
         test()
     }
 }
 
-fun createTestApplicationConfig(oauth: MockOAuth2Server) = AppConfig(
+fun createTestApplicationConfig() = AppConfig(
     database = createDatabaseTestConfig(),
-    auth = createAuthConfig(oauth),
+    auth = createAuthConfig(oauth = null, roles = listOf()),
     kafka = createKafkaConfig(),
     sanity = SanityClient.Config(projectId = "", token = "", dataset = "", apiVersion = ""),
     veilarboppfolgingConfig = createServiceClientConfig("veilarboppfolging"),
@@ -84,7 +86,6 @@ fun createTestApplicationConfig(oauth: MockOAuth2Server) = AppConfig(
         enable = false,
     ),
     brreg = BrregClientImpl.Config(baseUrl = ""),
-    navAnsattService = NavAnsattServiceConfig(roller = listOf()),
     unleash = UnleashService.Config(
         appName = "",
         url = "",
@@ -106,7 +107,10 @@ fun createKafkaConfig(): KafkaConfig {
         ),
         consumerGroupId = "mulighetsrommet-api-consumer",
         consumers = KafkaConsumers(
-            tiltaksgjennomforingerV1 = KafkaTopicConsumer.Config(id = "siste-tiltaksgjennomforinger", topic = "siste-tiltaksgjennomforinger-v1"),
+            tiltaksgjennomforingerV1 = KafkaTopicConsumer.Config(
+                id = "siste-tiltaksgjennomforinger",
+                topic = "siste-tiltaksgjennomforinger-v1",
+            ),
             amtDeltakerV1 = KafkaTopicConsumer.Config(id = "amt-deltaker", topic = "amt-deltaker"),
             amtVirksomheterV1 = KafkaTopicConsumer.Config(id = "amt-virksomheter", topic = "amt-virksomheter"),
         ),
@@ -123,16 +127,18 @@ fun createServiceClientConfig(url: String): ServiceClientConfig {
 // Default values for 'iss' og 'aud' in tokens issued by mock-oauth2-server is 'default'.
 // These values are set as the default here so that standard tokens issued by MockOAuth2Server works with a minimal amount of setup.
 fun createAuthConfig(
-    oauth: MockOAuth2Server,
+    oauth: MockOAuth2Server?,
     issuer: String = "default",
     audience: String = "default",
+    roles: List<AdGruppeNavAnsattRolleMapping>,
 ): AuthConfig {
     return AuthConfig(
         azure = AuthProvider(
-            issuer = oauth.issuerUrl(issuer).toString(),
-            jwksUri = oauth.jwksUrl(issuer).toUri().toString(),
+            issuer = oauth?.issuerUrl(issuer)?.toString() ?: issuer,
             audience = audience,
-            tokenEndpointUrl = oauth.tokenEndpointUrl(issuer).toString(),
+            jwksUri = oauth?.jwksUrl(issuer)?.toUri()?.toString() ?: "http://localhost",
+            tokenEndpointUrl = oauth?.tokenEndpointUrl(issuer)?.toString() ?: "http://localhost",
         ),
+        roles = roles,
     )
 }
