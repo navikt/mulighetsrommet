@@ -14,7 +14,11 @@ export const navKontaktperson = defineType({
       title: "Info",
       type: "string",
       components: {
-        field: Information,
+        field: () =>
+          Information({
+            melding:
+              "Opprettelse av kontaktpersoner skjer automatisk via baksystem. Kontakt Team Valp dersom du trenger å få importert kontakter. Vi trenger liste med fullt navn på kontaktpersoner du vil ha her.",
+          }),
       },
     }),
     defineField({
