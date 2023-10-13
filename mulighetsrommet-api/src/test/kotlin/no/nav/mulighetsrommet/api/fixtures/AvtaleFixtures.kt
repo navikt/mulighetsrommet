@@ -77,7 +77,9 @@ object AvtaleFixtures {
         navn = avtale1.navn,
         avtalenummer = avtale1.navn,
         leverandor = AvtaleAdminDto.Leverandor(organisasjonsnummer = "123456789", navn = "Bedrift", slettet = false),
-        leverandorUnderenheter = emptyList(),
+        leverandorUnderenheter = listOf(
+            AvtaleAdminDto.LeverandorUnderenhet(organisasjonsnummer = "976663934", navn = "Bedrift underenhet"),
+        ),
         leverandorKontaktperson = VirksomhetKontaktperson(
             id = UUID.randomUUID(),
             organisasjonsnummer = "123456789",

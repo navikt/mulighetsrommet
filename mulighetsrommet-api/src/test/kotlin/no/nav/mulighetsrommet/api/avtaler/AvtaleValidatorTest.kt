@@ -11,6 +11,7 @@ import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.mockk.every
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
+import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
@@ -195,7 +196,72 @@ class AvtaleValidatorTest : FunSpec({
             }
         }
 
-        context("når avtalen har status Aktiv") {
+        context("når avtalen har gjennomføringer") {
+            test("skal validere at data samsvarer med avtalens gjennomføringer") {
+                every { avtaler.get(existingAvtaleId) } returns avtaleAdminDto
+                every {
+                    gjennomforinger.getAll(
+                        any(),
+                        any(),
+                        any(),
+                        any(),
+                        any(),
+                        any(),
+                        any(),
+                        any(),
+                        any(),
+                        any(),
+                        any(),
+                        any(),
+                        any(),
+                    )
+                } returns Pair(
+                    1,
+                    listOf(
+                        TiltaksgjennomforingFixtures.Oppfolging1AdminDto.copy(
+                            tiltakstype = TiltaksgjennomforingAdminDto.Tiltakstype(
+                                id = avtaleAdminDto.tiltakstype.id,
+                                navn = avtaleAdminDto.tiltakstype.navn,
+                                arenaKode = avtaleAdminDto.tiltakstype.arenaKode,
+                            ),
+                            avtaleId = avtaleAdminDto.id,
+                            arrangor = TiltaksgjennomforingAdminDto.Arrangor(
+                                organisasjonsnummer = "000000001",
+                                navn = "Annen arrangør",
+                                kontaktperson = null,
+                                slettet = false,
+                            ),
+                            navEnheter = listOf(
+                                NavEnhet(navn = "NAV Gjøvik", enhetsnummer = "0502"),
+                            ),
+                        ),
+                    ),
+                )
+
+                val validator = AvtaleValidator(tiltakstyper, avtaler, gjennomforinger)
+
+                val dbo = avtaleDbo.copy(id = existingAvtaleId, tiltakstypeId = TiltakstypeFixtures.VTA.id)
+
+                validator.validate(dbo).shouldBeLeft().shouldContainExactlyInAnyOrder(
+                    listOf(
+                        ValidationError(
+                            "tiltakstypeId",
+                            "Kan ikke endre tiltakstype fordi det finnes gjennomføringer for avtalen",
+                        ),
+                        ValidationError(
+                            "leverandorUnderenheter",
+                            "Arrangøren 000000001 er i bruk på en av avtalens gjennomføringer, men mangler blandt leverandørens underenheter",
+                        ),
+                        ValidationError(
+                            "navEnheter",
+                            "NAV-enheten 0502 er i bruk på en av avtalens gjennomføringer, men mangler blandt avtalens NAV-enheter",
+                        ),
+                    ),
+                )
+            }
+        }
+
+        context("når avtalen er aktiv") {
             test("skal ikke kunne endre felter relatert til tilsagn/refursjon") {
                 val avtaleMedEndringer = AvtaleDbo(
                     id = avtaleDbo.id,

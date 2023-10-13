@@ -33,7 +33,7 @@ class TiltaksgjennomforingValidator(
         ensure(avtale.avtalestatus in listOf(Avtalestatus.Planlagt, Avtalestatus.Aktiv)) {
             ValidationError(
                 "avtaleId",
-                "Kan ikke endre gjennomføring fordi avtalen har status ${avtale.avtalestatus}"
+                "Kan ikke endre gjennomføring fordi avtalen har status ${avtale.avtalestatus}",
             ).nel()
         }
 
@@ -68,6 +68,20 @@ class TiltaksgjennomforingValidator(
 
             if (dbo.navEnheter.isEmpty()) {
                 add(ValidationError("navEnheter", "Minst ett NAV-kontor må være valgt"))
+            }
+
+            val avtaleNavEnheter = avtale.navEnheter.associateBy { it.enhetsnummer }
+            dbo.navEnheter.forEach { enhetsnummer ->
+                if (!avtaleNavEnheter.containsKey(enhetsnummer)) {
+                    add(ValidationError("navEnheter", "NAV-enhet $enhetsnummer mangler i avtalen"))
+                }
+            }
+
+            val avtaleHasArrangor = avtale.leverandorUnderenheter.any {
+                it.organisasjonsnummer == dbo.arrangorOrganisasjonsnummer
+            }
+            if (!avtaleHasArrangor) {
+                add(ValidationError("arrangorOrganisasjonsnummer", "Arrangøren mangler i avtalen"))
             }
 
             tiltaksgjennomforinger.get(dbo.id)?.also { gjennomforing ->

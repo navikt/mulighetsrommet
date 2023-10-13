@@ -53,21 +53,50 @@ class AvtaleValidator(
                     plus(ValidationError("opphav", "Avtalens opphav kan ikke endres"))
                 }
 
-                val (numGjennomforinger) = tiltaksgjennomforinger.getAll(avtaleId = dbo.id)
+                val (numGjennomforinger, gjennomforinger) = tiltaksgjennomforinger.getAll(avtaleId = dbo.id)
                 if (numGjennomforinger > 0) {
                     if (dbo.tiltakstypeId != avtale.tiltakstype.id) {
                         add(
                             ValidationError(
-                                "tiltakstypeId",
+                                AvtaleDbo::tiltakstypeId.name,
                                 "Kan ikke endre tiltakstype fordi det finnes gjennomføringer for avtalen",
                             ),
                         )
+                    }
+
+                    gjennomforinger.forEach { gjennomforing ->
+                        val arrangor = gjennomforing.arrangor.organisasjonsnummer
+                        if (arrangor !in dbo.leverandorUnderenheter) {
+                            add(
+                                ValidationError(
+                                    AvtaleDbo::leverandorUnderenheter.name,
+                                    "Arrangøren $arrangor er i bruk på en av avtalens gjennomføringer, men mangler blandt leverandørens underenheter",
+                                ),
+                            )
+                        }
+
+                        gjennomforing.navEnheter.forEach { enhet ->
+                            val enhetsnummer = enhet.enhetsnummer
+                            if (enhetsnummer !in dbo.navEnheter) {
+                                add(
+                                    ValidationError(
+                                        AvtaleDbo::navEnheter.name,
+                                        "NAV-enheten $enhetsnummer er i bruk på en av avtalens gjennomføringer, men mangler blandt avtalens NAV-enheter",
+                                    ),
+                                )
+                            }
+                        }
                     }
                 }
 
                 if (avtaleIsLocked(avtale, tiltakstype)) {
                     if (dbo.tiltakstypeId != tiltakstype.id) {
-                        add(ValidationError("tiltakstypeId", "Tiltakstype kan ikke endres når avtalen er aktiv"))
+                        add(
+                            ValidationError(
+                                AvtaleDbo::tiltakstypeId.name,
+                                "Tiltakstype kan ikke endres når avtalen er aktiv",
+                            ),
+                        )
                     }
 
                     if (dbo.avtaletype != avtale.avtaletype) {
