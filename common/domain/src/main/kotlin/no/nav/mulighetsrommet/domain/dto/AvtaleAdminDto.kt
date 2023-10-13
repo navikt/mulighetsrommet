@@ -3,8 +3,10 @@ package no.nav.mulighetsrommet.domain.dto
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
+import no.nav.mulighetsrommet.domain.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 @Serializable
@@ -30,6 +32,8 @@ data class AvtaleAdminDto(
     val antallPlasser: Int?,
     val navEnheter: List<NavEnhet>,
     val opphav: ArenaMigrering.Opphav,
+    @Serializable(with = LocalDateTimeSerializer::class)
+    val updatedAt: LocalDateTime
 ) {
     @Serializable
     data class Tiltakstype(

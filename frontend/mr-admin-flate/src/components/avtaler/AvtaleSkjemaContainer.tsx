@@ -434,8 +434,9 @@ export function AvtaleSkjemaContainer({
       <AutoSaveUtkast
         defaultValues={defaultValues}
         utkastId={utkastIdRef.current}
+        defaultUpdatedAt={avtale?.updatedAt}
         onSave={() => saveUtkast(watch(), avtale!, ansatt, utkastIdRef, mutationUtkast)}
-        mutation={mutationUtkast}
+        mutationUtkast={mutationUtkast}
       />
       {avtale && <AvbrytAvtaleModal modalRef={avbrytModalRef} avtale={avtale} />}
     </FormProvider>

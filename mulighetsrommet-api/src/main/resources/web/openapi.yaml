@@ -1669,6 +1669,9 @@ components:
             $ref: "#/components/schemas/EmbeddedNavEnhet"
         opphav:
           $ref: "#/components/schemas/Opphav"
+        updatedAt:
+            type: string
+            format: date-time
       required:
         - id
         - tiltakstype
@@ -1683,6 +1686,7 @@ components:
         - prisbetingelser
         - navEnheter
         - opphav
+        - updatedAt
 
     AvtaleRequest:
       type: object
@@ -2815,6 +2819,8 @@ components:
         - id
         - utkastData
         - type
+        - createdAt
+        - updatedAt
 
     AvtaleNotat:
       type: object

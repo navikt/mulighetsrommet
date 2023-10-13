@@ -14,7 +14,6 @@ import React, { useEffect, useRef } from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { v4 as uuidv4 } from "uuid";
 import { formaterDatoSomYYYYMMDD } from "../../utils/Utils";
-import { AutoSaveUtkast } from "../autosave/AutoSaveUtkast";
 import { tekniskFeilError } from "./TiltaksgjennomforingSkjemaErrors";
 import {
   inferredTiltaksgjennomforingSchema,
@@ -114,6 +113,8 @@ export const TiltaksgjennomforingSkjemaContainer = ({
       type: Utkast.type.TILTAKSGJENNOMFORING,
       opprettetAv: ansatt?.navIdent,
       avtaleId: avtale.id,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     });
   };
 
@@ -242,6 +243,10 @@ export const TiltaksgjennomforingSkjemaContainer = ({
                 redigeringsModus={redigeringsModus}
                 onClose={onClose}
                 mutation={mutation}
+                defaultValues={defaultValues}
+                utkastIdRef={utkastIdRef.current}
+                onSave={() => saveUtkast(watch(), avtale, utkastIdRef)}
+                mutationUtkast={mutationUtkast}
               />
             </Tabs.List>
             <Tabs.Panel value="detaljer">
@@ -256,13 +261,15 @@ export const TiltaksgjennomforingSkjemaContainer = ({
           </Tabs>
         ) : (
           <>
-            <div className={skjemastyles.button_row}>
-              <TiltaksgjennomforingSkjemaKnapperad
-                redigeringsModus={redigeringsModus}
-                onClose={onClose}
-                mutation={mutation}
-              />
-            </div>
+            <TiltaksgjennomforingSkjemaKnapperad
+              redigeringsModus={redigeringsModus}
+              onClose={onClose}
+              mutation={mutation}
+              defaultValues={defaultValues}
+              utkastIdRef={utkastIdRef.current}
+              onSave={() => saveUtkast(watch(), avtale, utkastIdRef)}
+              mutationUtkast={mutationUtkast}
+            />
             <TiltaksgjennomforingSkjemaDetaljer
               avtale={avtale}
               tiltaksgjennomforing={tiltaksgjennomforing}
@@ -284,12 +291,12 @@ export const TiltaksgjennomforingSkjemaContainer = ({
           )}
         </div>
       </form>
-      <AutoSaveUtkast
-        defaultValues={defaultValues}
-        utkastId={utkastIdRef.current}
-        onSave={() => saveUtkast(watch(), avtale, utkastIdRef)}
-        mutation={mutationUtkast}
-      />
+      {/*<AutoSaveUtkast*/}
+      {/*  defaultValues={defaultValues}*/}
+      {/*  utkastId={utkastIdRef.current}*/}
+      {/*  onSave={() => saveUtkast(watch(), avtale, utkastIdRef)}*/}
+      {/*  mutation={mutationUtkast}*/}
+      {/*/>*/}
       {tiltaksgjennomforing && (
         <AvbrytTiltaksgjennomforingModal
           modalRef={avbrytModalRef}

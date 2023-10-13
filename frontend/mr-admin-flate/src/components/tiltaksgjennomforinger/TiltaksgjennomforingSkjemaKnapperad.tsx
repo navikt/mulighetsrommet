@@ -1,22 +1,42 @@
 import styles from "../skjema/Skjema.module.scss";
 import { Button } from "@navikt/ds-react";
 import { UseMutationResult } from "@tanstack/react-query";
-import { Tiltaksgjennomforing, TiltaksgjennomforingRequest } from "mulighetsrommet-api-client";
+import {
+  Tiltaksgjennomforing,
+  TiltaksgjennomforingRequest,
+  Utkast,
+} from "mulighetsrommet-api-client";
+import { AutoSaveUtkast } from "../autosave/AutoSaveUtkast";
+import React from "react";
 
 interface Props {
   redigeringsModus: boolean;
   onClose: () => void;
   mutation: UseMutationResult<Tiltaksgjennomforing, unknown, TiltaksgjennomforingRequest, unknown>;
   size?: "small" | "medium";
+  defaultValues: any;
+  utkastIdRef: string;
+  onSave: () => void;
+  mutationUtkast: UseMutationResult<Utkast, unknown, Utkast>;
 }
 export function TiltaksgjennomforingSkjemaKnapperad({
   redigeringsModus,
   onClose,
   mutation,
   size = "medium",
+  defaultValues,
+  utkastIdRef,
+  onSave,
+  mutationUtkast,
 }: Props) {
   return (
-    <div>
+    <div className={styles.knapperad}>
+      <AutoSaveUtkast
+        defaultValues={defaultValues}
+        utkastId={utkastIdRef}
+        onSave={onSave}
+        mutationUtkast={mutationUtkast}
+      />
       <Button
         size={size}
         className={styles.button}

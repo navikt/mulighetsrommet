@@ -13,7 +13,7 @@ export const utkastHandlers = [
       let payload: Utkast = {
         ...data,
         createdAt: new Date().toDateString(),
-        updatedAt: new Date().toDateString(),
+        updatedAt: new Date().toISOString(),
       };
 
       if (lagretUtkastIndex > -1) {

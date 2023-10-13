@@ -45,14 +45,12 @@
   flex-direction: column;
 }
 
-.button_row {
+.knapperad {
   display: flex;
   flex-direction: row;
-  justify-content: end;
-}
-
-.button {
-  margin-left: 16px;
+  gap: 12px;
+  padding: 0.5rem 1rem 0.5rem 0;
+  justify-content: flex-end;
 }
 
 .kontaktperson {

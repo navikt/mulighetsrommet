@@ -47,6 +47,7 @@ export const mockAvtaler: Avtale[] = [
         20 deltakere:
         Teori en uke: 56 771,- (55 117,-)                     Praksis en uke: 45 695,- (44 364,-)                       Kombinasjon en uke: 47 344,- (45 965,-)`,
     url: "https://www.mercell.no",
+    updatedAt: new Date().toISOString(),
   },
   {
     id: "d1f163b7-1a41-4547-af16-03fd4492b7bc",
@@ -74,6 +75,7 @@ export const mockAvtaler: Avtale[] = [
     avtalestatus: Avtalestatus.AKTIV,
     prisbetingelser: "Maskert prisbetingelser",
     url: null,
+    updatedAt: new Date().toISOString(),
   },
   {
     id: "6374b285-989d-4f78-a59e-29481b64ba92",
@@ -101,6 +103,7 @@ export const mockAvtaler: Avtale[] = [
     avtaletype: Avtaletype.RAMMEAVTALE,
     avtalestatus: Avtalestatus.AKTIV,
     prisbetingelser: "Maskert prisbetingelser",
+    updatedAt: new Date().toISOString(),
   },
   {
     id: "1eea449a-2629-4abc-b151-76ebbd028401",
@@ -128,6 +131,7 @@ export const mockAvtaler: Avtale[] = [
     avtalestatus: Avtalestatus.AKTIV,
     prisbetingelser: "Maskert prisbetingelser",
     url: "https://www.nav.no",
+    updatedAt: new Date().toISOString(),
   },
   {
     id: "8a4a4dee-98c7-4a07-bc0c-f677a46c406f",
@@ -154,6 +158,7 @@ export const mockAvtaler: Avtale[] = [
     avtaletype: Avtaletype.RAMMEAVTALE,
     avtalestatus: Avtalestatus.AKTIV,
     prisbetingelser: "Maskert prisbetingelser",
+    updatedAt: new Date().toISOString(),
   },
   {
     id: "6b33bdbf-621d-4e4a-aa35-3dea18f02327",
@@ -180,6 +185,7 @@ export const mockAvtaler: Avtale[] = [
     avtaletype: Avtaletype.RAMMEAVTALE,
     avtalestatus: Avtalestatus.AKTIV,
     prisbetingelser: "Maskert prisbetingelser",
+    updatedAt: new Date().toISOString(),
   },
   {
     id: "bd429f41-0222-4374-82af-ccf932e2348d",
@@ -206,6 +212,7 @@ export const mockAvtaler: Avtale[] = [
     avtaletype: Avtaletype.RAMMEAVTALE,
     avtalestatus: Avtalestatus.AKTIV,
     prisbetingelser: "Maskert prisbetingelser",
+    updatedAt: new Date().toISOString(),
   },
   {
     id: "e26c53cd-cafd-4a57-b7e0-c774cf33ea0d",
@@ -232,6 +239,7 @@ export const mockAvtaler: Avtale[] = [
     avtaletype: Avtaletype.RAMMEAVTALE,
     avtalestatus: Avtalestatus.AKTIV,
     prisbetingelser: "Maskert prisbetingelser",
+    updatedAt: new Date().toISOString(),
   },
   {
     id: "6267aed1-1d7a-419a-83aa-1c42488b6bf1",
@@ -258,6 +266,7 @@ export const mockAvtaler: Avtale[] = [
     avtaletype: Avtaletype.RAMMEAVTALE,
     avtalestatus: Avtalestatus.AKTIV,
     prisbetingelser: "Maskert prisbetingelser",
+    updatedAt: new Date().toISOString(),
   },
   {
     id: "dd85e265-30ad-4474-b3e5-7f5670b978c3",
@@ -284,6 +293,7 @@ export const mockAvtaler: Avtale[] = [
     avtaletype: Avtaletype.RAMMEAVTALE,
     avtalestatus: Avtalestatus.AKTIV,
     prisbetingelser: "Maskert prisbetingelser",
+    updatedAt: new Date().toISOString(),
   },
   {
     id: "bc5fb428-e712-460c-9153-9e2f6caadf82",
@@ -310,6 +320,7 @@ export const mockAvtaler: Avtale[] = [
       navIdent: "B123456",
       navn: "Bertil Betabruker",
     },
+    updatedAt: new Date().toISOString(),
   },
   {
     id: "f80817a4-4602-46e4-ae62-46ad28b023be",
@@ -336,6 +347,7 @@ export const mockAvtaler: Avtale[] = [
       navIdent: "B123456",
       navn: "Bertil Betabruker",
     },
+    updatedAt: new Date().toISOString(),
   },
   {
     id: "03d8e390-6c4d-4d8c-b42d-d9f39406086b",
@@ -362,6 +374,7 @@ export const mockAvtaler: Avtale[] = [
       navIdent: "B123456",
       navn: "Bertil Betabruker",
     },
+    updatedAt: new Date().toISOString(),
   },
   {
     id: "21ab610d-5ed9-4d08-bdba-0650e2a56601",
@@ -388,6 +401,7 @@ export const mockAvtaler: Avtale[] = [
       navIdent: "B123456",
       navn: "Bertil Betabruker",
     },
+    updatedAt: new Date().toISOString(),
   },
   {
     id: "f671039e-796b-456f-a4b3-c95172e2142c",
@@ -414,6 +428,7 @@ export const mockAvtaler: Avtale[] = [
       navIdent: "B123456",
       navn: "Bertil Betabruker",
     },
+    updatedAt: new Date().toISOString(),
   },
   {
     id: "8179667d-4cdb-4307-ac34-d459bda709a3",
@@ -440,5 +455,6 @@ export const mockAvtaler: Avtale[] = [
     avtaletype: Avtaletype.RAMMEAVTALE,
     avtalestatus: Avtalestatus.AKTIV,
     prisbetingelser: "Maskert prisbetingelser",
+    updatedAt: new Date().toISOString(),
   },
 ];

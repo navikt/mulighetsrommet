@@ -82,6 +82,8 @@ export const saveUtkast = (
     type: Utkast.type.AVTALE,
     opprettetAv: ansatt?.navIdent,
     avtaleId: utkastIdRef.current,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
   });
 };
 
