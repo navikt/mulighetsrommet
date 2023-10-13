@@ -1,9 +1,8 @@
 import { Button, HStack } from "@navikt/ds-react";
 import { UseMutationResult } from "@tanstack/react-query";
 import { Tiltaksgjennomforing, TiltaksgjennomforingRequest } from "mulighetsrommet-api-client";
-import { useFormContext } from "react-hook-form";
 import styles from "../skjema/Skjema.module.scss";
-import { ExclamationmarkTriangleFillIcon } from "@navikt/aksel-icons";
+import { ValideringsfeilOppsummering } from "../skjema/ValideringsfeilOppsummering";
 
 interface Props {
   redigeringsModus: boolean;
@@ -17,20 +16,9 @@ export function TiltaksgjennomforingSkjemaKnapperad({
   mutation,
   size = "medium",
 }: Props) {
-  const {
-    formState: { errors },
-  } = useFormContext();
-  const hasErrors = () => Object.keys(errors).length > 0;
   return (
     <HStack align={"center"}>
-      {hasErrors() ? (
-        <ExclamationmarkTriangleFillIcon
-          height={25}
-          width={25}
-          color="#C30000
-"
-        />
-      ) : null}
+      <ValideringsfeilOppsummering />
       <Button
         size={size}
         className={styles.button}

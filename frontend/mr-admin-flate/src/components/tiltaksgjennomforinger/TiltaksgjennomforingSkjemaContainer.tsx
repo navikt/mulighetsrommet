@@ -10,7 +10,7 @@ import {
   Utkast,
 } from "mulighetsrommet-api-client";
 import { Tilgjengelighetsstatus } from "mulighetsrommet-api-client/build/models/Tilgjengelighetsstatus";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { v4 as uuidv4 } from "uuid";
@@ -59,7 +59,6 @@ export const TiltaksgjennomforingSkjemaContainer = ({
     Toggles.MULIGHETSROMMET_ADMIN_FLATE_FANEINNHOLD,
   );
 
-  const [tabValgt, setTabValgt] = useState("detaljer");
   const avbrytModalRef = useRef<HTMLDialogElement>(null);
   const { data: ansatt } = useHentAnsatt();
 
@@ -247,7 +246,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
       ) : null}
       <form onSubmit={handleSubmit(postData)}>
         {visFaneinnhold ? (
-          <Tabs value={tabValgt} onChange={setTabValgt}>
+          <Tabs defaultValue="detaljer">
             <Tabs.List className={skjemastyles.tabslist}>
               <div>
                 <Tabs.Tab
@@ -282,7 +281,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
               />
             </Tabs.Panel>
             <Tabs.Panel value="redaksjonelt_innhold">
-              <TiltaksgjennomforingSkjemaRedInnhold avtale={avtale} setTabValgt={setTabValgt} />
+              <TiltaksgjennomforingSkjemaRedInnhold avtale={avtale} />
             </Tabs.Panel>
           </Tabs>
         ) : (

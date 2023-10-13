@@ -1,5 +1,4 @@
-import { Alert, BodyLong, ErrorSummary, HStack, Heading, Tabs, Textarea } from "@navikt/ds-react";
-import ErrorSummaryItem from "@navikt/ds-react/esm/form/error-summary/ErrorSummaryItem";
+import { Alert, BodyLong, HStack, Heading, Tabs, Textarea } from "@navikt/ds-react";
 import { PortableText } from "@portabletext/react";
 import { Avtale, VeilederflateTiltakstype } from "mulighetsrommet-api-client";
 import { useFormContext } from "react-hook-form";
@@ -10,58 +9,18 @@ import skjemastyles from "../skjema/Skjema.module.scss";
 
 interface Props {
   avtale: Avtale;
-  setTabValgt: (tab: "detaljer") => void;
 }
 
-export const TiltaksgjennomforingSkjemaRedInnhold = ({ avtale, setTabValgt }: Props) => {
-  const {
-    register,
-    formState: { errors },
-  } = useFormContext();
+export const TiltaksgjennomforingSkjemaRedInnhold = ({ avtale }: Props) => {
+  const { register } = useFormContext();
   const { data: tiltakstypeSanityData } = useTiltakstypeSanityData(avtale.tiltakstype.id);
 
-  const hentUtValideringsfeil = (obj: any): { message: string; ref: string }[] => {
-    let messages: { message: string; ref: string }[] = [];
-    for (const key in obj) {
-      if (obj[key] !== null && typeof obj[key] === "object") {
-        if (obj[key].message && obj[key].ref) {
-          messages.push({ message: obj[key].message, ref: obj[key].ref });
-        } else {
-          messages = messages.concat(hentUtValideringsfeil(obj[key]));
-        }
-      }
-    }
-
-    return messages;
-  };
-
-  function navigateToField() {
-    setTabValgt("detaljer");
-  }
-
-  const messages = hentUtValideringsfeil(errors);
   return (
     <div className={skjemastyles.container}>
       <HStack justify="space-between" align="start" gap="2">
         <Alert size="small" variant="info">
           Ikke del personopplysninger i fritekstfeltene
         </Alert>
-        {messages.length > 0 ? (
-          <ErrorSummary heading="Det er valideringsfeil i skjema">
-            {messages.map((value, key) => {
-              return (
-                <ErrorSummaryItem
-                  className={skjemastyles.error_summary_anchor}
-                  onClick={navigateToField}
-                  key={key}
-                  href="#"
-                >
-                  {value.message}
-                </ErrorSummaryItem>
-              );
-            })}
-          </ErrorSummary>
-        ) : null}
       </HStack>
       <div className={skjemastyles.red_innhold_container}>
         {tiltakstypeSanityData?.beskrivelse && (
