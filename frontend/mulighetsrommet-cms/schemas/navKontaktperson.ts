@@ -17,7 +17,7 @@ export const navKontaktperson = defineType({
         field: () =>
           Information({
             melding:
-              "Opprettelse av kontaktpersoner skjer automatisk via baksystem. Kontakt Team Valp dersom du trenger å få importert kontakter. Vi trenger liste med fullt navn på kontaktpersoner du vil ha her.",
+              "Opprettelse av kontaktpersoner skjer automatisk via baksystem. Kontakt Team Valp på Teams dersom du trenger å få importert kontakter. Vi trenger liste med fullt navn på kontaktpersoner du vil ha her.",
           }),
       },
     }),
