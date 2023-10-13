@@ -54,6 +54,7 @@ export const TiltaksgjennomforingSkjemaRedInnhold = ({ avtale, setTabValgt }: Pr
                   className={skjemastyles.error_summary_anchor}
                   onClick={navigateToField}
                   key={key}
+                  href="#"
                 >
                   {value.message}
                 </ErrorSummaryItem>
