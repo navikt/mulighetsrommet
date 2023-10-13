@@ -1,7 +1,8 @@
-import styles from "../skjema/Skjema.module.scss";
-import { Button } from "@navikt/ds-react";
+import { Button, HStack } from "@navikt/ds-react";
 import { UseMutationResult } from "@tanstack/react-query";
 import { Tiltaksgjennomforing, TiltaksgjennomforingRequest } from "mulighetsrommet-api-client";
+import styles from "../skjema/Skjema.module.scss";
+import { ValideringsfeilOppsummering } from "../skjema/ValideringsfeilOppsummering";
 
 interface Props {
   redigeringsModus: boolean;
@@ -16,7 +17,8 @@ export function TiltaksgjennomforingSkjemaKnapperad({
   size = "medium",
 }: Props) {
   return (
-    <div>
+    <HStack align={"center"}>
+      <ValideringsfeilOppsummering />
       <Button
         size={size}
         className={styles.button}
@@ -37,6 +39,6 @@ export function TiltaksgjennomforingSkjemaKnapperad({
       >
         {mutation.isLoading ? "Lagrer..." : redigeringsModus ? "Lagre gjennomføring" : "Opprett"}
       </Button>
-    </div>
+    </HStack>
   );
 }

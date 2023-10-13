@@ -1,6 +1,7 @@
 import styles from "../skjema/Skjema.module.scss";
 import { Button } from "@navikt/ds-react";
 import { faro } from "@grafana/faro-web-sdk";
+import { ValideringsfeilOppsummering } from "../skjema/ValideringsfeilOppsummering";
 
 interface Props {
   redigeringsModus: boolean;
@@ -9,6 +10,7 @@ interface Props {
 export function AvtaleSkjemaKnapperad({ redigeringsModus, onClose }: Props) {
   return (
     <div className={styles.button_row}>
+      <ValideringsfeilOppsummering />
       <Button
         size="small"
         className={styles.button}

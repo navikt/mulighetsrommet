@@ -1,0 +1,16 @@
+.varseltrekant {
+  &:hover {
+    cursor: pointer;
+  }
+}
+
+.valideringsfeil {
+  li {
+    text-decoration: none;
+    color: var(--a-gray-900);
+
+    &:hover {
+      cursor: default;
+    }
+  }
+}
