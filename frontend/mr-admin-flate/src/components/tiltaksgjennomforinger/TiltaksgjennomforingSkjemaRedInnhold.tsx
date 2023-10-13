@@ -1,21 +1,67 @@
-import { Avtale, VeilederflateTiltakstype } from "mulighetsrommet-api-client";
-import skjemastyles from "../skjema/Skjema.module.scss";
-import { useFormContext } from "react-hook-form";
-import { Alert, BodyLong, Heading, Tabs, Textarea } from "@navikt/ds-react";
-import { PortableTextEditor } from "../portableText/PortableTextEditor";
-import { useTiltakstypeSanityData } from "../../api/tiltaksgjennomforing/useTiltakstypeSanityData";
+import { Alert, BodyLong, ErrorSummary, HStack, Heading, Tabs, Textarea } from "@navikt/ds-react";
+import ErrorSummaryItem from "@navikt/ds-react/esm/form/error-summary/ErrorSummaryItem";
 import { PortableText } from "@portabletext/react";
+import { Avtale, VeilederflateTiltakstype } from "mulighetsrommet-api-client";
+import { useFormContext } from "react-hook-form";
+import { useTiltakstypeSanityData } from "../../api/tiltaksgjennomforing/useTiltakstypeSanityData";
 import { Separator } from "../detaljside/Metadata";
+import { PortableTextEditor } from "../portableText/PortableTextEditor";
+import skjemastyles from "../skjema/Skjema.module.scss";
 
-export const TiltaksgjennomforingSkjemaRedInnhold = ({ avtale }: { avtale: Avtale }) => {
-  const { register } = useFormContext();
+interface Props {
+  avtale: Avtale;
+  setTabValgt: (tab: "detaljer") => void;
+}
+
+export const TiltaksgjennomforingSkjemaRedInnhold = ({ avtale, setTabValgt }: Props) => {
+  const {
+    register,
+    formState: { errors },
+  } = useFormContext();
   const { data: tiltakstypeSanityData } = useTiltakstypeSanityData(avtale.tiltakstype.id);
 
+  const hentUtValideringsfeil = (obj: any): { message: string; ref: string }[] => {
+    let messages: { message: string; ref: string }[] = [];
+    for (const key in obj) {
+      if (obj[key] !== null && typeof obj[key] === "object") {
+        if (obj[key].message && obj[key].ref) {
+          messages.push({ message: obj[key].message, ref: obj[key].ref });
+        } else {
+          messages = messages.concat(hentUtValideringsfeil(obj[key]));
+        }
+      }
+    }
+
+    return messages;
+  };
+
+  function navigateToField() {
+    setTabValgt("detaljer");
+  }
+
+  const messages = hentUtValideringsfeil(errors);
   return (
     <div className={skjemastyles.container}>
-      <Alert size="small" variant="info">
-        Ikke del personopplysninger i fritekstfeltene
-      </Alert>
+      <HStack justify="space-between" align="start" gap="2">
+        <Alert size="small" variant="info">
+          Ikke del personopplysninger i fritekstfeltene
+        </Alert>
+        {messages.length > 0 ? (
+          <ErrorSummary heading="Det er valideringsfeil i skjema">
+            {messages.map((value, key) => {
+              return (
+                <ErrorSummaryItem
+                  className={skjemastyles.error_summary_anchor}
+                  onClick={navigateToField}
+                  key={key}
+                >
+                  {value.message}
+                </ErrorSummaryItem>
+              );
+            })}
+          </ErrorSummary>
+        ) : null}
+      </HStack>
       <div className={skjemastyles.red_innhold_container}>
         {tiltakstypeSanityData?.beskrivelse && (
           <>

@@ -1,4 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { ExclamationmarkTriangleFillIcon } from "@navikt/aksel-icons";
 import { Alert, Button, Tabs } from "@navikt/ds-react";
 import {
   Avtale,
@@ -9,33 +10,33 @@ import {
   Utkast,
 } from "mulighetsrommet-api-client";
 import { Tilgjengelighetsstatus } from "mulighetsrommet-api-client/build/models/Tilgjengelighetsstatus";
-import skjemastyles from "../skjema/Skjema.module.scss";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
+import { toast } from "react-toastify";
 import { v4 as uuidv4 } from "uuid";
+import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
+import { usePutGjennomforing } from "../../api/avtaler/usePutGjennomforing";
+import { useFeatureToggle } from "../../api/features/feature-toggles";
+import { useMutateUtkast } from "../../api/utkast/useMutateUtkast";
 import { formaterDatoSomYYYYMMDD } from "../../utils/Utils";
 import { AutoSaveUtkast } from "../autosave/AutoSaveUtkast";
-import { tekniskFeilError } from "./TiltaksgjennomforingSkjemaErrors";
+import { Separator } from "../detaljside/Metadata";
+import { AvbrytTiltaksgjennomforingModal } from "../modal/AvbrytTiltaksgjennomforingModal";
+import skjemastyles from "../skjema/Skjema.module.scss";
 import {
-  inferredTiltaksgjennomforingSchema,
   TiltaksgjennomforingSchema,
+  inferredTiltaksgjennomforingSchema,
 } from "./TiltaksgjennomforingSchema";
 import {
+  UtkastData,
   arenaOpphav,
   defaultOppstartType,
   defaultValuesForKontaktpersoner,
-  UtkastData,
 } from "./TiltaksgjennomforingSkjemaConst";
-import { usePutGjennomforing } from "../../api/avtaler/usePutGjennomforing";
-import { useMutateUtkast } from "../../api/utkast/useMutateUtkast";
-import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
-import { toast } from "react-toastify";
-import { TiltaksgjennomforingSkjemaKnapperad } from "./TiltaksgjennomforingSkjemaKnapperad";
 import { TiltaksgjennomforingSkjemaDetaljer } from "./TiltaksgjennomforingSkjemaDetaljer";
+import { tekniskFeilError } from "./TiltaksgjennomforingSkjemaErrors";
+import { TiltaksgjennomforingSkjemaKnapperad } from "./TiltaksgjennomforingSkjemaKnapperad";
 import { TiltaksgjennomforingSkjemaRedInnhold } from "./TiltaksgjennomforingSkjemaRedInnhold";
-import { useFeatureToggle } from "../../api/features/feature-toggles";
-import { Separator } from "../detaljside/Metadata";
-import { AvbrytTiltaksgjennomforingModal } from "../modal/AvbrytTiltaksgjennomforingModal";
 
 interface Props {
   onClose: () => void;
@@ -57,8 +58,9 @@ export const TiltaksgjennomforingSkjemaContainer = ({
   const { data: visFaneinnhold } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_ADMIN_FLATE_FANEINNHOLD,
   );
-  const avbrytModalRef = useRef<HTMLDialogElement>(null);
 
+  const [tabValgt, setTabValgt] = useState("detaljer");
+  const avbrytModalRef = useRef<HTMLDialogElement>(null);
   const { data: ansatt } = useHentAnsatt();
 
   const saveUtkast = (
@@ -245,13 +247,24 @@ export const TiltaksgjennomforingSkjemaContainer = ({
       ) : null}
       <form onSubmit={handleSubmit(postData)}>
         {visFaneinnhold ? (
-          <Tabs defaultValue="detaljer">
+          <Tabs value={tabValgt} onChange={setTabValgt}>
             <Tabs.List className={skjemastyles.tabslist}>
               <div>
                 <Tabs.Tab
-                  style={{ border: hasErrors() ? "solid 1px red" : "" }}
+                  style={{
+                    border: hasErrors() ? "solid 2px #C30000" : "",
+                    borderRadius: hasErrors() ? "8px" : 0,
+                  }}
                   value="detaljer"
-                  label="Detaljer"
+                  label={
+                    hasErrors() ? (
+                      <span style={{ display: "flex", alignContent: "baseline", gap: "0.4rem" }}>
+                        <ExclamationmarkTriangleFillIcon /> Detaljer
+                      </span>
+                    ) : (
+                      "Detaljer"
+                    )
+                  }
                 />
                 <Tabs.Tab value="redaksjonelt_innhold" label="Redaksjonelt innhold" />
               </div>
@@ -269,7 +282,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
               />
             </Tabs.Panel>
             <Tabs.Panel value="redaksjonelt_innhold">
-              <TiltaksgjennomforingSkjemaRedInnhold avtale={avtale} />
+              <TiltaksgjennomforingSkjemaRedInnhold avtale={avtale} setTabValgt={setTabValgt} />
             </Tabs.Panel>
           </Tabs>
         ) : (
