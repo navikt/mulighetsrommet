@@ -20,4 +20,17 @@ object DatabaseUtils {
 
         return count
     }
+
+    suspend fun <T> paginateSuspend(limit: Int, operation: suspend (PaginationParams) -> List<T>): Int {
+        var offset = 1
+        var count = 0
+
+        do {
+            val list = operation(PaginationParams(offset, limit))
+            offset += 1
+            count += list.size
+        } while (list.isNotEmpty())
+
+        return count
+    }
 }

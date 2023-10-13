@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.api.plugins.*
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.routes.featuretoggles.featureTogglesRoute
 import no.nav.mulighetsrommet.api.routes.internal.frontendLoggerRoutes
+import no.nav.mulighetsrommet.api.routes.internal.tasks
 import no.nav.mulighetsrommet.api.routes.v1.*
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.hoplite.loadConfiguration
@@ -41,6 +42,11 @@ fun Application.configure(config: AppConfig) {
 
     routing {
         swaggerUI(path = "/swagger-ui/internal", swaggerFile = "web/openapi.yaml")
+
+        authenticate(AuthProvider.AZURE_AD_TEAM_MULIGHETSROMMET.name) {
+            tasks()
+        }
+
         authenticate(AuthProvider.AZURE_AD_NAV_IDENT.name) {
             tiltakstypeRoutes()
             tiltaksgjennomforingRoutes()

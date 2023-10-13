@@ -73,6 +73,9 @@ dependencies {
     implementation(libs.ktor.server.swagger)
     testImplementation(libs.ktor.server.testHost)
 
+    // GCP
+    implementation(libs.google.cloud.storage)
+
     // Cache
     implementation(libs.caffeine)
 

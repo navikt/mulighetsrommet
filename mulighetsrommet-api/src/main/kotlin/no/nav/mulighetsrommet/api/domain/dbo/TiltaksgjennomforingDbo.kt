@@ -30,7 +30,7 @@ data class TiltaksgjennomforingDbo(
     val stengtFra: LocalDate?,
     val stengtTil: LocalDate?,
     val kontaktpersoner: List<TiltaksgjennomforingKontaktpersonDbo>,
-    val stedForGjennomforing: String,
+    val stedForGjennomforing: String?,
     val faneinnhold: Faneinnhold?,
     val beskrivelse: String?,
 )

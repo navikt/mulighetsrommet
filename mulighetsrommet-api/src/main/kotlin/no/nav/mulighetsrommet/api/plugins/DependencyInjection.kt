@@ -293,6 +293,7 @@ private fun services(appConfig: AppConfig) = module {
 }
 
 private fun tasks(config: TaskConfig) = module {
+    single { GenerateValidationReport(get(), get(), get(), get(), get()) }
     single {
         val deleteExpiredTiltakshistorikk = DeleteExpiredTiltakshistorikk(
             config.deleteExpiredTiltakshistorikk,
@@ -333,11 +334,16 @@ private fun tasks(config: TaskConfig) = module {
             )
         val oppdaterMetrikker = OppdaterMetrikker(config.oppdaterMetrikker, get(), get())
         val notificationService: NotificationService by inject()
+        val generateValidationReport: GenerateValidationReport by inject()
 
         val db: Database by inject()
 
         Scheduler
-            .create(db.getDatasource(), notificationService.getScheduledNotificationTask())
+            .create(
+                db.getDatasource(),
+                notificationService.getScheduledNotificationTask(),
+                generateValidationReport.task,
+            )
             .startTasks(
                 deleteExpiredTiltakshistorikk.task,
                 synchronizeNorgEnheterTask.task,
