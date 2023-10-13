@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
+import no.nav.mulighetsrommet.domain.dto.Avtalestatus
 import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus.APENT_FOR_INNSOK
 import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus.GJENNOMFORES
 
@@ -27,6 +28,13 @@ class TiltaksgjennomforingValidator(
 
         ensure(avtale.tiltakstype.id == dbo.tiltakstypeId) {
             ValidationError("tiltakstypeId", "Tiltakstypen må være den samme som for avtalen").nel()
+        }
+
+        ensure(avtale.avtalestatus in listOf(Avtalestatus.Planlagt, Avtalestatus.Aktiv)) {
+            ValidationError(
+                "avtaleId",
+                "Kan ikke endre gjennomføring fordi avtalen har status ${avtale.avtalestatus}"
+            ).nel()
         }
 
         val errors = buildList {

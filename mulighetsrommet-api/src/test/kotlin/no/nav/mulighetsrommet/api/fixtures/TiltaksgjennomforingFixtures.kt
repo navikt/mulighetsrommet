@@ -118,6 +118,7 @@ object TiltaksgjennomforingFixtures {
         beskrivelse = Oppfolging1.beskrivelse,
         createdAt = Oppfolging1.startDato.atStartOfDay(),
         updatedAt = Oppfolging1.startDato.atStartOfDay(),
+        tilgjengeligForVeileder = true,
     )
 
     val Oppfolging2 = TiltaksgjennomforingDbo(

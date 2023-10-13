@@ -16,6 +16,7 @@ import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
+import no.nav.mulighetsrommet.domain.dto.Avtalestatus
 import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
 import java.time.LocalDate
 import java.util.*
@@ -49,6 +50,31 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
             ValidationError("tiltakstypeId", "Tiltakstypen må være den samme som for avtalen"),
         )
     }
+
+    test("should fail when avtale is Avbrutt") {
+        every { avtaler.get(AvtaleFixtures.avtale1.id) } returns AvtaleFixtures.oppfolgingAvtaleAdminDto.copy(
+            avtalestatus = Avtalestatus.Avbrutt
+        )
+
+        val validator = TiltaksgjennomforingValidator(avtaler, tiltaksgjennomforinger)
+
+        validator.validate(Oppfolging1).shouldBeLeft().shouldContain(
+            ValidationError("avtaleId", "Kan ikke endre gjennomføring fordi avtalen har status Avbrutt"),
+        )
+    }
+
+    test("should fail when avtale is Avsluttet") {
+        every { avtaler.get(AvtaleFixtures.avtale1.id) } returns AvtaleFixtures.oppfolgingAvtaleAdminDto.copy(
+            avtalestatus = Avtalestatus.Avsluttet
+        )
+
+        val validator = TiltaksgjennomforingValidator(avtaler, tiltaksgjennomforinger)
+
+        validator.validate(Oppfolging1).shouldBeLeft().shouldContain(
+            ValidationError("avtaleId", "Kan ikke endre gjennomføring fordi avtalen har status Avsluttet"),
+        )
+    }
+
 
     test("should validate fields in the gjennomføring and fields related to the avtale") {
         every { avtaler.get(AvtaleFixtures.avtale1.id) } returns AvtaleFixtures.oppfolgingAvtaleAdminDto.copy(
