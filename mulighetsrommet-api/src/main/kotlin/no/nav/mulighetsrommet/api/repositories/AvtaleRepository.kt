@@ -5,7 +5,6 @@ import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
-import no.nav.mulighetsrommet.api.utils.AvtaleFilter
 import no.nav.mulighetsrommet.api.utils.DatabaseUtils
 import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.Database
@@ -207,7 +206,8 @@ class AvtaleRepository(private val db: Database) {
     fun get(id: UUID, tx: Session): AvtaleAdminDto? {
         @Language("PostgreSQL")
         val query = """
-            select * from avtale_admin_dto_view
+            select *
+            from avtale_admin_dto_view
             where id = ?::uuid
         """.trimIndent()
 
@@ -219,36 +219,38 @@ class AvtaleRepository(private val db: Database) {
     }
 
     fun getAll(
-        filter: AvtaleFilter,
         pagination: PaginationParams = PaginationParams(),
+        tiltakstypeId: UUID? = null,
+        search: String? = null,
+        status: Avtalestatus? = null,
+        navRegion: String? = null,
+        sortering: String? = null,
+        dagensDato: LocalDate = LocalDate.now(),
+        leverandorOrgnr: String? = null,
+        administratorNavIdent: String? = null,
     ): Pair<Int, List<AvtaleAdminDto>> {
-        if (filter.tiltakstypeId != null) {
-            logger.info("Henter avtaler for tiltakstype med id: '${filter.tiltakstypeId}'")
-        } else {
-            logger.info("Henter alle avtaler")
-        }
         val parameters = mapOf(
-            "tiltakstype_id" to filter.tiltakstypeId,
-            "search" to "%${filter.search}%",
-            "nav_region_json" to filter.navRegion?.let { """[{"enhetsnummer":"$it"}]""" },
-            "nav_region" to filter.navRegion,
+            "tiltakstype_id" to tiltakstypeId,
+            "search" to "%$search%",
+            "nav_region_json" to navRegion?.let { """[{"enhetsnummer":"$it"}]""" },
+            "nav_region" to navRegion,
             "limit" to pagination.limit,
             "offset" to pagination.offset,
-            "today" to filter.dagensDato,
-            "leverandorOrgnr" to filter.leverandorOrgnr,
-            "administrator_nav_ident" to filter.administratorNavIdent?.let { """[{"navIdent": "$it" }]""" },
+            "today" to dagensDato,
+            "leverandorOrgnr" to leverandorOrgnr,
+            "administrator_nav_ident" to administratorNavIdent?.let { """[{"navIdent": "$it" }]""" },
         )
 
         val where = DatabaseUtils.andWhereParameterNotNull(
-            filter.tiltakstypeId to "tiltakstype_id = :tiltakstype_id",
-            filter.search to "(lower(navn) like lower(:search))",
-            filter.avtalestatus to filter.avtalestatus?.toDbStatement(),
-            filter.navRegion to "(nav_enheter @> :nav_region_json::jsonb or arena_ansvarlig_enhet = :nav_region or arena_ansvarlig_enhet in (select enhetsnummer from nav_enhet where overordnet_enhet = :nav_region))",
-            filter.leverandorOrgnr to "leverandor_organisasjonsnummer = :leverandorOrgnr",
-            filter.administratorNavIdent to "administratorer @> :administrator_nav_ident::jsonb",
+            tiltakstypeId to "tiltakstype_id = :tiltakstype_id",
+            search to "(lower(navn) like lower(:search))",
+            status to status?.toDbStatement(),
+            navRegion to "(nav_enheter @> :nav_region_json::jsonb or arena_ansvarlig_enhet = :nav_region or arena_ansvarlig_enhet in (select enhetsnummer from nav_enhet where overordnet_enhet = :nav_region))",
+            leverandorOrgnr to "leverandor_organisasjonsnummer = :leverandorOrgnr",
+            administratorNavIdent to "administratorer @> :administrator_nav_ident::jsonb",
         )
 
-        val order = when (filter.sortering) {
+        val order = when (sortering) {
             "navn-ascending" -> "navn asc"
             "navn-descending" -> "navn desc"
             "leverandor-ascending" -> "leverandor_navn asc"
@@ -380,17 +382,14 @@ class AvtaleRepository(private val db: Database) {
         val navEnheter = stringOrNull("nav_enheter")
             ?.let { Json.decodeFromString<List<EmbeddedNavEnhet?>>(it).filterNotNull() }
             ?: emptyList()
-        val regioner = navEnheter.filter {
-            it.type == NavEnhetType.FYLKE
-        }
-
-        val kontorstruktur = regioner.map {
-            val region = it
-            val kontorer =
-                navEnheter.filter { enhet -> enhet.type != NavEnhetType.FYLKE && enhet.overordnetEnhet == it.enhetsnummer }
+        val kontorstruktur = navEnheter
+            .filter { it.type == NavEnhetType.FYLKE }
+            .map { region ->
+                val kontorer = navEnheter
+                    .filter { enhet -> enhet.type != NavEnhetType.FYLKE && enhet.overordnetEnhet == region.enhetsnummer }
                     .sortedBy { enhet -> enhet.navn }
-            Kontorstruktur(region = region, kontorer = kontorer)
-        }
+                Kontorstruktur(region = region, kontorer = kontorer)
+            }
 
         return AvtaleAdminDto(
             id = uuid("id"),

@@ -59,7 +59,17 @@ class AvtaleService(
         filter: AvtaleFilter,
         pagination: PaginationParams = PaginationParams(),
     ): PaginatedResponse<AvtaleAdminDto> {
-        val (totalCount, items) = avtaler.getAll(filter, pagination)
+        val (totalCount, items) = avtaler.getAll(
+            pagination = pagination,
+            tiltakstypeId = filter.tiltakstypeId,
+            search = filter.search,
+            status = filter.avtalestatus,
+            navRegion = filter.navRegion,
+            sortering = filter.sortering,
+            dagensDato = filter.dagensDato,
+            leverandorOrgnr = filter.leverandorOrgnr,
+            administratorNavIdent = filter.administratorNavIdent,
+        )
 
         return PaginatedResponse(
             data = items,
