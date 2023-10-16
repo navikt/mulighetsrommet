@@ -7,15 +7,17 @@ import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
 import io.ktor.util.pipeline.*
 import no.nav.mulighetsrommet.api.AuthConfig
+import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import java.net.URI
 import java.util.*
 import java.util.concurrent.TimeUnit
 
 enum class AuthProvider {
-    AzureAdNavIdent,
-    AzureAdDefaultApp,
-    AzureAdTiltaksgjennomforingApp,
+    AZURE_AD_NAV_IDENT,
+    AZURE_AD_TEAM_MULIGHETSROMMET,
+    AZURE_AD_DEFAULT_APP,
+    AZURE_AD_TILTAKSGJENNOMFORING_APP,
 }
 
 object AppRoles {
@@ -32,31 +34,39 @@ fun Application.configureAuthentication(
         .cached(5, 12, TimeUnit.HOURS)
         .build()
 
-    fun hasRoles(credentials: JWTCredential, vararg requiredRoles: String): Boolean {
+    fun ApplicationCall.hasApplicationRoles(credentials: JWTCredential, vararg requiredRoles: String): Boolean {
         val roles = credentials.getListClaim("roles", String::class)
-        return requiredRoles.all { it in roles }
+        val hasRequiredRoles = requiredRoles.all { it in roles }
+        if (!hasRequiredRoles) {
+            application.log.warn("Access denied. Mangler en av rollene '$requiredRoles'.")
+        }
+        return hasRequiredRoles
+    }
+
+    fun ApplicationCall.hasNavAnsattRoles(credentials: JWTCredential, vararg requiredRoles: NavAnsattRolle): Boolean {
+        val navAnsattGroups = credentials.getListClaim("groups", UUID::class)
+        val hasRequiredRoles = requiredRoles.all { requiredRole ->
+            auth.roles.any { (groupId, role) -> role == requiredRole && groupId in navAnsattGroups }
+        }
+        if (!hasRequiredRoles) {
+            application.log.warn("Mangler en av rollene '$requiredRoles'.")
+        }
+        return hasRequiredRoles
     }
 
     install(Authentication) {
-        jwt(AuthProvider.AzureAdNavIdent.name) {
+        jwt(AuthProvider.AZURE_AD_TEAM_MULIGHETSROMMET.name) {
             verifier(jwkProvider, azure.issuer) {
                 withAudience(azure.audience)
             }
 
             validate { credentials ->
-                credentials["NAVident"] ?: return@validate null
+                credentials["NAVident"] ?: run {
+                    application.log.warn("Access denied. Mangler claim 'NAVident'.")
+                    return@validate null
+                }
 
-                JWTPrincipal(credentials.payload)
-            }
-        }
-
-        jwt(AuthProvider.AzureAdDefaultApp.name) {
-            verifier(jwkProvider, azure.issuer) {
-                withAudience(azure.audience)
-            }
-
-            validate { credentials ->
-                if (!hasRoles(credentials, AppRoles.ACCESS_AS_APPLICATION)) {
+                if (!hasNavAnsattRoles(credentials, NavAnsattRolle.TEAM_MULIGHETSROMMET)) {
                     return@validate null
                 }
 
@@ -64,13 +74,47 @@ fun Application.configureAuthentication(
             }
         }
 
-        jwt(AuthProvider.AzureAdTiltaksgjennomforingApp.name) {
+        jwt(AuthProvider.AZURE_AD_NAV_IDENT.name) {
             verifier(jwkProvider, azure.issuer) {
                 withAudience(azure.audience)
             }
 
             validate { credentials ->
-                if (!hasRoles(credentials, AppRoles.ACCESS_AS_APPLICATION, AppRoles.READ_TILTAKSGJENNOMFORING)) {
+                credentials["NAVident"] ?: run {
+                    application.log.warn("Access denied. Mangler claim 'NAVident'.")
+                    return@validate null
+                }
+
+                JWTPrincipal(credentials.payload)
+            }
+        }
+
+        jwt(AuthProvider.AZURE_AD_DEFAULT_APP.name) {
+            verifier(jwkProvider, azure.issuer) {
+                withAudience(azure.audience)
+            }
+
+            validate { credentials ->
+                if (!hasApplicationRoles(credentials, AppRoles.ACCESS_AS_APPLICATION)) {
+                    return@validate null
+                }
+
+                JWTPrincipal(credentials.payload)
+            }
+        }
+
+        jwt(AuthProvider.AZURE_AD_TILTAKSGJENNOMFORING_APP.name) {
+            verifier(jwkProvider, azure.issuer) {
+                withAudience(azure.audience)
+            }
+
+            validate { credentials ->
+                if (!hasApplicationRoles(
+                        credentials,
+                        AppRoles.ACCESS_AS_APPLICATION,
+                        AppRoles.READ_TILTAKSGJENNOMFORING,
+                    )
+                ) {
                     return@validate null
                 }
 

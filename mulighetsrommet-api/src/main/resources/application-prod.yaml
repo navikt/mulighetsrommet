@@ -40,6 +40,16 @@ app:
       jwksUri: ${AZURE_OPENID_CONFIG_JWKS_URI}
       audience: ${AZURE_APP_CLIENT_ID}
       tokenEndpointUrl: ${AZURE_OPENID_CONFIG_TOKEN_ENDPOINT}
+    roles:
+      # team-mulighetsrommet
+      - adGruppeId: debefa6e-1865-446d-b22b-9579fc735de3
+        rolle: TEAM_MULIGHETSROMMET
+      # 0000-GA-mr-admin-flate_betabruker
+      - adGruppeId: dde41c4b-42af-401f-bedf-9e537bcbdd37
+        rolle: BETABRUKER
+      # (GRP) mr-nav_kontaktperson
+      - adGruppeId: 0fdd133a-f47f-4b95-9a5e-f3a5ec87a472
+        rolle: KONTAKTPERSON
 
   sanity:
     dataset: ${SANITY_DATASET}
@@ -87,13 +97,6 @@ app:
     scope: api://prod-fss.org.axsys/.default
 
   navAnsattService:
-    roller:
-      - adGruppeId: debefa6e-1865-446d-b22b-9579fc735de3 # team-mulighetsrommet
-        rolle: TEAM_MULIGHETSROMMET
-      - adGruppeId: dde41c4b-42af-401f-bedf-9e537bcbdd37 # 0000-GA-mr-admin-flate_betabruker
-        rolle: BETABRUKER
-      - adGruppeId: 0fdd133a-f47f-4b95-9a5e-f3a5ec87a472 # (GRP) mr-nav_kontaktperson
-        rolle: KONTAKTPERSON
 
   tasks:
     deleteExpiredTiltakshistorikk:
@@ -131,5 +134,3 @@ app:
     token: ${UNLEASH_SERVER_API_TOKEN}
     instanceId: ${NAIS_CLIENT_ID}
     environment: production
-
-
