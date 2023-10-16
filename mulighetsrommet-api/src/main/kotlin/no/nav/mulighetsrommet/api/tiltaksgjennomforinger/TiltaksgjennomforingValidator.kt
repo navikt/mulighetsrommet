@@ -11,6 +11,7 @@ import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
+import no.nav.mulighetsrommet.domain.Tiltakskoder
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.Avtalestatus
 import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus.APENT_FOR_INNSOK
@@ -38,8 +39,8 @@ class TiltaksgjennomforingValidator(
         }
 
         val errors = buildList {
-            if (dbo.startDato.isBefore(avtale.startDato)) {
-                add(ValidationError("startDato", "Startdato må være etter avtalens startdato"))
+            if (dbo.sluttDato != null && dbo.startDato.isAfter(dbo.sluttDato)) {
+                add(ValidationError("startDato", "Startdato må være før sluttdato"))
             }
 
             if ((dbo.stengtFra != null) != (dbo.stengtTil != null)) {
@@ -54,16 +55,18 @@ class TiltaksgjennomforingValidator(
                 add(ValidationError("antallPlasser", "Antall plasser må være større enn 0"))
             }
 
-            if (dbo.startDato.isAfter(avtale.sluttDato)) {
-                add(ValidationError("startDato", "Startdato må være før avtalens sluttdato"))
-            }
+            if (!Tiltakskoder.isTiltakMedAvtalerFraMulighetsrommet(avtale.tiltakstype.arenaKode)) {
+                if (dbo.startDato.isBefore(avtale.startDato)) {
+                    add(ValidationError("startDato", "Startdato må være etter avtalens startdato"))
+                }
 
-            if (dbo.sluttDato != null && dbo.sluttDato.isAfter(avtale.sluttDato)) {
-                add(ValidationError("sluttDato", "Sluttdato må være før avtalens sluttdato"))
-            }
+                if (dbo.startDato.isAfter(avtale.sluttDato)) {
+                    add(ValidationError("startDato", "Startdato må være før avtalens sluttdato"))
+                }
 
-            if (dbo.sluttDato != null && dbo.startDato.isAfter(dbo.sluttDato)) {
-                add(ValidationError("startDato", "Startdato må være før sluttdato"))
+                if (dbo.sluttDato != null && dbo.sluttDato.isAfter(avtale.sluttDato)) {
+                    add(ValidationError("sluttDato", "Sluttdato må være før avtalens sluttdato"))
+                }
             }
 
             if (dbo.navEnheter.isEmpty()) {
