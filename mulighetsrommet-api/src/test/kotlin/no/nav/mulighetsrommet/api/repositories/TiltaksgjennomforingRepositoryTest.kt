@@ -77,7 +77,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 it.antallPlasser shouldBe 12
                 it.avtaleId shouldBe Oppfolging1.avtaleId
                 it.administrator shouldBe null
-                it.navEnheter shouldBe emptyList()
+                it.navEnheter shouldBe listOf(NavEnhet(navn = "IT", enhetsnummer = "2990"))
                 it.sanityId shouldBe null
                 it.oppstart shouldBe TiltaksgjennomforingOppstartstype.FELLES
                 it.opphav shouldBe ArenaMigrering.Opphav.MR_ADMIN_FLATE
@@ -360,12 +360,14 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 ),
             ).shouldBeRight()
 
-            tiltaksgjennomforinger.upsert(Oppfolging1)
-            tiltaksgjennomforinger.get(Oppfolging1.id).should {
+            val gjennomforing = Oppfolging1.copy(navEnheter = emptyList())
+
+            tiltaksgjennomforinger.upsert(gjennomforing)
+            tiltaksgjennomforinger.get(gjennomforing.id).should {
                 it!!.navEnheter.shouldBeEmpty()
             }
             tiltaksgjennomforinger.updateEnheter("1", listOf("1", "2"))
-            tiltaksgjennomforinger.get(Oppfolging1.id).should {
+            tiltaksgjennomforinger.get(gjennomforing.id).should {
                 it!!.navEnheter shouldContainExactlyInAnyOrder listOf(
                     NavEnhet(enhetsnummer = "1", navn = "Navn1"),
                     NavEnhet(enhetsnummer = "2", navn = "Navn2"),
@@ -374,7 +376,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             database.assertThat("tiltaksgjennomforing_nav_enhet").hasNumberOfRows(2)
 
             tiltaksgjennomforinger.updateEnheter("1", listOf("2"))
-            tiltaksgjennomforinger.get(Oppfolging1.id).should {
+            tiltaksgjennomforinger.get(gjennomforing.id).should {
                 it!!.navEnheter.shouldContainExactlyInAnyOrder(listOf(NavEnhet(enhetsnummer = "2", navn = "Navn2")))
             }
             database.assertThat("tiltaksgjennomforing_nav_enhet").hasNumberOfRows(1)

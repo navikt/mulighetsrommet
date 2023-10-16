@@ -14,6 +14,7 @@ import no.nav.mulighetsrommet.api.AppConfig
 import no.nav.mulighetsrommet.api.KafkaConfig
 import no.nav.mulighetsrommet.api.SlackConfig
 import no.nav.mulighetsrommet.api.TaskConfig
+import no.nav.mulighetsrommet.api.avtaler.AvtaleValidator
 import no.nav.mulighetsrommet.api.clients.arenaadapter.ArenaAdapterClient
 import no.nav.mulighetsrommet.api.clients.arenaadapter.ArenaAdapterClientImpl
 import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
@@ -36,6 +37,7 @@ import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClientImpl
 import no.nav.mulighetsrommet.api.repositories.*
 import no.nav.mulighetsrommet.api.services.*
 import no.nav.mulighetsrommet.api.tasks.*
+import no.nav.mulighetsrommet.api.tiltaksgjennomforinger.TiltaksgjennomforingValidator
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
 import no.nav.mulighetsrommet.env.NaisEnv
@@ -254,7 +256,7 @@ private fun services(appConfig: AppConfig) = module {
         BrregClientImpl(baseUrl = appConfig.brreg.baseUrl)
     }
     single { ArenaAdapterService(get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
-    single { AvtaleService(get(), get(), get(), get(), get(), get()) }
+    single { AvtaleService(get(), get(), get(), get(), get(), get(), get()) }
     single { TiltakshistorikkService(get(), get()) }
     single { VeilederflateService(get(), get(), get(), get(), get()) }
     single { ArrangorService(get()) }
@@ -282,6 +284,8 @@ private fun services(appConfig: AppConfig) = module {
         UnleashService(appConfig.unleash, byEnhetStrategy)
     }
     single { AxsysService(appConfig.axsys) { m2mTokenProvider.createMachineToMachineToken(appConfig.axsys.scope) } }
+    single { AvtaleValidator(get(), get(), get()) }
+    single { TiltaksgjennomforingValidator(get(), get()) }
 }
 
 private fun tasks(config: TaskConfig) = module {

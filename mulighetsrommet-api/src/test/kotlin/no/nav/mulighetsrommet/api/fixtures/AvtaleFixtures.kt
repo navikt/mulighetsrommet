@@ -5,7 +5,10 @@ import no.nav.mulighetsrommet.api.routes.v1.AvtaleRequest
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.ArenaAvtaleDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
+import no.nav.mulighetsrommet.domain.dto.AvtaleAdminDto
+import no.nav.mulighetsrommet.domain.dto.Avtalestatus
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
+import no.nav.mulighetsrommet.domain.dto.VirksomhetKontaktperson
 import java.time.LocalDate
 import java.util.*
 
@@ -17,11 +20,10 @@ object AvtaleFixtures {
         tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
         leverandorOrganisasjonsnummer = "123456789",
         leverandorUnderenheter = emptyList(),
-        startDato = LocalDate.of(2023, 1, 11),
+        startDato = LocalDate.of(2023, 1, 1),
         sluttDato = LocalDate.of(2023, 2, 28),
         navRegion = "2990",
         avtaletype = Avtaletype.Rammeavtale,
-        avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
         prisbetingelser = null,
         opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
         administratorer = emptyList(),
@@ -42,13 +44,12 @@ object AvtaleFixtures {
         sluttDato = LocalDate.of(2023, 2, 28),
         navRegion = "2990",
         avtaletype = Avtaletype.Rammeavtale,
-        avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
         opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
         administrator = "DD1",
         url = "google.com",
         navEnheter = listOf("2990"),
         leverandorKontaktpersonId = null,
-        prisOgBetalingsinformasjon = null,
+        prisbetingelser = null,
     )
 
     val arenaAvtale1 = ArenaAvtaleDbo(
@@ -64,5 +65,71 @@ object AvtaleFixtures {
         avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
         prisbetingelser = null,
         opphav = ArenaMigrering.Opphav.ARENA,
+    )
+
+    val oppfolgingAvtaleAdminDto = AvtaleAdminDto(
+        id = avtale1.id,
+        tiltakstype = AvtaleAdminDto.Tiltakstype(
+            id = TiltakstypeFixtures.Oppfolging.id,
+            navn = TiltakstypeFixtures.Oppfolging.navn,
+            arenaKode = TiltakstypeFixtures.Oppfolging.tiltakskode,
+        ),
+        navn = avtale1.navn,
+        avtalenummer = avtale1.navn,
+        leverandor = AvtaleAdminDto.Leverandor(organisasjonsnummer = "123456789", navn = "Bedrift", slettet = false),
+        leverandorUnderenheter = listOf(
+            AvtaleAdminDto.LeverandorUnderenhet(organisasjonsnummer = "976663934", navn = "Bedrift underenhet"),
+        ),
+        leverandorKontaktperson = VirksomhetKontaktperson(
+            id = UUID.randomUUID(),
+            organisasjonsnummer = "123456789",
+            navn = "Ole",
+            beskrivelse = null,
+            telefon = null,
+            epost = "ole@bedrift.no",
+        ),
+        startDato = avtale1.startDato,
+        sluttDato = avtale1.sluttDato,
+        navRegion = null,
+        avtaletype = Avtaletype.Avtale,
+        avtalestatus = Avtalestatus.Aktiv,
+        prisbetingelser = null,
+        administrator = null,
+        url = null,
+        antallPlasser = null,
+        navEnheter = emptyList(),
+        opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
+    )
+
+    val avtaleAdminDto = AvtaleAdminDto(
+        id = avtale1.id,
+        tiltakstype = AvtaleAdminDto.Tiltakstype(
+            id = TiltakstypeFixtures.AFT.id,
+            navn = TiltakstypeFixtures.AFT.navn,
+            arenaKode = TiltakstypeFixtures.AFT.tiltakskode,
+        ),
+        navn = avtale1.navn,
+        avtalenummer = avtale1.navn,
+        leverandor = AvtaleAdminDto.Leverandor(organisasjonsnummer = "123456789", navn = "Bedrift", slettet = false),
+        leverandorUnderenheter = emptyList(),
+        leverandorKontaktperson = VirksomhetKontaktperson(
+            id = UUID.randomUUID(),
+            organisasjonsnummer = "123456789",
+            navn = "Ole",
+            beskrivelse = null,
+            telefon = null,
+            epost = "ole@bedrift.no",
+        ),
+        startDato = avtale1.startDato,
+        sluttDato = avtale1.sluttDato,
+        navRegion = null,
+        avtaletype = Avtaletype.Avtale,
+        avtalestatus = Avtalestatus.Aktiv,
+        prisbetingelser = null,
+        administrator = null,
+        url = null,
+        antallPlasser = null,
+        navEnheter = emptyList(),
+        opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
     )
 }
