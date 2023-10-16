@@ -59,10 +59,11 @@ export function TiltaksgjennomforingPage() {
             <div>
               <Lenkeknapp
                 size="small"
+                isExternal={true}
                 variant="secondary"
-                to={`https://mulighetsrommet-veileder-flate.intern.${forhandsvisningMiljo}/preview/${tiltaksgjennomforing.sanityId}`}
+                to={`https://mulighetsrommet-veileder-flate.intern.${forhandsvisningMiljo}/preview/${tiltaksgjennomforing.id}`}
               >
-                Forhåndsvis i Modia <ExternalLinkIcon title="Forhåndsvis gjennomføringen i Modia" />
+                Forhåndsvis i Modia
               </Lenkeknapp>
             </div>
           )}

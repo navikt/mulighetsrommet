@@ -10,6 +10,7 @@ interface Props {
   className?: string;
   dataTestId?: string;
   size?: "small" | "medium";
+  isExternal?: boolean;
 }
 
 export function Lenkeknapp({
@@ -19,10 +20,12 @@ export function Lenkeknapp({
   className,
   dataTestId,
   children,
+  isExternal,
   size,
 }: Props) {
   return (
     <Lenke
+      isExternal={isExternal}
       to={to}
       onClick={handleClick}
       className={classNames(
