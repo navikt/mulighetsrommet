@@ -146,7 +146,7 @@ class VeilederflateService(
 
         val gruppeGjennomforinger = tiltaksgjennomforingService.getAllVeilederflateTiltaksgjennomforing(
             search = filter.search,
-            sanityTiltakstypeIds = filter.tiltakstypeIds.map { UUID.fromString(it) },
+            sanityTiltakstypeIds = filter.tiltakstypeIds?.map { UUID.fromString(it) },
             innsatsgrupper = filter.innsatsgruppe?.let {
                 utledInnsatsgrupper(filter.innsatsgruppe).map { Innsatsgruppe.valueOf(it) }
             } ?: emptyList(),
