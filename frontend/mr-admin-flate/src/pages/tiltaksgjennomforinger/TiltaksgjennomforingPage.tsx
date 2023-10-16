@@ -8,7 +8,6 @@ import { Laster } from "../../components/laster/Laster";
 import { TiltaksgjennomforingstatusTag } from "../../components/statuselementer/TiltaksgjennomforingstatusTag";
 import { ContainerLayout } from "../../layouts/ContainerLayout";
 import commonStyles from "../Page.module.scss";
-import { ExternalLinkIcon } from "@navikt/aksel-icons";
 import { erProdMiljo } from "../../utils/Utils";
 import { Lenkeknapp } from "../../components/lenkeknapp/Lenkeknapp";
 
