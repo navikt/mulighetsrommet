@@ -242,7 +242,6 @@ class VirksomhetRepositoryTest : FunSpec({
                 navRegion = "0100",
                 navEnheter = emptyList(),
                 avtaletype = Avtaletype.Avtale,
-                avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
                 opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
                 avtalenummer = null,
                 leverandorKontaktpersonId = null,

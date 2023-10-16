@@ -5,7 +5,6 @@ import { memo, useCallback, useEffect } from "react";
 import { useFormContext, useWatch } from "react-hook-form";
 import { toast } from "react-toastify";
 import useDeepCompareEffect from "use-deep-compare-effect";
-import { inferredTiltaksgjennomforingSchema } from "../tiltaksgjennomforinger/TiltaksgjennomforingSchema";
 import { AutoSaveToastContainer } from "./AutoSaveToastContainer";
 
 type Props = {
@@ -18,7 +17,7 @@ type Props = {
 export const AutoSaveUtkast = memo(({ defaultValues, utkastId, onSave, mutation }: Props) => {
   if (!utkastId) throw new Error("Ingen utkastId tilgjengelig");
 
-  const methods = useFormContext<inferredTiltaksgjennomforingSchema>();
+  const methods = useFormContext<{}>();
 
   const debouncedSave = useCallback(
     debounce(() => {

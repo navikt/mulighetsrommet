@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.services
 
+import arrow.core.left
 import arrow.core.right
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
@@ -12,7 +13,9 @@ import io.ktor.http.*
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import no.nav.mulighetsrommet.api.avtaler.AvtaleValidator
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
+import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattDbo
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
@@ -22,6 +25,7 @@ import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.NavAnsattRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.UtkastRepository
+import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
@@ -35,11 +39,41 @@ class AvtaleServiceTest : FunSpec({
     val virksomhetService: VirksomhetService = mockk(relaxed = true)
     val notificationRepository: NotificationRepository = mockk(relaxed = true)
     val utkastRepository: UtkastRepository = mockk(relaxed = true)
+    val validator = mockk<AvtaleValidator>()
+
     val domain = MulighetsrommetTestDomain()
 
     beforeEach {
         database.db.truncateAll()
         domain.initialize(database.db)
+
+        every { validator.validate(any()) } answers {
+            firstArg<AvtaleDbo>().right()
+        }
+    }
+
+    context("Upsert avtale") {
+        val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
+        val avtaler = AvtaleRepository(database.db)
+        val avtaleService = AvtaleService(
+            avtaler,
+            tiltaksgjennomforinger,
+            virksomhetService,
+            notificationRepository,
+            utkastRepository,
+            validator,
+            database.db,
+        )
+
+        test("Man skal ikke få lov til å opprette avtale dersom det oppstår valideringsfeil") {
+            val request = AvtaleFixtures.avtaleRequest
+
+            every { validator.validate(request.toDbo()) } returns listOf(ValidationError("navn", "Dårlig navn")).left()
+
+            avtaleService.upsert(request, "B123456").shouldBeLeft(
+                listOf(ValidationError("navn", "Dårlig navn")),
+            )
+        }
     }
 
     context("Slette avtale") {
@@ -52,6 +86,7 @@ class AvtaleServiceTest : FunSpec({
             virksomhetService,
             notificationRepository,
             utkastRepository,
+            validator,
             database.db,
         )
 
@@ -161,6 +196,7 @@ class AvtaleServiceTest : FunSpec({
             virksomhetService,
             notificationRepository,
             utkastRepository,
+            validator,
             database.db,
         )
 
@@ -267,6 +303,7 @@ class AvtaleServiceTest : FunSpec({
             virksomhetService,
             notificationRepository,
             utkastRepository,
+            validator,
             database.db,
         )
         val navAnsattRepository = NavAnsattRepository(database.db)
@@ -286,7 +323,7 @@ class AvtaleServiceTest : FunSpec({
                 ),
             )
             val avtale = AvtaleFixtures.avtaleRequest.copy(administrator = "B123456")
-            avtaleService.upsert(avtale, "B123456").shouldBeRight()
+            avtaleService.upsert(avtale, "B123456")
 
             verify(exactly = 0) { notificationRepository.insert(any(), any()) }
         }
@@ -319,8 +356,8 @@ class AvtaleServiceTest : FunSpec({
                 ),
             )
             val avtale = AvtaleFixtures.avtaleRequest.copy(administrator = "Z654321")
-            avtaleService.upsert(avtale, "B123456").shouldBeRight()
-            avtaleService.upsert(avtale.copy(navn = "nytt navn"), "B123456").shouldBeRight()
+            avtaleService.upsert(avtale, "B123456")
+            avtaleService.upsert(avtale.copy(navn = "nytt navn"), "B123456")
 
             verify(exactly = 1) { notificationRepository.insert(any(), any()) }
         }
@@ -335,13 +372,14 @@ class AvtaleServiceTest : FunSpec({
             virksomhetService,
             notificationRepository,
             utkastRepository,
+            validator,
             database.db,
         )
 
         test("Hvis is utkast _ikke_ kaster blir upsert værende") {
             val avtale = AvtaleFixtures.avtaleRequest.copy(id = UUID.randomUUID())
 
-            avtaleService.upsert(avtale, "Z123456").shouldBeRight()
+            avtaleService.upsert(avtale, "Z123456")
 
             avtaleService.get(avtale.id) shouldNotBe null
         }

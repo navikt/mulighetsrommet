@@ -3,9 +3,8 @@
   background-color: #ebfcff;
   padding: 1rem;
   border-radius: 4px;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
+  display: grid;
+  grid-template-columns: repeat(50px, 1fr);
   .svg_info {
     margin-right: 0.5rem;
     width: 1.5rem;

@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.routes.v1
 
-import arrow.core.Either
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
@@ -11,14 +10,12 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.routes.v1.responses.BadRequest
-import no.nav.mulighetsrommet.api.routes.v1.responses.StatusResponse
 import no.nav.mulighetsrommet.api.routes.v1.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.services.AvtaleService
 import no.nav.mulighetsrommet.api.services.ExcelService
 import no.nav.mulighetsrommet.api.utils.getAvtaleFilter
 import no.nav.mulighetsrommet.api.utils.getPaginationParams
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
-import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
@@ -83,9 +80,13 @@ fun Route.avtaleRoutes() {
         }
 
         put {
-            val avtaleRequest = call.receive<AvtaleRequest>()
+            val navIdent = getNavIdent()
+            val request = call.receive<AvtaleRequest>()
 
-            call.respondWithStatusResponse(avtaler.upsert(avtaleRequest, getNavIdent()))
+            val result = avtaler.upsert(request, navIdent)
+                .mapLeft { BadRequest(errors = it) }
+
+            call.respondWithStatusResponse(result)
         }
 
         put("{id}/avbryt") {
@@ -120,43 +121,27 @@ data class AvtaleRequest(
     val url: String?,
     val administrator: String,
     val avtaletype: Avtaletype,
-    val prisOgBetalingsinformasjon: String?,
+    val prisbetingelser: String?,
     val navEnheter: List<String>,
     val opphav: ArenaMigrering.Opphav,
-    val avslutningsstatus: Avslutningsstatus,
 ) {
-    fun toDbo(): StatusResponse<AvtaleDbo> {
-        if (!startDato.isBefore(sluttDato)) {
-            return Either.Left(BadRequest("Startdato må være før sluttdato"))
-        }
-        if (navEnheter.isEmpty()) {
-            return Either.Left(BadRequest("Minst étt nav kontor må være valgt"))
-        }
-        if (leverandorUnderenheter.isEmpty()) {
-            return Either.Left(BadRequest("Minst én underenhet til leverandøren må være valgt"))
-        }
-
-        return Either.Right(
-            AvtaleDbo(
-                id = id,
-                navn = navn,
-                avtalenummer = avtalenummer,
-                tiltakstypeId = tiltakstypeId,
-                leverandorOrganisasjonsnummer = leverandorOrganisasjonsnummer,
-                leverandorUnderenheter = leverandorUnderenheter,
-                leverandorKontaktpersonId = leverandorKontaktpersonId,
-                startDato = startDato,
-                sluttDato = sluttDato,
-                navRegion = navRegion,
-                avtaletype = avtaletype,
-                avslutningsstatus = avslutningsstatus,
-                antallPlasser = null,
-                url = url,
-                administratorer = listOf(administrator),
-                prisbetingelser = prisOgBetalingsinformasjon,
-                navEnheter = navEnheter,
-                opphav = opphav,
-            ),
-        )
-    }
+    fun toDbo() = AvtaleDbo(
+        id = id,
+        navn = navn,
+        avtalenummer = avtalenummer,
+        tiltakstypeId = tiltakstypeId,
+        leverandorOrganisasjonsnummer = leverandorOrganisasjonsnummer,
+        leverandorUnderenheter = leverandorUnderenheter,
+        leverandorKontaktpersonId = leverandorKontaktpersonId,
+        startDato = startDato,
+        sluttDato = sluttDato,
+        navRegion = navRegion,
+        avtaletype = avtaletype,
+        antallPlasser = null,
+        url = url,
+        administratorer = listOf(administrator),
+        prisbetingelser = prisbetingelser,
+        navEnheter = navEnheter,
+        opphav = opphav,
+    )
 }

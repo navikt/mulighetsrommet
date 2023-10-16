@@ -3,6 +3,6 @@ create type innsatsgruppe as enum (
     'SITUASJONSBESTEMT_INNSATS',
     'SPESIELT_TILPASSET_INNSATS',
     'VARIG_TILPASSET_INNSATS'
-);
+    );
 
 alter table tiltakstype add column innsatsgruppe innsatsgruppe;

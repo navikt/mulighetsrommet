@@ -7,6 +7,7 @@ import arrow.core.right
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.AdGruppeNavAnsattRolleMapping
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle
@@ -23,9 +24,9 @@ import java.time.LocalDate
 import java.util.*
 
 class NavAnsattService(
+    private val roles: List<AdGruppeNavAnsattRolleMapping>,
     private val microsoftGraphService: MicrosoftGraphService,
     private val ansatte: NavAnsattRepository,
-    private val roles: List<AdGruppeNavAnsattRolleMapping>,
     private val sanityClient: SanityClient,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
@@ -213,11 +214,6 @@ class NavAnsattService(
         }
     }
 }
-
-data class AdGruppeNavAnsattRolleMapping(
-    val adGruppeId: UUID,
-    val rolle: NavAnsattRolle,
-)
 
 @Serializable
 data class SanityNavKontaktperson(

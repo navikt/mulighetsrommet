@@ -1,4 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { ExclamationmarkTriangleFillIcon } from "@navikt/aksel-icons";
 import { Alert, Button, Tabs } from "@navikt/ds-react";
 import {
   Avtale,
@@ -9,15 +10,20 @@ import {
   Utkast,
 } from "mulighetsrommet-api-client";
 import { Tilgjengelighetsstatus } from "mulighetsrommet-api-client/build/models/Tilgjengelighetsstatus";
-import skjemastyles from "../skjema/Skjema.module.scss";
-import React, { useEffect, useRef } from "react";
+import React, { useRef } from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
+import { toast } from "react-toastify";
 import { v4 as uuidv4 } from "uuid";
+import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
+import { useFeatureToggle } from "../../api/features/feature-toggles";
+import { useMutateUtkast } from "../../api/utkast/useMutateUtkast";
 import { formaterDatoSomYYYYMMDD } from "../../utils/Utils";
 import { AutoSaveUtkast } from "../autosave/AutoSaveUtkast";
-import { tekniskFeilError } from "./TiltaksgjennomforingSkjemaErrors";
+import { Separator } from "../detaljside/Metadata";
+import { AvbrytTiltaksgjennomforingModal } from "../modal/AvbrytTiltaksgjennomforingModal";
+import skjemastyles from "../skjema/Skjema.module.scss";
 import {
-  inferredTiltaksgjennomforingSchema,
+  InferredTiltaksgjennomforingSchema,
   TiltaksgjennomforingSchema,
 } from "./TiltaksgjennomforingSchema";
 import {
@@ -26,16 +32,11 @@ import {
   defaultValuesForKontaktpersoner,
   UtkastData,
 } from "./TiltaksgjennomforingSkjemaConst";
-import { usePutGjennomforing } from "../../api/avtaler/usePutGjennomforing";
-import { useMutateUtkast } from "../../api/utkast/useMutateUtkast";
-import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
-import { toast } from "react-toastify";
-import { TiltaksgjennomforingSkjemaKnapperad } from "./TiltaksgjennomforingSkjemaKnapperad";
+import { useUpsertTiltaksgjennomforing } from "../../api/tiltaksgjennomforing/useUpsertTiltaksgjennomforing";
+import { useHandleApiUpsertResponse } from "../../api/effects";
 import { TiltaksgjennomforingSkjemaDetaljer } from "./TiltaksgjennomforingSkjemaDetaljer";
+import { TiltaksgjennomforingSkjemaKnapperad } from "./TiltaksgjennomforingSkjemaKnapperad";
 import { TiltaksgjennomforingSkjemaRedInnhold } from "./TiltaksgjennomforingSkjemaRedInnhold";
-import { useFeatureToggle } from "../../api/features/feature-toggles";
-import { Separator } from "../detaljside/Metadata";
-import { AvbrytTiltaksgjennomforingModal } from "../modal/AvbrytTiltaksgjennomforingModal";
 
 interface Props {
   onClose: () => void;
@@ -52,17 +53,17 @@ export const TiltaksgjennomforingSkjemaContainer = ({
 }: Props) => {
   const utkastIdRef = useRef(tiltaksgjennomforing?.id || uuidv4());
   const redigeringsModus = !!tiltaksgjennomforing;
-  const mutation = usePutGjennomforing();
+  const mutation = useUpsertTiltaksgjennomforing();
   const mutationUtkast = useMutateUtkast();
   const { data: visFaneinnhold } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_ADMIN_FLATE_FANEINNHOLD,
   );
-  const avbrytModalRef = useRef<HTMLDialogElement>(null);
 
+  const avbrytModalRef = useRef<HTMLDialogElement>(null);
   const { data: ansatt } = useHentAnsatt();
 
   const saveUtkast = (
-    values: inferredTiltaksgjennomforingSchema,
+    values: InferredTiltaksgjennomforingSchema,
     avtale: Avtale,
     utkastIdRef: React.MutableRefObject<string>,
   ) => {
@@ -117,7 +118,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
     });
   };
 
-  const form = useForm<inferredTiltaksgjennomforingSchema>({
+  const form = useForm<InferredTiltaksgjennomforingSchema>({
     resolver: zodResolver(TiltaksgjennomforingSchema),
     defaultValues: {
       navn: tiltaksgjennomforing?.navn,
@@ -168,14 +169,9 @@ export const TiltaksgjennomforingSkjemaContainer = ({
     watch,
   } = form;
 
-  const postData: SubmitHandler<inferredTiltaksgjennomforingSchema> = async (
+  const postData: SubmitHandler<InferredTiltaksgjennomforingSchema> = async (
     data,
   ): Promise<void> => {
-    if (!avtale) {
-      <Alert variant="error">{tekniskFeilError()}</Alert>;
-      return;
-    }
-
     const body: TiltaksgjennomforingRequest = {
       id: tiltaksgjennomforing ? tiltaksgjennomforing.id : uuidv4(),
       antallPlasser: data.antallPlasser,
@@ -216,20 +212,37 @@ export const TiltaksgjennomforingSkjemaContainer = ({
       opphav: data.opphav,
     };
 
-    try {
-      mutation.mutate(body);
-    } catch {
-      <Alert variant="error">{tekniskFeilError()}</Alert>;
-    }
+    mutation.mutate(body);
   };
 
-  useEffect(() => {
-    if (mutation.isSuccess) {
-      onSuccess(mutation.data.id);
-    }
-  }, [mutation]);
+  useHandleApiUpsertResponse(
+    mutation,
+    (response) => onSuccess(response.id),
+    (validation) => {
+      validation.errors.forEach((error) => {
+        const name = mapErrorToSchemaPropertyName(error.name);
+        form.setError(name, { type: "custom", message: error.message });
+      });
+
+      function mapErrorToSchemaPropertyName(name: string) {
+        const mapping: { [name: string]: string } = {
+          startDato: "startOgSluttDato.startDato",
+          sluttDato: "startOgSluttDato.sluttDato",
+          arrangorOrganisasjonsnummer: "tiltaksArrangorUnderenhetOrganisasjonsnummer",
+          stengtFra: "midlertidigStengt.erMidlertidigStengt",
+          stengtTil: "midlertidigStengt.erMidlertidigStengt",
+        };
+        return (mapping[name] ?? name) as keyof InferredTiltaksgjennomforingSchema;
+      }
+    },
+  );
 
   const hasErrors = () => Object.keys(errors).length > 0;
+
+  if (hasErrors()) {
+    // eslint-disable-next-line no-console
+    console.error(errors);
+  }
 
   return (
     <FormProvider {...form}>
@@ -244,9 +257,20 @@ export const TiltaksgjennomforingSkjemaContainer = ({
             <Tabs.List className={skjemastyles.tabslist}>
               <div>
                 <Tabs.Tab
-                  style={{ border: hasErrors() ? "solid 1px red" : "" }}
+                  style={{
+                    border: hasErrors() ? "solid 2px #C30000" : "",
+                    borderRadius: hasErrors() ? "8px" : 0,
+                  }}
                   value="detaljer"
-                  label="Detaljer"
+                  label={
+                    hasErrors() ? (
+                      <span style={{ display: "flex", alignContent: "baseline", gap: "0.4rem" }}>
+                        <ExclamationmarkTriangleFillIcon /> Detaljer
+                      </span>
+                    ) : (
+                      "Detaljer"
+                    )
+                  }
                 />
                 <Tabs.Tab value="redaksjonelt_innhold" label="Redaksjonelt innhold" />
               </div>

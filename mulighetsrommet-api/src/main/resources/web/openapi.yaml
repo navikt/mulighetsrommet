@@ -167,7 +167,7 @@ paths:
     put:
       tags:
         - Avtaler
-      operationId: opprettAvtale
+      operationId: upsertAvtale
       requestBody:
         content:
           application/json:
@@ -180,6 +180,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Avtale"
+        400:
+          description: Respons med valideringsfeil
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
         500:
           description: "Kunne ikke opprette avtale"
           content:
@@ -510,7 +516,7 @@ paths:
     put:
       tags:
         - Tiltaksgjennomforinger
-      operationId: opprettTiltaksgjennomforing
+      operationId: upsertTiltaksgjennomforing
       requestBody:
         content:
           application/json:
@@ -523,6 +529,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Tiltaksgjennomforing"
+        400:
+          description: Respons med valideringsfeil
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
         500:
           description: "Kunne ikke opprette tiltaksgennomforing"
           content:
@@ -1463,6 +1475,24 @@ components:
         type: string
 
   schemas:
+    ValidationErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              message:
+                type: string
+            required:
+              - name
+              - message
+      required:
+        - errors
+
     GetBrukerRequest:
       type: object
       properties:
@@ -1743,7 +1773,7 @@ components:
           type: string
         avtaletype:
           $ref: "#/components/schemas/Avtaletype"
-        prisOgBetalingsinformasjon:
+        prisbetingelser:
           type: string
           nullable: true
         navEnheter:
@@ -1752,8 +1782,6 @@ components:
             type: string
         opphav:
           $ref: "#/components/schemas/Opphav"
-        avslutningsstatus:
-          $ref: "#/components/schemas/AvtaleAvslutningsstatus"
       required:
         - id
         - navn
@@ -1768,7 +1796,7 @@ components:
         - url
         - administrator
         - avtaletype
-        - prisOgBetalingsinformasjon
+        - prisbetingelser
         - navEnheter
         - opphav
         - avslutningsstatus
@@ -1802,14 +1830,6 @@ components:
         - Aktiv
         - Avsluttet
         - Avbrutt
-
-    AvtaleAvslutningsstatus:
-      type: string
-      enum:
-        - AVLYST
-        - AVBRUTT
-        - AVSLUTTET
-        - IKKE_AVSLUTTET
 
     NotificationStatus:
       type: string
@@ -2601,10 +2621,6 @@ components:
           nullable: true
         pameldingOgVarighet:
           type: object
-      required:
-        - forHvemInfoboks
-        - detaljerOgInnholdInfoboks
-        - pameldingOgVarighetInfoboks
 
     VeilderflateArrangor:
       type: object

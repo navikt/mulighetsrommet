@@ -85,11 +85,11 @@ export const TiltaksgjennomforingSchema = z
     beskrivelse: z.string().nullable(),
     faneinnhold: z
       .object({
-        forHvemInfoboks: z.string().nullable(),
+        forHvemInfoboks: z.string().nullable().optional(),
         forHvem: z.any().nullable(),
-        detaljerOgInnholdInfoboks: z.string().nullable(),
+        detaljerOgInnholdInfoboks: z.string().nullable().optional(),
         detaljerOgInnhold: z.any().nullable(),
-        pameldingOgVarighetInfoboks: z.string().nullable(),
+        pameldingOgVarighetInfoboks: z.string().nullable().optional(),
         pameldingOgVarighet: z.any().nullable(),
       })
       .nullable(),
@@ -144,4 +144,4 @@ function bareDatoUtenTidspunkt(date: Date): Date {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate());
 }
 
-export type inferredTiltaksgjennomforingSchema = z.infer<typeof TiltaksgjennomforingSchema>;
+export type InferredTiltaksgjennomforingSchema = z.infer<typeof TiltaksgjennomforingSchema>;

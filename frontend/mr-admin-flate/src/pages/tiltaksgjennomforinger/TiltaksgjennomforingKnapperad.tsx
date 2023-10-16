@@ -19,6 +19,10 @@ export function TiltaksgjennomforingKnapperad({ handleSlett, style }: Props) {
     Toggles.MULIGHETSROMMET_ADMIN_FLATE_SLETT_TILTAKSGJENNOMFORING,
   );
 
+  const { data: enableFaneInnhold } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_ADMIN_FLATE_FANEINNHOLD,
+  );
+
   function handleClick(e: React.MouseEvent<HTMLInputElement>) {
     if (data?.id) {
       mutate(
@@ -30,9 +34,12 @@ export function TiltaksgjennomforingKnapperad({ handleSlett, style }: Props) {
 
   return (
     <div style={style} className={styles.knapperad}>
-      <Switch checked={!!data?.tilgjengeligForVeileder} onClick={handleClick}>
-        Tilgjengelig for veileder
-      </Switch>
+      {enableFaneInnhold ? (
+        <Switch checked={!!data?.tilgjengeligForVeileder} onClick={handleClick}>
+          Tilgjengelig for veileder
+        </Switch>
+      ) : null}
+
       {slettGjennomforingIsEnabled ? (
         <Button
           style={{
