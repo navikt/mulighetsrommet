@@ -5,11 +5,11 @@ import { memo, useCallback, useEffect, useState } from "react";
 import { useFormContext, useWatch } from "react-hook-form";
 import { toast } from "react-toastify";
 import useDeepCompareEffect from "use-deep-compare-effect";
-import { inferredTiltaksgjennomforingSchema } from "../tiltaksgjennomforinger/TiltaksgjennomforingSchema";
 import { PencilWritingIcon } from "@navikt/aksel-icons";
 import { BodyShort } from "@navikt/ds-react";
 import styles from "./AutoSaveUtkast.module.scss";
 import { formaterDatoTid } from "../../utils/Utils";
+import { InferredTiltaksgjennomforingSchema } from "../tiltaksgjennomforinger/TiltaksgjennomforingSchema";
 
 type Props = {
   defaultValues: any;
@@ -26,7 +26,7 @@ export const AutoSaveUtkast = memo(
     const [lagreState, setLagreState] = useState(
       defaultUpdatedAt ? formaterDatoTid(defaultUpdatedAt) : undefined,
     );
-    const methods = useFormContext<inferredTiltaksgjennomforingSchema>();
+    const methods = useFormContext<InferredTiltaksgjennomforingSchema>();
 
     const debouncedSave = useCallback(
       debounce(() => {
