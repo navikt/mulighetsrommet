@@ -1,5 +1,8 @@
 import { useAtom } from "jotai";
-import { Innsatsgruppe } from "mulighetsrommet-api-client";
+import {
+  GetRelevanteTiltaksgjennomforingerForBrukerRequest,
+  Innsatsgruppe,
+} from "mulighetsrommet-api-client";
 import { useQuery } from "react-query";
 import { tiltaksgjennomforingsfilter } from "../../atoms/atoms";
 import { mulighetsrommetClient } from "../clients";
@@ -12,12 +15,18 @@ export default function useTiltaksgjennomforinger() {
   const brukerData = useHentBrukerdata();
   const fnr = useFnr();
 
-  const requestBody = {
+  const requestBody: GetRelevanteTiltaksgjennomforingerForBrukerRequest = {
     norskIdent: fnr,
     innsatsgruppe: filter.innsatsgruppe?.nokkel,
-    search: filter.search,
-    tiltakstypeIds: filter.tiltakstyper.map(({ id }) => id),
   };
+
+  if (filter.search) {
+    requestBody.search = filter.search;
+  }
+
+  if (filter.tiltakstyper.length > 0) {
+    requestBody.tiltakstypeIds = filter.tiltakstyper.map(({ id }) => id);
+  }
 
   return useQuery(QueryKeys.sanity.tiltaksgjennomforinger(brukerData.data, filter), () =>
     mulighetsrommetClient.sanity.getRelevanteTiltaksgjennomforingerForBruker({ requestBody }),

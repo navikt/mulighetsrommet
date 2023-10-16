@@ -102,7 +102,7 @@ class TiltaksgjennomforingService(
 
     fun getAllVeilederflateTiltaksgjennomforing(
         search: String?,
-        sanityTiltakstypeIds: List<UUID>,
+        sanityTiltakstypeIds: List<UUID>?,
         innsatsgrupper: List<Innsatsgruppe>,
     ): List<VeilederflateTiltaksgjennomforing> =
         tiltaksgjennomforingRepository.getAllVeilederflateTiltaksgjennomforing(
