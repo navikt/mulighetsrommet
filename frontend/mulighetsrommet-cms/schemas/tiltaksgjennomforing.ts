@@ -59,7 +59,7 @@ export const tiltaksgjennomforing = defineType({
       type: "string",
       validation: (rule) => rule.required(),
       readOnly: ({ document }) => {
-        return isInAdminFlate(document.tiltakstype?._ref);
+        return isInAdminFlate(document.tiltakstype?._ref) || isEgenRegiTiltak(document.tiltakstype?._ref);
       },
     }),
     defineField({
