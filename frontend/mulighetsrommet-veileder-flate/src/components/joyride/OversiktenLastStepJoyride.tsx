@@ -13,7 +13,7 @@ export const OversiktenLastStepJoyride = () => {
     const { status, type, action } = data;
     if (
       ([STATUS.FINISHED, STATUS.SKIPPED] as string[]).includes(status) ||
-      EVENTS.TOOLTIP_CLOSE === type
+      EVENTS.TOOLTIP === type
     ) {
       setJoyride({ ...joyride, joyrideOversiktenLastStep: false });
     }

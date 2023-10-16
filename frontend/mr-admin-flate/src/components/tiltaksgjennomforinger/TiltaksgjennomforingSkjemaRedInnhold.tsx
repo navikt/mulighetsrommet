@@ -1,18 +1,27 @@
-import { Avtale, VeilederflateTiltakstype } from "mulighetsrommet-api-client";
-import skjemastyles from "../skjema/Skjema.module.scss";
-import { useFormContext } from "react-hook-form";
-import { Alert, BodyLong, Heading, Tabs, Textarea } from "@navikt/ds-react";
-import { PortableTextEditor } from "../portableText/PortableTextEditor";
-import { useTiltakstypeSanityData } from "../../api/tiltaksgjennomforing/useTiltakstypeSanityData";
+import { Alert, BodyLong, HStack, Heading, Tabs, Textarea } from "@navikt/ds-react";
 import { PortableText } from "@portabletext/react";
+import { Avtale, VeilederflateTiltakstype } from "mulighetsrommet-api-client";
+import { useFormContext } from "react-hook-form";
+import { useTiltakstypeSanityData } from "../../api/tiltaksgjennomforing/useTiltakstypeSanityData";
 import { Separator } from "../detaljside/Metadata";
+import { PortableTextEditor } from "../portableText/PortableTextEditor";
+import skjemastyles from "../skjema/Skjema.module.scss";
 
-export const TiltaksgjennomforingSkjemaRedInnhold = ({ avtale }: { avtale: Avtale }) => {
+interface Props {
+  avtale: Avtale;
+}
+
+export const TiltaksgjennomforingSkjemaRedInnhold = ({ avtale }: Props) => {
   const { register } = useFormContext();
   const { data: tiltakstypeSanityData } = useTiltakstypeSanityData(avtale.tiltakstype.id);
 
   return (
     <div className={skjemastyles.container}>
+      <HStack justify="space-between" align="start" gap="2">
+        <Alert size="small" variant="info">
+          Ikke del personopplysninger i fritekstfeltene
+        </Alert>
+      </HStack>
       <div className={skjemastyles.red_innhold_container}>
         {tiltakstypeSanityData?.beskrivelse && (
           <>

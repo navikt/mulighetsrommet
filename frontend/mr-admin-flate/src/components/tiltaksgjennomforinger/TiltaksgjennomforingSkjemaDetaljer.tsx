@@ -296,7 +296,9 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                 onClearValue={() => {
                   setValue("tiltaksArrangorUnderenhetOrganisasjonsnummer", "");
                 }}
-                readOnly={!avtale.leverandor.organisasjonsnummer}
+                readOnly={
+                  !avtale.leverandor.organisasjonsnummer || arenaOpphav(tiltaksgjennomforing)
+                }
                 options={arrangorUnderenheterOptions(avtale, virksomhet)}
               />
               {watch("tiltaksArrangorUnderenhetOrganisasjonsnummer") &&

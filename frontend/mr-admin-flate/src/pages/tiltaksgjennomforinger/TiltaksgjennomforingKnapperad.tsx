@@ -1,8 +1,10 @@
-import { Button } from "@navikt/ds-react";
+import { Button, Switch } from "@navikt/ds-react";
 import { Toggles } from "mulighetsrommet-api-client";
 import { useFeatureToggle } from "../../api/features/feature-toggles";
-import styles from "../DetaljerInfo.module.scss";
+import { useMutateTilgjengeligForVeileder } from "../../api/tiltaksgjennomforing/useMutateTilgjengeligForVeileder";
+import { useTiltaksgjennomforing } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforing";
 import { Lenkeknapp } from "../../components/lenkeknapp/Lenkeknapp";
+import styles from "../DetaljerInfo.module.scss";
 
 interface Props {
   handleSlett: () => void;
@@ -10,15 +12,34 @@ interface Props {
 }
 
 export function TiltaksgjennomforingKnapperad({ handleSlett, style }: Props) {
+  const { mutate } = useMutateTilgjengeligForVeileder();
+  const { data, refetch } = useTiltaksgjennomforing();
+
   const { data: slettGjennomforingIsEnabled } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_ADMIN_FLATE_SLETT_TILTAKSGJENNOMFORING,
   );
-  const { data: redigerGjennomforingIsEnabled } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_ADMIN_FLATE_REDIGER_TILTAKSGJENNOMFORING,
+
+  const { data: enableFaneInnhold } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_ADMIN_FLATE_FANEINNHOLD,
   );
 
+  function handleClick(e: React.MouseEvent<HTMLInputElement>) {
+    if (data?.id) {
+      mutate(
+        { id: data.id, tilgjengeligForVeileder: e.currentTarget.checked },
+        { onSettled: () => refetch() },
+      );
+    }
+  }
+
   return (
-    <div style={style}>
+    <div style={style} className={styles.knapperad}>
+      {enableFaneInnhold ? (
+        <Switch checked={!!data?.tilgjengeligForVeileder} onClick={handleClick}>
+          Tilgjengelig for veileder
+        </Switch>
+      ) : null}
+
       {slettGjennomforingIsEnabled ? (
         <Button
           style={{
@@ -34,11 +55,9 @@ export function TiltaksgjennomforingKnapperad({ handleSlett, style }: Props) {
         </Button>
       ) : null}
 
-      {redigerGjennomforingIsEnabled ? (
-        <Lenkeknapp size="small" to={`skjema`} variant="primary">
-          Rediger
-        </Lenkeknapp>
-      ) : null}
+      <Lenkeknapp size="small" to={`skjema`} variant="primary">
+        Rediger
+      </Lenkeknapp>
     </div>
   );
 }

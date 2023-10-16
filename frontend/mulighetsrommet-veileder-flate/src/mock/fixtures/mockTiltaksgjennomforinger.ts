@@ -22,6 +22,20 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
         epost: "test@example.com",
       },
     ],
+    faneinnhold: {
+      forHvem: [
+        {
+          style: "normal",
+          children: [
+            {
+              text: "Tiltaket er for deltakere som er synshemmet eller døve/hørselshemmet.",
+              _type: "span",
+            },
+          ],
+          _type: "block",
+        },
+      ],
+    },
   },
   {
     sanityId: "91205ff2-ec72-4a7f-80b8-1c99d8535a06",
@@ -68,36 +82,25 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
       },
     ],
     faneinnhold: {
-      forHvemInfoboks: "Infoboks for hvem fane fra gjennomføringen",
+      forHvemInfoboks: "Deltakeren må være forberedt på dårlig vær under tiltaksperioden",
       forHvem: [
         {
           style: "normal",
           children: [
             {
-              text: "Spesifikk for hvem tekst for denne gjennomføringen.",
+              text: "Kurset holdes i Østmarka og vil foregå over en tre ukers periode. Deltaker bør ikke gå på spesielle medisiner, være skadet eller ha funksjonsnedsettelser i forbindelse med forflytting.",
               _type: "span",
             },
           ],
           _type: "block",
-        },
-        {
-          children: [
-            {
-              _type: "span",
-              text: "Ny paragraf.",
-            },
-          ],
-          _type: "block",
-          style: "normal",
         },
         {
           _type: "block",
           listItem: "bullet",
-          markDefs: [{ _type: "link", _key: "vg.no", href: "https://vg.no" }],
+          markDefs: [{ _type: "link", _key: "nav.no", href: "https://nav.no" }],
           children: [
-            { _type: "span", text: "Lenke til " },
-            { _type: "span", text: "vg ", marks: ["vg.no"] },
-            { _type: "span", text: " italicbold", marks: ["strong", "em"] },
+            { _type: "span", text: "Du kan lese mer om tiltaket på " },
+            { _type: "span", text: "NAV.no ", marks: ["nav.no"] },
           ],
         },
       ],
@@ -230,6 +233,20 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
         _id: "56767",
       },
     ],
+    faneinnhold: {
+      forHvem: [
+        {
+          style: "normal",
+          children: [
+            {
+              text: "Kurset er for personer med høyere utdanning.",
+              _type: "span",
+            },
+          ],
+          _type: "block",
+        },
+      ],
+    },
   },
   {
     sanityId: "bdfa7090-1ba8-47a4-a82f-6aaad488994e",

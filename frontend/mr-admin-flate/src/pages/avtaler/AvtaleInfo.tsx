@@ -59,14 +59,14 @@ export function AvtaleInfo() {
   }
 
   return (
-    <>
+    <div className={styles.info_container}>
+      <div>
+        {visKnapperad(avtale.avtalestatus) && (
+          <AvtaleKnapperad avtale={avtale} handleSlett={() => setSlettModal(true)} />
+        )}
+        <Separator />
+      </div>
       <div className={styles.container}>
-        <div>
-          {visKnapperad(avtale.avtalestatus) && (
-            <AvtaleKnapperad avtale={avtale} handleSlett={() => setSlettModal(true)} />
-          )}
-          <Separator />
-        </div>
         <div className={styles.detaljer}>
           <Bolk aria-label="Avtalenavn">
             <Metadata header="Avtalenavn" verdi={avtale.navn} />
@@ -196,7 +196,6 @@ export function AvtaleInfo() {
             </Bolk>
           </VisHvisVerdi>
         </div>
-        <Separator />
       </div>
       <SlettAvtaleGjennomforingModal
         modalOpen={slettModal}
@@ -205,6 +204,6 @@ export function AvtaleInfo() {
         mutation={mutation}
         dataType="avtale"
       />
-    </>
+    </div>
   );
 }

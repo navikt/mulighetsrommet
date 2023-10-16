@@ -9,16 +9,6 @@
       "version": 1,
       "features": [
         {
-          "name": "mulighetsrommet.admin-flate-opprett-avtale",
-          "enabled": true,
-          "strategies": []
-        },
-        {
-          "name": "mulighetsrommet.admin-flate-rediger-avtale",
-          "enabled": true,
-          "strategies": []
-        },
-        {
           "name": "mulighetsrommet.admin-flate-opprett-tiltaksgjennomforing",
           "enabled": true,
           "strategies": []
@@ -30,11 +20,6 @@
         },
         {
           "name": "mulighetsrommet.admin-flate-slett-tiltaksgjennomforing",
-          "enabled": true,
-          "strategies": []
-        },
-        {
-          "name": "mulighetsrommet.admin-flate-rediger-tiltaksgjennomforing",
           "enabled": true,
           "strategies": []
         },

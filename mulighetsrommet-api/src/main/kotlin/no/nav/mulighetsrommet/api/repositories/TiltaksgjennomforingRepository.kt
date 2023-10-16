@@ -514,32 +514,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         return tx.run(queryOf(query, id).asUpdate)
     }
 
-    fun getTilgjengelighetsstatus(tiltaksnummer: String): TiltaksgjennomforingTilgjengelighetsstatus? {
-        @Language("PostgreSQL")
-        val query = """
-            select tilgjengelighet
-            from tiltaksgjennomforing
-            where (:aar::text is null and split_part(tiltaksnummer, '#', 2) = :lopenr)
-               or (:aar::text is not null and split_part(tiltaksnummer, '#', 1) = :aar and split_part(tiltaksnummer, '#', 2) = :lopenr)
-        """.trimIndent()
-
-        val parameters = tiltaksnummer.split("#").let {
-            if (it.size == 2) {
-                mapOf("aar" to it.first(), "lopenr" to it[1])
-            } else {
-                mapOf("aar" to null, "lopenr" to it.first())
-            }
-        }
-
-        return queryOf(query, parameters)
-            .map {
-                val value = it.string("tilgjengelighet")
-                TiltaksgjennomforingTilgjengelighetsstatus.valueOf(value)
-            }
-            .asSingle
-            .let { db.run(it) }
-    }
-
     private fun Tiltaksgjennomforingsstatus.toDbStatement(): String {
         return when (this) {
             Tiltaksgjennomforingsstatus.APENT_FOR_INNSOK -> "(:today < start_dato and avslutningsstatus = '${Avslutningsstatus.IKKE_AVSLUTTET}')"
@@ -548,6 +522,22 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             Tiltaksgjennomforingsstatus.AVBRUTT -> "avslutningsstatus = '${Avslutningsstatus.AVBRUTT}'"
             Tiltaksgjennomforingsstatus.AVLYST -> "avslutningsstatus = '${Avslutningsstatus.AVLYST}'"
         }
+    }
+
+    fun setTilgjengeligForVeileder(id: UUID, tilgjengeligForVeileder: Boolean): Int {
+        logger.info("Setter tilgjengelig for veileder '$tilgjengeligForVeileder' for gjennomføring med id: $id")
+        @Language("PostgreSQL")
+        val query = """
+           update tiltaksgjennomforing
+           set tilgjengelig_for_veileder = ?
+           where id = ?::uuid
+        """.trimIndent()
+
+        return queryOf(
+            query,
+            tilgjengeligForVeileder,
+            id,
+        ).asUpdate.let { db.run(it) }
     }
 
     private fun TiltaksgjennomforingDbo.toSqlParameters() = mapOf(
@@ -657,6 +647,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             beskrivelse = stringOrNull("beskrivelse"),
             createdAt = localDateTime("created_at"),
             updatedAt = localDateTime("updated_at"),
+            tilgjengeligForVeileder = boolean("tilgjengelig_for_veileder"),
         )
     }
 

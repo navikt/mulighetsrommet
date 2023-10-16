@@ -83,14 +83,16 @@ export const TiltaksgjennomforingSchema = z
     apenForInnsok: z.boolean(),
     estimertVentetid: z.string().nullable(),
     beskrivelse: z.string().nullable(),
-    faneinnhold: z.object({
-      forHvemInfoboks: z.string().optional(),
-      forHvem: z.any(),
-      detaljerOgInnholdInfoboks: z.string().optional(),
-      detaljerOgInnhold: z.any(),
-      pameldingOgVarighetInfoboks: z.string().optional(),
-      pameldingOgVarighet: z.any(),
-    }),
+    faneinnhold: z
+      .object({
+        forHvemInfoboks: z.string().nullable().optional(),
+        forHvem: z.any().nullable(),
+        detaljerOgInnholdInfoboks: z.string().nullable().optional(),
+        detaljerOgInnhold: z.any().nullable(),
+        pameldingOgVarighetInfoboks: z.string().nullable().optional(),
+        pameldingOgVarighet: z.any().nullable(),
+      })
+      .nullable(),
     opphav: z.nativeEnum(Opphav),
   })
   .superRefine((data, ctx) => {
@@ -142,4 +144,4 @@ function bareDatoUtenTidspunkt(date: Date): Date {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate());
 }
 
-export type inferredTiltaksgjennomforingSchema = z.infer<typeof TiltaksgjennomforingSchema>;
+export type InferredTiltaksgjennomforingSchema = z.infer<typeof TiltaksgjennomforingSchema>;

@@ -9,7 +9,7 @@ const GyldigUrlHvisVerdi = z.union([
 
 export const AvtaleSchema = z
   .object({
-    avtalenavn: z.string().min(5, "Et avtalenavn må minst være 5 tegn langt"),
+    navn: z.string().min(5, "Et avtalenavn må minst være 5 tegn langt"),
     tiltakstype: z.object(
       {
         navn: z.string(),
@@ -43,7 +43,7 @@ export const AvtaleSchema = z
       message: "Du må velge en administrator",
     }),
     url: GyldigUrlHvisVerdi,
-    prisOgBetalingsinfo: z.string().optional(),
+    prisbetingelser: z.string().optional(),
     opphav: z.nativeEnum(Opphav),
   })
   .refine(

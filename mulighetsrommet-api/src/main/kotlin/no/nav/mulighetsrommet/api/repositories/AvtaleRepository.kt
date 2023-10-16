@@ -39,7 +39,6 @@ class AvtaleRepository(private val db: Database) {
                                slutt_dato,
                                nav_region,
                                avtaletype,
-                               avslutningsstatus,
                                prisbetingelser,
                                antall_plasser,
                                url,
@@ -54,7 +53,6 @@ class AvtaleRepository(private val db: Database) {
                     :slutt_dato,
                     :nav_region,
                     :avtaletype::avtaletype,
-                    :avslutningsstatus::avslutningsstatus,
                     :prisbetingelser,
                     :antall_plasser,
                     :url,
@@ -68,7 +66,6 @@ class AvtaleRepository(private val db: Database) {
                                            slutt_dato                     = excluded.slutt_dato,
                                            nav_region                     = excluded.nav_region,
                                            avtaletype                     = excluded.avtaletype,
-                                           avslutningsstatus              = excluded.avslutningsstatus,
                                            prisbetingelser                = excluded.prisbetingelser,
                                            antall_plasser                 = excluded.antall_plasser,
                                            url                            = excluded.url,
@@ -273,20 +270,6 @@ class AvtaleRepository(private val db: Database) {
         )
     }
 
-    fun delete(id: UUID) {
-        logger.info("Sletter avtale id=$id")
-
-        @Language("PostgreSQL")
-        val query = """
-            delete from avtale
-            where id = ?::uuid
-        """.trimIndent()
-
-        queryOf(query, id)
-            .asUpdate
-            .let { db.run(it) }
-    }
-
     fun getAll(
         filter: AvtaleFilter,
         pagination: PaginationParams = PaginationParams(),
@@ -404,6 +387,86 @@ class AvtaleRepository(private val db: Database) {
         return Pair(totaltAntall, avtaler)
     }
 
+    fun countAktiveAvtalerForTiltakstypeWithId(id: UUID, currentDate: LocalDate = LocalDate.now()): Int {
+        val query = """
+             SELECT count(id) AS antall
+             FROM avtale
+             WHERE tiltakstype_id = ?
+             and start_dato < ?::timestamp
+             and slutt_dato > ?::timestamp
+        """.trimIndent()
+
+        return queryOf(query, id, currentDate, currentDate)
+            .map { it.int("antall") }
+            .asSingle
+            .let { db.run(it)!! }
+    }
+
+    fun countTiltaksgjennomforingerForAvtaleWithId(id: UUID, currentDate: LocalDate = LocalDate.now()): Int {
+        val query = """
+            select count(*) as antall
+            from tiltaksgjennomforing
+            where avtale_id::uuid = ?
+            and start_dato < ?::timestamp
+            and slutt_dato > ?::timestamp
+        """.trimIndent()
+
+        return queryOf(query, id, currentDate, currentDate)
+            .map { it.int("antall") }
+            .asSingle
+            .let { db.run(it)!! }
+    }
+
+    fun getAllAvtalerSomNarmerSegSluttdato(currentDate: LocalDate = LocalDate.now()): List<AvtaleNotificationDto> {
+        val params = mapOf(
+            "currentDate" to currentDate,
+        )
+
+        @Language("PostgreSQL")
+        val query = """
+            select a.id::uuid, a.navn, a.start_dato, a.slutt_dato, array_agg(distinct aa.nav_ident) as administratorer
+            from avtale a
+                     left join avtale_administrator aa on a.id = aa.avtale_id
+            where (:currentDate::timestamp + interval '6' month) = a.slutt_dato
+               or (:currentDate::timestamp + interval '3' month) = a.slutt_dato
+               or (:currentDate::timestamp + interval '14' day) = a.slutt_dato
+               or (:currentDate::timestamp + interval '7' day) = a.slutt_dato
+            group by a.id, aa.nav_ident
+        """.trimIndent()
+
+        return queryOf(query, params)
+            .map { it.toAvtaleNotificationDto() }
+            .asList
+            .let { db.run(it) }
+    }
+
+    fun setAvslutningsstatus(id: UUID, status: Avslutningsstatus) {
+        @Language("PostgreSQL")
+        val query = """
+            update avtale
+            set avslutningsstatus = :status::avslutningsstatus
+            where id = :id::uuid
+        """.trimIndent()
+
+        queryOf(query, mapOf("id" to id, "status" to status.name))
+            .asUpdate
+            .let { db.run(it) }
+    }
+
+    fun delete(id: UUID) {
+        logger.info("Sletter avtale id=$id")
+
+        @Language("PostgreSQL")
+        val query = """
+            delete from avtale
+            where id = ?::uuid
+        """.trimIndent()
+
+        queryOf(query, id)
+            .asUpdate
+            .let { db.run(it) }
+    }
+
     private fun AvtaleDbo.toSqlParameters() = mapOf(
         "id" to id,
         "navn" to navn,
@@ -416,7 +479,6 @@ class AvtaleRepository(private val db: Database) {
         "slutt_dato" to sluttDato,
         "nav_region" to navRegion,
         "avtaletype" to avtaletype.name,
-        "avslutningsstatus" to avslutningsstatus.name,
         "prisbetingelser" to prisbetingelser,
         "antall_plasser" to antallPlasser,
         "url" to url,
@@ -511,59 +573,6 @@ class AvtaleRepository(private val db: Database) {
         }
     }
 
-    fun countAktiveAvtalerForTiltakstypeWithId(id: UUID, currentDate: LocalDate = LocalDate.now()): Int {
-        val query = """
-             SELECT count(id) AS antall
-             FROM avtale
-             WHERE tiltakstype_id = ?
-             and start_dato < ?::timestamp
-             and slutt_dato > ?::timestamp
-        """.trimIndent()
-
-        return queryOf(query, id, currentDate, currentDate)
-            .map { it.int("antall") }
-            .asSingle
-            .let { db.run(it)!! }
-    }
-
-    fun countTiltaksgjennomforingerForAvtaleWithId(id: UUID, currentDate: LocalDate = LocalDate.now()): Int {
-        val query = """
-            select count(*) as antall
-            from tiltaksgjennomforing
-            where avtale_id::uuid = ?
-            and start_dato < ?::timestamp
-            and slutt_dato > ?::timestamp
-        """.trimIndent()
-
-        return queryOf(query, id, currentDate, currentDate)
-            .map { it.int("antall") }
-            .asSingle
-            .let { db.run(it)!! }
-    }
-
-    fun getAllAvtalerSomNarmerSegSluttdato(currentDate: LocalDate = LocalDate.now()): List<AvtaleNotificationDto> {
-        val params = mapOf(
-            "currentDate" to currentDate,
-        )
-
-        @Language("PostgreSQL")
-        val query = """
-            select a.id::uuid, a.navn, a.start_dato, a.slutt_dato, array_agg(distinct aa.nav_ident) as administratorer
-            from avtale a
-                     left join avtale_administrator aa on a.id = aa.avtale_id
-            where (:currentDate::timestamp + interval '6' month) = a.slutt_dato
-               or (:currentDate::timestamp + interval '3' month) = a.slutt_dato
-               or (:currentDate::timestamp + interval '14' day) = a.slutt_dato
-               or (:currentDate::timestamp + interval '7' day) = a.slutt_dato
-            group by a.id, aa.nav_ident
-        """.trimIndent()
-
-        return queryOf(query, params)
-            .map { it.toAvtaleNotificationDto() }
-            .asList
-            .let { db.run(it) }
-    }
-
     private fun Row.toAvtaleNotificationDto(): AvtaleNotificationDto {
         val administratorer = arrayOrNull<String?>("administratorer")?.asList()?.filterNotNull() ?: emptyList()
         val startDato = localDate("start_dato")
@@ -576,17 +585,5 @@ class AvtaleRepository(private val db: Database) {
             sluttDato = sluttDato,
             administratorer = administratorer,
         )
-    }
-
-    fun avbrytAvtale(avtaleId: UUID) {
-        logger.info("Avbryter avtale med id: '$avtaleId'")
-        @Language("PostgreSQL")
-        val patchAvslutningsstatusQuery = """
-            update avtale
-            set avslutningsstatus = 'AVBRUTT'
-            where id::uuid = ?
-        """.trimIndent()
-
-        queryOf(patchAvslutningsstatusQuery, avtaleId).asUpdate.let { db.run(it) }
     }
 }

@@ -126,6 +126,7 @@ class VeilederflateServiceTest : FunSpec({
         beskrivelse = null,
         createdAt = LocalDateTime.now(),
         updatedAt = LocalDateTime.now(),
+        tilgjengeligForVeileder = false,
     )
 
     test("Tom enhetsliste fra db overskriver ikke sanity enheter") {

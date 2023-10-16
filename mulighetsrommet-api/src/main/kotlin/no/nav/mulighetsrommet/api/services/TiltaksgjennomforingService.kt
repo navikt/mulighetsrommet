@@ -2,14 +2,15 @@ package no.nav.mulighetsrommet.api.services
 
 import arrow.core.Either
 import arrow.core.right
+import io.ktor.server.plugins.*
 import kotliquery.Session
 import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingNokkeltallDto
-import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.UtkastRepository
 import no.nav.mulighetsrommet.api.routes.v1.TiltaksgjennomforingRequest
 import no.nav.mulighetsrommet.api.routes.v1.responses.*
+import no.nav.mulighetsrommet.api.tiltaksgjennomforinger.TiltaksgjennomforingValidator
 import no.nav.mulighetsrommet.api.utils.AdminTiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.Database
@@ -28,39 +29,33 @@ import java.util.*
 class TiltaksgjennomforingService(
     private val tiltaksgjennomforingRepository: TiltaksgjennomforingRepository,
     private val deltakerRepository: DeltakerRepository,
-    private val avtaleRepository: AvtaleRepository,
+    private val sanityTiltaksgjennomforingService: SanityTiltaksgjennomforingService,
     private val virksomhetService: VirksomhetService,
     private val utkastRepository: UtkastRepository,
     private val tiltaksgjennomforingKafkaProducer: TiltaksgjennomforingKafkaProducer,
     private val notificationRepository: NotificationRepository,
-    private val sanityTiltaksgjennomforingService: SanityTiltaksgjennomforingService,
+    private val validator: TiltaksgjennomforingValidator,
     private val db: Database,
 ) {
     suspend fun upsert(
         request: TiltaksgjennomforingRequest,
         navIdent: String,
-        currentDate: LocalDate = LocalDate.now(),
-    ): StatusResponse<TiltaksgjennomforingAdminDto> {
-        val avtale = avtaleRepository.get(request.avtaleId)
-            ?: return Either.Left(BadRequest("Avtalen finnes ikke"))
-
-        if (avtale.sluttDato.isBefore(currentDate)) {
-            return Either.Left(BadRequest("Avtalens sluttdato har passert"))
-        }
+    ): Either<List<ValidationError>, TiltaksgjennomforingAdminDto> {
         virksomhetService.getOrSyncVirksomhet(request.arrangorOrganisasjonsnummer)
 
-        val prevAdministrator = tiltaksgjennomforingRepository.get(request.id)?.administrator?.navIdent
-
-        return request.toDbo()
+        return validator.validate(request.toDbo())
             .map { dbo ->
+                val currentAdministrator = tiltaksgjennomforingRepository.get(dbo.id)?.administrator?.navIdent
+
                 db.transactionSuspend { tx ->
                     tiltaksgjennomforingRepository.upsert(dbo, tx)
                     utkastRepository.delete(dbo.id, tx)
-                    if (navIdent != request.administrator && request.administrator != prevAdministrator) {
-                        dispatchSattSomAdministratorNotification(dbo.navn, request.administrator, tx)
+                    val nextAdministrator = dbo.administratorer.first()
+                    if (shouldNotifyNextAdministrator(navIdent, currentAdministrator, nextAdministrator)) {
+                        dispatchSattSomAdministratorNotification(dbo.navn, nextAdministrator, tx)
                     }
 
-                    val dto = tiltaksgjennomforingRepository.get(request.id, tx)!!
+                    val dto = tiltaksgjennomforingRepository.get(dbo.id, tx)!!
 
                     sanityTiltaksgjennomforingService.createOrPatchSanityTiltaksgjennomforing(dto, tx)
                     tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingDto.from(dto))
@@ -206,7 +201,17 @@ class TiltaksgjennomforingService(
         }.right()
     }
 
-    private fun dispatchSattSomAdministratorNotification(gjennomforingNavn: String, administrator: String, tx: Session) {
+    private fun shouldNotifyNextAdministrator(
+        navIdent: String,
+        currentAdministrator: String?,
+        nextAdministrator: String,
+    ) = navIdent != nextAdministrator && currentAdministrator != nextAdministrator
+
+    private fun dispatchSattSomAdministratorNotification(
+        gjennomforingNavn: String,
+        administrator: String,
+        tx: Session,
+    ) {
         val notification = ScheduledNotification(
             type = NotificationType.NOTIFICATION,
             title = "Du har blitt satt som administrator på gjennomføringen \"${gjennomforingNavn}\"",
@@ -214,5 +219,10 @@ class TiltaksgjennomforingService(
             createdAt = Instant.now(),
         )
         notificationRepository.insert(notification, tx)
+    }
+
+    fun setTilgjengeligForVeileder(id: UUID, tilgjengeligForVeileder: Boolean) {
+        val updatedRows = tiltaksgjennomforingRepository.setTilgjengeligForVeileder(id, tilgjengeligForVeileder)
+        if (updatedRows != 1) throw NotFoundException("Fant ingen gjennomføring med id: $id")
     }
 }

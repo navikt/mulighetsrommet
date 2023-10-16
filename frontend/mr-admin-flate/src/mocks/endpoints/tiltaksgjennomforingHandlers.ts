@@ -37,7 +37,11 @@ export const tiltaksgjennomforingHandlers = [
   rest.put<DefaultBodyType, PathParams, Tiltaksgjennomforing>(
     "*/api/v1/internal/tiltaksgjennomforinger",
     (req, res, ctx) => {
-      return res(ctx.status(200), ctx.json(mockTiltaksgjennomforinger[0]));
+      const gjennomforing = mockTiltaksgjennomforinger[0];
+      return res(
+        ctx.status(200),
+        ctx.json({ ...gjennomforing, updatedAt: new Date().toISOString() }),
+      );
     },
   ),
 

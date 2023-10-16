@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.routes.v1
 
-import arrow.core.Either
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
@@ -12,7 +11,6 @@ import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingKontaktpersonDbo
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.routes.v1.responses.BadRequest
-import no.nav.mulighetsrommet.api.routes.v1.responses.StatusResponse
 import no.nav.mulighetsrommet.api.routes.v1.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
 import no.nav.mulighetsrommet.api.utils.getAdminTiltaksgjennomforingsFilter
@@ -29,57 +27,67 @@ import java.time.LocalDate
 import java.util.*
 
 fun Route.tiltaksgjennomforingRoutes() {
-    val tiltaksgjennomforingService: TiltaksgjennomforingService by inject()
+    val service: TiltaksgjennomforingService by inject()
 
     route("/api/v1/internal/tiltaksgjennomforinger") {
         put {
             val request = call.receive<TiltaksgjennomforingRequest>()
             val navIdent = getNavIdent()
 
-            call.respondWithStatusResponse(tiltaksgjennomforingService.upsert(request, navIdent))
+            val result = service.upsert(request, navIdent)
+                .mapLeft { BadRequest(errors = it) }
+
+            call.respondWithStatusResponse(result)
         }
 
         get {
             val paginationParams = getPaginationParams()
             val filter = getAdminTiltaksgjennomforingsFilter()
 
-            call.respond(tiltaksgjennomforingService.getAllSkalMigreres(paginationParams, filter))
+            call.respond(service.getAllSkalMigreres(paginationParams, filter))
         }
 
         get("mine") {
             val paginationParams = getPaginationParams()
             val filter = getAdminTiltaksgjennomforingsFilter().copy(administratorNavIdent = getNavIdent())
 
-            call.respond(tiltaksgjennomforingService.getAllSkalMigreres(paginationParams, filter))
+            call.respond(service.getAllSkalMigreres(paginationParams, filter))
         }
 
         get("{id}") {
             val id = call.parameters.getOrFail<UUID>("id")
 
-            tiltaksgjennomforingService.get(id)
+            service.get(id)
                 ?.let { call.respond(it) }
                 ?: call.respond(HttpStatusCode.Companion.NotFound, "Ingen tiltaksgjennomføring med id=$id")
         }
 
         put("{id}") {
-            val gjennomforingId = call.parameters.getOrFail<UUID>("id")
+            val id = call.parameters.getOrFail<UUID>("id")
             val request = call.receive<GjennomforingTilAvtaleRequest>()
-            call.respond(tiltaksgjennomforingService.kobleGjennomforingTilAvtale(gjennomforingId, request.avtaleId))
+            call.respond(service.kobleGjennomforingTilAvtale(id, request.avtaleId))
         }
 
         put("{id}/avbryt") {
-            val gjennomforingId = call.parameters.getOrFail<UUID>("id")
-            call.respondWithStatusResponse(tiltaksgjennomforingService.avbrytGjennomforing(gjennomforingId))
+            val id = call.parameters.getOrFail<UUID>("id")
+            call.respondWithStatusResponse(service.avbrytGjennomforing(id))
         }
 
         get("{id}/nokkeltall") {
             val id = call.parameters.getOrFail<UUID>("id")
-            call.respond(tiltaksgjennomforingService.getNokkeltallForTiltaksgjennomforing(id))
+            call.respond(service.getNokkeltallForTiltaksgjennomforing(id))
         }
 
         delete("{id}") {
             val id = call.parameters.getOrFail<UUID>("id")
-            call.respondWithStatusResponse(tiltaksgjennomforingService.delete(id))
+            call.respondWithStatusResponse(service.delete(id))
+        }
+
+        put("{id}/tilgjengeligForVeileder") {
+            val id = call.parameters.getOrFail<UUID>("id")
+            val request = call.receive<TilgjengeligForVeilederRequest>()
+            service.setTilgjengeligForVeileder(id, request.tilgjengeligForVeileder)
+            call.respond(HttpStatusCode.OK)
         }
     }
 }
@@ -117,60 +125,40 @@ data class TiltaksgjennomforingRequest(
     val faneinnhold: Faneinnhold?,
     val beskrivelse: String?,
 ) {
-    fun toDbo(): StatusResponse<TiltaksgjennomforingDbo> {
-        if (sluttDato != null && !startDato.isBefore(sluttDato)) {
-            return Either.Left(BadRequest("Startdato må være før sluttdato"))
-        }
-        if ((stengtFra != null) != (stengtTil != null)) {
-            return Either.Left(BadRequest("Både stengt fra og til må være satt"))
-        }
-        if (stengtFra?.isBefore(stengtTil) == false) {
-            return Either.Left(BadRequest("Stengt fra må være før stengt til"))
-        }
-        if (antallPlasser <= 0) {
-            return Either.Left(BadRequest("Antall plasser må være større enn 0"))
-        }
-        if (navEnheter.isEmpty()) {
-            return Either.Left(BadRequest("Navenheter kan ikke være tom"))
-        }
-
-        return Either.Right(
-            TiltaksgjennomforingDbo(
-                id = id,
-                navn = navn,
-                tiltakstypeId = tiltakstypeId,
-                avtaleId = avtaleId,
-                startDato = startDato,
-                sluttDato = sluttDato,
-                avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
-                antallPlasser = antallPlasser,
-                tilgjengelighet = if (apenForInnsok) {
-                    TiltaksgjennomforingTilgjengelighetsstatus.LEDIG
-                } else {
-                    TiltaksgjennomforingTilgjengelighetsstatus.STENGT
-                },
-                estimertVentetid = estimertVentetid,
-                tiltaksnummer = tiltaksnummer,
-                arrangorOrganisasjonsnummer = arrangorOrganisasjonsnummer,
-                arrangorKontaktpersonId = arrangorKontaktpersonId,
-                administratorer = listOf(administrator),
-                navEnheter = navEnheter,
-                oppstart = oppstart,
-                opphav = opphav ?: ArenaMigrering.Opphav.MR_ADMIN_FLATE,
-                stengtFra = stengtFra,
-                stengtTil = stengtTil,
-                kontaktpersoner = kontaktpersoner.map {
-                    TiltaksgjennomforingKontaktpersonDbo(
-                        navIdent = it.navIdent,
-                        navEnheter = it.navEnheter,
-                    )
-                },
-                stedForGjennomforing = stedForGjennomforing,
-                faneinnhold = faneinnhold,
-                beskrivelse = beskrivelse,
-            ),
-        )
-    }
+    fun toDbo() = TiltaksgjennomforingDbo(
+        id = id,
+        navn = navn,
+        tiltakstypeId = tiltakstypeId,
+        avtaleId = avtaleId,
+        startDato = startDato,
+        sluttDato = sluttDato,
+        avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
+        antallPlasser = antallPlasser,
+        tilgjengelighet = if (apenForInnsok) {
+            TiltaksgjennomforingTilgjengelighetsstatus.LEDIG
+        } else {
+            TiltaksgjennomforingTilgjengelighetsstatus.STENGT
+        },
+        estimertVentetid = estimertVentetid,
+        tiltaksnummer = tiltaksnummer,
+        arrangorOrganisasjonsnummer = arrangorOrganisasjonsnummer,
+        arrangorKontaktpersonId = arrangorKontaktpersonId,
+        administratorer = listOf(administrator),
+        navEnheter = navEnheter,
+        oppstart = oppstart,
+        opphav = opphav ?: ArenaMigrering.Opphav.MR_ADMIN_FLATE,
+        stengtFra = stengtFra,
+        stengtTil = stengtTil,
+        kontaktpersoner = kontaktpersoner.map {
+            TiltaksgjennomforingKontaktpersonDbo(
+                navIdent = it.navIdent,
+                navEnheter = it.navEnheter,
+            )
+        },
+        stedForGjennomforing = stedForGjennomforing,
+        faneinnhold = faneinnhold,
+        beskrivelse = beskrivelse,
+    )
 }
 
 @Serializable
@@ -183,4 +171,9 @@ data class GjennomforingTilAvtaleRequest(
 data class NavKontaktpersonForGjennomforing(
     val navIdent: String,
     val navEnheter: List<String>,
+)
+
+@Serializable
+data class TilgjengeligForVeilederRequest(
+    val tilgjengeligForVeileder: Boolean,
 )

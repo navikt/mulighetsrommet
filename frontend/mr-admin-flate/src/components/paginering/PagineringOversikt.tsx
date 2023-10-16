@@ -22,10 +22,15 @@ export function PagineringsOversikt({
 }: Props) {
   return (
     <Heading level="1" size="xsmall" data-testid="antall-tiltak" className={styles.container}>
-      <span>
-        Viser {(page - 1) * antallVises + 1}-{antall + (page - 1) * antallVises} av {maksAntall}{" "}
-        {type}{" "}
-      </span>
+      {antall < 1 ? (
+        <span>Viser 0 av 0 {type} </span>
+      ) : (
+        <span>
+          Viser {(page - 1) * antallVises + 1}-{antall + (page - 1) * antallVises} av {maksAntall}{" "}
+          {type}{" "}
+        </span>
+      )}
+
       {setAntallVises ? (
         <Select
           size="small"

@@ -1,7 +1,6 @@
-import { Alert, Button, DatePicker, Textarea, TextField, useDatepicker } from "@navikt/ds-react";
+import { Button, DatePicker, Textarea, TextField, useDatepicker } from "@navikt/ds-react";
 import {
   Avtale,
-  AvtaleAvslutningsstatus,
   AvtaleRequest,
   Avtalestatus,
   Avtaletype,
@@ -19,7 +18,8 @@ import { useEffect, useRef, useState } from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { v4 as uuidv4 } from "uuid";
 import { useHentBetabrukere } from "../../api/ansatt/useHentBetabrukere";
-import { usePutAvtale } from "../../api/avtaler/usePutAvtale";
+import { useUpsertAvtale } from "../../api/avtaler/useUpsertAvtale";
+import { useMutateUtkast } from "../../api/utkast/useMutateUtkast";
 import { useSokVirksomheter } from "../../api/virksomhet/useSokVirksomhet";
 import { useVirksomhet } from "../../api/virksomhet/useVirksomhet";
 import { addYear, formaterDato, formaterDatoSomYYYYMMDD } from "../../utils/Utils";
@@ -32,9 +32,6 @@ import { VirksomhetKontaktpersoner } from "../virksomhet/VirksomhetKontaktperson
 import { AvtaleSchema, InferredAvtaleSchema } from "./AvtaleSchema";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { PORTEN } from "mulighetsrommet-frontend-common/constants";
-import { resolveErrorMessage } from "../../api/errors";
-import { erAnskaffetTiltak } from "../../utils/tiltakskoder";
 import { AdministratorOptions } from "../skjema/AdministratorOptions";
 import { FormGroup } from "../skjema/FormGroup";
 import {
@@ -46,7 +43,8 @@ import {
 import { AvtaleSkjemaKnapperad } from "./AvtaleSkjemaKnapperad";
 import { AvbrytAvtaleModal } from "../modal/AvbrytAvtaleModal";
 import { useFeatureToggle } from "../../api/features/feature-toggles";
-import { useMutateUtkast } from "../../api/utkast/useMutateUtkast";
+import { erAnskaffetTiltak } from "../../utils/tiltakskoder";
+import { useHandleApiUpsertResponse } from "../../api/effects";
 
 interface Props {
   onClose: () => void;
@@ -74,7 +72,7 @@ export function AvtaleSkjemaContainer({
   const { data: enableOpsjoner } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_ADMIN_FLATE_OPSJONER_FOR_AVTALER,
   );
-  const mutation = usePutAvtale();
+  const mutation = useUpsertAvtale();
   const { data: betabrukere } = useHentBetabrukere();
   const mutationUtkast = useMutateUtkast();
 
@@ -89,7 +87,7 @@ export function AvtaleSkjemaContainer({
       navRegion: defaultEnhet(avtale, enheter, ansatt),
       navEnheter: avtale?.navEnheter?.map((e) => e.enhetsnummer) || [],
       administrator: avtale?.administrator?.navIdent || ansatt.navIdent || "",
-      avtalenavn: avtale?.navn ?? "",
+      navn: avtale?.navn ?? "",
       avtaletype: avtale?.avtaletype ?? Avtaletype.AVTALE,
       leverandor: avtale?.leverandor?.organisasjonsnummer ?? "",
       leverandorUnderenheter:
@@ -104,7 +102,7 @@ export function AvtaleSkjemaContainer({
         sluttDato: avtale?.sluttDato ? new Date(avtale.sluttDato) : undefined,
       },
       url: avtale?.url ?? undefined,
-      prisOgBetalingsinfo: avtale?.prisbetingelser ?? undefined,
+      prisbetingelser: avtale?.prisbetingelser ?? undefined,
       opphav: avtale?.opphav ?? Opphav.MR_ADMIN_FLATE,
     },
   });
@@ -147,71 +145,50 @@ export function AvtaleSkjemaContainer({
   const arenaOpphav = avtale?.opphav === Opphav.ARENA;
 
   const postData: SubmitHandler<InferredAvtaleSchema> = async (data): Promise<void> => {
-    const {
-      navRegion,
-      navEnheter,
-      leverandor: leverandorOrganisasjonsnummer,
-      leverandorUnderenheter,
-      leverandorKontaktpersonId,
-      avtalenavn: navn,
-      startOgSluttDato,
-      tiltakstype,
-      administrator,
-      avtaletype,
-      prisOgBetalingsinfo,
-      opphav,
-      url,
-    } = data;
-
     const requestBody: AvtaleRequest = {
-      id: utkastIdRef.current,
-      navRegion,
-      navEnheter,
+      id: avtale?.id ?? utkastIdRef.current,
+      navRegion: data.navRegion,
+      navEnheter: data.navEnheter,
       avtalenummer: avtale?.avtalenummer || null,
-      leverandorOrganisasjonsnummer,
-      leverandorUnderenheter,
-      navn,
-      sluttDato: formaterDatoSomYYYYMMDD(startOgSluttDato.sluttDato),
-      startDato: formaterDatoSomYYYYMMDD(startOgSluttDato.startDato),
-      tiltakstypeId: tiltakstype.id,
-      url: url || null,
-      administrator,
-      avtaletype,
-      prisOgBetalingsinformasjon: erAnskaffetTiltak(tiltakstype.arenaKode)
-        ? prisOgBetalingsinfo || null
+      leverandorOrganisasjonsnummer: data.leverandor,
+      leverandorUnderenheter: data.leverandorUnderenheter,
+      navn: data.navn,
+      sluttDato: formaterDatoSomYYYYMMDD(data.startOgSluttDato.sluttDato),
+      startDato: formaterDatoSomYYYYMMDD(data.startOgSluttDato.startDato),
+      tiltakstypeId: data.tiltakstype.id,
+      url: data.url || null,
+      administrator: data.administrator,
+      avtaletype: data.avtaletype,
+      prisbetingelser: erAnskaffetTiltak(data.tiltakstype.arenaKode)
+        ? data.prisbetingelser || null
         : null,
-      opphav,
-      leverandorKontaktpersonId: leverandorKontaktpersonId ?? null,
-      avslutningsstatus: AvtaleAvslutningsstatus.IKKE_AVSLUTTET,
+      opphav: data.opphav,
+      leverandorKontaktpersonId: data.leverandorKontaktpersonId ?? null,
     };
-
-    if (avtale?.id) {
-      requestBody.id = avtale.id; // Ved oppdatering av eksisterende avtale
-    }
 
     mutation.mutate(requestBody);
   };
 
-  useEffect(() => {
-    if (mutation.isSuccess) {
-      onSuccess(mutation.data.id);
-    }
-  }, [mutation]);
+  useHandleApiUpsertResponse(
+    mutation,
+    (response) => onSuccess(response.id),
+    (validation) => {
+      validation.errors.forEach((error) => {
+        const name = mapErrorToSchemaPropertyName(error.name);
+        form.setError(name, { type: "custom", message: error.message });
+      });
 
-  if (mutation.isError) {
-    return (
-      <Alert variant="error">
-        {mutation.error.status === 400 ? (
-          resolveErrorMessage(mutation.error)
-        ) : (
-          <>
-            Avtalen kunne ikke opprettes på grunn av en teknisk feil hos oss. Forsøk på nytt eller
-            ta <a href={PORTEN}>kontakt i Porten</a> dersom du trenger mer hjelp.
-          </>
-        )}
-      </Alert>
-    );
-  }
+      function mapErrorToSchemaPropertyName(name: string) {
+        const mapping: { [name: string]: string } = {
+          startDato: "startOgSluttDato.startDato",
+          sluttDato: "startOgSluttDato.sluttDato",
+          leverandorOrganisasjonsnummer: "leverandor",
+          tiltakstypeId: "tiltakstype",
+        };
+        return (mapping[name] ?? name) as keyof InferredAvtaleSchema;
+      }
+    },
+  );
 
   const navRegionerOptions = enheter
     .filter((enhet) => enhet.type === NavEnhetType.FYLKE)
@@ -240,11 +217,11 @@ export function AvtaleSkjemaContainer({
                 <TextField
                   size="small"
                   readOnly={arenaOpphav}
-                  error={errors.avtalenavn?.message}
+                  error={errors.navn?.message}
                   label="Avtalenavn"
                   autoFocus
                   data-testid="avtalenavn-input"
-                  {...register("avtalenavn")}
+                  {...register("navn")}
                 />
               </FormGroup>
               <Separator />
@@ -332,9 +309,9 @@ export function AvtaleSkjemaContainer({
                     <Textarea
                       size="small"
                       readOnly={arenaOpphav}
-                      error={errors.prisOgBetalingsinfo?.message}
+                      error={errors.prisbetingelser?.message}
                       label="Pris og betalingsinformasjon"
-                      {...register("prisOgBetalingsinfo")}
+                      {...register("prisbetingelser")}
                     />
                   </FormGroup>
                   <Separator />
@@ -438,7 +415,6 @@ export function AvtaleSkjemaContainer({
           </div>
         </div>
       </form>
-
       {avtale && <AvbrytAvtaleModal modalRef={avbrytModalRef} avtale={avtale} />}
     </FormProvider>
   );

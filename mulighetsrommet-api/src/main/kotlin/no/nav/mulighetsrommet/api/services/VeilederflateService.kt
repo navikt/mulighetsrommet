@@ -13,6 +13,7 @@ import no.nav.mulighetsrommet.api.utils.byggSokeFilter
 import no.nav.mulighetsrommet.api.utils.byggTiltakstypeFilter
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingTilgjengelighetsstatus
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingAdminDto
+import no.nav.mulighetsrommet.domain.dto.emptyOrNull
 import no.nav.mulighetsrommet.metrics.Metrikker
 import no.nav.mulighetsrommet.utils.CacheUtils
 import java.util.*
@@ -342,7 +343,11 @@ class VeilederflateService(
                 fylke = fylke,
                 enheter = enheter,
                 beskrivelse = apiGjennomforing.beskrivelse ?: beskrivelse,
-                faneinnhold = apiGjennomforing.faneinnhold ?: faneinnhold,
+                faneinnhold = if (apiGjennomforing.faneinnhold.emptyOrNull()) {
+                    faneinnhold
+                } else {
+                    apiGjennomforing.faneinnhold
+                },
             )
         }
     }

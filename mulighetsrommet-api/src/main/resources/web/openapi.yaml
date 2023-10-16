@@ -167,7 +167,7 @@ paths:
     put:
       tags:
         - Avtaler
-      operationId: opprettAvtale
+      operationId: upsertAvtale
       requestBody:
         content:
           application/json:
@@ -180,6 +180,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Avtale"
+        400:
+          description: Respons med valideringsfeil
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
         500:
           description: "Kunne ikke opprette avtale"
           content:
@@ -510,7 +516,7 @@ paths:
     put:
       tags:
         - Tiltaksgjennomforinger
-      operationId: opprettTiltaksgjennomforing
+      operationId: upsertTiltaksgjennomforing
       requestBody:
         content:
           application/json:
@@ -523,6 +529,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Tiltaksgjennomforing"
+        400:
+          description: Respons med valideringsfeil
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
         500:
           description: "Kunne ikke opprette tiltaksgennomforing"
           content:
@@ -681,6 +693,26 @@ paths:
             text/plain:
               schema:
                 type: string
+
+  /api/v1/internal/tiltaksgjennomforinger/{id}/tilgjengeligForVeileder:
+    parameters:
+      - $ref: "#/components/parameters/ID"
+    put:
+      tags:
+        - Tiltaksgjennomforinger
+      operationId: setTilgjengeligForVeileder
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TilgjengeligForVeilederRequest"
+      responses:
+        200:
+          description: Update for 'tilgjengelig for veileder' was successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Tiltaksgjennomforing"
 
   /api/v1/internal/tiltaksgjennomforinger/enhet/{enhet}:
     parameters:
@@ -1443,6 +1475,24 @@ components:
         type: string
 
   schemas:
+    ValidationErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              message:
+                type: string
+            required:
+              - name
+              - message
+      required:
+        - errors
+
     GetBrukerRequest:
       type: object
       properties:
@@ -1727,7 +1777,7 @@ components:
           type: string
         avtaletype:
           $ref: "#/components/schemas/Avtaletype"
-        prisOgBetalingsinformasjon:
+        prisbetingelser:
           type: string
           nullable: true
         navEnheter:
@@ -1736,8 +1786,6 @@ components:
             type: string
         opphav:
           $ref: "#/components/schemas/Opphav"
-        avslutningsstatus:
-          $ref: "#/components/schemas/AvtaleAvslutningsstatus"
       required:
         - id
         - navn
@@ -1752,7 +1800,7 @@ components:
         - url
         - administrator
         - avtaletype
-        - prisOgBetalingsinformasjon
+        - prisbetingelser
         - navEnheter
         - opphav
         - avslutningsstatus
@@ -1786,14 +1834,6 @@ components:
         - Aktiv
         - Avsluttet
         - Avbrutt
-
-    AvtaleAvslutningsstatus:
-      type: string
-      enum:
-        - AVLYST
-        - AVBRUTT
-        - AVSLUTTET
-        - IKKE_AVSLUTTET
 
     NotificationStatus:
       type: string
@@ -1905,6 +1945,11 @@ components:
           $ref: "#/components/schemas/SanityFaneinnhold"
         beskrivelse:
           type: string
+        tilgjengeligForVeileder:
+          type: boolean
+        updatedAt:
+          type: string
+          format: date-time
       required:
         - status
         - id
@@ -1916,6 +1961,8 @@ components:
         - opphav
         - midlertidigStengt
         - tilgjengelighet
+        - tilgjengeligForVeileder
+        - updatedAt
 
     TiltaksgjennomforingRequest:
       type: object
@@ -1980,7 +2027,7 @@ components:
           $ref: "#/components/schemas/Opphav"
           nullable: true
         faneinnhold:
-          $ref: "#/components/schemas/SanityFaneinnhold"
+          $ref: "#/components/schemas/SanityFaneinnholdRequest"
           nullable: true
         beskrivelse:
           type: string
@@ -2562,6 +2609,25 @@ components:
         pameldingOgVarighet:
           type: object
 
+    SanityFaneinnholdRequest:
+      type: object
+      properties:
+        forHvemInfoboks:
+          type: string
+          nullable: true
+        forHvem:
+          type: object
+        detaljerOgInnholdInfoboks:
+          type: string
+          nullable: true
+        detaljerOgInnhold:
+          type: object
+        pameldingOgVarighetInfoboks:
+          type: string
+          nullable: true
+        pameldingOgVarighet:
+          type: object
+
     VeilderflateArrangor:
       type: object
       properties:
@@ -2923,15 +2989,20 @@ components:
     Toggles:
       type: string
       enum:
-        - mulighetsrommet.admin-flate-opprett-avtale
-        - mulighetsrommet.admin-flate-rediger-avtale
         - mulighetsrommet.admin-flate-opprett-tiltaksgjennomforing
         - mulighetsrommet.admin-flate-slett-avtale
         - mulighetsrommet.admin-flate-slett-tiltaksgjennomforing
-        - mulighetsrommet.admin-flate-rediger-tiltaksgjennomforing
         - mulighetsrommet.admin-flate-vis-deltakerliste-fra-komet
         - mulighetsrommet.enable-arbeidsflate
         - mulighetsrommet-veilederflate-landingsside
         - mulighetsrommet.admin-flate-faneinnhold
         - mulighetsrommet.admin-flate.opsjoner-for-avtaler
         - mulighetsrommet.admin-flate.rediger-oppstart
+
+    TilgjengeligForVeilederRequest:
+      type: object
+      properties:
+        tilgjengeligForVeileder:
+          type: boolean
+      required:
+        - tilgjengeligForVeileder

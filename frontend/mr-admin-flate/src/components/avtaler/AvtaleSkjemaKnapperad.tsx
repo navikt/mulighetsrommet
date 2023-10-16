@@ -2,6 +2,7 @@ import styles from "../skjema/Skjema.module.scss";
 import { Button } from "@navikt/ds-react";
 import { faro } from "@grafana/faro-web-sdk";
 import { AutoSaveUtkast } from "../autosave/AutoSaveUtkast";
+import { ValideringsfeilOppsummering } from "../skjema/ValideringsfeilOppsummering";
 
 interface Props {
   redigeringsModus: boolean;
@@ -30,12 +31,14 @@ export function AvtaleSkjemaKnapperad({
         onSave={() => saveUtkast()}
         mutationUtkast={mutationUtkast}
       />
+      <ValideringsfeilOppsummering />
       <Button
         size="small"
         className={styles.button}
         onClick={onClose}
         variant="tertiary"
         data-testid="avtaleskjema-avbrytknapp"
+        type="button"
       >
         Avbryt
       </Button>
