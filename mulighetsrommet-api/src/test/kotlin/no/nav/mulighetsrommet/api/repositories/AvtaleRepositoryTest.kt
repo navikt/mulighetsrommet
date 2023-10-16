@@ -26,6 +26,7 @@ import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dto.*
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.Month
 import java.util.*
 
 class AvtaleRepositoryTest : FunSpec({
@@ -1020,6 +1021,7 @@ class AvtaleRepositoryTest : FunSpec({
             antallPlasser = null,
             navEnheter = emptyList(),
             opphav = ArenaMigrering.Opphav.ARENA,
+            updatedAt = LocalDateTime.of(2023, Month.OCTOBER, 21,3,30,29),
         )
 
         avtaler.upsertArenaAvtale(avtale)
