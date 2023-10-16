@@ -33,7 +33,7 @@ data class AvtaleAdminDto(
     val navEnheter: List<NavEnhet>,
     val opphav: ArenaMigrering.Opphav,
     @Serializable(with = LocalDateTimeSerializer::class)
-    val updatedAt: LocalDateTime
+    val updatedAt: LocalDateTime,
 ) {
     @Serializable
     data class Tiltakstype(

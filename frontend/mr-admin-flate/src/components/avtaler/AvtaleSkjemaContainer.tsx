@@ -232,7 +232,7 @@ export function AvtaleSkjemaContainer({
           mutationUtkast={mutationUtkast}
           defaultUpdatedAt={avtale?.updatedAt}
         />
-        <Separator />
+        <Separator classname={skjemastyles.avtaleskjema_separator} />
         <div className={skjemastyles.container}>
           <div className={skjemastyles.input_container}>
             <div className={skjemastyles.column}>
