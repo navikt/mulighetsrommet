@@ -96,8 +96,6 @@ app:
     url: https://axsys.prod-fss-pub.nais.io
     scope: api://prod-fss.org.axsys/.default
 
-  navAnsattService:
-
   tasks:
     deleteExpiredTiltakshistorikk:
       cronPattern: "0 0 1 * * *" # Hver morgen kl. 01:00
