@@ -22,6 +22,20 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
         epost: "test@example.com",
       },
     ],
+    faneinnhold: {
+      forHvem: [
+        {
+          style: "normal",
+          children: [
+            {
+              text: "Tiltaket er for deltakere som er synshemmet eller døve/hørselshemmet.",
+              _type: "span",
+            },
+          ],
+          _type: "block",
+        },
+      ],
+    },
   },
   {
     sanityId: "91205ff2-ec72-4a7f-80b8-1c99d8535a06",
@@ -219,6 +233,20 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
         _id: "56767",
       },
     ],
+    faneinnhold: {
+      forHvem: [
+        {
+          style: "normal",
+          children: [
+            {
+              text: "Kurset er for personer med høyere utdanning.",
+              _type: "span",
+            },
+          ],
+          _type: "block",
+        },
+      ],
+    },
   },
   {
     sanityId: "bdfa7090-1ba8-47a4-a82f-6aaad488994e",
