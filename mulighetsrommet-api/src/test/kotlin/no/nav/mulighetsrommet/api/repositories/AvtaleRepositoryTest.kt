@@ -1021,7 +1021,7 @@ class AvtaleRepositoryTest : FunSpec({
             antallPlasser = null,
             navEnheter = emptyList(),
             opphav = ArenaMigrering.Opphav.ARENA,
-            updatedAt = LocalDateTime.of(2023, Month.OCTOBER, 21,3,30,29),
+            updatedAt = LocalDateTime.of(2023, Month.OCTOBER, 21, 3, 30, 29),
         )
 
         avtaler.upsertArenaAvtale(avtale)
