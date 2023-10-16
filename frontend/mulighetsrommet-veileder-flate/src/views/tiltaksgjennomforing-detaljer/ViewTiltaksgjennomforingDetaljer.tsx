@@ -117,7 +117,6 @@ const ViewTiltaksgjennomforingDetaljer = ({
   const tilgjengelighetsstatusSomNokkelinfo: NokkelinfoProps = {
     nokkelinfoKomponenter: [
       {
-        _id: tiltaksgjennomforing.sanityId,
         innhold: (
           <TilgjengelighetsstatusComponent
             status={tiltaksgjennomforing.tilgjengelighet}

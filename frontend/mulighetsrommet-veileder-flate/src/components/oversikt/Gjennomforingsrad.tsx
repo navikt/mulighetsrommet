@@ -29,6 +29,7 @@ const visOppstartsdato = (oppstart: TiltaksgjennomforingOppstartstype, oppstarts
 export function Gjennomforingsrad({ tiltaksgjennomforing, index }: Props) {
   const [page] = useAtom(paginationAtom);
   const {
+    id,
     sanityId,
     navn,
     arrangor,
@@ -44,7 +45,7 @@ export function Gjennomforingsrad({ tiltaksgjennomforing, index }: Props) {
   return (
     <li className={styles.list_element} id={`list_element_${index}`}>
       <Lenke
-        to={`/arbeidsmarkedstiltak/tiltak/${sanityId}#page=${page}`}
+        to={`/arbeidsmarkedstiltak/tiltak/${id ?? sanityId}#page=${page}`}
         data-testid="lenke_tiltaksgjennomforing"
       >
         <div className={styles.gjennomforing_container}>
