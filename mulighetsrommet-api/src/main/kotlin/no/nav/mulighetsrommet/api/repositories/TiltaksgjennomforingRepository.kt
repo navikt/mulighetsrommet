@@ -512,7 +512,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                    jsonb_agg(distinct
                              case
                                  when tgk.tiltaksgjennomforing_id is null then null::jsonb
-                                 else jsonb_build_object('navn', concat(na.fornavn, ' ', na.etternavn), 'epost', na.epost, 'telefonnummer',na.mobilnummer, )
+                                 else jsonb_build_object('navn', concat(na.fornavn, ' ', na.etternavn), 'epost', na.epost, 'telefonnummer',na.mobilnummer)
                                  end
                        )                  as kontaktpersoner,
                    avtale_ne.enhetsnummer as navRegionEnhetsnummerForAvtale,
