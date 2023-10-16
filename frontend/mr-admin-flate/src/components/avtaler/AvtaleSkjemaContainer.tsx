@@ -20,11 +20,9 @@ import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { v4 as uuidv4 } from "uuid";
 import { useHentBetabrukere } from "../../api/ansatt/useHentBetabrukere";
 import { usePutAvtale } from "../../api/avtaler/usePutAvtale";
-import { useMutateUtkast } from "../../api/utkast/useMutateUtkast";
 import { useSokVirksomheter } from "../../api/virksomhet/useSokVirksomhet";
 import { useVirksomhet } from "../../api/virksomhet/useVirksomhet";
 import { addYear, formaterDato, formaterDatoSomYYYYMMDD } from "../../utils/Utils";
-import { AutoSaveUtkast } from "../autosave/AutoSaveUtkast";
 import { Separator } from "../detaljside/Metadata";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
@@ -48,6 +46,7 @@ import {
 import { AvtaleSkjemaKnapperad } from "./AvtaleSkjemaKnapperad";
 import { AvbrytAvtaleModal } from "../modal/AvbrytAvtaleModal";
 import { useFeatureToggle } from "../../api/features/feature-toggles";
+import { useMutateUtkast } from "../../api/utkast/useMutateUtkast";
 
 interface Props {
   onClose: () => void;
@@ -224,9 +223,17 @@ export function AvtaleSkjemaContainer({
   return (
     <FormProvider {...form}>
       <form onSubmit={handleSubmit(postData)}>
+        <AvtaleSkjemaKnapperad
+          redigeringsModus={redigeringsModus!}
+          onClose={onClose}
+          defaultValues={defaultValues}
+          utkastIdRef={utkastIdRef.current}
+          saveUtkast={() => saveUtkast(watch(), avtale!, ansatt, utkastIdRef, mutationUtkast)}
+          mutationUtkast={mutationUtkast}
+          defaultUpdatedAt={avtale?.updatedAt}
+        />
+        <Separator />
         <div className={skjemastyles.container}>
-          <AvtaleSkjemaKnapperad redigeringsModus={redigeringsModus!} onClose={onClose} />
-          <Separator />
           <div className={skjemastyles.input_container}>
             <div className={skjemastyles.column}>
               <FormGroup>
@@ -431,13 +438,7 @@ export function AvtaleSkjemaContainer({
           </div>
         </div>
       </form>
-      <AutoSaveUtkast
-        defaultValues={defaultValues}
-        utkastId={utkastIdRef.current}
-        defaultUpdatedAt={avtale?.updatedAt}
-        onSave={() => saveUtkast(watch(), avtale!, ansatt, utkastIdRef, mutationUtkast)}
-        mutationUtkast={mutationUtkast}
-      />
+
       {avtale && <AvbrytAvtaleModal modalRef={avbrytModalRef} avtale={avtale} />}
     </FormProvider>
   );
