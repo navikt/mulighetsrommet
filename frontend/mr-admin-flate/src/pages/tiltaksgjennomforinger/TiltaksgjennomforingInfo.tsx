@@ -1,17 +1,16 @@
 import { Alert, Tabs } from "@navikt/ds-react";
+import { TiltaksgjennomforingStatus } from "mulighetsrommet-api-client";
+import { useState } from "react";
 import { useAvtale } from "../../api/avtaler/useAvtale";
+import { useDeleteTiltaksgjennomforing } from "../../api/tiltaksgjennomforing/useDeleteTiltaksgjennomforing";
 import { useTiltaksgjennomforingById } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforingById";
 import { Laster } from "../../components/laster/Laster";
-import styles from "../DetaljerInfo.module.scss";
-import skjemaStyles from "../../components/skjema/Skjema.module.scss";
-import { TiltaksgjennomforingDetaljer } from "./TiltaksgjennomforingDetaljer";
-import { TiltaksgjennomforingRedInnhold } from "./TiltaksgjennomforingRedInnhold";
-import { useFeatureToggle } from "../../api/features/feature-toggles";
-import { TiltaksgjennomforingStatus, Toggles } from "mulighetsrommet-api-client";
-import { TiltaksgjennomforingKnapperad } from "./TiltaksgjennomforingKnapperad";
-import { useDeleteTiltaksgjennomforing } from "../../api/tiltaksgjennomforing/useDeleteTiltaksgjennomforing";
-import { useState } from "react";
 import SlettAvtaleGjennomforingModal from "../../components/modal/SlettAvtaleGjennomforingModal";
+import skjemaStyles from "../../components/skjema/Skjema.module.scss";
+import styles from "../DetaljerInfo.module.scss";
+import { TiltaksgjennomforingDetaljer } from "./TiltaksgjennomforingDetaljer";
+import { TiltaksgjennomforingKnapperad } from "./TiltaksgjennomforingKnapperad";
+import { TiltaksgjennomforingRedInnhold } from "./TiltaksgjennomforingRedInnhold";
 
 export function TiltaksgjennomforingInfo() {
   const {
@@ -19,9 +18,6 @@ export function TiltaksgjennomforingInfo() {
     isError: isErrorTiltaksgjennomforing,
     isLoading: isLoadingTiltaksgjennomforing,
   } = useTiltaksgjennomforingById();
-  const { data: visFaneinnhold } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_ADMIN_FLATE_FANEINNHOLD,
-  );
 
   const [slettModal, setSlettModal] = useState(false);
   const mutation = useDeleteTiltaksgjennomforing();
@@ -51,45 +47,26 @@ export function TiltaksgjennomforingInfo() {
 
   return (
     <div className={styles.info_container}>
-      {visFaneinnhold ? (
-        <Tabs defaultValue="detaljer">
-          <Tabs.List className={skjemaStyles.tabslist}>
-            <div>
-              <Tabs.Tab value="detaljer" label="Detaljer" />
-              <Tabs.Tab value="redaksjonelt_innhold" label="Redaksjonelt innhold" />
-            </div>
-            {visKnapperad(tiltaksgjennomforing.status) && (
-              <TiltaksgjennomforingKnapperad handleSlett={() => setSlettModal(true)} />
-            )}
-          </Tabs.List>
-          <Tabs.Panel value="detaljer">
-            <TiltaksgjennomforingDetaljer
-              tiltaksgjennomforing={tiltaksgjennomforing}
-              avtale={avtale}
-            />
-          </Tabs.Panel>
-          <Tabs.Panel value="redaksjonelt_innhold">
-            <TiltaksgjennomforingRedInnhold tiltaksgjennomforing={tiltaksgjennomforing} />
-          </Tabs.Panel>
-        </Tabs>
-      ) : (
-        <>
+      <Tabs defaultValue="detaljer">
+        <Tabs.List className={skjemaStyles.tabslist}>
+          <div>
+            <Tabs.Tab value="detaljer" label="Detaljer" />
+            <Tabs.Tab value="redaksjonelt_innhold" label="Redaksjonelt innhold" />
+          </div>
+          {visKnapperad(tiltaksgjennomforing.status) && (
+            <TiltaksgjennomforingKnapperad handleSlett={() => setSlettModal(true)} />
+          )}
+        </Tabs.List>
+        <Tabs.Panel value="detaljer">
           <TiltaksgjennomforingDetaljer
             tiltaksgjennomforing={tiltaksgjennomforing}
             avtale={avtale}
           />
-          {visKnapperad(tiltaksgjennomforing.status) && (
-            <TiltaksgjennomforingKnapperad
-              style={{
-                display: "flex",
-                flexDirection: "row",
-                justifyContent: "flex-end",
-              }}
-              handleSlett={() => setSlettModal(true)}
-            />
-          )}
-        </>
-      )}
+        </Tabs.Panel>
+        <Tabs.Panel value="redaksjonelt_innhold">
+          <TiltaksgjennomforingRedInnhold tiltaksgjennomforing={tiltaksgjennomforing} />
+        </Tabs.Panel>
+      </Tabs>
       <SlettAvtaleGjennomforingModal
         modalOpen={slettModal}
         handleCancel={() => setSlettModal(false)}

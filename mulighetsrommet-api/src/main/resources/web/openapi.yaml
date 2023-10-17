@@ -2989,7 +2989,6 @@ components:
         - mulighetsrommet.admin-flate-vis-deltakerliste-fra-komet
         - mulighetsrommet.enable-arbeidsflate
         - mulighetsrommet-veilederflate-landingsside
-        - mulighetsrommet.admin-flate-faneinnhold
         - mulighetsrommet.admin-flate.opsjoner-for-avtaler
         - mulighetsrommet.admin-flate.rediger-oppstart
 

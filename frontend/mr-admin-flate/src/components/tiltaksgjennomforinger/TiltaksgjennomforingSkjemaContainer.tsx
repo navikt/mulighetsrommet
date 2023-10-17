@@ -6,7 +6,6 @@ import {
   Opphav,
   Tiltaksgjennomforing,
   TiltaksgjennomforingRequest,
-  Toggles,
   Utkast,
 } from "mulighetsrommet-api-client";
 import { Tilgjengelighetsstatus } from "mulighetsrommet-api-client/build/models/Tilgjengelighetsstatus";
@@ -15,7 +14,8 @@ import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { v4 as uuidv4 } from "uuid";
 import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
-import { useFeatureToggle } from "../../api/features/feature-toggles";
+import { useHandleApiUpsertResponse } from "../../api/effects";
+import { useUpsertTiltaksgjennomforing } from "../../api/tiltaksgjennomforing/useUpsertTiltaksgjennomforing";
 import { useMutateUtkast } from "../../api/utkast/useMutateUtkast";
 import { formaterDatoSomYYYYMMDD } from "../../utils/Utils";
 import { AutoSaveUtkast } from "../autosave/AutoSaveUtkast";
@@ -27,13 +27,11 @@ import {
   TiltaksgjennomforingSchema,
 } from "./TiltaksgjennomforingSchema";
 import {
+  UtkastData,
   arenaOpphav,
   defaultOppstartType,
   defaultValuesForKontaktpersoner,
-  UtkastData,
 } from "./TiltaksgjennomforingSkjemaConst";
-import { useUpsertTiltaksgjennomforing } from "../../api/tiltaksgjennomforing/useUpsertTiltaksgjennomforing";
-import { useHandleApiUpsertResponse } from "../../api/effects";
 import { TiltaksgjennomforingSkjemaDetaljer } from "./TiltaksgjennomforingSkjemaDetaljer";
 import { TiltaksgjennomforingSkjemaKnapperad } from "./TiltaksgjennomforingSkjemaKnapperad";
 import { TiltaksgjennomforingSkjemaRedInnhold } from "./TiltaksgjennomforingSkjemaRedInnhold";
@@ -55,9 +53,6 @@ export const TiltaksgjennomforingSkjemaContainer = ({
   const redigeringsModus = !!tiltaksgjennomforing;
   const mutation = useUpsertTiltaksgjennomforing();
   const mutationUtkast = useMutateUtkast();
-  const { data: visFaneinnhold } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_ADMIN_FLATE_FANEINNHOLD,
-  );
 
   const avbrytModalRef = useRef<HTMLDialogElement>(null);
   const { data: ansatt } = useHentAnsatt();
@@ -252,60 +247,45 @@ export const TiltaksgjennomforingSkjemaContainer = ({
         </Alert>
       ) : null}
       <form onSubmit={handleSubmit(postData)}>
-        {visFaneinnhold ? (
-          <Tabs defaultValue="detaljer">
-            <Tabs.List className={skjemastyles.tabslist}>
-              <div>
-                <Tabs.Tab
-                  style={{
-                    border: hasErrors() ? "solid 2px #C30000" : "",
-                    borderRadius: hasErrors() ? "8px" : 0,
-                  }}
-                  value="detaljer"
-                  label={
-                    hasErrors() ? (
-                      <span style={{ display: "flex", alignContent: "baseline", gap: "0.4rem" }}>
-                        <ExclamationmarkTriangleFillIcon /> Detaljer
-                      </span>
-                    ) : (
-                      "Detaljer"
-                    )
-                  }
-                />
-                <Tabs.Tab value="redaksjonelt_innhold" label="Redaksjonelt innhold" />
-              </div>
-              <TiltaksgjennomforingSkjemaKnapperad
-                size="small"
-                redigeringsModus={redigeringsModus}
-                onClose={onClose}
-                mutation={mutation}
+        <Tabs defaultValue="detaljer">
+          <Tabs.List className={skjemastyles.tabslist}>
+            <div>
+              <Tabs.Tab
+                style={{
+                  border: hasErrors() ? "solid 2px #C30000" : "",
+                  borderRadius: hasErrors() ? "8px" : 0,
+                }}
+                value="detaljer"
+                label={
+                  hasErrors() ? (
+                    <span style={{ display: "flex", alignContent: "baseline", gap: "0.4rem" }}>
+                      <ExclamationmarkTriangleFillIcon /> Detaljer
+                    </span>
+                  ) : (
+                    "Detaljer"
+                  )
+                }
               />
-            </Tabs.List>
-            <Tabs.Panel value="detaljer">
-              <TiltaksgjennomforingSkjemaDetaljer
-                avtale={avtale}
-                tiltaksgjennomforing={tiltaksgjennomforing}
-              />
-            </Tabs.Panel>
-            <Tabs.Panel value="redaksjonelt_innhold">
-              <TiltaksgjennomforingSkjemaRedInnhold avtale={avtale} />
-            </Tabs.Panel>
-          </Tabs>
-        ) : (
-          <>
-            <div className={skjemastyles.button_row}>
-              <TiltaksgjennomforingSkjemaKnapperad
-                redigeringsModus={redigeringsModus}
-                onClose={onClose}
-                mutation={mutation}
-              />
+              <Tabs.Tab value="redaksjonelt_innhold" label="Redaksjonelt innhold" />
             </div>
+            <TiltaksgjennomforingSkjemaKnapperad
+              size="small"
+              redigeringsModus={redigeringsModus}
+              onClose={onClose}
+              mutation={mutation}
+            />
+          </Tabs.List>
+          <Tabs.Panel value="detaljer">
             <TiltaksgjennomforingSkjemaDetaljer
               avtale={avtale}
               tiltaksgjennomforing={tiltaksgjennomforing}
             />
-          </>
-        )}
+          </Tabs.Panel>
+          <Tabs.Panel value="redaksjonelt_innhold">
+            <TiltaksgjennomforingSkjemaRedInnhold avtale={avtale} />
+          </Tabs.Panel>
+        </Tabs>
+
         <Separator />
         <div>
           {!arenaOpphav(tiltaksgjennomforing) && redigeringsModus && (
