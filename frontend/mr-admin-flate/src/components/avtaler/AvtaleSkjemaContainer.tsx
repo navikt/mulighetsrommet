@@ -22,7 +22,7 @@ import { useUpsertAvtale } from "../../api/avtaler/useUpsertAvtale";
 import { useMutateUtkast } from "../../api/utkast/useMutateUtkast";
 import { useSokVirksomheter } from "../../api/virksomhet/useSokVirksomhet";
 import { useVirksomhet } from "../../api/virksomhet/useVirksomhet";
-import { addYear, formaterDato, formaterDatoSomYYYYMMDD } from "../../utils/Utils";
+import { addYear, formaterDato, formaterDatoSomYYYYMMDD, formaterDatoTid } from "../../utils/Utils";
 import { Separator } from "../detaljside/Metadata";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
@@ -144,6 +144,11 @@ export function AvtaleSkjemaContainer({
 
   const arenaOpphav = avtale?.opphav === Opphav.ARENA;
 
+  const defaultUpdatedAt = avtale?.updatedAt;
+  const [lagreState, setLagreState] = useState(
+    defaultUpdatedAt ? "Sist lagret: " + formaterDatoTid(defaultUpdatedAt) : undefined,
+  );
+
   const postData: SubmitHandler<InferredAvtaleSchema> = async (data): Promise<void> => {
     const requestBody: AvtaleRequest = {
       id: avtale?.id ?? utkastIdRef.current,
@@ -205,9 +210,12 @@ export function AvtaleSkjemaContainer({
           onClose={onClose}
           defaultValues={defaultValues}
           utkastIdRef={utkastIdRef.current}
-          saveUtkast={() => saveUtkast(watch(), avtale!, ansatt, utkastIdRef, mutationUtkast)}
+          saveUtkast={() =>
+            saveUtkast(watch(), avtale!, ansatt, utkastIdRef, mutationUtkast, setLagreState)
+          }
           mutationUtkast={mutationUtkast}
-          defaultUpdatedAt={avtale?.updatedAt}
+          lagreState={lagreState}
+          setLagreState={setLagreState}
         />
         <Separator classname={skjemastyles.avtaleskjema_separator} />
         <div className={skjemastyles.container}>

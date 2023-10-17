@@ -9,13 +9,12 @@ import {
   Utkast,
 } from "mulighetsrommet-api-client";
 import { Tilgjengelighetsstatus } from "mulighetsrommet-api-client/build/models/Tilgjengelighetsstatus";
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
-import { toast } from "react-toastify";
 import { v4 as uuidv4 } from "uuid";
 import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
 import { useFeatureToggle } from "../../api/features/feature-toggles";
-import { formaterDatoSomYYYYMMDD } from "../../utils/Utils";
+import { formaterDatoSomYYYYMMDD, formaterDatoTid } from "../../utils/Utils";
 import { Separator } from "../detaljside/Metadata";
 import { AvbrytTiltaksgjennomforingModal } from "../modal/AvbrytTiltaksgjennomforingModal";
 import skjemastyles from "../skjema/Skjema.module.scss";
@@ -65,6 +64,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
     values: InferredTiltaksgjennomforingSchema,
     avtale: Avtale,
     utkastIdRef: React.MutableRefObject<string>,
+    setLagreState: (state: string) => void,
   ) => {
     if (!avtale) {
       return;
@@ -102,10 +102,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
     };
 
     if (!values.navn) {
-      toast.info("For å lagre utkast må du gi utkastet et navn", {
-        autoClose: 10000,
-      });
-      return;
+      setLagreState("For å lagre utkast må du gi utkastet et navn");
     }
 
     mutationUtkast.mutate({
@@ -245,6 +242,11 @@ export const TiltaksgjennomforingSkjemaContainer = ({
     console.error(errors);
   }
 
+  const defaultUpdatedAt = avtale?.updatedAt;
+  const [lagreState, setLagreState] = useState(
+    defaultUpdatedAt ? "Sist lagret: " + formaterDatoTid(defaultUpdatedAt) : undefined,
+  );
+
   return (
     <FormProvider {...form}>
       {!redigeringsModus ? (
@@ -282,8 +284,10 @@ export const TiltaksgjennomforingSkjemaContainer = ({
                 mutation={mutation}
                 defaultValues={defaultValues}
                 utkastIdRef={utkastIdRef.current}
-                onSave={() => saveUtkast(watch(), avtale, utkastIdRef)}
+                onSave={() => saveUtkast(watch(), avtale, utkastIdRef, setLagreState)}
                 mutationUtkast={mutationUtkast}
+                lagreState={lagreState}
+                setLagreState={setLagreState}
               />
             </Tabs.List>
             <Tabs.Panel value="detaljer">
@@ -304,8 +308,10 @@ export const TiltaksgjennomforingSkjemaContainer = ({
               mutation={mutation}
               defaultValues={defaultValues}
               utkastIdRef={utkastIdRef.current}
-              onSave={() => saveUtkast(watch(), avtale, utkastIdRef)}
+              onSave={() => saveUtkast(watch(), avtale, utkastIdRef, setLagreState)}
               mutationUtkast={mutationUtkast}
+              lagreState={lagreState}
+              setLagreState={setLagreState}
             />
             <TiltaksgjennomforingSkjemaDetaljer
               avtale={avtale}

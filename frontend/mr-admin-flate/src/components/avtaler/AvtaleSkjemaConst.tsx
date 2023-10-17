@@ -1,5 +1,4 @@
 import { InferredAvtaleSchema } from "./AvtaleSchema";
-import { toast } from "react-toastify";
 import {
   Avtale,
   LeverandorUnderenhet,
@@ -38,6 +37,7 @@ export const saveUtkast = (
   ansatt: NavAnsatt,
   utkastIdRef: MutableRefObject<string>,
   mutationUtkast: UseMutationResult<Utkast, unknown, Utkast, unknown>,
+  setLagreState: (state: string) => void,
 ) => {
   const utkastData: UtkastData = {
     navn: values?.navn,
@@ -70,10 +70,7 @@ export const saveUtkast = (
   };
 
   if (!values.navn) {
-    toast.info("For å lagre utkast må du gi utkastet et navn", {
-      autoClose: 10000,
-    });
-    return;
+    setLagreState("For å lagre utkast må du gi utkastet et navn");
   }
 
   mutationUtkast.mutate({

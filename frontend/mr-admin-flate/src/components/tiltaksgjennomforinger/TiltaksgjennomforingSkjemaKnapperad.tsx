@@ -19,6 +19,8 @@ interface Props {
   utkastIdRef: string;
   onSave: () => void;
   mutationUtkast: UseMutationResult<Utkast, unknown, Utkast>;
+  lagreState?: string;
+  setLagreState: (state: string) => void;
 }
 export function TiltaksgjennomforingSkjemaKnapperad({
   redigeringsModus,
@@ -29,6 +31,8 @@ export function TiltaksgjennomforingSkjemaKnapperad({
   utkastIdRef,
   onSave,
   mutationUtkast,
+  lagreState,
+  setLagreState,
 }: Props) {
   return (
     <HStack align="center" className={styles.knapperad}>
@@ -37,6 +41,8 @@ export function TiltaksgjennomforingSkjemaKnapperad({
         utkastId={utkastIdRef}
         onSave={onSave}
         mutationUtkast={mutationUtkast}
+        lagreState={lagreState}
+        setLagreState={setLagreState}
       />
       <ValideringsfeilOppsummering />
       <Button

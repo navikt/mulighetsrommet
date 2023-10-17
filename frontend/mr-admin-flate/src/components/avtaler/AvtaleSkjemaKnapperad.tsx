@@ -9,27 +9,30 @@ interface Props {
   onClose: () => void;
   defaultValues: any;
   utkastIdRef: string;
-  defaultUpdatedAt?: string;
   saveUtkast: () => void;
   mutationUtkast: any;
+  lagreState?: string;
+  setLagreState: (state: string) => void;
 }
 export function AvtaleSkjemaKnapperad({
   redigeringsModus,
   onClose,
   defaultValues,
   utkastIdRef,
-  defaultUpdatedAt,
   saveUtkast,
   mutationUtkast,
+  lagreState,
+  setLagreState,
 }: Props) {
   return (
     <div className={styles.knapperad}>
       <AutoSaveUtkast
         defaultValues={defaultValues}
         utkastId={utkastIdRef}
-        defaultUpdatedAt={defaultUpdatedAt}
         onSave={() => saveUtkast()}
         mutationUtkast={mutationUtkast}
+        lagreState={lagreState}
+        setLagreState={setLagreState}
       />
       <ValideringsfeilOppsummering />
       <Button
