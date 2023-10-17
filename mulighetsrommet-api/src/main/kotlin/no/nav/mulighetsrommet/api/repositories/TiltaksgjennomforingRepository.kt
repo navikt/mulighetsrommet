@@ -493,6 +493,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                    tg.id,
                    tg.sanity_id,
                    t.sanity_id as tiltakstype_sanity_id,
+                   t.navn as tiltakstype_navn,
                    tg.navn,
                    tg.sted_for_gjennomforing,
                    tg.tilgjengelighet,
@@ -665,6 +666,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             id = uuidOrNull("id"),
             tiltakstype = VeilederflateTiltakstype(
                 sanityId = uuid("tiltakstype_sanity_id").toString(),
+                navn = string("tiltakstype_navn"),
             ),
             navn = string("navn"),
             stedForGjennomforing = stringOrNull("sted_for_gjennomforing"),
