@@ -54,18 +54,16 @@ export function TiltaksgjennomforingPage() {
             <span>{tiltaksgjennomforing?.navn ?? "..."}</span>
             <TiltaksgjennomforingstatusTag tiltaksgjennomforing={tiltaksgjennomforing} />
           </div>
-          {tiltaksgjennomforing?.sanityId && (
-            <div>
-              <Lenkeknapp
-                size="small"
-                isExternal={true}
-                variant="secondary"
-                to={`https://mulighetsrommet-veileder-flate.intern.${forhandsvisningMiljo}/preview/${tiltaksgjennomforing.id}`}
-              >
-                Forhåndsvis i Modia
-              </Lenkeknapp>
-            </div>
-          )}
+          <div>
+            <Lenkeknapp
+              size="small"
+              isExternal={true}
+              variant="secondary"
+              to={`https://mulighetsrommet-veileder-flate.intern.${forhandsvisningMiljo}/preview/${tiltaksgjennomforing.id}`}
+            >
+              Forhåndsvis i Modia
+            </Lenkeknapp>
+          </div>
         </div>
       </Header>
 
