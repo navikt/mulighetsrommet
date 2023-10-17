@@ -337,6 +337,7 @@ class AvtaleRepository(private val db: Database) {
                    a.avslutningsstatus,
                    a.prisbetingelser,
                    a.antall_plasser,
+                   a.updated_at,
                    a.url,
                    nav_enhet.navn         as nav_enhet_navn,
                    t.navn                 as tiltakstype_navn,
