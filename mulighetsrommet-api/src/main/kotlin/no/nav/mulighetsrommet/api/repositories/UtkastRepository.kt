@@ -4,14 +4,14 @@ import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.domain.dbo.UtkastDbo
 import no.nav.mulighetsrommet.api.domain.dbo.Utkasttype
 import no.nav.mulighetsrommet.api.domain.dto.UtkastDto
-import no.nav.mulighetsrommet.api.utils.*
+import no.nav.mulighetsrommet.api.domain.dto.UtkastRequest
+import no.nav.mulighetsrommet.api.utils.DatabaseUtils
+import no.nav.mulighetsrommet.api.utils.UtkastFilter
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
-import no.nav.mulighetsrommet.domain.dto.*
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 import java.util.*
@@ -20,7 +20,7 @@ class UtkastRepository(private val db: Database) {
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    fun upsert(utkast: UtkastDbo): QueryResult<UtkastDto?> = query {
+    fun upsert(utkast: UtkastRequest): QueryResult<UtkastDto?> = query {
         logger.info("Lagrer utkast id=${utkast.id}")
 
         @Language("PostgreSQL")
@@ -98,7 +98,7 @@ class UtkastRepository(private val db: Database) {
         tx.run(queryOf(query, id).asUpdate)
     }
 
-    private fun UtkastDbo.toSqlParams() = mapOf(
+    private fun UtkastRequest.toSqlParams() = mapOf(
         "id" to id,
         "avtale_id" to avtaleId,
         "opprettet_av" to opprettetAv,

@@ -1,6 +1,6 @@
 import { UseMutationResult } from "@tanstack/react-query";
 import debounce from "debounce";
-import { Utkast } from "mulighetsrommet-api-client";
+import { UtkastDto as Utkast } from "mulighetsrommet-api-client";
 import { memo, useCallback, useEffect } from "react";
 import { useFormContext, useWatch } from "react-hook-form";
 import useDeepCompareEffect from "use-deep-compare-effect";
@@ -38,7 +38,7 @@ export const AutoSaveUtkast = memo(
       }
 
       if (mutationUtkast.isSuccess) {
-        setLagreState("Sist lagret: " + formaterDatoTid(mutationUtkast.data?.updatedAt));
+        setLagreState(`Sist lagret: ${formaterDatoTid(mutationUtkast.data?.updatedAt)}`);
       }
 
       if (mutationUtkast.isError) {

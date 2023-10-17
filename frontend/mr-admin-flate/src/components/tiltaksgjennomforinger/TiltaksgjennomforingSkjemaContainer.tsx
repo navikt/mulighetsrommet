@@ -6,7 +6,7 @@ import {
   Tiltaksgjennomforing,
   TiltaksgjennomforingRequest,
   Toggles,
-  Utkast,
+  UtkastRequest as Utkast,
 } from "mulighetsrommet-api-client";
 import { Tilgjengelighetsstatus } from "mulighetsrommet-api-client/build/models/Tilgjengelighetsstatus";
 import React, { useRef, useState } from "react";
@@ -112,8 +112,6 @@ export const TiltaksgjennomforingSkjemaContainer = ({
       type: Utkast.type.TILTAKSGJENNOMFORING,
       opprettetAv: ansatt?.navIdent,
       avtaleId: avtale.id,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
     });
   };
 
@@ -243,9 +241,9 @@ export const TiltaksgjennomforingSkjemaContainer = ({
     console.error(errors);
   }
 
-  const defaultUpdatedAt = avtale?.updatedAt;
+  const defaultUpdatedAt = tiltaksgjennomforing?.updatedAt;
   const [lagreState, setLagreState] = useState(
-    defaultUpdatedAt ? "Sist lagret: " + formaterDatoTid(defaultUpdatedAt) : undefined,
+    defaultUpdatedAt ? `Sist lagret: ${formaterDatoTid(defaultUpdatedAt)}` : undefined,
   );
 
   return (

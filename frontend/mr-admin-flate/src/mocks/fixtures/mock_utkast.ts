@@ -1,4 +1,4 @@
-import { Utkast } from "mulighetsrommet-api-client";
+import { UtkastDto as Utkast } from "mulighetsrommet-api-client";
 import { mockTiltaksgjennomforinger } from "./mock_tiltaksgjennomforinger";
 import { mockAvtaler } from "./mock_avtaler";
 

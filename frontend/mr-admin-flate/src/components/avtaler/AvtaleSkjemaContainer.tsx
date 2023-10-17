@@ -146,7 +146,7 @@ export function AvtaleSkjemaContainer({
 
   const defaultUpdatedAt = avtale?.updatedAt;
   const [lagreState, setLagreState] = useState(
-    defaultUpdatedAt ? "Sist lagret: " + formaterDatoTid(defaultUpdatedAt) : undefined,
+    defaultUpdatedAt ? `Sist lagret: ${formaterDatoTid(defaultUpdatedAt)}` : undefined,
   );
 
   const postData: SubmitHandler<InferredAvtaleSchema> = async (data): Promise<void> => {
