@@ -75,8 +75,10 @@ class AvtaleRepositoryTest : FunSpec({
                 )
                 it.navn shouldBe "Avtale til test"
                 it.avtalenummer shouldBe "2023#123"
-                it.leverandor shouldBe AvtaleAdminDto.Leverandor(organisasjonsnummer = "123456789",
-                    navn = null, slettet = true)
+                it.leverandor shouldBe AvtaleAdminDto.Leverandor(
+                    organisasjonsnummer = "123456789",
+                    navn = null, slettet = true,
+                )
                 it.startDato shouldBe LocalDate.of(2023, 1, 1)
                 it.sluttDato shouldBe LocalDate.of(2023, 2, 2)
                 it.avtaletype shouldBe Avtaletype.Avtale
