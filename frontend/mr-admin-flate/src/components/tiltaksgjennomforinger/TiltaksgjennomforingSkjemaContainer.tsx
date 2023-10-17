@@ -103,6 +103,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
 
     if (!values.navn) {
       setLagreState("For å lagre utkast må du gi utkastet et navn");
+      return;
     }
 
     mutationUtkast.mutate({
