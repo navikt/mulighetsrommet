@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.domain.dbo
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 data class AvtaleDbo(
@@ -23,4 +24,5 @@ data class AvtaleDbo(
     val antallPlasser: Int?,
     val url: String?,
     val administratorer: List<String> = emptyList(),
+    val updatedAt: LocalDateTime
 )

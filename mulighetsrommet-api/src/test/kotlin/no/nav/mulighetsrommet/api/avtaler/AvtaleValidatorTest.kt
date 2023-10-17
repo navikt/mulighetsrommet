@@ -20,6 +20,7 @@ import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.*
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 class AvtaleValidatorTest : FunSpec({
@@ -44,6 +45,7 @@ class AvtaleValidatorTest : FunSpec({
         navEnheter = listOf("2990"),
         opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
         antallPlasser = null,
+        updatedAt = LocalDateTime.now(),
     )
 
     val avtaleAdminDto = avtaleDbo.run {
@@ -81,6 +83,7 @@ class AvtaleValidatorTest : FunSpec({
             antallPlasser = antallPlasser,
             navEnheter = navEnheter.map { NavEnhet(enhetsnummer = it, navn = it) },
             opphav = opphav,
+            updatedAt = avtaleDbo.updatedAt,
         )
     }
 
@@ -281,6 +284,7 @@ class AvtaleValidatorTest : FunSpec({
                     navEnheter = listOf("2990"),
                     opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
                     antallPlasser = null,
+                    updatedAt = avtaleDbo.updatedAt,
                 )
 
                 every { avtaler.get(avtaleMedEndringer.id) } returns avtaleAdminDto
@@ -320,6 +324,7 @@ class AvtaleValidatorTest : FunSpec({
                     navEnheter = listOf("2990"),
                     opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
                     antallPlasser = null,
+                    updatedAt = avtaleDbo.updatedAt,
                 )
 
                 every { avtaler.get(avtaleMedEndringer.id) } returns avtaleAdminDto

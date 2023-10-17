@@ -31,6 +31,7 @@ object AvtaleFixtures {
         leverandorKontaktpersonId = null,
         antallPlasser = null,
         url = null,
+        updatedAt = LocalDate.now().atStartOfDay(),
     )
 
     val avtaleRequest = AvtaleRequest(
@@ -99,6 +100,7 @@ object AvtaleFixtures {
         antallPlasser = null,
         navEnheter = emptyList(),
         opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
+        updatedAt = avtale1.updatedAt,
     )
 
     val avtaleAdminDto = AvtaleAdminDto(
@@ -131,5 +133,6 @@ object AvtaleFixtures {
         antallPlasser = null,
         navEnheter = emptyList(),
         opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
+        updatedAt = avtale1.updatedAt,
     )
 }
