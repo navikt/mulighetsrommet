@@ -3,7 +3,8 @@ import { UseMutationResult } from "@tanstack/react-query";
 import {
   Tiltaksgjennomforing,
   TiltaksgjennomforingRequest,
-  Utkast,
+  UtkastDto as Utkast,
+  UtkastRequest,
 } from "mulighetsrommet-api-client";
 import { AutoSaveUtkast } from "../autosave/AutoSaveUtkast";
 import React from "react";
@@ -18,7 +19,7 @@ interface Props {
   defaultValues: any;
   utkastIdRef: string;
   onSave: () => void;
-  mutationUtkast: UseMutationResult<Utkast, unknown, Utkast>;
+  mutationUtkast: UseMutationResult<Utkast, unknown, UtkastRequest>;
   lagreState?: string;
   setLagreState: (state: string) => void;
 }

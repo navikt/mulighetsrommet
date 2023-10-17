@@ -1,5 +1,5 @@
 import { DefaultBodyType, PathParams, rest } from "msw";
-import { Utkast } from "mulighetsrommet-api-client";
+import { UtkastDto as Utkast } from "mulighetsrommet-api-client";
 import { mockUtkast } from "../fixtures/mock_utkast";
 
 export const utkastHandlers = [

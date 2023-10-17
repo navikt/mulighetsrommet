@@ -1,6 +1,6 @@
 import { UseMutationResult } from "@tanstack/react-query";
 import debounce from "debounce";
-import { UtkastDto as Utkast } from "mulighetsrommet-api-client";
+import { UtkastDto as Utkast, UtkastRequest } from "mulighetsrommet-api-client";
 import { memo, useCallback, useEffect } from "react";
 import { useFormContext, useWatch } from "react-hook-form";
 import useDeepCompareEffect from "use-deep-compare-effect";
@@ -14,7 +14,7 @@ type Props = {
   defaultValues: any;
   utkastId: string;
   onSave: () => void;
-  mutationUtkast: UseMutationResult<Utkast, unknown, Utkast>;
+  mutationUtkast: UseMutationResult<Utkast, unknown, UtkastRequest>;
   lagreState?: string;
   setLagreState: (state: string) => void;
 };

@@ -5,6 +5,7 @@ import {
   NavAnsatt,
   NavEnhet,
   NavEnhetType,
+  UtkastDto,
   UtkastRequest as Utkast,
   Virksomhet,
 } from "mulighetsrommet-api-client";
@@ -36,7 +37,7 @@ export const saveUtkast = (
   avtale: Avtale,
   ansatt: NavAnsatt,
   utkastIdRef: MutableRefObject<string>,
-  mutationUtkast: UseMutationResult<Utkast, unknown, Utkast, unknown>,
+  mutationUtkast: UseMutationResult<UtkastDto, unknown, Utkast, unknown>,
   setLagreState: (state: string) => void,
 ) => {
   const utkastData: UtkastData = {

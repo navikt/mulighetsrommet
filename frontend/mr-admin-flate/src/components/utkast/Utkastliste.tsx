@@ -1,5 +1,5 @@
 import { Alert } from "@navikt/ds-react";
-import { ApiError, Utkast } from "mulighetsrommet-api-client";
+import { ApiError, UtkastRequest as Utkast } from "mulighetsrommet-api-client";
 import { useMineUtkast } from "../../api/utkast/useMineUtkast";
 import { Laster } from "../laster/Laster";
 import { UtkastKort } from "./Utkastkort";
