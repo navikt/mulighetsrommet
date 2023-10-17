@@ -249,6 +249,7 @@ class VirksomhetRepositoryTest : FunSpec({
                 antallPlasser = null,
                 url = null,
                 administratorer = emptyList(),
+                updatedAt = LocalDate.now().atStartOfDay(),
             )
             avtaleRepository.upsert(avtale)
             val tiltaksgjennomforing = TiltaksgjennomforingDbo(
