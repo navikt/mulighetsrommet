@@ -191,20 +191,15 @@ class VeilederflateService(
         return toVeilederTiltaksgjennomforing(sanityTiltaksgjennomforing, enhetsnummer)
     }
 
-    suspend fun hentPreviewTiltaksgjennomforing(id: String): VeilederflateTiltaksgjennomforing {
-        val sanitizedSanityId = UUID.fromString(id.replace("drafts.", ""))
-        val apiGjennomforing = tiltaksgjennomforingService.get(sanitizedSanityId)
+    suspend fun hentPreviewTiltaksgjennomforing(id: UUID): VeilederflateTiltaksgjennomforing {
+        val apiGjennomforing = tiltaksgjennomforingService.get(id)
+            ?: throw NotFoundException("Fant ikke gjennomføring med id: '$id'")
 
-        if (apiGjennomforing != null) {
-            val tiltakstype = tiltakstypeService.getById(apiGjennomforing.tiltakstype.id)
-            val sanityTiltakstype = hentTiltakstyper()
-                .find { it.sanityId == tiltakstype?.sanityId.toString() }
-                ?: throw NotFoundException("Fant ikke tiltakstype for gjennomføring med id: '$sanitizedSanityId'")
-            return toVeilederTiltaksgjennomforing(apiGjennomforing, sanityTiltakstype, enhetsnummer = null)
-        }
-
-        val sanityGjennomforing = getSanityTiltaksgjennomforing(id, SanityPerspective.PREVIEW_DRAFTS)
-        return toVeilederTiltaksgjennomforing(sanityGjennomforing, enhetsnummer = null)
+        val tiltakstype = tiltakstypeService.getById(apiGjennomforing.tiltakstype.id)
+        val sanityTiltakstype = hentTiltakstyper()
+            .find { it.sanityId == tiltakstype?.sanityId.toString() }
+            ?: throw NotFoundException("Fant ikke tiltakstype for gjennomføring med id: '$id'")
+        return toVeilederTiltaksgjennomforing(apiGjennomforing, sanityTiltakstype, enhetsnummer = null)
     }
 
     private suspend fun getSanityTiltaksgjennomforing(
@@ -310,29 +305,25 @@ class VeilederflateService(
         val kontaktpersoner = enhetsnummer
             ?.let { utledKontaktpersonerForEnhet(apiGjennomforing, enhetsnummer) }
 
-        val fylke = apiGjennomforing.navRegion?.enhetsnummer
-        val enheter = apiGjennomforing.navEnheter
-            .map { it.enhetsnummer }
-
         return apiGjennomforing.run {
             VeilederflateTiltaksgjennomforing(
                 id = id,
                 tiltakstype = veilederflateTiltakstype,
                 navn = navn,
-                tiltaksnummer = apiGjennomforing.tiltaksnummer,
-                stengtFra = apiGjennomforing.stengtFra,
-                stengtTil = apiGjennomforing.stengtTil,
+                tiltaksnummer = tiltaksnummer,
+                stengtFra = stengtFra,
+                stengtTil = stengtTil,
                 kontaktinfoTiltaksansvarlige = kontaktpersoner,
-                oppstart = apiGjennomforing.oppstart,
-                oppstartsdato = apiGjennomforing.startDato,
-                sluttdato = apiGjennomforing.sluttDato,
-                tilgjengelighet = apiGjennomforing.tilgjengelighet,
-                estimertVentetid = apiGjennomforing.estimertVentetid,
+                oppstart = oppstart,
+                oppstartsdato = startDato,
+                sluttdato = sluttDato,
+                tilgjengelighet = tilgjengelighet,
+                estimertVentetid = estimertVentetid,
                 arrangor = arrangor,
-                stedForGjennomforing = apiGjennomforing.stedForGjennomforing,
-                fylke = fylke,
-                enheter = enheter,
-                beskrivelse = apiGjennomforing.beskrivelse ?: beskrivelse,
+                stedForGjennomforing = stedForGjennomforing,
+                fylke = navRegion?.enhetsnummer,
+                enheter = navEnheter.map { it.enhetsnummer },
+                beskrivelse = beskrivelse,
                 faneinnhold = faneinnhold,
             )
         }
