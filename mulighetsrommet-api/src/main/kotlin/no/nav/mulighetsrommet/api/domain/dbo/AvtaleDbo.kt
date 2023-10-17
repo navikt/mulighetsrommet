@@ -24,5 +24,5 @@ data class AvtaleDbo(
     val antallPlasser: Int?,
     val url: String?,
     val administratorer: List<String> = emptyList(),
-    val updatedAt: LocalDateTime
+    val updatedAt: LocalDateTime,
 )
