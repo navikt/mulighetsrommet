@@ -31,7 +31,6 @@ import java.util.*
 class TiltaksgjennomforingService(
     private val tiltaksgjennomforingRepository: TiltaksgjennomforingRepository,
     private val deltakerRepository: DeltakerRepository,
-    private val sanityTiltaksgjennomforingService: SanityTiltaksgjennomforingService,
     private val virksomhetService: VirksomhetService,
     private val utkastRepository: UtkastRepository,
     private val tiltaksgjennomforingKafkaProducer: TiltaksgjennomforingKafkaProducer,
@@ -59,7 +58,6 @@ class TiltaksgjennomforingService(
 
                     val dto = tiltaksgjennomforingRepository.get(dbo.id, tx)!!
 
-                    sanityTiltaksgjennomforingService.createOrPatchSanityTiltaksgjennomforing(dto, tx)
                     tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingDto.from(dto))
                     dto
                 }
@@ -183,9 +181,6 @@ class TiltaksgjennomforingService(
 
         return db.transactionSuspend { tx ->
             tiltaksgjennomforingRepository.delete(id, tx)
-            if (sanityId != null) {
-                sanityTiltaksgjennomforingService.deleteSanityTiltaksgjennomforing(sanityId)
-            }
             tiltaksgjennomforingKafkaProducer.retract(id)
         }.right()
     }
