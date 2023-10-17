@@ -21,6 +21,15 @@ object Tiltakskoder {
     )
 
     /**
+     * Tiltakskoder for de gruppetiltak som er i egen regi, og som administreres i Sanity ikke i admin-flate
+     */
+    val EgenRegiTiltak = listOf(
+        "INDJOBSTOT",
+        "IPSUNG",
+        "UTVAOONAV",
+    )
+
+    /**
      * Tiltakskoder som, enn så lenge, blir antatt å ha en felles oppstartsdato for alle deltakere.
      * Disse har blitt referert til som "kurs" av komet.
      */
@@ -52,6 +61,10 @@ object Tiltakskoder {
 
     fun isGruppetiltak(tiltakskode: String): Boolean {
         return tiltakskode in Gruppetiltak
+    }
+
+    fun isEgenRegiTiltak(tiltakskode: String): Boolean {
+        return tiltakskode in EgenRegiTiltak
     }
 
     fun hasFellesOppstart(tiltakskode: String): Boolean {
