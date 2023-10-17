@@ -5,7 +5,12 @@ import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.api.clients.vedtak.Innsatsgruppe
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
+import no.nav.mulighetsrommet.api.domain.dto.KontaktinfoTiltaksansvarlige
+import no.nav.mulighetsrommet.api.domain.dto.VeilederflateArrangor
+import no.nav.mulighetsrommet.api.domain.dto.VeilederflateTiltaksgjennomforing
+import no.nav.mulighetsrommet.api.domain.dto.VeilederflateTiltakstype
 import no.nav.mulighetsrommet.api.utils.DatabaseUtils
 import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.Database
@@ -440,6 +445,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             "startdato-descending" -> "start_dato desc"
             "sluttdato-ascending" -> "slutt_dato asc"
             "sluttdato-descending" -> "slutt_dato desc"
+            "tilgjengeligForVeileder-ascending" -> "tilgjengelig_for_veileder asc"
+            "tilgjengeligForVeileder-descending" -> "tilgjengelig_for_veileder desc"
             else -> "navn asc"
         }
 
@@ -463,6 +470,76 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         val totaltAntall = results.firstOrNull()?.first ?: 0
 
         return Pair(totaltAntall, tiltaksgjennomforinger)
+    }
+
+    fun getAllVeilederflateTiltaksgjennomforing(
+        search: String? = null,
+        sanityTiltakstypeIds: List<UUID>? = null,
+        innsatsgrupper: List<Innsatsgruppe> = emptyList(),
+    ): List<VeilederflateTiltaksgjennomforing> {
+        val parameters = mapOf(
+            "search" to search?.let { "%${it.replace("/", "#")?.trim()}%" },
+            "sanityTiltakstypeIds" to sanityTiltakstypeIds?.let { db.createUuidArray(it) },
+            "innsatsgrupper" to db.createTextArray(innsatsgrupper.map { it.name }),
+        )
+
+        val where = DatabaseUtils.andWhereParameterNotNull(
+            search to "((lower(tg.navn) like lower(:search)) or (tg.tiltaksnummer like :search))",
+            sanityTiltakstypeIds to "t.sanity_id = any(:sanityTiltakstypeIds)",
+            innsatsgrupper to "t.innsatsgruppe = any(:innsatsgrupper::innsatsgruppe[])",
+        )
+
+        @Language("PostgreSQL")
+        val query = """
+            select
+                   tg.id,
+                   tg.sanity_id,
+                   t.sanity_id as tiltakstype_sanity_id,
+                   t.navn as tiltakstype_navn,
+                   tg.navn,
+                   tg.sted_for_gjennomforing,
+                   tg.tilgjengelighet,
+                   tg.tiltaksnummer,
+                   tg.oppstart,
+                   tg.start_dato,
+                   tg.slutt_dato,
+                   tg.arrangor_organisasjonsnummer,
+                   v.navn                 as arrangor_navn,
+                   tg.arrangor_kontaktperson_id,
+                   vk.navn                as arrangor_kontaktperson_navn,
+                   vk.telefon             as arrangor_kontaktperson_telefon,
+                   vk.epost               as arrangor_kontaktperson_epost,
+                   tg.estimert_ventetid,
+                   tg.stengt_fra,
+                   tg.stengt_til,
+                   jsonb_agg(distinct
+                             case
+                                 when tgk.tiltaksgjennomforing_id is null then null::jsonb
+                                 else jsonb_build_object('navn', concat(na.fornavn, ' ', na.etternavn), 'epost', na.epost, 'telefonnummer',na.mobilnummer)
+                                 end
+                       )                  as kontaktpersoner,
+                   avtale_ne.enhetsnummer as navRegionEnhetsnummerForAvtale,
+                   array_agg(tg_e.enhetsnummer) as nav_enheter,
+                   tg.beskrivelse,
+                   tg.faneinnhold
+            from tiltaksgjennomforing tg
+                     inner join tiltakstype t on tg.tiltakstype_id = t.id
+                     left join tiltaksgjennomforing_nav_enhet tg_e on tg_e.tiltaksgjennomforing_id = tg.id
+                     left join avtale a on a.id = tg.avtale_id
+                     left join nav_enhet avtale_ne on avtale_ne.enhetsnummer = a.nav_region
+                     left join virksomhet v on v.organisasjonsnummer = tg.arrangor_organisasjonsnummer
+                     left join tiltaksgjennomforing_kontaktperson tgk on tgk.tiltaksgjennomforing_id = tg.id
+                     left join nav_ansatt na on na.nav_ident = tgk.kontaktperson_nav_ident
+                     left join virksomhet_kontaktperson vk on vk.id = tg.arrangor_kontaktperson_id
+            $where
+            and tg.tilgjengelig_for_veileder
+            group by tg.id, t.id, v.navn, avtale_ne.navn, vk.id, avtale_ne.enhetsnummer
+        """.trimIndent()
+
+        return queryOf(query, parameters)
+            .map { it.toVeilederflateTiltaksgjennomforing() }
+            .asList
+            .let { db.run(it) }
     }
 
     fun getAllByDateIntervalAndAvslutningsstatus(
@@ -579,6 +656,48 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         "oppstart" to oppstart.name,
         "opphav" to opphav.name,
     )
+
+    private fun Row.toVeilederflateTiltaksgjennomforing(): VeilederflateTiltaksgjennomforing {
+        val navEnheter = arrayOrNull<String?>("nav_enheter")?.asList()?.filterNotNull() ?: emptyList()
+        val kontaktpersoner = Json
+            .decodeFromString<List<KontaktinfoTiltaksansvarlige?>>(string("kontaktpersoner"))
+            .filterNotNull()
+
+        return VeilederflateTiltaksgjennomforing(
+            sanityId = uuidOrNull("sanity_id").toString(),
+            id = uuidOrNull("id"),
+            tiltakstype = VeilederflateTiltakstype(
+                sanityId = uuid("tiltakstype_sanity_id").toString(),
+                navn = string("tiltakstype_navn"),
+            ),
+            navn = string("navn"),
+            stedForGjennomforing = stringOrNull("sted_for_gjennomforing"),
+            tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.valueOf(string("tilgjengelighet")),
+            tiltaksnummer = stringOrNull("tiltaksnummer"),
+            oppstart = TiltaksgjennomforingOppstartstype.valueOf(string("oppstart")),
+            oppstartsdato = localDate("start_dato"),
+            sluttdato = localDateOrNull("slutt_dato"),
+            arrangor = VeilederflateArrangor(
+                organisasjonsnummer = string("arrangor_organisasjonsnummer"),
+                selskapsnavn = stringOrNull("arrangor_navn"),
+                kontaktperson = uuidOrNull("arrangor_kontaktperson_id")?.let {
+                    VeilederflateArrangor.Kontaktperson(
+                        navn = string("arrangor_kontaktperson_navn"),
+                        telefon = stringOrNull("arrangor_kontaktperson_telefon"),
+                        epost = string("arrangor_kontaktperson_epost"),
+                    )
+                },
+            ),
+            estimertVentetid = stringOrNull("estimert_ventetid"),
+            stengtFra = localDateOrNull("stengt_fra"),
+            stengtTil = localDateOrNull("stengt_til"),
+            kontaktinfoTiltaksansvarlige = kontaktpersoner,
+            fylke = stringOrNull("navRegionEnhetsnummerForAvtale"),
+            enheter = navEnheter,
+            beskrivelse = stringOrNull("beskrivelse"),
+            faneinnhold = stringOrNull("faneinnhold")?.let { Json.decodeFromString(it) },
+        )
+    }
 
     private fun Row.toTiltaksgjennomforingAdminDto(): TiltaksgjennomforingAdminDto {
         val administratorer = Json

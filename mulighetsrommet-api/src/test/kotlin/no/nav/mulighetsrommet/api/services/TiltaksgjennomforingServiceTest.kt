@@ -33,7 +33,6 @@ class TiltaksgjennomforingServiceTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
     val tiltaksgjennomforingKafkaProducer: TiltaksgjennomforingKafkaProducer = mockk(relaxed = true)
-    val sanityTiltaksgjennomforingService: SanityTiltaksgjennomforingService = mockk(relaxed = true)
     val virksomhetService: VirksomhetService = mockk(relaxed = true)
     val notificationRepository: NotificationRepository = mockk(relaxed = true)
     val utkastRepository: UtkastRepository = mockk(relaxed = true)
@@ -57,7 +56,6 @@ class TiltaksgjennomforingServiceTest : FunSpec({
         val tiltaksgjennomforingService = TiltaksgjennomforingService(
             tiltaksgjennomforingRepository,
             deltagerRepository,
-            sanityTiltaksgjennomforingService,
             virksomhetService,
             utkastRepository,
             tiltaksgjennomforingKafkaProducer,
@@ -141,7 +139,6 @@ class TiltaksgjennomforingServiceTest : FunSpec({
         val tiltaksgjennomforingService = TiltaksgjennomforingService(
             tiltaksgjennomforingRepository,
             deltagerRepository,
-            sanityTiltaksgjennomforingService,
             virksomhetService,
             utkastRepository,
             tiltaksgjennomforingKafkaProducer,
@@ -201,7 +198,6 @@ class TiltaksgjennomforingServiceTest : FunSpec({
         val tiltaksgjennomforingService = TiltaksgjennomforingService(
             tiltaksgjennomforingRepository,
             deltagerRepository,
-            sanityTiltaksgjennomforingService,
             virksomhetService,
             utkastRepository,
             tiltaksgjennomforingKafkaProducer,
@@ -230,7 +226,6 @@ class TiltaksgjennomforingServiceTest : FunSpec({
         val tiltaksgjennomforingService = TiltaksgjennomforingService(
             tiltaksgjennomforingRepository,
             deltagerRepository,
-            sanityTiltaksgjennomforingService,
             virksomhetService,
             utkastRepository,
             tiltaksgjennomforingKafkaProducer,
@@ -322,7 +317,6 @@ class TiltaksgjennomforingServiceTest : FunSpec({
         val tiltaksgjennomforingService = TiltaksgjennomforingService(
             tiltaksgjennomforingRepository,
             deltagerRepository,
-            sanityTiltaksgjennomforingService,
             virksomhetService,
             utkastRepository,
             tiltaksgjennomforingKafkaProducer,

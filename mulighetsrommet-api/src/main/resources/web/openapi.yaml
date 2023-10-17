@@ -1541,14 +1541,14 @@ components:
     GetTiltaksgjennomforingForBrukerRequest:
       type: object
       properties:
-        sanityId:
+        id:
           type: string
           format: uuid
         norskIdent:
           type: string
       required:
-        - sanityId
         - norskIdent
+        - id
 
     ManuellStatus:
       type: object
@@ -1880,6 +1880,8 @@ components:
         - sluttdato-descending
         - arrangor-ascending
         - arrangor-descending
+        - tilgjengelig_for_veileder_ascending
+        - tilgjengelig_for_veileder_descending
 
     Tiltaksgjennomforing:
       type: object
@@ -2539,6 +2541,9 @@ components:
     VeilederflateTiltaksgjennomforing:
       type: object
       properties:
+        id:
+          type: string
+          format: uuid
         sanityId:
           type: string
         tiltakstype:
@@ -2574,7 +2579,6 @@ components:
         stengtTil:
           type: string
       required:
-        - sanityId
         - navn
         - tiltakstype
         - oppstart

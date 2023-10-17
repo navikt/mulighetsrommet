@@ -4,7 +4,9 @@ import arrow.core.Either
 import arrow.core.right
 import io.ktor.server.plugins.*
 import kotliquery.Session
+import no.nav.mulighetsrommet.api.clients.vedtak.Innsatsgruppe
 import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingNokkeltallDto
+import no.nav.mulighetsrommet.api.domain.dto.VeilederflateTiltaksgjennomforing
 import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.UtkastRepository
@@ -29,7 +31,6 @@ import java.util.*
 class TiltaksgjennomforingService(
     private val tiltaksgjennomforingRepository: TiltaksgjennomforingRepository,
     private val deltakerRepository: DeltakerRepository,
-    private val sanityTiltaksgjennomforingService: SanityTiltaksgjennomforingService,
     private val virksomhetService: VirksomhetService,
     private val utkastRepository: UtkastRepository,
     private val tiltaksgjennomforingKafkaProducer: TiltaksgjennomforingKafkaProducer,
@@ -57,7 +58,6 @@ class TiltaksgjennomforingService(
 
                     val dto = tiltaksgjennomforingRepository.get(dbo.id, tx)!!
 
-                    sanityTiltaksgjennomforingService.createOrPatchSanityTiltaksgjennomforing(dto, tx)
                     tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingDto.from(dto))
                     dto
                 }
@@ -97,6 +97,17 @@ class TiltaksgjennomforingService(
                     data = data,
                 )
             }
+
+    fun getAllVeilederflateTiltaksgjennomforing(
+        search: String?,
+        sanityTiltakstypeIds: List<UUID>?,
+        innsatsgrupper: List<Innsatsgruppe>,
+    ): List<VeilederflateTiltaksgjennomforing> =
+        tiltaksgjennomforingRepository.getAllVeilederflateTiltaksgjennomforing(
+            search,
+            sanityTiltakstypeIds,
+            innsatsgrupper,
+        )
 
     fun getAll(
         pagination: PaginationParams,
@@ -170,9 +181,6 @@ class TiltaksgjennomforingService(
 
         return db.transactionSuspend { tx ->
             tiltaksgjennomforingRepository.delete(id, tx)
-            if (sanityId != null) {
-                sanityTiltaksgjennomforingService.deleteSanityTiltaksgjennomforing(sanityId)
-            }
             tiltaksgjennomforingKafkaProducer.retract(id)
         }.right()
     }

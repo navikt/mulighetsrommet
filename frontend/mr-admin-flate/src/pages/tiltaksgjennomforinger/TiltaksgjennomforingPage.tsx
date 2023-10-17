@@ -8,7 +8,6 @@ import { Laster } from "../../components/laster/Laster";
 import { TiltaksgjennomforingstatusTag } from "../../components/statuselementer/TiltaksgjennomforingstatusTag";
 import { ContainerLayout } from "../../layouts/ContainerLayout";
 import commonStyles from "../Page.module.scss";
-import { ExternalLinkIcon } from "@navikt/aksel-icons";
 import { erProdMiljo } from "../../utils/Utils";
 import { Lenkeknapp } from "../../components/lenkeknapp/Lenkeknapp";
 
@@ -59,10 +58,11 @@ export function TiltaksgjennomforingPage() {
             <div>
               <Lenkeknapp
                 size="small"
+                isExternal={true}
                 variant="secondary"
-                to={`https://mulighetsrommet-veileder-flate.intern.${forhandsvisningMiljo}/preview/${tiltaksgjennomforing.sanityId}`}
+                to={`https://mulighetsrommet-veileder-flate.intern.${forhandsvisningMiljo}/preview/${tiltaksgjennomforing.id}`}
               >
-                Forhåndsvis i Modia <ExternalLinkIcon title="Forhåndsvis gjennomføringen i Modia" />
+                Forhåndsvis i Modia
               </Lenkeknapp>
             </div>
           )}

@@ -7,7 +7,6 @@ export interface NokkelinfoProps {
 }
 
 export interface NokkelinfoElement {
-  _id: string;
   tittel?: string;
   innhold?: string | React.JSX.Element;
   hjelpetekst?: string;

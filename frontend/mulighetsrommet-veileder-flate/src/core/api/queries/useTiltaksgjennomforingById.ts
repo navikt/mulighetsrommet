@@ -8,7 +8,7 @@ export default function useTiltaksgjennomforingById() {
   const id = useGetTiltaksgjennomforingIdFraUrl();
   const fnr = useFnr();
 
-  const requestBody = { sanityId: id, norskIdent: fnr };
+  const requestBody = { norskIdent: fnr, id };
 
   return useQuery(QueryKeys.sanity.tiltaksgjennomforing(id), () =>
     mulighetsrommetClient.sanity.getTiltaksgjennomforingForBruker({ requestBody }),

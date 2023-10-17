@@ -62,7 +62,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     opphav: Opphav.MR_ADMIN_FLATE,
     tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
     kontaktpersoner: [],
-    tilgjengeligForVeileder: true,
+    tilgjengeligForVeileder: false,
     updatedAt: "2021-06-01T12:00:00.000Z",
   },
   {
@@ -84,7 +84,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     opphav: Opphav.MR_ADMIN_FLATE,
     tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
     kontaktpersoner: [],
-    tilgjengeligForVeileder: true,
+    tilgjengeligForVeileder: false,
     updatedAt: "2021-06-01T12:00:00.000Z",
   },
   {

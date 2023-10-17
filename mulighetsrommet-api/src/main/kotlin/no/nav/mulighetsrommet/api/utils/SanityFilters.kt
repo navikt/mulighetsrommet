@@ -2,8 +2,8 @@ package no.nav.mulighetsrommet.api.utils
 
 import no.nav.mulighetsrommet.api.clients.vedtak.Innsatsgruppe
 
-fun byggTiltakstypeFilter(tiltakstyper: List<String>): String {
-    if (tiltakstyper.isEmpty()) return ""
+fun byggTiltakstypeFilter(tiltakstyper: List<String>?): String {
+    if (tiltakstyper.isNullOrEmpty()) return ""
 
     return """
             && tiltakstype->_id in ${tiltakstyper.toSanityListe()}
@@ -16,7 +16,7 @@ fun byggSokeFilter(sokestreng: String?): String {
     }
 
     return """
-            && [tiltaksgjennomforingNavn, string(tiltaksnummer.current), tiltakstype->tiltakstypeNavn, stedForGjennomforing, oppstartsdato] match "*$sokestreng*"
+            && [tiltaksgjennomforingNavn, string(tiltaksnummer.current), tiltakstype->tiltakstypeNavn] match "*$sokestreng*"
     """.trimIndent()
 }
 

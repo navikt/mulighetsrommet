@@ -76,7 +76,7 @@ fun Route.sanityRoutes() {
 data class GetRelevanteTiltaksgjennomforingerForBrukerRequest(
     val norskIdent: String,
     val innsatsgruppe: String? = null,
-    val tiltakstypeIds: List<String> = emptyList(),
+    val tiltakstypeIds: List<String>? = null,
     val search: String? = null,
 )
 
@@ -84,5 +84,5 @@ data class GetRelevanteTiltaksgjennomforingerForBrukerRequest(
 data class GetTiltaksgjennomforingForBrukerRequest(
     val norskIdent: String,
     @Serializable(with = UUIDSerializer::class)
-    val sanityId: UUID,
+    val id: UUID,
 )

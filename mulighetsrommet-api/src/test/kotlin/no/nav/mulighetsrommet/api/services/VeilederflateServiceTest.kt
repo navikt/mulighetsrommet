@@ -12,16 +12,14 @@ import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.domain.dto.SanityResponse
+import no.nav.mulighetsrommet.api.domain.dto.VeilederflateArrangor
+import no.nav.mulighetsrommet.api.domain.dto.VeilederflateTiltaksgjennomforing
+import no.nav.mulighetsrommet.api.domain.dto.VeilederflateTiltakstype
 import no.nav.mulighetsrommet.api.routes.v1.GetRelevanteTiltaksgjennomforingerForBrukerRequest
-import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingTilgjengelighetsstatus
 import no.nav.mulighetsrommet.domain.dto.Faneinnhold
-import no.nav.mulighetsrommet.domain.dto.NavEnhet
-import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingAdminDto
-import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.*
 
 class VeilederflateServiceTest : FunSpec({
@@ -65,7 +63,7 @@ class VeilederflateServiceTest : FunSpec({
                 "tiltaksnummer": "2023#199282",
                 "stedForGjennomforing": "Oslo",
                 "tiltakstype": {
-                    "tiltakstypeNavn": "Oppf\u00f8lging"
+                    "tiltakstypeNavn": "Individuelt Tiltak"
                 },
                 "fylke": "0400",
                 "oppstart": null,
@@ -90,76 +88,32 @@ class VeilederflateServiceTest : FunSpec({
     """,
         ),
     )
-    val tiltakstype =
-        TiltaksgjennomforingAdminDto.Tiltakstype(id = UUID.randomUUID(), navn = "Tiltakstype", arenaKode = "TT")
 
-    val dbGjennomforing = TiltaksgjennomforingAdminDto(
-        id = UUID.randomUUID(),
-        tiltakstype = tiltakstype,
+    val dbGjennomforing = VeilederflateTiltaksgjennomforing(
+        sanityId = "f21d1e35-d63b-4de7-a0a5-589e57111527",
+        tiltakstype = VeilederflateTiltakstype(
+            sanityId = UUID.randomUUID().toString(),
+        ),
         navn = "Navn",
         tiltaksnummer = null,
-        arrangor = TiltaksgjennomforingAdminDto.Arrangor(
+        arrangor = VeilederflateArrangor(
             organisasjonsnummer = "123456789",
-            navn = null,
+            selskapsnavn = null,
             kontaktperson = null,
-            slettet = false,
         ),
-        startDato = LocalDate.now(),
-        sluttDato = null,
-        arenaAnsvarligEnhet = null,
-        status = Tiltaksgjennomforingsstatus.GJENNOMFORES,
+        oppstartsdato = LocalDate.now(),
+        sluttdato = null,
         tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.LEDIG,
         estimertVentetid = null,
-        antallPlasser = null,
-        avtaleId = null,
-        administrator = null,
-        navEnheter = emptyList(),
-        navRegion = null,
-        sanityId = UUID.fromString("f21d1e35-d63b-4de7-a0a5-589e57111527"),
+        enheter = emptyList(),
+        fylke = "0400",
         oppstart = TiltaksgjennomforingOppstartstype.FELLES,
-        opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
         stengtFra = null,
         stengtTil = null,
-        kontaktpersoner = emptyList(),
         stedForGjennomforing = null,
         faneinnhold = null,
         beskrivelse = null,
-        createdAt = LocalDateTime.now(),
-        updatedAt = LocalDateTime.now(),
-        tilgjengeligForVeileder = false,
     )
-
-    test("Tom enhetsliste fra db overskriver ikke sanity enheter") {
-        val norskIdent = "01010199999"
-        val veilederFlateService = VeilederflateService(
-            sanityClient,
-            brukerService,
-            tiltaksgjennomforingService,
-            tiltakstypeService,
-            navEnhetService,
-        )
-        every { tiltaksgjennomforingService.getBySanityIds(any()) } returns mapOf(
-            UUID.fromString("f21d1e35-d63b-4de7-a0a5-589e57111527") to dbGjennomforing,
-        )
-        coEvery { virksomhetService.getOrSyncVirksomhet(any()) } returns null
-        coEvery { brukerService.hentBrukerdata(any(), any()) } returns BrukerService.Brukerdata(
-            norskIdent,
-            geografiskEnhet = Enhet(navn = "A", enhetsnummer = "0430"),
-            innsatsgruppe = null,
-            oppfolgingsenhet = null,
-            servicegruppe = null,
-            fornavn = null,
-            manuellStatus = null,
-        )
-        coEvery { sanityClient.query(any()) } returns sanityResult
-
-        val gjennomforinger = veilederFlateService.hentTiltaksgjennomforingerForBrukerBasertPaEnhetOgFylke(
-            GetRelevanteTiltaksgjennomforingerForBrukerRequest(norskIdent = norskIdent),
-            "accessToken",
-        )
-        gjennomforinger.size shouldBe 2
-        gjennomforinger.find { it.sanityId == "f21d1e35-d63b-4de7-a0a5-589e57111527" }!!.enheter!!.size shouldBe 1
-    }
 
     test("Samme enhet overskrevet fra admin flate skal fungere") {
         val fnr = "01010199999"
@@ -170,15 +124,8 @@ class VeilederflateServiceTest : FunSpec({
             tiltakstypeService,
             navEnhetService,
         )
-        every { tiltaksgjennomforingService.getBySanityIds(any()) } returns mapOf(
-            UUID.fromString("f21d1e35-d63b-4de7-a0a5-589e57111527") to dbGjennomforing.copy(
-                navEnheter = listOf(
-                    NavEnhet(
-                        enhetsnummer = "0430",
-                        navn = "navn",
-                    ),
-                ),
-            ),
+        every { tiltaksgjennomforingService.getAllVeilederflateTiltaksgjennomforing(any(), any(), any()) } returns listOf(
+            dbGjennomforing.copy(enheter = listOf("0430")),
         )
         coEvery { virksomhetService.getOrSyncVirksomhet(any()) } returns null
         coEvery { brukerService.hentBrukerdata(any(), any()) } returns BrukerService.Brukerdata(
@@ -198,8 +145,6 @@ class VeilederflateServiceTest : FunSpec({
         )
         gjennomforinger.size shouldBe 2
         gjennomforinger.find { it.sanityId == "f21d1e35-d63b-4de7-a0a5-589e57111527" }!!.enheter!!.size shouldBe 1
-        gjennomforinger.find { it.sanityId == "f21d1e35-d63b-4de7-a0a5-589e57111527" }!!
-            .faneinnhold!!.forHvemInfoboks shouldBe "infoboks"
     }
 
     test("Stengte filtreres vekk") {
@@ -211,8 +156,9 @@ class VeilederflateServiceTest : FunSpec({
             tiltakstypeService,
             navEnhetService,
         )
-        every { tiltaksgjennomforingService.getBySanityIds(any()) } returns mapOf(
-            UUID.fromString("f21d1e35-d63b-4de7-a0a5-589e57111527") to dbGjennomforing.copy(tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.STENGT),
+
+        every { tiltaksgjennomforingService.getAllVeilederflateTiltaksgjennomforing(any(), any(), any()) } returns listOf(
+            dbGjennomforing.copy(tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.STENGT),
         )
         coEvery { virksomhetService.getOrSyncVirksomhet(any()) } returns null
         coEvery { brukerService.hentBrukerdata(any(), any()) } returns BrukerService.Brukerdata(
@@ -243,10 +189,8 @@ class VeilederflateServiceTest : FunSpec({
             tiltakstypeService,
             navEnhetService,
         )
-        every { tiltaksgjennomforingService.getBySanityIds(any()) } returns mapOf(
-            UUID.fromString("f21d1e35-d63b-4de7-a0a5-589e57111527") to dbGjennomforing.copy(
-                faneinnhold = Faneinnhold(forHvemInfoboks = "123"),
-            ),
+        every { tiltaksgjennomforingService.getAllVeilederflateTiltaksgjennomforing(any(), any(), any()) } returns listOf(
+            dbGjennomforing.copy(faneinnhold = Faneinnhold(forHvemInfoboks = "123")),
         )
         coEvery { virksomhetService.getOrSyncVirksomhet(any()) } returns null
         coEvery { brukerService.hentBrukerdata(any(), any()) } returns BrukerService.Brukerdata(
@@ -265,7 +209,6 @@ class VeilederflateServiceTest : FunSpec({
             "accessToken",
         )
         gjennomforinger.size shouldBe 2
-        gjennomforinger.find { it.sanityId == "f21d1e35-d63b-4de7-a0a5-589e57111527" }!!.enheter!!.size shouldBe 1
         gjennomforinger.find { it.sanityId == "f21d1e35-d63b-4de7-a0a5-589e57111527" }!!
             .faneinnhold!!.forHvemInfoboks shouldBe "123"
     }
