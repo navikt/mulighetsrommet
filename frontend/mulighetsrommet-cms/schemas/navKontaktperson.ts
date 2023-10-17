@@ -48,6 +48,7 @@ export const navKontaktperson = defineType({
   preview: {
     select: {
       title: "navn",
+      subtitle: "enhet",
     },
   },
 });
