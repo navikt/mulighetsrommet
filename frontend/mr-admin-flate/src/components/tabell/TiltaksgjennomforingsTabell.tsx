@@ -1,4 +1,4 @@
-import { Alert, Checkbox, Pagination, Table, Tag } from "@navikt/ds-react";
+import { Alert, Checkbox, Pagination, Table, Tag, VStack } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { SorteringTiltaksgjennomforinger } from "mulighetsrommet-api-client";
 import Lenke from "mulighetsrommet-veileder-flate/src/components/lenke/Lenke";
@@ -291,11 +291,13 @@ export const TiltaksgjennomforingsTabell = ({ skjulKolonner }: Props) => {
                       </Table.DataCell>
                     </SkjulKolonne>
                     <Table.DataCell>
-                      {tiltaksgjennomforing.tilgjengeligForVeileder ? (
-                        <Tag variant="success-filled">Ja</Tag>
-                      ) : (
-                        <Tag variant="neutral-filled">Nei</Tag>
-                      )}
+                      <VStack align={"center"}>
+                        {tiltaksgjennomforing.tilgjengeligForVeileder ? (
+                          <Tag variant="success-filled">Ja</Tag>
+                        ) : (
+                          <Tag variant="neutral-filled">Nei</Tag>
+                        )}
+                      </VStack>
                     </Table.DataCell>
                   </Table.Row>
                 );
