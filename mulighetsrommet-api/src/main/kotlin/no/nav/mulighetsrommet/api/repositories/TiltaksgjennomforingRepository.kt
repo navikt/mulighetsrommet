@@ -445,6 +445,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             "startdato-descending" -> "start_dato desc"
             "sluttdato-ascending" -> "slutt_dato asc"
             "sluttdato-descending" -> "slutt_dato desc"
+            "tilgjengeligForVeileder-ascending" -> "tilgjengelig_for_veileder asc"
+            "tilgjengeligForVeileder-descending" -> "tilgjengelig_for_veileder desc"
             else -> "navn asc"
         }
 

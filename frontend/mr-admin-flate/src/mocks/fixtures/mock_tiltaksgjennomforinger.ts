@@ -61,7 +61,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     opphav: Opphav.MR_ADMIN_FLATE,
     tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
     kontaktpersoner: [],
-    tilgjengeligForVeileder: true,
+    tilgjengeligForVeileder: false,
   },
   {
     id: "a7d63fb0-4366-412c-84b7-7c15518ee363",
@@ -82,7 +82,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     opphav: Opphav.MR_ADMIN_FLATE,
     tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
     kontaktpersoner: [],
-    tilgjengeligForVeileder: true,
+    tilgjengeligForVeileder: false,
   },
   {
     id: "a7d63fb0-4366-412c-84b7-7c15518ee364",

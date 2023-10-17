@@ -1,4 +1,4 @@
-import { Alert, Checkbox, Pagination, Table } from "@navikt/ds-react";
+import { Alert, Checkbox, Pagination, Table, Tag, VStack } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { SorteringTiltaksgjennomforinger } from "mulighetsrommet-api-client";
 import Lenke from "mulighetsrommet-veileder-flate/src/components/lenke/Lenke";
@@ -70,6 +70,12 @@ const headers: ColumnHeader[] = [
     sortable: false,
     width: "1fr",
   },
+  {
+    sortKey: "tilgjengeligForVeileder",
+    tittel: "Tilgjengelig for veileder",
+    sortable: true,
+    width: "1fr",
+  },
 ];
 
 type Kolonne =
@@ -80,7 +86,8 @@ type Kolonne =
   | "arrangor"
   | "startdato"
   | "sluttdato"
-  | "status";
+  | "status"
+  | "tilgjengeligForVeileder";
 
 interface Props {
   skjulKolonner?: Partial<Record<Kolonne, boolean>>;
@@ -283,6 +290,15 @@ export const TiltaksgjennomforingsTabell = ({ skjulKolonner }: Props) => {
                         />
                       </Table.DataCell>
                     </SkjulKolonne>
+                    <Table.DataCell>
+                      <VStack align={"center"}>
+                        {tiltaksgjennomforing.tilgjengeligForVeileder ? (
+                          <Tag variant="success-filled">Ja</Tag>
+                        ) : (
+                          <Tag variant="neutral-filled">Nei</Tag>
+                        )}
+                      </VStack>
+                    </Table.DataCell>
                   </Table.Row>
                 );
               })}
