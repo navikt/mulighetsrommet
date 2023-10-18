@@ -1152,6 +1152,24 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         }
     }
 
+    test("Vises for veileder") {
+        val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
+        val gjennomforing = Oppfolging1.copy(id = UUID.randomUUID())
+        tiltaksgjennomforinger.upsert(gjennomforing)
+        tiltaksgjennomforinger.setTilgjengeligForVeileder(gjennomforing.id, true)
+        val gjennomforingStatusStengt = gjennomforing.copy(tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.STENGT)
+        tiltaksgjennomforinger.upsert(gjennomforingStatusStengt)
+        tiltaksgjennomforinger.get(gjennomforing.id).should {
+            it!!.visesForVeileder shouldBe false
+        }
+
+        val gjennomforingStatusLedig = gjennomforing.copy(tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.LEDIG)
+        tiltaksgjennomforinger.upsert(gjennomforingStatusLedig)
+        tiltaksgjennomforinger.get(gjennomforing.id).should {
+            it!!.visesForVeileder shouldBe true
+        }
+    }
+
     test("getAllVeilederflateTiltaksgjennomforing by tiltakstype sanity Id") {
         val tiltakstypeSanityId = UUID.randomUUID()
         Query("update tiltakstype set skal_migreres = true")

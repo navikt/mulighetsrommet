@@ -119,7 +119,7 @@ object TiltaksgjennomforingFixtures {
         createdAt = Oppfolging1.startDato.atStartOfDay(),
         updatedAt = Oppfolging1.startDato.atStartOfDay(),
         tilgjengeligForVeileder = true,
-        visesForVeileder = boolean("tilgjengelig_for_veileder") && TiltaksgjennomforingTilgjengelighetsstatus.valueOf(string("tilgjengelighet")) != TiltaksgjennomforingTilgjengelighetsstatus.STENGT,
+        visesForVeileder = true,
     )
 
     val Oppfolging2 = TiltaksgjennomforingDbo(
