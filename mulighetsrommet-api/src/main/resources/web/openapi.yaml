@@ -2582,6 +2582,7 @@ components:
         - navn
         - tiltakstype
         - oppstart
+        - kontaktinfoTiltaksansvarlige
 
     SanityRegelverkLenke:
       type: object

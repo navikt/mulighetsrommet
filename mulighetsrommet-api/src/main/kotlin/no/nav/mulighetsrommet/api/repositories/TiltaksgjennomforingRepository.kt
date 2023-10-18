@@ -478,7 +478,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         innsatsgrupper: List<Innsatsgruppe> = emptyList(),
     ): List<VeilederflateTiltaksgjennomforing> {
         val parameters = mapOf(
-            "search" to search?.let { "%${it.replace("/", "#")?.trim()}%" },
+            "search" to search?.let { "%${it.replace("/", "#").trim()}%" },
             "sanityTiltakstypeIds" to sanityTiltakstypeIds?.let { db.createUuidArray(it) },
             "innsatsgrupper" to db.createTextArray(innsatsgrupper.map { it.name }),
         )

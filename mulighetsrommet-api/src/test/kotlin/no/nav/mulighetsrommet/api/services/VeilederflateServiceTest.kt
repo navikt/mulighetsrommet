@@ -113,6 +113,7 @@ class VeilederflateServiceTest : FunSpec({
         stedForGjennomforing = null,
         faneinnhold = null,
         beskrivelse = null,
+        kontaktinfoTiltaksansvarlige = emptyList(),
     )
 
     test("Samme enhet overskrevet fra admin flate skal fungere") {

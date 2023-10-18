@@ -14,6 +14,7 @@ import no.nav.mulighetsrommet.api.utils.byggInnsatsgruppeFilter
 import no.nav.mulighetsrommet.api.utils.byggSokeFilter
 import no.nav.mulighetsrommet.api.utils.byggTiltakstypeFilter
 import no.nav.mulighetsrommet.api.utils.utledInnsatsgrupper
+import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingTilgjengelighetsstatus
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingAdminDto
 import no.nav.mulighetsrommet.metrics.Metrikker
@@ -257,17 +258,18 @@ class VeilederflateService(
         sanityGjennomforing: SanityTiltaksgjennomforing,
         enhetsnummer: String?,
     ): VeilederflateTiltaksgjennomforing {
-        val arenaKode = sanityGjennomforing.tiltakstype?._id
-            ?.let { tiltakstypeService.getBySanityId(UUID.fromString(it)) }
+        val arenaKode = tiltakstypeService.getBySanityId(UUID.fromString(sanityGjennomforing.tiltakstype._id))
             ?.arenaKode
 
         return sanityGjennomforing.run {
-            val kontaktpersoner =
-                kontaktpersoner?.filter { it.enheter.contains(enhetsnummer) }?.map { it.navKontaktperson }
-                    ?: emptyList()
+            val kontaktpersoner = kontaktpersoner
+                ?.filter { it.enheter.contains(enhetsnummer) }
+                ?.map { it.navKontaktperson }
+                ?: emptyList()
+
             VeilederflateTiltaksgjennomforing(
                 sanityId = _id,
-                tiltakstype = tiltakstype?.run {
+                tiltakstype = tiltakstype.run {
                     VeilederflateTiltakstype(
                         sanityId = _id,
                         navn = tiltakstypeNavn,
@@ -286,6 +288,7 @@ class VeilederflateService(
                 kontaktinfoTiltaksansvarlige = kontaktpersoner,
                 faneinnhold = faneinnhold,
                 beskrivelse = beskrivelse,
+                oppstart = TiltaksgjennomforingOppstartstype.LOPENDE,
             )
         }
     }
@@ -309,6 +312,7 @@ class VeilederflateService(
 
         val kontaktpersoner = enhetsnummer
             ?.let { utledKontaktpersonerForEnhet(apiGjennomforing, enhetsnummer) }
+            ?: emptyList()
 
         val fylke = apiGjennomforing.navRegion?.enhetsnummer
         val enheter = apiGjennomforing.navEnheter

@@ -36,7 +36,7 @@ data class SanityTiltakstype(
 @Serializable
 data class SanityTiltaksgjennomforing(
     val _id: String,
-    val tiltakstype: SanityTiltakstype? = null,
+    val tiltakstype: SanityTiltakstype,
     val tiltaksgjennomforingNavn: String,
     val tiltaksnummer: String? = null,
     val beskrivelse: String? = null,
