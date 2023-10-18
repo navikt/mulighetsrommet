@@ -231,6 +231,7 @@ class AvtaleRepository(private val db: Database) {
                    a.prisbetingelser,
                    a.antall_plasser,
                    a.url,
+                   a.updated_at,
                    nav_enhet.navn         as nav_enhet_navn,
                    t.navn                 as tiltakstype_navn,
                    t.tiltakskode,
@@ -336,6 +337,7 @@ class AvtaleRepository(private val db: Database) {
                    a.avslutningsstatus,
                    a.prisbetingelser,
                    a.antall_plasser,
+                   a.updated_at,
                    a.url,
                    nav_enhet.navn         as nav_enhet_navn,
                    t.navn                 as tiltakstype_navn,
@@ -559,6 +561,7 @@ class AvtaleRepository(private val db: Database) {
             url = stringOrNull("url"),
             antallPlasser = intOrNull("antall_plasser"),
             opphav = ArenaMigrering.Opphav.valueOf(string("opphav")),
+            updatedAt = localDateTime("updated_at"),
         )
     }
 

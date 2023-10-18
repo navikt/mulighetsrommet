@@ -1,6 +1,6 @@
 import { initializeFaro } from "@grafana/faro-web-sdk";
 import { Alert, BodyShort } from "@navikt/ds-react";
-import { NavAnsattRolle, Utkast } from "mulighetsrommet-api-client";
+import { NavAnsattRolle, UtkastRequest as Utkast } from "mulighetsrommet-api-client";
 import { Route, Routes } from "react-router-dom";
 import { Forside } from "./Forside";
 import IkkeAutentisertApp from "./IkkeAutentisertApp";

@@ -4,7 +4,7 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
-import no.nav.mulighetsrommet.api.domain.dto.UtkastDto
+import no.nav.mulighetsrommet.api.domain.dto.UtkastRequest
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.routes.v1.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.services.UtkastService
@@ -31,8 +31,8 @@ fun Route.utkastRoutes() {
         }
 
         put {
-            val utkastData = call.receive<UtkastDto>()
-            call.respondWithStatusResponse(utkastService.upsert(utkastData.toDbo()))
+            val utkastData = call.receive<UtkastRequest>()
+            call.respondWithStatusResponse(utkastService.upsert(utkastData))
         }
 
         delete("{id}") {

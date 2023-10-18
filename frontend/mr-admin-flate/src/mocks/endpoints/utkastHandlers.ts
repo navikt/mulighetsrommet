@@ -1,5 +1,5 @@
 import { DefaultBodyType, PathParams, rest } from "msw";
-import { Utkast } from "mulighetsrommet-api-client";
+import { UtkastDto as Utkast } from "mulighetsrommet-api-client";
 import { mockUtkast } from "../fixtures/mock_utkast";
 
 export const utkastHandlers = [
@@ -12,15 +12,14 @@ export const utkastHandlers = [
 
       let payload: Utkast = {
         ...data,
-        createdAt: new Date().toDateString(),
-        updatedAt: new Date().toDateString(),
+        updatedAt: new Date().toISOString(),
       };
 
       if (lagretUtkastIndex > -1) {
         const lagretUtkast = mockUtkast[lagretUtkastIndex];
         payload = {
-          ...payload,
           ...lagretUtkast,
+          ...payload,
           utkastData: {
             ...data.utkastData,
           },

@@ -1349,7 +1349,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Utkast"
+                  $ref: "#/components/schemas/UtkastDto"
 
     put:
       tags:
@@ -1359,14 +1359,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Utkast"
+              $ref: "#/components/schemas/UtkastRequest"
       responses:
         200:
           description: Data om utkast
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Utkast"
+                $ref: "#/components/schemas/UtkastDto"
 
   /api/v1/internal/utkast/mine:
     get:
@@ -1384,7 +1384,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Utkast"
+                  $ref: "#/components/schemas/UtkastDto"
 
   /api/v1/internal/utkast/{id}:
     parameters:
@@ -1399,7 +1399,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Utkast"
+                $ref: "#/components/schemas/UtkastDto"
 
     delete:
       tags:
@@ -1719,6 +1719,9 @@ components:
             $ref: "#/components/schemas/EmbeddedNavEnhet"
         opphav:
           $ref: "#/components/schemas/Opphav"
+        updatedAt:
+            type: string
+            format: date-time
       required:
         - id
         - tiltakstype
@@ -1733,6 +1736,7 @@ components:
         - prisbetingelser
         - navEnheter
         - opphav
+        - updatedAt
 
     AvtaleRequest:
       type: object
@@ -1945,6 +1949,9 @@ components:
           type: string
         tilgjengeligForVeileder:
           type: boolean
+        updatedAt:
+          type: string
+          format: date-time
       required:
         - status
         - id
@@ -1957,6 +1964,7 @@ components:
         - midlertidigStengt
         - tilgjengelighet
         - tilgjengeligForVeileder
+        - updatedAt
 
     TiltaksgjennomforingRequest:
       type: object
@@ -2851,7 +2859,32 @@ components:
         - navIdent
         - navEnheter
 
-    Utkast:
+    UtkastRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        avtaleId:
+          type: string
+          format: uuid
+          nullable: true
+        opprettetAv:
+          type: string
+          nullable: true
+        utkastData:
+          type: object
+        type:
+          type: string
+          enum:
+            - Avtale
+            - Tiltaksgjennomforing
+      required:
+        - id
+        - utkastData
+        - type
+
+    UtkastDto:
       type: object
       properties:
         id:
@@ -2881,6 +2914,8 @@ components:
         - id
         - utkastData
         - type
+        - createdAt
+        - updatedAt
 
     AvtaleNotat:
       type: object

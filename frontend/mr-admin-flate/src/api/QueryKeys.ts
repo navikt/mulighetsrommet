@@ -4,7 +4,7 @@ import {
   SorteringTiltakstyper,
   Tiltakstypekategori,
   Tiltakstypestatus,
-  Utkast,
+  UtkastRequest as Utkast,
   VirksomhetTil,
 } from "mulighetsrommet-api-client";
 import { AvtaleFilterProps, Tiltaksgjennomforingfilter } from "./atoms";

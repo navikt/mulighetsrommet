@@ -1,4 +1,4 @@
-import { Utkast } from "mulighetsrommet-api-client";
+import { UtkastDto as Utkast } from "mulighetsrommet-api-client";
 import { DocPencilIcon } from "@navikt/aksel-icons";
 import { BodyShort, Button, Heading } from "@navikt/ds-react";
 import { z } from "zod";

@@ -7,6 +7,7 @@ import io.kotest.data.row
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import kotliquery.Query
@@ -62,33 +63,29 @@ class AvtaleRepositoryTest : FunSpec({
                 prisbetingelser = "Alt er dyrt",
             )
 
-            val avtaleDto = AvtaleAdminDto(
-                id = avtaleId,
-                tiltakstype = AvtaleAdminDto.Tiltakstype(
+            avtaler.upsertArenaAvtale(avtale)
+            val upsertedAvtale = avtaler.get(avtale.id)
+            upsertedAvtale.shouldNotBeNull()
+            upsertedAvtale.should {
+                it.id shouldBe avtaleId
+                it.tiltakstype shouldBe AvtaleAdminDto.Tiltakstype(
                     id = tiltakstype.id,
                     navn = tiltakstype.navn,
                     arenaKode = tiltakstype.tiltakskode,
-                ),
-                navn = "Avtale til test",
-                avtalenummer = "2023#123",
-                leverandor = AvtaleAdminDto.Leverandor(organisasjonsnummer = "123456789", navn = null, slettet = true),
-                leverandorUnderenheter = emptyList(),
-                leverandorKontaktperson = null,
-                startDato = LocalDate.of(2023, 1, 1),
-                sluttDato = LocalDate.of(2023, 2, 2),
-                navRegion = null,
-                avtaletype = Avtaletype.Avtale,
-                avtalestatus = Avtalestatus.Avsluttet,
-                prisbetingelser = "Alt er dyrt",
-                administrator = null,
-                url = null,
-                antallPlasser = null,
-                navEnheter = emptyList(),
-                opphav = ArenaMigrering.Opphav.ARENA,
-            )
-
-            avtaler.upsertArenaAvtale(avtale)
-            avtaler.get(avtale.id).shouldBe(avtaleDto)
+                )
+                it.navn shouldBe "Avtale til test"
+                it.avtalenummer shouldBe "2023#123"
+                it.leverandor shouldBe AvtaleAdminDto.Leverandor(
+                    organisasjonsnummer = "123456789",
+                    navn = null, slettet = true,
+                )
+                it.startDato shouldBe LocalDate.of(2023, 1, 1)
+                it.sluttDato shouldBe LocalDate.of(2023, 2, 2)
+                it.avtaletype shouldBe Avtaletype.Avtale
+                it.avtalestatus shouldBe Avtalestatus.Avsluttet
+                it.opphav shouldBe ArenaMigrering.Opphav.ARENA
+                it.prisbetingelser shouldBe "Alt er dyrt"
+            }
         }
 
         test("administrator for avtale") {

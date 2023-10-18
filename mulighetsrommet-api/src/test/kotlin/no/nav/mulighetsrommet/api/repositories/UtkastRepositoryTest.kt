@@ -9,14 +9,17 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
-import no.nav.mulighetsrommet.api.domain.dbo.*
+import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattDbo
+import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
+import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
+import no.nav.mulighetsrommet.api.domain.dbo.Utkasttype
+import no.nav.mulighetsrommet.api.domain.dto.UtkastRequest
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.utils.UtkastFilter
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
-import java.time.LocalDateTime
 import java.util.*
 
 class UtkastRepositoryTest : FunSpec({
@@ -72,12 +75,10 @@ class UtkastRepositoryTest : FunSpec({
         val avtale = AvtaleFixtures.avtale1
 
         val utkastId = UUID.randomUUID()
-        val utkast = UtkastDbo(
+        val utkast = UtkastRequest(
             id = utkastId,
             opprettetAv = NavAnsattFixture.ansatt1.navIdent,
             utkastData = Json.parseToJsonElement("{\"id\":\"123\",\"navn\":\"Min gjennomføring er kul\"}"),
-            createdAt = LocalDateTime.now(),
-            updatedAt = LocalDateTime.now(),
             type = Utkasttype.Tiltaksgjennomforing,
             avtaleId = avtale.id,
         )
@@ -121,39 +122,31 @@ class UtkastRepositoryTest : FunSpec({
 
         test("GetAll skal støtte filter for type og opprettetAv") {
 
-            val utkast1 = UtkastDbo(
+            val utkast1 = UtkastRequest(
                 id = UUID.randomUUID(),
                 opprettetAv = NavAnsattFixture.ansatt1.navIdent,
                 utkastData = Json.parseToJsonElement("{\"id\":\"123\",\"navn\":\"Min gjennomføring er kul\"}"),
-                createdAt = LocalDateTime.now(),
-                updatedAt = LocalDateTime.now(),
                 type = Utkasttype.Tiltaksgjennomforing,
                 avtaleId = avtale.id,
             )
-            val utkast2 = UtkastDbo(
+            val utkast2 = UtkastRequest(
                 id = UUID.randomUUID(),
                 opprettetAv = NavAnsattFixture.ansatt1.navIdent,
                 utkastData = Json.parseToJsonElement("{\"id\":\"123\",\"navn\":\"Min gjennomføring er fet\"}"),
-                createdAt = LocalDateTime.now(),
-                updatedAt = LocalDateTime.now(),
                 type = Utkasttype.Tiltaksgjennomforing,
                 avtaleId = avtale.id,
             )
-            val utkast3 = UtkastDbo(
+            val utkast3 = UtkastRequest(
                 id = UUID.randomUUID(),
                 opprettetAv = NavAnsattFixture.ansatt2.navIdent,
                 utkastData = Json.parseToJsonElement("{\"id\":\"123\",\"navn\":\"Min avtale er fet\"}"),
-                createdAt = LocalDateTime.now(),
-                updatedAt = LocalDateTime.now(),
                 type = Utkasttype.Avtale,
                 avtaleId = avtale.id,
             )
-            val utkast4 = UtkastDbo(
+            val utkast4 = UtkastRequest(
                 id = UUID.randomUUID(),
                 opprettetAv = NavAnsattFixture.ansatt2.navIdent,
                 utkastData = Json.parseToJsonElement("{\"id\":\"123\",\"navn\":\"Min tiltaksgjennomføring er rar\"}"),
-                createdAt = LocalDateTime.now(),
-                updatedAt = LocalDateTime.now(),
                 type = Utkasttype.Tiltaksgjennomforing,
                 avtaleId = avtale.id,
             )

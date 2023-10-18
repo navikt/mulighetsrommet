@@ -22,8 +22,7 @@ import { useUpsertAvtale } from "../../api/avtaler/useUpsertAvtale";
 import { useMutateUtkast } from "../../api/utkast/useMutateUtkast";
 import { useSokVirksomheter } from "../../api/virksomhet/useSokVirksomhet";
 import { useVirksomhet } from "../../api/virksomhet/useVirksomhet";
-import { addYear, formaterDato, formaterDatoSomYYYYMMDD } from "../../utils/Utils";
-import { AutoSaveUtkast } from "../autosave/AutoSaveUtkast";
+import { addYear, formaterDato, formaterDatoSomYYYYMMDD, formaterDatoTid } from "../../utils/Utils";
 import { Separator } from "../detaljside/Metadata";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
@@ -145,6 +144,11 @@ export function AvtaleSkjemaContainer({
 
   const arenaOpphav = avtale?.opphav === Opphav.ARENA;
 
+  const defaultUpdatedAt = avtale?.updatedAt;
+  const [lagreState, setLagreState] = useState(
+    defaultUpdatedAt ? `Sist lagret: ${formaterDatoTid(defaultUpdatedAt)}` : undefined,
+  );
+
   const postData: SubmitHandler<InferredAvtaleSchema> = async (data): Promise<void> => {
     const requestBody: AvtaleRequest = {
       id: avtale?.id ?? utkastIdRef.current,
@@ -201,9 +205,20 @@ export function AvtaleSkjemaContainer({
   return (
     <FormProvider {...form}>
       <form onSubmit={handleSubmit(postData)}>
+        <AvtaleSkjemaKnapperad
+          redigeringsModus={redigeringsModus!}
+          onClose={onClose}
+          defaultValues={defaultValues}
+          utkastIdRef={utkastIdRef.current}
+          saveUtkast={() =>
+            saveUtkast(watch(), avtale!, ansatt, utkastIdRef, mutationUtkast, setLagreState)
+          }
+          mutationUtkast={mutationUtkast}
+          lagreState={lagreState}
+          setLagreState={setLagreState}
+        />
+        <Separator classname={skjemastyles.avtaleskjema_separator} />
         <div className={skjemastyles.container}>
-          <AvtaleSkjemaKnapperad redigeringsModus={redigeringsModus!} onClose={onClose} />
-          <Separator />
           <div className={skjemastyles.input_container}>
             <div className={skjemastyles.column}>
               <FormGroup>
@@ -408,12 +423,6 @@ export function AvtaleSkjemaContainer({
           </div>
         </div>
       </form>
-      <AutoSaveUtkast
-        defaultValues={defaultValues}
-        utkastId={utkastIdRef.current}
-        onSave={() => saveUtkast(watch(), avtale!, ansatt, utkastIdRef, mutationUtkast)}
-        mutation={mutationUtkast}
-      />
       {avtale && <AvbrytAvtaleModal modalRef={avbrytModalRef} avtale={avtale} />}
     </FormProvider>
   );

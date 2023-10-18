@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import styles from "./Metadata.module.scss";
+import classNames from "classnames";
 
 export function Metadata({
   header,
@@ -16,6 +17,6 @@ export function Metadata({
   );
 }
 
-export function Separator() {
-  return <hr className={styles.separator} />;
+export function Separator({ classname }: { classname?: string }) {
+  return <hr className={classNames(styles.separator, classname)} />;
 }

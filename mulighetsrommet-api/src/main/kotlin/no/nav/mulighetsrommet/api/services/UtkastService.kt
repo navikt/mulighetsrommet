@@ -2,8 +2,8 @@ package no.nav.mulighetsrommet.api.services
 
 import arrow.core.Either
 import arrow.core.flatMap
-import no.nav.mulighetsrommet.api.domain.dbo.UtkastDbo
 import no.nav.mulighetsrommet.api.domain.dto.UtkastDto
+import no.nav.mulighetsrommet.api.domain.dto.UtkastRequest
 import no.nav.mulighetsrommet.api.repositories.UtkastRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.NotFound
 import no.nav.mulighetsrommet.api.routes.v1.responses.ServerError
@@ -23,7 +23,7 @@ class UtkastService(
             .flatMap { it?.let { Either.Right(it) } ?: Either.Left(NotFound("Fant ingen utkast med id: $id")) }
     }
 
-    fun upsert(utkast: UtkastDbo): StatusResponse<UtkastDto> {
+    fun upsert(utkast: UtkastRequest): StatusResponse<UtkastDto> {
         return utkastRepository.upsert(utkast).map { it!! }
             .mapLeft { error -> ServerError("Klarte ikke lagre utkast med id: ${utkast.id}. Cause: $error") }
     }

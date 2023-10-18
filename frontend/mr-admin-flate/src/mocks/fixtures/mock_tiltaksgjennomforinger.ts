@@ -41,6 +41,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     stedForGjennomforing: "Brummundal",
     kontaktpersoner: [petrusKontaktperson, nikolineKontaktperson],
     tilgjengeligForVeileder: true,
+    updatedAt: "2021-06-01T12:00:00.000Z",
   },
   {
     id: "a7d63fb0-4366-412c-84b7-7c15518ee362",
@@ -62,6 +63,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
     kontaktpersoner: [],
     tilgjengeligForVeileder: false,
+    updatedAt: "2021-06-01T12:00:00.000Z",
   },
   {
     id: "a7d63fb0-4366-412c-84b7-7c15518ee363",
@@ -83,6 +85,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
     kontaktpersoner: [],
     tilgjengeligForVeileder: false,
+    updatedAt: "2021-06-01T12:00:00.000Z",
   },
   {
     id: "a7d63fb0-4366-412c-84b7-7c15518ee364",
@@ -104,6 +107,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
     kontaktpersoner: [],
     tilgjengeligForVeileder: true,
+    updatedAt: "2021-06-01T12:00:00.000Z",
   },
   {
     id: "a7d63fb0-4366-412c-84b7-7c15518ee365",
@@ -124,6 +128,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
     kontaktpersoner: [],
     tilgjengeligForVeileder: true,
+    updatedAt: "2021-06-01T12:00:00.000Z",
   },
   {
     id: "a7d63fb0-4366-412c-84b7-7c15518ee366",
@@ -145,6 +150,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
     kontaktpersoner: [],
     tilgjengeligForVeileder: true,
+    updatedAt: "2021-06-01T12:00:00.000Z",
   },
   {
     id: "a7d63fb0-4366-412c-84b7-7c15518ee367",
@@ -165,6 +171,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
     kontaktpersoner: [],
     tilgjengeligForVeileder: true,
+    updatedAt: "2021-06-01T12:00:00.000Z",
   },
   {
     id: "a7d63fb0-4366-412c-84b7-7c15518ee368",
@@ -186,6 +193,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
     kontaktpersoner: [],
     tilgjengeligForVeileder: true,
+    updatedAt: "2021-06-01T12:00:00.000Z",
   },
   {
     id: "a7d63fb0-4366-412c-84b7-7c15518ee369",
@@ -207,6 +215,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
     kontaktpersoner: [],
     tilgjengeligForVeileder: true,
+    updatedAt: "2021-06-01T12:00:00.000Z",
   },
   {
     id: "a7d63fb0-4366-412c-84b7-7c15518ee310",
@@ -228,6 +237,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
     kontaktpersoner: [],
     tilgjengeligForVeileder: true,
+    updatedAt: "2021-06-01T12:00:00.000Z",
   },
   {
     id: "a7d63fb0-4366-412c-84b7-7c15518ee311",
@@ -248,6 +258,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
     kontaktpersoner: [],
     tilgjengeligForVeileder: true,
+    updatedAt: "2021-06-01T12:00:00.000Z",
   },
   {
     id: "a7d63fb0-4366-412c-84b7-7c15518ee312",
@@ -269,6 +280,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
     kontaktpersoner: [],
     tilgjengeligForVeileder: true,
+    updatedAt: "2021-06-01T12:00:00.000Z",
     stengtFra: "2022-01-01",
     stengtTil: "2022-12-12",
   },
@@ -292,6 +304,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     opphav: Opphav.ARENA,
     kontaktpersoner: [],
     tilgjengeligForVeileder: true,
+    updatedAt: "2021-06-01T12:00:00.000Z",
     stengtFra: "2022-01-01",
     stengtTil: "2022-12-12",
   },
@@ -315,6 +328,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     opphav: Opphav.ARENA,
     kontaktpersoner: [],
     tilgjengeligForVeileder: true,
+    updatedAt: "2021-06-01T12:00:00.000Z",
   },
   {
     id: "a7d63fb0-4366-412c-84b7-7c15518ee315",
@@ -336,6 +350,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     opphav: Opphav.ARENA,
     kontaktpersoner: [],
     tilgjengeligForVeileder: true,
+    updatedAt: "2021-06-01T12:00:00.000Z",
   },
   {
     id: "a7d63fb0-4366-412c-84b7-7c15518ee316",
@@ -357,6 +372,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     opphav: Opphav.ARENA,
     kontaktpersoner: [],
     tilgjengeligForVeileder: true,
+    updatedAt: "2021-06-01T12:00:00.000Z",
   },
   {
     id: "a7d63fb0-4366-412c-84b7-7c15518ee317",
@@ -378,6 +394,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     opphav: Opphav.ARENA,
     kontaktpersoner: [],
     tilgjengeligForVeileder: true,
+    updatedAt: "2021-06-01T12:00:00.000Z",
   },
   {
     id: "a7d63fb0-4366-412c-84b7-7c15518ee318",
@@ -399,6 +416,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     opphav: Opphav.ARENA,
     kontaktpersoner: [],
     tilgjengeligForVeileder: true,
+    updatedAt: "2021-06-01T12:00:00.000Z",
   },
 ];
 

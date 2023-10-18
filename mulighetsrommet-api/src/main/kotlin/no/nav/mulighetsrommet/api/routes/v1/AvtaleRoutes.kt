@@ -143,5 +143,6 @@ data class AvtaleRequest(
         prisbetingelser = prisbetingelser,
         navEnheter = navEnheter,
         opphav = opphav,
+        updatedAt = LocalDate.now().atStartOfDay(),
     )
 }

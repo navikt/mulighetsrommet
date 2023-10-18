@@ -1,5 +1,5 @@
 import { ExclamationmarkTriangleFillIcon } from "@navikt/aksel-icons";
-import { Button, Popover, ErrorSummary } from "@navikt/ds-react";
+import { Button, ErrorSummary, Popover } from "@navikt/ds-react";
 import ErrorSummaryItem from "@navikt/ds-react/esm/form/error-summary/ErrorSummaryItem";
 import PopoverContent from "@navikt/ds-react/esm/popover/PopoverContent";
 import { useRef, useState } from "react";
@@ -37,6 +37,7 @@ export function ValideringsfeilOppsummering() {
       <Button
         variant="tertiary-neutral"
         type="button"
+        size="small"
         aria-live="assertive"
         tabIndex={0}
         className={styles.varseltrekant}

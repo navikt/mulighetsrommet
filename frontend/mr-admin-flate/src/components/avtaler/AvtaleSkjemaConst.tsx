@@ -1,12 +1,12 @@
 import { InferredAvtaleSchema } from "./AvtaleSchema";
-import { toast } from "react-toastify";
 import {
   Avtale,
   LeverandorUnderenhet,
   NavAnsatt,
   NavEnhet,
   NavEnhetType,
-  Utkast,
+  UtkastDto,
+  UtkastRequest as Utkast,
   Virksomhet,
 } from "mulighetsrommet-api-client";
 import { MutableRefObject } from "react";
@@ -37,7 +37,8 @@ export const saveUtkast = (
   avtale: Avtale,
   ansatt: NavAnsatt,
   utkastIdRef: MutableRefObject<string>,
-  mutationUtkast: UseMutationResult<Utkast, unknown, Utkast, unknown>,
+  mutationUtkast: UseMutationResult<UtkastDto, unknown, Utkast, unknown>,
+  setLagreState: (state: string) => void,
 ) => {
   const utkastData: UtkastData = {
     navn: values?.navn,
@@ -70,9 +71,7 @@ export const saveUtkast = (
   };
 
   if (!values.navn) {
-    toast.info("For å lagre utkast må du gi utkastet et navn", {
-      autoClose: 10000,
-    });
+    setLagreState("For å lagre utkast må du gi utkastet et navn");
     return;
   }
 
