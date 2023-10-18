@@ -124,6 +124,7 @@ class VeilederflateService(
             ] {
               _id,
               tiltakstype->{
+                _id,
                 tiltakstypeNavn
               },
               tiltaksgjennomforingNavn,

@@ -47,7 +47,7 @@ fun Route.tiltakstypeRoutes() {
             )
 
             val veilederflateTiltakstype: VeilederflateTiltakstype = veilederflateService.hentTiltakstyper()
-                .find { it.sanityId != null && UUID.fromString(it.sanityId) == tiltakstype.sanityId }
+                .find { UUID.fromString(it.sanityId) == tiltakstype.sanityId }
                 ?: return@get call.respondText(
                     "Det finnes ikke noe faneinnhold for tiltakstype med id $id",
                     status = HttpStatusCode.NotFound,

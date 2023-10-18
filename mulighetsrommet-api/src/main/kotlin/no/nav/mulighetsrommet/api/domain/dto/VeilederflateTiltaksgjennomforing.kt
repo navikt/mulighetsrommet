@@ -48,8 +48,8 @@ data class VeilederflateTiltaksgjennomforing(
 
 @Serializable
 data class VeilederflateTiltakstype(
-    val sanityId: String? = null,
-    val navn: String? = null,
+    val sanityId: String,
+    val navn: String,
     val beskrivelse: String? = null,
     val innsatsgruppe: SanityInnsatsgruppe? = null,
     val regelverkLenker: List<RegelverkLenke>? = emptyList(),

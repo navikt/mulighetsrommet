@@ -53,6 +53,7 @@ class VeilederflateServiceTest : FunSpec({
                 "stedForGjennomforing": null,
                 "tiltaksnummer": "2023#176408",
                 "tiltakstype": {
+                    "_id": "${UUID.randomUUID()}",
                     "tiltakstypeNavn": "Oppl\u00e6ring - Gruppe AMO"
                 },
                 "fylke": null
@@ -63,6 +64,7 @@ class VeilederflateServiceTest : FunSpec({
                 "tiltaksnummer": "2023#199282",
                 "stedForGjennomforing": "Oslo",
                 "tiltakstype": {
+                    "_id": "${UUID.randomUUID()}",
                     "tiltakstypeNavn": "Individuelt Tiltak"
                 },
                 "fylke": "0400",
@@ -79,6 +81,7 @@ class VeilederflateServiceTest : FunSpec({
                 "tiltaksnummer": "2022#116075",
                 "fylke": "0400",
                 "tiltakstype": {
+                    "_id": "${UUID.randomUUID()}",
                     "tiltakstypeNavn": "Oppf\u00f8lging"
                 },
                 "enheter": ["0430"],
@@ -93,6 +96,7 @@ class VeilederflateServiceTest : FunSpec({
         sanityId = "f21d1e35-d63b-4de7-a0a5-589e57111527",
         tiltakstype = VeilederflateTiltakstype(
             sanityId = UUID.randomUUID().toString(),
+            navn = "Oppfølging",
         ),
         navn = "Navn",
         tiltaksnummer = null,
