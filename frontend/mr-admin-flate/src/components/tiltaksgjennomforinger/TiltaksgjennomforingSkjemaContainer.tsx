@@ -5,7 +5,6 @@ import {
   Opphav,
   Tiltaksgjennomforing,
   TiltaksgjennomforingRequest,
-  Toggles,
   UtkastRequest as Utkast,
 } from "mulighetsrommet-api-client";
 import { Tilgjengelighetsstatus } from "mulighetsrommet-api-client/build/models/Tilgjengelighetsstatus";
@@ -13,8 +12,9 @@ import React, { useRef, useState } from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { v4 as uuidv4 } from "uuid";
 import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
-import { useFeatureToggle } from "../../api/features/feature-toggles";
 import { formaterDatoSomYYYYMMDD, formaterDatoTid } from "../../utils/Utils";
+import { useHandleApiUpsertResponse } from "../../api/effects";
+import { useUpsertTiltaksgjennomforing } from "../../api/tiltaksgjennomforing/useUpsertTiltaksgjennomforing";
 import { Separator } from "../detaljside/Metadata";
 import { AvbrytTiltaksgjennomforingModal } from "../modal/AvbrytTiltaksgjennomforingModal";
 import skjemastyles from "../skjema/Skjema.module.scss";
@@ -28,8 +28,6 @@ import {
   defaultValuesForKontaktpersoner,
   UtkastData,
 } from "./TiltaksgjennomforingSkjemaConst";
-import { useUpsertTiltaksgjennomforing } from "../../api/tiltaksgjennomforing/useUpsertTiltaksgjennomforing";
-import { useHandleApiUpsertResponse } from "../../api/effects";
 import { TiltaksgjennomforingSkjemaDetaljer } from "./TiltaksgjennomforingSkjemaDetaljer";
 import { TiltaksgjennomforingSkjemaKnapperad } from "./TiltaksgjennomforingSkjemaKnapperad";
 import { TiltaksgjennomforingSkjemaRedInnhold } from "./TiltaksgjennomforingSkjemaRedInnhold";
@@ -53,9 +51,6 @@ export const TiltaksgjennomforingSkjemaContainer = ({
   const redigeringsModus = !!tiltaksgjennomforing;
   const mutation = useUpsertTiltaksgjennomforing();
   const mutationUtkast = useMutateUtkast();
-  const { data: visFaneinnhold } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_ADMIN_FLATE_FANEINNHOLD,
-  );
 
   const avbrytModalRef = useRef<HTMLDialogElement>(null);
   const { data: ansatt } = useHentAnsatt();
@@ -247,14 +242,14 @@ export const TiltaksgjennomforingSkjemaContainer = ({
   );
 
   return (
-    <FormProvider {...form}>
-      {!redigeringsModus ? (
-        <Alert variant="warning" style={{ margin: "1rem 0" }}>
-          Opprettelse av gjennomføring her vil ikke opprette gjennomføringen i Arena.
-        </Alert>
-      ) : null}
-      <form onSubmit={handleSubmit(postData)}>
-        {visFaneinnhold ? (
+    <>
+      <FormProvider {...form}>
+        {!redigeringsModus ? (
+          <Alert variant="warning" style={{ margin: "1rem 0" }}>
+            Opprettelse av gjennomføring her vil ikke opprette gjennomføringen i Arena.
+          </Alert>
+        ) : null}
+        <form onSubmit={handleSubmit(postData)}>
           <Tabs defaultValue="detaljer">
             <Tabs.List className={skjemastyles.tabslist}>
               <div>
@@ -299,46 +294,28 @@ export const TiltaksgjennomforingSkjemaContainer = ({
               <TiltaksgjennomforingSkjemaRedInnhold avtale={avtale} />
             </Tabs.Panel>
           </Tabs>
-        ) : (
-          <>
-            <TiltaksgjennomforingSkjemaKnapperad
-              redigeringsModus={redigeringsModus}
-              onClose={onClose}
-              mutation={mutation}
-              defaultValues={defaultValues}
-              utkastIdRef={utkastIdRef.current}
-              onSave={() => saveUtkast(watch(), avtale, utkastIdRef, setLagreState)}
-              mutationUtkast={mutationUtkast}
-              lagreState={lagreState}
-              setLagreState={setLagreState}
-            />
-            <TiltaksgjennomforingSkjemaDetaljer
-              avtale={avtale}
-              tiltaksgjennomforing={tiltaksgjennomforing}
-            />
-          </>
+          <Separator />
+          <div>
+            {!arenaOpphav(tiltaksgjennomforing) && redigeringsModus && (
+              <Button
+                size="small"
+                variant="danger"
+                type="button"
+                onClick={() => avbrytModalRef.current?.showModal()}
+                data-testid="avbryt-gjennomforing"
+              >
+                Avbryt gjennomføring
+              </Button>
+            )}
+          </div>
+        </form>
+        {tiltaksgjennomforing && (
+          <AvbrytTiltaksgjennomforingModal
+            modalRef={avbrytModalRef}
+            tiltaksgjennomforing={tiltaksgjennomforing}
+          />
         )}
-        <Separator />
-        <div>
-          {!arenaOpphav(tiltaksgjennomforing) && redigeringsModus && (
-            <Button
-              size="small"
-              variant="danger"
-              type="button"
-              onClick={() => avbrytModalRef.current?.showModal()}
-              data-testid="avbryt-gjennomforing"
-            >
-              Avbryt gjennomføring
-            </Button>
-          )}
-        </div>
-      </form>
-      {tiltaksgjennomforing && (
-        <AvbrytTiltaksgjennomforingModal
-          modalRef={avbrytModalRef}
-          tiltaksgjennomforing={tiltaksgjennomforing}
-        />
-      )}
-    </FormProvider>
+      </FormProvider>
+    </>
   );
 };

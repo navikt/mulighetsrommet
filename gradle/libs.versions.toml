@@ -1,5 +1,5 @@
 [versions]
-common-java-modules = "3.2023.09.13_04.55-a8ff452fbd94"
+common-java-modules = "3.2023.10.17_06.55-4e30d96bba05"
 flyway = "9.22.3"
 hoplite = "2.7.5"
 koin = "3.5.1"
@@ -14,7 +14,7 @@ metrics = "4.2.21"
 flyway = { id = "org.flywaydb.flyway", version.ref = "flyway" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
-ktlint = "org.jlleitschuh.gradle.ktlint:11.6.0"
+ktlint = "org.jlleitschuh.gradle.ktlint:11.6.1"
 shadow = "com.github.johnrengelman.shadow:8.1.1"
 openapi-generator = "org.openapi.generator:7.0.1"
 
@@ -29,7 +29,7 @@ dbScheduler = "com.github.kagkarlsson:db-scheduler:12.5.0"
 
 flyway-core = { module = "org.flywaydb:flyway-core", version.ref = "flyway" }
 
-google-postgresSocketFactory = "com.google.cloud.sql:postgres-socket-factory:1.14.0"
+google-postgresSocketFactory = "com.google.cloud.sql:postgres-socket-factory:1.14.1"
 
 hikaricp = "com.zaxxer:HikariCP:5.0.1"
 
@@ -86,7 +86,7 @@ logback-logstashLogbackEncoder = "net.logstash.logback:logstash-logback-encoder:
 metrics-core = { module = "io.dropwizard.metrics:metrics-core", version.ref = "metrics" }
 metrics-healthchecks = { module = "io.dropwizard.metrics:metrics-healthchecks", version.ref = "metrics" }
 
-micrometer-registry-prometheus = "io.micrometer:micrometer-registry-prometheus:1.11.4"
+micrometer-registry-prometheus = "io.micrometer:micrometer-registry-prometheus:1.11.5"
 
 mockk = "io.mockk:mockk:1.13.8"
 
@@ -101,7 +101,7 @@ postgresql = "org.postgresql:postgresql:42.6.0"
 
 prometheus-caffeine = "io.prometheus:simpleclient_caffeine:0.16.0"
 
-shedlock-jdbc = "net.javacrumbs.shedlock:shedlock-provider-jdbc:5.8.0"
+shedlock-jdbc = "net.javacrumbs.shedlock:shedlock-provider-jdbc:5.9.0"
 
 slack-client = "com.slack.api:slack-api-client:1.34.0"
 
@@ -110,4 +110,4 @@ slf4j = "org.slf4j:slf4j-api:2.0.9"
 apache-poi = "org.apache.poi:poi:5.2.4"
 apache-poi-ooxml = "org.apache.poi:poi-ooxml:5.2.4"
 
-unleash = "io.getunleash:unleash-client-java:8.3.1"
+unleash = "io.getunleash:unleash-client-java:8.4.0"
