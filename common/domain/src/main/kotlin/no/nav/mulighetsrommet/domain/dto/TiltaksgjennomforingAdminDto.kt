@@ -50,6 +50,7 @@ data class TiltaksgjennomforingAdminDto(
     @Serializable(with = LocalDateTimeSerializer::class)
     val updatedAt: LocalDateTime,
     val tilgjengeligForVeileder: Boolean,
+    val visesForVeileder: Boolean,
 ) {
     @Serializable
     data class Tiltakstype(

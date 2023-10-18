@@ -41,6 +41,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     stedForGjennomforing: "Brummundal",
     kontaktpersoner: [petrusKontaktperson, nikolineKontaktperson],
     tilgjengeligForVeileder: true,
+    visesForVeileder: true,
     updatedAt: "2021-06-01T12:00:00.000Z",
   },
   {
@@ -63,6 +64,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
     kontaktpersoner: [],
     tilgjengeligForVeileder: false,
+    visesForVeileder: false,
     updatedAt: "2021-06-01T12:00:00.000Z",
   },
   {
@@ -85,6 +87,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
     kontaktpersoner: [],
     tilgjengeligForVeileder: false,
+    visesForVeileder: true,
     updatedAt: "2021-06-01T12:00:00.000Z",
   },
   {
@@ -107,6 +110,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
     kontaktpersoner: [],
     tilgjengeligForVeileder: true,
+    visesForVeileder: true,
     updatedAt: "2021-06-01T12:00:00.000Z",
   },
   {
@@ -128,6 +132,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
     kontaktpersoner: [],
     tilgjengeligForVeileder: true,
+    visesForVeileder: true,
     updatedAt: "2021-06-01T12:00:00.000Z",
   },
   {
@@ -150,6 +155,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
     kontaktpersoner: [],
     tilgjengeligForVeileder: true,
+    visesForVeileder: true,
     updatedAt: "2021-06-01T12:00:00.000Z",
   },
   {
@@ -171,6 +177,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
     kontaktpersoner: [],
     tilgjengeligForVeileder: true,
+    visesForVeileder: false,
     updatedAt: "2021-06-01T12:00:00.000Z",
   },
   {
@@ -193,6 +200,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
     kontaktpersoner: [],
     tilgjengeligForVeileder: true,
+    visesForVeileder: true,
     updatedAt: "2021-06-01T12:00:00.000Z",
   },
   {
@@ -215,6 +223,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
     kontaktpersoner: [],
     tilgjengeligForVeileder: true,
+    visesForVeileder: true,
     updatedAt: "2021-06-01T12:00:00.000Z",
   },
   {
@@ -237,6 +246,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
     kontaktpersoner: [],
     tilgjengeligForVeileder: true,
+    visesForVeileder: true,
     updatedAt: "2021-06-01T12:00:00.000Z",
   },
   {
@@ -258,6 +268,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
     kontaktpersoner: [],
     tilgjengeligForVeileder: true,
+    visesForVeileder: true,
     updatedAt: "2021-06-01T12:00:00.000Z",
   },
   {
@@ -280,6 +291,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
     kontaktpersoner: [],
     tilgjengeligForVeileder: true,
+    visesForVeileder: true,
     updatedAt: "2021-06-01T12:00:00.000Z",
     stengtFra: "2022-01-01",
     stengtTil: "2022-12-12",
@@ -304,6 +316,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     opphav: Opphav.ARENA,
     kontaktpersoner: [],
     tilgjengeligForVeileder: true,
+    visesForVeileder: true,
     updatedAt: "2021-06-01T12:00:00.000Z",
     stengtFra: "2022-01-01",
     stengtTil: "2022-12-12",
@@ -328,6 +341,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     opphav: Opphav.ARENA,
     kontaktpersoner: [],
     tilgjengeligForVeileder: true,
+    visesForVeileder: true,
     updatedAt: "2021-06-01T12:00:00.000Z",
   },
   {
@@ -350,6 +364,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     opphav: Opphav.ARENA,
     kontaktpersoner: [],
     tilgjengeligForVeileder: true,
+    visesForVeileder: true,
     updatedAt: "2021-06-01T12:00:00.000Z",
   },
   {
@@ -372,6 +387,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     opphav: Opphav.ARENA,
     kontaktpersoner: [],
     tilgjengeligForVeileder: true,
+    visesForVeileder: true,
     updatedAt: "2021-06-01T12:00:00.000Z",
   },
   {
@@ -394,6 +410,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     opphav: Opphav.ARENA,
     kontaktpersoner: [],
     tilgjengeligForVeileder: true,
+    visesForVeileder: true,
     updatedAt: "2021-06-01T12:00:00.000Z",
   },
   {
@@ -416,6 +433,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     opphav: Opphav.ARENA,
     kontaktpersoner: [],
     tilgjengeligForVeileder: true,
+    visesForVeileder: true,
     updatedAt: "2021-06-01T12:00:00.000Z",
   },
 ];

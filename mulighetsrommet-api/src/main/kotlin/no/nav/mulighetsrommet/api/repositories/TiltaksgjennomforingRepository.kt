@@ -445,8 +445,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             "startdato-descending" -> "start_dato desc"
             "sluttdato-ascending" -> "slutt_dato asc"
             "sluttdato-descending" -> "slutt_dato desc"
-            "tilgjengeligForVeileder-ascending" -> "tilgjengelig_for_veileder asc"
-            "tilgjengeligForVeileder-descending" -> "tilgjengelig_for_veileder desc"
+            "vises_for_veileder-ascending" -> "vises_for_veileder asc"
+            "vises_for_veileder-descending" -> "vises_for_veileder desc"
             else -> "navn asc"
         }
 
@@ -768,6 +768,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             createdAt = localDateTime("created_at"),
             updatedAt = localDateTime("updated_at"),
             tilgjengeligForVeileder = boolean("tilgjengelig_for_veileder"),
+            visesForVeileder = boolean("vises_for_veileder"),
         )
     }
 
