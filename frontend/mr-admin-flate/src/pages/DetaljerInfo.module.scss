@@ -15,11 +15,14 @@
 .container {
   display: flex;
   flex-direction: row;
+  justify-content: start;
   max-width: 1440px;
   background: white;
 }
 
 .detaljer {
+  flex-grow: 1;
+  flex-basis: 0;
   padding: 1rem;
   display: flex;
   flex-direction: column;
