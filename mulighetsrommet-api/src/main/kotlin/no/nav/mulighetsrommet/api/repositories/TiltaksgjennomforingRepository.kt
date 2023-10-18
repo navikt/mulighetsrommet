@@ -533,6 +533,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                      left join virksomhet_kontaktperson vk on vk.id = tg.arrangor_kontaktperson_id
             $where
             and tg.tilgjengelig_for_veileder
+            and t.skal_migreres
             group by tg.id, t.id, v.navn, avtale_ne.navn, vk.id, avtale_ne.enhetsnummer
         """.trimIndent()
 
