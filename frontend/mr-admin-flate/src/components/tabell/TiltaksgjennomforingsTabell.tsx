@@ -1,6 +1,9 @@
 import { Alert, Checkbox, Pagination, Table, Tag, VStack } from "@navikt/ds-react";
 import { useAtom } from "jotai";
-import { SorteringTiltaksgjennomforinger } from "mulighetsrommet-api-client";
+import {
+  SorteringTiltaksgjennomforinger,
+  Tilgjengelighetsstatus,
+} from "mulighetsrommet-api-client";
 import Lenke from "mulighetsrommet-veileder-flate/src/components/lenke/Lenke";
 import React from "react";
 import { paginationAtom, tiltaksgjennomforingfilter } from "../../api/atoms";
@@ -292,10 +295,22 @@ export const TiltaksgjennomforingsTabell = ({ skjulKolonner }: Props) => {
                     </SkjulKolonne>
                     <Table.DataCell>
                       <VStack align={"center"}>
-                        {tiltaksgjennomforing.tilgjengeligForVeileder ? (
-                          <Tag variant="success-filled">Ja</Tag>
+                        {tiltaksgjennomforing.tilgjengeligForVeileder &&
+                        tiltaksgjennomforing.tilgjengelighet !== Tilgjengelighetsstatus.STENGT ? (
+                          <Tag
+                            aria-label="Tiltaket er tilgjengelig for veileder"
+                            title="Tiltaket er tilgjengelig for veileder"
+                            variant="success-filled"
+                          >
+                            Ja
+                          </Tag>
                         ) : (
-                          <Tag variant="neutral-filled">Nei</Tag>
+                          <span
+                            // Denne span'en må være her så brukere av skjermlesere får beskjed om at tiltaket ikke er tilgjengelig.
+                            // Klassen under gjør at elementet er usynlig for brukere som kan se, men skjermlesere kan fortsatt få tak i elementet
+                            className="navds-sr-only"
+                            title="Tiltaket er ikke tilgjengelig for veileder"
+                          />
                         )}
                       </VStack>
                     </Table.DataCell>
