@@ -37,7 +37,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     navEnheter: [mockEnheter._0313, mockEnheter._0315, mockEnheter._0330],
     status: TiltaksgjennomforingStatus.GJENNOMFORES,
     opphav: Opphav.MR_ADMIN_FLATE,
-    tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
+    tilgjengelighet: Tilgjengelighetsstatus.STENGT,
     stedForGjennomforing: "Brummundal",
     kontaktpersoner: [petrusKontaktperson, nikolineKontaktperson],
     tilgjengeligForVeileder: true,
