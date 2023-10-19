@@ -1880,8 +1880,8 @@ components:
         - sluttdato-descending
         - arrangor-ascending
         - arrangor-descending
-        - tilgjengelig_for_veileder_ascending
-        - tilgjengelig_for_veileder_descending
+        - vises_for_veileder_ascending
+        - vises_for_veileder_descending
 
     Tiltaksgjennomforing:
       type: object
@@ -1949,6 +1949,8 @@ components:
           type: string
         tilgjengeligForVeileder:
           type: boolean
+        visesForVeileder:
+          type: boolean
         updatedAt:
           type: string
           format: date-time
@@ -1964,6 +1966,7 @@ components:
         - midlertidigStengt
         - tilgjengelighet
         - tilgjengeligForVeileder
+        - visesForVeileder
         - updatedAt
 
     TiltaksgjennomforingRequest:

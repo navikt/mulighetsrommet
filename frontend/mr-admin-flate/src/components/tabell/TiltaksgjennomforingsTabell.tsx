@@ -74,7 +74,7 @@ const headers: ColumnHeader[] = [
     width: "1fr",
   },
   {
-    sortKey: "tilgjengeligForVeileder",
+    sortKey: "vises_for_veileder",
     tittel: "Tilgjengelig for veileder",
     sortable: true,
     width: "1fr",
@@ -90,7 +90,7 @@ type Kolonne =
   | "startdato"
   | "sluttdato"
   | "status"
-  | "tilgjengeligForVeileder";
+  | "vises_for_veileder";
 
 interface Props {
   skjulKolonner?: Partial<Record<Kolonne, boolean>>;
@@ -295,7 +295,7 @@ export const TiltaksgjennomforingsTabell = ({ skjulKolonner }: Props) => {
                     </SkjulKolonne>
                     <Table.DataCell>
                       <VStack align={"center"}>
-                        {tiltaksgjennomforing.tilgjengeligForVeileder &&
+                        {tiltaksgjennomforing.visesForVeileder &&
                         tiltaksgjennomforing.tilgjengelighet !== Tilgjengelighetsstatus.STENGT ? (
                           <Tag
                             aria-label="Tiltaket er tilgjengelig for veileder"
