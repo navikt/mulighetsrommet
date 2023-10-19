@@ -76,6 +76,7 @@ class AmtDeltakerV1TopicConsumer(
             AmtDeltakerStatus.Type.VURDERES -> Deltakerstatus.VENTER
             AmtDeltakerStatus.Type.VENTELISTE -> Deltakerstatus.VENTER
             AmtDeltakerStatus.Type.AVBRUTT -> Deltakerstatus.AVSLUTTET
+            AmtDeltakerStatus.Type.FULLFORT -> Deltakerstatus.AVSLUTTET
         },
         opphav = Deltakeropphav.AMT,
         startDato = startDato,
