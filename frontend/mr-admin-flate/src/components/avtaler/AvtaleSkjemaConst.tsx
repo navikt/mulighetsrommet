@@ -16,7 +16,6 @@ type UtkastData = Pick<
   Avtale,
   | "navn"
   | "tiltakstype"
-  | "navRegion"
   | "navEnheter"
   | "administrator"
   | "avtaletype"
@@ -43,10 +42,6 @@ export const saveUtkast = (
   const utkastData: UtkastData = {
     navn: values?.navn,
     tiltakstype: values?.tiltakstype,
-    navRegion: {
-      navn: "",
-      enhetsnummer: values?.navRegion,
-    },
     navEnheter: values?.navEnheter?.map((enhetsnummer) => ({
       navn: "",
       enhetsnummer,
@@ -84,31 +79,17 @@ export const saveUtkast = (
   });
 };
 
-export const defaultEnhet = (
-  avtale: Avtale | undefined,
-  enheter: NavEnhet[],
-  ansatt: NavAnsatt,
-) => {
-  if (avtale?.navRegion?.enhetsnummer) {
-    return avtale?.navRegion?.enhetsnummer;
-  }
-  if (enheter.find((e) => e.enhetsnummer === ansatt.hovedenhet.enhetsnummer)) {
-    return ansatt.hovedenhet.enhetsnummer;
-  }
-  return undefined;
-};
-
 export const getLokaleUnderenheterAsSelectOptions = (
-  navRegion: string | undefined,
+  navRegioner: string[],
   enheter: NavEnhet[],
 ) => {
-  if (!navRegion) {
-    return [];
-  }
-
   return enheter
     .filter((enhet: NavEnhet) => {
-      return navRegion === enhet.overordnetEnhet && enhet.type === NavEnhetType.LOKAL;
+      return (
+        enhet.overordnetEnhet != null &&
+        navRegioner.includes(enhet.overordnetEnhet) &&
+        enhet.type === NavEnhetType.LOKAL
+      );
     })
     .map((enhet: NavEnhet) => ({
       label: enhet.navn,

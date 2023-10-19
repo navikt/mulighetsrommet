@@ -131,6 +131,16 @@ export function AvtaleInfo() {
         </div>
 
         <div className={styles.detaljer}>
+          {/**
+           * Eksempel på datastruktur fra backend
+           * [
+              {
+                "region": {"navn": "", "nummer": ""},
+                "kontorer": [{"navn": "", "nummer": ""}]
+              }
+            ]
+           *
+           */}
           <Bolk aria-label="NAV-region">
             <Metadata header="NAV-region" verdi={avtale.navRegion?.navn} />
           </Bolk>

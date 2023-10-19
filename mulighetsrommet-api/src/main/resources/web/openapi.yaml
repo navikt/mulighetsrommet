@@ -1715,6 +1715,7 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/EmbeddedNavEnhet"
+
         opphav:
           $ref: "#/components/schemas/Opphav"
         updatedAt:

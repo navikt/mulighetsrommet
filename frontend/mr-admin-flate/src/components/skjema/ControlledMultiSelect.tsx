@@ -9,6 +9,8 @@ export interface MultiSelectProps {
   options: SelectOption[];
   readOnly?: boolean;
   size?: "small" | "medium";
+  additionalOnChange?: (values: SelectOption[]) => void;
+  name: string;
 }
 
 export const ControlledMultiSelect = React.forwardRef(function ControlledMultiSelect(
@@ -16,12 +18,12 @@ export const ControlledMultiSelect = React.forwardRef(function ControlledMultiSe
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _,
 ) {
-  const { size, label, placeholder, options, readOnly, ...rest } = props;
+  const { name, size, label, placeholder, options, readOnly, additionalOnChange, ...rest } = props;
 
   return (
     <div>
       <Controller
-        name={label}
+        name={name}
         {...rest}
         render={({ field: { onChange, value, name, ref }, fieldState: { error } }) => {
           return (
@@ -45,6 +47,7 @@ export const ControlledMultiSelect = React.forwardRef(function ControlledMultiSe
                 value={options.filter((c) => value?.includes(c.value))}
                 onChange={(e) => {
                   onChange(e.map((option: SelectOption) => option.value));
+                  additionalOnChange?.(e);
                 }}
                 options={options}
                 readOnly={readOnly}
