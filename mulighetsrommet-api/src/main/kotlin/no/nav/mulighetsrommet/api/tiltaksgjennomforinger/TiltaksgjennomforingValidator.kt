@@ -63,10 +63,6 @@ class TiltaksgjennomforingValidator(
                 if (dbo.startDato.isAfter(avtale.sluttDato)) {
                     add(ValidationError("startDato", "Startdato må være før avtalens sluttdato"))
                 }
-
-                if (dbo.sluttDato != null && dbo.sluttDato.isAfter(avtale.sluttDato)) {
-                    add(ValidationError("sluttDato", "Sluttdato må være før avtalens sluttdato"))
-                }
             }
 
             if (dbo.navEnheter.isEmpty()) {

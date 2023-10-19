@@ -118,7 +118,6 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
                 ),
                 listOf(
                     ValidationError("startDato", "Startdato må være før avtalens sluttdato"),
-                    ValidationError("sluttDato", "Sluttdato må være før avtalens sluttdato"),
                 ),
             ),
             row(
