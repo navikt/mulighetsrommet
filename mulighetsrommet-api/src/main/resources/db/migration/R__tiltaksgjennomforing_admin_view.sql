@@ -20,8 +20,8 @@ select tg.id::uuid,
        tg.opphav,
        tg.stengt_fra,
        tg.stengt_til,
-       avtale_ne.navn         as navRegionForAvtale,
-       avtale_ne.enhetsnummer as navRegionEnhetsnummerForAvtale,
+       tg.nav_region as nav_region_enhetsnummer,
+       region.navn as nav_region_navn,
        jsonb_agg(
                distinct
                case
@@ -64,10 +64,10 @@ from tiltaksgjennomforing tg
          left join tiltaksgjennomforing_nav_enhet tg_e on tg_e.tiltaksgjennomforing_id = tg.id
          left join avtale a on a.id = tg.avtale_id
          left join nav_enhet ne on tg_e.enhetsnummer = ne.enhetsnummer
-         left join nav_enhet avtale_ne on avtale_ne.enhetsnummer = a.nav_region
+         left join nav_enhet region on region.enhetsnummer = tg.nav_region
          left join virksomhet v on v.organisasjonsnummer = tg.arrangor_organisasjonsnummer
          left join tiltaksgjennomforing_kontaktperson tgk on tgk.tiltaksgjennomforing_id = tg.id
          left join nav_ansatt na on na.nav_ident = tgk.kontaktperson_nav_ident
          left join nav_ansatt na_tg on na_tg.nav_ident = tg_a.nav_ident
          left join virksomhet_kontaktperson vk on vk.id = tg.arrangor_kontaktperson_id
-group by tg.id, t.id, v.navn, avtale_ne.navn, vk.id, avtale_ne.enhetsnummer;
+group by tg.id, t.id, v.navn, vk.id, region.navn;

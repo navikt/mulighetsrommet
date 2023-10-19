@@ -81,8 +81,10 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
         every { avtaler.get(AvtaleFixtures.avtale1.id) } returns AvtaleFixtures.oppfolgingAvtaleAdminDto.copy(
             startDato = LocalDate.of(2023, 1, 1),
             sluttDato = LocalDate.of(2023, 2, 1),
-            navRegion = NavEnhet(enhetsnummer = "0400", navn = "NAV Innlandet"),
-            navEnheter = listOf(NavEnhet(enhetsnummer = "0402", navn = "NAV Kongsvinger")),
+            navEnheter = listOf(
+                NavEnhet(enhetsnummer = "0402", navn = "NAV Kongsvinger"),
+                NavEnhet(enhetsnummer = "0400", navn = "NAV Innlandet"),
+            ),
             leverandor = AvtaleAdminDto.Leverandor(
                 organisasjonsnummer = "000000000",
                 navn = "Bedrift",
@@ -218,8 +220,10 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
 
                 every { avtaler.get(differentAvtaleId) } returns AvtaleFixtures.oppfolgingAvtaleAdminDto.copy(
                     id = differentAvtaleId,
-                    navRegion = NavEnhet(enhetsnummer = "0400", navn = "NAV Innlandet"),
-                    navEnheter = listOf(NavEnhet(enhetsnummer = "0402", navn = "NAV Kongsvinger")),
+                    navEnheter = listOf(
+                        NavEnhet(enhetsnummer = "0402", navn = "NAV Kongsvinger"),
+                        NavEnhet(enhetsnummer = "0400", navn = "NAV Innlandet"),
+                    ),
                 )
                 every { tiltaksgjennomforinger.get(dbo.id) } returns TiltaksgjennomforingFixtures.Oppfolging1AdminDto
 

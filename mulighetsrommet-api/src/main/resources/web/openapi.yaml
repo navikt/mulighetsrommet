@@ -1696,8 +1696,6 @@ components:
         sluttDato:
           type: string
           format: date
-        navRegion:
-          $ref: "#/components/schemas/EmbeddedNavEnhet"
         avtaletype:
           $ref: "#/components/schemas/Avtaletype"
         avtalestatus:
@@ -1768,8 +1766,6 @@ components:
         sluttDato:
           type: string
           format: date
-        navRegion:
-          type: string
         url:
           type: string
           nullable: true
@@ -1796,7 +1792,6 @@ components:
         - avtalenummer
         - startDato
         - sluttDato
-        - navRegion
         - url
         - administrator
         - avtaletype
@@ -1846,8 +1841,6 @@ components:
       enum:
         - navn-ascending
         - navn-descending
-        - nav-enhet-ascending
-        - nav-enhet-descending
         - startdato-ascending
         - startdato-descending
         - sluttdato-ascending
@@ -2003,6 +1996,8 @@ components:
           nullable: true
         administrator:
           type: string
+        navRegion:
+          type: string
         navEnheter:
           type: array
           items:
@@ -2050,6 +2045,7 @@ components:
         - arrangorKontaktpersonId
         - tiltaksnummer
         - administrator
+        - navRegion
         - navEnheter
         - oppstart
         - stengtFra

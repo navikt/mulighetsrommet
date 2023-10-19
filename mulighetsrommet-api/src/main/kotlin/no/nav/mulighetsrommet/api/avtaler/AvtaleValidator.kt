@@ -111,10 +111,6 @@ class AvtaleValidator(
                         add(ValidationError("sluttDato", "Sluttdato kan ikke endres når avtalen er aktiv"))
                     }
 
-                    if (avtale.navRegion != null && dbo.navRegion != avtale.navRegion?.enhetsnummer) {
-                        add(ValidationError("navRegion", "NAV-region kan ikke endres når avtalen er aktiv"))
-                    }
-
                     if (dbo.prisbetingelser != avtale.prisbetingelser) {
                         add(
                             ValidationError(

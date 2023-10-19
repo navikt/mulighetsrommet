@@ -2,7 +2,10 @@ package no.nav.mulighetsrommet.api.repositories
 
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.collections.*
+import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldContainAll
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
@@ -191,41 +194,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             tiltaksgjennomforinger.get(gjennomforing.id).should {
                 it!!.stengtFra shouldBe LocalDate.of(2020, 1, 22)
                 it.stengtTil shouldBe LocalDate.of(2020, 4, 22)
-            }
-        }
-
-        test("Skal hente ut navRegion fra avtale for en gitt gjennomføring") {
-            val navEnheter = NavEnhetRepository(database.db)
-            navEnheter.upsert(
-                NavEnhetDbo(
-                    navn = "NAV Andeby",
-                    enhetsnummer = "2990",
-                    status = NavEnhetStatus.AKTIV,
-                    type = Norg2Type.FYLKE,
-                    overordnetEnhet = null,
-                ),
-            )
-            navEnheter.upsert(
-                NavEnhetDbo(
-                    navn = "NAV Gåseby",
-                    enhetsnummer = "2980",
-                    status = NavEnhetStatus.AKTIV,
-                    type = Norg2Type.LOKAL,
-                    overordnetEnhet = null,
-                ),
-            )
-            val avtale = avtale1.copy(navRegion = "2990")
-            avtaler.upsert(avtale)
-
-            val tiltaksgjennomforing = Oppfolging1.copy(
-                avtaleId = avtale.id,
-                navEnheter = listOf("2980"),
-            )
-            tiltaksgjennomforinger.upsert(tiltaksgjennomforing)
-
-            tiltaksgjennomforinger.get(tiltaksgjennomforing.id).should {
-                it?.navRegion?.navn shouldBe "NAV Andeby"
-                it?.navEnheter?.shouldContain(NavEnhet(enhetsnummer = "2980", "NAV Gåseby"))
             }
         }
 
@@ -897,16 +865,16 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             navEnheter.upsert(
                 NavEnhetDbo(
                     navn = "NavRegion",
-                    enhetsnummer = "nav_region",
+                    enhetsnummer = "0100",
                     status = NavEnhetStatus.AKTIV,
-                    type = Norg2Type.LOKAL,
+                    type = Norg2Type.FYLKE,
                     overordnetEnhet = null,
                 ),
             ).shouldBeRight()
             navEnheter.upsert(
                 NavEnhetDbo(
                     navn = "Navn1",
-                    enhetsnummer = "1",
+                    enhetsnummer = "0101",
                     status = NavEnhetStatus.AKTIV,
                     type = Norg2Type.LOKAL,
                     overordnetEnhet = null,
@@ -915,88 +883,34 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             navEnheter.upsert(
                 NavEnhetDbo(
                     navn = "Navn2",
-                    enhetsnummer = "2",
+                    enhetsnummer = "0102",
                     status = NavEnhetStatus.AKTIV,
                     type = Norg2Type.LOKAL,
-                    overordnetEnhet = "nav_region",
+                    overordnetEnhet = "0100",
                 ),
             ).shouldBeRight()
 
-            val avtale = avtale1.copy(id = UUID.randomUUID(), navRegion = "nav_region")
-            avtaler.upsert(avtale)
-
-            val tg1 = Oppfolging1.copy(id = UUID.randomUUID(), navEnheter = listOf("1"))
-            tiltaksgjennomforinger.upsert(tg1)
-
-            val tg2 = Oppfolging1.copy(id = UUID.randomUUID())
-            Query("update tiltaksgjennomforing set arena_ansvarlig_enhet = '1' where id = '${tg2.id}'")
-                .asUpdate
-                .let { database.db.run(it) }
-
-            val tg3 = Oppfolging1.copy(id = UUID.randomUUID(), navEnheter = listOf("2"))
-            tiltaksgjennomforinger.upsert(tg3)
-
-            val tg4 = Oppfolging1.copy(id = UUID.randomUUID(), navEnheter = listOf("1", "2"))
-            tiltaksgjennomforinger.upsert(tg4)
-
-            val tg5 = Oppfolging1.copy(id = UUID.randomUUID(), navEnheter = emptyList(), avtaleId = avtale.id)
-            tiltaksgjennomforinger.upsert(tg5)
-
-            tiltaksgjennomforinger.getAll(navRegion = "nav_region")
-                .should {
-                    it.first shouldBe 3
-                    it.second.map { tg -> tg.id } shouldContainAll listOf(tg3.id, tg4.id, tg5.id)
-                }
-        }
-
-        test("filtrer på nav_region når ingen avtale er koblet til gjennomføringen") {
-            navEnheter.upsert(
-                NavEnhetDbo(
-                    navn = "NAV Nordland",
-                    enhetsnummer = "1800",
-                    status = NavEnhetStatus.AKTIV,
-                    type = Norg2Type.LOKAL,
-                    overordnetEnhet = null,
-                ),
-            ).shouldBeRight()
-            navEnheter.upsert(
-                NavEnhetDbo(
-                    navn = "Nordland 1",
-                    enhetsnummer = "1898",
-                    status = NavEnhetStatus.AKTIV,
-                    type = Norg2Type.LOKAL,
-                    overordnetEnhet = null,
-                ),
-            ).shouldBeRight()
-            navEnheter.upsert(
-                NavEnhetDbo(
-                    navn = "Nordland 2",
-                    enhetsnummer = "1854",
-                    status = NavEnhetStatus.AKTIV,
-                    type = Norg2Type.LOKAL,
-                    overordnetEnhet = "1800",
-                ),
-            ).shouldBeRight()
-
-            val tg1 = Oppfolging1.copy(id = UUID.randomUUID(), navEnheter = listOf("1898"))
+            val tg1 = Oppfolging1.copy(id = UUID.randomUUID(), navEnheter = listOf("0101"), navRegion = "2990")
             tiltaksgjennomforinger.upsert(tg1)
 
             val tg2 = Oppfolging1.copy(id = UUID.randomUUID())
             tiltaksgjennomforinger.upsert(tg2)
-            Query("update tiltaksgjennomforing set arena_ansvarlig_enhet = '1800' where id = '${tg2.id}'")
+            Query("update tiltaksgjennomforing set arena_ansvarlig_enhet = '0101' where id = '${tg2.id}'")
                 .asUpdate
                 .let { database.db.run(it) }
 
-            val tg3 = Oppfolging1.copy(id = UUID.randomUUID(), navEnheter = listOf("1898"))
+            val tg3 = Oppfolging1.copy(id = UUID.randomUUID(), navEnheter = listOf("0102"), navRegion = "0100")
             tiltaksgjennomforinger.upsert(tg3)
 
-            val tg4 = Oppfolging1.copy(id = UUID.randomUUID(), navEnheter = listOf("1800"))
+            val tg4 = Oppfolging1.copy(id = UUID.randomUUID())
             tiltaksgjennomforinger.upsert(tg4)
+            Query("update tiltaksgjennomforing set arena_ansvarlig_enhet = '0102' where id = '${tg4.id}'")
+                .asUpdate
+                .let { database.db.run(it) }
 
-            tiltaksgjennomforinger.getAll(navRegion = "1800")
+            tiltaksgjennomforinger.getAll(navRegion = "0100")
                 .should {
-                    it.first shouldBe 1
-                    it.second.map { tg -> tg.id } shouldContainAll listOf(tg2.id)
+                    it.second.map { tg -> tg.id } shouldContainExactlyInAnyOrder listOf(tg3.id, tg4.id)
                 }
         }
 
@@ -1157,13 +1071,15 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         val gjennomforing = Oppfolging1.copy(id = UUID.randomUUID())
         tiltaksgjennomforinger.upsert(gjennomforing)
         tiltaksgjennomforinger.setTilgjengeligForVeileder(gjennomforing.id, true)
-        val gjennomforingStatusStengt = gjennomforing.copy(tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.STENGT)
+        val gjennomforingStatusStengt =
+            gjennomforing.copy(tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.STENGT)
         tiltaksgjennomforinger.upsert(gjennomforingStatusStengt)
         tiltaksgjennomforinger.get(gjennomforing.id).should {
             it!!.visesForVeileder shouldBe false
         }
 
-        val gjennomforingStatusLedig = gjennomforing.copy(tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.LEDIG)
+        val gjennomforingStatusLedig =
+            gjennomforing.copy(tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.LEDIG)
         tiltaksgjennomforinger.upsert(gjennomforingStatusLedig)
         tiltaksgjennomforinger.get(gjennomforing.id).should {
             it!!.visesForVeileder shouldBe true

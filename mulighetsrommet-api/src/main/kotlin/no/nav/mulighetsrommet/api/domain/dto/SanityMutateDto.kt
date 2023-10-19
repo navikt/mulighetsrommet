@@ -35,8 +35,6 @@ data class CreateSanityTiltaksgjennomforingDto(
     @EncodeDefault
     val _type: String = "tiltaksgjennomforing",
     val tiltaksgjennomforingNavn: String,
-    val fylke: FylkeRef? = null,
-    val enheter: List<EnhetRef>? = null,
     val tiltakstype: TiltakstypeRef? = null,
     val tiltaksnummer: TiltaksnummerSlug? = null,
     val stedForGjennomforing: String? = null,
@@ -54,8 +52,6 @@ data class SanityTiltaksgjennomforingFields(
     fun toSanityTiltaksgjennomforing(id: String) = CreateSanityTiltaksgjennomforingDto(
         _id = id,
         tiltaksgjennomforingNavn = this.tiltaksgjennomforingNavn,
-        fylke = this.fylke,
-        enheter = this.enheter,
         tiltakstype = this.tiltakstype,
         tiltaksnummer = this.tiltaksnummer,
         stedForGjennomforing = this.stedForGjennomforing,

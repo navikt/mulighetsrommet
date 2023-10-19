@@ -16,7 +16,6 @@ data class AvtaleDbo(
     val leverandorKontaktpersonId: UUID?,
     val startDato: LocalDate,
     val sluttDato: LocalDate,
-    val navRegion: String,
     val navEnheter: List<String>,
     val avtaletype: Avtaletype,
     val opphav: ArenaMigrering.Opphav,

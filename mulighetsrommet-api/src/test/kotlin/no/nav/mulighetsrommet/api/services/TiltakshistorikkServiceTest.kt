@@ -46,6 +46,7 @@ class TiltakshistorikkServiceTest : FunSpec({
         tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.LEDIG,
         antallPlasser = 12,
         administratorer = emptyList(),
+        navRegion = null,
         navEnheter = emptyList(),
         oppstart = TiltaksgjennomforingOppstartstype.FELLES,
         opphav = ArenaMigrering.Opphav.ARENA,

@@ -111,6 +111,7 @@ data class TiltaksgjennomforingRequest(
     val arrangorKontaktpersonId: UUID?,
     val tiltaksnummer: String?,
     val administrator: String,
+    val navRegion: String,
     val navEnheter: List<String>,
     val oppstart: TiltaksgjennomforingOppstartstype,
     @Serializable(with = LocalDateSerializer::class)
@@ -144,6 +145,7 @@ data class TiltaksgjennomforingRequest(
         arrangorOrganisasjonsnummer = arrangorOrganisasjonsnummer,
         arrangorKontaktpersonId = arrangorKontaktpersonId,
         administratorer = listOf(administrator),
+        navRegion = navRegion,
         navEnheter = navEnheter,
         oppstart = oppstart,
         opphav = opphav ?: ArenaMigrering.Opphav.MR_ADMIN_FLATE,

@@ -117,7 +117,6 @@ data class AvtaleRequest(
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate,
-    val navRegion: String,
     val url: String?,
     val administrator: String,
     val avtaletype: Avtaletype,
@@ -135,7 +134,6 @@ data class AvtaleRequest(
         leverandorKontaktpersonId = leverandorKontaktpersonId,
         startDato = startDato,
         sluttDato = sluttDato,
-        navRegion = navRegion,
         avtaletype = avtaletype,
         antallPlasser = null,
         url = url,

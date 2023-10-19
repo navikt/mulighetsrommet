@@ -37,7 +37,6 @@ class AvtaleRepository(private val db: Database) {
                                leverandor_kontaktperson_id,
                                start_dato,
                                slutt_dato,
-                               nav_region,
                                avtaletype,
                                prisbetingelser,
                                antall_plasser,
@@ -51,7 +50,6 @@ class AvtaleRepository(private val db: Database) {
                     :leverandor_kontaktperson_id,
                     :start_dato,
                     :slutt_dato,
-                    :nav_region,
                     :avtaletype::avtaletype,
                     :prisbetingelser,
                     :antall_plasser,
@@ -64,7 +62,6 @@ class AvtaleRepository(private val db: Database) {
                                            leverandor_kontaktperson_id    = excluded.leverandor_kontaktperson_id,
                                            start_dato                     = excluded.start_dato,
                                            slutt_dato                     = excluded.slutt_dato,
-                                           nav_region                     = excluded.nav_region,
                                            avtaletype                     = excluded.avtaletype,
                                            prisbetingelser                = excluded.prisbetingelser,
                                            antall_plasser                 = excluded.antall_plasser,
@@ -225,14 +222,12 @@ class AvtaleRepository(private val db: Database) {
                    a.start_dato,
                    a.slutt_dato,
                    a.opphav,
-                   a.nav_region,
                    a.avtaletype,
                    a.avslutningsstatus,
                    a.prisbetingelser,
                    a.antall_plasser,
                    a.url,
                    a.updated_at,
-                   nav_enhet.navn         as nav_enhet_navn,
                    t.navn                 as tiltakstype_navn,
                    t.tiltakskode,
                    an.nav_enheter,
@@ -248,7 +243,6 @@ class AvtaleRepository(private val db: Database) {
                 join tiltakstype t on t.id = a.tiltakstype_id
                 left join avtale_administrator aa on a.id = aa.avtale_id
                 left join nav_ansatt na on na.nav_ident = aa.nav_ident
-                left join nav_enhet on a.nav_region = nav_enhet.enhetsnummer
                 left join lateral (
                     SELECT an.avtale_id, jsonb_strip_nulls(jsonb_agg(jsonb_build_object('enhetsnummer', an.enhetsnummer, 'navn', ne.navn))) as nav_enheter
                     FROM avtale_nav_enhet an left join nav_enhet ne on ne.enhetsnummer = an.enhetsnummer WHERE an.avtale_id = a.id GROUP BY 1
@@ -260,7 +254,7 @@ class AvtaleRepository(private val db: Database) {
                 left join virksomhet v on v.organisasjonsnummer = a.leverandor_organisasjonsnummer
                 left join virksomhet_kontaktperson vk on vk.id = a.leverandor_kontaktperson_id
             where a.id = ?::uuid
-            group by a.id, t.navn, t.tiltakskode, nav_enhet.navn, v.navn, au.leverandor_underenheter, an.nav_enheter, vk.id
+            group by a.id, t.navn, t.tiltakskode, v.navn, au.leverandor_underenheter, an.nav_enheter, vk.id
         """.trimIndent()
 
         return tx.run(
@@ -282,6 +276,7 @@ class AvtaleRepository(private val db: Database) {
         val parameters = mapOf(
             "tiltakstype_id" to filter.tiltakstypeId,
             "search" to "%${filter.search}%",
+            "nav_region_json" to filter.navRegion?.let { """[{"enhetsnummer":"$it"}]""" },
             "nav_region" to filter.navRegion,
             "limit" to pagination.limit,
             "offset" to pagination.offset,
@@ -294,7 +289,7 @@ class AvtaleRepository(private val db: Database) {
             filter.tiltakstypeId to "a.tiltakstype_id = :tiltakstype_id",
             filter.search to "(lower(a.navn) like lower(:search))",
             filter.avtalestatus to filter.avtalestatus?.toDbStatement(),
-            filter.navRegion to "(lower(a.nav_region) = lower(:nav_region) or lower(a.arena_ansvarlig_enhet) = lower(:nav_region) or lower(a.arena_ansvarlig_enhet) in (select enhetsnummer from nav_enhet where overordnet_enhet = :nav_region))",
+            filter.navRegion to "(an.nav_enheter @> :nav_region_json::jsonb or a.arena_ansvarlig_enhet = :nav_region or a.arena_ansvarlig_enhet in (select enhetsnummer from nav_enhet where overordnet_enhet = :nav_region))",
             filter.leverandorOrgnr to "a.leverandor_organisasjonsnummer = :leverandorOrgnr",
             filter.administratorNavIdent to "aa.nav_ident = :administrator_nav_ident",
         )
@@ -304,8 +299,6 @@ class AvtaleRepository(private val db: Database) {
             "navn-descending" -> "a.navn desc"
             "leverandor-ascending" -> "v.navn asc"
             "leverandor-descending" -> "v.navn desc"
-            "nav-enhet-ascending" -> "nav_enhet_navn asc"
-            "nav-enhet-descending" -> "nav_enhet_navn desc"
             "startdato-ascending" -> "a.start_dato asc, a.navn asc"
             "startdato-descending" -> "a.start_dato desc, a.navn asc"
             "sluttdato-ascending" -> "a.slutt_dato asc, a.navn asc"
@@ -332,14 +325,12 @@ class AvtaleRepository(private val db: Database) {
                    a.start_dato,
                    a.slutt_dato,
                    a.opphav,
-                   a.nav_region,
                    a.avtaletype,
                    a.avslutningsstatus,
                    a.prisbetingelser,
                    a.antall_plasser,
                    a.updated_at,
                    a.url,
-                   nav_enhet.navn         as nav_enhet_navn,
                    t.navn                 as tiltakstype_navn,
                    t.tiltakskode,
                    an.nav_enheter,
@@ -354,7 +345,6 @@ class AvtaleRepository(private val db: Database) {
                    count(*) over ()       as full_count
             from avtale a
                      join tiltakstype t on a.tiltakstype_id = t.id
-                     left join nav_enhet on a.nav_region = nav_enhet.enhetsnummer
                      left join avtale_administrator aa on a.id = aa.avtale_id
                      left join nav_ansatt na on na.nav_ident = aa.nav_ident
                      left join avtale_nav_enhet ae on ae.avtale_id = a.id
@@ -370,7 +360,7 @@ class AvtaleRepository(private val db: Database) {
                 ) au on true
                      left join virksomhet_kontaktperson vk on vk.id = a.leverandor_kontaktperson_id
             $where
-            group by a.id, t.navn, t.tiltakskode, nav_enhet.navn, v.navn, au.leverandor_underenheter, an.nav_enheter, vk.id
+            group by a.id, t.navn, t.tiltakskode, v.navn, au.leverandor_underenheter, an.nav_enheter, vk.id
             order by $order
             limit :limit
             offset :offset
@@ -478,7 +468,6 @@ class AvtaleRepository(private val db: Database) {
         "leverandor_underenheter" to db.createTextArray(leverandorUnderenheter),
         "start_dato" to startDato,
         "slutt_dato" to sluttDato,
-        "nav_region" to navRegion,
         "avtaletype" to avtaletype.name,
         "prisbetingelser" to prisbetingelser,
         "antall_plasser" to antallPlasser,
@@ -504,7 +493,6 @@ class AvtaleRepository(private val db: Database) {
     private fun Row.toAvtaleAdminDto(): AvtaleAdminDto {
         val startDato = localDate("start_dato")
         val sluttDato = localDate("slutt_dato")
-        val navRegion = stringOrNull("nav_region")
         val navEnheter = stringOrNull("nav_enheter")
             ?.let { Json.decodeFromString<List<NavEnhet?>>(it).filterNotNull() }
             ?: emptyList()
@@ -543,12 +531,6 @@ class AvtaleRepository(private val db: Database) {
             navEnheter = navEnheter,
             startDato = startDato,
             sluttDato = sluttDato,
-            navRegion = navRegion?.let {
-                NavEnhet(
-                    enhetsnummer = it,
-                    navn = string("nav_enhet_navn"),
-                )
-            },
             avtaletype = Avtaletype.valueOf(string("avtaletype")),
             avtalestatus = Avtalestatus.resolveFromDatesAndAvslutningsstatus(
                 LocalDate.now(),
