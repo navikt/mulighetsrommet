@@ -207,54 +207,8 @@ class AvtaleRepository(private val db: Database) {
     fun get(id: UUID, tx: Session): AvtaleAdminDto? {
         @Language("PostgreSQL")
         val query = """
-            select a.id,
-                   a.navn,
-                   a.tiltakstype_id,
-                   a.avtalenummer,
-                   a.leverandor_organisasjonsnummer,
-                   vk.id                  as leverandor_kontaktperson_id,
-                   vk.organisasjonsnummer as leverandor_kontaktperson_organisasjonsnummer,
-                   vk.navn                as leverandor_kontaktperson_navn,
-                   vk.telefon             as leverandor_kontaktperson_telefon,
-                   vk.epost               as leverandor_kontaktperson_epost,
-                   vk.beskrivelse         as leverandor_kontaktperson_beskrivelse,
-                   v.navn                 as leverandor_navn,
-                   a.start_dato,
-                   a.slutt_dato,
-                   a.opphav,
-                   a.avtaletype,
-                   a.avslutningsstatus,
-                   a.prisbetingelser,
-                   a.antall_plasser,
-                   a.url,
-                   a.updated_at,
-                   t.navn                 as tiltakstype_navn,
-                   t.tiltakskode,
-                   an.nav_enheter,
-                   au.leverandor_underenheter,
-                   jsonb_agg(
-                           distinct
-                           case
-                               when aa.nav_ident is null then null::jsonb
-                               else jsonb_build_object('navIdent', aa.nav_ident, 'navn', concat(na.fornavn, ' ', na.etternavn))
-                               end
-                       )                  as administratorer
-            from avtale a
-                join tiltakstype t on t.id = a.tiltakstype_id
-                left join avtale_administrator aa on a.id = aa.avtale_id
-                left join nav_ansatt na on na.nav_ident = aa.nav_ident
-                left join lateral (
-                    SELECT an.avtale_id, jsonb_strip_nulls(jsonb_agg(jsonb_build_object('enhetsnummer', an.enhetsnummer, 'navn', ne.navn))) as nav_enheter
-                    FROM avtale_nav_enhet an left join nav_enhet ne on ne.enhetsnummer = an.enhetsnummer WHERE an.avtale_id = a.id GROUP BY 1
-                ) an on true
-                left join lateral (
-                    SELECT au.avtale_id, jsonb_strip_nulls(jsonb_agg(jsonb_build_object('organisasjonsnummer', au.organisasjonsnummer, 'navn', v.navn))) as leverandor_underenheter
-                    FROM avtale_underleverandor au inner join virksomhet v on v.organisasjonsnummer = au.organisasjonsnummer WHERE au.avtale_id = a.id GROUP BY 1
-                ) au on true
-                left join virksomhet v on v.organisasjonsnummer = a.leverandor_organisasjonsnummer
-                left join virksomhet_kontaktperson vk on vk.id = a.leverandor_kontaktperson_id
-            where a.id = ?::uuid
-            group by a.id, t.navn, t.tiltakskode, v.navn, au.leverandor_underenheter, an.nav_enheter, vk.id
+            select * from avtale_admin_dto_view
+            where id = ?::uuid
         """.trimIndent()
 
         return tx.run(
@@ -282,85 +236,37 @@ class AvtaleRepository(private val db: Database) {
             "offset" to pagination.offset,
             "today" to filter.dagensDato,
             "leverandorOrgnr" to filter.leverandorOrgnr,
-            "administrator_nav_ident" to filter.administratorNavIdent,
+            "administrator_nav_ident" to filter.administratorNavIdent?.let { """[{"navIdent": "$it" }]""" },
         )
 
         val where = DatabaseUtils.andWhereParameterNotNull(
-            filter.tiltakstypeId to "a.tiltakstype_id = :tiltakstype_id",
-            filter.search to "(lower(a.navn) like lower(:search))",
+            filter.tiltakstypeId to "tiltakstype_id = :tiltakstype_id",
+            filter.search to "(lower(navn) like lower(:search))",
             filter.avtalestatus to filter.avtalestatus?.toDbStatement(),
-            filter.navRegion to "(an.nav_enheter @> :nav_region_json::jsonb or a.arena_ansvarlig_enhet = :nav_region or a.arena_ansvarlig_enhet in (select enhetsnummer from nav_enhet where overordnet_enhet = :nav_region))",
-            filter.leverandorOrgnr to "a.leverandor_organisasjonsnummer = :leverandorOrgnr",
-            filter.administratorNavIdent to "aa.nav_ident = :administrator_nav_ident",
+            filter.navRegion to "(nav_enheter @> :nav_region_json::jsonb or arena_ansvarlig_enhet = :nav_region or arena_ansvarlig_enhet in (select enhetsnummer from nav_enhet where overordnet_enhet = :nav_region))",
+            filter.leverandorOrgnr to "leverandor_organisasjonsnummer = :leverandorOrgnr",
+            filter.administratorNavIdent to "administratorer @> :administrator_nav_ident::jsonb",
         )
 
         val order = when (filter.sortering) {
-            "navn-ascending" -> "a.navn asc"
-            "navn-descending" -> "a.navn desc"
-            "leverandor-ascending" -> "v.navn asc"
-            "leverandor-descending" -> "v.navn desc"
-            "startdato-ascending" -> "a.start_dato asc, a.navn asc"
-            "startdato-descending" -> "a.start_dato desc, a.navn asc"
-            "sluttdato-ascending" -> "a.slutt_dato asc, a.navn asc"
-            "sluttdato-descending" -> "a.slutt_dato desc, a.navn asc"
-            "tiltakstype_navn-ascending" -> "tiltakstype_navn asc, a.navn asc"
-            "tiltakstype_navn-descending" -> "tiltakstype_navn desc, a.navn desc"
-            else -> "a.navn asc"
+            "navn-ascending" -> "navn asc"
+            "navn-descending" -> "navn desc"
+            "leverandor-ascending" -> "leverandor_navn asc"
+            "leverandor-descending" -> "leverandor_navn desc"
+            "startdato-ascending" -> "start_dato asc, navn asc"
+            "startdato-descending" -> "start_dato desc, navn asc"
+            "sluttdato-ascending" -> "slutt_dato asc, navn asc"
+            "sluttdato-descending" -> "slutt_dato desc, navn asc"
+            "tiltakstype_navn-ascending" -> "tiltakstype_navn asc, navn asc"
+            "tiltakstype_navn-descending" -> "tiltakstype_navn desc, navn desc"
+            else -> "navn asc"
         }
 
         @Language("PostgreSQL")
         val query = """
-            select a.id,
-                   a.navn,
-                   a.tiltakstype_id,
-                   a.avtalenummer,
-                   a.leverandor_organisasjonsnummer,
-                   vk.id                  as leverandor_kontaktperson_id,
-                   vk.organisasjonsnummer as leverandor_kontaktperson_organisasjonsnummer,
-                   vk.navn                as leverandor_kontaktperson_navn,
-                   vk.telefon             as leverandor_kontaktperson_telefon,
-                   vk.epost               as leverandor_kontaktperson_epost,
-                   vk.beskrivelse         as leverandor_kontaktperson_beskrivelse,
-                   v.navn                 as leverandor_navn,
-                   a.start_dato,
-                   a.slutt_dato,
-                   a.opphav,
-                   a.avtaletype,
-                   a.avslutningsstatus,
-                   a.prisbetingelser,
-                   a.antall_plasser,
-                   a.updated_at,
-                   a.url,
-                   t.navn                 as tiltakstype_navn,
-                   t.tiltakskode,
-                   an.nav_enheter,
-                   au.leverandor_underenheter,
-                   jsonb_agg(
-                           distinct
-                           case
-                               when aa.nav_ident is null then null::jsonb
-                               else jsonb_build_object('navIdent', aa.nav_ident, 'navn', concat(na.fornavn, ' ', na.etternavn))
-                               end
-                       )                  as administratorer,
-                   count(*) over ()       as full_count
-            from avtale a
-                     join tiltakstype t on a.tiltakstype_id = t.id
-                     left join avtale_administrator aa on a.id = aa.avtale_id
-                     left join nav_ansatt na on na.nav_ident = aa.nav_ident
-                     left join avtale_nav_enhet ae on ae.avtale_id = a.id
-                     left join avtale_underleverandor lva on lva.avtale_id = a.id
-                     left join virksomhet v on v.organisasjonsnummer = a.leverandor_organisasjonsnummer
-                     left join lateral (
-                SELECT an.avtale_id, jsonb_strip_nulls(jsonb_agg(jsonb_build_object('enhetsnummer', an.enhetsnummer, 'navn', ne.navn))) as nav_enheter
-                FROM avtale_nav_enhet an left join nav_enhet ne on ne.enhetsnummer = an.enhetsnummer WHERE an.avtale_id = a.id GROUP BY 1
-                ) an on true
-                     left join lateral (
-                SELECT au.avtale_id, jsonb_strip_nulls(jsonb_agg(jsonb_build_object('organisasjonsnummer', au.organisasjonsnummer, 'navn', v.navn))) as leverandor_underenheter
-                FROM avtale_underleverandor au left join virksomhet v on v.organisasjonsnummer = au.organisasjonsnummer WHERE au.avtale_id = a.id GROUP BY 1
-                ) au on true
-                     left join virksomhet_kontaktperson vk on vk.id = a.leverandor_kontaktperson_id
+            select *, count(*) over() as full_count
+            from avtale_admin_dto_view
             $where
-            group by a.id, t.navn, t.tiltakskode, v.navn, au.leverandor_underenheter, an.nav_enheter, vk.id
             order by $order
             limit :limit
             offset :offset

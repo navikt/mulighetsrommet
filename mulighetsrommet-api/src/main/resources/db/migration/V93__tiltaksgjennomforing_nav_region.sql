@@ -1,4 +1,4 @@
-drop view tiltaksgjennomforing_admin_dto_view;
+drop view if exists tiltaksgjennomforing_admin_dto_view;
 
 alter table tiltaksgjennomforing
 add column nav_region text references nav_enhet(enhetsnummer);
