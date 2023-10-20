@@ -6,7 +6,6 @@ import no.nav.common.kafka.consumer.util.deserializer.Deserializers.stringDeseri
 import no.nav.mulighetsrommet.api.clients.arenaadapter.ArenaAdapterClient
 import no.nav.mulighetsrommet.api.domain.dto.ArenaMigreringTiltaksgjennomforingDto
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
-import no.nav.mulighetsrommet.api.services.SanityTiltaksgjennomforingService
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingDto
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.producers.ArenaMigreringTiltaksgjennomforingKafkaProducer
@@ -18,7 +17,6 @@ class TiltaksgjennomforingTopicConsumer(
     config: Config,
     private val tiltaksgjennomforingRepository: TiltaksgjennomforingRepository,
     private val arenaMigreringTiltaksgjennomforingKafkaProducer: ArenaMigreringTiltaksgjennomforingKafkaProducer,
-    private val sanityTiltaksgjennomforingService: SanityTiltaksgjennomforingService,
     private val arenaAdapterClient: ArenaAdapterClient,
 ) : KafkaTopicConsumer<String, JsonElement>(
     config,

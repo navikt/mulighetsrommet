@@ -138,7 +138,6 @@ private fun kafka(config: KafkaConfig) = module {
                 config = config.consumers.tiltaksgjennomforingerV1,
                 arenaAdapterClient = get(),
                 arenaMigreringTiltaksgjennomforingKafkaProducer = get(),
-                sanityTiltaksgjennomforingService = get(),
                 tiltaksgjennomforingRepository = get(),
             ),
             AmtDeltakerV1TopicConsumer(config = config.consumers.amtDeltakerV1, deltakere = get()),
