@@ -177,8 +177,6 @@ class TiltaksgjennomforingService(
             return Either.Left(BadRequest(message = "Gjennomføringen kan ikke slettes fordi den har $antallDeltagere deltager(e) koblet til seg."))
         }
 
-        val sanityId = gjennomforing.sanityId
-
         return db.transactionSuspend { tx ->
             tiltaksgjennomforingRepository.delete(id, tx)
             tiltaksgjennomforingKafkaProducer.retract(id)

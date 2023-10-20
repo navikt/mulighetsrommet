@@ -2539,7 +2539,6 @@ components:
       required:
         - sanityId
         - navn
-        - innsatsgruppe
 
     VeilederflateTiltaksgjennomforing:
       type: object
@@ -2585,6 +2584,7 @@ components:
         - navn
         - tiltakstype
         - oppstart
+        - kontaktinfoTiltaksansvarlige
 
     SanityRegelverkLenke:
       type: object

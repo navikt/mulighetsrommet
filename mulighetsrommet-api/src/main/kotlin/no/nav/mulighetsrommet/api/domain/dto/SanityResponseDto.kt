@@ -24,8 +24,8 @@ data class SanityInnsatsgruppe(
 
 @Serializable
 data class SanityTiltakstype(
-    val _id: String? = null,
-    val tiltakstypeNavn: String? = null,
+    val _id: String,
+    val tiltakstypeNavn: String,
     val beskrivelse: String? = null,
     val innsatsgruppe: SanityInnsatsgruppe? = null,
     val regelverkLenker: List<RegelverkLenke>? = emptyList(),
@@ -36,7 +36,7 @@ data class SanityTiltakstype(
 @Serializable
 data class SanityTiltaksgjennomforing(
     val _id: String,
-    val tiltakstype: SanityTiltakstype? = null,
+    val tiltakstype: SanityTiltakstype,
     val tiltaksgjennomforingNavn: String,
     val tiltaksnummer: String? = null,
     val beskrivelse: String? = null,
