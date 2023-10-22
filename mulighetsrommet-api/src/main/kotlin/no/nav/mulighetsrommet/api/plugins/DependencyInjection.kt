@@ -117,7 +117,12 @@ private fun kafka(config: KafkaConfig) = module {
         .withMetrics(Metrikker.appMicrometerRegistry)
         .build()
 
-    single { ArenaMigreringTiltaksgjennomforingKafkaProducer(producerClient, config.producers.arenaMigreringTiltaksgjennomforinger) }
+    single {
+        ArenaMigreringTiltaksgjennomforingKafkaProducer(
+            producerClient,
+            config.producers.arenaMigreringTiltaksgjennomforinger,
+        )
+    }
     single { TiltaksgjennomforingKafkaProducer(producerClient, config.producers.tiltaksgjennomforinger) }
     single { TiltakstypeKafkaProducer(producerClient, config.producers.tiltakstyper) }
 
@@ -267,7 +272,7 @@ private fun services(appConfig: AppConfig) = module {
     single { MicrosoftGraphService(get()) }
     single { TiltaksgjennomforingService(get(), get(), get(), get(), get(), get(), get(), get()) }
     single { SanityTiltaksgjennomforingService(get(), get(), get()) }
-    single { TiltakstypeService(get(), get(), get(), get()) }
+    single { TiltakstypeService(get()) }
     single { NavEnheterSyncService(get(), get(), get(), get()) }
     single { KafkaSyncService(get(), get(), get(), get()) }
     single { NavEnhetService(get()) }

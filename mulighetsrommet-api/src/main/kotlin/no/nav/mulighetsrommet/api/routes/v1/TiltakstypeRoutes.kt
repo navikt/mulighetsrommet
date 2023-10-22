@@ -55,12 +55,5 @@ fun Route.tiltakstypeRoutes() {
 
             call.respond(veilederflateTiltakstype)
         }
-
-        get("{id}/nokkeltall") {
-            val id = call.parameters.getOrFail<UUID>("id")
-            val nokkeltall = tiltakstypeService.getNokkeltallForTiltakstype(id)
-
-            call.respond(nokkeltall)
-        }
     }
 }

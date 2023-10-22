@@ -73,11 +73,6 @@ fun Route.tiltaksgjennomforingRoutes() {
             call.respondWithStatusResponse(service.avbrytGjennomforing(id))
         }
 
-        get("{id}/nokkeltall") {
-            val id = call.parameters.getOrFail<UUID>("id")
-            call.respond(service.getNokkeltallForTiltaksgjennomforing(id))
-        }
-
         delete("{id}") {
             val id = call.parameters.getOrFail<UUID>("id")
             call.respondWithStatusResponse(service.delete(id))
