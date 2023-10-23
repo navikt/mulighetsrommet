@@ -788,7 +788,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    fun updateAvtaleIdForGjennomforing(gjennomforingId: UUID, avtaleId: UUID?) {
+    fun setAvtaleId(gjennomforingId: UUID, avtaleId: UUID?) {
         @Language("PostgreSQL")
         val query = """
             update tiltaksgjennomforing
@@ -824,14 +824,14 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    fun avbrytGjennomforing(gjennomforingId: UUID, tx: Session): Int {
+    fun setAvslutningsstatus(tx: Session, id: UUID, status: Avslutningsstatus): Int {
         @Language("PostgreSQL")
         val query = """
             update tiltaksgjennomforing
-            set avslutningsstatus = 'AVBRUTT'
-            where id = ?::uuid
+            set avslutningsstatus = :status::avslutningsstatus
+            where id = :id::uuid
         """.trimIndent()
 
-        return tx.run(queryOf(query, gjennomforingId).asUpdate)
+        return tx.run(queryOf(query, mapOf("id" to id, "status" to status.name)).asUpdate)
     }
 }

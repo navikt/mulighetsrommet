@@ -6,10 +6,8 @@ import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import io.ktor.http.*
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -25,6 +23,8 @@ import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.NavAnsattRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.UtkastRepository
+import no.nav.mulighetsrommet.api.routes.v1.responses.BadRequest
+import no.nav.mulighetsrommet.api.routes.v1.responses.NotFound
 import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
@@ -93,9 +93,9 @@ class AvtaleServiceTest : FunSpec({
         test("Man skal ikke få slette dersom avtalen ikke finnes") {
             val avtaleIdSomIkkeFinnes = "3c9f3d26-50ec-45a7-a7b2-c2d8a3653945".toUUID()
 
-            avtaleService.delete(avtaleIdSomIkkeFinnes).shouldBeLeft().should {
-                it.status shouldBe HttpStatusCode.NotFound
-            }
+            avtaleService.delete(avtaleIdSomIkkeFinnes).shouldBeLeft(
+                NotFound(message = "Avtalen finnes ikke"),
+            )
         }
 
         test("Man skal ikke få slette, men få en melding dersom dagens dato er mellom start- og sluttdato for avtalen") {
@@ -107,10 +107,9 @@ class AvtaleServiceTest : FunSpec({
             )
             avtaler.upsert(avtale)
 
-            avtaleService.delete(avtale.id, currentDate = currentDate).shouldBeLeft().should {
-                it.status shouldBe HttpStatusCode.BadRequest
-                it.message shouldBe "Avtalen er aktiv og kan derfor ikke slettes."
-            }
+            avtaleService.delete(avtale.id, currentDate = currentDate).shouldBeLeft(
+                BadRequest("Avtalen er aktiv og kan derfor ikke slettes."),
+            )
         }
 
         test("Man skal ikke få slette, men få en melding dersom opphav for avtalen ikke er admin-flate") {
@@ -123,10 +122,9 @@ class AvtaleServiceTest : FunSpec({
             )
             avtaler.upsert(avtale)
 
-            avtaleService.delete(avtale.id, currentDate = currentDate).shouldBeLeft().should {
-                it.status shouldBe HttpStatusCode.BadRequest
-                it.message shouldBe "Avtalen har opprinnelse fra Arena og kan ikke bli slettet i admin-flate."
-            }
+            avtaleService.delete(avtale.id, currentDate = currentDate).shouldBeLeft(
+                BadRequest("Avtalen har opprinnelse fra Arena og kan ikke bli slettet i admin-flate."),
+            )
         }
 
         test("Man skal ikke få slette, men få en melding dersom det finnes gjennomføringer koblet til avtalen") {
@@ -167,10 +165,9 @@ class AvtaleServiceTest : FunSpec({
             tiltaksgjennomforinger.upsert(arbeidstrening)
             tiltaksgjennomforinger.upsert(oppfolging2)
 
-            avtaleService.delete(avtale.id, currentDate = currentDate).shouldBeLeft().should {
-                it.status shouldBe HttpStatusCode.BadRequest
-                it.message shouldBe "Avtalen har 2 tiltaksgjennomføringer koblet til seg. Du må frikoble gjennomføringene før du kan slette avtalen."
-            }
+            avtaleService.delete(avtale.id, currentDate = currentDate).shouldBeLeft(
+                BadRequest("Avtalen har 2 tiltaksgjennomføringer koblet til seg. Du må frikoble gjennomføringene før du kan slette avtalen."),
+            )
         }
 
         test("Skal få slette avtale hvis alle sjekkene er ok") {
@@ -205,9 +202,9 @@ class AvtaleServiceTest : FunSpec({
             val avtaleIdSomIkkeFinnes = "3c9f3d26-50ec-45a7-a7b2-c2d8a3653945".toUUID()
             avtaleRepository.upsert(avtale)
 
-            avtaleService.avbrytAvtale(avtaleIdSomIkkeFinnes).shouldBeLeft().should {
-                it.status shouldBe HttpStatusCode.NotFound
-            }
+            avtaleService.avbrytAvtale(avtaleIdSomIkkeFinnes).shouldBeLeft(
+                NotFound("Avtalen finnes ikke"),
+            )
         }
 
         test("Man skal ikke få avbryte, men få en melding dersom opphav for avtalen ikke er admin-flate") {
@@ -219,10 +216,9 @@ class AvtaleServiceTest : FunSpec({
             )
             avtaleRepository.upsert(avtale)
 
-            avtaleService.avbrytAvtale(avtale.id).shouldBeLeft().should {
-                it.status shouldBe HttpStatusCode.BadRequest
-                it.message shouldBe "Avtalen har opprinnelse fra Arena og kan ikke bli avbrutt fra admin-flate."
-            }
+            avtaleService.avbrytAvtale(avtale.id).shouldBeLeft(
+                BadRequest("Avtalen har opprinnelse fra Arena og kan ikke bli avbrutt fra admin-flate."),
+            )
         }
 
         test("Man skal ikke få avbryte, men få en melding dersom avtalen allerede er avsluttet") {
@@ -234,10 +230,9 @@ class AvtaleServiceTest : FunSpec({
             )
             avtaleRepository.upsert(avtale)
 
-            avtaleService.avbrytAvtale(avtale.id).shouldBeLeft().should {
-                it.status shouldBe HttpStatusCode.BadRequest
-                it.message shouldBe "Avtalen er allerede avsluttet og kan derfor ikke avbrytes."
-            }
+            avtaleService.avbrytAvtale(avtale.id).shouldBeLeft(
+                BadRequest(message = "Avtalen er allerede avsluttet og kan derfor ikke avbrytes."),
+            )
         }
 
         test("Man skal ikke få avbryte, men få en melding dersom det finnes gjennomføringer koblet til avtalen") {
@@ -277,10 +272,9 @@ class AvtaleServiceTest : FunSpec({
             tiltaksgjennomforinger.upsert(arbeidstrening)
             tiltaksgjennomforinger.upsert(oppfolging2)
 
-            avtaleService.avbrytAvtale(avtale.id).shouldBeLeft().should {
-                it.status shouldBe HttpStatusCode.BadRequest
-                it.message shouldBe "Avtalen har 2 tiltaksgjennomføringer koblet til seg. Du må frikoble gjennomføringene før du kan avbryte avtalen."
-            }
+            avtaleService.avbrytAvtale(avtale.id).shouldBeLeft(
+                BadRequest("Avtalen har 2 tiltaksgjennomføringer koblet til seg. Du må frikoble gjennomføringene før du kan avbryte avtalen."),
+            )
         }
 
         test("Skal få avbryte avtale hvis alle sjekkene er ok") {

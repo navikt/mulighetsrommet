@@ -4,8 +4,6 @@ import arrow.core.Either
 import arrow.core.left
 import arrow.core.nel
 import arrow.core.raise.either
-import arrow.core.raise.ensure
-import arrow.core.raise.ensureNotNull
 import arrow.core.right
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
@@ -25,22 +23,22 @@ class TiltaksgjennomforingValidator(
 ) {
     fun validate(dbo: TiltaksgjennomforingDbo): Either<List<ValidationError>, TiltaksgjennomforingDbo> = either {
         val avtale = avtaler.get(dbo.avtaleId)
-        ensureNotNull(avtale) {
-            ValidationError("avtaleId", "Avtalen finnes ikke").nel()
-        }
-
-        ensure(avtale.tiltakstype.id == dbo.tiltakstypeId) {
-            ValidationError("tiltakstypeId", "Tiltakstypen må være den samme som for avtalen").nel()
-        }
-
-        ensure(avtale.avtalestatus in listOf(Avtalestatus.Planlagt, Avtalestatus.Aktiv)) {
-            ValidationError(
-                "avtaleId",
-                "Kan ikke endre gjennomføring fordi avtalen har status ${avtale.avtalestatus}",
-            ).nel()
-        }
+            ?: raise(ValidationError("avtaleId", "Avtalen finnes ikke").nel())
 
         val errors = buildList {
+            if(avtale.tiltakstype.id != dbo.tiltakstypeId) {
+                add(ValidationError("tiltakstypeId", "Tiltakstypen må være den samme som for avtalen"))
+            }
+
+            if (avtale.avtalestatus !in listOf(Avtalestatus.Planlagt, Avtalestatus.Aktiv)) {
+                add(
+                    ValidationError(
+                        "avtaleId",
+                        "Kan ikke endre gjennomføring fordi avtalen har status ${avtale.avtalestatus}",
+                    )
+                )
+            }
+
             if (dbo.sluttDato != null && dbo.startDato.isAfter(dbo.sluttDato)) {
                 add(ValidationError("startDato", "Startdato må være før sluttdato"))
             }
@@ -90,12 +88,12 @@ class TiltaksgjennomforingValidator(
             }
 
             tiltaksgjennomforinger.get(dbo.id)?.also { gjennomforing ->
-                ensure(gjennomforing.status in listOf(APENT_FOR_INNSOK, GJENNOMFORES)) {
-                    plus(ValidationError("navn", "Kan bare gjøre endringer når gjennomføringen er aktiv"))
+                if (gjennomforing.status !in listOf(APENT_FOR_INNSOK, GJENNOMFORES)) {
+                    add(ValidationError("navn", "Kan bare gjøre endringer når gjennomføringen er aktiv"))
                 }
 
-                ensure(dbo.opphav == gjennomforing.opphav) {
-                    plus(ValidationError("opphav", "Avtalens opphav kan ikke endres"))
+                if (dbo.opphav != gjennomforing.opphav) {
+                    add(ValidationError("opphav", "Avtalens opphav kan ikke endres"))
                 }
 
                 val antallDeltagere = deltakere.getAll(gjennomforing.id).size

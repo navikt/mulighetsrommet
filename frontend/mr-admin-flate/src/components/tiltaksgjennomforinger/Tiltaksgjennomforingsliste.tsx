@@ -8,7 +8,7 @@ import { tiltaksgjennomforingTilAvtaleFilter } from "../../api/atoms";
 import { useAvtale } from "../../api/avtaler/useAvtale";
 import { useAdminTiltaksgjennomforinger } from "../../api/tiltaksgjennomforing/useAdminTiltaksgjennomforinger";
 import { useAdminTiltaksgjennomforingerForAvtale } from "../../api/tiltaksgjennomforing/useAdminTiltaksgjennomforingerForAvtale";
-import { useMutateKobleGjennomforingForAvtale } from "../../api/tiltaksgjennomforing/useMutateKobleGjennomforingForAvtale";
+import { useSetAvtaleForGjennomforing } from "../../api/tiltaksgjennomforing/useSetAvtaleForGjennomforing";
 import { isTiltakMedAvtaleFraMulighetsrommet } from "../../utils/tiltakskoder";
 import { Laster } from "../laster/Laster";
 import { TiltaksgjennomforingstatusTag } from "../statuselementer/TiltaksgjennomforingstatusTag";
@@ -23,7 +23,7 @@ export const Tiltaksgjennomforingsliste = () => {
   } = useAdminTiltaksgjennomforingerForAvtale();
   const { refetch: refetchTiltaksgjennomforinger } = useAdminTiltaksgjennomforinger();
   const { mutate, isLoading: isLoadingKobleGjennomforingForAvtale } =
-    useMutateKobleGjennomforingForAvtale();
+    useSetAvtaleForGjennomforing();
   const { data: avtale } = useAvtale();
   const [error, setError] = useState("");
 

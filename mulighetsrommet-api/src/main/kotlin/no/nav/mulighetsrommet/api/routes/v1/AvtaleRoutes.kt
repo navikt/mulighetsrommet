@@ -36,6 +36,16 @@ fun Route.avtaleRoutes() {
             call.respond(result)
         }
 
+        put {
+            val navIdent = getNavIdent()
+            val request = call.receive<AvtaleRequest>()
+
+            val result = avtaler.upsert(request, navIdent)
+                .mapLeft { BadRequest(errors = it) }
+
+            call.respondWithStatusResponse(result)
+        }
+
         get("mine") {
             val pagination = getPaginationParams()
             val filter = getAvtaleFilter().copy(administratorNavIdent = getNavIdent())
@@ -71,24 +81,16 @@ fun Route.avtaleRoutes() {
                 ?: call.respond(HttpStatusCode.NotFound, "Det finnes ikke noen avtale med id $id")
         }
 
-        put {
-            val navIdent = getNavIdent()
-            val request = call.receive<AvtaleRequest>()
-
-            val result = avtaler.upsert(request, navIdent)
-                .mapLeft { BadRequest(errors = it) }
-
-            call.respondWithStatusResponse(result)
-        }
-
         put("{id}/avbryt") {
             val id = call.parameters.getOrFail<UUID>("id")
-            call.respondWithStatusResponse(avtaler.avbrytAvtale(id))
+            val response = avtaler.avbrytAvtale(id)
+            call.respondWithStatusResponse(response)
         }
 
         delete("{id}") {
             val id = call.parameters.getOrFail<UUID>("id")
-            call.respondWithStatusResponse(avtaler.delete(id))
+            val response = avtaler.delete(id)
+            call.respondWithStatusResponse(response)
         }
     }
 }
