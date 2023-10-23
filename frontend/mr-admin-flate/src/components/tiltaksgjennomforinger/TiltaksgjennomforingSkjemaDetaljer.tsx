@@ -7,7 +7,7 @@ import {
 } from "mulighetsrommet-api-client";
 import skjemastyles from "../skjema/Skjema.module.scss";
 import { useFieldArray, useFormContext } from "react-hook-form";
-import { tilgjengelighetsstatusTilTekst } from "../../utils/Utils";
+import { addYear, tilgjengelighetsstatusTilTekst } from "../../utils/Utils";
 import { arenaOpphav, arrangorUnderenheterOptions } from "./TiltaksgjennomforingSkjemaConst";
 import { useHentKontaktpersoner } from "../../api/ansatt/useHentKontaktpersoner";
 import { useHentBetabrukere } from "../../api/ansatt/useHentBetabrukere";
@@ -72,6 +72,9 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
     label: enhet.navn,
   }));
 
+  const minStartdato = new Date();
+  const maxSluttdato = addYear(minStartdato, 5);
+
   return (
     <div className={skjemastyles.container}>
       <div className={skjemastyles.input_container}>
@@ -115,11 +118,15 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
               fra={{
                 label: "Startdato",
                 readOnly: arenaOpphav(tiltaksgjennomforing),
+                fromDate: minStartdato,
+                toDate: maxSluttdato,
                 ...register("startOgSluttDato.startDato"),
               }}
               til={{
                 label: "Sluttdato",
                 readOnly: arenaOpphav(tiltaksgjennomforing),
+                fromDate: minStartdato,
+                toDate: maxSluttdato,
                 ...register("startOgSluttDato.sluttDato"),
               }}
             />
@@ -138,10 +145,14 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                 size="small"
                 fra={{
                   label: "Stengt fra",
+                  fromDate: minStartdato,
+                  toDate: maxSluttdato,
                   ...register("midlertidigStengt.stengtFra"),
                 }}
                 til={{
                   label: "Stengt til",
+                  fromDate: watch("midlertidigStengt.stengtFra") ?? new Date(),
+                  toDate: maxSluttdato,
                   ...register("midlertidigStengt.stengtTil"),
                 }}
               />
