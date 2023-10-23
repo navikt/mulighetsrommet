@@ -1,5 +1,5 @@
 import "@navikt/ds-css";
-import { Alert, BodyShort, Heading } from "@navikt/ds-react";
+import { Alert, BodyShort, Button, Heading } from "@navikt/ds-react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { PORTEN } from "mulighetsrommet-frontend-common/constants";
@@ -45,8 +45,8 @@ function render() {
       <QueryClientProvider client={queryClient}>
         <MiljoBanner />
         <Router basename={import.meta.env.BASE_URL}>
-          <AdministratorHeader />
           <ErrorBoundary FallbackComponent={ErrorFallback}>
+            <AdministratorHeader />
             <App />
           </ErrorBoundary>
         </Router>
@@ -58,6 +58,23 @@ function render() {
 
 export function ErrorFallback({ error }: FallbackProps) {
   const heading = error instanceof ApiError ? resolveErrorMessage(error) : error.message;
+
+  if ((error as ApiError).status === 401) {
+    return (
+      <div className="error">
+        <Alert variant="error">
+          <Heading size="medium" level="2">
+            Autentiseringsfeil
+          </Heading>
+          <BodyShort>Vennligst logg inn på nytt</BodyShort>
+          <Button size="small" onClick={() => window.location.reload()}>
+            Logg inn
+          </Button>
+        </Alert>
+      </div>
+    );
+  }
+
   return (
     <div className="error">
       <Alert variant="error">
