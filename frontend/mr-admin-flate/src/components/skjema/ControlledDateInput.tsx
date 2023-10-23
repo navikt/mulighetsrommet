@@ -7,6 +7,8 @@ import { DatePicker, useDatepicker } from "@navikt/ds-react";
 export interface DateInputProps {
   label: string;
   readOnly?: boolean;
+  fromDate: Date;
+  toDate: Date;
   size?: "small" | "medium";
 }
 
@@ -15,7 +17,7 @@ export const ControlledDateInput = forwardRef(function ControlledDateInput(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _,
 ) {
-  const { label, size, readOnly, ...rest } = props;
+  const { label, size, readOnly, fromDate, toDate, ...rest } = props;
 
   return (
     <div>
@@ -37,8 +39,8 @@ export const ControlledDateInput = forwardRef(function ControlledDateInput(
             },
             allowTwoDigitYear: true,
             inputFormat: "dd.MM.yyyy",
-            fromDate: pastDate(),
-            toDate: futureDate(),
+            fromDate,
+            toDate,
             defaultSelected: value ? new Date(value) : undefined,
           });
           return (
@@ -73,17 +75,3 @@ const DatoFelt = forwardRef(function DatoFeltInput(props: any, ref: any) {
     />
   );
 });
-
-const offsetAntallAar = 3;
-
-const pastDate = () => {
-  const newDate = new Date();
-  const yearsAgo = newDate.setFullYear(newDate.getFullYear() - offsetAntallAar);
-  return new Date(yearsAgo);
-};
-
-const futureDate = () => {
-  const newDate = new Date();
-  const yearsFromNow = newDate.setFullYear(newDate.getFullYear() + offsetAntallAar);
-  return new Date(yearsFromNow);
-};
