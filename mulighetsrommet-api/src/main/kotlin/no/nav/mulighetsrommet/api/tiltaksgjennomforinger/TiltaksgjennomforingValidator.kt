@@ -9,6 +9,7 @@ import arrow.core.raise.ensureNotNull
 import arrow.core.right
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
+import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
 import no.nav.mulighetsrommet.domain.Tiltakskoder
@@ -20,6 +21,7 @@ import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus.GJENNOMFORE
 class TiltaksgjennomforingValidator(
     private val avtaler: AvtaleRepository,
     private val tiltaksgjennomforinger: TiltaksgjennomforingRepository,
+    private val deltakere: DeltakerRepository,
 ) {
     fun validate(dbo: TiltaksgjennomforingDbo): Either<List<ValidationError>, TiltaksgjennomforingDbo> = either {
         val avtale = avtaler.get(dbo.avtaleId)
@@ -92,18 +94,19 @@ class TiltaksgjennomforingValidator(
                     plus(ValidationError("opphav", "Avtalens opphav kan ikke endres"))
                 }
 
+                val antallDeltagere = deltakere.getAll(gjennomforing.id).size
+                if (antallDeltagere > 0 && dbo.oppstart != gjennomforing.oppstart) {
+                    add(
+                        ValidationError(
+                            "oppstart",
+                            "Oppstartstype kan ikke endres når det finnes påmeldte deltakere",
+                        ),
+                    )
+                }
+
                 if (gjennomforing.status == GJENNOMFORES) {
                     if (dbo.avtaleId != gjennomforing.avtaleId) {
                         add(ValidationError("avtaleId", "Avtalen kan ikke endres når gjennomføringen er aktiv"))
-                    }
-
-                    if (dbo.oppstart != gjennomforing.oppstart) {
-                        add(
-                            ValidationError(
-                                "oppstart",
-                                "Oppstartstype kan ikke endres når gjennomføringen er aktiv",
-                            ),
-                        )
                     }
 
                     if (dbo.startDato != gjennomforing.startDato) {
