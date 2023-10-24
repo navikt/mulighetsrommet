@@ -35,6 +35,11 @@ export const forsideKort: {
   {
     navn: "Tiltaksgjennomføringer",
     url: "tiltaksgjennomforinger",
-    tekst: "Her finner du informasjon om tiltaksgjennomføringer",
+    tekst: "Her finner du informasjon om tiltaksgjennomføringer for gruppetiltak",
+  },
+  {
+    navn: "Individuelle tiltaksgjennomføringer",
+    url: "https://mulighetsrommet-sanity-studio.intern.nav.no/prod/desk",
+    tekst: "Her administrerer du individuelle tiltaksgjennomføringer",
   },
 ];

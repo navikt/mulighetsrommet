@@ -39,6 +39,8 @@ export function Forside() {
                   <HandshakeIcon />
                 ) : card.url === "tiltakstyper" ? (
                   <TokenIcon />
+                ) : card.url.includes("sanity") ? (
+                  <img src="./sanity_logo.png" alt="Sanity-logo" />
                 ) : (
                   <FileCheckmarkIcon />
                 )}
