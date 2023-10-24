@@ -8,7 +8,7 @@ const FakeDoor = () => {
       <div className={styles.fakedoor_text_container}>
         <Heading size="large">Informasjonstjeneste for arbeidsmarkedstiltak</Heading>
         <BodyShort>
-          Her vil du som veileder kunne finne kvalitetssikret informasjon om de tiltakene som er
+          Her vil du som veileder snart finne kvalitetssikret informasjon om de tiltakene som er
           aktuelle for din bruker, slik at du kan gjøre gode vurderinger, gi effektiv veiledning og
           få brukeren raskere ut i rett arbeidsmarkedstiltak.
         </BodyShort>
