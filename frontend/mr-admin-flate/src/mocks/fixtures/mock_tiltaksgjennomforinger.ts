@@ -43,6 +43,41 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     tilgjengeligForVeileder: true,
     visesForVeileder: true,
     updatedAt: "2021-06-01T12:00:00.000Z",
+    beskrivelse: "bla bla bla beskrivelse",
+    faneinnhold: {
+      forHvem: [
+        {
+          _type: "block",
+          children: [
+            {
+              text: 'Richard had a difficult and often reactionary personality, and was defiantly Northern English in outlook. Brix said that he carried "a chip on both shoulders. I remember him talking about fucking southern bastards a lot and not wanting to come to London. He hated London intensely.Skriver noe mer fornuftig her',
+              _type: "span",
+            },
+          ],
+          markDefs: [],
+        },
+      ],
+      pameldingOgVarighet: [
+        {
+          _key: "eb83652d429d",
+          _type: "block",
+          style: "normal",
+          children: [
+            {
+              _key: "34b0c44b289b0",
+              text: "Nulla lacinia lorem erat, ut sollicitudin ex commodo in. Maecenas ac purus at urna accumsan sagittis. Aenean ornare massa lacus, non tempor orci venenatis in.",
+              _type: "span",
+              marks: [],
+            },
+          ],
+          markDefs: [],
+        },
+      ],
+      detaljerOgInnholdInfoboks:
+        "Phasellus a urna eget augue pharetra posuere. Aenean malesuada tortor eros, ut ullamcorper nisi facilisis eget. ",
+      pameldingOgVarighetInfoboks:
+        "Nullam lobortis massa nibh, luctus molestie lacus venenatis sed.",
+    },
   },
   {
     id: "a7d63fb0-4366-412c-84b7-7c15518ee362",
