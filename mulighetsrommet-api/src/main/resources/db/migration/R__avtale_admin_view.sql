@@ -1,4 +1,3 @@
-drop view if exists avtale_admin_dto_view;
 create or replace view avtale_admin_dto_view as
 select a.id,
        a.navn,

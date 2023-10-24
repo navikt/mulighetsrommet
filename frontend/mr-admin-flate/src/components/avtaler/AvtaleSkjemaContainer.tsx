@@ -364,9 +364,8 @@ export function AvtaleSkjemaContainer({
                           selectedOptions,
                           enheter,
                         );
-                        const regioner = selectedOptions?.map((option) => option.value);
                         const navEnheter = watch("navEnheter").filter((enhet) =>
-                          [...regioner, ...alleLokaleUnderenheter].includes(enhet),
+                          alleLokaleUnderenheter.includes(enhet),
                         );
                         form.setValue("navEnheter", navEnheter as [string, ...string[]]);
                       }
