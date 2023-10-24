@@ -44,6 +44,7 @@ spec:
       autoLoginIgnorePaths:
         - /assets/*
         - /asset-manifest.json
+        - /mulighetsrommet-api/**
   gcp:
     buckets:
       - name: mr-admin-flate-prod
