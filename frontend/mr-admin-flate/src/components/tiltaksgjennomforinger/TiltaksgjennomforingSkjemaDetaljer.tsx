@@ -55,7 +55,6 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
     setValue,
     watch,
   } = useFormContext();
-
   const {
     fields: kontaktpersonFields,
     append: appendKontaktperson,
@@ -67,10 +66,14 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
 
   const watchErMidlertidigStengt = watch("midlertidigStengt.erMidlertidigStengt");
 
-  const navEnheterOptions = avtale.navEnheter.map((enhet) => ({
-    value: enhet.enhetsnummer,
-    label: enhet.navn,
-  }));
+  const regionerOptions = avtale.kontorstruktur
+    .map((struk) => struk.region)
+    .map((kontor) => ({ value: kontor.enhetsnummer, label: kontor.navn }));
+
+  const navEnheterOptions = avtale.kontorstruktur
+    .flatMap((struk) => struk.kontorer)
+    .filter((kontor) => kontor.overordnetEnhet === watch("navRegion"))
+    .map((kontor) => ({ label: kontor.navn, value: kontor.enhetsnummer }));
 
   return (
     <div className={skjemastyles.container}>
@@ -197,12 +200,18 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
         <div className={skjemastyles.column}>
           <div className={skjemastyles.gray_container}>
             <FormGroup>
-              <TextField
+              <SokeSelect
                 size="small"
-                readOnly
-                label={"NAV-region"}
-                value={avtale.navRegion?.navn || ""}
+                label="NAV-region"
+                readOnly={arenaOpphav(tiltaksgjennomforing)}
+                placeholder="Velg en"
+                {...register("navRegion")}
+                onInputChange={() => {
+                  setValue("navEnheter", []);
+                }}
+                options={regionerOptions}
               />
+
               <ControlledMultiSelect
                 size="small"
                 placeholder={"Velg en"}

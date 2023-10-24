@@ -29,10 +29,11 @@ data class AvtaleAdminDto(
     val administrator: Administrator?,
     val url: String?,
     val antallPlasser: Int?,
-    val navEnheter: List<NavEnhet>,
+    val navEnheter: List<EmbeddedNavEnhet>,
     val opphav: ArenaMigrering.Opphav,
     @Serializable(with = LocalDateTimeSerializer::class)
     val updatedAt: LocalDateTime,
+    val kontorstruktur: List<Kontorstruktur>,
 ) {
     @Serializable
     data class Tiltakstype(

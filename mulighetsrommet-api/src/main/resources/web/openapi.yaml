@@ -1715,7 +1715,8 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/EmbeddedNavEnhet"
-
+        kontorstruktur:
+          $ref: "#/components/schemas/NavKontorStruktur"
         opphav:
           $ref: "#/components/schemas/Opphav"
         updatedAt:
@@ -1734,6 +1735,7 @@ components:
         - avtalestatus
         - prisbetingelser
         - navEnheter
+        - kontorstruktur
         - opphav
         - updatedAt
 
@@ -2362,6 +2364,7 @@ components:
           $ref: "#/components/schemas/NavEnhetType"
       required:
         - navn
+        - overordnetEnhet
         - enhetsnummer
         - status
         - type
@@ -2461,9 +2464,16 @@ components:
           type: string
         enhetsnummer:
           type: string
+        "type":
+          $ref: "#/components/schemas/NavEnhetType"
+        overordnetEnhet:
+          type: string
+          nullable: true
       required:
         - navn
         - enhetsnummer
+        - type
+        - overordnetEnhet
 
     AvtaleAdministrator:
       type: object
@@ -3034,3 +3044,18 @@ components:
           type: boolean
       required:
         - tilgjengeligForVeileder
+
+    NavKontorStruktur:
+      type: array
+      items:
+        type: object
+        properties:
+          region:
+            $ref: "#/components/schemas/EmbeddedNavEnhet"
+          kontorer:
+            type: array
+            items:
+              $ref: "#/components/schemas/EmbeddedNavEnhet"
+        required:
+          - region
+          - kontorer

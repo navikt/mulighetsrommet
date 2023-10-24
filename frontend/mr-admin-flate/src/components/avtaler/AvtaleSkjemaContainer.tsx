@@ -1,4 +1,4 @@
-import { Button, DatePicker, Switch, Textarea, TextField, useDatepicker } from "@navikt/ds-react";
+import { Button, DatePicker, Textarea, TextField, useDatepicker } from "@navikt/ds-react";
 import {
   Avtale,
   AvtaleRequest,
@@ -78,12 +78,16 @@ export function AvtaleSkjemaContainer({
 
   const utkastIdRef = useRef(avtale?.id || uuidv4());
 
+  const navRegioner =
+    avtale?.navEnheter
+      .filter((enhet) => enhet.type === NavEnhetType.FYLKE)
+      .map((region) => region.enhetsnummer) || [];
+
   const form = useForm<InferredAvtaleSchema>({
     resolver: zodResolver(AvtaleSchema),
     defaultValues: {
       tiltakstype: avtale?.tiltakstype,
-      erFylkessamarbeid: false, // TODO Hent ut avtales regioner fra listen over nav-enheter avtale?.navEnheter.filter(enhet => enhet.type === Enhetstype.FYLKE),
-      navRegioner: [], // TODO Hent ut enheter for region,
+      navRegioner,
       navEnheter: avtale?.navEnheter?.map((e) => e.enhetsnummer) || [],
       administrator: avtale?.administrator?.navIdent || ansatt.navIdent || "",
       navn: avtale?.navn ?? "",
@@ -151,7 +155,7 @@ export function AvtaleSkjemaContainer({
   const postData: SubmitHandler<InferredAvtaleSchema> = async (data): Promise<void> => {
     const requestBody: AvtaleRequest = {
       id: avtale?.id ?? utkastIdRef.current,
-      navEnheter: data.navEnheter,
+      navEnheter: data.navEnheter.concat(data.navRegioner),
       avtalenummer: avtale?.avtalenummer || null,
       leverandorOrganisasjonsnummer: data.leverandor,
       leverandorUnderenheter: data.leverandorUnderenheter,
@@ -339,55 +343,30 @@ export function AvtaleSkjemaContainer({
             <div className={skjemastyles.column}>
               <div className={skjemastyles.gray_container}>
                 <FormGroup>
-                  <Switch
-                    checked={watch("erFylkessamarbeid")}
-                    onChange={(e) => {
-                      form.setValue("navRegioner", [] as any);
-                      form.setValue("navEnheter", [] as any);
-                      form.setValue("erFylkessamarbeid", e.target.checked);
-                    }}
-                  >
-                    Er fylkessamarbeid
-                  </Switch>
-                  {watch("erFylkessamarbeid") ? (
-                    <ControlledMultiSelect
-                      size="small"
-                      placeholder="Velg en"
-                      label={"NAV-regioner"}
-                      {...register("navRegioner")}
-                      additionalOnChange={(selectedOptions) => {
-                        const regioner = selectedOptions.map((option) => option.value);
+                  <ControlledMultiSelect
+                    size="small"
+                    placeholder="Velg en"
+                    label={"NAV-regioner"}
+                    {...register("navRegioner")}
+                    additionalOnChange={(selectedOptions) => {
+                      if (watch("navRegioner").length > 1) {
+                        const regioner = selectedOptions?.map((option) => option.value);
                         const navEnheter = getLokaleUnderenheterAsSelectOptions(
                           regioner,
                           enheter,
                         ).map((option) => option.value);
                         form.setValue("navEnheter", navEnheter as [string, ...string[]]);
-                      }}
-                      options={navRegionerOptions}
-                    />
-                  ) : (
-                    <>
-                      <SokeSelect
-                        size="small"
-                        placeholder="Velg en"
-                        label={"NAV-region"}
-                        {...register("navRegioner")}
-                        options={navRegionerOptions}
-                      />
-                      <ControlledMultiSelect
-                        size="small"
-                        placeholder="Velg en"
-                        label={"NAV-enheter (kontorer)"}
-                        {...register("navEnheter")}
-                        options={getLokaleUnderenheterAsSelectOptions(
-                          watch("navRegioner"),
-                          enheter,
-                        )}
-                      />
-                    </>
-                  )}
-
-                  <pre>{JSON.stringify(watch(), null, 2)}</pre>
+                      }
+                    }}
+                    options={navRegionerOptions}
+                  />
+                  <ControlledMultiSelect
+                    size="small"
+                    placeholder="Velg en"
+                    label={"NAV-enheter (kontorer)"}
+                    {...register("navEnheter")}
+                    options={getLokaleUnderenheterAsSelectOptions(watch("navRegioner"), enheter)}
+                  />
                 </FormGroup>
               </div>
               <div className={skjemastyles.gray_container}>

@@ -3,12 +3,7 @@ package no.nav.mulighetsrommet.api.fixtures
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.api.routes.v1.AvtaleRequest
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
-import no.nav.mulighetsrommet.domain.dbo.ArenaAvtaleDbo
-import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
-import no.nav.mulighetsrommet.domain.dto.AvtaleAdminDto
-import no.nav.mulighetsrommet.domain.dto.Avtalestatus
-import no.nav.mulighetsrommet.domain.dto.Avtaletype
-import no.nav.mulighetsrommet.domain.dto.VirksomhetKontaktperson
+import no.nav.mulighetsrommet.domain.dto.*
 import java.time.LocalDate
 import java.util.*
 
@@ -51,21 +46,6 @@ object AvtaleFixtures {
         prisbetingelser = null,
     )
 
-    val arenaAvtale1 = ArenaAvtaleDbo(
-        id = UUID.randomUUID(),
-        navn = "Avtalenavn",
-        avtalenummer = "2023#1",
-        tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
-        leverandorOrganisasjonsnummer = "123456789",
-        arenaAnsvarligEnhet = null,
-        startDato = LocalDate.of(2023, 1, 11),
-        sluttDato = LocalDate.of(2023, 2, 28),
-        avtaletype = Avtaletype.Rammeavtale,
-        avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
-        prisbetingelser = null,
-        opphav = ArenaMigrering.Opphav.ARENA,
-    )
-
     val oppfolgingAvtaleAdminDto = AvtaleAdminDto(
         id = avtale1.id,
         tiltakstype = AvtaleAdminDto.Tiltakstype(
@@ -98,6 +78,24 @@ object AvtaleFixtures {
         navEnheter = emptyList(),
         opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
         updatedAt = avtale1.updatedAt,
+        kontorstruktur = listOf(
+            Kontorstruktur(
+                region = EmbeddedNavEnhet(
+                    navn = "NAV Mockdata",
+                    enhetsnummer = "0100",
+                    type = NavEnhetType.FYLKE,
+                    overordnetEnhet = null,
+                ),
+                kontorer = listOf(
+                    EmbeddedNavEnhet(
+                        navn = "NAV Mockkontor",
+                        enhetsnummer = "0101",
+                        type = NavEnhetType.LOKAL,
+                        overordnetEnhet = "0100",
+                    ),
+                ),
+            ),
+        ),
     )
 
     val avtaleAdminDto = AvtaleAdminDto(
@@ -130,5 +128,23 @@ object AvtaleFixtures {
         navEnheter = emptyList(),
         opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
         updatedAt = avtale1.updatedAt,
+        kontorstruktur = listOf(
+            Kontorstruktur(
+                region = EmbeddedNavEnhet(
+                    navn = "NAV Mockdata",
+                    enhetsnummer = "0100",
+                    type = NavEnhetType.FYLKE,
+                    overordnetEnhet = null,
+                ),
+                kontorer = listOf(
+                    EmbeddedNavEnhet(
+                        navn = "NAV Mockkontor",
+                        enhetsnummer = "0101",
+                        type = NavEnhetType.LOKAL,
+                        overordnetEnhet = "0100",
+                    ),
+                ),
+            ),
+        ),
     )
 }

@@ -52,7 +52,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
     }
 
     context("CRUD") {
-        val avtaler = AvtaleRepository(database.db)
         val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
 
         test("CRUD adminflate-tiltaksgjennomføringer") {
@@ -81,7 +80,14 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 it.antallPlasser shouldBe 12
                 it.avtaleId shouldBe Oppfolging1.avtaleId
                 it.administrator shouldBe null
-                it.navEnheter shouldBe listOf(NavEnhet(navn = "IT", enhetsnummer = "2990"))
+                it.navEnheter shouldBe listOf(
+                    EmbeddedNavEnhet(
+                        navn = "IT",
+                        enhetsnummer = "2990",
+                        type = NavEnhetType.DIR,
+                        overordnetEnhet = null,
+                    ),
+                )
                 it.sanityId shouldBe null
                 it.oppstart shouldBe TiltaksgjennomforingOppstartstype.FELLES
                 it.opphav shouldBe ArenaMigrering.Opphav.MR_ADMIN_FLATE
@@ -89,7 +95,12 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 it.kontaktpersoner shouldBe listOf()
                 it.stedForGjennomforing shouldBe "Oslo"
                 it.stengtTil shouldBe null
-                it.navRegion shouldBe NavEnhet(navn = "IT", enhetsnummer = "2990")
+                it.navRegion shouldBe EmbeddedNavEnhet(
+                    navn = "IT",
+                    enhetsnummer = "2990",
+                    type = NavEnhetType.DIR,
+                    overordnetEnhet = null,
+                )
                 it.estimertVentetid shouldBe null
                 it.faneinnhold shouldBe null
                 it.beskrivelse shouldBe null
@@ -235,8 +246,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             tiltaksgjennomforinger.upsert(gjennomforing)
             tiltaksgjennomforinger.get(gjennomforing.id).should {
                 it!!.navEnheter shouldContainExactlyInAnyOrder listOf(
-                    NavEnhet(enhetsnummer = "1", navn = "Navn1"),
-                    NavEnhet(enhetsnummer = "2", navn = "Navn2"),
+                    EmbeddedNavEnhet(enhetsnummer = "1", navn = "Navn1", type = NavEnhetType.LOKAL, overordnetEnhet = null),
+                    EmbeddedNavEnhet(enhetsnummer = "2", navn = "Navn2", type = NavEnhetType.LOKAL, overordnetEnhet = null),
                 )
             }
             database.assertThat("tiltaksgjennomforing_nav_enhet").hasNumberOfRows(2)
@@ -244,8 +255,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             tiltaksgjennomforinger.upsert(gjennomforing.copy(navEnheter = listOf("3", "1")))
             tiltaksgjennomforinger.get(gjennomforing.id).should {
                 it!!.navEnheter shouldContainExactlyInAnyOrder listOf(
-                    NavEnhet(enhetsnummer = "1", navn = "Navn1"),
-                    NavEnhet(enhetsnummer = "3", navn = "Navn3"),
+                    EmbeddedNavEnhet(enhetsnummer = "1", navn = "Navn1", type = NavEnhetType.LOKAL, overordnetEnhet = null),
+                    EmbeddedNavEnhet(enhetsnummer = "3", navn = "Navn3", type = NavEnhetType.LOKAL, overordnetEnhet = null),
                 )
             }
             database.assertThat("tiltaksgjennomforing_nav_enhet").hasNumberOfRows(2)
@@ -338,15 +349,24 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             tiltaksgjennomforinger.updateEnheter("1", listOf("1", "2"))
             tiltaksgjennomforinger.get(gjennomforing.id).should {
                 it!!.navEnheter shouldContainExactlyInAnyOrder listOf(
-                    NavEnhet(enhetsnummer = "1", navn = "Navn1"),
-                    NavEnhet(enhetsnummer = "2", navn = "Navn2"),
+                    EmbeddedNavEnhet(enhetsnummer = "1", navn = "Navn1", type = NavEnhetType.LOKAL, overordnetEnhet = null),
+                    EmbeddedNavEnhet(enhetsnummer = "2", navn = "Navn2", type = NavEnhetType.LOKAL, overordnetEnhet = null),
                 )
             }
             database.assertThat("tiltaksgjennomforing_nav_enhet").hasNumberOfRows(2)
 
             tiltaksgjennomforinger.updateEnheter("1", listOf("2"))
             tiltaksgjennomforinger.get(gjennomforing.id).should {
-                it!!.navEnheter.shouldContainExactlyInAnyOrder(listOf(NavEnhet(enhetsnummer = "2", navn = "Navn2")))
+                it!!.navEnheter.shouldContainExactlyInAnyOrder(
+                    listOf(
+                        EmbeddedNavEnhet(
+                            enhetsnummer = "2",
+                            navn = "Navn2",
+                            type = NavEnhetType.LOKAL,
+                            overordnetEnhet = null,
+                        ),
+                    ),
+                )
             }
             database.assertThat("tiltaksgjennomforing_nav_enhet").hasNumberOfRows(1)
         }
@@ -816,7 +836,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
     }
 
     context("filtrering av tiltaksgjennomføringer") {
-        val avtaler = AvtaleRepository(database.db)
         val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
         val navEnheter = NavEnhetRepository(database.db)
 

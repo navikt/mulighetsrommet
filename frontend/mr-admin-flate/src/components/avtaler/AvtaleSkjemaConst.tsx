@@ -45,6 +45,8 @@ export const saveUtkast = (
     navEnheter: values?.navEnheter?.map((enhetsnummer) => ({
       navn: "",
       enhetsnummer,
+      type: NavEnhetType.FYLKE,
+      overordnetEnhet: null,
     })),
     administrator: { navIdent: values?.administrator, navn: "" },
     avtaletype: values?.avtaletype,

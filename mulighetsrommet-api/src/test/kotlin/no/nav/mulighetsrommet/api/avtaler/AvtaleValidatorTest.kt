@@ -79,9 +79,34 @@ class AvtaleValidatorTest : FunSpec({
             },
             url = url,
             antallPlasser = antallPlasser,
-            navEnheter = navEnheter.map { NavEnhet(enhetsnummer = it, navn = it) },
+            navEnheter = navEnheter.map {
+                EmbeddedNavEnhet(
+                    enhetsnummer = it,
+                    navn = it,
+                    type = NavEnhetType.LOKAL,
+                    overordnetEnhet = "2900",
+                )
+            },
             opphav = opphav,
             updatedAt = avtaleDbo.updatedAt,
+            kontorstruktur = listOf(
+                Kontorstruktur(
+                    region = EmbeddedNavEnhet(
+                        enhetsnummer = "0100",
+                        navn = "NAV Mockdata",
+                        type = NavEnhetType.FYLKE,
+                        overordnetEnhet = null,
+                    ),
+                    kontorer = listOf(
+                        EmbeddedNavEnhet(
+                            enhetsnummer = "0101",
+                            navn = "NAV Mock-kontor",
+                            type = NavEnhetType.LOKAL,
+                            overordnetEnhet = "0100",
+                        ),
+                    ),
+                ),
+            ),
         )
     }
 
@@ -233,7 +258,7 @@ class AvtaleValidatorTest : FunSpec({
                                 slettet = false,
                             ),
                             navEnheter = listOf(
-                                NavEnhet(navn = "NAV Gjøvik", enhetsnummer = "0502"),
+                                EmbeddedNavEnhet(navn = "NAV Gjøvik", enhetsnummer = "0502", type = NavEnhetType.LOKAL, overordnetEnhet = null),
                             ),
                         ),
                     ),

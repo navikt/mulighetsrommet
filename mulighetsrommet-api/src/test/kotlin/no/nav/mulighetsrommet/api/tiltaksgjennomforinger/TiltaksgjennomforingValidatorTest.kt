@@ -16,10 +16,7 @@ import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
-import no.nav.mulighetsrommet.domain.dto.AvtaleAdminDto
-import no.nav.mulighetsrommet.domain.dto.Avtalestatus
-import no.nav.mulighetsrommet.domain.dto.NavEnhet
-import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
+import no.nav.mulighetsrommet.domain.dto.*
 import java.time.LocalDate
 import java.util.*
 
@@ -82,8 +79,8 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
             startDato = LocalDate.of(2023, 1, 1),
             sluttDato = LocalDate.of(2023, 2, 1),
             navEnheter = listOf(
-                NavEnhet(enhetsnummer = "0402", navn = "NAV Kongsvinger"),
-                NavEnhet(enhetsnummer = "0400", navn = "NAV Innlandet"),
+                EmbeddedNavEnhet(enhetsnummer = "0402", navn = "NAV Kongsvinger", type = NavEnhetType.LOKAL,overordnetEnhet = "0400"),
+                EmbeddedNavEnhet(enhetsnummer = "0400", navn = "NAV Innlandet", type = NavEnhetType.FYLKE, overordnetEnhet = null),
             ),
             leverandor = AvtaleAdminDto.Leverandor(
                 organisasjonsnummer = "000000000",
@@ -221,8 +218,8 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
                 every { avtaler.get(differentAvtaleId) } returns AvtaleFixtures.oppfolgingAvtaleAdminDto.copy(
                     id = differentAvtaleId,
                     navEnheter = listOf(
-                        NavEnhet(enhetsnummer = "0402", navn = "NAV Kongsvinger"),
-                        NavEnhet(enhetsnummer = "0400", navn = "NAV Innlandet"),
+                        EmbeddedNavEnhet(enhetsnummer = "0402", navn = "NAV Kongsvinger", type = NavEnhetType.LOKAL, overordnetEnhet = "0400"),
+                        EmbeddedNavEnhet(enhetsnummer = "0400", navn = "NAV Innlandet", type = NavEnhetType.FYLKE, overordnetEnhet = null),
                     ),
                 )
                 every { tiltaksgjennomforinger.get(dbo.id) } returns TiltaksgjennomforingFixtures.Oppfolging1AdminDto

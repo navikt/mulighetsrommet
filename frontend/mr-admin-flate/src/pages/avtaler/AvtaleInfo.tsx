@@ -1,9 +1,10 @@
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
 import { Alert, Heading } from "@navikt/ds-react";
 import { Avtalestatus, Avtaletype, Toggles } from "mulighetsrommet-api-client";
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { useAvtale } from "../../api/avtaler/useAvtale";
 import { useDeleteAvtale } from "../../api/avtaler/useDeleteAvtale";
+import { useFeatureToggle } from "../../api/features/feature-toggles";
 import { Bolk } from "../../components/detaljside/Bolk";
 import { Metadata, Separator } from "../../components/detaljside/Metadata";
 import { VisHvisVerdi } from "../../components/detaljside/VisHvisVerdi";
@@ -13,7 +14,6 @@ import { addYear, avtaletypeTilTekst, formaterDato } from "../../utils/Utils";
 import { erAnskaffetTiltak } from "../../utils/tiltakskoder";
 import styles from "../DetaljerInfo.module.scss";
 import { AvtaleKnapperad } from "./AvtaleKnapperad";
-import { useFeatureToggle } from "../../api/features/feature-toggles";
 
 export function AvtaleInfo() {
   const { data: avtale, isLoading, error } = useAvtale();
@@ -131,32 +131,28 @@ export function AvtaleInfo() {
         </div>
 
         <div className={styles.detaljer}>
-          {/**
-           * Eksempel på datastruktur fra backend
-           * [
-              {
-                "region": {"navn": "", "nummer": ""},
-                "kontorer": [{"navn": "", "nummer": ""}]
-              }
-            ]
-           *
-           */}
-          <Bolk aria-label="NAV-region">
-            <Metadata header="NAV-region" verdi={avtale.navRegion?.navn} />
-          </Bolk>
+          {avtale?.kontorstruktur.map((struktur, index) => {
+            return (
+              <Fragment key={index}>
+                <Bolk aria-label="NAV-region">
+                  <Metadata header="NAV-region" verdi={struktur.region.navn} />
+                </Bolk>
 
-          <Bolk aria-label="NAV-enheter">
-            <Metadata
-              header="NAV-enheter (kontorer)"
-              verdi={
-                <ul>
-                  {avtale.navEnheter.map((enhet) => (
-                    <li key={enhet.enhetsnummer}>{enhet.navn}</li>
-                  ))}
-                </ul>
-              }
-            />{" "}
-          </Bolk>
+                <Bolk aria-label="NAV-enheter">
+                  <Metadata
+                    header="NAV-enheter (kontorer)"
+                    verdi={
+                      <ul>
+                        {struktur.kontorer.map((kontor) => (
+                          <li key={kontor.enhetsnummer}>{kontor.navn}</li>
+                        ))}
+                      </ul>
+                    }
+                  />
+                </Bolk>
+              </Fragment>
+            );
+          })}
 
           <Separator />
 

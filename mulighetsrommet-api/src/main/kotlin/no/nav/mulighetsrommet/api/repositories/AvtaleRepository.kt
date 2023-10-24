@@ -399,8 +399,8 @@ class AvtaleRepository(private val db: Database) {
     private fun Row.toAvtaleAdminDto(): AvtaleAdminDto {
         val startDato = localDate("start_dato")
         val sluttDato = localDate("slutt_dato")
-        val navEnheter = stringOrNull("nav_enheter")
-            ?.let { Json.decodeFromString<List<NavEnhet?>>(it).filterNotNull() }
+        val embeddedNavEnheter = stringOrNull("nav_enheter")
+            ?.let { Json.decodeFromString<List<EmbeddedNavEnhet?>>(it).filterNotNull() }
             ?: emptyList()
         val underenheter = stringOrNull("leverandor_underenheter")
             ?.let { Json.decodeFromString<List<AvtaleAdminDto.LeverandorUnderenhet?>>(it).filterNotNull() }
@@ -408,6 +408,18 @@ class AvtaleRepository(private val db: Database) {
         val administratorer = Json
             .decodeFromString<List<AvtaleAdminDto.Administrator?>>(string("administratorer"))
             .filterNotNull()
+
+        val regioner = embeddedNavEnheter.filter {
+            it.type == NavEnhetType.FYLKE
+        }
+
+        val kontorstruktur = regioner.map {
+            val region = it
+            val kontorer =
+                embeddedNavEnheter.filter { enhet -> enhet.type != NavEnhetType.FYLKE && enhet.overordnetEnhet == it.enhetsnummer }
+                    .sortedBy { enhet -> enhet.navn }
+            Kontorstruktur(region = region, kontorer = kontorer)
+        }
 
         return AvtaleAdminDto(
             id = uuid("id"),
@@ -434,7 +446,7 @@ class AvtaleRepository(private val db: Database) {
                     beskrivelse = stringOrNull("leverandor_kontaktperson_beskrivelse"),
                 )
             },
-            navEnheter = navEnheter,
+            navEnheter = embeddedNavEnheter,
             startDato = startDato,
             sluttDato = sluttDato,
             avtaletype = Avtaletype.valueOf(string("avtaletype")),
@@ -450,6 +462,7 @@ class AvtaleRepository(private val db: Database) {
             antallPlasser = intOrNull("antall_plasser"),
             opphav = ArenaMigrering.Opphav.valueOf(string("opphav")),
             updatedAt = localDateTime("updated_at"),
+            kontorstruktur = kontorstruktur,
         )
     }
 

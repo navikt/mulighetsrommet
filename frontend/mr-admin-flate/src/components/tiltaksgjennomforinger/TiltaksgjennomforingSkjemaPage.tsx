@@ -2,7 +2,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Tiltaksgjennomforing } from "mulighetsrommet-api-client";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { ContainerLayout } from "../../layouts/ContainerLayout";
-import { inneholderUrl } from "../../utils/Utils";
+import { avtaleHarRegioner, inneholderUrl } from "../../utils/Utils";
 import { Header } from "../detaljside/Header";
 import { Laster } from "../laster/Laster";
 import { useUtkast } from "../../api/utkast/useUtkast";
@@ -35,7 +35,9 @@ const TiltaksgjennomforingSkjemaPage = () => {
   };
 
   const isError =
-    !avtale || (avtale?.sluttDato && new Date(avtale.sluttDato) < new Date()) || !avtale?.navRegion;
+    !avtale ||
+    (avtale?.sluttDato && new Date(avtale.sluttDato) < new Date()) ||
+    !avtaleHarRegioner(avtale);
 
   if (avtaleIsLoading || utkastLoading || tiltaksgjennomforingLoading) {
     return (

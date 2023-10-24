@@ -201,13 +201,6 @@ export const AvtaleTabell = () => {
                   <Table.DataCell aria-label={`Leverandør: ${avtale.leverandor?.navn}`}>
                     {capitalizeEveryWord(avtale.leverandor?.navn, ["og", "i"]) || ""}
                   </Table.DataCell>
-                  <Table.DataCell
-                    aria-label={`NAV-region: ${
-                      avtale.navRegion?.navn || avtale.navRegion?.enhetsnummer
-                    }`}
-                  >
-                    {avtale.navRegion?.navn || avtale.navRegion?.enhetsnummer}
-                  </Table.DataCell>
                   <Table.DataCell aria-label={`Startdato: ${formaterDato(avtale.startDato)}`}>
                     {formaterDato(avtale.startDato)}
                   </Table.DataCell>

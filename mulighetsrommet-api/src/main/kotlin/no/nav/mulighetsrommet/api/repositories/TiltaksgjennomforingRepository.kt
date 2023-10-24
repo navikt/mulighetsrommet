@@ -706,7 +706,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         val administratorer = Json
             .decodeFromString<List<TiltaksgjennomforingAdminDto.Administrator?>>(string("administratorer"))
             .filterNotNull()
-        val navEnheter = Json.decodeFromString<List<NavEnhet?>>(string("nav_enheter")).filterNotNull()
+        val embeddedNavEnheter = Json.decodeFromString<List<EmbeddedNavEnhet?>>(string("nav_enheter")).filterNotNull()
         val kontaktpersoner = Json
             .decodeFromString<List<TiltaksgjennomforingKontaktperson?>>(string("kontaktpersoner"))
             .filterNotNull()
@@ -751,11 +751,13 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             antallPlasser = intOrNull("antall_plasser"),
             avtaleId = uuidOrNull("avtale_id"),
             administrator = administratorer.getOrNull(0),
-            navEnheter = navEnheter,
+            navEnheter = embeddedNavEnheter,
             navRegion = stringOrNull("nav_region_enhetsnummer")?.let {
-                NavEnhet(
+                EmbeddedNavEnhet(
                     enhetsnummer = it,
                     navn = string("nav_region_navn"),
+                    type = NavEnhetType.valueOf(string("nav_region_type")),
+                    overordnetEnhet = stringOrNull("nav_region_overordnet_enhet"),
                 )
             },
             sanityId = uuidOrNull("sanity_id"),

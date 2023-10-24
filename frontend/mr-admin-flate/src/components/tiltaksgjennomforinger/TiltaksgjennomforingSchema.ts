@@ -22,6 +22,7 @@ export const TiltaksgjennomforingSchema = z
       })
       .int()
       .positive(),
+    navRegion: z.string({ required_error: "Du må velge én region" }),
     navEnheter: z.string().array().nonempty({
       message: "Du må velge minst én enhet",
     }),

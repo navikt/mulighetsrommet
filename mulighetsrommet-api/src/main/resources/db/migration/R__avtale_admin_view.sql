@@ -1,3 +1,4 @@
+drop view if exists avtale_admin_dto_view;
 create or replace view avtale_admin_dto_view as
 select a.id,
        a.navn,
@@ -37,7 +38,7 @@ from avtale a
          left join avtale_administrator aa on a.id = aa.avtale_id
          left join nav_ansatt na on na.nav_ident = aa.nav_ident
          left join lateral (
-    SELECT an.avtale_id, jsonb_strip_nulls(jsonb_agg(jsonb_build_object('enhetsnummer', an.enhetsnummer, 'navn', ne.navn))) as nav_enheter
+    SELECT an.avtale_id, jsonb_strip_nulls(jsonb_agg(jsonb_build_object('enhetsnummer', an.enhetsnummer, 'navn', ne.navn, 'type', ne.type, 'overordnetEnhet', ne.overordnet_enhet))) as nav_enheter
     FROM avtale_nav_enhet an left join nav_enhet ne on ne.enhetsnummer = an.enhetsnummer group by an.avtale_id
     ) an on an.avtale_id = a.id
          left join lateral (

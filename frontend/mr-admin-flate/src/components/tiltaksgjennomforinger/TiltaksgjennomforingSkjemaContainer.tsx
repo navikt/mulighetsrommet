@@ -2,6 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Alert, Button, Tabs } from "@navikt/ds-react";
 import {
   Avtale,
+  NavEnhetType,
   Opphav,
   Tiltaksgjennomforing,
   TiltaksgjennomforingRequest,
@@ -73,6 +74,8 @@ export const TiltaksgjennomforingSkjemaContainer = ({
       navEnheter: values?.navEnheter?.map((enhetsnummer) => ({
         navn: "",
         enhetsnummer,
+        type: NavEnhetType.LOKAL,
+        overordnetEnhet: null,
       })),
       stengtFra: values?.midlertidigStengt?.erMidlertidigStengt
         ? values?.midlertidigStengt?.stengtFra?.toString()
@@ -114,6 +117,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
     resolver: zodResolver(TiltaksgjennomforingSchema),
     defaultValues: {
       navn: tiltaksgjennomforing?.navn,
+      navRegion: tiltaksgjennomforing?.navRegion?.enhetsnummer,
       navEnheter: tiltaksgjennomforing?.navEnheter?.map((enhet) => enhet.enhetsnummer) || [],
       administrator: tiltaksgjennomforing?.administrator?.navIdent,
       antallPlasser: tiltaksgjennomforing?.antallPlasser,
@@ -168,6 +172,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
       id: tiltaksgjennomforing ? tiltaksgjennomforing.id : uuidv4(),
       antallPlasser: data.antallPlasser,
       tiltakstypeId: avtale.tiltakstype.id,
+      navRegion: data.navRegion,
       navEnheter: data.navEnheter,
       navn: data.navn,
       startDato: formaterDatoSomYYYYMMDD(data.startOgSluttDato.startDato),
