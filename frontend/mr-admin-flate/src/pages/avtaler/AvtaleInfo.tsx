@@ -131,28 +131,41 @@ export function AvtaleInfo() {
         </div>
 
         <div className={styles.detaljer}>
-          {avtale?.kontorstruktur.map((struktur, index) => {
-            return (
-              <Fragment key={index}>
-                <Bolk aria-label="NAV-region">
-                  <Metadata header="NAV-region" verdi={struktur.region.navn} />
-                </Bolk>
+          {avtale.kontorstruktur.length > 1 ? (
+            <Metadata
+              header="Fylkessamarbeid"
+              verdi={
+                <ul>
+                  {avtale.kontorstruktur.map((kontor) => {
+                    return <li key={kontor.region.enhetsnummer}>{kontor.region.navn}</li>;
+                  })}
+                </ul>
+              }
+            />
+          ) : (
+            avtale?.kontorstruktur.map((struktur, index) => {
+              return (
+                <Fragment key={index}>
+                  <Bolk aria-label="NAV-region">
+                    <Metadata header="NAV-region" verdi={struktur.region.navn} />
+                  </Bolk>
 
-                <Bolk aria-label="NAV-enheter">
-                  <Metadata
-                    header="NAV-enheter (kontorer)"
-                    verdi={
-                      <ul>
-                        {struktur.kontorer.map((kontor) => (
-                          <li key={kontor.enhetsnummer}>{kontor.navn}</li>
-                        ))}
-                      </ul>
-                    }
-                  />
-                </Bolk>
-              </Fragment>
-            );
-          })}
+                  <Bolk aria-label="NAV-enheter">
+                    <Metadata
+                      header="NAV-enheter (kontorer)"
+                      verdi={
+                        <ul>
+                          {struktur.kontorer.map((kontor) => (
+                            <li key={kontor.enhetsnummer}>{kontor.navn}</li>
+                          ))}
+                        </ul>
+                      }
+                    />
+                  </Bolk>
+                </Fragment>
+              );
+            })
+          )}
 
           <Separator />
 

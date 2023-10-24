@@ -12,5 +12,9 @@ data class EmbeddedNavEnhet(
 
 @Serializable
 enum class NavEnhetType {
-    LOKAL, FYLKE, ALS, TILTAK, DIR
+    LOKAL,
+    FYLKE,
+    ALS,
+    TILTAK,
+    DIR,
 }

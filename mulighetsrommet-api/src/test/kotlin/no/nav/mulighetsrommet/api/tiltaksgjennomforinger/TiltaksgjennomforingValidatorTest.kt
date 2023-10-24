@@ -79,7 +79,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
             startDato = LocalDate.of(2023, 1, 1),
             sluttDato = LocalDate.of(2023, 2, 1),
             navEnheter = listOf(
-                EmbeddedNavEnhet(enhetsnummer = "0402", navn = "NAV Kongsvinger", type = NavEnhetType.LOKAL,overordnetEnhet = "0400"),
+                EmbeddedNavEnhet(enhetsnummer = "0402", navn = "NAV Kongsvinger", type = NavEnhetType.LOKAL, overordnetEnhet = "0400"),
                 EmbeddedNavEnhet(enhetsnummer = "0400", navn = "NAV Innlandet", type = NavEnhetType.FYLKE, overordnetEnhet = null),
             ),
             leverandor = AvtaleAdminDto.Leverandor(

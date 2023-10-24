@@ -27,7 +27,7 @@ import { Separator } from "../detaljside/Metadata";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
 import skjemastyles from "../skjema/Skjema.module.scss";
-import { SokeSelect } from "../skjema/SokeSelect";
+import { SelectOption, SokeSelect } from "../skjema/SokeSelect";
 import { VirksomhetKontaktpersoner } from "../virksomhet/VirksomhetKontaktpersoner";
 import { AvtaleSchema, InferredAvtaleSchema } from "./AvtaleSchema";
 
@@ -44,6 +44,7 @@ import {
   underenheterOptions,
 } from "./AvtaleSkjemaConst";
 import { AvtaleSkjemaKnapperad } from "./AvtaleSkjemaKnapperad";
+import { MultiValue } from "react-select";
 
 interface Props {
   onClose: () => void;
@@ -350,11 +351,23 @@ export function AvtaleSkjemaContainer({
                     {...register("navRegioner")}
                     additionalOnChange={(selectedOptions) => {
                       if (watch("navRegioner").length > 1) {
-                        const regioner = selectedOptions?.map((option) => option.value);
-                        const navEnheter = getLokaleUnderenheterAsSelectOptions(
-                          regioner,
+                        const alleLokaleUnderenheter = velgAlleLokaleUnderenheter(
+                          selectedOptions,
                           enheter,
-                        ).map((option) => option.value);
+                        );
+                        form.setValue(
+                          "navEnheter",
+                          alleLokaleUnderenheter as [string, ...string[]],
+                        );
+                      } else {
+                        const alleLokaleUnderenheter = velgAlleLokaleUnderenheter(
+                          selectedOptions,
+                          enheter,
+                        );
+                        const regioner = selectedOptions?.map((option) => option.value);
+                        const navEnheter = watch("navEnheter").filter((enhet) =>
+                          [...regioner, ...alleLokaleUnderenheter].includes(enhet),
+                        );
                         form.setValue("navEnheter", navEnheter as [string, ...string[]]);
                       }
                     }}
@@ -432,4 +445,15 @@ export function AvtaleSkjemaContainer({
       {avtale && <AvbrytAvtaleModal modalRef={avbrytModalRef} avtale={avtale} />}
     </FormProvider>
   );
+}
+
+function velgAlleLokaleUnderenheter(
+  selectedOptions: MultiValue<SelectOption<string>>,
+  enheter: NavEnhet[],
+): string[] {
+  const regioner = selectedOptions?.map((option) => option.value);
+  const navEnheter = getLokaleUnderenheterAsSelectOptions(regioner, enheter).map(
+    (option) => option.value,
+  );
+  return navEnheter;
 }
