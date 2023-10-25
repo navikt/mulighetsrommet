@@ -2,22 +2,8 @@ import { GrDocumentPerformance, GrLocation, GrUserAdmin } from "react-icons/gr";
 import { FaWpforms } from "react-icons/fa";
 import { ImOffice } from "react-icons/im";
 import { API_VERSION } from "../sanity.config";
-import {
-  IKKE_I_ADMINFLATE_TILTAK_DEV,
-  IKKE_I_ADMINFLATE_TILTAK_PROD,
-  TILTAK_I_EGEN_REGI_PROD,
-} from "../utils/utils";
 
 const ORDER_BY_CREATEDAT_FIELD = [{ field: "_createdAt", direction: "desc" }];
-
-const notInAdminFlateFilter = `
-  tiltakstype._ref in [
-  ${IKKE_I_ADMINFLATE_TILTAK_PROD.concat(IKKE_I_ADMINFLATE_TILTAK_DEV)
-    .concat(TILTAK_I_EGEN_REGI_PROD)
-    .map((d) => `"${d}"`)
-    .join(",")}
-]
-  `;
 
 export function commonStructure(S, Context) {
   return [
@@ -35,7 +21,7 @@ export function commonStructure(S, Context) {
                 S.documentList()
                   .title("Alle tiltaksgjennomføringer")
                   .apiVersion(API_VERSION)
-                  .filter(`_type == "tiltaksgjennomforing" && ${notInAdminFlateFilter}`)
+                  .filter('_type == "tiltaksgjennomforing"')
                   .defaultOrdering([{ field: "_createdAt", direction: "desc" }]),
               ),
             S.divider(),
@@ -59,7 +45,7 @@ export function commonStructure(S, Context) {
                       .apiVersion(API_VERSION)
                       .defaultOrdering(ORDER_BY_CREATEDAT_FIELD)
                       .title("Tiltaksgjennomføringer")
-                      .filter(`_type == "tiltaksgjennomforing" && $enhet in enheter[]._ref && ${notInAdminFlateFilter}`)
+                      .filter('_type == "tiltaksgjennomforing" && $enhet in enheter[]._ref')
                       .params({ enhet })
                       .menuItems([...S.documentTypeList("tiltaksgjennomforing").getMenuItems()]),
                   ),
@@ -87,7 +73,7 @@ export function commonStructure(S, Context) {
                           .defaultOrdering(ORDER_BY_CREATEDAT_FIELD)
                           .title("Tiltaksgjennomføringer")
                           .filter(
-                            `_type == "tiltaksgjennomforing" && ($enhet == fylke._ref) && $tiltakstype == tiltakstype._ref && ${notInAdminFlateFilter}`,
+                            '_type == "tiltaksgjennomforing" && ($enhet == fylke._ref) && $tiltakstype == tiltakstype._ref',
                           )
                           .params({ enhet, tiltakstype })
                           .menuItems([
@@ -107,9 +93,7 @@ export function commonStructure(S, Context) {
                     S.documentList()
                       .apiVersion(API_VERSION)
                       .title("Per administrator")
-                      .filter(
-                        `_type == "tiltaksgjennomforing" && $redaktorId in redaktor[]._ref && ${notInAdminFlateFilter}`,
-                      )
+                      .filter('_type == "tiltaksgjennomforing" && $redaktorId in redaktor[]._ref')
                       .params({ redaktorId })
                       .defaultOrdering(ORDER_BY_CREATEDAT_FIELD)
                       .menuItems([...S.documentTypeList("tiltaksgjennomforing").getMenuItems()]),
@@ -133,9 +117,7 @@ export function commonStructure(S, Context) {
                       .apiVersion(API_VERSION)
                       .defaultOrdering(ORDER_BY_CREATEDAT_FIELD)
                       .title("Tiltaksgjennomføringer")
-                      .filter(
-                        `_type == "tiltaksgjennomforing" && $tiltakstype == tiltakstype._ref && ${notInAdminFlateFilter}`,
-                      )
+                      .filter('_type == "tiltaksgjennomforing" && $tiltakstype == tiltakstype._ref')
                       .params({ tiltakstype }),
                   ),
               ),

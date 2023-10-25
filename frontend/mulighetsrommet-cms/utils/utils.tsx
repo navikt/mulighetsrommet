@@ -1,4 +1,4 @@
-export const IKKE_I_ADMINFLATE_TILTAK_PROD = [
+const IKKE_I_ADMINFLATE_TILTAK_PROD = [
   "18ff4bef-f62e-444a-920f-e30bde5c3950", // "Tilskudd til sommerjobb",
   "2ba9c085-3780-420a-a5d5-820788c74d29", //  Inkluderingstilskudd,
   "4457d760-81a4-4c16-8ab3-64c72d424db2", // Opplæring - Høyere utdanning",
@@ -14,7 +14,7 @@ export const IKKE_I_ADMINFLATE_TILTAK_PROD = [
   "d322b7e7-0c68-44d6-a325-b12d71af63c6", // IPS
 ];
 
-export const IKKE_I_ADMINFLATE_TILTAK_DEV = [
+const IKKE_I_ADMINFLATE_TILTAK_DEV = [
   "ad998fc6-310e-45d4-a056-57732fed87b4", // "Mentor",
   "50878ad5-90d0-496d-a0d0-a53091800760", // "Opplæring - Høyere utdanning",
   "bbb8d042-b30e-4e4a-8cd0-210019b19de3", // "Opplæring - Enkeltplass AMO",
@@ -24,7 +24,7 @@ export const IKKE_I_ADMINFLATE_TILTAK_DEV = [
   "8d8abebd-3617-494a-a687-d44810e0a7ee", // "Varig tilrettelagt arbeids i ordinær virksomhet",
 ];
 
-export const TILTAK_I_EGEN_REGI_PROD = [
+const TILTAK_I_EGEN_REGI_PROD = [
   "f3faa5f2-ee9b-42da-9368-4749668144c0", // IPS UNG
   "9fbf9feb-aa4c-4e3c-bc0e-edee0ab957ad", // Arbeid med støtte
   "d322b7e7-0c68-44d6-a325-b12d71af63c6", // IPS
