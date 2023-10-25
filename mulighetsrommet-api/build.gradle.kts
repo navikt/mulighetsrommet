@@ -31,6 +31,10 @@ tasks.build {
     dependsOn(validateOpenapiSpecs.name)
 }
 
+tasks.shadowJar {
+    isZip64 = true
+}
+
 flyway {
     url = System.getenv("DB_URL")
     user = System.getenv("DB_USERNAME")
