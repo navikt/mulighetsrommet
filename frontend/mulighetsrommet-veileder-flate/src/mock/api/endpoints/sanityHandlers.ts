@@ -72,6 +72,10 @@ function filtrerInnsatsgruppe(
   gjennomforing: VeilederflateTiltaksgjennomforing,
   innsatsgruppe?: Innsatsgruppe,
 ): boolean {
+  if (!gjennomforing.tiltakstype.innsatsgruppe) {
+    return true;
+  }
+
   switch (innsatsgruppe) {
     case Innsatsgruppe.STANDARD_INNSATS: {
       return gjennomforing.tiltakstype.innsatsgruppe.nokkel === innsatsgruppe;

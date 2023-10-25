@@ -284,6 +284,7 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
     tiltakstype: mockTiltakstyper.OpplaringEnkeltplassFagOgYrke,
     oppstart: TiltaksgjennomforingOppstartstype.LOPENDE,
     oppstartsdato: "2022-11-01",
+    kontaktinfoTiltaksansvarlige: [],
     sluttdato: "2030-11-30",
     estimertVentetid: "",
   },

@@ -32,6 +32,8 @@ import {
 import { TiltaksgjennomforingSkjemaDetaljer } from "./TiltaksgjennomforingSkjemaDetaljer";
 import { TiltaksgjennomforingSkjemaKnapperad } from "./TiltaksgjennomforingSkjemaKnapperad";
 import { TiltaksgjennomforingSkjemaRedInnhold } from "./TiltaksgjennomforingSkjemaRedInnhold";
+import { useAtom } from "jotai";
+import { gjennomforingDetaljerTab } from "../../api/atoms";
 import { TiltaksgjennomforingUtkastData } from "./TiltaksgjennomforingSkjemaPage";
 
 interface Props {
@@ -55,6 +57,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
   const redigeringsModus = !!tiltaksgjennomforing;
   const mutation = useUpsertTiltaksgjennomforing();
   const mutationUtkast = useMutateUtkast();
+  const [activeTab, setActiveTab] = useAtom(gjennomforingDetaljerTab);
 
   const avbrytModalRef = useRef<HTMLDialogElement>(null);
   const { data: ansatt } = useHentAnsatt();
@@ -247,10 +250,11 @@ export const TiltaksgjennomforingSkjemaContainer = ({
           </Alert>
         ) : null}
         <form onSubmit={handleSubmit(postData)}>
-          <Tabs defaultValue="detaljer">
+          <Tabs defaultValue={activeTab}>
             <Tabs.List className={skjemastyles.tabslist}>
               <div>
                 <Tabs.Tab
+                  onClick={() => setActiveTab("detaljer")}
                   style={{
                     border: hasErrors() ? "solid 2px #C30000" : "",
                     borderRadius: hasErrors() ? "8px" : 0,
@@ -266,7 +270,11 @@ export const TiltaksgjennomforingSkjemaContainer = ({
                     )
                   }
                 />
-                <Tabs.Tab value="redaksjonelt_innhold" label="Redaksjonelt innhold" />
+                <Tabs.Tab
+                  onClick={() => setActiveTab("redaksjonelt_innhold")}
+                  value="redaksjonelt_innhold"
+                  label="Redaksjonelt innhold"
+                />
               </div>
               <TiltaksgjennomforingSkjemaKnapperad
                 size="small"

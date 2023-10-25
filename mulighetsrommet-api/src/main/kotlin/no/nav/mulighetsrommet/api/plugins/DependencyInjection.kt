@@ -138,7 +138,6 @@ private fun kafka(config: KafkaConfig) = module {
                 config = config.consumers.tiltaksgjennomforingerV1,
                 arenaAdapterClient = get(),
                 arenaMigreringTiltaksgjennomforingKafkaProducer = get(),
-                sanityTiltaksgjennomforingService = get(),
                 tiltaksgjennomforingRepository = get(),
             ),
             AmtDeltakerV1TopicConsumer(config = config.consumers.amtDeltakerV1, deltakere = get()),
@@ -285,7 +284,7 @@ private fun services(appConfig: AppConfig) = module {
     }
     single { AxsysService(appConfig.axsys) { m2mTokenProvider.createMachineToMachineToken(appConfig.axsys.scope) } }
     single { AvtaleValidator(get(), get(), get()) }
-    single { TiltaksgjennomforingValidator(get(), get()) }
+    single { TiltaksgjennomforingValidator(get(), get(), get()) }
 }
 
 private fun tasks(config: TaskConfig) = module {

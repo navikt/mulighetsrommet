@@ -3,7 +3,6 @@ import styles from "../DetaljerInfo.module.scss";
 import { Alert, BodyLong, Heading } from "@navikt/ds-react";
 import { useTiltakstypeSanityData } from "../../api/tiltaksgjennomforing/useTiltakstypeSanityData";
 import { PortableText } from "@portabletext/react";
-import { Separator } from "../../components/detaljside/Metadata";
 
 interface Props {
   tiltaksgjennomforing: Tiltaksgjennomforing;
@@ -23,9 +22,11 @@ export const TiltaksgjennomforingRedInnhold = (props: Props) => {
         </BodyLong>
       )}
       {tiltaksgjennomforing.beskrivelse && (
-        <BodyLong textColor="subtle" size="medium">
-          {tiltaksgjennomforing.beskrivelse}
-        </BodyLong>
+        <div className={styles.lokal_informasjon}>
+          <BodyLong textColor="subtle" size="medium">
+            {tiltaksgjennomforing.beskrivelse}
+          </BodyLong>
+        </div>
       )}
       <Heading size="medium">For hvem</Heading>
       <DetaljerFane
@@ -70,24 +71,25 @@ const DetaljerFane = ({
   }
 
   return (
-    <div>
-      {tiltakstypeAlert && (
-        <Alert variant="info" className={styles.tiltaksdetaljer_alert}>
-          {tiltakstypeAlert}
-        </Alert>
+    <div className={styles.faneinnhold_container}>
+      {tiltakstype && (
+        <>
+          <Heading size="small">Generell Informasjon</Heading>
+          {tiltakstypeAlert && <Alert variant="info">{tiltakstypeAlert}</Alert>}
+          <BodyLong as="div" size="small">
+            <PortableText value={tiltakstype} />
+          </BodyLong>
+        </>
       )}
-      <BodyLong as="div" size="small">
-        <PortableText value={tiltakstype} />
-      </BodyLong>
-      {(tiltaksgjennomforingAlert || tiltaksgjennomforing) && <Separator />}
-      {tiltaksgjennomforingAlert && (
-        <Alert variant="info" className={styles.tiltaksdetaljer_alert}>
-          {tiltaksgjennomforingAlert}
-        </Alert>
+      {tiltaksgjennomforing && (
+        <div className={styles.lokal_informasjon}>
+          <Heading size="small">Lokal Informasjon</Heading>
+          {tiltaksgjennomforingAlert && <Alert variant="info">{tiltaksgjennomforingAlert}</Alert>}
+          <BodyLong as="div" size="small">
+            <PortableText value={tiltaksgjennomforing} />
+          </BodyLong>
+        </div>
       )}
-      <BodyLong as="div" textColor="subtle" size="small">
-        <PortableText value={tiltaksgjennomforing} />
-      </BodyLong>
     </div>
   );
 };

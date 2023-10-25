@@ -11,6 +11,8 @@ import styles from "../DetaljerInfo.module.scss";
 import { TiltaksgjennomforingDetaljer } from "./TiltaksgjennomforingDetaljer";
 import { TiltaksgjennomforingKnapperad } from "./TiltaksgjennomforingKnapperad";
 import { TiltaksgjennomforingRedInnhold } from "./TiltaksgjennomforingRedInnhold";
+import { gjennomforingDetaljerTab } from "../../api/atoms";
+import { useAtom } from "jotai";
 
 export function TiltaksgjennomforingInfo() {
   const {
@@ -18,6 +20,7 @@ export function TiltaksgjennomforingInfo() {
     isError: isErrorTiltaksgjennomforing,
     isLoading: isLoadingTiltaksgjennomforing,
   } = useTiltaksgjennomforingById();
+  const [activeTab, setActiveTab] = useAtom(gjennomforingDetaljerTab);
 
   const [slettModal, setSlettModal] = useState(false);
   const mutation = useDeleteTiltaksgjennomforing();
@@ -47,11 +50,15 @@ export function TiltaksgjennomforingInfo() {
 
   return (
     <div className={styles.info_container}>
-      <Tabs defaultValue="detaljer">
+      <Tabs defaultValue={activeTab}>
         <Tabs.List className={skjemaStyles.tabslist}>
           <div>
-            <Tabs.Tab value="detaljer" label="Detaljer" />
-            <Tabs.Tab value="redaksjonelt_innhold" label="Redaksjonelt innhold" />
+            <Tabs.Tab onClick={() => setActiveTab("detaljer")} value="detaljer" label="Detaljer" />
+            <Tabs.Tab
+              onClick={() => setActiveTab("redaksjonelt_innhold")}
+              value="redaksjonelt_innhold"
+              label="Redaksjonelt innhold"
+            />
           </div>
           {visKnapperad(tiltaksgjennomforing.status) && (
             <TiltaksgjennomforingKnapperad handleSlett={() => setSlettModal(true)} />

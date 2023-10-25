@@ -15,7 +15,7 @@ spec:
   acl:
     - team: team-mulighetsrommet
       application: mulighetsrommet-api
-      access: write
+      access: readwrite
     - team: team-mulighetsrommet
       application: mulighetsrommet-kafka-manager
       access: read

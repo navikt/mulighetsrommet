@@ -23,12 +23,12 @@ data class VeilederflateTiltaksgjennomforing(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID? = null,
     val sanityId: String? = null,
-    val tiltakstype: VeilederflateTiltakstype? = null,
+    val tiltakstype: VeilederflateTiltakstype,
     val navn: String,
     val stedForGjennomforing: String? = null,
     val tilgjengelighet: TiltaksgjennomforingTilgjengelighetsstatus? = null,
     val tiltaksnummer: String? = null,
-    val oppstart: TiltaksgjennomforingOppstartstype? = null,
+    val oppstart: TiltaksgjennomforingOppstartstype,
     @Serializable(with = LocalDateSerializer::class)
     val oppstartsdato: LocalDate? = null,
     @Serializable(with = LocalDateSerializer::class)
@@ -39,7 +39,7 @@ data class VeilederflateTiltaksgjennomforing(
     val stengtFra: LocalDate? = null,
     @Serializable(with = LocalDateSerializer::class)
     val stengtTil: LocalDate? = null,
-    val kontaktinfoTiltaksansvarlige: List<KontaktinfoTiltaksansvarlige>? = emptyList(),
+    val kontaktinfoTiltaksansvarlige: List<KontaktinfoTiltaksansvarlige>,
     val fylke: String? = null,
     val enheter: List<String>? = emptyList(),
     val beskrivelse: String? = null,
@@ -48,8 +48,8 @@ data class VeilederflateTiltaksgjennomforing(
 
 @Serializable
 data class VeilederflateTiltakstype(
-    val sanityId: String? = null,
-    val navn: String? = null,
+    val sanityId: String,
+    val navn: String,
     val beskrivelse: String? = null,
     val innsatsgruppe: SanityInnsatsgruppe? = null,
     val regelverkLenker: List<RegelverkLenke>? = emptyList(),

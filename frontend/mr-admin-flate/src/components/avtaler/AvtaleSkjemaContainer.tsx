@@ -47,6 +47,8 @@ import {
 } from "./AvtaleSkjemaConst";
 import { AvtaleSkjemaKnapperad } from "./AvtaleSkjemaKnapperad";
 
+const minStartdato = new Date(2000, 0, 1);
+
 interface Props {
   onClose: () => void;
   onSuccess: (id: string) => void;
@@ -220,6 +222,8 @@ export function AvtaleSkjemaContainer({
       label: enhet.navn,
     }));
 
+  const maxSluttdato = addYear(new Date(watch("startOgSluttDato.startDato")) ?? new Date(), 5);
+
   return (
     <FormProvider {...form}>
       <form onSubmit={handleSubmit(postData)}>
@@ -294,15 +298,21 @@ export function AvtaleSkjemaContainer({
                 <FraTilDatoVelger
                   size="small"
                   fra={{
-                    readOnly: arenaOpphav,
-                    ...register("startOgSluttDato.startDato"),
                     label: "Startdato",
+                    readOnly: arenaOpphav,
+                    fromDate: minStartdato,
+                    toDate: maxSluttdato,
+                    ...register("startOgSluttDato.startDato"),
                     format: "iso-string",
                   }}
                   til={{
-                    readOnly: arenaOpphav,
-                    ...register("startOgSluttDato.sluttDato"),
                     label: "Sluttdato",
+                    readOnly: arenaOpphav,
+                    fromDate: watch("startOgSluttDato.startDato")
+                      ? new Date(watch("startOgSluttDato.startDato"))
+                      : minStartdato,
+                    toDate: maxSluttdato,
+                    ...register("startOgSluttDato.sluttDato"),
                     format: "iso-string",
                   }}
                 >
