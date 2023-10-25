@@ -45,8 +45,8 @@ function render() {
       <QueryClientProvider client={queryClient}>
         <MiljoBanner />
         <Router basename={import.meta.env.BASE_URL}>
-          <AdministratorHeader />
           <ErrorBoundary FallbackComponent={ErrorFallback}>
+            <AdministratorHeader />
             <App />
           </ErrorBoundary>
         </Router>
@@ -58,6 +58,11 @@ function render() {
 
 export function ErrorFallback({ error }: FallbackProps) {
   const heading = error instanceof ApiError ? resolveErrorMessage(error) : error.message;
+
+  // Forces new login if unauthenticated
+  if ((error as ApiError).status === 401) {
+    window.location.reload();
+  }
   return (
     <div className="error">
       <Alert variant="error">
