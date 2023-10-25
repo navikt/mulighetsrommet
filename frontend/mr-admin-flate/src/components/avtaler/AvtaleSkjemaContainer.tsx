@@ -297,11 +297,13 @@ export function AvtaleSkjemaContainer({
                     readOnly: arenaOpphav,
                     ...register("startOgSluttDato.startDato"),
                     label: "Startdato",
+                    format: "iso-string",
                   }}
                   til={{
                     readOnly: arenaOpphav,
                     ...register("startOgSluttDato.sluttDato"),
                     label: "Sluttdato",
+                    format: "iso-string",
                   }}
                 >
                   {enableOpsjoner &&

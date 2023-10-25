@@ -1,4 +1,4 @@
-import { formaterDato } from "../../utils/Utils";
+import { formaterDato, formaterDatoSomYYYYMMDD as formaterSomIsoDate } from "../../utils/Utils";
 import styles from "./ControlledDateInput.module.scss";
 import { forwardRef } from "react";
 import { Controller } from "react-hook-form";
@@ -8,6 +8,7 @@ export interface DateInputProps {
   label: string;
   readOnly?: boolean;
   size?: "small" | "medium";
+  format: "date" | "iso-string";
 }
 
 export const ControlledDateInput = forwardRef(function ControlledDateInput(
@@ -15,7 +16,7 @@ export const ControlledDateInput = forwardRef(function ControlledDateInput(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _,
 ) {
-  const { label, size, readOnly, ...rest } = props;
+  const { label, size, readOnly, format = "date", ...rest } = props;
 
   return (
     <div>
@@ -30,7 +31,11 @@ export const ControlledDateInput = forwardRef(function ControlledDateInput(
           } = useDatepicker({
             onDateChange: (val) => {
               if (val) {
-                onChange(val);
+                if (format === "iso-string") {
+                  onChange(formaterSomIsoDate(val));
+                } else {
+                  onChange(val);
+                }
               } else {
                 onChange(null);
               }

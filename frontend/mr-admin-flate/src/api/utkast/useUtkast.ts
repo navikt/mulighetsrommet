@@ -1,13 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
-import { UtkastDto } from "mulighetsrommet-api-client";
 import { ZodSchema } from "zod";
 import { QueryKeys } from "../QueryKeys";
 import { mulighetsrommetClient } from "../clients";
 
-export function useUtkast(
-  schema: ZodSchema,
+export function useUtkast<T extends object>(
+  schema: ZodSchema<T>,
   utkastId?: string,
-): { isLoading: boolean; data?: UtkastDto } {
+): { isLoading: boolean; data?: { id: string; utkastData: Partial<T> } } {
   const query = useQuery(
     QueryKeys.utkast(utkastId),
     () => mulighetsrommetClient.utkast.getUtkast({ id: utkastId! }),
@@ -23,11 +22,22 @@ export function useUtkast(
     const utkastData = query.data.utkastData;
 
     if (!result.success) {
+      // Fjerner properties som ikke eksisterer lenger så ikke skjema krasjer
       result.error.errors.forEach((error) => {
         delete utkastData[error.path[0]];
       });
-      return { data: { ...query.data, utkastData }, isLoading };
+      return {
+        data: { ...query.data, utkastData: utkastData as Partial<T> },
+        isLoading,
+      };
     }
+
+    return {
+      isLoading,
+      data: { id: query.data.id, utkastData: query.data?.utkastData as Partial<T> },
+    };
   }
-  return { data: query.data, isLoading };
+  return {
+    isLoading,
+  };
 }

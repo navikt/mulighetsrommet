@@ -119,11 +119,13 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                 label: "Startdato",
                 readOnly: arenaOpphav(tiltaksgjennomforing),
                 ...register("startOgSluttDato.startDato"),
+                format: "iso-string",
               }}
               til={{
                 label: "Sluttdato",
                 readOnly: arenaOpphav(tiltaksgjennomforing),
                 ...register("startOgSluttDato.sluttDato"),
+                format: "iso-string",
               }}
             />
             <Checkbox
@@ -142,10 +144,12 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                 fra={{
                   label: "Stengt fra",
                   ...register("midlertidigStengt.stengtFra"),
+                  format: "date",
                 }}
                 til={{
                   label: "Stengt til",
                   ...register("midlertidigStengt.stengtTil"),
+                  format: "date",
                 }}
               />
             )}

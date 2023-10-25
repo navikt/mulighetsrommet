@@ -1,14 +1,13 @@
+import { PencilWritingIcon } from "@navikt/aksel-icons";
+import { BodyShort } from "@navikt/ds-react";
 import { UseMutationResult } from "@tanstack/react-query";
 import debounce from "debounce";
 import { UtkastDto as Utkast, UtkastRequest } from "mulighetsrommet-api-client";
 import { memo, useCallback, useEffect } from "react";
 import { useFormContext, useWatch } from "react-hook-form";
 import useDeepCompareEffect from "use-deep-compare-effect";
-import { PencilWritingIcon } from "@navikt/aksel-icons";
-import { BodyShort } from "@navikt/ds-react";
-import styles from "./AutoSaveUtkast.module.scss";
 import { formaterDatoTid } from "../../utils/Utils";
-import { InferredTiltaksgjennomforingSchema } from "../tiltaksgjennomforinger/TiltaksgjennomforingSchema";
+import styles from "./AutoSaveUtkast.module.scss";
 
 type Props = {
   defaultValues: any;
@@ -23,7 +22,7 @@ export const AutoSaveUtkast = memo(
   ({ defaultValues, utkastId, onSave, mutationUtkast, lagreState, setLagreState }: Props) => {
     if (!utkastId) throw new Error("Ingen utkastId tilgjengelig");
 
-    const methods = useFormContext<InferredTiltaksgjennomforingSchema>();
+    const methods = useFormContext();
 
     const debouncedSave = useCallback(
       debounce(() => {
@@ -34,11 +33,11 @@ export const AutoSaveUtkast = memo(
 
     useEffect(() => {
       if (mutationUtkast.isLoading) {
-        setLagreState("Lagrer...");
+        setLagreState("Lagrer utkast...");
       }
 
       if (mutationUtkast.isSuccess) {
-        setLagreState(`Sist lagret: ${formaterDatoTid(mutationUtkast.data?.updatedAt)}`);
+        setLagreState(`Sist lagret utkast: ${formaterDatoTid(mutationUtkast.data?.updatedAt)}`);
       }
 
       if (mutationUtkast.isError) {

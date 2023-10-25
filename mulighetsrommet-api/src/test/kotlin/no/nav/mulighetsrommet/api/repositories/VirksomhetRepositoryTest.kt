@@ -262,7 +262,7 @@ class VirksomhetRepositoryTest : FunSpec({
                 tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.LEDIG,
                 antallPlasser = 12,
                 administratorer = emptyList(),
-                navRegion = null,
+                navRegion = "0100",
                 navEnheter = emptyList(),
                 oppstart = TiltaksgjennomforingOppstartstype.FELLES,
                 opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,

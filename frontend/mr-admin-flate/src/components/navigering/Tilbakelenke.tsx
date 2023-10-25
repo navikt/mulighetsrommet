@@ -35,6 +35,12 @@ export const parentPath = (
     } else {
       return "/avtaler";
     }
+  } else if (pathname.includes("tiltaksgjennomforinger")) {
+    if (tiltaksgjennomforingId) {
+      return `/avtaler/${avtaleId}`;
+    } else {
+      return "/avtaler";
+    }
   } else if (tiltaksgjennomforingId) {
     return "/tiltaksgjennomforinger";
   } else {
