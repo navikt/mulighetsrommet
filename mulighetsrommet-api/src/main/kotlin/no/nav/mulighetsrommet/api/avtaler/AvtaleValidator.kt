@@ -23,41 +23,41 @@ class AvtaleValidator(
 ) {
     fun validate(dbo: AvtaleDbo): Either<List<ValidationError>, AvtaleDbo> = either {
         val tiltakstype = tiltakstyper.get(dbo.tiltakstypeId)
-            ?: raise(ValidationError("tiltakstype", "Tiltakstypen finnes ikke").nel())
+            ?: raise(ValidationError.of(AvtaleDbo::tiltakstypeId, "Tiltakstypen finnes ikke").nel())
 
         val errors = buildList {
             if (!dbo.startDato.isBefore(dbo.sluttDato)) {
-                add(ValidationError("startDato", "Startdato må være før sluttdato"))
+                add(ValidationError.of(AvtaleDbo::startDato, "Startdato må være før sluttdato"))
             }
 
             if (dbo.navEnheter.isEmpty()) {
-                add(ValidationError("navEnheter", "Minst ett NAV-kontor må være valgt"))
+                add(ValidationError.of(AvtaleDbo::navEnheter, "Minst ett NAV-kontor må være valgt"))
             }
 
             if (dbo.leverandorUnderenheter.isEmpty()) {
-                add(ValidationError("leverandorUnderenheter", "Minst én underenhet til leverandøren må være valgt"))
+                add(ValidationError.of(AvtaleDbo::leverandorUnderenheter, "Minst én underenhet til leverandøren må være valgt"))
             }
 
             avtaler.get(dbo.id)?.also { avtale ->
                 if (avtale.avtalestatus !in listOf(Avtalestatus.Planlagt, Avtalestatus.Aktiv)) {
                     add(
-                        ValidationError(
-                            "navn",
+                        ValidationError.of(
+                            AvtaleDbo::navn,
                             "Kan bare gjøre endringer når avtalen har status Planlagt eller Aktiv",
                         ),
                     )
                 }
 
                 if (dbo.opphav != avtale.opphav) {
-                    add(ValidationError("opphav", "Avtalens opphav kan ikke endres"))
+                    add(ValidationError.of(AvtaleDbo::opphav, "Avtalens opphav kan ikke endres"))
                 }
 
                 val (numGjennomforinger, gjennomforinger) = tiltaksgjennomforinger.getAll(avtaleId = dbo.id)
                 if (numGjennomforinger > 0) {
                     if (dbo.tiltakstypeId != avtale.tiltakstype.id) {
                         add(
-                            ValidationError(
-                                AvtaleDbo::tiltakstypeId.name,
+                            ValidationError.of(
+                                AvtaleDbo::tiltakstypeId,
                                 "Kan ikke endre tiltakstype fordi det finnes gjennomføringer for avtalen",
                             ),
                         )
@@ -67,8 +67,8 @@ class AvtaleValidator(
                         val arrangor = gjennomforing.arrangor.organisasjonsnummer
                         if (arrangor !in dbo.leverandorUnderenheter) {
                             add(
-                                ValidationError(
-                                    AvtaleDbo::leverandorUnderenheter.name,
+                                ValidationError.of(
+                                    AvtaleDbo::leverandorUnderenheter,
                                     "Arrangøren $arrangor er i bruk på en av avtalens gjennomføringer, men mangler blandt leverandørens underenheter",
                                 ),
                             )
@@ -78,8 +78,8 @@ class AvtaleValidator(
                             val enhetsnummer = enhet.enhetsnummer
                             if (enhetsnummer !in dbo.navEnheter) {
                                 add(
-                                    ValidationError(
-                                        AvtaleDbo::navEnheter.name,
+                                    ValidationError.of(
+                                        AvtaleDbo::navEnheter,
                                         "NAV-enheten $enhetsnummer er i bruk på en av avtalens gjennomføringer, men mangler blandt avtalens NAV-enheter",
                                     ),
                                 )
@@ -91,29 +91,29 @@ class AvtaleValidator(
                 if (avtaleIsLocked(avtale, tiltakstype)) {
                     if (dbo.tiltakstypeId != tiltakstype.id) {
                         add(
-                            ValidationError(
-                                AvtaleDbo::tiltakstypeId.name,
+                            ValidationError.of(
+                                AvtaleDbo::tiltakstypeId,
                                 "Tiltakstype kan ikke endres når avtalen er aktiv",
                             ),
                         )
                     }
 
                     if (dbo.avtaletype != avtale.avtaletype) {
-                        add(ValidationError("avtaletype", "Avtaletype kan ikke endres når avtalen er aktiv"))
+                        add(ValidationError.of(AvtaleDbo::avtaletype, "Avtaletype kan ikke endres når avtalen er aktiv"))
                     }
 
                     if (dbo.startDato != avtale.startDato) {
-                        add(ValidationError("startDato", "Startdato kan ikke endres når avtalen er aktiv"))
+                        add(ValidationError.of(AvtaleDbo::startDato, "Startdato kan ikke endres når avtalen er aktiv"))
                     }
 
                     if (dbo.sluttDato != avtale.sluttDato) {
-                        add(ValidationError("sluttDato", "Sluttdato kan ikke endres når avtalen er aktiv"))
+                        add(ValidationError.of(AvtaleDbo::sluttDato, "Sluttdato kan ikke endres når avtalen er aktiv"))
                     }
 
                     if (dbo.prisbetingelser != avtale.prisbetingelser) {
                         add(
-                            ValidationError(
-                                "prisbetingelser",
+                            ValidationError.of(
+                                AvtaleDbo::prisbetingelser,
                                 "Pris- og betalingsinformasjon kan ikke endres når avtalen er aktiv",
                             ),
                         )
@@ -121,8 +121,8 @@ class AvtaleValidator(
 
                     if (dbo.leverandorOrganisasjonsnummer != avtale.leverandor.organisasjonsnummer) {
                         add(
-                            ValidationError(
-                                "leverandorOrganisasjonsnummer",
+                            ValidationError.of(
+                                AvtaleDbo::leverandorOrganisasjonsnummer,
                                 "Leverandøren kan ikke endres når avtalen er aktiv",
                             ),
                         )
@@ -131,15 +131,15 @@ class AvtaleValidator(
             } ?: run {
                 if (!isTiltakMedAvtalerFraMulighetsrommet(tiltakstype.arenaKode)) {
                     add(
-                        ValidationError(
-                            name = "tiltakstype",
+                        ValidationError.of(
+                            AvtaleDbo::tiltakstypeId,
                             message = "Avtaler kan bare opprettes når de gjelder for tiltakstypene AFT eller VTA",
                         ),
                     )
                 }
 
                 if (dbo.opphav != ArenaMigrering.Opphav.MR_ADMIN_FLATE) {
-                    add(ValidationError("opphav", "Opphav må være MR_ADMIN_FLATE"))
+                    add(ValidationError.of(AvtaleDbo::opphav, "Opphav må være MR_ADMIN_FLATE"))
                 }
             }
         }

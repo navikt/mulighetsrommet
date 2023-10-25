@@ -160,7 +160,7 @@ class AvtaleValidatorTest : FunSpec({
 
             validator.validate(dbo).shouldBeLeft().shouldContain(
                 ValidationError(
-                    "tiltakstype",
+                    "tiltakstypeId",
                     "Avtaler kan bare opprettes når de gjelder for tiltakstypene AFT eller VTA",
                 ),
             )
