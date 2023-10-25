@@ -12,21 +12,7 @@ import {
 import { MutableRefObject } from "react";
 import { UseMutationResult } from "@tanstack/react-query";
 
-type UtkastData = Pick<
-  Avtale,
-  | "navn"
-  | "tiltakstype"
-  | "navEnheter"
-  | "administrator"
-  | "avtaletype"
-  | "leverandor"
-  | "leverandorUnderenheter"
-  | "leverandorKontaktperson"
-  | "startDato"
-  | "sluttDato"
-  | "url"
-  | "prisbetingelser"
-> & {
+export type AvtaleUtkastData = Partial<InferredAvtaleSchema> & {
   avtaleId: string;
   id: string;
 };
@@ -39,30 +25,8 @@ export const saveUtkast = (
   mutationUtkast: UseMutationResult<UtkastDto, unknown, Utkast, unknown>,
   setLagreState: (state: string) => void,
 ) => {
-  const utkastData: UtkastData = {
-    navn: values?.navn,
-    tiltakstype: values?.tiltakstype,
-    navEnheter: values?.navEnheter?.map((enhetsnummer) => ({
-      navn: "",
-      enhetsnummer,
-      type: NavEnhetType.FYLKE,
-      overordnetEnhet: null,
-    })),
-    administrator: { navIdent: values?.administrator, navn: "" },
-    avtaletype: values?.avtaletype,
-    leverandor: {
-      navn: "",
-      organisasjonsnummer: values?.leverandor,
-      slettet: false,
-    },
-    leverandorUnderenheter: values?.leverandorUnderenheter?.map((organisasjonsnummer) => ({
-      navn: "",
-      organisasjonsnummer,
-    })),
-    startDato: values?.startOgSluttDato?.startDato?.toDateString(),
-    sluttDato: values?.startOgSluttDato?.sluttDato?.toDateString(),
-    url: values?.url,
-    prisbetingelser: values?.prisbetingelser || "",
+  const utkastData: AvtaleUtkastData = {
+    ...values,
     avtaleId: avtale?.id || utkastIdRef.current,
     id: avtale?.id || utkastIdRef.current,
   };

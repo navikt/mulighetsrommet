@@ -4,7 +4,6 @@ import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.data.forAll
 import io.kotest.data.row
-import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldNotBeNull
@@ -360,14 +359,6 @@ class AvtaleRepositoryTest : FunSpec({
                 avtaler.upsert(avtale1)
                 avtaler.upsert(avtale2)
 
-                val aa = avtaler.get(avtale1.id)
-                aa!!.navEnheter shouldContain EmbeddedNavEnhet(
-                    enhetsnummer = "1801",
-                    navn = "Vestland",
-                    type = NavEnhetType.FYLKE,
-                    overordnetEnhet = null,
-                )
-
                 val result = avtaler.getAll(
                     filter = defaultFilter.copy(
                         tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
@@ -375,7 +366,7 @@ class AvtaleRepositoryTest : FunSpec({
                     ),
                 )
                 result.second shouldHaveSize 1
-                result.second[0].navEnheter shouldContain EmbeddedNavEnhet(
+                result.second[0].kontorstruktur[0].region shouldBe EmbeddedNavEnhet(
                     enhetsnummer = "1801",
                     navn = "Vestland",
                     type = NavEnhetType.FYLKE,
@@ -410,18 +401,22 @@ class AvtaleRepositoryTest : FunSpec({
                 )
                 avtaler.upsert(avtale1)
                 avtaler.get(avtale1.id).should {
-                    it!!.navEnheter shouldContainExactlyInAnyOrder listOf(
-                        EmbeddedNavEnhet(
-                            enhetsnummer = "1900",
-                            navn = "Oppland",
-                            type = NavEnhetType.FYLKE,
-                            overordnetEnhet = null,
-                        ),
-                        EmbeddedNavEnhet(
-                            enhetsnummer = "1901",
-                            navn = "Oppland 1",
-                            type = NavEnhetType.LOKAL,
-                            overordnetEnhet = "1900",
+                    it!!.kontorstruktur shouldBe listOf(
+                        Kontorstruktur(
+                            region = EmbeddedNavEnhet(
+                                enhetsnummer = "1900",
+                                navn = "Oppland",
+                                type = NavEnhetType.FYLKE,
+                                overordnetEnhet = null,
+                            ),
+                            kontorer = listOf(
+                                EmbeddedNavEnhet(
+                                    enhetsnummer = "1901",
+                                    navn = "Oppland 1",
+                                    type = NavEnhetType.LOKAL,
+                                    overordnetEnhet = "1900",
+                                ),
+                            ),
                         ),
                     )
                 }
@@ -616,97 +611,6 @@ class AvtaleRepositoryTest : FunSpec({
             )
 
             result.second shouldHaveSize 2
-        }
-
-        // TODO Fikse sortering på regioner for avtaler når avtaler kan ha flere regioner...
-        xtest("Sortering på nav_enhet sorterer korrekt") {
-            val navEnhetRepository = NavEnhetRepository(database.db)
-            navEnhetRepository.upsert(
-                NavEnhetDbo(
-                    navn = "alvdal",
-                    enhetsnummer = "0100",
-                    status = NavEnhetStatus.AKTIV,
-                    type = Norg2Type.FYLKE,
-                    overordnetEnhet = null,
-                ),
-            )
-            navEnhetRepository.upsert(
-                NavEnhetDbo(
-                    navn = "zorro",
-                    enhetsnummer = "0200",
-                    status = NavEnhetStatus.AKTIV,
-                    type = Norg2Type.FYLKE,
-                    overordnetEnhet = null,
-                ),
-            )
-            val avtale1 = AvtaleFixtures.avtale1.copy(
-                navEnheter = listOf("0100"),
-                navn = "Avtale hos Anders",
-            )
-            val avtale2 = avtale1.copy(
-                id = UUID.randomUUID(),
-                navEnheter = listOf("0200"),
-                navn = "Avtale hos Åse",
-            )
-            val avtale3 = avtale1.copy(
-                id = UUID.randomUUID(),
-                navn = "Avtale hos Øyvind",
-            )
-            avtaler.upsert(avtale1)
-            avtaler.upsert(avtale2)
-            avtaler.upsert(avtale3)
-
-            val ascending = avtaler.getAll(
-                filter = AvtaleFilter(
-                    sortering = "nav-enhet-ascending",
-                ),
-            )
-
-            ascending.second shouldHaveSize 3
-            ascending.second[0].navEnheter shouldContain EmbeddedNavEnhet(
-                enhetsnummer = "0100",
-                navn = "alvdal",
-                type = NavEnhetType.FYLKE,
-                overordnetEnhet = null,
-            )
-            ascending.second[1].navEnheter shouldContain EmbeddedNavEnhet(
-                enhetsnummer = "0100",
-                navn = "alvdal",
-                type = NavEnhetType.FYLKE,
-                overordnetEnhet = null,
-            )
-            ascending.second[2].navEnheter shouldContain EmbeddedNavEnhet(
-                enhetsnummer = "0200",
-                navn = "zorro",
-                type = NavEnhetType.FYLKE,
-                overordnetEnhet = null,
-            )
-
-            val descending = avtaler.getAll(
-                filter = AvtaleFilter(
-                    sortering = "nav-enhet-descending",
-                ),
-            )
-
-            descending.second shouldHaveSize 3
-            descending.second[0].navEnheter shouldContain EmbeddedNavEnhet(
-                enhetsnummer = "0200",
-                navn = "zorro",
-                type = NavEnhetType.FYLKE,
-                overordnetEnhet = null,
-            )
-            descending.second[1].navEnheter shouldContain EmbeddedNavEnhet(
-                enhetsnummer = "0100",
-                navn = "alvdal",
-                type = NavEnhetType.FYLKE,
-                overordnetEnhet = null,
-            )
-            descending.second[2].navEnheter shouldContain EmbeddedNavEnhet(
-                enhetsnummer = "0100",
-                navn = "alvdal",
-                type = NavEnhetType.FYLKE,
-                overordnetEnhet = null,
-            )
         }
 
         test("Sortering på leverandor sorterer korrekt") {

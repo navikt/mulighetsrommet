@@ -32,8 +32,8 @@ export const AvtaleSchema = z
     navEnheter: z.string().array().nonempty({ message: "Du må velge minst én enhet" }),
     startOgSluttDato: z
       .object({
-        startDato: z.date({ required_error: "En avtale må ha en startdato" }),
-        sluttDato: z.date({ required_error: "En avtale må ha en sluttdato" }),
+        startDato: z.string({ required_error: "En avtale må ha en startdato" }).datetime(),
+        sluttDato: z.string({ required_error: "En avtale må ha en sluttdato" }).datetime(),
       })
       .refine((data) => !data.startDato || !data.sluttDato || data.sluttDato > data.startDato, {
         message: "Startdato må være før sluttdato",

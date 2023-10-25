@@ -22,7 +22,7 @@ import { useUpsertAvtale } from "../../api/avtaler/useUpsertAvtale";
 import { useMutateUtkast } from "../../api/utkast/useMutateUtkast";
 import { useSokVirksomheter } from "../../api/virksomhet/useSokVirksomhet";
 import { useVirksomhet } from "../../api/virksomhet/useVirksomhet";
-import { addYear, formaterDato, formaterDatoSomYYYYMMDD, formaterDatoTid } from "../../utils/Utils";
+import { addYear, formaterDato, formaterDatoTid } from "../../utils/Utils";
 import { Separator } from "../detaljside/Metadata";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
@@ -32,6 +32,7 @@ import { VirksomhetKontaktpersoner } from "../virksomhet/VirksomhetKontaktperson
 import { AvtaleSchema, InferredAvtaleSchema } from "./AvtaleSchema";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { MultiValue } from "react-select";
 import { useHandleApiUpsertResponse } from "../../api/effects";
 import { useFeatureToggle } from "../../api/features/feature-toggles";
 import { erAnskaffetTiltak } from "../../utils/tiltakskoder";
@@ -39,12 +40,12 @@ import { AvbrytAvtaleModal } from "../modal/AvbrytAvtaleModal";
 import { AdministratorOptions } from "../skjema/AdministratorOptions";
 import { FormGroup } from "../skjema/FormGroup";
 import {
+  AvtaleUtkastData,
   getLokaleUnderenheterAsSelectOptions,
   saveUtkast,
   underenheterOptions,
 } from "./AvtaleSkjemaConst";
 import { AvtaleSkjemaKnapperad } from "./AvtaleSkjemaKnapperad";
-import { MultiValue } from "react-select";
 
 interface Props {
   onClose: () => void;
@@ -52,6 +53,7 @@ interface Props {
   tiltakstyper: Tiltakstype[];
   ansatt: NavAnsatt;
   avtale?: Avtale;
+  avtaleUtkast?: AvtaleUtkastData;
   enheter: NavEnhet[];
   redigeringsModus: boolean;
 }
@@ -63,9 +65,12 @@ export function AvtaleSkjemaContainer({
   ansatt,
   enheter,
   avtale,
+  avtaleUtkast,
   redigeringsModus,
 }: Props) {
-  const [sokLeverandor, setSokLeverandor] = useState(avtale?.leverandor?.organisasjonsnummer || "");
+  const [sokLeverandor, setSokLeverandor] = useState(
+    avtaleUtkast?.leverandor ?? (avtale?.leverandor?.organisasjonsnummer || ""),
+  );
   const avbrytModalRef = useRef<HTMLDialogElement>(null);
 
   const { data: enableOpsjoner } = useFeatureToggle(
@@ -77,37 +82,46 @@ export function AvtaleSkjemaContainer({
 
   const { data: leverandorVirksomheter = [] } = useSokVirksomheter(sokLeverandor);
 
-  const utkastIdRef = useRef(avtale?.id || uuidv4());
+  const utkastIdRef = useRef(avtaleUtkast?.id || avtale?.id || uuidv4());
 
   const navRegioner =
-    avtale?.navEnheter
-      .filter((enhet) => enhet.type === NavEnhetType.FYLKE)
-      .map((region) => region.enhetsnummer) || [];
+    avtaleUtkast?.navRegioner ??
+    avtale?.kontorstruktur.map((struktur) => struktur.region.enhetsnummer) ??
+    [];
+  const navEnheter =
+    avtaleUtkast?.navEnheter ??
+    avtale?.kontorstruktur
+      .flatMap((struktur) => struktur.kontorer)
+      .map((enhet) => enhet.enhetsnummer) ??
+    [];
 
   const form = useForm<InferredAvtaleSchema>({
     resolver: zodResolver(AvtaleSchema),
     defaultValues: {
-      tiltakstype: avtale?.tiltakstype,
+      tiltakstype: avtaleUtkast?.tiltakstype ?? avtale?.tiltakstype,
       navRegioner,
-      navEnheter: avtale?.navEnheter?.map((e) => e.enhetsnummer) || [],
-      administrator: avtale?.administrator?.navIdent || ansatt.navIdent || "",
-      navn: avtale?.navn ?? "",
-      avtaletype: avtale?.avtaletype ?? Avtaletype.AVTALE,
-      leverandor: avtale?.leverandor?.organisasjonsnummer ?? "",
+      navEnheter,
+      administrator:
+        avtaleUtkast?.administrator ?? (avtale?.administrator?.navIdent || ansatt.navIdent || ""),
+      navn: avtaleUtkast?.navn ?? avtale?.navn ?? "",
+      avtaletype: avtaleUtkast?.avtaletype ?? avtale?.avtaletype ?? Avtaletype.AVTALE,
+      leverandor: avtaleUtkast?.leverandor ?? avtale?.leverandor?.organisasjonsnummer ?? "",
       leverandorUnderenheter:
-        avtale?.leverandorUnderenheter?.length === 0 || !avtale?.leverandorUnderenheter
+        avtaleUtkast?.leverandorUnderenheter ??
+        (avtale?.leverandorUnderenheter?.length === 0 || !avtale?.leverandorUnderenheter)
           ? []
           : avtale?.leverandorUnderenheter?.map(
               (leverandor: LeverandorUnderenhet) => leverandor.organisasjonsnummer,
             ),
-      leverandorKontaktpersonId: avtale?.leverandorKontaktperson?.id,
-      startOgSluttDato: {
-        startDato: avtale?.startDato ? new Date(avtale.startDato) : undefined,
-        sluttDato: avtale?.sluttDato ? new Date(avtale.sluttDato) : undefined,
+      leverandorKontaktpersonId:
+        avtaleUtkast?.leverandorKontaktpersonId ?? avtale?.leverandorKontaktperson?.id,
+      startOgSluttDato: avtaleUtkast?.startOgSluttDato ?? {
+        startDato: avtale?.startDato ? avtale.startDato : undefined,
+        sluttDato: avtale?.sluttDato ? avtale.sluttDato : undefined,
       },
-      url: avtale?.url ?? undefined,
-      prisbetingelser: avtale?.prisbetingelser ?? undefined,
-      opphav: avtale?.opphav ?? Opphav.MR_ADMIN_FLATE,
+      url: avtaleUtkast?.url ?? avtale?.url ?? undefined,
+      prisbetingelser: avtaleUtkast?.prisbetingelser ?? avtale?.prisbetingelser ?? undefined,
+      opphav: avtaleUtkast?.opphav ?? avtale?.opphav ?? Opphav.MR_ADMIN_FLATE,
     },
   });
 
@@ -125,8 +139,9 @@ export function AvtaleSkjemaContainer({
   } = useDatepicker({
     fromDate: new Date(),
     defaultSelected:
-      defaultValues?.startOgSluttDato?.sluttDato &&
-      addYear(defaultValues?.startOgSluttDato?.sluttDato, 5),
+      (defaultValues?.startOgSluttDato?.sluttDato &&
+        addYear(new Date(defaultValues?.startOgSluttDato?.sluttDato), 5)) ||
+      undefined,
   });
 
   const watchedTiltakstype: EmbeddedTiltakstype | undefined = watch("tiltakstype");
@@ -161,8 +176,8 @@ export function AvtaleSkjemaContainer({
       leverandorOrganisasjonsnummer: data.leverandor,
       leverandorUnderenheter: data.leverandorUnderenheter,
       navn: data.navn,
-      sluttDato: formaterDatoSomYYYYMMDD(data.startOgSluttDato.sluttDato),
-      startDato: formaterDatoSomYYYYMMDD(data.startOgSluttDato.startDato),
+      sluttDato: data.startOgSluttDato.sluttDato,
+      startDato: data.startOgSluttDato.startDato,
       tiltakstypeId: data.tiltakstype.id,
       url: data.url || null,
       administrator: data.administrator,
@@ -298,7 +313,9 @@ export function AvtaleSkjemaContainer({
                         label="Maks varighet inkl. opsjon"
                         readOnly
                         size="small"
-                        value={formaterDato(addYear(watch("startOgSluttDato.sluttDato"), 5))}
+                        value={formaterDato(
+                          addYear(new Date(watch("startOgSluttDato.sluttDato")), 5),
+                        )}
                       />
                     </DatePicker>
                   ) : null}

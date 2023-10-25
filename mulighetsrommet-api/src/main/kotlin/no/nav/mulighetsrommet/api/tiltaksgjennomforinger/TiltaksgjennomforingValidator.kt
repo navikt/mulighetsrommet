@@ -69,7 +69,11 @@ class TiltaksgjennomforingValidator(
                 add(ValidationError("navEnheter", "Minst ett NAV-kontor må være valgt"))
             }
 
-            val avtaleNavEnheter = avtale.navEnheter.associateBy { it.enhetsnummer }
+            if (!avtale.kontorstruktur.any { it.region.enhetsnummer == dbo.navRegion }) {
+                add(ValidationError("navEnheter", "NAV-region ${dbo.navRegion} mangler i avtalen"))
+            }
+
+            val avtaleNavEnheter = avtale.kontorstruktur.flatMap { it.kontorer }.associateBy { it.enhetsnummer }
             dbo.navEnheter.forEach { enhetsnummer ->
                 if (!avtaleNavEnheter.containsKey(enhetsnummer)) {
                     add(ValidationError("navEnheter", "NAV-enhet $enhetsnummer mangler i avtalen"))

@@ -78,9 +78,23 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
         every { avtaler.get(AvtaleFixtures.avtale1.id) } returns AvtaleFixtures.oppfolgingAvtaleAdminDto.copy(
             startDato = LocalDate.of(2023, 1, 1),
             sluttDato = LocalDate.of(2023, 2, 1),
-            navEnheter = listOf(
-                EmbeddedNavEnhet(enhetsnummer = "0402", navn = "NAV Kongsvinger", type = NavEnhetType.LOKAL, overordnetEnhet = "0400"),
-                EmbeddedNavEnhet(enhetsnummer = "0400", navn = "NAV Innlandet", type = NavEnhetType.FYLKE, overordnetEnhet = null),
+            kontorstruktur = listOf(
+                Kontorstruktur(
+                    region = EmbeddedNavEnhet(
+                        enhetsnummer = "2990",
+                        navn = "IT-avdelingen",
+                        type = NavEnhetType.DIR,
+                        overordnetEnhet = null,
+                    ),
+                    kontorer = listOf(
+                        EmbeddedNavEnhet(
+                            enhetsnummer = "0402",
+                            navn = "NAV Kongsvinger",
+                            type = NavEnhetType.LOKAL,
+                            overordnetEnhet = "0400",
+                        ),
+                    ),
+                ),
             ),
             leverandor = AvtaleAdminDto.Leverandor(
                 organisasjonsnummer = "000000000",
@@ -217,9 +231,23 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
 
                 every { avtaler.get(differentAvtaleId) } returns AvtaleFixtures.oppfolgingAvtaleAdminDto.copy(
                     id = differentAvtaleId,
-                    navEnheter = listOf(
-                        EmbeddedNavEnhet(enhetsnummer = "0402", navn = "NAV Kongsvinger", type = NavEnhetType.LOKAL, overordnetEnhet = "0400"),
-                        EmbeddedNavEnhet(enhetsnummer = "0400", navn = "NAV Innlandet", type = NavEnhetType.FYLKE, overordnetEnhet = null),
+                    kontorstruktur = listOf(
+                        Kontorstruktur(
+                            region = EmbeddedNavEnhet(
+                                enhetsnummer = "2990",
+                                navn = "IT-avdelingen",
+                                type = NavEnhetType.DIR,
+                                overordnetEnhet = null,
+                            ),
+                            kontorer = listOf(
+                                EmbeddedNavEnhet(
+                                    enhetsnummer = "0402",
+                                    navn = "NAV Kongsvinger",
+                                    type = NavEnhetType.LOKAL,
+                                    overordnetEnhet = "0400",
+                                ),
+                            ),
+                        ),
                     ),
                 )
                 every { tiltaksgjennomforinger.get(dbo.id) } returns TiltaksgjennomforingFixtures.Oppfolging1AdminDto

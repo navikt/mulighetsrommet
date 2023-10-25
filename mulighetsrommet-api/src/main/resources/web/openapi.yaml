@@ -1711,10 +1711,6 @@ components:
         antallPlasser:
           type: number
           nullable: true
-        navEnheter:
-          type: array
-          items:
-            $ref: "#/components/schemas/EmbeddedNavEnhet"
         kontorstruktur:
           $ref: "#/components/schemas/NavKontorStruktur"
         opphav:
@@ -1734,7 +1730,6 @@ components:
         - avtaletype
         - avtalestatus
         - prisbetingelser
-        - navEnheter
         - kontorstruktur
         - opphav
         - updatedAt

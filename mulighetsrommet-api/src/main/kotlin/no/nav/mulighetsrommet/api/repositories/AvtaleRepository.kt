@@ -399,9 +399,7 @@ class AvtaleRepository(private val db: Database) {
     private fun Row.toAvtaleAdminDto(): AvtaleAdminDto {
         val startDato = localDate("start_dato")
         val sluttDato = localDate("slutt_dato")
-        val embeddedNavEnheter = stringOrNull("nav_enheter")
-            ?.let { Json.decodeFromString<List<EmbeddedNavEnhet?>>(it).filterNotNull() }
-            ?: emptyList()
+
         val underenheter = stringOrNull("leverandor_underenheter")
             ?.let { Json.decodeFromString<List<AvtaleAdminDto.LeverandorUnderenhet?>>(it).filterNotNull() }
             ?: emptyList()
@@ -409,14 +407,17 @@ class AvtaleRepository(private val db: Database) {
             .decodeFromString<List<AvtaleAdminDto.Administrator?>>(string("administratorer"))
             .filterNotNull()
 
-        val regioner = embeddedNavEnheter.filter {
+        val navEnheter = stringOrNull("nav_enheter")
+            ?.let { Json.decodeFromString<List<EmbeddedNavEnhet?>>(it).filterNotNull() }
+            ?: emptyList()
+        val regioner = navEnheter.filter {
             it.type == NavEnhetType.FYLKE
         }
 
         val kontorstruktur = regioner.map {
             val region = it
             val kontorer =
-                embeddedNavEnheter.filter { enhet -> enhet.type != NavEnhetType.FYLKE && enhet.overordnetEnhet == it.enhetsnummer }
+                navEnheter.filter { enhet -> enhet.type != NavEnhetType.FYLKE && enhet.overordnetEnhet == it.enhetsnummer }
                     .sortedBy { enhet -> enhet.navn }
             Kontorstruktur(region = region, kontorer = kontorer)
         }
@@ -446,7 +447,6 @@ class AvtaleRepository(private val db: Database) {
                     beskrivelse = stringOrNull("leverandor_kontaktperson_beskrivelse"),
                 )
             },
-            navEnheter = embeddedNavEnheter,
             startDato = startDato,
             sluttDato = sluttDato,
             avtaletype = Avtaletype.valueOf(string("avtaletype")),

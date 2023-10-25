@@ -3,13 +3,21 @@ import { useGetAvtaleIdFromUrl } from "../../hooks/useGetAvtaleIdFromUrl";
 import { useGetAdminTiltaksgjennomforingsIdFraUrl } from "../../hooks/useGetAdminTiltaksgjennomforingsIdFraUrl";
 import { ChevronLeftIcon } from "@navikt/aksel-icons";
 
-export function Tilbakelenke() {
+interface Props {
+  onClick?: () => void;
+}
+
+export function Tilbakelenke({ onClick }: Props) {
   const { pathname } = useLocation();
   const avtaleId = useGetAvtaleIdFromUrl();
   const tiltaksgjennomforingId = useGetAdminTiltaksgjennomforingsIdFraUrl();
 
   return (
-    <Link to={parentPath(pathname, avtaleId, tiltaksgjennomforingId)} data-testid="tilbakelenke">
+    <Link
+      to={parentPath(pathname, avtaleId, tiltaksgjennomforingId)}
+      data-testid="tilbakelenke"
+      onClick={() => onClick?.()}
+    >
       <ChevronLeftIcon aria-label="Tilbakeknapp" />
       Tilbake
     </Link>

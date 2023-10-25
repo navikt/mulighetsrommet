@@ -32,7 +32,6 @@ export const mockAvtaler: Avtale[] = [
     },
     startDato: "2021-08-02",
     sluttDato: "2026-08-01",
-    navEnheter: [mockEnheter._0425, mockEnheter._0415],
     avtaletype: Avtaletype.FORHAANDSGODKJENT,
     avtalestatus: Avtalestatus.AKTIV,
     prisbetingelser: `Nye priser fra 21.03.23, gamle priser i parentes
@@ -71,7 +70,6 @@ export const mockAvtaler: Avtale[] = [
     })),
     startDato: "2021-08-02",
     sluttDato: "2026-08-01",
-    navEnheter: [],
     avtaletype: Avtaletype.RAMMEAVTALE,
     avtalestatus: Avtalestatus.AKTIV,
     prisbetingelser: "Maskert prisbetingelser",
@@ -102,7 +100,6 @@ export const mockAvtaler: Avtale[] = [
     })),
     startDato: "2020-07-01",
     sluttDato: "2024-06-30",
-    navEnheter: [],
     avtaletype: Avtaletype.RAMMEAVTALE,
     avtalestatus: Avtalestatus.AKTIV,
     prisbetingelser: "Maskert prisbetingelser",

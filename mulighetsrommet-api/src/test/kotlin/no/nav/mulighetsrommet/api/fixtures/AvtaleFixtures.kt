@@ -75,7 +75,6 @@ object AvtaleFixtures {
         administrator = null,
         url = null,
         antallPlasser = null,
-        navEnheter = emptyList(),
         opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
         updatedAt = avtale1.updatedAt,
         kontorstruktur = listOf(
@@ -125,7 +124,6 @@ object AvtaleFixtures {
         administrator = null,
         url = null,
         antallPlasser = null,
-        navEnheter = emptyList(),
         opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
         updatedAt = avtale1.updatedAt,
         kontorstruktur = listOf(

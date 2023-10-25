@@ -79,14 +79,6 @@ class AvtaleValidatorTest : FunSpec({
             },
             url = url,
             antallPlasser = antallPlasser,
-            navEnheter = navEnheter.map {
-                EmbeddedNavEnhet(
-                    enhetsnummer = it,
-                    navn = it,
-                    type = NavEnhetType.LOKAL,
-                    overordnetEnhet = "2900",
-                )
-            },
             opphav = opphav,
             updatedAt = avtaleDbo.updatedAt,
             kontorstruktur = listOf(

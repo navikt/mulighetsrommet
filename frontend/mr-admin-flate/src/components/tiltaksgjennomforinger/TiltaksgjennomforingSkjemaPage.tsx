@@ -12,6 +12,7 @@ import styles from "../skjema/Skjema.module.scss";
 import { Alert } from "@navikt/ds-react";
 import { ErrorMeldinger } from "./TiltaksgjennomforingSkjemaErrors";
 import { useAvtale } from "../../api/avtaler/useAvtale";
+import { TiltaksgjennomforingSchema } from "./TiltaksgjennomforingSchema";
 
 const TiltaksgjennomforingSkjemaPage = () => {
   const navigate = useNavigate();
@@ -20,6 +21,7 @@ const TiltaksgjennomforingSkjemaPage = () => {
   const { data: tiltaksgjennomforing, isLoading: tiltaksgjennomforingLoading } =
     useTiltaksgjennomforing();
   const { data: utkast, isLoading: utkastLoading } = useUtkast(
+    TiltaksgjennomforingSchema,
     searchParams.get("utkastId") || undefined,
   );
   const { data: avtale, isLoading: avtaleIsLoading } = useAvtale(
