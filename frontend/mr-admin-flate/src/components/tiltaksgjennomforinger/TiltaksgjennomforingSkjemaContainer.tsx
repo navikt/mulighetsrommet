@@ -25,9 +25,10 @@ import {
   TiltaksgjennomforingSchema,
 } from "./TiltaksgjennomforingSchema";
 import {
-  arenaOpphav,
+  erArenaOpphav,
   defaultOppstartType,
   defaultValuesForKontaktpersoner,
+  utkastDataEllerDefault,
 } from "./TiltaksgjennomforingSkjemaConst";
 import { TiltaksgjennomforingSkjemaDetaljer } from "./TiltaksgjennomforingSkjemaDetaljer";
 import { TiltaksgjennomforingSkjemaKnapperad } from "./TiltaksgjennomforingSkjemaKnapperad";
@@ -88,73 +89,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
 
   const form = useForm<InferredTiltaksgjennomforingSchema>({
     resolver: zodResolver(TiltaksgjennomforingSchema),
-    defaultValues: {
-      navn: tiltaksgjennomforingUtkast?.navn || tiltaksgjennomforing?.navn,
-      avtaleId: tiltaksgjennomforingUtkast?.avtaleId || avtale.id,
-      navRegion:
-        tiltaksgjennomforingUtkast?.navRegion || tiltaksgjennomforing?.navRegion?.enhetsnummer,
-      navEnheter:
-        tiltaksgjennomforingUtkast?.navEnheter ||
-        tiltaksgjennomforing?.navEnheter?.map((enhet) => enhet.enhetsnummer) ||
-        [],
-      administrator:
-        tiltaksgjennomforingUtkast?.administrator || tiltaksgjennomforing?.administrator?.navIdent,
-      antallPlasser:
-        tiltaksgjennomforingUtkast?.antallPlasser || tiltaksgjennomforing?.antallPlasser,
-      startOgSluttDato: {
-        startDato:
-          tiltaksgjennomforingUtkast?.startOgSluttDato?.startDato ||
-          tiltaksgjennomforing?.startDato,
-        sluttDato:
-          tiltaksgjennomforingUtkast?.startOgSluttDato?.sluttDato ||
-          tiltaksgjennomforing?.sluttDato,
-      },
-      tiltaksArrangorUnderenhetOrganisasjonsnummer:
-        tiltaksgjennomforingUtkast?.tiltaksArrangorUnderenhetOrganisasjonsnummer ||
-        tiltaksgjennomforing?.arrangor?.organisasjonsnummer ||
-        "",
-      midlertidigStengt: tiltaksgjennomforingUtkast?.midlertidigStengt || {
-        erMidlertidigStengt: Boolean(tiltaksgjennomforing?.stengtFra),
-        stengtFra: tiltaksgjennomforing?.stengtFra
-          ? new Date(tiltaksgjennomforing.stengtFra)
-          : undefined,
-        stengtTil: tiltaksgjennomforing?.stengtTil
-          ? new Date(tiltaksgjennomforing.stengtTil)
-          : undefined,
-      },
-      oppstart:
-        tiltaksgjennomforingUtkast?.oppstart ||
-        tiltaksgjennomforing?.oppstart ||
-        defaultOppstartType(avtale),
-      apenForInnsok:
-        tiltaksgjennomforingUtkast?.apenForInnsok ||
-        tiltaksgjennomforing?.tilgjengelighet !== Tilgjengelighetsstatus.STENGT,
-      kontaktpersoner:
-        tiltaksgjennomforingUtkast?.kontaktpersoner ||
-        defaultValuesForKontaktpersoner(tiltaksgjennomforing?.kontaktpersoner),
-      estimertVentetid:
-        tiltaksgjennomforingUtkast?.estimertVentetid || tiltaksgjennomforing?.estimertVentetid,
-      stedForGjennomforing:
-        tiltaksgjennomforingUtkast?.stedForGjennomforing ||
-        tiltaksgjennomforing?.stedForGjennomforing,
-      arrangorKontaktpersonId:
-        tiltaksgjennomforingUtkast?.arrangorKontaktpersonId ||
-        tiltaksgjennomforing?.arrangor?.kontaktperson?.id,
-      beskrivelse:
-        (tiltaksgjennomforingUtkast?.beskrivelse || tiltaksgjennomforing?.beskrivelse) ?? null,
-      faneinnhold: (tiltaksgjennomforingUtkast?.faneinnhold ||
-        tiltaksgjennomforing?.faneinnhold) ?? {
-        forHvem: null,
-        forHvemInfoboks: null,
-        pameldingOgVarighet: null,
-        pameldingOgVarighetInfoboks: null,
-        detaljerOgInnhold: null,
-        detaljerOgInnholdInfoboks: null,
-      },
-      opphav:
-        (tiltaksgjennomforingUtkast?.opphav || tiltaksgjennomforing?.opphav) ??
-        Opphav.MR_ADMIN_FLATE,
-    },
+    defaultValues: utkastDataEllerDefault(avtale, tiltaksgjennomforingUtkast, tiltaksgjennomforing),
   });
 
   const {
@@ -301,7 +236,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
           </Tabs>
           <Separator />
           <div>
-            {!arenaOpphav(tiltaksgjennomforing) && redigeringsModus && (
+            {!erArenaOpphav(tiltaksgjennomforing) && redigeringsModus && (
               <Button
                 size="small"
                 variant="danger"

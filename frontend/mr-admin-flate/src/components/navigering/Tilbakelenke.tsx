@@ -36,7 +36,7 @@ export const parentPath = (
       return "/avtaler";
     }
   } else if (pathname.includes("tiltaksgjennomforinger")) {
-    if (tiltaksgjennomforingId) {
+    if (avtaleId) {
       return `/avtaler/${avtaleId}`;
     } else {
       return "/avtaler";

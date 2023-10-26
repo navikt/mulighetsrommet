@@ -8,7 +8,7 @@ import {
 import skjemastyles from "../skjema/Skjema.module.scss";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import { addYear, tilgjengelighetsstatusTilTekst } from "../../utils/Utils";
-import { arenaOpphav, arrangorUnderenheterOptions } from "./TiltaksgjennomforingSkjemaConst";
+import { erArenaOpphav, arrangorUnderenheterOptions } from "./TiltaksgjennomforingSkjemaConst";
 import { useHentKontaktpersoner } from "../../api/ansatt/useHentKontaktpersoner";
 import { useHentBetabrukere } from "../../api/ansatt/useHentBetabrukere";
 import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
@@ -85,7 +85,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
           <FormGroup>
             <TextField
               size="small"
-              readOnly={arenaOpphav(tiltaksgjennomforing)}
+              readOnly={erArenaOpphav(tiltaksgjennomforing)}
               error={errors.navn?.message as string}
               label="Tiltaksnavn"
               autoFocus
@@ -103,7 +103,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
               size="small"
               label="Oppstartstype"
               placeholder="Velg oppstart"
-              readOnly={!redigerOppstart && arenaOpphav(tiltaksgjennomforing)}
+              readOnly={!redigerOppstart && erArenaOpphav(tiltaksgjennomforing)}
               {...register("oppstart")}
               options={[
                 {
@@ -120,7 +120,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
               size="small"
               fra={{
                 label: "Startdato",
-                readOnly: arenaOpphav(tiltaksgjennomforing),
+                readOnly: erArenaOpphav(tiltaksgjennomforing),
                 fromDate: minStartdato,
                 toDate: maxSluttdato,
                 ...register("startOgSluttDato.startDato"),
@@ -128,7 +128,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
               }}
               til={{
                 label: "Sluttdato",
-                readOnly: arenaOpphav(tiltaksgjennomforing),
+                readOnly: erArenaOpphav(tiltaksgjennomforing),
                 fromDate: minStartdato,
                 toDate: maxSluttdato,
                 ...register("startOgSluttDato.sluttDato"),
@@ -137,7 +137,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
             />
             <Checkbox
               size="small"
-              readOnly={arenaOpphav(tiltaksgjennomforing)}
+              readOnly={erArenaOpphav(tiltaksgjennomforing)}
               {...register("apenForInnsok")}
             >
               Åpen for innsøk
@@ -166,7 +166,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
             )}
             <TextField
               size="small"
-              readOnly={arenaOpphav(tiltaksgjennomforing)}
+              readOnly={erArenaOpphav(tiltaksgjennomforing)}
               error={errors.antallPlasser?.message as string}
               type="number"
               style={{
@@ -218,7 +218,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
               <SokeSelect
                 size="small"
                 label="NAV-region"
-                readOnly={arenaOpphav(tiltaksgjennomforing)}
+                readOnly={erArenaOpphav(tiltaksgjennomforing)}
                 placeholder="Velg en"
                 {...register("navRegion")}
                 onInputChange={() => {
@@ -321,7 +321,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                   setValue("tiltaksArrangorUnderenhetOrganisasjonsnummer", "");
                 }}
                 readOnly={
-                  !avtale.leverandor.organisasjonsnummer || arenaOpphav(tiltaksgjennomforing)
+                  !avtale.leverandor.organisasjonsnummer || erArenaOpphav(tiltaksgjennomforing)
                 }
                 options={arrangorUnderenheterOptions(avtale, virksomhet)}
               />

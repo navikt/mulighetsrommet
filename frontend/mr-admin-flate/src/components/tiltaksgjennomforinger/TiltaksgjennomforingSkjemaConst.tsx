@@ -2,11 +2,15 @@ import { isTiltakMedFellesOppstart } from "../../utils/tiltakskoder";
 import {
   Avtale,
   Opphav,
+  Tilgjengelighetsstatus,
   Tiltaksgjennomforing,
   TiltaksgjennomforingKontaktpersoner,
   TiltaksgjennomforingOppstartstype,
   Virksomhet,
 } from "mulighetsrommet-api-client";
+import { TiltaksgjennomforingUtkastData } from "./TiltaksgjennomforingSkjemaPage";
+import { InferredTiltaksgjennomforingSchema } from "./TiltaksgjennomforingSchema";
+import { DeepPartial } from "react-hook-form";
 
 export function defaultOppstartType(avtale?: Avtale): TiltaksgjennomforingOppstartstype {
   if (!avtale) {
@@ -30,30 +34,7 @@ export function defaultValuesForKontaktpersoner(
   }));
 }
 
-export type UtkastData = Pick<
-  Tiltaksgjennomforing,
-  | "navn"
-  | "antallPlasser"
-  | "startDato"
-  | "sluttDato"
-  | "navEnheter"
-  | "stengtFra"
-  | "stengtTil"
-  | "arrangor"
-  | "kontaktpersoner"
-  | "stedForGjennomforing"
-  | "beskrivelse"
-  | "estimertVentetid"
-> & {
-  tiltakstypeId: string;
-  avtaleId: string;
-  arrangorKontaktpersonId?: {
-    id?: string;
-  };
-  id: string;
-};
-
-export const arenaOpphav = (tiltaksgjennomforing: Tiltaksgjennomforing | undefined) => {
+export const erArenaOpphav = (tiltaksgjennomforing: Tiltaksgjennomforing | undefined) => {
   return tiltaksgjennomforing?.opphav === Opphav.ARENA;
 };
 
@@ -76,3 +57,53 @@ export const arrangorUnderenheterOptions = (avtale: Avtale, virksomhet: Virksomh
   }
   return options;
 };
+
+export function utkastDataEllerDefault(
+  avtale: Avtale,
+  utkast?: TiltaksgjennomforingUtkastData,
+  tiltaksgjennomforing?: Tiltaksgjennomforing,
+): DeepPartial<InferredTiltaksgjennomforingSchema> {
+  return {
+    navn: tiltaksgjennomforing?.navn,
+    avtaleId: avtale.id,
+    navRegion: tiltaksgjennomforing?.navRegion?.enhetsnummer,
+    navEnheter: (tiltaksgjennomforing?.navEnheter?.map((enhet) => enhet.enhetsnummer) || []) as [
+      string,
+      ...string[],
+    ],
+    administrator: tiltaksgjennomforing?.administrator?.navIdent,
+    antallPlasser: tiltaksgjennomforing?.antallPlasser,
+    startOgSluttDato: {
+      startDato: tiltaksgjennomforing?.startDato,
+      sluttDato: tiltaksgjennomforing?.sluttDato,
+    },
+    tiltaksArrangorUnderenhetOrganisasjonsnummer:
+      tiltaksgjennomforing?.arrangor?.organisasjonsnummer || "",
+    midlertidigStengt: {
+      erMidlertidigStengt: Boolean(tiltaksgjennomforing?.stengtFra),
+      stengtFra: tiltaksgjennomforing?.stengtFra
+        ? new Date(tiltaksgjennomforing.stengtFra)
+        : undefined,
+      stengtTil: tiltaksgjennomforing?.stengtTil
+        ? new Date(tiltaksgjennomforing.stengtTil)
+        : undefined,
+    },
+    oppstart: tiltaksgjennomforing?.oppstart || defaultOppstartType(avtale),
+    apenForInnsok: tiltaksgjennomforing?.tilgjengelighet !== Tilgjengelighetsstatus.STENGT,
+    kontaktpersoner: defaultValuesForKontaktpersoner(tiltaksgjennomforing?.kontaktpersoner),
+    estimertVentetid: tiltaksgjennomforing?.estimertVentetid,
+    stedForGjennomforing: tiltaksgjennomforing?.stedForGjennomforing,
+    arrangorKontaktpersonId: tiltaksgjennomforing?.arrangor?.kontaktperson?.id,
+    beskrivelse: tiltaksgjennomforing?.beskrivelse ?? null,
+    faneinnhold: tiltaksgjennomforing?.faneinnhold ?? {
+      forHvem: null,
+      forHvemInfoboks: null,
+      pameldingOgVarighet: null,
+      pameldingOgVarighetInfoboks: null,
+      detaljerOgInnhold: null,
+      detaljerOgInnholdInfoboks: null,
+    },
+    opphav: tiltaksgjennomforing?.opphav ?? Opphav.MR_ADMIN_FLATE,
+    ...utkast,
+  };
+}

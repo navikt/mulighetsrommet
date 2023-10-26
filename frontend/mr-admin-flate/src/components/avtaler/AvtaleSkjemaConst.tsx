@@ -8,9 +8,12 @@ import {
   UtkastDto,
   UtkastRequest as Utkast,
   Virksomhet,
+  Avtaletype,
+  Opphav,
 } from "mulighetsrommet-api-client";
 import { MutableRefObject } from "react";
 import { UseMutationResult } from "@tanstack/react-query";
+import { DeepPartial } from "react-hook-form";
 
 export type AvtaleUtkastData = Partial<InferredAvtaleSchema> & {
   avtaleId: string;
@@ -68,3 +71,39 @@ export const underenheterOptions = (underenheterForLeverandor: Virksomhet[]) =>
     value: leverandor.organisasjonsnummer,
     label: `${leverandor.navn} - ${leverandor.organisasjonsnummer}`,
   }));
+
+export function utkastDataEllerDefault(
+  ansatt: NavAnsatt,
+  utkast?: AvtaleUtkastData,
+  avtale?: Avtale,
+): DeepPartial<InferredAvtaleSchema> {
+  const navRegioner = avtale?.kontorstruktur.map((struktur) => struktur.region.enhetsnummer) ?? [];
+  const navEnheter =
+    avtale?.kontorstruktur
+      .flatMap((struktur) => struktur.kontorer)
+      .map((enhet) => enhet.enhetsnummer) ?? [];
+  return {
+    tiltakstype: avtale?.tiltakstype,
+    navRegioner,
+    navEnheter,
+    administrator: avtale?.administrator?.navIdent || ansatt.navIdent || "",
+    navn: avtale?.navn ?? "",
+    avtaletype: avtale?.avtaletype ?? Avtaletype.AVTALE,
+    leverandor: avtale?.leverandor?.organisasjonsnummer ?? "",
+    leverandorUnderenheter:
+      avtale?.leverandorUnderenheter?.length === 0 || !avtale?.leverandorUnderenheter
+        ? []
+        : avtale?.leverandorUnderenheter?.map(
+            (leverandor: LeverandorUnderenhet) => leverandor.organisasjonsnummer,
+          ),
+    leverandorKontaktpersonId: avtale?.leverandorKontaktperson?.id,
+    startOgSluttDato: {
+      startDato: avtale?.startDato ? avtale.startDato : undefined,
+      sluttDato: avtale?.sluttDato ? avtale.sluttDato : undefined,
+    },
+    url: avtale?.url ?? undefined,
+    prisbetingelser: avtale?.prisbetingelser ?? undefined,
+    opphav: avtale?.opphav ?? Opphav.MR_ADMIN_FLATE,
+    ...utkast,
+  };
+}

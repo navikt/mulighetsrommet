@@ -44,6 +44,7 @@ import {
   getLokaleUnderenheterAsSelectOptions,
   saveUtkast,
   underenheterOptions,
+  utkastDataEllerDefault,
 } from "./AvtaleSkjemaConst";
 import { AvtaleSkjemaKnapperad } from "./AvtaleSkjemaKnapperad";
 
@@ -86,45 +87,9 @@ export function AvtaleSkjemaContainer({
 
   const utkastIdRef = useRef(avtaleUtkast?.id || avtale?.id || uuidv4());
 
-  const navRegioner =
-    avtaleUtkast?.navRegioner ??
-    avtale?.kontorstruktur.map((struktur) => struktur.region.enhetsnummer) ??
-    [];
-  const navEnheter =
-    avtaleUtkast?.navEnheter ??
-    avtale?.kontorstruktur
-      .flatMap((struktur) => struktur.kontorer)
-      .map((enhet) => enhet.enhetsnummer) ??
-    [];
-
   const form = useForm<InferredAvtaleSchema>({
     resolver: zodResolver(AvtaleSchema),
-    defaultValues: {
-      tiltakstype: avtaleUtkast?.tiltakstype ?? avtale?.tiltakstype,
-      navRegioner,
-      navEnheter,
-      administrator:
-        avtaleUtkast?.administrator ?? (avtale?.administrator?.navIdent || ansatt.navIdent || ""),
-      navn: avtaleUtkast?.navn ?? avtale?.navn ?? "",
-      avtaletype: avtaleUtkast?.avtaletype ?? avtale?.avtaletype ?? Avtaletype.AVTALE,
-      leverandor: avtaleUtkast?.leverandor ?? avtale?.leverandor?.organisasjonsnummer ?? "",
-      leverandorUnderenheter:
-        avtaleUtkast?.leverandorUnderenheter ??
-        (avtale?.leverandorUnderenheter?.length === 0 || !avtale?.leverandorUnderenheter)
-          ? []
-          : avtale?.leverandorUnderenheter?.map(
-              (leverandor: LeverandorUnderenhet) => leverandor.organisasjonsnummer,
-            ),
-      leverandorKontaktpersonId:
-        avtaleUtkast?.leverandorKontaktpersonId ?? avtale?.leverandorKontaktperson?.id,
-      startOgSluttDato: avtaleUtkast?.startOgSluttDato ?? {
-        startDato: avtale?.startDato ? avtale.startDato : undefined,
-        sluttDato: avtale?.sluttDato ? avtale.sluttDato : undefined,
-      },
-      url: avtaleUtkast?.url ?? avtale?.url ?? undefined,
-      prisbetingelser: avtaleUtkast?.prisbetingelser ?? avtale?.prisbetingelser ?? undefined,
-      opphav: avtaleUtkast?.opphav ?? avtale?.opphav ?? Opphav.MR_ADMIN_FLATE,
-    },
+    defaultValues: utkastDataEllerDefault(ansatt, avtaleUtkast, avtale),
   });
 
   const {
