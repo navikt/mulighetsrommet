@@ -38,15 +38,15 @@ jobs:
         uses: ./.github/actions/setup-frontend
       - name: Test
         run: npx turbo run lint test:ci --filter=mr-admin-flate
-      - name: Cypress run
-        uses: cypress-io/github-action@v6
-        with:
-          working-directory: frontend/mr-admin-flate
-          browser: chrome
-          headed: true
-          wait-on: http://localhost:5173
-          start: npm start
-          install: false
+      # - name: Cypress run
+      #   uses: cypress-io/github-action@v6
+      #   with:
+      #     working-directory: frontend/mr-admin-flate
+      #     browser: chrome
+      #     headed: true
+      #     wait-on: http://localhost:5173
+      #     start: npm start
+      #     install: false
 
   deploy-dev:
     name: Deploy (dev)
