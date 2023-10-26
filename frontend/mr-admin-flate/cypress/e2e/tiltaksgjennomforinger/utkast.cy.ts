@@ -19,7 +19,7 @@ describe("Utkast", () => {
       cy.checkPageA11y();
     });
 
-    it.skip("Skal kunne opprette et utkast og se det i oversikten over utkast", () => {
+    it("Skal kunne opprette et utkast og se det i oversikten over utkast", () => {
       cy.gaTilForsteAvtale();
       cy.getByTestId("avtale-tiltaksgjennomforing-tab").click();
       cy.getByTestId("opprett-gjennomforing-knapp").click();
@@ -41,7 +41,7 @@ describe("Utkast", () => {
       cy.checkPageA11y();
     });
 
-    it.skip("Skal kunne opprette et utkast og se det i oversikten over utkast", () => {
+    it("Skal kunne opprette et utkast og se det i oversikten over utkast", () => {
       cy.visit("/avtaler");
       cy.getByTestId("avtaler-tab").click();
       cy.getByTestId("opprett-avtale").click();
