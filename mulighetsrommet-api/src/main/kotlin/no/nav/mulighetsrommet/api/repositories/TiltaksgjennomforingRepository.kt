@@ -322,35 +322,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         }
     }
 
-    fun getBySanityId(sanityId: UUID): TiltaksgjennomforingAdminDto? {
-        @Language("PostgreSQL")
-        val query = """
-            select *
-            from tiltaksgjennomforing_admin_dto_view
-            where sanity_id = ?
-        """.trimIndent()
-
-        return queryOf(query, sanityId)
-            .map { it.toTiltaksgjennomforingAdminDto() }
-            .asSingle
-            .let { db.run(it) }
-    }
-
-    fun getBySanityIds(sanityIds: List<UUID>): Map<UUID, TiltaksgjennomforingAdminDto> {
-        @Language("PostgreSQL")
-        val query = """
-            select * from tiltaksgjennomforing_admin_dto_view
-            where sanity_id = any (?)
-        """.trimIndent()
-
-        return queryOf(query, db.createUuidArray(sanityIds))
-            .map { it.toTiltaksgjennomforingAdminDto() }
-            .asList
-            .let { db.run(it) }
-            .filter { it.sanityId != null }
-            .associateBy { it.sanityId!! }
-    }
-
     fun get(id: UUID): TiltaksgjennomforingAdminDto? =
         db.transaction { get(id, it) }
 
@@ -790,39 +761,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             tiltaksnummer = stringOrNull("tiltaksnummer"),
             stengtTil = localDateOrNull("stengt_til"),
         )
-    }
-
-    fun countGjennomforingerForTiltakstypeWithId(id: UUID, currentDate: LocalDate = LocalDate.now()): Int {
-        @Language("PostgreSQL")
-        val query = """
-            SELECT count(id) AS antall
-            FROM tiltaksgjennomforing
-            WHERE tiltakstype_id = ?
-            and start_dato < ?::timestamp
-            and slutt_dato > ?::timestamp
-        """.trimIndent()
-
-        return queryOf(query, id, currentDate, currentDate)
-            .map { it.int("antall") }
-            .asSingle
-            .let { db.run(it)!! }
-    }
-
-    fun countDeltakereForAvtaleWithId(avtaleId: UUID, currentDate: LocalDate = LocalDate.now()): Int {
-        @Language("PostgreSQL")
-        val query = """
-            SELECT count(*) AS antall
-            FROM tiltaksgjennomforing tg
-            join deltaker d on d.tiltaksgjennomforing_id = tg.id
-            where tg.avtale_id = ?::uuid
-            and d.start_dato < ?::timestamp
-            and d.slutt_dato > ?::timestamp
-        """.trimIndent()
-
-        return queryOf(query, avtaleId, currentDate, currentDate)
-            .map { it.int("antall") }
-            .asSingle
-            .let { db.run(it)!! }
     }
 
     fun getAllGjennomforingerSomNarmerSegSluttdato(currentDate: LocalDate = LocalDate.now()): List<TiltaksgjennomforingNotificationDto> {

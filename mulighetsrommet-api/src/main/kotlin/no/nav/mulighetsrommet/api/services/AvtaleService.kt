@@ -3,7 +3,6 @@ package no.nav.mulighetsrommet.api.services
 import arrow.core.Either
 import kotliquery.Session
 import no.nav.mulighetsrommet.api.avtaler.AvtaleValidator
-import no.nav.mulighetsrommet.api.domain.dto.AvtaleNokkeltallDto
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.UtkastRepository
@@ -90,15 +89,6 @@ class AvtaleService(
                 currentPage = pagination.page,
                 pageSize = pagination.limit,
             ),
-        )
-    }
-
-    fun getNokkeltallForAvtaleMedId(id: UUID): AvtaleNokkeltallDto {
-        val antallTiltaksgjennomforinger = avtaler.countTiltaksgjennomforingerForAvtaleWithId(id)
-        val antallDeltakereForAvtale = tiltaksgjennomforinger.countDeltakereForAvtaleWithId(id)
-        return AvtaleNokkeltallDto(
-            antallTiltaksgjennomforinger = antallTiltaksgjennomforinger,
-            antallDeltakere = antallDeltakereForAvtale,
         )
     }
 

@@ -71,14 +71,6 @@ fun Route.avtaleRoutes() {
                 ?: call.respond(HttpStatusCode.NotFound, "Det finnes ikke noen avtale med id $id")
         }
 
-        get("{id}/nokkeltall") {
-            val id = call.parameters.getOrFail<UUID>("id")
-
-            val nokkeltall = avtaler.getNokkeltallForAvtaleMedId(id)
-
-            call.respond(nokkeltall)
-        }
-
         put {
             val navIdent = getNavIdent()
             val request = call.receive<AvtaleRequest>()

@@ -5,7 +5,6 @@ import arrow.core.right
 import io.ktor.server.plugins.*
 import kotliquery.Session
 import no.nav.mulighetsrommet.api.clients.vedtak.Innsatsgruppe
-import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingNokkeltallDto
 import no.nav.mulighetsrommet.api.domain.dto.VeilederflateTiltaksgjennomforing
 import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
@@ -139,25 +138,12 @@ class TiltaksgjennomforingService(
                 )
             }
 
-    fun getNokkeltallForTiltaksgjennomforing(tiltaksgjennomforingId: UUID): TiltaksgjennomforingNokkeltallDto =
-        TiltaksgjennomforingNokkeltallDto(
-            antallDeltakere = deltakerRepository.countAntallDeltakereForTiltakstypeWithId(tiltaksgjennomforingId),
-        )
-
     fun getAllGjennomforingerSomNarmerSegSluttdato(): List<TiltaksgjennomforingNotificationDto> {
         return tiltaksgjennomforingRepository.getAllGjennomforingerSomNarmerSegSluttdato()
     }
 
     fun kobleGjennomforingTilAvtale(gjennomforingId: UUID, avtaleId: UUID? = null) {
         return tiltaksgjennomforingRepository.updateAvtaleIdForGjennomforing(gjennomforingId, avtaleId)
-    }
-
-    fun getBySanityId(sanityId: UUID): TiltaksgjennomforingAdminDto? {
-        return tiltaksgjennomforingRepository.getBySanityId(sanityId)
-    }
-
-    fun getBySanityIds(sanityIds: List<UUID>): Map<UUID, TiltaksgjennomforingAdminDto> {
-        return tiltaksgjennomforingRepository.getBySanityIds(sanityIds)
     }
 
     suspend fun delete(id: UUID, currentDate: LocalDate = LocalDate.now()): StatusResponse<Unit> {
