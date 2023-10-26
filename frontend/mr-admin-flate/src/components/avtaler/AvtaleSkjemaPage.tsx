@@ -51,10 +51,7 @@ const AvtaleSkjemaPage = () => {
 
   return (
     <main>
-      <Header
-        dataTestId={redigeringsModus ? "rediger-avtale-header" : "opprett-avtale-header"}
-        onClickLink={refetchUtkast}
-      >
+      <Header dataTestId={redigeringsModus ? "rediger-avtale-header" : "opprett-avtale-header"}>
         {redigeringsModus
           ? utkastModus
             ? "Rediger utkast"

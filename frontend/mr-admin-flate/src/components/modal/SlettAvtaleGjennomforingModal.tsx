@@ -1,16 +1,13 @@
-import { BodyShort, Button, Heading, Modal } from "@navikt/ds-react";
-import { ApiError, Avtale, Opphav, Tiltaksgjennomforing } from "mulighetsrommet-api-client";
-import { useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
 import { XMarkOctagonFillIcon } from "@navikt/aksel-icons";
-import styles from "../modal/Modal.module.scss";
-import { Lenkeknapp } from "../lenkeknapp/Lenkeknapp";
+import { BodyShort, Button, Heading, Modal } from "@navikt/ds-react";
 import { UseMutationResult } from "@tanstack/react-query";
 import classNames from "classnames";
-import { useGetAdminTiltaksgjennomforingsIdFraUrl } from "../../hooks/useGetAdminTiltaksgjennomforingsIdFraUrl";
-import { useGetAvtaleIdFromUrl } from "../../hooks/useGetAvtaleIdFromUrl";
-import { parentPath } from "../navigering/Tilbakelenke";
+import { ApiError, Avtale, Opphav, Tiltaksgjennomforing } from "mulighetsrommet-api-client";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { resolveErrorMessage } from "../../api/errors";
+import { Lenkeknapp } from "../lenkeknapp/Lenkeknapp";
+import styles from "../modal/Modal.module.scss";
 
 interface Props {
   modalOpen: boolean;
@@ -28,15 +25,12 @@ const SlettAvtaleGjennomforingModal = ({
   dataType,
 }: Props) => {
   const navigate = useNavigate();
-  const { pathname } = useLocation();
-  const avtaleId = useGetAvtaleIdFromUrl();
-  const tiltaksgjennomforingId = useGetAdminTiltaksgjennomforingsIdFraUrl();
 
   const fraArena = data?.opphav === Opphav.ARENA;
 
   useEffect(() => {
     if (mutation.isSuccess) {
-      navigate(parentPath(pathname, avtaleId, tiltaksgjennomforingId));
+      navigate(dataType === "avtale" ? "avtaler" : "tiltaksgjennomforinger");
       return;
     }
   }, [mutation]);
