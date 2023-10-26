@@ -1,7 +1,7 @@
-import { Link, useLocation } from "react-router-dom";
-import { useGetAvtaleIdFromUrl } from "../../hooks/useGetAvtaleIdFromUrl";
-import { useGetAdminTiltaksgjennomforingsIdFraUrl } from "../../hooks/useGetAdminTiltaksgjennomforingsIdFraUrl";
 import { ChevronLeftIcon } from "@navikt/aksel-icons";
+import { Link, useLocation } from "react-router-dom";
+import { useGetAdminTiltaksgjennomforingsIdFraUrl } from "../../hooks/useGetAdminTiltaksgjennomforingsIdFraUrl";
+import { useGetAvtaleIdFromUrl } from "../../hooks/useGetAvtaleIdFromUrl";
 
 interface Props {
   onClick?: () => void;

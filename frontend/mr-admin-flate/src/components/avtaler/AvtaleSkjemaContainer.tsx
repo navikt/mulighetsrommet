@@ -5,7 +5,6 @@ import {
   Avtalestatus,
   Avtaletype,
   EmbeddedTiltakstype,
-  LeverandorUnderenhet,
   NavAnsatt,
   NavEnhetType,
   Opphav,

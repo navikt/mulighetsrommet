@@ -1,18 +1,18 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ExclamationmarkTriangleFillIcon } from "@navikt/aksel-icons";
 import { Alert, Button, Tabs } from "@navikt/ds-react";
+import { useAtom } from "jotai";
 import {
   Avtale,
-  Opphav,
   Tiltaksgjennomforing,
   TiltaksgjennomforingRequest,
   UtkastRequest as Utkast,
 } from "mulighetsrommet-api-client";
-import { Tilgjengelighetsstatus } from "mulighetsrommet-api-client/build/models/Tilgjengelighetsstatus";
 import React, { useRef, useState } from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { v4 as uuidv4 } from "uuid";
 import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
+import { gjennomforingDetaljerTab } from "../../api/atoms";
 import { useHandleApiUpsertResponse } from "../../api/effects";
 import { useUpsertTiltaksgjennomforing } from "../../api/tiltaksgjennomforing/useUpsertTiltaksgjennomforing";
 import { useMutateUtkast } from "../../api/utkast/useMutateUtkast";
@@ -24,18 +24,11 @@ import {
   InferredTiltaksgjennomforingSchema,
   TiltaksgjennomforingSchema,
 } from "./TiltaksgjennomforingSchema";
-import {
-  erArenaOpphav,
-  defaultOppstartType,
-  defaultValuesForKontaktpersoner,
-  utkastDataEllerDefault,
-} from "./TiltaksgjennomforingSkjemaConst";
+import { erArenaOpphav, utkastDataEllerDefault } from "./TiltaksgjennomforingSkjemaConst";
 import { TiltaksgjennomforingSkjemaDetaljer } from "./TiltaksgjennomforingSkjemaDetaljer";
 import { TiltaksgjennomforingSkjemaKnapperad } from "./TiltaksgjennomforingSkjemaKnapperad";
-import { TiltaksgjennomforingSkjemaRedInnhold } from "./TiltaksgjennomforingSkjemaRedInnhold";
-import { useAtom } from "jotai";
-import { gjennomforingDetaljerTab } from "../../api/atoms";
 import { TiltaksgjennomforingUtkastData } from "./TiltaksgjennomforingSkjemaPage";
+import { TiltaksgjennomforingSkjemaRedInnhold } from "./TiltaksgjennomforingSkjemaRedInnhold";
 
 interface Props {
   onClose: () => void;

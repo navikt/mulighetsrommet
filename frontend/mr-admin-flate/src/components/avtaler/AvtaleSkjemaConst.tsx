@@ -1,19 +1,19 @@
-import { InferredAvtaleSchema } from "./AvtaleSchema";
+import { UseMutationResult } from "@tanstack/react-query";
 import {
   Avtale,
+  Avtaletype,
   LeverandorUnderenhet,
   NavAnsatt,
   NavEnhet,
   NavEnhetType,
-  UtkastDto,
-  UtkastRequest as Utkast,
-  Virksomhet,
-  Avtaletype,
   Opphav,
+  UtkastRequest as Utkast,
+  UtkastDto,
+  Virksomhet,
 } from "mulighetsrommet-api-client";
 import { MutableRefObject } from "react";
-import { UseMutationResult } from "@tanstack/react-query";
 import { DeepPartial } from "react-hook-form";
+import { InferredAvtaleSchema } from "./AvtaleSchema";
 
 export type AvtaleUtkastData = Partial<InferredAvtaleSchema> & {
   avtaleId: string;
