@@ -218,7 +218,6 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
               <SokeSelect
                 size="small"
                 label="NAV-region"
-                readOnly={erArenaOpphav(tiltaksgjennomforing)}
                 placeholder="Velg en"
                 {...register("navRegion")}
                 onInputChange={() => {
