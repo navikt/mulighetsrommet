@@ -53,11 +53,11 @@ spec:
       claims:
         groups:
           # team-mulighetsrommet
-          - 639e2806-4cc2-484c-a72a-51b4308c52a1
+          - id: "639e2806-4cc2-484c-a72a-51b4308c52a1"
           # 0000-GA-mr-admin-flate_betabruker
-          - ee45478c-57a5-4ee6-b28d-b65f8c1733fe
+          - id: "ee45478c-57a5-4ee6-b28d-b65f8c1733fe"
           # (GRP) mr-nav_kontaktperson
-          - 7b1d209a-f6c1-4c6e-84f2-02a1bb4c92ba
+          - id: "7b1d209a-f6c1-4c6e-84f2-02a1bb4c92ba"
         extra:
           - NAVident
           - azp_name
