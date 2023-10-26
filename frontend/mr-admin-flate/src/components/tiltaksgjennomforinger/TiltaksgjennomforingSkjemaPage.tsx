@@ -81,7 +81,6 @@ const TiltaksgjennomforingSkjemaPage = () => {
   return (
     <main>
       <Header
-        onClickLink={refetchUtkast}
         dataTestId={
           redigeringsModus
             ? "rediger-tiltaksgjennomforing-header"
