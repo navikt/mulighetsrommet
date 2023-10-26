@@ -1657,8 +1657,8 @@ components:
         opphav:
           $ref: "#/components/schemas/Opphav"
         updatedAt:
-            type: string
-            format: date-time
+          type: string
+          format: date-time
       required:
         - id
         - tiltakstype
@@ -2337,6 +2337,7 @@ components:
       type: object
       properties:
         navn:
+          nullable: true
           type: string
         organisasjonsnummer:
           type: string

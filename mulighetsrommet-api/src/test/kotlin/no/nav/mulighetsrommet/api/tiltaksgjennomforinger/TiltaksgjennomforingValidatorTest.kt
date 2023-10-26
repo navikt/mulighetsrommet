@@ -1,140 +1,155 @@
 package no.nav.mulighetsrommet.api.tiltaksgjennomforinger
 
 import io.kotest.assertions.arrow.core.shouldBeLeft
+import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.data.forAll
 import io.kotest.data.row
-import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
-import io.mockk.every
-import io.mockk.mockk
+import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
+import no.nav.mulighetsrommet.api.createDatabaseTestConfig
+import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
+import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
-import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.Oppfolging1
-import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
-import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
-import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
+import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
+import no.nav.mulighetsrommet.api.repositories.*
 import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
+import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
-import no.nav.mulighetsrommet.domain.dbo.DeltakerDbo
-import no.nav.mulighetsrommet.domain.dbo.Deltakeropphav
-import no.nav.mulighetsrommet.domain.dbo.Deltakerstatus
-import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
-import no.nav.mulighetsrommet.domain.dto.*
+import no.nav.mulighetsrommet.domain.dbo.*
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
 class TiltaksgjennomforingValidatorTest : FunSpec({
+    val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
-    val tiltaksgjennomforinger = mockk<TiltaksgjennomforingRepository>()
-    val deltakere = mockk<DeltakerRepository>()
-    every { tiltaksgjennomforinger.get(any()) } returns null
-    every { deltakere.getAll(any()) } returns emptyList()
+    val avtaleStartDato = LocalDate.now()
+    val avtaleSluttDato = LocalDate.now().plusMonths(1)
+    val avtale = AvtaleFixtures.avtale1.copy(
+        startDato = avtaleStartDato,
+        sluttDato = avtaleSluttDato,
+        leverandorOrganisasjonsnummer = "000000000",
+        leverandorUnderenheter = listOf("000000001", "000000002"),
+        navEnheter = listOf("0400", "0502"),
+    )
 
-    val avtaler = mockk<AvtaleRepository>()
+    val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1.copy(
+        startDato = avtaleStartDato,
+        sluttDato = avtaleSluttDato,
+        navRegion = "0400",
+        navEnheter = listOf("0502"),
+        arrangorOrganisasjonsnummer = "000000001",
+    )
+
+    lateinit var tiltakstyper: TiltakstypeRepository
+    lateinit var avtaler: AvtaleRepository
+    lateinit var tiltaksgjennomforinger: TiltaksgjennomforingRepository
+    lateinit var deltakere: DeltakerRepository
+
+    beforeEach {
+        tiltakstyper = TiltakstypeRepository(database.db)
+        tiltakstyper.upsert(TiltakstypeFixtures.AFT).shouldBeRight()
+        tiltakstyper.upsert(TiltakstypeFixtures.Oppfolging).shouldBeRight()
+
+        val enheter = NavEnhetRepository(database.db)
+        enheter.upsert(
+            NavEnhetDbo(
+                navn = "NAV Oslo",
+                enhetsnummer = "0300",
+                status = NavEnhetStatus.AKTIV,
+                type = Norg2Type.FYLKE,
+                overordnetEnhet = null,
+            ),
+        ).shouldBeRight()
+        enheter.upsert(
+            NavEnhetDbo(
+                navn = "NAV Innlandet",
+                enhetsnummer = "0400",
+                status = NavEnhetStatus.AKTIV,
+                type = Norg2Type.FYLKE,
+                overordnetEnhet = null,
+            ),
+        ).shouldBeRight()
+        enheter.upsert(
+            NavEnhetDbo(
+                navn = "NAV Gjøvik",
+                enhetsnummer = "0502",
+                status = NavEnhetStatus.AKTIV,
+                type = Norg2Type.LOKAL,
+                overordnetEnhet = "0400",
+            ),
+        ).shouldBeRight()
+
+        avtaler = AvtaleRepository(database.db)
+        avtaler.upsert(avtale)
+
+        tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
+
+        deltakere = DeltakerRepository(database.db)
+    }
 
     test("should fail when avtale does not exist") {
         val unknownAvtaleId = UUID.randomUUID()
-        every { avtaler.get(unknownAvtaleId) } returns null
 
         val validator = TiltaksgjennomforingValidator(avtaler, tiltaksgjennomforinger, deltakere)
 
-        val dbo = Oppfolging1.copy(avtaleId = unknownAvtaleId)
+        val dbo = gjennomforing.copy(avtaleId = unknownAvtaleId)
 
-        validator.validate(dbo).shouldBeLeft().shouldContain(
+        validator.validate(dbo).shouldBeLeft().shouldContainExactlyInAnyOrder(
             ValidationError("avtaleId", "Avtalen finnes ikke"),
         )
     }
 
     test("should fail when tiltakstype does not match with avtale") {
-        every { avtaler.get(AvtaleFixtures.avtale1.id) } returns AvtaleFixtures.avtaleAdminDto
+        avtaler.upsert(avtale.copy(tiltakstypeId = TiltakstypeFixtures.AFT.id))
 
         val validator = TiltaksgjennomforingValidator(avtaler, tiltaksgjennomforinger, deltakere)
 
-        validator.validate(Oppfolging1).shouldBeLeft().shouldContain(
+        validator.validate(gjennomforing).shouldBeLeft().shouldContainExactlyInAnyOrder(
             ValidationError("tiltakstypeId", "Tiltakstypen må være den samme som for avtalen"),
         )
     }
 
     test("should fail when avtale is Avbrutt") {
-        every { avtaler.get(AvtaleFixtures.avtale1.id) } returns AvtaleFixtures.oppfolgingAvtaleAdminDto.copy(
-            avtalestatus = Avtalestatus.Avbrutt,
-        )
+        val id = UUID.randomUUID()
+        avtaler.upsert(avtale.copy(id = id))
 
-        val validator = TiltaksgjennomforingValidator(avtaler, tiltaksgjennomforinger, deltakere)
+        forAll(
+            row(
+                Avslutningsstatus.AVBRUTT,
+                ValidationError("avtaleId", "Kan ikke endre gjennomføring fordi avtalen har status Avbrutt"),
+            ),
+            row(
+                Avslutningsstatus.AVSLUTTET,
+                ValidationError("avtaleId", "Kan ikke endre gjennomføring fordi avtalen har status Avsluttet"),
+            ),
+        ) { status, error ->
+            avtaler.setAvslutningsstatus(id, status)
 
-        validator.validate(Oppfolging1).shouldBeLeft().shouldContain(
-            ValidationError("avtaleId", "Kan ikke endre gjennomføring fordi avtalen har status Avbrutt"),
-        )
-    }
+            val validator = TiltaksgjennomforingValidator(avtaler, tiltaksgjennomforinger, deltakere)
+            val dbo = gjennomforing.copy(avtaleId = id)
 
-    test("should fail when avtale is Avsluttet") {
-        every { avtaler.get(AvtaleFixtures.avtale1.id) } returns AvtaleFixtures.oppfolgingAvtaleAdminDto.copy(
-            avtalestatus = Avtalestatus.Avsluttet,
-        )
-
-        val validator = TiltaksgjennomforingValidator(avtaler, tiltaksgjennomforinger, deltakere)
-
-        validator.validate(Oppfolging1).shouldBeLeft().shouldContain(
-            ValidationError("avtaleId", "Kan ikke endre gjennomføring fordi avtalen har status Avsluttet"),
-        )
+            validator.validate(dbo).shouldBeLeft().shouldContainExactlyInAnyOrder(error)
+        }
     }
 
     test("should validate fields in the gjennomføring and fields related to the avtale") {
-        every { avtaler.get(AvtaleFixtures.avtale1.id) } returns AvtaleFixtures.oppfolgingAvtaleAdminDto.copy(
-            startDato = LocalDate.of(2023, 1, 1),
-            sluttDato = LocalDate.of(2023, 2, 1),
-            kontorstruktur = listOf(
-                Kontorstruktur(
-                    region = EmbeddedNavEnhet(
-                        enhetsnummer = "2990",
-                        navn = "IT-avdelingen",
-                        type = NavEnhetType.DIR,
-                        overordnetEnhet = null,
-                    ),
-                    kontorer = listOf(
-                        EmbeddedNavEnhet(
-                            enhetsnummer = "0402",
-                            navn = "NAV Kongsvinger",
-                            type = NavEnhetType.LOKAL,
-                            overordnetEnhet = "0400",
-                        ),
-                    ),
-                ),
-            ),
-            leverandor = AvtaleAdminDto.Leverandor(
-                organisasjonsnummer = "000000000",
-                navn = "Bedrift",
-                slettet = false,
-            ),
-            leverandorUnderenheter = listOf(
-                AvtaleAdminDto.LeverandorUnderenhet(organisasjonsnummer = "000000001", navn = "Bedrift underenhet"),
-            ),
-        )
-
         val validator = TiltaksgjennomforingValidator(avtaler, tiltaksgjennomforinger, deltakere)
-
-        val gjennomforing = Oppfolging1.copy(
-            startDato = LocalDate.of(2023, 1, 1),
-            sluttDato = LocalDate.of(2023, 2, 1),
-            antallPlasser = 10,
-            navEnheter = listOf("0402"),
-            arrangorOrganisasjonsnummer = "000000001",
-        )
 
         forAll(
             row(
                 gjennomforing.copy(
-                    startDato = LocalDate.of(2022, 12, 31),
-                    sluttDato = LocalDate.of(2023, 1, 1),
+                    startDato = avtaleStartDato.minusDays(1),
+                    sluttDato = avtaleStartDato,
                 ),
                 listOf(ValidationError("startDato", "Startdato må være etter avtalens startdato")),
             ),
             row(
                 gjennomforing.copy(
-                    startDato = LocalDate.of(2023, 3, 1),
-                    sluttDato = LocalDate.of(2023, 3, 1),
+                    startDato = avtaleSluttDato.plusDays(1),
+                    sluttDato = avtaleSluttDato.plusDays(1),
                 ),
                 listOf(
                     ValidationError("startDato", "Startdato må være før avtalens sluttdato"),
@@ -142,8 +157,8 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
             ),
             row(
                 gjennomforing.copy(
-                    startDato = LocalDate.of(2023, 1, 2),
-                    sluttDato = LocalDate.of(2023, 1, 1),
+                    startDato = avtaleSluttDato,
+                    sluttDato = avtaleStartDato,
                 ),
                 listOf(ValidationError("startDato", "Startdato må være før sluttdato")),
             ),
@@ -156,125 +171,117 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
                 listOf(ValidationError("navEnheter", "NAV-enhet 0401 mangler i avtalen")),
             ),
             row(
-                gjennomforing.copy(arrangorOrganisasjonsnummer = "000000002"),
+                gjennomforing.copy(arrangorOrganisasjonsnummer = "000000003"),
                 listOf(ValidationError("arrangorOrganisasjonsnummer", "Arrangøren mangler i avtalen")),
             ),
-        ) { dbo, error ->
-            validator.validate(dbo).shouldBeLeft(error)
+        ) { input, error ->
+            validator.validate(input).shouldBeLeft(error)
         }
     }
 
     context("when gjennomføring does not already exist") {
         test("should fail when opphav is not MR_ADMIN_FLATE") {
-            every { avtaler.get(AvtaleFixtures.avtale1.id) } returns AvtaleFixtures.oppfolgingAvtaleAdminDto
             val validator = TiltaksgjennomforingValidator(avtaler, tiltaksgjennomforinger, deltakere)
 
-            val dbo = Oppfolging1.copy(
+            val dbo = gjennomforing.copy(
+                id = UUID.randomUUID(),
                 opphav = ArenaMigrering.Opphav.ARENA,
             )
 
-            validator.validate(dbo).shouldBeLeft().shouldContain(
+            validator.validate(dbo).shouldBeLeft().shouldContainExactlyInAnyOrder(
                 ValidationError("opphav", "Opphav må være MR_ADMIN_FLATE"),
             )
         }
     }
 
     context("when gjennomføring already exists") {
+        beforeEach {
+            tiltaksgjennomforinger.upsert(gjennomforing)
+        }
+
+        afterEach {
+            tiltaksgjennomforinger.delete(gjennomforing.id)
+        }
+
         test("should fail when opphav is different") {
-            val dbo = Oppfolging1.copy(
+            val validator = TiltaksgjennomforingValidator(avtaler, tiltaksgjennomforinger, deltakere)
+
+            val dbo = gjennomforing.copy(
                 opphav = ArenaMigrering.Opphav.ARENA,
             )
 
-            every { avtaler.get(AvtaleFixtures.avtale1.id) } returns AvtaleFixtures.oppfolgingAvtaleAdminDto
-            every { tiltaksgjennomforinger.get(dbo.id) } returns TiltaksgjennomforingFixtures.Oppfolging1AdminDto
-
-            val validator = TiltaksgjennomforingValidator(avtaler, tiltaksgjennomforinger, deltakere)
-
-            validator.validate(dbo).shouldBeLeft().shouldContain(
-                ValidationError("opphav", "Avtalens opphav kan ikke endres"),
+            validator.validate(dbo).shouldBeLeft().shouldContainExactlyInAnyOrder(
+                ValidationError("opphav", "Opphav kan ikke endres"),
             )
         }
 
         test("should fail when status is Avsluttet") {
             forAll(
-                row(Tiltaksgjennomforingsstatus.AVBRUTT),
-                row(Tiltaksgjennomforingsstatus.AVLYST),
-                row(Tiltaksgjennomforingsstatus.AVSLUTTET),
+                row(Avslutningsstatus.AVBRUTT),
+                row(Avslutningsstatus.AVLYST),
+                row(Avslutningsstatus.AVSLUTTET),
             ) { status ->
-                every { avtaler.get(AvtaleFixtures.avtale1.id) } returns AvtaleFixtures.oppfolgingAvtaleAdminDto
-                every { tiltaksgjennomforinger.get(Oppfolging1.id) } returns TiltaksgjennomforingFixtures.Oppfolging1AdminDto.copy(
-                    status = status,
-                )
+                tiltaksgjennomforinger.setAvslutningsstatus(gjennomforing.id, status)
 
                 val validator = TiltaksgjennomforingValidator(avtaler, tiltaksgjennomforinger, deltakere)
 
-                validator.validate(Oppfolging1).shouldBeLeft().shouldContain(
+                validator.validate(gjennomforing).shouldBeLeft().shouldContainExactlyInAnyOrder(
                     ValidationError("navn", "Kan bare gjøre endringer når gjennomføringen er aktiv"),
                 )
             }
         }
 
         context("når gjennomføring har status GJENNOMFORES") {
-            test("skal ikke kunne endre felter relatert til tilsagn/refursjon") {
+            val deltaker = DeltakerDbo(
+                id = UUID.randomUUID(),
+                tiltaksgjennomforingId = gjennomforing.id,
+                opphav = Deltakeropphav.ARENA,
+                registrertDato = LocalDateTime.now(),
+                startDato = gjennomforing.startDato,
+                sluttDato = gjennomforing.sluttDato,
+                status = Deltakerstatus.DELTAR,
+            )
+
+            beforeEach {
+                deltakere.upsert(deltaker)
+            }
+
+            afterEach {
+                deltakere.delete(deltaker.id)
+            }
+
+            test("skal ikke kunne endre felter relatert til tilsagn/refusjon") {
                 val differentAvtaleId = UUID.randomUUID()
 
-                val dbo = Oppfolging1.copy(
+                val dbo = gjennomforing.copy(
                     navn = "Nytt navn",
                     avtaleId = differentAvtaleId,
-                    arrangorOrganisasjonsnummer = Oppfolging1.arrangorOrganisasjonsnummer,
-                    startDato = Oppfolging1.startDato.plusDays(1),
-                    sluttDato = Oppfolging1.sluttDato?.minusDays(1),
-                    antallPlasser = Oppfolging1.antallPlasser + 1,
+                    arrangorOrganisasjonsnummer = "000000002",
+                    startDato = gjennomforing.startDato.plusDays(1),
+                    sluttDato = gjennomforing.sluttDato?.minusDays(1),
+                    antallPlasser = gjennomforing.antallPlasser + 1,
                     administratorer = listOf("Donald Duck"),
-                    navEnheter = listOf("0402"),
+                    navRegion = "0400",
+                    navEnheter = listOf("0502"),
                     oppstart = TiltaksgjennomforingOppstartstype.LOPENDE,
                     kontaktpersoner = emptyList(),
-                    arrangorKontaktpersonId = Oppfolging1.arrangorKontaktpersonId,
                     stengtFra = LocalDate.of(2023, 10, 10),
                     stengtTil = LocalDate.of(2023, 10, 10),
                     stedForGjennomforing = "Hjemmekontor",
                     estimertVentetid = "Leeenge",
                 )
 
-                every { avtaler.get(differentAvtaleId) } returns AvtaleFixtures.oppfolgingAvtaleAdminDto.copy(
-                    id = differentAvtaleId,
-                    kontorstruktur = listOf(
-                        Kontorstruktur(
-                            region = EmbeddedNavEnhet(
-                                enhetsnummer = "2990",
-                                navn = "IT-avdelingen",
-                                type = NavEnhetType.DIR,
-                                overordnetEnhet = null,
-                            ),
-                            kontorer = listOf(
-                                EmbeddedNavEnhet(
-                                    enhetsnummer = "0402",
-                                    navn = "NAV Kongsvinger",
-                                    type = NavEnhetType.LOKAL,
-                                    overordnetEnhet = "0400",
-                                ),
-                            ),
-                        ),
-                    ),
-                )
-                every { tiltaksgjennomforinger.get(dbo.id) } returns TiltaksgjennomforingFixtures.Oppfolging1AdminDto
-                every { deltakere.getAll(dbo.id) } returns listOf(
-                    DeltakerDbo(
-                        id = UUID.randomUUID(),
-                        tiltaksgjennomforingId = dbo.id,
-                        opphav = Deltakeropphav.ARENA,
-                        registrertDato = LocalDateTime.now(),
-                        startDato = LocalDate.now(),
-                        sluttDato = LocalDate.now(),
-                        status = Deltakerstatus.DELTAR,
-                    ),
-                )
+                avtaler.upsert(avtale.copy(id = differentAvtaleId))
 
                 val validator = TiltaksgjennomforingValidator(avtaler, tiltaksgjennomforinger, deltakere)
 
                 validator.validate(dbo).shouldBeLeft().shouldContainExactlyInAnyOrder(
                     listOf(
                         ValidationError("avtaleId", "Avtalen kan ikke endres når gjennomføringen er aktiv"),
+                        ValidationError(
+                            "arrangorOrganisasjonsnummer",
+                            "Arrangøren kan ikke endres når gjennomføringen er aktiv",
+                        ),
                         ValidationError("oppstart", "Oppstartstype kan ikke endres når det finnes påmeldte deltakere"),
                         ValidationError("startDato", "Startdato kan ikke endres når gjennomføringen er aktiv"),
                         ValidationError("sluttDato", "Sluttdato kan ikke endres når gjennomføringen er aktiv"),

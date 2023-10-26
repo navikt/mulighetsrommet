@@ -824,6 +824,10 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
+    fun setAvslutningsstatus(id: UUID, status: Avslutningsstatus): Int {
+        return db.transaction { setAvslutningsstatus(it, id, status) }
+    }
+
     fun setAvslutningsstatus(tx: Session, id: UUID, status: Avslutningsstatus): Int {
         @Language("PostgreSQL")
         val query = """

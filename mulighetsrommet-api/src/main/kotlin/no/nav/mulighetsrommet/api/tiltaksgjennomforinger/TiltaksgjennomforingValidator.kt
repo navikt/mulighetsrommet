@@ -23,7 +23,7 @@ class TiltaksgjennomforingValidator(
 ) {
     fun validate(dbo: TiltaksgjennomforingDbo): Either<List<ValidationError>, TiltaksgjennomforingDbo> = either {
         val avtale = avtaler.get(dbo.avtaleId)
-            ?: raise(ValidationError(TiltaksgjennomforingDbo::avtaleId.name, "Avtalen finnes ikke").nel())
+            ?: raise(ValidationError.of(TiltaksgjennomforingDbo::avtaleId, "Avtalen finnes ikke").nel())
 
         val errors = buildList {
             if (avtale.tiltakstype.id != dbo.tiltakstypeId) {
@@ -85,7 +85,12 @@ class TiltaksgjennomforingValidator(
             }
 
             if (!avtale.kontorstruktur.any { it.region.enhetsnummer == dbo.navRegion }) {
-                add(ValidationError("navEnheter", "NAV-region ${dbo.navRegion} mangler i avtalen"))
+                add(
+                    ValidationError.of(
+                        TiltaksgjennomforingDbo::navEnheter,
+                        "NAV-region ${dbo.navRegion} mangler i avtalen",
+                    ),
+                )
             }
 
             val avtaleNavEnheter = avtale.kontorstruktur.flatMap { it.kontorer }.associateBy { it.enhetsnummer }
@@ -123,7 +128,7 @@ class TiltaksgjennomforingValidator(
                 }
 
                 if (dbo.opphav != gjennomforing.opphav) {
-                    add(ValidationError.of(TiltaksgjennomforingDbo::opphav, "Avtalens opphav kan ikke endres"))
+                    add(ValidationError.of(TiltaksgjennomforingDbo::opphav, "Opphav kan ikke endres"))
                 }
 
                 val antallDeltagere = deltakere.getAll(gjennomforing.id).size
@@ -169,6 +174,15 @@ class TiltaksgjennomforingValidator(
                             ValidationError.of(
                                 TiltaksgjennomforingDbo::antallPlasser,
                                 "Antall plasser kan ikke endres når gjennomføringen er aktiv",
+                            ),
+                        )
+                    }
+
+                    if (dbo.arrangorOrganisasjonsnummer != gjennomforing.arrangor.organisasjonsnummer) {
+                        add(
+                            ValidationError.of(
+                                TiltaksgjennomforingDbo::arrangorOrganisasjonsnummer,
+                                "Arrangøren kan ikke endres når gjennomføringen er aktiv",
                             ),
                         )
                     }

@@ -5,11 +5,14 @@ import arrow.core.left
 import arrow.core.nel
 import arrow.core.raise.either
 import arrow.core.right
+import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
+import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
+import no.nav.mulighetsrommet.api.services.NavEnhetService
 import no.nav.mulighetsrommet.domain.Tiltakskoder.isTiltakMedAvtalerFraMulighetsrommet
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.AvtaleAdminDto
@@ -20,6 +23,7 @@ class AvtaleValidator(
     private val tiltakstyper: TiltakstypeRepository,
     private val avtaler: AvtaleRepository,
     private val tiltaksgjennomforinger: TiltaksgjennomforingRepository,
+    private val navEnheterService: NavEnhetService,
 ) {
     fun validate(dbo: AvtaleDbo): Either<List<ValidationError>, AvtaleDbo> = either {
         val tiltakstype = tiltakstyper.get(dbo.tiltakstypeId)
@@ -30,12 +34,15 @@ class AvtaleValidator(
                 add(ValidationError.of(AvtaleDbo::startDato, "Startdato må være før sluttdato"))
             }
 
-            if (dbo.navEnheter.isEmpty()) {
-                add(ValidationError.of(AvtaleDbo::navEnheter, "Minst ett NAV-kontor må være valgt"))
-            }
+            addAll(validateNavEnheter(dbo.navEnheter))
 
             if (dbo.leverandorUnderenheter.isEmpty()) {
-                add(ValidationError.of(AvtaleDbo::leverandorUnderenheter, "Minst én underenhet til leverandøren må være valgt"))
+                add(
+                    ValidationError.of(
+                        AvtaleDbo::leverandorUnderenheter,
+                        "Minst én underenhet til leverandøren må være valgt",
+                    ),
+                )
             }
 
             avtaler.get(dbo.id)?.also { avtale ->
@@ -99,7 +106,12 @@ class AvtaleValidator(
                     }
 
                     if (dbo.avtaletype != avtale.avtaletype) {
-                        add(ValidationError.of(AvtaleDbo::avtaletype, "Avtaletype kan ikke endres når avtalen er aktiv"))
+                        add(
+                            ValidationError.of(
+                                AvtaleDbo::avtaletype,
+                                "Avtaletype kan ikke endres når avtalen er aktiv",
+                            ),
+                        )
                     }
 
                     if (dbo.startDato != avtale.startDato) {
@@ -145,6 +157,33 @@ class AvtaleValidator(
         }
 
         return errors.takeIf { it.isNotEmpty() }?.left() ?: dbo.right()
+    }
+
+    private fun validateNavEnheter(navEnheter: List<String>) = buildList {
+        val actualNavEnheter = resolveNavEnheter(navEnheter)
+
+        if (!actualNavEnheter.any { it.value.type == Norg2Type.FYLKE }) {
+            add(ValidationError.of(AvtaleDbo::navEnheter, "Minst én NAV-region må være valgt"))
+        }
+
+        navEnheter.forEach { enhet ->
+            if (!actualNavEnheter.containsKey(enhet)) {
+                add(
+                    ValidationError.of(
+                        AvtaleDbo::navEnheter,
+                        "NAV-enheten $enhet passer ikke i avtalens kontorstruktur",
+                    ),
+                )
+            }
+        }
+    }
+
+    private fun resolveNavEnheter(enhetsnummer: List<String>): Map<String, NavEnhetDbo> {
+        val navEnheter = enhetsnummer.mapNotNull { navEnheterService.hentEnhet(it) }
+        return navEnheter
+            .filter { it.type == Norg2Type.FYLKE }
+            .flatMap { listOf(it) + navEnheter.filter { enhet -> enhet.overordnetEnhet == it.enhetsnummer } }
+            .associateBy { it.enhetsnummer }
     }
 
     /**
