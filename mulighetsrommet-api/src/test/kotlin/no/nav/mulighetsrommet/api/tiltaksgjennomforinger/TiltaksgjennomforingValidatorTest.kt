@@ -20,10 +20,7 @@ import no.nav.mulighetsrommet.domain.dbo.DeltakerDbo
 import no.nav.mulighetsrommet.domain.dbo.Deltakeropphav
 import no.nav.mulighetsrommet.domain.dbo.Deltakerstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
-import no.nav.mulighetsrommet.domain.dto.AvtaleAdminDto
-import no.nav.mulighetsrommet.domain.dto.Avtalestatus
-import no.nav.mulighetsrommet.domain.dto.NavEnhet
-import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
+import no.nav.mulighetsrommet.domain.dto.*
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -88,8 +85,24 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
         every { avtaler.get(AvtaleFixtures.avtale1.id) } returns AvtaleFixtures.oppfolgingAvtaleAdminDto.copy(
             startDato = LocalDate.of(2023, 1, 1),
             sluttDato = LocalDate.of(2023, 2, 1),
-            navRegion = NavEnhet(enhetsnummer = "0400", navn = "NAV Innlandet"),
-            navEnheter = listOf(NavEnhet(enhetsnummer = "0402", navn = "NAV Kongsvinger")),
+            kontorstruktur = listOf(
+                Kontorstruktur(
+                    region = EmbeddedNavEnhet(
+                        enhetsnummer = "2990",
+                        navn = "IT-avdelingen",
+                        type = NavEnhetType.DIR,
+                        overordnetEnhet = null,
+                    ),
+                    kontorer = listOf(
+                        EmbeddedNavEnhet(
+                            enhetsnummer = "0402",
+                            navn = "NAV Kongsvinger",
+                            type = NavEnhetType.LOKAL,
+                            overordnetEnhet = "0400",
+                        ),
+                    ),
+                ),
+            ),
             leverandor = AvtaleAdminDto.Leverandor(
                 organisasjonsnummer = "000000000",
                 navn = "Bedrift",
@@ -225,8 +238,24 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
 
                 every { avtaler.get(differentAvtaleId) } returns AvtaleFixtures.oppfolgingAvtaleAdminDto.copy(
                     id = differentAvtaleId,
-                    navRegion = NavEnhet(enhetsnummer = "0400", navn = "NAV Innlandet"),
-                    navEnheter = listOf(NavEnhet(enhetsnummer = "0402", navn = "NAV Kongsvinger")),
+                    kontorstruktur = listOf(
+                        Kontorstruktur(
+                            region = EmbeddedNavEnhet(
+                                enhetsnummer = "2990",
+                                navn = "IT-avdelingen",
+                                type = NavEnhetType.DIR,
+                                overordnetEnhet = null,
+                            ),
+                            kontorer = listOf(
+                                EmbeddedNavEnhet(
+                                    enhetsnummer = "0402",
+                                    navn = "NAV Kongsvinger",
+                                    type = NavEnhetType.LOKAL,
+                                    overordnetEnhet = "0400",
+                                ),
+                            ),
+                        ),
+                    ),
                 )
                 every { tiltaksgjennomforinger.get(dbo.id) } returns TiltaksgjennomforingFixtures.Oppfolging1AdminDto
                 every { deltakere.getAll(dbo.id) } returns listOf(

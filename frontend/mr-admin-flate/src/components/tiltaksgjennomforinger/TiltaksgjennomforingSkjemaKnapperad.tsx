@@ -6,10 +6,9 @@ import {
   UtkastDto as Utkast,
   UtkastRequest,
 } from "mulighetsrommet-api-client";
-import { AutoSaveUtkast } from "../autosave/AutoSaveUtkast";
-import React from "react";
 import styles from "../skjema/Skjema.module.scss";
 import { ValideringsfeilOppsummering } from "../skjema/ValideringsfeilOppsummering";
+import { AutoSaveUtkast } from "../autosave/AutoSaveUtkast";
 
 interface Props {
   redigeringsModus: boolean;

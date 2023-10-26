@@ -56,7 +56,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 stengt_til,
                 sted_for_gjennomforing,
                 faneinnhold,
-                beskrivelse
+                beskrivelse,
+                nav_region
             )
             values (
                 :id::uuid,
@@ -78,7 +79,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 :stengt_til,
                 :sted_for_gjennomforing,
                 :faneinnhold::jsonb,
-                :beskrivelse
+                :beskrivelse,
+                :nav_region
             )
             on conflict (id)
                 do update set navn                         = excluded.navn,
@@ -99,7 +101,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                               stengt_til                   = excluded.stengt_til,
                               sted_for_gjennomforing       = excluded.sted_for_gjennomforing,
                               faneinnhold                  = excluded.faneinnhold,
-                              beskrivelse                  = excluded.beskrivelse
+                              beskrivelse                  = excluded.beskrivelse,
+                              nav_region                   = excluded.nav_region
             returning *
         """.trimIndent()
 
@@ -425,7 +428,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             tiltakstypeId to "tiltakstype_id = :tiltakstypeId",
             status to status?.toDbStatement(),
             sluttDatoCutoff to "(slutt_dato >= :cutoffdato or slutt_dato is null)",
-            navRegion to "(arena_ansvarlig_enhet in (select enhetsnummer from nav_enhet where overordnet_enhet = :navRegion) or :navRegion in (select overordnet_enhet from nav_enhet inner join tiltaksgjennomforing_nav_enhet tg_e using(enhetsnummer) where tg_e.tiltaksgjennomforing_id = id) or :navRegion = arena_ansvarlig_enhet or :navRegion = navRegionEnhetsnummerForAvtale)",
+            navRegion to "(:navRegion = nav_region_enhetsnummer or arena_ansvarlig_enhet in (select enhetsnummer from nav_enhet where overordnet_enhet = :navRegion))",
             avtaleId to "avtale_id = :avtaleId",
             arrangorOrgnr to "arrangor_organisasjonsnummer = :arrangor_organisasjonsnummer",
             administratorNavIdent to "administratorer @> :administrator_nav_ident::jsonb",
@@ -518,15 +521,13 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                                  else jsonb_build_object('navn', concat(na.fornavn, ' ', na.etternavn), 'epost', na.epost, 'telefonnummer',na.mobilnummer)
                                  end
                        )                  as kontaktpersoner,
-                   avtale_ne.enhetsnummer as navRegionEnhetsnummerForAvtale,
+                   tg.nav_region,
                    array_agg(tg_e.enhetsnummer) as nav_enheter,
                    tg.beskrivelse,
                    tg.faneinnhold
             from tiltaksgjennomforing tg
                      inner join tiltakstype t on tg.tiltakstype_id = t.id
                      left join tiltaksgjennomforing_nav_enhet tg_e on tg_e.tiltaksgjennomforing_id = tg.id
-                     left join avtale a on a.id = tg.avtale_id
-                     left join nav_enhet avtale_ne on avtale_ne.enhetsnummer = a.nav_region
                      left join virksomhet v on v.organisasjonsnummer = tg.arrangor_organisasjonsnummer
                      left join tiltaksgjennomforing_kontaktperson tgk on tgk.tiltaksgjennomforing_id = tg.id
                      left join nav_ansatt na on na.nav_ident = tgk.kontaktperson_nav_ident
@@ -534,7 +535,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             $where
             and tg.tilgjengelig_for_veileder
             and t.skal_migreres
-            group by tg.id, t.id, v.navn, avtale_ne.navn, vk.id, avtale_ne.enhetsnummer
+            group by tg.id, t.id, v.navn, vk.id
         """.trimIndent()
 
         return queryOf(query, parameters)
@@ -639,6 +640,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         "sted_for_gjennomforing" to stedForGjennomforing,
         "faneinnhold" to faneinnhold?.let { Json.encodeToString(it) },
         "beskrivelse" to beskrivelse,
+        "nav_region" to navRegion,
     )
 
     private fun ArenaTiltaksgjennomforingDbo.toSqlParameters() = mapOf(
@@ -693,7 +695,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             stengtFra = localDateOrNull("stengt_fra"),
             stengtTil = localDateOrNull("stengt_til"),
             kontaktinfoTiltaksansvarlige = kontaktpersoner,
-            fylke = stringOrNull("navRegionEnhetsnummerForAvtale"),
+            fylke = stringOrNull("nav_region"),
             enheter = navEnheter,
             beskrivelse = stringOrNull("beskrivelse"),
             faneinnhold = stringOrNull("faneinnhold")?.let { Json.decodeFromString(it) },
@@ -704,7 +706,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         val administratorer = Json
             .decodeFromString<List<TiltaksgjennomforingAdminDto.Administrator?>>(string("administratorer"))
             .filterNotNull()
-        val navEnheter = Json.decodeFromString<List<NavEnhet?>>(string("nav_enheter")).filterNotNull()
+        val embeddedNavEnheter = Json.decodeFromString<List<EmbeddedNavEnhet?>>(string("nav_enheter")).filterNotNull()
         val kontaktpersoner = Json
             .decodeFromString<List<TiltaksgjennomforingKontaktperson?>>(string("kontaktpersoner"))
             .filterNotNull()
@@ -749,11 +751,13 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             antallPlasser = intOrNull("antall_plasser"),
             avtaleId = uuidOrNull("avtale_id"),
             administrator = administratorer.getOrNull(0),
-            navEnheter = navEnheter,
-            navRegion = stringOrNull("navRegionEnhetsnummerForAvtale")?.let {
-                NavEnhet(
+            navEnheter = embeddedNavEnheter,
+            navRegion = stringOrNull("nav_region_enhetsnummer")?.let {
+                EmbeddedNavEnhet(
                     enhetsnummer = it,
-                    navn = string("navRegionForAvtale"),
+                    navn = string("nav_region_navn"),
+                    type = NavEnhetType.valueOf(string("nav_region_type")),
+                    overordnetEnhet = stringOrNull("nav_region_overordnet_enhet"),
                 )
             },
             sanityId = uuidOrNull("sanity_id"),

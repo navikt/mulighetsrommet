@@ -2,6 +2,7 @@ import { PORTEN } from "mulighetsrommet-frontend-common/constants";
 import { Link } from "react-router-dom";
 import { Avtale } from "mulighetsrommet-api-client";
 import { BodyShort } from "@navikt/ds-react";
+import { avtaleHarRegioner } from "../../utils/Utils";
 
 const avtaleFinnesIkke = () => (
   <>
@@ -63,7 +64,7 @@ export function ErrorMeldinger(avtale: Avtale | undefined, redigeringsModus: boo
     return avtalenErAvsluttet(redigeringsModus!);
   }
 
-  if (!avtale?.navRegion) {
+  if (!avtaleHarRegioner(avtale)) {
     return avtaleManglerNavRegionError(avtale?.id);
   }
 }

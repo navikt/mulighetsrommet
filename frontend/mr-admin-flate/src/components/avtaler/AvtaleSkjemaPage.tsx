@@ -1,17 +1,19 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { Avtale, Tiltakstypestatus } from "mulighetsrommet-api-client";
+import { Tiltakstypestatus } from "mulighetsrommet-api-client";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
 import { useAvtale } from "../../api/avtaler/useAvtale";
 import { useNavEnheter } from "../../api/enhet/useNavEnheter";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
+import { useUtkast } from "../../api/utkast/useUtkast";
 import { ContainerLayout } from "../../layouts/ContainerLayout";
 import { inneholderUrl } from "../../utils/Utils";
 import { Header } from "../detaljside/Header";
 import { Laster } from "../laster/Laster";
-import { AvtaleSkjemaContainer } from "./AvtaleSkjemaContainer";
-import { useUtkast } from "../../api/utkast/useUtkast";
 import styles from "../skjema/Skjema.module.scss";
+import { AvtaleSchema } from "./AvtaleSchema";
+import { AvtaleUtkastData } from "./AvtaleSkjemaConst";
+import { AvtaleSkjemaContainer } from "./AvtaleSkjemaContainer";
 
 const AvtaleSkjemaPage = () => {
   const navigate = useNavigate();
@@ -20,6 +22,7 @@ const AvtaleSkjemaPage = () => {
   const [searchParams] = useSearchParams();
   const { data: avtale, isLoading: avtaleLoading } = useAvtale();
   const { data: utkast, isLoading: utkastLoading } = useUtkast(
+    AvtaleSchema,
     searchParams.get("utkastId") || undefined,
   );
   const { data: tiltakstyper, isLoading: isLoadingTiltakstyper } = useTiltakstyper(
@@ -40,9 +43,18 @@ const AvtaleSkjemaPage = () => {
     return <Laster size="xlarge" tekst={utkastLoading ? "Laster utkast..." : "Laster avtale..."} />;
   }
 
+  function refetchUtkast() {
+    queryClient.refetchQueries({
+      queryKey: ["utkast"],
+    });
+  }
+
   return (
     <main>
-      <Header dataTestId={redigeringsModus ? "rediger-avtale-header" : "opprett-avtale-header"}>
+      <Header
+        dataTestId={redigeringsModus ? "rediger-avtale-header" : "opprett-avtale-header"}
+        onClickLink={refetchUtkast}
+      >
         {redigeringsModus
           ? utkastModus
             ? "Rediger utkast"
@@ -56,16 +68,15 @@ const AvtaleSkjemaPage = () => {
             {!tiltakstyper?.data || !ansatt || !enheter ? null : (
               <AvtaleSkjemaContainer
                 onClose={() => {
-                  queryClient.refetchQueries({
-                    queryKey: ["utkast"],
-                  });
+                  refetchUtkast();
                   navigerTilbake();
                 }}
                 onSuccess={(id) => navigate(`/avtaler/${id}`)}
                 tiltakstyper={tiltakstyper.data}
                 ansatt={ansatt}
                 enheter={enheter}
-                avtale={(utkast?.utkastData as Avtale) || avtale}
+                avtale={avtale}
+                avtaleUtkast={utkast?.utkastData as AvtaleUtkastData}
                 redigeringsModus={redigeringsModus!}
               />
             )}

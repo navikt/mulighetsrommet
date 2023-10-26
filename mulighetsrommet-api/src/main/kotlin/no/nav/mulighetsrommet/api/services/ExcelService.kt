@@ -32,7 +32,6 @@ class ExcelService {
                 6,
                 avtaleAdminDto.sluttDato.formaterDato(),
             )
-            opprettCelle(row, 7, avtaleAdminDto.navRegion?.navn ?: "")
         }
 
         val tempFile = kotlin.io.path.createTempFile("avtaler", ".xlsx")
@@ -50,7 +49,6 @@ class ExcelService {
         opprettCelle(headers, 4, "Leverandør orgnr")
         opprettCelle(headers, 5, "Startdato")
         opprettCelle(headers, 6, "Sluttdato")
-        opprettCelle(headers, 7, "Region")
     }
 
     private fun opprettCelle(row: XSSFRow, cellIndex: Int, verdi: String) {

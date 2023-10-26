@@ -1,6 +1,5 @@
 import { ExclamationmarkTriangleFillIcon } from "@navikt/aksel-icons";
 import { Button, ErrorSummary, Popover } from "@navikt/ds-react";
-import ErrorSummaryItem from "@navikt/ds-react/esm/form/error-summary/ErrorSummaryItem";
 import PopoverContent from "@navikt/ds-react/esm/popover/PopoverContent";
 import { useRef, useState } from "react";
 import { useFormContext } from "react-hook-form";
@@ -59,9 +58,9 @@ export function ValideringsfeilOppsummering() {
           >
             {messages.map((value, key) => {
               return (
-                <ErrorSummaryItem as="li" key={key}>
+                <ErrorSummary.Item className={styles.valideringsfeil_item} key={key}>
                   {value.message}
-                </ErrorSummaryItem>
+                </ErrorSummary.Item>
               );
             })}
           </ErrorSummary>

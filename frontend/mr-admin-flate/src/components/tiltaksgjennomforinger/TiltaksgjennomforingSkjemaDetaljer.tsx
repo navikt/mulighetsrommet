@@ -8,7 +8,7 @@ import {
 import skjemastyles from "../skjema/Skjema.module.scss";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import { addYear, tilgjengelighetsstatusTilTekst } from "../../utils/Utils";
-import { arenaOpphav, arrangorUnderenheterOptions } from "./TiltaksgjennomforingSkjemaConst";
+import { erArenaOpphav, arrangorUnderenheterOptions } from "./TiltaksgjennomforingSkjemaConst";
 import { useHentKontaktpersoner } from "../../api/ansatt/useHentKontaktpersoner";
 import { useHentBetabrukere } from "../../api/ansatt/useHentBetabrukere";
 import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
@@ -55,7 +55,6 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
     setValue,
     watch,
   } = useFormContext();
-
   const {
     fields: kontaktpersonFields,
     append: appendKontaktperson,
@@ -67,10 +66,14 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
 
   const watchErMidlertidigStengt = watch("midlertidigStengt.erMidlertidigStengt");
 
-  const navEnheterOptions = avtale.navEnheter.map((enhet) => ({
-    value: enhet.enhetsnummer,
-    label: enhet.navn,
-  }));
+  const regionerOptions = avtale.kontorstruktur
+    .map((struk) => struk.region)
+    .map((kontor) => ({ value: kontor.enhetsnummer, label: kontor.navn }));
+
+  const navEnheterOptions = avtale.kontorstruktur
+    .flatMap((struk) => struk.kontorer)
+    .filter((kontor) => kontor.overordnetEnhet === watch("navRegion"))
+    .map((kontor) => ({ label: kontor.navn, value: kontor.enhetsnummer }));
 
   const minStartdato = new Date();
   const maxSluttdato = addYear(minStartdato, 5);
@@ -82,7 +85,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
           <FormGroup>
             <TextField
               size="small"
-              readOnly={arenaOpphav(tiltaksgjennomforing)}
+              readOnly={erArenaOpphav(tiltaksgjennomforing)}
               error={errors.navn?.message as string}
               label="Tiltaksnavn"
               autoFocus
@@ -100,7 +103,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
               size="small"
               label="Oppstartstype"
               placeholder="Velg oppstart"
-              readOnly={!redigerOppstart && arenaOpphav(tiltaksgjennomforing)}
+              readOnly={!redigerOppstart && erArenaOpphav(tiltaksgjennomforing)}
               {...register("oppstart")}
               options={[
                 {
@@ -117,22 +120,24 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
               size="small"
               fra={{
                 label: "Startdato",
-                readOnly: arenaOpphav(tiltaksgjennomforing),
+                readOnly: erArenaOpphav(tiltaksgjennomforing),
                 fromDate: minStartdato,
                 toDate: maxSluttdato,
                 ...register("startOgSluttDato.startDato"),
+                format: "iso-string",
               }}
               til={{
                 label: "Sluttdato",
-                readOnly: arenaOpphav(tiltaksgjennomforing),
+                readOnly: erArenaOpphav(tiltaksgjennomforing),
                 fromDate: minStartdato,
                 toDate: maxSluttdato,
                 ...register("startOgSluttDato.sluttDato"),
+                format: "iso-string",
               }}
             />
             <Checkbox
               size="small"
-              readOnly={arenaOpphav(tiltaksgjennomforing)}
+              readOnly={erArenaOpphav(tiltaksgjennomforing)}
               {...register("apenForInnsok")}
             >
               Åpen for innsøk
@@ -148,18 +153,20 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                   fromDate: minStartdato,
                   toDate: maxSluttdato,
                   ...register("midlertidigStengt.stengtFra"),
+                  format: "date",
                 }}
                 til={{
                   label: "Stengt til",
                   fromDate: watch("midlertidigStengt.stengtFra") ?? new Date(),
                   toDate: maxSluttdato,
                   ...register("midlertidigStengt.stengtTil"),
+                  format: "date",
                 }}
               />
             )}
             <TextField
               size="small"
-              readOnly={arenaOpphav(tiltaksgjennomforing)}
+              readOnly={erArenaOpphav(tiltaksgjennomforing)}
               error={errors.antallPlasser?.message as string}
               type="number"
               style={{
@@ -208,12 +215,18 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
         <div className={skjemastyles.column}>
           <div className={skjemastyles.gray_container}>
             <FormGroup>
-              <TextField
+              <SokeSelect
                 size="small"
-                readOnly
-                label={"NAV-region"}
-                value={avtale.navRegion?.navn || ""}
+                label="NAV-region"
+                readOnly={erArenaOpphav(tiltaksgjennomforing)}
+                placeholder="Velg en"
+                {...register("navRegion")}
+                onInputChange={() => {
+                  setValue("navEnheter", []);
+                }}
+                options={regionerOptions}
               />
+
               <ControlledMultiSelect
                 size="small"
                 placeholder={"Velg en"}
@@ -308,7 +321,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                   setValue("tiltaksArrangorUnderenhetOrganisasjonsnummer", "");
                 }}
                 readOnly={
-                  !avtale.leverandor.organisasjonsnummer || arenaOpphav(tiltaksgjennomforing)
+                  !avtale.leverandor.organisasjonsnummer || erArenaOpphav(tiltaksgjennomforing)
                 }
                 options={arrangorUnderenheterOptions(avtale, virksomhet)}
               />

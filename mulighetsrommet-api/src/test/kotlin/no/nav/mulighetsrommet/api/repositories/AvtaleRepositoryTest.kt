@@ -4,7 +4,6 @@ import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.data.forAll
 import io.kotest.data.row
-import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldNotBeNull
@@ -77,7 +76,8 @@ class AvtaleRepositoryTest : FunSpec({
                 it.avtalenummer shouldBe "2023#123"
                 it.leverandor shouldBe AvtaleAdminDto.Leverandor(
                     organisasjonsnummer = "123456789",
-                    navn = null, slettet = true,
+                    navn = null,
+                    slettet = true,
                 )
                 it.startDato shouldBe LocalDate.of(2023, 1, 1)
                 it.sluttDato shouldBe LocalDate.of(2023, 2, 2)
@@ -349,18 +349,15 @@ class AvtaleRepositoryTest : FunSpec({
 
                 val avtale1 = AvtaleFixtures.avtale1.copy(
                     id = UUID.randomUUID(),
-                    navRegion = "1801",
+                    navEnheter = listOf("1801"),
                 )
                 val avtale2 = avtale1.copy(
                     id = UUID.randomUUID(),
-                    navRegion = "1900",
+                    navEnheter = listOf("1900"),
                 )
 
                 avtaler.upsert(avtale1)
                 avtaler.upsert(avtale2)
-
-                val aa = avtaler.get(avtale1.id)
-                aa?.navRegion?.enhetsnummer shouldBe "1801"
 
                 val result = avtaler.getAll(
                     filter = defaultFilter.copy(
@@ -369,8 +366,12 @@ class AvtaleRepositoryTest : FunSpec({
                     ),
                 )
                 result.second shouldHaveSize 1
-                result.second[0].navRegion?.enhetsnummer shouldBe "1801"
-                result.second[0].navRegion?.navn shouldBe "Vestland"
+                result.second[0].kontorstruktur[0].region shouldBe EmbeddedNavEnhet(
+                    enhetsnummer = "1801",
+                    navn = "Vestland",
+                    type = NavEnhetType.FYLKE,
+                    overordnetEnhet = null,
+                )
             }
 
             test("Avtale navenhet blir med riktig tilbake") {
@@ -396,13 +397,28 @@ class AvtaleRepositoryTest : FunSpec({
 
                 val avtale1 = AvtaleFixtures.avtale1.copy(
                     id = UUID.randomUUID(),
-                    navRegion = "1900",
-                    navEnheter = listOf("1901"),
+                    navEnheter = listOf("1900", "1901"),
                 )
                 avtaler.upsert(avtale1)
                 avtaler.get(avtale1.id).should {
-                    it!!.navRegion?.enhetsnummer shouldBe "1900"
-                    it.navEnheter shouldContainExactly listOf(NavEnhet(enhetsnummer = "1901", navn = "Oppland 1"))
+                    it!!.kontorstruktur shouldBe listOf(
+                        Kontorstruktur(
+                            region = EmbeddedNavEnhet(
+                                enhetsnummer = "1900",
+                                navn = "Oppland",
+                                type = NavEnhetType.FYLKE,
+                                overordnetEnhet = null,
+                            ),
+                            kontorer = listOf(
+                                EmbeddedNavEnhet(
+                                    enhetsnummer = "1901",
+                                    navn = "Oppland 1",
+                                    type = NavEnhetType.LOKAL,
+                                    overordnetEnhet = "1900",
+                                ),
+                            ),
+                        ),
+                    )
                 }
             }
         }
@@ -595,66 +611,6 @@ class AvtaleRepositoryTest : FunSpec({
             )
 
             result.second shouldHaveSize 2
-        }
-
-        test("Sortering på nav_enhet sorterer korrekt") {
-            val navEnhetRepository = NavEnhetRepository(database.db)
-            navEnhetRepository.upsert(
-                NavEnhetDbo(
-                    navn = "alvdal",
-                    enhetsnummer = "1",
-                    status = NavEnhetStatus.AKTIV,
-                    type = Norg2Type.FYLKE,
-                    overordnetEnhet = null,
-                ),
-            )
-            navEnhetRepository.upsert(
-                NavEnhetDbo(
-                    navn = "zorro",
-                    enhetsnummer = "2",
-                    status = NavEnhetStatus.AKTIV,
-                    type = Norg2Type.FYLKE,
-                    overordnetEnhet = null,
-                ),
-            )
-            val avtale1 = AvtaleFixtures.avtale1.copy(
-                navRegion = "1",
-                navn = "Avtale hos Anders",
-            )
-            val avtale2 = avtale1.copy(
-                id = UUID.randomUUID(),
-                navRegion = "2",
-                navn = "Avtale hos Åse",
-            )
-            val avtale3 = avtale1.copy(
-                id = UUID.randomUUID(),
-                navn = "Avtale hos Øyvind",
-            )
-            avtaler.upsert(avtale1)
-            avtaler.upsert(avtale2)
-            avtaler.upsert(avtale3)
-
-            val ascending = avtaler.getAll(
-                filter = AvtaleFilter(
-                    sortering = "nav-enhet-ascending",
-                ),
-            )
-
-            ascending.second shouldHaveSize 3
-            ascending.second[0].navRegion shouldBe NavEnhet(enhetsnummer = "1", navn = "alvdal")
-            ascending.second[1].navRegion shouldBe NavEnhet(enhetsnummer = "1", navn = "alvdal")
-            ascending.second[2].navRegion shouldBe NavEnhet(enhetsnummer = "2", navn = "zorro")
-
-            val descending = avtaler.getAll(
-                filter = AvtaleFilter(
-                    sortering = "nav-enhet-descending",
-                ),
-            )
-
-            descending.second shouldHaveSize 3
-            descending.second[0].navRegion shouldBe NavEnhet(enhetsnummer = "2", navn = "zorro")
-            descending.second[1].navRegion shouldBe NavEnhet(enhetsnummer = "1", navn = "alvdal")
-            descending.second[2].navRegion shouldBe NavEnhet(enhetsnummer = "1", navn = "alvdal")
         }
 
         test("Sortering på leverandor sorterer korrekt") {

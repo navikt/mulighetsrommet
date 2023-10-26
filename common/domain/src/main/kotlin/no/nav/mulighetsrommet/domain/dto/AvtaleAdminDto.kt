@@ -23,17 +23,16 @@ data class AvtaleAdminDto(
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate,
-    val navRegion: NavEnhet?,
     val avtaletype: Avtaletype,
     val avtalestatus: Avtalestatus,
     val prisbetingelser: String?,
     val administrator: Administrator?,
     val url: String?,
     val antallPlasser: Int?,
-    val navEnheter: List<NavEnhet>,
     val opphav: ArenaMigrering.Opphav,
     @Serializable(with = LocalDateTimeSerializer::class)
     val updatedAt: LocalDateTime,
+    val kontorstruktur: List<Kontorstruktur>,
 ) {
     @Serializable
     data class Tiltakstype(

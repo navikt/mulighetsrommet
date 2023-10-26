@@ -23,6 +23,7 @@ data class TiltaksgjennomforingDbo(
     val antallPlasser: Int,
     val avtaleId: UUID,
     val administratorer: List<String>,
+    val navRegion: String,
     val navEnheter: List<String>,
     val oppstart: TiltaksgjennomforingOppstartstype,
     val opphav: ArenaMigrering.Opphav,

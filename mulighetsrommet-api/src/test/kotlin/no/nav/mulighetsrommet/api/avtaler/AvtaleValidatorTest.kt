@@ -37,7 +37,6 @@ class AvtaleValidatorTest : FunSpec({
         avtalenummer = "123456",
         startDato = LocalDate.of(2023, 6, 1),
         sluttDato = LocalDate.of(2024, 6, 1),
-        navRegion = "2990",
         url = "http://localhost:8080",
         administratorer = listOf("B123456"),
         avtaletype = Avtaletype.Avtale,
@@ -72,7 +71,6 @@ class AvtaleValidatorTest : FunSpec({
             leverandorKontaktperson = null,
             startDato = startDato,
             sluttDato = sluttDato,
-            navRegion = NavEnhet(enhetsnummer = navRegion, navn = navRegion),
             avtaletype = avtaletype,
             avtalestatus = Avtalestatus.Aktiv,
             prisbetingelser = prisbetingelser,
@@ -81,9 +79,26 @@ class AvtaleValidatorTest : FunSpec({
             },
             url = url,
             antallPlasser = antallPlasser,
-            navEnheter = navEnheter.map { NavEnhet(enhetsnummer = it, navn = it) },
             opphav = opphav,
             updatedAt = avtaleDbo.updatedAt,
+            kontorstruktur = listOf(
+                Kontorstruktur(
+                    region = EmbeddedNavEnhet(
+                        enhetsnummer = "0100",
+                        navn = "NAV Mockdata",
+                        type = NavEnhetType.FYLKE,
+                        overordnetEnhet = null,
+                    ),
+                    kontorer = listOf(
+                        EmbeddedNavEnhet(
+                            enhetsnummer = "0101",
+                            navn = "NAV Mock-kontor",
+                            type = NavEnhetType.LOKAL,
+                            overordnetEnhet = "0100",
+                        ),
+                    ),
+                ),
+            ),
         )
     }
 
@@ -235,7 +250,7 @@ class AvtaleValidatorTest : FunSpec({
                                 slettet = false,
                             ),
                             navEnheter = listOf(
-                                NavEnhet(navn = "NAV Gjøvik", enhetsnummer = "0502"),
+                                EmbeddedNavEnhet(navn = "NAV Gjøvik", enhetsnummer = "0502", type = NavEnhetType.LOKAL, overordnetEnhet = null),
                             ),
                         ),
                     ),
@@ -265,7 +280,7 @@ class AvtaleValidatorTest : FunSpec({
         }
 
         context("når avtalen er aktiv") {
-            test("skal ikke kunne endre felter relatert til tilsagn/refursjon") {
+            test("skal ikke kunne endre felter relatert til tilsagn/refusjon") {
                 val avtaleMedEndringer = AvtaleDbo(
                     id = avtaleDbo.id,
                     navn = "Nytt navn",
@@ -276,7 +291,6 @@ class AvtaleValidatorTest : FunSpec({
                     avtalenummer = "123456",
                     startDato = LocalDate.of(2023, 6, 2),
                     sluttDato = LocalDate.of(2024, 6, 2),
-                    navRegion = "0400",
                     url = "nav.no",
                     administratorer = listOf("B123456"),
                     avtaletype = Avtaletype.Rammeavtale,
@@ -296,7 +310,6 @@ class AvtaleValidatorTest : FunSpec({
                         ValidationError("avtaletype", "Avtaletype kan ikke endres når avtalen er aktiv"),
                         ValidationError("startDato", "Startdato kan ikke endres når avtalen er aktiv"),
                         ValidationError("sluttDato", "Sluttdato kan ikke endres når avtalen er aktiv"),
-                        ValidationError("navRegion", "NAV-region kan ikke endres når avtalen er aktiv"),
                         ValidationError(
                             "leverandorOrganisasjonsnummer",
                             "Leverandøren kan ikke endres når avtalen er aktiv",
@@ -305,7 +318,7 @@ class AvtaleValidatorTest : FunSpec({
                 )
             }
 
-            test("skal kunne endre felter relatert til tilsagn/refursjon når avtalen er AFT/VTA") {
+            test("skal kunne endre felter relatert til tilsagn/refusjon når avtalen er AFT/VTA") {
                 val avtaleMedEndringer = AvtaleDbo(
                     id = avtaleDbo.id,
                     navn = "Nytt navn",
@@ -316,7 +329,6 @@ class AvtaleValidatorTest : FunSpec({
                     avtalenummer = "123456",
                     startDato = LocalDate.of(2023, 6, 2),
                     sluttDato = LocalDate.of(2024, 6, 2),
-                    navRegion = "0400",
                     url = "nav.no",
                     administratorer = listOf("B123456"),
                     avtaletype = Avtaletype.Rammeavtale,

@@ -6,7 +6,6 @@ import kotliquery.Session
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityPerspective
 import no.nav.mulighetsrommet.api.domain.dto.*
-import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingAdminDto
@@ -16,7 +15,6 @@ import java.util.*
 class SanityTiltaksgjennomforingService(
     private val sanityClient: SanityClient,
     private val tiltaksgjennomforingRepository: TiltaksgjennomforingRepository,
-    private val avtaleRepository: AvtaleRepository,
     private val tiltakstypeRepository: TiltakstypeRepository,
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
@@ -41,17 +39,10 @@ class SanityTiltaksgjennomforingService(
         tiltaksgjennomforing: TiltaksgjennomforingAdminDto,
         tx: Session,
     ) {
-        val avtale = tiltaksgjennomforing.avtaleId?.let { avtaleRepository.get(it) }
         val tiltakstype = tiltakstypeRepository.get(tiltaksgjennomforing.tiltakstype.id)
 
         val sanityTiltaksgjennomforingFields = SanityTiltaksgjennomforingFields(
             tiltaksgjennomforingNavn = tiltaksgjennomforing.navn,
-            enheter = tiltaksgjennomforing.navEnheter.map {
-                EnhetRef(_ref = "enhet.lokal.${it.enhetsnummer}", _key = it.enhetsnummer)
-            },
-            fylke = avtale?.navRegion?.enhetsnummer?.let {
-                FylkeRef(_ref = "enhet.fylke.$it")
-            },
             tiltakstype = tiltakstype?.sanityId?.let { TiltakstypeRef(_ref = it.toString()) },
             tiltaksnummer = tiltaksgjennomforing.tiltaksnummer?.let { TiltaksnummerSlug(current = it) },
             stedForGjennomforing = tiltaksgjennomforing.stedForGjennomforing,

@@ -5,7 +5,6 @@ import {
   Avtalestatus,
   Avtaletype,
   EmbeddedTiltakstype,
-  LeverandorUnderenhet,
   NavAnsatt,
   NavEnhetType,
   Opphav,
@@ -22,29 +21,31 @@ import { useUpsertAvtale } from "../../api/avtaler/useUpsertAvtale";
 import { useMutateUtkast } from "../../api/utkast/useMutateUtkast";
 import { useSokVirksomheter } from "../../api/virksomhet/useSokVirksomhet";
 import { useVirksomhet } from "../../api/virksomhet/useVirksomhet";
-import { addYear, formaterDato, formaterDatoSomYYYYMMDD, formaterDatoTid } from "../../utils/Utils";
+import { addYear, formaterDato, formaterDatoTid } from "../../utils/Utils";
 import { Separator } from "../detaljside/Metadata";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
 import skjemastyles from "../skjema/Skjema.module.scss";
-import { SokeSelect } from "../skjema/SokeSelect";
+import { SelectOption, SokeSelect } from "../skjema/SokeSelect";
 import { VirksomhetKontaktpersoner } from "../virksomhet/VirksomhetKontaktpersoner";
 import { AvtaleSchema, InferredAvtaleSchema } from "./AvtaleSchema";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { MultiValue } from "react-select";
+import { useHandleApiUpsertResponse } from "../../api/effects";
+import { useFeatureToggle } from "../../api/features/feature-toggles";
+import { erAnskaffetTiltak } from "../../utils/tiltakskoder";
+import { AvbrytAvtaleModal } from "../modal/AvbrytAvtaleModal";
 import { AdministratorOptions } from "../skjema/AdministratorOptions";
 import { FormGroup } from "../skjema/FormGroup";
 import {
-  defaultEnhet,
+  AvtaleUtkastData,
   getLokaleUnderenheterAsSelectOptions,
   saveUtkast,
   underenheterOptions,
+  utkastDataEllerDefault,
 } from "./AvtaleSkjemaConst";
 import { AvtaleSkjemaKnapperad } from "./AvtaleSkjemaKnapperad";
-import { AvbrytAvtaleModal } from "../modal/AvbrytAvtaleModal";
-import { useFeatureToggle } from "../../api/features/feature-toggles";
-import { erAnskaffetTiltak } from "../../utils/tiltakskoder";
-import { useHandleApiUpsertResponse } from "../../api/effects";
 
 const minStartdato = new Date(2000, 0, 1);
 
@@ -54,6 +55,7 @@ interface Props {
   tiltakstyper: Tiltakstype[];
   ansatt: NavAnsatt;
   avtale?: Avtale;
+  avtaleUtkast?: AvtaleUtkastData;
   enheter: NavEnhet[];
   redigeringsModus: boolean;
 }
@@ -65,10 +67,12 @@ export function AvtaleSkjemaContainer({
   ansatt,
   enheter,
   avtale,
+  avtaleUtkast,
   redigeringsModus,
 }: Props) {
-  const [navRegion, setNavRegion] = useState<string | undefined>(avtale?.navRegion?.enhetsnummer);
-  const [sokLeverandor, setSokLeverandor] = useState(avtale?.leverandor?.organisasjonsnummer || "");
+  const [sokLeverandor, setSokLeverandor] = useState(
+    avtaleUtkast?.leverandor ?? (avtale?.leverandor?.organisasjonsnummer || ""),
+  );
   const avbrytModalRef = useRef<HTMLDialogElement>(null);
 
   const { data: enableOpsjoner } = useFeatureToggle(
@@ -80,33 +84,11 @@ export function AvtaleSkjemaContainer({
 
   const { data: leverandorVirksomheter = [] } = useSokVirksomheter(sokLeverandor);
 
-  const utkastIdRef = useRef(avtale?.id || uuidv4());
+  const utkastIdRef = useRef(avtaleUtkast?.id || avtale?.id || uuidv4());
 
   const form = useForm<InferredAvtaleSchema>({
     resolver: zodResolver(AvtaleSchema),
-    defaultValues: {
-      tiltakstype: avtale?.tiltakstype,
-      navRegion: defaultEnhet(avtale, enheter, ansatt),
-      navEnheter: avtale?.navEnheter?.map((e) => e.enhetsnummer) || [],
-      administrator: avtale?.administrator?.navIdent || ansatt.navIdent || "",
-      navn: avtale?.navn ?? "",
-      avtaletype: avtale?.avtaletype ?? Avtaletype.AVTALE,
-      leverandor: avtale?.leverandor?.organisasjonsnummer ?? "",
-      leverandorUnderenheter:
-        avtale?.leverandorUnderenheter?.length === 0 || !avtale?.leverandorUnderenheter
-          ? []
-          : avtale?.leverandorUnderenheter?.map(
-              (leverandor: LeverandorUnderenhet) => leverandor.organisasjonsnummer,
-            ),
-      leverandorKontaktpersonId: avtale?.leverandorKontaktperson?.id,
-      startOgSluttDato: {
-        startDato: avtale?.startDato ? new Date(avtale.startDato) : undefined,
-        sluttDato: avtale?.sluttDato ? new Date(avtale.sluttDato) : undefined,
-      },
-      url: avtale?.url ?? undefined,
-      prisbetingelser: avtale?.prisbetingelser ?? undefined,
-      opphav: avtale?.opphav ?? Opphav.MR_ADMIN_FLATE,
-    },
+    defaultValues: utkastDataEllerDefault(ansatt, avtaleUtkast, avtale),
   });
 
   const {
@@ -123,8 +105,9 @@ export function AvtaleSkjemaContainer({
   } = useDatepicker({
     fromDate: new Date(),
     defaultSelected:
-      defaultValues?.startOgSluttDato?.sluttDato &&
-      addYear(defaultValues?.startOgSluttDato?.sluttDato, 5),
+      (defaultValues?.startOgSluttDato?.sluttDato &&
+        addYear(new Date(defaultValues?.startOgSluttDato?.sluttDato), 5)) ||
+      undefined,
   });
 
   const watchedTiltakstype: EmbeddedTiltakstype | undefined = watch("tiltakstype");
@@ -154,14 +137,13 @@ export function AvtaleSkjemaContainer({
   const postData: SubmitHandler<InferredAvtaleSchema> = async (data): Promise<void> => {
     const requestBody: AvtaleRequest = {
       id: avtale?.id ?? utkastIdRef.current,
-      navRegion: data.navRegion,
-      navEnheter: data.navEnheter,
+      navEnheter: data.navEnheter.concat(data.navRegioner),
       avtalenummer: avtale?.avtalenummer || null,
       leverandorOrganisasjonsnummer: data.leverandor,
       leverandorUnderenheter: data.leverandorUnderenheter,
       navn: data.navn,
-      sluttDato: formaterDatoSomYYYYMMDD(data.startOgSluttDato.sluttDato),
-      startDato: formaterDatoSomYYYYMMDD(data.startOgSluttDato.startDato),
+      sluttDato: data.startOgSluttDato.sluttDato,
+      startDato: data.startOgSluttDato.startDato,
       tiltakstypeId: data.tiltakstype.id,
       url: data.url || null,
       administrator: data.administrator,
@@ -204,7 +186,7 @@ export function AvtaleSkjemaContainer({
       label: enhet.navn,
     }));
 
-  const maxSluttdato = addYear(watch("startOgSluttDato.startDato") ?? new Date(), 5);
+  const maxSluttdato = addYear(new Date(watch("startOgSluttDato.startDato")) ?? new Date(), 5);
 
   return (
     <FormProvider {...form}>
@@ -285,13 +267,17 @@ export function AvtaleSkjemaContainer({
                     fromDate: minStartdato,
                     toDate: maxSluttdato,
                     ...register("startOgSluttDato.startDato"),
+                    format: "iso-string",
                   }}
                   til={{
                     label: "Sluttdato",
                     readOnly: arenaOpphav,
-                    fromDate: watch("startOgSluttDato.startDato") ?? minStartdato,
+                    fromDate: watch("startOgSluttDato.startDato")
+                      ? new Date(watch("startOgSluttDato.startDato"))
+                      : minStartdato,
                     toDate: maxSluttdato,
                     ...register("startOgSluttDato.sluttDato"),
+                    format: "iso-string",
                   }}
                 >
                   {enableOpsjoner &&
@@ -303,7 +289,9 @@ export function AvtaleSkjemaContainer({
                         label="Maks varighet inkl. opsjon"
                         readOnly
                         size="small"
-                        value={formaterDato(addYear(watch("startOgSluttDato.sluttDato"), 5))}
+                        value={formaterDato(
+                          addYear(new Date(watch("startOgSluttDato.sluttDato")), 5),
+                        )}
                       />
                     </DatePicker>
                   ) : null}
@@ -349,25 +337,40 @@ export function AvtaleSkjemaContainer({
             <div className={skjemastyles.column}>
               <div className={skjemastyles.gray_container}>
                 <FormGroup>
-                  <SokeSelect
+                  <ControlledMultiSelect
                     size="small"
                     placeholder="Velg en"
-                    label={"NAV-region"}
-                    {...register("navRegion")}
-                    onChange={(e) => {
-                      setNavRegion(e.target.value);
-                      form.setValue("navEnheter", [] as any);
+                    label={"NAV-regioner"}
+                    {...register("navRegioner")}
+                    additionalOnChange={(selectedOptions) => {
+                      if (watch("navRegioner").length > 1) {
+                        const alleLokaleUnderenheter = velgAlleLokaleUnderenheter(
+                          selectedOptions,
+                          enheter,
+                        );
+                        form.setValue(
+                          "navEnheter",
+                          alleLokaleUnderenheter as [string, ...string[]],
+                        );
+                      } else {
+                        const alleLokaleUnderenheter = velgAlleLokaleUnderenheter(
+                          selectedOptions,
+                          enheter,
+                        );
+                        const navEnheter = watch("navEnheter").filter((enhet) =>
+                          alleLokaleUnderenheter.includes(enhet),
+                        );
+                        form.setValue("navEnheter", navEnheter as [string, ...string[]]);
+                      }
                     }}
-                    onClearValue={() => setValue("navRegion", "")}
                     options={navRegionerOptions}
                   />
                   <ControlledMultiSelect
                     size="small"
                     placeholder="Velg en"
-                    readOnly={!navRegion}
                     label={"NAV-enheter (kontorer)"}
                     {...register("navEnheter")}
-                    options={getLokaleUnderenheterAsSelectOptions(navRegion, enheter)}
+                    options={getLokaleUnderenheterAsSelectOptions(watch("navRegioner"), enheter)}
                   />
                 </FormGroup>
               </div>
@@ -434,4 +437,15 @@ export function AvtaleSkjemaContainer({
       {avtale && <AvbrytAvtaleModal modalRef={avbrytModalRef} avtale={avtale} />}
     </FormProvider>
   );
+}
+
+function velgAlleLokaleUnderenheter(
+  selectedOptions: MultiValue<SelectOption<string>>,
+  enheter: NavEnhet[],
+): string[] {
+  const regioner = selectedOptions?.map((option) => option.value);
+  const navEnheter = getLokaleUnderenheterAsSelectOptions(regioner, enheter).map(
+    (option) => option.value,
+  );
+  return navEnheter;
 }
