@@ -18,6 +18,8 @@ import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattDbo
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.repositories.*
+import no.nav.mulighetsrommet.api.routes.v1.responses.BadRequest
+import no.nav.mulighetsrommet.api.routes.v1.responses.NotFound
 import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
 import no.nav.mulighetsrommet.api.tiltaksgjennomforinger.TiltaksgjennomforingValidator
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
@@ -51,9 +53,11 @@ class TiltaksgjennomforingServiceTest : FunSpec({
     }
 
     context("Slette gjennomføring") {
+        val avtaler = AvtaleRepository(database.db)
         val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
         val deltagerRepository = DeltakerRepository(database.db)
         val tiltaksgjennomforingService = TiltaksgjennomforingService(
+            avtaler,
             tiltaksgjennomforingRepository,
             deltagerRepository,
             virksomhetService,
@@ -86,14 +90,12 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             tiltaksgjennomforingRepository.upsert(gjennomforingMedSlutt)
             tiltaksgjennomforingRepository.upsert(gjennomforingUtenSlutt)
 
-            tiltaksgjennomforingService.delete(gjennomforingMedSlutt.id, currentDate = currentDate).shouldBeLeft()
-                .should {
-                    it.status shouldBe HttpStatusCode.BadRequest
-                }
-            tiltaksgjennomforingService.delete(gjennomforingUtenSlutt.id, currentDate = currentDate).shouldBeLeft()
-                .should {
-                    it.status shouldBe HttpStatusCode.BadRequest
-                }
+            tiltaksgjennomforingService.delete(gjennomforingMedSlutt.id, currentDate = currentDate).shouldBeLeft(
+                BadRequest(message = "Gjennomføringen er eller har vært aktiv og kan derfor ikke slettes."),
+            )
+            tiltaksgjennomforingService.delete(gjennomforingUtenSlutt.id, currentDate = currentDate).shouldBeLeft(
+                BadRequest(message = "Gjennomføringen er eller har vært aktiv og kan derfor ikke slettes."),
+            )
         }
 
         test("Man skal ikke få slette dersom opphav for gjennomforingen ikke er admin-flate") {
@@ -103,40 +105,46 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             )
             tiltaksgjennomforingRepository.upsert(gjennomforing)
 
-            tiltaksgjennomforingService.delete(gjennomforing.id).shouldBeLeft().should {
-                it.status shouldBe HttpStatusCode.BadRequest
-            }
+            tiltaksgjennomforingService.delete(gjennomforing.id).shouldBeLeft(
+                BadRequest(message = "Gjennomføringen har opprinnelse fra Arena og kan ikke bli slettet i admin-flate."),
+            )
         }
 
         test("Man skal ikke få slette dersom det finnes deltagere koblet til gjennomføringen") {
+            val currentDate = LocalDate.of(2023, 6, 1)
             val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1.copy(
                 avtaleId = avtaleId,
-                opphav = ArenaMigrering.Opphav.ARENA,
+                startDato = currentDate.plusMonths(1),
             )
             tiltaksgjennomforingRepository.upsert(gjennomforing)
 
             val deltager = DeltakerFixture.Deltaker.copy(tiltaksgjennomforingId = gjennomforing.id)
             deltagerRepository.upsert(deltager)
 
-            tiltaksgjennomforingService.delete(gjennomforing.id).shouldBeLeft().should {
-                it.status shouldBe HttpStatusCode.BadRequest
-            }
+            tiltaksgjennomforingService.delete(gjennomforing.id, currentDate).shouldBeLeft(
+                BadRequest(message = "Gjennomføringen kan ikke slettes fordi den har 1 deltager(e) koblet til seg."),
+            )
         }
 
         test("Skal få slette tiltaksgjennomføring hvis alle sjekkene er ok") {
-            val gjennomforing =
-                TiltaksgjennomforingFixtures.Oppfolging1.copy(avtaleId = avtaleId, startDato = LocalDate.of(2023, 7, 1))
+            val currentDate = LocalDate.of(2023, 6, 1)
+            val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1.copy(
+                avtaleId = avtaleId,
+                startDato = currentDate.plusMonths(1),
+            )
             tiltaksgjennomforingRepository.upsert(gjennomforing)
 
-            tiltaksgjennomforingService.delete(gjennomforing.id, currentDate = LocalDate.of(2023, 6, 16))
+            tiltaksgjennomforingService.delete(gjennomforing.id, currentDate)
                 .shouldBeRight()
         }
     }
 
     context("Avbryte gjennomføring") {
+        val avtaler = AvtaleRepository(database.db)
         val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
         val deltagerRepository = DeltakerRepository(database.db)
         val tiltaksgjennomforingService = TiltaksgjennomforingService(
+            avtaler,
             tiltaksgjennomforingRepository,
             deltagerRepository,
             virksomhetService,
@@ -148,9 +156,9 @@ class TiltaksgjennomforingServiceTest : FunSpec({
         )
 
         test("Man skal ikke få avbryte dersom gjennomføringen ikke finnes") {
-            tiltaksgjennomforingService.delete(UUID.randomUUID()).shouldBeLeft().should {
-                it.status shouldBe HttpStatusCode.NotFound
-            }
+            tiltaksgjennomforingService.delete(UUID.randomUUID()).shouldBeLeft(
+                NotFound(message = "Gjennomføringen finnes ikke"),
+            )
         }
 
         test("Man skal ikke få avbryte dersom opphav for gjennomføringen ikke er admin-flate") {
@@ -160,30 +168,32 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             )
             tiltaksgjennomforingRepository.upsert(gjennomforing)
 
-            tiltaksgjennomforingService.avbrytGjennomforing(gjennomforing.id).shouldBeLeft().should {
-                it.status shouldBe HttpStatusCode.BadRequest
-            }
+            tiltaksgjennomforingService.avbrytGjennomforing(gjennomforing.id).shouldBeLeft(
+                BadRequest(message = "Gjennomføringen har opprinnelse fra Arena og kan ikke bli avbrutt i admin-flate."),
+            )
         }
 
         test("Man skal ikke få avbryte dersom det finnes deltagere koblet til gjennomføringen") {
             val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1.copy(
                 avtaleId = avtaleId,
                 opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
+                sluttDato = null,
             )
             tiltaksgjennomforingRepository.upsert(gjennomforing)
 
             val deltager = DeltakerFixture.Deltaker.copy(tiltaksgjennomforingId = gjennomforing.id)
             deltagerRepository.upsert(deltager)
 
-            tiltaksgjennomforingService.avbrytGjennomforing(gjennomforing.id).shouldBeLeft().should {
-                it.status shouldBe HttpStatusCode.BadRequest
-            }
+            tiltaksgjennomforingService.avbrytGjennomforing(gjennomforing.id).shouldBeLeft(
+                BadRequest(message = "Gjennomføringen kan ikke avbrytes fordi den har 1 deltager(e) koblet til seg."),
+            )
         }
 
         test("Skal få avbryte tiltaksgjennomføring hvis alle sjekkene er ok") {
             val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1.copy(
                 avtaleId = avtaleId,
                 startDato = LocalDate.of(2023, 7, 1),
+                sluttDato = null,
             )
             tiltaksgjennomforingRepository.upsert(gjennomforing)
 
@@ -192,10 +202,12 @@ class TiltaksgjennomforingServiceTest : FunSpec({
     }
 
     context("Upsert gjennomføring") {
+        val avtaler = AvtaleRepository(database.db)
         val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
         val deltagerRepository = DeltakerRepository(database.db)
         val avtaleRepository = AvtaleRepository(database.db)
         val tiltaksgjennomforingService = TiltaksgjennomforingService(
+            avtaler,
             tiltaksgjennomforingRepository,
             deltagerRepository,
             virksomhetService,
@@ -209,7 +221,9 @@ class TiltaksgjennomforingServiceTest : FunSpec({
         test("Man skal ikke få lov til å opprette gjennomføring dersom det oppstår valideringsfeil") {
             val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1Request
 
-            every { validator.validate(gjennomforing.toDbo()) } returns listOf(ValidationError("navn", "Dårlig navn")).left()
+            every { validator.validate(gjennomforing.toDbo()) } returns listOf(
+                ValidationError("navn", "Dårlig navn"),
+            ).left()
 
             avtaleRepository.upsert(AvtaleFixtures.avtale1)
 
@@ -220,10 +234,12 @@ class TiltaksgjennomforingServiceTest : FunSpec({
     }
 
     context("Administrator-notification") {
+        val avtaler = AvtaleRepository(database.db)
         val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
         val deltagerRepository = DeltakerRepository(database.db)
         val avtaleRepository = AvtaleRepository(database.db)
         val tiltaksgjennomforingService = TiltaksgjennomforingService(
+            avtaler,
             tiltaksgjennomforingRepository,
             deltagerRepository,
             virksomhetService,
@@ -312,9 +328,11 @@ class TiltaksgjennomforingServiceTest : FunSpec({
     }
 
     context("transaction testing") {
+        val avtaler = AvtaleRepository(database.db)
         val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
         val deltagerRepository = DeltakerRepository(database.db)
         val tiltaksgjennomforingService = TiltaksgjennomforingService(
+            avtaler,
             tiltaksgjennomforingRepository,
             deltagerRepository,
             virksomhetService,
@@ -372,8 +390,11 @@ class TiltaksgjennomforingServiceTest : FunSpec({
         }
 
         test("Avbrytes ikke hvis publish feiler") {
-            val gjennomforing =
-                TiltaksgjennomforingFixtures.Oppfolging1.copy(avtaleId = avtaleId, startDato = LocalDate.of(2023, 7, 1))
+            val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1.copy(
+                avtaleId = avtaleId,
+                startDato = LocalDate.of(2023, 7, 1),
+                sluttDato = null,
+            )
             tiltaksgjennomforingRepository.upsert(gjennomforing)
 
             every { tiltaksgjennomforingKafkaProducer.publish(any()) } throws Exception()
@@ -381,7 +402,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             shouldThrow<Throwable> { tiltaksgjennomforingService.avbrytGjennomforing(gjennomforing.id) }
 
             tiltaksgjennomforingService.get(gjennomforing.id) should {
-                it!!.status shouldNotBe Tiltaksgjennomforingsstatus.AVBRUTT
+                it!!.status shouldBe Tiltaksgjennomforingsstatus.GJENNOMFORES
             }
         }
 

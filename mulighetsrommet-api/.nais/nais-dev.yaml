@@ -32,6 +32,8 @@ spec:
       cpu: 250m
       memory: 512Mi
   gcp:
+    buckets:
+      - name: mulighetsrommet-api-uploads
     sqlInstances:
       - type: POSTGRES_14
         databases:
@@ -49,6 +51,13 @@ spec:
       enabled: true
       allowAllUsers: true
       claims:
+        groups:
+          # team-mulighetsrommet
+          - id: "639e2806-4cc2-484c-a72a-51b4308c52a1"
+          # 0000-GA-mr-admin-flate_betabruker
+          - id: "ee45478c-57a5-4ee6-b28d-b65f8c1733fe"
+          # (GRP) mr-nav_kontaktperson
+          - id: "7b1d209a-f6c1-4c6e-84f2-02a1bb4c92ba"
         extra:
           - NAVident
           - azp_name

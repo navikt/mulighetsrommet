@@ -31,6 +31,10 @@ tasks.build {
     dependsOn(validateOpenapiSpecs.name)
 }
 
+tasks.shadowJar {
+    isZip64 = true
+}
+
 flyway {
     url = System.getenv("DB_URL")
     user = System.getenv("DB_USERNAME")
@@ -72,6 +76,9 @@ dependencies {
     implementation(libs.ktor.server.sessions)
     implementation(libs.ktor.server.swagger)
     testImplementation(libs.ktor.server.testHost)
+
+    // GCP
+    implementation(libs.google.cloud.storage)
 
     // Cache
     implementation(libs.caffeine)

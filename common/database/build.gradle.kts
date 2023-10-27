@@ -23,7 +23,7 @@ dependencies {
     api(libs.kotliquery)
     implementation(libs.metrics.core)
     implementation(libs.metrics.healthchecks)
-    implementation(libs.google.postgresSocketFactory)
+    implementation(libs.google.cloud.postgresSocketFactory)
 
     // Logging
     implementation(libs.slf4j)

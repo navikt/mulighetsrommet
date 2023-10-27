@@ -52,7 +52,7 @@ data class AvtaleAdminDto(
     @Serializable
     data class LeverandorUnderenhet(
         val organisasjonsnummer: String,
-        val navn: String,
+        val navn: String? = null,
     )
 
     @Serializable

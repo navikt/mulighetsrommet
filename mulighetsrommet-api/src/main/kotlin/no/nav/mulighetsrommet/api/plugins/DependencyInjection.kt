@@ -270,7 +270,7 @@ private fun services(appConfig: AppConfig) = module {
     single { PoaoTilgangService(get()) }
     single { DelMedBrukerService(get()) }
     single { MicrosoftGraphService(get()) }
-    single { TiltaksgjennomforingService(get(), get(), get(), get(), get(), get(), get(), get()) }
+    single { TiltaksgjennomforingService(get(), get(), get(), get(), get(), get(), get(), get(), get()) }
     single { SanityTiltaksgjennomforingService(get(), get(), get()) }
     single { TiltakstypeService(get()) }
     single { NavEnheterSyncService(get(), get(), get(), get()) }
@@ -288,11 +288,12 @@ private fun services(appConfig: AppConfig) = module {
         UnleashService(appConfig.unleash, byEnhetStrategy)
     }
     single { AxsysService(appConfig.axsys) { m2mTokenProvider.createMachineToMachineToken(appConfig.axsys.scope) } }
-    single { AvtaleValidator(get(), get(), get()) }
+    single { AvtaleValidator(get(), get(), get(), get()) }
     single { TiltaksgjennomforingValidator(get(), get(), get()) }
 }
 
 private fun tasks(config: TaskConfig) = module {
+    single { GenerateValidationReport(get(), get(), get(), get(), get()) }
     single {
         val deleteExpiredTiltakshistorikk = DeleteExpiredTiltakshistorikk(
             config.deleteExpiredTiltakshistorikk,
@@ -333,11 +334,16 @@ private fun tasks(config: TaskConfig) = module {
             )
         val oppdaterMetrikker = OppdaterMetrikker(config.oppdaterMetrikker, get(), get())
         val notificationService: NotificationService by inject()
+        val generateValidationReport: GenerateValidationReport by inject()
 
         val db: Database by inject()
 
         Scheduler
-            .create(db.getDatasource(), notificationService.getScheduledNotificationTask())
+            .create(
+                db.getDatasource(),
+                notificationService.getScheduledNotificationTask(),
+                generateValidationReport.task,
+            )
             .startTasks(
                 deleteExpiredTiltakshistorikk.task,
                 synchronizeNorgEnheterTask.task,

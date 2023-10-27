@@ -5,6 +5,7 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import kotlinx.serialization.Serializable
+import kotlin.reflect.KProperty1
 
 /**
  * Et forsøk på å definere noen utility-klasser som gjør det lettere å benytte Arrow's [Either] i kombinasjon
@@ -62,7 +63,13 @@ data class ValidationErrorResponse(
 data class ValidationError(
     val name: String,
     val message: String,
-)
+) {
+    companion object {
+        fun of(property: KProperty1<*, *>, message: String): ValidationError {
+            return ValidationError(name = property.name, message = message)
+        }
+    }
+}
 
 suspend inline fun <reified T : Any> ApplicationCall.respondWithStatusResponse(result: StatusResponse<T>) {
     result

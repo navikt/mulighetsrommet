@@ -8,133 +8,98 @@ import io.kotest.data.row
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
-import io.mockk.every
-import io.mockk.mockk
+import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
+import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
+import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
+import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
+import no.nav.mulighetsrommet.api.repositories.NavEnhetRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
+import no.nav.mulighetsrommet.api.services.NavEnhetService
+import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
+import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dto.*
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
 class AvtaleValidatorTest : FunSpec({
-    val newAvtaleId = UUID.randomUUID()
-    val existingAvtaleId = UUID.randomUUID()
+    val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
     val avtaleDbo = AvtaleDbo(
-        id = newAvtaleId,
+        id = UUID.randomUUID(),
         navn = "Avtale",
         tiltakstypeId = TiltakstypeFixtures.AFT.id,
         leverandorOrganisasjonsnummer = "123456789",
         leverandorUnderenheter = listOf("123456789"),
         leverandorKontaktpersonId = null,
         avtalenummer = "123456",
-        startDato = LocalDate.of(2023, 6, 1),
-        sluttDato = LocalDate.of(2024, 6, 1),
+        startDato = LocalDate.now().minusDays(1),
+        sluttDato = LocalDate.now().plusMonths(1),
         url = "http://localhost:8080",
         administratorer = listOf("B123456"),
         avtaletype = Avtaletype.Avtale,
         prisbetingelser = null,
-        navEnheter = listOf("2990"),
+        navEnheter = listOf("0400", "0502"),
         opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
         antallPlasser = null,
         updatedAt = LocalDateTime.now(),
     )
 
-    val avtaleAdminDto = avtaleDbo.run {
-        AvtaleAdminDto(
-            id = id,
-            tiltakstype = AvtaleAdminDto.Tiltakstype(
-                id = TiltakstypeFixtures.AFT.id,
-                navn = TiltakstypeFixtures.AFT.navn,
-                arenaKode = TiltakstypeFixtures.AFT.tiltakskode,
-            ),
-            navn = navn,
-            avtalenummer = avtalenummer,
-            leverandor = AvtaleAdminDto.Leverandor(
-                organisasjonsnummer = leverandorOrganisasjonsnummer,
-                navn = "Bedrift",
-                slettet = false,
-            ),
-            leverandorUnderenheter = leverandorUnderenheter.map {
-                AvtaleAdminDto.LeverandorUnderenhet(
-                    organisasjonsnummer = it,
-                    navn = it,
-                )
-            },
-            leverandorKontaktperson = null,
-            startDato = startDato,
-            sluttDato = sluttDato,
-            avtaletype = avtaletype,
-            avtalestatus = Avtalestatus.Aktiv,
-            prisbetingelser = prisbetingelser,
-            administrator = administratorer.firstOrNull()?.let {
-                AvtaleAdminDto.Administrator(navIdent = it, navn = it)
-            },
-            url = url,
-            antallPlasser = antallPlasser,
-            opphav = opphav,
-            updatedAt = avtaleDbo.updatedAt,
-            kontorstruktur = listOf(
-                Kontorstruktur(
-                    region = EmbeddedNavEnhet(
-                        enhetsnummer = "0100",
-                        navn = "NAV Mockdata",
-                        type = NavEnhetType.FYLKE,
-                        overordnetEnhet = null,
-                    ),
-                    kontorer = listOf(
-                        EmbeddedNavEnhet(
-                            enhetsnummer = "0101",
-                            navn = "NAV Mock-kontor",
-                            type = NavEnhetType.LOKAL,
-                            overordnetEnhet = "0100",
-                        ),
-                    ),
-                ),
-            ),
-        )
-    }
-
-    val tiltakstyper = mockk<TiltakstypeRepository>()
-    every { tiltakstyper.get(TiltakstypeFixtures.AFT.id) } returns TiltakstypeDto.from(TiltakstypeFixtures.AFT)
-    every { tiltakstyper.get(TiltakstypeFixtures.VTA.id) } returns TiltakstypeDto.from(TiltakstypeFixtures.VTA)
-    every { tiltakstyper.get(TiltakstypeFixtures.Oppfolging.id) } returns TiltakstypeDto.from(TiltakstypeFixtures.Oppfolging)
-
-    val avtaler = mockk<AvtaleRepository>()
-
-    val gjennomforinger = mockk<TiltaksgjennomforingRepository>()
+    lateinit var navEnheterService: NavEnhetService
+    lateinit var tiltakstyper: TiltakstypeRepository
+    lateinit var avtaler: AvtaleRepository
+    lateinit var gjennomforinger: TiltaksgjennomforingRepository
 
     beforeEach {
-        every { avtaler.get(newAvtaleId) } returns null
+        tiltakstyper = TiltakstypeRepository(database.db)
+        tiltakstyper.upsert(TiltakstypeFixtures.AFT).shouldBeRight()
+        tiltakstyper.upsert(TiltakstypeFixtures.VTA).shouldBeRight()
+        tiltakstyper.upsert(TiltakstypeFixtures.Oppfolging).shouldBeRight()
 
-        every {
-            gjennomforinger.getAll(
-                any(),
-                any(),
-                any(),
-                any(),
-                any(),
-                any(),
-                any(),
-                any(),
-                any(),
-                any(),
-                any(),
-                any(),
-                any(),
-            )
-        } returns Pair(0, emptyList())
+        val enheter = NavEnhetRepository(database.db)
+        enheter.upsert(
+            NavEnhetDbo(
+                navn = "NAV Oslo",
+                enhetsnummer = "0300",
+                status = NavEnhetStatus.AKTIV,
+                type = Norg2Type.FYLKE,
+                overordnetEnhet = null,
+            ),
+        ).shouldBeRight()
+        enheter.upsert(
+            NavEnhetDbo(
+                navn = "NAV Innlandet",
+                enhetsnummer = "0400",
+                status = NavEnhetStatus.AKTIV,
+                type = Norg2Type.FYLKE,
+                overordnetEnhet = null,
+            ),
+        ).shouldBeRight()
+        enheter.upsert(
+            NavEnhetDbo(
+                navn = "NAV Gjøvik",
+                enhetsnummer = "0502",
+                status = NavEnhetStatus.AKTIV,
+                type = Norg2Type.LOKAL,
+                overordnetEnhet = "0400",
+            ),
+        ).shouldBeRight()
+        navEnheterService = NavEnhetService(enheter)
+
+        avtaler = AvtaleRepository(database.db)
+
+        gjennomforinger = TiltaksgjennomforingRepository(database.db)
     }
 
     test("should accumulate errors when dbo has multiple issues") {
-        val validator = AvtaleValidator(tiltakstyper, avtaler, gjennomforinger)
+        val validator = AvtaleValidator(tiltakstyper, avtaler, gjennomforinger, navEnheterService)
 
         val dbo = avtaleDbo.copy(
             startDato = LocalDate.of(2023, 1, 1),
@@ -146,28 +111,42 @@ class AvtaleValidatorTest : FunSpec({
         validator.validate(dbo).shouldBeLeft().shouldContainAll(
             listOf(
                 ValidationError("startDato", "Startdato må være før sluttdato"),
-                ValidationError("navEnheter", "Minst ett NAV-kontor må være valgt"),
+                ValidationError("navEnheter", "Minst én NAV-region må være valgt"),
                 ValidationError("leverandorUnderenheter", "Minst én underenhet til leverandøren må være valgt"),
             ),
         )
     }
 
-    context("when avtale does not already exist") {
-        test("should fail when tiltakstype is not VTA or AFT") {
-            val validator = AvtaleValidator(tiltakstyper, avtaler, gjennomforinger)
+    test("skal validere at ") {
+        val validator = AvtaleValidator(tiltakstyper, avtaler, gjennomforinger, navEnheterService)
+
+        val dbo = avtaleDbo.copy(
+            navEnheter = listOf("0300", "0502"),
+        )
+
+        validator.validate(dbo).shouldBeLeft().shouldContainExactlyInAnyOrder(
+            listOf(
+                ValidationError("navEnheter", "NAV-enheten 0502 passer ikke i avtalens kontorstruktur"),
+            ),
+        )
+    }
+
+    context("når avtalen ikke allerede eksisterer") {
+        test("skal feile når tiltakstypen ikke er VTA eller AFT") {
+            val validator = AvtaleValidator(tiltakstyper, avtaler, gjennomforinger, navEnheterService)
 
             val dbo = avtaleDbo.copy(tiltakstypeId = TiltakstypeFixtures.Oppfolging.id)
 
             validator.validate(dbo).shouldBeLeft().shouldContain(
                 ValidationError(
-                    "tiltakstype",
+                    "tiltakstypeId",
                     "Avtaler kan bare opprettes når de gjelder for tiltakstypene AFT eller VTA",
                 ),
             )
         }
 
-        test("should fail when opphav is not MR_ADMIN_FLATE") {
-            val validator = AvtaleValidator(tiltakstyper, avtaler, gjennomforinger)
+        test("skal feile når opphav ikke er MR_ADMIN_FLATE") {
+            val validator = AvtaleValidator(tiltakstyper, avtaler, gjennomforinger, navEnheterService)
 
             val dbo = avtaleDbo.copy(opphav = ArenaMigrering.Opphav.ARENA)
 
@@ -179,13 +158,11 @@ class AvtaleValidatorTest : FunSpec({
 
     context("når avtalen allerede eksisterer") {
         test("skal ikke kunne endre opphav") {
-            every { avtaler.get(existingAvtaleId) } returns avtaleAdminDto.copy(
-                opphav = ArenaMigrering.Opphav.ARENA,
-            )
+            avtaler.upsert(avtaleDbo.copy(opphav = ArenaMigrering.Opphav.ARENA, administratorer = listOf()))
 
-            val validator = AvtaleValidator(tiltakstyper, avtaler, gjennomforinger)
+            val validator = AvtaleValidator(tiltakstyper, avtaler, gjennomforinger, navEnheterService)
 
-            val dbo = avtaleDbo.copy(id = existingAvtaleId, opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE)
+            val dbo = avtaleDbo.copy(opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE)
 
             validator.validate(dbo).shouldBeLeft().shouldContain(
                 ValidationError("opphav", "Avtalens opphav kan ikke endres"),
@@ -193,17 +170,18 @@ class AvtaleValidatorTest : FunSpec({
         }
 
         test("skal bare kunne endre aktive avtaler") {
+            val id = UUID.randomUUID()
+            avtaler.upsert(avtaleDbo.copy(id = id, administratorer = listOf()))
+
             forAll(
-                row(Avtalestatus.Avsluttet),
-                row(Avtalestatus.Avbrutt),
+                row(Avslutningsstatus.AVSLUTTET),
+                row(Avslutningsstatus.AVBRUTT),
             ) { status ->
-                every { avtaler.get(existingAvtaleId) } returns avtaleAdminDto.copy(
-                    avtalestatus = status,
-                )
+                avtaler.setAvslutningsstatus(id, status)
 
-                val validator = AvtaleValidator(tiltakstyper, avtaler, gjennomforinger)
+                val validator = AvtaleValidator(tiltakstyper, avtaler, gjennomforinger, navEnheterService)
 
-                val dbo = avtaleDbo.copy(id = existingAvtaleId)
+                val dbo = avtaleDbo.copy(id = id)
 
                 validator.validate(dbo).shouldBeLeft().shouldContain(
                     ValidationError(
@@ -215,50 +193,30 @@ class AvtaleValidatorTest : FunSpec({
         }
 
         context("når avtalen har gjennomføringer") {
-            test("skal validere at data samsvarer med avtalens gjennomføringer") {
-                every { avtaler.get(existingAvtaleId) } returns avtaleAdminDto
-                every {
-                    gjennomforinger.getAll(
-                        any(),
-                        any(),
-                        any(),
-                        any(),
-                        any(),
-                        any(),
-                        any(),
-                        any(),
-                        any(),
-                        any(),
-                        any(),
-                        any(),
-                        any(),
-                    )
-                } returns Pair(
-                    1,
-                    listOf(
-                        TiltaksgjennomforingFixtures.Oppfolging1AdminDto.copy(
-                            tiltakstype = TiltaksgjennomforingAdminDto.Tiltakstype(
-                                id = avtaleAdminDto.tiltakstype.id,
-                                navn = avtaleAdminDto.tiltakstype.navn,
-                                arenaKode = avtaleAdminDto.tiltakstype.arenaKode,
-                            ),
-                            avtaleId = avtaleAdminDto.id,
-                            arrangor = TiltaksgjennomforingAdminDto.Arrangor(
-                                organisasjonsnummer = "000000001",
-                                navn = "Annen arrangør",
-                                kontaktperson = null,
-                                slettet = false,
-                            ),
-                            navEnheter = listOf(
-                                EmbeddedNavEnhet(navn = "NAV Gjøvik", enhetsnummer = "0502", type = NavEnhetType.LOKAL, overordnetEnhet = null),
-                            ),
-                        ),
+            beforeAny {
+                avtaler.upsert(avtaleDbo.copy(administratorer = listOf()))
+                gjennomforinger.upsert(
+                    TiltaksgjennomforingFixtures.Oppfolging1.copy(
+                        avtaleId = avtaleDbo.id,
+                        navRegion = "0400",
+                        navEnheter = listOf("0502"),
+                        arrangorOrganisasjonsnummer = "000000001",
                     ),
                 )
+            }
 
-                val validator = AvtaleValidator(tiltakstyper, avtaler, gjennomforinger)
+            afterAny {
+                gjennomforinger.delete(TiltaksgjennomforingFixtures.Oppfolging1.id)
+            }
 
-                val dbo = avtaleDbo.copy(id = existingAvtaleId, tiltakstypeId = TiltakstypeFixtures.VTA.id)
+            test("skal validere at data samsvarer med avtalens gjennomføringer") {
+
+                val validator = AvtaleValidator(tiltakstyper, avtaler, gjennomforinger, navEnheterService)
+
+                val dbo = avtaleDbo.copy(
+                    tiltakstypeId = TiltakstypeFixtures.VTA.id,
+                    navEnheter = listOf("0400"),
+                )
 
                 validator.validate(dbo).shouldBeLeft().shouldContainExactlyInAnyOrder(
                     listOf(
@@ -295,15 +253,15 @@ class AvtaleValidatorTest : FunSpec({
                     administratorer = listOf("B123456"),
                     avtaletype = Avtaletype.Rammeavtale,
                     prisbetingelser = null,
-                    navEnheter = listOf("2990"),
+                    navEnheter = listOf("0300"),
                     opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
                     antallPlasser = null,
                     updatedAt = avtaleDbo.updatedAt,
                 )
 
-                every { avtaler.get(avtaleMedEndringer.id) } returns avtaleAdminDto
+                avtaler.upsert(avtaleDbo.copy(administratorer = listOf()))
 
-                val validator = AvtaleValidator(tiltakstyper, avtaler, gjennomforinger)
+                val validator = AvtaleValidator(tiltakstyper, avtaler, gjennomforinger, navEnheterService)
 
                 validator.validate(avtaleMedEndringer).shouldBeLeft().shouldContainExactlyInAnyOrder(
                     listOf(
@@ -333,15 +291,15 @@ class AvtaleValidatorTest : FunSpec({
                     administratorer = listOf("B123456"),
                     avtaletype = Avtaletype.Rammeavtale,
                     prisbetingelser = null,
-                    navEnheter = listOf("2990"),
+                    navEnheter = listOf("0400"),
                     opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
                     antallPlasser = null,
                     updatedAt = avtaleDbo.updatedAt,
                 )
 
-                every { avtaler.get(avtaleMedEndringer.id) } returns avtaleAdminDto
+                avtaler.upsert(avtaleDbo.copy(administratorer = listOf()))
 
-                val validator = AvtaleValidator(tiltakstyper, avtaler, gjennomforinger)
+                val validator = AvtaleValidator(tiltakstyper, avtaler, gjennomforinger, navEnheterService)
 
                 validator.validate(avtaleMedEndringer).shouldBeRight()
             }

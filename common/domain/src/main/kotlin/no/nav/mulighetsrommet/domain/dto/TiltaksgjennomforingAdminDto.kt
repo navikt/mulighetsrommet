@@ -62,8 +62,8 @@ data class TiltaksgjennomforingAdminDto(
 
     @Serializable
     data class Administrator(
-        val navIdent: String? = null,
-        val navn: String? = null,
+        val navIdent: String,
+        val navn: String,
     )
 
     @Serializable
