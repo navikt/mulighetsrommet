@@ -1,9 +1,8 @@
-import { ChakraProvider } from "@chakra-ui/react";
+import { ChakraProvider, extendTheme } from "@chakra-ui/react";
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { extendTheme } from "@chakra-ui/react";
-import Routes from "./Routes";
 import { Toaster } from "react-hot-toast";
+import { Routes } from "./Routes";
 
 const customeTheme = extendTheme({
   colors: {},
