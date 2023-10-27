@@ -49,7 +49,7 @@ export const TiltaksgjennomforingSchema = z
         required_error: "Du må velge en underenhet for tiltaksarrangør",
       })
       .min(1, "Du må velge en underenhet for tiltaksarrangør"),
-    stedForGjennomforing: z.string(),
+    stedForGjennomforing: z.string().nullable(),
     arrangorKontaktpersonId: z.string().nullable().optional(),
     administrator: z
       .string()
