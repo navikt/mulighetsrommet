@@ -28,6 +28,7 @@ import org.apache.poi.ss.usermodel.CellType
 import org.apache.poi.xssf.usermodel.XSSFSheet
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import org.slf4j.LoggerFactory
+import org.slf4j.MDC
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.time.Instant
@@ -50,6 +51,8 @@ class GenerateValidationReport(
         .oneTime(javaClass.name)
         .execute { instance, context ->
             logger.info("Running task ${instance.taskName}")
+
+            MDC.put("correlationId", instance.id)
 
             runBlocking {
                 val job = async {
