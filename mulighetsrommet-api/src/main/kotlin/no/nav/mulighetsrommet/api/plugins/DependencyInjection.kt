@@ -293,7 +293,7 @@ private fun services(appConfig: AppConfig) = module {
 }
 
 private fun tasks(config: TaskConfig) = module {
-    single { GenerateValidationReport(get(), get(), get(), get(), get()) }
+    single { GenerateValidationReport(config.generateValidationReport, get(), get(), get(), get(), get()) }
     single {
         val deleteExpiredTiltakshistorikk = DeleteExpiredTiltakshistorikk(
             config.deleteExpiredTiltakshistorikk,

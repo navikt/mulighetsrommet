@@ -114,6 +114,8 @@ app:
       cronPattern: "0 0 6 * * *" # Hver morgen kl. 06:00
     oppdaterMetrikker:
       delayOfMinutes: 5
+    generateValidationReport:
+      bucketName: mulighetsrommet-api-uploads-dev
 
   norg2:
     baseUrl: https://norg2.dev-fss-pub.nais.io/norg2/api/v1
