@@ -23,7 +23,6 @@ import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dto.AvtaleAdminDto
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingAdminDto
 import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
-import no.nav.mulighetsrommet.env.NaisEnv
 import org.apache.poi.ss.usermodel.CellType
 import org.apache.poi.xssf.usermodel.XSSFSheet
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
@@ -38,12 +37,20 @@ import kotlin.io.path.outputStream
 import kotlin.time.measureTime
 
 class GenerateValidationReport(
+    private val config: Config,
     database: Database,
     private val avtaler: AvtaleRepository,
     private val avtaleValidator: AvtaleValidator,
     private val gjennomforinger: TiltaksgjennomforingRepository,
     private val gjennomforingValidator: TiltaksgjennomforingValidator,
 ) {
+
+    data class Config(
+        /**
+         * Rapport blir lastet opp til respektiv GCP bucket, evt. skrevet som en tmp-fil om ikke [bucketName] er satt.
+         */
+        val bucketName: String? = null,
+    )
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -85,15 +92,14 @@ class GenerateValidationReport(
     }
 
     private suspend fun upload(report: XSSFWorkbook) {
-        if (NaisEnv.current().isLocal()) {
-            writeToTempFile(report)
+        if (config.bucketName != null) {
+            uploadToBucket(config.bucketName, report)
         } else {
-            uploadToBucket(report)
+            writeToTempFile(report)
         }
     }
 
-    private suspend fun uploadToBucket(report: XSSFWorkbook) = withContext(Dispatchers.IO) {
-        val bucketName = "mulighetsrommet-api-uploads"
+    private suspend fun uploadToBucket(bucketName: String, report: XSSFWorkbook) = withContext(Dispatchers.IO) {
         val blobName = "validation-reports/report-${System.currentTimeMillis()}.xlsx"
 
         logger.info("Uploading file $blobName to bucket $bucketName")
@@ -113,6 +119,7 @@ class GenerateValidationReport(
     private fun writeToTempFile(report: XSSFWorkbook) {
         report.use {
             val file = createTempFile("report", ".xlsx")
+            logger.info("Skriver rapport til fil ${file.fileName}")
             report.write(file.outputStream())
         }
     }

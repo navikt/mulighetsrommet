@@ -33,7 +33,7 @@ spec:
       memory: 512Mi
   gcp:
     buckets:
-      - name: mulighetsrommet-api-uploads
+      - name: mulighetsrommet-api-uploads-dev
         cascadingDelete: true
     sqlInstances:
       - type: POSTGRES_14
