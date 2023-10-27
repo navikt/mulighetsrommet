@@ -1962,6 +1962,7 @@ components:
           nullable: true
         stedForGjennomforing:
           type: string
+          nullable: true
         opphav:
           $ref: "#/components/schemas/Opphav"
           nullable: true
