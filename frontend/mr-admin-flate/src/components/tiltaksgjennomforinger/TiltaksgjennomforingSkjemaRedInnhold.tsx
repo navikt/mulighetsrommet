@@ -26,7 +26,9 @@ export const TiltaksgjennomforingSkjemaRedInnhold = ({ avtale }: Props) => {
         {tiltakstypeSanityData?.beskrivelse && (
           <>
             <Heading size="medium">Beskrivelse</Heading>
-            <BodyLong>{tiltakstypeSanityData?.beskrivelse}</BodyLong>
+            <BodyLong className={skjemastyles.preWrap}>
+              {tiltakstypeSanityData?.beskrivelse}
+            </BodyLong>
           </>
         )}
         <Textarea
@@ -70,7 +72,9 @@ const ForHvem = ({ tiltakstype }: { tiltakstype?: VeilederflateTiltakstype }) =>
   return (
     <div className={skjemastyles.faneinnhold_container}>
       {tiltakstype?.faneinnhold?.forHvemInfoboks && (
-        <Alert variant="info">{tiltakstype?.faneinnhold?.forHvemInfoboks}</Alert>
+        <Alert className={skjemastyles.preWrap} variant="info">
+          {tiltakstype?.faneinnhold?.forHvemInfoboks}
+        </Alert>
       )}
       <PortableText value={tiltakstype?.faneinnhold?.forHvem} />
       <Separator />

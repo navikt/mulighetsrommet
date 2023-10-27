@@ -17,13 +17,13 @@ export const TiltaksgjennomforingRedInnhold = (props: Props) => {
   return (
     <div className={styles.red_innhold_container}>
       {tiltakstypeSanityData?.beskrivelse && (
-        <BodyLong size="large" className={styles.beskrivelse}>
+        <BodyLong size="large" className={styles.preWrap}>
           {tiltakstypeSanityData.beskrivelse}
         </BodyLong>
       )}
       {tiltaksgjennomforing.beskrivelse && (
         <div className={styles.lokal_informasjon}>
-          <BodyLong textColor="subtle" size="medium">
+          <BodyLong className={styles.preWrap} textColor="subtle" size="medium">
             {tiltaksgjennomforing.beskrivelse}
           </BodyLong>
         </div>
@@ -75,7 +75,11 @@ const DetaljerFane = ({
       {tiltakstype && (
         <>
           <Heading size="small">Generell Informasjon</Heading>
-          {tiltakstypeAlert && <Alert variant="info">{tiltakstypeAlert}</Alert>}
+          {tiltakstypeAlert && (
+            <Alert className={styles.preWrap} variant="info">
+              {tiltakstypeAlert}
+            </Alert>
+          )}
           <BodyLong as="div" size="small">
             <PortableText value={tiltakstype} />
           </BodyLong>
@@ -84,7 +88,11 @@ const DetaljerFane = ({
       {tiltaksgjennomforing && (
         <div className={styles.lokal_informasjon}>
           <Heading size="small">Lokal Informasjon</Heading>
-          {tiltaksgjennomforingAlert && <Alert variant="info">{tiltaksgjennomforingAlert}</Alert>}
+          {tiltaksgjennomforingAlert && (
+            <Alert className={styles.preWrap} variant="info">
+              {tiltaksgjennomforingAlert}
+            </Alert>
+          )}
           <BodyLong as="div" size="small">
             <PortableText value={tiltaksgjennomforing} />
           </BodyLong>

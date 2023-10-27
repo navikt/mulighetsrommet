@@ -25,7 +25,7 @@ const DetaljerFane = ({
     >
       <Heading size="small">Generell informasjon</Heading>
       {tiltakstypeAlert && (
-        <Alert variant="info" className={styles.tiltaksdetaljer_alert}>
+        <Alert variant="info" className={styles.preWrap}>
           {tiltakstypeAlert}
         </Alert>
       )}
@@ -36,7 +36,7 @@ const DetaljerFane = ({
         <div className={styles.lokal_informasjon}>
           <Heading size="small">Lokal informasjon</Heading>
           {tiltaksgjennomforingAlert && (
-            <Alert variant="info" className={styles.tiltaksdetaljer_alert}>
+            <Alert variant="info" className={styles.preWrap}>
               {tiltaksgjennomforingAlert}
             </Alert>
           )}
