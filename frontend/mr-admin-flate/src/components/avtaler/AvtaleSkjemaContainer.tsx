@@ -186,7 +186,9 @@ export function AvtaleSkjemaContainer({
       label: enhet.navn,
     }));
 
-  const maxSluttdato = addYear(new Date(watch("startOgSluttDato.startDato")) ?? new Date(), 5);
+  const { startDato, sluttDato } = watch("startOgSluttDato");
+  const sluttDatoFraDato = startDato ? new Date(startDato) : minStartdato;
+  const sluttDatoTilDato = addYear(sluttDatoFraDato, 5);
 
   return (
     <FormProvider {...form}>
@@ -265,36 +267,32 @@ export function AvtaleSkjemaContainer({
                     label: "Startdato",
                     readOnly: arenaOpphav,
                     fromDate: minStartdato,
-                    toDate: maxSluttdato,
+                    toDate: sluttDatoTilDato,
                     ...register("startOgSluttDato.startDato"),
                     format: "iso-string",
                   }}
                   til={{
                     label: "Sluttdato",
                     readOnly: arenaOpphav,
-                    fromDate: watch("startOgSluttDato.startDato")
-                      ? new Date(watch("startOgSluttDato.startDato"))
-                      : minStartdato,
-                    toDate: maxSluttdato,
+                    fromDate: sluttDatoFraDato,
+                    toDate: sluttDatoTilDato,
                     ...register("startOgSluttDato.sluttDato"),
                     format: "iso-string",
                   }}
                 >
                   {enableOpsjoner &&
-                  watch("avtaletype") === Avtaletype.RAMMEAVTALE &&
-                  !!watch("startOgSluttDato.sluttDato") ? (
-                    <DatePicker {...maksVarighetDatepickerProps}>
-                      <DatePicker.Input
-                        {...maksVarighetDatepickerInputProps}
-                        label="Maks varighet inkl. opsjon"
-                        readOnly
-                        size="small"
-                        value={formaterDato(
-                          addYear(new Date(watch("startOgSluttDato.sluttDato")), 5),
-                        )}
-                      />
-                    </DatePicker>
-                  ) : null}
+                    watch("avtaletype") === Avtaletype.RAMMEAVTALE &&
+                    sluttDato && (
+                      <DatePicker {...maksVarighetDatepickerProps}>
+                        <DatePicker.Input
+                          {...maksVarighetDatepickerInputProps}
+                          label="Maks varighet inkl. opsjon"
+                          readOnly
+                          size="small"
+                          value={formaterDato(addYear(new Date(sluttDato), 5))}
+                        />
+                      </DatePicker>
+                    )}
                 </FraTilDatoVelger>
               </FormGroup>
               <Separator />
