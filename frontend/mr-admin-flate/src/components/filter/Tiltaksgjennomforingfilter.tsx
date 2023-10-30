@@ -24,12 +24,12 @@ import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
 import { useVirksomheter } from "../../api/virksomhet/useVirksomheter";
 import { inneholderUrl, resetPaginering, valueOrDefault } from "../../utils/Utils";
 import { LeggTilGjennomforingModal } from "../modal/LeggTilGjennomforingModal";
-import { SokeSelect } from "../skjema/SokeSelect";
 import styles from "./Filter.module.scss";
 import { FilterTag } from "./FilterTag";
 import { Lenkeknapp } from "../lenkeknapp/Lenkeknapp";
 import { faro } from "@grafana/faro-web-sdk";
 import { useAvtale } from "../../api/avtaler/useAvtale";
+import { SokeSelect } from "mulighetsrommet-frontend-common";
 
 type Filters = "tiltakstype";
 

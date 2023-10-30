@@ -2,8 +2,7 @@ import classnames from "classnames";
 import React, { ForwardedRef } from "react";
 import { Controller } from "react-hook-form";
 import ReactSelect from "react-select";
-import styles from "./SokeSelect.module.scss";
-import { shallowEquals } from "../../utils/shallow-equals";
+import { shallowEquals } from "../utils/shallow-equals";
 
 export interface SelectOption<T = string> {
   value: T;
@@ -53,13 +52,19 @@ function SokeSelect<T>(props: SelectProps<T>, _: ForwardedRef<HTMLElement>) {
       render={({ field: { onChange, value, name, ref }, fieldState: { error } }) => {
         const selectedOption = options.find((option) => shallowEquals(option.value, value));
         return (
-          <div className={styles.container}>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
             <label
-              className={classnames(styles.label, {
+              className={classnames({
                 "navds-sr-only": hideLabel,
               })}
               style={{
                 fontSize: size === "small" ? "16px" : "18px",
+                display: "inline-block",
               }}
               htmlFor={name}
             >
@@ -67,11 +72,14 @@ function SokeSelect<T>(props: SelectProps<T>, _: ForwardedRef<HTMLElement>) {
             </label>
             {description && (
               <label
-                className={classnames(styles.description, {
+                className={classnames({
                   "navds-sr-only": hideLabel,
                 })}
                 style={{
                   fontSize: size === "small" ? "16px" : "18px",
+                  marginBottom: "8px",
+                  display: "inline-block",
+                  color: "var(--ac-form-description, var(--a-text-subtle))",
                 }}
               >
                 {description}
@@ -117,7 +125,12 @@ function SokeSelect<T>(props: SelectProps<T>, _: ForwardedRef<HTMLElement>) {
               })}
             />
             {error && (
-              <div className={styles.errormsg}>
+              <div
+                style={{
+                  marginTop: "8px",
+                  color: "#c30000",
+                }}
+              >
                 <b>• {error.message}</b>
               </div>
             )}

@@ -5,11 +5,11 @@ import { v4 as uuidv4 } from "uuid";
 import { useVirksomhetKontaktpersoner } from "../../api/virksomhet/useVirksomhetKontaktpersoner";
 import styles from "./VirksomhetKontaktpersoner.module.scss";
 import { usePutVirksomhetKontaktperson } from "../../api/virksomhet/usePutVirksomhetKontaktperson";
-import { SokeSelect } from "../skjema/SokeSelect";
 import { useFormContext } from "react-hook-form";
 import { Laster } from "../laster/Laster";
 import { validEmail } from "../../utils/Utils";
 import { DeleteVirksomhetKontaktpersonModal } from "./DeleteVirksomhetKontaktpersonModal";
+import { SokeSelect } from "mulighetsrommet-frontend-common";
 
 interface State {
   leggTil: boolean;

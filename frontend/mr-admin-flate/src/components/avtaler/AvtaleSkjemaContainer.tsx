@@ -27,7 +27,6 @@ import { Separator } from "../detaljside/Metadata";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
 import skjemastyles from "../skjema/Skjema.module.scss";
-import { SokeSelect } from "../skjema/SokeSelect";
 import { VirksomhetKontaktpersoner } from "../virksomhet/VirksomhetKontaktpersoner";
 import { AvtaleSchema, InferredAvtaleSchema } from "./AvtaleSchema";
 
@@ -45,6 +44,7 @@ import { AvbrytAvtaleModal } from "../modal/AvbrytAvtaleModal";
 import { useFeatureToggle } from "../../api/features/feature-toggles";
 import { erAnskaffetTiltak } from "../../utils/tiltakskoder";
 import { useHandleApiUpsertResponse } from "../../api/effects";
+import { SokeSelect } from "mulighetsrommet-frontend-common";
 
 const minStartdato = new Date(2000, 0, 1);
 

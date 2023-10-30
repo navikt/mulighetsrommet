@@ -16,9 +16,9 @@ import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
 import { useVirksomheter } from "../../api/virksomhet/useVirksomheter";
 import { resetPaginering, valueOrDefault } from "../../utils/Utils";
 import { Lenkeknapp } from "../lenkeknapp/Lenkeknapp";
-import { SokeSelect } from "../skjema/SokeSelect";
 import styles from "./Filter.module.scss";
 import { FilterTag } from "./FilterTag";
+import { SokeSelect } from "mulighetsrommet-frontend-common";
 
 type Filters = "tiltakstype";
 

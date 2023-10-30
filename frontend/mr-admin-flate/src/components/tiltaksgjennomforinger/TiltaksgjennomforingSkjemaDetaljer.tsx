@@ -12,7 +12,6 @@ import { arenaOpphav, arrangorUnderenheterOptions } from "./Tiltaksgjennomforing
 import { useHentKontaktpersoner } from "../../api/ansatt/useHentKontaktpersoner";
 import { useHentBetabrukere } from "../../api/ansatt/useHentBetabrukere";
 import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
-import { SokeSelect } from "../skjema/SokeSelect";
 import { FormGroup } from "../skjema/FormGroup";
 import { useVirksomhet } from "../../api/virksomhet/useVirksomhet";
 import { PlusIcon, XMarkIcon } from "@navikt/aksel-icons";
@@ -22,6 +21,7 @@ import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
 import { VirksomhetKontaktpersoner } from "../virksomhet/VirksomhetKontaktpersoner";
 import { Separator } from "../detaljside/Metadata";
 import { useFeatureToggle } from "../../api/features/feature-toggles";
+import { SokeSelect } from "mulighetsrommet-frontend-common";
 
 interface Props {
   tiltaksgjennomforing?: Tiltaksgjennomforing;

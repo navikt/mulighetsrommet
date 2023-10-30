@@ -8,9 +8,9 @@ import {
   tiltakstypeFilter,
 } from "../../api/atoms";
 import { resetPaginering, valueOrDefault } from "../../utils/Utils";
-import { SokeSelect } from "../skjema/SokeSelect";
 import styles from "./Filter.module.scss";
 import { FilterTag } from "./FilterTag";
+import { SokeSelect } from "mulighetsrommet-frontend-common";
 
 export function Tiltakstypefilter() {
   const [filter, setFilter] = useAtom(tiltakstypeFilter);
