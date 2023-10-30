@@ -26,14 +26,10 @@ export const sanityHandlers = [
     },
   ),
 
-  http.post<PathParams, any>(
+  http.post<PathParams, GetRelevanteTiltaksgjennomforingerForBrukerRequest>(
     "*/api/v1/internal/sanity/tiltaksgjennomforinger",
     async ({ request }) => {
-      const {
-        innsatsgruppe,
-        search = "",
-        tiltakstypeIds = [],
-      } = (await request.json()) as GetRelevanteTiltaksgjennomforingerForBrukerRequest;
+      const { innsatsgruppe, search = "", tiltakstypeIds = [] } = await request.json();
 
       const results = mockTiltaksgjennomforinger
         .filter((gj) => filtrerFritekst(gj, search))
@@ -44,23 +40,20 @@ export const sanityHandlers = [
     },
   ),
 
-  http.post<PathParams, any>(
+  http.post<PathParams, GetTiltaksgjennomforingForBrukerRequest>(
     "*/api/v1/internal/sanity/tiltaksgjennomforing",
     async ({ request }) => {
-      const { id } = (await request.json()) as GetTiltaksgjennomforingForBrukerRequest;
+      const { id } = await request.json();
       const gjennomforing = mockTiltaksgjennomforinger.find((gj) => gj.sanityId === id);
       return HttpResponse.json(gjennomforing);
     },
   ),
 
-  http.get<PathParams, any>(
-    "*/api/v1/internal/sanity/tiltaksgjennomforing/preview/:id",
-    async (req) => {
-      const id = req.params.id;
-      const gjennomforing = mockTiltaksgjennomforinger.find((gj) => gj.sanityId === id);
-      return HttpResponse.json(gjennomforing);
-    },
-  ),
+  http.get<PathParams>("*/api/v1/internal/sanity/tiltaksgjennomforing/preview/:id", async (req) => {
+    const { id } = req.params;
+    const gjennomforing = mockTiltaksgjennomforinger.find((gj) => gj.sanityId === id);
+    return HttpResponse.json(gjennomforing);
+  }),
 ];
 
 function filtrerFritekst(gjennomforing: VeilederflateTiltaksgjennomforing, sok: string): boolean {
