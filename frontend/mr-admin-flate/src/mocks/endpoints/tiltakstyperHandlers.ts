@@ -12,7 +12,7 @@ import {
 import { mockAvtaler } from "../fixtures/mock_avtaler";
 
 export const tiltakstypeHandlers = [
-  http.get<PathParams, PaginertTiltakstype>("*/api/v1/internal/tiltakstyper", (info) => {
+  http.get<PathParams, PaginertTiltakstype>("*/api/v1/internal/tiltakstyper", () => {
     return HttpResponse.json(paginertMockTiltakstyper);
   }),
 
