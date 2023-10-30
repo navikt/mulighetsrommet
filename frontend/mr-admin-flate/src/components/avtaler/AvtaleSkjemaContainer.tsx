@@ -188,7 +188,7 @@ export function AvtaleSkjemaContainer({
 
   const { startDato, sluttDato } = watch("startOgSluttDato");
   const sluttDatoFraDato = startDato ? new Date(startDato) : minStartdato;
-  const sluttDatoTilDato = addYear(sluttDatoFraDato, 5);
+  const sluttDatoTilDato = addYear(startDato ? new Date(startDato) : new Date(), 5);
 
   return (
     <FormProvider {...form}>
