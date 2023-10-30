@@ -20,7 +20,7 @@ allprojects {
     apply(plugin = "org.jlleitschuh.gradle.ktlint")
 
     configure<KtlintExtension> {
-        version.set("1.0.0")
+        version = "1.0.0"
     }
 
     tasks.withType<KotlinCompile> {
