@@ -31,9 +31,11 @@ const Nokkelinfo = ({ nokkelinfoKomponenter, uuTitle, ...rest }: NokkelinfoProps
                 </HelpText>
               )}
             </div>
-            <Heading className={styles.heading} size="xsmall" level="2">
-              {nokkelinfo.tittel}
-            </Heading>
+            {nokkelinfo.tittel ? (
+              <Heading className={styles.heading} size="xsmall" level="2">
+                {nokkelinfo.tittel}
+              </Heading>
+            ) : null}
           </div>
         );
       })}
