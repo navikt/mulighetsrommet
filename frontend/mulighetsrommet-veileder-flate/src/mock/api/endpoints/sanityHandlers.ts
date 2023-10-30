@@ -1,4 +1,4 @@
-import { DefaultBodyType, PathParams, rest } from "msw";
+import { HttpResponse, PathParams, http } from "msw";
 import {
   GetRelevanteTiltaksgjennomforingerForBrukerRequest,
   GetTiltaksgjennomforingForBrukerRequest,
@@ -10,58 +10,50 @@ import {
 import { mockInnsatsgrupper } from "../../fixtures/mockInnsatsgrupper";
 import { mockTiltaksgjennomforinger } from "../../fixtures/mockTiltaksgjennomforinger";
 import { mockTiltakstyper } from "../../fixtures/mockTiltakstyper";
-import { ok } from "../responses";
 
 export const sanityHandlers = [
-  rest.get<DefaultBodyType, PathParams, VeilederflateInnsatsgruppe[]>(
+  http.get<PathParams, VeilederflateInnsatsgruppe[]>(
     "*/api/v1/internal/sanity/innsatsgrupper",
     async () => {
-      return ok(mockInnsatsgrupper);
+      return HttpResponse.json(mockInnsatsgrupper);
     },
   ),
 
-  rest.get<DefaultBodyType, PathParams, VeilederflateTiltakstype[]>(
+  http.get<PathParams, VeilederflateTiltakstype[]>(
     "*/api/v1/internal/sanity/tiltakstyper",
     async () => {
-      return ok(Object.values(mockTiltakstyper));
+      return HttpResponse.json(Object.values(mockTiltakstyper));
     },
   ),
 
-  rest.post<DefaultBodyType, PathParams, any>(
+  http.post<PathParams, GetRelevanteTiltaksgjennomforingerForBrukerRequest>(
     "*/api/v1/internal/sanity/tiltaksgjennomforinger",
-    async (req) => {
-      const {
-        innsatsgruppe,
-        search = "",
-        tiltakstypeIds = [],
-      } = await req.json<GetRelevanteTiltaksgjennomforingerForBrukerRequest>();
+    async ({ request }) => {
+      const { innsatsgruppe, search = "", tiltakstypeIds = [] } = await request.json();
 
       const results = mockTiltaksgjennomforinger
         .filter((gj) => filtrerFritekst(gj, search))
         .filter((gj) => filtrerInnsatsgruppe(gj, innsatsgruppe))
         .filter((gj) => filtrerTiltakstyper(gj, tiltakstypeIds));
 
-      return ok(results);
+      return HttpResponse.json(results);
     },
   ),
 
-  rest.post<DefaultBodyType, PathParams, any>(
+  http.post<PathParams, GetTiltaksgjennomforingForBrukerRequest>(
     "*/api/v1/internal/sanity/tiltaksgjennomforing",
-    async (req) => {
-      const { id } = await req.json<GetTiltaksgjennomforingForBrukerRequest>();
+    async ({ request }) => {
+      const { id } = await request.json();
       const gjennomforing = mockTiltaksgjennomforinger.find((gj) => gj.sanityId === id);
-      return ok(gjennomforing);
+      return HttpResponse.json(gjennomforing);
     },
   ),
 
-  rest.get<DefaultBodyType, PathParams, any>(
-    "*/api/v1/internal/sanity/tiltaksgjennomforing/preview/:id",
-    async (req) => {
-      const id = req.params.id;
-      const gjennomforing = mockTiltaksgjennomforinger.find((gj) => gj.sanityId === id);
-      return ok(gjennomforing);
-    },
-  ),
+  http.get<PathParams>("*/api/v1/internal/sanity/tiltaksgjennomforing/preview/:id", async (req) => {
+    const { id } = req.params;
+    const gjennomforing = mockTiltaksgjennomforinger.find((gj) => gj.sanityId === id);
+    return HttpResponse.json(gjennomforing);
+  }),
 ];
 
 function filtrerFritekst(gjennomforing: VeilederflateTiltaksgjennomforing, sok: string): boolean {
