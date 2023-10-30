@@ -41,7 +41,6 @@ export function TiltaksgjennomforingKnapperad({ handleSlett, style }: Props) {
           size="small"
           variant="tertiary-neutral"
           onClick={handleSlett}
-          data-testid="slett-gjennomforing"
           className={styles.slett_knapp}
         >
           Feilregistrering

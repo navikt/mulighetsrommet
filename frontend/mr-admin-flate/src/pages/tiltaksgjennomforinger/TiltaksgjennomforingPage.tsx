@@ -74,7 +74,6 @@ export function TiltaksgjennomforingPage() {
           <Tabs.Tab
             value="info"
             label="Info"
-            data-testid="tab_detaljer"
             onClick={() => navigate(`/tiltaksgjennomforinger/${tiltaksgjennomforing.id}`)}
             aria-controls="panel"
           />

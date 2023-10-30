@@ -216,7 +216,6 @@ export function AvtaleSkjemaContainer({
                   error={errors.navn?.message}
                   label="Avtalenavn"
                   autoFocus
-                  data-testid="avtalenavn-input"
                   {...register("navn")}
                 />
               </FormGroup>
@@ -424,7 +423,6 @@ export function AvtaleSkjemaContainer({
                 variant="danger"
                 type="button"
                 onClick={() => avbrytModalRef.current?.showModal()}
-                data-testid="avbryt-avtale"
               >
                 Avbryt avtale
               </Button>

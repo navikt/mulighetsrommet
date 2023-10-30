@@ -16,21 +16,13 @@ function tag(type: NotificationType, lest: boolean): ReactNode {
   switch (type) {
     case NotificationType.NOTIFICATION:
       return (
-        <Tag
-          size="xsmall"
-          data-testid="notifikasjon-tag"
-          variant={lest ? "warning-moderate" : "warning-filled"}
-        >
+        <Tag size="xsmall" variant={lest ? "warning-moderate" : "warning-filled"}>
           Notifikasjon
         </Tag>
       );
     case NotificationType.TASK:
       return (
-        <Tag
-          size="xsmall"
-          data-testid="oppgave-tag"
-          variant={lest ? "info-moderate" : "info-filled"}
-        >
+        <Tag size="xsmall" variant={lest ? "info-moderate" : "info-filled"}>
           Oppgave
         </Tag>
       );

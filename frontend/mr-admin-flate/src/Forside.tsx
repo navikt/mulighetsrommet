@@ -23,7 +23,6 @@ export function Forside() {
               key={card.url}
               className={styles.card}
               to={card.url}
-              data-testid={card.navn.toLowerCase()}
               onClick={() =>
                 faro?.api?.pushEvent(
                   `Bruker trykket på inngang fra forside: ${card.navn}`,

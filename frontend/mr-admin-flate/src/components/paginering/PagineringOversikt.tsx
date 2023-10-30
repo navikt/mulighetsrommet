@@ -21,7 +21,7 @@ export function PagineringsOversikt({
   setAntallVises,
 }: Props) {
   return (
-    <Heading level="1" size="xsmall" data-testid="antall-tiltak" className={styles.container}>
+    <Heading level="1" size="xsmall" className={styles.container}>
       {antall < 1 ? (
         <span>Viser 0 av 0 {type} </span>
       ) : (

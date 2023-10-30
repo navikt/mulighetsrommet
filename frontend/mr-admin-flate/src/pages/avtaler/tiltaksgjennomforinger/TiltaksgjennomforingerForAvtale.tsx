@@ -19,7 +19,6 @@ export function TiltaksgjennomforingerForAvtale() {
           aria-controls="inner-panel"
         />
         <Tabs.Tab
-          data-testid="mine-utkast-tab"
           value="utkast"
           label="Mine utkast"
           onClick={() => navigate(`/avtaler/${avtale?.id}/tiltaksgjennomforinger/utkast`)}

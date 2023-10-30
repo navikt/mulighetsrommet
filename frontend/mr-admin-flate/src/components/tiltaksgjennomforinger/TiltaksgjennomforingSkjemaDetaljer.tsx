@@ -8,7 +8,7 @@ import {
 import skjemastyles from "../skjema/Skjema.module.scss";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import { addYear, tilgjengelighetsstatusTilTekst } from "../../utils/Utils";
-import { erArenaOpphav, arrangorUnderenheterOptions } from "./TiltaksgjennomforingSkjemaConst";
+import { arrangorUnderenheterOptions, erArenaOpphav } from "./TiltaksgjennomforingSkjemaConst";
 import { useHentKontaktpersoner } from "../../api/ansatt/useHentKontaktpersoner";
 import { useHentBetabrukere } from "../../api/ansatt/useHentBetabrukere";
 import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
@@ -89,7 +89,6 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
               error={errors.navn?.message as string}
               label="Tiltaksnavn"
               autoFocus
-              data-testid="tiltaksgjennomforingnavn-input"
               {...register("navn")}
             />
           </FormGroup>

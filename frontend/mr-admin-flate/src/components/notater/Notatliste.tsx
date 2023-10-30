@@ -16,7 +16,7 @@ export default function Notatliste({ notater, visMineNotater, mutation }: Props)
   const [notatIdForSletting, setNotatIdForSletting] = useState<null | string>(null);
 
   return (
-    <div className={styles.notater} data-testid="notatliste">
+    <div className={styles.notater}>
       {notater === undefined || notater.length === 0 ? (
         <Alert variant="info">
           {visMineNotater ? "Du har ingen notater." : "Det finnes ingen notater."}
@@ -45,7 +45,6 @@ export default function Notatliste({ notater, visMineNotater, mutation }: Props)
               onSuccess: () => setNotatIdForSletting(null),
             })
           }
-          dataTestId="bekrefte-slette-notat_btn"
         />
       ) : null}
     </div>

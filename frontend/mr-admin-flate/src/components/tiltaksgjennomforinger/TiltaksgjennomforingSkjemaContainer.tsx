@@ -235,7 +235,6 @@ export const TiltaksgjennomforingSkjemaContainer = ({
                 variant="danger"
                 type="button"
                 onClick={() => avbrytModalRef.current?.showModal()}
-                data-testid="avbryt-gjennomforing"
               >
                 Avbryt gjennomføring
               </Button>
