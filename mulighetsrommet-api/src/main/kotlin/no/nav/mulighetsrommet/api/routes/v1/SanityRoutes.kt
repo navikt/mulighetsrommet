@@ -48,6 +48,14 @@ fun Route.sanityRoutes() {
             call.respond(result)
         }
 
+        post("/tiltaksgjennomforinger/preview") {
+            val request = call.receive<GetRelevanteTiltaksgjennomforingerPreviewRequest>()
+            poaoTilgangService.verfiyAccessToModia(getNavAnsattAzureId())
+
+            val result = veilederflateService.hentPreviewTiltaksgjennomforinger(request)
+            call.respond(result)
+        }
+
         post("/tiltaksgjennomforing") {
             val request = call.receive<GetTiltaksgjennomforingForBrukerRequest>()
 
@@ -78,6 +86,14 @@ data class GetRelevanteTiltaksgjennomforingerForBrukerRequest(
     val innsatsgruppe: String? = null,
     val tiltakstypeIds: List<String>? = null,
     val search: String? = null,
+)
+
+@Serializable
+data class GetRelevanteTiltaksgjennomforingerPreviewRequest(
+    val innsatsgruppe: String? = null,
+    val tiltakstypeIds: List<String>? = null,
+    val search: String? = null,
+    val geografiskEnhet: String? = null,
 )
 
 @Serializable

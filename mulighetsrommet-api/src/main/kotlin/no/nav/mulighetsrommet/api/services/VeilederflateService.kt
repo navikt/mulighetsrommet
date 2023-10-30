@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.api.clients.sanity.SanityPerspective
 import no.nav.mulighetsrommet.api.clients.vedtak.Innsatsgruppe
 import no.nav.mulighetsrommet.api.domain.dto.*
 import no.nav.mulighetsrommet.api.routes.v1.GetRelevanteTiltaksgjennomforingerForBrukerRequest
+import no.nav.mulighetsrommet.api.routes.v1.GetRelevanteTiltaksgjennomforingerPreviewRequest
 import no.nav.mulighetsrommet.api.routes.v1.GetTiltaksgjennomforingForBrukerRequest
 import no.nav.mulighetsrommet.api.utils.byggInnsatsgruppeFilter
 import no.nav.mulighetsrommet.api.utils.byggSokeFilter
@@ -112,15 +113,40 @@ class VeilederflateService(
             }
     }
 
+    suspend fun hentPreviewTiltaksgjennomforinger(
+        filter: GetRelevanteTiltaksgjennomforingerPreviewRequest,
+    ) =
+        hentTiltaksgjennomforinger(
+            filter.innsatsgruppe,
+            filter.tiltakstypeIds,
+            filter.search,
+            filter.geografiskEnhet,
+        )
+
     suspend fun hentTiltaksgjennomforingerForBrukerBasertPaEnhetOgFylke(
         filter: GetRelevanteTiltaksgjennomforingerForBrukerRequest,
         accessToken: String,
     ): List<VeilederflateTiltaksgjennomforing> {
+        val brukerdata = brukerService.hentBrukerdata(filter.norskIdent, accessToken)
+        return hentTiltaksgjennomforinger(
+            filter.innsatsgruppe,
+            filter.tiltakstypeIds,
+            filter.search,
+            brukerdata.geografiskEnhet?.enhetsnummer,
+        )
+    }
+
+    private suspend fun hentTiltaksgjennomforinger(
+        innsatsgruppe: String?,
+        tiltakstypeIds: List<String>?,
+        search: String?,
+        geografiskEnhet: String?,
+    ): List<VeilederflateTiltaksgjennomforing> {
         val query = """
             *[_type == "tiltaksgjennomforing"
-              ${byggInnsatsgruppeFilter(filter.innsatsgruppe)}
-              ${byggTiltakstypeFilter(filter.tiltakstypeIds)}
-              ${byggSokeFilter(filter.search)}
+              ${byggInnsatsgruppeFilter(innsatsgruppe)}
+              ${byggTiltakstypeFilter(tiltakstypeIds)}
+              ${byggSokeFilter(search)}
             ] {
               _id,
               tiltakstype->{
@@ -140,17 +166,15 @@ class VeilederflateService(
             is SanityResponse.Error -> throw Exception(result.error.toString())
         }
 
-        val brukerdata = brukerService.hentBrukerdata(filter.norskIdent, accessToken)
-        val enhetsnummer = brukerdata.geografiskEnhet?.enhetsnummer
-        val fylkeEnhetsnummer = enhetsnummer
+        val fylkeEnhetsnummer = geografiskEnhet
             ?.let { navEnhetService.hentOverorndetFylkesenhet(it)?.enhetsnummer }
             ?: ""
 
         val gruppeGjennomforinger = tiltaksgjennomforingService.getAllVeilederflateTiltaksgjennomforing(
-            search = filter.search,
-            sanityTiltakstypeIds = filter.tiltakstypeIds?.map { UUID.fromString(it) },
-            innsatsgrupper = filter.innsatsgruppe?.let {
-                utledInnsatsgrupper(filter.innsatsgruppe).map { Innsatsgruppe.valueOf(it) }
+            search = search,
+            sanityTiltakstypeIds = tiltakstypeIds?.map { UUID.fromString(it) },
+            innsatsgrupper = innsatsgruppe?.let {
+                utledInnsatsgrupper(innsatsgruppe).map { Innsatsgruppe.valueOf(it) }
             } ?: emptyList(),
         )
 
@@ -158,14 +182,14 @@ class VeilederflateService(
 
         val individuelleGjennomforinger = sanityGjennomforinger
             .filter { it._id !in gruppeSanityIds }
-            .map { toVeilederTiltaksgjennomforing(it, enhetsnummer) }
+            .map { toVeilederTiltaksgjennomforing(it, geografiskEnhet) }
 
         return (individuelleGjennomforinger + gruppeGjennomforinger)
             .filter {
                 if (it.enheter.isNullOrEmpty()) {
                     it.fylke == fylkeEnhetsnummer
                 } else {
-                    it.enheter.contains(enhetsnummer)
+                    it.enheter.contains(geografiskEnhet)
                 }
             }
             .filter {
