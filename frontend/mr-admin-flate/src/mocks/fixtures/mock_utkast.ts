@@ -52,15 +52,4 @@ export const mockUtkast: Utkast[] = [
     type: Utkast.type.AVTALE,
     utkastData: { ...mockAvtaler[2] },
   },
-  {
-    avtaleId: "d1f163b7-1a41-4547-af16-03fd4492b7bc",
-    createdAt: new Date("2023-07-06").toDateString(),
-    updatedAt: new Date().toDateString(),
-    id: "b9264c5c-27dc-43fd-81ff-c93eb1dceb17",
-    opprettetAv: "B123456",
-    type: Utkast.type.TILTAKSGJENNOMFORING,
-    utkastData: {
-      ...mockTiltaksgjennomforinger[3],
-    },
-  },
 ];

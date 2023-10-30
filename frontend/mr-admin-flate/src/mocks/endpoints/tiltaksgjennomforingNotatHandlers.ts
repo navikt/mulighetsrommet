@@ -1,4 +1,4 @@
-import { rest } from "msw";
+import { HttpResponse, http } from "msw";
 import {
   TiltaksgjennomforingNotat,
   TiltaksgjennomforingNotatRequest,
@@ -8,30 +8,24 @@ import { mockTiltaksgjennomforingnotater } from "../fixtures/mock_tiltaksgjennom
 let tiltaksgjennomforingNotater = [...mockTiltaksgjennomforingnotater];
 
 export const tiltaksgjennomforingNotatHandlers = [
-  rest.get<any, any, TiltaksgjennomforingNotat[]>(
+  http.get<any, any, TiltaksgjennomforingNotat[]>(
     "*/api/v1/internal/notater/tiltaksgjennomforinger",
-    (req, res, ctx) => {
-      return res(ctx.status(200), ctx.json(tiltaksgjennomforingNotater.sort(sortByDate)));
-    },
+    () => HttpResponse.json(tiltaksgjennomforingNotater.sort(sortByDate)),
   ),
-  rest.get<any, any, TiltaksgjennomforingNotat[]>(
+  http.get<any, any, TiltaksgjennomforingNotat[]>(
     "*/api/v1/internal/notater/tiltaksgjennomforinger/mine",
-    (req, res, ctx) => {
-      return res(
-        ctx.status(200),
-        ctx.json(
-          tiltaksgjennomforingNotater
-            .filter((notat) => notat.opprettetAv.navIdent === "B123456")
-            .sort(sortByDate),
-        ),
-      );
-    },
+    () =>
+      HttpResponse.json(
+        tiltaksgjennomforingNotater
+          .filter((notat) => notat.opprettetAv.navIdent === "B123456")
+          .sort(sortByDate),
+      ),
   ),
 
-  rest.put<TiltaksgjennomforingNotatRequest, any, any>(
+  http.put<TiltaksgjennomforingNotatRequest, any, any>(
     "*/api/v1/internal/notater/tiltaksgjennomforinger",
-    async (req, res, ctx) => {
-      const payload = await req.json<TiltaksgjennomforingNotatRequest>();
+    async ({ request }) => {
+      const payload = (await request.json()) as TiltaksgjennomforingNotatRequest;
       tiltaksgjennomforingNotater.push({
         ...payload,
         createdAt: new Date().toISOString(),
@@ -41,18 +35,18 @@ export const tiltaksgjennomforingNotatHandlers = [
           navn: "Bertil Betabruker",
         },
       });
-      return res(ctx.status(200));
+      return HttpResponse.json();
     },
   ),
 
-  rest.delete<any, any, any>(
+  http.delete<any, any, any>(
     "*/api/v1/internal/notater/tiltaksgjennomforinger/:id",
-    (req, res, ctx) => {
-      const { id } = req.params;
+    ({ params }) => {
+      const { id } = params;
       tiltaksgjennomforingNotater = [
         ...tiltaksgjennomforingNotater.filter((notat) => notat.id !== id),
       ];
-      return res(ctx.status(200));
+      return HttpResponse.json();
     },
   ),
 ];
