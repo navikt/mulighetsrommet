@@ -70,7 +70,6 @@ export function Tiltakstypefilter() {
               label="Søk etter tiltakstype"
               hideLabel
               variant="simple"
-              data-testid="filter_sokefelt"
               onChange={(sok: string) =>
                 setFilter({
                   ...filter,
@@ -87,7 +86,6 @@ export function Tiltakstypefilter() {
               label="Filtrer på statuser"
               placeholder="Filtrer på statuser"
               hideLabel
-              data-testid="filter_status"
               {...register("status")}
               className={styles.form_field}
               onChange={(e) => {
@@ -105,7 +103,6 @@ export function Tiltakstypefilter() {
               placeholder="Gruppetiltak eller individuelle tiltak"
               hideLabel
               {...register("kategori")}
-              data-testid="filter_kategori"
               onChange={(e) => {
                 resetPaginering(setPage);
                 setFilter({

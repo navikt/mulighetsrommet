@@ -62,12 +62,7 @@ export function UtkastKort({ utkast }: UtkastKortProps) {
         </BodyShort>
       </div>
       <div className={styles.knapper}>
-        <Button
-          data-testid="slett-utkast-knapp"
-          size="small"
-          variant="danger"
-          onClick={() => setUtkastIdForSletting(utkast.id)}
-        >
+        <Button size="small" variant="danger" onClick={() => setUtkastIdForSletting(utkast.id)}>
           Slett utkast
         </Button>
         <Lenkeknapp
@@ -76,7 +71,6 @@ export function UtkastKort({ utkast }: UtkastKortProps) {
               ? `/avtaler/skjema?utkastId=${utkast.id}`
               : `/tiltaksgjennomforinger/skjema?utkastId=${utkast.id}`
           }
-          dataTestId="rediger-utkast-knapp"
           variant="primary"
           size="small"
         >

@@ -1,5 +1,5 @@
 import useDebounce from "./hooks/useDebounce";
-import { SokeSelect } from "./components/SokeSelect";
+import { SokeSelect, SelectOption } from "./components/SokeSelect";
 import { shallowEquals } from "./utils/shallow-equals";
 
-export { useDebounce, SokeSelect, shallowEquals };
+export { useDebounce, SokeSelect, SelectOption, shallowEquals };

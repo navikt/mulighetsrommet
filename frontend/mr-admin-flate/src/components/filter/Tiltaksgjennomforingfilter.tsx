@@ -198,7 +198,6 @@ export function Tiltaksgjennomforingfilter({ skjulFilter }: Props) {
               }
               value={filter.search}
               aria-label="Søk etter tiltaksgjennomføring"
-              data-testid="filter_sokefelt"
               className={styles.form_field}
             />
             <SokeSelect
@@ -311,7 +310,6 @@ export function Tiltaksgjennomforingfilter({ skjulFilter }: Props) {
                         "Bruker trykket på 'Opprett ny tiltaksgjennomføring'-knapp",
                       );
                     }}
-                    dataTestId="opprett-gjennomforing-knapp"
                   >
                     Opprett ny tiltaksgjennomføring
                   </Lenkeknapp>

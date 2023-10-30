@@ -59,31 +59,29 @@ fun Route.tiltaksgjennomforingRoutes() {
 
             service.get(id)
                 ?.let { call.respond(it) }
-                ?: call.respond(HttpStatusCode.Companion.NotFound, "Ingen tiltaksgjennomføring med id=$id")
-        }
-
-        put("{id}") {
-            val id = call.parameters.getOrFail<UUID>("id")
-            val request = call.receive<GjennomforingTilAvtaleRequest>()
-            call.respond(service.kobleGjennomforingTilAvtale(id, request.avtaleId))
-        }
-
-        put("{id}/avbryt") {
-            val id = call.parameters.getOrFail<UUID>("id")
-            call.respondWithStatusResponse(service.avbrytGjennomforing(id))
-        }
-
-        get("{id}/nokkeltall") {
-            val id = call.parameters.getOrFail<UUID>("id")
-            call.respond(service.getNokkeltallForTiltaksgjennomforing(id))
+                ?: call.respond(HttpStatusCode.NotFound, "Ingen tiltaksgjennomføring med id=$id")
         }
 
         delete("{id}") {
             val id = call.parameters.getOrFail<UUID>("id")
-            call.respondWithStatusResponse(service.delete(id))
+            val response = service.delete(id)
+            call.respondWithStatusResponse(response)
         }
 
-        put("{id}/tilgjengeligForVeileder") {
+        put("{id}/avtale") {
+            val id = call.parameters.getOrFail<UUID>("id")
+            val request = call.receive<SetAvtaleForGjennomforingRequest>()
+            val response = service.setAvtale(id, request.avtaleId)
+            call.respondWithStatusResponse(response)
+        }
+
+        put("{id}/avbryt") {
+            val id = call.parameters.getOrFail<UUID>("id")
+            val response = service.avbrytGjennomforing(id)
+            call.respondWithStatusResponse(response)
+        }
+
+        put("{id}/tilgjengelig-for-veileder") {
             val id = call.parameters.getOrFail<UUID>("id")
             val request = call.receive<TilgjengeligForVeilederRequest>()
             service.setTilgjengeligForVeileder(id, request.tilgjengeligForVeileder)
@@ -111,6 +109,7 @@ data class TiltaksgjennomforingRequest(
     val arrangorKontaktpersonId: UUID?,
     val tiltaksnummer: String?,
     val administrator: String,
+    val navRegion: String,
     val navEnheter: List<String>,
     val oppstart: TiltaksgjennomforingOppstartstype,
     @Serializable(with = LocalDateSerializer::class)
@@ -120,7 +119,7 @@ data class TiltaksgjennomforingRequest(
     val apenForInnsok: Boolean,
     val kontaktpersoner: List<NavKontaktpersonForGjennomforing>,
     val estimertVentetid: String?,
-    val stedForGjennomforing: String,
+    val stedForGjennomforing: String?,
     val opphav: ArenaMigrering.Opphav?,
     val faneinnhold: Faneinnhold?,
     val beskrivelse: String?,
@@ -144,6 +143,7 @@ data class TiltaksgjennomforingRequest(
         arrangorOrganisasjonsnummer = arrangorOrganisasjonsnummer,
         arrangorKontaktpersonId = arrangorKontaktpersonId,
         administratorer = listOf(administrator),
+        navRegion = navRegion,
         navEnheter = navEnheter,
         oppstart = oppstart,
         opphav = opphav ?: ArenaMigrering.Opphav.MR_ADMIN_FLATE,
@@ -162,7 +162,7 @@ data class TiltaksgjennomforingRequest(
 }
 
 @Serializable
-data class GjennomforingTilAvtaleRequest(
+data class SetAvtaleForGjennomforingRequest(
     @Serializable(with = UUIDSerializer::class)
     val avtaleId: UUID? = null,
 )

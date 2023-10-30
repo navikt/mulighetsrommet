@@ -5,7 +5,6 @@ import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
-import no.nav.mulighetsrommet.api.utils.AvtaleFilter
 import no.nav.mulighetsrommet.api.utils.DatabaseUtils
 import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.Database
@@ -37,7 +36,6 @@ class AvtaleRepository(private val db: Database) {
                                leverandor_kontaktperson_id,
                                start_dato,
                                slutt_dato,
-                               nav_region,
                                avtaletype,
                                prisbetingelser,
                                antall_plasser,
@@ -51,7 +49,6 @@ class AvtaleRepository(private val db: Database) {
                     :leverandor_kontaktperson_id,
                     :start_dato,
                     :slutt_dato,
-                    :nav_region,
                     :avtaletype::avtaletype,
                     :prisbetingelser,
                     :antall_plasser,
@@ -64,7 +61,6 @@ class AvtaleRepository(private val db: Database) {
                                            leverandor_kontaktperson_id    = excluded.leverandor_kontaktperson_id,
                                            start_dato                     = excluded.start_dato,
                                            slutt_dato                     = excluded.slutt_dato,
-                                           nav_region                     = excluded.nav_region,
                                            avtaletype                     = excluded.avtaletype,
                                            prisbetingelser                = excluded.prisbetingelser,
                                            antall_plasser                 = excluded.antall_plasser,
@@ -210,57 +206,9 @@ class AvtaleRepository(private val db: Database) {
     fun get(id: UUID, tx: Session): AvtaleAdminDto? {
         @Language("PostgreSQL")
         val query = """
-            select a.id,
-                   a.navn,
-                   a.tiltakstype_id,
-                   a.avtalenummer,
-                   a.leverandor_organisasjonsnummer,
-                   vk.id                  as leverandor_kontaktperson_id,
-                   vk.organisasjonsnummer as leverandor_kontaktperson_organisasjonsnummer,
-                   vk.navn                as leverandor_kontaktperson_navn,
-                   vk.telefon             as leverandor_kontaktperson_telefon,
-                   vk.epost               as leverandor_kontaktperson_epost,
-                   vk.beskrivelse         as leverandor_kontaktperson_beskrivelse,
-                   v.navn                 as leverandor_navn,
-                   a.start_dato,
-                   a.slutt_dato,
-                   a.opphav,
-                   a.nav_region,
-                   a.avtaletype,
-                   a.avslutningsstatus,
-                   a.prisbetingelser,
-                   a.antall_plasser,
-                   a.url,
-                   a.updated_at,
-                   nav_enhet.navn         as nav_enhet_navn,
-                   t.navn                 as tiltakstype_navn,
-                   t.tiltakskode,
-                   an.nav_enheter,
-                   au.leverandor_underenheter,
-                   jsonb_agg(
-                           distinct
-                           case
-                               when aa.nav_ident is null then null::jsonb
-                               else jsonb_build_object('navIdent', aa.nav_ident, 'navn', concat(na.fornavn, ' ', na.etternavn))
-                               end
-                       )                  as administratorer
-            from avtale a
-                join tiltakstype t on t.id = a.tiltakstype_id
-                left join avtale_administrator aa on a.id = aa.avtale_id
-                left join nav_ansatt na on na.nav_ident = aa.nav_ident
-                left join nav_enhet on a.nav_region = nav_enhet.enhetsnummer
-                left join lateral (
-                    SELECT an.avtale_id, jsonb_strip_nulls(jsonb_agg(jsonb_build_object('enhetsnummer', an.enhetsnummer, 'navn', ne.navn))) as nav_enheter
-                    FROM avtale_nav_enhet an left join nav_enhet ne on ne.enhetsnummer = an.enhetsnummer WHERE an.avtale_id = a.id GROUP BY 1
-                ) an on true
-                left join lateral (
-                    SELECT au.avtale_id, jsonb_strip_nulls(jsonb_agg(jsonb_build_object('organisasjonsnummer', au.organisasjonsnummer, 'navn', v.navn))) as leverandor_underenheter
-                    FROM avtale_underleverandor au inner join virksomhet v on v.organisasjonsnummer = au.organisasjonsnummer WHERE au.avtale_id = a.id GROUP BY 1
-                ) au on true
-                left join virksomhet v on v.organisasjonsnummer = a.leverandor_organisasjonsnummer
-                left join virksomhet_kontaktperson vk on vk.id = a.leverandor_kontaktperson_id
-            where a.id = ?::uuid
-            group by a.id, t.navn, t.tiltakskode, nav_enhet.navn, v.navn, au.leverandor_underenheter, an.nav_enheter, vk.id
+            select *
+            from avtale_admin_dto_view
+            where id = ?::uuid
         """.trimIndent()
 
         return tx.run(
@@ -271,106 +219,56 @@ class AvtaleRepository(private val db: Database) {
     }
 
     fun getAll(
-        filter: AvtaleFilter,
         pagination: PaginationParams = PaginationParams(),
+        tiltakstypeId: UUID? = null,
+        search: String? = null,
+        status: Avtalestatus? = null,
+        navRegion: String? = null,
+        sortering: String? = null,
+        dagensDato: LocalDate = LocalDate.now(),
+        leverandorOrgnr: String? = null,
+        administratorNavIdent: String? = null,
     ): Pair<Int, List<AvtaleAdminDto>> {
-        if (filter.tiltakstypeId != null) {
-            logger.info("Henter avtaler for tiltakstype med id: '${filter.tiltakstypeId}'")
-        } else {
-            logger.info("Henter alle avtaler")
-        }
         val parameters = mapOf(
-            "tiltakstype_id" to filter.tiltakstypeId,
-            "search" to "%${filter.search}%",
-            "nav_region" to filter.navRegion,
+            "tiltakstype_id" to tiltakstypeId,
+            "search" to "%$search%",
+            "nav_region_json" to navRegion?.let { """[{"enhetsnummer":"$it"}]""" },
+            "nav_region" to navRegion,
             "limit" to pagination.limit,
             "offset" to pagination.offset,
-            "today" to filter.dagensDato,
-            "leverandorOrgnr" to filter.leverandorOrgnr,
-            "administrator_nav_ident" to filter.administratorNavIdent,
+            "today" to dagensDato,
+            "leverandorOrgnr" to leverandorOrgnr,
+            "administrator_nav_ident" to administratorNavIdent?.let { """[{"navIdent": "$it" }]""" },
         )
 
         val where = DatabaseUtils.andWhereParameterNotNull(
-            filter.tiltakstypeId to "a.tiltakstype_id = :tiltakstype_id",
-            filter.search to "(lower(a.navn) like lower(:search))",
-            filter.avtalestatus to filter.avtalestatus?.toDbStatement(),
-            filter.navRegion to "(lower(a.nav_region) = lower(:nav_region) or lower(a.arena_ansvarlig_enhet) = lower(:nav_region) or lower(a.arena_ansvarlig_enhet) in (select enhetsnummer from nav_enhet where overordnet_enhet = :nav_region))",
-            filter.leverandorOrgnr to "a.leverandor_organisasjonsnummer = :leverandorOrgnr",
-            filter.administratorNavIdent to "aa.nav_ident = :administrator_nav_ident",
+            tiltakstypeId to "tiltakstype_id = :tiltakstype_id",
+            search to "(lower(navn) like lower(:search))",
+            status to status?.toDbStatement(),
+            navRegion to "(nav_enheter @> :nav_region_json::jsonb or arena_ansvarlig_enhet = :nav_region or arena_ansvarlig_enhet in (select enhetsnummer from nav_enhet where overordnet_enhet = :nav_region))",
+            leverandorOrgnr to "leverandor_organisasjonsnummer = :leverandorOrgnr",
+            administratorNavIdent to "administratorer @> :administrator_nav_ident::jsonb",
         )
 
-        val order = when (filter.sortering) {
-            "navn-ascending" -> "a.navn asc"
-            "navn-descending" -> "a.navn desc"
-            "leverandor-ascending" -> "v.navn asc"
-            "leverandor-descending" -> "v.navn desc"
-            "nav-enhet-ascending" -> "nav_enhet_navn asc"
-            "nav-enhet-descending" -> "nav_enhet_navn desc"
-            "startdato-ascending" -> "a.start_dato asc, a.navn asc"
-            "startdato-descending" -> "a.start_dato desc, a.navn asc"
-            "sluttdato-ascending" -> "a.slutt_dato asc, a.navn asc"
-            "sluttdato-descending" -> "a.slutt_dato desc, a.navn asc"
-            "tiltakstype_navn-ascending" -> "tiltakstype_navn asc, a.navn asc"
-            "tiltakstype_navn-descending" -> "tiltakstype_navn desc, a.navn desc"
-            else -> "a.navn asc"
+        val order = when (sortering) {
+            "navn-ascending" -> "navn asc"
+            "navn-descending" -> "navn desc"
+            "leverandor-ascending" -> "leverandor_navn asc"
+            "leverandor-descending" -> "leverandor_navn desc"
+            "startdato-ascending" -> "start_dato asc, navn asc"
+            "startdato-descending" -> "start_dato desc, navn asc"
+            "sluttdato-ascending" -> "slutt_dato asc, navn asc"
+            "sluttdato-descending" -> "slutt_dato desc, navn asc"
+            "tiltakstype_navn-ascending" -> "tiltakstype_navn asc, navn asc"
+            "tiltakstype_navn-descending" -> "tiltakstype_navn desc, navn desc"
+            else -> "navn asc"
         }
 
         @Language("PostgreSQL")
         val query = """
-            select a.id,
-                   a.navn,
-                   a.tiltakstype_id,
-                   a.avtalenummer,
-                   a.leverandor_organisasjonsnummer,
-                   vk.id                  as leverandor_kontaktperson_id,
-                   vk.organisasjonsnummer as leverandor_kontaktperson_organisasjonsnummer,
-                   vk.navn                as leverandor_kontaktperson_navn,
-                   vk.telefon             as leverandor_kontaktperson_telefon,
-                   vk.epost               as leverandor_kontaktperson_epost,
-                   vk.beskrivelse         as leverandor_kontaktperson_beskrivelse,
-                   v.navn                 as leverandor_navn,
-                   a.start_dato,
-                   a.slutt_dato,
-                   a.opphav,
-                   a.nav_region,
-                   a.avtaletype,
-                   a.avslutningsstatus,
-                   a.prisbetingelser,
-                   a.antall_plasser,
-                   a.updated_at,
-                   a.url,
-                   nav_enhet.navn         as nav_enhet_navn,
-                   t.navn                 as tiltakstype_navn,
-                   t.tiltakskode,
-                   an.nav_enheter,
-                   au.leverandor_underenheter,
-                   jsonb_agg(
-                           distinct
-                           case
-                               when aa.nav_ident is null then null::jsonb
-                               else jsonb_build_object('navIdent', aa.nav_ident, 'navn', concat(na.fornavn, ' ', na.etternavn))
-                               end
-                       )                  as administratorer,
-                   count(*) over ()       as full_count
-            from avtale a
-                     join tiltakstype t on a.tiltakstype_id = t.id
-                     left join nav_enhet on a.nav_region = nav_enhet.enhetsnummer
-                     left join avtale_administrator aa on a.id = aa.avtale_id
-                     left join nav_ansatt na on na.nav_ident = aa.nav_ident
-                     left join avtale_nav_enhet ae on ae.avtale_id = a.id
-                     left join avtale_underleverandor lva on lva.avtale_id = a.id
-                     left join virksomhet v on v.organisasjonsnummer = a.leverandor_organisasjonsnummer
-                     left join lateral (
-                SELECT an.avtale_id, jsonb_strip_nulls(jsonb_agg(jsonb_build_object('enhetsnummer', an.enhetsnummer, 'navn', ne.navn))) as nav_enheter
-                FROM avtale_nav_enhet an left join nav_enhet ne on ne.enhetsnummer = an.enhetsnummer WHERE an.avtale_id = a.id GROUP BY 1
-                ) an on true
-                     left join lateral (
-                SELECT au.avtale_id, jsonb_strip_nulls(jsonb_agg(jsonb_build_object('organisasjonsnummer', au.organisasjonsnummer, 'navn', v.navn))) as leverandor_underenheter
-                FROM avtale_underleverandor au left join virksomhet v on v.organisasjonsnummer = au.organisasjonsnummer WHERE au.avtale_id = a.id GROUP BY 1
-                ) au on true
-                     left join virksomhet_kontaktperson vk on vk.id = a.leverandor_kontaktperson_id
+            select *, count(*) over() as full_count
+            from avtale_admin_dto_view
             $where
-            group by a.id, t.navn, t.tiltakskode, nav_enhet.navn, v.navn, au.leverandor_underenheter, an.nav_enheter, vk.id
             order by $order
             limit :limit
             offset :offset
@@ -386,36 +284,6 @@ class AvtaleRepository(private val db: Database) {
         val totaltAntall = results.firstOrNull()?.first ?: 0
         val avtaler = results.map { it.second }
         return Pair(totaltAntall, avtaler)
-    }
-
-    fun countAktiveAvtalerForTiltakstypeWithId(id: UUID, currentDate: LocalDate = LocalDate.now()): Int {
-        val query = """
-             SELECT count(id) AS antall
-             FROM avtale
-             WHERE tiltakstype_id = ?
-             and start_dato < ?::timestamp
-             and slutt_dato > ?::timestamp
-        """.trimIndent()
-
-        return queryOf(query, id, currentDate, currentDate)
-            .map { it.int("antall") }
-            .asSingle
-            .let { db.run(it)!! }
-    }
-
-    fun countTiltaksgjennomforingerForAvtaleWithId(id: UUID, currentDate: LocalDate = LocalDate.now()): Int {
-        val query = """
-            select count(*) as antall
-            from tiltaksgjennomforing
-            where avtale_id::uuid = ?
-            and start_dato < ?::timestamp
-            and slutt_dato > ?::timestamp
-        """.trimIndent()
-
-        return queryOf(query, id, currentDate, currentDate)
-            .map { it.int("antall") }
-            .asSingle
-            .let { db.run(it)!! }
     }
 
     fun getAllAvtalerSomNarmerSegSluttdato(currentDate: LocalDate = LocalDate.now()): List<AvtaleNotificationDto> {
@@ -478,7 +346,6 @@ class AvtaleRepository(private val db: Database) {
         "leverandor_underenheter" to db.createTextArray(leverandorUnderenheter),
         "start_dato" to startDato,
         "slutt_dato" to sluttDato,
-        "nav_region" to navRegion,
         "avtaletype" to avtaletype.name,
         "prisbetingelser" to prisbetingelser,
         "antall_plasser" to antallPlasser,
@@ -504,16 +371,25 @@ class AvtaleRepository(private val db: Database) {
     private fun Row.toAvtaleAdminDto(): AvtaleAdminDto {
         val startDato = localDate("start_dato")
         val sluttDato = localDate("slutt_dato")
-        val navRegion = stringOrNull("nav_region")
-        val navEnheter = stringOrNull("nav_enheter")
-            ?.let { Json.decodeFromString<List<NavEnhet?>>(it).filterNotNull() }
-            ?: emptyList()
+
         val underenheter = stringOrNull("leverandor_underenheter")
             ?.let { Json.decodeFromString<List<AvtaleAdminDto.LeverandorUnderenhet?>>(it).filterNotNull() }
             ?: emptyList()
         val administratorer = Json
             .decodeFromString<List<AvtaleAdminDto.Administrator?>>(string("administratorer"))
             .filterNotNull()
+
+        val navEnheter = stringOrNull("nav_enheter")
+            ?.let { Json.decodeFromString<List<EmbeddedNavEnhet?>>(it).filterNotNull() }
+            ?: emptyList()
+        val kontorstruktur = navEnheter
+            .filter { it.type == NavEnhetType.FYLKE }
+            .map { region ->
+                val kontorer = navEnheter
+                    .filter { enhet -> enhet.type != NavEnhetType.FYLKE && enhet.overordnetEnhet == region.enhetsnummer }
+                    .sortedBy { enhet -> enhet.navn }
+                Kontorstruktur(region = region, kontorer = kontorer)
+            }
 
         return AvtaleAdminDto(
             id = uuid("id"),
@@ -540,15 +416,8 @@ class AvtaleRepository(private val db: Database) {
                     beskrivelse = stringOrNull("leverandor_kontaktperson_beskrivelse"),
                 )
             },
-            navEnheter = navEnheter,
             startDato = startDato,
             sluttDato = sluttDato,
-            navRegion = navRegion?.let {
-                NavEnhet(
-                    enhetsnummer = it,
-                    navn = string("nav_enhet_navn"),
-                )
-            },
             avtaletype = Avtaletype.valueOf(string("avtaletype")),
             avtalestatus = Avtalestatus.resolveFromDatesAndAvslutningsstatus(
                 LocalDate.now(),
@@ -562,6 +431,7 @@ class AvtaleRepository(private val db: Database) {
             antallPlasser = intOrNull("antall_plasser"),
             opphav = ArenaMigrering.Opphav.valueOf(string("opphav")),
             updatedAt = localDateTime("updated_at"),
+            kontorstruktur = kontorstruktur,
         )
     }
 

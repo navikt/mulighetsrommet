@@ -1,5 +1,5 @@
 [versions]
-common-java-modules = "3.2023.10.18_13.28-58db82ecb1a5"
+common-java-modules = "3.2023.10.23_12.41-bafec3836d28"
 flyway = "9.22.3"
 hoplite = "2.7.5"
 koin = "3.5.1"
@@ -29,7 +29,8 @@ dbScheduler = "com.github.kagkarlsson:db-scheduler:12.5.0"
 
 flyway-core = { module = "org.flywaydb:flyway-core", version.ref = "flyway" }
 
-google-postgresSocketFactory = "com.google.cloud.sql:postgres-socket-factory:1.14.1"
+google-cloud-postgresSocketFactory = "com.google.cloud.sql:postgres-socket-factory:1.14.1"
+google-cloud-storage = "com.google.cloud:google-cloud-storage:2.29.0"
 
 hikaricp = "com.zaxxer:HikariCP:5.0.1"
 
@@ -45,10 +46,8 @@ kotest-extensions-testcontainers = { module = "io.kotest.extensions:kotest-exten
 kotest-extensions-testcontainers-kafka = { module = "io.kotest.extensions:kotest-extensions-testcontainers-kafka", version.ref = "kotest-testcontainers" }
 kotest-junit = { module = "io.kotest:kotest-runner-junit5", version.ref = "kotest" }
 
-
 kotlinx-serialization-json = "org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0"
 kotlinx-coroutines-core = "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3"
-
 
 kotliquery = "com.github.seratch:kotliquery:1.9.0"
 
@@ -103,7 +102,7 @@ prometheus-caffeine = "io.prometheus:simpleclient_caffeine:0.16.0"
 
 shedlock-jdbc = "net.javacrumbs.shedlock:shedlock-provider-jdbc:5.9.1"
 
-slack-client = "com.slack.api:slack-api-client:1.34.0"
+slack-client = "com.slack.api:slack-api-client:1.35.0"
 
 slf4j = "org.slf4j:slf4j-api:2.0.9"
 

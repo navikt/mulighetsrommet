@@ -3,7 +3,6 @@ package no.nav.mulighetsrommet.api.services
 import arrow.core.Either
 import kotliquery.Session
 import no.nav.mulighetsrommet.api.avtaler.AvtaleValidator
-import no.nav.mulighetsrommet.api.domain.dto.AvtaleNokkeltallDto
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.UtkastRepository
@@ -56,32 +55,21 @@ class AvtaleService(
             }
     }
 
-    fun delete(id: UUID, currentDate: LocalDate = LocalDate.now()): StatusResponse<Unit> {
-        val avtale = avtaler.get(id)
-            ?: return Either.Left(NotFound("Fant ikke avtale for sletting"))
-
-        if (avtale.opphav == Opphav.ARENA) {
-            return Either.Left(BadRequest(message = "Avtalen har opprinnelse fra Arena og kan ikke bli slettet i admin-flate."))
-        }
-
-        if (avtale.startDato <= currentDate) {
-            return Either.Left(BadRequest(message = "Avtalen er aktiv og kan derfor ikke slettes."))
-        }
-
-        val gjennomforingerForAvtale = tiltaksgjennomforinger.getAll(avtaleId = id)
-
-        if (gjennomforingerForAvtale.first > 0) {
-            return Either.Left(BadRequest(message = "Avtalen har ${gjennomforingerForAvtale.first} ${if (gjennomforingerForAvtale.first > 1) "tiltaksgjennomføringer" else "tiltaksgjennomføring"} koblet til seg. Du må frikoble ${if (gjennomforingerForAvtale.first > 1) "gjennomføringene" else "gjennomføringen"} før du kan slette avtalen."))
-        }
-
-        return Either.Right(avtaler.delete(id))
-    }
-
     fun getAll(
         filter: AvtaleFilter,
         pagination: PaginationParams = PaginationParams(),
     ): PaginatedResponse<AvtaleAdminDto> {
-        val (totalCount, items) = avtaler.getAll(filter, pagination)
+        val (totalCount, items) = avtaler.getAll(
+            pagination = pagination,
+            tiltakstypeId = filter.tiltakstypeId,
+            search = filter.search,
+            status = filter.avtalestatus,
+            navRegion = filter.navRegion,
+            sortering = filter.sortering,
+            dagensDato = filter.dagensDato,
+            leverandorOrgnr = filter.leverandorOrgnr,
+            administratorNavIdent = filter.administratorNavIdent,
+        )
 
         return PaginatedResponse(
             data = items,
@@ -93,35 +81,61 @@ class AvtaleService(
         )
     }
 
-    fun getNokkeltallForAvtaleMedId(id: UUID): AvtaleNokkeltallDto {
-        val antallTiltaksgjennomforinger = avtaler.countTiltaksgjennomforingerForAvtaleWithId(id)
-        val antallDeltakereForAvtale = tiltaksgjennomforinger.countDeltakereForAvtaleWithId(id)
-        return AvtaleNokkeltallDto(
-            antallTiltaksgjennomforinger = antallTiltaksgjennomforinger,
-            antallDeltakere = antallDeltakereForAvtale,
-        )
-    }
-
     fun getAllAvtalerSomNarmerSegSluttdato(): List<AvtaleNotificationDto> {
         return avtaler.getAllAvtalerSomNarmerSegSluttdato()
     }
 
-    fun avbrytAvtale(avtaleId: UUID): StatusResponse<Unit> {
-        val avtaleForAvbryting = avtaler.get(avtaleId)
-            ?: return Either.Left(NotFound("Fant ikke avtale for avbrytelse med id '$avtaleId'"))
+    fun delete(id: UUID, currentDate: LocalDate = LocalDate.now()): StatusResponse<Unit> {
+        val avtale = avtaler.get(id)
+            ?: return Either.Left(NotFound("Avtalen finnes ikke"))
 
-        if (avtaleForAvbryting.opphav == Opphav.ARENA) {
+        if (avtale.opphav == Opphav.ARENA) {
+            return Either.Left(BadRequest(message = "Avtalen har opprinnelse fra Arena og kan ikke bli slettet i admin-flate."))
+        }
+
+        if (avtale.startDato <= currentDate) {
+            return Either.Left(BadRequest(message = "Avtalen er aktiv og kan derfor ikke slettes."))
+        }
+
+        val (antallGjennomforinger) = tiltaksgjennomforinger.getAll(avtaleId = id)
+        if (antallGjennomforinger > 0) {
+            return Either.Left(
+                BadRequest(
+                    message = "Avtalen har $antallGjennomforinger ${
+                        if (antallGjennomforinger > 1) "tiltaksgjennomføringer" else "tiltaksgjennomføring"
+                    } koblet til seg. Du må frikoble ${
+                        if (antallGjennomforinger > 1) "gjennomføringene" else "gjennomføringen"
+                    } før du kan slette avtalen.",
+                ),
+            )
+        }
+
+        return Either.Right(avtaler.delete(id))
+    }
+
+    fun avbrytAvtale(avtaleId: UUID): StatusResponse<Unit> {
+        val avtale = avtaler.get(avtaleId)
+            ?: return Either.Left(NotFound("Avtalen finnes ikke"))
+
+        if (avtale.opphav == Opphav.ARENA) {
             return Either.Left(BadRequest(message = "Avtalen har opprinnelse fra Arena og kan ikke bli avbrutt fra admin-flate."))
         }
 
-        if (avtaleForAvbryting.avtalestatus === Avtalestatus.Avsluttet) {
+        if (avtale.avtalestatus !in listOf(Avtalestatus.Planlagt, Avtalestatus.Aktiv)) {
             return Either.Left(BadRequest(message = "Avtalen er allerede avsluttet og kan derfor ikke avbrytes."))
         }
 
-        val gjennomforingerForAvtale = tiltaksgjennomforinger.getAll(avtaleId = avtaleId)
-
-        if (gjennomforingerForAvtale.first > 0) {
-            return Either.Left(BadRequest(message = "Avtalen har ${gjennomforingerForAvtale.first} ${if (gjennomforingerForAvtale.first > 1) "tiltaksgjennomføringer" else "tiltaksgjennomføring"} koblet til seg. Du må frikoble ${if (gjennomforingerForAvtale.first > 1) "gjennomføringene" else "gjennomføringen"} før du kan avbryte avtalen."))
+        val (antallGjennomforinger) = tiltaksgjennomforinger.getAll(avtaleId = avtaleId)
+        if (antallGjennomforinger > 0) {
+            return Either.Left(
+                BadRequest(
+                    message = "Avtalen har $antallGjennomforinger ${
+                        if (antallGjennomforinger > 1) "tiltaksgjennomføringer" else "tiltaksgjennomføring"
+                    } koblet til seg. Du må frikoble ${
+                        if (antallGjennomforinger > 1) "gjennomføringene" else "gjennomføringen"
+                    } før du kan avbryte avtalen.",
+                ),
+            )
         }
 
         return Either.Right(avtaler.setAvslutningsstatus(avtaleId, Avslutningsstatus.AVBRUTT))

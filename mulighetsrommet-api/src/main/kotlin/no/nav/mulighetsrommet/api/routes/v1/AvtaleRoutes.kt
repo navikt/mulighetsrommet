@@ -36,6 +36,16 @@ fun Route.avtaleRoutes() {
             call.respond(result)
         }
 
+        put {
+            val navIdent = getNavIdent()
+            val request = call.receive<AvtaleRequest>()
+
+            val result = avtaler.upsert(request, navIdent)
+                .mapLeft { BadRequest(errors = it) }
+
+            call.respondWithStatusResponse(result)
+        }
+
         get("mine") {
             val pagination = getPaginationParams()
             val filter = getAvtaleFilter().copy(administratorNavIdent = getNavIdent())
@@ -71,32 +81,16 @@ fun Route.avtaleRoutes() {
                 ?: call.respond(HttpStatusCode.NotFound, "Det finnes ikke noen avtale med id $id")
         }
 
-        get("{id}/nokkeltall") {
-            val id = call.parameters.getOrFail<UUID>("id")
-
-            val nokkeltall = avtaler.getNokkeltallForAvtaleMedId(id)
-
-            call.respond(nokkeltall)
-        }
-
-        put {
-            val navIdent = getNavIdent()
-            val request = call.receive<AvtaleRequest>()
-
-            val result = avtaler.upsert(request, navIdent)
-                .mapLeft { BadRequest(errors = it) }
-
-            call.respondWithStatusResponse(result)
-        }
-
         put("{id}/avbryt") {
             val id = call.parameters.getOrFail<UUID>("id")
-            call.respondWithStatusResponse(avtaler.avbrytAvtale(id))
+            val response = avtaler.avbrytAvtale(id)
+            call.respondWithStatusResponse(response)
         }
 
         delete("{id}") {
             val id = call.parameters.getOrFail<UUID>("id")
-            call.respondWithStatusResponse(avtaler.delete(id))
+            val response = avtaler.delete(id)
+            call.respondWithStatusResponse(response)
         }
     }
 }
@@ -117,7 +111,6 @@ data class AvtaleRequest(
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate,
-    val navRegion: String,
     val url: String?,
     val administrator: String,
     val avtaletype: Avtaletype,
@@ -135,7 +128,6 @@ data class AvtaleRequest(
         leverandorKontaktpersonId = leverandorKontaktpersonId,
         startDato = startDato,
         sluttDato = sluttDato,
-        navRegion = navRegion,
         avtaletype = avtaletype,
         antallPlasser = null,
         url = url,

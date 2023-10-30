@@ -1,33 +1,21 @@
-import { InferredAvtaleSchema } from "./AvtaleSchema";
+import { UseMutationResult } from "@tanstack/react-query";
 import {
   Avtale,
+  Avtaletype,
   LeverandorUnderenhet,
   NavAnsatt,
   NavEnhet,
   NavEnhetType,
-  UtkastDto,
+  Opphav,
   UtkastRequest as Utkast,
+  UtkastDto,
   Virksomhet,
 } from "mulighetsrommet-api-client";
 import { MutableRefObject } from "react";
-import { UseMutationResult } from "@tanstack/react-query";
+import { DeepPartial } from "react-hook-form";
+import { InferredAvtaleSchema } from "./AvtaleSchema";
 
-type UtkastData = Pick<
-  Avtale,
-  | "navn"
-  | "tiltakstype"
-  | "navRegion"
-  | "navEnheter"
-  | "administrator"
-  | "avtaletype"
-  | "leverandor"
-  | "leverandorUnderenheter"
-  | "leverandorKontaktperson"
-  | "startDato"
-  | "sluttDato"
-  | "url"
-  | "prisbetingelser"
-> & {
+export type AvtaleUtkastData = Partial<InferredAvtaleSchema> & {
   avtaleId: string;
   id: string;
 };
@@ -40,32 +28,8 @@ export const saveUtkast = (
   mutationUtkast: UseMutationResult<UtkastDto, unknown, Utkast, unknown>,
   setLagreState: (state: string) => void,
 ) => {
-  const utkastData: UtkastData = {
-    navn: values?.navn,
-    tiltakstype: values?.tiltakstype,
-    navRegion: {
-      navn: "",
-      enhetsnummer: values?.navRegion,
-    },
-    navEnheter: values?.navEnheter?.map((enhetsnummer) => ({
-      navn: "",
-      enhetsnummer,
-    })),
-    administrator: { navIdent: values?.administrator, navn: "" },
-    avtaletype: values?.avtaletype,
-    leverandor: {
-      navn: "",
-      organisasjonsnummer: values?.leverandor,
-      slettet: false,
-    },
-    leverandorUnderenheter: values?.leverandorUnderenheter?.map((organisasjonsnummer) => ({
-      navn: "",
-      organisasjonsnummer,
-    })),
-    startDato: values?.startOgSluttDato?.startDato?.toDateString(),
-    sluttDato: values?.startOgSluttDato?.sluttDato?.toDateString(),
-    url: values?.url,
-    prisbetingelser: values?.prisbetingelser || "",
+  const utkastData: AvtaleUtkastData = {
+    ...values,
     avtaleId: avtale?.id || utkastIdRef.current,
     id: avtale?.id || utkastIdRef.current,
   };
@@ -84,31 +48,17 @@ export const saveUtkast = (
   });
 };
 
-export const defaultEnhet = (
-  avtale: Avtale | undefined,
-  enheter: NavEnhet[],
-  ansatt: NavAnsatt,
-) => {
-  if (avtale?.navRegion?.enhetsnummer) {
-    return avtale?.navRegion?.enhetsnummer;
-  }
-  if (enheter.find((e) => e.enhetsnummer === ansatt.hovedenhet.enhetsnummer)) {
-    return ansatt.hovedenhet.enhetsnummer;
-  }
-  return undefined;
-};
-
 export const getLokaleUnderenheterAsSelectOptions = (
-  navRegion: string | undefined,
+  navRegioner: string[],
   enheter: NavEnhet[],
 ) => {
-  if (!navRegion) {
-    return [];
-  }
-
   return enheter
     .filter((enhet: NavEnhet) => {
-      return navRegion === enhet.overordnetEnhet && enhet.type === NavEnhetType.LOKAL;
+      return (
+        enhet.overordnetEnhet != null &&
+        navRegioner.includes(enhet.overordnetEnhet) &&
+        enhet.type === NavEnhetType.LOKAL
+      );
     })
     .map((enhet: NavEnhet) => ({
       label: enhet.navn,
@@ -121,3 +71,39 @@ export const underenheterOptions = (underenheterForLeverandor: Virksomhet[]) =>
     value: leverandor.organisasjonsnummer,
     label: `${leverandor.navn} - ${leverandor.organisasjonsnummer}`,
   }));
+
+export function utkastDataEllerDefault(
+  ansatt: NavAnsatt,
+  utkast?: AvtaleUtkastData,
+  avtale?: Avtale,
+): DeepPartial<InferredAvtaleSchema> {
+  const navRegioner = avtale?.kontorstruktur.map((struktur) => struktur.region.enhetsnummer) ?? [];
+  const navEnheter =
+    avtale?.kontorstruktur
+      .flatMap((struktur) => struktur.kontorer)
+      .map((enhet) => enhet.enhetsnummer) ?? [];
+  return {
+    tiltakstype: avtale?.tiltakstype,
+    navRegioner,
+    navEnheter,
+    administrator: avtale?.administrator?.navIdent || ansatt.navIdent || "",
+    navn: avtale?.navn ?? "",
+    avtaletype: avtale?.avtaletype ?? Avtaletype.AVTALE,
+    leverandor: avtale?.leverandor?.organisasjonsnummer ?? "",
+    leverandorUnderenheter:
+      avtale?.leverandorUnderenheter?.length === 0 || !avtale?.leverandorUnderenheter
+        ? []
+        : avtale?.leverandorUnderenheter?.map(
+            (leverandor: LeverandorUnderenhet) => leverandor.organisasjonsnummer,
+          ),
+    leverandorKontaktpersonId: avtale?.leverandorKontaktperson?.id,
+    startOgSluttDato: {
+      startDato: avtale?.startDato ? avtale.startDato : undefined,
+      sluttDato: avtale?.sluttDato ? avtale.sluttDato : undefined,
+    },
+    url: avtale?.url ?? undefined,
+    prisbetingelser: avtale?.prisbetingelser ?? undefined,
+    opphav: avtale?.opphav ?? Opphav.MR_ADMIN_FLATE,
+    ...utkast,
+  };
+}

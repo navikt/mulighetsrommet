@@ -215,12 +215,7 @@ export const TiltaksgjennomforingsTabell = ({ skjulKolonner }: Props) => {
                         aria-label={`Navn på tiltaksgjennomforing: ${tiltaksgjennomforing.navn}`}
                         className={styles.title}
                       >
-                        <Lenke
-                          to={`${tiltaksgjennomforing.id}`}
-                          data-testid="tiltaksgjennomforingrad"
-                        >
-                          {tiltaksgjennomforing.navn}
-                        </Lenke>
+                        <Lenke to={`${tiltaksgjennomforing.id}`}>{tiltaksgjennomforing.navn}</Lenke>
                       </Table.DataCell>
                     </SkjulKolonne>
 
@@ -333,7 +328,6 @@ export const TiltaksgjennomforingsTabell = ({ skjulKolonner }: Props) => {
           <Pagination
             className={pageStyles.pagination}
             size="small"
-            data-testid="paginering"
             page={page}
             onPageChange={setPage}
             count={Math.ceil(

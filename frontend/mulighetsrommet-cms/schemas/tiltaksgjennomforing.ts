@@ -50,7 +50,13 @@ export const tiltaksgjennomforing = defineType({
       title: "Tiltakstype",
       type: "reference",
       to: [{ type: "tiltakstype" }],
-      validation: (rule) => rule.required(),
+      validation: (rule) =>
+        rule.custom((currentValue) => {
+          if (currentValue && isInAdminFlate(currentValue._ref)) {
+            return "Gruppetiltak må administreres i admin-flate";
+          }
+          return currentValue === undefined ? "Tiltakstype er påkrevd" : true;
+        }),
     }),
     defineField({
       name: "tiltaksgjennomforingNavn",

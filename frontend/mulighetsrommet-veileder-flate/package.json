@@ -24,7 +24,7 @@
     "**/fsevents": "^1.2.9"
   },
   "dependencies": {
-    "@grafana/faro-web-sdk": "^1.2.1",
+    "@grafana/faro-web-sdk": "^1.2.3",
     "@navikt/aksel-icons": "^5.7.6",
     "@navikt/ds-css": "^5.7.6",
     "@navikt/ds-react": "^5.7.6",
@@ -51,7 +51,7 @@
     "@typescript-eslint/eslint-plugin": "^6.8.0",
     "@vitejs/plugin-react": "^4.1.0",
     "cross-env": "^7.0.3",
-    "cypress": "^13.3.2",
+    "cypress": "^13.3.3",
     "cypress-axe": "^1.5.0",
     "eslint": "^8.52.0",
     "eslint-config-prettier": "^9.0.0",
@@ -65,8 +65,7 @@
     "msw": "1.3.2",
     "rollup-plugin-visualizer": "^5.9.2",
     "typescript": "^5.2.2",
-    "vite": "^4.5.0",
-    "vite-plugin-require": "^1.1.11"
+    "vite": "^4.5.0"
   },
   "msw": {
     "workerDirectory": "public"

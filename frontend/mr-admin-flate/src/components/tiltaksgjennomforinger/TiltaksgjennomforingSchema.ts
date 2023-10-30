@@ -4,17 +4,22 @@ import z from "zod";
 export const TiltaksgjennomforingSchema = z
   .object({
     navn: z.string().min(1, "Du må skrive inn tittel"),
+    avtaleId: z.string(),
     startOgSluttDato: z
       .object({
-        startDato: z.date({
+        startDato: z.string({
           required_error: "En gjennomføring må ha en startdato",
         }),
-        sluttDato: z.date().optional(),
+        sluttDato: z.string().optional(),
       })
-      .refine((data) => !data.startDato || !data.sluttDato || data.sluttDato > data.startDato, {
-        message: "Startdato må være før sluttdato",
-        path: ["startDato"],
-      }),
+      .refine(
+        (data) =>
+          !data.startDato || !data.sluttDato || new Date(data.sluttDato) > new Date(data.startDato),
+        {
+          message: "Startdato må være før sluttdato",
+          path: ["startDato"],
+        },
+      ),
     antallPlasser: z
       .number({
         invalid_type_error:
@@ -22,6 +27,7 @@ export const TiltaksgjennomforingSchema = z
       })
       .int()
       .positive(),
+    navRegion: z.string({ required_error: "Du må velge én region" }),
     navEnheter: z.string().array().nonempty({
       message: "Du må velge minst én enhet",
     }),
@@ -43,7 +49,7 @@ export const TiltaksgjennomforingSchema = z
         required_error: "Du må velge en underenhet for tiltaksarrangør",
       })
       .min(1, "Du må velge en underenhet for tiltaksarrangør"),
-    stedForGjennomforing: z.string(),
+    stedForGjennomforing: z.string().nullable(),
     arrangorKontaktpersonId: z.string().nullable().optional(),
     administrator: z
       .string()
@@ -100,7 +106,7 @@ export const TiltaksgjennomforingSchema = z
       data.startOgSluttDato.sluttDato &&
       data.midlertidigStengt.erMidlertidigStengt &&
       data.midlertidigStengt.stengtTil &&
-      data.midlertidigStengt.stengtTil >= data.startOgSluttDato.sluttDato
+      data.midlertidigStengt.stengtTil >= new Date(data.startOgSluttDato.sluttDato)
     ) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,

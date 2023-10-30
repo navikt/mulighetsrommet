@@ -17,7 +17,7 @@ export function Notat({ handleSlett, notat }: Props) {
 
   const lagtTilAv = (notat: AvtaleNotat | TiltaksgjennomforingNotat) => {
     return (
-      <div className={styles.notatinformasjon_bruker} data-testid="notat_brukerinformasjon">
+      <div className={styles.notatinformasjon_bruker}>
         <BodyShort>Lagt til av: </BodyShort>
         <Lenke
           to={`${NOM_ANSATT_SIDE}${notat.opprettetAv.navIdent}`}
@@ -31,7 +31,6 @@ export function Notat({ handleSlett, notat }: Props) {
             variant="tertiary"
             onClick={() => handleSlett(notat.id)}
             className={styles.slette_notat}
-            data-testid="slette-notat_btn"
           >
             <TrashIcon fontSize={"1.5rem"} />
           </Button>
@@ -41,7 +40,7 @@ export function Notat({ handleSlett, notat }: Props) {
   };
 
   return (
-    <div className={styles.notat} data-testid="notat">
+    <div className={styles.notat}>
       <span className={styles.notatinformasjon}>
         {lagtTilAv(notat)}
         <BodyShort>{formaterDatoTid(notat.createdAt)}</BodyShort>

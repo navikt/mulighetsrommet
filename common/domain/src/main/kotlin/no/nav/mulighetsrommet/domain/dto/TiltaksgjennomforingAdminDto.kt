@@ -31,8 +31,8 @@ data class TiltaksgjennomforingAdminDto(
     @Serializable(with = UUIDSerializer::class)
     val avtaleId: UUID?,
     val administrator: Administrator?,
-    val navEnheter: List<NavEnhet>,
-    val navRegion: NavEnhet?,
+    val navEnheter: List<EmbeddedNavEnhet>,
+    val navRegion: EmbeddedNavEnhet?,
     @Serializable(with = UUIDSerializer::class)
     val sanityId: UUID?,
     val oppstart: TiltaksgjennomforingOppstartstype,
@@ -62,8 +62,8 @@ data class TiltaksgjennomforingAdminDto(
 
     @Serializable
     data class Administrator(
-        val navIdent: String? = null,
-        val navn: String? = null,
+        val navIdent: String,
+        val navn: String,
     )
 
     @Serializable

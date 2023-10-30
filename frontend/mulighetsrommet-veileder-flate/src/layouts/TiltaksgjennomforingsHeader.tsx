@@ -2,6 +2,7 @@ import { BodyLong, Heading } from "@navikt/ds-react";
 import { VeilederflateTiltaksgjennomforing } from "mulighetsrommet-api-client";
 import { kebabCase } from "../utils/Utils";
 import styles from "./TiltaksgjennomforingsHeader.module.scss";
+import classnames from "classnames";
 
 interface Props {
   tiltaksgjennomforing: VeilederflateTiltaksgjennomforing;
@@ -20,12 +21,12 @@ const TiltaksgjennomforingsHeader = ({ tiltaksgjennomforing }: Props) => {
         {navn}
       </Heading>
       {tiltakstype.beskrivelse && (
-        <BodyLong size="large" className={styles.beskrivelse}>
+        <BodyLong size="large" className={classnames(styles.beskrivelse, styles.preWrap)}>
           {tiltakstype.beskrivelse}
         </BodyLong>
       )}
       {beskrivelse && (
-        <BodyLong textColor="subtle" size="medium">
+        <BodyLong className={styles.preWrap} textColor="subtle" size="medium">
           {beskrivelse}
         </BodyLong>
       )}

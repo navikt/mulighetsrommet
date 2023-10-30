@@ -18,14 +18,12 @@ export function AvtalerPage() {
           <div className={styles.header_container_tabs} role="contentinfo">
             <Tabs.List>
               <Tabs.Tab
-                data-testid="avtaler-tab"
                 value="/avtaler"
                 label="Avtaler"
                 aria-controls="panel"
                 onClick={() => navigate("/avtaler")}
               />
               <Tabs.Tab
-                data-testid="mine-utkast-tab"
                 value="/avtaler/utkast"
                 label="Utkast"
                 aria-controls="panel"

@@ -91,27 +91,6 @@ paths:
               schema:
                 type: string
 
-  /api/v1/internal/avtaler/{id}/nokkeltall:
-    parameters:
-      - $ref: "#/components/parameters/ID"
-    get:
-      tags:
-        - Avtaler
-      operationId: getNokkeltallForAvtale
-      responses:
-        200:
-          description: Nøkkeltall for the specified avtale.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/AvtaleNokkeltall"
-        404:
-          description: "Nøkkeltall for the specified avtale was not found."
-          content:
-            application/json:
-              schema:
-                type: string
-
   /api/v1/internal/avtaler:
     get:
       tags:
@@ -622,18 +601,6 @@ paths:
             application/json:
               schema:
                 type: string
-    put:
-      tags:
-        - Tiltaksgjennomforinger
-      operationId: oppdaterAvtaleIdForGjennomforing
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/AvtaleForGjennomforingRequest"
-      responses:
-        200:
-          description: ""
     delete:
       tags:
         - Tiltaksgjennomforinger
@@ -651,6 +618,22 @@ paths:
             application/json:
               schema:
                 type: string
+
+  /api/v1/internal/tiltaksgjennomforinger/{id}/avtale:
+    parameters:
+      - $ref: "#/components/parameters/ID"
+    put:
+      tags:
+        - Tiltaksgjennomforinger
+      operationId: setAvtaleForGjennomforing
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SetAvtaleForGjennomforingRequest"
+      responses:
+        200:
+          description: "Gjennomføring ble oppdatert med avtale"
 
   /api/v1/internal/tiltaksgjennomforinger/{id}/avbryt:
     parameters:
@@ -673,28 +656,7 @@ paths:
               schema:
                 type: string
 
-  /api/v1/internal/tiltaksgjennomforinger/{id}/nokkeltall:
-    get:
-      tags:
-        - Tiltaksgjennomforing
-      operationId: getNokkeltallForTiltaksgjennomforingWithId
-      parameters:
-        - $ref: "#/components/parameters/ID"
-      responses:
-        200:
-          description: Nokkeltall for the specified tiltaksgjennomforing
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/TiltaksgjennomforingNokkeltall"
-        404:
-          description: "Nøkkeltall for the specified tiltaksgjennomforing was not found."
-          content:
-            text/plain:
-              schema:
-                type: string
-
-  /api/v1/internal/tiltaksgjennomforinger/{id}/tilgjengeligForVeileder:
+  /api/v1/internal/tiltaksgjennomforinger/{id}/tilgjengelig-for-veileder:
     parameters:
       - $ref: "#/components/parameters/ID"
     put:
@@ -808,27 +770,6 @@ paths:
                 $ref: "#/components/schemas/Tiltakstype"
         404:
           description: "The specified tiltakstype was not found."
-          content:
-            text/plain:
-              schema:
-                type: string
-
-  /api/v1/internal/tiltakstyper/{id}/nokkeltall:
-    get:
-      tags:
-        - Tiltakstyper
-      operationId: getNokkeltallForTiltakstypeWithId
-      parameters:
-        - $ref: "#/components/parameters/ID"
-      responses:
-        200:
-          description: Nokkeltall for the specified tiltakstype
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/TiltakstypeNokkeltall"
-        404:
-          description: "Nøkkeltall for the specified tiltakstype was not found."
           content:
             text/plain:
               schema:
@@ -1732,8 +1673,6 @@ components:
         sluttDato:
           type: string
           format: date
-        navRegion:
-          $ref: "#/components/schemas/EmbeddedNavEnhet"
         avtaletype:
           $ref: "#/components/schemas/Avtaletype"
         avtalestatus:
@@ -1749,15 +1688,13 @@ components:
         antallPlasser:
           type: number
           nullable: true
-        navEnheter:
-          type: array
-          items:
-            $ref: "#/components/schemas/EmbeddedNavEnhet"
+        kontorstruktur:
+          $ref: "#/components/schemas/NavKontorStruktur"
         opphav:
           $ref: "#/components/schemas/Opphav"
         updatedAt:
-            type: string
-            format: date-time
+          type: string
+          format: date-time
       required:
         - id
         - tiltakstype
@@ -1770,7 +1707,7 @@ components:
         - avtaletype
         - avtalestatus
         - prisbetingelser
-        - navEnheter
+        - kontorstruktur
         - opphav
         - updatedAt
 
@@ -1804,8 +1741,6 @@ components:
         sluttDato:
           type: string
           format: date
-        navRegion:
-          type: string
         url:
           type: string
           nullable: true
@@ -1832,7 +1767,6 @@ components:
         - avtalenummer
         - startDato
         - sluttDato
-        - navRegion
         - url
         - administrator
         - avtaletype
@@ -1882,8 +1816,6 @@ components:
       enum:
         - navn-ascending
         - navn-descending
-        - nav-enhet-ascending
-        - nav-enhet-descending
         - startdato-ascending
         - startdato-descending
         - sluttdato-ascending
@@ -2039,6 +1971,8 @@ components:
           nullable: true
         administrator:
           type: string
+        navRegion:
+          type: string
         navEnheter:
           type: array
           items:
@@ -2064,6 +1998,7 @@ components:
           nullable: true
         stedForGjennomforing:
           type: string
+          nullable: true
         opphav:
           $ref: "#/components/schemas/Opphav"
           nullable: true
@@ -2086,6 +2021,7 @@ components:
         - arrangorKontaktpersonId
         - tiltaksnummer
         - administrator
+        - navRegion
         - navEnheter
         - oppstart
         - stengtFra
@@ -2401,6 +2337,7 @@ components:
           $ref: "#/components/schemas/NavEnhetType"
       required:
         - navn
+        - overordnetEnhet
         - enhetsnummer
         - status
         - type
@@ -2437,6 +2374,7 @@ components:
       type: object
       properties:
         navn:
+          nullable: true
           type: string
         organisasjonsnummer:
           type: string
@@ -2500,9 +2438,16 @@ components:
           type: string
         enhetsnummer:
           type: string
+        "type":
+          $ref: "#/components/schemas/NavEnhetType"
+        overordnetEnhet:
+          type: string
+          nullable: true
       required:
         - navn
         - enhetsnummer
+        - type
+        - overordnetEnhet
 
     AvtaleAdministrator:
       type: object
@@ -2717,39 +2662,6 @@ components:
         - enhet
         - epost
 
-    TiltakstypeNokkeltall:
-      type: object
-      properties:
-        antallTiltaksgjennomforinger:
-          type: number
-        antallAvtaler:
-          type: number
-        antallDeltakere:
-          type: number
-      required:
-        - antallTiltaksgjennomforinger
-        - antallAvtaler
-        - antallDeltakere
-
-    AvtaleNokkeltall:
-      type: object
-      properties:
-        antallTiltaksgjennomforinger:
-          type: number
-        antallDeltakere:
-          type: number
-      required:
-        - antallTiltaksgjennomforinger
-        - antallDeltakere
-
-    TiltaksgjennomforingNokkeltall:
-      type: object
-      properties:
-        antallDeltakere:
-          type: number
-      required:
-        - antallDeltakere
-
     NavEnhetStatus:
       type: string
       enum:
@@ -2856,7 +2768,7 @@ components:
       required:
         - notDoneCount
 
-    AvtaleForGjennomforingRequest:
+    SetAvtaleForGjennomforingRequest:
       type: object
       properties:
         avtaleId:
@@ -3073,3 +2985,18 @@ components:
           type: boolean
       required:
         - tilgjengeligForVeileder
+
+    NavKontorStruktur:
+      type: array
+      items:
+        type: object
+        properties:
+          region:
+            $ref: "#/components/schemas/EmbeddedNavEnhet"
+          kontorer:
+            type: array
+            items:
+              $ref: "#/components/schemas/EmbeddedNavEnhet"
+        required:
+          - region
+          - kontorer

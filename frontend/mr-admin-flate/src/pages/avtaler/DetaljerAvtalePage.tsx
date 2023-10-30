@@ -66,12 +66,10 @@ export function DetaljerAvtalePage() {
           <Tabs.Tab
             value="notater"
             label="Notater"
-            data-testid="tab_avtalenotater"
             onClick={() => navigate(`/avtaler/${avtaleId}/notater`)}
             aria-controls="panel"
           />
           <Tabs.Tab
-            data-testid="avtale-tiltaksgjennomforing-tab"
             value="tiltaksgjennomforinger"
             label="Gjennomføringer"
             onClick={() => navigate(`/avtaler/${avtaleId}/tiltaksgjennomforinger`)}

@@ -194,7 +194,7 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
 
         <div className={styles.detaljer}>
           <Bolk aria-label="NAV-region">
-            <Metadata header="NAV-region" verdi={avtale?.navRegion?.navn} />
+            <Metadata header="NAV-region" verdi={tiltaksgjennomforing?.navRegion?.navn} />
           </Bolk>
 
           <Bolk aria-label="NAV-enheter">

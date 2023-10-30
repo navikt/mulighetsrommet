@@ -3,7 +3,8 @@
   border-radius: var(--a-border-radius-medium);
   border: 1px solid var(--ac-textarea-border, var(--__ac-textarea-border, var(--a-border-default)));
   color: var(--ac-textarea-text, var(--__ac-textarea-text, var(--a-text-default)));
-  min-height: 200px;
+  display: flex;
+  flex-direction: column;
 
   &:hover {
     border-color: var(
@@ -25,6 +26,21 @@
   gap: 2rem;
   border-bottom: 1px solid
     var(--ac-textarea-border, var(--__ac-textarea-border, var(--a-border-default)));
+
+  span {
+    div {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 10px;
+    }
+    &:hover {
+      background-color: var(--a-gray-200);
+      color: black !important;
+      border-radius: 0.2rem;
+    }
+  }
 }
 
 .container {
@@ -45,4 +61,10 @@
 .errormsg {
   margin-top: 8px;
   color: #c30000;
+}
+
+.textarea {
+  outline: none;
+  min-height: 200px;
+  padding: 0.5rem;
 }

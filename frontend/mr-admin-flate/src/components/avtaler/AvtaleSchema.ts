@@ -28,12 +28,12 @@ export const AvtaleSchema = z
       .regex(/^\d+$/, "Leverandør må være et nummer"),
     leverandorUnderenheter: z.string().array().nonempty("Du må velge minst en underenhet"),
     leverandorKontaktpersonId: z.string().optional(),
-    navRegion: z.string({ required_error: "Du må velge en enhet" }),
+    navRegioner: z.string().array().nonempty({ message: "Du må velge minst én region" }),
     navEnheter: z.string().array().nonempty({ message: "Du må velge minst én enhet" }),
     startOgSluttDato: z
       .object({
-        startDato: z.date({ required_error: "En avtale må ha en startdato" }),
-        sluttDato: z.date({ required_error: "En avtale må ha en sluttdato" }),
+        startDato: z.string({ required_error: "En avtale må ha en startdato" }),
+        sluttDato: z.string({ required_error: "En avtale må ha en sluttdato" }),
       })
       .refine((data) => !data.startDato || !data.sluttDato || data.sluttDato > data.startDato, {
         message: "Startdato må være før sluttdato",

@@ -2,7 +2,6 @@ import React, { ForwardedRef, useCallback, useMemo } from "react";
 import isUrl from "is-url";
 import { LinkIcon, BulletListIcon } from "@navikt/aksel-icons";
 import styles from "./PortableTextEditor.module.scss";
-
 import isHotkey from "is-hotkey";
 import { Editable, withReact, useSlate, Slate } from "slate-react";
 import { Element as SlateElement, Editor, Transforms, createEditor, Range } from "slate";
@@ -137,9 +136,7 @@ function PortableTextEditor(props: PortableTextEditorProps, _: ForwardedRef<HTML
                     <LinkButton />
                   </ToolbarComponent>
                   <Editable
-                    style={{
-                      outline: "none",
-                    }}
+                    className={styles.textarea}
                     renderElement={renderElement}
                     renderLeaf={renderLeaf}
                     placeholder={placeholder}
@@ -213,7 +210,9 @@ const LinkButton = () => {
       onMouseDown={(event: any) => {
         event.preventDefault();
         const url = window.prompt("Legg til lenke");
-        if (!url || !isUrl(url)) {
+        if (!url) return;
+
+        if (!isUrl(url)) {
           alert("Ugyldig lenke. Husk `https://` foran");
         } else {
           insertLink(editor, url);
@@ -419,7 +418,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(function 
       ref={ref}
       style={{
         cursor: "pointer",
-        color: active ? "black" : "#ccc",
+        color: active ? "black" : "#676F7B",
       }}
     >
       {children}

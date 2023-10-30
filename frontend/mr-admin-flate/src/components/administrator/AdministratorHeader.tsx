@@ -25,7 +25,6 @@ export function AdministratorHeader() {
         <Notifikasjonsbjelle />
       </div>
       <InternalHeader.User
-        data-testid="header-navIdent"
         name={ansattNavn}
         description={data?.navIdent ?? "..."}
         className={styles.user}

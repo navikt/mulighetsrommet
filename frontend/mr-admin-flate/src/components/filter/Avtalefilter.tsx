@@ -5,8 +5,8 @@ import { NavEnhetType, Tiltakstypestatus, VirksomhetTil } from "mulighetsrommet-
 import { useEffect, useRef } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import {
-  AvtaleFilterProps,
   avtaleFilter,
+  AvtaleFilterProps,
   avtalePaginationAtom,
   defaultAvtaleFilter,
 } from "../../api/atoms";
@@ -218,7 +218,6 @@ export function Avtalefilter(props: Props) {
               handleClick={() => {
                 faro?.api?.pushEvent("Bruker trykket på 'Opprett ny avtale'-knapp");
               }}
-              dataTestId="opprett-avtale"
             >
               Opprett ny avtale
             </Lenkeknapp>

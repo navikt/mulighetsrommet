@@ -26,7 +26,7 @@
     "styled-components": "^5.2"
   },
   "devDependencies": {
-    "@types/react": "^18.2.31",
-    "sass": "^1.69.4"
+    "@types/react": "^18.2.33",
+    "sass": "^1.69.5"
   }
 }

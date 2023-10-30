@@ -70,17 +70,12 @@ export default function NotaterAvtalePage() {
               maxLength={500}
               {...register("innhold")}
               value={watch("innhold")}
-              data-testid="notater_innhold"
             />
             {putAvtalenotat.isError ? (
               <ErrorMessage>Det skjedde en feil. Notatet ble ikke lagret.</ErrorMessage>
             ) : null}
             <span className={styles.notater_knapp}>
-              <Button
-                type="submit"
-                disabled={putAvtalenotat.isLoading}
-                data-testid="notater_legg-til-knapp"
-              >
+              <Button type="submit" disabled={putAvtalenotat.isLoading}>
                 {putAvtalenotat.isLoading ? <Laster /> : "Legg til notat"}
               </Button>
             </span>
@@ -94,10 +89,7 @@ export default function NotaterAvtalePage() {
         </Heading>
 
         <div className={styles.notater_andrerad}>
-          <Checkbox
-            onChange={() => setVisMineNotater(!visMineNotater)}
-            data-testid="vis-mine-notater"
-          >
+          <Checkbox onChange={() => setVisMineNotater(!visMineNotater)}>
             Vis kun mine notater
           </Checkbox>
         </div>

@@ -4,18 +4,13 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import kotliquery.Query
-import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
-import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
-import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
-import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures.avtale1
-import no.nav.mulighetsrommet.api.fixtures.DeltakerFixture
-import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
-import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
-import no.nav.mulighetsrommet.api.utils.*
+import no.nav.mulighetsrommet.api.utils.DEFAULT_PAGINATION_LIMIT
+import no.nav.mulighetsrommet.api.utils.PaginationParams
+import no.nav.mulighetsrommet.api.utils.TiltakstypeFilter
+import no.nav.mulighetsrommet.api.utils.Tiltakstypekategori
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
-import no.nav.mulighetsrommet.database.utils.getOrThrow
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 import no.nav.mulighetsrommet.domain.dto.Tiltakstypestatus
 import java.time.LocalDate
@@ -24,7 +19,6 @@ import java.util.*
 
 class TiltakstypeRepositoryTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
-    val tiltaksgjennomforingFixture = TiltaksgjennomforingFixtures
 
     test("CRUD") {
         database.db.truncateAll()
@@ -276,154 +270,6 @@ class TiltakstypeRepositoryTest : FunSpec({
             items.last().navn shouldBe "99"
 
             totalCount shouldBe 105
-        }
-    }
-
-    context("Nøkkeltall") {
-        val tiltakstypeRepository = TiltakstypeRepository(database.db)
-        val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
-        val deltakerRepository = DeltakerRepository(database.db)
-        val avtaleRepository = AvtaleRepository(database.db)
-        val navEnhetRepository = NavEnhetRepository(database.db)
-
-        test("Skal telle korrekt antall tiltaksgjennomføringer tilknyttet en tiltakstype") {
-            val tiltakstypeIdSomIkkeSkalMatche = UUID.randomUUID()
-
-            val gjennomforing1 = TiltaksgjennomforingFixtures.Oppfolging1.copy(
-                id = UUID.randomUUID(),
-                tiltakstypeId = tiltaksgjennomforingFixture.Oppfolging1.tiltakstypeId,
-                startDato = LocalDate.of(2021, 1, 1),
-                sluttDato = LocalDate.of(2022, 10, 15),
-            )
-            val gjennomforing2 = TiltaksgjennomforingFixtures.Oppfolging2.copy(
-                id = UUID.randomUUID(),
-                tiltakstypeId = tiltaksgjennomforingFixture.Oppfolging2.tiltakstypeId,
-                startDato = LocalDate.of(2021, 1, 1),
-                sluttDato = LocalDate.of(2050, 10, 15),
-            )
-            val gjennomforing3 = TiltaksgjennomforingFixtures.Oppfolging1.copy(
-                id = UUID.randomUUID(),
-                tiltakstypeId = tiltakstypeIdSomIkkeSkalMatche,
-                startDato = LocalDate.of(2021, 1, 1),
-                sluttDato = LocalDate.of(2050, 10, 15),
-            )
-            val gjennomforing4 = TiltaksgjennomforingFixtures.Oppfolging2.copy(
-                id = UUID.randomUUID(),
-                tiltakstypeId = tiltakstypeIdSomIkkeSkalMatche,
-                startDato = LocalDate.of(2021, 1, 1),
-                sluttDato = LocalDate.of(2050, 10, 15),
-            )
-
-            val tiltakstype = TiltakstypeFixtures.Oppfolging.copy(id = gjennomforing1.tiltakstypeId)
-            val tiltakstypeUtenGjennomforinger =
-                TiltakstypeFixtures.Oppfolging.copy(id = tiltakstypeIdSomIkkeSkalMatche)
-
-            tiltakstypeRepository.upsert(tiltakstype).getOrThrow()
-            tiltakstypeRepository.upsert(tiltakstypeUtenGjennomforinger).getOrThrow()
-            navEnhetRepository.upsert(
-                NavEnhetDbo(
-                    navn = "IT",
-                    enhetsnummer = "2990",
-                    status = NavEnhetStatus.AKTIV,
-                    type = Norg2Type.FYLKE,
-                    overordnetEnhet = null,
-                ),
-            )
-            avtaleRepository.upsert(avtale1)
-
-            tiltaksgjennomforingRepository.upsert(gjennomforing1)
-            tiltaksgjennomforingRepository.upsert(gjennomforing2)
-            tiltaksgjennomforingRepository.upsert(gjennomforing3)
-            tiltaksgjennomforingRepository.upsert(gjennomforing4)
-
-            val antallGjennomforinger = tiltaksgjennomforingRepository.getAll()
-            antallGjennomforinger.first shouldBe 3
-
-            val antallGjennomforingerForTiltakstype =
-                tiltaksgjennomforingRepository.countGjennomforingerForTiltakstypeWithId(tiltakstype.id)
-            antallGjennomforingerForTiltakstype shouldBe 1
-        }
-
-        test("Skal telle korrekt antall deltakere tilknyttet en avtale") {
-            val tiltakstypeIdSomIkkeSkalMatche = UUID.randomUUID()
-            navEnhetRepository.upsert(
-                NavEnhetDbo(
-                    navn = "IT",
-                    enhetsnummer = "2990",
-                    status = NavEnhetStatus.AKTIV,
-                    type = Norg2Type.FYLKE,
-                    overordnetEnhet = null,
-                ),
-            )
-
-            val avtale = avtale1.copy(id = UUID.randomUUID())
-
-            val gjennomforing1 = TiltaksgjennomforingFixtures.Oppfolging1.copy(
-                id = UUID.randomUUID(),
-                tiltakstypeId = tiltaksgjennomforingFixture.Oppfolging1.tiltakstypeId,
-                startDato = LocalDate.of(2021, 1, 1),
-                sluttDato = LocalDate.of(2022, 10, 15),
-                avtaleId = avtale.id,
-            )
-            val gjennomforing2 = TiltaksgjennomforingFixtures.Oppfolging2.copy(
-                id = UUID.randomUUID(),
-                tiltakstypeId = tiltaksgjennomforingFixture.Oppfolging2.tiltakstypeId,
-                startDato = LocalDate.of(2021, 1, 1),
-                sluttDato = LocalDate.of(2050, 10, 15),
-                avtaleId = avtale.id,
-            )
-            val gjennomforing3 = TiltaksgjennomforingFixtures.Oppfolging1.copy(
-                id = UUID.randomUUID(),
-                tiltakstypeId = tiltakstypeIdSomIkkeSkalMatche,
-                startDato = LocalDate.of(2021, 1, 1),
-                sluttDato = LocalDate.of(2050, 10, 15),
-            )
-            val gjennomforing4 = TiltaksgjennomforingFixtures.Oppfolging2.copy(
-                id = UUID.randomUUID(),
-                tiltakstypeId = tiltakstypeIdSomIkkeSkalMatche,
-                startDato = LocalDate.of(2021, 1, 1),
-                sluttDato = LocalDate.of(2050, 10, 15),
-            )
-
-            val deltaker1 =
-                DeltakerFixture.Deltaker.copy(tiltaksgjennomforingId = gjennomforing1.id, id = UUID.randomUUID())
-            val deltaker2 = DeltakerFixture.Deltaker.copy(
-                tiltaksgjennomforingId = gjennomforing1.id,
-                id = UUID.randomUUID(),
-                startDato = LocalDate.of(2021, 1, 1),
-                sluttDato = LocalDate.of(2023, 1, 1),
-            )
-            val deltaker3 =
-                DeltakerFixture.Deltaker.copy(tiltaksgjennomforingId = gjennomforing3.id, id = UUID.randomUUID())
-            val deltaker4 =
-                DeltakerFixture.Deltaker.copy(tiltaksgjennomforingId = gjennomforing3.id, id = UUID.randomUUID())
-
-            val tiltakstype = TiltakstypeFixtures.Oppfolging.copy(id = gjennomforing1.tiltakstypeId)
-            val tiltakstypeUtenGjennomforinger =
-                TiltakstypeFixtures.Oppfolging.copy(id = tiltakstypeIdSomIkkeSkalMatche)
-
-            tiltakstypeRepository.upsert(tiltakstype).getOrThrow()
-            tiltakstypeRepository.upsert(tiltakstypeUtenGjennomforinger).getOrThrow()
-
-            avtaleRepository.upsert(avtale1)
-            avtaleRepository.upsert(avtale)
-
-            tiltaksgjennomforingRepository.upsert(gjennomforing1)
-            tiltaksgjennomforingRepository.upsert(gjennomforing2)
-            tiltaksgjennomforingRepository.upsert(gjennomforing3)
-            tiltaksgjennomforingRepository.upsert(gjennomforing4)
-
-            deltakerRepository.upsert(deltaker1)
-            deltakerRepository.upsert(deltaker2)
-            deltakerRepository.upsert(deltaker3)
-            deltakerRepository.upsert(deltaker4)
-
-            val antallDeltakereTotalt = deltakerRepository.getAll()
-            antallDeltakereTotalt.size shouldBe 4
-
-            val antallDeltakereForAvtale =
-                tiltaksgjennomforingRepository.countDeltakereForAvtaleWithId(avtale.id)
-            antallDeltakereForAvtale shouldBe 1
         }
     }
 })
