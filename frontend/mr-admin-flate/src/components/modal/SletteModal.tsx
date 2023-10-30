@@ -13,7 +13,6 @@ interface Props {
   handleDelete: () => void;
   headerText: string;
   headerTextError: string;
-  dataTestId?: string;
 }
 
 const SletteModal = ({
@@ -23,7 +22,6 @@ const SletteModal = ({
   handleDelete,
   headerText,
   headerTextError,
-  dataTestId,
 }: Props) => {
   const clickCancel = () => {
     onClose();
@@ -66,7 +64,7 @@ const SletteModal = ({
           Avbryt
         </Button>
         {mutation?.isError ? null : (
-          <Button variant="danger" onClick={handleDelete} data-testid={dataTestId}>
+          <Button variant="danger" onClick={handleDelete}>
             Slett
           </Button>
         )}

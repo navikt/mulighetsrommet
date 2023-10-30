@@ -1,5 +1,4 @@
 import { Tabs } from "@navikt/ds-react";
-import { kebabCase } from "mulighetsrommet-veileder-flate/src/utils/Utils";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { ContainerLayout } from "../../layouts/ContainerLayout";
 import { HeaderBanner } from "../../layouts/HeaderBanner";
@@ -17,14 +16,12 @@ export function NotifikasjonerPage() {
           <Tabs.Tab
             value="nye"
             label="Nye notifikasjoner"
-            data-testid={`fane_${kebabCase("Nye notifikasjoner")}`}
             onClick={() => navigate("/notifikasjoner")}
             aria-controls="panel"
           />
           <Tabs.Tab
             value="tidligere"
             label="Tidligere notifikasjoner"
-            data-testid={`fane_${kebabCase("Tidligere notifikasjoner")}`}
             onClick={() => navigate("/notifikasjoner/tidligere")}
             aria-controls="panel"
           />

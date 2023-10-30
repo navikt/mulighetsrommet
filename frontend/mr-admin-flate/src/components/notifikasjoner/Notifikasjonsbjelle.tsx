@@ -17,7 +17,7 @@ export function Notifikasjonsbjelle() {
   const harUlesteNotifikasjoner = summary.notDoneCount > 0;
 
   return (
-    <Link to="/notifikasjoner" className={styles.lenke} data-testid="notifikasjonsbjelle">
+    <Link to="/notifikasjoner" className={styles.lenke}>
       <div className={styles.bell_container}>
         {harUlesteNotifikasjoner ? <Notifier /> : null}
         <BellIcon fontSize={24} title="Notifikasjonsbjelle" />

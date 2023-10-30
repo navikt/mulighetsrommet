@@ -80,9 +80,7 @@ export const TiltakstypeTabell = () => {
                     aria-label={`Navn på tiltakstype: ${tiltakstype.navn}`}
                     className={styles.title}
                   >
-                    <Lenke to={`/tiltakstyper/${tiltakstype.id}`} data-testid="tiltakstyperad">
-                      {tiltakstype.navn}
-                    </Lenke>
+                    <Lenke to={`/tiltakstyper/${tiltakstype.id}`}>{tiltakstype.navn}</Lenke>
                   </Table.DataCell>
 
                   <Table.DataCell aria-label={`Startdato: ${formaterDato(tiltakstype.fraDato)}`}>
@@ -113,7 +111,6 @@ export const TiltakstypeTabell = () => {
           <Pagination
             className={pageStyles.pagination}
             size="small"
-            data-testid="paginering"
             page={page}
             onPageChange={setPage}
             count={Math.ceil((pagination?.totalCount ?? PAGE_SIZE) / PAGE_SIZE)}

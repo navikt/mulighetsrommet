@@ -8,7 +8,6 @@ interface Props {
   variant: "primary" | "secondary" | "tertiary";
   handleClick?: () => void;
   className?: string;
-  dataTestId?: string;
   size?: "small" | "medium";
   isExternal?: boolean;
 }
@@ -18,7 +17,6 @@ export function Lenkeknapp({
   variant,
   handleClick,
   className,
-  dataTestId,
   children,
   isExternal,
   size,
@@ -39,7 +37,6 @@ export function Lenkeknapp({
         },
         className,
       )}
-      data-testid={dataTestId}
     >
       {children}
     </Lenke>

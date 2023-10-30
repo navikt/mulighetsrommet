@@ -5,7 +5,7 @@ import { useAtom } from "jotai";
 import { OpenAPI, SorteringAvtaler } from "mulighetsrommet-api-client";
 import Lenke from "mulighetsrommet-veileder-flate/src/components/lenke/Lenke";
 import { createRef, useEffect, useState } from "react";
-import { AvtaleFilterProps, avtaleFilter, avtalePaginationAtom } from "../../api/atoms";
+import { avtaleFilter, AvtaleFilterProps, avtalePaginationAtom } from "../../api/atoms";
 import { useAvtaler } from "../../api/avtaler/useAvtaler";
 import { APPLICATION_NAME } from "../../constants";
 import { useSort } from "../../hooks/useSort";
@@ -194,9 +194,7 @@ export const AvtaleTabell = () => {
                     aria-label={`Avtalenavn: ${avtale.navn}`}
                     className={styles.title}
                   >
-                    <Lenke to={`/avtaler/${avtale.id}`} data-testid="avtalerad">
-                      {avtale.navn}
-                    </Lenke>
+                    <Lenke to={`/avtaler/${avtale.id}`}>{avtale.navn}</Lenke>
                   </Table.DataCell>
                   <Table.DataCell aria-label={`Leverandør: ${avtale.leverandor?.navn}`}>
                     {capitalizeEveryWord(avtale.leverandor?.navn, ["og", "i"]) || ""}
@@ -228,7 +226,6 @@ export const AvtaleTabell = () => {
           <Pagination
             className={styles.pagination}
             size="small"
-            data-testid="paginering"
             page={page}
             onPageChange={setPage}
             count={Math.ceil(

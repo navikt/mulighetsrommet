@@ -80,13 +80,7 @@ const TiltaksgjennomforingSkjemaPage = () => {
 
   return (
     <main>
-      <Header
-        dataTestId={
-          redigeringsModus
-            ? "rediger-tiltaksgjennomforing-header"
-            : "opprett-tiltaksgjennomforing-header"
-        }
-      >
+      <Header>
         {redigeringsModus
           ? utkastModus
             ? "Rediger utkast"
