@@ -1,6 +1,7 @@
 name: CodeQL
 
 on:
+  workflow_dispatch:
   schedule:
     # At 05:30 on every day-of-week from Monday through Friday.
     - cron: "30 5 * * 1-5"
