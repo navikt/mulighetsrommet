@@ -23,18 +23,12 @@ export function AvtaleKnapperad({ handleSlett, avtale }: Props) {
           size="small"
           variant="tertiary-neutral"
           onClick={handleSlett}
-          data-testid="slett-avtale"
           className={styles.slett_knapp}
         >
           Feilregistrering
         </Button>
       )}
-      <Lenkeknapp
-        size="small"
-        to={`/avtaler/${avtaleId}/skjema`}
-        variant="primary"
-        dataTestId="endre-avtale"
-      >
+      <Lenkeknapp size="small" to={`/avtaler/${avtaleId}/skjema`} variant="primary">
         Rediger avtale
       </Lenkeknapp>
     </div>

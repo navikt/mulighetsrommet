@@ -40,7 +40,6 @@ export function AvtaleSkjemaKnapperad({
         className={styles.button}
         onClick={onClose}
         variant="tertiary"
-        data-testid="avtaleskjema-avbrytknapp"
         type="button"
       >
         Avbryt

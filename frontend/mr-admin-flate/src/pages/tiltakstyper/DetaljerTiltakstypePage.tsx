@@ -41,14 +41,12 @@ export function DetaljerTiltakstypePage() {
           <Tabs.Tab
             value="arenainfo"
             label="Arenainfo"
-            data-testid="tab_arenainfo"
             onClick={() => navigate(`/tiltakstyper/${tiltakstype.id}`)}
             aria-controls="panel"
           />
           <Tabs.Tab
             value="avtaler"
             label="Avtaler"
-            data-testid="tab_avtaler"
             onClick={() => navigate(`/tiltakstyper/${tiltakstype.id}/avtaler`)}
             aria-controls="panel"
           />

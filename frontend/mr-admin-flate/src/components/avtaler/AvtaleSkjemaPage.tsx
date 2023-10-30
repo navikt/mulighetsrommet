@@ -51,7 +51,7 @@ const AvtaleSkjemaPage = () => {
 
   return (
     <main>
-      <Header dataTestId={redigeringsModus ? "rediger-avtale-header" : "opprett-avtale-header"}>
+      <Header>
         {redigeringsModus
           ? utkastModus
             ? "Rediger utkast"
