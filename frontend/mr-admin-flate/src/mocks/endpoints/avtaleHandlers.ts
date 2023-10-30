@@ -1,34 +1,30 @@
-import { DefaultBodyType, PathParams, rest } from "msw";
-import { Avtale, AvtaleRequest, PaginertAvtale } from "mulighetsrommet-api-client";
+import { HttpResponse, PathParams, http } from "msw";
+import { Avtale, PaginertAvtale } from "mulighetsrommet-api-client";
 import { mockAvtaler } from "../fixtures/mock_avtaler";
 
 export const avtaleHandlers = [
-  rest.get<DefaultBodyType, PathParams, PaginertAvtale | undefined>(
-    "*/api/v1/internal/avtaler",
-    (req, res, ctx) => {
-      const avtalestatus = req.url.searchParams.get("avtalestatus");
-      const data = mockAvtaler.filter(
-        (a) => a.avtalestatus === avtalestatus || avtalestatus === null,
-      );
+  http.get<PathParams, PaginertAvtale | undefined>("*/api/v1/internal/avtaler", ({ request }) => {
+    const url = new URL(request.url);
+    const avtalestatus = url.searchParams.get("avtalestatus");
+    const data = mockAvtaler.filter(
+      (a) => a.avtalestatus === avtalestatus || avtalestatus === null,
+    );
 
-      return res(
-        ctx.status(200),
-        ctx.json({
-          pagination: {
-            currentPage: 1,
-            pageSize: 15,
-            totalCount: data.length,
-          },
-          data,
-        }),
-      );
-    },
-  ),
+    return HttpResponse.json({
+      pagination: {
+        currentPage: 1,
+        pageSize: 15,
+        totalCount: data.length,
+      },
+      data,
+    });
+  }),
 
-  rest.get<DefaultBodyType, PathParams, PaginertAvtale | undefined>(
+  http.get<PathParams, PaginertAvtale | undefined>(
     "*/api/v1/internal/avtaler/mine",
-    (req, res, ctx) => {
-      const avtalestatus = req.url.searchParams.get("avtalestatus");
+    ({ request }) => {
+      const url = new URL(request.url);
+      const avtalestatus = url.searchParams.get("avtalestatus");
       const brukerident = "B123456";
       const data = mockAvtaler.filter(
         (a) =>
@@ -36,52 +32,36 @@ export const avtaleHandlers = [
           a.administrator?.navIdent === brukerident,
       );
 
-      return res(
-        ctx.status(200),
-        ctx.json({
-          pagination: {
-            currentPage: 1,
-            pageSize: 15,
-            totalCount: data.length,
-          },
-          data,
-        }),
-      );
+      return HttpResponse.json({
+        pagination: {
+          currentPage: 1,
+          pageSize: 15,
+          totalCount: data.length,
+        },
+        data,
+      });
     },
   ),
 
-  rest.get<DefaultBodyType, PathParams, Avtale | undefined>(
-    "*/api/v1/internal/avtaler/:id",
-    (req, res, ctx) => {
-      const { id } = req.params as {
-        id: string;
-      };
-      const avtale = mockAvtaler.find((a) => a.id === id) ?? undefined;
-      return res(ctx.status(200), ctx.json(avtale));
-    },
-  ),
-
-  rest.get<DefaultBodyType, PathParams, Avtale | undefined>(
-    "*/api/v1/internal/avtaler/skjema",
-    (req, res, ctx) => {
-      const { id } = req.params as {
-        id: string;
-      };
-      const avtale = mockAvtaler.find((a) => a.id === id) ?? undefined;
-      return res(ctx.status(200), ctx.json(avtale));
-    },
-  ),
-
-  rest.delete("/api/v1/internal/avtaler/:id", (req, res, ctx) => {
-    return res(ctx.status(200));
+  http.get<PathParams, Avtale | undefined>("*/api/v1/internal/avtaler/:id", ({ params }) => {
+    const { id } = params;
+    const avtale = mockAvtaler.find((a) => a.id === id) ?? undefined;
+    return HttpResponse.json(avtale);
   }),
 
-  rest.put<AvtaleRequest>("*/api/v1/internal/avtaler", (req, res, ctx) => {
-    return res(
-      ctx.status(200),
-      ctx.json({
-        id: "d1f163b7-1a41-4547-af16-03fd4492b7ba",
-      }),
-    );
+  http.get<PathParams, Avtale | undefined>("*/api/v1/internal/avtaler/skjema", ({ params }) => {
+    const { id } = params;
+    const avtale = mockAvtaler.find((a) => a.id === id) ?? undefined;
+    return HttpResponse.json(avtale);
+  }),
+
+  http.delete("/api/v1/internal/avtaler/:id", () => {
+    return HttpResponse.json();
+  }),
+
+  http.put("*/api/v1/internal/avtaler", () => {
+    return HttpResponse.json({
+      id: "d1f163b7-1a41-4547-af16-03fd4492b7ba",
+    });
   }),
 ];

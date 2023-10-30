@@ -1,23 +1,17 @@
-import { DefaultBodyType, PathParams, rest } from "msw";
+import { HttpResponse, PathParams, http } from "msw";
 import { NavAnsatt } from "mulighetsrommet-api-client";
-import { mockKontaktpersoner, mockBetabruker } from "../fixtures/mock_ansatt";
+import { mockBetabruker, mockKontaktpersoner } from "../fixtures/mock_ansatt";
 
 export const ansattHandlers = [
-  rest.get<DefaultBodyType, PathParams, NavAnsatt[]>(
-    "*/api/v1/internal/ansatt",
-    (req, res, ctx) => {
-      const roller = req.url.searchParams.getAll("roller");
-      return res(
-        ctx.status(200),
-        ctx.json(mockKontaktpersoner.filter((k) => k.roller.every((r) => roller.includes(r)))),
-      );
-    },
-  ),
+  http.get<PathParams, NavAnsatt[]>("*/api/v1/internal/ansatt", ({ request }) => {
+    const url = new URL(request.url);
+    const roller = url.searchParams.getAll("roller");
+    return HttpResponse.json(
+      mockKontaktpersoner.filter((k) => k.roller.every((r) => roller.includes(r))),
+    );
+  }),
 
-  rest.get<DefaultBodyType, PathParams, NavAnsatt>(
-    "*/api/v1/internal/ansatt/me",
-    (req, res, ctx) => {
-      return res(ctx.status(200), ctx.json(mockBetabruker));
-    },
+  http.get<PathParams, NavAnsatt>("*/api/v1/internal/ansatt/me", () =>
+    HttpResponse.json(mockBetabruker),
   ),
 ];

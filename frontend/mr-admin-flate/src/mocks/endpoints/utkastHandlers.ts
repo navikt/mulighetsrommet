@@ -1,71 +1,48 @@
-import { DefaultBodyType, PathParams, rest } from "msw";
+import { HttpResponse, PathParams, delay, http } from "msw";
 import { UtkastDto as Utkast } from "mulighetsrommet-api-client";
 import { mockUtkast } from "../fixtures/mock_utkast";
 
 export const utkastHandlers = [
-  rest.put<DefaultBodyType, PathParams, Utkast>(
-    "*/api/v1/internal/utkast",
-    async (req, res, ctx) => {
-      const data = await req.json<Utkast>();
+  http.put<PathParams, Utkast>("*/api/v1/internal/utkast", async ({ request }) => {
+    const data = (await request.json()) as Utkast;
 
-      const lagretUtkastIndex = mockUtkast.findIndex((ut) => ut.id === data.id);
+    const lagretUtkastIndex = mockUtkast.findIndex((ut) => ut.id === data.id);
 
-      let payload: Utkast = {
-        ...data,
-        updatedAt: new Date().toISOString(),
+    let payload: Utkast = {
+      ...data,
+      updatedAt: new Date().toISOString(),
+    };
+
+    if (lagretUtkastIndex > -1) {
+      const lagretUtkast = mockUtkast[lagretUtkastIndex];
+      payload = {
+        ...lagretUtkast,
+        ...payload,
+        utkastData: {
+          ...data.utkastData,
+        },
       };
+      mockUtkast[lagretUtkastIndex] = payload;
+    } else {
+      mockUtkast.push(data);
+    }
 
-      if (lagretUtkastIndex > -1) {
-        const lagretUtkast = mockUtkast[lagretUtkastIndex];
-        payload = {
-          ...lagretUtkast,
-          ...payload,
-          utkastData: {
-            ...data.utkastData,
-          },
-        };
-        mockUtkast[lagretUtkastIndex] = payload;
-      } else {
-        mockUtkast.push(data);
-      }
+    await delay(); // Simuler delay fra server
+    return HttpResponse.json({ ...payload });
+  }),
 
-      return res(
-        ctx.status(200),
-        ctx.delay(),
-        ctx.json<Utkast>({
-          ...payload,
-        }),
-      );
-    },
-  ),
-
-  rest.delete<DefaultBodyType, PathParams, Utkast[]>(
-    "*/api/v1/internal/utkast/:id",
-    async (req, res, ctx) => {
-      const { id } = req.params;
-      const updated = mockUtkast.filter((ut) => ut.id !== id);
-      return res(ctx.status(200), ctx.delay(), ctx.json(updated));
-    },
-  ),
-  rest.get<DefaultBodyType, PathParams, Utkast[]>(
-    "*/api/v1/internal/utkast/mine",
-    async (req, res, ctx) => {
-      const utkasttype = req.url.searchParams.get("utkasttype");
-      return res(
-        ctx.status(200),
-        ctx.delay(),
-        ctx.json(mockUtkast.filter((utkast) => utkast.type === utkasttype)),
-      );
-    },
-  ),
-  rest.get<DefaultBodyType, PathParams, Utkast | undefined>(
-    "*/api/v1/internal/utkast/:id",
-    async (req, res, ctx) => {
-      return res(
-        ctx.status(200),
-        ctx.delay(),
-        ctx.json([...mockUtkast].find((utkast) => utkast.id === req.params.id)),
-      );
-    },
-  ),
+  http.delete<PathParams, Utkast[]>("*/api/v1/internal/utkast/:id", ({ params }) => {
+    const { id } = params;
+    const updated = mockUtkast.filter((ut) => ut.id !== id);
+    return HttpResponse.json(updated);
+  }),
+  http.get<PathParams, Utkast[]>("*/api/v1/internal/utkast/mine", ({ request }) => {
+    const url = new URL(request.url);
+    const utkasttype = url.searchParams.get("utkasttype");
+    return HttpResponse.json(mockUtkast.filter((utkast) => utkast.type === utkasttype));
+  }),
+  http.get<PathParams, Utkast | undefined>("*/api/v1/internal/utkast/:id", ({ params }) => {
+    const found = [...mockUtkast].find((utkast) => utkast.id === params.id);
+    return HttpResponse.json(found);
+  }),
 ];
