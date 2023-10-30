@@ -19,7 +19,7 @@
     "test:ci": "vitest run"
   },
   "dependencies": {
-    "@eik/rollup-plugin": "^4.0.56",
+    "@eik/rollup-plugin": "^4.0.57",
     "@hookform/resolvers": "^3.3.2",
     "@navikt/aksel-icons": "^5.7.6",
     "@navikt/ds-css": "^5.7.6",
@@ -55,13 +55,13 @@
   "devDependencies": {
     "@rollup/plugin-terser": "^0.4.4",
     "@types/debounce": "^1.2.3",
-    "@types/react": "^18.2.31",
+    "@types/react": "^18.2.33",
     "@types/react-dom": "^18.2.14",
     "@typescript-eslint/eslint-plugin": "^6.8.0",
     "@vitejs/plugin-react": "^4.1.0",
     "axe-core": "^4.8.2",
     "cross-env": "^7.0.3",
-    "cypress": "^13.3.2",
+    "cypress": "^13.3.3",
     "cypress-axe": "^1.5.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-config-standard": "^17.1.0",
