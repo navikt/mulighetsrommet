@@ -33,7 +33,9 @@ allprojects {
     }
 
     tasks.withType<Test> {
-        failFast = System.getenv("CI") == "true"
+        val isCI = System.getenv("CI") == "true"
+
+        failFast = isCI
 
         useJUnitPlatform()
 
@@ -43,7 +45,11 @@ allprojects {
         testLogging {
             showCauses = true
             showExceptions = true
-            exceptionFormat = TestExceptionFormat.SHORT
+            exceptionFormat = if (isCI) {
+                TestExceptionFormat.FULL
+            } else {
+                TestExceptionFormat.SHORT
+            }
             events(TestLogEvent.SKIPPED, TestLogEvent.FAILED)
         }
     }
