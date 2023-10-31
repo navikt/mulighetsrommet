@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.routes.v1
 
 import io.ktor.server.application.*
+import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -48,14 +49,6 @@ fun Route.sanityRoutes() {
             call.respond(result)
         }
 
-        post("/tiltaksgjennomforinger/preview") {
-            val request = call.receive<GetRelevanteTiltaksgjennomforingerPreviewRequest>()
-            poaoTilgangService.verfiyAccessToModia(getNavAnsattAzureId())
-
-            val result = veilederflateService.hentPreviewTiltaksgjennomforinger(request)
-            call.respond(result)
-        }
-
         post("/tiltaksgjennomforing") {
             val request = call.receive<GetTiltaksgjennomforingForBrukerRequest>()
 
@@ -68,15 +61,6 @@ fun Route.sanityRoutes() {
 
             call.respond(result)
         }
-
-        get("/tiltaksgjennomforing/preview/{id}") {
-            poaoTilgangService.verfiyAccessToModia(getNavAnsattAzureId())
-            val id = call.parameters.getOrFail("id")
-            val result = veilederflateService.hentPreviewTiltaksgjennomforing(
-                id,
-            )
-            call.respond(result)
-        }
     }
 }
 
@@ -86,14 +70,6 @@ data class GetRelevanteTiltaksgjennomforingerForBrukerRequest(
     val innsatsgruppe: String? = null,
     val tiltakstypeIds: List<String>? = null,
     val search: String? = null,
-)
-
-@Serializable
-data class GetRelevanteTiltaksgjennomforingerPreviewRequest(
-    val innsatsgruppe: String? = null,
-    val tiltakstypeIds: List<String>? = null,
-    val search: String? = null,
-    val geografiskEnhet: String? = null,
 )
 
 @Serializable

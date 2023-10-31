@@ -112,7 +112,7 @@ Følgende steg kan benyttes til å generere opp et token:
          ],
          "oid": "0bab029e-e84e-4842-8a27-d153b29782cf",
          "azp_name": "test name",
-         "groups": ["0000-GA-mr-admin-flate_betabruker"]
+         "groups": ["ee45478c-57a5-4ee6-b28d-b65f8c1733fe"] # Betabruker rolle
        }
        ```
     4. Trykk `Sign in`

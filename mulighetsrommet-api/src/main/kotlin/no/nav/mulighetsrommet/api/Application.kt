@@ -47,6 +47,10 @@ fun Application.configure(config: AppConfig) {
             tasks()
         }
 
+        authenticate(AuthProvider.AZURE_AD_ADMIN_FLATE_TILGANG.name) {
+            sanityPreviewRoutes()
+        }
+
         authenticate(AuthProvider.AZURE_AD_NAV_IDENT.name) {
             tiltakstypeRoutes()
             tiltaksgjennomforingRoutes()
