@@ -33,7 +33,8 @@ export const SanityPreviewOversikt = () => {
   return (
     <>
       <SokeSelect
-        label="Geografisk enhet (denne er kun til preview funksjonalitet)"
+        label="Brukers geografiske enhet"
+        description="Kun ment som hjelp til forhåndsvisning"
         value={
           geografiskEnhet !== undefined
             ? { label: geografiskEnhet.navn, value: geografiskEnhet.enhetsnummer }

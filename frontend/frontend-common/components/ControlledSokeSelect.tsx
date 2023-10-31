@@ -1,14 +1,9 @@
 import React, { ForwardedRef } from "react";
 import { Controller } from "react-hook-form";
+import { SelectOption, SokeSelect } from "./SokeSelect";
 import { shallowEquals } from "../utils/shallow-equals";
-import { SokeSelect } from "./SokeSelect";
 
-export interface SelectOption<T = string> {
-  value: T;
-  label: string;
-}
-
-export interface SelectProps<T> {
+export interface ControlledSelectProps<T> {
   label: string;
   hideLabel?: boolean;
   placeholder: string;
@@ -29,7 +24,7 @@ export interface SelectProps<T> {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-function ControlledSokeSelect<T>(props: SelectProps<T>, _: ForwardedRef<HTMLElement>) {
+function ControlledSokeSelect<T>(props: ControlledSelectProps<T>, _: ForwardedRef<HTMLElement>) {
   const {
     label,
     hideLabel = false,
@@ -60,10 +55,11 @@ function ControlledSokeSelect<T>(props: SelectProps<T>, _: ForwardedRef<HTMLElem
             placeholder={placeholder}
             readOnly={readOnly}
             onClearValue={onClearValue}
-            ref={ref}
+            childRef={ref}
             name={name}
             value={selectedOption ?? null}
             onChange={(e) => {
+              console.log(12, e);
               onChange(e?.target.value);
               providedOnChange?.(e);
             }}

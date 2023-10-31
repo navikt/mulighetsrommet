@@ -1,7 +1,6 @@
 import classnames from "classnames";
 import React, { Ref } from "react";
 import ReactSelect from "react-select";
-import { shallowEquals } from "../utils/shallow-equals";
 import Select from "react-select/dist/declarations/src/Select";
 
 export interface SelectOption<T = string> {
@@ -31,7 +30,7 @@ export interface SelectProps<T> {
   error?: { message?: string };
 }
 
-export const SokeSelect = <T,>(props: SelectProps<T> & {ref?: Ref<Select<SelectOption<T>>>}) => {
+export const SokeSelect = <T,>(props: SelectProps<T> & {childRef?: Ref<Select<SelectOption<T>>>}) => {
   const {
     label,
     hideLabel = false,
@@ -47,10 +46,9 @@ export const SokeSelect = <T,>(props: SelectProps<T> & {ref?: Ref<Select<SelectO
     error,
     name,
     value,
-    ref,
+    childRef,
   } = props;
 
-  const selectedOption = options.find((option) => shallowEquals(option.value, value?.value));
   return (
     <div
       style={{
@@ -90,11 +88,11 @@ export const SokeSelect = <T,>(props: SelectProps<T> & {ref?: Ref<Select<SelectO
         placeholder={placeholder}
         isDisabled={readOnly}
         isClearable={!!onClearValue}
-        ref={ref}
+        ref={childRef}
         inputId={name}
         noOptionsMessage={() => "Ingen funnet"}
         name={name}
-        value={selectedOption ?? null}
+        value={value}
         onChange={(e) => {
           onChange?.({
             target: { value: e?.value, name: e?.label },
