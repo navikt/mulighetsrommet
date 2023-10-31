@@ -4,7 +4,7 @@ import { FiltrertFeilInnsatsgruppeVarsel } from "../../components/ikkeKvalifiser
 import Tiltaksgjennomforingsoversikt from "../../components/oversikt/Tiltaksgjennomforingsoversikt";
 import { tiltaksgjennomforingsfilter } from "../../core/atoms/atoms";
 import styles from "../tiltaksgjennomforing-oversikt/ViewTiltaksgjennomforingOversikt.module.scss";
-import { Bruker, Innsatsgruppe, NavEnhet, NavEnhetType } from "mulighetsrommet-api-client";
+import { NavEnhet, NavEnhetType } from "mulighetsrommet-api-client";
 import { usePreviewTiltaksgjennomforinger } from "../../core/api/queries/usePreviewTiltaksgjennomforinger";
 import { Loader } from "@navikt/ds-react";
 import { useNavEnheter } from "../../core/api/queries/useNavEnheter";
@@ -15,12 +15,6 @@ import { Separator } from "../../utils/Separator";
 export const SanityPreviewOversikt = () => {
   const [filter] = useAtom(tiltaksgjennomforingsfilter);
   const [geografiskEnhet, setGeografiskEnhet] = useState<NavEnhet | undefined>();
-  const brukerdata: Bruker = {
-    fnr: "01010199999",
-    innsatsgruppe: Innsatsgruppe.VARIG_TILPASSET_INNSATS,
-    oppfolgingsenhet: { navn: "", enhetId: "" },
-    geografiskEnhet: { navn: "", enhetsnummer: "" },
-  };
   const {
     data: tiltaksgjennomforinger = [],
     isFetching,
@@ -48,12 +42,14 @@ export const SanityPreviewOversikt = () => {
         name="geografisk-enhet"
         size="medium"
         onChange={(e) =>
-          setGeografiskEnhet(enheter.find((enhet) => enhet.enhetsnummer === e.target.value))
+          setGeografiskEnhet(
+            enheter.find((enhet: NavEnhet) => enhet.enhetsnummer === e.target.value),
+          )
         }
         placeholder="Velg brukers geografiske enhet"
         options={enheter
-          .filter((enhet) => enhet.type === NavEnhetType.LOKAL)
-          .map((enhet) => ({
+          .filter((enhet: NavEnhet) => enhet.type === NavEnhetType.LOKAL)
+          .map((enhet: NavEnhet) => ({
             label: enhet.navn,
             value: enhet.enhetsnummer,
           }))}
@@ -67,7 +63,6 @@ export const SanityPreviewOversikt = () => {
           <Tiltaksgjennomforingsoversikt
             tiltaksgjennomforinger={tiltaksgjennomforinger}
             isFetching={isFetching}
-            brukerdata={brukerdata}
           />
         </div>
       </div>

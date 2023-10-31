@@ -1,36 +1,29 @@
-import { BodyShort, Button, Pagination } from "@navikt/ds-react";
+import { BodyShort, Pagination } from "@navikt/ds-react";
 import { useAtom } from "jotai";
-import { RESET } from "jotai/utils";
 import {
-  Bruker,
   TiltaksgjennomforingOppstartstype,
   VeilederflateTiltaksgjennomforing,
 } from "mulighetsrommet-api-client";
 import { useEffect, useRef, useState } from "react";
 import { logEvent } from "../../core/api/logger";
-import { paginationAtom, tiltaksgjennomforingsfilter } from "../../core/atoms/atoms";
-import { usePrepopulerFilter } from "../../hooks/usePrepopulerFilter";
-import { Feilmelding, forsokPaNyttLink } from "../feilmelding/Feilmelding";
+import { paginationAtom } from "../../core/atoms/atoms";
 import { Sorteringsmeny } from "../sorteringmeny/Sorteringsmeny";
 import { Gjennomforingsrad } from "./Gjennomforingsrad";
 import styles from "./Tiltaksgjennomforingsoversikt.module.scss";
 
 interface Props {
-  brukerdata: Bruker;
   tiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[];
   isFetching: boolean;
 }
 
 const Tiltaksgjennomforingsoversikt = (props: Props) => {
-  const { brukerdata, tiltaksgjennomforinger, isFetching } = props;
+  const { tiltaksgjennomforinger, isFetching } = props;
 
   const [page, setPage] = useAtom(paginationAtom);
-  const { forcePrepopulerFilter } = usePrepopulerFilter();
   const elementsPerPage = 15;
   const pagination = (tiltaksgjennomforing: VeilederflateTiltaksgjennomforing[]) => {
     return Math.ceil(tiltaksgjennomforing.length / elementsPerPage);
   };
-  const [, setFilter] = useAtom(tiltaksgjennomforingsfilter);
 
   const [sortValue, setSortValue] = useState<string>("tiltakstype-ascending");
   const didMountRef = useRef(false);
@@ -123,58 +116,6 @@ const Tiltaksgjennomforingsoversikt = (props: Props) => {
         ]
       : sorter(tiltaksgjennomforinger)
   ).slice((page - 1) * elementsPerPage, page * elementsPerPage);
-
-  if (!brukerdata.geografiskEnhet) {
-    return (
-      <Feilmelding
-        header="Kunne ikke hente brukers geografiske enhet"
-        beskrivelse={
-          <>
-            Brukers geografiske enhet kunne ikke hentes. Kontroller at brukeren er under oppfølging
-            og finnes i Arena, og {forsokPaNyttLink()}
-          </>
-        }
-        ikonvariant="error"
-      />
-    );
-  }
-
-  if (!brukerdata.innsatsgruppe && !brukerdata.servicegruppe) {
-    return (
-      <Feilmelding
-        header="Kunne ikke hente brukers innsatsgruppe eller servicegruppe"
-        beskrivelse={
-          <>
-            Vi kan ikke hente brukerens innsatsgruppe eller servicegruppe. Kontroller at brukeren er
-            under oppfølging og finnes i Arena, og <br /> {forsokPaNyttLink()}
-          </>
-        }
-        ikonvariant="error"
-      />
-    );
-  }
-
-  if (tiltaksgjennomforinger.length === 0) {
-    return (
-      <Feilmelding
-        header="Ingen tiltaksgjennomføringer funnet"
-        beskrivelse="Prøv å justere søket eller filteret for å finne det du leter etter"
-        ikonvariant="warning"
-      >
-        <>
-          <Button
-            variant="tertiary"
-            onClick={() => {
-              setFilter(RESET);
-              forcePrepopulerFilter(true);
-            }}
-          >
-            Tilbakestill filter
-          </Button>
-        </>
-      </Feilmelding>
-    );
-  }
 
   return (
     <>
