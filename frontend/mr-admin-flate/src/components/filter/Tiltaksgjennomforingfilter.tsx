@@ -29,7 +29,7 @@ import { FilterTag } from "./FilterTag";
 import { Lenkeknapp } from "../lenkeknapp/Lenkeknapp";
 import { faro } from "@grafana/faro-web-sdk";
 import { useAvtale } from "../../api/avtaler/useAvtale";
-import { SokeSelect } from "mulighetsrommet-frontend-common";
+import { ControlledSokeSelect } from "mulighetsrommet-frontend-common";
 
 type Filters = "tiltakstype";
 
@@ -200,7 +200,7 @@ export function Tiltaksgjennomforingfilter({ skjulFilter }: Props) {
               aria-label="Søk etter tiltaksgjennomføring"
               className={styles.form_field}
             />
-            <SokeSelect
+            <ControlledSokeSelect
               size="small"
               label="Filtrer på region"
               placeholder="Filtrer på region"
@@ -221,7 +221,7 @@ export function Tiltaksgjennomforingfilter({ skjulFilter }: Props) {
               className={styles.form_field}
             />
 
-            <SokeSelect
+            <ControlledSokeSelect
               size="small"
               label="Filtrer på enhet"
               placeholder="Filtrer på enhet"
@@ -241,7 +241,7 @@ export function Tiltaksgjennomforingfilter({ skjulFilter }: Props) {
               className={styles.form_field}
             />
             {skjulFilter?.tiltakstype ? null : (
-              <SokeSelect
+              <ControlledSokeSelect
                 size="small"
                 label="Filtrer på tiltakstype"
                 placeholder="Filtrer på tiltakstype"
@@ -261,7 +261,7 @@ export function Tiltaksgjennomforingfilter({ skjulFilter }: Props) {
                 className={styles.form_field}
               />
             )}
-            <SokeSelect
+            <ControlledSokeSelect
               size="small"
               label="Filtrer på status"
               placeholder="Filtrer på status"
@@ -277,7 +277,7 @@ export function Tiltaksgjennomforingfilter({ skjulFilter }: Props) {
               options={statusOptions()}
               className={styles.form_field}
             />
-            <SokeSelect
+            <ControlledSokeSelect
               size="small"
               label="Filtrer på arrangør"
               placeholder="Filtrer på arrangør"

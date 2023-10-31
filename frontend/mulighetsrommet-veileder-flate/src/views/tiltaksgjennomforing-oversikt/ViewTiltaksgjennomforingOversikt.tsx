@@ -14,8 +14,11 @@ import styles from "./ViewTiltaksgjennomforingOversikt.module.scss";
 import { useHentBrukerdata } from "../../core/api/queries/useHentBrukerdata";
 import Tilbakeknapp from "../../components/tilbakeknapp/Tilbakeknapp";
 import { useFeatureToggle } from "../../core/api/feature-toggles";
-import { Toggles } from "mulighetsrommet-api-client";
+import { ApiError, Toggles } from "mulighetsrommet-api-client";
 import { routes } from "../../routes";
+import { Alert, Loader } from "@navikt/ds-react";
+import { PORTEN } from "mulighetsrommet-frontend-common/constants";
+import Lenke from "../../components/lenke/Lenke";
 
 const ViewTiltaksgjennomforingOversikt = () => {
   const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);
@@ -25,11 +28,53 @@ const ViewTiltaksgjennomforingOversikt = () => {
   const landingssideFeature = useFeatureToggle(Toggles.MULIGHETSROMMET_VEILEDERFLATE_LANDINGSSIDE);
   const landingssideEnabled = landingssideFeature.isSuccess && landingssideFeature.data;
 
+  const {
+    data: tiltaksgjennomforinger = [],
+    isLoading,
+    isError,
+    error,
+    isFetching,
+  } = useTiltaksgjennomforinger();
+
   useEffect(() => {
     setIsHistorikkModalOpen(isHistorikkModalOpen);
   }, [isHistorikkModalOpen]);
 
   if (!brukerdata.data) return null;
+
+  if (isError) {
+    if (error instanceof ApiError) {
+      return (
+        <Alert variant="error">
+          Det har dessverre skjedd en feil. Om feilen gjentar seg, ta kontakt i{" "}
+          {
+            <Lenke to={PORTEN} target={"_blank"}>
+              Porten
+            </Lenke>
+          }
+          <pre>
+            {JSON.stringify(
+              { message: error.message, status: error.status, url: error.url },
+              null,
+              2,
+            )}
+          </pre>
+        </Alert>
+      );
+    } else {
+      return (
+        <Alert variant="error">
+          Det har dessverre skjedd en feil. Om feilen gjentar seg, ta kontakt i{" "}
+          {
+            <Lenke to={PORTEN} target={"_blank"}>
+              Porten
+            </Lenke>
+          }
+          .
+        </Alert>
+      );
+    }
+  }
 
   return (
     <>
@@ -52,7 +97,17 @@ const ViewTiltaksgjennomforingOversikt = () => {
         <div>
           <FiltrertFeilInnsatsgruppeVarsel filter={filter} />
           <BrukerHarIkke14aVedtakVarsel brukerdata={brukerdata.data} />
-          <Tiltaksgjennomforingsoversikt />
+          {isLoading ? (
+            <div className={styles.filter_loader}>
+              <Loader />
+            </div>
+          ) : (
+            <Tiltaksgjennomforingsoversikt
+              tiltaksgjennomforinger={tiltaksgjennomforinger}
+              isFetching={isFetching}
+              brukerdata={brukerdata.data}
+            />
+          )}
         </div>
       </div>
     </>

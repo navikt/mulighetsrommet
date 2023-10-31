@@ -1,8 +1,8 @@
 import classnames from "classnames";
-import React, { ForwardedRef } from "react";
-import { Controller } from "react-hook-form";
+import React, { Ref } from "react";
 import ReactSelect from "react-select";
 import { shallowEquals } from "../utils/shallow-equals";
+import Select from "react-select/dist/declarations/src/Select";
 
 export interface SelectOption<T = string> {
   value: T;
@@ -27,119 +27,115 @@ export interface SelectProps<T> {
   size?: "small" | "medium";
   onClearValue?: () => void;
   description?: string;
+  value: SelectOption<T> | null;
+  error?: { message?: string };
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function SokeSelect<T>(props: SelectProps<T>, _: ForwardedRef<HTMLElement>) {
+export const SokeSelect = <T,>(props: SelectProps<T> & {ref?: Ref<Select<SelectOption<T>>>}) => {
   const {
     label,
     hideLabel = false,
     placeholder,
     options,
     readOnly = false,
-    onChange: providedOnChange,
-    onInputChange: providedOnInputChange,
+    onChange,
+    onInputChange,
     description,
     className,
     size,
     onClearValue,
-    ...rest
+    error,
+    name,
+    value,
+    ref,
   } = props;
 
+  const selectedOption = options.find((option) => shallowEquals(option.value, value?.value));
   return (
-    <Controller
-      {...rest}
-      render={({ field: { onChange, value, name, ref }, fieldState: { error } }) => {
-        const selectedOption = options.find((option) => shallowEquals(option.value, value));
-        return (
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-            }}
-          >
-            <label
-              className={classnames({
-                "navds-sr-only": hideLabel,
-              })}
-              style={{
-                fontSize: size === "small" ? "16px" : "18px",
-                display: "inline-block",
-              }}
-              htmlFor={name}
-            >
-              <b>{label}</b>
-            </label>
-            {description && (
-              <label
-                className={classnames({
-                  "navds-sr-only": hideLabel,
-                })}
-                style={{
-                  fontSize: size === "small" ? "16px" : "18px",
-                  marginBottom: "8px",
-                  display: "inline-block",
-                  color: "var(--ac-form-description, var(--a-text-subtle))",
-                }}
-              >
-                {description}
-              </label>
-            )}
-
-            <ReactSelect
-              placeholder={placeholder}
-              isDisabled={readOnly}
-              isClearable={!!onClearValue}
-              ref={ref}
-              inputId={name}
-              noOptionsMessage={() => "Ingen funnet"}
-              name={name}
-              value={selectedOption ?? null}
-              onChange={(e) => {
-                onChange(e?.value);
-                providedOnChange?.({
-                  target: { value: e?.value, name: e?.label },
-                });
-                if (!e) {
-                  onClearValue?.();
-                }
-              }}
-              onInputChange={(e) => {
-                providedOnInputChange?.(e);
-              }}
-              styles={customStyles(readOnly, Boolean(error))}
-              options={options}
-              className={className}
-              theme={(theme) => ({
-                ...theme,
-                spacing: {
-                  ...theme.spacing,
-                  controlHeight: size === "small" ? 32 : 48,
-                  baseUnit: 2,
-                },
-                colors: {
-                  ...theme.colors,
-                  primary25: "#cce1ff",
-                  primary: "#0067c5",
-                },
-              })}
-            />
-            {error && (
-              <div
-                style={{
-                  marginTop: "8px",
-                  color: "#c30000",
-                }}
-              >
-                <b>• {error.message}</b>
-              </div>
-            )}
-          </div>
-        );
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
       }}
-    />
+    >
+      <label
+        className={classnames({
+          "navds-sr-only": hideLabel,
+        })}
+        style={{
+          fontSize: size === "small" ? "16px" : "18px",
+          display: "inline-block",
+        }}
+        htmlFor={name}
+      >
+        <b>{label}</b>
+      </label>
+      {description && (
+        <label
+          className={classnames({
+            "navds-sr-only": hideLabel,
+          })}
+          style={{
+            fontSize: size === "small" ? "16px" : "18px",
+            marginBottom: "8px",
+            display: "inline-block",
+            color: "var(--ac-form-description, var(--a-text-subtle))",
+          }}
+        >
+          {description}
+        </label>
+      )}
+
+      <ReactSelect
+        placeholder={placeholder}
+        isDisabled={readOnly}
+        isClearable={!!onClearValue}
+        ref={ref}
+        inputId={name}
+        noOptionsMessage={() => "Ingen funnet"}
+        name={name}
+        value={selectedOption ?? null}
+        onChange={(e) => {
+          onChange?.({
+            target: { value: e?.value, name: e?.label },
+          });
+          if (!e) {
+            onClearValue?.();
+          }
+        }}
+        onInputChange={(e) => {
+          onInputChange?.(e);
+        }}
+        styles={customStyles(readOnly, Boolean(error))}
+        options={options}
+        className={className}
+        theme={(theme) => ({
+          ...theme,
+          spacing: {
+            ...theme.spacing,
+            controlHeight: size === "small" ? 32 : 48,
+            baseUnit: 2,
+          },
+          colors: {
+            ...theme.colors,
+            primary25: "#cce1ff",
+            primary: "#0067c5",
+          },
+        })}
+      />
+      {error && (
+        <div
+          style={{
+            marginTop: "8px",
+            color: "#c30000",
+          }}
+        >
+          <b>• {error.message}</b>
+        </div>
+      )}
+    </div>
   );
-}
+};
 
 const customStyles = (readOnly: boolean, isError: boolean) => ({
   control: (provided: any, state: any) => ({
@@ -173,7 +169,3 @@ const customStyles = (readOnly: boolean, isError: boolean) => ({
     zIndex: "1000",
   }),
 });
-
-const SokeSelectComponent = React.forwardRef(SokeSelect);
-
-export { SokeSelectComponent as SokeSelect };

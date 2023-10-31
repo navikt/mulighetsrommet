@@ -9,7 +9,7 @@ import { useFormContext } from "react-hook-form";
 import { Laster } from "../laster/Laster";
 import { validEmail } from "../../utils/Utils";
 import { DeleteVirksomhetKontaktpersonModal } from "./DeleteVirksomhetKontaktpersonModal";
-import { SokeSelect } from "mulighetsrommet-frontend-common";
+import { ControlledSokeSelect } from "mulighetsrommet-frontend-common";
 
 interface State {
   leggTil: boolean;
@@ -101,7 +101,7 @@ export const VirksomhetKontaktpersoner = (props: VirksomhetKontaktpersonerProps)
 
   return (
     <>
-      <SokeSelect
+      <ControlledSokeSelect
         size="small"
         placeholder="Søk etter kontaktpersoner"
         onClearValue={() => setValue(formValueName, null)}

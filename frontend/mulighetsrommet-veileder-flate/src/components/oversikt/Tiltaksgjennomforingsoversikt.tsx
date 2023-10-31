@@ -1,25 +1,29 @@
-import { Alert, BodyShort, Button, Loader, Pagination } from "@navikt/ds-react";
+import { BodyShort, Button, Pagination } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { RESET } from "jotai/utils";
 import {
-  ApiError,
+  Bruker,
   TiltaksgjennomforingOppstartstype,
   VeilederflateTiltaksgjennomforing,
 } from "mulighetsrommet-api-client";
-import { PORTEN } from "mulighetsrommet-frontend-common/constants";
 import { useEffect, useRef, useState } from "react";
 import { logEvent } from "../../core/api/logger";
-import { useHentBrukerdata } from "../../core/api/queries/useHentBrukerdata";
-import useTiltaksgjennomforinger from "../../core/api/queries/useTiltaksgjennomforinger";
 import { paginationAtom, tiltaksgjennomforingsfilter } from "../../core/atoms/atoms";
 import { usePrepopulerFilter } from "../../hooks/usePrepopulerFilter";
 import { Feilmelding, forsokPaNyttLink } from "../feilmelding/Feilmelding";
-import Lenke from "../lenke/Lenke";
 import { Sorteringsmeny } from "../sorteringmeny/Sorteringsmeny";
 import { Gjennomforingsrad } from "./Gjennomforingsrad";
 import styles from "./Tiltaksgjennomforingsoversikt.module.scss";
 
-const Tiltaksgjennomforingsoversikt = () => {
+interface Props {
+  brukerdata: Bruker;
+  tiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[];
+  isFetching: boolean;
+}
+
+const Tiltaksgjennomforingsoversikt = (props: Props) => {
+  const { brukerdata, tiltaksgjennomforinger, isFetching } = props;
+
   const [page, setPage] = useAtom(paginationAtom);
   const { forcePrepopulerFilter } = usePrepopulerFilter();
   const elementsPerPage = 15;
@@ -27,15 +31,7 @@ const Tiltaksgjennomforingsoversikt = () => {
     return Math.ceil(tiltaksgjennomforing.length / elementsPerPage);
   };
   const [, setFilter] = useAtom(tiltaksgjennomforingsfilter);
-  const brukerdata = useHentBrukerdata();
 
-  const {
-    data: tiltaksgjennomforinger = [],
-    isLoading,
-    isError,
-    error,
-    isFetching,
-  } = useTiltaksgjennomforinger();
   const [sortValue, setSortValue] = useState<string>("tiltakstype-ascending");
   const didMountRef = useRef(false);
 
@@ -51,48 +47,6 @@ const Tiltaksgjennomforingsoversikt = () => {
     if (didMountRef.current) logEvent("mulighetsrommet.sortering", { value: sortValue });
     didMountRef.current = true;
   }, [sortValue]);
-
-  if (tiltaksgjennomforinger.length === 0 && (isLoading || brukerdata.isLoading)) {
-    return (
-      <div className={styles.filter_loader}>
-        <Loader />
-      </div>
-    );
-  }
-
-  if (isError) {
-    if (error instanceof ApiError) {
-      return (
-        <Alert variant="error">
-          Det har dessverre skjedd en feil. Om feilen gjentar seg, ta kontakt i{" "}
-          {
-            <Lenke to={PORTEN} target={"_blank"}>
-              Porten
-            </Lenke>
-          }
-          <pre>
-            {JSON.stringify(
-              { message: error.message, status: error.status, url: error.url },
-              null,
-              2,
-            )}
-          </pre>
-        </Alert>
-      );
-    } else {
-      return (
-        <Alert variant="error">
-          Det har dessverre skjedd en feil. Om feilen gjentar seg, ta kontakt i{" "}
-          {
-            <Lenke to={PORTEN} target={"_blank"}>
-              Porten
-            </Lenke>
-          }
-          .
-        </Alert>
-      );
-    }
-  }
 
   const getSort = (
     sortValue: string,
@@ -170,7 +124,7 @@ const Tiltaksgjennomforingsoversikt = () => {
       : sorter(tiltaksgjennomforinger)
   ).slice((page - 1) * elementsPerPage, page * elementsPerPage);
 
-  if (!brukerdata?.data?.geografiskEnhet) {
+  if (!brukerdata.geografiskEnhet) {
     return (
       <Feilmelding
         header="Kunne ikke hente brukers geografiske enhet"
@@ -185,7 +139,7 @@ const Tiltaksgjennomforingsoversikt = () => {
     );
   }
 
-  if (!brukerdata?.data?.innsatsgruppe && !brukerdata?.data?.servicegruppe) {
+  if (!brukerdata.innsatsgruppe && !brukerdata.servicegruppe) {
     return (
       <Feilmelding
         header="Kunne ikke hente brukers innsatsgruppe eller servicegruppe"

@@ -6,7 +6,7 @@ export const inneholderUrl = (string: string) => {
   return window.location.href.indexOf(string) > -1;
 };
 
-export const erPreview = inneholderUrl("/preview/");
+export const erPreview = inneholderUrl("/preview");
 
 function specialChar(string: string | { label: string }) {
   return string
