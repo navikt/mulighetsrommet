@@ -163,3 +163,19 @@ export function addYear(date: Date, numYears: number): Date {
 export function avtaleHarRegioner(avtale: Avtale): boolean {
   return avtale.kontorstruktur.some((stru) => stru.region);
 }
+
+export function formaterNavEnheter(
+  navRegionNavn: string = "",
+  navEnheter?: {
+    navn?: string | null;
+    enhetsnummer?: string;
+  }[],
+) {
+  const liste = [...(navEnheter || [])];
+  if (!liste) return "";
+
+  const forsteEnhet = liste.shift();
+  if (!forsteEnhet) return navRegionNavn;
+
+  return `${forsteEnhet?.navn} ${liste.length > 0 ? `+ ${liste.length}` : ""}`;
+}

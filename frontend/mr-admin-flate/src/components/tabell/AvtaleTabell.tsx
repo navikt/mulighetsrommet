@@ -9,7 +9,12 @@ import { avtaleFilter, AvtaleFilterProps, avtalePaginationAtom } from "../../api
 import { useAvtaler } from "../../api/avtaler/useAvtaler";
 import { APPLICATION_NAME } from "../../constants";
 import { useSort } from "../../hooks/useSort";
-import { capitalizeEveryWord, formaterDato, resetPaginering } from "../../utils/Utils";
+import {
+  capitalizeEveryWord,
+  formaterDato,
+  formaterNavEnheter,
+  resetPaginering,
+} from "../../utils/Utils";
 import { Laster } from "../laster/Laster";
 import { PagineringContainer } from "../paginering/PagineringContainer";
 import { PagineringsOversikt } from "../paginering/PagineringOversikt";
@@ -171,6 +176,7 @@ export const AvtaleTabell = () => {
               <Table.ColumnHeader sortKey="navn" sortable>
                 Tittel
               </Table.ColumnHeader>
+              <Table.ColumnHeader>Avtalenummer</Table.ColumnHeader>
               <Table.ColumnHeader sortKey="leverandor" sortable>
                 Leverandør
               </Table.ColumnHeader>
@@ -196,8 +202,27 @@ export const AvtaleTabell = () => {
                   >
                     <Lenke to={`/avtaler/${avtale.id}`}>{avtale.navn}</Lenke>
                   </Table.DataCell>
+                  <Table.DataCell aria-label={`Avtalenummer: ${avtale?.avtalenummer ?? "N/A"}`}>
+                    {avtale?.avtalenummer}
+                  </Table.DataCell>
                   <Table.DataCell aria-label={`Leverandør: ${avtale.leverandor?.navn}`}>
                     {capitalizeEveryWord(avtale.leverandor?.navn, ["og", "i"]) || ""}
+                  </Table.DataCell>
+                  <Table.DataCell
+                    aria-label={`Regioner: ${avtale?.kontorstruktur
+                      ?.map((struktur) => struktur.region.navn)
+                      .join(", ")}`}
+                    title={`Regioner: ${avtale?.kontorstruktur
+                      ?.map((struktur) => struktur.region.navn)
+                      .join(", ")}`}
+                  >
+                    {formaterNavEnheter(
+                      undefined,
+                      avtale.kontorstruktur?.map((struktur) => ({
+                        navn: struktur.region.navn,
+                        enhetsnummer: struktur.region.enhetsnummer,
+                      })),
+                    )}
                   </Table.DataCell>
                   <Table.DataCell aria-label={`Startdato: ${formaterDato(avtale.startDato)}`}>
                     {formaterDato(avtale.startDato)}

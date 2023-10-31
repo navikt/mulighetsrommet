@@ -209,7 +209,7 @@ export function AvtaleSkjemaContainer({
         <div className={skjemastyles.container}>
           <div className={skjemastyles.input_container}>
             <div className={skjemastyles.column}>
-              <FormGroup>
+              <FormGroup cols={avtale?.avtalenummer ? 2 : 1}>
                 <TextField
                   size="small"
                   readOnly={arenaOpphav}
@@ -218,6 +218,14 @@ export function AvtaleSkjemaContainer({
                   autoFocus
                   {...register("navn")}
                 />
+                {avtale?.avtalenummer ? (
+                  <TextField
+                    size="small"
+                    readOnly
+                    label="Avtalenummer"
+                    value={avtale.avtalenummer}
+                  />
+                ) : null}
               </FormGroup>
               <Separator />
               <FormGroup cols={2}>
