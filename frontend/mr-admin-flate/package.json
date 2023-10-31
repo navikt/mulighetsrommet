@@ -26,7 +26,7 @@
     "@portabletext/react": "^3.0.11",
     "@portabletext/types": "^2.0.8",
     "@tanstack/react-query": "^4.36.1",
-    "@tanstack/react-query-devtools": "^4.36.1",
+    "@tanstack/react-query-devtools": "^5.4.3",
     "@types/is-url": "^1.2.31",
     "classnames": "^2.3.2",
     "debounce": "^1.2.1",
