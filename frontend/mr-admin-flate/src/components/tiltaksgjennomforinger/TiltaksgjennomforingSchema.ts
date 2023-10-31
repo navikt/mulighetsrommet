@@ -10,7 +10,7 @@ export const TiltaksgjennomforingSchema = z
         startDato: z.string({
           required_error: "En gjennomføring må ha en startdato",
         }),
-        sluttDato: z.string().optional(),
+        sluttDato: z.string().optional().nullable(),
       })
       .refine(
         (data) =>

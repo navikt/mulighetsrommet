@@ -23,7 +23,9 @@ const DetaljerFane = ({
         tiltaksgjennomforingAlert || tiltakstypeAlert || tiltaksgjennomforing || tiltakstype
       }
     >
-      <Heading size="small">Generell informasjon</Heading>
+      <Heading level="2" size="small">
+        Generell informasjon
+      </Heading>
       {tiltakstypeAlert && (
         <Alert variant="info" className={styles.preWrap}>
           {tiltakstypeAlert}
@@ -34,7 +36,9 @@ const DetaljerFane = ({
       </BodyLong>
       {tiltaksgjennomforing && (
         <div className={styles.lokal_informasjon}>
-          <Heading size="small">Lokal informasjon</Heading>
+          <Heading level="2" size="small">
+            Lokal informasjon
+          </Heading>
           {tiltaksgjennomforingAlert && (
             <Alert variant="info" className={styles.preWrap}>
               {tiltaksgjennomforingAlert}

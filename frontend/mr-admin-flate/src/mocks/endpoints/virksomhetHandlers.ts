@@ -1,46 +1,29 @@
-import { DefaultBodyType, PathParams, rest } from "msw";
+import { HttpResponse, PathParams, http } from "msw";
 import { Virksomhet, VirksomhetKontaktperson } from "mulighetsrommet-api-client";
-import { mockVirksomheter } from "../fixtures/mock_virksomheter";
 import { mockVirksomhetKontaktperson } from "../fixtures/mock_virksomhet_kontaktperson";
+import { mockVirksomheter } from "../fixtures/mock_virksomheter";
 
 export const virksomhetHandlers = [
-  rest.get<DefaultBodyType, { sok: string }, Virksomhet[]>(
-    "*/api/v1/internal/virksomhet/sok/:sok",
-    (req, res, ctx) => {
-      return res(
-        ctx.status(200),
-        ctx.json(
-          Object.values(mockVirksomheter).filter(
-            (enhet) => enhet.navn?.toLowerCase().includes(req.params.sok.toLocaleLowerCase()),
-          ),
-        ),
-      );
-    },
-  ),
-  rest.get<DefaultBodyType, PathParams, Virksomhet | undefined>(
+  http.get<{ sok: string }, Virksomhet[]>("*/api/v1/internal/virksomhet/sok/:sok", ({ params }) => {
+    return HttpResponse.json(
+      Object.values(mockVirksomheter).filter(
+        (enhet) => enhet.navn?.toLowerCase().includes(params.sok.toLocaleLowerCase()),
+      ),
+    );
+  }),
+  http.get<PathParams, Virksomhet | undefined>(
     "*/api/v1/internal/virksomhet/:orgnr",
-    (req, res, ctx) => {
-      return res(
-        ctx.status(200),
-        ctx.json(
-          Object.values(mockVirksomheter).find(
-            (enhet) => enhet.organisasjonsnummer === req.params.orgnr,
-          ),
-        ),
+    ({ params }) => {
+      return HttpResponse.json(
+        Object.values(mockVirksomheter).find((enhet) => enhet.organisasjonsnummer === params.orgnr),
       );
     },
   ),
-  rest.get<DefaultBodyType, PathParams, Virksomhet[] | undefined>(
-    "*/api/v1/internal/virksomhet",
-    (req, res, ctx) => {
-      return res(ctx.status(200), ctx.json(Object.values(mockVirksomheter)));
-    },
+  http.get<PathParams, Virksomhet[] | undefined>("*/api/v1/internal/virksomhet", () =>
+    HttpResponse.json(Object.values(mockVirksomheter)),
   ),
 
-  rest.get<DefaultBodyType, PathParams, VirksomhetKontaktperson[]>(
-    "*/api/v1/internal/*/kontaktperson",
-    (req, res, ctx) => {
-      return res(ctx.status(200), ctx.json(mockVirksomhetKontaktperson));
-    },
+  http.get<PathParams, VirksomhetKontaktperson[]>("*/api/v1/internal/*/kontaktperson", () =>
+    HttpResponse.json(mockVirksomhetKontaktperson),
   ),
 ];

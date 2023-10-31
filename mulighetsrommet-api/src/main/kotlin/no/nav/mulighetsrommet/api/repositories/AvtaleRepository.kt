@@ -231,7 +231,7 @@ class AvtaleRepository(private val db: Database) {
     ): Pair<Int, List<AvtaleAdminDto>> {
         val parameters = mapOf(
             "tiltakstype_id" to tiltakstypeId,
-            "search" to "%$search%",
+            "search" to "%${search?.replace("/", "#")?.trim()}%",
             "nav_region_json" to navRegion?.let { """[{"enhetsnummer":"$it"}]""" },
             "nav_region" to navRegion,
             "limit" to pagination.limit,
@@ -243,7 +243,7 @@ class AvtaleRepository(private val db: Database) {
 
         val where = DatabaseUtils.andWhereParameterNotNull(
             tiltakstypeId to "tiltakstype_id = :tiltakstype_id",
-            search to "(lower(navn) like lower(:search))",
+            search to "(lower(navn) like lower(:search)) or avtalenummer like :search",
             status to status?.toDbStatement(),
             navRegion to "(nav_enheter @> :nav_region_json::jsonb or arena_ansvarlig_enhet = :nav_region or arena_ansvarlig_enhet in (select enhetsnummer from nav_enhet where overordnet_enhet = :nav_region))",
             leverandorOrgnr to "leverandor_organisasjonsnummer = :leverandorOrgnr",

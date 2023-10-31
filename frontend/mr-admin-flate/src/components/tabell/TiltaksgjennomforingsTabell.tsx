@@ -10,7 +10,7 @@ import { paginationAtom, tiltaksgjennomforingfilter } from "../../api/atoms";
 import { useAdminTiltaksgjennomforinger } from "../../api/tiltaksgjennomforing/useAdminTiltaksgjennomforinger";
 import { useSort } from "../../hooks/useSort";
 import pageStyles from "../../pages/Page.module.scss";
-import { formaterDato, resetPaginering } from "../../utils/Utils";
+import { formaterDato, formaterNavEnheter, resetPaginering } from "../../utils/Utils";
 import { Laster } from "../laster/Laster";
 import { PagineringContainer } from "../paginering/PagineringContainer";
 import { PagineringsOversikt } from "../paginering/PagineringOversikt";
@@ -130,22 +130,6 @@ export const TiltaksgjennomforingsTabell = ({ skjulKolonner }: Props) => {
       ...filter,
       sortering: `${sortKey}-${direction}` as SorteringTiltaksgjennomforinger,
     });
-  };
-
-  const formaterNavEnheter = (
-    navRegionNavn: string = "",
-    navEnheter?: {
-      navn?: string | null;
-      enhetsnummer?: string;
-    }[],
-  ): string => {
-    const liste = [...(navEnheter || [])];
-    if (!liste) return "";
-
-    const forsteEnhet = liste.shift();
-    if (!forsteEnhet) return navRegionNavn;
-
-    return `${forsteEnhet?.navn} ${liste.length > 0 ? `+ ${liste.length}` : ""}`;
   };
 
   return (

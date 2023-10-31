@@ -74,7 +74,9 @@ const DetaljerFane = ({
     <div className={styles.faneinnhold_container}>
       {tiltakstype && (
         <>
-          <Heading size="small">Generell Informasjon</Heading>
+          <Heading level="2" size="small">
+            Generell Informasjon
+          </Heading>
           {tiltakstypeAlert && (
             <Alert className={styles.preWrap} variant="info">
               {tiltakstypeAlert}
@@ -87,7 +89,9 @@ const DetaljerFane = ({
       )}
       {tiltaksgjennomforing && (
         <div className={styles.lokal_informasjon}>
-          <Heading size="small">Lokal Informasjon</Heading>
+          <Heading level="2" size="small">
+            Lokal Informasjon
+          </Heading>
           {tiltaksgjennomforingAlert && (
             <Alert className={styles.preWrap} variant="info">
               {tiltaksgjennomforingAlert}

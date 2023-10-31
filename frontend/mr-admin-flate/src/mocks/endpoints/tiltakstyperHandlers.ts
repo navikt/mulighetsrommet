@@ -1,4 +1,4 @@
-import { DefaultBodyType, PathParams, rest } from "msw";
+import { HttpResponse, PathParams, http } from "msw";
 import {
   PaginertTiltakstype,
   Tiltakstype,
@@ -12,55 +12,39 @@ import {
 import { mockAvtaler } from "../fixtures/mock_avtaler";
 
 export const tiltakstypeHandlers = [
-  rest.get<DefaultBodyType, PathParams, PaginertTiltakstype>(
-    "*/api/v1/internal/tiltakstyper",
-    (req, res, ctx) => {
-      return res(ctx.status(200), ctx.json(paginertMockTiltakstyper));
-    },
-  ),
+  http.get<PathParams, PaginertTiltakstype>("*/api/v1/internal/tiltakstyper", () => {
+    return HttpResponse.json(paginertMockTiltakstyper);
+  }),
 
-  rest.get<DefaultBodyType, { id: string }, Tiltakstype | undefined>(
+  http.get<{ id: string }, Tiltakstype | undefined>(
     "*/api/v1/internal/tiltakstyper/:id",
-    (req, res, ctx) => {
-      const { id } = req.params;
-      return res(
-        ctx.status(200),
-
-        ctx.json(paginertMockTiltakstyper.data.find((gj) => gj.id === id)),
-      );
+    ({ params }) => {
+      const { id } = params;
+      return HttpResponse.json(paginertMockTiltakstyper.data.find((gj) => gj.id === id));
     },
   ),
 
-  rest.get<DefaultBodyType, { id: string }, VeilederflateTiltakstype | undefined>(
+  http.get<{ id: string }, VeilederflateTiltakstype | undefined>(
     "*/api/v1/internal/tiltakstyper/:id/sanity",
-    (_req, res, ctx) => {
-      return res(
-        ctx.status(200),
-
-        ctx.json(mockVeilederflateTiltakstypeAFT),
-      );
+    () => {
+      return HttpResponse.json(mockVeilederflateTiltakstypeAFT);
     },
   ),
 
-  rest.get<DefaultBodyType, { id: string }, PaginertAvtale>(
+  http.get<{ id: string }, PaginertAvtale>(
     "*/api/v1/internal/avtaler/tiltakstype/:id",
-    (req, res, ctx) => {
-      const { id } = req.params as {
-        id: string;
-      };
+    ({ params }) => {
+      const { id } = params;
       const avtaler = mockAvtaler.filter((a) => a.tiltakstype.id === id) ?? [];
-      return res(
-        ctx.status(200),
 
-        ctx.json({
-          pagination: {
-            currentPage: 1,
-            pageSize: 50,
-            totalCount: avtaler.length,
-          },
-          data: avtaler,
-        }),
-      );
+      HttpResponse.json({
+        pagination: {
+          currentPage: 1,
+          pageSize: 50,
+          totalCount: avtaler.length,
+        },
+        data: avtaler,
+      });
     },
   ),
 ];
