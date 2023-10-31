@@ -399,7 +399,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             tiltakstypeId to "tiltakstype_id = :tiltakstypeId",
             status to status?.toDbStatement(),
             sluttDatoCutoff to "(slutt_dato >= :cutoffdato or slutt_dato is null)",
-            navRegion to "(:navRegion = nav_region_enhetsnummer or arena_ansvarlig_enhet in (select enhetsnummer from nav_enhet where overordnet_enhet = :navRegion))",
+            navRegion to "(:navRegion = nav_region_enhetsnummer or arena_ansvarlig_enhet = :navRegion or arena_ansvarlig_enhet in (select enhetsnummer from nav_enhet where overordnet_enhet = :navRegion))",
             avtaleId to "avtale_id = :avtaleId",
             arrangorOrgnr to "arrangor_organisasjonsnummer = :arrangor_organisasjonsnummer",
             administratorNavIdent to "administratorer @> :administrator_nav_ident::jsonb",
