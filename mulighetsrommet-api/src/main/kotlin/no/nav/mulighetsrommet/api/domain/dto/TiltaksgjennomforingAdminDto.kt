@@ -55,7 +55,7 @@ data class TiltaksgjennomforingAdminDto(
     val visesForVeileder: Boolean,
 ) {
     fun isAktiv(): Boolean = status in listOf(
-        Tiltaksgjennomforingsstatus.APENT_FOR_INNSOK,
+        Tiltaksgjennomforingsstatus.PLANLAGT,
         Tiltaksgjennomforingsstatus.GJENNOMFORES,
     )
 
