@@ -8,10 +8,12 @@ export const mockAvtaler: Avtale[] = [
     id: "d1f163b7-1a41-4547-af16-03fd4492b7ba",
     tiltakstype: mockTiltakstyper.AVKLARAG,
     navn: "Testtiltak Varig",
-    administrator: {
-      navIdent: "B123456",
-      navn: "Bertil Betabruker",
-    },
+    administratorer: [
+      {
+        navIdent: "B123456",
+        navn: "Bertil Betabruker",
+      },
+    ],
     opphav: Opphav.MR_ADMIN_FLATE,
     avtalenummer: "2021#10579",
     leverandor: {
@@ -60,10 +62,12 @@ export const mockAvtaler: Avtale[] = [
       slettet: false,
     },
     opphav: Opphav.ARENA,
-    administrator: {
-      navIdent: "B123456",
-      navn: "Bertil Betabruker",
-    },
+    administratorer: [
+      {
+        navIdent: "B123456",
+        navn: "Bertil Betabruker",
+      },
+    ],
     leverandorUnderenheter: mockVirksomheter.fretex.underenheter!!.map((v) => ({
       organisasjonsnummer: v.organisasjonsnummer,
       navn: v.navn,
@@ -82,10 +86,12 @@ export const mockAvtaler: Avtale[] = [
   {
     id: "6374b285-989d-4f78-a59e-29481b64ba92",
     opphav: Opphav.ARENA,
-    administrator: {
-      navIdent: "B123456",
-      navn: "Bertil Betabruker",
-    },
+    administratorer: [
+      {
+        navIdent: "B123456",
+        navn: "Bertil Betabruker",
+      },
+    ],
     tiltakstype: mockTiltakstyper.INDOPPFAG,
     navn: "Avtale hos Åna Fengsel",
     avtalenummer: "2020#4929",

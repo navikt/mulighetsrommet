@@ -25,10 +25,12 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     },
     avtaleId: mockAvtaler[0].id,
     tiltakstype: mockTiltakstyper.AVKLARAG,
-    administrator: {
-      navIdent: "B123456",
-      navn: "Bertil Betabruker",
-    },
+    administratorer: [
+      {
+        navIdent: "B123456",
+        navn: "Bertil Betabruker",
+      },
+    ],
     sanityId: "123",
     startDato: "2022-01-01",
     sluttDato: "2029-12-12",

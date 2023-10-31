@@ -14,6 +14,7 @@ import { addYear, avtaletypeTilTekst, formaterDato } from "../../utils/Utils";
 import { erAnskaffetTiltak } from "../../utils/tiltakskoder";
 import styles from "../DetaljerInfo.module.scss";
 import { AvtaleKnapperad } from "./AvtaleKnapperad";
+import { NOM_ANSATT_SIDE } from "mulighetsrommet-frontend-common/constants";
 
 export function AvtaleInfo() {
   const { data: avtale, isLoading, error } = useAvtale();
@@ -120,11 +121,31 @@ export function AvtaleInfo() {
             </a>
           </VisHvisVerdi>
 
-          <VisHvisVerdi verdi={avtale.administrator?.navIdent}>
-            <Bolk aria-label="Administrator for avtalen">
+          <VisHvisVerdi verdi={avtale.administratorer}>
+            <Bolk aria-label="Administratorer for avtalen">
               <Metadata
-                header="Administrator for avtalen"
-                verdi={`${avtale.administrator?.navn} - ${avtale.administrator?.navIdent}`}
+                header="Administratorer for avtalen"
+                verdi={
+                  avtale?.administratorer?.length ? (
+                    <ul>
+                      {avtale.administratorer?.map((admin) => {
+                        return (
+                          <li key={admin.navIdent}>
+                            <a
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              href={`${NOM_ANSATT_SIDE}${admin?.navIdent}`}
+                            >
+                              {`${admin?.navn} - ${admin?.navIdent}`} <ExternalLinkIcon />
+                            </a>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  ) : (
+                    "Ingen administratorer satt for avtalen"
+                  )
+                }
               />
             </Bolk>
           </VisHvisVerdi>

@@ -112,7 +112,7 @@ data class AvtaleRequest(
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate,
     val url: String?,
-    val administrator: String,
+    val administratorer: List<String>,
     val avtaletype: Avtaletype,
     val prisbetingelser: String?,
     val navEnheter: List<String>,
@@ -131,7 +131,7 @@ data class AvtaleRequest(
         avtaletype = avtaletype,
         antallPlasser = null,
         url = url,
-        administratorer = listOf(administrator),
+        administratorer = administratorer,
         prisbetingelser = prisbetingelser,
         navEnheter = navEnheter,
         opphav = opphav,

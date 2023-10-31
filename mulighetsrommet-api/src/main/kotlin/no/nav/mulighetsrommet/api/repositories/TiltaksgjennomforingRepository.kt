@@ -721,7 +721,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             estimertVentetid = stringOrNull("estimert_ventetid"),
             antallPlasser = intOrNull("antall_plasser"),
             avtaleId = uuidOrNull("avtale_id"),
-            administrator = administratorer.getOrNull(0),
+            administratorer = administratorer,
             navEnheter = embeddedNavEnheter,
             navRegion = stringOrNull("nav_region_enhetsnummer")?.let {
                 EmbeddedNavEnhet(
@@ -780,7 +780,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             where (?::timestamp + interval '14' day) = tg.slutt_dato
                or (?::timestamp + interval '7' day) = tg.slutt_dato
                or (?::timestamp + interval '1' day) = tg.slutt_dato
-            group by tg.id, a.nav_ident;
+            group by tg.id;
         """.trimIndent()
 
         return queryOf(query, currentDate, currentDate, currentDate).map { it.toTiltaksgjennomforingNotificationDto() }
@@ -816,7 +816,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             where tg.stengt_til is not null and
                (?::timestamp + interval '7' day) = tg.stengt_til
                or (?::timestamp + interval '1' day) = tg.stengt_til
-            group by tg.id, a.nav_ident;
+            group by tg.id;
         """.trimIndent()
 
         return queryOf(query, currentDate, currentDate).map { it.toTiltaksgjennomforingNotificationDto() }

@@ -151,21 +151,28 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
 
           <Separator />
 
-          <Bolk aria-label="Administrator for gjennomføringen">
+          <Bolk aria-label="Administratorer for gjennomføringen">
             <Metadata
-              header="Administrator for gjennomføringen"
+              header="Administratorer for gjennomføringen"
               verdi={
-                tiltaksgjennomforing.administrator?.navIdent ? (
-                  <a
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    href={`${NOM_ANSATT_SIDE}${tiltaksgjennomforing.administrator?.navIdent}`}
-                  >
-                    {`${tiltaksgjennomforing.administrator?.navn} - ${tiltaksgjennomforing.administrator?.navIdent}`}{" "}
-                    <ExternalLinkIcon />
-                  </a>
+                tiltaksgjennomforing?.administratorer?.length ? (
+                  <ul>
+                    {tiltaksgjennomforing.administratorer?.map((admin) => {
+                      return (
+                        <li key={admin.navIdent}>
+                          <a
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            href={`${NOM_ANSATT_SIDE}${admin?.navIdent}`}
+                          >
+                            {`${admin?.navn} - ${admin?.navIdent}`} <ExternalLinkIcon />
+                          </a>
+                        </li>
+                      );
+                    })}
+                  </ul>
                 ) : (
-                  "Ingen administrator satt for gjennomføringen"
+                  "Ingen administratorer satt for gjennomføringen"
                 )
               }
             />

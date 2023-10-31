@@ -316,7 +316,7 @@ class AvtaleServiceTest : FunSpec({
                     skalSlettesDato = null,
                 ),
             )
-            val avtale = AvtaleFixtures.avtaleRequest.copy(administrator = "B123456")
+            val avtale = AvtaleFixtures.avtaleRequest.copy(administratorer = listOf("B123456"))
             avtaleService.upsert(avtale, "B123456")
 
             verify(exactly = 0) { notificationRepository.insert(any(), any()) }
@@ -349,7 +349,7 @@ class AvtaleServiceTest : FunSpec({
                     skalSlettesDato = null,
                 ),
             )
-            val avtale = AvtaleFixtures.avtaleRequest.copy(administrator = "Z654321")
+            val avtale = AvtaleFixtures.avtaleRequest.copy(administratorer = listOf("Z654321"))
             avtaleService.upsert(avtale, "B123456")
             avtaleService.upsert(avtale.copy(navn = "nytt navn"), "B123456")
 

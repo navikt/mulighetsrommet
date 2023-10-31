@@ -300,7 +300,7 @@ class AvtaleRepository(private val db: Database) {
                or (:currentDate::timestamp + interval '3' month) = a.slutt_dato
                or (:currentDate::timestamp + interval '14' day) = a.slutt_dato
                or (:currentDate::timestamp + interval '7' day) = a.slutt_dato
-            group by a.id, aa.nav_ident
+            group by a.id
         """.trimIndent()
 
         return queryOf(query, params)
@@ -426,7 +426,7 @@ class AvtaleRepository(private val db: Database) {
                 Avslutningsstatus.valueOf(string("avslutningsstatus")),
             ),
             prisbetingelser = stringOrNull("prisbetingelser"),
-            administrator = administratorer.getOrNull(0),
+            administratorer = administratorer,
             url = stringOrNull("url"),
             antallPlasser = intOrNull("antall_plasser"),
             opphav = ArenaMigrering.Opphav.valueOf(string("opphav")),

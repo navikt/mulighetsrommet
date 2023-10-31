@@ -51,13 +51,13 @@ class TiltaksgjennomforingService(
 
         return validator.validate(request.toDbo())
             .map { dbo ->
-                val currentAdministrator = tiltaksgjennomforinger.get(dbo.id)?.administrator?.navIdent
+                val currentAdministratorer = tiltaksgjennomforinger.get(dbo.id)?.administratorer?.mapNotNull { it?.navIdent } ?: emptyList()
 
                 db.transactionSuspend { tx ->
                     tiltaksgjennomforinger.upsert(dbo, tx)
                     utkastRepository.delete(dbo.id, tx)
                     val nextAdministrator = dbo.administratorer.first()
-                    if (shouldNotifyNextAdministrator(navIdent, currentAdministrator, nextAdministrator)) {
+                    if (shouldNotifyNextAdministrator(navIdent, currentAdministratorer, nextAdministrator)) {
                         dispatchSattSomAdministratorNotification(dbo.navn, nextAdministrator, tx)
                     }
 
@@ -232,9 +232,9 @@ class TiltaksgjennomforingService(
 
     private fun shouldNotifyNextAdministrator(
         navIdent: String,
-        currentAdministrator: String?,
+        currentAdministratorer: List<String>,
         nextAdministrator: String,
-    ) = navIdent != nextAdministrator && currentAdministrator != nextAdministrator
+    ) = navIdent != nextAdministrator && !currentAdministratorer.contains(nextAdministrator)
 
     private fun dispatchSattSomAdministratorNotification(
         gjennomforingNavn: String,

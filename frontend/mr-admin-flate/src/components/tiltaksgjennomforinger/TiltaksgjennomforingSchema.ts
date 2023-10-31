@@ -51,12 +51,7 @@ export const TiltaksgjennomforingSchema = z
       .min(1, "Du må velge en underenhet for tiltaksarrangør"),
     stedForGjennomforing: z.string().nullable(),
     arrangorKontaktpersonId: z.string().nullable().optional(),
-    administrator: z
-      .string()
-      .nullish()
-      .refine((val) => !!val, {
-        message: "Du må velge en administrator",
-      }),
+    administratorer: z.string().array().min(1, "Du må velge minst én administrator"),
     midlertidigStengt: z
       .object({
         erMidlertidigStengt: z.boolean(),

@@ -1644,8 +1644,10 @@ components:
         prisbetingelser:
           type: string
           nullable: true
-        administrator:
-          $ref: "#/components/schemas/AvtaleAdministrator"
+        administratorer:
+          type: array
+          items:
+            $ref: "#/components/schemas/AvtaleAdministrator"
         url:
           type: string
           nullable: true
@@ -1708,8 +1710,10 @@ components:
         url:
           type: string
           nullable: true
-        administrator:
-          type: string
+        administratorer:
+          type: array
+          items:
+            type: string
         avtaletype:
           $ref: "#/components/schemas/Avtaletype"
         prisbetingelser:
@@ -1845,8 +1849,10 @@ components:
             $ref: "#/components/schemas/EmbeddedNavEnhet"
         navRegion:
           $ref: "#/components/schemas/EmbeddedNavEnhet"
-        administrator:
-          $ref: "#/components/schemas/TiltaksgjennomforingAdministrator"
+        administratorer:
+          type: array
+          items:
+            $ref: "#/components/schemas/TiltaksgjennomforingAdministrator"
         antallPlasser:
           type: integer
         avtaleId:
@@ -1933,8 +1939,10 @@ components:
         tiltaksnummer:
           type: string
           nullable: true
-        administrator:
-          type: string
+        administratorer:
+          type: array
+          items:
+            type: string
         navRegion:
           type: string
         navEnheter:

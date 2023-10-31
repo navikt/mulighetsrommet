@@ -71,7 +71,7 @@ export function utkastDataEllerDefault(
       string,
       ...string[],
     ],
-    administrator: tiltaksgjennomforing?.administrator?.navIdent,
+    administratorer: tiltaksgjennomforing?.administratorer?.map((admin) => admin.navIdent),
     antallPlasser: tiltaksgjennomforing?.antallPlasser,
     startOgSluttDato: {
       startDato: tiltaksgjennomforing?.startDato,

@@ -273,7 +273,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
                 ),
             )
             val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1Request.copy(
-                administrator = "B123456",
+                administratorer = listOf("B123456"),
                 navEnheter = listOf("2990"),
             )
             tiltaksgjennomforingService.upsert(gjennomforing, "B123456").shouldBeRight()
@@ -316,7 +316,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
                 ),
             )
             val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1Request.copy(
-                administrator = "Z654321",
+                administratorer = listOf("Z654321"),
                 navEnheter = listOf("2990"),
             )
 

@@ -39,9 +39,7 @@ export const AvtaleSchema = z
         message: "Startdato må være før sluttdato",
         path: ["startDato"],
       }),
-    administrator: z.string().refine((data) => data.length > 0, {
-      message: "Du må velge en administrator",
-    }),
+    administratorer: z.string().array().min(1, "Du må velge minst én administrator"),
     url: GyldigUrlHvisVerdi,
     prisbetingelser: z.string().optional(),
     opphav: z.nativeEnum(Opphav),
