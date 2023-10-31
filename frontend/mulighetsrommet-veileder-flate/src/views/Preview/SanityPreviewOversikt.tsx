@@ -11,12 +11,14 @@ import { useNavEnheter } from "../../core/api/queries/useNavEnheter";
 import { SokeSelect } from "mulighetsrommet-frontend-common";
 import { useEffect, useState } from "react";
 import { Separator } from "../../utils/Separator";
+import { TilbakestillFilterFeil } from "../tiltaksgjennomforing-oversikt/ViewTiltaksgjennomforingOversikt";
 
 export const SanityPreviewOversikt = () => {
   const [filter] = useAtom(tiltaksgjennomforingsfilter);
   const [geografiskEnhet, setGeografiskEnhet] = useState<NavEnhet | undefined>();
   const {
     data: tiltaksgjennomforinger = [],
+    isLoading,
     isFetching,
     refetch,
   } = usePreviewTiltaksgjennomforinger(geografiskEnhet?.enhetsnummer);
@@ -61,10 +63,18 @@ export const SanityPreviewOversikt = () => {
         <Filtermeny />
         <div>
           <FiltrertFeilInnsatsgruppeVarsel filter={filter} />
-          <Tiltaksgjennomforingsoversikt
-            tiltaksgjennomforinger={tiltaksgjennomforinger}
-            isFetching={isFetching}
-          />
+          {isLoading ? (
+            <div className={styles.filter_loader}>
+              <Loader />
+            </div>
+          ) : tiltaksgjennomforinger.length === 0 ? (
+            <TilbakestillFilterFeil />
+          ) : (
+            <Tiltaksgjennomforingsoversikt
+              tiltaksgjennomforinger={tiltaksgjennomforinger}
+              isFetching={isFetching}
+            />
+          )}
         </div>
       </div>
     </>

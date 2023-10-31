@@ -110,28 +110,6 @@ const ViewTiltaksgjennomforingOversikt = () => {
     );
   }
 
-  if (tiltaksgjennomforinger.length === 0) {
-    return (
-      <Feilmelding
-        header="Ingen tiltaksgjennomføringer funnet"
-        beskrivelse="Prøv å justere søket eller filteret for å finne det du leter etter"
-        ikonvariant="warning"
-      >
-        <>
-          <Button
-            variant="tertiary"
-            onClick={() => {
-              setFilter(RESET);
-              forcePrepopulerFilter(true);
-            }}
-          >
-            Tilbakestill filter
-          </Button>
-        </>
-      </Feilmelding>
-    );
-  }
-
   return (
     <>
       {landingssideEnabled ? <Tilbakeknapp tilbakelenke={`/${routes.base}`} /> : null}
@@ -157,6 +135,8 @@ const ViewTiltaksgjennomforingOversikt = () => {
             <div className={styles.filter_loader}>
               <Loader />
             </div>
+          ) : tiltaksgjennomforinger.length === 0 ? (
+            <TilbakestillFilterFeil />
           ) : (
             <Tiltaksgjennomforingsoversikt
               tiltaksgjennomforinger={tiltaksgjennomforinger}
@@ -168,5 +148,30 @@ const ViewTiltaksgjennomforingOversikt = () => {
     </>
   );
 };
+
+export function TilbakestillFilterFeil() {
+  const [, setFilter] = useAtom(tiltaksgjennomforingsfilter);
+  const { forcePrepopulerFilter } = usePrepopulerFilter();
+
+  return (
+    <Feilmelding
+      header="Ingen tiltaksgjennomføringer funnet"
+      beskrivelse="Prøv å justere søket eller filteret for å finne det du leter etter"
+      ikonvariant="warning"
+    >
+      <>
+        <Button
+          variant="tertiary"
+          onClick={() => {
+            setFilter(RESET);
+            forcePrepopulerFilter(true);
+          }}
+        >
+          Tilbakestill filter
+        </Button>
+      </>
+    </Feilmelding>
+  );
+}
 
 export default ViewTiltaksgjennomforingOversikt;
