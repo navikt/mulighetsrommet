@@ -1,11 +1,9 @@
 package no.nav.mulighetsrommet.api.routes.v1
 
 import io.ktor.server.application.*
-import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.plugins.getNavAnsattAzureId
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
@@ -15,7 +13,7 @@ import no.nav.mulighetsrommet.ktor.extensions.getAccessToken
 import org.koin.ktor.ext.inject
 import java.util.*
 
-fun Route.sanityRoutes() {
+fun Route.veilederflateRoutes() {
     val veilederflateService: VeilederflateService by inject()
     val poaoTilgangService: PoaoTilgangService by inject()
 

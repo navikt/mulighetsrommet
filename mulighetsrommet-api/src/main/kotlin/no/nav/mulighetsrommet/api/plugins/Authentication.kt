@@ -18,7 +18,7 @@ enum class AuthProvider {
     AZURE_AD_TEAM_MULIGHETSROMMET,
     AZURE_AD_DEFAULT_APP,
     AZURE_AD_TILTAKSGJENNOMFORING_APP,
-    AZURE_AD_ADMIN_FLATE_TILGANG,
+    AZURE_AD_BETABRUKER,
 }
 
 object AppRoles {
@@ -75,7 +75,7 @@ fun Application.configureAuthentication(
             }
         }
 
-        jwt(AuthProvider.AZURE_AD_ADMIN_FLATE_TILGANG.name) {
+        jwt(AuthProvider.AZURE_AD_BETABRUKER.name) {
             verifier(jwkProvider, azure.issuer) {
                 withAudience(azure.audience)
             }
@@ -86,9 +86,7 @@ fun Application.configureAuthentication(
                     return@validate null
                 }
 
-                if (!hasNavAnsattRoles(credentials, NavAnsattRolle.TEAM_MULIGHETSROMMET) &&
-                    !hasNavAnsattRoles(credentials, NavAnsattRolle.BETABRUKER)
-                ) {
+                if (!hasNavAnsattRoles(credentials, NavAnsattRolle.BETABRUKER)) {
                     return@validate null
                 }
 
