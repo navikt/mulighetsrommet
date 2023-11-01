@@ -1,7 +1,7 @@
 import { QueryClient, QueryClientProvider } from "react-query";
 import { ReactQueryDevtools } from "react-query/devtools";
 import { FnrContext } from "./hooks/useFnr";
-import React, { Dispatch, ReactNode, useEffect, useState } from "react";
+import { Dispatch, ReactNode, useEffect, useState } from "react";
 
 const queryClient = new QueryClient({
   defaultOptions: {

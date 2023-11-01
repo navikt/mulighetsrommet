@@ -41,17 +41,19 @@ fun Application.configure(config: AppConfig) {
     configureStatusPagesForStatusException()
 
     routing {
-        swaggerUI(path = "/swagger-ui/internal", swaggerFile = "web/openapi.yaml")
-
         authenticate(AuthProvider.AZURE_AD_TEAM_MULIGHETSROMMET.name) {
             tasks()
+        }
+
+        authenticate(AuthProvider.AZURE_AD_BETABRUKER.name, AuthProvider.AZURE_AD_TEAM_MULIGHETSROMMET.name) {
+            veilederflatePreviewRoutes()
         }
 
         authenticate(AuthProvider.AZURE_AD_NAV_IDENT.name) {
             tiltakstypeRoutes()
             tiltaksgjennomforingRoutes()
             avtaleRoutes()
-            sanityRoutes()
+            veilederflateRoutes()
             brukerRoutes()
             navAnsattRoutes()
             frontendLoggerRoutes()
@@ -69,10 +71,12 @@ fun Application.configure(config: AppConfig) {
             arenaAdapterRoutes()
         }
 
-        swaggerUI(path = "/swagger-ui/external", swaggerFile = "web/openapi-external.yaml")
         authenticate(AuthProvider.AZURE_AD_TILTAKSGJENNOMFORING_APP.name) {
             externalRoutes()
         }
+
+        swaggerUI(path = "/swagger-ui/internal", swaggerFile = "web/openapi.yaml")
+        swaggerUI(path = "/swagger-ui/external", swaggerFile = "web/openapi-external.yaml")
     }
 
     val scheduler: Scheduler by inject()

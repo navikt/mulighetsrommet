@@ -12,7 +12,6 @@ import { arrangorUnderenheterOptions, erArenaOpphav } from "./Tiltaksgjennomfori
 import { useHentKontaktpersoner } from "../../api/ansatt/useHentKontaktpersoner";
 import { useHentBetabrukere } from "../../api/ansatt/useHentBetabrukere";
 import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
-import { SokeSelect } from "../skjema/SokeSelect";
 import { FormGroup } from "../skjema/FormGroup";
 import { useVirksomhet } from "../../api/virksomhet/useVirksomhet";
 import { PlusIcon, XMarkIcon } from "@navikt/aksel-icons";
@@ -22,6 +21,7 @@ import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
 import { VirksomhetKontaktpersoner } from "../virksomhet/VirksomhetKontaktpersoner";
 import { Separator } from "../detaljside/Metadata";
 import { useFeatureToggle } from "../../api/features/feature-toggles";
+import { ControlledSokeSelect } from "mulighetsrommet-frontend-common";
 
 interface Props {
   tiltaksgjennomforing?: Tiltaksgjennomforing;
@@ -98,7 +98,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
           </FormGroup>
           <Separator />
           <FormGroup>
-            <SokeSelect
+            <ControlledSokeSelect
               size="small"
               label="Oppstartstype"
               placeholder="Velg oppstart"
@@ -196,7 +196,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
           </FormGroup>
           <Separator />
           <FormGroup>
-            <SokeSelect
+            <ControlledSokeSelect
               size="small"
               placeholder={isLoadingAnsatt ? "Laster..." : "Velg en"}
               label={"Administrator for gjennomføringen"}
@@ -214,7 +214,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
         <div className={skjemastyles.column}>
           <div className={skjemastyles.gray_container}>
             <FormGroup>
-              <SokeSelect
+              <ControlledSokeSelect
                 size="small"
                 label="NAV-region"
                 placeholder="Velg en"
@@ -258,7 +258,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                         <XMarkIcon fontSize="1.5rem" />
                       </button>
                       <div className={skjemastyles.kontaktperson_inputs}>
-                        <SokeSelect
+                        <ControlledSokeSelect
                           size="small"
                           placeholder={
                             isLoadingKontaktpersoner ? "Laster kontaktpersoner..." : "Velg en"
@@ -307,7 +307,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                 defaultValue={`${avtale.leverandor.navn} - ${avtale.leverandor.organisasjonsnummer}`}
                 readOnly
               />
-              <SokeSelect
+              <ControlledSokeSelect
                 size="small"
                 label="Tiltaksarrangør underenhet"
                 placeholder="Velg underenhet for tiltaksarrangør"

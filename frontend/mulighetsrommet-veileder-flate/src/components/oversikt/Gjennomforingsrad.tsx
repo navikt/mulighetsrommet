@@ -5,7 +5,7 @@ import {
   VeilederflateTiltaksgjennomforing,
 } from "mulighetsrommet-api-client";
 import { paginationAtom } from "../../core/atoms/atoms";
-import { formaterDato } from "../../utils/Utils";
+import { erPreview, formaterDato } from "../../utils/Utils";
 import Lenke from "../lenke/Lenke";
 import styles from "./Gjennomforingsrad.module.scss";
 import { TilgjengelighetsstatusComponent } from "./Tilgjengelighetsstatus";
@@ -45,7 +45,11 @@ export function Gjennomforingsrad({ tiltaksgjennomforing, index }: Props) {
   return (
     <li className={styles.list_element} id={`list_element_${index}`}>
       <Lenke
-        to={`/arbeidsmarkedstiltak/tiltak/${id ?? sanityId}#page=${page}`}
+        to={
+          erPreview
+            ? `/preview/${id ?? sanityId}#page=${page}`
+            : `/arbeidsmarkedstiltak/tiltak/${id ?? sanityId}#page=${page}`
+        }
         data-testid="lenke_tiltaksgjennomforing"
       >
         <div className={styles.gjennomforing_container}>

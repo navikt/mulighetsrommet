@@ -18,6 +18,7 @@ enum class AuthProvider {
     AZURE_AD_TEAM_MULIGHETSROMMET,
     AZURE_AD_DEFAULT_APP,
     AZURE_AD_TILTAKSGJENNOMFORING_APP,
+    AZURE_AD_BETABRUKER,
 }
 
 object AppRoles {
@@ -67,6 +68,25 @@ fun Application.configureAuthentication(
                 }
 
                 if (!hasNavAnsattRoles(credentials, NavAnsattRolle.TEAM_MULIGHETSROMMET)) {
+                    return@validate null
+                }
+
+                JWTPrincipal(credentials.payload)
+            }
+        }
+
+        jwt(AuthProvider.AZURE_AD_BETABRUKER.name) {
+            verifier(jwkProvider, azure.issuer) {
+                withAudience(azure.audience)
+            }
+
+            validate { credentials ->
+                credentials["NAVident"] ?: run {
+                    application.log.warn("Access denied. Mangler claim 'NAVident'.")
+                    return@validate null
+                }
+
+                if (!hasNavAnsattRoles(credentials, NavAnsattRolle.BETABRUKER)) {
                     return@validate null
                 }
 

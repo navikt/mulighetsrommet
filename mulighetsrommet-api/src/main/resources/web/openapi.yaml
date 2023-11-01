@@ -847,6 +847,27 @@ paths:
                 items:
                   $ref: "#/components/schemas/VeilederflateTiltaksgjennomforing"
 
+  /api/v1/internal/sanity/tiltaksgjennomforinger/preview:
+    post:
+      tags:
+        - Sanity
+      operationId: getRelevanteTiltaksgjennomforingerPreview
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GetRelevanteTiltaksgjennomforingerPreviewRequest"
+        required: true
+      responses:
+        200:
+          description: Hent tiltaksgjennomføringer basert på geografisk enhet
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/VeilederflateTiltaksgjennomforing"
+
   /api/v1/internal/sanity/tiltaksgjennomforing:
     post:
       tags:
@@ -1478,6 +1499,21 @@ components:
           type: string
       required:
         - norskIdent
+
+    GetRelevanteTiltaksgjennomforingerPreviewRequest:
+      type: object
+      properties:
+        geografiskEnhet:
+          type: string
+        innsatsgruppe:
+          $ref: "#/components/schemas/Innsatsgruppe"
+        tiltakstypeIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+        search:
+          type: string
 
     GetTiltaksgjennomforingForBrukerRequest:
       type: object

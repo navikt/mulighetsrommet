@@ -1,5 +1,10 @@
 import { faro } from "@grafana/faro-web-sdk";
-import { FileCheckmarkIcon, HandshakeIcon, TokenIcon } from "@navikt/aksel-icons";
+import {
+  FileCheckmarkIcon,
+  HandshakeIcon,
+  RectangleSectionsIcon,
+  TokenIcon,
+} from "@navikt/aksel-icons";
 import { BodyShort, Heading } from "@navikt/ds-react";
 import { Link } from "react-router-dom";
 import styles from "./Forside.module.scss";
@@ -40,6 +45,8 @@ export function Forside() {
                   <TokenIcon />
                 ) : card.url.includes("sanity") ? (
                   <img src="./sanity_logo.png" alt="Sanity-logo" />
+                ) : card.url.includes("preview") ? (
+                  <RectangleSectionsIcon />
                 ) : (
                   <FileCheckmarkIcon />
                 )}

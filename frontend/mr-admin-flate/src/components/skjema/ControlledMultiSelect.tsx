@@ -2,7 +2,7 @@ import React from "react";
 import { Controller } from "react-hook-form";
 import { MultiValue } from "react-select";
 import { MultiSelect } from "./MultiSelect";
-import { SelectOption } from "./SokeSelect";
+import { SelectOption } from "mulighetsrommet-frontend-common/components/SokeSelect";
 
 export interface MultiSelectProps {
   label: string;

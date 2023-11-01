@@ -14,22 +14,101 @@ import styles from "./ViewTiltaksgjennomforingOversikt.module.scss";
 import { useHentBrukerdata } from "../../core/api/queries/useHentBrukerdata";
 import Tilbakeknapp from "../../components/tilbakeknapp/Tilbakeknapp";
 import { useFeatureToggle } from "../../core/api/feature-toggles";
-import { Toggles } from "mulighetsrommet-api-client";
+import { ApiError, Toggles } from "mulighetsrommet-api-client";
 import { routes } from "../../routes";
+import { Alert, Button, Loader } from "@navikt/ds-react";
+import { PORTEN } from "mulighetsrommet-frontend-common/constants";
+import Lenke from "../../components/lenke/Lenke";
+import { RESET } from "jotai/utils";
+import { Feilmelding, forsokPaNyttLink } from "../../components/feilmelding/Feilmelding";
+import { usePrepopulerFilter } from "../../hooks/usePrepopulerFilter";
 
 const ViewTiltaksgjennomforingOversikt = () => {
   const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);
   const [isHistorikkModalOpen, setIsHistorikkModalOpen] = useState(false);
+  const { forcePrepopulerFilter } = usePrepopulerFilter();
   const { isFetched } = useTiltaksgjennomforinger();
-  const brukerdata = useHentBrukerdata();
+  const { data: brukerdata } = useHentBrukerdata();
   const landingssideFeature = useFeatureToggle(Toggles.MULIGHETSROMMET_VEILEDERFLATE_LANDINGSSIDE);
   const landingssideEnabled = landingssideFeature.isSuccess && landingssideFeature.data;
+
+  const {
+    data: tiltaksgjennomforinger = [],
+    isLoading,
+    isError,
+    error,
+    isFetching,
+  } = useTiltaksgjennomforinger();
 
   useEffect(() => {
     setIsHistorikkModalOpen(isHistorikkModalOpen);
   }, [isHistorikkModalOpen]);
 
-  if (!brukerdata.data) return null;
+  if (!brukerdata) return null;
+
+  if (isError) {
+    if (error instanceof ApiError) {
+      return (
+        <Alert variant="error">
+          Det har dessverre skjedd en feil. Om feilen gjentar seg, ta kontakt i{" "}
+          {
+            <Lenke to={PORTEN} target={"_blank"}>
+              Porten
+            </Lenke>
+          }
+          <pre>
+            {JSON.stringify(
+              { message: error.message, status: error.status, url: error.url },
+              null,
+              2,
+            )}
+          </pre>
+        </Alert>
+      );
+    } else {
+      return (
+        <Alert variant="error">
+          Det har dessverre skjedd en feil. Om feilen gjentar seg, ta kontakt i{" "}
+          {
+            <Lenke to={PORTEN} target={"_blank"}>
+              Porten
+            </Lenke>
+          }
+          .
+        </Alert>
+      );
+    }
+  }
+
+  if (!brukerdata.geografiskEnhet) {
+    return (
+      <Feilmelding
+        header="Kunne ikke hente brukers geografiske enhet"
+        beskrivelse={
+          <>
+            Brukers geografiske enhet kunne ikke hentes. Kontroller at brukeren er under oppfølging
+            og finnes i Arena, og {forsokPaNyttLink()}
+          </>
+        }
+        ikonvariant="error"
+      />
+    );
+  }
+
+  if (!brukerdata.innsatsgruppe && !brukerdata.servicegruppe) {
+    return (
+      <Feilmelding
+        header="Kunne ikke hente brukers innsatsgruppe eller servicegruppe"
+        beskrivelse={
+          <>
+            Vi kan ikke hente brukerens innsatsgruppe eller servicegruppe. Kontroller at brukeren er
+            under oppfølging og finnes i Arena, og <br /> {forsokPaNyttLink()}
+          </>
+        }
+        ikonvariant="error"
+      />
+    );
+  }
 
   return (
     <>
@@ -51,12 +130,48 @@ const ViewTiltaksgjennomforingOversikt = () => {
         </div>
         <div>
           <FiltrertFeilInnsatsgruppeVarsel filter={filter} />
-          <BrukerHarIkke14aVedtakVarsel brukerdata={brukerdata.data} />
-          <Tiltaksgjennomforingsoversikt />
+          <BrukerHarIkke14aVedtakVarsel brukerdata={brukerdata} />
+          {isLoading ? (
+            <div className={styles.filter_loader}>
+              <Loader />
+            </div>
+          ) : tiltaksgjennomforinger.length === 0 ? (
+            <TilbakestillFilterFeil />
+          ) : (
+            <Tiltaksgjennomforingsoversikt
+              tiltaksgjennomforinger={tiltaksgjennomforinger}
+              isFetching={isFetching}
+            />
+          )}
         </div>
       </div>
     </>
   );
 };
+
+export function TilbakestillFilterFeil() {
+  const [, setFilter] = useAtom(tiltaksgjennomforingsfilter);
+  const { forcePrepopulerFilter } = usePrepopulerFilter();
+
+  return (
+    <Feilmelding
+      header="Ingen tiltaksgjennomføringer funnet"
+      beskrivelse="Prøv å justere søket eller filteret for å finne det du leter etter"
+      ikonvariant="warning"
+    >
+      <>
+        <Button
+          variant="tertiary"
+          onClick={() => {
+            setFilter(RESET);
+            forcePrepopulerFilter(true);
+          }}
+        >
+          Tilbakestill filter
+        </Button>
+      </>
+    </Feilmelding>
+  );
+}
 
 export default ViewTiltaksgjennomforingOversikt;

@@ -1,4 +1,4 @@
-import { Bruker } from "mulighetsrommet-api-client";
+import { Bruker, NavEnhetStatus } from "mulighetsrommet-api-client";
 import { Tiltaksgjennomforingsfilter } from "../atoms/atoms";
 
 export const QueryKeys = {
@@ -14,8 +14,14 @@ export const QueryKeys = {
       bruker?: Bruker,
       tiltaksgjennomforingsfilter?: Tiltaksgjennomforingsfilter,
     ) => ["tiltaksgjennomforinger", { ...bruker }, { ...tiltaksgjennomforingsfilter }],
+    tiltaksgjennomforingerPreview: (tiltaksgjennomforingsfilter?: Tiltaksgjennomforingsfilter) => [
+      "tiltaksgjennomforinger",
+      "preview",
+      { ...tiltaksgjennomforingsfilter },
+    ],
     tiltaksgjennomforing: (id: string) => ["tiltaksgjennomforing", id],
     tiltaksgjennomforingPreview: (id: string) => ["tiltaksgjennomforing", "preview", id],
   },
   features: (feature: string) => [feature, "feature"],
+  navEnheter: (statuser: NavEnhetStatus[]) => [statuser, "navEnheter"],
 };
