@@ -41,14 +41,16 @@ class AvtaleService(
 
         return validator.validate(request.toDbo())
             .map { dbo ->
-                val currentAdministratorer = get(request.id)?.administratorer?.mapNotNull { it?.navIdent } ?: emptyList()
+                val currentAdministratorer = get(request.id)?.administratorer?.map { it.navIdent } ?: emptyList()
                 db.transaction { tx ->
                     avtaler.upsert(dbo, tx)
                     utkastRepository.delete(dbo.id, tx)
 
-                    val nextAdministrator = dbo.administratorer.first()
-                    if (shouldNotifyNextAdministrator(navIdent, currentAdministratorer, nextAdministrator)) {
-                        dispatchSattSomAdministratorNofication(dbo.navn, nextAdministrator, tx)
+                    val nextAdministrators = dbo.administratorer
+                    val notifyTheseAdministrators =
+                        nextAdministrators.minus(currentAdministratorer.toSet()).filter { it != navIdent }
+                    notifyTheseAdministrators.forEach {
+                        dispatchSattSomAdministratorNofication(dbo.navn, it, tx)
                     }
                     avtaler.get(dbo.id, tx)!!
                 }

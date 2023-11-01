@@ -322,7 +322,7 @@ class AvtaleServiceTest : FunSpec({
             verify(exactly = 0) { notificationRepository.insert(any(), any()) }
         }
 
-        test("Bare én administrator notification når man endrer gjennomforing") {
+        test("Bare nye administratorer får notification når man endrer gjennomføring") {
             navAnsattRepository.upsert(
                 NavAnsattDbo(
                     navIdent = "B123456",
@@ -349,15 +349,28 @@ class AvtaleServiceTest : FunSpec({
                     skalSlettesDato = null,
                 ),
             )
+            navAnsattRepository.upsert(
+                NavAnsattDbo(
+                    navIdent = "T654321",
+                    fornavn = "Tuva",
+                    etternavn = "Testpilot",
+                    hovedenhet = "2990",
+                    azureId = UUID.randomUUID(),
+                    mobilnummer = null,
+                    epost = "",
+                    roller = emptySet(),
+                    skalSlettesDato = null,
+                ),
+            )
             val avtale = AvtaleFixtures.avtaleRequest.copy(administratorer = listOf("Z654321"))
             avtaleService.upsert(avtale, "B123456")
-            avtaleService.upsert(avtale.copy(navn = "nytt navn"), "B123456")
+            avtaleService.upsert(avtale.copy(navn = "nytt navn", administratorer = listOf("Z654321", "T654321", "B123456")), "B123456")
 
-            verify(exactly = 1) { notificationRepository.insert(any(), any()) }
+            verify(exactly = 2) { notificationRepository.insert(any(), any()) }
         }
     }
 
-    context("trasanctions") {
+    context("transactions") {
         val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
         val avtaler = AvtaleRepository(database.db)
         val avtaleService = AvtaleService(

@@ -30,7 +30,7 @@ data class TiltaksgjennomforingAdminDto(
     val antallPlasser: Int?,
     @Serializable(with = UUIDSerializer::class)
     val avtaleId: UUID?,
-    val administratorer: List<Administrator?>,
+    val administratorer: List<Administrator>,
     val navEnheter: List<EmbeddedNavEnhet>,
     val navRegion: EmbeddedNavEnhet?,
     @Serializable(with = UUIDSerializer::class)

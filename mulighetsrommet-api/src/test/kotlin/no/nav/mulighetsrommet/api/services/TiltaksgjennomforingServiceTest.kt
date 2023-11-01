@@ -251,7 +251,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
         )
         val navAnsattRepository = NavAnsattRepository(database.db)
 
-        test("Ingen administrator-notification hvis administrator er samme som opprettet") {
+        test("Ingen administrator-notification hvis administratorer er samme som opprettet") {
             navAnsattRepository.upsert(
                 NavAnsattDbo(
                     navIdent = "B123456",
@@ -281,7 +281,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             verify(exactly = 0) { notificationRepository.insert(any(), any()) }
         }
 
-        test("Bare én administrator notification når man endrer gjennomforing") {
+        test("Bare nye administratorer får notifikasjon når man endrer gjennomføring") {
             navAnsattRepository.upsert(
                 NavAnsattDbo(
                     navIdent = "B123456",
@@ -298,8 +298,21 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             navAnsattRepository.upsert(
                 NavAnsattDbo(
                     navIdent = "Z654321",
-                    fornavn = "Zorre",
+                    fornavn = "Znorre",
                     etternavn = "Betabruker",
+                    hovedenhet = "2990",
+                    azureId = UUID.randomUUID(),
+                    mobilnummer = null,
+                    epost = "",
+                    roller = emptySet(),
+                    skalSlettesDato = null,
+                ),
+            )
+            navAnsattRepository.upsert(
+                NavAnsattDbo(
+                    navIdent = "T654321",
+                    fornavn = "Tuva",
+                    etternavn = "Testpilot",
                     hovedenhet = "2990",
                     azureId = UUID.randomUUID(),
                     mobilnummer = null,
@@ -316,14 +329,14 @@ class TiltaksgjennomforingServiceTest : FunSpec({
                 ),
             )
             val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1Request.copy(
-                administratorer = listOf("Z654321"),
+                administratorer = listOf("B123456"),
                 navEnheter = listOf("2990"),
             )
 
             tiltaksgjennomforingService.upsert(gjennomforing, "B123456").shouldBeRight()
-            tiltaksgjennomforingService.upsert(gjennomforing.copy(navn = "nytt navn"), "B123456").shouldBeRight()
+            tiltaksgjennomforingService.upsert(gjennomforing.copy(navn = "nytt navn", administratorer = listOf("Z654321", "T654321", "B123456")), "B123456").shouldBeRight()
 
-            verify(exactly = 1) { notificationRepository.insert(any(), any()) }
+            verify(exactly = 2) { notificationRepository.insert(any(), any()) }
         }
     }
 

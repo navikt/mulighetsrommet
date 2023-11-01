@@ -51,16 +51,19 @@ class TiltaksgjennomforingService(
 
         return validator.validate(request.toDbo())
             .map { dbo ->
-                val currentAdministratorer = tiltaksgjennomforinger.get(dbo.id)?.administratorer?.mapNotNull { it?.navIdent } ?: emptyList()
+                val currentAdministratorer =
+                    tiltaksgjennomforinger.get(dbo.id)?.administratorer?.map { it.navIdent } ?: emptyList()
 
                 db.transactionSuspend { tx ->
                     tiltaksgjennomforinger.upsert(dbo, tx)
                     utkastRepository.delete(dbo.id, tx)
-                    val nextAdministrator = dbo.administratorer.first()
-                    if (shouldNotifyNextAdministrator(navIdent, currentAdministratorer, nextAdministrator)) {
-                        dispatchSattSomAdministratorNotification(dbo.navn, nextAdministrator, tx)
-                    }
+                    val nextAdministrators = dbo.administratorer
 
+                    val notifyTheseAdministrators =
+                        nextAdministrators.minus(currentAdministratorer.toSet()).filter { it != navIdent }
+                    notifyTheseAdministrators.forEach {
+                        dispatchSattSomAdministratorNotification(dbo.navn, it, tx)
+                    }
                     val dto = tiltaksgjennomforinger.get(dbo.id, tx)!!
 
                     tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingDto.from(dto))
@@ -230,11 +233,11 @@ class TiltaksgjennomforingService(
         return Either.Right(Unit)
     }
 
-    private fun shouldNotifyNextAdministrator(
+    private fun shouldNotifyNextAdministrators(
         navIdent: String,
         currentAdministratorer: List<String>,
-        nextAdministrator: String,
-    ) = navIdent != nextAdministrator && !currentAdministratorer.contains(nextAdministrator)
+        nextAdministrators: List<String>,
+    ) = nextAdministrators.contains(navIdent) && !currentAdministratorer.containsAll(nextAdministrators)
 
     private fun dispatchSattSomAdministratorNotification(
         gjennomforingNavn: String,
