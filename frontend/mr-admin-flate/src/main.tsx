@@ -19,8 +19,7 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       useErrorBoundary: true,
-      refetchOnWindowFocus: import.meta.env.PROD,
-      retry: import.meta.env.PROD,
+      retry: 3,
     },
   },
 });
@@ -59,10 +58,6 @@ function render() {
 export function ErrorFallback({ error }: FallbackProps) {
   const heading = error instanceof ApiError ? resolveErrorMessage(error) : error.message;
 
-  // Forces new login if unauthenticated
-  if ((error as ApiError).status === 401) {
-    window.location.reload();
-  }
   return (
     <div className="error">
       <Alert variant="error">
