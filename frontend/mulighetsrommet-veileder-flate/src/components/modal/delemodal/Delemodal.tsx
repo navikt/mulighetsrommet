@@ -243,7 +243,7 @@ const Delemodal = ({
                   state.hilsen.length > MAKS_ANTALL_TEGN_DEL_MED_BRUKER ||
                   state.introtekst.length === 0 ||
                   state.introtekst.length > MAKS_ANTALL_TEGN_DEL_MED_BRUKER ||
-                  erPreview
+                  erPreview()
                 }
               >
                 {senderTilDialogen ? "Sender..." : "Send via Dialogen"}

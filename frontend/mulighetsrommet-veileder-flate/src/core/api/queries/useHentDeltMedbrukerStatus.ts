@@ -16,7 +16,7 @@ export function useHentDeltMedBrukerStatus(sanityId: string | undefined, norskId
   const { data: sistDeltMedBruker, refetch: refetchDelMedBruker } = useQuery<DelMedBruker>(
     [QueryKeys.DeltMedBrukerStatus, norskIdent, sanityId],
     () => mulighetsrommetClient.delMedBruker.getDelMedBruker({ requestBody }),
-    { enabled: !erPreview && !!sanityId },
+    { enabled: !erPreview() && !!sanityId },
   );
 
   async function lagreVeilederHarDeltTiltakMedBruker(dialogId: string, sanityId: string) {

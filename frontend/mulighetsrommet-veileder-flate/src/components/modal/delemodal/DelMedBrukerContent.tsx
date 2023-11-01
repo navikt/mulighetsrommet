@@ -155,7 +155,7 @@ export function DelMedBrukerContent({
           • Mangler ferdigutfylt tekst som kan deles med bruker{" "}
         </ErrorMessage>
       ) : null}
-      {erPreview ? (
+      {erPreview() ? (
         <Alert variant="warning" data-testid="alert-preview-del-med-bruker">
           Det er ikke mulig å dele tiltak med bruker i forhåndsvisning. Brukers navn og veileders
           navn blir automatisk satt utenfor forhåndsvisningsmodus.
