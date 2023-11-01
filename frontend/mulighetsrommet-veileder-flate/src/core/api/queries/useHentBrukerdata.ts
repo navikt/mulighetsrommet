@@ -13,6 +13,6 @@ export function useHentBrukerdata() {
   return useQuery<Bruker, Error>(
     [QueryKeys.Brukerdata, fnr],
     () => mulighetsrommetClient.bruker.getBrukerdata({ requestBody }),
-    { enabled: !erPreview },
+    { enabled: !erPreview() },
   );
 }

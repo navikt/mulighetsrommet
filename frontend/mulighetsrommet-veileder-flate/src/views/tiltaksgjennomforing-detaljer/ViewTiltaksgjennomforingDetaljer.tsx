@@ -133,19 +133,19 @@ const ViewTiltaksgjennomforingDetaljer = ({
   const opprettAvtale =
     !!tiltaksgjennomforing.tiltakstype?.arenakode &&
     tiltakstypeAsStringIsIndividuellTiltakstype(tiltaksgjennomforing.tiltakstype.arenakode) &&
-    !erPreview;
+    !erPreview();
 
   return (
     <>
       <div className={styles.container}>
         <div className={styles.top_wrapper}>
-          {!erPreview && (
+          {!erPreview() && (
             <Tilbakeknapp
               tilbakelenke={`/arbeidsmarkedstiltak/oversikt#page=${page}`}
               tekst="Tilbake til tiltaksoversikten"
             />
           )}
-          {!erPreview && (
+          {!erPreview() && (
             <>
               <DetaljerJoyride opprettAvtale={opprettAvtale} />
               {opprettAvtale ? (
@@ -195,12 +195,12 @@ const ViewTiltaksgjennomforingDetaljer = ({
                 icon={harDeltMedBruker && <CheckmarkIcon title="Suksess" />}
                 iconPosition="left"
               >
-                {harDeltMedBruker && !erPreview
+                {harDeltMedBruker && !erPreview()
                   ? `Delt med bruker ${datoSidenSistDelt}`
                   : "Del med bruker"}
               </Button>
             </div>
-            {!brukerdata?.manuellStatus && !erPreview && (
+            {!brukerdata?.manuellStatus && !erPreview() && (
               <Alert
                 title="Vi kunne ikke opprette kontakt med KRR og vet derfor ikke om brukeren har reservert seg mot elektronisk kommunikasjon"
                 key="alert-innsatsgruppe"
@@ -213,7 +213,7 @@ const ViewTiltaksgjennomforingDetaljer = ({
                 seg mot elektronisk kommunikasjon
               </Alert>
             )}
-            {harDeltMedBruker && !erPreview && (
+            {harDeltMedBruker && !erPreview() && (
               <div className={styles.dialogknapp}>
                 <Button
                   size="small"
@@ -235,9 +235,9 @@ const ViewTiltaksgjennomforingDetaljer = ({
           <Delemodal
             modalOpen={delemodalApen}
             lukkModal={() => setDelemodalApen(false)}
-            brukernavn={erPreview ? "{Navn}" : brukerdata?.fornavn}
+            brukernavn={erPreview() ? "{Navn}" : brukerdata?.fornavn}
             chattekst={tiltaksgjennomforing.tiltakstype.delingMedBruker ?? ""}
-            veiledernavn={erPreview ? "{Veiledernavn}" : veiledernavn}
+            veiledernavn={erPreview() ? "{Veiledernavn}" : veiledernavn}
             brukerFnr={brukerdata.fnr}
             tiltaksgjennomforing={tiltaksgjennomforing}
             brukerdata={brukerdata}

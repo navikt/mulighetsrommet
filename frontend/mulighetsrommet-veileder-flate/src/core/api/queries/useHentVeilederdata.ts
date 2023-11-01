@@ -9,7 +9,7 @@ export function useHentVeilederdata() {
     [QueryKeys.Veilederdata],
     () => mulighetsrommetClient.veileder.getVeileder(),
     {
-      enabled: !erPreview,
+      enabled: !erPreview(),
     },
   );
 }

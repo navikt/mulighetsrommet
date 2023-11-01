@@ -46,7 +46,7 @@ export function Gjennomforingsrad({ tiltaksgjennomforing, index }: Props) {
     <li className={styles.list_element} id={`list_element_${index}`}>
       <Lenke
         to={
-          erPreview
+          erPreview()
             ? `/preview/${id ?? sanityId}#page=${page}`
             : `/arbeidsmarkedstiltak/tiltak/${id ?? sanityId}#page=${page}`
         }
