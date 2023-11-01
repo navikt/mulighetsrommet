@@ -1,6 +1,6 @@
+import { SelectOption } from "mulighetsrommet-frontend-common/components/SokeSelect";
 import React from "react";
 import ReactSelect from "react-select";
-import { SelectOption } from "./SokeSelect";
 
 export interface MultiSelectProps {
   name: string;

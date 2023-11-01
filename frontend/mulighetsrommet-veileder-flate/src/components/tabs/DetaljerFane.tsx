@@ -34,7 +34,7 @@ const DetaljerFane = ({
       <BodyLong as="div" size="small">
         <PortableText value={tiltakstype} />
       </BodyLong>
-      {tiltaksgjennomforing && (
+      {(tiltaksgjennomforing || tiltaksgjennomforingAlert) && (
         <div className={styles.lokal_informasjon}>
           <Heading level="2" size="small">
             Lokal informasjon

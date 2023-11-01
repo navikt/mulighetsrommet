@@ -8,9 +8,9 @@ import {
   tiltakstypeFilter,
 } from "../../api/atoms";
 import { resetPaginering, valueOrDefault } from "../../utils/Utils";
-import { SokeSelect } from "../skjema/SokeSelect";
 import styles from "./Filter.module.scss";
 import { FilterTag } from "./FilterTag";
+import { ControlledSokeSelect } from "mulighetsrommet-frontend-common";
 
 export function Tiltakstypefilter() {
   const [filter, setFilter] = useAtom(tiltakstypeFilter);
@@ -81,7 +81,7 @@ export function Tiltakstypefilter() {
               size="small"
               className={styles.form_field}
             />
-            <SokeSelect
+            <ControlledSokeSelect
               size="small"
               label="Filtrer på statuser"
               placeholder="Filtrer på statuser"
@@ -97,7 +97,7 @@ export function Tiltakstypefilter() {
               }}
               options={statusOptions()}
             />
-            <SokeSelect
+            <ControlledSokeSelect
               size="small"
               label="Gruppetiltak eller individuelle tiltak"
               placeholder="Gruppetiltak eller individuelle tiltak"

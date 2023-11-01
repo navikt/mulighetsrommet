@@ -12,6 +12,7 @@ import { useInitialBrukerfilter } from "./hooks/useInitialBrukerfilter";
 import RoutesConfig from "./RoutesConfig";
 import { ErrorFallback } from "./utils/ErrorFallback";
 import { SanityPreview } from "./views/Preview/SanityPreview";
+import { SanityPreviewOversikt } from "./views/Preview/SanityPreviewOversikt";
 
 if (import.meta.env.PROD && import.meta.env.VITE_FARO_URL) {
   initializeFaro({
@@ -47,6 +48,7 @@ export function App() {
         <div className={APPLICATION_NAME}>
           <Router>
             <Routes>
+              <Route path="preview" element={<SanityPreviewOversikt />} />
               <Route path="preview/:id" element={<SanityPreview />} />
               <Route path="*" element={<AppWrapper />} />
             </Routes>

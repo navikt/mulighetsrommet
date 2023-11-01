@@ -1,5 +1,5 @@
+import { shallowEquals } from "mulighetsrommet-frontend-common";
 import { describe, expect, test } from "vitest";
-import { shallowEquals } from "./shallow-equals";
 
 describe("Primitive values", () => {
   test("should return true for identical numbers", () => {

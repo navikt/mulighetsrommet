@@ -26,16 +26,11 @@ import { Separator } from "../detaljside/Metadata";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
 import skjemastyles from "../skjema/Skjema.module.scss";
-import { SelectOption, SokeSelect } from "../skjema/SokeSelect";
 import { VirksomhetKontaktpersoner } from "../virksomhet/VirksomhetKontaktpersoner";
 import { AvtaleSchema, InferredAvtaleSchema } from "./AvtaleSchema";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { MultiValue } from "react-select";
-import { useHandleApiUpsertResponse } from "../../api/effects";
-import { useFeatureToggle } from "../../api/features/feature-toggles";
-import { erAnskaffetTiltak } from "../../utils/tiltakskoder";
-import { AvbrytAvtaleModal } from "../modal/AvbrytAvtaleModal";
 import { AdministratorOptions } from "../skjema/AdministratorOptions";
 import { FormGroup } from "../skjema/FormGroup";
 import {
@@ -46,6 +41,12 @@ import {
   utkastDataEllerDefault,
 } from "./AvtaleSkjemaConst";
 import { AvtaleSkjemaKnapperad } from "./AvtaleSkjemaKnapperad";
+import { AvbrytAvtaleModal } from "../modal/AvbrytAvtaleModal";
+import { useFeatureToggle } from "../../api/features/feature-toggles";
+import { erAnskaffetTiltak } from "../../utils/tiltakskoder";
+import { useHandleApiUpsertResponse } from "../../api/effects";
+import { SelectOption } from "mulighetsrommet-frontend-common/components/SokeSelect";
+import { ControlledSokeSelect } from "mulighetsrommet-frontend-common/components/ControlledSokeSelect";
 
 const minStartdato = new Date(2000, 0, 1);
 
@@ -229,7 +230,7 @@ export function AvtaleSkjemaContainer({
               </FormGroup>
               <Separator />
               <FormGroup cols={2}>
-                <SokeSelect
+                <ControlledSokeSelect
                   size="small"
                   readOnly={arenaOpphav}
                   placeholder="Velg en"
@@ -244,7 +245,7 @@ export function AvtaleSkjemaContainer({
                     label: tiltakstype.navn,
                   }))}
                 />
-                <SokeSelect
+                <ControlledSokeSelect
                   size="small"
                   readOnly={arenaOpphav}
                   placeholder="Velg en"
@@ -379,7 +380,7 @@ export function AvtaleSkjemaContainer({
               </div>
               <div className={skjemastyles.gray_container}>
                 <FormGroup>
-                  <SokeSelect
+                  <ControlledSokeSelect
                     size="small"
                     readOnly={arenaOpphav}
                     placeholder="Søk etter tiltaksarrangør"

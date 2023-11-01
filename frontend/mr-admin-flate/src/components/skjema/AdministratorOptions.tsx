@@ -1,5 +1,5 @@
-import { SelectOption } from "./SokeSelect";
 import { NavAnsatt } from "mulighetsrommet-api-client";
+import { SelectOption } from "mulighetsrommet-frontend-common/components/SokeSelect";
 
 export const AdministratorOptions = (
   ansatt?: NavAnsatt,

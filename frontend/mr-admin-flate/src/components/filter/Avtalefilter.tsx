@@ -16,9 +16,9 @@ import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
 import { useVirksomheter } from "../../api/virksomhet/useVirksomheter";
 import { resetPaginering, valueOrDefault } from "../../utils/Utils";
 import { Lenkeknapp } from "../lenkeknapp/Lenkeknapp";
-import { SokeSelect } from "../skjema/SokeSelect";
 import styles from "./Filter.module.scss";
 import { FilterTag } from "./FilterTag";
+import { ControlledSokeSelect } from "mulighetsrommet-frontend-common";
 
 type Filters = "tiltakstype";
 
@@ -119,7 +119,7 @@ export function Avtalefilter(props: Props) {
               aria-label="Søk etter avtale"
               className={styles.form_field}
             />
-            <SokeSelect
+            <ControlledSokeSelect
               size="small"
               placeholder="Filtrer på statuser"
               label="Filtrer på statuser"
@@ -156,7 +156,7 @@ export function Avtalefilter(props: Props) {
               ]}
             />
 
-            <SokeSelect
+            <ControlledSokeSelect
               size="small"
               label="Filtrer på region"
               hideLabel
@@ -173,7 +173,7 @@ export function Avtalefilter(props: Props) {
               options={regionOptions()}
             />
             {props.skjulFilter?.tiltakstype ? null : (
-              <SokeSelect
+              <ControlledSokeSelect
                 size="small"
                 label="Filtrer på tiltakstype"
                 placeholder="Filtrer på tiltakstype"
@@ -190,7 +190,7 @@ export function Avtalefilter(props: Props) {
                 options={tiltakstypeOptions()}
               />
             )}
-            <SokeSelect
+            <ControlledSokeSelect
               size="small"
               label="Filtrer på leverandør"
               placeholder="Filtrer på leverandør"
