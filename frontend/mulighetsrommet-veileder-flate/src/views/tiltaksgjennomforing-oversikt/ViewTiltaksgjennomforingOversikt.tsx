@@ -1,5 +1,10 @@
+import { Alert, Button, Loader } from "@navikt/ds-react";
 import { useAtom } from "jotai";
+import { RESET } from "jotai/utils";
+import { ApiError, Toggles } from "mulighetsrommet-api-client";
+import { PORTEN } from "mulighetsrommet-frontend-common/constants";
 import { useEffect, useState } from "react";
+import { Feilmelding, forsokPaNyttLink } from "../../components/feilmelding/Feilmelding";
 import Filtermeny from "../../components/filtrering/Filtermeny";
 import { Filtertags } from "../../components/filtrering/Filtertags";
 import { HistorikkButton } from "../../components/historikk/HistorikkButton";
@@ -7,26 +12,20 @@ import { BrukerHarIkke14aVedtakVarsel } from "../../components/ikkeKvalifisertVa
 import { FiltrertFeilInnsatsgruppeVarsel } from "../../components/ikkeKvalifisertVarsel/FiltrertFeilInnsatsgruppeVarsel";
 import { OversiktenJoyride } from "../../components/joyride/OversiktenJoyride";
 import { OversiktenLastStepJoyride } from "../../components/joyride/OversiktenLastStepJoyride";
+import Lenke from "../../components/lenke/Lenke";
 import Tiltaksgjennomforingsoversikt from "../../components/oversikt/Tiltaksgjennomforingsoversikt";
-import useTiltaksgjennomforinger from "../../core/api/queries/useTiltaksgjennomforinger";
-import { tiltaksgjennomforingsfilter } from "../../core/atoms/atoms";
-import styles from "./ViewTiltaksgjennomforingOversikt.module.scss";
-import { useHentBrukerdata } from "../../core/api/queries/useHentBrukerdata";
 import Tilbakeknapp from "../../components/tilbakeknapp/Tilbakeknapp";
 import { useFeatureToggle } from "../../core/api/feature-toggles";
-import { ApiError, Toggles } from "mulighetsrommet-api-client";
-import { routes } from "../../routes";
-import { Alert, Button, Loader } from "@navikt/ds-react";
-import { PORTEN } from "mulighetsrommet-frontend-common/constants";
-import Lenke from "../../components/lenke/Lenke";
-import { RESET } from "jotai/utils";
-import { Feilmelding, forsokPaNyttLink } from "../../components/feilmelding/Feilmelding";
+import { useHentBrukerdata } from "../../core/api/queries/useHentBrukerdata";
+import useTiltaksgjennomforinger from "../../core/api/queries/useTiltaksgjennomforinger";
+import { tiltaksgjennomforingsfilter } from "../../core/atoms/atoms";
 import { usePrepopulerFilter } from "../../hooks/usePrepopulerFilter";
+import { routes } from "../../routes";
+import styles from "./ViewTiltaksgjennomforingOversikt.module.scss";
 
 const ViewTiltaksgjennomforingOversikt = () => {
   const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);
   const [isHistorikkModalOpen, setIsHistorikkModalOpen] = useState(false);
-  const { forcePrepopulerFilter } = usePrepopulerFilter();
   const { isFetched } = useTiltaksgjennomforinger();
   const { data: brukerdata } = useHentBrukerdata();
   const landingssideFeature = useFeatureToggle(Toggles.MULIGHETSROMMET_VEILEDERFLATE_LANDINGSSIDE);
