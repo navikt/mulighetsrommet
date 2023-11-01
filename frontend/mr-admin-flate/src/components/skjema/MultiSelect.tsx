@@ -58,6 +58,10 @@ export const MultiSelect = React.forwardRef(function MultiSelect(props: MultiSel
       color: "#0000008f",
     }),
   });
+
+  const allOptions =
+    options.length > 1 ? [{ label: "Velg alle", value: "*" }, ...options] : options;
+
   return (
     <ReactSelect
       placeholder={placeholder}
@@ -79,7 +83,7 @@ export const MultiSelect = React.forwardRef(function MultiSelect(props: MultiSel
         }
       }}
       styles={customStyles(Boolean(error))}
-      options={[{ label: "Velg alle", value: "*" }, ...options]}
+      options={allOptions}
       theme={(theme: any) => ({
         ...theme,
         spacing: {
