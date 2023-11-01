@@ -26,7 +26,6 @@ import { usePrepopulerFilter } from "../../hooks/usePrepopulerFilter";
 const ViewTiltaksgjennomforingOversikt = () => {
   const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);
   const [isHistorikkModalOpen, setIsHistorikkModalOpen] = useState(false);
-  const { forcePrepopulerFilter } = usePrepopulerFilter();
   const { isFetched } = useTiltaksgjennomforinger();
   const { data: brukerdata } = useHentBrukerdata();
   const landingssideFeature = useFeatureToggle(Toggles.MULIGHETSROMMET_VEILEDERFLATE_LANDINGSSIDE);
