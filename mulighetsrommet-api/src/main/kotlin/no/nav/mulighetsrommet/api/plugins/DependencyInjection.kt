@@ -294,6 +294,7 @@ private fun services(appConfig: AppConfig) = module {
 
 private fun tasks(config: TaskConfig) = module {
     single { GenerateValidationReport(config.generateValidationReport, get(), get(), get(), get(), get()) }
+    single { InitialLoadTiltaksgjennomforinger(get(), get(), get()) }
     single {
         val deleteExpiredTiltakshistorikk = DeleteExpiredTiltakshistorikk(
             config.deleteExpiredTiltakshistorikk,
@@ -335,6 +336,7 @@ private fun tasks(config: TaskConfig) = module {
         val oppdaterMetrikker = OppdaterMetrikker(config.oppdaterMetrikker, get(), get())
         val notificationService: NotificationService by inject()
         val generateValidationReport: GenerateValidationReport by inject()
+        val initialLoadTiltaksgjennomforinger: InitialLoadTiltaksgjennomforinger by inject()
 
         val db: Database by inject()
 
@@ -343,6 +345,7 @@ private fun tasks(config: TaskConfig) = module {
                 db.getDatasource(),
                 notificationService.getScheduledNotificationTask(),
                 generateValidationReport.task,
+                initialLoadTiltaksgjennomforinger.task,
             )
             .startTasks(
                 deleteExpiredTiltakshistorikk.task,
