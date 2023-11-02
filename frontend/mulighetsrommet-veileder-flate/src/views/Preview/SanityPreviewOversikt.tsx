@@ -8,7 +8,6 @@ import { useNavEnheter } from "../../core/api/queries/useNavEnheter";
 import { SokeSelect } from "mulighetsrommet-frontend-common";
 import { useEffect, useState } from "react";
 import { Separator } from "../../utils/Separator";
-import { TilbakestillFilterFeil } from "../tiltaksgjennomforing-oversikt/ViewTiltaksgjennomforingOversikt";
 
 export const SanityPreviewOversikt = () => {
   const [geografiskEnhet, setGeografiskEnhet] = useState<NavEnhet | undefined>();
@@ -62,8 +61,6 @@ export const SanityPreviewOversikt = () => {
             <div className={styles.filter_loader}>
               <Loader />
             </div>
-          ) : tiltaksgjennomforinger.length === 0 ? (
-            <TilbakestillFilterFeil />
           ) : (
             <Tiltaksgjennomforingsoversikt
               tiltaksgjennomforinger={tiltaksgjennomforinger}
