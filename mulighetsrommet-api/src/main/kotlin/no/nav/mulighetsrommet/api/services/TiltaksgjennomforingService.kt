@@ -233,12 +233,6 @@ class TiltaksgjennomforingService(
         return Either.Right(Unit)
     }
 
-    private fun shouldNotifyNextAdministrators(
-        navIdent: String,
-        currentAdministratorer: List<String>,
-        nextAdministrators: List<String>,
-    ) = nextAdministrators.contains(navIdent) && !currentAdministratorer.containsAll(nextAdministrators)
-
     private fun dispatchSattSomAdministratorNotification(
         gjennomforingNavn: String,
         administrator: String,

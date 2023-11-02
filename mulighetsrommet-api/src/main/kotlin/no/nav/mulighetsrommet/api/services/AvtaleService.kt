@@ -143,12 +143,6 @@ class AvtaleService(
         return Either.Right(avtaler.setAvslutningsstatus(avtaleId, Avslutningsstatus.AVBRUTT))
     }
 
-    private fun shouldNotifyNextAdministrator(
-        navIdent: String,
-        currentAdministratorer: List<String>,
-        nextAdministrator: String,
-    ) = navIdent != nextAdministrator && !currentAdministratorer.contains(nextAdministrator)
-
     private fun dispatchSattSomAdministratorNofication(avtaleNavn: String, administrator: String, tx: Session) {
         val notification = ScheduledNotification(
             type = NotificationType.NOTIFICATION,
