@@ -5,10 +5,10 @@ import { NavEnhet, NavEnhetType } from "mulighetsrommet-api-client";
 import { usePreviewTiltaksgjennomforinger } from "../../core/api/queries/usePreviewTiltaksgjennomforinger";
 import { Loader } from "@navikt/ds-react";
 import { useNavEnheter } from "../../core/api/queries/useNavEnheter";
-import { SokeSelect } from "mulighetsrommet-frontend-common";
 import { useEffect, useState } from "react";
 import { Separator } from "../../utils/Separator";
 import { Feilmelding } from "../../components/feilmelding/Feilmelding";
+import { SokeSelect } from "../../components/sokeselect/SokeSelect";
 
 export const SanityPreviewOversikt = () => {
   const [geografiskEnhet, setGeografiskEnhet] = useState<NavEnhet | undefined>();
