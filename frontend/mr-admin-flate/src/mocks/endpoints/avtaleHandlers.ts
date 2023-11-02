@@ -29,7 +29,7 @@ export const avtaleHandlers = [
       const data = mockAvtaler.filter(
         (a) =>
           (a.avtalestatus === avtalestatus || avtalestatus === null) &&
-          a.administrator?.navIdent === brukerident,
+          a.administratorer?.map((admin) => admin.navIdent).includes(brukerident),
       );
 
       return HttpResponse.json({

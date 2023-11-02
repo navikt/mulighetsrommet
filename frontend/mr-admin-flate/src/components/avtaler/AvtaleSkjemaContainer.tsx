@@ -147,7 +147,7 @@ export function AvtaleSkjemaContainer({
       startDato: data.startOgSluttDato.startDato,
       tiltakstypeId: data.tiltakstype.id,
       url: data.url || null,
-      administrator: data.administrator,
+      administratorer: data.administratorer,
       avtaletype: data.avtaletype,
       prisbetingelser: erAnskaffetTiltak(data.tiltakstype.arenaKode)
         ? data.prisbetingelser || null
@@ -328,14 +328,12 @@ export function AvtaleSkjemaContainer({
                 </>
               )}
               <FormGroup>
-                <ControlledSokeSelect
+                <ControlledMultiSelect
                   size="small"
-                  placeholder="Velg en"
-                  label={"Administrator for avtalen"}
-                  {...register("administrator")}
-                  onClearValue={() => setValue("administrator", "")}
-                  description="Den som blir satt som administrator vil få en notifikasjon."
-                  options={AdministratorOptions(ansatt, avtale?.administrator, betabrukere)}
+                  placeholder="Administratorer"
+                  label="Administratorer for avtalen"
+                  {...register("administratorer")}
+                  options={AdministratorOptions(ansatt, avtale?.administratorer, betabrukere)}
                 />
               </FormGroup>
             </div>

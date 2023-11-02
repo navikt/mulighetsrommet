@@ -196,17 +196,16 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
           </FormGroup>
           <Separator />
           <FormGroup>
-            <ControlledSokeSelect
+            <ControlledMultiSelect
               size="small"
               placeholder={isLoadingAnsatt ? "Laster..." : "Velg en"}
-              label={"Administrator for gjennomføringen"}
-              {...register("administrator")}
+              label={"Administratorer for gjennomføringen"}
+              {...register("administratorer")}
               options={AdministratorOptions(
                 ansatt,
-                tiltaksgjennomforing?.administrator,
+                tiltaksgjennomforing?.administratorer,
                 betabrukere,
               )}
-              onClearValue={() => setValue("administrator", null)}
             />
           </FormGroup>
         </div>

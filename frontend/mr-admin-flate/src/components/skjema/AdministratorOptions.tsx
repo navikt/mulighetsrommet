@@ -3,10 +3,10 @@ import { SelectOption } from "mulighetsrommet-frontend-common/components/SokeSel
 
 export const AdministratorOptions = (
   ansatt?: NavAnsatt,
-  administrator?: {
+  administratorer?: {
     navIdent: string;
     navn: string;
-  },
+  }[],
   betabrukere?: NavAnsatt[],
 ): SelectOption[] => {
   if (!ansatt || !betabrukere) {
@@ -20,23 +20,29 @@ export const AdministratorOptions = (
     },
   ];
 
-  if (administrator?.navIdent && administrator.navIdent !== ansatt?.navIdent) {
-    options.push({
-      value: administrator.navIdent,
-      label: `${administrator.navn} - ${administrator.navIdent}`,
+  if (
+    administratorer &&
+    !administratorer.map((admin) => admin.navIdent).includes(ansatt?.navIdent)
+  ) {
+    administratorer.forEach(({ navIdent, navn }) => {
+      options.push({
+        value: navIdent,
+        label: `${navn} - ${navIdent}`,
+      });
     });
   }
 
   betabrukere
     .filter(
-      (b: NavAnsatt) => b.navIdent !== ansatt.navIdent && b.navIdent !== administrator?.navIdent,
+      (b: NavAnsatt) =>
+        b.navIdent !== ansatt.navIdent &&
+        !administratorer?.map((admin) => admin.navIdent).includes(b.navIdent),
     )
-    .forEach((b: NavAnsatt) =>
+    .forEach((b: NavAnsatt) => {
       options.push({
         value: b.navIdent,
         label: `${b.fornavn} ${b.etternavn} - ${b.navIdent}`,
-      }),
-    );
-
+      });
+    });
   return options;
 };

@@ -26,7 +26,7 @@ data class AvtaleAdminDto(
     val avtaletype: Avtaletype,
     val avtalestatus: Avtalestatus,
     val prisbetingelser: String?,
-    val administrator: Administrator?,
+    val administratorer: List<Administrator>,
     val url: String?,
     val antallPlasser: Int?,
     val opphav: ArenaMigrering.Opphav,

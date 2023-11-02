@@ -275,7 +275,7 @@ private fun toAvtaleDbo(dto: AvtaleAdminDto) = dto.run {
         prisbetingelser = prisbetingelser,
         antallPlasser = antallPlasser,
         url = url,
-        administratorer = administrator?.let { listOf(it.navIdent) } ?: listOf(),
+        administratorer = administratorer.mapNotNull { it?.navIdent },
         updatedAt = updatedAt,
     )
 }
@@ -300,7 +300,7 @@ private fun toTiltaksgjennomforingDbo(dto: TiltaksgjennomforingAdminDto) = dto.r
         estimertVentetid = estimertVentetid,
         antallPlasser = antallPlasser ?: -1,
         avtaleId = avtaleId ?: id,
-        administratorer = administrator?.let { listOf(it.navIdent) } ?: listOf(),
+        administratorer = administratorer.map { it.navIdent },
         navRegion = dto.navRegion?.enhetsnummer ?: "",
         navEnheter = navEnheter.map { it.enhetsnummer },
         oppstart = oppstart,

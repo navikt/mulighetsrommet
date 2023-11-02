@@ -79,7 +79,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 it.tilgjengelighet shouldBe TiltaksgjennomforingTilgjengelighetsstatus.LEDIG
                 it.antallPlasser shouldBe 12
                 it.avtaleId shouldBe Oppfolging1.avtaleId
-                it.administrator shouldBe null
+                it.administratorer shouldBe emptyList()
                 it.navEnheter shouldBe listOf(
                     EmbeddedNavEnhet(
                         navn = "IT",
@@ -158,7 +158,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 it.oppstart shouldBe TiltaksgjennomforingOppstartstype.FELLES
                 it.status shouldBe Tiltaksgjennomforingsstatus.AVSLUTTET
                 it.estimertVentetid shouldBe null
-                it.administrator shouldBe null
+                it.administratorer shouldBe emptyList()
                 it.navEnheter shouldBe emptyList()
                 it.navRegion shouldBe null
                 it.sanityId shouldBe null
@@ -534,9 +534,11 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             tiltaksgjennomforinger.upsert(gjennomforing)
 
             tiltaksgjennomforinger.get(gjennomforing.id).should {
-                it!!.administrator shouldBe TiltaksgjennomforingAdminDto.Administrator(
-                    navIdent = NavAnsattFixture.ansatt1.navIdent,
-                    navn = "Donald Duck",
+                it!!.administratorer.shouldContainExactlyInAnyOrder(
+                    TiltaksgjennomforingAdminDto.Administrator(
+                        navIdent = NavAnsattFixture.ansatt1.navIdent,
+                        navn = "Donald Duck",
+                    ),
                 )
             }
             database.assertThat("tiltaksgjennomforing_administrator").hasNumberOfRows(1)

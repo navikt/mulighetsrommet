@@ -18,7 +18,7 @@ export const tiltaksgjennomforingHandlers = [
     () => {
       const brukerident = "B123456";
       const data = mockTiltaksgjennomforinger.filter(
-        (gj) => gj.administrator?.navIdent === brukerident,
+        (gj) => gj.administratorer?.map((admin) => admin.navIdent).includes(brukerident),
       );
       return HttpResponse.json({
         pagination: {

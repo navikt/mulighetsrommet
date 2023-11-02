@@ -51,16 +51,19 @@ class TiltaksgjennomforingService(
 
         return validator.validate(request.toDbo())
             .map { dbo ->
-                val currentAdministrator = tiltaksgjennomforinger.get(dbo.id)?.administrator?.navIdent
+                val currentAdministratorer =
+                    tiltaksgjennomforinger.get(dbo.id)?.administratorer?.map { it.navIdent } ?: emptyList()
 
                 db.transactionSuspend { tx ->
                     tiltaksgjennomforinger.upsert(dbo, tx)
                     utkastRepository.delete(dbo.id, tx)
-                    val nextAdministrator = dbo.administratorer.first()
-                    if (shouldNotifyNextAdministrator(navIdent, currentAdministrator, nextAdministrator)) {
-                        dispatchSattSomAdministratorNotification(dbo.navn, nextAdministrator, tx)
-                    }
+                    val nextAdministrators = dbo.administratorer
 
+                    val notifyTheseAdministrators =
+                        nextAdministrators.minus(currentAdministratorer.toSet()).filter { it != navIdent }
+                    notifyTheseAdministrators.forEach {
+                        dispatchSattSomAdministratorNotification(dbo.navn, it, tx)
+                    }
                     val dto = tiltaksgjennomforinger.get(dbo.id, tx)!!
 
                     tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingDto.from(dto))
@@ -230,11 +233,11 @@ class TiltaksgjennomforingService(
         return Either.Right(Unit)
     }
 
-    private fun shouldNotifyNextAdministrator(
+    private fun shouldNotifyNextAdministrators(
         navIdent: String,
-        currentAdministrator: String?,
-        nextAdministrator: String,
-    ) = navIdent != nextAdministrator && currentAdministrator != nextAdministrator
+        currentAdministratorer: List<String>,
+        nextAdministrators: List<String>,
+    ) = nextAdministrators.contains(navIdent) && !currentAdministratorer.containsAll(nextAdministrators)
 
     private fun dispatchSattSomAdministratorNotification(
         gjennomforingNavn: String,

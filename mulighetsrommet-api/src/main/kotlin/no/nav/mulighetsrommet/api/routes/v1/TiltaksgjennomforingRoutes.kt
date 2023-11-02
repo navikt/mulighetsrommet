@@ -108,7 +108,7 @@ data class TiltaksgjennomforingRequest(
     @Serializable(with = UUIDSerializer::class)
     val arrangorKontaktpersonId: UUID?,
     val tiltaksnummer: String?,
-    val administrator: String,
+    val administratorer: List<String>,
     val navRegion: String,
     val navEnheter: List<String>,
     val oppstart: TiltaksgjennomforingOppstartstype,
@@ -142,7 +142,7 @@ data class TiltaksgjennomforingRequest(
         tiltaksnummer = tiltaksnummer,
         arrangorOrganisasjonsnummer = arrangorOrganisasjonsnummer,
         arrangorKontaktpersonId = arrangorKontaktpersonId,
-        administratorer = listOf(administrator),
+        administratorer = administratorer,
         navRegion = navRegion,
         navEnheter = navEnheter,
         oppstart = oppstart,
