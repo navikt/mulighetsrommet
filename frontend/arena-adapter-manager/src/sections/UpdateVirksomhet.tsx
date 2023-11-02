@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Section } from "../components/Section";
 import { syncVirksomhet } from "../core/api";
 
-function UpdateVirksomhet() {
+export function UpdateVirksomhet() {
   const [orgnr, setOrgnr] = useState<string>("");
   const [loading, setLoading] = useState(false);
 
@@ -17,11 +17,7 @@ function UpdateVirksomhet() {
   };
 
   return (
-    <Section
-      headerText="Update virksomhet"
-      loadingText={"Laster"}
-      isLoading={loading}
-    >
+    <Section headerText="Update virksomhet" loadingText={"Laster"} isLoading={loading}>
       <Input
         placeholder="Organisasjonsnummer, gjerne kommaseparert hvis du trenger flere nr samtidig"
         value={orgnr}
@@ -35,5 +31,3 @@ function UpdateVirksomhet() {
     </Section>
   );
 }
-
-export default UpdateVirksomhet;
