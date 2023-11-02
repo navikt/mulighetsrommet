@@ -8,6 +8,7 @@ import { useNavEnheter } from "../../core/api/queries/useNavEnheter";
 import { SokeSelect } from "mulighetsrommet-frontend-common";
 import { useEffect, useState } from "react";
 import { Separator } from "../../utils/Separator";
+import { Feilmelding } from "../../components/feilmelding/Feilmelding";
 
 export const SanityPreviewOversikt = () => {
   const [geografiskEnhet, setGeografiskEnhet] = useState<NavEnhet | undefined>();
@@ -61,6 +62,12 @@ export const SanityPreviewOversikt = () => {
             <div className={styles.filter_loader}>
               <Loader />
             </div>
+          ) : tiltaksgjennomforinger.length === 0 ? (
+            <Feilmelding
+              header="Ingen tiltaksgjennomføringer funnet"
+              beskrivelse="Prøv å justere søket eller filteret for å finne det du leter etter"
+              ikonvariant="warning"
+            />
           ) : (
             <Tiltaksgjennomforingsoversikt
               tiltaksgjennomforinger={tiltaksgjennomforinger}
