@@ -1,12 +1,7 @@
 {
   "request": {
-    "method": "GET",
-    "urlPathPattern": "/veilarbvedtaksstotte/api/siste-14a-vedtak",
-    "queryParameters": {
-      "fnr": {
-        "matches": "[\\d\\D]*"
-      }
-    }
+    "method": "POST",
+    "urlPathPattern": "/veilarbvedtaksstotte/api/v2/hent-siste-14a-vedtak"
   },
   "response": {
     "status": 200,
