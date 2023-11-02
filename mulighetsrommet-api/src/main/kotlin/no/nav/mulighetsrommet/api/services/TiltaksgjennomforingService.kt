@@ -51,21 +51,18 @@ class TiltaksgjennomforingService(
 
         return validator.validate(request.toDbo())
             .map { dbo ->
-                val currentAdministratorer =
-                    tiltaksgjennomforinger.get(dbo.id)?.administratorer?.map { it.navIdent } ?: emptyList()
+                val currentAdministratorer = get(dbo.id)?.administratorer?.map { it.navIdent }?.toSet() ?: setOf()
 
                 db.transactionSuspend { tx ->
                     tiltaksgjennomforinger.upsert(dbo, tx)
                     utkastRepository.delete(dbo.id, tx)
-                    val nextAdministrators = dbo.administratorer
 
-                    val notifyTheseAdministrators =
-                        nextAdministrators.minus(currentAdministratorer.toSet()).filter { it != navIdent }
+                    val notifyTheseAdministrators = dbo.administratorer - currentAdministratorer - navIdent
                     notifyTheseAdministrators.forEach {
                         dispatchSattSomAdministratorNotification(dbo.navn, it, tx)
                     }
-                    val dto = tiltaksgjennomforinger.get(dbo.id, tx)!!
 
+                    val dto = tiltaksgjennomforinger.get(dbo.id, tx)!!
                     tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingDto.from(dto))
                     dto
                 }
@@ -232,12 +229,6 @@ class TiltaksgjennomforingService(
 
         return Either.Right(Unit)
     }
-
-    private fun shouldNotifyNextAdministrators(
-        navIdent: String,
-        currentAdministratorer: List<String>,
-        nextAdministrators: List<String>,
-    ) = nextAdministrators.contains(navIdent) && !currentAdministratorer.containsAll(nextAdministrators)
 
     private fun dispatchSattSomAdministratorNotification(
         gjennomforingNavn: String,
