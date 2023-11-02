@@ -67,5 +67,5 @@ class VeilarbpersonClientImpl(
 
 @Serializable
 data class PersonRequest(
-    val fnr: String
+    val fnr: String,
 )
