@@ -9,6 +9,7 @@ import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import io.prometheus.client.cache.caffeine.CacheMetricsCollector
+import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import no.nav.mulighetsrommet.metrics.Metrikker
 import no.nav.mulighetsrommet.securelog.SecureLog
@@ -42,8 +43,10 @@ class VeilarbpersonClientImpl(
     override suspend fun hentPersonInfo(fnr: String, accessToken: String): PersonDto? {
         return CacheUtils.tryCacheFirstNullable(personInfoCache, fnr) {
             try {
-                val response = client.get("$baseUrl/v2/person?fnr=$fnr") {
+                val response = client.post("$baseUrl/v3/hent-person") {
                     bearerAuth(tokenProvider.invoke(accessToken))
+                    header(HttpHeaders.ContentType, ContentType.Application.Json)
+                    setBody(PersonRequest(fnr = fnr))
                 }
 
                 if (!response.status.isSuccess()) {
@@ -61,3 +64,8 @@ class VeilarbpersonClientImpl(
         }
     }
 }
+
+@Serializable
+data class PersonRequest(
+    val fnr: String,
+)

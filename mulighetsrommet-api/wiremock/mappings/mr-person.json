@@ -1,12 +1,7 @@
 {
   "request": {
-    "method": "GET",
-    "urlPathPattern": "/veilarbperson/api/v2/person",
-    "queryParameters": {
-      "fnr": {
-        "matches": "[\\d\\D]*"
-      }
-    }
+    "method": "POST",
+    "urlPathPattern": "/veilarbperson/api/v3/hent-person"
   },
   "response": {
     "status": 200,

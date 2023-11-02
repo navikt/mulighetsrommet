@@ -4,12 +4,12 @@ import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import io.ktor.client.engine.*
 import io.ktor.client.engine.cio.*
-import io.ktor.client.plugins.*
 import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.prometheus.client.cache.caffeine.CacheMetricsCollector
+import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.metrics.Metrikker
@@ -44,8 +44,10 @@ class VeilarbvedtaksstotteClientImpl(
 
     override suspend fun hentSiste14AVedtak(fnr: String, accessToken: String): VedtakDto? {
         return CacheUtils.tryCacheFirstNullable(siste14aVedtakCache, fnr) {
-            val response = client.get("$baseUrl/siste-14a-vedtak?fnr=$fnr") {
+            val response = client.post("$baseUrl/v2/hent-siste-14a-vedtak") {
                 bearerAuth(tokenProvider.invoke(accessToken))
+                header(HttpHeaders.ContentType, ContentType.Application.Json)
+                setBody(VedtakRequest(fnr = fnr))
             }
 
             if (response.status == HttpStatusCode.NotFound) {
@@ -79,3 +81,8 @@ class VeilarbvedtaksstotteClientImpl(
         }
     }
 }
+
+@Serializable
+data class VedtakRequest(
+    val fnr: String,
+)
