@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.clients.msgraph
 import io.ktor.client.call.*
 import io.ktor.client.engine.*
 import io.ktor.client.engine.cio.*
+import io.ktor.client.plugins.*
 import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
@@ -31,6 +32,11 @@ class MicrosoftGraphClientImpl(
 
     private val client = httpJsonClient(engine).config {
         install(HttpCache)
+        install(HttpRequestRetry) {
+            retryOnServerErrors(maxRetries = 5)
+            retryOnException(maxRetries = 5)
+            exponentialDelay()
+        }
     }
 
     override suspend fun getNavAnsatt(navAnsattAzureId: UUID, oboToken: String?): AzureAdNavAnsatt {
