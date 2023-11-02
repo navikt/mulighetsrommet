@@ -53,9 +53,10 @@ spec:
         severity: warning
     - alert: Høy andel HTTP klientfeil (4xx responser)
       # Følgende endepunkt er unntatt fra denne alarmen:
+      #  - /api/v1/tiltaksgjennomforinger/{id}: endepunktet blir kalt av Komet for alle endringer på deltakere og vil resultere i mye 404
       #  - /api/v1/tiltaksgjennomforinger/id/{arenaId}: endepunktet blir kalt av Komet for alle endringer på deltakere og vil resultere i mye 404
       #  - /api/v1/internal/arena/.*: endepunktene blir kalt fra arena-adapter og kan potensielt føre til en del 409-responser
-      expr: (100 * (sum by (app, route) (rate(ktor_http_server_requests_seconds_count{status=~"^4\\d\\d", namespace="team-mulighetsrommet", app="mulighetsrommet-api", route!~'.*(/api/v1/tiltaksgjennomforinger/id/{arenaId}|/api/v1/internal/arena/.*)'}[3m])) / sum by (app, route) (rate(ktor_http_server_requests_seconds_count{namespace="team-mulighetsrommet", app="mulighetsrommet-api", status=~"^4\\d\\d"}[3m])))) > 10
+      expr: (100 * (sum by (app, route) (rate(ktor_http_server_requests_seconds_count{status=~"^4\\d\\d", namespace="team-mulighetsrommet", app="mulighetsrommet-api", route!~'.*(/api/v1/tiltaksgjennomforinger/{id}|/api/v1/tiltaksgjennomforinger/id/{arenaId}|/api/v1/internal/arena/.*)'}[3m])) / sum by (app, route) (rate(ktor_http_server_requests_seconds_count{namespace="team-mulighetsrommet", app="mulighetsrommet-api", status=~"^4\\d\\d"}[3m])))) > 10
       for: 3m
       annotations:
         consequense: API returnerer mange 4xx-feil
