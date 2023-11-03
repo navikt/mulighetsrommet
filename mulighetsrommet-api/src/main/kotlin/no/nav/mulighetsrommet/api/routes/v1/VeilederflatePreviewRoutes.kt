@@ -28,6 +28,7 @@ fun Route.veilederflatePreviewRoutes() {
             val id = call.parameters.getOrFail("id")
             val result = veilederflateService.hentPreviewTiltaksgjennomforing(
                 id,
+                emptyList(),
             )
             call.respond(result)
         }
@@ -39,5 +40,5 @@ data class GetRelevanteTiltaksgjennomforingerPreviewRequest(
     val innsatsgruppe: String? = null,
     val tiltakstypeIds: List<String>? = null,
     val search: String? = null,
-    val geografiskEnhet: String? = null,
+    val geografiskEnhet: String,
 )

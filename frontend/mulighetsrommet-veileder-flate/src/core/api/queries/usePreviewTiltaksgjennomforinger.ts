@@ -9,7 +9,7 @@ export const usePreviewTiltaksgjennomforinger = (geografiskEnhet?: string) => {
   const [filter] = useAtom(tiltaksgjennomforingsfilter);
 
   const requestBody: GetRelevanteTiltaksgjennomforingerPreviewRequest = {
-    geografiskEnhet,
+    geografiskEnhet: geografiskEnhet!!,
     innsatsgruppe: filter.innsatsgruppe?.nokkel,
   };
 
@@ -21,7 +21,9 @@ export const usePreviewTiltaksgjennomforinger = (geografiskEnhet?: string) => {
     requestBody.tiltakstypeIds = filter.tiltakstyper.map(({ id }) => id);
   }
 
-  return useQuery(QueryKeys.sanity.tiltaksgjennomforingerPreview(filter), () =>
-    mulighetsrommetClient.sanity.getRelevanteTiltaksgjennomforingerPreview({ requestBody }),
+  return useQuery(
+    QueryKeys.sanity.tiltaksgjennomforingerPreview(geografiskEnhet!!, filter),
+    () => mulighetsrommetClient.sanity.getRelevanteTiltaksgjennomforingerPreview({ requestBody }),
+    { enabled: !!geografiskEnhet },
   );
 };

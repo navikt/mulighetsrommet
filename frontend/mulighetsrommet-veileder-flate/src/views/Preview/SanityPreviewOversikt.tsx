@@ -11,7 +11,8 @@ import { Feilmelding } from "../../components/feilmelding/Feilmelding";
 import { SokeSelect } from "../../components/sokeselect/SokeSelect";
 
 export const SanityPreviewOversikt = () => {
-  const [geografiskEnhet, setGeografiskEnhet] = useState<NavEnhet | undefined>();
+  const [geografiskEnhet, setGeografiskEnhet] = useState<NavEnhet>();
+  const [oppfolgingsenhet, setOppfolgingsenhet] = useState<NavEnhet>();
   const {
     data: tiltaksgjennomforinger = [],
     isLoading,
@@ -30,29 +31,57 @@ export const SanityPreviewOversikt = () => {
 
   return (
     <>
-      <SokeSelect
-        label="Brukers geografiske enhet"
-        description="Kun ment som hjelp til forhåndsvisning"
-        value={
-          geografiskEnhet !== undefined
-            ? { label: geografiskEnhet.navn, value: geografiskEnhet.enhetsnummer }
-            : null
-        }
-        name="geografisk-enhet"
-        size="medium"
-        onChange={(e) =>
-          setGeografiskEnhet(
-            enheter.find((enhet: NavEnhet) => enhet.enhetsnummer === e.target.value),
-          )
-        }
-        placeholder="Velg brukers geografiske enhet"
-        options={enheter
-          .filter((enhet: NavEnhet) => enhet.type === NavEnhetType.LOKAL)
-          .map((enhet: NavEnhet) => ({
-            label: enhet.navn,
-            value: enhet.enhetsnummer,
-          }))}
-      />
+      <div style={{ display: "flex", gap: "2rem" }}>
+        <SokeSelect
+          label="Brukers geografiske enhet"
+          description="Simuler en brukers geografiske enhet"
+          value={
+            geografiskEnhet !== undefined
+              ? { label: geografiskEnhet.navn, value: geografiskEnhet.enhetsnummer }
+              : null
+          }
+          name="geografisk-enhet"
+          size="medium"
+          onChange={(e) =>
+            setGeografiskEnhet(
+              enheter.find((enhet: NavEnhet) => enhet.enhetsnummer === e.target.value),
+            )
+          }
+          placeholder="Velg brukers geografiske enhet"
+          options={enheter
+            .filter((enhet: NavEnhet) => enhet.type === NavEnhetType.LOKAL)
+            .map((enhet: NavEnhet) => ({
+              label: enhet.navn,
+              value: enhet.enhetsnummer,
+            }))}
+        />
+        <SokeSelect
+          label="Brukers oppfølgingsenhet"
+          description="Simuler en brukers oppfølgingsenhet"
+          value={
+            oppfolgingsenhet !== undefined
+              ? { label: oppfolgingsenhet.navn, value: oppfolgingsenhet.enhetsnummer }
+              : null
+          }
+          name="oppfolgingsenhet"
+          size="medium"
+          onChange={(e) =>
+            setOppfolgingsenhet(
+              enheter.find((enhet: NavEnhet) => enhet.enhetsnummer === e.target.value),
+            )
+          }
+          placeholder="Velg brukers oppfølgingsenhet"
+          options={enheter
+            .filter(
+              (enhet: NavEnhet) =>
+                enhet.type !== NavEnhetType.LOKAL && enhet.type !== NavEnhetType.FYLKE,
+            )
+            .map((enhet: NavEnhet) => ({
+              label: enhet.navn,
+              value: enhet.enhetsnummer,
+            }))}
+        />
+      </div>
       <Separator />
 
       <div className={styles.tiltakstype_oversikt} data-testid="tiltakstype-oversikt">

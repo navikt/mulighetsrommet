@@ -25,9 +25,9 @@ class BrukerService(
             fnr = fnr,
             innsatsgruppe = sisteVedtak?.innsatsgruppe,
             oppfolgingsenhet = oppfolgingsstatus?.oppfolgingsenhet,
-            geografiskEnhet = personInfo?.geografiskEnhet,
+            geografiskEnhet = personInfo.geografiskEnhet,
             servicegruppe = oppfolgingsstatus?.servicegruppe,
-            fornavn = personInfo?.fornavn,
+            fornavn = personInfo.fornavn,
             manuellStatus = manuellStatus,
         )
     }
