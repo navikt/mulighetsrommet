@@ -6,6 +6,7 @@ import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import com.github.kagkarlsson.scheduler.task.schedule.DisabledSchedule
 import com.github.kagkarlsson.scheduler.task.schedule.Schedule
 import com.github.kagkarlsson.scheduler.task.schedule.Schedules
+import io.ktor.server.plugins.*
 import kotlinx.coroutines.runBlocking
 import no.nav.mulighetsrommet.api.services.NavAnsattService
 import no.nav.mulighetsrommet.database.Database
@@ -66,8 +67,14 @@ class SynchronizeNavAnsatte(
 
     private val client = SchedulerClient.Builder.create(database.getDatasource(), task).build()
     fun schedule(startTime: Instant = Instant.now()): UUID {
-        val id = UUID.randomUUID()
-        client.schedule(task.instance(id.toString()), startTime)
-        return id
+        val existingTaskId = task.defaultTaskInstance.id
+        val existingSchedule = client.getScheduledExecution(task.instance(existingTaskId)).get()
+
+        if (existingSchedule.isPicked) {
+            throw BadRequestException("Synkronisering av ansatte kjører allerede.")
+        }
+
+        client.reschedule(task.instance(existingTaskId), startTime)
+        return UUID.randomUUID()
     }
 }

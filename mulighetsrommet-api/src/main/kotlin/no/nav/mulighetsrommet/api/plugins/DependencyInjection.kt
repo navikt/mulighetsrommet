@@ -347,7 +347,6 @@ private fun tasks(config: TaskConfig) = module {
                 notificationService.getScheduledNotificationTask(),
                 generateValidationReport.task,
                 initialLoadTiltaksgjennomforinger.task,
-                synchronizeNavAnsatte.task,
             )
             .startTasks(
                 deleteExpiredTiltakshistorikk.task,
