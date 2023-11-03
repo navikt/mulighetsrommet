@@ -21,7 +21,9 @@ export const SanityPreviewOversikt = () => {
   const { data: enheter } = useNavEnheter();
 
   useEffect(() => {
-    refetch();
+    if (geografiskEnhet) {
+      refetch();
+    }
   }, [geografiskEnhet]);
 
   if (!enheter || !tiltaksgjennomforinger) {
