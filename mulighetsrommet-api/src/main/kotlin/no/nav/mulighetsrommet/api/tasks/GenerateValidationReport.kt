@@ -6,8 +6,6 @@ import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import com.google.cloud.storage.Storage
 import com.google.cloud.storage.StorageOptions
 import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.consumeEach
-import kotlinx.coroutines.channels.produce
 import no.nav.mulighetsrommet.api.avtaler.AvtaleValidator
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
@@ -16,8 +14,7 @@ import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
 import no.nav.mulighetsrommet.api.tiltaksgjennomforinger.TiltaksgjennomforingValidator
-import no.nav.mulighetsrommet.api.utils.DatabaseUtils.paginateSuspend
-import no.nav.mulighetsrommet.api.utils.PaginationParams
+import no.nav.mulighetsrommet.api.utils.DatabaseUtils.paginateFanOut
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dto.AvtaleAdminDto
@@ -34,7 +31,6 @@ import java.time.Instant
 import java.util.*
 import kotlin.io.path.createTempFile
 import kotlin.io.path.outputStream
-import kotlin.time.measureTime
 
 class GenerateValidationReport(
     private val config: Config,
@@ -137,7 +133,7 @@ class GenerateValidationReport(
     }
 
     private suspend fun validateAvtaler() = buildMap {
-        fanOut({ pagination -> avtaler.getAll(pagination).second }) {
+        paginateFanOut({ pagination -> avtaler.getAll(pagination).second }) {
             val dbo = toAvtaleDbo(it)
             avtaleValidator.validate(dbo)
                 .onLeft { validationErrors ->
@@ -162,7 +158,7 @@ class GenerateValidationReport(
     }
 
     private suspend fun validateGjennomforinger() = buildMap {
-        fanOut({ pagination -> gjennomforinger.getAll(pagination).second }) {
+        paginateFanOut({ pagination -> gjennomforinger.getAll(pagination).second }) {
             val dbo = toTiltaksgjennomforingDbo(it)
             gjennomforingValidator.validate(dbo)
                 .onLeft { validationErrors ->
@@ -212,49 +208,6 @@ class GenerateValidationReport(
         row.createCell(3, CellType.STRING).setCellValue(status)
         row.createCell(4, CellType.STRING).setCellValue(error.name)
         row.createCell(5, CellType.STRING).setCellValue(error.message)
-    }
-
-    @OptIn(ExperimentalCoroutinesApi::class)
-    private suspend fun <T> fanOut(
-        producer: (PaginationParams) -> List<T>,
-        consumer: suspend (T) -> Unit,
-    ) = coroutineScope {
-        val numConsumers = 10
-        val channelCapacity = 1000
-
-        var count = 0
-
-        // Produce events in a separate coroutine
-        val events = produce(capacity = channelCapacity) {
-            val totalCount = paginateSuspend(channelCapacity) { pagination ->
-                val items = producer(pagination)
-
-                items.forEach {
-                    send(it)
-                }
-
-                items
-            }
-
-            count = totalCount
-
-            close()
-        }
-
-        val time = measureTime {
-            // Create `numConsumers` coroutines to process the events simultaneously
-            (0..numConsumers)
-                .map {
-                    async {
-                        events.consumeEach { event ->
-                            consumer.invoke(event)
-                        }
-                    }
-                }
-                .awaitAll()
-        }
-
-        logger.info("Consumed $count events in $time")
     }
 }
 

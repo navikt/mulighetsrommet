@@ -37,10 +37,7 @@ export const putTopicRunningState = (topics: Topic[]) =>
     .then(() => toast.success("Topics oppdatert"))
     .catch((error) => toastError("Klarte ikke oppdatere topics", error));
 
-export const replayEvents = (
-  arenaTable: string | null,
-  status: string | null,
-) =>
+export const replayEvents = (arenaTable: string | null, status: string | null) =>
   fetch("/mulighetsrommet-arena-adapter/events/replay", {
     method: "PUT",
     headers: {
@@ -53,9 +50,7 @@ export const replayEvents = (
   })
     .then(checkOk)
     .then(() => toast.success("Gjenspilling startet"))
-    .catch((error) =>
-      toastError("Klarte ikke starte gjenspilling av events", error),
-    );
+    .catch((error) => toastError("Klarte ikke starte gjenspilling av events", error));
 
 export const replayEvent = (arenaTable: string, arenaId: string) =>
   fetch("/mulighetsrommet-arena-adapter/event/replay", {
@@ -94,46 +89,50 @@ export const deleteEvents = async (arenaTable: string, arenaIds: string) => {
     .catch((error) => toastError("Klarte ikke slette events", error));
 };
 
-export const syncVirksomhet = (orgnr: string) =>
-  fetch(
-    `/mulighetsrommet-api/api/v1/internal/virksomhet/update?orgnr=${orgnr}`,
-    {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-      },
+export type MrApiTask = "generate-validation-report" | "initial-load-tiltaksgjennomforinger";
+
+export function runTask(task: MrApiTask) {
+  return fetch(`/mulighetsrommet-api/api/v1/internal/tasks/${task}`, {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
     },
-  )
+  })
+    .then(parseJson)
+    .then((response) => {
+      toast.success(`Scheduled task '${task}': ${response.id}`);
+    })
+    .catch((error) => {
+      toastError(`Failed to execute task '${task}'`, error);
+    });
+}
+
+export const syncVirksomhet = (orgnr: string) =>
+  fetch(`/mulighetsrommet-api/api/v1/internal/virksomhet/update?orgnr=${orgnr}`, {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+    },
+  })
     .then(checkOk)
     .then(() => toast.success("Virksomhet synkronisert"))
     .catch((error) => {
-      toastError(
-        `Klarte ikke synkronisere virksomhet med orgnr=${orgnr}`,
-        error,
-      );
+      toastError(`Klarte ikke synkronisere virksomhet med orgnr=${orgnr}`, error);
     });
-
-async function checkOk(response: Response) {
-  if (!response.ok) {
-    throw new ApiError(
-      response.status,
-      response.statusText,
-      await response.text(),
-    );
-  }
-}
 
 function toastError(message: string, error: ApiError | Error) {
   toast.error(() => <ErrorToast title={message} error={error} />);
 }
 
+async function checkOk(response: Response) {
+  if (!response.ok) {
+    throw new ApiError(response.status, response.statusText, await response.text());
+  }
+}
+
 async function parseJson(response: Response) {
   if (!response.ok) {
-    throw new ApiError(
-      response.status,
-      response.statusText,
-      await response.text(),
-    );
+    throw new ApiError(response.status, response.statusText, await response.text());
   }
 
   return response.json();
@@ -141,9 +140,7 @@ async function parseJson(response: Response) {
 
 const ErrorToast = (props: { title: string; error?: ApiError | Error }) => {
   const status =
-    props.error instanceof ApiError
-      ? `${props.error.status} ${props.error.statusText}`
-      : null;
+    props.error instanceof ApiError ? `${props.error.status} ${props.error.statusText}` : null;
   return (
     <div>
       <p>{props.title}</p>

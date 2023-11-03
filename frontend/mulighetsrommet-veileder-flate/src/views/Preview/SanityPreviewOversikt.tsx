@@ -8,7 +8,7 @@ import { useNavEnheter } from "../../core/api/queries/useNavEnheter";
 import { useEffect, useState } from "react";
 import { Separator } from "../../utils/Separator";
 import { Feilmelding } from "../../components/feilmelding/Feilmelding";
-import { SokeSelect } from "../../components/sokeselect/SokeSelect";
+import { SokeSelect } from "mulighetsrommet-frontend-common/components/SokeSelect";
 
 export const SanityPreviewOversikt = () => {
   const [geografiskEnhet, setGeografiskEnhet] = useState<NavEnhet>();
@@ -22,7 +22,9 @@ export const SanityPreviewOversikt = () => {
   const { data: enheter } = useNavEnheter();
 
   useEffect(() => {
-    refetch();
+    if (geografiskEnhet) {
+      refetch();
+    }
   }, [geografiskEnhet]);
 
   if (!enheter || !tiltaksgjennomforinger) {

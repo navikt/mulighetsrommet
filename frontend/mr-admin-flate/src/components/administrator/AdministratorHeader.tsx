@@ -1,17 +1,14 @@
 import { InternalHeader } from "@navikt/ds-react";
 import { Link } from "react-router-dom";
-import { NavigeringHeader } from "../../pages/forside/NavigeringHeader";
-import { capitalize } from "../../utils/Utils";
-import styles from "./AdministratorHeader.module.scss";
-import { Notifikasjonsbjelle } from "../notifikasjoner/Notifikasjonsbjelle";
 import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
+import { NavigeringHeader } from "../../pages/forside/NavigeringHeader";
+import { Notifikasjonsbjelle } from "../notifikasjoner/Notifikasjonsbjelle";
+import styles from "./AdministratorHeader.module.scss";
 
 export function AdministratorHeader() {
   const { data } = useHentAnsatt();
 
-  const ansattNavn = data
-    ? [data.fornavn, data.etternavn].map((it) => capitalize(it)).join(" ")
-    : "Team Valp";
+  const ansattNavn = data ? [data.fornavn, data.etternavn].join(" ") : "Team Valp";
 
   return (
     <InternalHeader>

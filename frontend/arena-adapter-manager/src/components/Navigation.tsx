@@ -14,15 +14,7 @@ import { AiOutlineSetting } from "react-icons/ai";
 import { Link, useLocation } from "react-router-dom";
 import snoop from "../images/snoop.gif";
 
-function NavButton({
-  children,
-  icon,
-  to,
-}: {
-  children: string;
-  icon: any;
-  to: string;
-}) {
+function NavButton({ children, icon, to }: { children: string; icon: any; to: string }) {
   const location = useLocation();
   return (
     <Link to={to}>
@@ -57,8 +49,11 @@ function Navigation() {
           </LinkBox>
           <Box flex="auto" p="5" rounded="md">
             <HStack spacing={4}>
-              <NavButton to="/" icon={AiOutlineSetting}>
-                Management
+              <NavButton to="/mr-arena-adapter" icon={AiOutlineSetting}>
+                mr-arena-adapter
+              </NavButton>
+              <NavButton to="/mr-api" icon={AiOutlineSetting}>
+                mr-api
               </NavButton>
             </HStack>
           </Box>
