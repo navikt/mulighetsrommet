@@ -40,15 +40,18 @@ class NavAnsattRepository(private val db: Database) {
 
     fun getAll(
         roller: List<NavAnsattRolle>? = null,
+        hovedenhetIn: List<String>? = null,
         skalSlettesDatoLte: LocalDate? = null,
     ): QueryResult<List<NavAnsattDto>> = query {
         val params = mapOf(
             "roller" to roller?.let { roller -> db.createTextArray(roller.map { it.name }) },
+            "hovedenhet" to hovedenhetIn?.let { enheter -> db.createTextArray(enheter) },
             "skal_slettes_dato" to skalSlettesDatoLte,
         )
 
         val where = DatabaseUtils.andWhereParameterNotNull(
             roller to "roller @> :roller::nav_ansatt_rolle[]",
+            hovedenhetIn to "hovedenhet = any(:hovedenhet)",
             skalSlettesDatoLte to "skal_slettes_dato <= :skal_slettes_dato",
         )
 
@@ -67,7 +70,7 @@ class NavAnsattRepository(private val db: Database) {
             from nav_ansatt
                      join nav_enhet ne on nav_ansatt.hovedenhet = ne.enhetsnummer
             $where
-            order by fornavn, etternavn asc
+            order by fornavn, etternavn
         """.trimIndent()
 
         queryOf(query, params)
