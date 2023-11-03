@@ -3,8 +3,9 @@ package no.nav.mulighetsrommet.api.services
 import arrow.core.Either
 import arrow.core.left
 import io.ktor.server.plugins.*
-import kotliquery.Session
+import kotliquery.TransactionalSession
 import no.nav.mulighetsrommet.api.clients.vedtak.Innsatsgruppe
+import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingAdminDto
 import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingDto
 import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingNotificationDto
@@ -51,16 +52,11 @@ class TiltaksgjennomforingService(
 
         return validator.validate(request.toDbo())
             .map { dbo ->
-                val currentAdministratorer = get(dbo.id)?.administratorer?.map { it.navIdent }?.toSet() ?: setOf()
-
                 db.transactionSuspend { tx ->
                     tiltaksgjennomforinger.upsert(dbo, tx)
                     utkastRepository.delete(dbo.id, tx)
 
-                    val notifyTheseAdministrators = dbo.administratorer - currentAdministratorer - navIdent
-                    notifyTheseAdministrators.forEach {
-                        dispatchSattSomAdministratorNotification(dbo.navn, it, tx)
-                    }
+                    dispatchNotificationToNewAdministrators(tx, dbo, navIdent)
 
                     val dto = tiltaksgjennomforinger.get(dbo.id, tx)!!
                     tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingDto.from(dto))
@@ -69,80 +65,76 @@ class TiltaksgjennomforingService(
             }
     }
 
-    fun get(id: UUID): TiltaksgjennomforingAdminDto? =
-        tiltaksgjennomforinger.get(id)
+    fun get(id: UUID): TiltaksgjennomforingAdminDto? = tiltaksgjennomforinger.get(id)
 
     fun getAllSkalMigreres(
         pagination: PaginationParams,
         filter: AdminTiltaksgjennomforingFilter,
-    ): PaginatedResponse<TiltaksgjennomforingAdminDto> =
-        tiltaksgjennomforinger
-            .getAll(
-                pagination,
-                search = filter.search,
-                navEnhet = filter.navEnhet,
-                tiltakstypeId = filter.tiltakstypeId,
-                status = filter.status,
-                sortering = filter.sortering,
-                sluttDatoCutoff = filter.sluttDatoCutoff,
-                dagensDato = filter.dagensDato,
-                navRegion = filter.navRegion,
-                avtaleId = filter.avtaleId,
-                arrangorOrgnr = filter.arrangorOrgnr,
-                administratorNavIdent = filter.administratorNavIdent,
-                skalMigreres = true,
+    ): PaginatedResponse<TiltaksgjennomforingAdminDto> = tiltaksgjennomforinger
+        .getAll(
+            pagination,
+            search = filter.search,
+            navEnhet = filter.navEnhet,
+            tiltakstypeId = filter.tiltakstypeId,
+            status = filter.status,
+            sortering = filter.sortering,
+            sluttDatoCutoff = filter.sluttDatoCutoff,
+            dagensDato = filter.dagensDato,
+            navRegion = filter.navRegion,
+            avtaleId = filter.avtaleId,
+            arrangorOrgnr = filter.arrangorOrgnr,
+            administratorNavIdent = filter.administratorNavIdent,
+            skalMigreres = true,
+        )
+        .let { (totalCount, data) ->
+            PaginatedResponse(
+                pagination = Pagination(
+                    totalCount = totalCount,
+                    currentPage = pagination.page,
+                    pageSize = pagination.limit,
+                ),
+                data = data,
             )
-            .let { (totalCount, data) ->
-                PaginatedResponse(
-                    pagination = Pagination(
-                        totalCount = totalCount,
-                        currentPage = pagination.page,
-                        pageSize = pagination.limit,
-                    ),
-                    data = data,
-                )
-            }
+        }
 
     fun getAllVeilederflateTiltaksgjennomforing(
         search: String?,
         sanityTiltakstypeIds: List<UUID>?,
         innsatsgrupper: List<Innsatsgruppe>,
-    ): List<VeilederflateTiltaksgjennomforing> =
-        tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
-            search,
-            sanityTiltakstypeIds,
-            innsatsgrupper,
-        )
+    ): List<VeilederflateTiltaksgjennomforing> = tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
+        search,
+        sanityTiltakstypeIds,
+        innsatsgrupper,
+    )
 
     fun getAll(
         pagination: PaginationParams,
         filter: AdminTiltaksgjennomforingFilter,
-    ): PaginatedResponse<TiltaksgjennomforingAdminDto> =
-        tiltaksgjennomforinger
-            .getAll(
-                pagination,
-                search = filter.search,
-                navEnhet = filter.navEnhet,
-                tiltakstypeId = filter.tiltakstypeId,
-                status = filter.status,
-                sortering = filter.sortering,
-                sluttDatoCutoff = filter.sluttDatoCutoff,
-                dagensDato = filter.dagensDato,
-                navRegion = filter.navRegion,
-                avtaleId = filter.avtaleId,
-                arrangorOrgnr = filter.arrangorOrgnr,
-                administratorNavIdent = filter.administratorNavIdent,
+    ): PaginatedResponse<TiltaksgjennomforingAdminDto> = tiltaksgjennomforinger
+        .getAll(
+            pagination,
+            search = filter.search,
+            navEnhet = filter.navEnhet,
+            tiltakstypeId = filter.tiltakstypeId,
+            status = filter.status,
+            sortering = filter.sortering,
+            sluttDatoCutoff = filter.sluttDatoCutoff,
+            dagensDato = filter.dagensDato,
+            navRegion = filter.navRegion,
+            avtaleId = filter.avtaleId,
+            arrangorOrgnr = filter.arrangorOrgnr,
+            administratorNavIdent = filter.administratorNavIdent,
+        )
+        .let { (totalCount, data) ->
+            PaginatedResponse(
+                pagination = Pagination(
+                    totalCount = totalCount,
+                    currentPage = pagination.page,
+                    pageSize = pagination.limit,
+                ),
+                data = data,
             )
-            .let { (totalCount, data) ->
-                PaginatedResponse(
-                    pagination = Pagination(
-                        totalCount = totalCount,
-                        currentPage = pagination.page,
-                        pageSize = pagination.limit,
-                    ),
-                    data = data,
-                )
-            }
+        }
 
     fun getAllGjennomforingerSomNarmerSegSluttdato(): List<TiltaksgjennomforingNotificationDto> {
         return tiltaksgjennomforinger.getAllGjennomforingerSomNarmerSegSluttdato()
@@ -230,15 +222,19 @@ class TiltaksgjennomforingService(
         return Either.Right(Unit)
     }
 
-    private fun dispatchSattSomAdministratorNotification(
-        gjennomforingNavn: String,
-        administrator: String,
-        tx: Session,
+    private fun dispatchNotificationToNewAdministrators(
+        tx: TransactionalSession,
+        dbo: TiltaksgjennomforingDbo,
+        navIdent: String,
     ) {
+        val currentAdministratorer = get(dbo.id)?.administratorer?.map { it.navIdent }?.toSet() ?: setOf()
+
+        val administratorsToNotify = dbo.administratorer - currentAdministratorer - navIdent
+
         val notification = ScheduledNotification(
             type = NotificationType.NOTIFICATION,
-            title = "Du har blitt satt som administrator på gjennomføringen \"${gjennomforingNavn}\"",
-            targets = listOf(administrator),
+            title = "Du har blitt satt som administrator på gjennomføringen \"${dbo.navn}\"",
+            targets = administratorsToNotify,
             createdAt = Instant.now(),
         )
         notificationRepository.insert(notification, tx)
