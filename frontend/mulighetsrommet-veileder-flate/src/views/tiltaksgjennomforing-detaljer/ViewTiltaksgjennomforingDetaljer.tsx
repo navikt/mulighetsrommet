@@ -26,7 +26,7 @@ import { paginationAtom } from "../../core/atoms/atoms";
 import { environments } from "../../env";
 import TiltaksgjennomforingsHeader from "../../layouts/TiltaksgjennomforingsHeader";
 import { byttTilDialogFlate } from "../../utils/DialogFlateUtils";
-import { capitalize, erPreview, formaterDato } from "../../utils/Utils";
+import { erPreview, formaterDato } from "../../utils/Utils";
 import styles from "./ViewTiltaksgjennomforingDetaljer.module.scss";
 
 const whiteListOpprettAvtaleKnapp: Tiltakskode[] = [
@@ -60,10 +60,7 @@ function resolveName(ansatt?: NavVeileder) {
     return "";
   }
 
-  return [ansatt.fornavn, ansatt.etternavn]
-    .filter((part) => part !== "")
-    .map(capitalize)
-    .join(" ");
+  return [ansatt.fornavn, ansatt.etternavn].filter((part) => part !== "").join(" ");
 }
 
 interface Props {
