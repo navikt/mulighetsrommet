@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.tasks
 
+import com.github.kagkarlsson.scheduler.SchedulerClient
 import com.github.kagkarlsson.scheduler.task.helper.RecurringTask
 import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import com.github.kagkarlsson.scheduler.task.schedule.DisabledSchedule
@@ -7,17 +8,21 @@ import com.github.kagkarlsson.scheduler.task.schedule.Schedule
 import com.github.kagkarlsson.scheduler.task.schedule.Schedules
 import kotlinx.coroutines.runBlocking
 import no.nav.mulighetsrommet.api.services.NavAnsattService
+import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.getOrThrow
 import no.nav.mulighetsrommet.slack.SlackNotifier
 import org.slf4j.LoggerFactory
+import java.time.Instant
 import java.time.LocalDate
 import java.time.Period
+import java.util.*
 import kotlin.jvm.optionals.getOrNull
 
 class SynchronizeNavAnsatte(
     config: Config,
     private val navAnsattService: NavAnsattService,
     slack: SlackNotifier,
+    database: Database,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -58,4 +63,11 @@ class SynchronizeNavAnsatte(
                 navAnsattService.synchronizeNavAnsatte(today, deletionDate).getOrThrow()
             }
         }
+
+    private val client = SchedulerClient.Builder.create(database.getDatasource(), task).build()
+    fun schedule(startTime: Instant = Instant.now()): UUID {
+        val id = UUID.randomUUID()
+        client.schedule(task.instance(id.toString()), startTime)
+        return id
+    }
 }

@@ -89,7 +89,7 @@ export const deleteEvents = async (arenaTable: string, arenaIds: string) => {
     .catch((error) => toastError("Klarte ikke slette events", error));
 };
 
-export type MrApiTask = "generate-validation-report" | "initial-load-tiltaksgjennomforinger";
+export type MrApiTask = "generate-validation-report" | "initial-load-tiltaksgjennomforinger" | "sync-navansatte";
 
 export function runTask(task: MrApiTask) {
   return fetch(`/mulighetsrommet-api/api/v1/internal/tasks/${task}`, {

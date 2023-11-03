@@ -25,18 +25,11 @@ class MicrosoftGraphService(private val client: MicrosoftGraphClient) {
         .recordStats()
         .build()
 
-    private val azureAdGroupMembersCache: Cache<UUID, List<AzureAdNavAnsatt>> = Caffeine.newBuilder()
-        .expireAfterWrite(1, TimeUnit.HOURS)
-        .maximumSize(10_000)
-        .recordStats()
-        .build()
-
     init {
         val cacheMetrics: CacheMetricsCollector = CacheMetricsCollector()
             .register(Metrikker.appMicrometerRegistry.prometheusRegistry)
         cacheMetrics.addCache("ansattDataCache", ansattDataCache)
         cacheMetrics.addCache("brukerAzureIdToAdGruppeCache", navAnsattAdGrupperCache)
-        cacheMetrics.addCache("azureAdGroupMembersCache", azureAdGroupMembersCache)
     }
 
     suspend fun getNavAnsatt(navAnsattAzureId: UUID, oboToken: String? = null): AzureAdNavAnsatt {
@@ -52,8 +45,6 @@ class MicrosoftGraphService(private val client: MicrosoftGraphClient) {
     }
 
     suspend fun getNavAnsatteInGroup(groupId: UUID): List<AzureAdNavAnsatt> {
-        return CacheUtils.tryCacheFirstNotNull(azureAdGroupMembersCache, groupId) {
-            client.getGroupMembers(groupId)
-        }
+        return client.getGroupMembers(groupId)
     }
 }

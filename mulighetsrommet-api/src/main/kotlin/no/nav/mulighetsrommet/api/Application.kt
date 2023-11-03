@@ -41,9 +41,9 @@ fun Application.configure(config: AppConfig) {
     configureStatusPagesForStatusException()
 
     routing {
-        authenticate(AuthProvider.AZURE_AD_TEAM_MULIGHETSROMMET.name) {
-            tasks()
-        }
+   /*     authenticate(AuthProvider.AZURE_AD_TEAM_MULIGHETSROMMET.name) {
+        }*/
+        tasks()
 
         authenticate(AuthProvider.AZURE_AD_BETABRUKER.name, AuthProvider.AZURE_AD_TEAM_MULIGHETSROMMET.name) {
             veilederflatePreviewRoutes()
