@@ -203,4 +203,30 @@ class VeilederflateServiceTest : FunSpec({
         gjennomforinger.find { it.sanityId == "f21d1e35-d63b-4de7-a0a5-589e57111527" }!!
             .faneinnhold!!.forHvemInfoboks shouldBe "123"
     }
+
+    test("Returnerer korrekt gjennomføringer for brukers enheter") {
+        val fnr = "01010199999"
+        val veilederFlateService = VeilederflateService(
+            sanityClient,
+            tiltaksgjennomforingService,
+            tiltakstypeService,
+            navEnhetService,
+        )
+        every {
+            tiltaksgjennomforingService.getAllVeilederflateTiltaksgjennomforing(
+                any(),
+                any(),
+                any(),
+            )
+        } returns listOf(
+            dbGjennomforing.copy(enheter = listOf("0455")),
+        )
+        coEvery { virksomhetService.getOrSyncVirksomhet(any()) } returns null
+        coEvery { sanityClient.query(any()) } returns sanityResult
+        val gjennomforinger = veilederFlateService.hentTiltaksgjennomforingerForBrukerBasertPaEnhetOgFylke(
+            GetRelevanteTiltaksgjennomforingerForBrukerRequest(norskIdent = fnr),
+            listOf("0430", "0455"),
+        )
+        gjennomforinger.size shouldBe 2
+    }
 })
