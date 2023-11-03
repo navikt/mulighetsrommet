@@ -1514,6 +1514,8 @@ components:
             format: uuid
         search:
           type: string
+      required:
+        - geografiskEnhet
 
     GetTiltaksgjennomforingForBrukerRequest:
       type: object

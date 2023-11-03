@@ -34,5 +34,5 @@ data class GetRelevanteTiltaksgjennomforingerPreviewRequest(
     val innsatsgruppe: String? = null,
     val tiltakstypeIds: List<String>? = null,
     val search: String? = null,
-    val geografiskEnhet: String? = null,
+    val geografiskEnhet: String,
 )

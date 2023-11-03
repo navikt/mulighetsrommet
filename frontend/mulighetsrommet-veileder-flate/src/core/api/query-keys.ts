@@ -14,11 +14,10 @@ export const QueryKeys = {
       bruker?: Bruker,
       tiltaksgjennomforingsfilter?: Tiltaksgjennomforingsfilter,
     ) => ["tiltaksgjennomforinger", { ...bruker }, { ...tiltaksgjennomforingsfilter }],
-    tiltaksgjennomforingerPreview: (tiltaksgjennomforingsfilter?: Tiltaksgjennomforingsfilter) => [
-      "tiltaksgjennomforinger",
-      "preview",
-      { ...tiltaksgjennomforingsfilter },
-    ],
+    tiltaksgjennomforingerPreview: (
+      tiltaksgjennomforingsfilter?: Tiltaksgjennomforingsfilter,
+      geografiskEnhet?: string,
+    ) => ["tiltaksgjennomforinger", "preview", { ...tiltaksgjennomforingsfilter, geografiskEnhet }],
     tiltaksgjennomforing: (id: string) => ["tiltaksgjennomforing", id],
     tiltaksgjennomforingPreview: (id: string) => ["tiltaksgjennomforing", "preview", id],
   },
