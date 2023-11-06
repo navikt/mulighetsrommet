@@ -5,8 +5,6 @@ import io.kotest.matchers.collections.shouldContainInOrder
 import io.mockk.coEvery
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
-import no.nav.mulighetsrommet.api.clients.oppfolging.Oppfolgingsenhet
-import no.nav.mulighetsrommet.api.clients.person.Enhet
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.services.BrukerService
@@ -38,11 +36,18 @@ class VeilederflateRoutesTest : FunSpec({
         val brukerdata: BrukerService.Brukerdata = BrukerService.Brukerdata(
             fnr = "12345678910",
             innsatsgruppe = null,
-            oppfolgingsenhet = Oppfolgingsenhet(
+            oppfolgingsenhet = BrukerService.NavEnhet(
                 navn = navEgneAnsatteEnhet.navn,
-                enhetId = navEgneAnsatteEnhet.enhetsnummer,
+                enhetsnummer = navEgneAnsatteEnhet.enhetsnummer,
+                overordnetEnhet = null,
+                type = Norg2Type.LOKAL
             ),
-            geografiskEnhet = Enhet(navn = navLerkendalEnhet.navn, enhetsnummer = navLerkendalEnhet.enhetsnummer),
+            geografiskEnhet = BrukerService.NavEnhet(
+                navn = navLerkendalEnhet.navn,
+                enhetsnummer = navLerkendalEnhet.enhetsnummer,
+                overordnetEnhet = null,
+                type = Norg2Type.LOKAL
+            ),
             servicegruppe = null,
             fornavn = null,
             manuellStatus = null,
@@ -54,13 +59,21 @@ class VeilederflateRoutesTest : FunSpec({
 
     test("Hent relevante enheter returnerer liste med geografisk enhet hvis oppfølgingsenhet ikke eksisterer") {
         coEvery { navEnhetService.hentEnhet("0501") } returns navLerkendalEnhet
-        coEvery { navEnhetService.hentEnhet("0502") } returns navEgneAnsatteEnhet.copy(enhetsnummer = "0502", type = Norg2Type.LOKAL)
+        coEvery { navEnhetService.hentEnhet("0502") } returns navEgneAnsatteEnhet.copy(
+            enhetsnummer = "0502",
+            type = Norg2Type.LOKAL
+        )
 
         val brukerdata: BrukerService.Brukerdata = BrukerService.Brukerdata(
             fnr = "12345678910",
             innsatsgruppe = null,
             oppfolgingsenhet = null,
-            geografiskEnhet = Enhet(navn = navLerkendalEnhet.navn, enhetsnummer = navLerkendalEnhet.enhetsnummer),
+            geografiskEnhet = BrukerService.NavEnhet(
+                navn = navLerkendalEnhet.navn,
+                enhetsnummer = navLerkendalEnhet.enhetsnummer,
+                overordnetEnhet = null,
+                type = Norg2Type.LOKAL
+            ),
             servicegruppe = null,
             fornavn = null,
             manuellStatus = null,
@@ -72,16 +85,26 @@ class VeilederflateRoutesTest : FunSpec({
 
     test("Hent relevante enheter returnerer liste med oppfølgingsenhet enhet hvis oppfølgingsenhet er Lokal") {
         coEvery { navEnhetService.hentEnhet("0501") } returns navLerkendalEnhet
-        coEvery { navEnhetService.hentEnhet("0502") } returns navEgneAnsatteEnhet.copy(enhetsnummer = "0502", type = Norg2Type.LOKAL)
+        coEvery { navEnhetService.hentEnhet("0502") } returns navEgneAnsatteEnhet.copy(
+            enhetsnummer = "0502",
+            type = Norg2Type.LOKAL
+        )
 
         val brukerdata: BrukerService.Brukerdata = BrukerService.Brukerdata(
             fnr = "12345678910",
             innsatsgruppe = null,
-            oppfolgingsenhet = Oppfolgingsenhet(
+            oppfolgingsenhet = BrukerService.NavEnhet(
                 navn = navEgneAnsatteEnhet.navn,
-                enhetId = "0502",
+                enhetsnummer = "0502",
+                overordnetEnhet = null,
+                type = Norg2Type.LOKAL
             ),
-            geografiskEnhet = Enhet(navn = navLerkendalEnhet.navn, enhetsnummer = navLerkendalEnhet.enhetsnummer),
+            geografiskEnhet = BrukerService.NavEnhet(
+                navn = navLerkendalEnhet.navn,
+                enhetsnummer = navLerkendalEnhet.enhetsnummer,
+                overordnetEnhet = null,
+                type = Norg2Type.LOKAL
+            ),
             servicegruppe = null,
             fornavn = null,
             manuellStatus = null,
