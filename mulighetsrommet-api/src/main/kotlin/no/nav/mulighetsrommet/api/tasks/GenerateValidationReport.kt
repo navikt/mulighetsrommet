@@ -228,7 +228,7 @@ private fun toAvtaleDbo(dto: AvtaleAdminDto) = dto.run {
         prisbetingelser = prisbetingelser,
         antallPlasser = antallPlasser,
         url = url,
-        administratorer = administratorer.mapNotNull { it?.navIdent },
+        administratorer = administratorer.map { it.navIdent },
         updatedAt = updatedAt,
     )
 }

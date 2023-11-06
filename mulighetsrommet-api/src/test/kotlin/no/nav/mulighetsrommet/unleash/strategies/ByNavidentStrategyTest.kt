@@ -5,7 +5,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
 class ByNavidentStrategyTest : FunSpec({
-    val PARAM = "valgtNavident"
+    val param = "valgtNavident"
     context("Unleash - ByNavidentStrategy") {
         val byNavidentStrategy = ByNavidentStrategy()
 
@@ -15,14 +15,14 @@ class ByNavidentStrategyTest : FunSpec({
 
         test("Skal returnere false når brukers enhet ikke finnes i liste over valgte navIdenter") {
             byNavidentStrategy.isEnabled(
-                mutableMapOf(PARAM to "S123456"),
+                mutableMapOf(param to "S123456"),
                 UnleashContext("T654321", "", "", emptyMap()),
             ) shouldBe false
         }
 
         test("Skal returnere true når brukers enhet finnes i listen over over valgte navIdenter") {
             byNavidentStrategy.isEnabled(
-                mutableMapOf(PARAM to "S123456"),
+                mutableMapOf(param to "S123456"),
                 UnleashContext("S123456", "", "", emptyMap()),
             ) shouldBe true
         }
