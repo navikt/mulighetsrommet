@@ -11,7 +11,7 @@ import { Feilmelding } from "../../components/feilmelding/Feilmelding";
 import { SokeSelect } from "mulighetsrommet-frontend-common/components/SokeSelect";
 
 export const SanityPreviewOversikt = () => {
-  const [geografiskEnhet, setGeografiskEnhet] = useState<NavEnhet | undefined>();
+  const [geografiskEnhet, setGeografiskEnhet] = useState<NavEnhet>();
   const {
     data: tiltaksgjennomforinger = [],
     isLoading,
@@ -34,7 +34,7 @@ export const SanityPreviewOversikt = () => {
     <>
       <SokeSelect
         label="Brukers geografiske enhet"
-        description="Kun ment som hjelp til forhåndsvisning"
+        description="Simuler en brukers geografiske enhet"
         value={
           geografiskEnhet !== undefined
             ? { label: geografiskEnhet.navn, value: geografiskEnhet.enhetsnummer }
@@ -55,6 +55,7 @@ export const SanityPreviewOversikt = () => {
             value: enhet.enhetsnummer,
           }))}
       />
+
       <Separator />
 
       <div className={styles.tiltakstype_oversikt} data-testid="tiltakstype-oversikt">

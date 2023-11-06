@@ -11,10 +11,14 @@ Et API med endepunkter for å hente ut informasjon om forskjellige tiltak NAV ka
 - [Teknologier](#teknologier)
 - [Overvåking og alarmer](#overvåking-og-alarmer)
 - [Kom i gang](#kom-i-gang)
-    - [Forutsetninger](#forutsetninger)
+  - [Forutsetninger](#forutsetninger)
     - [Miljøvariabler](#miljøvariabler)
-    - [Steg for steg](#steg-for-steg)
-        - [Autentisering](#autentisering)
+  - [Steg for steg](#steg-for-steg)
+    - [Databasemigrasjoner](#databasemigrasjoner)
+    - [Autentisering](#autentisering)
+    - [Feature toggles](#feature-toggles)
+  - [Automatiske jobber](#automatiske-jobber)
+    - [Oppdatere enheter fra NORG til Sanity](#oppdatere-enheter-fra-norg-til-sanity)
 
 # <a name="teknologier"></a>Teknologier
 
@@ -112,7 +116,7 @@ Følgende steg kan benyttes til å generere opp et token:
          ],
          "oid": "0bab029e-e84e-4842-8a27-d153b29782cf",
          "azp_name": "test name",
-         "groups": ["ee45478c-57a5-4ee6-b28d-b65f8c1733fe"] # Betabruker rolle
+         "groups": ["ee45478c-57a5-4ee6-b28d-b65f8c1733fe"]
        }
        ```
     4. Trykk `Sign in`

@@ -5,7 +5,10 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.plugins.getNavAnsattAzureId
+import no.nav.mulighetsrommet.api.services.BrukerService
+import no.nav.mulighetsrommet.api.services.NavEnhetService
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
 import no.nav.mulighetsrommet.api.services.VeilederflateService
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
@@ -16,6 +19,8 @@ import java.util.*
 fun Route.veilederflateRoutes() {
     val veilederflateService: VeilederflateService by inject()
     val poaoTilgangService: PoaoTilgangService by inject()
+    val brukerService: BrukerService by inject()
+    val navEnhetService: NavEnhetService by inject()
 
     route("/api/v1/internal/sanity") {
         get("/innsatsgrupper") {
@@ -39,9 +44,11 @@ fun Route.veilederflateRoutes() {
 
             poaoTilgangService.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), request.norskIdent)
 
+            val brukerdata = brukerService.hentBrukerdata(request.norskIdent, call.getAccessToken())
+
             val result = veilederflateService.hentTiltaksgjennomforingerForBrukerBasertPaEnhetOgFylke(
                 request,
-                call.getAccessToken(),
+                getRelevanteEnheterForBruker(brukerdata, navEnhetService),
             )
 
             call.respond(result)
@@ -52,14 +59,38 @@ fun Route.veilederflateRoutes() {
 
             poaoTilgangService.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), request.norskIdent)
 
+            val brukerdata = brukerService.hentBrukerdata(request.norskIdent, call.getAccessToken())
+
             val result = veilederflateService.hentTiltaksgjennomforingMedBrukerdata(
                 request,
-                call.getAccessToken(),
+                getRelevanteEnheterForBruker(brukerdata, navEnhetService),
             )
 
             call.respond(result)
         }
     }
+}
+
+fun getRelevanteEnheterForBruker(brukerdata: BrukerService.Brukerdata, navEnhetService: NavEnhetService): List<String> {
+    val geografiskEnhet = brukerdata.geografiskEnhet?.let { navEnhetService.hentEnhet(it.enhetsnummer) }
+    val oppfolgingsenhet =
+        brukerdata.oppfolgingsenhet?.let { enhet -> enhet.enhetId?.let { navEnhetService.hentEnhet(it) } }
+
+    val actualGeografiskEnhet = if (oppfolgingsenhet?.type == Norg2Type.LOKAL) {
+        oppfolgingsenhet.enhetsnummer
+    } else {
+        geografiskEnhet?.enhetsnummer
+    }
+    val virtuellOppfolgingsenhet = if (oppfolgingsenhet != null && oppfolgingsenhet.type !in listOf(
+            Norg2Type.FYLKE,
+            Norg2Type.LOKAL,
+        )
+    ) {
+        oppfolgingsenhet.enhetsnummer
+    } else {
+        null
+    }
+    return listOfNotNull(actualGeografiskEnhet, virtuellOppfolgingsenhet)
 }
 
 @Serializable

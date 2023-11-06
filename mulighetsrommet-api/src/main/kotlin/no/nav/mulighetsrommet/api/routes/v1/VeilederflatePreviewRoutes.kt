@@ -23,6 +23,7 @@ fun Route.veilederflatePreviewRoutes() {
             val id = call.parameters.getOrFail("id")
             val result = veilederflateService.hentPreviewTiltaksgjennomforing(
                 id,
+                emptyList(),
             )
             call.respond(result)
         }
