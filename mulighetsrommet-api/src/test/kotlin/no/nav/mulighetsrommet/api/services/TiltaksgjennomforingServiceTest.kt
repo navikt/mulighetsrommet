@@ -338,7 +338,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
 
             val endretGjennomforing = gjennomforing.copy(
                 navn = "nytt navn",
-                administratorer = listOf("Z654321", "T654321", "B123456")
+                administratorer = listOf("Z654321", "T654321", "B123456"),
             )
             tiltaksgjennomforingService.upsert(endretGjennomforing, "B123456").shouldBeRight()
 

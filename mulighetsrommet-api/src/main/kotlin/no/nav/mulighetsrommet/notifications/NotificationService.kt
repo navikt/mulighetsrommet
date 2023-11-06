@@ -53,6 +53,11 @@ class NotificationService(
     fun scheduleNotification(notification: ScheduledNotification, instant: Instant = Instant.now()) {
         val id = notification.id
 
+        if (notification.targets.isEmpty()) {
+            logger.warn("The notification id=$id has no targets. The notification will not be scheduled.")
+            return
+        }
+
         logger.info("Scheduling notification id=$id for time=$instant")
 
         val instance = handleScheduledNotification.instance(id.toString(), notification)

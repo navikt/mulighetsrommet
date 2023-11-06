@@ -371,8 +371,9 @@ class AvtaleServiceTest : FunSpec({
             avtaleService.upsert(
                 avtale.copy(
                     navn = "nytt navn",
-                    administratorer = listOf("Z654321", "T654321", "B123456")
-                ), "B123456"
+                    administratorer = listOf("Z654321", "T654321", "B123456"),
+                ),
+                "B123456",
             )
 
             database.assertThat("user_notification")

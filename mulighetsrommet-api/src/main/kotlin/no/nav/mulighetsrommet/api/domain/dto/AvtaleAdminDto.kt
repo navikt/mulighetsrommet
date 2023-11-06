@@ -25,6 +25,7 @@ data class AvtaleAdminDto(
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate,
+    val arenaAnsvarligEnhet: String?,
     val avtaletype: Avtaletype,
     val avtalestatus: Avtalestatus,
     val prisbetingelser: String?,
@@ -36,6 +37,8 @@ data class AvtaleAdminDto(
     val updatedAt: LocalDateTime,
     val kontorstruktur: List<Kontorstruktur>,
 ) {
+    fun isAktiv(): Boolean = avtalestatus == Avtalestatus.Aktiv
+
     @Serializable
     data class Tiltakstype(
         @Serializable(with = UUIDSerializer::class)

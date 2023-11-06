@@ -37,22 +37,22 @@ from avtale a
          left join avtale_administrator aa on a.id = aa.avtale_id
          left join nav_ansatt na on na.nav_ident = aa.nav_ident
          left join lateral (
-    SELECT an.avtale_id,
+    select an.avtale_id,
            jsonb_strip_nulls(jsonb_agg(jsonb_build_object(
                    'enhetsnummer', an.enhetsnummer,
                    'navn', ne.navn,
                    'type', ne.type,
                    'overordnetEnhet', ne.overordnet_enhet))) as nav_enheter
-    FROM avtale_nav_enhet an
+    from avtale_nav_enhet an
              left join nav_enhet ne on ne.enhetsnummer = an.enhetsnummer
     group by an.avtale_id
     ) an on an.avtale_id = a.id
          left join lateral (
-    SELECT au.avtale_id,
+    select au.avtale_id,
            jsonb_strip_nulls(jsonb_agg(jsonb_build_object(
                    'organisasjonsnummer', au.organisasjonsnummer,
                    'navn', v.navn))) as leverandor_underenheter
-    FROM avtale_underleverandor au
+    from avtale_underleverandor au
              left join virksomhet v on v.organisasjonsnummer = au.organisasjonsnummer
     group by au.avtale_id
     ) au on au.avtale_id = a.id

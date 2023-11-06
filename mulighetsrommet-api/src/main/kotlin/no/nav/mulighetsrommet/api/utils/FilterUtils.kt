@@ -52,6 +52,7 @@ data class AdminTiltaksgjennomforingFilter(
 data class EnhetFilter(
     val statuser: List<NavEnhetStatus>? = null,
     val typer: List<Norg2Type>? = null,
+    val overordnetEnhet: String? = null,
 )
 
 data class NotificationFilter(

@@ -126,7 +126,7 @@ class NavAnsattRepositoryTest : FunSpec({
             ansatte.getAll(hovedenhetIn = listOf()) shouldBeRight listOf()
             ansatte.getAll(hovedenhetIn = listOf("1000")) shouldBeRight listOf(
                 toDto(ansatt1, enhet1),
-                toDto(ansatt3, enhet1)
+                toDto(ansatt3, enhet1),
             )
             ansatte.getAll(hovedenhetIn = listOf("2000")) shouldBeRight listOf(
                 toDto(ansatt2, enhet2),
@@ -134,7 +134,7 @@ class NavAnsattRepositoryTest : FunSpec({
             ansatte.getAll(hovedenhetIn = listOf("1000", "2000")) shouldBeRight listOf(
                 toDto(ansatt2, enhet2),
                 toDto(ansatt1, enhet1),
-                toDto(ansatt3, enhet1)
+                toDto(ansatt3, enhet1),
             )
         }
     }

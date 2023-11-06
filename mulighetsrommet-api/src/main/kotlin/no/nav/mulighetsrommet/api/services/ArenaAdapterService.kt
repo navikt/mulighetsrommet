@@ -1,11 +1,16 @@
 package no.nav.mulighetsrommet.api.services
 
+import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle
+import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
+import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleAdminDto
 import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingAdminDto
 import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingDto
 import no.nav.mulighetsrommet.api.repositories.*
+import no.nav.mulighetsrommet.api.utils.EnhetFilter
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.QueryResult
+import no.nav.mulighetsrommet.database.utils.getOrThrow
 import no.nav.mulighetsrommet.database.utils.query
 import no.nav.mulighetsrommet.domain.Tiltakskoder
 import no.nav.mulighetsrommet.domain.Tiltakskoder.isEgenRegiTiltak
@@ -13,9 +18,16 @@ import no.nav.mulighetsrommet.domain.constants.ArenaMigrering.Tiltaksgjennomfori
 import no.nav.mulighetsrommet.domain.dbo.*
 import no.nav.mulighetsrommet.kafka.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.kafka.producers.TiltakstypeKafkaProducer
+import no.nav.mulighetsrommet.notifications.NotificationMetadata
+import no.nav.mulighetsrommet.notifications.NotificationService
+import no.nav.mulighetsrommet.notifications.NotificationType
+import no.nav.mulighetsrommet.notifications.ScheduledNotification
+import java.time.Instant
 import java.util.*
 
 class ArenaAdapterService(
+    private val db: Database,
+    private val navAnsatte: NavAnsattRepository,
     private val tiltakstyper: TiltakstypeRepository,
     private val avtaler: AvtaleRepository,
     private val tiltaksgjennomforinger: TiltaksgjennomforingRepository,
@@ -25,7 +37,8 @@ class ArenaAdapterService(
     private val tiltakstypeKafkaProducer: TiltakstypeKafkaProducer,
     private val sanityTiltaksgjennomforingService: SanityTiltaksgjennomforingService,
     private val virksomhetService: VirksomhetService,
-    private val db: Database,
+    private val navEnhetService: NavEnhetService,
+    private val notificationService: NotificationService,
 ) {
     fun upsertTiltakstype(tiltakstype: TiltakstypeDbo): QueryResult<TiltakstypeDbo> {
         return tiltakstyper.upsert(tiltakstype).onRight {
@@ -46,7 +59,12 @@ class ArenaAdapterService(
     suspend fun upsertAvtale(avtale: ArenaAvtaleDbo): AvtaleAdminDto {
         virksomhetService.getOrSyncVirksomhet(avtale.leverandorOrganisasjonsnummer)
         avtaler.upsertArenaAvtale(avtale)
-        return avtaler.get(avtale.id)!!
+
+        val dbo = avtaler.get(avtale.id)!!
+        if (dbo.isAktiv()) {
+            maybeNotifyRelevantAdministrators(dbo)
+        }
+        return dbo
     }
 
     fun removeAvtale(id: UUID) {
@@ -62,8 +80,13 @@ class ArenaAdapterService(
             tiltaksgjennomforinger.upsertArenaTiltaksgjennomforing(tiltaksgjennomforingMedAvtale, tx)
             val gjennomforing = tiltaksgjennomforinger.get(tiltaksgjennomforing.id, tx)!!
             tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingDto.from(gjennomforing))
+
             if (shouldBeManagedInSanity(gjennomforing)) {
                 sanityTiltaksgjennomforingService.createOrPatchSanityTiltaksgjennomforing(gjennomforing, tx)
+            }
+
+            if (gjennomforing.isAktiv()) {
+                maybeNotifyRelevantAdministrators(gjennomforing)
             }
 
             gjennomforing
@@ -118,5 +141,83 @@ class ArenaAdapterService(
         val sluttDato = gjennomforing.sluttDato
         return isEgenRegiTiltak(gjennomforing.tiltakstype.arenaKode) &&
             (sluttDato == null || sluttDato.isAfter(TiltaksgjennomforingSluttDatoCutoffDate))
+    }
+
+    private fun maybeNotifyRelevantAdministrators(avtale: AvtaleAdminDto) {
+        val overordnetEnhet = resolveRelevantNavEnhet(
+            avtale.arenaAnsvarligEnhet,
+            avtale.administratorer,
+        ) ?: return
+
+        notifyRelevantAdministrators(overordnetEnhet) { administrators ->
+            ScheduledNotification(
+                type = NotificationType.TASK,
+                title = """Avtalen "${avtale.navn}" har endringer fra Arena, men mangler en ansvarlig administrator.""",
+                description = "Du har blitt varslet fordi din NAV-hovedenhet og avtalens ansvarlige NAV-enhet begge er relatert til ${overordnetEnhet.navn}.",
+                metadata = NotificationMetadata(
+                    linkText = "Gå til avtalen",
+                    link = "/avtaler/${avtale.id}",
+                ),
+                targets = administrators,
+                createdAt = Instant.now(),
+            )
+        }
+    }
+
+    private fun maybeNotifyRelevantAdministrators(gjennomforing: TiltaksgjennomforingAdminDto) {
+        val enhet = resolveRelevantNavEnhet(
+            gjennomforing.arenaAnsvarligEnhet,
+            gjennomforing.administratorer,
+        ) ?: return
+
+        notifyRelevantAdministrators(enhet) { administrators ->
+            ScheduledNotification(
+                type = NotificationType.TASK,
+                title = """Gjennomføringen "${gjennomforing.navn}" har endringer fra Arena, men mangler en ansvarlig administrator.""",
+                description = "Du har blitt varslet fordi din NAV-hovedenhet og gjennomføringens ansvarlige NAV-enhet begge er relatert til ${enhet.navn}.",
+                metadata = NotificationMetadata(
+                    linkText = "Gå til gjennomføringen",
+                    link = "/tiltaksgjennomforinger/${gjennomforing.id}",
+                ),
+                targets = administrators,
+                createdAt = Instant.now(),
+            )
+        }
+    }
+
+    private fun resolveRelevantNavEnhet(arenaAnsvarligEnhet: String?, administrators: List<*>): NavEnhetDbo? {
+        // Når administratorer er satt så betyr det at avtalen/gjennomføringen har blitt redigert i mulighetsrommet
+        // Det burde derfor ikke være nødvendig å varsle for disse hendelsene
+        if (arenaAnsvarligEnhet == null || administrators.isNotEmpty()) {
+            return null
+        }
+
+        return navEnhetService.hentOverordnetFylkesenhet(arenaAnsvarligEnhet)
+    }
+
+    private fun notifyRelevantAdministrators(
+        overordnetEnhet: NavEnhetDbo,
+        createNotification: (administrators: List<String>) -> ScheduledNotification,
+    ) {
+        val potentialAdministratorHovedenheter = navEnhetService
+            .hentAlleEnheter(
+                EnhetFilter(
+                    statuser = listOf(NavEnhetStatus.AKTIV),
+                    overordnetEnhet = overordnetEnhet.enhetsnummer,
+                ),
+            )
+            .map { it.enhetsnummer }
+            .plus(overordnetEnhet.enhetsnummer)
+
+        val administrators = navAnsatte
+            .getAll(
+                roller = listOf(NavAnsattRolle.BETABRUKER),
+                hovedenhetIn = potentialAdministratorHovedenheter,
+            )
+            .getOrThrow()
+            .map { it.navIdent }
+
+        val notification = createNotification(administrators)
+        notificationService.scheduleNotification(notification)
     }
 }

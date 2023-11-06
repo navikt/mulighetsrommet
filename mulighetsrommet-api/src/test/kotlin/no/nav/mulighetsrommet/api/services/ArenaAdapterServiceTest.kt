@@ -9,6 +9,9 @@ import io.mockk.mockk
 import io.mockk.verify
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingDto
+import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
+import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
+import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.repositories.*
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
@@ -20,6 +23,9 @@ import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
 import no.nav.mulighetsrommet.domain.dto.TiltakstypeDto
 import no.nav.mulighetsrommet.kafka.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.kafka.producers.TiltakstypeKafkaProducer
+import no.nav.mulighetsrommet.notifications.NotificationService
+import no.nav.mulighetsrommet.notifications.NotificationType
+import no.nav.mulighetsrommet.notifications.ScheduledNotification
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -38,8 +44,8 @@ class ArenaAdapterServiceTest : FunSpec({
         rettPaaTiltakspenger = true,
         registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
         sistEndretDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
-        fraDato = LocalDate.of(2023, 1, 11),
-        tilDato = LocalDate.of(2023, 1, 12),
+        fraDato = LocalDate.now(),
+        tilDato = LocalDate.now().plusYears(1),
     )
 
     val avtale = ArenaAvtaleDbo(
@@ -48,9 +54,9 @@ class ArenaAdapterServiceTest : FunSpec({
         tiltakstypeId = tiltakstype.id,
         avtalenummer = "2023#1000",
         leverandorOrganisasjonsnummer = "123456789",
-        startDato = LocalDate.of(2022, 11, 11),
-        sluttDato = LocalDate.of(2023, 11, 11),
-        arenaAnsvarligEnhet = "2990",
+        startDato = LocalDate.now(),
+        sluttDato = LocalDate.now().plusYears(1),
+        arenaAnsvarligEnhet = null,
         avtaletype = Avtaletype.Rammeavtale,
         avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
         prisbetingelser = "💸",
@@ -63,10 +69,10 @@ class ArenaAdapterServiceTest : FunSpec({
         tiltakstypeId = tiltakstype.id,
         tiltaksnummer = "12345",
         arrangorOrganisasjonsnummer = "123456789",
-        startDato = LocalDate.of(2022, 11, 11),
-        sluttDato = LocalDate.of(2023, 11, 11),
-        arenaAnsvarligEnhet = "2990",
-        avslutningsstatus = Avslutningsstatus.AVSLUTTET,
+        startDato = LocalDate.now(),
+        sluttDato = LocalDate.now().plusYears(1),
+        arenaAnsvarligEnhet = null,
+        avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
         tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.LEDIG,
         antallPlasser = null,
         oppstart = TiltaksgjennomforingOppstartstype.FELLES,
@@ -118,7 +124,7 @@ class ArenaAdapterServiceTest : FunSpec({
             navn = navn,
             startDato = startDato,
             sluttDato = sluttDato,
-            status = Tiltaksgjennomforingsstatus.AVSLUTTET,
+            status = Tiltaksgjennomforingsstatus.GJENNOMFORES,
             oppstart = oppstart,
             virksomhetsnummer = arrangorOrganisasjonsnummer,
         )
@@ -127,6 +133,8 @@ class ArenaAdapterServiceTest : FunSpec({
     context("tiltakstype") {
         val tiltakstypeKafkaProducer = mockk<TiltakstypeKafkaProducer>(relaxed = true)
         val service = ArenaAdapterService(
+            db = database.db,
+            navAnsatte = NavAnsattRepository(database.db),
             tiltakstyper = TiltakstypeRepository(database.db),
             avtaler = AvtaleRepository(database.db),
             tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db),
@@ -136,7 +144,8 @@ class ArenaAdapterServiceTest : FunSpec({
             tiltakstypeKafkaProducer = tiltakstypeKafkaProducer,
             sanityTiltaksgjennomforingService = mockk(relaxed = true),
             virksomhetService = mockk(relaxed = true),
-            db = database.db,
+            navEnhetService = mockk(relaxed = true),
+            notificationService = mockk(relaxed = true),
         )
 
         afterTest {
@@ -179,7 +188,11 @@ class ArenaAdapterServiceTest : FunSpec({
     }
 
     context("avtaler") {
+        val notificationService = mockk<NotificationService>(relaxed = true)
+        val navEnheter = NavEnhetRepository(database.db)
         val service = ArenaAdapterService(
+            db = database.db,
+            navAnsatte = NavAnsattRepository(database.db),
             tiltakstyper = TiltakstypeRepository(database.db),
             avtaler = AvtaleRepository(database.db),
             tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db),
@@ -189,8 +202,13 @@ class ArenaAdapterServiceTest : FunSpec({
             tiltakstypeKafkaProducer = mockk(relaxed = true),
             sanityTiltaksgjennomforingService = mockk(relaxed = true),
             virksomhetService = mockk(relaxed = true),
-            db = database.db,
+            navEnhetService = NavEnhetService(navEnheter),
+            notificationService = notificationService,
         )
+
+        afterEach {
+            clearAllMocks()
+        }
 
         test("CRUD") {
             service.upsertTiltakstype(tiltakstype)
@@ -217,11 +235,99 @@ class ArenaAdapterServiceTest : FunSpec({
             service.removeTiltaksgjennomforing(updated.id)
             database.assertThat("tiltaksgjennomforing").isEmpty
         }
+
+        test("varsler administratorer basert på hovedenhet når avtale har endringer") {
+            val domain = MulighetsrommetTestDomain(
+                enheter = listOf(NavEnhetFixtures.IT),
+                ansatte = listOf(
+                    NavAnsattFixture.ansatt1.copy(hovedenhet = NavEnhetFixtures.IT.enhetsnummer),
+                    NavAnsattFixture.ansatt2.copy(hovedenhet = NavEnhetFixtures.IT.enhetsnummer),
+                ),
+                tiltakstyper = listOf(tiltakstype),
+                avtaler = listOf(),
+            )
+            domain.initialize(database.db)
+
+            service.upsertAvtale(
+                avtale.copy(
+                    arenaAnsvarligEnhet = NavEnhetFixtures.IT.enhetsnummer,
+                ),
+            )
+
+            verify(exactly = 1) {
+                val expectedNotification: ScheduledNotification = match<ScheduledNotification> {
+                    it.type == NotificationType.TASK &&
+                        it.targets.containsAll(listOf(domain.ansatte[0].navIdent, domain.ansatte[1].navIdent))
+                }
+                notificationService.scheduleNotification(expectedNotification, any())
+            }
+        }
+
+        test("varsler administratorer basert på felles fylke når avtale har endringer") {
+            val domain = MulighetsrommetTestDomain(
+                enheter = listOf(
+                    NavEnhetFixtures.IT,
+                    NavEnhetFixtures.Oslo,
+                    NavEnhetFixtures.Sagene,
+                    NavEnhetFixtures.TiltakOslo,
+                    NavEnhetFixtures.Innlandet,
+                    NavEnhetFixtures.Gjovik,
+                ),
+                ansatte = listOf(
+                    NavAnsattFixture.ansatt1.copy(hovedenhet = NavEnhetFixtures.Sagene.enhetsnummer),
+                    NavAnsattFixture.ansatt2.copy(hovedenhet = NavEnhetFixtures.Gjovik.enhetsnummer),
+                ),
+                tiltakstyper = listOf(tiltakstype),
+                avtaler = listOf(),
+            )
+            domain.initialize(database.db)
+
+            service.upsertAvtale(
+                avtale.copy(
+                    arenaAnsvarligEnhet = NavEnhetFixtures.TiltakOslo.enhetsnummer,
+                ),
+            )
+
+            verify(exactly = 1) {
+                val expectedNotification: ScheduledNotification = match<ScheduledNotification> {
+                    it.type == NotificationType.TASK &&
+                        it.targets.containsAll(listOf(domain.ansatte[0].navIdent))
+                }
+                notificationService.scheduleNotification(expectedNotification, any())
+            }
+        }
+
+        test("varsler ikke administratorer når avtalen er avsluttet") {
+            val domain = MulighetsrommetTestDomain(
+                enheter = listOf(NavEnhetFixtures.IT),
+                ansatte = listOf(
+                    NavAnsattFixture.ansatt1.copy(hovedenhet = NavEnhetFixtures.IT.enhetsnummer),
+                    NavAnsattFixture.ansatt2.copy(hovedenhet = NavEnhetFixtures.IT.enhetsnummer),
+                ),
+                tiltakstyper = listOf(tiltakstype),
+                avtaler = listOf(),
+            )
+            domain.initialize(database.db)
+
+            service.upsertAvtale(
+                avtale.copy(
+                    arenaAnsvarligEnhet = NavEnhetFixtures.IT.enhetsnummer,
+                    avslutningsstatus = Avslutningsstatus.AVSLUTTET,
+                ),
+            )
+
+            verify(exactly = 0) {
+                notificationService.scheduleNotification(any(), any())
+            }
+        }
     }
 
     context("tiltaksgjennomføring") {
         val tiltaksgjennomforingKafkaProducer = mockk<TiltaksgjennomforingKafkaProducer>(relaxed = true)
+        val notificationService = mockk<NotificationService>(relaxed = true)
         val service = ArenaAdapterService(
+            db = database.db,
+            navAnsatte = NavAnsattRepository(database.db),
             tiltakstyper = TiltakstypeRepository(database.db),
             avtaler = AvtaleRepository(database.db),
             tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db),
@@ -231,10 +337,11 @@ class ArenaAdapterServiceTest : FunSpec({
             tiltakstypeKafkaProducer = mockk(relaxed = true),
             sanityTiltaksgjennomforingService = mockk(relaxed = true),
             virksomhetService = mockk(relaxed = true),
-            db = database.db,
+            navEnhetService = NavEnhetService(NavEnhetRepository(database.db)),
+            notificationService = notificationService,
         )
 
-        afterTest {
+        afterEach {
             clearAllMocks()
         }
 
@@ -323,10 +430,103 @@ class ArenaAdapterServiceTest : FunSpec({
                 }
             }
         }
+
+        test("varsler administratorer basert på hovedenhet når gjennomføring har endringer") {
+            val domain = MulighetsrommetTestDomain(
+                enheter = listOf(NavEnhetFixtures.IT),
+                ansatte = listOf(
+                    NavAnsattFixture.ansatt1.copy(hovedenhet = NavEnhetFixtures.IT.enhetsnummer),
+                    NavAnsattFixture.ansatt2.copy(hovedenhet = NavEnhetFixtures.IT.enhetsnummer),
+                ),
+                tiltakstyper = listOf(tiltakstype),
+                avtaler = listOf(),
+            )
+            domain.initialize(database.db)
+            service.upsertAvtale(avtale)
+
+            service.upsertTiltaksgjennomforing(
+                tiltaksgjennomforing.copy(
+                    avtaleId = avtale.id,
+                    arenaAnsvarligEnhet = NavEnhetFixtures.IT.enhetsnummer,
+                ),
+            )
+
+            verify(exactly = 1) {
+                val expectedNotification: ScheduledNotification = match<ScheduledNotification> {
+                    it.type == NotificationType.TASK &&
+                        it.targets.containsAll(listOf(domain.ansatte[0].navIdent, domain.ansatte[1].navIdent))
+                }
+                notificationService.scheduleNotification(expectedNotification, any())
+            }
+        }
+
+        test("varsler administratorer basert på felles fylke når gjennomføring har endringer") {
+            val domain = MulighetsrommetTestDomain(
+                enheter = listOf(
+                    NavEnhetFixtures.IT,
+                    NavEnhetFixtures.Oslo,
+                    NavEnhetFixtures.Sagene,
+                    NavEnhetFixtures.TiltakOslo,
+                    NavEnhetFixtures.Innlandet,
+                    NavEnhetFixtures.Gjovik,
+                ),
+                ansatte = listOf(
+                    NavAnsattFixture.ansatt1.copy(hovedenhet = NavEnhetFixtures.Sagene.enhetsnummer),
+                    NavAnsattFixture.ansatt2.copy(hovedenhet = NavEnhetFixtures.Gjovik.enhetsnummer),
+                ),
+                tiltakstyper = listOf(tiltakstype),
+                avtaler = listOf(),
+            )
+            domain.initialize(database.db)
+            service.upsertAvtale(avtale)
+
+            service.upsertTiltaksgjennomforing(
+                tiltaksgjennomforing.copy(
+                    avtaleId = avtale.id,
+                    arenaAnsvarligEnhet = NavEnhetFixtures.TiltakOslo.enhetsnummer,
+                ),
+            )
+
+            verify(exactly = 1) {
+                val expectedNotification: ScheduledNotification = match<ScheduledNotification> {
+                    it.type == NotificationType.TASK &&
+                        it.targets.containsAll(listOf(domain.ansatte[0].navIdent))
+                }
+                notificationService.scheduleNotification(expectedNotification, any())
+            }
+        }
+
+        test("varsler ikke administratorer når gjennomføringen er avsluttet") {
+            val domain = MulighetsrommetTestDomain(
+                enheter = listOf(NavEnhetFixtures.IT),
+                ansatte = listOf(
+                    NavAnsattFixture.ansatt1.copy(hovedenhet = NavEnhetFixtures.IT.enhetsnummer),
+                    NavAnsattFixture.ansatt2.copy(hovedenhet = NavEnhetFixtures.IT.enhetsnummer),
+                ),
+                tiltakstyper = listOf(tiltakstype),
+                avtaler = listOf(),
+            )
+            domain.initialize(database.db)
+            service.upsertAvtale(avtale)
+
+            service.upsertTiltaksgjennomforing(
+                tiltaksgjennomforing.copy(
+                    avtaleId = avtale.id,
+                    arenaAnsvarligEnhet = NavEnhetFixtures.IT.enhetsnummer,
+                    avslutningsstatus = Avslutningsstatus.AVBRUTT,
+                ),
+            )
+
+            verify(exactly = 0) {
+                notificationService.scheduleNotification(any(), any())
+            }
+        }
     }
 
     context("tiltakshistorikk") {
         val service = ArenaAdapterService(
+            db = database.db,
+            navAnsatte = NavAnsattRepository(database.db),
             tiltakstyper = TiltakstypeRepository(database.db),
             avtaler = AvtaleRepository(database.db),
             tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db),
@@ -336,7 +536,8 @@ class ArenaAdapterServiceTest : FunSpec({
             tiltakstypeKafkaProducer = mockk(relaxed = true),
             sanityTiltaksgjennomforingService = mockk(relaxed = true),
             virksomhetService = mockk(relaxed = true),
-            db = database.db,
+            navEnhetService = NavEnhetService(NavEnhetRepository(database.db)),
+            notificationService = mockk(relaxed = true),
         )
 
         beforeTest {
