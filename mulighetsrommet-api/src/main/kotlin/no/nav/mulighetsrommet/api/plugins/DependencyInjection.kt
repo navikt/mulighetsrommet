@@ -57,6 +57,7 @@ import no.nav.mulighetsrommet.slack.SlackNotifierImpl
 import no.nav.mulighetsrommet.tasks.DbSchedulerKotlinSerializer
 import no.nav.mulighetsrommet.unleash.UnleashService
 import no.nav.mulighetsrommet.unleash.strategies.ByEnhetStrategy
+import no.nav.mulighetsrommet.unleash.strategies.ByNavidentStrategy
 import no.nav.poao_tilgang.client.PoaoTilgangClient
 import no.nav.poao_tilgang.client.PoaoTilgangHttpClient
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
@@ -285,7 +286,8 @@ private fun services(appConfig: AppConfig) = module {
     single { NotatServiceImpl(get(), get()) }
     single {
         val byEnhetStrategy = ByEnhetStrategy(get())
-        UnleashService(appConfig.unleash, byEnhetStrategy)
+        val byNavidentStrategy = ByNavidentStrategy()
+        UnleashService(appConfig.unleash, byEnhetStrategy, byNavidentStrategy)
     }
     single { AxsysService(appConfig.axsys) { m2mTokenProvider.createMachineToMachineToken(appConfig.axsys.scope) } }
     single { AvtaleValidator(get(), get(), get(), get()) }

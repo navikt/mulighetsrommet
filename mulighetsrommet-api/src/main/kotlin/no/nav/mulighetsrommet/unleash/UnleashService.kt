@@ -5,8 +5,9 @@ import io.getunleash.Unleash
 import io.getunleash.UnleashContext
 import io.getunleash.util.UnleashConfig
 import no.nav.mulighetsrommet.unleash.strategies.ByEnhetStrategy
+import no.nav.mulighetsrommet.unleash.strategies.ByNavidentStrategy
 
-class UnleashService(config: Config, byEnhetStrategy: ByEnhetStrategy) {
+class UnleashService(config: Config, byEnhetStrategy: ByEnhetStrategy, byNavidentStrategy: ByNavidentStrategy) {
     private val unleash: Unleash
 
     data class Config(
@@ -25,7 +26,7 @@ class UnleashService(config: Config, byEnhetStrategy: ByEnhetStrategy) {
             .apiKey(config.token)
             .environment(config.environment)
             .build()
-        unleash = DefaultUnleash(unleashConfig, byEnhetStrategy)
+        unleash = DefaultUnleash(unleashConfig, byEnhetStrategy, byNavidentStrategy)
     }
 
     fun isEnabled(feature: String, context: FeatureToggleContext): Boolean {
