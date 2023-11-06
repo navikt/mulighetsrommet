@@ -40,13 +40,13 @@ class VeilederflateRoutesTest : FunSpec({
                 navn = navEgneAnsatteEnhet.navn,
                 enhetsnummer = navEgneAnsatteEnhet.enhetsnummer,
                 overordnetEnhet = null,
-                type = Norg2Type.LOKAL
+                type = Norg2Type.LOKAL,
             ),
             geografiskEnhet = BrukerService.NavEnhet(
                 navn = navLerkendalEnhet.navn,
                 enhetsnummer = navLerkendalEnhet.enhetsnummer,
                 overordnetEnhet = null,
-                type = Norg2Type.LOKAL
+                type = Norg2Type.LOKAL,
             ),
             servicegruppe = null,
             fornavn = null,
@@ -61,7 +61,7 @@ class VeilederflateRoutesTest : FunSpec({
         coEvery { navEnhetService.hentEnhet("0501") } returns navLerkendalEnhet
         coEvery { navEnhetService.hentEnhet("0502") } returns navEgneAnsatteEnhet.copy(
             enhetsnummer = "0502",
-            type = Norg2Type.LOKAL
+            type = Norg2Type.LOKAL,
         )
 
         val brukerdata: BrukerService.Brukerdata = BrukerService.Brukerdata(
@@ -72,7 +72,7 @@ class VeilederflateRoutesTest : FunSpec({
                 navn = navLerkendalEnhet.navn,
                 enhetsnummer = navLerkendalEnhet.enhetsnummer,
                 overordnetEnhet = null,
-                type = Norg2Type.LOKAL
+                type = Norg2Type.LOKAL,
             ),
             servicegruppe = null,
             fornavn = null,
@@ -87,7 +87,7 @@ class VeilederflateRoutesTest : FunSpec({
         coEvery { navEnhetService.hentEnhet("0501") } returns navLerkendalEnhet
         coEvery { navEnhetService.hentEnhet("0502") } returns navEgneAnsatteEnhet.copy(
             enhetsnummer = "0502",
-            type = Norg2Type.LOKAL
+            type = Norg2Type.LOKAL,
         )
 
         val brukerdata: BrukerService.Brukerdata = BrukerService.Brukerdata(
@@ -97,13 +97,13 @@ class VeilederflateRoutesTest : FunSpec({
                 navn = navEgneAnsatteEnhet.navn,
                 enhetsnummer = "0502",
                 overordnetEnhet = null,
-                type = Norg2Type.LOKAL
+                type = Norg2Type.LOKAL,
             ),
             geografiskEnhet = BrukerService.NavEnhet(
                 navn = navLerkendalEnhet.navn,
                 enhetsnummer = navLerkendalEnhet.enhetsnummer,
                 overordnetEnhet = null,
-                type = Norg2Type.LOKAL
+                type = Norg2Type.LOKAL,
             ),
             servicegruppe = null,
             fornavn = null,

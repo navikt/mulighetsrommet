@@ -70,7 +70,7 @@ class BrukerServiceTest : FunSpec({
             enhetsnummer = "0106",
             status = NavEnhetStatus.AKTIV,
             type = Norg2Type.LOKAL,
-            overordnetEnhet = "0100"
+            overordnetEnhet = "0100",
         )
     }
 
