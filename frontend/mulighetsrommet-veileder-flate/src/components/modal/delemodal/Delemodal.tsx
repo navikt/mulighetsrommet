@@ -139,10 +139,11 @@ const Delemodal = ({
   );
 
   const senderTilDialogen = state.sendtStatus === "SENDER";
-  const tiltaksgjennomforingSanityId = tiltaksgjennomforing.sanityId;
+  const tiltaksgjennomforingIdEllerSanityId =
+    tiltaksgjennomforing.id ?? tiltaksgjennomforing.sanityId;
   const { lagreVeilederHarDeltTiltakMedBruker } = useHentDeltMedBrukerStatus(
-    tiltaksgjennomforingSanityId,
     brukerFnr,
+    tiltaksgjennomforingIdEllerSanityId,
   );
 
   const clickCancel = (log = true) => {
@@ -175,8 +176,12 @@ const Delemodal = ({
       const res = await mulighetsrommetClient.dialogen.delMedDialogen({
         requestBody: { norskIdent: brukerFnr, overskrift, tekst },
       });
-      if (tiltaksgjennomforingSanityId) {
-        await lagreVeilederHarDeltTiltakMedBruker(res.id, tiltaksgjennomforingSanityId);
+      if (tiltaksgjennomforingIdEllerSanityId) {
+        await lagreVeilederHarDeltTiltakMedBruker(
+          res.id,
+          tiltaksgjennomforing.id,
+          tiltaksgjennomforing.sanityId,
+        );
       }
       dispatch({ type: "Sendt ok", payload: res.id });
     } catch {
