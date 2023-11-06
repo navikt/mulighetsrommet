@@ -6,7 +6,7 @@ import java.util.*
 
 class ByNavidentStrategy() : Strategy {
     companion object {
-        private const val VALGT_NAVIDENT_PARAM = "valgtNavident"
+        const val VALGT_NAVIDENT_PARAM = "valgtNavident"
     }
 
     override fun getName(): String {
