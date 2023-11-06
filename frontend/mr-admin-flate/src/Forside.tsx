@@ -1,15 +1,7 @@
-import { faro } from "@grafana/faro-web-sdk";
-import {
-  FileCheckmarkIcon,
-  HandshakeIcon,
-  RectangleSectionsIcon,
-  TokenIcon,
-} from "@navikt/aksel-icons";
-import { BodyShort, Heading } from "@navikt/ds-react";
-import { Link } from "react-router-dom";
+import { Heading } from "@navikt/ds-react";
 import styles from "./Forside.module.scss";
 import { BrukerNotifikasjoner } from "./components/notifikasjoner/BrukerNotifikasjoner";
-import { forsideKort } from "./constants";
+import { ForsidekortListe } from "./components/forsidekort/ForsidekortListe";
 
 export function Forside() {
   return (
@@ -22,42 +14,7 @@ export function Forside() {
       </div>
       <div className={styles.adminflate_container}>
         <BrukerNotifikasjoner />
-        <div className={styles.card_container}>
-          {forsideKort.map((card) => (
-            <Link
-              key={card.url}
-              className={styles.card}
-              to={card.url}
-              onClick={() =>
-                faro?.api?.pushEvent(
-                  `Bruker trykket på inngang fra forside: ${card.navn}`,
-                  {
-                    inngang: card.navn,
-                  },
-                  "forside",
-                )
-              }
-            >
-              <span className={styles.circle}>
-                {card.url === "avtaler" ? (
-                  <HandshakeIcon />
-                ) : card.url === "tiltakstyper" ? (
-                  <TokenIcon />
-                ) : card.url.includes("sanity") ? (
-                  <img src="./sanity_logo.png" alt="Sanity-logo" />
-                ) : card.url.includes("preview") ? (
-                  <RectangleSectionsIcon />
-                ) : (
-                  <FileCheckmarkIcon />
-                )}
-              </span>
-              <Heading size="medium" level="3">
-                {card.navn}
-              </Heading>
-              <BodyShort className={styles.infotekst}>{card.tekst}</BodyShort>
-            </Link>
-          ))}
-        </div>
+        <ForsidekortListe />
       </div>
     </main>
   );
