@@ -1,3 +1,5 @@
+import { Bruker, NavEnhetType } from "mulighetsrommet-api-client";
+
 export const erTomtObjekt = (objekt: Object): boolean => {
   return Object.keys(objekt).length === 0;
 };
@@ -47,4 +49,15 @@ export function utledLopenummerFraTiltaksnummer(tiltaksnummer: string): string {
   }
 
   return tiltaksnummer;
+}
+
+export function brukersGeografiskeOgOppfolgingsenhetErLokalkontorMenIkkeSammeKontor(
+  bruker: Bruker,
+): boolean {
+  const { geografiskEnhet, oppfolgingsenhet } = bruker;
+
+  return (
+    oppfolgingsenhet?.type === NavEnhetType.LOKAL &&
+    oppfolgingsenhet.enhetsnummer !== geografiskEnhet?.enhetsnummer
+  );
 }

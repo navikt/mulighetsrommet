@@ -1,5 +1,5 @@
 import { Alert, Loader } from "@navikt/ds-react";
-import { Innsatsgruppe } from "mulighetsrommet-api-client";
+import { Innsatsgruppe, NavEnhetType } from "mulighetsrommet-api-client";
 import usePreviewTiltaksgjennomforingById from "../../core/api/queries/usePreviewTiltaksgjennomforingById";
 import ViewTiltaksgjennomforingDetaljer from "../tiltaksgjennomforing-detaljer/ViewTiltaksgjennomforingDetaljer";
 import styles from "./SanityPreview.module.scss";
@@ -43,8 +43,18 @@ export function SanityPreview() {
           fnr: "99999999999",
           fornavn: "Forhånds",
           innsatsgruppe: brukersInnsatsgruppe,
-          geografiskEnhet: { enhetsnummer: "1234", navn: "Forhåndsvisningsenhet" },
-          oppfolgingsenhet: { enhetId: "1234", navn: "Oppfølgingsenhet" },
+          geografiskEnhet: {
+            enhetsnummer: "1234",
+            navn: "Forhåndsvisningsenhet",
+            type: NavEnhetType.LOKAL,
+            overordnetEnhet: null,
+          },
+          oppfolgingsenhet: {
+            enhetsnummer: "1234",
+            navn: "Oppfølgingsenhet",
+            type: NavEnhetType.LOKAL,
+            overordnetEnhet: null,
+          },
           manuellStatus: {
             erUnderManuellOppfolging: false,
             krrStatus: {

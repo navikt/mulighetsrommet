@@ -2088,9 +2088,9 @@ components:
         servicegruppe:
           type: string
         oppfolgingsenhet:
-          $ref: "#/components/schemas/Oppfolgingsenhet"
+          $ref: "#/components/schemas/EmbeddedNavEnhet"
         geografiskEnhet:
-          $ref: "#/components/schemas/GeografiskEnhet"
+          $ref: "#/components/schemas/EmbeddedNavEnhet"
         fornavn:
           type: string
         manuellStatus:
