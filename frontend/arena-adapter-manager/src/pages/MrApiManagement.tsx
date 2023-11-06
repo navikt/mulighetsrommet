@@ -10,6 +10,7 @@ export function MrApiManagement() {
         <UpdateVirksomhet />
         <RunTask task={"generate-validation-report"} />
         <RunTask task={"initial-load-tiltaksgjennomforinger"} />
+        <RunTask task={"sync-navansatte"} />
       </VStack>
     </Box>
   );

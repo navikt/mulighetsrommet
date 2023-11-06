@@ -295,6 +295,7 @@ private fun services(appConfig: AppConfig) = module {
 private fun tasks(config: TaskConfig) = module {
     single { GenerateValidationReport(config.generateValidationReport, get(), get(), get(), get(), get()) }
     single { InitialLoadTiltaksgjennomforinger(get(), get(), get()) }
+    single { SynchronizeNavAnsatte(config.synchronizeNavAnsatte, get(), get(), get()) }
     single {
         val deleteExpiredTiltakshistorikk = DeleteExpiredTiltakshistorikk(
             config.deleteExpiredTiltakshistorikk,
@@ -307,7 +308,6 @@ private fun tasks(config: TaskConfig) = module {
         )
         val synchronizeTiltakstypestatuserToKafka = SynchronizeTiltakstypestatuserToKafka(get(), get())
         val synchronizeNorgEnheterTask = SynchronizeNorgEnheter(config.synchronizeNorgEnheter, get(), get())
-        val synchronizeNavAnsatte = SynchronizeNavAnsatte(config.synchronizeNavAnsatte, get(), get())
         val notifySluttdatoForGjennomforingerNarmerSeg = NotifySluttdatoForGjennomforingerNarmerSeg(
             config.notifySluttdatoForGjennomforingerNarmerSeg,
             get(),
@@ -337,6 +337,7 @@ private fun tasks(config: TaskConfig) = module {
         val notificationService: NotificationService by inject()
         val generateValidationReport: GenerateValidationReport by inject()
         val initialLoadTiltaksgjennomforinger: InitialLoadTiltaksgjennomforinger by inject()
+        val synchronizeNavAnsatte: SynchronizeNavAnsatte by inject()
 
         val db: Database by inject()
 
