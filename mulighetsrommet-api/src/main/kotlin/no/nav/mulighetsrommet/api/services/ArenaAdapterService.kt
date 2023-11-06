@@ -62,9 +62,7 @@ class ArenaAdapterService(
             tiltaksgjennomforinger.upsertArenaTiltaksgjennomforing(tiltaksgjennomforingMedAvtale, tx)
             val gjennomforing = tiltaksgjennomforinger.get(tiltaksgjennomforing.id, tx)!!
             tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingDto.from(gjennomforing))
-            if (isEgenRegiTiltak(gjennomforing.tiltakstype.arenaKode) &&
-                (gjennomforing.sluttDato == null || gjennomforing.sluttDato?.isAfter(TiltaksgjennomforingSluttDatoCutoffDate) == true)
-            ) {
+            if (shouldBeManagedInSanity(gjennomforing)) {
                 sanityTiltaksgjennomforingService.createOrPatchSanityTiltaksgjennomforing(gjennomforing, tx)
             }
 
@@ -72,17 +70,6 @@ class ArenaAdapterService(
         }
 
         return query { gjennomforing }
-    }
-
-    private fun lookForExistingAvtale(tiltaksgjennomforing: ArenaTiltaksgjennomforingDbo): UUID? {
-        val tiltakstype = tiltakstyper.get(tiltaksgjennomforing.tiltakstypeId)
-            ?: throw IllegalStateException("Ukjent tiltakstype id=${tiltaksgjennomforing.tiltakstypeId}")
-
-        return if (Tiltakskoder.isTiltakMedAvtalerFraMulighetsrommet(tiltakstype.arenaKode)) {
-            tiltaksgjennomforinger.get(tiltaksgjennomforing.id)?.avtaleId ?: tiltaksgjennomforing.avtaleId
-        } else {
-            tiltaksgjennomforing.avtaleId
-        }
     }
 
     suspend fun removeTiltaksgjennomforing(id: UUID) {
@@ -114,5 +101,22 @@ class ArenaAdapterService(
 
     fun removeDeltaker(id: UUID): QueryResult<Unit> {
         return query { deltakere.delete(id) }
+    }
+
+    private fun lookForExistingAvtale(tiltaksgjennomforing: ArenaTiltaksgjennomforingDbo): UUID? {
+        val tiltakstype = tiltakstyper.get(tiltaksgjennomforing.tiltakstypeId)
+            ?: throw IllegalStateException("Ukjent tiltakstype id=${tiltaksgjennomforing.tiltakstypeId}")
+
+        return if (Tiltakskoder.isTiltakMedAvtalerFraMulighetsrommet(tiltakstype.arenaKode)) {
+            tiltaksgjennomforinger.get(tiltaksgjennomforing.id)?.avtaleId ?: tiltaksgjennomforing.avtaleId
+        } else {
+            tiltaksgjennomforing.avtaleId
+        }
+    }
+
+    private fun shouldBeManagedInSanity(gjennomforing: TiltaksgjennomforingAdminDto): Boolean {
+        val sluttDato = gjennomforing.sluttDato
+        return isEgenRegiTiltak(gjennomforing.tiltakstype.arenaKode) &&
+            (sluttDato == null || sluttDato.isAfter(TiltaksgjennomforingSluttDatoCutoffDate))
     }
 }
