@@ -2205,27 +2205,6 @@ components:
         - GRUPPE
         - INDIVIDUELL
 
-    Oppfolgingsenhet:
-      type: object
-      properties:
-        navn:
-          type: string
-        enhetId:
-          type: string
-      required:
-        - navn
-        - enhetId
-    GeografiskEnhet:
-      type: object
-      properties:
-        navn:
-          type: string
-        enhetsnummer:
-          type: string
-      required:
-        - navn
-        - enhetsnummer
-
     FrontendEvent:
       type: object
       properties:
