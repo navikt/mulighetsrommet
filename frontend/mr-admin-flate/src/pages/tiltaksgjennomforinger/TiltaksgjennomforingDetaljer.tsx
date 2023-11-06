@@ -42,7 +42,7 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
 
   const sanityTiltaksgjennomforingUrl =
     "https://mulighetsrommet-sanity-studio.intern.nav.no/" +
-    (erProdMiljo() ? "prod" : "test") +
+    (erProdMiljo ? "prod" : "test") +
     "/desk/tiltaksgjennomforinger;alleTiltaksgjennomforinger;";
 
   const todayDate = new Date();
