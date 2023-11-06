@@ -1,7 +1,7 @@
 import { Heading } from "@navikt/ds-react";
 import styles from "./Forside.module.scss";
 import { BrukerNotifikasjoner } from "./components/notifikasjoner/BrukerNotifikasjoner";
-import { Forsidekort } from "./components/forsidekort/Forsidekort";
+import { ForsidekortListe } from "./components/forsidekort/ForsidekortListe";
 
 export function Forside() {
   return (
@@ -14,7 +14,7 @@ export function Forside() {
       </div>
       <div className={styles.adminflate_container}>
         <BrukerNotifikasjoner />
-        <Forsidekort />
+        <ForsidekortListe />
       </div>
     </main>
   );
