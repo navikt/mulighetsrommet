@@ -33,7 +33,7 @@
     "axe-core": "^4.8.2",
     "classnames": "^2.3.2",
     "cypress-localstorage-commands": "^2.2.4",
-    "jotai": "^2.5.0",
+    "jotai": "^2.5.1",
     "jotai-location": "^0.5.2",
     "mulighetsrommet-api-client": "*",
     "mulighetsrommet-frontend-common": "*",
@@ -48,8 +48,8 @@
   },
   "devDependencies": {
     "@faker-js/faker": "^8.2.0",
-    "@typescript-eslint/eslint-plugin": "^6.9.0",
-    "@vitejs/plugin-react": "^4.1.0",
+    "@typescript-eslint/eslint-plugin": "^6.9.1",
+    "@vitejs/plugin-react": "^4.1.1",
     "cross-env": "^7.0.3",
     "cypress": "^13.3.3",
     "cypress-axe": "^1.5.0",
@@ -62,7 +62,7 @@
     "eslint-plugin-prettier": "^5.0.1",
     "eslint-plugin-promise": "^6.1.1",
     "eslint-plugin-react": "^7.33.2",
-    "msw": "2.0.1",
+    "msw": "2.0.3",
     "rollup-plugin-visualizer": "^5.9.2",
     "typescript": "^5.2.2",
     "vite": "^4.5.0"
