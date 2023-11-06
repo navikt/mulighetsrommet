@@ -42,14 +42,3 @@ spec:
       labels:
         namespace: team-mulighetsrommet
         severity: warning
-    - alert: Høy andel HTTP klientfeil (4xx responser)
-      # Følgende endepunkt er unntatt fra denne alarmen:
-      #  - /api/exchange/{arenaId}: endepunktet blir kalt av transitivt fra Komet for alle endringer på deltakere og vil resultere i mye 404
-      expr: (100 * (sum by (app, route) (rate(ktor_http_server_requests_seconds_count{status=~"^4\\d\\d", namespace="team-mulighetsrommet", app="mulighetsrommet-arena-adapter", route!~'.*(/api/exchange/{arenaId})'}[3m])) / sum by (app, route) (rate(ktor_http_server_requests_seconds_count{namespace="team-mulighetsrommet", app="mulighetsrommet-arena-adapter"}[3m])))) > 10
-      for: 3m
-      annotations:
-        consequence: "mulighetsrommet-arena-adapter returnerer mye 4xx feil til konsumenter. Det kan føre til ustabilitet hos klientene og bør sees på."
-        action: "Sjekk loggene til mulighetsrommet-arena-adapter for å se hvorfor '{{ $labels.route }}' returnerer feilkoder"
-      labels:
-        namespace: team-mulighetsrommet
-        severity: warning
