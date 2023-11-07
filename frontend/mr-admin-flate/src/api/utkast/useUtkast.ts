@@ -7,13 +7,11 @@ export function useUtkast<T extends object>(
   schema: ZodSchema<T>,
   utkastId?: string,
 ): { isLoading: boolean; data?: { id: string; utkastData: Partial<T> } } {
-  const query = useQuery(
-    QueryKeys.utkast(utkastId),
-    () => mulighetsrommetClient.utkast.getUtkast({ id: utkastId! }),
-    {
-      enabled: !!utkastId,
-    },
-  );
+  const query = useQuery({
+    queryKey: QueryKeys.utkast(utkastId),
+    queryFn: () => mulighetsrommetClient.utkast.getUtkast({ id: utkastId! }),
+    enabled: !!utkastId,
+  });
 
   const isLoading = !!utkastId && query.isLoading;
 

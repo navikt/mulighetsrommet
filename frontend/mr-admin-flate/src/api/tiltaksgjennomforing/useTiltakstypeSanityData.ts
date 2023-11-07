@@ -3,14 +3,11 @@ import { QueryKeys } from "../QueryKeys";
 import { mulighetsrommetClient } from "../clients";
 
 export function useTiltakstypeSanityData(tiltakstypeId: string) {
-  return useQuery(
-    QueryKeys.veilederflateTiltaksgjennomforing(tiltakstypeId),
-    () =>
+  return useQuery({
+    queryKey: QueryKeys.veilederflateTiltaksgjennomforing(tiltakstypeId),
+    queryFn: () =>
       mulighetsrommetClient.tiltakstyper.getSanityDataForTiltakstypeWithId({
         id: tiltakstypeId,
       }),
-    {
-      enabled: !!tiltakstypeId,
-    },
-  );
+  });
 }

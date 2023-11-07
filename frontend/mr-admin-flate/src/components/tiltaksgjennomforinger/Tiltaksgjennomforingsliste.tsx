@@ -22,7 +22,7 @@ export const Tiltaksgjennomforingsliste = () => {
     refetch: refetchAvtaler,
   } = useAdminTiltaksgjennomforingerForAvtale();
   const { refetch: refetchTiltaksgjennomforinger } = useAdminTiltaksgjennomforinger();
-  const { mutate, isLoading: isLoadingKobleGjennomforingForAvtale } =
+  const { mutate, isPending: isPendingKobleGjennomforingForAvtale } =
     useSetAvtaleForGjennomforing();
   const { data: avtale } = useAvtale();
   const [error, setError] = useState("");
@@ -99,7 +99,7 @@ export const Tiltaksgjennomforingsliste = () => {
                       variant="tertiary"
                       className={styles.legg_til_knapp}
                       onClick={() => handleLeggTil(gjennomforing, avtale?.id)}
-                      disabled={isLoadingKobleGjennomforingForAvtale}
+                      disabled={isPendingKobleGjennomforingForAvtale}
                       size="small"
                     >
                       Legg til
@@ -109,7 +109,7 @@ export const Tiltaksgjennomforingsliste = () => {
                       variant="tertiary"
                       className={styles.legg_til_knapp}
                       onClick={() => handleLeggTil(gjennomforing, undefined)}
-                      disabled={isLoadingKobleGjennomforingForAvtale}
+                      disabled={isPendingKobleGjennomforingForAvtale}
                       size="small"
                     >
                       Fjern

@@ -4,9 +4,11 @@ import { mulighetsrommetClient } from "../clients";
 import { NavAnsattRolle } from "mulighetsrommet-api-client";
 
 export function useHentKontaktpersoner() {
-  return useQuery(QueryKeys.kontaktpersoner(NavAnsattRolle.KONTAKTPERSON), () =>
-    mulighetsrommetClient.ansatt.hentAnsatte({
-      roller: [NavAnsattRolle.KONTAKTPERSON],
-    }),
-  );
+  return useQuery({
+    queryKey: QueryKeys.kontaktpersoner(NavAnsattRolle.KONTAKTPERSON),
+    queryFn: () =>
+      mulighetsrommetClient.ansatt.hentAnsatte({
+        roller: [NavAnsattRolle.KONTAKTPERSON],
+      }),
+  });
 }

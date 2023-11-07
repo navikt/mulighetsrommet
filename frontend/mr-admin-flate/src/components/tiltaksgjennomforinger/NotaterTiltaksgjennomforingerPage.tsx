@@ -76,8 +76,8 @@ export default function NotaterTiltaksgjennomforingerPage() {
               <ErrorMessage>Det skjedde en feil. Notatet ble ikke lagret.</ErrorMessage>
             ) : null}
             <span className={styles.notater_knapp}>
-              <Button type="submit" disabled={putTiltaksgjennomforingsnotat.isLoading}>
-                {putTiltaksgjennomforingsnotat.isLoading ? <Laster /> : "Legg til notat"}
+              <Button type="submit" disabled={putTiltaksgjennomforingsnotat.isPending}>
+                {putTiltaksgjennomforingsnotat.isPending ? <Laster /> : "Legg til notat"}
               </Button>
             </span>
           </div>

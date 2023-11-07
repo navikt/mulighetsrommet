@@ -1,9 +1,10 @@
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import { mulighetsrommetClient } from "../clients";
 import { QueryKeys } from "../query-keys";
 
 export function useInnsatsgrupper() {
-  return useQuery(QueryKeys.sanity.innsatsgrupper, () =>
-    mulighetsrommetClient.sanity.getInnsatsgrupper(),
-  );
+  return useQuery({
+    queryKey: QueryKeys.sanity.innsatsgrupper,
+    queryFn: () => mulighetsrommetClient.sanity.getInnsatsgrupper(),
+  });
 }

@@ -4,7 +4,8 @@ import { mulighetsrommetClient } from "../clients";
 import { QueryKeys } from "../QueryKeys";
 
 export function useHentAnsatt() {
-  return useQuery<NavAnsatt, Error>(QueryKeys.ansatt(), () =>
-    mulighetsrommetClient.ansatt.hentInfoOmAnsatt(),
-  );
+  return useQuery<NavAnsatt, Error>({
+    queryKey: QueryKeys.ansatt(),
+    queryFn: () => mulighetsrommetClient.ansatt.hentInfoOmAnsatt(),
+  });
 }

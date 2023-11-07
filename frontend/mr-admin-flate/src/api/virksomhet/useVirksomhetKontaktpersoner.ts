@@ -3,7 +3,10 @@ import { QueryKeys } from "../QueryKeys";
 import { mulighetsrommetClient } from "../clients";
 
 export const useVirksomhetKontaktpersoner = (orgnr: string) => {
-  return useQuery(QueryKeys.virksomhetKontaktpersoner(orgnr), () =>
-    mulighetsrommetClient.virksomhetKontaktperson.hentVirksomhetKontaktpersoner({ orgnr }),
-  );
+  return useQuery({
+    queryKey: QueryKeys.virksomhetKontaktpersoner(orgnr),
+
+    queryFn: () =>
+      mulighetsrommetClient.virksomhetKontaktperson.hentVirksomhetKontaktpersoner({ orgnr }),
+  });
 };

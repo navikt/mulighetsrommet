@@ -32,7 +32,7 @@ export const AutoSaveUtkast = memo(
     );
 
     useEffect(() => {
-      if (mutationUtkast.isLoading) {
+      if (mutationUtkast.isPending) {
         setLagreState("Lagrer utkast...");
       }
 

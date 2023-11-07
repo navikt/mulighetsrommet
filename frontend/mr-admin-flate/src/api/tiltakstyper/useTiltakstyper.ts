@@ -7,9 +7,16 @@ import { QueryKeys } from "../QueryKeys";
 
 export function useTiltakstyper(filter: TiltakstypeFilter, page: number) {
   const debouncedSok = useDebounce(filter.sok || "", 300);
-  return useQuery(
-    QueryKeys.tiltakstyper(debouncedSok, filter.status, filter.kategori, filter.sortering, page),
-    () =>
+  return useQuery({
+    queryKey: QueryKeys.tiltakstyper(
+      debouncedSok,
+      filter.status,
+      filter.kategori,
+      filter.sortering,
+      page,
+    ),
+
+    queryFn: () =>
       mulighetsrommetClient.tiltakstyper.getTiltakstyper({
         search: debouncedSok !== "" ? debouncedSok : undefined,
         tiltakstypestatus: filter.status || undefined,
@@ -18,5 +25,5 @@ export function useTiltakstyper(filter: TiltakstypeFilter, page: number) {
         page,
         size: PAGE_SIZE,
       }),
-  );
+  });
 }

@@ -10,14 +10,14 @@ export function useAdminTiltaksgjennomforingerForAvtale() {
   const [filter] = useAtom(tiltaksgjennomforingTilAvtaleFilter);
   const search = useDebounce(filter.search, 300);
 
-  return useQuery(
-    QueryKeys.tiltaksgjennomforingerTilAvtale(search),
-    () =>
+  return useQuery({
+    queryKey: QueryKeys.tiltaksgjennomforingerTilAvtale(search),
+    queryFn: () =>
       mulighetsrommetClient.tiltaksgjennomforinger.getTiltaksgjennomforinger({
         page,
         search: search || undefined,
         size: 1000,
       }),
-    { enabled: !!search },
-  );
+    enabled: !!search,
+  });
 }

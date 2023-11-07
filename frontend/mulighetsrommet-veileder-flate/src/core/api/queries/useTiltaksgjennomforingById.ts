@@ -1,4 +1,4 @@
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useFnr } from "../../../hooks/useFnr";
 import { mulighetsrommetClient } from "../clients";
 import { QueryKeys } from "../query-keys";
@@ -10,7 +10,8 @@ export default function useTiltaksgjennomforingById() {
 
   const requestBody = { norskIdent: fnr, id };
 
-  return useQuery(QueryKeys.sanity.tiltaksgjennomforing(id), () =>
-    mulighetsrommetClient.sanity.getTiltaksgjennomforingForBruker({ requestBody }),
-  );
+  return useQuery({
+    queryKey: QueryKeys.sanity.tiltaksgjennomforing(id),
+    queryFn: () => mulighetsrommetClient.sanity.getTiltaksgjennomforingForBruker({ requestBody }),
+  });
 }

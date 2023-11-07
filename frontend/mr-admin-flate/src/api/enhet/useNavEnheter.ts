@@ -10,9 +10,13 @@ export function useNavEnheter(
     NavEnhetStatus.UNDER_ETABLERING,
   ],
 ) {
-  return useQuery(QueryKeys.enheter(), () => {
-    return mulighetsrommetClient.navEnheter.getEnheter({
-      statuser,
-    });
+  return useQuery({
+    queryKey: QueryKeys.enheter(),
+
+    queryFn: () => {
+      return mulighetsrommetClient.navEnheter.getEnheter({
+        statuser,
+      });
+    },
   });
 }

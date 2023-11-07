@@ -7,14 +7,12 @@ import { useGetAdminTiltaksgjennomforingsIdFraUrl } from "../../../hooks/useGetA
 export function useTiltaksgjennomforingsnotater() {
   const gjennomforingsId = useGetAdminTiltaksgjennomforingsIdFraUrl();
   invariant(gjennomforingsId, "Id for tiltaksgjennomføring er ikke satt i URL");
-  return useQuery(
-    QueryKeys.tiltaksgjennomforingsnotater(gjennomforingsId),
-    () =>
+  return useQuery({
+    queryKey: QueryKeys.tiltaksgjennomforingsnotater(gjennomforingsId),
+    queryFn: () =>
       mulighetsrommetClient.tiltaksgjennomforingNotater.getNotaterForTiltaksgjennomforing({
         tiltaksgjennomforingId: gjennomforingsId,
       }),
-    {
-      enabled: !!gjennomforingsId,
-    },
-  );
+    enabled: !!gjennomforingsId,
+  });
 }

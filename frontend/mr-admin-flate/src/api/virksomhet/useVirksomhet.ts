@@ -3,9 +3,9 @@ import { QueryKeys } from "../QueryKeys";
 import { mulighetsrommetClient } from "../clients";
 
 export function useVirksomhet(orgnr: string) {
-  return useQuery(
-    QueryKeys.virksomhetOppslag(orgnr),
-    () => mulighetsrommetClient.virksomhet.hentVirksomhet({ orgnr }),
-    { enabled: !!orgnr },
-  );
+  return useQuery({
+    queryKey: QueryKeys.virksomhetOppslag(orgnr),
+    queryFn: () => mulighetsrommetClient.virksomhet.hentVirksomhet({ orgnr }),
+    enabled: !!orgnr,
+  });
 }

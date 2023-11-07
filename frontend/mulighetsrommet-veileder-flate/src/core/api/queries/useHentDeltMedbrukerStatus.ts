@@ -1,9 +1,9 @@
-import { DelMedBruker, VeilederflateTiltaksgjennomforing } from "mulighetsrommet-api-client";
-import { useQuery } from "react-query";
+import { VeilederflateTiltaksgjennomforing } from "mulighetsrommet-api-client";
 import { erPreview } from "../../../utils/Utils";
 import { mulighetsrommetClient } from "../clients";
 import { QueryKeys } from "../query-keys";
 import { useHentVeilederdata } from "./useHentVeilederdata";
+import { useQuery } from "@tanstack/react-query";
 
 export function useHentDeltMedBrukerStatus(
   norskIdent: string,
@@ -12,12 +12,14 @@ export function useHentDeltMedBrukerStatus(
   const { data: veilederData } = useHentVeilederdata();
   const id = tiltaksgjennomforing?.id ?? tiltaksgjennomforing?.sanityId;
 
-  const { data: sistDeltMedBruker, refetch: refetchDelMedBruker } = useQuery<DelMedBruker>(
-    [QueryKeys.DeltMedBrukerStatus, norskIdent, id],
-    () =>
-      mulighetsrommetClient.delMedBruker.getDelMedBruker({ requestBody: { norskIdent, id: id!! } }),
-    { enabled: !erPreview() && !!id },
-  );
+  const { data: sistDeltMedBruker, refetch: refetchDelMedBruker } = useQuery({
+    queryKey: [QueryKeys.DeltMedBrukerStatus, norskIdent, id],
+    queryFn: () =>
+      mulighetsrommetClient.delMedBruker.getDelMedBruker({
+        requestBody: { norskIdent, id: id!! },
+      }),
+    enabled: !erPreview() && !!id,
+  });
 
   async function lagreVeilederHarDeltTiltakMedBruker(
     dialogId: string,

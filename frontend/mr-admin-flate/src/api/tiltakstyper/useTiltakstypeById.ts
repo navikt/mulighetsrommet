@@ -10,12 +10,12 @@ export function useTiltakstypeById() {
     throw new Error("Fant ingen tiltakstype-id i URL");
   }
 
-  return useQuery(
-    QueryKeys.tiltakstype(tiltakstypeId),
-    () =>
+  return useQuery({
+    queryKey: QueryKeys.tiltakstype(tiltakstypeId),
+    queryFn: () =>
       mulighetsrommetClient.tiltakstyper.getTiltakstypeById({
         id: tiltakstypeId!!,
       }),
-    { staleTime: 1000 },
-  );
+    staleTime: 1000,
+  });
 }

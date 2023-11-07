@@ -51,12 +51,12 @@ export function TiltaksgjennomforingSkjemaKnapperad({
         onClick={onClose}
         variant="tertiary"
         type="button"
-        disabled={mutation.isLoading}
+        disabled={mutation.isPending}
       >
         Avbryt
       </Button>
-      <Button size={size} className={styles.button} type="submit" disabled={mutation.isLoading}>
-        {mutation.isLoading ? "Lagrer..." : redigeringsModus ? "Lagre gjennomføring" : "Opprett"}
+      <Button size={size} className={styles.button} type="submit" disabled={mutation.isPending}>
+        {mutation.isPending ? "Lagrer..." : redigeringsModus ? "Lagre gjennomføring" : "Opprett"}
       </Button>
     </HStack>
   );

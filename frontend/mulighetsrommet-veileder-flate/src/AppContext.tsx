@@ -1,12 +1,12 @@
-import { QueryClient, QueryClientProvider } from "react-query";
-import { ReactQueryDevtools } from "react-query/devtools";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { FnrContext } from "./hooks/useFnr";
 import { Dispatch, ReactNode, useEffect, useState } from "react";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      useErrorBoundary: true,
+      throwOnError: true,
       refetchOnWindowFocus: import.meta.env.PROD,
       retry: import.meta.env.PROD,
     },
