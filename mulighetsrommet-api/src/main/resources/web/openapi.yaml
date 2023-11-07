@@ -1476,12 +1476,12 @@ components:
       properties:
         norskIdent:
           type: string
-        sanityId:
+        id:
           type: string
           format: uuid
       required:
         - norskIdent
-        - sanityId
+        - id
 
     GetRelevanteTiltaksgjennomforingerForBrukerRequest:
       type: object
@@ -2320,6 +2320,10 @@ components:
           type: string
         sanityId:
           type: string
+          format: uuid
+        tiltaksgjennoforingId:
+          type: string
+          format: uuid
         dialogId:
           type: string
         createdAt:
