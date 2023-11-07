@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.domain.dto
+package no.nav.mulighetsrommet.api.domain.dto
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
@@ -7,7 +7,7 @@ import java.time.LocalDate
 import java.util.*
 
 @Serializable
-data class TiltaksgjennomforingNotificationDto(
+data class AvtaleNotificationDto(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val navn: String,
@@ -16,7 +16,4 @@ data class TiltaksgjennomforingNotificationDto(
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate? = null,
     val administratorer: List<String>,
-    val tiltaksnummer: String? = null,
-    @Serializable(with = LocalDateSerializer::class)
-    val stengtTil: LocalDate? = null,
 )

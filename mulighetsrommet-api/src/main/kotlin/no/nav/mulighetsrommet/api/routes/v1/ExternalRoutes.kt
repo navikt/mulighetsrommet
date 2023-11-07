@@ -6,13 +6,13 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import no.nav.mulighetsrommet.api.clients.arenaadapter.ArenaAdapterClient
-import no.nav.mulighetsrommet.api.routes.v1.responses.NotFound
+import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingAdminDto
+import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingDto
 import no.nav.mulighetsrommet.api.routes.v1.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
 import no.nav.mulighetsrommet.api.utils.AdminTiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.api.utils.getPaginationParams
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
-import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingDto
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingsArenadataDto
 import org.koin.ktor.ext.inject
 import java.util.*
@@ -67,10 +67,20 @@ fun Route.externalRoutes() {
             }
 
             val arenaData = arenaAdapterService.hentArenadata(id)
-                ?.let { TiltaksgjennomforingsArenadataDto.from(gjennomforing, it.status) }
+                ?.let { toArenaDataDto(gjennomforing, it.status) }
                 ?: return@get call.respond(HttpStatusCode.NotFound)
 
             call.respond(HttpStatusCode.OK, arenaData)
         }
     }
+}
+
+fun toArenaDataDto(tiltaksgjennomforing: TiltaksgjennomforingAdminDto, status: String) = tiltaksgjennomforing.run {
+    TiltaksgjennomforingsArenadataDto(
+        opprettetAar = tiltaksnummer?.split("#")?.first()?.toInt(),
+        lopenr = tiltaksnummer?.split("#")?.get(1)?.toInt(),
+        virksomhetsnummer = arrangor.organisasjonsnummer,
+        ansvarligNavEnhetId = arenaAnsvarligEnhet,
+        status = status,
+    )
 }

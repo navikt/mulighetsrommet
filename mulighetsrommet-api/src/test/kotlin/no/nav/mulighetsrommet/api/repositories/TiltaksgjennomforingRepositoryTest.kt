@@ -17,7 +17,7 @@ import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingKontaktpersonDbo
-import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
+import no.nav.mulighetsrommet.api.domain.dto.*
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures.avtale1
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
@@ -84,7 +84,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     EmbeddedNavEnhet(
                         navn = "IT",
                         enhetsnummer = "2990",
-                        type = NavEnhetType.DIR,
+                        type = Norg2Type.DIR,
                         overordnetEnhet = null,
                     ),
                 )
@@ -98,7 +98,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 it.navRegion shouldBe EmbeddedNavEnhet(
                     navn = "IT",
                     enhetsnummer = "2990",
-                    type = NavEnhetType.DIR,
+                    type = Norg2Type.DIR,
                     overordnetEnhet = null,
                 )
                 it.estimertVentetid shouldBe null
@@ -246,8 +246,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             tiltaksgjennomforinger.upsert(gjennomforing)
             tiltaksgjennomforinger.get(gjennomforing.id).should {
                 it!!.navEnheter shouldContainExactlyInAnyOrder listOf(
-                    EmbeddedNavEnhet(enhetsnummer = "1", navn = "Navn1", type = NavEnhetType.LOKAL, overordnetEnhet = null),
-                    EmbeddedNavEnhet(enhetsnummer = "2", navn = "Navn2", type = NavEnhetType.LOKAL, overordnetEnhet = null),
+                    EmbeddedNavEnhet(enhetsnummer = "1", navn = "Navn1", type = Norg2Type.LOKAL, overordnetEnhet = null),
+                    EmbeddedNavEnhet(enhetsnummer = "2", navn = "Navn2", type = Norg2Type.LOKAL, overordnetEnhet = null),
                 )
             }
             database.assertThat("tiltaksgjennomforing_nav_enhet").hasNumberOfRows(2)
@@ -255,8 +255,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             tiltaksgjennomforinger.upsert(gjennomforing.copy(navEnheter = listOf("3", "1")))
             tiltaksgjennomforinger.get(gjennomforing.id).should {
                 it!!.navEnheter shouldContainExactlyInAnyOrder listOf(
-                    EmbeddedNavEnhet(enhetsnummer = "1", navn = "Navn1", type = NavEnhetType.LOKAL, overordnetEnhet = null),
-                    EmbeddedNavEnhet(enhetsnummer = "3", navn = "Navn3", type = NavEnhetType.LOKAL, overordnetEnhet = null),
+                    EmbeddedNavEnhet(enhetsnummer = "1", navn = "Navn1", type = Norg2Type.LOKAL, overordnetEnhet = null),
+                    EmbeddedNavEnhet(enhetsnummer = "3", navn = "Navn3", type = Norg2Type.LOKAL, overordnetEnhet = null),
                 )
             }
             database.assertThat("tiltaksgjennomforing_nav_enhet").hasNumberOfRows(2)
@@ -349,8 +349,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             tiltaksgjennomforinger.updateEnheter("1", listOf("1", "2"))
             tiltaksgjennomforinger.get(gjennomforing.id).should {
                 it!!.navEnheter shouldContainExactlyInAnyOrder listOf(
-                    EmbeddedNavEnhet(enhetsnummer = "1", navn = "Navn1", type = NavEnhetType.LOKAL, overordnetEnhet = null),
-                    EmbeddedNavEnhet(enhetsnummer = "2", navn = "Navn2", type = NavEnhetType.LOKAL, overordnetEnhet = null),
+                    EmbeddedNavEnhet(enhetsnummer = "1", navn = "Navn1", type = Norg2Type.LOKAL, overordnetEnhet = null),
+                    EmbeddedNavEnhet(enhetsnummer = "2", navn = "Navn2", type = Norg2Type.LOKAL, overordnetEnhet = null),
                 )
             }
             database.assertThat("tiltaksgjennomforing_nav_enhet").hasNumberOfRows(2)
@@ -362,7 +362,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                         EmbeddedNavEnhet(
                             enhetsnummer = "2",
                             navn = "Navn2",
-                            type = NavEnhetType.LOKAL,
+                            type = Norg2Type.LOKAL,
                             overordnetEnhet = null,
                         ),
                     ),

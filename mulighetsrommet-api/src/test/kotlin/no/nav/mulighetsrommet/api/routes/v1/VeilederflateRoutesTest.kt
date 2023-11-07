@@ -7,6 +7,7 @@ import io.mockk.mockk
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
+import no.nav.mulighetsrommet.api.domain.dto.EmbeddedNavEnhet
 import no.nav.mulighetsrommet.api.services.BrukerService
 import no.nav.mulighetsrommet.api.services.NavEnhetService
 
@@ -36,13 +37,13 @@ class VeilederflateRoutesTest : FunSpec({
         val brukerdata: BrukerService.Brukerdata = BrukerService.Brukerdata(
             fnr = "12345678910",
             innsatsgruppe = null,
-            oppfolgingsenhet = BrukerService.NavEnhet(
+            oppfolgingsenhet = EmbeddedNavEnhet(
                 navn = navEgneAnsatteEnhet.navn,
                 enhetsnummer = navEgneAnsatteEnhet.enhetsnummer,
                 overordnetEnhet = null,
                 type = Norg2Type.LOKAL,
             ),
-            geografiskEnhet = BrukerService.NavEnhet(
+            geografiskEnhet = EmbeddedNavEnhet(
                 navn = navLerkendalEnhet.navn,
                 enhetsnummer = navLerkendalEnhet.enhetsnummer,
                 overordnetEnhet = null,
@@ -68,7 +69,7 @@ class VeilederflateRoutesTest : FunSpec({
             fnr = "12345678910",
             innsatsgruppe = null,
             oppfolgingsenhet = null,
-            geografiskEnhet = BrukerService.NavEnhet(
+            geografiskEnhet = EmbeddedNavEnhet(
                 navn = navLerkendalEnhet.navn,
                 enhetsnummer = navLerkendalEnhet.enhetsnummer,
                 overordnetEnhet = null,
@@ -93,13 +94,13 @@ class VeilederflateRoutesTest : FunSpec({
         val brukerdata: BrukerService.Brukerdata = BrukerService.Brukerdata(
             fnr = "12345678910",
             innsatsgruppe = null,
-            oppfolgingsenhet = BrukerService.NavEnhet(
+            oppfolgingsenhet = EmbeddedNavEnhet(
                 navn = navEgneAnsatteEnhet.navn,
                 enhetsnummer = "0502",
                 overordnetEnhet = null,
                 type = Norg2Type.LOKAL,
             ),
-            geografiskEnhet = BrukerService.NavEnhet(
+            geografiskEnhet = EmbeddedNavEnhet(
                 navn = navLerkendalEnhet.navn,
                 enhetsnummer = navLerkendalEnhet.enhetsnummer,
                 overordnetEnhet = null,

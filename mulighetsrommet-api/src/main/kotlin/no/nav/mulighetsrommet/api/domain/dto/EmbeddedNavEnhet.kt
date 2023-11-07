@@ -1,20 +1,12 @@
-package no.nav.mulighetsrommet.domain.dto
+package no.nav.mulighetsrommet.api.domain.dto
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 
 @Serializable
 data class EmbeddedNavEnhet(
     val enhetsnummer: String,
     val navn: String,
-    val type: NavEnhetType,
+    val type: Norg2Type,
     val overordnetEnhet: String? = null,
 )
-
-@Serializable
-enum class NavEnhetType {
-    LOKAL,
-    FYLKE,
-    ALS,
-    TILTAK,
-    DIR,
-}

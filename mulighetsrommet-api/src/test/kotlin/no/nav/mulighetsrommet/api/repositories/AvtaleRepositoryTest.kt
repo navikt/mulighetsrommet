@@ -15,7 +15,7 @@ import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.domain.dbo.OverordnetEnhetDbo
-import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
+import no.nav.mulighetsrommet.api.domain.dto.*
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
@@ -367,7 +367,7 @@ class AvtaleRepositoryTest : FunSpec({
                 result.second[0].kontorstruktur[0].region shouldBe EmbeddedNavEnhet(
                     enhetsnummer = "1801",
                     navn = "Vestland",
-                    type = NavEnhetType.FYLKE,
+                    type = Norg2Type.FYLKE,
                     overordnetEnhet = null,
                 )
             }
@@ -404,14 +404,14 @@ class AvtaleRepositoryTest : FunSpec({
                             region = EmbeddedNavEnhet(
                                 enhetsnummer = "1900",
                                 navn = "Oppland",
-                                type = NavEnhetType.FYLKE,
+                                type = Norg2Type.FYLKE,
                                 overordnetEnhet = null,
                             ),
                             kontorer = listOf(
                                 EmbeddedNavEnhet(
                                     enhetsnummer = "1901",
                                     navn = "Oppland 1",
-                                    type = NavEnhetType.LOKAL,
+                                    type = Norg2Type.LOKAL,
                                     overordnetEnhet = "1900",
                                 ),
                             ),

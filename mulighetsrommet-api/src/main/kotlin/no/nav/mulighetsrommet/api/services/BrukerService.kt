@@ -1,13 +1,13 @@
 package no.nav.mulighetsrommet.api.services
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.clients.oppfolging.ManuellStatusDto
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
 import no.nav.mulighetsrommet.api.clients.person.VeilarbpersonClient
 import no.nav.mulighetsrommet.api.clients.vedtak.Innsatsgruppe
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
+import no.nav.mulighetsrommet.api.domain.dto.EmbeddedNavEnhet
 
 class BrukerService(
     private val veilarboppfolgingClient: VeilarboppfolgingClient,
@@ -43,24 +43,16 @@ class BrukerService(
     data class Brukerdata(
         val fnr: String,
         val innsatsgruppe: Innsatsgruppe?,
-        val oppfolgingsenhet: NavEnhet?,
-        val geografiskEnhet: NavEnhet?,
+        val oppfolgingsenhet: EmbeddedNavEnhet?,
+        val geografiskEnhet: EmbeddedNavEnhet?,
         val servicegruppe: String?,
         val fornavn: String?,
         val manuellStatus: ManuellStatusDto?,
     )
-
-    @Serializable
-    data class NavEnhet(
-        val enhetsnummer: String?,
-        val navn: String?,
-        val type: Norg2Type?,
-        val overordnetEnhet: String?,
-    )
 }
 
-fun NavEnhetDbo.toNavEnhet(): BrukerService.NavEnhet {
-    return BrukerService.NavEnhet(
+fun NavEnhetDbo.toNavEnhet(): EmbeddedNavEnhet {
+    return EmbeddedNavEnhet(
         enhetsnummer = enhetsnummer,
         navn = navn,
         type = type,
