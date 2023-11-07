@@ -10,8 +10,12 @@ import io.kotest.matchers.string.shouldContain
 import io.ktor.server.plugins.*
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.DelMedBrukerDbo
+import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
+import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
+import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
+import java.util.*
 
 class DelMedBrukerServiceTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
@@ -27,7 +31,7 @@ class DelMedBrukerServiceTest : FunSpec({
             id = "123",
             norskIdent = "12345678910",
             navident = "nav123",
-            sanityId = "123456",
+            sanityId = UUID.randomUUID(),
             dialogId = "1234",
         )
 
@@ -38,7 +42,7 @@ class DelMedBrukerServiceTest : FunSpec({
                 .value("id").isEqualTo(1)
                 .value("norsk_ident").isEqualTo("12345678910")
                 .value("navident").isEqualTo("nav123")
-                .value("sanity_id").isEqualTo("123456")
+                .value("sanity_id").isEqualTo(payload.sanityId.toString())
         }
 
         test("Lagre til tabell feiler dersom input for brukers fnr er ulikt 11 tegn") {
@@ -58,7 +62,7 @@ class DelMedBrukerServiceTest : FunSpec({
 
             val delMedBruker = service.getDeltMedBruker(
                 fnr = "12345678910",
-                sanityId = "123456",
+                id = payload.sanityId!!,
             )
 
             delMedBruker.shouldBeRight().should {
@@ -67,8 +71,35 @@ class DelMedBrukerServiceTest : FunSpec({
                 it.id shouldBe "2"
                 it.norskIdent shouldBe "12345678910"
                 it.navident shouldBe "nav234"
-                it.sanityId shouldBe "123456"
+                it.sanityId shouldBe payload.sanityId
                 it.dialogId shouldBe "987"
+            }
+        }
+
+        test("insert med tiltaksgjennomforingId") {
+            MulighetsrommetTestDomain().initialize(database.db)
+
+            val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
+            tiltaksgjennomforingRepository.upsert(TiltaksgjennomforingFixtures.Oppfolging1)
+            val request = DelMedBrukerDbo(
+                id = "123",
+                norskIdent = "12345678910",
+                navident = "nav123",
+                sanityId = null,
+                tiltaksgjennomforingId = TiltaksgjennomforingFixtures.Oppfolging1.id,
+                dialogId = "1234",
+            )
+
+            service.lagreDelMedBruker(request).shouldBeRight()
+
+            val delMedBruker = service.getDeltMedBruker(
+                fnr = "12345678910",
+                id = TiltaksgjennomforingFixtures.Oppfolging1.id,
+            )
+
+            delMedBruker.shouldBeRight().should {
+                it.shouldNotBeNull()
+                it.tiltaksgjennomforingId shouldBe TiltaksgjennomforingFixtures.Oppfolging1.id
             }
         }
     }
