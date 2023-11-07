@@ -54,7 +54,7 @@ export function Gjennomforingsrad({ tiltaksgjennomforing, index }: Props) {
             </BodyShort>
           </div>
           <div className={classNames(styles.infogrid, styles.metadata)}>
-            <BodyShort size="small" title={tiltakstype.navn} className={styles.truncate}>
+            <BodyShort size="small" title={tiltakstype.navn}>
               {tiltakstype.navn}
             </BodyShort>
 
