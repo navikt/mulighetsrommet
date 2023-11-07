@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class PersonDto(
     val fornavn: String,
-    val geografiskEnhet: Enhet,
+    val geografiskEnhet: Enhet?,
 )
 
 @Serializable
