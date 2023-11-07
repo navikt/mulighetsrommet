@@ -124,10 +124,6 @@ describe("Tiltaksgjennomføringsdetaljer", () => {
     cy.checkPageA11y();
   });
 
-  it("Sjekk at tilgjengelighetsstatus er tilgjengelig på detaljsiden", () => {
-    cy.getByTestId("tilgjengelighetsstatus_detaljside").should("exist");
-  });
-
   it("Sjekk at fanene fungerer som de skal", () => {
     cy.getByTestId("tab1").should("be.visible");
     cy.getByTestId("tab2").should("not.be.visible");
