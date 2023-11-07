@@ -17,7 +17,7 @@ export function TiltakstypeInfo() {
 
   const sanityTiltakstypeUrl =
     "https://mulighetsrommet-sanity-studio.intern.nav.no/" +
-    (erProdMiljo() ? "prod" : "test") +
+    (erProdMiljo ? "prod" : "test") +
     "/desk/tiltakstype;";
 
   const tiltakstype = data;

@@ -31,7 +31,7 @@ class NavEnhetService(private val enhetRepository: NavEnhetRepository) {
         }
     }
 
-    fun hentOverorndetFylkesenhet(enhetsnummer: String): NavEnhetDbo? {
+    fun hentOverordnetFylkesenhet(enhetsnummer: String): NavEnhetDbo? {
         val enhet = CacheUtils.tryCacheFirstNullable(cache, enhetsnummer) {
             hentEnhet(enhetsnummer)
         }
@@ -39,7 +39,7 @@ class NavEnhetService(private val enhetRepository: NavEnhetRepository) {
         return if (enhet?.type == Norg2Type.FYLKE) {
             enhet
         } else if (enhet?.overordnetEnhet != null) {
-            hentOverorndetFylkesenhet(enhet.overordnetEnhet)
+            hentOverordnetFylkesenhet(enhet.overordnetEnhet)
         } else {
             enhet
         }

@@ -10,7 +10,7 @@ import java.util.*
 
 class ByEnhetStrategy(private val axsysService: AxsysService) : Strategy {
     companion object {
-        private const val VALGT_ENHET_PARAM = "valgtEnhet"
+        const val VALGT_ENHET_PARAM = "valgtEnhet"
         private const val TEMA_OPPFOLGING = "OPP"
     }
 

@@ -15,7 +15,7 @@ export function TiltaksgjennomforingPage() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const { data: tiltaksgjennomforing, isLoading } = useTiltaksgjennomforingById();
-  const forhandsvisningMiljo = import.meta.env.dev || erProdMiljo() ? "nav.no" : "dev.nav.no";
+  const forhandsvisningMiljo = import.meta.env.dev || erProdMiljo ? "nav.no" : "dev.nav.no";
 
   const { data: visDeltakerlisteFraKometFeature } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_ADMIN_FLATE_VIS_DELTAKERLISTE_FRA_KOMET,
