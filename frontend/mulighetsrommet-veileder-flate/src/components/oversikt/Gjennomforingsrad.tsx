@@ -8,7 +8,6 @@ import { paginationAtom } from "../../core/atoms/atoms";
 import { erPreview, formaterDato } from "../../utils/Utils";
 import Lenke from "../lenke/Lenke";
 import styles from "./Gjennomforingsrad.module.scss";
-import { TilgjengelighetsstatusComponent } from "./Tilgjengelighetsstatus";
 import { BodyShort } from "@navikt/ds-react";
 import { ChevronRightIcon } from "@navikt/aksel-icons";
 
@@ -28,19 +27,8 @@ const visOppstartsdato = (oppstart: TiltaksgjennomforingOppstartstype, oppstarts
 
 export function Gjennomforingsrad({ tiltaksgjennomforing, index }: Props) {
   const [page] = useAtom(paginationAtom);
-  const {
-    id,
-    sanityId,
-    navn,
-    arrangor,
-    tiltakstype,
-    tilgjengelighet,
-    oppstart,
-    oppstartsdato,
-    estimertVentetid,
-    stengtFra,
-    stengtTil,
-  } = tiltaksgjennomforing;
+  const { id, sanityId, navn, arrangor, tiltakstype, oppstart, oppstartsdato } =
+    tiltaksgjennomforing;
 
   return (
     <li className={styles.list_element} id={`list_element_${index}`}>
@@ -77,12 +65,6 @@ export function Gjennomforingsrad({ tiltaksgjennomforing, index }: Props) {
             >
               {visOppstartsdato(oppstart, oppstartsdato)}
             </BodyShort>
-            <TilgjengelighetsstatusComponent
-              status={tilgjengelighet}
-              estimertVentetid={estimertVentetid}
-              stengtFra={stengtFra}
-              stengtTil={stengtTil}
-            />
           </div>
           <ChevronRightIcon className={styles.ikon} />
         </div>

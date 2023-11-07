@@ -15,8 +15,6 @@ import { BrukerKvalifisererIkkeVarsel } from "../../components/ikkeKvalifisertVa
 import { DetaljerJoyride } from "../../components/joyride/DetaljerJoyride";
 import { DetaljerOpprettAvtaleJoyride } from "../../components/joyride/DetaljerOpprettAvtaleJoyride";
 import Delemodal, { logDelMedbrukerEvent } from "../../components/modal/delemodal/Delemodal";
-import Nokkelinfo, { NokkelinfoProps } from "../../components/nokkelinfo/Nokkelinfo";
-import { TilgjengelighetsstatusComponent } from "../../components/oversikt/Tilgjengelighetsstatus";
 import SidemenyDetaljer from "../../components/sidemeny/SidemenyDetaljer";
 import TiltaksdetaljerFane from "../../components/tabs/TiltaksdetaljerFane";
 import Tilbakeknapp from "../../components/tilbakeknapp/Tilbakeknapp";
@@ -111,22 +109,6 @@ const ViewTiltaksgjennomforingDetaljer = ({
     }
   };
 
-  const tilgjengelighetsstatusSomNokkelinfo: NokkelinfoProps = {
-    nokkelinfoKomponenter: [
-      {
-        innhold: (
-          <TilgjengelighetsstatusComponent
-            status={tiltaksgjennomforing.tilgjengelighet}
-            stengtFra={tiltaksgjennomforing.stengtFra}
-            stengtTil={tiltaksgjennomforing.stengtTil}
-          />
-        ),
-        tittel: tiltaksgjennomforing.estimertVentetid?.toString() ?? "",
-        hjelpetekst: "Tilgjengelighetsstatusen er beregnet ut i fra data som kommer fra Arena",
-      },
-    ],
-  };
-
   const opprettAvtale =
     !!tiltaksgjennomforing.tiltakstype?.arenakode &&
     tiltakstypeAsStringIsIndividuellTiltakstype(tiltaksgjennomforing.tiltakstype.arenakode) &&
@@ -160,13 +142,6 @@ const ViewTiltaksgjennomforingDetaljer = ({
         <div className={styles.tiltaksgjennomforing_detaljer} id="tiltaksgjennomforing_detaljer">
           <div className={styles.tiltakstype_header_maksbredde}>
             <TiltaksgjennomforingsHeader tiltaksgjennomforing={tiltaksgjennomforing} />
-            <div className={styles.flex}>
-              <Nokkelinfo
-                data-testid="tilgjengelighetsstatus_detaljside"
-                uuTitle="Se hvor data om tilgjengelighetsstatusen er hentet fra"
-                nokkelinfoKomponenter={tilgjengelighetsstatusSomNokkelinfo.nokkelinfoKomponenter}
-              />
-            </div>
           </div>
           <div className={styles.sidemeny}>
             <SidemenyDetaljer tiltaksgjennomforing={tiltaksgjennomforing} />
