@@ -1,9 +1,7 @@
-import {
-  Avtale,
-  Avtaletype,
-  Tilgjengelighetsstatus,
-  TiltaksgjennomforingStatus,
-} from "mulighetsrommet-api-client";
+import { Avtale } from "mulighetsrommet-api-client";
+import { Avtaletype } from "mulighetsrommet-api-client/build/models/Avtaletype";
+import { Tilgjengelighetsstatus } from "mulighetsrommet-api-client/build/models/Tilgjengelighetsstatus";
+import { TiltaksgjennomforingStatus } from "mulighetsrommet-api-client/build/models/TiltaksgjennomforingStatus";
 
 export function capitalize(text?: string): string {
   return text ? text.slice(0, 1).toUpperCase() + text.slice(1, text.length).toLowerCase() : "";
