@@ -4,7 +4,9 @@ import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
+import no.nav.mulighetsrommet.api.domain.dto.*
 import no.nav.mulighetsrommet.api.utils.DatabaseUtils
 import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.Database
@@ -383,10 +385,10 @@ class AvtaleRepository(private val db: Database) {
             ?.let { Json.decodeFromString<List<EmbeddedNavEnhet?>>(it).filterNotNull() }
             ?: emptyList()
         val kontorstruktur = navEnheter
-            .filter { it.type == NavEnhetType.FYLKE }
+            .filter { it.type == Norg2Type.FYLKE }
             .map { region ->
                 val kontorer = navEnheter
-                    .filter { enhet -> enhet.type != NavEnhetType.FYLKE && enhet.overordnetEnhet == region.enhetsnummer }
+                    .filter { enhet -> enhet.type != Norg2Type.FYLKE && enhet.overordnetEnhet == region.enhetsnummer }
                     .sortedBy { enhet -> enhet.navn }
                 Kontorstruktur(region = region, kontorer = kontorer)
             }

@@ -4,11 +4,11 @@ import kotliquery.Row
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.domain.dbo.OverordnetEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
+import no.nav.mulighetsrommet.api.domain.dto.VirksomhetKontaktperson
 import no.nav.mulighetsrommet.api.utils.*
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
-import no.nav.mulighetsrommet.domain.dto.VirksomhetKontaktperson
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 import java.util.*

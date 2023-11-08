@@ -5,6 +5,9 @@ import arrow.core.left
 import io.ktor.server.plugins.*
 import kotliquery.Session
 import no.nav.mulighetsrommet.api.clients.vedtak.Innsatsgruppe
+import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingAdminDto
+import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingDto
+import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingNotificationDto
 import no.nav.mulighetsrommet.api.domain.dto.VeilederflateTiltaksgjennomforing
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
@@ -19,9 +22,6 @@ import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.Tiltakskoder.isTiltakMedAvtalerFraMulighetsrommet
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
-import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingAdminDto
-import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingDto
-import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingNotificationDto
 import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus.APENT_FOR_INNSOK
 import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus.GJENNOMFORES
 import no.nav.mulighetsrommet.kafka.producers.TiltaksgjennomforingKafkaProducer

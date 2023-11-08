@@ -4,6 +4,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
+import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.clients.oppfolging.*
 import no.nav.mulighetsrommet.api.clients.person.Enhet
 import no.nav.mulighetsrommet.api.clients.person.PersonDto
@@ -11,13 +12,17 @@ import no.nav.mulighetsrommet.api.clients.person.VeilarbpersonClient
 import no.nav.mulighetsrommet.api.clients.vedtak.Innsatsgruppe
 import no.nav.mulighetsrommet.api.clients.vedtak.VedtakDto
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
+import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
+import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 
 class BrukerServiceTest : FunSpec({
     val veilarboppfolgingClient: VeilarboppfolgingClient = mockk()
     val veilarbvedtaksstotteClient: VeilarbvedtaksstotteClient = mockk()
     val veilarbpersonClient: VeilarbpersonClient = mockk()
+    val navEnhetService: NavEnhetService = mockk()
 
-    val brukerService = BrukerService(veilarboppfolgingClient, veilarbvedtaksstotteClient, veilarbpersonClient)
+    val brukerService =
+        BrukerService(veilarboppfolgingClient, veilarbvedtaksstotteClient, veilarbpersonClient, navEnhetService)
     val fnr1 = "12345678910"
     val fnr2 = "99887766554"
 
@@ -59,6 +64,14 @@ class BrukerServiceTest : FunSpec({
                 enhetsnummer = "0106",
             ),
         )
+
+        coEvery { navEnhetService.hentEnhet(any()) } returns NavEnhetDbo(
+            navn = "NAV Fredrikstad",
+            enhetsnummer = "0106",
+            status = NavEnhetStatus.AKTIV,
+            type = Norg2Type.LOKAL,
+            overordnetEnhet = "0100",
+        )
     }
 
     test("Henter brukerdata for et gitt fnr") {
@@ -69,7 +82,7 @@ class BrukerServiceTest : FunSpec({
         brukerService.hentBrukerdata(fnr1, "").manuellStatus?.krrStatus?.erReservert shouldBe false
         brukerService.hentBrukerdata(fnr1, "").manuellStatus?.krrStatus?.kanVarsles shouldBe true
         brukerService.hentBrukerdata(fnr1, "").oppfolgingsenhet?.navn shouldBe "NAV Fredrikstad"
-        brukerService.hentBrukerdata(fnr1, "").oppfolgingsenhet?.enhetId shouldBe "0106"
+        brukerService.hentBrukerdata(fnr1, "").oppfolgingsenhet?.enhetsnummer shouldBe "0106"
         brukerService.hentBrukerdata(fnr1, "").geografiskEnhet?.navn shouldBe "NAV Fredrikstad"
         brukerService.hentBrukerdata(fnr1, "").geografiskEnhet?.enhetsnummer shouldBe "0106"
     }

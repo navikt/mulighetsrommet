@@ -1,6 +1,6 @@
 package no.nav.mulighetsrommet.api.services
 
-import no.nav.mulighetsrommet.domain.dto.AvtaleAdminDto
+import no.nav.mulighetsrommet.api.domain.dto.AvtaleAdminDto
 import org.apache.poi.xssf.usermodel.XSSFRow
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import java.io.File

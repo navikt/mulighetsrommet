@@ -22,6 +22,7 @@ import { tiltaksgjennomforingsfilter } from "../../core/atoms/atoms";
 import { usePrepopulerFilter } from "../../hooks/usePrepopulerFilter";
 import { routes } from "../../routes";
 import styles from "./ViewTiltaksgjennomforingOversikt.module.scss";
+import { BrukersOppfolgingsenhetVarsel } from "../../components/brukersEnheter/BrukersOppfolgingsenhetVarsel";
 
 const ViewTiltaksgjennomforingOversikt = () => {
   const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);
@@ -128,6 +129,7 @@ const ViewTiltaksgjennomforingOversikt = () => {
           </div>
         </div>
         <div>
+          <BrukersOppfolgingsenhetVarsel brukerdata={brukerdata} />
           <FiltrertFeilInnsatsgruppeVarsel filter={filter} />
           <BrukerHarIkke14aVedtakVarsel brukerdata={brukerdata} />
           {isLoading ? (
