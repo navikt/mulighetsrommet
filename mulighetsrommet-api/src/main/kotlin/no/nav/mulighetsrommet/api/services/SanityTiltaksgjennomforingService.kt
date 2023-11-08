@@ -6,7 +6,6 @@ import kotliquery.Session
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityPerspective
 import no.nav.mulighetsrommet.api.domain.dto.*
-import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingAdminDto
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import org.slf4j.LoggerFactory
@@ -49,7 +48,7 @@ class SanityTiltaksgjennomforingService(
         )
 
         if (tiltaksgjennomforing.sanityId != null) {
-            patchSanityTiltaksgjennomforing(tiltaksgjennomforing.sanityId!!, sanityTiltaksgjennomforingFields)
+            patchSanityTiltaksgjennomforing(tiltaksgjennomforing.sanityId, sanityTiltaksgjennomforingFields)
         } else {
             val sanityId = UUID.randomUUID()
             createSanityTiltaksgjennomforing(sanityId, sanityTiltaksgjennomforingFields)

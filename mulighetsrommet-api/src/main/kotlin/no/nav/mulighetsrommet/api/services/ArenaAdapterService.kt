@@ -62,8 +62,7 @@ class ArenaAdapterService(
             tiltaksgjennomforinger.upsertArenaTiltaksgjennomforing(tiltaksgjennomforingMedAvtale, tx)
             val gjennomforing = tiltaksgjennomforinger.get(tiltaksgjennomforing.id, tx)!!
             tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingDto.from(gjennomforing))
-            if (isEgenRegiTiltak(gjennomforing.tiltakstype.arenaKode) &&
-                (gjennomforing.sluttDato == null || gjennomforing.sluttDato?.isAfter(TiltaksgjennomforingSluttDatoCutoffDate) == true)
+            if (isEgenRegiTiltak(gjennomforing.tiltakstype.arenaKode) && (gjennomforing.sluttDato == null || gjennomforing.sluttDato.isAfter(TiltaksgjennomforingSluttDatoCutoffDate))
             ) {
                 sanityTiltaksgjennomforingService.createOrPatchSanityTiltaksgjennomforing(gjennomforing, tx)
             }

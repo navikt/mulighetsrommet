@@ -74,7 +74,7 @@ fun Route.veilederflateRoutes() {
 fun getRelevanteEnheterForBruker(brukerdata: BrukerService.Brukerdata, navEnhetService: NavEnhetService): List<String> {
     val geografiskEnhet = brukerdata.geografiskEnhet?.enhetsnummer?.let { navEnhetService.hentEnhet(it) }
     val oppfolgingsenhet =
-        brukerdata.oppfolgingsenhet?.let { enhet -> enhet.enhetsnummer?.let { navEnhetService.hentEnhet(it) } }
+        brukerdata.oppfolgingsenhet?.let { enhet -> enhet.enhetsnummer.let { navEnhetService.hentEnhet(it) } }
 
     val actualGeografiskEnhet = if (oppfolgingsenhet?.type == Norg2Type.LOKAL) {
         oppfolgingsenhet.enhetsnummer
