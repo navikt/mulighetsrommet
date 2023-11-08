@@ -1,10 +1,10 @@
 import {
   Opphav,
   PaginertTiltaksgjennomforing,
+  Tilgjengelighetsstatus,
   Tiltaksgjennomforing,
   TiltaksgjennomforingStatus,
 } from "mulighetsrommet-api-client";
-import { Tilgjengelighetsstatus } from "mulighetsrommet-api-client/build/models/Tilgjengelighetsstatus";
 import { mockTiltakstyper } from "./mock_tiltakstyper";
 import { nikolineKontaktperson, petrusKontaktperson } from "./mock_ansatt";
 import { mockEnheter } from "./mock_enheter";

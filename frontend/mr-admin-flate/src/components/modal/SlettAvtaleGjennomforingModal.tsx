@@ -73,18 +73,27 @@ const SlettAvtaleGjennomforingModal = ({
   }
 
   function footerInnhold() {
+    const redigerKnapp =
+      dataType === "avtale" ? (
+        <Lenkeknapp to={`/avtaler/${data?.id}/skjema`} variant="primary">
+          Rediger avtale
+        </Lenkeknapp>
+      ) : (
+        <Lenkeknapp
+          to={`/tiltaksgjennomforinger/skjema?tiltaksgjennomforingId=${data?.id}`}
+          variant="primary"
+        >
+          Rediger tiltaksgjennomføring
+        </Lenkeknapp>
+      );
+
     return (
       <div className={styles.knapperad}>
         <Button variant="secondary" onClick={handleCancel}>
           Avbryt
         </Button>
         {fraArena ? null : mutation?.isError ? (
-          <Lenkeknapp
-            to={`/tiltaksgjennomforinger/skjema?tiltaksgjennomforingId=${data?.id}`}
-            variant="primary"
-          >
-            Rediger tiltaksgjennomføring
-          </Lenkeknapp>
+          redigerKnapp
         ) : (
           <Button variant="danger" onClick={handleDelete}>
             Slett {dataType === "tiltaksgjennomforing" ? "tiltaksgjennomføring" : "avtale"}
