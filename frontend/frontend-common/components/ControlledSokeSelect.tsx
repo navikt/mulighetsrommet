@@ -59,7 +59,6 @@ function ControlledSokeSelect<T>(props: ControlledSelectProps<T>, _: ForwardedRe
             name={name}
             value={selectedOption ?? null}
             onChange={(e) => {
-              console.log(12, e);
               onChange(e?.target.value);
               providedOnChange?.(e);
             }}

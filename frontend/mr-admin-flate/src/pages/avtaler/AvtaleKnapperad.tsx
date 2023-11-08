@@ -18,16 +18,17 @@ export function AvtaleKnapperad({ handleSlett, avtale }: Props) {
 
   return (
     <div className={styles.knapperad}>
-      {slettAvtaleEnabled && avtale.avtalestatus === Avtalestatus.AKTIV && (
-        <Button
-          size="small"
-          variant="tertiary-neutral"
-          onClick={handleSlett}
-          className={styles.slett_knapp}
-        >
-          Feilregistrering
-        </Button>
-      )}
+      {slettAvtaleEnabled &&
+        [Avtalestatus.PLANLAGT, Avtalestatus.AKTIV].includes(avtale.avtalestatus) && (
+          <Button
+            size="small"
+            variant="tertiary-neutral"
+            onClick={handleSlett}
+            className={styles.slett_knapp}
+          >
+            Feilregistrering
+          </Button>
+        )}
       <Lenkeknapp size="small" to={`/avtaler/${avtaleId}/skjema`} variant="primary">
         Rediger avtale
       </Lenkeknapp>

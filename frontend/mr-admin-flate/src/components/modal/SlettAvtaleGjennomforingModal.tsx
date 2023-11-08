@@ -30,7 +30,7 @@ const SlettAvtaleGjennomforingModal = ({
 
   useEffect(() => {
     if (mutation.isSuccess) {
-      navigate(dataType === "avtale" ? "avtaler" : "tiltaksgjennomforinger");
+      navigate(dataType === "avtale" ? "/avtaler" : "/tiltaksgjennomforinger");
       return;
     }
   }, [mutation]);
