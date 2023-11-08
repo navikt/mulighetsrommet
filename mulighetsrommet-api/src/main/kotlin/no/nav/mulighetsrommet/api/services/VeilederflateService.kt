@@ -8,7 +8,6 @@ import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityPerspective
 import no.nav.mulighetsrommet.api.clients.vedtak.Innsatsgruppe
 import no.nav.mulighetsrommet.api.domain.dto.*
-import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingAdminDto
 import no.nav.mulighetsrommet.api.routes.v1.GetRelevanteTiltaksgjennomforingerForBrukerRequest
 import no.nav.mulighetsrommet.api.routes.v1.GetRelevanteTiltaksgjennomforingerPreviewRequest
 import no.nav.mulighetsrommet.api.routes.v1.GetTiltaksgjennomforingForBrukerRequest
@@ -160,7 +159,7 @@ class VeilederflateService(
               "tiltaksnummer": tiltaksnummer.current,
               stedForGjennomforing,
               "fylke": fylke->nummer.current,
-              "enheter": enheter[]->nummer.current,
+              "enheter": coalesce(enheter[]->nummer.current, []),
             }
         """.trimIndent()
 
@@ -265,7 +264,7 @@ class VeilederflateService(
               "tiltaksnummer": tiltaksnummer.current,
               beskrivelse,
               stedForGjennomforing,
-              kontaktpersoner[]{navKontaktperson->, "enheter": enheter[]->nummer.current},
+              kontaktpersoner[]{navKontaktperson->, "enheter": coalesce(enheter[]->nummer.current, [])},
               faneinnhold {
                 forHvemInfoboks,
                 forHvem,

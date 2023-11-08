@@ -65,7 +65,9 @@ export const tiltaksgjennomforing = defineType({
       type: "string",
       validation: (rule) => rule.required(),
       readOnly: ({ document }) => {
-        return isInAdminFlate(document.tiltakstype?._ref) || isEgenRegiTiltak(document.tiltakstype?._ref);
+        return (
+          isInAdminFlate(document.tiltakstype?._ref) || isEgenRegiTiltak(document.tiltakstype?._ref)
+        );
       },
     }),
     defineField({
@@ -187,6 +189,8 @@ export const tiltaksgjennomforing = defineType({
             {
               type: "array",
               name: "enheter",
+              validation: (Rule) =>
+                Rule.required().error("Du må velge minst én enhet som kontaktpersonen ekspederer."),
               of: [
                 {
                   type: "reference",
