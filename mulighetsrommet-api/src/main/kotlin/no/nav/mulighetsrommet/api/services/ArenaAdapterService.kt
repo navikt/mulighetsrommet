@@ -83,9 +83,7 @@ class ArenaAdapterService(
 
             if (shouldBeManagedInSanity(gjennomforing)) {
                 sanityTiltaksgjennomforingService.createOrPatchSanityTiltaksgjennomforing(gjennomforing, tx)
-            }
-
-            if (gjennomforing.isAktiv() && gjennomforing.administratorer.isEmpty()) {
+            } else if (gjennomforing.isAktiv() && gjennomforing.administratorer.isEmpty()) {
                 maybeNotifyRelevantAdministrators(gjennomforing)
             }
 
