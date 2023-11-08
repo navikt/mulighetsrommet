@@ -61,7 +61,7 @@ class ArenaAdapterService(
         avtaler.upsertArenaAvtale(avtale)
 
         val dbo = avtaler.get(avtale.id)!!
-        if (dbo.isAktiv()) {
+        if (dbo.isAktiv() && dbo.administratorer.isEmpty()) {
             maybeNotifyRelevantAdministrators(dbo)
         }
         return dbo
@@ -85,7 +85,7 @@ class ArenaAdapterService(
                 sanityTiltaksgjennomforingService.createOrPatchSanityTiltaksgjennomforing(gjennomforing, tx)
             }
 
-            if (gjennomforing.isAktiv()) {
+            if (gjennomforing.isAktiv() && gjennomforing.administratorer.isEmpty()) {
                 maybeNotifyRelevantAdministrators(gjennomforing)
             }
 
@@ -144,16 +144,12 @@ class ArenaAdapterService(
     }
 
     private fun maybeNotifyRelevantAdministrators(avtale: AvtaleAdminDto) {
-        val overordnetEnhet = resolveRelevantNavEnhet(
-            avtale.arenaAnsvarligEnhet,
-            avtale.administratorer,
-        ) ?: return
-
-        notifyRelevantAdministrators(overordnetEnhet) { administrators ->
+        val enhet = resolveRelevantNavEnhet(avtale.arenaAnsvarligEnhet) ?: return
+        notifyRelevantAdministrators(enhet) { administrators ->
             ScheduledNotification(
                 type = NotificationType.TASK,
                 title = """Avtalen "${avtale.navn}" har endringer fra Arena, men mangler en ansvarlig administrator.""",
-                description = "Du har blitt varslet fordi din NAV-hovedenhet og avtalens ansvarlige NAV-enhet begge er relatert til ${overordnetEnhet.navn}.",
+                description = "Du har blitt varslet fordi din NAV-hovedenhet og avtalens ansvarlige NAV-enhet begge er relatert til ${enhet.navn}. Gå til avtalen og sett deg som administrator hvis du eier avtalen.",
                 metadata = NotificationMetadata(
                     linkText = "Gå til avtalen",
                     link = "/avtaler/${avtale.id}",
@@ -165,16 +161,12 @@ class ArenaAdapterService(
     }
 
     private fun maybeNotifyRelevantAdministrators(gjennomforing: TiltaksgjennomforingAdminDto) {
-        val enhet = resolveRelevantNavEnhet(
-            gjennomforing.arenaAnsvarligEnhet,
-            gjennomforing.administratorer,
-        ) ?: return
-
+        val enhet = resolveRelevantNavEnhet(gjennomforing.arenaAnsvarligEnhet) ?: return
         notifyRelevantAdministrators(enhet) { administrators ->
             ScheduledNotification(
                 type = NotificationType.TASK,
                 title = """Gjennomføringen "${gjennomforing.navn}" har endringer fra Arena, men mangler en ansvarlig administrator.""",
-                description = "Du har blitt varslet fordi din NAV-hovedenhet og gjennomføringens ansvarlige NAV-enhet begge er relatert til ${enhet.navn}.",
+                description = "Du har blitt varslet fordi din NAV-hovedenhet og gjennomføringens ansvarlige NAV-enhet begge er relatert til ${enhet.navn}. Gå til gjennomføringen og sett deg som administrator hvis du eier gjennomføringen.",
                 metadata = NotificationMetadata(
                     linkText = "Gå til gjennomføringen",
                     link = "/tiltaksgjennomforinger/${gjennomforing.id}",
@@ -185,10 +177,8 @@ class ArenaAdapterService(
         }
     }
 
-    private fun resolveRelevantNavEnhet(arenaAnsvarligEnhet: String?, administrators: List<*>): NavEnhetDbo? {
-        // Når administratorer er satt så betyr det at avtalen/gjennomføringen har blitt redigert i mulighetsrommet
-        // Det burde derfor ikke være nødvendig å varsle for disse hendelsene
-        if (arenaAnsvarligEnhet == null || administrators.isNotEmpty()) {
+    private fun resolveRelevantNavEnhet(arenaAnsvarligEnhet: String?): NavEnhetDbo? {
+        if (arenaAnsvarligEnhet == null) {
             return null
         }
 

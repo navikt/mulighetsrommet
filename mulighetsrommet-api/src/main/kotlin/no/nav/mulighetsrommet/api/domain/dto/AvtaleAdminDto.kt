@@ -37,7 +37,7 @@ data class AvtaleAdminDto(
     val updatedAt: LocalDateTime,
     val kontorstruktur: List<Kontorstruktur>,
 ) {
-    fun isAktiv(): Boolean = avtalestatus == Avtalestatus.Aktiv
+    fun isAktiv(): Boolean = avtalestatus in listOf(Avtalestatus.Planlagt, Avtalestatus.Aktiv)
 
     @Serializable
     data class Tiltakstype(
