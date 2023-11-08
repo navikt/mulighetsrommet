@@ -1,6 +1,7 @@
 import { HttpResponse, PathParams, http } from "msw";
 import {
   GetRelevanteTiltaksgjennomforingerForBrukerRequest,
+  GetRelevanteTiltaksgjennomforingerPreviewRequest,
   GetTiltaksgjennomforingForBrukerRequest,
   Innsatsgruppe,
   VeilederflateInnsatsgruppe,
@@ -28,6 +29,20 @@ export const sanityHandlers = [
 
   http.post<PathParams, GetRelevanteTiltaksgjennomforingerForBrukerRequest>(
     "*/api/v1/internal/sanity/tiltaksgjennomforinger",
+    async ({ request }) => {
+      const { innsatsgruppe, search = "", tiltakstypeIds = [] } = await request.json();
+
+      const results = mockTiltaksgjennomforinger
+        .filter((gj) => filtrerFritekst(gj, search))
+        .filter((gj) => filtrerInnsatsgruppe(gj, innsatsgruppe))
+        .filter((gj) => filtrerTiltakstyper(gj, tiltakstypeIds));
+
+      return HttpResponse.json(results);
+    },
+  ),
+
+  http.post<PathParams, GetRelevanteTiltaksgjennomforingerPreviewRequest>(
+    "*/api/v1/internal/sanity/tiltaksgjennomforinger/preview",
     async ({ request }) => {
       const { innsatsgruppe, search = "", tiltakstypeIds = [] } = await request.json();
 

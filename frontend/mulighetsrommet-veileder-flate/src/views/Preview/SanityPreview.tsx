@@ -25,7 +25,7 @@ export function SanityPreview() {
   return (
     <>
       <Alert style={{ marginBottom: "2rem" }} variant="warning" data-testid="sanity-preview-alert">
-        Forhåndsvisning av informasjon fra Sanity
+        Forhåndsvisning av informasjon
       </Alert>
       <ViewTiltaksgjennomforingDetaljer
         tiltaksgjennomforing={data}

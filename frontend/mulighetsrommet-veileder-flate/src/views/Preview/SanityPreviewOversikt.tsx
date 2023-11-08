@@ -5,13 +5,15 @@ import { NavEnhet, NavEnhetType } from "mulighetsrommet-api-client";
 import { usePreviewTiltaksgjennomforinger } from "../../core/api/queries/usePreviewTiltaksgjennomforinger";
 import { Loader } from "@navikt/ds-react";
 import { useNavEnheter } from "../../core/api/queries/useNavEnheter";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Separator } from "../../utils/Separator";
 import { Feilmelding } from "../../components/feilmelding/Feilmelding";
 import { SokeSelect } from "mulighetsrommet-frontend-common/components/SokeSelect";
+import { useAtom } from "jotai";
+import { geografiskEnhetForPreviewAtom } from "../../core/atoms/atoms";
 
 export const SanityPreviewOversikt = () => {
-  const [geografiskEnhet, setGeografiskEnhet] = useState<NavEnhet>();
+  const [geografiskEnhet, setGeografiskEnhet] = useAtom(geografiskEnhetForPreviewAtom);
   const {
     data: tiltaksgjennomforinger = [],
     isLoading,
