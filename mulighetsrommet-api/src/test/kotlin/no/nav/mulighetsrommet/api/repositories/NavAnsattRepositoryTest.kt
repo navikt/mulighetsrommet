@@ -19,7 +19,7 @@ class NavAnsattRepositoryTest : FunSpec({
         val enheter = NavEnhetRepository(database.db)
         val ansatte = NavAnsattRepository(database.db)
 
-        val enhet = NavEnhetDbo(
+        val enhet1 = NavEnhetDbo(
             enhetsnummer = "1000",
             navn = "Andeby",
             status = NavEnhetStatus.AKTIV,
@@ -27,18 +27,27 @@ class NavAnsattRepositoryTest : FunSpec({
             overordnetEnhet = null,
         )
 
+        val enhet2 = NavEnhetDbo(
+            enhetsnummer = "2000",
+            navn = "Gåseby",
+            status = NavEnhetStatus.AKTIV,
+            type = Norg2Type.LOKAL,
+            overordnetEnhet = null,
+        )
+
         beforeAny {
-            enheter.upsert(enhet).shouldBeRight()
+            enheter.upsert(enhet1).shouldBeRight()
+            enheter.upsert(enhet2).shouldBeRight()
         }
 
-        fun toDto(dbo: NavAnsattDbo) = dbo.run {
+        fun toDto(ansatt: NavAnsattDbo, enhet: NavEnhetDbo) = ansatt.run {
             NavAnsattDto(
                 azureId = azureId,
                 navIdent = navIdent,
                 fornavn = fornavn,
                 etternavn = etternavn,
                 hovedenhet = NavAnsattDto.Hovedenhet(
-                    enhetsnummer = hovedenhet,
+                    enhetsnummer = enhet.enhetsnummer,
                     navn = enhet.navn,
                 ),
                 mobilnummer = mobilnummer,
@@ -48,78 +57,85 @@ class NavAnsattRepositoryTest : FunSpec({
             )
         }
 
+        val ansatt1 = NavAnsattDbo(
+            azureId = UUID.randomUUID(),
+            navIdent = "D1",
+            fornavn = "Donald",
+            etternavn = "Duck",
+            hovedenhet = "1000",
+            mobilnummer = "12345678",
+            epost = "donald@nav.no",
+            roller = setOf(NavAnsattRolle.BETABRUKER),
+        )
+
+        val ansatt2 = NavAnsattDbo(
+            azureId = UUID.randomUUID(),
+            navIdent = "D2",
+            fornavn = "Dolly",
+            etternavn = "Duck",
+            hovedenhet = "2000",
+            mobilnummer = "12345678",
+            epost = "dolly@nav.no",
+            roller = setOf(NavAnsattRolle.KONTAKTPERSON),
+        )
+
+        val ansatt3 = NavAnsattDbo(
+            azureId = UUID.randomUUID(),
+            navIdent = "D3",
+            fornavn = "Ole",
+            etternavn = "Duck",
+            hovedenhet = "1000",
+            mobilnummer = "12345678",
+            epost = "ole@nav.no",
+            roller = setOf(NavAnsattRolle.BETABRUKER, NavAnsattRolle.KONTAKTPERSON),
+        )
+
         test("CRUD") {
-            val azureId = UUID.randomUUID()
+            ansatte.upsert(ansatt1).shouldBeRight()
 
-            val ansatt = NavAnsattDbo(
-                azureId = azureId,
-                navIdent = "DD123456",
-                fornavn = "Donald",
-                etternavn = "Duck",
-                hovedenhet = "1000",
-                mobilnummer = "12345678",
-                epost = "test@test.no",
-                roller = setOf(NavAnsattRolle.BETABRUKER, NavAnsattRolle.KONTAKTPERSON),
-            )
+            ansatte.getByAzureId(ansatt1.azureId) shouldBeRight toDto(ansatt1, enhet1)
+            ansatte.getByNavIdent(ansatt1.navIdent) shouldBeRight toDto(ansatt1, enhet1)
 
-            ansatte.upsert(ansatt).shouldBeRight()
+            ansatte.deleteByAzureId(ansatt1.azureId).shouldBeRight()
 
-            ansatte.getByAzureId(ansatt.azureId) shouldBeRight toDto(ansatt)
-            ansatte.getByNavIdent(ansatt.navIdent) shouldBeRight toDto(ansatt)
-
-            ansatte.deleteByAzureId(ansatt.azureId).shouldBeRight()
-
-            ansatte.getByAzureId(ansatt.azureId) shouldBeRight null
-            ansatte.getByNavIdent(ansatt.navIdent) shouldBeRight null
+            ansatte.getByAzureId(ansatt1.azureId) shouldBeRight null
+            ansatte.getByNavIdent(ansatt1.navIdent) shouldBeRight null
         }
 
-        test("Skal hente alle ansatte for en gitt rolle") {
-            val ansatt1 = NavAnsattDbo(
-                azureId = UUID.randomUUID(),
-                navIdent = "D1",
-                fornavn = "Donald",
-                etternavn = "Duck",
-                hovedenhet = "1000",
-                mobilnummer = "12345678",
-                epost = "donald@nav.no",
-                roller = setOf(NavAnsattRolle.BETABRUKER),
-            )
-
-            val ansatt2 = NavAnsattDbo(
-                azureId = UUID.randomUUID(),
-                navIdent = "D2",
-                fornavn = "Dolly",
-                etternavn = "Duck",
-                hovedenhet = "1000",
-                mobilnummer = "12345678",
-                epost = "dolly@nav.no",
-                roller = setOf(NavAnsattRolle.KONTAKTPERSON),
-            )
-
-            val ansatt3 = NavAnsattDbo(
-                azureId = UUID.randomUUID(),
-                navIdent = "D3",
-                fornavn = "Ole",
-                etternavn = "Duck",
-                hovedenhet = "1000",
-                mobilnummer = "12345678",
-                epost = "ole@nav.no",
-                roller = setOf(NavAnsattRolle.BETABRUKER, NavAnsattRolle.KONTAKTPERSON),
-            )
-
+        test("hent ansatte gitt rolle") {
             ansatte.upsert(ansatt1).shouldBeRight()
             ansatte.upsert(ansatt2).shouldBeRight()
             ansatte.upsert(ansatt3).shouldBeRight()
 
             ansatte.getAll(
                 roller = listOf(NavAnsattRolle.BETABRUKER),
-            ) shouldBeRight listOf(toDto(ansatt1), toDto(ansatt3))
+            ) shouldBeRight listOf(toDto(ansatt1, enhet1), toDto(ansatt3, enhet1))
             ansatte.getAll(
                 roller = listOf(NavAnsattRolle.KONTAKTPERSON),
-            ) shouldBeRight listOf(toDto(ansatt2), toDto(ansatt3))
+            ) shouldBeRight listOf(toDto(ansatt2, enhet2), toDto(ansatt3, enhet1))
             ansatte.getAll(
                 roller = listOf(NavAnsattRolle.BETABRUKER, NavAnsattRolle.KONTAKTPERSON),
-            ) shouldBeRight listOf(toDto(ansatt3))
+            ) shouldBeRight listOf(toDto(ansatt3, enhet1))
+        }
+
+        test("hent ansatte gitt hovedenhet") {
+            ansatte.upsert(ansatt1).shouldBeRight()
+            ansatte.upsert(ansatt2).shouldBeRight()
+            ansatte.upsert(ansatt3).shouldBeRight()
+
+            ansatte.getAll(hovedenhetIn = listOf()) shouldBeRight listOf()
+            ansatte.getAll(hovedenhetIn = listOf("1000")) shouldBeRight listOf(
+                toDto(ansatt1, enhet1),
+                toDto(ansatt3, enhet1),
+            )
+            ansatte.getAll(hovedenhetIn = listOf("2000")) shouldBeRight listOf(
+                toDto(ansatt2, enhet2),
+            )
+            ansatte.getAll(hovedenhetIn = listOf("1000", "2000")) shouldBeRight listOf(
+                toDto(ansatt2, enhet2),
+                toDto(ansatt1, enhet1),
+                toDto(ansatt3, enhet1),
+            )
         }
     }
 })

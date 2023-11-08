@@ -54,6 +54,11 @@ data class TiltaksgjennomforingAdminDto(
     val tilgjengeligForVeileder: Boolean,
     val visesForVeileder: Boolean,
 ) {
+    fun isAktiv(): Boolean = status in listOf(
+        Tiltaksgjennomforingsstatus.APENT_FOR_INNSOK,
+        Tiltaksgjennomforingsstatus.GJENNOMFORES,
+    )
+
     @Serializable
     data class Tiltakstype(
         @Serializable(with = UUIDSerializer::class)

@@ -41,17 +41,20 @@ class NavEnhetRepository(private val db: Database) {
     fun getAll(
         statuser: List<NavEnhetStatus>? = null,
         typer: List<Norg2Type>? = null,
+        overordnetEnhet: String? = null,
     ): List<NavEnhetDbo> {
         logger.info("Henter enheter med status: ${statuser?.joinToString(", ")}")
 
         val parameters = mapOf(
             "statuser" to statuser?.let { items -> db.createTextArray(items.map { it.name }) },
             "typer" to typer?.let { items -> db.createTextArray(items.map { it.name }) },
+            "overordnet_enhet" to overordnetEnhet,
         )
 
         val where = DatabaseUtils.andWhereParameterNotNull(
             statuser to "e.status = any(:statuser)",
             typer to "e.type = any(:typer)",
+            overordnetEnhet to "e.overordnet_enhet = :overordnet_enhet",
         )
 
         @Language("PostgreSQL")

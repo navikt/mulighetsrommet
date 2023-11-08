@@ -1,8 +1,9 @@
 package no.nav.mulighetsrommet.api.services
 
 import arrow.core.Either
-import kotliquery.Session
+import kotliquery.TransactionalSession
 import no.nav.mulighetsrommet.api.avtaler.AvtaleValidator
+import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleAdminDto
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleNotificationDto
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
@@ -41,16 +42,11 @@ class AvtaleService(
 
         return validator.validate(request.toDbo())
             .map { dbo ->
-                val currentAdministratorer = get(request.id)?.administratorer?.map { it.navIdent }?.toSet() ?: setOf()
-
                 db.transaction { tx ->
                     avtaler.upsert(dbo, tx)
                     utkastRepository.delete(dbo.id, tx)
 
-                    val notifyTheseAdministrators = dbo.administratorer - currentAdministratorer - navIdent
-                    notifyTheseAdministrators.forEach {
-                        dispatchSattSomAdministratorNofication(dbo.navn, it, tx)
-                    }
+                    dispatchNotificationToNewAdministrators(tx, dbo, navIdent)
 
                     avtaler.get(dbo.id, tx)!!
                 }
@@ -143,11 +139,19 @@ class AvtaleService(
         return Either.Right(avtaler.setAvslutningsstatus(avtaleId, Avslutningsstatus.AVBRUTT))
     }
 
-    private fun dispatchSattSomAdministratorNofication(avtaleNavn: String, administrator: String, tx: Session) {
+    private fun dispatchNotificationToNewAdministrators(
+        tx: TransactionalSession,
+        dbo: AvtaleDbo,
+        navIdent: String,
+    ) {
+        val currentAdministratorer = get(dbo.id)?.administratorer?.map { it.navIdent }?.toSet() ?: setOf()
+
+        val administratorsToNotify = dbo.administratorer - currentAdministratorer - navIdent
+
         val notification = ScheduledNotification(
             type = NotificationType.NOTIFICATION,
-            title = "Du har blitt satt som administrator på avtalen \"$avtaleNavn\"",
-            targets = listOf(administrator),
+            title = "Du har blitt satt som administrator på avtalen \"${dbo.navn}\"",
+            targets = administratorsToNotify,
             createdAt = Instant.now(),
         )
         notificationRepository.insert(notification, tx)

@@ -816,8 +816,10 @@ class AvtaleRepositoryTest : FunSpec({
     context("Avslutningsstatus") {
         test("endringer på avslutningsstatus påvirker avtalestatus") {
             MulighetsrommetTestDomain(
-                avtale = AvtaleFixtures.avtale1.copy(
-                    sluttDato = LocalDate.now().plusWeeks(1),
+                avtaler = listOf(
+                    AvtaleFixtures.avtale1.copy(
+                        sluttDato = LocalDate.now().plusWeeks(1),
+                    ),
                 ),
             ).initialize(database.db)
 
