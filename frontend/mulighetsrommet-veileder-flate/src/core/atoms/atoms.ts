@@ -1,6 +1,7 @@
 import { atomWithHash } from "jotai-location";
-import { Innsatsgruppe } from "mulighetsrommet-api-client";
+import { Innsatsgruppe, NavEnhet } from "mulighetsrommet-api-client";
 import { atomWithStorage } from "jotai/utils";
+import { atom } from "jotai";
 
 export interface Tiltaksgjennomforingsfilter {
   search: string;
@@ -38,3 +39,5 @@ export const joyrideAtom = atomWithStorage<JoyrideStorage>("joyride_mulighetsrom
   joyrideDetaljer: true,
   joyrideDetaljerHarVistOpprettAvtale: true,
 });
+
+export const geografiskEnhetAtom = atom<NavEnhet | undefined>(undefined);
