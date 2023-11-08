@@ -7,8 +7,7 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       throwOnError: true,
-      refetchOnWindowFocus: import.meta.env.PROD,
-      retry: import.meta.env.PROD,
+      retry: 3,
     },
   },
 });
