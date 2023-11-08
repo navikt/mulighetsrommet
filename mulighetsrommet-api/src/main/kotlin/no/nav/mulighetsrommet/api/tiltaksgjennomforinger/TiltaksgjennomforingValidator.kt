@@ -44,6 +44,10 @@ class TiltaksgjennomforingValidator(
                 )
             }
 
+            if (dbo.administratorer.isEmpty()) {
+                add(ValidationError.of(TiltaksgjennomforingDbo::administratorer, "Minst én administrator må være valgt"))
+            }
+
             if (dbo.sluttDato != null && dbo.startDato.isAfter(dbo.sluttDato)) {
                 add(ValidationError.of(TiltaksgjennomforingDbo::startDato, "Startdato må være før sluttdato"))
             }

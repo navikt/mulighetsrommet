@@ -41,6 +41,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
         navRegion = "0400",
         navEnheter = listOf("0502"),
         arrangorOrganisasjonsnummer = "000000001",
+        administratorer = listOf("B123456"),
     )
 
     lateinit var tiltakstyper: TiltakstypeRepository
@@ -196,7 +197,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
 
     context("when gjennomføring already exists") {
         beforeEach {
-            tiltaksgjennomforinger.upsert(gjennomforing)
+            tiltaksgjennomforinger.upsert(gjennomforing.copy(administratorer = listOf()))
         }
 
         afterEach {
