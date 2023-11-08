@@ -42,8 +42,8 @@ data class SanityTiltaksgjennomforing(
     val beskrivelse: String? = null,
     val stedForGjennomforing: String? = null,
     val fylke: String? = null,
-    val enheter: List<String>? = emptyList(),
-    val kontaktpersoner: List<SanityKontaktperson>? = emptyList(),
+    val enheter: List<String>? = null,
+    val kontaktpersoner: List<SanityKontaktperson>? = null,
     val faneinnhold: Faneinnhold? = null,
 )
 

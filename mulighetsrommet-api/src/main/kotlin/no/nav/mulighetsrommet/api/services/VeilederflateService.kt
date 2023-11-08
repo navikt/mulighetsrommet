@@ -159,7 +159,7 @@ class VeilederflateService(
               "tiltaksnummer": tiltaksnummer.current,
               stedForGjennomforing,
               "fylke": fylke->nummer.current,
-              "enheter": enheter[]->nummer.current,
+              "enheter": coalesce(enheter[]->nummer.current, []),
             }
         """.trimIndent()
 
