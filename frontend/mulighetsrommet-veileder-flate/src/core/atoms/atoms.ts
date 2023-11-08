@@ -40,4 +40,4 @@ export const joyrideAtom = atomWithStorage<JoyrideStorage>("joyride_mulighetsrom
   joyrideDetaljerHarVistOpprettAvtale: true,
 });
 
-export const geografiskEnhetAtom = atom<NavEnhet | undefined>(undefined);
+export const geografiskEnhetForPreviewAtom = atom<NavEnhet | undefined>(undefined);

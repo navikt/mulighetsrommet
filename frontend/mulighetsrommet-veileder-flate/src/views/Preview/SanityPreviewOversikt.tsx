@@ -9,11 +9,11 @@ import { useEffect } from "react";
 import { Separator } from "../../utils/Separator";
 import { Feilmelding } from "../../components/feilmelding/Feilmelding";
 import { SokeSelect } from "mulighetsrommet-frontend-common/components/SokeSelect";
-import { geografiskEnhetAtom } from "../../core/atoms/atoms";
 import { useAtom } from "jotai";
+import { geografiskEnhetForPreviewAtom } from "../../core/atoms/atoms";
 
 export const SanityPreviewOversikt = () => {
-  const [geografiskEnhet, setGeografiskEnhet] = useAtom(geografiskEnhetAtom);
+  const [geografiskEnhet, setGeografiskEnhet] = useAtom(geografiskEnhetForPreviewAtom);
   const {
     data: tiltaksgjennomforinger = [],
     isLoading,
