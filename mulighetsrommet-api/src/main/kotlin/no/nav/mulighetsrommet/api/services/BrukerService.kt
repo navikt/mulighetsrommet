@@ -26,7 +26,9 @@ class BrukerService(
             navEnhetService.hentEnhet(it)
         }
 
-        val brukersGeografiskeEnhet = personInfo.geografiskEnhet.enhetsnummer.let { navEnhetService.hentEnhet(it) }
+        val brukersGeografiskeEnhet = personInfo.geografiskEnhet?.enhetsnummer?.let {
+            navEnhetService.hentEnhet(it)
+        }
 
         return Brukerdata(
             fnr = fnr,
