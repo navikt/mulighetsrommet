@@ -30,6 +30,10 @@ class AvtaleValidator(
             ?: raise(ValidationError.of(AvtaleDbo::tiltakstypeId, "Tiltakstypen finnes ikke").nel())
 
         val errors = buildList {
+            if (dbo.administratorer.isEmpty()) {
+                add(ValidationError.of(AvtaleDbo::administratorer, "Minst én administrator må være valgt"))
+            }
+
             if (!dbo.startDato.isBefore(dbo.sluttDato)) {
                 add(ValidationError.of(AvtaleDbo::startDato, "Startdato må være før sluttdato"))
             }
