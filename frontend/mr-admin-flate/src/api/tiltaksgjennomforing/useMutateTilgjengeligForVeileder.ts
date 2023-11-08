@@ -9,6 +9,6 @@ export function useMutateTilgjengeligForVeileder() {
         requestBody: { tilgjengeligForVeileder: data.tilgjengeligForVeileder },
       });
     },
-    useErrorBoundary: true,
+    throwOnError: true,
   });
 }

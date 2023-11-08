@@ -23,9 +23,10 @@ export function useAdminTiltaksgjennomforinger() {
     arrangorOrgnr: filter.arrangorOrgnr ? filter.arrangorOrgnr : undefined,
   };
 
-  return useQuery(
-    QueryKeys.tiltaksgjennomforinger({ ...filter, search: debouncedSok }, page),
-    () =>
+  return useQuery({
+    queryKey: QueryKeys.tiltaksgjennomforinger({ ...filter, search: debouncedSok }, page),
+
+    queryFn: () =>
       filter.visMineGjennomforinger
         ? mulighetsrommetClient.tiltaksgjennomforinger.getMineTiltaksgjennomforinger({
             ...queryFilter,
@@ -33,5 +34,5 @@ export function useAdminTiltaksgjennomforinger() {
         : mulighetsrommetClient.tiltaksgjennomforinger.getTiltaksgjennomforinger({
             ...queryFilter,
           }),
-  );
+  });
 }

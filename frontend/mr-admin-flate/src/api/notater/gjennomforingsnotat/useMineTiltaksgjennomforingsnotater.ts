@@ -8,12 +8,11 @@ export function useMineTiltaksgjennomforingsnotater() {
   const tiltaksgjennomforingId = useGetAdminTiltaksgjennomforingsIdFraUrl();
   invariant(tiltaksgjennomforingId, "Id for tiltaksgjennomføring er ikke satt.");
 
-  return useQuery(
-    QueryKeys.mineTiltaksgjennomforingsnotater(tiltaksgjennomforingId),
-    () =>
+  return useQuery({
+    queryKey: QueryKeys.mineTiltaksgjennomforingsnotater(tiltaksgjennomforingId),
+    queryFn: () =>
       mulighetsrommetClient.tiltaksgjennomforingNotater.getMineTiltaksgjennomforingNotater({
         tiltaksgjennomforingId,
       }),
-    {},
-  );
+  });
 }

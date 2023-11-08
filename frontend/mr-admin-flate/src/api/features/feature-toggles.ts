@@ -16,7 +16,9 @@ export type Features = Record<Toggles, boolean>;
  * @returns Verdi for initialValue før nettverkskall er ferdig
  */
 export const useFeatureToggle = (feature: Toggles) => {
-  return useQuery<boolean>(QueryKeys.features(feature), () =>
-    mulighetsrommetClient.features.getFeatureToggle({ feature }),
-  );
+  return useQuery({
+    queryKey: QueryKeys.features(feature),
+
+    queryFn: () => mulighetsrommetClient.features.getFeatureToggle({ feature }),
+  });
 };

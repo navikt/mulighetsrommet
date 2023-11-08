@@ -6,15 +6,14 @@ import { useGetAvtaleIdFromUrl } from "../../hooks/useGetAvtaleIdFromUrl";
 export function useAlleUtkast() {
   const avtaleId = useGetAvtaleIdFromUrl();
   if (!avtaleId) throw new Error("AvtaleId er ikke satt i URL");
-  return useQuery(
-    QueryKeys.alleUtkast(avtaleId),
-    () =>
+
+  return useQuery({
+    queryKey: QueryKeys.alleUtkast(avtaleId),
+    queryFn: () =>
       mulighetsrommetClient.utkast.getAlleUtkast({
         utkasttype: "Tiltaksgjennomforing",
         avtaleId,
       }),
-    {
-      enabled: !!avtaleId,
-    },
-  );
+    enabled: !!avtaleId,
+  });
 }

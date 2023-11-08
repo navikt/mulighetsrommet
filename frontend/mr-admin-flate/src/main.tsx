@@ -18,7 +18,7 @@ import { resolveErrorMessage } from "./api/errors";
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      useErrorBoundary: true,
+      throwOnError: true,
       retry: 3,
     },
   },

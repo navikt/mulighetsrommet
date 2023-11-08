@@ -6,14 +6,12 @@ import { mulighetsrommetClient } from "../clients";
 export function useSokVirksomheter(sokestreng: string) {
   const debouncedSok = useDebounce(sokestreng, 300);
 
-  return useQuery(
-    QueryKeys.virksomhetSok(debouncedSok),
-    () =>
+  return useQuery({
+    queryKey: QueryKeys.virksomhetSok(debouncedSok),
+    queryFn: () =>
       mulighetsrommetClient.virksomhet.sokVirksomhet({
         sok: debouncedSok.trim(),
       }),
-    {
-      enabled: !!debouncedSok,
-    },
-  );
+    enabled: !!debouncedSok,
+  });
 }

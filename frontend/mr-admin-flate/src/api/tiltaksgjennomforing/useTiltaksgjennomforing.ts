@@ -7,18 +7,12 @@ export function useTiltaksgjennomforing(overstyrTiltaksgjennomforingsId?: string
   const tiltaksgjennomforingId =
     overstyrTiltaksgjennomforingsId || useGetAdminTiltaksgjennomforingsIdFraUrl();
 
-  const query = useQuery(
-    QueryKeys.tiltaksgjennomforing(tiltaksgjennomforingId!!),
-    () =>
+  return useQuery({
+    queryKey: QueryKeys.tiltaksgjennomforing(tiltaksgjennomforingId!!),
+    queryFn: () =>
       mulighetsrommetClient.tiltaksgjennomforinger.getTiltaksgjennomforing({
         id: tiltaksgjennomforingId!!,
       }),
-    {
-      enabled: !!tiltaksgjennomforingId,
-    },
-  );
-  return {
-    ...query,
-    isLoading: !!tiltaksgjennomforingId && query.isLoading, // https://github.com/TanStack/query/issues/3584
-  };
+    enabled: !!tiltaksgjennomforingId,
+  });
 }

@@ -7,14 +7,12 @@ import invariant from "tiny-invariant";
 export function useAvtalenotater() {
   const avtaleId = useGetAvtaleIdFromUrl();
   invariant(avtaleId, "AvtaleId er ikke satt i URL");
-  return useQuery(
-    QueryKeys.avtalenotater(avtaleId),
-    () =>
+  return useQuery({
+    queryKey: QueryKeys.avtalenotater(avtaleId),
+    queryFn: () =>
       mulighetsrommetClient.avtaleNotater.getNotaterForAvtale({
         avtaleId,
       }),
-    {
-      enabled: !!avtaleId,
-    },
-  );
+    enabled: !!avtaleId,
+  });
 }

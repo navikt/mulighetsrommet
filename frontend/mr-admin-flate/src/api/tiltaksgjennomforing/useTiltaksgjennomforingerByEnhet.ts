@@ -8,16 +8,14 @@ import { QueryKeys } from "../QueryKeys";
 export function useTiltaksgjennomforingerByEnhet(enhet: string = "") {
   const [page] = useAtom(paginationAtom);
 
-  return useQuery(
-    QueryKeys.tiltaksgjennomforingerByEnhet(enhet, page),
-    () =>
+  return useQuery({
+    queryKey: QueryKeys.tiltaksgjennomforingerByEnhet(enhet, page),
+    queryFn: () =>
       mulighetsrommetClient.tiltaksgjennomforinger.getAllByEnhet({
         enhet,
         page,
         size: PAGE_SIZE,
       }),
-    {
-      enabled: !!enhet,
-    },
-  );
+    enabled: !!enhet,
+  });
 }

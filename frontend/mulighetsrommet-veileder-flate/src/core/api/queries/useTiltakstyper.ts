@@ -1,9 +1,10 @@
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import { mulighetsrommetClient } from "../clients";
 import { QueryKeys } from "../query-keys";
 
 export function useTiltakstyper() {
-  return useQuery(QueryKeys.sanity.tiltakstyper, () =>
-    mulighetsrommetClient.sanity.getVeilederflateTiltakstyper(),
-  );
+  return useQuery({
+    queryKey: QueryKeys.sanity.tiltakstyper,
+    queryFn: () => mulighetsrommetClient.sanity.getVeilederflateTiltakstyper(),
+  });
 }

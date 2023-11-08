@@ -1,4 +1,4 @@
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useFnr } from "../../../hooks/useFnr";
 import { mulighetsrommetClient } from "../clients";
 import { QueryKeys } from "../query-keys";
@@ -8,11 +8,9 @@ export function useHentHistorikk(prefetch: boolean = true) {
 
   const requestBody = { norskIdent: fnr };
 
-  return useQuery(
-    [QueryKeys.Historikk, fnr],
-    () => mulighetsrommetClient.historikk.hentHistorikkForBruker({ requestBody }),
-    {
-      enabled: prefetch,
-    },
-  );
+  return useQuery({
+    queryKey: [QueryKeys.Historikk, fnr],
+    queryFn: () => mulighetsrommetClient.historikk.hentHistorikkForBruker({ requestBody }),
+    enabled: prefetch,
+  });
 }

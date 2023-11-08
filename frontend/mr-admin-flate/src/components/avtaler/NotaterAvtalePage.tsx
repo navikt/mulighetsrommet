@@ -75,8 +75,8 @@ export default function NotaterAvtalePage() {
               <ErrorMessage>Det skjedde en feil. Notatet ble ikke lagret.</ErrorMessage>
             ) : null}
             <span className={styles.notater_knapp}>
-              <Button type="submit" disabled={putAvtalenotat.isLoading}>
-                {putAvtalenotat.isLoading ? <Laster /> : "Legg til notat"}
+              <Button type="submit" disabled={putAvtalenotat.isPending}>
+                {putAvtalenotat.isPending ? <Laster /> : "Legg til notat"}
               </Button>
             </span>
           </div>

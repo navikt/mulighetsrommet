@@ -8,12 +8,11 @@ export function useMineAvtalenotater() {
   const avtaleId = useGetAvtaleIdFromUrl();
   invariant(avtaleId, "Id for avtale er ikke satt");
 
-  return useQuery(
-    QueryKeys.mineAvtalenotater(avtaleId!!),
-    () =>
+  return useQuery({
+    queryKey: QueryKeys.mineAvtalenotater(avtaleId!!),
+    queryFn: () =>
       mulighetsrommetClient.avtaleNotater.getMineAvtaleNotater({
         avtaleId: avtaleId!,
       }),
-    {},
-  );
+  });
 }

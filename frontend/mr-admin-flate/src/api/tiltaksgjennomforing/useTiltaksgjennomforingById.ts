@@ -6,14 +6,12 @@ import { mulighetsrommetClient } from "../clients";
 export function useTiltaksgjennomforingById() {
   const tiltaksgjennomforingId = useGetAdminTiltaksgjennomforingsIdFraUrl();
 
-  return useQuery(
-    QueryKeys.tiltaksgjennomforing(tiltaksgjennomforingId),
-    () =>
+  return useQuery({
+    queryKey: QueryKeys.tiltaksgjennomforing(tiltaksgjennomforingId),
+    queryFn: () =>
       mulighetsrommetClient.tiltaksgjennomforinger.getTiltaksgjennomforing({
         id: tiltaksgjennomforingId!!,
       }),
-    {
-      enabled: !!tiltaksgjennomforingId,
-    },
-  );
+    enabled: !!tiltaksgjennomforingId,
+  });
 }

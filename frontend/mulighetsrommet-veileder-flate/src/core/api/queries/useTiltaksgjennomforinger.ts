@@ -3,12 +3,12 @@ import {
   GetRelevanteTiltaksgjennomforingerForBrukerRequest,
   Innsatsgruppe,
 } from "mulighetsrommet-api-client";
-import { useQuery } from "react-query";
 import { tiltaksgjennomforingsfilter } from "../../atoms/atoms";
 import { mulighetsrommetClient } from "../clients";
 import { QueryKeys } from "../query-keys";
 import { useHentBrukerdata } from "./useHentBrukerdata";
 import { useFnr } from "../../../hooks/useFnr";
+import { useQuery } from "@tanstack/react-query";
 
 export default function useTiltaksgjennomforinger() {
   const [filter] = useAtom(tiltaksgjennomforingsfilter);
@@ -28,9 +28,11 @@ export default function useTiltaksgjennomforinger() {
     requestBody.tiltakstypeIds = filter.tiltakstyper.map(({ id }) => id);
   }
 
-  return useQuery(QueryKeys.sanity.tiltaksgjennomforinger(brukerData.data, filter), () =>
-    mulighetsrommetClient.sanity.getRelevanteTiltaksgjennomforingerForBruker({ requestBody }),
-  );
+  return useQuery({
+    queryKey: QueryKeys.sanity.tiltaksgjennomforinger(brukerData.data, filter),
+    queryFn: () =>
+      mulighetsrommetClient.sanity.getRelevanteTiltaksgjennomforingerForBruker({ requestBody }),
+  });
 }
 
 export function utledInnsatsgrupperFraInnsatsgruppe(innsatsgruppe: string): Innsatsgruppe[] {

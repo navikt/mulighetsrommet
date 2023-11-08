@@ -4,9 +4,13 @@ import { mulighetsrommetClient } from "../clients";
 import { QueryKeys } from "../QueryKeys";
 
 export function useVirksomheter(til?: VirksomhetTil) {
-  return useQuery(QueryKeys.virksomheter(til), () => {
-    return mulighetsrommetClient.virksomhet.getVirksomheter({
-      til,
-    });
+  return useQuery({
+    queryKey: QueryKeys.virksomheter(til),
+
+    queryFn: () => {
+      return mulighetsrommetClient.virksomhet.getVirksomheter({
+        til,
+      });
+    },
   });
 }
