@@ -8,6 +8,9 @@ import io.kotest.data.row
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.mockk.coEvery
+import io.mockk.mockk
+import io.mockk.mockkObject
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
@@ -25,6 +28,7 @@ import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListe
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dto.*
+import no.nav.mulighetsrommet.env.NaisEnv
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -132,8 +136,10 @@ class AvtaleValidatorTest : FunSpec({
     }
 
     context("når avtalen ikke allerede eksisterer") {
-        test("skal feile når tiltakstypen ikke er VTA eller AFT") {
+        test("skal feile når tiltakstypen ikke er VTA eller AFT og miljø er produksjon") {
             val validator = AvtaleValidator(tiltakstyper, avtaler, gjennomforinger, navEnheterService)
+            mockkObject(NaisEnv.current())
+            coEvery { NaisEnv.current().isProdGCP() } returns true
 
             val dbo = avtaleDbo.copy(tiltakstypeId = TiltakstypeFixtures.Oppfolging.id)
 
