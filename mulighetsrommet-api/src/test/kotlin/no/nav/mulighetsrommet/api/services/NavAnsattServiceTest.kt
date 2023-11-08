@@ -50,8 +50,8 @@ class NavAnsattServiceTest : FunSpec({
         navIdent = dbo.navIdent,
         fornavn = dbo.fornavn,
         etternavn = dbo.etternavn,
-        hovedenhetKode = domain.enhet.enhetsnummer,
-        hovedenhetNavn = domain.enhet.navn,
+        hovedenhetKode = domain.enheter[0].enhetsnummer,
+        hovedenhetNavn = domain.enheter[0].navn,
         mobilnummer = dbo.mobilnummer,
         epost = dbo.epost,
     )

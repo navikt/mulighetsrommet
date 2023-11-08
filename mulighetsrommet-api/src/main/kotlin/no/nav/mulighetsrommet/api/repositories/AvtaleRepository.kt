@@ -420,6 +420,7 @@ class AvtaleRepository(private val db: Database) {
             },
             startDato = startDato,
             sluttDato = sluttDato,
+            arenaAnsvarligEnhet = stringOrNull("arena_ansvarlig_enhet"),
             avtaletype = Avtaletype.valueOf(string("avtaletype")),
             avtalestatus = Avtalestatus.resolveFromDatesAndAvslutningsstatus(
                 LocalDate.now(),

@@ -46,6 +46,6 @@ class NavEnhetService(private val enhetRepository: NavEnhetRepository) {
     }
 
     fun hentAlleEnheter(filter: EnhetFilter): List<NavEnhetDbo> {
-        return enhetRepository.getAll(filter.statuser, filter.typer)
+        return enhetRepository.getAll(filter.statuser, filter.typer, filter.overordnetEnhet)
     }
 }

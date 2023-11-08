@@ -10,7 +10,6 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.verify
 import no.nav.mulighetsrommet.api.avtaler.AvtaleValidator
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
@@ -37,7 +36,6 @@ import java.util.*
 class AvtaleServiceTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
     val virksomhetService: VirksomhetService = mockk(relaxed = true)
-    val notificationRepository: NotificationRepository = mockk(relaxed = true)
     val utkastRepository: UtkastRepository = mockk(relaxed = true)
     val validator = mockk<AvtaleValidator>()
 
@@ -59,7 +57,7 @@ class AvtaleServiceTest : FunSpec({
             avtaler,
             tiltaksgjennomforinger,
             virksomhetService,
-            notificationRepository,
+            NotificationRepository(database.db),
             utkastRepository,
             validator,
             database.db,
@@ -84,7 +82,7 @@ class AvtaleServiceTest : FunSpec({
             avtaler,
             tiltaksgjennomforinger,
             virksomhetService,
-            notificationRepository,
+            NotificationRepository(database.db),
             utkastRepository,
             validator,
             database.db,
@@ -191,7 +189,7 @@ class AvtaleServiceTest : FunSpec({
             avtaleRepository,
             tiltaksgjennomforinger,
             virksomhetService,
-            notificationRepository,
+            NotificationRepository(database.db),
             utkastRepository,
             validator,
             database.db,
@@ -295,7 +293,7 @@ class AvtaleServiceTest : FunSpec({
             avtaler,
             tiltaksgjennomforinger,
             virksomhetService,
-            notificationRepository,
+            NotificationRepository(database.db),
             utkastRepository,
             validator,
             database.db,
@@ -319,7 +317,7 @@ class AvtaleServiceTest : FunSpec({
             val avtale = AvtaleFixtures.avtaleRequest.copy(administratorer = listOf("B123456"))
             avtaleService.upsert(avtale, "B123456")
 
-            verify(exactly = 0) { notificationRepository.insert(any(), any()) }
+            database.assertThat("user_notification").isEmpty
         }
 
         test("Bare nye administratorer får notification når man endrer gjennomføring") {
@@ -364,9 +362,24 @@ class AvtaleServiceTest : FunSpec({
             )
             val avtale = AvtaleFixtures.avtaleRequest.copy(administratorer = listOf("Z654321"))
             avtaleService.upsert(avtale, "B123456")
-            avtaleService.upsert(avtale.copy(navn = "nytt navn", administratorer = listOf("Z654321", "T654321", "B123456")), "B123456")
 
-            verify(exactly = 2) { notificationRepository.insert(any(), any()) }
+            database.assertThat("user_notification")
+                .hasNumberOfRows(1)
+                .column("user_id")
+                .containsValues("Z654321")
+
+            avtaleService.upsert(
+                avtale.copy(
+                    navn = "nytt navn",
+                    administratorer = listOf("Z654321", "T654321", "B123456"),
+                ),
+                "B123456",
+            )
+
+            database.assertThat("user_notification")
+                .hasNumberOfRows(2)
+                .column("user_id")
+                .containsValues("Z654321", "T654321")
         }
     }
 
@@ -377,7 +390,7 @@ class AvtaleServiceTest : FunSpec({
             avtaler,
             tiltaksgjennomforinger,
             virksomhetService,
-            notificationRepository,
+            NotificationRepository(database.db),
             utkastRepository,
             validator,
             database.db,

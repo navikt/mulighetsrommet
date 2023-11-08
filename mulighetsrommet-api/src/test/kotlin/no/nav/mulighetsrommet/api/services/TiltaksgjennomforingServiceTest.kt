@@ -12,7 +12,7 @@ import io.kotest.matchers.shouldNotBe
 import io.ktor.http.*
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.verify
+import io.mockk.spyk
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattDbo
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
@@ -36,7 +36,6 @@ class TiltaksgjennomforingServiceTest : FunSpec({
 
     val tiltaksgjennomforingKafkaProducer: TiltaksgjennomforingKafkaProducer = mockk(relaxed = true)
     val virksomhetService: VirksomhetService = mockk(relaxed = true)
-    val notificationRepository: NotificationRepository = mockk(relaxed = true)
     val utkastRepository: UtkastRepository = mockk(relaxed = true)
     val validator = mockk<TiltaksgjennomforingValidator>()
 
@@ -63,7 +62,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             virksomhetService,
             utkastRepository,
             tiltaksgjennomforingKafkaProducer,
-            notificationRepository,
+            NotificationRepository(database.db),
             validator,
             database.db,
         )
@@ -150,7 +149,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             virksomhetService,
             utkastRepository,
             tiltaksgjennomforingKafkaProducer,
-            notificationRepository,
+            NotificationRepository(database.db),
             validator,
             database.db,
         )
@@ -213,7 +212,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             virksomhetService,
             utkastRepository,
             tiltaksgjennomforingKafkaProducer,
-            notificationRepository,
+            NotificationRepository(database.db),
             validator,
             database.db,
         )
@@ -245,7 +244,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             virksomhetService,
             utkastRepository,
             tiltaksgjennomforingKafkaProducer,
-            notificationRepository,
+            NotificationRepository(database.db),
             validator,
             database.db,
         )
@@ -278,7 +277,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             )
             tiltaksgjennomforingService.upsert(gjennomforing, "B123456").shouldBeRight()
 
-            verify(exactly = 0) { notificationRepository.insert(any(), any()) }
+            database.assertThat("user_notification").isEmpty
         }
 
         test("Bare nye administratorer får notifikasjon når man endrer gjennomføring") {
@@ -328,15 +327,25 @@ class TiltaksgjennomforingServiceTest : FunSpec({
                     sluttDato = LocalDate.of(2025, 1, 1),
                 ),
             )
+
             val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1Request.copy(
                 administratorer = listOf("B123456"),
                 navEnheter = listOf("2990"),
             )
-
             tiltaksgjennomforingService.upsert(gjennomforing, "B123456").shouldBeRight()
-            tiltaksgjennomforingService.upsert(gjennomforing.copy(navn = "nytt navn", administratorer = listOf("Z654321", "T654321", "B123456")), "B123456").shouldBeRight()
 
-            verify(exactly = 2) { notificationRepository.insert(any(), any()) }
+            database.assertThat("user_notification").isEmpty
+
+            val endretGjennomforing = gjennomforing.copy(
+                navn = "nytt navn",
+                administratorer = listOf("Z654321", "T654321", "B123456"),
+            )
+            tiltaksgjennomforingService.upsert(endretGjennomforing, "B123456").shouldBeRight()
+
+            database.assertThat("user_notification")
+                .hasNumberOfRows(2)
+                .column("user_id")
+                .containsValues("Z654321", "T654321")
         }
     }
 
@@ -344,6 +353,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
         val avtaler = AvtaleRepository(database.db)
         val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
         val deltagerRepository = DeltakerRepository(database.db)
+        val notificationRepository = spyk(NotificationRepository(database.db))
         val tiltaksgjennomforingService = TiltaksgjennomforingService(
             avtaler,
             tiltaksgjennomforingRepository,

@@ -69,6 +69,14 @@ class NavEnhetRepositoryTest : FunSpec({
             underenhet4,
         )
 
+        enheter.getAll(overordnetEnhet = overordnetEnhet.enhetsnummer) shouldContainExactlyInAnyOrder listOf(
+            underenhet1,
+            underenhet2,
+            underenhet3,
+            underenhet4,
+            underenhet5,
+        )
+
         enheter.deleteWhereEnhetsnummer(listOf("1", "2", "3"))
 
         enheter.getAll() shouldContainExactlyInAnyOrder listOf(
