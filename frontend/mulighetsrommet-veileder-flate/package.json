@@ -20,9 +20,6 @@
     "not ie < 11",
     "not op_mini all"
   ],
-  "resolutions": {
-    "**/fsevents": "^1.2.9"
-  },
   "dependencies": {
     "@grafana/faro-web-sdk": "1.2.3",
     "@navikt/aksel-icons": "5.9.2",
