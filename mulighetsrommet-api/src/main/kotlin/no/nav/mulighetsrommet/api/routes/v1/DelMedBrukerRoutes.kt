@@ -10,8 +10,10 @@ import no.nav.mulighetsrommet.api.domain.dbo.DelMedBrukerDbo
 import no.nav.mulighetsrommet.api.plugins.getNavAnsattAzureId
 import no.nav.mulighetsrommet.api.services.DelMedBrukerService
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
+import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.securelog.SecureLog
 import org.koin.ktor.ext.inject
+import java.util.*
 
 fun Route.delMedBrukerRoutes() {
     val delMedBrukerService by inject<DelMedBrukerService>()
@@ -41,7 +43,7 @@ fun Route.delMedBrukerRoutes() {
 
             poaoTilgang.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), request.norskIdent)
 
-            delMedBrukerService.getDeltMedBruker(request.norskIdent, request.sanityId)
+            delMedBrukerService.getDeltMedBruker(request.norskIdent, request.id)
                 .onRight {
                     if (it == null) {
                         call.respondText(
@@ -64,6 +66,7 @@ fun Route.delMedBrukerRoutes() {
 
 @Serializable
 data class GetDelMedBrukerRequest(
-    val sanityId: String,
+    @Serializable(with = UUIDSerializer::class)
+    val id: UUID,
     val norskIdent: String,
 )

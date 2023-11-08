@@ -2,17 +2,18 @@ package no.nav.mulighetsrommet.api.services
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.clients.oppfolging.ManuellStatusDto
-import no.nav.mulighetsrommet.api.clients.oppfolging.Oppfolgingsenhet
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
-import no.nav.mulighetsrommet.api.clients.person.Enhet
 import no.nav.mulighetsrommet.api.clients.person.VeilarbpersonClient
 import no.nav.mulighetsrommet.api.clients.vedtak.Innsatsgruppe
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
+import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
+import no.nav.mulighetsrommet.api.domain.dto.EmbeddedNavEnhet
 
 class BrukerService(
     private val veilarboppfolgingClient: VeilarboppfolgingClient,
     private val veilarbvedtaksstotteClient: VeilarbvedtaksstotteClient,
     private val veilarbpersonClient: VeilarbpersonClient,
+    private val navEnhetService: NavEnhetService,
 ) {
 
     suspend fun hentBrukerdata(fnr: String, accessToken: String): Brukerdata {
@@ -21,11 +22,19 @@ class BrukerService(
         val sisteVedtak = veilarbvedtaksstotteClient.hentSiste14AVedtak(fnr, accessToken)
         val personInfo = veilarbpersonClient.hentPersonInfo(fnr, accessToken)
 
+        val brukersOppfolgingsenhet = oppfolgingsstatus?.oppfolgingsenhet?.enhetId?.let {
+            navEnhetService.hentEnhet(it)
+        }
+
+        val brukersGeografiskeEnhet = personInfo.geografiskEnhet?.enhetsnummer?.let {
+            navEnhetService.hentEnhet(it)
+        }
+
         return Brukerdata(
             fnr = fnr,
             innsatsgruppe = sisteVedtak?.innsatsgruppe,
-            oppfolgingsenhet = oppfolgingsstatus?.oppfolgingsenhet,
-            geografiskEnhet = personInfo.geografiskEnhet,
+            oppfolgingsenhet = brukersOppfolgingsenhet?.toNavEnhet(),
+            geografiskEnhet = brukersGeografiskeEnhet?.toNavEnhet(),
             servicegruppe = oppfolgingsstatus?.servicegruppe,
             fornavn = personInfo.fornavn,
             manuellStatus = manuellStatus,
@@ -36,10 +45,19 @@ class BrukerService(
     data class Brukerdata(
         val fnr: String,
         val innsatsgruppe: Innsatsgruppe?,
-        val oppfolgingsenhet: Oppfolgingsenhet?,
-        val geografiskEnhet: Enhet?,
+        val oppfolgingsenhet: EmbeddedNavEnhet?,
+        val geografiskEnhet: EmbeddedNavEnhet?,
         val servicegruppe: String?,
         val fornavn: String?,
         val manuellStatus: ManuellStatusDto?,
+    )
+}
+
+fun NavEnhetDbo.toNavEnhet(): EmbeddedNavEnhet {
+    return EmbeddedNavEnhet(
+        enhetsnummer = enhetsnummer,
+        navn = navn,
+        type = type,
+        overordnetEnhet = overordnetEnhet,
     )
 }

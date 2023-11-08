@@ -5,12 +5,10 @@ import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.clients.vedtak.Innsatsgruppe
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
-import no.nav.mulighetsrommet.api.domain.dto.KontaktinfoTiltaksansvarlige
-import no.nav.mulighetsrommet.api.domain.dto.VeilederflateArrangor
-import no.nav.mulighetsrommet.api.domain.dto.VeilederflateTiltaksgjennomforing
-import no.nav.mulighetsrommet.api.domain.dto.VeilederflateTiltakstype
+import no.nav.mulighetsrommet.api.domain.dto.*
 import no.nav.mulighetsrommet.api.utils.DatabaseUtils
 import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.Database
@@ -727,7 +725,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 EmbeddedNavEnhet(
                     enhetsnummer = it,
                     navn = string("nav_region_navn"),
-                    type = NavEnhetType.valueOf(string("nav_region_type")),
+                    type = Norg2Type.valueOf(string("nav_region_type")),
                     overordnetEnhet = stringOrNull("nav_region_overordnet_enhet"),
                 )
             },

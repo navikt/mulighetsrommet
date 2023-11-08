@@ -4,9 +4,10 @@ import {
   GetBrukerRequest,
   HistorikkForBruker,
   Innsatsgruppe,
+  NavEnhetType,
 } from "mulighetsrommet-api-client";
 import { historikk } from "../../fixtures/historikk";
-import { ENHET_FREDRIKSTAD } from "../../mock_constants";
+import { ENHET_FREDRIKSTAD, ENHET_SARPSBORG } from "../../mock_constants";
 
 export const brukerHandlers = [
   http.post<PathParams, GetBrukerRequest, Bruker | String>(
@@ -18,17 +19,21 @@ export const brukerHandlers = [
         return HttpResponse.json("'fnr' must be specified", { status: 400 });
       }
 
-      return HttpResponse.json({
+      const bruker: Bruker = {
         fnr: norskIdent,
         innsatsgruppe: Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
         oppfolgingsenhet: {
-          navn: "NAV Fredrikstad",
-          enhetId: ENHET_FREDRIKSTAD,
+          navn: "NAV Sarpsborg",
+          enhetsnummer: ENHET_SARPSBORG,
+          overordnetEnhet: "0100",
+          type: NavEnhetType.LOKAL,
         },
         fornavn: "IHERDIG",
         geografiskEnhet: {
           navn: "NAV Fredrikstad",
           enhetsnummer: ENHET_FREDRIKSTAD,
+          overordnetEnhet: "0100",
+          type: NavEnhetType.LOKAL,
         },
         manuellStatus: {
           erUnderManuellOppfolging: false,
@@ -37,7 +42,9 @@ export const brukerHandlers = [
             erReservert: false,
           },
         },
-      });
+      };
+
+      return HttpResponse.json(bruker);
     },
   ),
 

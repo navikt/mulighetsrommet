@@ -9,9 +9,9 @@ import ViewTiltaksgjennomforingDetaljer from "./ViewTiltaksgjennomforingDetaljer
 import styles from "./ViewTiltaksgjennomforingDetaljer.module.scss";
 
 export function ViewTiltaksgjennomforingDetaljerContainer() {
-  const { data, isLoading, isError } = useTiltaksgjennomforingById();
+  const { data: tiltaksgjennomforing, isLoading, isError } = useTiltaksgjennomforingById();
   const fnr = useFnr();
-  const { harDeltMedBruker } = useHentDeltMedBrukerStatus(data?.sanityId, fnr);
+  const { harDeltMedBruker } = useHentDeltMedBrukerStatus(fnr, tiltaksgjennomforing);
   const { brukerHarRettPaaTiltak, innsatsgruppeForGjennomforing } = useBrukerHarRettPaaTiltak();
   const veilederdata = useHentVeilederdata();
   const brukerdata = useHentBrukerdata();
@@ -28,11 +28,11 @@ export function ViewTiltaksgjennomforingDetaljerContainer() {
     return <Alert variant="error">Det har skjedd en feil</Alert>;
   }
 
-  if (!data || !veilederdata?.data || !brukerdata?.data) return null;
+  if (!tiltaksgjennomforing || !veilederdata?.data || !brukerdata?.data) return null;
 
   return (
     <ViewTiltaksgjennomforingDetaljer
-      tiltaksgjennomforing={data}
+      tiltaksgjennomforing={tiltaksgjennomforing}
       brukerHarRettPaaTiltak={brukerHarRettPaaTiltak}
       innsatsgruppeForGjennomforing={innsatsgruppeForGjennomforing}
       harDeltMedBruker={harDeltMedBruker}

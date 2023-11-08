@@ -1,6 +1,11 @@
 package no.nav.mulighetsrommet.api.fixtures
 
+import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
+import no.nav.mulighetsrommet.api.domain.dto.AvtaleAdminDto
+import no.nav.mulighetsrommet.api.domain.dto.EmbeddedNavEnhet
+import no.nav.mulighetsrommet.api.domain.dto.Kontorstruktur
+import no.nav.mulighetsrommet.api.domain.dto.VirksomhetKontaktperson
 import no.nav.mulighetsrommet.api.routes.v1.AvtaleRequest
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.*
@@ -82,14 +87,14 @@ object AvtaleFixtures {
                 region = EmbeddedNavEnhet(
                     navn = "NAV Mockdata",
                     enhetsnummer = "0100",
-                    type = NavEnhetType.FYLKE,
+                    type = Norg2Type.FYLKE,
                     overordnetEnhet = null,
                 ),
                 kontorer = listOf(
                     EmbeddedNavEnhet(
                         navn = "NAV Mockkontor",
                         enhetsnummer = "0101",
-                        type = NavEnhetType.LOKAL,
+                        type = Norg2Type.LOKAL,
                         overordnetEnhet = "0100",
                     ),
                 ),
@@ -131,14 +136,14 @@ object AvtaleFixtures {
                 region = EmbeddedNavEnhet(
                     navn = "NAV Mockdata",
                     enhetsnummer = "0100",
-                    type = NavEnhetType.FYLKE,
+                    type = Norg2Type.FYLKE,
                     overordnetEnhet = null,
                 ),
                 kontorer = listOf(
                     EmbeddedNavEnhet(
                         navn = "NAV Mockkontor",
                         enhetsnummer = "0101",
-                        type = NavEnhetType.LOKAL,
+                        type = Norg2Type.LOKAL,
                         overordnetEnhet = "0100",
                     ),
                 ),

@@ -1476,12 +1476,12 @@ components:
       properties:
         norskIdent:
           type: string
-        sanityId:
+        id:
           type: string
           format: uuid
       required:
         - norskIdent
-        - sanityId
+        - id
 
     GetRelevanteTiltaksgjennomforingerForBrukerRequest:
       type: object
@@ -2088,9 +2088,9 @@ components:
         servicegruppe:
           type: string
         oppfolgingsenhet:
-          $ref: "#/components/schemas/Oppfolgingsenhet"
+          $ref: "#/components/schemas/EmbeddedNavEnhet"
         geografiskEnhet:
-          $ref: "#/components/schemas/GeografiskEnhet"
+          $ref: "#/components/schemas/EmbeddedNavEnhet"
         fornavn:
           type: string
         manuellStatus:
@@ -2205,27 +2205,6 @@ components:
         - GRUPPE
         - INDIVIDUELL
 
-    Oppfolgingsenhet:
-      type: object
-      properties:
-        navn:
-          type: string
-        enhetId:
-          type: string
-      required:
-        - navn
-        - enhetId
-    GeografiskEnhet:
-      type: object
-      properties:
-        navn:
-          type: string
-        enhetsnummer:
-          type: string
-      required:
-        - navn
-        - enhetsnummer
-
     FrontendEvent:
       type: object
       properties:
@@ -2320,6 +2299,10 @@ components:
           type: string
         sanityId:
           type: string
+          format: uuid
+        tiltaksgjennoforingId:
+          type: string
+          format: uuid
         dialogId:
           type: string
         createdAt:
