@@ -82,25 +82,29 @@ class NavAnsattServiceTest : FunSpec({
             } else if (request.url.parameters.getOrFail<String>("query").contains("redaktor")) {
                 respondJson(
                     content = sanityContentResult(
-                        SanityRedaktor(
-                            _id = "123",
-                            _type = "navKontaktperson",
-                            enhet = "",
-                            epost = Slug(_type = "slug", current = "epost@epost.no"),
-                            navn = "Navn Navnesen",
+                        listOf(
+                            SanityRedaktor(
+                                _id = "123",
+                                _type = "redaktor",
+                                enhet = "",
+                                epost = Slug(_type = "slug", current = "epost@epost.no"),
+                                navn = "Navn Navnesen",
+                            ),
                         ),
                     ),
                 )
             } else if (request.url.parameters.getOrFail("query").contains("navKontaktperson")) {
                 respondJson(
                     content = sanityContentResult(
-                        SanityNavKontaktperson(
-                            _id = "123",
-                            _type = "navKontaktperson",
-                            enhet = "",
-                            telefonnummer = null,
-                            epost = "",
-                            navn = "Navn Navnesen",
+                        listOf(
+                            SanityNavKontaktperson(
+                                _id = "123",
+                                _type = "navKontaktperson",
+                                enhet = "",
+                                telefonnummer = null,
+                                epost = "navn.navnesen@nav.no",
+                                navn = "Navn Navnesen",
+                            ),
                         ),
                     ),
                 )

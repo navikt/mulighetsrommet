@@ -90,8 +90,8 @@ class NavAnsattService(
         logger.info("Oppdaterer ${ansatteToUpsert.size} NavAnsatt fra Azure")
         ansatteToUpsert.forEach { ansatt ->
             ansatte.upsert(NavAnsattDbo.fromNavAnsattDto(ansatt)).bind()
-            upsertSanityAnsatt(ansatt)
         }
+        upsertSanityAnsatte(ansatteToUpsert)
 
         val ansatteAzureIds = ansatteToUpsert.map { it.azureId }
         val ansatteToScheduleForDeletion = ansatte.getAll()
@@ -130,32 +130,50 @@ class NavAnsattService(
         }
     }
 
-    suspend fun upsertSanityAnsatt(ansatt: NavAnsattDto) {
-        if (ansatt.roller.contains(NavAnsattRolle.KONTAKTPERSON)) {
-            upsertKontaktperson(ansatt)
-        }
-
-        if (ansatt.roller.contains(NavAnsattRolle.BETABRUKER)) {
-            upsertRedaktor(ansatt)
-        }
-    }
-
-    private suspend fun upsertKontaktperson(ansatt: NavAnsattDto) {
-        val queryResponse = sanityClient.query(
+    private suspend fun upsertSanityAnsatte(ansatte: List<NavAnsattDto>) {
+        val navKontaktpersonResponse = sanityClient.query(
             """
-            *[_type == "navKontaktperson" && lower(epost) == lower("${ansatt.epost}")][0]
+            *[_type == "navKontaktperson"]
             """.trimIndent(),
         )
 
-        val sanityId = when (queryResponse) {
-            is SanityResponse.Result -> queryResponse.decode<SanityNavKontaktperson?>()?._id
-                ?: UUID.randomUUID()
+        val redaktorResponse = sanityClient.query(
+            """
+            *[_type == "redaktor"]
+            """.trimIndent(),
+        )
 
-            is SanityResponse.Error -> throw Exception("Klarte ikke hente ut kontaktperson fra Sanity: ${queryResponse.error}")
+        val kontaktpersoner = when (navKontaktpersonResponse) {
+            is SanityResponse.Result -> navKontaktpersonResponse.decode<List<SanityNavKontaktperson>?>()
+                ?.associate { it.epost to it._id } ?: emptyMap()
+
+            is SanityResponse.Error -> throw Exception("Klarte ikke hente ut kontaktpersoner fra Sanity: ${navKontaktpersonResponse.error}")
         }
 
+        val redaktorer = when (redaktorResponse) {
+            is SanityResponse.Result -> redaktorResponse.decode<List<SanityRedaktor>?>()
+                ?.associate { it.epost.current to it._id } ?: emptyMap()
+
+            is SanityResponse.Error -> throw Exception("Klarte ikke hente ut redaktører fra Sanity: ${redaktorResponse.error}")
+        }
+
+        logger.info("Upserter ${ansatte.size} ansatte til Sanity")
+        ansatte.forEach { ansatt ->
+            if (ansatt.roller.contains(NavAnsattRolle.KONTAKTPERSON)) {
+                val id = kontaktpersoner[ansatt.epost] ?: UUID.randomUUID()
+                upsertKontaktperson(ansatt, id.toString())
+            }
+
+            if (ansatt.roller.contains(NavAnsattRolle.BETABRUKER)) {
+                val id = redaktorer[ansatt.epost] ?: UUID.randomUUID()
+                upsertRedaktor(ansatt, id.toString())
+            }
+        }
+    }
+
+    private suspend fun upsertKontaktperson(ansatt: NavAnsattDto, id: String) {
         val sanityPatch = SanityNavKontaktperson(
-            _id = sanityId.toString(),
+            _id = id,
             _type = "navKontaktperson",
             enhet = "${ansatt.hovedenhet.enhetsnummer} ${ansatt.hovedenhet.navn}",
             telefonnummer = ansatt.mobilnummer,
@@ -172,26 +190,13 @@ class NavAnsattService(
         if (response.status != HttpStatusCode.OK) {
             throw Exception("Klarte ikke upserte kontaktperson i sanity: ${response.bodyAsText()}")
         } else {
-            logger.info("Oppdaterte kontaktperson i Sanity med id: $sanityId")
+            logger.info("Oppdaterte kontaktperson i Sanity med id: $id")
         }
     }
 
-    private suspend fun upsertRedaktor(ansatt: NavAnsattDto) {
-        val queryResponse = sanityClient.query(
-            """
-            *[_type == "redaktor" && lower(epost.current) == lower("${ansatt.epost}")][0]
-            """.trimIndent(),
-        )
-
-        val sanityId = when (queryResponse) {
-            is SanityResponse.Result -> queryResponse.decode<SanityRedaktor?>()?._id
-                ?: UUID.randomUUID()
-
-            is SanityResponse.Error -> throw Exception("Klarte ikke hente ut redaktør fra Sanity: ${queryResponse.error}")
-        }
-
+    private suspend fun upsertRedaktor(ansatt: NavAnsattDto, id: String) {
         val sanityPatch = SanityRedaktor(
-            _id = sanityId.toString(),
+            _id = id,
             _type = "redaktor",
             enhet = "${ansatt.hovedenhet.enhetsnummer} ${ansatt.hovedenhet.navn}",
             navn = "${ansatt.fornavn} ${ansatt.etternavn}",
@@ -210,7 +215,7 @@ class NavAnsattService(
         if (response.status != HttpStatusCode.OK) {
             throw Exception("Klarte ikke upserte redaktør i sanity: ${response.bodyAsText()}")
         } else {
-            logger.info("Oppdaterte redaktør i Sanity med id: $sanityId")
+            logger.info("Oppdaterte redaktør i Sanity med id: $id")
         }
     }
 }
