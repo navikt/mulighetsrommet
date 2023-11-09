@@ -1137,7 +1137,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             search = null,
             sanityTiltakstypeIds = listOf(tiltakstypeSanityId),
             innsatsgrupper = listOf(Innsatsgruppe.STANDARD_INNSATS),
-            brukersEnheter = listOf("2990")
+            brukersEnheter = listOf("2990"),
         ).should {
             it shouldHaveSize 1
             it[0].navn shouldBe Oppfolging1.navn
@@ -1172,7 +1172,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             search = null,
             sanityTiltakstypeIds = null,
             innsatsgrupper = listOf(Innsatsgruppe.STANDARD_INNSATS),
-            brukersEnheter = listOf("2990")
+            brukersEnheter = listOf("2990"),
         ).should {
             it shouldHaveSize 1
             it[0].navn shouldBe Oppfolging1.navn
@@ -1202,7 +1202,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             search = "rik",
             sanityTiltakstypeIds = listOf(tiltakstypeSanityId),
             innsatsgrupper = listOf(Innsatsgruppe.STANDARD_INNSATS),
-            brukersEnheter = listOf("2990")
+            brukersEnheter = listOf("2990"),
         ).should {
             it shouldHaveSize 1
             it.get(0).navn shouldBe "erik"
@@ -1241,7 +1241,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             search = null,
             sanityTiltakstypeIds = listOf(tiltakstypeSanityId),
             innsatsgrupper = listOf(Innsatsgruppe.STANDARD_INNSATS),
-            brukersEnheter = listOf("2990", "0400")
+            brukersEnheter = listOf("2990", "0400"),
         ).should {
             it shouldHaveSize 2
         }

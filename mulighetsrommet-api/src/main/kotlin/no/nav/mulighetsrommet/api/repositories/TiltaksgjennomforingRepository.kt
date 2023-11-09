@@ -454,7 +454,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             "search" to search?.let { "%${it.replace("/", "#").trim()}%" },
             "sanityTiltakstypeIds" to sanityTiltakstypeIds?.let { db.createUuidArray(it) },
             "innsatsgrupper" to db.createTextArray(innsatsgrupper.map { it.name }),
-            "brukersEnheter" to db.createTextArray(brukersEnheter)
+            "brukersEnheter" to db.createTextArray(brukersEnheter),
         )
 
         val where = DatabaseUtils.andWhereParameterNotNull(
