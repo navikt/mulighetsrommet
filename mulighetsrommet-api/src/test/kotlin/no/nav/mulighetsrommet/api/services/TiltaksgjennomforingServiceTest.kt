@@ -66,76 +66,6 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             validator,
             database.db,
         )
-
-        test("Man skal ikke få slette dersom gjennomføringen ikke finnes") {
-            tiltaksgjennomforingService.delete(UUID.randomUUID()).shouldBeLeft().should {
-                it.status shouldBe HttpStatusCode.NotFound
-            }
-        }
-
-        test("Man skal ikke få slette dersom dagens dato er mellom start- og sluttdato for gjennomoringen") {
-            val currentDate = LocalDate.of(2023, 6, 1)
-            val gjennomforingMedSlutt = TiltaksgjennomforingFixtures.Oppfolging1.copy(
-                avtaleId = avtaleId,
-                startDato = LocalDate.of(2023, 1, 1),
-                sluttDato = LocalDate.of(2024, 8, 1),
-            )
-            val gjennomforingUtenSlutt = TiltaksgjennomforingFixtures.Oppfolging1.copy(
-                id = UUID.randomUUID(),
-                avtaleId = avtaleId,
-                startDato = LocalDate.of(2023, 1, 1),
-                sluttDato = null,
-            )
-            tiltaksgjennomforingRepository.upsert(gjennomforingMedSlutt)
-            tiltaksgjennomforingRepository.upsert(gjennomforingUtenSlutt)
-
-            tiltaksgjennomforingService.delete(gjennomforingMedSlutt.id, currentDate = currentDate).shouldBeLeft(
-                BadRequest(message = "Gjennomføringen er eller har vært aktiv og kan derfor ikke slettes."),
-            )
-            tiltaksgjennomforingService.delete(gjennomforingUtenSlutt.id, currentDate = currentDate).shouldBeLeft(
-                BadRequest(message = "Gjennomføringen er eller har vært aktiv og kan derfor ikke slettes."),
-            )
-        }
-
-        test("Man skal ikke få slette dersom opphav for gjennomforingen ikke er admin-flate") {
-            val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1.copy(
-                avtaleId = avtaleId,
-                opphav = ArenaMigrering.Opphav.ARENA,
-            )
-            tiltaksgjennomforingRepository.upsert(gjennomforing)
-
-            tiltaksgjennomforingService.delete(gjennomforing.id).shouldBeLeft(
-                BadRequest(message = "Gjennomføringen har opprinnelse fra Arena og kan ikke bli slettet i admin-flate."),
-            )
-        }
-
-        test("Man skal ikke få slette dersom det finnes deltagere koblet til gjennomføringen") {
-            val currentDate = LocalDate.of(2023, 6, 1)
-            val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1.copy(
-                avtaleId = avtaleId,
-                startDato = currentDate.plusMonths(1),
-            )
-            tiltaksgjennomforingRepository.upsert(gjennomforing)
-
-            val deltager = DeltakerFixture.Deltaker.copy(tiltaksgjennomforingId = gjennomforing.id)
-            deltagerRepository.upsert(deltager)
-
-            tiltaksgjennomforingService.delete(gjennomforing.id, currentDate).shouldBeLeft(
-                BadRequest(message = "Gjennomføringen kan ikke slettes fordi den har 1 deltager(e) koblet til seg."),
-            )
-        }
-
-        test("Skal få slette tiltaksgjennomføring hvis alle sjekkene er ok") {
-            val currentDate = LocalDate.of(2023, 6, 1)
-            val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1.copy(
-                avtaleId = avtaleId,
-                startDato = currentDate.plusMonths(1),
-            )
-            tiltaksgjennomforingRepository.upsert(gjennomforing)
-
-            tiltaksgjennomforingService.delete(gjennomforing.id, currentDate)
-                .shouldBeRight()
-        }
     }
 
     context("Avbryte gjennomføring") {
@@ -155,7 +85,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
         )
 
         test("Man skal ikke få avbryte dersom gjennomføringen ikke finnes") {
-            tiltaksgjennomforingService.delete(UUID.randomUUID()).shouldBeLeft(
+            tiltaksgjennomforingService.avbrytGjennomforing(UUID.randomUUID()).shouldBeLeft(
                 NotFound(message = "Gjennomføringen finnes ikke"),
             )
         }
@@ -427,20 +357,6 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             tiltaksgjennomforingService.get(gjennomforing.id) should {
                 it!!.status shouldBe Tiltaksgjennomforingsstatus.GJENNOMFORES
             }
-        }
-
-        test("Deletes ikke hvis retract feiler") {
-            val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1.copy(
-                avtaleId = avtaleId,
-                startDato = LocalDate.now().plusDays(10),
-            )
-            tiltaksgjennomforingRepository.upsert(gjennomforing)
-
-            every { tiltaksgjennomforingKafkaProducer.retract(any()) } throws Exception()
-
-            shouldThrow<Throwable> { tiltaksgjennomforingService.delete(gjennomforing.id) }
-
-            tiltaksgjennomforingService.get(gjennomforing.id) shouldNotBe null
         }
     }
 })
