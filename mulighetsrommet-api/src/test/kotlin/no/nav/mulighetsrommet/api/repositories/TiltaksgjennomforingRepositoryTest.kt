@@ -21,6 +21,7 @@ import no.nav.mulighetsrommet.api.domain.dto.*
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures.avtale1
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
+import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.Arbeidstrening1
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.ArenaOppfolging1
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.Oppfolging1
@@ -1226,6 +1227,10 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         Query("update tiltakstype set innsatsgruppe = '${Innsatsgruppe.STANDARD_INNSATS}' where id = '${TiltakstypeFixtures.Arbeidstrening.id}'")
             .asUpdate
             .let { database.db.run(it) }
+
+        val enheter = NavEnhetRepository(database.db)
+        enheter.upsert(NavEnhetFixtures.Oslo)
+        enheter.upsert(NavEnhetFixtures.Innlandet)
 
         val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
         tiltaksgjennomforinger.upsert(Oppfolging1.copy(navn = "erik"))
