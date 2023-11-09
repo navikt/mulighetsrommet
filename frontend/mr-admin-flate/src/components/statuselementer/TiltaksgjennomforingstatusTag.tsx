@@ -19,7 +19,7 @@ export function TiltaksgjennomforingstatusTag({ tiltaksgjennomforing }: Props) {
         return "neutral";
       case TiltaksgjennomforingStatus.AVSLUTTET:
         return "neutral";
-      case TiltaksgjennomforingStatus.APENT_FOR_INNSOK:
+      case TiltaksgjennomforingStatus.PLANLAGT:
         return "alt1";
       case undefined:
         return "neutral";

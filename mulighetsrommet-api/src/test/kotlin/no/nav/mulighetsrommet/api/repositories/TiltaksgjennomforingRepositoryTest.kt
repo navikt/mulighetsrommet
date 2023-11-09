@@ -828,7 +828,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
 
             val result = tiltaksgjennomforingRepository.getAll(
-                status = Tiltaksgjennomforingsstatus.APENT_FOR_INNSOK,
+                status = Tiltaksgjennomforingsstatus.PLANLAGT,
                 dagensDato = dagensDato,
             )
 
