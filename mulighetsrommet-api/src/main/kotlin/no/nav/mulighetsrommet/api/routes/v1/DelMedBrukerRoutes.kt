@@ -47,7 +47,7 @@ fun Route.delMedBrukerRoutes() {
                 .onRight {
                     if (it == null) {
                         call.respondText(
-                            status = HttpStatusCode.NoContent,
+                            status = HttpStatusCode.NotFound,
                             text = "Fant ikke innslag om at veileder har delt tiltak med bruker tidligere",
                         )
                     } else {
