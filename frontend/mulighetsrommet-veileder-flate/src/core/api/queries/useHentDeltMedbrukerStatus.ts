@@ -18,6 +18,7 @@ export function useHentDeltMedBrukerStatus(
       mulighetsrommetClient.delMedBruker.getDelMedBruker({
         requestBody: { norskIdent, id: id!! },
       }),
+    throwOnError: false,
     enabled: !erPreview() && !!id,
   });
 
