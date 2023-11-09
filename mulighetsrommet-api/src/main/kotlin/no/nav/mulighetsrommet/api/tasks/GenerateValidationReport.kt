@@ -244,7 +244,7 @@ private fun toTiltaksgjennomforingDbo(dto: TiltaksgjennomforingAdminDto) = dto.r
         startDato = startDato,
         sluttDato = sluttDato,
         avslutningsstatus = when (status) {
-            APENT_FOP_INNSOK, PLANLAGT, GJENNOMFORES -> Avslutningsstatus.IKKE_AVSLUTTET
+            PLANLAGT, GJENNOMFORES -> Avslutningsstatus.IKKE_AVSLUTTET
             AVLYST -> Avslutningsstatus.AVLYST
             AVBRUTT -> Avslutningsstatus.AVBRUTT
             AVSLUTTET -> Avslutningsstatus.AVSLUTTET
