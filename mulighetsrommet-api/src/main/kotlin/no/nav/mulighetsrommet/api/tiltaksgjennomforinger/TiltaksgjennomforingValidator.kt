@@ -13,7 +13,6 @@ import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
 import no.nav.mulighetsrommet.domain.Tiltakskoder
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.Avtalestatus
-import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus.APENT_FOR_INNSOK
 import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus.GJENNOMFORES
 
 class TiltaksgjennomforingValidator(
@@ -122,7 +121,7 @@ class TiltaksgjennomforingValidator(
             }
 
             tiltaksgjennomforinger.get(dbo.id)?.also { gjennomforing ->
-                if (gjennomforing.status !in listOf(APENT_FOR_INNSOK, GJENNOMFORES)) {
+                if (!gjennomforing.isAktiv()) {
                     add(
                         ValidationError.of(
                             TiltaksgjennomforingDbo::navn,

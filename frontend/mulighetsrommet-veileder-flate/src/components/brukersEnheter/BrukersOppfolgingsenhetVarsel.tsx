@@ -11,7 +11,7 @@ export function BrukersOppfolgingsenhetVarsel({ brukerdata }: Props) {
     return (
       <Alert style={{ marginBottom: "1rem" }} variant="info">
         Bruker har en annen oppfølgingsenhet enn geografisk enhet. Det er aktuelle tiltak knyttet
-        til brukers oppfølgingsenhet som vises i oversikten.
+        til brukers oppfølgingsenhet som vises i listen.
       </Alert>
     );
   }

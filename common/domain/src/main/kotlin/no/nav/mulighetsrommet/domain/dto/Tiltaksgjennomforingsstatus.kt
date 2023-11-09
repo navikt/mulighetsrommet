@@ -6,11 +6,14 @@ import java.time.LocalDate
 
 @Serializable
 enum class Tiltaksgjennomforingsstatus {
+    PLANLAGT,
     GJENNOMFORES,
     AVBRUTT,
     AVLYST,
     AVSLUTTET,
-    APENT_FOR_INNSOK,
+
+    // Skal fjernes
+    APENT_FOP_INNSOK,
     ;
 
     companion object {
@@ -24,7 +27,7 @@ enum class Tiltaksgjennomforingsstatus {
                 avslutningsStatus == Avslutningsstatus.AVLYST -> AVLYST
                 avslutningsStatus == Avslutningsstatus.AVBRUTT -> AVBRUTT
                 avslutningsStatus == Avslutningsstatus.AVSLUTTET -> AVSLUTTET
-                startDato > dagensDato -> APENT_FOR_INNSOK
+                startDato > dagensDato -> PLANLAGT
                 sluttDato == null || sluttDato >= dagensDato -> GJENNOMFORES
                 else -> AVSLUTTET
             }

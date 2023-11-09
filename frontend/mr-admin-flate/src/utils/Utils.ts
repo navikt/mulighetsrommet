@@ -100,7 +100,7 @@ export const oversettStatusForTiltaksgjennomforing = (status?: Tiltaksgjennomfor
       return "Avlyst";
     case TiltaksgjennomforingStatus.AVSLUTTET:
       return "Avsluttet";
-    case TiltaksgjennomforingStatus.APENT_FOR_INNSOK:
+    case TiltaksgjennomforingStatus.PLANLAGT:
       return "Åpent for innsøk";
     default:
       return "";

@@ -19,7 +19,7 @@ import no.nav.mulighetsrommet.api.tiltaksgjennomforinger.TiltaksgjennomforingVal
 import no.nav.mulighetsrommet.api.utils.DatabaseUtils.paginateFanOut
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
-import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
+import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus.*
 import org.apache.poi.ss.usermodel.CellType
 import org.apache.poi.xssf.usermodel.XSSFSheet
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
@@ -244,10 +244,10 @@ private fun toTiltaksgjennomforingDbo(dto: TiltaksgjennomforingAdminDto) = dto.r
         startDato = startDato,
         sluttDato = sluttDato,
         avslutningsstatus = when (status) {
-            Tiltaksgjennomforingsstatus.APENT_FOR_INNSOK, Tiltaksgjennomforingsstatus.GJENNOMFORES -> Avslutningsstatus.IKKE_AVSLUTTET
-            Tiltaksgjennomforingsstatus.AVLYST -> Avslutningsstatus.AVLYST
-            Tiltaksgjennomforingsstatus.AVBRUTT -> Avslutningsstatus.AVBRUTT
-            Tiltaksgjennomforingsstatus.AVSLUTTET -> Avslutningsstatus.AVSLUTTET
+            APENT_FOP_INNSOK, PLANLAGT, GJENNOMFORES -> Avslutningsstatus.IKKE_AVSLUTTET
+            AVLYST -> Avslutningsstatus.AVLYST
+            AVBRUTT -> Avslutningsstatus.AVBRUTT
+            AVSLUTTET -> Avslutningsstatus.AVSLUTTET
         },
         tilgjengelighet = tilgjengelighet,
         estimertVentetid = estimertVentetid,

@@ -35,8 +35,8 @@ export function TiltaksgjennomforingInfo() {
 
   function visKnapperad(status: TiltaksgjennomforingStatus): boolean {
     const whitelist: TiltaksgjennomforingStatus[] = [
+      TiltaksgjennomforingStatus.PLANLAGT,
       TiltaksgjennomforingStatus.GJENNOMFORES,
-      TiltaksgjennomforingStatus.APENT_FOR_INNSOK,
     ];
 
     return whitelist.includes(status);
