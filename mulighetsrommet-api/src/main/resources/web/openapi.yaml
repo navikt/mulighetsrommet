@@ -5,7 +5,7 @@ info:
   title: Mulighetsrommet API
 
 security:
-  - bearerAuth: []
+  - bearerAuth: [ ]
 
 paths:
   /api/v1/internal/bruker:
@@ -887,21 +887,21 @@ paths:
               schema:
                 $ref: "#/components/schemas/VeilederflateTiltaksgjennomforing"
 
-  /api/v1/internal/sanity/tiltaksgjennomforing/preview/{id}:
-    get:
+
+  /api/v1/internal/sanity/tiltaksgjennomforing/preview/detaljer:
+    post:
       tags:
         - Sanity
-      operationId: getTiltaksgjennomforingForPreview
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: string
-          description: ID for tiltaksgjennomføring i Sanity
+      operationId: getTiltaksgjennomforingDetaljerPreview
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GetTiltaksgjennomforingDetaljerPreviewRequest"
+        required: true
       responses:
         200:
-          description: Hent tiltaksgjennomføring for id uavhengig av bruker i kontekst
+          description: Hent tiltaksgjennomføring for id
           content:
             application/json:
               schema:
@@ -1516,6 +1516,19 @@ components:
           type: string
       required:
         - geografiskEnhet
+
+    GetTiltaksgjennomforingDetaljerPreviewRequest:
+      type: object
+      properties:
+        brukersEnheter:
+          type: array
+          items:
+            type: string
+        id:
+          type: string
+      required:
+        - enheter
+        - id
 
     GetTiltaksgjennomforingForBrukerRequest:
       type: object
