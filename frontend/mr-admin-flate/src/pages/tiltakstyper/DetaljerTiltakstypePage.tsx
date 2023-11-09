@@ -6,11 +6,13 @@ import { Laster } from "../../components/laster/Laster";
 import { TiltakstypestatusTag } from "../../components/statuselementer/TiltakstypestatusTag";
 import { ContainerLayout } from "../../layouts/ContainerLayout";
 import commonStyles from "../Page.module.scss";
+import { useTitle } from "mulighetsrommet-frontend-common";
 
 export function DetaljerTiltakstypePage() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const { data: tiltakstype, isLoading } = useTiltakstypeById();
+  useTitle(`Tiltakstyper - ${tiltakstype?.navn}`);
 
   if (!tiltakstype && isLoading) {
     return <Laster tekst="Laster tiltakstype" />;

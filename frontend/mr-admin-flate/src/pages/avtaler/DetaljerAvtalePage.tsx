@@ -8,6 +8,7 @@ import { useGetAvtaleIdFromUrl } from "../../hooks/useGetAvtaleIdFromUrl";
 import commonStyles from "../Page.module.scss";
 import styles from "./DetaljerAvtalePage.module.scss";
 import { ContainerLayout } from "../../layouts/ContainerLayout";
+import { useTitle } from "mulighetsrommet-frontend-common";
 
 export function DetaljerAvtalePage() {
   const avtaleId = useGetAvtaleIdFromUrl();
@@ -17,6 +18,7 @@ export function DetaljerAvtalePage() {
     throw new Error("Fant ingen avtaleId i url");
   }
   const { data: avtale, isLoading } = useAvtale();
+  useTitle(`Avtale - ${avtale?.navn}`);
 
   if (!avtale && isLoading) {
     return (

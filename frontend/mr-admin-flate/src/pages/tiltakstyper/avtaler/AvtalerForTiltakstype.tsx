@@ -6,8 +6,10 @@ import { Avtalefilter } from "../../../components/filter/Avtalefilter";
 import { useGetTiltakstypeIdFromUrl } from "../../../hooks/useGetTiltakstypeIdFromUrl";
 import { AvtaleTabell } from "../../../components/tabell/AvtaleTabell";
 import { ContainerLayout } from "../../../layouts/ContainerLayout";
+import { useTitle } from "mulighetsrommet-frontend-common";
 
 export function AvtalerForTiltakstype() {
+  useTitle("Tiltakstyper - Avtaler");
   const tiltakstypeId = useGetTiltakstypeIdFromUrl();
   const { data } = useAvtaler();
   const [filter, setFilter] = useAtom(avtaleFilter);

@@ -3,10 +3,12 @@ import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { ContainerLayout } from "../../layouts/ContainerLayout";
 import { HeaderBanner } from "../../layouts/HeaderBanner";
 import styles from "../Page.module.scss";
+import { useTitle } from "mulighetsrommet-frontend-common";
 
 export function NotifikasjonerPage() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
+  useTitle("Notifikasjoner");
 
   return (
     <main>
