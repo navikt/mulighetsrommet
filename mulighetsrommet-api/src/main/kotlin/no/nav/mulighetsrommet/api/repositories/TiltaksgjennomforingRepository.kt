@@ -18,6 +18,7 @@ import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingTilgjengelighetsstatus
 import no.nav.mulighetsrommet.domain.dto.*
+import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus.*
 import org.intellij.lang.annotations.Language
 import org.postgresql.util.PSQLException
 import org.slf4j.LoggerFactory
@@ -564,11 +565,11 @@ class TiltaksgjennomforingRepository(private val db: Database) {
 
     private fun Tiltaksgjennomforingsstatus.toDbStatement(): String {
         return when (this) {
-            Tiltaksgjennomforingsstatus.APENT_FOR_INNSOK -> "(:today < start_dato and avslutningsstatus = '${Avslutningsstatus.IKKE_AVSLUTTET}')"
-            Tiltaksgjennomforingsstatus.GJENNOMFORES -> "((:today >= start_dato and (:today <= slutt_dato or slutt_dato is null)) and avslutningsstatus = '${Avslutningsstatus.IKKE_AVSLUTTET}')"
-            Tiltaksgjennomforingsstatus.AVSLUTTET -> "(:today > slutt_dato or avslutningsstatus = '${Avslutningsstatus.AVSLUTTET}')"
-            Tiltaksgjennomforingsstatus.AVBRUTT -> "avslutningsstatus = '${Avslutningsstatus.AVBRUTT}'"
-            Tiltaksgjennomforingsstatus.AVLYST -> "avslutningsstatus = '${Avslutningsstatus.AVLYST}'"
+            APENT_FOP_INNSOK, PLANLAGT -> "(:today < start_dato and avslutningsstatus = '${Avslutningsstatus.IKKE_AVSLUTTET}')"
+            GJENNOMFORES -> "((:today >= start_dato and (:today <= slutt_dato or slutt_dato is null)) and avslutningsstatus = '${Avslutningsstatus.IKKE_AVSLUTTET}')"
+            AVSLUTTET -> "(:today > slutt_dato or avslutningsstatus = '${Avslutningsstatus.AVSLUTTET}')"
+            AVBRUTT -> "avslutningsstatus = '${Avslutningsstatus.AVBRUTT}'"
+            AVLYST -> "avslutningsstatus = '${Avslutningsstatus.AVLYST}'"
         }
     }
 

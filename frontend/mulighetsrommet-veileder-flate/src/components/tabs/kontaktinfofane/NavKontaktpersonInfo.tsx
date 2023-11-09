@@ -5,6 +5,10 @@ import {
 } from "mulighetsrommet-api-client";
 import { logEvent } from "../../../core/api/logger";
 import styles from "./Kontaktinfo.module.scss";
+import { useAtom } from "jotai";
+import { geografiskEnhetForPreviewAtom } from "../../../core/atoms/atoms";
+import { erPreview } from "../../../utils/Utils";
+import { Link } from "react-router-dom";
 
 const TEAMS_DYPLENKE = "https://teams.microsoft.com/l/chat/0/0?users=";
 
@@ -14,6 +18,17 @@ interface NavKontaktpersonInfoProps {
 
 const NavKontaktpersonInfo = ({ data }: NavKontaktpersonInfoProps) => {
   const { kontaktinfoTiltaksansvarlige: tiltaksansvarlige } = data;
+  const [brukersGeografiskeEnhet] = useAtom(geografiskEnhetForPreviewAtom);
+
+  if (erPreview() && !brukersGeografiskeEnhet) {
+    return (
+      <Alert variant="info" inline>
+        Det er ikke satt en geografisk enhet i forhåndsvisning så vi vet ikke hvilken kontaktperson
+        vi skal vise. Gå til oversikten{" "}
+        <Link to="/preview">og velg en geografisk enhet før du går tilbake til tiltaket.</Link>
+      </Alert>
+    );
+  }
 
   if (tiltaksansvarlige?.length === 0 || !tiltaksansvarlige)
     return (

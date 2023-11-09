@@ -33,6 +33,29 @@ import { ControlledSokeSelect } from "mulighetsrommet-frontend-common";
 
 type Filters = "tiltakstype";
 
+const statusOptions: { label: string; value: TiltaksgjennomforingStatus | "" }[] = [
+  {
+    label: "Gjennomføres",
+    value: TiltaksgjennomforingStatus.GJENNOMFORES,
+  },
+  {
+    label: "Avsluttet",
+    value: TiltaksgjennomforingStatus.AVSLUTTET,
+  },
+  {
+    label: "Avbrutt",
+    value: TiltaksgjennomforingStatus.AVBRUTT,
+  },
+  {
+    label: "Planlagt",
+    value: TiltaksgjennomforingStatus.PLANLAGT,
+  },
+  {
+    label: "Alle statuser",
+    value: "",
+  },
+];
+
 interface Props {
   skjulFilter?: Record<Filters, boolean>;
 }
@@ -131,31 +154,6 @@ export function Tiltaksgjennomforingfilter({ skjulFilter }: Props) {
         label: "Alle tiltakstyper",
       },
       ...options,
-    ];
-  };
-
-  const statusOptions = () => {
-    return [
-      {
-        label: "Gjennomføres",
-        value: TiltaksgjennomforingStatus.GJENNOMFORES,
-      },
-      {
-        label: "Avsluttet",
-        value: TiltaksgjennomforingStatus.AVSLUTTET,
-      },
-      {
-        label: "Avbrutt",
-        value: TiltaksgjennomforingStatus.AVBRUTT,
-      },
-      {
-        label: "Åpent for innsøk",
-        value: TiltaksgjennomforingStatus.APENT_FOR_INNSOK,
-      },
-      {
-        label: "Alle statuser",
-        value: "",
-      },
     ];
   };
 
@@ -273,7 +271,7 @@ export function Tiltaksgjennomforingfilter({ skjulFilter }: Props) {
                   status: valueOrDefault(e.target.value, defaultTiltaksgjennomforingfilter.status),
                 });
               }}
-              options={statusOptions()}
+              options={statusOptions}
               className={styles.form_field}
             />
             <ControlledSokeSelect
@@ -371,7 +369,7 @@ export function Tiltaksgjennomforingfilter({ skjulFilter }: Props) {
             )}
             {filter.status && (
               <FilterTag
-                label={statusOptions().find((o) => o.value === filter.status)?.label}
+                label={statusOptions.find((o) => o.value === filter.status)?.label}
                 onClick={() => {
                   setFilter({
                     ...filter,

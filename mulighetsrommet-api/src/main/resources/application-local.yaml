@@ -100,7 +100,7 @@ app:
       disabled: true
       cronPattern: "0 */1 * * * *" # Hvert 1 minutt
     notifySluttdatoForGjennomforingerNarmerSeg:
-      disabled: false
+      disabled: true
       cronPattern: "0 */1 * * * *" # Hvert 1 minutt
     notifySluttdatoForAvtalerNarmerSeg:
       disabled: true
