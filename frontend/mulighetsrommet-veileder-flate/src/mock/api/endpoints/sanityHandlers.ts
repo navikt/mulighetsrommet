@@ -64,11 +64,14 @@ export const sanityHandlers = [
     },
   ),
 
-  http.get<PathParams>("*/api/v1/internal/sanity/tiltaksgjennomforing/preview/:id", async (req) => {
-    const { id } = req.params;
-    const gjennomforing = mockTiltaksgjennomforinger.find((gj) => gj.sanityId === id);
-    return HttpResponse.json(gjennomforing);
-  }),
+  http.post<PathParams>(
+    "*/api/v1/internal/sanity/tiltaksgjennomforing/preview/detaljer",
+    async ({ request }) => {
+      const body = (await request.json()) as { id: string; brukersEnheter: string[] };
+      const gjennomforing = mockTiltaksgjennomforinger.find((gj) => gj.sanityId === body.id);
+      return HttpResponse.json(gjennomforing);
+    },
+  ),
 ];
 
 function filtrerFritekst(gjennomforing: VeilederflateTiltaksgjennomforing, sok: string): boolean {
