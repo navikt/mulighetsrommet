@@ -448,11 +448,13 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         search: String? = null,
         sanityTiltakstypeIds: List<UUID>? = null,
         innsatsgrupper: List<Innsatsgruppe> = emptyList(),
+        brukersEnheter: List<String>,
     ): List<VeilederflateTiltaksgjennomforing> {
         val parameters = mapOf(
             "search" to search?.let { "%${it.replace("/", "#").trim()}%" },
             "sanityTiltakstypeIds" to sanityTiltakstypeIds?.let { db.createUuidArray(it) },
             "innsatsgrupper" to db.createTextArray(innsatsgrupper.map { it.name }),
+            "brukersEnheter" to db.createTextArray(brukersEnheter)
         )
 
         val where = DatabaseUtils.andWhereParameterNotNull(
@@ -505,6 +507,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             and tg.tilgjengelig_for_veileder
             and t.skal_migreres
             group by tg.id, t.id, v.navn, vk.id
+            having array_agg(tg_e.enhetsnummer) && :brukersEnheter
         """.trimIndent()
 
         return queryOf(query, parameters)

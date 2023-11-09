@@ -12,7 +12,7 @@ import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 
 data class MulighetsrommetTestDomain(
-    val enheter: List<NavEnhetDbo> = listOf(NavEnhetFixtures.IT),
+    val enheter: List<NavEnhetDbo> = listOf(NavEnhetFixtures.IT, NavEnhetFixtures.Innlandet, NavEnhetFixtures.Oslo),
     val ansatte: List<NavAnsattDbo> = listOf(NavAnsattFixture.ansatt1, NavAnsattFixture.ansatt2),
     val tiltakstyper: List<TiltakstypeDbo> = listOf(
         TiltakstypeFixtures.Oppfolging,
