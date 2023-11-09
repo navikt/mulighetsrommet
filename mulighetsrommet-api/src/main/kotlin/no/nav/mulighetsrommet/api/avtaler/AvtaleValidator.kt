@@ -51,11 +51,11 @@ class AvtaleValidator(
             }
 
             avtaler.get(dbo.id)?.also { avtale ->
-                if (avtale.avtalestatus !in listOf(Avtalestatus.Planlagt, Avtalestatus.Aktiv)) {
+                if (avtale.avtalestatus != Avtalestatus.Aktiv) {
                     add(
                         ValidationError.of(
                             AvtaleDbo::navn,
-                            "Kan bare gjøre endringer når avtalen har status Planlagt eller Aktiv",
+                            "Kan bare gjøre endringer når avtalen har status Aktiv",
                         ),
                     )
                 }

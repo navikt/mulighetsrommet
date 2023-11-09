@@ -65,8 +65,7 @@ export function Tiltaksgjennomforingfilter({ skjulFilter }: Props) {
     opprettGjennomforingIsEnabled && inneholderUrl("/avtaler/");
 
   const avtaleErOpprettetIMulighetsrommet = avtale?.opphav === Opphav.MR_ADMIN_FLATE;
-  const avtalenErAktiv =
-    avtale?.avtalestatus === Avtalestatus.AKTIV || avtale?.avtalestatus === Avtalestatus.PLANLAGT;
+  const avtalenErAktiv = avtale?.avtalestatus === Avtalestatus.AKTIV;
 
   useEffect(() => {
     setFilter({

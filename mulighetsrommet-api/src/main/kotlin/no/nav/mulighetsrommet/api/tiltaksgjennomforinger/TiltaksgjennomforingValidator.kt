@@ -35,7 +35,7 @@ class TiltaksgjennomforingValidator(
                 )
             }
 
-            if (avtale.avtalestatus !in listOf(Avtalestatus.Planlagt, Avtalestatus.Aktiv)) {
+            if (avtale.avtalestatus != Avtalestatus.Aktiv) {
                 add(
                     ValidationError.of(
                         TiltaksgjennomforingDbo::avtaleId,

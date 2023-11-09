@@ -138,10 +138,6 @@ export function Avtalefilter(props: Props) {
                   label: "Aktiv",
                 },
                 {
-                  value: "Planlagt",
-                  label: "Planlagt",
-                },
-                {
                   value: "Avsluttet",
                   label: "Avsluttet",
                 },

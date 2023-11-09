@@ -54,9 +54,7 @@ export function AvtaleInfo() {
   };
 
   function visKnapperad(avtalestatus: Avtalestatus): boolean {
-    const whitelist: Avtalestatus[] = [Avtalestatus.AKTIV, Avtalestatus.PLANLAGT];
-
-    return whitelist.includes(avtalestatus);
+    return avtalestatus === Avtalestatus.AKTIV;
   }
 
   return (
