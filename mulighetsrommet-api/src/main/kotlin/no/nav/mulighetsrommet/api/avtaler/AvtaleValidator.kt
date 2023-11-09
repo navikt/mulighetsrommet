@@ -18,6 +18,7 @@ import no.nav.mulighetsrommet.domain.Tiltakskoder.isTiltakMedAvtalerFraMulighets
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.Avtalestatus
 import no.nav.mulighetsrommet.domain.dto.TiltakstypeDto
+import no.nav.mulighetsrommet.env.NaisEnv
 
 class AvtaleValidator(
     private val tiltakstyper: TiltakstypeRepository,
@@ -145,7 +146,7 @@ class AvtaleValidator(
                     }
                 }
             } ?: run {
-                if (!isTiltakMedAvtalerFraMulighetsrommet(tiltakstype.arenaKode)) {
+                if (!isTiltakMedAvtalerFraMulighetsrommet(tiltakstype.arenaKode) && NaisEnv.current().isProdGCP()) {
                     add(
                         ValidationError.of(
                             AvtaleDbo::tiltakstypeId,
