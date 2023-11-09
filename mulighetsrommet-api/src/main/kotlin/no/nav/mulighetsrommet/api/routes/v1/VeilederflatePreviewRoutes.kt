@@ -40,5 +40,5 @@ data class GetRelevanteTiltaksgjennomforingerPreviewRequest(
 @Serializable
 data class GetTiltaksgjennomforingDetaljerPreviewRequest(
     val brukersEnheter: List<String>,
-    val id: String
+    val id: String,
 )
