@@ -158,20 +158,27 @@ class NavAnsattService(
         }
 
         logger.info("Upserter ${ansatte.size} ansatte til Sanity")
+        val kontaktpersonMutations = mutableListOf<Mutation<SanityNavKontaktperson>>()
+        val redaktorMutations = mutableListOf<Mutation<SanityRedaktor>>()
         ansatte.forEach { ansatt ->
             if (ansatt.roller.contains(NavAnsattRolle.KONTAKTPERSON)) {
                 val id = kontaktpersoner[ansatt.epost] ?: UUID.randomUUID()
-                upsertKontaktperson(ansatt, id.toString())
+                val mutation = createSanityNavKontaktpersonMutation(ansatt, id.toString())
+                kontaktpersonMutations.add(mutation)
             }
 
             if (ansatt.roller.contains(NavAnsattRolle.BETABRUKER)) {
                 val id = redaktorer[ansatt.epost] ?: UUID.randomUUID()
-                upsertRedaktor(ansatt, id.toString())
+                redaktorMutations.add(upsertRedaktor(ansatt, id.toString()))
             }
         }
+        upsertMutations(kontaktpersonMutations, redaktorMutations)
     }
 
-    private suspend fun upsertKontaktperson(ansatt: NavAnsattDto, id: String) {
+    private fun createSanityNavKontaktpersonMutation(
+        ansatt: NavAnsattDto,
+        id: String
+    ): Mutation<SanityNavKontaktperson> {
         val sanityPatch = SanityNavKontaktperson(
             _id = id,
             _type = "navKontaktperson",
@@ -181,20 +188,10 @@ class NavAnsattService(
             navn = "${ansatt.fornavn} ${ansatt.etternavn}",
         )
 
-        val response = sanityClient.mutate(
-            listOf(
-                Mutation(createOrReplace = sanityPatch),
-            ),
-        )
-
-        if (response.status != HttpStatusCode.OK) {
-            throw Exception("Klarte ikke upserte kontaktperson i sanity: ${response.bodyAsText()}")
-        } else {
-            logger.info("Oppdaterte kontaktperson i Sanity med id: $id")
-        }
+        return Mutation(createOrReplace = sanityPatch)
     }
 
-    private suspend fun upsertRedaktor(ansatt: NavAnsattDto, id: String) {
+    private fun upsertRedaktor(ansatt: NavAnsattDto, id: String): Mutation<SanityRedaktor> {
         val sanityPatch = SanityRedaktor(
             _id = id,
             _type = "redaktor",
@@ -205,19 +202,27 @@ class NavAnsattService(
                 current = ansatt.epost,
             ),
         )
-
-        val response = sanityClient.mutate(
-            listOf(
-                Mutation(createOrReplace = sanityPatch),
-            ),
-        )
-
-        if (response.status != HttpStatusCode.OK) {
-            throw Exception("Klarte ikke upserte redaktør i sanity: ${response.bodyAsText()}")
-        } else {
-            logger.info("Oppdaterte redaktør i Sanity med id: $id")
-        }
+        return Mutation(createOrReplace = sanityPatch)
     }
+
+    private suspend fun upsertMutations(
+        kontaktpersoner: List<Mutation<SanityNavKontaktperson>>,
+        redaktorer: List<Mutation<SanityRedaktor>>
+    ) {
+        val kontaktpersonMutationResponse = sanityClient.mutate(kontaktpersoner)
+        val redaktorMutationResponse = sanityClient.mutate(redaktorer)
+        checkResponse(kontaktpersonMutationResponse)
+        checkResponse(redaktorMutationResponse)
+    }
+
+    private suspend fun checkResponse(response: HttpResponse) {
+        if (response.status != HttpStatusCode.OK) {
+            throw Exception("Klarte ikke upserte mutations: Error: ${response.bodyAsText()} - Status: ${response.status}")
+        }
+        logger.info("Upsert mutations til Sanity ${response.status}")
+    }
+
+
 }
 
 @Serializable
