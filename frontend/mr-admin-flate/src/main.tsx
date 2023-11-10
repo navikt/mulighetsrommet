@@ -2,18 +2,18 @@ import "@navikt/ds-css";
 import { Alert, BodyShort, Heading } from "@navikt/ds-react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { ApiError } from "mulighetsrommet-api-client";
 import { PORTEN } from "mulighetsrommet-frontend-common/constants";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { ErrorBoundary, FallbackProps } from "react-error-boundary";
-import { BrowserRouter as Router, Link } from "react-router-dom";
+import { Link, BrowserRouter as Router } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
 import { App } from "./App";
+import { resolveErrorMessage } from "./api/errors";
 import { AdministratorHeader } from "./components/administrator/AdministratorHeader";
 import { MiljoBanner } from "./components/miljobanner/MiljoBanner";
 import "./index.css";
-import { ApiError } from "mulighetsrommet-api-client";
-import { resolveErrorMessage } from "./api/errors";
 
 const queryClient = new QueryClient({
   defaultOptions: {

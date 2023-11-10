@@ -7,9 +7,11 @@ import { useBrukerHarRettPaaTiltak } from "../../hooks/useBrukerHarRettPaaTiltak
 import { useFnr } from "../../hooks/useFnr";
 import ViewTiltaksgjennomforingDetaljer from "./ViewTiltaksgjennomforingDetaljer";
 import styles from "./ViewTiltaksgjennomforingDetaljer.module.scss";
+import { useTitle } from "mulighetsrommet-frontend-common";
 
 export function ViewTiltaksgjennomforingDetaljerContainer() {
   const { data: tiltaksgjennomforing, isLoading, isError } = useTiltaksgjennomforingById();
+  useTitle(`Arbeidsmarkedstiltak - Detaljer - ${tiltaksgjennomforing?.navn}`);
   const fnr = useFnr();
   const { harDeltMedBruker } = useHentDeltMedBrukerStatus(fnr, tiltaksgjennomforing);
   const { brukerHarRettPaaTiltak, innsatsgruppeForGjennomforing } = useBrukerHarRettPaaTiltak();
