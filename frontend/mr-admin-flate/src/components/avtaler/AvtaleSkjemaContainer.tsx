@@ -1,4 +1,4 @@
-import { Button, DatePicker, Textarea, TextField, useDatepicker } from "@navikt/ds-react";
+import { Button, Textarea, TextField } from "@navikt/ds-react";
 import {
   Avtale,
   AvtaleRequest,
@@ -9,7 +9,6 @@ import {
   NavEnhetType,
   Opphav,
   Tiltakskode,
-  Toggles,
 } from "mulighetsrommet-api-client";
 import { NavEnhet } from "mulighetsrommet-api-client/build/models/NavEnhet";
 import { Tiltakstype } from "mulighetsrommet-api-client/build/models/Tiltakstype";
@@ -21,7 +20,7 @@ import { useUpsertAvtale } from "../../api/avtaler/useUpsertAvtale";
 import { useMutateUtkast } from "../../api/utkast/useMutateUtkast";
 import { useSokVirksomheter } from "../../api/virksomhet/useSokVirksomhet";
 import { useVirksomhet } from "../../api/virksomhet/useVirksomhet";
-import { addYear, formaterDato, formaterDatoTid } from "../../utils/Utils";
+import { addYear, formaterDatoTid } from "../../utils/Utils";
 import { Separator } from "../detaljside/Metadata";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
@@ -30,7 +29,12 @@ import { VirksomhetKontaktpersoner } from "../virksomhet/VirksomhetKontaktperson
 import { AvtaleSchema, InferredAvtaleSchema } from "./AvtaleSchema";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { ControlledSokeSelect } from "mulighetsrommet-frontend-common/components/ControlledSokeSelect";
+import { SelectOption } from "mulighetsrommet-frontend-common/components/SokeSelect";
 import { MultiValue } from "react-select";
+import { useHandleApiUpsertResponse } from "../../api/effects";
+import { erAnskaffetTiltak } from "../../utils/tiltakskoder";
+import { AvbrytAvtaleModal } from "../modal/AvbrytAvtaleModal";
 import { AdministratorOptions } from "../skjema/AdministratorOptions";
 import { FormGroup } from "../skjema/FormGroup";
 import {
@@ -41,12 +45,6 @@ import {
   utkastDataEllerDefault,
 } from "./AvtaleSkjemaConst";
 import { AvtaleSkjemaKnapperad } from "./AvtaleSkjemaKnapperad";
-import { AvbrytAvtaleModal } from "../modal/AvbrytAvtaleModal";
-import { useFeatureToggle } from "../../api/features/feature-toggles";
-import { erAnskaffetTiltak } from "../../utils/tiltakskoder";
-import { useHandleApiUpsertResponse } from "../../api/effects";
-import { SelectOption } from "mulighetsrommet-frontend-common/components/SokeSelect";
-import { ControlledSokeSelect } from "mulighetsrommet-frontend-common/components/ControlledSokeSelect";
 
 const minStartdato = new Date(2000, 0, 1);
 
@@ -75,10 +73,6 @@ export function AvtaleSkjemaContainer({
     avtaleUtkast?.leverandor ?? (avtale?.leverandor?.organisasjonsnummer || ""),
   );
   const avbrytModalRef = useRef<HTMLDialogElement>(null);
-
-  const { data: enableOpsjoner } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_ADMIN_FLATE_OPSJONER_FOR_AVTALER,
-  );
   const mutation = useUpsertAvtale();
   const { data: betabrukere } = useHentBetabrukere();
   const mutationUtkast = useMutateUtkast();
@@ -99,17 +93,6 @@ export function AvtaleSkjemaContainer({
     watch,
     setValue,
   } = form;
-
-  const {
-    datepickerProps: maksVarighetDatepickerProps,
-    inputProps: maksVarighetDatepickerInputProps,
-  } = useDatepicker({
-    fromDate: new Date(),
-    defaultSelected:
-      (defaultValues?.startOgSluttDato?.sluttDato &&
-        addYear(new Date(defaultValues?.startOgSluttDato?.sluttDato), 5)) ||
-      undefined,
-  });
 
   const watchedTiltakstype: EmbeddedTiltakstype | undefined = watch("tiltakstype");
   const arenaKode = watchedTiltakstype?.arenaKode;
@@ -187,7 +170,7 @@ export function AvtaleSkjemaContainer({
       label: enhet.navn,
     }));
 
-  const { startDato, sluttDato } = watch("startOgSluttDato");
+  const { startDato } = watch("startOgSluttDato");
   const sluttDatoFraDato = startDato ? new Date(startDato) : minStartdato;
   const sluttDatoTilDato = addYear(startDato ? new Date(startDato) : new Date(), 5);
 
@@ -287,21 +270,7 @@ export function AvtaleSkjemaContainer({
                     ...register("startOgSluttDato.sluttDato"),
                     format: "iso-string",
                   }}
-                >
-                  {enableOpsjoner &&
-                    watch("avtaletype") === Avtaletype.RAMMEAVTALE &&
-                    sluttDato && (
-                      <DatePicker {...maksVarighetDatepickerProps}>
-                        <DatePicker.Input
-                          {...maksVarighetDatepickerInputProps}
-                          label="Maks varighet inkl. opsjon"
-                          readOnly
-                          size="small"
-                          value={formaterDato(addYear(new Date(sluttDato), 5))}
-                        />
-                      </DatePicker>
-                    )}
-                </FraTilDatoVelger>
+                />
               </FormGroup>
               <Separator />
               <FormGroup>
