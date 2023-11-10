@@ -225,7 +225,7 @@ data class SanityNavKontaktperson(
     val _id: String,
     val _type: String,
     val enhet: String,
-    val telefonnummer: String?,
+    val telefonnummer: String? = null,
     val epost: String,
     val navn: String,
 )
