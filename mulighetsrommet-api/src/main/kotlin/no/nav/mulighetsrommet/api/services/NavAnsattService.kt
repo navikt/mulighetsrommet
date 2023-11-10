@@ -177,7 +177,7 @@ class NavAnsattService(
 
     private fun createSanityNavKontaktpersonMutation(
         ansatt: NavAnsattDto,
-        id: String
+        id: String,
     ): Mutation<SanityNavKontaktperson> {
         val sanityPatch = SanityNavKontaktperson(
             _id = id,
@@ -207,7 +207,7 @@ class NavAnsattService(
 
     private suspend fun upsertMutations(
         kontaktpersoner: List<Mutation<SanityNavKontaktperson>>,
-        redaktorer: List<Mutation<SanityRedaktor>>
+        redaktorer: List<Mutation<SanityRedaktor>>,
     ) {
         val kontaktpersonMutationResponse = sanityClient.mutate(kontaktpersoner)
         val redaktorMutationResponse = sanityClient.mutate(redaktorer)
@@ -221,8 +221,6 @@ class NavAnsattService(
         }
         logger.info("Upsert mutations til Sanity ${response.status}")
     }
-
-
 }
 
 @Serializable
