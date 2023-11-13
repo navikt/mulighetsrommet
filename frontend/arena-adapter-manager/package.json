@@ -9,7 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@chakra-ui/react": "2.8.1",
+    "@chakra-ui/react": "2.8.2",
     "@emotion/react": "11.11.1",
     "@emotion/styled": "11.11.0",
     "react": "18.2.0",
@@ -19,8 +19,8 @@
     "react-router-dom": "6.18.0"
   },
   "devDependencies": {
-    "@types/react": "18.2.35",
-    "@types/react-dom": "18.2.14",
+    "@types/react": "18.2.37",
+    "@types/react-dom": "18.2.15",
     "@vitejs/plugin-react": "4.1.1",
     "typescript": "5.2.2",
     "vite": "4.5.0"
