@@ -250,7 +250,6 @@ private fun toTiltaksgjennomforingDbo(dto: TiltaksgjennomforingAdminDto) = dto.r
             AVSLUTTET -> Avslutningsstatus.AVSLUTTET
         },
         tilgjengelighet = tilgjengelighet,
-        estimertVentetid = estimertVentetid,
         antallPlasser = antallPlasser ?: -1,
         avtaleId = avtaleId ?: id,
         administratorer = administratorer.map { it.navIdent },

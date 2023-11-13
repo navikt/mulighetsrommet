@@ -118,7 +118,6 @@ data class TiltaksgjennomforingRequest(
     val stengtTil: LocalDate?,
     val apenForInnsok: Boolean,
     val kontaktpersoner: List<NavKontaktpersonForGjennomforing>,
-    val estimertVentetid: String?,
     val stedForGjennomforing: String?,
     val opphav: ArenaMigrering.Opphav?,
     val faneinnhold: Faneinnhold?,
@@ -138,7 +137,6 @@ data class TiltaksgjennomforingRequest(
         } else {
             TiltaksgjennomforingTilgjengelighetsstatus.STENGT
         },
-        estimertVentetid = estimertVentetid,
         tiltaksnummer = tiltaksnummer,
         arrangorOrganisasjonsnummer = arrangorOrganisasjonsnummer,
         arrangorKontaktpersonId = arrangorKontaktpersonId,

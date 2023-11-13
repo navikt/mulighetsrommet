@@ -146,9 +146,6 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
               header="Tilgjengelighetsstatus"
               verdi={tilgjengelighetsstatusTilTekst(tiltaksgjennomforing.tilgjengelighet)}
             />
-            <VisHvisVerdi verdi={tiltaksgjennomforing.estimertVentetid}>
-              <Metadata header="Estimert ventetid" verdi={tiltaksgjennomforing.estimertVentetid} />
-            </VisHvisVerdi>
           </Bolk>
 
           <Separator />

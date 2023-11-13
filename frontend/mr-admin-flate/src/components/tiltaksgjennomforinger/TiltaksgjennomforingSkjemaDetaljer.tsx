@@ -1,3 +1,4 @@
+import { PlusIcon, XMarkIcon } from "@navikt/aksel-icons";
 import { Button, Checkbox, TextField } from "@navikt/ds-react";
 import {
   Avtale,
@@ -5,23 +6,22 @@ import {
   TiltaksgjennomforingOppstartstype,
   Toggles,
 } from "mulighetsrommet-api-client";
-import skjemastyles from "../skjema/Skjema.module.scss";
+import { ControlledSokeSelect } from "mulighetsrommet-frontend-common";
 import { useFieldArray, useFormContext } from "react-hook-form";
-import { addYear, tilgjengelighetsstatusTilTekst } from "../../utils/Utils";
-import { arrangorUnderenheterOptions, erArenaOpphav } from "./TiltaksgjennomforingSkjemaConst";
-import { useHentKontaktpersoner } from "../../api/ansatt/useHentKontaktpersoner";
-import { useHentBetabrukere } from "../../api/ansatt/useHentBetabrukere";
 import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
-import { FormGroup } from "../skjema/FormGroup";
+import { useHentBetabrukere } from "../../api/ansatt/useHentBetabrukere";
+import { useHentKontaktpersoner } from "../../api/ansatt/useHentKontaktpersoner";
+import { useFeatureToggle } from "../../api/features/feature-toggles";
 import { useVirksomhet } from "../../api/virksomhet/useVirksomhet";
-import { PlusIcon, XMarkIcon } from "@navikt/aksel-icons";
+import { addYear, tilgjengelighetsstatusTilTekst } from "../../utils/Utils";
+import { Separator } from "../detaljside/Metadata";
 import { AdministratorOptions } from "../skjema/AdministratorOptions";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
+import { FormGroup } from "../skjema/FormGroup";
 import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
+import skjemastyles from "../skjema/Skjema.module.scss";
 import { VirksomhetKontaktpersoner } from "../virksomhet/VirksomhetKontaktpersoner";
-import { Separator } from "../detaljside/Metadata";
-import { useFeatureToggle } from "../../api/features/feature-toggles";
-import { ControlledSokeSelect } from "mulighetsrommet-frontend-common";
+import { arrangorUnderenheterOptions, erArenaOpphav } from "./TiltaksgjennomforingSkjemaConst";
 
 interface Props {
   tiltaksgjennomforing?: Tiltaksgjennomforing;
@@ -185,13 +185,6 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
               label="Tilgjengelighetsstatus"
               description="Statusen vises til veileder i Modia"
               value={tilgjengelighetsstatusTilTekst(tiltaksgjennomforing?.tilgjengelighet)}
-            />
-            <TextField
-              size="small"
-              label="Estimert ventetid"
-              description="Kommuniser estimert ventetid til veileder i Modia"
-              maxLength={60}
-              {...register("estimertVentetid")}
             />
           </FormGroup>
           <Separator />

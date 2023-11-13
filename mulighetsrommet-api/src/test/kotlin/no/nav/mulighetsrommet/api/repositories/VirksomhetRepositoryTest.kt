@@ -272,7 +272,6 @@ class VirksomhetRepositoryTest : FunSpec({
                 stengtFra = null,
                 stengtTil = null,
                 stedForGjennomforing = "Oslo",
-                estimertVentetid = null,
                 avtaleId = avtale.id,
                 faneinnhold = null,
                 beskrivelse = null,

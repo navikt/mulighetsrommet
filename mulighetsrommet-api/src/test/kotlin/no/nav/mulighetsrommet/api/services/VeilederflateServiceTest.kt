@@ -106,7 +106,6 @@ class VeilederflateServiceTest : FunSpec({
         oppstartsdato = LocalDate.now(),
         sluttdato = null,
         tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.LEDIG,
-        estimertVentetid = null,
         enheter = emptyList(),
         fylke = "0400",
         oppstart = TiltaksgjennomforingOppstartstype.FELLES,
