@@ -120,9 +120,9 @@ export const VirksomhetKontaktpersoner = (props: VirksomhetKontaktpersonerProps)
       />
       {state.selectedId && !state.rediger && (
         <div className={styles.kontaktperson_info_container}>
-          <label>{`Navn: ${valgtPerson()?.navn}`}</label>
+          <label>{`Navn: ${valgtPerson()?.navn ?? "Navn eksisterer ikke"}`}</label>
           <label>{`Telefon: ${valgtPerson()?.telefon || "Telefonnummer eksisterer ikke"}`}</label>
-          <label>{`Epost: ${valgtPerson()?.epost}`}</label>
+          <label>{`E-post: ${valgtPerson()?.epost ?? "E-post eksisterer ikke"}`}</label>
           {valgtPerson()?.beskrivelse && (
             <label>{`Beskrivelse: ${valgtPerson()?.beskrivelse}`}</label>
           )}
