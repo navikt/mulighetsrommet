@@ -357,7 +357,6 @@ class VeilederflateService(
                 oppstartsdato = apiGjennomforing.startDato,
                 sluttdato = apiGjennomforing.sluttDato,
                 tilgjengelighet = apiGjennomforing.tilgjengelighet,
-                estimertVentetid = apiGjennomforing.estimertVentetid,
                 arrangor = arrangor,
                 stedForGjennomforing = apiGjennomforing.stedForGjennomforing,
                 fylke = fylke,

@@ -103,7 +103,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     type = Norg2Type.DIR,
                     overordnetEnhet = null,
                 )
-                it.estimertVentetid shouldBe null
                 it.faneinnhold shouldBe null
                 it.beskrivelse shouldBe null
                 it.createdAt shouldNotBe null
@@ -159,7 +158,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 it.avtaleId shouldBe null
                 it.oppstart shouldBe TiltaksgjennomforingOppstartstype.FELLES
                 it.status shouldBe Tiltaksgjennomforingsstatus.AVSLUTTET
-                it.estimertVentetid shouldBe null
                 it.administratorer shouldBe emptyList()
                 it.navEnheter shouldBe emptyList()
                 it.navRegion shouldBe null

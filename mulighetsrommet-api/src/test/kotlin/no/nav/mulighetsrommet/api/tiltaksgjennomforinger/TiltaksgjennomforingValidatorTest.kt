@@ -269,7 +269,6 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
                     stengtFra = LocalDate.of(2023, 10, 10),
                     stengtTil = LocalDate.of(2023, 10, 10),
                     stedForGjennomforing = "Hjemmekontor",
-                    estimertVentetid = "Leeenge",
                 )
 
                 avtaler.upsert(avtale.copy(id = differentAvtaleId))
