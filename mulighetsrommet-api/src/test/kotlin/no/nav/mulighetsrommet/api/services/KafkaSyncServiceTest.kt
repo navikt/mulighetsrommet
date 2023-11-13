@@ -43,7 +43,7 @@ class KafkaSyncServiceTest : FunSpec({
 
     fun createArenaTiltaksgjennomforing(
         startDato: LocalDate = LocalDate.of(2023, 2, 15),
-        sluttDato: LocalDate = LocalDate.of(2023, 11, 11),
+        sluttDato: LocalDate = LocalDate.now().plusYears(1),
         avslutningsstatus: Avslutningsstatus = Avslutningsstatus.AVSLUTTET,
     ): ArenaTiltaksgjennomforingDbo {
         return ArenaTiltaksgjennomforingDbo(
