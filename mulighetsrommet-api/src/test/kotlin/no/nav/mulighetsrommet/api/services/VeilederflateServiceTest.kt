@@ -131,6 +131,7 @@ class VeilederflateServiceTest : FunSpec({
                 any(),
                 any(),
                 any(),
+                any(),
             )
         } returns listOf(
             dbGjennomforing.copy(enheter = listOf("0430")),
@@ -157,6 +158,7 @@ class VeilederflateServiceTest : FunSpec({
 
         every {
             tiltaksgjennomforingService.getAllVeilederflateTiltaksgjennomforing(
+                any(),
                 any(),
                 any(),
                 any(),
@@ -188,6 +190,7 @@ class VeilederflateServiceTest : FunSpec({
                 any(),
                 any(),
                 any(),
+                any(),
             )
         } returns listOf(
             dbGjennomforing.copy(faneinnhold = Faneinnhold(forHvemInfoboks = "123")),
@@ -214,6 +217,7 @@ class VeilederflateServiceTest : FunSpec({
         )
         every {
             tiltaksgjennomforingService.getAllVeilederflateTiltaksgjennomforing(
+                any(),
                 any(),
                 any(),
                 any(),

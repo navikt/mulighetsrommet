@@ -178,6 +178,7 @@ class VeilederflateService(
             innsatsgrupper = innsatsgruppe?.let {
                 utledInnsatsgrupper(innsatsgruppe).map { Innsatsgruppe.valueOf(it) }
             } ?: emptyList(),
+            brukersEnheter = brukersEnheter,
         )
 
         val gruppeSanityIds = gruppeGjennomforinger.map { it.sanityId }
