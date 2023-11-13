@@ -38,11 +38,7 @@ class KafkaSyncServiceTest : FunSpec({
         registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
         sistEndretDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
         fraDato = LocalDate.of(2023, 1, 11),
-<<<<<<< Updated upstream
-        tilDato = LocalDate.of(2099, 1, 12),
-=======
         tilDato = LocalDate.now().plusYears(1),
->>>>>>> Stashed changes
     )
 
     fun createArenaTiltaksgjennomforing(
