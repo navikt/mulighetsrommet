@@ -204,7 +204,7 @@ class AvtaleValidatorTest : FunSpec({
                 validator.validate(dbo).shouldBeLeft().shouldContain(
                     ValidationError(
                         "navn",
-                        "Kan bare gjøre endringer når avtalen har status Planlagt eller Aktiv",
+                        "Kan bare gjøre endringer når avtalen har status Aktiv",
                     ),
                 )
             }
