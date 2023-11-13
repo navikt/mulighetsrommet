@@ -124,7 +124,6 @@ export const TiltaksgjennomforingSkjemaContainer = ({
             ...kontakt,
             navEnheter: kontakt.navEnheter,
           })) || [],
-      estimertVentetid: data.estimertVentetid ?? null,
       stedForGjennomforing: data.stedForGjennomforing,
       arrangorKontaktpersonId: data.arrangorKontaktpersonId ?? null,
       beskrivelse: data.beskrivelse,

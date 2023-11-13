@@ -34,7 +34,6 @@ data class VeilederflateTiltaksgjennomforing(
     @Serializable(with = LocalDateSerializer::class)
     val sluttdato: LocalDate? = null,
     val arrangor: VeilederflateArrangor? = null,
-    val estimertVentetid: String? = null,
     @Serializable(with = LocalDateSerializer::class)
     val stengtFra: LocalDate? = null,
     @Serializable(with = LocalDateSerializer::class)

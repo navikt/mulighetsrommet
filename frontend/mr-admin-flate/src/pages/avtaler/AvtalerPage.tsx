@@ -6,10 +6,13 @@ import styles from "../Page.module.scss";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { ContainerLayout } from "../../layouts/ContainerLayout";
 import { MainContainer } from "../../layouts/MainContainer";
+import { useTitle } from "mulighetsrommet-frontend-common";
 
 export function AvtalerPage() {
   const navigate = useNavigate();
   const location = useLocation();
+  useTitle("Avtaler");
+
   return (
     <>
       <HeaderBanner heading="Oversikt over avtaler" harUndermeny />

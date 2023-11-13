@@ -46,7 +46,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 slutt_dato,
                 avslutningsstatus,
                 tilgjengelighet,
-                estimert_ventetid,
                 antall_plasser,
                 avtale_id,
                 oppstart,
@@ -69,7 +68,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 :slutt_dato,
                 :avslutningsstatus::avslutningsstatus,
                 :tilgjengelighet::tilgjengelighetsstatus,
-                :estimert_ventetid,
                 :antall_plasser,
                 :avtale_id,
                 :oppstart::tiltaksgjennomforing_oppstartstype,
@@ -91,7 +89,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                               slutt_dato                   = excluded.slutt_dato,
                               avslutningsstatus            = excluded.avslutningsstatus,
                               tilgjengelighet              = excluded.tilgjengelighet,
-                              estimert_ventetid            = excluded.estimert_ventetid,
                               antall_plasser               = excluded.antall_plasser,
                               avtale_id                    = excluded.avtale_id,
                               oppstart                     = excluded.oppstart,
@@ -449,11 +446,13 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         search: String? = null,
         sanityTiltakstypeIds: List<UUID>? = null,
         innsatsgrupper: List<Innsatsgruppe> = emptyList(),
+        brukersEnheter: List<String>,
     ): List<VeilederflateTiltaksgjennomforing> {
         val parameters = mapOf(
             "search" to search?.let { "%${it.replace("/", "#").trim()}%" },
             "sanityTiltakstypeIds" to sanityTiltakstypeIds?.let { db.createUuidArray(it) },
             "innsatsgrupper" to db.createTextArray(innsatsgrupper.map { it.name }),
+            "brukersEnheter" to db.createTextArray(brukersEnheter),
         )
 
         val where = DatabaseUtils.andWhereParameterNotNull(
@@ -482,7 +481,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                    vk.navn                as arrangor_kontaktperson_navn,
                    vk.telefon             as arrangor_kontaktperson_telefon,
                    vk.epost               as arrangor_kontaktperson_epost,
-                   tg.estimert_ventetid,
                    tg.stengt_fra,
                    tg.stengt_til,
                    jsonb_agg(distinct
@@ -506,6 +504,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             and tg.tilgjengelig_for_veileder
             and t.skal_migreres
             group by tg.id, t.id, v.navn, vk.id
+            having array_agg(tg_e.enhetsnummer) && :brukersEnheter
         """.trimIndent()
 
         return queryOf(query, parameters)
@@ -565,7 +564,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
 
     private fun Tiltaksgjennomforingsstatus.toDbStatement(): String {
         return when (this) {
-            APENT_FOP_INNSOK, PLANLAGT -> "(:today < start_dato and avslutningsstatus = '${Avslutningsstatus.IKKE_AVSLUTTET}')"
+            PLANLAGT -> "(:today < start_dato and avslutningsstatus = '${Avslutningsstatus.IKKE_AVSLUTTET}')"
             GJENNOMFORES -> "((:today >= start_dato and (:today <= slutt_dato or slutt_dato is null)) and avslutningsstatus = '${Avslutningsstatus.IKKE_AVSLUTTET}')"
             AVSLUTTET -> "(:today > slutt_dato or avslutningsstatus = '${Avslutningsstatus.AVSLUTTET}')"
             AVBRUTT -> "avslutningsstatus = '${Avslutningsstatus.AVBRUTT}'"
@@ -600,7 +599,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         "slutt_dato" to sluttDato,
         "avslutningsstatus" to avslutningsstatus.name,
         "tilgjengelighet" to tilgjengelighet.name,
-        "estimert_ventetid" to estimertVentetid,
         "antall_plasser" to antallPlasser,
         "avtale_id" to avtaleId,
         "oppstart" to oppstart.name,
@@ -661,7 +659,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                     )
                 },
             ),
-            estimertVentetid = stringOrNull("estimert_ventetid"),
             stengtFra = localDateOrNull("stengt_fra"),
             stengtTil = localDateOrNull("stengt_til"),
             kontaktinfoTiltaksansvarlige = kontaktpersoner,
@@ -717,7 +714,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 Avslutningsstatus.valueOf(string("avslutningsstatus")),
             ),
             tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.valueOf(string("tilgjengelighet")),
-            estimertVentetid = stringOrNull("estimert_ventetid"),
             antallPlasser = intOrNull("antall_plasser"),
             avtaleId = uuidOrNull("avtale_id"),
             administratorer = administratorer,

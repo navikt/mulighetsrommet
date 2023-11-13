@@ -91,7 +91,6 @@ export function utkastDataEllerDefault(
     oppstart: tiltaksgjennomforing?.oppstart || defaultOppstartType(avtale),
     apenForInnsok: tiltaksgjennomforing?.tilgjengelighet !== Tilgjengelighetsstatus.STENGT,
     kontaktpersoner: defaultValuesForKontaktpersoner(tiltaksgjennomforing?.kontaktpersoner),
-    estimertVentetid: tiltaksgjennomforing?.estimertVentetid,
     stedForGjennomforing: tiltaksgjennomforing?.stedForGjennomforing,
     arrangorKontaktpersonId: tiltaksgjennomforing?.arrangor?.kontaktperson?.id,
     beskrivelse: tiltaksgjennomforing?.beskrivelse ?? null,

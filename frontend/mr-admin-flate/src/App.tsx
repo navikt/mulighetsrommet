@@ -30,6 +30,7 @@ import { TiltaksgjennomforingInfo } from "./pages/tiltaksgjennomforinger/Tiltaks
 import { TiltakstypeInfo } from "./pages/tiltakstyper/TiltakstypeInfo";
 import { AvtalerForTiltakstype } from "./pages/tiltakstyper/avtaler/AvtalerForTiltakstype";
 import { Notifikasjonsliste } from "./components/notifikasjoner/Notifikasjonsliste";
+import { useTitle } from "mulighetsrommet-frontend-common";
 
 if (import.meta.env.PROD) {
   initializeFaro({
@@ -41,6 +42,8 @@ if (import.meta.env.PROD) {
 }
 
 export function App() {
+  useTitle("NAV arbeidsmarkedstiltak");
+
   const { data: ansatt, isLoading: ansattIsLoading, error } = useHentAnsatt();
 
   if (error) {

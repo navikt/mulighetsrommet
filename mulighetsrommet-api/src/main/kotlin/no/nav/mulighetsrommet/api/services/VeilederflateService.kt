@@ -178,6 +178,7 @@ class VeilederflateService(
             innsatsgrupper = innsatsgruppe?.let {
                 utledInnsatsgrupper(innsatsgruppe).map { Innsatsgruppe.valueOf(it) }
             } ?: emptyList(),
+            brukersEnheter = brukersEnheter,
         )
 
         val gruppeSanityIds = gruppeGjennomforinger.map { it.sanityId }
@@ -356,7 +357,6 @@ class VeilederflateService(
                 oppstartsdato = apiGjennomforing.startDato,
                 sluttdato = apiGjennomforing.sluttDato,
                 tilgjengelighet = apiGjennomforing.tilgjengelighet,
-                estimertVentetid = apiGjennomforing.estimertVentetid,
                 arrangor = arrangor,
                 stedForGjennomforing = apiGjennomforing.stedForGjennomforing,
                 fylke = fylke,

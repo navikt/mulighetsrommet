@@ -19,7 +19,6 @@ data class TiltaksgjennomforingDbo(
     val sluttDato: LocalDate?,
     val avslutningsstatus: Avslutningsstatus,
     val tilgjengelighet: TiltaksgjennomforingTilgjengelighetsstatus,
-    val estimertVentetid: String?,
     val antallPlasser: Int,
     val avtaleId: UUID,
     val administratorer: List<String>,
