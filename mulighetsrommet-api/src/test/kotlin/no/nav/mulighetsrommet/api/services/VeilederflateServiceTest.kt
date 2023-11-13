@@ -106,7 +106,6 @@ class VeilederflateServiceTest : FunSpec({
         oppstartsdato = LocalDate.now(),
         sluttdato = null,
         tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.LEDIG,
-        estimertVentetid = null,
         enheter = emptyList(),
         fylke = "0400",
         oppstart = TiltaksgjennomforingOppstartstype.FELLES,
@@ -128,6 +127,7 @@ class VeilederflateServiceTest : FunSpec({
         )
         every {
             tiltaksgjennomforingService.getAllVeilederflateTiltaksgjennomforing(
+                any(),
                 any(),
                 any(),
                 any(),
@@ -160,6 +160,7 @@ class VeilederflateServiceTest : FunSpec({
                 any(),
                 any(),
                 any(),
+                any(),
             )
         } returns listOf(
             dbGjennomforing.copy(tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.STENGT),
@@ -185,6 +186,7 @@ class VeilederflateServiceTest : FunSpec({
         )
         every {
             tiltaksgjennomforingService.getAllVeilederflateTiltaksgjennomforing(
+                any(),
                 any(),
                 any(),
                 any(),
@@ -214,6 +216,7 @@ class VeilederflateServiceTest : FunSpec({
         )
         every {
             tiltaksgjennomforingService.getAllVeilederflateTiltaksgjennomforing(
+                any(),
                 any(),
                 any(),
                 any(),

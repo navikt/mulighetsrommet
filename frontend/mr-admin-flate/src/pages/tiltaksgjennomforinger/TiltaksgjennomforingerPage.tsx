@@ -5,8 +5,10 @@ import { TiltaksgjennomforingsTabell } from "../../components/tabell/Tiltaksgjen
 import { ErrorBoundary } from "react-error-boundary";
 import { ErrorFallback } from "../../main";
 import { HeaderBanner } from "../../layouts/HeaderBanner";
+import { useTitle } from "mulighetsrommet-frontend-common";
 
 export function TiltaksgjennomforingerPage() {
+  useTitle("Tiltaksgjennomføringer");
   return (
     <>
       <HeaderBanner heading="Oversikt over tiltaksgjennomføringer" />

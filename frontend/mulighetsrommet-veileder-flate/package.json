@@ -21,10 +21,10 @@
     "not op_mini all"
   ],
   "dependencies": {
-    "@grafana/faro-web-sdk": "1.2.3",
-    "@navikt/aksel-icons": "5.9.2",
-    "@navikt/ds-css": "5.9.2",
-    "@navikt/ds-react": "5.9.2",
+    "@grafana/faro-web-sdk": "1.2.5",
+    "@navikt/aksel-icons": "5.10.1",
+    "@navikt/ds-css": "5.10.1",
+    "@navikt/ds-react": "5.10.1",
     "@navikt/navspa": "6.0.1",
     "@portabletext/react": "3.0.11",
     "@tanstack/react-query": "5.7.2",
@@ -60,7 +60,7 @@
     "eslint-plugin-prettier": "5.0.1",
     "eslint-plugin-promise": "6.1.1",
     "eslint-plugin-react": "7.33.2",
-    "msw": "2.0.3",
+    "msw": "2.0.6",
     "rollup-plugin-visualizer": "5.9.2",
     "typescript": "5.2.2",
     "vite": "4.5.0"

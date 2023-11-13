@@ -71,7 +71,6 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
       },
     },
     beskrivelse: "Beskrivelse av gruppe amo tiltaket på gjennomføringsnivå.",
-    estimertVentetid: "",
     kontaktinfoTiltaksansvarlige: [
       {
         navn: "Pelle Pilotbruker",
@@ -147,7 +146,6 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
         epost: "test@example.com",
       },
     },
-    estimertVentetid: "",
     kontaktinfoTiltaksansvarlige: [
       {
         navn: "Pelle Pilotbruker",
@@ -223,7 +221,6 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
         epost: "test@example.com",
       },
     },
-    estimertVentetid: "",
     kontaktinfoTiltaksansvarlige: [
       {
         navn: "Pelle Pilotbruker",
@@ -265,7 +262,6 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
         epost: "test@example.com",
       },
     },
-    estimertVentetid: "",
     kontaktinfoTiltaksansvarlige: [
       {
         navn: "Pelle Pilotbruker",
@@ -286,6 +282,5 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
     oppstartsdato: "2022-11-01",
     kontaktinfoTiltaksansvarlige: [],
     sluttdato: "2030-11-30",
-    estimertVentetid: "",
   },
 ];

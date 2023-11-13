@@ -28,7 +28,6 @@ data class TiltaksgjennomforingAdminDto(
     val arenaAnsvarligEnhet: String?,
     val status: Tiltaksgjennomforingsstatus,
     val tilgjengelighet: TiltaksgjennomforingTilgjengelighetsstatus,
-    val estimertVentetid: String?,
     val antallPlasser: Int?,
     @Serializable(with = UUIDSerializer::class)
     val avtaleId: UUID?,

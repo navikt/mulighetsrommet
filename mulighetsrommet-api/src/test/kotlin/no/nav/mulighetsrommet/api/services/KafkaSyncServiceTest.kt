@@ -38,12 +38,12 @@ class KafkaSyncServiceTest : FunSpec({
         registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
         sistEndretDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
         fraDato = LocalDate.of(2023, 1, 11),
-        tilDato = LocalDate.of(2099, 1, 12),
+        tilDato = LocalDate.now().plusYears(1),
     )
 
     fun createArenaTiltaksgjennomforing(
         startDato: LocalDate = LocalDate.of(2023, 2, 15),
-        sluttDato: LocalDate = LocalDate.of(2023, 11, 11),
+        sluttDato: LocalDate = LocalDate.now().plusYears(1),
         avslutningsstatus: Avslutningsstatus = Avslutningsstatus.AVSLUTTET,
     ): ArenaTiltaksgjennomforingDbo {
         return ArenaTiltaksgjennomforingDbo(

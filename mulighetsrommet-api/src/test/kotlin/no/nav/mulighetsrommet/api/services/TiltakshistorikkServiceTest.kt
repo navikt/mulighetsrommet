@@ -56,7 +56,6 @@ class TiltakshistorikkServiceTest : FunSpec({
         stengtFra = null,
         stengtTil = null,
         stedForGjennomforing = "Oslo",
-        estimertVentetid = null,
         avtaleId = AvtaleFixtures.avtale1.id,
         faneinnhold = null,
         beskrivelse = null,

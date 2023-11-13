@@ -1907,8 +1907,6 @@ components:
           format: date
         tilgjengelighet:
           $ref: "#/components/schemas/Tilgjengelighetsstatus"
-        estimertVentetid:
-          type: string
         kontaktpersoner:
           type: array
           items:
@@ -1999,9 +1997,6 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/TiltaksgjennomforingKontaktpersonerRequest"
-        estimertVentetid:
-          type: string
-          nullable: true
         stedForGjennomforing:
           type: string
           nullable: true
@@ -2034,7 +2029,6 @@ components:
         - stengtTil
         - apenForInnsok
         - kontaktpersoner
-        - estimertVentetid
         - stedForGjennomforing
         - opphav
         - faneinnhold
@@ -2536,8 +2530,6 @@ components:
           type: string
         sluttdato:
           type: string
-        estimertVentetid:
-          type: string
         faneinnhold:
           $ref: "#/components/schemas/SanityFaneinnhold"
         kontaktinfoTiltaksansvarlige:
@@ -2963,7 +2955,6 @@ components:
         - mulighetsrommet.admin-flate-vis-deltakerliste-fra-komet
         - mulighetsrommet.enable-arbeidsflate
         - mulighetsrommet-veilederflate-landingsside
-        - mulighetsrommet.admin-flate.opsjoner-for-avtaler
         - mulighetsrommet.admin-flate.rediger-oppstart
 
     TilgjengeligForVeilederRequest:

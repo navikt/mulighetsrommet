@@ -13,6 +13,7 @@ import { erProdMiljo, formaterDato, tilgjengelighetsstatusTilTekst } from "../..
 import styles from "../DetaljerInfo.module.scss";
 import { Kontaktperson } from "./Kontaktperson";
 import { Link } from "react-router-dom";
+import { useTitle } from "mulighetsrommet-frontend-common";
 
 interface Props {
   tiltaksgjennomforing: Tiltaksgjennomforing;
@@ -21,6 +22,7 @@ interface Props {
 
 export function TiltaksgjennomforingDetaljer(props: Props) {
   const { tiltaksgjennomforing, avtale } = props;
+  useTitle(`Tiltaksgjennomføring - ${tiltaksgjennomforing.navn}`);
 
   const navnPaaNavEnheterForKontaktperson = (enheterForKontaktperson: string[]): string => {
     return (
@@ -144,9 +146,6 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
               header="Tilgjengelighetsstatus"
               verdi={tilgjengelighetsstatusTilTekst(tiltaksgjennomforing.tilgjengelighet)}
             />
-            <VisHvisVerdi verdi={tiltaksgjennomforing.estimertVentetid}>
-              <Metadata header="Estimert ventetid" verdi={tiltaksgjennomforing.estimertVentetid} />
-            </VisHvisVerdi>
           </Bolk>
 
           <Separator />

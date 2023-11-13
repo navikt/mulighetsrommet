@@ -23,8 +23,10 @@ import { usePrepopulerFilter } from "../../hooks/usePrepopulerFilter";
 import { routes } from "../../routes";
 import styles from "./ViewTiltaksgjennomforingOversikt.module.scss";
 import { BrukersOppfolgingsenhetVarsel } from "../../components/brukersEnheter/BrukersOppfolgingsenhetVarsel";
+import { useTitle } from "mulighetsrommet-frontend-common";
 
 const ViewTiltaksgjennomforingOversikt = () => {
+  useTitle("Arbeidsmarkedstiltak - Oversikt");
   const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);
   const [isHistorikkModalOpen, setIsHistorikkModalOpen] = useState(false);
   const { isFetched } = useTiltaksgjennomforinger();

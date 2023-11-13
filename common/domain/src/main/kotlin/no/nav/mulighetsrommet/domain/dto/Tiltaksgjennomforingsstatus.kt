@@ -11,9 +11,6 @@ enum class Tiltaksgjennomforingsstatus {
     AVBRUTT,
     AVLYST,
     AVSLUTTET,
-
-    // Skal fjernes
-    APENT_FOP_INNSOK,
     ;
 
     companion object {
