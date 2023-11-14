@@ -16,26 +16,26 @@ const SjekkUU = async (page: Page) => {
 test.describe("Smoketest og UU", () => {
   test("Adminflate", async ({ page }) => {
     await expect(page).toHaveTitle(/Mulighetsrommet - Admin-flate/);
-    SjekkUU(page);
+    await SjekkUU(page);
   });
 
   test("Tiltakstyper", async ({ page }) => {
     await page.getByTestId("forsidekort-tiltakstyper").click();
     await expect(page.getByTestId("header_oversikt-over-tiltakstyper")).toBeVisible();
-    SjekkUU(page);
+    await SjekkUU(page);
   });
 
   test("Avtaler", async ({ page }) => {
     await page.getByTestId("forsidekort-avtaler").click();
     await expect(page.getByTestId("header_oversikt-over-avtaler")).toBeVisible();
-    SjekkUU(page);
+    await SjekkUU(page);
   });
 
   test("Avtaler - Avtaleinfo Tab", async ({ page }) => {
     await page.getByTestId("forsidekort-avtaler").click();
     await page.getByTestId("avtaletabell_tittel").first().click();
     await expect(page.getByText("Avtalenavn")).toBeVisible();
-    SjekkUU(page);
+    await SjekkUU(page);
   });
 
   test("Avtaler - Notater Tab", async ({ page }) => {
@@ -43,7 +43,7 @@ test.describe("Smoketest og UU", () => {
     await page.getByTestId("avtaletabell_tittel").first().click();
     await page.getByTestId("notater-tab").click();
     await expect(page.getByTestId("mine-notater_checkbox")).toBeVisible();
-    SjekkUU(page);
+    await SjekkUU(page);
   });
 
   test("Avtaler - Gjennomføringer Tab", async ({ page }) => {
@@ -51,18 +51,18 @@ test.describe("Smoketest og UU", () => {
     await page.getByTestId("avtaletabell_tittel").first().click();
     await page.getByTestId("gjennomforinger-tab").click();
     await expect(page.getByTestId("tiltaksgjennomforing_tabell")).toBeVisible();
-    SjekkUU(page);
+    await SjekkUU(page);
   });
 
   test("Tiltaksgjennomføringer", async ({ page }) => {
     await page.getByTestId("forsidekort-tiltaksgjennomforinger").click();
     await expect(page.getByTestId("header_oversikt-over-tiltaksgjennomforinger")).toBeVisible();
-    SjekkUU(page);
+    await SjekkUU(page);
   });
 
   test("Notifikasjoner", async ({ page }) => {
     await page.getByTestId("notifikasjoner").click();
     await expect(page.getByTestId("header_notifikasjoner")).toBeVisible();
-    SjekkUU(page);
+    await SjekkUU(page);
   });
 });
