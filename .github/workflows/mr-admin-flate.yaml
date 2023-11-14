@@ -32,12 +32,12 @@ jobs:
   ci:
     name: CI
     runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.39.0-jammy
     steps:
       - uses: actions/checkout@v4
       - name: Setup frontend
         uses: ./.github/actions/setup-frontend
-      - name: Playwright install
-        run: npx playwright install chromium --with-deps
       - name: Test
         run: npx turbo run lint test:ci playwright --filter=mr-admin-flate
   deploy-dev:
