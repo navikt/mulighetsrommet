@@ -24,6 +24,10 @@
     "build:demo": {
       "dependsOn": ["^build"],
       "outputs": ["dist/**"]
+    },
+    "playwright": {
+      "dependsOn": ["^build"],
+      "outputs": []
     }
   }
 }
