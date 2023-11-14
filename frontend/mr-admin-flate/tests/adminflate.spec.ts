@@ -2,7 +2,7 @@ import { expect, Page, test } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 
 test.beforeEach(async ({ page }) => {
-  await page.goto("http://127.0.0.1:5173/");
+  await page.goto("/");
 });
 
 const SjekkUU = async (page: Page) => {
