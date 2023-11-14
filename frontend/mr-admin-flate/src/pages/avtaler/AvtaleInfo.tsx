@@ -1,5 +1,5 @@
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
-import { Alert, Heading } from "@navikt/ds-react";
+import { Alert, Heading, HelpText } from "@navikt/ds-react";
 import { Avtalestatus } from "mulighetsrommet-api-client";
 import { NOM_ANSATT_SIDE } from "mulighetsrommet-frontend-common/constants";
 import { Fragment, useState } from "react";
@@ -177,6 +177,16 @@ export function AvtaleInfo() {
               );
             })
           )}
+          {avtale?.arenaAnsvarligEnhet ? (
+            <Bolk>
+              <div style={{ display: "flex", gap: "1rem" }}>
+                <Metadata header="Ansvarlig enhet fra Arena" verdi={avtale.arenaAnsvarligEnhet} />
+                <HelpText title="Hva betyr feltet 'Ansvarlig enhet fra Arena'?">
+                  Ansvarlig enhet fra Arena blir satt i Arena når man oppretter avtale i Arena.
+                </HelpText>
+              </div>
+            </Bolk>
+          ) : null}
 
           <Separator />
 

@@ -1,5 +1,5 @@
 import { ExclamationmarkTriangleIcon, ExternalLinkIcon } from "@navikt/aksel-icons";
-import { Heading } from "@navikt/ds-react";
+import { Heading, HelpText } from "@navikt/ds-react";
 import {
   Avtale,
   Tiltaksgjennomforing,
@@ -215,6 +215,21 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
               }
             />
           </Bolk>
+
+          {tiltaksgjennomforing?.arenaAnsvarligEnhet ? (
+            <Bolk>
+              <div style={{ display: "flex", gap: "1rem" }}>
+                <Metadata
+                  header="Ansvarlig enhet fra Arena"
+                  verdi={tiltaksgjennomforing.arenaAnsvarligEnhet}
+                />
+                <HelpText title="Hva betyr feltet 'Ansvarlig enhet fra Arena'?">
+                  Ansvarlig enhet fra Arena blir satt i Arena når man oppretter tiltak i Arena.
+                </HelpText>
+              </div>
+            </Bolk>
+          ) : null}
+
           {kontaktpersonerFraNav.map((kp, index) => {
             return (
               <Bolk

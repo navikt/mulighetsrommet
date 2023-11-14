@@ -1692,6 +1692,9 @@ components:
           $ref: "#/components/schemas/Avtaletype"
         avtalestatus:
           $ref: "#/components/schemas/Avtalestatus"
+        arenaAnsvarligEnhet:
+          type: string
+          nullable: true
         prisbetingelser:
           type: string
           nullable: true
