@@ -190,7 +190,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
                   label={
                     hasErrors() ? (
                       <span style={{ display: "flex", alignContent: "baseline", gap: "0.4rem" }}>
-                        <ExclamationmarkTriangleFillIcon /> Detaljer
+                        <ExclamationmarkTriangleFillIcon aria-label="Detaljer" /> Detaljer
                       </span>
                     ) : (
                       "Detaljer"

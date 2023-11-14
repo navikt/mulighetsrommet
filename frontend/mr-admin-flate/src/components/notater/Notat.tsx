@@ -31,8 +31,9 @@ export function Notat({ handleSlett, notat }: Props) {
             variant="tertiary"
             onClick={() => handleSlett(notat.id)}
             className={styles.slette_notat}
+            role="button"
           >
-            <TrashIcon fontSize={"1.5rem"} />
+            <TrashIcon fontSize="1.5rem" aria-label="Slett notat" />
           </Button>
         ) : null}
       </div>
