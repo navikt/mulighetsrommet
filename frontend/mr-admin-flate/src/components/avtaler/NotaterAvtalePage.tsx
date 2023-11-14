@@ -88,7 +88,7 @@ export default function NotaterAvtalePage() {
           Notater
         </Heading>
 
-        <div className={styles.notater_andrerad}>
+        <div className={styles.notater_andrerad} data-testid="mine-notater_checkbox">
           <Checkbox onChange={() => setVisMineNotater(!visMineNotater)}>
             Vis kun mine notater
           </Checkbox>

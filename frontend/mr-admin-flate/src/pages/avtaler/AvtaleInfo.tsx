@@ -44,7 +44,7 @@ export function AvtaleInfo() {
     return (
       <>
         {tekst}
-        <ExternalLinkIcon />
+        <ExternalLinkIcon aria-label="Eksternt lenkeikon" />
       </>
     );
   };
@@ -126,7 +126,8 @@ export function AvtaleInfo() {
                               rel="noopener noreferrer"
                               href={`${NOM_ANSATT_SIDE}${admin?.navIdent}`}
                             >
-                              {`${admin?.navn} - ${admin?.navIdent}`} <ExternalLinkIcon />
+                              {`${admin?.navn} - ${admin?.navIdent}`}{" "}
+                              <ExternalLinkIcon aria-label="Eksternt lenkeikon" />
                             </a>
                           </li>
                         );

@@ -50,7 +50,7 @@ export function UtkastKort({ utkast }: UtkastKortProps) {
       <div className={styles.header}>
         <small>Oppdatert: {formaterDatoTid(utkast.updatedAt!)}</small>
         <small className={classNames(styles.tekst_med_ikon, styles.muted)}>
-          <DocPencilIcon /> Utkast for {utkasttypeTekst(utkast.type)}
+          <DocPencilIcon aria-label="Utkast" /> Utkast for {utkasttypeTekst(utkast.type)}
         </small>
       </div>
       <div className={styles.content}>

@@ -285,7 +285,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                     })
                   }
                 >
-                  <PlusIcon /> Legg til ny kontaktperson
+                  <PlusIcon aria-label="Plussikon" /> Legg til ny kontaktperson
                 </Button>
               </div>
             </FormGroup>

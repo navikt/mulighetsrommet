@@ -198,7 +198,7 @@ const ViewTiltaksgjennomforingDetaljer = ({
                   }
                 >
                   Åpne i dialogen
-                  <Chat2Icon />
+                  <Chat2Icon aria-label="Åpne i dialogen" />
                 </Button>
               </div>
             )}

@@ -165,7 +165,7 @@ export const VirksomhetKontaktpersoner = (props: VirksomhetKontaktpersonerProps)
               })
             }
           >
-            <PlusIcon /> eller opprett ny kontaktperson
+            <PlusIcon aria-label="" /> eller opprett ny kontaktperson
           </Button>
         </div>
       )}

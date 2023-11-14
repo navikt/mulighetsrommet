@@ -200,7 +200,9 @@ export const AvtaleTabell = () => {
                     aria-label={`Avtalenavn: ${avtale.navn}`}
                     className={styles.title}
                   >
-                    <Lenke to={`/avtaler/${avtale.id}`}>{avtale.navn}</Lenke>
+                    <Lenke to={`/avtaler/${avtale.id}`} data-testid="avtaletabell_tittel">
+                      {avtale.navn}
+                    </Lenke>
                   </Table.DataCell>
                   <Table.DataCell aria-label={`Avtalenummer: ${avtale?.avtalenummer ?? "N/A"}`}>
                     {avtale?.avtalenummer}

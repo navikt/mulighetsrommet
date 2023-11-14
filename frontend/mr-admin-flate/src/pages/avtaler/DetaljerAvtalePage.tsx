@@ -70,12 +70,14 @@ export function DetaljerAvtalePage() {
             label="Notater"
             onClick={() => navigate(`/avtaler/${avtaleId}/notater`)}
             aria-controls="panel"
+            data-testid="notater-tab"
           />
           <Tabs.Tab
             value="tiltaksgjennomforinger"
             label="Gjennomføringer"
             onClick={() => navigate(`/avtaler/${avtaleId}/tiltaksgjennomforinger`)}
             aria-controls="panel"
+            data-testid="gjennomforinger-tab"
           />
         </Tabs.List>
         <ContainerLayout>

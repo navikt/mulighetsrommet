@@ -14,7 +14,11 @@
     "preview": "vite preview",
     "start": "cross-env VITE_MULIGHETSROMMET_API_MOCK=true vite",
     "test": "vitest",
-    "test:ci": "vitest run"
+    "test:ci": "vitest run",
+    "play": "npx playwright test",
+    "play:debug": "npx playwright test --debug",
+    "play:open": "npx playwright test --ui",
+    "play:codegen": "npx playwright codegen playwright.dev"
   },
   "dependencies": {
     "@eik/rollup-plugin": "4.0.58",
@@ -50,6 +54,8 @@
     "zod": "3.22.4"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.8.1",
+    "@playwright/test": "^1.39.0",
     "@rollup/plugin-terser": "0.4.4",
     "@types/debounce": "1.2.4",
     "@types/react": "18.2.37",
