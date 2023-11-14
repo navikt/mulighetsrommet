@@ -37,9 +37,9 @@ jobs:
       - name: Setup frontend
         uses: ./.github/actions/setup-frontend
       - name: Playwright install
-        run: npx playwright install chromium
+        run: npx playwright install chromium --with-deps
       - name: Test
-        run: npx turbo run lint test:ci playwright --filter=mr-admin-flate --force
+        run: npx turbo run lint test:ci playwright --filter=mr-admin-flate
   deploy-dev:
     name: Deploy (dev)
     runs-on: ubuntu-latest
