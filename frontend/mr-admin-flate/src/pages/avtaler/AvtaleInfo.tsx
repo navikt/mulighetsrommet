@@ -1,6 +1,5 @@
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
 import { Alert, Heading } from "@navikt/ds-react";
-import { Avtalestatus } from "mulighetsrommet-api-client";
 import { NOM_ANSATT_SIDE } from "mulighetsrommet-frontend-common/constants";
 import { Fragment, useState } from "react";
 import { useAvtale } from "../../api/avtaler/useAvtale";
@@ -49,18 +48,10 @@ export function AvtaleInfo() {
     );
   };
 
-  function visKnapperad(avtalestatus: Avtalestatus): boolean {
-    const whitelist: Avtalestatus[] = [Avtalestatus.AKTIV, Avtalestatus.PLANLAGT];
-
-    return whitelist.includes(avtalestatus);
-  }
-
   return (
     <div className={styles.info_container}>
       <div>
-        {visKnapperad(avtale.avtalestatus) && (
-          <AvtaleKnapperad avtale={avtale} handleSlett={() => setSlettModal(true)} />
-        )}
+        <AvtaleKnapperad avtale={avtale} handleSlett={() => setSlettModal(true)} />
         <Separator />
       </div>
       <div className={styles.container}>

@@ -17,7 +17,6 @@ import no.nav.mulighetsrommet.api.services.NavEnhetService
 import no.nav.mulighetsrommet.domain.Tiltakskoder.isTiltakMedAvtalerFraMulighetsrommet
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.Avtalestatus
-import no.nav.mulighetsrommet.domain.dto.TiltakstypeDto
 import no.nav.mulighetsrommet.env.NaisEnv
 
 class AvtaleValidator(
@@ -51,15 +50,6 @@ class AvtaleValidator(
             }
 
             avtaler.get(dbo.id)?.also { avtale ->
-                if (avtale.avtalestatus !in listOf(Avtalestatus.Planlagt, Avtalestatus.Aktiv)) {
-                    add(
-                        ValidationError.of(
-                            AvtaleDbo::navn,
-                            "Kan bare gjøre endringer når avtalen har status Planlagt eller Aktiv",
-                        ),
-                    )
-                }
-
                 if (dbo.opphav != avtale.opphav) {
                     add(ValidationError.of(AvtaleDbo::opphav, "Avtalens opphav kan ikke endres"))
                 }
@@ -100,12 +90,63 @@ class AvtaleValidator(
                     }
                 }
 
-                if (avtaleIsLocked(avtale, tiltakstype)) {
-                    if (dbo.tiltakstypeId != tiltakstype.id) {
+                if (avtale.opphav == ArenaMigrering.Opphav.ARENA) {
+                    if (dbo.navn != avtale.navn) {
+                        add(ValidationError.of(AvtaleDbo::navn, "Navn kan ikke endres utenfor Arena"))
+                    }
+
+                    if (dbo.tiltakstypeId != avtale.tiltakstype.id) {
+                        add(
+                            ValidationError.of(
+                                AvtaleDbo::tiltakstypeId, "Tiltakstype kan ikke endres utenfor Arena",
+                            ),
+                        )
+                    }
+
+                    if (dbo.avtalenummer != avtale.avtalenummer) {
+                        add(
+                            ValidationError.of(
+                                AvtaleDbo::avtalenummer, "Avtalenummer kan ikke endres utenfor Arena",
+                            ),
+                        )
+                    }
+
+                    if (dbo.startDato != avtale.startDato) {
+                        add(ValidationError.of(AvtaleDbo::startDato, "Startdato kan ikke endres utenfor Arena"))
+                    }
+
+                    if (dbo.sluttDato != avtale.sluttDato) {
+                        add(ValidationError.of(AvtaleDbo::sluttDato, "Sluttdato kan ikke endres utenfor Arena"))
+                    }
+
+                    if (dbo.avtaletype != avtale.avtaletype) {
+                        add(ValidationError.of(AvtaleDbo::avtaletype, "Avtaletype kan ikke endres utenfor Arena"))
+                    }
+
+                    if (dbo.prisbetingelser != avtale.prisbetingelser) {
+                        add(
+                            ValidationError.of(
+                                AvtaleDbo::prisbetingelser,
+                                "Pris- og betalingsinformasjon kan ikke endres utenfor Arena",
+                            ),
+                        )
+                    }
+
+                    if (dbo.leverandorOrganisasjonsnummer != avtale.leverandor.organisasjonsnummer) {
+                        add(
+                            ValidationError.of(
+                                AvtaleDbo::leverandorOrganisasjonsnummer, "Leverandøren kan ikke endres utenfor Arena",
+                            ),
+                        )
+                    }
+                }
+
+                if (avtaleIsLocked(avtale)) {
+                    if (dbo.tiltakstypeId != avtale.tiltakstype.id) {
                         add(
                             ValidationError.of(
                                 AvtaleDbo::tiltakstypeId,
-                                "Tiltakstype kan ikke endres når avtalen er aktiv",
+                                "Tiltakstype kan ikke endres når avtalen er låst",
                             ),
                         )
                     }
@@ -114,33 +155,7 @@ class AvtaleValidator(
                         add(
                             ValidationError.of(
                                 AvtaleDbo::avtaletype,
-                                "Avtaletype kan ikke endres når avtalen er aktiv",
-                            ),
-                        )
-                    }
-
-                    if (dbo.startDato != avtale.startDato) {
-                        add(ValidationError.of(AvtaleDbo::startDato, "Startdato kan ikke endres når avtalen er aktiv"))
-                    }
-
-                    if (dbo.sluttDato != avtale.sluttDato) {
-                        add(ValidationError.of(AvtaleDbo::sluttDato, "Sluttdato kan ikke endres når avtalen er aktiv"))
-                    }
-
-                    if (dbo.prisbetingelser != avtale.prisbetingelser) {
-                        add(
-                            ValidationError.of(
-                                AvtaleDbo::prisbetingelser,
-                                "Pris- og betalingsinformasjon kan ikke endres når avtalen er aktiv",
-                            ),
-                        )
-                    }
-
-                    if (dbo.leverandorOrganisasjonsnummer != avtale.leverandor.organisasjonsnummer) {
-                        add(
-                            ValidationError.of(
-                                AvtaleDbo::leverandorOrganisasjonsnummer,
-                                "Leverandøren kan ikke endres når avtalen er aktiv",
+                                "Avtaletype kan ikke endres når avtalen er låst",
                             ),
                         )
                     }
@@ -192,14 +207,14 @@ class AvtaleValidator(
     }
 
     /**
-     * Når avtalen har blitt godkjent så skal alle datafelter som påvirker økonomien være låst.
+     * Når avtalen har blitt godkjent så skal alle datafelter som påvirker økonomien, påmelding, osv. være låst.
      *
-     * Vi mangler fortsatt en del innsikt og løsning rundt tilsagn og refursjon (f.eks. når blir avtalen godkjent?),
+     * Vi mangler fortsatt en del innsikt og løsning rundt tilsagn og refusjon (f.eks. når blir avtalen godkjent?),
      * så reglene for når en avtale er låst er foreløpig ganske naive...
      */
-    private fun avtaleIsLocked(avtale: AvtaleAdminDto, tiltakstype: TiltakstypeDto): Boolean {
-        val avtaleErAktiv = avtale.avtalestatus == Avtalestatus.Aktiv
-        val avtaleErIkkeForhaandsgodkjent = !isTiltakMedAvtalerFraMulighetsrommet(tiltakstype.arenaKode)
-        return avtaleErAktiv && avtaleErIkkeForhaandsgodkjent
+    private fun avtaleIsLocked(avtale: AvtaleAdminDto): Boolean {
+        val avtaleHarVaertAktiv = avtale.avtalestatus != Avtalestatus.Planlagt
+        val avtaleErOpprettetUtenforArena = avtale.opphav != ArenaMigrering.Opphav.ARENA
+        return avtaleHarVaertAktiv && avtaleErOpprettetUtenforArena
     }
 }
