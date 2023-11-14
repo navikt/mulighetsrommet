@@ -36,6 +36,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Setup frontend
         uses: ./.github/actions/setup-frontend
+      - name: Playwright install
+        run: npx playwright install --with-deps chromium
       - name: Test
         run: npx turbo run lint test:ci playwright --filter=mr-admin-flate
   deploy-dev:
