@@ -165,7 +165,7 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
                             href={`${NOM_ANSATT_SIDE}${admin?.navIdent}`}
                           >
                             {`${admin?.navn} - ${admin?.navIdent}`}{" "}
-                            <ExternalLinkIcon aria-label="Eksternt lenkeikon" />
+                            <ExternalLinkIcon aria-label="Ekstern lenke" />
                           </a>
                         </li>
                       );
