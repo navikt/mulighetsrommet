@@ -3,7 +3,6 @@ package no.nav.mulighetsrommet.api.services
 import arrow.core.left
 import arrow.core.right
 import io.kotest.assertions.arrow.core.shouldBeLeft
-import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -71,113 +70,6 @@ class AvtaleServiceTest : FunSpec({
             avtaleService.upsert(request, "B123456").shouldBeLeft(
                 listOf(ValidationError("navn", "Dårlig navn")),
             )
-        }
-    }
-
-    context("Slette avtale") {
-        val avtaler = AvtaleRepository(database.db)
-        val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-
-        val avtaleService = AvtaleService(
-            avtaler,
-            tiltaksgjennomforinger,
-            virksomhetService,
-            NotificationRepository(database.db),
-            utkastRepository,
-            validator,
-            database.db,
-        )
-
-        test("Man skal ikke få slette dersom avtalen ikke finnes") {
-            val avtaleIdSomIkkeFinnes = "3c9f3d26-50ec-45a7-a7b2-c2d8a3653945".toUUID()
-
-            avtaleService.delete(avtaleIdSomIkkeFinnes).shouldBeLeft(
-                NotFound(message = "Avtalen finnes ikke"),
-            )
-        }
-
-        test("Man skal ikke få slette, men få en melding dersom dagens dato er mellom start- og sluttdato for avtalen") {
-            val currentDate = LocalDate.of(2023, 6, 1)
-            val avtale = AvtaleFixtures.avtale1.copy(
-                navn = "Avtale som eksisterer",
-                startDato = LocalDate.of(2023, 6, 1),
-                sluttDato = LocalDate.of(2023, 7, 1),
-            )
-            avtaler.upsert(avtale)
-
-            avtaleService.delete(avtale.id, currentDate = currentDate).shouldBeLeft(
-                BadRequest("Avtalen er aktiv og kan derfor ikke slettes."),
-            )
-        }
-
-        test("Man skal ikke få slette, men få en melding dersom opphav for avtalen ikke er admin-flate") {
-            val currentDate = LocalDate.of(2023, 6, 1)
-            val avtale = AvtaleFixtures.avtale1.copy(
-                navn = "Avtale som eksisterer",
-                startDato = LocalDate.of(2023, 6, 1),
-                sluttDato = LocalDate.of(2023, 7, 1),
-                opphav = ArenaMigrering.Opphav.ARENA,
-            )
-            avtaler.upsert(avtale)
-
-            avtaleService.delete(avtale.id, currentDate = currentDate).shouldBeLeft(
-                BadRequest("Avtalen har opprinnelse fra Arena og kan ikke bli slettet i admin-flate."),
-            )
-        }
-
-        test("Man skal ikke få slette, men få en melding dersom det finnes gjennomføringer koblet til avtalen") {
-            val currentDate = LocalDate.of(2023, 6, 1)
-            val avtale = AvtaleFixtures.avtale1.copy(
-                id = UUID.randomUUID(),
-                navn = "Avtale som eksisterer",
-                startDato = LocalDate.of(2024, 5, 17),
-                sluttDato = LocalDate.of(2025, 7, 1),
-            )
-            val avtaleSomErUinteressant = AvtaleFixtures.avtale1.copy(
-                id = UUID.randomUUID(),
-                navn = "Avtale som vi ikke bryr oss om",
-                startDato = LocalDate.of(2024, 5, 17),
-                sluttDato = LocalDate.of(2025, 7, 1),
-            )
-            avtaler.upsert(avtale)
-            avtaler.upsert(avtaleSomErUinteressant)
-            val oppfolging = TiltaksgjennomforingFixtures.Oppfolging1.copy(
-                avtaleId = avtale.id,
-                tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
-                startDato = LocalDate.of(2023, 5, 1),
-                sluttDato = null,
-            )
-            val arbeidstrening = TiltaksgjennomforingFixtures.Arbeidstrening1.copy(
-                avtaleId = avtale.id,
-                tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
-                startDato = LocalDate.of(2023, 5, 1),
-                sluttDato = null,
-            )
-            val oppfolging2 = TiltaksgjennomforingFixtures.Oppfolging2.copy(
-                avtaleId = avtaleSomErUinteressant.id,
-                tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
-                startDato = LocalDate.of(2023, 5, 1),
-                sluttDato = null,
-            )
-            tiltaksgjennomforinger.upsert(oppfolging)
-            tiltaksgjennomforinger.upsert(arbeidstrening)
-            tiltaksgjennomforinger.upsert(oppfolging2)
-
-            avtaleService.delete(avtale.id, currentDate = currentDate).shouldBeLeft(
-                BadRequest("Avtalen har 2 tiltaksgjennomføringer koblet til seg. Du må frikoble gjennomføringene før du kan slette avtalen."),
-            )
-        }
-
-        test("Skal få slette avtale hvis alle sjekkene er ok") {
-            val currentDate = LocalDate.of(2023, 6, 1)
-
-            val avtale = AvtaleFixtures.avtale1.copy(
-                startDato = LocalDate.of(2023, 7, 1),
-                sluttDato = LocalDate.of(2024, 7, 1),
-            )
-            avtaler.upsert(avtale).right()
-
-            avtaleService.delete(avtale.id, currentDate = currentDate).shouldBeRight()
         }
     }
 
