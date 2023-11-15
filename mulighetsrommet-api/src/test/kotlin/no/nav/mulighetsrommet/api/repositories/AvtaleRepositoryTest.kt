@@ -52,8 +52,8 @@ class AvtaleRepositoryTest : FunSpec({
                     enhetsnummer = "0400",
                     status = NavEnhetStatus.AKTIV,
                     type = Norg2Type.FYLKE,
-                    overordnetEnhet = null
-                )
+                    overordnetEnhet = null,
+                ),
             ).shouldBeRight()
 
             val tiltakstype = TiltakstypeFixtures.Oppfolging.copy(id = TiltakstypeFixtures.Oppfolging.id)

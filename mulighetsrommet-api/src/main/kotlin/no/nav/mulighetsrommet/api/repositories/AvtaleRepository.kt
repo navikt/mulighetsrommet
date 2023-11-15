@@ -423,7 +423,7 @@ class AvtaleRepository(private val db: Database) {
             sluttDato = sluttDato,
             arenaAnsvarligEnhet = stringOrNull("arena_ansvarlig_enhet")?.let {
                 Json.decodeFromString<EmbeddedNavEnhet?>(
-                    it
+                    it,
                 )
             },
             avtaletype = Avtaletype.valueOf(string("avtaletype")),

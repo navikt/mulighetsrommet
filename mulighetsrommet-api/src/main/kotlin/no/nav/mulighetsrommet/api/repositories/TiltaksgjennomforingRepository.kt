@@ -708,7 +708,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             sluttDato = sluttDato,
             arenaAnsvarligEnhet = stringOrNull("arena_ansvarlig_enhet")?.let {
                 Json.decodeFromString<EmbeddedNavEnhet?>(
-                    it
+                    it,
                 )
             },
             status = Tiltaksgjennomforingsstatus.fromDbo(
