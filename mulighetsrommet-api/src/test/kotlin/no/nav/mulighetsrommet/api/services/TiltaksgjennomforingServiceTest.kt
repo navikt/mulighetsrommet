@@ -9,7 +9,6 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import io.ktor.http.*
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.spyk
@@ -49,23 +48,6 @@ class TiltaksgjennomforingServiceTest : FunSpec({
         every { validator.validate(any()) } answers {
             firstArg<TiltaksgjennomforingDbo>().right()
         }
-    }
-
-    context("Slette gjennomføring") {
-        val avtaler = AvtaleRepository(database.db)
-        val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
-        val deltagerRepository = DeltakerRepository(database.db)
-        val tiltaksgjennomforingService = TiltaksgjennomforingService(
-            avtaler,
-            tiltaksgjennomforingRepository,
-            deltagerRepository,
-            virksomhetService,
-            utkastRepository,
-            tiltaksgjennomforingKafkaProducer,
-            NotificationRepository(database.db),
-            validator,
-            database.db,
-        )
     }
 
     context("Avbryte gjennomføring") {
