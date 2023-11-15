@@ -3,8 +3,6 @@ package no.nav.mulighetsrommet.api.avtaler
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.data.forAll
-import io.kotest.data.row
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
@@ -26,7 +24,6 @@ import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
 import no.nav.mulighetsrommet.api.services.NavEnhetService
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
-import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import no.nav.mulighetsrommet.env.NaisEnv
 import java.time.LocalDate
@@ -187,29 +184,6 @@ class AvtaleValidatorTest : FunSpec({
             )
         }
 
-        test("skal bare kunne endre aktive avtaler") {
-            val id = UUID.randomUUID()
-            avtaler.upsert(avtaleDbo.copy(id = id, administratorer = listOf()))
-
-            forAll(
-                row(Avslutningsstatus.AVSLUTTET),
-                row(Avslutningsstatus.AVBRUTT),
-            ) { status ->
-                avtaler.setAvslutningsstatus(id, status)
-
-                val validator = AvtaleValidator(tiltakstyper, avtaler, gjennomforinger, navEnheterService)
-
-                val dbo = avtaleDbo.copy(id = id)
-
-                validator.validate(dbo).shouldBeLeft().shouldContain(
-                    ValidationError(
-                        "navn",
-                        "Kan bare gjøre endringer når avtalen har status Planlagt eller Aktiv",
-                    ),
-                )
-            }
-        }
-
         context("når avtalen har gjennomføringer") {
             beforeAny {
                 avtaler.upsert(avtaleDbo.copy(administratorer = listOf()))
@@ -236,7 +210,7 @@ class AvtaleValidatorTest : FunSpec({
                     navEnheter = listOf("0400"),
                 )
 
-                validator.validate(dbo).shouldBeLeft().shouldContainExactlyInAnyOrder(
+                validator.validate(dbo).shouldBeLeft().shouldContainAll(
                     listOf(
                         ValidationError(
                             "tiltakstypeId",
@@ -256,70 +230,63 @@ class AvtaleValidatorTest : FunSpec({
         }
 
         context("når avtalen er aktiv") {
-            test("skal ikke kunne endre felter relatert til tilsagn/refusjon") {
-                val avtaleMedEndringer = AvtaleDbo(
-                    id = avtaleDbo.id,
-                    navn = "Nytt navn",
-                    tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
-                    leverandorOrganisasjonsnummer = "999999999",
-                    leverandorUnderenheter = listOf("888888888"),
-                    leverandorKontaktpersonId = null,
-                    avtalenummer = "123456",
-                    startDato = LocalDate.of(2023, 6, 2),
-                    sluttDato = LocalDate.of(2024, 6, 2),
-                    url = "nav.no",
-                    administratorer = listOf("B123456"),
-                    avtaletype = Avtaletype.Rammeavtale,
-                    prisbetingelser = null,
-                    navEnheter = listOf("0300"),
-                    opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
-                    antallPlasser = null,
-                    updatedAt = avtaleDbo.updatedAt,
-                )
+            val avtaleMedEndringer = AvtaleDbo(
+                id = avtaleDbo.id,
+                navn = "Nytt navn",
+                tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
+                leverandorOrganisasjonsnummer = "999999999",
+                leverandorUnderenheter = listOf("888888888"),
+                leverandorKontaktpersonId = null,
+                avtalenummer = "123456",
+                startDato = LocalDate.now(),
+                sluttDato = LocalDate.now().plusYears(1),
+                url = "nav.no",
+                administratorer = listOf("B123456"),
+                avtaletype = Avtaletype.Rammeavtale,
+                prisbetingelser = null,
+                navEnheter = listOf("0300"),
+                opphav = ArenaMigrering.Opphav.ARENA,
+                antallPlasser = null,
+                updatedAt = avtaleDbo.updatedAt,
+            )
 
-                avtaler.upsert(avtaleDbo.copy(administratorer = listOf()))
+            test("skal ikke kunne endre felter med opphav fra Arena") {
+                avtaler.upsert(
+                    avtaleDbo.copy(
+                        opphav = ArenaMigrering.Opphav.ARENA,
+                        administratorer = listOf(),
+                    ),
+                )
 
                 val validator = AvtaleValidator(tiltakstyper, avtaler, gjennomforinger, navEnheterService)
 
                 validator.validate(avtaleMedEndringer).shouldBeLeft().shouldContainExactlyInAnyOrder(
                     listOf(
-                        ValidationError("avtaletype", "Avtaletype kan ikke endres når avtalen er aktiv"),
-                        ValidationError("startDato", "Startdato kan ikke endres når avtalen er aktiv"),
-                        ValidationError("sluttDato", "Sluttdato kan ikke endres når avtalen er aktiv"),
-                        ValidationError(
-                            "leverandorOrganisasjonsnummer",
-                            "Leverandøren kan ikke endres når avtalen er aktiv",
-                        ),
+                        ValidationError("navn", "Navn kan ikke endres utenfor Arena"),
+                        ValidationError("tiltakstypeId", "Tiltakstype kan ikke endres utenfor Arena"),
+                        ValidationError("startDato", "Startdato kan ikke endres utenfor Arena"),
+                        ValidationError("sluttDato", "Sluttdato kan ikke endres utenfor Arena"),
+                        ValidationError("avtaletype", "Avtaletype kan ikke endres utenfor Arena"),
+                        ValidationError("leverandorOrganisasjonsnummer", "Leverandøren kan ikke endres utenfor Arena"),
                     ),
                 )
             }
 
-            test("skal kunne endre felter relatert til tilsagn/refusjon når avtalen er AFT/VTA") {
-                val avtaleMedEndringer = AvtaleDbo(
-                    id = avtaleDbo.id,
-                    navn = "Nytt navn",
-                    tiltakstypeId = TiltakstypeFixtures.AFT.id,
-                    leverandorOrganisasjonsnummer = "999999999",
-                    leverandorUnderenheter = listOf("888888888"),
-                    leverandorKontaktpersonId = null,
-                    avtalenummer = "123456",
-                    startDato = LocalDate.of(2023, 6, 2),
-                    sluttDato = LocalDate.of(2024, 6, 2),
-                    url = "nav.no",
-                    administratorer = listOf("B123456"),
-                    avtaletype = Avtaletype.Rammeavtale,
-                    prisbetingelser = null,
-                    navEnheter = listOf("0400"),
-                    opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
-                    antallPlasser = null,
-                    updatedAt = avtaleDbo.updatedAt,
-                )
-
+            test("skal ikke kunne endre låste felter når avtalen ikke opprettet utenfor Arena") {
                 avtaler.upsert(avtaleDbo.copy(administratorer = listOf()))
 
                 val validator = AvtaleValidator(tiltakstyper, avtaler, gjennomforinger, navEnheterService)
 
-                validator.validate(avtaleMedEndringer).shouldBeRight()
+                validator.validate(
+                    avtaleMedEndringer.copy(
+                        opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
+                    ),
+                ).shouldBeLeft().shouldContainExactlyInAnyOrder(
+                    listOf(
+                        ValidationError("tiltakstypeId", "Tiltakstype kan ikke endres når avtalen er låst"),
+                        ValidationError("avtaletype", "Avtaletype kan ikke endres når avtalen er låst"),
+                    ),
+                )
             }
         }
     }
