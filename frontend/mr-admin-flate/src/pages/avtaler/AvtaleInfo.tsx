@@ -180,7 +180,10 @@ export function AvtaleInfo() {
           {avtale?.arenaAnsvarligEnhet ? (
             <Bolk>
               <div style={{ display: "flex", gap: "1rem" }}>
-                <Metadata header="Ansvarlig enhet fra Arena" verdi={avtale.arenaAnsvarligEnhet} />
+                <Metadata
+                  header="Ansvarlig enhet fra Arena"
+                  verdi={`${avtale.arenaAnsvarligEnhet?.enhetsnummer} ${avtale.arenaAnsvarligEnhet?.navn}`}
+                />
                 <HelpText title="Hva betyr feltet 'Ansvarlig enhet fra Arena'?">
                   Ansvarlig enhet fra Arena blir satt i Arena når man oppretter avtale i Arena.
                 </HelpText>

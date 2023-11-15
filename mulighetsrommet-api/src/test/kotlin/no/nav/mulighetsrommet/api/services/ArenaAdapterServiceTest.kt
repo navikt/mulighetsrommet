@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.services
 
+import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.common.runBlocking
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.data.blocking.forAll
@@ -212,7 +213,6 @@ class ArenaAdapterServiceTest : FunSpec({
 
         test("CRUD") {
             service.upsertTiltakstype(tiltakstype)
-
             service.upsertAvtale(avtale)
             database.assertThat("avtale").row()
                 .value("id").isEqualTo(avtale.id)
@@ -478,6 +478,9 @@ class ArenaAdapterServiceTest : FunSpec({
                 avtaler = listOf(),
             )
             domain.initialize(database.db)
+            val enheter = NavEnhetRepository(database.db)
+            enheter.upsert(NavEnhetFixtures.Oslo).shouldBeRight()
+            enheter.upsert(NavEnhetFixtures.TiltakOslo).shouldBeRight()
             service.upsertAvtale(avtale)
 
             service.upsertTiltaksgjennomforing(

@@ -221,7 +221,7 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
               <div style={{ display: "flex", gap: "1rem" }}>
                 <Metadata
                   header="Ansvarlig enhet fra Arena"
-                  verdi={tiltaksgjennomforing.arenaAnsvarligEnhet}
+                  verdi={`${tiltaksgjennomforing.arenaAnsvarligEnhet.enhetsnummer} ${tiltaksgjennomforing.arenaAnsvarligEnhet.navn}`}
                 />
                 <HelpText title="Hva betyr feltet 'Ansvarlig enhet fra Arena'?">
                   Ansvarlig enhet fra Arena blir satt i Arena når man oppretter tiltak i Arena.

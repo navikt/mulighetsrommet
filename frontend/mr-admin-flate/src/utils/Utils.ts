@@ -101,7 +101,7 @@ export const oversettStatusForTiltaksgjennomforing = (status?: Tiltaksgjennomfor
     case TiltaksgjennomforingStatus.AVSLUTTET:
       return "Avsluttet";
     case TiltaksgjennomforingStatus.PLANLAGT:
-      return "Åpent for innsøk";
+      return "Planlagt";
     default:
       return "";
   }

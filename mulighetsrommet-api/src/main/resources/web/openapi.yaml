@@ -1693,8 +1693,7 @@ components:
         avtalestatus:
           $ref: "#/components/schemas/Avtalestatus"
         arenaAnsvarligEnhet:
-          type: string
-          nullable: true
+          $ref: "#/components/schemas/EmbeddedNavEnhet"
         prisbetingelser:
           type: string
           nullable: true
@@ -1888,7 +1887,7 @@ components:
         arrangor:
           $ref: "#/components/schemas/Arrangor"
         arenaAnsvarligEnhet:
-          type: string
+          $ref: "#/components/schemas/EmbeddedNavEnhet"
         status:
           $ref: "#/components/schemas/TiltaksgjennomforingStatus"
         startDato:

@@ -25,7 +25,7 @@ data class TiltaksgjennomforingAdminDto(
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate?,
-    val arenaAnsvarligEnhet: String?,
+    val arenaAnsvarligEnhet: EmbeddedNavEnhet?,
     val status: Tiltaksgjennomforingsstatus,
     val tilgjengelighet: TiltaksgjennomforingTilgjengelighetsstatus,
     val antallPlasser: Int?,

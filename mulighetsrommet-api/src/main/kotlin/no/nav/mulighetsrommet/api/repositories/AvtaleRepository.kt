@@ -13,7 +13,8 @@ import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.ArenaAvtaleDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
-import no.nav.mulighetsrommet.domain.dto.*
+import no.nav.mulighetsrommet.domain.dto.Avtalestatus
+import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
@@ -247,7 +248,7 @@ class AvtaleRepository(private val db: Database) {
             tiltakstypeId to "tiltakstype_id = :tiltakstype_id",
             search to "(lower(navn) like lower(:search)) or avtalenummer like :search",
             status to status?.toDbStatement(),
-            navRegion to "(nav_enheter @> :nav_region_json::jsonb or arena_ansvarlig_enhet = :nav_region or arena_ansvarlig_enhet in (select enhetsnummer from nav_enhet where overordnet_enhet = :nav_region))",
+            navRegion to "(nav_enheter @> :nav_region_json::jsonb or arena_ansvarlig_enhet::jsonb->>'enhetsnummer' = :nav_region or arena_ansvarlig_enhet::jsonb->>'enhetsnummer' in (select enhetsnummer from nav_enhet where overordnet_enhet = :nav_region))",
             leverandorOrgnr to "leverandor_organisasjonsnummer = :leverandorOrgnr",
             administratorNavIdent to "administratorer @> :administrator_nav_ident::jsonb",
         )
@@ -420,7 +421,11 @@ class AvtaleRepository(private val db: Database) {
             },
             startDato = startDato,
             sluttDato = sluttDato,
-            arenaAnsvarligEnhet = stringOrNull("arena_ansvarlig_enhet"),
+            arenaAnsvarligEnhet = stringOrNull("arena_ansvarlig_enhet")?.let {
+                Json.decodeFromString<EmbeddedNavEnhet?>(
+                    it
+                )
+            },
             avtaletype = Avtaletype.valueOf(string("avtaletype")),
             avtalestatus = Avtalestatus.resolveFromDatesAndAvslutningsstatus(
                 LocalDate.now(),

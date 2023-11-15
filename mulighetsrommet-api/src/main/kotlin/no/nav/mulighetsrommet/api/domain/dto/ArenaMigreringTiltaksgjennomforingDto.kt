@@ -44,7 +44,7 @@ data class ArenaMigreringTiltaksgjennomforingDto(
                 status = tiltaksgjennomforing.status,
                 arenaId = arenaId,
                 // TODO: Hvilket enhet? Trenger vi nytt input felt?
-                enhet = tiltaksgjennomforing.arenaAnsvarligEnhet ?: "todo",
+                enhet = tiltaksgjennomforing.arenaAnsvarligEnhet?.enhetsnummer ?: "todo",
             )
     }
 }
