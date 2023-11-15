@@ -1,10 +1,10 @@
 import React, { ForwardedRef, useCallback, useMemo } from "react";
 import isUrl from "is-url";
-import { LinkIcon, BulletListIcon } from "@navikt/aksel-icons";
+import { BulletListIcon, LinkIcon } from "@navikt/aksel-icons";
 import styles from "./PortableTextEditor.module.scss";
 import isHotkey from "is-hotkey";
-import { Editable, withReact, useSlate, Slate } from "slate-react";
-import { Element as SlateElement, Editor, Transforms, createEditor, Range } from "slate";
+import { Editable, Slate, useSlate, withReact } from "slate-react";
+import { createEditor, Editor, Element as SlateElement, Range, Transforms } from "slate";
 import { withHistory } from "slate-history";
 import type { PortableTextBlock } from "@portabletext/types";
 import { slateToPortableText } from "./slateToPortableText";
@@ -129,7 +129,7 @@ function PortableTextEditor(props: PortableTextEditorProps, _: ForwardedRef<HTML
                       format="bulleted-list"
                       icon={
                         <div>
-                          <BulletListIcon /> Bullet
+                          <BulletListIcon aria-label="Bullet" /> Bullet
                         </div>
                       }
                     />
@@ -222,7 +222,7 @@ const LinkButton = () => {
       }}
     >
       <div>
-        <LinkIcon /> Link
+        <LinkIcon aria-label="Link" /> Link
       </div>
     </Button>
   );

@@ -14,11 +14,12 @@ export function useHentDeltMedBrukerStatus(
 
   const { data: sistDeltMedBruker, refetch: refetchDelMedBruker } = useQuery({
     queryKey: [QueryKeys.DeltMedBrukerStatus, norskIdent, id],
-    queryFn: () =>
-      mulighetsrommetClient.delMedBruker.getDelMedBruker({
+    queryFn: async () => {
+      const result = await mulighetsrommetClient.delMedBruker.getDelMedBruker({
         requestBody: { norskIdent, id: id!! },
-      }),
-    throwOnError: false,
+      });
+      return result || null; // Returner null hvis API returnerer 204 No Content = undefined;
+    },
     enabled: !erPreview() && !!id,
   });
 
