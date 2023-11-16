@@ -14,16 +14,6 @@
           "strategies": []
         },
         {
-          "name": "mulighetsrommet.admin-flate-slett-avtale",
-          "enabled": true,
-          "strategies": []
-        },
-        {
-          "name": "mulighetsrommet.admin-flate-slett-tiltaksgjennomforing",
-          "enabled": true,
-          "strategies": []
-        },
-        {
           "name": "mulighetsrommet.admin-flate-vis-deltakerliste-fra-komet",
           "enabled": true,
           "strategies": []

@@ -28,7 +28,6 @@ import no.nav.mulighetsrommet.notifications.NotificationRepository
 import no.nav.mulighetsrommet.notifications.NotificationType
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
 import java.time.Instant
-import java.time.LocalDate
 import java.util.*
 
 class TiltaksgjennomforingService(
@@ -167,31 +166,6 @@ class TiltaksgjennomforingService(
         }
 
         tiltaksgjennomforinger.setAvtaleId(gjennomforingId, avtaleId)
-
-        return Either.Right(Unit)
-    }
-
-    suspend fun delete(id: UUID, currentDate: LocalDate = LocalDate.now()): StatusResponse<Unit> {
-        val gjennomforing = tiltaksgjennomforinger.get(id)
-            ?: return Either.Left(NotFound("Gjennomføringen finnes ikke"))
-
-        if (gjennomforing.opphav == ArenaMigrering.Opphav.ARENA) {
-            return Either.Left(BadRequest(message = "Gjennomføringen har opprinnelse fra Arena og kan ikke bli slettet i admin-flate."))
-        }
-
-        if (gjennomforing.startDato <= currentDate) {
-            return Either.Left(BadRequest(message = "Gjennomføringen er eller har vært aktiv og kan derfor ikke slettes."))
-        }
-
-        val antallDeltagere = deltakerRepository.getAll(id).size
-        if (antallDeltagere > 0) {
-            return Either.Left(BadRequest(message = "Gjennomføringen kan ikke slettes fordi den har $antallDeltagere deltager(e) koblet til seg."))
-        }
-
-        db.transactionSuspend { tx ->
-            tiltaksgjennomforinger.delete(id, tx)
-            tiltaksgjennomforingKafkaProducer.retract(id)
-        }
 
         return Either.Right(Unit)
     }
