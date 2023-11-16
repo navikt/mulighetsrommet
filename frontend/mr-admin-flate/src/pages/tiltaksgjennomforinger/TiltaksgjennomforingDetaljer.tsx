@@ -225,7 +225,8 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
                   verdi={`${tiltaksgjennomforing.arenaAnsvarligEnhet.enhetsnummer} ${tiltaksgjennomforing.arenaAnsvarligEnhet.navn}`}
                 />
                 <HelpText title="Hva betyr feltet 'Ansvarlig enhet fra Arena'?">
-                  Ansvarlig enhet fra Arena blir satt i Arena når man oppretter tiltak i Arena.
+                  Ansvarlig enhet fra Arena blir satt i Arena basert på tiltaksansvarlig sin enhet
+                  når man oppretter tiltak i Arena.
                 </HelpText>
               </div>
             </Bolk>

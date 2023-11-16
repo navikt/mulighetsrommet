@@ -177,7 +177,8 @@ export function AvtaleInfo() {
                   verdi={`${avtale.arenaAnsvarligEnhet.enhetsnummer} ${avtale.arenaAnsvarligEnhet.navn}`}
                 />
                 <HelpText title="Hva betyr feltet 'Ansvarlig enhet fra Arena'?">
-                  Ansvarlig enhet fra Arena blir satt i Arena når man oppretter avtale i Arena.
+                  Ansvarlig enhet fra Arena blir satt i Arena basert på tiltaksansvarlig sin enhet
+                  når det opprettes avtale i Arena.
                 </HelpText>
               </div>
             </Bolk>
