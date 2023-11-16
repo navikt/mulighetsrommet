@@ -170,18 +170,18 @@ export function AvtaleInfo() {
             })
           )}
           {avtale?.arenaAnsvarligEnhet ? (
-            <Bolk>
-              <div style={{ display: "flex", gap: "1rem" }}>
+            <div style={{ display: "flex", gap: "1rem", margin: "0.5rem 0" }}>
+              <dl style={{ margin: "0" }}>
                 <Metadata
                   header="Ansvarlig enhet fra Arena"
                   verdi={`${avtale.arenaAnsvarligEnhet.enhetsnummer} ${avtale.arenaAnsvarligEnhet.navn}`}
                 />
-                <HelpText title="Hva betyr feltet 'Ansvarlig enhet fra Arena'?">
-                  Ansvarlig enhet fra Arena blir satt i Arena basert på tiltaksansvarlig sin enhet
-                  når det opprettes avtale i Arena.
-                </HelpText>
-              </div>
-            </Bolk>
+              </dl>
+              <HelpText title="Hva betyr feltet 'Ansvarlig enhet fra Arena'?">
+                Ansvarlig enhet fra Arena blir satt i Arena basert på tiltaksansvarlig sin enhet når
+                det opprettes avtale i Arena.
+              </HelpText>
+            </div>
           ) : null}
 
           <Separator />
