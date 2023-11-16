@@ -18,7 +18,7 @@ export function DetaljerAvtalePage() {
     throw new Error("Fant ingen avtaleId i url");
   }
   const { data: avtale, isLoading } = useAvtale();
-  useTitle(`Avtale - ${avtale?.navn}`);
+  useTitle(`Avtale ${avtale?.navn ? `- ${avtale.navn}` : null}`);
 
   if (!avtale && isLoading) {
     return (

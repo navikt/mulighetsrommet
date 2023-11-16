@@ -5,32 +5,31 @@ import { Route, Routes } from "react-router-dom";
 import { Forside } from "./Forside";
 import IkkeAutentisertApp from "./IkkeAutentisertApp";
 import { useHentAnsatt } from "./api/ansatt/useHentAnsatt";
-import { Laster } from "./components/laster/Laster";
-import { ErrorPage } from "./pages/ErrorPage";
-import { AvtalerPage } from "./pages/avtaler/AvtalerPage";
-import { DetaljerAvtalePage } from "./pages/avtaler/DetaljerAvtalePage";
-import { DetaljerTiltakstypePage } from "./pages/tiltakstyper/DetaljerTiltakstypePage";
-import { TiltakstyperPage } from "./pages/tiltakstyper/TiltakstyperPage";
-import { TiltaksgjennomforingerPage } from "./pages/tiltaksgjennomforinger/TiltaksgjennomforingerPage";
-import { TiltaksgjennomforingPage } from "./pages/tiltaksgjennomforinger/TiltaksgjennomforingPage";
-import { NotifikasjonerPage } from "./pages/notifikasjoner/NotifikasjonerPage";
 import AvtaleSkjemaPage from "./components/avtaler/AvtaleSkjemaPage";
-import TiltaksgjennomforingSkjemaPage from "./components/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaPage";
-import { UtkastListe } from "./components/utkast/Utkastliste";
-import { Avtalefilter } from "./components/filter/Avtalefilter";
-import { AvtaleTabell } from "./components/tabell/AvtaleTabell";
-import { AvtaleInfo } from "./pages/avtaler/AvtaleInfo";
 import NotaterAvtalePage from "./components/avtaler/NotaterAvtalePage";
-import { TiltaksgjennomforingerForAvtale } from "./pages/avtaler/tiltaksgjennomforinger/TiltaksgjennomforingerForAvtale";
+import { Avtalefilter } from "./components/filter/Avtalefilter";
 import { Tiltaksgjennomforingfilter } from "./components/filter/Tiltaksgjennomforingfilter";
+import { Laster } from "./components/laster/Laster";
+import { Notifikasjonsliste } from "./components/notifikasjoner/Notifikasjonsliste";
+import { AvtaleTabell } from "./components/tabell/AvtaleTabell";
 import { TiltaksgjennomforingsTabell } from "./components/tabell/TiltaksgjennomforingsTabell";
 import NotaterTiltaksgjennomforingerPage from "./components/tiltaksgjennomforinger/NotaterTiltaksgjennomforingerPage";
+import TiltaksgjennomforingSkjemaPage from "./components/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaPage";
+import { UtkastListe } from "./components/utkast/Utkastliste";
 import { DeltakerListe } from "./microfrontends/team_komet/Deltakerliste";
+import { ErrorPage } from "./pages/ErrorPage";
+import { AvtaleInfo } from "./pages/avtaler/AvtaleInfo";
+import { AvtalerPage } from "./pages/avtaler/AvtalerPage";
+import { DetaljerAvtalePage } from "./pages/avtaler/DetaljerAvtalePage";
+import { TiltaksgjennomforingerForAvtale } from "./pages/avtaler/tiltaksgjennomforinger/TiltaksgjennomforingerForAvtale";
+import { NotifikasjonerPage } from "./pages/notifikasjoner/NotifikasjonerPage";
 import { TiltaksgjennomforingInfo } from "./pages/tiltaksgjennomforinger/TiltaksgjennomforingInfo";
+import { TiltaksgjennomforingPage } from "./pages/tiltaksgjennomforinger/TiltaksgjennomforingPage";
+import { TiltaksgjennomforingerPage } from "./pages/tiltaksgjennomforinger/TiltaksgjennomforingerPage";
+import { DetaljerTiltakstypePage } from "./pages/tiltakstyper/DetaljerTiltakstypePage";
 import { TiltakstypeInfo } from "./pages/tiltakstyper/TiltakstypeInfo";
+import { TiltakstyperPage } from "./pages/tiltakstyper/TiltakstyperPage";
 import { AvtalerForTiltakstype } from "./pages/tiltakstyper/avtaler/AvtalerForTiltakstype";
-import { Notifikasjonsliste } from "./components/notifikasjoner/Notifikasjonsliste";
-import { useTitle } from "mulighetsrommet-frontend-common";
 
 if (import.meta.env.PROD) {
   initializeFaro({
@@ -42,8 +41,6 @@ if (import.meta.env.PROD) {
 }
 
 export function App() {
-  useTitle("NAV arbeidsmarkedstiltak");
-
   const { data: ansatt, isLoading: ansattIsLoading, error } = useHentAnsatt();
 
   if (error) {
