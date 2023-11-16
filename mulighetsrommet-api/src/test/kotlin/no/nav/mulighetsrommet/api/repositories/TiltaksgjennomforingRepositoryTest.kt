@@ -28,6 +28,7 @@ import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.ArenaOpp
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.Oppfolging1
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.Oppfolging2
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
+import no.nav.mulighetsrommet.api.services.toNavEnhet
 import no.nav.mulighetsrommet.api.utils.DEFAULT_PAGINATION_LIMIT
 import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
@@ -116,6 +117,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         }
 
         test("CRUD ArenaTiltaksgjennomforing") {
+            val navEnheter = NavEnhetRepository(database.db)
+            navEnheter.upsert(NavEnhetFixtures.Innlandet).shouldBeRight()
             val gjennomforingId = UUID.randomUUID()
             val gjennomforingFraArena = ArenaTiltaksgjennomforingDbo(
                 id = gjennomforingId,
@@ -125,7 +128,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 arrangorOrganisasjonsnummer = "123456789",
                 startDato = LocalDate.of(2023, 1, 1),
                 sluttDato = LocalDate.of(2023, 2, 2),
-                arenaAnsvarligEnhet = "0400",
+                arenaAnsvarligEnhet = NavEnhetFixtures.Innlandet.enhetsnummer,
                 avslutningsstatus = Avslutningsstatus.AVSLUTTET,
                 tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.STENGT,
                 antallPlasser = 10,
@@ -153,7 +156,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 )
                 it.startDato shouldBe LocalDate.of(2023, 1, 1)
                 it.sluttDato shouldBe LocalDate.of(2023, 2, 2)
-                it.arenaAnsvarligEnhet shouldBe "0400"
+                it.arenaAnsvarligEnhet shouldBe NavEnhetFixtures.Innlandet.toNavEnhet()
                 it.tilgjengelighet shouldBe TiltaksgjennomforingTilgjengelighetsstatus.STENGT
                 it.antallPlasser shouldBe 10
                 it.avtaleId shouldBe null

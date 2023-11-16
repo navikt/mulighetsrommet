@@ -391,7 +391,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
 
         val where = DatabaseUtils.andWhereParameterNotNull(
             search to "((lower(navn) like lower(:search)) or (tiltaksnummer like :search))",
-            navEnhet to "(:navEnhet in (select enhetsnummer from tiltaksgjennomforing_nav_enhet tg_e where tg_e.tiltaksgjennomforing_id = id) or arena_ansvarlig_enhet = :navEnhet)",
+            navEnhet to "(:navEnhet in (select enhetsnummer from tiltaksgjennomforing_nav_enhet tg_e where tg_e.tiltaksgjennomforing_id = id) or arena_ansvarlig_enhet::jsonb->>'enhetsnummer' = :navEnhet)",
             tiltakstypeId to "tiltakstype_id = :tiltakstypeId",
             status to status?.toDbStatement(),
             sluttDatoCutoff to "(slutt_dato >= :cutoffdato or slutt_dato is null)",

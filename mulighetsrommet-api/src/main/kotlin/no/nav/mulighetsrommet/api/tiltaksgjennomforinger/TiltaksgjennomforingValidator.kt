@@ -142,6 +142,7 @@ class TiltaksgjennomforingValidator(
                             "Oppstartstype kan ikke endres når det finnes påmeldte deltakere",
                         ),
                     )
+
                 }
 
                 if (gjennomforing.status == GJENNOMFORES) {
