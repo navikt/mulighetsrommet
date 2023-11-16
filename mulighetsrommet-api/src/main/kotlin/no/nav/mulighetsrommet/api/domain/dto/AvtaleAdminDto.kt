@@ -25,7 +25,7 @@ data class AvtaleAdminDto(
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate,
-    val arenaAnsvarligEnhet: String?,
+    val arenaAnsvarligEnhet: EmbeddedNavEnhet?,
     val avtaletype: Avtaletype,
     val avtalestatus: Avtalestatus,
     val prisbetingelser: String?,

@@ -5,6 +5,8 @@ import io.mockk.mockk
 import io.mockk.verifyAll
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingDto
+import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
+import no.nav.mulighetsrommet.api.repositories.NavEnhetRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
@@ -125,9 +127,11 @@ class KafkaSyncServiceTest : FunSpec({
             startDato = lastSuccessDate,
             avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
         )
+        val navEnheter = NavEnhetRepository(database.db)
 
         test("oppdater statuser på kafka på relevante tiltaksgjennomføringer") {
             tiltakstypeRepository.upsert(tiltakstype)
+            navEnheter.upsert(NavEnhetFixtures.IT)
 
             tiltaksgjennomforingRepository.upsertArenaTiltaksgjennomforing(startdatoInnenforMenAvsluttetStatus)
             tiltaksgjennomforingRepository.upsertArenaTiltaksgjennomforing(startdatoInnenfor)
