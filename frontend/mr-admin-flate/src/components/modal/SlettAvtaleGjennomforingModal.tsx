@@ -52,8 +52,8 @@ const SlettAvtaleGjennomforingModal = ({
           {fraArena
             ? `${tekster[dataType].navnPlural} kan ikke slettes`
             : mutation.isError
-            ? `Kan ikke slette «${data.navn}»`
-            : `Ønsker du å slette «${data.navn}»?`}
+              ? `Kan ikke slette «${data.navn}»`
+              : `Ønsker du å slette «${data.navn}»?`}
         </Heading>
       </div>
     );
@@ -66,8 +66,8 @@ const SlettAvtaleGjennomforingModal = ({
           ? `${tekster[dataType].navnPlural} «${data.navn}» kommer fra Arena og kan
             ikke slettes her`
           : mutation?.isError
-          ? resolveErrorMessage(mutation.error)
-          : "Du kan ikke angre denne handlingen."}
+            ? resolveErrorMessage(mutation.error)
+            : "Du kan ikke angre denne handlingen."}
       </BodyShort>
     );
   }
