@@ -34,30 +34,31 @@ export const SanityPreviewOversikt = () => {
 
   return (
     <>
-      <SokeSelect
-        label="Brukers geografiske enhet"
-        description="Simuler en brukers geografiske enhet"
-        value={
-          geografiskEnhet !== undefined
-            ? { label: geografiskEnhet.navn, value: geografiskEnhet.enhetsnummer }
-            : null
-        }
-        name="geografisk-enhet"
-        size="medium"
-        onChange={(e) =>
-          setGeografiskEnhet(
-            enheter.find((enhet: NavEnhet) => enhet.enhetsnummer === e.target.value),
-          )
-        }
-        placeholder="Velg brukers geografiske enhet"
-        options={enheter
-          .filter((enhet: NavEnhet) => enhet.type === NavEnhetType.LOKAL)
-          .map((enhet: NavEnhet) => ({
-            label: enhet.navn,
-            value: enhet.enhetsnummer,
-          }))}
-      />
-
+      <div style={{ maxWidth: "21rem" }}>
+        <SokeSelect
+          label="Brukers geografiske enhet"
+          description="Simuler en brukers geografiske enhet"
+          value={
+            geografiskEnhet !== undefined
+              ? { label: geografiskEnhet.navn, value: geografiskEnhet.enhetsnummer }
+              : null
+          }
+          name="geografisk-enhet"
+          size="medium"
+          onChange={(e) =>
+            setGeografiskEnhet(
+              enheter.find((enhet: NavEnhet) => enhet.enhetsnummer === e.target.value),
+            )
+          }
+          placeholder="Velg brukers geografiske enhet"
+          options={enheter
+            .filter((enhet: NavEnhet) => enhet.type === NavEnhetType.LOKAL)
+            .map((enhet: NavEnhet) => ({
+              label: enhet.navn,
+              value: enhet.enhetsnummer,
+            }))}
+        />
+      </div>
       <Separator />
 
       <div className={styles.tiltakstype_oversikt} data-testid="tiltakstype-oversikt">

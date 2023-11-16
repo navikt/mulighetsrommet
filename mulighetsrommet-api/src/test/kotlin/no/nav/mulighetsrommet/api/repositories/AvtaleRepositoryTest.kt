@@ -26,7 +26,8 @@ import no.nav.mulighetsrommet.database.utils.getOrThrow
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.ArenaAvtaleDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
-import no.nav.mulighetsrommet.domain.dto.*
+import no.nav.mulighetsrommet.domain.dto.Avtalestatus
+import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -44,6 +45,16 @@ class AvtaleRepositoryTest : FunSpec({
         test("Upsert av Arena-avtaler") {
             val tiltakstypeRepository = TiltakstypeRepository(database.db)
             val avtaler = AvtaleRepository(database.db)
+            val enheter = NavEnhetRepository(database.db)
+            enheter.upsert(
+                NavEnhetDbo(
+                    navn = "Navnesen",
+                    enhetsnummer = "0400",
+                    status = NavEnhetStatus.AKTIV,
+                    type = Norg2Type.FYLKE,
+                    overordnetEnhet = null,
+                ),
+            ).shouldBeRight()
 
             val tiltakstype = TiltakstypeFixtures.Oppfolging.copy(id = TiltakstypeFixtures.Oppfolging.id)
             tiltakstypeRepository.upsert(tiltakstype).shouldBeRight()
@@ -57,7 +68,7 @@ class AvtaleRepositoryTest : FunSpec({
                 leverandorOrganisasjonsnummer = "123456789",
                 startDato = LocalDate.of(2023, 1, 1),
                 sluttDato = LocalDate.of(2023, 2, 2),
-                arenaAnsvarligEnhet = "0400",
+                arenaAnsvarligEnhet = "9999",
                 avtaletype = Avtaletype.Avtale,
                 avslutningsstatus = Avslutningsstatus.AVSLUTTET,
                 opphav = ArenaMigrering.Opphav.ARENA,
@@ -81,6 +92,7 @@ class AvtaleRepositoryTest : FunSpec({
                     navn = null,
                     slettet = true,
                 )
+                it.arenaAnsvarligEnhet shouldBe null
                 it.startDato shouldBe LocalDate.of(2023, 1, 1)
                 it.sluttDato shouldBe LocalDate.of(2023, 2, 2)
                 it.avtaletype shouldBe Avtaletype.Avtale

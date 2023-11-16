@@ -11,7 +11,11 @@ import { useTitle } from "mulighetsrommet-frontend-common";
 
 export function ViewTiltaksgjennomforingDetaljerContainer() {
   const { data: tiltaksgjennomforing, isLoading, isError } = useTiltaksgjennomforingById();
-  useTitle(`Arbeidsmarkedstiltak - Detaljer - ${tiltaksgjennomforing?.navn}`);
+  useTitle(
+    `Arbeidsmarkedstiltak - Detaljer ${
+      tiltaksgjennomforing?.navn ? `- ${tiltaksgjennomforing.navn}` : null
+    }`,
+  );
   const fnr = useFnr();
   const { harDeltMedBruker } = useHentDeltMedBrukerStatus(fnr, tiltaksgjennomforing);
   const { brukerHarRettPaaTiltak, innsatsgruppeForGjennomforing } = useBrukerHarRettPaaTiltak();

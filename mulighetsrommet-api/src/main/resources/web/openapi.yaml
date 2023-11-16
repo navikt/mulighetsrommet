@@ -56,23 +56,6 @@ paths:
             application/json:
               schema:
                 type: string
-    delete:
-      tags:
-        - Avtaler
-      operationId: deleteAvtale
-      responses:
-        200:
-          description: "The specified avtale was deleted."
-          content:
-            application/json:
-              schema:
-                type: string
-        404:
-          description: "Mangler eller ugyldig id."
-          content:
-            application/json:
-              schema:
-                type: string
 
   /api/v1/internal/avtaler/{id}/avbryt:
     parameters:
@@ -597,23 +580,6 @@ paths:
                 $ref: "#/components/schemas/Tiltaksgjennomforing"
         404:
           description: "The specified tiltaksgjennomføring was not found."
-          content:
-            application/json:
-              schema:
-                type: string
-    delete:
-      tags:
-        - Tiltaksgjennomforinger
-      operationId: deleteTiltaksgjennomforing
-      responses:
-        200:
-          description: "The specified gjennomforing was deleted."
-          content:
-            application/json:
-              schema:
-                type: string
-        404:
-          description: "Mangler eller ugyldig id."
           content:
             application/json:
               schema:
@@ -1692,6 +1658,8 @@ components:
           $ref: "#/components/schemas/Avtaletype"
         avtalestatus:
           $ref: "#/components/schemas/Avtalestatus"
+        arenaAnsvarligEnhet:
+          $ref: "#/components/schemas/EmbeddedNavEnhet"
         prisbetingelser:
           type: string
           nullable: true
@@ -1885,7 +1853,7 @@ components:
         arrangor:
           $ref: "#/components/schemas/Arrangor"
         arenaAnsvarligEnhet:
-          type: string
+          $ref: "#/components/schemas/EmbeddedNavEnhet"
         status:
           $ref: "#/components/schemas/TiltaksgjennomforingStatus"
         startDato:
@@ -2968,12 +2936,9 @@ components:
       type: string
       enum:
         - mulighetsrommet.admin-flate-opprett-tiltaksgjennomforing
-        - mulighetsrommet.admin-flate-slett-avtale
-        - mulighetsrommet.admin-flate-slett-tiltaksgjennomforing
         - mulighetsrommet.admin-flate-vis-deltakerliste-fra-komet
         - mulighetsrommet.enable-arbeidsflate
         - mulighetsrommet-veilederflate-landingsside
-        - mulighetsrommet.admin-flate.rediger-oppstart
 
     TilgjengeligForVeilederRequest:
       type: object

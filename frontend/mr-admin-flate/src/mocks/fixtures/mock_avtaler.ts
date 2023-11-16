@@ -36,6 +36,7 @@ export const mockAvtaler: Avtale[] = [
     sluttDato: "2026-08-01",
     avtaletype: Avtaletype.FORHAANDSGODKJENT,
     avtalestatus: Avtalestatus.AKTIV,
+    arenaAnsvarligEnhet: mockEnheter._0300,
     prisbetingelser: `Nye priser fra 21.03.23, gamle priser i parentes
 
         10 deltakere:
@@ -76,6 +77,7 @@ export const mockAvtaler: Avtale[] = [
     sluttDato: "2026-08-01",
     avtaletype: Avtaletype.RAMMEAVTALE,
     avtalestatus: Avtalestatus.AKTIV,
+    arenaAnsvarligEnhet: mockEnheter._0400,
     prisbetingelser: "Maskert prisbetingelser",
     url: null,
     updatedAt: new Date().toISOString(),
@@ -108,6 +110,7 @@ export const mockAvtaler: Avtale[] = [
     sluttDato: "2024-06-30",
     avtaletype: Avtaletype.RAMMEAVTALE,
     avtalestatus: Avtalestatus.AKTIV,
+    arenaAnsvarligEnhet: mockEnheter._0313,
     prisbetingelser: "Maskert prisbetingelser",
     updatedAt: new Date().toISOString(),
     kontorstruktur: [
