@@ -2975,7 +2975,6 @@ components:
         - mulighetsrommet.admin-flate-vis-deltakerliste-fra-komet
         - mulighetsrommet.enable-arbeidsflate
         - mulighetsrommet-veilederflate-landingsside
-        - mulighetsrommet.admin-flate.rediger-oppstart
 
     TilgjengeligForVeilederRequest:
       type: object
