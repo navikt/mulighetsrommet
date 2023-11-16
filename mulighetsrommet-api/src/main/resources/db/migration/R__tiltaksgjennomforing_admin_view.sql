@@ -11,7 +11,7 @@ select tg.id::uuid,
        t.tiltakskode,
        t.navn                                                                                  as tiltakstype_navn,
        case
-           when tg.arena_ansvarlig_enhet is null or arena_nav_enhet.enhetsnummer
+           when arena_nav_enhet.enhetsnummer
                is null then null::jsonb
            else
                jsonb_build_object(
