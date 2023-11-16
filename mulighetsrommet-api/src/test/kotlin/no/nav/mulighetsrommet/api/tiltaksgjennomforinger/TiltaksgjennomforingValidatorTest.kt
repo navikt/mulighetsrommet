@@ -116,26 +116,20 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
         )
     }
 
-    test("should fail when avtale is Avbrutt") {
+    test("skal godta endringer selv om avtale er avbrutt") {
         val id = UUID.randomUUID()
         avtaler.upsert(avtale.copy(id = id))
 
         forAll(
-            row(
-                Avslutningsstatus.AVBRUTT,
-                ValidationError("avtaleId", "Kan ikke endre gjennomføring fordi avtalen har status Avbrutt"),
-            ),
-            row(
-                Avslutningsstatus.AVSLUTTET,
-                ValidationError("avtaleId", "Kan ikke endre gjennomføring fordi avtalen har status Avsluttet"),
-            ),
-        ) { status, error ->
+            row(Avslutningsstatus.AVBRUTT),
+            row(Avslutningsstatus.AVSLUTTET),
+        ) { status ->
             avtaler.setAvslutningsstatus(id, status)
 
             val validator = TiltaksgjennomforingValidator(avtaler, tiltaksgjennomforinger, deltakere)
             val dbo = gjennomforing.copy(avtaleId = id)
 
-            validator.validate(dbo).shouldBeLeft().shouldContainExactlyInAnyOrder(error)
+            validator.validate(dbo).shouldBeRight()
         }
     }
 
