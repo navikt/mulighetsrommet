@@ -6,6 +6,7 @@ import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
@@ -1247,6 +1248,16 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             brukersEnheter = listOf("2990", "0400"),
         ).should {
             it shouldHaveSize 2
+        }
+    }
+
+    test("Henting av arena-ansvarlig-enhet skal ikke krasje hvis arena-ansvarlig-enhet ikke eksisterer i nav-enhet-tabellen") {
+        val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
+        tiltaksgjennomforinger.upsertArenaTiltaksgjennomforing(ArenaOppfolging1.copy(arenaAnsvarligEnhet = "9999"))
+        val gjennomforing = tiltaksgjennomforinger.get(ArenaOppfolging1.id)
+        gjennomforing.shouldNotBeNull()
+        gjennomforing.should {
+            it.arenaAnsvarligEnhet shouldBe null
         }
     }
 })

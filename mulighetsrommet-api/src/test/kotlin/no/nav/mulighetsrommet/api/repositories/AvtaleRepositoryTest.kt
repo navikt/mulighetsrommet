@@ -68,7 +68,7 @@ class AvtaleRepositoryTest : FunSpec({
                 leverandorOrganisasjonsnummer = "123456789",
                 startDato = LocalDate.of(2023, 1, 1),
                 sluttDato = LocalDate.of(2023, 2, 2),
-                arenaAnsvarligEnhet = "0400",
+                arenaAnsvarligEnhet = "9999",
                 avtaletype = Avtaletype.Avtale,
                 avslutningsstatus = Avslutningsstatus.AVSLUTTET,
                 opphav = ArenaMigrering.Opphav.ARENA,
@@ -92,6 +92,7 @@ class AvtaleRepositoryTest : FunSpec({
                     navn = null,
                     slettet = true,
                 )
+                it.arenaAnsvarligEnhet shouldBe null
                 it.startDato shouldBe LocalDate.of(2023, 1, 1)
                 it.sluttDato shouldBe LocalDate.of(2023, 2, 2)
                 it.avtaletype shouldBe Avtaletype.Avtale

@@ -15,7 +15,7 @@ select a.id,
        a.start_dato,
        a.slutt_dato,
        case
-           when arena_ansvarlig_enhet is null then null::jsonb
+           when arena_ansvarlig_enhet is null or arena_nav_enhet.enhetsnummer is null then null::jsonb
            else
                jsonb_build_object(
                        'enhetsnummer', arena_nav_enhet.enhetsnummer,
