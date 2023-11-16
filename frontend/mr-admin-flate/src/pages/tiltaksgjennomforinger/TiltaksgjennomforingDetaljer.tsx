@@ -22,7 +22,9 @@ interface Props {
 
 export function TiltaksgjennomforingDetaljer(props: Props) {
   const { tiltaksgjennomforing, avtale } = props;
-  useTitle(`Tiltaksgjennomføring - ${tiltaksgjennomforing.navn}`);
+  useTitle(
+    `Tiltaksgjennomføring ${tiltaksgjennomforing.navn ? `- ${tiltaksgjennomforing.navn}` : null}`,
+  );
 
   const navnPaaNavEnheterForKontaktperson = (enheterForKontaktperson: string[]): string => {
     return (
