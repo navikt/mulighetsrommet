@@ -168,6 +168,7 @@ export const TiltaksgjennomforingsTabell = ({ skjulKolonner }: Props) => {
           sort={sort!}
           onSortChange={(sortKey) => handleSort(sortKey!)}
           className={styles.tabell}
+          data-testid="tiltaksgjennomforing_tabell"
         >
           <Table.Header>
             <Table.Row className={styles.tiltaksgjennomforing_tabellrad}>
