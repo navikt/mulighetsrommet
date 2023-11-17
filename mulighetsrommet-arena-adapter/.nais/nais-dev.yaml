@@ -24,7 +24,9 @@ spec:
   replicas:
     min: 1
     max: 2
-    cpuThresholdPercentage: 75
+    scalingStrategy:
+      cpu:
+        thresholdPercentage: 75
   resources:
     requests:
       cpu: 250m
