@@ -18,6 +18,7 @@ import {
   Tiltaksgjennomforingfilter as TiltaksgjennomforingAtomFilter,
   defaultTiltaksgjennomforingfilter,
   paginationAtom,
+  tiltaksgjennomforingfilter,
 } from "../../api/atoms";
 import { useAvtale } from "../../api/avtaler/useAvtale";
 import { useNavEnheter } from "../../api/enhet/useNavEnheter";
@@ -57,11 +58,10 @@ const statusOptions: { label: string; value: TiltaksgjennomforingStatus | "" }[]
 
 interface Props {
   skjulFilter?: Record<Filters, boolean>;
-  filter: TiltaksgjennomforingAtomFilter;
-  setFilter: (value: TiltaksgjennomforingAtomFilter) => void;
 }
 
-export function Tiltaksgjennomforingfilter({ skjulFilter, filter, setFilter }: Props) {
+export function Tiltaksgjennomforingfilter({ skjulFilter }: Props) {
+  const [filter, setFilter] = useAtom(tiltaksgjennomforingfilter);
   const { data: avtale } = useAvtale();
   const [, setPage] = useAtom(paginationAtom);
   const { data: enheter } = useNavEnheter();

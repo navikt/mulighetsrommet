@@ -31,8 +31,6 @@ export function AvtalerForTiltakstype() {
   return (
     <ContainerLayout>
       <Avtalefilter
-        filter={filter}
-        setFilter={setFilter}
         skjulFilter={{
           tiltakstype: true,
         }}
