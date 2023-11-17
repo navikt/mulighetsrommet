@@ -115,6 +115,18 @@ export function Tiltakstypefilter() {
             />
           </div>
           <div className={styles.tags_container}>
+            {filter.sok && (
+              <FilterTag
+                label={`'${filter.sok}'`}
+                onClick={() => {
+                  setFilter({
+                    ...filter,
+                    sok: "",
+                  });
+                  setValue("sok", "");
+                }}
+              />
+            )}
             {filter.status && (
               <FilterTag
                 label={filter.status}
