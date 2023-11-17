@@ -113,12 +113,6 @@ export const tiltaksgjennomforingfilter = atomWithHashAndStorage<Tiltaksgjennomf
   defaultTiltaksgjennomforingfilter,
 );
 
-export const tiltaksgjennomforingfilterForAvtale =
-  atomWithHashAndStorage<Tiltaksgjennomforingfilter>(
-    "tiltaksgjennomforingFilterForAvtale",
-    defaultTiltaksgjennomforingfilter,
-  );
-
 export const tiltaksgjennomforingTilAvtaleFilter = atom<Pick<Tiltaksgjennomforingfilter, "search">>(
   { search: "" },
 );
@@ -147,11 +141,6 @@ export const defaultAvtaleFilter: AvtaleFilterProps = {
 
 export const avtaleFilter = atomWithHashAndStorage<AvtaleFilterProps>(
   "avtalefilter",
-  defaultAvtaleFilter,
-);
-
-export const avtaleFilterForTiltakstype = atomWithHashAndStorage<AvtaleFilterProps>(
-  "avtalefilterForTiltakstype",
   defaultAvtaleFilter,
 );
 

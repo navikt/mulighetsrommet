@@ -10,7 +10,12 @@ import {
 import { ControlledSokeSelect } from "mulighetsrommet-frontend-common";
 import { useEffect, useRef } from "react";
 import { FormProvider, useForm } from "react-hook-form";
-import { AvtaleFilterProps, avtalePaginationAtom, defaultAvtaleFilter } from "../../api/atoms";
+import {
+  AvtaleFilterProps,
+  avtaleFilter,
+  avtalePaginationAtom,
+  defaultAvtaleFilter,
+} from "../../api/atoms";
 import { useAvtaler } from "../../api/avtaler/useAvtaler";
 import { useNavEnheter } from "../../api/enhet/useNavEnheter";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
@@ -24,12 +29,10 @@ type Filters = "tiltakstype";
 
 interface Props {
   skjulFilter?: Record<Filters, boolean>;
-  filter: AvtaleFilterProps;
-  setFilter: (value: AvtaleFilterProps) => void;
 }
 
 export function Avtalefilter(props: Props) {
-  const { filter, setFilter } = props;
+  const [filter, setFilter] = useAtom(avtaleFilter);
   const form = useForm<AvtaleFilterProps>({
     defaultValues: {
       ...filter,
