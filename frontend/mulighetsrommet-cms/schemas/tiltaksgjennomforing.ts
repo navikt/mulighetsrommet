@@ -1,16 +1,15 @@
 import { GrDocumentPerformance } from "react-icons/gr";
 import { Rule, defineArrayMember, defineField, defineType } from "sanity";
 import { Information } from "../components/Information";
+import { VelgAlleEnheterForKontaktpersoner } from "../components/VelgAlleEnheterForKontaktpersoner";
 import { API_VERSION } from "../sanity.config";
 import {
   IKKE_I_ADMINFLATE_TILTAK_PROD,
-  TILTAK_I_EGEN_REGI_PROD,
   hasDuplicates,
   isEgenRegiTiltak,
   isInAdminFlate,
 } from "../utils/utils";
 import { EnhetType } from "./enhet";
-import { VelgAlleEnheterForKontaktpersoner } from "../components/VelgAlleEnheterForKontaktpersoner";
 
 export const tiltaksgjennomforing = defineType({
   name: "tiltaksgjennomforing",
@@ -58,7 +57,7 @@ export const tiltaksgjennomforing = defineType({
       to: [{ type: "tiltakstype" }],
       options: {
         filter: "_id in $ider",
-        filterParams: { ider: IKKE_I_ADMINFLATE_TILTAK_PROD.concat(TILTAK_I_EGEN_REGI_PROD) },
+        filterParams: { ider: IKKE_I_ADMINFLATE_TILTAK_PROD },
       },
       validation: (rule) =>
         rule.custom((currentValue) => {
