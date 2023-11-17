@@ -1,5 +1,5 @@
 /// <reference types="vitest" />
-import { defineConfig } from "vite";
+import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
 import { rollupImportMapPlugin } from "rollup-plugin-import-map";
 import importmap from "./importmap.json" assert { type: "json" };

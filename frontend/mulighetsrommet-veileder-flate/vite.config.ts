@@ -1,6 +1,5 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
-import { visualizer } from "rollup-plugin-visualizer";
 
 export default defineConfig({
   server: {
@@ -8,12 +7,7 @@ export default defineConfig({
     host: "127.0.0.1",
     open: true,
   },
-  plugins: [
-    react(),
-    visualizer({
-      filename: "bundle-stats.html",
-    }),
-  ],
+  plugins: [react()],
   build: {
     manifest: "asset-manifest.json",
     chunkSizeWarningLimit: 1400,
