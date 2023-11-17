@@ -44,10 +44,7 @@ const TiltaksgjennomforingSkjemaPage = () => {
 
   const refetchUtkast = () => queryClient.refetchQueries({ queryKey: ["utkast"] });
 
-  const isError =
-    !avtale ||
-    (avtale?.sluttDato && new Date(avtale.sluttDato) < new Date()) ||
-    !avtaleHarRegioner(avtale);
+  const isError = !avtale || !avtaleHarRegioner(avtale);
 
   if (avtaleIsLoading || utkastLoading || tiltaksgjennomforingLoading) {
     return (
