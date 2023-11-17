@@ -11,6 +11,7 @@ import { resetPaginering, valueOrDefault } from "../../utils/Utils";
 import styles from "./Filter.module.scss";
 import { FilterTag } from "./FilterTag";
 import { ControlledSokeSelect } from "mulighetsrommet-frontend-common";
+import { Tiltakstypekategori, Tiltakstypestatus } from "mulighetsrommet-api-client";
 
 export function Tiltakstypefilter() {
   const [filter, setFilter] = useAtom(tiltakstypeFilter);
@@ -92,7 +93,10 @@ export function Tiltakstypefilter() {
                 resetPaginering(setPage);
                 setFilter({
                   ...filter,
-                  status: valueOrDefault(e.target.value, defaultTiltakstypeFilter.status),
+                  status: valueOrDefault(
+                    e.target.value as Tiltakstypestatus,
+                    defaultTiltakstypeFilter.status,
+                  ),
                 });
               }}
               options={statusOptions()}
@@ -107,7 +111,10 @@ export function Tiltakstypefilter() {
                 resetPaginering(setPage);
                 setFilter({
                   ...filter,
-                  kategori: valueOrDefault(e.target.value, defaultTiltakstypeFilter.kategori),
+                  kategori: valueOrDefault(
+                    e.target.value as Tiltakstypekategori,
+                    defaultTiltakstypeFilter.kategori,
+                  ),
                 });
               }}
               options={kategoriOptions()}

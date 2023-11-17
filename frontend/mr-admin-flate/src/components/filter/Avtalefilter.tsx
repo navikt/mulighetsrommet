@@ -1,15 +1,16 @@
 import { faro } from "@grafana/faro-web-sdk";
 import { Button, Search } from "@navikt/ds-react";
 import { useAtom } from "jotai";
-import { NavEnhetType, Tiltakstypestatus, VirksomhetTil } from "mulighetsrommet-api-client";
+import {
+  Avtalestatus,
+  NavEnhetType,
+  Tiltakstypestatus,
+  VirksomhetTil,
+} from "mulighetsrommet-api-client";
+import { ControlledSokeSelect } from "mulighetsrommet-frontend-common";
 import { useEffect, useRef } from "react";
 import { FormProvider, useForm } from "react-hook-form";
-import {
-  avtaleFilter,
-  AvtaleFilterProps,
-  avtalePaginationAtom,
-  defaultAvtaleFilter,
-} from "../../api/atoms";
+import { AvtaleFilterProps, avtalePaginationAtom, defaultAvtaleFilter } from "../../api/atoms";
 import { useAvtaler } from "../../api/avtaler/useAvtaler";
 import { useNavEnheter } from "../../api/enhet/useNavEnheter";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
@@ -18,16 +19,17 @@ import { resetPaginering, valueOrDefault } from "../../utils/Utils";
 import { Lenkeknapp } from "../lenkeknapp/Lenkeknapp";
 import styles from "./Filter.module.scss";
 import { FilterTag } from "./FilterTag";
-import { ControlledSokeSelect } from "mulighetsrommet-frontend-common";
 
 type Filters = "tiltakstype";
 
 interface Props {
   skjulFilter?: Record<Filters, boolean>;
+  filter: AvtaleFilterProps;
+  setFilter: (value: AvtaleFilterProps) => void;
 }
 
 export function Avtalefilter(props: Props) {
-  const [filter, setFilter] = useAtom(avtaleFilter);
+  const { filter, setFilter } = props;
   const form = useForm<AvtaleFilterProps>({
     defaultValues: {
       ...filter,
@@ -129,7 +131,10 @@ export function Avtalefilter(props: Props) {
               onChange={(e) => {
                 setFilter({
                   ...filter,
-                  status: valueOrDefault(e.target.value, defaultAvtaleFilter.status),
+                  status: valueOrDefault(
+                    e.target.value as Avtalestatus,
+                    defaultAvtaleFilter.status,
+                  ),
                 });
               }}
               options={[

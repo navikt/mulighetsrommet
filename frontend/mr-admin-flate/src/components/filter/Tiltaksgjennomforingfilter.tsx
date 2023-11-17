@@ -1,3 +1,4 @@
+import { faro } from "@grafana/faro-web-sdk";
 import { Button, Search } from "@navikt/ds-react";
 import classNames from "classnames";
 import { useAtom } from "jotai";
@@ -10,26 +11,24 @@ import {
   Toggles,
   VirksomhetTil,
 } from "mulighetsrommet-api-client";
+import { ControlledSokeSelect } from "mulighetsrommet-frontend-common";
 import { useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import {
+  Tiltaksgjennomforingfilter as TiltaksgjennomforingAtomFilter,
   defaultTiltaksgjennomforingfilter,
   paginationAtom,
-  Tiltaksgjennomforingfilter as TiltaksgjennomforingAtomFilter,
-  tiltaksgjennomforingfilter,
 } from "../../api/atoms";
+import { useAvtale } from "../../api/avtaler/useAvtale";
 import { useNavEnheter } from "../../api/enhet/useNavEnheter";
 import { useFeatureToggle } from "../../api/features/feature-toggles";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
 import { useVirksomheter } from "../../api/virksomhet/useVirksomheter";
 import { inneholderUrl, resetPaginering, valueOrDefault } from "../../utils/Utils";
+import { Lenkeknapp } from "../lenkeknapp/Lenkeknapp";
 import { LeggTilGjennomforingModal } from "../modal/LeggTilGjennomforingModal";
 import styles from "./Filter.module.scss";
 import { FilterTag } from "./FilterTag";
-import { Lenkeknapp } from "../lenkeknapp/Lenkeknapp";
-import { faro } from "@grafana/faro-web-sdk";
-import { useAvtale } from "../../api/avtaler/useAvtale";
-import { ControlledSokeSelect } from "mulighetsrommet-frontend-common";
 
 type Filters = "tiltakstype";
 
@@ -58,11 +57,12 @@ const statusOptions: { label: string; value: TiltaksgjennomforingStatus | "" }[]
 
 interface Props {
   skjulFilter?: Record<Filters, boolean>;
+  filter: TiltaksgjennomforingAtomFilter;
+  setFilter: (value: TiltaksgjennomforingAtomFilter) => void;
 }
 
-export function Tiltaksgjennomforingfilter({ skjulFilter }: Props) {
+export function Tiltaksgjennomforingfilter({ skjulFilter, filter, setFilter }: Props) {
   const { data: avtale } = useAvtale();
-  const [filter, setFilter] = useAtom(tiltaksgjennomforingfilter);
   const [, setPage] = useAtom(paginationAtom);
   const { data: enheter } = useNavEnheter();
   const { data: virksomheter } = useVirksomheter(VirksomhetTil.TILTAKSGJENNOMFORING);
