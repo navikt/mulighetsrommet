@@ -25,6 +25,7 @@ import no.nav.mulighetsrommet.domain.constants.ArenaMigrering.ArenaAvtaleCutoffD
 import no.nav.mulighetsrommet.domain.dbo.ArenaAvtaleDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
+import no.nav.mulighetsrommet.env.NaisEnv
 import java.util.*
 
 class AvtaleInfoEventProcessor(
@@ -88,11 +89,24 @@ class AvtaleInfoEventProcessor(
     }
 
     private fun isRecentAvtale(avtale: ArenaAvtaleInfo): Boolean {
-        if (avtale.DATO_TIL == null) {
+        if (avtale.DATO_TIL == null || isRelevantBeforeCutoffDate(avtale)) {
             return true
         }
 
         return ArenaAvtaleCutoffDateTime.isBefore(ArenaUtils.parseTimestamp(avtale.DATO_TIL))
+    }
+
+    private fun isRelevantBeforeCutoffDate(avtale: ArenaAvtaleInfo): Boolean {
+        if (!NaisEnv.current().isProdGCP()) {
+            return false
+        }
+
+        val idTilAvtalerSomErUtloptIArenaMenFortsattHarAktiveGjennomforinger = listOf(
+            // Avtale til gjennomføring 2019/283498
+            276792,
+        )
+
+        return avtale.AVTALE_ID in idTilAvtalerSomErUtloptIArenaMenFortsattHarAktiveGjennomforinger
     }
 
     private suspend fun toAvtaleDbo(avtale: Avtale): Either<ProcessingError, ArenaAvtaleDbo> = either {
