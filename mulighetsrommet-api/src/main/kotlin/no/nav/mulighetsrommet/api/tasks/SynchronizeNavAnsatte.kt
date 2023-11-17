@@ -74,7 +74,7 @@ class SynchronizeNavAnsatte(
             throw BadRequestException("Synkronisering av ansatte kjører allerede.")
         }
 
-        client.reschedule(task.instance(existingTaskId), startTime)
+        client.reschedule(task.instance(existingTaskId), startTime.plusSeconds(30))
         return UUID.randomUUID()
     }
 }
