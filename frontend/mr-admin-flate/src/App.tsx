@@ -1,5 +1,6 @@
 import { initializeFaro } from "@grafana/faro-web-sdk";
 import { Alert, BodyShort } from "@navikt/ds-react";
+import { useAtom } from "jotai";
 import { NavAnsattRolle, UtkastRequest as Utkast } from "mulighetsrommet-api-client";
 import { Route, Routes } from "react-router-dom";
 import { Forside } from "./Forside";
@@ -30,6 +31,7 @@ import { DetaljerTiltakstypePage } from "./pages/tiltakstyper/DetaljerTiltakstyp
 import { TiltakstypeInfo } from "./pages/tiltakstyper/TiltakstypeInfo";
 import { TiltakstyperPage } from "./pages/tiltakstyper/TiltakstyperPage";
 import { AvtalerForTiltakstype } from "./pages/tiltakstyper/avtaler/AvtalerForTiltakstype";
+import { avtaleFilterForTiltakstype, tiltaksgjennomforingfilterForAvtale } from "./api/atoms";
 
 if (import.meta.env.PROD) {
   initializeFaro({
@@ -42,6 +44,10 @@ if (import.meta.env.PROD) {
 
 export function App() {
   const { data: ansatt, isLoading: ansattIsLoading, error } = useHentAnsatt();
+  const [filter, setFilter] = useAtom(tiltaksgjennomforingfilterForAvtale);
+  const [filterForAvtaleTiltakstype, setFilterForAvtaleTiltakstype] = useAtom(
+    avtaleFilterForTiltakstype,
+  );
 
   if (error) {
     return (
@@ -87,7 +93,10 @@ export function App() {
           index
           element={
             <>
-              <Avtalefilter />
+              <Avtalefilter
+                filter={filterForAvtaleTiltakstype}
+                setFilter={setFilterForAvtaleTiltakstype}
+              />
               <AvtaleTabell />
             </>
           }
@@ -111,6 +120,8 @@ export function App() {
             element={
               <>
                 <Tiltaksgjennomforingfilter
+                  filter={filter}
+                  setFilter={setFilter}
                   skjulFilter={{
                     tiltakstype: true,
                   }}

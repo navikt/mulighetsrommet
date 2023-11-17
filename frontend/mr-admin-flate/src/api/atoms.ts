@@ -25,8 +25,8 @@ if (version !== "0.1.0") {
 function atomWithStorage<Value>(key: string, initialValue: Value, storage = localStorage) {
   const baseAtom = atom(storage.getItem(key) ?? JSON.stringify(initialValue));
   return atom(
-    (get) => JSON.parse(get(baseAtom)),
-    (get, set, nextValue: Value) => {
+    (get) => JSON.parse(get(baseAtom)) as Value,
+    (_, set, nextValue: Value) => {
       const str = JSON.stringify(nextValue);
       set(baseAtom, str);
       storage.setItem(key, str);
@@ -113,6 +113,12 @@ export const tiltaksgjennomforingfilter = atomWithHashAndStorage<Tiltaksgjennomf
   defaultTiltaksgjennomforingfilter,
 );
 
+export const tiltaksgjennomforingfilterForAvtale =
+  atomWithHashAndStorage<Tiltaksgjennomforingfilter>(
+    "tiltaksgjennomforingFilterForAvtale",
+    defaultTiltaksgjennomforingfilter,
+  );
+
 export const tiltaksgjennomforingTilAvtaleFilter = atom<Pick<Tiltaksgjennomforingfilter, "search">>(
   { search: "" },
 );
@@ -141,6 +147,11 @@ export const defaultAvtaleFilter: AvtaleFilterProps = {
 
 export const avtaleFilter = atomWithHashAndStorage<AvtaleFilterProps>(
   "avtalefilter",
+  defaultAvtaleFilter,
+);
+
+export const avtaleFilterForTiltakstype = atomWithHashAndStorage<AvtaleFilterProps>(
+  "avtalefilterForTiltakstype",
   defaultAvtaleFilter,
 );
 
