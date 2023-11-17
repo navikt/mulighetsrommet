@@ -43,7 +43,7 @@ export const tekniskFeilError = () => (
   </>
 );
 
-export function ErrorMeldinger(avtale: Avtale | undefined, redigeringsModus: boolean | undefined) {
+export function ErrorMeldinger(avtale: Avtale | undefined) {
   if (!avtale) {
     return avtaleFinnesIkke();
   }
