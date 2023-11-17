@@ -60,7 +60,7 @@ const TiltaksgjennomforingSkjemaPage = () => {
 
   let content = null;
   if (isError) {
-    content = <Alert variant="error">{ErrorMeldinger(avtale, redigeringsModus)}</Alert>;
+    content = <Alert variant="error">{ErrorMeldinger(avtale)}</Alert>;
   } else if (avtale) {
     content = (
       <TiltaksgjennomforingSkjemaContainer
