@@ -12,7 +12,7 @@ export function DetaljerTiltakstypePage() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const { data: tiltakstype, isLoading } = useTiltakstypeById();
-  useTitle(`Tiltakstyper ${tiltakstype?.navn ? `- ${tiltakstype.navn}` : null}`);
+  useTitle(`Tiltakstyper ${tiltakstype?.navn ? `- ${tiltakstype.navn}` : ""}`);
 
   if (!tiltakstype && isLoading) {
     return <Laster tekst="Laster tiltakstype" />;
