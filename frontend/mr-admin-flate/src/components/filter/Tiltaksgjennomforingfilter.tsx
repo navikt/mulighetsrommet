@@ -332,6 +332,18 @@ export function Tiltaksgjennomforingfilter({ skjulFilter }: Props) {
             </div>
           )}
           <div className={styles.tags_container}>
+            {filter.search && (
+              <FilterTag
+                label={`'${filter.search}'`}
+                onClick={() => {
+                  setFilter({
+                    ...filter,
+                    search: "",
+                  });
+                  setValue("search", "");
+                }}
+              />
+            )}
             {filter.navRegion && (
               <FilterTag
                 label={enheter?.find((e) => e.enhetsnummer === filter.navRegion)?.navn}
