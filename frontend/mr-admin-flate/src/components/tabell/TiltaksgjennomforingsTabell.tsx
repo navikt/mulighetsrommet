@@ -8,7 +8,6 @@ import {
 import Lenke from "mulighetsrommet-veileder-flate/src/components/lenke/Lenke";
 import React from "react";
 import { paginationAtom, tiltaksgjennomforingfilter } from "../../api/atoms";
-import { useAdminTiltaksgjennomforinger } from "../../api/tiltaksgjennomforing/useAdminTiltaksgjennomforinger";
 import { useSort } from "../../hooks/useSort";
 import pageStyles from "../../pages/Page.module.scss";
 import { formaterDato, formaterNavEnheter, resetPaginering } from "../../utils/Utils";
