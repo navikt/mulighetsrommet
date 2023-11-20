@@ -44,7 +44,7 @@ jobs:
           working-directory: frontend/mulighetsrommet-veileder-flate
           browser: chrome
           headed: true
-          wait-on: http://localhost:3000
+          wait-on: http://127.0.0.1:3000
           start: npm start
           install: false
         env:
