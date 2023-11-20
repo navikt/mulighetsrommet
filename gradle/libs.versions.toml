@@ -29,7 +29,7 @@ dbScheduler = "com.github.kagkarlsson:db-scheduler:12.5.0"
 
 flyway-core = { module = "org.flywaydb:flyway-core", version.ref = "flyway" }
 
-google-cloud-postgresSocketFactory = "com.google.cloud.sql:postgres-socket-factory:1.14.1"
+google-cloud-postgresSocketFactory = "com.google.cloud.sql:postgres-socket-factory:1.15.0"
 google-cloud-storage = "com.google.cloud:google-cloud-storage:2.29.1"
 
 hikaricp = "com.zaxxer:HikariCP:5.1.0"
