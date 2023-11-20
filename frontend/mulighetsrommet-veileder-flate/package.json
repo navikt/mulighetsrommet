@@ -13,7 +13,7 @@
     "lint": "eslint src --ext .js,.ts,.tsx && tsc",
     "fix-lint": "eslint src --ext .js,.ts,.tsx --fix",
     "preview": "vite preview",
-    "start": "cross-env VITE_ENVIRONMENT=localhost VITE_MULIGHETSROMMET_API_MOCK=true vite"
+    "start": "cross-env VITE_ENVIRONMENT=127.0.0.1 VITE_MULIGHETSROMMET_API_MOCK=true vite"
   },
   "browserslist": [
     ">0.2%",
