@@ -16,7 +16,7 @@
   "dependencies": {
     "@navikt/aksel-icons": "5.10.3",
     "@portabletext/react": "3.0.11",
-    "@sanity/client": "6.8.5",
+    "@sanity/client": "6.8.6",
     "@sanity/vision": "3.19.2",
     "react": "18.2.0",
     "react-dom": "18.2.0",
