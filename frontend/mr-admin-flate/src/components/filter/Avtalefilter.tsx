@@ -10,7 +10,12 @@ import {
 import { ControlledSokeSelect } from "mulighetsrommet-frontend-common";
 import { useEffect, useRef } from "react";
 import { FormProvider, useForm } from "react-hook-form";
-import { AvtaleFilterProps, avtalePaginationAtom, defaultAvtaleFilter } from "../../api/atoms";
+import {
+  AvtaleFilterProps,
+  avtaleFilterAtom,
+  avtalePaginationAtomAtom,
+  defaultAvtaleFilter,
+} from "../../api/atoms";
 import { useAvtaler } from "../../api/avtaler/useAvtaler";
 import { useNavEnheter } from "../../api/enhet/useNavEnheter";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
@@ -44,9 +49,9 @@ export function Avtalefilter(props: Props) {
     },
     1,
   );
-  const { data: avtaler } = useAvtaler();
+  const { data: avtaler } = useAvtaler(avtaleFilterAtom);
   const { data: leverandorer } = useVirksomheter(VirksomhetTil.AVTALE);
-  const [, setPage] = useAtom(avtalePaginationAtom);
+  const [, setPage] = useAtom(avtalePaginationAtomAtom);
   const searchRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -289,7 +294,8 @@ export function Avtalefilter(props: Props) {
                 }}
               />
             )}
-            {(filter.status !== defaultAvtaleFilter.status ||
+            {(filter.sok ||
+              filter.status !== defaultAvtaleFilter.status ||
               filter.navRegion ||
               filter.tiltakstype ||
               filter.leverandor_orgnr) && (

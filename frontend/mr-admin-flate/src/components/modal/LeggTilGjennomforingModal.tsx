@@ -1,6 +1,6 @@
 import { Heading, Modal, Search } from "@navikt/ds-react";
 import { useAtom } from "jotai";
-import { tiltaksgjennomforingTilAvtaleFilter } from "../../api/atoms";
+import { tiltaksgjennomforingTilAvtaleFilterAtom } from "../../api/atoms";
 import { Tiltaksgjennomforingsliste } from "../tiltaksgjennomforinger/Tiltaksgjennomforingsliste";
 import styles from "./LeggTilGjennomforingModal.module.scss";
 
@@ -12,7 +12,7 @@ interface ModalProps {
 }
 
 export const LeggTilGjennomforingModal = ({ modalOpen, onClose, handleCancel }: ModalProps) => {
-  const [filter, setFilter] = useAtom(tiltaksgjennomforingTilAvtaleFilter);
+  const [filter, setFilter] = useAtom(tiltaksgjennomforingTilAvtaleFilterAtom);
 
   const clickCancel = () => {
     setFilter({ search: "" });

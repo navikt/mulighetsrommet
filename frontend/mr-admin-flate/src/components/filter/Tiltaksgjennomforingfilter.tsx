@@ -411,7 +411,8 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, filterAtom }: Props) {
                 }}
               />
             )}
-            {(filter.navRegion ||
+            {(filter.search ||
+              filter.navRegion ||
               filter.navEnhet ||
               filter.tiltakstype ||
               filter.status !== defaultTiltaksgjennomforingfilter.status ||

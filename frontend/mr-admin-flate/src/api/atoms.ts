@@ -61,7 +61,7 @@ function atomWithHashAndStorage<Value>(key: string, initialValue: Value) {
 
 export const paginationAtom = atomWithHashAndStorage("page", 1);
 
-export const avtalePaginationAtom = atomWithHashAndStorage("avtalePage", 1);
+export const avtalePaginationAtomAtom = atomWithHashAndStorage("avtalePage", 1);
 
 export interface TiltakstypeFilter {
   sok?: string;
@@ -77,7 +77,7 @@ export const defaultTiltakstypeFilter: TiltakstypeFilter = {
   sortering: SorteringTiltakstyper.NAVN_ASCENDING,
 };
 
-export const tiltakstypeFilter = atomWithHashAndStorage<TiltakstypeFilter>(
+export const tiltakstypeFilterAtom = atomWithHashAndStorage<TiltakstypeFilter>(
   "tiltakstypefilter",
   defaultTiltakstypeFilter,
 );
@@ -108,18 +108,19 @@ export const defaultTiltaksgjennomforingfilter: TiltaksgjennomforingfilterProps 
   visMineGjennomforinger: false,
 };
 
-export const tiltaksgjennomforingfilter = atomWithHashAndStorage<TiltaksgjennomforingfilterProps>(
-  "tiltaksgjennomforingFilter",
-  defaultTiltaksgjennomforingfilter,
-);
+export const tiltaksgjennomforingfilterAtom =
+  atomWithHashAndStorage<TiltaksgjennomforingfilterProps>(
+    "tiltaksgjennomforingFilter",
+    defaultTiltaksgjennomforingfilter,
+  );
 
-export const tiltaksgjennomforingfilterForAvtale =
+export const tiltaksgjennomforingfilterForAvtaleAtom =
   atomWithHashAndStorage<TiltaksgjennomforingfilterProps>(
     "tiltaksgjennomforingFilterForAvtale",
     defaultTiltaksgjennomforingfilter,
   );
 
-export const tiltaksgjennomforingTilAvtaleFilter = atom<
+export const tiltaksgjennomforingTilAvtaleFilterAtom = atom<
   Pick<TiltaksgjennomforingfilterProps, "search">
 >({ search: "" });
 
@@ -145,14 +146,14 @@ export const defaultAvtaleFilter: AvtaleFilterProps = {
   visMineAvtaler: false,
 };
 
-export const avtaleFilter = atomWithHashAndStorage<AvtaleFilterProps>(
+export const avtaleFilterAtom = atomWithHashAndStorage<AvtaleFilterProps>(
   "avtalefilter",
   defaultAvtaleFilter,
 );
 
-export const avtaleFilterForTiltakstype = atomWithHashAndStorage<AvtaleFilterProps>(
+export const avtaleFilterForTiltakstypeAtom = atomWithHashAndStorage<AvtaleFilterProps>(
   "avtalefilterForTiltakstype",
   defaultAvtaleFilter,
 );
 
-export const gjennomforingDetaljerTab = atom<string>("detaljer");
+export const gjennomforingDetaljerTabAtom = atom<string>("detaljer");

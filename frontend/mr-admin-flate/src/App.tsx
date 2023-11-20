@@ -5,7 +5,7 @@ import { Route, Routes } from "react-router-dom";
 import { Forside } from "./Forside";
 import IkkeAutentisertApp from "./IkkeAutentisertApp";
 import { useHentAnsatt } from "./api/ansatt/useHentAnsatt";
-import { avtaleFilter, tiltaksgjennomforingfilterForAvtale } from "./api/atoms";
+import { avtaleFilterAtom, tiltaksgjennomforingfilterForAvtaleAtom } from "./api/atoms";
 import { useAvtaler } from "./api/avtaler/useAvtaler";
 import { useAdminTiltaksgjennomforingerForAvtale } from "./api/tiltaksgjennomforing/useAdminTiltaksgjennomforingerForAvtale";
 import AvtaleSkjemaPage from "./components/avtaler/AvtaleSkjemaPage";
@@ -45,7 +45,7 @@ if (import.meta.env.PROD) {
 
 export function App() {
   const { data: ansatt, isLoading: ansattIsLoading, error } = useHentAnsatt();
-  const { data: avtaler } = useAvtaler();
+  const { data: avtaler } = useAvtaler(avtaleFilterAtom);
   const { data: tiltaksgjennomforinger } = useAdminTiltaksgjennomforingerForAvtale();
 
   if (error) {
@@ -92,8 +92,8 @@ export function App() {
           index
           element={
             <>
-              <Avtalefilter filterAtom={avtaleFilter} />
-              <AvtaleTabell paginerteAvtaler={avtaler} avtalefilter={avtaleFilter} />
+              <Avtalefilter filterAtom={avtaleFilterAtom} />
+              <AvtaleTabell paginerteAvtaler={avtaler} avtalefilter={avtaleFilterAtom} />
             </>
           }
         />
@@ -116,7 +116,7 @@ export function App() {
             element={
               <>
                 <Tiltaksgjennomforingfilter
-                  filterAtom={tiltaksgjennomforingfilterForAvtale}
+                  filterAtom={tiltaksgjennomforingfilterForAvtaleAtom}
                   skjulFilter={{
                     tiltakstype: true,
                   }}

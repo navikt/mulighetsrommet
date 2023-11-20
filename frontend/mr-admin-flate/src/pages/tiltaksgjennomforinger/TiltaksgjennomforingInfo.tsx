@@ -8,7 +8,7 @@ import styles from "../DetaljerInfo.module.scss";
 import { TiltaksgjennomforingDetaljer } from "./TiltaksgjennomforingDetaljer";
 import { TiltaksgjennomforingKnapperad } from "./TiltaksgjennomforingKnapperad";
 import { TiltaksgjennomforingRedInnhold } from "./TiltaksgjennomforingRedInnhold";
-import { gjennomforingDetaljerTab } from "../../api/atoms";
+import { gjennomforingDetaljerTabAtom } from "../../api/atoms";
 import { useAtom } from "jotai";
 
 export function TiltaksgjennomforingInfo() {
@@ -17,7 +17,7 @@ export function TiltaksgjennomforingInfo() {
     isError: isErrorTiltaksgjennomforing,
     isLoading: isLoadingTiltaksgjennomforing,
   } = useTiltaksgjennomforingById();
-  const [activeTab, setActiveTab] = useAtom(gjennomforingDetaljerTab);
+  const [activeTab, setActiveTab] = useAtom(gjennomforingDetaljerTabAtom);
 
   const { data: avtale, isLoading: isLoadingAvtale } = useAvtale(tiltaksgjennomforing?.avtaleId);
 

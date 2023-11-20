@@ -5,7 +5,7 @@ import {
   defaultTiltakstypeFilter,
   paginationAtom,
   TiltakstypeFilter,
-  tiltakstypeFilter,
+  tiltakstypeFilterAtom,
 } from "../../api/atoms";
 import { resetPaginering, valueOrDefault } from "../../utils/Utils";
 import styles from "./Filter.module.scss";
@@ -14,7 +14,7 @@ import { ControlledSokeSelect } from "mulighetsrommet-frontend-common";
 import { Tiltakstypekategori, Tiltakstypestatus } from "mulighetsrommet-api-client";
 
 export function Tiltakstypefilter() {
-  const [filter, setFilter] = useAtom(tiltakstypeFilter);
+  const [filter, setFilter] = useAtom(tiltakstypeFilterAtom);
   const [, setPage] = useAtom(paginationAtom);
 
   const form = useForm<TiltakstypeFilter>({
@@ -158,7 +158,8 @@ export function Tiltakstypefilter() {
                 }}
               />
             )}
-            {(filter.status !== defaultTiltakstypeFilter.status ||
+            {(filter.sok ||
+              filter.status !== defaultTiltakstypeFilter.status ||
               filter.kategori !== defaultTiltakstypeFilter.kategori) && (
               <Button
                 style={{

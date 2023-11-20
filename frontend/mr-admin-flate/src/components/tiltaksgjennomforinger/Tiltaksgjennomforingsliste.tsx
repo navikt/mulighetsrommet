@@ -4,7 +4,7 @@ import { useAtom } from "jotai";
 import { Tiltaksgjennomforing } from "mulighetsrommet-api-client";
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { tiltaksgjennomforingTilAvtaleFilter } from "../../api/atoms";
+import { tiltaksgjennomforingTilAvtaleFilterAtom } from "../../api/atoms";
 import { useAvtale } from "../../api/avtaler/useAvtale";
 import { useAdminTiltaksgjennomforinger } from "../../api/tiltaksgjennomforing/useAdminTiltaksgjennomforinger";
 import { useAdminTiltaksgjennomforingerForKoblingTilAvtale } from "../../api/tiltaksgjennomforing/useAdminTiltaksgjennomforingerForKoblingTilAvtale";
@@ -27,7 +27,7 @@ export const Tiltaksgjennomforingsliste = () => {
   const { data: avtale } = useAvtale();
   const [error, setError] = useState("");
 
-  const [filter] = useAtom(tiltaksgjennomforingTilAvtaleFilter);
+  const [filter] = useAtom(tiltaksgjennomforingTilAvtaleFilterAtom);
   const tiltaksgjennomforinger = data?.data ?? [];
 
   if (

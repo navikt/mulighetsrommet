@@ -7,7 +7,7 @@ import { HeaderBanner } from "../../layouts/HeaderBanner";
 import { MainContainer } from "../../layouts/MainContainer";
 import { ErrorFallback } from "../../main";
 import { useAdminTiltaksgjennomforinger } from "../../api/tiltaksgjennomforing/useAdminTiltaksgjennomforinger";
-import { tiltaksgjennomforingfilter } from "../../api/atoms";
+import { tiltaksgjennomforingfilterAtom } from "../../api/atoms";
 
 export function TiltaksgjennomforingerPage() {
   useTitle("Tiltaksgjennomføringer");
@@ -17,7 +17,7 @@ export function TiltaksgjennomforingerPage() {
       <HeaderBanner heading="Oversikt over tiltaksgjennomføringer" />
       <MainContainer>
         <ContainerLayout>
-          <Tiltaksgjennomforingfilter filterAtom={tiltaksgjennomforingfilter} />
+          <Tiltaksgjennomforingfilter filterAtom={tiltaksgjennomforingfilterAtom} />
           <ErrorBoundary FallbackComponent={ErrorFallback}>
             <TiltaksgjennomforingsTabell paginerteTiltaksgjennomforinger={tiltaksgjennomforinger} />
           </ErrorBoundary>
