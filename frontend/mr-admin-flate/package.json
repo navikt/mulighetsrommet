@@ -54,8 +54,8 @@
     "zod": "3.22.4"
   },
   "devDependencies": {
-    "@axe-core/playwright": "^4.8.1",
-    "@playwright/test": "^1.39.0",
+    "@axe-core/playwright": "4.8.1",
+    "@playwright/test": "1.40.0",
     "@rollup/plugin-terser": "0.4.4",
     "@types/react": "18.2.37",
     "@types/react-dom": "18.2.15",
