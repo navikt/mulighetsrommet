@@ -119,7 +119,7 @@ export const AvtaleTabell = ({ avtalefilter, paginerteAvtaler }: Props) => {
     });
   };
 
-  if (!avtaler || avtaler.length === 0) {
+  if (!avtaler) {
     return <Laster size="xlarge" tekst="Laster avtaler..." />;
   }
 
