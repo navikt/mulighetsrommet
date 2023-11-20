@@ -1,10 +1,15 @@
 import { GrDocumentPerformance } from "react-icons/gr";
 import { Rule, defineArrayMember, defineField, defineType } from "sanity";
 import { Information } from "../components/Information";
-import { API_VERSION } from "../sanity.config";
-import { hasDuplicates, isEgenRegiTiltak, isInAdminFlate } from "../utils/utils";
-import { EnhetType } from "./enhet";
 import { VelgAlleEnheterForKontaktpersoner } from "../components/VelgAlleEnheterForKontaktpersoner";
+import { API_VERSION } from "../sanity.config";
+import {
+  IKKE_I_ADMINFLATE_TILTAK_PROD,
+  hasDuplicates,
+  isEgenRegiTiltak,
+  isInAdminFlate,
+} from "../utils/utils";
+import { EnhetType } from "./enhet";
 
 export const tiltaksgjennomforing = defineType({
   name: "tiltaksgjennomforing",
@@ -50,6 +55,10 @@ export const tiltaksgjennomforing = defineType({
       title: "Tiltakstype",
       type: "reference",
       to: [{ type: "tiltakstype" }],
+      options: {
+        filter: "_id in $ider",
+        filterParams: { ider: IKKE_I_ADMINFLATE_TILTAK_PROD },
+      },
       validation: (rule) =>
         rule.custom((currentValue) => {
           if (currentValue && isInAdminFlate(currentValue._ref)) {
