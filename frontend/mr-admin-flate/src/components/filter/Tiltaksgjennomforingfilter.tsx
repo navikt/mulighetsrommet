@@ -1,7 +1,7 @@
 import { faro } from "@grafana/faro-web-sdk";
 import { Button, Search } from "@navikt/ds-react";
 import classNames from "classnames";
-import { useAtom } from "jotai";
+import { WritableAtom, useAtom } from "jotai";
 import {
   Avtalestatus,
   NavEnhetType,
@@ -15,10 +15,10 @@ import { ControlledSokeSelect } from "mulighetsrommet-frontend-common";
 import { useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import {
-  Tiltaksgjennomforingfilter as TiltaksgjennomforingAtomFilter,
+  TiltaksgjennomforingfilterProps as TiltaksgjennomforingAtomFilter,
+  TiltaksgjennomforingfilterProps,
   defaultTiltaksgjennomforingfilter,
   paginationAtom,
-  tiltaksgjennomforingfilter,
 } from "../../api/atoms";
 import { useAvtale } from "../../api/avtaler/useAvtale";
 import { useNavEnheter } from "../../api/enhet/useNavEnheter";
@@ -58,10 +58,15 @@ const statusOptions: { label: string; value: TiltaksgjennomforingStatus | "" }[]
 
 interface Props {
   skjulFilter?: Record<Filters, boolean>;
+  filterAtom: WritableAtom<
+    TiltaksgjennomforingfilterProps,
+    [newValue: TiltaksgjennomforingfilterProps],
+    void
+  >;
 }
 
-export function Tiltaksgjennomforingfilter({ skjulFilter }: Props) {
-  const [filter, setFilter] = useAtom(tiltaksgjennomforingfilter);
+export function Tiltaksgjennomforingfilter({ skjulFilter, filterAtom }: Props) {
+  const [filter, setFilter] = useAtom(filterAtom);
   const { data: avtale } = useAvtale();
   const [, setPage] = useAtom(paginationAtom);
   const { data: enheter } = useNavEnheter();

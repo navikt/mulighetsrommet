@@ -31,7 +31,7 @@ export function AvtalerForTiltakstype() {
   return (
     <ContainerLayout>
       <Avtalefilter
-        avtalefilter={avtaleFilterForTiltakstype}
+        filterAtom={avtaleFilterForTiltakstype}
         skjulFilter={{
           tiltakstype: true,
         }}

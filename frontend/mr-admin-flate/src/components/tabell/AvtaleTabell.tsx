@@ -6,7 +6,6 @@ import { OpenAPI, PaginertAvtale, SorteringAvtaler } from "mulighetsrommet-api-c
 import Lenke from "mulighetsrommet-veileder-flate/src/components/lenke/Lenke";
 import { createRef, useEffect, useState } from "react";
 import { AvtaleFilterProps, avtalePaginationAtom } from "../../api/atoms";
-import { useAvtaler } from "../../api/avtaler/useAvtaler";
 import { APPLICATION_NAME } from "../../constants";
 import { useSort } from "../../hooks/useSort";
 import {

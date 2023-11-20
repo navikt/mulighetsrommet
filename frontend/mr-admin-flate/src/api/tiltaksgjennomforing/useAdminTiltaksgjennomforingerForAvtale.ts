@@ -1,23 +1,38 @@
 import { useQuery } from "@tanstack/react-query";
-import { mulighetsrommetClient } from "../clients";
-import { QueryKeys } from "../QueryKeys";
 import { useAtom } from "jotai";
-import { paginationAtom, tiltaksgjennomforingTilAvtaleFilter } from "../atoms";
 import { useDebounce } from "mulighetsrommet-frontend-common";
+import { QueryKeys } from "../QueryKeys";
+import { paginationAtom, tiltaksgjennomforingfilterForAvtale } from "../atoms";
+import { mulighetsrommetClient } from "../clients";
 
 export function useAdminTiltaksgjennomforingerForAvtale() {
   const [page] = useAtom(paginationAtom);
-  const [filter] = useAtom(tiltaksgjennomforingTilAvtaleFilter);
-  const search = useDebounce(filter.search, 300);
+  const [filter] = useAtom(tiltaksgjennomforingfilterForAvtale);
+  const debouncedSok = useDebounce(filter.search, 300);
+
+  const queryFilter = {
+    page,
+    search: debouncedSok || undefined,
+    navEnhet: filter.navEnhet ? filter.navEnhet : undefined,
+    tiltakstypeId: filter.tiltakstype ? filter.tiltakstype : undefined,
+    status: filter.status ? filter.status : undefined,
+    navRegion: filter.navRegion ? filter.navRegion : undefined,
+    sort: filter.sortering ? filter.sortering : undefined,
+    size: filter.antallGjennomforingerVises,
+    avtaleId: filter.avtale ? filter.avtale : undefined,
+    arrangorOrgnr: filter.arrangorOrgnr ? filter.arrangorOrgnr : undefined,
+  };
 
   return useQuery({
-    queryKey: QueryKeys.tiltaksgjennomforingerTilAvtale(search),
+    queryKey: QueryKeys.tiltaksgjennomforinger({ ...filter, search: debouncedSok }, page),
+
     queryFn: () =>
-      mulighetsrommetClient.tiltaksgjennomforinger.getTiltaksgjennomforinger({
-        page,
-        search: search || undefined,
-        size: 1000,
-      }),
-    enabled: !!search,
+      filter.visMineGjennomforinger
+        ? mulighetsrommetClient.tiltaksgjennomforinger.getMineTiltaksgjennomforinger({
+            ...queryFilter,
+          })
+        : mulighetsrommetClient.tiltaksgjennomforinger.getTiltaksgjennomforinger({
+            ...queryFilter,
+          }),
   });
 }

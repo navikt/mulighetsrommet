@@ -7,7 +7,7 @@ import { Link } from "react-router-dom";
 import { tiltaksgjennomforingTilAvtaleFilter } from "../../api/atoms";
 import { useAvtale } from "../../api/avtaler/useAvtale";
 import { useAdminTiltaksgjennomforinger } from "../../api/tiltaksgjennomforing/useAdminTiltaksgjennomforinger";
-import { useAdminTiltaksgjennomforingerForAvtale } from "../../api/tiltaksgjennomforing/useAdminTiltaksgjennomforingerForAvtale";
+import { useAdminTiltaksgjennomforingerForKoblingTilAvtale } from "../../api/tiltaksgjennomforing/useAdminTiltaksgjennomforingerForKoblingTilAvtale";
 import { useSetAvtaleForGjennomforing } from "../../api/tiltaksgjennomforing/useSetAvtaleForGjennomforing";
 import { isTiltakMedAvtaleFraMulighetsrommet } from "../../utils/tiltakskoder";
 import { Laster } from "../laster/Laster";
@@ -20,7 +20,7 @@ export const Tiltaksgjennomforingsliste = () => {
     isLoading,
     isError,
     refetch: refetchAvtaler,
-  } = useAdminTiltaksgjennomforingerForAvtale();
+  } = useAdminTiltaksgjennomforingerForKoblingTilAvtale();
   const { refetch: refetchTiltaksgjennomforinger } = useAdminTiltaksgjennomforinger();
   const { mutate, isPending: isPendingKobleGjennomforingForAvtale } =
     useSetAvtaleForGjennomforing();

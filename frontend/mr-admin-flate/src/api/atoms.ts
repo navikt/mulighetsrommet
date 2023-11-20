@@ -82,7 +82,7 @@ export const tiltakstypeFilter = atomWithHashAndStorage<TiltakstypeFilter>(
   defaultTiltakstypeFilter,
 );
 
-export interface Tiltaksgjennomforingfilter {
+export interface TiltaksgjennomforingfilterProps {
   search: string;
   navEnhet: string;
   tiltakstype: string;
@@ -95,7 +95,7 @@ export interface Tiltaksgjennomforingfilter {
   visMineGjennomforinger: boolean;
 }
 
-export const defaultTiltaksgjennomforingfilter: Tiltaksgjennomforingfilter = {
+export const defaultTiltaksgjennomforingfilter: TiltaksgjennomforingfilterProps = {
   search: "",
   navEnhet: "",
   tiltakstype: "",
@@ -108,14 +108,20 @@ export const defaultTiltaksgjennomforingfilter: Tiltaksgjennomforingfilter = {
   visMineGjennomforinger: false,
 };
 
-export const tiltaksgjennomforingfilter = atomWithHashAndStorage<Tiltaksgjennomforingfilter>(
+export const tiltaksgjennomforingfilter = atomWithHashAndStorage<TiltaksgjennomforingfilterProps>(
   "tiltaksgjennomforingFilter",
   defaultTiltaksgjennomforingfilter,
 );
 
-export const tiltaksgjennomforingTilAvtaleFilter = atom<Pick<Tiltaksgjennomforingfilter, "search">>(
-  { search: "" },
-);
+export const tiltaksgjennomforingfilterForAvtale =
+  atomWithHashAndStorage<TiltaksgjennomforingfilterProps>(
+    "tiltaksgjennomforingFilterForAvtale",
+    defaultTiltaksgjennomforingfilter,
+  );
+
+export const tiltaksgjennomforingTilAvtaleFilter = atom<
+  Pick<TiltaksgjennomforingfilterProps, "search">
+>({ search: "" });
 
 export interface AvtaleFilterProps {
   sok: string;

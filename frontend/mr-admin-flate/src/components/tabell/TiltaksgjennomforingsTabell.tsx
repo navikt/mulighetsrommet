@@ -1,6 +1,7 @@
 import { Alert, Checkbox, Pagination, Table, Tag, VStack } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import {
+  PaginertTiltaksgjennomforing,
   SorteringTiltaksgjennomforinger,
   Tilgjengelighetsstatus,
 } from "mulighetsrommet-api-client";
@@ -94,21 +95,24 @@ type Kolonne =
 
 interface Props {
   skjulKolonner?: Partial<Record<Kolonne, boolean>>;
+  paginerteTiltaksgjennomforinger?: PaginertTiltaksgjennomforing;
 }
 
 const SkjulKolonne = ({ children, skjul }: { children: React.ReactNode; skjul: boolean }) => {
   return skjul ? null : <>{children}</>;
 };
 
-export const TiltaksgjennomforingsTabell = ({ skjulKolonner }: Props) => {
-  const { data, isLoading } = useAdminTiltaksgjennomforinger();
+export const TiltaksgjennomforingsTabell = ({
+  skjulKolonner,
+  paginerteTiltaksgjennomforinger,
+}: Props) => {
   const [page, setPage] = useAtom(paginationAtom);
   const [sort, setSort] = useSort("navn");
   const [filter, setFilter] = useAtom(tiltaksgjennomforingfilter);
-  const pagination = data?.pagination;
-  const tiltaksgjennomforinger = data?.data ?? [];
+  const pagination = paginerteTiltaksgjennomforinger?.pagination;
+  const tiltaksgjennomforinger = paginerteTiltaksgjennomforinger?.data ?? [];
 
-  if ((!tiltaksgjennomforinger || tiltaksgjennomforinger.length === 0) && isLoading) {
+  if (!tiltaksgjennomforinger) {
     return <Laster size="xlarge" tekst="Laster tiltaksgjennomføringer..." />;
   }
 

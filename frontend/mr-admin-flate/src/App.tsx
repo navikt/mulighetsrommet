@@ -5,6 +5,9 @@ import { Route, Routes } from "react-router-dom";
 import { Forside } from "./Forside";
 import IkkeAutentisertApp from "./IkkeAutentisertApp";
 import { useHentAnsatt } from "./api/ansatt/useHentAnsatt";
+import { avtaleFilter, tiltaksgjennomforingfilterForAvtale } from "./api/atoms";
+import { useAvtaler } from "./api/avtaler/useAvtaler";
+import { useAdminTiltaksgjennomforingerForAvtale } from "./api/tiltaksgjennomforing/useAdminTiltaksgjennomforingerForAvtale";
 import AvtaleSkjemaPage from "./components/avtaler/AvtaleSkjemaPage";
 import NotaterAvtalePage from "./components/avtaler/NotaterAvtalePage";
 import { Avtalefilter } from "./components/filter/Avtalefilter";
@@ -30,8 +33,6 @@ import { DetaljerTiltakstypePage } from "./pages/tiltakstyper/DetaljerTiltakstyp
 import { TiltakstypeInfo } from "./pages/tiltakstyper/TiltakstypeInfo";
 import { TiltakstyperPage } from "./pages/tiltakstyper/TiltakstyperPage";
 import { AvtalerForTiltakstype } from "./pages/tiltakstyper/avtaler/AvtalerForTiltakstype";
-import { avtaleFilter } from "./api/atoms";
-import { useAvtaler } from "./api/avtaler/useAvtaler";
 
 if (import.meta.env.PROD) {
   initializeFaro({
@@ -45,6 +46,7 @@ if (import.meta.env.PROD) {
 export function App() {
   const { data: ansatt, isLoading: ansattIsLoading, error } = useHentAnsatt();
   const { data: avtaler } = useAvtaler();
+  const { data: tiltaksgjennomforinger } = useAdminTiltaksgjennomforingerForAvtale();
 
   if (error) {
     return (
@@ -90,7 +92,7 @@ export function App() {
           index
           element={
             <>
-              <Avtalefilter avtalefilter={avtaleFilter} />
+              <Avtalefilter filterAtom={avtaleFilter} />
               <AvtaleTabell paginerteAvtaler={avtaler} avtalefilter={avtaleFilter} />
             </>
           }
@@ -114,6 +116,7 @@ export function App() {
             element={
               <>
                 <Tiltaksgjennomforingfilter
+                  filterAtom={tiltaksgjennomforingfilterForAvtale}
                   skjulFilter={{
                     tiltakstype: true,
                   }}
@@ -123,6 +126,7 @@ export function App() {
                     tiltakstype: true,
                     arrangor: true,
                   }}
+                  paginerteTiltaksgjennomforinger={tiltaksgjennomforinger}
                 />
               </>
             }
