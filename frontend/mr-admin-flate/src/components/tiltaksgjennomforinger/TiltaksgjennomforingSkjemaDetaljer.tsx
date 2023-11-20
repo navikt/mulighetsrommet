@@ -177,7 +177,6 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
               readOnly
               size="small"
               label="Tilgjengelighetsstatus"
-              description="Statusen vises til veileder i Modia"
               value={tilgjengelighetsstatusTilTekst(tiltaksgjennomforing?.tilgjengelighet)}
             />
           </FormGroup>
