@@ -144,4 +144,9 @@ export const avtaleFilter = atomWithHashAndStorage<AvtaleFilterProps>(
   defaultAvtaleFilter,
 );
 
+export const avtaleFilterForTiltakstype = atomWithHashAndStorage<AvtaleFilterProps>(
+  "avtalefilterForTiltakstype",
+  defaultAvtaleFilter,
+);
+
 export const gjennomforingDetaljerTab = atom<string>("detaljer");

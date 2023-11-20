@@ -1,6 +1,6 @@
 import { faro } from "@grafana/faro-web-sdk";
 import { Button, Search } from "@navikt/ds-react";
-import { useAtom } from "jotai";
+import { WritableAtom, useAtom } from "jotai";
 import {
   Avtalestatus,
   NavEnhetType,
@@ -29,10 +29,11 @@ type Filters = "tiltakstype";
 
 interface Props {
   skjulFilter?: Record<Filters, boolean>;
+  avtalefilter: WritableAtom<AvtaleFilterProps, [newValue: AvtaleFilterProps], void>;
 }
 
 export function Avtalefilter(props: Props) {
-  const [filter, setFilter] = useAtom(avtaleFilter);
+  const [filter, setFilter] = useAtom(props.avtalefilter);
   const form = useForm<AvtaleFilterProps>({
     defaultValues: {
       ...filter,

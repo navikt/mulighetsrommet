@@ -30,6 +30,8 @@ import { DetaljerTiltakstypePage } from "./pages/tiltakstyper/DetaljerTiltakstyp
 import { TiltakstypeInfo } from "./pages/tiltakstyper/TiltakstypeInfo";
 import { TiltakstyperPage } from "./pages/tiltakstyper/TiltakstyperPage";
 import { AvtalerForTiltakstype } from "./pages/tiltakstyper/avtaler/AvtalerForTiltakstype";
+import { avtaleFilter } from "./api/atoms";
+import { useAvtaler } from "./api/avtaler/useAvtaler";
 
 if (import.meta.env.PROD) {
   initializeFaro({
@@ -42,6 +44,7 @@ if (import.meta.env.PROD) {
 
 export function App() {
   const { data: ansatt, isLoading: ansattIsLoading, error } = useHentAnsatt();
+  const { data: avtaler } = useAvtaler();
 
   if (error) {
     return (
@@ -87,8 +90,8 @@ export function App() {
           index
           element={
             <>
-              <Avtalefilter />
-              <AvtaleTabell />
+              <Avtalefilter avtalefilter={avtaleFilter} />
+              <AvtaleTabell paginerteAvtaler={avtaler} avtalefilter={avtaleFilter} />
             </>
           }
         />

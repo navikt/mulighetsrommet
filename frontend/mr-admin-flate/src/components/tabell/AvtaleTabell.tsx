@@ -1,11 +1,11 @@
 import { faro } from "@grafana/faro-web-sdk";
 import { Alert, Button, Checkbox, Pagination, Table } from "@navikt/ds-react";
 import classNames from "classnames";
-import { useAtom } from "jotai";
-import { OpenAPI, SorteringAvtaler } from "mulighetsrommet-api-client";
+import { WritableAtom, useAtom } from "jotai";
+import { OpenAPI, PaginertAvtale, SorteringAvtaler } from "mulighetsrommet-api-client";
 import Lenke from "mulighetsrommet-veileder-flate/src/components/lenke/Lenke";
 import { createRef, useEffect, useState } from "react";
-import { avtaleFilter, AvtaleFilterProps, avtalePaginationAtom } from "../../api/atoms";
+import { AvtaleFilterProps, avtalePaginationAtom } from "../../api/atoms";
 import { useAvtaler } from "../../api/avtaler/useAvtaler";
 import { APPLICATION_NAME } from "../../constants";
 import { useSort } from "../../hooks/useSort";
@@ -60,13 +60,17 @@ async function lastNedFil(filter: AvtaleFilterProps) {
   });
 }
 
-export const AvtaleTabell = () => {
-  const { data: alleAvtaler, isLoading } = useAvtaler();
-  const [filter, setFilter] = useAtom(avtaleFilter);
+interface Props {
+  avtalefilter: WritableAtom<AvtaleFilterProps, [newValue: AvtaleFilterProps], void>;
+  paginerteAvtaler?: PaginertAvtale;
+}
+
+export const AvtaleTabell = ({ avtalefilter, paginerteAvtaler }: Props) => {
+  const [filter, setFilter] = useAtom(avtalefilter);
   const [page, setPage] = useAtom(avtalePaginationAtom);
   const [sort, setSort] = useSort("navn");
-  const pagination = alleAvtaler?.pagination;
-  const avtaler = alleAvtaler?.data || [];
+  const pagination = paginerteAvtaler?.pagination;
+  const avtaler = paginerteAvtaler?.data || [];
   const [lasterExcel, setLasterExcel] = useState(false);
   const [excelUrl, setExcelUrl] = useState("");
 
@@ -116,7 +120,7 @@ export const AvtaleTabell = () => {
     });
   };
 
-  if ((!avtaler || avtaler.length === 0) && isLoading) {
+  if (!avtaler || avtaler.length === 0) {
     return <Laster size="xlarge" tekst="Laster avtaler..." />;
   }
 
