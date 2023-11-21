@@ -37,6 +37,8 @@ export const ControlledDateInput = forwardRef(function ControlledDateInput(
         {...rest}
         render={({ field: { onChange, value }, fieldState: { error } }) => {
           const { datepickerProps: startdatoProps, inputProps: startdatoInputProps } =
+            // FIXME
+            // eslint-disable-next-line react-hooks/rules-of-hooks
             useDatepicker({
               onDateChange: (val) => {
                 if (val) {

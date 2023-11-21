@@ -9,17 +9,12 @@ import {
   Tiltakskode,
   VeilederflateTiltaksgjennomforing,
 } from "mulighetsrommet-api-client";
-import { useReducer } from "react";
 import { Outlet } from "react-router-dom";
 import { BrukerHarIkke14aVedtakVarsel } from "../../components/ikkeKvalifisertVarsel/BrukerHarIkke14aVedtakVarsel";
 import { BrukerKvalifisererIkkeVarsel } from "../../components/ikkeKvalifisertVarsel/BrukerKvalifisererIkkeVarsel";
 import { DetaljerJoyride } from "../../components/joyride/DetaljerJoyride";
 import { OpprettAvtaleJoyride } from "../../components/joyride/OpprettAvtaleJoyride";
-import {
-  Delemodal,
-  sySammenTekster,
-  utledFeilmelding,
-} from "../../components/modal/delemodal/Delemodal";
+import { Delemodal } from "../../components/modal/delemodal/Delemodal";
 import SidemenyDetaljer from "../../components/sidemeny/SidemenyDetaljer";
 import TiltaksdetaljerFane from "../../components/tabs/TiltaksdetaljerFane";
 import Tilbakeknapp from "../../components/tilbakeknapp/Tilbakeknapp";
@@ -30,8 +25,10 @@ import TiltaksgjennomforingsHeader from "../../layouts/TiltaksgjennomforingsHead
 import { byttTilDialogFlate } from "../../utils/DialogFlateUtils";
 import { erPreview, formaterDato } from "../../utils/Utils";
 import styles from "./ViewTiltaksgjennomforingDetaljer.module.scss";
-import { initInitialState, reducer } from "../../components/modal/delemodal/DelemodalReducer";
+import { useDelMedBruker } from "../../components/modal/delemodal/DelemodalReducer";
 import { useLogEvent } from "../../logging/amplitude";
+import { utledDelMedBrukerTekst } from "../../components/modal/delemodal/DelMedBrukerTekst";
+import { erBrukerResertMotElektroniskKommunikasjon } from "../../utils/Bruker";
 
 const whiteListOpprettAvtaleKnapp: Tiltakskode[] = [
   Tiltakskode.MIDLONTIL,
@@ -94,20 +91,20 @@ const ViewTiltaksgjennomforingDetaljer = ({
   const originaldeletekstFraTiltakstypen = tiltaksgjennomforing.tiltakstype.delingMedBruker ?? "";
   const brukernavn = erPreview() ? "{Navn}" : brukerdata?.fornavn;
 
-  const deletekst = sySammenTekster(
+  const deletekst = utledDelMedBrukerTekst(
     originaldeletekstFraTiltakstypen,
     tiltaksgjennomforing.navn,
     brukernavn,
   );
-  const [state, dispatch] = useReducer(reducer, { deletekst }, initInitialState);
+  const [state, dispatch] = useDelMedBruker(deletekst);
 
   const handleClickApneModal = () => {
-    const feilmelding = utledFeilmelding(brukerdata);
+    const { reservert } = erBrukerResertMotElektroniskKommunikasjon(brukerdata);
     logEvent({
       name: "arbeidsmarkedstiltak.del-med-bruker",
       data: { action: "Åpnet delemodal", tiltakstype: tiltaksgjennomforing.tiltakstype.navn },
     });
-    feilmelding
+    reservert
       ? dispatch({ type: "Toggle statusmodal", payload: true })
       : dispatch({ type: "Toggle modal", payload: true });
   };

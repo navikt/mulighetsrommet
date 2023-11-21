@@ -17,7 +17,7 @@ interface FeilmeldingProps {
   utenMargin?: boolean;
 }
 
-export const forsokPaNyttLink = () => {
+export const ForsokPaNyttLink = () => {
   return <a href="/">forsøk på nytt</a>;
 };
 
