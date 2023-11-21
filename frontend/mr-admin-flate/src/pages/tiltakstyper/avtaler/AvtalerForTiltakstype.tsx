@@ -12,7 +12,7 @@ export function AvtalerForTiltakstype() {
   useTitle("Tiltakstyper - Avtaler");
   const tiltakstypeId = useGetTiltakstypeIdFromUrl();
   const [filter, setFilter] = useAtom(avtaleFilterForTiltakstypeAtom);
-  const { data: avtaler } = useAvtaler(avtaleFilterForTiltakstypeAtom);
+  const { data: avtaler, isLoading: avtalerIsLoading } = useAvtaler(avtaleFilterForTiltakstypeAtom);
 
   useEffect(() => {
     if (tiltakstypeId) {
@@ -36,7 +36,11 @@ export function AvtalerForTiltakstype() {
           tiltakstype: true,
         }}
       />
-      <AvtaleTabell paginerteAvtaler={avtaler} avtalefilter={avtaleFilterForTiltakstypeAtom} />
+      <AvtaleTabell
+        isLoading={avtalerIsLoading}
+        paginerteAvtaler={avtaler}
+        avtalefilter={avtaleFilterForTiltakstypeAtom}
+      />
     </ContainerLayout>
   );
 }

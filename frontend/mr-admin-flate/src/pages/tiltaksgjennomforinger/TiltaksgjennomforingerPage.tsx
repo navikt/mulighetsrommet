@@ -11,7 +11,8 @@ import { tiltaksgjennomforingfilterAtom } from "../../api/atoms";
 
 export function TiltaksgjennomforingerPage() {
   useTitle("Tiltaksgjennomføringer");
-  const { data: tiltaksgjennomforinger } = useAdminTiltaksgjennomforinger();
+  const { data: tiltaksgjennomforinger, isLoading: tiltaksgjennomforingerIsLoading } =
+    useAdminTiltaksgjennomforinger();
   return (
     <>
       <HeaderBanner heading="Oversikt over tiltaksgjennomføringer" />
@@ -19,7 +20,10 @@ export function TiltaksgjennomforingerPage() {
         <ContainerLayout>
           <Tiltaksgjennomforingfilter filterAtom={tiltaksgjennomforingfilterAtom} />
           <ErrorBoundary FallbackComponent={ErrorFallback}>
-            <TiltaksgjennomforingsTabell paginerteTiltaksgjennomforinger={tiltaksgjennomforinger} />
+            <TiltaksgjennomforingsTabell
+              isLoading={tiltaksgjennomforingerIsLoading}
+              paginerteTiltaksgjennomforinger={tiltaksgjennomforinger}
+            />
           </ErrorBoundary>
         </ContainerLayout>
       </MainContainer>

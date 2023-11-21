@@ -45,8 +45,9 @@ if (import.meta.env.PROD) {
 
 export function App() {
   const { data: ansatt, isLoading: ansattIsLoading, error } = useHentAnsatt();
-  const { data: avtaler } = useAvtaler(avtaleFilterAtom);
-  const { data: tiltaksgjennomforinger } = useAdminTiltaksgjennomforingerForAvtale();
+  const { data: avtaler, isLoading: avtalerIsLoading } = useAvtaler(avtaleFilterAtom);
+  const { data: tiltaksgjennomforinger, isLoading: tiltaksgjennomforingerIsLoading } =
+    useAdminTiltaksgjennomforingerForAvtale();
 
   if (error) {
     return (
@@ -93,7 +94,11 @@ export function App() {
           element={
             <>
               <Avtalefilter filterAtom={avtaleFilterAtom} />
-              <AvtaleTabell paginerteAvtaler={avtaler} avtalefilter={avtaleFilterAtom} />
+              <AvtaleTabell
+                isLoading={avtalerIsLoading}
+                paginerteAvtaler={avtaler}
+                avtalefilter={avtaleFilterAtom}
+              />
             </>
           }
         />
@@ -126,6 +131,7 @@ export function App() {
                     tiltakstype: true,
                     arrangor: true,
                   }}
+                  isLoading={tiltaksgjennomforingerIsLoading}
                   paginerteTiltaksgjennomforinger={tiltaksgjennomforinger}
                 />
               </>

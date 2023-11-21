@@ -62,9 +62,10 @@ async function lastNedFil(filter: AvtaleFilterProps) {
 interface Props {
   avtalefilter: WritableAtom<AvtaleFilterProps, [newValue: AvtaleFilterProps], void>;
   paginerteAvtaler?: PaginertAvtale;
+  isLoading: boolean;
 }
 
-export const AvtaleTabell = ({ avtalefilter, paginerteAvtaler }: Props) => {
+export const AvtaleTabell = ({ avtalefilter, paginerteAvtaler, isLoading }: Props) => {
   const [filter, setFilter] = useAtom(avtalefilter);
   const [page, setPage] = useAtom(avtalePaginationAtomAtom);
   const [sort, setSort] = useSort("navn");
@@ -119,7 +120,7 @@ export const AvtaleTabell = ({ avtalefilter, paginerteAvtaler }: Props) => {
     });
   };
 
-  if (!avtaler) {
+  if (!avtaler || isLoading) {
     return <Laster size="xlarge" tekst="Laster avtaler..." />;
   }
 

@@ -95,6 +95,7 @@ type Kolonne =
 interface Props {
   skjulKolonner?: Partial<Record<Kolonne, boolean>>;
   paginerteTiltaksgjennomforinger?: PaginertTiltaksgjennomforing;
+  isLoading: boolean;
 }
 
 const SkjulKolonne = ({ children, skjul }: { children: React.ReactNode; skjul: boolean }) => {
@@ -104,6 +105,7 @@ const SkjulKolonne = ({ children, skjul }: { children: React.ReactNode; skjul: b
 export const TiltaksgjennomforingsTabell = ({
   skjulKolonner,
   paginerteTiltaksgjennomforinger,
+  isLoading,
 }: Props) => {
   const [page, setPage] = useAtom(paginationAtom);
   const [sort, setSort] = useSort("navn");
@@ -111,7 +113,7 @@ export const TiltaksgjennomforingsTabell = ({
   const pagination = paginerteTiltaksgjennomforinger?.pagination;
   const tiltaksgjennomforinger = paginerteTiltaksgjennomforinger?.data ?? [];
 
-  if (!tiltaksgjennomforinger) {
+  if (!tiltaksgjennomforinger || isLoading) {
     return <Laster size="xlarge" tekst="Laster tiltaksgjennomføringer..." />;
   }
 
