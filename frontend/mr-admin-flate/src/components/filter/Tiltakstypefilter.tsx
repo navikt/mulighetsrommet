@@ -140,9 +140,9 @@ export function Tiltakstypefilter() {
                 onClick={() => {
                   setFilter({
                     ...filter,
-                    status: "",
+                    status: undefined,
                   });
-                  setValue("status", "");
+                  setValue("status", undefined);
                 }}
               />
             )}
@@ -152,9 +152,9 @@ export function Tiltakstypefilter() {
                 onClick={() => {
                   setFilter({
                     ...filter,
-                    kategori: "",
+                    kategori: undefined,
                   });
-                  setValue("kategori", "");
+                  setValue("kategori", undefined);
                 }}
               />
             )}

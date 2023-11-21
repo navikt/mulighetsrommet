@@ -274,7 +274,9 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, filterAtom }: Props) {
                 resetPaginering(setPage);
                 setFilter({
                   ...filter,
-                  status: valueOrDefault(e.target.value, defaultTiltaksgjennomforingfilter.status),
+                  status:
+                    valueOrDefault(e.target.value, defaultTiltaksgjennomforingfilter.status) ||
+                    undefined,
                 });
               }}
               options={statusOptions}
@@ -391,9 +393,9 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, filterAtom }: Props) {
                 onClick={() => {
                   setFilter({
                     ...filter,
-                    status: "",
+                    status: undefined,
                   });
-                  setValue("status", "");
+                  setValue("status", undefined);
                 }}
               />
             )}

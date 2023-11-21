@@ -45,7 +45,7 @@ export function Avtalefilter(props: Props) {
   const { data: tiltakstyper } = useTiltakstyper(
     {
       status: Tiltakstypestatus.AKTIV,
-      kategori: "",
+      kategori: undefined,
     },
     1,
   );
@@ -250,9 +250,9 @@ export function Avtalefilter(props: Props) {
                 onClick={() => {
                   setFilter({
                     ...filter,
-                    status: "",
+                    status: undefined,
                   });
-                  setValue("status", "");
+                  setValue("status", undefined);
                 }}
               />
             )}

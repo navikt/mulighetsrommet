@@ -13,14 +13,14 @@ export function useAdminTiltaksgjennomforinger() {
   const queryFilter = {
     page,
     search: debouncedSok || undefined,
-    navEnhet: filter.navEnhet ? filter.navEnhet : undefined,
-    tiltakstypeId: filter.tiltakstype ? filter.tiltakstype : undefined,
-    status: filter.status ? filter.status : undefined,
-    navRegion: filter.navRegion ? filter.navRegion : undefined,
-    sort: filter.sortering ? filter.sortering : undefined,
+    navEnhet: filter.navEnhet,
+    tiltakstypeId: filter.tiltakstype || undefined,
+    status: filter.status,
+    navRegion: filter.navRegion,
+    sort: filter.sortering,
     size: filter.antallGjennomforingerVises,
-    avtaleId: filter.avtale ? filter.avtale : undefined,
-    arrangorOrgnr: filter.arrangorOrgnr ? filter.arrangorOrgnr : undefined,
+    avtaleId: filter.avtale,
+    arrangorOrgnr: filter.arrangorOrgnr,
   };
 
   return useQuery({

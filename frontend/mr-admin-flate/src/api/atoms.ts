@@ -65,8 +65,8 @@ export const avtalePaginationAtomAtom = atomWithHashAndStorage("avtalePage", 1);
 
 export interface TiltakstypeFilter {
   sok?: string;
-  status: Tiltakstypestatus | "";
-  kategori?: Tiltakstypekategori | "";
+  status?: Tiltakstypestatus;
+  kategori?: Tiltakstypekategori;
   sortering?: SorteringTiltakstyper;
 }
 
@@ -86,7 +86,7 @@ export interface TiltaksgjennomforingfilterProps {
   search: string;
   navEnhet: string;
   tiltakstype: string;
-  status: TiltaksgjennomforingStatus | "";
+  status?: TiltaksgjennomforingStatus;
   sortering: SorteringTiltaksgjennomforinger;
   navRegion: string;
   avtale: string;
@@ -126,8 +126,8 @@ export const tiltaksgjennomforingTilAvtaleFilterAtom = atom<
 
 export interface AvtaleFilterProps {
   sok: string;
-  status: Avtalestatus | "";
-  navRegion: string;
+  status?: Avtalestatus;
+  navRegion?: string;
   tiltakstype: string;
   sortering: SorteringAvtaler;
   leverandor_orgnr: string;
