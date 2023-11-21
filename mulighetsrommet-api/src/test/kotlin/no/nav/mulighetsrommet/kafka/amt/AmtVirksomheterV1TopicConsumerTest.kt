@@ -2,8 +2,7 @@ package no.nav.mulighetsrommet.kafka.amt
 
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.collections.shouldContainExactly
-import io.kotest.matchers.should
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
@@ -13,12 +12,8 @@ import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
-import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
-import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
-import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.VirksomhetRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.consumers.amt.AmtVirksomhetV1Dto
 import no.nav.mulighetsrommet.kafka.consumers.amt.AmtVirksomheterV1TopicConsumer
@@ -27,70 +22,57 @@ class AmtVirksomheterV1TopicConsumerTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
     context("consume virksomheter") {
-        beforeTest {
-            MulighetsrommetTestDomain().initialize(database.db)
-
-            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-            tiltaksgjennomforinger.upsert(TiltaksgjennomforingFixtures.Oppfolging1)
-        }
-
-        afterTest {
-            database.db.truncateAll()
-        }
-
-        val virksomhetRepository = VirksomhetRepository(database.db)
-        val brregClientMock: BrregClient = mockk(relaxed = true)
-        val virksomhetConsumer = AmtVirksomheterV1TopicConsumer(
-            config = KafkaTopicConsumer.Config(id = "virksomheter", topic = "virksomheter"),
-            virksomhetRepository,
-            brregClient = brregClientMock,
-        )
-
-        val amtVirksomhet1 = AmtVirksomhetV1Dto(
+        val amtVirksomhet = AmtVirksomhetV1Dto(
             navn = "REMA 1000 AS",
             organisasjonsnummer = "982254604",
             overordnetEnhetOrganisasjonsnummer = null,
         )
+
         val amtUnderenhet = AmtVirksomhetV1Dto(
             navn = "REMA 1000 underenhet",
             organisasjonsnummer = "9923354699",
-            overordnetEnhetOrganisasjonsnummer = amtVirksomhet1.organisasjonsnummer,
+            overordnetEnhetOrganisasjonsnummer = amtVirksomhet.organisasjonsnummer,
         )
+
         val underenhetDto = VirksomhetDto(
             navn = amtUnderenhet.navn,
             organisasjonsnummer = amtUnderenhet.organisasjonsnummer,
-            overordnetEnhet = amtVirksomhet1.organisasjonsnummer,
+            overordnetEnhet = amtVirksomhet.organisasjonsnummer,
             postnummer = "1000",
             poststed = "Andeby",
         )
 
-        coEvery { brregClientMock.hentEnhet("982254604") } returns VirksomhetDto(
-            organisasjonsnummer = "982254604",
-            navn = "REMA 1000 AS",
+        val virksomhetDto = VirksomhetDto(
+            organisasjonsnummer = amtVirksomhet.organisasjonsnummer,
+            navn = amtVirksomhet.navn,
             overordnetEnhet = null,
             underenheter = listOf(underenhetDto),
             postnummer = "1000",
             poststed = "Andeby",
         )
 
-        coEvery { brregClientMock.hentEnhet("9923354699") } returns VirksomhetDto(
-            organisasjonsnummer = "9923354699",
-            navn = "REMA 1000 underenhet",
-            overordnetEnhet = "982254604",
-            underenheter = null,
-            postnummer = "1000",
-            poststed = "Andeby",
+        val virksomhetRepository = VirksomhetRepository(database.db)
+
+        val brregClientMock: BrregClient = mockk(relaxed = true)
+        coEvery { brregClientMock.hentEnhet(amtVirksomhet.organisasjonsnummer) } returns virksomhetDto
+        coEvery { brregClientMock.hentEnhet(amtUnderenhet.organisasjonsnummer) } returns underenhetDto
+
+        val virksomhetConsumer = AmtVirksomheterV1TopicConsumer(
+            config = KafkaTopicConsumer.Config(id = "virksomheter", topic = "virksomheter"),
+            virksomhetRepository = virksomhetRepository,
+            brregClient = brregClientMock,
         )
 
-        test("upsert virksomheter from topic") {
-            virksomhetConsumer.consume(amtVirksomhet1.organisasjonsnummer, Json.encodeToJsonElement(amtVirksomhet1))
+        test("oppdaterer virksomheter når de finnes i database") {
+            virksomhetRepository.upsert(virksomhetDto.copy(poststed = "Gåseby")).shouldBeRight()
+            virksomhetRepository.upsert(underenhetDto.copy(poststed = "Gåseby")).shouldBeRight()
+
+            virksomhetConsumer.consume(amtVirksomhet.organisasjonsnummer, Json.encodeToJsonElement(amtVirksomhet))
             virksomhetConsumer.consume(amtUnderenhet.organisasjonsnummer, Json.encodeToJsonElement(amtUnderenhet))
 
-            virksomhetRepository.get(amtVirksomhet1.organisasjonsnummer).shouldBeRight().should {
-                it!!.underenheter shouldContainExactly listOf(underenhetDto)
-                it.organisasjonsnummer shouldBe amtVirksomhet1.organisasjonsnummer
-                it.navn shouldBe amtVirksomhet1.navn
-            }
+            virksomhetRepository.getAll().shouldBeRight().shouldHaveSize(2)
+            virksomhetRepository.get(virksomhetDto.organisasjonsnummer).shouldBeRight().shouldBe(virksomhetDto)
+            virksomhetRepository.get(underenhetDto.organisasjonsnummer).shouldBeRight().shouldBe(underenhetDto)
         }
 
         test("delete virksomheter for tombstone messages") {
