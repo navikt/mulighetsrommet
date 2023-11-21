@@ -1,6 +1,6 @@
 import { faro } from "@grafana/faro-web-sdk";
 import { Button, Search } from "@navikt/ds-react";
-import { useAtom } from "jotai";
+import { WritableAtom, useAtom } from "jotai";
 import {
   Avtalestatus,
   NavEnhetType,
@@ -12,8 +12,8 @@ import { useEffect, useRef } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import {
   AvtaleFilterProps,
-  avtaleFilter,
-  avtalePaginationAtom,
+  avtaleFilterAtom,
+  avtalePaginationAtomAtom,
   defaultAvtaleFilter,
 } from "../../api/atoms";
 import { useAvtaler } from "../../api/avtaler/useAvtaler";
@@ -29,10 +29,11 @@ type Filters = "tiltakstype";
 
 interface Props {
   skjulFilter?: Record<Filters, boolean>;
+  filterAtom: WritableAtom<AvtaleFilterProps, [newValue: AvtaleFilterProps], void>;
 }
 
 export function Avtalefilter(props: Props) {
-  const [filter, setFilter] = useAtom(avtaleFilter);
+  const [filter, setFilter] = useAtom(props.filterAtom);
   const form = useForm<AvtaleFilterProps>({
     defaultValues: {
       ...filter,
@@ -44,13 +45,13 @@ export function Avtalefilter(props: Props) {
   const { data: tiltakstyper } = useTiltakstyper(
     {
       status: Tiltakstypestatus.AKTIV,
-      kategori: "",
+      kategori: undefined,
     },
     1,
   );
-  const { data: avtaler } = useAvtaler();
+  const { data: avtaler } = useAvtaler(avtaleFilterAtom);
   const { data: leverandorer } = useVirksomheter(VirksomhetTil.AVTALE);
-  const [, setPage] = useAtom(avtalePaginationAtom);
+  const [, setPage] = useAtom(avtalePaginationAtomAtom);
   const searchRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -249,9 +250,9 @@ export function Avtalefilter(props: Props) {
                 onClick={() => {
                   setFilter({
                     ...filter,
-                    status: "",
+                    status: undefined,
                   });
-                  setValue("status", "");
+                  setValue("status", undefined);
                 }}
               />
             )}
@@ -293,7 +294,8 @@ export function Avtalefilter(props: Props) {
                 }}
               />
             )}
-            {(filter.status !== defaultAvtaleFilter.status ||
+            {(filter.sok ||
+              filter.status !== defaultAvtaleFilter.status ||
               filter.navRegion ||
               filter.tiltakstype ||
               filter.leverandor_orgnr) && (

@@ -5,6 +5,8 @@ import { Route, Routes } from "react-router-dom";
 import { Forside } from "./Forside";
 import IkkeAutentisertApp from "./IkkeAutentisertApp";
 import { useHentAnsatt } from "./api/ansatt/useHentAnsatt";
+import { avtaleFilterAtom, tiltaksgjennomforingfilterForAvtaleAtom } from "./api/atoms";
+import { useAvtaler } from "./api/avtaler/useAvtaler";
 import AvtaleSkjemaPage from "./components/avtaler/AvtaleSkjemaPage";
 import NotaterAvtalePage from "./components/avtaler/NotaterAvtalePage";
 import { Avtalefilter } from "./components/filter/Avtalefilter";
@@ -30,6 +32,7 @@ import { DetaljerTiltakstypePage } from "./pages/tiltakstyper/DetaljerTiltakstyp
 import { TiltakstypeInfo } from "./pages/tiltakstyper/TiltakstypeInfo";
 import { TiltakstyperPage } from "./pages/tiltakstyper/TiltakstyperPage";
 import { AvtalerForTiltakstype } from "./pages/tiltakstyper/avtaler/AvtalerForTiltakstype";
+import { useAdminTiltaksgjennomforinger } from "./api/tiltaksgjennomforing/useAdminTiltaksgjennomforinger";
 
 if (import.meta.env.PROD) {
   initializeFaro({
@@ -42,6 +45,9 @@ if (import.meta.env.PROD) {
 
 export function App() {
   const { data: ansatt, isLoading: ansattIsLoading, error } = useHentAnsatt();
+  const { data: avtaler, isLoading: avtalerIsLoading } = useAvtaler(avtaleFilterAtom);
+  const { data: tiltaksgjennomforinger, isLoading: tiltaksgjennomforingerIsLoading } =
+    useAdminTiltaksgjennomforinger(tiltaksgjennomforingfilterForAvtaleAtom);
 
   if (error) {
     return (
@@ -87,8 +93,12 @@ export function App() {
           index
           element={
             <>
-              <Avtalefilter />
-              <AvtaleTabell />
+              <Avtalefilter filterAtom={avtaleFilterAtom} />
+              <AvtaleTabell
+                isLoading={avtalerIsLoading}
+                paginerteAvtaler={avtaler}
+                avtalefilter={avtaleFilterAtom}
+              />
             </>
           }
         />
@@ -111,6 +121,7 @@ export function App() {
             element={
               <>
                 <Tiltaksgjennomforingfilter
+                  filterAtom={tiltaksgjennomforingfilterForAvtaleAtom}
                   skjulFilter={{
                     tiltakstype: true,
                   }}
@@ -120,6 +131,8 @@ export function App() {
                     tiltakstype: true,
                     arrangor: true,
                   }}
+                  isLoading={tiltaksgjennomforingerIsLoading}
+                  paginerteTiltaksgjennomforinger={tiltaksgjennomforinger}
                 />
               </>
             }

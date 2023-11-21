@@ -1,13 +1,13 @@
 import { Alert, Checkbox, Pagination, Table, Tag, VStack } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import {
+  PaginertTiltaksgjennomforing,
   SorteringTiltaksgjennomforinger,
   Tilgjengelighetsstatus,
 } from "mulighetsrommet-api-client";
 import Lenke from "mulighetsrommet-veileder-flate/src/components/lenke/Lenke";
 import React from "react";
-import { paginationAtom, tiltaksgjennomforingfilter } from "../../api/atoms";
-import { useAdminTiltaksgjennomforinger } from "../../api/tiltaksgjennomforing/useAdminTiltaksgjennomforinger";
+import { paginationAtom, tiltaksgjennomforingfilterAtom } from "../../api/atoms";
 import { useSort } from "../../hooks/useSort";
 import pageStyles from "../../pages/Page.module.scss";
 import { formaterDato, formaterNavEnheter, resetPaginering } from "../../utils/Utils";
@@ -94,21 +94,26 @@ type Kolonne =
 
 interface Props {
   skjulKolonner?: Partial<Record<Kolonne, boolean>>;
+  paginerteTiltaksgjennomforinger?: PaginertTiltaksgjennomforing;
+  isLoading: boolean;
 }
 
 const SkjulKolonne = ({ children, skjul }: { children: React.ReactNode; skjul: boolean }) => {
   return skjul ? null : <>{children}</>;
 };
 
-export const TiltaksgjennomforingsTabell = ({ skjulKolonner }: Props) => {
-  const { data, isLoading } = useAdminTiltaksgjennomforinger();
+export const TiltaksgjennomforingsTabell = ({
+  skjulKolonner,
+  paginerteTiltaksgjennomforinger,
+  isLoading,
+}: Props) => {
   const [page, setPage] = useAtom(paginationAtom);
   const [sort, setSort] = useSort("navn");
-  const [filter, setFilter] = useAtom(tiltaksgjennomforingfilter);
-  const pagination = data?.pagination;
-  const tiltaksgjennomforinger = data?.data ?? [];
+  const [filter, setFilter] = useAtom(tiltaksgjennomforingfilterAtom);
+  const pagination = paginerteTiltaksgjennomforinger?.pagination;
+  const tiltaksgjennomforinger = paginerteTiltaksgjennomforinger?.data ?? [];
 
-  if ((!tiltaksgjennomforinger || tiltaksgjennomforinger.length === 0) && isLoading) {
+  if (!tiltaksgjennomforinger || isLoading) {
     return <Laster size="xlarge" tekst="Laster tiltaksgjennomføringer..." />;
   }
 

@@ -1,13 +1,19 @@
 import { useQuery } from "@tanstack/react-query";
-import { useAtom } from "jotai";
+import { WritableAtom, useAtom } from "jotai";
 import { useDebounce } from "mulighetsrommet-frontend-common";
 import { QueryKeys } from "../QueryKeys";
-import { paginationAtom, tiltaksgjennomforingfilter } from "../atoms";
+import { TiltaksgjennomforingfilterProps, paginationAtom } from "../atoms";
 import { mulighetsrommetClient } from "../clients";
 
-export function useAdminTiltaksgjennomforinger() {
+export function useAdminTiltaksgjennomforinger(
+  filterAtom: WritableAtom<
+    TiltaksgjennomforingfilterProps,
+    [newValue: TiltaksgjennomforingfilterProps],
+    void
+  >,
+) {
   const [page] = useAtom(paginationAtom);
-  const [filter] = useAtom(tiltaksgjennomforingfilter);
+  const [filter] = useAtom(filterAtom);
   const debouncedSok = useDebounce(filter.search, 300);
 
   const queryFilter = {

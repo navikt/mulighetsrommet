@@ -6,17 +6,24 @@ import { ContainerLayout } from "../../layouts/ContainerLayout";
 import { HeaderBanner } from "../../layouts/HeaderBanner";
 import { MainContainer } from "../../layouts/MainContainer";
 import { ErrorFallback } from "../../main";
+import { useAdminTiltaksgjennomforinger } from "../../api/tiltaksgjennomforing/useAdminTiltaksgjennomforinger";
+import { tiltaksgjennomforingfilterAtom } from "../../api/atoms";
 
 export function TiltaksgjennomforingerPage() {
   useTitle("Tiltaksgjennomføringer");
+  const { data: tiltaksgjennomforinger, isLoading: tiltaksgjennomforingerIsLoading } =
+    useAdminTiltaksgjennomforinger(tiltaksgjennomforingfilterAtom);
   return (
     <>
       <HeaderBanner heading="Oversikt over tiltaksgjennomføringer" />
       <MainContainer>
         <ContainerLayout>
-          <Tiltaksgjennomforingfilter />
+          <Tiltaksgjennomforingfilter filterAtom={tiltaksgjennomforingfilterAtom} />
           <ErrorBoundary FallbackComponent={ErrorFallback}>
-            <TiltaksgjennomforingsTabell />
+            <TiltaksgjennomforingsTabell
+              isLoading={tiltaksgjennomforingerIsLoading}
+              paginerteTiltaksgjennomforinger={tiltaksgjennomforinger}
+            />
           </ErrorBoundary>
         </ContainerLayout>
       </MainContainer>

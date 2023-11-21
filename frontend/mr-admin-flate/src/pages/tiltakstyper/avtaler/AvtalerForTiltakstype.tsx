@@ -1,18 +1,18 @@
 import { useAtom } from "jotai";
-import { useEffect } from "react";
-import { avtaleFilter } from "../../../api/atoms";
-import { useAvtaler } from "../../../api/avtaler/useAvtaler";
-import { Avtalefilter } from "../../../components/filter/Avtalefilter";
-import { useGetTiltakstypeIdFromUrl } from "../../../hooks/useGetTiltakstypeIdFromUrl";
-import { AvtaleTabell } from "../../../components/tabell/AvtaleTabell";
-import { ContainerLayout } from "../../../layouts/ContainerLayout";
 import { useTitle } from "mulighetsrommet-frontend-common";
+import { useEffect } from "react";
+import { avtaleFilterForTiltakstypeAtom } from "../../../api/atoms";
+import { Avtalefilter } from "../../../components/filter/Avtalefilter";
+import { AvtaleTabell } from "../../../components/tabell/AvtaleTabell";
+import { useGetTiltakstypeIdFromUrl } from "../../../hooks/useGetTiltakstypeIdFromUrl";
+import { ContainerLayout } from "../../../layouts/ContainerLayout";
+import { useAvtaler } from "../../../api/avtaler/useAvtaler";
 
 export function AvtalerForTiltakstype() {
   useTitle("Tiltakstyper - Avtaler");
   const tiltakstypeId = useGetTiltakstypeIdFromUrl();
-  const { data } = useAvtaler();
-  const [filter, setFilter] = useAtom(avtaleFilter);
+  const [filter, setFilter] = useAtom(avtaleFilterForTiltakstypeAtom);
+  const { data: avtaler, isLoading: avtalerIsLoading } = useAvtaler(avtaleFilterForTiltakstypeAtom);
 
   useEffect(() => {
     if (tiltakstypeId) {
@@ -24,18 +24,23 @@ export function AvtalerForTiltakstype() {
     }
   }, [tiltakstypeId]);
 
-  if (!data) {
+  if (!avtaler) {
     return null;
   }
 
   return (
     <ContainerLayout>
       <Avtalefilter
+        filterAtom={avtaleFilterForTiltakstypeAtom}
         skjulFilter={{
           tiltakstype: true,
         }}
       />
-      <AvtaleTabell />
+      <AvtaleTabell
+        isLoading={avtalerIsLoading}
+        paginerteAvtaler={avtaler}
+        avtalefilter={avtaleFilterForTiltakstypeAtom}
+      />
     </ContainerLayout>
   );
 }
