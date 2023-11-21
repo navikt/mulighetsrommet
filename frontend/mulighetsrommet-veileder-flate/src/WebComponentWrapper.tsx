@@ -73,7 +73,7 @@ export class Arbeidsmarkedstiltak extends HTMLElement {
       });
   }
 
-  attributeChangedCallback(name: string, oldValue: string, newValue: string) {
+  attributeChangedCallback(name: string, _oldValue: string, newValue: string) {
     if (name === Arbeidsmarkedstiltak.FNR_PROP && this.updateContextData) {
       this.updateContextData("fnr", newValue);
     } else if (name === Arbeidsmarkedstiltak.ENHET_PROP && this.updateContextData) {

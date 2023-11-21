@@ -52,7 +52,7 @@ function atomWithHashAndStorage<Value>(key: string, initialValue: Value) {
       setHash(JSON.stringify(value));
       return value;
     },
-    (get, set, newValue: Value) => {
+    (_get, set, newValue: Value) => {
       set(innerAtom, newValue);
       setHash(JSON.stringify(newValue));
     },
