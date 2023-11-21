@@ -159,20 +159,9 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getAdminTiltaksgjennomforingsF
 fun <T : Any> PipelineContext<T, ApplicationCall>.getEnhetFilter(): EnhetFilter {
     val statuser = call.parameters.getAll("statuser")
         ?.map { NavEnhetStatus.valueOf(it) }
-        ?: listOf(
-            NavEnhetStatus.AKTIV,
-            NavEnhetStatus.UNDER_AVVIKLING,
-            NavEnhetStatus.UNDER_ETABLERING,
-        )
 
     val typer = call.parameters.getAll("typer")
         ?.map { Norg2Type.valueOf(it) }
-        ?: listOf(
-            Norg2Type.FYLKE,
-            Norg2Type.LOKAL,
-            Norg2Type.ALS,
-            Norg2Type.TILTAK,
-        )
 
     return EnhetFilter(
         statuser = statuser,
