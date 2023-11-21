@@ -2643,6 +2643,7 @@ components:
         - FYLKE
         - TILTAK
         - ALS
+        - KO
 
     Virksomhet:
       type: object
