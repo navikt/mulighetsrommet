@@ -13,14 +13,14 @@ export function useAvtaler(
   const debouncedSok = useDebounce(filter.sok, 300);
 
   const queryFilter = {
-    tiltakstypeId: filter.tiltakstype,
-    search: debouncedSok,
-    avtalestatus: filter.status,
-    navRegion: filter.navRegion,
+    tiltakstypeId: filter.tiltakstype || undefined,
+    search: debouncedSok || undefined,
+    avtalestatus: filter.status ? filter.status : undefined,
+    navRegion: filter.navRegion ? filter.navRegion : undefined,
     sort: filter.sortering,
     page,
     size: filter.antallAvtalerVises,
-    leverandorOrgnr: filter.leverandor_orgnr,
+    leverandorOrgnr: filter.leverandor_orgnr || undefined,
   };
 
   return useQuery({

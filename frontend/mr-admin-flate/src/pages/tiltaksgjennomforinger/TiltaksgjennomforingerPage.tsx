@@ -12,7 +12,7 @@ import { tiltaksgjennomforingfilterAtom } from "../../api/atoms";
 export function TiltaksgjennomforingerPage() {
   useTitle("Tiltaksgjennomføringer");
   const { data: tiltaksgjennomforinger, isLoading: tiltaksgjennomforingerIsLoading } =
-    useAdminTiltaksgjennomforinger();
+    useAdminTiltaksgjennomforinger(tiltaksgjennomforingfilterAtom);
   return (
     <>
       <HeaderBanner heading="Oversikt over tiltaksgjennomføringer" />
