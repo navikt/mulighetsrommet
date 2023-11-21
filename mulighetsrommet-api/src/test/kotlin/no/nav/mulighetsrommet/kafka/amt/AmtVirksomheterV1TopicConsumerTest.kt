@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.kafka.amt
 
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
@@ -62,6 +63,13 @@ class AmtVirksomheterV1TopicConsumerTest : FunSpec({
             virksomhetRepository = virksomhetRepository,
             brregClient = brregClientMock,
         )
+
+        test("ignorer virksomheter når de ikke allerede er lagret i database") {
+            virksomhetConsumer.consume(amtVirksomhet.organisasjonsnummer, Json.encodeToJsonElement(amtVirksomhet))
+            virksomhetConsumer.consume(amtUnderenhet.organisasjonsnummer, Json.encodeToJsonElement(amtUnderenhet))
+
+            virksomhetRepository.getAll().shouldBeRight().shouldBeEmpty()
+        }
 
         test("oppdaterer virksomheter når de finnes i database") {
             virksomhetRepository.upsert(virksomhetDto.copy(poststed = "Gåseby")).shouldBeRight()
