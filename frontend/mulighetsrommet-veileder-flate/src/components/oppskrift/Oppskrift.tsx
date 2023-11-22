@@ -2,6 +2,7 @@ import { Alert, GuidePanel } from "@navikt/ds-react";
 import { PortableText } from "@portabletext/react";
 import { useEffect, useRef } from "react";
 import { Link, useParams } from "react-router-dom";
+import { useOppskrifter } from "../../core/api/queries/useOppskrifter";
 import useTiltaksgjennomforingById from "../../core/api/queries/useTiltaksgjennomforingById";
 import styles from "./Oppskrift.module.scss";
 
@@ -42,8 +43,8 @@ const oppskriftPortableText = {
 export function Oppskrift() {
   const { oppskriftId } = useParams();
   const ref = useRef<HTMLDivElement>(null);
-
   const { data: tiltaksgjennomforing } = useTiltaksgjennomforingById();
+  const { data: oppskrifter } = useOppskrifter(tiltaksgjennomforing?.tiltakstype.sanityId);
 
   useEffect(() => {
     if (ref?.current) {
@@ -51,11 +52,9 @@ export function Oppskrift() {
     }
   }, [oppskriftId]);
 
-  if (!tiltaksgjennomforing) return null;
+  if (!oppskrifter) return null;
 
-  const oppskrift = tiltaksgjennomforing.tiltakstype.oppskrifter.find(
-    (oppskrift) => oppskrift._id === oppskriftId,
-  );
+  const oppskrift = oppskrifter.find((oppskrift) => oppskrift._id === oppskriftId);
 
   if (!oppskrift) {
     return <Alert variant="warning">Vi kunne dessverre ikke finne oppskriften</Alert>;

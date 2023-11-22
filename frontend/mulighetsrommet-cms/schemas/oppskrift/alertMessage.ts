@@ -17,7 +17,6 @@ export const alertMessage = defineType({
           {
             title: "Obs obs - Tekst på oransje bakgrunn for veileder",
             value: "warning",
-            description: "testing",
           },
           {
             title: "Vær ekstra oppmerksom her - Tekst på rød bakgrunn for veileder",

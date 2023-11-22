@@ -4,8 +4,11 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
+import no.nav.mulighetsrommet.api.clients.sanity.SanityPerspective
+import no.nav.mulighetsrommet.api.domain.dto.Oppskrift
 import no.nav.mulighetsrommet.api.plugins.getNavAnsattAzureId
 import no.nav.mulighetsrommet.api.services.BrukerService
 import no.nav.mulighetsrommet.api.services.NavEnhetService
@@ -22,8 +25,8 @@ fun Route.veilederflateRoutes() {
     val brukerService: BrukerService by inject()
     val navEnhetService: NavEnhetService by inject()
 
-    route("/api/v1/internal/sanity") {
-        get("/innsatsgrupper") {
+    route("/api/v1/internal") {
+        get("/sanity/innsatsgrupper") {
             poaoTilgangService.verfiyAccessToModia(getNavAnsattAzureId())
 
             val innsatsgrupper = veilederflateService.hentInnsatsgrupper()
@@ -31,7 +34,7 @@ fun Route.veilederflateRoutes() {
             call.respond(innsatsgrupper)
         }
 
-        get("/tiltakstyper") {
+        get("/sanity/tiltakstyper") {
             poaoTilgangService.verfiyAccessToModia(getNavAnsattAzureId())
 
             val tiltakstyper = veilederflateService.hentTiltakstyper()
@@ -39,7 +42,7 @@ fun Route.veilederflateRoutes() {
             call.respond(tiltakstyper)
         }
 
-        post("/tiltaksgjennomforinger") {
+        post("/sanity/tiltaksgjennomforinger") {
             val request = call.receive<GetRelevanteTiltaksgjennomforingerForBrukerRequest>()
 
             poaoTilgangService.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), request.norskIdent)
@@ -54,7 +57,7 @@ fun Route.veilederflateRoutes() {
             call.respond(result)
         }
 
-        post("/tiltaksgjennomforing") {
+        post("/sanity/tiltaksgjennomforing") {
             val request = call.receive<GetTiltaksgjennomforingForBrukerRequest>()
 
             poaoTilgangService.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), request.norskIdent)
@@ -67,6 +70,13 @@ fun Route.veilederflateRoutes() {
             )
 
             call.respond(result)
+        }
+
+        get("/oppskrifter/{tiltakstypeId}") {
+            val tiltakstypeId = call.parameters.getOrFail("tiltakstypeId")
+            val perspective = call.request.queryParameters["perspective"]?.let { SanityPerspective.valueOf(it) } ?: SanityPerspective.PUBLISHED
+            val oppskrifter: List<Oppskrift> = veilederflateService.hentOppskrifterForTiltakstype(tiltakstypeId, perspective)
+            call.respond(oppskrifter)
         }
     }
 }

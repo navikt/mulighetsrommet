@@ -4,17 +4,22 @@ import { Link, Outlet } from "react-router-dom";
 import { useFeatureToggle } from "../../core/api/feature-toggles";
 import styles from "./Oppskriftsoversikt.module.scss";
 import { formaterDato } from "../../utils/Utils";
+import { useOppskrifter } from "../../core/api/queries/useOppskrifter";
 
 interface Props {
-  oppskrifter: Oppskrift[];
+  tiltakstypeId: string;
 }
 
-export function Oppskriftsoversikt({ oppskrifter }: Props) {
+export function Oppskriftsoversikt({ tiltakstypeId }: Props) {
   const { data: enableOppskrifter } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_VEILEDERFLATE_ARENA_OPPSKRIFTER,
   );
 
+  const { data: oppskrifter } = useOppskrifter(tiltakstypeId);
+
   if (!enableOppskrifter) return null;
+
+  if (!oppskrifter) return null;
 
   if (oppskrifter.length === 0) {
     return <Alert variant="info">Det er ikke lagt inn oppskrifter for denne tiltakstypen</Alert>;

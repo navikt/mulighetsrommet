@@ -87,7 +87,7 @@ const TiltaksdetaljerFane = ({ tiltaksgjennomforing }: Props) => {
           <KontaktinfoFane tiltaksgjennomforing={tiltaksgjennomforing} />
         </Tabs.Panel>
         <Tabs.Panel value="tab5" data-testid="tab5">
-          <Oppskriftsoversikt oppskrifter={tiltaksgjennomforing.tiltakstype.oppskrifter} />
+          <Oppskriftsoversikt tiltakstypeId={tiltaksgjennomforing.tiltakstype.sanityId} />
         </Tabs.Panel>
       </div>
     </Tabs>
