@@ -78,6 +78,8 @@ export const tiltakstype = defineType({
         "Her kan man velge å koble oppskrifter til tiltakstypen slik at de blir tilgjengelig for veiledere i Modia",
       type: "array",
       of: [{ type: "reference", to: [{ type: "oppskrift" }] }],
+      validation: (Rule) =>
+        Rule.length(1).error("Det kan kun være én oppskrift tilknyttet tiltakstypen"),
     }),
   ],
   preview: {
