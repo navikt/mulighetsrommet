@@ -51,7 +51,7 @@ export function App() {
             <Routes>
               <Route path="preview" element={<SanityPreviewOversikt />} />
               <Route path="preview/:id" element={<SanityPreview />}>
-                <Route path="oppskrifter/:oppskriftId" element={<Oppskrift />} />
+                <Route path="oppskrifter/:oppskriftId/:tiltakstypeId" element={<Oppskrift />} />
               </Route>
               <Route path="*" element={<AppWrapper />} />
             </Routes>
