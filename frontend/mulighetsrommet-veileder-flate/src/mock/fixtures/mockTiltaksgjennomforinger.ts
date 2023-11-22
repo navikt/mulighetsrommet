@@ -40,7 +40,8 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
   {
     sanityId: "91205ff2-ec72-4a7f-80b8-1c99d8535a06",
     navn: "Sindres mentorordning med Yoda",
-    oppstart: TiltaksgjennomforingOppstartstype.LOPENDE,
+    oppstart: TiltaksgjennomforingOppstartstype.FELLES,
+    oppstartsdato: new Date().toDateString(),
     stedForGjennomforing: "Oslo",
     tiltakstype: mockTiltakstyper.mentor,
     kontaktinfoTiltaksansvarlige: [

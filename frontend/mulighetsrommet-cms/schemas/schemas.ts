@@ -10,6 +10,11 @@ import { faneinnhold } from "./faneinnhold";
 import { forskningsrapport } from "./forskningsrapport";
 import { lenke } from "./lenke";
 import { redaktor } from "./redaktor";
+import { oppskrift } from "./oppskrift/oppskrift";
+import { steg } from "./oppskrift/steg";
+import { oppskriftContent } from "./oppskrift/oppskriftContent";
+import { tips } from "./oppskrift/tips";
+import { alertMessage } from "./oppskrift/alertMessage";
 
 export const schemas = [
   // The following are document types which will appear
@@ -25,6 +30,11 @@ export const schemas = [
   lenke,
   forskningsrapport,
   redaktor,
+  oppskrift,
+  steg,
+  tips,
+  alertMessage,
+  oppskriftContent,
   // When added to this list, object types can be used as
   // { type: 'typename' } in other document schemas
   blockContent,

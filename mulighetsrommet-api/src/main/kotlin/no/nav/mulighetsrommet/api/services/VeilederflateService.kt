@@ -107,6 +107,7 @@ class VeilederflateService(
                     faneinnhold = it.faneinnhold,
                     delingMedBruker = it.delingMedBruker,
                     arenakode = tiltakstype?.arenaKode,
+                    oppskrifter = it.oppskrifter,
                 )
             }
     }
@@ -260,6 +261,19 @@ class VeilederflateService(
                   pameldingOgVarighet,
                 },
                 delingMedBruker,
+                oppskrifter[] -> {
+                  ...,
+                  steg[] {
+                    ...,
+                    innhold[] {
+                      ...,
+                      _type == "image" => {
+                      ...,
+                      asset-> // For å hente ut url til bilder
+                    }
+                  }
+                 }
+               }
               },
               tiltaksgjennomforingNavn,
               "tiltaksnummer": tiltaksnummer.current,
@@ -308,6 +322,7 @@ class VeilederflateService(
                         faneinnhold = faneinnhold,
                         delingMedBruker = delingMedBruker,
                         arenakode = arenaKode,
+                        oppskrifter = oppskrifter,
                     )
                 },
                 navn = tiltaksgjennomforingNavn,

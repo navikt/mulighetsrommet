@@ -31,6 +31,7 @@ data class SanityTiltakstype(
     val regelverkLenker: List<RegelverkLenke>? = emptyList(),
     val faneinnhold: Faneinnhold? = null,
     val delingMedBruker: String? = null,
+    val oppskrifter: List<Oppskrift>? = emptyList(),
 )
 
 @Serializable

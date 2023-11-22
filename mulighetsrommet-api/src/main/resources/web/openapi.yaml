@@ -2485,9 +2485,14 @@ components:
           type: string
         arenakode:
           $ref: "#/components/schemas/Tiltakskode"
+        oppskrifter:
+          type: array
+          items:
+            $ref: "#/components/schemas/Oppskrift"
       required:
         - sanityId
         - navn
+        - oppskrifter
 
     VeilederflateTiltaksgjennomforing:
       type: object
@@ -2964,3 +2969,42 @@ components:
         required:
           - region
           - kontorer
+
+    Oppskrift:
+      type: object
+      properties:
+        _id:
+          type: string
+        navn:
+          type: string
+        beskrivelse:
+          type: string
+        _updatedAt:
+          type: string
+        steg:
+          type: array
+          items:
+            $ref: "#/components/schemas/Steg"
+      required:
+        - _id
+        - navn
+        - beskrivelse
+        - steg
+        - _updatedAt
+
+    Steg:
+      type: object
+      properties:
+        navn:
+          type: string
+        innhold:
+          type: object
+        _type:
+          type: string
+        _key:
+          type: string
+      required:
+        - navn
+        - innhold
+        - _type
+        - _key

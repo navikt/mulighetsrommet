@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.domain.dto
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonObject
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingTilgjengelighetsstatus
 import no.nav.mulighetsrommet.domain.dto.Faneinnhold
@@ -55,6 +56,7 @@ data class VeilederflateTiltakstype(
     val faneinnhold: Faneinnhold? = null,
     val delingMedBruker: String? = null,
     val arenakode: String? = null,
+    val oppskrifter: List<Oppskrift>? = emptyList()
 )
 
 @Serializable
@@ -70,3 +72,12 @@ data class VeilederflateArrangor(
         val epost: String,
     )
 }
+
+@Serializable
+data class Oppskrift(
+    val _id: String,
+    val navn: String,
+    val beskrivelse: String,
+    val steg: List<JsonObject>,
+    val _updatedAt: String,
+)

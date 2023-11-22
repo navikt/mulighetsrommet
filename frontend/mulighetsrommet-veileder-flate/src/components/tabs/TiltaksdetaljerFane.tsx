@@ -8,7 +8,7 @@ import DetaljerFane from "./DetaljerFane";
 import styles from "./TiltaksdetaljerFane.module.scss";
 import KontaktinfoFane from "./kontaktinfofane/KontaktinfoFane";
 import { useFeatureToggle } from "../../core/api/feature-toggles";
-import { Registreringsoppskrift } from "../oppskrift/Oppskriftsregistrering";
+import { Oppskriftsoversikt } from "../oppskrift/Oppskriftsoversikt";
 
 interface Props {
   tiltaksgjennomforing: VeilederflateTiltaksgjennomforing;
@@ -87,7 +87,7 @@ const TiltaksdetaljerFane = ({ tiltaksgjennomforing }: Props) => {
           <KontaktinfoFane tiltaksgjennomforing={tiltaksgjennomforing} />
         </Tabs.Panel>
         <Tabs.Panel value="tab5" data-testid="tab5">
-          <Registreringsoppskrift />
+          <Oppskriftsoversikt oppskrifter={tiltaksgjennomforing.tiltakstype.oppskrifter} />
         </Tabs.Panel>
       </div>
     </Tabs>
