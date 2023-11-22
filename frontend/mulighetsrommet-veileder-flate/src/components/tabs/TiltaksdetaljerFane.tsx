@@ -1,12 +1,14 @@
 import { Tabs } from "@navikt/ds-react";
 import { useAtom } from "jotai";
-import { VeilederflateTiltaksgjennomforing } from "mulighetsrommet-api-client";
+import { Toggles, VeilederflateTiltaksgjennomforing } from "mulighetsrommet-api-client";
 import { logEvent } from "../../core/api/logger";
 import { faneAtom } from "../../core/atoms/atoms";
 import { kebabCase } from "../../utils/Utils";
 import DetaljerFane from "./DetaljerFane";
 import styles from "./TiltaksdetaljerFane.module.scss";
 import KontaktinfoFane from "./kontaktinfofane/KontaktinfoFane";
+import { useFeatureToggle } from "../../core/api/feature-toggles";
+import { Oppskriftsoversikt } from "../oppskrift/Oppskriftsoversikt";
 
 interface Props {
   tiltaksgjennomforing: VeilederflateTiltaksgjennomforing;
@@ -14,6 +16,9 @@ interface Props {
 
 const TiltaksdetaljerFane = ({ tiltaksgjennomforing }: Props) => {
   const [fane, setFane] = useAtom(faneAtom);
+  const { data: enableArenaOppskrifter } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_VEILEDERFLATE_ARENA_OPPSKRIFTER,
+  );
 
   const { tiltakstype, faneinnhold } = tiltaksgjennomforing;
   const faneoverskrifter = [
@@ -21,12 +26,14 @@ const TiltaksdetaljerFane = ({ tiltaksgjennomforing }: Props) => {
     "Detaljer og innhold",
     "Påmelding og varighet",
     "Kontaktinfo",
+    enableArenaOppskrifter ? "Oppskrifter" : "",
   ] as const;
   const tabValueTilFaneoverSkrifter: { [key: string]: string } = {
     tab1: faneoverskrifter[0],
     tab2: faneoverskrifter[1],
     tab3: faneoverskrifter[2],
     tab4: faneoverskrifter[3],
+    tab5: faneoverskrifter[4],
   };
 
   return (
@@ -41,7 +48,7 @@ const TiltaksdetaljerFane = ({ tiltaksgjennomforing }: Props) => {
       }}
     >
       <Tabs.List className={styles.fane_liste} id="fane_liste">
-        {faneoverskrifter.map((fane, index) => (
+        {faneoverskrifter.filter(Boolean).map((fane, index) => (
           <Tabs.Tab
             key={index}
             value={`tab${index + 1}`}
@@ -78,6 +85,9 @@ const TiltaksdetaljerFane = ({ tiltaksgjennomforing }: Props) => {
         </Tabs.Panel>
         <Tabs.Panel value="tab4" data-testid="tab4">
           <KontaktinfoFane tiltaksgjennomforing={tiltaksgjennomforing} />
+        </Tabs.Panel>
+        <Tabs.Panel value="tab5" data-testid="tab5">
+          <Oppskriftsoversikt tiltakstypeId={tiltaksgjennomforing.tiltakstype.sanityId} />
         </Tabs.Panel>
       </div>
     </Tabs>

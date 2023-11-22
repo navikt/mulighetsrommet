@@ -1,0 +1,22 @@
+.container {
+  display: flex;
+}
+
+.oppskrifter {
+  overflow-y: scroll;
+  max-height: 50rem;
+}
+
+.steg {
+  background-color: var(--a-gray-50);
+  padding: 1rem;
+  margin: 1rem 0;
+  border-radius: 0.2rem;
+}
+
+.navigering {
+  margin-right: 1rem;
+  nav ol li {
+    margin: 1rem 0;
+  }
+}

@@ -1359,6 +1359,42 @@ paths:
               schema:
                 type: boolean
 
+  /api/v1/internal/oppskrifter/{tiltakstypeId}:
+    parameters:
+      - in: path
+        name: tiltakstypeId
+        description: Id på tiltakstypen du skal hente oppskrifter for
+        schema:
+          type: string
+        required: true
+      - in: query
+        name: perspective
+        description: Hvilket Sanity-perspective du vil bruke
+        schema:
+          type: string
+          enum:
+            - previewDrafts
+            - published
+            - raw
+    get:
+      tags:
+        - Oppskrifter
+      operationId: getOppskrifter
+      responses:
+        200:
+          description: Liste med oppskrifter tilknyttet tiltakstypen
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Oppskrift"
+                required:
+                  - data
+
 components:
   securitySchemes:
     bearerAuth:
@@ -2940,6 +2976,7 @@ components:
         - mulighetsrommet.admin-flate-vis-deltakerliste-fra-komet
         - mulighetsrommet.enable-arbeidsflate
         - mulighetsrommet-veilederflate-landingsside
+        - mulighetsrommet-veilederflate-arena-oppskrifter
 
     TilgjengeligForVeilederRequest:
       type: object
@@ -2963,3 +3000,42 @@ components:
         required:
           - region
           - kontorer
+
+    Oppskrift:
+      type: object
+      properties:
+        _id:
+          type: string
+        navn:
+          type: string
+        beskrivelse:
+          type: string
+        _updatedAt:
+          type: string
+        steg:
+          type: array
+          items:
+            $ref: "#/components/schemas/Steg"
+      required:
+        - _id
+        - navn
+        - beskrivelse
+        - steg
+        - _updatedAt
+
+    Steg:
+      type: object
+      properties:
+        navn:
+          type: string
+        innhold:
+          type: object
+        _type:
+          type: string
+        _key:
+          type: string
+      required:
+        - navn
+        - innhold
+        - _type
+        - _key

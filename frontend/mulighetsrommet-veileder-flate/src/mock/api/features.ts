@@ -5,4 +5,5 @@ export const mockFeatures: Features = {
   "mulighetsrommet.admin-flate-opprett-tiltaksgjennomforing": false,
   "mulighetsrommet.admin-flate-vis-deltakerliste-fra-komet": false,
   "mulighetsrommet-veilederflate-landingsside": false,
+  "mulighetsrommet-veilederflate-arena-oppskrifter": true,
 };
