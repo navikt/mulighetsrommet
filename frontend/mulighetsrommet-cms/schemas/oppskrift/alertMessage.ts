@@ -13,9 +13,16 @@ export const alertMessage = defineType({
       of: [{ type: "string" }],
       options: {
         list: [
-          { title: "Informasjon", value: "info" },
-          { title: "Obs obs", value: "warning", description: "testing" },
-          { title: "Vær ekstra oppmerksom her", value: "error" },
+          { title: "Informasjon - Tekst på blå bakgrunn for veileder", value: "info" },
+          {
+            title: "Obs obs - Tekst på oransje bakgrunn for veileder",
+            value: "warning",
+            description: "testing",
+          },
+          {
+            title: "Vær ekstra oppmerksom her - Tekst på rød bakgrunn for veileder",
+            value: "error",
+          },
         ],
       },
     }),
