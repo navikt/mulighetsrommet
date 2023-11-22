@@ -113,9 +113,8 @@ class NavEnheterSyncService(
     }
 
     private fun tryResolveOverordnetEnhet(enhet: Norg2EnhetDto): String? {
-        if (!NavEnhetUtils.isRelevantEnhetStatus(enhet.status) || !listOf(Norg2Type.ALS, Norg2Type.TILTAK).contains(
-                enhet.type,
-            )
+        if (!NavEnhetUtils.isRelevantEnhetStatus(enhet.status) ||
+            !listOf(Norg2Type.ALS, Norg2Type.TILTAK, Norg2Type.KO).contains(enhet.type)
         ) {
             return null
         }
@@ -194,7 +193,7 @@ class NavEnheterSyncService(
         )
 
         val fantFylke = spesialEnheterTilFylkeMap[enhet.enhetNr]
-        if (fantFylke == null) {
+        if (fantFylke == null && enhet.type != Norg2Type.KO) {
             slackNotifier.sendMessage("Fant ikke fylke for spesialenhet med enhetsnummer: ${enhet.enhetNr}. En utvikler må sjekke om enheten skal mappe til et fylke.")
             return null
         }
