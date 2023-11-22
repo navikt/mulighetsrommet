@@ -3,7 +3,6 @@ import { PortableText } from "@portabletext/react";
 import { useEffect, useRef } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useOppskrifter } from "../../core/api/queries/useOppskrifter";
-import useTiltaksgjennomforingById from "../../core/api/queries/useTiltaksgjennomforingById";
 import styles from "./Oppskrift.module.scss";
 
 interface ImageProp {
@@ -41,10 +40,9 @@ const oppskriftPortableText = {
 };
 
 export function Oppskrift() {
-  const { oppskriftId } = useParams();
+  const { oppskriftId, tiltakstypeId } = useParams();
   const ref = useRef<HTMLDivElement>(null);
-  const { data: tiltaksgjennomforing } = useTiltaksgjennomforingById();
-  const { data: oppskrifter } = useOppskrifter(tiltaksgjennomforing?.tiltakstype.sanityId);
+  const { data: oppskrifter } = useOppskrifter(tiltakstypeId);
 
   useEffect(() => {
     if (ref?.current) {
