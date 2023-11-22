@@ -1365,6 +1365,15 @@ paths:
         name: tiltakstypeId
         description: Id på tiltakstypen du skal hente oppskrifter for
         required: true
+      - in: query
+        name: perspective
+        description: Hvilket Sanity-perspective du vil bruke
+        schema:
+          type: string
+          enum:
+            - previewDrafts
+            - published
+            - raw
     get:
       tags:
         - Oppskrifter
