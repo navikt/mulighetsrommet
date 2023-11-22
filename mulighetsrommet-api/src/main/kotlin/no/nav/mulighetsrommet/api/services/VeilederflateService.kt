@@ -85,6 +85,19 @@ class VeilederflateService(
                         pameldingOgVarighet,
                       },
                       delingMedBruker,
+                      "oppskrifter":  coalesce(oppskrifter[] -> {
+                        ...,
+                        steg[] {
+                          ...,
+                          innhold[] {
+                            ...,
+                            _type == "image" => {
+                            ...,
+                            asset-> // For å hente ut url til bilder
+                        }
+                      }
+                    }
+                    }, [])
                     }
                 """.trimIndent(),
             )
@@ -107,7 +120,7 @@ class VeilederflateService(
                     faneinnhold = it.faneinnhold,
                     delingMedBruker = it.delingMedBruker,
                     arenakode = tiltakstype?.arenaKode,
-                    oppskrifter = it.oppskrifter,
+                    oppskrifter = it.oppskrifter ?: emptyList(),
                 )
             }
     }
@@ -261,19 +274,19 @@ class VeilederflateService(
                   pameldingOgVarighet,
                 },
                 delingMedBruker,
-                oppskrifter[] -> {
-                  ...,
-                  steg[] {
-                    ...,
-                    innhold[] {
-                      ...,
-                      _type == "image" => {
-                      ...,
-                      asset-> // For å hente ut url til bilder
+                "oppskrifter":  coalesce(oppskrifter[] -> {
+                        ...,
+                        steg[] {
+                          ...,
+                          innhold[] {
+                            ...,
+                            _type == "image" => {
+                            ...,
+                            asset-> // For å hente ut url til bilder
+                        }
+                      }
                     }
-                  }
-                 }
-               }
+                  }, [])
               },
               tiltaksgjennomforingNavn,
               "tiltaksnummer": tiltaksnummer.current,
@@ -322,7 +335,7 @@ class VeilederflateService(
                         faneinnhold = faneinnhold,
                         delingMedBruker = delingMedBruker,
                         arenakode = arenaKode,
-                        oppskrifter = oppskrifter,
+                        oppskrifter = oppskrifter ?: emptyList(),
                     )
                 },
                 navn = tiltaksgjennomforingNavn,

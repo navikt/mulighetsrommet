@@ -28,10 +28,10 @@ data class SanityTiltakstype(
     val tiltakstypeNavn: String,
     val beskrivelse: String? = null,
     val innsatsgruppe: SanityInnsatsgruppe? = null,
-    val regelverkLenker: List<RegelverkLenke>? = emptyList(),
+    val regelverkLenker: List<RegelverkLenke>? = null,
     val faneinnhold: Faneinnhold? = null,
     val delingMedBruker: String? = null,
-    val oppskrifter: List<Oppskrift>? = emptyList(),
+    val oppskrifter: List<Oppskrift>? = null
 )
 
 @Serializable

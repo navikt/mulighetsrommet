@@ -56,7 +56,7 @@ data class VeilederflateTiltakstype(
     val faneinnhold: Faneinnhold? = null,
     val delingMedBruker: String? = null,
     val arenakode: String? = null,
-    val oppskrifter: List<Oppskrift>? = emptyList(),
+    val oppskrifter: List<Oppskrift> = emptyList()
 )
 
 @Serializable
