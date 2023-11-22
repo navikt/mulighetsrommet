@@ -8,7 +8,7 @@ export function useOppskrifter(tiltakstypeId?: string) {
     queryKey: QueryKeys.oppskrifter(tiltakstypeId!!),
     queryFn: () =>
       mulighetsrommetClient.oppskrifter.getOppskrifter({
-        tiltakstypeId,
+        tiltakstypeId: tiltakstypeId!!,
         perspective: erPreview() ? "previewDrafts" : "published",
       }),
     enabled: !!tiltakstypeId,

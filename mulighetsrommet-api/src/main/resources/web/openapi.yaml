@@ -1364,6 +1364,8 @@ paths:
       - in: path
         name: tiltakstypeId
         description: Id på tiltakstypen du skal hente oppskrifter for
+        schema:
+          type: string
         required: true
       - in: query
         name: perspective

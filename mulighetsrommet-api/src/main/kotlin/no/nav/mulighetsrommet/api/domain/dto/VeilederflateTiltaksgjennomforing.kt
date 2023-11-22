@@ -74,7 +74,7 @@ data class VeilederflateArrangor(
 
 @Serializable
 data class Oppskrifter(
-    val data: List<Oppskrift>
+    val data: List<Oppskrift>,
 )
 
 @Serializable
