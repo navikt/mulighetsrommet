@@ -13,6 +13,7 @@ import RoutesConfig from "./RoutesConfig";
 import { ErrorFallback } from "./utils/ErrorFallback";
 import { SanityPreview } from "./views/Preview/SanityPreview";
 import { SanityPreviewOversikt } from "./views/Preview/SanityPreviewOversikt";
+import { Oppskrift } from "./components/oppskrift/Oppskrift";
 
 if (import.meta.env.PROD && import.meta.env.VITE_FARO_URL) {
   initializeFaro({
@@ -49,7 +50,9 @@ export function App() {
           <Router>
             <Routes>
               <Route path="preview" element={<SanityPreviewOversikt />} />
-              <Route path="preview/:id" element={<SanityPreview />} />
+              <Route path="preview/:id" element={<SanityPreview />}>
+                <Route path="oppskrifter/:oppskriftId" element={<Oppskrift />} />
+              </Route>
               <Route path="*" element={<AppWrapper />} />
             </Routes>
           </Router>
