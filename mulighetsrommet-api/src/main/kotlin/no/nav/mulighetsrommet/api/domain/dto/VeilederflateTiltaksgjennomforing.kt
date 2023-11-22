@@ -73,6 +73,11 @@ data class VeilederflateArrangor(
 }
 
 @Serializable
+data class Oppskrifter(
+    val data: List<Oppskrift>
+)
+
+@Serializable
 data class Oppskrift(
     val _id: String,
     val navn: String,

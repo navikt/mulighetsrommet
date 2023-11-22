@@ -1384,9 +1384,14 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Oppskrift"
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Oppskrift"
+                required:
+                  - data
 
 components:
   securitySchemes:

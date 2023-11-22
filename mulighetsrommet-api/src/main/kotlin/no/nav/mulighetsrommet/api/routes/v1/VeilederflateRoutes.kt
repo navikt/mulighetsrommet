@@ -9,6 +9,7 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.clients.sanity.SanityPerspective
 import no.nav.mulighetsrommet.api.domain.dto.Oppskrift
+import no.nav.mulighetsrommet.api.domain.dto.Oppskrifter
 import no.nav.mulighetsrommet.api.plugins.getNavAnsattAzureId
 import no.nav.mulighetsrommet.api.services.BrukerService
 import no.nav.mulighetsrommet.api.services.NavEnhetService
@@ -74,9 +75,17 @@ fun Route.veilederflateRoutes() {
 
         get("/oppskrifter/{tiltakstypeId}") {
             val tiltakstypeId = call.parameters.getOrFail("tiltakstypeId")
-            val perspective = call.request.queryParameters["perspective"]?.let { SanityPerspective.valueOf(it) } ?: SanityPerspective.PUBLISHED
-            val oppskrifter: List<Oppskrift> = veilederflateService.hentOppskrifterForTiltakstype(tiltakstypeId, perspective)
-            call.respond(oppskrifter)
+            val perspective = call.request.queryParameters["perspective"]?.let {
+                when (it) {
+                    "published" -> SanityPerspective.PUBLISHED
+                    "raw" -> SanityPerspective.RAW
+                    else -> SanityPerspective.PREVIEW_DRAFTS
+                }
+            }
+                ?: SanityPerspective.PUBLISHED
+            val oppskrifter: List<Oppskrift> =
+                veilederflateService.hentOppskrifterForTiltakstype(tiltakstypeId, perspective)
+            call.respond(Oppskrifter(data = oppskrifter))
         }
     }
 }

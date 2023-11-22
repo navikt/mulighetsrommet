@@ -1,4 +1,4 @@
-import { Alert } from "@navikt/ds-react";
+import { Alert, Skeleton } from "@navikt/ds-react";
 import { Oppskrift, Toggles } from "mulighetsrommet-api-client";
 import { Link, Outlet } from "react-router-dom";
 import { useFeatureToggle } from "../../core/api/feature-toggles";
@@ -15,20 +15,24 @@ export function Oppskriftsoversikt({ tiltakstypeId }: Props) {
     Toggles.MULIGHETSROMMET_VEILEDERFLATE_ARENA_OPPSKRIFTER,
   );
 
-  const { data: oppskrifter } = useOppskrifter(tiltakstypeId);
+  const { data: oppskrifter, isLoading } = useOppskrifter(tiltakstypeId);
+
+  if (isLoading) {
+    return <OppskriftSkeleton />;
+  }
 
   if (!enableOppskrifter) return null;
 
   if (!oppskrifter) return null;
 
-  if (oppskrifter.length === 0) {
+  if (oppskrifter.data.length === 0) {
     return <Alert variant="info">Det er ikke lagt inn oppskrifter for denne tiltakstypen</Alert>;
   }
 
   return (
     <>
       <ul className={styles.container}>
-        {oppskrifter.map((oppskrift) => {
+        {oppskrifter.data.map((oppskrift) => {
           return (
             <li className={styles.item} key={oppskrift.navn}>
               <Link className={styles.link} to={`oppskrifter/${oppskrift._id}`}>
@@ -56,6 +60,14 @@ function Oppskriftskort({ oppskrift: { navn, beskrivelse, _updatedAt } }: Oppskr
         <p>{beskrivelse}</p>
       </div>
       <small>Oppdatert: {formaterDato(new Date(_updatedAt))}</small>
+    </div>
+  );
+}
+
+function OppskriftSkeleton() {
+  return (
+    <div>
+      <Skeleton variant="rectangle" width="15rem" height={200} />
     </div>
   );
 }

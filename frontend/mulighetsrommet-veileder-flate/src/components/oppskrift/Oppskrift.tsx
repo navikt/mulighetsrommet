@@ -54,7 +54,7 @@ export function Oppskrift() {
 
   if (!oppskrifter) return null;
 
-  const oppskrift = oppskrifter.find((oppskrift) => oppskrift._id === oppskriftId);
+  const oppskrift = oppskrifter.data.find((oppskrift) => oppskrift._id === oppskriftId);
 
   if (!oppskrift) {
     return <Alert variant="warning">Vi kunne dessverre ikke finne oppskriften</Alert>;
