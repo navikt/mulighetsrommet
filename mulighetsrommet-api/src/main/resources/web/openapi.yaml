@@ -449,20 +449,39 @@ paths:
             type: string
           description: Search for tiltaksgjennomføringer by the name
         - in: query
-          name: navEnhet
+          name: navEnheter
           schema:
-            type: string
+            type: array
+            items:
+              type: string
           description: 4 digit enhetskode
         - in: query
-          name: tiltakstypeId
+          name: tiltakstypeIder
           schema:
-            type: string
+            type: array
+            items:
+              type: string
+              format: uuid
           description: Id for tiltakstype knyttet til tiltaksgjennomføringer
         - in: query
-          name: status
+          name: statuser
           schema:
-            $ref: "#/components/schemas/TiltaksgjennomforingStatus"
+            type: array
+            items:
+              $ref: "#/components/schemas/TiltaksgjennomforingStatus"
           description: Status for tiltaksgjennomføring
+        - in: query
+          name: navRegioner
+          schema:
+            type: array
+            items:
+              type: string
+        - in: query
+          name: arrangorOrgnr
+          schema:
+            type: array
+            items:
+              type: string
         - in: query
           name: size
           schema:
@@ -473,15 +492,7 @@ paths:
           schema:
             $ref: "#/components/schemas/SorteringTiltaksgjennomforinger"
         - in: query
-          name: navRegion
-          schema:
-            type: string
-        - in: query
           name: avtaleId
-          schema:
-            type: string
-        - in: query
-          name: arrangorOrgnr
           schema:
             type: string
       responses:
@@ -527,6 +538,40 @@ paths:
       operationId: getMineTiltaksgjennomforinger
       parameters:
         - in: query
+          name: navEnheter
+          schema:
+            type: array
+            items:
+              type: string
+          description: 4 digit enhetskode
+        - in: query
+          name: tiltakstypeIder
+          schema:
+            type: array
+            items:
+              type: string
+              format: uuid
+          description: Id for tiltakstype knyttet til tiltaksgjennomføringer
+        - in: query
+          name: statuser
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/TiltaksgjennomforingStatus"
+          description: Status for tiltaksgjennomføring
+        - in: query
+          name: navRegioner
+          schema:
+            type: array
+            items:
+              type: string
+        - in: query
+          name: arrangorOrgnr
+          schema:
+            type: array
+            items:
+              type: string
+        - in: query
           name: page
           schema:
             type: number
@@ -537,21 +582,6 @@ paths:
             type: string
           description: Search for tiltaksgjennomføringer by the name
         - in: query
-          name: navEnhet
-          schema:
-            type: string
-          description: 4 digit enhetskode
-        - in: query
-          name: tiltakstypeId
-          schema:
-            type: string
-          description: Id for tiltakstype knyttet til tiltaksgjennomføringer
-        - in: query
-          name: status
-          schema:
-            $ref: "#/components/schemas/TiltaksgjennomforingStatus"
-          description: Status for tiltaksgjennomføring
-        - in: query
           name: size
           schema:
             type: number
@@ -561,15 +591,7 @@ paths:
           schema:
             $ref: "#/components/schemas/SorteringTiltaksgjennomforinger"
         - in: query
-          name: navRegion
-          schema:
-            type: string
-        - in: query
           name: avtaleId
-          schema:
-            type: string
-        - in: query
-          name: arrangorOrgnr
           schema:
             type: string
       responses:

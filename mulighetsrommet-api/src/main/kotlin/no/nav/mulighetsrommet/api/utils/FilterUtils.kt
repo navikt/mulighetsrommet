@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.utils
 import io.ktor.server.application.*
 import io.ktor.server.util.*
 import io.ktor.util.pipeline.*
+import kotliquery.param
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
@@ -37,15 +38,15 @@ data class AvtaleFilter(
 
 data class AdminTiltaksgjennomforingFilter(
     val search: String? = null,
-    val navEnhet: String? = null,
-    val tiltakstypeId: UUID? = null,
-    val status: Tiltaksgjennomforingsstatus? = null,
+    val navEnheter: List<String> = emptyList(),
+    val tiltakstypeIder: List<UUID> = emptyList(),
+    val statuser: List<Tiltaksgjennomforingsstatus> = emptyList(),
     val sortering: String? = null,
     val sluttDatoCutoff: LocalDate? = ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate,
     val dagensDato: LocalDate = LocalDate.now(),
-    val navRegion: String? = null,
+    val navRegioner: List<String> = emptyList(),
     val avtaleId: UUID? = null,
-    val arrangorOrgnr: String? = null,
+    val arrangorOrgnr: List<String> = emptyList(),
     val administratorNavIdent: String? = null,
 )
 
@@ -137,24 +138,24 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getAvtaleFilter(): AvtaleFilte
 
 fun <T : Any> PipelineContext<T, ApplicationCall>.getAdminTiltaksgjennomforingsFilter(): AdminTiltaksgjennomforingFilter {
     val search = call.request.queryParameters["search"]
-    val navEnhet = call.request.queryParameters["navEnhet"]
-    val tiltakstypeId =
-        call.request.queryParameters["tiltakstypeId"]?.let { if (it.isEmpty()) null else UUID.fromString(it) }
+    val navEnheter = call.parameters.getAll("navEnheter")
+    val tiltakstypeIder =
+        call.parameters.getAll("tiltakstypeIder")?.map { UUID.fromString(it) }
     val statuser =
-        call.request.queryParameters["status"]?.let { Tiltaksgjennomforingsstatus.valueOf(it) }
+        call.parameters.getAll("statuser")?.map { Tiltaksgjennomforingsstatus.valueOf(it) }
     val sortering = call.request.queryParameters["sort"]
-    val navRegion = call.request.queryParameters["navRegion"]
+    val navRegioner = call.parameters.getAll("navRegioner")
     val avtaleId = call.request.queryParameters["avtaleId"]?.let { if (it.isEmpty()) null else UUID.fromString(it) }
-    val arrangorOrgnr = call.request.queryParameters["arrangorOrgnr"]
+    val arrangorOrgnr = call.parameters.getAll("arrangorOrgnr")
     return AdminTiltaksgjennomforingFilter(
         search = search,
-        navEnhet = navEnhet,
-        tiltakstypeId = tiltakstypeId,
-        status = statuser,
+        navEnheter = navEnheter ?: emptyList(),
+        tiltakstypeIder = tiltakstypeIder ?: emptyList(),
+        statuser = statuser ?: emptyList(),
         sortering = sortering,
-        navRegion = navRegion,
+        navRegioner = navRegioner ?: emptyList(),
         avtaleId = avtaleId,
-        arrangorOrgnr = arrangorOrgnr,
+        arrangorOrgnr = arrangorOrgnr ?: emptyList(),
         administratorNavIdent = null,
     )
 }
