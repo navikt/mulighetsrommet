@@ -223,33 +223,29 @@ class AvtaleRepository(private val db: Database) {
 
     fun getAll(
         pagination: PaginationParams = PaginationParams(),
-        tiltakstypeId: UUID? = null,
+        tiltakstypeIder: List<UUID> = emptyList(),
         search: String? = null,
-        status: Avtalestatus? = null,
-        navRegion: String? = null,
+        statuser: List<Avtalestatus> = emptyList(),
+        navRegioner: List<String> = emptyList(),
         sortering: String? = null,
         dagensDato: LocalDate = LocalDate.now(),
-        leverandorOrgnr: String? = null,
+        leverandorOrgnr: List<String> = emptyList(),
         administratorNavIdent: String? = null,
     ): Pair<Int, List<AvtaleAdminDto>> {
         val parameters = mapOf(
-            "tiltakstype_id" to tiltakstypeId,
             "search" to "%${search?.replace("/", "#")?.trim()}%",
-            "nav_region_json" to navRegion?.let { """[{"enhetsnummer":"$it"}]""" },
-            "nav_region" to navRegion,
             "limit" to pagination.limit,
             "offset" to pagination.offset,
             "today" to dagensDato,
-            "leverandorOrgnr" to leverandorOrgnr,
             "administrator_nav_ident" to administratorNavIdent?.let { """[{"navIdent": "$it" }]""" },
         )
 
         val where = DatabaseUtils.andWhereParameterNotNull(
-            tiltakstypeId to "tiltakstype_id = :tiltakstype_id",
+            tiltakstypeIder.ifEmpty { null } to tiltakstypeIderWhereStatement(tiltakstypeIder),
             search to "(lower(navn) like lower(:search)) or avtalenummer like :search",
-            status to status?.toDbStatement(),
-            navRegion to "(nav_enheter @> :nav_region_json::jsonb or arena_ansvarlig_enhet::jsonb->>'enhetsnummer' = :nav_region or arena_ansvarlig_enhet::jsonb->>'enhetsnummer' in (select enhetsnummer from nav_enhet where overordnet_enhet = :nav_region))",
-            leverandorOrgnr to "leverandor_organisasjonsnummer = :leverandorOrgnr",
+            statuser.ifEmpty { null } to statuserWhereStatement(statuser),
+            navRegioner.ifEmpty { null } to navRegionerWhereStatement(navRegioner),
+            leverandorOrgnr.ifEmpty { null } to leverandorOrgnrWhereStatement(leverandorOrgnr),
             administratorNavIdent to "administratorer @> :administrator_nav_ident::jsonb",
         )
 
@@ -443,14 +439,32 @@ class AvtaleRepository(private val db: Database) {
         )
     }
 
-    private fun Avtalestatus.toDbStatement(): String {
-        return when (this) {
-            Avtalestatus.Aktiv -> "(avslutningsstatus = '${Avslutningsstatus.IKKE_AVSLUTTET}' and (:today >= start_dato and :today <= slutt_dato))"
-            Avtalestatus.Avsluttet -> "(avslutningsstatus = '${Avslutningsstatus.AVSLUTTET}' or :today > slutt_dato)"
-            Avtalestatus.Avbrutt -> "avslutningsstatus = '${Avslutningsstatus.AVBRUTT}'"
-            Avtalestatus.Planlagt -> "(avslutningsstatus = '${Avslutningsstatus.IKKE_AVSLUTTET}' and :today < start_dato)"
-        }
-    }
+    private fun leverandorOrgnrWhereStatement(leverandorOrgnr: List<String>): String =
+        leverandorOrgnr
+            .joinToString(prefix = "(", postfix = ")", separator = " or ") {
+                """leverandor_organisasjonsnummer = '$it'"""
+            }
+
+    private fun tiltakstypeIderWhereStatement(tiltakstypeIder: List<UUID>): String =
+        tiltakstypeIder
+            .joinToString(prefix = "(", postfix = ")", separator = " or ") { "tiltakstype_id = '$it'" }
+
+    private fun navRegionerWhereStatement(navRegioner: List<String>): String =
+        navRegioner
+            .joinToString(prefix = "(", postfix = ")", separator = " or ") {
+                """(nav_enheter @> '[{"enhetsnummer": "$it"}]' or arena_ansvarlig_enhet::jsonb->>'enhetsnummer' = '$it' or arena_ansvarlig_enhet::jsonb->>'enhetsnummer' in (select enhetsnummer from nav_enhet where overordnet_enhet = '$it'))"""
+            }
+
+    private fun statuserWhereStatement(statuser: List<Avtalestatus>): String =
+        statuser
+            .joinToString(prefix = "(", postfix = ")", separator = " or ") {
+                when (it) {
+                    Avtalestatus.Aktiv -> "(avslutningsstatus = '${Avslutningsstatus.IKKE_AVSLUTTET}' and (:today >= start_dato and :today <= slutt_dato))"
+                    Avtalestatus.Avsluttet -> "(avslutningsstatus = '${Avslutningsstatus.AVSLUTTET}' or :today > slutt_dato)"
+                    Avtalestatus.Avbrutt -> "avslutningsstatus = '${Avslutningsstatus.AVBRUTT}'"
+                    Avtalestatus.Planlagt -> "(avslutningsstatus = '${Avslutningsstatus.IKKE_AVSLUTTET}' and :today < start_dato)"
+                }
+            }
 
     private fun Row.toAvtaleNotificationDto(): AvtaleNotificationDto {
         val administratorer = arrayOrNull<String?>("administratorer")?.asList()?.filterNotNull() ?: emptyList()

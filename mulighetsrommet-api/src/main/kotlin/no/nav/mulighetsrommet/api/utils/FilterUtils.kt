@@ -25,13 +25,13 @@ data class TiltakstypeFilter(
 )
 
 data class AvtaleFilter(
-    val tiltakstypeId: UUID? = null,
+    val tiltakstypeIder: List<UUID> = emptyList(),
     val search: String? = null,
-    val avtalestatus: Avtalestatus? = null,
-    val navRegion: String? = null,
+    val statuser: List<Avtalestatus> = emptyList(),
+    val navRegioner: List<String> = emptyList(),
     val sortering: String? = null,
     val dagensDato: LocalDate = LocalDate.now(),
-    val leverandorOrgnr: String? = null,
+    val leverandorOrgnr: List<String> = emptyList(),
     val administratorNavIdent: String? = null,
 )
 
@@ -116,18 +116,19 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getTiltakstypeFilter(): Tiltak
 }
 
 fun <T : Any> PipelineContext<T, ApplicationCall>.getAvtaleFilter(): AvtaleFilter {
-    val tiltakstypeId = call.request.queryParameters["tiltakstypeId"]?.let { if (it.isEmpty()) null else it.toUUID() }
+    val tiltakstypeIder = call.parameters.getAll("tiltakstypeId")?.map { it.toUUID() } ?: emptyList()
     val search = call.request.queryParameters["search"]
-    val avtalestatus =
-        call.request.queryParameters["avtalestatus"]?.let { status -> Avtalestatus.valueOf(status) }
-    val navRegion = call.request.queryParameters["navRegion"]
+    val statuser =
+        call.parameters.getAll("statuser")?.map { status -> Avtalestatus.valueOf(status) } ?: emptyList()
+    val navRegioner = call.parameters.getAll("navRegioner") ?: emptyList()
     val sortering = call.request.queryParameters["sort"]
-    val leverandorOrgnr = call.request.queryParameters["leverandorOrgnr"]
+    val leverandorOrgnr = call.parameters.getAll("leverandorOrgnr") ?: emptyList()
+
     return AvtaleFilter(
-        tiltakstypeId = tiltakstypeId,
+        tiltakstypeIder = tiltakstypeIder,
         search = search,
-        avtalestatus = avtalestatus,
-        navRegion = navRegion,
+        statuser = statuser,
+        navRegioner = navRegioner,
         sortering = sortering,
         leverandorOrgnr = leverandorOrgnr,
         administratorNavIdent = null,
