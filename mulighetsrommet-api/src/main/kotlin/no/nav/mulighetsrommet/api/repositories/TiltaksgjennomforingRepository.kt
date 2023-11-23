@@ -551,6 +551,10 @@ class TiltaksgjennomforingRepository(private val db: Database) {
     }
 
     fun setTilgjengeligForVeileder(id: UUID, tilgjengeligForVeileder: Boolean): Int {
+        return db.transaction { setTilgjengeligForVeileder(it, id, tilgjengeligForVeileder) }
+    }
+
+    fun setTilgjengeligForVeileder(tx: Session, id: UUID, tilgjengeligForVeileder: Boolean): Int {
         logger.info("Setter tilgjengelig for veileder '$tilgjengeligForVeileder' for gjennomføring med id: $id")
         @Language("PostgreSQL")
         val query = """
@@ -559,11 +563,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
            where id = ?::uuid
         """.trimIndent()
 
-        return queryOf(
-            query,
-            tilgjengeligForVeileder,
-            id,
-        ).asUpdate.let { db.run(it) }
+        return queryOf(query, tilgjengeligForVeileder, id).asUpdate.let { tx.run(it) }
     }
 
     private fun TiltaksgjennomforingDbo.toSqlParameters() = mapOf(
@@ -779,7 +779,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             where id = ?
         """.trimIndent()
 
-        return queryOf(query, avtaleId, gjennomforingId).asUpdate.let { db.run(it) }
+        return queryOf(query, avtaleId, gjennomforingId).asUpdate.let { tx.run(it) }
     }
 
     fun getAllMidlertidigStengteGjennomforingerSomNarmerSegSluttdato(currentDate: LocalDate = LocalDate.now()): List<TiltaksgjennomforingNotificationDto> {

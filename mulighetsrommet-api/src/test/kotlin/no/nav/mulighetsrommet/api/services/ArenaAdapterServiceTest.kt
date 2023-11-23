@@ -144,6 +144,7 @@ class ArenaAdapterServiceTest : FunSpec({
             virksomhetService = mockk(relaxed = true),
             navEnhetService = mockk(relaxed = true),
             notificationService = mockk(relaxed = true),
+            endringshistorikk = EndringshistorikkService(database.db),
         )
 
         afterTest {
@@ -202,6 +203,7 @@ class ArenaAdapterServiceTest : FunSpec({
             virksomhetService = mockk(relaxed = true),
             navEnhetService = NavEnhetService(navEnheter),
             notificationService = notificationService,
+            endringshistorikk = EndringshistorikkService(database.db),
         )
 
         afterEach {
@@ -336,6 +338,7 @@ class ArenaAdapterServiceTest : FunSpec({
             virksomhetService = mockk(relaxed = true),
             navEnhetService = NavEnhetService(NavEnhetRepository(database.db)),
             notificationService = notificationService,
+            endringshistorikk = EndringshistorikkService(database.db),
         )
 
         afterEach {
@@ -538,6 +541,7 @@ class ArenaAdapterServiceTest : FunSpec({
             virksomhetService = mockk(relaxed = true),
             navEnhetService = NavEnhetService(NavEnhetRepository(database.db)),
             notificationService = mockk(relaxed = true),
+            endringshistorikk = EndringshistorikkService(database.db),
         )
 
         beforeTest {

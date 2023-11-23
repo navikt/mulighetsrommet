@@ -57,6 +57,7 @@ class AvtaleServiceTest : FunSpec({
             NotificationRepository(database.db),
             utkastRepository,
             validator,
+            EndringshistorikkService(database.db),
             database.db,
         )
 
@@ -82,6 +83,7 @@ class AvtaleServiceTest : FunSpec({
             NotificationRepository(database.db),
             utkastRepository,
             validator,
+            EndringshistorikkService(database.db),
             database.db,
         )
 
@@ -90,7 +92,7 @@ class AvtaleServiceTest : FunSpec({
             val avtaleIdSomIkkeFinnes = "3c9f3d26-50ec-45a7-a7b2-c2d8a3653945".toUUID()
             avtaleRepository.upsert(avtale)
 
-            avtaleService.avbrytAvtale(avtaleIdSomIkkeFinnes).shouldBeLeft(
+            avtaleService.avbrytAvtale(avtaleIdSomIkkeFinnes, "B123456").shouldBeLeft(
                 NotFound("Avtalen finnes ikke"),
             )
         }
@@ -104,7 +106,7 @@ class AvtaleServiceTest : FunSpec({
             )
             avtaleRepository.upsert(avtale)
 
-            avtaleService.avbrytAvtale(avtale.id).shouldBeLeft(
+            avtaleService.avbrytAvtale(avtale.id, "B123456").shouldBeLeft(
                 BadRequest("Avtalen har opprinnelse fra Arena og kan ikke bli avbrutt fra admin-flate."),
             )
         }
@@ -118,7 +120,7 @@ class AvtaleServiceTest : FunSpec({
             )
             avtaleRepository.upsert(avtale)
 
-            avtaleService.avbrytAvtale(avtale.id).shouldBeLeft(
+            avtaleService.avbrytAvtale(avtale.id, "B123456").shouldBeLeft(
                 BadRequest(message = "Avtalen er allerede avsluttet og kan derfor ikke avbrytes."),
             )
         }
@@ -160,7 +162,7 @@ class AvtaleServiceTest : FunSpec({
             tiltaksgjennomforinger.upsert(arbeidstrening)
             tiltaksgjennomforinger.upsert(oppfolging2)
 
-            avtaleService.avbrytAvtale(avtale.id).shouldBeLeft(
+            avtaleService.avbrytAvtale(avtale.id, "B123456").shouldBeLeft(
                 BadRequest("Avtalen har 2 tiltaksgjennomføringer koblet til seg. Du må frikoble gjennomføringene før du kan avbryte avtalen."),
             )
         }
@@ -172,7 +174,7 @@ class AvtaleServiceTest : FunSpec({
             )
             avtaleRepository.upsert(avtale).right()
 
-            avtaleService.avbrytAvtale(avtale.id)
+            avtaleService.avbrytAvtale(avtale.id, "B123456")
         }
     }
 
@@ -186,6 +188,7 @@ class AvtaleServiceTest : FunSpec({
             NotificationRepository(database.db),
             utkastRepository,
             validator,
+            EndringshistorikkService(database.db),
             database.db,
         )
         val navAnsattRepository = NavAnsattRepository(database.db)
@@ -283,6 +286,7 @@ class AvtaleServiceTest : FunSpec({
             NotificationRepository(database.db),
             utkastRepository,
             validator,
+            EndringshistorikkService(database.db),
             database.db,
         )
 

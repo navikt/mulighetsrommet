@@ -65,21 +65,24 @@ fun Route.tiltaksgjennomforingRoutes() {
 
         put("{id}/avtale") {
             val id = call.parameters.getOrFail<UUID>("id")
+            val navIdent = getNavIdent()
             val request = call.receive<SetAvtaleForGjennomforingRequest>()
-            val response = service.setAvtale(id, request.avtaleId)
+            val response = service.setAvtale(id, request.avtaleId, navIdent)
             call.respondWithStatusResponse(response)
         }
 
         put("{id}/avbryt") {
             val id = call.parameters.getOrFail<UUID>("id")
-            val response = service.avbrytGjennomforing(id)
+            val navIdent = getNavIdent()
+            val response = service.avbrytGjennomforing(id, navIdent)
             call.respondWithStatusResponse(response)
         }
 
         put("{id}/tilgjengelig-for-veileder") {
             val id = call.parameters.getOrFail<UUID>("id")
+            val navIdent = getNavIdent()
             val request = call.receive<TilgjengeligForVeilederRequest>()
-            service.setTilgjengeligForVeileder(id, request.tilgjengeligForVeileder)
+            service.setTilgjengeligForVeileder(id, request.tilgjengeligForVeileder, navIdent)
             call.respond(HttpStatusCode.OK)
         }
     }

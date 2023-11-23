@@ -2,6 +2,10 @@ package no.nav.mulighetsrommet.api.services
 
 import arrow.core.NonEmptyList
 import arrow.core.toNonEmptyListOrNull
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonNull
+import kotlinx.serialization.json.encodeToJsonElement
+import kotliquery.TransactionalSession
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
@@ -42,6 +46,7 @@ class ArenaAdapterService(
     private val virksomhetService: VirksomhetService,
     private val navEnhetService: NavEnhetService,
     private val notificationService: NotificationService,
+    private val endringshistorikk: EndringshistorikkService,
 ) {
     fun upsertTiltakstype(tiltakstype: TiltakstypeDbo): QueryResult<TiltakstypeDbo> {
         return tiltakstyper.upsert(tiltakstype).onRight {
@@ -61,17 +66,26 @@ class ArenaAdapterService(
 
     suspend fun upsertAvtale(avtale: ArenaAvtaleDbo): AvtaleAdminDto {
         virksomhetService.getOrSyncVirksomhet(avtale.leverandorOrganisasjonsnummer)
-        avtaler.upsertArenaAvtale(avtale)
 
-        val dbo = avtaler.get(avtale.id)!!
+        val dbo = db.transaction { tx ->
+            avtaler.upsertArenaAvtale(tx, avtale)
+            val dbo = avtaler.get(avtale.id, tx)!!
+            logUpdate(tx, DocumentClass.AVTALE, dbo.id, dbo)
+            dbo
+        }
+
         if (dbo.avtalestatus == Avtalestatus.Aktiv && dbo.administratorer.isEmpty()) {
             maybeNotifyRelevantAdministrators(dbo)
         }
+
         return dbo
     }
 
     fun removeAvtale(id: UUID) {
-        avtaler.delete(id)
+        db.transaction { tx ->
+            avtaler.delete(tx, id)
+            logDelete(tx, DocumentClass.AVTALE, id)
+        }
     }
 
     suspend fun upsertTiltaksgjennomforing(tiltaksgjennomforing: ArenaTiltaksgjennomforingDbo): QueryResult<TiltaksgjennomforingAdminDto> {
@@ -82,6 +96,7 @@ class ArenaAdapterService(
         val gjennomforing = db.transactionSuspend { tx ->
             tiltaksgjennomforinger.upsertArenaTiltaksgjennomforing(tiltaksgjennomforingMedAvtale, tx)
             val gjennomforing = tiltaksgjennomforinger.get(tiltaksgjennomforing.id, tx)!!
+            logUpdate(tx, DocumentClass.TILTAKSGJENNOMFORING, gjennomforing.id, gjennomforing)
             tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingDto.from(gjennomforing))
 
             if (shouldBeManagedInSanity(gjennomforing)) {
@@ -103,6 +118,7 @@ class ArenaAdapterService(
 
         db.transaction { tx ->
             tiltaksgjennomforinger.delete(id, tx)
+            logDelete(tx, DocumentClass.TILTAKSGJENNOMFORING, id)
             tiltaksgjennomforingKafkaProducer.retract(id)
         }
 
@@ -211,5 +227,34 @@ class ArenaAdapterService(
 
         val notification = createNotification(administrators)
         notificationService.scheduleNotification(notification)
+    }
+
+    private inline fun <reified T> logUpdate(
+        tx: TransactionalSession,
+        documentClass: DocumentClass,
+        id: UUID,
+        value: T,
+    ) {
+        endringshistorikk.logEndring(
+            tx,
+            documentClass,
+            "OPPDATERT",
+            "Arena",
+            id,
+        ) { Json.encodeToJsonElement(value) }
+    }
+
+    private fun logDelete(
+        tx: TransactionalSession,
+        documentClass: DocumentClass,
+        id: UUID,
+    ) {
+        endringshistorikk.logEndring(
+            tx,
+            documentClass,
+            "SLETTET",
+            "Arena",
+            id,
+        ) { JsonNull }
     }
 }
