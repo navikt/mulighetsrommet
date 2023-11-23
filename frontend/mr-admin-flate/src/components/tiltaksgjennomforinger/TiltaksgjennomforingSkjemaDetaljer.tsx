@@ -10,7 +10,6 @@ import { useFieldArray, useFormContext } from "react-hook-form";
 import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
 import { useHentBetabrukere } from "../../api/ansatt/useHentBetabrukere";
 import { useHentKontaktpersoner } from "../../api/ansatt/useHentKontaktpersoner";
-import { useVirksomhet } from "../../api/virksomhet/useVirksomhet";
 import { addYear, tilgjengelighetsstatusTilTekst } from "../../utils/Utils";
 import { Separator } from "../detaljside/Metadata";
 import { AdministratorOptions } from "../skjema/AdministratorOptions";
@@ -27,7 +26,6 @@ interface Props {
 }
 
 export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtale }: Props) => {
-  const { data: virksomhet } = useVirksomhet(avtale.leverandor.organisasjonsnummer || "");
   const { data: betabrukere } = useHentBetabrukere();
 
   const { data: ansatt, isLoading: isLoadingAnsatt } = useHentAnsatt();
@@ -306,7 +304,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                 readOnly={
                   !avtale.leverandor.organisasjonsnummer || erArenaOpphav(tiltaksgjennomforing)
                 }
-                options={arrangorUnderenheterOptions(avtale, virksomhet)}
+                options={arrangorUnderenheterOptions(avtale)}
               />
               {watch("tiltaksArrangorUnderenhetOrganisasjonsnummer") &&
                 !tiltaksgjennomforing?.arrangor?.slettet && (

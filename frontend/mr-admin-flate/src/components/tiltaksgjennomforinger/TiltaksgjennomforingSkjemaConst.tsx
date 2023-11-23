@@ -6,7 +6,6 @@ import {
   Tiltaksgjennomforing,
   TiltaksgjennomforingKontaktpersoner,
   TiltaksgjennomforingOppstartstype,
-  Virksomhet,
 } from "mulighetsrommet-api-client";
 import { TiltaksgjennomforingUtkastData } from "./TiltaksgjennomforingSkjemaPage";
 import { InferredTiltaksgjennomforingSchema } from "./TiltaksgjennomforingSchema";
@@ -38,24 +37,13 @@ export const erArenaOpphav = (tiltaksgjennomforing: Tiltaksgjennomforing | undef
   return tiltaksgjennomforing?.opphav === Opphav.ARENA;
 };
 
-export const arrangorUnderenheterOptions = (avtale: Avtale, virksomhet: Virksomhet | undefined) => {
-  const options =
-    avtale?.leverandorUnderenheter.map((lev: any) => {
-      return {
-        label: `${lev.navn} - ${lev.organisasjonsnummer}`,
-        value: lev.organisasjonsnummer,
-      };
-    }) || [];
-
-  // Ingen underenheter betyr at alle er valgt, må gi valg om alle underenheter fra virksomhet
-  if (options?.length === 0) {
-    const enheter = virksomhet?.underenheter || [];
-    return enheter.map((enhet) => ({
-      value: enhet.organisasjonsnummer,
-      label: `${enhet?.navn} - ${enhet?.organisasjonsnummer}`,
-    }));
-  }
-  return options;
+export const arrangorUnderenheterOptions = (avtale: Avtale) => {
+  return (avtale?.leverandorUnderenheter ?? []).map((lev) => {
+    return {
+      label: `${lev.navn} - ${lev.organisasjonsnummer}`,
+      value: lev.organisasjonsnummer,
+    };
+  });
 };
 
 export function utkastDataEllerDefault(
