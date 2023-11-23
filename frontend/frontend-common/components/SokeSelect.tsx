@@ -145,7 +145,6 @@ const customStyles = (readOnly: boolean, isError: boolean) => ({
   }),
   clearIndicator: (provided: any) => ({
     ...provided,
-    zIndex: "100",
   }),
   indicatorSeparator: () => ({
     display: "none",
