@@ -23,10 +23,10 @@
 .tiltaksgjennomforing_detaljer {
   display: grid;
   grid-template-rows: auto 1fr;
-  grid-template-columns: auto 23rem;
+  grid-template-columns: 65% 35%;
   grid-gap: 2rem;
   background-color: var(--a-white);
-  padding: 2rem;
+  padding: 5rem;
 }
 
 .tiltakstype_header_maksbredde {

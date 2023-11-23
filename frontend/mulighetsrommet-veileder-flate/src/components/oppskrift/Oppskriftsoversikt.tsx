@@ -34,7 +34,7 @@ export function Oppskriftsoversikt({ tiltakstypeId }: Props) {
       <ul className={styles.container}>
         {oppskrifter.data.map((oppskrift) => {
           return (
-            <li className={styles.item} key={oppskrift.navn}>
+            <li className={styles.item} key={oppskrift._id}>
               <Link className={styles.link} to={`oppskrifter/${oppskrift._id}/${tiltakstypeId}`}>
                 <Oppskriftskort oppskrift={oppskrift} />
               </Link>
