@@ -60,7 +60,7 @@ const redaktorAvdirStructure = (S, context) => [
   S.divider(),
   ...S.documentTypeListItems().filter((listItem) =>
     // ["regelverkfil", "regelverklenke", "forskningsrapport"].includes(
-    ["regelverkfil", "regelverklenke"].includes(listItem.getId()),
+    ["regelverkfil", "regelverklenke", "oppskrift"].includes(listItem.getId()),
   ),
 ];
 
