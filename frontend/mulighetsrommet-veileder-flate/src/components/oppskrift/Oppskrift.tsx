@@ -20,7 +20,11 @@ interface AlertMessageProps {
 const oppskriftPortableText = {
   types: {
     image: ({ value }: ImageProp) => {
-      return <img src={value.asset.url} alt={value.altText} />;
+      return (
+        <a href={value.asset.url}>
+          <img src={value.asset.url} alt={value.altText} />
+        </a>
+      );
     },
     tips: ({ value }: TipsProps) => {
       return (

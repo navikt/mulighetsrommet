@@ -4,6 +4,6 @@ import { mockOppskrifter } from "../../fixtures/mockOppskrifter";
 
 export const oppskriftHandlers = [
   http.get<PathParams, Oppskrift[]>("*/api/v1/internal/oppskrifter/:tiltakstypeId", () => {
-    return HttpResponse.json(Object.values(mockOppskrifter));
+    return HttpResponse.json(mockOppskrifter);
   }),
 ];
