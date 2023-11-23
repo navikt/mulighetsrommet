@@ -59,6 +59,11 @@ spec:
           "cors": {
             "origin": "https://veilarbpersonflate.intern.dev.nav.no"
           },
+          "header": {
+            "csp": {
+              "imgSrc": ["'self'", "*.nav.no", "cdn.sanity.io"]
+            }
+          },
           "proxies": [
             {
               "fromPath": "/mulighetsrommet-api",
