@@ -54,13 +54,29 @@ class AvtaleValidator(
                     add(ValidationError.of(AvtaleDbo::opphav, "Avtalens opphav kan ikke endres"))
                 }
 
+                /**
+                 * Når avtalen har blitt godkjent så skal alle datafelter som påvirker økonomien, påmelding, osv. være låst.
+                 *
+                 * Vi mangler fortsatt en del innsikt og løsning rundt tilsagn og refusjon (f.eks. når blir avtalen godkjent?),
+                 * så reglene for når en avtale er låst er foreløpig ganske naive og baserer seg kun på om det finnes
+                 * gjennomføringer på avtalen eller ikke...
+                 */
                 val (numGjennomforinger, gjennomforinger) = tiltaksgjennomforinger.getAll(avtaleId = dbo.id)
                 if (numGjennomforinger > 0) {
                     if (dbo.tiltakstypeId != avtale.tiltakstype.id) {
                         add(
                             ValidationError.of(
                                 AvtaleDbo::tiltakstypeId,
-                                "Kan ikke endre tiltakstype fordi det finnes gjennomføringer for avtalen",
+                                "Tiltakstype kan ikke endres fordi det finnes gjennomføringer for avtalen",
+                            ),
+                        )
+                    }
+
+                    if (dbo.avtaletype != avtale.avtaletype) {
+                        add(
+                            ValidationError.of(
+                                AvtaleDbo::avtaletype,
+                                "Avtaletype kan ikke endres fordi det finnes gjennomføringer for avtalen",
                             ),
                         )
                     }
@@ -140,26 +156,6 @@ class AvtaleValidator(
                         )
                     }
                 }
-
-                if (avtaleIsLocked(avtale)) {
-                    if (dbo.tiltakstypeId != avtale.tiltakstype.id) {
-                        add(
-                            ValidationError.of(
-                                AvtaleDbo::tiltakstypeId,
-                                "Tiltakstype kan ikke endres når avtalen er låst",
-                            ),
-                        )
-                    }
-
-                    if (dbo.avtaletype != avtale.avtaletype) {
-                        add(
-                            ValidationError.of(
-                                AvtaleDbo::avtaletype,
-                                "Avtaletype kan ikke endres når avtalen er låst",
-                            ),
-                        )
-                    }
-                }
             } ?: run {
                 if (!isTiltakMedAvtalerFraMulighetsrommet(tiltakstype.arenaKode) && NaisEnv.current().isProdGCP()) {
                     add(
@@ -204,16 +200,5 @@ class AvtaleValidator(
             .filter { it.type == Norg2Type.FYLKE }
             .flatMap { listOf(it) + navEnheter.filter { enhet -> enhet.overordnetEnhet == it.enhetsnummer } }
             .associateBy { it.enhetsnummer }
-    }
-
-    /**
-     * Når avtalen har blitt godkjent så skal alle datafelter som påvirker økonomien, påmelding, osv. være låst.
-     *
-     * Vi mangler fortsatt en del innsikt og løsning rundt tilsagn og refusjon (f.eks. når blir avtalen godkjent?),
-     * så reglene for når en avtale er låst er foreløpig ganske naive...
-     */
-    private fun avtaleIsLocked(avtale: AvtaleAdminDto): Boolean {
-        val avtaleErOpprettetUtenforArena = avtale.opphav != ArenaMigrering.Opphav.ARENA
-        return avtaleErOpprettetUtenforArena
     }
 }

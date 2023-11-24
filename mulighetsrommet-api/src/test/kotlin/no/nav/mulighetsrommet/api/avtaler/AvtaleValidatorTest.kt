@@ -184,52 +184,7 @@ class AvtaleValidatorTest : FunSpec({
             )
         }
 
-        context("når avtalen har gjennomføringer") {
-            beforeAny {
-                avtaler.upsert(avtaleDbo.copy(administratorer = listOf()))
-                gjennomforinger.upsert(
-                    TiltaksgjennomforingFixtures.Oppfolging1.copy(
-                        avtaleId = avtaleDbo.id,
-                        navRegion = "0400",
-                        navEnheter = listOf("0502"),
-                        arrangorOrganisasjonsnummer = "000000001",
-                    ),
-                )
-            }
-
-            afterAny {
-                gjennomforinger.delete(TiltaksgjennomforingFixtures.Oppfolging1.id)
-            }
-
-            test("skal validere at data samsvarer med avtalens gjennomføringer") {
-
-                val validator = AvtaleValidator(tiltakstyper, avtaler, gjennomforinger, navEnheterService)
-
-                val dbo = avtaleDbo.copy(
-                    tiltakstypeId = TiltakstypeFixtures.VTA.id,
-                    navEnheter = listOf("0400"),
-                )
-
-                validator.validate(dbo).shouldBeLeft().shouldContainAll(
-                    listOf(
-                        ValidationError(
-                            "tiltakstypeId",
-                            "Kan ikke endre tiltakstype fordi det finnes gjennomføringer for avtalen",
-                        ),
-                        ValidationError(
-                            "leverandorUnderenheter",
-                            "Arrangøren 000000001 er i bruk på en av avtalens gjennomføringer, men mangler blandt leverandørens underenheter",
-                        ),
-                        ValidationError(
-                            "navEnheter",
-                            "NAV-enheten 0502 er i bruk på en av avtalens gjennomføringer, men mangler blandt avtalens NAV-enheter",
-                        ),
-                    ),
-                )
-            }
-        }
-
-        context("når avtalen er aktiv") {
+        test("skal ikke kunne endre felter med opphav fra Arena") {
             val avtaleMedEndringer = AvtaleDbo(
                 id = avtaleDbo.id,
                 navn = "Nytt navn",
@@ -250,44 +205,75 @@ class AvtaleValidatorTest : FunSpec({
                 updatedAt = avtaleDbo.updatedAt,
             )
 
-            test("skal ikke kunne endre felter med opphav fra Arena") {
-                avtaler.upsert(
-                    avtaleDbo.copy(
-                        opphav = ArenaMigrering.Opphav.ARENA,
-                        administratorer = listOf(),
-                    ),
-                )
+            avtaler.upsert(
+                avtaleDbo.copy(
+                    opphav = ArenaMigrering.Opphav.ARENA,
+                    administratorer = listOf(),
+                ),
+            )
 
-                val validator = AvtaleValidator(tiltakstyper, avtaler, gjennomforinger, navEnheterService)
+            val validator = AvtaleValidator(tiltakstyper, avtaler, gjennomforinger, navEnheterService)
 
-                validator.validate(avtaleMedEndringer).shouldBeLeft().shouldContainExactlyInAnyOrder(
-                    listOf(
-                        ValidationError("navn", "Navn kan ikke endres utenfor Arena"),
-                        ValidationError("tiltakstypeId", "Tiltakstype kan ikke endres utenfor Arena"),
-                        ValidationError("startDato", "Startdato kan ikke endres utenfor Arena"),
-                        ValidationError("sluttDato", "Sluttdato kan ikke endres utenfor Arena"),
-                        ValidationError("avtaletype", "Avtaletype kan ikke endres utenfor Arena"),
-                        ValidationError("leverandorOrganisasjonsnummer", "Leverandøren kan ikke endres utenfor Arena"),
+            validator.validate(avtaleMedEndringer).shouldBeLeft().shouldContainExactlyInAnyOrder(
+                listOf(
+                    ValidationError("navn", "Navn kan ikke endres utenfor Arena"),
+                    ValidationError("tiltakstypeId", "Tiltakstype kan ikke endres utenfor Arena"),
+                    ValidationError("startDato", "Startdato kan ikke endres utenfor Arena"),
+                    ValidationError("sluttDato", "Sluttdato kan ikke endres utenfor Arena"),
+                    ValidationError("avtaletype", "Avtaletype kan ikke endres utenfor Arena"),
+                    ValidationError("leverandorOrganisasjonsnummer", "Leverandøren kan ikke endres utenfor Arena"),
+                ),
+            )
+        }
+
+        context("når avtalen har gjennomføringer") {
+            beforeAny {
+                avtaler.upsert(avtaleDbo.copy(administratorer = listOf()))
+                gjennomforinger.upsert(
+                    TiltaksgjennomforingFixtures.Oppfolging1.copy(
+                        avtaleId = avtaleDbo.id,
+                        navRegion = "0400",
+                        navEnheter = listOf("0502"),
+                        arrangorOrganisasjonsnummer = "000000001",
                     ),
                 )
             }
 
-            test("skal ikke kunne endre låste felter når avtalen ikke opprettet utenfor Arena") {
-                avtaler.upsert(avtaleDbo.copy(administratorer = listOf()))
+            afterAny {
+                gjennomforinger.delete(TiltaksgjennomforingFixtures.Oppfolging1.id)
+            }
 
+            test("skal validere at data samsvarer med avtalens gjennomføringer") {
                 val validator = AvtaleValidator(tiltakstyper, avtaler, gjennomforinger, navEnheterService)
 
-                validator.validate(
-                    avtaleMedEndringer.copy(
-                        opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
-                    ),
-                ).shouldBeLeft().shouldContainExactlyInAnyOrder(
+                val dbo = avtaleDbo.copy(
+                    tiltakstypeId = TiltakstypeFixtures.VTA.id,
+                    avtaletype = Avtaletype.Forhaandsgodkjent,
+                    navEnheter = listOf("0400"),
+                )
+
+                validator.validate(dbo).shouldBeLeft().shouldContainExactlyInAnyOrder(
                     listOf(
-                        ValidationError("tiltakstypeId", "Tiltakstype kan ikke endres når avtalen er låst"),
-                        ValidationError("avtaletype", "Avtaletype kan ikke endres når avtalen er låst"),
+                        ValidationError(
+                            "tiltakstypeId",
+                            "Tiltakstype kan ikke endres fordi det finnes gjennomføringer for avtalen",
+                        ),
+                        ValidationError(
+                            "avtaletype",
+                            "Avtaletype kan ikke endres fordi det finnes gjennomføringer for avtalen",
+                        ),
+                        ValidationError(
+                            "leverandorUnderenheter",
+                            "Arrangøren 000000001 er i bruk på en av avtalens gjennomføringer, men mangler blandt leverandørens underenheter",
+                        ),
+                        ValidationError(
+                            "navEnheter",
+                            "NAV-enheten 0502 er i bruk på en av avtalens gjennomføringer, men mangler blandt avtalens NAV-enheter",
+                        ),
                     ),
                 )
             }
         }
+
     }
 })
