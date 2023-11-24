@@ -1,8 +1,8 @@
-import { formaterDato, formaterDatoSomYYYYMMDD as formaterSomIsoDate } from "../../utils/Utils";
-import styles from "./ControlledDateInput.module.scss";
+import { DatePicker, useDatepicker } from "@navikt/ds-react";
 import { forwardRef } from "react";
 import { Controller } from "react-hook-form";
-import { DatePicker, useDatepicker } from "@navikt/ds-react";
+import { formaterDatoSomYYYYMMDD as formaterSomIsoDate } from "../../utils/Utils";
+import styles from "./ControlledDateInput.module.scss";
 
 export interface DateInputProps {
   label: string;
@@ -26,28 +26,26 @@ export const ControlledDateInput = forwardRef(function ControlledDateInput(
         name={label}
         {...rest}
         render={({ field: { onChange, value }, fieldState: { error } }) => {
-          const {
-            datepickerProps: startdatoProps,
-            inputProps: startdatoInputProps,
-            selectedDay: selectedStartdato,
-          } = useDatepicker({
-            onDateChange: (val) => {
-              if (val) {
-                if (format === "iso-string") {
-                  onChange(formaterSomIsoDate(val));
+          const { datepickerProps: startdatoProps, inputProps: startdatoInputProps } =
+            useDatepicker({
+              onDateChange: (val) => {
+                if (val) {
+                  if (format === "iso-string") {
+                    onChange(formaterSomIsoDate(val));
+                  } else {
+                    onChange(val);
+                  }
                 } else {
-                  onChange(val);
+                  onChange(null);
                 }
-              } else {
-                onChange(null);
-              }
-            },
-            allowTwoDigitYear: true,
-            inputFormat: "dd.MM.yyyy",
-            fromDate,
-            toDate,
-            defaultSelected: value ? new Date(value) : undefined,
-          });
+              },
+              allowTwoDigitYear: true,
+              inputFormat: "dd.MM.yyyy",
+              fromDate,
+              toDate,
+              defaultSelected: value ? new Date(value) : undefined,
+            });
+
           return (
             <DatePicker {...startdatoProps} dropdownCaption>
               <DatoFelt
@@ -56,7 +54,6 @@ export const ControlledDateInput = forwardRef(function ControlledDateInput(
                 {...rest}
                 {...startdatoInputProps}
                 error={error?.message}
-                value={selectedStartdato ? formaterDato(selectedStartdato) : ""}
                 readOnly={readOnly}
               />
             </DatePicker>
