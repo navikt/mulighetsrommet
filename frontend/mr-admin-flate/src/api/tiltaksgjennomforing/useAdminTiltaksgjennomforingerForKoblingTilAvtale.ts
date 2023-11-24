@@ -2,12 +2,12 @@ import { useQuery } from "@tanstack/react-query";
 import { mulighetsrommetClient } from "../clients";
 import { QueryKeys } from "../QueryKeys";
 import { useAtom } from "jotai";
-import { paginationAtom, tiltaksgjennomforingTilAvtaleFilter } from "../atoms";
+import { paginationAtom, tiltaksgjennomforingTilAvtaleFilterAtom } from "../atoms";
 import { useDebounce } from "mulighetsrommet-frontend-common";
 
-export function useAdminTiltaksgjennomforingerForAvtale() {
+export function useAdminTiltaksgjennomforingerForKoblingTilAvtale() {
   const [page] = useAtom(paginationAtom);
-  const [filter] = useAtom(tiltaksgjennomforingTilAvtaleFilter);
+  const [filter] = useAtom(tiltaksgjennomforingTilAvtaleFilterAtom);
   const search = useDebounce(filter.search, 300);
 
   return useQuery({

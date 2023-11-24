@@ -12,7 +12,6 @@ import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
 import no.nav.mulighetsrommet.domain.Tiltakskoder
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
-import no.nav.mulighetsrommet.domain.dto.Avtalestatus
 import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus.GJENNOMFORES
 
 class TiltaksgjennomforingValidator(
@@ -30,15 +29,6 @@ class TiltaksgjennomforingValidator(
                     ValidationError.of(
                         TiltaksgjennomforingDbo::tiltakstypeId,
                         "Tiltakstypen må være den samme som for avtalen",
-                    ),
-                )
-            }
-
-            if (avtale.avtalestatus != Avtalestatus.Aktiv) {
-                add(
-                    ValidationError.of(
-                        TiltaksgjennomforingDbo::avtaleId,
-                        "Kan ikke endre gjennomføring fordi avtalen har status ${avtale.avtalestatus}",
                     ),
                 )
             }

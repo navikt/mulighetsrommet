@@ -1,5 +1,5 @@
 import { ExclamationmarkTriangleIcon, ExternalLinkIcon } from "@navikt/aksel-icons";
-import { Heading } from "@navikt/ds-react";
+import { Heading, HelpText } from "@navikt/ds-react";
 import {
   Avtale,
   Tiltaksgjennomforing,
@@ -22,7 +22,9 @@ interface Props {
 
 export function TiltaksgjennomforingDetaljer(props: Props) {
   const { tiltaksgjennomforing, avtale } = props;
-  useTitle(`Tiltaksgjennomføring - ${tiltaksgjennomforing.navn}`);
+  useTitle(
+    `Tiltaksgjennomføring ${tiltaksgjennomforing.navn ? `- ${tiltaksgjennomforing.navn}` : null}`,
+  );
 
   const navnPaaNavEnheterForKontaktperson = (enheterForKontaktperson: string[]): string => {
     return (
@@ -164,7 +166,8 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
                             rel="noopener noreferrer"
                             href={`${NOM_ANSATT_SIDE}${admin?.navIdent}`}
                           >
-                            {`${admin?.navn} - ${admin?.navIdent}`} <ExternalLinkIcon />
+                            {`${admin?.navn} - ${admin?.navIdent}`}{" "}
+                            <ExternalLinkIcon aria-label="Ekstern lenke" />
                           </a>
                         </li>
                       );
@@ -215,6 +218,22 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
               }
             />
           </Bolk>
+
+          {tiltaksgjennomforing?.arenaAnsvarligEnhet ? (
+            <Bolk>
+              <div style={{ display: "flex", gap: "1rem" }}>
+                <Metadata
+                  header="Ansvarlig enhet fra Arena"
+                  verdi={`${tiltaksgjennomforing.arenaAnsvarligEnhet.enhetsnummer} ${tiltaksgjennomforing.arenaAnsvarligEnhet.navn}`}
+                />
+                <HelpText title="Hva betyr feltet 'Ansvarlig enhet fra Arena'?">
+                  Ansvarlig enhet fra Arena blir satt i Arena basert på tiltaksansvarlig sin enhet
+                  når man oppretter tiltak i Arena.
+                </HelpText>
+              </div>
+            </Bolk>
+          ) : null}
+
           {kontaktpersonerFraNav.map((kp, index) => {
             return (
               <Bolk

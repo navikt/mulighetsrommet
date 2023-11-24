@@ -1,13 +1,19 @@
 import { faro } from "@grafana/faro-web-sdk";
 import { Button, Search } from "@navikt/ds-react";
-import { useAtom } from "jotai";
-import { NavEnhetType, Tiltakstypestatus, VirksomhetTil } from "mulighetsrommet-api-client";
+import { WritableAtom, useAtom } from "jotai";
+import {
+  Avtalestatus,
+  NavEnhetType,
+  Tiltakstypestatus,
+  VirksomhetTil,
+} from "mulighetsrommet-api-client";
+import { ControlledSokeSelect } from "mulighetsrommet-frontend-common";
 import { useEffect, useRef } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import {
-  avtaleFilter,
   AvtaleFilterProps,
-  avtalePaginationAtom,
+  avtaleFilterAtom,
+  avtalePaginationAtomAtom,
   defaultAvtaleFilter,
 } from "../../api/atoms";
 import { useAvtaler } from "../../api/avtaler/useAvtaler";
@@ -18,16 +24,16 @@ import { resetPaginering, valueOrDefault } from "../../utils/Utils";
 import { Lenkeknapp } from "../lenkeknapp/Lenkeknapp";
 import styles from "./Filter.module.scss";
 import { FilterTag } from "./FilterTag";
-import { ControlledSokeSelect } from "mulighetsrommet-frontend-common";
 
 type Filters = "tiltakstype";
 
 interface Props {
   skjulFilter?: Record<Filters, boolean>;
+  filterAtom: WritableAtom<AvtaleFilterProps, [newValue: AvtaleFilterProps], void>;
 }
 
 export function Avtalefilter(props: Props) {
-  const [filter, setFilter] = useAtom(avtaleFilter);
+  const [filter, setFilter] = useAtom(props.filterAtom);
   const form = useForm<AvtaleFilterProps>({
     defaultValues: {
       ...filter,
@@ -39,13 +45,13 @@ export function Avtalefilter(props: Props) {
   const { data: tiltakstyper } = useTiltakstyper(
     {
       status: Tiltakstypestatus.AKTIV,
-      kategori: "",
+      kategori: undefined,
     },
     1,
   );
-  const { data: avtaler } = useAvtaler();
+  const { data: avtaler } = useAvtaler(avtaleFilterAtom);
   const { data: leverandorer } = useVirksomheter(VirksomhetTil.AVTALE);
-  const [, setPage] = useAtom(avtalePaginationAtom);
+  const [, setPage] = useAtom(avtalePaginationAtomAtom);
   const searchRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -129,7 +135,10 @@ export function Avtalefilter(props: Props) {
               onChange={(e) => {
                 setFilter({
                   ...filter,
-                  status: valueOrDefault(e.target.value, defaultAvtaleFilter.status),
+                  status: valueOrDefault(
+                    e.target.value as Avtalestatus,
+                    defaultAvtaleFilter.status,
+                  ),
                 });
               }}
               options={[
@@ -219,15 +228,27 @@ export function Avtalefilter(props: Props) {
             </Lenkeknapp>
           </div>
           <div className={styles.tags_container}>
+            {filter.sok && (
+              <FilterTag
+                label={`'${filter.sok}'`}
+                onClick={() => {
+                  setFilter({
+                    ...filter,
+                    sok: "",
+                  });
+                  setValue("sok", "");
+                }}
+              />
+            )}
             {filter.status && (
               <FilterTag
                 label={filter.status}
                 onClick={() => {
                   setFilter({
                     ...filter,
-                    status: "",
+                    status: undefined,
                   });
-                  setValue("status", "");
+                  setValue("status", undefined);
                 }}
               />
             )}
@@ -269,7 +290,8 @@ export function Avtalefilter(props: Props) {
                 }}
               />
             )}
-            {(filter.status !== defaultAvtaleFilter.status ||
+            {(filter.sok ||
+              filter.status !== defaultAvtaleFilter.status ||
               filter.navRegion ||
               filter.tiltakstype ||
               filter.leverandor_orgnr) && (

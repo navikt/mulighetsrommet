@@ -4,10 +4,13 @@ import { useAtom } from "jotai";
 import { Tiltaksgjennomforing } from "mulighetsrommet-api-client";
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { tiltaksgjennomforingTilAvtaleFilter } from "../../api/atoms";
+import {
+  tiltaksgjennomforingTilAvtaleFilterAtom,
+  tiltaksgjennomforingfilterAtom,
+} from "../../api/atoms";
 import { useAvtale } from "../../api/avtaler/useAvtale";
 import { useAdminTiltaksgjennomforinger } from "../../api/tiltaksgjennomforing/useAdminTiltaksgjennomforinger";
-import { useAdminTiltaksgjennomforingerForAvtale } from "../../api/tiltaksgjennomforing/useAdminTiltaksgjennomforingerForAvtale";
+import { useAdminTiltaksgjennomforingerForKoblingTilAvtale } from "../../api/tiltaksgjennomforing/useAdminTiltaksgjennomforingerForKoblingTilAvtale";
 import { useSetAvtaleForGjennomforing } from "../../api/tiltaksgjennomforing/useSetAvtaleForGjennomforing";
 import { isTiltakMedAvtaleFraMulighetsrommet } from "../../utils/tiltakskoder";
 import { Laster } from "../laster/Laster";
@@ -20,14 +23,16 @@ export const Tiltaksgjennomforingsliste = () => {
     isLoading,
     isError,
     refetch: refetchAvtaler,
-  } = useAdminTiltaksgjennomforingerForAvtale();
-  const { refetch: refetchTiltaksgjennomforinger } = useAdminTiltaksgjennomforinger();
+  } = useAdminTiltaksgjennomforingerForKoblingTilAvtale();
+  const { refetch: refetchTiltaksgjennomforinger } = useAdminTiltaksgjennomforinger(
+    tiltaksgjennomforingfilterAtom,
+  );
   const { mutate, isPending: isPendingKobleGjennomforingForAvtale } =
     useSetAvtaleForGjennomforing();
   const { data: avtale } = useAvtale();
   const [error, setError] = useState("");
 
-  const [filter] = useAtom(tiltaksgjennomforingTilAvtaleFilter);
+  const [filter] = useAtom(tiltaksgjennomforingTilAvtaleFilterAtom);
   const tiltaksgjennomforinger = data?.data ?? [];
 
   if (

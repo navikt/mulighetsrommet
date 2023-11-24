@@ -1,0 +1,42 @@
+.container {
+  display: flex;
+  background-color: white;
+}
+
+.oppskrifter {
+  overflow-y: scroll;
+  max-height: 50rem;
+}
+
+.steg {
+  background-color: var(--a-gray-50);
+  padding: 1rem;
+  margin: 1rem 0;
+  border-radius: 0.2rem;
+
+  img {
+    width: 100%;
+  }
+}
+
+.navigering {
+  margin-right: 1rem;
+  nav ol {
+    margin: 0;
+    padding: 0;
+  }
+  nav ol li {
+    margin: 1rem 0;
+  }
+}
+
+.navigasjonsknapp {
+  background: none;
+  border: none;
+  text-decoration: underline;
+  text-align: left;
+
+  &:hover {
+    cursor: pointer;
+  }
+}

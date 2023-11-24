@@ -48,7 +48,6 @@ dependencies {
     implementation(libs.ktor.server.cors)
     implementation(libs.ktor.server.defaultHeaders)
     implementation(libs.ktor.server.metricsMicrometer)
-    implementation(libs.ktor.server.netty)
     testImplementation(libs.ktor.server.tests)
 
     implementation(libs.nav.common.tokenClient)

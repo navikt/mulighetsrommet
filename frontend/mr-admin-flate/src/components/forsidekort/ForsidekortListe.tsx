@@ -13,19 +13,19 @@ export function ForsidekortListe() {
     <div className={styles.card_container}>
       <Forsidekort
         navn="Tiltakstyper"
-        ikon={<TokenIcon />}
+        ikon={<TokenIcon aria-label="Tiltakstyper" />}
         url="tiltakstyper"
         tekst="Her finner du informasjon om tiltakstyper"
       />
       <Forsidekort
         navn="Avtaler"
-        ikon={<HandshakeIcon />}
+        ikon={<HandshakeIcon aria-label="Avtaler" />}
         url="avtaler"
         tekst="Her finner du informasjon om avtaler"
       />
       <Forsidekort
         navn="Tiltaksgjennomføringer"
-        ikon={<FileCheckmarkIcon />}
+        ikon={<FileCheckmarkIcon aria-label="Tiltaksgjennomføringer for gruppetiltak" />}
         url="tiltaksgjennomforinger"
         tekst="Her finner du informasjon om tiltaksgjennomføringer for gruppetiltak"
       />
@@ -37,7 +37,7 @@ export function ForsidekortListe() {
       />
       <Forsidekort
         navn="Veilederflate forhåndsvisning"
-        ikon={<RectangleSectionsIcon />}
+        ikon={<RectangleSectionsIcon aria-label="Preview" />}
         url={`https://mulighetsrommet-veileder-flate.intern.${erForhandsvisningMiljo}/preview`}
         tekst="Her kan du se hvordan tiltakene vises for veileder i Modia"
       />

@@ -102,8 +102,8 @@ const SidemenyDetaljer = ({ tiltaksgjennomforing }: Props) => {
         )}
 
         <div className={styles.rad}>
-          <BodyShort size="small" className={styles.tittel}>
-            Innsatsgruppe
+          <BodyShort title="Minimum krav innsatsgruppe" size="small" className={styles.tittel}>
+            <abbr title="Minimum">Min</abbr>. innsatsgruppe
           </BodyShort>
           <BodyShort size="small">{tiltakstype?.innsatsgruppe?.beskrivelse} </BodyShort>
         </div>

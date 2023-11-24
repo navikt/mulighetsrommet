@@ -16,6 +16,7 @@ import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.repositories.*
 import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
+import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.*
 import java.time.LocalDate
@@ -50,6 +51,8 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
     lateinit var deltakere: DeltakerRepository
 
     beforeEach {
+        database.db.truncateAll()
+
         tiltakstyper = TiltakstypeRepository(database.db)
         tiltakstyper.upsert(TiltakstypeFixtures.AFT).shouldBeRight()
         tiltakstyper.upsert(TiltakstypeFixtures.Oppfolging).shouldBeRight()
@@ -113,26 +116,20 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
         )
     }
 
-    test("should fail when avtale is Avbrutt") {
+    test("skal godta endringer selv om avtale er avbrutt") {
         val id = UUID.randomUUID()
         avtaler.upsert(avtale.copy(id = id))
 
         forAll(
-            row(
-                Avslutningsstatus.AVBRUTT,
-                ValidationError("avtaleId", "Kan ikke endre gjennomføring fordi avtalen har status Avbrutt"),
-            ),
-            row(
-                Avslutningsstatus.AVSLUTTET,
-                ValidationError("avtaleId", "Kan ikke endre gjennomføring fordi avtalen har status Avsluttet"),
-            ),
-        ) { status, error ->
+            row(Avslutningsstatus.AVBRUTT),
+            row(Avslutningsstatus.AVSLUTTET),
+        ) { status ->
             avtaler.setAvslutningsstatus(id, status)
 
             val validator = TiltaksgjennomforingValidator(avtaler, tiltaksgjennomforinger, deltakere)
             val dbo = gjennomforing.copy(avtaleId = id)
 
-            validator.validate(dbo).shouldBeLeft().shouldContainExactlyInAnyOrder(error)
+            validator.validate(dbo).shouldBeRight()
         }
     }
 

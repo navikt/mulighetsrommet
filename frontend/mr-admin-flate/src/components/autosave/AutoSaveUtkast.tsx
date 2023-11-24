@@ -60,7 +60,7 @@ export const AutoSaveUtkast = memo(
       <>
         {lagreState ? (
           <div className={styles.autosave}>
-            <PencilWritingIcon />
+            <PencilWritingIcon aria-label="Lagre" />
             <BodyShort>{lagreState}</BodyShort>
           </div>
         ) : null}

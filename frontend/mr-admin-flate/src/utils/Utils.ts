@@ -101,7 +101,7 @@ export const oversettStatusForTiltaksgjennomforing = (status?: Tiltaksgjennomfor
     case TiltaksgjennomforingStatus.AVSLUTTET:
       return "Avsluttet";
     case TiltaksgjennomforingStatus.PLANLAGT:
-      return "Åpent for innsøk";
+      return "Planlagt";
     default:
       return "";
   }
@@ -182,4 +182,20 @@ export function formaterNavEnheter(
   if (!forsteEnhet) return navRegionNavn;
 
   return `${forsteEnhet?.navn} ${liste.length > 0 ? `+ ${liste.length}` : ""}`;
+}
+
+function specialChar(string: string | { label: string }) {
+  return string
+    .toString()
+    .toLowerCase()
+    .split("æ")
+    .join("ae")
+    .split("ø")
+    .join("o")
+    .split("å")
+    .join("a");
+}
+
+export function kebabCase(string: string | { label: string }) {
+  return specialChar(string).trim().replace(/\s+/g, "-").replace(/_/g, "-");
 }

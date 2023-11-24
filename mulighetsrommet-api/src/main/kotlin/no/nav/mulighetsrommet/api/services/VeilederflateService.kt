@@ -85,6 +85,19 @@ class VeilederflateService(
                         pameldingOgVarighet,
                       },
                       delingMedBruker,
+                      "oppskrifter":  coalesce(oppskrifter[] -> {
+                        ...,
+                        steg[] {
+                          ...,
+                          innhold[] {
+                            ...,
+                            _type == "image" => {
+                            ...,
+                            asset-> // For å hente ut url til bilder
+                        }
+                      }
+                    }
+                    }, [])
                     }
                 """.trimIndent(),
             )
@@ -260,6 +273,19 @@ class VeilederflateService(
                   pameldingOgVarighet,
                 },
                 delingMedBruker,
+                "oppskrifter":  coalesce(oppskrifter[] -> {
+                        ...,
+                        steg[] {
+                          ...,
+                          innhold[] {
+                            ...,
+                            _type == "image" => {
+                            ...,
+                            asset-> // For å hente ut url til bilder
+                        }
+                      }
+                    }
+                  }, [])
               },
               tiltaksgjennomforingNavn,
               "tiltaksnummer": tiltaksnummer.current,
@@ -386,5 +412,30 @@ class VeilederflateService(
                     _createdAt = null,
                 )
             }
+    }
+
+    suspend fun hentOppskrifterForTiltakstype(tiltakstypeId: String, perspective: SanityPerspective): List<Oppskrift> {
+        val query = """
+              *[_type == "tiltakstype" && defined(oppskrifter) && _id == '$tiltakstypeId'] {
+               oppskrifter[] -> {
+                  ...,
+                  steg[] {
+                    ...,
+                    innhold[] {
+                      ...,
+                      _type == "image" => {
+                      ...,
+                      asset-> // For å hente ut url til bilder
+                      }
+                    }
+                  }
+               }
+             }.oppskrifter[]
+        """.trimIndent()
+
+        return when (val result = sanityClient.query(query, perspective)) {
+            is SanityResponse.Result -> result.decode()
+            is SanityResponse.Error -> throw Exception(result.error.toString())
+        }
     }
 }

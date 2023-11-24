@@ -116,7 +116,7 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getTiltakstypeFilter(): Tiltak
 }
 
 fun <T : Any> PipelineContext<T, ApplicationCall>.getAvtaleFilter(): AvtaleFilter {
-    val tiltakstypeId = call.request.queryParameters["tiltakstypeId"]?.toUUID()
+    val tiltakstypeId = call.request.queryParameters["tiltakstypeId"]?.let { if (it.isEmpty()) null else it.toUUID() }
     val search = call.request.queryParameters["search"]
     val avtalestatus =
         call.request.queryParameters["avtalestatus"]?.let { status -> Avtalestatus.valueOf(status) }
@@ -137,11 +137,13 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getAvtaleFilter(): AvtaleFilte
 fun <T : Any> PipelineContext<T, ApplicationCall>.getAdminTiltaksgjennomforingsFilter(): AdminTiltaksgjennomforingFilter {
     val search = call.request.queryParameters["search"]
     val navEnhet = call.request.queryParameters["navEnhet"]
-    val tiltakstypeId = call.request.queryParameters["tiltakstypeId"]?.let { UUID.fromString(it) }
-    val statuser = call.request.queryParameters["status"]?.let { Tiltaksgjennomforingsstatus.valueOf(it) }
+    val tiltakstypeId =
+        call.request.queryParameters["tiltakstypeId"]?.let { if (it.isEmpty()) null else UUID.fromString(it) }
+    val statuser =
+        call.request.queryParameters["status"]?.let { Tiltaksgjennomforingsstatus.valueOf(it) }
     val sortering = call.request.queryParameters["sort"]
     val navRegion = call.request.queryParameters["navRegion"]
-    val avtaleId = call.request.queryParameters["avtaleId"]?.let { UUID.fromString(it) }
+    val avtaleId = call.request.queryParameters["avtaleId"]?.let { if (it.isEmpty()) null else UUID.fromString(it) }
     val arrangorOrgnr = call.request.queryParameters["arrangorOrgnr"]
     return AdminTiltaksgjennomforingFilter(
         search = search,
@@ -159,20 +161,9 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getAdminTiltaksgjennomforingsF
 fun <T : Any> PipelineContext<T, ApplicationCall>.getEnhetFilter(): EnhetFilter {
     val statuser = call.parameters.getAll("statuser")
         ?.map { NavEnhetStatus.valueOf(it) }
-        ?: listOf(
-            NavEnhetStatus.AKTIV,
-            NavEnhetStatus.UNDER_AVVIKLING,
-            NavEnhetStatus.UNDER_ETABLERING,
-        )
 
     val typer = call.parameters.getAll("typer")
         ?.map { Norg2Type.valueOf(it) }
-        ?: listOf(
-            Norg2Type.FYLKE,
-            Norg2Type.LOKAL,
-            Norg2Type.ALS,
-            Norg2Type.TILTAK,
-        )
 
     return EnhetFilter(
         statuser = statuser,
@@ -193,7 +184,7 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getNavAnsattFilter(): NavAnsat
 
 fun <T : Any> PipelineContext<T, ApplicationCall>.getUtkastFilter(): UtkastFilter {
     val type = Utkasttype.valueOf(call.request.queryParameters.getOrFail("utkasttype"))
-    val avtaleId = call.request.queryParameters["avtaleId"]?.let { UUID.fromString(it) }
+    val avtaleId = call.request.queryParameters["avtaleId"]?.let { if (it.isEmpty()) null else UUID.fromString(it) }
     return UtkastFilter(
         type = type,
         opprettetAv = null,
@@ -202,8 +193,9 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getUtkastFilter(): UtkastFilte
 }
 
 fun <T : Any> PipelineContext<T, ApplicationCall>.getNotatFilter(): NotatFilter {
-    val avtaleId = call.request.queryParameters["avtaleId"]?.toUUID()
-    val tiltaksgjennomforingId = call.request.queryParameters["tiltaksgjennomforingId"]?.toUUID()
+    val avtaleId = call.request.queryParameters["avtaleId"]?.let { if (it.isEmpty()) null else it.toUUID() }
+    val tiltaksgjennomforingId =
+        call.request.queryParameters["tiltaksgjennomforingId"]?.let { if (it.isEmpty()) null else it.toUUID() }
     val sortering = call.request.queryParameters["order"]
 
     return NotatFilter(

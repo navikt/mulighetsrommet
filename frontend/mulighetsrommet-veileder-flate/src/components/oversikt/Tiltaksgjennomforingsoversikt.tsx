@@ -133,7 +133,7 @@ const Tiltaksgjennomforingsoversikt = (props: Props) => {
         {gjennomforingerForSide.map((gjennomforing, index) => {
           return (
             <Gjennomforingsrad
-              key={gjennomforing.sanityId}
+              key={gjennomforing.id ?? gjennomforing.sanityId}
               index={index}
               tiltaksgjennomforing={gjennomforing}
             />

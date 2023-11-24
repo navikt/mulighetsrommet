@@ -86,12 +86,6 @@ fun Route.avtaleRoutes() {
             val response = avtaler.avbrytAvtale(id)
             call.respondWithStatusResponse(response)
         }
-
-        delete("{id}") {
-            val id = call.parameters.getOrFail<UUID>("id")
-            val response = avtaler.delete(id)
-            call.respondWithStatusResponse(response)
-        }
     }
 }
 

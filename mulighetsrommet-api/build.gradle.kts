@@ -72,7 +72,6 @@ dependencies {
     implementation(libs.ktor.server.core)
     implementation(libs.ktor.server.cors)
     implementation(libs.ktor.server.metricsMicrometer)
-    implementation(libs.ktor.server.netty)
     implementation(libs.ktor.server.sessions)
     implementation(libs.ktor.server.swagger)
     testImplementation(libs.ktor.server.testHost)
@@ -123,7 +122,7 @@ dependencies {
         implementation("org.yaml:snakeyaml:2.2") {
             because("sikkerhetshull i transitiv avhengighet rapportert via snyk")
         }
-        implementation("org.apache.tomcat.embed:tomcat-embed-core:9.0.82") {
+        implementation("org.apache.tomcat.embed:tomcat-embed-core:9.0.83") {
             because("sikkerhetshull i transitiv avhengighet rapportert via snyk")
         }
     }

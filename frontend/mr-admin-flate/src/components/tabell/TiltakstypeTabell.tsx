@@ -3,7 +3,7 @@ import classNames from "classnames";
 import { useAtom } from "jotai";
 import Lenke from "mulighetsrommet-veileder-flate/src/components/lenke/Lenke";
 import { SorteringTiltakstyper } from "mulighetsrommet-api-client";
-import { paginationAtom, tiltakstypeFilter } from "../../api/atoms";
+import { paginationAtom, tiltakstypeFilterAtom } from "../../api/atoms";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
 import { PAGE_SIZE } from "../../constants";
 import { useSort } from "../../hooks/useSort";
@@ -17,7 +17,7 @@ import styles from "./Tabell.module.scss";
 
 export const TiltakstypeTabell = () => {
   const [page, setPage] = useAtom(paginationAtom);
-  const [filter, setFilter] = useAtom(tiltakstypeFilter);
+  const [filter, setFilter] = useAtom(tiltakstypeFilterAtom);
   const { data, isLoading } = useTiltakstyper(filter, page);
   const [sort, setSort] = useSort("navn");
   const pagination = data?.pagination;

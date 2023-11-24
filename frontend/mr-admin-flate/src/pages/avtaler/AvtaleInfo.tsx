@@ -1,15 +1,12 @@
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
-import { Alert, Heading } from "@navikt/ds-react";
-import { Avtalestatus } from "mulighetsrommet-api-client";
+import { Alert, Heading, HelpText } from "@navikt/ds-react";
 import { NOM_ANSATT_SIDE } from "mulighetsrommet-frontend-common/constants";
-import { Fragment, useState } from "react";
+import { Fragment } from "react";
 import { useAvtale } from "../../api/avtaler/useAvtale";
-import { useDeleteAvtale } from "../../api/avtaler/useDeleteAvtale";
 import { Bolk } from "../../components/detaljside/Bolk";
 import { Metadata, Separator } from "../../components/detaljside/Metadata";
 import { VisHvisVerdi } from "../../components/detaljside/VisHvisVerdi";
 import { Laster } from "../../components/laster/Laster";
-import SlettAvtaleGjennomforingModal from "../../components/modal/SlettAvtaleGjennomforingModal";
 import { avtaletypeTilTekst, formaterDato } from "../../utils/Utils";
 import { erAnskaffetTiltak } from "../../utils/tiltakskoder";
 import styles from "../DetaljerInfo.module.scss";
@@ -17,8 +14,6 @@ import { AvtaleKnapperad } from "./AvtaleKnapperad";
 
 export function AvtaleInfo() {
   const { data: avtale, isLoading, error } = useAvtale();
-  const [slettModal, setSlettModal] = useState(false);
-  const mutation = useDeleteAvtale();
 
   if (!avtale && isLoading) {
     return <Laster tekst="Laster avtaleinformasjon..." />;
@@ -44,21 +39,15 @@ export function AvtaleInfo() {
     return (
       <>
         {tekst}
-        <ExternalLinkIcon />
+        <ExternalLinkIcon aria-label="Ekstern lenke" />
       </>
     );
   };
 
-  function visKnapperad(avtalestatus: Avtalestatus): boolean {
-    return avtalestatus === Avtalestatus.AKTIV;
-  }
-
   return (
     <div className={styles.info_container}>
       <div>
-        {visKnapperad(avtale.avtalestatus) && (
-          <AvtaleKnapperad avtale={avtale} handleSlett={() => setSlettModal(true)} />
-        )}
+        <AvtaleKnapperad avtale={avtale} />
         <Separator />
       </div>
       <div className={styles.container}>
@@ -124,7 +113,8 @@ export function AvtaleInfo() {
                               rel="noopener noreferrer"
                               href={`${NOM_ANSATT_SIDE}${admin?.navIdent}`}
                             >
-                              {`${admin?.navn} - ${admin?.navIdent}`} <ExternalLinkIcon />
+                              {`${admin?.navn} - ${admin?.navIdent}`}{" "}
+                              <ExternalLinkIcon aria-label="Ekstern lenke" />
                             </a>
                           </li>
                         );
@@ -175,6 +165,20 @@ export function AvtaleInfo() {
               );
             })
           )}
+          {avtale?.arenaAnsvarligEnhet ? (
+            <div style={{ display: "flex", gap: "1rem", margin: "0.5rem 0" }}>
+              <dl style={{ margin: "0" }}>
+                <Metadata
+                  header="Ansvarlig enhet fra Arena"
+                  verdi={`${avtale.arenaAnsvarligEnhet.enhetsnummer} ${avtale.arenaAnsvarligEnhet.navn}`}
+                />
+              </dl>
+              <HelpText title="Hva betyr feltet 'Ansvarlig enhet fra Arena'?">
+                Ansvarlig enhet fra Arena blir satt i Arena basert på tiltaksansvarlig sin enhet når
+                det opprettes avtale i Arena.
+              </HelpText>
+            </div>
+          ) : null}
 
           <Separator />
 
@@ -225,13 +229,6 @@ export function AvtaleInfo() {
           </VisHvisVerdi>
         </div>
       </div>
-      <SlettAvtaleGjennomforingModal
-        modalOpen={slettModal}
-        handleCancel={() => setSlettModal(false)}
-        data={avtale}
-        mutation={mutation}
-        dataType="avtale"
-      />
     </div>
   );
 }

@@ -4,14 +4,12 @@ import {
   Avtale,
   Tiltaksgjennomforing,
   TiltaksgjennomforingOppstartstype,
-  Toggles,
 } from "mulighetsrommet-api-client";
 import { ControlledSokeSelect } from "mulighetsrommet-frontend-common";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
 import { useHentBetabrukere } from "../../api/ansatt/useHentBetabrukere";
 import { useHentKontaktpersoner } from "../../api/ansatt/useHentKontaktpersoner";
-import { useFeatureToggle } from "../../api/features/feature-toggles";
 import { useVirksomhet } from "../../api/virksomhet/useVirksomhet";
 import { addYear, tilgjengelighetsstatusTilTekst } from "../../utils/Utils";
 import { Separator } from "../detaljside/Metadata";
@@ -31,9 +29,6 @@ interface Props {
 export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtale }: Props) => {
   const { data: virksomhet } = useVirksomhet(avtale.leverandor.organisasjonsnummer || "");
   const { data: betabrukere } = useHentBetabrukere();
-  const { data: redigerOppstart } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_ADMIN_FLATE_REDIGER_OPPSTART,
-  );
 
   const { data: ansatt, isLoading: isLoadingAnsatt } = useHentAnsatt();
 
@@ -102,7 +97,6 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
               size="small"
               label="Oppstartstype"
               placeholder="Velg oppstart"
-              readOnly={!redigerOppstart && erArenaOpphav(tiltaksgjennomforing)}
               {...register("oppstart")}
               options={[
                 {
@@ -183,7 +177,6 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
               readOnly
               size="small"
               label="Tilgjengelighetsstatus"
-              description="Statusen vises til veileder i Modia"
               value={tilgjengelighetsstatusTilTekst(tiltaksgjennomforing?.tilgjengelighet)}
             />
           </FormGroup>
@@ -285,7 +278,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                     })
                   }
                 >
-                  <PlusIcon /> Legg til ny kontaktperson
+                  <PlusIcon aria-label="Legg til ny kontaktperson" /> Legg til ny kontaktperson
                 </Button>
               </div>
             </FormGroup>

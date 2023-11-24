@@ -71,15 +71,15 @@ export const tiltakstype = defineType({
       description: "Informasjon om tiltaket som veileder kan dele med bruker.",
       type: "text",
     }),
-
     defineField({
-      name: "forskningsrapport",
-      title: "Forskningsrapport",
+      name: "oppskrifter",
+      title: "Oppskrifter",
       description:
-        "Legg til en eller flere forskningsrapporter som gjelder for tiltakstypen. Disse vil bli vist under 'Innsikt'-fanen.",
+        "Her kan man velge å koble oppskrifter til tiltakstypen slik at de blir tilgjengelig for veiledere i Modia",
       type: "array",
-      of: [{ type: "reference", to: [{ type: "forskningsrapport" }] }],
-      hidden: true, //Skjules frem til innsiktsfanen er klar
+      of: [{ type: "reference", to: [{ type: "oppskrift" }] }],
+      validation: (Rule) =>
+        Rule.length(1).error("Det kan kun være én oppskrift tilknyttet tiltakstypen"),
     }),
   ],
   preview: {

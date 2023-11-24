@@ -1,25 +1,19 @@
 import {
   NavAnsattRolle,
   NotificationStatus,
-  SorteringTiltakstyper,
-  Tiltakstypekategori,
-  Tiltakstypestatus,
   UtkastRequest as Utkast,
   VirksomhetTil,
 } from "mulighetsrommet-api-client";
-import { AvtaleFilterProps, Tiltaksgjennomforingfilter } from "./atoms";
+import { AvtaleFilterProps, TiltaksgjennomforingfilterProps, TiltakstypeFilter } from "./atoms";
 
 export const QueryKeys = {
   tiltakstype: (id?: string) => [id, "tiltakstype"] as const,
-  tiltakstyper: (
-    sokestreng: string,
-    status: Tiltakstypestatus | "",
-    kategori?: Tiltakstypekategori | "",
-    sortering?: SorteringTiltakstyper,
+  tiltakstyper: (sokestreng: string, filter: TiltakstypeFilter, page?: number) =>
+    [sokestreng, { ...filter }, page, "tiltakstyper"] as const,
+  tiltaksgjennomforinger: (
+    tiltaksgjennomforingfilter: TiltaksgjennomforingfilterProps,
     page?: number,
-  ) => [sokestreng, status, kategori, sortering, page, "tiltakstyper"] as const,
-  tiltaksgjennomforinger: (tiltaksgjennomforingfilter: Tiltaksgjennomforingfilter, page?: number) =>
-    [{ ...tiltaksgjennomforingfilter }, page, "tiltaksgjennomforinger"] as const,
+  ) => [{ ...tiltaksgjennomforingfilter }, page, "tiltaksgjennomforinger"] as const,
   tiltaksgjennomforing: (id?: string) => [id, "tiltaksgjennomforing"] as const,
   veilederflateTiltaksgjennomforing: (id: string) => [id, "tiltaksgjennomforing"] as const,
   ansatt: () => ["ansatt"] as const,

@@ -25,8 +25,8 @@ if (version !== "0.1.0") {
 function atomWithStorage<Value>(key: string, initialValue: Value, storage = localStorage) {
   const baseAtom = atom(storage.getItem(key) ?? JSON.stringify(initialValue));
   return atom(
-    (get) => JSON.parse(get(baseAtom)),
-    (get, set, nextValue: Value) => {
+    (get) => JSON.parse(get(baseAtom)) as Value,
+    (_, set, nextValue: Value) => {
       const str = JSON.stringify(nextValue);
       set(baseAtom, str);
       storage.setItem(key, str);
@@ -61,12 +61,12 @@ function atomWithHashAndStorage<Value>(key: string, initialValue: Value) {
 
 export const paginationAtom = atomWithHashAndStorage("page", 1);
 
-export const avtalePaginationAtom = atomWithHashAndStorage("avtalePage", 1);
+export const avtalePaginationAtomAtom = atomWithHashAndStorage("avtalePage", 1);
 
 export interface TiltakstypeFilter {
   sok?: string;
-  status: Tiltakstypestatus | "";
-  kategori?: Tiltakstypekategori | "";
+  status?: Tiltakstypestatus;
+  kategori?: Tiltakstypekategori;
   sortering?: SorteringTiltakstyper;
 }
 
@@ -77,16 +77,16 @@ export const defaultTiltakstypeFilter: TiltakstypeFilter = {
   sortering: SorteringTiltakstyper.NAVN_ASCENDING,
 };
 
-export const tiltakstypeFilter = atomWithHashAndStorage<TiltakstypeFilter>(
+export const tiltakstypeFilterAtom = atomWithHashAndStorage<TiltakstypeFilter>(
   "tiltakstypefilter",
   defaultTiltakstypeFilter,
 );
 
-export interface Tiltaksgjennomforingfilter {
+export interface TiltaksgjennomforingfilterProps {
   search: string;
   navEnhet: string;
   tiltakstype: string;
-  status: TiltaksgjennomforingStatus | "";
+  status?: TiltaksgjennomforingStatus;
   sortering: SorteringTiltaksgjennomforinger;
   navRegion: string;
   avtale: string;
@@ -95,7 +95,7 @@ export interface Tiltaksgjennomforingfilter {
   visMineGjennomforinger: boolean;
 }
 
-export const defaultTiltaksgjennomforingfilter: Tiltaksgjennomforingfilter = {
+export const defaultTiltaksgjennomforingfilter: TiltaksgjennomforingfilterProps = {
   search: "",
   navEnhet: "",
   tiltakstype: "",
@@ -108,19 +108,26 @@ export const defaultTiltaksgjennomforingfilter: Tiltaksgjennomforingfilter = {
   visMineGjennomforinger: false,
 };
 
-export const tiltaksgjennomforingfilter = atomWithHashAndStorage<Tiltaksgjennomforingfilter>(
-  "tiltaksgjennomforingFilter",
-  defaultTiltaksgjennomforingfilter,
-);
+export const tiltaksgjennomforingfilterAtom =
+  atomWithHashAndStorage<TiltaksgjennomforingfilterProps>(
+    "tiltaksgjennomforingFilter",
+    defaultTiltaksgjennomforingfilter,
+  );
 
-export const tiltaksgjennomforingTilAvtaleFilter = atom<Pick<Tiltaksgjennomforingfilter, "search">>(
-  { search: "" },
-);
+export const tiltaksgjennomforingfilterForAvtaleAtom =
+  atomWithHashAndStorage<TiltaksgjennomforingfilterProps>(
+    "tiltaksgjennomforingFilterForAvtale",
+    defaultTiltaksgjennomforingfilter,
+  );
+
+export const tiltaksgjennomforingTilAvtaleFilterAtom = atom<
+  Pick<TiltaksgjennomforingfilterProps, "search">
+>({ search: "" });
 
 export interface AvtaleFilterProps {
   sok: string;
-  status: Avtalestatus | "";
-  navRegion: string;
+  status?: Avtalestatus;
+  navRegion?: string;
   tiltakstype: string;
   sortering: SorteringAvtaler;
   leverandor_orgnr: string;
@@ -139,9 +146,14 @@ export const defaultAvtaleFilter: AvtaleFilterProps = {
   visMineAvtaler: false,
 };
 
-export const avtaleFilter = atomWithHashAndStorage<AvtaleFilterProps>(
+export const avtaleFilterAtom = atomWithHashAndStorage<AvtaleFilterProps>(
   "avtalefilter",
   defaultAvtaleFilter,
 );
 
-export const gjennomforingDetaljerTab = atom<string>("detaljer");
+export const avtaleFilterForTiltakstypeAtom = atomWithHashAndStorage<AvtaleFilterProps>(
+  "avtalefilterForTiltakstype",
+  defaultAvtaleFilter,
+);
+
+export const gjennomforingDetaljerTabAtom = atom<string>("detaljer");

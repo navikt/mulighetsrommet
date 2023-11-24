@@ -19,7 +19,9 @@ spec:
   replicas:
     min: 1
     max: 1
-    cpuThresholdPercentage: 75
+    scalingStrategy:
+      cpu:
+        thresholdPercentage: 75
   resources:
     limits:
       memory: 512Mi
@@ -56,6 +58,11 @@ spec:
           },
           "cors": {
             "origin": "https://veilarbpersonflate.intern.dev.nav.no"
+          },
+          "header": {
+            "csp": {
+              "imgSrc": ["'self'", "*.nav.no", "cdn.sanity.io"]
+            }
           },
           "proxies": [
             {

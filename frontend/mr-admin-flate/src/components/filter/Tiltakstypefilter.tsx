@@ -5,15 +5,16 @@ import {
   defaultTiltakstypeFilter,
   paginationAtom,
   TiltakstypeFilter,
-  tiltakstypeFilter,
+  tiltakstypeFilterAtom,
 } from "../../api/atoms";
 import { resetPaginering, valueOrDefault } from "../../utils/Utils";
 import styles from "./Filter.module.scss";
 import { FilterTag } from "./FilterTag";
 import { ControlledSokeSelect } from "mulighetsrommet-frontend-common";
+import { Tiltakstypekategori, Tiltakstypestatus } from "mulighetsrommet-api-client";
 
 export function Tiltakstypefilter() {
-  const [filter, setFilter] = useAtom(tiltakstypeFilter);
+  const [filter, setFilter] = useAtom(tiltakstypeFilterAtom);
   const [, setPage] = useAtom(paginationAtom);
 
   const form = useForm<TiltakstypeFilter>({
@@ -92,7 +93,10 @@ export function Tiltakstypefilter() {
                 resetPaginering(setPage);
                 setFilter({
                   ...filter,
-                  status: valueOrDefault(e.target.value, defaultTiltakstypeFilter.status),
+                  status: valueOrDefault(
+                    e.target.value as Tiltakstypestatus,
+                    defaultTiltakstypeFilter.status,
+                  ),
                 });
               }}
               options={statusOptions()}
@@ -107,7 +111,10 @@ export function Tiltakstypefilter() {
                 resetPaginering(setPage);
                 setFilter({
                   ...filter,
-                  kategori: valueOrDefault(e.target.value, defaultTiltakstypeFilter.kategori),
+                  kategori: valueOrDefault(
+                    e.target.value as Tiltakstypekategori,
+                    defaultTiltakstypeFilter.kategori,
+                  ),
                 });
               }}
               options={kategoriOptions()}
@@ -115,15 +122,27 @@ export function Tiltakstypefilter() {
             />
           </div>
           <div className={styles.tags_container}>
+            {filter.sok && (
+              <FilterTag
+                label={`'${filter.sok}'`}
+                onClick={() => {
+                  setFilter({
+                    ...filter,
+                    sok: "",
+                  });
+                  setValue("sok", "");
+                }}
+              />
+            )}
             {filter.status && (
               <FilterTag
                 label={filter.status}
                 onClick={() => {
                   setFilter({
                     ...filter,
-                    status: "",
+                    status: undefined,
                   });
-                  setValue("status", "");
+                  setValue("status", undefined);
                 }}
               />
             )}
@@ -133,13 +152,14 @@ export function Tiltakstypefilter() {
                 onClick={() => {
                   setFilter({
                     ...filter,
-                    kategori: "",
+                    kategori: undefined,
                   });
-                  setValue("kategori", "");
+                  setValue("kategori", undefined);
                 }}
               />
             )}
-            {(filter.status !== defaultTiltakstypeFilter.status ||
+            {(filter.sok ||
+              filter.status !== defaultTiltakstypeFilter.status ||
               filter.kategori !== defaultTiltakstypeFilter.kategori) && (
               <Button
                 style={{

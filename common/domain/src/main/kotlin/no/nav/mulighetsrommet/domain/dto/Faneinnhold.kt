@@ -12,16 +12,3 @@ class Faneinnhold(
     val pameldingOgVarighet: List<JsonObject>? = emptyList(),
     val pameldingOgVarighetInfoboks: String? = null,
 )
-
-fun Faneinnhold?.emptyOrNull(): Boolean =
-    when (this) {
-        null -> true
-        else -> {
-            this.forHvem == null &&
-                this.forHvemInfoboks == null &&
-                this.detaljerOgInnhold == null &&
-                this.detaljerOgInnholdInfoboks == null &&
-                this.pameldingOgVarighet == null &&
-                this.pameldingOgVarighetInfoboks == null
-        }
-    }

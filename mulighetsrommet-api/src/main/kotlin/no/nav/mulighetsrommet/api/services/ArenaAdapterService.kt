@@ -143,7 +143,7 @@ class ArenaAdapterService(
     }
 
     private fun maybeNotifyRelevantAdministrators(avtale: AvtaleAdminDto) {
-        val enhet = resolveRelevantNavEnhet(avtale.arenaAnsvarligEnhet) ?: return
+        val enhet = resolveRelevantNavEnhet(avtale.arenaAnsvarligEnhet?.enhetsnummer) ?: return
         notifyRelevantAdministrators(enhet) { administrators ->
             ScheduledNotification(
                 type = NotificationType.TASK,
@@ -160,7 +160,7 @@ class ArenaAdapterService(
     }
 
     private fun maybeNotifyRelevantAdministrators(gjennomforing: TiltaksgjennomforingAdminDto) {
-        val enhet = resolveRelevantNavEnhet(gjennomforing.arenaAnsvarligEnhet) ?: return
+        val enhet = resolveRelevantNavEnhet(gjennomforing.arenaAnsvarligEnhet?.enhetsnummer) ?: return
         notifyRelevantAdministrators(enhet) { administrators ->
             ScheduledNotification(
                 type = NotificationType.TASK,

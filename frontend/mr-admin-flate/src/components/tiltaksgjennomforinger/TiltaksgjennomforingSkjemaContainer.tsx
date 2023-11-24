@@ -12,7 +12,7 @@ import React, { useRef, useState } from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { v4 as uuidv4 } from "uuid";
 import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
-import { gjennomforingDetaljerTab } from "../../api/atoms";
+import { gjennomforingDetaljerTabAtom } from "../../api/atoms";
 import { useHandleApiUpsertResponse } from "../../api/effects";
 import { useUpsertTiltaksgjennomforing } from "../../api/tiltaksgjennomforing/useUpsertTiltaksgjennomforing";
 import { useMutateUtkast } from "../../api/utkast/useMutateUtkast";
@@ -51,7 +51,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
   const redigeringsModus = !!tiltaksgjennomforing;
   const mutation = useUpsertTiltaksgjennomforing();
   const mutationUtkast = useMutateUtkast();
-  const [activeTab, setActiveTab] = useAtom(gjennomforingDetaljerTab);
+  const [activeTab, setActiveTab] = useAtom(gjennomforingDetaljerTabAtom);
 
   const avbrytModalRef = useRef<HTMLDialogElement>(null);
   const { data: ansatt } = useHentAnsatt();
@@ -190,7 +190,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
                   label={
                     hasErrors() ? (
                       <span style={{ display: "flex", alignContent: "baseline", gap: "0.4rem" }}>
-                        <ExclamationmarkTriangleFillIcon /> Detaljer
+                        <ExclamationmarkTriangleFillIcon aria-label="Detaljer" /> Detaljer
                       </span>
                     ) : (
                       "Detaljer"

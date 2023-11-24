@@ -23,7 +23,9 @@ spec:
   replicas:
     min: 1
     max: 1 # 1 instance is required since in-memory session management is used
-    cpuThresholdPercentage: 75
+    scalingStrategy:
+      cpu:
+        thresholdPercentage: 75
   resources:
     limits:
       memory: 1024Mi

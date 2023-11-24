@@ -1,17 +1,14 @@
 import { Alert, Tabs } from "@navikt/ds-react";
 import { TiltaksgjennomforingStatus } from "mulighetsrommet-api-client";
-import { useState } from "react";
 import { useAvtale } from "../../api/avtaler/useAvtale";
-import { useDeleteTiltaksgjennomforing } from "../../api/tiltaksgjennomforing/useDeleteTiltaksgjennomforing";
 import { useTiltaksgjennomforingById } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforingById";
 import { Laster } from "../../components/laster/Laster";
-import SlettAvtaleGjennomforingModal from "../../components/modal/SlettAvtaleGjennomforingModal";
 import skjemaStyles from "../../components/skjema/Skjema.module.scss";
 import styles from "../DetaljerInfo.module.scss";
 import { TiltaksgjennomforingDetaljer } from "./TiltaksgjennomforingDetaljer";
 import { TiltaksgjennomforingKnapperad } from "./TiltaksgjennomforingKnapperad";
 import { TiltaksgjennomforingRedInnhold } from "./TiltaksgjennomforingRedInnhold";
-import { gjennomforingDetaljerTab } from "../../api/atoms";
+import { gjennomforingDetaljerTabAtom } from "../../api/atoms";
 import { useAtom } from "jotai";
 
 export function TiltaksgjennomforingInfo() {
@@ -20,10 +17,7 @@ export function TiltaksgjennomforingInfo() {
     isError: isErrorTiltaksgjennomforing,
     isLoading: isLoadingTiltaksgjennomforing,
   } = useTiltaksgjennomforingById();
-  const [activeTab, setActiveTab] = useAtom(gjennomforingDetaljerTab);
-
-  const [slettModal, setSlettModal] = useState(false);
-  const mutation = useDeleteTiltaksgjennomforing();
+  const [activeTab, setActiveTab] = useAtom(gjennomforingDetaljerTabAtom);
 
   const { data: avtale, isLoading: isLoadingAvtale } = useAvtale(tiltaksgjennomforing?.avtaleId);
 
@@ -60,9 +54,7 @@ export function TiltaksgjennomforingInfo() {
               label="Redaksjonelt innhold"
             />
           </div>
-          {visKnapperad(tiltaksgjennomforing.status) && (
-            <TiltaksgjennomforingKnapperad handleSlett={() => setSlettModal(true)} />
-          )}
+          {visKnapperad(tiltaksgjennomforing.status) && <TiltaksgjennomforingKnapperad />}
         </Tabs.List>
         <Tabs.Panel value="detaljer">
           <TiltaksgjennomforingDetaljer
@@ -74,13 +66,6 @@ export function TiltaksgjennomforingInfo() {
           <TiltaksgjennomforingRedInnhold tiltaksgjennomforing={tiltaksgjennomforing} />
         </Tabs.Panel>
       </Tabs>
-      <SlettAvtaleGjennomforingModal
-        modalOpen={slettModal}
-        handleCancel={() => setSlettModal(false)}
-        data={tiltaksgjennomforing}
-        mutation={mutation}
-        dataType={"tiltaksgjennomforing"}
-      />
     </div>
   );
 }

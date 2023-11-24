@@ -14,7 +14,7 @@ import java.util.*
 
 object TiltaksgjennomforingFixtures {
     val ArenaOppfolging1 = ArenaTiltaksgjennomforingDbo(
-        id = UUID.fromString("21ecff07-18e4-4dba-ada3-0ee7cab5892e"),
+        id = UUID.randomUUID(),
         navn = "Oppfølging 1",
         tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
         tiltaksnummer = "2023#1",
@@ -31,7 +31,7 @@ object TiltaksgjennomforingFixtures {
     )
 
     val Oppfolging1 = TiltaksgjennomforingDbo(
-        id = UUID.fromString("20ecff07-18e4-4dba-ada3-0ee7cab5892e"),
+        id = UUID.randomUUID(),
         navn = "Oppfølging 1",
         tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
         tiltaksnummer = "2023#1",
@@ -122,7 +122,7 @@ object TiltaksgjennomforingFixtures {
     )
 
     val Oppfolging2 = TiltaksgjennomforingDbo(
-        id = UUID.fromString("170e298a-3431-4959-94ba-d717e640f4a5"),
+        id = UUID.randomUUID(),
         navn = "Oppfølging 2",
         tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
         tiltaksnummer = "2023#2",
@@ -148,7 +148,7 @@ object TiltaksgjennomforingFixtures {
     )
 
     val Arbeidstrening1 = TiltaksgjennomforingDbo(
-        id = UUID.fromString("baae02dc-28c8-4382-be66-6b185adcdd08"),
+        id = UUID.randomUUID(),
         navn = "Arbeidstrening 1",
         tiltakstypeId = TiltakstypeFixtures.Arbeidstrening.id,
         tiltaksnummer = "2023#3",

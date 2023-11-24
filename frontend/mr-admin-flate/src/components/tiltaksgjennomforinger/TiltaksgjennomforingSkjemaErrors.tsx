@@ -17,18 +17,6 @@ const avtaleFinnesIkke = () => (
   </>
 );
 
-export const avtalenErAvsluttet = (erRedigeringsmodus: boolean) => (
-  <>
-    <BodyShort>
-      Kan ikke {erRedigeringsmodus ? "redigere" : "opprette"} gjennomføring fordi avtalens sluttdato
-      har passert.
-    </BodyShort>
-    <BodyShort>
-      Ta <a href={PORTEN}>kontakt i Porten</a> dersom du trenger mer hjelp.
-    </BodyShort>
-  </>
-);
-
 const avtaleManglerNavRegionError = (avtaleId?: string) => (
   <>
     <BodyShort>
@@ -55,13 +43,9 @@ export const tekniskFeilError = () => (
   </>
 );
 
-export function ErrorMeldinger(avtale: Avtale | undefined, redigeringsModus: boolean | undefined) {
+export function ErrorMeldinger(avtale: Avtale | undefined) {
   if (!avtale) {
     return avtaleFinnesIkke();
-  }
-
-  if (avtale?.sluttDato && new Date(avtale.sluttDato) < new Date()) {
-    return avtalenErAvsluttet(redigeringsModus!);
   }
 
   if (!avtaleHarRegioner(avtale)) {

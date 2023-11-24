@@ -1,9 +1,12 @@
 import { Tabs } from "@navikt/ds-react";
 import { useAtom } from "jotai";
-import { VeilederflateTiltaksgjennomforing } from "mulighetsrommet-api-client";
+import { Toggles, VeilederflateTiltaksgjennomforing } from "mulighetsrommet-api-client";
+import { useNavigate } from "react-router-dom";
+import { useFeatureToggle } from "../../core/api/feature-toggles";
 import { logEvent } from "../../core/api/logger";
 import { faneAtom } from "../../core/atoms/atoms";
 import { kebabCase } from "../../utils/Utils";
+import { Oppskriftsoversikt } from "../oppskrift/Oppskriftsoversikt";
 import DetaljerFane from "./DetaljerFane";
 import styles from "./TiltaksdetaljerFane.module.scss";
 import KontaktinfoFane from "./kontaktinfofane/KontaktinfoFane";
@@ -14,6 +17,11 @@ interface Props {
 
 const TiltaksdetaljerFane = ({ tiltaksgjennomforing }: Props) => {
   const [fane, setFane] = useAtom(faneAtom);
+  const navigate = useNavigate();
+
+  const { data: enableArenaOppskrifter } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_VEILEDERFLATE_ARENA_OPPSKRIFTER,
+  );
 
   const { tiltakstype, faneinnhold } = tiltaksgjennomforing;
   const faneoverskrifter = [
@@ -21,13 +29,19 @@ const TiltaksdetaljerFane = ({ tiltaksgjennomforing }: Props) => {
     "Detaljer og innhold",
     "Påmelding og varighet",
     "Kontaktinfo",
+    enableArenaOppskrifter ? "Oppskrifter" : "",
   ] as const;
   const tabValueTilFaneoverSkrifter: { [key: string]: string } = {
     tab1: faneoverskrifter[0],
     tab2: faneoverskrifter[1],
     tab3: faneoverskrifter[2],
     tab4: faneoverskrifter[3],
+    tab5: faneoverskrifter[4],
   };
+
+  function navigateAwayFromOppskrift() {
+    navigate("./");
+  }
 
   return (
     <Tabs
@@ -38,10 +52,13 @@ const TiltaksdetaljerFane = ({ tiltaksgjennomforing }: Props) => {
       onChange={(value) => {
         logEvent("mulighetsrommet.faner", { value: tabValueTilFaneoverSkrifter[value] });
         setFane(value);
+        if (value !== "tab5") {
+          navigateAwayFromOppskrift();
+        }
       }}
     >
       <Tabs.List className={styles.fane_liste} id="fane_liste">
-        {faneoverskrifter.map((fane, index) => (
+        {faneoverskrifter.filter(Boolean).map((fane, index) => (
           <Tabs.Tab
             key={index}
             value={`tab${index + 1}`}
@@ -78,6 +95,9 @@ const TiltaksdetaljerFane = ({ tiltaksgjennomforing }: Props) => {
         </Tabs.Panel>
         <Tabs.Panel value="tab4" data-testid="tab4">
           <KontaktinfoFane tiltaksgjennomforing={tiltaksgjennomforing} />
+        </Tabs.Panel>
+        <Tabs.Panel value="tab5" data-testid="tab5">
+          <Oppskriftsoversikt tiltakstypeId={tiltaksgjennomforing.tiltakstype.sanityId} />
         </Tabs.Panel>
       </div>
     </Tabs>

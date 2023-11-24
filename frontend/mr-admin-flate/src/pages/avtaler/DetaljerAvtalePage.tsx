@@ -18,7 +18,7 @@ export function DetaljerAvtalePage() {
     throw new Error("Fant ingen avtaleId i url");
   }
   const { data: avtale, isLoading } = useAvtale();
-  useTitle(`Avtale - ${avtale?.navn}`);
+  useTitle(`Avtale ${avtale?.navn ? `- ${avtale.navn}` : ""}`);
 
   if (!avtale && isLoading) {
     return (
@@ -70,12 +70,14 @@ export function DetaljerAvtalePage() {
             label="Notater"
             onClick={() => navigate(`/avtaler/${avtaleId}/notater`)}
             aria-controls="panel"
+            data-testid="notater-tab"
           />
           <Tabs.Tab
             value="tiltaksgjennomforinger"
             label="Gjennomføringer"
             onClick={() => navigate(`/avtaler/${avtaleId}/tiltaksgjennomforinger`)}
             aria-controls="panel"
+            data-testid="gjennomforinger-tab"
           />
         </Tabs.List>
         <ContainerLayout>

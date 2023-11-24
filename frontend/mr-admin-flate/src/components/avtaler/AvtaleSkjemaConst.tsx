@@ -57,7 +57,7 @@ export const getLokaleUnderenheterAsSelectOptions = (
       return (
         enhet.overordnetEnhet != null &&
         navRegioner.includes(enhet.overordnetEnhet) &&
-        enhet.type === NavEnhetType.LOKAL
+        (enhet.type === NavEnhetType.LOKAL || enhet.type === NavEnhetType.KO)
       );
     })
     .map((enhet: NavEnhet) => ({

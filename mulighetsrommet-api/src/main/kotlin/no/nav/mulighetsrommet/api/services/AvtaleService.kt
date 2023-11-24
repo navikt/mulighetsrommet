@@ -21,7 +21,6 @@ import no.nav.mulighetsrommet.notifications.NotificationRepository
 import no.nav.mulighetsrommet.notifications.NotificationType
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
 import java.time.Instant
-import java.time.LocalDate
 import java.util.*
 
 class AvtaleService(
@@ -81,34 +80,6 @@ class AvtaleService(
 
     fun getAllAvtalerSomNarmerSegSluttdato(): List<AvtaleNotificationDto> {
         return avtaler.getAllAvtalerSomNarmerSegSluttdato()
-    }
-
-    fun delete(id: UUID, currentDate: LocalDate = LocalDate.now()): StatusResponse<Unit> {
-        val avtale = avtaler.get(id)
-            ?: return Either.Left(NotFound("Avtalen finnes ikke"))
-
-        if (avtale.opphav == Opphav.ARENA) {
-            return Either.Left(BadRequest(message = "Avtalen har opprinnelse fra Arena og kan ikke bli slettet i admin-flate."))
-        }
-
-        if (avtale.startDato <= currentDate) {
-            return Either.Left(BadRequest(message = "Avtalen er aktiv og kan derfor ikke slettes."))
-        }
-
-        val (antallGjennomforinger) = tiltaksgjennomforinger.getAll(avtaleId = id)
-        if (antallGjennomforinger > 0) {
-            return Either.Left(
-                BadRequest(
-                    message = "Avtalen har $antallGjennomforinger ${
-                        if (antallGjennomforinger > 1) "tiltaksgjennomføringer" else "tiltaksgjennomføring"
-                    } koblet til seg. Du må frikoble ${
-                        if (antallGjennomforinger > 1) "gjennomføringene" else "gjennomføringen"
-                    } før du kan slette avtalen.",
-                ),
-            )
-        }
-
-        return Either.Right(avtaler.delete(id))
     }
 
     fun avbrytAvtale(avtaleId: UUID): StatusResponse<Unit> {

@@ -62,12 +62,6 @@ fun Route.tiltaksgjennomforingRoutes() {
                 ?: call.respond(HttpStatusCode.NotFound, "Ingen tiltaksgjennomføring med id=$id")
         }
 
-        delete("{id}") {
-            val id = call.parameters.getOrFail<UUID>("id")
-            val response = service.delete(id)
-            call.respondWithStatusResponse(response)
-        }
-
         put("{id}/avtale") {
             val id = call.parameters.getOrFail<UUID>("id")
             val request = call.receive<SetAvtaleForGjennomforingRequest>()
