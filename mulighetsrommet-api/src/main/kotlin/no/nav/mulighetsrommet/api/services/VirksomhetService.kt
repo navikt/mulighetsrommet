@@ -38,7 +38,7 @@ class VirksomhetService(
     }
 
     fun getAll(filter: VirksomhetFilter): List<VirksomhetDto> {
-        return virksomhetRepository.getAll(filter).getOrThrow()
+        return virksomhetRepository.getAll(filter.til).getOrThrow()
     }
 
     suspend fun getOrSyncVirksomhet(orgnr: String): VirksomhetDto? {

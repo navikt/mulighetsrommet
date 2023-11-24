@@ -5,7 +5,7 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.domain.dbo.OverordnetEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
 import no.nav.mulighetsrommet.api.domain.dto.VirksomhetKontaktperson
-import no.nav.mulighetsrommet.api.utils.*
+import no.nav.mulighetsrommet.api.utils.VirksomhetTil
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
@@ -103,8 +103,8 @@ class VirksomhetRepository(private val db: Database) {
         }
     }
 
-    fun getAll(filter: VirksomhetFilter): QueryResult<List<VirksomhetDto>> = query {
-        val join = when (filter.til) {
+    fun getAll(til: VirksomhetTil? = null): QueryResult<List<VirksomhetDto>> = query {
+        val join = when (til) {
             VirksomhetTil.AVTALE -> {
                 "inner join avtale on avtale.leverandor_organisasjonsnummer = v.organisasjonsnummer"
             }
@@ -147,18 +147,6 @@ class VirksomhetRepository(private val db: Database) {
         """.trimIndent()
 
         @Language("PostgreSQL")
-        val selectUnderenhet = """
-            select
-                v.organisasjonsnummer,
-                v.overordnet_enhet,
-                v.navn,
-                v.postnummer,
-                v.poststed
-            from virksomhet v
-            where v.organisasjonsnummer = ?
-        """.trimIndent()
-
-        @Language("PostgreSQL")
         val selectUnderenheterTilVirksomhet = """
             select
                 v.organisasjonsnummer,
@@ -180,12 +168,10 @@ class VirksomhetRepository(private val db: Database) {
                 .map { it.toVirksomhetDto() }
                 .asList
                 .let { db.run(it) }
+                .takeIf { it.isNotEmpty() }
             virksomhet.copy(underenheter = underenheter)
         } else {
-            queryOf(selectUnderenhet, orgnr)
-                .map { it.toVirksomhetDto() }
-                .asSingle
-                .let { db.run(it) }
+            null
         }
     }
 
