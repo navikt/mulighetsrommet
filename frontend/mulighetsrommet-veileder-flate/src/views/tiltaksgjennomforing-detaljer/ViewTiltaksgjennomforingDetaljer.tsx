@@ -26,6 +26,7 @@ import TiltaksgjennomforingsHeader from "../../layouts/TiltaksgjennomforingsHead
 import { byttTilDialogFlate } from "../../utils/DialogFlateUtils";
 import { erPreview, formaterDato } from "../../utils/Utils";
 import styles from "./ViewTiltaksgjennomforingDetaljer.module.scss";
+import { Outlet } from "react-router-dom";
 
 const whiteListOpprettAvtaleKnapp: Tiltakskode[] = [
   Tiltakskode.MIDLONTIL,
@@ -215,6 +216,9 @@ const ViewTiltaksgjennomforingDetaljer = ({
             brukerdata={brukerdata}
             harDeltMedBruker={harDeltMedBruker}
           />
+        </div>
+        <div className={styles.oppskriftContainer}>
+          <Outlet />
         </div>
       </div>
     </>

@@ -2,9 +2,9 @@ import { Alert, GuidePanel } from "@navikt/ds-react";
 import { PortableText } from "@portabletext/react";
 import { useEffect, useRef } from "react";
 import { Link, useParams } from "react-router-dom";
+import { APPLICATION_WEB_COMPONENT_NAME } from "../../constants";
 import { useOppskrifter } from "../../core/api/queries/useOppskrifter";
 import styles from "./Oppskrift.module.scss";
-import { APPLICATION_WEB_COMPONENT_NAME } from "../../constants";
 
 interface ImageProp {
   value: { asset: { url: string }; altText: string };
@@ -72,7 +72,7 @@ export function Oppskrift() {
       // Dette skjer når vi bygger appen som en web-component
       shadowDom.querySelector(elementId)?.scrollIntoView({ behavior: "smooth" });
     } else {
-      // Dette skjer lokal kjøring av appen
+      // Dette skjer ved lokal kjøring av appen
       document.querySelector(elementId)?.scrollIntoView({ behavior: "smooth" });
     }
   }
@@ -87,12 +87,14 @@ export function Oppskrift() {
               {oppskrift.steg.map((s, index) => {
                 return (
                   <li key={s.navn}>
-                    <a
+                    <button
+                      className={styles.navigasjonsknapp}
+                      title={`Naviger til steg: ${index + 1}`}
+                      aria-label={`Naviger til steg: ${index + 1}`}
                       onClick={() => navigateViaShadowDomToElement(`#steg-${index + 1}`)}
-                      style={{ cursor: "pointer" }}
                     >
                       {s.navn}
-                    </a>
+                    </button>
                   </li>
                 );
               })}

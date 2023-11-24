@@ -42,8 +42,6 @@ export function Oppskriftsoversikt({ tiltakstypeId }: Props) {
           );
         })}
       </ul>
-      <hr />
-      <Outlet />
     </>
   );
 }

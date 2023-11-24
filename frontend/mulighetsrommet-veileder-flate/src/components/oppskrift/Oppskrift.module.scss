@@ -1,5 +1,6 @@
 .container {
   display: flex;
+  background-color: white;
 }
 
 .oppskrifter {
@@ -20,7 +21,22 @@
 
 .navigering {
   margin-right: 1rem;
+  nav ol {
+    margin: 0;
+    padding: 0;
+  }
   nav ol li {
     margin: 1rem 0;
+  }
+}
+
+.navigasjonsknapp {
+  background: none;
+  border: none;
+  text-decoration: underline;
+  text-align: left;
+
+  &:hover {
+    cursor: pointer;
   }
 }
