@@ -64,7 +64,7 @@ export function utkastDataEllerDefault(
   tiltaksgjennomforing?: Tiltaksgjennomforing,
 ): DeepPartial<InferredTiltaksgjennomforingSchema> {
   return {
-    navn: tiltaksgjennomforing?.navn,
+    navn: avtale.navn || tiltaksgjennomforing?.navn,
     avtaleId: avtale.id,
     navRegion: tiltaksgjennomforing?.navRegion?.enhetsnummer,
     navEnheter: (tiltaksgjennomforing?.navEnheter?.map((enhet) => enhet.enhetsnummer) || []) as [
