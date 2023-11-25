@@ -209,7 +209,6 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                 }}
                 options={regionerOptions}
               />
-
               <ControlledMultiSelect
                 size="small"
                 placeholder={"Velg en"}
