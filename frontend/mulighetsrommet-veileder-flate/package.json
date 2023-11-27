@@ -21,14 +21,14 @@
     "not op_mini all"
   ],
   "dependencies": {
-    "@grafana/faro-web-sdk": "1.2.4",
+    "@grafana/faro-web-sdk": "1.2.8",
     "@navikt/aksel-icons": "5.10.3",
     "@navikt/ds-css": "5.10.3",
     "@navikt/ds-react": "5.10.3",
     "@navikt/navspa": "6.0.1",
     "@portabletext/react": "3.0.11",
-    "@tanstack/react-query": "5.8.4",
-    "@tanstack/react-query-devtools": "5.8.4",
+    "@tanstack/react-query": "5.8.7",
+    "@tanstack/react-query-devtools": "5.8.7",
     "axe-core": "4.8.2",
     "classnames": "2.3.2",
     "cypress-localstorage-commands": "2.2.5",
@@ -60,8 +60,8 @@
     "eslint-plugin-prettier": "5.0.1",
     "eslint-plugin-promise": "6.1.1",
     "eslint-plugin-react": "7.33.2",
-    "msw": "2.0.8",
-    "rollup-plugin-visualizer": "5.9.2",
+    "msw": "2.0.9",
+    "rollup-plugin-visualizer": "5.9.3",
     "typescript": "5.2.2",
     "vite": "4.5.0"
   },
