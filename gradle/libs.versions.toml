@@ -107,6 +107,6 @@ slack-client = "com.slack.api:slack-api-client:1.36.0"
 slf4j = "org.slf4j:slf4j-api:2.0.9"
 
 apache-poi = "org.apache.poi:poi:5.2.4"
-apache-poi-ooxml = "org.apache.poi:poi-ooxml:5.2.4"
+apache-poi-ooxml = "org.apache.poi:poi-ooxml:5.2.5"
 
 unleash = "io.getunleash:unleash-client-java:9.1.0"
