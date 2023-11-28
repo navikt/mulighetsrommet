@@ -1823,7 +1823,6 @@ components:
     Avtalestatus:
       type: string
       enum:
-        - Planlagt
         - Aktiv
         - Avsluttet
         - Avbrutt
