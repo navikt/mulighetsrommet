@@ -274,6 +274,5 @@ class AvtaleValidatorTest : FunSpec({
                 )
             }
         }
-
     }
 })

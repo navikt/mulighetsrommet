@@ -8,7 +8,6 @@ import arrow.core.right
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
-import no.nav.mulighetsrommet.api.domain.dto.AvtaleAdminDto
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
@@ -16,7 +15,6 @@ import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
 import no.nav.mulighetsrommet.api.services.NavEnhetService
 import no.nav.mulighetsrommet.domain.Tiltakskoder.isTiltakMedAvtalerFraMulighetsrommet
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
-import no.nav.mulighetsrommet.domain.dto.Avtalestatus
 import no.nav.mulighetsrommet.env.NaisEnv
 
 class AvtaleValidator(
@@ -61,7 +59,7 @@ class AvtaleValidator(
                  * så reglene for når en avtale er låst er foreløpig ganske naive og baserer seg kun på om det finnes
                  * gjennomføringer på avtalen eller ikke...
                  */
-                val (numGjennomforinger, gjennomforinger) = tiltaksgjennomforinger.getAll(avtaleId = dbo.id)
+                    val (numGjennomforinger, gjennomforinger) = tiltaksgjennomforinger.getAll(avtaleId = dbo.id)
                 if (numGjennomforinger > 0) {
                     if (dbo.tiltakstypeId != avtale.tiltakstype.id) {
                         add(
@@ -114,7 +112,8 @@ class AvtaleValidator(
                     if (dbo.tiltakstypeId != avtale.tiltakstype.id) {
                         add(
                             ValidationError.of(
-                                AvtaleDbo::tiltakstypeId, "Tiltakstype kan ikke endres utenfor Arena",
+                                AvtaleDbo::tiltakstypeId,
+                                "Tiltakstype kan ikke endres utenfor Arena",
                             ),
                         )
                     }
@@ -122,7 +121,8 @@ class AvtaleValidator(
                     if (dbo.avtalenummer != avtale.avtalenummer) {
                         add(
                             ValidationError.of(
-                                AvtaleDbo::avtalenummer, "Avtalenummer kan ikke endres utenfor Arena",
+                                AvtaleDbo::avtalenummer,
+                                "Avtalenummer kan ikke endres utenfor Arena",
                             ),
                         )
                     }
@@ -151,7 +151,8 @@ class AvtaleValidator(
                     if (dbo.leverandorOrganisasjonsnummer != avtale.leverandor.organisasjonsnummer) {
                         add(
                             ValidationError.of(
-                                AvtaleDbo::leverandorOrganisasjonsnummer, "Leverandøren kan ikke endres utenfor Arena",
+                                AvtaleDbo::leverandorOrganisasjonsnummer,
+                                "Leverandøren kan ikke endres utenfor Arena",
                             ),
                         )
                     }
