@@ -20,6 +20,7 @@ export function TiltaksgjennomforingPage() {
   const { data: visDeltakerlisteFraKometFeature } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_ADMIN_FLATE_VIS_DELTAKERLISTE_FRA_KOMET,
   );
+  const { data: showNotater } = useFeatureToggle(Toggles.MULIGHETSROMMET_ADMIN_FLATE_SHOW_NOTATER);
 
   if (!tiltaksgjennomforing && isLoading) {
     return <Laster tekst="Laster tiltaksgjennomføring" />;
@@ -77,12 +78,14 @@ export function TiltaksgjennomforingPage() {
             onClick={() => navigate(`/tiltaksgjennomforinger/${tiltaksgjennomforing.id}`)}
             aria-controls="panel"
           />
-          <Tabs.Tab
-            value="notater"
-            label="Notater"
-            onClick={() => navigate(`/tiltaksgjennomforinger/${tiltaksgjennomforing.id}/notater`)}
-            aria-controls="panel"
-          />
+          {showNotater && (
+            <Tabs.Tab
+              value="notater"
+              label="Notater"
+              onClick={() => navigate(`/tiltaksgjennomforinger/${tiltaksgjennomforing.id}/notater`)}
+              aria-controls="panel"
+            />
+          )}
           {visDeltakerlisteFraKometFeature ? (
             <Tabs.Tab
               value="poc"

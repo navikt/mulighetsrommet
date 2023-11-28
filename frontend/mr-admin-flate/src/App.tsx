@@ -1,6 +1,6 @@
 import { initializeFaro } from "@grafana/faro-web-sdk";
 import { Alert, BodyShort } from "@navikt/ds-react";
-import { NavAnsattRolle, UtkastRequest as Utkast } from "mulighetsrommet-api-client";
+import { NavAnsattRolle, Toggles, UtkastRequest as Utkast } from "mulighetsrommet-api-client";
 import { Route, Routes } from "react-router-dom";
 import { Forside } from "./Forside";
 import IkkeAutentisertApp from "./IkkeAutentisertApp";
@@ -33,6 +33,7 @@ import { TiltakstypeInfo } from "./pages/tiltakstyper/TiltakstypeInfo";
 import { TiltakstyperPage } from "./pages/tiltakstyper/TiltakstyperPage";
 import { AvtalerForTiltakstype } from "./pages/tiltakstyper/avtaler/AvtalerForTiltakstype";
 import { useAdminTiltaksgjennomforinger } from "./api/tiltaksgjennomforing/useAdminTiltaksgjennomforinger";
+import { useFeatureToggle } from "./api/features/feature-toggles";
 
 if (import.meta.env.PROD) {
   initializeFaro({
@@ -48,6 +49,8 @@ export function App() {
   const { data: avtaler, isLoading: avtalerIsLoading } = useAvtaler(avtaleFilterAtom);
   const { data: tiltaksgjennomforinger, isLoading: tiltaksgjennomforingerIsLoading } =
     useAdminTiltaksgjennomforinger(tiltaksgjennomforingfilterForAvtaleAtom);
+
+  const { data: showNotater } = useFeatureToggle(Toggles.MULIGHETSROMMET_ADMIN_FLATE_SHOW_NOTATER);
 
   if (error) {
     return (
@@ -110,7 +113,9 @@ export function App() {
       </Route>
       <Route path="avtaler/:avtaleId" element={<DetaljerAvtalePage />} errorElement={<ErrorPage />}>
         <Route index element={<AvtaleInfo />} errorElement={<ErrorPage />} />
-        <Route path="notater" element={<NotaterAvtalePage />} errorElement={<ErrorPage />} />
+        {showNotater && (
+          <Route path="notater" element={<NotaterAvtalePage />} errorElement={<ErrorPage />} />
+        )}
         <Route
           path="tiltaksgjennomforinger"
           element={<TiltaksgjennomforingerForAvtale />}
@@ -167,11 +172,13 @@ export function App() {
         errorElement={<ErrorPage />}
       >
         <Route index element={<TiltaksgjennomforingInfo />} errorElement={<ErrorPage />} />
-        <Route
-          path="notater"
-          element={<NotaterTiltaksgjennomforingerPage />}
-          errorElement={<ErrorPage />}
-        />
+        {showNotater && (
+          <Route
+            path="notater"
+            element={<NotaterTiltaksgjennomforingerPage />}
+            errorElement={<ErrorPage />}
+          />
+        )}
         <Route path="deltakere" element={<DeltakerListe />} errorElement={<ErrorPage />} />
       </Route>
       <Route
@@ -180,11 +187,13 @@ export function App() {
         errorElement={<ErrorPage />}
       >
         <Route index element={<TiltaksgjennomforingInfo />} errorElement={<ErrorPage />} />
-        <Route
-          path="notater"
-          element={<NotaterTiltaksgjennomforingerPage />}
-          errorElement={<ErrorPage />}
-        />
+        {showNotater && (
+          <Route
+            path="notater"
+            element={<NotaterTiltaksgjennomforingerPage />}
+            errorElement={<ErrorPage />}
+          />
+        )}
         <Route path="deltakere" element={<DeltakerListe />} errorElement={<ErrorPage />} />
       </Route>
       <Route
