@@ -9,11 +9,14 @@ import commonStyles from "../Page.module.scss";
 import styles from "./DetaljerAvtalePage.module.scss";
 import { ContainerLayout } from "../../layouts/ContainerLayout";
 import { useTitle } from "mulighetsrommet-frontend-common";
+import { Toggles } from "mulighetsrommet-api-client";
+import { useFeatureToggle } from "../../api/features/feature-toggles";
 
 export function DetaljerAvtalePage() {
   const avtaleId = useGetAvtaleIdFromUrl();
   const { pathname } = useLocation();
   const navigate = useNavigate();
+  const { data: showNotater } = useFeatureToggle(Toggles.MULIGHETSROMMET_ADMIN_FLATE_SHOW_NOTATER);
   if (!avtaleId) {
     throw new Error("Fant ingen avtaleId i url");
   }
@@ -65,13 +68,15 @@ export function DetaljerAvtalePage() {
             onClick={() => navigate(`/avtaler/${avtaleId}`)}
             aria-controls="panel"
           />
-          <Tabs.Tab
-            value="notater"
-            label="Notater"
-            onClick={() => navigate(`/avtaler/${avtaleId}/notater`)}
-            aria-controls="panel"
-            data-testid="notater-tab"
-          />
+          {showNotater && (
+            <Tabs.Tab
+              value="notater"
+              label="Notater"
+              onClick={() => navigate(`/avtaler/${avtaleId}/notater`)}
+              aria-controls="panel"
+              data-testid="notater-tab"
+            />
+          )}
           <Tabs.Tab
             value="tiltaksgjennomforinger"
             label="Gjennomføringer"

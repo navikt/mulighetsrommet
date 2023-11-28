@@ -38,14 +38,6 @@ test.describe("Smoketest og UU", () => {
     await SjekkUU(page);
   });
 
-  test("Avtaler - Notater Tab", async ({ page }) => {
-    await page.getByTestId("forsidekort-avtaler").click();
-    await page.getByTestId("avtaletabell_tittel").first().click();
-    await page.getByTestId("notater-tab").click();
-    await expect(page.getByTestId("mine-notater_checkbox")).toBeVisible();
-    await SjekkUU(page);
-  });
-
   test("Avtaler - Gjennomføringer Tab", async ({ page }) => {
     await page.getByTestId("forsidekort-avtaler").click();
     await page.getByTestId("avtaletabell_tittel").first().click();

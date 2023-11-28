@@ -2976,6 +2976,7 @@ components:
         - mulighetsrommet.enable-arbeidsflate
         - mulighetsrommet-veilederflate-landingsside
         - mulighetsrommet-veilederflate-arena-oppskrifter
+        - mulighetsrommet.admin-flate.show-notater
 
     TilgjengeligForVeilederRequest:
       type: object
