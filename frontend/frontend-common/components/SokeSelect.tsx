@@ -1,3 +1,4 @@
+import { HelpText } from "@navikt/ds-react";
 import classnames from "classnames";
 import React, { Ref } from "react";
 import ReactSelect from "react-select";
@@ -28,9 +29,12 @@ export interface SelectProps<T> {
   description?: string;
   value: SelectOption<T> | null;
   error?: { message?: string };
+  helpText?: string;
 }
 
-export const SokeSelect = <T,>(props: SelectProps<T> & {childRef?: Ref<Select<SelectOption<T>>>}) => {
+export const SokeSelect = <T,>(
+  props: SelectProps<T> & { childRef?: Ref<Select<SelectOption<T>>> },
+) => {
   const {
     label,
     hideLabel = false,
@@ -46,6 +50,7 @@ export const SokeSelect = <T,>(props: SelectProps<T> & {childRef?: Ref<Select<Se
     error,
     name,
     value,
+    helpText,
     childRef,
   } = props;
 
@@ -56,18 +61,28 @@ export const SokeSelect = <T,>(props: SelectProps<T> & {childRef?: Ref<Select<Se
         flexDirection: "column",
       }}
     >
-      <label
-        className={classnames({
-          "navds-sr-only": hideLabel,
-        })}
+      <div
         style={{
-          fontSize: size === "small" ? "16px" : "18px",
-          display: "inline-block",
+          display: "flex",
+          alignItems: "center",
+          gap: "0.25rem",
+          flexDirection: "row",
         }}
-        htmlFor={name}
       >
-        <b>{label}</b>
-      </label>
+        <label
+          className={classnames({
+            "navds-sr-only": hideLabel,
+          })}
+          style={{
+            fontSize: size === "small" ? "16px" : "18px",
+            display: "inline-block",
+          }}
+          htmlFor={name}
+        >
+          <b>{label}</b>
+        </label>
+        {helpText && <HelpText>{helpText}</HelpText>}
+      </div>
       {description && (
         <label
           className={classnames({
