@@ -12,9 +12,9 @@ import { AVTALE_PAGE_SIZE, PAGE_SIZE } from "../constants";
 
 // Bump version number when localStorage should be cleared
 const version = localStorage.getItem("version");
-if (version !== "0.1.0") {
+if (version !== "0.1.1") {
   localStorage.clear();
-  localStorage.setItem("version", "0.1.0");
+  localStorage.setItem("version", "0.1.1");
 }
 
 /**
