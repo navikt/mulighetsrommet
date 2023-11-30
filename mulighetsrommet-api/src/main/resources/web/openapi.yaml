@@ -1394,7 +1394,7 @@ paths:
                       $ref: "#/components/schemas/Oppskrift"
                 required:
                   - data
-                  -
+
   /api/v1/internal/joyride/lagre:
     post:
       tags:
