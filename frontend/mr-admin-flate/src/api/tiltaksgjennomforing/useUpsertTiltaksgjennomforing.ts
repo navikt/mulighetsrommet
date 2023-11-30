@@ -16,10 +16,15 @@ export function useUpsertTiltaksgjennomforing() {
         requestBody,
       }),
 
-    onSuccess: async (options, request) => {
-      await queryClient.invalidateQueries({
-        queryKey: QueryKeys.tiltaksgjennomforing(request.id),
-      });
+    onSuccess(_, request) {
+      return Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: QueryKeys.tiltaksgjennomforinger(),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: QueryKeys.tiltaksgjennomforing(request.id),
+        }),
+      ]);
     },
   });
 }
