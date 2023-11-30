@@ -115,6 +115,7 @@ export function Avtalefilter(props: Props) {
               hideLabel
               size="small"
               variant="simple"
+              placeholder="Navn eller avtalenr."
               onChange={(sok: string) => {
                 setFilter({
                   ...filter,
