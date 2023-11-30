@@ -1394,6 +1394,43 @@ paths:
                       $ref: "#/components/schemas/Oppskrift"
                 required:
                   - data
+                  -
+  /api/v1/internal/joyride/lagre:
+    post:
+      tags:
+        - Joyride
+      operationId: lagreJoyrideHarKjort
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VeilederJoyrideDto"
+      responses:
+        204:
+          description: "Lagret ok"
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  /api/v1/internal/joyride/harFullfort:
+    post:
+      tags:
+        - Joyride
+      operationId: veilederHarFullfortJoyride
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/HarFullfortJoyrideRequest"
+      responses:
+        200:
+          description: "True hvis veileder har fullført joyride, false hvis ikke"
+          content:
+            text/plain:
+              schema:
+                type: boolean
+
 
 components:
   securitySchemes:
@@ -3039,3 +3076,30 @@ components:
         - innhold
         - _type
         - _key
+
+    VeilederJoyrideDto:
+      type: object
+      properties:
+        navident:
+          type: string
+        fullfort:
+          type: boolean
+        "type":
+          $ref: "#/components/schemas/JoyrideSteps"
+
+
+    HarFullfortJoyrideRequest:
+      type: object
+      properties:
+        navident:
+          type: string
+        "type":
+          $ref: "#/components/schemas/JoyrideSteps"
+
+    JoyrideSteps:
+      type: string
+      enum:
+        - OVERSIKT
+        - OVERSIKTEN_LAST_STEP
+        - DETALJER
+        - HAR_VIST_OPPRETT_AVTALE

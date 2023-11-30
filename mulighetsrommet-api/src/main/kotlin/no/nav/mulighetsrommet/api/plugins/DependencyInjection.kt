@@ -176,6 +176,7 @@ private fun repositories() = module {
     single { UtkastRepository(get()) }
     single { AvtaleNotatRepository(get()) }
     single { TiltaksgjennomforingNotatRepository(get()) }
+    single { VeilederJoyrideRepository(get()) }
 }
 
 private fun services(appConfig: AppConfig) = module {
@@ -260,7 +261,23 @@ private fun services(appConfig: AppConfig) = module {
     single<BrregClient> {
         BrregClientImpl(baseUrl = appConfig.brreg.baseUrl)
     }
-    single { ArenaAdapterService(get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
+    single {
+        ArenaAdapterService(
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+        )
+    }
     single { AvtaleService(get(), get(), get(), get(), get(), get(), get()) }
     single { TiltakshistorikkService(get(), get()) }
     single { VeilederflateService(get(), get(), get(), get()) }
@@ -292,6 +309,7 @@ private fun services(appConfig: AppConfig) = module {
     single { AxsysService(appConfig.axsys) { m2mTokenProvider.createMachineToMachineToken(appConfig.axsys.scope) } }
     single { AvtaleValidator(get(), get(), get(), get()) }
     single { TiltaksgjennomforingValidator(get(), get(), get()) }
+    single { VeilederJoyrideService(get()) }
 }
 
 private fun tasks(config: TaskConfig) = module {
