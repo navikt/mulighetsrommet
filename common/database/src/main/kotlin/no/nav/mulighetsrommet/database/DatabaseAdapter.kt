@@ -54,6 +54,12 @@ open class DatabaseAdapter(config: DatabaseConfig) : Database {
         dataSource = HikariDataSource(hikariConfig)
     }
 
+    fun close() {
+        if (!dataSource.isClosed) {
+            dataSource.close()
+        }
+    }
+
     override fun getDatasource(): DataSource {
         return dataSource
     }

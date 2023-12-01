@@ -19,7 +19,6 @@ import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.utils.UtkastFilter
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import java.util.*
 
 class UtkastRepositoryTest : FunSpec({
@@ -28,7 +27,6 @@ class UtkastRepositoryTest : FunSpec({
     val domain = MulighetsrommetTestDomain()
 
     beforeEach {
-        database.db.truncateAll()
         domain.initialize(database.db)
 
         val navAnsatte = NavAnsattRepository(database.db)
@@ -121,7 +119,6 @@ class UtkastRepositoryTest : FunSpec({
         }
 
         test("GetAll skal støtte filter for type og opprettetAv") {
-
             val utkast1 = UtkastRequest(
                 id = UUID.randomUUID(),
                 opprettetAv = NavAnsattFixture.ansatt1.navIdent,

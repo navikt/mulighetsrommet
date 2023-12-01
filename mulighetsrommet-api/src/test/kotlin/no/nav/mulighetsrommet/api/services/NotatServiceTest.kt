@@ -18,8 +18,9 @@ import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListe
 import java.util.*
 
 class NotatServiceTest : FunSpec({
+    val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
+
     context("NotatService") {
-        val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
         val domain = MulighetsrommetTestDomain()
 
         beforeEach {
