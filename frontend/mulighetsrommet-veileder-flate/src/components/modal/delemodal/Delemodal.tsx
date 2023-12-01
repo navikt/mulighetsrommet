@@ -24,7 +24,8 @@ export const logDelMedbrukerEvent = (
     | "Del med bruker feilet"
     | "Avbrutt del med bruker"
     | "Sett hilsen"
-    | "Sett intro",
+    | "Sett intro"
+    | "Sett venter på svar fra bruker",
 ) => {
   logEvent("mulighetsrommet.del-med-bruker", { value: action });
 };
@@ -233,12 +234,15 @@ const Delemodal = ({
                 />
 
                 <Checkbox
-                  onChange={(e) =>
+                  onChange={(e) => {
                     dispatch({
                       type: "Venter på svar fra bruker",
                       payload: e.currentTarget.checked,
-                    })
-                  }
+                    });
+                    if (e.currentTarget.checked) {
+                      logDelMedbrukerEvent("Sett venter på svar fra bruker");
+                    }
+                  }}
                   checked={state.venterPaaSvarFraBruker}
                   value="venter-pa-svar-fra-bruker"
                 >
