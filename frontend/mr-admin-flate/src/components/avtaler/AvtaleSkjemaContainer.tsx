@@ -342,6 +342,7 @@ export function AvtaleSkjemaContainer({
                     size="small"
                     placeholder="Velg en"
                     label={"NAV-enheter (kontorer)"}
+                    helpText="Bestemmer hvilke NAV enheter som kan velges i gjennomføringene til avtalen."
                     {...register("navEnheter")}
                     options={getLokaleUnderenheterAsSelectOptions(watch("navRegioner"), enheter)}
                   />
@@ -372,6 +373,7 @@ export function AvtaleSkjemaContainer({
                     size="small"
                     placeholder="Velg underenhet for tiltaksarrangør"
                     label={"Tiltaksarrangør underenhet"}
+                    helpText="Bestemmer hvilke arrangører som kan velges i gjennomføringene til avtalen."
                     readOnly={!watchedLeverandor}
                     {...register("leverandorUnderenheter")}
                     options={underenheterOptions(underenheterForLeverandor)}

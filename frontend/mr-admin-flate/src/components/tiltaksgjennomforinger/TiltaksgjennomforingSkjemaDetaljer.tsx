@@ -213,6 +213,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                 size="small"
                 placeholder={"Velg en"}
                 label={"NAV-enheter (kontorer)"}
+                helpText="Dette styrer hvem gjennomføringen skal vises til i Modia, basert på hvilket kontor brukeren har tilhørlighet til."
                 {...register("navEnheter")}
                 options={navEnheterOptions}
               />
@@ -243,6 +244,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                       </button>
                       <div className={skjemastyles.kontaktperson_inputs}>
                         <ControlledSokeSelect
+                          helpText="Kontaktperson som veilederene kan hendvende seg til for informasjon om gjennomføringen. Kan gjelde for én eller flere enheter."
                           size="small"
                           placeholder={
                             isLoadingKontaktpersoner ? "Laster kontaktpersoner..." : "Velg en"
