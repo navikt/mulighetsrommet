@@ -34,11 +34,12 @@ import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
-import no.nav.mulighetsrommet.domain.dbo.*
+import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
+import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
+import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.Faneinnhold
 import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.*
 
 class TiltaksgjennomforingRepositoryTest : FunSpec({
@@ -64,7 +65,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             tiltaksgjennomforinger.upsert(Oppfolging1)
 
             tiltaksgjennomforinger.get(Oppfolging1.id) should {
-                it!!.id shouldBe Oppfolging1.id
+                it.shouldNotBeNull()
+                it.id shouldBe Oppfolging1.id
                 it.tiltakstype shouldBe TiltaksgjennomforingAdminDto.Tiltakstype(
                     id = TiltakstypeFixtures.Oppfolging.id,
                     navn = TiltakstypeFixtures.Oppfolging.navn,
@@ -82,7 +84,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 it.sluttDato shouldBe Oppfolging1.sluttDato
                 it.arenaAnsvarligEnhet shouldBe null
                 it.status shouldBe Tiltaksgjennomforingsstatus.AVSLUTTET
-                it.tilgjengelighet shouldBe TiltaksgjennomforingTilgjengelighetsstatus.LEDIG
+                it.apentForInnsok shouldBe true
                 it.antallPlasser shouldBe 12
                 it.avtaleId shouldBe Oppfolging1.avtaleId
                 it.administratorer shouldBe emptyList()
@@ -132,7 +134,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 sluttDato = LocalDate.of(2023, 2, 2),
                 arenaAnsvarligEnhet = NavEnhetFixtures.Innlandet.enhetsnummer,
                 avslutningsstatus = Avslutningsstatus.AVSLUTTET,
-                tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.STENGT,
+                apentForInnsok = false,
                 antallPlasser = 10,
                 avtaleId = null,
                 oppstart = TiltaksgjennomforingOppstartstype.FELLES,
@@ -142,7 +144,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             tiltaksgjennomforinger.upsertArenaTiltaksgjennomforing(gjennomforingFraArena)
 
             tiltaksgjennomforinger.get(gjennomforingFraArena.id) should {
-                it!!.id shouldBe gjennomforingId
+                it.shouldNotBeNull()
+                it.id shouldBe gjennomforingId
                 it.navn shouldBe "Tiltak for dovne giraffer"
                 it.tiltakstype shouldBe TiltaksgjennomforingAdminDto.Tiltakstype(
                     id = TiltakstypeFixtures.Oppfolging.id,
@@ -159,7 +162,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 it.startDato shouldBe LocalDate.of(2023, 1, 1)
                 it.sluttDato shouldBe LocalDate.of(2023, 2, 2)
                 it.arenaAnsvarligEnhet shouldBe NavEnhetFixtures.Innlandet.toNavEnhet()
-                it.tilgjengelighet shouldBe TiltaksgjennomforingTilgjengelighetsstatus.STENGT
+                it.apentForInnsok shouldBe false
                 it.antallPlasser shouldBe 10
                 it.avtaleId shouldBe null
                 it.oppstart shouldBe TiltaksgjennomforingOppstartstype.FELLES
@@ -252,8 +255,18 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             tiltaksgjennomforinger.upsert(gjennomforing)
             tiltaksgjennomforinger.get(gjennomforing.id).should {
                 it!!.navEnheter shouldContainExactlyInAnyOrder listOf(
-                    EmbeddedNavEnhet(enhetsnummer = "1", navn = "Navn1", type = Norg2Type.LOKAL, overordnetEnhet = null),
-                    EmbeddedNavEnhet(enhetsnummer = "2", navn = "Navn2", type = Norg2Type.LOKAL, overordnetEnhet = null),
+                    EmbeddedNavEnhet(
+                        enhetsnummer = "1",
+                        navn = "Navn1",
+                        type = Norg2Type.LOKAL,
+                        overordnetEnhet = null,
+                    ),
+                    EmbeddedNavEnhet(
+                        enhetsnummer = "2",
+                        navn = "Navn2",
+                        type = Norg2Type.LOKAL,
+                        overordnetEnhet = null,
+                    ),
                 )
             }
             database.assertThat("tiltaksgjennomforing_nav_enhet").hasNumberOfRows(2)
@@ -261,8 +274,18 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             tiltaksgjennomforinger.upsert(gjennomforing.copy(navEnheter = listOf("3", "1")))
             tiltaksgjennomforinger.get(gjennomforing.id).should {
                 it!!.navEnheter shouldContainExactlyInAnyOrder listOf(
-                    EmbeddedNavEnhet(enhetsnummer = "1", navn = "Navn1", type = Norg2Type.LOKAL, overordnetEnhet = null),
-                    EmbeddedNavEnhet(enhetsnummer = "3", navn = "Navn3", type = Norg2Type.LOKAL, overordnetEnhet = null),
+                    EmbeddedNavEnhet(
+                        enhetsnummer = "1",
+                        navn = "Navn1",
+                        type = Norg2Type.LOKAL,
+                        overordnetEnhet = null,
+                    ),
+                    EmbeddedNavEnhet(
+                        enhetsnummer = "3",
+                        navn = "Navn3",
+                        type = Norg2Type.LOKAL,
+                        overordnetEnhet = null,
+                    ),
                 )
             }
             database.assertThat("tiltaksgjennomforing_nav_enhet").hasNumberOfRows(2)
@@ -355,8 +378,18 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             tiltaksgjennomforinger.updateEnheter("1", listOf("1", "2"))
             tiltaksgjennomforinger.get(gjennomforing.id).should {
                 it!!.navEnheter shouldContainExactlyInAnyOrder listOf(
-                    EmbeddedNavEnhet(enhetsnummer = "1", navn = "Navn1", type = Norg2Type.LOKAL, overordnetEnhet = null),
-                    EmbeddedNavEnhet(enhetsnummer = "2", navn = "Navn2", type = Norg2Type.LOKAL, overordnetEnhet = null),
+                    EmbeddedNavEnhet(
+                        enhetsnummer = "1",
+                        navn = "Navn1",
+                        type = Norg2Type.LOKAL,
+                        overordnetEnhet = null,
+                    ),
+                    EmbeddedNavEnhet(
+                        enhetsnummer = "2",
+                        navn = "Navn2",
+                        type = Norg2Type.LOKAL,
+                        overordnetEnhet = null,
+                    ),
                 )
             }
             database.assertThat("tiltaksgjennomforing_nav_enhet").hasNumberOfRows(2)
@@ -626,124 +659,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         }
     }
 
-    context("TiltaksgjennomforingTilgjengelighetsstatus") {
-        val deltakere = DeltakerRepository(database.db)
-        val deltaker = DeltakerDbo(
-            id = UUID.randomUUID(),
-            tiltaksgjennomforingId = Oppfolging1.id,
-            status = Deltakerstatus.DELTAR,
-            opphav = Deltakeropphav.AMT,
-            startDato = null,
-            sluttDato = null,
-            registrertDato = LocalDateTime.of(2023, 3, 1, 0, 0, 0),
-        )
-
-        context("when tilgjengelighet is set to Stengt") {
-            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-            beforeAny {
-                tiltaksgjennomforinger.upsert(
-                    Oppfolging1.copy(
-                        tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.STENGT,
-                    ),
-                )
-            }
-
-            test("should have tilgjengelighet set to Stengt") {
-                tiltaksgjennomforinger.get(Oppfolging1.id)
-                    ?.tilgjengelighet shouldBe TiltaksgjennomforingTilgjengelighetsstatus.STENGT
-            }
-        }
-
-        context("when avslutningsstatus is set") {
-            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-            beforeAny {
-                tiltaksgjennomforinger.upsert(
-                    Oppfolging1.copy(
-                        tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.LEDIG,
-                        avslutningsstatus = Avslutningsstatus.AVSLUTTET,
-                    ),
-                )
-            }
-
-            test("should have tilgjengelighet set to Stengt") {
-                tiltaksgjennomforinger.get(Oppfolging1.id)
-                    ?.tilgjengelighet shouldBe TiltaksgjennomforingTilgjengelighetsstatus.STENGT
-            }
-        }
-
-        context("when there are no limits to available seats") {
-            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-            beforeAny {
-                tiltaksgjennomforinger.upsertArenaTiltaksgjennomforing(
-                    ArenaOppfolging1.copy(
-                        tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.LEDIG,
-                        antallPlasser = null,
-                    ),
-                )
-            }
-
-            test("should have tilgjengelighet set to Ledig") {
-                tiltaksgjennomforinger.get(ArenaOppfolging1.id)
-                    ?.tilgjengelighet shouldBe TiltaksgjennomforingTilgjengelighetsstatus.LEDIG
-            }
-        }
-
-        context("when there are no available seats") {
-            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-            beforeAny {
-                tiltaksgjennomforinger.upsert(
-                    Oppfolging1.copy(
-                        tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.LEDIG,
-                        antallPlasser = 0,
-                    ),
-                )
-            }
-
-            test("should have tilgjengelighet set to Venteliste") {
-                tiltaksgjennomforinger.get(Oppfolging1.id)
-                    ?.tilgjengelighet shouldBe TiltaksgjennomforingTilgjengelighetsstatus.VENTELISTE
-            }
-        }
-
-        context("when all available seats are occupied by deltakelser with status DELTAR") {
-            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-            beforeAny {
-                tiltaksgjennomforinger.upsert(
-                    Oppfolging1.copy(
-                        tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.LEDIG,
-                        antallPlasser = 1,
-                    ),
-                )
-
-                deltakere.upsert(deltaker.copy(status = Deltakerstatus.DELTAR))
-            }
-
-            test("should have tilgjengelighet set to Venteliste") {
-                tiltaksgjennomforinger.get(Oppfolging1.id)
-                    ?.tilgjengelighet shouldBe TiltaksgjennomforingTilgjengelighetsstatus.VENTELISTE
-            }
-        }
-
-        context("when deltakelser are no longer DELTAR") {
-            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-            beforeAny {
-                tiltaksgjennomforinger.upsert(
-                    Oppfolging1.copy(
-                        tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.LEDIG,
-                        antallPlasser = 1,
-                    ),
-                )
-
-                deltakere.upsert(deltaker.copy(status = Deltakerstatus.AVSLUTTET))
-            }
-
-            test("should have tilgjengelighet set to Ledig") {
-                tiltaksgjennomforinger.get(Oppfolging1.id)
-                    ?.tilgjengelighet shouldBe TiltaksgjennomforingTilgjengelighetsstatus.LEDIG
-            }
-        }
-    }
-
     context("Filtrering på tiltaksgjennomforingstatus") {
         val dagensDato = LocalDate.of(2023, 2, 1)
 
@@ -979,7 +894,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                         arrangorOrganisasjonsnummer = "123456789",
                         avslutningsstatus = Avslutningsstatus.AVSLUTTET,
                         startDato = LocalDate.of(2022, 1, 1),
-                        tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.LEDIG,
+                        apentForInnsok = true,
                         oppstart = TiltaksgjennomforingOppstartstype.FELLES,
                         opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
                         stedForGjennomforing = "0139 Oslo",
@@ -1080,37 +995,31 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         }
     }
 
-    test("Tilgjengelig for veileder") {
+    test("Tilgjengelig for veileder må settes eksplisitt") {
         val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
+
         val gjennomforing = Oppfolging1.copy(id = UUID.randomUUID())
         tiltaksgjennomforinger.upsert(gjennomforing)
-        tiltaksgjennomforinger.get(gjennomforing.id).should {
-            it!!.tilgjengeligForVeileder shouldBe false
-        }
+        tiltaksgjennomforinger.get(gjennomforing.id)?.tilgjengeligForVeileder shouldBe false
+
         tiltaksgjennomforinger.setTilgjengeligForVeileder(gjennomforing.id, true)
-        tiltaksgjennomforinger.get(gjennomforing.id).should {
-            it!!.tilgjengeligForVeileder shouldBe true
-        }
+        tiltaksgjennomforinger.get(gjennomforing.id)?.tilgjengeligForVeileder shouldBe true
     }
 
-    test("Vises for veileder") {
+    test("skal vises til veileder basert til tilgjengelighet og avslutningsstatus") {
         val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
         val gjennomforing = Oppfolging1.copy(id = UUID.randomUUID())
         tiltaksgjennomforinger.upsert(gjennomforing)
-        tiltaksgjennomforinger.setTilgjengeligForVeileder(gjennomforing.id, true)
-        val gjennomforingStatusStengt =
-            gjennomforing.copy(tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.STENGT)
-        tiltaksgjennomforinger.upsert(gjennomforingStatusStengt)
-        tiltaksgjennomforinger.get(gjennomforing.id).should {
-            it!!.visesForVeileder shouldBe false
-        }
 
-        val gjennomforingStatusLedig =
-            gjennomforing.copy(tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.LEDIG)
-        tiltaksgjennomforinger.upsert(gjennomforingStatusLedig)
-        tiltaksgjennomforinger.get(gjennomforing.id).should {
-            it!!.visesForVeileder shouldBe true
-        }
+        tiltaksgjennomforinger.setAvslutningsstatus(gjennomforing.id, Avslutningsstatus.AVSLUTTET)
+        tiltaksgjennomforinger.setTilgjengeligForVeileder(gjennomforing.id, false)
+        tiltaksgjennomforinger.get(gjennomforing.id)?.visesForVeileder shouldBe false
+
+        tiltaksgjennomforinger.setTilgjengeligForVeileder(gjennomforing.id, true)
+        tiltaksgjennomforinger.get(gjennomforing.id)?.visesForVeileder shouldBe false
+
+        tiltaksgjennomforinger.setAvslutningsstatus(gjennomforing.id, Avslutningsstatus.IKKE_AVSLUTTET)
+        tiltaksgjennomforinger.get(gjennomforing.id)?.visesForVeileder shouldBe true
     }
 
     test("getAllVeilederflateTiltaksgjennomforing by tiltakstype sanity Id") {

@@ -1963,8 +1963,8 @@ components:
         stengtTil:
           type: string
           format: date
-        tilgjengelighet:
-          $ref: "#/components/schemas/Tilgjengelighetsstatus"
+        apentForInnsok:
+          type: boolean
         kontaktpersoner:
           type: array
           items:
@@ -1992,7 +1992,7 @@ components:
         - navEnheter
         - opphav
         - midlertidigStengt
-        - tilgjengelighet
+        - apentForInnsok
         - tilgjengeligForVeileder
         - visesForVeileder
         - updatedAt
@@ -2049,7 +2049,7 @@ components:
           type: string
           format: date
           nullable: true
-        apenForInnsok:
+        apentForInnsok:
           type: boolean
         kontaktpersoner:
           type: array
@@ -2085,7 +2085,7 @@ components:
         - oppstart
         - stengtFra
         - stengtTil
-        - apenForInnsok
+        - apentForInnsok
         - kontaktpersoner
         - stedForGjennomforing
         - opphav
@@ -2100,13 +2100,6 @@ components:
         - AVBRUTT
         - AVLYST
         - AVSLUTTET
-
-    Tilgjengelighetsstatus:
-      type: string
-      enum:
-        - LEDIG
-        - STENGT
-        - VENTELISTE
 
     TiltaksgjennomforingOppstartstype:
       type: string
@@ -2597,8 +2590,8 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/SanityKontakinfoTiltaksansvarlige"
-        tilgjengelighet:
-          $ref: "#/components/schemas/Tilgjengelighetsstatus"
+        apentForInnsok:
+          type: boolean
         stengtFra:
           type: string
         stengtTil:
@@ -2606,6 +2599,7 @@ components:
       required:
         - navn
         - tiltakstype
+        - apentForInnsok
         - oppstart
         - kontaktinfoTiltaksansvarlige
 

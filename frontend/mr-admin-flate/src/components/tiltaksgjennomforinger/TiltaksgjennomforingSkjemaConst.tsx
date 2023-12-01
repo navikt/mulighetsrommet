@@ -2,7 +2,6 @@ import { isTiltakMedFellesOppstart } from "../../utils/tiltakskoder";
 import {
   Avtale,
   Opphav,
-  Tilgjengelighetsstatus,
   Tiltaksgjennomforing,
   TiltaksgjennomforingKontaktpersoner,
   TiltaksgjennomforingOppstartstype,
@@ -119,7 +118,7 @@ export function utkastDataEllerDefault(
         : undefined,
     },
     oppstart: tiltaksgjennomforing?.oppstart || defaultOppstartType(avtale),
-    apenForInnsok: tiltaksgjennomforing?.tilgjengelighet !== Tilgjengelighetsstatus.STENGT,
+    apentForInnsok: tiltaksgjennomforing?.apentForInnsok,
     kontaktpersoner: defaultValuesForKontaktpersoner(tiltaksgjennomforing?.kontaktpersoner),
     stedForGjennomforing: tiltaksgjennomforing?.stedForGjennomforing,
     arrangorKontaktpersonId: tiltaksgjennomforing?.arrangor?.kontaktperson?.id,

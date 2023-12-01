@@ -16,7 +16,6 @@ import no.nav.mulighetsrommet.api.utils.byggSokeFilter
 import no.nav.mulighetsrommet.api.utils.byggTiltakstypeFilter
 import no.nav.mulighetsrommet.api.utils.utledInnsatsgrupper
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
-import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingTilgjengelighetsstatus
 import no.nav.mulighetsrommet.metrics.Metrikker
 import no.nav.mulighetsrommet.utils.CacheUtils
 import java.util.*
@@ -208,9 +207,6 @@ class VeilederflateService(
                     it.enheter.any { enhet -> enhet in brukersEnheter }
                 }
             }
-            .filter {
-                it.tilgjengelighet !== TiltaksgjennomforingTilgjengelighetsstatus.STENGT
-            }
     }
 
     suspend fun hentTiltaksgjennomforingMedBrukerdata(
@@ -337,6 +333,7 @@ class VeilederflateService(
                     )
                 },
                 navn = tiltaksgjennomforingNavn,
+                apentForInnsok = true,
                 stedForGjennomforing = stedForGjennomforing,
                 fylke = fylke,
                 enheter = enheter,
@@ -382,7 +379,7 @@ class VeilederflateService(
                 oppstart = apiGjennomforing.oppstart,
                 oppstartsdato = apiGjennomforing.startDato,
                 sluttdato = apiGjennomforing.sluttDato,
-                tilgjengelighet = apiGjennomforing.tilgjengelighet,
+                apentForInnsok = apiGjennomforing.apentForInnsok,
                 arrangor = arrangor,
                 stedForGjennomforing = apiGjennomforing.stedForGjennomforing,
                 fylke = fylke,

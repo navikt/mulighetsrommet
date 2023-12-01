@@ -249,7 +249,7 @@ private fun toTiltaksgjennomforingDbo(dto: TiltaksgjennomforingAdminDto) = dto.r
             AVBRUTT -> Avslutningsstatus.AVBRUTT
             AVSLUTTET -> Avslutningsstatus.AVSLUTTET
         },
-        tilgjengelighet = tilgjengelighet,
+        apentForInnsok = apentForInnsok,
         antallPlasser = antallPlasser ?: -1,
         avtaleId = avtaleId ?: id,
         administratorer = administratorer.map { it.navIdent },

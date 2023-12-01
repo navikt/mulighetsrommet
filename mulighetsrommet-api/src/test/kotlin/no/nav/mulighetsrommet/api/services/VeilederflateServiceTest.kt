@@ -16,7 +16,6 @@ import no.nav.mulighetsrommet.api.domain.dto.VeilederflateTiltaksgjennomforing
 import no.nav.mulighetsrommet.api.domain.dto.VeilederflateTiltakstype
 import no.nav.mulighetsrommet.api.routes.v1.GetRelevanteTiltaksgjennomforingerForBrukerRequest
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
-import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingTilgjengelighetsstatus
 import no.nav.mulighetsrommet.domain.dto.Faneinnhold
 import java.time.LocalDate
 import java.util.*
@@ -105,7 +104,7 @@ class VeilederflateServiceTest : FunSpec({
         ),
         oppstartsdato = LocalDate.now(),
         sluttdato = null,
-        tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.LEDIG,
+        apentForInnsok = true,
         enheter = emptyList(),
         fylke = "0400",
         oppstart = TiltaksgjennomforingOppstartstype.FELLES,
@@ -144,36 +143,6 @@ class VeilederflateServiceTest : FunSpec({
         )
         gjennomforinger.size shouldBe 2
         gjennomforinger.find { it.sanityId == "f21d1e35-d63b-4de7-a0a5-589e57111527" }!!.enheter!!.size shouldBe 1
-    }
-
-    test("Stengte filtreres vekk") {
-        val fnr = "01010199999"
-        val veilederFlateService = VeilederflateService(
-            sanityClient,
-            tiltaksgjennomforingService,
-            tiltakstypeService,
-            navEnhetService,
-        )
-
-        every {
-            tiltaksgjennomforingService.getAllVeilederflateTiltaksgjennomforing(
-                any(),
-                any(),
-                any(),
-                any(),
-            )
-        } returns listOf(
-            dbGjennomforing.copy(tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.STENGT),
-        )
-        coEvery { virksomhetService.getOrSyncVirksomhet(any()) } returns null
-        coEvery { sanityClient.query(any()) } returns sanityResult
-
-        val gjennomforinger = veilederFlateService.hentTiltaksgjennomforingerForBrukerBasertPaEnhetOgFylke(
-            GetRelevanteTiltaksgjennomforingerForBrukerRequest(norskIdent = fnr),
-            listOf("0430"),
-        )
-        gjennomforinger.size shouldBe 1
-        gjennomforinger.find { it.sanityId == "f21d1e35-d63b-4de7-a0a5-589e57111527" } shouldBe null
     }
 
     test("Bruker db faneinnhold hvis det finnes") {
