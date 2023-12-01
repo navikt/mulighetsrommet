@@ -1,4 +1,14 @@
-import { BodyShort, Button, Checkbox, Heading, Modal } from "@navikt/ds-react";
+import {
+  BodyShort,
+  Button,
+  Checkbox,
+  HStack,
+  Heading,
+  HelpText,
+  Modal,
+  Spacer,
+  VStack,
+} from "@navikt/ds-react";
 import {
   Bruker,
   DelMedBruker,
@@ -233,21 +243,27 @@ const Delemodal = ({
                   tiltaksgjennomforing={tiltaksgjennomforing}
                 />
 
-                <Checkbox
-                  onChange={(e) => {
-                    dispatch({
-                      type: "Venter på svar fra bruker",
-                      payload: e.currentTarget.checked,
-                    });
-                    if (e.currentTarget.checked) {
-                      logDelMedbrukerEvent("Sett venter på svar fra bruker");
-                    }
-                  }}
-                  checked={state.venterPaaSvarFraBruker}
-                  value="venter-pa-svar-fra-bruker"
-                >
-                  Venter på svar fra bruker
-                </Checkbox>
+                <HStack gap="1" style={{ marginTop: "1rem" }}>
+                  <Checkbox
+                    onChange={(e) => {
+                      dispatch({
+                        type: "Venter på svar fra bruker",
+                        payload: e.currentTarget.checked,
+                      });
+                      if (e.currentTarget.checked) {
+                        logDelMedbrukerEvent("Sett venter på svar fra bruker");
+                      }
+                    }}
+                    checked={state.venterPaaSvarFraBruker}
+                    value="venter-pa-svar-fra-bruker"
+                  >
+                    Venter på svar fra bruker
+                  </Checkbox>
+                  <HelpText title="Hva betyr dette valget?">
+                    Ved å huke av for at du venter på svar fra bruker vil du kunne bruke filteret i
+                    oversikten til å se alle brukere du venter på svar fra.
+                  </HelpText>
+                </HStack>
               </>
             )}
           </Modal.Body>
