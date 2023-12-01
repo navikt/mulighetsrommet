@@ -16,6 +16,7 @@ data class DialogRequest(
     val norskIdent: String,
     val overskrift: String,
     val tekst: String,
+    val venterPaaSvarFraBruker: Boolean,
 )
 
 @Serializable

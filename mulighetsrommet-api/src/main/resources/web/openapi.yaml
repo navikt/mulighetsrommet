@@ -2238,10 +2238,13 @@ components:
           type: string
         tekst:
           type: string
+        venterPaaSvarFraBruker:
+          type: boolean
       required:
         - norskIdent
         - overskrift
         - tekst
+        - venterPaaSvarFraBruker
 
     DialogResponse:
       type: object
