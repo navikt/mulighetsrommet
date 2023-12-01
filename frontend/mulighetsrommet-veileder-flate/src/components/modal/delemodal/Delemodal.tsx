@@ -1,4 +1,4 @@
-import { BodyShort, Button, Heading, Modal } from "@navikt/ds-react";
+import { BodyShort, Button, Checkbox, Heading, Modal } from "@navikt/ds-react";
 import {
   Bruker,
   DelMedBruker,
@@ -52,6 +52,7 @@ export function reducer(state: State, action: Actions): State {
         skrivPersonligIntro: false,
         deletekst: action.payload.tekster.deletekst,
         introtekst: action.payload.tekster.introtekst,
+        venterPaaSvarFraBruker: false,
       };
     case "Send melding":
       return { ...state, sendtStatus: "SENDER" };
@@ -65,6 +66,9 @@ export function reducer(state: State, action: Actions): State {
       return { ...state, introtekst: action.payload, sendtStatus: "IKKE_SENDT" };
     case "Skriv personlig intro": {
       return { ...state, skrivPersonligIntro: action.payload };
+    }
+    case "Venter på svar fra bruker": {
+      return { ...state, venterPaaSvarFraBruker: action.payload };
     }
     case "Skriv personlig melding":
       return {
@@ -94,6 +98,7 @@ export function initInitialState(tekster: {
     introtekst: tekster.introtekst,
     skrivPersonligIntro: false,
     skrivPersonligMelding: false,
+    venterPaaSvarFraBruker: false,
   };
 }
 
@@ -159,9 +164,10 @@ const Delemodal = ({
   };
 
   const handleSend = async () => {
+    const { hilsen, introtekst, venterPaaSvarFraBruker } = state;
     if (
-      state.hilsen.trim().length > getAntallTegn(state.hilsen) ||
-      state.introtekst.length > getAntallTegn(state.introtekst)
+      hilsen.trim().length > getAntallTegn(hilsen) ||
+      introtekst.length > getAntallTegn(introtekst)
     ) {
       return;
     }
@@ -172,7 +178,12 @@ const Delemodal = ({
     const tekst = sySammenDeletekst();
     try {
       const res = await mulighetsrommetClient.dialogen.delMedDialogen({
-        requestBody: { norskIdent: brukerFnr, overskrift, tekst },
+        requestBody: {
+          norskIdent: brukerFnr,
+          overskrift,
+          tekst,
+          venterPaaSvarFraBruker,
+        },
       });
       await lagreVeilederHarDeltTiltakMedBruker(res.id, tiltaksgjennomforing);
       dispatch({ type: "Sendt ok", payload: res.id });
@@ -211,14 +222,29 @@ const Delemodal = ({
           </Modal.Header>
           <Modal.Body>
             {state.sendtStatus !== "SENDT_OK" && state.sendtStatus !== "SENDING_FEILET" && (
-              <DelMedBrukerContent
-                state={state}
-                dispatch={dispatch}
-                veiledernavn={veiledernavn}
-                brukernavn={brukernavn}
-                harDeltMedBruker={harDeltMedBruker}
-                tiltaksgjennomforing={tiltaksgjennomforing}
-              />
+              <>
+                <DelMedBrukerContent
+                  state={state}
+                  dispatch={dispatch}
+                  veiledernavn={veiledernavn}
+                  brukernavn={brukernavn}
+                  harDeltMedBruker={harDeltMedBruker}
+                  tiltaksgjennomforing={tiltaksgjennomforing}
+                />
+
+                <Checkbox
+                  onChange={(e) =>
+                    dispatch({
+                      type: "Venter på svar fra bruker",
+                      payload: e.currentTarget.checked,
+                    })
+                  }
+                  checked={state.venterPaaSvarFraBruker}
+                  value="venter-pa-svar-fra-bruker"
+                >
+                  Venter på svar fra bruker
+                </Checkbox>
+              </>
             )}
           </Modal.Body>
           <Modal.Footer>

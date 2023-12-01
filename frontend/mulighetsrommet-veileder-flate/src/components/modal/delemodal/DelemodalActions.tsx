@@ -7,6 +7,7 @@ export interface State {
   dialogId: string;
   skrivPersonligMelding: boolean;
   skrivPersonligIntro: boolean;
+  venterPaaSvarFraBruker: boolean;
 }
 
 export type Status = "IKKE_SENDT" | "SENDER" | "SENDT_OK" | "SENDING_FEILET";
@@ -53,6 +54,11 @@ export interface SKRIV_PERSONLIG_INTRO {
   payload: boolean;
 }
 
+export interface SETT_VENTER_PAA_SVAR_FRA_BRUKER {
+  type: "Venter på svar fra bruker";
+  payload: boolean;
+}
+
 export type Actions =
   | SEND_MELDING_ACTION
   | AVBRYT_ACTION
@@ -62,4 +68,5 @@ export type Actions =
   | SETT_HILSEN_ACTION
   | SETT_INTRO_ACTION
   | SKRIV_PERSONLIG_MELDING
-  | SKRIV_PERSONLIG_INTRO;
+  | SKRIV_PERSONLIG_INTRO
+  | SETT_VENTER_PAA_SVAR_FRA_BRUKER;
