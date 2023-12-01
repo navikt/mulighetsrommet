@@ -299,6 +299,7 @@ export function AvtaleSkjemaContainer({
               <FormGroup>
                 <ControlledMultiSelect
                   size="small"
+                  helpText="Bestemmer hvem som eier avtalen. Notifikasjoner sendes til administratorene."
                   placeholder="Administratorer"
                   label="Administratorer for avtalen"
                   {...register("administratorer")}
@@ -342,7 +343,7 @@ export function AvtaleSkjemaContainer({
                     size="small"
                     placeholder="Velg en"
                     label={"NAV-enheter (kontorer)"}
-                    helpText="Bestemmer hvilke NAV enheter som kan velges i gjennomføringene til avtalen."
+                    helpText="Bestemmer hvilke NAV-enheter som kan velges i gjennomføringene til avtalen."
                     {...register("navEnheter")}
                     options={getLokaleUnderenheterAsSelectOptions(watch("navRegioner"), enheter)}
                   />

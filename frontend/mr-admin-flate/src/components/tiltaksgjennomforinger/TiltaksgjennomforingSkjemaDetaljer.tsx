@@ -186,6 +186,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
               size="small"
               placeholder={isLoadingAnsatt ? "Laster..." : "Velg en"}
               label={"Administratorer for gjennomføringen"}
+              helpText="Bestemmer hvem som eier gjennomføringen. Notifikasjoner sendes til administratorene."
               {...register("administratorer")}
               options={AdministratorOptions(
                 ansatt,
@@ -213,7 +214,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                 size="small"
                 placeholder={"Velg en"}
                 label={"NAV-enheter (kontorer)"}
-                helpText="Dette styrer hvem gjennomføringen skal vises til i Modia, basert på hvilket kontor brukeren har tilhørlighet til."
+                helpText="Bestemmer hvem gjennomføringen skal vises til i Modia, basert på hvilket kontor brukeren har tilhørighet til."
                 {...register("navEnheter")}
                 options={navEnheterOptions}
               />
@@ -244,7 +245,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                       </button>
                       <div className={skjemastyles.kontaktperson_inputs}>
                         <ControlledSokeSelect
-                          helpText="Kontaktperson som veilederene kan hendvende seg til for informasjon om gjennomføringen. Kan gjelde for én eller flere enheter."
+                          helpText="Bestemmer kontaktperson som veilederene kan hendvende seg til for informasjon om gjennomføringen. Kan gjelde for én eller flere enheter."
                           size="small"
                           placeholder={
                             isLoadingKontaktpersoner ? "Laster kontaktpersoner..." : "Velg en"
