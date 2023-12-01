@@ -21,7 +21,7 @@
     "not op_mini all"
   ],
   "dependencies": {
-    "@grafana/faro-web-sdk": "1.2.4",
+    "@grafana/faro-web-sdk": "1.2.8",
     "@navikt/aksel-icons": "5.11.2",
     "@navikt/ds-css": "5.11.2",
     "@navikt/ds-react": "5.11.2",
