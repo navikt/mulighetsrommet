@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
 import { Notifikasjonsbjelle } from "../notifikasjoner/Notifikasjonsbjelle";
 import styles from "./AdministratorHeader.module.scss";
+import { erForhandsvisningMiljo } from "../../utils/Utils";
 
 export function AdministratorHeader() {
   const { data } = useHentAnsatt();
@@ -43,6 +44,14 @@ export function AdministratorHeader() {
                 target="_blank"
               >
                 Individuelle tiltaksgjennomføringer <ExternalLinkIcon />
+              </Link>
+            </Dropdown.Menu.GroupedList.Item>
+            <Dropdown.Menu.GroupedList.Item as="span">
+              <Link
+                to={`https://mulighetsrommet-veileder-flate.intern.${erForhandsvisningMiljo}/preview`}
+                target="_blank"
+              >
+                Veilederflate forhåndsvisning <ExternalLinkIcon />
               </Link>
             </Dropdown.Menu.GroupedList.Item>
             <Dropdown.Menu.GroupedList.Item as="span">
