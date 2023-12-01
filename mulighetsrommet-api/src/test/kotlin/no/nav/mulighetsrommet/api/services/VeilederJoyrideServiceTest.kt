@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.services
 
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dto.JoyrideType
@@ -26,14 +25,6 @@ class VeilederJoyrideServiceTest : FunSpec({
             val request = VeilederJoyrideDto(navident = "S123456", fullfort = true, type = JoyrideType.OVERSIKT)
 
             veilederJoyrideService.save(request)
-        }
-
-        test("Skal ikke kunne lagre at veileder har kjørt Joyride hvis navident er mer enn 7 tegn") {
-            val request = VeilederJoyrideDto(navident = "S1234567", fullfort = true, type = JoyrideType.OVERSIKT)
-
-            shouldThrow<Exception> {
-                veilederJoyrideService.save(request)
-            }
         }
     }
 })

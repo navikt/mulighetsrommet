@@ -6,10 +6,6 @@ import no.nav.mulighetsrommet.api.repositories.VeilederJoyrideRepository
 
 class VeilederJoyrideService(val veilederJoyrideRepository: VeilederJoyrideRepository) {
     fun save(data: VeilederJoyrideDto) {
-        if (data.navident.length != 7) {
-            throw Exception("navident må være 7 tegn")
-        }
-
         veilederJoyrideRepository.save(data)
     }
 

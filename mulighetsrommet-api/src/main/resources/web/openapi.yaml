@@ -1404,7 +1404,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/VeilederJoyrideDto"
+              $ref: "#/components/schemas/VeilederJoyrideRequest"
       responses:
         204:
           description: "Lagret ok"
@@ -3077,24 +3077,24 @@ components:
         - _type
         - _key
 
-    VeilederJoyrideDto:
+    VeilederJoyrideRequest:
       type: object
       properties:
-        navident:
-          type: string
         fullfort:
           type: boolean
         "type":
           $ref: "#/components/schemas/JoyrideSteps"
-
+      required:
+        - fullfort
+        - "type"
 
     HarFullfortJoyrideRequest:
       type: object
       properties:
-        navident:
-          type: string
         "type":
           $ref: "#/components/schemas/JoyrideSteps"
+      required:
+        - "type"
 
     JoyrideSteps:
       type: string
