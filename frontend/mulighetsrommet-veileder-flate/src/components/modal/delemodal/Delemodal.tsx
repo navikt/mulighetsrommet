@@ -1,14 +1,4 @@
-import {
-  BodyShort,
-  Button,
-  Checkbox,
-  HStack,
-  Heading,
-  HelpText,
-  Modal,
-  Spacer,
-  VStack,
-} from "@navikt/ds-react";
+import { BodyShort, Button, Checkbox, HStack, Heading, HelpText, Modal } from "@navikt/ds-react";
 import {
   Bruker,
   DelMedBruker,
