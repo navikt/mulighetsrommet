@@ -22,9 +22,9 @@ fun Route.veilederJoyrideRoutes() {
                     VeilederJoyrideDto(
                         navident = getNavIdent(),
                         fullfort = request.fullfort,
-                        type = request.type
-                    )
-                )
+                        type = request.type,
+                    ),
+                ),
             )
         }
 

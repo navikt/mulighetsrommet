@@ -12,7 +12,7 @@ data class VeilederJoyrideDto(
 @Serializable
 data class VeilederJoyrideRequest(
     val fullfort: Boolean,
-    val type: JoyrideType
+    val type: JoyrideType,
 )
 
 @Serializable
