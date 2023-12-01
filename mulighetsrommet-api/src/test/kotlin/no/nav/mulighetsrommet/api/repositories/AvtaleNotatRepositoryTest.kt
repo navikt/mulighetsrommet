@@ -11,7 +11,6 @@ import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.utils.NotatFilter
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import java.util.*
 
 class AvtaleNotatRepositoryTest : FunSpec({
@@ -19,7 +18,6 @@ class AvtaleNotatRepositoryTest : FunSpec({
     val domain = MulighetsrommetTestDomain()
 
     beforeEach {
-        database.db.truncateAll()
         domain.initialize(database.db)
     }
 

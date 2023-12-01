@@ -5,6 +5,7 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import kotliquery.Query
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
+import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.utils.DEFAULT_PAGINATION_LIMIT
 import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.api.utils.TiltakstypeFilter
@@ -20,66 +21,22 @@ import java.util.*
 class TiltakstypeRepositoryTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
-    test("CRUD") {
+    afterContainer {
         database.db.truncateAll()
-        val tiltakstyper = TiltakstypeRepository(database.db)
+    }
 
-        tiltakstyper.upsert(
-            TiltakstypeDbo(
-                id = UUID.randomUUID(),
-                navn = "Arbeidstrening",
-                tiltakskode = "ARBTREN",
-                rettPaaTiltakspenger = true,
-                registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
-                sistEndretDatoIArena = LocalDateTime.of(2022, 1, 15, 0, 0, 0),
-                fraDato = LocalDate.of(2023, 1, 11),
-                tilDato = LocalDate.of(2023, 1, 12),
-            ),
-        )
-        tiltakstyper.upsert(
-            TiltakstypeDbo(
-                id = UUID.randomUUID(),
-                navn = "Oppfølging",
-                tiltakskode = "INDOPPFOLG",
-                rettPaaTiltakspenger = true,
-                registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
-                sistEndretDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
-                fraDato = LocalDate.of(2023, 1, 11),
-                tilDato = LocalDate.of(2023, 1, 12),
-            ),
-        )
-        Query("update tiltakstype set skal_migreres = true").asUpdate.let { database.db.run(it) }
+    context("CRUD") {
+        test("upsert") {
+            val tiltakstyper = TiltakstypeRepository(database.db)
 
-        tiltakstyper.getAll().second shouldHaveSize 2
-        tiltakstyper.getAllSkalMigreres(
-            TiltakstypeFilter(
-                search = "Førerhund",
-                status = Tiltakstypestatus.Aktiv,
-                kategori = null,
-            ),
-        ).second shouldHaveSize 0
+            tiltakstyper.upsert(TiltakstypeFixtures.Arbeidstrening)
+            tiltakstyper.upsert(TiltakstypeFixtures.Oppfolging)
 
-        val arbeidstrening =
-            tiltakstyper.getAllSkalMigreres(
-                TiltakstypeFilter(
-                    search = "Arbeidstrening",
-                    status = Tiltakstypestatus.Avsluttet,
-                    kategori = null,
-                ),
-            )
-        arbeidstrening.second shouldHaveSize 1
-        arbeidstrening.second[0].navn shouldBe "Arbeidstrening"
-        arbeidstrening.second[0].arenaKode shouldBe "ARBTREN"
-        arbeidstrening.second[0].rettPaaTiltakspenger shouldBe true
-        arbeidstrening.second[0].registrertIArenaDato shouldBe LocalDateTime.of(2022, 1, 11, 0, 0, 0)
-        arbeidstrening.second[0].sistEndretIArenaDato shouldBe LocalDateTime.of(2022, 1, 15, 0, 0, 0)
-        arbeidstrening.second[0].fraDato shouldBe LocalDate.of(2023, 1, 11)
-        arbeidstrening.second[0].tilDato shouldBe LocalDate.of(2023, 1, 12)
+            tiltakstyper.getAll().second shouldHaveSize 2
+        }
     }
 
     context("filter") {
-        database.db.truncateAll()
-
         val tiltakstyper = TiltakstypeRepository(database.db)
         val dagensDato = LocalDate.of(2023, 1, 12)
         val tiltakstypePlanlagt = TiltakstypeDbo(
@@ -200,8 +157,6 @@ class TiltakstypeRepositoryTest : FunSpec({
     }
 
     context("pagination") {
-        database.db.truncateAll()
-
         val tiltakstyper = TiltakstypeRepository(database.db)
 
         (1..105).forEach {
