@@ -30,7 +30,7 @@ export function useAdminTiltaksgjennomforinger(
   };
 
   return useQuery({
-    queryKey: QueryKeys.tiltaksgjennomforinger({ ...filter, search: debouncedSok }, page),
+    queryKey: QueryKeys.tiltaksgjennomforinger(page, { ...filter, search: debouncedSok }),
     queryFn: () =>
       filter.visMineGjennomforinger
         ? mulighetsrommetClient.tiltaksgjennomforinger.getMineTiltaksgjennomforinger({

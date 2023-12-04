@@ -14,30 +14,29 @@ class VeilederJoyrideRepository(private val db: Database) {
         @Language("PostgreSQL")
         val query = """
             insert into veileder_joyride(
-                navident, fullfort, type
-            ) values (:navident, :fullfort, :type::joyride_type)
-            returning *
+                nav_ident, fullfort, type
+            ) values (:nav_ident, :fullfort, :type::joyride_type)
         """.trimIndent()
 
         queryOf(query, data.toSqlParameters()).asExecute.let { db.run(it) }
     }
 
-    fun harFullfortJoyride(navident: String, type: JoyrideType): Boolean {
+    fun harFullfortJoyride(navIdent: String, type: JoyrideType): Boolean {
         val params = mapOf(
-            "navident" to navident,
+            "nav_ident" to navIdent,
             "type" to type.name,
         )
 
         @Language("PostgreSQL")
         val query = """
-            select fullfort from veileder_joyride where navident = :navident and type = :type::joyride_type
+            select fullfort from veileder_joyride where nav_ident = :nav_ident and type = :type::joyride_type
         """.trimIndent()
 
         return queryOf(query, params).map { it.boolean("fullfort") }.asSingle.let { db.run(it) } ?: false
     }
 
     private fun VeilederJoyrideDto.toSqlParameters() = mapOf(
-        "navident" to navident,
+        "nav_ident" to navIdent,
         "fullfort" to fullfort,
         "type" to type.name,
     )

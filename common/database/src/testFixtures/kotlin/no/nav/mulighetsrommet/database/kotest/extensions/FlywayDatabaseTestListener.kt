@@ -37,6 +37,7 @@ class FlywayDatabaseTestListener(private val config: FlywayDatabaseAdapter.Confi
     }
 
     override suspend fun afterSpec(spec: Spec) {
+        delegate?.truncateAll()
         delegate?.close()
     }
 

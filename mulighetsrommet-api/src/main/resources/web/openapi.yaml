@@ -1413,16 +1413,18 @@ paths:
               schema:
                 type: string
 
-  /api/v1/internal/joyride/harFullfort:
-    post:
+  /api/v1/internal/joyride/{joyrideType}/har-fullfort:
+    parameters:
+      - in: path
+        name: joyrideType
+        description: Type for Joyride
+        schema:
+          $ref: "#/components/schemas/joyrideType"
+        required: true
+    get:
       tags:
         - Joyride
       operationId: veilederHarFullfortJoyride
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/HarFullfortJoyrideRequest"
       responses:
         200:
           description: "True hvis veileder har fullført joyride, false hvis ikke"
@@ -1430,7 +1432,6 @@ paths:
             text/plain:
               schema:
                 type: boolean
-
 
 components:
   securitySchemes:
@@ -2275,10 +2276,13 @@ components:
           type: string
         tekst:
           type: string
+        venterPaaSvarFraBruker:
+          type: boolean
       required:
         - norskIdent
         - overskrift
         - tekst
+        - venterPaaSvarFraBruker
 
     DialogResponse:
       type: object
@@ -3082,21 +3086,13 @@ components:
       properties:
         fullfort:
           type: boolean
-        "type":
-          $ref: "#/components/schemas/JoyrideSteps"
+        joyrideType:
+          $ref: "#/components/schemas/joyrideType"
       required:
         - fullfort
-        - "type"
+        - joyrideType
 
-    HarFullfortJoyrideRequest:
-      type: object
-      properties:
-        "type":
-          $ref: "#/components/schemas/JoyrideSteps"
-      required:
-        - "type"
-
-    JoyrideSteps:
+    joyrideType:
       type: string
       enum:
         - OVERSIKT

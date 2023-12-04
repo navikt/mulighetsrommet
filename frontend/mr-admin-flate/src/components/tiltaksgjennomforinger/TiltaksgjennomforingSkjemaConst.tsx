@@ -80,6 +80,18 @@ function defaultNavEnheter(avtale: Avtale, tiltaksgjennomforing?: Tiltaksgjennom
   return [];
 }
 
+function defaultArrangor(
+  avtale: Avtale,
+  tiltaksgjennomforing?: Tiltaksgjennomforing,
+): string | undefined {
+  if (tiltaksgjennomforing?.arrangor.organisasjonsnummer) {
+    return tiltaksgjennomforing?.arrangor.organisasjonsnummer;
+  }
+  if (avtale.leverandorUnderenheter.length === 1) {
+    return avtale.leverandorUnderenheter[0].organisasjonsnummer;
+  }
+}
+
 export function utkastDataEllerDefault(
   avtale: Avtale,
   utkast?: TiltaksgjennomforingUtkastData,
@@ -96,8 +108,7 @@ export function utkastDataEllerDefault(
       startDato: tiltaksgjennomforing?.startDato,
       sluttDato: tiltaksgjennomforing?.sluttDato,
     },
-    tiltaksArrangorUnderenhetOrganisasjonsnummer:
-      tiltaksgjennomforing?.arrangor?.organisasjonsnummer || "",
+    tiltaksArrangorUnderenhetOrganisasjonsnummer: defaultArrangor(avtale, tiltaksgjennomforing),
     midlertidigStengt: {
       erMidlertidigStengt: Boolean(tiltaksgjennomforing?.stengtFra),
       stengtFra: tiltaksgjennomforing?.stengtFra

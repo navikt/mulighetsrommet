@@ -25,7 +25,6 @@ import no.nav.mulighetsrommet.api.routes.v1.responses.BadRequest
 import no.nav.mulighetsrommet.api.routes.v1.responses.NotFound
 import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.notifications.NotificationRepository
 import no.nav.mulighetsrommet.utils.toUUID
@@ -41,7 +40,6 @@ class AvtaleServiceTest : FunSpec({
     val domain = MulighetsrommetTestDomain()
 
     beforeEach {
-        database.db.truncateAll()
         domain.initialize(database.db)
 
         every { validator.validate(any()) } answers {

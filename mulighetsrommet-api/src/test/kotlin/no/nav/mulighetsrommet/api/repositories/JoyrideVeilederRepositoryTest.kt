@@ -13,7 +13,7 @@ import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 class JoyrideVeilederRepositoryTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
-    beforeEach {
+    afterEach {
         database.db.truncateAll()
     }
 
@@ -22,13 +22,13 @@ class JoyrideVeilederRepositoryTest : FunSpec({
             val veilederJoyrideRepository = VeilederJoyrideRepository(database.db)
 
             val joyrideKjortForOversikten = VeilederJoyrideDto(
-                navident = "S123456",
+                navIdent = "S123456",
                 fullfort = true,
                 type = JoyrideType.OVERSIKT,
             )
 
             val joyrideKjortForDetaljside = VeilederJoyrideDto(
-                navident = "S123456",
+                navIdent = "S123456",
                 fullfort = true,
                 type = JoyrideType.DETALJER,
             )
@@ -40,13 +40,13 @@ class JoyrideVeilederRepositoryTest : FunSpec({
             val veilederJoyrideRepository = VeilederJoyrideRepository(database.db)
 
             val detaljer1 = VeilederJoyrideDto(
-                navident = "S123456",
+                navIdent = "S123456",
                 fullfort = true,
                 type = JoyrideType.DETALJER,
             )
 
             val detaljer2 = VeilederJoyrideDto(
-                navident = "S123456",
+                navIdent = "S123456",
                 fullfort = true,
                 type = JoyrideType.DETALJER,
             )
@@ -59,21 +59,15 @@ class JoyrideVeilederRepositoryTest : FunSpec({
         val veilederJoyrideRepository = VeilederJoyrideRepository(database.db)
         val navident = "S123456"
         val joyrideKjortForOversikten = VeilederJoyrideDto(
-            navident = navident,
+            navIdent = navident,
             fullfort = true,
             type = JoyrideType.OVERSIKT,
         )
 
-        val joyrideKjortForDetaljside = VeilederJoyrideDto(
-            navident = navident,
-            fullfort = true,
-            type = JoyrideType.DETALJER,
-        )
         veilederJoyrideRepository.save(joyrideKjortForOversikten).shouldBeRight()
-        veilederJoyrideRepository.save(joyrideKjortForDetaljside).shouldBeRight()
 
         val result = veilederJoyrideRepository.harFullfortJoyride(
-            navident = navident,
+            navIdent = navident,
             type = JoyrideType.OVERSIKT,
         )
         result shouldBe true
@@ -83,21 +77,15 @@ class JoyrideVeilederRepositoryTest : FunSpec({
         val veilederJoyrideRepository = VeilederJoyrideRepository(database.db)
         val navident = "S123456"
         val joyrideKjortForOversikten = VeilederJoyrideDto(
-            navident = navident,
+            navIdent = navident,
             fullfort = false,
             type = JoyrideType.OVERSIKT,
         )
 
-        val joyrideKjortForDetaljside = VeilederJoyrideDto(
-            navident = navident,
-            fullfort = true,
-            type = JoyrideType.DETALJER,
-        )
         veilederJoyrideRepository.save(joyrideKjortForOversikten).shouldBeRight()
-        veilederJoyrideRepository.save(joyrideKjortForDetaljside).shouldBeRight()
 
         val result = veilederJoyrideRepository.harFullfortJoyride(
-            navident = navident,
+            navIdent = navident,
             type = JoyrideType.OVERSIKT,
         )
         result shouldBe false

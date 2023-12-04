@@ -1,29 +1,25 @@
+import React from "react";
 import { Switch } from "@navikt/ds-react";
 import { useMutateTilgjengeligForVeileder } from "../../api/tiltaksgjennomforing/useMutateTilgjengeligForVeileder";
-import { useTiltaksgjennomforing } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforing";
 import { Lenkeknapp } from "../../components/lenkeknapp/Lenkeknapp";
 import styles from "../DetaljerInfo.module.scss";
+import { Tiltaksgjennomforing } from "mulighetsrommet-api-client";
 
 interface Props {
   style?: React.CSSProperties;
+  tiltaksgjennomforing: Tiltaksgjennomforing;
 }
 
-export function TiltaksgjennomforingKnapperad({ style }: Props) {
+export function TiltaksgjennomforingKnapperad({ style, tiltaksgjennomforing }: Props) {
   const { mutate } = useMutateTilgjengeligForVeileder();
-  const { data, refetch } = useTiltaksgjennomforing();
 
   function handleClick(e: React.MouseEvent<HTMLInputElement>) {
-    if (data?.id) {
-      mutate(
-        { id: data.id, tilgjengeligForVeileder: e.currentTarget.checked },
-        { onSettled: () => refetch() },
-      );
-    }
+    mutate({ id: tiltaksgjennomforing.id, tilgjengeligForVeileder: e.currentTarget.checked });
   }
 
   return (
     <div style={style} className={styles.knapperad}>
-      <Switch checked={!!data?.tilgjengeligForVeileder} onClick={handleClick}>
+      <Switch checked={tiltaksgjennomforing.tilgjengeligForVeileder} onClick={handleClick}>
         Tilgjengelig for veileder
       </Switch>
 

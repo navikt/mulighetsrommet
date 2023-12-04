@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class VeilederJoyrideDto(
-    val navident: String,
+    val navIdent: String,
     val fullfort: Boolean,
     val type: JoyrideType,
 )
@@ -12,12 +12,7 @@ data class VeilederJoyrideDto(
 @Serializable
 data class VeilederJoyrideRequest(
     val fullfort: Boolean,
-    val type: JoyrideType,
-)
-
-@Serializable
-data class HarFullfortJoyrideRequest(
-    val type: JoyrideType,
+    val joyrideType: JoyrideType,
 )
 
 @Serializable

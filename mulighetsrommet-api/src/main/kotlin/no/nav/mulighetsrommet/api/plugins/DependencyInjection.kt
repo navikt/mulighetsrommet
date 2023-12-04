@@ -309,7 +309,6 @@ private fun services(appConfig: AppConfig) = module {
     single { AxsysService(appConfig.axsys) { m2mTokenProvider.createMachineToMachineToken(appConfig.axsys.scope) } }
     single { AvtaleValidator(get(), get(), get(), get()) }
     single { TiltaksgjennomforingValidator(get(), get(), get()) }
-    single { VeilederJoyrideService(get()) }
 }
 
 private fun tasks(config: TaskConfig) = module {
