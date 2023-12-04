@@ -4,8 +4,6 @@ import Joyride, { ACTIONS, CallBackProps, EVENTS, STATUS } from "react-joyride";
 import { logEvent } from "../../core/api/logger";
 import { useLagreJoyrideForVeileder } from "../../core/api/queries/useLagreJoyrideForVeileder";
 import { useVeilederHarFullfortJoyride } from "../../core/api/queries/useVeilederHarFullfortJoyride";
-import styles from "./Joyride.module.scss";
-import { JoyrideKnapp } from "./JoyrideKnapp";
 import { opprettAvtaleSteps, useSteps } from "./Steps";
 import { locale, styling } from "./config";
 
