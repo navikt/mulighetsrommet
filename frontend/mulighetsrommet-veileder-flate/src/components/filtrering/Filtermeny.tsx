@@ -5,6 +5,7 @@ import styles from "./Filtermeny.module.scss";
 import InnsatsgruppeFilter from "./InnsatsgruppeFilter";
 import Sokefelt from "./Sokefelt";
 import { Tiltakstypefilter } from "./Tiltakstypefilter";
+import { ApentForInnsokToggle } from "./ApentForInnsokToggle";
 
 const Filtermeny = () => {
   const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);
@@ -16,6 +17,12 @@ const Filtermeny = () => {
         setSokefilter={(search: string) => setFilter({ ...filter, search })}
       />
       <Accordion>
+        <ApentForInnsokToggle
+          value={filter.apentForInnsok}
+          onChange={(apentForInnsok) => {
+            setFilter({ ...filter, apentForInnsok });
+          }}
+        />
         <InnsatsgruppeFilter />
         <Tiltakstypefilter />
       </Accordion>

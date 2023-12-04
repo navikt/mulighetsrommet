@@ -9,7 +9,7 @@ import { erPreview, formaterDato } from "../../utils/Utils";
 import Lenke from "../lenke/Lenke";
 import styles from "./Gjennomforingsrad.module.scss";
 import { BodyShort } from "@navikt/ds-react";
-import { ChevronRightIcon, PadlockLockedFillIcon, PadlockLockedIcon } from "@navikt/aksel-icons";
+import { ChevronRightIcon, PadlockLockedFillIcon } from "@navikt/aksel-icons";
 
 interface Props {
   tiltaksgjennomforing: VeilederflateTiltaksgjennomforing;

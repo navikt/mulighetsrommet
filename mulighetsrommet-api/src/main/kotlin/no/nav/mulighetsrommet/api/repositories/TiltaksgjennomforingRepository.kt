@@ -443,12 +443,14 @@ class TiltaksgjennomforingRepository(private val db: Database) {
 
     fun getAllVeilederflateTiltaksgjennomforing(
         search: String? = null,
+        apentForInnsok: Boolean? = null,
         sanityTiltakstypeIds: List<UUID>? = null,
         innsatsgrupper: List<Innsatsgruppe> = emptyList(),
         brukersEnheter: List<String>,
     ): List<VeilederflateTiltaksgjennomforing> {
         val parameters = mapOf(
             "search" to search?.let { "%${it.replace("/", "#").trim()}%" },
+            "apent_for_innsok" to apentForInnsok,
             "sanityTiltakstypeIds" to sanityTiltakstypeIds?.let { db.createUuidArray(it) },
             "innsatsgrupper" to db.createTextArray(innsatsgrupper.map { it.name }),
             "brukersEnheter" to db.createTextArray(brukersEnheter),
@@ -458,6 +460,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             search to "((lower(tg.navn) like lower(:search)) or (tg.tiltaksnummer like :search))",
             sanityTiltakstypeIds to "t.sanity_id = any(:sanityTiltakstypeIds)",
             innsatsgrupper to "t.innsatsgruppe = any(:innsatsgrupper::innsatsgruppe[])",
+            apentForInnsok to "tg.apent_for_innsok = :apent_for_innsok",
         )
 
         @Language("PostgreSQL")

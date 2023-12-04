@@ -5,7 +5,7 @@ info:
   title: Mulighetsrommet API
 
 security:
-  - bearerAuth: [ ]
+  - bearerAuth: []
 
 paths:
   /api/v1/internal/bruker:
@@ -853,7 +853,6 @@ paths:
               schema:
                 $ref: "#/components/schemas/VeilederflateTiltaksgjennomforing"
 
-
   /api/v1/internal/sanity/tiltaksgjennomforing/preview/detaljer:
     post:
       tags:
@@ -1537,8 +1536,17 @@ components:
             format: uuid
         search:
           type: string
+        apentForInnsok:
+          $ref: "#/components/schemas/ApentForInnsok"
       required:
         - norskIdent
+
+    ApentForInnsok:
+      type: string
+      enum:
+        - APENT
+        - STENGT
+        - APENT_ELLER_STENGT
 
     GetRelevanteTiltaksgjennomforingerPreviewRequest:
       type: object

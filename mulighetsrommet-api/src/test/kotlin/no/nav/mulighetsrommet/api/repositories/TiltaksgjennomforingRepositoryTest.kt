@@ -46,11 +46,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
     val domain = MulighetsrommetTestDomain()
 
-    beforeAny {
-        val tiltakstyper = TiltakstypeRepository(database.db)
-        tiltakstyper.upsert(TiltakstypeFixtures.Arbeidstrening)
-        tiltakstyper.upsert(TiltakstypeFixtures.Oppfolging)
-
+    beforeEach {
         domain.initialize(database.db)
     }
 
@@ -1022,149 +1018,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         tiltaksgjennomforinger.get(gjennomforing.id)?.visesForVeileder shouldBe true
     }
 
-    test("getAllVeilederflateTiltaksgjennomforing by tiltakstype sanity Id") {
-        val tiltakstypeSanityId = UUID.randomUUID()
-        Query("update tiltakstype set skal_migreres = true")
-            .asUpdate
-            .let { database.db.run(it) }
-        Query("update tiltakstype set sanity_id = '$tiltakstypeSanityId' where id = '${TiltakstypeFixtures.Oppfolging.id}'")
-            .asUpdate
-            .let { database.db.run(it) }
-        Query("update tiltakstype set innsatsgruppe = '${Innsatsgruppe.STANDARD_INNSATS}' where id = '${TiltakstypeFixtures.Oppfolging.id}'")
-            .asUpdate
-            .let { database.db.run(it) }
-        Query("update tiltakstype set sanity_id = '${UUID.randomUUID()}' where id = '${TiltakstypeFixtures.Arbeidstrening.id}'")
-            .asUpdate
-            .let { database.db.run(it) }
-        Query("update tiltakstype set innsatsgruppe = '${Innsatsgruppe.STANDARD_INNSATS}' where id = '${TiltakstypeFixtures.Arbeidstrening.id}'")
-            .asUpdate
-            .let { database.db.run(it) }
-
-        val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-        tiltaksgjennomforinger.upsert(Oppfolging1)
-        tiltaksgjennomforinger.setTilgjengeligForVeileder(Oppfolging1.id, true)
-
-        tiltaksgjennomforinger.upsert(Arbeidstrening1)
-        tiltaksgjennomforinger.setTilgjengeligForVeileder(Arbeidstrening1.id, true)
-
-        tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
-            search = null,
-            sanityTiltakstypeIds = listOf(tiltakstypeSanityId),
-            innsatsgrupper = listOf(Innsatsgruppe.STANDARD_INNSATS),
-            brukersEnheter = listOf("2990"),
-        ).should {
-            it shouldHaveSize 1
-            it[0].navn shouldBe Oppfolging1.navn
-        }
-    }
-
-    test("getAllVeilederflateTiltaksgjennomforing returnerer bare skal_migreres") {
-        Query("update tiltakstype set sanity_id = '${UUID.randomUUID()}'")
-            .asUpdate
-            .let { database.db.run(it) }
-        Query("update tiltakstype set skal_migreres = true where id = '${TiltakstypeFixtures.Oppfolging.id}'")
-            .asUpdate
-            .let { database.db.run(it) }
-        Query("update tiltakstype set innsatsgruppe = '${Innsatsgruppe.STANDARD_INNSATS}' where id = '${TiltakstypeFixtures.Oppfolging.id}'")
-            .asUpdate
-            .let { database.db.run(it) }
-        Query("update tiltakstype set skal_migreres = false where id = '${TiltakstypeFixtures.Arbeidstrening.id}'")
-            .asUpdate
-            .let { database.db.run(it) }
-        Query("update tiltakstype set innsatsgruppe = '${Innsatsgruppe.STANDARD_INNSATS}' where id = '${TiltakstypeFixtures.Arbeidstrening.id}'")
-            .asUpdate
-            .let { database.db.run(it) }
-
-        val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-        tiltaksgjennomforinger.upsert(Oppfolging1)
-        tiltaksgjennomforinger.setTilgjengeligForVeileder(Oppfolging1.id, true)
-
-        tiltaksgjennomforinger.upsert(Arbeidstrening1)
-        tiltaksgjennomforinger.setTilgjengeligForVeileder(Arbeidstrening1.id, true)
-
-        tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
-            search = null,
-            sanityTiltakstypeIds = null,
-            innsatsgrupper = listOf(Innsatsgruppe.STANDARD_INNSATS),
-            brukersEnheter = listOf("2990"),
-        ).should {
-            it shouldHaveSize 1
-            it[0].navn shouldBe Oppfolging1.navn
-        }
-    }
-
-    test("getAllVeilederflateTiltaksgjennomforing by search") {
-        val tiltakstypeSanityId = UUID.randomUUID()
-        Query("update tiltakstype set skal_migreres = true")
-            .asUpdate
-            .let { database.db.run(it) }
-        Query("update tiltakstype set sanity_id = '$tiltakstypeSanityId' where id = '${TiltakstypeFixtures.Oppfolging.id}'")
-            .asUpdate
-            .let { database.db.run(it) }
-        Query("update tiltakstype set innsatsgruppe = '${Innsatsgruppe.STANDARD_INNSATS}' where id = '${TiltakstypeFixtures.Oppfolging.id}'")
-            .asUpdate
-            .let { database.db.run(it) }
-
-        val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-        tiltaksgjennomforinger.upsert(Oppfolging1.copy(navn = "erik"))
-        tiltaksgjennomforinger.setTilgjengeligForVeileder(Oppfolging1.id, true)
-
-        tiltaksgjennomforinger.upsert(Oppfolging2.copy(navn = "frank"))
-        tiltaksgjennomforinger.setTilgjengeligForVeileder(Oppfolging2.id, true)
-
-        tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
-            search = "rik",
-            sanityTiltakstypeIds = listOf(tiltakstypeSanityId),
-            innsatsgrupper = listOf(Innsatsgruppe.STANDARD_INNSATS),
-            brukersEnheter = listOf("2990"),
-        ).should {
-            it shouldHaveSize 1
-            it.get(0).navn shouldBe "erik"
-        }
-    }
-
-    test("getAllVeilederflateTiltaksgjennomforing filtrerer på brukers enheter") {
-        val tiltakstypeSanityId = UUID.randomUUID()
-        Query("update tiltakstype set skal_migreres = true")
-            .asUpdate
-            .let { database.db.run(it) }
-        Query("update tiltakstype set sanity_id = '$tiltakstypeSanityId' where id = '${TiltakstypeFixtures.Oppfolging.id}'")
-            .asUpdate
-            .let { database.db.run(it) }
-        Query("update tiltakstype set sanity_id = '$tiltakstypeSanityId' where id = '${TiltakstypeFixtures.Arbeidstrening.id}'")
-            .asUpdate
-            .let { database.db.run(it) }
-        Query("update tiltakstype set innsatsgruppe = '${Innsatsgruppe.STANDARD_INNSATS}' where id = '${TiltakstypeFixtures.Oppfolging.id}'")
-            .asUpdate
-            .let { database.db.run(it) }
-        Query("update tiltakstype set innsatsgruppe = '${Innsatsgruppe.STANDARD_INNSATS}' where id = '${TiltakstypeFixtures.Arbeidstrening.id}'")
-            .asUpdate
-            .let { database.db.run(it) }
-
-        val enheter = NavEnhetRepository(database.db)
-        enheter.upsert(NavEnhetFixtures.Oslo)
-        enheter.upsert(NavEnhetFixtures.Innlandet)
-
-        val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-        tiltaksgjennomforinger.upsert(Oppfolging1.copy(navn = "erik"))
-        tiltaksgjennomforinger.setTilgjengeligForVeileder(Oppfolging1.id, true)
-
-        tiltaksgjennomforinger.upsert(Oppfolging2.copy(navn = "frank", navEnheter = listOf("2990", "0400")))
-        tiltaksgjennomforinger.setTilgjengeligForVeileder(Oppfolging2.id, true)
-
-        tiltaksgjennomforinger.upsert(Arbeidstrening1.copy(navn = "richard", navEnheter = listOf("0300")))
-        tiltaksgjennomforinger.setTilgjengeligForVeileder(Arbeidstrening1.id, true)
-
-        tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
-            search = null,
-            sanityTiltakstypeIds = listOf(tiltakstypeSanityId),
-            innsatsgrupper = listOf(Innsatsgruppe.STANDARD_INNSATS),
-            brukersEnheter = listOf("2990", "0400"),
-        ).should {
-            it shouldHaveSize 2
-        }
-    }
-
     test("Henting av arena-ansvarlig-enhet skal ikke krasje hvis arena-ansvarlig-enhet ikke eksisterer i nav-enhet-tabellen") {
         val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
         tiltaksgjennomforinger.upsertArenaTiltaksgjennomforing(ArenaOppfolging1.copy(arenaAnsvarligEnhet = "9999"))
@@ -1172,6 +1025,222 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         gjennomforing.shouldNotBeNull()
         gjennomforing.should {
             it.arenaAnsvarligEnhet shouldBe null
+        }
+    }
+
+    context("getAllVeilederflateTiltaksgjennomforing") {
+        val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
+
+        val oppfolgingSanityId = UUID.randomUUID()
+        val arbeidstreningSanityId = UUID.randomUUID()
+
+        beforeEach {
+            Query("update tiltakstype set skal_migreres = true")
+                .asUpdate
+                .let { database.db.run(it) }
+            Query("update tiltakstype set sanity_id = '$oppfolgingSanityId' where id = '${TiltakstypeFixtures.Oppfolging.id}'")
+                .asUpdate
+                .let { database.db.run(it) }
+            Query("update tiltakstype set innsatsgruppe = '${Innsatsgruppe.STANDARD_INNSATS}' where id = '${TiltakstypeFixtures.Oppfolging.id}'")
+                .asUpdate
+                .let { database.db.run(it) }
+            Query("update tiltakstype set sanity_id = '$arbeidstreningSanityId' where id = '${TiltakstypeFixtures.Arbeidstrening.id}'")
+                .asUpdate
+                .let { database.db.run(it) }
+            Query("update tiltakstype set innsatsgruppe = '${Innsatsgruppe.STANDARD_INNSATS}' where id = '${TiltakstypeFixtures.Arbeidstrening.id}'")
+                .asUpdate
+                .let { database.db.run(it) }
+
+            tiltaksgjennomforinger.upsert(Oppfolging1.copy(navEnheter = listOf("2990")))
+            tiltaksgjennomforinger.setTilgjengeligForVeileder(Oppfolging1.id, true)
+
+            tiltaksgjennomforinger.upsert(Arbeidstrening1.copy(navEnheter = listOf("2990")))
+            tiltaksgjennomforinger.setTilgjengeligForVeileder(Arbeidstrening1.id, true)
+        }
+
+        test("skal filtrere basert på tilgjengelig_for_veileder") {
+            tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
+                innsatsgrupper = listOf(Innsatsgruppe.STANDARD_INNSATS),
+                brukersEnheter = listOf("2990"),
+            ) shouldHaveSize 2
+
+            tiltaksgjennomforinger.setTilgjengeligForVeileder(Oppfolging1.id, false)
+
+            tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
+                innsatsgrupper = listOf(Innsatsgruppe.STANDARD_INNSATS),
+                brukersEnheter = listOf("2990"),
+            ) shouldHaveSize 1
+
+            tiltaksgjennomforinger.setTilgjengeligForVeileder(Arbeidstrening1.id, false)
+
+            tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
+                innsatsgrupper = listOf(Innsatsgruppe.STANDARD_INNSATS),
+                brukersEnheter = listOf("2990"),
+            ) shouldHaveSize 0
+        }
+
+        test("skal bare returnere tiltak markert med skal_migreres") {
+            tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
+                innsatsgrupper = listOf(Innsatsgruppe.STANDARD_INNSATS),
+                brukersEnheter = listOf("2990"),
+            ) shouldHaveSize 2
+
+            Query("update tiltakstype set skal_migreres = false where id = '${TiltakstypeFixtures.Oppfolging.id}'")
+                .asUpdate
+                .let { database.db.run(it) }
+
+            tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
+                innsatsgrupper = listOf(Innsatsgruppe.STANDARD_INNSATS),
+                brukersEnheter = listOf("2990"),
+            ) shouldHaveSize 1
+
+            Query("update tiltakstype set skal_migreres = false where id = '${TiltakstypeFixtures.Arbeidstrening.id}'")
+                .asUpdate
+                .let { database.db.run(it) }
+
+            tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
+                innsatsgrupper = listOf(Innsatsgruppe.STANDARD_INNSATS),
+                brukersEnheter = listOf("2990"),
+            ) shouldHaveSize 0
+        }
+
+        test("skal filtrere basert på innsatsgruppe") {
+            Query("update tiltakstype set innsatsgruppe = '${Innsatsgruppe.SPESIELT_TILPASSET_INNSATS}' where id = '${TiltakstypeFixtures.Oppfolging.id}'")
+                .asUpdate
+                .let { database.db.run(it) }
+            Query("update tiltakstype set innsatsgruppe = '${Innsatsgruppe.STANDARD_INNSATS}' where id = '${TiltakstypeFixtures.Arbeidstrening.id}'")
+                .asUpdate
+                .let { database.db.run(it) }
+
+            tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
+                innsatsgrupper = listOf(),
+                brukersEnheter = listOf("2990"),
+            ) shouldHaveSize 0
+
+            tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
+                innsatsgrupper = listOf(Innsatsgruppe.STANDARD_INNSATS),
+                brukersEnheter = listOf("2990"),
+            ).should {
+                it shouldHaveSize 1
+                it[0].navn shouldBe Arbeidstrening1.navn
+            }
+
+            tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
+                innsatsgrupper = listOf(Innsatsgruppe.SPESIELT_TILPASSET_INNSATS),
+                brukersEnheter = listOf("2990"),
+            ).should {
+                it shouldHaveSize 1
+                it[0].navn shouldBe Oppfolging1.navn
+            }
+
+            tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
+                innsatsgrupper = listOf(Innsatsgruppe.STANDARD_INNSATS, Innsatsgruppe.SPESIELT_TILPASSET_INNSATS),
+                brukersEnheter = listOf("2990"),
+            ) shouldHaveSize 2
+        }
+
+        test("skal filtrere på brukers enheter") {
+            val enheter = NavEnhetRepository(database.db)
+            enheter.upsert(NavEnhetFixtures.Oslo)
+            enheter.upsert(NavEnhetFixtures.Innlandet)
+
+            tiltaksgjennomforinger.upsert(Oppfolging1.copy(navEnheter = listOf("2990", "0400")))
+            tiltaksgjennomforinger.upsert(Arbeidstrening1.copy(navEnheter = listOf("2990", "0300")))
+
+            tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
+                innsatsgrupper = listOf(Innsatsgruppe.STANDARD_INNSATS),
+                brukersEnheter = listOf("0400"),
+            ).should {
+                it shouldHaveSize 1
+                it[0].navn shouldBe Oppfolging1.navn
+            }
+
+            tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
+                innsatsgrupper = listOf(Innsatsgruppe.STANDARD_INNSATS),
+                brukersEnheter = listOf("0300"),
+            ).should {
+                it shouldHaveSize 1
+                it[0].navn shouldBe Arbeidstrening1.navn
+            }
+
+            tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
+                innsatsgrupper = listOf(Innsatsgruppe.STANDARD_INNSATS),
+                brukersEnheter = listOf("0400", "0300"),
+            ) shouldHaveSize 2
+
+            tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
+                innsatsgrupper = listOf(Innsatsgruppe.STANDARD_INNSATS),
+                brukersEnheter = listOf("2990"),
+            ) shouldHaveSize 2
+        }
+
+        test("skal filtrere basert på tiltakstype sanity Id") {
+            tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
+                sanityTiltakstypeIds = null,
+                innsatsgrupper = listOf(Innsatsgruppe.STANDARD_INNSATS),
+                brukersEnheter = listOf("2990"),
+            ) shouldHaveSize 2
+
+            tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
+                sanityTiltakstypeIds = listOf(oppfolgingSanityId),
+                innsatsgrupper = listOf(Innsatsgruppe.STANDARD_INNSATS),
+                brukersEnheter = listOf("2990"),
+            ).should {
+                it shouldHaveSize 1
+                it[0].navn shouldBe Oppfolging1.navn
+            }
+
+            tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
+                sanityTiltakstypeIds = listOf(arbeidstreningSanityId),
+                innsatsgrupper = listOf(Innsatsgruppe.STANDARD_INNSATS),
+                brukersEnheter = listOf("2990"),
+            ).should {
+                it shouldHaveSize 1
+                it[0].navn shouldBe Arbeidstrening1.navn
+            }
+        }
+
+        test("skal filtrere basert fritekst i navn") {
+            tiltaksgjennomforinger.upsert(Oppfolging1.copy(navn = "erik"))
+            tiltaksgjennomforinger.upsert(Arbeidstrening1.copy(navn = "frank"))
+
+            tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
+                search = "rik",
+                innsatsgrupper = listOf(Innsatsgruppe.STANDARD_INNSATS),
+                brukersEnheter = listOf("2990"),
+            ).should {
+                it shouldHaveSize 1
+                it[0].navn shouldBe "erik"
+            }
+        }
+
+        test("skal filtrere basert på apent_for_innsok") {
+            tiltaksgjennomforinger.upsert(Oppfolging1.copy(apentForInnsok = true))
+            tiltaksgjennomforinger.upsert(Arbeidstrening1.copy(apentForInnsok = false, navEnheter = listOf("2990")))
+
+            tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
+                apentForInnsok = true,
+                innsatsgrupper = listOf(Innsatsgruppe.STANDARD_INNSATS),
+                brukersEnheter = listOf("2990"),
+            ).should {
+                it shouldHaveSize 1
+                it[0].navn shouldBe Oppfolging1.navn
+            }
+
+            tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
+                apentForInnsok = false,
+                innsatsgrupper = listOf(Innsatsgruppe.STANDARD_INNSATS),
+                brukersEnheter = listOf("2990"),
+            ).should {
+                it shouldHaveSize 1
+                it[0].navn shouldBe Arbeidstrening1.navn
+            }
+
+            tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
+                apentForInnsok = null,
+                innsatsgrupper = listOf(Innsatsgruppe.STANDARD_INNSATS),
+                brukersEnheter = listOf("2990"),
+            ) shouldHaveSize 2
         }
     }
 })
