@@ -112,6 +112,14 @@ export const oversiktenSteps: MulighetsrommetStep[] = [
     disableBeacon: true,
     id: "detaljert-visning",
   },
+  {
+    title: "Se på nytt",
+    content: "Hvis du vil se denne gjennomgangen på nytt kan du trykke på Veiviseren her",
+    target: "#joyride_knapp",
+    placement: "top",
+    disableBeacon: true,
+    id: "joyride_knapp",
+  },
 ];
 
 export const detaljerSteps: MulighetsrommetStep[] = [
@@ -170,5 +178,15 @@ export const detaljerSteps: MulighetsrommetStep[] = [
     placement: "center",
     disableBeacon: true,
     id: "tilbakemeldinger",
+  },
+];
+
+export const opprettAvtaleSteps: MulighetsrommetStep[] = [
+  {
+    title: "Opprett avtale",
+    content: "For enkelte av tiltakene vil det være mulig å opprette en avtale med bruker.",
+    target: '[data-testid="opprettavtaleknapp"]',
+    disableBeacon: true,
+    id: "opprett-avtale",
   },
 ];

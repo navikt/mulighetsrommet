@@ -49,12 +49,14 @@ export function OversiktenJoyride({ isTableFetched }: Props) {
       logEvent("mulighetsrommet.joyride", { value: "oversikten", status });
       harFullfortJoyride();
       setStepIndex(0);
+      setReady(false);
     }
 
     //lukker joyride ved klikk på escape
     if (ACTIONS.CLOSE === action) {
       harFullfortJoyride();
       setStepIndex(0);
+      setReady(false);
     }
   };
 

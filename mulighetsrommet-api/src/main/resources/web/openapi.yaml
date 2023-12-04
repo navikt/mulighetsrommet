@@ -3097,3 +3097,4 @@ components:
       enum:
         - OVERSIKT
         - DETALJER
+        - HAR_VIST_OPPRETT_AVTALE

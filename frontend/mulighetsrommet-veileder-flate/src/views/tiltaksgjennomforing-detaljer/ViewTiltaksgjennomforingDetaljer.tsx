@@ -26,6 +26,7 @@ import TiltaksgjennomforingsHeader from "../../layouts/TiltaksgjennomforingsHead
 import { byttTilDialogFlate } from "../../utils/DialogFlateUtils";
 import { erPreview, formaterDato } from "../../utils/Utils";
 import styles from "./ViewTiltaksgjennomforingDetaljer.module.scss";
+import { OpprettAvtaleJoyride } from "../../components/joyride/OpprettAvtaleJoyride";
 
 const whiteListOpprettAvtaleKnapp: Tiltakskode[] = [
   Tiltakskode.MIDLONTIL,
@@ -127,6 +128,7 @@ const ViewTiltaksgjennomforingDetaljer = ({
           {!erPreview() && (
             <>
               <DetaljerJoyride opprettAvtale={opprettAvtale} />
+              {opprettAvtale ? <OpprettAvtaleJoyride /> : null}
             </>
           )}
         </div>
