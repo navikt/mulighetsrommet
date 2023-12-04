@@ -32,6 +32,6 @@ data class ArenaTiltaksgjennomforingDbo(
     val oppstart: TiltaksgjennomforingOppstartstype,
     val opphav: ArenaMigrering.Opphav,
     @Serializable(with = LocalDateTimeSerializer::class)
-    val fremmoteDato: LocalDateTime?,
+    val fremmoteTidspunkt: LocalDateTime?,
     val fremmoteSted: String?,
 )

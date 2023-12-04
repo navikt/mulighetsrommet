@@ -28,7 +28,7 @@ object TiltaksgjennomforingFixtures {
         oppstart = TiltaksgjennomforingOppstartstype.FELLES,
         opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
         avtaleId = AvtaleFixtures.avtale1.id,
-        fremmoteDato = null,
+        fremmoteTidspunkt = null,
         fremmoteSted = null,
     )
 
@@ -121,7 +121,7 @@ object TiltaksgjennomforingFixtures {
         updatedAt = Oppfolging1.startDato.atStartOfDay(),
         tilgjengeligForVeileder = true,
         visesForVeileder = true,
-        fremmoteDato = null,
+        fremmoteTidspunkt = null,
         fremmoteSted = null,
     )
 

@@ -1982,7 +1982,7 @@ components:
         updatedAt:
           type: string
           format: date-time
-        fremmoteDato:
+        fremmoteTidspunkt:
           type: string
           format: date-time
         fremmoteSted:

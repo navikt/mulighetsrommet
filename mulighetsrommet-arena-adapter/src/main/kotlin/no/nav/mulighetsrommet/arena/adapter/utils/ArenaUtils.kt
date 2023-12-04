@@ -3,7 +3,6 @@ package no.nav.mulighetsrommet.arena.adapter.utils
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering.ArenaTimestampFormatter
 import no.nav.mulighetsrommet.domain.dbo.Deltakerstatus
 import no.nav.mulighetsrommet.domain.dto.JaNeiStatus
-import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.time.LocalTime
 

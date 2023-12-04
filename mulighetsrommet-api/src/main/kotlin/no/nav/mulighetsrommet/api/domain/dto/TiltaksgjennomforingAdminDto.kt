@@ -53,7 +53,7 @@ data class TiltaksgjennomforingAdminDto(
     val tilgjengeligForVeileder: Boolean,
     val visesForVeileder: Boolean,
     @Serializable(with = LocalDateTimeSerializer::class)
-    val fremmoteDato: LocalDateTime?,
+    val fremmoteTidspunkt: LocalDateTime?,
     val fremmoteSted: String?,
 ) {
     fun isAktiv(): Boolean = status in listOf(

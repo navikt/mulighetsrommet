@@ -137,7 +137,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 avtaleId = null,
                 oppstart = TiltaksgjennomforingOppstartstype.FELLES,
                 opphav = ArenaMigrering.Opphav.ARENA,
-                fremmoteDato = LocalDateTime.of(2023, 2, 2, 0, 0, 0),
+                fremmoteTidspunkt = LocalDateTime.of(2023, 2, 2, 0, 0, 0),
                 fremmoteSted = "Giraff innhegningen",
             )
 

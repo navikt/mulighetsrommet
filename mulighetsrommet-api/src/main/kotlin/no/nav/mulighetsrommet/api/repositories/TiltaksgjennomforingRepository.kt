@@ -223,7 +223,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 avtale_id,
                 oppstart,
                 opphav,
-                fremmote_dato,
+                fremmote_tidspunkt,
                 fremmote_sted
             )
             values (
@@ -241,7 +241,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 :avtale_id,
                 :oppstart::tiltaksgjennomforing_oppstartstype,
                 :opphav::opphav,
-                :fremmote_dato,
+                :fremmote_tidspunkt,
                 :fremmote_sted
             )
             on conflict (id)
@@ -258,7 +258,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                               avtale_id                    = excluded.avtale_id,
                               oppstart                     = coalesce(tiltaksgjennomforing.oppstart, excluded.oppstart),
                               opphav                       = excluded.opphav,
-                              fremmote_dato                = excluded.fremmote_dato,
+                              fremmote_tidspunkt           = excluded.fremmote_tidspunkt,
                               fremmote_sted                = excluded.fremmote_sted
             returning *
         """.trimIndent()
@@ -632,7 +632,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         "avtale_id" to avtaleId,
         "oppstart" to oppstart.name,
         "opphav" to opphav.name,
-        "fremmote_dato" to fremmoteDato,
+        "fremmote_tidspunkt" to fremmoteTidspunkt,
         "fremmote_sted" to fremmoteSted,
     )
 
@@ -751,7 +751,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             updatedAt = localDateTime("updated_at"),
             tilgjengeligForVeileder = boolean("tilgjengelig_for_veileder"),
             visesForVeileder = boolean("vises_for_veileder"),
-            fremmoteDato = localDateTimeOrNull("fremmote_dato"),
+            fremmoteTidspunkt = localDateTimeOrNull("fremmote_tidspunkt"),
             fremmoteSted = stringOrNull("fremmote_sted"),
         )
     }
