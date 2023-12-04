@@ -3,6 +3,7 @@ import { Controller } from "react-hook-form";
 import { MultiValue } from "react-select";
 import { MultiSelect } from "./MultiSelect";
 import { SelectOption } from "mulighetsrommet-frontend-common/components/SokeSelect";
+import { HelpText } from "@navikt/ds-react";
 
 export interface MultiSelectProps {
   label: string;
@@ -12,6 +13,7 @@ export interface MultiSelectProps {
   size?: "small" | "medium";
   additionalOnChange?: (values: MultiValue<SelectOption<string>>) => void;
   name: string;
+  helpText?: string;
 }
 
 export const ControlledMultiSelect = React.forwardRef(function ControlledMultiSelect(
@@ -19,7 +21,17 @@ export const ControlledMultiSelect = React.forwardRef(function ControlledMultiSe
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _,
 ) {
-  const { name, size, label, placeholder, options, readOnly, additionalOnChange, ...rest } = props;
+  const {
+    name,
+    size,
+    helpText,
+    label,
+    placeholder,
+    options,
+    readOnly,
+    additionalOnChange,
+    ...rest
+  } = props;
 
   return (
     <div>
@@ -29,16 +41,25 @@ export const ControlledMultiSelect = React.forwardRef(function ControlledMultiSe
         render={({ field: { onChange, value, name, ref }, fieldState: { error } }) => {
           return (
             <>
-              <label
+              <div
                 style={{
-                  fontSize: size === "small" ? "16px" : "18px",
-                  marginBottom: "8px",
-                  display: "inline-block",
+                  display: "flex",
+                  gap: "0.25rem",
+                  flexDirection: "row",
                 }}
-                htmlFor={name}
               >
-                <b>{label}</b>
-              </label>
+                <label
+                  style={{
+                    fontSize: size === "small" ? "16px" : "18px",
+                    marginBottom: "8px",
+                    display: "inline-block",
+                  }}
+                  htmlFor={name}
+                >
+                  <b>{label}</b>
+                </label>
+                {helpText && <HelpText>{helpText}</HelpText>}
+              </div>
               <MultiSelect
                 size={size}
                 error={Boolean(error)}
