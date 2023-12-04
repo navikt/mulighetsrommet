@@ -68,7 +68,9 @@ select tg.id::uuid,
        tg.created_at,
        tg.updated_at,
        tg.tilgjengelig_for_veileder,
-       tg.tilgjengelig_for_veileder and tg.tilgjengelighet != 'STENGT'::tilgjengelighetsstatus as vises_for_veileder
+       tg.tilgjengelig_for_veileder and tg.tilgjengelighet != 'STENGT'::tilgjengelighetsstatus as vises_for_veileder,
+       tg.fremmote_dato,
+       tg.fremmote_sted
 from tiltaksgjennomforing tg
          inner join tiltakstype t on tg.tiltakstype_id = t.id
          left join tiltaksgjennomforing_administrator tg_a on tg_a.tiltaksgjennomforing_id = tg.id

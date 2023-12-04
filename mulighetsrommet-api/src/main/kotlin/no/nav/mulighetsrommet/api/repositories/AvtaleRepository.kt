@@ -422,14 +422,13 @@ class AvtaleRepository(private val db: Database) {
             startDato = startDato,
             sluttDato = sluttDato,
             arenaAnsvarligEnhet = stringOrNull("arena_ansvarlig_enhet")?.let {
-                Json.decodeFromString<EmbeddedNavEnhet?>(
+                Json.decodeFromString(
                     it,
                 )
             },
             avtaletype = Avtaletype.valueOf(string("avtaletype")),
             avtalestatus = Avtalestatus.resolveFromDatesAndAvslutningsstatus(
                 LocalDate.now(),
-                startDato,
                 sluttDato,
                 Avslutningsstatus.valueOf(string("avslutningsstatus")),
             ),

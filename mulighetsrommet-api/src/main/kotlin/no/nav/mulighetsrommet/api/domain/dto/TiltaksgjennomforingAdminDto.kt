@@ -52,6 +52,9 @@ data class TiltaksgjennomforingAdminDto(
     val updatedAt: LocalDateTime,
     val tilgjengeligForVeileder: Boolean,
     val visesForVeileder: Boolean,
+    @Serializable(with = LocalDateTimeSerializer::class)
+    val fremmoteDato: LocalDateTime?,
+    val fremmoteSted: String?,
 ) {
     fun isAktiv(): Boolean = status in listOf(
         Tiltaksgjennomforingsstatus.PLANLAGT,

@@ -1944,6 +1944,11 @@ components:
         updatedAt:
           type: string
           format: date-time
+        fremmoteDato:
+          type: string
+          format: date-time
+        fremmoteSted:
+          type: string
       required:
         - status
         - id
