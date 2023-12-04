@@ -1419,7 +1419,7 @@ paths:
         name: joyrideType
         description: Type for Joyride
         schema:
-          $ref: "#/components/schemas/joyrideType"
+          $ref: "#/components/schemas/JoyrideType"
         required: true
     get:
       tags:
@@ -3087,12 +3087,12 @@ components:
         fullfort:
           type: boolean
         joyrideType:
-          $ref: "#/components/schemas/joyrideType"
+          $ref: "#/components/schemas/JoyrideType"
       required:
         - fullfort
         - joyrideType
 
-    joyrideType:
+    JoyrideType:
       type: string
       enum:
         - OVERSIKT
