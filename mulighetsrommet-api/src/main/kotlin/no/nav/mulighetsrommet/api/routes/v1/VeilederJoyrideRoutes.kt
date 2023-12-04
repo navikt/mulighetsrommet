@@ -18,15 +18,14 @@ fun Route.veilederJoyrideRoutes() {
     route("/api/v1/internal/joyride") {
         post("lagre") {
             val request = call.receive<VeilederJoyrideRequest>()
-            call.respond(
-                veilederJoyrideRepository.save(
-                    VeilederJoyrideDto(
-                        navIdent = getNavIdent(),
-                        fullfort = request.fullfort,
-                        type = request.joyrideType,
-                    ),
+            veilederJoyrideRepository.save(
+                VeilederJoyrideDto(
+                    navIdent = getNavIdent(),
+                    fullfort = request.fullfort,
+                    type = request.joyrideType,
                 ),
             )
+            call.respondText("ok")
         }
 
         get("{type}/har-fullfort") {
