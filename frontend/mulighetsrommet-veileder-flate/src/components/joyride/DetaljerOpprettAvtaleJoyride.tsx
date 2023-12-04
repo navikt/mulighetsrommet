@@ -1,9 +1,10 @@
-import Joyride, { ACTIONS, CallBackProps, STATUS } from "react-joyride";
-import React from "react";
-import { locale, styling } from "./config";
 import { useAtom } from "jotai";
+import { JoyrideType } from "mulighetsrommet-api-client";
+import Joyride, { ACTIONS, CallBackProps, STATUS } from "react-joyride";
+import { useLagreJoyrideForVeileder } from "../../core/api/queries/useLagreJoyrideForVeileder";
 import { joyrideAtom } from "../../core/atoms/atoms";
 import { opprettAvtaleSteps, useSteps } from "./Steps";
+import { locale, styling } from "./config";
 
 interface Props {
   opprettAvtale: boolean;
@@ -11,6 +12,10 @@ interface Props {
 
 export const DetaljerOpprettAvtaleJoyride = ({ opprettAvtale }: Props) => {
   const [joyride, setJoyride] = useAtom(joyrideAtom);
+  useLagreJoyrideForVeileder(
+    JoyrideType.HAR_VIST_OPPRETT_AVTALE,
+    "joyrideDetaljerHarVistOpprettAvtale",
+  );
 
   const { steps } = useSteps(joyride.joyrideDetaljerHarVistOpprettAvtale, opprettAvtaleSteps);
 

@@ -26,7 +26,7 @@ export const faneAtom = atomWithHash("fane", "tab1", {
   setHash: "replaceState",
 });
 
-type JoyrideStorage = {
+export type JoyrideStorage = {
   joyrideOversikten: boolean;
   joyrideOversiktenLastStep: boolean | null;
   joyrideDetaljer: boolean;

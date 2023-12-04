@@ -1,11 +1,13 @@
-import Joyride, { ACTIONS, CallBackProps, EVENTS, STATUS } from "react-joyride";
-import { locale, styling } from "./config";
-import { JoyrideKnapp } from "./JoyrideKnapp";
-import { logEvent } from "../../core/api/logger";
-import { detaljerSteps, isStep, useSteps } from "./Steps";
 import { useAtom } from "jotai";
+import { JoyrideType } from "mulighetsrommet-api-client";
+import Joyride, { ACTIONS, CallBackProps, EVENTS, STATUS } from "react-joyride";
+import { logEvent } from "../../core/api/logger";
+import { useLagreJoyrideForVeileder } from "../../core/api/queries/useLagreJoyrideForVeileder";
 import { joyrideAtom } from "../../core/atoms/atoms";
 import styles from "./Joyride.module.scss";
+import { JoyrideKnapp } from "./JoyrideKnapp";
+import { detaljerSteps, isStep, useSteps } from "./Steps";
+import { locale, styling } from "./config";
 
 interface Props {
   opprettAvtale: boolean;
@@ -13,6 +15,7 @@ interface Props {
 
 export function DetaljerJoyride({ opprettAvtale }: Props) {
   const [joyride, setJoyride] = useAtom(joyrideAtom);
+  useLagreJoyrideForVeileder(JoyrideType.DETALJER, "joyrideDetaljer");
 
   const { steps, stepIndex, setStepIndex } = useSteps(joyride.joyrideDetaljer, detaljerSteps);
 
