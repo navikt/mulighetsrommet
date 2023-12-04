@@ -1,9 +1,9 @@
-import { useAtom } from "jotai";
 import { JoyrideType } from "mulighetsrommet-api-client";
+import { useEffect, useState } from "react";
 import Joyride, { ACTIONS, CallBackProps, EVENTS, STATUS } from "react-joyride";
 import { logEvent } from "../../core/api/logger";
 import { useLagreJoyrideForVeileder } from "../../core/api/queries/useLagreJoyrideForVeileder";
-import { joyrideAtom } from "../../core/atoms/atoms";
+import { useVeilederHarFullfortJoyride } from "../../core/api/queries/useVeilederHarFullfortJoyride";
 import styles from "./Joyride.module.scss";
 import { JoyrideKnapp } from "./JoyrideKnapp";
 import { detaljerSteps, isStep, useSteps } from "./Steps";
@@ -14,10 +14,17 @@ interface Props {
 }
 
 export function DetaljerJoyride({ opprettAvtale }: Props) {
-  const [joyride, setJoyride] = useAtom(joyrideAtom);
-  useLagreJoyrideForVeileder(JoyrideType.DETALJER, "joyrideDetaljer");
+  const veilederHarKjortJoyrideMutation = useLagreJoyrideForVeileder();
+  const { data = false, isLoading } = useVeilederHarFullfortJoyride(JoyrideType.DETALJER);
+  const [ready, setReady] = useState(!isLoading && !data);
 
-  const { steps, stepIndex, setStepIndex } = useSteps(joyride.joyrideDetaljer, detaljerSteps);
+  useEffect(() => {
+    setReady(!isLoading && !data);
+  }, [isLoading, data]);
+
+  const { steps, stepIndex, setStepIndex } = useSteps(ready, detaljerSteps);
+  const harFullfortJoyride = () =>
+    veilederHarKjortJoyrideMutation.mutate({ joyrideType: JoyrideType.DETALJER, fullfort: true });
 
   const handleJoyrideCallback = (data: CallBackProps) => {
     const { action, index, status, type } = data;
@@ -29,9 +36,6 @@ export function DetaljerJoyride({ opprettAvtale }: Props) {
     }
 
     if (!opprettAvtale) {
-      //hvis brukeren ikke er inne på et tiltak med opprett avtale, settes opprett avtale-steps til false i localStorage
-      setJoyride((joyride) => ({ ...joyride, joyrideDetaljerHarVistOpprettAvtale: false }));
-
       //hopper over steget med opprett avtale for at den skal kjøre videre til neste steg
       if (isStep(data.step, "opprett-avtale")) {
         setStepIndex(nextStepIndex);
@@ -40,20 +44,23 @@ export function DetaljerJoyride({ opprettAvtale }: Props) {
 
     //resetter joyride ved error
     if (STATUS.ERROR === status) {
-      setJoyride((joyride) => ({ ...joyride, joyrideDetaljer: true }));
+      veilederHarKjortJoyrideMutation.mutate({
+        fullfort: false,
+        joyrideType: JoyrideType.DETALJER,
+      });
       setStepIndex(0);
     }
 
     //resetter joyride når den er ferdig eller man klikker skip
     else if (([STATUS.FINISHED, STATUS.SKIPPED] as string[]).includes(status)) {
       logEvent("mulighetsrommet.joyride", { value: "detaljer", status });
-      setJoyride((joyride) => ({ ...joyride, joyrideDetaljer: false }));
+      harFullfortJoyride();
       setStepIndex(0);
     }
 
     //lukker joyride ved klikk på escape
     if (ACTIONS.CLOSE === action) {
-      setJoyride((joyride) => ({ ...joyride, joyrideDetaljer: false }));
+      harFullfortJoyride();
       setStepIndex(0);
     }
   };
@@ -62,7 +69,7 @@ export function DetaljerJoyride({ opprettAvtale }: Props) {
     <>
       <JoyrideKnapp
         handleClick={() => {
-          setJoyride((joyride) => ({ ...joyride, joyrideDetaljer: true }));
+          setReady(true);
           logEvent("mulighetsrommet.joyride", { value: "detaljer" });
         }}
         className={styles.joyride_detaljer}
@@ -70,7 +77,7 @@ export function DetaljerJoyride({ opprettAvtale }: Props) {
       <Joyride
         locale={locale}
         continuous
-        run={joyride.joyrideDetaljer}
+        run={ready}
         steps={steps}
         hideCloseButton
         callback={handleJoyrideCallback}

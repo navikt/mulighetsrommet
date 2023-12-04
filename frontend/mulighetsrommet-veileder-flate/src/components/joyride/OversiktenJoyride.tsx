@@ -1,9 +1,9 @@
-import { useAtom } from "jotai";
 import { JoyrideType } from "mulighetsrommet-api-client";
+import { useEffect, useState } from "react";
 import Joyride, { ACTIONS, CallBackProps, EVENTS, STATUS } from "react-joyride";
 import { logEvent } from "../../core/api/logger";
 import { useLagreJoyrideForVeileder } from "../../core/api/queries/useLagreJoyrideForVeileder";
-import { joyrideAtom } from "../../core/atoms/atoms";
+import { useVeilederHarFullfortJoyride } from "../../core/api/queries/useVeilederHarFullfortJoyride";
 import { JoyrideKnapp } from "./JoyrideKnapp";
 import { oversiktenSteps, useSteps } from "./Steps";
 import { locale, styling } from "./config";
@@ -13,11 +13,18 @@ interface Props {
 }
 
 export function OversiktenJoyride({ isTableFetched }: Props) {
-  const [joyride, setJoyride] = useAtom(joyrideAtom);
-  useLagreJoyrideForVeileder(JoyrideType.OVERSIKT, "joyrideOversikten");
-  const ready = joyride.joyrideOversikten && isTableFetched;
+  const veilederHarKjortJoyrideMutation = useLagreJoyrideForVeileder();
+  const { data = false, isLoading } = useVeilederHarFullfortJoyride(JoyrideType.OVERSIKT);
+  const [ready, setReady] = useState(!isLoading && !data && isTableFetched);
+
+  useEffect(() => {
+    setReady(!isLoading && !data && isTableFetched);
+  }, [isLoading, data, isTableFetched]);
 
   const { steps, stepIndex, setStepIndex } = useSteps(ready, oversiktenSteps);
+
+  const harFullfortJoyride = () =>
+    veilederHarKjortJoyrideMutation.mutate({ joyrideType: JoyrideType.OVERSIKT, fullfort: true });
 
   const handleJoyrideCallback = (data: CallBackProps) => {
     const { action, index, status, type } = data;
@@ -30,28 +37,24 @@ export function OversiktenJoyride({ isTableFetched }: Props) {
 
     //resetter joyride ved error
     if (STATUS.ERROR === status) {
-      setJoyride({ ...joyride, joyrideOversikten: true });
+      veilederHarKjortJoyrideMutation.mutate({
+        joyrideType: JoyrideType.OVERSIKT,
+        fullfort: false,
+      });
       setStepIndex(0);
     }
 
     //resetter joyride når den er ferdig eller man klikker skip
     else if (([STATUS.FINISHED, STATUS.SKIPPED] as string[]).includes(status)) {
       logEvent("mulighetsrommet.joyride", { value: "oversikten", status });
-      if (joyride.joyrideOversiktenLastStep === null) {
-        setJoyride({ ...joyride, joyrideOversiktenLastStep: true, joyrideOversikten: false });
-      } else {
-        setJoyride({ ...joyride, joyrideOversikten: false });
-      }
+      harFullfortJoyride();
       setStepIndex(0);
     }
 
     //lukker joyride ved klikk på escape
     if (ACTIONS.CLOSE === action) {
-      setJoyride({ ...joyride, joyrideOversikten: false });
+      harFullfortJoyride();
       setStepIndex(0);
-      if (joyride.joyrideOversiktenLastStep === null) {
-        setJoyride({ ...joyride, joyrideOversiktenLastStep: true, joyrideOversikten: false });
-      }
     }
   };
 
@@ -59,7 +62,7 @@ export function OversiktenJoyride({ isTableFetched }: Props) {
     <>
       <JoyrideKnapp
         handleClick={() => {
-          setJoyride({ ...joyride, joyrideOversikten: true });
+          setReady(true);
           setStepIndex(0);
           logEvent("mulighetsrommet.joyride", { value: "oversikten" });
         }}

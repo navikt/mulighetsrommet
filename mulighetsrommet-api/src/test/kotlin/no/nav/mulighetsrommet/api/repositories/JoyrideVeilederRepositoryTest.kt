@@ -32,8 +32,8 @@ class JoyrideVeilederRepositoryTest : FunSpec({
                 fullfort = true,
                 type = JoyrideType.DETALJER,
             )
-            veilederJoyrideRepository.save(joyrideKjortForOversikten).shouldBeRight()
-            veilederJoyrideRepository.save(joyrideKjortForDetaljside).shouldBeRight()
+            veilederJoyrideRepository.upsert(joyrideKjortForOversikten).shouldBeRight()
+            veilederJoyrideRepository.upsert(joyrideKjortForDetaljside).shouldBeRight()
         }
 
         test("Lagre kjørt-status for Joyride fra veileder krasjer hvis primærnøkkelen brytes") {
@@ -50,8 +50,8 @@ class JoyrideVeilederRepositoryTest : FunSpec({
                 fullfort = true,
                 type = JoyrideType.DETALJER,
             )
-            veilederJoyrideRepository.save(detaljer1).shouldBeRight()
-            veilederJoyrideRepository.save(detaljer2).shouldBeLeft()
+            veilederJoyrideRepository.upsert(detaljer1).shouldBeRight()
+            veilederJoyrideRepository.upsert(detaljer2).shouldBeLeft()
         }
     }
 
@@ -64,7 +64,7 @@ class JoyrideVeilederRepositoryTest : FunSpec({
             type = JoyrideType.OVERSIKT,
         )
 
-        veilederJoyrideRepository.save(joyrideKjortForOversikten).shouldBeRight()
+        veilederJoyrideRepository.upsert(joyrideKjortForOversikten).shouldBeRight()
 
         val result = veilederJoyrideRepository.harFullfortJoyride(
             navIdent = navident,
@@ -82,7 +82,7 @@ class JoyrideVeilederRepositoryTest : FunSpec({
             type = JoyrideType.OVERSIKT,
         )
 
-        veilederJoyrideRepository.save(joyrideKjortForOversikten).shouldBeRight()
+        veilederJoyrideRepository.upsert(joyrideKjortForOversikten).shouldBeRight()
 
         val result = veilederJoyrideRepository.harFullfortJoyride(
             navIdent = navident,

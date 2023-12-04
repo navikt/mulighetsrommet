@@ -172,23 +172,3 @@ export const detaljerSteps: MulighetsrommetStep[] = [
     id: "tilbakemeldinger",
   },
 ];
-
-export const opprettAvtaleSteps: MulighetsrommetStep[] = [
-  {
-    title: "Opprett avtale",
-    content: "For enkelte av tiltakene vil det være mulig å opprette en avtale med bruker.",
-    target: '[data-testid="opprettavtaleknapp"]',
-    disableBeacon: true,
-    id: "opprett-avtale",
-  },
-];
-
-export const oversiktenLastStep: MulighetsrommetStep[] = [
-  {
-    title: "Se gjennomgang på nytt",
-    content: "Hvis du vil se denne gjennomgangen på nytt kan du klikke her.",
-    target: "#joyride_knapp",
-    disableBeacon: true,
-    id: "gjennomgang-knapp",
-  },
-];
