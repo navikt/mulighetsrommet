@@ -304,7 +304,7 @@ class VirksomhetRepositoryTest : FunSpec({
         }
     }
 
-    context("vikrsomhet_kontaktperson") {
+    context("virksomhet_kontaktperson") {
         test("crud") {
             val virksomhetRepository = VirksomhetRepository(database.db)
             val virksomhet = VirksomhetDto(

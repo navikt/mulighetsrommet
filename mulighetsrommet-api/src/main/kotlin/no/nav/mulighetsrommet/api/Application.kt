@@ -65,6 +65,7 @@ fun Application.configure(config: AppConfig) {
             utkastRoutes()
             avtaleNotatRoutes()
             featureTogglesRoute()
+            veilederJoyrideRoutes()
         }
 
         authenticate(AuthProvider.AZURE_AD_DEFAULT_APP.name) {
