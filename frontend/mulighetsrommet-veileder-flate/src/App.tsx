@@ -14,6 +14,7 @@ import { ErrorFallback } from "./utils/ErrorFallback";
 import { SanityPreview } from "./views/Preview/SanityPreview";
 import { SanityPreviewOversikt } from "./views/Preview/SanityPreviewOversikt";
 import { Oppskrift } from "./components/oppskrift/Oppskrift";
+import { initAmplitude } from "./amplitude/amplitude";
 
 if (import.meta.env.PROD && import.meta.env.VITE_FARO_URL) {
   initializeFaro({
@@ -26,6 +27,7 @@ if (import.meta.env.PROD && import.meta.env.VITE_FARO_URL) {
 }
 
 function AppWrapper() {
+  initAmplitude();
   useInitialBrukerfilter();
   useHentVeilederdata(); // Pre-fetch veilederdata så slipper vi å vente på data når vi trenger det i appen senere
 

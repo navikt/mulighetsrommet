@@ -13,7 +13,7 @@ interface Props {
 export function HistorikkButton({ setHistorikkModalOpen, isHistorikkModalOpen }: Props) {
   const handleClick = () => {
     setHistorikkModalOpen(true);
-    logEvent("mulighetsrommet.historikk");
+    logEvent({ name: "mulighetsrommet.historikk" });
   };
 
   return (

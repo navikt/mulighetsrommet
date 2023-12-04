@@ -8,7 +8,7 @@ interface RegelverksinfoProps {
 }
 
 const Regelverksinfo = ({ regelverkLenker }: RegelverksinfoProps) => {
-  const loggTrykkPaRegelverk = () => logEvent("mulighetsrommet.regelverk");
+  const loggTrykkPaRegelverk = () => logEvent({ name: "mulighetsrommet.regelverk" });
 
   const regelverkLenkeComponent = (regelverkLenke: SanityRegelverkLenke) => {
     return (

@@ -84,9 +84,12 @@ function InnsatsgruppeFilter() {
         },
       });
     }
-    logEvent("mulighetsrommet.filtrering", {
-      type: "innsatsgruppe",
-      value: kebabCase(innsatsgruppe),
+    logEvent({
+      name: "mulighetsrommet.filtrering",
+      data: {
+        type: "innsatsgruppe",
+        value: kebabCase(innsatsgruppe),
+      },
     });
   };
 

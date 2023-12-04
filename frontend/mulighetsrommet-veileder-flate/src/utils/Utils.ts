@@ -61,3 +61,15 @@ export function brukersGeografiskeOgOppfolgingsenhetErLokalkontorMenIkkeSammeKon
     oppfolgingsenhet.enhetsnummer !== geografiskEnhet?.enhetsnummer
   );
 }
+
+export function hentBrukersFylkeOgLokalkontor(bruker?: Bruker): {
+  fylke: string;
+  lokalkontor: string;
+} {
+  return {
+    fylke:
+      bruker?.oppfolgingsenhet?.overordnetEnhet || bruker?.geografiskEnhet.overordnetEnhet || "",
+    lokalkontor:
+      bruker?.oppfolgingsenhet?.enhetsnummer || bruker?.geografiskEnhet?.overordnetEnhet || "",
+  };
+}

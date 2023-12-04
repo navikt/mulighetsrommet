@@ -1,7 +1,6 @@
 import { useAtom } from "jotai";
 import { JoyrideType } from "mulighetsrommet-api-client";
 import Joyride, { ACTIONS, CallBackProps, EVENTS, STATUS } from "react-joyride";
-import { logEvent } from "../../core/api/logger";
 import { useLagreJoyrideForVeileder } from "../../core/api/queries/useLagreJoyrideForVeileder";
 import { joyrideAtom } from "../../core/atoms/atoms";
 import styles from "./Joyride.module.scss";
@@ -46,7 +45,6 @@ export function DetaljerJoyride({ opprettAvtale }: Props) {
 
     //resetter joyride når den er ferdig eller man klikker skip
     else if (([STATUS.FINISHED, STATUS.SKIPPED] as string[]).includes(status)) {
-      logEvent("mulighetsrommet.joyride", { value: "detaljer", status });
       setJoyride((joyride) => ({ ...joyride, joyrideDetaljer: false }));
       setStepIndex(0);
     }
@@ -63,7 +61,6 @@ export function DetaljerJoyride({ opprettAvtale }: Props) {
       <JoyrideKnapp
         handleClick={() => {
           setJoyride((joyride) => ({ ...joyride, joyrideDetaljer: true }));
-          logEvent("mulighetsrommet.joyride", { value: "detaljer" });
         }}
         className={styles.joyride_detaljer}
       />

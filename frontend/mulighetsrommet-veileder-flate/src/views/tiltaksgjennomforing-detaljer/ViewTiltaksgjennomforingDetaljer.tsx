@@ -24,9 +24,10 @@ import { paginationAtom } from "../../core/atoms/atoms";
 import { environments } from "../../env";
 import TiltaksgjennomforingsHeader from "../../layouts/TiltaksgjennomforingsHeader";
 import { byttTilDialogFlate } from "../../utils/DialogFlateUtils";
-import { erPreview, formaterDato } from "../../utils/Utils";
+import { erPreview, formaterDato, hentBrukersFylkeOgLokalkontor } from "../../utils/Utils";
 import styles from "./ViewTiltaksgjennomforingDetaljer.module.scss";
 import { Outlet } from "react-router-dom";
+import { useHentBrukerdata } from "../../core/api/queries/useHentBrukerdata";
 
 const whiteListOpprettAvtaleKnapp: Tiltakskode[] = [
   Tiltakskode.MIDLONTIL,
@@ -80,6 +81,7 @@ const ViewTiltaksgjennomforingDetaljer = ({
   veilederdata,
   brukerdata,
 }: Props) => {
+  const { data: bruker } = useHentBrukerdata();
   const gjennomforingsId = useGetTiltaksgjennomforingIdFraUrl();
   const [page] = useAtom(paginationAtom);
   const [delemodalApen, setDelemodalApen] = useState<boolean>(false);
@@ -89,7 +91,7 @@ const ViewTiltaksgjennomforingDetaljer = ({
 
   const handleClickApneModal = () => {
     setDelemodalApen(true);
-    logDelMedbrukerEvent("Åpnet dialog");
+    logDelMedbrukerEvent("Åpnet dialog", hentBrukersFylkeOgLokalkontor(bruker));
   };
 
   if (!tiltaksgjennomforing) {
@@ -106,7 +108,7 @@ const ViewTiltaksgjennomforingDetaljer = ({
     ) {
       const url = lenkeTilOpprettAvtaleForEnv();
       window.open(url, "_blank");
-      logEvent("mulighetsrommet.opprett-avtale", { tiltakstype: tiltakstypeNavn });
+      logEvent({ name: "mulighetsrommet.opprett-avtale", data: { tiltakstype: tiltakstypeNavn } });
     }
   };
 

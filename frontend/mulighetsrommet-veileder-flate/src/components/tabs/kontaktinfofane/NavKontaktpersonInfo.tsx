@@ -64,7 +64,7 @@ const NavKontaktpersonInfo = ({ data }: NavKontaktpersonInfoProps) => {
                   {telefonnummer && <span>{telefonnummer}</span>}
                   <a
                     href={`mailto:${epost}`}
-                    onClick={() => logEvent("mulighetsrommet.tiltaksansvarlig.epost")}
+                    onClick={() => logEvent({ name: "mulighetsrommet.tiltaksansvarlig.epost" })}
                   >
                     {epost}
                   </a>
@@ -72,7 +72,9 @@ const NavKontaktpersonInfo = ({ data }: NavKontaktpersonInfoProps) => {
                     target="_blank"
                     rel="noreferrer"
                     href={`${TEAMS_DYPLENKE}${encodeURIComponent(epost)}`}
-                    onClick={() => logEvent("mulighetsrommet.tiltaksansvarlig.teamslenke")}
+                    onClick={() =>
+                      logEvent({ name: "mulighetsrommet.tiltaksansvarlig.teamslenke" })
+                    }
                   >
                     Kontakt meg på Teams
                   </a>

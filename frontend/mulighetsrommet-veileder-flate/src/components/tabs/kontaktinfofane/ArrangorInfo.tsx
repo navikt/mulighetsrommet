@@ -45,7 +45,7 @@ const ArrangorInfo = ({ data }: ArrangorInfoProps) => {
                 <span>{kontaktperson.telefon}</span>
                 <a
                   href={`mailto:${kontaktperson.epost}`}
-                  onClick={() => logEvent("mulighetsrommet.arrangor.kontaktperson.epost")}
+                  onClick={() => logEvent({ name: "mulighetsrommet.arrangor.kontaktperson.epost" })}
                 >
                   {kontaktperson.epost}
                 </a>

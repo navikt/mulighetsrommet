@@ -50,7 +50,10 @@ const TiltaksdetaljerFane = ({ tiltaksgjennomforing }: Props) => {
       selectionFollowsFocus
       className={styles.fane_root}
       onChange={(value) => {
-        logEvent("mulighetsrommet.faner", { value: tabValueTilFaneoverSkrifter[value] });
+        logEvent({
+          name: "mulighetsrommet.faner",
+          data: { value: tabValueTilFaneoverSkrifter[value] },
+        });
         setFane(value);
         if (value !== "tab5") {
           navigateAwayFromOppskrift();

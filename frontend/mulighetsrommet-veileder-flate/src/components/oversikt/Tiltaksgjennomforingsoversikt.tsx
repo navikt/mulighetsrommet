@@ -37,7 +37,9 @@ const Tiltaksgjennomforingsoversikt = (props: Props) => {
 
   useEffect(() => {
     //sørger for at vi ikke logger metrikker for første render
-    if (didMountRef.current) logEvent("mulighetsrommet.sortering", { value: sortValue });
+    if (didMountRef.current) {
+      logEvent({ name: "mulighetsrommet.sortering", data: { value: sortValue } });
+    }
     didMountRef.current = true;
   }, [sortValue]);
 
