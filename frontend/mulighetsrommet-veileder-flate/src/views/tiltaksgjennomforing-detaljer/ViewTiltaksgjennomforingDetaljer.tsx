@@ -14,7 +14,7 @@ import { BrukerHarIkke14aVedtakVarsel } from "../../components/ikkeKvalifisertVa
 import { BrukerKvalifisererIkkeVarsel } from "../../components/ikkeKvalifisertVarsel/BrukerKvalifisererIkkeVarsel";
 import { DetaljerJoyride } from "../../components/joyride/DetaljerJoyride";
 import { DetaljerOpprettAvtaleJoyride } from "../../components/joyride/DetaljerOpprettAvtaleJoyride";
-import Delemodal, { logDelMedbrukerEvent } from "../../components/modal/delemodal/Delemodal";
+import { Delemodal, logDelMedbrukerEvent } from "../../components/modal/delemodal/Delemodal";
 import SidemenyDetaljer from "../../components/sidemeny/SidemenyDetaljer";
 import TiltaksdetaljerFane from "../../components/tabs/TiltaksdetaljerFane";
 import Tilbakeknapp from "../../components/tilbakeknapp/Tilbakeknapp";
@@ -209,7 +209,9 @@ const ViewTiltaksgjennomforingDetaljer = ({
             modalOpen={delemodalApen}
             lukkModal={() => setDelemodalApen(false)}
             brukernavn={erPreview() ? "{Navn}" : brukerdata?.fornavn}
-            chattekst={tiltaksgjennomforing.tiltakstype.delingMedBruker ?? ""}
+            originaldeletekstFraTiltakstypen={
+              tiltaksgjennomforing.tiltakstype.delingMedBruker ?? ""
+            }
             veiledernavn={erPreview() ? "{Veiledernavn}" : veiledernavn}
             brukerFnr={brukerdata.fnr}
             tiltaksgjennomforing={tiltaksgjennomforing}

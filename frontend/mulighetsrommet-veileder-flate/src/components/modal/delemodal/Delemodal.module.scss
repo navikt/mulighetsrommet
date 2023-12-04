@@ -1,4 +1,8 @@
 .delemodal {
+  .body {
+    padding-bottom: 0;
+  }
+
   .heading {
     margin-bottom: 1rem;
   }
@@ -26,8 +30,6 @@
     margin-top: 1rem;
     white-space: pre-wrap;
     border-radius: 5px;
-    padding: 1rem;
-    background-color: var(--a-gray-50);
   }
 
   .personligHilsen {

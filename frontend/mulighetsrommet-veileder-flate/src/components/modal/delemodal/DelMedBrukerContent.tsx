@@ -1,4 +1,4 @@
-import { Alert, BodyShort, Button, ErrorMessage, Textarea } from "@navikt/ds-react";
+import { Alert, Button, ErrorMessage, Textarea } from "@navikt/ds-react";
 import { DelMedBruker, VeilederflateTiltaksgjennomforing } from "mulighetsrommet-api-client";
 import React, { Dispatch, useEffect, useRef } from "react";
 import { erPreview, formaterDato } from "../../../utils/Utils";
@@ -25,136 +25,87 @@ export function DelMedBrukerContent({
   harDeltMedBruker,
   tiltaksgjennomforing,
 }: Props) {
-  const { skrivPersonligMelding, skrivPersonligIntro } = state;
-  const personligIntroRef = useRef<HTMLTextAreaElement>(null);
-  const personligHilsenRef = useRef<HTMLTextAreaElement>(null);
+  const { enableRedigerDeletekst } = state;
+  const endreDeletekstRef = useRef<HTMLTextAreaElement>(null);
   const datoSidenSistDelt =
     harDeltMedBruker?.createdAt && formaterDato(new Date(harDeltMedBruker.createdAt));
 
+  const standardtekstLengde = state.deletekst.length;
+
   useEffect(() => {
-    if (skrivPersonligIntro) {
-      personligIntroRef?.current?.focus();
-      return;
+    if (enableRedigerDeletekst) {
+      endreDeletekstRef?.current?.focus();
     }
-    if (skrivPersonligMelding) {
-      personligHilsenRef?.current?.focus();
-    }
-  }, [skrivPersonligMelding, skrivPersonligIntro]);
+  }, [enableRedigerDeletekst]);
 
-  const enablePersonligMelding = () => {
-    dispatch({ type: "Skriv personlig melding", payload: true });
-    dispatch({ type: "Sett hilsen", payload: state.originalHilsen });
-    logDelMedbrukerEvent("Sett hilsen");
-  };
-
-  const enablePersonligIntro = () => {
-    dispatch({ type: "Skriv personlig intro", payload: true });
-    dispatch({ type: "Sett intro", payload: "" });
-    logDelMedbrukerEvent("Sett intro");
+  const enableEndreDeletekst = () => {
+    dispatch({ type: "Enable rediger deletekst", payload: true });
+    logDelMedbrukerEvent("Endre deletekst");
   };
 
   const forMangeTegn = (tekst: string): boolean => {
-    return tekst.length > MAKS_ANTALL_TEGN_DEL_MED_BRUKER;
+    return tekst.length > standardtekstLengde + MAKS_ANTALL_TEGN_DEL_MED_BRUKER;
   };
 
   const handleError = () => {
-    if (forMangeTegn(state.hilsen) || forMangeTegn(state.introtekst)) return "For mange tegn";
+    if (forMangeTegn(state.deletekst)) return "For mange tegn";
   };
 
-  const redigerHilsen = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    dispatch({ type: "Sett hilsen", payload: e.currentTarget.value });
+  const redigerDeletekst = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    dispatch({ type: "Set deletekst", payload: e.currentTarget.value });
   };
 
-  const redigerIntro = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    dispatch({ type: "Sett intro", payload: e.currentTarget.value });
-  };
   return (
     <>
       {harDeltMedBruker ? (
         <Alert variant="warning">{`Dette tiltaket ble delt med bruker ${datoSidenSistDelt}.`}</Alert>
       ) : null}
 
-      {skrivPersonligIntro ? null : (
+      <Textarea
+        label="Tekst som deles med bruker"
+        hideLabel
+        readOnly={!enableRedigerDeletekst}
+        className={delemodalStyles.deletekst}
+        error={handleError()}
+        ref={endreDeletekstRef}
+        size="medium"
+        onChange={redigerDeletekst}
+        data-testid="textarea_deletekst"
+        maxLength={state.originalDeletekst.length + MAKS_ANTALL_TEGN_DEL_MED_BRUKER}
+        value={state.deletekst}
+      >
+        {state.deletekst}
+      </Textarea>
+
+      {enableRedigerDeletekst ? null : (
         <Button
-          data-testid="personlig_intro_btn"
-          onClick={enablePersonligIntro}
+          data-testid="endre-deletekst_btn"
+          onClick={enableEndreDeletekst}
           variant="secondary"
           className={delemodalStyles.personlig_melding_btn}
         >
-          Legg til personlig introduksjon
+          Endre melding
         </Button>
       )}
 
-      {skrivPersonligIntro ? (
-        <Textarea
-          ref={personligIntroRef}
-          className={delemodalStyles.personligHilsen}
-          size="medium"
-          value={state.introtekst}
-          label=""
-          hideLabel
-          onChange={redigerIntro}
-          maxLength={MAKS_ANTALL_TEGN_DEL_MED_BRUKER}
-          data-testid="textarea_intro"
-          error={handleError()}
-        />
-      ) : null}
-
-      {skrivPersonligMelding && skrivPersonligIntro && !state.deletekst ? null : (
-        <BodyShort
-          title="Teksten er hentet fra tiltakstypen og kan ikke redigeres."
-          className={delemodalStyles.deletekst}
-        >
-          {`${skrivPersonligIntro ? "" : `${state.introtekst}\n`}${state.deletekst}${
-            skrivPersonligMelding ? "" : `\n\n${state.hilsen}`
-          }`}
-        </BodyShort>
-      )}
-      {skrivPersonligMelding ? null : (
-        <Button
-          data-testid="personlig_hilsen_btn"
-          onClick={enablePersonligMelding}
-          variant="secondary"
-          className={delemodalStyles.personlig_melding_btn}
-        >
-          Legg til personlig melding
-        </Button>
-      )}
-
-      {skrivPersonligMelding ? (
-        <>
-          <Textarea
-            ref={personligHilsenRef}
-            className={delemodalStyles.personligHilsen}
-            size="medium"
-            value={state.hilsen}
-            label=""
-            hideLabel
-            onChange={redigerHilsen}
-            maxLength={MAKS_ANTALL_TEGN_DEL_MED_BRUKER}
-            data-testid="textarea_hilsen"
-            error={handleError()}
-          />
-          <Alert inline variant="info" className={delemodalStyles.personopplysninger}>
-            Ikke del personopplysninger i din personlige hilsen
-          </Alert>
-        </>
-      ) : null}
       {!veiledernavn ? (
         <ErrorMessage className={delemodalStyles.feilmeldinger}>
           • Kunne ikke hente veileders navn
         </ErrorMessage>
       ) : null}
+
       {!brukernavn ? (
         <ErrorMessage className={delemodalStyles.feilmeldinger}>
           • Kunne ikke hente brukers navn
         </ErrorMessage>
       ) : null}
+
       {!tiltaksgjennomforing?.tiltakstype?.delingMedBruker ? (
         <ErrorMessage className={delemodalStyles.feilmeldinger}>
           • Mangler ferdigutfylt tekst som kan deles med bruker{" "}
         </ErrorMessage>
       ) : null}
+
       {erPreview() ? (
         <Alert variant="warning" data-testid="alert-preview-del-med-bruker">
           Det er ikke mulig å dele tiltak med bruker i forhåndsvisning. Brukers navn og veileders
