@@ -46,13 +46,15 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
     val domain = MulighetsrommetTestDomain()
 
     beforeAny {
-        database.db.truncateAll()
-
         val tiltakstyper = TiltakstypeRepository(database.db)
         tiltakstyper.upsert(TiltakstypeFixtures.Arbeidstrening)
         tiltakstyper.upsert(TiltakstypeFixtures.Oppfolging)
 
         domain.initialize(database.db)
+    }
+
+    afterEach {
+        database.db.truncateAll()
     }
 
     context("CRUD") {

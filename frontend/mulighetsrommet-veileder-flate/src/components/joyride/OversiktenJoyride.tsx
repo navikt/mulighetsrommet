@@ -1,10 +1,12 @@
-import Joyride, { ACTIONS, CallBackProps, EVENTS, STATUS } from "react-joyride";
-import { locale, styling } from "./config";
-import { JoyrideKnapp } from "./JoyrideKnapp";
-import { logEvent } from "../../core/api/logger";
-import { oversiktenSteps, useSteps } from "./Steps";
 import { useAtom } from "jotai";
+import { JoyrideType } from "mulighetsrommet-api-client";
+import Joyride, { ACTIONS, CallBackProps, EVENTS, STATUS } from "react-joyride";
+import { logEvent } from "../../core/api/logger";
+import { useLagreJoyrideForVeileder } from "../../core/api/queries/useLagreJoyrideForVeileder";
 import { joyrideAtom } from "../../core/atoms/atoms";
+import { JoyrideKnapp } from "./JoyrideKnapp";
+import { oversiktenSteps, useSteps } from "./Steps";
+import { locale, styling } from "./config";
 
 interface Props {
   isTableFetched: boolean;
@@ -12,7 +14,7 @@ interface Props {
 
 export function OversiktenJoyride({ isTableFetched }: Props) {
   const [joyride, setJoyride] = useAtom(joyrideAtom);
-
+  useLagreJoyrideForVeileder(JoyrideType.OVERSIKT, "joyrideOversikten");
   const ready = joyride.joyrideOversikten && isTableFetched;
 
   const { steps, stepIndex, setStepIndex } = useSteps(ready, oversiktenSteps);

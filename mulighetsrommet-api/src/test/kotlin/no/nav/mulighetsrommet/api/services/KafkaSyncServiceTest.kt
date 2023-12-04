@@ -10,7 +10,6 @@ import no.nav.mulighetsrommet.api.repositories.NavEnhetRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.*
 import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
@@ -24,10 +23,6 @@ import java.util.*
 
 class KafkaSyncServiceTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
-
-    beforeContainer {
-        database.db.truncateAll()
-    }
 
     val lastSuccessDate = LocalDate.of(2023, 2, 14)
     val today = LocalDate.of(2023, 2, 16)

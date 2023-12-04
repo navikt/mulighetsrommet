@@ -45,8 +45,6 @@ export const ControlledDateInput = forwardRef(function ControlledDateInput(
                   } else {
                     onChange(val);
                   }
-                } else {
-                  onChange(null);
                 }
               },
               allowTwoDigitYear: true,

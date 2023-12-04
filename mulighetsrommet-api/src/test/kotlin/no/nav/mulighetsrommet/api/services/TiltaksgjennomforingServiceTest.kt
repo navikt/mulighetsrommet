@@ -42,12 +42,15 @@ class TiltaksgjennomforingServiceTest : FunSpec({
     val domain = MulighetsrommetTestDomain()
 
     beforeEach {
-        database.db.truncateAll()
         domain.initialize(database.db)
 
         every { validator.validate(any()) } answers {
             firstArg<TiltaksgjennomforingDbo>().right()
         }
+    }
+
+    afterEach {
+        database.db.truncateAll()
     }
 
     context("Avbryte gjennomføring") {
