@@ -140,13 +140,7 @@ describe("Tiltaksgjennomføringsdetaljer", () => {
     cy.getByTestId("modal_header").should("be.visible");
     cy.getByTestId("endre-deletekst_btn").click();
     cy.getByTestId("textarea_deletekst").type("En spennende tekst");
-    cy.get(".navds-error-message").should("exist");
-    cy.get(".navds-error-message").should("contain", "For mange tegn");
-
-    // cy.getByTestId("personlig_hilsen_btn").click();
-
-    // cy.getByTestId("textarea_hilsen").type("Test", { delay: 250 });
-    // cy.get(".navds-error-message").should("not.exist");
+    cy.get(".navds-error-message").should("not.exist");
 
     cy.getByTestId("modal_btn-send").should("not.be.disabled").click();
 
