@@ -10,12 +10,14 @@ import org.intellij.lang.annotations.Language
 
 class VeilederJoyrideRepository(private val db: Database) {
 
-    fun save(data: VeilederJoyrideDto): QueryResult<Unit> = query {
+    fun upsert(data: VeilederJoyrideDto): QueryResult<Unit> = query {
         @Language("PostgreSQL")
         val query = """
             insert into veileder_joyride(
                 nav_ident, fullfort, type
             ) values (:nav_ident, :fullfort, :type::joyride_type)
+            on conflict (nav_ident, type) do update
+                set fullfort = excluded.fullfort
         """.trimIndent()
 
         queryOf(query, data.toSqlParameters()).asExecute.let { db.run(it) }

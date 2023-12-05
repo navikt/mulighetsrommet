@@ -3096,6 +3096,5 @@ components:
       type: string
       enum:
         - OVERSIKT
-        - OVERSIKTEN_LAST_STEP
         - DETALJER
         - HAR_VIST_OPPRETT_AVTALE

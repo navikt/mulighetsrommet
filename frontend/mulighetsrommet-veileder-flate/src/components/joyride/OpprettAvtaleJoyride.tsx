@@ -2,13 +2,19 @@ import { JoyrideType } from "mulighetsrommet-api-client";
 import Joyride, { ACTIONS, CallBackProps, EVENTS, STATUS } from "react-joyride";
 import { logEvent } from "../../core/api/logger";
 import { useJoyride } from "../../core/api/queries/useJoyride";
-import { JoyrideKnapp } from "./JoyrideKnapp";
-import { oversiktenSteps, useSteps } from "./Steps";
+import { opprettAvtaleSteps, useSteps } from "./Steps";
 import { locale, styling } from "./config";
 
-export function OversiktenJoyride() {
-  const { isReady, setIsReady, harFullfort, setHarFullfort } = useJoyride(JoyrideType.OVERSIKT);
-  const { steps, stepIndex, setStepIndex } = useSteps(isReady, oversiktenSteps);
+interface Props {
+  opprettAvtale: boolean;
+}
+
+export function OpprettAvtaleJoyride({ opprettAvtale }: Props) {
+  const { harFullfort: harFullfortDetaljer } = useJoyride(JoyrideType.DETALJER);
+  const { isReady, harFullfort, setHarFullfort } = useJoyride(JoyrideType.HAR_VIST_OPPRETT_AVTALE);
+  const { steps, stepIndex, setStepIndex } = useSteps(isReady, opprettAvtaleSteps);
+
+  if (!harFullfortDetaljer && opprettAvtale) return null;
 
   if (harFullfort) return null;
 
@@ -29,9 +35,9 @@ export function OversiktenJoyride() {
 
     //resetter joyride når den er ferdig eller man klikker skip
     else if (([STATUS.FINISHED, STATUS.SKIPPED] as string[]).includes(status)) {
-      logEvent("mulighetsrommet.joyride", { value: "oversikten", status });
-      setStepIndex(0);
+      logEvent("mulighetsrommet.joyride", { value: "opprettAvtale", status });
       setHarFullfort(true);
+      setStepIndex(0);
     }
 
     //lukker joyride ved klikk på escape
@@ -42,28 +48,19 @@ export function OversiktenJoyride() {
   };
 
   return (
-    <>
-      <JoyrideKnapp
-        handleClick={() => {
-          setIsReady(true);
-          setStepIndex(0);
-          logEvent("mulighetsrommet.joyride", { value: "oversikten" });
-        }}
-      />
-      <Joyride
-        locale={locale}
-        continuous
-        run={isReady}
-        steps={steps}
-        hideCloseButton
-        callback={handleJoyrideCallback}
-        showSkipButton
-        stepIndex={stepIndex}
-        disableScrolling
-        styles={styling}
-        disableCloseOnEsc={false}
-        disableOverlayClose={true}
-      />
-    </>
+    <Joyride
+      locale={locale}
+      continuous
+      run={isReady}
+      steps={steps}
+      hideCloseButton
+      callback={handleJoyrideCallback}
+      showSkipButton
+      stepIndex={stepIndex}
+      disableScrolling
+      styles={styling}
+      disableCloseOnEsc={false}
+      disableOverlayClose={true}
+    />
   );
 }

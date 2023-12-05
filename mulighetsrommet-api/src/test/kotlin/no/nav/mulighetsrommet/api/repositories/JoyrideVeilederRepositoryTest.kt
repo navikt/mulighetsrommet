@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.repositories
 
-import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -32,26 +31,8 @@ class JoyrideVeilederRepositoryTest : FunSpec({
                 fullfort = true,
                 type = JoyrideType.DETALJER,
             )
-            veilederJoyrideRepository.save(joyrideKjortForOversikten).shouldBeRight()
-            veilederJoyrideRepository.save(joyrideKjortForDetaljside).shouldBeRight()
-        }
-
-        test("Lagre kjørt-status for Joyride fra veileder krasjer hvis primærnøkkelen brytes") {
-            val veilederJoyrideRepository = VeilederJoyrideRepository(database.db)
-
-            val detaljer1 = VeilederJoyrideDto(
-                navIdent = "S123456",
-                fullfort = true,
-                type = JoyrideType.DETALJER,
-            )
-
-            val detaljer2 = VeilederJoyrideDto(
-                navIdent = "S123456",
-                fullfort = true,
-                type = JoyrideType.DETALJER,
-            )
-            veilederJoyrideRepository.save(detaljer1).shouldBeRight()
-            veilederJoyrideRepository.save(detaljer2).shouldBeLeft()
+            veilederJoyrideRepository.upsert(joyrideKjortForOversikten).shouldBeRight()
+            veilederJoyrideRepository.upsert(joyrideKjortForDetaljside).shouldBeRight()
         }
     }
 
@@ -64,7 +45,7 @@ class JoyrideVeilederRepositoryTest : FunSpec({
             type = JoyrideType.OVERSIKT,
         )
 
-        veilederJoyrideRepository.save(joyrideKjortForOversikten).shouldBeRight()
+        veilederJoyrideRepository.upsert(joyrideKjortForOversikten).shouldBeRight()
 
         val result = veilederJoyrideRepository.harFullfortJoyride(
             navIdent = navident,
@@ -82,7 +63,7 @@ class JoyrideVeilederRepositoryTest : FunSpec({
             type = JoyrideType.OVERSIKT,
         )
 
-        veilederJoyrideRepository.save(joyrideKjortForOversikten).shouldBeRight()
+        veilederJoyrideRepository.upsert(joyrideKjortForOversikten).shouldBeRight()
 
         val result = veilederJoyrideRepository.harFullfortJoyride(
             navIdent = navident,
