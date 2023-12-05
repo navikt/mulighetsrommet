@@ -118,7 +118,7 @@ data class GetRelevanteTiltaksgjennomforingerForBrukerRequest(
     val innsatsgruppe: String? = null,
     val tiltakstypeIds: List<String>? = null,
     val search: String? = null,
-    val apentForInnsok: ApentForInnsok = ApentForInnsok.APENT_ELLER_STENGT,
+    val apentForInnsok: ApentForInnsok,
 )
 
 enum class ApentForInnsok {
