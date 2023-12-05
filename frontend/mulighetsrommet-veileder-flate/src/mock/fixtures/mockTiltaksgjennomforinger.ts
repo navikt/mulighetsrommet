@@ -1,5 +1,4 @@
 import {
-  Tilgjengelighetsstatus,
   TiltaksgjennomforingOppstartstype,
   VeilederflateTiltaksgjennomforing,
 } from "mulighetsrommet-api-client";
@@ -13,6 +12,7 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
     stedForGjennomforing: "1424 SKI",
     tiltakstype: mockTiltakstyper.avklaring,
     sluttdato: "2025-07-09",
+    apentForInnsok: true,
     kontaktinfoTiltaksansvarlige: [
       {
         navn: "Sindre",
@@ -44,6 +44,7 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
     oppstartsdato: new Date().toDateString(),
     stedForGjennomforing: "Oslo",
     tiltakstype: mockTiltakstyper.mentor,
+    apentForInnsok: false,
     kontaktinfoTiltaksansvarlige: [
       {
         navn: "Sindre",
@@ -58,7 +59,7 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
     sanityId: "00097090-1ba8-47a4-a82f-6aaad488994e",
     navn: "Kurs i overlevelsesteknikk (Gruppe AMO)",
     stedForGjennomforing: "2050 JESSHEIM",
-    tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
+    apentForInnsok: true,
     tiltakstype: mockTiltakstyper.gruppe_amo,
     oppstart: TiltaksgjennomforingOppstartstype.LOPENDE,
     oppstartsdato: "2023-11-01",
@@ -134,7 +135,7 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
     sanityId: "3b597090-1ba8-47a4-a82f-6aaad488994e",
     navn: "VTA hos Fretex",
     stedForGjennomforing: "2050",
-    tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
+    apentForInnsok: true,
     tiltakstype: mockTiltakstyper.VTA,
     oppstart: TiltaksgjennomforingOppstartstype.LOPENDE,
     oppstartsdato: "2023-11-01",
@@ -209,7 +210,7 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
     sanityId: "ff887090-1ba8-47a4-a82f-6aaad488994e",
     navn: "Jobbklubb (med Lars Monsen)",
     stedForGjennomforing: "Kautokeino",
-    tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
+    apentForInnsok: true,
     tiltakstype: mockTiltakstyper.jobbklubb,
     oppstart: TiltaksgjennomforingOppstartstype.LOPENDE,
     oppstartsdato: "2022-11-01",
@@ -250,7 +251,7 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
     sanityId: "bdfa7090-1ba8-47a4-a82f-6aaad488994e",
     navn: "AFT",
     stedForGjennomforing: "Sinsen",
-    tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
+    apentForInnsok: true,
     tiltakstype: mockTiltakstyper.AFT,
     oppstart: TiltaksgjennomforingOppstartstype.LOPENDE,
     oppstartsdato: "2022-11-01",
@@ -277,7 +278,7 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
     sanityId: "f1887090-1ba8-47a4-a82f-6aaad488994e",
     navn: "Oppæring Fag og Yrke",
     stedForGjennomforing: "Oslo",
-    tilgjengelighet: Tilgjengelighetsstatus.LEDIG,
+    apentForInnsok: true,
     tiltakstype: mockTiltakstyper.OpplaringEnkeltplassFagOgYrke,
     oppstart: TiltaksgjennomforingOppstartstype.LOPENDE,
     oppstartsdato: "2022-11-01",

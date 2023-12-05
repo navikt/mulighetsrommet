@@ -7,7 +7,6 @@ import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
-import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingTilgjengelighetsstatus
 import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
 import java.time.LocalDate
 import java.util.*
@@ -23,7 +22,7 @@ object TiltaksgjennomforingFixtures {
         sluttDato = LocalDate.of(2023, 2, 1),
         arenaAnsvarligEnhet = "2990",
         avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
-        tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.LEDIG,
+        apentForInnsok = true,
         antallPlasser = null,
         oppstart = TiltaksgjennomforingOppstartstype.FELLES,
         opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
@@ -39,7 +38,7 @@ object TiltaksgjennomforingFixtures {
         startDato = LocalDate.of(2023, 1, 1),
         sluttDato = LocalDate.of(2023, 2, 1),
         avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
-        tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.LEDIG,
+        apentForInnsok = true,
         antallPlasser = 12,
         administratorer = listOf(),
         navRegion = "2990",
@@ -75,7 +74,7 @@ object TiltaksgjennomforingFixtures {
         stengtTil = Oppfolging1.stengtTil,
         stedForGjennomforing = Oppfolging1.stedForGjennomforing,
         avtaleId = Oppfolging1.avtaleId,
-        apenForInnsok = true,
+        apentForInnsok = true,
         opphav = Oppfolging1.opphav,
         faneinnhold = Oppfolging1.faneinnhold,
         beskrivelse = Oppfolging1.beskrivelse,
@@ -100,7 +99,7 @@ object TiltaksgjennomforingFixtures {
         sluttDato = Oppfolging1.sluttDato,
         arenaAnsvarligEnhet = null,
         status = Tiltaksgjennomforingsstatus.GJENNOMFORES,
-        tilgjengelighet = Oppfolging1.tilgjengelighet,
+        apentForInnsok = Oppfolging1.apentForInnsok,
         antallPlasser = Oppfolging1.antallPlasser,
         avtaleId = Oppfolging1.avtaleId,
         administratorer = emptyList(),
@@ -130,7 +129,7 @@ object TiltaksgjennomforingFixtures {
         startDato = LocalDate.of(2023, 1, 1),
         sluttDato = LocalDate.of(2023, 2, 1),
         avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
-        tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.LEDIG,
+        apentForInnsok = true,
         antallPlasser = 12,
         administratorer = emptyList(),
         navRegion = "2990",
@@ -156,7 +155,7 @@ object TiltaksgjennomforingFixtures {
         startDato = LocalDate.of(2023, 1, 1),
         sluttDato = LocalDate.of(2023, 2, 1),
         avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
-        tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.LEDIG,
+        apentForInnsok = true,
         antallPlasser = 12,
         administratorer = emptyList(),
         navRegion = "2990",

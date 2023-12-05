@@ -429,7 +429,6 @@ class AvtaleRepository(private val db: Database) {
             avtaletype = Avtaletype.valueOf(string("avtaletype")),
             avtalestatus = Avtalestatus.resolveFromDatesAndAvslutningsstatus(
                 LocalDate.now(),
-                startDato,
                 sluttDato,
                 Avslutningsstatus.valueOf(string("avslutningsstatus")),
             ),

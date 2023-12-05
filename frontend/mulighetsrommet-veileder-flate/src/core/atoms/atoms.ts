@@ -1,5 +1,5 @@
 import { atomWithHash } from "jotai-location";
-import { Innsatsgruppe, NavEnhet } from "mulighetsrommet-api-client";
+import { ApentForInnsok, Innsatsgruppe, NavEnhet } from "mulighetsrommet-api-client";
 import { atomWithStorage } from "jotai/utils";
 import { atom } from "jotai";
 
@@ -14,6 +14,7 @@ export interface Tiltaksgjennomforingsfilter {
   search: string;
   innsatsgruppe?: Tiltaksgjennomforingsfiltergruppe<Innsatsgruppe>;
   tiltakstyper: Tiltaksgjennomforingsfiltergruppe<string>[];
+  apentForInnsok: ApentForInnsok;
 }
 
 export interface Tiltaksgjennomforingsfiltergruppe<T> {
@@ -26,6 +27,7 @@ export const tiltaksgjennomforingsfilter = atomWithStorage<Tiltaksgjennomforings
   search: "",
   innsatsgruppe: undefined,
   tiltakstyper: [],
+  apentForInnsok: ApentForInnsok.APENT_ELLER_STENGT,
 });
 
 export const paginationAtom = atomWithHash("page", 1, { setHash: "replaceState" });

@@ -16,8 +16,7 @@ import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
-import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingTilgjengelighetsstatus
-import no.nav.mulighetsrommet.domain.dto.*
+import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
 import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus.*
 import org.intellij.lang.annotations.Language
 import org.postgresql.util.PSQLException
@@ -45,7 +44,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 start_dato,
                 slutt_dato,
                 avslutningsstatus,
-                tilgjengelighet,
+                apent_for_innsok,
                 antall_plasser,
                 avtale_id,
                 oppstart,
@@ -67,7 +66,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 :start_dato,
                 :slutt_dato,
                 :avslutningsstatus::avslutningsstatus,
-                :tilgjengelighet::tilgjengelighetsstatus,
+                :apent_for_innsok,
                 :antall_plasser,
                 :avtale_id,
                 :oppstart::tiltaksgjennomforing_oppstartstype,
@@ -88,7 +87,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                               start_dato                   = excluded.start_dato,
                               slutt_dato                   = excluded.slutt_dato,
                               avslutningsstatus            = excluded.avslutningsstatus,
-                              tilgjengelighet              = excluded.tilgjengelighet,
+                              apent_for_innsok             = excluded.apent_for_innsok,
                               antall_plasser               = excluded.antall_plasser,
                               avtale_id                    = excluded.avtale_id,
                               oppstart                     = excluded.oppstart,
@@ -218,7 +217,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 start_dato,
                 slutt_dato,
                 avslutningsstatus,
-                tilgjengelighet,
+                apent_for_innsok,
                 antall_plasser,
                 avtale_id,
                 oppstart,
@@ -234,7 +233,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 :start_dato,
                 :slutt_dato,
                 :avslutningsstatus::avslutningsstatus,
-                :tilgjengelighet::tilgjengelighetsstatus,
+                :apent_for_innsok,
                 :antall_plasser,
                 :avtale_id,
                 :oppstart::tiltaksgjennomforing_oppstartstype,
@@ -249,7 +248,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                               start_dato                   = excluded.start_dato,
                               slutt_dato                   = excluded.slutt_dato,
                               avslutningsstatus            = excluded.avslutningsstatus,
-                              tilgjengelighet              = excluded.tilgjengelighet,
+                              apent_for_innsok             = excluded.apent_for_innsok,
                               antall_plasser               = excluded.antall_plasser,
                               avtale_id                    = excluded.avtale_id,
                               oppstart                     = coalesce(tiltaksgjennomforing.oppstart, excluded.oppstart),
@@ -444,12 +443,14 @@ class TiltaksgjennomforingRepository(private val db: Database) {
 
     fun getAllVeilederflateTiltaksgjennomforing(
         search: String? = null,
+        apentForInnsok: Boolean? = null,
         sanityTiltakstypeIds: List<UUID>? = null,
         innsatsgrupper: List<Innsatsgruppe> = emptyList(),
         brukersEnheter: List<String>,
     ): List<VeilederflateTiltaksgjennomforing> {
         val parameters = mapOf(
             "search" to search?.let { "%${it.replace("/", "#").trim()}%" },
+            "apent_for_innsok" to apentForInnsok,
             "sanityTiltakstypeIds" to sanityTiltakstypeIds?.let { db.createUuidArray(it) },
             "innsatsgrupper" to db.createTextArray(innsatsgrupper.map { it.name }),
             "brukersEnheter" to db.createTextArray(brukersEnheter),
@@ -459,6 +460,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             search to "((lower(tg.navn) like lower(:search)) or (tg.tiltaksnummer like :search))",
             sanityTiltakstypeIds to "t.sanity_id = any(:sanityTiltakstypeIds)",
             innsatsgrupper to "t.innsatsgruppe = any(:innsatsgrupper::innsatsgruppe[])",
+            apentForInnsok to "tg.apent_for_innsok = :apent_for_innsok",
         )
 
         @Language("PostgreSQL")
@@ -470,7 +472,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                    t.navn as tiltakstype_navn,
                    tg.navn,
                    tg.sted_for_gjennomforing,
-                   tg.tilgjengelighet,
+                   tg.apent_for_innsok,
                    tg.tiltaksnummer,
                    tg.oppstart,
                    tg.start_dato,
@@ -501,8 +503,9 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                      left join nav_ansatt na on na.nav_ident = tgk.kontaktperson_nav_ident
                      left join virksomhet_kontaktperson vk on vk.id = tg.arrangor_kontaktperson_id
             $where
-            and tg.tilgjengelig_for_veileder
             and t.skal_migreres
+            and tg.tilgjengelig_for_veileder
+            and tg.avslutningsstatus = 'IKKE_AVSLUTTET'
             group by tg.id, t.id, v.navn, vk.id
             having array_agg(tg_e.enhetsnummer) && :brukersEnheter
         """.trimIndent()
@@ -598,7 +601,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         "start_dato" to startDato,
         "slutt_dato" to sluttDato,
         "avslutningsstatus" to avslutningsstatus.name,
-        "tilgjengelighet" to tilgjengelighet.name,
+        "apent_for_innsok" to apentForInnsok,
         "antall_plasser" to antallPlasser,
         "avtale_id" to avtaleId,
         "oppstart" to oppstart.name,
@@ -621,7 +624,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         "arena_ansvarlig_enhet" to arenaAnsvarligEnhet,
         "slutt_dato" to sluttDato,
         "avslutningsstatus" to avslutningsstatus.name,
-        "tilgjengelighet" to tilgjengelighet.name,
+        "apent_for_innsok" to apentForInnsok,
         "antall_plasser" to antallPlasser,
         "avtale_id" to avtaleId,
         "oppstart" to oppstart.name,
@@ -643,7 +646,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             ),
             navn = string("navn"),
             stedForGjennomforing = stringOrNull("sted_for_gjennomforing"),
-            tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.valueOf(string("tilgjengelighet")),
+            apentForInnsok = boolean("apent_for_innsok"),
             tiltaksnummer = stringOrNull("tiltaksnummer"),
             oppstart = TiltaksgjennomforingOppstartstype.valueOf(string("oppstart")),
             oppstartsdato = localDate("start_dato"),
@@ -717,7 +720,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 sluttDato,
                 Avslutningsstatus.valueOf(string("avslutningsstatus")),
             ),
-            tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.valueOf(string("tilgjengelighet")),
+            apentForInnsok = boolean("apent_for_innsok"),
             antallPlasser = intOrNull("antall_plasser"),
             avtaleId = uuidOrNull("avtale_id"),
             administratorer = administratorer,

@@ -11,7 +11,7 @@ import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
 import { useHentBetabrukere } from "../../api/ansatt/useHentBetabrukere";
 import { useHentKontaktpersoner } from "../../api/ansatt/useHentKontaktpersoner";
 import { useVirksomhet } from "../../api/virksomhet/useVirksomhet";
-import { addYear, tilgjengelighetsstatusTilTekst } from "../../utils/Utils";
+import { addYear } from "../../utils/Utils";
 import { Separator } from "../detaljside/Metadata";
 import { AdministratorOptions } from "../skjema/AdministratorOptions";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
@@ -131,7 +131,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
             <Checkbox
               size="small"
               readOnly={erArenaOpphav(tiltaksgjennomforing)}
-              {...register("apenForInnsok")}
+              {...register("apentForInnsok")}
             >
               Åpen for innsøk
             </Checkbox>
@@ -169,15 +169,6 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
               {...register("antallPlasser", {
                 valueAsNumber: true,
               })}
-            />
-          </FormGroup>
-          <Separator />
-          <FormGroup>
-            <TextField
-              readOnly
-              size="small"
-              label="Tilgjengelighetsstatus"
-              value={tilgjengelighetsstatusTilTekst(tiltaksgjennomforing?.tilgjengelighet)}
             />
           </FormGroup>
           <Separator />
