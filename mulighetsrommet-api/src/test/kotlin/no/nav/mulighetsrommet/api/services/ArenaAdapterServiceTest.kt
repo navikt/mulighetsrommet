@@ -69,7 +69,7 @@ class ArenaAdapterServiceTest : FunSpec({
         sluttDato = LocalDate.now().plusYears(1),
         arenaAnsvarligEnhet = null,
         avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
-        tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.LEDIG,
+        apentForInnsok = true,
         antallPlasser = null,
         oppstart = TiltaksgjennomforingOppstartstype.FELLES,
         opphav = ArenaMigrering.Opphav.ARENA,

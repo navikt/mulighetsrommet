@@ -9,7 +9,7 @@ import { erPreview, formaterDato } from "../../utils/Utils";
 import Lenke from "../lenke/Lenke";
 import styles from "./Gjennomforingsrad.module.scss";
 import { BodyShort } from "@navikt/ds-react";
-import { ChevronRightIcon } from "@navikt/aksel-icons";
+import { ChevronRightIcon, PadlockLockedFillIcon } from "@navikt/aksel-icons";
 
 interface Props {
   tiltaksgjennomforing: VeilederflateTiltaksgjennomforing;
@@ -27,7 +27,7 @@ const visOppstartsdato = (oppstart: TiltaksgjennomforingOppstartstype, oppstarts
 
 export function Gjennomforingsrad({ tiltaksgjennomforing, index }: Props) {
   const [page] = useAtom(paginationAtom);
-  const { id, sanityId, navn, arrangor, tiltakstype, oppstart, oppstartsdato } =
+  const { id, sanityId, navn, arrangor, tiltakstype, oppstart, oppstartsdato, apentForInnsok } =
     tiltaksgjennomforing;
 
   return (
@@ -41,6 +41,13 @@ export function Gjennomforingsrad({ tiltaksgjennomforing, index }: Props) {
         data-testid="lenke_tiltaksgjennomforing"
       >
         <div className={styles.gjennomforing_container}>
+          {!apentForInnsok && (
+            <PadlockLockedFillIcon
+              className={styles.status}
+              title="Tiltaket er stengt for innsøking"
+            />
+          )}
+
           <div className={classNames(styles.flex, styles.navn)}>
             <BodyShort
               size="small"
@@ -53,11 +60,11 @@ export function Gjennomforingsrad({ tiltaksgjennomforing, index }: Props) {
               {arrangor?.selskapsnavn}
             </BodyShort>
           </div>
+
           <div className={classNames(styles.infogrid, styles.metadata)}>
             <BodyShort size="small" title={tiltakstype.navn}>
               {tiltakstype.navn}
             </BodyShort>
-
             <BodyShort
               size="small"
               title={visOppstartsdato(oppstart, oppstartsdato)}
@@ -66,7 +73,8 @@ export function Gjennomforingsrad({ tiltaksgjennomforing, index }: Props) {
               {visOppstartsdato(oppstart, oppstartsdato)}
             </BodyShort>
           </div>
-          <ChevronRightIcon className={styles.ikon} />
+
+          <ChevronRightIcon className={styles.ikon} title="Detaljer om tiltaket" />
         </div>
       </Lenke>
     </li>

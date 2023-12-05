@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.services
 
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.every
@@ -14,9 +15,9 @@ import no.nav.mulighetsrommet.api.domain.dto.SanityResponse
 import no.nav.mulighetsrommet.api.domain.dto.VeilederflateArrangor
 import no.nav.mulighetsrommet.api.domain.dto.VeilederflateTiltaksgjennomforing
 import no.nav.mulighetsrommet.api.domain.dto.VeilederflateTiltakstype
+import no.nav.mulighetsrommet.api.routes.v1.ApentForInnsok
 import no.nav.mulighetsrommet.api.routes.v1.GetRelevanteTiltaksgjennomforingerForBrukerRequest
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
-import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingTilgjengelighetsstatus
 import no.nav.mulighetsrommet.domain.dto.Faneinnhold
 import java.time.LocalDate
 import java.util.*
@@ -36,6 +37,9 @@ class VeilederflateServiceTest : FunSpec({
         overordnetEnhet = null,
     )
 
+    val sanityGjennomforingInnlandet = UUID.fromString("8d8a73bc-b661-4efd-90fc-2c59b258200e")
+    val sanityGjennomforingStorElvdal = UUID.fromString("f21d1e35-d63b-4de7-a0a5-589e57111527")
+
     val sanityResult = SanityResponse.Result(
         ms = 12,
         query = "",
@@ -44,7 +48,7 @@ class VeilederflateServiceTest : FunSpec({
         [
             {
                 "_id": "8d8a5020-329d-4fbf-9eb2-20fc8a753a57",
-                "tiltaksgjennomforingNavn": "Arbeidsrettet norsk for minoritetsspr\u00e5klige i Trondheim",
+                "tiltaksgjennomforingNavn": "Arbeidsrettet norsk for minoritetsspråklige i Trondheim",
                 "enheter": [],
                 "oppstart": null,
                 "oppstartsdato": null,
@@ -52,13 +56,13 @@ class VeilederflateServiceTest : FunSpec({
                 "tiltaksnummer": "2023#176408",
                 "tiltakstype": {
                     "_id": "${UUID.randomUUID()}",
-                    "tiltakstypeNavn": "Oppl\u00e6ring - Gruppe AMO"
+                    "tiltakstypeNavn": "Opplæring - Gruppe AMO"
                 },
                 "fylke": null
             },
             {
-                "_id": "8d8a73bc-b661-4efd-90fc-2c59b258200e",
-                "tiltaksgjennomforingNavn": "Oppf\u00f8lging Malvik",
+                "_id": "$sanityGjennomforingInnlandet",
+                "tiltaksgjennomforingNavn": "Oppfølging Malvik",
                 "tiltaksnummer": "2023#199282",
                 "stedForGjennomforing": "Oslo",
                 "tiltakstype": {
@@ -71,8 +75,8 @@ class VeilederflateServiceTest : FunSpec({
                 "enheter": []
             },
             {
-                "_id": "f21d1e35-d63b-4de7-a0a5-589e57111527",
-                "tiltaksgjennomforingNavn": "Oppf\u00f8lging for d\u00f8ve og personer med h\u00f8rselshemming - Innlandet",
+                "_id": "$sanityGjennomforingStorElvdal",
+                "tiltaksgjennomforingNavn": "Oppfølging for døve og personer med hørselshemming - Innlandet",
                 "oppstart": "dato",
                 "stedForGjennomforing": null,
                 "oppstartsdato": "2020-11-02",
@@ -80,7 +84,7 @@ class VeilederflateServiceTest : FunSpec({
                 "fylke": "0400",
                 "tiltakstype": {
                     "_id": "${UUID.randomUUID()}",
-                    "tiltakstypeNavn": "Oppf\u00f8lging"
+                    "tiltakstypeNavn": "Oppfølging"
                 },
                 "enheter": ["0430"],
                 "faneinnhold": { "forHvemInfoboks": "infoboks" }
@@ -105,7 +109,7 @@ class VeilederflateServiceTest : FunSpec({
         ),
         oppstartsdato = LocalDate.now(),
         sluttdato = null,
-        tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.LEDIG,
+        apentForInnsok = true,
         enheter = emptyList(),
         fylke = "0400",
         oppstart = TiltaksgjennomforingOppstartstype.FELLES,
@@ -117,8 +121,9 @@ class VeilederflateServiceTest : FunSpec({
         kontaktinfoTiltaksansvarlige = emptyList(),
     )
 
+    val fnr = "01010199999"
+
     test("Samme enhet overskrevet fra admin flate skal fungere") {
-        val fnr = "01010199999"
         val veilederFlateService = VeilederflateService(
             sanityClient,
             tiltaksgjennomforingService,
@@ -127,6 +132,7 @@ class VeilederflateServiceTest : FunSpec({
         )
         every {
             tiltaksgjennomforingService.getAllVeilederflateTiltaksgjennomforing(
+                any(),
                 any(),
                 any(),
                 any(),
@@ -146,38 +152,7 @@ class VeilederflateServiceTest : FunSpec({
         gjennomforinger.find { it.sanityId == "f21d1e35-d63b-4de7-a0a5-589e57111527" }!!.enheter!!.size shouldBe 1
     }
 
-    test("Stengte filtreres vekk") {
-        val fnr = "01010199999"
-        val veilederFlateService = VeilederflateService(
-            sanityClient,
-            tiltaksgjennomforingService,
-            tiltakstypeService,
-            navEnhetService,
-        )
-
-        every {
-            tiltaksgjennomforingService.getAllVeilederflateTiltaksgjennomforing(
-                any(),
-                any(),
-                any(),
-                any(),
-            )
-        } returns listOf(
-            dbGjennomforing.copy(tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.STENGT),
-        )
-        coEvery { virksomhetService.getOrSyncVirksomhet(any()) } returns null
-        coEvery { sanityClient.query(any()) } returns sanityResult
-
-        val gjennomforinger = veilederFlateService.hentTiltaksgjennomforingerForBrukerBasertPaEnhetOgFylke(
-            GetRelevanteTiltaksgjennomforingerForBrukerRequest(norskIdent = fnr),
-            listOf("0430"),
-        )
-        gjennomforinger.size shouldBe 1
-        gjennomforinger.find { it.sanityId == "f21d1e35-d63b-4de7-a0a5-589e57111527" } shouldBe null
-    }
-
     test("Bruker db faneinnhold hvis det finnes") {
-        val fnr = "01010199999"
         val veilederFlateService = VeilederflateService(
             sanityClient,
             tiltaksgjennomforingService,
@@ -186,6 +161,7 @@ class VeilederflateServiceTest : FunSpec({
         )
         every {
             tiltaksgjennomforingService.getAllVeilederflateTiltaksgjennomforing(
+                any(),
                 any(),
                 any(),
                 any(),
@@ -207,7 +183,6 @@ class VeilederflateServiceTest : FunSpec({
     }
 
     test("Returnerer korrekt gjennomføringer for brukers enheter") {
-        val fnr = "01010199999"
         val veilederFlateService = VeilederflateService(
             sanityClient,
             tiltaksgjennomforingService,
@@ -220,16 +195,57 @@ class VeilederflateServiceTest : FunSpec({
                 any(),
                 any(),
                 any(),
+                any(),
             )
         } returns listOf(
             dbGjennomforing.copy(enheter = listOf("0455")),
         )
         coEvery { virksomhetService.getOrSyncVirksomhet(any()) } returns null
         coEvery { sanityClient.query(any()) } returns sanityResult
-        val gjennomforinger = veilederFlateService.hentTiltaksgjennomforingerForBrukerBasertPaEnhetOgFylke(
+
+        veilederFlateService.hentTiltaksgjennomforingerForBrukerBasertPaEnhetOgFylke(
             GetRelevanteTiltaksgjennomforingerForBrukerRequest(norskIdent = fnr),
             listOf("0430", "0455"),
+        ) shouldHaveSize 2
+    }
+
+    test("henter ikke gjennomføringer fra Sanity når filter for 'Åpent for innsøk' er STENGT") {
+        val veilederFlateService = VeilederflateService(
+            sanityClient,
+            tiltaksgjennomforingService,
+            tiltakstypeService,
+            navEnhetService,
         )
-        gjennomforinger.size shouldBe 2
+        every {
+            tiltaksgjennomforingService.getAllVeilederflateTiltaksgjennomforing(
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+            )
+        } returns listOf()
+        coEvery { sanityClient.query(any()) } returns sanityResult
+
+        veilederFlateService.hentTiltaksgjennomforingerForBrukerBasertPaEnhetOgFylke(
+            GetRelevanteTiltaksgjennomforingerForBrukerRequest(norskIdent = fnr, apentForInnsok = ApentForInnsok.APENT),
+            listOf("0430"),
+        ) shouldHaveSize 2
+
+        veilederFlateService.hentTiltaksgjennomforingerForBrukerBasertPaEnhetOgFylke(
+            GetRelevanteTiltaksgjennomforingerForBrukerRequest(
+                norskIdent = fnr,
+                apentForInnsok = ApentForInnsok.APENT_ELLER_STENGT,
+            ),
+            listOf("0430"),
+        ) shouldHaveSize 2
+
+        veilederFlateService.hentTiltaksgjennomforingerForBrukerBasertPaEnhetOgFylke(
+            GetRelevanteTiltaksgjennomforingerForBrukerRequest(
+                norskIdent = fnr,
+                apentForInnsok = ApentForInnsok.STENGT,
+            ),
+            listOf("0430"),
+        ) shouldHaveSize 0
     }
 })

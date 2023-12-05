@@ -5,7 +5,7 @@ info:
   title: Mulighetsrommet API
 
 security:
-  - bearerAuth: [ ]
+  - bearerAuth: []
 
 paths:
   /api/v1/internal/bruker:
@@ -853,7 +853,6 @@ paths:
               schema:
                 $ref: "#/components/schemas/VeilederflateTiltaksgjennomforing"
 
-
   /api/v1/internal/sanity/tiltaksgjennomforing/preview/detaljer:
     post:
       tags:
@@ -1537,8 +1536,17 @@ components:
             format: uuid
         search:
           type: string
+        apentForInnsok:
+          $ref: "#/components/schemas/ApentForInnsok"
       required:
         - norskIdent
+
+    ApentForInnsok:
+      type: string
+      enum:
+        - APENT
+        - STENGT
+        - APENT_ELLER_STENGT
 
     GetRelevanteTiltaksgjennomforingerPreviewRequest:
       type: object
@@ -1963,8 +1971,8 @@ components:
         stengtTil:
           type: string
           format: date
-        tilgjengelighet:
-          $ref: "#/components/schemas/Tilgjengelighetsstatus"
+        apentForInnsok:
+          type: boolean
         kontaktpersoner:
           type: array
           items:
@@ -1997,7 +2005,7 @@ components:
         - navEnheter
         - opphav
         - midlertidigStengt
-        - tilgjengelighet
+        - apentForInnsok
         - tilgjengeligForVeileder
         - visesForVeileder
         - updatedAt
@@ -2054,7 +2062,7 @@ components:
           type: string
           format: date
           nullable: true
-        apenForInnsok:
+        apentForInnsok:
           type: boolean
         kontaktpersoner:
           type: array
@@ -2090,7 +2098,7 @@ components:
         - oppstart
         - stengtFra
         - stengtTil
-        - apenForInnsok
+        - apentForInnsok
         - kontaktpersoner
         - stedForGjennomforing
         - opphav
@@ -2105,13 +2113,6 @@ components:
         - AVBRUTT
         - AVLYST
         - AVSLUTTET
-
-    Tilgjengelighetsstatus:
-      type: string
-      enum:
-        - LEDIG
-        - STENGT
-        - VENTELISTE
 
     TiltaksgjennomforingOppstartstype:
       type: string
@@ -2602,8 +2603,8 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/SanityKontakinfoTiltaksansvarlige"
-        tilgjengelighet:
-          $ref: "#/components/schemas/Tilgjengelighetsstatus"
+        apentForInnsok:
+          type: boolean
         stengtFra:
           type: string
         stengtTil:
@@ -2611,6 +2612,7 @@ components:
       required:
         - navn
         - tiltakstype
+        - apentForInnsok
         - oppstart
         - kontaktinfoTiltaksansvarlige
 
@@ -3101,6 +3103,5 @@ components:
       type: string
       enum:
         - OVERSIKT
-        - OVERSIKTEN_LAST_STEP
         - DETALJER
         - HAR_VIST_OPPRETT_AVTALE

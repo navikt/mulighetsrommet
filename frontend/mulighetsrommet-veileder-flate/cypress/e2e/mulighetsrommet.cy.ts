@@ -16,7 +16,6 @@ describe("Tiltaksoversikt", () => {
   beforeEach(() => {
     cy.clearLocalStorage();
     cy.visit("/arbeidsmarkedstiltak/oversikt");
-    cy.skruAvJoyride();
   });
 
   it("Sjekk at det er tiltaksgjennomføringer i oversikten", () => {
@@ -116,7 +115,6 @@ describe("Tiltaksgjennomføringsdetaljer", () => {
   beforeEach(() => {
     cy.clearLocalStorage();
     cy.visit("/arbeidsmarkedstiltak/oversikt");
-    cy.skruAvJoyride();
     cy.getByTestId("lenke_tiltaksgjennomforing").first().click();
   });
 

@@ -3,7 +3,6 @@ import { useAtom } from "jotai";
 import {
   PaginertTiltaksgjennomforing,
   SorteringTiltaksgjennomforinger,
-  Tilgjengelighetsstatus,
 } from "mulighetsrommet-api-client";
 import Lenke from "mulighetsrommet-veileder-flate/src/components/lenke/Lenke";
 import React from "react";
@@ -27,7 +26,7 @@ interface ColumnHeader {
 const headers: ColumnHeader[] = [
   {
     sortKey: "navn",
-    tittel: "Tittel",
+    tittel: "Tiltaksnavn",
     sortable: true,
     width: "3fr",
   },
@@ -280,8 +279,7 @@ export const TiltaksgjennomforingsTabell = ({
                     </SkjulKolonne>
                     <Table.DataCell>
                       <VStack align={"center"}>
-                        {tiltaksgjennomforing.visesForVeileder &&
-                        tiltaksgjennomforing.tilgjengelighet !== Tilgjengelighetsstatus.STENGT ? (
+                        {tiltaksgjennomforing.visesForVeileder ? (
                           <Tag
                             aria-label="Tiltaket er tilgjengelig for veileder"
                             title="Tiltaket er tilgjengelig for veileder"

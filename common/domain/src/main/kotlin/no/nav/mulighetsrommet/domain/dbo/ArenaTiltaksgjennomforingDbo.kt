@@ -24,8 +24,7 @@ data class ArenaTiltaksgjennomforingDbo(
     val sluttDato: LocalDate?,
     val arenaAnsvarligEnhet: String?,
     val avslutningsstatus: Avslutningsstatus,
-    // TODO Vurdere om denne kan fjernes
-    val tilgjengelighet: TiltaksgjennomforingTilgjengelighetsstatus,
+    val apentForInnsok: Boolean,
     val antallPlasser: Int?,
     @Serializable(with = UUIDSerializer::class)
     val avtaleId: UUID?,

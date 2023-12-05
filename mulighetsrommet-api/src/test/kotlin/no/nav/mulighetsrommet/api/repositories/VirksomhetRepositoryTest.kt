@@ -16,7 +16,6 @@ import no.nav.mulighetsrommet.database.utils.getOrThrow
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
-import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingTilgjengelighetsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import java.time.LocalDate
@@ -253,7 +252,7 @@ class VirksomhetRepositoryTest : FunSpec({
                 arrangorOrganisasjonsnummer = "112254604",
                 startDato = LocalDate.now(),
                 avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
-                tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.LEDIG,
+                apentForInnsok = true,
                 antallPlasser = 12,
                 administratorer = emptyList(),
                 navRegion = "0100",

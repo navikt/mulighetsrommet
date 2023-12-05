@@ -60,7 +60,7 @@ export const TiltakstypeTabell = () => {
         <Table.Header>
           <Table.Row className={styles.tiltakstype_tabellrad}>
             <Table.ColumnHeader sortKey="navn" sortable>
-              Tittel
+              Navn
             </Table.ColumnHeader>
             <Table.ColumnHeader sortKey="startdato" sortable>
               Startdato
