@@ -501,14 +501,14 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             )
 
             tiltaksgjennomforinger.getAll(
-                arrangorOrgnr = "111111111",
+                arrangorOrgnr = listOf("111111111"),
             ).should {
                 it.second.size shouldBe 1
                 it.second[0].id shouldBe Oppfolging1.id
             }
 
             tiltaksgjennomforinger.getAll(
-                arrangorOrgnr = "999999999",
+                arrangorOrgnr = listOf("999999999"),
             ).should {
                 it.second.size shouldBe 1
                 it.second[0].id shouldBe Oppfolging2.id
@@ -697,7 +697,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 
             val result = tiltaksgjennomforingRepository.getAll(
                 dagensDato = dagensDato,
-                status = Tiltaksgjennomforingsstatus.AVBRUTT,
+                statuser = listOf(Tiltaksgjennomforingsstatus.AVBRUTT),
             )
 
             result.second shouldHaveSize 1
@@ -709,7 +709,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 
             val result = tiltaksgjennomforingRepository.getAll(
                 dagensDato = dagensDato,
-                status = Tiltaksgjennomforingsstatus.AVSLUTTET,
+                statuser = listOf(Tiltaksgjennomforingsstatus.AVSLUTTET),
             )
 
             result.second shouldHaveSize 2
@@ -721,7 +721,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
 
             val result = tiltaksgjennomforingRepository.getAll(
-                status = Tiltaksgjennomforingsstatus.GJENNOMFORES,
+                statuser = listOf(Tiltaksgjennomforingsstatus.GJENNOMFORES),
                 dagensDato = dagensDato,
             )
 
@@ -733,7 +733,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
 
             val result = tiltaksgjennomforingRepository.getAll(
-                status = Tiltaksgjennomforingsstatus.AVLYST,
+                statuser = listOf(Tiltaksgjennomforingsstatus.AVLYST),
                 dagensDato = dagensDato,
             )
 
@@ -745,7 +745,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
 
             val result = tiltaksgjennomforingRepository.getAll(
-                status = Tiltaksgjennomforingsstatus.PLANLAGT,
+                statuser = listOf(Tiltaksgjennomforingsstatus.PLANLAGT),
                 dagensDato = dagensDato,
             )
 
@@ -793,7 +793,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             val tg4 = Oppfolging1.copy(id = UUID.randomUUID(), navEnheter = listOf("1", "2"))
             tiltaksgjennomforinger.upsert(tg4)
 
-            tiltaksgjennomforinger.getAll(navEnhet = "1").should {
+            tiltaksgjennomforinger.getAll(navEnheter = listOf("1")).should {
                 it.first shouldBe 3
                 it.second.map { tg -> tg.id } shouldContainAll listOf(tg1.id, tg2.id, tg4.id)
             }
@@ -846,7 +846,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 .asUpdate
                 .let { database.db.run(it) }
 
-            tiltaksgjennomforinger.getAll(navRegion = "0100")
+            tiltaksgjennomforinger.getAll(navRegioner = listOf("0100"))
                 .should {
                     it.second.map { tg -> tg.id } shouldContainExactlyInAnyOrder listOf(tg3.id, tg4.id)
                 }

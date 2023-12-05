@@ -24,7 +24,7 @@ fun Route.externalRoutes() {
     route("/api/v1/tiltaksgjennomforinger") {
         get {
             val orgnr = call.request.queryParameters.getOrFail("orgnr")
-            val filter = AdminTiltaksgjennomforingFilter(arrangorOrgnr = orgnr)
+            val filter = AdminTiltaksgjennomforingFilter(arrangorOrgnr = listOf(orgnr))
             val paginationParams = getPaginationParams()
 
             val result = tiltaksgjennomforingService.getAll(paginationParams, filter)

@@ -133,13 +133,8 @@ class TiltakstypeRepository(private val db: Database) {
 
         val where = DatabaseUtils.andWhereParameterNotNull(
             tiltakstypeFilter.search to "(lower(navn) like lower(:search))",
-            tiltakstypeFilter.status to tiltakstypeFilter.status?.toDbStatement(),
-            tiltakstypeFilter.kategori to tiltakstypeFilter.kategori?.let {
-                when (it) {
-                    Tiltakstypekategori.GRUPPE -> "tiltakskode = any(:gruppetiltakskoder)"
-                    Tiltakstypekategori.INDIVIDUELL -> "not(tiltakskode = any(:gruppetiltakskoder))"
-                }
-            },
+            tiltakstypeFilter.statuser.ifEmpty { null } to statuserWhereStatement(tiltakstypeFilter.statuser),
+            tiltakstypeFilter.kategorier.ifEmpty { null } to kategorierWhereStatement(tiltakstypeFilter.kategorier),
             true to "skal_migreres = true",
         )
 
@@ -267,11 +262,22 @@ class TiltakstypeRepository(private val db: Database) {
         )
     }
 
-    private fun Tiltakstypestatus.toDbStatement(): String {
-        return when (this) {
-            Tiltakstypestatus.Planlagt -> "(:today < fra_dato)"
-            Tiltakstypestatus.Aktiv -> "(:today >= fra_dato and :today <= til_dato)"
-            else -> "(:today > til_dato)"
-        }
-    }
+    private fun statuserWhereStatement(statuser: List<Tiltakstypestatus>): String =
+        statuser
+            .joinToString(prefix = "(", postfix = ")", separator = " or ") {
+                when (it) {
+                    Tiltakstypestatus.Planlagt -> "(:today < fra_dato)"
+                    Tiltakstypestatus.Aktiv -> "(:today >= fra_dato and :today <= til_dato)"
+                    else -> "(:today > til_dato)"
+                }
+            }
+
+    private fun kategorierWhereStatement(kategorier: List<Tiltakstypekategori>): String =
+        kategorier
+            .joinToString(prefix = "(", postfix = ")", separator = " or ") {
+                when (it) {
+                    Tiltakstypekategori.GRUPPE -> "(tiltakskode = any(:gruppetiltakskoder))"
+                    Tiltakstypekategori.INDIVIDUELL -> "(not(tiltakskode = any(:gruppetiltakskoder)))"
+                }
+            }
 }

@@ -261,7 +261,7 @@ class AvtaleRepositoryTest : FunSpec({
                 avtaler.upsert(avtale2)
                 val result = avtaler.getAll(
                     dagensDato = LocalDate.of(2023, 2, 1),
-                    tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
+                    tiltakstypeIder = listOf(TiltakstypeFixtures.Oppfolging.id),
                     search = "Kroko",
                 )
 
@@ -327,12 +327,13 @@ class AvtaleRepositoryTest : FunSpec({
                 avtaler.setAvslutningsstatus(avtalePlanlagt.id, Avslutningsstatus.IKKE_AVSLUTTET)
 
                 forAll(
-                    row(Avtalestatus.Avbrutt, listOf(avtaleAvbrutt.id)),
-                    row(Avtalestatus.Avsluttet, listOf(avtaleAvsluttetStatus.id, avtaleAvsluttetDato.id)),
-                ) { status, expected ->
+                    row(listOf(Avtalestatus.Avbrutt), listOf(avtaleAvbrutt.id)),
+                    row(listOf(Avtalestatus.Avsluttet), listOf(avtaleAvsluttetStatus.id, avtaleAvsluttetDato.id)),
+                    row(listOf(Avtalestatus.Avbrutt, Avtalestatus.Avsluttet), listOf(avtaleAvbrutt.id, avtaleAvsluttetStatus.id, avtaleAvsluttetDato.id)),
+                ) { statuser, expected ->
                     val result = avtaler.getAll(
                         dagensDato = LocalDate.of(2023, 2, 1),
-                        status = status,
+                        statuser = statuser,
                     )
                     result.second.map { it.id } shouldContainExactlyInAnyOrder expected
                 }
@@ -375,8 +376,8 @@ class AvtaleRepositoryTest : FunSpec({
 
                 val result = avtaler.getAll(
                     dagensDato = LocalDate.of(2023, 2, 1),
-                    tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
-                    navRegion = "1801",
+                    tiltakstypeIder = listOf(TiltakstypeFixtures.Oppfolging.id),
+                    navRegioner = listOf("1801"),
                 )
                 result.second shouldHaveSize 1
                 result.second[0].kontorstruktur[0].region shouldBe EmbeddedNavEnhet(
@@ -385,6 +386,55 @@ class AvtaleRepositoryTest : FunSpec({
                     type = Norg2Type.FYLKE,
                     overordnetEnhet = null,
                 )
+            }
+
+            test("Filtrere på to regioner returnerer avtaler for gitte regioner") {
+                val navEnhetRepository = NavEnhetRepository(database.db)
+                navEnhetRepository.upsert(
+                    NavEnhetDbo(
+                        navn = "Oppland",
+                        enhetsnummer = "1900",
+                        status = NavEnhetStatus.AKTIV,
+                        type = Norg2Type.FYLKE,
+                        overordnetEnhet = null,
+                    ),
+                )
+                navEnhetRepository.upsert(
+                    NavEnhetDbo(
+                        navn = "Vestland",
+                        enhetsnummer = "1801",
+                        status = NavEnhetStatus.AKTIV,
+                        type = Norg2Type.FYLKE,
+                        overordnetEnhet = null,
+                    ),
+                )
+
+                val avtale1 = AvtaleFixtures.avtale1.copy(
+                    id = UUID.randomUUID(),
+                    navEnheter = listOf("1801"),
+                )
+                val avtale2 = avtale1.copy(
+                    id = UUID.randomUUID(),
+                    navEnheter = listOf("1900"),
+                )
+
+                val avtale3 = avtale1.copy(
+                    id = UUID.randomUUID(),
+                    navEnheter = emptyList(),
+                )
+
+                avtaler.upsert(avtale1)
+                avtaler.upsert(avtale2)
+                avtaler.upsert(avtale3)
+
+                val result = avtaler.getAll(
+                    dagensDato = LocalDate.of(2023, 2, 1),
+                    tiltakstypeIder = listOf(TiltakstypeFixtures.Oppfolging.id),
+                    navRegioner = listOf("1801", "1900"),
+                )
+                result.second shouldHaveSize 2
+                result.second.map { it.kontorstruktur[0].region.enhetsnummer } shouldContainExactlyInAnyOrder
+                    listOf("1801", "1900")
             }
 
             test("Avtale navenhet blir med riktig tilbake") {
@@ -470,7 +520,7 @@ class AvtaleRepositoryTest : FunSpec({
             avtaler.upsert(avtale3)
             val result = avtaler.getAll(
                 dagensDato = LocalDate.of(2023, 2, 1),
-                tiltakstypeId = tiltakstypeId,
+                tiltakstypeIder = listOf(tiltakstypeId),
             )
 
             result.second shouldHaveSize 2
@@ -608,8 +658,8 @@ class AvtaleRepositoryTest : FunSpec({
             }
 
             val result = avtaler.getAll(
-                tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
-                navRegion = "0300",
+                tiltakstypeIder = listOf(TiltakstypeFixtures.Oppfolging.id),
+                navRegioner = listOf("0300"),
             )
 
             result.second shouldHaveSize 2
