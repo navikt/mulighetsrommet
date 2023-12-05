@@ -10,10 +10,10 @@ import {
   VeilederflateTiltaksgjennomforing,
 } from "mulighetsrommet-api-client";
 import { useState } from "react";
+import { Outlet } from "react-router-dom";
 import { BrukerHarIkke14aVedtakVarsel } from "../../components/ikkeKvalifisertVarsel/BrukerHarIkke14aVedtakVarsel";
 import { BrukerKvalifisererIkkeVarsel } from "../../components/ikkeKvalifisertVarsel/BrukerKvalifisererIkkeVarsel";
 import { DetaljerJoyride } from "../../components/joyride/DetaljerJoyride";
-import { DetaljerOpprettAvtaleJoyride } from "../../components/joyride/DetaljerOpprettAvtaleJoyride";
 import Delemodal, { logDelMedbrukerEvent } from "../../components/modal/delemodal/Delemodal";
 import SidemenyDetaljer from "../../components/sidemeny/SidemenyDetaljer";
 import TiltaksdetaljerFane from "../../components/tabs/TiltaksdetaljerFane";
@@ -26,6 +26,7 @@ import TiltaksgjennomforingsHeader from "../../layouts/TiltaksgjennomforingsHead
 import { byttTilDialogFlate } from "../../utils/DialogFlateUtils";
 import { erPreview, formaterDato } from "../../utils/Utils";
 import styles from "./ViewTiltaksgjennomforingDetaljer.module.scss";
+import { OpprettAvtaleJoyride } from "../../components/joyride/OpprettAvtaleJoyride";
 
 const whiteListOpprettAvtaleKnapp: Tiltakskode[] = [
   Tiltakskode.MIDLONTIL,
@@ -127,9 +128,7 @@ const ViewTiltaksgjennomforingDetaljer = ({
           {!erPreview() && (
             <>
               <DetaljerJoyride opprettAvtale={opprettAvtale} />
-              {opprettAvtale ? (
-                <DetaljerOpprettAvtaleJoyride opprettAvtale={opprettAvtale} />
-              ) : null}
+              {opprettAvtale ? <OpprettAvtaleJoyride opprettAvtale={opprettAvtale} /> : null}
             </>
           )}
         </div>
@@ -215,6 +214,9 @@ const ViewTiltaksgjennomforingDetaljer = ({
             brukerdata={brukerdata}
             harDeltMedBruker={harDeltMedBruker}
           />
+        </div>
+        <div className={styles.oppskriftContainer}>
+          <Outlet />
         </div>
       </div>
     </>

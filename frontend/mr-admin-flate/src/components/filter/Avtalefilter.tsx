@@ -115,6 +115,7 @@ export function Avtalefilter(props: Props) {
               hideLabel
               size="small"
               variant="simple"
+              placeholder="Navn eller avtalenr."
               onChange={(sok: string) => {
                 setFilter({
                   ...filter,
@@ -145,10 +146,6 @@ export function Avtalefilter(props: Props) {
                 {
                   value: "Aktiv",
                   label: "Aktiv",
-                },
-                {
-                  value: "Planlagt",
-                  label: "Planlagt",
                 },
                 {
                   value: "Avsluttet",

@@ -58,27 +58,57 @@ export const arrangorUnderenheterOptions = (avtale: Avtale, virksomhet: Virksomh
   return options;
 };
 
+function defaultNavRegion(
+  avtale: Avtale,
+  tiltaksgjennomforing?: Tiltaksgjennomforing,
+): string | undefined {
+  if (tiltaksgjennomforing?.navRegion) {
+    return tiltaksgjennomforing.navRegion.enhetsnummer;
+  }
+  if (avtale.kontorstruktur.length === 1) {
+    return avtale.kontorstruktur[0].region.enhetsnummer;
+  }
+}
+
+function defaultNavEnheter(avtale: Avtale, tiltaksgjennomforing?: Tiltaksgjennomforing): string[] {
+  if (tiltaksgjennomforing?.navEnheter) {
+    return tiltaksgjennomforing.navEnheter.map((enhet) => enhet.enhetsnummer);
+  }
+  if (avtale.kontorstruktur.length === 1) {
+    return avtale.kontorstruktur[0].kontorer.map((enhet) => enhet.enhetsnummer);
+  }
+  return [];
+}
+
+function defaultArrangor(
+  avtale: Avtale,
+  tiltaksgjennomforing?: Tiltaksgjennomforing,
+): string | undefined {
+  if (tiltaksgjennomforing?.arrangor.organisasjonsnummer) {
+    return tiltaksgjennomforing?.arrangor.organisasjonsnummer;
+  }
+  if (avtale.leverandorUnderenheter.length === 1) {
+    return avtale.leverandorUnderenheter[0].organisasjonsnummer;
+  }
+}
+
 export function utkastDataEllerDefault(
   avtale: Avtale,
   utkast?: TiltaksgjennomforingUtkastData,
   tiltaksgjennomforing?: Tiltaksgjennomforing,
 ): DeepPartial<InferredTiltaksgjennomforingSchema> {
   return {
-    navn: tiltaksgjennomforing?.navn,
+    navn: tiltaksgjennomforing?.navn || avtale.navn,
     avtaleId: avtale.id,
-    navRegion: tiltaksgjennomforing?.navRegion?.enhetsnummer,
-    navEnheter: (tiltaksgjennomforing?.navEnheter?.map((enhet) => enhet.enhetsnummer) || []) as [
-      string,
-      ...string[],
-    ],
+    navRegion: defaultNavRegion(avtale, tiltaksgjennomforing),
+    navEnheter: defaultNavEnheter(avtale, tiltaksgjennomforing),
     administratorer: tiltaksgjennomforing?.administratorer?.map((admin) => admin.navIdent),
     antallPlasser: tiltaksgjennomforing?.antallPlasser,
     startOgSluttDato: {
       startDato: tiltaksgjennomforing?.startDato,
       sluttDato: tiltaksgjennomforing?.sluttDato,
     },
-    tiltaksArrangorUnderenhetOrganisasjonsnummer:
-      tiltaksgjennomforing?.arrangor?.organisasjonsnummer || "",
+    tiltaksArrangorUnderenhetOrganisasjonsnummer: defaultArrangor(avtale, tiltaksgjennomforing),
     midlertidigStengt: {
       erMidlertidigStengt: Boolean(tiltaksgjennomforing?.stengtFra),
       stengtFra: tiltaksgjennomforing?.stengtFra

@@ -1,10 +1,10 @@
 import { Alert, Skeleton } from "@navikt/ds-react";
 import { Oppskrift, Toggles } from "mulighetsrommet-api-client";
-import { Link, Outlet } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useFeatureToggle } from "../../core/api/feature-toggles";
-import styles from "./Oppskriftsoversikt.module.scss";
-import { formaterDato } from "../../utils/Utils";
 import { useOppskrifter } from "../../core/api/queries/useOppskrifter";
+import { formaterDato } from "../../utils/Utils";
+import styles from "./Oppskriftsoversikt.module.scss";
 
 interface Props {
   tiltakstypeId: string;
@@ -42,8 +42,6 @@ export function Oppskriftsoversikt({ tiltakstypeId }: Props) {
           );
         })}
       </ul>
-      <hr />
-      <Outlet />
     </>
   );
 }

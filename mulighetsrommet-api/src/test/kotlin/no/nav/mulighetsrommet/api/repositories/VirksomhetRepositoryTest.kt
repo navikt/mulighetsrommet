@@ -10,10 +10,8 @@ import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.*
 import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
 import no.nav.mulighetsrommet.api.domain.dto.VirksomhetKontaktperson
-import no.nav.mulighetsrommet.api.utils.VirksomhetFilter
 import no.nav.mulighetsrommet.api.utils.VirksomhetTil
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.database.utils.getOrThrow
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
@@ -27,10 +25,6 @@ import java.util.*
 
 class VirksomhetRepositoryTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
-
-    beforeEach {
-        database.db.truncateAll()
-    }
 
     context("crud") {
         test("Upsert virksomhet med underenheter") {
@@ -295,22 +289,22 @@ class VirksomhetRepositoryTest : FunSpec({
             virksomhetRepository.upsert(virksomhet1).shouldBeRight()
             virksomhetRepository.upsert(virksomhet2).shouldBeRight()
 
-            virksomhetRepository.getAll(VirksomhetFilter(til = VirksomhetTil.AVTALE)).shouldBeRight().should {
+            virksomhetRepository.getAll(til = VirksomhetTil.AVTALE).shouldBeRight().should {
                 it.size shouldBe 1
                 it[0] shouldBe virksomhet1
             }
-            virksomhetRepository.getAll(VirksomhetFilter(til = VirksomhetTil.TILTAKSGJENNOMFORING)).shouldBeRight()
+            virksomhetRepository.getAll(til = VirksomhetTil.TILTAKSGJENNOMFORING).shouldBeRight()
                 .should {
                     it.size shouldBe 1
                     it[0] shouldBe virksomhet2
                 }
-            virksomhetRepository.getAll(VirksomhetFilter(til = null)).shouldBeRight().should {
+            virksomhetRepository.getAll().shouldBeRight().should {
                 it shouldContainExactlyInAnyOrder listOf(virksomhet1, virksomhet2)
             }
         }
     }
 
-    context("vikrsomhet_kontaktperson") {
+    context("virksomhet_kontaktperson") {
         test("crud") {
             val virksomhetRepository = VirksomhetRepository(database.db)
             val virksomhet = VirksomhetDto(

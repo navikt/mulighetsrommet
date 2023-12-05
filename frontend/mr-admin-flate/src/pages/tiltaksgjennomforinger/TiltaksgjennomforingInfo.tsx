@@ -54,7 +54,9 @@ export function TiltaksgjennomforingInfo() {
               label="Redaksjonelt innhold"
             />
           </div>
-          {visKnapperad(tiltaksgjennomforing.status) && <TiltaksgjennomforingKnapperad />}
+          {visKnapperad(tiltaksgjennomforing.status) && (
+            <TiltaksgjennomforingKnapperad tiltaksgjennomforing={tiltaksgjennomforing} />
+          )}
         </Tabs.List>
         <Tabs.Panel value="detaljer">
           <TiltaksgjennomforingDetaljer

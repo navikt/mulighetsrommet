@@ -12,8 +12,6 @@ export function AvtalestatusTag({ avtale }: Props) {
     switch (status) {
       case Avtalestatus.AKTIV:
         return "success";
-      case Avtalestatus.PLANLAGT:
-        return "alt1";
       case Avtalestatus.AVSLUTTET:
         return "neutral";
       case Avtalestatus.AVBRUTT:

@@ -26,7 +26,9 @@ const RoutesConfig = () => {
       <Route path={routes.oversikt} element={<ViewTiltaksgjennomforingOversikt />} />
       <Route
         path="*"
-        element={<Navigate to={enableLandingsside ? routes.base : routes.oversikt} />}
+        element={
+          <Navigate replace to={enableLandingsside ? `/${routes.base}` : `/${routes.oversikt}`} />
+        }
       />
     </Routes>
   );

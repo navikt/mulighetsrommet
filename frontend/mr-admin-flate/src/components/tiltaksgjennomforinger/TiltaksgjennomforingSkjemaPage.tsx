@@ -2,7 +2,7 @@ import { Alert } from "@navikt/ds-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAvtale } from "../../api/avtaler/useAvtale";
-import { useTiltaksgjennomforing } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforing";
+import { useTiltaksgjennomforingById } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforingById";
 import { useUtkast } from "../../api/utkast/useUtkast";
 import { ContainerLayout } from "../../layouts/ContainerLayout";
 import { avtaleHarRegioner, inneholderUrl } from "../../utils/Utils";
@@ -25,7 +25,7 @@ const TiltaksgjennomforingSkjemaPage = () => {
   const [searchParams] = useSearchParams();
   const queryClient = useQueryClient();
   const { data: tiltaksgjennomforing, isLoading: tiltaksgjennomforingLoading } =
-    useTiltaksgjennomforing();
+    useTiltaksgjennomforingById();
   const { data: utkast, isLoading: utkastLoading } = useUtkast(
     TiltaksgjennomforingSchema,
     searchParams.get("utkastId") || undefined,

@@ -8,7 +8,6 @@ import arrow.core.right
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
-import no.nav.mulighetsrommet.api.domain.dto.AvtaleAdminDto
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
@@ -16,7 +15,6 @@ import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
 import no.nav.mulighetsrommet.api.services.NavEnhetService
 import no.nav.mulighetsrommet.domain.Tiltakskoder.isTiltakMedAvtalerFraMulighetsrommet
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
-import no.nav.mulighetsrommet.domain.dto.Avtalestatus
 import no.nav.mulighetsrommet.env.NaisEnv
 
 class AvtaleValidator(
@@ -54,13 +52,29 @@ class AvtaleValidator(
                     add(ValidationError.of(AvtaleDbo::opphav, "Avtalens opphav kan ikke endres"))
                 }
 
-                val (numGjennomforinger, gjennomforinger) = tiltaksgjennomforinger.getAll(avtaleId = dbo.id)
+                /**
+                 * Når avtalen har blitt godkjent så skal alle datafelter som påvirker økonomien, påmelding, osv. være låst.
+                 *
+                 * Vi mangler fortsatt en del innsikt og løsning rundt tilsagn og refusjon (f.eks. når blir avtalen godkjent?),
+                 * så reglene for når en avtale er låst er foreløpig ganske naive og baserer seg kun på om det finnes
+                 * gjennomføringer på avtalen eller ikke...
+                 */
+                    val (numGjennomforinger, gjennomforinger) = tiltaksgjennomforinger.getAll(avtaleId = dbo.id)
                 if (numGjennomforinger > 0) {
                     if (dbo.tiltakstypeId != avtale.tiltakstype.id) {
                         add(
                             ValidationError.of(
                                 AvtaleDbo::tiltakstypeId,
-                                "Kan ikke endre tiltakstype fordi det finnes gjennomføringer for avtalen",
+                                "Tiltakstype kan ikke endres fordi det finnes gjennomføringer for avtalen",
+                            ),
+                        )
+                    }
+
+                    if (dbo.avtaletype != avtale.avtaletype) {
+                        add(
+                            ValidationError.of(
+                                AvtaleDbo::avtaletype,
+                                "Avtaletype kan ikke endres fordi det finnes gjennomføringer for avtalen",
                             ),
                         )
                     }
@@ -98,7 +112,8 @@ class AvtaleValidator(
                     if (dbo.tiltakstypeId != avtale.tiltakstype.id) {
                         add(
                             ValidationError.of(
-                                AvtaleDbo::tiltakstypeId, "Tiltakstype kan ikke endres utenfor Arena",
+                                AvtaleDbo::tiltakstypeId,
+                                "Tiltakstype kan ikke endres utenfor Arena",
                             ),
                         )
                     }
@@ -106,7 +121,8 @@ class AvtaleValidator(
                     if (dbo.avtalenummer != avtale.avtalenummer) {
                         add(
                             ValidationError.of(
-                                AvtaleDbo::avtalenummer, "Avtalenummer kan ikke endres utenfor Arena",
+                                AvtaleDbo::avtalenummer,
+                                "Avtalenummer kan ikke endres utenfor Arena",
                             ),
                         )
                     }
@@ -135,27 +151,8 @@ class AvtaleValidator(
                     if (dbo.leverandorOrganisasjonsnummer != avtale.leverandor.organisasjonsnummer) {
                         add(
                             ValidationError.of(
-                                AvtaleDbo::leverandorOrganisasjonsnummer, "Leverandøren kan ikke endres utenfor Arena",
-                            ),
-                        )
-                    }
-                }
-
-                if (avtaleIsLocked(avtale)) {
-                    if (dbo.tiltakstypeId != avtale.tiltakstype.id) {
-                        add(
-                            ValidationError.of(
-                                AvtaleDbo::tiltakstypeId,
-                                "Tiltakstype kan ikke endres når avtalen er låst",
-                            ),
-                        )
-                    }
-
-                    if (dbo.avtaletype != avtale.avtaletype) {
-                        add(
-                            ValidationError.of(
-                                AvtaleDbo::avtaletype,
-                                "Avtaletype kan ikke endres når avtalen er låst",
+                                AvtaleDbo::leverandorOrganisasjonsnummer,
+                                "Leverandøren kan ikke endres utenfor Arena",
                             ),
                         )
                     }
@@ -204,17 +201,5 @@ class AvtaleValidator(
             .filter { it.type == Norg2Type.FYLKE }
             .flatMap { listOf(it) + navEnheter.filter { enhet -> enhet.overordnetEnhet == it.enhetsnummer } }
             .associateBy { it.enhetsnummer }
-    }
-
-    /**
-     * Når avtalen har blitt godkjent så skal alle datafelter som påvirker økonomien, påmelding, osv. være låst.
-     *
-     * Vi mangler fortsatt en del innsikt og løsning rundt tilsagn og refusjon (f.eks. når blir avtalen godkjent?),
-     * så reglene for når en avtale er låst er foreløpig ganske naive...
-     */
-    private fun avtaleIsLocked(avtale: AvtaleAdminDto): Boolean {
-        val avtaleHarVaertAktiv = avtale.avtalestatus != Avtalestatus.Planlagt
-        val avtaleErOpprettetUtenforArena = avtale.opphav != ArenaMigrering.Opphav.ARENA
-        return avtaleHarVaertAktiv && avtaleErOpprettetUtenforArena
     }
 }

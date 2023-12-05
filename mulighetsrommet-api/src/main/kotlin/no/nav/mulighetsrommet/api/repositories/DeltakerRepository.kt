@@ -9,7 +9,6 @@ import no.nav.mulighetsrommet.domain.dbo.Deltakeropphav
 import no.nav.mulighetsrommet.domain.dbo.Deltakerstatus
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
-import java.time.LocalDate
 import java.util.*
 
 class DeltakerRepository(private val db: Database) {
@@ -69,31 +68,6 @@ class DeltakerRepository(private val db: Database) {
         queryOf(query, id)
             .asExecute
             .let { db.run(it) }
-    }
-
-    fun countAntallDeltakereForTiltakstypeWithId(
-        tiltakstypeId: UUID,
-        currentDate: LocalDate = LocalDate.now(),
-    ): Int {
-        val parameters = mapOf(
-            "tiltakstypeId" to tiltakstypeId,
-            "currentDate" to currentDate,
-        )
-
-        val query = """
-            select count(*) as antall
-            from deltaker
-                     join tiltaksgjennomforing tg on deltaker.tiltaksgjennomforing_id = tg.id
-                     join tiltakstype tt on tg.tiltakstype_id = tt.id
-            where tt.id = :tiltakstypeId::uuid
-            and deltaker.start_dato < :currentDate::timestamp
-            and deltaker.slutt_dato > :currentDate::timestamp
-        """.trimIndent()
-
-        return queryOf(query, parameters)
-            .map { it.int("antall") }
-            .asSingle
-            .let { db.run(it)!! }
     }
 
     private fun DeltakerDbo.toSqlParameters() = mapOf(

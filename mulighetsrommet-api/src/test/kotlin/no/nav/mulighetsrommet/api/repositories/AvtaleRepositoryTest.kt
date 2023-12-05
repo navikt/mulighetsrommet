@@ -37,8 +37,11 @@ class AvtaleRepositoryTest : FunSpec({
     val domain = MulighetsrommetTestDomain()
 
     beforeEach {
-        database.db.truncateAll()
         domain.initialize(database.db)
+    }
+
+    afterEach {
+        database.db.truncateAll()
     }
 
     context("CRUD") {

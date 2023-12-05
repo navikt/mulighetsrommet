@@ -4,7 +4,6 @@ import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import java.time.LocalDate
 
 enum class Avtalestatus {
-    Planlagt,
     Aktiv,
     Avsluttet,
     Avbrutt,
@@ -19,7 +18,6 @@ enum class Avtalestatus {
         ): Avtalestatus = when {
             avslutningsstatus == Avslutningsstatus.AVBRUTT -> Avbrutt
             avslutningsstatus == Avslutningsstatus.AVSLUTTET -> Avsluttet
-            now < startDato -> Planlagt
             now <= sluttDato -> Aktiv
             else -> Avsluttet
         }

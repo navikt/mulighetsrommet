@@ -15,8 +15,12 @@ export const oppskriftContent = defineType({
       styles: [
         { title: "Normal", value: "normal" },
         { title: "Overskrift", value: "h3" },
+        { title: "Deloverskrift", value: "h4" },
       ],
-      lists: [{ title: "Bullet", value: "bullet" }],
+      lists: [
+        { title: "Bullet", value: "bullet" },
+        { title: "Number", value: "number" },
+      ],
       // Marks let you mark up inline text in the block editor.
       marks: {
         // Decorators usually describe a single property – e.g. a typographic

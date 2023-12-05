@@ -34,7 +34,7 @@ class AmtDeltakerV1TopicConsumerTest : FunSpec({
             tiltaksgjennomforinger.upsert(TiltaksgjennomforingFixtures.Oppfolging1)
         }
 
-        beforeEach {
+        afterEach {
             database.db.truncateAll()
         }
 

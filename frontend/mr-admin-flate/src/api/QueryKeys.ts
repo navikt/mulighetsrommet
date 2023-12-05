@@ -7,31 +7,30 @@ import {
 import { AvtaleFilterProps, TiltaksgjennomforingfilterProps, TiltakstypeFilter } from "./atoms";
 
 export const QueryKeys = {
-  tiltakstype: (id?: string) => [id, "tiltakstype"] as const,
+  tiltakstype: (id?: string) => ["tiltakstype", id] as const,
   tiltakstyper: (sokestreng: string, filter: TiltakstypeFilter, page?: number) =>
-    [sokestreng, { ...filter }, page, "tiltakstyper"] as const,
+    ["tiltakstyper", page, sokestreng, { ...filter }] as const,
   tiltaksgjennomforinger: (
-    tiltaksgjennomforingfilter: TiltaksgjennomforingfilterProps,
     page?: number,
-  ) => [{ ...tiltaksgjennomforingfilter }, page, "tiltaksgjennomforinger"] as const,
-  tiltaksgjennomforing: (id?: string) => [id, "tiltaksgjennomforing"] as const,
-  veilederflateTiltaksgjennomforing: (id: string) => [id, "tiltaksgjennomforing"] as const,
-  ansatt: () => ["ansatt"] as const,
+    tiltaksgjennomforingfilter?: TiltaksgjennomforingfilterProps,
+  ) => ["tiltaksgjennomforinger", page, { ...tiltaksgjennomforingfilter }] as const,
+  tiltaksgjennomforing: (id?: string) => ["tiltaksgjennomforing", id] as const,
   tiltaksgjennomforingerByEnhet: (enhet: string = "enhet", page?: number) =>
     [enhet, page, "tiltaksgjennomforinger"] as const,
+  veilederflateTiltaksgjennomforing: (id: string) => [id, "tiltaksgjennomforing"] as const,
+  ansatt: () => ["ansatt"] as const,
   avtaler: (avtaleFilter: AvtaleFilterProps, page: number) =>
-    [{ ...avtaleFilter }, page, "avtaler"] as const,
-  avtale: (avtaleId: string) => [avtaleId, "avtale"],
+    ["avtaler", page, { ...avtaleFilter }] as const,
+  avtale: (avtaleId: string) => ["avtale", avtaleId],
   enheter: () => ["enheter"],
-  virksomheter: (til?: VirksomhetTil) => [til, "virksomheter"],
+  virksomheter: (til?: VirksomhetTil) => ["virksomheter", til],
   antallUlesteNotifikasjoner: () => ["antallUlesteNotifikasjoner"],
   notifikasjonerForAnsatt: (status: NotificationStatus) => ["notifikasjoner", status] as const,
   virksomhetSok: (sokestreng: string) => ["virksomhetSok", sokestreng],
   virksomhetOppslag: (orgnr: string) => ["virksometOppslag", orgnr],
   tiltaksgjennomforingerTilAvtale: (filter: string) => ["tiltaksgjennomforinger", filter] as const,
-  kontaktpersoner: (rolle: NavAnsattRolle) => [rolle, "nav-kontaktpersoner"],
-  betabrukere: () => ["nav-betabrukere"],
-  virksomhetKontaktpersoner: (orgnr: string) => [orgnr, "virksomhet-kontaktpersoner"] as const,
+  kontaktpersoner: (rolle: NavAnsattRolle) => ["nav-kontaktpersoner", rolle],
+  virksomhetKontaktpersoner: (orgnr: string) => ["virksomhet-kontaktpersoner", orgnr] as const,
   alleUtkast: (avtaleId: string = "") => ["utkast", "alleUtkast", avtaleId] as const,
   mineUtkast: (avtaleId?: string, utkasttype?: Utkast.type) =>
     ["utkast", avtaleId, utkasttype] as const,
@@ -42,5 +41,5 @@ export const QueryKeys = {
     ["tiltaksgjennomforingsnotater", tiltaksgjennomforingsId] as const,
   mineTiltaksgjennomforingsnotater: (tiltaksgjennomforingsId: string) =>
     ["tiltaksgjennomforingsnotater", "mine", tiltaksgjennomforingsId] as const,
-  features: (feature: string) => [feature, "feature"],
+  features: (feature: string) => ["feature", feature],
 };

@@ -16,7 +16,6 @@ import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.repositories.*
 import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.*
 import java.time.LocalDate
@@ -51,8 +50,6 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
     lateinit var deltakere: DeltakerRepository
 
     beforeEach {
-        database.db.truncateAll()
-
         tiltakstyper = TiltakstypeRepository(database.db)
         tiltakstyper.upsert(TiltakstypeFixtures.AFT).shouldBeRight()
         tiltakstyper.upsert(TiltakstypeFixtures.Oppfolging).shouldBeRight()

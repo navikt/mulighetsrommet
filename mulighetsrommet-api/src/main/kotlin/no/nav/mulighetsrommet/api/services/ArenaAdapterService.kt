@@ -16,6 +16,7 @@ import no.nav.mulighetsrommet.domain.Tiltakskoder
 import no.nav.mulighetsrommet.domain.Tiltakskoder.isEgenRegiTiltak
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate
 import no.nav.mulighetsrommet.domain.dbo.*
+import no.nav.mulighetsrommet.domain.dto.Avtalestatus
 import no.nav.mulighetsrommet.kafka.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.kafka.producers.TiltakstypeKafkaProducer
 import no.nav.mulighetsrommet.notifications.NotificationMetadata
@@ -61,7 +62,7 @@ class ArenaAdapterService(
         avtaler.upsertArenaAvtale(avtale)
 
         val dbo = avtaler.get(avtale.id)!!
-        if (dbo.isAktiv() && dbo.administratorer.isEmpty()) {
+        if (dbo.avtalestatus == Avtalestatus.Aktiv && dbo.administratorer.isEmpty()) {
             maybeNotifyRelevantAdministrators(dbo)
         }
         return dbo

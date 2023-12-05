@@ -18,7 +18,7 @@ interface FeilmeldingProps {
 }
 
 export const forsokPaNyttLink = () => {
-  return <a href=".">forsøk på nytt</a>;
+  return <a href="/">forsøk på nytt</a>;
 };
 
 export const Feilmelding = ({

@@ -71,6 +71,7 @@ export function Tiltakstypefilter() {
               label="Søk etter tiltakstype"
               hideLabel
               variant="simple"
+              placeholder="Navn"
               onChange={(sok: string) =>
                 setFilter({
                   ...filter,

@@ -1,14 +1,15 @@
 import { Tabs } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { Toggles, VeilederflateTiltaksgjennomforing } from "mulighetsrommet-api-client";
+import { useNavigate } from "react-router-dom";
+import { useFeatureToggle } from "../../core/api/feature-toggles";
 import { logEvent } from "../../core/api/logger";
 import { faneAtom } from "../../core/atoms/atoms";
 import { kebabCase } from "../../utils/Utils";
+import { Oppskriftsoversikt } from "../oppskrift/Oppskriftsoversikt";
 import DetaljerFane from "./DetaljerFane";
 import styles from "./TiltaksdetaljerFane.module.scss";
 import KontaktinfoFane from "./kontaktinfofane/KontaktinfoFane";
-import { useFeatureToggle } from "../../core/api/feature-toggles";
-import { Oppskriftsoversikt } from "../oppskrift/Oppskriftsoversikt";
 
 interface Props {
   tiltaksgjennomforing: VeilederflateTiltaksgjennomforing;
@@ -16,6 +17,8 @@ interface Props {
 
 const TiltaksdetaljerFane = ({ tiltaksgjennomforing }: Props) => {
   const [fane, setFane] = useAtom(faneAtom);
+  const navigate = useNavigate();
+
   const { data: enableArenaOppskrifter } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_VEILEDERFLATE_ARENA_OPPSKRIFTER,
   );
@@ -36,6 +39,10 @@ const TiltaksdetaljerFane = ({ tiltaksgjennomforing }: Props) => {
     tab5: faneoverskrifter[4],
   };
 
+  function navigateAwayFromOppskrift() {
+    navigate("./");
+  }
+
   return (
     <Tabs
       defaultValue={fane}
@@ -45,6 +52,9 @@ const TiltaksdetaljerFane = ({ tiltaksgjennomforing }: Props) => {
       onChange={(value) => {
         logEvent("mulighetsrommet.faner", { value: tabValueTilFaneoverSkrifter[value] });
         setFane(value);
+        if (value !== "tab5") {
+          navigateAwayFromOppskrift();
+        }
       }}
     >
       <Tabs.List className={styles.fane_liste} id="fane_liste">

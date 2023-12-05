@@ -2,8 +2,10 @@ import { Alert, Button, Loader } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { RESET } from "jotai/utils";
 import { ApiError, Toggles } from "mulighetsrommet-api-client";
+import { useTitle } from "mulighetsrommet-frontend-common";
 import { PORTEN } from "mulighetsrommet-frontend-common/constants";
 import { useEffect, useState } from "react";
+import { BrukersOppfolgingsenhetVarsel } from "../../components/brukersEnheter/BrukersOppfolgingsenhetVarsel";
 import { Feilmelding, forsokPaNyttLink } from "../../components/feilmelding/Feilmelding";
 import Filtermeny from "../../components/filtrering/Filtermeny";
 import { Filtertags } from "../../components/filtrering/Filtertags";
@@ -11,7 +13,6 @@ import { HistorikkButton } from "../../components/historikk/HistorikkButton";
 import { BrukerHarIkke14aVedtakVarsel } from "../../components/ikkeKvalifisertVarsel/BrukerHarIkke14aVedtakVarsel";
 import { FiltrertFeilInnsatsgruppeVarsel } from "../../components/ikkeKvalifisertVarsel/FiltrertFeilInnsatsgruppeVarsel";
 import { OversiktenJoyride } from "../../components/joyride/OversiktenJoyride";
-import { OversiktenLastStepJoyride } from "../../components/joyride/OversiktenLastStepJoyride";
 import Lenke from "../../components/lenke/Lenke";
 import Tiltaksgjennomforingsoversikt from "../../components/oversikt/Tiltaksgjennomforingsoversikt";
 import Tilbakeknapp from "../../components/tilbakeknapp/Tilbakeknapp";
@@ -22,14 +23,11 @@ import { tiltaksgjennomforingsfilter } from "../../core/atoms/atoms";
 import { usePrepopulerFilter } from "../../hooks/usePrepopulerFilter";
 import { routes } from "../../routes";
 import styles from "./ViewTiltaksgjennomforingOversikt.module.scss";
-import { BrukersOppfolgingsenhetVarsel } from "../../components/brukersEnheter/BrukersOppfolgingsenhetVarsel";
-import { useTitle } from "mulighetsrommet-frontend-common";
 
 const ViewTiltaksgjennomforingOversikt = () => {
   useTitle("Arbeidsmarkedstiltak - Oversikt");
   const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);
   const [isHistorikkModalOpen, setIsHistorikkModalOpen] = useState(false);
-  const { isFetched } = useTiltaksgjennomforinger();
   const { data: brukerdata } = useHentBrukerdata();
   const landingssideFeature = useFeatureToggle(Toggles.MULIGHETSROMMET_VEILEDERFLATE_LANDINGSSIDE);
   const landingssideEnabled = landingssideFeature.isSuccess && landingssideFeature.data;
@@ -121,8 +119,7 @@ const ViewTiltaksgjennomforingOversikt = () => {
           <Filtertags filter={filter} setFilter={setFilter} />
           <div className={styles.knapperad}>
             <>
-              <OversiktenJoyride isTableFetched={isFetched} />
-              <OversiktenLastStepJoyride />
+              <OversiktenJoyride />
             </>
             <HistorikkButton
               setHistorikkModalOpen={setIsHistorikkModalOpen}
