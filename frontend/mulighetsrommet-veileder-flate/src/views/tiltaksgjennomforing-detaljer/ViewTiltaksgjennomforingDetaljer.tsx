@@ -8,9 +8,9 @@ import {
   NavVeileder,
   Tiltakskode,
   VeilederflateTiltaksgjennomforing,
+} from "mulighetsrommet-api-client";
 import { useReducer } from "react";
 import { Delemodal, sySammenTekster } from "../../components/modal/delemodal/Delemodal";
-import { useState } from "react";
 import { Outlet } from "react-router-dom";
 import { BrukerHarIkke14aVedtakVarsel } from "../../components/ikkeKvalifisertVarsel/BrukerHarIkke14aVedtakVarsel";
 import { BrukerKvalifisererIkkeVarsel } from "../../components/ikkeKvalifisertVarsel/BrukerKvalifisererIkkeVarsel";
@@ -26,14 +26,12 @@ import TiltaksgjennomforingsHeader from "../../layouts/TiltaksgjennomforingsHead
 import { byttTilDialogFlate } from "../../utils/DialogFlateUtils";
 import { erPreview, formaterDato } from "../../utils/Utils";
 import styles from "./ViewTiltaksgjennomforingDetaljer.module.scss";
-import { Outlet } from "react-router-dom";
 import {
   initInitialState,
   logDelMedbrukerEvent,
   reducer,
 } from "../../components/modal/delemodal/DelemodalReducer";
 import { OpprettAvtaleJoyride } from "../../components/joyride/OpprettAvtaleJoyride";
-
 
 const whiteListOpprettAvtaleKnapp: Tiltakskode[] = [
   Tiltakskode.MIDLONTIL,
