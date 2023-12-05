@@ -14,7 +14,7 @@ export function OpprettAvtaleJoyride({ opprettAvtale }: Props) {
   const { isReady, harFullfort, setHarFullfort } = useJoyride(JoyrideType.HAR_VIST_OPPRETT_AVTALE);
   const { steps, stepIndex, setStepIndex } = useSteps(isReady, opprettAvtaleSteps);
 
-  if (!harFullfortDetaljer && !opprettAvtale) return null;
+  if (!harFullfortDetaljer && opprettAvtale) return null;
 
   if (harFullfort) return null;
 

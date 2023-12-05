@@ -30,7 +30,7 @@ export function useJoyride(joyrideType: JoyrideType) {
   return {
     isReady,
     setIsReady,
-    harFullfort: isReady && query.data,
+    harFullfort: !!query.data,
     setHarFullfort(fullfort: boolean) {
       setIsReady(!fullfort);
       return mutation.mutate({ joyrideType, fullfort });
