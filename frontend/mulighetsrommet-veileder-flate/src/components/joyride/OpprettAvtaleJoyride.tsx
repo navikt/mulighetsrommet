@@ -1,29 +1,22 @@
 import { JoyrideType } from "mulighetsrommet-api-client";
-import { useEffect, useState } from "react";
 import Joyride, { ACTIONS, CallBackProps, EVENTS, STATUS } from "react-joyride";
 import { logEvent } from "../../core/api/logger";
-import { useLagreJoyrideForVeileder } from "../../core/api/queries/useLagreJoyrideForVeileder";
-import { useVeilederHarFullfortJoyride } from "../../core/api/queries/useVeilederHarFullfortJoyride";
+import { useJoyride } from "../../core/api/queries/useJoyride";
 import { opprettAvtaleSteps, useSteps } from "./Steps";
 import { locale, styling } from "./config";
 
-export function OpprettAvtaleJoyride() {
-  const veilederHarKjortJoyrideMutation = useLagreJoyrideForVeileder();
-  const { data = false, isLoading } = useVeilederHarFullfortJoyride(
-    JoyrideType.HAR_VIST_OPPRETT_AVTALE,
-  );
-  const [ready, setReady] = useState(!isLoading && !data);
+interface Props {
+  opprettAvtale: boolean;
+}
 
-  useEffect(() => {
-    setReady(!isLoading && !data);
-  }, [isLoading, data]);
+export function OpprettAvtaleJoyride({ opprettAvtale }: Props) {
+  const { harFullfort: harFullfortDetaljer } = useJoyride(JoyrideType.DETALJER);
+  const { isReady, harFullfort, setHarFullfort } = useJoyride(JoyrideType.HAR_VIST_OPPRETT_AVTALE);
+  const { steps, stepIndex, setStepIndex } = useSteps(isReady, opprettAvtaleSteps);
 
-  const { steps, stepIndex, setStepIndex } = useSteps(ready, opprettAvtaleSteps);
-  const harFullfortJoyride = () =>
-    veilederHarKjortJoyrideMutation.mutate({
-      joyrideType: JoyrideType.HAR_VIST_OPPRETT_AVTALE,
-      fullfort: true,
-    });
+  if (!harFullfortDetaljer && !opprettAvtale) return null;
+
+  if (harFullfort) return null;
 
   const handleJoyrideCallback = (data: CallBackProps) => {
     const { action, index, status, type } = data;
@@ -36,23 +29,20 @@ export function OpprettAvtaleJoyride() {
 
     //resetter joyride ved error
     if (STATUS.ERROR === status) {
-      veilederHarKjortJoyrideMutation.mutate({
-        fullfort: false,
-        joyrideType: JoyrideType.HAR_VIST_OPPRETT_AVTALE,
-      });
+      setHarFullfort(false);
       setStepIndex(0);
     }
 
     //resetter joyride når den er ferdig eller man klikker skip
     else if (([STATUS.FINISHED, STATUS.SKIPPED] as string[]).includes(status)) {
       logEvent("mulighetsrommet.joyride", { value: "opprettAvtale", status });
-      harFullfortJoyride();
+      setHarFullfort(true);
       setStepIndex(0);
     }
 
     //lukker joyride ved klikk på escape
     if (ACTIONS.CLOSE === action) {
-      harFullfortJoyride();
+      setHarFullfort(true);
       setStepIndex(0);
     }
   };
@@ -61,7 +51,7 @@ export function OpprettAvtaleJoyride() {
     <Joyride
       locale={locale}
       continuous
-      run={ready}
+      run={isReady}
       steps={steps}
       hideCloseButton
       callback={handleJoyrideCallback}

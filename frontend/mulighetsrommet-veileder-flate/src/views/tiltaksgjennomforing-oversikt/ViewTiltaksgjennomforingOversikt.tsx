@@ -28,7 +28,6 @@ const ViewTiltaksgjennomforingOversikt = () => {
   useTitle("Arbeidsmarkedstiltak - Oversikt");
   const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);
   const [isHistorikkModalOpen, setIsHistorikkModalOpen] = useState(false);
-  const { isFetched } = useTiltaksgjennomforinger();
   const { data: brukerdata } = useHentBrukerdata();
   const landingssideFeature = useFeatureToggle(Toggles.MULIGHETSROMMET_VEILEDERFLATE_LANDINGSSIDE);
   const landingssideEnabled = landingssideFeature.isSuccess && landingssideFeature.data;
@@ -120,7 +119,7 @@ const ViewTiltaksgjennomforingOversikt = () => {
           <Filtertags filter={filter} setFilter={setFilter} />
           <div className={styles.knapperad}>
             <>
-              <OversiktenJoyride isTableFetched={isFetched} />
+              <OversiktenJoyride />
             </>
             <HistorikkButton
               setHistorikkModalOpen={setIsHistorikkModalOpen}

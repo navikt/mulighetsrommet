@@ -1,30 +1,16 @@
 import { JoyrideType } from "mulighetsrommet-api-client";
-import { useEffect, useState } from "react";
 import Joyride, { ACTIONS, CallBackProps, EVENTS, STATUS } from "react-joyride";
 import { logEvent } from "../../core/api/logger";
-import { useLagreJoyrideForVeileder } from "../../core/api/queries/useLagreJoyrideForVeileder";
-import { useVeilederHarFullfortJoyride } from "../../core/api/queries/useVeilederHarFullfortJoyride";
+import { useJoyride } from "../../core/api/queries/useJoyride";
 import { JoyrideKnapp } from "./JoyrideKnapp";
 import { oversiktenSteps, useSteps } from "./Steps";
 import { locale, styling } from "./config";
 
-interface Props {
-  isTableFetched: boolean;
-}
+export function OversiktenJoyride() {
+  const { isReady, setIsReady, harFullfort, setHarFullfort } = useJoyride(JoyrideType.OVERSIKT);
+  const { steps, stepIndex, setStepIndex } = useSteps(isReady, oversiktenSteps);
 
-export function OversiktenJoyride({ isTableFetched }: Props) {
-  const veilederHarKjortJoyrideMutation = useLagreJoyrideForVeileder();
-  const { data = false, isLoading } = useVeilederHarFullfortJoyride(JoyrideType.OVERSIKT);
-  const [ready, setReady] = useState(!isLoading && !data && isTableFetched);
-
-  useEffect(() => {
-    setReady(!isLoading && !data && isTableFetched);
-  }, [isLoading, data, isTableFetched]);
-
-  const { steps, stepIndex, setStepIndex } = useSteps(ready, oversiktenSteps);
-
-  const harFullfortJoyride = () =>
-    veilederHarKjortJoyrideMutation.mutate({ joyrideType: JoyrideType.OVERSIKT, fullfort: true });
+  if (harFullfort) return null;
 
   const handleJoyrideCallback = (data: CallBackProps) => {
     const { action, index, status, type } = data;
@@ -37,26 +23,21 @@ export function OversiktenJoyride({ isTableFetched }: Props) {
 
     //resetter joyride ved error
     if (STATUS.ERROR === status) {
-      veilederHarKjortJoyrideMutation.mutate({
-        joyrideType: JoyrideType.OVERSIKT,
-        fullfort: false,
-      });
+      setHarFullfort(false);
       setStepIndex(0);
     }
 
     //resetter joyride når den er ferdig eller man klikker skip
     else if (([STATUS.FINISHED, STATUS.SKIPPED] as string[]).includes(status)) {
       logEvent("mulighetsrommet.joyride", { value: "oversikten", status });
-      harFullfortJoyride();
       setStepIndex(0);
-      setReady(false);
+      setHarFullfort(true);
     }
 
     //lukker joyride ved klikk på escape
     if (ACTIONS.CLOSE === action) {
-      harFullfortJoyride();
+      setHarFullfort(true);
       setStepIndex(0);
-      setReady(false);
     }
   };
 
@@ -64,7 +45,7 @@ export function OversiktenJoyride({ isTableFetched }: Props) {
     <>
       <JoyrideKnapp
         handleClick={() => {
-          setReady(true);
+          setIsReady(true);
           setStepIndex(0);
           logEvent("mulighetsrommet.joyride", { value: "oversikten" });
         }}
@@ -72,7 +53,7 @@ export function OversiktenJoyride({ isTableFetched }: Props) {
       <Joyride
         locale={locale}
         continuous
-        run={ready}
+        run={isReady}
         steps={steps}
         hideCloseButton
         callback={handleJoyrideCallback}

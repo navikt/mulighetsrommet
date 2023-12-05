@@ -17,9 +17,7 @@ class VeilederJoyrideRepository(private val db: Database) {
                 nav_ident, fullfort, type
             ) values (:nav_ident, :fullfort, :type::joyride_type)
             on conflict (nav_ident, type) do update
-                set nav_ident = excluded.nav_ident,
-                    fullfort = excluded.fullfort,
-                    type = excluded.type::joyride_type
+                set fullfort = excluded.fullfort
         """.trimIndent()
 
         queryOf(query, data.toSqlParameters()).asExecute.let { db.run(it) }
