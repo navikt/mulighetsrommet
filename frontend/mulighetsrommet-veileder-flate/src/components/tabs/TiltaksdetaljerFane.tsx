@@ -30,13 +30,6 @@ const TiltaksdetaljerFane = ({ tiltaksgjennomforing }: Props) => {
     "Kontaktinfo",
     enableArenaOppskrifter ? "Oppskrifter" : "",
   ] as const;
-  const tabValueTilFaneoverSkrifter: { [key: string]: string } = {
-    tab1: faneoverskrifter[0],
-    tab2: faneoverskrifter[1],
-    tab3: faneoverskrifter[2],
-    tab4: faneoverskrifter[3],
-    tab5: faneoverskrifter[4],
-  };
 
   function navigateAwayFromOppskrift() {
     navigate("./");

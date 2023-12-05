@@ -23,7 +23,7 @@ fun Route.navEnhetRoutes() {
             val overordnetEnhet =
                 navEnhetService.hentOverordnetFylkesenhet(enhetsnummer) ?: return@get call.respondText(
                     text = "Fant ikke overordnet enhet for enhetsnummer: $enhetsnummer",
-                    status = HttpStatusCode.NotFound
+                    status = HttpStatusCode.NotFound,
                 )
 
             call.respond(overordnetEnhet)
