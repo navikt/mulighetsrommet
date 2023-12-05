@@ -2,9 +2,9 @@ import { Alert, Button, ErrorMessage, Textarea } from "@navikt/ds-react";
 import { DelMedBruker, VeilederflateTiltaksgjennomforing } from "mulighetsrommet-api-client";
 import React, { Dispatch, useEffect, useRef } from "react";
 import { erPreview, formaterDato } from "../../../utils/Utils";
-import { logDelMedbrukerEvent } from "./Delemodal";
 import delemodalStyles from "./Delemodal.module.scss";
 import { Actions, State } from "./DelemodalActions";
+import { logDelMedbrukerEvent } from "./DelemodalReducer";
 
 export const MAKS_ANTALL_TEGN_DEL_MED_BRUKER = 500;
 

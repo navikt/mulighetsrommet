@@ -9,12 +9,12 @@ import {
   Tiltakskode,
   VeilederflateTiltaksgjennomforing,
 } from "mulighetsrommet-api-client";
-import { useState } from "react";
+import { useReducer } from "react";
 import { BrukerHarIkke14aVedtakVarsel } from "../../components/ikkeKvalifisertVarsel/BrukerHarIkke14aVedtakVarsel";
 import { BrukerKvalifisererIkkeVarsel } from "../../components/ikkeKvalifisertVarsel/BrukerKvalifisererIkkeVarsel";
 import { DetaljerJoyride } from "../../components/joyride/DetaljerJoyride";
 import { DetaljerOpprettAvtaleJoyride } from "../../components/joyride/DetaljerOpprettAvtaleJoyride";
-import { Delemodal, logDelMedbrukerEvent } from "../../components/modal/delemodal/Delemodal";
+import { Delemodal, sySammenTekster } from "../../components/modal/delemodal/Delemodal";
 import SidemenyDetaljer from "../../components/sidemeny/SidemenyDetaljer";
 import TiltaksdetaljerFane from "../../components/tabs/TiltaksdetaljerFane";
 import Tilbakeknapp from "../../components/tilbakeknapp/Tilbakeknapp";
@@ -27,6 +27,11 @@ import { byttTilDialogFlate } from "../../utils/DialogFlateUtils";
 import { erPreview, formaterDato } from "../../utils/Utils";
 import styles from "./ViewTiltaksgjennomforingDetaljer.module.scss";
 import { Outlet } from "react-router-dom";
+import {
+  initInitialState,
+  logDelMedbrukerEvent,
+  reducer,
+} from "../../components/modal/delemodal/DelemodalReducer";
 
 const whiteListOpprettAvtaleKnapp: Tiltakskode[] = [
   Tiltakskode.MIDLONTIL,
@@ -82,14 +87,23 @@ const ViewTiltaksgjennomforingDetaljer = ({
 }: Props) => {
   const gjennomforingsId = useGetTiltaksgjennomforingIdFraUrl();
   const [page] = useAtom(paginationAtom);
-  const [delemodalApen, setDelemodalApen] = useState<boolean>(false);
   const veiledernavn = resolveName(veilederdata);
   const datoSidenSistDelt =
     harDeltMedBruker && formaterDato(new Date(harDeltMedBruker.createdAt!!));
 
+  const originaldeletekstFraTiltakstypen = tiltaksgjennomforing.tiltakstype.delingMedBruker ?? "";
+  const brukernavn = erPreview() ? "{Navn}" : brukerdata?.fornavn;
+
+  const deletekst = sySammenTekster(
+    originaldeletekstFraTiltakstypen,
+    tiltaksgjennomforing.navn,
+    brukernavn,
+  );
+  const [state, dispatch] = useReducer(reducer, { deletekst }, initInitialState);
+
   const handleClickApneModal = () => {
-    setDelemodalApen(true);
     logDelMedbrukerEvent("Åpnet dialog");
+    dispatch({ type: "Toggle modal", payload: true });
   };
 
   if (!tiltaksgjennomforing) {
@@ -206,17 +220,15 @@ const ViewTiltaksgjennomforingDetaljer = ({
           </div>
           <TiltaksdetaljerFane tiltaksgjennomforing={tiltaksgjennomforing} />
           <Delemodal
-            modalOpen={delemodalApen}
-            lukkModal={() => setDelemodalApen(false)}
+            lukkModal={() => dispatch({ type: "Toggle modal", payload: false })}
             brukernavn={erPreview() ? "{Navn}" : brukerdata?.fornavn}
-            originaldeletekstFraTiltakstypen={
-              tiltaksgjennomforing.tiltakstype.delingMedBruker ?? ""
-            }
             veiledernavn={erPreview() ? "{Veiledernavn}" : veiledernavn}
             brukerFnr={brukerdata.fnr}
             tiltaksgjennomforing={tiltaksgjennomforing}
             brukerdata={brukerdata}
             harDeltMedBruker={harDeltMedBruker}
+            dispatch={dispatch}
+            state={state}
           />
         </div>
         <div className={styles.oppskriftContainer}>

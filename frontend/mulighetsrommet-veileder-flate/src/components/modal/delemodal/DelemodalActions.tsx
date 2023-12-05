@@ -5,6 +5,8 @@ export interface State {
   dialogId: string;
   venterPaaSvarFraBruker: boolean;
   enableRedigerDeletekst: boolean;
+  modalOpen: boolean;
+  statusmodalOpen: boolean;
 }
 
 export type Status = "IKKE_SENDT" | "SENDER" | "SENDT_OK" | "SENDING_FEILET";
@@ -30,7 +32,7 @@ export interface RESET_ACTION {
   type: "Reset";
 }
 
-export interface SETT_VENTER_PAA_SVAR_FRA_BRUKER {
+export interface SET_VENTER_PAA_SVAR_FRA_BRUKER {
   type: "Venter på svar fra bruker";
   payload: boolean;
 }
@@ -45,12 +47,24 @@ export interface ENABLE_REDIGER_DELETEKST_ACTION {
   payload: boolean;
 }
 
+export interface TOGGLE_MODAL_ACTION {
+  type: "Toggle modal";
+  payload: boolean;
+}
+
+export interface TOGGLE_STATUSMODAL_ACTION {
+  type: "Toggle statusmodal";
+  payload: boolean;
+}
+
 export type Actions =
   | SEND_MELDING_ACTION
   | AVBRYT_ACTION
   | SENDT_OK_ACTION
   | RESET_ACTION
   | SENDING_FEILET_ACTION
-  | SETT_VENTER_PAA_SVAR_FRA_BRUKER
+  | SET_VENTER_PAA_SVAR_FRA_BRUKER
   | SET_DELETEKST_ACTION
-  | ENABLE_REDIGER_DELETEKST_ACTION;
+  | ENABLE_REDIGER_DELETEKST_ACTION
+  | TOGGLE_MODAL_ACTION
+  | TOGGLE_STATUSMODAL_ACTION;
