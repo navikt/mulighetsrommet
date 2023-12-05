@@ -40,6 +40,7 @@ import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.Faneinnhold
 import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 class TiltaksgjennomforingRepositoryTest : FunSpec({
