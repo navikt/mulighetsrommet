@@ -10,7 +10,7 @@ before("Start server", () => {
   cy.getByTestId("tiltakstype-oversikt").children().should("have.length.greaterThan", 1);
 });
 
-xdescribe("Tiltaksoversikt", () => {
+describe("Tiltaksoversikt", () => {
   let antallTiltak: number;
 
   beforeEach(() => {
