@@ -21,6 +21,7 @@ export interface ControlledSelectProps<T> {
   size?: "small" | "medium";
   onClearValue?: () => void;
   description?: string;
+  helpText?: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -36,6 +37,7 @@ function ControlledSokeSelect<T>(props: ControlledSelectProps<T>, _: ForwardedRe
     description,
     className,
     size,
+    helpText,
     onClearValue,
     ...rest
   } = props;
@@ -47,6 +49,7 @@ function ControlledSokeSelect<T>(props: ControlledSelectProps<T>, _: ForwardedRe
         const selectedOption = options.find((option) => shallowEquals(option.value, value));
         return (
           <SokeSelect<T>
+            helpText={helpText}
             hideLabel={hideLabel}
             description={description}
             size={size}

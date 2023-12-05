@@ -8,13 +8,13 @@ import {
   NavVeileder,
   Tiltakskode,
   VeilederflateTiltaksgjennomforing,
-} from "mulighetsrommet-api-client";
 import { useReducer } from "react";
+import { Delemodal, sySammenTekster } from "../../components/modal/delemodal/Delemodal";
+import { useState } from "react";
+import { Outlet } from "react-router-dom";
 import { BrukerHarIkke14aVedtakVarsel } from "../../components/ikkeKvalifisertVarsel/BrukerHarIkke14aVedtakVarsel";
 import { BrukerKvalifisererIkkeVarsel } from "../../components/ikkeKvalifisertVarsel/BrukerKvalifisererIkkeVarsel";
 import { DetaljerJoyride } from "../../components/joyride/DetaljerJoyride";
-import { DetaljerOpprettAvtaleJoyride } from "../../components/joyride/DetaljerOpprettAvtaleJoyride";
-import { Delemodal, sySammenTekster } from "../../components/modal/delemodal/Delemodal";
 import SidemenyDetaljer from "../../components/sidemeny/SidemenyDetaljer";
 import TiltaksdetaljerFane from "../../components/tabs/TiltaksdetaljerFane";
 import Tilbakeknapp from "../../components/tilbakeknapp/Tilbakeknapp";
@@ -32,6 +32,8 @@ import {
   logDelMedbrukerEvent,
   reducer,
 } from "../../components/modal/delemodal/DelemodalReducer";
+import { OpprettAvtaleJoyride } from "../../components/joyride/OpprettAvtaleJoyride";
+
 
 const whiteListOpprettAvtaleKnapp: Tiltakskode[] = [
   Tiltakskode.MIDLONTIL,
@@ -142,9 +144,7 @@ const ViewTiltaksgjennomforingDetaljer = ({
           {!erPreview() && (
             <>
               <DetaljerJoyride opprettAvtale={opprettAvtale} />
-              {opprettAvtale ? (
-                <DetaljerOpprettAvtaleJoyride opprettAvtale={opprettAvtale} />
-              ) : null}
+              {opprettAvtale ? <OpprettAvtaleJoyride opprettAvtale={opprettAvtale} /> : null}
             </>
           )}
         </div>

@@ -178,7 +178,7 @@ export const AvtaleTabell = ({ avtalefilter, paginerteAvtaler, isLoading }: Prop
           <Table.Header>
             <Table.Row className={styles.avtale_tabellrad}>
               <Table.ColumnHeader sortKey="navn" sortable>
-                Tittel
+                Avtalenavn
               </Table.ColumnHeader>
               <Table.ColumnHeader>Avtalenummer</Table.ColumnHeader>
               <Table.ColumnHeader sortKey="leverandor" sortable>
