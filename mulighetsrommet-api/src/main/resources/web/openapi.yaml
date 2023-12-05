@@ -1540,6 +1540,7 @@ components:
           $ref: "#/components/schemas/ApentForInnsok"
       required:
         - norskIdent
+        - apentForInnsok
 
     ApentForInnsok:
       type: string
@@ -1562,8 +1563,11 @@ components:
             format: uuid
         search:
           type: string
+        apentForInnsok:
+          $ref: "#/components/schemas/ApentForInnsok"
       required:
         - geografiskEnhet
+        - apentForInnsok
 
     GetTiltaksgjennomforingDetaljerPreviewRequest:
       type: object

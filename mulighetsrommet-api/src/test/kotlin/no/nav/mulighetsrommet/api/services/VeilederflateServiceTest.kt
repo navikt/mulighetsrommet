@@ -145,7 +145,10 @@ class VeilederflateServiceTest : FunSpec({
         coEvery { sanityClient.query(any()) } returns sanityResult
 
         val gjennomforinger = veilederFlateService.hentTiltaksgjennomforingerForBrukerBasertPaEnhetOgFylke(
-            GetRelevanteTiltaksgjennomforingerForBrukerRequest(norskIdent = fnr),
+            GetRelevanteTiltaksgjennomforingerForBrukerRequest(
+                norskIdent = fnr,
+                apentForInnsok = ApentForInnsok.APENT_ELLER_STENGT,
+            ),
             listOf("0430"),
         )
         gjennomforinger.size shouldBe 2
@@ -174,7 +177,10 @@ class VeilederflateServiceTest : FunSpec({
         coEvery { sanityClient.query(any()) } returns sanityResult
 
         val gjennomforinger = veilederFlateService.hentTiltaksgjennomforingerForBrukerBasertPaEnhetOgFylke(
-            GetRelevanteTiltaksgjennomforingerForBrukerRequest(norskIdent = fnr),
+            GetRelevanteTiltaksgjennomforingerForBrukerRequest(
+                norskIdent = fnr,
+                apentForInnsok = ApentForInnsok.APENT_ELLER_STENGT,
+            ),
             listOf("0430"),
         )
         gjennomforinger.size shouldBe 2
@@ -204,7 +210,10 @@ class VeilederflateServiceTest : FunSpec({
         coEvery { sanityClient.query(any()) } returns sanityResult
 
         veilederFlateService.hentTiltaksgjennomforingerForBrukerBasertPaEnhetOgFylke(
-            GetRelevanteTiltaksgjennomforingerForBrukerRequest(norskIdent = fnr),
+            GetRelevanteTiltaksgjennomforingerForBrukerRequest(
+                norskIdent = fnr,
+                apentForInnsok = ApentForInnsok.APENT_ELLER_STENGT,
+            ),
             listOf("0430", "0455"),
         ) shouldHaveSize 2
     }
