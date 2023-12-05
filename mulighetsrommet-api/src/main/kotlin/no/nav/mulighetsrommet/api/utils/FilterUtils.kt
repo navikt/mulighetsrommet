@@ -3,7 +3,6 @@ package no.nav.mulighetsrommet.api.utils
 import io.ktor.server.application.*
 import io.ktor.server.util.*
 import io.ktor.util.pipeline.*
-import kotliquery.param
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
@@ -18,9 +17,9 @@ import java.time.LocalDate
 import java.util.*
 
 data class TiltakstypeFilter(
-    val search: String?,
-    val status: Tiltakstypestatus? = null,
-    val kategori: Tiltakstypekategori?,
+    val search: String? = null,
+    val statuser: List<Tiltakstypestatus> = emptyList(),
+    val kategorier: List<Tiltakstypekategori> = emptyList(),
     val dagensDato: LocalDate = LocalDate.now(),
     val sortering: String? = null,
 )
@@ -103,15 +102,15 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getNotificationFilter(): Notif
 
 fun <T : Any> PipelineContext<T, ApplicationCall>.getTiltakstypeFilter(): TiltakstypeFilter {
     val search = call.request.queryParameters["search"]
-    val status =
-        call.request.queryParameters["tiltakstypestatus"]?.let { status -> Tiltakstypestatus.valueOf(status) }
-    val kategori =
-        call.request.queryParameters["tiltakstypekategori"]?.let { kategori -> Tiltakstypekategori.valueOf(kategori) }
+    val statuser =
+        call.parameters.getAll("tiltakstypestatuser")?.map { status -> Tiltakstypestatus.valueOf(status) }
+    val kategorier =
+        call.parameters.getAll("tiltakstypekategorier")?.map { kategori -> Tiltakstypekategori.valueOf(kategori) }
     val sortering = call.request.queryParameters["sort"]
     return TiltakstypeFilter(
         search = search,
-        status = status,
-        kategori = kategori,
+        statuser = statuser ?: emptyList(),
+        kategorier = kategorier ?: emptyList(),
         sortering = sortering,
     )
 }

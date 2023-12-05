@@ -54,8 +54,7 @@ class TiltakstypeRepositoryTest : FunSpec({
         tiltakstyper.getAllSkalMigreres(
             TiltakstypeFilter(
                 search = "Førerhund",
-                status = Tiltakstypestatus.Aktiv,
-                kategori = null,
+                statuser = listOf(Tiltakstypestatus.Aktiv),
             ),
         ).second shouldHaveSize 0
 
@@ -63,8 +62,7 @@ class TiltakstypeRepositoryTest : FunSpec({
             tiltakstyper.getAllSkalMigreres(
                 TiltakstypeFilter(
                     search = "Arbeidstrening",
-                    status = Tiltakstypestatus.Avsluttet,
-                    kategori = null,
+                    statuser = listOf(Tiltakstypestatus.Avsluttet),
                 ),
             )
         arbeidstrening.second shouldHaveSize 1
@@ -135,8 +133,7 @@ class TiltakstypeRepositoryTest : FunSpec({
         test("Filter for kun gruppetiltak returnerer bare gruppetiltak") {
             tiltakstyper.getAllSkalMigreres(
                 TiltakstypeFilter(
-                    search = null,
-                    kategori = Tiltakstypekategori.GRUPPE,
+                    kategorier = listOf(Tiltakstypekategori.GRUPPE),
                 ),
             ).second shouldHaveSize 2
         }
@@ -144,27 +141,29 @@ class TiltakstypeRepositoryTest : FunSpec({
         test("Filter for kun individuelle tiltak returnerer bare individuelle tiltak") {
             tiltakstyper.getAllSkalMigreres(
                 TiltakstypeFilter(
-                    search = null,
-                    kategori = Tiltakstypekategori.INDIVIDUELL,
+                    kategorier = listOf(Tiltakstypekategori.INDIVIDUELL),
                 ),
             ).second shouldHaveSize 1
         }
 
-        test("Ingen filter for kategori returnerer både individuelle- og gruppetiltak") {
+        test("Filter for alle kategorier returnerer alle") {
             tiltakstyper.getAllSkalMigreres(
                 TiltakstypeFilter(
-                    search = null,
-                    kategori = null,
+                    kategorier = listOf(Tiltakstypekategori.INDIVIDUELL, Tiltakstypekategori.GRUPPE),
                 ),
+            ).second shouldHaveSize 3
+        }
+
+        test("Ingen filter for kategori returnerer både individuelle- og gruppetiltak") {
+            tiltakstyper.getAllSkalMigreres(
+                TiltakstypeFilter(),
             ).second shouldHaveSize 3
         }
 
         test("Filter på planlagt returnerer planlagte tiltakstyper") {
             val typer = tiltakstyper.getAllSkalMigreres(
                 TiltakstypeFilter(
-                    search = null,
-                    kategori = null,
-                    status = Tiltakstypestatus.Planlagt,
+                    statuser = listOf(Tiltakstypestatus.Planlagt),
                     dagensDato = dagensDato,
                 ),
             )
@@ -175,9 +174,7 @@ class TiltakstypeRepositoryTest : FunSpec({
         test("Filter på aktiv returnerer aktive tiltakstyper") {
             val typer = tiltakstyper.getAllSkalMigreres(
                 TiltakstypeFilter(
-                    search = null,
-                    kategori = null,
-                    status = Tiltakstypestatus.Aktiv,
+                    statuser = listOf(Tiltakstypestatus.Aktiv),
                     dagensDato = dagensDato,
                 ),
             )
@@ -188,9 +185,7 @@ class TiltakstypeRepositoryTest : FunSpec({
         test("Filter på avsluttet returnerer avsluttede tiltakstyper") {
             val typer = tiltakstyper.getAllSkalMigreres(
                 TiltakstypeFilter(
-                    search = null,
-                    kategori = null,
-                    status = Tiltakstypestatus.Avsluttet,
+                    statuser = listOf(Tiltakstypestatus.Avsluttet),
                     dagensDato = dagensDato,
                 ),
             )

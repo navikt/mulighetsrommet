@@ -13,8 +13,8 @@ export function useTiltakstyper(filter: TiltakstypeFilter, page: number) {
     queryFn: () =>
       mulighetsrommetClient.tiltakstyper.getTiltakstyper({
         search: debouncedSok !== "" ? debouncedSok : undefined,
-        tiltakstypestatus: filter.status,
-        tiltakstypekategori: filter.kategori,
+        tiltakstypestatuser: filter.status ? [filter.status] : [],
+        tiltakstypekategorier: filter.kategori ? [filter.kategori] : [],
         sort: filter.sortering,
         page,
         size: PAGE_SIZE,

@@ -727,14 +727,18 @@ paths:
             type: string
           description: Search for tiltakstyper
         - in: query
-          name: tiltakstypestatus
+          name: tiltakstypestatuser
           schema:
-            $ref: "#/components/schemas/Tiltakstypestatus"
-          description: Status for tiltakstyper
+            type: array
+            items:
+              $ref: "#/components/schemas/Tiltakstypestatus"
+          description: Statuser for tiltakstyper
         - in: query
-          name: tiltakstypekategori
+          name: tiltakstypekategorier
           schema:
-            $ref: "#/components/schemas/Tiltakstypekategori"
+            type: array
+            items:
+              $ref: "#/components/schemas/Tiltakstypekategori"
           description: Om man skal hente gruppetiltakstyper eller individuelle tiltakstyper
         - in: query
           name: page
