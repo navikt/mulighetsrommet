@@ -131,8 +131,6 @@ export function Delemodal({
             </Heading>
           </Modal.Header>
           <Modal.Body className={delemodalStyles.body}>
-            {/*{state.sendtStatus !== "SENDT_OK" && state.sendtStatus !== "SENDING_FEILET" && (*/}
-            {/*<>*/}
             <DelMedBrukerContent
               state={state}
               dispatch={dispatch}
@@ -163,8 +161,6 @@ export function Delemodal({
                 oversikten til å se alle brukere du venter på svar fra.
               </HelpText>
             </HStack>
-            {/*</>*/}
-            {/*)}*/}
           </Modal.Body>
           <Modal.Footer>
             <div className={modalStyles.knapperad}>
