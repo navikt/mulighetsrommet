@@ -5,16 +5,17 @@ import { ErrorBoundary } from "react-error-boundary";
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import styles from "./App.module.scss";
 import FakeDoor from "./components/fakedoor/FakeDoor";
+import { Oppskrift } from "./components/oppskrift/Oppskrift";
 import { APPLICATION_NAME } from "./constants";
 import { useFeatureToggle } from "./core/api/feature-toggles";
 import { useHentVeilederdata } from "./core/api/queries/useHentVeilederdata";
 import { useInitialBrukerfilter } from "./hooks/useInitialBrukerfilter";
+import { useUpdateAppContext } from "./hooks/useUpdateAppContext";
 import RoutesConfig from "./RoutesConfig";
 import { ErrorFallback } from "./utils/ErrorFallback";
 import { SanityPreview } from "./views/Preview/SanityPreview";
 import { SanityPreviewOversikt } from "./views/Preview/SanityPreviewOversikt";
-import { Oppskrift } from "./components/oppskrift/Oppskrift";
-import { initAmplitude } from "./amplitude/amplitude";
+import { initAmplitude } from "./logging/amplitude";
 
 if (import.meta.env.PROD && import.meta.env.VITE_FARO_URL) {
   initializeFaro({
@@ -24,12 +25,13 @@ if (import.meta.env.PROD && import.meta.env.VITE_FARO_URL) {
       name: "mulighetsrommet-veileder-flate",
     },
   });
+  initAmplitude();
 }
 
-function AppWrapper() {
-  initAmplitude();
+function AppInnhold() {
   useInitialBrukerfilter();
   useHentVeilederdata(); // Pre-fetch veilederdata så slipper vi å vente på data når vi trenger det i appen senere
+  useUpdateAppContext();
 
   const feature = useFeatureToggle(Toggles.MULIGHETSROMMET_ENABLE_ARBEIDSFLATE);
   const enableArbeidsflate = feature.isSuccess && feature.data;
@@ -55,7 +57,7 @@ export function App() {
               <Route path="preview/:id" element={<SanityPreview />}>
                 <Route path="oppskrifter/:oppskriftId/:tiltakstypeId" element={<Oppskrift />} />
               </Route>
-              <Route path="*" element={<AppWrapper />} />
+              <Route path="*" element={<AppInnhold />} />
             </Routes>
           </Router>
         </div>

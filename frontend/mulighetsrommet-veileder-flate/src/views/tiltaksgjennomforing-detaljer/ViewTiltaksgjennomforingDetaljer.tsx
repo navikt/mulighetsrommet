@@ -10,24 +10,23 @@ import {
   VeilederflateTiltaksgjennomforing,
 } from "mulighetsrommet-api-client";
 import { useState } from "react";
+import { Outlet } from "react-router-dom";
 import { BrukerHarIkke14aVedtakVarsel } from "../../components/ikkeKvalifisertVarsel/BrukerHarIkke14aVedtakVarsel";
 import { BrukerKvalifisererIkkeVarsel } from "../../components/ikkeKvalifisertVarsel/BrukerKvalifisererIkkeVarsel";
 import { DetaljerJoyride } from "../../components/joyride/DetaljerJoyride";
 import { DetaljerOpprettAvtaleJoyride } from "../../components/joyride/DetaljerOpprettAvtaleJoyride";
-import Delemodal, { logDelMedbrukerEvent } from "../../components/modal/delemodal/Delemodal";
+import Delemodal from "../../components/modal/delemodal/Delemodal";
 import SidemenyDetaljer from "../../components/sidemeny/SidemenyDetaljer";
 import TiltaksdetaljerFane from "../../components/tabs/TiltaksdetaljerFane";
 import Tilbakeknapp from "../../components/tilbakeknapp/Tilbakeknapp";
-import { logEvent } from "../../core/api/logger";
 import { useGetTiltaksgjennomforingIdFraUrl } from "../../core/api/queries/useGetTiltaksgjennomforingIdFraUrl";
 import { paginationAtom } from "../../core/atoms/atoms";
 import { environments } from "../../env";
 import TiltaksgjennomforingsHeader from "../../layouts/TiltaksgjennomforingsHeader";
+import { useLogEvent } from "../../logging/amplitude";
 import { byttTilDialogFlate } from "../../utils/DialogFlateUtils";
-import { erPreview, formaterDato, hentBrukersFylkeOgLokalkontor } from "../../utils/Utils";
+import { erPreview, formaterDato } from "../../utils/Utils";
 import styles from "./ViewTiltaksgjennomforingDetaljer.module.scss";
-import { Outlet } from "react-router-dom";
-import { useHentBrukerdata } from "../../core/api/queries/useHentBrukerdata";
 
 const whiteListOpprettAvtaleKnapp: Tiltakskode[] = [
   Tiltakskode.MIDLONTIL,
@@ -81,17 +80,17 @@ const ViewTiltaksgjennomforingDetaljer = ({
   veilederdata,
   brukerdata,
 }: Props) => {
-  const { data: bruker } = useHentBrukerdata();
   const gjennomforingsId = useGetTiltaksgjennomforingIdFraUrl();
   const [page] = useAtom(paginationAtom);
   const [delemodalApen, setDelemodalApen] = useState<boolean>(false);
   const veiledernavn = resolveName(veilederdata);
   const datoSidenSistDelt =
     harDeltMedBruker && formaterDato(new Date(harDeltMedBruker.createdAt!!));
+  const { logEvent } = useLogEvent();
 
   const handleClickApneModal = () => {
     setDelemodalApen(true);
-    logDelMedbrukerEvent("Åpnet dialog", hentBrukersFylkeOgLokalkontor(bruker));
+    logEvent({ name: "arbeidsmarkedstiltak.del-med-bruker", data: { action: "Åpnet dialog" } });
   };
 
   if (!tiltaksgjennomforing) {
@@ -101,14 +100,12 @@ const ViewTiltaksgjennomforingDetaljer = ({
   }
 
   const kanBrukerFaaAvtale = () => {
-    const tiltakstypeNavn = tiltaksgjennomforing.tiltakstype.navn;
     if (
       tiltaksgjennomforing.tiltakstype?.arenakode &&
       tiltakstypeAsStringIsIndividuellTiltakstype(tiltaksgjennomforing.tiltakstype.arenakode)
     ) {
       const url = lenkeTilOpprettAvtaleForEnv();
       window.open(url, "_blank");
-      logEvent({ name: "mulighetsrommet.opprett-avtale", data: { tiltakstype: tiltakstypeNavn } });
     }
   };
 

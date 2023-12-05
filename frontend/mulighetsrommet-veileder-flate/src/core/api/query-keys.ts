@@ -24,4 +24,5 @@ export const QueryKeys = {
   features: (feature: string) => [feature, "feature"],
   navEnheter: (statuser: NavEnhetStatus[]) => [statuser, "navEnheter"],
   oppskrifter: (tiltakstypeId: string) => [tiltakstypeId, "oppskrifter"],
+  overordnetEnhet: (enhetsnummer: string) => ["overordnetEnhet", enhetsnummer],
 };

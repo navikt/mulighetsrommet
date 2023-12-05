@@ -1,7 +1,6 @@
 import { BodyShort, Heading } from "@navikt/ds-react";
-import styles from "./Kontaktinfo.module.scss";
 import { VeilederflateTiltaksgjennomforing } from "mulighetsrommet-api-client";
-import { logEvent } from "../../../core/api/logger";
+import styles from "./Kontaktinfo.module.scss";
 
 interface ArrangorInfoProps {
   data: VeilederflateTiltaksgjennomforing;
@@ -43,12 +42,7 @@ const ArrangorInfo = ({ data }: ArrangorInfoProps) => {
 
               <div className={styles.kolonne}>
                 <span>{kontaktperson.telefon}</span>
-                <a
-                  href={`mailto:${kontaktperson.epost}`}
-                  onClick={() => logEvent({ name: "mulighetsrommet.arrangor.kontaktperson.epost" })}
-                >
-                  {kontaktperson.epost}
-                </a>
+                <a href={`mailto:${kontaktperson.epost}`}>{kontaktperson.epost}</a>
               </div>
             </div>
           </BodyShort>

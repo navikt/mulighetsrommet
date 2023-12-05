@@ -4,8 +4,7 @@ import {
   TiltaksgjennomforingOppstartstype,
   VeilederflateTiltaksgjennomforing,
 } from "mulighetsrommet-api-client";
-import { useEffect, useRef, useState } from "react";
-import { logEvent } from "../../core/api/logger";
+import { useEffect, useState } from "react";
 import { paginationAtom } from "../../core/atoms/atoms";
 import { Sorteringsmeny } from "../sorteringmeny/Sorteringsmeny";
 import { Gjennomforingsrad } from "./Gjennomforingsrad";
@@ -26,7 +25,6 @@ const Tiltaksgjennomforingsoversikt = (props: Props) => {
   };
 
   const [sortValue, setSortValue] = useState<string>("tiltakstype-ascending");
-  const didMountRef = useRef(false);
 
   useEffect(() => {
     if (tiltaksgjennomforinger.length <= elementsPerPage && !isFetching) {
@@ -34,14 +32,6 @@ const Tiltaksgjennomforingsoversikt = (props: Props) => {
       setPage(1);
     }
   }, [tiltaksgjennomforinger]);
-
-  useEffect(() => {
-    //sørger for at vi ikke logger metrikker for første render
-    if (didMountRef.current) {
-      logEvent({ name: "mulighetsrommet.sortering", data: { value: sortValue } });
-    }
-    didMountRef.current = true;
-  }, [sortValue]);
 
   const getSort = (
     sortValue: string,

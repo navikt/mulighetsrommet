@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from "react";
-import { logEvent } from "../../core/api/logger";
-import { Button, Tooltip } from "@navikt/ds-react";
-import styles from "./Kopiknapp.module.scss";
 import { FilesFillIcon, FilesIcon } from "@navikt/aksel-icons";
+import { Button, Tooltip } from "@navikt/ds-react";
+import React, { useEffect, useState } from "react";
+import styles from "./Kopiknapp.module.scss";
 
 interface KopiknappProps {
   kopitekst: string;
@@ -15,7 +14,6 @@ const Kopiknapp = ({ kopitekst, dataTestId }: KopiknappProps) => {
 
   const copyToClipboard = (kopitekst: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    logEvent({ name: "mulighetsrommet.kopiknapp" });
     navigator.clipboard.writeText(kopitekst);
     setShowTooltip(true);
   };

@@ -17,3 +17,13 @@ export type environments = "localhost" | "dev" | "production";
 interface ImportMeta {
   readonly env: ImportMetaEnv;
 }
+
+export interface AmplitudeInstance {
+  track: (eventName: string, extraData?: Record<string, unknown>) => void;
+}
+
+declare global {
+  interface Window {
+    veilarbpersonflatefsAmplitude: AmplitudeInstance;
+  }
+}

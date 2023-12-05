@@ -3,7 +3,6 @@ import { useAtom } from "jotai";
 import { Toggles, VeilederflateTiltaksgjennomforing } from "mulighetsrommet-api-client";
 import { useNavigate } from "react-router-dom";
 import { useFeatureToggle } from "../../core/api/feature-toggles";
-import { logEvent } from "../../core/api/logger";
 import { faneAtom } from "../../core/atoms/atoms";
 import { kebabCase } from "../../utils/Utils";
 import { Oppskriftsoversikt } from "../oppskrift/Oppskriftsoversikt";
@@ -50,10 +49,6 @@ const TiltaksdetaljerFane = ({ tiltaksgjennomforing }: Props) => {
       selectionFollowsFocus
       className={styles.fane_root}
       onChange={(value) => {
-        logEvent({
-          name: "mulighetsrommet.faner",
-          data: { value: tabValueTilFaneoverSkrifter[value] },
-        });
         setFane(value);
         if (value !== "tab5") {
           navigateAwayFromOppskrift();

@@ -3,6 +3,14 @@ import { Innsatsgruppe, NavEnhet } from "mulighetsrommet-api-client";
 import { atomWithStorage } from "jotai/utils";
 import { atom } from "jotai";
 
+interface AppContextData {
+  fnr: string;
+  enhet: string;
+  overordnetEnhet?: string | null;
+}
+
+export const appContext = atom<Partial<AppContextData>>({});
+
 export interface Tiltaksgjennomforingsfilter {
   search: string;
   innsatsgruppe?: Tiltaksgjennomforingsfiltergruppe<Innsatsgruppe>;

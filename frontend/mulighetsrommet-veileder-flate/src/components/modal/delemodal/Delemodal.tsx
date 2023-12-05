@@ -7,33 +7,15 @@ import {
 import { PORTEN } from "mulighetsrommet-frontend-common/constants";
 import { useReducer } from "react";
 import { mulighetsrommetClient } from "../../../core/api/clients";
-import { logEvent } from "../../../core/api/logger";
 import { useHentDeltMedBrukerStatus } from "../../../core/api/queries/useHentDeltMedbrukerStatus";
+import { useLogEvent } from "../../../logging/amplitude";
 import { byttTilDialogFlate } from "../../../utils/DialogFlateUtils";
-import { erPreview, hentBrukersFylkeOgLokalkontor } from "../../../utils/Utils";
+import { erPreview } from "../../../utils/Utils";
 import modalStyles from "../Modal.module.scss";
 import { StatusModal } from "../StatusModal";
 import { DelMedBrukerContent, MAKS_ANTALL_TEGN_DEL_MED_BRUKER } from "./DelMedBrukerContent";
 import delemodalStyles from "./Delemodal.module.scss";
 import { Actions, State } from "./DelemodalActions";
-import { useHentBrukerdata } from "../../../core/api/queries/useHentBrukerdata";
-
-export const logDelMedbrukerEvent = (
-  action:
-    | "Åpnet dialog"
-    | "Delte med bruker"
-    | "Del med bruker feilet"
-    | "Avbrutt del med bruker"
-    | "Sett hilsen"
-    | "Sett intro"
-    | "Sett venter på svar fra bruker",
-  fylkeOgLokalkontor: { fylke: string; lokalkontor: string },
-) => {
-  logEvent({
-    name: "mulighetsrommet.del-med-bruker",
-    data: { action, fylkeOgLokalkontor },
-  });
-};
 
 interface DelemodalProps {
   modalOpen: boolean;
@@ -140,7 +122,7 @@ const Delemodal = ({
   brukerdata,
   harDeltMedBruker,
 }: DelemodalProps) => {
-  const { data: bruker } = useHentBrukerdata();
+  const { logEvent } = useLogEvent();
   const introtekst = sySammenIntroTekst(brukernavn);
   const deletekst = sySammenBrukerTekst(chattekst, tiltaksgjennomforing.navn, brukernavn);
   const originalHilsen = sySammenHilsenTekst(veiledernavn);
@@ -156,10 +138,26 @@ const Delemodal = ({
     tiltaksgjennomforing,
   );
 
+  const logDelMedbrukerEvent = (
+    action:
+      | "Åpnet dialog"
+      | "Delte med bruker"
+      | "Del med bruker feilet"
+      | "Avbrutt del med bruker"
+      | "Sett hilsen"
+      | "Sett intro"
+      | "Sett venter på svar fra bruker",
+  ) => {
+    logEvent({
+      name: "arbeidsmarkedstiltak.del-med-bruker",
+      data: { action },
+    });
+  };
+
   const clickCancel = (log = true) => {
     lukkModal();
     dispatch({ type: "Avbryt", payload: { tekster: { introtekst, deletekst, originalHilsen } } });
-    log && logDelMedbrukerEvent("Avbrutt del med bruker", hentBrukersFylkeOgLokalkontor(bruker));
+    log && logDelMedbrukerEvent("Avbrutt del med bruker");
   };
 
   const getAntallTegn = (tekst: string) => {
@@ -178,7 +176,7 @@ const Delemodal = ({
     ) {
       return;
     }
-    logDelMedbrukerEvent("Delte med bruker", hentBrukersFylkeOgLokalkontor(bruker));
+    logDelMedbrukerEvent("Delte med bruker");
 
     dispatch({ type: "Send melding" });
     const overskrift = `Tiltak gjennom NAV: ${tiltaksgjennomforing.navn}`;
@@ -196,7 +194,7 @@ const Delemodal = ({
       dispatch({ type: "Sendt ok", payload: res.id });
     } catch {
       dispatch({ type: "Sending feilet" });
-      logDelMedbrukerEvent("Del med bruker feilet", hentBrukersFylkeOgLokalkontor(bruker));
+      logDelMedbrukerEvent("Del med bruker feilet");
     }
   };
 
@@ -247,10 +245,7 @@ const Delemodal = ({
                         payload: e.currentTarget.checked,
                       });
                       if (e.currentTarget.checked) {
-                        logDelMedbrukerEvent(
-                          "Sett venter på svar fra bruker",
-                          hentBrukersFylkeOgLokalkontor(bruker),
-                        );
+                        logDelMedbrukerEvent("Sett venter på svar fra bruker");
                       }
                     }}
                     checked={state.venterPaaSvarFraBruker}

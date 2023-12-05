@@ -4,9 +4,9 @@
   "private": true,
   "scripts": {
     "backend": "cross-env VITE_MULIGHETSROMMET_API_MOCK=false VITE_MULIGHETSROMMET_API_BASE='http://localhost:8080' vite",
-    "build": "cross-env VITE_ENVIRONMENT=production VITE_AMPLITUDE_API_URL=https://amplitude.nav.no/collect VITE_AMPLITUDE_KEY=f4374386f6e419e124e74ebc4d09daa3 VITE_FARO_URL=https://telemetry.nav.no/collect VITE_MULIGHETSROMMET_API_BASE='/mulighetsrommet-api' vite build --base=https://mulighetsrommet-veileder-flate.intern.nav.no/",
-    "build:dev": "cross-env VITE_ENVIRONMENT=dev VITE_AMPLITUDE_API_URL=https://amplitude.nav.no/collect VITE_AMPLITUDE_KEY=9663e4f0f1a5ce3a12a1f7b9d6bbfc38 VITE_FARO_URL=https://telemetry.ekstern.dev.nav.no/collect VITE_MULIGHETSROMMET_API_BASE='/mulighetsrommet-api' vite build --base=https://mulighetsrommet-veileder-flate.intern.dev.nav.no/",
-    "build:demo": "cross-env VITE_DEMO_FNR=12345678910 VITE_MULIGHETSROMMET_API_MOCK=true vite build",
+    "build": "cross-env VITE_ENVIRONMENT=production VITE_FARO_URL=https://telemetry.nav.no/collect VITE_MULIGHETSROMMET_API_BASE='/mulighetsrommet-api' vite build --base=https://mulighetsrommet-veileder-flate.intern.nav.no/",
+    "build:dev": "cross-env VITE_ENVIRONMENT=dev VITE_FARO_URL=https://telemetry.ekstern.dev.nav.no/collect VITE_MULIGHETSROMMET_API_BASE='/mulighetsrommet-api' vite build --base=https://mulighetsrommet-veileder-flate.intern.dev.nav.no/",
+    "build:demo": "cross-env VITE_DEMO_FNR=12345678910 VITE_DEMO_ENHET=0315 VITE_MULIGHETSROMMET_API_MOCK=true vite build",
     "cy:run": "npx cypress run --e2e --browser chrome",
     "cypress": "npx cypress open",
     "lint": "eslint src --ext .js,.ts,.tsx && tsc",
@@ -21,7 +21,6 @@
     "not op_mini all"
   ],
   "dependencies": {
-    "@amplitude/analytics-browser": "^2.3.6",
     "@grafana/faro-web-sdk": "1.2.8",
     "@navikt/aksel-icons": "5.11.2",
     "@navikt/ds-css": "5.11.2",

@@ -1,9 +1,8 @@
 import { ClockDashedIcon } from "@navikt/aksel-icons";
 import { Button } from "@navikt/ds-react";
 import StandardModal from "../modal/StandardModal";
-import { HistorikkForBrukerModalInnhold } from "./HistorikkForBrukerModalInnhold";
 import styles from "./HistorikkForBrukerModal.module.scss";
-import { logEvent } from "../../core/api/logger";
+import { HistorikkForBrukerModalInnhold } from "./HistorikkForBrukerModalInnhold";
 
 interface Props {
   setHistorikkModalOpen: (state: boolean) => void;
@@ -13,7 +12,6 @@ interface Props {
 export function HistorikkButton({ setHistorikkModalOpen, isHistorikkModalOpen }: Props) {
   const handleClick = () => {
     setHistorikkModalOpen(true);
-    logEvent({ name: "mulighetsrommet.historikk" });
   };
 
   return (

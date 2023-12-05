@@ -1,11 +1,10 @@
 import { Alert, BodyShort, Button, ErrorMessage, Textarea } from "@navikt/ds-react";
 import { DelMedBruker, VeilederflateTiltaksgjennomforing } from "mulighetsrommet-api-client";
 import React, { Dispatch, useEffect, useRef } from "react";
-import { erPreview, formaterDato, hentBrukersFylkeOgLokalkontor } from "../../../utils/Utils";
-import { logDelMedbrukerEvent } from "./Delemodal";
+import { useLogEvent } from "../../../logging/amplitude";
+import { erPreview, formaterDato } from "../../../utils/Utils";
 import delemodalStyles from "./Delemodal.module.scss";
 import { Actions, State } from "./DelemodalActions";
-import { useHentBrukerdata } from "../../../core/api/queries/useHentBrukerdata";
 
 export const MAKS_ANTALL_TEGN_DEL_MED_BRUKER = 500;
 
@@ -26,7 +25,7 @@ export function DelMedBrukerContent({
   harDeltMedBruker,
   tiltaksgjennomforing,
 }: Props) {
-  const { data: bruker } = useHentBrukerdata();
+  const { logEvent } = useLogEvent();
   const { skrivPersonligMelding, skrivPersonligIntro } = state;
   const personligIntroRef = useRef<HTMLTextAreaElement>(null);
   const personligHilsenRef = useRef<HTMLTextAreaElement>(null);
@@ -46,13 +45,13 @@ export function DelMedBrukerContent({
   const enablePersonligMelding = () => {
     dispatch({ type: "Skriv personlig melding", payload: true });
     dispatch({ type: "Sett hilsen", payload: state.originalHilsen });
-    logDelMedbrukerEvent("Sett hilsen", hentBrukersFylkeOgLokalkontor(bruker));
+    logEvent({ name: "arbeidsmarkedstiltak.del-med-bruker", data: { action: "Sett hilsen" } });
   };
 
   const enablePersonligIntro = () => {
     dispatch({ type: "Skriv personlig intro", payload: true });
     dispatch({ type: "Sett intro", payload: "" });
-    logDelMedbrukerEvent("Sett intro", hentBrukersFylkeOgLokalkontor(bruker));
+    logEvent({ name: "arbeidsmarkedstiltak.del-med-bruker", data: { action: "Sett intro" } });
   };
 
   const forMangeTegn = (tekst: string): boolean => {
