@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.api.repositories
 
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
@@ -347,68 +346,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     hovedenhet = "2990",
                 ),
             )
-        }
-
-        test("Oppdater navEnheter fra Sanity-tiltaksgjennomføringer til database") {
-            val enhetRepository = NavEnhetRepository(database.db)
-            enhetRepository.upsert(
-                NavEnhetDbo(
-                    navn = "Navn1",
-                    enhetsnummer = "1",
-                    status = NavEnhetStatus.AKTIV,
-                    type = Norg2Type.LOKAL,
-                    overordnetEnhet = null,
-                ),
-            ).shouldBeRight()
-            enhetRepository.upsert(
-                NavEnhetDbo(
-                    navn = "Navn2",
-                    enhetsnummer = "2",
-                    status = NavEnhetStatus.AKTIV,
-                    type = Norg2Type.LOKAL,
-                    overordnetEnhet = null,
-                ),
-            ).shouldBeRight()
-
-            val gjennomforing = Oppfolging1.copy(navEnheter = emptyList())
-
-            tiltaksgjennomforinger.upsert(gjennomforing)
-            tiltaksgjennomforinger.get(gjennomforing.id).should {
-                it!!.navEnheter.shouldBeEmpty()
-            }
-            tiltaksgjennomforinger.updateEnheter("1", listOf("1", "2"))
-            tiltaksgjennomforinger.get(gjennomforing.id).should {
-                it!!.navEnheter shouldContainExactlyInAnyOrder listOf(
-                    EmbeddedNavEnhet(
-                        enhetsnummer = "1",
-                        navn = "Navn1",
-                        type = Norg2Type.LOKAL,
-                        overordnetEnhet = null,
-                    ),
-                    EmbeddedNavEnhet(
-                        enhetsnummer = "2",
-                        navn = "Navn2",
-                        type = Norg2Type.LOKAL,
-                        overordnetEnhet = null,
-                    ),
-                )
-            }
-            database.assertThat("tiltaksgjennomforing_nav_enhet").hasNumberOfRows(2)
-
-            tiltaksgjennomforinger.updateEnheter("1", listOf("2"))
-            tiltaksgjennomforinger.get(gjennomforing.id).should {
-                it!!.navEnheter.shouldContainExactlyInAnyOrder(
-                    listOf(
-                        EmbeddedNavEnhet(
-                            enhetsnummer = "2",
-                            navn = "Navn2",
-                            type = Norg2Type.LOKAL,
-                            overordnetEnhet = null,
-                        ),
-                    ),
-                )
-            }
-            database.assertThat("tiltaksgjennomforing_nav_enhet").hasNumberOfRows(1)
         }
 
         test("update sanity_id") {

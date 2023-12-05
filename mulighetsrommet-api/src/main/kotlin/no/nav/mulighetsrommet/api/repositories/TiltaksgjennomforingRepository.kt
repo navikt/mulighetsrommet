@@ -19,7 +19,6 @@ import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
 import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus.*
 import org.intellij.lang.annotations.Language
-import org.postgresql.util.PSQLException
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
 import java.util.*
@@ -269,64 +268,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         """.trimIndent()
 
         queryOf(query, tiltaksgjennomforing.toSqlParameters()).asExecute.let { tx.run(it) }
-    }
-
-    fun updateEnheter(tiltaksnummer: String, navEnheter: List<String>): Int {
-        @Language("PostgreSQL")
-        val findId = """
-            select id from tiltaksgjennomforing
-                where (:aar::text is null and split_part(tiltaksnummer, '#', 2) = :lopenr)
-                or (
-                    :aar::text is not null and split_part(tiltaksnummer, '#', 1) = :aar
-                    and split_part(tiltaksnummer, '#', 2) = :lopenr
-                )
-        """.trimIndent()
-
-        @Language("PostgreSQL")
-        val upsertEnhet = """
-            insert into tiltaksgjennomforing_nav_enhet (tiltaksgjennomforing_id, enhetsnummer)
-                values (:id::uuid, :enhetsnummer)
-                on conflict (tiltaksgjennomforing_id, enhetsnummer) do nothing
-        """.trimIndent()
-
-        @Language("PostgreSQL")
-        val deleteEnheter = """
-            delete from tiltaksgjennomforing_nav_enhet
-            where tiltaksgjennomforing_id = :id::uuid and not (enhetsnummer = any (:enhetsnummere))
-        """.trimIndent()
-
-        val (aar, lopenr) = tiltaksnummer.split("#").let {
-            if (it.size == 2) {
-                (it.first() to it[1])
-            } else {
-                (null to it.first())
-            }
-        }
-
-        return db.transaction { tx ->
-            val ider = queryOf(findId, mapOf("aar" to aar, "lopenr" to lopenr))
-                .map { it.string("id") }
-                .asList
-                .let { db.run(it) }
-            if (ider.size > 1) {
-                throw PSQLException("Fant flere enn én tiltaksgjennomforing_id for tiltaksnummer: $tiltaksnummer", null)
-            }
-            if (ider.isEmpty()) {
-                return@transaction 0
-            }
-            val id = ider[0]
-
-            navEnheter.forEach { enhetsnummer ->
-                tx.run(
-                    queryOf(upsertEnhet, mapOf("id" to id, "enhetsnummer" to enhetsnummer)).asExecute,
-                )
-            }
-            tx.run(
-                queryOf(deleteEnheter, mapOf("id" to id, "enhetsnummere" to db.createTextArray(navEnheter))).asExecute,
-            )
-
-            1
-        }
     }
 
     fun get(id: UUID): TiltaksgjennomforingAdminDto? =
@@ -830,7 +771,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    fun setAvtaleId(gjennomforingId: UUID, avtaleId: UUID?) {
+    fun setAvtaleId(tx: Session, gjennomforingId: UUID, avtaleId: UUID?) {
         @Language("PostgreSQL")
         val query = """
             update tiltaksgjennomforing
