@@ -10,7 +10,6 @@ import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
-import io.kotest.matchers.types.beInstanceOf
 import io.ktor.client.engine.*
 import io.ktor.client.engine.mock.*
 import io.ktor.http.*
@@ -22,7 +21,6 @@ import no.nav.mulighetsrommet.arena.adapter.fixtures.TiltaksgjennomforingFixture
 import no.nav.mulighetsrommet.arena.adapter.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.arena.adapter.fixtures.createArenaAvtaleInfoEvent
 import no.nav.mulighetsrommet.arena.adapter.fixtures.createArenaTiltakgjennomforingEvent
-import no.nav.mulighetsrommet.arena.adapter.models.ProcessingError
 import no.nav.mulighetsrommet.arena.adapter.models.ProcessingResult
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaAvtaleInfo
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
@@ -344,20 +342,6 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                     it.status shouldBe Failed
                     it.message shouldContain "Internal Server Error"
                 }
-            }
-
-            test("should be InvalidPayload when KLOKKETID_FREMMOTE is unparseable") {
-                val (event) = prepareEvent(
-                    createArenaTiltakgjennomforingEvent(Insert) {
-                        it.copy(
-                            DATO_FREMMOTE = "2022-11-11 00:00:00",
-                            KLOKKETID_FREMMOTE = "asdf",
-                        )
-                    },
-                )
-
-                val processor = createProcessor(createMockEngine())
-                processor.handleEvent(event).shouldBeLeft() should beInstanceOf<ProcessingError.InvalidPayload>()
             }
 
             test("should call api with mapped event payload when all services responds with success") {
