@@ -47,13 +47,13 @@ export interface ENABLE_REDIGER_DELETEKST_ACTION {
   payload: boolean;
 }
 
-export interface TOGGLE_MODAL_ACTION {
-  type: "Toggle modal";
+export interface LUKK_MODAL_ACTION {
+  type: "Lukk modal";
   payload: boolean;
 }
 
-export interface TOGGLE_STATUSMODAL_ACTION {
-  type: "Toggle statusmodal";
+export interface LUKK_STATUSMODAL_ACTION {
+  type: "Lukk statusmodal";
   payload: boolean;
 }
 
@@ -66,5 +66,5 @@ export type Actions =
   | SET_VENTER_PAA_SVAR_FRA_BRUKER
   | SET_DELETEKST_ACTION
   | ENABLE_REDIGER_DELETEKST_ACTION
-  | TOGGLE_MODAL_ACTION
-  | TOGGLE_STATUSMODAL_ACTION;
+  | LUKK_MODAL_ACTION
+  | LUKK_STATUSMODAL_ACTION;

@@ -57,12 +57,12 @@ export function reducer(state: State, action: Actions): State {
         ...state,
         enableRedigerDeletekst: action.payload,
       };
-    case "Toggle modal":
+    case "Lukk modal":
       return {
         ...state,
         modalOpen: action.payload,
       };
-    case "Toggle statusmodal":
+    case "Lukk statusmodal":
       return {
         ...state,
         statusmodalOpen: action.payload,

@@ -17,7 +17,6 @@ import { logDelMedbrukerEvent } from "./DelemodalReducer";
 import { Actions, State } from "./DelemodalActions";
 
 interface DelemodalProps {
-  lukkModal: () => void;
   brukernavn?: string;
   veiledernavn?: string;
   brukerFnr: string;
@@ -51,7 +50,6 @@ export function sySammenTekster(
 }
 
 export function Delemodal({
-  lukkModal,
   brukernavn,
   veiledernavn,
   brukerFnr,
@@ -68,6 +66,8 @@ export function Delemodal({
   );
 
   const originaltekstLengde = state.originalDeletekst.length;
+  const lukkStatusmodal = () => dispatch({ type: "Lukk statusmodal", payload: false });
+  const lukkModal = () => dispatch({ type: "Lukk modal", payload: false });
 
   const clickCancel = () => {
     lukkModal();
@@ -110,17 +110,17 @@ export function Delemodal({
       {feilmelding ? (
         <StatusModal
           modalOpen={state.statusmodalOpen}
-          onClose={() => dispatch({ type: "Toggle statusmodal", payload: false })}
+          onClose={lukkStatusmodal}
           ikonVariant="warning"
           heading="Kunne ikke dele tiltaket"
           text={feilmelding}
           primaryButtonText="OK"
-          primaryButtonOnClick={lukkModal}
+          primaryButtonOnClick={lukkStatusmodal}
         />
       ) : (
         <Modal
           open={state.modalOpen}
-          onClose={() => dispatch({ type: "Toggle modal", payload: false })}
+          onClose={lukkModal}
           className={delemodalStyles.delemodal}
           aria-label="modal"
         >
@@ -207,10 +207,10 @@ export function Delemodal({
               <a href={PORTEN}>kontakt i Porten</a> dersom du trenger mer hjelp.
             </>
           }
-          onClose={() => dispatch({ type: "Toggle statusmodal", payload: false })}
+          onClose={lukkStatusmodal}
           primaryButtonOnClick={() => dispatch({ type: "Reset" })}
           primaryButtonText="Prøv igjen"
-          secondaryButtonOnClick={() => dispatch({ type: "Toggle statusmodal", payload: false })}
+          secondaryButtonOnClick={lukkStatusmodal}
           secondaryButtonText="Avbryt"
         />
       )}
@@ -218,21 +218,21 @@ export function Delemodal({
       {state.sendtStatus === "SENDT_OK" && (
         <StatusModal
           modalOpen={state.statusmodalOpen}
-          onClose={() => dispatch({ type: "Toggle statusmodal", payload: false })}
+          onClose={lukkStatusmodal}
           ikonVariant="success"
           heading="Tiltaket er delt med brukeren"
           text="Det er opprettet en ny tråd i Dialogen der du kan fortsette kommunikasjonen rundt dette tiltaket med brukeren."
           primaryButtonText="Gå til dialogen"
           primaryButtonOnClick={(event) => byttTilDialogFlate({ event, dialogId: state.dialogId })}
           secondaryButtonText="Lukk"
-          secondaryButtonOnClick={() => dispatch({ type: "Toggle statusmodal", payload: false })}
+          secondaryButtonOnClick={lukkStatusmodal}
         />
       )}
     </>
   );
 }
 
-function utledFeilmelding(brukerdata: Bruker) {
+export function utledFeilmelding(brukerdata: Bruker) {
   if (!brukerdata.manuellStatus) {
     return "Vi kunne ikke opprette kontakt med KRR og vet derfor ikke om brukeren har reservert seg mot elektronisk kommunikasjon.";
   } else if (brukerdata.manuellStatus.erUnderManuellOppfolging) {

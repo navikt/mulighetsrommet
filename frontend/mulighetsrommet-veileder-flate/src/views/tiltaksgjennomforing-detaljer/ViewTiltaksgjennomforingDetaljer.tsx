@@ -10,7 +10,11 @@ import {
   VeilederflateTiltaksgjennomforing,
 } from "mulighetsrommet-api-client";
 import { useReducer } from "react";
-import { Delemodal, sySammenTekster } from "../../components/modal/delemodal/Delemodal";
+import {
+  Delemodal,
+  sySammenTekster,
+  utledFeilmelding,
+} from "../../components/modal/delemodal/Delemodal";
 import { Outlet } from "react-router-dom";
 import { BrukerHarIkke14aVedtakVarsel } from "../../components/ikkeKvalifisertVarsel/BrukerHarIkke14aVedtakVarsel";
 import { BrukerKvalifisererIkkeVarsel } from "../../components/ikkeKvalifisertVarsel/BrukerKvalifisererIkkeVarsel";
@@ -102,8 +106,11 @@ const ViewTiltaksgjennomforingDetaljer = ({
   const [state, dispatch] = useReducer(reducer, { deletekst }, initInitialState);
 
   const handleClickApneModal = () => {
+    const feilmelding = utledFeilmelding(brukerdata);
     logDelMedbrukerEvent("Åpnet dialog");
-    dispatch({ type: "Toggle modal", payload: true });
+    feilmelding
+      ? dispatch({ type: "Lukk statusmodal", payload: true })
+      : dispatch({ type: "Lukk modal", payload: true });
   };
 
   if (!tiltaksgjennomforing) {
@@ -218,7 +225,6 @@ const ViewTiltaksgjennomforingDetaljer = ({
           </div>
           <TiltaksdetaljerFane tiltaksgjennomforing={tiltaksgjennomforing} />
           <Delemodal
-            lukkModal={() => dispatch({ type: "Toggle modal", payload: false })}
             brukernavn={erPreview() ? "{Navn}" : brukerdata?.fornavn}
             veiledernavn={erPreview() ? "{Veiledernavn}" : veiledernavn}
             brukerFnr={brukerdata.fnr}
