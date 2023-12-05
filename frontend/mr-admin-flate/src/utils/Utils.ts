@@ -1,9 +1,4 @@
-import {
-  Avtale,
-  Avtaletype,
-  Tilgjengelighetsstatus,
-  TiltaksgjennomforingStatus,
-} from "mulighetsrommet-api-client";
+import { Avtale, Avtaletype, TiltaksgjennomforingStatus } from "mulighetsrommet-api-client";
 
 export function capitalize(text?: string): string {
   return text ? text.slice(0, 1).toUpperCase() + text.slice(1, text.length).toLowerCase() : "";
@@ -110,21 +105,6 @@ export const oversettStatusForTiltaksgjennomforing = (status?: Tiltaksgjennomfor
 export const inneholderUrl = (string: string) => {
   return window.location.href.indexOf(string) > -1;
 };
-
-export function tilgjengelighetsstatusTilTekst(
-  status?: Tilgjengelighetsstatus,
-): "Åpent" | "Stengt" | "Venteliste" | "" {
-  switch (status) {
-    case Tilgjengelighetsstatus.LEDIG:
-      return "Åpent";
-    case Tilgjengelighetsstatus.STENGT:
-      return "Stengt";
-    case Tilgjengelighetsstatus.VENTELISTE:
-      return "Venteliste";
-    default:
-      return "";
-  }
-}
 
 export function avtaletypeTilTekst(
   type: Avtaletype,

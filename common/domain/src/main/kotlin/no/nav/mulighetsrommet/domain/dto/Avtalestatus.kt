@@ -12,7 +12,6 @@ enum class Avtalestatus {
     companion object {
         fun resolveFromDatesAndAvslutningsstatus(
             now: LocalDate,
-            startDato: LocalDate,
             sluttDato: LocalDate,
             avslutningsstatus: Avslutningsstatus,
         ): Avtalestatus = when {

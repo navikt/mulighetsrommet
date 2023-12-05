@@ -28,8 +28,6 @@ import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype.FELLES
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype.LOPENDE
-import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingTilgjengelighetsstatus.LEDIG
-import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingTilgjengelighetsstatus.STENGT
 import no.nav.mulighetsrommet.domain.dto.JaNeiStatus
 import java.util.*
 
@@ -168,7 +166,7 @@ class TiltakgjennomforingEventProcessor(
             sluttDato = tilDato?.toLocalDate(),
             arenaAnsvarligEnhet = sak.enhet,
             avslutningsstatus = Avslutningsstatus.fromArenastatus(status),
-            tilgjengelighet = if (apentForInnsok) LEDIG else STENGT,
+            apentForInnsok = apentForInnsok,
             antallPlasser = antallPlasser,
             avtaleId = avtaleId,
             oppstart = if (hasFellesOppstart(tiltakskode)) FELLES else LOPENDE,

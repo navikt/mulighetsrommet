@@ -18,6 +18,7 @@ export default function useTiltaksgjennomforinger() {
   const requestBody: GetRelevanteTiltaksgjennomforingerForBrukerRequest = {
     norskIdent: fnr,
     innsatsgruppe: filter.innsatsgruppe?.nokkel,
+    apentForInnsok: filter.apentForInnsok,
   };
 
   if (filter.search) {

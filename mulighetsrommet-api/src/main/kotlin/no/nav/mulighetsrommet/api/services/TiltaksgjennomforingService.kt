@@ -96,11 +96,13 @@ class TiltaksgjennomforingService(
 
     fun getAllVeilederflateTiltaksgjennomforing(
         search: String?,
+        apentForInnsok: Boolean?,
         sanityTiltakstypeIds: List<UUID>?,
         innsatsgrupper: List<Innsatsgruppe>,
         brukersEnheter: List<String>,
     ): List<VeilederflateTiltaksgjennomforing> = tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
         search,
+        apentForInnsok,
         sanityTiltakstypeIds,
         innsatsgrupper,
         brukersEnheter,

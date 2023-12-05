@@ -35,6 +35,7 @@ data class GetRelevanteTiltaksgjennomforingerPreviewRequest(
     val tiltakstypeIds: List<String>? = null,
     val search: String? = null,
     val geografiskEnhet: String,
+    val apentForInnsok: ApentForInnsok,
 )
 
 @Serializable

@@ -1,6 +1,7 @@
 import { useAtom } from "jotai";
 import { useHentBrukerdata } from "../core/api/queries/useHentBrukerdata";
 import { useInnsatsgrupper } from "../core/api/queries/useInnsatsgrupper";
+import { ApentForInnsok } from "mulighetsrommet-api-client";
 import { tiltaksgjennomforingsfilter } from "../core/atoms/atoms";
 
 export function usePrepopulerFilter() {
@@ -13,20 +14,19 @@ export function usePrepopulerFilter() {
       (gruppe) => gruppe.nokkel === brukerdata?.data?.innsatsgruppe,
     );
     if (matchedInnsatsgruppe) {
-      const tiltakstyper = resetFilterTilUtgangspunkt ? [] : filter.tiltakstyper;
-      const search = resetFilterTilUtgangspunkt ? "" : filter.search;
-      const innsatsgruppe = resetFilterTilUtgangspunkt
+      const nextFilter = resetFilterTilUtgangspunkt
         ? {
-            id: matchedInnsatsgruppe.sanityId,
-            nokkel: matchedInnsatsgruppe.nokkel,
-            tittel: matchedInnsatsgruppe.tittel,
+            search: "",
+            apentForInnsok: ApentForInnsok.APENT_ELLER_STENGT,
+            tiltakstyper: [],
+            innsatsgruppe: {
+              id: matchedInnsatsgruppe.sanityId,
+              nokkel: matchedInnsatsgruppe.nokkel,
+              tittel: matchedInnsatsgruppe.tittel,
+            },
           }
-        : filter.innsatsgruppe;
-      setFilter({
-        search,
-        tiltakstyper,
-        innsatsgruppe,
-      });
+        : filter;
+      setFilter(nextFilter);
     }
   }
 
