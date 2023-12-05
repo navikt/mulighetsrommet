@@ -40,6 +40,7 @@ import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.Faneinnhold
 import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 class TiltaksgjennomforingRepositoryTest : FunSpec({
@@ -135,6 +136,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 avtaleId = null,
                 oppstart = TiltaksgjennomforingOppstartstype.FELLES,
                 opphav = ArenaMigrering.Opphav.ARENA,
+                fremmoteTidspunkt = LocalDateTime.of(2023, 2, 2, 0, 0, 0),
+                fremmoteSted = "Giraff innhegningen",
             )
 
             tiltaksgjennomforinger.upsertArenaTiltaksgjennomforing(gjennomforingFraArena)

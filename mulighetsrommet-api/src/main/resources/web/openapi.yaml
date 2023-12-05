@@ -2032,6 +2032,11 @@ components:
         updatedAt:
           type: string
           format: date-time
+        fremmoteTidspunkt:
+          type: string
+          format: date-time
+        fremmoteSted:
+          type: string
       required:
         - status
         - id

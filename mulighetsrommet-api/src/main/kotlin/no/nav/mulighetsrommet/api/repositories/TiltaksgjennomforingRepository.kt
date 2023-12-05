@@ -221,7 +221,9 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 antall_plasser,
                 avtale_id,
                 oppstart,
-                opphav
+                opphav,
+                fremmote_tidspunkt,
+                fremmote_sted
             )
             values (
                 :id::uuid,
@@ -237,7 +239,9 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 :antall_plasser,
                 :avtale_id,
                 :oppstart::tiltaksgjennomforing_oppstartstype,
-                :opphav::opphav
+                :opphav::opphav,
+                :fremmote_tidspunkt,
+                :fremmote_sted
             )
             on conflict (id)
                 do update set navn                         = excluded.navn,
@@ -252,7 +256,9 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                               antall_plasser               = excluded.antall_plasser,
                               avtale_id                    = excluded.avtale_id,
                               oppstart                     = coalesce(tiltaksgjennomforing.oppstart, excluded.oppstart),
-                              opphav                       = excluded.opphav
+                              opphav                       = excluded.opphav,
+                              fremmote_tidspunkt           = excluded.fremmote_tidspunkt,
+                              fremmote_sted                = excluded.fremmote_sted
             returning *
         """.trimIndent()
 
@@ -651,6 +657,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         "avtale_id" to avtaleId,
         "oppstart" to oppstart.name,
         "opphav" to opphav.name,
+        "fremmote_tidspunkt" to fremmoteTidspunkt,
+        "fremmote_sted" to fremmoteSted,
     )
 
     private fun Row.toVeilederflateTiltaksgjennomforing(): VeilederflateTiltaksgjennomforing {
@@ -768,6 +776,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             updatedAt = localDateTime("updated_at"),
             tilgjengeligForVeileder = boolean("tilgjengelig_for_veileder"),
             visesForVeileder = boolean("vises_for_veileder"),
+            fremmoteTidspunkt = localDateTimeOrNull("fremmote_tidspunkt"),
+            fremmoteSted = stringOrNull("fremmote_sted"),
         )
     }
 

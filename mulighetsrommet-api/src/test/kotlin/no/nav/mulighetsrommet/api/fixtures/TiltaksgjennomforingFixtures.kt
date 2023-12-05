@@ -27,6 +27,8 @@ object TiltaksgjennomforingFixtures {
         oppstart = TiltaksgjennomforingOppstartstype.FELLES,
         opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
         avtaleId = AvtaleFixtures.avtale1.id,
+        fremmoteTidspunkt = null,
+        fremmoteSted = null,
     )
 
     val Oppfolging1 = TiltaksgjennomforingDbo(
@@ -118,6 +120,8 @@ object TiltaksgjennomforingFixtures {
         updatedAt = Oppfolging1.startDato.atStartOfDay(),
         tilgjengeligForVeileder = true,
         visesForVeileder = true,
+        fremmoteTidspunkt = null,
+        fremmoteSted = null,
     )
 
     val Oppfolging2 = TiltaksgjennomforingDbo(
