@@ -1,5 +1,5 @@
 import { atomWithHash } from "jotai-location";
-import { Innsatsgruppe, NavEnhet } from "mulighetsrommet-api-client";
+import { ApentForInnsok, Innsatsgruppe, NavEnhet } from "mulighetsrommet-api-client";
 import { atomWithStorage } from "jotai/utils";
 import { atom } from "jotai";
 
@@ -11,10 +11,18 @@ interface AppContextData {
 
 export const appContext = atom<Partial<AppContextData>>({});
 
+// Bump version number when localStorage should be cleared
+const version = localStorage.getItem("version");
+if (version !== "0.1.0") {
+  localStorage.clear();
+  localStorage.setItem("version", "0.1.0");
+}
+
 export interface Tiltaksgjennomforingsfilter {
   search: string;
   innsatsgruppe?: Tiltaksgjennomforingsfiltergruppe<Innsatsgruppe>;
   tiltakstyper: Tiltaksgjennomforingsfiltergruppe<string>[];
+  apentForInnsok: ApentForInnsok;
 }
 
 export interface Tiltaksgjennomforingsfiltergruppe<T> {
@@ -27,25 +35,12 @@ export const tiltaksgjennomforingsfilter = atomWithStorage<Tiltaksgjennomforings
   search: "",
   innsatsgruppe: undefined,
   tiltakstyper: [],
+  apentForInnsok: ApentForInnsok.APENT_ELLER_STENGT,
 });
 
 export const paginationAtom = atomWithHash("page", 1, { setHash: "replaceState" });
 export const faneAtom = atomWithHash("fane", "tab1", {
   setHash: "replaceState",
-});
-
-export type JoyrideStorage = {
-  joyrideOversikten: boolean;
-  joyrideOversiktenLastStep: boolean | null;
-  joyrideDetaljer: boolean;
-  joyrideDetaljerHarVistOpprettAvtale: boolean;
-};
-
-export const joyrideAtom = atomWithStorage<JoyrideStorage>("joyride_mulighetsrommet", {
-  joyrideOversikten: true,
-  joyrideOversiktenLastStep: null,
-  joyrideDetaljer: true,
-  joyrideDetaljerHarVistOpprettAvtale: true,
 });
 
 export const geografiskEnhetForPreviewAtom = atom<NavEnhet | undefined>(undefined);

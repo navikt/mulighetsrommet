@@ -9,7 +9,7 @@ import { NOM_ANSATT_SIDE } from "mulighetsrommet-frontend-common/constants";
 import { Bolk } from "../../components/detaljside/Bolk";
 import { Metadata, Separator } from "../../components/detaljside/Metadata";
 import { VisHvisVerdi } from "../../components/detaljside/VisHvisVerdi";
-import { erProdMiljo, formaterDato, tilgjengelighetsstatusTilTekst } from "../../utils/Utils";
+import { erProdMiljo, formaterDato } from "../../utils/Utils";
 import styles from "../DetaljerInfo.module.scss";
 import { Kontaktperson } from "./Kontaktperson";
 import { Link } from "react-router-dom";
@@ -143,10 +143,10 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
 
           <Separator />
 
-          <Bolk aria-label="Tilgjengelighetsstatus">
+          <Bolk aria-label="Åpent for innsøk">
             <Metadata
-              header="Tilgjengelighetsstatus"
-              verdi={tilgjengelighetsstatusTilTekst(tiltaksgjennomforing.tilgjengelighet)}
+              header="Åpent for innsøk"
+              verdi={tiltaksgjennomforing.apentForInnsok ? "Ja" : "Nei"}
             />
           </Bolk>
 

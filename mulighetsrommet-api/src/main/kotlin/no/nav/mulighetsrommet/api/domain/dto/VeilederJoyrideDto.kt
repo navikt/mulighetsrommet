@@ -18,7 +18,6 @@ data class VeilederJoyrideRequest(
 @Serializable
 enum class JoyrideType {
     OVERSIKT,
-    OVERSIKTEN_LAST_STEP,
     DETALJER,
     HAR_VIST_OPPRETT_AVTALE,
 }

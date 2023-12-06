@@ -11,7 +11,10 @@ import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
-import no.nav.mulighetsrommet.domain.dbo.*
+import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
+import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
+import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
+import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
 import no.nav.mulighetsrommet.domain.dto.TiltakstypeDto
 import no.nav.mulighetsrommet.domain.dto.Tiltakstypestatus
@@ -53,11 +56,13 @@ class KafkaSyncServiceTest : FunSpec({
             sluttDato = sluttDato,
             arenaAnsvarligEnhet = "2990",
             avslutningsstatus = avslutningsstatus,
-            tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.LEDIG,
+            apentForInnsok = true,
             antallPlasser = 12,
             oppstart = TiltaksgjennomforingOppstartstype.FELLES,
             opphav = ArenaMigrering.Opphav.ARENA,
             avtaleId = null,
+            fremmoteTidspunkt = null,
+            fremmoteSted = null,
         )
     }
 

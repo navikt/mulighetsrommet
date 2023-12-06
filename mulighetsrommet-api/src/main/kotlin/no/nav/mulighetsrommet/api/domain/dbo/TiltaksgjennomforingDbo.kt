@@ -3,7 +3,6 @@ package no.nav.mulighetsrommet.api.domain.dbo
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
-import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingTilgjengelighetsstatus
 import no.nav.mulighetsrommet.domain.dto.Faneinnhold
 import java.time.LocalDate
 import java.util.*
@@ -18,7 +17,7 @@ data class TiltaksgjennomforingDbo(
     val startDato: LocalDate,
     val sluttDato: LocalDate?,
     val avslutningsstatus: Avslutningsstatus,
-    val tilgjengelighet: TiltaksgjennomforingTilgjengelighetsstatus,
+    val apentForInnsok: Boolean,
     val antallPlasser: Int,
     val avtaleId: UUID,
     val administratorer: List<String>,

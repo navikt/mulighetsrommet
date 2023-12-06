@@ -14,7 +14,7 @@ import { Outlet } from "react-router-dom";
 import { BrukerHarIkke14aVedtakVarsel } from "../../components/ikkeKvalifisertVarsel/BrukerHarIkke14aVedtakVarsel";
 import { BrukerKvalifisererIkkeVarsel } from "../../components/ikkeKvalifisertVarsel/BrukerKvalifisererIkkeVarsel";
 import { DetaljerJoyride } from "../../components/joyride/DetaljerJoyride";
-import { DetaljerOpprettAvtaleJoyride } from "../../components/joyride/DetaljerOpprettAvtaleJoyride";
+import { OpprettAvtaleJoyride } from "../../components/joyride/OpprettAvtaleJoyride";
 import Delemodal from "../../components/modal/delemodal/Delemodal";
 import SidemenyDetaljer from "../../components/sidemeny/SidemenyDetaljer";
 import TiltaksdetaljerFane from "../../components/tabs/TiltaksdetaljerFane";
@@ -127,9 +127,7 @@ const ViewTiltaksgjennomforingDetaljer = ({
           {!erPreview() && (
             <>
               <DetaljerJoyride opprettAvtale={opprettAvtale} />
-              {opprettAvtale ? (
-                <DetaljerOpprettAvtaleJoyride opprettAvtale={opprettAvtale} />
-              ) : null}
+              {opprettAvtale ? <OpprettAvtaleJoyride opprettAvtale={opprettAvtale} /> : null}
             </>
           )}
         </div>

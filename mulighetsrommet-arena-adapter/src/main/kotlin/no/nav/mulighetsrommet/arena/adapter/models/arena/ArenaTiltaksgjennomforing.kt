@@ -20,4 +20,7 @@ data class ArenaTiltaksgjennomforing(
     val ANTALL_DELTAKERE: Int?,
     val TILTAKSTATUSKODE: String,
     val AVTALE_ID: Int?,
+    val KLOKKETID_FREMMOTE: String?,
+    val DATO_FREMMOTE: String?,
+    val TEKST_KURSSTED: String?,
 )

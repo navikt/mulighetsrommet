@@ -1,8 +1,6 @@
-import { useAtom } from "jotai";
 import { JoyrideType } from "mulighetsrommet-api-client";
 import Joyride, { ACTIONS, CallBackProps, EVENTS, STATUS } from "react-joyride";
-import { useLagreJoyrideForVeileder } from "../../core/api/queries/useLagreJoyrideForVeileder";
-import { joyrideAtom } from "../../core/atoms/atoms";
+import { useJoyride } from "../../core/api/queries/useJoyride";
 import styles from "./Joyride.module.scss";
 import { JoyrideKnapp } from "./JoyrideKnapp";
 import { detaljerSteps, isStep, useSteps } from "./Steps";
@@ -13,10 +11,10 @@ interface Props {
 }
 
 export function DetaljerJoyride({ opprettAvtale }: Props) {
-  const [joyride, setJoyride] = useAtom(joyrideAtom);
-  useLagreJoyrideForVeileder(JoyrideType.DETALJER, "joyrideDetaljer");
+  const { isReady, setIsReady, harFullfort, setHarFullfort } = useJoyride(JoyrideType.DETALJER);
+  const { steps, stepIndex, setStepIndex } = useSteps(isReady, detaljerSteps);
 
-  const { steps, stepIndex, setStepIndex } = useSteps(joyride.joyrideDetaljer, detaljerSteps);
+  if (harFullfort) return null;
 
   const handleJoyrideCallback = (data: CallBackProps) => {
     const { action, index, status, type } = data;
@@ -28,9 +26,6 @@ export function DetaljerJoyride({ opprettAvtale }: Props) {
     }
 
     if (!opprettAvtale) {
-      //hvis brukeren ikke er inne på et tiltak med opprett avtale, settes opprett avtale-steps til false i localStorage
-      setJoyride((joyride) => ({ ...joyride, joyrideDetaljerHarVistOpprettAvtale: false }));
-
       //hopper over steget med opprett avtale for at den skal kjøre videre til neste steg
       if (isStep(data.step, "opprett-avtale")) {
         setStepIndex(nextStepIndex);
@@ -39,19 +34,19 @@ export function DetaljerJoyride({ opprettAvtale }: Props) {
 
     //resetter joyride ved error
     if (STATUS.ERROR === status) {
-      setJoyride((joyride) => ({ ...joyride, joyrideDetaljer: true }));
+      setHarFullfort(false);
       setStepIndex(0);
     }
 
     //resetter joyride når den er ferdig eller man klikker skip
     else if (([STATUS.FINISHED, STATUS.SKIPPED] as string[]).includes(status)) {
-      setJoyride((joyride) => ({ ...joyride, joyrideDetaljer: false }));
+      setHarFullfort(true);
       setStepIndex(0);
     }
 
     //lukker joyride ved klikk på escape
     if (ACTIONS.CLOSE === action) {
-      setJoyride((joyride) => ({ ...joyride, joyrideDetaljer: false }));
+      setHarFullfort(true);
       setStepIndex(0);
     }
   };
@@ -60,14 +55,15 @@ export function DetaljerJoyride({ opprettAvtale }: Props) {
     <>
       <JoyrideKnapp
         handleClick={() => {
-          setJoyride((joyride) => ({ ...joyride, joyrideDetaljer: true }));
+          setStepIndex(0);
+          setIsReady(true);
         }}
         className={styles.joyride_detaljer}
       />
       <Joyride
         locale={locale}
         continuous
-        run={joyride.joyrideDetaljer}
+        run={isReady}
         steps={steps}
         hideCloseButton
         callback={handleJoyrideCallback}

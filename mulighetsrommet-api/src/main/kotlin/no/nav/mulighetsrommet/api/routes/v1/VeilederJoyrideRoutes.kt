@@ -18,7 +18,7 @@ fun Route.veilederJoyrideRoutes() {
     route("/api/v1/internal/joyride") {
         post("lagre") {
             val request = call.receive<VeilederJoyrideRequest>()
-            veilederJoyrideRepository.save(
+            veilederJoyrideRepository.upsert(
                 VeilederJoyrideDto(
                     navIdent = getNavIdent(),
                     fullfort = request.fullfort,

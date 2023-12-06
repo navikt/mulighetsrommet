@@ -17,6 +17,9 @@ object TiltaksgjennomforingFixtures {
         ANTALL_DELTAKERE = 5,
         TILTAKSTATUSKODE = "GJENNOMFOR",
         AVTALE_ID = null,
+        KLOKKETID_FREMMOTE = null,
+        DATO_FREMMOTE = null,
+        TEKST_KURSSTED = null,
     )
 
     val ArenaTiltaksgjennomforingIndividuell = ArenaTiltaksgjennomforing(
@@ -32,5 +35,8 @@ object TiltaksgjennomforingFixtures {
         ANTALL_DELTAKERE = 5,
         TILTAKSTATUSKODE = "GJENNOMFOR",
         AVTALE_ID = null,
+        KLOKKETID_FREMMOTE = null,
+        DATO_FREMMOTE = null,
+        TEKST_KURSSTED = null,
     )
 }

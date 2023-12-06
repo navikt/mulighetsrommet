@@ -8,6 +8,7 @@ import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityPerspective
 import no.nav.mulighetsrommet.api.clients.vedtak.Innsatsgruppe
 import no.nav.mulighetsrommet.api.domain.dto.*
+import no.nav.mulighetsrommet.api.routes.v1.ApentForInnsok
 import no.nav.mulighetsrommet.api.routes.v1.GetRelevanteTiltaksgjennomforingerForBrukerRequest
 import no.nav.mulighetsrommet.api.routes.v1.GetRelevanteTiltaksgjennomforingerPreviewRequest
 import no.nav.mulighetsrommet.api.routes.v1.GetTiltaksgjennomforingForBrukerRequest
@@ -16,7 +17,6 @@ import no.nav.mulighetsrommet.api.utils.byggSokeFilter
 import no.nav.mulighetsrommet.api.utils.byggTiltakstypeFilter
 import no.nav.mulighetsrommet.api.utils.utledInnsatsgrupper
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
-import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingTilgjengelighetsstatus
 import no.nav.mulighetsrommet.metrics.Metrikker
 import no.nav.mulighetsrommet.utils.CacheUtils
 import java.util.*
@@ -131,6 +131,7 @@ class VeilederflateService(
             filter.innsatsgruppe,
             filter.tiltakstypeIds,
             filter.search,
+            filter.apentForInnsok,
             listOf(filter.geografiskEnhet),
         )
     }
@@ -147,6 +148,7 @@ class VeilederflateService(
             filter.innsatsgruppe,
             filter.tiltakstypeIds,
             filter.search,
+            filter.apentForInnsok,
             brukersEnheter,
         )
     }
@@ -155,6 +157,7 @@ class VeilederflateService(
         innsatsgruppe: String?,
         tiltakstypeIds: List<String>?,
         search: String?,
+        apentForInnsok: ApentForInnsok,
         brukersEnheter: List<String>,
     ): List<VeilederflateTiltaksgjennomforing> {
         val query = """
@@ -188,17 +191,26 @@ class VeilederflateService(
         val gruppeGjennomforinger = tiltaksgjennomforingService.getAllVeilederflateTiltaksgjennomforing(
             search = search,
             sanityTiltakstypeIds = tiltakstypeIds?.map { UUID.fromString(it) },
-            innsatsgrupper = innsatsgruppe?.let {
-                utledInnsatsgrupper(innsatsgruppe).map { Innsatsgruppe.valueOf(it) }
-            } ?: emptyList(),
+            innsatsgrupper = innsatsgruppe
+                ?.let { utledInnsatsgrupper(innsatsgruppe).map { Innsatsgruppe.valueOf(it) } }
+                ?: emptyList(),
             brukersEnheter = brukersEnheter,
+            apentForInnsok = when (apentForInnsok) {
+                ApentForInnsok.APENT -> true
+                ApentForInnsok.STENGT -> false
+                ApentForInnsok.APENT_ELLER_STENGT -> null
+            },
         )
 
-        val gruppeSanityIds = gruppeGjennomforinger.map { it.sanityId }
-
-        val individuelleGjennomforinger = sanityGjennomforinger
-            .filter { it._id !in gruppeSanityIds }
-            .map { toVeilederTiltaksgjennomforing(it, brukersEnheter) }
+        val individuelleGjennomforinger = if (apentForInnsok == ApentForInnsok.STENGT) {
+            // Det er foreløpig ikke noe egen funksjonalitet for å markere tiltak som midlertidig stengt i Sanity
+            emptyList()
+        } else {
+            val gruppeSanityIds = gruppeGjennomforinger.map { it.sanityId }
+            sanityGjennomforinger
+                .filter { it._id !in gruppeSanityIds }
+                .map { toVeilederTiltaksgjennomforing(it, brukersEnheter) }
+        }
 
         return (individuelleGjennomforinger + gruppeGjennomforinger)
             .filter {
@@ -207,9 +219,6 @@ class VeilederflateService(
                 } else {
                     it.enheter.any { enhet -> enhet in brukersEnheter }
                 }
-            }
-            .filter {
-                it.tilgjengelighet !== TiltaksgjennomforingTilgjengelighetsstatus.STENGT
             }
     }
 
@@ -337,6 +346,7 @@ class VeilederflateService(
                     )
                 },
                 navn = tiltaksgjennomforingNavn,
+                apentForInnsok = true,
                 stedForGjennomforing = stedForGjennomforing,
                 fylke = fylke,
                 enheter = enheter,
@@ -382,7 +392,7 @@ class VeilederflateService(
                 oppstart = apiGjennomforing.oppstart,
                 oppstartsdato = apiGjennomforing.startDato,
                 sluttdato = apiGjennomforing.sluttDato,
-                tilgjengelighet = apiGjennomforing.tilgjengelighet,
+                apentForInnsok = apiGjennomforing.apentForInnsok,
                 arrangor = arrangor,
                 stedForGjennomforing = apiGjennomforing.stedForGjennomforing,
                 fylke = fylke,

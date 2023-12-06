@@ -5,22 +5,23 @@ select tg.id::uuid,
        tg.tiltakstype_id,
        tg.tiltaksnummer,
        tg.arrangor_organisasjonsnummer,
-       v.navn                                                                                  as arrangor_navn,
+       v.navn                  as arrangor_navn,
        tg.start_dato,
        tg.slutt_dato,
        t.tiltakskode,
-       t.navn                                                                                  as tiltakstype_navn,
+       t.navn                  as tiltakstype_navn,
        case
-           when arena_nav_enhet.enhetsnummer
-               is null then null::jsonb
+           when arena_nav_enhet.enhetsnummer is null then null::jsonb
            else
                jsonb_build_object(
                        'enhetsnummer', arena_nav_enhet.enhetsnummer,
                        'navn', arena_nav_enhet.navn,
                        'type', arena_nav_enhet.type,
-                       'overordnetEnhet', arena_nav_enhet.overordnet_enhet) end                as arena_ansvarlig_enhet,
+                       'overordnetEnhet',
+                       arena_nav_enhet.overordnet_enhet) end
+                               as arena_ansvarlig_enhet,
        tg.avslutningsstatus,
-       tg.tilgjengelighet,
+       tg.apent_for_innsok,
        tg.sanity_id,
        tg.antall_plasser,
        tg.avtale_id,
@@ -28,10 +29,10 @@ select tg.id::uuid,
        tg.opphav,
        tg.stengt_fra,
        tg.stengt_til,
-       tg.nav_region                                                                           as nav_region_enhetsnummer,
-       region.navn                                                                             as nav_region_navn,
-       region.type                                                                             as nav_region_type,
-       region.overordnet_enhet                                                                 as nav_region_overordnet_enhet,
+       tg.nav_region           as nav_region_enhetsnummer,
+       region.navn             as nav_region_navn,
+       region.type             as nav_region_type,
+       region.overordnet_enhet as nav_region_overordnet_enhet,
        jsonb_agg(
                distinct
                case
@@ -39,14 +40,14 @@ select tg.id::uuid,
                    else jsonb_build_object('navIdent', tg_a.nav_ident, 'navn',
                                            concat(na_tg.fornavn, ' ', na_tg.etternavn))
                    end
-       )                                                                                       as administratorer,
+           )                   as administratorer,
        jsonb_agg(distinct
                  case
                      when tg_e.enhetsnummer is null then null::jsonb
                      else jsonb_build_object('enhetsnummer', tg_e.enhetsnummer, 'navn', ne.navn, 'type', ne.type,
                                              'overordnetEnhet', ne.overordnet_enhet)
                      end
-       )                                                                                       as nav_enheter,
+           )                   as nav_enheter,
        jsonb_agg(distinct
                  case
                      when tgk.tiltaksgjennomforing_id is null then null::jsonb
@@ -54,21 +55,24 @@ select tg.id::uuid,
                                              concat(na.fornavn, ' ', na.etternavn), 'epost', na.epost, 'mobilnummer',
                                              na.mobilnummer, 'navEnheter', tgk.enheter, 'hovedenhet', na.hovedenhet)
                      end
-       )                                                                                       as kontaktpersoner,
+           )                   as kontaktpersoner,
        tg.sted_for_gjennomforing,
        tg.arrangor_kontaktperson_id,
-       vk.organisasjonsnummer                                                                  as arrangor_kontaktperson_organisasjonsnummer,
-       vk.navn                                                                                 as arrangor_kontaktperson_navn,
-       vk.telefon                                                                              as arrangor_kontaktperson_telefon,
-       vk.epost                                                                                as arrangor_kontaktperson_epost,
-       vk.beskrivelse                                                                          as arrangor_kontaktperson_beskrivelse,
+       vk.organisasjonsnummer  as arrangor_kontaktperson_organisasjonsnummer,
+       vk.navn                 as arrangor_kontaktperson_navn,
+       vk.telefon              as arrangor_kontaktperson_telefon,
+       vk.epost                as arrangor_kontaktperson_epost,
+       vk.beskrivelse          as arrangor_kontaktperson_beskrivelse,
        t.skal_migreres,
        tg.faneinnhold,
        tg.beskrivelse,
        tg.created_at,
        tg.updated_at,
        tg.tilgjengelig_for_veileder,
-       tg.tilgjengelig_for_veileder and tg.tilgjengelighet != 'STENGT'::tilgjengelighetsstatus as vises_for_veileder
+       tg.tilgjengelig_for_veileder and tg.avslutningsstatus = 'IKKE_AVSLUTTET'::avslutningsstatus
+                               as vises_for_veileder,
+       tg.fremmote_tidspunkt,
+       tg.fremmote_sted
 from tiltaksgjennomforing tg
          inner join tiltakstype t on tg.tiltakstype_id = t.id
          left join tiltaksgjennomforing_administrator tg_a on tg_a.tiltaksgjennomforing_id = tg.id

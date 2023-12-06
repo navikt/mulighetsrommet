@@ -21,7 +21,10 @@ class ArenaTiltaksgjennomforingTest : FunSpec({
             "STATUS_TREVERDIKODE_INNSOKNING": "J",
             "ANTALL_DELTAKERE": $antallDeltakere,
             "TILTAKSTATUSKODE": "GJENNOMFOR",
-            "AVTALE_ID": "1000"
+            "AVTALE_ID": "1000",
+            "KLOKKETID_FREMMOTE": "12:30",
+            "DATO_FREMMOTE": "2022-10-10 00:00:00",
+            "TEKST_KURSSTED": "I huset bortenfor huset"
         }""",
     )
 
@@ -40,6 +43,9 @@ class ArenaTiltaksgjennomforingTest : FunSpec({
                 ANTALL_DELTAKERE = 5,
                 TILTAKSTATUSKODE = "GJENNOMFOR",
                 AVTALE_ID = 1000,
+                KLOKKETID_FREMMOTE = "12:30",
+                DATO_FREMMOTE = "2022-10-10 00:00:00",
+                TEKST_KURSSTED = "I huset bortenfor huset",
             )
         }
 

@@ -17,35 +17,35 @@ import java.time.LocalDate
 import java.util.*
 
 data class TiltakstypeFilter(
-    val search: String?,
-    val status: Tiltakstypestatus? = null,
-    val kategori: Tiltakstypekategori?,
+    val search: String? = null,
+    val statuser: List<Tiltakstypestatus> = emptyList(),
+    val kategorier: List<Tiltakstypekategori> = emptyList(),
     val dagensDato: LocalDate = LocalDate.now(),
     val sortering: String? = null,
 )
 
 data class AvtaleFilter(
-    val tiltakstypeId: UUID? = null,
+    val tiltakstypeIder: List<UUID> = emptyList(),
     val search: String? = null,
-    val avtalestatus: Avtalestatus? = null,
-    val navRegion: String? = null,
+    val statuser: List<Avtalestatus> = emptyList(),
+    val navRegioner: List<String> = emptyList(),
     val sortering: String? = null,
     val dagensDato: LocalDate = LocalDate.now(),
-    val leverandorOrgnr: String? = null,
+    val leverandorOrgnr: List<String> = emptyList(),
     val administratorNavIdent: String? = null,
 )
 
 data class AdminTiltaksgjennomforingFilter(
     val search: String? = null,
-    val navEnhet: String? = null,
-    val tiltakstypeId: UUID? = null,
-    val status: Tiltaksgjennomforingsstatus? = null,
+    val navEnheter: List<String> = emptyList(),
+    val tiltakstypeIder: List<UUID> = emptyList(),
+    val statuser: List<Tiltaksgjennomforingsstatus> = emptyList(),
     val sortering: String? = null,
     val sluttDatoCutoff: LocalDate? = ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate,
     val dagensDato: LocalDate = LocalDate.now(),
-    val navRegion: String? = null,
+    val navRegioner: List<String> = emptyList(),
     val avtaleId: UUID? = null,
-    val arrangorOrgnr: String? = null,
+    val arrangorOrgnr: List<String> = emptyList(),
     val administratorNavIdent: String? = null,
 )
 
@@ -102,32 +102,33 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getNotificationFilter(): Notif
 
 fun <T : Any> PipelineContext<T, ApplicationCall>.getTiltakstypeFilter(): TiltakstypeFilter {
     val search = call.request.queryParameters["search"]
-    val status =
-        call.request.queryParameters["tiltakstypestatus"]?.let { status -> Tiltakstypestatus.valueOf(status) }
-    val kategori =
-        call.request.queryParameters["tiltakstypekategori"]?.let { kategori -> Tiltakstypekategori.valueOf(kategori) }
+    val statuser =
+        call.parameters.getAll("tiltakstypestatuser")?.map { status -> Tiltakstypestatus.valueOf(status) }
+    val kategorier =
+        call.parameters.getAll("tiltakstypekategorier")?.map { kategori -> Tiltakstypekategori.valueOf(kategori) }
     val sortering = call.request.queryParameters["sort"]
     return TiltakstypeFilter(
         search = search,
-        status = status,
-        kategori = kategori,
+        statuser = statuser ?: emptyList(),
+        kategorier = kategorier ?: emptyList(),
         sortering = sortering,
     )
 }
 
 fun <T : Any> PipelineContext<T, ApplicationCall>.getAvtaleFilter(): AvtaleFilter {
-    val tiltakstypeId = call.request.queryParameters["tiltakstypeId"]?.let { if (it.isEmpty()) null else it.toUUID() }
+    val tiltakstypeIder = call.parameters.getAll("tiltakstypeId")?.map { it.toUUID() } ?: emptyList()
     val search = call.request.queryParameters["search"]
-    val avtalestatus =
-        call.request.queryParameters["avtalestatus"]?.let { status -> Avtalestatus.valueOf(status) }
-    val navRegion = call.request.queryParameters["navRegion"]
+    val statuser =
+        call.parameters.getAll("statuser")?.map { status -> Avtalestatus.valueOf(status) } ?: emptyList()
+    val navRegioner = call.parameters.getAll("navRegioner") ?: emptyList()
     val sortering = call.request.queryParameters["sort"]
-    val leverandorOrgnr = call.request.queryParameters["leverandorOrgnr"]
+    val leverandorOrgnr = call.parameters.getAll("leverandorOrgnr") ?: emptyList()
+
     return AvtaleFilter(
-        tiltakstypeId = tiltakstypeId,
+        tiltakstypeIder = tiltakstypeIder,
         search = search,
-        avtalestatus = avtalestatus,
-        navRegion = navRegion,
+        statuser = statuser,
+        navRegioner = navRegioner,
         sortering = sortering,
         leverandorOrgnr = leverandorOrgnr,
         administratorNavIdent = null,
@@ -136,24 +137,24 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getAvtaleFilter(): AvtaleFilte
 
 fun <T : Any> PipelineContext<T, ApplicationCall>.getAdminTiltaksgjennomforingsFilter(): AdminTiltaksgjennomforingFilter {
     val search = call.request.queryParameters["search"]
-    val navEnhet = call.request.queryParameters["navEnhet"]
-    val tiltakstypeId =
-        call.request.queryParameters["tiltakstypeId"]?.let { if (it.isEmpty()) null else UUID.fromString(it) }
+    val navEnheter = call.parameters.getAll("navEnheter")
+    val tiltakstypeIder =
+        call.parameters.getAll("tiltakstypeIder")?.map { UUID.fromString(it) }
     val statuser =
-        call.request.queryParameters["status"]?.let { Tiltaksgjennomforingsstatus.valueOf(it) }
+        call.parameters.getAll("statuser")?.map { Tiltaksgjennomforingsstatus.valueOf(it) }
     val sortering = call.request.queryParameters["sort"]
-    val navRegion = call.request.queryParameters["navRegion"]
+    val navRegioner = call.parameters.getAll("navRegioner")
     val avtaleId = call.request.queryParameters["avtaleId"]?.let { if (it.isEmpty()) null else UUID.fromString(it) }
-    val arrangorOrgnr = call.request.queryParameters["arrangorOrgnr"]
+    val arrangorOrgnr = call.parameters.getAll("arrangorOrgnr")
     return AdminTiltaksgjennomforingFilter(
         search = search,
-        navEnhet = navEnhet,
-        tiltakstypeId = tiltakstypeId,
-        status = statuser,
+        navEnheter = navEnheter ?: emptyList(),
+        tiltakstypeIder = tiltakstypeIder ?: emptyList(),
+        statuser = statuser ?: emptyList(),
         sortering = sortering,
-        navRegion = navRegion,
+        navRegioner = navRegioner ?: emptyList(),
         avtaleId = avtaleId,
-        arrangorOrgnr = arrangorOrgnr,
+        arrangorOrgnr = arrangorOrgnr ?: emptyList(),
         administratorNavIdent = null,
     )
 }

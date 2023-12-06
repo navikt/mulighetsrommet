@@ -1,4 +1,4 @@
-import { Bruker, NavEnhetStatus } from "mulighetsrommet-api-client";
+import { Bruker, JoyrideType, NavEnhetStatus } from "mulighetsrommet-api-client";
 import { Tiltaksgjennomforingsfilter } from "../atoms/atoms";
 
 export const QueryKeys = {
@@ -24,5 +24,6 @@ export const QueryKeys = {
   features: (feature: string) => [feature, "feature"],
   navEnheter: (statuser: NavEnhetStatus[]) => [statuser, "navEnheter"],
   oppskrifter: (tiltakstypeId: string) => [tiltakstypeId, "oppskrifter"],
+  harFullfortJoyride: (joyrideType: JoyrideType) => [joyrideType, "joyride"],
   overordnetEnhet: (enhetsnummer: string) => ["overordnetEnhet", enhetsnummer],
 };
