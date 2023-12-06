@@ -136,13 +136,8 @@ describe("Tiltaksgjennomføringsdetaljer", () => {
     cy.getByTestId("deleknapp").should("be.visible").click();
 
     cy.getByTestId("modal_header").should("be.visible");
-    cy.getByTestId("personlig_intro_btn").click();
-    cy.getByTestId("textarea_intro").type("En spennende tekst", { delay: 250 });
-    cy.get(".navds-error-message").should("not.exist");
-
-    cy.getByTestId("personlig_hilsen_btn").click();
-
-    cy.getByTestId("textarea_hilsen").type("Test", { delay: 250 });
+    cy.getByTestId("endre-deletekst_btn").click();
+    cy.getByTestId("textarea_deletekst").type("En spennende tekst");
     cy.get(".navds-error-message").should("not.exist");
 
     cy.getByTestId("modal_btn-send").should("not.be.disabled").click();

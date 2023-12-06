@@ -1,11 +1,10 @@
-import { BodyShort, Button, Checkbox, HStack, Heading, HelpText, Modal } from "@navikt/ds-react";
+import { BodyShort, Button, Checkbox, Heading, HelpText, HStack, Modal } from "@navikt/ds-react";
 import {
   Bruker,
   DelMedBruker,
   VeilederflateTiltaksgjennomforing,
 } from "mulighetsrommet-api-client";
 import { PORTEN } from "mulighetsrommet-frontend-common/constants";
-import { useReducer } from "react";
 import { mulighetsrommetClient } from "../../../core/api/clients";
 import { useHentDeltMedBrukerStatus } from "../../../core/api/queries/useHentDeltMedbrukerStatus";
 import { useLogEvent } from "../../../logging/amplitude";
@@ -18,119 +17,49 @@ import delemodalStyles from "./Delemodal.module.scss";
 import { Actions, State } from "./DelemodalActions";
 
 interface DelemodalProps {
-  modalOpen: boolean;
-  lukkModal: () => void;
   brukernavn?: string;
-  chattekst: string;
   veiledernavn?: string;
   brukerFnr: string;
   tiltaksgjennomforing: VeilederflateTiltaksgjennomforing;
   brukerdata: Bruker;
   harDeltMedBruker?: DelMedBruker;
+  dispatch: (action: Actions) => void;
+  state: State;
 }
 
-export function reducer(state: State, action: Actions): State {
-  switch (action.type) {
-    case "Avbryt":
-      return {
-        ...state,
-        sendtStatus: "IKKE_SENDT",
-        hilsen: action.payload.tekster.originalHilsen,
-        skrivPersonligMelding: false,
-        skrivPersonligIntro: false,
-        deletekst: action.payload.tekster.deletekst,
-        introtekst: action.payload.tekster.introtekst,
-        venterPaaSvarFraBruker: false,
-      };
-    case "Send melding":
-      return { ...state, sendtStatus: "SENDER" };
-    case "Sendt ok":
-      return { ...state, sendtStatus: "SENDT_OK", dialogId: action.payload };
-    case "Sending feilet":
-      return { ...state, sendtStatus: "SENDING_FEILET" };
-    case "Sett hilsen":
-      return { ...state, hilsen: action.payload, sendtStatus: "IKKE_SENDT" };
-    case "Sett intro":
-      return { ...state, introtekst: action.payload, sendtStatus: "IKKE_SENDT" };
-    case "Skriv personlig intro": {
-      return { ...state, skrivPersonligIntro: action.payload };
-    }
-    case "Venter på svar fra bruker": {
-      return { ...state, venterPaaSvarFraBruker: action.payload };
-    }
-    case "Skriv personlig melding":
-      return {
-        ...state,
-        skrivPersonligMelding: action.payload,
-      };
-    case "Reset":
-      return initInitialState({
-        originalHilsen: state.originalHilsen,
-        deletekst: state.deletekst,
-        introtekst: state.introtekst,
-      });
-  }
+export function introTekst(brukernavn?: string) {
+  return `Hei ${brukernavn}\n\n`;
 }
 
-export function initInitialState(tekster: {
-  deletekst: string;
-  originalHilsen: string;
-  introtekst: string;
-}): State {
-  return {
-    deletekst: tekster.deletekst,
-    originalHilsen: tekster.originalHilsen,
-    hilsen: tekster.originalHilsen,
-    sendtStatus: "IKKE_SENDT",
-    dialogId: "",
-    introtekst: tekster.introtekst,
-    skrivPersonligIntro: false,
-    skrivPersonligMelding: false,
-    venterPaaSvarFraBruker: false,
-  };
-}
-
-function sySammenIntroTekst(brukernavn?: string) {
-  return `Hei ${brukernavn}\n`;
-}
-
-function sySammenBrukerTekst(
-  chattekst: string,
-  tiltaksgjennomforingsnavn: string,
-  brukernavn?: string,
-) {
-  return `${chattekst
-    .replaceAll("<Fornavn>", brukernavn ? `${brukernavn}` : "")
-    .replaceAll("<tiltaksnavn>", tiltaksgjennomforingsnavn)}`;
-}
-
-function sySammenHilsenTekst(veiledernavn?: string) {
+export function hilsenTekst(veiledernavn?: string) {
   const interessant = "Er dette aktuelt for deg? Gi meg tilbakemelding her i dialogen.";
   return veiledernavn
     ? `${interessant}\n\nVi holder kontakten!\nHilsen ${veiledernavn}`
-    : `${interessant}\n\nVi holder kontakten!\nHilsen `;
+    : `${interessant}\n\nVi holder kontakten!`;
 }
 
-const Delemodal = ({
-  modalOpen,
-  lukkModal,
+export function sySammenTekster(
+  originaldeletekstFraTiltakstypen: string,
+  tiltaksgjennomforingsnavn: string,
+  brukernavn?: string,
+  veiledernavn?: string,
+) {
+  return `${introTekst(brukernavn)}${originaldeletekstFraTiltakstypen
+    .replaceAll("<Fornavn>", brukernavn ? `${brukernavn}` : "")
+    .replaceAll("<tiltaksnavn>", tiltaksgjennomforingsnavn)}\n\n${hilsenTekst(veiledernavn)}`;
+}
+
+export function Delemodal({
   brukernavn,
-  chattekst,
   veiledernavn,
   brukerFnr,
   tiltaksgjennomforing,
   brukerdata,
   harDeltMedBruker,
-}: DelemodalProps) => {
+  dispatch,
+  state,
+}: DelemodalProps) {
   const { logEvent } = useLogEvent();
-  const introtekst = sySammenIntroTekst(brukernavn);
-  const deletekst = sySammenBrukerTekst(chattekst, tiltaksgjennomforing.navn, brukernavn);
-  const originalHilsen = sySammenHilsenTekst(veiledernavn);
-  const [state, dispatch] = useReducer(
-    reducer,
-    { deletekst, originalHilsen, introtekst },
-    initInitialState,
-  );
 
   const senderTilDialogen = state.sendtStatus === "SENDER";
   const { lagreVeilederHarDeltTiltakMedBruker } = useHentDeltMedBrukerStatus(
@@ -138,14 +67,14 @@ const Delemodal = ({
     tiltaksgjennomforing,
   );
 
+  const originaltekstLengde = state.originalDeletekst.length;
+  const lukkStatusmodal = () => dispatch({ type: "Toggle statusmodal", payload: false });
+  const lukkModal = () => dispatch({ type: "Toggle modal", payload: false });
   const logDelMedbrukerEvent = (
     action:
-      | "Åpnet dialog"
       | "Delte med bruker"
       | "Del med bruker feilet"
       | "Avbrutt del med bruker"
-      | "Sett hilsen"
-      | "Sett intro"
       | "Sett venter på svar fra bruker",
   ) => {
     logEvent({
@@ -154,33 +83,23 @@ const Delemodal = ({
     });
   };
 
-  const clickCancel = (log = true) => {
+  const clickCancel = () => {
     lukkModal();
-    dispatch({ type: "Avbryt", payload: { tekster: { introtekst, deletekst, originalHilsen } } });
-    log && logDelMedbrukerEvent("Avbrutt del med bruker");
-  };
-
-  const getAntallTegn = (tekst: string) => {
-    return tekst.length;
-  };
-
-  const sySammenDeletekst = () => {
-    return `${state.introtekst}${state.deletekst}\n\n${state.hilsen}`;
+    dispatch({ type: "Avbryt" });
+    logDelMedbrukerEvent("Avbrutt del med bruker");
   };
 
   const handleSend = async () => {
-    const { hilsen, introtekst, venterPaaSvarFraBruker } = state;
-    if (
-      hilsen.trim().length > getAntallTegn(hilsen) ||
-      introtekst.length > getAntallTegn(introtekst)
-    ) {
+    const { deletekst, venterPaaSvarFraBruker } = state;
+    if (deletekst.trim().length > state.originalDeletekst.length + 500) {
       return;
     }
+
     logDelMedbrukerEvent("Delte med bruker");
 
     dispatch({ type: "Send melding" });
     const overskrift = `Tiltak gjennom NAV: ${tiltaksgjennomforing.navn}`;
-    const tekst = sySammenDeletekst();
+    const tekst = state.deletekst;
     try {
       const res = await mulighetsrommetClient.dialogen.delMedDialogen({
         requestBody: {
@@ -204,18 +123,18 @@ const Delemodal = ({
     <>
       {feilmelding ? (
         <StatusModal
-          modalOpen={modalOpen}
-          onClose={lukkModal}
+          modalOpen={state.statusmodalOpen}
+          onClose={lukkStatusmodal}
           ikonVariant="warning"
-          heading={"Kunne ikke dele tiltaket"}
+          heading="Kunne ikke dele tiltaket"
           text={feilmelding}
-          primaryButtonText={"OK"}
-          primaryButtonOnClick={() => lukkModal()}
+          primaryButtonText="OK"
+          primaryButtonOnClick={lukkStatusmodal}
         />
       ) : (
         <Modal
-          open={modalOpen}
-          onClose={() => clickCancel()}
+          open={state.modalOpen}
+          onClose={lukkModal}
           className={delemodalStyles.delemodal}
           aria-label="modal"
         >
@@ -225,47 +144,43 @@ const Delemodal = ({
               {"Tiltak gjennom NAV: " + tiltaksgjennomforing.navn}
             </Heading>
           </Modal.Header>
-          <Modal.Body>
-            {state.sendtStatus !== "SENDT_OK" && state.sendtStatus !== "SENDING_FEILET" && (
-              <>
-                <DelMedBrukerContent
-                  state={state}
-                  dispatch={dispatch}
-                  veiledernavn={veiledernavn}
-                  brukernavn={brukernavn}
-                  harDeltMedBruker={harDeltMedBruker}
-                  tiltaksgjennomforing={tiltaksgjennomforing}
-                />
+          <Modal.Body className={delemodalStyles.body}>
+            <DelMedBrukerContent
+              state={state}
+              dispatch={dispatch}
+              veiledernavn={veiledernavn}
+              brukernavn={brukernavn}
+              harDeltMedBruker={harDeltMedBruker}
+              tiltaksgjennomforing={tiltaksgjennomforing}
+            />
 
-                <HStack gap="1" style={{ marginTop: "1rem" }}>
-                  <Checkbox
-                    onChange={(e) => {
-                      dispatch({
-                        type: "Venter på svar fra bruker",
-                        payload: e.currentTarget.checked,
-                      });
-                      if (e.currentTarget.checked) {
-                        logDelMedbrukerEvent("Sett venter på svar fra bruker");
-                      }
-                    }}
-                    checked={state.venterPaaSvarFraBruker}
-                    value="venter-pa-svar-fra-bruker"
-                  >
-                    Venter på svar fra bruker
-                  </Checkbox>
-                  <HelpText title="Hva betyr dette valget?">
-                    Ved å huke av for at du venter på svar fra bruker vil du kunne bruke filteret i
-                    oversikten til å se alle brukere du venter på svar fra.
-                  </HelpText>
-                </HStack>
-              </>
-            )}
+            <HStack gap="1" style={{ marginTop: "1rem" }}>
+              <Checkbox
+                onChange={(e) => {
+                  dispatch({
+                    type: "Venter på svar fra bruker",
+                    payload: e.currentTarget.checked,
+                  });
+                  if (e.currentTarget.checked) {
+                    logDelMedbrukerEvent("Sett venter på svar fra bruker");
+                  }
+                }}
+                checked={state.venterPaaSvarFraBruker}
+                value="venter-pa-svar-fra-bruker"
+              >
+                Venter på svar fra bruker
+              </Checkbox>
+              <HelpText title="Hva betyr dette valget?">
+                Ved å huke av for at du venter på svar fra bruker vil du kunne bruke filteret i
+                oversikten til å se alle brukere du venter på svar fra.
+              </HelpText>
+            </HStack>
           </Modal.Body>
           <Modal.Footer>
             <div className={modalStyles.knapperad}>
               <Button
                 variant="tertiary"
-                onClick={() => clickCancel(true)}
+                onClick={clickCancel}
                 data-testid="modal_btn-cancel"
                 disabled={senderTilDialogen}
               >
@@ -276,10 +191,8 @@ const Delemodal = ({
                 data-testid="modal_btn-send"
                 disabled={
                   senderTilDialogen ||
-                  state.hilsen.length === 0 ||
-                  state.hilsen.length > MAKS_ANTALL_TEGN_DEL_MED_BRUKER ||
-                  state.introtekst.length === 0 ||
-                  state.introtekst.length > MAKS_ANTALL_TEGN_DEL_MED_BRUKER ||
+                  state.deletekst.length === 0 ||
+                  state.deletekst.length > originaltekstLengde + MAKS_ANTALL_TEGN_DEL_MED_BRUKER ||
                   erPreview()
                 }
               >
@@ -292,9 +205,10 @@ const Delemodal = ({
           </Modal.Footer>
         </Modal>
       )}
+
       {state.sendtStatus === "SENDING_FEILET" && (
         <StatusModal
-          modalOpen={modalOpen}
+          modalOpen={state.statusmodalOpen}
           ikonVariant="error"
           heading="Tiltaket kunne ikke deles"
           text={
@@ -303,31 +217,32 @@ const Delemodal = ({
               <a href={PORTEN}>kontakt i Porten</a> dersom du trenger mer hjelp.
             </>
           }
-          onClose={clickCancel}
+          onClose={lukkStatusmodal}
           primaryButtonOnClick={() => dispatch({ type: "Reset" })}
           primaryButtonText="Prøv igjen"
-          secondaryButtonOnClick={clickCancel}
+          secondaryButtonOnClick={lukkStatusmodal}
           secondaryButtonText="Avbryt"
         />
       )}
+
       {state.sendtStatus === "SENDT_OK" && (
         <StatusModal
-          modalOpen={modalOpen}
-          onClose={clickCancel}
+          modalOpen={state.statusmodalOpen}
+          onClose={lukkStatusmodal}
           ikonVariant="success"
           heading="Tiltaket er delt med brukeren"
           text="Det er opprettet en ny tråd i Dialogen der du kan fortsette kommunikasjonen rundt dette tiltaket med brukeren."
           primaryButtonText="Gå til dialogen"
           primaryButtonOnClick={(event) => byttTilDialogFlate({ event, dialogId: state.dialogId })}
           secondaryButtonText="Lukk"
-          secondaryButtonOnClick={() => clickCancel(false)}
+          secondaryButtonOnClick={lukkStatusmodal}
         />
       )}
     </>
   );
-};
+}
 
-function utledFeilmelding(brukerdata: Bruker) {
+export function utledFeilmelding(brukerdata: Bruker) {
   if (!brukerdata.manuellStatus) {
     return "Vi kunne ikke opprette kontakt med KRR og vet derfor ikke om brukeren har reservert seg mot elektronisk kommunikasjon.";
   } else if (brukerdata.manuellStatus.erUnderManuellOppfolging) {
@@ -340,5 +255,3 @@ function utledFeilmelding(brukerdata: Bruker) {
     return null;
   }
 }
-
-export default Delemodal;
