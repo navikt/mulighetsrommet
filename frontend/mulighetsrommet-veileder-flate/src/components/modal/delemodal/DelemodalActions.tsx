@@ -48,12 +48,12 @@ export interface ENABLE_REDIGER_DELETEKST_ACTION {
 }
 
 export interface LUKK_MODAL_ACTION {
-  type: "Lukk modal";
+  type: "Toggle modal";
   payload: boolean;
 }
 
 export interface LUKK_STATUSMODAL_ACTION {
-  type: "Lukk statusmodal";
+  type: "Toggle statusmodal";
   payload: boolean;
 }
 

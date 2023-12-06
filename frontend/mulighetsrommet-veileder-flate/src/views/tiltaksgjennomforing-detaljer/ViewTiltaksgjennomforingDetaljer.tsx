@@ -30,11 +30,8 @@ import TiltaksgjennomforingsHeader from "../../layouts/TiltaksgjennomforingsHead
 import { byttTilDialogFlate } from "../../utils/DialogFlateUtils";
 import { erPreview, formaterDato } from "../../utils/Utils";
 import styles from "./ViewTiltaksgjennomforingDetaljer.module.scss";
-import {
-  initInitialState,
-  logDelMedbrukerEvent,
-  reducer,
-} from "../../components/modal/delemodal/DelemodalReducer";
+import { initInitialState, reducer } from "../../components/modal/delemodal/DelemodalReducer";
+import { useLogEvent } from "../../logging/amplitude";
 
 const whiteListOpprettAvtaleKnapp: Tiltakskode[] = [
   Tiltakskode.MIDLONTIL,
@@ -93,7 +90,7 @@ const ViewTiltaksgjennomforingDetaljer = ({
   const veiledernavn = resolveName(veilederdata);
   const datoSidenSistDelt =
     harDeltMedBruker && formaterDato(new Date(harDeltMedBruker.createdAt!!));
-
+  const { logEvent } = useLogEvent();
   const originaldeletekstFraTiltakstypen = tiltaksgjennomforing.tiltakstype.delingMedBruker ?? "";
   const brukernavn = erPreview() ? "{Navn}" : brukerdata?.fornavn;
 
@@ -106,10 +103,13 @@ const ViewTiltaksgjennomforingDetaljer = ({
 
   const handleClickApneModal = () => {
     const feilmelding = utledFeilmelding(brukerdata);
-    logDelMedbrukerEvent("Åpnet dialog");
+    logEvent({
+      name: "arbeidsmarkedstiltak.del-med-bruker",
+      data: { action: "Åpnet delemodal" },
+    });
     feilmelding
-      ? dispatch({ type: "Lukk statusmodal", payload: true })
-      : dispatch({ type: "Lukk modal", payload: true });
+      ? dispatch({ type: "Toggle statusmodal", payload: true })
+      : dispatch({ type: "Toggle modal", payload: true });
   };
 
   if (!tiltaksgjennomforing) {
@@ -134,109 +134,107 @@ const ViewTiltaksgjennomforingDetaljer = ({
     !erPreview();
 
   return (
-    <>
-      <div className={styles.container}>
-        <div className={styles.top_wrapper}>
-          {!erPreview() && (
-            <Tilbakeknapp
-              tilbakelenke={`/arbeidsmarkedstiltak/oversikt#page=${page}`}
-              tekst="Tilbake til tiltaksoversikten"
-            />
-          )}
-          {!erPreview() && (
-            <>
-              <DetaljerJoyride opprettAvtale={opprettAvtale} />
-              {opprettAvtale ? <OpprettAvtaleJoyride opprettAvtale={opprettAvtale} /> : null}
-            </>
-          )}
+    <div className={styles.container}>
+      <div className={styles.top_wrapper}>
+        {!erPreview() && (
+          <Tilbakeknapp
+            tilbakelenke={`/arbeidsmarkedstiltak/oversikt#page=${page}`}
+            tekst="Tilbake til tiltaksoversikten"
+          />
+        )}
+        {!erPreview() && (
+          <>
+            <DetaljerJoyride opprettAvtale={opprettAvtale} />
+            {opprettAvtale ? <OpprettAvtaleJoyride opprettAvtale={opprettAvtale} /> : null}
+          </>
+        )}
+      </div>
+      <BrukerKvalifisererIkkeVarsel
+        brukerdata={brukerdata}
+        brukerHarRettPaaTiltak={brukerHarRettPaaTiltak}
+        innsatsgruppeForGjennomforing={innsatsgruppeForGjennomforing}
+      />
+      <BrukerHarIkke14aVedtakVarsel brukerdata={brukerdata} />
+      <div className={styles.tiltaksgjennomforing_detaljer} id="tiltaksgjennomforing_detaljer">
+        <div className={styles.tiltakstype_header_maksbredde}>
+          <TiltaksgjennomforingsHeader tiltaksgjennomforing={tiltaksgjennomforing} />
         </div>
-        <BrukerKvalifisererIkkeVarsel
-          brukerdata={brukerdata}
-          brukerHarRettPaaTiltak={brukerHarRettPaaTiltak}
-          innsatsgruppeForGjennomforing={innsatsgruppeForGjennomforing}
-        />
-        <BrukerHarIkke14aVedtakVarsel brukerdata={brukerdata} />
-        <div className={styles.tiltaksgjennomforing_detaljer} id="tiltaksgjennomforing_detaljer">
-          <div className={styles.tiltakstype_header_maksbredde}>
-            <TiltaksgjennomforingsHeader tiltaksgjennomforing={tiltaksgjennomforing} />
-          </div>
-          <div className={styles.sidemeny}>
-            <SidemenyDetaljer tiltaksgjennomforing={tiltaksgjennomforing} />
-            <div className={styles.deleknapp_container}>
-              {opprettAvtale && (
-                <Button
-                  onClick={kanBrukerFaaAvtale}
-                  variant="primary"
-                  className={styles.deleknapp}
-                  aria-label="Opprett avtale"
-                  data-testid="opprettavtaleknapp"
-                  disabled={!brukerHarRettPaaTiltak}
-                >
-                  Opprett avtale
-                </Button>
-              )}
+        <div className={styles.sidemeny}>
+          <SidemenyDetaljer tiltaksgjennomforing={tiltaksgjennomforing} />
+          <div className={styles.deleknapp_container}>
+            {opprettAvtale && (
               <Button
-                onClick={handleClickApneModal}
-                variant="secondary"
+                onClick={kanBrukerFaaAvtale}
+                variant="primary"
                 className={styles.deleknapp}
-                aria-label="Dele"
-                data-testid="deleknapp"
-                icon={harDeltMedBruker && <CheckmarkIcon title="Suksess" />}
-                iconPosition="left"
+                aria-label="Opprett avtale"
+                data-testid="opprettavtaleknapp"
+                disabled={!brukerHarRettPaaTiltak}
               >
-                {harDeltMedBruker && !erPreview()
-                  ? `Delt med bruker ${datoSidenSistDelt}`
-                  : "Del med bruker"}
+                Opprett avtale
+              </Button>
+            )}
+            <Button
+              onClick={handleClickApneModal}
+              variant="secondary"
+              className={styles.deleknapp}
+              aria-label="Dele"
+              data-testid="deleknapp"
+              icon={harDeltMedBruker && <CheckmarkIcon title="Suksess" />}
+              iconPosition="left"
+            >
+              {harDeltMedBruker && !erPreview()
+                ? `Delt med bruker ${datoSidenSistDelt}`
+                : "Del med bruker"}
+            </Button>
+          </div>
+          {!brukerdata?.manuellStatus && !erPreview() && (
+            <Alert
+              title="Vi kunne ikke opprette kontakt med KRR og vet derfor ikke om brukeren har reservert seg mot elektronisk kommunikasjon"
+              key="alert-innsatsgruppe"
+              data-testid="alert-innsatsgruppe"
+              size="small"
+              variant="error"
+              className={styles.alert}
+            >
+              Vi kunne ikke opprette kontakt med KRR og vet derfor ikke om brukeren har reservert
+              seg mot elektronisk kommunikasjon
+            </Alert>
+          )}
+          {harDeltMedBruker && !erPreview() && (
+            <div className={styles.dialogknapp}>
+              <Button
+                size="small"
+                variant="tertiary"
+                onClick={(event) =>
+                  byttTilDialogFlate({
+                    event,
+                    dialogId: harDeltMedBruker.dialogId!!,
+                  })
+                }
+              >
+                Åpne i dialogen
+                <Chat2Icon aria-label="Åpne i dialogen" />
               </Button>
             </div>
-            {!brukerdata?.manuellStatus && !erPreview() && (
-              <Alert
-                title="Vi kunne ikke opprette kontakt med KRR og vet derfor ikke om brukeren har reservert seg mot elektronisk kommunikasjon"
-                key="alert-innsatsgruppe"
-                data-testid="alert-innsatsgruppe"
-                size="small"
-                variant="error"
-                className={styles.alert}
-              >
-                Vi kunne ikke opprette kontakt med KRR og vet derfor ikke om brukeren har reservert
-                seg mot elektronisk kommunikasjon
-              </Alert>
-            )}
-            {harDeltMedBruker && !erPreview() && (
-              <div className={styles.dialogknapp}>
-                <Button
-                  size="small"
-                  variant="tertiary"
-                  onClick={(event) =>
-                    byttTilDialogFlate({
-                      event,
-                      dialogId: harDeltMedBruker.dialogId!!,
-                    })
-                  }
-                >
-                  Åpne i dialogen
-                  <Chat2Icon aria-label="Åpne i dialogen" />
-                </Button>
-              </div>
-            )}
-          </div>
-          <TiltaksdetaljerFane tiltaksgjennomforing={tiltaksgjennomforing} />
-          <Delemodal
-            brukernavn={erPreview() ? "{Navn}" : brukerdata?.fornavn}
-            veiledernavn={erPreview() ? "{Veiledernavn}" : veiledernavn}
-            brukerFnr={brukerdata.fnr}
-            tiltaksgjennomforing={tiltaksgjennomforing}
-            brukerdata={brukerdata}
-            harDeltMedBruker={harDeltMedBruker}
-            dispatch={dispatch}
-            state={state}
-          />
+          )}
         </div>
-        <div className={styles.oppskriftContainer}>
-          <Outlet />
-        </div>
+        <TiltaksdetaljerFane tiltaksgjennomforing={tiltaksgjennomforing} />
+        <Delemodal
+          brukernavn={erPreview() ? "{Navn}" : brukerdata?.fornavn}
+          veiledernavn={erPreview() ? "{Veiledernavn}" : veiledernavn}
+          brukerFnr={brukerdata.fnr}
+          tiltaksgjennomforing={tiltaksgjennomforing}
+          brukerdata={brukerdata}
+          harDeltMedBruker={harDeltMedBruker}
+          dispatch={dispatch}
+          state={state}
+        />
       </div>
-    </>
+      <div className={styles.oppskriftContainer}>
+        <Outlet />
+      </div>
+    </div>
   );
 };
 

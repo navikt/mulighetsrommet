@@ -68,16 +68,13 @@ export function Delemodal({
   );
 
   const originaltekstLengde = state.originalDeletekst.length;
-  const lukkStatusmodal = () => dispatch({ type: "Lukk statusmodal", payload: false });
-  const lukkModal = () => dispatch({ type: "Lukk modal", payload: false });
+  const lukkStatusmodal = () => dispatch({ type: "Toggle statusmodal", payload: false });
+  const lukkModal = () => dispatch({ type: "Toggle modal", payload: false });
   const logDelMedbrukerEvent = (
     action:
-      | "Åpnet dialog"
       | "Delte med bruker"
       | "Del med bruker feilet"
       | "Avbrutt del med bruker"
-      | "Sett hilsen"
-      | "Sett intro"
       | "Sett venter på svar fra bruker",
   ) => {
     logEvent({

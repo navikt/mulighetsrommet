@@ -4,7 +4,7 @@ import React, { Dispatch, useEffect, useRef } from "react";
 import { erPreview, formaterDato } from "../../../utils/Utils";
 import delemodalStyles from "./Delemodal.module.scss";
 import { Actions, State } from "./DelemodalActions";
-import { logDelMedbrukerEvent } from "./DelemodalReducer";
+import { useLogEvent } from "../../../logging/amplitude";
 
 export const MAKS_ANTALL_TEGN_DEL_MED_BRUKER = 500;
 
@@ -29,6 +29,7 @@ export function DelMedBrukerContent({
   const endreDeletekstRef = useRef<HTMLTextAreaElement>(null);
   const datoSidenSistDelt =
     harDeltMedBruker?.createdAt && formaterDato(new Date(harDeltMedBruker.createdAt));
+  const { logEvent } = useLogEvent();
 
   const standardtekstLengde = state.deletekst.length;
 
@@ -40,7 +41,10 @@ export function DelMedBrukerContent({
 
   const enableEndreDeletekst = () => {
     dispatch({ type: "Enable rediger deletekst", payload: true });
-    logDelMedbrukerEvent("Endre deletekst");
+    logEvent({
+      name: "arbeidsmarkedstiltak.del-med-bruker",
+      data: { action: "Endre deletekst" },
+    });
   };
 
   const forMangeTegn = (tekst: string): boolean => {

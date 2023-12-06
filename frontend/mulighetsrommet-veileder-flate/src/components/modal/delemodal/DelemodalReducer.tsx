@@ -1,21 +1,4 @@
 import { Actions, State } from "./DelemodalActions";
-import { useLogEvent } from "../../../logging/amplitude";
-
-export const logDelMedbrukerEvent = (
-  action:
-    | "Åpnet dialog"
-    | "Delte med bruker"
-    | "Del med bruker feilet"
-    | "Avbrutt del med bruker"
-    | "Endre deletekst"
-    | "Sett venter på svar fra bruker",
-) => {
-  const { logEvent } = useLogEvent();
-  logEvent({
-    name: "arbeidsmarkedstiltak.del-med-bruker",
-    data: { action },
-  });
-};
 
 export function reducer(state: State, action: Actions): State {
   switch (action.type) {
@@ -61,12 +44,12 @@ export function reducer(state: State, action: Actions): State {
         ...state,
         enableRedigerDeletekst: action.payload,
       };
-    case "Lukk modal":
+    case "Toggle modal":
       return {
         ...state,
         modalOpen: action.payload,
       };
-    case "Lukk statusmodal":
+    case "Toggle statusmodal":
       return {
         ...state,
         statusmodalOpen: action.payload,
