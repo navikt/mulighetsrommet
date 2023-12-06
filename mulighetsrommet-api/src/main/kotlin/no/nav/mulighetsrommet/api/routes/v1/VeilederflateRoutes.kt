@@ -1,5 +1,8 @@
 package no.nav.mulighetsrommet.api.routes.v1
 
+import arrow.core.NonEmptyList
+import arrow.core.toNonEmptyListOrNull
+import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
@@ -49,10 +52,15 @@ fun Route.veilederflateRoutes() {
             poaoTilgangService.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), request.norskIdent)
 
             val brukerdata = brukerService.hentBrukerdata(request.norskIdent, call.getAccessToken())
+            val brukersEnheter = getRelevanteEnheterForBruker(brukerdata, navEnhetService)
+                ?: return@post call.respond(HttpStatusCode.NotFound, "Klarte ikke utlede brukers NAV-enheter")
 
-            val result = veilederflateService.hentTiltaksgjennomforingerForBrukerBasertPaEnhetOgFylke(
-                request,
-                getRelevanteEnheterForBruker(brukerdata, navEnhetService),
+            val result = veilederflateService.hentTiltaksgjennomforinger(
+                enheter = brukersEnheter,
+                innsatsgruppe = request.innsatsgruppe,
+                tiltakstypeIds = request.tiltakstypeIds,
+                search = request.search,
+                apentForInnsok = request.apentForInnsok,
             )
 
             call.respond(result)
@@ -64,10 +72,13 @@ fun Route.veilederflateRoutes() {
             poaoTilgangService.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), request.norskIdent)
 
             val brukerdata = brukerService.hentBrukerdata(request.norskIdent, call.getAccessToken())
+            val enheter = getRelevanteEnheterForBruker(brukerdata, navEnhetService)
+                ?: return@post call.respond(HttpStatusCode.NotFound, "Klarte ikke utlede brukers NAV-enheter")
 
-            val result = veilederflateService.hentTiltaksgjennomforingMedBrukerdata(
-                request,
-                getRelevanteEnheterForBruker(brukerdata, navEnhetService),
+            val result = veilederflateService.hentTiltaksgjennomforing(
+                request.id,
+                enheter,
+                SanityPerspective.PUBLISHED,
             )
 
             call.respond(result)
@@ -90,7 +101,10 @@ fun Route.veilederflateRoutes() {
     }
 }
 
-fun getRelevanteEnheterForBruker(brukerdata: BrukerService.Brukerdata, navEnhetService: NavEnhetService): List<String> {
+fun getRelevanteEnheterForBruker(
+    brukerdata: BrukerService.Brukerdata,
+    navEnhetService: NavEnhetService,
+): NonEmptyList<String>? {
     val geografiskEnhet = brukerdata.geografiskEnhet?.enhetsnummer?.let { navEnhetService.hentEnhet(it) }
     val oppfolgingsenhet =
         brukerdata.oppfolgingsenhet?.let { enhet -> enhet.enhetsnummer.let { navEnhetService.hentEnhet(it) } }
@@ -109,7 +123,7 @@ fun getRelevanteEnheterForBruker(brukerdata: BrukerService.Brukerdata, navEnhetS
     } else {
         null
     }
-    return listOfNotNull(actualGeografiskEnhet, virtuellOppfolgingsenhet)
+    return listOfNotNull(actualGeografiskEnhet, virtuellOppfolgingsenhet).toNonEmptyListOrNull()
 }
 
 @Serializable

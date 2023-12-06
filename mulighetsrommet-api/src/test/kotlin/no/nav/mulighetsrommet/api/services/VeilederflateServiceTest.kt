@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.services
 
+import arrow.core.nonEmptyListOf
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
@@ -16,7 +17,6 @@ import no.nav.mulighetsrommet.api.domain.dto.VeilederflateArrangor
 import no.nav.mulighetsrommet.api.domain.dto.VeilederflateTiltaksgjennomforing
 import no.nav.mulighetsrommet.api.domain.dto.VeilederflateTiltakstype
 import no.nav.mulighetsrommet.api.routes.v1.ApentForInnsok
-import no.nav.mulighetsrommet.api.routes.v1.GetRelevanteTiltaksgjennomforingerForBrukerRequest
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.Faneinnhold
 import java.time.LocalDate
@@ -144,12 +144,8 @@ class VeilederflateServiceTest : FunSpec({
         coEvery { virksomhetService.getOrSyncVirksomhet(any()) } returns null
         coEvery { sanityClient.query(any()) } returns sanityResult
 
-        val gjennomforinger = veilederFlateService.hentTiltaksgjennomforingerForBrukerBasertPaEnhetOgFylke(
-            GetRelevanteTiltaksgjennomforingerForBrukerRequest(
-                norskIdent = fnr,
-                apentForInnsok = ApentForInnsok.APENT_ELLER_STENGT,
-            ),
-            listOf("0430"),
+        val gjennomforinger = veilederFlateService.hentTiltaksgjennomforinger(
+            enheter = nonEmptyListOf("0430"),
         )
         gjennomforinger.size shouldBe 2
         gjennomforinger.find { it.sanityId == "f21d1e35-d63b-4de7-a0a5-589e57111527" }!!.enheter!!.size shouldBe 1
@@ -176,12 +172,8 @@ class VeilederflateServiceTest : FunSpec({
         coEvery { virksomhetService.getOrSyncVirksomhet(any()) } returns null
         coEvery { sanityClient.query(any()) } returns sanityResult
 
-        val gjennomforinger = veilederFlateService.hentTiltaksgjennomforingerForBrukerBasertPaEnhetOgFylke(
-            GetRelevanteTiltaksgjennomforingerForBrukerRequest(
-                norskIdent = fnr,
-                apentForInnsok = ApentForInnsok.APENT_ELLER_STENGT,
-            ),
-            listOf("0430"),
+        val gjennomforinger = veilederFlateService.hentTiltaksgjennomforinger(
+            enheter = nonEmptyListOf("0430"),
         )
         gjennomforinger.size shouldBe 2
         gjennomforinger.find { it.sanityId == "f21d1e35-d63b-4de7-a0a5-589e57111527" }!!
@@ -209,12 +201,8 @@ class VeilederflateServiceTest : FunSpec({
         coEvery { virksomhetService.getOrSyncVirksomhet(any()) } returns null
         coEvery { sanityClient.query(any()) } returns sanityResult
 
-        veilederFlateService.hentTiltaksgjennomforingerForBrukerBasertPaEnhetOgFylke(
-            GetRelevanteTiltaksgjennomforingerForBrukerRequest(
-                norskIdent = fnr,
-                apentForInnsok = ApentForInnsok.APENT_ELLER_STENGT,
-            ),
-            listOf("0430", "0455"),
+        veilederFlateService.hentTiltaksgjennomforinger(
+            enheter = nonEmptyListOf("0430", "0455"),
         ) shouldHaveSize 2
     }
 
@@ -236,25 +224,19 @@ class VeilederflateServiceTest : FunSpec({
         } returns listOf()
         coEvery { sanityClient.query(any()) } returns sanityResult
 
-        veilederFlateService.hentTiltaksgjennomforingerForBrukerBasertPaEnhetOgFylke(
-            GetRelevanteTiltaksgjennomforingerForBrukerRequest(norskIdent = fnr, apentForInnsok = ApentForInnsok.APENT),
-            listOf("0430"),
+        veilederFlateService.hentTiltaksgjennomforinger(
+            enheter = nonEmptyListOf("0430"),
+            apentForInnsok = ApentForInnsok.APENT,
         ) shouldHaveSize 2
 
-        veilederFlateService.hentTiltaksgjennomforingerForBrukerBasertPaEnhetOgFylke(
-            GetRelevanteTiltaksgjennomforingerForBrukerRequest(
-                norskIdent = fnr,
-                apentForInnsok = ApentForInnsok.APENT_ELLER_STENGT,
-            ),
-            listOf("0430"),
+        veilederFlateService.hentTiltaksgjennomforinger(
+            enheter = nonEmptyListOf("0430"),
+            apentForInnsok = ApentForInnsok.APENT_ELLER_STENGT,
         ) shouldHaveSize 2
 
-        veilederFlateService.hentTiltaksgjennomforingerForBrukerBasertPaEnhetOgFylke(
-            GetRelevanteTiltaksgjennomforingerForBrukerRequest(
-                norskIdent = fnr,
-                apentForInnsok = ApentForInnsok.STENGT,
-            ),
-            listOf("0430"),
+        veilederFlateService.hentTiltaksgjennomforinger(
+            enheter = nonEmptyListOf("0430"),
+            apentForInnsok = ApentForInnsok.STENGT,
         ) shouldHaveSize 0
     }
 })
