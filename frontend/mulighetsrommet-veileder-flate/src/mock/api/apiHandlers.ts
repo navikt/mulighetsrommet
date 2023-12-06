@@ -4,11 +4,11 @@ import { enhetHandlers } from "./endpoints/enheterHandlers";
 import { featureToggleHandlers } from "./endpoints/featureToggleHandlers";
 import { joyrideHandlers } from "./endpoints/joyrideHandlers";
 import { oppskriftHandlers } from "./endpoints/oppskriftHandlers";
-import { sanityHandlers } from "./endpoints/sanityHandlers";
+import { tiltakHandlers } from "./endpoints/tiltakHandlers";
 import { veilederHandlers } from "./endpoints/veilederHandlers";
 
 export const apiHandlers = [
-  ...sanityHandlers,
+  ...tiltakHandlers,
   ...oppskriftHandlers,
   ...delMedBrukerHandlers,
   ...brukerHandlers,
