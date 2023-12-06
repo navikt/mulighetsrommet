@@ -90,7 +90,8 @@ class SanityTiltaksgjennomforingService(
         } else if (isDraft(sanityId)) {
             "drafts.$sanityId"
         } else {
-            throw Exception("Fant ikke sanityId i sanity: $sanityId")
+            // Dette betyr at gjennomføringen er slettet i Sanity. Så vi prøver ikke patche
+            return
         }
 
         val response = sanityClient.mutate(
