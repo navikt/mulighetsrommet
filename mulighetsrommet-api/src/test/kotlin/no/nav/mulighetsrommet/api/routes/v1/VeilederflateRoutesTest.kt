@@ -2,6 +2,8 @@ package no.nav.mulighetsrommet.api.routes.v1
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainInOrder
+import io.kotest.matchers.nulls.shouldNotBeNull
+import io.kotest.matchers.should
 import io.mockk.coEvery
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
@@ -54,8 +56,10 @@ class VeilederflateRoutesTest : FunSpec({
             manuellStatus = null,
         )
 
-        val result = getRelevanteEnheterForBruker(brukerdata, navEnhetService)
-        result shouldContainInOrder listOf("0501", "0583")
+        getRelevanteEnheterForBruker(brukerdata, navEnhetService).should {
+            it.shouldNotBeNull()
+            it shouldContainInOrder listOf("0501", "0583")
+        }
     }
 
     test("Hent relevante enheter returnerer liste med geografisk enhet hvis oppfølgingsenhet ikke eksisterer") {
@@ -80,8 +84,10 @@ class VeilederflateRoutesTest : FunSpec({
             manuellStatus = null,
         )
 
-        val result = getRelevanteEnheterForBruker(brukerdata, navEnhetService)
-        result shouldContainInOrder listOf("0501")
+        getRelevanteEnheterForBruker(brukerdata, navEnhetService).should {
+            it.shouldNotBeNull()
+            it shouldContainInOrder listOf("0501")
+        }
     }
 
     test("Hent relevante enheter returnerer liste med oppfølgingsenhet enhet hvis oppfølgingsenhet er Lokal") {
@@ -111,7 +117,9 @@ class VeilederflateRoutesTest : FunSpec({
             manuellStatus = null,
         )
 
-        val result = getRelevanteEnheterForBruker(brukerdata, navEnhetService)
-        result shouldContainInOrder listOf("0502")
+        getRelevanteEnheterForBruker(brukerdata, navEnhetService).should {
+            it.shouldNotBeNull()
+            it shouldContainInOrder listOf("0502")
+        }
     }
 })

@@ -29,8 +29,8 @@ fun Route.veilederflateRoutes() {
     val brukerService: BrukerService by inject()
     val navEnhetService: NavEnhetService by inject()
 
-    route("/api/v1/internal") {
-        get("/sanity/innsatsgrupper") {
+    route("/api/v1/internal/veileder") {
+        get("/innsatsgrupper") {
             poaoTilgangService.verfiyAccessToModia(getNavAnsattAzureId())
 
             val innsatsgrupper = veilederflateService.hentInnsatsgrupper()
@@ -38,7 +38,7 @@ fun Route.veilederflateRoutes() {
             call.respond(innsatsgrupper)
         }
 
-        get("/sanity/tiltakstyper") {
+        get("/tiltakstyper") {
             poaoTilgangService.verfiyAccessToModia(getNavAnsattAzureId())
 
             val tiltakstyper = veilederflateService.hentTiltakstyper()
@@ -46,7 +46,7 @@ fun Route.veilederflateRoutes() {
             call.respond(tiltakstyper)
         }
 
-        post("/sanity/tiltaksgjennomforinger") {
+        post("/tiltaksgjennomforinger") {
             val request = call.receive<GetRelevanteTiltaksgjennomforingerForBrukerRequest>()
 
             poaoTilgangService.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), request.norskIdent)
@@ -66,7 +66,7 @@ fun Route.veilederflateRoutes() {
             call.respond(result)
         }
 
-        post("/sanity/tiltaksgjennomforing") {
+        post("/tiltaksgjennomforing") {
             val request = call.receive<GetTiltaksgjennomforingForBrukerRequest>()
 
             poaoTilgangService.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), request.norskIdent)

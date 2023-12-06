@@ -2,11 +2,11 @@ import { useQuery } from "@tanstack/react-query";
 import { QueryKeys } from "../QueryKeys";
 import { mulighetsrommetClient } from "../clients";
 
-export function useTiltakstypeSanityData(tiltakstypeId: string) {
+export function useTiltakstypeFaneinnhold(tiltakstypeId: string) {
   return useQuery({
     queryKey: QueryKeys.veilederflateTiltaksgjennomforing(tiltakstypeId),
     queryFn: () =>
-      mulighetsrommetClient.tiltakstyper.getSanityDataForTiltakstypeWithId({
+      mulighetsrommetClient.tiltakstyper.getTiltakstypeFaneinnhold({
         id: tiltakstypeId,
       }),
   });

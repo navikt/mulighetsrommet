@@ -2,7 +2,7 @@ import { Alert, BodyLong, HStack, Heading, Tabs, Textarea } from "@navikt/ds-rea
 import { PortableText } from "@portabletext/react";
 import { Avtale, VeilederflateTiltakstype } from "mulighetsrommet-api-client";
 import { useFormContext } from "react-hook-form";
-import { useTiltakstypeSanityData } from "../../api/tiltaksgjennomforing/useTiltakstypeSanityData";
+import { useTiltakstypeFaneinnhold } from "../../api/tiltaksgjennomforing/useTiltakstypeFaneinnhold";
 import { Separator } from "../detaljside/Metadata";
 import { PortableTextEditor } from "../portableText/PortableTextEditor";
 import skjemastyles from "../skjema/Skjema.module.scss";
@@ -13,7 +13,7 @@ interface Props {
 
 export const TiltaksgjennomforingSkjemaRedInnhold = ({ avtale }: Props) => {
   const { register } = useFormContext();
-  const { data: tiltakstypeSanityData } = useTiltakstypeSanityData(avtale.tiltakstype.id);
+  const { data: tiltakstypeSanityData } = useTiltakstypeFaneinnhold(avtale.tiltakstype.id);
 
   return (
     <div className={skjemastyles.container}>

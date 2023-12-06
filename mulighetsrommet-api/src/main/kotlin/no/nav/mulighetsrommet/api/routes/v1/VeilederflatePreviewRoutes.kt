@@ -16,8 +16,8 @@ import java.util.*
 fun Route.veilederflatePreviewRoutes() {
     val veilederflateService: VeilederflateService by inject()
 
-    route("/api/v1/internal/sanity") {
-        post("/tiltaksgjennomforinger/preview") {
+    route("/api/v1/internal/veileder/preview") {
+        post("/tiltaksgjennomforinger") {
             val request = call.receive<GetRelevanteTiltaksgjennomforingerPreviewRequest>()
 
             val result = veilederflateService.hentTiltaksgjennomforinger(
@@ -31,7 +31,7 @@ fun Route.veilederflatePreviewRoutes() {
             call.respond(result)
         }
 
-        post("/tiltaksgjennomforing/preview/detaljer") {
+        post("/tiltaksgjennomforing") {
             val request = call.receive<GetTiltaksgjennomforingDetaljerPreviewRequest>()
 
             val id = UUID.fromString(request.id.replace("drafts.", ""))

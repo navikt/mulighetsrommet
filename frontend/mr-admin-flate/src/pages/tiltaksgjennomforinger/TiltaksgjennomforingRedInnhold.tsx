@@ -1,7 +1,7 @@
 import { Tiltaksgjennomforing } from "mulighetsrommet-api-client";
 import styles from "../DetaljerInfo.module.scss";
 import { Alert, BodyLong, Heading } from "@navikt/ds-react";
-import { useTiltakstypeSanityData } from "../../api/tiltaksgjennomforing/useTiltakstypeSanityData";
+import { useTiltakstypeFaneinnhold } from "../../api/tiltaksgjennomforing/useTiltakstypeFaneinnhold";
 import { PortableText } from "@portabletext/react";
 
 interface Props {
@@ -10,7 +10,7 @@ interface Props {
 
 export const TiltaksgjennomforingRedInnhold = (props: Props) => {
   const { tiltaksgjennomforing } = props;
-  const { data: tiltakstypeSanityData } = useTiltakstypeSanityData(
+  const { data: tiltakstypeSanityData } = useTiltakstypeFaneinnhold(
     tiltaksgjennomforing.tiltakstype.id,
   );
 

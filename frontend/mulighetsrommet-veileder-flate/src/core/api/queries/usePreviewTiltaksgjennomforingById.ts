@@ -8,7 +8,7 @@ export default function usePreviewTiltaksgjennomforingById(brukersEnheter: strin
   return useQuery({
     queryKey: QueryKeys.sanity.tiltaksgjennomforingPreview(id),
     queryFn: () =>
-      mulighetsrommetClient.sanity.getTiltaksgjennomforingDetaljerPreview({
+      mulighetsrommetClient.veilederPreview.getTiltaksgjennomforingPreview({
         requestBody: { id, brukersEnheter },
       }),
   });
