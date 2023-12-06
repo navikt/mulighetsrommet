@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 object TiltaksgjennomforingFixtures {
@@ -55,6 +56,8 @@ object TiltaksgjennomforingFixtures {
         avtaleId = AvtaleFixtures.avtale1.id,
         faneinnhold = null,
         beskrivelse = null,
+        fremmoteTidspunkt = LocalDateTime.of(2023, 1, 1, 9, 0),
+        fremmoteSted = "fremmote_sted",
     )
 
     val Oppfolging1Request = TiltaksgjennomforingRequest(
@@ -80,6 +83,8 @@ object TiltaksgjennomforingFixtures {
         opphav = Oppfolging1.opphav,
         faneinnhold = Oppfolging1.faneinnhold,
         beskrivelse = Oppfolging1.beskrivelse,
+        fremmoteTidspunkt = null,
+        fremmoteSted = null,
     )
 
     val Oppfolging1AdminDto = TiltaksgjennomforingAdminDto(
@@ -148,6 +153,8 @@ object TiltaksgjennomforingFixtures {
         avtaleId = AvtaleFixtures.avtale1.id,
         faneinnhold = null,
         beskrivelse = null,
+        fremmoteTidspunkt = null,
+        fremmoteSted = null,
     )
 
     val Arbeidstrening1 = TiltaksgjennomforingDbo(
@@ -174,5 +181,7 @@ object TiltaksgjennomforingFixtures {
         avtaleId = AvtaleFixtures.avtale1.id,
         faneinnhold = null,
         beskrivelse = null,
+        fremmoteTidspunkt = null,
+        fremmoteSted = null,
     )
 }

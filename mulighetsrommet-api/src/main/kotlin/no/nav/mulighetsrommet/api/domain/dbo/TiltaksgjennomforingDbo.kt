@@ -5,6 +5,7 @@ import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.Faneinnhold
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 data class TiltaksgjennomforingDbo(
@@ -31,6 +32,8 @@ data class TiltaksgjennomforingDbo(
     val stedForGjennomforing: String?,
     val faneinnhold: Faneinnhold?,
     val beskrivelse: String?,
+    val fremmoteTidspunkt: LocalDateTime?,
+    val fremmoteSted: String?,
 )
 
 data class TiltaksgjennomforingKontaktpersonDbo(

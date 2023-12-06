@@ -4,6 +4,7 @@ import {
   Avtale,
   Tiltaksgjennomforing,
   TiltaksgjennomforingOppstartstype,
+  Tiltakskode,
 } from "mulighetsrommet-api-client";
 import { NOM_ANSATT_SIDE } from "mulighetsrommet-frontend-common/constants";
 import { Bolk } from "../../components/detaljside/Bolk";
@@ -14,6 +15,10 @@ import styles from "../DetaljerInfo.module.scss";
 import { Kontaktperson } from "./Kontaktperson";
 import { Link } from "react-router-dom";
 import { useTitle } from "mulighetsrommet-frontend-common";
+import {
+  fremmoteDatoFromTidspunkt,
+  fremmoteTidFromTidspunkt,
+} from "../../components/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaConst";
 
 interface Props {
   tiltaksgjennomforing: Tiltaksgjennomforing;
@@ -180,6 +185,27 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
             />
           </Bolk>
 
+          <VisHvisVerdi
+            verdi={isTiltakSomKreverFremmoteData(tiltaksgjennomforing.tiltakstype.arenaKode)}
+          >
+            <Separator />
+            <Bolk aria-label="Fremmøte">
+              <Metadata
+                header="Fremmøte tidspunkt"
+                verdi={
+                  <div>
+                    {`${fremmoteDatoFromTidspunkt(
+                      tiltaksgjennomforing.fremmoteTidspunkt,
+                    )} ${fremmoteTidFromTidspunkt(tiltaksgjennomforing.fremmoteTidspunkt)}`}
+                  </div>
+                }
+              />
+            </Bolk>
+            <Bolk aria-label="Antall plasser">
+              <Metadata header="Fremmøte sted" verdi={tiltaksgjennomforing.fremmoteSted} />
+            </Bolk>
+          </VisHvisVerdi>
+
           <VisHvisVerdi verdi={tiltaksgjennomforing.sanityId}>
             <Separator />
             <Bolk aria-label="Sanity-dokument">
@@ -300,4 +326,8 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
       </div>
     </>
   );
+}
+
+export function isTiltakSomKreverFremmoteData(tiltakskode: Tiltakskode): boolean {
+  return [Tiltakskode.GRUPPEAMO, Tiltakskode.GRUFAGYRKE, Tiltakskode.JOBBK].includes(tiltakskode);
 }

@@ -268,5 +268,7 @@ private fun toTiltaksgjennomforingDbo(dto: TiltaksgjennomforingAdminDto) = dto.r
         stedForGjennomforing = stedForGjennomforing,
         faneinnhold = faneinnhold,
         beskrivelse = beskrivelse,
+        fremmoteTidspunkt = fremmoteTidspunkt,
+        fremmoteSted = fremmoteSted,
     )
 }

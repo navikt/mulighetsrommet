@@ -91,6 +91,17 @@ function defaultArrangor(
   }
 }
 
+export function fremmoteDatoFromTidspunkt(fremmoteTidspunkt?: string): string | undefined {
+  return fremmoteTidspunkt ? new Date(fremmoteTidspunkt).toISOString().split("T")[0] : undefined;
+}
+
+export function fremmoteTidFromTidspunkt(fremmoteTidspunkt?: string): string | undefined {
+  if (!fremmoteTidspunkt) return undefined;
+  const d = new Date(fremmoteTidspunkt);
+
+  return `${d.getHours()}:${d.getMinutes()}`;
+}
+
 export function utkastDataEllerDefault(
   avtale: Avtale,
   utkast?: TiltaksgjennomforingUtkastData,
@@ -132,6 +143,10 @@ export function utkastDataEllerDefault(
       detaljerOgInnholdInfoboks: null,
     },
     opphav: tiltaksgjennomforing?.opphav ?? Opphav.MR_ADMIN_FLATE,
+    fremmoteDato: tiltaksgjennomforing?.fremmoteTidspunkt
+      ? new Date(tiltaksgjennomforing.fremmoteTidspunkt).toISOString().split("T")[0]
+      : undefined,
+    fremmoteTid: fremmoteTidFromTidspunkt(tiltaksgjennomforing?.fremmoteTidspunkt),
     ...utkast,
   };
 }
