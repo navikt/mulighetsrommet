@@ -14,7 +14,6 @@ import modalStyles from "../Modal.module.scss";
 import { StatusModal } from "../StatusModal";
 import { DelMedBrukerContent, MAKS_ANTALL_TEGN_DEL_MED_BRUKER } from "./DelMedBrukerContent";
 import delemodalStyles from "./Delemodal.module.scss";
-import { logDelMedbrukerEvent } from "./DelemodalReducer";
 import { Actions, State } from "./DelemodalActions";
 
 interface DelemodalProps {
@@ -71,7 +70,7 @@ export function Delemodal({
   const originaltekstLengde = state.originalDeletekst.length;
   const lukkStatusmodal = () => dispatch({ type: "Lukk statusmodal", payload: false });
   const lukkModal = () => dispatch({ type: "Lukk modal", payload: false });
- const logDelMedbrukerEvent = (
+  const logDelMedbrukerEvent = (
     action:
       | "Åpnet dialog"
       | "Delte med bruker"
@@ -86,13 +85,6 @@ export function Delemodal({
       data: { action },
     });
   };
-
-  const clickCancel = () => {
-    lukkModal();
-    dispatch({ type: "Avbryt" });
-    logDelMedbrukerEvent("Avbrutt del med bruker");
-  };
-
 
   const clickCancel = () => {
     lukkModal();

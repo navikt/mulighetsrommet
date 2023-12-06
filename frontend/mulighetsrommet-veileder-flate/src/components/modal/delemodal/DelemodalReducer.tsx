@@ -1,5 +1,5 @@
 import { Actions, State } from "./DelemodalActions";
-import { logEvent } from "../../../core/api/logger";
+import { useLogEvent } from "../../../logging/amplitude";
 
 export const logDelMedbrukerEvent = (
   action:
@@ -10,7 +10,11 @@ export const logDelMedbrukerEvent = (
     | "Endre deletekst"
     | "Sett venter på svar fra bruker",
 ) => {
-  logEvent("mulighetsrommet.del-med-bruker", { value: action });
+  const { logEvent } = useLogEvent();
+  logEvent({
+    name: "arbeidsmarkedstiltak.del-med-bruker",
+    data: { action },
+  });
 };
 
 export function reducer(state: State, action: Actions): State {
