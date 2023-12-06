@@ -1,23 +1,24 @@
+import { useQuery } from "@tanstack/react-query";
 import { useAtom } from "jotai";
 import {
   GetRelevanteTiltaksgjennomforingerForBrukerRequest,
   Innsatsgruppe,
 } from "mulighetsrommet-api-client";
+import { useAppContext } from "../../../hooks/useAppContext";
 import { tiltaksgjennomforingsfilter } from "../../atoms/atoms";
 import { mulighetsrommetClient } from "../clients";
 import { QueryKeys } from "../query-keys";
 import { useHentBrukerdata } from "./useHentBrukerdata";
-import { useFnr } from "../../../hooks/useFnr";
-import { useQuery } from "@tanstack/react-query";
 
 export default function useTiltaksgjennomforinger() {
   const [filter] = useAtom(tiltaksgjennomforingsfilter);
   const brukerData = useHentBrukerdata();
-  const fnr = useFnr();
+  const { fnr } = useAppContext();
 
   const requestBody: GetRelevanteTiltaksgjennomforingerForBrukerRequest = {
     norskIdent: fnr,
     innsatsgruppe: filter.innsatsgruppe?.nokkel,
+    apentForInnsok: filter.apentForInnsok,
   };
 
   if (filter.search) {

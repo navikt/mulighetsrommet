@@ -1,5 +1,7 @@
 package no.nav.mulighetsrommet.notifications
 
+import arrow.core.NonEmptyList
+import arrow.core.serialization.NonEmptyListSerializer
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.domain.serializers.InstantSerializer
 import no.nav.mulighetsrommet.domain.serializers.LocalDateTimeSerializer
@@ -34,7 +36,8 @@ data class ScheduledNotification(
     /**
      * NAVident for each notification target
      */
-    val targets: List<String>,
+    @Serializable(with = NonEmptyListSerializer::class)
+    val targets: NonEmptyList<String>,
 )
 
 @Serializable

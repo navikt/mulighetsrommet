@@ -1,7 +1,6 @@
 import { Accordion, Alert, Loader, Radio, RadioGroup } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { Innsatsgruppe } from "mulighetsrommet-api-client";
-import { logEvent } from "../../core/api/logger";
 import { useInnsatsgrupper } from "../../core/api/queries/useInnsatsgrupper";
 import { tiltaksgjennomforingsfilter } from "../../core/atoms/atoms";
 import { kebabCase } from "../../utils/Utils";
@@ -84,10 +83,6 @@ function InnsatsgruppeFilter() {
         },
       });
     }
-    logEvent("mulighetsrommet.filtrering", {
-      type: "innsatsgruppe",
-      value: kebabCase(innsatsgruppe),
-    });
   };
 
   const options = innsatsgrupper.data?.map((innsatsgruppe) => {

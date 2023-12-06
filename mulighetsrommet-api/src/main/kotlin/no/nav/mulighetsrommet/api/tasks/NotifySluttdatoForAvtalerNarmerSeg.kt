@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.tasks
 
+import arrow.core.toNonEmptyListOrNull
 import com.github.kagkarlsson.scheduler.task.helper.RecurringTask
 import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import com.github.kagkarlsson.scheduler.task.schedule.DisabledSchedule
@@ -59,9 +60,7 @@ class NotifySluttdatoForAvtalerNarmerSeg(
                 val avtaler: List<AvtaleNotificationDto> = avtaleService.getAllAvtalerSomNarmerSegSluttdato()
 
                 avtaler.forEach {
-                    if (it.administratorer.isEmpty()) {
-                        logger.info("Fant ingen administratorer for avtale med id: ${it.id}")
-                    } else {
+                    it.administratorer.toNonEmptyListOrNull()?.let { administratorer ->
                         val notification = ScheduledNotification(
                             type = NotificationType.NOTIFICATION,
                             title = "Avtalen \"${it.navn}\" utløper ${
@@ -69,7 +68,7 @@ class NotifySluttdatoForAvtalerNarmerSeg(
                                     DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT),
                                 )
                             }",
-                            targets = it.administratorer,
+                            targets = administratorer,
                             createdAt = Instant.now(),
                             metadata = NotificationMetadata(
                                 linkText = "Gå til avtalen",
@@ -77,7 +76,7 @@ class NotifySluttdatoForAvtalerNarmerSeg(
                             ),
                         )
                         notificationService.scheduleNotification(notification)
-                    }
+                    } ?: logger.info("Fant ingen administratorer for avtale med id: ${it.id}")
                 }
             }
         }

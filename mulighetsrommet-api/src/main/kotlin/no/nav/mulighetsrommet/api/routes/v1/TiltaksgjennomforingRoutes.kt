@@ -18,7 +18,6 @@ import no.nav.mulighetsrommet.api.utils.getPaginationParams
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
-import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingTilgjengelighetsstatus
 import no.nav.mulighetsrommet.domain.dto.Faneinnhold
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
@@ -110,7 +109,7 @@ data class TiltaksgjennomforingRequest(
     val stengtFra: LocalDate?,
     @Serializable(with = LocalDateSerializer::class)
     val stengtTil: LocalDate?,
-    val apenForInnsok: Boolean,
+    val apentForInnsok: Boolean,
     val kontaktpersoner: List<NavKontaktpersonForGjennomforing>,
     val stedForGjennomforing: String?,
     val opphav: ArenaMigrering.Opphav?,
@@ -126,11 +125,7 @@ data class TiltaksgjennomforingRequest(
         sluttDato = sluttDato,
         avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
         antallPlasser = antallPlasser,
-        tilgjengelighet = if (apenForInnsok) {
-            TiltaksgjennomforingTilgjengelighetsstatus.LEDIG
-        } else {
-            TiltaksgjennomforingTilgjengelighetsstatus.STENGT
-        },
+        apentForInnsok = apentForInnsok,
         tiltaksnummer = tiltaksnummer,
         arrangorOrganisasjonsnummer = arrangorOrganisasjonsnummer,
         arrangorKontaktpersonId = arrangorKontaktpersonId,

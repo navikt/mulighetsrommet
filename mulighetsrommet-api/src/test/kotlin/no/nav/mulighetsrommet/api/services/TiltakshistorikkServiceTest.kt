@@ -43,7 +43,7 @@ class TiltakshistorikkServiceTest : FunSpec({
         arrangorOrganisasjonsnummer = "123456789",
         avslutningsstatus = Avslutningsstatus.AVSLUTTET,
         startDato = LocalDate.of(2022, 1, 1),
-        tilgjengelighet = TiltaksgjennomforingTilgjengelighetsstatus.LEDIG,
+        apentForInnsok = true,
         antallPlasser = 12,
         administratorer = emptyList(),
         navRegion = "2990",

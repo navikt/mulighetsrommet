@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.services
 
 import arrow.core.Either
+import arrow.core.toNonEmptyListOrNull
 import kotliquery.TransactionalSession
 import no.nav.mulighetsrommet.api.avtaler.AvtaleValidator
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
@@ -58,10 +59,10 @@ class AvtaleService(
     ): PaginatedResponse<AvtaleAdminDto> {
         val (totalCount, items) = avtaler.getAll(
             pagination = pagination,
-            tiltakstypeId = filter.tiltakstypeId,
+            tiltakstypeIder = filter.tiltakstypeIder,
             search = filter.search,
-            status = filter.avtalestatus,
-            navRegion = filter.navRegion,
+            statuser = filter.statuser,
+            navRegioner = filter.navRegioner,
             sortering = filter.sortering,
             dagensDato = filter.dagensDato,
             leverandorOrgnr = filter.leverandorOrgnr,
@@ -117,7 +118,8 @@ class AvtaleService(
     ) {
         val currentAdministratorer = get(dbo.id)?.administratorer?.map { it.navIdent }?.toSet() ?: setOf()
 
-        val administratorsToNotify = dbo.administratorer - currentAdministratorer - navIdent
+        val administratorsToNotify = (dbo.administratorer - currentAdministratorer - navIdent)
+            .toNonEmptyListOrNull() ?: return
 
         val notification = ScheduledNotification(
             type = NotificationType.NOTIFICATION,

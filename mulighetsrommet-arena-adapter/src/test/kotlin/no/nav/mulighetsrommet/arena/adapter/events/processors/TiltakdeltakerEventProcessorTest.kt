@@ -116,7 +116,12 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
                 navn = "Gjennomføring gruppe",
                 status = "GJENNOMFOR",
                 fraDato = LocalDateTime.of(2023, 1, 1, 0, 0),
+                tilDato = null,
+                apentForInnsok = true,
+                antallPlasser = null,
                 avtaleId = null,
+                fremmoteTidspunkt = null,
+                fremmoteSted = null,
             )
 
             val tiltakstypeIndividuell = TiltakstypeFixtures.Individuell
@@ -130,7 +135,12 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
                 navn = "Gjennomføring individuell",
                 status = "GJENNOMFOR",
                 fraDato = LocalDateTime.of(2023, 1, 1, 0, 0),
+                tilDato = null,
+                apentForInnsok = true,
+                antallPlasser = null,
                 avtaleId = null,
+                fremmoteTidspunkt = null,
+                fremmoteSted = null,
             )
 
             /**

@@ -1,5 +1,7 @@
 package no.nav.mulighetsrommet.api.services
 
+import arrow.core.NonEmptyList
+import arrow.core.toNonEmptyListOrNull
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
@@ -186,7 +188,7 @@ class ArenaAdapterService(
 
     private fun notifyRelevantAdministrators(
         overordnetEnhet: NavEnhetDbo,
-        createNotification: (administrators: List<String>) -> ScheduledNotification,
+        createNotification: (administrators: NonEmptyList<String>) -> ScheduledNotification,
     ) {
         val potentialAdministratorHovedenheter = navEnhetService
             .hentAlleEnheter(
@@ -205,6 +207,7 @@ class ArenaAdapterService(
             )
             .getOrThrow()
             .map { it.navIdent }
+            .toNonEmptyListOrNull() ?: return
 
         val notification = createNotification(administrators)
         notificationService.scheduleNotification(notification)

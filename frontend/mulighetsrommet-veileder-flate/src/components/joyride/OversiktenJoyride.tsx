@@ -1,6 +1,5 @@
 import { JoyrideType } from "mulighetsrommet-api-client";
 import Joyride, { ACTIONS, CallBackProps, EVENTS, STATUS } from "react-joyride";
-import { logEvent } from "../../core/api/logger";
 import { useJoyride } from "../../core/api/queries/useJoyride";
 import { JoyrideKnapp } from "./JoyrideKnapp";
 import { oversiktenSteps, useSteps } from "./Steps";
@@ -29,7 +28,6 @@ export function OversiktenJoyride() {
 
     //resetter joyride når den er ferdig eller man klikker skip
     else if (([STATUS.FINISHED, STATUS.SKIPPED] as string[]).includes(status)) {
-      logEvent("mulighetsrommet.joyride", { value: "oversikten", status });
       setStepIndex(0);
       setHarFullfort(true);
     }
@@ -47,7 +45,6 @@ export function OversiktenJoyride() {
         handleClick={() => {
           setIsReady(true);
           setStepIndex(0);
-          logEvent("mulighetsrommet.joyride", { value: "oversikten" });
         }}
       />
       <Joyride

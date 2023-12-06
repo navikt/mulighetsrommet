@@ -5,7 +5,7 @@ info:
   title: Mulighetsrommet API
 
 security:
-  - bearerAuth: [ ]
+  - bearerAuth: []
 
 paths:
   /api/v1/internal/bruker:
@@ -81,9 +81,11 @@ paths:
       operationId: getAvtaler
       parameters:
         - in: query
-          name: tiltakstypeId
+          name: tiltakstypeIder
           schema:
-            type: string
+            type: array
+            items:
+              type: string
           description: ID for tiltakstyper om du ønsker avtaler for en spesifikk tiltakstype
         - in: query
           name: search
@@ -91,15 +93,26 @@ paths:
             type: string
           description: Search for avtaler by the name
         - in: query
-          name: avtalestatus
+          name: statuser
           schema:
-            $ref: "#/components/schemas/Avtalestatus"
-          description: Status for avtale
+            type: array
+            items:
+              $ref: "#/components/schemas/Avtalestatus"
+          description: Statuser for avtale
         - in: query
-          name: navRegion
+          name: navRegioner
           schema:
-            type: string
+            type: array
+            items:
+              type: string
           description: 4 digit enhetskode
+        - in: query
+          name: leverandorOrgnr
+          schema:
+            type: array
+            items:
+              type: string
+          description: Organisasjonsnummer til leverandører for avtaler
         - in: query
           name: page
           schema:
@@ -114,11 +127,6 @@ paths:
           name: sort
           schema:
             $ref: "#/components/schemas/SorteringAvtaler"
-        - in: query
-          name: leverandorOrgnr
-          schema:
-            type: string
-          description: Organisasjonsnummer til leverandør for avtaler
       responses:
         200:
           description: Object of paginated avtaler connected to specified tiltakstype-id.
@@ -162,25 +170,17 @@ paths:
       operationId: getMineAvtaler
       parameters:
         - in: query
-          name: tiltakstypeId
+          name: tiltakstypeIder
           schema:
-            type: string
+            type: array
+            items:
+              type: string
           description: ID for tiltakstyper om du ønsker avtaler for en spesifikk tiltakstype
         - in: query
           name: search
           schema:
             type: string
           description: Search for avtaler by the name
-        - in: query
-          name: avtalestatus
-          schema:
-            $ref: "#/components/schemas/Avtalestatus"
-          description: Status for avtale
-        - in: query
-          name: navRegion
-          schema:
-            type: string
-          description: 4 digit enhetskode
         - in: query
           name: page
           schema:
@@ -196,10 +196,26 @@ paths:
           schema:
             $ref: "#/components/schemas/SorteringAvtaler"
         - in: query
+          name: statuser
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/Avtalestatus"
+          description: Statuser for avtale
+        - in: query
+          name: navRegioner
+          schema:
+            type: array
+            items:
+              type: string
+          description: 4 digit enhetskode
+        - in: query
           name: leverandorOrgnr
           schema:
-            type: string
-          description: Organisasjonsnummer til leverandør for avtaler
+            type: array
+            items:
+              type: string
+          description: Organisasjonsnummer til leverandører for avtaler
       responses:
         200:
           description: Object of paginated avtaler connected to specified tiltakstype-id where logged in user is responsible for avtale.
@@ -433,20 +449,39 @@ paths:
             type: string
           description: Search for tiltaksgjennomføringer by the name
         - in: query
-          name: navEnhet
+          name: navEnheter
           schema:
-            type: string
+            type: array
+            items:
+              type: string
           description: 4 digit enhetskode
         - in: query
-          name: tiltakstypeId
+          name: tiltakstypeIder
           schema:
-            type: string
+            type: array
+            items:
+              type: string
+              format: uuid
           description: Id for tiltakstype knyttet til tiltaksgjennomføringer
         - in: query
-          name: status
+          name: statuser
           schema:
-            $ref: "#/components/schemas/TiltaksgjennomforingStatus"
+            type: array
+            items:
+              $ref: "#/components/schemas/TiltaksgjennomforingStatus"
           description: Status for tiltaksgjennomføring
+        - in: query
+          name: navRegioner
+          schema:
+            type: array
+            items:
+              type: string
+        - in: query
+          name: arrangorOrgnr
+          schema:
+            type: array
+            items:
+              type: string
         - in: query
           name: size
           schema:
@@ -457,15 +492,7 @@ paths:
           schema:
             $ref: "#/components/schemas/SorteringTiltaksgjennomforinger"
         - in: query
-          name: navRegion
-          schema:
-            type: string
-        - in: query
           name: avtaleId
-          schema:
-            type: string
-        - in: query
-          name: arrangorOrgnr
           schema:
             type: string
       responses:
@@ -511,6 +538,40 @@ paths:
       operationId: getMineTiltaksgjennomforinger
       parameters:
         - in: query
+          name: navEnheter
+          schema:
+            type: array
+            items:
+              type: string
+          description: 4 digit enhetskode
+        - in: query
+          name: tiltakstypeIder
+          schema:
+            type: array
+            items:
+              type: string
+              format: uuid
+          description: Id for tiltakstype knyttet til tiltaksgjennomføringer
+        - in: query
+          name: statuser
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/TiltaksgjennomforingStatus"
+          description: Status for tiltaksgjennomføring
+        - in: query
+          name: navRegioner
+          schema:
+            type: array
+            items:
+              type: string
+        - in: query
+          name: arrangorOrgnr
+          schema:
+            type: array
+            items:
+              type: string
+        - in: query
           name: page
           schema:
             type: number
@@ -521,21 +582,6 @@ paths:
             type: string
           description: Search for tiltaksgjennomføringer by the name
         - in: query
-          name: navEnhet
-          schema:
-            type: string
-          description: 4 digit enhetskode
-        - in: query
-          name: tiltakstypeId
-          schema:
-            type: string
-          description: Id for tiltakstype knyttet til tiltaksgjennomføringer
-        - in: query
-          name: status
-          schema:
-            $ref: "#/components/schemas/TiltaksgjennomforingStatus"
-          description: Status for tiltaksgjennomføring
-        - in: query
           name: size
           schema:
             type: number
@@ -545,15 +591,7 @@ paths:
           schema:
             $ref: "#/components/schemas/SorteringTiltaksgjennomforinger"
         - in: query
-          name: navRegion
-          schema:
-            type: string
-        - in: query
           name: avtaleId
-          schema:
-            type: string
-        - in: query
-          name: arrangorOrgnr
           schema:
             type: string
       responses:
@@ -689,14 +727,18 @@ paths:
             type: string
           description: Search for tiltakstyper
         - in: query
-          name: tiltakstypestatus
+          name: tiltakstypestatuser
           schema:
-            $ref: "#/components/schemas/Tiltakstypestatus"
-          description: Status for tiltakstyper
+            type: array
+            items:
+              $ref: "#/components/schemas/Tiltakstypestatus"
+          description: Statuser for tiltakstyper
         - in: query
-          name: tiltakstypekategori
+          name: tiltakstypekategorier
           schema:
-            $ref: "#/components/schemas/Tiltakstypekategori"
+            type: array
+            items:
+              $ref: "#/components/schemas/Tiltakstypekategori"
           description: Om man skal hente gruppetiltakstyper eller individuelle tiltakstyper
         - in: query
           name: page
@@ -852,7 +894,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/VeilederflateTiltaksgjennomforing"
-
 
   /api/v1/internal/sanity/tiltaksgjennomforing/preview/detaljer:
     post:
@@ -1080,6 +1121,26 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/NavEnhet"
+
+  /api/v1/internal/enheter/{enhetsnummer}/overordnet:
+    parameters:
+      - in: "path"
+        name: enhetsnummer
+        required: true
+        description: "Enhetsnummer for NAV-enhet"
+        schema:
+          type: string
+    get:
+      tags:
+        - NavEnheter
+      operationId: getOverordnetEnhet
+      responses:
+        200:
+          description: Overordnet enhet for enhetsnummer
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NavEnhet"
 
   /api/v1/internal/virksomhet:
     get:
@@ -1537,8 +1598,18 @@ components:
             format: uuid
         search:
           type: string
+        apentForInnsok:
+          $ref: "#/components/schemas/ApentForInnsok"
       required:
         - norskIdent
+        - apentForInnsok
+
+    ApentForInnsok:
+      type: string
+      enum:
+        - APENT
+        - STENGT
+        - APENT_ELLER_STENGT
 
     GetRelevanteTiltaksgjennomforingerPreviewRequest:
       type: object
@@ -1554,8 +1625,11 @@ components:
             format: uuid
         search:
           type: string
+        apentForInnsok:
+          $ref: "#/components/schemas/ApentForInnsok"
       required:
         - geografiskEnhet
+        - apentForInnsok
 
     GetTiltaksgjennomforingDetaljerPreviewRequest:
       type: object
@@ -1963,8 +2037,8 @@ components:
         stengtTil:
           type: string
           format: date
-        tilgjengelighet:
-          $ref: "#/components/schemas/Tilgjengelighetsstatus"
+        apentForInnsok:
+          type: boolean
         kontaktpersoner:
           type: array
           items:
@@ -1982,6 +2056,11 @@ components:
         updatedAt:
           type: string
           format: date-time
+        fremmoteTidspunkt:
+          type: string
+          format: date-time
+        fremmoteSted:
+          type: string
       required:
         - status
         - id
@@ -1992,7 +2071,7 @@ components:
         - navEnheter
         - opphav
         - midlertidigStengt
-        - tilgjengelighet
+        - apentForInnsok
         - tilgjengeligForVeileder
         - visesForVeileder
         - updatedAt
@@ -2049,7 +2128,7 @@ components:
           type: string
           format: date
           nullable: true
-        apenForInnsok:
+        apentForInnsok:
           type: boolean
         kontaktpersoner:
           type: array
@@ -2085,7 +2164,7 @@ components:
         - oppstart
         - stengtFra
         - stengtTil
-        - apenForInnsok
+        - apentForInnsok
         - kontaktpersoner
         - stedForGjennomforing
         - opphav
@@ -2100,13 +2179,6 @@ components:
         - AVBRUTT
         - AVLYST
         - AVSLUTTET
-
-    Tilgjengelighetsstatus:
-      type: string
-      enum:
-        - LEDIG
-        - STENGT
-        - VENTELISTE
 
     TiltaksgjennomforingOppstartstype:
       type: string
@@ -2597,8 +2669,8 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/SanityKontakinfoTiltaksansvarlige"
-        tilgjengelighet:
-          $ref: "#/components/schemas/Tilgjengelighetsstatus"
+        apentForInnsok:
+          type: boolean
         stengtFra:
           type: string
         stengtTil:
@@ -2606,6 +2678,7 @@ components:
       required:
         - navn
         - tiltakstype
+        - apentForInnsok
         - oppstart
         - kontaktinfoTiltaksansvarlige
 

@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.notifications
 
+import arrow.core.nonEmptyListOf
 import com.github.kagkarlsson.scheduler.Scheduler
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.assertions.nondeterministic.eventually
@@ -51,7 +52,7 @@ class NotificationServiceTest : FunSpec({
             type = NotificationType.NOTIFICATION,
             title = "Notifikasjon for alle brukere",
             createdAt = now,
-            targets = listOf(user1, user2),
+            targets = nonEmptyListOf(user1, user2),
             metadata = NotificationMetadata(
                 linkText = "Trykk på meg",
                 link = "/spennende-side",

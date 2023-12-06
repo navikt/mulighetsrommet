@@ -1,7 +1,10 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { FnrContext } from "./hooks/useFnr";
-import { Dispatch, ReactNode, useEffect, useState } from "react";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { PrimitiveAtom, Provider, SetStateAction, useAtom } from "jotai";
+import { useHydrateAtoms } from "jotai/utils";
+import { ReactNode, useEffect } from "react";
+import { appContext } from "./core/atoms/atoms";
+import { AppContextData } from "./hooks/useAppContext";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -13,23 +16,43 @@ const queryClient = new QueryClient({
 });
 
 export interface AppContextProps {
-  fnr: string | null;
-  setFnrRef?: (setFnr: Dispatch<string>) => void;
+  contextData: Partial<AppContextData>;
+  updateContextDataRef?: (updateContextData: (key: string, value: string) => void) => void;
   children: ReactNode;
 }
 
+function HydrateAtoms<T>({
+  initialValues,
+  children,
+}: {
+  initialValues: [PrimitiveAtom<T>, SetStateAction<T>][];
+  children: ReactNode;
+}) {
+  // initialising on state with prop on render here
+  useHydrateAtoms(initialValues);
+  return children;
+}
+
 export function AppContext(props: AppContextProps) {
-  const [fnr, setFnr] = useState(props.fnr);
+  const [contextData, setContextData] = useAtom(appContext);
 
   useEffect(() => {
-    if (props.setFnrRef) {
-      props.setFnrRef(setFnr);
+    if (props.contextData) {
+      props?.updateContextDataRef?.((key: string, value: string) => {
+        setContextData({ ...contextData, [key]: value });
+      });
+      // console.log("Setter data fra props");
+      // setContextData({ ...contextData, ...props.contextData });
     }
-  }, []);
+  }, [props.contextData.enhet, props.contextData.fnr]);
 
   return (
     <QueryClientProvider client={queryClient}>
-      <FnrContext.Provider value={fnr}>{props.children}</FnrContext.Provider>
+      <Provider>
+        <HydrateAtoms initialValues={[[appContext, props.contextData]]}>
+          {props.children}
+        </HydrateAtoms>
+      </Provider>
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );

@@ -1,6 +1,7 @@
 import { Alert, Button, ErrorMessage, Textarea } from "@navikt/ds-react";
 import { DelMedBruker, VeilederflateTiltaksgjennomforing } from "mulighetsrommet-api-client";
 import React, { Dispatch, useEffect, useRef } from "react";
+import { useLogEvent } from "../../../logging/amplitude";
 import { erPreview, formaterDato } from "../../../utils/Utils";
 import delemodalStyles from "./Delemodal.module.scss";
 import { Actions, State } from "./DelemodalActions";
@@ -27,6 +28,7 @@ export function DelMedBrukerContent({
 }: Props) {
   const { enableRedigerDeletekst } = state;
   const endreDeletekstRef = useRef<HTMLTextAreaElement>(null);
+  const { logEvent } = useLogEvent();
   const datoSidenSistDelt =
     harDeltMedBruker?.createdAt && formaterDato(new Date(harDeltMedBruker.createdAt));
 

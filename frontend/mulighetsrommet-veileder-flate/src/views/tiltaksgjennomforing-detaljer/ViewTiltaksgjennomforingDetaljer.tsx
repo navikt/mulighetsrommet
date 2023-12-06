@@ -19,14 +19,16 @@ import { Outlet } from "react-router-dom";
 import { BrukerHarIkke14aVedtakVarsel } from "../../components/ikkeKvalifisertVarsel/BrukerHarIkke14aVedtakVarsel";
 import { BrukerKvalifisererIkkeVarsel } from "../../components/ikkeKvalifisertVarsel/BrukerKvalifisererIkkeVarsel";
 import { DetaljerJoyride } from "../../components/joyride/DetaljerJoyride";
+import { OpprettAvtaleJoyride } from "../../components/joyride/OpprettAvtaleJoyride";
+import Delemodal from "../../components/modal/delemodal/Delemodal";
 import SidemenyDetaljer from "../../components/sidemeny/SidemenyDetaljer";
 import TiltaksdetaljerFane from "../../components/tabs/TiltaksdetaljerFane";
 import Tilbakeknapp from "../../components/tilbakeknapp/Tilbakeknapp";
-import { logEvent } from "../../core/api/logger";
 import { useGetTiltaksgjennomforingIdFraUrl } from "../../core/api/queries/useGetTiltaksgjennomforingIdFraUrl";
 import { paginationAtom } from "../../core/atoms/atoms";
 import { environments } from "../../env";
 import TiltaksgjennomforingsHeader from "../../layouts/TiltaksgjennomforingsHeader";
+import { useLogEvent } from "../../logging/amplitude";
 import { byttTilDialogFlate } from "../../utils/DialogFlateUtils";
 import { erPreview, formaterDato } from "../../utils/Utils";
 import styles from "./ViewTiltaksgjennomforingDetaljer.module.scss";
@@ -36,6 +38,7 @@ import {
   reducer,
 } from "../../components/modal/delemodal/DelemodalReducer";
 import { OpprettAvtaleJoyride } from "../../components/joyride/OpprettAvtaleJoyride";
+
 
 const whiteListOpprettAvtaleKnapp: Tiltakskode[] = [
   Tiltakskode.MIDLONTIL,
@@ -94,6 +97,7 @@ const ViewTiltaksgjennomforingDetaljer = ({
   const veiledernavn = resolveName(veilederdata);
   const datoSidenSistDelt =
     harDeltMedBruker && formaterDato(new Date(harDeltMedBruker.createdAt!!));
+  const { logEvent } = useLogEvent();
 
   const originaldeletekstFraTiltakstypen = tiltaksgjennomforing.tiltakstype.delingMedBruker ?? "";
   const brukernavn = erPreview() ? "{Navn}" : brukerdata?.fornavn;
@@ -120,14 +124,12 @@ const ViewTiltaksgjennomforingDetaljer = ({
   }
 
   const kanBrukerFaaAvtale = () => {
-    const tiltakstypeNavn = tiltaksgjennomforing.tiltakstype.navn;
     if (
       tiltaksgjennomforing.tiltakstype?.arenakode &&
       tiltakstypeAsStringIsIndividuellTiltakstype(tiltaksgjennomforing.tiltakstype.arenakode)
     ) {
       const url = lenkeTilOpprettAvtaleForEnv();
       window.open(url, "_blank");
-      logEvent("mulighetsrommet.opprett-avtale", { tiltakstype: tiltakstypeNavn });
     }
   };
 

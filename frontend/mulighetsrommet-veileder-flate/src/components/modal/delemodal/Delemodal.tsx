@@ -7,6 +7,7 @@ import {
 import { PORTEN } from "mulighetsrommet-frontend-common/constants";
 import { mulighetsrommetClient } from "../../../core/api/clients";
 import { useHentDeltMedBrukerStatus } from "../../../core/api/queries/useHentDeltMedbrukerStatus";
+import { useLogEvent } from "../../../logging/amplitude";
 import { byttTilDialogFlate } from "../../../utils/DialogFlateUtils";
 import { erPreview } from "../../../utils/Utils";
 import modalStyles from "../Modal.module.scss";
@@ -59,6 +60,8 @@ export function Delemodal({
   dispatch,
   state,
 }: DelemodalProps) {
+  const { logEvent } = useLogEvent();
+
   const senderTilDialogen = state.sendtStatus === "SENDER";
   const { lagreVeilederHarDeltTiltakMedBruker } = useHentDeltMedBrukerStatus(
     brukerFnr,
@@ -68,6 +71,28 @@ export function Delemodal({
   const originaltekstLengde = state.originalDeletekst.length;
   const lukkStatusmodal = () => dispatch({ type: "Lukk statusmodal", payload: false });
   const lukkModal = () => dispatch({ type: "Lukk modal", payload: false });
+ const logDelMedbrukerEvent = (
+    action:
+      | "Åpnet dialog"
+      | "Delte med bruker"
+      | "Del med bruker feilet"
+      | "Avbrutt del med bruker"
+      | "Sett hilsen"
+      | "Sett intro"
+      | "Sett venter på svar fra bruker",
+  ) => {
+    logEvent({
+      name: "arbeidsmarkedstiltak.del-med-bruker",
+      data: { action },
+    });
+  };
+
+  const clickCancel = () => {
+    lukkModal();
+    dispatch({ type: "Avbryt" });
+    logDelMedbrukerEvent("Avbrutt del med bruker");
+  };
+
 
   const clickCancel = () => {
     lukkModal();

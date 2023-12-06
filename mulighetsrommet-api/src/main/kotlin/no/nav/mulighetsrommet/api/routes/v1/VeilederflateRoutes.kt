@@ -118,7 +118,14 @@ data class GetRelevanteTiltaksgjennomforingerForBrukerRequest(
     val innsatsgruppe: String? = null,
     val tiltakstypeIds: List<String>? = null,
     val search: String? = null,
+    val apentForInnsok: ApentForInnsok,
 )
+
+enum class ApentForInnsok {
+    APENT,
+    STENGT,
+    APENT_ELLER_STENGT,
+}
 
 @Serializable
 data class GetTiltaksgjennomforingForBrukerRequest(

@@ -3,7 +3,6 @@ package no.nav.mulighetsrommet.api.domain.dto
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
-import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingTilgjengelighetsstatus
 import no.nav.mulighetsrommet.domain.dto.Faneinnhold
 import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
@@ -27,7 +26,7 @@ data class TiltaksgjennomforingAdminDto(
     val sluttDato: LocalDate?,
     val arenaAnsvarligEnhet: EmbeddedNavEnhet?,
     val status: Tiltaksgjennomforingsstatus,
-    val tilgjengelighet: TiltaksgjennomforingTilgjengelighetsstatus,
+    val apentForInnsok: Boolean,
     val antallPlasser: Int?,
     @Serializable(with = UUIDSerializer::class)
     val avtaleId: UUID?,
@@ -52,6 +51,9 @@ data class TiltaksgjennomforingAdminDto(
     val updatedAt: LocalDateTime,
     val tilgjengeligForVeileder: Boolean,
     val visesForVeileder: Boolean,
+    @Serializable(with = LocalDateTimeSerializer::class)
+    val fremmoteTidspunkt: LocalDateTime?,
+    val fremmoteSted: String?,
 ) {
     fun isAktiv(): Boolean = status in listOf(
         Tiltaksgjennomforingsstatus.PLANLAGT,

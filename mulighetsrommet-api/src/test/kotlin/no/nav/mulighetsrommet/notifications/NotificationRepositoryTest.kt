@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.notifications
 
+import arrow.core.nonEmptyListOf
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
@@ -37,14 +38,14 @@ class NotificationRepositoryTest : FunSpec({
         type = NotificationType.NOTIFICATION,
         title = "Notifikasjon for flere brukere",
         createdAt = now,
-        targets = listOf(user1, user2),
+        targets = nonEmptyListOf(user1, user2),
     )
     val notification2 = ScheduledNotification(
         id = UUID.randomUUID(),
         type = NotificationType.NOTIFICATION,
         title = "Notifikasjon for spesifikk bruker",
         createdAt = now,
-        targets = listOf(user1),
+        targets = nonEmptyListOf(user1),
     )
 
     fun ScheduledNotification.asUserNotification(userId: String, doneAt: LocalDateTime? = null) = run {

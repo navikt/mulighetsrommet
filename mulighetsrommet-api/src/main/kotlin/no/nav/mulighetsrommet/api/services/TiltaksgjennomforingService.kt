@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.services
 
 import arrow.core.Either
 import arrow.core.left
+import arrow.core.toNonEmptyListOrNull
 import io.ktor.server.plugins.*
 import kotliquery.TransactionalSession
 import no.nav.mulighetsrommet.api.clients.vedtak.Innsatsgruppe
@@ -71,13 +72,13 @@ class TiltaksgjennomforingService(
         .getAll(
             pagination,
             search = filter.search,
-            navEnhet = filter.navEnhet,
-            tiltakstypeId = filter.tiltakstypeId,
-            status = filter.status,
+            navEnheter = filter.navEnheter,
+            tiltakstypeIder = filter.tiltakstypeIder,
+            statuser = filter.statuser,
             sortering = filter.sortering,
             sluttDatoCutoff = filter.sluttDatoCutoff,
             dagensDato = filter.dagensDato,
-            navRegion = filter.navRegion,
+            navRegioner = filter.navRegioner,
             avtaleId = filter.avtaleId,
             arrangorOrgnr = filter.arrangorOrgnr,
             administratorNavIdent = filter.administratorNavIdent,
@@ -96,11 +97,13 @@ class TiltaksgjennomforingService(
 
     fun getAllVeilederflateTiltaksgjennomforing(
         search: String?,
+        apentForInnsok: Boolean?,
         sanityTiltakstypeIds: List<UUID>?,
         innsatsgrupper: List<Innsatsgruppe>,
         brukersEnheter: List<String>,
     ): List<VeilederflateTiltaksgjennomforing> = tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
         search,
+        apentForInnsok,
         sanityTiltakstypeIds,
         innsatsgrupper,
         brukersEnheter,
@@ -113,13 +116,13 @@ class TiltaksgjennomforingService(
         .getAll(
             pagination,
             search = filter.search,
-            navEnhet = filter.navEnhet,
-            tiltakstypeId = filter.tiltakstypeId,
-            status = filter.status,
+            navEnheter = filter.navEnheter,
+            tiltakstypeIder = filter.tiltakstypeIder,
+            statuser = filter.statuser,
             sortering = filter.sortering,
             sluttDatoCutoff = filter.sluttDatoCutoff,
             dagensDato = filter.dagensDato,
-            navRegion = filter.navRegion,
+            navRegioner = filter.navRegioner,
             avtaleId = filter.avtaleId,
             arrangorOrgnr = filter.arrangorOrgnr,
             administratorNavIdent = filter.administratorNavIdent,
@@ -203,7 +206,8 @@ class TiltaksgjennomforingService(
     ) {
         val currentAdministratorer = get(dbo.id)?.administratorer?.map { it.navIdent }?.toSet() ?: setOf()
 
-        val administratorsToNotify = dbo.administratorer - currentAdministratorer - navIdent
+        val administratorsToNotify = (dbo.administratorer - currentAdministratorer - navIdent)
+            .toNonEmptyListOrNull() ?: return
 
         val notification = ScheduledNotification(
             type = NotificationType.NOTIFICATION,

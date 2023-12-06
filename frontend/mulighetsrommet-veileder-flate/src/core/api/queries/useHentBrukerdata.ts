@@ -1,12 +1,12 @@
-import { Bruker } from "mulighetsrommet-api-client";
-import { QueryKeys } from "../query-keys";
-import { useFnr } from "../../../hooks/useFnr";
-import { mulighetsrommetClient } from "../clients";
-import { erPreview } from "../../../utils/Utils";
 import { useQuery } from "@tanstack/react-query";
+import { Bruker } from "mulighetsrommet-api-client";
+import { useAppContext } from "../../../hooks/useAppContext";
+import { erPreview } from "../../../utils/Utils";
+import { mulighetsrommetClient } from "../clients";
+import { QueryKeys } from "../query-keys";
 
 export function useHentBrukerdata() {
-  const fnr = useFnr();
+  const { fnr } = useAppContext();
 
   const requestBody = { norskIdent: fnr };
 
