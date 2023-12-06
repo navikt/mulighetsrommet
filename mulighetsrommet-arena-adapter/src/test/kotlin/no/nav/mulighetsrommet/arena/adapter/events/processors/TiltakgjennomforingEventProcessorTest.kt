@@ -350,6 +350,9 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                         it.copy(
                             DATO_FRA = "2022-11-11 00:00:00",
                             DATO_TIL = "2023-11-11 00:00:00",
+                            DATO_FREMMOTE = "2023-01-01 00:00:00",
+                            KLOKKETID_FREMMOTE = "09:00",
+                            TEKST_KURSSTED = "Oslo",
                         )
                     },
                 )
@@ -378,6 +381,8 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                         startDato shouldBe LocalDate.of(2022, 11, 11)
                         sluttDato shouldBe LocalDate.of(2023, 11, 11)
                         avslutningsstatus shouldBe Avslutningsstatus.IKKE_AVSLUTTET
+                        fremmoteTidspunkt shouldBe LocalDateTime.of(2023, 1, 1, 9, 0, 0)
+                        fremmoteSted shouldBe "Oslo"
                     }
                 }
 
