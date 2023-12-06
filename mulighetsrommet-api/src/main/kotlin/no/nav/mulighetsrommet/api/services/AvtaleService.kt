@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.services
 
 import arrow.core.Either
+import arrow.core.toNonEmptyListOrNull
 import kotliquery.TransactionalSession
 import no.nav.mulighetsrommet.api.avtaler.AvtaleValidator
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
@@ -117,7 +118,8 @@ class AvtaleService(
     ) {
         val currentAdministratorer = get(dbo.id)?.administratorer?.map { it.navIdent }?.toSet() ?: setOf()
 
-        val administratorsToNotify = dbo.administratorer - currentAdministratorer - navIdent
+        val administratorsToNotify = (dbo.administratorer - currentAdministratorer - navIdent)
+            .toNonEmptyListOrNull() ?: return
 
         val notification = ScheduledNotification(
             type = NotificationType.NOTIFICATION,

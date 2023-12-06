@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.services
 
 import arrow.core.Either
 import arrow.core.left
+import arrow.core.toNonEmptyListOrNull
 import io.ktor.server.plugins.*
 import kotliquery.TransactionalSession
 import no.nav.mulighetsrommet.api.clients.vedtak.Innsatsgruppe
@@ -205,7 +206,8 @@ class TiltaksgjennomforingService(
     ) {
         val currentAdministratorer = get(dbo.id)?.administratorer?.map { it.navIdent }?.toSet() ?: setOf()
 
-        val administratorsToNotify = dbo.administratorer - currentAdministratorer - navIdent
+        val administratorsToNotify = (dbo.administratorer - currentAdministratorer - navIdent)
+            .toNonEmptyListOrNull() ?: return
 
         val notification = ScheduledNotification(
             type = NotificationType.NOTIFICATION,
