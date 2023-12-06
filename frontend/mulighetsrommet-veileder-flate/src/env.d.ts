@@ -18,12 +18,14 @@ interface ImportMeta {
   readonly env: ImportMetaEnv;
 }
 
-export interface AmplitudeInstance {
-  track: (eventName: string, extraData?: Record<string, unknown>) => void;
-}
+export type LogEventFromApp = (params?: {
+  origin: unknown | string;
+  eventName: unknown | string;
+  eventData?: unknown | Record<string, unknown>;
+}) => Promise<Void>;
 
 declare global {
   interface Window {
-    veilarbpersonflatefsAmplitude: AmplitudeInstance;
+    veilarbpersonflatefsAmplitude: LogEventFromApp;
   }
 }
