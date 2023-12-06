@@ -1,12 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
-import { useFnr } from "../../../hooks/useFnr";
+import { useAppContext } from "../../../hooks/useAppContext";
 import { mulighetsrommetClient } from "../clients";
 import { QueryKeys } from "../query-keys";
 import { useGetTiltaksgjennomforingIdFraUrl } from "./useGetTiltaksgjennomforingIdFraUrl";
 
 export default function useTiltaksgjennomforingById() {
   const id = useGetTiltaksgjennomforingIdFraUrl();
-  const fnr = useFnr();
+  const { fnr } = useAppContext();
 
   const requestBody = { norskIdent: fnr, id };
 

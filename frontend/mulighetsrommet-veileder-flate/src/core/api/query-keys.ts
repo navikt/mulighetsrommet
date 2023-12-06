@@ -25,4 +25,5 @@ export const QueryKeys = {
   navEnheter: (statuser: NavEnhetStatus[]) => [statuser, "navEnheter"],
   oppskrifter: (tiltakstypeId: string) => [tiltakstypeId, "oppskrifter"],
   harFullfortJoyride: (joyrideType: JoyrideType) => [joyrideType, "joyride"],
+  overordnetEnhet: (enhetsnummer: string) => ["overordnetEnhet", enhetsnummer],
 };

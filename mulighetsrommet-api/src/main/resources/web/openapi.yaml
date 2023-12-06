@@ -1122,6 +1122,26 @@ paths:
                 items:
                   $ref: "#/components/schemas/NavEnhet"
 
+  /api/v1/internal/enheter/{enhetsnummer}/overordnet:
+    parameters:
+      - in: "path"
+        name: enhetsnummer
+        required: true
+        description: "Enhetsnummer for NAV-enhet"
+        schema:
+          type: string
+    get:
+      tags:
+        - NavEnheter
+      operationId: getOverordnetEnhet
+      responses:
+        200:
+          description: Overordnet enhet for enhetsnummer
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NavEnhet"
+
   /api/v1/internal/virksomhet:
     get:
       tags:

@@ -1,14 +1,13 @@
 import { Alert, BodyShort, Heading } from "@navikt/ds-react";
+import { useAtom } from "jotai";
 import {
   SanityKontakinfoTiltaksansvarlige,
   VeilederflateTiltaksgjennomforing,
 } from "mulighetsrommet-api-client";
-import { logEvent } from "../../../core/api/logger";
-import styles from "./Kontaktinfo.module.scss";
-import { useAtom } from "jotai";
+import { Link } from "react-router-dom";
 import { geografiskEnhetForPreviewAtom } from "../../../core/atoms/atoms";
 import { erPreview } from "../../../utils/Utils";
-import { Link } from "react-router-dom";
+import styles from "./Kontaktinfo.module.scss";
 
 const TEAMS_DYPLENKE = "https://teams.microsoft.com/l/chat/0/0?users=";
 
@@ -62,17 +61,11 @@ const NavKontaktpersonInfo = ({ data }: NavKontaktpersonInfoProps) => {
 
                 <div className={styles.kolonne}>
                   {telefonnummer && <span>{telefonnummer}</span>}
-                  <a
-                    href={`mailto:${epost}`}
-                    onClick={() => logEvent("mulighetsrommet.tiltaksansvarlig.epost")}
-                  >
-                    {epost}
-                  </a>
+                  <a href={`mailto:${epost}`}>{epost}</a>
                   <a
                     target="_blank"
                     rel="noreferrer"
                     href={`${TEAMS_DYPLENKE}${encodeURIComponent(epost)}`}
-                    onClick={() => logEvent("mulighetsrommet.tiltaksansvarlig.teamslenke")}
                   >
                     Kontakt meg på Teams
                   </a>

@@ -7,8 +7,8 @@ import {
 import { PORTEN } from "mulighetsrommet-frontend-common/constants";
 import { useReducer } from "react";
 import { mulighetsrommetClient } from "../../../core/api/clients";
-import { logEvent } from "../../../core/api/logger";
 import { useHentDeltMedBrukerStatus } from "../../../core/api/queries/useHentDeltMedbrukerStatus";
+import { useLogEvent } from "../../../logging/amplitude";
 import { byttTilDialogFlate } from "../../../utils/DialogFlateUtils";
 import { erPreview } from "../../../utils/Utils";
 import modalStyles from "../Modal.module.scss";
@@ -16,19 +16,6 @@ import { StatusModal } from "../StatusModal";
 import { DelMedBrukerContent, MAKS_ANTALL_TEGN_DEL_MED_BRUKER } from "./DelMedBrukerContent";
 import delemodalStyles from "./Delemodal.module.scss";
 import { Actions, State } from "./DelemodalActions";
-
-export const logDelMedbrukerEvent = (
-  action:
-    | "Åpnet dialog"
-    | "Delte med bruker"
-    | "Del med bruker feilet"
-    | "Avbrutt del med bruker"
-    | "Sett hilsen"
-    | "Sett intro"
-    | "Sett venter på svar fra bruker",
-) => {
-  logEvent("mulighetsrommet.del-med-bruker", { value: action });
-};
 
 interface DelemodalProps {
   modalOpen: boolean;
@@ -135,6 +122,7 @@ const Delemodal = ({
   brukerdata,
   harDeltMedBruker,
 }: DelemodalProps) => {
+  const { logEvent } = useLogEvent();
   const introtekst = sySammenIntroTekst(brukernavn);
   const deletekst = sySammenBrukerTekst(chattekst, tiltaksgjennomforing.navn, brukernavn);
   const originalHilsen = sySammenHilsenTekst(veiledernavn);
@@ -149,6 +137,22 @@ const Delemodal = ({
     brukerFnr,
     tiltaksgjennomforing,
   );
+
+  const logDelMedbrukerEvent = (
+    action:
+      | "Åpnet dialog"
+      | "Delte med bruker"
+      | "Del med bruker feilet"
+      | "Avbrutt del med bruker"
+      | "Sett hilsen"
+      | "Sett intro"
+      | "Sett venter på svar fra bruker",
+  ) => {
+    logEvent({
+      name: "arbeidsmarkedstiltak.del-med-bruker",
+      data: { action },
+    });
+  };
 
   const clickCancel = (log = true) => {
     lukkModal();

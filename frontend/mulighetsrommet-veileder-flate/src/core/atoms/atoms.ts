@@ -3,6 +3,14 @@ import { ApentForInnsok, Innsatsgruppe, NavEnhet } from "mulighetsrommet-api-cli
 import { atomWithStorage } from "jotai/utils";
 import { atom } from "jotai";
 
+interface AppContextData {
+  fnr: string;
+  enhet: string;
+  overordnetEnhet?: string | null;
+}
+
+export const appContext = atom<Partial<AppContextData>>({});
+
 // Bump version number when localStorage should be cleared
 const version = localStorage.getItem("version");
 if (version !== "0.1.0") {

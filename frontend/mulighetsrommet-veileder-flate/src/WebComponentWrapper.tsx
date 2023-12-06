@@ -1,11 +1,11 @@
-import React, { FunctionComponent, ReactNode, useEffect, useState } from "react";
-import { createRoot } from "react-dom/client";
-import { APPLICATION_WEB_COMPONENT_NAME } from "./constants";
-import { App } from "./App";
-import { AppContext } from "./AppContext";
-import urlJoin from "url-join";
 import createCache from "@emotion/cache";
 import { CacheProvider, EmotionCache } from "@emotion/react";
+import { FunctionComponent, ReactNode, useEffect, useState } from "react";
+import { createRoot } from "react-dom/client";
+import urlJoin from "url-join";
+import { App } from "./App";
+import { AppContext } from "./AppContext";
+import { APPLICATION_WEB_COMPONENT_NAME } from "./constants";
 
 interface Props {
   cache: EmotionCache;
@@ -32,6 +32,7 @@ interface ViteAssetManifest {
 
 export class Arbeidsmarkedstiltak extends HTMLElement {
   static FNR_PROP = "data-fnr";
+  static ENHET_PROP = "data-enhet";
 
   private readonly root: HTMLDivElement;
 
@@ -44,7 +45,7 @@ export class Arbeidsmarkedstiltak extends HTMLElement {
   }
 
   static get observedAttributes() {
-    return [Arbeidsmarkedstiltak.FNR_PROP];
+    return [Arbeidsmarkedstiltak.FNR_PROP, Arbeidsmarkedstiltak.ENHET_PROP];
   }
 
   /**
@@ -53,7 +54,7 @@ export class Arbeidsmarkedstiltak extends HTMLElement {
    * Ved endringer på `FNR_PROP`-attributtet så blir denne funksjonen kalt slik at vi får
    * propagert endringene til resten av applikasjonen.
    */
-  setFnr?: (fnr: string) => void;
+  updateContextData?: (key: string, value: string) => void;
 
   connectedCallback() {
     // The ShadowRoot is rendered separately from the main DOM tree, ensuring that styling
@@ -63,8 +64,9 @@ export class Arbeidsmarkedstiltak extends HTMLElement {
 
     this.loadStyles(shadowRoot)
       .then(() => {
-        const fnr = this.getAttribute(Arbeidsmarkedstiltak.FNR_PROP);
-        this.renderApp(fnr);
+        const fnr = this.getAttribute(Arbeidsmarkedstiltak.FNR_PROP) ?? undefined;
+        const enhet = this.getAttribute(Arbeidsmarkedstiltak.ENHET_PROP) ?? undefined;
+        this.renderApp(fnr, enhet);
       })
       .catch((error) => {
         this.displayError(error?.message ?? error);
@@ -72,8 +74,10 @@ export class Arbeidsmarkedstiltak extends HTMLElement {
   }
 
   attributeChangedCallback(name: string, oldValue: string, newValue: string) {
-    if (name === Arbeidsmarkedstiltak.FNR_PROP && this.setFnr) {
-      this.setFnr(newValue);
+    if (name === Arbeidsmarkedstiltak.FNR_PROP && this.updateContextData) {
+      this.updateContextData("fnr", newValue);
+    } else if (name === Arbeidsmarkedstiltak.ENHET_PROP && this.updateContextData) {
+      this.updateContextData("enhet", newValue);
     }
   }
 
@@ -93,7 +97,7 @@ export class Arbeidsmarkedstiltak extends HTMLElement {
     }
   }
 
-  renderApp(fnr: string | null) {
+  renderApp(fnr?: string, enhet?: string) {
     const root = createRoot(this.root);
 
     const shadowrootCache = createCache({
@@ -103,7 +107,10 @@ export class Arbeidsmarkedstiltak extends HTMLElement {
     });
     root.render(
       <CustomEmotionCacheProvider cache={shadowrootCache}>
-        <AppContext fnr={fnr} setFnrRef={(setFnr) => (this.setFnr = setFnr)}>
+        <AppContext
+          contextData={{ enhet, fnr }}
+          updateContextDataRef={(updateContextData) => (this.updateContextData = updateContextData)}
+        >
           <App />
         </AppContext>
       </CustomEmotionCacheProvider>,

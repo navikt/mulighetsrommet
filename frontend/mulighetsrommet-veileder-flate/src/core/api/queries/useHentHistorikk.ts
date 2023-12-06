@@ -1,10 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
-import { useFnr } from "../../../hooks/useFnr";
+import { useAppContext } from "../../../hooks/useAppContext";
 import { mulighetsrommetClient } from "../clients";
 import { QueryKeys } from "../query-keys";
 
 export function useHentHistorikk(prefetch: boolean = true) {
-  const fnr = useFnr();
+  const { fnr } = useAppContext();
 
   const requestBody = { norskIdent: fnr };
 
