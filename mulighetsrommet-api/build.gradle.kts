@@ -57,6 +57,7 @@ dependencies {
     // Kotlin
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.arrow.core)
+    implementation(libs.arrow.core.serialization)
 
     // Ktor
     testImplementation(libs.ktor.client.mock)

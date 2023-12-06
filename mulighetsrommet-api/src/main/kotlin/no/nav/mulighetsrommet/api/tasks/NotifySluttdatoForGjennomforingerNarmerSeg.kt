@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.tasks
 
+import arrow.core.toNonEmptyListOrNull
 import com.github.kagkarlsson.scheduler.task.helper.RecurringTask
 import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import com.github.kagkarlsson.scheduler.task.schedule.DisabledSchedule
@@ -59,9 +60,7 @@ class NotifySluttdatoForGjennomforingerNarmerSeg(
                 val tiltaksgjennomforinger: List<TiltaksgjennomforingNotificationDto> =
                     tiltaksgjennomforingService.getAllGjennomforingerSomNarmerSegSluttdato()
                 tiltaksgjennomforinger.forEach {
-                    if (it.administratorer.isEmpty()) {
-                        logger.info("Fant ingen administratorer for gjennomføring med id: ${it.id}")
-                    } else {
+                    it.administratorer.toNonEmptyListOrNull()?.let { administratorer ->
                         val notification = ScheduledNotification(
                             type = NotificationType.NOTIFICATION,
                             title = "Gjennomføringen \"${it.navn} ${if (it.tiltaksnummer != null) "(${it.tiltaksnummer})" else ""}\" utløper ${
@@ -69,7 +68,7 @@ class NotifySluttdatoForGjennomforingerNarmerSeg(
                                     DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT),
                                 )
                             }",
-                            targets = it.administratorer,
+                            targets = administratorer,
                             createdAt = Instant.now(),
                             metadata = NotificationMetadata(
                                 linkText = "Gå til gjennomføringen",
@@ -77,7 +76,7 @@ class NotifySluttdatoForGjennomforingerNarmerSeg(
                             ),
                         )
                         notificationService.scheduleNotification(notification)
-                    }
+                    } ?: logger.info("Fant ingen administratorer for gjennomføring med id: ${it.id}")
                 }
             }
         }

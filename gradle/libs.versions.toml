@@ -9,6 +9,7 @@ kotlin = "1.9.21"
 ktor = "2.3.6"
 logback = "1.4.14"
 metrics = "4.2.22"
+arrow = "1.2.1"
 
 [plugins]
 flyway = { id = "org.flywaydb.flyway", version.ref = "flyway" }
@@ -19,7 +20,8 @@ shadow = "com.github.johnrengelman.shadow:8.1.1"
 openapi-generator = "org.openapi.generator:7.1.0"
 
 [libraries]
-arrow-core = "io.arrow-kt:arrow-core:1.2.1"
+arrow-core = { module = "io.arrow-kt:arrow-core", version.ref = "arrow" }
+arrow-core-serialization = { module = "io.arrow-kt:arrow-core-serialization", version.ref = "arrow" }
 
 assertj-db = "org.assertj:assertj-db:2.0.2"
 
