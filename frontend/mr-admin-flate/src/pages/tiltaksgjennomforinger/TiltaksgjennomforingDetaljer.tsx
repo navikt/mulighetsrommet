@@ -4,7 +4,6 @@ import {
   Avtale,
   Tiltaksgjennomforing,
   TiltaksgjennomforingOppstartstype,
-  Tiltakskode,
 } from "mulighetsrommet-api-client";
 import { NOM_ANSATT_SIDE } from "mulighetsrommet-frontend-common/constants";
 import { Bolk } from "../../components/detaljside/Bolk";
@@ -19,6 +18,7 @@ import {
   fremmoteDatoFromTidspunkt,
   fremmoteTidFromTidspunkt,
 } from "../../components/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaConst";
+import { isTiltakMedFellesOppstart } from "../../utils/tiltakskoder";
 
 interface Props {
   tiltaksgjennomforing: Tiltaksgjennomforing;
@@ -98,11 +98,7 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
           <Bolk aria-label="Oppstartsdato">
             <Metadata
               header="Oppstart"
-              verdi={
-                tiltaksgjennomforing.oppstart === TiltaksgjennomforingOppstartstype.FELLES
-                  ? "Felles"
-                  : "Løpende oppstart"
-              }
+              verdi={isTiltakMedFellesOppstart(tiltaksgjennomforing.tiltakstype.arenaKode)}
             />
             {Boolean(tiltaksgjennomforing.stengtFra) &&
               Boolean(tiltaksgjennomforing.stengtTil) &&
@@ -186,7 +182,7 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
           </Bolk>
 
           <VisHvisVerdi
-            verdi={isTiltakSomKreverFremmoteData(tiltaksgjennomforing.tiltakstype.arenaKode)}
+            verdi={tiltaksgjennomforing.oppstart === TiltaksgjennomforingOppstartstype.FELLES}
           >
             <Separator />
             <Bolk aria-label="Fremmøte">
@@ -326,8 +322,4 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
       </div>
     </>
   );
-}
-
-export function isTiltakSomKreverFremmoteData(tiltakskode: Tiltakskode): boolean {
-  return [Tiltakskode.GRUPPEAMO, Tiltakskode.GRUFAGYRKE, Tiltakskode.JOBBK].includes(tiltakskode);
 }

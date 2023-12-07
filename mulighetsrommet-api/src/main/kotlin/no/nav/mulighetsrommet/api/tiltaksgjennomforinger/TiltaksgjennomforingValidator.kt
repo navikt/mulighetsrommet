@@ -54,7 +54,7 @@ class TiltaksgjennomforingValidator(
                 add(ValidationError.of(TiltaksgjennomforingDbo::antallPlasser, "Antall plasser må være større enn 0"))
             }
 
-            if (Tiltakskoder.isTiltakSomKreverFremmoteData(avtale.tiltakstype.arenaKode)) {
+            if (!Tiltakskoder.hasFellesOppstart(avtale.tiltakstype.arenaKode)) {
                 if (dbo.fremmoteTidspunkt == null) {
                     add(
                         ValidationError(

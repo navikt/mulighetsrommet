@@ -21,7 +21,7 @@ import skjemastyles from "../skjema/Skjema.module.scss";
 import { VirksomhetKontaktpersoner } from "../virksomhet/VirksomhetKontaktpersoner";
 import { arrangorUnderenheterOptions, erArenaOpphav } from "./TiltaksgjennomforingSkjemaConst";
 import { ControlledDateInput } from "../skjema/ControlledDateInput";
-import { isTiltakSomKreverFremmoteData } from "../../pages/tiltaksgjennomforinger/TiltaksgjennomforingDetaljer";
+import { isTiltakMedFellesOppstart } from "../../utils/tiltakskoder";
 
 interface Props {
   tiltaksgjennomforing?: Tiltaksgjennomforing;
@@ -313,7 +313,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                     />
                   </div>
                 )}
-              {isTiltakSomKreverFremmoteData(avtale.tiltakstype.arenaKode) ? (
+              {isTiltakMedFellesOppstart(avtale.tiltakstype.arenaKode) ? (
                 <>
                   <Separator />
                   <Label>Fremmøte</Label>
@@ -347,6 +347,9 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                   </div>
                   <Textarea
                     size="small"
+                    resize="vertical"
+                    minRows={3}
+                    style={{ maxWidth: "450px" }}
                     description="Informasjon om hvor brukeren skal møte opp."
                     readOnly={erArenaOpphav(tiltaksgjennomforing)}
                     error={errors.fremmoteSted?.message as string}

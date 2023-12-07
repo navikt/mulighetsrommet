@@ -143,9 +143,7 @@ export function utkastDataEllerDefault(
       detaljerOgInnholdInfoboks: null,
     },
     opphav: tiltaksgjennomforing?.opphav ?? Opphav.MR_ADMIN_FLATE,
-    fremmoteDato: tiltaksgjennomforing?.fremmoteTidspunkt
-      ? new Date(tiltaksgjennomforing.fremmoteTidspunkt).toISOString().split("T")[0]
-      : undefined,
+    fremmoteDato: fremmoteDatoFromTidspunkt(tiltaksgjennomforing?.fremmoteTidspunkt),
     fremmoteTid: fremmoteTidFromTidspunkt(tiltaksgjennomforing?.fremmoteTidspunkt),
     ...utkast,
   };

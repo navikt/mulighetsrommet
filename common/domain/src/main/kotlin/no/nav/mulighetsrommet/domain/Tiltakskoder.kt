@@ -59,12 +59,6 @@ object Tiltakskoder {
         "VASV",
     )
 
-    val TiltakSomKreverFremmoteData = listOf(
-        "GRUPPEAMO",
-        "JOBBK",
-        "GRUFAGYRKE",
-    )
-
     fun isGruppetiltak(tiltakskode: String): Boolean {
         return tiltakskode in Gruppetiltak
     }
@@ -83,9 +77,5 @@ object Tiltakskoder {
 
     fun isTiltakMedAvtalerFraMulighetsrommet(tiltakskode: String): Boolean {
         return tiltakskode in TiltakMedAvtalerFraMulighetsrommet
-    }
-
-    fun isTiltakSomKreverFremmoteData(tiltakskode: String): Boolean {
-        return tiltakskode in TiltakSomKreverFremmoteData
     }
 }
