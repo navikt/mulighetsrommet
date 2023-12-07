@@ -5,6 +5,8 @@ import { useFeatureToggle } from "../../core/api/feature-toggles";
 import { useOppskrifter } from "../../core/api/queries/useOppskrifter";
 import { formaterDato } from "../../utils/Utils";
 import styles from "./Oppskriftsoversikt.module.scss";
+import { ErrorBoundary } from "react-error-boundary";
+import { ErrorFallback } from "../../utils/ErrorFallback";
 
 interface Props {
   tiltakstypeId: string;
@@ -30,7 +32,7 @@ export function Oppskriftsoversikt({ tiltakstypeId }: Props) {
   }
 
   return (
-    <>
+    <ErrorBoundary FallbackComponent={ErrorFallback}>
       <ul className={styles.container}>
         {oppskrifter.data.map((oppskrift) => {
           return (
@@ -42,7 +44,7 @@ export function Oppskriftsoversikt({ tiltakstypeId }: Props) {
           );
         })}
       </ul>
-    </>
+    </ErrorBoundary>
   );
 }
 
