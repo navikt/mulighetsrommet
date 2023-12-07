@@ -45,8 +45,6 @@ spec:
         databases:
           - name: mulighetsrommet-api-db
             envVarPrefix: DB
-            users:
-              - name: sanity-sync-job
         flags:
           - name: max_connections
             value: "200"
