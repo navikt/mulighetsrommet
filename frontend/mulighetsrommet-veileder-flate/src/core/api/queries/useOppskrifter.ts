@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
-import { mulighetsrommetClient } from "../clients";
 import { QueryKeys } from "../query-keys";
+import { mulighetsrommetClient } from "../clients";
+import { erPreview } from "../../../utils/Utils";
 
 export function useOppskrifter(tiltakstypeId?: string) {
   return useQuery({
@@ -8,7 +9,7 @@ export function useOppskrifter(tiltakstypeId?: string) {
     queryFn: () =>
       mulighetsrommetClient.oppskrifter.getOppskrifter({
         tiltakstypeId: tiltakstypeId!!,
-        perspective: "published",
+        perspective: erPreview() ? "previewDrafts" : "published",
       }),
     enabled: !!tiltakstypeId,
   });
