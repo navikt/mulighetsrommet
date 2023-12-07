@@ -23,6 +23,8 @@ jobs:
     name: CI
     runs-on: ubuntu-latest
     permissions: write-all
+    outputs:
+      image: ${{ steps.docker-build-push.outputs.image }}
     steps:
       - uses: actions/checkout@v4
       - name: Setup frontend
@@ -30,12 +32,13 @@ jobs:
       - name: Bygg studio
         run: npx turbo run build --filter=mulighetsrommet-cms
       - name: Push docker image to GAR and sign image
+        if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
         uses: nais/docker-build-push@v0
         id: docker-build-push
         with:
           team: team-mulighetsrommet
-          identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }} # Provided as Organization Secret
-          project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }} # Provided as Organization Variable
+          identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
+          project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
           dockerfile: ./frontend/mulighetsrommet-cms/Dockerfile
           docker_context: ./frontend/mulighetsrommet-cms
 
@@ -51,4 +54,4 @@ jobs:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: prod-gcp
           RESOURCE: frontend/mulighetsrommet-cms/.nais/nais-prod.yaml
-          VAR: image=${{ needs.CI.outputs.image }}
+          VAR: image=${{ needs.ci.outputs.image }}
