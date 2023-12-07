@@ -35,24 +35,16 @@ fun Application.configureAuthentication(
         .cached(5, 12, TimeUnit.HOURS)
         .build()
 
-    fun ApplicationCall.hasApplicationRoles(credentials: JWTCredential, vararg requiredRoles: String): Boolean {
+    fun hasApplicationRoles(credentials: JWTCredential, vararg requiredRoles: String): Boolean {
         val roles = credentials.getListClaim("roles", String::class)
-        val hasRequiredRoles = requiredRoles.all { it in roles }
-        if (!hasRequiredRoles) {
-            application.log.warn("Access denied. Mangler en av rollene '$requiredRoles'.")
-        }
-        return hasRequiredRoles
+        return requiredRoles.all { it in roles }
     }
 
-    fun ApplicationCall.hasNavAnsattRoles(credentials: JWTCredential, vararg requiredRoles: NavAnsattRolle): Boolean {
+    fun hasNavAnsattRoles(credentials: JWTCredential, vararg requiredRoles: NavAnsattRolle): Boolean {
         val navAnsattGroups = credentials.getListClaim("groups", UUID::class)
-        val hasRequiredRoles = requiredRoles.all { requiredRole ->
+        return requiredRoles.all { requiredRole ->
             auth.roles.any { (groupId, role) -> role == requiredRole && groupId in navAnsattGroups }
         }
-        if (!hasRequiredRoles) {
-            application.log.warn("Mangler en av rollene '$requiredRoles'.")
-        }
-        return hasRequiredRoles
     }
 
     install(Authentication) {
@@ -62,10 +54,7 @@ fun Application.configureAuthentication(
             }
 
             validate { credentials ->
-                credentials["NAVident"] ?: run {
-                    application.log.warn("Access denied. Mangler claim 'NAVident'.")
-                    return@validate null
-                }
+                credentials["NAVident"] ?: return@validate null
 
                 if (!hasNavAnsattRoles(credentials, NavAnsattRolle.TEAM_MULIGHETSROMMET)) {
                     return@validate null
@@ -81,10 +70,7 @@ fun Application.configureAuthentication(
             }
 
             validate { credentials ->
-                credentials["NAVident"] ?: run {
-                    application.log.warn("Access denied. Mangler claim 'NAVident'.")
-                    return@validate null
-                }
+                credentials["NAVident"] ?: return@validate null
 
                 if (!hasNavAnsattRoles(credentials, NavAnsattRolle.BETABRUKER)) {
                     return@validate null
@@ -100,10 +86,7 @@ fun Application.configureAuthentication(
             }
 
             validate { credentials ->
-                credentials["NAVident"] ?: run {
-                    application.log.warn("Access denied. Mangler claim 'NAVident'.")
-                    return@validate null
-                }
+                credentials["NAVident"] ?: return@validate null
 
                 JWTPrincipal(credentials.payload)
             }
