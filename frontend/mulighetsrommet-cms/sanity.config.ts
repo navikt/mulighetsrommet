@@ -8,16 +8,16 @@ import { createClient } from "@sanity/client";
 const PROJECT_ID = "xegcworx";
 export const API_VERSION = "2021-10-21";
 
-const createCommonConfig = (
-  dataset: "production" | "test",
-  basePath: string,
-) => ({
+const createCommonConfig = (dataset: "production" | "test", basePath: string) => ({
   name: dataset,
   title: `Mulighetsrommet - ${dataset}`,
   projectId: PROJECT_ID,
   dataset,
   basePath,
   document: {
+    unstable_comments: {
+      enabled: true, // Comments enabled https://www.sanity.io/blog/introducing-comments?utm_source=slack&utm_medium=organic_social&utm_campaign=comments-announce&utm_content=
+    },
     productionUrl: async (prev, context) => {
       const { document } = context;
       if (document._type !== "tiltaksgjennomforing") {
@@ -36,9 +36,7 @@ const createCommonConfig = (
     );
 
     // Filter out the tools that should not be available to non-administrators
-    const nonAdminDeskTools = prev.filter(
-      (tool) => !["visionTool"].includes(tool.name),
-    );
+    const nonAdminDeskTools = prev.filter((tool) => !["visionTool"].includes(tool.name));
 
     // Return tools available to non-administrators
     if (!isAdmin) return nonAdminDeskTools;
@@ -106,9 +104,7 @@ const currentUser = await client.request({
   withCredentials: true,
 });
 
-const isAdmin = Boolean(
-  currentUser.roles?.find((role) => role.name === "administrator"),
-);
+const isAdmin = Boolean(currentUser.roles?.find((role) => role.name === "administrator"));
 
 export default isAdmin
   ? defineConfig([
