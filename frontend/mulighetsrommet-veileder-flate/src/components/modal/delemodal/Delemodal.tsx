@@ -76,17 +76,18 @@ export function Delemodal({
       | "Del med bruker feilet"
       | "Avbrutt del med bruker"
       | "Sett venter på svar fra bruker",
+    tiltakstype: string,
   ) => {
     logEvent({
       name: "arbeidsmarkedstiltak.del-med-bruker",
-      data: { action },
+      data: { action, tiltakstype },
     });
   };
 
   const clickCancel = () => {
     lukkModal();
     dispatch({ type: "Avbryt" });
-    logDelMedbrukerEvent("Avbrutt del med bruker");
+    logDelMedbrukerEvent("Avbrutt del med bruker", tiltaksgjennomforing.tiltakstype.navn);
   };
 
   const handleSend = async () => {
@@ -95,7 +96,7 @@ export function Delemodal({
       return;
     }
 
-    logDelMedbrukerEvent("Delte med bruker");
+    logDelMedbrukerEvent("Delte med bruker", tiltaksgjennomforing.tiltakstype.navn);
 
     dispatch({ type: "Send melding" });
     const overskrift = `Tiltak gjennom NAV: ${tiltaksgjennomforing.navn}`;
@@ -113,7 +114,7 @@ export function Delemodal({
       dispatch({ type: "Sendt ok", payload: res.id });
     } catch {
       dispatch({ type: "Sending feilet" });
-      logDelMedbrukerEvent("Del med bruker feilet");
+      logDelMedbrukerEvent("Del med bruker feilet", tiltaksgjennomforing.tiltakstype.navn);
     }
   };
 
@@ -162,7 +163,10 @@ export function Delemodal({
                     payload: e.currentTarget.checked,
                   });
                   if (e.currentTarget.checked) {
-                    logDelMedbrukerEvent("Sett venter på svar fra bruker");
+                    logDelMedbrukerEvent(
+                      "Sett venter på svar fra bruker",
+                      tiltaksgjennomforing.tiltakstype.navn,
+                    );
                   }
                 }}
                 checked={state.venterPaaSvarFraBruker}

@@ -105,7 +105,7 @@ const ViewTiltaksgjennomforingDetaljer = ({
     const feilmelding = utledFeilmelding(brukerdata);
     logEvent({
       name: "arbeidsmarkedstiltak.del-med-bruker",
-      data: { action: "Åpnet delemodal" },
+      data: { action: "Åpnet delemodal", tiltakstype: tiltaksgjennomforing.tiltakstype.navn },
     });
     feilmelding
       ? dispatch({ type: "Toggle statusmodal", payload: true })
