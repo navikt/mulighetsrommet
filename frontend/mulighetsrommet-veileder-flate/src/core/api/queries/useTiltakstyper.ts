@@ -5,6 +5,6 @@ import { QueryKeys } from "../query-keys";
 export function useTiltakstyper() {
   return useQuery({
     queryKey: QueryKeys.sanity.tiltakstyper,
-    queryFn: () => mulighetsrommetClient.sanity.getVeilederflateTiltakstyper(),
+    queryFn: () => mulighetsrommetClient.veilederTiltak.getVeilederflateTiltakstyper(),
   });
 }

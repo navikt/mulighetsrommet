@@ -1,4 +1,4 @@
-import { HttpResponse, PathParams, http } from "msw";
+import { http, HttpResponse, PathParams } from "msw";
 import {
   GetRelevanteTiltaksgjennomforingerForBrukerRequest,
   GetRelevanteTiltaksgjennomforingerPreviewRequest,
@@ -12,23 +12,23 @@ import { mockInnsatsgrupper } from "../../fixtures/mockInnsatsgrupper";
 import { mockTiltaksgjennomforinger } from "../../fixtures/mockTiltaksgjennomforinger";
 import { mockTiltakstyper } from "../../fixtures/mockTiltakstyper";
 
-export const sanityHandlers = [
+export const tiltakHandlers = [
   http.get<PathParams, VeilederflateInnsatsgruppe[]>(
-    "*/api/v1/internal/sanity/innsatsgrupper",
+    "*/api/v1/internal/veileder/innsatsgrupper",
     async () => {
       return HttpResponse.json(mockInnsatsgrupper);
     },
   ),
 
   http.get<PathParams, VeilederflateTiltakstype[]>(
-    "*/api/v1/internal/sanity/tiltakstyper",
+    "*/api/v1/internal/veileder/tiltakstyper",
     async () => {
       return HttpResponse.json(Object.values(mockTiltakstyper));
     },
   ),
 
   http.post<PathParams, GetRelevanteTiltaksgjennomforingerForBrukerRequest>(
-    "*/api/v1/internal/sanity/tiltaksgjennomforinger",
+    "*/api/v1/internal/veileder/tiltaksgjennomforinger",
     async ({ request }) => {
       const { innsatsgruppe, search = "", tiltakstypeIds = [] } = await request.json();
 
@@ -42,7 +42,7 @@ export const sanityHandlers = [
   ),
 
   http.post<PathParams, GetRelevanteTiltaksgjennomforingerPreviewRequest>(
-    "*/api/v1/internal/sanity/tiltaksgjennomforinger/preview",
+    "*/api/v1/internal/veileder/preview/tiltaksgjennomforinger",
     async ({ request }) => {
       const { innsatsgruppe, search = "", tiltakstypeIds = [] } = await request.json();
 
@@ -56,7 +56,7 @@ export const sanityHandlers = [
   ),
 
   http.post<PathParams, GetTiltaksgjennomforingForBrukerRequest>(
-    "*/api/v1/internal/sanity/tiltaksgjennomforing",
+    "*/api/v1/internal/veileder/tiltaksgjennomforing",
     async ({ request }) => {
       const { id } = await request.json();
       const gjennomforing = mockTiltaksgjennomforinger.find((gj) => gj.sanityId === id);
@@ -65,7 +65,7 @@ export const sanityHandlers = [
   ),
 
   http.post<PathParams>(
-    "*/api/v1/internal/sanity/tiltaksgjennomforing/preview/detaljer",
+    "*/api/v1/internal/veileder/preview/tiltaksgjennomforing",
     async ({ request }) => {
       const body = (await request.json()) as { id: string; brukersEnheter: string[] };
       const gjennomforing = mockTiltaksgjennomforinger.find((gj) => gj.sanityId === body.id);

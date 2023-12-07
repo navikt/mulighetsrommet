@@ -39,7 +39,7 @@ fun Route.tiltakstypeRoutes() {
             call.respond(tiltakstype)
         }
 
-        get("{id}/sanity") {
+        get("{id}/faneinnhold") {
             val id = call.parameters.getOrFail<UUID>("id")
             val tiltakstype = tiltakstypeService.getById(id) ?: return@get call.respondText(
                 "Det finnes ikke noe tiltakstype med id $id",

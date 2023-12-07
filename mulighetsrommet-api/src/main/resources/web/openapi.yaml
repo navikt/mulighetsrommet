@@ -783,35 +783,35 @@ paths:
               schema:
                 type: string
 
-  /api/v1/internal/tiltakstyper/{id}/sanity:
+  /api/v1/internal/tiltakstyper/{id}/faneinnhold:
     get:
       tags:
         - Tiltakstyper
-      operationId: getSanityDataForTiltakstypeWithId
+      operationId: getTiltakstypeFaneinnhold
       parameters:
         - $ref: "#/components/parameters/ID"
       responses:
         200:
-          description: Sanity data for the specified tiltakstype
+          description: Faneinnhold for the specified tiltakstype
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/VeilederflateTiltakstype"
         404:
-          description: "Sanity data for the specified tiltakstype was not found."
+          description: "Faneinnhold for the specified tiltakstype was not found."
           content:
             text/plain:
               schema:
                 type: string
 
-  /api/v1/internal/sanity/innsatsgrupper:
+  /api/v1/internal/veileder/innsatsgrupper:
     get:
       tags:
-        - Sanity
+        - VeilederTiltak
       operationId: getInnsatsgrupper
       responses:
         200:
-          description: Innsatsgrupper definert i Sanity
+          description: Hent innsatsgrupper
           content:
             application/json:
               schema:
@@ -819,14 +819,14 @@ paths:
                 items:
                   $ref: "#/components/schemas/VeilederflateInnsatsgruppe"
 
-  /api/v1/internal/sanity/tiltakstyper:
+  /api/v1/internal/veileder/tiltakstyper:
     get:
       tags:
-        - Sanity
+        - VeilederTiltak
       operationId: getVeilederflateTiltakstyper
       responses:
         200:
-          description: Tiltakstyper definert i Sanity
+          description: Hent tiltakstyper
           content:
             application/json:
               schema:
@@ -834,10 +834,10 @@ paths:
                 items:
                   $ref: "#/components/schemas/VeilederflateTiltakstype"
 
-  /api/v1/internal/sanity/tiltaksgjennomforinger:
+  /api/v1/internal/veileder/tiltaksgjennomforinger:
     post:
       tags:
-        - Sanity
+        - VeilederTiltak
       operationId: getRelevanteTiltaksgjennomforingerForBruker
       requestBody:
         content:
@@ -847,7 +847,7 @@ paths:
         required: true
       responses:
         200:
-          description: Hent tiltaksgjennomføringer som bruker har rett på
+          description: Hent tiltaksgjennomføringer filtrert på brukers enheter
           content:
             application/json:
               schema:
@@ -855,11 +855,30 @@ paths:
                 items:
                   $ref: "#/components/schemas/VeilederflateTiltaksgjennomforing"
 
-  /api/v1/internal/sanity/tiltaksgjennomforinger/preview:
+  /api/v1/internal/veileder/tiltaksgjennomforing:
     post:
       tags:
-        - Sanity
-      operationId: getRelevanteTiltaksgjennomforingerPreview
+        - VeilederTiltak
+      operationId: getTiltaksgjennomforingForBruker
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GetTiltaksgjennomforingForBrukerRequest"
+        required: true
+      responses:
+        200:
+          description: Hent tiltaksgjennomføring for id
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VeilederflateTiltaksgjennomforing"
+
+  /api/v1/internal/veileder/preview/tiltaksgjennomforinger:
+    post:
+      tags:
+        - VeilederTiltak
+      operationId: getPreviewRelevanteTiltaksgjennomforinger
       requestBody:
         content:
           application/json:
@@ -876,30 +895,11 @@ paths:
                 items:
                   $ref: "#/components/schemas/VeilederflateTiltaksgjennomforing"
 
-  /api/v1/internal/sanity/tiltaksgjennomforing:
+  /api/v1/internal/veileder/preview/tiltaksgjennomforing:
     post:
       tags:
-        - Sanity
-      operationId: getTiltaksgjennomforingForBruker
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/GetTiltaksgjennomforingForBrukerRequest"
-        required: true
-      responses:
-        200:
-          description: Hent tiltaksgjennomføring for id
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/VeilederflateTiltaksgjennomforing"
-
-  /api/v1/internal/sanity/tiltaksgjennomforing/preview/detaljer:
-    post:
-      tags:
-        - Sanity
-      operationId: getTiltaksgjennomforingDetaljerPreview
+        - VeilederTiltak
+      operationId: getPreviewTiltaksgjennomforing
       requestBody:
         content:
           application/json:
