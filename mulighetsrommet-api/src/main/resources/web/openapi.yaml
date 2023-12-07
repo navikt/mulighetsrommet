@@ -1420,7 +1420,7 @@ paths:
               schema:
                 type: boolean
 
-  /api/v1/internal/oppskrifter/{tiltakstypeId}:
+  /api/v1/internal/veileder/oppskrifter/{tiltakstypeId}:
     parameters:
       - in: path
         name: tiltakstypeId
