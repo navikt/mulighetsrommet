@@ -35,7 +35,7 @@ data class ArenaMigreringTiltaksgjennomforingDto(
     @Serializable(with = LocalTimeSerializer::class)
     val fremmoteTid: LocalTime?,
     val fremmoteSted: String?,
-    val apentForInnsok: Boolean
+    val apentForInnsok: Boolean,
 ) {
     companion object {
         fun from(tiltaksgjennomforing: TiltaksgjennomforingAdminDto, arenaId: Int?) =
@@ -62,7 +62,7 @@ data class ArenaMigreringTiltaksgjennomforingDto(
                     }
                 },
                 fremmoteSted = tiltaksgjennomforing.fremmoteSted,
-                apentForInnsok = tiltaksgjennomforing.apentForInnsok
+                apentForInnsok = tiltaksgjennomforing.apentForInnsok,
             )
     }
 }
