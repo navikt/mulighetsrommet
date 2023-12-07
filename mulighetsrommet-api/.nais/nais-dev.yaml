@@ -83,11 +83,6 @@ spec:
           permissions:
             roles:
               - tiltaksgjennomforing-read
-        - application: journalforing-frontend-q2
-          namespace: isa
-          permissions:
-            roles:
-              - tiltaksgjennomforing-read
         - application: tiltakspenger-tiltak
           namespace: tpts
           permissions:
