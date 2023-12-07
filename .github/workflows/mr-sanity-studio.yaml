@@ -51,4 +51,4 @@ jobs:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: prod-gcp
           RESOURCE: frontend/mulighetsrommet-cms/.nais/nais-prod.yaml
-          VAR: image=${{ needs.ci.outputs.image }}
+          VAR: image=${{ needs.build.outputs.image }}
