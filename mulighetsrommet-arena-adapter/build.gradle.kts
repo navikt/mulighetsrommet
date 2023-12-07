@@ -22,6 +22,11 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     kotlinOptions.freeCompilerArgs += "-opt-in=kotlin.RequiresOptIn"
 }
 
+tasks.shadowJar {
+    // Trengs for å få med implementasjonen av services fra bl.a. flyway
+    mergeServiceFiles()
+}
+
 dependencies {
     implementation(projects.common.domain)
     implementation(projects.common.database)

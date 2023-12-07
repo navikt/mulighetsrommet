@@ -18,6 +18,7 @@ dependencies {
 
     // Database
     api(libs.flyway.core)
+    api(libs.flyway.database.postgresql)
     api(libs.hikaricp)
     api(libs.postgresql)
     api(libs.kotliquery)
