@@ -34,7 +34,7 @@ class ArenaAdapterClientImpl(
         return when (response.status) {
             HttpStatusCode.OK -> response.body()
             HttpStatusCode.NotFound -> {
-                log.warn("Tiltaksgjennomføring finnes ikke: $arenaId")
+                log.info("Tiltaksgjennomføring finnes ikke: $arenaId")
                 null
             }
             else -> throw ResponseException(response, "Unexpected response from arena-adapter")
@@ -51,7 +51,7 @@ class ArenaAdapterClientImpl(
         return when (response.status) {
             HttpStatusCode.OK -> response.body()
             HttpStatusCode.NotFound -> {
-                log.warn("Tiltaksgjennomføring finnes ikke: $id")
+                log.info("Tiltaksgjennomføring finnes ikke: $id")
                 null
             }
             else -> throw ResponseException(response, "Unexpected response from arena-adapter")
