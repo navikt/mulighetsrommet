@@ -24,6 +24,7 @@ class VeilarbpersonClientImpl(
     clientEngine: HttpClientEngine = CIO.create(),
 ) : VeilarbpersonClient {
     private val log = LoggerFactory.getLogger(javaClass)
+    private val behandlingsnummer = "B450" // Team Valps behandlingsnummer for behandling av data for løsningen Arbeidsmarkedstiltak i Modia
 
     val client = httpJsonClient(clientEngine).config {
         install(HttpCache)
@@ -47,7 +48,7 @@ class VeilarbpersonClientImpl(
                 val response = client.post("$baseUrl/v3/hent-person") {
                     bearerAuth(tokenProvider.invoke(accessToken))
                     header(HttpHeaders.ContentType, ContentType.Application.Json)
-                    setBody(PersonRequest(fnr = fnr))
+                    setBody(PersonRequest(fnr = fnr, behandlingsnummer = behandlingsnummer))
                 }
 
                 if (!response.status.isSuccess()) {
@@ -69,4 +70,5 @@ class VeilarbpersonClientImpl(
 @Serializable
 data class PersonRequest(
     val fnr: String,
+    val behandlingsnummer: String,
 )
