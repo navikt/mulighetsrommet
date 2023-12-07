@@ -1,5 +1,5 @@
 import { DatePicker, useDatepicker } from "@navikt/ds-react";
-import { forwardRef } from "react";
+import { forwardRef, useState } from "react";
 import { Controller } from "react-hook-form";
 import { formaterDatoSomYYYYMMDD as formaterSomIsoDate } from "../../utils/Utils";
 import styles from "./ControlledDateInput.module.scss";
@@ -29,7 +29,7 @@ export const ControlledDateInput = forwardRef(function ControlledDateInput(
     placeholder = "dd.mm.åååå",
     ...rest
   } = props;
-
+  const [ugyldigDatoError, setUgyldigDatoError] = useState("");
   return (
     <div>
       <Controller
@@ -47,6 +47,15 @@ export const ControlledDateInput = forwardRef(function ControlledDateInput(
                   }
                 }
               },
+              onValidate: (val) => {
+                if (val.isBefore) {
+                  setUgyldigDatoError("Dato er før gyldig periode");
+                } else if (val.isAfter) {
+                  setUgyldigDatoError("Dato er etter gyldig periode");
+                } else if (val.isValidDate) {
+                  setUgyldigDatoError("");
+                }
+              },
               allowTwoDigitYear: true,
               inputFormat: "dd.MM.yyyy",
               fromDate,
@@ -61,7 +70,7 @@ export const ControlledDateInput = forwardRef(function ControlledDateInput(
                 label={label}
                 {...rest}
                 {...startdatoInputProps}
-                error={error?.message}
+                error={error?.message || ugyldigDatoError || undefined}
                 readOnly={readOnly}
                 placeholder={placeholder}
               />
