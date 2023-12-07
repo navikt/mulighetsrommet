@@ -15,7 +15,6 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  IMAGE: ghcr.io/navikt/mulighetsrommet/mulighetsrommet-cms:${{ github.sha }}
   CI: true
   TZ: Europe/Amsterdam
 
@@ -30,16 +29,13 @@ jobs:
         uses: ./.github/actions/setup-frontend
       - name: Bygg studio
         run: npx turbo run build --filter=mulighetsrommet-cms
-      - name: Build and publish Docker image
-        working-directory: frontend/mulighetsrommet-cms
-        if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          echo ${GITHUB_TOKEN} | docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} --password-stdin
-          echo ${GITHUB_TOKEN} | docker login ghcr.io -u ${{github.actor}} --password-stdin
-          docker build -t ${IMAGE} .
-          docker push ${IMAGE}
+      - name: Push docker image to GAR and sign image
+        uses: nais/docker-build-push@v0
+        id: docker-build-push
+        with:
+          team: team-mulighetsrommet
+          identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }} # Provided as Organization Secret
+          project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }} # Provided as Organization Variable
 
   deploy-studio:
     name: Deploy Sanity studio
@@ -53,4 +49,4 @@ jobs:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: prod-gcp
           RESOURCE: frontend/mulighetsrommet-cms/.nais/nais-prod.yaml
-          VAR: image=${{ env.IMAGE }}
+          VAR: image=${{ needs.ci.outputs.image }}
