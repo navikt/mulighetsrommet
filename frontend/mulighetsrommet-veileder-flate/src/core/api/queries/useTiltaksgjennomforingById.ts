@@ -12,6 +12,7 @@ export default function useTiltaksgjennomforingById() {
 
   return useQuery({
     queryKey: QueryKeys.sanity.tiltaksgjennomforing(id),
-    queryFn: () => mulighetsrommetClient.veileder.getTiltaksgjennomforingForBruker({ requestBody }),
+    queryFn: () =>
+      mulighetsrommetClient.veilederTiltak.getTiltaksgjennomforingForBruker({ requestBody }),
   });
 }

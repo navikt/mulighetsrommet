@@ -21,7 +21,7 @@ export const usePreviewTiltaksgjennomforinger = (geografiskEnhet?: string) => {
   return useQuery({
     queryKey: QueryKeys.sanity.tiltaksgjennomforingerPreview(filter, geografiskEnhet),
     queryFn: () =>
-      mulighetsrommetClient.veilederPreview.getRelevanteTiltaksgjennomforingerPreview({
+      mulighetsrommetClient.veilederTiltak.getPreviewRelevanteTiltaksgjennomforinger({
         requestBody,
       }),
     enabled: !!geografiskEnhet,

@@ -807,7 +807,7 @@ paths:
   /api/v1/internal/veileder/innsatsgrupper:
     get:
       tags:
-        - Veileder
+        - VeilederTiltak
       operationId: getInnsatsgrupper
       responses:
         200:
@@ -822,7 +822,7 @@ paths:
   /api/v1/internal/veileder/tiltakstyper:
     get:
       tags:
-        - Veileder
+        - VeilederTiltak
       operationId: getVeilederflateTiltakstyper
       responses:
         200:
@@ -837,7 +837,7 @@ paths:
   /api/v1/internal/veileder/tiltaksgjennomforinger:
     post:
       tags:
-        - Veileder
+        - VeilederTiltak
       operationId: getRelevanteTiltaksgjennomforingerForBruker
       requestBody:
         content:
@@ -858,7 +858,7 @@ paths:
   /api/v1/internal/veileder/tiltaksgjennomforing:
     post:
       tags:
-        - Veileder
+        - VeilederTiltak
       operationId: getTiltaksgjennomforingForBruker
       requestBody:
         content:
@@ -877,8 +877,8 @@ paths:
   /api/v1/internal/veileder/preview/tiltaksgjennomforinger:
     post:
       tags:
-        - VeilederPreview
-      operationId: getRelevanteTiltaksgjennomforingerPreview
+        - VeilederTiltak
+      operationId: getPreviewRelevanteTiltaksgjennomforinger
       requestBody:
         content:
           application/json:
@@ -898,8 +898,8 @@ paths:
   /api/v1/internal/veileder/preview/tiltaksgjennomforing:
     post:
       tags:
-        - VeilederPreview
-      operationId: getTiltaksgjennomforingPreview
+        - VeilederTiltak
+      operationId: getPreviewTiltaksgjennomforing
       requestBody:
         content:
           application/json:
