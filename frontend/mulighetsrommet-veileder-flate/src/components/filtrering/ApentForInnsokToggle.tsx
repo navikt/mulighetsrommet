@@ -1,6 +1,7 @@
 import { PadlockLockedFillIcon } from "@navikt/aksel-icons";
 import { Accordion, ToggleGroup } from "@navikt/ds-react";
 import { ApentForInnsok } from "mulighetsrommet-api-client";
+import "./ApentForInnsokToggle.module.scss";
 
 export interface ApentForInnsokToggleProps {
   value: ApentForInnsok;
