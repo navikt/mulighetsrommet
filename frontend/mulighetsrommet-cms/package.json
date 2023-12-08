@@ -16,13 +16,13 @@
   "dependencies": {
     "@navikt/aksel-icons": "5.11.4",
     "@portabletext/react": "3.0.11",
-    "@sanity/client": "6.9.1",
-    "@sanity/vision": "3.21.0",
+    "@sanity/client": "6.9.3",
+    "@sanity/vision": "3.21.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-icons": "4.12.0",
     "react-switch": "7.0.0",
-    "sanity": "3.21.0",
+    "sanity": "3.21.1",
     "styled-components": "6.1.1"
   },
   "devDependencies": {
