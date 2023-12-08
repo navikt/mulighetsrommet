@@ -55,6 +55,16 @@ updates:
 
   # Test versjonsoppdatering av docker images i nais config
   - package-ecosystem: docker
-    directory: "/"
+    directory: "/frontend/arena-adapter-manager/.nais/"
+    schedule:
+      interval: daily
+
+  - package-ecosystem: docker
+    directory: "/frontend/mr-admin-flate/.nais/"
+    schedule:
+      interval: daily
+
+  - package-ecosystem: docker
+    directory: "/frontend/mulighetsrommet-veileder-flate/.nais/"
     schedule:
       interval: daily
