@@ -18,6 +18,20 @@ data class EndringshistorikkDto(
         val operation: String,
         @Serializable(with = LocalDateTimeSerializer::class)
         val editedAt: LocalDateTime,
-        val editedBy: String,
+        val editedBy: User,
     )
+
+    @Serializable
+    sealed class User
+
+    @Serializable
+    data class Systembruker(
+        val navn: String,
+    ) : User()
+
+    @Serializable
+    data class NavAnsatt(
+        val navIdent: String,
+        val navn: String?,
+    ) : User()
 }

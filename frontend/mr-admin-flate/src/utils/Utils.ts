@@ -43,7 +43,7 @@ export function formaterDatoTid(dato: string | Date, fallback = ""): string {
     return fallback;
   }
 
-  return result.replace(",", " -");
+  return result.replace(",", " ");
 }
 
 export function formaterDatoSomYYYYMMDD(dato?: Date | null, fallback = ""): string {

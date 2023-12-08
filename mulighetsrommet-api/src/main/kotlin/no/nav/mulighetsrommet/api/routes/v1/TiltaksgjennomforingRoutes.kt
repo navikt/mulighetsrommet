@@ -63,6 +63,12 @@ fun Route.tiltaksgjennomforingRoutes() {
                 ?: call.respond(HttpStatusCode.NotFound, "Ingen tiltaksgjennomføring med id=$id")
         }
 
+        get("{id}/historikk") {
+            val id: UUID by call.parameters
+            val historikk = service.getEndringshistorikk(id)
+            call.respond(historikk)
+        }
+
         put("{id}/avtale") {
             val id = call.parameters.getOrFail<UUID>("id")
             val navIdent = getNavIdent()

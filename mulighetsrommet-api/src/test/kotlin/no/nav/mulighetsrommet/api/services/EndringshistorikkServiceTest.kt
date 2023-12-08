@@ -50,19 +50,19 @@ class EndringshistorikkServiceTest : FunSpec({
                     id = id,
                     operation = "SLETTET",
                     editedAt = LocalDateTime.of(2023, 1, 3, 9, 0, 0),
-                    editedBy = "Arena",
+                    editedBy = EndringshistorikkDto.Systembruker(navn = "Arena"),
                 ),
                 EndringshistorikkDto.Entry(
                     id = id,
                     operation = "ENDRET",
                     editedAt = LocalDateTime.of(2023, 1, 2, 9, 0, 0),
-                    editedBy = "Ola",
+                    editedBy = EndringshistorikkDto.Systembruker(navn = "Ola"),
                 ),
                 EndringshistorikkDto.Entry(
                     id = id,
                     operation = "OPPRETTET",
                     editedAt = LocalDateTime.of(2023, 1, 1, 9, 0, 0),
-                    editedBy = "Arena",
+                    editedBy = EndringshistorikkDto.Systembruker(navn = "Arena"),
                 ),
             ),
         )
@@ -101,13 +101,13 @@ class EndringshistorikkServiceTest : FunSpec({
                     id = id,
                     operation = "ENDRET",
                     editedAt = LocalDateTime.of(2023, 1, 2, 9, 0, 0),
-                    editedBy = "${ansatt2.fornavn} ${ansatt2.etternavn}",
+                    editedBy = EndringshistorikkDto.NavAnsatt(navIdent = "DD2", navn = "Dolly Duck"),
                 ),
                 EndringshistorikkDto.Entry(
                     id = id,
                     operation = "OPPRETTET",
                     editedAt = LocalDateTime.of(2023, 1, 1, 9, 0, 0),
-                    editedBy = "${ansatt1.fornavn} ${ansatt1.etternavn}",
+                    editedBy = EndringshistorikkDto.NavAnsatt(navIdent = "DD1", navn = "Donald Duck"),
                 ),
             ),
         )

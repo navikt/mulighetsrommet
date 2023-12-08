@@ -19,10 +19,11 @@ class EndringshistorikkService(
             select document_id,
                    operation,
                    lower(sys_period) as edited_at,
+                   user_id           as user_id,
                    case
                        when na.nav_ident is not null then concat(na.fornavn, ' ', na.etternavn)
-                       else user_id
-                       end           as edited_by
+                       else null
+                       end           as user_name
             from ${documentClass.table}
                      left join nav_ansatt na on user_id = na.nav_ident
             where document_id = :document_id
@@ -35,11 +36,17 @@ class EndringshistorikkService(
 
         val entries = queryOf(statement, params)
             .map {
+                val userId = it.string("user_id")
+
+                val editedBy = it.stringOrNull("user_name")
+                    ?.let { navn -> EndringshistorikkDto.NavAnsatt(userId, navn) }
+                    ?: EndringshistorikkDto.Systembruker(userId)
+
                 EndringshistorikkDto.Entry(
                     id = it.uuid("document_id"),
                     operation = it.string("operation"),
                     editedAt = it.localDateTime("edited_at"),
-                    editedBy = it.string("edited_by"),
+                    editedBy = editedBy,
                 )
             }
             .asList
@@ -47,7 +54,6 @@ class EndringshistorikkService(
 
         return EndringshistorikkDto(entries = entries)
     }
-
 
     fun logEndring(
         documentClass: DocumentClass,
