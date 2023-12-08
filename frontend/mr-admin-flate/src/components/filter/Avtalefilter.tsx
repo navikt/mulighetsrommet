@@ -173,7 +173,10 @@ export function Avtalefilter(props: Props) {
                 resetPaginering(setPage);
                 setFilter({
                   ...filter,
-                  navRegion: valueOrDefault(e.target.value, defaultAvtaleFilter.navRegion),
+                  navRegion: valueOrDefault(
+                    e.target.value as string,
+                    defaultAvtaleFilter.navRegion,
+                  ),
                 });
               }}
               options={regionOptions()}
@@ -190,7 +193,10 @@ export function Avtalefilter(props: Props) {
                   resetPaginering(setPage);
                   setFilter({
                     ...filter,
-                    tiltakstype: valueOrDefault(e.target.value, defaultAvtaleFilter.tiltakstype),
+                    tiltakstype: valueOrDefault(
+                      e.target.value as string,
+                      defaultAvtaleFilter.tiltakstype,
+                    ),
                   });
                 }}
                 options={tiltakstypeOptions()}
@@ -208,7 +214,7 @@ export function Avtalefilter(props: Props) {
                 setFilter({
                   ...filter,
                   leverandor_orgnr: valueOrDefault(
-                    e.target.value,
+                    e.target.value as string,
                     defaultAvtaleFilter.leverandor_orgnr,
                   ),
                 });

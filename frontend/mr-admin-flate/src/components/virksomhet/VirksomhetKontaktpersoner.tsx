@@ -110,7 +110,7 @@ export const VirksomhetKontaktpersoner = (props: VirksomhetKontaktpersonerProps)
         onChange={(e) =>
           setState({
             ...state,
-            selectedId: e.target.value,
+            selectedId: e.target.value as string,
           })
         }
         options={kontaktpersoner.map((person) => ({

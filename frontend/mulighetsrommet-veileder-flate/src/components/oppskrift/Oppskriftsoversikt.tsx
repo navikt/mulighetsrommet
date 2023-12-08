@@ -5,8 +5,6 @@ import { useFeatureToggle } from "../../core/api/feature-toggles";
 import { useOppskrifter } from "../../core/api/queries/useOppskrifter";
 import { formaterDato } from "../../utils/Utils";
 import styles from "./Oppskriftsoversikt.module.scss";
-import { ErrorBoundary } from "react-error-boundary";
-import { ErrorFallback } from "../../utils/ErrorFallback";
 
 interface Props {
   tiltakstypeId: string;
@@ -32,19 +30,17 @@ export function Oppskriftsoversikt({ tiltakstypeId }: Props) {
   }
 
   return (
-    <ErrorBoundary FallbackComponent={ErrorFallback}>
-      <ul className={styles.container}>
-        {oppskrifter.data.map((oppskrift) => {
-          return (
-            <li className={styles.item} key={oppskrift._id}>
-              <Link className={styles.link} to={`oppskrifter/${oppskrift._id}/${tiltakstypeId}`}>
-                <Oppskriftskort oppskrift={oppskrift} />
-              </Link>
-            </li>
-          );
-        })}
-      </ul>
-    </ErrorBoundary>
+    <ul className={styles.container}>
+      {oppskrifter.data.map((oppskrift) => {
+        return (
+          <li className={styles.item} key={oppskrift._id}>
+            <Link className={styles.link} to={`oppskrifter/${oppskrift._id}/${tiltakstypeId}`}>
+              <Oppskriftskort oppskrift={oppskrift} />
+            </Link>
+          </li>
+        );
+      })}
+    </ul>
   );
 }
 

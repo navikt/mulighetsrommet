@@ -215,7 +215,7 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, filterAtom }: Props) {
                   ...filter,
                   navEnhet: "",
                   navRegion: valueOrDefault(
-                    e.target.value,
+                    e.target.value as string,
                     defaultTiltaksgjennomforingfilter.navRegion,
                   ),
                 });
@@ -235,7 +235,7 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, filterAtom }: Props) {
                 setFilter({
                   ...filter,
                   navEnhet: valueOrDefault(
-                    e.target.value,
+                    e.target.value as string,
                     defaultTiltaksgjennomforingfilter.navEnhet,
                   ),
                 });
@@ -255,7 +255,7 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, filterAtom }: Props) {
                   setFilter({
                     ...filter,
                     tiltakstype: valueOrDefault(
-                      e.target.value,
+                      e.target.value as string,
                       defaultTiltaksgjennomforingfilter.tiltakstype,
                     ),
                   });
@@ -275,8 +275,10 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, filterAtom }: Props) {
                 setFilter({
                   ...filter,
                   status:
-                    valueOrDefault(e.target.value, defaultTiltaksgjennomforingfilter.status) ||
-                    undefined,
+                    valueOrDefault(
+                      e.target.value as TiltaksgjennomforingStatus,
+                      defaultTiltaksgjennomforingfilter.status,
+                    ) || undefined,
                 });
               }}
               options={statusOptions}
@@ -293,7 +295,7 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, filterAtom }: Props) {
                 setFilter({
                   ...filter,
                   arrangorOrgnr: valueOrDefault(
-                    e.target.value,
+                    e.target.value as string,
                     defaultTiltaksgjennomforingfilter.arrangorOrgnr,
                   ),
                 });
