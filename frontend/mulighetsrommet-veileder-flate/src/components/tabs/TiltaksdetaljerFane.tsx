@@ -17,6 +17,8 @@ interface Props {
   tiltaksgjennomforing: VeilederflateTiltaksgjennomforing;
 }
 
+type TabsType = "tab1" | "tab2" | "tab3" | "tab4" | "tab5";
+
 const TiltaksdetaljerFane = ({ tiltaksgjennomforing }: Props) => {
   const [fane, setFane] = useAtom(faneAtom);
   const navigate = useNavigate();
@@ -34,6 +36,21 @@ const TiltaksdetaljerFane = ({ tiltaksgjennomforing }: Props) => {
     "Kontaktinfo",
     enableArenaOppskrifter ? "Oppskrifter" : "",
   ] as const;
+
+  function getFaneValgt(value: TabsType): (typeof faneoverskrifter)[number] {
+    switch (value) {
+      case "tab1":
+        return "For hvem";
+      case "tab2":
+        return "Detaljer og innhold";
+      case "tab3":
+        return "Påmelding og varighet";
+      case "tab4":
+        return "Kontaktinfo";
+      case "tab5":
+        return "Oppskrifter";
+    }
+  }
 
   function navigateAwayFromOppskrift() {
     navigate("./");
@@ -53,7 +70,7 @@ const TiltaksdetaljerFane = ({ tiltaksgjennomforing }: Props) => {
         logEvent({
           name: "arbeidsmarkedstiltak.fanevalg",
           data: {
-            faneValgt: value,
+            faneValgt: getFaneValgt(value as TabsType),
           },
         });
       }}
@@ -62,7 +79,7 @@ const TiltaksdetaljerFane = ({ tiltaksgjennomforing }: Props) => {
         {faneoverskrifter.filter(Boolean).map((fane, index) => (
           <Tabs.Tab
             key={index}
-            value={fane}
+            value={`tab${index + 1}`}
             label={fane}
             className={styles.btn_tab}
             data-testid={`fane_${kebabCase(fane)}`}
@@ -71,7 +88,7 @@ const TiltaksdetaljerFane = ({ tiltaksgjennomforing }: Props) => {
       </Tabs.List>
       <div className={styles.fane_panel}>
         <ErrorBoundary FallbackComponent={ErrorFallback}>
-          <Tabs.Panel value="For hvem" data-testid="tab1">
+          <Tabs.Panel value="tab1" data-testid="tab1">
             <DetaljerFane
               tiltaksgjennomforingAlert={faneinnhold?.forHvemInfoboks}
               tiltakstypeAlert={tiltakstype.faneinnhold?.forHvemInfoboks}
@@ -79,7 +96,7 @@ const TiltaksdetaljerFane = ({ tiltaksgjennomforing }: Props) => {
               tiltakstype={tiltakstype.faneinnhold?.forHvem}
             />
           </Tabs.Panel>
-          <Tabs.Panel value="Detaljer og innhold" data-testid="tab2">
+          <Tabs.Panel value="tab2" data-testid="tab2">
             <DetaljerFane
               tiltaksgjennomforingAlert={faneinnhold?.detaljerOgInnholdInfoboks}
               tiltakstypeAlert={tiltakstype.faneinnhold?.detaljerOgInnholdInfoboks}
@@ -87,7 +104,7 @@ const TiltaksdetaljerFane = ({ tiltaksgjennomforing }: Props) => {
               tiltakstype={tiltakstype.faneinnhold?.detaljerOgInnhold}
             />
           </Tabs.Panel>
-          <Tabs.Panel value="Påmelding og varighet" data-testid="tab3">
+          <Tabs.Panel value="tab3" data-testid="tab3">
             <DetaljerFane
               tiltaksgjennomforingAlert={faneinnhold?.pameldingOgVarighetInfoboks}
               tiltakstypeAlert={tiltakstype.faneinnhold?.pameldingOgVarighetInfoboks}
@@ -95,10 +112,10 @@ const TiltaksdetaljerFane = ({ tiltaksgjennomforing }: Props) => {
               tiltakstype={tiltakstype.faneinnhold?.pameldingOgVarighet}
             />
           </Tabs.Panel>
-          <Tabs.Panel value="Kontaktinfo" data-testid="tab4">
+          <Tabs.Panel value="tab4" data-testid="tab4">
             <KontaktinfoFane tiltaksgjennomforing={tiltaksgjennomforing} />
           </Tabs.Panel>
-          <Tabs.Panel value="Oppskrifter" data-testid="tab5">
+          <Tabs.Panel value="tab5" data-testid="tab5">
             <Oppskriftsoversikt tiltakstypeId={tiltaksgjennomforing.tiltakstype.sanityId} />
           </Tabs.Panel>
         </ErrorBoundary>
