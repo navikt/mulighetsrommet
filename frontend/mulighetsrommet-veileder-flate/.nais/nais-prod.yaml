@@ -6,7 +6,7 @@ metadata:
   labels:
     team: team-mulighetsrommet
 spec:
-  image: ghcr.io/navikt/poao-frontend/poao-frontend:2023.04.13_12.56-e509a7e7034a
+  image: ghcr.io/navikt/poao-frontend/poao-frontend:2023.11.01_12.52-be5bbd16c077
   port: 8080
   ingresses:
     - https://mulighetsrommet-veileder-flate.intern.nav.no
