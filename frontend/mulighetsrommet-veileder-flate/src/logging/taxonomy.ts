@@ -6,4 +6,11 @@ type DEL_MED_BRUKER_EVENT = {
   };
 };
 
-export type Event = DEL_MED_BRUKER_EVENT;
+type KLIKK_PA_FANE_EVENT = {
+  name: "arbeidsmarkedstiltak.fanevalg";
+  data: {
+    faneValgt: string;
+  };
+};
+
+export type Event = DEL_MED_BRUKER_EVENT | KLIKK_PA_FANE_EVENT;
