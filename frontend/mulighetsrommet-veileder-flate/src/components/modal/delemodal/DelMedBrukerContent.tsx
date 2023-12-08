@@ -43,7 +43,7 @@ export function DelMedBrukerContent({
     dispatch({ type: "Enable rediger deletekst", payload: true });
     logEvent({
       name: "arbeidsmarkedstiltak.del-med-bruker",
-      data: { action: "Endre deletekst" },
+      data: { action: "Endre deletekst", tiltakstype: tiltaksgjennomforing.tiltakstype.navn },
     });
   };
 
