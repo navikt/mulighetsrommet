@@ -86,6 +86,15 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
               autoFocus
               {...register("navn")}
             />
+            {tiltaksgjennomforing?.tiltaksnummer ? (
+              <TextField
+                size="small"
+                readOnly
+                label="Tiltaksnummer"
+                autoFocus
+                value={tiltaksgjennomforing?.tiltaksnummer}
+              />
+            ) : null}
           </FormGroup>
           <Separator />
           <FormGroup>
