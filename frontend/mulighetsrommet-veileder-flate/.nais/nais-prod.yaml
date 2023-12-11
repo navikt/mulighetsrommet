@@ -62,7 +62,7 @@ spec:
           "header": {
             "csp": {
               "imgSrc": ["'self'", "*.nav.no", "cdn.sanity.io"]
-            }
+            },
             "corp": {
               "policy": "cross-origin"
             }
