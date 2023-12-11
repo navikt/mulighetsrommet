@@ -1,4 +1,3 @@
-import { Tiltakstypefilter } from "../../components/filter/Tiltakstypefilter";
 import { ContainerLayout } from "../../layouts/ContainerLayout";
 import { MainContainer } from "../../layouts/MainContainer";
 import { TiltakstypeTabell } from "../../components/tabell/TiltakstypeTabell";
@@ -14,7 +13,6 @@ export function TiltakstyperPage() {
       <HeaderBanner heading="Oversikt over tiltakstyper" />
       <MainContainer>
         <ContainerLayout>
-          <Tiltakstypefilter />
           <ErrorBoundary FallbackComponent={ErrorFallback}>
             <TiltakstypeTabell />
           </ErrorBoundary>
