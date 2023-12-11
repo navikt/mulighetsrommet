@@ -116,7 +116,7 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getTiltakstypeFilter(): Tiltak
 }
 
 fun <T : Any> PipelineContext<T, ApplicationCall>.getAvtaleFilter(): AvtaleFilter {
-    val tiltakstypeIder = call.parameters.getAll("tiltakstypeId")?.map { it.toUUID() } ?: emptyList()
+    val tiltakstypeIder = call.parameters.getAll("tiltakstypeIder")?.map { it.toUUID() } ?: emptyList()
     val search = call.request.queryParameters["search"]
     val statuser =
         call.parameters.getAll("statuser")?.map { status -> Avtalestatus.valueOf(status) } ?: emptyList()
