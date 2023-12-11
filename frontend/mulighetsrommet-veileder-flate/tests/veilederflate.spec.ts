@@ -28,7 +28,7 @@ test.describe("Tiltaksoversikt", () => {
   test("Sjekk at det er 5 tiltaksgjennomføringer i oversikten", async ({ page }) => {
     const rows = page.getByTestId("oversikt_tiltaksgjennomforinger");
     const count = await rows.count();
-    expect(count).toBe(5);
+    forventAntallTiltak(count, 5);
   });
 
   test("Sjekk UU", async ({ page }) => {
