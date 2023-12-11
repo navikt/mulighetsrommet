@@ -34,7 +34,7 @@ Man kan også deploye manuelt fra terminalen ved å autentisere mot nais med
 - [**jotai**](https://github.com/pmndrs/jotai)
 - NAVs designsystem: [**@navikt/ds-css**](https://github.com/navikt/nav-frontend-moduler)
 - Mocking av testdata: [**MSW**](https://mswjs.io/)
-- Testverktøy for ende-til-ende-testing: [**Cypress**](https://www.cypress.io/)
+- Testverktøy for ende-til-ende-testing: [**Playwright**](https://playwright.dev/)
 - CMS for innhold: [**Sanity**](https://mulighetsrommet.sanity.studio/desk)
 
 # <a name="kom-i-gang"></a>Kom i gang
@@ -101,8 +101,8 @@ Forutsetning at denne kjører. Husk å sette `VITE_MULIGHETSROMMET_API_AUTH_TOKE
 
 ### Testing
 
-#### Ende-til-ende testing med Cypress
+#### Ende-til-ende testing med Playwright
 
 1. Gå inn til frontend-mappen i terminalen.
-2. For å kjøre testene i IDE: `npx cypress run`.
-3. For å se testene, kjør først `npm start` for å starte programmet lokalt, og deretter `npx cypress open`.
+2. For å kjøre testene i IDE: `npx run playwright test`.
+3. For å se testene, kjør først `npm start` for å starte programmet lokalt, og deretter `npm run playwright test --ui`.

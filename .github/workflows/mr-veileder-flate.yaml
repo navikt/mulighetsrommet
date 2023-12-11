@@ -32,21 +32,14 @@ jobs:
   ci:
     name: CI
     runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.39.0-jammy
     steps:
       - uses: actions/checkout@v4
       - name: Setup frontend
         uses: ./.github/actions/setup-frontend
       - name: Lint
-        run: npx turbo run lint --filter=mulighetsrommet-veileder-flate
-      - name: Cypress run
-        uses: cypress-io/github-action@v6
-        with:
-          working-directory: frontend/mulighetsrommet-veileder-flate
-          browser: chrome
-          headed: true
-          wait-on: http://localhost:3000
-          start: npm start
-          install: false
+        run: npx turbo run lint test:ci playwright --filter=mulighetsrommet-veileder-flate
         env:
           VITE_SANITY_PROJECT_ID: xegcworx
           VITE_SANITY_DATASET: test
