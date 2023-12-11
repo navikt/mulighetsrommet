@@ -57,12 +57,11 @@ spec:
             "loginProvider": "AZURE_AD"
           },
           "cors": {
-            "origin": "https://veilarbpersonflate.intern.dev.nav.no"
+            "origin": ["https://veilarbpersonflate.intern.dev.nav.no", "https://mulighetsrommet-veileder-flate.intern.dev.nav.no"]
           },
           "header": {
             "csp": {
-              "imgSrc": ["'self'", "*.nav.no", "cdn.sanity.io"],
-              "styleSrc": ["'self'", "*.nav.no"]
+              "imgSrc": ["'self'", "*.nav.no", "cdn.sanity.io"]
             }
           },
           "proxies": [
