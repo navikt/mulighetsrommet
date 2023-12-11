@@ -57,7 +57,7 @@ spec:
             "loginProvider": "AZURE_AD"
           },
           "cors": {
-            "origin": ["https://veilarbpersonflate.intern.dev.nav.no", "https://mulighetsrommet-veileder-flate.intern.dev.nav.no"]
+            "origin": ["https://mulighetsrommet-veileder-flate.intern.dev.nav.no"]
           },
           "header": {
             "csp": {
