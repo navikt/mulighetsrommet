@@ -7,11 +7,12 @@ node_modules
 # testing
 coverage
 *.iml
-cypress/screenshots
-cypress/videos
-cypress/downloads
 
 # build
 dist
 .env
 bundle-stats.html
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/

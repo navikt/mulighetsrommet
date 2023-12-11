@@ -86,7 +86,7 @@ export function DelMedBrukerContent({
           data-testid="endre-deletekst_btn"
           onClick={enableEndreDeletekst}
           variant="secondary"
-          className={delemodalStyles.personlig_melding_btn}
+          className={delemodalStyles.endreTekst_btn}
         >
           Endre melding
         </Button>
@@ -111,7 +111,11 @@ export function DelMedBrukerContent({
       ) : null}
 
       {erPreview() ? (
-        <Alert variant="warning" data-testid="alert-preview-del-med-bruker">
+        <Alert
+          variant="warning"
+          data-testid="alert-preview-del-med-bruker"
+          className={delemodalStyles.preview_alert}
+        >
           Det er ikke mulig å dele tiltak med bruker i forhåndsvisning. Brukers navn og veileders
           navn blir automatisk satt utenfor forhåndsvisningsmodus.
         </Alert>

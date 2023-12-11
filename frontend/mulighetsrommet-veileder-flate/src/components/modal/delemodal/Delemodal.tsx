@@ -139,7 +139,7 @@ export function Delemodal({
           className={delemodalStyles.delemodal}
           aria-label="modal"
         >
-          <Modal.Header closeButton data-testid="modal_header">
+          <Modal.Header closeButton>
             <Heading size="xsmall">Del med bruker</Heading>
             <Heading size="large" level="1" className={delemodalStyles.heading}>
               {"Tiltak gjennom NAV: " + tiltaksgjennomforing.navn}
@@ -171,6 +171,7 @@ export function Delemodal({
                 }}
                 checked={state.venterPaaSvarFraBruker}
                 value="venter-pa-svar-fra-bruker"
+                data-testid="venter-pa-svar_checkbox"
               >
                 Venter på svar fra bruker
               </Checkbox>

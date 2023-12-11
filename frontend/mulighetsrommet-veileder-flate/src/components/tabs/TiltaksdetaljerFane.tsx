@@ -86,9 +86,9 @@ const TiltaksdetaljerFane = ({ tiltaksgjennomforing }: Props) => {
           />
         ))}
       </Tabs.List>
-      <div className={styles.fane_panel}>
+      <div className={styles.fane_panel} data-testid="fane_panel">
         <ErrorBoundary FallbackComponent={ErrorFallback}>
-          <Tabs.Panel value="tab1" data-testid="tab1">
+          <Tabs.Panel value="tab1">
             <DetaljerFane
               tiltaksgjennomforingAlert={faneinnhold?.forHvemInfoboks}
               tiltakstypeAlert={tiltakstype.faneinnhold?.forHvemInfoboks}
@@ -96,7 +96,7 @@ const TiltaksdetaljerFane = ({ tiltaksgjennomforing }: Props) => {
               tiltakstype={tiltakstype.faneinnhold?.forHvem}
             />
           </Tabs.Panel>
-          <Tabs.Panel value="tab2" data-testid="tab2">
+          <Tabs.Panel value="tab2">
             <DetaljerFane
               tiltaksgjennomforingAlert={faneinnhold?.detaljerOgInnholdInfoboks}
               tiltakstypeAlert={tiltakstype.faneinnhold?.detaljerOgInnholdInfoboks}
@@ -104,7 +104,7 @@ const TiltaksdetaljerFane = ({ tiltaksgjennomforing }: Props) => {
               tiltakstype={tiltakstype.faneinnhold?.detaljerOgInnhold}
             />
           </Tabs.Panel>
-          <Tabs.Panel value="tab3" data-testid="tab3">
+          <Tabs.Panel value="tab3">
             <DetaljerFane
               tiltaksgjennomforingAlert={faneinnhold?.pameldingOgVarighetInfoboks}
               tiltakstypeAlert={tiltakstype.faneinnhold?.pameldingOgVarighetInfoboks}
@@ -112,10 +112,10 @@ const TiltaksdetaljerFane = ({ tiltaksgjennomforing }: Props) => {
               tiltakstype={tiltakstype.faneinnhold?.pameldingOgVarighet}
             />
           </Tabs.Panel>
-          <Tabs.Panel value="tab4" data-testid="tab4">
+          <Tabs.Panel value="tab4">
             <KontaktinfoFane tiltaksgjennomforing={tiltaksgjennomforing} />
           </Tabs.Panel>
-          <Tabs.Panel value="tab5" data-testid="tab5">
+          <Tabs.Panel value="tab5">
             <Oppskriftsoversikt tiltakstypeId={tiltaksgjennomforing.tiltakstype.sanityId} />
           </Tabs.Panel>
         </ErrorBoundary>

@@ -10,7 +10,7 @@ interface TilbakeknappProps {
 
 const Tilbakeknapp = ({ tilbakelenke, tekst = "Tilbake" }: TilbakeknappProps) => {
   return (
-    <Lenke className={styles.tilbakeknapp} to={tilbakelenke} data-testid="tilbakeknapp">
+    <Lenke className={styles.tilbakeknapp} to={tilbakelenke}>
       <ChevronLeftIcon aria-label="Tilbakeknapp" />
       <BodyShort size="small">{tekst}</BodyShort>
     </Lenke>

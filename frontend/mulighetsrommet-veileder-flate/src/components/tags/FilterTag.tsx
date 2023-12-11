@@ -17,7 +17,6 @@ const FilterTag = ({ options, handleClick, skjulIkon = false }: FilterTagsProps)
         return (
           <Tag
             variant="info"
-            className="cypress-tag"
             key={filtertype.id}
             data-testid={`filtertag_${kebabCase(filtertype.tittel)}`}
           >

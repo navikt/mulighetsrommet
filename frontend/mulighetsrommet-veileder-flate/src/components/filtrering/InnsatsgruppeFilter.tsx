@@ -32,7 +32,7 @@ const InnsatsgruppeAccordion = <T extends { id: string; tittel: string; nokkel?:
       <Radio
         value={option.nokkel}
         key={`${option.id}`}
-        data-testid={`filter_checkbox_${kebabCase(option?.tittel ?? "")}`}
+        data-testid={`filter_radio_${kebabCase(option?.tittel ?? "")}`}
       >
         {option.tittel}
       </Radio>

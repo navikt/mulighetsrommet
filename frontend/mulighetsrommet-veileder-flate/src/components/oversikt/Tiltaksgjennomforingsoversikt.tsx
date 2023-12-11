@@ -113,7 +113,7 @@ const Tiltaksgjennomforingsoversikt = (props: Props) => {
     <>
       <div className={styles.overskrift_og_sorteringsmeny}>
         {tiltaksgjennomforinger.length > 0 ? (
-          <BodyShort data-testid="antall-tiltak-top">
+          <BodyShort>
             Viser {(page - 1) * elementsPerPage + 1}-
             {gjennomforingerForSide.length + (page - 1) * elementsPerPage} av{" "}
             {tiltaksgjennomforinger.length} tiltak
@@ -135,14 +135,13 @@ const Tiltaksgjennomforingsoversikt = (props: Props) => {
       <div className={styles.under_oversikt}>
         {tiltaksgjennomforinger.length > 0 ? (
           <>
-            <BodyShort data-testid="antall-tiltak">
+            <BodyShort>
               Viser {(page - 1) * elementsPerPage + 1}-
               {gjennomforingerForSide.length + (page - 1) * elementsPerPage} av{" "}
               {tiltaksgjennomforinger.length} tiltak
             </BodyShort>
             <Pagination
               size="small"
-              data-testid="paginering"
               page={page}
               onPageChange={setPage}
               count={

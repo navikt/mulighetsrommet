@@ -16,7 +16,6 @@ export function BrukersEnhet() {
   if (brukersGeografiskeOgOppfolgingsenhetErLokalkontorMenIkkeSammeKontor(brukerdata.data)) {
     return (
       <Tag
-        className="cypress-tag"
         key={"navenhet"}
         size="small"
         data-testid={`${kebabCase("filtertag_oppfolgingsnavenhet")}`}
@@ -29,7 +28,6 @@ export function BrukersEnhet() {
   } else {
     return (
       <Tag
-        className="cypress-tag"
         key={"navenhet"}
         size="small"
         data-testid={`${kebabCase("filtertag_oppfolgingsnavenhet")}`}
