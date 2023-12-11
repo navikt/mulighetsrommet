@@ -16,7 +16,7 @@
     "noEmit": true,
     "jsx": "react-jsx",
     "baseUrl": "./",
-    "types": ["cypress", "cypress-axe", "node", "vite/client"]
+    "types": ["node", "vite/client"]
   },
   "include": ["src", "**/*.ts"]
 }

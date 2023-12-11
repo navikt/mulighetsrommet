@@ -61,7 +61,7 @@ export const SanityPreviewOversikt = () => {
       </div>
       <Separator />
 
-      <div className={styles.tiltakstype_oversikt} data-testid="tiltakstype-oversikt">
+      <div className={styles.tiltakstype_oversikt}>
         <Filtermeny />
         <div>
           {isLoading ? (

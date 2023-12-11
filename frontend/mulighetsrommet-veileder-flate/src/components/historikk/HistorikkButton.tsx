@@ -16,7 +16,13 @@ export function HistorikkButton({ setHistorikkModalOpen, isHistorikkModalOpen }:
 
   return (
     <>
-      <Button size="small" variant="tertiary" onClick={handleClick} id="historikk_knapp">
+      <Button
+        size="small"
+        variant="tertiary"
+        onClick={handleClick}
+        id="historikk_knapp"
+        data-testid="historikk_knapp"
+      >
         <ClockDashedIcon aria-label="Historikk" />
         Historikk
       </Button>

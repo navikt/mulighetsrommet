@@ -40,9 +40,16 @@ const StandardModal = ({
   };
 
   return (
-    <Modal open={modalOpen} onClose={setModalOpen} className={className} aria-label="modal" id={id}>
+    <Modal
+      open={modalOpen}
+      onClose={setModalOpen}
+      className={className}
+      aria-label="modal"
+      id={id}
+      data-testid={id}
+    >
       <Modal.Header closeButton={closeButton}>
-        <Heading spacing size="medium" data-testid="modal_header">
+        <Heading spacing size="medium">
           {heading}
         </Heading>
       </Modal.Header>

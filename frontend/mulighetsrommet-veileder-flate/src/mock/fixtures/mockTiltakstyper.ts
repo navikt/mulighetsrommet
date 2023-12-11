@@ -2341,6 +2341,14 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
         },
       ],
     },
+    delingMedBruker:
+      "Vi har nå et kurs som jeg tenker kan passe deg godt. Det heter <tiltaksnavn>, og er et" +
+      " fysisk kurs hvor du lærer The Ways of a Jedi.\n\nMålet er at du skal bli en Jedi" +
+      " Mester. Du trener sammen med læremester Yoda og lærer blant annet hvordan bruke" +
+      " lyssverd, og du får" +
+      " individuell oppfølging av andre Jedi Mestere og deltar på gruppearbeid og deler" +
+      " erfaringer med andre Jedis. Du kan lese mer om kurset  på" +
+      " www.nav.no/mentor ",
     beskrivelse:
       "Mentor skal gi nødvendig bistand til å kunne gjennomføre arbeidsmarkedstiltak, eller for å kunne få eller beholde lønnet arbeid i en ordinær bedrift.",
     navn: "Mentor",
