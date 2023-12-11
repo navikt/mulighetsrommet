@@ -30,7 +30,7 @@ jobs:
           workload_identity_provider: projects/380520190028/locations/global/workloadIdentityPools/github/providers/github-action
           service_account: team-mulighetsrommet-backup-sa@team-mulighetsrommet-prod-5492.iam.gserviceaccount.com
       - name: Set up gcloud
-        uses: google-github-actions/setup-gcloud@v1
+        uses: google-github-actions/setup-gcloud@v2
       - name: Upload files to GCS
         run: gsutil -m rsync -r /home/runner/work/mulighetsrommet/mulighetsrommet/frontend/mulighetsrommet-cms/backups gs://team-mulighetsrommet-sanity-backup
       - name: "Slett backup-filer fra repo"
