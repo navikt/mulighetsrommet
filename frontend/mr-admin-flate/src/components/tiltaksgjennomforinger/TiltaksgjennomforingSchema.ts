@@ -52,6 +52,9 @@ export const TiltaksgjennomforingSchema = z
     stedForGjennomforing: z.string().nullable(),
     arrangorKontaktpersonId: z.string().nullable().optional(),
     administratorer: z.string().array().min(1, "Du må velge minst én administrator"),
+    fremmoteDato: z.string().optional(),
+    fremmoteTid: z.string().optional(),
+    fremmoteSted: z.string().optional(),
     midlertidigStengt: z
       .object({
         erMidlertidigStengt: z.boolean(),

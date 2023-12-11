@@ -2146,6 +2146,13 @@ components:
         beskrivelse:
           type: string
           nullable: true
+        fremmoteTidspunkt:
+          type: string
+          format: datetime
+          nullable: true
+        fremmoteSted:
+          type: string
+          nullable: true
       required:
         - id
         - tiltakstypeId
@@ -2170,6 +2177,8 @@ components:
         - opphav
         - faneinnhold
         - beskrivelse
+        - fremmoteTidspunkt
+        - fremmoteSted
 
     TiltaksgjennomforingStatus:
       type: string

@@ -14,6 +14,11 @@ import styles from "../DetaljerInfo.module.scss";
 import { Kontaktperson } from "./Kontaktperson";
 import { Link } from "react-router-dom";
 import { useTitle } from "mulighetsrommet-frontend-common";
+import {
+  fremmoteDatoFromTidspunkt,
+  fremmoteTidFromTidspunkt,
+} from "../../components/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaConst";
+import { isTiltakMedFellesOppstart } from "../../utils/tiltakskoder";
 
 interface Props {
   tiltaksgjennomforing: Tiltaksgjennomforing;
@@ -93,11 +98,7 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
           <Bolk aria-label="Oppstartsdato">
             <Metadata
               header="Oppstart"
-              verdi={
-                tiltaksgjennomforing.oppstart === TiltaksgjennomforingOppstartstype.FELLES
-                  ? "Felles"
-                  : "Løpende oppstart"
-              }
+              verdi={isTiltakMedFellesOppstart(tiltaksgjennomforing.tiltakstype.arenaKode)}
             />
             {Boolean(tiltaksgjennomforing.stengtFra) &&
               Boolean(tiltaksgjennomforing.stengtTil) &&
@@ -179,6 +180,27 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
               }
             />
           </Bolk>
+
+          <VisHvisVerdi
+            verdi={tiltaksgjennomforing.oppstart === TiltaksgjennomforingOppstartstype.FELLES}
+          >
+            <Separator />
+            <Bolk aria-label="Fremmøte">
+              <Metadata
+                header="Fremmøte tidspunkt"
+                verdi={
+                  <div>
+                    {`${fremmoteDatoFromTidspunkt(
+                      tiltaksgjennomforing.fremmoteTidspunkt,
+                    )} ${fremmoteTidFromTidspunkt(tiltaksgjennomforing.fremmoteTidspunkt)}`}
+                  </div>
+                }
+              />
+            </Bolk>
+            <Bolk aria-label="Antall plasser">
+              <Metadata header="Fremmøte sted" verdi={tiltaksgjennomforing.fremmoteSted} />
+            </Bolk>
+          </VisHvisVerdi>
 
           <VisHvisVerdi verdi={tiltaksgjennomforing.sanityId}>
             <Separator />

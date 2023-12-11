@@ -54,7 +54,9 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 sted_for_gjennomforing,
                 faneinnhold,
                 beskrivelse,
-                nav_region
+                nav_region,
+                fremmote_tidspunkt,
+                fremmote_sted
             )
             values (
                 :id::uuid,
@@ -76,7 +78,9 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 :sted_for_gjennomforing,
                 :faneinnhold::jsonb,
                 :beskrivelse,
-                :nav_region
+                :nav_region,
+                :fremmote_tidspunkt,
+                :fremmote_sted
             )
             on conflict (id)
                 do update set navn                         = excluded.navn,
@@ -97,7 +101,9 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                               sted_for_gjennomforing       = excluded.sted_for_gjennomforing,
                               faneinnhold                  = excluded.faneinnhold,
                               beskrivelse                  = excluded.beskrivelse,
-                              nav_region                   = excluded.nav_region
+                              nav_region                   = excluded.nav_region,
+                              fremmote_tidspunkt           = excluded.fremmote_tidspunkt,
+                              fremmote_sted                = excluded.fremmote_sted
             returning *
         """.trimIndent()
 
@@ -640,6 +646,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         "faneinnhold" to faneinnhold?.let { Json.encodeToString(it) },
         "beskrivelse" to beskrivelse,
         "nav_region" to navRegion,
+        "fremmote_tidspunkt" to fremmoteTidspunkt,
+        "fremmote_sted" to fremmoteSted,
     )
 
     private fun ArenaTiltaksgjennomforingDbo.toSqlParameters() = mapOf(

@@ -110,6 +110,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 it.beskrivelse shouldBe null
                 it.createdAt shouldNotBe null
                 it.updatedAt shouldNotBe null
+                it.fremmoteTidspunkt shouldBe LocalDateTime.of(2023, 1, 1, 9, 0)
+                it.fremmoteSted shouldBe "fremmote_sted"
             }
 
             tiltaksgjennomforinger.delete(Oppfolging1.id)

@@ -59,6 +59,8 @@ class TiltakshistorikkServiceTest : FunSpec({
         avtaleId = AvtaleFixtures.avtale1.id,
         faneinnhold = null,
         beskrivelse = null,
+        fremmoteTidspunkt = null,
+        fremmoteSted = null,
     )
 
     val tiltakshistorikkGruppe = ArenaTiltakshistorikkDbo.Gruppetiltak(
