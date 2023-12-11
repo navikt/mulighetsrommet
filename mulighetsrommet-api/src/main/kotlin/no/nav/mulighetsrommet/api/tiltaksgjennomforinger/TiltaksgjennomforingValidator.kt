@@ -54,30 +54,13 @@ class TiltaksgjennomforingValidator(
                 add(ValidationError.of(TiltaksgjennomforingDbo::antallPlasser, "Antall plasser må være større enn 0"))
             }
 
-            if (Tiltakskoder.hasFellesOppstart(avtale.tiltakstype.arenaKode)) {
-                if (dbo.fremmoteTidspunkt == null) {
-                    add(
-                        ValidationError(
-                            name = "fremmoteDato",
-                            message = "Fremmøte dato må være satt",
-                        ),
-                    )
-                } else if (dbo.fremmoteTidspunkt.toLocalTime() == LocalTime.of(0, 0)) {
-                    add(
-                        ValidationError(
-                            name = "fremmoteTid",
-                            message = "Fremmøte klokkeslett kan ikke være kl 00:00",
-                        ),
-                    )
-                }
-                if (dbo.fremmoteSted == null) {
-                    add(
-                        ValidationError.of(
-                            TiltaksgjennomforingDbo::fremmoteSted,
-                            "Fremmøte sted må være satt",
-                        ),
-                    )
-                }
+            if (dbo.fremmoteTidspunkt != null && dbo.fremmoteTidspunkt.toLocalTime() == LocalTime.of(0, 0)) {
+                add(
+                    ValidationError(
+                        name = "fremmoteTid",
+                        message = "Fremmøte klokkeslett kan ikke være kl 00:00",
+                    ),
+                )
             }
 
             if (!Tiltakskoder.isTiltakMedAvtalerFraMulighetsrommet(avtale.tiltakstype.arenaKode)) {
