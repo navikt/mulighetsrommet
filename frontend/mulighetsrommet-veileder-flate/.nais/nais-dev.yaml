@@ -61,7 +61,8 @@ spec:
           },
           "header": {
             "csp": {
-              "imgSrc": ["'self'", "*.nav.no", "cdn.sanity.io"]
+              "imgSrc": ["'self'", "*.nav.no", "cdn.sanity.io"],
+              "styleSrc": ["'self'", "*.mulighetsrommet-veileder-flate.intern.dev.nav.no"]
             }
           },
           "proxies": [
