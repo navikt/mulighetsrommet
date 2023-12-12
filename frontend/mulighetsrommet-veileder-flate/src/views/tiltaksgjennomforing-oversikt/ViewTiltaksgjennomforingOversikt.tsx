@@ -23,6 +23,7 @@ import { tiltaksgjennomforingsfilter } from "../../core/atoms/atoms";
 import { usePrepopulerFilter } from "../../hooks/usePrepopulerFilter";
 import { routes } from "../../routes";
 import styles from "./ViewTiltaksgjennomforingOversikt.module.scss";
+import { useLogEvent } from "../../logging/amplitude";
 
 const ViewTiltaksgjennomforingOversikt = () => {
   useTitle("Arbeidsmarkedstiltak - Oversikt");
@@ -31,6 +32,7 @@ const ViewTiltaksgjennomforingOversikt = () => {
   const { data: brukerdata } = useHentBrukerdata();
   const landingssideFeature = useFeatureToggle(Toggles.MULIGHETSROMMET_VEILEDERFLATE_LANDINGSSIDE);
   const landingssideEnabled = landingssideFeature.isSuccess && landingssideFeature.data;
+  const { logEvent } = useLogEvent();
 
   const {
     data: tiltaksgjennomforinger = [],
@@ -43,6 +45,10 @@ const ViewTiltaksgjennomforingOversikt = () => {
   useEffect(() => {
     setIsHistorikkModalOpen(isHistorikkModalOpen);
   }, [isHistorikkModalOpen]);
+
+  useEffect(() => {
+    logEvent({ name: "arbeidsmarkedstiltak.unike-brukere" });
+  }, []);
 
   if (!brukerdata) return null;
 
