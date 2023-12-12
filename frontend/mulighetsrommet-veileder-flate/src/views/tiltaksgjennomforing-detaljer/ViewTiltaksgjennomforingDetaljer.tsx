@@ -1,4 +1,4 @@
-import { Chat2Icon, CheckmarkIcon } from "@navikt/aksel-icons";
+import { Chat2Icon, CheckmarkIcon, PadlockLockedFillIcon } from "@navikt/aksel-icons";
 import { Alert, Button } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import {
@@ -156,6 +156,11 @@ const ViewTiltaksgjennomforingDetaljer = ({
         <div className={styles.tiltakstype_header_maksbredde}>
           <TiltaksgjennomforingsHeader tiltaksgjennomforing={tiltaksgjennomforing} />
         </div>
+        {!tiltaksgjennomforing.apentForInnsok && (
+          <div className={styles.apent_for_innsok_status}>
+            <PadlockLockedFillIcon title="Tiltaket er stengt for innsøking" />
+          </div>
+        )}
         <div className={styles.sidemeny}>
           <SidemenyDetaljer tiltaksgjennomforing={tiltaksgjennomforing} />
           <div className={styles.deleknapp_container}>

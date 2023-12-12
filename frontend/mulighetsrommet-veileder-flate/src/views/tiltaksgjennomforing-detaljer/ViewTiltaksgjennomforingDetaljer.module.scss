@@ -26,11 +26,20 @@
   grid-template-columns: 65% 35%;
   grid-gap: 2rem;
   background-color: var(--a-white);
-  padding: 5rem;
+  padding: 2rem;
 }
 
 .tiltakstype_header_maksbredde {
   max-width: 760px;
+}
+
+.apent_for_innsok_status {
+  grid-column: 2;
+  grid-row: 1;
+  font-size: 2rem;
+  display: flex;
+  justify-content: flex-end;
+  margin-right: 2rem;
 }
 
 .nokkelinfo_container {
