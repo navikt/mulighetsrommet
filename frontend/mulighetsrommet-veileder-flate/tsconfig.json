@@ -18,5 +18,5 @@
     "baseUrl": "./",
     "types": ["node", "vite/client"]
   },
-  "include": ["src", "**/*.ts"]
+  "include": ["src", "**/*.ts", "importmap.json"]
 }
