@@ -6,10 +6,8 @@ import { oversiktenSteps, useSteps } from "./Steps";
 import { locale, styling } from "./config";
 
 export function OversiktenJoyride() {
-  const { isReady, setIsReady, harFullfort, setHarFullfort } = useJoyride(JoyrideType.OVERSIKT);
+  const { isReady, setIsReady, setHarFullfort } = useJoyride(JoyrideType.OVERSIKT);
   const { steps, stepIndex, setStepIndex } = useSteps(isReady, oversiktenSteps);
-
-  if (harFullfort) return null;
 
   const handleJoyrideCallback = (data: CallBackProps) => {
     const { action, index, status, type } = data;

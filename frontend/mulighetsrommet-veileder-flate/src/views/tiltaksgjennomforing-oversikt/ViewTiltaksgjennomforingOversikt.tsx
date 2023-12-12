@@ -118,9 +118,7 @@ const ViewTiltaksgjennomforingOversikt = () => {
         <div className={styles.filtertags_og_knapperad}>
           <Filtertags filter={filter} setFilter={setFilter} />
           <div className={styles.knapperad}>
-            <>
-              <OversiktenJoyride />
-            </>
+            <OversiktenJoyride />
             <HistorikkButton
               setHistorikkModalOpen={setIsHistorikkModalOpen}
               isHistorikkModalOpen={isHistorikkModalOpen}

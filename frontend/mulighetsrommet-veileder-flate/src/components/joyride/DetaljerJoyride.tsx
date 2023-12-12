@@ -11,10 +11,8 @@ interface Props {
 }
 
 export function DetaljerJoyride({ opprettAvtale }: Props) {
-  const { isReady, setIsReady, harFullfort, setHarFullfort } = useJoyride(JoyrideType.DETALJER);
+  const { isReady, setIsReady, setHarFullfort } = useJoyride(JoyrideType.DETALJER);
   const { steps, stepIndex, setStepIndex } = useSteps(isReady, detaljerSteps);
-
-  if (harFullfort) return null;
 
   const handleJoyrideCallback = (data: CallBackProps) => {
     const { action, index, status, type } = data;
