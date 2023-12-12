@@ -18,17 +18,10 @@ const velgFilter = async (page: Page, filternavn: string) => {
   await expect(page.getByTestId(`filtertag_${filternavn}`)).toBeVisible();
 };
 
-const forventAntallTiltak = async (count: number, forventet: number) => {
-  for (let i = 0; i < count; ++i) {
-    expect(count).toBe(forventet);
-  }
-};
-
 test.describe("Tiltaksoversikt", () => {
   test("Sjekk at det er 5 tiltaksgjennomføringer i oversikten", async ({ page }) => {
-    const rows = page.getByTestId("oversikt_tiltaksgjennomforinger");
-    const count = await rows.count();
-    forventAntallTiltak(count, 5);
+    const rows = page.getByTestId("oversikt_tiltaksgjennomforinger").getByRole("link");
+    await expect(rows).toHaveCount(5);
   });
 
   test("Sjekk UU", async ({ page }) => {
@@ -36,11 +29,10 @@ test.describe("Tiltaksoversikt", () => {
   });
 
   test("Filtrer på søkefelt", async ({ page }) => {
-    const rows = page.getByTestId("oversikt_tiltaksgjennomforinger");
-    const count = await rows.count();
-    forventAntallTiltak(count, 5);
+    const rows = page.getByTestId("oversikt_tiltaksgjennomforinger").getByRole("link");
+    await expect(rows).toHaveCount(5);
     await page.getByTestId("filter_sokefelt").fill("Yoda");
-    forventAntallTiltak(count, 1);
+    await expect(rows).toHaveCount(1);
     await expect(
       page.getByTestId("tiltaksgjennomforing_sindres-mentorordning-med-yoda"),
     ).toContainText("Yoda");
@@ -54,14 +46,13 @@ test.describe("Tiltaksoversikt", () => {
   });
 
   test("'Tilbakestill filter'-knappen fungerer", async ({ page }) => {
-    const rows = page.getByTestId("oversikt_tiltaksgjennomforinger");
-    const count = await rows.count();
-    forventAntallTiltak(count, 5);
+    const rows = page.getByTestId("oversikt_tiltaksgjennomforinger").getByRole("link");
+    await expect(rows).toHaveCount(5);
     velgFilter(page, "standard-innsats");
     await expect(page.getByTestId("knapp_tilbakestill-filter")).toBeVisible();
-    forventAntallTiltak(count, 1);
+    await expect(rows).toHaveCount(1);
     await page.getByTestId("knapp_tilbakestill-filter").click();
-    forventAntallTiltak(count, 5);
+    await expect(rows).toHaveCount(5);
   });
 
   test("Skal vise korrekt feilmelding dersom ingen tiltaksgjennomføringer blir funnet", async ({
