@@ -11,11 +11,11 @@ import { useFeatureToggle } from "./core/api/feature-toggles";
 import { useHentVeilederdata } from "./core/api/queries/useHentVeilederdata";
 import { useInitialBrukerfilter } from "./hooks/useInitialBrukerfilter";
 import { useUpdateAppContext } from "./hooks/useUpdateAppContext";
+import { initAmplitude } from "./logging/amplitude";
 import RoutesConfig from "./RoutesConfig";
 import { ErrorFallback } from "./utils/ErrorFallback";
 import { SanityPreview } from "./views/Preview/SanityPreview";
 import { SanityPreviewOversikt } from "./views/Preview/SanityPreviewOversikt";
-import { initAmplitude } from "./logging/amplitude";
 
 if (import.meta.env.PROD && import.meta.env.VITE_FARO_URL) {
   initializeFaro({

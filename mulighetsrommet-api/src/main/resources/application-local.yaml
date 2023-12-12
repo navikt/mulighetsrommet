@@ -10,6 +10,11 @@ app:
     user: valp
     password: valp
     maximumPoolSize: 10
+    migrationConfig:
+      strategy: Migrate
+      # Kan kjøres når du må kjøre flyway repair
+      # strategy: RepairAndMigrate
+
 
   kafka:
     brokerUrl: localhost:29092

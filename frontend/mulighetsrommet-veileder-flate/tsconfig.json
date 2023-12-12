@@ -29,6 +29,6 @@
       "vite": ["node_modules/vite"]
     },
   },
-  "include": ["src", "cypress/**/*.ts"],
+  "include": ["src", "importmap.json"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
