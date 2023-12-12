@@ -10,6 +10,7 @@ type KLIKK_PA_FANE_EVENT = {
   name: "arbeidsmarkedstiltak.fanevalg";
   data: {
     faneValgt: string;
+    tiltakstype: string;
   };
 };
 
