@@ -1,99 +1,46 @@
-import { faro } from "@grafana/faro-web-sdk";
-import { Button, Search } from "@navikt/ds-react";
-import classNames from "classnames";
+import { Accordion, Checkbox, Search, Skeleton } from "@navikt/ds-react";
 import { WritableAtom, useAtom } from "jotai";
-import {
-  Avtalestatus,
-  NavEnhetType,
-  Opphav,
-  TiltaksgjennomforingStatus,
-  Tiltakstypestatus,
-  Toggles,
-  VirksomhetTil,
-} from "mulighetsrommet-api-client";
-import { ControlledSokeSelect } from "mulighetsrommet-frontend-common";
+import { Tiltakstypestatus, VirksomhetTil } from "mulighetsrommet-api-client";
 import { useEffect, useState } from "react";
-import { FormProvider, useForm } from "react-hook-form";
-import {
-  TiltaksgjennomforingfilterProps as TiltaksgjennomforingAtomFilter,
-  TiltaksgjennomforingfilterProps,
-  defaultTiltaksgjennomforingfilter,
-  paginationAtom,
-} from "../../api/atoms";
+import { TiltaksgjennomforingfilterProps } from "../../api/atoms";
 import { useAvtale } from "../../api/avtaler/useAvtale";
 import { useNavEnheter } from "../../api/enhet/useNavEnheter";
-import { useFeatureToggle } from "../../api/features/feature-toggles";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
 import { useVirksomheter } from "../../api/virksomhet/useVirksomheter";
-import { inneholderUrl, resetPaginering, valueOrDefault } from "../../utils/Utils";
-import { Lenkeknapp } from "../lenkeknapp/Lenkeknapp";
-import { LeggTilGjennomforingModal } from "../modal/LeggTilGjennomforingModal";
+import { addOrRemove } from "../../utils/Utils";
 import styles from "./Filter.module.scss";
-import { FilterTag } from "./FilterTag";
+import {
+  TILTAKSGJENNOMFORING_STATUS_OPTIONS,
+  enhetOptions,
+  regionOptions,
+  tiltakstypeOptions,
+  virksomhetOptions,
+} from "../../utils/filterUtils";
 
 type Filters = "tiltakstype";
 
-const statusOptions: { label: string; value: TiltaksgjennomforingStatus | "" }[] = [
-  {
-    label: "Gjennomføres",
-    value: TiltaksgjennomforingStatus.GJENNOMFORES,
-  },
-  {
-    label: "Avsluttet",
-    value: TiltaksgjennomforingStatus.AVSLUTTET,
-  },
-  {
-    label: "Avbrutt",
-    value: TiltaksgjennomforingStatus.AVBRUTT,
-  },
-  {
-    label: "Planlagt",
-    value: TiltaksgjennomforingStatus.PLANLAGT,
-  },
-  {
-    label: "Alle statuser",
-    value: "",
-  },
-];
-
 interface Props {
-  skjulFilter?: Record<Filters, boolean>;
   filterAtom: WritableAtom<
     TiltaksgjennomforingfilterProps,
     [newValue: TiltaksgjennomforingfilterProps],
     void
   >;
+  skjulFilter?: Record<Filters, boolean>;
 }
 
-export function Tiltaksgjennomforingfilter({ skjulFilter, filterAtom }: Props) {
+export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
   const [filter, setFilter] = useAtom(filterAtom);
   const { data: avtale } = useAvtale();
-  const [, setPage] = useAtom(paginationAtom);
-  const { data: enheter } = useNavEnheter();
-  const { data: virksomheter } = useVirksomheter(VirksomhetTil.TILTAKSGJENNOMFORING);
-  const { data: tiltakstyper } = useTiltakstyper(
+  const { data: enheter, isLoading: isLoadingEnheter } = useNavEnheter();
+  const { data: virksomheter, isLoading: isLoadingVirksomheter } = useVirksomheter(
+    VirksomhetTil.TILTAKSGJENNOMFORING,
+  );
+  const { data: tiltakstyper, isLoading: isLoadingTiltakstyper } = useTiltakstyper(
     {
       status: Tiltakstypestatus.AKTIV,
     },
     1,
   );
-  const [modalOpen, setModalOpen] = useState<boolean>(false);
-
-  const form = useForm<TiltaksgjennomforingAtomFilter>({
-    defaultValues: {
-      ...filter,
-    },
-  });
-  const { register, setValue } = form;
-
-  const { data: opprettGjennomforingIsEnabled } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_ADMIN_FLATE_OPPRETT_TILTAKSGJENNOMFORING,
-  );
-  const visOpprettTiltaksgjennomforingKnapp =
-    opprettGjennomforingIsEnabled && inneholderUrl("/avtaler/");
-
-  const avtaleErOpprettetIMulighetsrommet = avtale?.opphav === Opphav.MR_ADMIN_FLATE;
-  const avtalenErAktiv = avtale?.avtalestatus === Avtalestatus.AKTIV;
 
   useEffect(() => {
     setFilter({
@@ -102,347 +49,156 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, filterAtom }: Props) {
     });
   }, [avtale]);
 
-  const regionOptions = () => {
-    const options =
-      enheter
-        ?.filter((enhet) => enhet.type === NavEnhetType.FYLKE)
-        ?.sort()
-        ?.map((enhet) => ({
-          label: enhet.navn,
-          value: enhet.enhetsnummer,
-        })) || [];
-
-    return [
-      {
-        value: "",
-        label: "Alle regioner",
-      },
-      ...options,
-    ];
-  };
-
-  const enhetOptions = () => {
-    const options =
-      enheter
-        ?.filter((enhet) => {
-          const erLokalEllerTiltaksenhet =
-            enhet.type === NavEnhetType.LOKAL || enhet.type === NavEnhetType.TILTAK;
-          const enheterFraFylke =
-            filter.navRegion === "" ? true : filter.navRegion === enhet.overordnetEnhet;
-          return erLokalEllerTiltaksenhet && enheterFraFylke;
-        })
-        ?.sort()
-        ?.map((enhet) => ({
-          label: `${enhet.navn} - ${enhet.enhetsnummer}`,
-          value: enhet.enhetsnummer,
-        })) || [];
-
-    return [
-      {
-        value: "",
-        label: "Alle enheter",
-      },
-      ...options,
-    ];
-  };
-
-  const tiltakstypeOptions = () => {
-    const options =
-      tiltakstyper?.data?.sort()?.map((tiltakstype) => ({
-        label: tiltakstype.navn,
-        value: tiltakstype.id,
-      })) || [];
-
-    return [
-      {
-        value: "",
-        label: "Alle tiltakstyper",
-      },
-      ...options,
-    ];
-  };
-
-  const arrangorOptions = () => {
-    const options =
-      virksomheter?.sort()?.map((virksomhet) => ({
-        label: virksomhet.navn,
-        value: virksomhet.organisasjonsnummer,
-      })) || [];
-
-    return [
-      {
-        value: "",
-        label: "Alle arrangører",
-      },
-      ...options,
-    ];
-  };
+  if (
+    !enheter ||
+    isLoadingEnheter ||
+    !virksomheter ||
+    isLoadingVirksomheter ||
+    !tiltakstyper ||
+    isLoadingTiltakstyper
+  ) {
+    return <Skeleton variant="rounded" height="400px" />;
+  }
 
   return (
-    <FormProvider {...form}>
-      <form
-        className={
-          avtale ? styles.tiltaksgjennomforingform_med_knapperad : styles.tiltaksgjennomforingform
+    <>
+      <Search
+        label="Søk etter tiltaksgjennomføring"
+        hideLabel
+        size="small"
+        variant="simple"
+        placeholder="Navn eller tiltaksnr."
+        onChange={(search: string) =>
+          setFilter({
+            ...filter,
+            search,
+          })
         }
-      >
-        <div className={styles.filter_container}>
-          <div className={styles.filtrering}>
-            <Search
-              label="Søk etter tiltaksgjennomføring"
-              hideLabel
-              size="small"
-              variant="simple"
-              placeholder="Navn eller tiltaksnr."
-              onChange={(search: string) =>
+        value={filter.search}
+        aria-label="Søk etter tiltaksgjennomføring"
+        className={styles.form_field}
+      />
+      <Accordion>
+        <Accordion.Item>
+          <Accordion.Header>Status</Accordion.Header>
+          <Accordion.Content>
+            <CheckboxList
+              items={TILTAKSGJENNOMFORING_STATUS_OPTIONS}
+              isChecked={(status) => filter.statuser.includes(status)}
+              onChange={(status) =>
                 setFilter({
                   ...filter,
-                  search,
+                  statuser: addOrRemove(filter.statuser, status),
                 })
               }
-              value={filter.search}
-              aria-label="Søk etter tiltaksgjennomføring"
-              className={styles.form_field}
             />
-            <ControlledSokeSelect
-              size="small"
-              label="Filtrer på region"
-              placeholder="Filtrer på region"
-              hideLabel
-              {...register("navRegion")}
-              onChange={(e) => {
-                resetPaginering(setPage);
-                setFilter({
-                  ...filter,
-                  navEnhet: "",
-                  navRegion: valueOrDefault(
-                    e.target.value as string,
-                    defaultTiltaksgjennomforingfilter.navRegion,
-                  ),
-                });
-              }}
-              options={regionOptions()}
-              className={styles.form_field}
-            />
+          </Accordion.Content>
+        </Accordion.Item>
 
-            <ControlledSokeSelect
-              size="small"
-              label="Filtrer på enhet"
-              placeholder="Filtrer på enhet"
-              hideLabel
-              {...register("navEnhet")}
-              onChange={(e) => {
-                resetPaginering(setPage);
-                setFilter({
-                  ...filter,
-                  navEnhet: valueOrDefault(
-                    e.target.value as string,
-                    defaultTiltaksgjennomforingfilter.navEnhet,
-                  ),
-                });
-              }}
-              options={enhetOptions()}
-              className={styles.form_field}
-            />
-            {skjulFilter?.tiltakstype ? null : (
-              <ControlledSokeSelect
-                size="small"
-                label="Filtrer på tiltakstype"
-                placeholder="Filtrer på tiltakstype"
-                hideLabel
-                {...register("tiltakstype")}
-                onChange={(e) => {
-                  resetPaginering(setPage);
+        {!skjulFilter?.tiltakstype && (
+          <Accordion.Item>
+            <Accordion.Header>Tiltakstype</Accordion.Header>
+            <Accordion.Content>
+              <CheckboxList
+                items={tiltakstypeOptions(tiltakstyper.data)}
+                isChecked={(tiltakstype) => filter.tiltakstyper.includes(tiltakstype)}
+                onChange={(tiltakstype) =>
                   setFilter({
                     ...filter,
-                    tiltakstype: valueOrDefault(
-                      e.target.value as string,
-                      defaultTiltaksgjennomforingfilter.tiltakstype,
-                    ),
-                  });
-                }}
-                options={tiltakstypeOptions()}
-                className={styles.form_field}
-              />
-            )}
-            <ControlledSokeSelect
-              size="small"
-              label="Filtrer på status"
-              placeholder="Filtrer på status"
-              hideLabel
-              {...register("status")}
-              onChange={(e) => {
-                resetPaginering(setPage);
-                setFilter({
-                  ...filter,
-                  status:
-                    valueOrDefault(
-                      e.target.value as TiltaksgjennomforingStatus,
-                      defaultTiltaksgjennomforingfilter.status,
-                    ) || undefined,
-                });
-              }}
-              options={statusOptions}
-              className={styles.form_field}
-            />
-            <ControlledSokeSelect
-              size="small"
-              label="Filtrer på arrangør"
-              placeholder="Filtrer på arrangør"
-              hideLabel
-              {...register("arrangorOrgnr")}
-              onChange={(e) => {
-                resetPaginering(setPage);
-                setFilter({
-                  ...filter,
-                  arrangorOrgnr: valueOrDefault(
-                    e.target.value as string,
-                    defaultTiltaksgjennomforingfilter.arrangorOrgnr,
-                  ),
-                });
-              }}
-              options={arrangorOptions()}
-              className={styles.form_field}
-            />
-          </div>
-
-          {avtale && avtalenErAktiv && (
-            <div className={classNames(styles.knapperad, styles.tiltaksgjennomforings_knapperad)}>
-              <div className={styles.flex_row}>
-                {visOpprettTiltaksgjennomforingKnapp && (
-                  <Lenkeknapp
-                    to={`skjema`}
-                    variant="primary"
-                    handleClick={() => {
-                      faro?.api?.pushEvent(
-                        "Bruker trykket på 'Opprett ny tiltaksgjennomføring'-knapp",
-                      );
-                    }}
-                  >
-                    Opprett ny tiltaksgjennomføring
-                  </Lenkeknapp>
-                )}
-                {avtaleErOpprettetIMulighetsrommet && (
-                  <>
-                    <Button
-                      onClick={() => setModalOpen(true)}
-                      variant="secondary"
-                      type="button"
-                      title="Legg til en eksisterende gjennomføring til avtalen"
-                    >
-                      Legg til gjennomføring
-                    </Button>
-                    <LeggTilGjennomforingModal
-                      modalOpen={modalOpen}
-                      onClose={() => setModalOpen(false)}
-                    />
-                  </>
-                )}
-              </div>
-            </div>
-          )}
-          <div className={styles.tags_container}>
-            {filter.search && (
-              <FilterTag
-                label={`'${filter.search}'`}
-                onClick={() => {
-                  setFilter({
-                    ...filter,
-                    search: "",
-                  });
-                  setValue("search", "");
-                }}
-              />
-            )}
-            {filter.navRegion && (
-              <FilterTag
-                label={enheter?.find((e) => e.enhetsnummer === filter.navRegion)?.navn}
-                onClick={() => {
-                  setFilter({
-                    ...filter,
-                    navRegion: defaultTiltaksgjennomforingfilter.navRegion,
-                  });
-                  setValue("navRegion", defaultTiltaksgjennomforingfilter.navRegion);
-                }}
-              />
-            )}
-            {filter.navEnhet && (
-              <FilterTag
-                label={enheter?.find((e) => e.enhetsnummer === filter.navEnhet)?.navn}
-                onClick={() => {
-                  setFilter({
-                    ...filter,
-                    navEnhet: defaultTiltaksgjennomforingfilter.navEnhet,
-                  });
-                  setValue("navEnhet", defaultTiltaksgjennomforingfilter.navEnhet);
-                }}
-              />
-            )}
-            {filter.tiltakstype && (
-              <FilterTag
-                label={tiltakstyper?.data?.find((t) => t.id === filter.tiltakstype)?.navn}
-                onClick={() => {
-                  setFilter({
-                    ...filter,
-                    tiltakstype: defaultTiltaksgjennomforingfilter.tiltakstype,
-                  });
-                  setValue("tiltakstype", defaultTiltaksgjennomforingfilter.tiltakstype);
-                }}
-              />
-            )}
-            {filter.status && (
-              <FilterTag
-                label={statusOptions.find((o) => o.value === filter.status)?.label}
-                onClick={() => {
-                  setFilter({
-                    ...filter,
-                    status: undefined,
-                  });
-                  setValue("status", undefined);
-                }}
-              />
-            )}
-            {filter.arrangorOrgnr && (
-              <FilterTag
-                label={
-                  virksomheter?.find((v) => v.organisasjonsnummer === filter.arrangorOrgnr)?.navn
+                    tiltakstyper: addOrRemove(filter.tiltakstyper, tiltakstype),
+                  })
                 }
-                onClick={() => {
-                  setFilter({
-                    ...filter,
-                    arrangorOrgnr: defaultTiltaksgjennomforingfilter.arrangorOrgnr,
-                  });
-                  setValue("arrangorOrgnr", defaultTiltaksgjennomforingfilter.arrangorOrgnr);
-                }}
               />
-            )}
-            {(filter.search ||
-              filter.navRegion ||
-              filter.navEnhet ||
-              filter.tiltakstype ||
-              filter.status !== defaultTiltaksgjennomforingfilter.status ||
-              filter.arrangorOrgnr) && (
-              <Button
-                type="button"
-                size="small"
-                variant="tertiary"
-                onClick={() => {
-                  setFilter({
-                    ...defaultTiltaksgjennomforingfilter,
-                    avtale: filter.avtale,
-                  });
-                  setValue("status", defaultTiltaksgjennomforingfilter.status);
-                  setValue("navEnhet", defaultTiltaksgjennomforingfilter.navEnhet);
-                  setValue("navRegion", defaultTiltaksgjennomforingfilter.navRegion);
-                  setValue("tiltakstype", defaultTiltaksgjennomforingfilter.tiltakstype);
-                  setValue("arrangorOrgnr", defaultTiltaksgjennomforingfilter.arrangorOrgnr);
-                }}
-              >
-                Tilbakestill filter
-              </Button>
-            )}
-          </div>
-        </div>
-      </form>
-    </FormProvider>
+            </Accordion.Content>
+          </Accordion.Item>
+        )}
+        <Accordion.Item>
+          <Accordion.Header>Region</Accordion.Header>
+          <Accordion.Content>
+            <CheckboxList
+              items={regionOptions(enheter)}
+              isChecked={(region) => filter.navRegioner.includes(region)}
+              onChange={(region) =>
+                setFilter({
+                  ...filter,
+                  navRegioner: addOrRemove(filter.navRegioner, region),
+                })
+              }
+            />
+          </Accordion.Content>
+        </Accordion.Item>
+        <Accordion.Item>
+          <Accordion.Header>Enhet</Accordion.Header>
+          <Accordion.Content>
+            <CheckboxList
+              searchable
+              items={enhetOptions(enheter, filter.navRegioner)}
+              isChecked={(enhet) => filter.navEnheter.includes(enhet)}
+              onChange={(enhet) =>
+                setFilter({
+                  ...filter,
+                  navEnheter: addOrRemove(filter.navEnheter, enhet),
+                })
+              }
+            />
+          </Accordion.Content>
+        </Accordion.Item>
+        <Accordion.Item>
+          <Accordion.Header>Arrangør</Accordion.Header>
+          <Accordion.Content>
+            <CheckboxList
+              searchable
+              items={virksomhetOptions(virksomheter)}
+              isChecked={(orgnr) => filter.arrangorOrgnr.includes(orgnr)}
+              onChange={(orgnr) =>
+                setFilter({
+                  ...filter,
+                  arrangorOrgnr: addOrRemove(filter.arrangorOrgnr, orgnr),
+                })
+              }
+            />
+          </Accordion.Content>
+        </Accordion.Item>
+      </Accordion>
+    </>
+  );
+}
+
+interface CheckboxListProps<T> {
+  items: { label: string; value: T }[];
+  isChecked: (a: T) => boolean;
+  onChange: (a: T) => void;
+  searchable?: boolean;
+}
+
+export function CheckboxList<T>(props: CheckboxListProps<T>) {
+  const { items, isChecked, onChange, searchable = false } = props;
+  const [search, setSearch] = useState<string>("");
+
+  return (
+    <div className={styles.checkbox_list}>
+      {searchable && (
+        <Search
+          label=""
+          size="small"
+          variant="simple"
+          onChange={(v: string) => setSearch(v)}
+          value={search}
+          className={styles.checkbox_search}
+        />
+      )}
+      {items
+        .filter((item) => item.label.toLocaleLowerCase().includes(search.toLocaleLowerCase()))
+        .map((item) => (
+          <Checkbox
+            key={item.value as string}
+            size="small"
+            onChange={() => onChange(item.value)}
+            checked={isChecked(item.value)}
+          >
+            {item.label}
+          </Checkbox>
+        ))}
+    </div>
   );
 }

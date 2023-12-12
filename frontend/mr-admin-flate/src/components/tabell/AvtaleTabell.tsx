@@ -33,24 +33,15 @@ async function lastNedFil(filter: AvtaleFilterProps) {
   headers.append("accept", "application/json");
 
   const queryParams = new URLSearchParams();
-  if (filter.tiltakstype) {
-    queryParams.set("tiltakstypeId", filter.tiltakstype);
-  }
+
   if (filter.sok) {
     queryParams.set("search", filter.sok);
   }
 
-  if (filter.status) {
-    queryParams.set("avtalestatus", filter.status);
-  }
-
-  if (filter.navRegion) {
-    queryParams.set("navRegion", filter.navRegion);
-  }
-
-  if (filter.leverandor_orgnr) {
-    queryParams.set("leverandorOrgnr", filter.leverandor_orgnr);
-  }
+  filter.tiltakstyper.forEach((tiltakstype) => queryParams.append("tiltakstypeIder", tiltakstype));
+  filter.statuser.forEach((status) => queryParams.append("avtalestatuser", status));
+  filter.navRegioner.forEach((region) => queryParams.append("navRegioner", region));
+  filter.leverandor_orgnr.forEach((orgnr) => queryParams.append("leverandorOrgnr", orgnr));
 
   queryParams.set("size", "10000");
 

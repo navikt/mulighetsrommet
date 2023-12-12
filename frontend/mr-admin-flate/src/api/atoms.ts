@@ -12,9 +12,9 @@ import { AVTALE_PAGE_SIZE, PAGE_SIZE } from "../constants";
 
 // Bump version number when localStorage should be cleared
 const version = localStorage.getItem("version");
-if (version !== "0.1.1") {
+if (version !== "0.1.2") {
   localStorage.clear();
-  localStorage.setItem("version", "0.1.1");
+  localStorage.setItem("version", "0.1.2");
 }
 
 /**
@@ -84,26 +84,26 @@ export const tiltakstypeFilterAtom = atomWithHashAndStorage<TiltakstypeFilter>(
 
 export interface TiltaksgjennomforingfilterProps {
   search: string;
-  navEnhet: string;
-  tiltakstype: string;
-  status?: TiltaksgjennomforingStatus;
+  navEnheter: string[];
+  tiltakstyper: string[];
+  statuser: TiltaksgjennomforingStatus[];
   sortering: SorteringTiltaksgjennomforinger;
-  navRegion: string;
+  navRegioner: string[];
   avtale: string;
-  arrangorOrgnr: string;
+  arrangorOrgnr: string[];
   antallGjennomforingerVises: number;
   visMineGjennomforinger: boolean;
 }
 
 export const defaultTiltaksgjennomforingfilter: TiltaksgjennomforingfilterProps = {
   search: "",
-  navEnhet: "",
-  tiltakstype: "",
-  status: TiltaksgjennomforingStatus.GJENNOMFORES,
+  navEnheter: [],
+  tiltakstyper: [],
+  statuser: [],
   sortering: SorteringTiltaksgjennomforinger.NAVN_ASCENDING,
-  navRegion: "",
+  navRegioner: [],
   avtale: "",
-  arrangorOrgnr: "",
+  arrangorOrgnr: [],
   antallGjennomforingerVises: PAGE_SIZE,
   visMineGjennomforinger: false,
 };
@@ -126,22 +126,22 @@ export const tiltaksgjennomforingTilAvtaleFilterAtom = atom<
 
 export interface AvtaleFilterProps {
   sok: string;
-  status?: Avtalestatus;
-  navRegion?: string;
-  tiltakstype: string;
+  statuser: Avtalestatus[];
+  navRegioner: string[];
+  tiltakstyper: string[];
   sortering: SorteringAvtaler;
-  leverandor_orgnr: string;
+  leverandor_orgnr: string[];
   antallAvtalerVises: number;
   visMineAvtaler: boolean;
 }
 
 export const defaultAvtaleFilter: AvtaleFilterProps = {
   sok: "",
-  status: Avtalestatus.AKTIV,
-  navRegion: "",
-  tiltakstype: "",
+  statuser: [],
+  navRegioner: [],
+  tiltakstyper: [],
   sortering: SorteringAvtaler.NAVN_ASCENDING,
-  leverandor_orgnr: "",
+  leverandor_orgnr: [],
   antallAvtalerVises: AVTALE_PAGE_SIZE,
   visMineAvtaler: false,
 };
