@@ -50,6 +50,13 @@ jobs:
         with:
           gradle-build-module: :mulighetsrommet-api
           sub-module-mode: INDIVIDUAL
+          gradle-build-configuration: |-
+            compileClasspath
+            implementation
+            runtimeClasspath
+            testCompileClasspath
+            testImplementation
+            testRuntimeClasspath
       - name: Build and push Docker image
         uses: nais/docker-build-push@v0
         id: docker-build-push
