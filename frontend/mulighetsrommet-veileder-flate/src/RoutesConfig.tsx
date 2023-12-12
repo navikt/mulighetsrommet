@@ -29,14 +29,10 @@ const RoutesConfig = () => {
       <Route path={routes.detaljer} element={<ViewTiltaksgjennomforingDetaljerContainer />}>
         <Route path={routes.detaljer_oppskrift} element={<Oppskrift />} />
       </Route>
-      <Route path={routes.oversikt} element={<ViewTiltaksgjennomforingOversikt />} />
       {visDeltakerregistrering ? (
-        <Route
-          path={routes.deltaker}
-          element={<DeltakerRegistrering fnr={fnr} deltakerliste="" />}
-        />
+        <Route path={routes.detaljer_deltaker} element={<DeltakerRegistrering fnr={fnr} />} />
       ) : null}
-
+      <Route path={routes.oversikt} element={<ViewTiltaksgjennomforingOversikt />} />
       <Route
         path="*"
         element={

@@ -3,10 +3,10 @@ import React from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { useLoadDeltakerRegistreringApp } from "../../core/api/useLoadDeltakerRegistreringApp";
 import { deltakerregistreringKometManifestUrl } from "../../urls";
+import { useGetTiltaksgjennomforingIdFraUrl } from "../../core/api/queries/useGetTiltaksgjennomforingIdFraUrl";
 
 interface Props {
   fnr: string;
-  deltakerliste: string;
 }
 
 export function DeltakerRegistrering(props: Props) {
@@ -36,11 +36,12 @@ export function DeltakerRegistrering(props: Props) {
   );
 }
 
-function DeltakerRegistreringKomponent({ fnr, deltakerliste }: Props) {
+function DeltakerRegistreringKomponent({ fnr }: Props) {
+  const tiltaksgjennomforingId = useGetTiltaksgjennomforingIdFraUrl();
   useLoadDeltakerRegistreringApp(deltakerregistreringKometManifestUrl);
 
   return React.createElement("arbeidsmarkedstiltak-deltaker", {
     "data-personident": fnr,
-    "data-deltakerlisteId": deltakerliste,
+    "data-deltakerlisteId": tiltaksgjennomforingId,
   });
 }
