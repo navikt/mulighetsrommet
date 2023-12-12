@@ -2,11 +2,14 @@ package no.nav.mulighetsrommet.api.services
 
 import arrow.core.Either
 import arrow.core.toNonEmptyListOrNull
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.encodeToJsonElement
 import kotliquery.TransactionalSession
 import no.nav.mulighetsrommet.api.avtaler.AvtaleValidator
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleAdminDto
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleNotificationDto
+import no.nav.mulighetsrommet.api.domain.dto.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.UtkastRepository
@@ -31,6 +34,7 @@ class AvtaleService(
     private val notificationRepository: NotificationRepository,
     private val utkastRepository: UtkastRepository,
     private val validator: AvtaleValidator,
+    private val endringshistorikkService: EndringshistorikkService,
     private val db: Database,
 ) {
     fun get(id: UUID): AvtaleAdminDto? {
@@ -48,7 +52,9 @@ class AvtaleService(
 
                     dispatchNotificationToNewAdministrators(tx, dbo, navIdent)
 
-                    avtaler.get(dbo.id, tx)!!
+                    val dto = getOrError(dbo.id, tx)
+                    logEndring("Redigerte avtale", dto, navIdent, tx)
+                    dto
                 }
             }
     }
@@ -83,8 +89,8 @@ class AvtaleService(
         return avtaler.getAllAvtalerSomNarmerSegSluttdato()
     }
 
-    fun avbrytAvtale(avtaleId: UUID): StatusResponse<Unit> {
-        val avtale = avtaler.get(avtaleId)
+    fun avbrytAvtale(id: UUID, navIdent: String): StatusResponse<Unit> {
+        val avtale = avtaler.get(id)
             ?: return Either.Left(NotFound("Avtalen finnes ikke"))
 
         if (avtale.opphav == Opphav.ARENA) {
@@ -95,7 +101,7 @@ class AvtaleService(
             return Either.Left(BadRequest(message = "Avtalen er allerede avsluttet og kan derfor ikke avbrytes."))
         }
 
-        val (antallGjennomforinger) = tiltaksgjennomforinger.getAll(avtaleId = avtaleId)
+        val (antallGjennomforinger) = tiltaksgjennomforinger.getAll(avtaleId = id)
         if (antallGjennomforinger > 0) {
             return Either.Left(
                 BadRequest(
@@ -108,7 +114,22 @@ class AvtaleService(
             )
         }
 
-        return Either.Right(avtaler.setAvslutningsstatus(avtaleId, Avslutningsstatus.AVBRUTT))
+        db.transaction { tx ->
+            avtaler.setAvslutningsstatus(tx, id, Avslutningsstatus.AVBRUTT)
+            val dto = getOrError(id, tx)
+            logEndring("Avtale ble avbrutt", dto, navIdent, tx)
+        }
+
+        return Either.Right(Unit)
+    }
+
+    fun getEndringshistorikk(id: UUID): EndringshistorikkDto {
+        return endringshistorikkService.getEndringshistorikk(DocumentClass.AVTALE, id)
+    }
+
+    private fun getOrError(id: UUID, tx: TransactionalSession): AvtaleAdminDto {
+        val dto = avtaler.get(id, tx)
+        return requireNotNull(dto) { "Avtale med id=$id finnes ikke" }
     }
 
     private fun dispatchNotificationToNewAdministrators(
@@ -128,5 +149,16 @@ class AvtaleService(
             createdAt = Instant.now(),
         )
         notificationRepository.insert(notification, tx)
+    }
+
+    private fun logEndring(
+        operation: String,
+        dto: AvtaleAdminDto,
+        navIdent: String,
+        tx: TransactionalSession,
+    ) {
+        endringshistorikkService.logEndring(tx, DocumentClass.AVTALE, operation, navIdent, dto.id) {
+            Json.encodeToJsonElement(dto)
+        }
     }
 }

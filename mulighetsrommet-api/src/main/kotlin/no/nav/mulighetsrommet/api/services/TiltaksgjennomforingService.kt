@@ -3,14 +3,12 @@ package no.nav.mulighetsrommet.api.services
 import arrow.core.Either
 import arrow.core.left
 import arrow.core.toNonEmptyListOrNull
-import io.ktor.server.plugins.*
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.encodeToJsonElement
 import kotliquery.TransactionalSession
 import no.nav.mulighetsrommet.api.clients.vedtak.Innsatsgruppe
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
-import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingAdminDto
-import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingDto
-import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingNotificationDto
-import no.nav.mulighetsrommet.api.domain.dto.VeilederflateTiltaksgjennomforing
+import no.nav.mulighetsrommet.api.domain.dto.*
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
@@ -40,6 +38,7 @@ class TiltaksgjennomforingService(
     private val tiltaksgjennomforingKafkaProducer: TiltaksgjennomforingKafkaProducer,
     private val notificationRepository: NotificationRepository,
     private val validator: TiltaksgjennomforingValidator,
+    private val documentHistoryService: EndringshistorikkService,
     private val db: Database,
 ) {
     suspend fun upsert(
@@ -56,14 +55,17 @@ class TiltaksgjennomforingService(
 
                     dispatchNotificationToNewAdministrators(tx, dbo, navIdent)
 
-                    val dto = tiltaksgjennomforinger.get(dbo.id, tx)!!
+                    val dto = getOrError(dbo.id, tx)
+                    logEndring("Redigerte gjennomføring", dto, navIdent, tx)
                     tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingDto.from(dto))
                     dto
                 }
             }
     }
 
-    fun get(id: UUID): TiltaksgjennomforingAdminDto? = tiltaksgjennomforinger.get(id)
+    fun get(id: UUID): TiltaksgjennomforingAdminDto? {
+        return tiltaksgjennomforinger.get(id)
+    }
 
     fun getAllSkalMigreres(
         pagination: PaginationParams,
@@ -146,16 +148,21 @@ class TiltaksgjennomforingService(
         return tiltaksgjennomforinger.getAllMidlertidigStengteGjennomforingerSomNarmerSegSluttdato()
     }
 
-    fun setTilgjengeligForVeileder(id: UUID, tilgjengeligForVeileder: Boolean) {
-        val updatedRows = tiltaksgjennomforinger.setTilgjengeligForVeileder(id, tilgjengeligForVeileder)
-        if (updatedRows != 1) {
-            throw NotFoundException("Gjennomføringen finnes ikke")
+    fun setTilgjengeligForVeileder(id: UUID, tilgjengeligForVeileder: Boolean, navIdent: String) {
+        db.transaction { tx ->
+            tiltaksgjennomforinger.setTilgjengeligForVeileder(tx, id, tilgjengeligForVeileder)
+            val dto = getOrError(id, tx)
+            val operation = if (tilgjengeligForVeileder) {
+                "Tilgjengelig for veileder"
+            } else {
+                "Ikke tilgjengelig for veileder"
+            }
+            logEndring(operation, dto, navIdent, tx)
         }
     }
 
-    fun setAvtale(gjennomforingId: UUID, avtaleId: UUID?): StatusResponse<Unit> {
-        val gjennomforing = tiltaksgjennomforinger.get(gjennomforingId)
-            ?: return NotFound("Tiltaksgjennomføring med id=$gjennomforingId finnes ikke").left()
+    fun setAvtale(id: UUID, avtaleId: UUID?, navIdent: String): StatusResponse<Unit> {
+        val gjennomforing = get(id) ?: return NotFound("Gjennomføringen finnes ikke").left()
 
         if (!isTiltakMedAvtalerFraMulighetsrommet(gjennomforing.tiltakstype.arenaKode)) {
             return BadRequest("Avtale kan bare settes for tiltaksgjennomføringer av type AFT eller VTA").left()
@@ -168,14 +175,17 @@ class TiltaksgjennomforingService(
             }
         }
 
-        tiltaksgjennomforinger.setAvtaleId(gjennomforingId, avtaleId)
+        db.transaction { tx ->
+            tiltaksgjennomforinger.setAvtaleId(tx, id, avtaleId)
+            val dto = getOrError(id, tx)
+            logEndring("Endret avtale", dto, navIdent, tx)
+        }
 
         return Either.Right(Unit)
     }
 
-    fun avbrytGjennomforing(gjennomforingId: UUID): StatusResponse<Unit> {
-        val gjennomforing = tiltaksgjennomforinger.get(gjennomforingId)
-            ?: return Either.Left(NotFound("Gjennomføringen finnes ikke"))
+    fun avbrytGjennomforing(id: UUID, navIdent: String): StatusResponse<Unit> {
+        val gjennomforing = get(id) ?: return Either.Left(NotFound("Gjennomføringen finnes ikke"))
 
         if (gjennomforing.opphav == ArenaMigrering.Opphav.ARENA) {
             return Either.Left(BadRequest(message = "Gjennomføringen har opprinnelse fra Arena og kan ikke bli avbrutt i admin-flate."))
@@ -185,18 +195,28 @@ class TiltaksgjennomforingService(
             return Either.Left(BadRequest(message = "Gjennomføringen kan ikke avbrytes fordi den allerede er avsluttet."))
         }
 
-        val antallDeltagere = deltakerRepository.getAll(gjennomforingId).size
+        val antallDeltagere = deltakerRepository.getAll(id).size
         if (antallDeltagere > 0) {
             return Either.Left(BadRequest(message = "Gjennomføringen kan ikke avbrytes fordi den har $antallDeltagere deltager(e) koblet til seg."))
         }
 
         db.transaction { tx ->
-            tiltaksgjennomforinger.setAvslutningsstatus(tx, gjennomforingId, Avslutningsstatus.AVBRUTT)
-            val dto = tiltaksgjennomforinger.get(gjennomforingId, tx)!!
+            tiltaksgjennomforinger.setAvslutningsstatus(tx, id, Avslutningsstatus.AVBRUTT)
+            val dto = getOrError(id, tx)
+            logEndring("Gjennomføring ble avbrutt", dto, navIdent, tx)
             tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingDto.from(dto))
         }
 
         return Either.Right(Unit)
+    }
+
+    fun getEndringshistorikk(id: UUID): EndringshistorikkDto {
+        return documentHistoryService.getEndringshistorikk(DocumentClass.TILTAKSGJENNOMFORING, id)
+    }
+
+    private fun getOrError(id: UUID, tx: TransactionalSession): TiltaksgjennomforingAdminDto {
+        val gjennomforing = tiltaksgjennomforinger.get(id, tx)
+        return requireNotNull(gjennomforing) { "Gjennomføringen med id=$id finnes ikke" }
     }
 
     private fun dispatchNotificationToNewAdministrators(
@@ -216,5 +236,16 @@ class TiltaksgjennomforingService(
             createdAt = Instant.now(),
         )
         notificationRepository.insert(notification, tx)
+    }
+
+    private fun logEndring(
+        operation: String,
+        dto: TiltaksgjennomforingAdminDto,
+        navIdent: String,
+        tx: TransactionalSession,
+    ) {
+        documentHistoryService.logEndring(tx, DocumentClass.TILTAKSGJENNOMFORING, operation, navIdent, dto.id) {
+            Json.encodeToJsonElement<TiltaksgjennomforingAdminDto>(dto)
+        }
     }
 }

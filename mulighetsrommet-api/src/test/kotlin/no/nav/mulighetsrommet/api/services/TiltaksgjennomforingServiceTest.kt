@@ -66,11 +66,12 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             tiltaksgjennomforingKafkaProducer,
             NotificationRepository(database.db),
             validator,
+            EndringshistorikkService(database.db),
             database.db,
         )
 
         test("Man skal ikke få avbryte dersom gjennomføringen ikke finnes") {
-            tiltaksgjennomforingService.avbrytGjennomforing(UUID.randomUUID()).shouldBeLeft(
+            tiltaksgjennomforingService.avbrytGjennomforing(UUID.randomUUID(), "B123456").shouldBeLeft(
                 NotFound(message = "Gjennomføringen finnes ikke"),
             )
         }
@@ -82,7 +83,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             )
             tiltaksgjennomforingRepository.upsert(gjennomforing)
 
-            tiltaksgjennomforingService.avbrytGjennomforing(gjennomforing.id).shouldBeLeft(
+            tiltaksgjennomforingService.avbrytGjennomforing(gjennomforing.id, "B123456").shouldBeLeft(
                 BadRequest(message = "Gjennomføringen har opprinnelse fra Arena og kan ikke bli avbrutt i admin-flate."),
             )
         }
@@ -98,7 +99,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             val deltager = DeltakerFixture.Deltaker.copy(tiltaksgjennomforingId = gjennomforing.id)
             deltagerRepository.upsert(deltager)
 
-            tiltaksgjennomforingService.avbrytGjennomforing(gjennomforing.id).shouldBeLeft(
+            tiltaksgjennomforingService.avbrytGjennomforing(gjennomforing.id, "B123456").shouldBeLeft(
                 BadRequest(message = "Gjennomføringen kan ikke avbrytes fordi den har 1 deltager(e) koblet til seg."),
             )
         }
@@ -111,7 +112,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             )
             tiltaksgjennomforingRepository.upsert(gjennomforing)
 
-            tiltaksgjennomforingService.avbrytGjennomforing(gjennomforing.id).shouldBeRight()
+            tiltaksgjennomforingService.avbrytGjennomforing(gjennomforing.id, "B123456").shouldBeRight()
         }
     }
 
@@ -129,6 +130,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             tiltaksgjennomforingKafkaProducer,
             NotificationRepository(database.db),
             validator,
+            EndringshistorikkService(database.db),
             database.db,
         )
 
@@ -161,6 +163,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             tiltaksgjennomforingKafkaProducer,
             NotificationRepository(database.db),
             validator,
+            EndringshistorikkService(database.db),
             database.db,
         )
         val navAnsattRepository = NavAnsattRepository(database.db)
@@ -278,6 +281,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             tiltaksgjennomforingKafkaProducer,
             notificationRepository,
             validator,
+            EndringshistorikkService(database.db),
             database.db,
         )
 
@@ -337,7 +341,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
 
             every { tiltaksgjennomforingKafkaProducer.publish(any()) } throws Exception()
 
-            shouldThrow<Throwable> { tiltaksgjennomforingService.avbrytGjennomforing(gjennomforing.id) }
+            shouldThrow<Throwable> { tiltaksgjennomforingService.avbrytGjennomforing(gjennomforing.id, "B123456") }
 
             tiltaksgjennomforingService.get(gjennomforing.id) should {
                 it!!.status shouldBe Tiltaksgjennomforingsstatus.GJENNOMFORES

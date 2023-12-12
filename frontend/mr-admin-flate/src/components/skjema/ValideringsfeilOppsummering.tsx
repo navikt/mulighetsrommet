@@ -1,6 +1,5 @@
 import { ExclamationmarkTriangleFillIcon } from "@navikt/aksel-icons";
 import { Button, ErrorSummary, Popover } from "@navikt/ds-react";
-import PopoverContent from "@navikt/ds-react/esm/popover/PopoverContent";
 import { useRef, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import styles from "./ValideringsfeilOppsummering.module.scss";
@@ -51,7 +50,7 @@ export function ValideringsfeilOppsummering() {
         onClose={() => setVisValideringsfeil(false)}
         anchorEl={visValideringsFeilTrekantRef.current}
       >
-        <PopoverContent>
+        <Popover.Content>
           <ErrorSummary
             className={styles.valideringsfeil}
             heading="Det er valideringsfeil i skjema"
@@ -64,7 +63,7 @@ export function ValideringsfeilOppsummering() {
               );
             })}
           </ErrorSummary>
-        </PopoverContent>
+        </Popover.Content>
       </Popover>
     </>
   );

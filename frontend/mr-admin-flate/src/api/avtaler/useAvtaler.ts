@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { WritableAtom, useAtom } from "jotai";
+import { useAtom, WritableAtom } from "jotai";
 import { useDebounce } from "mulighetsrommet-frontend-common";
 import { QueryKeys } from "../QueryKeys";
 import { AvtaleFilterProps, avtalePaginationAtomAtom } from "../atoms";
@@ -24,7 +24,7 @@ export function useAvtaler(
   };
 
   return useQuery({
-    queryKey: QueryKeys.avtaler({ ...filter, sok: debouncedSok }, page),
+    queryKey: QueryKeys.avtaler(filter.visMineAvtaler, page, { ...filter, sok: debouncedSok }),
 
     queryFn: () => {
       return filter.visMineAvtaler

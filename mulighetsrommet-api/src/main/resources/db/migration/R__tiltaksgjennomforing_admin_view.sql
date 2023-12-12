@@ -1,5 +1,4 @@
-drop view if exists tiltaksgjennomforing_admin_dto_view;
-create view tiltaksgjennomforing_admin_dto_view as
+create or replace view tiltaksgjennomforing_admin_dto_view as
 select tg.id::uuid,
        tg.navn,
        tg.tiltakstype_id,
@@ -12,14 +11,13 @@ select tg.id::uuid,
        t.navn                  as tiltakstype_navn,
        case
            when arena_nav_enhet.enhetsnummer is null then null::jsonb
-           else
-               jsonb_build_object(
-                       'enhetsnummer', arena_nav_enhet.enhetsnummer,
-                       'navn', arena_nav_enhet.navn,
-                       'type', arena_nav_enhet.type,
-                       'overordnetEnhet',
-                       arena_nav_enhet.overordnet_enhet) end
-                               as arena_ansvarlig_enhet,
+           else jsonb_build_object(
+                   'enhetsnummer', arena_nav_enhet.enhetsnummer,
+                   'navn', arena_nav_enhet.navn,
+                   'type', arena_nav_enhet.type,
+                   'overordnetEnhet',
+                   arena_nav_enhet.overordnet_enhet)
+           end                 as arena_ansvarlig_enhet,
        tg.avslutningsstatus,
        tg.apent_for_innsok,
        tg.sanity_id,

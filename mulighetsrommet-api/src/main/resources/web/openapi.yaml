@@ -382,6 +382,48 @@ paths:
               schema:
                 $ref: "#/components/schemas/TiltaksgjennomforingNotat"
 
+  /api/v1/internal/avtaler/{id}/historikk:
+    get:
+      tags:
+        - Avtaler
+      operationId: getAvtaleEndringshistorikk
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID for avtalen
+      responses:
+        200:
+          description: Endringshistorikken for avtalen
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Endringshistorikk"
+
+  /api/v1/internal/tiltaksgjennomforinger/{id}/historikk:
+    get:
+      tags:
+        - Tiltaksgjennomforinger
+      operationId: getTiltaksgjennomforingEndringshistorikk
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID for tiltaksgjennomføringen
+      responses:
+        200:
+          description: Endringshistorikken for tiltaksgjennomføringen
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Endringshistorikk"
+
   /api/v1/internal/notater/tiltaksgjennomforinger/mine:
     get:
       tags:
@@ -675,10 +717,6 @@ paths:
       responses:
         200:
           description: Update for 'tilgjengelig for veileder' was successful
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Tiltaksgjennomforing"
 
   /api/v1/internal/tiltaksgjennomforinger/enhet/{enhet}:
     parameters:
@@ -3041,6 +3079,59 @@ components:
         - id
         - avtaleId
         - innhold
+
+    Endringshistorikk:
+      type: object
+      properties:
+        entries:
+          type: array
+          items:
+            $ref: "#/components/schemas/EndringshistorikkEntry"
+      required:
+        - entries
+
+    EndringshistorikkEntry:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        operation:
+          type: string
+        editedAt:
+          type: string
+          format: date-time
+        editedBy:
+          $ref: "#/components/schemas/EndringshistorikkUser"
+      required:
+        - id
+        - operation
+        - editedAt
+        - editedBy
+
+    EndringshistorikkUser:
+      oneOf:
+        - $ref: "#/components/schemas/EndringshistorikkSystembruker"
+        - $ref: "#/components/schemas/EndringshistorikkNavAnsatt"
+
+    EndringshistorikkSystembruker:
+      type: object
+      properties:
+        navn:
+          type: string
+      required:
+        - navn
+
+    EndringshistorikkNavAnsatt:
+      type: object
+      properties:
+        navIdent:
+          type: string
+        navn:
+          type: string
+      required:
+        - navIdent
+        - navn
 
     TiltaksgjennomforingNotat:
       type: object

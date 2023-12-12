@@ -156,7 +156,11 @@ class AvtaleRepository(private val db: Database) {
         ).asExecute.let { tx.run(it) }
     }
 
-    fun upsertArenaAvtale(avtale: ArenaAvtaleDbo) {
+    fun upsertArenaAvtale(avtale: ArenaAvtaleDbo): Unit = db.transaction {
+        upsertArenaAvtale(it, avtale)
+    }
+
+    fun upsertArenaAvtale(tx: Session, avtale: ArenaAvtaleDbo) {
         logger.info("Lagrer avtale fra Arena id=${avtale.id}")
 
         @Language("PostgreSQL")
@@ -201,7 +205,7 @@ class AvtaleRepository(private val db: Database) {
             returning *
         """.trimIndent()
 
-        queryOf(query, avtale.toSqlParameters()).asExecute.let { db.run(it) }
+        queryOf(query, avtale.toSqlParameters()).asExecute.let { tx.run(it) }
     }
 
     fun get(id: UUID): AvtaleAdminDto? = db.transaction { get(id, it) }
@@ -309,6 +313,10 @@ class AvtaleRepository(private val db: Database) {
     }
 
     fun setAvslutningsstatus(id: UUID, status: Avslutningsstatus) {
+        db.transaction { setAvslutningsstatus(it, id, status) }
+    }
+
+    fun setAvslutningsstatus(tx: Session, id: UUID, status: Avslutningsstatus) {
         @Language("PostgreSQL")
         val query = """
             update avtale
@@ -318,10 +326,10 @@ class AvtaleRepository(private val db: Database) {
 
         queryOf(query, mapOf("id" to id, "status" to status.name))
             .asUpdate
-            .let { db.run(it) }
+            .let { tx.run(it) }
     }
 
-    fun delete(id: UUID) {
+    fun delete(tx: Session, id: UUID) {
         logger.info("Sletter avtale id=$id")
 
         @Language("PostgreSQL")
@@ -332,7 +340,7 @@ class AvtaleRepository(private val db: Database) {
 
         queryOf(query, id)
             .asUpdate
-            .let { db.run(it) }
+            .let { tx.run(it) }
     }
 
     private fun AvtaleDbo.toSqlParameters() = mapOf(
