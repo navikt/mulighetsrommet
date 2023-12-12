@@ -14,10 +14,12 @@ const RoutesConfig = () => {
   const enableLandingssideFeature = useFeatureToggle(
     Toggles.MULIGHETSROMMET_VEILEDERFLATE_LANDINGSSIDE,
   );
-  const visDeltakerregistrering = useFeatureToggle(
+  const visDeltakerregistreringFeature = useFeatureToggle(
     Toggles.MULIGHETSROMMET_VEILEDERFLATE_VIS_DELTAKER_REGISTRERING,
   );
   const enableLandingsside = enableLandingssideFeature.isSuccess && enableLandingssideFeature.data;
+  const visDeltakerregistrering =
+    visDeltakerregistreringFeature.isSuccess && visDeltakerregistreringFeature.data;
 
   if (enableLandingssideFeature.isLoading) {
     return null;
