@@ -1,19 +1,21 @@
 module.exports = {
+  root: true,
   env: {
     browser: true,
-    es2021: true,
+    es2022: true,
     node: true,
   },
-  extends: ["plugin:react/recommended", "standard", "prettier"],
+  extends: [
+    "eslint:recommended",
+    // TODO: utvid linting med dette
+    // "plugin:@typescript-eslint/recommended",
+    "plugin:react/recommended",
+    "plugin:react-hooks/recommended",
+    "prettier"
+  ],
+  ignorePatterns: ["dist", ".eslintrc.cjs"],
   parser: "@typescript-eslint/parser",
-  parserOptions: {
-    ecmaFeatures: {
-      jsx: false,
-    },
-    ecmaVersion: 12,
-    sourceType: "module",
-  },
-  plugins: ["react", "@typescript-eslint", "prettier"],
+  plugins: ["@typescript-eslint", "react-refresh", "prettier"],
   rules: {
     "no-undef": "off",
     "@typescript-eslint/no-use-before-define": ["off"],
@@ -27,6 +29,7 @@ module.exports = {
     "react-hooks/exhaustive-deps": ["off"],
     "react/react-in-jsx-scope": "off",
     "no-console": "error",
+    "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
   },
   settings: {
     react: {

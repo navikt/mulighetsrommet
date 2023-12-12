@@ -26,7 +26,7 @@ const CheckboxFilter = <T extends { id: string; tittel: string }>({
   const valgteTypeIDer = options.map((type) => type.id);
   const kebabCaseAccordionNavn = kebabCase(accordionNavn);
 
-  const handleEndreFilter = (filtertypeTittel: string, e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleEndreFilter = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     const valgteTyper = !valgteTypeIDer.includes(value)
       ? valgteTypeIDer.concat(value)
@@ -39,7 +39,7 @@ const CheckboxFilter = <T extends { id: string; tittel: string }>({
       <Checkbox
         key={`${filtertype.id}`}
         value={filtertype.id}
-        onChange={(e) => handleEndreFilter(filtertype.tittel, e)}
+        onChange={(e) => handleEndreFilter(e)}
       >
         {filtertype.tittel}
       </Checkbox>

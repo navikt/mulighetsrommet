@@ -1,4 +1,3 @@
-import React from "react";
 import { Search } from "@navikt/ds-react";
 import styles from "./Filtermeny.module.scss";
 

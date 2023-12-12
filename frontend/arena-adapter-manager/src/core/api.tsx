@@ -1,5 +1,6 @@
 import { Topic } from "../domain";
 import toast from "react-hot-toast";
+import { ErrorToast } from "../components/Toast";
 
 export class ApiError extends Error {
   constructor(
@@ -141,22 +142,3 @@ async function parseJson(response: Response) {
   return response.json();
 }
 
-const ErrorToast = (props: { title: string; error?: ApiError | Error }) => {
-  const status =
-    props.error instanceof ApiError ? `${props.error.status} ${props.error.statusText}` : null;
-  return (
-    <div>
-      <p>{props.title}</p>
-      {status && (
-        <p>
-          <code>Status: {status}</code>
-        </p>
-      )}
-      {props.error?.message && (
-        <p>
-          <code>Message: {props.error.message}</code>
-        </p>
-      )}
-    </div>
-  );
-};

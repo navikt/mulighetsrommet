@@ -13,7 +13,7 @@ function ReplayEvent() {
   const handleReplay = async (table: string, arenaIdInput: string) => {
     setLoading(true);
     const ids = arenaIdInput.split(",").map((id) => id.trim());
-    for (let id of ids) {
+    for (const id of ids) {
       await replayEvent(table, id);
     }
     setLoading(false);

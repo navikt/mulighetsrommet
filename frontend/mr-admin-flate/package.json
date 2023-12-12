@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "cross-env VITE_MULIGHETSROMMET_API_MOCK=true vite",
-    "lint": "eslint src --ext .js,.ts,.tsx && tsc",
-    "fix-lint": "eslint src --ext .js,.ts,.tsx --fix",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0 && tsc",
+    "fix-lint": "eslint . --ext .ts,.tsx --fix",
     "backend": "cross-env VITE_MULIGHETSROMMET_API_BASE='http://localhost:8080' vite",
     "build": "cross-env VITE_MULIGHETSROMMET_API_BASE='/mulighetsrommet-api' VITE_FARO_URL=https://telemetry.nav.no/collect vite build",
     "build:local": "cross-env VITE_MULIGHETSROMMET_API_BASE='http://localhost:8080' VITE_FARO_URL=http://localhost:1234 vite build",
@@ -71,13 +71,13 @@
     "eslint-plugin-prettier": "5.0.1",
     "eslint-plugin-promise": "6.1.1",
     "eslint-plugin-react": "7.33.2",
+    "eslint-plugin-react-hooks": "4.6.0",
+    "eslint-plugin-react-refresh": "0.4.4",
     "msw": "2.0.10",
     "rollup-plugin-import-map": "3.0.0",
     "typescript": "5.3.3",
-    "vite": "4.5.1",
-    "vite-plugin-css-injected-by-js": "3.3.0",
-    "vite-plugin-environment": "1.1.3",
-    "vitest": "0.34.6"
+    "vite": "5.0.7",
+    "vitest": "1.0.4"
   },
   "msw": {
     "workerDirectory": "public"

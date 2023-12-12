@@ -13,8 +13,9 @@ import {
 import { AiOutlineSetting } from "react-icons/ai";
 import { Link, useLocation } from "react-router-dom";
 import snoop from "../images/snoop.gif";
+import { IconType } from "react-icons";
 
-function NavButton({ children, icon, to }: { children: string; icon: any; to: string }) {
+function NavButton({ children, icon, to }: { children: string; icon: IconType; to: string }) {
   const location = useLocation();
   return (
     <Link to={to}>

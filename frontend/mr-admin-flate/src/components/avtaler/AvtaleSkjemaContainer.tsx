@@ -6,12 +6,12 @@ import {
   Avtaletype,
   EmbeddedTiltakstype,
   NavAnsatt,
+  NavEnhet,
   NavEnhetType,
   Opphav,
   Tiltakskode,
+  Tiltakstype,
 } from "mulighetsrommet-api-client";
-import { NavEnhet } from "mulighetsrommet-api-client/build/models/NavEnhet";
-import { Tiltakstype } from "mulighetsrommet-api-client/build/models/Tiltakstype";
 import { useEffect, useRef, useState } from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { v4 as uuidv4 } from "uuid";

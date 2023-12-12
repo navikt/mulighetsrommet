@@ -1,28 +1,10 @@
 import createCache from "@emotion/cache";
-import { CacheProvider, EmotionCache } from "@emotion/react";
-import { FunctionComponent, ReactNode, useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import urlJoin from "url-join";
 import { App } from "./App";
 import { AppContext } from "./AppContext";
+import { CustomEmotionCacheProvider } from "./CustomEmotionCacheProvider";
 import { APPLICATION_WEB_COMPONENT_NAME } from "./constants";
-
-interface Props {
-  cache: EmotionCache;
-  children: ReactNode;
-}
-
-// react-select css forsvinner når man bruker webcomponent og putter appen i shadowdom. Denne
-// hacken fikser det (ikke spør hvordan eller hvorfor).
-// se f. eks https://github.com/JedWatson/react-select/issues/3680 og
-// https://github.com/emotion-js/emotion/issues/3071#issuecomment-1623831600 for mer info
-const CustomEmotionCacheProvider: FunctionComponent<Props> = ({ cache, children }) => {
-  const [isFirstRender, setIsFirstRender] = useState(true);
-
-  useEffect(() => setIsFirstRender(false), []);
-
-  return <CacheProvider value={cache}>{!isFirstRender && children}</CacheProvider>;
-};
 
 interface ViteAssetManifest {
   "index.html": {
@@ -73,7 +55,7 @@ export class Arbeidsmarkedstiltak extends HTMLElement {
       });
   }
 
-  attributeChangedCallback(name: string, oldValue: string, newValue: string) {
+  attributeChangedCallback(name: string, _oldValue: string, newValue: string) {
     if (name === Arbeidsmarkedstiltak.FNR_PROP && this.updateContextData) {
       this.updateContextData("fnr", newValue);
     } else if (name === Arbeidsmarkedstiltak.ENHET_PROP && this.updateContextData) {

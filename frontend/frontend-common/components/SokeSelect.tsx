@@ -1,8 +1,8 @@
 import { HelpText } from "@navikt/ds-react";
 import classnames from "classnames";
-import React, { Ref } from "react";
+import { Ref } from "react";
 import ReactSelect from "react-select";
-import Select from "react-select/dist/declarations/src/Select";
+import Select from "react-select/base";
 
 export interface SelectOption<T = string> {
   value: T;

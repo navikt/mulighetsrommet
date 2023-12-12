@@ -34,15 +34,6 @@ const avtaleManglerNavRegionError = (avtaleId?: string) => (
   </>
 );
 
-export const tekniskFeilError = () => (
-  <>
-    <BodyShort>Gjennomføringen kunne ikke opprettes på grunn av en teknisk feil hos oss.</BodyShort>
-    <BodyShort>
-      Forsøk på nytt, eller ta <a href={PORTEN}>kontakt i Porten</a> dersom du trenger mer hjelp.
-    </BodyShort>
-  </>
-);
-
 export function ErrorMeldinger(avtale: Avtale | undefined) {
   if (!avtale) {
     return avtaleFinnesIkke();
