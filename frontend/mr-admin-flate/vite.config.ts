@@ -1,10 +1,8 @@
-/// <reference types="vitest" />
-import { defineConfig } from "vite";
+import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
 import { rollupImportMapPlugin } from "rollup-plugin-import-map";
 import importmap from "./importmap.json" assert { type: "json" };
 import terser from "@rollup/plugin-terser";
-import EnvironmentPlugin from "vite-plugin-environment";
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -21,7 +19,6 @@ export default defineConfig({
       apply: "build",
     },
     terser(),
-    EnvironmentPlugin({ NODE_ENV: process.env.NODE_ENV || "development" }),
   ],
   base: process.env.VITE_BASE || "/",
   build: {

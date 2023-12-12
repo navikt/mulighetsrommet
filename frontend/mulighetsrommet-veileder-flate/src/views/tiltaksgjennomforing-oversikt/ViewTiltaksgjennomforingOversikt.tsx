@@ -6,7 +6,7 @@ import { useTitle } from "mulighetsrommet-frontend-common";
 import { PORTEN } from "mulighetsrommet-frontend-common/constants";
 import { useEffect, useState } from "react";
 import { BrukersOppfolgingsenhetVarsel } from "../../components/brukersEnheter/BrukersOppfolgingsenhetVarsel";
-import { Feilmelding, forsokPaNyttLink } from "../../components/feilmelding/Feilmelding";
+import { Feilmelding, ForsokPaNyttLink } from "../../components/feilmelding/Feilmelding";
 import Filtermeny from "../../components/filtrering/Filtermeny";
 import { Filtertags } from "../../components/filtrering/Filtertags";
 import { HistorikkButton } from "../../components/historikk/HistorikkButton";
@@ -87,7 +87,7 @@ const ViewTiltaksgjennomforingOversikt = () => {
         beskrivelse={
           <>
             Brukers geografiske enhet kunne ikke hentes. Kontroller at brukeren er under oppfølging
-            og finnes i Arena, og {forsokPaNyttLink()}
+            og finnes i Arena, og {ForsokPaNyttLink()}
           </>
         }
         ikonvariant="error"
@@ -102,7 +102,7 @@ const ViewTiltaksgjennomforingOversikt = () => {
         beskrivelse={
           <>
             Vi kan ikke hente brukerens innsatsgruppe eller servicegruppe. Kontroller at brukeren er
-            under oppfølging og finnes i Arena, og <br /> {forsokPaNyttLink()}
+            under oppfølging og finnes i Arena, og <br /> {ForsokPaNyttLink()}
           </>
         }
         ikonvariant="error"
@@ -118,9 +118,7 @@ const ViewTiltaksgjennomforingOversikt = () => {
         <div className={styles.filtertags_og_knapperad}>
           <Filtertags filter={filter} setFilter={setFilter} />
           <div className={styles.knapperad}>
-            <>
-              <OversiktenJoyride />
-            </>
+            <OversiktenJoyride />
             <HistorikkButton
               setHistorikkModalOpen={setIsHistorikkModalOpen}
               isHistorikkModalOpen={isHistorikkModalOpen}

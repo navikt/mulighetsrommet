@@ -15,6 +15,7 @@ import { StatusModal } from "../StatusModal";
 import { DelMedBrukerContent, MAKS_ANTALL_TEGN_DEL_MED_BRUKER } from "./DelMedBrukerContent";
 import delemodalStyles from "./Delemodal.module.scss";
 import { Actions, State } from "./DelemodalActions";
+import { erBrukerResertMotElektroniskKommunikasjon } from "../../../utils/Bruker";
 
 interface DelemodalProps {
   brukernavn?: string;
@@ -25,28 +26,6 @@ interface DelemodalProps {
   harDeltMedBruker?: DelMedBruker;
   dispatch: (action: Actions) => void;
   state: State;
-}
-
-export function introTekst(brukernavn?: string) {
-  return `Hei ${brukernavn}\n\n`;
-}
-
-export function hilsenTekst(veiledernavn?: string) {
-  const interessant = "Er dette aktuelt for deg? Gi meg tilbakemelding her i dialogen.";
-  return veiledernavn
-    ? `${interessant}\n\nVi holder kontakten!\nHilsen ${veiledernavn}`
-    : `${interessant}\n\nVi holder kontakten!`;
-}
-
-export function sySammenTekster(
-  originaldeletekstFraTiltakstypen: string,
-  tiltaksgjennomforingsnavn: string,
-  brukernavn?: string,
-  veiledernavn?: string,
-) {
-  return `${introTekst(brukernavn)}${originaldeletekstFraTiltakstypen
-    .replaceAll("<Fornavn>", brukernavn ? `${brukernavn}` : "")
-    .replaceAll("<tiltaksnavn>", tiltaksgjennomforingsnavn)}\n\n${hilsenTekst(veiledernavn)}`;
 }
 
 export function Delemodal({
@@ -118,17 +97,17 @@ export function Delemodal({
     }
   };
 
-  const feilmelding = utledFeilmelding(brukerdata);
+  const { reservert, melding } = erBrukerResertMotElektroniskKommunikasjon(brukerdata);
 
   return (
     <>
-      {feilmelding ? (
+      {reservert ? (
         <StatusModal
           modalOpen={state.statusmodalOpen}
           onClose={lukkStatusmodal}
           ikonVariant="warning"
           heading="Kunne ikke dele tiltaket"
-          text={feilmelding}
+          text={melding}
           primaryButtonText="OK"
           primaryButtonOnClick={lukkStatusmodal}
         />
@@ -245,18 +224,4 @@ export function Delemodal({
       )}
     </>
   );
-}
-
-export function utledFeilmelding(brukerdata: Bruker) {
-  if (!brukerdata.manuellStatus) {
-    return "Vi kunne ikke opprette kontakt med KRR og vet derfor ikke om brukeren har reservert seg mot elektronisk kommunikasjon.";
-  } else if (brukerdata.manuellStatus.erUnderManuellOppfolging) {
-    return "Brukeren er under manuell oppfølging og kan derfor ikke benytte seg av våre digitale tjenester.";
-  } else if (brukerdata.manuellStatus.krrStatus && brukerdata.manuellStatus.krrStatus.erReservert) {
-    return "Brukeren har reservert seg mot elektronisk kommunikasjon i Kontakt- og reservasjonsregisteret (KRR).";
-  } else if (brukerdata.manuellStatus.krrStatus && !brukerdata.manuellStatus.krrStatus.kanVarsles) {
-    return "Brukeren er reservert mot elektronisk kommunikasjon i KRR. Vi kan derfor ikke kommunisere digitalt med denne brukeren.";
-  } else {
-    return null;
-  }
 }

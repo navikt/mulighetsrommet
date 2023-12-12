@@ -1,6 +1,11 @@
 import { Actions, State } from "./DelemodalActions";
+import { useReducer } from "react";
 
-export function reducer(state: State, action: Actions): State {
+export function useDelMedBruker(deletekst: string) {
+  return useReducer(reducer, { deletekst }, initInitialState);
+}
+
+function reducer(state: State, action: Actions): State {
   switch (action.type) {
     case "Avbryt":
       return {
@@ -61,7 +66,7 @@ export function reducer(state: State, action: Actions): State {
   }
 }
 
-export function initInitialState(tekster: { deletekst: string }): State {
+function initInitialState(tekster: { deletekst: string }): State {
   return {
     originalDeletekst: tekster.deletekst,
     deletekst: tekster.deletekst,

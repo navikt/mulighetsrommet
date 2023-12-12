@@ -131,7 +131,7 @@ export function utkastDataEllerDefault(
     oppstart: tiltaksgjennomforing?.oppstart || defaultOppstartType(avtale),
     apentForInnsok: tiltaksgjennomforing?.apentForInnsok,
     kontaktpersoner: defaultValuesForKontaktpersoner(tiltaksgjennomforing?.kontaktpersoner),
-    stedForGjennomforing: tiltaksgjennomforing?.stedForGjennomforing,
+    stedForGjennomforing: tiltaksgjennomforing?.stedForGjennomforing ?? null,
     arrangorKontaktpersonId: tiltaksgjennomforing?.arrangor?.kontaktperson?.id,
     beskrivelse: tiltaksgjennomforing?.beskrivelse ?? null,
     faneinnhold: tiltaksgjennomforing?.faneinnhold ?? {
