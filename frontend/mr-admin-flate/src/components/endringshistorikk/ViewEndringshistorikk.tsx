@@ -8,12 +8,10 @@ import styles from "./ViewEndringshistorikk.module.scss";
 
 export interface ViewEndringshistorikkProps {
   historikk: Endringshistorikk;
-
-  operationToDescription(operation: string): string;
 }
 
 export function ViewEndringshistorikk(props: ViewEndringshistorikkProps) {
-  const { historikk, operationToDescription } = props;
+  const { historikk } = props;
 
   if (historikk.entries.length === 0) {
     return <div>Endringshistorikken er tom</div>;
@@ -28,7 +26,7 @@ export function ViewEndringshistorikk(props: ViewEndringshistorikkProps) {
 
         return (
           <li key={editedAt}>
-            {formaterDatoTid(editedAt)} - <b>{operationToDescription(operation)}</b> - {user}
+            {formaterDatoTid(editedAt)} - <b>{operation}</b> - {user}
           </li>
         );
       })}

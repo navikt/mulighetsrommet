@@ -40,21 +40,5 @@ export function TiltaksgjennomforingKnapperad({ style, tiltaksgjennomforing }: P
 function TiltaksgjennomforingEndringshistorikk({ id }: { id: string }) {
   const historikk = useTiltaksgjennomforingEndringshistorikk(id);
 
-  function operationToDescription(operation: string): string {
-    const descriptions: { [operation: string]: string } = {
-      OPPDATERT: "Redigerte tiltaksgjennomføring",
-      TILGJENGELIG_FOR_VEILEDER: "Tilgjengelig for veileder",
-      IKKE_TILGJENGELIG_FOR_VEILEDER: "Ikke tilgjengelig for veileder",
-      AVTALE_ENDRET: "Avtale endret",
-      AVBRUTT: "Avbrutt",
-    };
-    return descriptions[operation] ?? operation;
-  }
-
-  return (
-    <ViewEndringshistorikk
-      historikk={historikk.data}
-      operationToDescription={operationToDescription}
-    />
-  );
+  return <ViewEndringshistorikk historikk={historikk.data} />;
 }

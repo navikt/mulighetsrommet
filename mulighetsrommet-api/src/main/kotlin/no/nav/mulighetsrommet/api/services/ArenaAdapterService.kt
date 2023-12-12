@@ -238,7 +238,7 @@ class ArenaAdapterService(
         endringshistorikk.logEndring(
             tx,
             documentClass,
-            "OPPDATERT",
+            "Endret i Arena",
             "Arena",
             id,
         ) { Json.encodeToJsonElement(value) }
@@ -252,7 +252,7 @@ class ArenaAdapterService(
         endringshistorikk.logEndring(
             tx,
             documentClass,
-            "SLETTET",
+            "Slettet i Arena",
             "Arena",
             id,
         ) { JsonNull }

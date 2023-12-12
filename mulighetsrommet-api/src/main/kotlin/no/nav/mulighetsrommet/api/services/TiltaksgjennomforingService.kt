@@ -56,7 +56,7 @@ class TiltaksgjennomforingService(
                     dispatchNotificationToNewAdministrators(tx, dbo, navIdent)
 
                     val dto = getOrError(dbo.id, tx)
-                    logEndring("OPPDATERT", dto, navIdent, tx)
+                    logEndring("Redigerte gjennomføring", dto, navIdent, tx)
                     tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingDto.from(dto))
                     dto
                 }
@@ -153,9 +153,9 @@ class TiltaksgjennomforingService(
             tiltaksgjennomforinger.setTilgjengeligForVeileder(tx, id, tilgjengeligForVeileder)
             val dto = getOrError(id, tx)
             val operation = if (tilgjengeligForVeileder) {
-                "TILGJENGELIG_FOR_VEILEDER"
+                "Tilgjengelig for veileder"
             } else {
-                "IKKE_TILGJENGELIG_FOR_VEILEDER"
+                "Ikke tilgjengelig for veileder"
             }
             logEndring(operation, dto, navIdent, tx)
         }
@@ -178,7 +178,7 @@ class TiltaksgjennomforingService(
         db.transaction { tx ->
             tiltaksgjennomforinger.setAvtaleId(tx, id, avtaleId)
             val dto = getOrError(id, tx)
-            logEndring("AVTALE_ENDRET", dto, navIdent, tx)
+            logEndring("Endret avtale", dto, navIdent, tx)
         }
 
         return Either.Right(Unit)
@@ -203,7 +203,7 @@ class TiltaksgjennomforingService(
         db.transaction { tx ->
             tiltaksgjennomforinger.setAvslutningsstatus(tx, id, Avslutningsstatus.AVBRUTT)
             val dto = getOrError(id, tx)
-            logEndring("AVBRUTT", dto, navIdent, tx)
+            logEndring("Gjennomføring ble avbrutt", dto, navIdent, tx)
             tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingDto.from(dto))
         }
 

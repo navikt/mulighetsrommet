@@ -26,18 +26,5 @@ export function AvtaleKnapperad({ avtale }: Props) {
 function AvtaleEndringshistorikk({ id }: { id: string }) {
   const historikk = useAvtaleEndringshistorikk(id);
 
-  function operationToDescription(operation: string): string {
-    const descriptions: { [operation: string]: string } = {
-      OPPDATERT: "Redigerte avtale",
-      AVBRUTT: "Avbrutt",
-    };
-    return descriptions[operation] ?? operation;
-  }
-
-  return (
-    <ViewEndringshistorikk
-      historikk={historikk.data}
-      operationToDescription={operationToDescription}
-    />
-  );
+  return <ViewEndringshistorikk historikk={historikk.data} />;
 }

@@ -53,7 +53,7 @@ class AvtaleService(
                     dispatchNotificationToNewAdministrators(tx, dbo, navIdent)
 
                     val dto = getOrError(dbo.id, tx)
-                    logEndring("OPPDATERT", dto, navIdent, tx)
+                    logEndring("Redigerte avtale", dto, navIdent, tx)
                     dto
                 }
             }
@@ -117,7 +117,7 @@ class AvtaleService(
         db.transaction { tx ->
             avtaler.setAvslutningsstatus(tx, id, Avslutningsstatus.AVBRUTT)
             val dto = getOrError(id, tx)
-            logEndring("AVBRUTT", dto, navIdent, tx)
+            logEndring("Avtale ble avbrutt", dto, navIdent, tx)
         }
 
         return Either.Right(Unit)
