@@ -20,7 +20,6 @@ import TiltaksgjennomforingSkjemaPage from "./components/tiltaksgjennomforinger/
 import { UtkastListe } from "./components/utkast/Utkastliste";
 import { DeltakerListe } from "./microfrontends/team_komet/Deltakerliste";
 import { ErrorPage } from "./pages/ErrorPage";
-import { AvtaleDetaljer } from "./pages/avtaler/AvtaleDetaljer";
 import { AvtalerPage } from "./pages/avtaler/AvtalerPage";
 import { DetaljerAvtalePage } from "./pages/avtaler/DetaljerAvtalePage";
 import { TiltaksgjennomforingerForAvtale } from "./pages/avtaler/tiltaksgjennomforinger/TiltaksgjennomforingerForAvtale";
@@ -34,6 +33,7 @@ import { TiltakstyperPage } from "./pages/tiltakstyper/TiltakstyperPage";
 import { AvtalerForTiltakstype } from "./pages/tiltakstyper/avtaler/AvtalerForTiltakstype";
 import { useAdminTiltaksgjennomforinger } from "./api/tiltaksgjennomforing/useAdminTiltaksgjennomforinger";
 import { useFeatureToggle } from "./api/features/feature-toggles";
+import { AvtaleInfo } from "./pages/avtaler/AvtaleInfo";
 
 if (import.meta.env.PROD) {
   initializeFaro({
@@ -112,7 +112,7 @@ export function App() {
         />
       </Route>
       <Route path="avtaler/:avtaleId" element={<DetaljerAvtalePage />} errorElement={<ErrorPage />}>
-        <Route index element={<AvtaleDetaljer />} errorElement={<ErrorPage />} />
+        <Route index element={<AvtaleInfo />} errorElement={<ErrorPage />} />
         {showNotater && (
           <Route path="notater" element={<NotaterAvtalePage />} errorElement={<ErrorPage />} />
         )}

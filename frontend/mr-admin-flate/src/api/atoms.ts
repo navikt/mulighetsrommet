@@ -157,3 +157,5 @@ export const avtaleFilterForTiltakstypeAtom = atomWithHashAndStorage<AvtaleFilte
 );
 
 export const gjennomforingDetaljerTabAtom = atom<string>("detaljer");
+
+export const avtaleDetaljerTabAtom = atom<"detaljer" | "redaksjonelt-innhold">("detaljer");
