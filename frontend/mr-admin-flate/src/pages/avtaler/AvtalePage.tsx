@@ -12,7 +12,7 @@ import { useTitle } from "mulighetsrommet-frontend-common";
 import { Toggles } from "mulighetsrommet-api-client";
 import { useFeatureToggle } from "../../api/features/feature-toggles";
 
-export function DetaljerAvtalePage() {
+export function AvtalePage() {
   const avtaleId = useGetAvtaleIdFromUrl();
   const { pathname } = useLocation();
   const navigate = useNavigate();

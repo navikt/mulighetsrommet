@@ -21,7 +21,7 @@ import { UtkastListe } from "./components/utkast/Utkastliste";
 import { DeltakerListe } from "./microfrontends/team_komet/Deltakerliste";
 import { ErrorPage } from "./pages/ErrorPage";
 import { AvtalerPage } from "./pages/avtaler/AvtalerPage";
-import { DetaljerAvtalePage } from "./pages/avtaler/DetaljerAvtalePage";
+import { AvtalePage } from "./pages/avtaler/AvtalePage";
 import { TiltaksgjennomforingerForAvtale } from "./pages/avtaler/tiltaksgjennomforinger/TiltaksgjennomforingerForAvtale";
 import { NotifikasjonerPage } from "./pages/notifikasjoner/NotifikasjonerPage";
 import { TiltaksgjennomforingInfo } from "./pages/tiltaksgjennomforinger/TiltaksgjennomforingInfo";
@@ -111,7 +111,7 @@ export function App() {
           errorElement={<ErrorPage />}
         />
       </Route>
-      <Route path="avtaler/:avtaleId" element={<DetaljerAvtalePage />} errorElement={<ErrorPage />}>
+      <Route path="avtaler/:avtaleId" element={<AvtalePage />} errorElement={<ErrorPage />}>
         <Route index element={<AvtaleInfo />} errorElement={<ErrorPage />} />
         {showNotater && (
           <Route path="notater" element={<NotaterAvtalePage />} errorElement={<ErrorPage />} />
