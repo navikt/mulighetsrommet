@@ -290,15 +290,19 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
                   header="Fremmøte tidspunkt"
                   verdi={
                     <div>
-                      {`${fremmoteDatoFromTidspunkt(
-                        tiltaksgjennomforing.fremmoteTidspunkt,
-                      )} ${fremmoteTidFromTidspunkt(tiltaksgjennomforing.fremmoteTidspunkt)}`}
+                      {`${formaterDato(
+                        fremmoteDatoFromTidspunkt(tiltaksgjennomforing.fremmoteTidspunkt),
+                        "Ikke satt",
+                      )} ${fremmoteTidFromTidspunkt(tiltaksgjennomforing.fremmoteTidspunkt) ?? ""}`}
                     </div>
                   }
                 />
               </Bolk>
               <Bolk aria-label="Antall plasser">
-                <Metadata header="Fremmøte sted" verdi={tiltaksgjennomforing.fremmoteSted} />
+                <Metadata
+                  header="Fremmøte sted"
+                  verdi={tiltaksgjennomforing.fremmoteSted ?? "Ikke satt"}
+                />
               </Bolk>
             </>
           ) : tiltaksgjennomforing.stedForGjennomforing ? (
