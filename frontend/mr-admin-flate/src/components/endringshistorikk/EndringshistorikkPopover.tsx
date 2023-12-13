@@ -34,7 +34,9 @@ export function EndringshistorikkPopover({ children }: EndringshistorikkPopoverP
       >
         <Popover.Content>
           <React.Suspense fallback={<Loader title="Laster endringshistorikk" />}>
-            <ErrorBoundary FallbackComponent={ErrorFallback}>{children}</ErrorBoundary>
+            <ErrorBoundary FallbackComponent={ErrorFallback}>
+              {open ? children : null}
+            </ErrorBoundary>
           </React.Suspense>
         </Popover.Content>
       </Popover>
