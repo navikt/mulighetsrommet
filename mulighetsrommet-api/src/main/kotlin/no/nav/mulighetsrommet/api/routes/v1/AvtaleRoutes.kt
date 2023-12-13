@@ -81,9 +81,16 @@ fun Route.avtaleRoutes() {
                 ?: call.respond(HttpStatusCode.NotFound, "Det finnes ikke noen avtale med id $id")
         }
 
+        get("{id}/historikk") {
+            val id: UUID by call.parameters
+            val historikk = avtaler.getEndringshistorikk(id)
+            call.respond(historikk)
+        }
+
         put("{id}/avbryt") {
             val id = call.parameters.getOrFail<UUID>("id")
-            val response = avtaler.avbrytAvtale(id)
+            val navIdent = getNavIdent()
+            val response = avtaler.avbrytAvtale(id, navIdent)
             call.respondWithStatusResponse(response)
         }
     }
@@ -130,5 +137,8 @@ data class AvtaleRequest(
         navEnheter = navEnheter,
         opphav = opphav,
         updatedAt = LocalDate.now().atStartOfDay(),
+        // TODO: frontend
+        beskrivelse = null,
+        faneinnhold = null,
     )
 }

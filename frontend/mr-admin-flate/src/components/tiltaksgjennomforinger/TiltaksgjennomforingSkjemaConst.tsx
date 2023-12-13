@@ -99,7 +99,7 @@ export function fremmoteTidFromTidspunkt(fremmoteTidspunkt?: string): string | u
   if (!fremmoteTidspunkt) return undefined;
   const d = new Date(fremmoteTidspunkt);
 
-  return `${d.getHours()}:${d.getMinutes()}`;
+  return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
 }
 
 export function utkastDataEllerDefault(

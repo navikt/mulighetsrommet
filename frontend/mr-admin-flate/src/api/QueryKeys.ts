@@ -15,13 +15,16 @@ export const QueryKeys = {
     tiltaksgjennomforingfilter?: TiltaksgjennomforingfilterProps,
   ) => ["tiltaksgjennomforinger", page, { ...tiltaksgjennomforingfilter }] as const,
   tiltaksgjennomforing: (id?: string) => ["tiltaksgjennomforing", id] as const,
+  tiltaksgjennomforingHistorikk: (id?: string) =>
+    ["tiltaksgjennomforing", id, "historikk"] as const,
   tiltaksgjennomforingerByEnhet: (enhet: string = "enhet", page?: number) =>
     [enhet, page, "tiltaksgjennomforinger"] as const,
   veilederflateTiltaksgjennomforing: (id: string) => [id, "tiltaksgjennomforing"] as const,
   ansatt: () => ["ansatt"] as const,
-  avtaler: (avtaleFilter: AvtaleFilterProps, page: number) =>
-    ["avtaler", page, { ...avtaleFilter }] as const,
-  avtale: (avtaleId: string) => ["avtale", avtaleId],
+  avtaler: (mine?: boolean, page?: number, avtaleFilter?: AvtaleFilterProps) =>
+    ["avtaler", mine, page, { ...avtaleFilter }] as const,
+  avtale: (id: string) => ["avtale", id],
+  avtaleHistorikk: (id?: string) => ["avtale", id, "historikk"] as const,
   enheter: () => ["enheter"],
   virksomheter: (til?: VirksomhetTil) => ["virksomheter", til],
   antallUlesteNotifikasjoner: () => ["antallUlesteNotifikasjoner"],

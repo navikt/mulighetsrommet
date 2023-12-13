@@ -71,6 +71,7 @@ const TiltaksdetaljerFane = ({ tiltaksgjennomforing }: Props) => {
           name: "arbeidsmarkedstiltak.fanevalg",
           data: {
             faneValgt: getFaneValgt(value as TabsType),
+            tiltakstype: tiltaksgjennomforing.tiltakstype.navn,
           },
         });
       }}

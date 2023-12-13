@@ -63,23 +63,32 @@ fun Route.tiltaksgjennomforingRoutes() {
                 ?: call.respond(HttpStatusCode.NotFound, "Ingen tiltaksgjennomføring med id=$id")
         }
 
+        get("{id}/historikk") {
+            val id: UUID by call.parameters
+            val historikk = service.getEndringshistorikk(id)
+            call.respond(historikk)
+        }
+
         put("{id}/avtale") {
             val id = call.parameters.getOrFail<UUID>("id")
+            val navIdent = getNavIdent()
             val request = call.receive<SetAvtaleForGjennomforingRequest>()
-            val response = service.setAvtale(id, request.avtaleId)
+            val response = service.setAvtale(id, request.avtaleId, navIdent)
             call.respondWithStatusResponse(response)
         }
 
         put("{id}/avbryt") {
             val id = call.parameters.getOrFail<UUID>("id")
-            val response = service.avbrytGjennomforing(id)
+            val navIdent = getNavIdent()
+            val response = service.avbrytGjennomforing(id, navIdent)
             call.respondWithStatusResponse(response)
         }
 
         put("{id}/tilgjengelig-for-veileder") {
             val id = call.parameters.getOrFail<UUID>("id")
+            val navIdent = getNavIdent()
             val request = call.receive<TilgjengeligForVeilederRequest>()
-            service.setTilgjengeligForVeileder(id, request.tilgjengeligForVeileder)
+            service.setTilgjengeligForVeileder(id, request.tilgjengeligForVeileder, navIdent)
             call.respond(HttpStatusCode.OK)
         }
     }

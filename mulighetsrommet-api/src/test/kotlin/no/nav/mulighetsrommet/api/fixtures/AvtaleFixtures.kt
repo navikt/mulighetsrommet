@@ -31,6 +31,8 @@ object AvtaleFixtures {
         antallPlasser = null,
         url = null,
         updatedAt = LocalDate.now().atStartOfDay(),
+        beskrivelse = null,
+        faneinnhold = null,
     )
 
     val avtaleRequest = AvtaleRequest(

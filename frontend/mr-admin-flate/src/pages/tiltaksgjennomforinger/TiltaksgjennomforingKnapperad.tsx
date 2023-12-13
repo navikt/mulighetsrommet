@@ -4,6 +4,9 @@ import { useMutateTilgjengeligForVeileder } from "../../api/tiltaksgjennomforing
 import { Lenkeknapp } from "../../components/lenkeknapp/Lenkeknapp";
 import styles from "../DetaljerInfo.module.scss";
 import { Tiltaksgjennomforing } from "mulighetsrommet-api-client";
+import { useTiltaksgjennomforingEndringshistorikk } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforingEndringshistorikk";
+import { EndringshistorikkPopover } from "../../components/endringshistorikk/EndringshistorikkPopover";
+import { ViewEndringshistorikk } from "../../components/endringshistorikk/ViewEndringshistorikk";
 
 interface Props {
   style?: React.CSSProperties;
@@ -23,9 +26,19 @@ export function TiltaksgjennomforingKnapperad({ style, tiltaksgjennomforing }: P
         Tilgjengelig for veileder
       </Switch>
 
+      <EndringshistorikkPopover>
+        <TiltaksgjennomforingEndringshistorikk id={tiltaksgjennomforing.id} />
+      </EndringshistorikkPopover>
+
       <Lenkeknapp size="small" to={`skjema`} variant="primary">
         Rediger
       </Lenkeknapp>
     </div>
   );
+}
+
+function TiltaksgjennomforingEndringshistorikk({ id }: { id: string }) {
+  const historikk = useTiltaksgjennomforingEndringshistorikk(id);
+
+  return <ViewEndringshistorikk historikk={historikk.data} />;
 }
