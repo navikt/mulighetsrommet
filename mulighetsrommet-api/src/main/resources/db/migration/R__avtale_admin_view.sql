@@ -38,7 +38,9 @@ select a.id,
                    when aa.nav_ident is null then null::jsonb
                    else jsonb_build_object('navIdent', aa.nav_ident, 'navn', concat(na.fornavn, ' ', na.etternavn))
                    end
-           )                                                                    as administratorer
+           )                                                                    as administratorer,
+       a.beskrivelse,
+       a.faneinnhold
 from avtale a
          join tiltakstype t on t.id = a.tiltakstype_id
          left join avtale_administrator aa on a.id = aa.avtale_id
