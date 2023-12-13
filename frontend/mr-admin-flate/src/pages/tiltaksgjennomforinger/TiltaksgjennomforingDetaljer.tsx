@@ -1,10 +1,6 @@
 import { ExclamationmarkTriangleIcon, ExternalLinkIcon } from "@navikt/aksel-icons";
 import { Heading, HelpText } from "@navikt/ds-react";
-import {
-  Avtale,
-  Tiltaksgjennomforing,
-  TiltaksgjennomforingOppstartstype,
-} from "mulighetsrommet-api-client";
+import { Avtale, Tiltaksgjennomforing } from "mulighetsrommet-api-client";
 import { NOM_ANSATT_SIDE } from "mulighetsrommet-frontend-common/constants";
 import { Bolk } from "../../components/detaljside/Bolk";
 import { Metadata, Separator } from "../../components/detaljside/Metadata";
@@ -180,28 +176,6 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
               }
             />
           </Bolk>
-
-          <VisHvisVerdi
-            verdi={tiltaksgjennomforing.oppstart === TiltaksgjennomforingOppstartstype.FELLES}
-          >
-            <Separator />
-            <Bolk aria-label="Fremmøte">
-              <Metadata
-                header="Fremmøte tidspunkt"
-                verdi={
-                  <div>
-                    {`${fremmoteDatoFromTidspunkt(
-                      tiltaksgjennomforing.fremmoteTidspunkt,
-                    )} ${fremmoteTidFromTidspunkt(tiltaksgjennomforing.fremmoteTidspunkt)}`}
-                  </div>
-                }
-              />
-            </Bolk>
-            <Bolk aria-label="Antall plasser">
-              <Metadata header="Fremmøte sted" verdi={tiltaksgjennomforing.fremmoteSted} />
-            </Bolk>
-          </VisHvisVerdi>
-
           <VisHvisVerdi verdi={tiltaksgjennomforing.sanityId}>
             <Separator />
             <Bolk aria-label="Sanity-dokument">
@@ -291,16 +265,6 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
               />
             </Bolk>
           </VisHvisVerdi>
-
-          <VisHvisVerdi verdi={tiltaksgjennomforing.stedForGjennomforing}>
-            <Bolk aria-label="Sted for gjennomføringen">
-              <Metadata
-                header="Sted for gjennomføringen"
-                verdi={tiltaksgjennomforing.stedForGjennomforing}
-              />
-            </Bolk>
-          </VisHvisVerdi>
-
           {tiltaksgjennomforing.arrangor.kontaktperson && (
             <Metadata
               header="Kontaktperson hos arrangør"
@@ -318,6 +282,36 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
               }
             />
           )}
+          {isTiltakMedFellesOppstart(tiltaksgjennomforing.tiltakstype.arenaKode) ? (
+            <>
+              <Separator />
+              <Bolk aria-label="Fremmøte">
+                <Metadata
+                  header="Fremmøte tidspunkt"
+                  verdi={
+                    <div>
+                      {`${fremmoteDatoFromTidspunkt(
+                        tiltaksgjennomforing.fremmoteTidspunkt,
+                      )} ${fremmoteTidFromTidspunkt(tiltaksgjennomforing.fremmoteTidspunkt)}`}
+                    </div>
+                  }
+                />
+              </Bolk>
+              <Bolk aria-label="Antall plasser">
+                <Metadata header="Fremmøte sted" verdi={tiltaksgjennomforing.fremmoteSted} />
+              </Bolk>
+            </>
+          ) : tiltaksgjennomforing.stedForGjennomforing ? (
+            <>
+              <Separator />
+              <Bolk aria-label="Sted for gjennomføringen">
+                <Metadata
+                  header="Sted for gjennomføringen"
+                  verdi={tiltaksgjennomforing.stedForGjennomforing}
+                />
+              </Bolk>
+            </>
+          ) : null}
         </div>
       </div>
     </>
