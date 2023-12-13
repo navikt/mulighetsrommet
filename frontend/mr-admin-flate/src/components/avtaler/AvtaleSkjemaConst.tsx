@@ -1,4 +1,3 @@
-import { UseMutationResult } from "@tanstack/react-query";
 import {
   Avtale,
   Avtaletype,
@@ -7,46 +6,10 @@ import {
   NavEnhet,
   NavEnhetType,
   Opphav,
-  UtkastRequest as Utkast,
-  UtkastDto,
   Virksomhet,
 } from "mulighetsrommet-api-client";
-import { MutableRefObject } from "react";
 import { DeepPartial } from "react-hook-form";
 import { InferredAvtaleSchema } from "./AvtaleSchema";
-
-export type AvtaleUtkastData = Partial<InferredAvtaleSchema> & {
-  avtaleId: string;
-  id: string;
-};
-
-export const saveUtkast = (
-  values: InferredAvtaleSchema,
-  avtale: Avtale,
-  ansatt: NavAnsatt,
-  utkastIdRef: MutableRefObject<string>,
-  mutationUtkast: UseMutationResult<UtkastDto, unknown, Utkast, unknown>,
-  setLagreState: (state: string) => void,
-) => {
-  const utkastData: AvtaleUtkastData = {
-    ...values,
-    avtaleId: avtale?.id || utkastIdRef.current,
-    id: avtale?.id || utkastIdRef.current,
-  };
-
-  if (!values.navn) {
-    setLagreState("For å lagre utkast må du gi utkastet et navn");
-    return;
-  }
-
-  mutationUtkast.mutate({
-    id: utkastIdRef.current,
-    utkastData,
-    type: Utkast.type.AVTALE,
-    opprettetAv: ansatt?.navIdent,
-    avtaleId: utkastIdRef.current,
-  });
-};
 
 export const getLokaleUnderenheterAsSelectOptions = (
   navRegioner: string[],
@@ -72,9 +35,8 @@ export const underenheterOptions = (underenheterForLeverandor: Virksomhet[]) =>
     label: `${leverandor.navn} - ${leverandor.organisasjonsnummer}`,
   }));
 
-export function utkastDataEllerDefault(
+export function defaultAvtaleData(
   ansatt: NavAnsatt,
-  utkast?: AvtaleUtkastData,
   avtale?: Avtale,
 ): DeepPartial<InferredAvtaleSchema> {
   const navRegioner = avtale?.kontorstruktur.map((struktur) => struktur.region.enhetsnummer) ?? [];
@@ -105,6 +67,5 @@ export function utkastDataEllerDefault(
     url: avtale?.url ?? undefined,
     prisbetingelser: avtale?.prisbetingelser ?? undefined,
     opphav: avtale?.opphav ?? Opphav.MR_ADMIN_FLATE,
-    ...utkast,
   };
 }

@@ -1,29 +1,23 @@
 import { initializeFaro } from "@grafana/faro-web-sdk";
 import { Alert, BodyShort } from "@navikt/ds-react";
-import { NavAnsattRolle, Toggles, UtkastRequest as Utkast } from "mulighetsrommet-api-client";
+import { NavAnsattRolle, Toggles } from "mulighetsrommet-api-client";
 import { Route, Routes } from "react-router-dom";
 import { Forside } from "./Forside";
 import IkkeAutentisertApp from "./IkkeAutentisertApp";
 import { useHentAnsatt } from "./api/ansatt/useHentAnsatt";
-import { avtaleFilterAtom, tiltaksgjennomforingfilterForAvtaleAtom } from "./api/atoms";
-import { useAvtaler } from "./api/avtaler/useAvtaler";
+import { tiltaksgjennomforingfilterForAvtaleAtom } from "./api/atoms";
 import AvtaleSkjemaPage from "./components/avtaler/AvtaleSkjemaPage";
 import NotaterAvtalePage from "./components/avtaler/NotaterAvtalePage";
-import { Avtalefilter } from "./components/filter/Avtalefilter";
 import { Tiltaksgjennomforingfilter } from "./components/filter/Tiltaksgjennomforingfilter";
 import { Laster } from "./components/laster/Laster";
 import { Notifikasjonsliste } from "./components/notifikasjoner/Notifikasjonsliste";
-import { AvtaleTabell } from "./components/tabell/AvtaleTabell";
 import { TiltaksgjennomforingsTabell } from "./components/tabell/TiltaksgjennomforingsTabell";
 import NotaterTiltaksgjennomforingerPage from "./components/tiltaksgjennomforinger/NotaterTiltaksgjennomforingerPage";
 import TiltaksgjennomforingSkjemaPage from "./components/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaPage";
-import { UtkastListe } from "./components/utkast/Utkastliste";
 import { DeltakerListe } from "./microfrontends/team_komet/Deltakerliste";
 import { ErrorPage } from "./pages/ErrorPage";
 import { AvtaleInfo } from "./pages/avtaler/AvtaleInfo";
-import { AvtalerPage } from "./pages/avtaler/AvtalerPage";
 import { DetaljerAvtalePage } from "./pages/avtaler/DetaljerAvtalePage";
-import { TiltaksgjennomforingerForAvtale } from "./pages/avtaler/tiltaksgjennomforinger/TiltaksgjennomforingerForAvtale";
 import { NotifikasjonerPage } from "./pages/notifikasjoner/NotifikasjonerPage";
 import { TiltaksgjennomforingInfo } from "./pages/tiltaksgjennomforinger/TiltaksgjennomforingInfo";
 import { TiltaksgjennomforingPage } from "./pages/tiltaksgjennomforinger/TiltaksgjennomforingPage";
@@ -34,6 +28,7 @@ import { TiltakstyperPage } from "./pages/tiltakstyper/TiltakstyperPage";
 import { AvtalerForTiltakstype } from "./pages/tiltakstyper/avtaler/AvtalerForTiltakstype";
 import { useAdminTiltaksgjennomforinger } from "./api/tiltaksgjennomforing/useAdminTiltaksgjennomforinger";
 import { useFeatureToggle } from "./api/features/feature-toggles";
+import { AvtalerPage } from "./pages/avtaler/AvtalerPage";
 
 if (import.meta.env.PROD) {
   initializeFaro({
@@ -46,7 +41,6 @@ if (import.meta.env.PROD) {
 
 export function App() {
   const { data: ansatt, isLoading: ansattIsLoading, error } = useHentAnsatt();
-  const { data: avtaler, isLoading: avtalerIsLoading } = useAvtaler(avtaleFilterAtom);
   const { data: tiltaksgjennomforinger, isLoading: tiltaksgjennomforingerIsLoading } =
     useAdminTiltaksgjennomforinger(tiltaksgjennomforingfilterForAvtaleAtom);
 
@@ -91,26 +85,7 @@ export function App() {
         <Route index element={<TiltakstypeInfo />} errorElement={<ErrorPage />} />
         <Route path="avtaler" element={<AvtalerForTiltakstype />} errorElement={<ErrorPage />} />
       </Route>
-      <Route path="avtaler" element={<AvtalerPage />} errorElement={<ErrorPage />}>
-        <Route
-          index
-          element={
-            <>
-              <Avtalefilter filterAtom={avtaleFilterAtom} />
-              <AvtaleTabell
-                isLoading={avtalerIsLoading}
-                paginerteAvtaler={avtaler}
-                avtalefilter={avtaleFilterAtom}
-              />
-            </>
-          }
-        />
-        <Route
-          path="utkast"
-          element={<UtkastListe utkastType={Utkast.type.AVTALE} />}
-          errorElement={<ErrorPage />}
-        />
-      </Route>
+      <Route path="avtaler" element={<AvtalerPage />} errorElement={<ErrorPage />} />
       <Route path="avtaler/:avtaleId" element={<DetaljerAvtalePage />} errorElement={<ErrorPage />}>
         <Route index element={<AvtaleInfo />} errorElement={<ErrorPage />} />
         {showNotater && (
@@ -118,37 +93,26 @@ export function App() {
         )}
         <Route
           path="tiltaksgjennomforinger"
-          element={<TiltaksgjennomforingerForAvtale />}
+          element={
+            <>
+              <Tiltaksgjennomforingfilter
+                filterAtom={tiltaksgjennomforingfilterForAvtaleAtom}
+                skjulFilter={{
+                  tiltakstype: true,
+                }}
+              />
+              <TiltaksgjennomforingsTabell
+                skjulKolonner={{
+                  tiltakstype: true,
+                  arrangor: true,
+                }}
+                isLoading={tiltaksgjennomforingerIsLoading}
+                paginerteTiltaksgjennomforinger={tiltaksgjennomforinger}
+              />
+            </>
+          }
           errorElement={<ErrorPage />}
-        >
-          <Route
-            index
-            element={
-              <>
-                <Tiltaksgjennomforingfilter
-                  filterAtom={tiltaksgjennomforingfilterForAvtaleAtom}
-                  skjulFilter={{
-                    tiltakstype: true,
-                  }}
-                />
-                <TiltaksgjennomforingsTabell
-                  skjulKolonner={{
-                    tiltakstype: true,
-                    arrangor: true,
-                  }}
-                  isLoading={tiltaksgjennomforingerIsLoading}
-                  paginerteTiltaksgjennomforinger={tiltaksgjennomforinger}
-                />
-              </>
-            }
-            errorElement={<ErrorPage />}
-          />
-          <Route
-            path="utkast"
-            element={<UtkastListe utkastType={Utkast.type.TILTAKSGJENNOMFORING} />}
-            errorElement={<ErrorPage />}
-          />
-        </Route>
+        />
       </Route>
       <Route
         path="avtaler/:avtaleId/skjema"

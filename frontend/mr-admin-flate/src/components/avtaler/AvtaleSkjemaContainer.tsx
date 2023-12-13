@@ -17,10 +17,9 @@ import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { v4 as uuidv4 } from "uuid";
 import { useHentBetabrukere } from "../../api/ansatt/useHentBetabrukere";
 import { useUpsertAvtale } from "../../api/avtaler/useUpsertAvtale";
-import { useMutateUtkast } from "../../api/utkast/useMutateUtkast";
 import { useSokVirksomheter } from "../../api/virksomhet/useSokVirksomhet";
 import { useVirksomhet } from "../../api/virksomhet/useVirksomhet";
-import { addYear, formaterDatoTid } from "../../utils/Utils";
+import { addYear } from "../../utils/Utils";
 import { Separator } from "../detaljside/Metadata";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
@@ -38,11 +37,9 @@ import { AvbrytAvtaleModal } from "../modal/AvbrytAvtaleModal";
 import { AdministratorOptions } from "../skjema/AdministratorOptions";
 import { FormGroup } from "../skjema/FormGroup";
 import {
-  AvtaleUtkastData,
   getLokaleUnderenheterAsSelectOptions,
-  saveUtkast,
   underenheterOptions,
-  utkastDataEllerDefault,
+  defaultAvtaleData,
 } from "./AvtaleSkjemaConst";
 import { AvtaleSkjemaKnapperad } from "./AvtaleSkjemaKnapperad";
 
@@ -54,7 +51,6 @@ interface Props {
   tiltakstyper: Tiltakstype[];
   ansatt: NavAnsatt;
   avtale?: Avtale;
-  avtaleUtkast?: AvtaleUtkastData;
   enheter: NavEnhet[];
   redigeringsModus: boolean;
 }
@@ -66,30 +62,24 @@ export function AvtaleSkjemaContainer({
   ansatt,
   enheter,
   avtale,
-  avtaleUtkast,
   redigeringsModus,
 }: Props) {
-  const [sokLeverandor, setSokLeverandor] = useState(
-    avtaleUtkast?.leverandor ?? (avtale?.leverandor?.organisasjonsnummer || ""),
-  );
+  const [sokLeverandor, setSokLeverandor] = useState(avtale?.leverandor?.organisasjonsnummer || "");
   const avbrytModalRef = useRef<HTMLDialogElement>(null);
   const mutation = useUpsertAvtale();
   const { data: betabrukere } = useHentBetabrukere();
-  const mutationUtkast = useMutateUtkast();
 
   const { data: leverandorVirksomheter = [] } = useSokVirksomheter(sokLeverandor);
 
-  const utkastIdRef = useRef(avtaleUtkast?.id || avtale?.id || uuidv4());
-
   const form = useForm<InferredAvtaleSchema>({
     resolver: zodResolver(AvtaleSchema),
-    defaultValues: utkastDataEllerDefault(ansatt, avtaleUtkast, avtale),
+    defaultValues: defaultAvtaleData(ansatt, avtale),
   });
 
   const {
     register,
     handleSubmit,
-    formState: { errors, defaultValues },
+    formState: { errors },
     watch,
     setValue,
   } = form;
@@ -113,14 +103,9 @@ export function AvtaleSkjemaContainer({
 
   const arenaOpphav = avtale?.opphav === Opphav.ARENA;
 
-  const defaultUpdatedAt = avtale?.updatedAt;
-  const [lagreState, setLagreState] = useState(
-    defaultUpdatedAt ? `Sist lagret: ${formaterDatoTid(defaultUpdatedAt)}` : undefined,
-  );
-
   const postData: SubmitHandler<InferredAvtaleSchema> = async (data): Promise<void> => {
     const requestBody: AvtaleRequest = {
-      id: avtale?.id ?? utkastIdRef.current,
+      id: avtale?.id ?? uuidv4(),
       navEnheter: data.navEnheter.concat(data.navRegioner),
       avtalenummer: avtale?.avtalenummer || null,
       leverandorOrganisasjonsnummer: data.leverandor,
@@ -177,18 +162,7 @@ export function AvtaleSkjemaContainer({
   return (
     <FormProvider {...form}>
       <form onSubmit={handleSubmit(postData)}>
-        <AvtaleSkjemaKnapperad
-          redigeringsModus={redigeringsModus!}
-          onClose={onClose}
-          defaultValues={defaultValues}
-          utkastIdRef={utkastIdRef.current}
-          saveUtkast={() =>
-            saveUtkast(watch(), avtale!, ansatt, utkastIdRef, mutationUtkast, setLagreState)
-          }
-          mutationUtkast={mutationUtkast}
-          lagreState={lagreState}
-          setLagreState={setLagreState}
-        />
+        <AvtaleSkjemaKnapperad redigeringsModus={redigeringsModus!} onClose={onClose} />
         <Separator classname={skjemastyles.avtaleskjema_separator} />
         <div className={skjemastyles.container}>
           <div className={skjemastyles.input_container}>

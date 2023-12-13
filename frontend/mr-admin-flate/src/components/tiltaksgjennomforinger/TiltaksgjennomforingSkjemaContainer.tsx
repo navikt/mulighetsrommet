@@ -6,17 +6,14 @@ import {
   Avtale,
   Tiltaksgjennomforing,
   TiltaksgjennomforingRequest,
-  UtkastRequest as Utkast,
 } from "mulighetsrommet-api-client";
-import React, { useRef, useState } from "react";
+import { useRef } from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { v4 as uuidv4 } from "uuid";
-import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
 import { gjennomforingDetaljerTabAtom } from "../../api/atoms";
 import { useHandleApiUpsertResponse } from "../../api/effects";
 import { useUpsertTiltaksgjennomforing } from "../../api/tiltaksgjennomforing/useUpsertTiltaksgjennomforing";
-import { useMutateUtkast } from "../../api/utkast/useMutateUtkast";
-import { formaterDatoSomYYYYMMDD, formaterDatoTid } from "../../utils/Utils";
+import { formaterDatoSomYYYYMMDD } from "../../utils/Utils";
 import { Separator } from "../detaljside/Metadata";
 import { AvbrytTiltaksgjennomforingModal } from "../modal/AvbrytTiltaksgjennomforingModal";
 import skjemastyles from "../skjema/Skjema.module.scss";
@@ -24,10 +21,9 @@ import {
   InferredTiltaksgjennomforingSchema,
   TiltaksgjennomforingSchema,
 } from "./TiltaksgjennomforingSchema";
-import { erArenaOpphav, utkastDataEllerDefault } from "./TiltaksgjennomforingSkjemaConst";
+import { erArenaOpphav, defaultData } from "./TiltaksgjennomforingSkjemaConst";
 import { TiltaksgjennomforingSkjemaDetaljer } from "./TiltaksgjennomforingSkjemaDetaljer";
 import { TiltaksgjennomforingSkjemaKnapperad } from "./TiltaksgjennomforingSkjemaKnapperad";
-import { TiltaksgjennomforingUtkastData } from "./TiltaksgjennomforingSkjemaPage";
 import { TiltaksgjennomforingSkjemaRedInnhold } from "./TiltaksgjennomforingSkjemaRedInnhold";
 
 interface Props {
@@ -35,66 +31,34 @@ interface Props {
   onSuccess: (id: string) => void;
   avtale: Avtale;
   tiltaksgjennomforing?: Tiltaksgjennomforing;
-  tiltaksgjennomforingUtkast?: TiltaksgjennomforingUtkastData;
 }
 
 export const TiltaksgjennomforingSkjemaContainer = ({
   avtale,
   tiltaksgjennomforing,
-  tiltaksgjennomforingUtkast,
   onClose,
   onSuccess,
 }: Props) => {
-  const utkastIdRef = useRef(
-    tiltaksgjennomforingUtkast?.id || tiltaksgjennomforing?.id || uuidv4(),
-  );
   const redigeringsModus = !!tiltaksgjennomforing;
   const mutation = useUpsertTiltaksgjennomforing();
-  const mutationUtkast = useMutateUtkast();
   const [activeTab, setActiveTab] = useAtom(gjennomforingDetaljerTabAtom);
 
   const avbrytModalRef = useRef<HTMLDialogElement>(null);
-  const { data: ansatt } = useHentAnsatt();
-
-  const saveUtkast = (
-    values: InferredTiltaksgjennomforingSchema,
-    avtale: Avtale,
-    utkastIdRef: React.MutableRefObject<string>,
-    setLagreState: (state: string) => void,
-  ) => {
-    if (!avtale) {
-      return;
-    }
-
-    if (!values.navn) {
-      setLagreState("For å lagre utkast må du gi utkastet et navn");
-      return;
-    }
-
-    mutationUtkast.mutate({
-      id: utkastIdRef.current,
-      utkastData: values,
-      type: Utkast.type.TILTAKSGJENNOMFORING,
-      opprettetAv: ansatt?.navIdent,
-      avtaleId: avtale.id,
-    });
-  };
 
   const form = useForm<InferredTiltaksgjennomforingSchema>({
     resolver: zodResolver(TiltaksgjennomforingSchema),
-    defaultValues: utkastDataEllerDefault(avtale, tiltaksgjennomforingUtkast, tiltaksgjennomforing),
+    defaultValues: defaultData(avtale, tiltaksgjennomforing),
   });
 
   const {
     handleSubmit,
-    formState: { defaultValues, errors },
-    watch,
+    formState: { errors },
   } = form;
   const postData: SubmitHandler<InferredTiltaksgjennomforingSchema> = async (
     data,
   ): Promise<void> => {
     const body: TiltaksgjennomforingRequest = {
-      id: tiltaksgjennomforingUtkast?.id || tiltaksgjennomforing?.id || uuidv4(),
+      id: tiltaksgjennomforing?.id || uuidv4(),
       antallPlasser: data.antallPlasser,
       tiltakstypeId: avtale.tiltakstype.id,
       navRegion: data.navRegion,
@@ -165,11 +129,6 @@ export const TiltaksgjennomforingSkjemaContainer = ({
     console.error(errors);
   }
 
-  const defaultUpdatedAt = tiltaksgjennomforing?.updatedAt;
-  const [lagreState, setLagreState] = useState(
-    defaultUpdatedAt ? `Sist lagret: ${formaterDatoTid(defaultUpdatedAt)}` : undefined,
-  );
-
   return (
     <>
       <FormProvider {...form}>
@@ -210,12 +169,6 @@ export const TiltaksgjennomforingSkjemaContainer = ({
                 redigeringsModus={redigeringsModus}
                 onClose={onClose}
                 mutation={mutation}
-                defaultValues={defaultValues}
-                utkastIdRef={utkastIdRef.current}
-                onSave={() => saveUtkast(watch(), avtale, utkastIdRef, setLagreState)}
-                mutationUtkast={mutationUtkast}
-                lagreState={lagreState}
-                setLagreState={setLagreState}
               />
             </Tabs.List>
             <Tabs.Panel value="detaljer">
