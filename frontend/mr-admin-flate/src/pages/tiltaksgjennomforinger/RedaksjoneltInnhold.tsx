@@ -1,18 +1,18 @@
-import { Tiltaksgjennomforing } from "mulighetsrommet-api-client";
+import { SanityFaneinnhold } from "mulighetsrommet-api-client";
 import styles from "../DetaljerInfo.module.scss";
 import { Alert, BodyLong, Heading } from "@navikt/ds-react";
 import { useTiltakstypeFaneinnhold } from "../../api/tiltaksgjennomforing/useTiltakstypeFaneinnhold";
 import { PortableText } from "@portabletext/react";
 
-interface Props {
-  tiltaksgjennomforing: Tiltaksgjennomforing;
+interface RedaksjoneltInnholdProps {
+  tiltakstypeId: string;
+  beskrivelse?: string;
+  faneinnhold?: SanityFaneinnhold;
 }
 
-export const TiltaksgjennomforingRedInnhold = (props: Props) => {
-  const { tiltaksgjennomforing } = props;
-  const { data: tiltakstypeSanityData } = useTiltakstypeFaneinnhold(
-    tiltaksgjennomforing.tiltakstype.id,
-  );
+export const RedaksjoneltInnhold = (props: RedaksjoneltInnholdProps) => {
+  const { tiltakstypeId, beskrivelse, faneinnhold } = props;
+  const { data: tiltakstypeSanityData } = useTiltakstypeFaneinnhold(tiltakstypeId);
 
   return (
     <div className={styles.red_innhold_container}>
@@ -21,31 +21,31 @@ export const TiltaksgjennomforingRedInnhold = (props: Props) => {
           {tiltakstypeSanityData.beskrivelse}
         </BodyLong>
       )}
-      {tiltaksgjennomforing.beskrivelse && (
+      {beskrivelse && (
         <div className={styles.lokal_informasjon}>
           <BodyLong className={styles.preWrap} textColor="subtle" size="medium">
-            {tiltaksgjennomforing.beskrivelse}
+            {beskrivelse}
           </BodyLong>
         </div>
       )}
       <Heading size="medium">For hvem</Heading>
       <DetaljerFane
-        tiltaksgjennomforing={tiltaksgjennomforing.faneinnhold?.forHvem}
-        tiltaksgjennomforingAlert={tiltaksgjennomforing.faneinnhold?.forHvemInfoboks}
+        tiltaksgjennomforing={faneinnhold?.forHvem}
+        tiltaksgjennomforingAlert={faneinnhold?.forHvemInfoboks}
         tiltakstype={tiltakstypeSanityData?.faneinnhold?.forHvem}
         tiltakstypeAlert={tiltakstypeSanityData?.faneinnhold?.forHvemInfoboks}
       />
       <Heading size="medium">Detaljer og innhold</Heading>
       <DetaljerFane
-        tiltaksgjennomforing={tiltaksgjennomforing.faneinnhold?.detaljerOgInnhold}
-        tiltaksgjennomforingAlert={tiltaksgjennomforing.faneinnhold?.detaljerOgInnholdInfoboks}
+        tiltaksgjennomforing={faneinnhold?.detaljerOgInnhold}
+        tiltaksgjennomforingAlert={faneinnhold?.detaljerOgInnholdInfoboks}
         tiltakstype={tiltakstypeSanityData?.faneinnhold?.detaljerOgInnhold}
         tiltakstypeAlert={tiltakstypeSanityData?.faneinnhold?.detaljerOgInnholdInfoboks}
       />
       <Heading size="medium">Påmelding og varighet</Heading>
       <DetaljerFane
-        tiltaksgjennomforing={tiltaksgjennomforing.faneinnhold?.pameldingOgVarighet}
-        tiltaksgjennomforingAlert={tiltaksgjennomforing.faneinnhold?.pameldingOgVarighetInfoboks}
+        tiltaksgjennomforing={faneinnhold?.pameldingOgVarighet}
+        tiltaksgjennomforingAlert={faneinnhold?.pameldingOgVarighetInfoboks}
         tiltakstype={tiltakstypeSanityData?.faneinnhold?.pameldingOgVarighet}
         tiltakstypeAlert={tiltakstypeSanityData?.faneinnhold?.pameldingOgVarighetInfoboks}
       />

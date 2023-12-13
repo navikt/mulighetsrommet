@@ -7,7 +7,7 @@ import skjemaStyles from "../../components/skjema/Skjema.module.scss";
 import styles from "../DetaljerInfo.module.scss";
 import { TiltaksgjennomforingDetaljer } from "./TiltaksgjennomforingDetaljer";
 import { TiltaksgjennomforingKnapperad } from "./TiltaksgjennomforingKnapperad";
-import { TiltaksgjennomforingRedInnhold } from "./TiltaksgjennomforingRedInnhold";
+import { RedaksjoneltInnhold } from "./RedaksjoneltInnhold";
 import { gjennomforingDetaljerTabAtom } from "../../api/atoms";
 import { useAtom } from "jotai";
 
@@ -65,7 +65,11 @@ export function TiltaksgjennomforingInfo() {
           />
         </Tabs.Panel>
         <Tabs.Panel value="redaksjonelt_innhold">
-          <TiltaksgjennomforingRedInnhold tiltaksgjennomforing={tiltaksgjennomforing} />
+          <RedaksjoneltInnhold
+            tiltakstypeId={tiltaksgjennomforing.tiltakstype.id}
+            beskrivelse={tiltaksgjennomforing.beskrivelse}
+            faneinnhold={tiltaksgjennomforing.faneinnhold}
+          />
         </Tabs.Panel>
       </Tabs>
     </div>
