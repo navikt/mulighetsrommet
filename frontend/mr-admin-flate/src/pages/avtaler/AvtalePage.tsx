@@ -4,7 +4,7 @@ import { useAvtale } from "../../api/avtaler/useAvtale";
 import { Header } from "../../components/detaljside/Header";
 import { Laster } from "../../components/laster/Laster";
 import { AvtalestatusTag } from "../../components/statuselementer/AvtalestatusTag";
-import { useGetAvtaleIdFromUrl } from "../../hooks/useGetAvtaleIdFromUrl";
+import { useGetAvtaleIdFromUrlOrThrow } from "../../hooks/useGetAvtaleIdFromUrl";
 import commonStyles from "../Page.module.scss";
 import styles from "./DetaljerAvtalePage.module.scss";
 import { ContainerLayout } from "../../layouts/ContainerLayout";
@@ -13,17 +13,14 @@ import { Toggles } from "mulighetsrommet-api-client";
 import { useFeatureToggle } from "../../api/features/feature-toggles";
 
 export function AvtalePage() {
-  const avtaleId = useGetAvtaleIdFromUrl();
+  const avtaleId = useGetAvtaleIdFromUrlOrThrow();
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const { data: showNotater } = useFeatureToggle(Toggles.MULIGHETSROMMET_ADMIN_FLATE_SHOW_NOTATER);
-  if (!avtaleId) {
-    throw new Error("Fant ingen avtaleId i url");
-  }
-  const { data: avtale, isLoading } = useAvtale();
+  const { data: avtale, isPending } = useAvtale();
   useTitle(`Avtale ${avtale?.navn ? `- ${avtale.navn}` : ""}`);
 
-  if (!avtale && isLoading) {
+  if (isPending) {
     return (
       <main>
         <Laster tekst="Laster avtale" />
@@ -56,7 +53,7 @@ export function AvtalePage() {
     <main className={styles.avtaleinfo}>
       <Header>
         <div className={commonStyles.header}>
-          <span>{avtale?.navn ?? "..."}</span>
+          <span>{avtale.navn ?? "..."}</span>
           <AvtalestatusTag avtale={avtale} />
         </div>
       </Header>
