@@ -38,7 +38,7 @@ import { AvtaleFilterButtons } from "./components/filter/AvtaleFilterButtons";
 import { AvtaleFilter } from "./components/filter/Avtalefilter";
 import { TiltaksgjennomforingFilterButtons } from "./components/filter/TiltaksgjennomforingFilterButtons";
 import { TiltaksgjennomforingFilterTags } from "./components/filter/TiltaksgjennomforingFilterTags";
-import { TiltaksgjennomforingFilter } from "./components/filter/TiltaksgjennomforingFilter";
+import { TiltaksgjennomforingFilter } from "./components/filter/Tiltaksgjennomforingfilter";
 
 if (import.meta.env.PROD) {
   initializeFaro({

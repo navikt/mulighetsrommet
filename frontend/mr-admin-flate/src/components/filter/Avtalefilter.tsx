@@ -7,7 +7,7 @@ import { useVirksomheter } from "../../api/virksomhet/useVirksomheter";
 import { addOrRemove } from "../../utils/Utils";
 import styles from "./Filter.module.scss";
 import { AvtaleFilterProps } from "src/api/atoms";
-import { CheckboxList } from "./TiltaksgjennomforingFilter";
+import { CheckboxList } from "./Tiltaksgjennomforingfilter";
 import {
   AVTALE_STATUS_OPTIONS,
   regionOptions,

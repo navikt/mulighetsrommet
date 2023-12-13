@@ -1,6 +1,5 @@
 import { faro } from "@grafana/faro-web-sdk";
 import { Lenkeknapp } from "../lenkeknapp/Lenkeknapp";
-import React from "react";
 import { Button } from "@navikt/ds-react";
 import { WritableAtom, useAtom } from "jotai";
 import { AvtaleFilterProps, defaultAvtaleFilter } from "../../api/atoms";

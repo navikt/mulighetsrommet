@@ -10,7 +10,7 @@ import { tiltaksgjennomforingfilterAtom } from "../../api/atoms";
 import { FilterAndTableLayout } from "../../components/filter/FilterAndTableLayout";
 import { TiltaksgjennomforingFilterButtons } from "../../components/filter/TiltaksgjennomforingFilterButtons";
 import { TiltaksgjennomforingFilterTags } from "../../components/filter/TiltaksgjennomforingFilterTags";
-import { TiltaksgjennomforingFilter } from "../../components/filter/TiltaksgjennomforingFilter";
+import { TiltaksgjennomforingFilter } from "../../components/filter/Tiltaksgjennomforingfilter";
 
 export function TiltaksgjennomforingerPage() {
   useTitle("Tiltaksgjennomføringer");
