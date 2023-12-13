@@ -12,18 +12,14 @@ import { erAnskaffetTiltak } from "../../utils/tiltakskoder";
 import styles from "../DetaljerInfo.module.scss";
 
 export function AvtaleDetaljer() {
-  const { data: avtale, isLoading, error } = useAvtale();
+  const { data: avtale, isPending, error } = useAvtale();
 
-  if (!avtale && isLoading) {
-    return <Laster tekst="Laster avtaleinformasjon..." />;
+  if (isPending) {
+    return <Laster tekst="Laster avtale..." />;
   }
 
   if (error) {
     return <Alert variant="error">Klarte ikke hente avtaleinformasjon</Alert>;
-  }
-
-  if (!avtale) {
-    return <Alert variant="warning">Fant ingen avtale</Alert>;
   }
 
   const lenketekst = () => {
