@@ -104,14 +104,6 @@ dependencies {
     implementation(libs.unleash)
 
     implementation(libs.nav.common.auditLog)
-    constraints {
-        implementation(libs.logback.core) {
-            because("sikkerhetshull i transitiv avhengighet rapportert via snyk")
-        }
-        implementation(libs.logback.classic) {
-            because("sikkerhetshull i transitiv avhengighet rapportert via snyk")
-        }
-    }
     implementation(libs.nav.common.tokenClient)
     constraints {
         implementation("net.minidev:json-smart:2.5.0") {
