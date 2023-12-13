@@ -12,7 +12,7 @@ import { erAnskaffetTiltak } from "../../utils/tiltakskoder";
 import styles from "../DetaljerInfo.module.scss";
 import { AvtaleKnapperad } from "./AvtaleKnapperad";
 
-export function AvtaleInfo() {
+export function AvtaleDetaljer() {
   const { data: avtale, isLoading, error } = useAvtale();
 
   if (!avtale && isLoading) {
