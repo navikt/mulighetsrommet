@@ -137,5 +137,8 @@ data class AvtaleRequest(
         navEnheter = navEnheter,
         opphav = opphav,
         updatedAt = LocalDate.now().atStartOfDay(),
+        // TODO: frontend
+        beskrivelse = null,
+        faneinnhold = null,
     )
 }

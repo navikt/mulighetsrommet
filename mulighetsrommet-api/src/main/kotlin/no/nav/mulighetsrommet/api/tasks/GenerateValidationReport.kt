@@ -230,6 +230,8 @@ private fun toAvtaleDbo(dto: AvtaleAdminDto) = dto.run {
         url = url,
         administratorer = administratorer.map { it.navIdent },
         updatedAt = updatedAt,
+        beskrivelse = null,
+        faneinnhold = null,
     )
 }
 

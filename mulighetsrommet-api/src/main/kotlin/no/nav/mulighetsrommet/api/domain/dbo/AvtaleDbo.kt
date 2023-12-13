@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.domain.dbo
 
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
+import no.nav.mulighetsrommet.domain.dto.Faneinnhold
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -24,4 +25,6 @@ data class AvtaleDbo(
     val url: String?,
     val administratorer: List<String>,
     val updatedAt: LocalDateTime,
+    val beskrivelse: String?,
+    val faneinnhold: Faneinnhold?,
 )

@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.repositories
 
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
@@ -43,7 +44,9 @@ class AvtaleRepository(private val db: Database) {
                                prisbetingelser,
                                antall_plasser,
                                url,
-                               opphav)
+                               opphav,
+                               beskrivelse,
+                               faneinnhold)
             values (:id::uuid,
                     :navn,
                     :tiltakstype_id::uuid,
@@ -56,7 +59,9 @@ class AvtaleRepository(private val db: Database) {
                     :prisbetingelser,
                     :antall_plasser,
                     :url,
-                    :opphav::opphav)
+                    :opphav::opphav,
+                    :beskrivelse,
+                    :faneinnhold::jsonb)
             on conflict (id) do update set navn                           = excluded.navn,
                                            tiltakstype_id                 = excluded.tiltakstype_id,
                                            avtalenummer                   = excluded.avtalenummer,
@@ -68,7 +73,9 @@ class AvtaleRepository(private val db: Database) {
                                            prisbetingelser                = excluded.prisbetingelser,
                                            antall_plasser                 = excluded.antall_plasser,
                                            url                            = excluded.url,
-                                           opphav                         = excluded.opphav
+                                           opphav                         = excluded.opphav,
+                                           beskrivelse                    = excluded.beskrivelse,
+                                           faneinnhold                    = excluded.faneinnhold
             returning *
         """.trimIndent()
 
@@ -358,6 +365,8 @@ class AvtaleRepository(private val db: Database) {
         "antall_plasser" to antallPlasser,
         "url" to url,
         "opphav" to opphav.name,
+        "beskrivelse" to beskrivelse,
+        "faneinnhold" to faneinnhold?.let { Json.encodeToString(it) },
     )
 
     private fun ArenaAvtaleDbo.toSqlParameters() = mapOf(
@@ -443,6 +452,8 @@ class AvtaleRepository(private val db: Database) {
             opphav = ArenaMigrering.Opphav.valueOf(string("opphav")),
             updatedAt = localDateTime("updated_at"),
             kontorstruktur = kontorstruktur,
+            beskrivelse = stringOrNull("beskrivelse"),
+            faneinnhold = stringOrNull("faneinnhold")?.let { Json.decodeFromString(it) },
         )
     }
 
