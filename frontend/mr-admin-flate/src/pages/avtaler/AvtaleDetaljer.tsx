@@ -5,7 +5,6 @@ import { Fragment } from "react";
 import { useAvtale } from "../../api/avtaler/useAvtale";
 import { Bolk } from "../../components/detaljside/Bolk";
 import { Metadata, Separator } from "../../components/detaljside/Metadata";
-import { VisHvisVerdi } from "../../components/detaljside/VisHvisVerdi";
 import { Laster } from "../../components/laster/Laster";
 import { avtaletypeTilTekst, formaterDato } from "../../utils/Utils";
 import { erAnskaffetTiltak } from "../../utils/tiltakskoder";
@@ -39,22 +38,36 @@ export function AvtaleDetaljer() {
     );
   };
 
+  const {
+    navn,
+    avtalenummer,
+    tiltakstype,
+    avtaletype,
+    startDato,
+    sluttDato,
+    administratorer,
+    url,
+    kontorstruktur,
+    arenaAnsvarligEnhet,
+    leverandor,
+    leverandorUnderenheter,
+    leverandorKontaktperson,
+  } = avtale;
+
   return (
     <div className={styles.container}>
       <div className={styles.detaljer}>
         <Bolk aria-label="Avtalenavn">
-          <Metadata header="Avtalenavn" verdi={avtale.navn} />
-          <VisHvisVerdi verdi={avtale.avtalenummer}>
-            <Metadata header="Avtalenr" verdi={avtale.avtalenummer} />
-          </VisHvisVerdi>
+          <Metadata header="Avtalenavn" verdi={navn} />
+          <Metadata header="Avtalenr" verdi={avtalenummer} />
         </Bolk>
 
         <Bolk aria-label="Tiltakstype">
-          <Metadata header="Tiltakstype" verdi={avtale.tiltakstype.navn} />
+          <Metadata header="Tiltakstype" verdi={tiltakstype.navn} />
         </Bolk>
 
         <Bolk aria-label="Avtaletype">
-          <Metadata header="Avtaletype" verdi={avtaletypeTilTekst(avtale.avtaletype)} />
+          <Metadata header="Avtaletype" verdi={avtaletypeTilTekst(avtaletype)} />
         </Bolk>
 
         <Separator />
@@ -64,14 +77,14 @@ export function AvtaleDetaljer() {
         </Heading>
 
         <Bolk aria-label="Start- og sluttdato">
-          <Metadata header="Startdato" verdi={formaterDato(avtale.startDato)} />
-          <Metadata header="Sluttdato" verdi={formaterDato(avtale.sluttDato)} />
+          <Metadata header="Startdato" verdi={formaterDato(startDato)} />
+          <Metadata header="Sluttdato" verdi={formaterDato(sluttDato)} />
         </Bolk>
 
         <Separator />
 
         <Bolk aria-label="Pris- og betalingsbetingelser">
-          {erAnskaffetTiltak(avtale.tiltakstype.arenaKode) && (
+          {erAnskaffetTiltak(tiltakstype.arenaKode) && (
             <Metadata
               header="Pris- og betalingsbetingelser"
               verdi={
@@ -82,28 +95,28 @@ export function AvtaleDetaljer() {
           )}
         </Bolk>
 
-        <VisHvisVerdi verdi={avtale?.url}>
-          <a href={avtale.url!} target="_blank" rel="noopener noreferrer">
+        {url ? (
+          <a href={url} target="_blank" rel="noopener noreferrer">
             {lenketekst()}
           </a>
-        </VisHvisVerdi>
+        ) : null}
 
-        <VisHvisVerdi verdi={avtale.administratorer}>
+        {administratorer ? (
           <Bolk aria-label="Administratorer for avtalen">
             <Metadata
               header="Administratorer for avtalen"
               verdi={
-                avtale?.administratorer?.length ? (
+                administratorer.length ? (
                   <ul>
-                    {avtale.administratorer?.map((admin) => {
+                    {administratorer.map((admin) => {
                       return (
                         <li key={admin.navIdent}>
                           <a
                             target="_blank"
                             rel="noopener noreferrer"
-                            href={`${NOM_ANSATT_SIDE}${admin?.navIdent}`}
+                            href={`${NOM_ANSATT_SIDE}${admin.navIdent}`}
                           >
-                            {`${admin?.navn} - ${admin?.navIdent}`}{" "}
+                            {`${admin.navn} - ${admin.navIdent}`}{" "}
                             <ExternalLinkIcon aria-label="Ekstern lenke" />
                           </a>
                         </li>
@@ -116,23 +129,23 @@ export function AvtaleDetaljer() {
               }
             />
           </Bolk>
-        </VisHvisVerdi>
+        ) : null}
       </div>
 
       <div className={styles.detaljer}>
-        {avtale.kontorstruktur.length > 1 ? (
+        {kontorstruktur.length > 1 ? (
           <Metadata
             header="Fylkessamarbeid"
             verdi={
               <ul>
-                {avtale.kontorstruktur.map((kontor) => {
+                {kontorstruktur.map((kontor) => {
                   return <li key={kontor.region.enhetsnummer}>{kontor.region.navn}</li>;
                 })}
               </ul>
             }
           />
         ) : (
-          avtale?.kontorstruktur.map((struktur, index) => {
+          kontorstruktur.map((struktur, index) => {
             return (
               <Fragment key={index}>
                 <Bolk aria-label="NAV-region">
@@ -155,12 +168,12 @@ export function AvtaleDetaljer() {
             );
           })
         )}
-        {avtale?.arenaAnsvarligEnhet ? (
+        {arenaAnsvarligEnhet ? (
           <div style={{ display: "flex", gap: "1rem", margin: "0.5rem 0" }}>
             <dl style={{ margin: "0" }}>
               <Metadata
                 header="Ansvarlig enhet fra Arena"
-                verdi={`${avtale.arenaAnsvarligEnhet.enhetsnummer} ${avtale.arenaAnsvarligEnhet.navn}`}
+                verdi={`${arenaAnsvarligEnhet.enhetsnummer} ${arenaAnsvarligEnhet.navn}`}
               />
             </dl>
             <HelpText title="Hva betyr feltet 'Ansvarlig enhet fra Arena'?">
@@ -175,9 +188,7 @@ export function AvtaleDetaljer() {
         <Bolk aria-label="Tiltaksleverandør hovedenhet">
           <Metadata
             header="Tiltaksleverandør hovedenhet"
-            verdi={[avtale.leverandor.navn, avtale.leverandor.organisasjonsnummer]
-              .filter(Boolean)
-              .join(" - ")}
+            verdi={[leverandor.navn, leverandor.organisasjonsnummer].filter(Boolean).join(" - ")}
           />
         </Bolk>
 
@@ -186,7 +197,7 @@ export function AvtaleDetaljer() {
             header="Arrangører underenheter"
             verdi={
               <ul>
-                {avtale.leverandorUnderenheter
+                {leverandorUnderenheter
                   .filter((enhet) => enhet.navn)
                   .map((enhet) => (
                     <li key={enhet.organisasjonsnummer}>
@@ -200,23 +211,23 @@ export function AvtaleDetaljer() {
 
         <Separator />
 
-        <VisHvisVerdi verdi={avtale.leverandorKontaktperson}>
+        {leverandorKontaktperson ? (
           <Bolk aria-label="Kontaktperson">
             <Metadata
               header="Kontaktperson"
               verdi={
                 <div className={styles.leverandor_kontaktinfo}>
-                  <label>{avtale.leverandorKontaktperson?.navn}</label>
-                  <label>{avtale.leverandorKontaktperson?.telefon}</label>
-                  <a href={`mailto:${avtale.leverandorKontaktperson?.epost}`}>
-                    {avtale.leverandorKontaktperson?.epost}
+                  <label>{leverandorKontaktperson.navn}</label>
+                  <label>{leverandorKontaktperson.telefon}</label>
+                  <a href={`mailto:${leverandorKontaktperson.epost}`}>
+                    {leverandorKontaktperson.epost}
                   </a>
-                  {<label>{avtale.leverandorKontaktperson?.beskrivelse}</label>}
+                  <label>{leverandorKontaktperson.beskrivelse}</label>
                 </div>
               }
             />
           </Bolk>
-        </VisHvisVerdi>
+        ) : null}
       </div>
     </div>
   );
