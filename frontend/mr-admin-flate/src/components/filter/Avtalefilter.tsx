@@ -5,7 +5,6 @@ import { useNavEnheter } from "../../api/enhet/useNavEnheter";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
 import { useVirksomheter } from "../../api/virksomhet/useVirksomheter";
 import { addOrRemove } from "../../utils/Utils";
-import styles from "./Filter.module.scss";
 import { AvtaleFilterProps } from "src/api/atoms";
 import { CheckboxList } from "./Tiltaksgjennomforingfilter";
 import {
@@ -61,7 +60,6 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
         }
         value={filter.sok}
         aria-label="Søk etter tiltaksgjennomføring"
-        className={styles.form_field}
       />
       <Accordion>
         <Accordion.Item>
@@ -112,7 +110,7 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
           </Accordion.Content>
         </Accordion.Item>
         <Accordion.Item>
-          <Accordion.Header>Arrangør</Accordion.Header>
+          <Accordion.Header>Leverandør</Accordion.Header>
           <Accordion.Content>
             <CheckboxList
               searchable

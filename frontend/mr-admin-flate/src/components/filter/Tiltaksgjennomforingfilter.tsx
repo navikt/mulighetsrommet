@@ -76,7 +76,6 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
         }
         value={filter.search}
         aria-label="Søk etter tiltaksgjennomføring"
-        className={styles.form_field}
       />
       <Accordion>
         <Accordion.Item>

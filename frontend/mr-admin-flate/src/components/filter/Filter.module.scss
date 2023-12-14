@@ -27,6 +27,7 @@ $filter-width: 290px;
 }
 
 .filter {
+  z-index: 2;
   grid-column: 1;
   grid-row: 2;
   border-radius: 0.25rem;
@@ -34,16 +35,12 @@ $filter-width: 290px;
   gap: none;
   background-color: white;
   align-self: start;
-  min-width: $filter-width;
-}
-
-.filter_content {
-  background-color: white;
   box-shadow: var(--a-shadow-medium);
+  padding: 0.25rem;
 }
 
 @media screen and (min-width: 1440px) {
-  .filter_content {
+  .filter {
     box-shadow: none;
   }
 }
@@ -89,6 +86,7 @@ $filter-width: 290px;
 }
 
 .checkbox_list {
+  max-width: calc($filter-width - 35px);
   margin-left: -2rem;
   max-height: 400px;
   overflow-y: scroll;
@@ -96,5 +94,5 @@ $filter-width: 290px;
 
 .checkbox_search {
   margin: 3px;
-  width: 220px;
+  max-width: calc($filter-width - 44px);
 }
