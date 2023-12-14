@@ -12,12 +12,12 @@ export function AdministratorHeader() {
 
   const ansattNavn = data ? [data.fornavn, data.etternavn].join(" ") : "Team Valp";
 
-  const tiltakstyperLinkRef = useRef(null);
-  const avtalerLinkRef = useRef(null);
-  const gjennomforingerLinkRef = useRef(null);
-  const individuelleGjennomforingerLinkRef = useRef(null);
-  const veilederflateLinkRef = useRef(null);
-  const notifikasjonerLinkRef = useRef(null);
+  const tiltakstyperLinkRef = useRef<HTMLAnchorElement>(null);
+  const avtalerLinkRef = useRef<HTMLAnchorElement>(null);
+  const gjennomforingerLinkRef = useRef<HTMLAnchorElement>(null);
+  const individuelleGjennomforingerLinkRef = useRef<HTMLAnchorElement>(null);
+  const veilederflateLinkRef = useRef<HTMLAnchorElement>(null);
+  const notifikasjonerLinkRef = useRef<HTMLAnchorElement>(null);
 
   return (
     <InternalHeader>
