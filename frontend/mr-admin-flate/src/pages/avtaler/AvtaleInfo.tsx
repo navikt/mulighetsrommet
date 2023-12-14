@@ -8,6 +8,7 @@ import { AvtaleKnapperad } from "./AvtaleKnapperad";
 import { AvtaleDetaljer } from "./AvtaleDetaljer";
 import { useAtom } from "jotai";
 import { avtaleDetaljerTabAtom } from "../../api/atoms";
+import { InlineErrorBoundary } from "../../ErrorBoundary";
 
 export function AvtaleInfo() {
   const { data: avtale, isPending, isError } = useAvtale();
@@ -37,14 +38,18 @@ export function AvtaleInfo() {
           <AvtaleKnapperad avtale={avtale} />
         </Tabs.List>
         <Tabs.Panel value="detaljer">
-          <AvtaleDetaljer />
+          <InlineErrorBoundary>
+            <AvtaleDetaljer />
+          </InlineErrorBoundary>
         </Tabs.Panel>
         <Tabs.Panel value="redaksjonelt-innhold">
-          <RedaksjoneltInnhold
-            tiltakstypeId={avtale.tiltakstype.id}
-            beskrivelse={avtale.beskrivelse}
-            faneinnhold={avtale.faneinnhold}
-          />
+          <InlineErrorBoundary>
+            <RedaksjoneltInnhold
+              tiltakstypeId={avtale.tiltakstype.id}
+              beskrivelse={avtale.beskrivelse}
+              faneinnhold={avtale.faneinnhold}
+            />
+          </InlineErrorBoundary>
         </Tabs.Panel>
       </Tabs>
     </div>

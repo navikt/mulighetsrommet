@@ -1,8 +1,7 @@
 import React, { ReactElement, useRef, useState } from "react";
 import { ClockDashedIcon } from "@navikt/aksel-icons";
 import { Button, Loader, Popover } from "@navikt/ds-react";
-import { ErrorBoundary } from "react-error-boundary";
-import { ErrorFallback } from "../../main";
+import { InlineErrorBoundary } from "../../ErrorBoundary";
 
 export interface EndringshistorikkPopoverProps {
   children: ReactElement;
@@ -34,9 +33,7 @@ export function EndringshistorikkPopover({ children }: EndringshistorikkPopoverP
       >
         <Popover.Content>
           <React.Suspense fallback={<Loader title="Laster endringshistorikk" />}>
-            <ErrorBoundary FallbackComponent={ErrorFallback}>
-              {open ? children : null}
-            </ErrorBoundary>
+            <InlineErrorBoundary>{open ? children : null}</InlineErrorBoundary>
           </React.Suspense>
         </Popover.Content>
       </Popover>
