@@ -125,6 +125,10 @@ export const TiltaksgjennomforingsTabell = ({
           : "descending"
         : "ascending";
 
+    if (sort.orderBy !== sortKey || sort.direction !== direction) {
+      setPage(1); // Hvis sort har endret seg resetter vi første page
+    }
+
     setSort({
       orderBy: sortKey,
       direction,
