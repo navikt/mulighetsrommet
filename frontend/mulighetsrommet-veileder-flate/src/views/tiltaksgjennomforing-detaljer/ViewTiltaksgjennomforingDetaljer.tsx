@@ -7,9 +7,10 @@ import {
   Innsatsgruppe,
   NavVeileder,
   Tiltakskode,
+  Toggles,
   VeilederflateTiltaksgjennomforing,
 } from "mulighetsrommet-api-client";
-import { Outlet } from "react-router-dom";
+import { Link, Outlet } from "react-router-dom";
 import { BrukerHarIkke14aVedtakVarsel } from "../../components/ikkeKvalifisertVarsel/BrukerHarIkke14aVedtakVarsel";
 import { BrukerKvalifisererIkkeVarsel } from "../../components/ikkeKvalifisertVarsel/BrukerKvalifisererIkkeVarsel";
 import { DetaljerJoyride } from "../../components/joyride/DetaljerJoyride";
@@ -29,6 +30,7 @@ import { useDelMedBruker } from "../../components/modal/delemodal/DelemodalReduc
 import { useLogEvent } from "../../logging/amplitude";
 import { utledDelMedBrukerTekst } from "../../components/modal/delemodal/DelMedBrukerTekst";
 import { erBrukerResertMotElektroniskKommunikasjon } from "../../utils/Bruker";
+import { useFeatureToggle } from "../../core/api/feature-toggles";
 
 const whiteListOpprettAvtaleKnapp: Tiltakskode[] = [
   Tiltakskode.MIDLONTIL,
@@ -90,6 +92,9 @@ const ViewTiltaksgjennomforingDetaljer = ({
   const { logEvent } = useLogEvent();
   const originaldeletekstFraTiltakstypen = tiltaksgjennomforing.tiltakstype.delingMedBruker ?? "";
   const brukernavn = erPreview() ? "{Navn}" : brukerdata?.fornavn;
+  const { data: enableDeltakerRegistrering } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_VEILEDERFLATE_VIS_DELTAKER_REGISTRERING,
+  );
 
   const deletekst = utledDelMedBrukerTekst(
     originaldeletekstFraTiltakstypen,
@@ -176,6 +181,11 @@ const ViewTiltaksgjennomforingDetaljer = ({
                 Opprett avtale
               </Button>
             )}
+            {enableDeltakerRegistrering && !opprettAvtale ? (
+              <Link className={styles.link} to="./deltaker">
+                Meld på
+              </Link>
+            ) : null}
             <Button
               onClick={handleClickApneModal}
               variant="secondary"
