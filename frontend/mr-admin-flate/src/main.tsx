@@ -1,19 +1,15 @@
 import "@navikt/ds-css";
-import { Alert, BodyShort, Heading } from "@navikt/ds-react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { ApiError } from "mulighetsrommet-api-client";
-import { PORTEN } from "mulighetsrommet-frontend-common/constants";
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { ErrorBoundary, FallbackProps } from "react-error-boundary";
-import { Link, BrowserRouter as Router } from "react-router-dom";
+import { BrowserRouter as Router } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
 import { App } from "./App";
-import { resolveErrorMessage } from "./api/errors";
 import { AdministratorHeader } from "./components/administrator/AdministratorHeader";
 import { MiljoBanner } from "./components/miljobanner/MiljoBanner";
 import "./index.css";
+import { ReloadAppErrorBoundary } from "./ErrorBoundary";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -44,33 +40,13 @@ function render() {
       <QueryClientProvider client={queryClient}>
         <MiljoBanner />
         <Router basename={import.meta.env.BASE_URL}>
-          <ErrorBoundary FallbackComponent={ErrorFallback}>
+          <ReloadAppErrorBoundary>
             <AdministratorHeader />
             <App />
-          </ErrorBoundary>
+          </ReloadAppErrorBoundary>
         </Router>
         <ReactQueryDevtools initialIsOpen={false} />
       </QueryClientProvider>
     </React.StrictMode>,
-  );
-}
-
-export function ErrorFallback({ error }: FallbackProps) {
-  const heading = error instanceof ApiError ? resolveErrorMessage(error) : error.message;
-
-  return (
-    <div className="error">
-      <Alert variant="error">
-        <Heading size="medium" level="2">
-          {heading || "Det oppsto dessverre en feil"}
-        </Heading>
-        <BodyShort>
-          Hvis problemet vedvarer opprett en sak via <a href={PORTEN}>Porten</a>.
-        </BodyShort>
-        <Link to="/" reloadDocument className="error-link">
-          Ta meg til forsiden og prøv igjen
-        </Link>
-      </Alert>
-    </div>
   );
 }

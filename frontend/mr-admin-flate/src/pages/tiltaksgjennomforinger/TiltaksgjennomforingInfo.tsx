@@ -10,6 +10,7 @@ import { TiltaksgjennomforingKnapperad } from "./TiltaksgjennomforingKnapperad";
 import { RedaksjoneltInnhold } from "./RedaksjoneltInnhold";
 import { gjennomforingDetaljerTabAtom } from "../../api/atoms";
 import { useAtom } from "jotai";
+import { InlineErrorBoundary } from "../../ErrorBoundary";
 
 export function TiltaksgjennomforingInfo() {
   const {
@@ -59,17 +60,21 @@ export function TiltaksgjennomforingInfo() {
           )}
         </Tabs.List>
         <Tabs.Panel value="detaljer">
-          <TiltaksgjennomforingDetaljer
-            tiltaksgjennomforing={tiltaksgjennomforing}
-            avtale={avtale}
-          />
+          <InlineErrorBoundary>
+            <TiltaksgjennomforingDetaljer
+              tiltaksgjennomforing={tiltaksgjennomforing}
+              avtale={avtale}
+            />
+          </InlineErrorBoundary>
         </Tabs.Panel>
         <Tabs.Panel value="redaksjonelt_innhold">
-          <RedaksjoneltInnhold
-            tiltakstypeId={tiltaksgjennomforing.tiltakstype.id}
-            beskrivelse={tiltaksgjennomforing.beskrivelse}
-            faneinnhold={tiltaksgjennomforing.faneinnhold}
-          />
+          <InlineErrorBoundary>
+            <RedaksjoneltInnhold
+              tiltakstypeId={tiltaksgjennomforing.tiltakstype.id}
+              beskrivelse={tiltaksgjennomforing.beskrivelse}
+              faneinnhold={tiltaksgjennomforing.faneinnhold}
+            />
+          </InlineErrorBoundary>
         </Tabs.Panel>
       </Tabs>
     </div>
