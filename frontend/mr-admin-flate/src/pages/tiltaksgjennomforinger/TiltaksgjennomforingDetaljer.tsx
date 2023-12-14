@@ -1,6 +1,10 @@
 import { ExclamationmarkTriangleIcon, ExternalLinkIcon } from "@navikt/aksel-icons";
 import { Heading, HelpText } from "@navikt/ds-react";
-import { Avtale, Tiltaksgjennomforing } from "mulighetsrommet-api-client";
+import {
+  Avtale,
+  Tiltaksgjennomforing,
+  TiltaksgjennomforingOppstartstype,
+} from "mulighetsrommet-api-client";
 import { NOM_ANSATT_SIDE } from "mulighetsrommet-frontend-common/constants";
 import { Bolk } from "../../components/detaljside/Bolk";
 import { Metadata, Separator } from "../../components/detaljside/Metadata";
@@ -94,7 +98,11 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
           <Bolk aria-label="Oppstartsdato">
             <Metadata
               header="Oppstart"
-              verdi={isTiltakMedFellesOppstart(tiltaksgjennomforing.tiltakstype.arenaKode)}
+              verdi={
+                tiltaksgjennomforing.oppstart === TiltaksgjennomforingOppstartstype.FELLES
+                  ? "Felles"
+                  : "Løpende oppstart"
+              }
             />
             {Boolean(tiltaksgjennomforing.stengtFra) &&
               Boolean(tiltaksgjennomforing.stengtTil) &&
