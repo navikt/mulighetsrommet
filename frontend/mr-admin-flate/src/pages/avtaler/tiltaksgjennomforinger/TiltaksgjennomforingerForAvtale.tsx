@@ -1,8 +1,7 @@
 import { Tabs } from "@navikt/ds-react";
-import { ErrorBoundary } from "react-error-boundary";
 import { useAvtale } from "../../../api/avtaler/useAvtale";
-import { ErrorFallback } from "../../../main";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import { ReloadAppErrorBoundary } from "../../../ErrorBoundary";
 
 export function TiltaksgjennomforingerForAvtale() {
   const { data: avtale } = useAvtale();
@@ -25,11 +24,11 @@ export function TiltaksgjennomforingerForAvtale() {
           aria-controls="inner-panel"
         />
       </Tabs.List>
-      <ErrorBoundary FallbackComponent={ErrorFallback}>
+      <ReloadAppErrorBoundary>
         <div id="inner-panel">
           <Outlet />
         </div>
-      </ErrorBoundary>
+      </ReloadAppErrorBoundary>
     </Tabs>
   );
 }
