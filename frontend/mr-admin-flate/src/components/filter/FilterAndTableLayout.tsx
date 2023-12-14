@@ -23,6 +23,7 @@ export function FilterAndTableLayout(props: Props) {
             className={styles.filter_tab}
             onClick={() => setFilterSelected(!filterSelected)}
             value="filter"
+            data-testid="filter-tab"
             label="Filter"
             icon={<FunnelIcon title="filter" />}
             aria-controls="filter"
