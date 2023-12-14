@@ -27,7 +27,7 @@ import {
 import { erArenaOpphav, utkastDataEllerDefault } from "./TiltaksgjennomforingSkjemaConst";
 import { TiltaksgjennomforingSkjemaDetaljer } from "./TiltaksgjennomforingSkjemaDetaljer";
 import { TiltaksgjennomforingSkjemaKnapperad } from "./TiltaksgjennomforingSkjemaKnapperad";
-import { TiltaksgjennomforingUtkastData } from "./TiltaksgjennomforingSkjemaPage";
+import { TiltaksgjennomforingUtkastData } from "../../pages/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaPage";
 import { TiltaksgjennomforingSkjemaRedInnhold } from "./TiltaksgjennomforingSkjemaRedInnhold";
 
 interface Props {

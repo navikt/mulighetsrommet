@@ -7,7 +7,7 @@ import {
   TiltaksgjennomforingOppstartstype,
   Virksomhet,
 } from "mulighetsrommet-api-client";
-import { TiltaksgjennomforingUtkastData } from "./TiltaksgjennomforingSkjemaPage";
+import { TiltaksgjennomforingUtkastData } from "../../pages/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaPage";
 import { InferredTiltaksgjennomforingSchema } from "./TiltaksgjennomforingSchema";
 import { DeepPartial } from "react-hook-form";
 
