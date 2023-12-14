@@ -184,9 +184,7 @@ export const AvtaleTabell = ({ avtalefilter, paginerteAvtaler, isLoading }: Prop
               <Table.ColumnHeader sortKey="leverandor" sortable>
                 Leverandør
               </Table.ColumnHeader>
-              <Table.ColumnHeader sortKey="nav-enhet" sortable>
-                Region
-              </Table.ColumnHeader>
+              <Table.ColumnHeader>Region</Table.ColumnHeader>
               <Table.ColumnHeader sortKey="startdato" sortable>
                 Startdato
               </Table.ColumnHeader>
