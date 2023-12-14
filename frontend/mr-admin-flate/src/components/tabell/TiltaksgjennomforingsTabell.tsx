@@ -176,7 +176,7 @@ export const TiltaksgjennomforingsTabell = ({
           sort={sort!}
           onSortChange={(sortKey) => handleSort(sortKey!)}
           className={styles.tabell}
-          data-testid="tiltaksgjennomforing_tabell"
+          data-testid="tiltaksgjennomforing-tabell"
         >
           <Table.Header>
             <Table.Row className={styles.tiltaksgjennomforing_tabellrad}>
@@ -208,7 +208,12 @@ export const TiltaksgjennomforingsTabell = ({
                         aria-label={`Navn på tiltaksgjennomforing: ${tiltaksgjennomforing.navn}`}
                         className={styles.title}
                       >
-                        <Lenke to={`${tiltaksgjennomforing.id}`}>{tiltaksgjennomforing.navn}</Lenke>
+                        <Lenke
+                          to={`${tiltaksgjennomforing.id}`}
+                          data-testid="tiltaksgjennomforing-tabell_tittel"
+                        >
+                          {tiltaksgjennomforing.navn}
+                        </Lenke>
                       </Table.DataCell>
                     </SkjulKolonne>
 
