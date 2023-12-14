@@ -109,6 +109,10 @@ export const AvtaleTabell = ({ avtalefilter, paginerteAvtaler, isLoading }: Prop
           : "descending"
         : "ascending";
 
+    if (sort.orderBy !== sortKey || sort.direction !== direction) {
+      setPage(1); // Hvis sort har endret seg resetter vi første page
+    }
+
     setSort({
       orderBy: sortKey,
       direction,
@@ -184,9 +188,7 @@ export const AvtaleTabell = ({ avtalefilter, paginerteAvtaler, isLoading }: Prop
               <Table.ColumnHeader sortKey="leverandor" sortable>
                 Leverandør
               </Table.ColumnHeader>
-              <Table.ColumnHeader sortKey="nav-enhet" sortable>
-                Region
-              </Table.ColumnHeader>
+              <Table.ColumnHeader>Region</Table.ColumnHeader>
               <Table.ColumnHeader sortKey="startdato" sortable>
                 Startdato
               </Table.ColumnHeader>
