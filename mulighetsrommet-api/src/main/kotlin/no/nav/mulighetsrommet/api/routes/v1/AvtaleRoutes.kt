@@ -17,6 +17,7 @@ import no.nav.mulighetsrommet.api.utils.getAvtaleFilter
 import no.nav.mulighetsrommet.api.utils.getPaginationParams
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
+import no.nav.mulighetsrommet.domain.dto.Faneinnhold
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
@@ -117,6 +118,8 @@ data class AvtaleRequest(
     val avtaletype: Avtaletype,
     val prisbetingelser: String?,
     val navEnheter: List<String>,
+    val beskrivelse: String?,
+    val faneinnhold: Faneinnhold?,
     val opphav: ArenaMigrering.Opphav,
 ) {
     fun toDbo() = AvtaleDbo(
@@ -137,8 +140,7 @@ data class AvtaleRequest(
         navEnheter = navEnheter,
         opphav = opphav,
         updatedAt = LocalDate.now().atStartOfDay(),
-        // TODO: frontend
-        beskrivelse = null,
-        faneinnhold = null,
+        beskrivelse = beskrivelse,
+        faneinnhold = faneinnhold,
     )
 }

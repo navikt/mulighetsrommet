@@ -6,15 +6,15 @@ import { useTiltaksgjennomforingById } from "../../api/tiltaksgjennomforing/useT
 import { useUtkast } from "../../api/utkast/useUtkast";
 import { ContainerLayout } from "../../layouts/ContainerLayout";
 import { avtaleHarRegioner, inneholderUrl } from "../../utils/Utils";
-import { Header } from "../detaljside/Header";
-import { Laster } from "../laster/Laster";
-import styles from "../skjema/Skjema.module.scss";
+import { Header } from "../../components/detaljside/Header";
+import { Laster } from "../../components/laster/Laster";
+import styles from "../../components/skjema/Skjema.module.scss";
 import {
   InferredTiltaksgjennomforingSchema,
   TiltaksgjennomforingSchema,
-} from "./TiltaksgjennomforingSchema";
-import { TiltaksgjennomforingSkjemaContainer } from "./TiltaksgjennomforingSkjemaContainer";
-import { ErrorMeldinger } from "./TiltaksgjennomforingSkjemaErrors";
+} from "../../components/tiltaksgjennomforinger/TiltaksgjennomforingSchema";
+import { TiltaksgjennomforingSkjemaContainer } from "../../components/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaContainer";
+import { ErrorMeldinger } from "../../components/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaErrors";
 
 export type TiltaksgjennomforingUtkastData = Partial<InferredTiltaksgjennomforingSchema> & {
   id: string;

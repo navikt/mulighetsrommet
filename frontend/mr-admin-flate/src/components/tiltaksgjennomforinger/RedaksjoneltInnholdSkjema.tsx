@@ -1,6 +1,6 @@
-import { Alert, BodyLong, HStack, Heading, Tabs, Textarea } from "@navikt/ds-react";
+import { Alert, BodyLong, Heading, HStack, Tabs, Textarea } from "@navikt/ds-react";
 import { PortableText } from "@portabletext/react";
-import { Avtale, VeilederflateTiltakstype } from "mulighetsrommet-api-client";
+import { EmbeddedTiltakstype, VeilederflateTiltakstype } from "mulighetsrommet-api-client";
 import { useFormContext } from "react-hook-form";
 import { useTiltakstypeFaneinnhold } from "../../api/tiltaksgjennomforing/useTiltakstypeFaneinnhold";
 import { Separator } from "../detaljside/Metadata";
@@ -8,12 +8,12 @@ import { PortableTextEditor } from "../portableText/PortableTextEditor";
 import skjemastyles from "../skjema/Skjema.module.scss";
 
 interface Props {
-  avtale: Avtale;
+  tiltakstype: EmbeddedTiltakstype;
 }
 
-export const TiltaksgjennomforingSkjemaRedInnhold = ({ avtale }: Props) => {
+export const RedaksjoneltInnholdSkjema = ({ tiltakstype }: Props) => {
   const { register } = useFormContext();
-  const { data: tiltakstypeSanityData } = useTiltakstypeFaneinnhold(avtale.tiltakstype.id);
+  const { data: tiltakstypeSanityData } = useTiltakstypeFaneinnhold(tiltakstype.id);
 
   return (
     <div className={skjemastyles.container}>

@@ -7,7 +7,7 @@ import IkkeAutentisertApp from "./IkkeAutentisertApp";
 import { useHentAnsatt } from "./api/ansatt/useHentAnsatt";
 import { avtaleFilterAtom, tiltaksgjennomforingfilterForAvtaleAtom } from "./api/atoms";
 import { useAvtaler } from "./api/avtaler/useAvtaler";
-import AvtaleSkjemaPage from "./components/avtaler/AvtaleSkjemaPage";
+import AvtaleSkjemaPage from "./pages/avtaler/AvtaleSkjemaPage";
 import NotaterAvtalePage from "./components/avtaler/NotaterAvtalePage";
 import { Avtalefilter } from "./components/filter/Avtalefilter";
 import { Tiltaksgjennomforingfilter } from "./components/filter/Tiltaksgjennomforingfilter";
@@ -16,7 +16,7 @@ import { Notifikasjonsliste } from "./components/notifikasjoner/Notifikasjonslis
 import { AvtaleTabell } from "./components/tabell/AvtaleTabell";
 import { TiltaksgjennomforingsTabell } from "./components/tabell/TiltaksgjennomforingsTabell";
 import NotaterTiltaksgjennomforingerPage from "./components/tiltaksgjennomforinger/NotaterTiltaksgjennomforingerPage";
-import TiltaksgjennomforingSkjemaPage from "./components/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaPage";
+import TiltaksgjennomforingSkjemaPage from "./pages/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaPage";
 import { UtkastListe } from "./components/utkast/Utkastliste";
 import { DeltakerListe } from "./microfrontends/team_komet/Deltakerliste";
 import { ErrorPage } from "./pages/ErrorPage";
