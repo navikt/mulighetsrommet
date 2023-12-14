@@ -7,8 +7,8 @@ import {
   NavEnhet,
   NavEnhetType,
   Opphav,
-  UtkastRequest as Utkast,
   UtkastDto,
+  UtkastRequest as Utkast,
   Virksomhet,
 } from "mulighetsrommet-api-client";
 import { MutableRefObject } from "react";
@@ -102,8 +102,10 @@ export function utkastDataEllerDefault(
       startDato: avtale?.startDato ? avtale.startDato : undefined,
       sluttDato: avtale?.sluttDato ? avtale.sluttDato : undefined,
     },
-    url: avtale?.url ?? undefined,
+    url: avtale?.url ?? "",
     prisbetingelser: avtale?.prisbetingelser ?? undefined,
+    beskrivelse: avtale?.beskrivelse ?? undefined,
+    faneinnhold: avtale?.faneinnhold ?? undefined,
     opphav: avtale?.opphav ?? Opphav.MR_ADMIN_FLATE,
     ...utkast,
   };
