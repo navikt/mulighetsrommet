@@ -246,7 +246,9 @@ export function AvtaleSkjemaDetaljer({
                 label={"Tiltaksarrangør hovedenhet"}
                 {...register("leverandor")}
                 onInputChange={(value) => {
-                  setSokLeverandor(value);
+                  if (value) {
+                    setSokLeverandor(value);
+                  }
                 }}
                 onClearValue={() => setValue("leverandor", "")}
                 options={leverandorVirksomheter.map((enhet) => ({
