@@ -1,5 +1,6 @@
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
 import { Alert, Heading, HelpText } from "@navikt/ds-react";
+import { EmbeddedNavEnhet } from "mulighetsrommet-api-client";
 import { NOM_ANSATT_SIDE } from "mulighetsrommet-frontend-common/constants";
 import { Fragment } from "react";
 import { useAvtale } from "../../api/avtaler/useAvtale";
@@ -37,6 +38,10 @@ export function AvtaleDetaljer() {
       </>
     );
   };
+
+  function sorterPaRegionsnavn(a: { region: EmbeddedNavEnhet }, b: { region: EmbeddedNavEnhet }) {
+    return a.region.navn.localeCompare(b.region.navn);
+  }
 
   const {
     navn,
@@ -138,7 +143,7 @@ export function AvtaleDetaljer() {
             header="Fylkessamarbeid"
             verdi={
               <ul>
-                {kontorstruktur.map((kontor) => {
+                {kontorstruktur.sort(sorterPaRegionsnavn).map((kontor) => {
                   return <li key={kontor.region.enhetsnummer}>{kontor.region.navn}</li>;
                 })}
               </ul>
