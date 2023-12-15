@@ -58,7 +58,15 @@ fun Route.avtaleRoutes() {
         get("/excel") {
             val pagination = getPaginationParams()
             val filter = getAvtaleFilter()
-            val overstyrtFilter = filter.copy(sortering = "tiltakstype_navn-ascending")
+            val navIdent = call.parameters["visMineAvtaler"]?.let {
+                if (it == "true") {
+                    getNavIdent()
+                } else {
+                    null
+                }
+            }
+            val overstyrtFilter =
+                filter.copy(sortering = "tiltakstype_navn-ascending", administratorNavIdent = navIdent)
             val result = avtaler.getAll(overstyrtFilter, pagination)
             val file = excelService.createExcelFile(result.data)
             call.response.header(
