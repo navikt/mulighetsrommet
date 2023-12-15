@@ -34,22 +34,26 @@ async function lastNedFil(filter: AvtaleFilterProps) {
 
   const queryParams = new URLSearchParams();
   if (filter.tiltakstype) {
-    queryParams.set("tiltakstypeId", filter.tiltakstype);
+    queryParams.set("tiltakstypeIder", filter.tiltakstype);
   }
   if (filter.sok) {
     queryParams.set("search", filter.sok);
   }
 
   if (filter.status) {
-    queryParams.set("avtalestatus", filter.status);
+    queryParams.set("statuser", filter.status);
   }
 
   if (filter.navRegion) {
-    queryParams.set("navRegion", filter.navRegion);
+    queryParams.set("navRegioner", filter.navRegion);
   }
 
   if (filter.leverandor_orgnr) {
     queryParams.set("leverandorOrgnr", filter.leverandor_orgnr);
+  }
+
+  if (filter.visMineAvtaler) {
+    queryParams.set("visMineAvtaler", "true");
   }
 
   queryParams.set("size", "10000");
