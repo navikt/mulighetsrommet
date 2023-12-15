@@ -28,7 +28,7 @@ import { erArenaOpphav, utkastDataEllerDefault } from "./TiltaksgjennomforingSkj
 import { TiltaksgjennomforingSkjemaDetaljer } from "./TiltaksgjennomforingSkjemaDetaljer";
 import { TiltaksgjennomforingSkjemaKnapperad } from "./TiltaksgjennomforingSkjemaKnapperad";
 import { TiltaksgjennomforingUtkastData } from "../../pages/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaPage";
-import { RedaksjoneltInnholdSkjema } from "./RedaksjoneltInnholdSkjema";
+import { RedaksjoneltInnholdForm } from "../redaksjonelt-innhold/RedaksjoneltInnholdForm";
 
 interface Props {
   onClose: () => void;
@@ -224,7 +224,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
             />
           </Tabs.Panel>
           <Tabs.Panel value="redaksjonelt_innhold">
-            <RedaksjoneltInnholdSkjema tiltakstype={avtale.tiltakstype} />
+            <RedaksjoneltInnholdForm tiltakstype={avtale.tiltakstype} />
           </Tabs.Panel>
         </Tabs>
         <Separator />

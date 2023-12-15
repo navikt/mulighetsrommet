@@ -6,12 +6,33 @@ import { useTiltakstypeFaneinnhold } from "../../api/tiltaksgjennomforing/useTil
 import { Separator } from "../detaljside/Metadata";
 import { PortableTextEditor } from "../portableText/PortableTextEditor";
 import skjemastyles from "../skjema/Skjema.module.scss";
+import { Laster } from "../laster/Laster";
+import React from "react";
+import { InlineErrorBoundary } from "../../ErrorBoundary";
 
-interface Props {
-  tiltakstype: EmbeddedTiltakstype;
+interface RedaksjoneltInnholdFormProps {
+  tiltakstype?: EmbeddedTiltakstype;
 }
 
-export const RedaksjoneltInnholdSkjema = ({ tiltakstype }: Props) => {
+export function RedaksjoneltInnholdForm({ tiltakstype }: RedaksjoneltInnholdFormProps) {
+  if (!tiltakstype) {
+    return (
+      <div className={skjemastyles.container}>
+        <Alert variant="info">Tiltakstype må velges før redaksjonelt innhold kan redigeres.</Alert>
+      </div>
+    );
+  }
+
+  return (
+    <InlineErrorBoundary>
+      <React.Suspense fallback={<Laster tekst="Laster innhold" />}>
+        <RedaksjoneltInnhold tiltakstype={tiltakstype} />
+      </React.Suspense>
+    </InlineErrorBoundary>
+  );
+}
+
+function RedaksjoneltInnhold({ tiltakstype }: { tiltakstype: EmbeddedTiltakstype }) {
   const { register } = useFormContext();
   const { data: tiltakstypeSanityData } = useTiltakstypeFaneinnhold(tiltakstype.id);
 
@@ -64,7 +85,7 @@ export const RedaksjoneltInnholdSkjema = ({ tiltakstype }: Props) => {
       </div>
     </div>
   );
-};
+}
 
 const ForHvem = ({ tiltakstype }: { tiltakstype?: VeilederflateTiltakstype }) => {
   const { register } = useFormContext();

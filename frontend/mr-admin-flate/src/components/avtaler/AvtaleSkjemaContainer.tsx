@@ -30,7 +30,7 @@ import { avtaleDetaljerTabAtom } from "../../api/atoms";
 import { AvtaleSkjemaKnapperad } from "./AvtaleSkjemaKnapperad";
 import { AvbrytAvtaleModal } from "../modal/AvbrytAvtaleModal";
 import { AvtaleSkjemaDetaljer } from "./AvtaleSkjemaDetaljer";
-import { RedaksjoneltInnholdSkjema } from "../tiltaksgjennomforinger/RedaksjoneltInnholdSkjema";
+import { RedaksjoneltInnholdForm } from "../redaksjonelt-innhold/RedaksjoneltInnholdForm";
 
 interface Props {
   onClose: () => void;
@@ -195,7 +195,7 @@ export function AvtaleSkjemaContainer({
             />
           </Tabs.Panel>
           <Tabs.Panel value="redaksjonelt-innhold">
-            <RedaksjoneltInnholdSkjema tiltakstype={watchedTiltakstype} />
+            <RedaksjoneltInnholdForm tiltakstype={watchedTiltakstype} />
           </Tabs.Panel>
         </Tabs>
         <Separator />

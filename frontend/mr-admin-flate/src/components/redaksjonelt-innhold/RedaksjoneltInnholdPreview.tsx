@@ -1,16 +1,29 @@
 import { SanityFaneinnhold } from "mulighetsrommet-api-client";
-import styles from "../DetaljerInfo.module.scss";
+import styles from "../../pages/DetaljerInfo.module.scss";
 import { Alert, BodyLong, Heading } from "@navikt/ds-react";
 import { useTiltakstypeFaneinnhold } from "../../api/tiltaksgjennomforing/useTiltakstypeFaneinnhold";
 import { PortableText } from "@portabletext/react";
+import { InlineErrorBoundary } from "../../ErrorBoundary";
+import React from "react";
+import { Laster } from "../laster/Laster";
 
-interface RedaksjoneltInnholdProps {
+interface RedaksjoneltInnholdPreviewProps {
   tiltakstypeId: string;
   beskrivelse?: string;
   faneinnhold?: SanityFaneinnhold;
 }
 
-export const RedaksjoneltInnhold = (props: RedaksjoneltInnholdProps) => {
+export function RedaksjoneltInnholdPreview(props: RedaksjoneltInnholdPreviewProps) {
+  return (
+    <InlineErrorBoundary>
+      <React.Suspense fallback={<Laster tekst="Laster innhold" />}>
+        <RedaksjoneltInnhold {...props} />
+      </React.Suspense>
+    </InlineErrorBoundary>
+  );
+}
+
+function RedaksjoneltInnhold(props: RedaksjoneltInnholdPreviewProps) {
   const { tiltakstypeId, beskrivelse, faneinnhold } = props;
   const { data: tiltakstypeSanityData } = useTiltakstypeFaneinnhold(tiltakstypeId);
 
@@ -51,7 +64,7 @@ export const RedaksjoneltInnhold = (props: RedaksjoneltInnholdProps) => {
       />
     </div>
   );
-};
+}
 
 interface DetaljerFaneProps {
   tiltaksgjennomforingAlert?: string;
