@@ -24,9 +24,7 @@ export function AvtaleDetaljer() {
 
   const lenketekst = () => {
     let tekst;
-    if (avtale?.url?.includes("mercell")) {
-      tekst = `Se originalavtale i Mercell `;
-    } else if (avtale?.url?.includes("websak")) {
+    if (avtale?.url?.includes("websak")) {
       tekst = `Se originalavtale i WebSak `;
     } else {
       tekst = `Se originalavtale `;
