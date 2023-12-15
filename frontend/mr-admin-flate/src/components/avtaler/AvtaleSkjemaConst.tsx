@@ -104,8 +104,8 @@ export function utkastDataEllerDefault(
     },
     url: avtale?.url ?? "",
     prisbetingelser: avtale?.prisbetingelser ?? undefined,
-    beskrivelse: avtale?.beskrivelse ?? undefined,
-    faneinnhold: avtale?.faneinnhold ?? undefined,
+    beskrivelse: avtale?.beskrivelse ?? null,
+    faneinnhold: avtale?.faneinnhold ?? null,
     opphav: avtale?.opphav ?? Opphav.MR_ADMIN_FLATE,
     ...utkast,
   };
