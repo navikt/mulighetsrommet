@@ -173,6 +173,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
               readOnly={erArenaOpphav(tiltaksgjennomforing)}
               error={errors.antallPlasser?.message as string}
               type="number"
+              min="1"
               style={{
                 width: "180px",
               }}
