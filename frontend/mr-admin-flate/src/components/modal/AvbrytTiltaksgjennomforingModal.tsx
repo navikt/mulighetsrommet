@@ -50,8 +50,7 @@ export const AvbrytTiltaksgjennomforingModal = ({ modalRef, tiltaksgjennomforing
         <BodyShort>
           {mutation?.isError
             ? resolveErrorMessage(mutation.error)
-            : `Hvis gjennomføringens startdato er passert kan du avbryte gjennomføringen. Den vil da
-            bli satt som avbrutt i systemet. Du kan ikke avbryte en gjennomføring som har deltakere
+            : `Du kan ikke avbryte en gjennomføring som har deltakere
             tilknyttet seg.`}
         </BodyShort>
       </Modal.Body>
