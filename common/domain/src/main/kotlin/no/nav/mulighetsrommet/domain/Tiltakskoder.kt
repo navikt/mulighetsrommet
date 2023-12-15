@@ -67,7 +67,7 @@ object Tiltakskoder {
         return tiltakskode in EgenRegiTiltak
     }
 
-    fun hasFellesOppstart(tiltakskode: String): Boolean {
+    fun isKursTiltak(tiltakskode: String): Boolean {
         return tiltakskode in TiltakMedFellesOppstart
     }
 
