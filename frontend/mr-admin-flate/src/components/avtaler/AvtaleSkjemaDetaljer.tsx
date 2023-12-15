@@ -168,7 +168,7 @@ export function AvtaleSkjemaDetaljer({
             <TextField
               size="small"
               error={errors.url?.message}
-              label="URL til avtale fra Mercell eller Websak"
+              label="URL til avtale i Websak"
               {...register("url")}
             />
           </FormGroup>
