@@ -242,15 +242,11 @@ export function AvtaleSkjemaDetaljer({
               <ControlledSokeSelect
                 size="small"
                 readOnly={arenaOpphav}
-                placeholder="Søk etter tiltaksarrangør"
+                placeholder="Skriv for å søke etter tiltaksarrangør"
                 label={"Tiltaksarrangør hovedenhet"}
                 {...register("leverandor")}
                 onInputChange={(value) => {
-                  // Beholder søket hvis input settes til "" for å sørge for at listen med options
-                  // ikke forsvinner når man velger en leverandør
-                  if (value) {
-                    setSokLeverandor(value);
-                  }
+                  setSokLeverandor(value);
                 }}
                 onClearValue={() => setValue("leverandor", "")}
                 options={leverandorVirksomheter.map((enhet) => ({
