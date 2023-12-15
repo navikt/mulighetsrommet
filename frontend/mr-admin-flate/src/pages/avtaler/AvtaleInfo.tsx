@@ -3,7 +3,7 @@ import { useAvtale } from "../../api/avtaler/useAvtale";
 import { Laster } from "../../components/laster/Laster";
 import skjemaStyles from "../../components/skjema/Skjema.module.scss";
 import styles from "../DetaljerInfo.module.scss";
-import { RedaksjoneltInnhold } from "../tiltaksgjennomforinger/RedaksjoneltInnhold";
+import { RedaksjoneltInnholdPreview } from "../../components/redaksjonelt-innhold/RedaksjoneltInnholdPreview";
 import { AvtaleKnapperad } from "./AvtaleKnapperad";
 import { AvtaleDetaljer } from "./AvtaleDetaljer";
 import { useAtom } from "jotai";
@@ -44,7 +44,7 @@ export function AvtaleInfo() {
         </Tabs.Panel>
         <Tabs.Panel value="redaksjonelt-innhold">
           <InlineErrorBoundary>
-            <RedaksjoneltInnhold
+            <RedaksjoneltInnholdPreview
               tiltakstypeId={avtale.tiltakstype.id}
               beskrivelse={avtale.beskrivelse}
               faneinnhold={avtale.faneinnhold}

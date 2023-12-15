@@ -7,7 +7,7 @@ import skjemaStyles from "../../components/skjema/Skjema.module.scss";
 import styles from "../DetaljerInfo.module.scss";
 import { TiltaksgjennomforingDetaljer } from "./TiltaksgjennomforingDetaljer";
 import { TiltaksgjennomforingKnapperad } from "./TiltaksgjennomforingKnapperad";
-import { RedaksjoneltInnhold } from "./RedaksjoneltInnhold";
+import { RedaksjoneltInnholdPreview } from "../../components/redaksjonelt-innhold/RedaksjoneltInnholdPreview";
 import { gjennomforingDetaljerTabAtom } from "../../api/atoms";
 import { useAtom } from "jotai";
 import { InlineErrorBoundary } from "../../ErrorBoundary";
@@ -69,7 +69,7 @@ export function TiltaksgjennomforingInfo() {
         </Tabs.Panel>
         <Tabs.Panel value="redaksjonelt_innhold">
           <InlineErrorBoundary>
-            <RedaksjoneltInnhold
+            <RedaksjoneltInnholdPreview
               tiltakstypeId={tiltaksgjennomforing.tiltakstype.id}
               beskrivelse={tiltaksgjennomforing.beskrivelse}
               faneinnhold={tiltaksgjennomforing.faneinnhold}
