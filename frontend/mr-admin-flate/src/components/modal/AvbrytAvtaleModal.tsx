@@ -50,8 +50,7 @@ export const AvbrytAvtaleModal = ({ modalRef, avtale }: Props) => {
         <BodyShort>
           {mutation?.isError
             ? resolveErrorMessage(mutation.error)
-            : `Hvis avtalens startdato er passert kan du avbryte avtalen. Den vil da bli satt som
-            avbrutt i systemet. Du kan ikke avbryte en avtale som har tiltaksgjennomføringer
+            : `Du kan ikke avbryte en avtale som har tiltaksgjennomføringer
             tilknyttet seg.`}
         </BodyShort>
       </Modal.Body>
