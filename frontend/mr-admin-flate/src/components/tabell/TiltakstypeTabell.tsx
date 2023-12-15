@@ -1,26 +1,20 @@
-import { Alert, Pagination, Table } from "@navikt/ds-react";
+import { Alert, Table } from "@navikt/ds-react";
 import classNames from "classnames";
 import { useAtom } from "jotai";
-import Lenke from "mulighetsrommet-veileder-flate/src/components/lenke/Lenke";
 import { SorteringTiltakstyper } from "mulighetsrommet-api-client";
-import { paginationAtom, tiltakstypeFilterAtom } from "../../api/atoms";
+import Lenke from "mulighetsrommet-veileder-flate/src/components/lenke/Lenke";
+import { tiltakstypeFilterAtom } from "../../api/atoms";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
-import { PAGE_SIZE } from "../../constants";
 import { useSort } from "../../hooks/useSort";
-import pageStyles from "../../pages/Page.module.scss";
 import { formaterDato } from "../../utils/Utils";
 import { Laster } from "../laster/Laster";
-import { PagineringContainer } from "../paginering/PagineringContainer";
-import { PagineringsOversikt } from "../paginering/PagineringOversikt";
 import { TiltakstypestatusTag } from "../statuselementer/TiltakstypestatusTag";
 import styles from "./Tabell.module.scss";
 
 export const TiltakstypeTabell = () => {
-  const [page, setPage] = useAtom(paginationAtom);
   const [filter, setFilter] = useAtom(tiltakstypeFilterAtom);
-  const { data, isLoading } = useTiltakstyper(filter, page);
+  const { data, isLoading } = useTiltakstyper(filter);
   const [sort, setSort] = useSort("navn");
-  const pagination = data?.pagination;
   const tiltakstyper = data?.data ?? [];
 
   if ((!tiltakstyper || tiltakstyper.length === 0) && isLoading) {
@@ -46,12 +40,6 @@ export const TiltakstypeTabell = () => {
   };
   return (
     <div className={classNames(styles.tabell_wrapper, styles.tiltakstypetabell)}>
-      <PagineringsOversikt
-        page={page}
-        antall={tiltakstyper.length}
-        maksAntall={pagination?.totalCount}
-        type="tiltakstyper"
-      />
       <Table
         sort={sort!}
         onSortChange={(sortKey) => handleSort(sortKey!)}
@@ -82,7 +70,6 @@ export const TiltakstypeTabell = () => {
                   >
                     <Lenke to={`/tiltakstyper/${tiltakstype.id}`}>{tiltakstype.navn}</Lenke>
                   </Table.DataCell>
-
                   <Table.DataCell aria-label={`Startdato: ${formaterDato(tiltakstype.fraDato)}`}>
                     {formaterDato(tiltakstype.fraDato)}
                   </Table.DataCell>
@@ -100,24 +87,6 @@ export const TiltakstypeTabell = () => {
           <></>
         )}
       </Table>
-      {tiltakstyper.length > 0 ? (
-        <PagineringContainer>
-          <PagineringsOversikt
-            page={page}
-            antall={tiltakstyper.length}
-            maksAntall={pagination?.totalCount}
-            type="tiltakstyper"
-          />
-          <Pagination
-            className={pageStyles.pagination}
-            size="small"
-            page={page}
-            onPageChange={setPage}
-            count={Math.ceil((pagination?.totalCount ?? PAGE_SIZE) / PAGE_SIZE)}
-            data-version="v1"
-          />
-        </PagineringContainer>
-      ) : null}
     </div>
   );
 };
