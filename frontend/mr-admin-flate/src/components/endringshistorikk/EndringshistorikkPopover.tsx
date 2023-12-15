@@ -31,7 +31,7 @@ export function EndringshistorikkPopover({ children }: EndringshistorikkPopoverP
         anchorEl={buttonRef.current}
         placement="bottom-end"
       >
-        <Popover.Content>
+        <Popover.Content style={{ maxHeight: "350px", overflowY: "auto" }}>
           <React.Suspense fallback={<Loader title="Laster endringshistorikk" />}>
             <InlineErrorBoundary>{open ? children : null}</InlineErrorBoundary>
           </React.Suspense>
