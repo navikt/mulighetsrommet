@@ -28,7 +28,7 @@ export function ValideringsfeilOppsummering() {
 
   const messages = hentUtValideringsfeil(errors);
 
-  if (messages.length === 0 && !errors) return null;
+  if (messages.length === 0 && Object.values(errors).length > 0) return null;
 
   return (
     <>
