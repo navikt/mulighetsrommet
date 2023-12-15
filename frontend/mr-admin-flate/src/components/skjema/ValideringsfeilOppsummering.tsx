@@ -28,7 +28,7 @@ export function ValideringsfeilOppsummering() {
 
   const messages = hentUtValideringsfeil(errors);
 
-  if (messages.length === 0) return null;
+  if (messages.length === 0 && !errors) return null;
 
   return (
     <>
@@ -62,6 +62,7 @@ export function ValideringsfeilOppsummering() {
                 </ErrorSummary.Item>
               );
             })}
+            <pre>{JSON.stringify(errors, null, 2)}</pre>
           </ErrorSummary>
         </Popover.Content>
       </Popover>

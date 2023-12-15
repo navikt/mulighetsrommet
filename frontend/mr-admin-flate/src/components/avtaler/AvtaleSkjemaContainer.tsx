@@ -140,6 +140,11 @@ export function AvtaleSkjemaContainer({
 
   const hasErrors = Object.keys(errors).length > 0;
 
+  if (hasErrors) {
+    // eslint-disable-next-line no-console
+    console.error(errors);
+  }
+
   return (
     <FormProvider {...form}>
       <form onSubmit={handleSubmit(postData)}>
