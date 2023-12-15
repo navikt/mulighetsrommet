@@ -10,6 +10,7 @@ import { Laster } from "../../components/laster/Laster";
 import { avtaletypeTilTekst, formaterDato } from "../../utils/Utils";
 import { erAnskaffetTiltak } from "../../utils/tiltakskoder";
 import styles from "../DetaljerInfo.module.scss";
+import { Link } from "react-router-dom";
 
 export function AvtaleDetaljer() {
   const { data: avtale, isPending, error } = useAvtale();
@@ -66,7 +67,10 @@ export function AvtaleDetaljer() {
         </Bolk>
 
         <Bolk aria-label="Tiltakstype">
-          <Metadata header="Tiltakstype" verdi={tiltakstype.navn} />
+          <Metadata
+            header="Tiltakstype"
+            verdi={<Link to={`/tiltakstyper/${tiltakstype.id}`}>{tiltakstype.navn}</Link>}
+          />
         </Bolk>
 
         <Bolk aria-label="Avtaletype">
