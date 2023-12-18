@@ -1,12 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { useAtom } from "jotai";
 import { PAGE_SIZE } from "../../constants";
-import { paginationAtom } from "../atoms";
+import { gjennomforingPaginationAtom } from "../atoms";
 import { mulighetsrommetClient } from "../clients";
 import { QueryKeys } from "../QueryKeys";
 
 export function useTiltaksgjennomforingerByEnhet(enhet: string = "") {
-  const [page] = useAtom(paginationAtom);
+  const [page] = useAtom(gjennomforingPaginationAtom);
 
   return useQuery({
     queryKey: QueryKeys.tiltaksgjennomforingerByEnhet(enhet, page),
