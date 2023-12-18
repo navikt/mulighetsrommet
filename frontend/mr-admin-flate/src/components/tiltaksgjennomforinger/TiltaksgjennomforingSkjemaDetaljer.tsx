@@ -1,5 +1,5 @@
 import { PlusIcon, XMarkIcon } from "@navikt/aksel-icons";
-import { Button, Checkbox, Label, Textarea, TextField } from "@navikt/ds-react";
+import { Button, Checkbox, Label, TextField, Textarea } from "@navikt/ds-react";
 import {
   Avtale,
   Tiltaksgjennomforing,
