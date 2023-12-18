@@ -15,6 +15,7 @@ import {
 } from "../../components/tiltaksgjennomforinger/TiltaksgjennomforingSchema";
 import { TiltaksgjennomforingSkjemaContainer } from "../../components/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaContainer";
 import { ErrorMeldinger } from "../../components/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaErrors";
+import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
 
 export type TiltaksgjennomforingUtkastData = Partial<InferredTiltaksgjennomforingSchema> & {
   id: string;
@@ -30,6 +31,7 @@ const TiltaksgjennomforingSkjemaPage = () => {
     TiltaksgjennomforingSchema,
     searchParams.get("utkastId") || undefined,
   );
+  const { data: ansatt, isPending: isPendingAnsatt } = useHentAnsatt();
   const { data: avtale, isLoading: avtaleIsLoading } = useAvtale(
     tiltaksgjennomforing?.avtaleId ?? utkast?.utkastData.avtaleId,
   );
@@ -46,7 +48,7 @@ const TiltaksgjennomforingSkjemaPage = () => {
 
   const isError = !avtale || !avtaleHarRegioner(avtale);
 
-  if (avtaleIsLoading || utkastLoading || tiltaksgjennomforingLoading) {
+  if (avtaleIsLoading || utkastLoading || tiltaksgjennomforingLoading || isPendingAnsatt) {
     return (
       <Laster
         size="xlarge"
@@ -58,7 +60,7 @@ const TiltaksgjennomforingSkjemaPage = () => {
   let content = null;
   if (isError) {
     content = <Alert variant="error">{ErrorMeldinger(avtale)}</Alert>;
-  } else if (avtale) {
+  } else if (avtale && ansatt) {
     content = (
       <TiltaksgjennomforingSkjemaContainer
         onClose={() => {
@@ -67,6 +69,7 @@ const TiltaksgjennomforingSkjemaPage = () => {
         }}
         onSuccess={(id) => navigate(`/tiltaksgjennomforinger/${id}`)}
         avtale={avtale}
+        ansatt={ansatt}
         tiltaksgjennomforing={tiltaksgjennomforing}
         tiltaksgjennomforingUtkast={
           { ...utkast?.utkastData, id: utkast?.id } as TiltaksgjennomforingUtkastData

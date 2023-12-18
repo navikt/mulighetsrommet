@@ -4,6 +4,7 @@ import { Alert, Button, Tabs } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import {
   Avtale,
+  NavAnsatt,
   Tiltaksgjennomforing,
   TiltaksgjennomforingRequest,
   UtkastRequest as Utkast,
@@ -11,14 +12,15 @@ import {
 import React, { useRef, useState } from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { v4 as uuidv4 } from "uuid";
-import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
 import { gjennomforingDetaljerTabAtom } from "../../api/atoms";
 import { useHandleApiUpsertResponse } from "../../api/effects";
 import { useUpsertTiltaksgjennomforing } from "../../api/tiltaksgjennomforing/useUpsertTiltaksgjennomforing";
 import { useMutateUtkast } from "../../api/utkast/useMutateUtkast";
+import { TiltaksgjennomforingUtkastData } from "../../pages/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaPage";
 import { formaterDatoSomYYYYMMDD, formaterDatoTid } from "../../utils/Utils";
 import { Separator } from "../detaljside/Metadata";
 import { AvbrytTiltaksgjennomforingModal } from "../modal/AvbrytTiltaksgjennomforingModal";
+import { RedaksjoneltInnholdForm } from "../redaksjonelt-innhold/RedaksjoneltInnholdForm";
 import skjemastyles from "../skjema/Skjema.module.scss";
 import {
   InferredTiltaksgjennomforingSchema,
@@ -27,19 +29,19 @@ import {
 import { erArenaOpphav, utkastDataEllerDefault } from "./TiltaksgjennomforingSkjemaConst";
 import { TiltaksgjennomforingSkjemaDetaljer } from "./TiltaksgjennomforingSkjemaDetaljer";
 import { TiltaksgjennomforingSkjemaKnapperad } from "./TiltaksgjennomforingSkjemaKnapperad";
-import { TiltaksgjennomforingUtkastData } from "../../pages/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaPage";
-import { RedaksjoneltInnholdForm } from "../redaksjonelt-innhold/RedaksjoneltInnholdForm";
 
 interface Props {
   onClose: () => void;
   onSuccess: (id: string) => void;
   avtale: Avtale;
+  ansatt: NavAnsatt;
   tiltaksgjennomforing?: Tiltaksgjennomforing;
   tiltaksgjennomforingUtkast?: TiltaksgjennomforingUtkastData;
 }
 
 export const TiltaksgjennomforingSkjemaContainer = ({
   avtale,
+  ansatt,
   tiltaksgjennomforing,
   tiltaksgjennomforingUtkast,
   onClose,
@@ -54,7 +56,6 @@ export const TiltaksgjennomforingSkjemaContainer = ({
   const [activeTab, setActiveTab] = useAtom(gjennomforingDetaljerTabAtom);
 
   const avbrytModalRef = useRef<HTMLDialogElement>(null);
-  const { data: ansatt } = useHentAnsatt();
 
   const saveUtkast = (
     values: InferredTiltaksgjennomforingSchema,
@@ -82,7 +83,12 @@ export const TiltaksgjennomforingSkjemaContainer = ({
 
   const form = useForm<InferredTiltaksgjennomforingSchema>({
     resolver: zodResolver(TiltaksgjennomforingSchema),
-    defaultValues: utkastDataEllerDefault(avtale, tiltaksgjennomforingUtkast, tiltaksgjennomforing),
+    defaultValues: utkastDataEllerDefault(
+      ansatt,
+      avtale,
+      tiltaksgjennomforingUtkast,
+      tiltaksgjennomforing,
+    ),
   });
 
   const {
@@ -90,6 +96,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
     formState: { defaultValues, errors },
     watch,
   } = form;
+
   const postData: SubmitHandler<InferredTiltaksgjennomforingSchema> = async (
     data,
   ): Promise<void> => {

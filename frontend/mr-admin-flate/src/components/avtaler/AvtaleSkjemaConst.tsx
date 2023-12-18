@@ -86,8 +86,7 @@ export function utkastDataEllerDefault(
     tiltakstype: avtale?.tiltakstype,
     navRegioner,
     navEnheter,
-    administratorer:
-      avtale?.administratorer?.map((admin) => admin.navIdent) || [ansatt.navIdent] || [],
+    administratorer: avtale?.administratorer?.map((admin) => admin.navIdent) || [ansatt.navIdent],
     navn: avtale?.navn ?? "",
     avtaletype: avtale?.avtaletype ?? Avtaletype.AVTALE,
     leverandor: avtale?.leverandor?.organisasjonsnummer ?? "",
