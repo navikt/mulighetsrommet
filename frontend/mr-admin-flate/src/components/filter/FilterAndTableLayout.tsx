@@ -3,6 +3,7 @@ import { useState } from "react";
 import styles from "./Filter.module.scss";
 import { Separator } from "../detaljside/Metadata";
 import { FunnelIcon } from "@navikt/aksel-icons";
+import classNames from "classnames";
 
 interface Props {
   filter: React.ReactNode;
@@ -31,11 +32,7 @@ export function FilterAndTableLayout(props: Props) {
         </Tabs.List>
       </Tabs>
       <div className={styles.button_row}>{buttons}</div>
-      <div
-        id="filter"
-        style={{ display: filterSelected ? "grid" : "none" }}
-        className={styles.filter}
-      >
+      <div id="filter" className={classNames(styles.filter, !filterSelected && styles.hide_filter)}>
         {filter}
       </div>
       <div className={styles.tags_and_table_container}>
