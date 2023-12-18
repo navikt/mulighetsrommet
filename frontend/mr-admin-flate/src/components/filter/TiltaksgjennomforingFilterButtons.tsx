@@ -8,10 +8,10 @@ import { inneholderUrl } from "../../utils/Utils";
 import { Lenkeknapp } from "../lenkeknapp/Lenkeknapp";
 import { LeggTilGjennomforingModal } from "../modal/LeggTilGjennomforingModal";
 import {
-  TiltaksgjennomforingfilterProps,
   defaultTiltaksgjennomforingfilter,
+  TiltaksgjennomforingfilterProps,
 } from "../../api/atoms";
-import { WritableAtom, useAtom } from "jotai";
+import { useAtom, WritableAtom } from "jotai";
 
 interface Props {
   filterAtom: WritableAtom<
@@ -82,6 +82,7 @@ export function TiltaksgjennomforingFilterButtons({ filterAtom }: Props) {
               handleClick={() => {
                 faro?.api?.pushEvent("Bruker trykket på 'Opprett ny tiltaksgjennomføring'-knapp");
               }}
+              dataTestid="opprett-ny-tiltaksgjenomforing_knapp"
             >
               Opprett ny tiltaksgjennomføring
             </Lenkeknapp>
