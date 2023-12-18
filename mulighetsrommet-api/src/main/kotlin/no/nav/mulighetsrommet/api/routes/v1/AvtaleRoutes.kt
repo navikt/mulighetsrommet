@@ -17,6 +17,7 @@ import no.nav.mulighetsrommet.api.utils.getAvtaleFilter
 import no.nav.mulighetsrommet.api.utils.getPaginationParams
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
+import no.nav.mulighetsrommet.domain.dto.Faneinnhold
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
@@ -57,7 +58,15 @@ fun Route.avtaleRoutes() {
         get("/excel") {
             val pagination = getPaginationParams()
             val filter = getAvtaleFilter()
-            val overstyrtFilter = filter.copy(sortering = "tiltakstype_navn-ascending")
+            val navIdent = call.parameters["visMineAvtaler"]?.let {
+                if (it == "true") {
+                    getNavIdent()
+                } else {
+                    null
+                }
+            }
+            val overstyrtFilter =
+                filter.copy(sortering = "tiltakstype_navn-ascending", administratorNavIdent = navIdent)
             val result = avtaler.getAll(overstyrtFilter, pagination)
             val file = excelService.createExcelFile(result.data)
             call.response.header(
@@ -117,6 +126,8 @@ data class AvtaleRequest(
     val avtaletype: Avtaletype,
     val prisbetingelser: String?,
     val navEnheter: List<String>,
+    val beskrivelse: String?,
+    val faneinnhold: Faneinnhold?,
     val opphav: ArenaMigrering.Opphav,
 ) {
     fun toDbo() = AvtaleDbo(
@@ -137,5 +148,7 @@ data class AvtaleRequest(
         navEnheter = navEnheter,
         opphav = opphav,
         updatedAt = LocalDate.now().atStartOfDay(),
+        beskrivelse = beskrivelse,
+        faneinnhold = faneinnhold,
     )
 }

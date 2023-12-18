@@ -4,11 +4,11 @@ import { useAvtale } from "../../api/avtaler/useAvtale";
 import { useTiltaksgjennomforingById } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforingById";
 import { ContainerLayout } from "../../layouts/ContainerLayout";
 import { avtaleHarRegioner, inneholderUrl } from "../../utils/Utils";
-import { Header } from "../detaljside/Header";
-import { Laster } from "../laster/Laster";
-import styles from "../skjema/Skjema.module.scss";
-import { TiltaksgjennomforingSkjemaContainer } from "./TiltaksgjennomforingSkjemaContainer";
-import { ErrorMeldinger } from "./TiltaksgjennomforingSkjemaErrors";
+import { Header } from "../../components/detaljside/Header";
+import { Laster } from "../../components/laster/Laster";
+import styles from "../../components/skjema/Skjema.module.scss";
+import { TiltaksgjennomforingSkjemaContainer } from "../../components/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaContainer";
+import { ErrorMeldinger } from "../../components/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaErrors";
 
 const TiltaksgjennomforingSkjemaPage = () => {
   const navigate = useNavigate();

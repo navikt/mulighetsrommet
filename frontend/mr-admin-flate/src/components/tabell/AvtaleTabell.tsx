@@ -34,22 +34,26 @@ async function lastNedFil(filter: AvtaleFilterProps) {
 
   const queryParams = new URLSearchParams();
   if (filter.tiltakstype) {
-    queryParams.set("tiltakstypeId", filter.tiltakstype);
+    queryParams.set("tiltakstypeIder", filter.tiltakstype);
   }
   if (filter.sok) {
     queryParams.set("search", filter.sok);
   }
 
   if (filter.status) {
-    queryParams.set("avtalestatus", filter.status);
+    queryParams.set("statuser", filter.status);
   }
 
   if (filter.navRegion) {
-    queryParams.set("navRegion", filter.navRegion);
+    queryParams.set("navRegioner", filter.navRegion);
   }
 
   if (filter.leverandor_orgnr) {
     queryParams.set("leverandorOrgnr", filter.leverandor_orgnr);
+  }
+
+  if (filter.visMineAvtaler) {
+    queryParams.set("visMineAvtaler", "true");
   }
 
   queryParams.set("size", "10000");
@@ -108,6 +112,10 @@ export const AvtaleTabell = ({ avtalefilter, paginerteAvtaler, isLoading }: Prop
           ? "ascending"
           : "descending"
         : "ascending";
+
+    if (sort.orderBy !== sortKey || sort.direction !== direction) {
+      setPage(1); // Hvis sort har endret seg resetter vi første page
+    }
 
     setSort({
       orderBy: sortKey,
@@ -184,9 +192,7 @@ export const AvtaleTabell = ({ avtalefilter, paginerteAvtaler, isLoading }: Prop
               <Table.ColumnHeader sortKey="leverandor" sortable>
                 Leverandør
               </Table.ColumnHeader>
-              <Table.ColumnHeader sortKey="nav-enhet" sortable>
-                Region
-              </Table.ColumnHeader>
+              <Table.ColumnHeader>Region</Table.ColumnHeader>
               <Table.ColumnHeader sortKey="startdato" sortable>
                 Startdato
               </Table.ColumnHeader>

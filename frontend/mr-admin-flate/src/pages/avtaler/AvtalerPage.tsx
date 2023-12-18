@@ -1,13 +1,12 @@
-import { ErrorBoundary } from "react-error-boundary";
-import { HeaderBanner } from "../../layouts/HeaderBanner";
-import { ErrorFallback } from "../../main";
-import { ContainerLayout } from "../../layouts/ContainerLayout";
-import { MainContainer } from "../../layouts/MainContainer";
-import { useTitle } from "mulighetsrommet-frontend-common";
 import { useAvtaler } from "../../api/avtaler/useAvtaler";
 import { avtaleFilterAtom } from "../../api/atoms";
 import { Avtalefilter } from "../../components/filter/Avtalefilter";
 import { AvtaleTabell } from "../../components/tabell/AvtaleTabell";
+import { HeaderBanner } from "../../layouts/HeaderBanner";
+import { ContainerLayout } from "../../layouts/ContainerLayout";
+import { MainContainer } from "../../layouts/MainContainer";
+import { useTitle } from "mulighetsrommet-frontend-common";
+import { ReloadAppErrorBoundary } from "../../ErrorBoundary";
 
 export function AvtalerPage() {
   useTitle("Avtaler");
@@ -15,19 +14,19 @@ export function AvtalerPage() {
 
   return (
     <>
-      <HeaderBanner heading="Oversikt over avtaler" />
-      <MainContainer>
-        <ContainerLayout>
-          <Avtalefilter filterAtom={avtaleFilterAtom} />
-          <ErrorBoundary FallbackComponent={ErrorFallback}>
+      <HeaderBanner heading="Oversikt over avtaler" harUndermeny />
+      <ReloadAppErrorBoundary>
+        <MainContainer>
+          <ContainerLayout>
+            <Avtalefilter filterAtom={avtaleFilterAtom} />
             <AvtaleTabell
               isLoading={avtalerIsLoading}
               paginerteAvtaler={avtaler}
               avtalefilter={avtaleFilterAtom}
             />
-          </ErrorBoundary>
-        </ContainerLayout>
-      </MainContainer>
+          </ContainerLayout>
+        </MainContainer>
+      </ReloadAppErrorBoundary>
     </>
   );
 }

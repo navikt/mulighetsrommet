@@ -8,7 +8,8 @@ import no.nav.mulighetsrommet.api.domain.dto.Kontorstruktur
 import no.nav.mulighetsrommet.api.domain.dto.VirksomhetKontaktperson
 import no.nav.mulighetsrommet.api.routes.v1.AvtaleRequest
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
-import no.nav.mulighetsrommet.domain.dto.*
+import no.nav.mulighetsrommet.domain.dto.Avtalestatus
+import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import java.time.LocalDate
 import java.util.*
 
@@ -31,6 +32,8 @@ object AvtaleFixtures {
         antallPlasser = null,
         url = null,
         updatedAt = LocalDate.now().atStartOfDay(),
+        beskrivelse = null,
+        faneinnhold = null,
     )
 
     val avtaleRequest = AvtaleRequest(
@@ -49,6 +52,8 @@ object AvtaleFixtures {
         navEnheter = listOf("2990"),
         leverandorKontaktpersonId = null,
         prisbetingelser = null,
+        beskrivelse = null,
+        faneinnhold = null,
     )
 
     val oppfolgingAvtaleAdminDto = AvtaleAdminDto(

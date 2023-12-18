@@ -51,6 +51,8 @@ class AvtaleValidatorTest : FunSpec({
         opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
         antallPlasser = null,
         updatedAt = LocalDateTime.now(),
+        beskrivelse = null,
+        faneinnhold = null,
     )
 
     lateinit var navEnheterService: NavEnhetService
@@ -203,6 +205,8 @@ class AvtaleValidatorTest : FunSpec({
                 opphav = ArenaMigrering.Opphav.ARENA,
                 antallPlasser = null,
                 updatedAt = avtaleDbo.updatedAt,
+                beskrivelse = null,
+                faneinnhold = null,
             )
 
             avtaler.upsert(

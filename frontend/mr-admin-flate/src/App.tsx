@@ -5,19 +5,16 @@ import { Route, Routes } from "react-router-dom";
 import { Forside } from "./Forside";
 import IkkeAutentisertApp from "./IkkeAutentisertApp";
 import { useHentAnsatt } from "./api/ansatt/useHentAnsatt";
-import { tiltaksgjennomforingfilterForAvtaleAtom } from "./api/atoms";
-import AvtaleSkjemaPage from "./components/avtaler/AvtaleSkjemaPage";
+import AvtaleSkjemaPage from "./pages/avtaler/AvtaleSkjemaPage";
 import NotaterAvtalePage from "./components/avtaler/NotaterAvtalePage";
 import { Tiltaksgjennomforingfilter } from "./components/filter/Tiltaksgjennomforingfilter";
 import { Laster } from "./components/laster/Laster";
 import { Notifikasjonsliste } from "./components/notifikasjoner/Notifikasjonsliste";
 import { TiltaksgjennomforingsTabell } from "./components/tabell/TiltaksgjennomforingsTabell";
 import NotaterTiltaksgjennomforingerPage from "./components/tiltaksgjennomforinger/NotaterTiltaksgjennomforingerPage";
-import TiltaksgjennomforingSkjemaPage from "./components/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaPage";
 import { DeltakerListe } from "./microfrontends/team_komet/Deltakerliste";
 import { ErrorPage } from "./pages/ErrorPage";
-import { AvtaleInfo } from "./pages/avtaler/AvtaleInfo";
-import { DetaljerAvtalePage } from "./pages/avtaler/DetaljerAvtalePage";
+import { AvtalePage } from "./pages/avtaler/AvtalePage";
 import { NotifikasjonerPage } from "./pages/notifikasjoner/NotifikasjonerPage";
 import { TiltaksgjennomforingInfo } from "./pages/tiltaksgjennomforinger/TiltaksgjennomforingInfo";
 import { TiltaksgjennomforingPage } from "./pages/tiltaksgjennomforinger/TiltaksgjennomforingPage";
@@ -29,6 +26,9 @@ import { AvtalerForTiltakstype } from "./pages/tiltakstyper/avtaler/AvtalerForTi
 import { useAdminTiltaksgjennomforinger } from "./api/tiltaksgjennomforing/useAdminTiltaksgjennomforinger";
 import { useFeatureToggle } from "./api/features/feature-toggles";
 import { AvtalerPage } from "./pages/avtaler/AvtalerPage";
+import { AvtaleInfo } from "./pages/avtaler/AvtaleInfo";
+import { tiltaksgjennomforingfilterForAvtaleAtom } from "./api/atoms";
+import TiltaksgjennomforingSkjemaPage from "./pages/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaPage";
 
 if (import.meta.env.PROD) {
   initializeFaro({
@@ -86,7 +86,7 @@ export function App() {
         <Route path="avtaler" element={<AvtalerForTiltakstype />} errorElement={<ErrorPage />} />
       </Route>
       <Route path="avtaler" element={<AvtalerPage />} errorElement={<ErrorPage />} />
-      <Route path="avtaler/:avtaleId" element={<DetaljerAvtalePage />} errorElement={<ErrorPage />}>
+      <Route path="avtaler/:avtaleId" element={<AvtalePage />} errorElement={<ErrorPage />}>
         <Route index element={<AvtaleInfo />} errorElement={<ErrorPage />} />
         {showNotater && (
           <Route path="notater" element={<NotaterAvtalePage />} errorElement={<ErrorPage />} />

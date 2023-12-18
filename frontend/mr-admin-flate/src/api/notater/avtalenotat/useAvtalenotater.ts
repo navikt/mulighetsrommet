@@ -1,12 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { QueryKeys } from "../../QueryKeys";
 import { mulighetsrommetClient } from "../../clients";
-import { useGetAvtaleIdFromUrl } from "../../../hooks/useGetAvtaleIdFromUrl";
-import invariant from "tiny-invariant";
+import { useGetAvtaleIdFromUrlOrThrow } from "../../../hooks/useGetAvtaleIdFromUrl";
 
 export function useAvtalenotater() {
-  const avtaleId = useGetAvtaleIdFromUrl();
-  invariant(avtaleId, "AvtaleId er ikke satt i URL");
+  const avtaleId = useGetAvtaleIdFromUrlOrThrow();
+
   return useQuery({
     queryKey: QueryKeys.avtalenotater(avtaleId),
     queryFn: () =>

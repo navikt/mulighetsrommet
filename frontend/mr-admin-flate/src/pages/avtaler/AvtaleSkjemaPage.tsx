@@ -5,10 +5,10 @@ import { useNavEnheter } from "../../api/enhet/useNavEnheter";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
 import { ContainerLayout } from "../../layouts/ContainerLayout";
 import { inneholderUrl } from "../../utils/Utils";
-import { Header } from "../detaljside/Header";
-import { Laster } from "../laster/Laster";
-import styles from "../skjema/Skjema.module.scss";
-import { AvtaleSkjemaContainer } from "./AvtaleSkjemaContainer";
+import { Header } from "../../components/detaljside/Header";
+import { Laster } from "../../components/laster/Laster";
+import styles from "../../components/skjema/Skjema.module.scss";
+import { AvtaleSkjemaContainer } from "../../components/avtaler/AvtaleSkjemaContainer";
 import { useAvtale } from "../../api/avtaler/useAvtale";
 
 const AvtaleSkjemaPage = () => {

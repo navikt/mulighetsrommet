@@ -47,7 +47,7 @@ export const mockAvtaler: Avtale[] = [
 
         20 deltakere:
         Teori en uke: 56 771,- (55 117,-)                     Praksis en uke: 45 695,- (44 364,-)                       Kombinasjon en uke: 47 344,- (45 965,-)`,
-    url: "https://www.mercell.no",
+    url: "https://www.websak.no",
     updatedAt: new Date().toISOString(),
     kontorstruktur: [
       { region: mockEnheter._0300, kontorer: [mockEnheter._0313, mockEnheter._0318] },

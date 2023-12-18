@@ -98,10 +98,10 @@ export function fremmoteTidFromTidspunkt(fremmoteTidspunkt?: string): string | u
   if (!fremmoteTidspunkt) return undefined;
   const d = new Date(fremmoteTidspunkt);
 
-  return `${d.getHours()}:${d.getMinutes()}`;
+  return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
 }
 
-export function defaultData(
+export function defaultTiltaksgjennomforingData(
   avtale: Avtale,
   tiltaksgjennomforing?: Tiltaksgjennomforing,
 ): DeepPartial<InferredTiltaksgjennomforingSchema> {
@@ -131,15 +131,8 @@ export function defaultData(
     kontaktpersoner: defaultValuesForKontaktpersoner(tiltaksgjennomforing?.kontaktpersoner),
     stedForGjennomforing: tiltaksgjennomforing?.stedForGjennomforing ?? null,
     arrangorKontaktpersonId: tiltaksgjennomforing?.arrangor?.kontaktperson?.id,
-    beskrivelse: tiltaksgjennomforing?.beskrivelse ?? null,
-    faneinnhold: tiltaksgjennomforing?.faneinnhold ?? {
-      forHvem: null,
-      forHvemInfoboks: null,
-      pameldingOgVarighet: null,
-      pameldingOgVarighetInfoboks: null,
-      detaljerOgInnhold: null,
-      detaljerOgInnholdInfoboks: null,
-    },
+    beskrivelse: tiltaksgjennomforing?.beskrivelse ?? avtale.beskrivelse,
+    faneinnhold: tiltaksgjennomforing?.faneinnhold ?? avtale.faneinnhold,
     opphav: tiltaksgjennomforing?.opphav ?? Opphav.MR_ADMIN_FLATE,
     fremmoteDato: fremmoteDatoFromTidspunkt(tiltaksgjennomforing?.fremmoteTidspunkt),
     fremmoteTid: fremmoteTidFromTidspunkt(tiltaksgjennomforing?.fremmoteTidspunkt),

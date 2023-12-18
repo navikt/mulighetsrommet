@@ -9,11 +9,10 @@ import { EndringshistorikkPopover } from "../../components/endringshistorikk/End
 import { ViewEndringshistorikk } from "../../components/endringshistorikk/ViewEndringshistorikk";
 
 interface Props {
-  style?: React.CSSProperties;
   tiltaksgjennomforing: Tiltaksgjennomforing;
 }
 
-export function TiltaksgjennomforingKnapperad({ style, tiltaksgjennomforing }: Props) {
+export function TiltaksgjennomforingKnapperad({ tiltaksgjennomforing }: Props) {
   const { mutate } = useMutateTilgjengeligForVeileder();
 
   function handleClick(e: React.MouseEvent<HTMLInputElement>) {
@@ -21,7 +20,7 @@ export function TiltaksgjennomforingKnapperad({ style, tiltaksgjennomforing }: P
   }
 
   return (
-    <div style={style} className={styles.knapperad}>
+    <div className={styles.knapperad}>
       <Switch checked={tiltaksgjennomforing.tilgjengeligForVeileder} onClick={handleClick}>
         Tilgjengelig for veileder
       </Switch>
