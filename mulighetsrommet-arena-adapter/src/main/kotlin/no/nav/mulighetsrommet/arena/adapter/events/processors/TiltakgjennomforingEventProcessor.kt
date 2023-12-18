@@ -21,8 +21,8 @@ import no.nav.mulighetsrommet.arena.adapter.models.db.Tiltaksgjennomforing
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.arena.adapter.utils.ArenaUtils
 import no.nav.mulighetsrommet.domain.Tiltakshistorikk
-import no.nav.mulighetsrommet.domain.Tiltakskoder.hasFellesOppstart
 import no.nav.mulighetsrommet.domain.Tiltakskoder.isGruppetiltak
+import no.nav.mulighetsrommet.domain.Tiltakskoder.isKursTiltak
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
@@ -171,7 +171,7 @@ class TiltakgjennomforingEventProcessor(
             apentForInnsok = apentForInnsok,
             antallPlasser = antallPlasser,
             avtaleId = avtaleId,
-            oppstart = if (hasFellesOppstart(tiltakskode)) FELLES else LOPENDE,
+            oppstart = if (isKursTiltak(tiltakskode)) FELLES else LOPENDE,
             opphav = ArenaMigrering.Opphav.ARENA,
             fremmoteTidspunkt = fremmoteTidspunkt,
             fremmoteSted = fremmoteSted,

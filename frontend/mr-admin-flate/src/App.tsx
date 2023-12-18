@@ -7,20 +7,19 @@ import IkkeAutentisertApp from "./IkkeAutentisertApp";
 import { useHentAnsatt } from "./api/ansatt/useHentAnsatt";
 import { avtaleFilterAtom, tiltaksgjennomforingfilterForAvtaleAtom } from "./api/atoms";
 import { useAvtaler } from "./api/avtaler/useAvtaler";
-import AvtaleSkjemaPage from "./components/avtaler/AvtaleSkjemaPage";
+import AvtaleSkjemaPage from "./pages/avtaler/AvtaleSkjemaPage";
 import NotaterAvtalePage from "./components/avtaler/NotaterAvtalePage";
 import { Laster } from "./components/laster/Laster";
 import { Notifikasjonsliste } from "./components/notifikasjoner/Notifikasjonsliste";
 import { AvtaleTabell } from "./components/tabell/AvtaleTabell";
 import { TiltaksgjennomforingsTabell } from "./components/tabell/TiltaksgjennomforingsTabell";
 import NotaterTiltaksgjennomforingerPage from "./components/tiltaksgjennomforinger/NotaterTiltaksgjennomforingerPage";
-import TiltaksgjennomforingSkjemaPage from "./components/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaPage";
+import TiltaksgjennomforingSkjemaPage from "./pages/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaPage";
 import { UtkastListe } from "./components/utkast/Utkastliste";
 import { DeltakerListe } from "./microfrontends/team_komet/Deltakerliste";
 import { ErrorPage } from "./pages/ErrorPage";
-import { AvtaleInfo } from "./pages/avtaler/AvtaleInfo";
 import { AvtalerPage } from "./pages/avtaler/AvtalerPage";
-import { DetaljerAvtalePage } from "./pages/avtaler/DetaljerAvtalePage";
+import { AvtalePage } from "./pages/avtaler/AvtalePage";
 import { TiltaksgjennomforingerForAvtale } from "./pages/avtaler/tiltaksgjennomforinger/TiltaksgjennomforingerForAvtale";
 import { NotifikasjonerPage } from "./pages/notifikasjoner/NotifikasjonerPage";
 import { TiltaksgjennomforingInfo } from "./pages/tiltaksgjennomforinger/TiltaksgjennomforingInfo";
@@ -32,13 +31,14 @@ import { TiltakstyperPage } from "./pages/tiltakstyper/TiltakstyperPage";
 import { AvtalerForTiltakstype } from "./pages/tiltakstyper/avtaler/AvtalerForTiltakstype";
 import { useAdminTiltaksgjennomforinger } from "./api/tiltaksgjennomforing/useAdminTiltaksgjennomforinger";
 import { useFeatureToggle } from "./api/features/feature-toggles";
+import { AvtaleInfo } from "./pages/avtaler/AvtaleInfo";
 import { FilterAndTableLayout } from "./components/filter/FilterAndTableLayout";
+import { AvtaleFilter } from "./components/filter/Avtalefilter";
 import { AvtaleFilterTags } from "./components/filter/AvtaleFilterTags";
 import { AvtaleFilterButtons } from "./components/filter/AvtaleFilterButtons";
-import { AvtaleFilter } from "./components/filter/Avtalefilter";
-import { TiltaksgjennomforingFilterButtons } from "./components/filter/TiltaksgjennomforingFilterButtons";
-import { TiltaksgjennomforingFilterTags } from "./components/filter/TiltaksgjennomforingFilterTags";
 import { TiltaksgjennomforingFilter } from "./components/filter/Tiltaksgjennomforingfilter";
+import { TiltaksgjennomforingFilterTags } from "./components/filter/TiltaksgjennomforingFilterTags";
+import { TiltaksgjennomforingFilterButtons } from "./components/filter/TiltaksgjennomforingFilterButtons";
 
 if (import.meta.env.PROD) {
   initializeFaro({
@@ -120,7 +120,7 @@ export function App() {
           errorElement={<ErrorPage />}
         />
       </Route>
-      <Route path="avtaler/:avtaleId" element={<DetaljerAvtalePage />} errorElement={<ErrorPage />}>
+      <Route path="avtaler/:avtaleId" element={<AvtalePage />} errorElement={<ErrorPage />}>
         <Route index element={<AvtaleInfo />} errorElement={<ErrorPage />} />
         {showNotater && (
           <Route path="notater" element={<NotaterAvtalePage />} errorElement={<ErrorPage />} />

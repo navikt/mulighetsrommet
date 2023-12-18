@@ -6,3 +6,13 @@ export function useGetAvtaleIdFromUrl() {
   }>();
   return avtaleId;
 }
+
+export function useGetAvtaleIdFromUrlOrThrow(): string {
+  const { avtaleId } = useParams<{ avtaleId: string }>();
+
+  if (!avtaleId) {
+    throw Error("AvtaleId er ikke satt i URL");
+  }
+
+  return avtaleId;
+}

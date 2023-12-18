@@ -8,12 +8,12 @@ import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
 import { useUtkast } from "../../api/utkast/useUtkast";
 import { ContainerLayout } from "../../layouts/ContainerLayout";
 import { inneholderUrl } from "../../utils/Utils";
-import { Header } from "../detaljside/Header";
-import { Laster } from "../laster/Laster";
-import styles from "../skjema/Skjema.module.scss";
-import { AvtaleSchema } from "./AvtaleSchema";
-import { AvtaleUtkastData } from "./AvtaleSkjemaConst";
-import { AvtaleSkjemaContainer } from "./AvtaleSkjemaContainer";
+import { Header } from "../../components/detaljside/Header";
+import { Laster } from "../../components/laster/Laster";
+import styles from "../../components/skjema/Skjema.module.scss";
+import { AvtaleSchema } from "../../components/avtaler/AvtaleSchema";
+import { AvtaleUtkastData } from "../../components/avtaler/AvtaleSkjemaConst";
+import { AvtaleSkjemaContainer } from "../../components/avtaler/AvtaleSkjemaContainer";
 
 const AvtaleSkjemaPage = () => {
   const navigate = useNavigate();

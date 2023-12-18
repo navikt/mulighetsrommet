@@ -40,6 +40,22 @@ export const AvtaleSchema = z.object({
   administratorer: z.string().array().min(1, "Du må velge minst én administrator"),
   url: GyldigUrlHvisVerdi,
   prisbetingelser: z.string().optional(),
+  beskrivelse: z
+    .string({ required_error: "En avtale trenger en beskrivelse i det redaksjonelle innholdet" })
+    .nullable(),
+  faneinnhold: z
+    .object(
+      {
+        forHvemInfoboks: z.string().nullable().optional(),
+        forHvem: z.any().nullable(),
+        detaljerOgInnholdInfoboks: z.string().nullable().optional(),
+        detaljerOgInnhold: z.any().nullable(),
+        pameldingOgVarighetInfoboks: z.string().nullable().optional(),
+        pameldingOgVarighet: z.any().nullable(),
+      },
+      { required_error: "Det redaksjonelle innholdet må settes på avtalen" },
+    )
+    .nullable(),
   opphav: z.nativeEnum(Opphav),
 });
 

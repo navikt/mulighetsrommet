@@ -43,6 +43,10 @@ async function lastNedFil(filter: AvtaleFilterProps) {
   filter.navRegioner.forEach((region) => queryParams.append("navRegioner", region));
   filter.leverandor_orgnr.forEach((orgnr) => queryParams.append("leverandorOrgnr", orgnr));
 
+  if (filter.visMineAvtaler) {
+    queryParams.set("visMineAvtaler", "true");
+  }
+
   queryParams.set("size", "10000");
 
   return await fetch(`${OpenAPI.BASE}/api/v1/internal/avtaler/excel?${queryParams}`, {
@@ -99,6 +103,10 @@ export const AvtaleTabell = ({ avtalefilter, paginerteAvtaler, isLoading }: Prop
           ? "ascending"
           : "descending"
         : "ascending";
+
+    if (sort.orderBy !== sortKey || sort.direction !== direction) {
+      setPage(1); // Hvis sort har endret seg resetter vi første page
+    }
 
     setSort({
       orderBy: sortKey,
@@ -175,9 +183,7 @@ export const AvtaleTabell = ({ avtalefilter, paginerteAvtaler, isLoading }: Prop
               <Table.ColumnHeader sortKey="leverandor" sortable>
                 Leverandør
               </Table.ColumnHeader>
-              <Table.ColumnHeader sortKey="nav-enhet" sortable>
-                Region
-              </Table.ColumnHeader>
+              <Table.ColumnHeader>Region</Table.ColumnHeader>
               <Table.ColumnHeader sortKey="startdato" sortable>
                 Startdato
               </Table.ColumnHeader>

@@ -27,8 +27,8 @@ import {
 import { erArenaOpphav, utkastDataEllerDefault } from "./TiltaksgjennomforingSkjemaConst";
 import { TiltaksgjennomforingSkjemaDetaljer } from "./TiltaksgjennomforingSkjemaDetaljer";
 import { TiltaksgjennomforingSkjemaKnapperad } from "./TiltaksgjennomforingSkjemaKnapperad";
-import { TiltaksgjennomforingUtkastData } from "./TiltaksgjennomforingSkjemaPage";
-import { TiltaksgjennomforingSkjemaRedInnhold } from "./TiltaksgjennomforingSkjemaRedInnhold";
+import { TiltaksgjennomforingUtkastData } from "../../pages/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaPage";
+import { RedaksjoneltInnholdForm } from "../redaksjonelt-innhold/RedaksjoneltInnholdForm";
 
 interface Props {
   onClose: () => void;
@@ -171,85 +171,83 @@ export const TiltaksgjennomforingSkjemaContainer = ({
   );
 
   return (
-    <>
-      <FormProvider {...form}>
-        {!redigeringsModus ? (
-          <Alert variant="warning" style={{ margin: "1rem 0" }}>
-            Opprettelse av gjennomføring her vil ikke opprette gjennomføringen i Arena.
-          </Alert>
-        ) : null}
-        <form onSubmit={handleSubmit(postData)}>
-          <Tabs defaultValue={activeTab}>
-            <Tabs.List className={skjemastyles.tabslist}>
-              <div>
-                <Tabs.Tab
-                  onClick={() => setActiveTab("detaljer")}
-                  style={{
-                    border: hasErrors() ? "solid 2px #C30000" : "",
-                    borderRadius: hasErrors() ? "8px" : 0,
-                  }}
-                  value="detaljer"
-                  label={
-                    hasErrors() ? (
-                      <span style={{ display: "flex", alignContent: "baseline", gap: "0.4rem" }}>
-                        <ExclamationmarkTriangleFillIcon aria-label="Detaljer" /> Detaljer
-                      </span>
-                    ) : (
-                      "Detaljer"
-                    )
-                  }
-                />
-                <Tabs.Tab
-                  onClick={() => setActiveTab("redaksjonelt_innhold")}
-                  value="redaksjonelt_innhold"
-                  label="Redaksjonelt innhold"
-                />
-              </div>
-              <TiltaksgjennomforingSkjemaKnapperad
-                size="small"
-                redigeringsModus={redigeringsModus}
-                onClose={onClose}
-                mutation={mutation}
-                defaultValues={defaultValues}
-                utkastIdRef={utkastIdRef.current}
-                onSave={() => saveUtkast(watch(), avtale, utkastIdRef, setLagreState)}
-                mutationUtkast={mutationUtkast}
-                lagreState={lagreState}
-                setLagreState={setLagreState}
+    <FormProvider {...form}>
+      {!redigeringsModus ? (
+        <Alert variant="warning" style={{ margin: "1rem 0" }}>
+          Opprettelse av gjennomføring her vil ikke opprette gjennomføringen i Arena.
+        </Alert>
+      ) : null}
+      <form onSubmit={handleSubmit(postData)}>
+        <Tabs defaultValue={activeTab}>
+          <Tabs.List className={skjemastyles.tabslist}>
+            <div>
+              <Tabs.Tab
+                onClick={() => setActiveTab("detaljer")}
+                style={{
+                  border: hasErrors() ? "solid 2px #C30000" : "",
+                  borderRadius: hasErrors() ? "8px" : 0,
+                }}
+                value="detaljer"
+                label={
+                  hasErrors() ? (
+                    <span style={{ display: "flex", alignContent: "baseline", gap: "0.4rem" }}>
+                      <ExclamationmarkTriangleFillIcon aria-label="Detaljer" /> Detaljer
+                    </span>
+                  ) : (
+                    "Detaljer"
+                  )
+                }
               />
-            </Tabs.List>
-            <Tabs.Panel value="detaljer">
-              <TiltaksgjennomforingSkjemaDetaljer
-                avtale={avtale}
-                tiltaksgjennomforing={tiltaksgjennomforing}
+              <Tabs.Tab
+                onClick={() => setActiveTab("redaksjonelt_innhold")}
+                value="redaksjonelt_innhold"
+                label="Redaksjonelt innhold"
               />
-            </Tabs.Panel>
-            <Tabs.Panel value="redaksjonelt_innhold">
-              <TiltaksgjennomforingSkjemaRedInnhold avtale={avtale} />
-            </Tabs.Panel>
-          </Tabs>
-          <Separator />
-          <div>
-            {!erArenaOpphav(tiltaksgjennomforing) && redigeringsModus && (
-              <Button
-                size="small"
-                variant="danger"
-                type="button"
-                onClick={() => avbrytModalRef.current?.showModal()}
-              >
-                Avbryt gjennomføring
-              </Button>
-            )}
-          </div>
-        </form>
-        {tiltaksgjennomforing && (
-          <AvbrytTiltaksgjennomforingModal
-            modalRef={avbrytModalRef}
-            tiltaksgjennomforing={tiltaksgjennomforing}
-          />
-        )}
-      </FormProvider>
-    </>
+            </div>
+            <TiltaksgjennomforingSkjemaKnapperad
+              size="small"
+              redigeringsModus={redigeringsModus}
+              onClose={onClose}
+              mutation={mutation}
+              defaultValues={defaultValues}
+              utkastIdRef={utkastIdRef.current}
+              onSave={() => saveUtkast(watch(), avtale, utkastIdRef, setLagreState)}
+              mutationUtkast={mutationUtkast}
+              lagreState={lagreState}
+              setLagreState={setLagreState}
+            />
+          </Tabs.List>
+          <Tabs.Panel value="detaljer">
+            <TiltaksgjennomforingSkjemaDetaljer
+              avtale={avtale}
+              tiltaksgjennomforing={tiltaksgjennomforing}
+            />
+          </Tabs.Panel>
+          <Tabs.Panel value="redaksjonelt_innhold">
+            <RedaksjoneltInnholdForm tiltakstype={avtale.tiltakstype} />
+          </Tabs.Panel>
+        </Tabs>
+        <Separator />
+        <div>
+          {!erArenaOpphav(tiltaksgjennomforing) && redigeringsModus && (
+            <Button
+              size="small"
+              variant="danger"
+              type="button"
+              onClick={() => avbrytModalRef.current?.showModal()}
+            >
+              Avbryt gjennomføring
+            </Button>
+          )}
+        </div>
+      </form>
+      {tiltaksgjennomforing && (
+        <AvbrytTiltaksgjennomforingModal
+          modalRef={avbrytModalRef}
+          tiltaksgjennomforing={tiltaksgjennomforing}
+        />
+      )}
+    </FormProvider>
   );
 };
 

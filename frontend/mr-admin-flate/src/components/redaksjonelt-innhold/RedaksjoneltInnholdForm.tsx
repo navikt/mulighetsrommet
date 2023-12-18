@@ -1,19 +1,40 @@
-import { Alert, BodyLong, HStack, Heading, Tabs, Textarea } from "@navikt/ds-react";
+import { Alert, BodyLong, Heading, HStack, Tabs, Textarea } from "@navikt/ds-react";
 import { PortableText } from "@portabletext/react";
-import { Avtale, VeilederflateTiltakstype } from "mulighetsrommet-api-client";
+import { EmbeddedTiltakstype, VeilederflateTiltakstype } from "mulighetsrommet-api-client";
 import { useFormContext } from "react-hook-form";
 import { useTiltakstypeFaneinnhold } from "../../api/tiltaksgjennomforing/useTiltakstypeFaneinnhold";
 import { Separator } from "../detaljside/Metadata";
 import { PortableTextEditor } from "../portableText/PortableTextEditor";
 import skjemastyles from "../skjema/Skjema.module.scss";
+import { Laster } from "../laster/Laster";
+import React from "react";
+import { InlineErrorBoundary } from "../../ErrorBoundary";
 
-interface Props {
-  avtale: Avtale;
+interface RedaksjoneltInnholdFormProps {
+  tiltakstype?: EmbeddedTiltakstype;
 }
 
-export const TiltaksgjennomforingSkjemaRedInnhold = ({ avtale }: Props) => {
+export function RedaksjoneltInnholdForm({ tiltakstype }: RedaksjoneltInnholdFormProps) {
+  if (!tiltakstype) {
+    return (
+      <div className={skjemastyles.container}>
+        <Alert variant="info">Tiltakstype må velges før redaksjonelt innhold kan redigeres.</Alert>
+      </div>
+    );
+  }
+
+  return (
+    <InlineErrorBoundary>
+      <React.Suspense fallback={<Laster tekst="Laster innhold" />}>
+        <RedaksjoneltInnhold tiltakstype={tiltakstype} />
+      </React.Suspense>
+    </InlineErrorBoundary>
+  );
+}
+
+function RedaksjoneltInnhold({ tiltakstype }: { tiltakstype: EmbeddedTiltakstype }) {
   const { register } = useFormContext();
-  const { data: tiltakstypeSanityData } = useTiltakstypeFaneinnhold(avtale.tiltakstype.id);
+  const { data: tiltakstypeSanityData } = useTiltakstypeFaneinnhold(tiltakstype.id);
 
   return (
     <div className={skjemastyles.container}>
@@ -64,7 +85,7 @@ export const TiltaksgjennomforingSkjemaRedInnhold = ({ avtale }: Props) => {
       </div>
     </div>
   );
-};
+}
 
 const ForHvem = ({ tiltakstype }: { tiltakstype?: VeilederflateTiltakstype }) => {
   const { register } = useFormContext();

@@ -15,8 +15,8 @@ export function ValideringsfeilOppsummering() {
     let messages: { message: string; ref: string }[] = [];
     for (const key in obj) {
       if (obj[key] !== null && typeof obj[key] === "object") {
-        if (obj[key].message && obj[key].ref) {
-          messages.push({ message: obj[key].message, ref: obj[key].ref });
+        if (obj[key].message) {
+          messages.push({ message: obj[key].message, ref: obj[key]?.ref });
         } else {
           messages = messages.concat(hentUtValideringsfeil(obj[key]));
         }
@@ -57,7 +57,7 @@ export function ValideringsfeilOppsummering() {
           >
             {messages.map((value, key) => {
               return (
-                <ErrorSummary.Item className={styles.valideringsfeil_item} key={key}>
+                <ErrorSummary.Item as="span" className={styles.valideringsfeil_item} key={key}>
                   {value.message}
                 </ErrorSummary.Item>
               );
