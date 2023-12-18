@@ -2,7 +2,7 @@ import { Accordion, Checkbox, Search, Skeleton } from "@navikt/ds-react";
 import { WritableAtom, useAtom } from "jotai";
 import { Tiltakstypestatus, VirksomhetTil } from "mulighetsrommet-api-client";
 import { useEffect, useState } from "react";
-import { TiltaksgjennomforingfilterProps } from "../../api/atoms";
+import { TiltaksgjennomforingfilterProps, gjennomforingPaginationAtom } from "../../api/atoms";
 import { useAvtale } from "../../api/avtaler/useAvtale";
 import { useNavEnheter } from "../../api/enhet/useNavEnheter";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
@@ -30,6 +30,7 @@ interface Props {
 
 export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
   const [filter, setFilter] = useAtom(filterAtom);
+  const [, setPage] = useAtom(gjennomforingPaginationAtom);
   const { data: avtale } = useAvtale();
   const { data: enheter, isLoading: isLoadingEnheter } = useNavEnheter();
   const { data: virksomheter, isLoading: isLoadingVirksomheter } = useVirksomheter(
@@ -68,12 +69,13 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
         size="small"
         variant="simple"
         placeholder="Navn eller tiltaksnr."
-        onChange={(search: string) =>
+        onChange={(search: string) => {
           setFilter({
             ...filter,
             search,
-          })
-        }
+          });
+          setPage(1);
+        }}
         value={filter.search}
         aria-label="Søk etter tiltaksgjennomføring"
       />
@@ -84,12 +86,13 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
             <CheckboxList
               items={TILTAKSGJENNOMFORING_STATUS_OPTIONS}
               isChecked={(status) => filter.statuser.includes(status)}
-              onChange={(status) =>
+              onChange={(status) => {
                 setFilter({
                   ...filter,
                   statuser: addOrRemove(filter.statuser, status),
-                })
-              }
+                });
+                setPage(1);
+              }}
             />
           </Accordion.Content>
         </Accordion.Item>
@@ -101,12 +104,13 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
               <CheckboxList
                 items={tiltakstypeOptions(tiltakstyper.data)}
                 isChecked={(tiltakstype) => filter.tiltakstyper.includes(tiltakstype)}
-                onChange={(tiltakstype) =>
+                onChange={(tiltakstype) => {
                   setFilter({
                     ...filter,
                     tiltakstyper: addOrRemove(filter.tiltakstyper, tiltakstype),
-                  })
-                }
+                  });
+                  setPage(1);
+                }}
               />
             </Accordion.Content>
           </Accordion.Item>
@@ -117,12 +121,13 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
             <CheckboxList
               items={regionOptions(enheter)}
               isChecked={(region) => filter.navRegioner.includes(region)}
-              onChange={(region) =>
+              onChange={(region) => {
                 setFilter({
                   ...filter,
                   navRegioner: addOrRemove(filter.navRegioner, region),
-                })
-              }
+                });
+                setPage(1);
+              }}
             />
           </Accordion.Content>
         </Accordion.Item>
@@ -133,12 +138,13 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
               searchable
               items={enhetOptions(enheter, filter.navRegioner)}
               isChecked={(enhet) => filter.navEnheter.includes(enhet)}
-              onChange={(enhet) =>
+              onChange={(enhet) => {
                 setFilter({
                   ...filter,
                   navEnheter: addOrRemove(filter.navEnheter, enhet),
-                })
-              }
+                });
+                setPage(1);
+              }}
             />
           </Accordion.Content>
         </Accordion.Item>
@@ -149,12 +155,13 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
               searchable
               items={virksomhetOptions(virksomheter)}
               isChecked={(orgnr) => filter.arrangorOrgnr.includes(orgnr)}
-              onChange={(orgnr) =>
+              onChange={(orgnr) => {
                 setFilter({
                   ...filter,
                   arrangorOrgnr: addOrRemove(filter.arrangorOrgnr, orgnr),
-                })
-              }
+                });
+                setPage(1);
+              }}
             />
           </Accordion.Content>
         </Accordion.Item>

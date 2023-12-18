@@ -1,4 +1,4 @@
-import { Alert, Tabs } from "@navikt/ds-react";
+import { Alert, Heading, Tabs } from "@navikt/ds-react";
 import { Toggles } from "mulighetsrommet-api-client";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useFeatureToggle } from "../../api/features/feature-toggles";
@@ -51,11 +51,13 @@ export function TiltaksgjennomforingPage() {
     <main>
       <Header>
         <div className={commonStyles.header_outer_container}>
-          <div className={commonStyles.header}>
-            <span>{tiltaksgjennomforing?.navn ?? "..."}</span>
+          <div>
+            <Heading size="large" level="2">
+              {tiltaksgjennomforing?.navn ?? "..."}
+            </Heading>
             <TiltaksgjennomforingstatusTag tiltaksgjennomforing={tiltaksgjennomforing} />
           </div>
-          {tiltaksgjennomforing?.sanityId && (
+          {tiltaksgjennomforing?.id && (
             <div>
               <Lenkeknapp
                 size="small"

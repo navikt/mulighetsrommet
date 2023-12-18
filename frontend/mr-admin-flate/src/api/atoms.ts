@@ -59,9 +59,9 @@ function atomWithHashAndStorage<Value>(key: string, initialValue: Value) {
   );
 }
 
-export const paginationAtom = atomWithHashAndStorage("page", 1);
+export const gjennomforingPaginationAtom = atomWithHashAndStorage("page", 1);
 
-export const avtalePaginationAtomAtom = atomWithHashAndStorage("avtalePage", 1);
+export const avtalePaginationAtom = atomWithHashAndStorage("avtalePage", 1);
 
 export interface TiltakstypeFilter {
   sok?: string;

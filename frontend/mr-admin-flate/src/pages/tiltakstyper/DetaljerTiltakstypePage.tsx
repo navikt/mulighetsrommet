@@ -1,4 +1,4 @@
-import { Alert, Tabs } from "@navikt/ds-react";
+import { Alert, Heading, Tabs } from "@navikt/ds-react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useTiltakstypeById } from "../../api/tiltakstyper/useTiltakstypeById";
 import { Header } from "../../components/detaljside/Header";
@@ -32,10 +32,10 @@ export function DetaljerTiltakstypePage() {
   return (
     <main>
       <Header>
-        <div className={commonStyles.header}>
-          <span>{tiltakstype?.navn ?? "..."}</span>
-          <TiltakstypestatusTag tiltakstype={tiltakstype} />
-        </div>
+        <Heading size="large" level="2">
+          {tiltakstype?.navn ?? "..."}
+        </Heading>
+        <TiltakstypestatusTag tiltakstype={tiltakstype} />
       </Header>
 
       <Tabs value={pathname.includes("avtaler") ? "avtaler" : "arenainfo"}>

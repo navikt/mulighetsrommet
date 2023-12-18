@@ -1,4 +1,4 @@
-import { Alert } from "@navikt/ds-react";
+import { Alert, Heading } from "@navikt/ds-react";
 import { useNavigate } from "react-router-dom";
 import { useAvtale } from "../../api/avtaler/useAvtale";
 import { useTiltaksgjennomforingById } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforingById";
@@ -9,6 +9,7 @@ import { Laster } from "../../components/laster/Laster";
 import styles from "../../components/skjema/Skjema.module.scss";
 import { TiltaksgjennomforingSkjemaContainer } from "../../components/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaContainer";
 import { ErrorMeldinger } from "../../components/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaErrors";
+import { TiltaksgjennomforingstatusTag } from "../../components/statuselementer/TiltaksgjennomforingstatusTag";
 import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
 
 const TiltaksgjennomforingSkjemaPage = () => {
@@ -50,7 +51,12 @@ const TiltaksgjennomforingSkjemaPage = () => {
   return (
     <main>
       <Header>
-        {redigeringsModus ? "Rediger tiltaksgjennomføring" : "Opprett ny tiltaksgjennomføring"}
+        <Heading size="large" level="2">
+          {redigeringsModus ? "Rediger tiltaksgjennomføring" : "Opprett ny tiltaksgjennomføring"}
+        </Heading>
+        {tiltaksgjennomforing ? (
+          <TiltaksgjennomforingstatusTag tiltaksgjennomforing={tiltaksgjennomforing} />
+        ) : null}
       </Header>
       <ContainerLayout>
         <div className={styles.skjema}>

@@ -10,6 +10,8 @@ import { Laster } from "../../components/laster/Laster";
 import styles from "../../components/skjema/Skjema.module.scss";
 import { AvtaleSkjemaContainer } from "../../components/avtaler/AvtaleSkjemaContainer";
 import { useAvtale } from "../../api/avtaler/useAvtale";
+import { AvtalestatusTag } from "../../components/statuselementer/AvtalestatusTag";
+import { Heading } from "@navikt/ds-react";
 
 const AvtaleSkjemaPage = () => {
   const navigate = useNavigate();
@@ -34,7 +36,13 @@ const AvtaleSkjemaPage = () => {
 
   return (
     <main>
-      <Header>{redigeringsModus ? "Rediger avtale" : "Opprett ny avtale"}</Header>
+      <Header>
+        <Heading size="large" level="2">
+          {redigeringsModus ? "Rediger avtale" : "Opprett ny avtale"}
+        </Heading>
+        {avtale ? <AvtalestatusTag avtale={avtale} /> : null}
+      </Header>
+
       <ContainerLayout>
         <div className={styles.skjema}>
           {isLoadingAnsatt || isLoadingTiltakstyper || isLoadingEnheter ? <Laster /> : null}

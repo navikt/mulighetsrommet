@@ -7,7 +7,7 @@ const GyldigUrlHvisVerdi = z.union([
 ]);
 
 export const AvtaleSchema = z.object({
-  navn: z.string().min(5, "Et avtalenavn må minst være 5 tegn langt"),
+  navn: z.string(),
   tiltakstype: z.object(
     {
       navn: z.string(),
