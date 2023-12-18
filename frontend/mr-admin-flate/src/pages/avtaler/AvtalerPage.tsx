@@ -7,9 +7,9 @@ import { ContainerLayout } from "../../layouts/ContainerLayout";
 import { MainContainer } from "../../layouts/MainContainer";
 import { useTitle } from "mulighetsrommet-frontend-common";
 import { ReloadAppErrorBoundary } from "../../ErrorBoundary";
-import { FilterAndTableLayout } from "src/components/filter/FilterAndTableLayout";
-import { AvtaleFilterButtons } from "src/components/filter/AvtaleFilterButtons";
-import { AvtaleFilterTags } from "src/components/filter/AvtaleFilterTags";
+import { FilterAndTableLayout } from "../../components/filter/FilterAndTableLayout";
+import { AvtaleFilterButtons } from "../../components/filter/AvtaleFilterButtons";
+import { AvtaleFilterTags } from "../../components/filter/AvtaleFilterTags";
 
 export function AvtalerPage() {
   useTitle("Avtaler");
