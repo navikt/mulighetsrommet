@@ -28,6 +28,10 @@ class AvtaleValidator(
             ?: raise(ValidationError.of(AvtaleDbo::tiltakstypeId, "Tiltakstypen finnes ikke").nel())
 
         val errors = buildList {
+            if (dbo.navn.length < 5 && dbo.opphav == ArenaMigrering.Opphav.MR_ADMIN_FLATE) {
+                add(ValidationError.of(AvtaleDbo::navn, "Avtalenavn må være minst 5 tegn langt"))
+            }
+
             if (dbo.administratorer.isEmpty()) {
                 add(ValidationError.of(AvtaleDbo::administratorer, "Minst én administrator må være valgt"))
             }
@@ -59,7 +63,7 @@ class AvtaleValidator(
                  * så reglene for når en avtale er låst er foreløpig ganske naive og baserer seg kun på om det finnes
                  * gjennomføringer på avtalen eller ikke...
                  */
-                    val (numGjennomforinger, gjennomforinger) = tiltaksgjennomforinger.getAll(avtaleId = dbo.id)
+                val (numGjennomforinger, gjennomforinger) = tiltaksgjennomforinger.getAll(avtaleId = dbo.id)
                 if (numGjennomforinger > 0) {
                     if (dbo.tiltakstypeId != avtale.tiltakstype.id) {
                         add(
