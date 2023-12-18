@@ -1,6 +1,7 @@
 import { HttpResponse, PathParams, http } from "msw";
-import { Avtale, PaginertAvtale } from "mulighetsrommet-api-client";
+import { Avtale, EndringshistorikkEntry, PaginertAvtale } from "mulighetsrommet-api-client";
 import { mockAvtaler } from "../fixtures/mock_avtaler";
+import { mockEndringshistorikkAvtaler } from "../fixtures/mock_endringshistorikk_avtaler";
 
 export const avtaleHandlers = [
   http.get<PathParams, PaginertAvtale | undefined>("*/api/v1/internal/avtaler", ({ request }) => {
@@ -63,5 +64,9 @@ export const avtaleHandlers = [
     return HttpResponse.json({
       id: "d1f163b7-1a41-4547-af16-03fd4492b7ba",
     });
+  }),
+
+  http.get<PathParams, EndringshistorikkEntry>("*/api/v1/internal/avtaler/:id/historikk", () => {
+    return HttpResponse.json(mockEndringshistorikkAvtaler);
   }),
 ];

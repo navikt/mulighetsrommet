@@ -10,6 +10,7 @@ export const QueryKeys = {
   tiltakstype: (id?: string) => ["tiltakstype", id] as const,
   tiltakstyper: (sokestreng: string, filter: TiltakstypeFilter, page?: number) =>
     ["tiltakstyper", page, sokestreng, { ...filter }] as const,
+  tiltakstypeFaneinnhold: (id?: string) => ["tiltakstype", id, "faneinnhold"] as const,
   tiltaksgjennomforinger: (
     page?: number,
     tiltaksgjennomforingfilter?: TiltaksgjennomforingfilterProps,

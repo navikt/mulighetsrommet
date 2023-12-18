@@ -1,9 +1,14 @@
 import { HttpResponse, PathParams, http } from "msw";
-import { PaginertTiltaksgjennomforing, Tiltaksgjennomforing } from "mulighetsrommet-api-client";
+import {
+  Endringshistorikk,
+  PaginertTiltaksgjennomforing,
+  Tiltaksgjennomforing,
+} from "mulighetsrommet-api-client";
 import {
   mockTiltaksgjennomforinger,
   paginertMockTiltaksgjennomforinger,
 } from "../fixtures/mock_tiltaksgjennomforinger";
+import { mockEndringshistorikkForTiltaksgjennomforing } from "../fixtures/mock_endringshistorikk_tiltaksgjennomforinger";
 
 export const tiltaksgjennomforingHandlers = [
   http.get<PathParams, PaginertTiltaksgjennomforing | { x: string }>(
@@ -135,6 +140,13 @@ export const tiltaksgjennomforingHandlers = [
         },
         data: gjennomforinger,
       });
+    },
+  ),
+
+  http.get<PathParams, Endringshistorikk>(
+    "*/api/v1/internal/tiltaksgjennomforinger/:id/historikk",
+    () => {
+      return HttpResponse.json(mockEndringshistorikkForTiltaksgjennomforing);
     },
   ),
 ];

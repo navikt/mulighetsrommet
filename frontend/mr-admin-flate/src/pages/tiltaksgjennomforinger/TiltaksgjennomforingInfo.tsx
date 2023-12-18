@@ -7,9 +7,10 @@ import skjemaStyles from "../../components/skjema/Skjema.module.scss";
 import styles from "../DetaljerInfo.module.scss";
 import { TiltaksgjennomforingDetaljer } from "./TiltaksgjennomforingDetaljer";
 import { TiltaksgjennomforingKnapperad } from "./TiltaksgjennomforingKnapperad";
-import { TiltaksgjennomforingRedInnhold } from "./TiltaksgjennomforingRedInnhold";
+import { RedaksjoneltInnholdPreview } from "../../components/redaksjonelt-innhold/RedaksjoneltInnholdPreview";
 import { gjennomforingDetaljerTabAtom } from "../../api/atoms";
 import { useAtom } from "jotai";
+import { InlineErrorBoundary } from "../../ErrorBoundary";
 
 export function TiltaksgjennomforingInfo() {
   const {
@@ -59,13 +60,21 @@ export function TiltaksgjennomforingInfo() {
           )}
         </Tabs.List>
         <Tabs.Panel value="detaljer">
-          <TiltaksgjennomforingDetaljer
-            tiltaksgjennomforing={tiltaksgjennomforing}
-            avtale={avtale}
-          />
+          <InlineErrorBoundary>
+            <TiltaksgjennomforingDetaljer
+              tiltaksgjennomforing={tiltaksgjennomforing}
+              avtale={avtale}
+            />
+          </InlineErrorBoundary>
         </Tabs.Panel>
         <Tabs.Panel value="redaksjonelt_innhold">
-          <TiltaksgjennomforingRedInnhold tiltaksgjennomforing={tiltaksgjennomforing} />
+          <InlineErrorBoundary>
+            <RedaksjoneltInnholdPreview
+              tiltakstypeId={tiltaksgjennomforing.tiltakstype.id}
+              beskrivelse={tiltaksgjennomforing.beskrivelse}
+              faneinnhold={tiltaksgjennomforing.faneinnhold}
+            />
+          </InlineErrorBoundary>
         </Tabs.Panel>
       </Tabs>
     </div>

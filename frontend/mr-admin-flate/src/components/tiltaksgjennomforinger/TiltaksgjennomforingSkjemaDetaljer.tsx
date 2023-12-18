@@ -13,16 +13,16 @@ import { useHentBetabrukere } from "../../api/ansatt/useHentBetabrukere";
 import { useHentKontaktpersoner } from "../../api/ansatt/useHentKontaktpersoner";
 import { useVirksomhet } from "../../api/virksomhet/useVirksomhet";
 import { addYear } from "../../utils/Utils";
+import { isTiltakMedFellesOppstart } from "../../utils/tiltakskoder";
 import { Separator } from "../detaljside/Metadata";
 import { AdministratorOptions } from "../skjema/AdministratorOptions";
+import { ControlledDateInput } from "../skjema/ControlledDateInput";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FormGroup } from "../skjema/FormGroup";
 import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
 import skjemastyles from "../skjema/Skjema.module.scss";
 import { VirksomhetKontaktpersoner } from "../virksomhet/VirksomhetKontaktpersoner";
 import { arrangorUnderenheterOptions, erArenaOpphav } from "./TiltaksgjennomforingSkjemaConst";
-import { ControlledDateInput } from "../skjema/ControlledDateInput";
-import { isTiltakMedFellesOppstart } from "../../utils/tiltakskoder";
 import { useFeatureToggle } from "../../api/features/feature-toggles";
 
 interface Props {
@@ -79,6 +79,8 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
   const { data: midlertidigStengt } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_ADMIN_FLATE_MIDLERTIDIG_STENGT,
   );
+
+  const valgteNavEnheter = watch("navEnheter");
 
   return (
     <div className={skjemastyles.container}>
@@ -180,6 +182,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
               readOnly={erArenaOpphav(tiltaksgjennomforing)}
               error={errors.antallPlasser?.message as string}
               type="number"
+              min="1"
               style={{
                 width: "180px",
               }}
@@ -272,7 +275,9 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                           {...register(`kontaktpersoner.${index}.navEnheter`, {
                             shouldUnregister: true,
                           })}
-                          options={navEnheterOptions}
+                          options={navEnheterOptions.filter((enhet) =>
+                            valgteNavEnheter.includes(enhet.value),
+                          )}
                         />
                       </div>
                     </div>

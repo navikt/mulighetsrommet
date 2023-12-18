@@ -54,13 +54,8 @@ class TiltaksgjennomforingValidator(
                 add(ValidationError.of(TiltaksgjennomforingDbo::antallPlasser, "Antall plasser må være større enn 0"))
             }
 
-            if (dbo.fremmoteTidspunkt != null && dbo.fremmoteTidspunkt.toLocalTime() == LocalTime.of(0, 0)) {
-                add(
-                    ValidationError(
-                        name = "fremmoteTid",
-                        message = "Fremmøte klokkeslett kan ikke være kl 00:00",
-                    ),
-                )
+            if (Tiltakskoder.isKursTiltak(avtale.tiltakstype.arenaKode)) {
+                validateKursTiltak(dbo)
             }
 
             if (!Tiltakskoder.isTiltakMedAvtalerFraMulighetsrommet(avtale.tiltakstype.arenaKode)) {
@@ -198,5 +193,16 @@ class TiltaksgjennomforingValidator(
         }
 
         return errors.takeIf { it.isNotEmpty() }?.left() ?: dbo.right()
+    }
+
+    private fun MutableList<ValidationError>.validateKursTiltak(dbo: TiltaksgjennomforingDbo) {
+        if (dbo.fremmoteTidspunkt != null && dbo.fremmoteTidspunkt.toLocalTime() == LocalTime.of(0, 0)) {
+            add(
+                ValidationError(
+                    name = "fremmoteTid",
+                    message = "Fremmøte klokkeslett kan ikke være kl 00:00",
+                ),
+            )
+        }
     }
 }

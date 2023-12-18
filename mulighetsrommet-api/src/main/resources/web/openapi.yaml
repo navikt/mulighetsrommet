@@ -1866,6 +1866,10 @@ components:
         updatedAt:
           type: string
           format: date-time
+        beskrivelse:
+          type: string
+        faneinnhold:
+          $ref: "#/components/schemas/SanityFaneinnhold"
       required:
         - id
         - tiltakstype
@@ -1928,6 +1932,12 @@ components:
           type: array
           items:
             type: string
+        beskrivelse:
+          type: string
+          nullable: true
+        faneinnhold:
+          $ref: "#/components/schemas/SanityFaneinnholdRequest"
+          nullable: true
         opphav:
           $ref: "#/components/schemas/Opphav"
       required:
@@ -1945,6 +1955,8 @@ components:
         - avtaletype
         - prisbetingelser
         - navEnheter
+        - beskrivelse
+        - faneinnhold
         - opphav
         - avslutningsstatus
 
