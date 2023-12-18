@@ -57,6 +57,7 @@ test.describe("Smoketest og UU", () => {
 
   test("Tiltaksgjennomføring - Info", async ({ page }) => {
     await page.getByTestId("forsidekort-tiltaksgjennomforinger").click();
+    await page.getByTestId("filter-tab").click();
     await page.getByTestId("tiltaksgjennomforing-tabell_tittel").first().click();
     await expect(page.getByText("Tiltaksnummer")).toBeVisible();
     // FIXME: UU feiler fordi det button/link-elementer i tabs-list
