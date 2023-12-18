@@ -179,3 +179,17 @@ function specialChar(string: string | { label: string }) {
 export function kebabCase(string: string | { label: string }) {
   return specialChar(string).trim().replace(/\s+/g, "-").replace(/_/g, "-");
 }
+
+export function addOrRemove<T>(array: T[], item: T) {
+  const exists = array.includes(item);
+
+  if (exists) {
+    return array.filter((c) => {
+      return c !== item;
+    });
+  } else {
+    const result = array;
+    result.push(item);
+    return result;
+  }
+}

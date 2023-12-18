@@ -16,6 +16,6 @@ export function Metadata({ header, verdi }: MetadataProps) {
   );
 }
 
-export function Separator({ classname }: { classname?: string }) {
-  return <hr className={classNames(styles.separator, classname)} />;
+export function Separator({ style, classname }: { style?: any; classname?: string }) {
+  return <hr style={style} className={classNames(styles.separator, classname)} />;
 }
