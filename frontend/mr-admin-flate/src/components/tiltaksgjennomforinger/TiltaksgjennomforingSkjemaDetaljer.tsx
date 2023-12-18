@@ -1,9 +1,10 @@
 import { PlusIcon, XMarkIcon } from "@navikt/aksel-icons";
-import { Button, Checkbox, Label, TextField, Textarea } from "@navikt/ds-react";
+import { Button, Checkbox, Label, Textarea, TextField } from "@navikt/ds-react";
 import {
   Avtale,
   Tiltaksgjennomforing,
   TiltaksgjennomforingOppstartstype,
+  Toggles,
 } from "mulighetsrommet-api-client";
 import { ControlledSokeSelect } from "mulighetsrommet-frontend-common";
 import { useFieldArray, useFormContext } from "react-hook-form";
@@ -22,6 +23,7 @@ import { VirksomhetKontaktpersoner } from "../virksomhet/VirksomhetKontaktperson
 import { arrangorUnderenheterOptions, erArenaOpphav } from "./TiltaksgjennomforingSkjemaConst";
 import { ControlledDateInput } from "../skjema/ControlledDateInput";
 import { isTiltakMedFellesOppstart } from "../../utils/tiltakskoder";
+import { useFeatureToggle } from "../../api/features/feature-toggles";
 
 interface Props {
   tiltaksgjennomforing?: Tiltaksgjennomforing;
@@ -74,6 +76,9 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
 
   const minStartdato = new Date();
   const maxSluttdato = addYear(minStartdato, 5);
+  const { data: midlertidigStengt } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_ADMIN_FLATE_MIDLERTIDIG_STENGT,
+  );
 
   return (
     <div className={skjemastyles.container}>
@@ -146,9 +151,11 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
             >
               Åpen for innsøk
             </Checkbox>
-            <Checkbox size="small" {...register("midlertidigStengt.erMidlertidigStengt")}>
-              Midlertidig stengt
-            </Checkbox>
+            {midlertidigStengt ? (
+              <Checkbox size="small" {...register("midlertidigStengt.erMidlertidigStengt")}>
+                Midlertidig stengt
+              </Checkbox>
+            ) : null}
             {watchErMidlertidigStengt && (
               <FraTilDatoVelger
                 size="small"

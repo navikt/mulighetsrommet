@@ -3192,6 +3192,7 @@ components:
         - mulighetsrommet-veilederflate-landingsside
         - mulighetsrommet-veilederflate-arena-oppskrifter
         - mulighetsrommet.admin-flate.show-notater
+        - mulighetsrommet.admin-flate.midlertidig-stengt
 
     TilgjengeligForVeilederRequest:
       type: object
