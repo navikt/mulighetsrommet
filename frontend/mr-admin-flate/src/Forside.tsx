@@ -9,7 +9,7 @@ export function Forside() {
   return (
     <main>
       <div className={styles.hero}>
-        <Heading size="large" level="2" className={styles.title}>
+        <Heading size="large" level="2" className={styles.title} data-testid="heading">
           Enkel og effektiv administrasjon
           <br /> av arbeidsmarkedstiltak
         </Heading>
