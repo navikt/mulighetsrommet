@@ -5,7 +5,7 @@ import { WritableAtom, useAtom } from "jotai";
 import { OpenAPI, PaginertAvtale, SorteringAvtaler } from "mulighetsrommet-api-client";
 import Lenke from "mulighetsrommet-veileder-flate/src/components/lenke/Lenke";
 import { createRef, useEffect, useState } from "react";
-import { AvtaleFilterProps, avtalePaginationAtomAtom } from "../../api/atoms";
+import { AvtaleFilterProps, avtalePaginationAtom } from "../../api/atoms";
 import { APPLICATION_NAME } from "../../constants";
 import { useSort } from "../../hooks/useSort";
 import {
@@ -62,7 +62,7 @@ interface Props {
 
 export const AvtaleTabell = ({ avtalefilter, paginerteAvtaler, isLoading }: Props) => {
   const [filter, setFilter] = useAtom(avtalefilter);
-  const [page, setPage] = useAtom(avtalePaginationAtomAtom);
+  const [page, setPage] = useAtom(avtalePaginationAtom);
   const [sort, setSort] = useSort("navn");
   const pagination = paginerteAvtaler?.pagination;
   const avtaler = paginerteAvtaler?.data || [];

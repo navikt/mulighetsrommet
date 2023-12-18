@@ -6,7 +6,7 @@ import {
 } from "mulighetsrommet-api-client";
 import Lenke from "mulighetsrommet-veileder-flate/src/components/lenke/Lenke";
 import React from "react";
-import { paginationAtom, tiltaksgjennomforingfilterAtom } from "../../api/atoms";
+import { gjennomforingPaginationAtom, tiltaksgjennomforingfilterAtom } from "../../api/atoms";
 import { useSort } from "../../hooks/useSort";
 import pageStyles from "../../pages/Page.module.scss";
 import { formaterDato, formaterNavEnheter, resetPaginering } from "../../utils/Utils";
@@ -106,7 +106,7 @@ export const TiltaksgjennomforingsTabell = ({
   paginerteTiltaksgjennomforinger,
   isLoading,
 }: Props) => {
-  const [page, setPage] = useAtom(paginationAtom);
+  const [page, setPage] = useAtom(gjennomforingPaginationAtom);
   const [sort, setSort] = useSort("navn");
   const [filter, setFilter] = useAtom(tiltaksgjennomforingfilterAtom);
   const pagination = paginerteTiltaksgjennomforinger?.pagination;
