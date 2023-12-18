@@ -120,6 +120,16 @@ class AvtaleValidatorTest : FunSpec({
         )
     }
 
+    test("Avtalenavn må være minst 5 tegn når avtalen er opprettet i Admin-flate") {
+        val validator = AvtaleValidator(tiltakstyper, avtaler, gjennomforinger, navEnheterService)
+        val dbo = avtaleDbo.copy(navn = "Avt", opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE)
+        validator.validate(dbo).shouldBeLeft().shouldContainExactlyInAnyOrder(
+            listOf(
+                ValidationError("navn", "Avtalenavn må være minst 5 tegn langt"),
+            ),
+        )
+    }
+
     test("skal validere at ") {
         val validator = AvtaleValidator(tiltakstyper, avtaler, gjennomforinger, navEnheterService)
 

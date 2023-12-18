@@ -28,6 +28,10 @@ class AvtaleValidator(
             ?: raise(ValidationError.of(AvtaleDbo::tiltakstypeId, "Tiltakstypen finnes ikke").nel())
 
         val errors = buildList {
+            if (dbo.navn.length < 5 && dbo.opphav == ArenaMigrering.Opphav.MR_ADMIN_FLATE) {
+                add(ValidationError.of(AvtaleDbo::navn, "Avtalenavn må være minst 5 tegn langt"))
+            }
+
             if (dbo.administratorer.isEmpty()) {
                 add(ValidationError.of(AvtaleDbo::administratorer, "Minst én administrator må være valgt"))
             }
