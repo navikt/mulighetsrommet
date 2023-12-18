@@ -1,6 +1,7 @@
 import { isTiltakMedFellesOppstart } from "../../utils/tiltakskoder";
 import {
   Avtale,
+  NavAnsatt,
   Opphav,
   Tiltaksgjennomforing,
   TiltaksgjennomforingKontaktpersoner,
@@ -102,6 +103,7 @@ export function fremmoteTidFromTidspunkt(fremmoteTidspunkt?: string): string | u
 }
 
 export function defaultTiltaksgjennomforingData(
+  ansatt: NavAnsatt,
   avtale: Avtale,
   tiltaksgjennomforing?: Tiltaksgjennomforing,
 ): DeepPartial<InferredTiltaksgjennomforingSchema> {
@@ -110,7 +112,9 @@ export function defaultTiltaksgjennomforingData(
     avtaleId: avtale.id,
     navRegion: defaultNavRegion(avtale, tiltaksgjennomforing),
     navEnheter: defaultNavEnheter(avtale, tiltaksgjennomforing),
-    administratorer: tiltaksgjennomforing?.administratorer?.map((admin) => admin.navIdent),
+    administratorer: tiltaksgjennomforing?.administratorer?.map((admin) => admin.navIdent) || [
+      ansatt.navIdent,
+    ],
     antallPlasser: tiltaksgjennomforing?.antallPlasser,
     startOgSluttDato: {
       startDato: tiltaksgjennomforing?.startDato,

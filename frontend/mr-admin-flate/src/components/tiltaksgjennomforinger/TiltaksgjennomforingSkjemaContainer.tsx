@@ -4,6 +4,7 @@ import { Alert, Button, Tabs } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import {
   Avtale,
+  NavAnsatt,
   Tiltaksgjennomforing,
   TiltaksgjennomforingRequest,
 } from "mulighetsrommet-api-client";
@@ -30,11 +31,13 @@ interface Props {
   onClose: () => void;
   onSuccess: (id: string) => void;
   avtale: Avtale;
+  ansatt: NavAnsatt;
   tiltaksgjennomforing?: Tiltaksgjennomforing;
 }
 
 export const TiltaksgjennomforingSkjemaContainer = ({
   avtale,
+  ansatt,
   tiltaksgjennomforing,
   onClose,
   onSuccess,
@@ -47,13 +50,14 @@ export const TiltaksgjennomforingSkjemaContainer = ({
 
   const form = useForm<InferredTiltaksgjennomforingSchema>({
     resolver: zodResolver(TiltaksgjennomforingSchema),
-    defaultValues: defaultTiltaksgjennomforingData(avtale, tiltaksgjennomforing),
+    defaultValues: defaultTiltaksgjennomforingData(ansatt, avtale, tiltaksgjennomforing),
   });
 
   const {
     handleSubmit,
     formState: { errors },
   } = form;
+
   const postData: SubmitHandler<InferredTiltaksgjennomforingSchema> = async (
     data,
   ): Promise<void> => {

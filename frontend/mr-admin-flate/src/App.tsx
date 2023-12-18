@@ -7,7 +7,6 @@ import IkkeAutentisertApp from "./IkkeAutentisertApp";
 import { useHentAnsatt } from "./api/ansatt/useHentAnsatt";
 import AvtaleSkjemaPage from "./pages/avtaler/AvtaleSkjemaPage";
 import NotaterAvtalePage from "./components/avtaler/NotaterAvtalePage";
-import { Tiltaksgjennomforingfilter } from "./components/filter/Tiltaksgjennomforingfilter";
 import { Laster } from "./components/laster/Laster";
 import { Notifikasjonsliste } from "./components/notifikasjoner/Notifikasjonsliste";
 import { TiltaksgjennomforingsTabell } from "./components/tabell/TiltaksgjennomforingsTabell";
@@ -29,6 +28,10 @@ import { AvtalerPage } from "./pages/avtaler/AvtalerPage";
 import { AvtaleInfo } from "./pages/avtaler/AvtaleInfo";
 import { tiltaksgjennomforingfilterForAvtaleAtom } from "./api/atoms";
 import TiltaksgjennomforingSkjemaPage from "./pages/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaPage";
+import { FilterAndTableLayout } from "./components/filter/FilterAndTableLayout";
+import { TiltaksgjennomforingFilter } from "./components/filter/Tiltaksgjennomforingfilter";
+import { TiltaksgjennomforingFilterTags } from "./components/filter/TiltaksgjennomforingFilterTags";
+import { TiltaksgjennomforingFilterButtons } from "./components/filter/TiltaksgjennomforingFilterButtons";
 
 if (import.meta.env.PROD) {
   initializeFaro({
@@ -94,22 +97,38 @@ export function App() {
         <Route
           path="tiltaksgjennomforinger"
           element={
-            <>
-              <Tiltaksgjennomforingfilter
-                filterAtom={tiltaksgjennomforingfilterForAvtaleAtom}
-                skjulFilter={{
-                  tiltakstype: true,
-                }}
+            <div style={{ marginTop: "1rem" }}>
+              <FilterAndTableLayout
+                filter={
+                  <TiltaksgjennomforingFilter
+                    filterAtom={tiltaksgjennomforingfilterForAvtaleAtom}
+                    skjulFilter={{
+                      tiltakstype: true,
+                    }}
+                  />
+                }
+                tags={
+                  <TiltaksgjennomforingFilterTags
+                    filterAtom={tiltaksgjennomforingfilterForAvtaleAtom}
+                  />
+                }
+                buttons={
+                  <TiltaksgjennomforingFilterButtons
+                    filterAtom={tiltaksgjennomforingfilterForAvtaleAtom}
+                  />
+                }
+                table={
+                  <TiltaksgjennomforingsTabell
+                    skjulKolonner={{
+                      tiltakstype: true,
+                      arrangor: true,
+                    }}
+                    isLoading={tiltaksgjennomforingerIsLoading}
+                    paginerteTiltaksgjennomforinger={tiltaksgjennomforinger}
+                  />
+                }
               />
-              <TiltaksgjennomforingsTabell
-                skjulKolonner={{
-                  tiltakstype: true,
-                  arrangor: true,
-                }}
-                isLoading={tiltaksgjennomforingerIsLoading}
-                paginerteTiltaksgjennomforinger={tiltaksgjennomforinger}
-              />
-            </>
+            </div>
           }
           errorElement={<ErrorPage />}
         />

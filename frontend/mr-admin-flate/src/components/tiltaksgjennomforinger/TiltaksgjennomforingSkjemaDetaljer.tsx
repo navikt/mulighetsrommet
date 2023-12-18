@@ -4,6 +4,7 @@ import {
   Avtale,
   Tiltaksgjennomforing,
   TiltaksgjennomforingOppstartstype,
+  Toggles,
 } from "mulighetsrommet-api-client";
 import { ControlledSokeSelect } from "mulighetsrommet-frontend-common";
 import { useFieldArray, useFormContext } from "react-hook-form";
@@ -22,6 +23,7 @@ import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
 import skjemastyles from "../skjema/Skjema.module.scss";
 import { VirksomhetKontaktpersoner } from "../virksomhet/VirksomhetKontaktpersoner";
 import { arrangorUnderenheterOptions, erArenaOpphav } from "./TiltaksgjennomforingSkjemaConst";
+import { useFeatureToggle } from "../../api/features/feature-toggles";
 
 interface Props {
   tiltaksgjennomforing?: Tiltaksgjennomforing;
@@ -74,6 +76,9 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
 
   const minStartdato = new Date();
   const maxSluttdato = addYear(minStartdato, 5);
+  const { data: midlertidigStengt } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_ADMIN_FLATE_MIDLERTIDIG_STENGT,
+  );
 
   const valgteNavEnheter = watch("navEnheter");
 
@@ -148,9 +153,11 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
             >
               Åpen for innsøk
             </Checkbox>
-            <Checkbox size="small" {...register("midlertidigStengt.erMidlertidigStengt")}>
-              Midlertidig stengt
-            </Checkbox>
+            {midlertidigStengt ? (
+              <Checkbox size="small" {...register("midlertidigStengt.erMidlertidigStengt")}>
+                Midlertidig stengt
+              </Checkbox>
+            ) : null}
             {watchErMidlertidigStengt && (
               <FraTilDatoVelger
                 size="small"

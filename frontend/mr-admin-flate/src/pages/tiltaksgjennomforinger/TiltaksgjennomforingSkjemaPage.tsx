@@ -9,12 +9,14 @@ import { Laster } from "../../components/laster/Laster";
 import styles from "../../components/skjema/Skjema.module.scss";
 import { TiltaksgjennomforingSkjemaContainer } from "../../components/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaContainer";
 import { ErrorMeldinger } from "../../components/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaErrors";
+import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
 
 const TiltaksgjennomforingSkjemaPage = () => {
   const navigate = useNavigate();
   const { data: tiltaksgjennomforing, isLoading: tiltaksgjennomforingLoading } =
     useTiltaksgjennomforingById();
   const { data: avtale, isLoading: avtaleIsLoading } = useAvtale(tiltaksgjennomforing?.avtaleId);
+  const { data: ansatt, isPending: isPendingAnsatt } = useHentAnsatt();
 
   const redigeringsModus = tiltaksgjennomforing && inneholderUrl(tiltaksgjennomforing?.id);
 
@@ -24,14 +26,14 @@ const TiltaksgjennomforingSkjemaPage = () => {
 
   const isError = !avtale || !avtaleHarRegioner(avtale);
 
-  if (avtaleIsLoading || tiltaksgjennomforingLoading) {
+  if (avtaleIsLoading || tiltaksgjennomforingLoading || isPendingAnsatt) {
     return <Laster size="xlarge" tekst={"Laster tiltaksgjennomføring..."} />;
   }
 
   let content = null;
   if (isError) {
     content = <Alert variant="error">{ErrorMeldinger(avtale)}</Alert>;
-  } else if (avtale) {
+  } else if (avtale && ansatt) {
     content = (
       <TiltaksgjennomforingSkjemaContainer
         onClose={() => {
@@ -39,6 +41,7 @@ const TiltaksgjennomforingSkjemaPage = () => {
         }}
         onSuccess={(id) => navigate(`/tiltaksgjennomforinger/${id}`)}
         avtale={avtale}
+        ansatt={ansatt}
         tiltaksgjennomforing={tiltaksgjennomforing}
       />
     );

@@ -19,14 +19,14 @@ export function useAdminTiltaksgjennomforinger(
   const queryFilter = {
     page,
     search: debouncedSok || undefined,
-    navEnheter: filter.navEnhet ? [filter.navEnhet] : [],
-    tiltakstypeIder: filter.tiltakstype ? [filter.tiltakstype] : [],
-    statuser: filter.status ? [filter.status] : [],
-    navRegioner: filter.navRegion ? [filter.navRegion] : [],
+    navEnheter: filter.navEnheter,
+    tiltakstypeIder: filter.tiltakstyper,
+    statuser: filter.statuser,
+    navRegioner: filter.navRegioner,
     sort: filter.sortering ? filter.sortering : undefined,
     size: filter.antallGjennomforingerVises,
     avtaleId: filter.avtale ? filter.avtale : undefined,
-    arrangorOrgnr: filter.arrangorOrgnr ? [filter.arrangorOrgnr] : [],
+    arrangorOrgnr: filter.arrangorOrgnr,
   };
 
   return useQuery({

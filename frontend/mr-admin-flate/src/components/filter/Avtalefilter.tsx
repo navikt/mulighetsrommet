@@ -1,325 +1,131 @@
-import { faro } from "@grafana/faro-web-sdk";
-import { Button, Search } from "@navikt/ds-react";
+import { Accordion, Search, Skeleton } from "@navikt/ds-react";
 import { WritableAtom, useAtom } from "jotai";
-import {
-  Avtalestatus,
-  NavEnhetType,
-  Tiltakstypestatus,
-  VirksomhetTil,
-} from "mulighetsrommet-api-client";
-import { ControlledSokeSelect } from "mulighetsrommet-frontend-common";
-import { useEffect, useRef } from "react";
-import { FormProvider, useForm } from "react-hook-form";
-import {
-  AvtaleFilterProps,
-  avtaleFilterAtom,
-  avtalePaginationAtomAtom,
-  defaultAvtaleFilter,
-} from "../../api/atoms";
-import { useAvtaler } from "../../api/avtaler/useAvtaler";
+import { Tiltakstypestatus, VirksomhetTil } from "mulighetsrommet-api-client";
 import { useNavEnheter } from "../../api/enhet/useNavEnheter";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
 import { useVirksomheter } from "../../api/virksomhet/useVirksomheter";
-import { resetPaginering, valueOrDefault } from "../../utils/Utils";
-import { Lenkeknapp } from "../lenkeknapp/Lenkeknapp";
-import styles from "./Filter.module.scss";
-import { FilterTag } from "./FilterTag";
+import { addOrRemove } from "../../utils/Utils";
+import { AvtaleFilterProps } from "src/api/atoms";
+import { CheckboxList } from "./Tiltaksgjennomforingfilter";
+import {
+  AVTALE_STATUS_OPTIONS,
+  regionOptions,
+  tiltakstypeOptions,
+  virksomhetOptions,
+} from "../../utils/filterUtils";
 
 type Filters = "tiltakstype";
 
 interface Props {
-  skjulFilter?: Record<Filters, boolean>;
   filterAtom: WritableAtom<AvtaleFilterProps, [newValue: AvtaleFilterProps], void>;
+  skjulFilter?: Record<Filters, boolean>;
 }
 
-export function Avtalefilter(props: Props) {
-  const [filter, setFilter] = useAtom(props.filterAtom);
-  const form = useForm<AvtaleFilterProps>({
-    defaultValues: {
-      ...filter,
-    },
-  });
-  const { register, setValue } = form;
-
-  const { data: enheter } = useNavEnheter();
-  const { data: tiltakstyper } = useTiltakstyper(
+export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
+  const [filter, setFilter] = useAtom(filterAtom);
+  const { data: enheter, isLoading: isLoadingEnheter } = useNavEnheter();
+  const { data: virksomheter, isLoading: isLoadingVirksomheter } = useVirksomheter(
+    VirksomhetTil.TILTAKSGJENNOMFORING,
+  );
+  const { data: tiltakstyper, isLoading: isLoadingTiltakstyper } = useTiltakstyper(
     {
       status: Tiltakstypestatus.AKTIV,
-      kategori: undefined,
     },
     1,
   );
-  const { data: avtaler } = useAvtaler(avtaleFilterAtom);
-  const { data: leverandorer } = useVirksomheter(VirksomhetTil.AVTALE);
-  const [, setPage] = useAtom(avtalePaginationAtomAtom);
-  const searchRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    // Hold fokus på søkefelt dersom bruker skriver i søkefelt
-    if (filter.sok !== "") {
-      searchRef?.current?.focus();
-    }
-  }, [avtaler]);
-
-  const regionOptions = () => {
-    const alleOptions = {
-      value: "",
-      label: "Alle regioner",
-    };
-    const regionOptions = enheter
-      ? enheter
-          ?.filter((enhet) => enhet.type === NavEnhetType.FYLKE)
-          ?.map((enhet) => ({
-            value: enhet.enhetsnummer,
-            label: enhet.navn,
-          }))
-      : [];
-    return [alleOptions, ...regionOptions];
-  };
-
-  const tiltakstypeOptions = () => {
-    const alleOptions = {
-      value: "",
-      label: "Alle tiltakstyper",
-    };
-    const tiltakstypeOptions = tiltakstyper
-      ? tiltakstyper?.data?.map((tiltakstype) => ({
-          label: tiltakstype.navn,
-          value: tiltakstype.id,
-        }))
-      : [];
-    return [alleOptions, ...tiltakstypeOptions];
-  };
-  const leverandorOptions = () => {
-    const alleOptions = {
-      value: "",
-      label: "Alle leverandører",
-    };
-    const leverandorOptions = leverandorer
-      ? leverandorer?.map(({ navn: label, organisasjonsnummer: value }) => ({
-          label,
-          value,
-        }))
-      : [];
-    return [alleOptions, ...leverandorOptions];
-  };
+  if (
+    !enheter ||
+    isLoadingEnheter ||
+    !virksomheter ||
+    isLoadingVirksomheter ||
+    !tiltakstyper ||
+    isLoadingTiltakstyper
+  ) {
+    return <Skeleton variant="rounded" height="400px" />;
+  }
 
   return (
-    <FormProvider {...form}>
-      <form className={styles.avtaleform}>
-        <div className={styles.filter_container}>
-          <div className={styles.filtrering}>
-            <Search
-              ref={searchRef}
-              label="Søk etter avtale"
-              hideLabel
-              size="small"
-              variant="simple"
-              placeholder="Navn eller avtalenr."
-              onChange={(sok: string) => {
+    <div>
+      <Search
+        label="Søk etter tiltaksgjennomføring"
+        hideLabel
+        size="small"
+        variant="simple"
+        placeholder="Navn eller tiltaksnr."
+        onChange={(search: string) =>
+          setFilter({
+            ...filter,
+            sok: search,
+          })
+        }
+        value={filter.sok}
+        aria-label="Søk etter tiltaksgjennomføring"
+      />
+      <Accordion>
+        <Accordion.Item>
+          <Accordion.Header>Status</Accordion.Header>
+          <Accordion.Content>
+            <CheckboxList
+              items={AVTALE_STATUS_OPTIONS}
+              isChecked={(status) => filter.statuser.includes(status)}
+              onChange={(status) =>
                 setFilter({
                   ...filter,
-                  sok,
-                });
-              }}
-              value={filter.sok}
-              aria-label="Søk etter avtale"
-              className={styles.form_field}
+                  statuser: addOrRemove(filter.statuser, status),
+                })
+              }
             />
-            <ControlledSokeSelect
-              size="small"
-              placeholder="Filtrer på statuser"
-              label="Filtrer på statuser"
-              hideLabel
-              {...register("status")}
-              className={styles.form_field}
-              onChange={(e) => {
-                setFilter({
-                  ...filter,
-                  status: valueOrDefault(
-                    e.target.value as Avtalestatus,
-                    defaultAvtaleFilter.status,
-                  ),
-                });
-              }}
-              options={[
-                {
-                  value: "Aktiv",
-                  label: "Aktiv",
-                },
-                {
-                  value: "Avsluttet",
-                  label: "Avsluttet",
-                },
-                {
-                  value: "Avbrutt",
-                  label: "Avbrutt",
-                },
-                {
-                  value: "",
-                  label: "Alle statuser",
-                },
-              ]}
-            />
-
-            <ControlledSokeSelect
-              size="small"
-              label="Filtrer på region"
-              hideLabel
-              placeholder="Filtrer på region"
-              {...register("navRegion")}
-              className={styles.form_field}
-              onChange={(e) => {
-                resetPaginering(setPage);
-                setFilter({
-                  ...filter,
-                  navRegion: valueOrDefault(
-                    e.target.value as string,
-                    defaultAvtaleFilter.navRegion,
-                  ),
-                });
-              }}
-              options={regionOptions()}
-            />
-            {props.skjulFilter?.tiltakstype ? null : (
-              <ControlledSokeSelect
-                size="small"
-                label="Filtrer på tiltakstype"
-                placeholder="Filtrer på tiltakstype"
-                hideLabel
-                {...register("tiltakstype")}
-                className={styles.form_field}
-                onChange={(e) => {
-                  resetPaginering(setPage);
+          </Accordion.Content>
+        </Accordion.Item>
+        {!skjulFilter?.tiltakstype && (
+          <Accordion.Item>
+            <Accordion.Header>Tiltakstype</Accordion.Header>
+            <Accordion.Content>
+              <CheckboxList
+                items={tiltakstypeOptions(tiltakstyper.data)}
+                isChecked={(tiltakstype) => filter.tiltakstyper.includes(tiltakstype)}
+                onChange={(tiltakstype) =>
                   setFilter({
                     ...filter,
-                    tiltakstype: valueOrDefault(
-                      e.target.value as string,
-                      defaultAvtaleFilter.tiltakstype,
-                    ),
-                  });
-                }}
-                options={tiltakstypeOptions()}
-              />
-            )}
-            <ControlledSokeSelect
-              size="small"
-              label="Filtrer på leverandør"
-              placeholder="Filtrer på leverandør"
-              hideLabel
-              {...register("leverandor_orgnr")}
-              className={styles.form_field}
-              onChange={(e) => {
-                resetPaginering(setPage);
-                setFilter({
-                  ...filter,
-                  leverandor_orgnr: valueOrDefault(
-                    e.target.value as string,
-                    defaultAvtaleFilter.leverandor_orgnr,
-                  ),
-                });
-              }}
-              options={leverandorOptions()}
-            />
-          </div>
-
-          <div className={styles.knapperad}>
-            <Lenkeknapp
-              to={`/avtaler/skjema`}
-              variant="primary"
-              handleClick={() => {
-                faro?.api?.pushEvent("Bruker trykket på 'Opprett ny avtale'-knapp");
-              }}
-            >
-              Opprett ny avtale
-            </Lenkeknapp>
-          </div>
-          <div className={styles.tags_container}>
-            {filter.sok && (
-              <FilterTag
-                label={`'${filter.sok}'`}
-                onClick={() => {
-                  setFilter({
-                    ...filter,
-                    sok: "",
-                  });
-                  setValue("sok", "");
-                }}
-              />
-            )}
-            {filter.status && (
-              <FilterTag
-                label={filter.status}
-                onClick={() => {
-                  setFilter({
-                    ...filter,
-                    status: undefined,
-                  });
-                  setValue("status", undefined);
-                }}
-              />
-            )}
-            {filter.navRegion && (
-              <FilterTag
-                label={enheter?.find((e) => e.enhetsnummer === filter.navRegion)?.navn}
-                onClick={() => {
-                  setFilter({
-                    ...filter,
-                    navRegion: defaultAvtaleFilter.navRegion,
-                  });
-                  setValue("navRegion", defaultAvtaleFilter.navRegion);
-                }}
-              />
-            )}
-            {filter.tiltakstype && (
-              <FilterTag
-                label={tiltakstyper?.data?.find((t) => t.id === filter.tiltakstype)?.navn}
-                onClick={() => {
-                  setFilter({
-                    ...filter,
-                    tiltakstype: defaultAvtaleFilter.tiltakstype,
-                  });
-                  setValue("tiltakstype", defaultAvtaleFilter.tiltakstype);
-                }}
-              />
-            )}
-            {filter.leverandor_orgnr && (
-              <FilterTag
-                label={
-                  leverandorer?.find((l) => l.organisasjonsnummer === filter.leverandor_orgnr)?.navn
+                    tiltakstyper: addOrRemove(filter.tiltakstyper, tiltakstype),
+                  })
                 }
-                onClick={() => {
-                  setFilter({
-                    ...filter,
-                    leverandor_orgnr: defaultAvtaleFilter.leverandor_orgnr,
-                  });
-                  setValue("leverandor_orgnr", defaultAvtaleFilter.leverandor_orgnr);
-                }}
               />
-            )}
-            {(filter.sok ||
-              filter.status !== defaultAvtaleFilter.status ||
-              filter.navRegion ||
-              filter.tiltakstype ||
-              filter.leverandor_orgnr) && (
-              <Button
-                type="button"
-                size="small"
-                variant="tertiary"
-                onClick={() => {
-                  setFilter(defaultAvtaleFilter);
-                  setValue("status", defaultAvtaleFilter.status);
-                  setValue("navRegion", defaultAvtaleFilter.navRegion);
-                  setValue("tiltakstype", defaultAvtaleFilter.tiltakstype);
-                  setValue("leverandor_orgnr", defaultAvtaleFilter.leverandor_orgnr);
-                }}
-              >
-                Tilbakestill filter
-              </Button>
-            )}
-          </div>
-        </div>
-      </form>
-    </FormProvider>
+            </Accordion.Content>
+          </Accordion.Item>
+        )}
+        <Accordion.Item>
+          <Accordion.Header>Region</Accordion.Header>
+          <Accordion.Content>
+            <CheckboxList
+              items={regionOptions(enheter)}
+              isChecked={(region) => filter.navRegioner.includes(region)}
+              onChange={(region) =>
+                setFilter({
+                  ...filter,
+                  navRegioner: addOrRemove(filter.navRegioner, region),
+                })
+              }
+            />
+          </Accordion.Content>
+        </Accordion.Item>
+        <Accordion.Item>
+          <Accordion.Header>Leverandør</Accordion.Header>
+          <Accordion.Content>
+            <CheckboxList
+              searchable
+              items={virksomhetOptions(virksomheter)}
+              isChecked={(orgnr) => filter.leverandor_orgnr.includes(orgnr)}
+              onChange={(orgnr) =>
+                setFilter({
+                  ...filter,
+                  leverandor_orgnr: addOrRemove(filter.leverandor_orgnr, orgnr),
+                })
+              }
+            />
+          </Accordion.Content>
+        </Accordion.Item>
+      </Accordion>
+    </div>
   );
 }

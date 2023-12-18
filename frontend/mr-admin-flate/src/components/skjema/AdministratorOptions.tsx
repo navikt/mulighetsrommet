@@ -20,16 +20,15 @@ export const AdministratorOptions = (
     },
   ];
 
-  if (
-    administratorer &&
-    !administratorer.map((admin) => admin.navIdent).includes(ansatt?.navIdent)
-  ) {
-    administratorer.forEach(({ navIdent, navn }) => {
-      options.push({
-        value: navIdent,
-        label: `${navn} - ${navIdent}`,
+  if (administratorer) {
+    administratorer
+      .filter((admin) => admin.navIdent !== ansatt?.navIdent)
+      .forEach(({ navIdent, navn }) => {
+        options.push({
+          value: navIdent,
+          label: `${navn} - ${navIdent}`,
+        });
       });
-    });
   }
 
   betabrukere
