@@ -1,4 +1,4 @@
-import { Alert } from "@navikt/ds-react";
+import { Alert, Heading } from "@navikt/ds-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAvtale } from "../../api/avtaler/useAvtale";
@@ -15,6 +15,7 @@ import {
 } from "../../components/tiltaksgjennomforinger/TiltaksgjennomforingSchema";
 import { TiltaksgjennomforingSkjemaContainer } from "../../components/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaContainer";
 import { ErrorMeldinger } from "../../components/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaErrors";
+import { TiltaksgjennomforingstatusTag } from "../../components/statuselementer/TiltaksgjennomforingstatusTag";
 import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
 
 export type TiltaksgjennomforingUtkastData = Partial<InferredTiltaksgjennomforingSchema> & {
@@ -81,11 +82,16 @@ const TiltaksgjennomforingSkjemaPage = () => {
   return (
     <main>
       <Header>
-        {redigeringsModus
-          ? utkastModus
-            ? "Rediger utkast"
-            : "Rediger tiltaksgjennomføring"
-          : "Opprett ny tiltaksgjennomføring"}
+        <Heading size="large" level="2">
+          {redigeringsModus
+            ? utkastModus
+              ? "Rediger utkast"
+              : "Rediger tiltaksgjennomføring"
+            : "Opprett ny tiltaksgjennomføring"}
+        </Heading>
+        {tiltaksgjennomforing ? (
+          <TiltaksgjennomforingstatusTag tiltaksgjennomforing={tiltaksgjennomforing} />
+        ) : null}
       </Header>
       <ContainerLayout>
         <div className={styles.skjema}>
