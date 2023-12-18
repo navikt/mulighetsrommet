@@ -14,6 +14,8 @@ import styles from "../../components/skjema/Skjema.module.scss";
 import { AvtaleSchema } from "../../components/avtaler/AvtaleSchema";
 import { AvtaleUtkastData } from "../../components/avtaler/AvtaleSkjemaConst";
 import { AvtaleSkjemaContainer } from "../../components/avtaler/AvtaleSkjemaContainer";
+import { AvtalestatusTag } from "../../components/statuselementer/AvtalestatusTag";
+import { Heading } from "@navikt/ds-react";
 
 const AvtaleSkjemaPage = () => {
   const navigate = useNavigate();
@@ -52,12 +54,16 @@ const AvtaleSkjemaPage = () => {
   return (
     <main>
       <Header>
-        {redigeringsModus
-          ? utkastModus
-            ? "Rediger utkast"
-            : "Rediger avtale"
-          : "Opprett ny avtale"}
+        <Heading size="large" level="2">
+          {redigeringsModus
+            ? utkastModus
+              ? "Rediger utkast"
+              : "Rediger avtale"
+            : "Opprett ny avtale"}
+        </Heading>
+        {avtale ? <AvtalestatusTag avtale={avtale} /> : null}
       </Header>
+
       <ContainerLayout>
         <div className={styles.skjema}>
           {isLoadingAnsatt || isLoadingTiltakstyper || isLoadingEnheter ? <Laster /> : null}

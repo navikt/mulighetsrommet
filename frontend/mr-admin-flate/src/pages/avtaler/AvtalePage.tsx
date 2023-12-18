@@ -1,4 +1,4 @@
-import { Alert, Tabs } from "@navikt/ds-react";
+import { Alert, Heading, Tabs } from "@navikt/ds-react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useAvtale } from "../../api/avtaler/useAvtale";
 import { Header } from "../../components/detaljside/Header";
@@ -52,10 +52,10 @@ export function AvtalePage() {
   return (
     <main className={styles.avtaleinfo}>
       <Header>
-        <div className={commonStyles.header}>
-          <span>{avtale.navn ?? "..."}</span>
-          <AvtalestatusTag avtale={avtale} />
-        </div>
+        <Heading size="large" level="2">
+          {avtale.navn ?? "..."}
+        </Heading>
+        <AvtalestatusTag avtale={avtale} />
       </Header>
       <Tabs value={currentTab()}>
         <Tabs.List className={commonStyles.list}>
