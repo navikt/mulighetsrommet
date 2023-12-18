@@ -9,8 +9,6 @@ import { avtaleFilterAtom, tiltaksgjennomforingfilterForAvtaleAtom } from "./api
 import { useAvtaler } from "./api/avtaler/useAvtaler";
 import AvtaleSkjemaPage from "./pages/avtaler/AvtaleSkjemaPage";
 import NotaterAvtalePage from "./components/avtaler/NotaterAvtalePage";
-import { Avtalefilter } from "./components/filter/Avtalefilter";
-import { Tiltaksgjennomforingfilter } from "./components/filter/Tiltaksgjennomforingfilter";
 import { Laster } from "./components/laster/Laster";
 import { Notifikasjonsliste } from "./components/notifikasjoner/Notifikasjonsliste";
 import { AvtaleTabell } from "./components/tabell/AvtaleTabell";
@@ -34,6 +32,13 @@ import { AvtalerForTiltakstype } from "./pages/tiltakstyper/avtaler/AvtalerForTi
 import { useAdminTiltaksgjennomforinger } from "./api/tiltaksgjennomforing/useAdminTiltaksgjennomforinger";
 import { useFeatureToggle } from "./api/features/feature-toggles";
 import { AvtaleInfo } from "./pages/avtaler/AvtaleInfo";
+import { FilterAndTableLayout } from "./components/filter/FilterAndTableLayout";
+import { AvtaleFilter } from "./components/filter/Avtalefilter";
+import { AvtaleFilterTags } from "./components/filter/AvtaleFilterTags";
+import { AvtaleFilterButtons } from "./components/filter/AvtaleFilterButtons";
+import { TiltaksgjennomforingFilter } from "./components/filter/Tiltaksgjennomforingfilter";
+import { TiltaksgjennomforingFilterTags } from "./components/filter/TiltaksgjennomforingFilterTags";
+import { TiltaksgjennomforingFilterButtons } from "./components/filter/TiltaksgjennomforingFilterButtons";
 
 if (import.meta.env.PROD) {
   initializeFaro({
@@ -95,14 +100,18 @@ export function App() {
         <Route
           index
           element={
-            <>
-              <Avtalefilter filterAtom={avtaleFilterAtom} />
-              <AvtaleTabell
-                isLoading={avtalerIsLoading}
-                paginerteAvtaler={avtaler}
-                avtalefilter={avtaleFilterAtom}
-              />
-            </>
+            <FilterAndTableLayout
+              filter={<AvtaleFilter filterAtom={avtaleFilterAtom} />}
+              tags={<AvtaleFilterTags filterAtom={avtaleFilterAtom} />}
+              buttons={<AvtaleFilterButtons filterAtom={avtaleFilterAtom} />}
+              table={
+                <AvtaleTabell
+                  isLoading={avtalerIsLoading}
+                  paginerteAvtaler={avtaler}
+                  avtalefilter={avtaleFilterAtom}
+                />
+              }
+            />
           }
         />
         <Route
@@ -124,22 +133,38 @@ export function App() {
           <Route
             index
             element={
-              <>
-                <Tiltaksgjennomforingfilter
-                  filterAtom={tiltaksgjennomforingfilterForAvtaleAtom}
-                  skjulFilter={{
-                    tiltakstype: true,
-                  }}
+              <div style={{ marginTop: "1rem" }}>
+                <FilterAndTableLayout
+                  filter={
+                    <TiltaksgjennomforingFilter
+                      filterAtom={tiltaksgjennomforingfilterForAvtaleAtom}
+                      skjulFilter={{
+                        tiltakstype: true,
+                      }}
+                    />
+                  }
+                  tags={
+                    <TiltaksgjennomforingFilterTags
+                      filterAtom={tiltaksgjennomforingfilterForAvtaleAtom}
+                    />
+                  }
+                  buttons={
+                    <TiltaksgjennomforingFilterButtons
+                      filterAtom={tiltaksgjennomforingfilterForAvtaleAtom}
+                    />
+                  }
+                  table={
+                    <TiltaksgjennomforingsTabell
+                      skjulKolonner={{
+                        tiltakstype: true,
+                        arrangor: true,
+                      }}
+                      isLoading={tiltaksgjennomforingerIsLoading}
+                      paginerteTiltaksgjennomforinger={tiltaksgjennomforinger}
+                    />
+                  }
                 />
-                <TiltaksgjennomforingsTabell
-                  skjulKolonner={{
-                    tiltakstype: true,
-                    arrangor: true,
-                  }}
-                  isLoading={tiltaksgjennomforingerIsLoading}
-                  paginerteTiltaksgjennomforinger={tiltaksgjennomforinger}
-                />
-              </>
+              </div>
             }
             errorElement={<ErrorPage />}
           />
