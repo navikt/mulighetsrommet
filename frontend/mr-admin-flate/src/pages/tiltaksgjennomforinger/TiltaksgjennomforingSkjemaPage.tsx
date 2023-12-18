@@ -31,7 +31,7 @@ const TiltaksgjennomforingSkjemaPage = () => {
     TiltaksgjennomforingSchema,
     searchParams.get("utkastId") || undefined,
   );
-  const { data: ansatt, isLoading: isLoadingAnsatt } = useHentAnsatt();
+  const { data: ansatt, isPending: isPendingAnsatt } = useHentAnsatt();
   const { data: avtale, isLoading: avtaleIsLoading } = useAvtale(
     tiltaksgjennomforing?.avtaleId ?? utkast?.utkastData.avtaleId,
   );
@@ -48,7 +48,7 @@ const TiltaksgjennomforingSkjemaPage = () => {
 
   const isError = !avtale || !avtaleHarRegioner(avtale);
 
-  if (avtaleIsLoading || utkastLoading || tiltaksgjennomforingLoading || isLoadingAnsatt) {
+  if (avtaleIsLoading || utkastLoading || tiltaksgjennomforingLoading || isPendingAnsatt) {
     return (
       <Laster
         size="xlarge"

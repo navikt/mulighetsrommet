@@ -114,9 +114,9 @@ export function utkastDataEllerDefault(
     avtaleId: avtale.id,
     navRegion: defaultNavRegion(avtale, tiltaksgjennomforing),
     navEnheter: defaultNavEnheter(avtale, tiltaksgjennomforing),
-    administratorer:
-      tiltaksgjennomforing?.administratorer?.map((admin) => admin.navIdent) || [ansatt.navIdent] ||
-      [],
+    administratorer: tiltaksgjennomforing?.administratorer?.map((admin) => admin.navIdent) || [
+      ansatt.navIdent,
+    ],
     antallPlasser: tiltaksgjennomforing?.antallPlasser,
     startOgSluttDato: {
       startDato: tiltaksgjennomforing?.startDato,
