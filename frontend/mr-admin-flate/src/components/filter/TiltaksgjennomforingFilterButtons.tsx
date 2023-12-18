@@ -32,7 +32,7 @@ export function TiltaksgjennomforingFilterButtons({ filterAtom }: Props) {
   const visOpprettTiltaksgjennomforingKnapp =
     opprettGjennomforingIsEnabled && inneholderUrl("/avtaler/");
 
-  const avtaleErOpprettetIMulighetsrommet = avtale?.opphav === Opphav.MR_ADMIN_FLATE;
+  const avtaleErOpprettetIAdminFlate = avtale?.opphav === Opphav.MR_ADMIN_FLATE;
   const avtalenErAktiv = avtale?.avtalestatus === Avtalestatus.AKTIV;
 
   return (
@@ -86,7 +86,7 @@ export function TiltaksgjennomforingFilterButtons({ filterAtom }: Props) {
               Opprett ny tiltaksgjennomføring
             </Lenkeknapp>
           )}
-          {avtaleErOpprettetIMulighetsrommet && (
+          {avtaleErOpprettetIAdminFlate && (
             <>
               <Button
                 size="small"
