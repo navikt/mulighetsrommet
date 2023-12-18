@@ -44,7 +44,7 @@ export function TiltaksgjennomforingInfo() {
   }
 
   return (
-    <div className={styles.info_container}>
+    <div className={styles.info_container} data-testid="tiltaksgjennomforing_info-container">
       <Tabs defaultValue={activeTab}>
         <Tabs.List className={skjemaStyles.tabslist}>
           <div>
