@@ -22,10 +22,10 @@ import {
   InferredTiltaksgjennomforingSchema,
   TiltaksgjennomforingSchema,
 } from "./TiltaksgjennomforingSchema";
-import { erArenaOpphav, defaultTiltaksgjennomforingData } from "./TiltaksgjennomforingSkjemaConst";
+import { defaultTiltaksgjennomforingData, erArenaOpphav } from "./TiltaksgjennomforingSkjemaConst";
 import { TiltaksgjennomforingSkjemaDetaljer } from "./TiltaksgjennomforingSkjemaDetaljer";
 import { TiltaksgjennomforingSkjemaKnapperad } from "./TiltaksgjennomforingSkjemaKnapperad";
-import { RedaksjoneltInnholdForm } from "../redaksjonelt-innhold/RedaksjoneltInnholdForm";
+import { TiltakgjennomforingRedaksjoneltInnholdForm } from "./TiltaksgjennomforingRedaksjoneltInnholdForm";
 
 interface Props {
   onClose: () => void;
@@ -181,7 +181,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
             />
           </Tabs.Panel>
           <Tabs.Panel value="redaksjonelt_innhold">
-            <RedaksjoneltInnholdForm tiltakstype={avtale.tiltakstype} />
+            <TiltakgjennomforingRedaksjoneltInnholdForm avtale={avtale} />
           </Tabs.Panel>
         </Tabs>
         <Separator />
