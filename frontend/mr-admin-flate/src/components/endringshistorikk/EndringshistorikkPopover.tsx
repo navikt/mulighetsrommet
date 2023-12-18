@@ -2,7 +2,6 @@ import React, { ReactElement, useRef, useState } from "react";
 import { ClockDashedIcon } from "@navikt/aksel-icons";
 import { Button, Loader, Popover } from "@navikt/ds-react";
 import { InlineErrorBoundary } from "../../ErrorBoundary";
-import styles from "./ViewEndringshistorikk.module.scss";
 
 export interface EndringshistorikkPopoverProps {
   children: ReactElement;
@@ -22,7 +21,6 @@ export function EndringshistorikkPopover({ children }: EndringshistorikkPopoverP
         type="button"
         size="small"
         title="Trykk for å se endringshistorikk"
-        className={styles.endringshistorikk_knapp}
       >
         <ClockDashedIcon height={25} width={25} title="Endringshistorikk" />
       </Button>

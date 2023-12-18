@@ -75,12 +75,17 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
     <>
       <div className={styles.container}>
         <div className={styles.detaljer}>
-          <Bolk aria-label="Tiltaksnavn og tiltaksnummer" data-testid="tiltaksnavn">
-            <Metadata header="Tiltaksnavn" verdi={tiltaksgjennomforing.navn} />
-            {tiltaksnummer ? <Metadata header="Tiltaksnummer" verdi={tiltaksnummer} /> : null}
+          <Bolk aria-label="Tiltakstype">
+            <Metadata header="Tiltakstype" verdi={tiltakstype.navn} />
+
+            {tiltaksnummer ? (
+              <Bolk aria-label="Tiltaksnummer">
+                <Metadata header="Tiltaksnummer" verdi={tiltaksnummer} />
+              </Bolk>
+            ) : null}
           </Bolk>
 
-          <Bolk aria-label="Tiltakstype og avtaletype">
+          <Bolk aria-label="Avtale">
             <Metadata
               header="Avtale"
               verdi={
@@ -95,7 +100,6 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
                 )
               }
             />
-            <Metadata header="Tiltakstype" verdi={tiltakstype.navn} />
           </Bolk>
 
           <Separator />
