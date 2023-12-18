@@ -25,7 +25,7 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
   const [filter, setFilter] = useAtom(filterAtom);
   const { data: enheter, isLoading: isLoadingEnheter } = useNavEnheter();
   const { data: virksomheter, isLoading: isLoadingVirksomheter } = useVirksomheter(
-    VirksomhetTil.TILTAKSGJENNOMFORING,
+    VirksomhetTil.AVTALE,
   );
   const { data: tiltakstyper, isLoading: isLoadingTiltakstyper } = useTiltakstyper(
     {
