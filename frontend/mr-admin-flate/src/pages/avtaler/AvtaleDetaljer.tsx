@@ -61,9 +61,9 @@ export function AvtaleDetaljer() {
   return (
     <div className={styles.container}>
       <div className={styles.detaljer}>
-        <Bolk aria-label="Avtalenavn">
+        <Bolk aria-label="Avtalenavn og avtalenummer">
           <Metadata header="Avtalenavn" verdi={navn} />
-          <Metadata header="Avtalenr" verdi={avtalenummer} />
+          <Metadata header="Avtalenummer" verdi={avtalenummer} />
         </Bolk>
 
         <Bolk aria-label="Tiltakstype">

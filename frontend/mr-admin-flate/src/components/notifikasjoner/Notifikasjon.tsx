@@ -20,7 +20,7 @@ export function Notifikasjon({ tittel, melding, href }: NotifikasjonProps) {
         <div className={styles.flex}>
           <div>
             <span className={styles.ikon_container}>
-              <BellIcon className={styles.ikon} />
+              <BellIcon className={styles.ikon} aria-label="Notifikasjoner" />
             </span>
           </div>
           <div>
