@@ -5,7 +5,7 @@ import { WritableAtom, useAtom } from "jotai";
 import { OpenAPI, PaginertAvtale, SorteringAvtaler } from "mulighetsrommet-api-client";
 import Lenke from "mulighetsrommet-veileder-flate/src/components/lenke/Lenke";
 import { createRef, useEffect, useState } from "react";
-import { AvtaleFilterProps, avtalePaginationAtom } from "../../api/atoms";
+import { AvtaleFilter, avtalePaginationAtom } from "../../api/atoms";
 import { APPLICATION_NAME } from "../../constants";
 import { useSort } from "../../hooks/useSort";
 import {
@@ -20,7 +20,7 @@ import { PagineringsOversikt } from "../paginering/PagineringOversikt";
 import { AvtalestatusTag } from "../statuselementer/AvtalestatusTag";
 import styles from "./Tabell.module.scss";
 
-async function lastNedFil(filter: AvtaleFilterProps) {
+async function lastNedFil(filter: AvtaleFilter) {
   const headers = new Headers();
   headers.append("Nav-Consumer-Id", APPLICATION_NAME);
 
@@ -55,7 +55,7 @@ async function lastNedFil(filter: AvtaleFilterProps) {
 }
 
 interface Props {
-  avtalefilter: WritableAtom<AvtaleFilterProps, [newValue: AvtaleFilterProps], void>;
+  avtalefilter: WritableAtom<AvtaleFilter, [newValue: AvtaleFilter], void>;
   paginerteAvtaler?: PaginertAvtale;
   isLoading: boolean;
 }

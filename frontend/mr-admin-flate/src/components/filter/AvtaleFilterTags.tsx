@@ -1,6 +1,6 @@
 import { WritableAtom, useAtom } from "jotai";
 import { Tiltakstypestatus, VirksomhetTil } from "mulighetsrommet-api-client";
-import { AvtaleFilterProps } from "../../api/atoms";
+import { AvtaleFilter } from "../../api/atoms";
 import { useNavEnheter } from "../../api/enhet/useNavEnheter";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
 import { useVirksomheter } from "../../api/virksomhet/useVirksomheter";
@@ -9,7 +9,7 @@ import { FilterTag } from "./FilterTag";
 import { AVTALE_STATUS_OPTIONS } from "../../utils/filterUtils";
 
 interface Props {
-  filterAtom: WritableAtom<AvtaleFilterProps, [newValue: AvtaleFilterProps], void>;
+  filterAtom: WritableAtom<AvtaleFilter, [newValue: AvtaleFilter], void>;
 }
 
 export function AvtaleFilterTags({ filterAtom }: Props) {

@@ -1,8 +1,11 @@
 import { Accordion, Checkbox, Search, Skeleton } from "@navikt/ds-react";
-import { WritableAtom, useAtom } from "jotai";
+import { useAtom, WritableAtom } from "jotai";
 import { Tiltakstypestatus, VirksomhetTil } from "mulighetsrommet-api-client";
 import { useEffect, useState } from "react";
-import { TiltaksgjennomforingfilterProps, gjennomforingPaginationAtom } from "../../api/atoms";
+import {
+  gjennomforingPaginationAtom,
+  TiltaksgjennomforingFilter as TiltaksgjennomforingFilterProps,
+} from "../../api/atoms";
 import { useAvtale } from "../../api/avtaler/useAvtale";
 import { useNavEnheter } from "../../api/enhet/useNavEnheter";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
@@ -10,9 +13,9 @@ import { useVirksomheter } from "../../api/virksomhet/useVirksomheter";
 import { addOrRemove } from "../../utils/Utils";
 import styles from "./Filter.module.scss";
 import {
-  TILTAKSGJENNOMFORING_STATUS_OPTIONS,
   enhetOptions,
   regionOptions,
+  TILTAKSGJENNOMFORING_STATUS_OPTIONS,
   tiltakstypeOptions,
   virksomhetOptions,
 } from "../../utils/filterUtils";
@@ -21,8 +24,8 @@ type Filters = "tiltakstype";
 
 interface Props {
   filterAtom: WritableAtom<
-    TiltaksgjennomforingfilterProps,
-    [newValue: TiltaksgjennomforingfilterProps],
+    TiltaksgjennomforingFilterProps,
+    [newValue: TiltaksgjennomforingFilterProps],
     void
   >;
   skjulFilter?: Record<Filters, boolean>;

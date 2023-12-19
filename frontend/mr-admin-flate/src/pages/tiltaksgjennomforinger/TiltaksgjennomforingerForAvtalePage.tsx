@@ -1,15 +1,19 @@
 import { FilterAndTableLayout } from "../../components/filter/FilterAndTableLayout";
 import { TiltaksgjennomforingFilter } from "../../components/filter/Tiltaksgjennomforingfilter";
-import { tiltaksgjennomforingfilterForAvtaleAtom } from "../../api/atoms";
+import {
+  gjennomforingPaginationAtom,
+  tiltaksgjennomforingfilterForAvtaleAtom,
+} from "../../api/atoms";
 import { TiltaksgjennomforingFilterTags } from "../../components/filter/TiltaksgjennomforingFilterTags";
 import { TiltaksgjennomforingFilterButtons } from "../../components/filter/TiltaksgjennomforingFilterButtons";
 import { TiltaksgjennomforingsTabell } from "../../components/tabell/TiltaksgjennomforingsTabell";
+import { useAtom } from "jotai";
 import { useAdminTiltaksgjennomforinger } from "../../api/tiltaksgjennomforing/useAdminTiltaksgjennomforinger";
 
 export function TiltaksgjennomforingerForAvtalePage() {
-  const { data, isPending } = useAdminTiltaksgjennomforinger(
-    tiltaksgjennomforingfilterForAvtaleAtom,
-  );
+  const [page] = useAtom(gjennomforingPaginationAtom);
+  const [filter] = useAtom(tiltaksgjennomforingfilterForAvtaleAtom);
+  const { data, isLoading } = useAdminTiltaksgjennomforinger(filter, page);
 
   return (
     <div style={{ marginTop: "1rem" }}>
@@ -34,7 +38,7 @@ export function TiltaksgjennomforingerForAvtalePage() {
               tiltakstype: true,
               arrangor: true,
             }}
-            isLoading={isPending}
+            isLoading={isLoading}
             paginerteTiltaksgjennomforinger={data}
           />
         }

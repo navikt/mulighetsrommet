@@ -3,6 +3,7 @@ import { useAtom } from "jotai";
 import { tiltaksgjennomforingTilAvtaleFilterAtom } from "../../api/atoms";
 import { Tiltaksgjennomforingsliste } from "../tiltaksgjennomforinger/Tiltaksgjennomforingsliste";
 import styles from "./LeggTilGjennomforingModal.module.scss";
+import { useGetAvtaleIdFromUrlOrThrow } from "../../hooks/useGetAvtaleIdFromUrl";
 
 interface ModalProps {
   modalOpen: boolean;
@@ -12,6 +13,7 @@ interface ModalProps {
 }
 
 export const LeggTilGjennomforingModal = ({ modalOpen, onClose, handleCancel }: ModalProps) => {
+  const avtaleId = useGetAvtaleIdFromUrlOrThrow();
   const [filter, setFilter] = useAtom(tiltaksgjennomforingTilAvtaleFilterAtom);
 
   const clickCancel = () => {
@@ -44,7 +46,7 @@ export const LeggTilGjennomforingModal = ({ modalOpen, onClose, handleCancel }: 
             })
           }
         />
-        <Tiltaksgjennomforingsliste />
+        <Tiltaksgjennomforingsliste avtaleId={avtaleId} search={filter.search} />
       </Modal.Body>
     </Modal>
   );

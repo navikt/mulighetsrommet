@@ -2,10 +2,10 @@ import { faro } from "@grafana/faro-web-sdk";
 import { Lenkeknapp } from "../lenkeknapp/Lenkeknapp";
 import { Button } from "@navikt/ds-react";
 import { WritableAtom, useAtom } from "jotai";
-import { AvtaleFilterProps, defaultAvtaleFilter } from "../../api/atoms";
+import { AvtaleFilter, defaultAvtaleFilter } from "../../api/atoms";
 
 interface Props {
-  filterAtom: WritableAtom<AvtaleFilterProps, [newValue: AvtaleFilterProps], void>;
+  filterAtom: WritableAtom<AvtaleFilter, [newValue: AvtaleFilter], void>;
 }
 
 export function AvtaleFilterButtons({ filterAtom }: Props) {

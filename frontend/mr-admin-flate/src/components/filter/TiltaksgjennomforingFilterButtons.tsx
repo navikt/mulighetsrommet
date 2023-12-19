@@ -9,14 +9,14 @@ import { Lenkeknapp } from "../lenkeknapp/Lenkeknapp";
 import { LeggTilGjennomforingModal } from "../modal/LeggTilGjennomforingModal";
 import {
   defaultTiltaksgjennomforingfilter,
-  TiltaksgjennomforingfilterProps,
+  TiltaksgjennomforingFilter,
 } from "../../api/atoms";
 import { useAtom, WritableAtom } from "jotai";
 
 interface Props {
   filterAtom: WritableAtom<
-    TiltaksgjennomforingfilterProps,
-    [newValue: TiltaksgjennomforingfilterProps],
+    TiltaksgjennomforingFilter,
+    [newValue: TiltaksgjennomforingFilter],
     void
   >;
 }

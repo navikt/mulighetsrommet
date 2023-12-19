@@ -1,19 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
-import { WritableAtom, useAtom } from "jotai";
 import { useDebounce } from "mulighetsrommet-frontend-common";
 import { QueryKeys } from "../QueryKeys";
-import { TiltaksgjennomforingfilterProps, gjennomforingPaginationAtom } from "../atoms";
+import { TiltaksgjennomforingFilter } from "../atoms";
 import { mulighetsrommetClient } from "../clients";
 
 export function useAdminTiltaksgjennomforinger(
-  filterAtom: WritableAtom<
-    TiltaksgjennomforingfilterProps,
-    [newValue: TiltaksgjennomforingfilterProps],
-    void
-  >,
+  filter: Partial<TiltaksgjennomforingFilter>,
+  page: number = 1,
 ) {
-  const [page] = useAtom(gjennomforingPaginationAtom);
-  const [filter] = useAtom(filterAtom);
   const debouncedSok = useDebounce(filter.search, 300);
 
   const queryFilter = {
@@ -33,11 +27,7 @@ export function useAdminTiltaksgjennomforinger(
     queryKey: QueryKeys.tiltaksgjennomforinger(page, { ...filter, search: debouncedSok }),
     queryFn: () =>
       filter.visMineGjennomforinger
-        ? mulighetsrommetClient.tiltaksgjennomforinger.getMineTiltaksgjennomforinger({
-            ...queryFilter,
-          })
-        : mulighetsrommetClient.tiltaksgjennomforinger.getTiltaksgjennomforinger({
-            ...queryFilter,
-          }),
+        ? mulighetsrommetClient.tiltaksgjennomforinger.getMineTiltaksgjennomforinger(queryFilter)
+        : mulighetsrommetClient.tiltaksgjennomforinger.getTiltaksgjennomforinger(queryFilter),
   });
 }
