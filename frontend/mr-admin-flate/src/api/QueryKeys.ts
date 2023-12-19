@@ -14,7 +14,7 @@ export const QueryKeys = {
   tiltaksgjennomforingerByEnhet: (enhet: string = "enhet", page?: number) =>
     [enhet, page, "tiltaksgjennomforinger"] as const,
   ansatt: () => ["ansatt"] as const,
-  avtaler: (mine?: boolean, page?: number, avtaleFilter?: AvtaleFilter) =>
+  avtaler: (mine?: boolean, page?: number, avtaleFilter?: Partial<AvtaleFilter>) =>
     ["avtaler", mine, page, { ...avtaleFilter }] as const,
   avtale: (id: string) => ["avtale", id],
   avtaleHistorikk: (id?: string) => ["avtale", id, "historikk"] as const,

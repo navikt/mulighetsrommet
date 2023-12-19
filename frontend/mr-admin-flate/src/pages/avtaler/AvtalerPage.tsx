@@ -1,5 +1,5 @@
 import { useAvtaler } from "../../api/avtaler/useAvtaler";
-import { avtaleFilterAtom } from "../../api/atoms";
+import { avtaleFilterAtom, avtalePaginationAtom } from "../../api/atoms";
 import { AvtaleFilter } from "../../components/filter/Avtalefilter";
 import { AvtaleTabell } from "../../components/tabell/AvtaleTabell";
 import { HeaderBanner } from "../../layouts/HeaderBanner";
@@ -10,10 +10,14 @@ import { ReloadAppErrorBoundary } from "../../ErrorBoundary";
 import { FilterAndTableLayout } from "../../components/filter/FilterAndTableLayout";
 import { AvtaleFilterButtons } from "../../components/filter/AvtaleFilterButtons";
 import { AvtaleFilterTags } from "../../components/filter/AvtaleFilterTags";
+import { useAtom } from "jotai";
 
 export function AvtalerPage() {
   useTitle("Avtaler");
-  const { data: avtaler, isLoading: avtalerIsLoading } = useAvtaler(avtaleFilterAtom);
+
+  const [page] = useAtom(avtalePaginationAtom);
+  const [filter] = useAtom(avtaleFilterAtom);
+  const { data: avtaler, isLoading: avtalerIsLoading } = useAvtaler(filter, page);
 
   return (
     <>

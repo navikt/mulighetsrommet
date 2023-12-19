@@ -1,13 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
-import { useAtom, WritableAtom } from "jotai";
 import { useDebounce } from "mulighetsrommet-frontend-common";
 import { QueryKeys } from "../QueryKeys";
-import { AvtaleFilter, avtalePaginationAtom } from "../atoms";
+import { AvtaleFilter } from "../atoms";
 import { mulighetsrommetClient } from "../clients";
 
-export function useAvtaler(filterAtom: WritableAtom<AvtaleFilter, [newValue: AvtaleFilter], void>) {
-  const [page] = useAtom(avtalePaginationAtom);
-  const [filter] = useAtom(filterAtom);
+export function useAvtaler(filter: Partial<AvtaleFilter>, page: number = 1) {
   const debouncedSok = useDebounce(filter.sok, 300);
 
   const queryFilter = {

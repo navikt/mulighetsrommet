@@ -6,3 +6,13 @@ export function useGetTiltakstypeIdFromUrl() {
   }>();
   return tiltakstypeId;
 }
+
+export function useGetTiltakstypeIdFromUrlOrThrow() {
+  const id = useGetTiltakstypeIdFromUrl();
+
+  if (!id) {
+    throw Error("TiltakstypeId er ikke satt i URL");
+  }
+
+  return id;
+}
