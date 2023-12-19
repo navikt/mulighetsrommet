@@ -9,7 +9,6 @@ import AvtaleSkjemaPage from "./pages/avtaler/AvtaleSkjemaPage";
 import NotaterAvtalePage from "./components/avtaler/NotaterAvtalePage";
 import { Laster } from "./components/laster/Laster";
 import { Notifikasjonsliste } from "./components/notifikasjoner/Notifikasjonsliste";
-import { TiltaksgjennomforingsTabell } from "./components/tabell/TiltaksgjennomforingsTabell";
 import NotaterTiltaksgjennomforingerPage from "./components/tiltaksgjennomforinger/NotaterTiltaksgjennomforingerPage";
 import { DeltakerListe } from "./microfrontends/team_komet/Deltakerliste";
 import { ErrorPage } from "./pages/ErrorPage";
@@ -22,16 +21,11 @@ import { DetaljerTiltakstypePage } from "./pages/tiltakstyper/DetaljerTiltakstyp
 import { TiltakstypeInfo } from "./pages/tiltakstyper/TiltakstypeInfo";
 import { TiltakstyperPage } from "./pages/tiltakstyper/TiltakstyperPage";
 import { AvtalerForTiltakstype } from "./pages/tiltakstyper/avtaler/AvtalerForTiltakstype";
-import { useAdminTiltaksgjennomforinger } from "./api/tiltaksgjennomforing/useAdminTiltaksgjennomforinger";
 import { useFeatureToggle } from "./api/features/feature-toggles";
 import { AvtalerPage } from "./pages/avtaler/AvtalerPage";
 import { AvtaleInfo } from "./pages/avtaler/AvtaleInfo";
-import { tiltaksgjennomforingfilterForAvtaleAtom } from "./api/atoms";
 import TiltaksgjennomforingSkjemaPage from "./pages/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaPage";
-import { FilterAndTableLayout } from "./components/filter/FilterAndTableLayout";
-import { TiltaksgjennomforingFilter } from "./components/filter/Tiltaksgjennomforingfilter";
-import { TiltaksgjennomforingFilterTags } from "./components/filter/TiltaksgjennomforingFilterTags";
-import { TiltaksgjennomforingFilterButtons } from "./components/filter/TiltaksgjennomforingFilterButtons";
+import { TiltaksgjennomforingerForAvtalePage } from "./pages/tiltaksgjennomforinger/TiltaksgjennomforingerForAvtalePage";
 
 if (import.meta.env.PROD) {
   initializeFaro({
@@ -44,8 +38,6 @@ if (import.meta.env.PROD) {
 
 export function App() {
   const { data: ansatt, isLoading: ansattIsLoading, error } = useHentAnsatt();
-  const { data: tiltaksgjennomforinger, isLoading: tiltaksgjennomforingerIsLoading } =
-    useAdminTiltaksgjennomforinger(tiltaksgjennomforingfilterForAvtaleAtom);
 
   const { data: showNotater } = useFeatureToggle(Toggles.MULIGHETSROMMET_ADMIN_FLATE_SHOW_NOTATER);
 
@@ -96,40 +88,7 @@ export function App() {
         )}
         <Route
           path="tiltaksgjennomforinger"
-          element={
-            <div style={{ marginTop: "1rem" }}>
-              <FilterAndTableLayout
-                filter={
-                  <TiltaksgjennomforingFilter
-                    filterAtom={tiltaksgjennomforingfilterForAvtaleAtom}
-                    skjulFilter={{
-                      tiltakstype: true,
-                    }}
-                  />
-                }
-                tags={
-                  <TiltaksgjennomforingFilterTags
-                    filterAtom={tiltaksgjennomforingfilterForAvtaleAtom}
-                  />
-                }
-                buttons={
-                  <TiltaksgjennomforingFilterButtons
-                    filterAtom={tiltaksgjennomforingfilterForAvtaleAtom}
-                  />
-                }
-                table={
-                  <TiltaksgjennomforingsTabell
-                    skjulKolonner={{
-                      tiltakstype: true,
-                      arrangor: true,
-                    }}
-                    isLoading={tiltaksgjennomforingerIsLoading}
-                    paginerteTiltaksgjennomforinger={tiltaksgjennomforinger}
-                  />
-                }
-              />
-            </div>
-          }
+          element={<TiltaksgjennomforingerForAvtalePage />}
           errorElement={<ErrorPage />}
         />
       </Route>
