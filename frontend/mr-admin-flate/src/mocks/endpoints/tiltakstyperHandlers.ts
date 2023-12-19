@@ -25,7 +25,7 @@ export const tiltakstypeHandlers = [
   ),
 
   http.get<{ id: string }, VeilederflateTiltakstype | undefined>(
-    "*/api/v1/internal/tiltakstyper/:id/sanity",
+    "*/api/v1/internal/tiltakstyper/:id/faneinnhold",
     () => {
       return HttpResponse.json(mockVeilederflateTiltakstypeAFT);
     },
