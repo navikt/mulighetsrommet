@@ -197,6 +197,12 @@ export const TiltaksgjennomforingSkjemaContainer = ({
             </Button>
           )}
         </div>
+        <TiltaksgjennomforingSkjemaKnapperad
+          size="small"
+          redigeringsModus={redigeringsModus}
+          onClose={onClose}
+          mutation={mutation}
+        />
       </form>
       {tiltaksgjennomforing && (
         <AvbrytTiltaksgjennomforingModal
