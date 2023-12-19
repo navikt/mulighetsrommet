@@ -188,6 +188,7 @@ export function AvtaleSkjemaContainer({
             </Button>
           )}
         </div>
+        <AvtaleSkjemaKnapperad redigeringsModus={redigeringsModus!} onClose={onClose} />
       </form>
       {avtale && <AvbrytAvtaleModal modalRef={avbrytModalRef} avtale={avtale} />}
     </FormProvider>
