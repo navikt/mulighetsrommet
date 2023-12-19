@@ -21,3 +21,21 @@ spec:
     - team: team-mulighetsrommet
       application: mulighetsrommet-kafka-manager
       access: read
+    - team: teamarenanais
+      application: arena-tiltakshendelse-q1
+      access: read
+    - team: teamarenanais
+      application: arena-tiltakshendelse-q2
+      access: read
+    - team: teamarenanais
+      application: arena-tiltakshendelse-q4
+      access: read
+    - team: teamarenanais
+      application: arena-tiltakshendelse-u1
+      access: read
+    - team: teamarenanais
+      application: arena-tiltakshendelse-u2
+      access: read
+    - team: teamarenanais
+      application: arena-tiltakshendelse-u3
+      access: read
