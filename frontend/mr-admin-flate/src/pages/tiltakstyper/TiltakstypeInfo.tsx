@@ -21,23 +21,19 @@ export function TiltakstypeInfo() {
 
   const tiltakstype = data;
   return (
-    <div className={classNames(styles.detaljer, styles.container)}>
+    <div className={classNames(styles.container)}>
       <div className={styles.detaljer}>
         <Bolk>
           <Metadata header="Tiltakstype" verdi={tiltakstype.navn} />
           <Metadata header="Tiltakskode" verdi={tiltakstype.arenaKode} />
         </Bolk>
-      </div>
-      <Separator />
-      <div className={styles.detaljer}>
+        <Separator />
         <Bolk>
           <Metadata header="Startdato" verdi={formaterDato(tiltakstype.fraDato)} />
           <Metadata header="Sluttdato" verdi={formaterDato(tiltakstype.tilDato)} />
         </Bolk>
-      </div>
-      {tiltakstype.sanityId && (
-        <>
-          <div className={styles.detaljer}>
+        {tiltakstype.sanityId && (
+          <>
             <Separator />
             <Bolk aria-label="Sanity-dokument">
               <Metadata
@@ -52,9 +48,9 @@ export function TiltakstypeInfo() {
                 }
               />
             </Bolk>
-          </div>
-        </>
-      )}
+          </>
+        )}
+      </div>
     </div>
   );
 }
