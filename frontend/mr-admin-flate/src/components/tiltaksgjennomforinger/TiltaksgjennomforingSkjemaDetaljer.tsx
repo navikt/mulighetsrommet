@@ -107,7 +107,12 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
           </FormGroup>
           <Separator />
           <FormGroup>
-            <TextField size="small" readOnly label={"Avtale"} value={avtale.navn || ""} />
+            <TextField
+              size="small"
+              readOnly
+              label={`Avtale (tiltakstype: ${avtale.tiltakstype.navn})`}
+              value={avtale.navn || ""}
+            />
           </FormGroup>
           <Separator />
           <FormGroup>
