@@ -16,6 +16,7 @@ const FilterTag = ({ options, handleClick, skjulIkon = false }: FilterTagsProps)
       {options.map((filtertype) => {
         return (
           <Tag
+            size="small"
             variant="info"
             key={filtertype.id}
             data-testid={`filtertag_${kebabCase(filtertype.tittel)}`}

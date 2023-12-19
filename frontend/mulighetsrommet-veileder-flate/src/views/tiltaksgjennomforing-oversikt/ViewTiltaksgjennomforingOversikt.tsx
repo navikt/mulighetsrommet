@@ -1,7 +1,7 @@
 import { Alert, Button, Loader } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { RESET } from "jotai/utils";
-import { ApiError, Toggles } from "mulighetsrommet-api-client";
+import { ApiError, Innsatsgruppe, Toggles } from "mulighetsrommet-api-client";
 import { useTitle } from "mulighetsrommet-frontend-common";
 import { PORTEN } from "mulighetsrommet-frontend-common/constants";
 import { useEffect, useState } from "react";
@@ -9,10 +9,8 @@ import { BrukersOppfolgingsenhetVarsel } from "../../components/brukersEnheter/B
 import { Feilmelding, ForsokPaNyttLink } from "../../components/feilmelding/Feilmelding";
 import Filtermeny from "../../components/filtrering/Filtermeny";
 import { Filtertags } from "../../components/filtrering/Filtertags";
-import { HistorikkButton } from "../../components/historikk/HistorikkButton";
 import { BrukerHarIkke14aVedtakVarsel } from "../../components/ikkeKvalifisertVarsel/BrukerHarIkke14aVedtakVarsel";
 import { FiltrertFeilInnsatsgruppeVarsel } from "../../components/ikkeKvalifisertVarsel/FiltrertFeilInnsatsgruppeVarsel";
-import { OversiktenJoyride } from "../../components/joyride/OversiktenJoyride";
 import Lenke from "../../components/lenke/Lenke";
 import Tiltaksgjennomforingsoversikt from "../../components/oversikt/Tiltaksgjennomforingsoversikt";
 import Tilbakeknapp from "../../components/tilbakeknapp/Tilbakeknapp";
@@ -24,15 +22,22 @@ import { usePrepopulerFilter } from "../../hooks/usePrepopulerFilter";
 import { routes } from "../../routes";
 import styles from "./ViewTiltaksgjennomforingOversikt.module.scss";
 import { useLogEvent } from "../../logging/amplitude";
+import { FilterAndTableLayout } from "../../components/filtrering/FilterAndTableLayout";
+import { OversiktenJoyride } from "../../components/joyride/OversiktenJoyride";
+import { HistorikkButton } from "../../components/historikk/HistorikkButton";
+import { useInnsatsgrupper } from "../../core/api/queries/useInnsatsgrupper";
 
 const ViewTiltaksgjennomforingOversikt = () => {
   useTitle("Arbeidsmarkedstiltak - Oversikt");
   const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);
-  const [isHistorikkModalOpen, setIsHistorikkModalOpen] = useState(false);
   const { data: brukerdata } = useHentBrukerdata();
   const landingssideFeature = useFeatureToggle(Toggles.MULIGHETSROMMET_VEILEDERFLATE_LANDINGSSIDE);
-  const landingssideEnabled = landingssideFeature.isSuccess && landingssideFeature.data;
+  const { forcePrepopulerFilter } = usePrepopulerFilter();
+  const { isLoading: innsatsgrupperIsLoading } = useInnsatsgrupper();
   const { logEvent } = useLogEvent();
+
+  const landingssideEnabled = landingssideFeature.isSuccess && landingssideFeature.data;
+  const [isHistorikkModalOpen, setIsHistorikkModalOpen] = useState(false);
 
   const {
     data: tiltaksgjennomforinger = [],
@@ -49,6 +54,16 @@ const ViewTiltaksgjennomforingOversikt = () => {
   useEffect(() => {
     logEvent({ name: "arbeidsmarkedstiltak.unike-brukere" });
   }, []);
+
+  const brukersInnsatsgruppeErIkkeValgt = (innsatsgruppe?: Innsatsgruppe) => {
+    return innsatsgruppe !== brukerdata?.innsatsgruppe;
+  };
+
+  const visNullstillButton =
+    !innsatsgrupperIsLoading &&
+    (brukersInnsatsgruppeErIkkeValgt(filter.innsatsgruppe?.nokkel) ||
+      filter.search !== "" ||
+      filter.tiltakstyper.length > 0);
 
   if (!brukerdata) return null;
 
@@ -119,36 +134,53 @@ const ViewTiltaksgjennomforingOversikt = () => {
   return (
     <>
       {landingssideEnabled ? <Tilbakeknapp tilbakelenke={`/${routes.base}`} /> : null}
-      <div className={styles.tiltakstype_oversikt}>
-        <Filtermeny />
-        <div className={styles.filtertags_og_knapperad}>
-          <Filtertags filter={filter} setFilter={setFilter} />
-          <div className={styles.knapperad}>
+      <FilterAndTableLayout
+        resetButton={
+          visNullstillButton && (
+            <Button
+              size="small"
+              variant="tertiary"
+              onClick={() => {
+                setFilter(RESET);
+                forcePrepopulerFilter(true);
+              }}
+              data-testid="knapp_tilbakestill-filter"
+            >
+              Nullstill filter
+            </Button>
+          )
+        }
+        buttons={
+          <>
             <OversiktenJoyride />
             <HistorikkButton
               setHistorikkModalOpen={setIsHistorikkModalOpen}
               isHistorikkModalOpen={isHistorikkModalOpen}
             />
+          </>
+        }
+        filter={<Filtermeny />}
+        tags={<Filtertags />}
+        table={
+          <div style={{ marginTop: "1rem" }}>
+            <BrukersOppfolgingsenhetVarsel brukerdata={brukerdata} />
+            <FiltrertFeilInnsatsgruppeVarsel filter={filter} />
+            <BrukerHarIkke14aVedtakVarsel brukerdata={brukerdata} />
+            {isLoading ? (
+              <div className={styles.filter_loader}>
+                <Loader />
+              </div>
+            ) : tiltaksgjennomforinger.length === 0 ? (
+              <TilbakestillFilterFeil />
+            ) : (
+              <Tiltaksgjennomforingsoversikt
+                tiltaksgjennomforinger={tiltaksgjennomforinger}
+                isFetching={isFetching}
+              />
+            )}
           </div>
-        </div>
-        <div>
-          <BrukersOppfolgingsenhetVarsel brukerdata={brukerdata} />
-          <FiltrertFeilInnsatsgruppeVarsel filter={filter} />
-          <BrukerHarIkke14aVedtakVarsel brukerdata={brukerdata} />
-          {isLoading ? (
-            <div className={styles.filter_loader}>
-              <Loader />
-            </div>
-          ) : tiltaksgjennomforinger.length === 0 ? (
-            <TilbakestillFilterFeil />
-          ) : (
-            <Tiltaksgjennomforingsoversikt
-              tiltaksgjennomforinger={tiltaksgjennomforinger}
-              isFetching={isFetching}
-            />
-          )}
-        </div>
-      </div>
+        }
+      />
     </>
   );
 };

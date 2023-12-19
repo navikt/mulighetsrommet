@@ -11,6 +11,7 @@ import { Feilmelding } from "../../components/feilmelding/Feilmelding";
 import { SokeSelect } from "mulighetsrommet-frontend-common/components/SokeSelect";
 import { useAtom } from "jotai";
 import { geografiskEnhetForPreviewAtom } from "../../core/atoms/atoms";
+import { FilterAndTableLayout } from "../../components/filtrering/FilterAndTableLayout";
 
 export const SanityPreviewOversikt = () => {
   const [geografiskEnhet, setGeografiskEnhet] = useAtom(geografiskEnhetForPreviewAtom);
@@ -60,28 +61,31 @@ export const SanityPreviewOversikt = () => {
         />
       </div>
       <Separator />
-
-      <div className={styles.tiltakstype_oversikt}>
-        <Filtermeny />
-        <div>
-          {isLoading ? (
-            <div className={styles.filter_loader}>
-              <Loader />
-            </div>
-          ) : tiltaksgjennomforinger.length === 0 ? (
-            <Feilmelding
-              header="Ingen tiltaksgjennomføringer funnet"
-              beskrivelse="Prøv å justere søket eller filteret for å finne det du leter etter"
-              ikonvariant="warning"
-            />
-          ) : (
-            <Tiltaksgjennomforingsoversikt
-              tiltaksgjennomforinger={tiltaksgjennomforinger}
-              isFetching={isFetching}
-            />
-          )}
-        </div>
-      </div>
+      <FilterAndTableLayout
+        buttons={null}
+        filter={<Filtermeny />}
+        tags={null}
+        table={
+          <div>
+            {isLoading ? (
+              <div className={styles.filter_loader}>
+                <Loader />
+              </div>
+            ) : tiltaksgjennomforinger.length === 0 ? (
+              <Feilmelding
+                header="Ingen tiltaksgjennomføringer funnet"
+                beskrivelse="Prøv å justere søket eller filteret for å finne det du leter etter"
+                ikonvariant="warning"
+              />
+            ) : (
+              <Tiltaksgjennomforingsoversikt
+                tiltaksgjennomforinger={tiltaksgjennomforinger}
+                isFetching={isFetching}
+              />
+            )}
+          </div>
+        }
+      />
     </>
   );
 };
