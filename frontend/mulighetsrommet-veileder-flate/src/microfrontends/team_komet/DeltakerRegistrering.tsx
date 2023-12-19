@@ -7,6 +7,7 @@ import { useGetTiltaksgjennomforingIdFraUrl } from "../../core/api/queries/useGe
 
 interface Props {
   fnr: string;
+  enhetId: String;
 }
 
 export function DeltakerRegistrering(props: Props) {
@@ -36,12 +37,13 @@ export function DeltakerRegistrering(props: Props) {
   );
 }
 
-function DeltakerRegistreringKomponent({ fnr }: Props) {
+function DeltakerRegistreringKomponent({ fnr, enhetId }: Props) {
   const tiltaksgjennomforingId = useGetTiltaksgjennomforingIdFraUrl();
   useLoadDeltakerRegistreringApp(deltakerregistreringKometManifestUrl);
 
   return React.createElement("arbeidsmarkedstiltak-deltaker", {
     "data-personident": fnr,
     "data-deltakerlisteId": tiltaksgjennomforingId,
+    "data-enhetId": enhetId,
   });
 }
