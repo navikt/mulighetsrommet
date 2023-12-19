@@ -82,7 +82,7 @@ export const tiltakstypeFilterAtom = atomWithHashAndStorage<TiltakstypeFilter>(
   defaultTiltakstypeFilter,
 );
 
-export interface TiltaksgjennomforingfilterProps {
+export interface TiltaksgjennomforingFilter {
   search: string;
   navEnheter: string[];
   tiltakstyper: string[];
@@ -95,7 +95,7 @@ export interface TiltaksgjennomforingfilterProps {
   visMineGjennomforinger: boolean;
 }
 
-export const defaultTiltaksgjennomforingfilter: TiltaksgjennomforingfilterProps = {
+export const defaultTiltaksgjennomforingfilter: TiltaksgjennomforingFilter = {
   search: "",
   navEnheter: [],
   tiltakstyper: [],
@@ -108,23 +108,18 @@ export const defaultTiltaksgjennomforingfilter: TiltaksgjennomforingfilterProps 
   visMineGjennomforinger: false,
 };
 
-export const tiltaksgjennomforingfilterAtom =
-  atomWithHashAndStorage<TiltaksgjennomforingfilterProps>(
-    "tiltaksgjennomforingFilter",
-    defaultTiltaksgjennomforingfilter,
-  );
+export const tiltaksgjennomforingfilterAtom = atomWithHashAndStorage<TiltaksgjennomforingFilter>(
+  "tiltaksgjennomforingFilter",
+  defaultTiltaksgjennomforingfilter,
+);
 
 export const tiltaksgjennomforingfilterForAvtaleAtom =
-  atomWithHashAndStorage<TiltaksgjennomforingfilterProps>(
+  atomWithHashAndStorage<TiltaksgjennomforingFilter>(
     "tiltaksgjennomforingFilterForAvtale",
     defaultTiltaksgjennomforingfilter,
   );
 
-export const tiltaksgjennomforingTilAvtaleFilterAtom = atom<
-  Pick<TiltaksgjennomforingfilterProps, "search">
->({ search: "" });
-
-export interface AvtaleFilterProps {
+export interface AvtaleFilter {
   sok: string;
   statuser: Avtalestatus[];
   navRegioner: string[];
@@ -135,7 +130,7 @@ export interface AvtaleFilterProps {
   visMineAvtaler: boolean;
 }
 
-export const defaultAvtaleFilter: AvtaleFilterProps = {
+export const defaultAvtaleFilter: AvtaleFilter = {
   sok: "",
   statuser: [],
   navRegioner: [],
@@ -146,12 +141,12 @@ export const defaultAvtaleFilter: AvtaleFilterProps = {
   visMineAvtaler: false,
 };
 
-export const avtaleFilterAtom = atomWithHashAndStorage<AvtaleFilterProps>(
+export const avtaleFilterAtom = atomWithHashAndStorage<AvtaleFilter>(
   "avtalefilter",
   defaultAvtaleFilter,
 );
 
-export const avtaleFilterForTiltakstypeAtom = atomWithHashAndStorage<AvtaleFilterProps>(
+export const avtaleFilterForTiltakstypeAtom = atomWithHashAndStorage<AvtaleFilter>(
   "avtalefilterForTiltakstype",
   defaultAvtaleFilter,
 );

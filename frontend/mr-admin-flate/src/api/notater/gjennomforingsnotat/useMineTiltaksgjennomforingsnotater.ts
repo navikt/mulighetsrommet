@@ -1,12 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import { mulighetsrommetClient } from "../../clients";
 import { QueryKeys } from "../../QueryKeys";
-import invariant from "tiny-invariant";
-import { useGetAdminTiltaksgjennomforingsIdFraUrl } from "../../../hooks/useGetAdminTiltaksgjennomforingsIdFraUrl";
+import { useGetTiltaksgjennomforingIdFromUrlOrThrow } from "../../../hooks/useGetTiltaksgjennomforingIdFromUrl";
 
 export function useMineTiltaksgjennomforingsnotater() {
-  const tiltaksgjennomforingId = useGetAdminTiltaksgjennomforingsIdFraUrl();
-  invariant(tiltaksgjennomforingId, "Id for tiltaksgjennomføring er ikke satt.");
+  const tiltaksgjennomforingId = useGetTiltaksgjennomforingIdFromUrlOrThrow();
 
   return useQuery({
     queryKey: QueryKeys.mineTiltaksgjennomforingsnotater(tiltaksgjennomforingId),

@@ -1,11 +1,11 @@
 import { Accordion, Search, Skeleton } from "@navikt/ds-react";
-import { WritableAtom, useAtom } from "jotai";
+import { useAtom, WritableAtom } from "jotai";
 import { Tiltakstypestatus, VirksomhetTil } from "mulighetsrommet-api-client";
 import { useNavEnheter } from "../../api/enhet/useNavEnheter";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
 import { useVirksomheter } from "../../api/virksomhet/useVirksomheter";
 import { addOrRemove } from "../../utils/Utils";
-import { AvtaleFilterProps, avtalePaginationAtom } from "../../api/atoms";
+import { AvtaleFilter as AvtaleFilterProps, avtalePaginationAtom } from "../../api/atoms";
 import { CheckboxList } from "./Tiltaksgjennomforingfilter";
 import {
   AVTALE_STATUS_OPTIONS,

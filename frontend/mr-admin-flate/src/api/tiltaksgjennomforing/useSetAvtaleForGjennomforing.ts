@@ -1,15 +1,29 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { mulighetsrommetClient } from "../clients";
+import { QueryKeys } from "../QueryKeys";
 
 export function useSetAvtaleForGjennomforing() {
+  const queryClient = useQueryClient();
+
   return useMutation({
-    mutationFn: async (data: { gjennomforingId: string; avtaleId?: string }) => {
+    mutationFn: (data: { gjennomforingId: string; avtaleId?: string }) => {
       return mulighetsrommetClient.tiltaksgjennomforinger.setAvtaleForGjennomforing({
         id: data.gjennomforingId,
         requestBody: {
           avtaleId: data.avtaleId,
         },
       });
+    },
+
+    onSuccess(_, request) {
+      return Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: QueryKeys.tiltaksgjennomforinger(),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: QueryKeys.tiltaksgjennomforing(request.gjennomforingId),
+        }),
+      ]);
     },
   });
 }

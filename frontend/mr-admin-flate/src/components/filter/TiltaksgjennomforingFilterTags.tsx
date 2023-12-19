@@ -1,6 +1,6 @@
 import { WritableAtom, useAtom } from "jotai";
 import { Tiltakstypestatus, VirksomhetTil } from "mulighetsrommet-api-client";
-import { TiltaksgjennomforingfilterProps } from "../../api/atoms";
+import { TiltaksgjennomforingFilter } from "../../api/atoms";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
 import { useVirksomheter } from "../../api/virksomhet/useVirksomheter";
 import { addOrRemove } from "../../utils/Utils";
@@ -10,8 +10,8 @@ import { TILTAKSGJENNOMFORING_STATUS_OPTIONS } from "../../utils/filterUtils";
 
 interface Props {
   filterAtom: WritableAtom<
-    TiltaksgjennomforingfilterProps,
-    [newValue: TiltaksgjennomforingfilterProps],
+    TiltaksgjennomforingFilter,
+    [newValue: TiltaksgjennomforingFilter],
     void
   >;
 }
