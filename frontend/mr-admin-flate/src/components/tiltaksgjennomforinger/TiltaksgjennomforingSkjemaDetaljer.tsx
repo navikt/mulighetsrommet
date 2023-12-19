@@ -38,11 +38,17 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
 
   const { data: kontaktpersoner, isLoading: isLoadingKontaktpersoner } = useHentKontaktpersoner();
 
-  const kontaktpersonerOption = () => {
-    const options = kontaktpersoner?.map((kontaktperson) => ({
-      label: `${kontaktperson.fornavn} ${kontaktperson.etternavn} - ${kontaktperson.navIdent}`,
-      value: kontaktperson.navIdent,
-    }));
+  const kontaktpersonerOption = (selectedIndex: number) => {
+    const excludedKontaktpersoner = watch("kontaktpersoner")
+      .filter((_: any, i: number) => i !== selectedIndex)
+      .map((k: any) => k["navIdent"]);
+
+    const options = kontaktpersoner
+      ?.filter((kontaktperson) => !excludedKontaktpersoner.includes(kontaktperson.navIdent))
+      ?.map((kontaktperson) => ({
+        label: `${kontaktperson.fornavn} ${kontaktperson.etternavn} - ${kontaktperson.navIdent}`,
+        value: kontaktperson.navIdent,
+      }));
 
     return options || [];
   };
@@ -271,7 +277,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                           {...register(`kontaktpersoner.${index}.navIdent`, {
                             shouldUnregister: true,
                           })}
-                          options={kontaktpersonerOption()}
+                          options={kontaktpersonerOption(index)}
                         />
                         <ControlledMultiSelect
                           size="small"
