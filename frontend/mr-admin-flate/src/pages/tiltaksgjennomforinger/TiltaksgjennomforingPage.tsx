@@ -8,8 +8,10 @@ import { Laster } from "../../components/laster/Laster";
 import { TiltaksgjennomforingstatusTag } from "../../components/statuselementer/TiltaksgjennomforingstatusTag";
 import { ContainerLayout } from "../../layouts/ContainerLayout";
 import commonStyles from "../Page.module.scss";
+import headerStyles from "../../components/detaljside/Header.module.scss";
 import { erProdMiljo } from "../../utils/Utils";
 import { Lenkeknapp } from "../../components/lenkeknapp/Lenkeknapp";
+import classNames from "classnames";
 
 export function TiltaksgjennomforingPage() {
   const { pathname } = useLocation();
@@ -49,16 +51,23 @@ export function TiltaksgjennomforingPage() {
 
   return (
     <main>
-      <Header>
-        <div className={commonStyles.header_outer_container}>
-          <div>
+      <Header harForhandsvisningsknapp>
+        <div
+          className={classNames(
+            headerStyles.header_outer_container,
+            tiltaksgjennomforing?.id
+              ? headerStyles.header_outer_container_forhandsvisningsknapp
+              : null,
+          )}
+        >
+          <div className={headerStyles.tiltaksnavn_status}>
             <Heading size="large" level="2">
               {tiltaksgjennomforing?.navn ?? "..."}
             </Heading>
             <TiltaksgjennomforingstatusTag tiltaksgjennomforing={tiltaksgjennomforing} />
           </div>
           {tiltaksgjennomforing?.id && (
-            <div>
+            <div className={headerStyles.forhandsvisningsknapp}>
               <Lenkeknapp
                 size="small"
                 isExternal={true}

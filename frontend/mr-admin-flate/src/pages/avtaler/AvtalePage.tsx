@@ -6,6 +6,7 @@ import { Laster } from "../../components/laster/Laster";
 import { AvtalestatusTag } from "../../components/statuselementer/AvtalestatusTag";
 import { useGetAvtaleIdFromUrlOrThrow } from "../../hooks/useGetAvtaleIdFromUrl";
 import commonStyles from "../Page.module.scss";
+import headerStyles from "../../components/detaljside/Header.module.scss";
 import styles from "./DetaljerAvtalePage.module.scss";
 import { ContainerLayout } from "../../layouts/ContainerLayout";
 import { useTitle } from "mulighetsrommet-frontend-common";
@@ -52,10 +53,12 @@ export function AvtalePage() {
   return (
     <main className={styles.avtaleinfo}>
       <Header>
-        <Heading size="large" level="2">
-          {avtale.navn ?? "..."}
-        </Heading>
-        <AvtalestatusTag avtale={avtale} />
+        <div className={headerStyles.tiltaksnavn_status}>
+          <Heading size="large" level="2">
+            {avtale.navn ?? "..."}
+          </Heading>
+          <AvtalestatusTag avtale={avtale} />
+        </div>
       </Header>
       <Tabs value={currentTab()}>
         <Tabs.List className={commonStyles.list}>
