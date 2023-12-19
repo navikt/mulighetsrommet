@@ -39,17 +39,17 @@ $filter-width: 290px;
   padding: 0.25rem;
 }
 
+.hide_filter {
+  display: none;
+}
+
+.wide_table {
+  grid-column: 1 / 3;
+}
+
 @media screen and (min-width: 1440px) {
   .filter {
     box-shadow: none;
-  }
-  // Overstyrer hover og unselected så det alltid ser ut som om tab'en er selected
-  // på stor skjerm.
-  .filter_tab {
-    box-shadow: inset 0 -3px 0 0 var(--ac-tabs-selected-border, var(--a-border-action));
-  }
-  .filter_tab:hover {
-    box-shadow: inset 0 -3px 0 0 var(--ac-tabs-selected-border, var(--a-border-action));
   }
 }
 
@@ -62,10 +62,6 @@ $filter-width: 290px;
   }
   .tags_and_table_container {
     grid-column: 1 / 3;
-    grid-row: 2;
-  }
-  .hide_filter {
-    display: none;
   }
 }
 

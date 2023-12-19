@@ -35,7 +35,12 @@ export function FilterAndTableLayout(props: Props) {
       <div id="filter" className={classNames(styles.filter, !filterSelected && styles.hide_filter)}>
         {filter}
       </div>
-      <div className={styles.tags_and_table_container}>
+      <div
+        className={classNames(
+          styles.tags_and_table_container,
+          !filterSelected && styles.wide_table,
+        )}
+      >
         <Separator style={{ marginBottom: "0.25rem", marginTop: "0" }} />
         {tags}
         <div className={styles.table}>{table}</div>
