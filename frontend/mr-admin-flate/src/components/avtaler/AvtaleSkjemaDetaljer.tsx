@@ -26,11 +26,7 @@ import { MultiValue } from "react-select";
 import { erAnskaffetTiltak } from "../../utils/tiltakskoder";
 import { AdministratorOptions } from "../skjema/AdministratorOptions";
 import { FormGroup } from "../skjema/FormGroup";
-import {
-  AvtaleUtkastData,
-  getLokaleUnderenheterAsSelectOptions,
-  underenheterOptions,
-} from "./AvtaleSkjemaConst";
+import { getLokaleUnderenheterAsSelectOptions, underenheterOptions } from "./AvtaleSkjemaConst";
 import { InferredAvtaleSchema } from "./AvtaleSchema";
 
 const minStartdato = new Date(2000, 0, 1);
@@ -39,20 +35,11 @@ interface Props {
   tiltakstyper: Tiltakstype[];
   ansatt: NavAnsatt;
   avtale?: Avtale;
-  avtaleUtkast?: AvtaleUtkastData;
   enheter: NavEnhet[];
 }
 
-export function AvtaleSkjemaDetaljer({
-  tiltakstyper,
-  ansatt,
-  enheter,
-  avtale,
-  avtaleUtkast,
-}: Props) {
-  const [sokLeverandor, setSokLeverandor] = useState(
-    avtaleUtkast?.leverandor ?? (avtale?.leverandor?.organisasjonsnummer || ""),
-  );
+export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: Props) {
+  const [sokLeverandor, setSokLeverandor] = useState(avtale?.leverandor?.organisasjonsnummer || "");
   const { data: leverandorVirksomheter = [] } = useSokVirksomheter(sokLeverandor);
 
   const { data: betabrukere } = useHentBetabrukere();

@@ -8,7 +8,6 @@ import {
   TiltaksgjennomforingOppstartstype,
   Virksomhet,
 } from "mulighetsrommet-api-client";
-import { TiltaksgjennomforingUtkastData } from "../../pages/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaPage";
 import { InferredTiltaksgjennomforingSchema } from "./TiltaksgjennomforingSchema";
 import { DeepPartial } from "react-hook-form";
 
@@ -103,10 +102,9 @@ export function fremmoteTidFromTidspunkt(fremmoteTidspunkt?: string): string | u
   return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
 }
 
-export function utkastDataEllerDefault(
+export function defaultTiltaksgjennomforingData(
   ansatt: NavAnsatt,
   avtale: Avtale,
-  utkast?: TiltaksgjennomforingUtkastData,
   tiltaksgjennomforing?: Tiltaksgjennomforing,
 ): DeepPartial<InferredTiltaksgjennomforingSchema> {
   return {
@@ -142,6 +140,5 @@ export function utkastDataEllerDefault(
     opphav: tiltaksgjennomforing?.opphav ?? Opphav.MR_ADMIN_FLATE,
     fremmoteDato: fremmoteDatoFromTidspunkt(tiltaksgjennomforing?.fremmoteTidspunkt),
     fremmoteTid: fremmoteTidFromTidspunkt(tiltaksgjennomforing?.fremmoteTidspunkt),
-    ...utkast,
   };
 }

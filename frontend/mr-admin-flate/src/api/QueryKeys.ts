@@ -1,9 +1,4 @@
-import {
-  NavAnsattRolle,
-  NotificationStatus,
-  UtkastRequest as Utkast,
-  VirksomhetTil,
-} from "mulighetsrommet-api-client";
+import { NavAnsattRolle, NotificationStatus, VirksomhetTil } from "mulighetsrommet-api-client";
 import { AvtaleFilterProps, TiltaksgjennomforingfilterProps, TiltakstypeFilter } from "./atoms";
 
 export const QueryKeys = {
@@ -35,10 +30,6 @@ export const QueryKeys = {
   tiltaksgjennomforingerTilAvtale: (filter: string) => ["tiltaksgjennomforinger", filter] as const,
   kontaktpersoner: (rolle: NavAnsattRolle) => ["nav-kontaktpersoner", rolle],
   virksomhetKontaktpersoner: (orgnr: string) => ["virksomhet-kontaktpersoner", orgnr] as const,
-  alleUtkast: (avtaleId: string = "") => ["utkast", "alleUtkast", avtaleId] as const,
-  mineUtkast: (avtaleId?: string, utkasttype?: Utkast.type) =>
-    ["utkast", avtaleId, utkasttype] as const,
-  utkast: (utkastId?: string) => ["utkast", utkastId] as const,
   avtalenotater: (avtaleId: string) => ["avtalenotater", avtaleId] as const,
   mineAvtalenotater: (avtaleId: string) => ["avtalenotater", "mine", avtaleId] as const,
   tiltaksgjennomforingsnotater: (tiltaksgjennomforingsId: string) =>

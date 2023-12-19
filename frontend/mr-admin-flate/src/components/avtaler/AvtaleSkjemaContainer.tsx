@@ -13,18 +13,16 @@ import {
   Tiltakskode,
   Tiltakstype,
 } from "mulighetsrommet-api-client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { v4 as uuidv4 } from "uuid";
 import { useHandleApiUpsertResponse } from "../../api/effects";
-import { useMutateUtkast } from "../../api/utkast/useMutateUtkast";
-import { formaterDatoTid } from "../../utils/Utils";
 import { Separator } from "../detaljside/Metadata";
 import skjemastyles from "../skjema/Skjema.module.scss";
 import { useUpsertAvtale } from "../../api/avtaler/useUpsertAvtale";
 import { AvtaleSchema, InferredAvtaleSchema } from "./AvtaleSchema";
 import { erAnskaffetTiltak } from "../../utils/tiltakskoder";
-import { AvtaleUtkastData, saveUtkast, utkastDataEllerDefault } from "./AvtaleSkjemaConst";
+import { defaultAvtaleData } from "./AvtaleSkjemaConst";
 import { useAtom } from "jotai";
 import { avtaleDetaljerTabAtom } from "../../api/atoms";
 import { AvtaleSkjemaKnapperad } from "./AvtaleSkjemaKnapperad";
@@ -38,7 +36,6 @@ interface Props {
   tiltakstyper: Tiltakstype[];
   ansatt: NavAnsatt;
   avtale?: Avtale;
-  avtaleUtkast?: AvtaleUtkastData;
   enheter: NavEnhet[];
   redigeringsModus: boolean;
 }
@@ -48,7 +45,6 @@ export function AvtaleSkjemaContainer({
   onSuccess,
   ansatt,
   avtale,
-  avtaleUtkast,
   redigeringsModus,
   ...props
 }: Props) {
@@ -56,18 +52,15 @@ export function AvtaleSkjemaContainer({
 
   const avbrytModalRef = useRef<HTMLDialogElement>(null);
   const mutation = useUpsertAvtale();
-  const mutationUtkast = useMutateUtkast();
-
-  const utkastIdRef = useRef(avtaleUtkast?.id || avtale?.id || uuidv4());
 
   const form = useForm<InferredAvtaleSchema>({
     resolver: zodResolver(AvtaleSchema),
-    defaultValues: utkastDataEllerDefault(ansatt, avtaleUtkast, avtale),
+    defaultValues: defaultAvtaleData(ansatt, avtale),
   });
 
   const {
     handleSubmit,
-    formState: { errors, defaultValues },
+    formState: { errors },
     watch,
     setValue,
   } = form;
@@ -86,14 +79,9 @@ export function AvtaleSkjemaContainer({
 
   const arenaOpphav = avtale?.opphav === Opphav.ARENA;
 
-  const defaultUpdatedAt = avtale?.updatedAt;
-  const [lagreState, setLagreState] = useState(
-    defaultUpdatedAt ? `Sist lagret: ${formaterDatoTid(defaultUpdatedAt)}` : undefined,
-  );
-
   const postData: SubmitHandler<InferredAvtaleSchema> = async (data): Promise<void> => {
     const requestBody: AvtaleRequest = {
-      id: avtale?.id ?? utkastIdRef.current,
+      id: avtale?.id ?? uuidv4(),
       navEnheter: data.navEnheter.concat(data.navRegioner),
       avtalenummer: avtale?.avtalenummer || null,
       leverandorOrganisasjonsnummer: data.leverandor,
@@ -174,18 +162,7 @@ export function AvtaleSkjemaContainer({
                 onClick={() => setActiveTab("redaksjonelt-innhold")}
               />
             </div>
-            <AvtaleSkjemaKnapperad
-              redigeringsModus={redigeringsModus!}
-              onClose={onClose}
-              defaultValues={defaultValues}
-              utkastIdRef={utkastIdRef.current}
-              saveUtkast={() =>
-                saveUtkast(watch(), avtale!, ansatt, utkastIdRef, mutationUtkast, setLagreState)
-              }
-              mutationUtkast={mutationUtkast}
-              lagreState={lagreState}
-              setLagreState={setLagreState}
-            />
+            <AvtaleSkjemaKnapperad redigeringsModus={redigeringsModus!} onClose={onClose} />
           </Tabs.List>
           <Tabs.Panel value="detaljer">
             <AvtaleSkjemaDetaljer

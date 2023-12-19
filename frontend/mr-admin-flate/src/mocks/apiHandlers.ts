@@ -4,7 +4,6 @@ import { enhetHandlers } from "./endpoints/enhetHandlers";
 import { notificationHandlers } from "./endpoints/notificationHandlers";
 import { tiltaksgjennomforingHandlers } from "./endpoints/tiltaksgjennomforingHandlers";
 import { tiltakstypeHandlers } from "./endpoints/tiltakstyperHandlers";
-import { utkastHandlers } from "./endpoints/utkastHandlers";
 import { virksomhetHandlers } from "./endpoints/virksomhetHandlers";
 import { avtalenotatHandlers } from "./endpoints/avtalenotatHandlers";
 import { tiltaksgjennomforingNotatHandlers } from "./endpoints/tiltaksgjennomforingNotatHandlers";
@@ -18,7 +17,6 @@ export const apiHandlers = [
   ...ansattHandlers,
   ...notificationHandlers,
   ...virksomhetHandlers,
-  ...utkastHandlers,
   ...avtalenotatHandlers,
   ...tiltaksgjennomforingNotatHandlers,
   ...featureToggleHandlers,
