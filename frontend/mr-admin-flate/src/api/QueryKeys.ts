@@ -3,7 +3,7 @@ import { AvtaleFilter, TiltaksgjennomforingFilter, TiltakstypeFilter } from "./a
 
 export const QueryKeys = {
   tiltakstype: (id?: string) => ["tiltakstype", id] as const,
-  tiltakstyper: (sokestreng: string, filter: TiltakstypeFilter, page?: number) =>
+  tiltakstyper: (sokestreng?: string, filter?: TiltakstypeFilter, page?: number) =>
     ["tiltakstyper", page, sokestreng, { ...filter }] as const,
   tiltakstypeFaneinnhold: (id: string) => ["tiltakstype", id, "faneinnhold"] as const,
   tiltaksgjennomforinger: (page?: number, filter?: Partial<TiltaksgjennomforingFilter>) =>
@@ -14,7 +14,7 @@ export const QueryKeys = {
   tiltaksgjennomforingerByEnhet: (enhet: string = "enhet", page?: number) =>
     [enhet, page, "tiltaksgjennomforinger"] as const,
   ansatt: () => ["ansatt"] as const,
-  avtaler: (mine?: boolean, page?: number, avtaleFilter?: AvtaleFilter) =>
+  avtaler: (mine?: boolean, page?: number, avtaleFilter?: Partial<AvtaleFilter>) =>
     ["avtaler", mine, page, { ...avtaleFilter }] as const,
   avtale: (id: string) => ["avtale", id],
   avtaleHistorikk: (id?: string) => ["avtale", id, "historikk"] as const,

@@ -5,19 +5,20 @@ import { TiltakstypeFilter } from "../atoms";
 import { mulighetsrommetClient } from "../clients";
 import { QueryKeys } from "../QueryKeys";
 
-export function useTiltakstyper(filter: TiltakstypeFilter = {}, page: number = 1) {
-  const debouncedSok = useDebounce(filter.sok || "", 300);
+export function useTiltakstyper(filter: TiltakstypeFilter, page: number = 1) {
+  const debouncedSok = useDebounce(filter.sok?.trim(), 300);
+
+  const queryFilter = {
+    search: debouncedSok || undefined,
+    tiltakstypestatuser: filter.status ? [filter.status] : [],
+    tiltakstypekategorier: filter.kategori ? [filter.kategori] : [],
+    sort: filter.sortering,
+    page,
+    size: PAGE_SIZE,
+  };
+
   return useQuery({
     queryKey: QueryKeys.tiltakstyper(debouncedSok, filter, page),
-
-    queryFn: () =>
-      mulighetsrommetClient.tiltakstyper.getTiltakstyper({
-        search: debouncedSok !== "" ? debouncedSok : undefined,
-        tiltakstypestatuser: filter.status ? [filter.status] : [],
-        tiltakstypekategorier: filter.kategori ? [filter.kategori] : [],
-        sort: filter.sortering,
-        page,
-        size: PAGE_SIZE,
-      }),
+    queryFn: () => mulighetsrommetClient.tiltakstyper.getTiltakstyper(queryFilter),
   });
 }

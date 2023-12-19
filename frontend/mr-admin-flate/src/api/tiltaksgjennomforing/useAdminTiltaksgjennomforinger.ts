@@ -8,7 +8,7 @@ export function useAdminTiltaksgjennomforinger(
   filter: Partial<TiltaksgjennomforingFilter>,
   page: number = 1,
 ) {
-  const debouncedSok = useDebounce(filter.search, 300);
+  const debouncedSok = useDebounce(filter.search?.trim(), 300);
 
   const queryFilter = {
     page,
