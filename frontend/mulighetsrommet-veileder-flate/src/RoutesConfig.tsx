@@ -10,7 +10,7 @@ import ViewTiltaksgjennomforingOversikt from "./views/tiltaksgjennomforing-overs
 import { useAppContext } from "./hooks/useAppContext";
 
 const RoutesConfig = () => {
-  const { fnr } = useAppContext();
+  const { fnr, enhet } = useAppContext();
   const enableLandingssideFeature = useFeatureToggle(
     Toggles.MULIGHETSROMMET_VEILEDERFLATE_LANDINGSSIDE,
   );
@@ -32,7 +32,10 @@ const RoutesConfig = () => {
         <Route path={routes.detaljer_oppskrift} element={<Oppskrift />} />
       </Route>
       {visDeltakerregistrering ? (
-        <Route path={routes.detaljer_deltaker} element={<DeltakerRegistrering fnr={fnr} />} />
+        <Route
+          path={routes.detaljer_deltaker}
+          element={<DeltakerRegistrering fnr={fnr} enhetId={enhet} />}
+        />
       ) : null}
       <Route path={routes.oversikt} element={<ViewTiltaksgjennomforingOversikt />} />
       <Route
