@@ -1,7 +1,7 @@
-import styles from "../pages/Page.module.scss";
 import { Heading } from "@navikt/ds-react";
 import classNames from "classnames";
 import { kebabCase } from "../utils/Utils";
+import styles from "../components/detaljside/Header.module.scss";
 
 interface HeaderBannerProps {
   heading: string;
