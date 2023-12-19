@@ -55,7 +55,7 @@ export const LeggTilGjennomforingModal = ({ avtale, modalOpen, onClose }: Props)
           variant="simple"
           hideLabel={false}
           autoFocus
-          onChange={(search) => setSearch(search.trim())}
+          onChange={(search) => setSearch(search)}
           value={search}
         />
 

@@ -5,7 +5,7 @@ import { AvtaleFilter } from "../atoms";
 import { mulighetsrommetClient } from "../clients";
 
 export function useAvtaler(filter: Partial<AvtaleFilter>, page: number = 1) {
-  const debouncedSok = useDebounce(filter.sok, 300);
+  const debouncedSok = useDebounce(filter.sok?.trim(), 300);
 
   const queryFilter = {
     tiltakstypeIder: filter.tiltakstyper,

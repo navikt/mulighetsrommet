@@ -63,7 +63,7 @@ export function AvtaleRedaksjoneltInnholdForm({ tiltakstype }: Props) {
             variant="simple"
             hideLabel={false}
             autoFocus
-            onChange={(search) => setSearch(search.trim())}
+            onChange={(search) => setSearch(search)}
             value={search}
           />
 
