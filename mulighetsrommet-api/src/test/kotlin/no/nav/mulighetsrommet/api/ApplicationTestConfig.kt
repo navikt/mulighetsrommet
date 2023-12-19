@@ -103,7 +103,10 @@ fun createKafkaConfig(): KafkaConfig {
         producers = KafkaProducers(
             tiltaksgjennomforinger = TiltaksgjennomforingKafkaProducer.Config(topic = "siste-tiltaksgjennomforinger-v1"),
             tiltakstyper = TiltakstypeKafkaProducer.Config(topic = "siste-tiltakstyper-v1"),
-            arenaMigreringTiltaksgjennomforinger = ArenaMigreringTiltaksgjennomforingKafkaProducer.Config(topic = "arena-migrering-tiltaksgjennomforinger-v1"),
+            arenaMigreringTiltaksgjennomforinger = ArenaMigreringTiltaksgjennomforingKafkaProducer.Config(
+                topic = "arena-migrering-tiltaksgjennomforinger-v1",
+                tiltakstyper = emptyList(),
+            ),
         ),
         consumerGroupId = "mulighetsrommet-api-consumer",
         consumers = KafkaConsumers(
