@@ -151,13 +151,15 @@ export const SokeSelect = <T,>(
 };
 
 const customStyles = (readOnly: boolean, isError: boolean) => ({
-  control: (provided: any, state: any) => ({
-    ...provided,
-    background: readOnly ? "#f1f1f1" : "#fff",
-    borderColor: isError ? "#C30000" : readOnly ? "#0000001A" : "#0000008f",
-    borderWidth: isError ? "2px" : "1px",
-    boxShadow: state.isFocused ? null : null,
-  }),
+  control: (provided: any, state: any) => {
+    return {
+      ...provided,
+      background: readOnly ? "#f1f1f1" : "#fff",
+      borderColor: isError ? "#C30000" : readOnly ? "#0000001A" : "#0000008f",
+      borderWidth: isError ? "2px" : "1px",
+      boxShadow: state.isFocused ? "0 0 0 3px rgba(0, 52, 125, 1)" : null,
+    };
+  },
   clearIndicator: (provided: any) => ({
     ...provided,
   }),

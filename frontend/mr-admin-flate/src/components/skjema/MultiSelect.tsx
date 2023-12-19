@@ -24,7 +24,7 @@ export const MultiSelect = React.forwardRef(function MultiSelect(props: MultiSel
       background: readOnly ? "#F1F1F1" : "#fff",
       borderColor: isError ? "#C30000" : readOnly ? "#0000001A" : "#0000008f",
       borderWidth: isError ? "2px" : "1px",
-      boxShadow: state.isFocused ? null : null,
+      boxShadow: state.isFocused ? "0 0 0 3px rgba(0, 52, 125, 1)" : null,
     }),
     multiValue: (provided: any) => ({
       ...provided,
