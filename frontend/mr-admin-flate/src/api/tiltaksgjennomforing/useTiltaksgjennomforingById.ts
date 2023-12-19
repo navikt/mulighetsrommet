@@ -1,17 +1,17 @@
 import { useQuery } from "@tanstack/react-query";
-import { useGetAdminTiltaksgjennomforingsIdFraUrl } from "../../hooks/useGetAdminTiltaksgjennomforingsIdFraUrl";
+import { useGetTiltaksgjennomforingIdFromUrl } from "../../hooks/useGetTiltaksgjennomforingIdFromUrl";
 import { QueryKeys } from "../QueryKeys";
 import { mulighetsrommetClient } from "../clients";
 
 export function useTiltaksgjennomforingById() {
-  const tiltaksgjennomforingId = useGetAdminTiltaksgjennomforingsIdFraUrl();
+  const id = useGetTiltaksgjennomforingIdFromUrl();
 
   return useQuery({
-    queryKey: QueryKeys.tiltaksgjennomforing(tiltaksgjennomforingId),
+    queryKey: QueryKeys.tiltaksgjennomforing(id),
     queryFn: () =>
       mulighetsrommetClient.tiltaksgjennomforinger.getTiltaksgjennomforing({
-        id: tiltaksgjennomforingId!!,
+        id: id!!,
       }),
-    enabled: !!tiltaksgjennomforingId,
+    enabled: !!id,
   });
 }

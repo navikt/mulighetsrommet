@@ -119,10 +119,6 @@ export const tiltaksgjennomforingfilterForAvtaleAtom =
     defaultTiltaksgjennomforingfilter,
   );
 
-export const tiltaksgjennomforingTilAvtaleFilterAtom = atom<
-  Pick<TiltaksgjennomforingFilter, "search">
->({ search: "" });
-
 export interface AvtaleFilter {
   sok: string;
   statuser: Avtalestatus[];

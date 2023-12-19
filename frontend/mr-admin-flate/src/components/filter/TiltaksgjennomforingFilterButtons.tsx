@@ -7,10 +7,7 @@ import { useFeatureToggle } from "../../api/features/feature-toggles";
 import { inneholderUrl } from "../../utils/Utils";
 import { Lenkeknapp } from "../lenkeknapp/Lenkeknapp";
 import { LeggTilGjennomforingModal } from "../modal/LeggTilGjennomforingModal";
-import {
-  defaultTiltaksgjennomforingfilter,
-  TiltaksgjennomforingFilter,
-} from "../../api/atoms";
+import { defaultTiltaksgjennomforingfilter, TiltaksgjennomforingFilter } from "../../api/atoms";
 import { useAtom, WritableAtom } from "jotai";
 
 interface Props {
@@ -99,6 +96,7 @@ export function TiltaksgjennomforingFilterButtons({ filterAtom }: Props) {
                 Legg til gjennomføring
               </Button>
               <LeggTilGjennomforingModal
+                avtale={avtale}
                 modalOpen={modalOpen}
                 onClose={() => setModalOpen(false)}
               />
