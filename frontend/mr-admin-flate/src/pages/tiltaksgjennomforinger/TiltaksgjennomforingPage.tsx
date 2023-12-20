@@ -1,21 +1,22 @@
 import { Alert, Heading, Tabs } from "@navikt/ds-react";
+import classNames from "classnames";
 import { Toggles } from "mulighetsrommet-api-client";
-import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { Link, Outlet, useLocation } from "react-router-dom";
 import { useFeatureToggle } from "../../api/features/feature-toggles";
 import { useTiltaksgjennomforingById } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforingById";
 import { Header } from "../../components/detaljside/Header";
-import { Laster } from "../../components/laster/Laster";
-import { TiltaksgjennomforingstatusTag } from "../../components/statuselementer/TiltaksgjennomforingstatusTag";
-import { ContainerLayout } from "../../layouts/ContainerLayout";
-import commonStyles from "../Page.module.scss";
 import headerStyles from "../../components/detaljside/Header.module.scss";
-import { erProdMiljo } from "../../utils/Utils";
+import { Laster } from "../../components/laster/Laster";
 import { Lenkeknapp } from "../../components/lenkeknapp/Lenkeknapp";
-import classNames from "classnames";
+import { TiltaksgjennomforingstatusTag } from "../../components/statuselementer/TiltaksgjennomforingstatusTag";
+import { useNavigateAndReplaceUrl } from "../../hooks/useNavigateWithoutReplacingUrl";
+import { ContainerLayout } from "../../layouts/ContainerLayout";
+import { erProdMiljo } from "../../utils/Utils";
+import commonStyles from "../Page.module.scss";
 
 export function TiltaksgjennomforingPage() {
   const { pathname } = useLocation();
-  const navigate = useNavigate();
+  const { navigateAndReplaceUrl } = useNavigateAndReplaceUrl();
   const { data: tiltaksgjennomforing, isLoading } = useTiltaksgjennomforingById();
   const forhandsvisningMiljo = import.meta.env.dev || erProdMiljo ? "nav.no" : "dev.nav.no";
 
@@ -86,14 +87,18 @@ export function TiltaksgjennomforingPage() {
           <Tabs.Tab
             value="info"
             label="Info"
-            onClick={() => navigate(`/tiltaksgjennomforinger/${tiltaksgjennomforing.id}`)}
+            onClick={() =>
+              navigateAndReplaceUrl(`/tiltaksgjennomforinger/${tiltaksgjennomforing.id}`)
+            }
             aria-controls="panel"
           />
           {showNotater && (
             <Tabs.Tab
               value="notater"
               label="Notater"
-              onClick={() => navigate(`/tiltaksgjennomforinger/${tiltaksgjennomforing.id}/notater`)}
+              onClick={() =>
+                navigateAndReplaceUrl(`/tiltaksgjennomforinger/${tiltaksgjennomforing.id}/notater`)
+              }
               aria-controls="panel"
             />
           )}
@@ -102,7 +107,9 @@ export function TiltaksgjennomforingPage() {
               value="poc"
               label="Deltakerliste"
               onClick={() =>
-                navigate(`/tiltaksgjennomforinger/${tiltaksgjennomforing.id}/deltakere`)
+                navigateAndReplaceUrl(
+                  `/tiltaksgjennomforinger/${tiltaksgjennomforing.id}/deltakere`,
+                )
               }
               aria-controls="panel"
             />

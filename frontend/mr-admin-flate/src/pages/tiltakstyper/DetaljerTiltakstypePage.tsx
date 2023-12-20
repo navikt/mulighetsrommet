@@ -1,16 +1,17 @@
 import { Alert, Heading, Tabs } from "@navikt/ds-react";
-import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { useTitle } from "mulighetsrommet-frontend-common";
+import { Link, Outlet, useLocation } from "react-router-dom";
 import { useTiltakstypeById } from "../../api/tiltakstyper/useTiltakstypeById";
 import { Header } from "../../components/detaljside/Header";
 import { Laster } from "../../components/laster/Laster";
 import { TiltakstypestatusTag } from "../../components/statuselementer/TiltakstypestatusTag";
+import { useNavigateAndReplaceUrl } from "../../hooks/useNavigateWithoutReplacingUrl";
 import { ContainerLayout } from "../../layouts/ContainerLayout";
 import commonStyles from "../Page.module.scss";
-import { useTitle } from "mulighetsrommet-frontend-common";
 
 export function DetaljerTiltakstypePage() {
   const { pathname } = useLocation();
-  const navigate = useNavigate();
+  const { navigateAndReplaceUrl } = useNavigateAndReplaceUrl();
   const { data: tiltakstype, isLoading } = useTiltakstypeById();
   useTitle(`Tiltakstyper ${tiltakstype?.navn ? `- ${tiltakstype.navn}` : ""}`);
 
@@ -43,13 +44,13 @@ export function DetaljerTiltakstypePage() {
           <Tabs.Tab
             value="arenainfo"
             label="Arenainfo"
-            onClick={() => navigate(`/tiltakstyper/${tiltakstype.id}`)}
+            onClick={() => navigateAndReplaceUrl(`/tiltakstyper/${tiltakstype.id}`)}
             aria-controls="panel"
           />
           <Tabs.Tab
             value="avtaler"
             label="Avtaler"
-            onClick={() => navigate(`/tiltakstyper/${tiltakstype.id}/avtaler`)}
+            onClick={() => navigateAndReplaceUrl(`/tiltakstyper/${tiltakstype.id}/avtaler`)}
             aria-controls="panel"
           />
         </Tabs.List>
