@@ -176,7 +176,7 @@ export function AvtaleSkjemaContainer({
           </Tabs.Panel>
         </Tabs>
         <Separator />
-        <div>
+        <div className={skjemastyles.flex_container}>
           {avtale && !arenaOpphav && avtale.avtalestatus === Avtalestatus.AKTIV && (
             <Button
               size="small"
@@ -187,8 +187,8 @@ export function AvtaleSkjemaContainer({
               Avbryt avtale
             </Button>
           )}
+          <AvtaleSkjemaKnapperad redigeringsModus={redigeringsModus!} onClose={onClose} />
         </div>
-        <AvtaleSkjemaKnapperad redigeringsModus={redigeringsModus!} onClose={onClose} />
       </form>
       {avtale && <AvbrytAvtaleModal modalRef={avbrytModalRef} avtale={avtale} />}
     </FormProvider>
