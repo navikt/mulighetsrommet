@@ -20,7 +20,7 @@ export function ApentForInnsokToggle(props: ApentForInnsokToggleProps) {
     <Accordion.Item defaultOpen={true}>
       <Accordion.Header>Åpent for innsøk</Accordion.Header>
       <Accordion.Content>
-        <ToggleGroup defaultValue={props.value} onChange={onToggleChanged}>
+        <ToggleGroup size="small" defaultValue={props.value} onChange={onToggleChanged}>
           <ToggleGroup.Item value="APENT">Åpent</ToggleGroup.Item>
           <ToggleGroup.Item value="APENT_ELLER_STENGT">Begge</ToggleGroup.Item>
           <ToggleGroup.Item value="STENGT">

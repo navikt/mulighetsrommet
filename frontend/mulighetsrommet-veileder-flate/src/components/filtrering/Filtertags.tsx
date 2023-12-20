@@ -1,36 +1,18 @@
-import { Button } from "@navikt/ds-react";
-import { RESET } from "jotai/utils";
-import { Innsatsgruppe } from "mulighetsrommet-api-client";
 import { useHentBrukerdata } from "../../core/api/queries/useHentBrukerdata";
-import { useInnsatsgrupper } from "../../core/api/queries/useInnsatsgrupper";
-import { Tiltaksgjennomforingsfilter } from "../../core/atoms/atoms";
-import { usePrepopulerFilter } from "../../hooks/usePrepopulerFilter";
-import Show from "../../utils/Show";
+import {
+  Tiltaksgjennomforingsfiltergruppe,
+  tiltaksgjennomforingsfilter,
+} from "../../core/atoms/atoms";
 import { BrukersEnhet } from "../brukersEnheter/BrukersEnhet";
 import { ErrorTag } from "../tags/ErrorTag";
 import FilterTag from "../tags/FilterTag";
 import SearchFieldTag from "../tags/SearchFieldTag";
 import styles from "./Filtertags.module.scss";
+import { useAtom } from "jotai";
 
-interface FiltertagsProps {
-  filter: Tiltaksgjennomforingsfilter;
-  setFilter: any;
-}
-
-export function Filtertags({ filter, setFilter }: FiltertagsProps) {
+export function Filtertags() {
+  const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);
   const brukerdata = useHentBrukerdata();
-  const brukersInnsatsgruppeErIkkeValgt = (innsatsgruppe?: Innsatsgruppe) => {
-    return innsatsgruppe !== brukerdata?.data?.innsatsgruppe;
-  };
-
-  const { forcePrepopulerFilter } = usePrepopulerFilter();
-
-  const innsatsgrupper = useInnsatsgrupper();
-
-  const skalResetteFilter =
-    brukersInnsatsgruppeErIkkeValgt(filter.innsatsgruppe?.nokkel) ||
-    filter.search !== "" ||
-    filter.tiltakstyper.length > 0;
 
   return (
     <div className={styles.filtertags} data-testid="filtertags">
@@ -50,24 +32,13 @@ export function Filtertags({ filter, setFilter }: FiltertagsProps) {
         handleClick={(id: string) =>
           setFilter({
             ...filter,
-            tiltakstyper: filter.tiltakstyper?.filter((tiltakstype) => tiltakstype.id !== id),
+            tiltakstyper: filter.tiltakstyper?.filter(
+              (tiltakstype: Tiltaksgjennomforingsfiltergruppe<string>) => tiltakstype.id !== id,
+            ),
           })
         }
       />
       <SearchFieldTag />
-      <Show if={!innsatsgrupper.isLoading && skalResetteFilter}>
-        <Button
-          size="small"
-          variant="tertiary"
-          onClick={() => {
-            setFilter(RESET);
-            forcePrepopulerFilter(true);
-          }}
-          data-testid="knapp_tilbakestill-filter"
-        >
-          Tilbakestill filter
-        </Button>
-      </Show>
     </div>
   );
 }
