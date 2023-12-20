@@ -80,8 +80,9 @@ export const oversiktenSteps: MulighetsrommetStep[] = [
   {
     title: "Filtrering",
     content:
-      "Du kan benytte filtrene for å tilpasse utvalget av tiltak til brukerens ønsker og behov.",
-    target: "#tiltakstype_oversikt_filtermeny",
+      "Du kan benytte filtrene for å tilpasse utvalget av tiltak til brukerens ønsker og behov." +
+      " Åpne/lukke filteroversikten ved å klikke her.",
+    target: '[data-testid="filter_tabs"]',
     disableBeacon: true,
     id: "filtrering",
   },
