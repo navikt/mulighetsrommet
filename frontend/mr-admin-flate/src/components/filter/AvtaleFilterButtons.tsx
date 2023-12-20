@@ -1,8 +1,7 @@
-import { faro } from "@grafana/faro-web-sdk";
-import { Lenkeknapp } from "../lenkeknapp/Lenkeknapp";
 import { Button } from "@navikt/ds-react";
 import { WritableAtom, useAtom } from "jotai";
 import { AvtaleFilter, defaultAvtaleFilter } from "../../api/atoms";
+import { Lenkeknapp } from "../lenkeknapp/Lenkeknapp";
 
 interface Props {
   filterAtom: WritableAtom<AvtaleFilter, [newValue: AvtaleFilter], void>;
@@ -40,14 +39,7 @@ export function AvtaleFilterButtons({ filterAtom }: Props) {
       ) : (
         <div></div>
       )}
-      <Lenkeknapp
-        to={`/avtaler/skjema`}
-        size="small"
-        variant="primary"
-        handleClick={() => {
-          faro?.api?.pushEvent("Bruker trykket på 'Opprett ny avtale'-knapp");
-        }}
-      >
+      <Lenkeknapp to={`/avtaler/skjema`} size="small" variant="primary">
         Opprett ny avtale
       </Lenkeknapp>
     </div>

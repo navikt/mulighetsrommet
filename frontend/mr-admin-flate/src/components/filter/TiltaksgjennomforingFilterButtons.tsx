@@ -1,14 +1,13 @@
-import { faro } from "@grafana/faro-web-sdk";
 import { Button } from "@navikt/ds-react";
+import { WritableAtom, useAtom } from "jotai";
 import { Avtalestatus, Opphav, Toggles } from "mulighetsrommet-api-client";
 import { useState } from "react";
+import { TiltaksgjennomforingFilter, defaultTiltaksgjennomforingfilter } from "../../api/atoms";
 import { useAvtale } from "../../api/avtaler/useAvtale";
 import { useFeatureToggle } from "../../api/features/feature-toggles";
 import { inneholderUrl } from "../../utils/Utils";
 import { Lenkeknapp } from "../lenkeknapp/Lenkeknapp";
 import { LeggTilGjennomforingModal } from "../modal/LeggTilGjennomforingModal";
-import { defaultTiltaksgjennomforingfilter, TiltaksgjennomforingFilter } from "../../api/atoms";
-import { useAtom, WritableAtom } from "jotai";
 
 interface Props {
   filterAtom: WritableAtom<
@@ -76,9 +75,6 @@ export function TiltaksgjennomforingFilterButtons({ filterAtom }: Props) {
               size="small"
               to={`skjema`}
               variant="primary"
-              handleClick={() => {
-                faro?.api?.pushEvent("Bruker trykket på 'Opprett ny tiltaksgjennomføring'-knapp");
-              }}
               dataTestid="opprett-ny-tiltaksgjenomforing_knapp"
             >
               Opprett ny tiltaksgjennomføring

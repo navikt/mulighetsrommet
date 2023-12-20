@@ -1,6 +1,5 @@
-import styles from "../skjema/Skjema.module.scss";
 import { Button } from "@navikt/ds-react";
-import { faro } from "@grafana/faro-web-sdk";
+import styles from "../skjema/Skjema.module.scss";
 import { ValideringsfeilOppsummering } from "../skjema/ValideringsfeilOppsummering";
 
 interface Props {
@@ -20,20 +19,7 @@ export function AvtaleSkjemaKnapperad({ redigeringsModus, onClose }: Props) {
       >
         Avbryt
       </Button>
-      <Button
-        className={styles.button}
-        size="small"
-        type="submit"
-        onClick={() => {
-          faro?.api?.pushEvent(
-            `Bruker ${redigeringsModus ? "redigerer" : "oppretter"} avtale`,
-            {
-              handling: redigeringsModus ? "redigerer" : "oppretter",
-            },
-            "avtale",
-          );
-        }}
-      >
+      <Button className={styles.button} size="small" type="submit">
         {redigeringsModus ? "Lagre redigert avtale" : "Opprett ny avtale"}
       </Button>
     </div>
