@@ -166,3 +166,9 @@
 .preWrap {
   white-space: pre-wrap;
 }
+
+.flex_container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}

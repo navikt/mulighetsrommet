@@ -185,7 +185,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
           </Tabs.Panel>
         </Tabs>
         <Separator />
-        <div>
+        <div className={skjemastyles.flex_container}>
           {!erArenaOpphav(tiltaksgjennomforing) && redigeringsModus && (
             <Button
               size="small"
@@ -196,13 +196,13 @@ export const TiltaksgjennomforingSkjemaContainer = ({
               Avbryt gjennomføring
             </Button>
           )}
+          <TiltaksgjennomforingSkjemaKnapperad
+            size="small"
+            redigeringsModus={redigeringsModus}
+            onClose={onClose}
+            mutation={mutation}
+          />
         </div>
-        <TiltaksgjennomforingSkjemaKnapperad
-          size="small"
-          redigeringsModus={redigeringsModus}
-          onClose={onClose}
-          mutation={mutation}
-        />
       </form>
       {tiltaksgjennomforing && (
         <AvbrytTiltaksgjennomforingModal
