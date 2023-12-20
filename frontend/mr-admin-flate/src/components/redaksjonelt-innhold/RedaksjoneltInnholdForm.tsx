@@ -11,18 +11,10 @@ import React from "react";
 import { InlineErrorBoundary } from "../../ErrorBoundary";
 
 interface RedaksjoneltInnholdFormProps {
-  tiltakstype?: EmbeddedTiltakstype;
+  tiltakstype: EmbeddedTiltakstype;
 }
 
 export function RedaksjoneltInnholdForm({ tiltakstype }: RedaksjoneltInnholdFormProps) {
-  if (!tiltakstype) {
-    return (
-      <div className={skjemastyles.container}>
-        <Alert variant="info">Tiltakstype må velges før redaksjonelt innhold kan redigeres.</Alert>
-      </div>
-    );
-  }
-
   return (
     <InlineErrorBoundary>
       <React.Suspense fallback={<Laster tekst="Laster innhold" />}>

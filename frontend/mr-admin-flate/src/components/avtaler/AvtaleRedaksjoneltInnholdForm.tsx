@@ -1,4 +1,4 @@
-import { Button, Heading, HStack, Modal, Search } from "@navikt/ds-react";
+import { Alert, Button, Heading, HStack, Modal, Search } from "@navikt/ds-react";
 import { Avtale, EmbeddedTiltakstype } from "mulighetsrommet-api-client";
 import { RedaksjoneltInnholdForm } from "../redaksjonelt-innhold/RedaksjoneltInnholdForm";
 import { useFormContext } from "react-hook-form";
@@ -7,6 +7,7 @@ import { RedaksjoneltInnholdContainer } from "../redaksjonelt-innhold/Redaksjone
 import styles from "../modal/LeggTilGjennomforingModal.module.scss";
 import { AvtaleListe } from "./AvtaleListe";
 import { InferredAvtaleSchema } from "./AvtaleSchema";
+import skjemastyles from "../skjema/Skjema.module.scss";
 
 interface Props {
   tiltakstype?: EmbeddedTiltakstype;
@@ -23,6 +24,14 @@ export function AvtaleRedaksjoneltInnholdForm({ tiltakstype }: Props) {
   function kopierRedaksjoneltInnhold({ beskrivelse, faneinnhold }: Avtale) {
     setValue("beskrivelse", beskrivelse ?? null);
     setValue("faneinnhold", faneinnhold ?? null);
+  }
+
+  if (!tiltakstype) {
+    return (
+      <div className={skjemastyles.container}>
+        <Alert variant="info">Tiltakstype må velges før redaksjonelt innhold kan redigeres.</Alert>
+      </div>
+    );
   }
 
   return (
@@ -67,29 +76,27 @@ export function AvtaleRedaksjoneltInnholdForm({ tiltakstype }: Props) {
             value={search}
           />
 
-          {tiltakstype?.id ? (
-            <AvtaleListe
-              filter={{ sok: search, tiltakstyper: [tiltakstype.id] }}
-              action={(avtale) => (
-                <Button
-                  size="small"
-                  variant="tertiary"
-                  type="button"
-                  onClick={() => {
-                    kopierRedaksjoneltInnhold(avtale);
+          <AvtaleListe
+            filter={{ sok: search, tiltakstyper: [tiltakstype.id] }}
+            action={(avtale) => (
+              <Button
+                size="small"
+                variant="tertiary"
+                type="button"
+                onClick={() => {
+                  kopierRedaksjoneltInnhold(avtale);
 
-                    // Ved å endre `key` så tvinger vi en update av den underliggende Slate-komponenten slik at
-                    // innhold i komponenten blir resatt til å reflektere den nye tilstanden i skjemaet
-                    setKey(key + 1);
+                  // Ved å endre `key` så tvinger vi en update av den underliggende Slate-komponenten slik at
+                  // innhold i komponenten blir resatt til å reflektere den nye tilstanden i skjemaet
+                  setKey(key + 1);
 
-                    setModalOpen(false);
-                  }}
-                >
-                  Kopier innhold
-                </Button>
-              )}
-            />
-          ) : null}
+                  setModalOpen(false);
+                }}
+              >
+                Kopier innhold
+              </Button>
+            )}
+          />
         </Modal.Body>
       </Modal>
     </>
