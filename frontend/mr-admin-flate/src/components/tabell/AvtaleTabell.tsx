@@ -1,4 +1,3 @@
-import { faro } from "@grafana/faro-web-sdk";
 import { Alert, Button, Checkbox, Pagination, Table } from "@navikt/ds-react";
 import classNames from "classnames";
 import { WritableAtom, useAtom } from "jotai";
@@ -72,7 +71,6 @@ export const AvtaleTabell = ({ avtalefilter, paginerteAvtaler, isLoading }: Prop
   const link = createRef<HTMLAnchorElement>();
 
   async function lastNedExcel() {
-    faro?.api?.pushEvent("Bruker trykket på 'Last ned Excel'-knapp");
     setLasterExcel(true);
     if (excelUrl) {
       setExcelUrl("");
