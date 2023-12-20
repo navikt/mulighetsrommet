@@ -95,8 +95,14 @@ class ArenaAdapterService(
 
         val gjennomforing = db.transactionSuspend { tx ->
             tiltaksgjennomforinger.upsertArenaTiltaksgjennomforing(tiltaksgjennomforingMedAvtale, tx)
+
             val gjennomforing = tiltaksgjennomforinger.get(tiltaksgjennomforing.id, tx)!!
             logUpdate(tx, DocumentClass.TILTAKSGJENNOMFORING, gjennomforing.id, gjennomforing)
+
+            gjennomforing.avtaleId?.let { avtaleId ->
+                avtaler.setLeverandorUnderenhet(tx, avtaleId, gjennomforing.arrangor.organisasjonsnummer)
+            }
+
             tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingDto.from(gjennomforing))
 
             if (shouldBeManagedInSanity(gjennomforing)) {
