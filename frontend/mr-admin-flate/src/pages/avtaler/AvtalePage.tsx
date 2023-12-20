@@ -1,22 +1,23 @@
 import { Alert, Heading, Tabs } from "@navikt/ds-react";
-import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { Toggles } from "mulighetsrommet-api-client";
+import { useTitle } from "mulighetsrommet-frontend-common";
+import { Link, Outlet, useLocation } from "react-router-dom";
 import { useAvtale } from "../../api/avtaler/useAvtale";
+import { useFeatureToggle } from "../../api/features/feature-toggles";
 import { Header } from "../../components/detaljside/Header";
+import headerStyles from "../../components/detaljside/Header.module.scss";
 import { Laster } from "../../components/laster/Laster";
 import { AvtalestatusTag } from "../../components/statuselementer/AvtalestatusTag";
 import { useGetAvtaleIdFromUrlOrThrow } from "../../hooks/useGetAvtaleIdFromUrl";
-import commonStyles from "../Page.module.scss";
-import headerStyles from "../../components/detaljside/Header.module.scss";
-import styles from "./DetaljerAvtalePage.module.scss";
+import { useNavigateAndReplaceUrl } from "../../hooks/useNavigateWithoutReplacingUrl";
 import { ContainerLayout } from "../../layouts/ContainerLayout";
-import { useTitle } from "mulighetsrommet-frontend-common";
-import { Toggles } from "mulighetsrommet-api-client";
-import { useFeatureToggle } from "../../api/features/feature-toggles";
+import commonStyles from "../Page.module.scss";
+import styles from "./DetaljerAvtalePage.module.scss";
 
 export function AvtalePage() {
   const avtaleId = useGetAvtaleIdFromUrlOrThrow();
   const { pathname } = useLocation();
-  const navigate = useNavigate();
+  const { navigateAndReplaceUrl } = useNavigateAndReplaceUrl();
   const { data: showNotater } = useFeatureToggle(Toggles.MULIGHETSROMMET_ADMIN_FLATE_SHOW_NOTATER);
   const { data: avtale, isPending } = useAvtale();
   useTitle(`Avtale ${avtale?.navn ? `- ${avtale.navn}` : ""}`);
@@ -65,14 +66,14 @@ export function AvtalePage() {
           <Tabs.Tab
             value="info"
             label="Avtaleinfo"
-            onClick={() => navigate(`/avtaler/${avtaleId}`)}
+            onClick={() => navigateAndReplaceUrl(`/avtaler/${avtaleId}`)}
             aria-controls="panel"
           />
           {showNotater && (
             <Tabs.Tab
               value="notater"
               label="Notater"
-              onClick={() => navigate(`/avtaler/${avtaleId}/notater`)}
+              onClick={() => navigateAndReplaceUrl(`/avtaler/${avtaleId}/notater`)}
               aria-controls="panel"
               data-testid="notater-tab"
             />
@@ -80,7 +81,7 @@ export function AvtalePage() {
           <Tabs.Tab
             value="tiltaksgjennomforinger"
             label="Gjennomføringer"
-            onClick={() => navigate(`/avtaler/${avtaleId}/tiltaksgjennomforinger`)}
+            onClick={() => navigateAndReplaceUrl(`/avtaler/${avtaleId}/tiltaksgjennomforinger`)}
             aria-controls="panel"
             data-testid="gjennomforinger-tab"
           />
