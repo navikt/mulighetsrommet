@@ -5,10 +5,12 @@ import io.kotest.common.runBlocking
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.data.blocking.forAll
 import io.kotest.data.row
+import io.kotest.matchers.shouldBe
 import io.mockk.clearAllMocks
 import io.mockk.mockk
 import io.mockk.verify
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
+import no.nav.mulighetsrommet.api.domain.dto.AvtaleAdminDto
 import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingDto
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
@@ -255,8 +257,9 @@ class ArenaAdapterServiceTest : FunSpec({
 
             verify(exactly = 1) {
                 val expectedNotification: ScheduledNotification = match<ScheduledNotification> {
-                    it.type == NotificationType.TASK &&
-                        it.targets.containsAll(listOf(domain.ansatte[0].navIdent, domain.ansatte[1].navIdent))
+                    it.type == NotificationType.TASK && it.targets.containsAll(
+                        listOf(domain.ansatte[0].navIdent, domain.ansatte[1].navIdent),
+                    )
                 }
                 notificationService.scheduleNotification(expectedNotification, any())
             }
@@ -289,8 +292,9 @@ class ArenaAdapterServiceTest : FunSpec({
 
             verify(exactly = 1) {
                 val expectedNotification: ScheduledNotification = match<ScheduledNotification> {
-                    it.type == NotificationType.TASK &&
-                        it.targets.containsAll(listOf(domain.ansatte[0].navIdent))
+                    it.type == NotificationType.TASK && it.targets.containsAll(
+                        listOf(domain.ansatte[0].navIdent),
+                    )
                 }
                 notificationService.scheduleNotification(expectedNotification, any())
             }
@@ -431,6 +435,22 @@ class ArenaAdapterServiceTest : FunSpec({
             }
         }
 
+        test("should update avtale underleverandor") {
+            val avtaler = AvtaleRepository(database.db)
+            val a = avtale.copy(id = UUID.randomUUID())
+
+            service.upsertTiltakstype(tiltakstype)
+            service.upsertAvtale(a)
+
+            service.upsertTiltaksgjennomforing(tiltaksgjennomforing.copy(avtaleId = a.id))
+
+            avtaler.get(a.id)?.leverandorUnderenheter shouldBe listOf(
+                AvtaleAdminDto.LeverandorUnderenhet(
+                    organisasjonsnummer = tiltaksgjennomforing.arrangorOrganisasjonsnummer,
+                ),
+            )
+        }
+
         test("varsler administratorer basert på hovedenhet når gjennomføring har endringer") {
             val domain = MulighetsrommetTestDomain(
                 enheter = listOf(NavEnhetFixtures.IT),
@@ -453,8 +473,9 @@ class ArenaAdapterServiceTest : FunSpec({
 
             verify(exactly = 1) {
                 val expectedNotification: ScheduledNotification = match<ScheduledNotification> {
-                    it.type == NotificationType.TASK &&
-                        it.targets.containsAll(listOf(domain.ansatte[0].navIdent, domain.ansatte[1].navIdent))
+                    it.type == NotificationType.TASK && it.targets.containsAll(
+                        listOf(domain.ansatte[0].navIdent, domain.ansatte[1].navIdent),
+                    )
                 }
                 notificationService.scheduleNotification(expectedNotification, any())
             }
@@ -492,8 +513,9 @@ class ArenaAdapterServiceTest : FunSpec({
 
             verify(exactly = 1) {
                 val expectedNotification: ScheduledNotification = match<ScheduledNotification> {
-                    it.type == NotificationType.TASK &&
-                        it.targets.containsAll(listOf(domain.ansatte[0].navIdent))
+                    it.type == NotificationType.TASK && it.targets.containsAll(
+                        listOf(domain.ansatte[0].navIdent),
+                    )
                 }
                 notificationService.scheduleNotification(expectedNotification, any())
             }

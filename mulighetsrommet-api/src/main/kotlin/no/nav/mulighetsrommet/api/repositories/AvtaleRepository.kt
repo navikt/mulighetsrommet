@@ -106,13 +106,6 @@ class AvtaleRepository(private val db: Database) {
         """.trimIndent()
 
         @Language("PostgreSQL")
-        val upsertUnderenheter = """
-             insert into avtale_underleverandor (avtale_id, organisasjonsnummer)
-             values (?::uuid, ?)
-             on conflict (avtale_id, organisasjonsnummer) do nothing
-        """.trimIndent()
-
-        @Language("PostgreSQL")
         val deleteUnderenheter = """
              delete from avtale_underleverandor
              where avtale_id = ?::uuid and not (organisasjonsnummer = any (?))
@@ -149,11 +142,7 @@ class AvtaleRepository(private val db: Database) {
         ).asExecute.let { tx.run(it) }
 
         avtale.leverandorUnderenheter.forEach { underenhet ->
-            queryOf(
-                upsertUnderenheter,
-                avtale.id,
-                underenhet,
-            ).asExecute.let { tx.run(it) }
+            setLeverandorUnderenhet(tx, avtale.id, underenhet)
         }
 
         queryOf(
@@ -333,6 +322,19 @@ class AvtaleRepository(private val db: Database) {
 
         queryOf(query, mapOf("id" to id, "status" to status.name))
             .asUpdate
+            .let { tx.run(it) }
+    }
+
+    fun setLeverandorUnderenhet(tx: Session, avtaleId: UUID, organisasjonsnummer: String) {
+        @Language("PostgreSQL")
+        val query = """
+             insert into avtale_underleverandor (avtale_id, organisasjonsnummer)
+             values (?::uuid, ?)
+             on conflict (avtale_id, organisasjonsnummer) do nothing
+        """.trimIndent()
+
+        queryOf(query, avtaleId, organisasjonsnummer)
+            .asExecute
             .let { tx.run(it) }
     }
 
