@@ -12,9 +12,9 @@ class LocalTimeSerializerTest : FunSpec({
         Json.decodeFromString(LocalTimeSerializer, "\"12:32\"") shouldBe LocalTime.of(12, 32)
     }
 
-    test("should encode int as int") {
-        Json.encodeToString(LocalTimeSerializer, LocalTime.of(12, 0)) shouldBe "\"12:00\""
-        Json.encodeToString(LocalTimeSerializer, LocalTime.of(0, 12)) shouldBe "\"00:12\""
-        Json.encodeToString(LocalTimeSerializer, LocalTime.of(12, 32)) shouldBe "\"12:32\""
+    test("should encode correctly") {
+        Json.encodeToString(LocalTimeSerializer, LocalTime.of(12, 0, 0)) shouldBe "\"12:00:00\""
+        Json.encodeToString(LocalTimeSerializer, LocalTime.of(0, 12)) shouldBe "\"00:12:00\""
+        Json.encodeToString(LocalTimeSerializer, LocalTime.of(12, 32)) shouldBe "\"12:32:00\""
     }
 })

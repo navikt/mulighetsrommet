@@ -17,9 +17,13 @@ class ArenaMigreringTiltaksgjennomforingKafkaProducer(
 
     data class Config(
         val topic: String,
+        val tiltakstyper: List<String>,
     )
 
     fun publish(value: ArenaMigreringTiltaksgjennomforingDto) {
+        if (!config.tiltakstyper.contains(value.tiltakskode)) {
+            return
+        }
         val record: ProducerRecord<String, String?> = ProducerRecord(
             config.topic,
             value.id.toString(),

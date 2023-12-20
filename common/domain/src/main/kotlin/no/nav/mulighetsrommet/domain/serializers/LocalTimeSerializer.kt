@@ -6,6 +6,7 @@ import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 
 object LocalTimeSerializer : KSerializer<LocalTime> {
     override val descriptor = PrimitiveSerialDescriptor("LocalTime", PrimitiveKind.STRING)
@@ -15,6 +16,6 @@ object LocalTimeSerializer : KSerializer<LocalTime> {
     }
 
     override fun serialize(encoder: Encoder, value: LocalTime) {
-        encoder.encodeString(value.toString())
+        encoder.encodeString(value.format(DateTimeFormatter.ISO_TIME))
     }
 }
