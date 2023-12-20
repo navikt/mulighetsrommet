@@ -9,7 +9,7 @@ import { AvtaleListe } from "./AvtaleListe";
 import { InferredAvtaleSchema } from "./AvtaleSchema";
 
 interface Props {
-  tiltakstype: EmbeddedTiltakstype;
+  tiltakstype?: EmbeddedTiltakstype;
 }
 
 export function AvtaleRedaksjoneltInnholdForm({ tiltakstype }: Props) {
@@ -67,27 +67,29 @@ export function AvtaleRedaksjoneltInnholdForm({ tiltakstype }: Props) {
             value={search}
           />
 
-          <AvtaleListe
-            filter={{ sok: search, tiltakstyper: [tiltakstype.id] }}
-            action={(avtale) => (
-              <Button
-                size="small"
-                variant="tertiary"
-                type="button"
-                onClick={() => {
-                  kopierRedaksjoneltInnhold(avtale);
+          {tiltakstype?.id ? (
+            <AvtaleListe
+              filter={{ sok: search, tiltakstyper: [tiltakstype.id] }}
+              action={(avtale) => (
+                <Button
+                  size="small"
+                  variant="tertiary"
+                  type="button"
+                  onClick={() => {
+                    kopierRedaksjoneltInnhold(avtale);
 
-                  // Ved å endre `key` så tvinger vi en update av den underliggende Slate-komponenten slik at
-                  // innhold i komponenten blir resatt til å reflektere den nye tilstanden i skjemaet
-                  setKey(key + 1);
+                    // Ved å endre `key` så tvinger vi en update av den underliggende Slate-komponenten slik at
+                    // innhold i komponenten blir resatt til å reflektere den nye tilstanden i skjemaet
+                    setKey(key + 1);
 
-                  setModalOpen(false);
-                }}
-              >
-                Kopier innhold
-              </Button>
-            )}
-          />
+                    setModalOpen(false);
+                  }}
+                >
+                  Kopier innhold
+                </Button>
+              )}
+            />
+          ) : null}
         </Modal.Body>
       </Modal>
     </>
