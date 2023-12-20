@@ -54,7 +54,7 @@ function PortableTextEditor(props: PortableTextEditorProps, _: ForwardedRef<HTML
     description,
     ...rest
   } = props;
-  const [focused, setFocused] = React.useState(true);
+  const [focused, setFocused] = React.useState(false);
   const renderElement = useCallback((props: any) => <Element {...props} />, []);
   const renderLeaf = useCallback((props: any) => <Leaf {...props} />, []);
   const editor = useMemo(() => withLinks(withHistory(withReact(createEditor()))), []);
