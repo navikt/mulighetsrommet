@@ -19,7 +19,12 @@ export function FilterAndTableLayout(props: Props) {
 
   return (
     <div className={styles.container}>
-      <Tabs className={styles.filter_tabs} size="medium" value={filterSelected ? "filter" : ""}>
+      <Tabs
+        className={styles.filter_tabs}
+        size="medium"
+        value={filterSelected ? "filter" : ""}
+        data-testid="filter_tabs"
+      >
         <Tabs.List>
           <Tabs.Tab
             className={styles.filter_tab}
