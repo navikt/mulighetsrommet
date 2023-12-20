@@ -1,4 +1,4 @@
-import { Button, Heading, HStack, Modal, Search } from "@navikt/ds-react";
+import { Alert, Button, Heading, HStack, Modal, Search } from "@navikt/ds-react";
 import { Avtale, EmbeddedTiltakstype } from "mulighetsrommet-api-client";
 import { RedaksjoneltInnholdForm } from "../redaksjonelt-innhold/RedaksjoneltInnholdForm";
 import { useFormContext } from "react-hook-form";
@@ -7,9 +7,10 @@ import { RedaksjoneltInnholdContainer } from "../redaksjonelt-innhold/Redaksjone
 import styles from "../modal/LeggTilGjennomforingModal.module.scss";
 import { AvtaleListe } from "./AvtaleListe";
 import { InferredAvtaleSchema } from "./AvtaleSchema";
+import skjemastyles from "../skjema/Skjema.module.scss";
 
 interface Props {
-  tiltakstype: EmbeddedTiltakstype;
+  tiltakstype?: EmbeddedTiltakstype;
 }
 
 export function AvtaleRedaksjoneltInnholdForm({ tiltakstype }: Props) {
@@ -23,6 +24,14 @@ export function AvtaleRedaksjoneltInnholdForm({ tiltakstype }: Props) {
   function kopierRedaksjoneltInnhold({ beskrivelse, faneinnhold }: Avtale) {
     setValue("beskrivelse", beskrivelse ?? null);
     setValue("faneinnhold", faneinnhold ?? null);
+  }
+
+  if (!tiltakstype) {
+    return (
+      <div className={skjemastyles.container}>
+        <Alert variant="info">Tiltakstype må velges før redaksjonelt innhold kan redigeres.</Alert>
+      </div>
+    );
   }
 
   return (

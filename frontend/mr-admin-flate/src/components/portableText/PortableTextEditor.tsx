@@ -1,16 +1,16 @@
-import React, { ForwardedRef, useCallback, useMemo } from "react";
-import isUrl from "is-url";
 import { BulletListIcon, LinkIcon } from "@navikt/aksel-icons";
-import styles from "./PortableTextEditor.module.scss";
-import isHotkey from "is-hotkey";
-import { Editable, Slate, useSlate, withReact } from "slate-react";
-import { createEditor, Editor, Element as SlateElement, Range, Transforms } from "slate";
-import { withHistory } from "slate-history";
 import type { PortableTextBlock } from "@portabletext/types";
-import { slateToPortableText } from "./slateToPortableText";
-import { portableTextToSlate } from "./portableTextToSlate";
 import classnames from "classnames";
+import isHotkey from "is-hotkey";
+import isUrl from "is-url";
+import React, { ForwardedRef, useCallback, useMemo } from "react";
 import { Controller } from "react-hook-form";
+import { Editor, Range, Element as SlateElement, Transforms, createEditor } from "slate";
+import { withHistory } from "slate-history";
+import { Editable, Slate, useSlate, withReact } from "slate-react";
+import styles from "./PortableTextEditor.module.scss";
+import { portableTextToSlate } from "./portableTextToSlate";
+import { slateToPortableText } from "./slateToPortableText";
 
 const HOTKEYS: {
   [name: string]: string;
@@ -140,6 +140,7 @@ function PortableTextEditor(props: PortableTextEditorProps, _: ForwardedRef<HTML
                     renderElement={renderElement}
                     renderLeaf={renderLeaf}
                     placeholder={placeholder}
+                    onFocusCapture={() => setFocused(true)}
                     onFocus={() => setFocused(true)}
                     onBlur={() => setFocused(false)}
                     onKeyDown={(event) => {
