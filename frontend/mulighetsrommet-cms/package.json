@@ -23,10 +23,10 @@
     "react-icons": "4.12.0",
     "react-switch": "7.0.0",
     "sanity": "3.21.1",
-    "styled-components": "6.1.1"
+    "styled-components": "6.1.2"
   },
   "devDependencies": {
-    "@types/react": "18.2.43",
+    "@types/react": "18.2.45",
     "sass": "1.69.5"
   }
 }
