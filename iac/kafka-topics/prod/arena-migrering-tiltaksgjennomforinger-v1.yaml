@@ -19,3 +19,6 @@ spec:
     - team: team-mulighetsrommet
       application: mulighetsrommet-kafka-manager
       access: read
+    - team: teamarenanais
+      application: arena-tiltakshendelse
+      access: read
