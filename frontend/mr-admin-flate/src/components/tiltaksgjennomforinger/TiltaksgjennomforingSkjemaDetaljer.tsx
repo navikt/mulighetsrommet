@@ -228,7 +228,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                 label="NAV-region"
                 placeholder="Velg en"
                 {...register("navRegion")}
-                onInputChange={() => {
+                onChange={() => {
                   setValue("navEnheter", []);
                 }}
                 options={regionerOptions}

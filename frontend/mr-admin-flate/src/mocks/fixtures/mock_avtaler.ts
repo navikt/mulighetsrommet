@@ -51,6 +51,7 @@ export const mockAvtaler: Avtale[] = [
     updatedAt: new Date().toISOString(),
     kontorstruktur: [
       { region: mockEnheter._0300, kontorer: [mockEnheter._0313, mockEnheter._0318] },
+      { region: mockEnheter._0400, kontorer: [mockEnheter._0425, mockEnheter._0402, mockEnheter._0415] },
     ],
   },
   {
