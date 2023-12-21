@@ -4,7 +4,7 @@ import { QueryKeys } from "../QueryKeys";
 import { AvtaleFilter } from "../atoms";
 import { mulighetsrommetClient } from "../clients";
 
-export function useAvtaler(filter: Partial<AvtaleFilter>, page: number = 1) {
+export function useAvtaler(filter: Partial<AvtaleFilter>) {
   const debouncedSok = useDebounce(filter.sok?.trim(), 300);
 
   const queryFilter = {
@@ -13,13 +13,16 @@ export function useAvtaler(filter: Partial<AvtaleFilter>, page: number = 1) {
     statuser: filter.statuser,
     navRegioner: filter.navRegioner,
     sort: filter.sortering,
-    page,
-    size: filter.antallAvtalerVises,
-    leverandorOrgnr: filter.leverandor_orgnr,
+    page: filter.page ?? 1,
+    size: filter.pageSize,
+    leverandorOrgnr: filter.leverandor,
   };
 
   return useQuery({
-    queryKey: QueryKeys.avtaler(filter.visMineAvtaler, page, { ...filter, sok: debouncedSok }),
+    queryKey: QueryKeys.avtaler(filter.visMineAvtaler, queryFilter.page, {
+      ...filter,
+      sok: debouncedSok,
+    }),
 
     queryFn: () => {
       return filter.visMineAvtaler

@@ -1,5 +1,6 @@
 import { Button } from "@navikt/ds-react";
-import { WritableAtom, useAtom } from "jotai";
+import { useAtom, WritableAtom } from "jotai";
+import { shallowEquals } from "mulighetsrommet-frontend-common";
 import { AvtaleFilter, defaultAvtaleFilter } from "../../api/atoms";
 import { Lenkeknapp } from "../lenkeknapp/Lenkeknapp";
 
@@ -20,26 +21,20 @@ export function AvtaleFilterButtons({ filterAtom }: Props) {
         alignItems: "center",
       }}
     >
-      {filter.sok.length > 0 ||
-      filter.navRegioner.length > 0 ||
-      filter.tiltakstyper.length > 0 ||
-      filter.statuser.length > 0 ||
-      filter.leverandor_orgnr.length > 0 ? (
+      {!shallowEquals(filter, defaultAvtaleFilter) ? (
         <Button
           type="button"
           size="small"
           style={{ maxWidth: "130px" }}
           variant="tertiary"
           onClick={() => {
-            setFilter({ ...defaultAvtaleFilter });
+            setFilter(defaultAvtaleFilter);
           }}
         >
           Nullstill filter
         </Button>
-      ) : (
-        <div></div>
-      )}
-      <Lenkeknapp to={`/avtaler/skjema`} size="small" variant="primary">
+      ) : null}
+      <Lenkeknapp to="/avtaler/skjema" size="small" variant="primary">
         Opprett ny avtale
       </Lenkeknapp>
     </div>

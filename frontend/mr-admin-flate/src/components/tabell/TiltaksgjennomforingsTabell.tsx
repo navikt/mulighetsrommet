@@ -1,20 +1,18 @@
 import { Alert, Checkbox, Pagination, Table, Tag, VStack } from "@navikt/ds-react";
-import { useAtom } from "jotai";
-import {
-  PaginertTiltaksgjennomforing,
-  SorteringTiltaksgjennomforinger,
-} from "mulighetsrommet-api-client";
+import { useAtom, WritableAtom } from "jotai";
+import { SorteringTiltaksgjennomforinger } from "mulighetsrommet-api-client";
 import Lenke from "mulighetsrommet-veileder-flate/src/components/lenke/Lenke";
 import React from "react";
-import { gjennomforingPaginationAtom, tiltaksgjennomforingfilterAtom } from "../../api/atoms";
+import { TiltaksgjennomforingFilter } from "../../api/atoms";
 import { useSort } from "../../hooks/useSort";
 import pageStyles from "../../pages/Page.module.scss";
-import { formaterDato, formaterNavEnheter, resetPaginering } from "../../utils/Utils";
+import { formaterDato, formaterNavEnheter } from "../../utils/Utils";
 import { Laster } from "../laster/Laster";
 import { PagineringContainer } from "../paginering/PagineringContainer";
 import { PagineringsOversikt } from "../paginering/PagineringOversikt";
 import { TiltaksgjennomforingstatusTag } from "../statuselementer/TiltaksgjennomforingstatusTag";
 import styles from "./Tabell.module.scss";
+import { useAdminTiltaksgjennomforinger } from "../../api/tiltaksgjennomforing/useAdminTiltaksgjennomforinger";
 
 interface ColumnHeader {
   sortKey: Kolonne;
@@ -93,27 +91,21 @@ type Kolonne =
 
 interface Props {
   skjulKolonner?: Partial<Record<Kolonne, boolean>>;
-  paginerteTiltaksgjennomforinger?: PaginertTiltaksgjennomforing;
-  isLoading: boolean;
+  filterAtom: WritableAtom<TiltaksgjennomforingFilter, TiltaksgjennomforingFilter[], void>;
 }
 
 const SkjulKolonne = ({ children, skjul }: { children: React.ReactNode; skjul: boolean }) => {
   return skjul ? null : <>{children}</>;
 };
 
-export const TiltaksgjennomforingsTabell = ({
-  skjulKolonner,
-  paginerteTiltaksgjennomforinger,
-  isLoading,
-}: Props) => {
-  const [page, setPage] = useAtom(gjennomforingPaginationAtom);
+export const TiltaksgjennomforingsTabell = ({ skjulKolonner, filterAtom }: Props) => {
   const [sort, setSort] = useSort("navn");
-  const [filter, setFilter] = useAtom(tiltaksgjennomforingfilterAtom);
-  const pagination = paginerteTiltaksgjennomforinger?.pagination;
-  const tiltaksgjennomforinger = paginerteTiltaksgjennomforinger?.data ?? [];
+  const [filter, setFilter] = useAtom(filterAtom);
 
-  if (!tiltaksgjennomforinger || isLoading) {
-    return <Laster size="xlarge" tekst="Laster tiltaksgjennomføringer..." />;
+  const { data, isLoading } = useAdminTiltaksgjennomforinger(filter);
+
+  function updateFilter(newFilter: Partial<TiltaksgjennomforingFilter>) {
+    setFilter({ ...filter, ...newFilter });
   }
 
   const handleSort = (sortKey: string) => {
@@ -125,43 +117,44 @@ export const TiltaksgjennomforingsTabell = ({
           : "descending"
         : "ascending";
 
-    if (sort.orderBy !== sortKey || sort.direction !== direction) {
-      setPage(1); // Hvis sort har endret seg resetter vi første page
-    }
-
     setSort({
       orderBy: sortKey,
       direction,
     });
 
-    setFilter({
-      ...filter,
+    updateFilter({
       sortering: `${sortKey}-${direction}` as SorteringTiltaksgjennomforinger,
+      page: sort.orderBy !== sortKey || sort.direction !== direction ? 1 : filter.page,
     });
   };
+
+  if (!data || isLoading) {
+    return <Laster size="xlarge" tekst="Laster tiltaksgjennomføringer..." />;
+  }
+
+  const { pagination, data: tiltaksgjennomforinger } = data;
 
   return (
     <div className={styles.tabell_wrapper}>
       <div className={styles.flex}>
         <PagineringsOversikt
-          page={page}
+          page={filter.page}
           antall={tiltaksgjennomforinger.length}
           maksAntall={pagination?.totalCount}
           type="tiltaksgjennomføringer"
-          antallVises={filter.antallGjennomforingerVises}
+          antallVises={filter.pageSize}
           setAntallVises={(size) => {
-            resetPaginering(setPage);
-            setFilter({
-              ...filter,
-              antallGjennomforingerVises: size,
+            updateFilter({
+              page: 1,
+              pageSize: size,
             });
           }}
         />
         <Checkbox
           checked={filter.visMineGjennomforinger}
           onChange={(event) => {
-            setFilter({
-              ...filter,
+            updateFilter({
+              page: 1,
               visMineGjennomforinger: event.currentTarget.checked,
             });
           }}
@@ -316,21 +309,20 @@ export const TiltaksgjennomforingsTabell = ({
       {tiltaksgjennomforinger.length > 0 ? (
         <PagineringContainer>
           <PagineringsOversikt
-            page={page}
+            page={filter.page}
             antall={tiltaksgjennomforinger.length}
             maksAntall={pagination?.totalCount}
             type="tiltaksgjennomføringer"
-            antallVises={filter.antallGjennomforingerVises}
+            antallVises={filter.pageSize}
           />
           <Pagination
             className={pageStyles.pagination}
             size="small"
-            page={page}
-            onPageChange={setPage}
-            count={Math.ceil(
-              (pagination?.totalCount ?? filter.antallGjennomforingerVises) /
-                filter.antallGjennomforingerVises,
-            )}
+            page={filter.page}
+            onPageChange={(page) => {
+              updateFilter({ page });
+            }}
+            count={Math.ceil((pagination?.totalCount ?? filter.pageSize) / filter.pageSize)}
             data-version="v1"
           />
         </PagineringContainer>
