@@ -20,9 +20,6 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-env:
-  APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
-
 jobs:
   ci:
     name: CI
@@ -39,10 +36,12 @@ jobs:
     runs-on: ubuntu-latest
     needs: [ci]
     if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
+    permissions:
+      id-token: write # Needed for `nais/deploy/actions/deploy`
     steps:
       - uses: actions/checkout@v4
       - name: Deploy (dev)
-        uses: nais/deploy/actions/deploy@v1
+        uses: nais/deploy/actions/deploy@v2
         env:
           CLUSTER: dev-gcp
           RESOURCE: frontend/mr-admin-flate/.nais/nais-dev.yaml
@@ -51,10 +50,12 @@ jobs:
     runs-on: ubuntu-latest
     needs: [ci]
     if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
+    permissions:
+      id-token: write # Needed for `nais/deploy/actions/deploy`
     steps:
       - uses: actions/checkout@v4
       - name: Deploy (demo)
-        uses: nais/deploy/actions/deploy@v1
+        uses: nais/deploy/actions/deploy@v2
         env:
           CLUSTER: dev-gcp
           RESOURCE: frontend/mr-admin-flate/.nais/nais-demo.yaml
@@ -63,10 +64,12 @@ jobs:
     runs-on: ubuntu-latest
     needs: [ci, deploy-dev, deploy-demo]
     if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'dev_and_prod'
+    permissions:
+      id-token: write # Needed for `nais/deploy/actions/deploy`
     steps:
       - uses: actions/checkout@v4
       - name: Deploy (prod)
-        uses: nais/deploy/actions/deploy@v1
+        uses: nais/deploy/actions/deploy@v2
         env:
           CLUSTER: prod-gcp
           RESOURCE: frontend/mr-admin-flate/.nais/nais-prod.yaml
