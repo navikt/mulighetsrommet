@@ -7,7 +7,8 @@ import {
   Tiltakstypekategori,
   Tiltakstypestatus,
 } from "mulighetsrommet-api-client";
-import { atom } from "jotai";
+import { atom, WritableAtom } from "jotai";
+import { atomFamily } from "jotai/utils";
 import { AVTALE_PAGE_SIZE, PAGE_SIZE } from "../constants";
 
 // Bump version number when localStorage should be cleared
@@ -34,7 +35,10 @@ function atomWithStorage<Value>(key: string, initialValue: Value, storage = loca
   );
 }
 
-function atomWithHashAndStorage<Value>(key: string, initialValue: Value) {
+function atomWithHashAndStorage<Value>(
+  key: string,
+  initialValue: Value,
+): WritableAtom<Value, Value[], void> {
   const setHash = (hash: string) => {
     const searchParams = new URLSearchParams(window.location.hash.slice(1));
     searchParams.set(key, hash);
@@ -74,7 +78,7 @@ export const defaultTiltakstypeFilter: TiltakstypeFilter = {
 };
 
 export const tiltakstypeFilterAtom = atomWithHashAndStorage<TiltakstypeFilter>(
-  "tiltakstypefilter",
+  "tiltakstype-filter",
   defaultTiltakstypeFilter,
 );
 
@@ -107,15 +111,19 @@ export const defaultTiltaksgjennomforingfilter: TiltaksgjennomforingFilter = {
 };
 
 export const tiltaksgjennomforingfilterAtom = atomWithHashAndStorage<TiltaksgjennomforingFilter>(
-  "tiltaksgjennomforingFilter",
+  "tiltaksgjennomforing-filter",
   defaultTiltaksgjennomforingfilter,
 );
 
-export const tiltaksgjennomforingfilterForAvtaleAtom =
-  atomWithHashAndStorage<TiltaksgjennomforingFilter>(
-    "tiltaksgjennomforingFilterForAvtale",
-    defaultTiltaksgjennomforingfilter,
-  );
+export const gjennomforingerForAvtaleFilterAtomFamily = atomFamily<
+  string,
+  WritableAtom<TiltaksgjennomforingFilter, [newValue: TiltaksgjennomforingFilter], void>
+>((avtaleId: string) => {
+  return atomWithHashAndStorage(`tiltaksgjennomforing-filter-${avtaleId}`, {
+    ...defaultTiltaksgjennomforingfilter,
+    avtale: avtaleId,
+  });
+});
 
 export interface AvtaleFilter {
   sok: string;
@@ -142,14 +150,19 @@ export const defaultAvtaleFilter: AvtaleFilter = {
 };
 
 export const avtaleFilterAtom = atomWithHashAndStorage<AvtaleFilter>(
-  "avtalefilter",
+  "avtale-filter",
   defaultAvtaleFilter,
 );
 
-export const avtaleFilterForTiltakstypeAtom = atomWithHashAndStorage<AvtaleFilter>(
-  "avtalefilterForTiltakstype",
-  defaultAvtaleFilter,
-);
+export const getAvtalerForTiltakstypeFilterAtom = atomFamily<
+  string,
+  WritableAtom<AvtaleFilter, [newValue: AvtaleFilter], void>
+>((tiltakstypeId: string) => {
+  return atomWithHashAndStorage(`avtale-filter-${tiltakstypeId}`, {
+    ...defaultAvtaleFilter,
+    tiltakstyper: [tiltakstypeId],
+  });
+});
 
 export const gjennomforingDetaljerTabAtom = atom<string>("detaljer");
 
