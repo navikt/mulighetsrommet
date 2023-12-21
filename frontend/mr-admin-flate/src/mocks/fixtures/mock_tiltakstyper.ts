@@ -96,6 +96,7 @@ export const paginertMockTiltakstyper: PaginertTiltakstype = {
     totalCount: Object.values(mockTiltakstyper).length,
     currentPage: 1,
     pageSize: 50,
+    totalPages: 1,
   },
   data: Object.values(mockTiltakstyper),
 };

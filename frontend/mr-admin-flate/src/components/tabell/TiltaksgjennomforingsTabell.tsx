@@ -139,11 +139,11 @@ export const TiltaksgjennomforingsTabell = ({ skjulKolonner, filterAtom }: Props
       <div className={styles.flex}>
         <PagineringsOversikt
           page={filter.page}
+          pageSize={filter.pageSize}
           antall={tiltaksgjennomforinger.length}
-          maksAntall={pagination?.totalCount}
+          maksAntall={pagination.totalCount}
           type="tiltaksgjennomføringer"
-          antallVises={filter.pageSize}
-          setAntallVises={(size) => {
+          onChangePageSize={(size) => {
             updateFilter({
               page: 1,
               pageSize: size,
@@ -310,19 +310,19 @@ export const TiltaksgjennomforingsTabell = ({ skjulKolonner, filterAtom }: Props
         <PagineringContainer>
           <PagineringsOversikt
             page={filter.page}
+            pageSize={filter.pageSize}
             antall={tiltaksgjennomforinger.length}
-            maksAntall={pagination?.totalCount}
+            maksAntall={pagination.totalCount}
             type="tiltaksgjennomføringer"
-            antallVises={filter.pageSize}
           />
           <Pagination
             className={pageStyles.pagination}
             size="small"
             page={filter.page}
+            count={pagination.totalPages}
             onPageChange={(page) => {
               updateFilter({ page });
             }}
-            count={Math.ceil((pagination?.totalCount ?? filter.pageSize) / filter.pageSize)}
             data-version="v1"
           />
         </PagineringContainer>

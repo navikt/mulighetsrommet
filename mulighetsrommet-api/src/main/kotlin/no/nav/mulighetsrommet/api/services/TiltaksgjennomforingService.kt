@@ -87,14 +87,7 @@ class TiltaksgjennomforingService(
             skalMigreres = true,
         )
         .let { (totalCount, data) ->
-            PaginatedResponse(
-                pagination = Pagination(
-                    totalCount = totalCount,
-                    currentPage = pagination.page,
-                    pageSize = pagination.limit,
-                ),
-                data = data,
-            )
+            PaginatedResponse.of(pagination, totalCount, data)
         }
 
     fun getAllVeilederflateTiltaksgjennomforing(
@@ -130,14 +123,7 @@ class TiltaksgjennomforingService(
             administratorNavIdent = filter.administratorNavIdent,
         )
         .let { (totalCount, data) ->
-            PaginatedResponse(
-                pagination = Pagination(
-                    totalCount = totalCount,
-                    currentPage = pagination.page,
-                    pageSize = pagination.limit,
-                ),
-                data = data,
-            )
+            PaginatedResponse.of(pagination, totalCount, data)
         }
 
     fun getAllGjennomforingerSomNarmerSegSluttdato(): List<TiltaksgjennomforingNotificationDto> {

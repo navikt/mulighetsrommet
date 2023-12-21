@@ -1,6 +1,8 @@
 package no.nav.mulighetsrommet.api.routes.v1.responses
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.utils.PaginationParams
+import kotlin.math.ceil
 
 @Serializable
 data class PaginatedResponse<T>(
@@ -13,9 +15,25 @@ data class PaginatedResponse<T>(
          * Utility to wrap the [data] in a [PaginatedResponse] with a default [Pagination] derived from [data].
          */
         fun <T> of(data: List<T>): PaginatedResponse<T> = PaginatedResponse(
-            pagination = Pagination(totalCount = data.size, currentPage = 1, pageSize = data.size),
+            pagination = Pagination(
+                totalCount = data.size,
+                totalPages = 1,
+                currentPage = 1,
+                pageSize = data.size,
+            ),
             data = data,
         )
+
+        fun <T> of(pagination: PaginationParams, totalCount: Int, data: List<T>): PaginatedResponse<T> =
+            PaginatedResponse(
+                pagination = Pagination(
+                    totalCount = totalCount,
+                    currentPage = pagination.page,
+                    pageSize = pagination.limit,
+                    totalPages = ceil((totalCount.toDouble() / pagination.limit)).toInt(),
+                ),
+                data = data,
+            )
     }
 }
 
@@ -24,4 +42,5 @@ data class Pagination(
     val totalCount: Int,
     val currentPage: Int,
     val pageSize: Int,
+    val totalPages: Int,
 )

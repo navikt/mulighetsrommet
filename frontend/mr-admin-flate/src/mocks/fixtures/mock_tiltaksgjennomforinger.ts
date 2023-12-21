@@ -134,6 +134,7 @@ export const paginertMockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = 
     totalCount: 18,
     currentPage: 1,
     pageSize: 50,
+    totalPages: 1,
   },
   data: mockTiltaksgjennomforinger,
 };

@@ -122,11 +122,11 @@ export const AvtaleTabell = ({ filterAtom }: Props) => {
         <div className={styles.flex}>
           <PagineringsOversikt
             page={filter.page}
+            pageSize={filter.pageSize}
             antall={avtaler.length}
-            maksAntall={pagination?.totalCount}
+            maksAntall={pagination.totalCount}
             type="avtaler"
-            antallVises={filter.pageSize}
-            setAntallVises={(value) => {
+            onChangePageSize={(value) => {
               updateFilter({
                 page: 1,
                 pageSize: value,
@@ -238,19 +238,19 @@ export const AvtaleTabell = ({ filterAtom }: Props) => {
         <PagineringContainer>
           <PagineringsOversikt
             page={filter.page}
+            pageSize={filter.pageSize}
             antall={avtaler.length}
-            maksAntall={pagination?.totalCount}
+            maksAntall={pagination.totalCount}
             type="avtaler"
-            antallVises={filter.pageSize}
           />
           <Pagination
             className={styles.pagination}
             size="small"
             page={filter.page}
+            count={pagination.totalPages}
             onPageChange={(page) => {
               updateFilter({ page });
             }}
-            count={Math.ceil((pagination?.totalCount ?? filter.pageSize) / filter.pageSize)}
             data-version="v1"
           />
         </PagineringContainer>

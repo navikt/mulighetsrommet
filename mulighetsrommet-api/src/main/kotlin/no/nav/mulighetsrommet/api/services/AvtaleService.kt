@@ -75,14 +75,7 @@ class AvtaleService(
             administratorNavIdent = filter.administratorNavIdent,
         )
 
-        return PaginatedResponse(
-            data = items,
-            pagination = Pagination(
-                totalCount = totalCount,
-                currentPage = pagination.page,
-                pageSize = pagination.limit,
-            ),
-        )
+        return PaginatedResponse.of(pagination, totalCount, items)
     }
 
     fun getAllAvtalerSomNarmerSegSluttdato(): List<AvtaleNotificationDto> {
