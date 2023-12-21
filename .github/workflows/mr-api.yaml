@@ -69,13 +69,14 @@ jobs:
     runs-on: ubuntu-latest
     needs: [ci]
     if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
+    permissions:
+      id-token: write # Needed for `nais/deploy/actions/deploy`
     steps:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Deploy
         uses: nais/deploy/actions/deploy@v2
         env:
-          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-gcp
           RESOURCE: mulighetsrommet-api/.nais/nais-dev.yaml
           VAR: image=${{ needs.ci.outputs.image }}
@@ -85,13 +86,14 @@ jobs:
     runs-on: ubuntu-latest
     needs: [ci, deploy-dev]
     if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'dev_and_prod'
+    permissions:
+      id-token: write # Needed for `nais/deploy/actions/deploy`
     steps:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Deploy
         uses: nais/deploy/actions/deploy@v2
         env:
-          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: prod-gcp
           RESOURCE: mulighetsrommet-api/.nais/nais-prod.yaml
           VAR: image=${{ needs.ci.outputs.image }}
