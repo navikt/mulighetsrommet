@@ -100,6 +100,7 @@ export const TiltaksgjennomforingSchema = z
       })
       .nullable(),
     opphav: z.nativeEnum(Opphav),
+    ansvarligEnhet: z.string({ required_error: "Du må velge ansvarlig enhet" }),
   })
   .superRefine((data, ctx) => {
     if (

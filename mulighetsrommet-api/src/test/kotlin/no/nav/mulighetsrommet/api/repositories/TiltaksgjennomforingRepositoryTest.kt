@@ -78,7 +78,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 )
                 it.startDato shouldBe Oppfolging1.startDato
                 it.sluttDato shouldBe Oppfolging1.sluttDato
-                it.arenaAnsvarligEnhet shouldBe null
+                it.ansvarligEnhet.enhetsnummer shouldBe "2990"
                 it.status shouldBe Tiltaksgjennomforingsstatus.AVSLUTTET
                 it.apentForInnsok shouldBe true
                 it.antallPlasser shouldBe 12
@@ -161,7 +161,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 )
                 it.startDato shouldBe LocalDate.of(2023, 1, 1)
                 it.sluttDato shouldBe LocalDate.of(2023, 2, 2)
-                it.arenaAnsvarligEnhet shouldBe NavEnhetFixtures.Innlandet.toNavEnhet()
+                it.ansvarligEnhet shouldBe NavEnhetFixtures.Innlandet.toNavEnhet()
                 it.apentForInnsok shouldBe false
                 it.antallPlasser shouldBe 10
                 it.avtaleId shouldBe null
@@ -725,7 +725,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 
             val tg2 = Oppfolging1.copy(id = UUID.randomUUID())
             tiltaksgjennomforinger.upsert(tg2)
-            Query("update tiltaksgjennomforing set arena_ansvarlig_enhet = '1' where id = '${tg2.id}'")
+            Query("update tiltaksgjennomforing set ansvarlig_enhet = '1' where id = '${tg2.id}'")
                 .asUpdate
                 .let { database.db.run(it) }
 
@@ -775,7 +775,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 
             val tg2 = Oppfolging1.copy(id = UUID.randomUUID())
             tiltaksgjennomforinger.upsert(tg2)
-            Query("update tiltaksgjennomforing set arena_ansvarlig_enhet = '0101' where id = '${tg2.id}'")
+            Query("update tiltaksgjennomforing set ansvarlig_enhet = '0101' where id = '${tg2.id}'")
                 .asUpdate
                 .let { database.db.run(it) }
 
@@ -784,7 +784,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 
             val tg4 = Oppfolging1.copy(id = UUID.randomUUID())
             tiltaksgjennomforinger.upsert(tg4)
-            Query("update tiltaksgjennomforing set arena_ansvarlig_enhet = '0102' where id = '${tg4.id}'")
+            Query("update tiltaksgjennomforing set ansvarlig_enhet = '0102' where id = '${tg4.id}'")
                 .asUpdate
                 .let { database.db.run(it) }
 
@@ -966,7 +966,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         val gjennomforing = tiltaksgjennomforinger.get(ArenaOppfolging1.id)
         gjennomforing.shouldNotBeNull()
         gjennomforing.should {
-            it.arenaAnsvarligEnhet shouldBe null
+            it.ansvarligEnhet shouldBe null
         }
     }
 

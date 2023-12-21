@@ -130,7 +130,7 @@ export const tiltaksgjennomforingHandlers = [
     ({ params }) => {
       const { enhet } = params;
       const gjennomforinger = mockTiltaksgjennomforinger.filter(
-        (gj) => gj.arenaAnsvarligEnhet?.enhetsnummer === enhet,
+        (gj) => gj.ansvarligEnhet?.enhetsnummer === enhet,
       );
       return HttpResponse.json({
         pagination: {

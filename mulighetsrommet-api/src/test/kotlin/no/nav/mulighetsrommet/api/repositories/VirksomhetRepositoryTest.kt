@@ -272,6 +272,7 @@ class VirksomhetRepositoryTest : FunSpec({
                 beskrivelse = null,
                 fremmoteTidspunkt = null,
                 fremmoteSted = null,
+                ansvarligEnhet = "0100",
             )
             tiltaksgjennomforingRepository.upsert(tiltaksgjennomforing)
 

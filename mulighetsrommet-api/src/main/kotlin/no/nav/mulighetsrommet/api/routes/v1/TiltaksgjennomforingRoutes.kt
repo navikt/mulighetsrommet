@@ -129,6 +129,7 @@ data class TiltaksgjennomforingRequest(
     @Serializable(with = LocalDateTimeSerializer::class)
     val fremmoteTidspunkt: LocalDateTime? = null,
     val fremmoteSted: String? = null,
+    val ansvarligEnhet: String,
 ) {
     fun toDbo() = TiltaksgjennomforingDbo(
         id = id,
@@ -161,6 +162,7 @@ data class TiltaksgjennomforingRequest(
         beskrivelse = beskrivelse,
         fremmoteTidspunkt = fremmoteTidspunkt,
         fremmoteSted = fremmoteSted,
+        ansvarligEnhet = ansvarligEnhet,
     )
 }
 

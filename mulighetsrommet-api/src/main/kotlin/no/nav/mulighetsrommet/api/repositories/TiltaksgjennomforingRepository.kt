@@ -55,7 +55,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 beskrivelse,
                 nav_region,
                 fremmote_tidspunkt,
-                fremmote_sted
+                fremmote_sted,
+                ansvarlig_enhet
             )
             values (
                 :id::uuid,
@@ -79,7 +80,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 :beskrivelse,
                 :nav_region,
                 :fremmote_tidspunkt,
-                :fremmote_sted
+                :fremmote_sted,
+                :ansvarlig_enhet
             )
             on conflict (id)
                 do update set navn                         = excluded.navn,
@@ -102,7 +104,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                               beskrivelse                  = excluded.beskrivelse,
                               nav_region                   = excluded.nav_region,
                               fremmote_tidspunkt           = excluded.fremmote_tidspunkt,
-                              fremmote_sted                = excluded.fremmote_sted
+                              fremmote_sted                = excluded.fremmote_sted,
+                              ansvarlig_enhet              = excluded.ansvarlig_enhet
             returning *
         """.trimIndent()
 
@@ -218,7 +221,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 tiltakstype_id,
                 tiltaksnummer,
                 arrangor_organisasjonsnummer,
-                arena_ansvarlig_enhet,
+                ansvarlig_enhet,
                 start_dato,
                 slutt_dato,
                 avslutningsstatus,
@@ -236,7 +239,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 :tiltakstype_id::uuid,
                 :tiltaksnummer,
                 :arrangor_organisasjonsnummer,
-                :arena_ansvarlig_enhet,
+                :ansvarlig_enhet,
                 :start_dato,
                 :slutt_dato,
                 :avslutningsstatus::avslutningsstatus,
@@ -253,7 +256,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                               tiltakstype_id               = excluded.tiltakstype_id,
                               tiltaksnummer                = excluded.tiltaksnummer,
                               arrangor_organisasjonsnummer = excluded.arrangor_organisasjonsnummer,
-                              arena_ansvarlig_enhet        = excluded.arena_ansvarlig_enhet,
+                              ansvarlig_enhet              = excluded.ansvarlig_enhet,
                               start_dato                   = excluded.start_dato,
                               slutt_dato                   = excluded.slutt_dato,
                               avslutningsstatus            = excluded.avslutningsstatus,
@@ -393,7 +396,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
     private fun navEnheterWhereStatement(navEnheter: List<String>): String =
         navEnheter
             .joinToString(prefix = "(", postfix = ")", separator = " or ") {
-                "('$it' in (select enhetsnummer from tiltaksgjennomforing_nav_enhet tg_e where tg_e.tiltaksgjennomforing_id = id) or arena_ansvarlig_enhet::jsonb->>'enhetsnummer' = '$it')"
+                "('$it' in (select enhetsnummer from tiltaksgjennomforing_nav_enhet tg_e where tg_e.tiltaksgjennomforing_id = id) or ansvarlig_enhet::jsonb->>'enhetsnummer' = '$it')"
             }
 
     private fun tiltakstypeIderWhereStatement(tiltakstypeIder: List<UUID>): String =
@@ -405,7 +408,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
     private fun navRegionerWhereStatement(navRegioner: List<String>): String =
         navRegioner
             .joinToString(prefix = "(", postfix = ")", separator = " or ") {
-                "('$it' = nav_region_enhetsnummer or  arena_ansvarlig_enhet::jsonb->>'enhetsnummer' = '$it' or arena_ansvarlig_enhet::jsonb->>'enhetsnummer' in (select enhetsnummer from nav_enhet where overordnet_enhet = '$it'))"
+                "('$it' = nav_region_enhetsnummer or  ansvarlig_enhet::jsonb->>'enhetsnummer' = '$it' or ansvarlig_enhet::jsonb->>'enhetsnummer' in (select enhetsnummer from nav_enhet where overordnet_enhet = '$it'))"
             }
 
     private fun statuserWhereStatement(statuser: List<Tiltaksgjennomforingsstatus>): String =
@@ -589,6 +592,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         "nav_region" to navRegion,
         "fremmote_tidspunkt" to fremmoteTidspunkt,
         "fremmote_sted" to fremmoteSted,
+        "ansvarlig_enhet" to ansvarligEnhet,
     )
 
     private fun ArenaTiltaksgjennomforingDbo.toSqlParameters() = mapOf(
@@ -598,7 +602,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         "tiltaksnummer" to tiltaksnummer,
         "arrangor_organisasjonsnummer" to arrangorOrganisasjonsnummer,
         "start_dato" to startDato,
-        "arena_ansvarlig_enhet" to arenaAnsvarligEnhet,
+        "ansvarlig_enhet" to arenaAnsvarligEnhet,
         "slutt_dato" to sluttDato,
         "avslutningsstatus" to avslutningsstatus.name,
         "apent_for_innsok" to apentForInnsok,
@@ -688,11 +692,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             ),
             startDato = startDato,
             sluttDato = sluttDato,
-            arenaAnsvarligEnhet = stringOrNull("arena_ansvarlig_enhet")?.let {
-                Json.decodeFromString(
-                    it,
-                )
-            },
+            ansvarligEnhet = Json.decodeFromString(string("ansvarlig_enhet")),
             status = Tiltaksgjennomforingsstatus.fromDbo(
                 LocalDate.now(),
                 startDato,

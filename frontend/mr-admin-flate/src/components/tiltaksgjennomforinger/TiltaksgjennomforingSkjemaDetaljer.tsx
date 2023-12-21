@@ -2,6 +2,7 @@ import { PlusIcon, XMarkIcon } from "@navikt/aksel-icons";
 import { Button, Checkbox, Label, TextField, Textarea } from "@navikt/ds-react";
 import {
   Avtale,
+  NavEnhet,
   Tiltaksgjennomforing,
   TiltaksgjennomforingOppstartstype,
   Toggles,
@@ -24,6 +25,7 @@ import skjemastyles from "../skjema/Skjema.module.scss";
 import { VirksomhetKontaktpersoner } from "../virksomhet/VirksomhetKontaktpersoner";
 import { arrangorUnderenheterOptions, erArenaOpphav } from "./TiltaksgjennomforingSkjemaConst";
 import { useFeatureToggle } from "../../api/features/feature-toggles";
+import { useNavEnheter } from "../../api/enhet/useNavEnheter";
 
 interface Props {
   tiltaksgjennomforing?: Tiltaksgjennomforing;
@@ -33,10 +35,9 @@ interface Props {
 export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtale }: Props) => {
   const { data: virksomhet } = useVirksomhet(avtale.leverandor.organisasjonsnummer || "");
   const { data: betabrukere } = useHentBetabrukere();
-
   const { data: ansatt, isLoading: isLoadingAnsatt } = useHentAnsatt();
-
   const { data: kontaktpersoner, isLoading: isLoadingKontaktpersoner } = useHentKontaktpersoner();
+  const { data: enheter, isLoading: isLoadingEnheter } = useNavEnheter();
 
   const kontaktpersonerOption = (selectedIndex: number) => {
     const excludedKontaktpersoner = watch("kontaktpersoner")
@@ -216,6 +217,21 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                 tiltaksgjennomforing?.administratorer,
                 betabrukere,
               )}
+            />
+          </FormGroup>
+          <Separator />
+          <FormGroup>
+            <ControlledSokeSelect
+              size="small"
+              placeholder={isLoadingEnheter ? "Laster..." : "Velg en"}
+              label={"Ansvarlig enhet"}
+              {...register("ansvarligEnhet")}
+              options={
+                enheter?.map((enhet: NavEnhet) => ({
+                  label: enhet.navn,
+                  value: enhet.enhetsnummer,
+                })) || []
+              }
             />
           </FormGroup>
         </div>

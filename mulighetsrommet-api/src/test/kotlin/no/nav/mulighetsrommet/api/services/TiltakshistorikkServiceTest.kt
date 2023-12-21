@@ -61,6 +61,7 @@ class TiltakshistorikkServiceTest : FunSpec({
         beskrivelse = null,
         fremmoteTidspunkt = null,
         fremmoteSted = null,
+        ansvarligEnhet = "0100",
     )
 
     val tiltakshistorikkGruppe = ArenaTiltakshistorikkDbo.Gruppetiltak(

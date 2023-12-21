@@ -184,7 +184,7 @@ class ArenaAdapterService(
     }
 
     private fun maybeNotifyRelevantAdministrators(gjennomforing: TiltaksgjennomforingAdminDto) {
-        val enhet = resolveRelevantNavEnhet(gjennomforing.arenaAnsvarligEnhet?.enhetsnummer) ?: return
+        val enhet = resolveRelevantNavEnhet(gjennomforing.ansvarligEnhet?.enhetsnummer) ?: return
         notifyRelevantAdministrators(enhet) { administrators ->
             ScheduledNotification(
                 type = NotificationType.TASK,

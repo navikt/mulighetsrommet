@@ -1,6 +1,8 @@
 package no.nav.mulighetsrommet.api.fixtures
 
+import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
+import no.nav.mulighetsrommet.api.domain.dto.EmbeddedNavEnhet
 import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingAdminDto
 import no.nav.mulighetsrommet.api.routes.v1.TiltaksgjennomforingRequest
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
@@ -58,6 +60,7 @@ object TiltaksgjennomforingFixtures {
         beskrivelse = null,
         fremmoteTidspunkt = LocalDateTime.of(2023, 1, 1, 9, 0),
         fremmoteSted = "fremmote_sted",
+        ansvarligEnhet = "2990",
     )
 
     val Oppfolging1Request = TiltaksgjennomforingRequest(
@@ -85,48 +88,7 @@ object TiltaksgjennomforingFixtures {
         beskrivelse = Oppfolging1.beskrivelse,
         fremmoteTidspunkt = null,
         fremmoteSted = null,
-    )
-
-    val Oppfolging1AdminDto = TiltaksgjennomforingAdminDto(
-        id = Oppfolging1.id,
-        tiltakstype = TiltaksgjennomforingAdminDto.Tiltakstype(
-            id = TiltakstypeFixtures.Oppfolging.id,
-            navn = TiltakstypeFixtures.Oppfolging.navn,
-            arenaKode = TiltakstypeFixtures.Oppfolging.tiltakskode,
-        ),
-        navn = Oppfolging1.navn,
-        tiltaksnummer = Oppfolging1.tiltaksnummer,
-        arrangor = TiltaksgjennomforingAdminDto.Arrangor(
-            organisasjonsnummer = Oppfolging1.arrangorOrganisasjonsnummer,
-            navn = "Bedrift",
-            kontaktperson = null,
-            slettet = false,
-        ),
-        startDato = Oppfolging1.startDato,
-        sluttDato = Oppfolging1.sluttDato,
-        arenaAnsvarligEnhet = null,
-        status = Tiltaksgjennomforingsstatus.GJENNOMFORES,
-        apentForInnsok = Oppfolging1.apentForInnsok,
-        antallPlasser = Oppfolging1.antallPlasser,
-        avtaleId = Oppfolging1.avtaleId,
-        administratorer = emptyList(),
-        navEnheter = emptyList(),
-        navRegion = null,
-        sanityId = null,
-        oppstart = Oppfolging1.oppstart,
-        opphav = Oppfolging1.opphav,
-        stengtFra = Oppfolging1.stengtFra,
-        stengtTil = Oppfolging1.stengtTil,
-        kontaktpersoner = emptyList(),
-        stedForGjennomforing = Oppfolging1.stedForGjennomforing,
-        faneinnhold = Oppfolging1.faneinnhold,
-        beskrivelse = Oppfolging1.beskrivelse,
-        createdAt = Oppfolging1.startDato.atStartOfDay(),
-        updatedAt = Oppfolging1.startDato.atStartOfDay(),
-        tilgjengeligForVeileder = true,
-        visesForVeileder = true,
-        fremmoteTidspunkt = null,
-        fremmoteSted = null,
+        ansvarligEnhet = "2990",
     )
 
     val Oppfolging2 = TiltaksgjennomforingDbo(
@@ -155,6 +117,7 @@ object TiltaksgjennomforingFixtures {
         beskrivelse = null,
         fremmoteTidspunkt = null,
         fremmoteSted = null,
+        ansvarligEnhet = "2990",
     )
 
     val Arbeidstrening1 = TiltaksgjennomforingDbo(
@@ -183,5 +146,6 @@ object TiltaksgjennomforingFixtures {
         beskrivelse = null,
         fremmoteTidspunkt = null,
         fremmoteSted = null,
+        ansvarligEnhet = "2990",
     )
 }

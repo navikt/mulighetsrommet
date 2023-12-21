@@ -80,7 +80,7 @@ fun toArenaDataDto(tiltaksgjennomforing: TiltaksgjennomforingAdminDto, status: S
         opprettetAar = tiltaksnummer?.split("#")?.first()?.toInt(),
         lopenr = tiltaksnummer?.split("#")?.get(1)?.toInt(),
         virksomhetsnummer = arrangor.organisasjonsnummer,
-        ansvarligNavEnhetId = arenaAnsvarligEnhet?.enhetsnummer,
+        ansvarligNavEnhetId = ansvarligEnhet?.enhetsnummer,
         status = status,
     )
 }

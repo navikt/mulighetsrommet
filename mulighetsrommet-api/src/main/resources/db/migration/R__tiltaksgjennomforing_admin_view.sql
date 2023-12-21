@@ -9,15 +9,13 @@ select tg.id::uuid,
        tg.slutt_dato,
        t.tiltakskode,
        t.navn                  as tiltakstype_navn,
-       case
-           when arena_nav_enhet.enhetsnummer is null then null::jsonb
-           else jsonb_build_object(
-                   'enhetsnummer', arena_nav_enhet.enhetsnummer,
-                   'navn', arena_nav_enhet.navn,
-                   'type', arena_nav_enhet.type,
-                   'overordnetEnhet',
-                   arena_nav_enhet.overordnet_enhet)
-           end                 as arena_ansvarlig_enhet,
+       jsonb_build_object(
+           'enhetsnummer', ansvarlig_nav_enhet.enhetsnummer,
+           'navn', ansvarlig_nav_enhet.navn,
+           'type', ansvarlig_nav_enhet.type,
+           'overordnetEnhet',
+           ansvarlig_nav_enhet.overordnet_enhet
+       )                       as ansvarlig_enhet,
        tg.avslutningsstatus,
        tg.apent_for_innsok,
        tg.sanity_id,
@@ -78,10 +76,10 @@ from tiltaksgjennomforing tg
          left join avtale a on a.id = tg.avtale_id
          left join nav_enhet ne on tg_e.enhetsnummer = ne.enhetsnummer
          left join nav_enhet region on region.enhetsnummer = tg.nav_region
-         left join nav_enhet arena_nav_enhet on tg.arena_ansvarlig_enhet = arena_nav_enhet.enhetsnummer
+         left join nav_enhet ansvarlig_nav_enhet on tg.ansvarlig_enhet = ansvarlig_nav_enhet.enhetsnummer
          left join virksomhet v on v.organisasjonsnummer = tg.arrangor_organisasjonsnummer
          left join tiltaksgjennomforing_kontaktperson tgk on tgk.tiltaksgjennomforing_id = tg.id
          left join nav_ansatt na on na.nav_ident = tgk.kontaktperson_nav_ident
          left join nav_ansatt na_tg on na_tg.nav_ident = tg_a.nav_ident
          left join virksomhet_kontaktperson vk on vk.id = tg.arrangor_kontaktperson_id
-group by tg.id, t.id, v.navn, vk.id, region.navn, region.type, region.overordnet_enhet, arena_nav_enhet.enhetsnummer;
+group by tg.id, t.id, v.navn, vk.id, region.navn, region.type, region.overordnet_enhet, ansvarlig_nav_enhet.enhetsnummer;

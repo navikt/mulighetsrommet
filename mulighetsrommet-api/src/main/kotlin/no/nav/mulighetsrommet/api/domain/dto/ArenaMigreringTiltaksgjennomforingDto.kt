@@ -51,8 +51,7 @@ data class ArenaMigreringTiltaksgjennomforingDto(
                 antallPlasser = tiltaksgjennomforing.antallPlasser,
                 status = tiltaksgjennomforing.status,
                 arenaId = arenaId,
-                // TODO: Hvilket enhet? Trenger vi nytt input felt?
-                enhet = tiltaksgjennomforing.arenaAnsvarligEnhet?.enhetsnummer ?: "todo",
+                enhet = tiltaksgjennomforing.ansvarligEnhet.enhetsnummer,
                 fremmoteDato = tiltaksgjennomforing.fremmoteTidspunkt?.toLocalDate(),
                 fremmoteTid = tiltaksgjennomforing.fremmoteTidspunkt?.toLocalTime()?.let {
                     if (it == LocalTime.of(0, 0)) {

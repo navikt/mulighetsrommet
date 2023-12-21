@@ -64,7 +64,7 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
     administratorer,
     navRegion,
     navEnheter,
-    arenaAnsvarligEnhet,
+    ansvarligEnhet,
     arrangor,
     fremmoteTidspunkt,
     fremmoteSted,
@@ -197,16 +197,16 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
             />
           </Bolk>
 
-          {arenaAnsvarligEnhet ? (
+          {ansvarligEnhet ? (
             <Bolk>
               <div style={{ display: "flex", gap: "1rem" }}>
                 <Metadata
-                  header="Ansvarlig enhet fra Arena"
-                  verdi={`${arenaAnsvarligEnhet.enhetsnummer} ${arenaAnsvarligEnhet.navn}`}
+                  header="Ansvarlig enhet"
+                  verdi={`${ansvarligEnhet.enhetsnummer} ${ansvarligEnhet.navn}`}
                 />
-                <HelpText title="Hva betyr feltet 'Ansvarlig enhet fra Arena'?">
-                  Ansvarlig enhet fra Arena blir satt i Arena basert på tiltaksansvarlig sin enhet
-                  når man oppretter tiltak i Arena.
+                <HelpText title="Hva betyr feltet 'Ansvarlig enhet'?">
+                  I Arena blir ansvarlig enhet satt basert på tiltaksansvarlig sin enhet når man
+                  oppretter tiltak i Arena.
                 </HelpText>
               </div>
             </Bolk>

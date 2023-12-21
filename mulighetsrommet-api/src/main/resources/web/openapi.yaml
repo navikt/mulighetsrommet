@@ -2049,7 +2049,7 @@ components:
           type: string
         arrangor:
           $ref: "#/components/schemas/Arrangor"
-        arenaAnsvarligEnhet:
+        ansvarligEnhet:
           $ref: "#/components/schemas/EmbeddedNavEnhet"
         status:
           $ref: "#/components/schemas/TiltaksgjennomforingStatus"
@@ -2203,6 +2203,8 @@ components:
         fremmoteSted:
           type: string
           nullable: true
+        ansvarligEnhet:
+          type: string
       required:
         - id
         - tiltakstypeId
@@ -2229,6 +2231,7 @@ components:
         - beskrivelse
         - fremmoteTidspunkt
         - fremmoteSted
+        - ansvarligEnhet
 
     TiltaksgjennomforingStatus:
       type: string
