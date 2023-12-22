@@ -38,6 +38,7 @@ function atomWithStorage<Value>(key: string, initialValue: Value, storage = loca
 function atomWithHashAndStorage<Value>(
   key: string,
   initialValue: Value,
+  storage: Storage = localStorage,
 ): WritableAtom<Value, Value[], void> {
   const setHash = (hash: string) => {
     const searchParams = new URLSearchParams(window.location.hash.slice(1));
@@ -48,7 +49,7 @@ function atomWithHashAndStorage<Value>(
       `${window.location.pathname}${window.location.search}#${searchParams.toString()}`,
     );
   };
-  const innerAtom = atomWithStorage(key, initialValue);
+  const innerAtom = atomWithStorage(key, initialValue, storage);
 
   return atom(
     (get) => {
@@ -119,10 +120,14 @@ export const gjennomforingerForAvtaleFilterAtomFamily = atomFamily<
   string,
   WritableAtom<TiltaksgjennomforingFilter, [newValue: TiltaksgjennomforingFilter], void>
 >((avtaleId: string) => {
-  return atomWithHashAndStorage(`tiltaksgjennomforing-filter-${avtaleId}`, {
-    ...defaultTiltaksgjennomforingfilter,
-    avtale: avtaleId,
-  });
+  return atomWithHashAndStorage(
+    `tiltaksgjennomforing-filter-${avtaleId}`,
+    {
+      ...defaultTiltaksgjennomforingfilter,
+      avtale: avtaleId,
+    },
+    sessionStorage,
+  );
 });
 
 export interface AvtaleFilter {
@@ -158,10 +163,14 @@ export const getAvtalerForTiltakstypeFilterAtom = atomFamily<
   string,
   WritableAtom<AvtaleFilter, [newValue: AvtaleFilter], void>
 >((tiltakstypeId: string) => {
-  return atomWithHashAndStorage(`avtale-filter-${tiltakstypeId}`, {
-    ...defaultAvtaleFilter,
-    tiltakstyper: [tiltakstypeId],
-  });
+  return atomWithHashAndStorage(
+    `avtale-filter-${tiltakstypeId}`,
+    {
+      ...defaultAvtaleFilter,
+      tiltakstyper: [tiltakstypeId],
+    },
+    sessionStorage,
+  );
 });
 
 export const gjennomforingDetaljerTabAtom = atom<string>("detaljer");
