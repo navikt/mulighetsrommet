@@ -14,11 +14,7 @@ export interface DateInputProps {
   placeholder?: string;
 }
 
-export const ControlledDateInput = forwardRef(function ControlledDateInput(
-  props: DateInputProps,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _,
-) {
+export const ControlledDateInput = forwardRef(function ControlledDateInput(props: DateInputProps) {
   const {
     label,
     size,
@@ -50,12 +46,14 @@ export const ControlledDateInput = forwardRef(function ControlledDateInput(
                 }
               },
               onValidate: (val) => {
-                if (val.isBefore) {
-                  setUgyldigDatoError("Dato er før gyldig periode");
-                } else if (val.isAfter) {
-                  setUgyldigDatoError("Dato er etter gyldig periode");
-                } else if (val.isValidDate) {
-                  setUgyldigDatoError("");
+                setUgyldigDatoError("");
+                if (!val.isValidDate) {
+                  onChange(undefined);
+                  if (val.isBefore) {
+                    setUgyldigDatoError("Dato er før gyldig periode");
+                  } else if (val.isAfter) {
+                    setUgyldigDatoError("Dato er etter gyldig periode");
+                  }
                 }
               },
               allowTwoDigitYear: true,
@@ -72,7 +70,7 @@ export const ControlledDateInput = forwardRef(function ControlledDateInput(
                 label={label}
                 {...rest}
                 {...startdatoInputProps}
-                error={error?.message || ugyldigDatoError || undefined}
+                error={ugyldigDatoError || error?.message}
                 readOnly={readOnly}
                 placeholder={placeholder}
               />
