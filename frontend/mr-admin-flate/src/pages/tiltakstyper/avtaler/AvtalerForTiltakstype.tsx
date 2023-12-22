@@ -1,10 +1,8 @@
-import { useAtom } from "jotai";
 import { useTitle } from "mulighetsrommet-frontend-common";
-import { avtaleFilterForTiltakstypeAtom, avtalePaginationAtom } from "../../../api/atoms";
+import { getAvtalerForTiltakstypeFilterAtom } from "../../../api/atoms";
 import { AvtaleTabell } from "../../../components/tabell/AvtaleTabell";
 import { useGetTiltakstypeIdFromUrlOrThrow } from "../../../hooks/useGetTiltakstypeIdFromUrl";
 import { ContainerLayout } from "../../../layouts/ContainerLayout";
-import { useAvtaler } from "../../../api/avtaler/useAvtaler";
 import { FilterAndTableLayout } from "../../../components/filter/FilterAndTableLayout";
 import { AvtaleFilterTags } from "../../../components/filter/AvtaleFilterTags";
 import { AvtaleFilterButtons } from "../../../components/filter/AvtaleFilterButtons";
@@ -15,36 +13,22 @@ export function AvtalerForTiltakstype() {
 
   const tiltakstypeId = useGetTiltakstypeIdFromUrlOrThrow();
 
-  const [page] = useAtom(avtalePaginationAtom);
-  const { data: avtaler, isLoading: avtalerIsLoading } = useAvtaler(
-    { tiltakstyper: [tiltakstypeId] },
-    page,
-  );
-
-  if (!avtaler) {
-    return null;
-  }
+  const filterAtom = getAvtalerForTiltakstypeFilterAtom(tiltakstypeId);
 
   return (
     <ContainerLayout>
       <FilterAndTableLayout
         filter={
           <AvtaleFilter
-            filterAtom={avtaleFilterForTiltakstypeAtom}
+            filterAtom={filterAtom}
             skjulFilter={{
               tiltakstype: true,
             }}
           />
         }
-        tags={<AvtaleFilterTags filterAtom={avtaleFilterForTiltakstypeAtom} />}
-        buttons={<AvtaleFilterButtons filterAtom={avtaleFilterForTiltakstypeAtom} />}
-        table={
-          <AvtaleTabell
-            isLoading={avtalerIsLoading}
-            paginerteAvtaler={avtaler}
-            avtalefilter={avtaleFilterForTiltakstypeAtom}
-          />
-        }
+        tags={<AvtaleFilterTags filterAtom={filterAtom} />}
+        buttons={<AvtaleFilterButtons filterAtom={filterAtom} />}
+        table={<AvtaleTabell filterAtom={filterAtom} />}
       />
     </ContainerLayout>
   );

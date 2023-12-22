@@ -5,7 +5,7 @@ import { useNavEnheter } from "../../api/enhet/useNavEnheter";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
 import { useVirksomheter } from "../../api/virksomhet/useVirksomheter";
 import { addOrRemove } from "../../utils/Utils";
-import { AvtaleFilter as AvtaleFilterProps, avtalePaginationAtom } from "../../api/atoms";
+import { AvtaleFilter as AvtaleFilterProps } from "../../api/atoms";
 import { CheckboxList } from "./Tiltaksgjennomforingfilter";
 import {
   AVTALE_STATUS_OPTIONS,
@@ -23,7 +23,6 @@ interface Props {
 
 export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
   const [filter, setFilter] = useAtom(filterAtom);
-  const [, setPage] = useAtom(avtalePaginationAtom);
   const { data: enheter, isLoading: isLoadingEnheter } = useNavEnheter();
   const { data: virksomheter, isLoading: isLoadingVirksomheter } = useVirksomheter(
     VirksomhetTil.AVTALE,
@@ -56,9 +55,9 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
         onChange={(search: string) => {
           setFilter({
             ...filter,
+            page: 1,
             sok: search,
           });
-          setPage(1);
         }}
         value={filter.sok}
         aria-label="Søk etter tiltaksgjennomføring"
@@ -73,9 +72,9 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
               onChange={(status) => {
                 setFilter({
                   ...filter,
+                  page: 1,
                   statuser: addOrRemove(filter.statuser, status),
                 });
-                setPage(1);
               }}
             />
           </Accordion.Content>
@@ -90,9 +89,9 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
                 onChange={(tiltakstype) => {
                   setFilter({
                     ...filter,
+                    page: 1,
                     tiltakstyper: addOrRemove(filter.tiltakstyper, tiltakstype),
                   });
-                  setPage(1);
                 }}
               />
             </Accordion.Content>
@@ -107,9 +106,9 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
               onChange={(region) => {
                 setFilter({
                   ...filter,
+                  page: 1,
                   navRegioner: addOrRemove(filter.navRegioner, region),
                 });
-                setPage(1);
               }}
             />
           </Accordion.Content>
@@ -120,13 +119,13 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
             <CheckboxList
               searchable
               items={virksomhetOptions(virksomheter)}
-              isChecked={(orgnr) => filter.leverandor_orgnr.includes(orgnr)}
+              isChecked={(orgnr) => filter.leverandor.includes(orgnr)}
               onChange={(orgnr) => {
                 setFilter({
                   ...filter,
-                  leverandor_orgnr: addOrRemove(filter.leverandor_orgnr, orgnr),
+                  page: 1,
+                  leverandor: addOrRemove(filter.leverandor, orgnr),
                 });
-                setPage(1);
               }}
             />
           </Accordion.Content>

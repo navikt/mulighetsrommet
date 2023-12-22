@@ -9,6 +9,7 @@ export const mockNotifikasjoner: PaginertUserNotifications = {
     totalCount: 2,
     currentPage: 1,
     pageSize: 50,
+    totalPages: 1,
   },
   data: [
     {

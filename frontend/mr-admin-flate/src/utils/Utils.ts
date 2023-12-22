@@ -81,10 +81,6 @@ export function kalkulerStatusBasertPaaFraOgTilDato(
   }
 }
 
-export const resetPaginering = (setPage: (number: number) => void) => {
-  setPage(1);
-};
-
 export const oversettStatusForTiltaksgjennomforing = (status?: TiltaksgjennomforingStatus) => {
   switch (status) {
     case TiltaksgjennomforingStatus.GJENNOMFORES:

@@ -1,4 +1,4 @@
-import { WritableAtom, useAtom } from "jotai";
+import { useAtom, WritableAtom } from "jotai";
 import { Tiltakstypestatus, VirksomhetTil } from "mulighetsrommet-api-client";
 import { AvtaleFilter } from "../../api/atoms";
 import { useNavEnheter } from "../../api/enhet/useNavEnheter";
@@ -84,14 +84,14 @@ export function AvtaleFilterTags({ filterAtom }: Props) {
           }}
         />
       ))}
-      {filter.leverandor_orgnr.map((orgnr) => (
+      {filter.leverandor.map((orgnr) => (
         <FilterTag
           key={orgnr}
           label={leverandorer?.find((l) => l.organisasjonsnummer === orgnr)?.navn}
           onClick={() => {
             setFilter({
               ...filter,
-              leverandor_orgnr: addOrRemove(filter.leverandor_orgnr, orgnr),
+              leverandor: addOrRemove(filter.leverandor, orgnr),
             });
           }}
         />

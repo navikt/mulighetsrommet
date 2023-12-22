@@ -4,7 +4,6 @@ import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.PaginatedResponse
-import no.nav.mulighetsrommet.api.routes.v1.responses.Pagination
 import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.api.utils.TiltakstypeFilter
 import no.nav.mulighetsrommet.domain.dto.TiltakstypeDto
@@ -21,22 +20,15 @@ class TiltakstypeService(private val tiltakstypeRepository: TiltakstypeRepositor
         .build()
 
     fun getWithFilter(
-        tiltakstypeFilter: TiltakstypeFilter,
-        paginationParams: PaginationParams,
+        filter: TiltakstypeFilter,
+        pagination: PaginationParams,
     ): PaginatedResponse<TiltakstypeDto> {
         val (totalCount, items) = tiltakstypeRepository.getAllSkalMigreres(
-            tiltakstypeFilter,
-            paginationParams,
+            filter,
+            pagination,
         )
 
-        return PaginatedResponse(
-            data = items,
-            pagination = Pagination(
-                totalCount = totalCount,
-                currentPage = paginationParams.page,
-                pageSize = paginationParams.limit,
-            ),
-        )
+        return PaginatedResponse.of(pagination, totalCount, items)
     }
 
     fun getById(id: UUID): TiltakstypeDto? {

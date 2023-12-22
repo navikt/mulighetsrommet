@@ -1,45 +1,36 @@
 import { FilterAndTableLayout } from "../../components/filter/FilterAndTableLayout";
 import { TiltaksgjennomforingFilter } from "../../components/filter/Tiltaksgjennomforingfilter";
-import {
-  gjennomforingPaginationAtom,
-  tiltaksgjennomforingfilterForAvtaleAtom,
-} from "../../api/atoms";
+import { gjennomforingerForAvtaleFilterAtomFamily } from "../../api/atoms";
 import { TiltaksgjennomforingFilterTags } from "../../components/filter/TiltaksgjennomforingFilterTags";
 import { TiltaksgjennomforingFilterButtons } from "../../components/filter/TiltaksgjennomforingFilterButtons";
 import { TiltaksgjennomforingsTabell } from "../../components/tabell/TiltaksgjennomforingsTabell";
-import { useAtom } from "jotai";
-import { useAdminTiltaksgjennomforinger } from "../../api/tiltaksgjennomforing/useAdminTiltaksgjennomforinger";
+import { useGetAvtaleIdFromUrlOrThrow } from "../../hooks/useGetAvtaleIdFromUrl";
 
 export function TiltaksgjennomforingerForAvtalePage() {
-  const [page] = useAtom(gjennomforingPaginationAtom);
-  const [filter] = useAtom(tiltaksgjennomforingfilterForAvtaleAtom);
-  const { data, isLoading } = useAdminTiltaksgjennomforinger(filter, page);
+  const id = useGetAvtaleIdFromUrlOrThrow();
+
+  const filterAtom = gjennomforingerForAvtaleFilterAtomFamily(id);
 
   return (
     <div style={{ marginTop: "1rem" }}>
       <FilterAndTableLayout
         filter={
           <TiltaksgjennomforingFilter
-            filterAtom={tiltaksgjennomforingfilterForAvtaleAtom}
+            filterAtom={filterAtom}
             skjulFilter={{
               tiltakstype: true,
             }}
           />
         }
-        tags={
-          <TiltaksgjennomforingFilterTags filterAtom={tiltaksgjennomforingfilterForAvtaleAtom} />
-        }
-        buttons={
-          <TiltaksgjennomforingFilterButtons filterAtom={tiltaksgjennomforingfilterForAvtaleAtom} />
-        }
+        tags={<TiltaksgjennomforingFilterTags filterAtom={filterAtom} />}
+        buttons={<TiltaksgjennomforingFilterButtons filterAtom={filterAtom} />}
         table={
           <TiltaksgjennomforingsTabell
             skjulKolonner={{
               tiltakstype: true,
               arrangor: true,
             }}
-            isLoading={isLoading}
-            paginerteTiltaksgjennomforinger={data}
+            filterAtom={filterAtom}
           />
         }
       />

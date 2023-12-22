@@ -1718,10 +1718,17 @@ components:
       properties:
         totalCount:
           type: integer
+        totalPages:
+          type: integer
         currentPage:
           type: integer
         pageSize:
           type: integer
+      required:
+        - totalCount
+        - totalPages
+        - currentPage
+        - pageSize
 
     PaginertTiltakstype:
       type: object

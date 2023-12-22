@@ -1,44 +1,41 @@
-import { Heading, Select } from "@navikt/ds-react";
+import { BodyShort, Select } from "@navikt/ds-react";
 import styles from "./PagineringOversikt.module.scss";
 
 interface Props {
   page: number;
+  pageSize: number;
+  onChangePageSize?: (value: number) => void;
   antall: number;
-  maksAntall?: number;
+  maksAntall: number;
   type: string;
-  antallVises?: number;
-  setAntallVises?: (value: number) => void;
 }
 
 const antallSize = [15, 50, 100, 250, 500, 1000];
 
 export function PagineringsOversikt({
   page,
+  pageSize,
+  onChangePageSize,
   antall,
-  maksAntall = 0,
+  maksAntall,
   type,
-  antallVises = antall,
-  setAntallVises,
 }: Props) {
+  const start = (page - 1) * pageSize + 1;
+  const end = antall + (page - 1) * pageSize;
+  const summary =
+    antall === 0 ? `Viser 0 av 0 ${type}` : `Viser ${start}-${end} av ${maksAntall} ${type}`;
   return (
-    <Heading level="1" size="xsmall" className={styles.container}>
-      {antall < 1 ? (
-        <span>Viser 0 av 0 {type} </span>
-      ) : (
-        <span>
-          Viser {(page - 1) * antallVises + 1}-{antall + (page - 1) * antallVises} av {maksAntall}{" "}
-          {type}{" "}
-        </span>
-      )}
+    <div className={styles.container}>
+      <BodyShort weight="semibold">{summary}</BodyShort>
 
-      {setAntallVises ? (
+      {onChangePageSize ? (
         <Select
           size="small"
           label="Velg antall"
           hideLabel
           name="size"
-          value={antallVises}
-          onChange={(e) => setAntallVises(Number.parseInt(e.currentTarget.value))}
+          value={pageSize}
+          onChange={(e) => onChangePageSize(Number.parseInt(e.currentTarget.value))}
         >
           {antallSize.map((ant) => (
             <option key={ant} value={ant}>
@@ -47,6 +44,6 @@ export function PagineringsOversikt({
           ))}
         </Select>
       ) : null}
-    </Heading>
+    </div>
   );
 }

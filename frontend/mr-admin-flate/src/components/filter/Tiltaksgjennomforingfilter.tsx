@@ -2,10 +2,7 @@ import { Accordion, Checkbox, Search, Skeleton } from "@navikt/ds-react";
 import { useAtom, WritableAtom } from "jotai";
 import { Tiltakstypestatus, VirksomhetTil } from "mulighetsrommet-api-client";
 import { useEffect, useState } from "react";
-import {
-  gjennomforingPaginationAtom,
-  TiltaksgjennomforingFilter as TiltaksgjennomforingFilterProps,
-} from "../../api/atoms";
+import { TiltaksgjennomforingFilter as TiltaksgjennomforingFilterProps } from "../../api/atoms";
 import { useAvtale } from "../../api/avtaler/useAvtale";
 import { useNavEnheter } from "../../api/enhet/useNavEnheter";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
@@ -33,7 +30,6 @@ interface Props {
 
 export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
   const [filter, setFilter] = useAtom(filterAtom);
-  const [, setPage] = useAtom(gjennomforingPaginationAtom);
   const { data: avtale } = useAvtale();
   const { data: enheter, isLoading: isLoadingEnheter } = useNavEnheter();
   const { data: virksomheter, isLoading: isLoadingVirksomheter } = useVirksomheter(
@@ -75,9 +71,9 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
         onChange={(search: string) => {
           setFilter({
             ...filter,
+            page: 1,
             search,
           });
-          setPage(1);
         }}
         value={filter.search}
         aria-label="Søk etter tiltaksgjennomføring"
@@ -92,9 +88,9 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
               onChange={(status) => {
                 setFilter({
                   ...filter,
+                  page: 1,
                   statuser: addOrRemove(filter.statuser, status),
                 });
-                setPage(1);
               }}
             />
           </Accordion.Content>
@@ -110,9 +106,9 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
                 onChange={(tiltakstype) => {
                   setFilter({
                     ...filter,
+                    page: 1,
                     tiltakstyper: addOrRemove(filter.tiltakstyper, tiltakstype),
                   });
-                  setPage(1);
                 }}
               />
             </Accordion.Content>
@@ -127,9 +123,9 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
               onChange={(region) => {
                 setFilter({
                   ...filter,
+                  page: 1,
                   navRegioner: addOrRemove(filter.navRegioner, region),
                 });
-                setPage(1);
               }}
             />
           </Accordion.Content>
@@ -144,9 +140,9 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
               onChange={(enhet) => {
                 setFilter({
                   ...filter,
+                  page: 1,
                   navEnheter: addOrRemove(filter.navEnheter, enhet),
                 });
-                setPage(1);
               }}
             />
           </Accordion.Content>
@@ -161,9 +157,9 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
               onChange={(orgnr) => {
                 setFilter({
                   ...filter,
+                  page: 1,
                   arrangorOrgnr: addOrRemove(filter.arrangorOrgnr, orgnr),
                 });
-                setPage(1);
               }}
             />
           </Accordion.Content>

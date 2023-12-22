@@ -1,23 +1,19 @@
 import { Alert, Button, Checkbox, Pagination, Table } from "@navikt/ds-react";
 import classNames from "classnames";
-import { WritableAtom, useAtom } from "jotai";
-import { OpenAPI, PaginertAvtale, SorteringAvtaler } from "mulighetsrommet-api-client";
+import { useAtom, WritableAtom } from "jotai";
+import { OpenAPI, SorteringAvtaler } from "mulighetsrommet-api-client";
 import Lenke from "mulighetsrommet-veileder-flate/src/components/lenke/Lenke";
 import { createRef, useEffect, useState } from "react";
-import { AvtaleFilter, avtalePaginationAtom } from "../../api/atoms";
+import { AvtaleFilter } from "../../api/atoms";
 import { APPLICATION_NAME } from "../../constants";
 import { useSort } from "../../hooks/useSort";
-import {
-  capitalizeEveryWord,
-  formaterDato,
-  formaterNavEnheter,
-  resetPaginering,
-} from "../../utils/Utils";
+import { capitalizeEveryWord, formaterDato, formaterNavEnheter } from "../../utils/Utils";
 import { Laster } from "../laster/Laster";
 import { PagineringContainer } from "../paginering/PagineringContainer";
 import { PagineringsOversikt } from "../paginering/PagineringOversikt";
 import { AvtalestatusTag } from "../statuselementer/AvtalestatusTag";
 import styles from "./Tabell.module.scss";
+import { useAvtaler } from "../../api/avtaler/useAvtaler";
 
 async function lastNedFil(filter: AvtaleFilter) {
   const headers = new Headers();
@@ -40,7 +36,7 @@ async function lastNedFil(filter: AvtaleFilter) {
   filter.tiltakstyper.forEach((tiltakstype) => queryParams.append("tiltakstypeIder", tiltakstype));
   filter.statuser.forEach((status) => queryParams.append("avtalestatuser", status));
   filter.navRegioner.forEach((region) => queryParams.append("navRegioner", region));
-  filter.leverandor_orgnr.forEach((orgnr) => queryParams.append("leverandorOrgnr", orgnr));
+  filter.leverandor.forEach((orgnr) => queryParams.append("leverandorOrgnr", orgnr));
 
   if (filter.visMineAvtaler) {
     queryParams.set("visMineAvtaler", "true");
@@ -54,19 +50,16 @@ async function lastNedFil(filter: AvtaleFilter) {
 }
 
 interface Props {
-  avtalefilter: WritableAtom<AvtaleFilter, [newValue: AvtaleFilter], void>;
-  paginerteAvtaler?: PaginertAvtale;
-  isLoading: boolean;
+  filterAtom: WritableAtom<AvtaleFilter, [newValue: AvtaleFilter], void>;
 }
 
-export const AvtaleTabell = ({ avtalefilter, paginerteAvtaler, isLoading }: Props) => {
-  const [filter, setFilter] = useAtom(avtalefilter);
-  const [page, setPage] = useAtom(avtalePaginationAtom);
+export const AvtaleTabell = ({ filterAtom }: Props) => {
   const [sort, setSort] = useSort("navn");
-  const pagination = paginerteAvtaler?.pagination;
-  const avtaler = paginerteAvtaler?.data || [];
+  const [filter, setFilter] = useAtom(filterAtom);
   const [lasterExcel, setLasterExcel] = useState(false);
   const [excelUrl, setExcelUrl] = useState("");
+
+  const { data, isLoading } = useAvtaler(filter);
 
   const link = createRef<HTMLAnchorElement>();
 
@@ -93,6 +86,10 @@ export const AvtaleTabell = ({ avtalefilter, paginerteAvtaler, isLoading }: Prop
     }
   }, [excelUrl]);
 
+  function updateFilter(newFilter: Partial<AvtaleFilter>) {
+    setFilter({ ...filter, ...newFilter });
+  }
+
   const handleSort = (sortKey: string) => {
     // Hvis man bytter sortKey starter vi med ascending
     const direction =
@@ -102,48 +99,45 @@ export const AvtaleTabell = ({ avtalefilter, paginerteAvtaler, isLoading }: Prop
           : "descending"
         : "ascending";
 
-    if (sort.orderBy !== sortKey || sort.direction !== direction) {
-      setPage(1); // Hvis sort har endret seg resetter vi første page
-    }
-
     setSort({
       orderBy: sortKey,
       direction,
     });
 
-    setFilter({
-      ...filter,
+    updateFilter({
       sortering: `${sortKey}-${direction}` as SorteringAvtaler,
+      page: sort.orderBy !== sortKey || sort.direction !== direction ? 1 : filter.page,
     });
   };
 
-  if (!avtaler || isLoading) {
+  if (!data || isLoading) {
     return <Laster size="xlarge" tekst="Laster avtaler..." />;
   }
+
+  const { pagination, data: avtaler } = data;
 
   return (
     <div className={classNames(styles.tabell_wrapper, styles.avtaletabell)}>
       <div className={styles.tabell_topp_container}>
         <div className={styles.flex}>
           <PagineringsOversikt
-            page={page}
+            page={filter.page}
+            pageSize={filter.pageSize}
             antall={avtaler.length}
-            maksAntall={pagination?.totalCount}
+            maksAntall={pagination.totalCount}
             type="avtaler"
-            antallVises={filter.antallAvtalerVises}
-            setAntallVises={(value) => {
-              resetPaginering(setPage);
-              setFilter({
-                ...filter,
-                antallAvtalerVises: value,
+            onChangePageSize={(value) => {
+              updateFilter({
+                page: 1,
+                pageSize: value,
               });
             }}
           />
           <Checkbox
             checked={filter.visMineAvtaler}
             onChange={(event) => {
-              setFilter({
-                ...filter,
+              updateFilter({
+                page: 1,
                 visMineAvtaler: event.currentTarget.checked,
               });
             }}
@@ -243,20 +237,20 @@ export const AvtaleTabell = ({ avtalefilter, paginerteAvtaler, isLoading }: Prop
       {avtaler.length > 0 ? (
         <PagineringContainer>
           <PagineringsOversikt
-            page={page}
+            page={filter.page}
+            pageSize={filter.pageSize}
             antall={avtaler.length}
-            maksAntall={pagination?.totalCount}
+            maksAntall={pagination.totalCount}
             type="avtaler"
-            antallVises={filter.antallAvtalerVises}
           />
           <Pagination
             className={styles.pagination}
             size="small"
-            page={page}
-            onPageChange={setPage}
-            count={Math.ceil(
-              (pagination?.totalCount ?? filter.antallAvtalerVises) / filter.antallAvtalerVises,
-            )}
+            page={filter.page}
+            count={pagination.totalPages}
+            onPageChange={(page) => {
+              updateFilter({ page });
+            }}
             data-version="v1"
           />
         </PagineringContainer>

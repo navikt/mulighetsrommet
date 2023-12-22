@@ -6,8 +6,11 @@ export const QueryKeys = {
   tiltakstyper: (sokestreng?: string, filter?: TiltakstypeFilter, page?: number) =>
     ["tiltakstyper", page, sokestreng, { ...filter }] as const,
   tiltakstypeFaneinnhold: (id: string) => ["tiltakstype", id, "faneinnhold"] as const,
-  tiltaksgjennomforinger: (page?: number, filter?: Partial<TiltaksgjennomforingFilter>) =>
-    ["tiltaksgjennomforinger", page, filter].filter((entry) => entry !== undefined),
+  tiltaksgjennomforinger: (
+    mine?: boolean,
+    page?: number,
+    filter?: Partial<TiltaksgjennomforingFilter>,
+  ) => ["tiltaksgjennomforinger", mine, page, filter].filter((entry) => entry !== undefined),
   tiltaksgjennomforing: (id?: string) => ["tiltaksgjennomforing", id] as const,
   tiltaksgjennomforingHistorikk: (id?: string) =>
     ["tiltaksgjennomforing", id, "historikk"] as const,

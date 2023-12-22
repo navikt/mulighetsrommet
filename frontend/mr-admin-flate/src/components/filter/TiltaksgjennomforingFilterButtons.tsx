@@ -1,8 +1,9 @@
 import { Button } from "@navikt/ds-react";
-import { WritableAtom, useAtom } from "jotai";
+import { useAtom, WritableAtom } from "jotai";
 import { Avtalestatus, Opphav, Toggles } from "mulighetsrommet-api-client";
+import { shallowEquals } from "mulighetsrommet-frontend-common";
 import { useState } from "react";
-import { TiltaksgjennomforingFilter, defaultTiltaksgjennomforingfilter } from "../../api/atoms";
+import { defaultTiltaksgjennomforingfilter, TiltaksgjennomforingFilter } from "../../api/atoms";
 import { useAvtale } from "../../api/avtaler/useAvtale";
 import { useFeatureToggle } from "../../api/features/feature-toggles";
 import { inneholderUrl } from "../../utils/Utils";
@@ -41,18 +42,14 @@ export function TiltaksgjennomforingFilterButtons({ filterAtom }: Props) {
         alignItems: "center",
       }}
     >
-      {filter.search.length > 0 ||
-      filter.navRegioner.length > 0 ||
-      filter.tiltakstyper.length > 0 ||
-      filter.statuser.length > 0 ||
-      filter.arrangorOrgnr.length > 0 ? (
+      {!shallowEquals(filter, defaultTiltaksgjennomforingfilter) ? (
         <Button
           type="button"
           size="small"
           style={{ maxWidth: "130px" }}
           variant="tertiary"
           onClick={() => {
-            setFilter({ ...defaultTiltaksgjennomforingfilter });
+            setFilter(defaultTiltaksgjennomforingfilter);
           }}
         >
           Nullstill filter
