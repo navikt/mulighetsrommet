@@ -19,10 +19,6 @@ export function TiltaksgjennomforingPage() {
   const { navigateAndReplaceUrl } = useNavigateAndReplaceUrl();
   const { data: tiltaksgjennomforing, isLoading } = useTiltaksgjennomforingById();
   const forhandsvisningMiljo = import.meta.env.dev || erProdMiljo ? "nav.no" : "dev.nav.no";
-
-  const { data: visDeltakerlisteFraKometFeature } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_ADMIN_FLATE_VIS_DELTAKERLISTE_FRA_KOMET,
-  );
   const { data: showNotater } = useFeatureToggle(Toggles.MULIGHETSROMMET_ADMIN_FLATE_SHOW_NOTATER);
 
   if (!tiltaksgjennomforing && isLoading) {
@@ -102,18 +98,6 @@ export function TiltaksgjennomforingPage() {
               aria-controls="panel"
             />
           )}
-          {visDeltakerlisteFraKometFeature ? (
-            <Tabs.Tab
-              value="poc"
-              label="Deltakerliste"
-              onClick={() =>
-                navigateAndReplaceUrl(
-                  `/tiltaksgjennomforinger/${tiltaksgjennomforing.id}/deltakere`,
-                )
-              }
-              aria-controls="panel"
-            />
-          ) : null}
         </Tabs.List>
         <ContainerLayout>
           <div id="panel">

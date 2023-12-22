@@ -10,7 +10,6 @@ import NotaterAvtalePage from "./components/avtaler/NotaterAvtalePage";
 import { Laster } from "./components/laster/Laster";
 import { Notifikasjonsliste } from "./components/notifikasjoner/Notifikasjonsliste";
 import NotaterTiltaksgjennomforingerPage from "./components/tiltaksgjennomforinger/NotaterTiltaksgjennomforingerPage";
-import { DeltakerListe } from "./microfrontends/team_komet/Deltakerliste";
 import { ErrorPage } from "./pages/ErrorPage";
 import { AvtalePage } from "./pages/avtaler/AvtalePage";
 import { NotifikasjonerPage } from "./pages/notifikasjoner/NotifikasjonerPage";
@@ -121,7 +120,6 @@ export function App() {
             errorElement={<ErrorPage />}
           />
         )}
-        <Route path="deltakere" element={<DeltakerListe />} errorElement={<ErrorPage />} />
       </Route>
       <Route
         path="tiltaksgjennomforinger/:tiltaksgjennomforingId"
@@ -136,7 +134,6 @@ export function App() {
             errorElement={<ErrorPage />}
           />
         )}
-        <Route path="deltakere" element={<DeltakerListe />} errorElement={<ErrorPage />} />
       </Route>
       <Route
         path="avtaler/:avtaleId/tiltaksgjennomforinger/:tiltaksgjennomforingId/skjema"
