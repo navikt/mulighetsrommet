@@ -29,6 +29,6 @@
       "vite": ["node_modules/vite"]
     },
   },
-  "include": ["src", "importmap.json"],
+  "include": ["src"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

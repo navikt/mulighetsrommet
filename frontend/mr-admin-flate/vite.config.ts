@@ -1,7 +1,5 @@
 import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
-import { rollupImportMapPlugin } from "rollup-plugin-import-map";
-import importmap from "./importmap.json" assert { type: "json" };
 import terser from "@rollup/plugin-terser";
 
 // https://vitejs.dev/config/
@@ -11,15 +9,7 @@ export default defineConfig({
     host: "127.0.0.1",
     open: true,
   },
-  plugins: [
-    react(),
-    {
-      ...rollupImportMapPlugin([importmap]),
-      enforce: "pre",
-      apply: "build",
-    },
-    terser(),
-  ],
+  plugins: [react(), terser()],
   base: process.env.VITE_BASE || "/",
   build: {
     manifest: "asset-manifest.json",
