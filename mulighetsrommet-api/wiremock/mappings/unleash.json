@@ -14,11 +14,6 @@
           "strategies": []
         },
         {
-          "name": "mulighetsrommet.admin-flate-vis-deltakerliste-fra-komet",
-          "enabled": true,
-          "strategies": []
-        },
-        {
           "name": "mulighetsrommet.enable-arbeidsflate",
           "enabled": true,
           "strategies": []

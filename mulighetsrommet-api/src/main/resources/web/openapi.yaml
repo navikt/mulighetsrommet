@@ -3205,7 +3205,6 @@ components:
       type: string
       enum:
         - mulighetsrommet.admin-flate-opprett-tiltaksgjennomforing
-        - mulighetsrommet.admin-flate-vis-deltakerliste-fra-komet
         - mulighetsrommet.veilederflate.visDeltakerRegistrering
         - mulighetsrommet.enable-arbeidsflate
         - mulighetsrommet-veilederflate-landingsside
