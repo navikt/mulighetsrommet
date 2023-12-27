@@ -47,8 +47,6 @@ data class TiltaksgjennomforingAdminDto(
     val beskrivelse: String?,
     @Serializable(with = LocalDateTimeSerializer::class)
     val createdAt: LocalDateTime,
-    @Serializable(with = LocalDateTimeSerializer::class)
-    val updatedAt: LocalDateTime,
     val tilgjengeligForVeileder: Boolean,
     val visesForVeileder: Boolean,
     @Serializable(with = LocalDateTimeSerializer::class)

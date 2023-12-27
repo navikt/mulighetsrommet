@@ -44,7 +44,6 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     kontaktpersoner: [petrusKontaktperson, nikolineKontaktperson],
     tilgjengeligForVeileder: true,
     visesForVeileder: true,
-    updatedAt: "2021-06-01T12:00:00.000Z",
     beskrivelse: "bla bla bla beskrivelse",
     faneinnhold: {
       forHvem: [
@@ -102,7 +101,6 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     kontaktpersoner: [],
     tilgjengeligForVeileder: false,
     visesForVeileder: false,
-    updatedAt: "2021-06-01T12:00:00.000Z",
   },
   {
     id: "a7d63fb0-4366-412c-84b7-7c15518ee363",
@@ -125,7 +123,6 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     kontaktpersoner: [],
     tilgjengeligForVeileder: false,
     visesForVeileder: true,
-    updatedAt: "2021-06-01T12:00:00.000Z",
   },
 ];
 

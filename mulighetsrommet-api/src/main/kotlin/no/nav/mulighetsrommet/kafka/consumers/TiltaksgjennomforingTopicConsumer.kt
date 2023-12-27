@@ -31,10 +31,12 @@ class TiltaksgjennomforingTopicConsumer(
             else -> {
                 val arenaTiltaksgjennomforingDto = arenaAdapterClient.hentArenadata(tiltaksgjennomforingDto.id)
                 tiltaksgjennomforingRepository.get(tiltaksgjennomforingDto.id)?.let {
+                    val endretTidspunkt = tiltaksgjennomforingRepository.getUpdatedAt(tiltaksgjennomforingDto.id)!!
                     arenaMigreringTiltaksgjennomforingKafkaProducer.publish(
                         ArenaMigreringTiltaksgjennomforingDto.from(
                             it,
                             arenaTiltaksgjennomforingDto?.arenaId,
+                            endretTidspunkt,
                         ),
                     )
                 }

@@ -38,14 +38,14 @@ data class ArenaMigreringTiltaksgjennomforingDto(
     val apentForInnsok: Boolean,
 ) {
     companion object {
-        fun from(tiltaksgjennomforing: TiltaksgjennomforingAdminDto, arenaId: Int?) =
+        fun from(tiltaksgjennomforing: TiltaksgjennomforingAdminDto, arenaId: Int?, endretTidspunkt: LocalDateTime) =
             ArenaMigreringTiltaksgjennomforingDto(
                 id = tiltaksgjennomforing.id,
                 tiltakskode = tiltaksgjennomforing.tiltakstype.arenaKode,
                 startDato = tiltaksgjennomforing.startDato,
                 sluttDato = tiltaksgjennomforing.sluttDato,
                 opprettetTidspunkt = tiltaksgjennomforing.createdAt,
-                endretTidspunkt = tiltaksgjennomforing.updatedAt,
+                endretTidspunkt = endretTidspunkt,
                 navn = tiltaksgjennomforing.navn,
                 orgnummer = tiltaksgjennomforing.arrangor.organisasjonsnummer,
                 antallPlasser = tiltaksgjennomforing.antallPlasser,

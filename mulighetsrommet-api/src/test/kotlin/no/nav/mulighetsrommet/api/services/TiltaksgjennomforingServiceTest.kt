@@ -6,12 +6,14 @@ import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.ints.exactly
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.spyk
+import io.mockk.verify
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattDbo
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
@@ -295,6 +297,15 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             }
 
             tiltaksgjennomforingService.get(gjennomforing.id) shouldBe null
+        }
+
+        test("Hvis ingen endring publish'er vi ikke igjen") {
+            val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1Request
+
+            tiltaksgjennomforingService.upsert(gjennomforing, "B123456")
+            tiltaksgjennomforingService.upsert(gjennomforing, "B123456")
+
+            verify(exactly = 1) { tiltaksgjennomforingKafkaProducer.publish(any()) }
         }
 
         test("Hvis is publish _ikke_ kaster blir upsert værende") {
