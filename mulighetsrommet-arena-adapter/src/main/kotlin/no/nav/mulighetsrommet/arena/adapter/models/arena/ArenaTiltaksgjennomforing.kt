@@ -23,5 +23,6 @@ data class ArenaTiltaksgjennomforing(
     val KLOKKETID_FREMMOTE: String?,
     val DATO_FREMMOTE: String?,
     val TEKST_KURSSTED: String?,
+    val PROSENT_DELTID: Double?,
     val EKSTERN_ID: String? = null,
 )

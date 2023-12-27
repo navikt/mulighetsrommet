@@ -229,7 +229,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 oppstart,
                 opphav,
                 fremmote_tidspunkt,
-                fremmote_sted
+                fremmote_sted,
+                deltidsprosent
             )
             values (
                 :id::uuid,
@@ -247,7 +248,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 :oppstart::tiltaksgjennomforing_oppstartstype,
                 :opphav::opphav,
                 :fremmote_tidspunkt,
-                :fremmote_sted
+                :fremmote_sted,
+                :deltidsprosent
             )
             on conflict (id)
                 do update set navn                         = excluded.navn,
@@ -264,8 +266,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                               oppstart                     = coalesce(tiltaksgjennomforing.oppstart, excluded.oppstart),
                               opphav                       = excluded.opphav,
                               fremmote_tidspunkt           = excluded.fremmote_tidspunkt,
-                              fremmote_sted                = excluded.fremmote_sted
-            returning *
+                              fremmote_sted                = excluded.fremmote_sted,
+                              deltidsprosent               = excluded.deltidsprosent
         """.trimIndent()
 
         queryOf(query, tiltaksgjennomforing.toSqlParameters()).asExecute.let { tx.run(it) }
@@ -621,6 +623,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         "opphav" to opphav.name,
         "fremmote_tidspunkt" to fremmoteTidspunkt,
         "fremmote_sted" to fremmoteSted,
+        "deltidsprosent" to deltidsprosent,
     )
 
     private fun Row.toVeilederflateTiltaksgjennomforing(): VeilederflateTiltaksgjennomforing {

@@ -30,6 +30,7 @@ object TiltaksgjennomforingFixtures {
         avtaleId = AvtaleFixtures.avtale1.id,
         fremmoteTidspunkt = null,
         fremmoteSted = null,
+        deltidsprosent = null,
     )
 
     val Oppfolging1 = TiltaksgjennomforingDbo(
