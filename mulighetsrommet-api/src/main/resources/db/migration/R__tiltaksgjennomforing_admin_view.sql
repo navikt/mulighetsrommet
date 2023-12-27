@@ -70,7 +70,8 @@ select tg.id::uuid,
        tg.tilgjengelig_for_veileder and tg.avslutningsstatus = 'IKKE_AVSLUTTET'::avslutningsstatus
                                as vises_for_veileder,
        tg.fremmote_tidspunkt,
-       tg.fremmote_sted
+       tg.fremmote_sted,
+       tg.deltidsprosent
 from tiltaksgjennomforing tg
          inner join tiltakstype t on tg.tiltakstype_id = t.id
          left join tiltaksgjennomforing_administrator tg_a on tg_a.tiltaksgjennomforing_id = tg.id

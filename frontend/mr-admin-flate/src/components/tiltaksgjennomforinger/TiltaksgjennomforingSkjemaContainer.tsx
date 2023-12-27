@@ -99,6 +99,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
       opphav: data.opphav,
       fremmoteTidspunkt: fremmoteTidspunkt(data.fremmoteDato, data.fremmoteTid),
       fremmoteSted: data.fremmoteSted || null,
+      deltidsprosent: data.deltidsprosent,
     };
 
     mutation.mutate(body);

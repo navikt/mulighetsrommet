@@ -27,6 +27,10 @@ export const TiltaksgjennomforingSchema = z
       })
       .int()
       .positive(),
+    deltidsprosent: z.number({
+      invalid_type_error: "Deltidsprosent må være et tall mellom 0 og 100",
+      required_error: "Deltidsprosent er påkrevd",
+    }),
     navRegion: z.string({ required_error: "Du må velge én region" }),
     navEnheter: z.string().array().nonempty({
       message: "Du må velge minst én enhet",
