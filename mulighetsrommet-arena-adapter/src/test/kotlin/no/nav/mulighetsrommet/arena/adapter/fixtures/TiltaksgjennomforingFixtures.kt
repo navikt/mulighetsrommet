@@ -20,6 +20,7 @@ object TiltaksgjennomforingFixtures {
         KLOKKETID_FREMMOTE = null,
         DATO_FREMMOTE = null,
         TEKST_KURSSTED = null,
+        EKSTERN_ID = null,
     )
 
     val ArenaTiltaksgjennomforingIndividuell = ArenaTiltaksgjennomforing(
@@ -38,5 +39,6 @@ object TiltaksgjennomforingFixtures {
         KLOKKETID_FREMMOTE = null,
         DATO_FREMMOTE = null,
         TEKST_KURSSTED = null,
+        EKSTERN_ID = null,
     )
 }
