@@ -397,6 +397,16 @@ class ArenaAdapterServiceTest : FunSpec({
             }
         }
 
+        test("should only publish once for duplicated upserts") {
+            service.upsertTiltakstype(tiltakstype)
+            service.upsertTiltaksgjennomforing(tiltaksgjennomforing)
+            service.upsertTiltaksgjennomforing(tiltaksgjennomforing)
+
+            verify(exactly = 1) {
+                tiltaksgjennomforingKafkaProducer.publish(tiltaksgjennomforingDto)
+            }
+        }
+
         test("should keep references to existing avtale when avtale is managed in Mulighetsrommet") {
             forAll(row("VASV"), row("ARBFORB")) { tiltakskode ->
                 runBlocking {

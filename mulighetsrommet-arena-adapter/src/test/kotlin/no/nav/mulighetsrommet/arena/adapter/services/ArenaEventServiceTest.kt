@@ -37,21 +37,29 @@ class ArenaEventServiceTest : FunSpec({
         arenaTable = table,
         operation = ArenaEvent.Operation.Insert,
         arenaId = "1",
-        payload = JsonObject(mapOf("name" to JsonPrimitive("Foo"))),
+        payload = JsonObject(mapOf("after" to JsonObject(mapOf("name" to JsonPrimitive("Foo"))))),
     )
     val processedEvent = ArenaEvent(
         status = ProcessingStatus.Processed,
         arenaTable = table,
         operation = ArenaEvent.Operation.Insert,
         arenaId = "2",
-        payload = JsonObject(mapOf("name" to JsonPrimitive("Bar"))),
+        payload = JsonObject(mapOf("after" to JsonObject(mapOf("name" to JsonPrimitive("Bar"))))),
     )
     val invalidEvent = ArenaEvent(
         status = ProcessingStatus.Invalid,
         arenaTable = table,
         operation = ArenaEvent.Operation.Insert,
         arenaId = "3",
-        payload = JsonObject(mapOf("name" to JsonPrimitive("Baz"))),
+        payload = JsonObject(mapOf("after" to JsonObject(mapOf("name" to JsonPrimitive("Baz"))))),
+    )
+    val eksternId = UUID.randomUUID()
+    val pendingEventWithEksternId = ArenaEvent(
+        status = ProcessingStatus.Pending,
+        arenaTable = table,
+        operation = ArenaEvent.Operation.Insert,
+        arenaId = "4",
+        payload = JsonObject(mapOf("after" to JsonObject(mapOf("EKSTERN_ID" to JsonPrimitive(eksternId.toString()))))),
     )
 
     lateinit var events: ArenaEventRepository
@@ -189,6 +197,17 @@ class ArenaEventServiceTest : FunSpec({
                 .value("message").isNull
             database.assertThat("arena_entity_mapping").row()
                 .value("status").isEqualTo(Ignored.name)
+        }
+
+        test("should use EKSTERN_ID if exists") {
+            val processor = ArenaEventTestProcessor()
+
+            val service = ArenaEventService(events = events, processors = listOf(processor), entities = entities)
+            service.processEvent(pendingEventWithEksternId)
+
+            database.assertThat("arena_entity_mapping").row()
+                .value("entity_id").isEqualTo(eksternId)
+                .value("arena_id").isEqualTo(pendingEventWithEksternId.arenaId)
         }
     }
 

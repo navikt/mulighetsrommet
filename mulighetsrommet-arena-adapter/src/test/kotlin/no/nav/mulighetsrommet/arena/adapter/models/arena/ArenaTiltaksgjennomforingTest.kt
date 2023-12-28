@@ -46,6 +46,7 @@ class ArenaTiltaksgjennomforingTest : FunSpec({
                 KLOKKETID_FREMMOTE = "12:30",
                 DATO_FREMMOTE = "2022-10-10 00:00:00",
                 TEKST_KURSSTED = "I huset bortenfor huset",
+                EKSTERN_ID = null,
             )
         }
 

@@ -2110,9 +2110,6 @@ components:
           type: boolean
         visesForVeileder:
           type: boolean
-        updatedAt:
-          type: string
-          format: date-time
         fremmoteTidspunkt:
           type: string
           format: date-time
@@ -2131,7 +2128,6 @@ components:
         - apentForInnsok
         - tilgjengeligForVeileder
         - visesForVeileder
-        - updatedAt
 
     TiltaksgjennomforingRequest:
       type: object

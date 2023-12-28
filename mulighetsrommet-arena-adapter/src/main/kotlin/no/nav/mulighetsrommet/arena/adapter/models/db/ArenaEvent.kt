@@ -5,6 +5,7 @@ import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.jsonObject
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
+import java.util.*
 
 data class ArenaEvent(
     val arenaTable: ArenaTable,
@@ -63,4 +64,15 @@ data class ArenaEvent(
             JsonIgnoreUnknownKeys.decodeFromJsonElement(payload.jsonObject["after"]!!)
         }
     }
+
+    fun getEksternID(): UUID? {
+        return decodePayload<EksternIdPayload>().EKSTERN_ID?.let {
+            UUID.fromString(it)
+        }
+    }
 }
+
+@kotlinx.serialization.Serializable
+data class EksternIdPayload(
+    val EKSTERN_ID: String? = null,
+)

@@ -21,6 +21,7 @@ import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus.*
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 class TiltaksgjennomforingRepository(private val db: Database) {
@@ -285,6 +286,18 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             .map { it.toTiltaksgjennomforingAdminDto() }
             .asSingle
             .let { tx.run(it) }
+    }
+
+    fun getUpdatedAt(id: UUID): LocalDateTime? {
+        @Language("PostgreSQL")
+        val query = """
+            select updated_at from tiltaksgjennomforing where id = ?::uuid
+        """.trimIndent()
+
+        return queryOf(query, id)
+            .map { it.localDateTimeOrNull("updated_at") }
+            .asSingle
+            .let { db.run(it) }
     }
 
     fun updateSanityTiltaksgjennomforingId(id: UUID, sanityId: UUID) =
@@ -722,7 +735,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             faneinnhold = stringOrNull("faneinnhold")?.let { Json.decodeFromString(it) },
             beskrivelse = stringOrNull("beskrivelse"),
             createdAt = localDateTime("created_at"),
-            updatedAt = localDateTime("updated_at"),
             tilgjengeligForVeileder = boolean("tilgjengelig_for_veileder"),
             visesForVeileder = boolean("vises_for_veileder"),
             fremmoteTidspunkt = localDateTimeOrNull("fremmote_tidspunkt"),

@@ -122,7 +122,6 @@ object TiltaksgjennomforingFixtures {
         faneinnhold = Oppfolging1.faneinnhold,
         beskrivelse = Oppfolging1.beskrivelse,
         createdAt = Oppfolging1.startDato.atStartOfDay(),
-        updatedAt = Oppfolging1.startDato.atStartOfDay(),
         tilgjengeligForVeileder = true,
         visesForVeileder = true,
         fremmoteTidspunkt = null,

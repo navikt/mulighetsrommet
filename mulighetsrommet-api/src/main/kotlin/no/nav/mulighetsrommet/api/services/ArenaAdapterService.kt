@@ -93,10 +93,17 @@ class ArenaAdapterService(
         virksomhetService.getOrSyncVirksomhet(tiltaksgjennomforing.arrangorOrganisasjonsnummer)
         val tiltaksgjennomforingMedAvtale = tiltaksgjennomforing.copy(avtaleId = mulighetsrommetAvtaleId)
 
+        val previous = tiltaksgjennomforinger.get(tiltaksgjennomforing.id)
+
         val gjennomforing = db.transactionSuspend { tx ->
             tiltaksgjennomforinger.upsertArenaTiltaksgjennomforing(tiltaksgjennomforingMedAvtale, tx)
 
             val gjennomforing = tiltaksgjennomforinger.get(tiltaksgjennomforing.id, tx)!!
+
+            if (previous == gjennomforing) {
+                return@transactionSuspend gjennomforing
+            }
+
             logUpdate(tx, DocumentClass.TILTAKSGJENNOMFORING, gjennomforing.id, gjennomforing)
 
             gjennomforing.avtaleId?.let { avtaleId ->

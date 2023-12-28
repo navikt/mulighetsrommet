@@ -47,15 +47,19 @@ class TiltaksgjennomforingService(
     ): Either<List<ValidationError>, TiltaksgjennomforingAdminDto> {
         virksomhetService.getOrSyncVirksomhet(request.arrangorOrganisasjonsnummer)
 
+        val previous = tiltaksgjennomforinger.get(request.id)
         return validator.validate(request.toDbo())
             .map { dbo ->
                 db.transactionSuspend { tx ->
                     tiltaksgjennomforinger.upsert(dbo, tx)
                     utkastRepository.delete(dbo.id, tx)
 
-                    dispatchNotificationToNewAdministrators(tx, dbo, navIdent)
-
                     val dto = getOrError(dbo.id, tx)
+                    if (previous == dto) {
+                        return@transactionSuspend dto
+                    }
+
+                    dispatchNotificationToNewAdministrators(tx, dbo, navIdent)
                     logEndring("Redigerte gjennomføring", dto, navIdent, tx)
                     tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingDto.from(dto))
                     dto

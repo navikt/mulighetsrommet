@@ -5,6 +5,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.date.shouldNotBeBefore
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
@@ -108,7 +109,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 it.faneinnhold shouldBe null
                 it.beskrivelse shouldBe null
                 it.createdAt shouldNotBe null
-                it.updatedAt shouldNotBe null
                 it.fremmoteTidspunkt shouldBe LocalDateTime.of(2023, 1, 1, 9, 0)
                 it.fremmoteSted shouldBe "fremmote_sted"
             }
@@ -179,7 +179,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 it.faneinnhold shouldBe null
                 it.beskrivelse shouldBe null
                 it.createdAt shouldNotBe null
-                it.updatedAt shouldNotBe null
             }
         }
 
@@ -387,6 +386,16 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             tiltaksgjennomforinger.upsert(gjennomforing.copy(arrangorKontaktpersonId = null))
             tiltaksgjennomforinger.get(gjennomforing.id).should {
                 it!!.arrangor.kontaktperson shouldBe null
+            }
+        }
+
+        test("getUpdatedAt") {
+            tiltaksgjennomforinger.upsert(Oppfolging1)
+            val updatedAt = tiltaksgjennomforinger.getUpdatedAt(Oppfolging1.id)!!
+
+            tiltaksgjennomforinger.upsert(Oppfolging1)
+            tiltaksgjennomforinger.getUpdatedAt(Oppfolging1.id).should {
+                it!! shouldNotBeBefore updatedAt
             }
         }
     }
