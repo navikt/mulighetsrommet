@@ -23,7 +23,7 @@ class ArenaEntityService(
                 ArenaEntityMapping(
                     event.arenaTable,
                     event.arenaId,
-                    UUID.randomUUID(),
+                    event.getEksternID() ?: UUID.randomUUID(),
                     when (event.status) {
                         ArenaEvent.ProcessingStatus.Processed -> ArenaEntityMapping.Status.Handled
                         else -> ArenaEntityMapping.Status.Unhandled

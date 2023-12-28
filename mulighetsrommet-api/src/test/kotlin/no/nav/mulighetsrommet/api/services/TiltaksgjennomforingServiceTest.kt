@@ -6,10 +6,10 @@ import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.ints.exactly
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.spyk
@@ -53,6 +53,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
 
     afterEach {
         database.db.truncateAll()
+        clearAllMocks()
     }
 
     context("Avbryte gjennomføring") {
@@ -301,6 +302,8 @@ class TiltaksgjennomforingServiceTest : FunSpec({
 
         test("Hvis ingen endring publish'er vi ikke igjen") {
             val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1Request
+
+            every { tiltaksgjennomforingKafkaProducer.publish(any()) } returns Unit
 
             tiltaksgjennomforingService.upsert(gjennomforing, "B123456")
             tiltaksgjennomforingService.upsert(gjennomforing, "B123456")

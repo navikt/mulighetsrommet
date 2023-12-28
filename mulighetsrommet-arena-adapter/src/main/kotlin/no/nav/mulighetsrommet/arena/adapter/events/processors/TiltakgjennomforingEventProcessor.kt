@@ -140,7 +140,7 @@ class TiltakgjennomforingEventProcessor(
             requireNotNull(ARBGIV_ID_ARRANGOR)
 
             Tiltaksgjennomforing(
-                id = EKSTERN_ID?.let { UUID.fromString(it) } ?: id,
+                id = id,
                 tiltaksgjennomforingId = TILTAKGJENNOMFORING_ID,
                 sakId = SAK_ID,
                 tiltakskode = TILTAKSKODE,
