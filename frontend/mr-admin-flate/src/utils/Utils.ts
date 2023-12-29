@@ -176,7 +176,7 @@ export function kebabCase(string: string | { label: string }) {
   return specialChar(string).trim().replace(/\s+/g, "-").replace(/_/g, "-");
 }
 
-export function addOrRemove<T>(array: T[], item: T) {
+export function addOrRemove<T>(array: T[], item: T): T[] {
   const exists = array.includes(item);
 
   if (exists) {

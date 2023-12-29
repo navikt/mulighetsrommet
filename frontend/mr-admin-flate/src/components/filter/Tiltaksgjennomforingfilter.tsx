@@ -2,7 +2,10 @@ import { Accordion, Checkbox, Search, Skeleton } from "@navikt/ds-react";
 import { useAtom, WritableAtom } from "jotai";
 import { Tiltakstypestatus, VirksomhetTil } from "mulighetsrommet-api-client";
 import { useEffect, useState } from "react";
-import { TiltaksgjennomforingFilter as TiltaksgjennomforingFilterProps } from "../../api/atoms";
+import {
+  TiltaksgjennomforingFilter as TiltaksgjennomforingFilterProps,
+  gjennomforingFilterAccordionAtom,
+} from "../../api/atoms";
 import { useAvtale } from "../../api/avtaler/useAvtale";
 import { useNavEnheter } from "../../api/enhet/useNavEnheter";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
@@ -30,6 +33,7 @@ interface Props {
 
 export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
   const [filter, setFilter] = useAtom(filterAtom);
+  const [accordionsOpen, setAccordionsOpen] = useAtom(gjennomforingFilterAccordionAtom);
   const { data: avtale } = useAvtale();
   const { data: enheter, isLoading: isLoadingEnheter } = useNavEnheter();
   const { data: virksomheter, isLoading: isLoadingVirksomheter } = useVirksomheter(
@@ -79,8 +83,14 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
         aria-label="Søk etter tiltaksgjennomføring"
       />
       <Accordion>
-        <Accordion.Item>
-          <Accordion.Header>Status</Accordion.Header>
+        <Accordion.Item open={accordionsOpen.includes("status")}>
+          <Accordion.Header
+            onClick={() => {
+              setAccordionsOpen([...addOrRemove(accordionsOpen, "status")]);
+            }}
+          >
+            Status
+          </Accordion.Header>
           <Accordion.Content>
             <CheckboxList
               items={TILTAKSGJENNOMFORING_STATUS_OPTIONS}
@@ -97,8 +107,14 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
         </Accordion.Item>
 
         {!skjulFilter?.tiltakstype && (
-          <Accordion.Item>
-            <Accordion.Header>Tiltakstype</Accordion.Header>
+          <Accordion.Item open={accordionsOpen.includes("tiltakstype")}>
+            <Accordion.Header
+              onClick={() => {
+                setAccordionsOpen([...addOrRemove(accordionsOpen, "tiltakstype")]);
+              }}
+            >
+              Tiltakstype
+            </Accordion.Header>
             <Accordion.Content>
               <CheckboxList
                 items={tiltakstypeOptions(tiltakstyper.data)}
@@ -114,8 +130,14 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
             </Accordion.Content>
           </Accordion.Item>
         )}
-        <Accordion.Item>
-          <Accordion.Header>Region</Accordion.Header>
+        <Accordion.Item open={accordionsOpen.includes("region")}>
+          <Accordion.Header
+            onClick={() => {
+              setAccordionsOpen([...addOrRemove(accordionsOpen, "region")]);
+            }}
+          >
+            Region
+          </Accordion.Header>
           <Accordion.Content>
             <CheckboxList
               items={regionOptions(enheter)}
@@ -130,8 +152,14 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
             />
           </Accordion.Content>
         </Accordion.Item>
-        <Accordion.Item>
-          <Accordion.Header>Enhet</Accordion.Header>
+        <Accordion.Item open={accordionsOpen.includes("enhet")}>
+          <Accordion.Header
+            onClick={() => {
+              setAccordionsOpen([...addOrRemove(accordionsOpen, "enhet")]);
+            }}
+          >
+            Enhet
+          </Accordion.Header>
           <Accordion.Content>
             <CheckboxList
               searchable
@@ -147,8 +175,14 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
             />
           </Accordion.Content>
         </Accordion.Item>
-        <Accordion.Item>
-          <Accordion.Header>Arrangør</Accordion.Header>
+        <Accordion.Item open={accordionsOpen.includes("arrangor")}>
+          <Accordion.Header
+            onClick={() => {
+              setAccordionsOpen([...addOrRemove(accordionsOpen, "arrangor")]);
+            }}
+          >
+            Arrangør
+          </Accordion.Header>
           <Accordion.Content>
             <CheckboxList
               searchable

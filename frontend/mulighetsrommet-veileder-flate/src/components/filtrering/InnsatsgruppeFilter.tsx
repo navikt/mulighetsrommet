@@ -2,31 +2,29 @@ import { Accordion, Alert, Loader, Radio, RadioGroup } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { Innsatsgruppe } from "mulighetsrommet-api-client";
 import { useInnsatsgrupper } from "../../core/api/queries/useInnsatsgrupper";
-import { tiltaksgjennomforingsfilter } from "../../core/atoms/atoms";
-import { kebabCase } from "../../utils/Utils";
+import { filterAccordionAtom, tiltaksgjennomforingsfilter } from "../../core/atoms/atoms";
+import { addOrRemove, kebabCase } from "../../utils/Utils";
 import "./Filtermeny.module.scss";
 
 interface InnsatsgruppeFilterProps<
   T extends { id: string; tittel: string; nokkel?: Innsatsgruppe },
 > {
-  accordionNavn: string;
   option?: Innsatsgruppe;
   setOption: (type: Innsatsgruppe) => void;
   options: T[];
   isLoading: boolean;
   isError: boolean;
-  defaultOpen?: boolean;
 }
 
 const InnsatsgruppeAccordion = <T extends { id: string; tittel: string; nokkel?: Innsatsgruppe }>({
-  accordionNavn,
   option,
   setOption,
   options,
   isLoading,
   isError,
-  defaultOpen = false,
 }: InnsatsgruppeFilterProps<T>) => {
+  const [accordionsOpen, setAccordionsOpen] = useAtom(filterAccordionAtom);
+
   const radiobox = (option: T) => {
     return (
       <Radio
@@ -40,11 +38,16 @@ const InnsatsgruppeAccordion = <T extends { id: string; tittel: string; nokkel?:
   };
 
   return (
-    <Accordion.Item defaultOpen={defaultOpen}>
-      <Accordion.Header data-testid={`filter_accordionheader_${kebabCase(accordionNavn)}`}>
-        {accordionNavn}
+    <Accordion.Item open={accordionsOpen.includes("innsatsgruppe")}>
+      <Accordion.Header
+        onClick={() => {
+          setAccordionsOpen([...addOrRemove(accordionsOpen, "innsatsgruppe")]);
+        }}
+        data-testid={"filter_accordionheader_innsatsgruppe"}
+      >
+        Innsatsgruppe
       </Accordion.Header>
-      <Accordion.Content data-testid={`filter_accordioncontent_${kebabCase(accordionNavn)}`}>
+      <Accordion.Content data-testid={"filter_accordioncontent_innsatsgruppe"}>
         {isLoading && <Loader size="xlarge" />}
         {options.length !== 0 && (
           <RadioGroup
@@ -94,7 +97,6 @@ function InnsatsgruppeFilter() {
   });
   return (
     <InnsatsgruppeAccordion
-      accordionNavn="Innsatsgruppe"
       option={filter.innsatsgruppe?.nokkel}
       setOption={(innsatsgruppe) => {
         handleEndreFilter(innsatsgruppe);
@@ -102,7 +104,6 @@ function InnsatsgruppeFilter() {
       options={options ?? []}
       isLoading={innsatsgrupper.isLoading}
       isError={innsatsgrupper.isError}
-      defaultOpen
     />
   );
 }
