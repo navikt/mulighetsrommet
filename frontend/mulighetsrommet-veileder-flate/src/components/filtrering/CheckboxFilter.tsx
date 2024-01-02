@@ -1,6 +1,8 @@
 import { Accordion, Alert, Checkbox, CheckboxGroup, Loader } from "@navikt/ds-react";
 import React from "react";
-import { kebabCase } from "../../utils/Utils";
+import { addOrRemove, kebabCase } from "../../utils/Utils";
+import { filterAccordionAtom } from "../../core/atoms/atoms";
+import { useAtom } from "jotai";
 
 interface CheckboxFilterProps<T extends { id: string; tittel: string }> {
   accordionNavn: string;
@@ -9,7 +11,6 @@ interface CheckboxFilterProps<T extends { id: string; tittel: string }> {
   data: T[];
   isLoading: boolean;
   isError: boolean;
-  defaultOpen?: boolean;
   sortert?: boolean;
 }
 
@@ -20,9 +21,9 @@ const CheckboxFilter = <T extends { id: string; tittel: string }>({
   data,
   isLoading,
   isError,
-  defaultOpen = false,
   sortert = false,
 }: CheckboxFilterProps<T>) => {
+  const [accordionsOpen, setAccordionsOpen] = useAtom(filterAccordionAtom);
   const valgteTypeIDer = options.map((type) => type.id);
   const kebabCaseAccordionNavn = kebabCase(accordionNavn);
 
@@ -47,8 +48,13 @@ const CheckboxFilter = <T extends { id: string; tittel: string }>({
   };
 
   return (
-    <Accordion.Item defaultOpen={defaultOpen}>
-      <Accordion.Header data-testid={`filter_accordionheader_${kebabCaseAccordionNavn}`}>
+    <Accordion.Item open={accordionsOpen.includes(kebabCaseAccordionNavn)}>
+      <Accordion.Header
+        onClick={() => {
+          setAccordionsOpen([...addOrRemove(accordionsOpen, kebabCaseAccordionNavn)]);
+        }}
+        data-testid={`filter_accordionheader_${kebabCaseAccordionNavn}`}
+      >
         {accordionNavn}
       </Accordion.Header>
       <Accordion.Content data-testid={`filter_accordioncontent_${kebabCaseAccordionNavn}`}>

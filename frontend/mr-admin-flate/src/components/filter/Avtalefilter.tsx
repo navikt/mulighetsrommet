@@ -5,7 +5,7 @@ import { useNavEnheter } from "../../api/enhet/useNavEnheter";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
 import { useVirksomheter } from "../../api/virksomhet/useVirksomheter";
 import { addOrRemove } from "../../utils/Utils";
-import { AvtaleFilter as AvtaleFilterProps } from "../../api/atoms";
+import { AvtaleFilter as AvtaleFilterProps, avtaleFilterAccordionAtom } from "../../api/atoms";
 import { CheckboxList } from "./Tiltaksgjennomforingfilter";
 import {
   AVTALE_STATUS_OPTIONS,
@@ -23,6 +23,7 @@ interface Props {
 
 export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
   const [filter, setFilter] = useAtom(filterAtom);
+  const [accordionsOpen, setAccordionsOpen] = useAtom(avtaleFilterAccordionAtom);
   const { data: enheter, isLoading: isLoadingEnheter } = useNavEnheter();
   const { data: virksomheter, isLoading: isLoadingVirksomheter } = useVirksomheter(
     VirksomhetTil.AVTALE,
@@ -63,8 +64,14 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
         aria-label="Søk etter tiltaksgjennomføring"
       />
       <Accordion>
-        <Accordion.Item>
-          <Accordion.Header>Status</Accordion.Header>
+        <Accordion.Item open={accordionsOpen.includes("status")}>
+          <Accordion.Header
+            onClick={() => {
+              setAccordionsOpen([...addOrRemove(accordionsOpen, "status")]);
+            }}
+          >
+            Status
+          </Accordion.Header>
           <Accordion.Content>
             <CheckboxList
               items={AVTALE_STATUS_OPTIONS}
@@ -80,8 +87,14 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
           </Accordion.Content>
         </Accordion.Item>
         {!skjulFilter?.tiltakstype && (
-          <Accordion.Item>
-            <Accordion.Header>Tiltakstype</Accordion.Header>
+          <Accordion.Item open={accordionsOpen.includes("tiltakstype")}>
+            <Accordion.Header
+              onClick={() => {
+                setAccordionsOpen([...addOrRemove(accordionsOpen, "tiltakstype")]);
+              }}
+            >
+              Tiltakstype
+            </Accordion.Header>
             <Accordion.Content>
               <CheckboxList
                 items={tiltakstypeOptions(tiltakstyper.data)}
@@ -97,8 +110,14 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
             </Accordion.Content>
           </Accordion.Item>
         )}
-        <Accordion.Item>
-          <Accordion.Header>Region</Accordion.Header>
+        <Accordion.Item open={accordionsOpen.includes("region")}>
+          <Accordion.Header
+            onClick={() => {
+              setAccordionsOpen([...addOrRemove(accordionsOpen, "region")]);
+            }}
+          >
+            Region
+          </Accordion.Header>
           <Accordion.Content>
             <CheckboxList
               items={regionOptions(enheter)}
@@ -113,8 +132,14 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
             />
           </Accordion.Content>
         </Accordion.Item>
-        <Accordion.Item>
-          <Accordion.Header>Leverandør</Accordion.Header>
+        <Accordion.Item open={accordionsOpen.includes("leverandor")}>
+          <Accordion.Header
+            onClick={() => {
+              setAccordionsOpen([...addOrRemove(accordionsOpen, "leverandor")]);
+            }}
+          >
+            Leverandør
+          </Accordion.Header>
           <Accordion.Content>
             <CheckboxList
               searchable

@@ -22,7 +22,6 @@ export function Tiltakstypefilter() {
       isLoading={tiltakstyper.isLoading}
       isError={tiltakstyper.isError}
       sortert
-      defaultOpen={filter.tiltakstyper.length > 0}
     />
   );
 }
