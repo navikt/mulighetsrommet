@@ -1,24 +1,56 @@
 import { Avtale } from "mulighetsrommet-api-client";
-import { Lenkeknapp } from "../../components/lenkeknapp/Lenkeknapp";
 import styles from "../DetaljerInfo.module.scss";
 import { useAvtaleEndringshistorikk } from "../../api/avtaler/useAvtaleEndringshistorikk";
 import { ViewEndringshistorikk } from "../../components/endringshistorikk/ViewEndringshistorikk";
 import { EndringshistorikkPopover } from "../../components/endringshistorikk/EndringshistorikkPopover";
+import { RedigeringsAdvarselModal } from "../../components/modal/RedigeringsAdvarselModal";
+import { Button } from "@navikt/ds-react";
+import { Laster } from "../../components/laster/Laster";
+import { useRef } from "react";
+import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
+import { useNavigate } from "react-router-dom";
 
 interface Props {
   avtale: Avtale;
 }
 
 export function AvtaleKnapperad({ avtale }: Props) {
+  const navigate = useNavigate();
+  const { data: bruker } = useHentAnsatt();
+  const advarselModal = useRef<HTMLDialogElement>(null);
+
+  if (!bruker) {
+    return <Laster />;
+  }
+
   return (
     <div className={styles.knapperad}>
       <EndringshistorikkPopover>
         <AvtaleEndringshistorikk id={avtale.id} />
       </EndringshistorikkPopover>
 
-      <Lenkeknapp size="small" to={`/avtaler/${avtale.id}/skjema`} variant="primary">
-        Rediger avtale
-      </Lenkeknapp>
+      <Button
+        size="small"
+        variant="primary"
+        onClick={() => {
+          if (
+            avtale.administratorer &&
+            avtale.administratorer.length > 0 &&
+            !avtale.administratorer.map((a) => a.navIdent).includes(bruker.navIdent)
+          ) {
+            advarselModal.current?.showModal();
+          } else {
+            navigate("skjema");
+          }
+        }}
+      >
+        Rediger
+      </Button>
+      <RedigeringsAdvarselModal
+        ressursNavn="avtalen"
+        modalRef={advarselModal}
+        onRediger={() => navigate("skjema")}
+      />
     </div>
   );
 }
