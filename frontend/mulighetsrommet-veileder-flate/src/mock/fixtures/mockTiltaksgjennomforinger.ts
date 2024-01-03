@@ -61,7 +61,7 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
     stedForGjennomforing: "2050 JESSHEIM",
     apentForInnsok: true,
     tiltakstype: mockTiltakstyper.gruppe_amo,
-    oppstart: TiltaksgjennomforingOppstartstype.LOPENDE,
+    oppstart: TiltaksgjennomforingOppstartstype.FELLES,
     oppstartsdato: "2023-11-01",
     sluttdato: "2023-11-30",
     arrangor: {
