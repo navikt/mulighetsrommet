@@ -10,12 +10,26 @@ import {
 import { atom, WritableAtom } from "jotai";
 import { atomFamily } from "jotai/utils";
 import { AVTALE_PAGE_SIZE, PAGE_SIZE } from "../constants";
+import { RESET } from "jotai/vanilla/utils";
+
+type SetStateActionWithReset<Value> =
+  | Value
+  | typeof RESET
+  | ((prev: Value) => Value | typeof RESET);
+
+const safeJSONParse = (initialValue: unknown) => (str: string) => {
+  try {
+    return JSON.parse(str);
+  } catch (e) {
+    return initialValue;
+  }
+};
 
 // Bump version number when localStorage should be cleared
 const version = localStorage.getItem("version");
-if (version !== "1") {
+if (version !== "1.2") {
   localStorage.clear();
-  localStorage.setItem("version", "1");
+  localStorage.setItem("version", "1.2");
 }
 
 /**
@@ -23,7 +37,7 @@ if (version !== "1") {
  * finnes i storage (https://github.com/pmndrs/jotai/discussions/1879#discussioncomment-5626120)
  * Dette er anbefalt måte og ha en sync versjon av atomWithStorage
  */
-function atomWithStorage<Value>(key: string, initialValue: Value, storage = localStorage) {
+function atomWithStorage<Value>(key: string, initialValue: Value, storage: Storage) {
   const baseAtom = atom(storage.getItem(key) ?? JSON.stringify(initialValue));
   return atom(
     (get) => JSON.parse(get(baseAtom)) as Value,
@@ -35,31 +49,83 @@ function atomWithStorage<Value>(key: string, initialValue: Value, storage = loca
   );
 }
 
+/**
+ * Kopiert fra https://github.com/jotaijs/jotai-location/blob/main/src/atomWithHash.ts
+ * med unntak av:
+ * - det indre atom'et som er endret til et storage atom
+ * - setHash har alltid "replaceState" oppførsel (dvs. lager ikke ny entry i history)
+ * - Forsøker å lese inn hash først (ytterst i funksjonen her), uten dette funka ikke
+ *   lenking med hash i ny fane
+ */
 function atomWithHashAndStorage<Value>(
   key: string,
   initialValue: Value,
-  storage: Storage = localStorage,
-): WritableAtom<Value, Value[], void> {
-  const setHash = (hash: string) => {
-    const searchParams = new URLSearchParams(window.location.hash.slice(1));
-    searchParams.set(key, hash);
+  storage: Storage,
+  options?: {
+    serialize?: (val: Value) => string;
+    deserialize?: (str: string) => Value;
+    subscribe?: (callback: () => void) => () => void;
+  },
+): WritableAtom<Value, [SetStateActionWithReset<Value>], void> {
+  const serialize = options?.serialize || JSON.stringify;
+  const deserialize = options?.deserialize || safeJSONParse(initialValue);
+  const subscribe =
+    options?.subscribe ||
+    ((callback) => {
+      window.addEventListener("hashchange", callback);
+      return () => {
+        window.removeEventListener("hashchange", callback);
+      };
+    });
+  const setHash = (searchParams: string) => {
     window.history.replaceState(
-      null,
+      window.history.state,
       "",
-      `${window.location.pathname}${window.location.search}#${searchParams.toString()}`,
+      `${window.location.pathname}${window.location.search}#${searchParams}`,
     );
   };
-  const innerAtom = atomWithStorage(key, initialValue, storage);
 
+  let str = null;
+  if (typeof window !== "undefined" && window.location) {
+    const searchParams = new URLSearchParams(window.location.hash.slice(1));
+    str = searchParams.get(key);
+  }
+
+  const strAtom = atomWithStorage<string | null>("strAtom", str, storage);
+  strAtom.onMount = (setAtom) => {
+    if (typeof window === "undefined" || !window.location) {
+      return undefined;
+    }
+    const callback = () => {
+      const searchParams = new URLSearchParams(window.location.hash.slice(1));
+      const str = searchParams.get(key);
+      setAtom(str);
+    };
+    const unsubscribe = subscribe(callback);
+    callback();
+    return unsubscribe;
+  };
+  const valueAtom = atom((get) => {
+    const str = get(strAtom);
+    return str === null ? initialValue : deserialize(str);
+  });
   return atom(
-    (get) => {
-      const value = get(innerAtom);
-      setHash(JSON.stringify(value));
-      return value;
-    },
-    (_get, set, newValue: Value) => {
-      set(innerAtom, newValue);
-      setHash(JSON.stringify(newValue));
+    (get) => get(valueAtom),
+    (get, set, update: SetStateActionWithReset<Value>) => {
+      const nextValue =
+        typeof update === "function"
+          ? (update as (prev: Value) => Value | typeof RESET)(get(valueAtom))
+          : update;
+      const searchParams = new URLSearchParams(window.location.hash.slice(1));
+      if (nextValue === RESET) {
+        set(strAtom, null);
+        searchParams.delete(key);
+      } else {
+        const str = serialize(nextValue);
+        set(strAtom, str);
+        searchParams.set(key, str);
+      }
+      setHash(searchParams.toString());
     },
   );
 }
@@ -81,6 +147,7 @@ export const defaultTiltakstypeFilter: TiltakstypeFilter = {
 export const tiltakstypeFilterAtom = atomWithHashAndStorage<TiltakstypeFilter>(
   "tiltakstype-filter",
   defaultTiltakstypeFilter,
+  sessionStorage,
 );
 
 export interface TiltaksgjennomforingFilter {
@@ -114,6 +181,7 @@ export const defaultTiltaksgjennomforingfilter: TiltaksgjennomforingFilter = {
 export const tiltaksgjennomforingfilterAtom = atomWithHashAndStorage<TiltaksgjennomforingFilter>(
   "tiltaksgjennomforing-filter",
   defaultTiltaksgjennomforingfilter,
+  sessionStorage,
 );
 
 export const gjennomforingerForAvtaleFilterAtomFamily = atomFamily<
@@ -157,6 +225,7 @@ export const defaultAvtaleFilter: AvtaleFilter = {
 export const avtaleFilterAtom = atomWithHashAndStorage<AvtaleFilter>(
   "avtale-filter",
   defaultAvtaleFilter,
+  sessionStorage,
 );
 
 export const getAvtalerForTiltakstypeFilterAtom = atomFamily<
