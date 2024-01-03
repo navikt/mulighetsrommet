@@ -36,4 +36,19 @@
       margin-bottom: 0.25rem;
     }
   }
+
+  .teamslenke {
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
+  .definisjonsliste {
+    display: grid;
+    grid-template-columns: 0.5rem 1fr;
+    gap: 0.4rem;
+    dt,
+    dd {
+      display: inline;
+    }
+  }
 }
