@@ -102,7 +102,9 @@ function PersonsensitiveOpplysningerModal({ modalRef, epost }: Props) {
         </div>
       </Modal.Header>
       <Modal.Body>
-        <BodyShort>Ikke del personsitive opplysninger når du diskuterer tiltak på Teams.</BodyShort>
+        <BodyShort>
+          Ikke del personsensitive opplysninger når du diskuterer tiltak på Teams.
+        </BodyShort>
       </Modal.Body>
       <Modal.Footer>
         <div className={styles.knapperad}>
