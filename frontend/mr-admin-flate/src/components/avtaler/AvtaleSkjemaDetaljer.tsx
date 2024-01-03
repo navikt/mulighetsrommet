@@ -40,6 +40,7 @@ interface Props {
 
 export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: Props) {
   const [sokLeverandor, setSokLeverandor] = useState(avtale?.leverandor?.organisasjonsnummer || "");
+  const [valgtLeverandor, setValgtLeverandor] = useState<{ name?: string; value?: any }>({});
   const { data: leverandorVirksomheter = [] } = useSokVirksomheter(sokLeverandor);
 
   const { data: betabrukere } = useHentBetabrukere();
@@ -71,6 +72,24 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
   const { startDato } = watch("startOgSluttDato");
   const sluttDatoFraDato = startDato ? new Date(startDato) : minStartdato;
   const sluttDatoTilDato = addYear(startDato ? new Date(startDato) : new Date(), 5);
+
+  const leverandorOptions = () => {
+    const options = leverandorVirksomheter.map((enhet) => ({
+      value: enhet.organisasjonsnummer,
+      label: `${enhet.navn} - ${enhet.organisasjonsnummer}`,
+    }));
+
+    // Fordi leverandør søk nulles ut når man velger leverandør legger vi til
+    // den valgte leverandøren manuelt i lista her.
+    if (valgtLeverandor?.name && valgtLeverandor?.value) {
+      options.push({
+        label: valgtLeverandor?.name,
+        value: valgtLeverandor?.value,
+      });
+    }
+
+    return options;
+  };
 
   return (
     <div className={skjemastyles.container}>
@@ -232,16 +251,14 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
                 placeholder="Skriv for å søke etter tiltaksarrangør"
                 label={"Tiltaksarrangør hovedenhet"}
                 {...register("leverandor")}
+                onChange={(v) => {
+                  setValgtLeverandor(v.target);
+                }}
                 onInputChange={(value) => {
-                  if (value) {
-                    setSokLeverandor(value);
-                  }
+                  setSokLeverandor(value);
                 }}
                 onClearValue={() => setValue("leverandor", "")}
-                options={leverandorVirksomheter.map((enhet) => ({
-                  value: enhet.organisasjonsnummer,
-                  label: `${enhet.navn} - ${enhet.organisasjonsnummer}`,
-                }))}
+                options={leverandorOptions()}
               />
               <ControlledMultiSelect
                 size="small"
