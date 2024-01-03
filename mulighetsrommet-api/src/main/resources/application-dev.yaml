@@ -63,6 +63,12 @@ app:
       # (GRP) mr-nav_kontaktperson
       - adGruppeId: 7b1d209a-f6c1-4c6e-84f2-02a1bb4c92ba
         rolle: KONTAKTPERSON
+      # 0000-GA-mr-admin-flate_tiltaksgjennomforinger_skriv
+      - adGruppeId: b3ace38f-9c62-43ef-9e6b-99c0e227afad
+        rolle: TILTAKSGJENNOMFORINGER_SKRIV
+      # 0000-GA-mr-admin-flate_avtaler_skriv
+      - adGruppeId: dfcce624-ad5d-4cd0-abc0-554dd66858e5
+        rolle: AVTALER_SKRIV
 
   sanity:
     dataset: ${SANITY_DATASET}

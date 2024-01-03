@@ -116,7 +116,7 @@ Følgende steg kan benyttes til å generere opp et token:
          ],
          "oid": "0bab029e-e84e-4842-8a27-d153b29782cf",
          "azp_name": "test name",
-         "groups": ["ee45478c-57a5-4ee6-b28d-b65f8c1733fe"]
+         "groups": ["ee45478c-57a5-4ee6-b28d-b65f8c1733fe", "b3ace38f-9c62-43ef-9e6b-99c0e227afad", "dfcce624-ad5d-4cd0-abc0-554dd66858e5"]
        }
        ```
     4. Trykk `Sign in`
