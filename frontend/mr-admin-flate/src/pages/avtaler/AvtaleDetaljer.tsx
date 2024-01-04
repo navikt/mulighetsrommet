@@ -204,13 +204,13 @@ export function AvtaleDetaljer() {
             header="Arrangører underenheter"
             verdi={
               <ul>
-                {leverandorUnderenheter
-                  .filter((enhet) => enhet.navn)
-                  .map((enhet) => (
-                    <li key={enhet.organisasjonsnummer}>
-                      {enhet.navn} - {enhet.organisasjonsnummer}
-                    </li>
-                  ))}
+                {leverandorUnderenheter.map((enhet) => (
+                  <li key={enhet.organisasjonsnummer}>
+                    {enhet?.navn
+                      ? `${enhet.navn} - ${enhet.organisasjonsnummer}`
+                      : `${enhet.organisasjonsnummer}`}
+                  </li>
+                ))}
               </ul>
             }
           />
