@@ -7,6 +7,7 @@ import io.mockk.mockk
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.domain.dto.TiltakshistorikkDto
+import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
@@ -20,7 +21,7 @@ import java.time.LocalDateTime
 import java.util.*
 
 class TiltakshistorikkServiceTest : FunSpec({
-    val arrangorService: ArrangorService = mockk()
+    val virksomhetService: VirksomhetService = mockk()
 
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
@@ -113,10 +114,16 @@ class TiltakshistorikkServiceTest : FunSpec({
     test("henter historikk for bruker basert på person id med arrangørnavn") {
         val bedriftsnavn = "Bedriftsnavn"
         val bedriftsnavn2 = "Bedriftsnavn 2"
-        coEvery { arrangorService.hentOverordnetEnhetNavnForArrangor("123456789") } returns bedriftsnavn
-        coEvery { arrangorService.hentOverordnetEnhetNavnForArrangor("12343") } returns bedriftsnavn2
+        coEvery { virksomhetService.getOrSyncVirksomhet("123456789") } returns VirksomhetDto(
+            navn = bedriftsnavn,
+            organisasjonsnummer = "123456789",
+        )
+        coEvery { virksomhetService.getOrSyncVirksomhet("12343") } returns VirksomhetDto(
+            navn = bedriftsnavn2,
+            organisasjonsnummer = "12343",
+        )
 
-        val historikkService = TiltakshistorikkService(arrangorService, TiltakshistorikkRepository(database.db))
+        val historikkService = TiltakshistorikkService(virksomhetService, TiltakshistorikkRepository(database.db))
 
         val forventetHistorikk = listOf(
             TiltakshistorikkDto(
