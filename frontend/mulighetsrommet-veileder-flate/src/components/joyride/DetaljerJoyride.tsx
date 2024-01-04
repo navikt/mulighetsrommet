@@ -1,7 +1,6 @@
 import { JoyrideType } from "mulighetsrommet-api-client";
 import Joyride, { ACTIONS, CallBackProps, EVENTS, STATUS } from "react-joyride";
 import { useJoyride } from "../../core/api/queries/useJoyride";
-import styles from "./Joyride.module.scss";
 import { JoyrideKnapp } from "./JoyrideKnapp";
 import { detaljerSteps, isStep, useSteps } from "./Steps";
 import { locale, styling } from "./config";
@@ -56,7 +55,6 @@ export function DetaljerJoyride({ opprettAvtale }: Props) {
           setStepIndex(0);
           setIsReady(true);
         }}
-        className={styles.joyride_detaljer}
       />
       <Joyride
         locale={locale}

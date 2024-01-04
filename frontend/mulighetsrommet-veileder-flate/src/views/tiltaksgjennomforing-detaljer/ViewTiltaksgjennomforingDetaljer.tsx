@@ -145,10 +145,10 @@ const ViewTiltaksgjennomforingDetaljer = ({
           />
         )}
         {!erPreview() && (
-          <>
+          <div>
             <DetaljerJoyride opprettAvtale={opprettAvtale} />
             {opprettAvtale ? <OpprettAvtaleJoyride opprettAvtale={opprettAvtale} /> : null}
-          </>
+          </div>
         )}
       </div>
       <BrukerKvalifisererIkkeVarsel
