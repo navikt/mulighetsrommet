@@ -21,8 +21,6 @@ import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
 import no.nav.mulighetsrommet.api.clients.brreg.BrregClientImpl
 import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogClient
 import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogClientImpl
-import no.nav.mulighetsrommet.api.clients.enhetsregister.AmtEnhetsregisterClient
-import no.nav.mulighetsrommet.api.clients.enhetsregister.AmtEnhetsregisterClientImpl
 import no.nav.mulighetsrommet.api.clients.msgraph.MicrosoftGraphClient
 import no.nav.mulighetsrommet.api.clients.msgraph.MicrosoftGraphClientImpl
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Client
@@ -183,14 +181,6 @@ private fun services(appConfig: AppConfig) = module {
     val m2mTokenProvider = createM2mTokenClient(appConfig)
     val oboTokenProvider = createOboTokenClient(appConfig)
 
-    single<AmtEnhetsregisterClient> {
-        AmtEnhetsregisterClientImpl(
-            baseUrl = appConfig.amtEnhetsregister.url,
-            tokenProvider = {
-                m2mTokenProvider.createMachineToMachineToken(appConfig.amtEnhetsregister.scope)
-            },
-        )
-    }
     single<VeilarboppfolgingClient> {
         VeilarboppfolgingClientImpl(
             baseUrl = appConfig.veilarboppfolgingConfig.url,
@@ -283,7 +273,6 @@ private fun services(appConfig: AppConfig) = module {
     single { AvtaleService(get(), get(), get(), get(), get(), get(), get(), get()) }
     single { TiltakshistorikkService(get(), get()) }
     single { VeilederflateService(get(), get(), get(), get()) }
-    single { ArrangorService(get()) }
     single { BrukerService(get(), get(), get(), get()) }
     single { DialogService(get()) }
     single { NavAnsattService(appConfig.auth.roles, get(), get(), get()) }

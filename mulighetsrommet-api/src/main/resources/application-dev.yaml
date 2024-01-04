@@ -93,10 +93,6 @@ app:
     url: http://poao-tilgang.poao
     scope: api://dev-gcp.poao.poao-tilgang/.default
 
-  amtEnhetsregister:
-    url: http://amt-enhetsregister.amt
-    scope: api://dev-gcp.amt.amt-enhetsregister/.default
-
   msGraphConfig:
     url: https://graph.microsoft.com
     scope: https://graph.microsoft.com/.default

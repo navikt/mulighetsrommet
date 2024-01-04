@@ -80,10 +80,6 @@ app:
     url: http://localhost:8090/poao-tilgang
     scope: default
 
-  amtEnhetsregister:
-    url: http://localhost:8090/amt-enhetsregister
-    scope: default
-
   msGraphConfig:
     url: http://localhost:8090/ms-graph
     scope: default
