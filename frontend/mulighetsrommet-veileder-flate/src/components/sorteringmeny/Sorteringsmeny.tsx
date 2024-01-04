@@ -18,8 +18,8 @@ export const Sorteringsmeny = ({ sortValue, setSortValue }: Props) => {
       data-testid="sortering-select"
     >
       <option value="tiltakstype-ascending">Sorter etter:</option>
-      <option value="oppstart-ascending">Oppstartsdato synkende</option>
-      <option value="oppstart-descending">Oppstartsdato stigende</option>
+      <option value="oppstart-descending">Oppstartsdato synkende</option>
+      <option value="oppstart-ascending">Oppstartsdato stigende</option>
       <option value="navn-ascending">Tittel a-å</option>
       <option value="navn-descending">Tittel å-a</option>
     </Select>
