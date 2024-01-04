@@ -20,7 +20,7 @@ enum class AuthProvider {
     AZURE_AD_TILTAKSGJENNOMFORING_APP,
     AZURE_AD_BETABRUKER,
     AZURE_AD_AVTALER_SKRIV,
-    AZURE_AD_TILTAKSJENNOMFORING_SKRIV,
+    AZURE_AD_TILTAKSJENNOMFORINGER_SKRIV,
 }
 
 object AppRoles {
@@ -98,7 +98,7 @@ fun Application.configureAuthentication(
             }
         }
 
-        jwt(AuthProvider.AZURE_AD_TILTAKSJENNOMFORING_SKRIV.name) {
+        jwt(AuthProvider.AZURE_AD_TILTAKSJENNOMFORINGER_SKRIV.name) {
             verifier(jwkProvider, azure.issuer) {
                 withAudience(azure.audience)
             }
