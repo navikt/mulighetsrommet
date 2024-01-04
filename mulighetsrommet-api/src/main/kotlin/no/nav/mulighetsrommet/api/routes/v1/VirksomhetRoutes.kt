@@ -38,7 +38,7 @@ fun Route.virksomhetRoutes() {
 
             val enhet = virksomhetService.getOrSyncVirksomhet(orgnr)
             if (enhet == null) {
-                call.respond(HttpStatusCode.NotFound, "Fant ikke enhet med orgnr: $orgnr")
+                call.respond(HttpStatusCode.NoContent, "Fant ikke enhet med orgnr: $orgnr")
             } else {
                 call.respond(enhet)
             }

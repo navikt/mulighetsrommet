@@ -1,3 +1,18 @@
+.historikk_knapp {
+  :global(.navds-label) {
+    display: flex;
+    flex-direction: row;
+    gap: 2px;
+    align-items: center;
+  }
+
+  svg {
+    margin: 0 auto;
+    width: 1.5rem;
+    height: auto;
+  }
+}
+
 .historikk_modal {
   min-width: 40rem;
   width: 50rem;

@@ -1,9 +1,10 @@
-import { Alert, BodyShort, Heading } from "@navikt/ds-react";
+import { Alert, BodyShort, Button, Heading, Modal } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import {
   SanityKontakinfoTiltaksansvarlige,
   VeilederflateTiltaksgjennomforing,
 } from "mulighetsrommet-api-client";
+import { RefObject, useRef } from "react";
 import { Link } from "react-router-dom";
 import { geografiskEnhetForPreviewAtom } from "../../../core/atoms/atoms";
 import { erPreview } from "../../../utils/Utils";
@@ -18,6 +19,7 @@ interface NavKontaktpersonInfoProps {
 const NavKontaktpersonInfo = ({ data }: NavKontaktpersonInfoProps) => {
   const { kontaktinfoTiltaksansvarlige: tiltaksansvarlige } = data;
   const [brukersGeografiskeEnhet] = useAtom(geografiskEnhetForPreviewAtom);
+  const modalRef = useRef<HTMLDialogElement>(null);
 
   if (erPreview() && !brukersGeografiskeEnhet) {
     return (
@@ -49,35 +51,70 @@ const NavKontaktpersonInfo = ({ data }: NavKontaktpersonInfoProps) => {
             <BodyShort className={styles.navn} size="small">
               {navn}
             </BodyShort>
-
             <BodyShort as="div" size="small">
-              <div className={styles.infofelt}>
-                <div className={styles.kolonne}>
-                  {telefonnummer && <span>Telefon:</span>}
-                  <span>Epost:</span>
-                  <span>Teams:</span>
-                  <span>Enhet:</span>
-                </div>
-
-                <div className={styles.kolonne}>
-                  {telefonnummer && <span>{telefonnummer}</span>}
-                  <a href={`mailto:${epost}`}>{epost}</a>
-                  <a
-                    target="_blank"
-                    rel="noreferrer"
-                    href={`${TEAMS_DYPLENKE}${encodeURIComponent(epost)}`}
-                  >
+              <dl className={styles.definisjonsliste}>
+                <dt>Teams: </dt>
+                <dd>
+                  <a className={styles.teamslenke} onClick={() => modalRef?.current?.showModal()}>
                     Kontakt meg på Teams
                   </a>
+                </dd>
+                <dt>Epost: </dt>
+                <dd>
+                  <a href={`mailto:${epost}`}>{epost}</a>
+                </dd>
+                <dt>Telefon: </dt>
+                <dd> {telefonnummer && <span>{telefonnummer}</span>}</dd>
+                <dt>Enhet: </dt>
+                <dd>
                   <span>{enhet}</span>
-                </div>
-              </div>
+                </dd>
+              </dl>
             </BodyShort>
+            <PersonsensitiveOpplysningerModal modalRef={modalRef} epost={epost} />
           </div>
         );
       })}
     </div>
   );
 };
+
+interface Props {
+  modalRef: RefObject<HTMLDialogElement>;
+  epost: string;
+}
+
+function PersonsensitiveOpplysningerModal({ modalRef, epost }: Props) {
+  function onClose() {
+    modalRef?.current?.close();
+  }
+
+  function openTeams() {
+    window.open(`${TEAMS_DYPLENKE}${encodeURIComponent(epost)}`, "_newtab");
+    modalRef?.current?.close();
+  }
+
+  return (
+    <Modal ref={modalRef} onClose={onClose} aria-label="modal">
+      <Modal.Header closeButton>
+        <div className={styles.heading}>
+          <Heading size="medium">Personvern er viktig</Heading>
+        </div>
+      </Modal.Header>
+      <Modal.Body>
+        <BodyShort>
+          Ikke del personsensitive opplysninger når du diskuterer tiltak på Teams.
+        </BodyShort>
+      </Modal.Body>
+      <Modal.Footer>
+        <div className={styles.knapperad}>
+          <Button variant="secondary" onClick={openTeams}>
+            Ok
+          </Button>
+        </div>
+      </Modal.Footer>
+    </Modal>
+  );
+}
 
 export default NavKontaktpersonInfo;

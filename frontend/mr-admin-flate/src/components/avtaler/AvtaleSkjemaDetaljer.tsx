@@ -9,25 +9,25 @@ import {
   Opphav,
   Tiltakstype,
 } from "mulighetsrommet-api-client";
+import { ControlledSokeSelect } from "mulighetsrommet-frontend-common/components/ControlledSokeSelect";
+import { SelectOption } from "mulighetsrommet-frontend-common/components/SokeSelect";
 import { useState } from "react";
 import { useFormContext } from "react-hook-form";
+import { MultiValue } from "react-select";
 import { useHentBetabrukere } from "../../api/ansatt/useHentBetabrukere";
 import { useSokVirksomheter } from "../../api/virksomhet/useSokVirksomhet";
 import { useVirksomhet } from "../../api/virksomhet/useVirksomhet";
+import { erAnskaffetTiltak } from "../../utils/tiltakskoder";
 import { addYear } from "../../utils/Utils";
 import { Separator } from "../detaljside/Metadata";
+import { AdministratorOptions } from "../skjema/AdministratorOptions";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
+import { FormGroup } from "../skjema/FormGroup";
 import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
 import skjemastyles from "../skjema/Skjema.module.scss";
 import { VirksomhetKontaktpersoner } from "../virksomhet/VirksomhetKontaktpersoner";
-import { ControlledSokeSelect } from "mulighetsrommet-frontend-common/components/ControlledSokeSelect";
-import { SelectOption } from "mulighetsrommet-frontend-common/components/SokeSelect";
-import { MultiValue } from "react-select";
-import { erAnskaffetTiltak } from "../../utils/tiltakskoder";
-import { AdministratorOptions } from "../skjema/AdministratorOptions";
-import { FormGroup } from "../skjema/FormGroup";
-import { getLokaleUnderenheterAsSelectOptions, underenheterOptions } from "./AvtaleSkjemaConst";
 import { InferredAvtaleSchema } from "./AvtaleSchema";
+import { getLokaleUnderenheterAsSelectOptions, underenheterOptions } from "./AvtaleSkjemaConst";
 
 const minStartdato = new Date(2000, 0, 1);
 
@@ -71,6 +71,24 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
   const { startDato } = watch("startOgSluttDato");
   const sluttDatoFraDato = startDato ? new Date(startDato) : minStartdato;
   const sluttDatoTilDato = addYear(startDato ? new Date(startDato) : new Date(), 5);
+
+  const leverandorOptions = () => {
+    const options = leverandorVirksomheter.map((enhet) => ({
+      value: enhet.organisasjonsnummer,
+      label: `${enhet.navn} - ${enhet.organisasjonsnummer}`,
+    }));
+
+    if (leverandorData) {
+      options.push({
+        label: `${leverandorData.navn} - ${leverandorData.organisasjonsnummer}`,
+        value: leverandorData?.organisasjonsnummer,
+      });
+    } else {
+      options.push({ label: watchedLeverandor, value: watchedLeverandor });
+    }
+
+    return options;
+  };
 
   return (
     <div className={skjemastyles.container}>
@@ -233,15 +251,10 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
                 label={"Tiltaksarrangør hovedenhet"}
                 {...register("leverandor")}
                 onInputChange={(value) => {
-                  if (value) {
-                    setSokLeverandor(value);
-                  }
+                  setSokLeverandor(value);
                 }}
                 onClearValue={() => setValue("leverandor", "")}
-                options={leverandorVirksomheter.map((enhet) => ({
-                  value: enhet.organisasjonsnummer,
-                  label: `${enhet.navn} - ${enhet.organisasjonsnummer}`,
-                }))}
+                options={leverandorOptions()}
               />
               <ControlledMultiSelect
                 size="small"

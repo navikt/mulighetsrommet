@@ -11,6 +11,10 @@
   width: 100%;
   padding: 12px 0.5rem;
   font-size: 16px;
+
+  :global(.navds-alert__wrapper) {
+    max-width: none;
+  }
 }
 
 .lowercase {
