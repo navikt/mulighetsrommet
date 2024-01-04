@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.routes.v1
 
 import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -9,6 +10,7 @@ import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingKontaktpersonDbo
+import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.routes.v1.responses.BadRequest
 import no.nav.mulighetsrommet.api.routes.v1.responses.respondWithStatusResponse
@@ -31,14 +33,39 @@ fun Route.tiltaksgjennomforingRoutes() {
     val service: TiltaksgjennomforingService by inject()
 
     route("/api/v1/internal/tiltaksgjennomforinger") {
-        put {
-            val request = call.receive<TiltaksgjennomforingRequest>()
-            val navIdent = getNavIdent()
+        authenticate(AuthProvider.AZURE_AD_TILTAKSJENNOMFORING_SKRIV.name, strategy = AuthenticationStrategy.Required) {
+            put {
+                val request = call.receive<TiltaksgjennomforingRequest>()
+                val navIdent = getNavIdent()
 
-            val result = service.upsert(request, navIdent)
-                .mapLeft { BadRequest(errors = it) }
+                val result = service.upsert(request, navIdent)
+                    .mapLeft { BadRequest(errors = it) }
 
-            call.respondWithStatusResponse(result)
+                call.respondWithStatusResponse(result)
+            }
+
+            put("{id}/avtale") {
+                val id = call.parameters.getOrFail<UUID>("id")
+                val navIdent = getNavIdent()
+                val request = call.receive<SetAvtaleForGjennomforingRequest>()
+                val response = service.setAvtale(id, request.avtaleId, navIdent)
+                call.respondWithStatusResponse(response)
+            }
+
+            put("{id}/avbryt") {
+                val id = call.parameters.getOrFail<UUID>("id")
+                val navIdent = getNavIdent()
+                val response = service.avbrytGjennomforing(id, navIdent)
+                call.respondWithStatusResponse(response)
+            }
+
+            put("{id}/tilgjengelig-for-veileder") {
+                val id = call.parameters.getOrFail<UUID>("id")
+                val navIdent = getNavIdent()
+                val request = call.receive<TilgjengeligForVeilederRequest>()
+                service.setTilgjengeligForVeileder(id, request.tilgjengeligForVeileder, navIdent)
+                call.respond(HttpStatusCode.OK)
+            }
         }
 
         get {
@@ -67,29 +94,6 @@ fun Route.tiltaksgjennomforingRoutes() {
             val id: UUID by call.parameters
             val historikk = service.getEndringshistorikk(id)
             call.respond(historikk)
-        }
-
-        put("{id}/avtale") {
-            val id = call.parameters.getOrFail<UUID>("id")
-            val navIdent = getNavIdent()
-            val request = call.receive<SetAvtaleForGjennomforingRequest>()
-            val response = service.setAvtale(id, request.avtaleId, navIdent)
-            call.respondWithStatusResponse(response)
-        }
-
-        put("{id}/avbryt") {
-            val id = call.parameters.getOrFail<UUID>("id")
-            val navIdent = getNavIdent()
-            val response = service.avbrytGjennomforing(id, navIdent)
-            call.respondWithStatusResponse(response)
-        }
-
-        put("{id}/tilgjengelig-for-veileder") {
-            val id = call.parameters.getOrFail<UUID>("id")
-            val navIdent = getNavIdent()
-            val request = call.receive<TilgjengeligForVeilederRequest>()
-            service.setTilgjengeligForVeileder(id, request.tilgjengeligForVeileder, navIdent)
-            call.respond(HttpStatusCode.OK)
         }
     }
 }

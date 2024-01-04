@@ -45,6 +45,12 @@ class AuthenticationTest : FunSpec({
             authenticate(AuthProvider.AZURE_AD_TILTAKSGJENNOMFORING_APP.name) {
                 get("AZURE_AD_TILTAKSGJENNOMFORING_APP") { call.respond(HttpStatusCode.OK) }
             }
+
+            authenticate(AuthProvider.AZURE_AD_NAV_IDENT.name) {
+                authenticate(AuthProvider.AZURE_AD_AVTALER_SKRIV.name, strategy = AuthenticationStrategy.Required) {
+                    get("AZURE_AD_AVTALER_SKRIV") { call.respond(HttpStatusCode.OK) }
+                }
+            }
         }
     }
 
