@@ -85,10 +85,18 @@ const Tiltaksgjennomforingsoversikt = (props: Props) => {
     });
   };
 
-  const gjennomforingerForSide = sorter(tiltaksgjennomforinger).slice(
-    (page - 1) * elementsPerPage,
-    page * elementsPerPage,
+  const lopendeGjennomforinger = tiltaksgjennomforinger.filter(
+    (gj) => gj.oppstart === TiltaksgjennomforingOppstartstype.LOPENDE,
   );
+  const gjennomforingerMedFellesOppstart = tiltaksgjennomforinger.filter(
+    (gj) => gj.oppstart !== TiltaksgjennomforingOppstartstype.LOPENDE,
+  );
+
+  const gjennomforingerForSide = (
+    getSort(sortValue).orderBy === "oppstart"
+      ? [...sorter(gjennomforingerMedFellesOppstart), ...lopendeGjennomforinger]
+      : sorter(tiltaksgjennomforinger)
+  ).slice((page - 1) * elementsPerPage, page * elementsPerPage);
 
   return (
     <>
