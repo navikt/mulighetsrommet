@@ -22,6 +22,7 @@ export function HistorikkButton({ setHistorikkModalOpen, isHistorikkModalOpen }:
         onClick={handleClick}
         id="historikk_knapp"
         data-testid="historikk_knapp"
+        className={styles.historikk_knapp}
       >
         <ClockDashedIcon aria-label="Historikk" />
         Historikk

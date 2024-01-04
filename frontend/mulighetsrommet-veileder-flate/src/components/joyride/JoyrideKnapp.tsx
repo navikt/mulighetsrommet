@@ -1,19 +1,19 @@
 import { Button } from "@navikt/ds-react";
 import { HikingTrailSignIcon } from "@navikt/aksel-icons";
+import styles from "./Joyride.module.scss";
 
 interface Props {
   handleClick: () => void;
-  className?: string;
 }
 
-export const JoyrideKnapp = ({ handleClick, className }: Props) => {
+export const JoyrideKnapp = ({ handleClick }: Props) => {
   return (
     <Button
       size="small"
       variant="tertiary"
       onClick={handleClick}
       id="joyride_knapp"
-      className={className}
+      className={styles.joyride_knapp}
     >
       <HikingTrailSignIcon title="Veiviser" />
       Veiviser

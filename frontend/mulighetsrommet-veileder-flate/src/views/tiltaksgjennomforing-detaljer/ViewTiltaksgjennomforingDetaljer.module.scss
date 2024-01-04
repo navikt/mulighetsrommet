@@ -11,8 +11,8 @@
 
 .top_wrapper {
   align-items: baseline;
-  display: grid;
-  grid-template-columns: 2fr 1fr;
+  display: flex;
+  justify-content: space-between;
 }
 
 .flex {

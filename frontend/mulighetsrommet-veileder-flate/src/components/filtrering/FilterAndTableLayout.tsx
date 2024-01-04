@@ -1,5 +1,5 @@
 import { Tabs } from "@navikt/ds-react";
-import { useState } from "react";
+import React, { useState } from "react";
 import styles from "./FilterAndTableLayout.module.scss";
 import { FunnelIcon } from "@navikt/aksel-icons";
 import classNames from "classnames";
@@ -18,7 +18,7 @@ export function FilterAndTableLayout(props: Props) {
   const [filterSelected, setFilterSelected] = useState<boolean>(true);
 
   return (
-    <div className={styles.container}>
+    <div className={styles.filter_table_layout_container}>
       <Tabs
         className={styles.filter_tabs}
         size="medium"
@@ -38,10 +38,8 @@ export function FilterAndTableLayout(props: Props) {
         </Tabs.List>
       </Tabs>
       <div className={styles.button_row}>
-        <div className={styles.button_row_container}>
-          {resetButton ? resetButton : <div></div>}
-          <div className={styles.button_row_left}>{buttons}</div>
-        </div>
+        {resetButton ? <div className={styles.button_row_right}>{resetButton}</div> : <div></div>}
+        <div className={styles.button_row_left}>{buttons}</div>
       </div>
       <div id="filter" className={classNames(styles.filter, !filterSelected && styles.hide_filter)}>
         {filter}
