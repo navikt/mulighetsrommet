@@ -139,9 +139,11 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
             )}
           </Bolk>
 
-          <Bolk aria-label="Antall plasser">
+          <Bolk>
             <Metadata header="Antall plasser" verdi={antallPlasser} />
-            <Metadata header="Deltidsprosent" verdi={deltidsprosent} />
+            {isTiltakMedFellesOppstart(tiltakstype.arenaKode) && (
+              <Metadata header="Deltidsprosent" verdi={deltidsprosent} />
+            )}
           </Bolk>
 
           <Separator />
