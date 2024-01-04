@@ -29,7 +29,6 @@ data class AppConfig(
     val veilarbdialogConfig: ServiceClientConfig,
     val veilarbveilederConfig: ServiceClientConfig,
     val poaoTilgang: ServiceClientConfig,
-    val amtEnhetsregister: ServiceClientConfig,
     val arenaAdapter: ServiceClientConfig,
     val msGraphConfig: ServiceClientConfig,
     val tasks: TaskConfig,

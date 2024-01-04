@@ -79,6 +79,12 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
       label: `${enhet.navn} - ${enhet.organisasjonsnummer}`,
     }));
 
+    if (leverandorData) {
+      options.push({ label: leverandorData?.navn, value: leverandorData?.organisasjonsnummer });
+    } else {
+      options.push({ label: watchedLeverandor, value: watchedLeverandor });
+    }
+
     // Fordi leverandør søk nulles ut når man velger leverandør legger vi til
     // den valgte leverandøren manuelt i lista her.
     if (valgtLeverandor?.name && valgtLeverandor?.value) {
