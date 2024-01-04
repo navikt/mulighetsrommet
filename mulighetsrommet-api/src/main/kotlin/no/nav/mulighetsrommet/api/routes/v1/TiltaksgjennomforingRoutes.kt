@@ -33,7 +33,7 @@ fun Route.tiltaksgjennomforingRoutes() {
     val service: TiltaksgjennomforingService by inject()
 
     route("/api/v1/internal/tiltaksgjennomforinger") {
-        authenticate(AuthProvider.AZURE_AD_TILTAKSJENNOMFORING_SKRIV.name, strategy = AuthenticationStrategy.Required) {
+        authenticate(AuthProvider.AZURE_AD_TILTAKSJENNOMFORINGER_SKRIV.name, strategy = AuthenticationStrategy.Required) {
             put {
                 val request = call.receive<TiltaksgjennomforingRequest>()
                 val navIdent = getNavIdent()
