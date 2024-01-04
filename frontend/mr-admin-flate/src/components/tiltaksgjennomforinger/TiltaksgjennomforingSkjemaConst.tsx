@@ -140,5 +140,6 @@ export function defaultTiltaksgjennomforingData(
     opphav: tiltaksgjennomforing?.opphav ?? Opphav.MR_ADMIN_FLATE,
     fremmoteDato: fremmoteDatoFromTidspunkt(tiltaksgjennomforing?.fremmoteTidspunkt),
     fremmoteTid: fremmoteTidFromTidspunkt(tiltaksgjennomforing?.fremmoteTidspunkt),
+    deltidsprosent: tiltaksgjennomforing?.deltidsprosent ?? 100,
   };
 }

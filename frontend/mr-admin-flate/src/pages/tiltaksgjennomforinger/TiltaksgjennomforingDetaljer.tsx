@@ -60,6 +60,7 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
     stengtFra,
     stengtTil,
     antallPlasser,
+    deltidsprosent,
     apentForInnsok,
     administratorer,
     navRegion,
@@ -140,6 +141,7 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
 
           <Bolk aria-label="Antall plasser">
             <Metadata header="Antall plasser" verdi={antallPlasser} />
+            <Metadata header="Deltidsprosent" verdi={deltidsprosent} />
           </Bolk>
 
           <Separator />

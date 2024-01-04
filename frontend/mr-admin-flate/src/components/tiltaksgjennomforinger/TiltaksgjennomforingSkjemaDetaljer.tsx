@@ -1,5 +1,5 @@
 import { PlusIcon, XMarkIcon } from "@navikt/aksel-icons";
-import { Button, Checkbox, Label, TextField, Textarea } from "@navikt/ds-react";
+import { Button, Checkbox, HStack, Label, Textarea, TextField } from "@navikt/ds-react";
 import {
   Avtale,
   Tiltaksgjennomforing,
@@ -188,20 +188,33 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                 }}
               />
             )}
-            <TextField
-              size="small"
-              readOnly={erArenaOpphav(tiltaksgjennomforing)}
-              error={errors.antallPlasser?.message as string}
-              type="number"
-              min="1"
-              style={{
-                width: "180px",
-              }}
-              label="Antall plasser"
-              {...register("antallPlasser", {
-                valueAsNumber: true,
-              })}
-            />
+            <HStack justify="space-between" columns={2}>
+              <TextField
+                size="small"
+                readOnly={erArenaOpphav(tiltaksgjennomforing)}
+                error={errors.antallPlasser?.message as string}
+                type="number"
+                style={{ width: "180px" }}
+                label="Antall plasser"
+                {...register("antallPlasser", {
+                  valueAsNumber: true,
+                })}
+              />
+              {isTiltakMedFellesOppstart(avtale.tiltakstype.arenaKode) && (
+                <TextField
+                  size="small"
+                  readOnly={erArenaOpphav(tiltaksgjennomforing)}
+                  error={errors.deltidsprosent?.message as string}
+                  type="number"
+                  step="0.01"
+                  style={{ width: "180px" }}
+                  label="Deltidsprosent"
+                  {...register("deltidsprosent", {
+                    valueAsNumber: true,
+                  })}
+                />
+              )}
+            </HStack>
           </FormGroup>
           <Separator />
           <FormGroup>

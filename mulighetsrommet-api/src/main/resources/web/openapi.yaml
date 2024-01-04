@@ -2115,6 +2115,9 @@ components:
           format: date-time
         fremmoteSted:
           type: string
+        deltidsprosent:
+          type: number
+          nullable: true
       required:
         - status
         - id
@@ -2128,6 +2131,7 @@ components:
         - apentForInnsok
         - tilgjengeligForVeileder
         - visesForVeileder
+        - deltidsprosent
 
     TiltaksgjennomforingRequest:
       type: object
@@ -2206,6 +2210,8 @@ components:
         fremmoteSted:
           type: string
           nullable: true
+        deltidsprosent:
+          type: number
       required:
         - id
         - tiltakstypeId
@@ -2232,6 +2238,7 @@ components:
         - beskrivelse
         - fremmoteTidspunkt
         - fremmoteSted
+        - deltidsprosent
 
     TiltaksgjennomforingStatus:
       type: string

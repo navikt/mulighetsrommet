@@ -18,4 +18,5 @@ data class Tiltaksgjennomforing(
     val avtaleId: Int?,
     val fremmoteTidspunkt: LocalDateTime?,
     val fremmoteSted: String?,
+    val deltidsprosent: Double?,
 )
