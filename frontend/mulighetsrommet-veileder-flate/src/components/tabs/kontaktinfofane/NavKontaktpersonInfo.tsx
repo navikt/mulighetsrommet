@@ -66,7 +66,9 @@ const NavKontaktpersonInfo = ({ data }: NavKontaktpersonInfoProps) => {
                     {telefonnummer ? (
                       <>
                         <dt>Telefon: </dt>
-                        <dd> {telefonnummer && <span>{telefonnummer}</span>}</dd>
+                        <dd>
+                          <span>{telefonnummer}</span>
+                        </dd>
                       </>
                     ) : null}
                     <dt>Enhet: </dt>
