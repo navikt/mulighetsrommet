@@ -61,18 +61,20 @@ export function TiltaksgjennomforingFilterTags({ filterAtom }: Props) {
           }}
         />
       ))}
-      {filter.navEnheter.map((enhetsnummer) => (
-        <FilterTag
-          key={enhetsnummer}
-          label={enheter?.find((e) => e.enhetsnummer === enhetsnummer)?.navn}
-          onClick={() => {
-            setFilter({
-              ...filter,
-              navEnheter: addOrRemove(filter.navEnheter, enhetsnummer),
-            });
-          }}
-        />
-      ))}
+      {filter.navEnheter
+        ? filter.navEnheter.map((enhetsnummer) => (
+            <FilterTag
+              key={enhetsnummer}
+              label={enheter?.find((e) => e.enhetsnummer === enhetsnummer)?.navn}
+              onClick={() => {
+                setFilter({
+                  ...filter,
+                  navEnheter: addOrRemove(filter.navEnheter, enhetsnummer),
+                });
+              }}
+            />
+          ))
+        : null}
       {filter.tiltakstyper.map((tiltakstype) => (
         <FilterTag
           key={tiltakstype}
