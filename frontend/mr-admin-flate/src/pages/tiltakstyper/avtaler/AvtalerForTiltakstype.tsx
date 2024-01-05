@@ -26,8 +26,8 @@ export function AvtalerForTiltakstype() {
             }}
           />
         }
-        tags={<AvtaleFilterTags filterAtom={filterAtom} />}
-        buttons={<AvtaleFilterButtons filterAtom={filterAtom} />}
+        tags={<AvtaleFilterTags filterAtom={filterAtom} tiltakstypeId={tiltakstypeId} />}
+        buttons={<AvtaleFilterButtons filterAtom={filterAtom} tiltakstypeId={tiltakstypeId} />}
         table={<AvtaleTabell filterAtom={filterAtom} />}
       />
     </ContainerLayout>

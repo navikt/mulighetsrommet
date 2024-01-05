@@ -185,9 +185,7 @@ export function addOrRemove<T>(array: T[], item: T): T[] {
       return c !== item;
     });
   } else {
-    const result = array;
-    result.push(item);
-    return result;
+    return [...array, item];
   }
 }
 
