@@ -63,8 +63,12 @@ const NavKontaktpersonInfo = ({ data }: NavKontaktpersonInfoProps) => {
                 <dd>
                   <a href={`mailto:${epost}`}>{epost}</a>
                 </dd>
-                <dt>Telefon: </dt>
-                <dd> {telefonnummer && <span>{telefonnummer}</span>}</dd>
+                {telefonnummer ? (
+                  <>
+                    <dt>Telefon: </dt>
+                    <dd> {telefonnummer && <span>{telefonnummer}</span>}</dd>
+                  </>
+                ) : null}
                 <dt>Enhet: </dt>
                 <dd>
                   <span>{enhet}</span>
