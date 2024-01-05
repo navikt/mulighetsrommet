@@ -27,10 +27,10 @@ const safeJSONParse = (initialValue: unknown) => (str: string) => {
 
 // Bump version number when localStorage should be cleared
 const version = localStorage.getItem("version");
-if (version !== "1.3") {
+if (version !== "1.4") {
   localStorage.clear();
   sessionStorage.clear();
-  localStorage.setItem("version", "1.3");
+  localStorage.setItem("version", "1.4");
 }
 
 /**
@@ -92,7 +92,7 @@ function atomWithHashAndStorage<Value>(
     str = searchParams.get(key);
   }
 
-  const strAtom = atomWithStorage<string | null>("strAtom", str, storage);
+  const strAtom = atomWithStorage<string | null>(key, str, storage);
   strAtom.onMount = (setAtom) => {
     if (typeof window === "undefined" || !window.location) {
       return undefined;
