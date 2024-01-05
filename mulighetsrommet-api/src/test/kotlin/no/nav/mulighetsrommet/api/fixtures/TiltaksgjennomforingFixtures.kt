@@ -30,7 +30,7 @@ object TiltaksgjennomforingFixtures {
         avtaleId = AvtaleFixtures.avtale1.id,
         fremmoteTidspunkt = null,
         fremmoteSted = null,
-        deltidsprosent = null,
+        deltidsprosent = 100.0,
     )
 
     val Oppfolging1 = TiltaksgjennomforingDbo(
@@ -59,7 +59,7 @@ object TiltaksgjennomforingFixtures {
         beskrivelse = null,
         fremmoteTidspunkt = LocalDateTime.of(2023, 1, 1, 9, 0),
         fremmoteSted = "fremmote_sted",
-        deltidsprosent = null,
+        deltidsprosent = 100.0,
     )
 
     val Oppfolging1Request = TiltaksgjennomforingRequest(
@@ -129,7 +129,7 @@ object TiltaksgjennomforingFixtures {
         visesForVeileder = true,
         fremmoteTidspunkt = null,
         fremmoteSted = null,
-        deltidsprosent = null,
+        deltidsprosent = 100.0,
     )
 
     val Oppfolging2 = TiltaksgjennomforingDbo(
@@ -158,7 +158,7 @@ object TiltaksgjennomforingFixtures {
         beskrivelse = null,
         fremmoteTidspunkt = null,
         fremmoteSted = null,
-        deltidsprosent = null,
+        deltidsprosent = 100.0,
     )
 
     val Arbeidstrening1 = TiltaksgjennomforingDbo(
@@ -187,6 +187,6 @@ object TiltaksgjennomforingFixtures {
         beskrivelse = null,
         fremmoteTidspunkt = null,
         fremmoteSted = null,
-        deltidsprosent = null,
+        deltidsprosent = 100.0,
     )
 }

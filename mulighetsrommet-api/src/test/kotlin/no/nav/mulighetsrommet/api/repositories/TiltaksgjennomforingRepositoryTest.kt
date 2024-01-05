@@ -139,7 +139,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 opphav = ArenaMigrering.Opphav.ARENA,
                 fremmoteTidspunkt = LocalDateTime.of(2023, 2, 2, 0, 0, 0),
                 fremmoteSted = "Giraff innhegningen",
-                deltidsprosent = null,
+                deltidsprosent = 100.0,
             )
 
             tiltaksgjennomforinger.upsertArenaTiltaksgjennomforing(gjennomforingFraArena)

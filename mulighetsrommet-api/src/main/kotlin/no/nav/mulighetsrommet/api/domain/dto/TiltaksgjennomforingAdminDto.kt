@@ -52,7 +52,7 @@ data class TiltaksgjennomforingAdminDto(
     @Serializable(with = LocalDateTimeSerializer::class)
     val fremmoteTidspunkt: LocalDateTime?,
     val fremmoteSted: String?,
-    val deltidsprosent: Double?,
+    val deltidsprosent: Double,
 ) {
     fun isAktiv(): Boolean = status in listOf(
         Tiltaksgjennomforingsstatus.PLANLAGT,

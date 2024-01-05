@@ -36,6 +36,7 @@ data class ArenaMigreringTiltaksgjennomforingDto(
     val fremmoteTid: LocalTime?,
     val fremmoteSted: String?,
     val apentForInnsok: Boolean,
+    val deltidsprosent: Double,
 ) {
     companion object {
         fun from(tiltaksgjennomforing: TiltaksgjennomforingAdminDto, arenaId: Int?, endretTidspunkt: LocalDateTime) =
@@ -63,6 +64,7 @@ data class ArenaMigreringTiltaksgjennomforingDto(
                 },
                 fremmoteSted = tiltaksgjennomforing.fremmoteSted,
                 apentForInnsok = tiltaksgjennomforing.apentForInnsok,
+                deltidsprosent = tiltaksgjennomforing.deltidsprosent,
             )
     }
 }

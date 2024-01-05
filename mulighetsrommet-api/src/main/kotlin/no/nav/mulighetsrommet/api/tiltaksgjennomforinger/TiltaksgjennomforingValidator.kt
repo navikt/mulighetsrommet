@@ -210,14 +210,7 @@ class TiltaksgjennomforingValidator(
             )
         }
 
-        if (dbo.deltidsprosent == null) {
-            add(
-                ValidationError.of(
-                    TiltaksgjennomforingDbo::deltidsprosent,
-                    "Deltidsprosent er påkrevd",
-                ),
-            )
-        } else if (dbo.deltidsprosent <= 0) {
+        if (dbo.deltidsprosent <= 0) {
             add(
                 ValidationError.of(
                     TiltaksgjennomforingDbo::deltidsprosent,
