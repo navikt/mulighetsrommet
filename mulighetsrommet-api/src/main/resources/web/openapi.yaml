@@ -2117,7 +2117,6 @@ components:
           type: string
         deltidsprosent:
           type: number
-          nullable: true
       required:
         - status
         - id

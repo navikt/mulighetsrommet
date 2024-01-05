@@ -122,7 +122,7 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
                 avtaleId = null,
                 fremmoteTidspunkt = null,
                 fremmoteSted = null,
-                deltidsprosent = null,
+                deltidsprosent = 100.0,
             )
 
             val tiltakstypeIndividuell = TiltakstypeFixtures.Individuell
@@ -142,7 +142,7 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
                 avtaleId = null,
                 fremmoteTidspunkt = null,
                 fremmoteSted = null,
-                deltidsprosent = null,
+                deltidsprosent = 100.0,
             )
 
             /**

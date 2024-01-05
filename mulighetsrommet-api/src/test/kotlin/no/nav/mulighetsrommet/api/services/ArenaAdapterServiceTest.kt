@@ -78,7 +78,7 @@ class ArenaAdapterServiceTest : FunSpec({
         avtaleId = null,
         fremmoteTidspunkt = null,
         fremmoteSted = null,
-        deltidsprosent = null,
+        deltidsprosent = 100.0,
     )
 
     val tiltakshistorikkGruppe = ArenaTiltakshistorikkDbo.Gruppetiltak(

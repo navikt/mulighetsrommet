@@ -745,7 +745,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             visesForVeileder = boolean("vises_for_veileder"),
             fremmoteTidspunkt = localDateTimeOrNull("fremmote_tidspunkt"),
             fremmoteSted = stringOrNull("fremmote_sted"),
-            deltidsprosent = doubleOrNull("deltidsprosent"),
+            deltidsprosent = double("deltidsprosent"),
         )
     }
 

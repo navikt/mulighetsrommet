@@ -121,6 +121,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         avtaleId = intOrNull("avtale_id"),
         fremmoteTidspunkt = localDateTimeOrNull("fremmote_tidspunkt"),
         fremmoteSted = stringOrNull("fremmote_sted"),
-        deltidsprosent = doubleOrNull("deltidsprosent"),
+        deltidsprosent = double("deltidsprosent"),
     )
 }
