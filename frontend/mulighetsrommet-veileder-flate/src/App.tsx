@@ -1,4 +1,4 @@
-import { initializeFaro, WebVitalsInstrumentation } from "@grafana/faro-web-sdk";
+import { getWebInstrumentations, initializeFaro } from "@grafana/faro-web-sdk";
 import "@navikt/ds-css";
 import { Toggles } from "mulighetsrommet-api-client";
 import { ErrorBoundary } from "react-error-boundary";
@@ -20,7 +20,7 @@ import { SanityPreviewOversikt } from "./views/Preview/SanityPreviewOversikt";
 if (import.meta.env.PROD && import.meta.env.VITE_FARO_URL) {
   initializeFaro({
     url: import.meta.env.VITE_FARO_URL,
-    instrumentations: [new WebVitalsInstrumentation()],
+    instrumentations: [...getWebInstrumentations({ captureConsole: true })],
     app: {
       name: "mulighetsrommet-veileder-flate",
     },
