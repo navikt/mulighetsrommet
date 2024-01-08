@@ -10,6 +10,8 @@ import Lenke from "../lenke/Lenke";
 import styles from "./Gjennomforingsrad.module.scss";
 import { BodyShort } from "@navikt/ds-react";
 import { ChevronRightIcon, PadlockLockedFillIcon } from "@navikt/aksel-icons";
+import { useHentDeltMedBrukerStatus } from "../../core/api/queries/useHentDeltMedbrukerStatus";
+import { useAppContext } from "../../hooks/useAppContext";
 
 interface Props {
   tiltaksgjennomforing: VeilederflateTiltaksgjennomforing;
@@ -29,10 +31,15 @@ export function Gjennomforingsrad({ tiltaksgjennomforing, index }: Props) {
   const [page] = useAtom(paginationAtom);
   const { id, sanityId, navn, arrangor, tiltakstype, oppstart, oppstartsdato, apentForInnsok } =
     tiltaksgjennomforing;
+  const { fnr } = useAppContext();
+
+  const { harDeltMedBruker } = useHentDeltMedBrukerStatus(fnr, tiltaksgjennomforing);
+  const datoSidenSistDelt =
+    harDeltMedBruker && formaterDato(new Date(harDeltMedBruker.createdAt!!));
 
   return (
     <li
-      className={styles.list_element}
+      className={classNames(styles.list_element, harDeltMedBruker && styles.list_element_border)}
       id={`list_element_${index}`}
       data-testid={`tiltaksgjennomforing_${kebabCase(navn)}`}
     >
@@ -43,6 +50,11 @@ export function Gjennomforingsrad({ tiltaksgjennomforing, index }: Props) {
             : `/arbeidsmarkedstiltak/tiltak/${id ?? sanityId}#page=${page}`
         }
       >
+        {harDeltMedBruker ? (
+          <div className={styles.delt_med_bruker_rad}>
+            <BodyShort size={"small"}>Delt med bruker {datoSidenSistDelt}</BodyShort>
+          </div>
+        ) : null}
         <div className={styles.gjennomforing_container}>
           {!apentForInnsok && (
             <PadlockLockedFillIcon

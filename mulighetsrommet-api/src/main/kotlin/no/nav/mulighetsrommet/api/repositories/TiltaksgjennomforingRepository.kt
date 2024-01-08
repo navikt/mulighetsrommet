@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.repositories
 
+import DelMedBrukerHistorikk
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotliquery.Row
@@ -496,7 +497,18 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                    tg.nav_region,
                    array_agg(tg_e.enhetsnummer) as nav_enheter,
                    tg.beskrivelse,
-                   tg.faneinnhold
+                   tg.faneinnhold,
+                   jsonb_agg(distinct
+                             case
+                                 when dmb.tiltaksgjennomforing_id is null then null::jsonb
+                                 else jsonb_build_object('createdAt', dmb.created_at, 
+                                 'createdBy', dmb.created_by,
+                                 'updatedAt', dmb.updated_at,
+                                 'updatedBy', dmb.updated_by,
+                                 'dialogId', dmb.dialogid,
+                                 'id', dmb.id)
+                                 end
+                       )                  as del_med_bruker_historikk,
             from tiltaksgjennomforing tg
                      inner join tiltakstype t on tg.tiltakstype_id = t.id
                      left join tiltaksgjennomforing_nav_enhet tg_e on tg_e.tiltaksgjennomforing_id = tg.id
@@ -504,6 +516,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                      left join tiltaksgjennomforing_kontaktperson tgk on tgk.tiltaksgjennomforing_id = tg.id
                      left join nav_ansatt na on na.nav_ident = tgk.kontaktperson_nav_ident
                      left join virksomhet_kontaktperson vk on vk.id = tg.arrangor_kontaktperson_id
+                     left join del_med_bruker dmb on dmb.tiltaksgjennomforing_id = tg.id
             $where
             and t.skal_migreres
             and tg.tilgjengelig_for_veileder
@@ -635,6 +648,10 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             .decodeFromString<List<KontaktinfoTiltaksansvarlige?>>(string("kontaktpersoner"))
             .filterNotNull()
 
+        val delMedBrukerHistorikk = Json
+            .decodeFromString<List<DelMedBrukerHistorikk?>>(string("del_med_bruker_historikk"))
+            .filterNotNull()
+
         return VeilederflateTiltaksgjennomforing(
             sanityId = uuidOrNull("sanity_id").toString(),
             id = uuidOrNull("id"),
@@ -667,6 +684,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             enheter = navEnheter,
             beskrivelse = stringOrNull("beskrivelse"),
             faneinnhold = stringOrNull("faneinnhold")?.let { Json.decodeFromString(it) },
+            delMedBrukerHistorikk = delMedBrukerHistorikk,
         )
     }
 
