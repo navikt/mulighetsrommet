@@ -5,6 +5,7 @@ import { App } from "./App";
 import { AppContext } from "./AppContext";
 import { CustomEmotionCacheProvider } from "./CustomEmotionCacheProvider";
 import { APPLICATION_WEB_COMPONENT_NAME } from "./constants";
+import { headers } from "./core/api/headers";
 
 interface ViteAssetManifest {
   "index.html": {
@@ -64,7 +65,10 @@ export class Arbeidsmarkedstiltak extends HTMLElement {
   }
 
   async loadStyles(shadowRoot: ShadowRoot) {
-    const response = await fetch(urlJoin(import.meta.env.BASE_URL, "asset-manifest.json"));
+    const response = await fetch(urlJoin(import.meta.env.BASE_URL, "asset-manifest.json"), {
+      headers,
+    });
+
     if (!response.ok) {
       throw Error(`Failed to get resource '${response.url}'`);
     }
