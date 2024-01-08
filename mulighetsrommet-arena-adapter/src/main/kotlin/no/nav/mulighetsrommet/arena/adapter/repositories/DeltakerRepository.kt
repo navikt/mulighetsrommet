@@ -67,6 +67,20 @@ class DeltakerRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
+    fun getByTiltaksgjennomforingId(id: Int): List<Deltaker> {
+        @Language("PostgreSQL")
+        val query = """
+            select id, tiltaksdeltaker_id, tiltaksgjennomforing_id, person_id, status, fra_dato, til_dato, registrert_dato
+            from deltaker
+            where tiltaksgjennomforing_id = ?
+        """.trimIndent()
+
+        return queryOf(query, id)
+            .map { it.toDeltaker() }
+            .asList
+            .let { db.run(it) }
+    }
+
     private fun Deltaker.toSqlParameters() = mapOf(
         "id" to id,
         "tiltaksdeltaker_id" to tiltaksdeltakerId,

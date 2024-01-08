@@ -38,7 +38,7 @@ class ArenaEntityService(
 
     fun getMapping(arenaTable: ArenaTable, arenaId: String): Either<ProcessingError, ArenaEntityMapping> {
         return mappings.get(arenaTable, arenaId)?.right() ?: ProcessingError
-            .MissingDependency("ArenaEntityMapping mangler for arenaTable=$arenaTable og arenaId=$arenaId")
+            .ForeignKeyViolation("ArenaEntityMapping mangler for arenaTable=$arenaTable og arenaId=$arenaId")
             .left()
     }
 
@@ -59,7 +59,7 @@ class ArenaEntityService(
 
     fun getTiltakstype(id: UUID): Either<ProcessingError, Tiltakstype> {
         return tiltakstyper.get(id)?.right() ?: ProcessingError
-            .MissingDependency("Tiltakstype med id=$id mangler")
+            .ForeignKeyViolation("Tiltakstype med id=$id mangler")
             .left()
     }
 
@@ -68,8 +68,8 @@ class ArenaEntityService(
             .mapLeft { ProcessingError.fromDatabaseOperationError(it) }
     }
 
-    fun getSak(id: Int): Either<ProcessingError.MissingDependency, Sak> {
-        return saker.get(id)?.right() ?: ProcessingError.MissingDependency("Sak med id=$id mangler").left()
+    fun getSak(id: Int): Either<ProcessingError.ForeignKeyViolation, Sak> {
+        return saker.get(id)?.right() ?: ProcessingError.ForeignKeyViolation("Sak med id=$id mangler").left()
     }
 
     fun deleteSak(id: Int): Either<ProcessingError, Unit> {
@@ -93,7 +93,7 @@ class ArenaEntityService(
 
     fun getTiltaksgjennomforing(id: UUID): Either<ProcessingError, Tiltaksgjennomforing> {
         return tiltaksgjennomforinger.get(id)?.right() ?: ProcessingError
-            .MissingDependency("Tiltaksgjennomforing med id=$id mangler")
+            .ForeignKeyViolation("Tiltaksgjennomforing med id=$id mangler")
             .left()
     }
 
@@ -105,6 +105,10 @@ class ArenaEntityService(
     fun upsertDeltaker(deltaker: Deltaker): Either<ProcessingError, Deltaker> {
         return deltakere.upsert(deltaker)
             .mapLeft { ProcessingError.fromDatabaseOperationError(it) }
+    }
+
+    fun getDeltakereByTiltaksgjennomforingId(id: Int): List<Deltaker> {
+        return deltakere.getByTiltaksgjennomforingId(id)
     }
 
     fun deleteDeltaker(id: UUID): Either<ProcessingError, Unit> {
