@@ -7,9 +7,6 @@ import com.google.cloud.storage.Storage
 import com.google.cloud.storage.StorageOptions
 import kotlinx.coroutines.*
 import no.nav.mulighetsrommet.api.avtaler.AvtaleValidator
-import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
-import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
-import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingKontaktpersonDbo
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleAdminDto
 import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingAdminDto
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
@@ -18,7 +15,6 @@ import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
 import no.nav.mulighetsrommet.api.tiltaksgjennomforinger.TiltaksgjennomforingValidator
 import no.nav.mulighetsrommet.api.utils.DatabaseUtils.paginateFanOut
 import no.nav.mulighetsrommet.database.Database
-import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus.*
 import org.apache.poi.ss.usermodel.CellType
 import org.apache.poi.xssf.usermodel.XSSFSheet
@@ -134,7 +130,7 @@ class GenerateValidationReport(
 
     private suspend fun validateAvtaler() = buildMap {
         paginateFanOut({ pagination -> avtaler.getAll(pagination).second }) {
-            val dbo = toAvtaleDbo(it)
+            val dbo = it.toDbo()
             avtaleValidator.validate(dbo)
                 .onLeft { validationErrors ->
                     put(it, validationErrors)
@@ -159,7 +155,7 @@ class GenerateValidationReport(
 
     private suspend fun validateGjennomforinger() = buildMap {
         paginateFanOut({ pagination -> gjennomforinger.getAll(pagination).second }) {
-            val dbo = toTiltaksgjennomforingDbo(it)
+            val dbo = it.toDbo()
             gjennomforingValidator.validate(dbo)
                 .onLeft { validationErrors ->
                     put(it, validationErrors)
@@ -209,69 +205,4 @@ class GenerateValidationReport(
         row.createCell(4, CellType.STRING).setCellValue(error.name)
         row.createCell(5, CellType.STRING).setCellValue(error.message)
     }
-}
-
-private fun toAvtaleDbo(dto: AvtaleAdminDto) = dto.run {
-    AvtaleDbo(
-        id = id,
-        navn = navn,
-        tiltakstypeId = tiltakstype.id,
-        avtalenummer = avtalenummer,
-        leverandorOrganisasjonsnummer = leverandor.organisasjonsnummer,
-        leverandorUnderenheter = leverandorUnderenheter.map { it.organisasjonsnummer },
-        leverandorKontaktpersonId = leverandorKontaktperson?.id,
-        startDato = startDato,
-        sluttDato = sluttDato,
-        navEnheter = dto.kontorstruktur.flatMap { it.kontorer.map { kontor -> kontor.enhetsnummer } + it.region.enhetsnummer },
-        avtaletype = avtaletype,
-        opphav = opphav,
-        prisbetingelser = prisbetingelser,
-        antallPlasser = antallPlasser,
-        url = url,
-        administratorer = administratorer.map { it.navIdent },
-        updatedAt = updatedAt,
-        beskrivelse = null,
-        faneinnhold = null,
-    )
-}
-
-private fun toTiltaksgjennomforingDbo(dto: TiltaksgjennomforingAdminDto) = dto.run {
-    TiltaksgjennomforingDbo(
-        id = id,
-        navn = navn,
-        tiltakstypeId = tiltakstype.id,
-        tiltaksnummer = tiltaksnummer,
-        arrangorOrganisasjonsnummer = arrangor.organisasjonsnummer,
-        arrangorKontaktpersonId = arrangor.kontaktperson?.id,
-        startDato = startDato,
-        sluttDato = sluttDato,
-        avslutningsstatus = when (status) {
-            PLANLAGT, GJENNOMFORES -> Avslutningsstatus.IKKE_AVSLUTTET
-            AVLYST -> Avslutningsstatus.AVLYST
-            AVBRUTT -> Avslutningsstatus.AVBRUTT
-            AVSLUTTET -> Avslutningsstatus.AVSLUTTET
-        },
-        apentForInnsok = apentForInnsok,
-        antallPlasser = antallPlasser ?: -1,
-        avtaleId = avtaleId ?: id,
-        administratorer = administratorer.map { it.navIdent },
-        navRegion = dto.navRegion?.enhetsnummer ?: "",
-        navEnheter = navEnheter.map { it.enhetsnummer },
-        oppstart = oppstart,
-        opphav = opphav,
-        stengtFra = stengtFra,
-        stengtTil = stengtTil,
-        kontaktpersoner = kontaktpersoner.map {
-            TiltaksgjennomforingKontaktpersonDbo(
-                navIdent = it.navIdent,
-                navEnheter = it.navEnheter,
-            )
-        },
-        stedForGjennomforing = stedForGjennomforing,
-        faneinnhold = faneinnhold,
-        beskrivelse = beskrivelse,
-        fremmoteTidspunkt = fremmoteTidspunkt,
-        fremmoteSted = fremmoteSted,
-        deltidsprosent = deltidsprosent,
-    )
 }

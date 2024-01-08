@@ -27,7 +27,6 @@ import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import no.nav.mulighetsrommet.env.NaisEnv
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.*
 
 class AvtaleValidatorTest : FunSpec({
@@ -50,7 +49,6 @@ class AvtaleValidatorTest : FunSpec({
         navEnheter = listOf("0400", "0502"),
         opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
         antallPlasser = null,
-        updatedAt = LocalDateTime.now(),
         beskrivelse = null,
         faneinnhold = null,
     )
@@ -214,7 +212,6 @@ class AvtaleValidatorTest : FunSpec({
                 navEnheter = listOf("0300"),
                 opphav = ArenaMigrering.Opphav.ARENA,
                 antallPlasser = null,
-                updatedAt = avtaleDbo.updatedAt,
                 beskrivelse = null,
                 faneinnhold = null,
             )

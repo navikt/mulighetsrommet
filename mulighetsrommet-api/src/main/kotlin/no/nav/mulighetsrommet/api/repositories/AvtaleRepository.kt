@@ -452,7 +452,6 @@ class AvtaleRepository(private val db: Database) {
             url = stringOrNull("url"),
             antallPlasser = intOrNull("antall_plasser"),
             opphav = ArenaMigrering.Opphav.valueOf(string("opphav")),
-            updatedAt = localDateTime("updated_at"),
             kontorstruktur = kontorstruktur,
             beskrivelse = stringOrNull("beskrivelse"),
             faneinnhold = stringOrNull("faneinnhold")?.let { Json.decodeFromString(it) },

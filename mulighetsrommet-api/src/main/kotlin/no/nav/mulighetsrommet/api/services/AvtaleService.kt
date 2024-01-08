@@ -47,12 +47,17 @@ class AvtaleService(
         return validator.validate(request.toDbo())
             .map { dbo ->
                 db.transaction { tx ->
+                    val previous = avtaler.get(request.id)
+                    if (previous?.toDbo() == dbo) {
+                        return@transaction previous
+                    }
+
                     avtaler.upsert(dbo, tx)
                     utkastRepository.delete(dbo.id, tx)
 
-                    dispatchNotificationToNewAdministrators(tx, dbo, navIdent)
-
                     val dto = getOrError(dbo.id, tx)
+
+                    dispatchNotificationToNewAdministrators(tx, dbo, navIdent)
                     logEndring("Redigerte avtale", dto, navIdent, tx)
                     dto
                 }

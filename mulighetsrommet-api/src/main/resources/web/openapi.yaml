@@ -1870,9 +1870,6 @@ components:
           $ref: "#/components/schemas/NavKontorStruktur"
         opphav:
           $ref: "#/components/schemas/Opphav"
-        updatedAt:
-          type: string
-          format: date-time
         beskrivelse:
           type: string
         faneinnhold:
@@ -1891,7 +1888,6 @@ components:
         - prisbetingelser
         - kontorstruktur
         - opphav
-        - updatedAt
 
     AvtaleRequest:
       type: object
