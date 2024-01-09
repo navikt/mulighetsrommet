@@ -1,3 +1,4 @@
+import { ApentForInnsok } from "mulighetsrommet-api-client";
 import { useHentBrukerdata } from "../../core/api/queries/useHentBrukerdata";
 import {
   Tiltaksgjennomforingsfiltergruppe,
@@ -26,7 +27,23 @@ export function Filtertags() {
             dataTestId="alert-innsatsgruppe"
           />
         )}
-      {filter.innsatsgruppe && <FilterTag skjulIkon options={[filter.innsatsgruppe]} />}
+      {filter.apentForInnsok !== ApentForInnsok.APENT_ELLER_STENGT && (
+        <FilterTag
+          options={[
+            {
+              id: filter.apentForInnsok,
+              tittel: filter.apentForInnsok === ApentForInnsok.APENT ? "Åpent" : "Stengt",
+            },
+          ]}
+          handleClick={() =>
+            setFilter({
+              ...filter,
+              apentForInnsok: ApentForInnsok.APENT_ELLER_STENGT,
+            })
+          }
+        />
+      )}
+      {filter.innsatsgruppe && <FilterTag options={[filter.innsatsgruppe]} />}
       <FilterTag
         options={filter.tiltakstyper!}
         handleClick={(id: string) =>

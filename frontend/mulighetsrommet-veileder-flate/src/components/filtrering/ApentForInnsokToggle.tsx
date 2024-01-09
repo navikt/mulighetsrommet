@@ -8,7 +8,6 @@ import { addOrRemove } from "../../utils/Utils";
 
 export interface ApentForInnsokToggleProps {
   value: ApentForInnsok;
-
   onChange(value: ApentForInnsok): void;
 }
 
@@ -30,7 +29,7 @@ export function ApentForInnsokToggle(props: ApentForInnsokToggleProps) {
         Åpent for innsøk
       </Accordion.Header>
       <Accordion.Content>
-        <ToggleGroup size="small" defaultValue={props.value} onChange={onToggleChanged}>
+        <ToggleGroup size="small" value={props.value} onChange={onToggleChanged}>
           <ToggleGroup.Item value="APENT">Åpent</ToggleGroup.Item>
           <ToggleGroup.Item value="APENT_ELLER_STENGT">Begge</ToggleGroup.Item>
           <ToggleGroup.Item value="STENGT">
