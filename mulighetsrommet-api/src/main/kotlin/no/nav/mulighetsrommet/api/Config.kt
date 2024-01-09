@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api
 
+import io.ktor.client.engine.*
 import no.nav.mulighetsrommet.api.clients.brreg.BrregClientImpl
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle
@@ -37,6 +38,7 @@ data class AppConfig(
     val brreg: BrregClientImpl.Config,
     val unleash: UnleashService.Config,
     val axsys: ServiceClientConfig,
+    val engine: HttpClientEngine,
 )
 
 data class AuthConfig(

@@ -249,7 +249,7 @@ private fun services(appConfig: AppConfig) = module {
         )
     }
     single<BrregClient> {
-        BrregClientImpl(baseUrl = appConfig.brreg.baseUrl)
+        BrregClientImpl(baseUrl = appConfig.brreg.baseUrl, clientEngine = appConfig.engine)
     }
     single { EndringshistorikkService(get()) }
     single {
