@@ -1,6 +1,6 @@
 package no.nav.mulighetsrommet.api.repositories
 
-import DelMedBrukerHistorikk
+import DelMedBrukerResponseDto
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotliquery.Row
@@ -501,14 +501,16 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                    jsonb_agg(distinct
                              case
                                  when dmb.tiltaksgjennomforing_id is null then null::jsonb
-                                 else jsonb_build_object('createdAt', dmb.created_at, 
+                                 else jsonb_build_object('createdAt', dmb.created_at,
                                  'createdBy', dmb.created_by,
                                  'updatedAt', dmb.updated_at,
                                  'updatedBy', dmb.updated_by,
                                  'dialogId', dmb.dialogid,
-                                 'id', dmb.id)
+                                 'id', dmb.id,
+                                 'norskIdent', dmb.norsk_ident,
+                                 'sanityId', dmb.sanity_id)
                                  end
-                       )                  as del_med_bruker_historikk,
+                       )                  as del_med_bruker_historikk
             from tiltaksgjennomforing tg
                      inner join tiltakstype t on tg.tiltakstype_id = t.id
                      left join tiltaksgjennomforing_nav_enhet tg_e on tg_e.tiltaksgjennomforing_id = tg.id
@@ -648,8 +650,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             .decodeFromString<List<KontaktinfoTiltaksansvarlige?>>(string("kontaktpersoner"))
             .filterNotNull()
 
-        val delMedBrukerHistorikk = Json
-            .decodeFromString<List<DelMedBrukerHistorikk?>>(string("del_med_bruker_historikk"))
+        val delMedBrukerResponseDto = Json
+            .decodeFromString<List<DelMedBrukerResponseDto?>>(string("del_med_bruker_historikk"))
             .filterNotNull()
 
         return VeilederflateTiltaksgjennomforing(
@@ -684,7 +686,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             enheter = navEnheter,
             beskrivelse = stringOrNull("beskrivelse"),
             faneinnhold = stringOrNull("faneinnhold")?.let { Json.decodeFromString(it) },
-            delMedBrukerHistorikk = delMedBrukerHistorikk,
+            delMedBrukerResponseDto = delMedBrukerResponseDto,
         )
     }
 

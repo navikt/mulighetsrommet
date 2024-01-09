@@ -1,6 +1,6 @@
 package no.nav.mulighetsrommet.api.domain.dto
 
-import DelMedBrukerHistorikk
+import DelMedBrukerResponseDto
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonObject
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
@@ -44,7 +44,7 @@ data class VeilederflateTiltaksgjennomforing(
     val enheter: List<String>? = emptyList(),
     val beskrivelse: String? = null,
     val faneinnhold: Faneinnhold? = null,
-    val delMedBrukerHistorikk: List<DelMedBrukerHistorikk>? = emptyList(),
+    val delMedBrukerResponseDto: List<DelMedBrukerResponseDto>? = emptyList(),
 )
 
 @Serializable
