@@ -90,13 +90,13 @@ metrics-healthchecks = { module = "io.dropwizard.metrics:metrics-healthchecks", 
 
 micrometer-registry-prometheus = "io.micrometer:micrometer-registry-prometheus:1.12.1"
 
-mockk = "io.mockk:mockk:1.13.8"
+mockk = "io.mockk:mockk:1.13.9"
 
 nav-common-auditLog = { module = "no.nav.common:audit-log", version.ref = "common-java-modules" }
 nav-common-kafka = { module = "no.nav.common:kafka", version.ref = "common-java-modules" }
 nav-common-tokenClient = { module = "no.nav.common:token-client", version.ref = "common-java-modules" }
 nav-common-client = { module = "no.nav.common:client", version.ref = "common-java-modules" }
-nav-poaoTilgang-client = "no.nav.poao-tilgang:client:2023.12.27_10.21-e5150ea667d3"
+nav-poaoTilgang-client = "no.nav.poao-tilgang:client:2024.01.05_08.39-83879ad64bab"
 nav-mockOauth2Server = "no.nav.security:mock-oauth2-server:2.1.0"
 
 postgresql = "org.postgresql:postgresql:42.7.1"

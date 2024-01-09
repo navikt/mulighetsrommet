@@ -7,7 +7,12 @@ import { createRef, useEffect, useState } from "react";
 import { AvtaleFilter } from "../../api/atoms";
 import { APPLICATION_NAME } from "../../constants";
 import { useSort } from "../../hooks/useSort";
-import { capitalizeEveryWord, formaterDato, formaterNavEnheter } from "../../utils/Utils";
+import {
+  capitalizeEveryWord,
+  createQueryParamsForExcelDownload,
+  formaterDato,
+  formaterNavEnheter,
+} from "../../utils/Utils";
 import { Laster } from "../laster/Laster";
 import { PagineringContainer } from "../paginering/PagineringContainer";
 import { PagineringsOversikt } from "../paginering/PagineringOversikt";
@@ -27,22 +32,7 @@ async function lastNedFil(filter: AvtaleFilter) {
   }
   headers.append("accept", "application/json");
 
-  const queryParams = new URLSearchParams();
-
-  if (filter.sok) {
-    queryParams.set("search", filter.sok);
-  }
-
-  filter.tiltakstyper.forEach((tiltakstype) => queryParams.append("tiltakstypeIder", tiltakstype));
-  filter.statuser.forEach((status) => queryParams.append("avtalestatuser", status));
-  filter.navRegioner.forEach((region) => queryParams.append("navRegioner", region));
-  filter.leverandor.forEach((orgnr) => queryParams.append("leverandorOrgnr", orgnr));
-
-  if (filter.visMineAvtaler) {
-    queryParams.set("visMineAvtaler", "true");
-  }
-
-  queryParams.set("size", "10000");
+  const queryParams = createQueryParamsForExcelDownload(filter);
 
   return await fetch(`${OpenAPI.BASE}/api/v1/internal/avtaler/excel?${queryParams}`, {
     headers,

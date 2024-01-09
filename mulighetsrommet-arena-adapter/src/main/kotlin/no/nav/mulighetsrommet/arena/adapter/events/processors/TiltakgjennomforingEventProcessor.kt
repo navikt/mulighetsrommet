@@ -154,6 +154,7 @@ class TiltakgjennomforingEventProcessor(
                 avtaleId = avtaleId,
                 fremmoteTidspunkt = ArenaUtils.parseFremmoteTidspunkt(DATO_FREMMOTE, KLOKKETID_FREMMOTE),
                 fremmoteSted = TEKST_KURSSTED,
+                deltidsprosent = PROSENT_DELTID,
             )
         }.mapLeft { ProcessingError.InvalidPayload(it.localizedMessage) }
 
@@ -175,5 +176,6 @@ class TiltakgjennomforingEventProcessor(
             opphav = ArenaMigrering.Opphav.ARENA,
             fremmoteTidspunkt = fremmoteTidspunkt,
             fremmoteSted = fremmoteSted,
+            deltidsprosent = deltidsprosent,
         )
 }

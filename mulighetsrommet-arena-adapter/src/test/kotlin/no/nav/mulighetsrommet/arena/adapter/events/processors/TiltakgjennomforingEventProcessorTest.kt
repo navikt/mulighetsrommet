@@ -353,6 +353,7 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                             DATO_FREMMOTE = "2023-01-01 00:00:00",
                             KLOKKETID_FREMMOTE = "09:00",
                             TEKST_KURSSTED = "Oslo",
+                            PROSENT_DELTID = 55.33,
                         )
                     },
                 )
@@ -383,6 +384,7 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                         avslutningsstatus shouldBe Avslutningsstatus.IKKE_AVSLUTTET
                         fremmoteTidspunkt shouldBe LocalDateTime.of(2023, 1, 1, 9, 0, 0)
                         fremmoteSted shouldBe "Oslo"
+                        deltidsprosent shouldBe 55.33
                     }
                 }
 

@@ -97,7 +97,7 @@ export const VirksomhetKontaktpersoner = (props: VirksomhetKontaktpersonerProps)
     });
   };
 
-  const valgtPerson = () => kontaktpersoner.find((person) => person.id === state.selectedId);
+  const valgtPerson = kontaktpersoner.find((person) => person.id === state.selectedId);
 
   return (
     <>
@@ -120,12 +120,10 @@ export const VirksomhetKontaktpersoner = (props: VirksomhetKontaktpersonerProps)
       />
       {state.selectedId && !state.rediger && (
         <div className={styles.kontaktperson_info_container}>
-          <label>{`Navn: ${valgtPerson()?.navn ?? "Navn eksisterer ikke"}`}</label>
-          <label>{`Telefon: ${valgtPerson()?.telefon || "Telefonnummer eksisterer ikke"}`}</label>
-          <label>{`E-post: ${valgtPerson()?.epost ?? "E-post eksisterer ikke"}`}</label>
-          {valgtPerson()?.beskrivelse && (
-            <label>{`Beskrivelse: ${valgtPerson()?.beskrivelse}`}</label>
-          )}
+          <label>{`Navn: ${valgtPerson?.navn ?? "Navn eksisterer ikke"}`}</label>
+          <label>{`Telefon: ${valgtPerson?.telefon || "Telefonnummer eksisterer ikke"}`}</label>
+          <label>{`E-post: ${valgtPerson?.epost ?? "E-post eksisterer ikke"}`}</label>
+          {valgtPerson?.beskrivelse && <label>{`Beskrivelse: ${valgtPerson?.beskrivelse}`}</label>}
         </div>
       )}
       {!state.leggTil && !state.rediger && (
@@ -139,10 +137,10 @@ export const VirksomhetKontaktpersoner = (props: VirksomhetKontaktpersonerProps)
               onClick={() =>
                 setState({
                   ...state,
-                  navn: valgtPerson()?.navn,
-                  epost: valgtPerson()?.epost,
-                  telefon: valgtPerson()?.telefon ?? undefined,
-                  beskrivelse: valgtPerson()?.beskrivelse ?? undefined,
+                  navn: valgtPerson?.navn,
+                  epost: valgtPerson?.epost,
+                  telefon: valgtPerson?.telefon ?? undefined,
+                  beskrivelse: valgtPerson?.beskrivelse ?? undefined,
                   rediger: true,
                 })
               }

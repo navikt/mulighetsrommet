@@ -38,7 +38,7 @@ export function TiltaksgjennomforingFilterTags({ filterAtom }: Props) {
         rowGap: "0.25rem",
       }}
     >
-      {filter.search && (
+      {filter.search ? (
         <FilterTag
           label={`'${filter.search}'`}
           onClick={() => {
@@ -48,67 +48,77 @@ export function TiltaksgjennomforingFilterTags({ filterAtom }: Props) {
             });
           }}
         />
-      )}
-      {filter.navRegioner.map((enhetsnummer) => (
-        <FilterTag
-          key={enhetsnummer}
-          label={enheter?.find((e) => e.enhetsnummer === enhetsnummer)?.navn}
-          onClick={() => {
-            setFilter({
-              ...filter,
-              navRegioner: addOrRemove(filter.navRegioner, enhetsnummer),
-            });
-          }}
-        />
-      ))}
-      {filter.navEnheter.map((enhetsnummer) => (
-        <FilterTag
-          key={enhetsnummer}
-          label={enheter?.find((e) => e.enhetsnummer === enhetsnummer)?.navn}
-          onClick={() => {
-            setFilter({
-              ...filter,
-              navEnheter: addOrRemove(filter.navEnheter, enhetsnummer),
-            });
-          }}
-        />
-      ))}
-      {filter.tiltakstyper.map((tiltakstype) => (
-        <FilterTag
-          key={tiltakstype}
-          label={tiltakstyper?.data?.find((t) => tiltakstype === t.id)?.navn}
-          onClick={() => {
-            setFilter({
-              ...filter,
-              tiltakstyper: addOrRemove(filter.tiltakstyper, tiltakstype),
-            });
-          }}
-        />
-      ))}
-      {filter.statuser.map((status) => (
-        <FilterTag
-          key={status}
-          label={TILTAKSGJENNOMFORING_STATUS_OPTIONS.find((o) => status === o.value)?.label}
-          onClick={() => {
-            setFilter({
-              ...filter,
-              statuser: addOrRemove(filter.statuser, status),
-            });
-          }}
-        />
-      ))}
-      {filter.arrangorOrgnr.map((orgNr) => (
-        <FilterTag
-          key={orgNr}
-          label={virksomheter?.find((v) => v.organisasjonsnummer === orgNr)?.navn}
-          onClick={() => {
-            setFilter({
-              ...filter,
-              arrangorOrgnr: addOrRemove(filter.arrangorOrgnr, orgNr),
-            });
-          }}
-        />
-      ))}
+      ) : null}
+      {filter.navRegioner
+        ? filter.navRegioner.map((enhetsnummer) => (
+            <FilterTag
+              key={enhetsnummer}
+              label={enheter?.find((e) => e.enhetsnummer === enhetsnummer)?.navn}
+              onClick={() => {
+                setFilter({
+                  ...filter,
+                  navRegioner: addOrRemove(filter.navRegioner, enhetsnummer),
+                });
+              }}
+            />
+          ))
+        : null}
+      {filter.navEnheter
+        ? filter.navEnheter.map((enhetsnummer) => (
+            <FilterTag
+              key={enhetsnummer}
+              label={enheter?.find((e) => e.enhetsnummer === enhetsnummer)?.navn}
+              onClick={() => {
+                setFilter({
+                  ...filter,
+                  navEnheter: addOrRemove(filter.navEnheter, enhetsnummer),
+                });
+              }}
+            />
+          ))
+        : null}
+      {filter.tiltakstyper
+        ? filter.tiltakstyper.map((tiltakstype) => (
+            <FilterTag
+              key={tiltakstype}
+              label={tiltakstyper?.data?.find((t) => tiltakstype === t.id)?.navn}
+              onClick={() => {
+                setFilter({
+                  ...filter,
+                  tiltakstyper: addOrRemove(filter.tiltakstyper, tiltakstype),
+                });
+              }}
+            />
+          ))
+        : null}
+      {filter.statuser
+        ? filter.statuser.map((status) => (
+            <FilterTag
+              key={status}
+              label={TILTAKSGJENNOMFORING_STATUS_OPTIONS.find((o) => status === o.value)?.label}
+              onClick={() => {
+                setFilter({
+                  ...filter,
+                  statuser: addOrRemove(filter.statuser, status),
+                });
+              }}
+            />
+          ))
+        : null}
+      {filter.arrangorOrgnr
+        ? filter.arrangorOrgnr.map((orgNr) => (
+            <FilterTag
+              key={orgNr}
+              label={virksomheter?.find((v) => v.organisasjonsnummer === orgNr)?.navn}
+              onClick={() => {
+                setFilter({
+                  ...filter,
+                  arrangorOrgnr: addOrRemove(filter.arrangorOrgnr, orgNr),
+                });
+              }}
+            />
+          ))
+        : null}
     </div>
   );
 }

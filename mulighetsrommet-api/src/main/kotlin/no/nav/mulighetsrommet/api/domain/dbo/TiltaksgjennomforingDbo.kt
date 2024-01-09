@@ -34,6 +34,7 @@ data class TiltaksgjennomforingDbo(
     val beskrivelse: String?,
     val fremmoteTidspunkt: LocalDateTime?,
     val fremmoteSted: String?,
+    val deltidsprosent: Double,
 )
 
 data class TiltaksgjennomforingKontaktpersonDbo(

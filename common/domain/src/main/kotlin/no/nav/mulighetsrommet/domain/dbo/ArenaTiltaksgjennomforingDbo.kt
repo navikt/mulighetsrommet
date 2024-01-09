@@ -33,4 +33,5 @@ data class ArenaTiltaksgjennomforingDbo(
     @Serializable(with = LocalDateTimeSerializer::class)
     val fremmoteTidspunkt: LocalDateTime?,
     val fremmoteSted: String?,
+    val deltidsprosent: Double,
 )

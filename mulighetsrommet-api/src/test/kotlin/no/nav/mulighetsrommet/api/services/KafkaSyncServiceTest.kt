@@ -63,6 +63,7 @@ class KafkaSyncServiceTest : FunSpec({
             avtaleId = null,
             fremmoteTidspunkt = null,
             fremmoteSted = null,
+            deltidsprosent = 100.0,
         )
     }
 

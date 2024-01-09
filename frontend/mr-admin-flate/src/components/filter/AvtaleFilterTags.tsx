@@ -10,9 +10,10 @@ import { AVTALE_STATUS_OPTIONS } from "../../utils/filterUtils";
 
 interface Props {
   filterAtom: WritableAtom<AvtaleFilter, [newValue: AvtaleFilter], void>;
+  tiltakstypeId?: string;
 }
 
-export function AvtaleFilterTags({ filterAtom }: Props) {
+export function AvtaleFilterTags({ filterAtom, tiltakstypeId }: Props) {
   const [filter, setFilter] = useAtom(filterAtom);
 
   const { data: enheter } = useNavEnheter();
@@ -72,18 +73,19 @@ export function AvtaleFilterTags({ filterAtom }: Props) {
           }}
         />
       ))}
-      {filter.tiltakstyper.map((tiltakstype) => (
-        <FilterTag
-          key={tiltakstype}
-          label={tiltakstyper?.data?.find((t) => tiltakstype === t.id)?.navn}
-          onClick={() => {
-            setFilter({
-              ...filter,
-              tiltakstyper: addOrRemove(filter.tiltakstyper, tiltakstype),
-            });
-          }}
-        />
-      ))}
+      {!tiltakstypeId &&
+        filter.tiltakstyper.map((tiltakstype) => (
+          <FilterTag
+            key={tiltakstype}
+            label={tiltakstyper?.data?.find((t) => tiltakstype === t.id)?.navn}
+            onClick={() => {
+              setFilter({
+                ...filter,
+                tiltakstyper: addOrRemove(filter.tiltakstyper, tiltakstype),
+              });
+            }}
+          />
+        ))}
       {filter.leverandor.map((orgnr) => (
         <FilterTag
           key={orgnr}

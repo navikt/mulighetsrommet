@@ -35,7 +35,12 @@ class TiltaksgjennomforingValidator(
             }
 
             if (dbo.administratorer.isEmpty()) {
-                add(ValidationError.of(TiltaksgjennomforingDbo::administratorer, "Minst én administrator må være valgt"))
+                add(
+                    ValidationError.of(
+                        TiltaksgjennomforingDbo::administratorer,
+                        "Minst én administrator må være valgt",
+                    ),
+                )
             }
 
             if (dbo.sluttDato != null && dbo.startDato.isAfter(dbo.sluttDato)) {
@@ -201,6 +206,22 @@ class TiltaksgjennomforingValidator(
                 ValidationError(
                     name = "fremmoteTid",
                     message = "Fremmøte klokkeslett kan ikke være kl 00:00",
+                ),
+            )
+        }
+
+        if (dbo.deltidsprosent <= 0) {
+            add(
+                ValidationError.of(
+                    TiltaksgjennomforingDbo::deltidsprosent,
+                    "Deltidsprosent må være større enn 0",
+                ),
+            )
+        } else if (dbo.deltidsprosent > 100) {
+            add(
+                ValidationError.of(
+                    TiltaksgjennomforingDbo::deltidsprosent,
+                    "Deltidsprosent kan ikke være større enn 100",
                 ),
             )
         }

@@ -1,4 +1,5 @@
 import { Avtale, Avtaletype, TiltaksgjennomforingStatus } from "mulighetsrommet-api-client";
+import { AvtaleFilter } from "../api/atoms";
 
 export function capitalize(text?: string): string {
   return text ? text.slice(0, 1).toUpperCase() + text.slice(1, text.length).toLowerCase() : "";
@@ -184,8 +185,26 @@ export function addOrRemove<T>(array: T[], item: T): T[] {
       return c !== item;
     });
   } else {
-    const result = array;
-    result.push(item);
-    return result;
+    return [...array, item];
   }
+}
+
+export function createQueryParamsForExcelDownload(filter: AvtaleFilter): URLSearchParams {
+  const queryParams = new URLSearchParams();
+
+  if (filter.sok) {
+    queryParams.set("search", filter.sok);
+  }
+
+  filter.tiltakstyper.forEach((tiltakstype) => queryParams.append("tiltakstypeIder", tiltakstype));
+  filter.statuser.forEach((status) => queryParams.append("statuser", status));
+  filter.navRegioner.forEach((region) => queryParams.append("navRegioner", region));
+  filter.leverandor.forEach((orgnr) => queryParams.append("leverandorOrgnr", orgnr));
+
+  if (filter.visMineAvtaler) {
+    queryParams.set("visMineAvtaler", "true");
+  }
+
+  queryParams.set("size", "10000");
+  return queryParams;
 }

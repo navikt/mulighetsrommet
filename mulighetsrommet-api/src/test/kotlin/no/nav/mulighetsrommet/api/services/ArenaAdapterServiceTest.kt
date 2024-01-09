@@ -78,6 +78,7 @@ class ArenaAdapterServiceTest : FunSpec({
         avtaleId = null,
         fremmoteTidspunkt = null,
         fremmoteSted = null,
+        deltidsprosent = 100.0,
     )
 
     val tiltakshistorikkGruppe = ArenaTiltakshistorikkDbo.Gruppetiltak(
@@ -362,6 +363,7 @@ class ArenaAdapterServiceTest : FunSpec({
                 .value("arrangor_organisasjonsnummer").isEqualTo(tiltaksgjennomforing.arrangorOrganisasjonsnummer)
                 .value("start_dato").isEqualTo(tiltaksgjennomforing.startDato)
                 .value("slutt_dato").isEqualTo(tiltaksgjennomforing.sluttDato)
+                .value("deltidsprosent").isEqualTo(tiltaksgjennomforing.deltidsprosent)
 
             val updated = tiltaksgjennomforing.copy(navn = "Oppdatert arbeidstrening")
             service.upsertTiltaksgjennomforing(updated)

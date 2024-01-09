@@ -1,7 +1,6 @@
 import { Button } from "@navikt/ds-react";
 import { useAtom, WritableAtom } from "jotai";
 import { Avtalestatus, Opphav, Toggles } from "mulighetsrommet-api-client";
-import { shallowEquals } from "mulighetsrommet-frontend-common";
 import { useState } from "react";
 import { defaultTiltaksgjennomforingfilter, TiltaksgjennomforingFilter } from "../../api/atoms";
 import { useAvtale } from "../../api/avtaler/useAvtale";
@@ -42,14 +41,21 @@ export function TiltaksgjennomforingFilterButtons({ filterAtom }: Props) {
         alignItems: "center",
       }}
     >
-      {!shallowEquals(filter, defaultTiltaksgjennomforingfilter) ? (
+      {filter.search.length > 0 ||
+      filter.navRegioner.length > 0 ||
+      filter.navEnheter.length > 0 ||
+      filter.statuser.length > 0 ||
+      filter.arrangorOrgnr.length > 0 ? (
         <Button
           type="button"
           size="small"
           style={{ maxWidth: "130px" }}
           variant="tertiary"
           onClick={() => {
-            setFilter(defaultTiltaksgjennomforingfilter);
+            setFilter({
+              ...defaultTiltaksgjennomforingfilter,
+              avtale: avtale?.id ?? defaultTiltaksgjennomforingfilter.avtale,
+            });
           }}
         >
           Nullstill filter
@@ -57,6 +63,10 @@ export function TiltaksgjennomforingFilterButtons({ filterAtom }: Props) {
       ) : (
         <div></div>
       )}
+      {/*
+        Empty div over for å dytte de andre knappene til høyre uavhengig
+        av om nullstill knappen er der
+      */}
       {avtale && avtalenErAktiv && (
         <div
           style={{

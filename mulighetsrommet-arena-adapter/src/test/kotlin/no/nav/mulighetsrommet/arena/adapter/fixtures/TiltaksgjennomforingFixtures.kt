@@ -20,6 +20,7 @@ object TiltaksgjennomforingFixtures {
         KLOKKETID_FREMMOTE = null,
         DATO_FREMMOTE = null,
         TEKST_KURSSTED = null,
+        PROSENT_DELTID = 100.0,
         EKSTERN_ID = null,
     )
 
@@ -39,6 +40,7 @@ object TiltaksgjennomforingFixtures {
         KLOKKETID_FREMMOTE = null,
         DATO_FREMMOTE = null,
         TEKST_KURSSTED = null,
+        PROSENT_DELTID = 100.0,
         EKSTERN_ID = null,
     )
 }

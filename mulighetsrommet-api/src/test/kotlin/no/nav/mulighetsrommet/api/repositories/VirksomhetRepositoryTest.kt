@@ -272,6 +272,7 @@ class VirksomhetRepositoryTest : FunSpec({
                 beskrivelse = null,
                 fremmoteTidspunkt = null,
                 fremmoteSted = null,
+                deltidsprosent = 100.0,
             )
             tiltaksgjennomforingRepository.upsert(tiltaksgjennomforing)
 
