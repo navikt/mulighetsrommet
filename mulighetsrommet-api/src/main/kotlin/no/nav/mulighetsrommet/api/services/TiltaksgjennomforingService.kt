@@ -47,10 +47,10 @@ class TiltaksgjennomforingService(
     ): Either<List<ValidationError>, TiltaksgjennomforingAdminDto> {
         virksomhetService.getOrSyncVirksomhet(request.arrangorOrganisasjonsnummer)
 
-        return validator.validate(request.toDbo())
+        val previous = tiltaksgjennomforinger.get(request.id)
+        return validator.validate(request.toDbo(), previous)
             .map { dbo ->
                 db.transactionSuspend { tx ->
-                    val previous = tiltaksgjennomforinger.get(request.id)
                     if (previous?.toDbo() == dbo) {
                         return@transactionSuspend previous
                     }

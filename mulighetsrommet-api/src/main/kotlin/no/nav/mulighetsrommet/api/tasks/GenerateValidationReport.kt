@@ -131,7 +131,7 @@ class GenerateValidationReport(
     private suspend fun validateAvtaler() = buildMap {
         paginateFanOut({ pagination -> avtaler.getAll(pagination).second }) {
             val dbo = it.toDbo()
-            avtaleValidator.validate(dbo)
+            avtaleValidator.validate(dbo, it)
                 .onLeft { validationErrors ->
                     put(it, validationErrors)
                 }
@@ -156,7 +156,7 @@ class GenerateValidationReport(
     private suspend fun validateGjennomforinger() = buildMap {
         paginateFanOut({ pagination -> gjennomforinger.getAll(pagination).second }) {
             val dbo = it.toDbo()
-            gjennomforingValidator.validate(dbo)
+            gjennomforingValidator.validate(dbo, it)
                 .onLeft { validationErrors ->
                     put(it, validationErrors)
                 }

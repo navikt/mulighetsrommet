@@ -44,10 +44,10 @@ class AvtaleService(
     suspend fun upsert(request: AvtaleRequest, navIdent: String): Either<List<ValidationError>, AvtaleAdminDto> {
         virksomhetService.getOrSyncVirksomhet(request.leverandorOrganisasjonsnummer)
 
-        return validator.validate(request.toDbo())
+        val previous = avtaler.get(request.id)
+        return validator.validate(request.toDbo(), previous)
             .map { dbo ->
                 db.transaction { tx ->
-                    val previous = avtaler.get(request.id)
                     if (previous?.toDbo() == dbo) {
                         return@transaction previous
                     }
@@ -55,9 +55,10 @@ class AvtaleService(
                     avtaler.upsert(dbo, tx)
                     utkastRepository.delete(dbo.id, tx)
 
+                    dispatchNotificationToNewAdministrators(tx, dbo, navIdent)
+
                     val dto = getOrError(dbo.id, tx)
 
-                    dispatchNotificationToNewAdministrators(tx, dbo, navIdent)
                     logEndring("Redigerte avtale", dto, navIdent, tx)
                     dto
                 }
