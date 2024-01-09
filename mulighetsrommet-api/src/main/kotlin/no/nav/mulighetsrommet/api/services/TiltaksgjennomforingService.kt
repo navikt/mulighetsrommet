@@ -48,16 +48,17 @@ class TiltaksgjennomforingService(
         virksomhetService.getOrSyncVirksomhet(request.arrangorOrganisasjonsnummer)
 
         val previous = tiltaksgjennomforinger.get(request.id)
-        return validator.validate(request.toDbo())
+        return validator.validate(request.toDbo(), previous)
             .map { dbo ->
                 db.transactionSuspend { tx ->
+                    if (previous?.toDbo() == dbo) {
+                        return@transactionSuspend previous
+                    }
+
                     tiltaksgjennomforinger.upsert(dbo, tx)
                     utkastRepository.delete(dbo.id, tx)
 
                     val dto = getOrError(dbo.id, tx)
-                    if (previous == dto) {
-                        return@transactionSuspend dto
-                    }
 
                     dispatchNotificationToNewAdministrators(tx, dbo, navIdent)
                     logEndring("Redigerte gjennomføring", dto, navIdent, tx)

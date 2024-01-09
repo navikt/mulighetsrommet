@@ -31,7 +31,6 @@ object AvtaleFixtures {
         leverandorKontaktpersonId = null,
         antallPlasser = null,
         url = null,
-        updatedAt = LocalDate.now().atStartOfDay(),
         beskrivelse = null,
         faneinnhold = null,
     )
@@ -87,7 +86,6 @@ object AvtaleFixtures {
         url = null,
         antallPlasser = null,
         opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
-        updatedAt = avtale1.updatedAt,
         kontorstruktur = listOf(
             Kontorstruktur(
                 region = EmbeddedNavEnhet(
@@ -137,7 +135,6 @@ object AvtaleFixtures {
         url = null,
         antallPlasser = null,
         opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
-        updatedAt = avtale1.updatedAt,
         kontorstruktur = listOf(
             Kontorstruktur(
                 region = EmbeddedNavEnhet(

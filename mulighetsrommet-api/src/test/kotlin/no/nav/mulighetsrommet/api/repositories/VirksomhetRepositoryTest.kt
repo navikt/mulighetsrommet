@@ -14,7 +14,6 @@ import no.nav.mulighetsrommet.api.utils.VirksomhetTil
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.utils.getOrThrow
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
-import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
@@ -241,7 +240,6 @@ class VirksomhetRepositoryTest : FunSpec({
                 antallPlasser = null,
                 url = null,
                 administratorer = emptyList(),
-                updatedAt = LocalDate.now().atStartOfDay(),
                 beskrivelse = null,
                 faneinnhold = null,
             )
@@ -253,7 +251,6 @@ class VirksomhetRepositoryTest : FunSpec({
                 tiltaksnummer = null,
                 arrangorOrganisasjonsnummer = "112254604",
                 startDato = LocalDate.now(),
-                avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
                 apentForInnsok = true,
                 antallPlasser = 12,
                 administratorer = emptyList(),

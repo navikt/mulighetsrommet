@@ -611,24 +611,24 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         val dagensDato = LocalDate.of(2023, 2, 1)
 
         val tiltaksgjennomforingAktiv = Arbeidstrening1
-        val tiltaksgjennomforingAvsluttetStatus = Oppfolging1.copy(
+        val tiltaksgjennomforingAvsluttetStatus = ArenaOppfolging1.copy(
             id = UUID.randomUUID(),
             avslutningsstatus = Avslutningsstatus.AVSLUTTET,
         )
-        val tiltaksgjennomforingAvsluttetDato = Oppfolging1.copy(
+        val tiltaksgjennomforingAvsluttetDato = ArenaOppfolging1.copy(
             id = UUID.randomUUID(),
             avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
             sluttDato = LocalDate.of(2023, 1, 31),
         )
-        val tiltaksgjennomforingAvbrutt = Oppfolging1.copy(
+        val tiltaksgjennomforingAvbrutt = ArenaOppfolging1.copy(
             id = UUID.randomUUID(),
             avslutningsstatus = Avslutningsstatus.AVBRUTT,
         )
-        val tiltaksgjennomforingAvlyst = Oppfolging1.copy(
+        val tiltaksgjennomforingAvlyst = ArenaOppfolging1.copy(
             id = UUID.randomUUID(),
             avslutningsstatus = Avslutningsstatus.AVLYST,
         )
-        val tiltaksgjennomforingPlanlagt = Oppfolging1.copy(
+        val tiltaksgjennomforingPlanlagt = ArenaOppfolging1.copy(
             id = UUID.randomUUID(),
             avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
             startDato = LocalDate.of(2023, 2, 2),
@@ -637,11 +637,11 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         beforeAny {
             val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
             tiltaksgjennomforingRepository.upsert(tiltaksgjennomforingAktiv)
-            tiltaksgjennomforingRepository.upsert(tiltaksgjennomforingAvsluttetStatus)
-            tiltaksgjennomforingRepository.upsert(tiltaksgjennomforingAvsluttetDato)
-            tiltaksgjennomforingRepository.upsert(tiltaksgjennomforingAvbrutt)
-            tiltaksgjennomforingRepository.upsert(tiltaksgjennomforingPlanlagt)
-            tiltaksgjennomforingRepository.upsert(tiltaksgjennomforingAvlyst)
+            tiltaksgjennomforingRepository.upsertArenaTiltaksgjennomforing(tiltaksgjennomforingAvsluttetStatus)
+            tiltaksgjennomforingRepository.upsertArenaTiltaksgjennomforing(tiltaksgjennomforingAvsluttetDato)
+            tiltaksgjennomforingRepository.upsertArenaTiltaksgjennomforing(tiltaksgjennomforingAvbrutt)
+            tiltaksgjennomforingRepository.upsertArenaTiltaksgjennomforing(tiltaksgjennomforingPlanlagt)
+            tiltaksgjennomforingRepository.upsertArenaTiltaksgjennomforing(tiltaksgjennomforingAvlyst)
         }
 
         test("filtrer på avbrutt") {
@@ -840,7 +840,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                         tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
                         tiltaksnummer = "$it",
                         arrangorOrganisasjonsnummer = "123456789",
-                        avslutningsstatus = Avslutningsstatus.AVSLUTTET,
                         startDato = LocalDate.of(2022, 1, 1),
                         apentForInnsok = true,
                         oppstart = TiltaksgjennomforingOppstartstype.FELLES,

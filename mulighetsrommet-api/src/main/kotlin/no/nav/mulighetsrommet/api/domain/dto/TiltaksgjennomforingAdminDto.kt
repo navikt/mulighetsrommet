@@ -1,7 +1,11 @@
 package no.nav.mulighetsrommet.api.domain.dto
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
+import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingKontaktpersonDbo
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
+import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
+import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.Faneinnhold
 import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
@@ -80,4 +84,64 @@ data class TiltaksgjennomforingAdminDto(
         val kontaktperson: VirksomhetKontaktperson?,
         val slettet: Boolean,
     )
+
+    fun toDbo() =
+        TiltaksgjennomforingDbo(
+            id = id,
+            navn = navn,
+            tiltakstypeId = tiltakstype.id,
+            tiltaksnummer = tiltaksnummer,
+            arrangorOrganisasjonsnummer = arrangor.organisasjonsnummer,
+            arrangorKontaktpersonId = arrangor.kontaktperson?.id,
+            startDato = startDato,
+            sluttDato = sluttDato,
+            apentForInnsok = apentForInnsok,
+            antallPlasser = antallPlasser ?: -1,
+            avtaleId = avtaleId ?: id,
+            administratorer = administratorer.map { it.navIdent },
+            navRegion = navRegion?.enhetsnummer ?: "",
+            navEnheter = navEnheter.map { it.enhetsnummer },
+            oppstart = oppstart,
+            opphav = opphav,
+            stengtFra = stengtFra,
+            stengtTil = stengtTil,
+            kontaktpersoner = kontaktpersoner.map {
+                TiltaksgjennomforingKontaktpersonDbo(
+                    navIdent = it.navIdent,
+                    navEnheter = it.navEnheter,
+                )
+            },
+            stedForGjennomforing = stedForGjennomforing,
+            faneinnhold = faneinnhold,
+            beskrivelse = beskrivelse,
+            fremmoteTidspunkt = fremmoteTidspunkt,
+            fremmoteSted = fremmoteSted,
+            deltidsprosent = deltidsprosent,
+        )
+
+    fun toArenaTiltaksgjennomforingDbo() =
+        ArenaTiltaksgjennomforingDbo(
+            id = id,
+            navn = navn,
+            tiltakstypeId = tiltakstype.id,
+            tiltaksnummer = tiltaksnummer ?: "",
+            arrangorOrganisasjonsnummer = arrangor.organisasjonsnummer,
+            startDato = startDato,
+            sluttDato = sluttDato,
+            arenaAnsvarligEnhet = arenaAnsvarligEnhet?.enhetsnummer,
+            avslutningsstatus = when (status) {
+                Tiltaksgjennomforingsstatus.PLANLAGT, Tiltaksgjennomforingsstatus.GJENNOMFORES -> Avslutningsstatus.IKKE_AVSLUTTET
+                Tiltaksgjennomforingsstatus.AVLYST -> Avslutningsstatus.AVLYST
+                Tiltaksgjennomforingsstatus.AVBRUTT -> Avslutningsstatus.AVBRUTT
+                Tiltaksgjennomforingsstatus.AVSLUTTET -> Avslutningsstatus.AVSLUTTET
+            },
+            apentForInnsok = apentForInnsok,
+            antallPlasser = antallPlasser,
+            avtaleId = avtaleId,
+            oppstart = oppstart,
+            opphav = opphav,
+            fremmoteTidspunkt = fremmoteTidspunkt,
+            fremmoteSted = fremmoteSted,
+            deltidsprosent = deltidsprosent,
+        )
 }

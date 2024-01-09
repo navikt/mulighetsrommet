@@ -592,7 +592,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         "arrangor_kontaktperson_id" to arrangorKontaktpersonId,
         "start_dato" to startDato,
         "slutt_dato" to sluttDato,
-        "avslutningsstatus" to avslutningsstatus.name,
+        "avslutningsstatus" to Avslutningsstatus.IKKE_AVSLUTTET.name,
         "apent_for_innsok" to apentForInnsok,
         "antall_plasser" to antallPlasser,
         "avtale_id" to avtaleId,

@@ -8,7 +8,7 @@ import arrow.core.right
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
-import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
+import no.nav.mulighetsrommet.api.domain.dto.AvtaleAdminDto
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
@@ -19,11 +19,10 @@ import no.nav.mulighetsrommet.env.NaisEnv
 
 class AvtaleValidator(
     private val tiltakstyper: TiltakstypeRepository,
-    private val avtaler: AvtaleRepository,
     private val tiltaksgjennomforinger: TiltaksgjennomforingRepository,
     private val navEnheterService: NavEnhetService,
 ) {
-    fun validate(dbo: AvtaleDbo): Either<List<ValidationError>, AvtaleDbo> = either {
+    fun validate(dbo: AvtaleDbo, previous: AvtaleAdminDto?): Either<List<ValidationError>, AvtaleDbo> = either {
         val tiltakstype = tiltakstyper.get(dbo.tiltakstypeId)
             ?: raise(ValidationError.of(AvtaleDbo::tiltakstypeId, "Tiltakstypen finnes ikke").nel())
 
@@ -51,7 +50,7 @@ class AvtaleValidator(
                 )
             }
 
-            avtaler.get(dbo.id)?.also { avtale ->
+            previous?.also { avtale ->
                 if (dbo.opphav != avtale.opphav) {
                     add(ValidationError.of(AvtaleDbo::opphav, "Avtalens opphav kan ikke endres"))
                 }

@@ -16,7 +16,6 @@ import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
 import no.nav.mulighetsrommet.api.utils.getAdminTiltaksgjennomforingsFilter
 import no.nav.mulighetsrommet.api.utils.getPaginationParams
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
-import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.Faneinnhold
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
@@ -138,7 +137,6 @@ data class TiltaksgjennomforingRequest(
         avtaleId = avtaleId,
         startDato = startDato,
         sluttDato = sluttDato,
-        avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
         antallPlasser = antallPlasser,
         apentForInnsok = apentForInnsok,
         tiltaksnummer = tiltaksnummer,
