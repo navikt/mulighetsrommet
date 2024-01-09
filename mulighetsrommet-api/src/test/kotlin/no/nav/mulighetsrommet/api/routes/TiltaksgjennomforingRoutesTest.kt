@@ -31,11 +31,11 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
                 AvtaleFixtures.avtale1.copy(
                     navEnheter = listOf(
                         NavEnhetFixtures.Sagene.enhetsnummer,
-                        NavEnhetFixtures.Oslo.enhetsnummer
+                        NavEnhetFixtures.Oslo.enhetsnummer,
                     ),
-                    leverandorUnderenheter = listOf(TiltaksgjennomforingFixtures.Oppfolging1.arrangorOrganisasjonsnummer)
-                )
-            )
+                    leverandorUnderenheter = listOf(TiltaksgjennomforingFixtures.Oppfolging1.arrangorOrganisasjonsnummer),
+                ),
+            ),
         )
     val oauth = MockOAuth2Server()
 
@@ -113,8 +113,8 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
                     TiltaksgjennomforingFixtures.Oppfolging1Request.copy(
                         avtaleId = AvtaleFixtures.avtale1.id,
                         navRegion = NavEnhetFixtures.Oslo.enhetsnummer,
-                        navEnheter = listOf(NavEnhetFixtures.Sagene.enhetsnummer)
-                    )
+                        navEnheter = listOf(NavEnhetFixtures.Sagene.enhetsnummer),
+                    ),
                 )
             }
             response.status shouldBe HttpStatusCode.OK
