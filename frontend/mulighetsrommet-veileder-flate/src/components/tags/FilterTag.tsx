@@ -7,10 +7,9 @@ import { XMarkIcon } from "@navikt/aksel-icons";
 interface FilterTagsProps {
   options: { id: string; tittel: string }[];
   handleClick?: (id: string) => void;
-  skjulIkon?: boolean;
 }
 
-const FilterTag = ({ options, handleClick, skjulIkon = false }: FilterTagsProps) => {
+const FilterTag = ({ options, handleClick }: FilterTagsProps) => {
   return (
     <>
       {options.map((filtertype) => {
@@ -22,10 +21,10 @@ const FilterTag = ({ options, handleClick, skjulIkon = false }: FilterTagsProps)
             data-testid={`filtertag_${kebabCase(filtertype.tittel)}`}
           >
             {filtertype.tittel}
-            {skjulIkon ? null : (
+            {handleClick ? (
               <Ikonknapp
                 className={styles.overstyrt_ikon_knapp}
-                handleClick={() => handleClick?.(filtertype.id)}
+                handleClick={() => handleClick(filtertype.id)}
                 ariaLabel="Lukke"
                 data-testid={`filtertag_lukkeknapp_${kebabCase(filtertype.tittel)}`}
                 icon={
@@ -36,7 +35,7 @@ const FilterTag = ({ options, handleClick, skjulIkon = false }: FilterTagsProps)
                   />
                 }
               />
-            )}
+            ) : null}
           </Tag>
         );
       })}
