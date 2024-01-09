@@ -121,8 +121,6 @@ class VeilederflateServiceTest : FunSpec({
         kontaktinfoTiltaksansvarlige = emptyList(),
     )
 
-    val fnr = "01010199999"
-
     test("Samme enhet overskrevet fra admin flate skal fungere") {
         val veilederFlateService = VeilederflateService(
             sanityClient,
