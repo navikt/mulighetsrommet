@@ -134,16 +134,16 @@ class TiltakgjennomforingEventProcessor(
     }
 
     private fun isRelevantForBrukersTiltakshistorikk(data: ArenaTiltaksgjennomforing): Boolean {
-        val datoTil = ArenaUtils.parseNullableTimestamp(data.DATO_TIL)
-        if (datoTil != null) {
-            return Tiltakshistorikk.isRelevantTiltakshistorikk(datoTil)
-        }
-
+        // Siden nye instanser av applikasjonen må lese gjennomføringene før deltakelsene vil man ha tilfenner
+        // der denne sjekken returnerer `false` selv om gjennomføringen _egentlig_ har relevante deltakelser
+        // i Arena.
+        // Vi har vurdert denne mangelen som OK og planlegger å ta en nytt sjau på tiltakshistorikken etter hvert.
         if (anyDeltakereIsRelevantForBrukersTiltakshistorikk(data)) {
             return true
         }
 
-        return Tiltakshistorikk.isRelevantTiltakshistorikk(ArenaUtils.parseTimestamp(data.REG_DATO))
+        val date = ArenaUtils.parseNullableTimestamp(data.DATO_TIL) ?: ArenaUtils.parseTimestamp(data.REG_DATO)
+        return Tiltakshistorikk.isRelevantTiltakshistorikk(date)
     }
 
     private fun anyDeltakereIsRelevantForBrukersTiltakshistorikk(data: ArenaTiltaksgjennomforing): Boolean {
