@@ -100,7 +100,9 @@ function atomWithHashAndStorage<Value>(
     const callback = () => {
       const searchParams = new URLSearchParams(window.location.hash.slice(1));
       const str = searchParams.get(key);
-      setAtom(str);
+      if (str != null) {
+        setAtom(str);
+      }
     };
     const unsubscribe = subscribe(callback);
     callback();
