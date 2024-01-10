@@ -63,5 +63,5 @@ app:
 
   slack:
     token: ${SLACK_TOKEN}
-    channel: "#team-valp-monitoring"
+    channel: "#team-valp-monitorering-dev"
     enable: true
