@@ -5,7 +5,9 @@ import styles from "./Filtermeny.module.scss";
 import InnsatsgruppeFilter from "./InnsatsgruppeFilter";
 import Sokefelt from "./Sokefelt";
 import { Tiltakstypefilter } from "./Tiltakstypefilter";
-import { ApentForInnsokToggle } from "./ApentForInnsokToggle";
+import { FilterToggle } from "./FilterToggle";
+import { PadlockLockedFillIcon } from "@navikt/aksel-icons";
+import { ApentForInnsok, HarDeltMedBruker } from "mulighetsrommet-api-client";
 
 const Filtermeny = () => {
   const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);
@@ -17,11 +19,42 @@ const Filtermeny = () => {
         setSokefilter={(search: string) => setFilter({ ...filter, search })}
       />
       <Accordion>
-        <ApentForInnsokToggle
+        {/*<ApentForInnsokToggle*/}
+        {/*  value={filter.apentForInnsok}*/}
+        {/*  onChange={(apentForInnsok) => {*/}
+        {/*    setFilter({ ...filter, apentForInnsok });*/}
+        {/*  }}*/}
+        {/*/>*/}
+        <FilterToggle
+          accordionHeader="Åpent for innsøk"
           value={filter.apentForInnsok}
           onChange={(apentForInnsok) => {
             setFilter({ ...filter, apentForInnsok });
           }}
+          venstreTekst="Åpent"
+          hoyreTekst={
+            <>
+              <PadlockLockedFillIcon aria-hidden />
+              Stengt
+            </>
+          }
+          venstreValue={ApentForInnsok.APENT}
+          midtValue={ApentForInnsok.APENT_ELLER_STENGT}
+          hoyreValue={ApentForInnsok.STENGT}
+          accordionIsOpenValue="apen-for-innsok"
+        />
+        <FilterToggle
+          accordionHeader="Har delt med bruker"
+          value={filter.harDeltMedBruker}
+          onChange={(harDeltMedBruker) => {
+            setFilter({ ...filter, harDeltMedBruker });
+          }}
+          venstreTekst={"Har delt"}
+          hoyreTekst={"Har ikke delt"}
+          venstreValue={HarDeltMedBruker.HAR_DELT}
+          midtValue={HarDeltMedBruker.HAR_OG_HAR_IKKE_DELT}
+          hoyreValue={HarDeltMedBruker.HAR_IKKE_DELT}
+          accordionIsOpenValue={"har-delt-med-bruker"}
         />
         <InnsatsgruppeFilter />
         <Tiltakstypefilter />

@@ -1,5 +1,10 @@
 import { atomWithHash } from "jotai-location";
-import { ApentForInnsok, Innsatsgruppe, NavEnhet } from "mulighetsrommet-api-client";
+import {
+  ApentForInnsok,
+  HarDeltMedBruker,
+  Innsatsgruppe,
+  NavEnhet,
+} from "mulighetsrommet-api-client";
 import { atomWithStorage } from "jotai/utils";
 import { atom } from "jotai";
 
@@ -23,6 +28,7 @@ export interface Tiltaksgjennomforingsfilter {
   innsatsgruppe?: Tiltaksgjennomforingsfiltergruppe<Innsatsgruppe>;
   tiltakstyper: Tiltaksgjennomforingsfiltergruppe<string>[];
   apentForInnsok: ApentForInnsok;
+  harDeltMedBruker: HarDeltMedBruker;
 }
 
 export interface Tiltaksgjennomforingsfiltergruppe<T> {
@@ -36,6 +42,7 @@ export const tiltaksgjennomforingsfilter = atomWithStorage<Tiltaksgjennomforings
   innsatsgruppe: undefined,
   tiltakstyper: [],
   apentForInnsok: ApentForInnsok.APENT_ELLER_STENGT,
+  harDeltMedBruker: HarDeltMedBruker.HAR_OG_HAR_IKKE_DELT,
 });
 
 export const paginationAtom = atomWithHash("page", 1, { setHash: "replaceState" });
@@ -45,4 +52,8 @@ export const faneAtom = atomWithHash("fane", "tab1", {
 
 export const geografiskEnhetForPreviewAtom = atom<NavEnhet | undefined>(undefined);
 
-export const filterAccordionAtom = atom<string[]>(["apen-for-innsok", "innsatsgruppe"]);
+export const filterAccordionAtom = atom<string[]>([
+  "apen-for-innsok",
+  "har-delt-med-bruker",
+  "innsatsgruppe",
+]);
