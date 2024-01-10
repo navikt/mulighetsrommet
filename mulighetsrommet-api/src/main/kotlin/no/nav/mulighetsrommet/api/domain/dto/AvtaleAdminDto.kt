@@ -1,15 +1,16 @@
 package no.nav.mulighetsrommet.api.domain.dto
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
+import no.nav.mulighetsrommet.domain.dbo.ArenaAvtaleDbo
+import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dto.Avtalestatus
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import no.nav.mulighetsrommet.domain.dto.Faneinnhold
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
-import no.nav.mulighetsrommet.domain.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.*
 
 @Serializable
@@ -34,8 +35,6 @@ data class AvtaleAdminDto(
     val url: String?,
     val antallPlasser: Int?,
     val opphav: ArenaMigrering.Opphav,
-    @Serializable(with = LocalDateTimeSerializer::class)
-    val updatedAt: LocalDateTime,
     val kontorstruktur: List<Kontorstruktur>,
     val beskrivelse: String? = null,
     val faneinnhold: Faneinnhold? = null,
@@ -66,4 +65,46 @@ data class AvtaleAdminDto(
         val navIdent: String,
         val navn: String,
     )
+
+    fun toDbo() =
+        AvtaleDbo(
+            id = id,
+            navn = navn,
+            tiltakstypeId = tiltakstype.id,
+            avtalenummer = avtalenummer,
+            leverandorOrganisasjonsnummer = leverandor.organisasjonsnummer,
+            leverandorUnderenheter = leverandorUnderenheter.map { it.organisasjonsnummer },
+            leverandorKontaktpersonId = leverandorKontaktperson?.id,
+            startDato = startDato,
+            sluttDato = sluttDato,
+            navEnheter = this.kontorstruktur.flatMap { it.kontorer.map { kontor -> kontor.enhetsnummer } + it.region.enhetsnummer },
+            avtaletype = avtaletype,
+            opphav = opphav,
+            prisbetingelser = prisbetingelser,
+            antallPlasser = antallPlasser,
+            url = url,
+            administratorer = administratorer.map { it.navIdent },
+            beskrivelse = null,
+            faneinnhold = null,
+        )
+
+    fun toArenaAvtaleDbo() =
+        ArenaAvtaleDbo(
+            id = id,
+            navn = navn,
+            tiltakstypeId = tiltakstype.id,
+            avtalenummer = avtalenummer,
+            leverandorOrganisasjonsnummer = leverandor.organisasjonsnummer,
+            startDato = startDato,
+            sluttDato = sluttDato,
+            arenaAnsvarligEnhet = arenaAnsvarligEnhet?.enhetsnummer,
+            avtaletype = avtaletype,
+            avslutningsstatus = when (avtalestatus) {
+                Avtalestatus.Aktiv -> Avslutningsstatus.IKKE_AVSLUTTET
+                Avtalestatus.Avbrutt -> Avslutningsstatus.AVBRUTT
+                Avtalestatus.Avsluttet -> Avslutningsstatus.AVSLUTTET
+            },
+            opphav = opphav,
+            prisbetingelser = prisbetingelser,
+        )
 }

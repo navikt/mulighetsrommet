@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonObject
 
 @Serializable
-class Faneinnhold(
+data class Faneinnhold(
     val forHvem: List<JsonObject>? = emptyList(),
     val forHvemInfoboks: String? = null,
     val detaljerOgInnhold: List<JsonObject>? = emptyList(),

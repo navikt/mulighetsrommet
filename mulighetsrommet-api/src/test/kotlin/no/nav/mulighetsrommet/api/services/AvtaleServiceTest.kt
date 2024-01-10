@@ -42,7 +42,7 @@ class AvtaleServiceTest : FunSpec({
     beforeEach {
         domain.initialize(database.db)
 
-        every { validator.validate(any()) } answers {
+        every { validator.validate(any(), any()) } answers {
             firstArg<AvtaleDbo>().right()
         }
     }
@@ -64,7 +64,7 @@ class AvtaleServiceTest : FunSpec({
         test("Man skal ikke få lov til å opprette avtale dersom det oppstår valideringsfeil") {
             val request = AvtaleFixtures.avtaleRequest
 
-            every { validator.validate(request.toDbo()) } returns listOf(ValidationError("navn", "Dårlig navn")).left()
+            every { validator.validate(request.toDbo(), any()) } returns listOf(ValidationError("navn", "Dårlig navn")).left()
 
             avtaleService.upsert(request, "B123456").shouldBeLeft(
                 listOf(ValidationError("navn", "Dårlig navn")),

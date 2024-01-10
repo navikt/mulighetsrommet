@@ -6,9 +6,9 @@ import arrow.core.nel
 import arrow.core.raise.either
 import arrow.core.right
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
+import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingAdminDto
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
-import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
 import no.nav.mulighetsrommet.domain.Tiltakskoder
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
@@ -17,10 +17,12 @@ import java.time.LocalTime
 
 class TiltaksgjennomforingValidator(
     private val avtaler: AvtaleRepository,
-    private val tiltaksgjennomforinger: TiltaksgjennomforingRepository,
     private val deltakere: DeltakerRepository,
 ) {
-    fun validate(dbo: TiltaksgjennomforingDbo): Either<List<ValidationError>, TiltaksgjennomforingDbo> = either {
+    fun validate(
+        dbo: TiltaksgjennomforingDbo,
+        previousDto: TiltaksgjennomforingAdminDto?,
+    ): Either<List<ValidationError>, TiltaksgjennomforingDbo> = either {
         val avtale = avtaler.get(dbo.avtaleId)
             ?: raise(ValidationError.of(TiltaksgjennomforingDbo::avtaleId, "Avtalen finnes ikke").nel())
 
@@ -120,7 +122,7 @@ class TiltaksgjennomforingValidator(
                 )
             }
 
-            tiltaksgjennomforinger.get(dbo.id)?.also { gjennomforing ->
+            previousDto?.also { gjennomforing ->
                 if (!gjennomforing.isAktiv()) {
                     add(
                         ValidationError.of(

@@ -47,6 +47,7 @@ data class AmtDeltakerStatus(
         VENTELISTE,
         AVBRUTT,
         FULLFORT,
+        UTKAST_TIL_PAMELDING,
     }
 
     enum class Aarsak {

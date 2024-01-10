@@ -46,7 +46,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
     beforeEach {
         domain.initialize(database.db)
 
-        every { validator.validate(any()) } answers {
+        every { validator.validate(any(), any()) } answers {
             firstArg<TiltaksgjennomforingDbo>().right()
         }
     }
@@ -140,7 +140,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
         test("Man skal ikke få lov til å opprette gjennomføring dersom det oppstår valideringsfeil") {
             val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1Request
 
-            every { validator.validate(gjennomforing.toDbo()) } returns listOf(
+            every { validator.validate(gjennomforing.toDbo(), any()) } returns listOf(
                 ValidationError("navn", "Dårlig navn"),
             ).left()
 

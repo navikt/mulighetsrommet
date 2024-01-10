@@ -1,13 +1,11 @@
 package no.nav.mulighetsrommet.api.fixtures
 
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
-import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingAdminDto
 import no.nav.mulighetsrommet.api.routes.v1.TiltaksgjennomforingRequest
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
-import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -41,7 +39,6 @@ object TiltaksgjennomforingFixtures {
         arrangorOrganisasjonsnummer = "976663934",
         startDato = LocalDate.of(2023, 1, 1),
         sluttDato = LocalDate.of(2023, 2, 1),
-        avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
         apentForInnsok = true,
         antallPlasser = 12,
         administratorer = listOf(),
@@ -90,48 +87,6 @@ object TiltaksgjennomforingFixtures {
         deltidsprosent = 100.0,
     )
 
-    val Oppfolging1AdminDto = TiltaksgjennomforingAdminDto(
-        id = Oppfolging1.id,
-        tiltakstype = TiltaksgjennomforingAdminDto.Tiltakstype(
-            id = TiltakstypeFixtures.Oppfolging.id,
-            navn = TiltakstypeFixtures.Oppfolging.navn,
-            arenaKode = TiltakstypeFixtures.Oppfolging.tiltakskode,
-        ),
-        navn = Oppfolging1.navn,
-        tiltaksnummer = Oppfolging1.tiltaksnummer,
-        arrangor = TiltaksgjennomforingAdminDto.Arrangor(
-            organisasjonsnummer = Oppfolging1.arrangorOrganisasjonsnummer,
-            navn = "Bedrift",
-            kontaktperson = null,
-            slettet = false,
-        ),
-        startDato = Oppfolging1.startDato,
-        sluttDato = Oppfolging1.sluttDato,
-        arenaAnsvarligEnhet = null,
-        status = Tiltaksgjennomforingsstatus.GJENNOMFORES,
-        apentForInnsok = Oppfolging1.apentForInnsok,
-        antallPlasser = Oppfolging1.antallPlasser,
-        avtaleId = Oppfolging1.avtaleId,
-        administratorer = emptyList(),
-        navEnheter = emptyList(),
-        navRegion = null,
-        sanityId = null,
-        oppstart = Oppfolging1.oppstart,
-        opphav = Oppfolging1.opphav,
-        stengtFra = Oppfolging1.stengtFra,
-        stengtTil = Oppfolging1.stengtTil,
-        kontaktpersoner = emptyList(),
-        stedForGjennomforing = Oppfolging1.stedForGjennomforing,
-        faneinnhold = Oppfolging1.faneinnhold,
-        beskrivelse = Oppfolging1.beskrivelse,
-        createdAt = Oppfolging1.startDato.atStartOfDay(),
-        tilgjengeligForVeileder = true,
-        visesForVeileder = true,
-        fremmoteTidspunkt = null,
-        fremmoteSted = null,
-        deltidsprosent = 100.0,
-    )
-
     val Oppfolging2 = TiltaksgjennomforingDbo(
         id = UUID.randomUUID(),
         navn = "Oppfølging 2",
@@ -140,7 +95,6 @@ object TiltaksgjennomforingFixtures {
         arrangorOrganisasjonsnummer = "111111111",
         startDato = LocalDate.of(2023, 1, 1),
         sluttDato = LocalDate.of(2023, 2, 1),
-        avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
         apentForInnsok = true,
         antallPlasser = 12,
         administratorer = emptyList(),
@@ -169,7 +123,6 @@ object TiltaksgjennomforingFixtures {
         arrangorOrganisasjonsnummer = "222222222",
         startDato = LocalDate.of(2023, 1, 1),
         sluttDato = LocalDate.of(2023, 2, 1),
-        avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
         apentForInnsok = true,
         antallPlasser = 12,
         administratorer = emptyList(),

@@ -1,4 +1,4 @@
-import { initializeFaro } from "@grafana/faro-web-sdk";
+import { getWebInstrumentations, initializeFaro } from "@grafana/faro-web-sdk";
 import { Alert, BodyShort } from "@navikt/ds-react";
 import { NavAnsattRolle, Toggles } from "mulighetsrommet-api-client";
 import { Route, Routes } from "react-router-dom";
@@ -32,6 +32,7 @@ if (import.meta.env.PROD) {
     app: {
       name: "mr-admin-flate",
     },
+    instrumentations: [...getWebInstrumentations({ captureConsole: true })],
   });
 }
 

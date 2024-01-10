@@ -27,7 +27,6 @@ import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import no.nav.mulighetsrommet.env.NaisEnv
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.*
 
 class AvtaleValidatorTest : FunSpec({
@@ -50,7 +49,6 @@ class AvtaleValidatorTest : FunSpec({
         navEnheter = listOf("0400", "0502"),
         opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
         antallPlasser = null,
-        updatedAt = LocalDateTime.now(),
         beskrivelse = null,
         faneinnhold = null,
     )
@@ -102,7 +100,7 @@ class AvtaleValidatorTest : FunSpec({
     }
 
     test("should accumulate errors when dbo has multiple issues") {
-        val validator = AvtaleValidator(tiltakstyper, avtaler, gjennomforinger, navEnheterService)
+        val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService)
 
         val dbo = avtaleDbo.copy(
             startDato = LocalDate.of(2023, 1, 1),
@@ -111,7 +109,7 @@ class AvtaleValidatorTest : FunSpec({
             leverandorUnderenheter = emptyList(),
         )
 
-        validator.validate(dbo).shouldBeLeft().shouldContainAll(
+        validator.validate(dbo, null).shouldBeLeft().shouldContainAll(
             listOf(
                 ValidationError("startDato", "Startdato må være før sluttdato"),
                 ValidationError("navEnheter", "Minst én NAV-region må være valgt"),
@@ -121,9 +119,9 @@ class AvtaleValidatorTest : FunSpec({
     }
 
     test("Avtalenavn må være minst 5 tegn når avtalen er opprettet i Admin-flate") {
-        val validator = AvtaleValidator(tiltakstyper, avtaler, gjennomforinger, navEnheterService)
+        val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService)
         val dbo = avtaleDbo.copy(navn = "Avt", opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE)
-        validator.validate(dbo).shouldBeLeft().shouldContainExactlyInAnyOrder(
+        validator.validate(dbo, null).shouldBeLeft().shouldContainExactlyInAnyOrder(
             listOf(
                 ValidationError("navn", "Avtalenavn må være minst 5 tegn langt"),
             ),
@@ -131,13 +129,13 @@ class AvtaleValidatorTest : FunSpec({
     }
 
     test("skal validere at ") {
-        val validator = AvtaleValidator(tiltakstyper, avtaler, gjennomforinger, navEnheterService)
+        val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService)
 
         val dbo = avtaleDbo.copy(
             navEnheter = listOf("0300", "0502"),
         )
 
-        validator.validate(dbo).shouldBeLeft().shouldContainExactlyInAnyOrder(
+        validator.validate(dbo, null).shouldBeLeft().shouldContainExactlyInAnyOrder(
             listOf(
                 ValidationError("navEnheter", "NAV-enheten 0502 passer ikke i avtalens kontorstruktur"),
             ),
@@ -146,13 +144,13 @@ class AvtaleValidatorTest : FunSpec({
 
     context("når avtalen ikke allerede eksisterer") {
         test("skal feile når tiltakstypen ikke er VTA eller AFT og miljø er produksjon") {
-            val validator = AvtaleValidator(tiltakstyper, avtaler, gjennomforinger, navEnheterService)
+            val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService)
             mockkObject(NaisEnv.current())
             coEvery { NaisEnv.current().isProdGCP() } returns true
 
             val dbo = avtaleDbo.copy(tiltakstypeId = TiltakstypeFixtures.Oppfolging.id)
 
-            validator.validate(dbo).shouldBeLeft().shouldContain(
+            validator.validate(dbo, null).shouldBeLeft().shouldContain(
                 ValidationError(
                     "tiltakstypeId",
                     "Avtaler kan bare opprettes når de gjelder for tiltakstypene AFT eller VTA",
@@ -161,23 +159,23 @@ class AvtaleValidatorTest : FunSpec({
         }
 
         test("skal ikke feile når tiltakstypen ikke er VTA eller AFT og miljø ikke er produksjon") {
-            val validator = AvtaleValidator(tiltakstyper, avtaler, gjennomforinger, navEnheterService)
+            val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService)
             mockkObject(NaisEnv.current())
             coEvery { NaisEnv.current().isProdGCP() } returns false
 
             val dbo = avtaleDbo.copy(tiltakstypeId = TiltakstypeFixtures.Oppfolging.id)
 
-            validator.validate(dbo).shouldBeRight {
+            validator.validate(dbo, null).shouldBeRight {
                 dbo.tiltakstypeId.toString() shouldBe TiltakstypeFixtures.Oppfolging.id.toString()
             }
         }
 
         test("skal feile når opphav ikke er MR_ADMIN_FLATE") {
-            val validator = AvtaleValidator(tiltakstyper, avtaler, gjennomforinger, navEnheterService)
+            val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService)
 
             val dbo = avtaleDbo.copy(opphav = ArenaMigrering.Opphav.ARENA)
 
-            validator.validate(dbo).shouldBeLeft().shouldContain(
+            validator.validate(dbo, null).shouldBeLeft().shouldContain(
                 ValidationError("opphav", "Opphav må være MR_ADMIN_FLATE"),
             )
         }
@@ -187,11 +185,12 @@ class AvtaleValidatorTest : FunSpec({
         test("skal ikke kunne endre opphav") {
             avtaler.upsert(avtaleDbo.copy(opphav = ArenaMigrering.Opphav.ARENA, administratorer = listOf()))
 
-            val validator = AvtaleValidator(tiltakstyper, avtaler, gjennomforinger, navEnheterService)
+            val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService)
 
             val dbo = avtaleDbo.copy(opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE)
 
-            validator.validate(dbo).shouldBeLeft().shouldContain(
+            val previous = avtaler.get(avtaleDbo.id)
+            validator.validate(dbo, previous).shouldBeLeft().shouldContain(
                 ValidationError("opphav", "Avtalens opphav kan ikke endres"),
             )
         }
@@ -214,7 +213,6 @@ class AvtaleValidatorTest : FunSpec({
                 navEnheter = listOf("0300"),
                 opphav = ArenaMigrering.Opphav.ARENA,
                 antallPlasser = null,
-                updatedAt = avtaleDbo.updatedAt,
                 beskrivelse = null,
                 faneinnhold = null,
             )
@@ -226,9 +224,10 @@ class AvtaleValidatorTest : FunSpec({
                 ),
             )
 
-            val validator = AvtaleValidator(tiltakstyper, avtaler, gjennomforinger, navEnheterService)
+            val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService)
 
-            validator.validate(avtaleMedEndringer).shouldBeLeft().shouldContainExactlyInAnyOrder(
+            val previous = avtaler.get(avtaleDbo.id)
+            validator.validate(avtaleMedEndringer, previous).shouldBeLeft().shouldContainExactlyInAnyOrder(
                 listOf(
                     ValidationError("navn", "Navn kan ikke endres utenfor Arena"),
                     ValidationError("tiltakstypeId", "Tiltakstype kan ikke endres utenfor Arena"),
@@ -258,7 +257,7 @@ class AvtaleValidatorTest : FunSpec({
             }
 
             test("skal validere at data samsvarer med avtalens gjennomføringer") {
-                val validator = AvtaleValidator(tiltakstyper, avtaler, gjennomforinger, navEnheterService)
+                val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService)
 
                 val dbo = avtaleDbo.copy(
                     tiltakstypeId = TiltakstypeFixtures.VTA.id,
@@ -266,7 +265,8 @@ class AvtaleValidatorTest : FunSpec({
                     navEnheter = listOf("0400"),
                 )
 
-                validator.validate(dbo).shouldBeLeft().shouldContainExactlyInAnyOrder(
+                val previous = avtaler.get(avtaleDbo.id)
+                validator.validate(dbo, previous).shouldBeLeft().shouldContainExactlyInAnyOrder(
                     listOf(
                         ValidationError(
                             "tiltakstypeId",

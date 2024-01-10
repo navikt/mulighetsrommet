@@ -1657,7 +1657,7 @@ components:
       enum:
         - HAR_DELT
         - HAR_IKKE_DELT
-        - HAR_OG_HAR_IKKE_DELT
+        - HAR_ELLER_HAR_IKKE_DELT
 
     GetRelevanteTiltaksgjennomforingerPreviewRequest:
       type: object
@@ -1880,9 +1880,6 @@ components:
           $ref: "#/components/schemas/NavKontorStruktur"
         opphav:
           $ref: "#/components/schemas/Opphav"
-        updatedAt:
-          type: string
-          format: date-time
         beskrivelse:
           type: string
         faneinnhold:
@@ -1901,7 +1898,6 @@ components:
         - prisbetingelser
         - kontorstruktur
         - opphav
-        - updatedAt
 
     AvtaleRequest:
       type: object

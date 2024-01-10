@@ -67,18 +67,25 @@ class ArenaAdapterService(
     suspend fun upsertAvtale(avtale: ArenaAvtaleDbo): AvtaleAdminDto {
         virksomhetService.getOrSyncVirksomhet(avtale.leverandorOrganisasjonsnummer)
 
-        val dbo = db.transaction { tx ->
+        val dto = db.transaction { tx ->
+            val previous = avtaler.get(avtale.id)
+            if (previous?.toArenaAvtaleDbo() == avtale) {
+                return@transaction previous
+            }
+
             avtaler.upsertArenaAvtale(tx, avtale)
-            val dbo = avtaler.get(avtale.id, tx)!!
-            logUpdate(tx, DocumentClass.AVTALE, dbo.id, dbo)
-            dbo
+
+            val dto = avtaler.get(avtale.id, tx)!!
+
+            logUpdate(tx, DocumentClass.AVTALE, dto.id, dto)
+            dto
         }
 
-        if (dbo.avtalestatus == Avtalestatus.Aktiv && dbo.administratorer.isEmpty()) {
-            maybeNotifyRelevantAdministrators(dbo)
+        if (dto.avtalestatus == Avtalestatus.Aktiv && dto.administratorer.isEmpty()) {
+            maybeNotifyRelevantAdministrators(dto)
         }
 
-        return dbo
+        return dto
     }
 
     fun removeAvtale(id: UUID) {
@@ -93,16 +100,15 @@ class ArenaAdapterService(
         virksomhetService.getOrSyncVirksomhet(tiltaksgjennomforing.arrangorOrganisasjonsnummer)
         val tiltaksgjennomforingMedAvtale = tiltaksgjennomforing.copy(avtaleId = mulighetsrommetAvtaleId)
 
-        val previous = tiltaksgjennomforinger.get(tiltaksgjennomforing.id)
-
         val gjennomforing = db.transactionSuspend { tx ->
+            val previous = tiltaksgjennomforinger.get(tiltaksgjennomforing.id)
+            if (previous?.toArenaTiltaksgjennomforingDbo() == tiltaksgjennomforing) {
+                return@transactionSuspend previous
+            }
+
             tiltaksgjennomforinger.upsertArenaTiltaksgjennomforing(tiltaksgjennomforingMedAvtale, tx)
 
             val gjennomforing = tiltaksgjennomforinger.get(tiltaksgjennomforing.id, tx)!!
-
-            if (previous == gjennomforing) {
-                return@transactionSuspend gjennomforing
-            }
 
             logUpdate(tx, DocumentClass.TILTAKSGJENNOMFORING, gjennomforing.id, gjennomforing)
 

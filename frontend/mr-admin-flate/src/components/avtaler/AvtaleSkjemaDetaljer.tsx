@@ -83,7 +83,7 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
         label: `${leverandorData.navn} - ${leverandorData.organisasjonsnummer}`,
         value: leverandorData?.organisasjonsnummer,
       });
-    } else {
+    } else if (watchedLeverandor) {
       options.push({ label: watchedLeverandor, value: watchedLeverandor });
     }
 

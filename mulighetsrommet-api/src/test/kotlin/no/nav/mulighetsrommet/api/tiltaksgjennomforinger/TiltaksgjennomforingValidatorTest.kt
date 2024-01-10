@@ -94,11 +94,11 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
     test("should fail when avtale does not exist") {
         val unknownAvtaleId = UUID.randomUUID()
 
-        val validator = TiltaksgjennomforingValidator(avtaler, tiltaksgjennomforinger, deltakere)
+        val validator = TiltaksgjennomforingValidator(avtaler, deltakere)
 
         val dbo = gjennomforing.copy(avtaleId = unknownAvtaleId)
 
-        validator.validate(dbo).shouldBeLeft().shouldContainExactlyInAnyOrder(
+        validator.validate(dbo, null).shouldBeLeft().shouldContainExactlyInAnyOrder(
             ValidationError("avtaleId", "Avtalen finnes ikke"),
         )
     }
@@ -106,9 +106,9 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
     test("should fail when tiltakstype does not match with avtale") {
         avtaler.upsert(avtale.copy(tiltakstypeId = TiltakstypeFixtures.AFT.id))
 
-        val validator = TiltaksgjennomforingValidator(avtaler, tiltaksgjennomforinger, deltakere)
+        val validator = TiltaksgjennomforingValidator(avtaler, deltakere)
 
-        validator.validate(gjennomforing).shouldBeLeft().shouldContainExactlyInAnyOrder(
+        validator.validate(gjennomforing, null).shouldBeLeft().shouldContainExactlyInAnyOrder(
             ValidationError("tiltakstypeId", "Tiltakstypen må være den samme som for avtalen"),
         )
     }
@@ -123,15 +123,15 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
         ) { status ->
             avtaler.setAvslutningsstatus(id, status)
 
-            val validator = TiltaksgjennomforingValidator(avtaler, tiltaksgjennomforinger, deltakere)
+            val validator = TiltaksgjennomforingValidator(avtaler, deltakere)
             val dbo = gjennomforing.copy(avtaleId = id)
 
-            validator.validate(dbo).shouldBeRight()
+            validator.validate(dbo, null).shouldBeRight()
         }
     }
 
     test("should validate fields in the gjennomføring and fields related to the avtale") {
-        val validator = TiltaksgjennomforingValidator(avtaler, tiltaksgjennomforinger, deltakere)
+        val validator = TiltaksgjennomforingValidator(avtaler, deltakere)
 
         forAll(
             row(
@@ -170,20 +170,20 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
                 listOf(ValidationError("arrangorOrganisasjonsnummer", "Arrangøren mangler i avtalen")),
             ),
         ) { input, error ->
-            validator.validate(input).shouldBeLeft(error)
+            validator.validate(input, null).shouldBeLeft(error)
         }
     }
 
     context("when gjennomføring does not already exist") {
         test("should fail when opphav is not MR_ADMIN_FLATE") {
-            val validator = TiltaksgjennomforingValidator(avtaler, tiltaksgjennomforinger, deltakere)
+            val validator = TiltaksgjennomforingValidator(avtaler, deltakere)
 
             val dbo = gjennomforing.copy(
                 id = UUID.randomUUID(),
                 opphav = ArenaMigrering.Opphav.ARENA,
             )
 
-            validator.validate(dbo).shouldBeLeft().shouldContainExactlyInAnyOrder(
+            validator.validate(dbo, null).shouldBeLeft().shouldContainExactlyInAnyOrder(
                 ValidationError("opphav", "Opphav må være MR_ADMIN_FLATE"),
             )
         }
@@ -199,13 +199,14 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
         }
 
         test("should fail when opphav is different") {
-            val validator = TiltaksgjennomforingValidator(avtaler, tiltaksgjennomforinger, deltakere)
+            val validator = TiltaksgjennomforingValidator(avtaler, deltakere)
 
             val dbo = gjennomforing.copy(
                 opphav = ArenaMigrering.Opphav.ARENA,
             )
+            val previous = tiltaksgjennomforinger.get(gjennomforing.id)
 
-            validator.validate(dbo).shouldBeLeft().shouldContainExactlyInAnyOrder(
+            validator.validate(dbo, previous).shouldBeLeft().shouldContainExactlyInAnyOrder(
                 ValidationError("opphav", "Opphav kan ikke endres"),
             )
         }
@@ -218,9 +219,10 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
             ) { status ->
                 tiltaksgjennomforinger.setAvslutningsstatus(gjennomforing.id, status)
 
-                val validator = TiltaksgjennomforingValidator(avtaler, tiltaksgjennomforinger, deltakere)
+                val validator = TiltaksgjennomforingValidator(avtaler, deltakere)
 
-                validator.validate(gjennomforing).shouldBeLeft().shouldContainExactlyInAnyOrder(
+                val previous = tiltaksgjennomforinger.get(gjennomforing.id)
+                validator.validate(gjennomforing, previous).shouldBeLeft().shouldContainExactlyInAnyOrder(
                     ValidationError("navn", "Kan bare gjøre endringer når gjennomføringen er aktiv"),
                 )
             }
@@ -267,9 +269,10 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
 
                 avtaler.upsert(avtale.copy(id = differentAvtaleId))
 
-                val validator = TiltaksgjennomforingValidator(avtaler, tiltaksgjennomforinger, deltakere)
+                val validator = TiltaksgjennomforingValidator(avtaler, deltakere)
 
-                validator.validate(dbo).shouldBeLeft().shouldContainExactlyInAnyOrder(
+                val previous = tiltaksgjennomforinger.get(gjennomforing.id)
+                validator.validate(dbo, previous).shouldBeLeft().shouldContainExactlyInAnyOrder(
                     listOf(
                         ValidationError("avtaleId", "Avtalen kan ikke endres når gjennomføringen er aktiv"),
                         ValidationError(
