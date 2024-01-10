@@ -42,7 +42,7 @@ export const tiltaksgjennomforingsfilter = atomWithStorage<Tiltaksgjennomforings
   innsatsgruppe: undefined,
   tiltakstyper: [],
   apentForInnsok: ApentForInnsok.APENT_ELLER_STENGT,
-  harDeltMedBruker: HarDeltMedBruker.HAR_OG_HAR_IKKE_DELT,
+  harDeltMedBruker: HarDeltMedBruker.HAR_ELLER_HAR_IKKE_DELT,
 });
 
 export const paginationAtom = atomWithHash("page", 1, { setHash: "replaceState" });

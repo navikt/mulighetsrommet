@@ -13,6 +13,7 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
     tiltakstype: mockTiltakstyper.avklaring,
     sluttdato: "2025-07-09",
     apentForInnsok: true,
+    harDeltMedBruker: true,
     kontaktinfoTiltaksansvarlige: [
       {
         navn: "Sindre",
@@ -45,6 +46,7 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
     stedForGjennomforing: "Oslo",
     tiltakstype: mockTiltakstyper.mentor,
     apentForInnsok: false,
+    harDeltMedBruker: false,
     kontaktinfoTiltaksansvarlige: [
       {
         navn: "Sindre",
@@ -60,6 +62,7 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
     navn: "Kurs i overlevelsesteknikk (Gruppe AMO)",
     stedForGjennomforing: "2050 JESSHEIM",
     apentForInnsok: true,
+    harDeltMedBruker: false,
     tiltakstype: mockTiltakstyper.gruppe_amo,
     oppstart: TiltaksgjennomforingOppstartstype.FELLES,
     oppstartsdato: "2023-11-01",
@@ -136,6 +139,7 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
     navn: "VTA hos Fretex",
     stedForGjennomforing: "2050",
     apentForInnsok: true,
+    harDeltMedBruker: true,
     tiltakstype: mockTiltakstyper.VTA,
     oppstart: TiltaksgjennomforingOppstartstype.LOPENDE,
     oppstartsdato: "2023-11-01",
@@ -211,6 +215,7 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
     navn: "Jobbklubb (med Lars Monsen)",
     stedForGjennomforing: "Kautokeino",
     apentForInnsok: true,
+    harDeltMedBruker: true,
     tiltakstype: mockTiltakstyper.jobbklubb,
     oppstart: TiltaksgjennomforingOppstartstype.LOPENDE,
     oppstartsdato: "2022-11-01",
@@ -252,6 +257,7 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
     navn: "AFT",
     stedForGjennomforing: "Sinsen",
     apentForInnsok: true,
+    harDeltMedBruker: false,
     tiltakstype: mockTiltakstyper.AFT,
     oppstart: TiltaksgjennomforingOppstartstype.LOPENDE,
     oppstartsdato: "2022-11-01",
@@ -279,6 +285,7 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
     navn: "Oppæring Fag og Yrke",
     stedForGjennomforing: "Oslo",
     apentForInnsok: true,
+    harDeltMedBruker: true,
     tiltakstype: mockTiltakstyper.OpplaringEnkeltplassFagOgYrke,
     oppstart: TiltaksgjennomforingOppstartstype.LOPENDE,
     oppstartsdato: "2022-11-01",

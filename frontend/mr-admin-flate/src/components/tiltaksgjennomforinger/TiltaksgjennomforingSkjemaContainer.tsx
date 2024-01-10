@@ -79,6 +79,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
       tiltaksnummer: tiltaksgjennomforing?.tiltaksnummer ?? null,
       oppstart: data.oppstart,
       apentForInnsok: data.apentForInnsok,
+      harDeltMedBruker: data.harDeltMedBruker,
       stengtFra: data.midlertidigStengt.erMidlertidigStengt
         ? formaterDatoSomYYYYMMDD(data.midlertidigStengt.stengtFra)
         : null,

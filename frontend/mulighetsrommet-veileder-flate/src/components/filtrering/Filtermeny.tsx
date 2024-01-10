@@ -52,7 +52,7 @@ const Filtermeny = () => {
           venstreTekst={"Har delt"}
           hoyreTekst={"Har ikke delt"}
           venstreValue={HarDeltMedBruker.HAR_DELT}
-          midtValue={HarDeltMedBruker.HAR_OG_HAR_IKKE_DELT}
+          midtValue={HarDeltMedBruker.HAR_ELLER_HAR_IKKE_DELT}
           hoyreValue={HarDeltMedBruker.HAR_IKKE_DELT}
           accordionIsOpenValue={"har-delt-med-bruker"}
         />

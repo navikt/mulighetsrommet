@@ -1,7 +1,7 @@
 import { useAtom } from "jotai";
 import { useHentBrukerdata } from "../core/api/queries/useHentBrukerdata";
 import { useInnsatsgrupper } from "../core/api/queries/useInnsatsgrupper";
-import { ApentForInnsok } from "mulighetsrommet-api-client";
+import { ApentForInnsok, HarDeltMedBruker } from "mulighetsrommet-api-client";
 import { tiltaksgjennomforingsfilter } from "../core/atoms/atoms";
 
 export function usePrepopulerFilter() {
@@ -18,6 +18,7 @@ export function usePrepopulerFilter() {
         ? {
             search: "",
             apentForInnsok: ApentForInnsok.APENT_ELLER_STENGT,
+            harDeltMedBruker: HarDeltMedBruker.HAR_ELLER_HAR_IKKE_DELT,
             tiltakstyper: [],
             innsatsgruppe: {
               id: matchedInnsatsgruppe.sanityId,
