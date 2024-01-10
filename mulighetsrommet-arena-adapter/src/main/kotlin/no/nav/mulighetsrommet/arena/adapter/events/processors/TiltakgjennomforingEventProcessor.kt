@@ -82,13 +82,19 @@ class TiltakgjennomforingEventProcessor(
             .bind()
     }
 
+    override fun getDependentEntities(event: ArenaEvent): List<ArenaEntityMapping> {
+        return entities.getDeltakereByTiltaksgjennomforingId(event.arenaId.toInt()).mapNotNull {
+            entities.getMapping(ArenaTable.Deltaker, it.tiltaksdeltakerId.toString()).getOrNull()
+        }
+    }
+
     private fun resolveFromMappingStatus(avtaleId: Int): Either<ProcessingError, Int?> {
         return entities.getMapping(ArenaTable.AvtaleInfo, avtaleId.toString())
             .flatMap { mapping ->
                 when (mapping.status) {
                     ArenaEntityMapping.Status.Handled -> avtaleId.right()
                     ArenaEntityMapping.Status.Ignored -> null.right()
-                    else -> ProcessingError.MissingDependency("Avtale har enda ikke blitt prosessert").left()
+                    else -> ProcessingError.ForeignKeyViolation("Avtale har enda ikke blitt prosessert").left()
                 }
             }
     }
