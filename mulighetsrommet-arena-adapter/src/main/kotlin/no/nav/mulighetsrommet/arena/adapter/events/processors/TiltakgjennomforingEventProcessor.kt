@@ -134,9 +134,25 @@ class TiltakgjennomforingEventProcessor(
     }
 
     private fun isRelevantForBrukersTiltakshistorikk(data: ArenaTiltaksgjennomforing): Boolean {
-        return ArenaUtils.parseNullableTimestamp(data.DATO_TIL)
-            ?.let { Tiltakshistorikk.isRelevantTiltakshistorikk(it) }
-            ?: Tiltakshistorikk.isRelevantTiltakshistorikk(ArenaUtils.parseTimestamp(data.REG_DATO))
+        val datoTil = ArenaUtils.parseNullableTimestamp(data.DATO_TIL)
+        if (datoTil != null) {
+            return Tiltakshistorikk.isRelevantTiltakshistorikk(datoTil)
+        }
+
+        if (anyDeltakereIsRelevantForBrukersTiltakshistorikk(data)) {
+            return true
+        }
+
+        return Tiltakshistorikk.isRelevantTiltakshistorikk(ArenaUtils.parseTimestamp(data.REG_DATO))
+    }
+
+    private fun anyDeltakereIsRelevantForBrukersTiltakshistorikk(data: ArenaTiltaksgjennomforing): Boolean {
+        val deltakere = entities.getDeltakereByTiltaksgjennomforingId(data.TILTAKGJENNOMFORING_ID)
+
+        return deltakere.any { deltaker ->
+            val date = deltaker.tilDato ?: deltaker.registrertDato
+            Tiltakshistorikk.isRelevantTiltakshistorikk(date)
+        }
     }
 
     private fun ArenaTiltaksgjennomforing.toTiltaksgjennomforing(id: UUID, avtaleId: Int?) = Either
