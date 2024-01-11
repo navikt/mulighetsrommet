@@ -153,6 +153,7 @@ data class TiltaksgjennomforingRequest(
             TiltaksgjennomforingKontaktpersonDbo(
                 navIdent = it.navIdent,
                 navEnheter = it.navEnheter,
+                beskrivelse = it.beskrivelse,
             )
         },
         stedForGjennomforing = stedForGjennomforing,
@@ -174,6 +175,7 @@ data class SetAvtaleForGjennomforingRequest(
 data class NavKontaktpersonForGjennomforing(
     val navIdent: String,
     val navEnheter: List<String>,
+    val beskrivelse: String?,
 )
 
 @Serializable

@@ -10,4 +10,5 @@ data class TiltaksgjennomforingKontaktperson(
     val mobilnummer: String? = null,
     val navEnheter: List<String>,
     val hovedenhet: String,
+    val beskrivelse: String?,
 )

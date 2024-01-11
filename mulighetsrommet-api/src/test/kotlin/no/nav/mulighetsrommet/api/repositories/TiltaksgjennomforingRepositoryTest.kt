@@ -297,10 +297,12 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     TiltaksgjennomforingKontaktpersonDbo(
                         navIdent = NavAnsattFixture.ansatt1.navIdent,
                         navEnheter = listOf(NavAnsattFixture.ansatt1.hovedenhet),
+                        beskrivelse = "hei hei kontaktperson",
                     ),
                     TiltaksgjennomforingKontaktpersonDbo(
                         navIdent = NavAnsattFixture.ansatt2.navIdent,
                         navEnheter = listOf(NavAnsattFixture.ansatt2.hovedenhet),
+                        beskrivelse = null,
                     ),
                 ),
             )
@@ -315,6 +317,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     epost = "donald.duck@nav.no",
                     navEnheter = listOf("2990"),
                     hovedenhet = "2990",
+                    beskrivelse = "hei hei kontaktperson",
                 ),
                 TiltaksgjennomforingKontaktperson(
                     navIdent = "DD2",
@@ -323,6 +326,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     epost = "dolly.duck@nav.no",
                     navEnheter = listOf("2990"),
                     hovedenhet = "2990",
+                    beskrivelse = null,
                 ),
             )
             val gjennomforingFjernetKontaktperson = gjennomforing.copy(
@@ -330,6 +334,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     TiltaksgjennomforingKontaktpersonDbo(
                         navIdent = NavAnsattFixture.ansatt1.navIdent,
                         navEnheter = listOf(NavAnsattFixture.ansatt1.hovedenhet),
+                        beskrivelse = null,
                     ),
                 ),
             )
@@ -344,6 +349,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     epost = "donald.duck@nav.no",
                     navEnheter = listOf("2990"),
                     hovedenhet = "2990",
+                    beskrivelse = null,
                 ),
             )
         }

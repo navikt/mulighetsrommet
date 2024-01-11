@@ -4,7 +4,7 @@ import {
   NavAnsatt,
   Opphav,
   Tiltaksgjennomforing,
-  TiltaksgjennomforingKontaktpersoner,
+  TiltaksgjennomforingKontaktperson,
   TiltaksgjennomforingOppstartstype,
   Virksomhet,
 } from "mulighetsrommet-api-client";
@@ -23,13 +23,20 @@ export function defaultOppstartType(avtale?: Avtale): TiltaksgjennomforingOppsta
 }
 
 export function defaultValuesForKontaktpersoner(
-  kontaktpersoner?: TiltaksgjennomforingKontaktpersoner[],
-): TiltaksgjennomforingKontaktpersoner[] {
-  if (!kontaktpersoner) return [{ navIdent: "", navEnheter: [] }];
+  kontaktpersoner?: TiltaksgjennomforingKontaktperson[],
+): TiltaksgjennomforingKontaktperson[] {
+  if (!kontaktpersoner)
+    return [
+      { navIdent: "", navEnheter: [], navn: "", epost: "", mobilnummer: null, beskrivelse: null },
+    ];
 
   return kontaktpersoner?.map((person) => ({
     navIdent: person.navIdent,
     navEnheter: person.navEnheter,
+    mobilnummer: person.mobilnummer,
+    epost: person.epost,
+    navn: person.navn,
+    beskrivelse: person.beskrivelse,
   }));
 }
 

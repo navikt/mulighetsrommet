@@ -45,6 +45,7 @@ export const TiltaksgjennomforingSchema = z
             required_error: "Du må velge minst et område",
           })
           .array(),
+        beskrivelse: z.string().nullable(),
       })
       .array()
       .optional(),
