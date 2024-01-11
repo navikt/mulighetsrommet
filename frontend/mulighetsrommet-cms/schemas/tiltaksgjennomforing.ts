@@ -218,6 +218,10 @@ export const tiltaksgjennomforing = defineType({
                 },
               ],
             },
+            {
+              type: "string",
+              name: "beskrivelse",
+            },
           ],
           preview: {
             select: {
