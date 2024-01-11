@@ -188,8 +188,7 @@ class VeilederflateService(
                 } else {
                     it.enheter.any { enhet -> enhet in enheter }
                 }
-            } // TODO Filtrer her på om man har delt tiltak med bruker eller ikke
-        // TODO Koble delt med bruker til tiltak her og send til frontend
+            }
     }
 
     suspend fun hentTiltaksgjennomforing(

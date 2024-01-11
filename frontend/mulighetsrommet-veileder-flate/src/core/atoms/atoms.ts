@@ -45,8 +45,4 @@ export const faneAtom = atomWithHash("fane", "tab1", {
 
 export const geografiskEnhetForPreviewAtom = atom<NavEnhet | undefined>(undefined);
 
-export const filterAccordionAtom = atom<string[]>([
-  "apen-for-innsok",
-  "har-delt-med-bruker",
-  "innsatsgruppe",
-]);
+export const filterAccordionAtom = atom<string[]>(["apen-for-innsok", "innsatsgruppe"]);
