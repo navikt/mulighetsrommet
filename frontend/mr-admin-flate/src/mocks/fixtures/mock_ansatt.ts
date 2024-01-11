@@ -15,7 +15,7 @@ const bertil: NavAnsatt = {
   },
   mobilnummer: null,
   epost: "bertil.betabruker@nav.no",
-  roller: [NavAnsattRolle.BETABRUKER, NavAnsattRolle.KONTAKTPERSON],
+  roller: [NavAnsattRolle.BETABRUKER, NavAnsattRolle.KONTAKTPERSON, NavAnsattRolle.AVTALER_SKRIV],
   skalSlettesDato: null,
 };
 

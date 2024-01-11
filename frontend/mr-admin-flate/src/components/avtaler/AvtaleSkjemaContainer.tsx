@@ -29,6 +29,7 @@ import { AvtaleSkjemaKnapperad } from "./AvtaleSkjemaKnapperad";
 import { AvbrytAvtaleModal } from "../modal/AvbrytAvtaleModal";
 import { AvtaleSkjemaDetaljer } from "./AvtaleSkjemaDetaljer";
 import { AvtaleRedaksjoneltInnholdForm } from "./AvtaleRedaksjoneltInnholdForm";
+import { HarSkrivetilgang } from "../authActions/HarSkrivetilgang";
 
 interface Props {
   onClose: () => void;
@@ -177,16 +178,18 @@ export function AvtaleSkjemaContainer({
         </Tabs>
         <Separator />
         <div className={skjemastyles.flex_container}>
-          {avtale && !arenaOpphav && avtale.avtalestatus === Avtalestatus.AKTIV && (
-            <Button
-              size="small"
-              variant="danger"
-              type="button"
-              onClick={() => avbrytModalRef.current?.showModal()}
-            >
-              Avbryt avtale
-            </Button>
-          )}
+          <HarSkrivetilgang ressurs="Avtale">
+            {avtale && !arenaOpphav && avtale.avtalestatus === Avtalestatus.AKTIV && (
+              <Button
+                size="small"
+                variant="danger"
+                type="button"
+                onClick={() => avbrytModalRef.current?.showModal()}
+              >
+                Avbryt avtale
+              </Button>
+            )}
+          </HarSkrivetilgang>
           <AvtaleSkjemaKnapperad redigeringsModus={redigeringsModus!} onClose={onClose} />
         </div>
       </form>
