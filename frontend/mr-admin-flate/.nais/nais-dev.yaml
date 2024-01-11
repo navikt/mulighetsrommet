@@ -36,7 +36,7 @@ spec:
         groups:
           - id: 639e2806-4cc2-484c-a72a-51b4308c52a1 # team-mulighetsrommet
           - id: ee45478c-57a5-4ee6-b28d-b65f8c1733fe # 0000-GA-mr-admin-flate_betabruker
-          - id: b3ace38f-9c62-43ef-9e6b-99c0e227afad # 0000-GA-mr-admin-flate_tiltaksgjennomforinger_skriv
+          - id: b3ace38f-9c62-43ef-9e6b-99c0e227afad # 0000-GA-TILTAK-tiltaksgjennomforinger_skriv
         extra:
           - NAVident
     sidecar:
