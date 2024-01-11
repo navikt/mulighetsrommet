@@ -80,8 +80,12 @@ export const replayEvent = (arenaTable: string, arenaId: string) =>
     });
 
 export const deleteEvents = async (arenaTable: string, arenaIds: string) => {
-  const arenaIdsAsList = arenaIds.split(",").map((id) => id.trim());
-  return await fetch(`/mulighetsrommet-arena-adapter/events`, {
+  const arenaIdsAsList = arenaIds
+    .split(/[,\s]/)
+    .map((id) => id.trim())
+    .filter((id) => id.length);
+
+  return fetch(`/mulighetsrommet-arena-adapter/events`, {
     method: "DELETE",
     headers: {
       ...getDefaultHeaders(),
