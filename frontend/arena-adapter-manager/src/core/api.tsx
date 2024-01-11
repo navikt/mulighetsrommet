@@ -1,6 +1,7 @@
 import { Topic } from "../domain";
 import toast from "react-hot-toast";
 import { ErrorToast } from "../components/Toast";
+import { v4 as uuidv4 } from "uuid";
 
 export class ApiError extends Error {
   constructor(
@@ -15,6 +16,7 @@ export class ApiError extends Error {
 export const getTopics = () =>
   fetch("/mulighetsrommet-arena-adapter/topics", {
     method: "GET",
+    headers: getDefaultHeaders(),
   })
     .then(parseJson)
     .catch((error) => toastError("Klarte ikke laste Topics", error));
@@ -22,6 +24,7 @@ export const getTopics = () =>
 export const getArenaTables = () =>
   fetch("/mulighetsrommet-arena-adapter/arena-tables", {
     method: "GET",
+    headers: getDefaultHeaders(),
   })
     .then(parseJson)
     .catch((error) => toastError("Klarte ikke laste ArenaTables", error));
@@ -30,6 +33,7 @@ export const putTopicRunningState = (topics: Topic[]) =>
   fetch("/mulighetsrommet-arena-adapter/topics", {
     method: "PUT",
     headers: {
+      ...getDefaultHeaders(),
       "content-type": "application/json",
     },
     body: JSON.stringify(topics),
@@ -42,6 +46,7 @@ export const replayEvents = (arenaTable: string | null, status: string | null) =
   fetch("/mulighetsrommet-arena-adapter/events/replay", {
     method: "PUT",
     headers: {
+      ...getDefaultHeaders(),
       "content-type": "application/json",
     },
     body: JSON.stringify({
@@ -57,6 +62,7 @@ export const replayEvent = (arenaTable: string, arenaId: string) =>
   fetch("/mulighetsrommet-arena-adapter/event/replay", {
     method: "PUT",
     headers: {
+      ...getDefaultHeaders(),
       "content-type": "application/json",
     },
     body: JSON.stringify({
@@ -78,6 +84,7 @@ export const deleteEvents = async (arenaTable: string, arenaIds: string) => {
   return await fetch(`/mulighetsrommet-arena-adapter/events`, {
     method: "DELETE",
     headers: {
+      ...getDefaultHeaders(),
       "content-type": "application/json",
     },
     body: JSON.stringify({
@@ -95,12 +102,10 @@ export type MrApiTask =
   | "initial-load-tiltaksgjennomforinger"
   | "sync-navansatte";
 
-export function runTask(task: MrApiTask) {
-  return fetch(`/mulighetsrommet-api/api/v1/internal/tasks/${task}`, {
+export const runTask = (task: MrApiTask) =>
+  fetch(`/mulighetsrommet-api/api/v1/internal/tasks/${task}`, {
     method: "POST",
-    headers: {
-      "content-type": "application/json",
-    },
+    headers: getDefaultHeaders(),
   })
     .then(parseJson)
     .then((response) => {
@@ -109,20 +114,25 @@ export function runTask(task: MrApiTask) {
     .catch((error) => {
       toastError(`Failed to execute task '${task}'`, error);
     });
-}
 
 export const syncVirksomhet = (orgnr: string) =>
   fetch(`/mulighetsrommet-api/api/v1/internal/virksomhet/update?orgnr=${orgnr}`, {
     method: "POST",
-    headers: {
-      "content-type": "application/json",
-    },
+    headers: getDefaultHeaders(),
   })
     .then(checkOk)
     .then(() => toast.success("Virksomhet synkronisert"))
     .catch((error) => {
       toastError(`Klarte ikke synkronisere virksomhet med orgnr=${orgnr}`, error);
     });
+
+function getDefaultHeaders(): Record<string, string> {
+  return {
+    Accept: "application/json",
+    "Nav-Consumer-Id": "MAAM",
+    "Nav-Call-Id": uuidv4(),
+  };
+}
 
 function toastError(message: string, error: ApiError | Error) {
   toast.error(() => <ErrorToast title={message} error={error} />);
@@ -141,4 +151,3 @@ async function parseJson(response: Response) {
 
   return response.json();
 }
-

@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from "uuid";
 
 OpenAPI.HEADERS = async () => {
   const record = toRecord(headers);
-  record["X-Request-ID"] = uuidv4();
+  record["Nav-Call-Id"] = uuidv4();
   return record;
 };
 
