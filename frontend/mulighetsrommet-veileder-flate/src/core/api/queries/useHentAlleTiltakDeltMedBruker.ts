@@ -13,6 +13,7 @@ export function useHentAlleTiltakDeltMedBruker(norskIdent: string) {
       return result || null; // Returner null hvis API returnerer 204 No Content = undefined;
     },
     enabled: !erPreview(),
+    throwOnError: false, // Er ingen krise hvis dette kallet feiler
   });
 
   return { alleTiltakDeltMedBruker };
