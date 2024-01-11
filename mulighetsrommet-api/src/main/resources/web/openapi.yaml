@@ -1676,7 +1676,6 @@ components:
       required:
         - norskIdent
         - apentForInnsok
-        - harDeltMedBruker
 
     ApentForInnsok:
       type: string
@@ -2128,8 +2127,6 @@ components:
           format: date
         apentForInnsok:
           type: boolean
-        harDeltMedBruker:
-          type: boolean
         kontaktpersoner:
           type: array
           items:
@@ -2162,7 +2159,6 @@ components:
         - opphav
         - midlertidigStengt
         - apentForInnsok
-        - harDeltMedBruker
         - tilgjengeligForVeileder
         - visesForVeileder
         - deltidsprosent
@@ -2221,8 +2217,6 @@ components:
           nullable: true
         apentForInnsok:
           type: boolean
-        harDeltMedBruker:
-          type: boolean
         kontaktpersoner:
           type: array
           items:
@@ -2267,7 +2261,6 @@ components:
         - stengtFra
         - stengtTil
         - apentForInnsok
-        - harDeltMedBruker
         - kontaktpersoner
         - stedForGjennomforing
         - opphav
@@ -2777,8 +2770,6 @@ components:
             $ref: "#/components/schemas/SanityKontakinfoTiltaksansvarlige"
         apentForInnsok:
           type: boolean
-        harDeltMedBruker:
-          type: boolean
         stengtFra:
           type: string
         stengtTil:
@@ -2787,7 +2778,6 @@ components:
         - navn
         - tiltakstype
         - apentForInnsok
-        - harDeltMedBruker
         - oppstart
         - kontaktinfoTiltaksansvarlige
 

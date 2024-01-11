@@ -51,7 +51,17 @@ export function Gjennomforingsrad({ tiltaksgjennomforing, index, deltMedBruker }
       >
         {datoSidenSistDelt ? (
           <div className={styles.delt_med_bruker_rad}>
-            <BodyShort size={"small"}>Delt med bruker {datoSidenSistDelt}</BodyShort>
+            <BodyShort
+              title={`${new Date(deltMedBruker?.createdAt!!).toLocaleDateString("nb-NO", {
+                weekday: "long",
+                day: "numeric",
+                month: "numeric",
+                year: "numeric",
+              })}`}
+              size={"small"}
+            >
+              Delt med bruker {datoSidenSistDelt}
+            </BodyShort>
           </div>
         ) : null}
         <div className={styles.gjennomforing_container}>
