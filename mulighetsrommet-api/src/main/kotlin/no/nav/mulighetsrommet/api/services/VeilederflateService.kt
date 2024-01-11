@@ -363,6 +363,7 @@ class VeilederflateService(
                     telefonnummer = it.mobilnummer,
                     enhet = it.hovedenhet,
                     epost = it.epost,
+                    beskrivelse = it.beskrivelse,
                     _rev = null,
                     _type = null,
                     _id = null,

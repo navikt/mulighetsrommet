@@ -42,12 +42,17 @@ const NavKontaktpersonInfo = ({ data }: NavKontaktpersonInfoProps) => {
           </Heading>
 
           {tiltaksansvarlige.map((tiltaksansvarlig: SanityKontakinfoTiltaksansvarlige) => {
-            const { navn, epost, telefonnummer, enhet } = tiltaksansvarlig;
+            const { navn, epost, telefonnummer, enhet, beskrivelse } = tiltaksansvarlig;
             return (
               <div key={epost} className={styles.container}>
                 <BodyShort className={styles.navn} size="small">
                   {navn}
                 </BodyShort>
+                {beskrivelse && (
+                  <BodyShort textColor="subtle" size="small">
+                    {beskrivelse}
+                  </BodyShort>
+                )}
                 <BodyShort as="div" size="small">
                   <dl className={styles.definisjonsliste}>
                     <dt>Teams: </dt>

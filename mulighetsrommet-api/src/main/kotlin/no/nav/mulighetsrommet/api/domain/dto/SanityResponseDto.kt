@@ -58,6 +58,7 @@ data class KontaktinfoTiltaksansvarlige(
     val _updatedAt: String? = null,
     val _createdAt: String? = null,
     val epost: String? = null,
+    val beskrivelse: String? = null,
 )
 
 @Serializable

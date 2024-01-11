@@ -38,4 +38,5 @@ data class TiltaksgjennomforingDbo(
 data class TiltaksgjennomforingKontaktpersonDbo(
     val navIdent: String,
     val navEnheter: List<String>,
+    val beskrivelse: String?,
 )

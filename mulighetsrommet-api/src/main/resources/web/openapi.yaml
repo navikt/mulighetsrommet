@@ -2095,7 +2095,7 @@ components:
         kontaktpersoner:
           type: array
           items:
-            $ref: "#/components/schemas/TiltaksgjennomforingKontaktpersoner"
+            $ref: "#/components/schemas/TiltaksgjennomforingKontaktperson"
         stedForGjennomforing:
           type: string
         faneinnhold:
@@ -2185,7 +2185,7 @@ components:
         kontaktpersoner:
           type: array
           items:
-            $ref: "#/components/schemas/TiltaksgjennomforingKontaktpersonerRequest"
+            $ref: "#/components/schemas/TiltaksgjennomforingKontaktpersonRequest"
         stedForGjennomforing:
           type: string
           nullable: true
@@ -2835,6 +2835,8 @@ components:
           type: string
         epost:
           type: string
+        beskrivelse:
+          type: string
       required:
         - _id
         - navn
@@ -2956,7 +2958,7 @@ components:
           format: UUID
           nullable: true
 
-    TiltaksgjennomforingKontaktpersoner:
+    TiltaksgjennomforingKontaktperson:
       type: object
       properties:
         navIdent:
@@ -2965,7 +2967,6 @@ components:
           type: string
         epost:
           type: string
-          nullable: true
         mobilnummer:
           type: string
           nullable: true
@@ -2973,11 +2974,18 @@ components:
           type: array
           items:
             type: string
+        beskrivelse:
+          type: string
+          nullable: true
       required:
+        - navn
         - navIdent
         - navEnheter
+        - epost
+        - mobilnummer
+        - beskrivelse
 
-    TiltaksgjennomforingKontaktpersonerRequest:
+    TiltaksgjennomforingKontaktpersonRequest:
       type: object
       properties:
         navIdent:
@@ -2986,9 +2994,13 @@ components:
           type: array
           items:
             type: string
+        beskrivelse:
+          type: string
+          nullable: true
       required:
         - navIdent
         - navEnheter
+        - beskrivelse
 
     UtkastRequest:
       type: object

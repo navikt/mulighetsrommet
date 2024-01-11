@@ -137,9 +137,16 @@ class TiltaksgjennomforingRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val upsertKontaktperson = """
-            insert into tiltaksgjennomforing_kontaktperson (tiltaksgjennomforing_id, enheter, kontaktperson_nav_ident)
-            values (?::uuid, ?, ?)
-            on conflict (tiltaksgjennomforing_id, kontaktperson_nav_ident) do update set enheter = ?
+            insert into tiltaksgjennomforing_kontaktperson (
+                tiltaksgjennomforing_id,
+                enheter,
+                kontaktperson_nav_ident,
+                beskrivelse
+            )
+            values (:id::uuid, :enheter, :nav_ident, :beskrivelse)
+            on conflict (tiltaksgjennomforing_id, kontaktperson_nav_ident) do update set
+                enheter = :enheter,
+                beskrivelse = :beskrivelse
         """.trimIndent()
 
         @Language("PostgreSQL")
@@ -190,10 +197,12 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             tx.run(
                 queryOf(
                     upsertKontaktperson,
-                    tiltaksgjennomforing.id,
-                    db.createTextArray(kontakt.navEnheter),
-                    kontakt.navIdent,
-                    db.createTextArray(kontakt.navEnheter),
+                    mapOf(
+                        "id" to tiltaksgjennomforing.id,
+                        "enheter" to db.createTextArray(kontakt.navEnheter),
+                        "nav_ident" to kontakt.navIdent,
+                        "beskrivelse" to kontakt.beskrivelse,
+                    ),
                 ).asExecute,
             )
         }
@@ -490,8 +499,13 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                    jsonb_agg(distinct
                              case
                                  when tgk.tiltaksgjennomforing_id is null then null::jsonb
-                                 else jsonb_build_object('navn', concat(na.fornavn, ' ', na.etternavn), 'epost', na.epost, 'telefonnummer',na.mobilnummer)
-                                 end
+                                 else jsonb_build_object(
+                                    'navn', concat(na.fornavn, ' ', na.etternavn),
+                                    'epost', na.epost,
+                                    'telefonnummer', na.mobilnummer,
+                                    'beskrivelse', tgk.beskrivelse
+                                 )
+                             end
                        )                  as kontaktpersoner,
                    tg.nav_region,
                    array_agg(tg_e.enhetsnummer) as nav_enheter,
