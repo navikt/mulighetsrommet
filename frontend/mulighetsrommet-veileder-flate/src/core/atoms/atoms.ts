@@ -1,12 +1,7 @@
-import { atomWithHash } from "jotai-location";
-import {
-  ApentForInnsok,
-  HarDeltMedBruker,
-  Innsatsgruppe,
-  NavEnhet,
-} from "mulighetsrommet-api-client";
-import { atomWithStorage } from "jotai/utils";
 import { atom } from "jotai";
+import { atomWithHash } from "jotai-location";
+import { atomWithStorage } from "jotai/utils";
+import { ApentForInnsok, Innsatsgruppe, NavEnhet } from "mulighetsrommet-api-client";
 
 interface AppContextData {
   fnr: string;
@@ -28,7 +23,6 @@ export interface Tiltaksgjennomforingsfilter {
   innsatsgruppe?: Tiltaksgjennomforingsfiltergruppe<Innsatsgruppe>;
   tiltakstyper: Tiltaksgjennomforingsfiltergruppe<string>[];
   apentForInnsok: ApentForInnsok;
-  harDeltMedBruker: HarDeltMedBruker;
 }
 
 export interface Tiltaksgjennomforingsfiltergruppe<T> {
@@ -42,7 +36,6 @@ export const tiltaksgjennomforingsfilter = atomWithStorage<Tiltaksgjennomforings
   innsatsgruppe: undefined,
   tiltakstyper: [],
   apentForInnsok: ApentForInnsok.APENT_ELLER_STENGT,
-  harDeltMedBruker: HarDeltMedBruker.HAR_ELLER_HAR_IKKE_DELT,
 });
 
 export const paginationAtom = atomWithHash("page", 1, { setHash: "replaceState" });

@@ -19,7 +19,6 @@ export default function useTiltaksgjennomforinger() {
     norskIdent: fnr,
     innsatsgruppe: filter.innsatsgruppe?.nokkel,
     apentForInnsok: filter.apentForInnsok,
-    harDeltMedBruker: filter.harDeltMedBruker,
   };
 
   if (filter.search) {

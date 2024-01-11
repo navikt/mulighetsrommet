@@ -1,17 +1,16 @@
 import { BodyShort, Pagination } from "@navikt/ds-react";
-import { useAtom, useAtomValue } from "jotai";
+import { useAtom } from "jotai";
 import {
-  HarDeltMedBruker,
   TiltaksgjennomforingOppstartstype,
   VeilederflateTiltaksgjennomforing,
 } from "mulighetsrommet-api-client";
 import { useEffect, useState } from "react";
-import { paginationAtom, tiltaksgjennomforingsfilter } from "../../core/atoms/atoms";
+import { useHentAlleTiltakDeltMedBruker } from "../../core/api/queries/useHentAlleTiltakDeltMedBruker";
+import { paginationAtom } from "../../core/atoms/atoms";
+import { useAppContext } from "../../hooks/useAppContext";
 import { Sorteringsmeny } from "../sorteringmeny/Sorteringsmeny";
 import { Gjennomforingsrad } from "./Gjennomforingsrad";
 import styles from "./Tiltaksgjennomforingsoversikt.module.scss";
-import { useHentAlleTiltakDeltMedBruker } from "../../core/api/queries/useHentAlleTiltakDeltMedBruker";
-import { useAppContext } from "../../hooks/useAppContext";
 
 interface Props {
   tiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[];
@@ -22,7 +21,6 @@ const Tiltaksgjennomforingsoversikt = (props: Props) => {
   const { tiltaksgjennomforinger, isFetching } = props;
   const { fnr } = useAppContext();
   const { alleTiltakDeltMedBruker } = useHentAlleTiltakDeltMedBruker(fnr);
-  const filter = useAtomValue(tiltaksgjennomforingsfilter);
 
   const [page, setPage] = useAtom(paginationAtom);
   const elementsPerPage = 15;
@@ -101,24 +99,7 @@ const Tiltaksgjennomforingsoversikt = (props: Props) => {
   const gjennomforingerForSide = (
     getSort(sortValue).orderBy === "oppstart"
       ? [...sorter(gjennomforingerMedFellesOppstart), ...lopendeGjennomforinger]
-      : sorter(tiltaksgjennomforinger).filter((gjennomforing) => {
-          const iderForDelteTiltak = alleTiltakDeltMedBruker
-            ?.map((delt) => delt.tiltaksgjennomforingId || delt.sanityId)
-            .filter(Boolean);
-          if (filter.harDeltMedBruker === HarDeltMedBruker.HAR_DELT) {
-            return (
-              iderForDelteTiltak?.includes(gjennomforing.id) ||
-              iderForDelteTiltak?.includes(gjennomforing.sanityId)
-            );
-          } else if (filter.harDeltMedBruker === HarDeltMedBruker.HAR_IKKE_DELT) {
-            return (
-              !iderForDelteTiltak?.includes(gjennomforing.id) &&
-              !iderForDelteTiltak?.includes(gjennomforing.sanityId)
-            );
-          } else if (filter.harDeltMedBruker === HarDeltMedBruker.HAR_ELLER_HAR_IKKE_DELT) {
-            return true;
-          }
-        })
+      : sorter(tiltaksgjennomforinger)
   ).slice((page - 1) * elementsPerPage, page * elementsPerPage);
 
   return (

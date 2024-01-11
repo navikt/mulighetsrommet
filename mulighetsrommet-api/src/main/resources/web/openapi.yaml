@@ -1673,8 +1673,6 @@ components:
           type: string
         apentForInnsok:
           $ref: "#/components/schemas/ApentForInnsok"
-        harDeltMedBruker:
-          $ref: "#/components/schemas/HarDeltMedBruker"
       required:
         - norskIdent
         - apentForInnsok
@@ -1686,13 +1684,6 @@ components:
         - APENT
         - STENGT
         - APENT_ELLER_STENGT
-
-    HarDeltMedBruker:
-      type: string
-      enum:
-        - HAR_DELT
-        - HAR_IKKE_DELT
-        - HAR_ELLER_HAR_IKKE_DELT
 
     GetRelevanteTiltaksgjennomforingerPreviewRequest:
       type: object

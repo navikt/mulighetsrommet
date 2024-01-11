@@ -1,10 +1,10 @@
 import { Accordion, ToggleGroup } from "@navikt/ds-react";
-import { ApentForInnsok, HarDeltMedBruker } from "mulighetsrommet-api-client";
-import "./ApentForInnsokToggle.module.scss";
 import { useAtom } from "jotai";
-import { addOrRemove } from "../../utils/Utils";
+import { ApentForInnsok } from "mulighetsrommet-api-client";
 import React from "react";
 import { filterAccordionAtom } from "../../core/atoms/atoms";
+import { addOrRemove } from "../../utils/Utils";
+import "./ApentForInnsokToggle.module.scss";
 
 export interface Props {
   accordionHeader: string;
@@ -35,8 +35,6 @@ export function FilterToggle({
   function onToggleChanged(value: string) {
     if (Object.values(ApentForInnsok).includes(value as ApentForInnsok)) {
       onChange(value as ApentForInnsok);
-    } else if (Object.values(HarDeltMedBruker).includes(value as HarDeltMedBruker)) {
-      onChange(value as HarDeltMedBruker);
     }
   }
 
