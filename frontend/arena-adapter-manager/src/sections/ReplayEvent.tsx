@@ -12,7 +12,10 @@ function ReplayEvent() {
 
   const handleReplay = async (table: string, arenaIdInput: string) => {
     setLoading(true);
-    const ids = arenaIdInput.split(",").map((id) => id.trim());
+    const ids = arenaIdInput
+      .split(/[,\s]/)
+      .map((id) => id.trim())
+      .filter((id) => id.length);
     for (const id of ids) {
       await replayEvent(table, id);
     }
@@ -20,11 +23,7 @@ function ReplayEvent() {
   };
 
   return (
-    <Section
-      headerText="Replay Event"
-      loadingText={"Laster"}
-      isLoading={isArenaTablesLoading}
-    >
+    <Section headerText="Replay Event" loadingText={"Laster"} isLoading={isArenaTablesLoading}>
       <Select
         placeholder="Velg tabell"
         value={table}

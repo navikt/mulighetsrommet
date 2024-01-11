@@ -55,7 +55,7 @@ fun httpJsonClient(engine: HttpClientEngine = CIO.create()) = HttpClient(engine)
         }
 
         MDC.get("correlationId")?.let {
-            header(HttpHeaders.XRequestId, it)
+            header("Nav-Call-Id", it)
         }
     }
 }
