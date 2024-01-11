@@ -42,7 +42,7 @@ data class VeilederflateTiltaksgjennomforing(
     val fylke: String? = null,
     val enheter: List<String>? = emptyList(),
     val beskrivelse: String? = null,
-    val faneinnhold: Faneinnhold? = null
+    val faneinnhold: Faneinnhold? = null,
 )
 
 @Serializable

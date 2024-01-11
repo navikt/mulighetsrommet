@@ -1130,6 +1130,33 @@ paths:
               schema:
                 type: string
 
+  /api/v1/internal/del-med-bruker/alle:
+    post:
+      tags:
+        - Del med bruker
+      operationId: getAlleTiltakDeltMedBruker
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GetAlleDeltMedBrukerRequest"
+        required: true
+      responses:
+        200:
+          description: "Latest entries in database about share with user for alle shared 'tiltak'"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DelMedBruker"
+        204:
+          description: "No content found"
+          content:
+            text/plain:
+              schema:
+                type: string
+
   /api/v1/internal/enheter:
     get:
       tags:
@@ -1621,6 +1648,14 @@ components:
       required:
         - norskIdent
         - id
+
+    GetAlleDeltMedBrukerRequest:
+      type: object
+      properties:
+        norskIdent:
+          type: string
+      required:
+        - norskIdent
 
     GetRelevanteTiltaksgjennomforingerForBrukerRequest:
       type: object
@@ -2503,7 +2538,7 @@ components:
         sanityId:
           type: string
           format: uuid
-        tiltaksgjennoforingId:
+        tiltaksgjennomforingId:
           type: string
           format: uuid
         dialogId:

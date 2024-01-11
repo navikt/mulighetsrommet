@@ -59,7 +59,9 @@ export const tiltakHandlers = [
     "*/api/v1/internal/veileder/tiltaksgjennomforing",
     async ({ request }) => {
       const { id } = await request.json();
-      const gjennomforing = mockTiltaksgjennomforinger.find((gj) => gj.sanityId === id);
+      const gjennomforing = mockTiltaksgjennomforinger.find(
+        (gj) => gj.sanityId === id || gj.id === id,
+      );
       return HttpResponse.json(gjennomforing);
     },
   ),

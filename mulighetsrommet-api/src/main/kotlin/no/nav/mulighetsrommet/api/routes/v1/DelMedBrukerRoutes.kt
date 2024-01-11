@@ -57,7 +57,31 @@ fun Route.delMedBrukerRoutes() {
                 .onLeft {
                     call.respondText(
                         status = HttpStatusCode.InternalServerError,
-                        text = "Klarte ikke innslag om at veileder har delt tiltak med bruker tidligere",
+                        text = "Klarte ikke finne innslag om at veileder har delt tiltak med bruker tidligere",
+                    )
+                }
+        }
+
+        post("alle") {
+            val request = call.receive<GetAlleDeltMedBrukerRequest>()
+
+            poaoTilgang.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), request.norskIdent)
+
+            delMedBrukerService.getAlleTiltakDeltMedBruker(request.norskIdent)
+                .onRight {
+                    if (it == null) {
+                        call.respondText(
+                            status = HttpStatusCode.NoContent,
+                            text = "Fant ingen innslag om at veileder har delt noen tiltak med bruker tidligere",
+                        )
+                    } else {
+                        call.respond(it)
+                    }
+                }
+                .onLeft {
+                    call.respondText(
+                        status = HttpStatusCode.InternalServerError,
+                        text = "Klarte ikke finne innslag om at veileder har delt noen tiltak med bruker tidligere",
                     )
                 }
         }
@@ -68,5 +92,10 @@ fun Route.delMedBrukerRoutes() {
 data class GetDelMedBrukerRequest(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
+    val norskIdent: String,
+)
+
+@Serializable
+data class GetAlleDeltMedBrukerRequest(
     val norskIdent: String,
 )
