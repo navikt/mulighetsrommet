@@ -207,6 +207,8 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                   error={errors.deltidsprosent?.message as string}
                   type="number"
                   step="0.01"
+                  min={0}
+                  max={100}
                   style={{ width: "180px" }}
                   label="Deltidsprosent"
                   {...register("deltidsprosent", {
