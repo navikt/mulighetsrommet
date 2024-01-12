@@ -10,16 +10,11 @@ interface Props {
 export function HarSkrivetilgang({ ressurs, children }: Props) {
   const { data } = useHentAnsatt();
 
-  if (
-    ressurs === "Avtale" &&
-    (data?.roller.includes(NavAnsattRolle.AVTALER_SKRIV) ||
-      data?.roller.includes(NavAnsattRolle.BETABRUKER))
-  ) {
+  if (ressurs === "Avtale" && data?.roller.includes(NavAnsattRolle.AVTALER_SKRIV)) {
     return children;
   } else if (
     ressurs === "Tiltaksgjennomføring" &&
-    (data?.roller.includes(NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV) ||
-      data?.roller.includes(NavAnsattRolle.BETABRUKER))
+    data?.roller.includes(NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV)
   ) {
     return children;
   } else return null;

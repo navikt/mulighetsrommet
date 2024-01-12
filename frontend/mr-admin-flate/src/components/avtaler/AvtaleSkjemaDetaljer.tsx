@@ -14,7 +14,7 @@ import { SelectOption } from "mulighetsrommet-frontend-common/components/SokeSel
 import { useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { MultiValue } from "react-select";
-import { useHentBetabrukere } from "../../api/ansatt/useHentBetabrukere";
+import { useAvtaleAdministratorer } from "../../api/ansatt/useAvtaleAdministratorer";
 import { useSokVirksomheter } from "../../api/virksomhet/useSokVirksomhet";
 import { useVirksomhet } from "../../api/virksomhet/useVirksomhet";
 import { erAnskaffetTiltak } from "../../utils/tiltakskoder";
@@ -42,7 +42,7 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
   const [sokLeverandor, setSokLeverandor] = useState(avtale?.leverandor?.organisasjonsnummer || "");
   const { data: leverandorVirksomheter = [] } = useSokVirksomheter(sokLeverandor);
 
-  const { data: betabrukere } = useHentBetabrukere();
+  const { data: administratorer } = useAvtaleAdministratorer();
 
   const {
     register,
@@ -199,7 +199,7 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
               placeholder="Administratorer"
               label="Administratorer for avtalen"
               {...register("administratorer")}
-              options={AdministratorOptions(ansatt, avtale?.administratorer, betabrukere)}
+              options={AdministratorOptions(ansatt, avtale?.administratorer, administratorer)}
             />
           </FormGroup>
         </div>
