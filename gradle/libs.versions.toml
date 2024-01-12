@@ -105,7 +105,7 @@ prometheus-caffeine = "io.prometheus:simpleclient_caffeine:0.16.0"
 
 shedlock-jdbc = "net.javacrumbs.shedlock:shedlock-provider-jdbc:5.10.2"
 
-slack-client = "com.slack.api:slack-api-client:1.36.1"
+slack-client = "com.slack.api:slack-api-client:1.37.0"
 
 slf4j = "org.slf4j:slf4j-api:2.0.11"
 
