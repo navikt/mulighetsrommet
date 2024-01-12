@@ -1,13 +1,12 @@
 import { BodyShort, Pagination } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import {
+  DelMedBruker,
   TiltaksgjennomforingOppstartstype,
   VeilederflateTiltaksgjennomforing,
 } from "mulighetsrommet-api-client";
 import { useEffect, useState } from "react";
-import { useHentAlleTiltakDeltMedBruker } from "../../core/api/queries/useHentAlleTiltakDeltMedBruker";
 import { paginationAtom } from "../../core/atoms/atoms";
-import { useAppContext } from "../../hooks/useAppContext";
 import { Sorteringsmeny } from "../sorteringmeny/Sorteringsmeny";
 import { Gjennomforingsrad } from "./Gjennomforingsrad";
 import styles from "./Tiltaksgjennomforingsoversikt.module.scss";
@@ -15,12 +14,11 @@ import styles from "./Tiltaksgjennomforingsoversikt.module.scss";
 interface Props {
   tiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[];
   isFetching: boolean;
+  deltMedBruker?: DelMedBruker[];
 }
 
 const Tiltaksgjennomforingsoversikt = (props: Props) => {
-  const { tiltaksgjennomforinger, isFetching } = props;
-  const { fnr } = useAppContext();
-  const { alleTiltakDeltMedBruker } = useHentAlleTiltakDeltMedBruker(fnr);
+  const { tiltaksgjennomforinger, isFetching, deltMedBruker } = props;
 
   const [page, setPage] = useAtom(paginationAtom);
   const elementsPerPage = 15;
@@ -116,7 +114,7 @@ const Tiltaksgjennomforingsoversikt = (props: Props) => {
       </div>
       <ul className={styles.gjennomforinger} data-testid="oversikt_tiltaksgjennomforinger">
         {gjennomforingerForSide.map((gjennomforing, index) => {
-          const deltMedBruker = alleTiltakDeltMedBruker?.find((delt) => {
+          const delMedBruker = deltMedBruker?.find((delt) => {
             return (
               (delt.tiltaksgjennomforingId && delt.tiltaksgjennomforingId === gjennomforing.id) ||
               (delt.sanityId && delt.sanityId === gjennomforing.sanityId)
@@ -127,7 +125,7 @@ const Tiltaksgjennomforingsoversikt = (props: Props) => {
               key={gjennomforing.id ?? gjennomforing.sanityId}
               index={index}
               tiltaksgjennomforing={gjennomforing}
-              deltMedBruker={deltMedBruker}
+              delMedBruker={delMedBruker}
             />
           );
         })}

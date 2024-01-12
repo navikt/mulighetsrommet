@@ -15,7 +15,7 @@ import styles from "./Gjennomforingsrad.module.scss";
 interface Props {
   tiltaksgjennomforing: VeilederflateTiltaksgjennomforing;
   index: number;
-  deltMedBruker?: DelMedBruker;
+  delMedBruker?: DelMedBruker;
 }
 
 const visOppstartsdato = (oppstart: TiltaksgjennomforingOppstartstype, oppstartsdato?: string) => {
@@ -27,12 +27,12 @@ const visOppstartsdato = (oppstart: TiltaksgjennomforingOppstartstype, oppstarts
   }
 };
 
-export function Gjennomforingsrad({ tiltaksgjennomforing, index, deltMedBruker }: Props) {
+export function Gjennomforingsrad({ tiltaksgjennomforing, index, delMedBruker }: Props) {
   const [page] = useAtom(paginationAtom);
   const { id, sanityId, navn, arrangor, tiltakstype, oppstart, oppstartsdato, apentForInnsok } =
     tiltaksgjennomforing;
 
-  const datoSidenSistDelt = deltMedBruker && formaterDato(new Date(deltMedBruker.createdAt!!));
+  const datoSidenSistDelt = delMedBruker && formaterDato(new Date(delMedBruker.createdAt!!));
 
   return (
     <li
@@ -52,7 +52,7 @@ export function Gjennomforingsrad({ tiltaksgjennomforing, index, deltMedBruker }
         {datoSidenSistDelt ? (
           <div className={styles.delt_med_bruker_rad}>
             <BodyShort
-              title={`${new Date(deltMedBruker?.createdAt!!).toLocaleDateString("nb-NO", {
+              title={`${new Date(delMedBruker?.createdAt!!).toLocaleDateString("nb-NO", {
                 weekday: "long",
                 day: "numeric",
                 month: "numeric",

@@ -1,9 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
-import { erPreview } from "../../../utils/Utils";
 import { mulighetsrommetClient } from "../clients";
 import { QueryKeys } from "../query-keys";
+import { useAppContext } from "../../../hooks/useAppContext";
 
-export function useHentAlleTiltakDeltMedBruker(norskIdent: string) {
+export function useHentAlleTiltakDeltMedBruker() {
+  const { fnr: norskIdent } = useAppContext();
+
   const { data: alleTiltakDeltMedBruker } = useQuery({
     queryKey: [QueryKeys.AlleDeltMedBrukerStatus, norskIdent],
     queryFn: async () => {
@@ -12,7 +14,6 @@ export function useHentAlleTiltakDeltMedBruker(norskIdent: string) {
       });
       return result || null; // Returner null hvis API returnerer 204 No Content = undefined;
     },
-    enabled: !erPreview(),
     throwOnError: false, // Er ingen krise hvis dette kallet feiler
   });
 
