@@ -5,7 +5,9 @@ import {
   VeilederflateTiltaksgjennomforing,
 } from "mulighetsrommet-api-client";
 import { useEffect, useState } from "react";
+import { useHentAlleTiltakDeltMedBruker } from "../../core/api/queries/useHentAlleTiltakDeltMedBruker";
 import { paginationAtom } from "../../core/atoms/atoms";
+import { useAppContext } from "../../hooks/useAppContext";
 import { Sorteringsmeny } from "../sorteringmeny/Sorteringsmeny";
 import { Gjennomforingsrad } from "./Gjennomforingsrad";
 import styles from "./Tiltaksgjennomforingsoversikt.module.scss";
@@ -17,6 +19,8 @@ interface Props {
 
 const Tiltaksgjennomforingsoversikt = (props: Props) => {
   const { tiltaksgjennomforinger, isFetching } = props;
+  const { fnr } = useAppContext();
+  const { alleTiltakDeltMedBruker } = useHentAlleTiltakDeltMedBruker(fnr);
 
   const [page, setPage] = useAtom(paginationAtom);
   const elementsPerPage = 15;
@@ -112,11 +116,18 @@ const Tiltaksgjennomforingsoversikt = (props: Props) => {
       </div>
       <ul className={styles.gjennomforinger} data-testid="oversikt_tiltaksgjennomforinger">
         {gjennomforingerForSide.map((gjennomforing, index) => {
+          const deltMedBruker = alleTiltakDeltMedBruker?.find((delt) => {
+            return (
+              (delt.tiltaksgjennomforingId && delt.tiltaksgjennomforingId === gjennomforing.id) ||
+              (delt.sanityId && delt.sanityId === gjennomforing.sanityId)
+            );
+          });
           return (
             <Gjennomforingsrad
               key={gjennomforing.id ?? gjennomforing.sanityId}
               index={index}
               tiltaksgjennomforing={gjennomforing}
+              deltMedBruker={deltMedBruker}
             />
           );
         })}

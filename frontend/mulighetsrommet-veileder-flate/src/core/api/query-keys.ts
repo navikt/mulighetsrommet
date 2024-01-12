@@ -7,6 +7,7 @@ export const QueryKeys = {
   Veilederdata: "veilederdata",
   Historikk: "historikk",
   DeltMedBrukerStatus: "deltMedBrukerStatus",
+  AlleDeltMedBrukerStatus: "alleDeltMedBrukerStatus",
   sanity: {
     innsatsgrupper: ["innsatsgrupper"],
     tiltakstyper: ["tiltakstyper"],

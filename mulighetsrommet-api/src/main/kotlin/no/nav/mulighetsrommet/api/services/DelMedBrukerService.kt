@@ -82,6 +82,20 @@ class DelMedBrukerService(private val db: Database) {
             .let { db.run(it) }
     }
 
+    fun getAlleTiltakDeltMedBruker(fnr: String): QueryResult<List<DelMedBrukerDbo>?> = query {
+        @Language("PostgreSQL")
+        val query = """
+            select distinct on (tiltaksgjennomforing_id, sanity_id) *
+            from del_med_bruker
+            where norsk_ident = ?
+            order by tiltaksgjennomforing_id, sanity_id, created_at desc;
+        """.trimIndent()
+        queryOf(query, fnr)
+            .map { it.toDelMedBruker() }
+            .asList
+            .let { db.run(it) }
+    }
+
     private fun DelMedBrukerDbo.toParameters() = mapOf(
         "norsk_ident" to norskIdent,
         "navident" to navident,

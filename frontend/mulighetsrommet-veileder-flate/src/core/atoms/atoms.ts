@@ -1,7 +1,7 @@
-import { atomWithHash } from "jotai-location";
-import { ApentForInnsok, Innsatsgruppe, NavEnhet } from "mulighetsrommet-api-client";
-import { atomWithStorage } from "jotai/utils";
 import { atom } from "jotai";
+import { atomWithHash } from "jotai-location";
+import { atomWithStorage } from "jotai/utils";
+import { ApentForInnsok, Innsatsgruppe, NavEnhet } from "mulighetsrommet-api-client";
 
 interface AppContextData {
   fnr: string;

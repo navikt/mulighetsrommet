@@ -56,7 +56,7 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
     ],
   },
   {
-    sanityId: "00097090-1ba8-47a4-a82f-6aaad488994e",
+    id: "00097090-1ba8-47a4-a82f-6aaad488994e",
     navn: "Kurs i overlevelsesteknikk (Gruppe AMO)",
     stedForGjennomforing: "2050 JESSHEIM",
     apentForInnsok: true,
