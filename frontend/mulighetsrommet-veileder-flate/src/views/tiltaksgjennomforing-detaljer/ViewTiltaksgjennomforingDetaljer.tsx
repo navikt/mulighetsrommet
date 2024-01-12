@@ -31,7 +31,6 @@ import { useLogEvent } from "../../logging/amplitude";
 import { utledDelMedBrukerTekst } from "../../components/modal/delemodal/DelMedBrukerTekst";
 import { erBrukerResertMotElektroniskKommunikasjon } from "../../utils/Bruker";
 import { useFeatureToggle } from "../../core/api/feature-toggles";
-import { HarSkrivetilgang } from "mr-admin-flate/src/components/authActions/HarSkrivetilgang";
 
 const whiteListOpprettAvtaleKnapp: Tiltakskode[] = [
   Tiltakskode.MIDLONTIL,
@@ -170,20 +169,18 @@ const ViewTiltaksgjennomforingDetaljer = ({
         <div className={styles.sidemeny}>
           <SidemenyDetaljer tiltaksgjennomforing={tiltaksgjennomforing} />
           <div className={styles.deleknapp_container}>
-            <HarSkrivetilgang ressurs="Avtale">
-              {opprettAvtale && (
-                <Button
-                  onClick={kanBrukerFaaAvtale}
-                  variant="primary"
-                  className={styles.deleknapp}
-                  aria-label="Opprett avtale"
-                  data-testid="opprettavtaleknapp"
-                  disabled={!brukerHarRettPaaTiltak}
-                >
-                  Opprett avtale
-                </Button>
-              )}
-            </HarSkrivetilgang>
+            {opprettAvtale && (
+              <Button
+                onClick={kanBrukerFaaAvtale}
+                variant="primary"
+                className={styles.deleknapp}
+                aria-label="Opprett avtale"
+                data-testid="opprettavtaleknapp"
+                disabled={!brukerHarRettPaaTiltak}
+              >
+                Opprett avtale
+              </Button>
+            )}
             {enableDeltakerRegistrering && !opprettAvtale ? (
               <Link className={styles.link} to="./deltaker">
                 Meld på

@@ -29,6 +29,6 @@
       "vite": ["node_modules/vite"]
     },
   },
-  "include": ["src", "../mr-admin-flate/src/components/authActions"],
+  "include": ["src"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
