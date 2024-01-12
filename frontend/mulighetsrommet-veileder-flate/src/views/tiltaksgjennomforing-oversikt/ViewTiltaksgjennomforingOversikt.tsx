@@ -26,6 +26,7 @@ import { FilterAndTableLayout } from "../../components/filtrering/FilterAndTable
 import { OversiktenJoyride } from "../../components/joyride/OversiktenJoyride";
 import { HistorikkButton } from "../../components/historikk/HistorikkButton";
 import { useInnsatsgrupper } from "../../core/api/queries/useInnsatsgrupper";
+import { useHentAlleTiltakDeltMedBruker } from "../../core/api/queries/useHentAlleTiltakDeltMedBruker";
 
 const ViewTiltaksgjennomforingOversikt = () => {
   useTitle("Arbeidsmarkedstiltak - Oversikt");
@@ -38,6 +39,8 @@ const ViewTiltaksgjennomforingOversikt = () => {
 
   const landingssideEnabled = landingssideFeature.isSuccess && landingssideFeature.data;
   const [isHistorikkModalOpen, setIsHistorikkModalOpen] = useState(false);
+
+  const { alleTiltakDeltMedBruker } = useHentAlleTiltakDeltMedBruker();
 
   const {
     data: tiltaksgjennomforinger = [],
@@ -176,6 +179,7 @@ const ViewTiltaksgjennomforingOversikt = () => {
               <Tiltaksgjennomforingsoversikt
                 tiltaksgjennomforinger={tiltaksgjennomforinger}
                 isFetching={isFetching}
+                deltMedBruker={alleTiltakDeltMedBruker}
               />
             )}
           </div>
