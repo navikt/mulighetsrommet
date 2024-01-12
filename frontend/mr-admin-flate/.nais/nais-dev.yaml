@@ -6,7 +6,7 @@ metadata:
   labels:
     team: team-mulighetsrommet
 spec:
-  image: europe-north1-docker.pkg.dev/nais-management-233d/poao/poao-frontend:2023.12.11_07.47-3b141178cd58
+  image: europe-north1-docker.pkg.dev/nais-management-233d/poao/poao-frontend:2024.01.11_12.17-879b05ebc417
   port: 8080
   ingresses:
     - https://mulighetsrommet-admin-flate.intern.dev.nav.no

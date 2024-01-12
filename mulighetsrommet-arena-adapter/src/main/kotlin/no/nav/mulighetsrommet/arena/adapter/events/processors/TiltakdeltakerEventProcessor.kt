@@ -140,9 +140,8 @@ class TiltakdeltakerEventProcessor(
     }
 
     private fun isRelevantForBrukersTiltakshistorikk(data: ArenaTiltakdeltaker): Boolean {
-        return ArenaUtils.parseNullableTimestamp(data.DATO_TIL)
-            ?.let { Tiltakshistorikk.isRelevantTiltakshistorikk(it) }
-            ?: Tiltakshistorikk.isRelevantTiltakshistorikk(ArenaUtils.parseTimestamp(data.REG_DATO))
+        val date = ArenaUtils.parseNullableTimestamp(data.DATO_TIL) ?: ArenaUtils.parseTimestamp(data.REG_DATO)
+        return Tiltakshistorikk.isRelevantTiltakshistorikk(date)
     }
 
     private fun ArenaTiltakdeltaker.toDeltaker(id: UUID) = Either

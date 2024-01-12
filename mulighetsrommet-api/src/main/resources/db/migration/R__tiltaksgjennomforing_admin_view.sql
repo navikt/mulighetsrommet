@@ -49,10 +49,16 @@ select tg.id::uuid,
        jsonb_agg(distinct
                  case
                      when tgk.tiltaksgjennomforing_id is null then null::jsonb
-                     else jsonb_build_object('navIdent', tgk.kontaktperson_nav_ident, 'navn',
-                                             concat(na.fornavn, ' ', na.etternavn), 'epost', na.epost, 'mobilnummer',
-                                             na.mobilnummer, 'navEnheter', tgk.enheter, 'hovedenhet', na.hovedenhet)
-                     end
+                     else jsonb_build_object(
+                        'navIdent', tgk.kontaktperson_nav_ident,
+                        'navn', concat(na.fornavn, ' ', na.etternavn),
+                        'epost', na.epost,
+                        'mobilnummer', na.mobilnummer,
+                        'navEnheter', tgk.enheter,
+                        'hovedenhet', na.hovedenhet,
+                        'beskrivelse', tgk.beskrivelse
+                    )
+                 end
            )                   as kontaktpersoner,
        tg.sted_for_gjennomforing,
        tg.arrangor_kontaktperson_id,

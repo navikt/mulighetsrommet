@@ -1,7 +1,7 @@
 import {
   NavAnsatt,
   NavAnsattRolle,
-  TiltaksgjennomforingKontaktpersoner,
+  TiltaksgjennomforingKontaktperson,
 } from "mulighetsrommet-api-client";
 
 const bertil: NavAnsatt = {
@@ -83,20 +83,22 @@ const petrus: NavAnsatt = {
   skalSlettesDato: null,
 };
 
-export const petrusKontaktperson: TiltaksgjennomforingKontaktpersoner = {
+export const petrusKontaktperson: TiltaksgjennomforingKontaktperson = {
   navIdent: petrus.navIdent,
   navn: petrus.fornavn + " " + petrus.etternavn,
   epost: petrus.epost,
   mobilnummer: petrus.epost,
   navEnheter: ["0315", "0330"],
+  beskrivelse: "Beskrivelse til Petrus",
 };
 
-export const nikolineKontaktperson: TiltaksgjennomforingKontaktpersoner = {
+export const nikolineKontaktperson: TiltaksgjennomforingKontaktperson = {
   navIdent: nikoline.navIdent,
   navn: nikoline.fornavn + " " + nikoline.etternavn,
   epost: nikoline.epost,
   mobilnummer: nikoline.epost,
   navEnheter: ["0313"],
+  beskrivelse: null,
 };
 
 export const mockBetabruker: NavAnsatt = bertil;

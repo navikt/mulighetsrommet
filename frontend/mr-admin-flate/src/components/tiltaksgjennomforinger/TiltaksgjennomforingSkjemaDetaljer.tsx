@@ -303,6 +303,13 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                             valgteNavEnheter.includes(enhet.value),
                           )}
                         />
+                        <TextField
+                          size="small"
+                          label="Beskrivelse"
+                          {...register(`kontaktpersoner.${index}.beskrivelse`, {
+                            shouldUnregister: true,
+                          })}
+                        />
                       </div>
                     </div>
                   );

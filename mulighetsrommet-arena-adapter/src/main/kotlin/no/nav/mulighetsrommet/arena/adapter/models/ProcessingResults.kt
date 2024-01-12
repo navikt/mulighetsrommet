@@ -11,7 +11,7 @@ sealed class ProcessingError(val status: ArenaEvent.ProcessingStatus, val messag
         message = "Event processing failed: $details",
     )
 
-    data class MissingDependency(val details: String) : ProcessingError(
+    data class ForeignKeyViolation(val details: String) : ProcessingError(
         status = ArenaEvent.ProcessingStatus.Failed,
         message = "Dependent event has not yet been processed: $details",
     )
@@ -23,7 +23,7 @@ sealed class ProcessingError(val status: ArenaEvent.ProcessingStatus, val messag
 
     companion object {
         fun fromDatabaseOperationError(error: DatabaseOperationError): ProcessingError = when (error) {
-            is DatabaseOperationError.ForeignKeyViolation -> MissingDependency(error.error.localizedMessage)
+            is DatabaseOperationError.ForeignKeyViolation -> ForeignKeyViolation(error.error.localizedMessage)
             else -> ProcessingFailed(error.error.localizedMessage)
         }
 

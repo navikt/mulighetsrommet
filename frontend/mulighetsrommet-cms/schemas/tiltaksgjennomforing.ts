@@ -4,6 +4,7 @@ import { Information } from "../components/Information";
 import { VelgAlleEnheterForKontaktpersoner } from "../components/VelgAlleEnheterForKontaktpersoner";
 import { API_VERSION } from "../sanity.config";
 import {
+  IKKE_I_ADMINFLATE_TILTAK_DEV,
   IKKE_I_ADMINFLATE_TILTAK_PROD,
   hasDuplicates,
   isEgenRegiTiltak,
@@ -57,7 +58,7 @@ export const tiltaksgjennomforing = defineType({
       to: [{ type: "tiltakstype" }],
       options: {
         filter: "_id in $ider",
-        filterParams: { ider: IKKE_I_ADMINFLATE_TILTAK_PROD },
+        filterParams: { ider: IKKE_I_ADMINFLATE_TILTAK_PROD.concat(IKKE_I_ADMINFLATE_TILTAK_DEV) },
       },
       validation: (rule) =>
         rule.custom((currentValue) => {
@@ -217,6 +218,10 @@ export const tiltaksgjennomforing = defineType({
                   },
                 },
               ],
+            },
+            {
+              type: "string",
+              name: "beskrivelse",
             },
           ],
           preview: {

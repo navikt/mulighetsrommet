@@ -155,16 +155,18 @@ class ArenaEventServiceTest : FunSpec({
         }
 
         test("should save the event as Failed when delete fails") {
+            val processedEventMapping = entities.getOrCreateMapping(processedEvent)
+
             val processor = spyk(
-                ArenaEventTestProcessor(deleteEntityError = {
-                    ProcessingError.ProcessingFailed(":(")
-                }) {
+                ArenaEventTestProcessor(
+                    deleteEntityError = { ProcessingError.ProcessingFailed(":(") },
+                ) {
                     ProcessingResult(Ignored).right()
                 },
             )
 
             val service = ArenaEventService(events = events, processors = listOf(processor), entities = entities)
-            entities.getOrCreateMapping(processedEvent)
+
             service.processEvent(processedEvent)
 
             coVerify(exactly = 1) {
@@ -175,6 +177,78 @@ class ArenaEventServiceTest : FunSpec({
                 .value("processing_status").isEqualTo(ProcessingStatus.Failed.name)
                 .value("message").isEqualTo("Event processing failed: :(")
             database.assertThat("arena_entity_mapping").row()
+                .value("entity_id").isEqualTo(processedEventMapping.entityId)
+                .value("status").isEqualTo(Handled.name)
+                .value("message").isNull
+        }
+
+        test("should replay dependent events when delete fails with a foreign key violation") {
+            val dependentEvent = ArenaEvent(
+                status = ProcessingStatus.Processed,
+                // En vilkårlig tabell som ikke er brukt i [processedEvent]
+                arenaTable = ArenaTable.AvtaleInfo,
+                operation = ArenaEvent.Operation.Insert,
+                arenaId = "5",
+                payload = JsonObject(mapOf("after" to JsonObject(mapOf("name" to JsonPrimitive("Dependent Bar"))))),
+            )
+
+            val dependentEventMapping = entities.getOrCreateMapping(dependentEvent)
+            val processedEventMapping = entities.getOrCreateMapping(processedEvent)
+
+            val processor = spyk(
+                ArenaEventTestProcessor(
+                    deleteEntityError = { ProcessingError.ForeignKeyViolation(":(") },
+                    getDependentEntities = { listOf(dependentEventMapping) },
+                ) {
+                    ProcessingResult(Ignored, "test").right()
+                },
+            )
+
+            val dependentEventProcessor = spyk(
+                ArenaEventTestProcessor(arenaTable = dependentEvent.arenaTable) {
+                    ProcessingResult(Handled).right()
+                },
+            )
+
+            val service = ArenaEventService(
+                events = events,
+                processors = listOf(processor, dependentEventProcessor),
+                entities = entities,
+            )
+
+            // Prosesser [dependentEvent] først
+            service.processEvent(dependentEvent)
+
+            // Deretter [processedEvent]
+            service.processEvent(processedEvent)
+
+            // Verifiser at [processedEVent] har blitt forsøkt prosessert
+            coVerify(exactly = 1) {
+                processor.handleEvent(processedEvent)
+            }
+
+            // Verifiser at [dependentEvent] har blitt prosessert en ekstra gang
+            coVerify(exactly = 2) {
+                dependentEventProcessor.handleEvent(dependentEvent)
+            }
+
+            // Verifiser tilstand i underliggende tabeller
+            database.assertThat("arena_events")
+                .row()
+                .value("arena_id").isEqualTo(dependentEvent.arenaId)
+                .value("processing_status").isEqualTo(ProcessingStatus.Processed.name)
+                .value("message").isNull
+                .row()
+                .value("arena_id").isEqualTo(processedEvent.arenaId)
+                .value("processing_status").isEqualTo(ProcessingStatus.Failed.name)
+                .value("message").isEqualTo("Dependent event has not yet been processed: :(")
+            database.assertThat("arena_entity_mapping")
+                .row()
+                .value("entity_id").isEqualTo(dependentEventMapping.entityId)
+                .value("status").isEqualTo(Handled.name)
+                .value("message").isNull
+                .row()
+                .value("entity_id").isEqualTo(processedEventMapping.entityId)
                 .value("status").isEqualTo(Handled.name)
                 .value("message").isNull
         }
@@ -334,18 +408,19 @@ class ArenaEventServiceTest : FunSpec({
 class ArenaEventTestProcessor(
     override val arenaTable: ArenaTable = ArenaTable.Tiltakstype,
     private val deleteEntityError: (() -> ProcessingError)? = null,
+    private val getDependentEntities: (() -> List<ArenaEntityMapping>)? = null,
     private val handleEvent: (() -> Either<ProcessingError, ProcessingResult>)? = null,
 ) : ArenaEventProcessor {
 
     override suspend fun handleEvent(event: ArenaEvent): Either<ProcessingError, ProcessingResult> {
-        return handleEvent
-            ?.let { it() }
-            ?: Either.Right(ProcessingResult(Handled))
+        return handleEvent?.invoke() ?: Either.Right(ProcessingResult(Handled))
     }
 
     override suspend fun deleteEntity(event: ArenaEvent): Either<ProcessingError, Unit> {
-        return deleteEntityError
-            ?.let { Either.Left(it()) }
-            ?: Either.Right(Unit)
+        return deleteEntityError?.invoke()?.left() ?: Either.Right(Unit)
+    }
+
+    override fun getDependentEntities(event: ArenaEvent): List<ArenaEntityMapping> {
+        return getDependentEntities?.invoke() ?: emptyList()
     }
 }

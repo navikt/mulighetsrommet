@@ -14,12 +14,13 @@ export const IKKE_I_ADMINFLATE_TILTAK_PROD = [
   "d322b7e7-0c68-44d6-a325-b12d71af63c6", // IPS
 ];
 
-const IKKE_I_ADMINFLATE_TILTAK_DEV = [
+export const IKKE_I_ADMINFLATE_TILTAK_DEV = [
   "ad998fc6-310e-45d4-a056-57732fed87b4", // "Mentor",
   "50878ad5-90d0-496d-a0d0-a53091800760", // "Opplæring - Høyere utdanning",
   "bbb8d042-b30e-4e4a-8cd0-210019b19de3", // "Opplæring - Enkeltplass AMO",
   "6de22004-9fb8-4c84-9b75-dc8132a78cd2", // "Varig lønnstilskudd",
   "a97fd87c-d7c1-49af-b3fb-cf5e5c10522a", // "Midlertidig lønnstilskudd",
+  "69fcedf9-8f85-498d-ae9e-fcdcf4931e2b", // "Tilskudd til sommerjobb",
   "e8406a67-fabe-4da6-804c-c77a33aaf67d", // "Arbeidstrening",
   "8d8abebd-3617-494a-a687-d44810e0a7ee", // "Varig tilrettelagt arbeids i ordinær virksomhet",
 ];

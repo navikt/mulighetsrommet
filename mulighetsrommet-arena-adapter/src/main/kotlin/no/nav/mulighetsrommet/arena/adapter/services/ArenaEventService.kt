@@ -8,6 +8,7 @@ import kotlinx.coroutines.channels.produce
 import no.nav.mulighetsrommet.arena.adapter.events.processors.ArenaEventProcessor
 import no.nav.mulighetsrommet.arena.adapter.metrics.Metrics
 import no.nav.mulighetsrommet.arena.adapter.metrics.recordSuspend
+import no.nav.mulighetsrommet.arena.adapter.models.ProcessingError
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.Handled
@@ -88,9 +89,20 @@ class ArenaEventService(
                         .flatMap { result ->
                             if (mapping.status == Handled && result.status == Ignored) {
                                 logger.info("Sletter entity som tidligere var håndtert men nå skal ignoreres: table=${event.arenaTable}, id=${event.arenaId}, reason=${result.message}")
+
                                 processor.deleteEntity(event)
                                     .onLeft {
                                         logger.warn("Klarte ikke slette entity: table=${event.arenaTable}, id=${event.arenaId}, status=${it.status}, message=${it.message}")
+
+                                        if (it is ProcessingError.ForeignKeyViolation) {
+                                            val dependentEntities = processor.getDependentEntities(event)
+
+                                            logger.info("Gjenspiller ${dependentEntities.size} avhengigheter til event: table=${event.arenaTable}, id=${event.arenaId}")
+
+                                            dependentEntities.forEach { mapping ->
+                                                replayEvent(mapping.arenaTable, mapping.arenaId)
+                                            }
+                                        }
                                     }
                                     .map { result }
                             } else {

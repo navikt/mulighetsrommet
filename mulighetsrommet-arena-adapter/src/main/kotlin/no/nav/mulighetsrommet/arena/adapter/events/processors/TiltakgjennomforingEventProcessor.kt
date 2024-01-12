@@ -82,13 +82,19 @@ class TiltakgjennomforingEventProcessor(
             .bind()
     }
 
+    override fun getDependentEntities(event: ArenaEvent): List<ArenaEntityMapping> {
+        return entities.getDeltakereByTiltaksgjennomforingId(event.arenaId.toInt()).mapNotNull {
+            entities.getMapping(ArenaTable.Deltaker, it.tiltaksdeltakerId.toString()).getOrNull()
+        }
+    }
+
     private fun resolveFromMappingStatus(avtaleId: Int): Either<ProcessingError, Int?> {
         return entities.getMapping(ArenaTable.AvtaleInfo, avtaleId.toString())
             .flatMap { mapping ->
                 when (mapping.status) {
                     ArenaEntityMapping.Status.Handled -> avtaleId.right()
                     ArenaEntityMapping.Status.Ignored -> null.right()
-                    else -> ProcessingError.MissingDependency("Avtale har enda ikke blitt prosessert").left()
+                    else -> ProcessingError.ForeignKeyViolation("Avtale har enda ikke blitt prosessert").left()
                 }
             }
     }
@@ -128,9 +134,25 @@ class TiltakgjennomforingEventProcessor(
     }
 
     private fun isRelevantForBrukersTiltakshistorikk(data: ArenaTiltaksgjennomforing): Boolean {
-        return ArenaUtils.parseNullableTimestamp(data.DATO_TIL)
-            ?.let { Tiltakshistorikk.isRelevantTiltakshistorikk(it) }
-            ?: Tiltakshistorikk.isRelevantTiltakshistorikk(ArenaUtils.parseTimestamp(data.REG_DATO))
+        // Siden nye instanser av applikasjonen må lese gjennomføringene før deltakelsene vil man ha tilfenner
+        // der denne sjekken returnerer `false` selv om gjennomføringen _egentlig_ har relevante deltakelser
+        // i Arena.
+        // Vi har vurdert denne mangelen som OK og planlegger å ta en nytt sjau på tiltakshistorikken etter hvert.
+        if (anyDeltakereIsRelevantForBrukersTiltakshistorikk(data)) {
+            return true
+        }
+
+        val date = ArenaUtils.parseNullableTimestamp(data.DATO_TIL) ?: ArenaUtils.parseTimestamp(data.REG_DATO)
+        return Tiltakshistorikk.isRelevantTiltakshistorikk(date)
+    }
+
+    private fun anyDeltakereIsRelevantForBrukersTiltakshistorikk(data: ArenaTiltaksgjennomforing): Boolean {
+        val deltakere = entities.getDeltakereByTiltaksgjennomforingId(data.TILTAKGJENNOMFORING_ID)
+
+        return deltakere.any { deltaker ->
+            val date = deltaker.tilDato ?: deltaker.registrertDato
+            Tiltakshistorikk.isRelevantTiltakshistorikk(date)
+        }
     }
 
     private fun ArenaTiltaksgjennomforing.toTiltaksgjennomforing(id: UUID, avtaleId: Int?) = Either

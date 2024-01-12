@@ -1,7 +1,7 @@
 import { useAtom } from "jotai";
+import { ApentForInnsok } from "mulighetsrommet-api-client";
 import { useHentBrukerdata } from "../core/api/queries/useHentBrukerdata";
 import { useInnsatsgrupper } from "../core/api/queries/useInnsatsgrupper";
-import { ApentForInnsok } from "mulighetsrommet-api-client";
 import { tiltaksgjennomforingsfilter } from "../core/atoms/atoms";
 
 export function usePrepopulerFilter() {

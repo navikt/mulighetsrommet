@@ -167,6 +167,7 @@ export function AvtaleSkjemaContainer({
           </Tabs.List>
           <Tabs.Panel value="detaljer">
             <AvtaleSkjemaDetaljer
+              avtale={avtale}
               tiltakstyper={props.tiltakstyper}
               ansatt={ansatt}
               enheter={props.enheter}

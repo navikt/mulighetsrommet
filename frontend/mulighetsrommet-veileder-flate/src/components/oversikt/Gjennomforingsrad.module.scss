@@ -2,85 +2,91 @@
   list-style: none;
   width: 100%;
   background-color: var(--a-white);
-  margin: 0.5rem 0;
   border-radius: 4px;
   font-size: 16px;
-  padding: 12px;
+
+  &_border {
+    border: 1px solid var(--Border-Subtle, rgba(7, 26, 54, 0.21));
+  }
 
   a {
     color: black;
   }
-}
 
-.flex {
-  display: flex;
-  flex-direction: column;
-}
-
-.gjennomforing_container {
-  display: grid;
-  grid-template-columns: 0 20% 1fr 2%;
-  grid-template-areas: "status navn metadata ikon";
-  align-items: center;
-  min-height: 4rem;
-  gap: 2rem;
-  justify-content: space-between;
-
-  @media (width <= 1000px) {
-    align-items: flex-start;
-    justify-content: flex-start;
-    grid-template-rows: auto;
-    grid-template-areas:
-      "navn navn ikon"
-      "metadata metadata metadata";
+  .delt_med_bruker_rad {
+    background-color: var(--surface-action-subtle, #e6f0ff);
+    padding: 6px 12px;
   }
-}
 
-.status {
-  grid-area: status;
-  width: 1.5rem;
-  height: auto;
-  color: black;
-}
+  .gjennomforing_container {
+    display: grid;
+    grid-template-columns: 0 20% 1fr 2%;
+    grid-template-areas: "status navn metadata ikon";
+    align-items: center;
+    min-height: 4rem;
+    gap: 2rem;
+    padding: 12px;
 
-.ikon {
-  grid-area: ikon;
-  width: 1.5rem;
-  height: auto;
-  color: black;
-}
-
-.metadata {
-  grid-area: metadata;
-}
-
-.navn {
-  grid-area: navn;
-}
-
-.infogrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(5rem, 15rem));
-  gap: 1rem;
-  justify-content: space-evenly;
-
-  @media (width <= 1000px) {
-    gap: 5px;
-    justify-content: initial;
+    @media (width <= 1000px) {
+      align-items: flex-start;
+      justify-content: flex-start;
+      grid-template-rows: auto;
+      grid-template-areas:
+        "status navn navn ikon"
+        "metadata metadata metadata";
+    }
   }
-}
 
-.muted {
-  color: var(--a-text-subtle);
-  font-size: 14px;
-}
+  .flex {
+    display: flex;
+    flex-direction: column;
+  }
 
-.truncate {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
+  .metadata {
+    grid-area: metadata;
+  }
 
-.as_link {
-  color: #0067c5;
+  .navn {
+    grid-area: navn;
+  }
+
+  .status {
+    grid-area: status;
+    width: 1.5rem;
+    height: auto;
+    color: black;
+  }
+
+  .ikon {
+    grid-area: ikon;
+    width: 1.5rem;
+    height: auto;
+    color: black;
+  }
+  .infogrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(5rem, 15rem));
+    gap: 1rem;
+    justify-content: space-evenly;
+
+    @media (width <= 1000px) {
+      gap: 5px;
+      justify-content: initial;
+    }
+  }
+
+  .muted {
+    color: var(--a-text-subtle);
+    font-size: 14px;
+  }
+
+  .truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .as_link {
+    color: #0067c5;
+  }
 }

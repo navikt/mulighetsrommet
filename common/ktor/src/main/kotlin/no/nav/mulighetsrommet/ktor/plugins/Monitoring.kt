@@ -23,10 +23,11 @@ fun Application.configureMonitoring(vararg resources: MonitoredResource) {
     }
 
     install(CallId) {
+        retrieveFromHeader("Nav-Call-Id")
         retrieveFromHeader(HttpHeaders.XRequestId)
         retrieveFromHeader(HttpHeaders.XCorrelationId)
 
-        replyToHeader(HttpHeaders.XRequestId)
+        replyToHeader("Nav-Call-Id")
 
         generate {
             UUID.randomUUID().toString()

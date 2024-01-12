@@ -109,6 +109,7 @@ data class TiltaksgjennomforingAdminDto(
                 TiltaksgjennomforingKontaktpersonDbo(
                     navIdent = it.navIdent,
                     navEnheter = it.navEnheter,
+                    beskrivelse = it.beskrivelse,
                 )
             },
             stedForGjennomforing = stedForGjennomforing,
