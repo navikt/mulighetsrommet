@@ -11,4 +11,5 @@ data class Faneinnhold(
     val detaljerOgInnholdInfoboks: String? = null,
     val pameldingOgVarighet: List<JsonObject>? = emptyList(),
     val pameldingOgVarighetInfoboks: String? = null,
+    val kontaktinfo: List<JsonObject>? = emptyList(),
 )
