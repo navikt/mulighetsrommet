@@ -31,7 +31,7 @@ import { useHentAlleTiltakDeltMedBruker } from "../../core/api/queries/useHentAl
 const ViewTiltaksgjennomforingOversikt = () => {
   useTitle("Arbeidsmarkedstiltak - Oversikt");
   const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);
-  const { data: brukerdata } = useHentBrukerdata();
+  const { data: brukerdata, isFetched: brukerdataIsFetched } = useHentBrukerdata();
   const landingssideFeature = useFeatureToggle(Toggles.MULIGHETSROMMET_VEILEDERFLATE_LANDINGSSIDE);
   const { forcePrepopulerFilter } = usePrepopulerFilter();
   const { isLoading: innsatsgrupperIsLoading } = useInnsatsgrupper();
@@ -55,7 +55,9 @@ const ViewTiltaksgjennomforingOversikt = () => {
   }, [isHistorikkModalOpen]);
 
   useEffect(() => {
-    logEvent({ name: "arbeidsmarkedstiltak.unike-brukere" });
+    if (brukerdataIsFetched) {
+      logEvent({ name: "arbeidsmarkedstiltak.unike-brukere" });
+    }
   }, []);
 
   const brukersInnsatsgruppeErIkkeValgt = (innsatsgruppe?: Innsatsgruppe) => {
