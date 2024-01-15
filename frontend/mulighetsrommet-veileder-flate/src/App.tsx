@@ -33,16 +33,6 @@ function AppInnhold() {
   useHentVeilederdata(); // Pre-fetch veilederdata så slipper vi å vente på data når vi trenger det i appen senere
   useUpdateAppContext();
 
-  const feature = useFeatureToggle(Toggles.MULIGHETSROMMET_ENABLE_ARBEIDSFLATE);
-  const enableArbeidsflate = feature.isSuccess && feature.data;
-
-  if (feature.isLoading) {
-    // Passer på at vi ikke flash-viser løsningen før vi har hentet toggle for fake-door
-    return null;
-  }
-
-  if (!enableArbeidsflate) return <FakeDoor />;
-
   return <RoutesConfig />;
 }
 
