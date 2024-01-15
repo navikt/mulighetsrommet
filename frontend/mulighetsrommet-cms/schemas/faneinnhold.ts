@@ -103,5 +103,20 @@ export const faneinnhold = defineType({
           )
         ),
     }),
+    defineField({
+      name: "kontaktinfo",
+      title: "Kontaktinfo",
+      description: `Ekstra tekst om kontaktinfo. Makslengde er ${MAKS_LENGDE_INNHOLD} tegn.`,
+      type: "blockContent",
+      group: "kontaktinfo",
+      validation: (Rule) =>
+        Rule.custom((doc) =>
+          blockContentValidation(
+            doc,
+            MAKS_LENGDE_INNHOLD,
+            "Innholdet er for langt. Kan innholdet være kortere og mer konsist?"
+          )
+        ),
+    }),
   ],
 });

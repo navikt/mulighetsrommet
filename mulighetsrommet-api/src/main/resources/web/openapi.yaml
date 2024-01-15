@@ -2810,6 +2810,8 @@ components:
           type: string
         pameldingOgVarighet:
           type: object
+        kontaktinfo:
+          type: object
 
     SanityFaneinnholdRequest:
       type: object
@@ -2828,6 +2830,8 @@ components:
           type: string
           nullable: true
         pameldingOgVarighet:
+          type: object
+        kontaktinfo:
           type: object
 
     VeilderflateArrangor:

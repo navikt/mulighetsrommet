@@ -62,6 +62,8 @@ function RedaksjoneltInnhold(props: RedaksjoneltInnholdPreviewProps) {
         tiltakstype={tiltakstypeSanityData?.faneinnhold?.pameldingOgVarighet}
         tiltakstypeAlert={tiltakstypeSanityData?.faneinnhold?.pameldingOgVarighetInfoboks}
       />
+      <Heading size="medium">Kontaktinfo</Heading>
+      <DetaljerFane tiltaksgjennomforing={faneinnhold?.kontaktinfo} />
     </div>
   );
 }
