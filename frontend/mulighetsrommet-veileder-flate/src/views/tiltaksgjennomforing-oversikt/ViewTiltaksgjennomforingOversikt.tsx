@@ -1,32 +1,34 @@
 import { Alert, Button, Loader } from "@navikt/ds-react";
 import { useAtom, useSetAtom } from "jotai";
-import { RESET } from "jotai/utils";
 import { ApiError, Innsatsgruppe, Toggles } from "mulighetsrommet-api-client";
 import { useTitle } from "mulighetsrommet-frontend-common";
 import { PORTEN } from "mulighetsrommet-frontend-common/constants";
 import { useEffect, useState } from "react";
 import { BrukersOppfolgingsenhetVarsel } from "../../components/brukersEnheter/BrukersOppfolgingsenhetVarsel";
 import { Feilmelding, ForsokPaNyttLink } from "../../components/feilmelding/Feilmelding";
+import { FilterAndTableLayout } from "../../components/filtrering/FilterAndTableLayout";
 import Filtermeny from "../../components/filtrering/Filtermeny";
 import { Filtertags } from "../../components/filtrering/Filtertags";
+import { HistorikkButton } from "../../components/historikk/HistorikkButton";
 import { BrukerHarIkke14aVedtakVarsel } from "../../components/ikkeKvalifisertVarsel/BrukerHarIkke14aVedtakVarsel";
 import { FiltrertFeilInnsatsgruppeVarsel } from "../../components/ikkeKvalifisertVarsel/FiltrertFeilInnsatsgruppeVarsel";
+import { OversiktenJoyride } from "../../components/joyride/OversiktenJoyride";
 import Lenke from "../../components/lenke/Lenke";
 import Tiltaksgjennomforingsoversikt from "../../components/oversikt/Tiltaksgjennomforingsoversikt";
 import Tilbakeknapp from "../../components/tilbakeknapp/Tilbakeknapp";
 import { useFeatureToggle } from "../../core/api/feature-toggles";
+import { useHentAlleTiltakDeltMedBruker } from "../../core/api/queries/useHentAlleTiltakDeltMedBruker";
 import { useHentBrukerdata } from "../../core/api/queries/useHentBrukerdata";
+import { useInnsatsgrupper } from "../../core/api/queries/useInnsatsgrupper";
 import useTiltaksgjennomforinger from "../../core/api/queries/useTiltaksgjennomforinger";
-import { tiltaksgjennomforingsfilter } from "../../core/atoms/atoms";
+import {
+  defaultTiltaksgjennomforingfilter,
+  tiltaksgjennomforingsfilter,
+} from "../../core/atoms/atoms";
 import { usePrepopulerFilter } from "../../hooks/usePrepopulerFilter";
+import { useLogEvent } from "../../logging/amplitude";
 import { routes } from "../../routes";
 import styles from "./ViewTiltaksgjennomforingOversikt.module.scss";
-import { useLogEvent } from "../../logging/amplitude";
-import { FilterAndTableLayout } from "../../components/filtrering/FilterAndTableLayout";
-import { OversiktenJoyride } from "../../components/joyride/OversiktenJoyride";
-import { HistorikkButton } from "../../components/historikk/HistorikkButton";
-import { useInnsatsgrupper } from "../../core/api/queries/useInnsatsgrupper";
-import { useHentAlleTiltakDeltMedBruker } from "../../core/api/queries/useHentAlleTiltakDeltMedBruker";
 
 const ViewTiltaksgjennomforingOversikt = () => {
   useTitle("Arbeidsmarkedstiltak - Oversikt");
@@ -146,7 +148,7 @@ const ViewTiltaksgjennomforingOversikt = () => {
               size="small"
               variant="tertiary"
               onClick={() => {
-                setFilter(RESET);
+                setFilter(defaultTiltaksgjennomforingfilter);
                 forcePrepopulerFilter(true);
               }}
               data-testid="knapp_tilbakestill-filter"
@@ -205,7 +207,7 @@ export function TilbakestillFilterFeil() {
         <Button
           variant="tertiary"
           onClick={() => {
-            setFilter(RESET);
+            setFilter(defaultTiltaksgjennomforingfilter);
             forcePrepopulerFilter(true);
           }}
         >
