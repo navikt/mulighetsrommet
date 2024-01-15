@@ -296,11 +296,11 @@ class VeilederflateService(
                         arenakode = arenaKode,
                     )
                 },
-                navn = tiltaksgjennomforingNavn,
+                navn = tiltaksgjennomforingNavn ?: "",
                 apentForInnsok = true,
                 stedForGjennomforing = stedForGjennomforing,
                 fylke = fylke,
-                enheter = this.enheter,
+                enheter = this.enheter?.filterNotNull(),
                 kontaktinfoTiltaksansvarlige = kontaktpersoner,
                 faneinnhold = faneinnhold,
                 beskrivelse = beskrivelse,

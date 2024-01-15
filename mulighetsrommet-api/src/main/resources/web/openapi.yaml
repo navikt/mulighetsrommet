@@ -2813,6 +2813,8 @@ components:
           type: object
         kontaktinfo:
           type: object
+        kontaktinfoInfoboks:
+          type: string
 
     SanityFaneinnholdRequest:
       type: object
@@ -2834,6 +2836,9 @@ components:
           type: object
         kontaktinfo:
           type: object
+        kontaktinfoInfoboks:
+          type: string
+          nullable: true
 
     VeilderflateArrangor:
       type: object

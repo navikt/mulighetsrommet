@@ -172,6 +172,11 @@ const Kontaktinfo = () => {
 
   return (
     <div className={skjemastyles.faneinnhold_container}>
+      <Textarea
+        {...register("faneinnhold.kontaktinfoInfoboks")}
+        label="Fremhevet informasjon til veileder som legger seg i blå infoboks i fanen «Kontaktinfo»"
+        description="Bruk denne tekstboksen for informasjon som skal være ekstra fremtredende for veilederne."
+      />
       <PortableTextEditor
         {...register("faneinnhold.kontaktinfo")}
         label="Kontaktinfo"

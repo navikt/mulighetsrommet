@@ -37,12 +37,12 @@ data class SanityTiltakstype(
 data class SanityTiltaksgjennomforing(
     val _id: String,
     val tiltakstype: SanityTiltakstype,
-    val tiltaksgjennomforingNavn: String,
+    val tiltaksgjennomforingNavn: String? = null,
     val tiltaksnummer: String? = null,
     val beskrivelse: String? = null,
     val stedForGjennomforing: String? = null,
     val fylke: String? = null,
-    val enheter: List<String>? = null,
+    val enheter: List<String?>? = null,
     val kontaktpersoner: List<SanityKontaktperson>? = null,
     val faneinnhold: Faneinnhold? = null,
 )
