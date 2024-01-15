@@ -40,8 +40,8 @@ function render() {
       <QueryClientProvider client={queryClient}>
         <MiljoBanner />
         <Router basename={import.meta.env.BASE_URL}>
+          <AdministratorHeader />
           <ReloadAppErrorBoundary>
-            <AdministratorHeader />
             <App />
           </ReloadAppErrorBoundary>
         </Router>
