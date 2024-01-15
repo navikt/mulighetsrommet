@@ -9,8 +9,9 @@ import {
 import { ControlledSokeSelect } from "mulighetsrommet-frontend-common";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
-import { useHentBetabrukere } from "../../api/ansatt/useHentBetabrukere";
 import { useHentKontaktpersoner } from "../../api/ansatt/useHentKontaktpersoner";
+import { useTiltaksgjennomforingAdministratorer } from "../../api/ansatt/useTiltaksgjennomforingAdministratorer";
+import { useFeatureToggle } from "../../api/features/feature-toggles";
 import { useVirksomhet } from "../../api/virksomhet/useVirksomhet";
 import { addYear } from "../../utils/Utils";
 import { isTiltakMedFellesOppstart } from "../../utils/tiltakskoder";
@@ -22,7 +23,6 @@ import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
 import skjemastyles from "../skjema/Skjema.module.scss";
 import { VirksomhetKontaktpersoner } from "../virksomhet/VirksomhetKontaktpersoner";
 import { arrangorUnderenheterOptions, erArenaOpphav } from "./TiltaksgjennomforingSkjemaConst";
-import { useFeatureToggle } from "../../api/features/feature-toggles";
 
 interface Props {
   tiltaksgjennomforing?: Tiltaksgjennomforing;
@@ -31,7 +31,7 @@ interface Props {
 
 export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtale }: Props) => {
   const { data: virksomhet } = useVirksomhet(avtale.leverandor.organisasjonsnummer || "");
-  const { data: betabrukere } = useHentBetabrukere();
+  const { data: administratorer } = useTiltaksgjennomforingAdministratorer();
 
   const { data: ansatt, isLoading: isLoadingAnsatt } = useHentAnsatt();
 
@@ -206,6 +206,8 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                   error={errors.deltidsprosent?.message as string}
                   type="number"
                   step="0.01"
+                  min={0}
+                  max={100}
                   style={{ width: "180px" }}
                   label="Deltidsprosent"
                   {...register("deltidsprosent", {
@@ -226,7 +228,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
               options={AdministratorOptions(
                 ansatt,
                 tiltaksgjennomforing?.administratorer,
-                betabrukere,
+                administratorer,
               )}
             />
           </FormGroup>

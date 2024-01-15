@@ -77,19 +77,20 @@ services:
 
   # ZooKeeper is used to track the status of nodes in the Kafka cluster and maintain a list of Kafka topics and messages.
   zookeeper:
-    image: confluentinc/cp-zookeeper:latest
+    image: confluentinc/cp-zookeeper:7.5.3
     restart: always
     ports:
       - "22181:2181"
     profiles:
       - dev
+      - ci
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
 
   # Kafka broker.
   kafka:
-    image: confluentinc/cp-kafka:latest
+    image: confluentinc/cp-kafka:7.5.3
     restart: always
     depends_on:
       - zookeeper
@@ -97,6 +98,7 @@ services:
       - "29092:29092"
     profiles:
       - dev
+      - ci
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
@@ -104,20 +106,6 @@ services:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-
-  # Kafdrop is a web UI for viewing Kafka topics and browsing consumer groups.
-  kafdrop:
-    image: obsidiandynamics/kafdrop
-    restart: always
-    ports:
-      - "9000:9000"
-    profiles:
-      - dev
-    environment:
-      KAFKA_BROKERCONNECT: kafka:9092
-      JVM_OPTS: "-Xms16M -Xmx48M -Xss180K -XX:-TieredCompilation -XX:+UseStringDeduplication -noverify"
-    depends_on:
-      - kafka
 
   # WireMock is a tool for creating mock APIs.
   wiremock:

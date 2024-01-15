@@ -106,8 +106,7 @@ Følgende steg kan benyttes til å generere opp et token:
 2. Naviger til [mock-oauth2-server sin side for debugging av tokens](http://localhost:8081/azure/debugger).
 3. Generer et token
     1. Trykk på knappen `Get a token`
-    2. Skriv inn et random username og B123456 som NAVIdent (fordi det er B123456 som returneres av ms-graph
-       wiremock'en) i `optional claims`, f.eks.
+    2. Skriv inn et random username og følgende JSON payload i `optional claims` (`NAVident` og `groups` claims matcher med annen mock-data):
        ```json
        {
          "NAVident": "B123456",
@@ -116,10 +115,10 @@ Følgende steg kan benyttes til å generere opp et token:
          ],
          "oid": "0bab029e-e84e-4842-8a27-d153b29782cf",
          "azp_name": "test name",
-         "groups": ["ee45478c-57a5-4ee6-b28d-b65f8c1733fe"]
+         "groups": ["ee45478c-57a5-4ee6-b28d-b65f8c1733fe", "b3ace38f-9c62-43ef-9e6b-99c0e227afad", "dfcce624-ad5d-4cd0-abc0-554dd66858e5"]
        }
        ```
-    4. Trykk `Sign in`
+    3. Trykk `Sign in`
 4. Kopier verdien for `access_token` og benytt denne som `Bearer` i `Authorization`-header i `.env`-filen du har
    opprettet
    i `/mr-admin-flate`

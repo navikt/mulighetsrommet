@@ -2375,8 +2375,9 @@ components:
       type: string
       enum:
         - TEAM_MULIGHETSROMMET
-        - BETABRUKER
         - KONTAKTPERSON
+        - TILTAKSGJENNOMFORINGER_SKRIV
+        - AVTALER_SKRIV
 
     NavAnsattHovedenhet:
       type: object
@@ -2796,6 +2797,8 @@ components:
           type: string
         pameldingOgVarighet:
           type: object
+        kontaktinfo:
+          type: object
 
     SanityFaneinnholdRequest:
       type: object
@@ -2814,6 +2817,8 @@ components:
           type: string
           nullable: true
         pameldingOgVarighet:
+          type: object
+        kontaktinfo:
           type: object
 
     VeilderflateArrangor:

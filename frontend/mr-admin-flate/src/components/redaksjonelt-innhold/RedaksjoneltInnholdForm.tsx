@@ -55,6 +55,7 @@ function RedaksjoneltInnhold({ tiltakstype }: { tiltakstype: EmbeddedTiltakstype
             <Tabs.Tab value="for_hvem" label="For hvem" />
             <Tabs.Tab value="detaljer_og_innhold" label="Detaljer og innhold" />
             <Tabs.Tab value="pamelding_og_varighet" label="Påmelding og varighet" />
+            <Tabs.Tab value="kontaktinfo" label="Kontaktinfo" />
             <Tabs.Tab value="alle" label="Alle faner" />
           </Tabs.List>
           <Tabs.Panel value="for_hvem">
@@ -66,11 +67,15 @@ function RedaksjoneltInnhold({ tiltakstype }: { tiltakstype: EmbeddedTiltakstype
           <Tabs.Panel value="pamelding_og_varighet">
             <PameldingOgVarighet tiltakstype={tiltakstypeSanityData} />
           </Tabs.Panel>
+          <Tabs.Panel value="kontaktinfo">
+            <Kontaktinfo />
+          </Tabs.Panel>
           <Tabs.Panel value="alle">
             <>
               <ForHvem tiltakstype={tiltakstypeSanityData} />
               <DetaljerOgInnhold tiltakstype={tiltakstypeSanityData} />
               <PameldingOgVarighet tiltakstype={tiltakstypeSanityData} />
+              <Kontaktinfo />
             </>
           </Tabs.Panel>
         </Tabs>
@@ -158,6 +163,20 @@ const PameldingOgVarighet = ({ tiltakstype }: { tiltakstype?: VeilederflateTilta
           description="Beskrivelse av rutiner rundt påmelding og varighet i tiltaket. Husk å bruke et kort og konsist språk."
         />
       </div>
+    </div>
+  );
+};
+
+const Kontaktinfo = () => {
+  const { register } = useFormContext();
+
+  return (
+    <div className={skjemastyles.faneinnhold_container}>
+      <PortableTextEditor
+        {...register("faneinnhold.kontaktinfo")}
+        label="Kontaktinfo"
+        description="Ekstra tekst om kontaktinfo."
+      />
     </div>
   );
 };

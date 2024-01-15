@@ -26,6 +26,7 @@ import { defaultTiltaksgjennomforingData, erArenaOpphav } from "./Tiltaksgjennom
 import { TiltaksgjennomforingSkjemaDetaljer } from "./TiltaksgjennomforingSkjemaDetaljer";
 import { TiltaksgjennomforingSkjemaKnapperad } from "./TiltaksgjennomforingSkjemaKnapperad";
 import { TiltakgjennomforingRedaksjoneltInnholdForm } from "./TiltaksgjennomforingRedaksjoneltInnholdForm";
+import { HarSkrivetilgang } from "../authActions/HarSkrivetilgang";
 
 interface Props {
   onClose: () => void;
@@ -186,16 +187,18 @@ export const TiltaksgjennomforingSkjemaContainer = ({
         </Tabs>
         <Separator />
         <div className={skjemastyles.flex_container}>
-          {!erArenaOpphav(tiltaksgjennomforing) && redigeringsModus && (
-            <Button
-              size="small"
-              variant="danger"
-              type="button"
-              onClick={() => avbrytModalRef.current?.showModal()}
-            >
-              Avbryt gjennomføring
-            </Button>
-          )}
+          <HarSkrivetilgang ressurs="Tiltaksgjennomføring">
+            {!erArenaOpphav(tiltaksgjennomforing) && redigeringsModus && (
+              <Button
+                size="small"
+                variant="danger"
+                type="button"
+                onClick={() => avbrytModalRef.current?.showModal()}
+              >
+                Avbryt gjennomføring
+              </Button>
+            )}
+          </HarSkrivetilgang>
           <TiltaksgjennomforingSkjemaKnapperad
             size="small"
             redigeringsModus={redigeringsModus}

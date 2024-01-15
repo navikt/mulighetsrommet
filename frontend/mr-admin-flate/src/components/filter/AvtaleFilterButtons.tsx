@@ -2,6 +2,7 @@ import { Button } from "@navikt/ds-react";
 import { useAtom, WritableAtom } from "jotai";
 import { AvtaleFilter, defaultAvtaleFilter } from "../../api/atoms";
 import { Lenkeknapp } from "../lenkeknapp/Lenkeknapp";
+import { HarSkrivetilgang } from "../authActions/HarSkrivetilgang";
 
 interface Props {
   filterAtom: WritableAtom<AvtaleFilter, [newValue: AvtaleFilter], void>;
@@ -47,9 +48,11 @@ export function AvtaleFilterButtons({ filterAtom, tiltakstypeId }: Props) {
         Empty div over for å dytte de andre knappene til høyre uavhengig
         av om nullstill knappen er der
       */}
-      <Lenkeknapp to="/avtaler/skjema" size="small" variant="primary">
-        Opprett ny avtale
-      </Lenkeknapp>
+      <HarSkrivetilgang ressurs="Avtale">
+        <Lenkeknapp to="/avtaler/skjema" size="small" variant="primary">
+          Opprett ny avtale
+        </Lenkeknapp>
+      </HarSkrivetilgang>
     </div>
   );
 }

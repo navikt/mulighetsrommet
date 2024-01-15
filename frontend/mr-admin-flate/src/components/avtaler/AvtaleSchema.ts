@@ -52,6 +52,7 @@ export const AvtaleSchema = z.object({
         detaljerOgInnhold: z.any().nullable(),
         pameldingOgVarighetInfoboks: z.string().nullable().optional(),
         pameldingOgVarighet: z.any().nullable(),
+        kontaktinfo: z.any().nullable(),
       },
       { required_error: "Det redaksjonelle innholdet må settes på avtalen" },
     )

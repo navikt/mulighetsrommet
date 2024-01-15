@@ -84,7 +84,7 @@ fun createTestApplicationConfig() = AppConfig(
         channel = "",
         enable = false,
     ),
-    brreg = BrregClientImpl.Config(baseUrl = ""),
+    brreg = BrregClientImpl.Config(baseUrl = "brreg"),
     unleash = UnleashService.Config(
         appName = "",
         url = "",

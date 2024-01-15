@@ -62,6 +62,10 @@ spec:
           - id: "dde41c4b-42af-401f-bedf-9e537bcbdd37"
           # (GRP) mr-nav_kontaktperson
           - id: "0fdd133a-f47f-4b95-9a5e-f3a5ec87a472"
+          # 0000-GA-TILTAK-tiltaksgjennomforinger_skriv
+          - id: 33053061-86da-4d6b-9372-33238fabd25f
+           # 0000-GA-TILTAK-avtaler_skriv
+          - id: 46ba8787-eb24-4f7b-830f-4c5e9256de65
         extra:
           - NAVident
           - azp_name

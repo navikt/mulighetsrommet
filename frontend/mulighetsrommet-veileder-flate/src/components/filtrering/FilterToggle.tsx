@@ -4,7 +4,7 @@ import { ApentForInnsok } from "mulighetsrommet-api-client";
 import React from "react";
 import { filterAccordionAtom } from "../../core/atoms/atoms";
 import { addOrRemove } from "../../utils/Utils";
-import "./ApentForInnsokToggle.module.scss";
+import "./FilterToggle.module.scss";
 
 export interface Props {
   accordionHeader: string;
@@ -48,7 +48,7 @@ export function FilterToggle({
         {accordionHeader}
       </Accordion.Header>
       <Accordion.Content>
-        <ToggleGroup size="small" defaultValue={value} onChange={onToggleChanged}>
+        <ToggleGroup size="small" value={value} onChange={onToggleChanged}>
           <ToggleGroup.Item value={venstreValue}>{venstreTekst}</ToggleGroup.Item>
           <ToggleGroup.Item value={midtValue}>{midtTekst}</ToggleGroup.Item>
           <ToggleGroup.Item value={hoyreValue}>{hoyreTekst}</ToggleGroup.Item>

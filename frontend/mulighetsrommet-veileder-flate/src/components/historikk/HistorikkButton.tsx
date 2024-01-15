@@ -3,6 +3,7 @@ import { Button } from "@navikt/ds-react";
 import StandardModal from "../modal/StandardModal";
 import styles from "./HistorikkForBrukerModal.module.scss";
 import { HistorikkForBrukerModalInnhold } from "./HistorikkForBrukerModalInnhold";
+import { useLogEvent } from "../../logging/amplitude";
 
 interface Props {
   setHistorikkModalOpen: (state: boolean) => void;
@@ -10,8 +11,11 @@ interface Props {
 }
 
 export function HistorikkButton({ setHistorikkModalOpen, isHistorikkModalOpen }: Props) {
+  const { logEvent } = useLogEvent();
+
   const handleClick = () => {
     setHistorikkModalOpen(true);
+    logEvent({ name: "arbeidsmarkedstiltak.historikk", data: { action: "Åpnet historikkmodal" } });
   };
 
   return (
