@@ -55,8 +55,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 faneinnhold,
                 beskrivelse,
                 nav_region,
-                fremmote_tidspunkt,
-                fremmote_sted,
                 deltidsprosent
             )
             values (
@@ -80,8 +78,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 :faneinnhold::jsonb,
                 :beskrivelse,
                 :nav_region,
-                :fremmote_tidspunkt,
-                :fremmote_sted,
                 :deltidsprosent
             )
             on conflict (id)
@@ -104,8 +100,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                               faneinnhold                  = excluded.faneinnhold,
                               beskrivelse                  = excluded.beskrivelse,
                               nav_region                   = excluded.nav_region,
-                              fremmote_tidspunkt           = excluded.fremmote_tidspunkt,
-                              fremmote_sted                = excluded.fremmote_sted,
                               deltidsprosent               = excluded.deltidsprosent
         """.trimIndent()
 
@@ -239,8 +233,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 avtale_id,
                 oppstart,
                 opphav,
-                fremmote_tidspunkt,
-                fremmote_sted,
                 deltidsprosent
             )
             values (
@@ -258,8 +250,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 :avtale_id,
                 :oppstart::tiltaksgjennomforing_oppstartstype,
                 :opphav::opphav,
-                :fremmote_tidspunkt,
-                :fremmote_sted,
                 :deltidsprosent
             )
             on conflict (id)
@@ -276,8 +266,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                               avtale_id                    = excluded.avtale_id,
                               oppstart                     = coalesce(tiltaksgjennomforing.oppstart, excluded.oppstart),
                               opphav                       = excluded.opphav,
-                              fremmote_tidspunkt           = excluded.fremmote_tidspunkt,
-                              fremmote_sted                = excluded.fremmote_sted,
                               deltidsprosent               = excluded.deltidsprosent
         """.trimIndent()
 
@@ -618,8 +606,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         "faneinnhold" to faneinnhold?.let { Json.encodeToString(it) },
         "beskrivelse" to beskrivelse,
         "nav_region" to navRegion,
-        "fremmote_tidspunkt" to fremmoteTidspunkt,
-        "fremmote_sted" to fremmoteSted,
         "deltidsprosent" to deltidsprosent,
     )
 
@@ -638,8 +624,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         "avtale_id" to avtaleId,
         "oppstart" to oppstart.name,
         "opphav" to opphav.name,
-        "fremmote_tidspunkt" to fremmoteTidspunkt,
-        "fremmote_sted" to fremmoteSted,
         "deltidsprosent" to deltidsprosent,
     )
 
@@ -757,8 +741,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             createdAt = localDateTime("created_at"),
             tilgjengeligForVeileder = boolean("tilgjengelig_for_veileder"),
             visesForVeileder = boolean("vises_for_veileder"),
-            fremmoteTidspunkt = localDateTimeOrNull("fremmote_tidspunkt"),
-            fremmoteSted = stringOrNull("fremmote_sted"),
             deltidsprosent = double("deltidsprosent"),
         )
     }

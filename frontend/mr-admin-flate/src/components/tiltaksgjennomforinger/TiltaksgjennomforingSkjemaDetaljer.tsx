@@ -1,5 +1,5 @@
 import { PlusIcon, XMarkIcon } from "@navikt/aksel-icons";
-import { Button, Checkbox, HStack, Label, Textarea, TextField } from "@navikt/ds-react";
+import { Button, Checkbox, HStack, TextField } from "@navikt/ds-react";
 import {
   Avtale,
   Tiltaksgjennomforing,
@@ -16,7 +16,6 @@ import { addYear } from "../../utils/Utils";
 import { isTiltakMedFellesOppstart } from "../../utils/tiltakskoder";
 import { Separator } from "../detaljside/Metadata";
 import { AdministratorOptions } from "../skjema/AdministratorOptions";
-import { ControlledDateInput } from "../skjema/ControlledDateInput";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FormGroup } from "../skjema/FormGroup";
 import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
@@ -365,63 +364,17 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                     />
                   </div>
                 )}
-              {isTiltakMedFellesOppstart(avtale.tiltakstype.arenaKode) ? (
-                <>
-                  <Separator />
-                  <Label>Fremmøte</Label>
-                  <div
-                    style={{
-                      display: "flex",
-                      flexDirection: "row",
-                      gap: "1rem",
-                    }}
-                  >
-                    <ControlledDateInput
-                      label="Dato"
-                      readOnly={erArenaOpphav(tiltaksgjennomforing)}
-                      fromDate={minStartdato}
-                      toDate={maxSluttdato}
-                      size="small"
-                      {...register("fremmoteDato")}
-                      format="iso-string"
-                    />
-                    <TextField
-                      size="small"
-                      type="time"
-                      style={{
-                        width: "100px",
-                      }}
-                      readOnly={erArenaOpphav(tiltaksgjennomforing)}
-                      error={errors.fremmoteTid?.message as string}
-                      {...register("fremmoteTid")}
-                      label="Klokkeslett"
-                    />
-                  </div>
-                  <Textarea
-                    size="small"
-                    resize="vertical"
-                    minRows={3}
-                    style={{ maxWidth: "450px" }}
-                    description="Informasjon om hvor brukeren skal møte opp."
-                    readOnly={erArenaOpphav(tiltaksgjennomforing)}
-                    error={errors.fremmoteSted?.message as string}
-                    {...register("fremmoteSted")}
-                    label="Sted"
-                  />
-                </>
-              ) : (
-                <TextField
-                  size="small"
-                  label="Sted for gjennomføring"
-                  description="Skriv inn stedet tiltaket skal gjennomføres, for eksempel Fredrikstad eller Tromsø. For tiltak uten eksplisitt lokasjon (for eksempel digital jobbklubb), kan du la feltet stå tomt."
-                  {...register("stedForGjennomforing")}
-                  error={
-                    errors.stedForGjennomforing
-                      ? (errors.stedForGjennomforing.message as string)
-                      : null
-                  }
-                />
-              )}
+              <TextField
+                size="small"
+                label="Sted for gjennomføring"
+                description="Skriv inn stedet tiltaket skal gjennomføres, for eksempel Fredrikstad eller Tromsø. For tiltak uten eksplisitt lokasjon (for eksempel digital jobbklubb), kan du la feltet stå tomt."
+                {...register("stedForGjennomforing")}
+                error={
+                  errors.stedForGjennomforing
+                    ? (errors.stedForGjennomforing.message as string)
+                    : null
+                }
+              />
             </FormGroup>
           </div>
         </div>

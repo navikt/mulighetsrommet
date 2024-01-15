@@ -40,7 +40,6 @@ import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.Faneinnhold
 import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.*
 
 class TiltaksgjennomforingRepositoryTest : FunSpec({
@@ -109,8 +108,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 it.faneinnhold shouldBe null
                 it.beskrivelse shouldBe null
                 it.createdAt shouldNotBe null
-                it.fremmoteTidspunkt shouldBe LocalDateTime.of(2023, 1, 1, 9, 0)
-                it.fremmoteSted shouldBe "fremmote_sted"
             }
 
             tiltaksgjennomforinger.delete(Oppfolging1.id)
@@ -137,8 +134,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 avtaleId = null,
                 oppstart = TiltaksgjennomforingOppstartstype.FELLES,
                 opphav = ArenaMigrering.Opphav.ARENA,
-                fremmoteTidspunkt = LocalDateTime.of(2023, 2, 2, 0, 0, 0),
-                fremmoteSted = "Giraff innhegningen",
                 deltidsprosent = 100.0,
             )
 

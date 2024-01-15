@@ -3,9 +3,7 @@ package no.nav.mulighetsrommet.arena.adapter.utils
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering.ArenaTimestampFormatter
 import no.nav.mulighetsrommet.domain.dbo.Deltakerstatus
 import no.nav.mulighetsrommet.domain.dto.JaNeiStatus
-import java.time.DateTimeException
 import java.time.LocalDateTime
-import java.time.LocalTime
 
 object ArenaUtils {
     fun parseTimestamp(value: String): LocalDateTime {
@@ -16,43 +14,6 @@ object ArenaUtils {
         return if (value != null && value != "null") {
             parseTimestamp(value)
         } else {
-            null
-        }
-    }
-
-    fun parseFremmoteTidspunkt(datoValue: String?, klokkeValue: String?): LocalDateTime? {
-        if (datoValue == null || datoValue == "null") {
-            return null
-        }
-        val dato = LocalDateTime.parse(datoValue, ArenaTimestampFormatter)
-        val localTime = parseKlokketid(klokkeValue) ?: return dato
-
-        return LocalDateTime.of(dato.toLocalDate(), localTime)
-    }
-
-    fun parseKlokketid(value: String?): LocalTime? {
-        if (value == null) return null
-        // Remove any non-digit characters
-        val cleanedInput = value.filter { it.isDigit() }
-
-        // Parse hours and minutes based on the length of the cleaned input
-        return try {
-            when (cleanedInput.length) {
-                1 -> LocalTime.of(cleanedInput.toInt(), 0) // e.g., "9" represents 9:00
-                2 -> LocalTime.of(cleanedInput.toInt(), 0) // e.g., "12" represents 12:00
-                3 -> LocalTime.of(
-                    cleanedInput.substring(0, 1).toInt(),
-                    cleanedInput.substring(1).toInt(),
-                ) // e.g., "930" represents 9:30
-                4 -> LocalTime.of(
-                    cleanedInput.substring(0, 2).toInt(),
-                    cleanedInput.substring(2).toInt(),
-                ) // e.g., "0930" represents 09:30
-                else -> {
-                    null
-                }
-            }
-        } catch (e: DateTimeException) {
             null
         }
     }

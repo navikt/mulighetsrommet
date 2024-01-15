@@ -19,8 +19,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            insert into tiltaksgjennomforing (id, tiltaksgjennomforing_id, sak_id, tiltakskode, arrangor_id, navn, fra_dato, til_dato, apent_for_innsok, antall_plasser, status, avtale_id, fremmote_tidspunkt, fremmote_sted, deltidsprosent)
-            values (:id::uuid, :tiltaksgjennomforing_id, :sak_id, :tiltakskode, :arrangor_id, :navn, :fra_dato, :til_dato, :apent_for_innsok, :antall_plasser, :status, :avtale_id, :fremmote_tidspunkt, :fremmote_sted, :deltidsprosent)
+            insert into tiltaksgjennomforing (id, tiltaksgjennomforing_id, sak_id, tiltakskode, arrangor_id, navn, fra_dato, til_dato, apent_for_innsok, antall_plasser, status, avtale_id, deltidsprosent)
+            values (:id::uuid, :tiltaksgjennomforing_id, :sak_id, :tiltakskode, :arrangor_id, :navn, :fra_dato, :til_dato, :apent_for_innsok, :antall_plasser, :status, :avtale_id, :deltidsprosent)
             on conflict (id)
                 do update set tiltaksgjennomforing_id = excluded.tiltaksgjennomforing_id,
                               sak_id                  = excluded.sak_id,
@@ -33,8 +33,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                               antall_plasser          = excluded.antall_plasser,
                               status                  = excluded.status,
                               avtale_id               = excluded.avtale_id,
-                              fremmote_tidspunkt      = excluded.fremmote_tidspunkt,
-                              fremmote_sted           = excluded.fremmote_sted,
                               deltidsprosent          = excluded.deltidsprosent
             returning *
         """.trimIndent()
@@ -75,8 +73,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 antall_plasser,
                 status,
                 avtale_id,
-                fremmote_tidspunkt,
-                fremmote_sted,
                 deltidsprosent
             from tiltaksgjennomforing
             where id = ?::uuid
@@ -101,8 +97,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         "antall_plasser" to antallPlasser,
         "status" to status,
         "avtale_id" to avtaleId,
-        "fremmote_tidspunkt" to fremmoteTidspunkt,
-        "fremmote_sted" to fremmoteSted,
         "deltidsprosent" to deltidsprosent,
     )
 
@@ -119,8 +113,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         antallPlasser = intOrNull("antall_plasser"),
         status = string("status"),
         avtaleId = intOrNull("avtale_id"),
-        fremmoteTidspunkt = localDateTimeOrNull("fremmote_tidspunkt"),
-        fremmoteSted = stringOrNull("fremmote_sted"),
         deltidsprosent = double("deltidsprosent"),
     )
 }

@@ -174,8 +174,6 @@ class TiltakgjennomforingEventProcessor(
                 antallPlasser = ANTALL_DELTAKERE,
                 status = TILTAKSTATUSKODE,
                 avtaleId = avtaleId,
-                fremmoteTidspunkt = ArenaUtils.parseFremmoteTidspunkt(DATO_FREMMOTE, KLOKKETID_FREMMOTE),
-                fremmoteSted = TEKST_KURSSTED,
                 deltidsprosent = PROSENT_DELTID,
             )
         }.mapLeft { ProcessingError.InvalidPayload(it.localizedMessage) }
@@ -196,8 +194,6 @@ class TiltakgjennomforingEventProcessor(
             avtaleId = avtaleId,
             oppstart = if (isKursTiltak(tiltakskode)) FELLES else LOPENDE,
             opphav = ArenaMigrering.Opphav.ARENA,
-            fremmoteTidspunkt = fremmoteTidspunkt,
-            fremmoteSted = fremmoteSted,
             deltidsprosent = deltidsprosent,
         )
 }

@@ -13,7 +13,6 @@ import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
 import no.nav.mulighetsrommet.domain.Tiltakskoder
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus.GJENNOMFORES
-import java.time.LocalTime
 
 class TiltaksgjennomforingValidator(
     private val avtaler: AvtaleRepository,
@@ -203,15 +202,6 @@ class TiltaksgjennomforingValidator(
     }
 
     private fun MutableList<ValidationError>.validateKursTiltak(dbo: TiltaksgjennomforingDbo) {
-        if (dbo.fremmoteTidspunkt != null && dbo.fremmoteTidspunkt.toLocalTime() == LocalTime.of(0, 0)) {
-            add(
-                ValidationError(
-                    name = "fremmoteTid",
-                    message = "Fremmøte klokkeslett kan ikke være kl 00:00",
-                ),
-            )
-        }
-
         if (dbo.deltidsprosent <= 0) {
             add(
                 ValidationError.of(

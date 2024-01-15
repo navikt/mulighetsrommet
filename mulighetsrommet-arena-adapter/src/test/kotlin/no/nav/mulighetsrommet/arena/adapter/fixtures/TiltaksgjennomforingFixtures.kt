@@ -17,9 +17,6 @@ object TiltaksgjennomforingFixtures {
         ANTALL_DELTAKERE = 5,
         TILTAKSTATUSKODE = "GJENNOMFOR",
         AVTALE_ID = null,
-        KLOKKETID_FREMMOTE = null,
-        DATO_FREMMOTE = null,
-        TEKST_KURSSTED = null,
         PROSENT_DELTID = 100.0,
         EKSTERN_ID = null,
     )
@@ -37,9 +34,6 @@ object TiltaksgjennomforingFixtures {
         ANTALL_DELTAKERE = 5,
         TILTAKSTATUSKODE = "GJENNOMFOR",
         AVTALE_ID = null,
-        KLOKKETID_FREMMOTE = null,
-        DATO_FREMMOTE = null,
-        TEKST_KURSSTED = null,
         PROSENT_DELTID = 100.0,
         EKSTERN_ID = null,
     )

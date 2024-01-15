@@ -267,8 +267,6 @@ class VirksomhetRepositoryTest : FunSpec({
                 avtaleId = avtale.id,
                 faneinnhold = null,
                 beskrivelse = null,
-                fremmoteTidspunkt = null,
-                fremmoteSted = null,
                 deltidsprosent = 100.0,
             )
             tiltaksgjennomforingRepository.upsert(tiltaksgjennomforing)

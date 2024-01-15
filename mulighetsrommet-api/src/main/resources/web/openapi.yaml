@@ -2141,11 +2141,6 @@ components:
           type: boolean
         visesForVeileder:
           type: boolean
-        fremmoteTidspunkt:
-          type: string
-          format: date-time
-        fremmoteSted:
-          type: string
         deltidsprosent:
           type: number
       required:
@@ -2233,13 +2228,6 @@ components:
         beskrivelse:
           type: string
           nullable: true
-        fremmoteTidspunkt:
-          type: string
-          format: datetime
-          nullable: true
-        fremmoteSted:
-          type: string
-          nullable: true
         deltidsprosent:
           type: number
       required:
@@ -2266,8 +2254,6 @@ components:
         - opphav
         - faneinnhold
         - beskrivelse
-        - fremmoteTidspunkt
-        - fremmoteSted
         - deltidsprosent
 
     TiltaksgjennomforingStatus:

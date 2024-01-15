@@ -98,8 +98,6 @@ export const TiltaksgjennomforingSkjemaContainer = ({
       beskrivelse: data.beskrivelse,
       faneinnhold: data.faneinnhold ?? null,
       opphav: data.opphav,
-      fremmoteTidspunkt: fremmoteTidspunkt(data.fremmoteDato, data.fremmoteTid),
-      fremmoteSted: data.fremmoteSted || null,
       deltidsprosent: data.deltidsprosent,
     };
 
@@ -215,9 +213,3 @@ export const TiltaksgjennomforingSkjemaContainer = ({
     </FormProvider>
   );
 };
-
-function fremmoteTidspunkt(fremmoteDato?: string, fremmoteTid?: string): string | null {
-  if (!fremmoteDato) return null;
-
-  return fremmoteTid ? `${fremmoteDato}T${fremmoteTid}:00.000` : `${fremmoteDato}T00:00:00.000`;
-}

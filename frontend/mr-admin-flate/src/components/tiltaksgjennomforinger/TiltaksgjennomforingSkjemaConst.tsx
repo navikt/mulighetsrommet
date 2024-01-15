@@ -98,17 +98,6 @@ function defaultArrangor(
   }
 }
 
-export function fremmoteDatoFromTidspunkt(fremmoteTidspunkt?: string): string | undefined {
-  return fremmoteTidspunkt ? new Date(fremmoteTidspunkt).toISOString().split("T")[0] : undefined;
-}
-
-export function fremmoteTidFromTidspunkt(fremmoteTidspunkt?: string): string | undefined {
-  if (!fremmoteTidspunkt) return undefined;
-  const d = new Date(fremmoteTidspunkt);
-
-  return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
-}
-
 export function defaultTiltaksgjennomforingData(
   ansatt: NavAnsatt,
   avtale: Avtale,
@@ -145,8 +134,6 @@ export function defaultTiltaksgjennomforingData(
     beskrivelse: tiltaksgjennomforing?.beskrivelse ?? avtale.beskrivelse,
     faneinnhold: tiltaksgjennomforing?.faneinnhold ?? avtale.faneinnhold,
     opphav: tiltaksgjennomforing?.opphav ?? Opphav.MR_ADMIN_FLATE,
-    fremmoteDato: fremmoteDatoFromTidspunkt(tiltaksgjennomforing?.fremmoteTidspunkt),
-    fremmoteTid: fremmoteTidFromTidspunkt(tiltaksgjennomforing?.fremmoteTidspunkt),
     deltidsprosent: tiltaksgjennomforing?.deltidsprosent ?? 100,
   };
 }
