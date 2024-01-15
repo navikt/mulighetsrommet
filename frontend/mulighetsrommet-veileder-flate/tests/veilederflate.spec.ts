@@ -115,7 +115,7 @@ test.describe("Tiltaksgjennomføringsdetaljer", () => {
 
 test.describe("Preview Mulighetsrommet", () => {
   test.beforeEach(async ({ page }) => {
-    const url = "/preview/f4cea25b-c372-4d4c-8106-535ab10cd586";
+    const url = "/preview/tiltak/f4cea25b-c372-4d4c-8106-535ab10cd586";
     await page.goto(url);
     expect(page.url().includes("/preview/"));
   });

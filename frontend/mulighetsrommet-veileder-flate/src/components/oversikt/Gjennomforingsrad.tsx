@@ -6,10 +6,11 @@ import {
   TiltaksgjennomforingOppstartstype,
   VeilederflateTiltaksgjennomforing,
 } from "mulighetsrommet-api-client";
-import { erPreview, formaterDato, kebabCase } from "../../utils/Utils";
-import Lenke from "../lenke/Lenke";
-import styles from "./Gjennomforingsrad.module.scss";
 import { paginationAtom } from "../../core/atoms/atoms";
+import { formaterDato, kebabCase } from "../../utils/Utils";
+import Lenke from "../lenke/Lenke";
+
+import styles from "./Gjennomforingsrad.module.scss";
 import { useAtomValue } from "jotai";
 
 interface Props {
@@ -43,13 +44,7 @@ export function Gjennomforingsrad({ tiltaksgjennomforing, index, delMedBruker }:
       id={`list_element_${index}`}
       data-testid={`tiltaksgjennomforing_${kebabCase(navn)}`}
     >
-      <Lenke
-        to={
-          erPreview()
-            ? `/preview/${id ?? sanityId}${paginationUrl}`
-            : `/arbeidsmarkedstiltak/tiltak/${id ?? sanityId}${paginationUrl}`
-        }
-      >
+      <Lenke to={`../tiltak/${id ?? sanityId}${paginationUrl}`}>
         {datoSidenSistDelt ? (
           <div className={styles.delt_med_bruker_rad}>
             <BodyShort

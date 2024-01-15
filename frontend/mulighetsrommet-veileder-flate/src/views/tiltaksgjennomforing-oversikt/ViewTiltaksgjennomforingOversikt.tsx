@@ -27,7 +27,6 @@ import {
 } from "../../core/atoms/atoms";
 import { usePrepopulerFilter } from "../../hooks/usePrepopulerFilter";
 import { useLogEvent } from "../../logging/amplitude";
-import { routes } from "../../routes";
 import styles from "./ViewTiltaksgjennomforingOversikt.module.scss";
 
 const ViewTiltaksgjennomforingOversikt = () => {
@@ -139,7 +138,7 @@ const ViewTiltaksgjennomforingOversikt = () => {
 
   return (
     <>
-      {landingssideEnabled ? <Tilbakeknapp tilbakelenke={`/${routes.base}`} /> : null}
+      {landingssideEnabled ? <Tilbakeknapp tilbakelenke="/arbeidsmarkedstiltak" /> : null}
       <FilterAndTableLayout
         resetButton={
           visNullstillButton && (
