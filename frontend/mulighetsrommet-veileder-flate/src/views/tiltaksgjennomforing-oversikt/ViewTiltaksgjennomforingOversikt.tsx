@@ -1,5 +1,5 @@
 import { Alert, Button, Loader } from "@navikt/ds-react";
-import { useAtom } from "jotai";
+import { useAtom, useSetAtom } from "jotai";
 import { RESET } from "jotai/utils";
 import { ApiError, Innsatsgruppe, Toggles } from "mulighetsrommet-api-client";
 import { useTitle } from "mulighetsrommet-frontend-common";
@@ -192,7 +192,7 @@ const ViewTiltaksgjennomforingOversikt = () => {
 };
 
 export function TilbakestillFilterFeil() {
-  const [, setFilter] = useAtom(tiltaksgjennomforingsfilter);
+  const setFilter = useSetAtom(tiltaksgjennomforingsfilter);
   const { forcePrepopulerFilter } = usePrepopulerFilter();
 
   return (
