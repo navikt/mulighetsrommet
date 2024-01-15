@@ -120,8 +120,6 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
                 apentForInnsok = true,
                 antallPlasser = null,
                 avtaleId = null,
-                fremmoteTidspunkt = null,
-                fremmoteSted = null,
                 deltidsprosent = 100.0,
             )
 
@@ -140,8 +138,6 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
                 apentForInnsok = true,
                 antallPlasser = null,
                 avtaleId = null,
-                fremmoteTidspunkt = null,
-                fremmoteSted = null,
                 deltidsprosent = 100.0,
             )
 

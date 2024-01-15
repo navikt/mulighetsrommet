@@ -61,8 +61,6 @@ class KafkaSyncServiceTest : FunSpec({
             oppstart = TiltaksgjennomforingOppstartstype.FELLES,
             opphav = ArenaMigrering.Opphav.ARENA,
             avtaleId = null,
-            fremmoteTidspunkt = null,
-            fremmoteSted = null,
             deltidsprosent = 100.0,
         )
     }

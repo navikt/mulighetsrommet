@@ -53,9 +53,6 @@ data class TiltaksgjennomforingAdminDto(
     val createdAt: LocalDateTime,
     val tilgjengeligForVeileder: Boolean,
     val visesForVeileder: Boolean,
-    @Serializable(with = LocalDateTimeSerializer::class)
-    val fremmoteTidspunkt: LocalDateTime?,
-    val fremmoteSted: String?,
     val deltidsprosent: Double,
 ) {
     fun isAktiv(): Boolean = status in listOf(
@@ -115,8 +112,6 @@ data class TiltaksgjennomforingAdminDto(
             stedForGjennomforing = stedForGjennomforing,
             faneinnhold = faneinnhold,
             beskrivelse = beskrivelse,
-            fremmoteTidspunkt = fremmoteTidspunkt,
-            fremmoteSted = fremmoteSted,
             deltidsprosent = deltidsprosent,
         )
 
@@ -141,8 +136,6 @@ data class TiltaksgjennomforingAdminDto(
             avtaleId = avtaleId,
             oppstart = oppstart,
             opphav = opphav,
-            fremmoteTidspunkt = fremmoteTidspunkt,
-            fremmoteSted = fremmoteSted,
             deltidsprosent = deltidsprosent,
         )
 }

@@ -13,10 +13,6 @@ import styles from "../DetaljerInfo.module.scss";
 import { Kontaktperson } from "./Kontaktperson";
 import { Link } from "react-router-dom";
 import { useTitle } from "mulighetsrommet-frontend-common";
-import {
-  fremmoteDatoFromTidspunkt,
-  fremmoteTidFromTidspunkt,
-} from "../../components/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaConst";
 import { isTiltakMedFellesOppstart } from "../../utils/tiltakskoder";
 
 interface Props {
@@ -67,8 +63,6 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
     navEnheter,
     arenaAnsvarligEnhet,
     arrangor,
-    fremmoteTidspunkt,
-    fremmoteSted,
     stedForGjennomforing,
   } = tiltaksgjennomforing;
 
@@ -273,34 +267,14 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
               }
             />
           )}
-          {isTiltakMedFellesOppstart(tiltakstype.arenaKode) ? (
-            <>
-              <Separator />
-              <Bolk aria-label="Fremmøte">
-                <Metadata
-                  header="Fremmøte tidspunkt"
-                  verdi={
-                    <div>
-                      {`${formaterDato(
-                        fremmoteDatoFromTidspunkt(fremmoteTidspunkt),
-                        "Ikke satt",
-                      )} ${fremmoteTidFromTidspunkt(fremmoteTidspunkt) ?? ""}`}
-                    </div>
-                  }
-                />
-              </Bolk>
-              <Bolk aria-label="Antall plasser">
-                <Metadata header="Fremmøte sted" verdi={fremmoteSted ?? "Ikke satt"} />
-              </Bolk>
-            </>
-          ) : stedForGjennomforing ? (
+          {stedForGjennomforing && (
             <>
               <Separator />
               <Bolk aria-label="Sted for gjennomføringen">
                 <Metadata header="Sted for gjennomføringen" verdi={stedForGjennomforing} />
               </Bolk>
             </>
-          ) : null}
+          )}
         </div>
       </div>
     </>

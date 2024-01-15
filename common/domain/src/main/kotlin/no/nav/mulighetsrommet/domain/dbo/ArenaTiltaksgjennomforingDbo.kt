@@ -3,10 +3,8 @@ package no.nav.mulighetsrommet.domain.dbo
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
-import no.nav.mulighetsrommet.domain.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.*
 
 @Serializable
@@ -30,8 +28,5 @@ data class ArenaTiltaksgjennomforingDbo(
     val avtaleId: UUID?,
     val oppstart: TiltaksgjennomforingOppstartstype,
     val opphav: ArenaMigrering.Opphav,
-    @Serializable(with = LocalDateTimeSerializer::class)
-    val fremmoteTidspunkt: LocalDateTime?,
-    val fremmoteSted: String?,
     val deltidsprosent: Double,
 )

@@ -7,7 +7,6 @@ import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.*
 
 object TiltaksgjennomforingFixtures {
@@ -26,8 +25,6 @@ object TiltaksgjennomforingFixtures {
         oppstart = TiltaksgjennomforingOppstartstype.FELLES,
         opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
         avtaleId = AvtaleFixtures.avtale1.id,
-        fremmoteTidspunkt = null,
-        fremmoteSted = null,
         deltidsprosent = 100.0,
     )
 
@@ -54,8 +51,6 @@ object TiltaksgjennomforingFixtures {
         avtaleId = AvtaleFixtures.avtale1.id,
         faneinnhold = null,
         beskrivelse = null,
-        fremmoteTidspunkt = LocalDateTime.of(2023, 1, 1, 9, 0),
-        fremmoteSted = "fremmote_sted",
         deltidsprosent = 100.0,
     )
 
@@ -82,8 +77,6 @@ object TiltaksgjennomforingFixtures {
         opphav = Oppfolging1.opphav,
         faneinnhold = Oppfolging1.faneinnhold,
         beskrivelse = Oppfolging1.beskrivelse,
-        fremmoteTidspunkt = null,
-        fremmoteSted = null,
         deltidsprosent = 100.0,
     )
 
@@ -110,8 +103,6 @@ object TiltaksgjennomforingFixtures {
         avtaleId = AvtaleFixtures.avtale1.id,
         faneinnhold = null,
         beskrivelse = null,
-        fremmoteTidspunkt = null,
-        fremmoteSted = null,
         deltidsprosent = 100.0,
     )
 
@@ -138,8 +129,6 @@ object TiltaksgjennomforingFixtures {
         avtaleId = AvtaleFixtures.avtale1.id,
         faneinnhold = null,
         beskrivelse = null,
-        fremmoteTidspunkt = null,
-        fremmoteSted = null,
         deltidsprosent = 100.0,
     )
 }
