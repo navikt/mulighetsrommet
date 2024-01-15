@@ -21,7 +21,6 @@ import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.Faneinnhold
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
-import no.nav.mulighetsrommet.domain.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
 import java.time.LocalDate
@@ -128,7 +127,6 @@ data class TiltaksgjennomforingRequest(
     val opphav: ArenaMigrering.Opphav?,
     val faneinnhold: Faneinnhold?,
     val beskrivelse: String?,
-    @Serializable(with = LocalDateTimeSerializer::class)
     val deltidsprosent: Double,
 ) {
     fun toDbo() = TiltaksgjennomforingDbo(
