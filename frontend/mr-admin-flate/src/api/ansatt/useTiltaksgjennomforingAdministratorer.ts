@@ -3,12 +3,12 @@ import { QueryKeys } from "../QueryKeys";
 import { mulighetsrommetClient } from "../clients";
 import { NavAnsattRolle } from "mulighetsrommet-api-client";
 
-export function useHentKontaktpersoner() {
+export function useTiltaksgjennomforingAdministratorer() {
   return useQuery({
-    queryKey: QueryKeys.navansatt(NavAnsattRolle.KONTAKTPERSON),
+    queryKey: QueryKeys.navansatt(NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV),
     queryFn: () =>
       mulighetsrommetClient.ansatt.hentAnsatte({
-        roller: [NavAnsattRolle.KONTAKTPERSON],
+        roller: [NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV],
       }),
   });
 }

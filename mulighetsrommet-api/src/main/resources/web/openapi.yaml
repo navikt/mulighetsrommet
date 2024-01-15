@@ -2389,8 +2389,9 @@ components:
       type: string
       enum:
         - TEAM_MULIGHETSROMMET
-        - BETABRUKER
         - KONTAKTPERSON
+        - TILTAKSGJENNOMFORINGER_SKRIV
+        - AVTALER_SKRIV
 
     NavAnsattHovedenhet:
       type: object

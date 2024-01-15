@@ -8,6 +8,7 @@ import { useFeatureToggle } from "../../api/features/feature-toggles";
 import { inneholderUrl } from "../../utils/Utils";
 import { Lenkeknapp } from "../lenkeknapp/Lenkeknapp";
 import { LeggTilGjennomforingModal } from "../modal/LeggTilGjennomforingModal";
+import { HarSkrivetilgang } from "../authActions/HarSkrivetilgang";
 
 interface Props {
   filterAtom: WritableAtom<
@@ -77,34 +78,36 @@ export function TiltaksgjennomforingFilterButtons({ filterAtom }: Props) {
             alignItems: "center",
           }}
         >
-          {visOpprettTiltaksgjennomforingKnapp && (
-            <Lenkeknapp
-              size="small"
-              to={`skjema`}
-              variant="primary"
-              dataTestid="opprett-ny-tiltaksgjenomforing_knapp"
-            >
-              Opprett ny tiltaksgjennomføring
-            </Lenkeknapp>
-          )}
-          {avtaleErOpprettetIAdminFlate && (
-            <>
-              <Button
+          <HarSkrivetilgang ressurs="Tiltaksgjennomføring">
+            {visOpprettTiltaksgjennomforingKnapp && (
+              <Lenkeknapp
                 size="small"
-                onClick={() => setModalOpen(true)}
-                variant="secondary"
-                type="button"
-                title="Legg til en eksisterende gjennomføring til avtalen"
+                to={`skjema`}
+                variant="primary"
+                dataTestid="opprett-ny-tiltaksgjenomforing_knapp"
               >
-                Legg til gjennomføring
-              </Button>
-              <LeggTilGjennomforingModal
-                avtale={avtale}
-                modalOpen={modalOpen}
-                onClose={() => setModalOpen(false)}
-              />
-            </>
-          )}
+                Opprett ny tiltaksgjennomføring
+              </Lenkeknapp>
+            )}
+            {avtaleErOpprettetIAdminFlate && (
+              <>
+                <Button
+                  size="small"
+                  onClick={() => setModalOpen(true)}
+                  variant="secondary"
+                  type="button"
+                  title="Legg til en eksisterende gjennomføring til avtalen"
+                >
+                  Legg til gjennomføring
+                </Button>
+                <LeggTilGjennomforingModal
+                  avtale={avtale}
+                  modalOpen={modalOpen}
+                  onClose={() => setModalOpen(false)}
+                />
+              </>
+            )}
+          </HarSkrivetilgang>
         </div>
       )}
     </div>

@@ -9,6 +9,7 @@ import { Laster } from "../../components/laster/Laster";
 import { useRef } from "react";
 import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
 import { useNavigate } from "react-router-dom";
+import { HarSkrivetilgang } from "../../components/authActions/HarSkrivetilgang";
 
 interface Props {
   avtale: Avtale;
@@ -29,23 +30,25 @@ export function AvtaleKnapperad({ avtale }: Props) {
         <AvtaleEndringshistorikk id={avtale.id} />
       </EndringshistorikkPopover>
 
-      <Button
-        size="small"
-        variant="primary"
-        onClick={() => {
-          if (
-            avtale.administratorer &&
-            avtale.administratorer.length > 0 &&
-            !avtale.administratorer.map((a) => a.navIdent).includes(bruker.navIdent)
-          ) {
-            advarselModal.current?.showModal();
-          } else {
-            navigate("skjema");
-          }
-        }}
-      >
-        Rediger
-      </Button>
+      <HarSkrivetilgang ressurs="Avtale">
+        <Button
+          size="small"
+          variant="primary"
+          onClick={() => {
+            if (
+              avtale.administratorer &&
+              avtale.administratorer.length > 0 &&
+              !avtale.administratorer.map((a) => a.navIdent).includes(bruker.navIdent)
+            ) {
+              advarselModal.current?.showModal();
+            } else {
+              navigate("skjema");
+            }
+          }}
+        >
+          Rediger
+        </Button>
+      </HarSkrivetilgang>
       <RedigeringsAdvarselModal
         ressursNavn="avtalen"
         modalRef={advarselModal}

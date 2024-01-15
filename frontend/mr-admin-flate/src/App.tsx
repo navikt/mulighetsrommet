@@ -63,7 +63,9 @@ export function App() {
   if (
     !ansatt.roller?.some(
       (rolle) =>
-        rolle === NavAnsattRolle.BETABRUKER || rolle === NavAnsattRolle.TEAM_MULIGHETSROMMET,
+        rolle === NavAnsattRolle.AVTALER_SKRIV ||
+        rolle === NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV ||
+        rolle === NavAnsattRolle.TEAM_MULIGHETSROMMET,
     )
   ) {
     return <IkkeAutentisertApp />;

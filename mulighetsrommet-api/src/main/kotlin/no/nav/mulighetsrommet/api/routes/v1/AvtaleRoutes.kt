@@ -2,12 +2,14 @@ package no.nav.mulighetsrommet.api.routes.v1
 
 import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
+import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.routes.v1.responses.BadRequest
 import no.nav.mulighetsrommet.api.routes.v1.responses.respondWithStatusResponse
@@ -29,22 +31,31 @@ fun Route.avtaleRoutes() {
     val excelService: ExcelService by inject()
 
     route("/api/v1/internal/avtaler") {
+        authenticate(AuthProvider.AZURE_AD_AVTALER_SKRIV.name, strategy = AuthenticationStrategy.Required) {
+            put {
+                val navIdent = getNavIdent()
+                val request = call.receive<AvtaleRequest>()
+
+                val result = avtaler.upsert(request, navIdent)
+                    .mapLeft { BadRequest(errors = it) }
+
+                call.respondWithStatusResponse(result)
+            }
+
+            put("{id}/avbryt") {
+                val id = call.parameters.getOrFail<UUID>("id")
+                val navIdent = getNavIdent()
+                val response = avtaler.avbrytAvtale(id, navIdent)
+                call.respondWithStatusResponse(response)
+            }
+        }
+
         get {
             val pagination = getPaginationParams()
             val filter = getAvtaleFilter()
             val result = avtaler.getAll(filter, pagination)
 
             call.respond(result)
-        }
-
-        put {
-            val navIdent = getNavIdent()
-            val request = call.receive<AvtaleRequest>()
-
-            val result = avtaler.upsert(request, navIdent)
-                .mapLeft { BadRequest(errors = it) }
-
-            call.respondWithStatusResponse(result)
         }
 
         get("mine") {
@@ -94,13 +105,6 @@ fun Route.avtaleRoutes() {
             val id: UUID by call.parameters
             val historikk = avtaler.getEndringshistorikk(id)
             call.respond(historikk)
-        }
-
-        put("{id}/avbryt") {
-            val id = call.parameters.getOrFail<UUID>("id")
-            val navIdent = getNavIdent()
-            val response = avtaler.avbrytAvtale(id, navIdent)
-            call.respondWithStatusResponse(response)
         }
     }
 }

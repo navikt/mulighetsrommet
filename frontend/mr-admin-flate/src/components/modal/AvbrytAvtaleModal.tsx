@@ -7,6 +7,7 @@ import { useAvbrytAvtale } from "../../api/avtaler/useAvbrytAvtale";
 import styles from "./Modal.module.scss";
 import { resolveErrorMessage } from "../../api/errors";
 import { useNavigate } from "react-router-dom";
+import { HarSkrivetilgang } from "../authActions/HarSkrivetilgang";
 
 interface Props {
   modalRef: RefObject<HTMLDialogElement>;
@@ -59,11 +60,13 @@ export const AvbrytAvtaleModal = ({ modalRef, avtale }: Props) => {
           <Button variant="secondary" onClick={onClose}>
             Lukk
           </Button>
-          {!mutation?.isError && (
-            <Button variant="danger" onClick={handleAvbrytAvtale}>
-              Avbryt avtale
-            </Button>
-          )}
+          <HarSkrivetilgang ressurs="Avtale">
+            {!mutation?.isError && (
+              <Button variant="danger" onClick={handleAvbrytAvtale}>
+                Avbryt avtale
+              </Button>
+            )}
+          </HarSkrivetilgang>
         </div>
       </Modal.Footer>
     </Modal>

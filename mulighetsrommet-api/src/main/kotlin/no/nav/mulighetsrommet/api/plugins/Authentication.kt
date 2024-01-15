@@ -19,6 +19,8 @@ enum class AuthProvider {
     AZURE_AD_DEFAULT_APP,
     AZURE_AD_TILTAKSGJENNOMFORING_APP,
     AZURE_AD_BETABRUKER,
+    AZURE_AD_AVTALER_SKRIV,
+    AZURE_AD_TILTAKSJENNOMFORINGER_SKRIV,
 }
 
 object AppRoles {
@@ -31,9 +33,7 @@ fun Application.configureAuthentication(
 ) {
     val (azure) = auth
 
-    val jwkProvider = JwkProviderBuilder(URI(azure.jwksUri).toURL())
-        .cached(5, 12, TimeUnit.HOURS)
-        .build()
+    val jwkProvider = JwkProviderBuilder(URI(azure.jwksUri).toURL()).cached(5, 12, TimeUnit.HOURS).build()
 
     fun hasApplicationRoles(credentials: JWTCredential, vararg requiredRoles: String): Boolean {
         val roles = credentials.getListClaim("roles", String::class)
@@ -43,6 +43,13 @@ fun Application.configureAuthentication(
     fun hasNavAnsattRoles(credentials: JWTCredential, vararg requiredRoles: NavAnsattRolle): Boolean {
         val navAnsattGroups = credentials.getListClaim("groups", UUID::class)
         return requiredRoles.all { requiredRole ->
+            auth.roles.any { (groupId, role) -> role == requiredRole && groupId in navAnsattGroups }
+        }
+    }
+
+    fun hasAnyNavAnsattRoles(credentials: JWTCredential, vararg requiredRoles: NavAnsattRolle): Boolean {
+        val navAnsattGroups = credentials.getListClaim("groups", UUID::class)
+        return requiredRoles.any { requiredRole ->
             auth.roles.any { (groupId, role) -> role == requiredRole && groupId in navAnsattGroups }
         }
     }
@@ -73,6 +80,43 @@ fun Application.configureAuthentication(
                 credentials["NAVident"] ?: return@validate null
 
                 if (!hasNavAnsattRoles(credentials, NavAnsattRolle.BETABRUKER)) {
+                    return@validate null
+                }
+
+                JWTPrincipal(credentials.payload)
+            }
+        }
+
+        jwt(AuthProvider.AZURE_AD_AVTALER_SKRIV.name) {
+            verifier(jwkProvider, azure.issuer) {
+                withAudience(azure.audience)
+            }
+
+            validate { credentials ->
+                credentials["NAVident"] ?: return@validate null
+
+                if (!hasAnyNavAnsattRoles(credentials, NavAnsattRolle.AVTALER_SKRIV, NavAnsattRolle.BETABRUKER)) {
+                    return@validate null
+                }
+
+                JWTPrincipal(credentials.payload)
+            }
+        }
+
+        jwt(AuthProvider.AZURE_AD_TILTAKSJENNOMFORINGER_SKRIV.name) {
+            verifier(jwkProvider, azure.issuer) {
+                withAudience(azure.audience)
+            }
+
+            validate { credentials ->
+                credentials["NAVident"] ?: return@validate null
+
+                if (!hasAnyNavAnsattRoles(
+                        credentials,
+                        NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV,
+                        NavAnsattRolle.BETABRUKER,
+                    )
+                ) {
                     return@validate null
                 }
 
@@ -132,9 +176,9 @@ fun Application.configureAuthentication(
  * if the claim is not available.
  */
 fun <T : Any> PipelineContext<T, ApplicationCall>.getNavIdent(): String {
-    return call.principal<JWTPrincipal>()
-        ?.get("NAVident")
-        ?: throw StatusException(HttpStatusCode.Forbidden, "NAVident mangler i JWTPrincipal")
+    return call.principal<JWTPrincipal>()?.get("NAVident") ?: throw StatusException(
+        HttpStatusCode.Forbidden, "NAVident mangler i JWTPrincipal",
+    )
 }
 
 /**
@@ -142,8 +186,7 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getNavIdent(): String {
  * if the claim is not available.
  */
 fun <T : Any> PipelineContext<T, ApplicationCall>.getNavAnsattAzureId(): UUID {
-    return call.principal<JWTPrincipal>()
-        ?.get("oid")
-        ?.let { UUID.fromString(it) }
-        ?: throw StatusException(HttpStatusCode.Forbidden, "NavAnsattAzureId mangler i JWTPrincipal")
+    return call.principal<JWTPrincipal>()?.get("oid")?.let { UUID.fromString(it) } ?: throw StatusException(
+        HttpStatusCode.Forbidden, "NavAnsattAzureId mangler i JWTPrincipal",
+    )
 }

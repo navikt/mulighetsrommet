@@ -1,6 +1,7 @@
 import { Button } from "@navikt/ds-react";
 import styles from "../skjema/Skjema.module.scss";
 import { ValideringsfeilOppsummering } from "../skjema/ValideringsfeilOppsummering";
+import { HarSkrivetilgang } from "../authActions/HarSkrivetilgang";
 
 interface Props {
   redigeringsModus: boolean;
@@ -19,9 +20,11 @@ export function AvtaleSkjemaKnapperad({ redigeringsModus, onClose }: Props) {
       >
         Avbryt
       </Button>
-      <Button className={styles.button} size="small" type="submit">
-        {redigeringsModus ? "Lagre redigert avtale" : "Opprett ny avtale"}
-      </Button>
+      <HarSkrivetilgang ressurs="Avtale">
+        <Button className={styles.button} size="small" type="submit">
+          {redigeringsModus ? "Lagre redigert avtale" : "Opprett ny avtale"}
+        </Button>
+      </HarSkrivetilgang>
     </div>
   );
 }

@@ -10,6 +10,7 @@ import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
 import { Laster } from "../../components/laster/Laster";
 import { RedigeringsAdvarselModal } from "../../components/modal/RedigeringsAdvarselModal";
 import { useNavigate } from "react-router-dom";
+import { HarSkrivetilgang } from "../../components/authActions/HarSkrivetilgang";
 
 interface Props {
   tiltaksgjennomforing: Tiltaksgjennomforing;
@@ -30,31 +31,35 @@ export function TiltaksgjennomforingKnapperad({ tiltaksgjennomforing }: Props) {
 
   return (
     <div className={styles.knapperad}>
-      <Switch checked={tiltaksgjennomforing.tilgjengeligForVeileder} onClick={handleClick}>
-        Tilgjengelig for veileder
-      </Switch>
+      <HarSkrivetilgang ressurs="Tiltaksgjennomføring">
+        <Switch checked={tiltaksgjennomforing.tilgjengeligForVeileder} onClick={handleClick}>
+          Tilgjengelig for veileder
+        </Switch>
+      </HarSkrivetilgang>
 
       <EndringshistorikkPopover>
         <TiltaksgjennomforingEndringshistorikk id={tiltaksgjennomforing.id} />
       </EndringshistorikkPopover>
 
-      <Button
-        size="small"
-        variant="primary"
-        onClick={() => {
-          if (
-            tiltaksgjennomforing.administratorer &&
-            tiltaksgjennomforing.administratorer.length > 0 &&
-            !tiltaksgjennomforing.administratorer.map((a) => a.navIdent).includes(bruker.navIdent)
-          ) {
-            advarselModal.current?.showModal();
-          } else {
-            navigate("skjema");
-          }
-        }}
-      >
-        Rediger
-      </Button>
+      <HarSkrivetilgang ressurs="Tiltaksgjennomføring">
+        <Button
+          size="small"
+          variant="primary"
+          onClick={() => {
+            if (
+              tiltaksgjennomforing.administratorer &&
+              tiltaksgjennomforing.administratorer.length > 0 &&
+              !tiltaksgjennomforing.administratorer.map((a) => a.navIdent).includes(bruker.navIdent)
+            ) {
+              advarselModal.current?.showModal();
+            } else {
+              navigate("skjema");
+            }
+          }}
+        >
+          Rediger
+        </Button>
+      </HarSkrivetilgang>
       <RedigeringsAdvarselModal
         ressursNavn="tiltaksgjennomføringen"
         modalRef={advarselModal}
