@@ -63,7 +63,10 @@ function RedaksjoneltInnhold(props: RedaksjoneltInnholdPreviewProps) {
         tiltakstypeAlert={tiltakstypeSanityData?.faneinnhold?.pameldingOgVarighetInfoboks}
       />
       <Heading size="medium">Kontaktinfo</Heading>
-      <DetaljerFane tiltaksgjennomforing={faneinnhold?.kontaktinfo} />
+      <DetaljerFane
+        tiltaksgjennomforing={faneinnhold?.kontaktinfo}
+        tiltaksgjennomforingAlert={faneinnhold?.kontaktinfoInfoboks}
+      />
     </div>
   );
 }

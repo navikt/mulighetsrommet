@@ -100,6 +100,7 @@ export const TiltaksgjennomforingSchema = z
         pameldingOgVarighetInfoboks: z.string().nullable().optional(),
         pameldingOgVarighet: z.any().nullable(),
         kontaktinfo: z.any().nullable(),
+        kontaktinfoInfoboks: z.string().nullable().optional(),
       })
       .nullable(),
     opphav: z.nativeEnum(Opphav),
