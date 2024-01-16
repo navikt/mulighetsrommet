@@ -10,7 +10,7 @@ interface Props {
   type: string;
 }
 
-const antallSize = [15, 50, 100, 250, 500, 1000];
+const antallTiltakSomVises = [15, 50, 100, 250, 500, 1000];
 
 export function PagineringsOversikt({
   page,
@@ -37,7 +37,7 @@ export function PagineringsOversikt({
           value={pageSize}
           onChange={(e) => onChangePageSize(Number.parseInt(e.currentTarget.value))}
         >
-          {antallSize.map((ant) => (
+          {antallTiltakSomVises.map((ant) => (
             <option key={ant} value={ant}>
               {ant}
             </option>
