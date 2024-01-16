@@ -14,7 +14,7 @@ export function useInitializeArbeidsmarkedstiltakFilter() {
   );
 
   useEffect(() => {
-    if (innsatsgrupper && brukersInnsatsgruppe && !filter.innsatsgruppe) {
+    if (innsatsgrupper && brukersInnsatsgruppe) {
       setFilter({
         ...filter,
         innsatsgruppe: {
