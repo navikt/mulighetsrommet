@@ -286,7 +286,10 @@ const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
     sluttdato: "2030-11-30",
   },
 ];
-const x = 20;
+
+// Bruker denne for å teste med flere tiltaksgjennomføringer lokalt, men setter den til 0 sånn
+// at testene går gjennom.
+const x = 0;
 for (let i = 0; i < x; i++) {
   mockTiltaksgjennomforinger.push({
     sanityId: window.crypto.randomUUID(),
