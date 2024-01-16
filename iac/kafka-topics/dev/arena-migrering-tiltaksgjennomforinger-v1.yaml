@@ -5,6 +5,8 @@ metadata:
   namespace: team-mulighetsrommet
   labels:
     team: team-mulighetsrommet
+  annotations:
+    kafka.nais.io/removeDataWhenResourceIsDeleted: "true"
 spec:
   pool: nav-dev
   config:
