@@ -1,4 +1,4 @@
-import { BodyShort, Pagination } from "@navikt/ds-react";
+import { BodyShort, Pagination, Select } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import {
   DelMedBruker,
@@ -17,21 +17,23 @@ interface Props {
   deltMedBruker?: DelMedBruker[];
 }
 
-const Tiltaksgjennomforingsoversikt = (props: Props) => {
-  const { tiltaksgjennomforinger, isFetching, deltMedBruker } = props;
+const Tiltaksgjennomforingsoversikt = ({
+  tiltaksgjennomforinger,
+  isFetching,
+  deltMedBruker,
+}: Props) => {
+  const [pageData, setPages] = useAtom(paginationAtom);
 
-  const [page, setPage] = useAtom(paginationAtom);
-  const elementsPerPage = 15;
   const pagination = (tiltaksgjennomforing: VeilederflateTiltaksgjennomforing[]) => {
-    return Math.ceil(tiltaksgjennomforing.length / elementsPerPage);
+    return Math.ceil(tiltaksgjennomforing.length / pageData.pageSize);
   };
 
   const [sortValue, setSortValue] = useState<string>("tiltakstype-ascending");
 
   useEffect(() => {
-    if (tiltaksgjennomforinger.length <= elementsPerPage && !isFetching) {
+    if (tiltaksgjennomforinger.length <= pageData.pageSize && !isFetching) {
       // Reset state
-      setPage(1);
+      setPages({ ...pageData, page: 1 });
     }
   }, [tiltaksgjennomforinger]);
 
@@ -87,6 +89,7 @@ const Tiltaksgjennomforingsoversikt = (props: Props) => {
     });
   };
 
+  const antallSize = [15, 50, 100, 250, 500, 1000];
   const lopendeGjennomforinger = tiltaksgjennomforinger.filter(
     (gj) => gj.oppstart === TiltaksgjennomforingOppstartstype.LOPENDE,
   );
@@ -98,18 +101,34 @@ const Tiltaksgjennomforingsoversikt = (props: Props) => {
     getSort(sortValue).orderBy === "oppstart"
       ? [...sorter(gjennomforingerMedFellesOppstart), ...lopendeGjennomforinger]
       : sorter(tiltaksgjennomforinger)
-  ).slice((page - 1) * elementsPerPage, page * elementsPerPage);
+  ).slice((pageData.page - 1) * pageData.pageSize, pageData.page * pageData.pageSize);
 
   return (
     <>
       <div className={styles.overskrift_og_sorteringsmeny}>
-        {tiltaksgjennomforinger.length > 0 ? (
-          <BodyShort>
-            Viser {(page - 1) * elementsPerPage + 1}-
-            {gjennomforingerForSide.length + (page - 1) * elementsPerPage} av{" "}
-            {tiltaksgjennomforinger.length} tiltak
-          </BodyShort>
-        ) : null}
+        <div className={styles.overskrift_og_sorteringsmeny_venstre}>
+          {tiltaksgjennomforinger.length > 0 ? (
+            <BodyShort>
+              Viser {(pageData.page - 1) * pageData.pageSize + 1}-
+              {gjennomforingerForSide.length + (pageData.page - 1) * pageData.pageSize} av{" "}
+              {tiltaksgjennomforinger.length} tiltak
+            </BodyShort>
+          ) : null}
+          <Select
+            size="small"
+            label="Velg antall"
+            hideLabel
+            name="size"
+            value={pageData.pageSize}
+            onChange={(e) => setPages({ page: 1, pageSize: parseInt(e.currentTarget.value) })}
+          >
+            {antallSize.map((ant) => (
+              <option key={ant} value={ant}>
+                {ant}
+              </option>
+            ))}
+          </Select>
+        </div>
         <Sorteringsmeny sortValue={sortValue} setSortValue={setSortValue} />
       </div>
       <ul className={styles.gjennomforinger} data-testid="oversikt_tiltaksgjennomforinger">
@@ -134,14 +153,14 @@ const Tiltaksgjennomforingsoversikt = (props: Props) => {
         {tiltaksgjennomforinger.length > 0 ? (
           <>
             <BodyShort>
-              Viser {(page - 1) * elementsPerPage + 1}-
-              {gjennomforingerForSide.length + (page - 1) * elementsPerPage} av{" "}
+              Viser {(pageData.page - 1) * pageData.pageSize + 1}-
+              {gjennomforingerForSide.length + (pageData.page - 1) * pageData.pageSize} av{" "}
               {tiltaksgjennomforinger.length} tiltak
             </BodyShort>
             <Pagination
               size="small"
-              page={page}
-              onPageChange={setPage}
+              page={pageData.page}
+              onPageChange={(page) => setPages({ ...pageData, page })}
               count={
                 pagination(tiltaksgjennomforinger) === 0 ? 1 : pagination(tiltaksgjennomforinger)
               }

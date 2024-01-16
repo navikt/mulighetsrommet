@@ -1,16 +1,16 @@
 import { ChevronRightIcon, PadlockLockedFillIcon } from "@navikt/aksel-icons";
 import { BodyShort } from "@navikt/ds-react";
 import classNames from "classnames";
-import { useAtom } from "jotai";
 import {
   DelMedBruker,
   TiltaksgjennomforingOppstartstype,
   VeilederflateTiltaksgjennomforing,
 } from "mulighetsrommet-api-client";
-import { paginationAtom } from "../../core/atoms/atoms";
 import { erPreview, formaterDato, kebabCase } from "../../utils/Utils";
 import Lenke from "../lenke/Lenke";
 import styles from "./Gjennomforingsrad.module.scss";
+import { paginationAtom } from "../../core/atoms/atoms";
+import { useAtomValue } from "jotai";
 
 interface Props {
   tiltaksgjennomforing: VeilederflateTiltaksgjennomforing;
@@ -28,11 +28,12 @@ const visOppstartsdato = (oppstart: TiltaksgjennomforingOppstartstype, oppstarts
 };
 
 export function Gjennomforingsrad({ tiltaksgjennomforing, index, delMedBruker }: Props) {
-  const [page] = useAtom(paginationAtom);
+  const pageData = useAtomValue(paginationAtom);
   const { id, sanityId, navn, arrangor, tiltakstype, oppstart, oppstartsdato, apentForInnsok } =
     tiltaksgjennomforing;
 
   const datoSidenSistDelt = delMedBruker && formaterDato(new Date(delMedBruker.createdAt!!));
+  const paginationUrl = `#pagination=${encodeURIComponent(JSON.stringify({ ...pageData }))}`;
 
   return (
     <li
@@ -45,8 +46,8 @@ export function Gjennomforingsrad({ tiltaksgjennomforing, index, delMedBruker }:
       <Lenke
         to={
           erPreview()
-            ? `/preview/${id ?? sanityId}#page=${page}`
-            : `/arbeidsmarkedstiltak/tiltak/${id ?? sanityId}#page=${page}`
+            ? `/preview/${id ?? sanityId}${paginationUrl}`
+            : `/arbeidsmarkedstiltak/tiltak/${id ?? sanityId}${paginationUrl}`
         }
       >
         {datoSidenSistDelt ? (
@@ -58,7 +59,7 @@ export function Gjennomforingsrad({ tiltaksgjennomforing, index, delMedBruker }:
                 month: "numeric",
                 year: "numeric",
               })}`}
-              size={"small"}
+              size="small"
             >
               Delt med bruker {datoSidenSistDelt}
             </BodyShort>

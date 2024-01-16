@@ -1,6 +1,6 @@
 import { Chat2Icon, CheckmarkIcon, PadlockLockedFillIcon } from "@navikt/aksel-icons";
 import { Alert, Button } from "@navikt/ds-react";
-import { useAtom } from "jotai";
+import { useAtomValue } from "jotai";
 import {
   Bruker,
   DelMedBruker,
@@ -85,7 +85,7 @@ const ViewTiltaksgjennomforingDetaljer = ({
   brukerdata,
 }: Props) => {
   const gjennomforingsId = useGetTiltaksgjennomforingIdFraUrl();
-  const [page] = useAtom(paginationAtom);
+  const pageData = useAtomValue(paginationAtom);
   const veiledernavn = resolveName(veilederdata);
   const datoSidenSistDelt =
     harDeltMedBruker && formaterDato(new Date(harDeltMedBruker.createdAt!!));
@@ -140,7 +140,9 @@ const ViewTiltaksgjennomforingDetaljer = ({
       <div className={styles.top_wrapper}>
         {!erPreview() && (
           <Tilbakeknapp
-            tilbakelenke={`/arbeidsmarkedstiltak/oversikt#page=${page}`}
+            tilbakelenke={`/arbeidsmarkedstiltak/oversikt#pagination=${encodeURIComponent(
+              JSON.stringify({ ...pageData }),
+            )}`}
             tekst="Tilbake til tiltaksoversikten"
           />
         )}
