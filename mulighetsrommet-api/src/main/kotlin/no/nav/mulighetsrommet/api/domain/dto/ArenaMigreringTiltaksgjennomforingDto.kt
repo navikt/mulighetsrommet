@@ -28,7 +28,6 @@ data class ArenaMigreringTiltaksgjennomforingDto(
     val antallPlasser: Int?,
     val status: Tiltaksgjennomforingsstatus,
     val enhet: String,
-    @Serializable(with = LocalDateSerializer::class)
     val apentForInnsok: Boolean,
     val deltidsprosent: Double,
 ) {
