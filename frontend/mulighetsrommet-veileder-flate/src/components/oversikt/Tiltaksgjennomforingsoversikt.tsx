@@ -1,16 +1,17 @@
 import { BodyShort, Pagination, Select } from "@navikt/ds-react";
-import { useAtom, useAtomValue } from "jotai";
+import { useAtom } from "jotai";
 import {
   DelMedBruker,
   TiltaksgjennomforingOppstartstype,
   VeilederflateTiltaksgjennomforing,
 } from "mulighetsrommet-api-client";
 import { useEffect, useState } from "react";
-import { paginationAtom, tiltaksgjennomforingsfilter } from "../../core/atoms/atoms";
+import { paginationAtom } from "../../core/atoms/atoms";
 import { Sorteringsmeny } from "../sorteringmeny/Sorteringsmeny";
 import { Gjennomforingsrad } from "./Gjennomforingsrad";
 import styles from "./Tiltaksgjennomforingsoversikt.module.scss";
 import { useLogEvent } from "../../logging/amplitude";
+import { useArbeidsmarkedstiltakFilterValue } from "../../hooks/useArbeidsmarkedstiltakFilter";
 
 interface Props {
   tiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[];
@@ -19,7 +20,7 @@ interface Props {
 
 const Tiltaksgjennomforingsoversikt = ({ tiltaksgjennomforinger, deltMedBruker }: Props) => {
   const [pageData, setPages] = useAtom(paginationAtom);
-  const filter = useAtomValue(tiltaksgjennomforingsfilter);
+  const filter = useArbeidsmarkedstiltakFilterValue();
 
   const pagination = (tiltaksgjennomforing: VeilederflateTiltaksgjennomforing[]) => {
     return Math.ceil(tiltaksgjennomforing.length / pageData.pageSize);

@@ -6,7 +6,7 @@ import styles from "./App.module.scss";
 import { Oppskrift } from "./components/oppskrift/Oppskrift";
 import { APPLICATION_NAME } from "./constants";
 import { useHentVeilederdata } from "./core/api/queries/useHentVeilederdata";
-import { useInitializeArbeidsmarkedstiltakFilter } from "./hooks/useInitializeArbeidsmarkedstiltakFilter";
+import { useInitializeArbeidsmarkedstiltakFilterForBruker } from "./hooks/useInitializeArbeidsmarkedstiltakFilterForBruker";
 import { useInitializeAppContext } from "./hooks/useInitializeAppContext";
 import { initAmplitude } from "./logging/amplitude";
 import { ErrorFallback } from "./utils/ErrorFallback";
@@ -63,9 +63,9 @@ function PreviewArbeidsmarkedstiltak() {
 function PersonflateArbeidsmarkedstiltak() {
   useHentVeilederdata(); // Pre-fetch veilederdata så slipper vi å vente på data når vi trenger det i appen senere
 
-  useInitializeArbeidsmarkedstiltakFilter();
-
   const { fnr, enhet } = useInitializeAppContext();
+
+  useInitializeArbeidsmarkedstiltakFilterForBruker();
 
   const enableLandingssideFeature = useFeatureToggle(
     Toggles.MULIGHETSROMMET_VEILEDERFLATE_LANDINGSSIDE,

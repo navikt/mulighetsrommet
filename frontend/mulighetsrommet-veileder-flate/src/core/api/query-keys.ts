@@ -1,5 +1,5 @@
 import { Bruker, JoyrideType, NavEnhetStatus } from "mulighetsrommet-api-client";
-import { Tiltaksgjennomforingsfilter } from "../atoms/atoms";
+import { ArbeidsmarkedstiltakFilter } from "../../hooks/useArbeidsmarkedstiltakFilter";
 
 export const QueryKeys = {
   SanityQuery: "sanityQuery",
@@ -13,10 +13,10 @@ export const QueryKeys = {
     tiltakstyper: ["tiltakstyper"],
     tiltaksgjennomforinger: (
       bruker?: Bruker,
-      tiltaksgjennomforingsfilter?: Tiltaksgjennomforingsfilter,
+      tiltaksgjennomforingsfilter?: ArbeidsmarkedstiltakFilter,
     ) => ["tiltaksgjennomforinger", { ...bruker }, { ...tiltaksgjennomforingsfilter }],
     tiltaksgjennomforingerPreview: (
-      tiltaksgjennomforingsfilter?: Tiltaksgjennomforingsfilter,
+      tiltaksgjennomforingsfilter?: ArbeidsmarkedstiltakFilter,
       geografiskEnhet?: string,
     ) => ["tiltaksgjennomforinger", "preview", { ...tiltaksgjennomforingsfilter, geografiskEnhet }],
     tiltaksgjennomforing: (id: string) => ["tiltaksgjennomforing", id],

@@ -1,20 +1,23 @@
-import { useAtom } from "jotai";
 import { useEffect } from "react";
 import { useHentBrukerdata } from "../core/api/queries/useHentBrukerdata";
 import { useInnsatsgrupper } from "../core/api/queries/useInnsatsgrupper";
-import { tiltaksgjennomforingsfilter } from "../core/atoms/atoms";
+import { useArbeidsmarkedstiltakFilter } from "./useArbeidsmarkedstiltakFilter";
 
-export function useInitializeArbeidsmarkedstiltakFilter() {
+export function useInitializeArbeidsmarkedstiltakFilterForBruker() {
   const { data: innsatsgrupper } = useInnsatsgrupper();
   const { data: brukerdata } = useHentBrukerdata();
-  const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);
+
+  const [filter, setFilter] = useArbeidsmarkedstiltakFilter();
 
   const brukersInnsatsgruppe = innsatsgrupper?.find(
     (gruppe) => gruppe.nokkel === brukerdata?.innsatsgruppe,
   );
 
+  const resetInnsatsgruppe =
+    brukersInnsatsgruppe !== undefined && filter.innsatsgruppe === undefined;
+
   useEffect(() => {
-    if (innsatsgrupper && brukersInnsatsgruppe && !filter.innsatsgruppe) {
+    if (resetInnsatsgruppe) {
       setFilter({
         ...filter,
         innsatsgruppe: {
@@ -24,5 +27,5 @@ export function useInitializeArbeidsmarkedstiltakFilter() {
         },
       });
     }
-  }, [innsatsgrupper, brukersInnsatsgruppe]);
+  }, [resetInnsatsgruppe]);
 }

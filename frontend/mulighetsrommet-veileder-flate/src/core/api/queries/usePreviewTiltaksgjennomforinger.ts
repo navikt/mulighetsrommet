@@ -1,11 +1,10 @@
-import { useAtom } from "jotai";
-import { tiltaksgjennomforingsfilter } from "../../atoms/atoms";
 import { mulighetsrommetClient } from "../clients";
 import { QueryKeys } from "../query-keys";
 import { useQuery } from "@tanstack/react-query";
+import { useArbeidsmarkedstiltakFilterValue } from "../../../hooks/useArbeidsmarkedstiltakFilter";
 
 export const usePreviewTiltaksgjennomforinger = (geografiskEnhet?: string) => {
-  const [filter] = useAtom(tiltaksgjennomforingsfilter);
+  const filter = useArbeidsmarkedstiltakFilterValue();
 
   const tiltakstypeIds =
     filter.tiltakstyper.length > 0 ? filter.tiltakstyper.map(({ id }) => id) : undefined;

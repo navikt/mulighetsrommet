@@ -2,9 +2,10 @@ import { Accordion, Alert, Loader, Radio, RadioGroup } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { Innsatsgruppe } from "mulighetsrommet-api-client";
 import { useInnsatsgrupper } from "../../core/api/queries/useInnsatsgrupper";
-import { filterAccordionAtom, tiltaksgjennomforingsfilter } from "../../core/atoms/atoms";
+import { filterAccordionAtom } from "../../core/atoms/atoms";
 import { addOrRemove, kebabCase } from "../../utils/Utils";
 import "./Filtermeny.module.scss";
+import { useArbeidsmarkedstiltakFilter } from "../../hooks/useArbeidsmarkedstiltakFilter";
 
 interface InnsatsgruppeFilterProps<
   T extends { id: string; tittel: string; nokkel?: Innsatsgruppe },
@@ -69,7 +70,7 @@ const InnsatsgruppeAccordion = <T extends { id: string; tittel: string; nokkel?:
 };
 
 function InnsatsgruppeFilter() {
-  const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);
+  const [filter, setFilter] = useArbeidsmarkedstiltakFilter();
   const innsatsgrupper = useInnsatsgrupper();
 
   const handleEndreFilter = (innsatsgruppe: string) => {

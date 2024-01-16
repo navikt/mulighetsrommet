@@ -1,11 +1,10 @@
-import { useAtom } from "jotai";
 import { ApentForInnsok } from "mulighetsrommet-api-client";
 import { useHentBrukerdata } from "../core/api/queries/useHentBrukerdata";
 import { useInnsatsgrupper } from "../core/api/queries/useInnsatsgrupper";
-import { tiltaksgjennomforingsfilter } from "../core/atoms/atoms";
+import { useArbeidsmarkedstiltakFilter } from "./useArbeidsmarkedstiltakFilter";
 
 export function usePrepopulerFilter() {
-  const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);
+  const { filter, setFilter } = useArbeidsmarkedstiltakFilter();
   const brukerdata = useHentBrukerdata();
   const { data: innsatsgrupper } = useInnsatsgrupper();
 

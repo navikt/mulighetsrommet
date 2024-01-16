@@ -2,11 +2,11 @@ import { Alert } from "@navikt/ds-react";
 import { useHentBrukerdata } from "../../core/api/queries/useHentBrukerdata";
 import appStyles from "../../App.module.scss";
 import styles from "./BrukerKvalifisererIkkeVarsel.module.scss";
-import { Tiltaksgjennomforingsfilter } from "../../core/atoms/atoms";
 import { Innsatsgruppe } from "mulighetsrommet-api-client";
+import { ArbeidsmarkedstiltakFilter } from "../../hooks/useArbeidsmarkedstiltakFilter";
 
 interface FiltrertFeilInnsatsgruppeVarselProps {
-  filter: Tiltaksgjennomforingsfilter;
+  filter: ArbeidsmarkedstiltakFilter;
 }
 
 export function FiltrertFeilInnsatsgruppeVarsel({ filter }: FiltrertFeilInnsatsgruppeVarselProps) {

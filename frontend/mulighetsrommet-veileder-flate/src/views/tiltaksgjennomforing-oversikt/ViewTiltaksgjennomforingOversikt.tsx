@@ -1,5 +1,4 @@
 import { Alert, Button, Loader } from "@navikt/ds-react";
-import { useAtom, useSetAtom } from "jotai";
 import { ApiError, Innsatsgruppe, Toggles } from "mulighetsrommet-api-client";
 import { useTitle } from "mulighetsrommet-frontend-common";
 import { PORTEN } from "mulighetsrommet-frontend-common/constants";
@@ -23,15 +22,15 @@ import { useInnsatsgrupper } from "../../core/api/queries/useInnsatsgrupper";
 import useTiltaksgjennomforinger from "../../core/api/queries/useTiltaksgjennomforinger";
 import {
   defaultTiltaksgjennomforingfilter,
-  tiltaksgjennomforingsfilter,
-} from "../../core/atoms/atoms";
+  useArbeidsmarkedstiltakFilter,
+} from "../../hooks/useArbeidsmarkedstiltakFilter";
 import { usePrepopulerFilter } from "../../hooks/usePrepopulerFilter";
 import { useLogEvent } from "../../logging/amplitude";
 import styles from "./ViewTiltaksgjennomforingOversikt.module.scss";
 
 const ViewTiltaksgjennomforingOversikt = () => {
   useTitle("Arbeidsmarkedstiltak - Oversikt");
-  const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);
+  const { filter, setFilter } = useArbeidsmarkedstiltakFilter();
   const { data: brukerdata, isFetched: brukerdataIsFetched } = useHentBrukerdata();
   const landingssideFeature = useFeatureToggle(Toggles.MULIGHETSROMMET_VEILEDERFLATE_LANDINGSSIDE);
   const { forcePrepopulerFilter } = usePrepopulerFilter();
@@ -191,7 +190,7 @@ const ViewTiltaksgjennomforingOversikt = () => {
 };
 
 export function TilbakestillFilterFeil() {
-  const setFilter = useSetAtom(tiltaksgjennomforingsfilter);
+  const { setFilter } = useArbeidsmarkedstiltakFilter();
   const { forcePrepopulerFilter } = usePrepopulerFilter();
 
   return (
@@ -204,6 +203,7 @@ export function TilbakestillFilterFeil() {
         variant="tertiary"
         onClick={() => {
           setFilter(defaultTiltaksgjennomforingfilter);
+          // TODO: trenger antageligvis ikke denne hooken lengre
           forcePrepopulerFilter(true);
         }}
       >
