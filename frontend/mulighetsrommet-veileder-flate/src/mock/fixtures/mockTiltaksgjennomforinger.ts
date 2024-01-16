@@ -4,7 +4,7 @@ import {
 } from "mulighetsrommet-api-client";
 import { mockTiltakstyper } from "./mockTiltakstyper";
 
-export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
+const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
   {
     sanityId: "f4cea25b-c372-4d4c-8106-535ab10cd586",
     navn: "Avklaring - Fredrikstad",
@@ -286,3 +286,18 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
     sluttdato: "2030-11-30",
   },
 ];
+const x = 20;
+for (let i = 0; i < x; i++) {
+  mockTiltaksgjennomforinger.push({
+    sanityId: window.crypto.randomUUID(),
+    navn: "Oppæring Fag og Yrke" + i,
+    stedForGjennomforing: "Oslo",
+    apentForInnsok: true,
+    tiltakstype: mockTiltakstyper.OpplaringEnkeltplassFagOgYrke,
+    oppstart: TiltaksgjennomforingOppstartstype.LOPENDE,
+    oppstartsdato: "2022-11-01",
+    kontaktinfoTiltaksansvarlige: [],
+    sluttdato: "2030-11-30",
+  });
+}
+export { mockTiltaksgjennomforinger };

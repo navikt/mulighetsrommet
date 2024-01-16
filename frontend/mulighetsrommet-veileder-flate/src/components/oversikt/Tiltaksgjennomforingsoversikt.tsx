@@ -1,41 +1,36 @@
 import { BodyShort, Pagination, Select } from "@navikt/ds-react";
-import { useAtom } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
 import {
   DelMedBruker,
   TiltaksgjennomforingOppstartstype,
   VeilederflateTiltaksgjennomforing,
 } from "mulighetsrommet-api-client";
 import { useEffect, useState } from "react";
-import { paginationAtom } from "../../core/atoms/atoms";
+import { paginationAtom, tiltaksgjennomforingsfilter } from "../../core/atoms/atoms";
 import { Sorteringsmeny } from "../sorteringmeny/Sorteringsmeny";
 import { Gjennomforingsrad } from "./Gjennomforingsrad";
 import styles from "./Tiltaksgjennomforingsoversikt.module.scss";
+import { useLogEvent } from "../../logging/amplitude";
 
 interface Props {
   tiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[];
-  isFetching: boolean;
   deltMedBruker?: DelMedBruker[];
 }
 
-const Tiltaksgjennomforingsoversikt = ({
-  tiltaksgjennomforinger,
-  isFetching,
-  deltMedBruker,
-}: Props) => {
+const Tiltaksgjennomforingsoversikt = ({ tiltaksgjennomforinger, deltMedBruker }: Props) => {
   const [pageData, setPages] = useAtom(paginationAtom);
+  const filter = useAtomValue(tiltaksgjennomforingsfilter);
 
   const pagination = (tiltaksgjennomforing: VeilederflateTiltaksgjennomforing[]) => {
     return Math.ceil(tiltaksgjennomforing.length / pageData.pageSize);
   };
 
   const [sortValue, setSortValue] = useState<string>("tiltakstype-ascending");
-
+  const { logEvent } = useLogEvent();
   useEffect(() => {
-    if (tiltaksgjennomforinger.length <= pageData.pageSize && !isFetching) {
-      // Reset state
-      setPages({ ...pageData, page: 1 });
-    }
-  }, [tiltaksgjennomforinger]);
+    // Reset state
+    setPages({ ...pageData, page: 1 });
+  }, [filter]);
 
   const getSort = (
     sortValue: string,
@@ -89,7 +84,7 @@ const Tiltaksgjennomforingsoversikt = ({
     });
   };
 
-  const antallSize = [15, 50, 100, 250, 500, 1000];
+  const antallSize = [15, 50, 100, 1000];
   const lopendeGjennomforinger = tiltaksgjennomforinger.filter(
     (gj) => gj.oppstart === TiltaksgjennomforingOppstartstype.LOPENDE,
   );
@@ -120,7 +115,16 @@ const Tiltaksgjennomforingsoversikt = ({
             hideLabel
             name="size"
             value={pageData.pageSize}
-            onChange={(e) => setPages({ page: 1, pageSize: parseInt(e.currentTarget.value) })}
+            onChange={(e) => {
+              setPages({ page: 1, pageSize: parseInt(e.currentTarget.value) });
+              logEvent({
+                name: "arbeidsmarkedstiltak.vis-antall-tiltak",
+                data: {
+                  valgt_antall: parseInt(e.currentTarget.value),
+                  antall_tiltak: tiltaksgjennomforinger.length,
+                },
+              });
+            }}
           >
             {antallSize.map((ant) => (
               <option key={ant} value={ant}>

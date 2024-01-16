@@ -49,7 +49,6 @@ const ViewTiltaksgjennomforingOversikt = () => {
     isLoading,
     isError,
     error,
-    isFetching,
   } = useTiltaksgjennomforinger();
 
   useEffect(() => {
@@ -182,7 +181,6 @@ const ViewTiltaksgjennomforingOversikt = () => {
             ) : (
               <Tiltaksgjennomforingsoversikt
                 tiltaksgjennomforinger={tiltaksgjennomforinger}
-                isFetching={isFetching}
                 deltMedBruker={alleTiltakDeltMedBruker}
               />
             )}
