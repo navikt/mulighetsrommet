@@ -18,7 +18,6 @@ export const SanityPreviewOversikt = () => {
   const {
     data: tiltaksgjennomforinger = [],
     isLoading,
-    isFetching,
     refetch,
   } = usePreviewTiltaksgjennomforinger(geografiskEnhet?.enhetsnummer);
   const { data: enheter } = useNavEnheter();
@@ -78,10 +77,7 @@ export const SanityPreviewOversikt = () => {
                 ikonvariant="warning"
               />
             ) : (
-              <Tiltaksgjennomforingsoversikt
-                tiltaksgjennomforinger={tiltaksgjennomforinger}
-                isFetching={isFetching}
-              />
+              <Tiltaksgjennomforingsoversikt tiltaksgjennomforinger={tiltaksgjennomforinger} />
             )}
           </div>
         }

@@ -25,4 +25,17 @@ type HISTORIKK_EVENT = {
   };
 };
 
-export type Event = DEL_MED_BRUKER_EVENT | KLIKK_PA_FANE_EVENT | UNIKE_BRUKERE | HISTORIKK_EVENT;
+type VIS_ANTALL_TILTAK_EVENT = {
+  name: "arbeidsmarkedstiltak.vis-antall-tiltak";
+  data: {
+    valgt_antall: number;
+    antall_tiltak: number;
+  };
+};
+
+export type Event =
+  | DEL_MED_BRUKER_EVENT
+  | KLIKK_PA_FANE_EVENT
+  | UNIKE_BRUKERE
+  | HISTORIKK_EVENT
+  | VIS_ANTALL_TILTAK_EVENT;
