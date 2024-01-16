@@ -44,7 +44,14 @@ export const tiltaksgjennomforingsfilter = atomWithStorage(
   sessionStorage,
 );
 
-export const paginationAtom = atomWithHash("page", 1, { setHash: "replaceState" });
+export const paginationAtom = atomWithHash(
+  "pagination",
+  { page: 1, pageSize: 15 },
+  {
+    setHash: "replaceState",
+  },
+);
+
 export const faneAtom = atomWithHash("fane", "tab1", {
   setHash: "replaceState",
 });

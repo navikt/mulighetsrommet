@@ -203,17 +203,15 @@ export function TilbakestillFilterFeil() {
       beskrivelse="Prøv å justere søket eller filteret for å finne det du leter etter"
       ikonvariant="warning"
     >
-      <>
-        <Button
-          variant="tertiary"
-          onClick={() => {
-            setFilter(defaultTiltaksgjennomforingfilter);
-            forcePrepopulerFilter(true);
-          }}
-        >
-          Tilbakestill filter
-        </Button>
-      </>
+      <Button
+        variant="tertiary"
+        onClick={() => {
+          setFilter(defaultTiltaksgjennomforingfilter);
+          forcePrepopulerFilter(true);
+        }}
+      >
+        Tilbakestill filter
+      </Button>
     </Feilmelding>
   );
 }
