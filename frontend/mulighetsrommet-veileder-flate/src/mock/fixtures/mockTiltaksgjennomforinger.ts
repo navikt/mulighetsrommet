@@ -9,7 +9,9 @@ const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
     sanityId: "f4cea25b-c372-4d4c-8106-535ab10cd586",
     navn: "Avklaring - Fredrikstad",
     oppstart: TiltaksgjennomforingOppstartstype.LOPENDE,
-    stedForGjennomforing: "1424 SKI",
+    stedForGjennomforing:
+      "Valpekullsveien 69, 1424" +
+      " Taumatawhakatangi­hangakoauauotamatea­turipukakapikimaunga­horonukupokaiwhen­uakitanatahu",
     tiltakstype: mockTiltakstyper.avklaring,
     sluttdato: "2025-07-09",
     apentForInnsok: true,
