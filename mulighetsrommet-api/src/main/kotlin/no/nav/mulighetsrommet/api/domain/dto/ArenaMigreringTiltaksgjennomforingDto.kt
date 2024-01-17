@@ -32,8 +32,13 @@ data class ArenaMigreringTiltaksgjennomforingDto(
     val deltidsprosent: Double,
 ) {
     companion object {
-        fun from(tiltaksgjennomforing: TiltaksgjennomforingAdminDto, arenaId: Int?, endretTidspunkt: LocalDateTime) =
-            ArenaMigreringTiltaksgjennomforingDto(
+        fun from(tiltaksgjennomforing: TiltaksgjennomforingAdminDto, arenaId: Int?, endretTidspunkt: LocalDateTime): ArenaMigreringTiltaksgjennomforingDto {
+            // Alle fra arena har arena_ansvarlig_enhet og nav_region er required fra admin-flate
+            requireNotNull(tiltaksgjennomforing.navRegion ?: tiltaksgjennomforing.arenaAnsvarligEnhet) {
+                "navRegion or arenaAnsvarligEnhet was null! Should not be possible!"
+            }
+
+            return ArenaMigreringTiltaksgjennomforingDto(
                 id = tiltaksgjennomforing.id,
                 tiltakskode = tiltaksgjennomforing.tiltakstype.arenaKode,
                 startDato = tiltaksgjennomforing.startDato,
@@ -45,10 +50,12 @@ data class ArenaMigreringTiltaksgjennomforingDto(
                 antallPlasser = tiltaksgjennomforing.antallPlasser,
                 status = tiltaksgjennomforing.status,
                 arenaId = arenaId,
-                // TODO: Hvilket enhet? Trenger vi nytt input felt?
-                enhet = tiltaksgjennomforing.arenaAnsvarligEnhet?.enhetsnummer ?: "todo",
+                enhet = tiltaksgjennomforing.arenaAnsvarligEnhet?.enhetsnummer
+                    ?: tiltaksgjennomforing.navRegion?.enhetsnummer
+                    ?: throw IllegalStateException("Unreachable pga require clause over"),
                 apentForInnsok = tiltaksgjennomforing.apentForInnsok,
                 deltidsprosent = tiltaksgjennomforing.deltidsprosent,
             )
+        }
     }
 }
