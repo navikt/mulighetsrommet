@@ -305,6 +305,7 @@ class VeilederflateService(
                 faneinnhold = faneinnhold,
                 beskrivelse = beskrivelse,
                 oppstart = TiltaksgjennomforingOppstartstype.LOPENDE,
+                tiltaksnummer = tiltaksnummer ?: ""
             )
         }
     }
