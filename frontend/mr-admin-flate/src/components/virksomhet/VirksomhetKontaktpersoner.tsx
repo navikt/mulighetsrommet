@@ -215,6 +215,8 @@ export const VirksomhetKontaktpersoner = (props: VirksomhetKontaktpersonerProps)
           <TextField
             size="small"
             label={"Beskrivelse"}
+            placeholder="Unngå personopplysninger"
+            maxLength={67}
             value={state.beskrivelse}
             onChange={(e) => {
               setState({
