@@ -19,19 +19,7 @@ app:
     producers:
       arenaMigreringTiltaksgjennomforinger:
         topic: team-mulighetsrommet.arena-migrering-tiltaksgjennomforinger-v1
-        tiltakstyper:
-          - ARBFORB
-          - ARBRRHDAG
-          - AVKLARAG
-          - DIGIOPPARB
-          - GRUFAGYRKE
-          - GRUPPEAMO
-          - INDJOBSTOT
-          - INDOPPFAG
-          - IPSUNG
-          - JOBBK
-          - UTVAOONAV
-          - VASV
+        tiltakstyper: []
       tiltaksgjennomforinger:
         topic: team-mulighetsrommet.siste-tiltaksgjennomforinger-v1
       tiltakstyper:
