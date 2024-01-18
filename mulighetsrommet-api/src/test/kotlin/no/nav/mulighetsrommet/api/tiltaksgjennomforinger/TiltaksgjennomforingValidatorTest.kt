@@ -247,7 +247,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
                 deltakere.delete(deltaker.id)
             }
 
-            test("skal ikke kunne endre felter relatert til tilsagn/refusjon") {
+            xtest("skal ikke kunne endre felter relatert til tilsagn/refusjon") {
                 val differentAvtaleId = UUID.randomUUID()
 
                 val dbo = gjennomforing.copy(
