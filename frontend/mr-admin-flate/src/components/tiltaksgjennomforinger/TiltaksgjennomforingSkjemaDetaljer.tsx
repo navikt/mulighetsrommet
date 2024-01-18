@@ -307,6 +307,8 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                         <TextField
                           size="small"
                           label="Beskrivelse"
+                          placeholder="Unngå personopplysninger"
+                          maxLength={67}
                           {...register(`kontaktpersoner.${index}.beskrivelse`, {
                             shouldUnregister: true,
                           })}
