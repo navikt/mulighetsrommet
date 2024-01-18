@@ -1,48 +1,10 @@
-import { Alert, GuidePanel } from "@navikt/ds-react";
-import { PortableText } from "@portabletext/react";
+import { Alert } from "@navikt/ds-react";
 import { useEffect, useRef } from "react";
 import { Link, useParams } from "react-router-dom";
 import { APPLICATION_WEB_COMPONENT_NAME } from "../../constants";
 import { useOppskrifter } from "../../core/api/queries/useOppskrifter";
 import styles from "./Oppskrift.module.scss";
-
-interface ImageProp {
-  value: { asset: { url: string }; altText: string };
-}
-
-interface TipsProps {
-  value: { innhold: Record<any, any> };
-}
-
-interface AlertMessageProps {
-  value: { variant: "info" | "warning" | "error"; innhold: Record<any, any> };
-}
-
-const oppskriftPortableText = {
-  types: {
-    image: ({ value }: ImageProp) => {
-      return (
-        <a href={value.asset.url}>
-          <img src={value.asset.url} alt={value.altText} />
-        </a>
-      );
-    },
-    tips: ({ value }: TipsProps) => {
-      return (
-        <GuidePanel>
-          <PortableText value={value.innhold} components={oppskriftPortableText} />
-        </GuidePanel>
-      );
-    },
-    alertMessage: ({ value }: AlertMessageProps) => {
-      return (
-        <Alert style={{ margin: "1rem 0" }} variant={value.variant}>
-          <PortableText value={value.innhold} components={oppskriftPortableText} />
-        </Alert>
-      );
-    },
-  },
-};
+import { RedaksjoneltInnhold } from "../RedaksjoneltInnhold";
 
 export function Oppskrift() {
   const { oppskriftId, tiltakstypeId } = useParams();
@@ -108,7 +70,7 @@ export function Oppskrift() {
             return (
               <div key={st.navn} className={styles.steg}>
                 <h4 id={`steg-${index + 1}`}>{`${index + 1}. ${st.navn}`}</h4>
-                <PortableText value={st.innhold} components={oppskriftPortableText} />
+                <RedaksjoneltInnhold value={st.innhold} />
               </div>
             );
           })}
