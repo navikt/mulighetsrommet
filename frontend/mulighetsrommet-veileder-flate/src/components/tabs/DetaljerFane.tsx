@@ -1,7 +1,7 @@
 import { Alert, BodyLong, Heading } from "@navikt/ds-react";
-import { PortableText } from "@portabletext/react";
 import styles from "./Detaljerfane.module.scss";
 import FaneTiltaksinformasjon from "./FaneTiltaksinformasjon";
+import { RedaksjoneltInnhold } from "../RedaksjoneltInnhold";
 
 interface DetaljerFaneProps {
   tiltaksgjennomforingAlert?: string;
@@ -32,7 +32,7 @@ const DetaljerFane = ({
         </Alert>
       )}
       <BodyLong as="div" size="small">
-        <PortableText value={tiltakstype} />
+        <RedaksjoneltInnhold value={tiltakstype} />
       </BodyLong>
       {(tiltaksgjennomforing || tiltaksgjennomforingAlert) && (
         <div className={styles.lokal_informasjon}>
@@ -45,7 +45,7 @@ const DetaljerFane = ({
             </Alert>
           )}
           <BodyLong as="div" textColor="subtle" size="small">
-            <PortableText value={tiltaksgjennomforing} />
+            <RedaksjoneltInnhold value={tiltaksgjennomforing} />
           </BodyLong>
         </div>
       )}

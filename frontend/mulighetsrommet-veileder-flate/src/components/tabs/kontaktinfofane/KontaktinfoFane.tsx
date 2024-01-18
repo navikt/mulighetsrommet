@@ -4,7 +4,7 @@ import ArrangorInfo from "./ArrangorInfo";
 import styles from "./Kontaktinfo.module.scss";
 import NavKontaktpersonInfo from "./NavKontaktpersonInfo";
 import { Alert, BodyLong } from "@navikt/ds-react";
-import { PortableText } from "@portabletext/react";
+import { RedaksjoneltInnhold } from "../../RedaksjoneltInnhold";
 
 interface Props {
   tiltaksgjennomforing: VeilederflateTiltaksgjennomforing;
@@ -23,7 +23,7 @@ const KontaktinfoFane = ({ tiltaksgjennomforing }: Props) => {
       )}
       {tiltaksgjennomforing.faneinnhold?.kontaktinfo && (
         <BodyLong as="div" textColor="subtle" size="small">
-          <PortableText value={tiltaksgjennomforing.faneinnhold?.kontaktinfo} />
+          <RedaksjoneltInnhold value={tiltaksgjennomforing.faneinnhold?.kontaktinfo} />
         </BodyLong>
       )}
       <div className={styles.grid_container}>
