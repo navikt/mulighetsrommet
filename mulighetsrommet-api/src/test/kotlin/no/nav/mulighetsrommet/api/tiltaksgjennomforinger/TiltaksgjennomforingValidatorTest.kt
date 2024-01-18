@@ -13,13 +13,15 @@ import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
-import no.nav.mulighetsrommet.api.repositories.*
+import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
+import no.nav.mulighetsrommet.api.repositories.NavEnhetRepository
+import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
+import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
-import no.nav.mulighetsrommet.domain.dbo.*
+import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.*
 
 class TiltaksgjennomforingValidatorTest : FunSpec({
@@ -47,7 +49,6 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
     lateinit var tiltakstyper: TiltakstypeRepository
     lateinit var avtaler: AvtaleRepository
     lateinit var tiltaksgjennomforinger: TiltaksgjennomforingRepository
-    lateinit var deltakere: DeltakerRepository
 
     beforeEach {
         tiltakstyper = TiltakstypeRepository(database.db)
@@ -87,14 +88,12 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
         avtaler.upsert(avtale)
 
         tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-
-        deltakere = DeltakerRepository(database.db)
     }
 
     test("should fail when avtale does not exist") {
         val unknownAvtaleId = UUID.randomUUID()
 
-        val validator = TiltaksgjennomforingValidator(avtaler, deltakere)
+        val validator = TiltaksgjennomforingValidator(avtaler)
 
         val dbo = gjennomforing.copy(avtaleId = unknownAvtaleId)
 
@@ -106,7 +105,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
     test("should fail when tiltakstype does not match with avtale") {
         avtaler.upsert(avtale.copy(tiltakstypeId = TiltakstypeFixtures.AFT.id))
 
-        val validator = TiltaksgjennomforingValidator(avtaler, deltakere)
+        val validator = TiltaksgjennomforingValidator(avtaler)
 
         validator.validate(gjennomforing, null).shouldBeLeft().shouldContainExactlyInAnyOrder(
             ValidationError("tiltakstypeId", "Tiltakstypen må være den samme som for avtalen"),
@@ -123,7 +122,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
         ) { status ->
             avtaler.setAvslutningsstatus(id, status)
 
-            val validator = TiltaksgjennomforingValidator(avtaler, deltakere)
+            val validator = TiltaksgjennomforingValidator(avtaler)
             val dbo = gjennomforing.copy(avtaleId = id)
 
             validator.validate(dbo, null).shouldBeRight()
@@ -131,7 +130,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
     }
 
     test("should validate fields in the gjennomføring and fields related to the avtale") {
-        val validator = TiltaksgjennomforingValidator(avtaler, deltakere)
+        val validator = TiltaksgjennomforingValidator(avtaler)
 
         forAll(
             row(
@@ -176,7 +175,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
 
     context("when gjennomføring does not already exist") {
         test("should fail when opphav is not MR_ADMIN_FLATE") {
-            val validator = TiltaksgjennomforingValidator(avtaler, deltakere)
+            val validator = TiltaksgjennomforingValidator(avtaler)
 
             val dbo = gjennomforing.copy(
                 id = UUID.randomUUID(),
@@ -199,7 +198,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
         }
 
         test("should fail when opphav is different") {
-            val validator = TiltaksgjennomforingValidator(avtaler, deltakere)
+            val validator = TiltaksgjennomforingValidator(avtaler)
 
             val dbo = gjennomforing.copy(
                 opphav = ArenaMigrering.Opphav.ARENA,
@@ -219,71 +218,11 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
             ) { status ->
                 tiltaksgjennomforinger.setAvslutningsstatus(gjennomforing.id, status)
 
-                val validator = TiltaksgjennomforingValidator(avtaler, deltakere)
+                val validator = TiltaksgjennomforingValidator(avtaler)
 
                 val previous = tiltaksgjennomforinger.get(gjennomforing.id)
                 validator.validate(gjennomforing, previous).shouldBeLeft().shouldContainExactlyInAnyOrder(
                     ValidationError("navn", "Kan bare gjøre endringer når gjennomføringen er aktiv"),
-                )
-            }
-        }
-
-        context("når gjennomføring har status GJENNOMFORES") {
-            val deltaker = DeltakerDbo(
-                id = UUID.randomUUID(),
-                tiltaksgjennomforingId = gjennomforing.id,
-                opphav = Deltakeropphav.ARENA,
-                registrertDato = LocalDateTime.now(),
-                startDato = gjennomforing.startDato,
-                sluttDato = gjennomforing.sluttDato,
-                status = Deltakerstatus.DELTAR,
-            )
-
-            beforeEach {
-                deltakere.upsert(deltaker)
-            }
-
-            afterEach {
-                deltakere.delete(deltaker.id)
-            }
-
-            xtest("skal ikke kunne endre felter relatert til tilsagn/refusjon") {
-                val differentAvtaleId = UUID.randomUUID()
-
-                val dbo = gjennomforing.copy(
-                    navn = "Nytt navn",
-                    avtaleId = differentAvtaleId,
-                    arrangorOrganisasjonsnummer = "000000002",
-                    startDato = gjennomforing.startDato.plusDays(1),
-                    sluttDato = gjennomforing.sluttDato?.minusDays(1),
-                    antallPlasser = gjennomforing.antallPlasser + 1,
-                    administratorer = listOf("Donald Duck"),
-                    navRegion = "0400",
-                    navEnheter = listOf("0502"),
-                    oppstart = TiltaksgjennomforingOppstartstype.LOPENDE,
-                    kontaktpersoner = emptyList(),
-                    stengtFra = LocalDate.of(2023, 10, 10),
-                    stengtTil = LocalDate.of(2023, 10, 10),
-                    stedForGjennomforing = "Hjemmekontor",
-                )
-
-                avtaler.upsert(avtale.copy(id = differentAvtaleId))
-
-                val validator = TiltaksgjennomforingValidator(avtaler, deltakere)
-
-                val previous = tiltaksgjennomforinger.get(gjennomforing.id)
-                validator.validate(dbo, previous).shouldBeLeft().shouldContainExactlyInAnyOrder(
-                    listOf(
-                        ValidationError("avtaleId", "Avtalen kan ikke endres når gjennomføringen er aktiv"),
-                        ValidationError(
-                            "arrangorOrganisasjonsnummer",
-                            "Arrangøren kan ikke endres når gjennomføringen er aktiv",
-                        ),
-                        ValidationError("oppstart", "Oppstartstype kan ikke endres når det finnes påmeldte deltakere"),
-                        ValidationError("startDato", "Startdato kan ikke endres når gjennomføringen er aktiv"),
-                        ValidationError("sluttDato", "Sluttdato kan ikke endres når gjennomføringen er aktiv"),
-                        ValidationError("antallPlasser", "Antall plasser kan ikke endres når gjennomføringen er aktiv"),
-                    ),
                 )
             }
         }
