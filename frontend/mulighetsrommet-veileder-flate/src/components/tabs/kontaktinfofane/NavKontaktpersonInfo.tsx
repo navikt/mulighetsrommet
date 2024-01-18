@@ -1,11 +1,13 @@
-import { Alert, BodyShort, Button, Heading, Modal } from "@navikt/ds-react";
+import { Alert, BodyShort, Button, Heading, Loader, Modal } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import {
+  NavEnhet,
   SanityKontakinfoTiltaksansvarlige,
   VeilederflateTiltaksgjennomforing,
 } from "mulighetsrommet-api-client";
 import { RefObject, useRef } from "react";
 import { Link } from "react-router-dom";
+import { useNavEnheter } from "../../../core/api/queries/useNavEnheter";
 import { geografiskEnhetForPreviewAtom } from "../../../core/atoms/atoms";
 import { erPreview } from "../../../utils/Utils";
 import styles from "./Kontaktinfo.module.scss";
@@ -18,6 +20,7 @@ interface NavKontaktpersonInfoProps {
 
 const NavKontaktpersonInfo = ({ data }: NavKontaktpersonInfoProps) => {
   const { kontaktinfoTiltaksansvarlige: tiltaksansvarlige } = data;
+  const { data: navEnheter, isLoading: isLoadingNavEnheter } = useNavEnheter();
   const [brukersGeografiskeEnhet] = useAtom(geografiskEnhetForPreviewAtom);
   const modalRef = useRef<HTMLDialogElement>(null);
 
@@ -29,6 +32,10 @@ const NavKontaktpersonInfo = ({ data }: NavKontaktpersonInfoProps) => {
         <Link to="/preview">og velg en geografisk enhet før du går tilbake til tiltaket.</Link>
       </Alert>
     );
+  }
+
+  if (isLoadingNavEnheter) {
+    return <Loader size="medium" />;
   }
 
   return (
@@ -78,7 +85,9 @@ const NavKontaktpersonInfo = ({ data }: NavKontaktpersonInfoProps) => {
                     ) : null}
                     <dt>Enhet: </dt>
                     <dd>
-                      <span>{enhet}</span>
+                      <span>{`${navEnheter?.find(
+                        (navEnhet: NavEnhet) => navEnhet.enhetsnummer === enhet,
+                      )?.navn} - ${enhet}`}</span>
                     </dd>
                   </dl>
                 </BodyShort>
