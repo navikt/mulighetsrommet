@@ -92,7 +92,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
           ?.map((kontakt) => ({
             ...kontakt,
             navEnheter: kontakt.navEnheter,
-            beskrivelse: kontakt.beskrivelse,
+            beskrivelse: kontakt.beskrivelse ?? null,
           })) || [],
       stedForGjennomforing: data.stedForGjennomforing,
       arrangorKontaktpersonId: data.arrangorKontaktpersonId ?? null,
