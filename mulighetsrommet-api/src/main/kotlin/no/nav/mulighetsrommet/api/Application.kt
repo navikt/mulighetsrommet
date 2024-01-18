@@ -45,7 +45,12 @@ fun Application.configure(config: AppConfig) {
             tasks()
         }
 
-        authenticate(AuthProvider.AZURE_AD_BETABRUKER.name, AuthProvider.AZURE_AD_TEAM_MULIGHETSROMMET.name) {
+        authenticate(
+            AuthProvider.AZURE_AD_AVTALER_SKRIV.name,
+            AuthProvider.AZURE_AD_TILTAKSJENNOMFORINGER_SKRIV.name,
+            AuthProvider.AZURE_AD_BETABRUKER.name,
+            AuthProvider.AZURE_AD_TEAM_MULIGHETSROMMET.name,
+        ) {
             veilederflatePreviewRoutes()
         }
 
