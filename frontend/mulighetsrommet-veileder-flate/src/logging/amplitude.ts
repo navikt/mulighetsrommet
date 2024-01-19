@@ -24,7 +24,7 @@ export function initAmplitude() {
 export function useLogEvent() {
   const [contextData] = useAtom(appContext);
 
-  async function logEvent(event: Event, extraData?: Record<string, unknown>) {
+  function logEvent(event: Event, extraData?: Record<string, unknown>) {
     const erPreviewModus = erPreview() || import.meta.env.VITE_MULIGHETSROMMET_API_MOCK === "true";
     const fylkeOgEnhet = { fylke: contextData.overordnetEnhet, enhet: contextData.enhet };
     if (!erPreviewModus) {
@@ -39,7 +39,11 @@ export function useLogEvent() {
       });
     } else {
       // eslint-disable-next-line no-console
-      console.log({ name: event.name, ...("data" in event ? event.data : {}), ...fylkeOgEnhet });
+      console.log("[Mock Amplitude Event]", {
+        name: event.name,
+        ...("data" in event ? event.data : {}),
+        ...fylkeOgEnhet,
+      });
     }
   }
 

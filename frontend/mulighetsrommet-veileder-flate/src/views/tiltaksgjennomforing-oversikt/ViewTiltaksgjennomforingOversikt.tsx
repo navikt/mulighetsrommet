@@ -20,21 +20,20 @@ import { useHentAlleTiltakDeltMedBruker } from "../../core/api/queries/useHentAl
 import { useHentBrukerdata } from "../../core/api/queries/useHentBrukerdata";
 import useTiltaksgjennomforinger from "../../core/api/queries/useTiltaksgjennomforinger";
 import { useResetArbeidsmarkedstiltakFilter } from "../../hooks/useArbeidsmarkedstiltakFilter";
-import { useLogEvent } from "../../logging/amplitude";
 import styles from "./ViewTiltaksgjennomforingOversikt.module.scss";
 
 const ViewTiltaksgjennomforingOversikt = () => {
   useTitle("Arbeidsmarkedstiltak - Oversikt");
 
-  const { filter, filterHasChanged, resetFilterToDefaults } = useResetArbeidsmarkedstiltakFilter();
-  const { data: brukerdata, isFetched: brukerdataIsFetched } = useHentBrukerdata();
-  const landingssideFeature = useFeatureToggle(Toggles.MULIGHETSROMMET_VEILEDERFLATE_LANDINGSSIDE);
-  const { logEvent } = useLogEvent();
-
-  const landingssideEnabled = landingssideFeature.isSuccess && landingssideFeature.data;
-  const [isHistorikkModalOpen, setIsHistorikkModalOpen] = useState(false);
-
+  const { data: brukerdata } = useHentBrukerdata();
   const { alleTiltakDeltMedBruker } = useHentAlleTiltakDeltMedBruker();
+
+  const { filter, filterHasChanged, resetFilterToDefaults } = useResetArbeidsmarkedstiltakFilter();
+
+  const landingssideFeature = useFeatureToggle(Toggles.MULIGHETSROMMET_VEILEDERFLATE_LANDINGSSIDE);
+  const landingssideEnabled = landingssideFeature.isSuccess && landingssideFeature.data;
+
+  const [isHistorikkModalOpen, setIsHistorikkModalOpen] = useState(false);
 
   const {
     data: tiltaksgjennomforinger = [],
@@ -47,13 +46,9 @@ const ViewTiltaksgjennomforingOversikt = () => {
     setIsHistorikkModalOpen(isHistorikkModalOpen);
   }, [isHistorikkModalOpen]);
 
-  useEffect(() => {
-    if (brukerdataIsFetched) {
-      logEvent({ name: "arbeidsmarkedstiltak.unike-brukere" });
-    }
-  }, []);
-
-  if (!brukerdata) return null;
+  if (!brukerdata) {
+    return null;
+  }
 
   if (isError) {
     if (error instanceof ApiError) {
