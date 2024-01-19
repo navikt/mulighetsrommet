@@ -2,6 +2,7 @@ import { ApentForInnsok, Innsatsgruppe } from "mulighetsrommet-api-client";
 import { atomWithStorage, createJSONStorage } from "jotai/utils";
 import { useAtom, useAtomValue } from "jotai";
 import { SyncStorage } from "jotai/vanilla/utils/atomWithStorage";
+import { useHentBrukerdata } from "../core/api/queries/useHentBrukerdata";
 
 export interface ArbeidsmarkedstiltakFilter {
   search: string;
@@ -33,6 +34,29 @@ export function useArbeidsmarkedstiltakFilter(): [
 export function useArbeidsmarkedstiltakFilterValue() {
   const value = useAtomValue(filterAtom);
   return value.filter;
+}
+
+export function useResetArbeidsmarkedstiltakFilter() {
+  const [{ brukerIKontekst, filter }, setValue] = useAtom(filterAtom);
+
+  const { data: brukerdata } = useHentBrukerdata();
+
+  const filterHasChanged =
+    filter.innsatsgruppe?.nokkel !== brukerdata?.innsatsgruppe ||
+    filter.apentForInnsok !== ApentForInnsok.APENT_ELLER_STENGT ||
+    filter.search !== "" ||
+    filter.tiltakstyper.length > 0;
+
+  return {
+    filter,
+    filterHasChanged,
+    resetFilterToDefaults() {
+      setValue({
+        brukerIKontekst,
+        filter: defaultTiltaksgjennomforingfilter,
+      });
+    },
+  };
 }
 
 export interface FilterMedBrukerIKontekst {
