@@ -177,7 +177,8 @@ fun Application.configureAuthentication(
  */
 fun <T : Any> PipelineContext<T, ApplicationCall>.getNavIdent(): String {
     return call.principal<JWTPrincipal>()?.get("NAVident") ?: throw StatusException(
-        HttpStatusCode.Forbidden, "NAVident mangler i JWTPrincipal",
+        HttpStatusCode.Forbidden,
+        "NAVident mangler i JWTPrincipal",
     )
 }
 
@@ -187,6 +188,7 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getNavIdent(): String {
  */
 fun <T : Any> PipelineContext<T, ApplicationCall>.getNavAnsattAzureId(): UUID {
     return call.principal<JWTPrincipal>()?.get("oid")?.let { UUID.fromString(it) } ?: throw StatusException(
-        HttpStatusCode.Forbidden, "NavAnsattAzureId mangler i JWTPrincipal",
+        HttpStatusCode.Forbidden,
+        "NavAnsattAzureId mangler i JWTPrincipal",
     )
 }
