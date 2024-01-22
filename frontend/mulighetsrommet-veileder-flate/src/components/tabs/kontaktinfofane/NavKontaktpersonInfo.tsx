@@ -49,7 +49,17 @@ const NavKontaktpersonInfo = ({ data }: NavKontaktpersonInfoProps) => {
           </Heading>
 
           {tiltaksansvarlige.map((tiltaksansvarlig: SanityKontakinfoTiltaksansvarlige) => {
-            const { navn, epost, telefonnummer, enhet, beskrivelse } = tiltaksansvarlig;
+            const {
+              navn,
+              epost,
+              telefonnummer,
+              enhet: enhetsnummer,
+              beskrivelse,
+            } = tiltaksansvarlig;
+            const enhetsnavn = navEnheter?.find(
+              (navEnhet: NavEnhet) => navEnhet.enhetsnummer === enhetsnummer,
+            )?.navn;
+            const enhet = enhetsnavn ? `${enhetsnavn} - ${enhetsnummer}` : enhetsnummer;
             return (
               <div key={epost} className={styles.container}>
                 <BodyShort className={styles.navn} size="small">
@@ -62,7 +72,7 @@ const NavKontaktpersonInfo = ({ data }: NavKontaktpersonInfoProps) => {
                 )}
                 <BodyShort as="div" size="small">
                   <dl className={styles.definisjonsliste}>
-                    <dt>Teams: </dt>
+                    <dt>Teams:</dt>
                     <dd>
                       <a
                         className={styles.teamslenke}
@@ -71,23 +81,21 @@ const NavKontaktpersonInfo = ({ data }: NavKontaktpersonInfoProps) => {
                         Kontakt meg på Teams
                       </a>
                     </dd>
-                    <dt>Epost: </dt>
+                    <dt>Epost:</dt>
                     <dd>
                       <a href={`mailto:${epost}`}>{epost}</a>
                     </dd>
                     {telefonnummer ? (
                       <>
-                        <dt>Telefon: </dt>
+                        <dt>Telefon:</dt>
                         <dd>
                           <span>{telefonnummer}</span>
                         </dd>
                       </>
                     ) : null}
-                    <dt>Enhet: </dt>
+                    <dt>Enhet:</dt>
                     <dd>
-                      <span>{`${navEnheter?.find(
-                        (navEnhet: NavEnhet) => navEnhet.enhetsnummer === enhet,
-                      )?.navn} - ${enhet}`}</span>
+                      <span>{enhet}</span>
                     </dd>
                   </dl>
                 </BodyShort>
