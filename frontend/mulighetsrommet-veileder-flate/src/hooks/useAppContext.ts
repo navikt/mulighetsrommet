@@ -1,5 +1,4 @@
-import { useAtom } from "jotai";
-import { appContext } from "../core/atoms/atoms";
+import { atom, useAtom } from "jotai";
 
 export interface AppContextData {
   fnr: string;
@@ -7,8 +6,10 @@ export interface AppContextData {
   overordnetEnhet: string | null | undefined;
 }
 
+export const appContextAtom = atom<Partial<AppContextData>>({});
+
 export function useAppContext(): AppContextData {
-  const [data] = useAtom(appContext);
+  const [data] = useAtom(appContextAtom);
 
   if (data == null) {
     throw Error("Missing data in AppContext");

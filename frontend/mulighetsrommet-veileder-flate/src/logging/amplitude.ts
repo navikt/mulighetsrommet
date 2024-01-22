@@ -1,8 +1,8 @@
-import { useAtom } from "jotai";
-import { appContext } from "../core/atoms/atoms";
+import { useAtomValue } from "jotai";
 import { LogEventFromApp } from "../env";
 import { erPreview } from "../utils/Utils";
 import { Event } from "./taxonomy";
+import { appContextAtom } from "../hooks/useAppContext";
 
 let amplitude: LogEventFromApp | null = null;
 
@@ -22,7 +22,7 @@ export function initAmplitude() {
 }
 
 export function useLogEvent() {
-  const [contextData] = useAtom(appContext);
+  const contextData = useAtomValue(appContextAtom);
 
   function logEvent(event: Event, extraData?: Record<string, unknown>) {
     const erPreviewModus = erPreview() || import.meta.env.VITE_MULIGHETSROMMET_API_MOCK === "true";

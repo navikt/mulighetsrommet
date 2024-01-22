@@ -8,7 +8,7 @@ import { APPLICATION_NAME } from "./constants";
 import { useHentVeilederdata } from "./core/api/queries/useHentVeilederdata";
 import { useInitializeArbeidsmarkedstiltakFilterForBruker } from "./hooks/useInitializeArbeidsmarkedstiltakFilterForBruker";
 import { useInitializeAppContext } from "./hooks/useInitializeAppContext";
-import { initAmplitude, useLogEvent } from "./logging/amplitude";
+import { initAmplitude } from "./logging/amplitude";
 import { ErrorFallback } from "./utils/ErrorFallback";
 import { SanityPreview } from "./views/Preview/SanityPreview";
 import { SanityPreviewOversikt } from "./views/Preview/SanityPreviewOversikt";
@@ -18,7 +18,6 @@ import { Landingsside } from "./views/landingsside/Landingsside";
 import { ViewTiltaksgjennomforingDetaljerContainer } from "./views/tiltaksgjennomforing-detaljer/ViewTiltaksgjennomforingDetaljerContainer";
 import { DeltakerRegistrering } from "./microfrontends/team_komet/DeltakerRegistrering";
 import ViewTiltaksgjennomforingOversikt from "./views/tiltaksgjennomforing-oversikt/ViewTiltaksgjennomforingOversikt";
-import { useEffect } from "react";
 
 if (import.meta.env.PROD && import.meta.env.VITE_FARO_URL) {
   initializeFaro({
@@ -63,11 +62,6 @@ function PreviewArbeidsmarkedstiltak() {
 
 function PersonflateArbeidsmarkedstiltak() {
   useHentVeilederdata(); // Pre-fetch veilederdata så slipper vi å vente på data når vi trenger det i appen senere
-
-  const { logEvent } = useLogEvent();
-  useEffect(() => {
-    logEvent({ name: "arbeidsmarkedstiltak.unike-brukere" });
-  }, []);
 
   const { fnr, enhet } = useInitializeAppContext();
 

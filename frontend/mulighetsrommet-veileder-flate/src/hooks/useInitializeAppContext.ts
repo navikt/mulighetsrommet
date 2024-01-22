@@ -1,17 +1,26 @@
 import { useSetAtom } from "jotai";
 import { useOverordnetEnhet } from "../core/api/queries/useOverordnetEnhet";
-import { appContext } from "../core/atoms/atoms";
-import { AppContextData, useAppContext } from "./useAppContext";
+import { appContextAtom, AppContextData, useAppContext } from "./useAppContext";
 import { useEffect } from "react";
+import { useLogEvent } from "../logging/amplitude";
 
 export function useInitializeAppContext(): AppContextData {
-  const setContextData = useSetAtom(appContext);
-  const contextData = useAppContext();
-  const { data } = useOverordnetEnhet(contextData.enhet);
+  const appContext = useAppContext();
+  const setAppContext = useSetAtom(appContextAtom);
+  const { data: overordnetEnhet } = useOverordnetEnhet(appContext.enhet);
+  const { logEvent } = useLogEvent();
 
   useEffect(() => {
-    setContextData({ ...contextData, overordnetEnhet: data?.enhetsnummer });
-  }, [data]);
+    if (overordnetEnhet?.enhetsnummer) {
+      setAppContext({ ...appContext, overordnetEnhet: overordnetEnhet.enhetsnummer });
+    }
+  }, [overordnetEnhet?.enhetsnummer]);
 
-  return contextData;
+  useEffect(() => {
+    if (appContext.overordnetEnhet) {
+      logEvent({ name: "arbeidsmarkedstiltak.unike-brukere" });
+    }
+  }, [appContext.overordnetEnhet]);
+
+  return appContext;
 }

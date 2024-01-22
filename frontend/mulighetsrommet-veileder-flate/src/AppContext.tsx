@@ -3,8 +3,7 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { Provider, useAtom } from "jotai";
 import { useHydrateAtoms } from "jotai/utils";
 import { ReactNode, useEffect, useState } from "react";
-import { appContext } from "./core/atoms/atoms";
-import { AppContextData } from "./hooks/useAppContext";
+import { appContextAtom, AppContextData } from "./hooks/useAppContext";
 import {
   filterAtom,
   FilterMedBrukerIKontekst,
@@ -27,11 +26,11 @@ export interface AppContextProps {
 }
 
 function HydrateAtoms({
-  contextData,
+  appContext,
   filter,
   children,
 }: {
-  contextData: Partial<AppContextData>;
+  appContext: Partial<AppContextData>;
   filter: FilterMedBrukerIKontekst;
   children: ReactNode;
 }) {
@@ -39,14 +38,14 @@ function HydrateAtoms({
    * Initialiserer atoms som trenger standardverdier basert på bruker i kontekst
    */
   useHydrateAtoms([
-    [appContext, contextData],
+    [appContextAtom, appContext],
     [filterAtom, filter],
   ]);
   return children;
 }
 
 export function AppContext(props: AppContextProps) {
-  const [contextData, setContextData] = useAtom(appContext);
+  const [contextData, setContextData] = useAtom(appContextAtom);
 
   const [loadedFilter, setLoadedFilter] = useState<FilterMedBrukerIKontekst | null>(null);
 
@@ -72,7 +71,7 @@ export function AppContext(props: AppContextProps) {
   return (
     <QueryClientProvider client={queryClient}>
       <Provider>
-        <HydrateAtoms contextData={props.contextData} filter={loadedFilter}>
+        <HydrateAtoms appContext={props.contextData} filter={loadedFilter}>
           {props.children}
         </HydrateAtoms>
       </Provider>
