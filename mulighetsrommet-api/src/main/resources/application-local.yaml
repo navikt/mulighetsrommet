@@ -55,6 +55,9 @@ app:
       # Mocket 0000-GA-TILTAK-avtaler_skriv
       - adGruppeId: dfcce624-ad5d-4cd0-abc0-554dd66858e5
         rolle: AVTALER_SKRIV
+      # 0000-GA-TILTAK-ANSVARLIG
+      - adGruppeId: 52bb9196-b071-4cc7-9472-be4942d33c4b
+        rolle: TILTAKADMINISTRASJON_GENERELL
 
   sanity:
     dataset: test

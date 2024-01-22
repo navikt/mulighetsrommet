@@ -60,7 +60,7 @@ class NavAnsattService(
         // TODO Fjern når betabruker-rollen er sanert fra AD
         val roller =
             if (filter.roller.any { it == NavAnsattRolle.AVTALER_SKRIV || it == NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV }) {
-                listOf(NavAnsattRolle.BETABRUKER)
+                listOf(NavAnsattRolle.BETABRUKER, NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL)
             } else {
                 filter.roller
             }

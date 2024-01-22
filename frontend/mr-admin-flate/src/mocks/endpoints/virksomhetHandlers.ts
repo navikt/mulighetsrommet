@@ -6,8 +6,8 @@ import { mockVirksomheter } from "../fixtures/mock_virksomheter";
 export const virksomhetHandlers = [
   http.get<{ sok: string }, Virksomhet[]>("*/api/v1/internal/virksomhet/sok/:sok", ({ params }) => {
     return HttpResponse.json(
-      Object.values(mockVirksomheter).filter((enhet) =>
-        enhet.navn?.toLowerCase().includes(params.sok.toLocaleLowerCase()),
+      Object.values(mockVirksomheter).filter(
+        (enhet) => enhet.navn?.toLowerCase().includes(params.sok.toLocaleLowerCase()),
       ),
     );
   }),
