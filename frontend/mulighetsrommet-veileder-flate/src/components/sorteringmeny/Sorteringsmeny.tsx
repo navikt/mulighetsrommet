@@ -17,7 +17,8 @@ export const Sorteringsmeny = ({ sortValue, setSortValue }: Props) => {
       hideLabel
       data-testid="sortering-select"
     >
-      <option value="tiltakstype-ascending">Sorter etter:</option>
+      <option value="tiltakstype-ascending">Tiltakstype A-Å</option>
+      <option value="tiltakstype-descending">Tiltakstype Å-A</option>
       <option value="oppstart-descending">Oppstartsdato synkende</option>
       <option value="oppstart-ascending">Oppstartsdato stigende</option>
       <option value="navn-ascending">Tittel a-å</option>
