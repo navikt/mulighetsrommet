@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "react-select": "^5.8.0",
-    "@navikt/ds-react": "5.13.0"
+    "@navikt/ds-react": "5.15.1"
   },
   "repository": {
     "type": "git",
