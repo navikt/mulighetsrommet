@@ -103,7 +103,7 @@ test.describe("Tiltaksgjennomføringsdetaljer", () => {
     await page.getByTestId("endre-deletekst_btn").click();
     await page.getByTestId("textarea_deletekst").fill("I am your father");
 
-    await !expect(page.getByTestId("textarea_deletekst")).toContainText("Hei IHERDIG");
+    await expect(page.getByTestId("textarea_deletekst")).not.toContainText("Hei IHERDIG");
     await expect(page.getByTestId("textarea_deletekst")).toContainText("I am your father");
 
     await page.getByTestId("venter-pa-svar_checkbox").check();
@@ -115,7 +115,7 @@ test.describe("Tiltaksgjennomføringsdetaljer", () => {
 
 test.describe("Preview Mulighetsrommet", () => {
   test.beforeEach(async ({ page }) => {
-    const url = "/preview/f4cea25b-c372-4d4c-8106-535ab10cd586";
+    const url = "/preview/tiltak/f4cea25b-c372-4d4c-8106-535ab10cd586";
     await page.goto(url);
     expect(page.url().includes("/preview/"));
   });

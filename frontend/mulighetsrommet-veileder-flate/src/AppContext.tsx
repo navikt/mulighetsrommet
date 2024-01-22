@@ -1,10 +1,14 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { PrimitiveAtom, Provider, SetStateAction, useAtom } from "jotai";
+import { Provider, useAtom } from "jotai";
 import { useHydrateAtoms } from "jotai/utils";
-import { ReactNode, useEffect } from "react";
-import { appContext } from "./core/atoms/atoms";
-import { AppContextData } from "./hooks/useAppContext";
+import { ReactNode, useEffect, useState } from "react";
+import { appContextAtom, AppContextData } from "./hooks/useAppContext";
+import {
+  filterAtom,
+  FilterMedBrukerIKontekst,
+  getDefaultFilterForBrukerIKontekst,
+} from "./hooks/useArbeidsmarkedstiltakFilter";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -21,35 +25,53 @@ export interface AppContextProps {
   children: ReactNode;
 }
 
-function HydrateAtoms<T>({
-  initialValues,
+function HydrateAtoms({
+  appContext,
+  filter,
   children,
 }: {
-  initialValues: [PrimitiveAtom<T>, SetStateAction<T>][];
+  appContext: Partial<AppContextData>;
+  filter: FilterMedBrukerIKontekst;
   children: ReactNode;
 }) {
-  // initialising on state with prop on render here
-  useHydrateAtoms(initialValues);
+  /**
+   * Initialiserer atoms som trenger standardverdier basert på bruker i kontekst
+   */
+  useHydrateAtoms([
+    [appContextAtom, appContext],
+    [filterAtom, filter],
+  ]);
   return children;
 }
 
 export function AppContext(props: AppContextProps) {
-  const [contextData, setContextData] = useAtom(appContext);
+  const [contextData, setContextData] = useAtom(appContextAtom);
+
+  const [loadedFilter, setLoadedFilter] = useState<FilterMedBrukerIKontekst | null>(null);
 
   useEffect(() => {
     if (props.contextData) {
       props?.updateContextDataRef?.((key: string, value: string) => {
         setContextData({ ...contextData, [key]: value });
       });
-      // console.log("Setter data fra props");
-      // setContextData({ ...contextData, ...props.contextData });
     }
   }, [props.contextData.enhet, props.contextData.fnr]);
+
+  useEffect(() => {
+    const filter = props.contextData.fnr
+      ? getDefaultFilterForBrukerIKontekst(props.contextData.fnr)
+      : null;
+    setLoadedFilter(filter);
+  }, [props.contextData.fnr]);
+
+  if (!loadedFilter) {
+    return null;
+  }
 
   return (
     <QueryClientProvider client={queryClient}>
       <Provider>
-        <HydrateAtoms initialValues={[[appContext, props.contextData]]}>
+        <HydrateAtoms appContext={props.contextData} filter={loadedFilter}>
           {props.children}
         </HydrateAtoms>
       </Provider>

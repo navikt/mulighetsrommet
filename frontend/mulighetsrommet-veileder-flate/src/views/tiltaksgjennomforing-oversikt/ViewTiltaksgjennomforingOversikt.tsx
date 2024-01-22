@@ -1,6 +1,5 @@
 import { Alert, Button, Loader } from "@navikt/ds-react";
-import { useAtom, useSetAtom } from "jotai";
-import { ApiError, Innsatsgruppe, Toggles } from "mulighetsrommet-api-client";
+import { ApiError, Toggles } from "mulighetsrommet-api-client";
 import { useTitle } from "mulighetsrommet-frontend-common";
 import { PORTEN } from "mulighetsrommet-frontend-common/constants";
 import { useEffect, useState } from "react";
@@ -19,30 +18,22 @@ import Tilbakeknapp from "../../components/tilbakeknapp/Tilbakeknapp";
 import { useFeatureToggle } from "../../core/api/feature-toggles";
 import { useHentAlleTiltakDeltMedBruker } from "../../core/api/queries/useHentAlleTiltakDeltMedBruker";
 import { useHentBrukerdata } from "../../core/api/queries/useHentBrukerdata";
-import { useInnsatsgrupper } from "../../core/api/queries/useInnsatsgrupper";
 import useTiltaksgjennomforinger from "../../core/api/queries/useTiltaksgjennomforinger";
-import {
-  defaultTiltaksgjennomforingfilter,
-  tiltaksgjennomforingsfilter,
-} from "../../core/atoms/atoms";
-import { usePrepopulerFilter } from "../../hooks/usePrepopulerFilter";
-import { useLogEvent } from "../../logging/amplitude";
-import { routes } from "../../routes";
+import { useResetArbeidsmarkedstiltakFilter } from "../../hooks/useArbeidsmarkedstiltakFilter";
 import styles from "./ViewTiltaksgjennomforingOversikt.module.scss";
 
 const ViewTiltaksgjennomforingOversikt = () => {
   useTitle("Arbeidsmarkedstiltak - Oversikt");
-  const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);
-  const { data: brukerdata, isFetched: brukerdataIsFetched } = useHentBrukerdata();
-  const landingssideFeature = useFeatureToggle(Toggles.MULIGHETSROMMET_VEILEDERFLATE_LANDINGSSIDE);
-  const { forcePrepopulerFilter } = usePrepopulerFilter();
-  const { isLoading: innsatsgrupperIsLoading } = useInnsatsgrupper();
-  const { logEvent } = useLogEvent();
 
-  const landingssideEnabled = landingssideFeature.isSuccess && landingssideFeature.data;
-  const [isHistorikkModalOpen, setIsHistorikkModalOpen] = useState(false);
-
+  const { data: brukerdata } = useHentBrukerdata();
   const { alleTiltakDeltMedBruker } = useHentAlleTiltakDeltMedBruker();
+
+  const { filter, filterHasChanged, resetFilterToDefaults } = useResetArbeidsmarkedstiltakFilter();
+
+  const landingssideFeature = useFeatureToggle(Toggles.MULIGHETSROMMET_VEILEDERFLATE_LANDINGSSIDE);
+  const landingssideEnabled = landingssideFeature.isSuccess && landingssideFeature.data;
+
+  const [isHistorikkModalOpen, setIsHistorikkModalOpen] = useState(false);
 
   const {
     data: tiltaksgjennomforinger = [],
@@ -55,23 +46,9 @@ const ViewTiltaksgjennomforingOversikt = () => {
     setIsHistorikkModalOpen(isHistorikkModalOpen);
   }, [isHistorikkModalOpen]);
 
-  useEffect(() => {
-    if (brukerdataIsFetched) {
-      logEvent({ name: "arbeidsmarkedstiltak.unike-brukere" });
-    }
-  }, []);
-
-  const brukersInnsatsgruppeErIkkeValgt = (innsatsgruppe?: Innsatsgruppe) => {
-    return innsatsgruppe !== brukerdata?.innsatsgruppe;
-  };
-
-  const visNullstillButton =
-    !innsatsgrupperIsLoading &&
-    (brukersInnsatsgruppeErIkkeValgt(filter.innsatsgruppe?.nokkel) ||
-      filter.search !== "" ||
-      filter.tiltakstyper.length > 0);
-
-  if (!brukerdata) return null;
+  if (!brukerdata) {
+    return null;
+  }
 
   if (isError) {
     if (error instanceof ApiError) {
@@ -139,17 +116,14 @@ const ViewTiltaksgjennomforingOversikt = () => {
 
   return (
     <>
-      {landingssideEnabled ? <Tilbakeknapp tilbakelenke={`/${routes.base}`} /> : null}
+      {landingssideEnabled ? <Tilbakeknapp tilbakelenke="/arbeidsmarkedstiltak" /> : null}
       <FilterAndTableLayout
         resetButton={
-          visNullstillButton && (
+          filterHasChanged && (
             <Button
               size="small"
               variant="tertiary"
-              onClick={() => {
-                setFilter(defaultTiltaksgjennomforingfilter);
-                forcePrepopulerFilter(true);
-              }}
+              onClick={resetFilterToDefaults}
               data-testid="knapp_tilbakestill-filter"
             >
               Nullstill filter
@@ -177,7 +151,7 @@ const ViewTiltaksgjennomforingOversikt = () => {
                 <Loader />
               </div>
             ) : tiltaksgjennomforinger.length === 0 ? (
-              <TilbakestillFilterFeil />
+              <TilbakestillFilterFeil resetFilter={resetFilterToDefaults} />
             ) : (
               <Tiltaksgjennomforingsoversikt
                 tiltaksgjennomforinger={tiltaksgjennomforinger}
@@ -191,23 +165,14 @@ const ViewTiltaksgjennomforingOversikt = () => {
   );
 };
 
-export function TilbakestillFilterFeil() {
-  const setFilter = useSetAtom(tiltaksgjennomforingsfilter);
-  const { forcePrepopulerFilter } = usePrepopulerFilter();
-
+function TilbakestillFilterFeil({ resetFilter }: { resetFilter(): void }) {
   return (
     <Feilmelding
       header="Ingen tiltaksgjennomføringer funnet"
       beskrivelse="Prøv å justere søket eller filteret for å finne det du leter etter"
       ikonvariant="warning"
     >
-      <Button
-        variant="tertiary"
-        onClick={() => {
-          setFilter(defaultTiltaksgjennomforingfilter);
-          forcePrepopulerFilter(true);
-        }}
-      >
+      <Button variant="tertiary" onClick={resetFilter}>
         Tilbakestill filter
       </Button>
     </Feilmelding>

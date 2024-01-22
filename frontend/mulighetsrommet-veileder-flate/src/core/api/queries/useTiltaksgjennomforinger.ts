@@ -1,17 +1,16 @@
 import { useQuery } from "@tanstack/react-query";
-import { useAtom } from "jotai";
 import {
   GetRelevanteTiltaksgjennomforingerForBrukerRequest,
   Innsatsgruppe,
 } from "mulighetsrommet-api-client";
 import { useAppContext } from "../../../hooks/useAppContext";
-import { tiltaksgjennomforingsfilter } from "../../atoms/atoms";
 import { mulighetsrommetClient } from "../clients";
 import { QueryKeys } from "../query-keys";
 import { useHentBrukerdata } from "./useHentBrukerdata";
+import { useArbeidsmarkedstiltakFilterValue } from "../../../hooks/useArbeidsmarkedstiltakFilter";
 
 export default function useTiltaksgjennomforinger() {
-  const [filter] = useAtom(tiltaksgjennomforingsfilter);
+  const filter = useArbeidsmarkedstiltakFilterValue();
   const brukerData = useHentBrukerdata();
   const { fnr } = useAppContext();
 

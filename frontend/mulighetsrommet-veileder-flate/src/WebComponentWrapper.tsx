@@ -1,5 +1,5 @@
 import createCache from "@emotion/cache";
-import { createRoot } from "react-dom/client";
+import { createRoot, Root } from "react-dom/client";
 import urlJoin from "url-join";
 import { App } from "./App";
 import { AppContext } from "./AppContext";
@@ -18,6 +18,7 @@ export class Arbeidsmarkedstiltak extends HTMLElement {
   static ENHET_PROP = "data-enhet";
 
   private readonly root: HTMLDivElement;
+  private reactRoot?: Root;
 
   constructor() {
     super();
@@ -56,6 +57,10 @@ export class Arbeidsmarkedstiltak extends HTMLElement {
       });
   }
 
+  disconnectedCallback() {
+    this.reactRoot?.unmount();
+  }
+
   attributeChangedCallback(name: string, _oldValue: string, newValue: string) {
     if (name === Arbeidsmarkedstiltak.FNR_PROP && this.updateContextData) {
       this.updateContextData("fnr", newValue);
@@ -84,14 +89,14 @@ export class Arbeidsmarkedstiltak extends HTMLElement {
   }
 
   renderApp(fnr?: string, enhet?: string) {
-    const root = createRoot(this.root);
+    this.reactRoot = createRoot(this.root);
 
     const shadowrootCache = createCache({
       key: "shadowroot-cache",
       container: this.root,
       prepend: true,
     });
-    root.render(
+    this.reactRoot.render(
       <CustomEmotionCacheProvider cache={shadowrootCache}>
         <AppContext
           contextData={{ enhet, fnr }}

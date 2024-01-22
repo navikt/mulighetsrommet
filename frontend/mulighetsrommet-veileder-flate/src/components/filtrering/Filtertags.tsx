@@ -1,18 +1,16 @@
 import { ApentForInnsok } from "mulighetsrommet-api-client";
 import { useHentBrukerdata } from "../../core/api/queries/useHentBrukerdata";
 import {
-  Tiltaksgjennomforingsfiltergruppe,
-  tiltaksgjennomforingsfilter,
-} from "../../core/atoms/atoms";
+  ArbeidsmarkedstiltakFilterGruppe,
+  useArbeidsmarkedstiltakFilter,
+} from "../../hooks/useArbeidsmarkedstiltakFilter";
 import { BrukersEnhet } from "../brukersEnheter/BrukersEnhet";
 import { ErrorTag } from "../tags/ErrorTag";
 import FilterTag from "../tags/FilterTag";
-import SearchFieldTag from "../tags/SearchFieldTag";
 import styles from "./Filtertags.module.scss";
-import { useAtom } from "jotai";
 
 export function Filtertags() {
-  const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);
+  const [filter, setFilter] = useArbeidsmarkedstiltakFilter();
   const brukerdata = useHentBrukerdata();
 
   return (
@@ -45,17 +43,22 @@ export function Filtertags() {
       )}
       {filter.innsatsgruppe && <FilterTag options={[filter.innsatsgruppe]} />}
       <FilterTag
-        options={filter.tiltakstyper!}
+        options={filter.tiltakstyper}
         handleClick={(id: string) =>
           setFilter({
             ...filter,
             tiltakstyper: filter.tiltakstyper?.filter(
-              (tiltakstype: Tiltaksgjennomforingsfiltergruppe<string>) => tiltakstype.id !== id,
+              (tiltakstype: ArbeidsmarkedstiltakFilterGruppe<string>) => tiltakstype.id !== id,
             ),
           })
         }
       />
-      <SearchFieldTag />
+      {filter.search && (
+        <FilterTag
+          options={[{ id: "search", tittel: `'${filter.search}'` }]}
+          handleClick={() => setFilter({ ...filter, search: "" })}
+        />
+      )}
     </div>
   );
 }

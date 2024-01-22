@@ -1,16 +1,15 @@
 import { PadlockLockedFillIcon } from "@navikt/aksel-icons";
 import { Accordion } from "@navikt/ds-react";
-import { useAtom } from "jotai";
 import { ApentForInnsok } from "mulighetsrommet-api-client";
-import { tiltaksgjennomforingsfilter } from "../../core/atoms/atoms";
 import { FilterToggle } from "./FilterToggle";
 import styles from "./Filtermeny.module.scss";
 import InnsatsgruppeFilter from "./InnsatsgruppeFilter";
 import Sokefelt from "./Sokefelt";
 import { Tiltakstypefilter } from "./Tiltakstypefilter";
+import { useArbeidsmarkedstiltakFilter } from "../../hooks/useArbeidsmarkedstiltakFilter";
 
 const Filtermeny = () => {
-  const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);
+  const [filter, setFilter] = useArbeidsmarkedstiltakFilter();
 
   return (
     <div className={styles.tiltakstype_oversikt_filtermeny} id="tiltakstype_oversikt_filtermeny">

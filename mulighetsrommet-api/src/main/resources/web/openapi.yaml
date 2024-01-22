@@ -3247,7 +3247,6 @@ components:
       enum:
         - mulighetsrommet.admin-flate-opprett-tiltaksgjennomforing
         - mulighetsrommet.veilederflate.visDeltakerRegistrering
-        - mulighetsrommet.enable-arbeidsflate
         - mulighetsrommet-veilederflate-landingsside
         - mulighetsrommet-veilederflate-arena-oppskrifter
         - mulighetsrommet.admin-flate.show-notater

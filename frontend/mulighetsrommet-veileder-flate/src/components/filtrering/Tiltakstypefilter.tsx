@@ -1,11 +1,10 @@
-import { useAtom } from "jotai";
 import { useTiltakstyper } from "../../core/api/queries/useTiltakstyper";
-import { tiltaksgjennomforingsfilter } from "../../core/atoms/atoms";
 import CheckboxFilter from "./CheckboxFilter";
+import { useArbeidsmarkedstiltakFilter } from "../../hooks/useArbeidsmarkedstiltakFilter";
 
 export function Tiltakstypefilter() {
   const tiltakstyper = useTiltakstyper();
-  const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);
+  const [filter, setFilter] = useArbeidsmarkedstiltakFilter();
   return (
     <CheckboxFilter
       accordionNavn="Tiltakstyper"
