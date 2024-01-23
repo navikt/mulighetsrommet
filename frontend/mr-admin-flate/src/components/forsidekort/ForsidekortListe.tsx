@@ -3,6 +3,7 @@ import {
   HandshakeIcon,
   RectangleSectionsIcon,
   TokenIcon,
+  PersonPencilIcon,
 } from "@navikt/aksel-icons";
 import { erForhandsvisningMiljo } from "../../utils/Utils";
 import { Forsidekort } from "./Forsidekort";
@@ -43,8 +44,8 @@ export function ForsidekortListe() {
       />
       <Forsidekort
         navn="Endringsmelding"
-        ikon={<RectangleSectionsIcon aria-label="Endringsmelding" />}
-        url={`https://mulighetsrommet-veileder-flate.intern.${erForhandsvisningMiljo}/preview`}
+        ikon={<PersonPencilIcon aria-label="Endringsmelding" />}
+        url={`https://arbeidsmarkedstiltak.intern.nav.no/`}
         tekst="Her finner du endringsmeldinger"
       />
     </div>
