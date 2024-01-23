@@ -1,4 +1,5 @@
 import { Bruker, EmbeddedNavEnhet, NavEnhetType } from "mulighetsrommet-api-client";
+import { ArbeidsmarkedstiltakFilter, navEnheter } from "../hooks/useArbeidsmarkedstiltakFilter";
 
 export const erTomtObjekt = (objekt: Object): boolean => {
   return Object.keys(objekt).length === 0;
@@ -95,4 +96,16 @@ export function addOrRemove<T>(array: T[], item: T): T[] {
     result.push(item);
     return result;
   }
+}
+
+export function brukersEnhetFilterErEndret(
+  filter: ArbeidsmarkedstiltakFilter,
+  bruker: Bruker,
+): boolean {
+  const relevanteEnheterForBruker = relevanteEnheter(bruker);
+
+  const filterEnheter = navEnheter(filter);
+  if (filterEnheter.length !== relevanteEnheterForBruker.length) return true;
+
+  return relevanteEnheterForBruker.sort().join(",") === filterEnheter.sort().join(",");
 }

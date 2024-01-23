@@ -4,10 +4,10 @@ import {
   ArbeidsmarkedstiltakFilterGruppe,
   useArbeidsmarkedstiltakFilter,
 } from "../../hooks/useArbeidsmarkedstiltakFilter";
-import { BrukersEnhet } from "../brukersEnheter/BrukersEnhet";
 import { ErrorTag } from "../tags/ErrorTag";
 import FilterTag from "../tags/FilterTag";
 import styles from "./Filtertags.module.scss";
+import { NavEnhetTag } from "./NavEnhetTag";
 
 export function Filtertags() {
   const [filter, setFilter] = useArbeidsmarkedstiltakFilter();
@@ -15,7 +15,7 @@ export function Filtertags() {
 
   return (
     <div className={styles.filtertags} data-testid="filtertags">
-      <BrukersEnhet />
+      <NavEnhetTag />
       {!brukerdata.isLoading &&
         !brukerdata.data?.innsatsgruppe &&
         !brukerdata.data?.servicegruppe && (
