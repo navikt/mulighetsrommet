@@ -1,6 +1,6 @@
 @use "@navikt/ds-tokens/dist/tokens" as *;
 
-:global(.navdsi-header) {
+:global(.navds-header) {
   @media (max-width: $a-breakpoint-md) {
     flex-wrap: wrap;
   }
