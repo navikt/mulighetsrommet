@@ -122,11 +122,14 @@ fun Application.configureAuthentication(
                 credentials["NAVident"] ?: return@validate null
 
                 // TODO Fjern betabruker-sjekken når betabruker er sanert
-                if (!(hasNavAnsattRoles(credentials, NavAnsattRolle.BETABRUKER) || hasNavAnsattRoles(
-                        credentials,
-                        NavAnsattRolle.AVTALER_SKRIV,
-                        NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL,
-                    ))
+                if (!(
+                        hasNavAnsattRoles(credentials, NavAnsattRolle.BETABRUKER) ||
+                            hasNavAnsattRoles(
+                                credentials,
+                                NavAnsattRolle.AVTALER_SKRIV,
+                                NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL,
+                            )
+                        )
                 ) {
                     return@validate null
                 }
@@ -144,11 +147,14 @@ fun Application.configureAuthentication(
                 credentials["NAVident"] ?: return@validate null
 
                 // TODO Fjern betabruker-sjekken når betabruker er sanert
-                if (!(hasNavAnsattRoles(credentials, NavAnsattRolle.BETABRUKER) || hasNavAnsattRoles(
-                        credentials,
-                        NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV,
-                        NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL,
-                    ))
+                if (!(
+                        hasNavAnsattRoles(credentials, NavAnsattRolle.BETABRUKER) ||
+                            hasNavAnsattRoles(
+                                credentials,
+                                NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV,
+                                NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL,
+                            )
+                        )
                 ) {
                     return@validate null
                 }
