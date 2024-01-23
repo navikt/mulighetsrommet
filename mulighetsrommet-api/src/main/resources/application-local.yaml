@@ -58,6 +58,9 @@ app:
       # 0000-GA-TILTAK-ANSVARLIG
       - adGruppeId: 52bb9196-b071-4cc7-9472-be4942d33c4b
         rolle: TILTAKADMINISTRASJON_GENERELL
+      # 0000-GA-TILTAK-ENDRINGSMELDING
+      - adGruppeId: d9f317a1-2444-4fcd-b696-df8dbd6cc942
+        rolle: TILTAKADMINISTRASJON_ENDRINGSMELDING
 
   sanity:
     dataset: test

@@ -1,5 +1,3 @@
-import styles from "./Forsidekort.module.scss";
-import { Forsidekort } from "./Forsidekort";
 import {
   FileCheckmarkIcon,
   HandshakeIcon,
@@ -7,6 +5,8 @@ import {
   TokenIcon,
 } from "@navikt/aksel-icons";
 import { erForhandsvisningMiljo } from "../../utils/Utils";
+import { Forsidekort } from "./Forsidekort";
+import styles from "./Forsidekort.module.scss";
 
 export function ForsidekortListe() {
   return (
@@ -40,6 +40,12 @@ export function ForsidekortListe() {
         ikon={<RectangleSectionsIcon aria-label="Preview" />}
         url={`https://mulighetsrommet-veileder-flate.intern.${erForhandsvisningMiljo}/preview`}
         tekst="Her kan du se hvordan tiltakene vises for veileder i Modia"
+      />
+      <Forsidekort
+        navn="Endringsmelding"
+        ikon={<RectangleSectionsIcon aria-label="Endringsmelding" />}
+        url={`https://mulighetsrommet-veileder-flate.intern.${erForhandsvisningMiljo}/preview`}
+        tekst="Her finner du endringsmeldinger"
       />
     </div>
   );
