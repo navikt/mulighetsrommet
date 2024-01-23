@@ -58,9 +58,7 @@ export function AppContext(props: AppContextProps) {
   }, [props.contextData.enhet, props.contextData.fnr]);
 
   useEffect(() => {
-    const filter = props.contextData.fnr
-      ? getDefaultFilterForBrukerIKontekst(props.contextData.fnr)
-      : null;
+    const filter = getDefaultFilterForBrukerIKontekst(props.contextData.fnr ?? null);
     setLoadedFilter(filter);
   }, [props.contextData.fnr]);
 
