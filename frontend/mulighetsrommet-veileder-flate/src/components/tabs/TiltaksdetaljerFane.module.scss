@@ -55,9 +55,7 @@
   }
 }
 
-:global(.mulighetsrommet-veileder-flate) {
-  :global(.navds-tabs__tablist-wrapper) {
-    width: 100%;
-    display: block !important;
-  }
+:global(.navds-tabs__tablist-wrapper) {
+  width: 100%;
+  display: block !important;
 }

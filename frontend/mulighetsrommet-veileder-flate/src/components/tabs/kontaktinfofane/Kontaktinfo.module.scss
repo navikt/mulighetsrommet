@@ -1,64 +1,62 @@
-:global(.mulighetsrommet-veileder-flate) {
-  .kontaktinfo_container {
+.kontaktinfo_container {
+  display: flex;
+  flex-direction: column;
+}
+
+.grid_container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  margin: 1rem 0;
+  gap: 3rem;
+
+  @media (width <= 1200px) {
+    justify-content: space-evenly;
+  }
+}
+
+.header {
+  margin-bottom: 1rem;
+  font-weight: bold;
+}
+
+.navn {
+  font-weight: bold;
+}
+
+.container {
+  margin: 1.5rem 0;
+  max-width: 40rem;
+}
+
+.infofelt {
+  margin-top: 0.5rem;
+  display: flex;
+  flex-direction: row;
+  gap: 2rem;
+
+  .kolonne {
     display: flex;
     flex-direction: column;
+    margin-bottom: 0.25rem;
   }
+}
 
-  .grid_container {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    margin: 1rem 0;
-    gap: 3rem;
+.teamslenke {
+  text-decoration: underline;
+  cursor: pointer;
+}
 
-    @media (width <= 1200px) {
-      justify-content: space-evenly;
-    }
+.definisjonsliste {
+  display: grid;
+  grid-template-columns: 0.5rem 1fr;
+  row-gap: 0.4rem;
+  column-gap: 1rem;
+  dt,
+  dd {
+    display: inline;
   }
+}
 
-  .header {
-    margin-bottom: 1rem;
-    font-weight: bold;
-  }
-
-  .navn {
-    font-weight: bold;
-  }
-
-  .container {
-    margin: 1.5rem 0;
-    max-width: 40rem;
-  }
-
-  .infofelt {
-    margin-top: 0.5rem;
-    display: flex;
-    flex-direction: row;
-    gap: 2rem;
-
-    .kolonne {
-      display: flex;
-      flex-direction: column;
-      margin-bottom: 0.25rem;
-    }
-  }
-
-  .teamslenke {
-    text-decoration: underline;
-    cursor: pointer;
-  }
-
-  .definisjonsliste {
-    display: grid;
-    grid-template-columns: 0.5rem 1fr;
-    row-gap: 0.4rem;
-    column-gap: 1rem;
-    dt,
-    dd {
-      display: inline;
-    }
-  }
-
-  .preWrap {
-    white-space: pre-wrap;
-  }
+.preWrap {
+  white-space: pre-wrap;
 }

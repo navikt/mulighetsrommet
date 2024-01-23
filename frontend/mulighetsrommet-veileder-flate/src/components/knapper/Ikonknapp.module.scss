@@ -1,20 +1,18 @@
-:global(.mulighetsrommet-veileder-flate) {
-  :global(.navds-button).ikonknapp {
-    width: fit-content;
-    color: black;
+:global(.navds-button).ikonknapp {
+  width: fit-content;
+  color: black;
 
-    &:hover {
-      box-shadow: none;
-    }
+  &:hover {
+    box-shadow: none;
+  }
 
-    &:focus {
-      box-shadow: none;
-    }
+  &:focus {
+    box-shadow: none;
+  }
 
-    &:active {
-      background-color: transparent;
-      box-shadow: none;
-      color: var(--a-text-action);
-    }
+  &:active {
+    background-color: transparent;
+    box-shadow: none;
+    color: var(--a-text-action);
   }
 }

@@ -1,23 +1,21 @@
-:global(.mulighetsrommet-veileder-flate) {
-  :global(.navds-button) {
-    min-width: unset;
-  }
+:global(.navds-button) {
+  min-width: unset;
+}
 
-  :global(.navds-button__inner) {
-    justify-content: center;
-  }
+:global(.navds-button__inner) {
+  justify-content: center;
+}
 
-  :global(.navds-button).overstyrt_ikon_knapp {
-    padding: var(--a-spacing-1) 0;
-    margin-left: 0.4rem;
-  }
+:global(.navds-button).overstyrt_ikon_knapp {
+  padding: var(--a-spacing-1) 0;
+  margin-left: 0.4rem;
+}
 
-  :global(.navds-tag--info) {
-    border: unset;
-    font-size: 1rem;
-    line-height: 1.25rem;
-    border-radius: 4px;
-    background-color: var(--a-blue-100);
-    border: unset;
-  }
+:global(.navds-tag--info) {
+  border: unset;
+  font-size: 1rem;
+  line-height: 1.25rem;
+  border-radius: 4px;
+  background-color: var(--a-blue-100);
+  border: unset;
 }
