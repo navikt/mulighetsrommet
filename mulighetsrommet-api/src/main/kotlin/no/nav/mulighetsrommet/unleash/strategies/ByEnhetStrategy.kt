@@ -52,7 +52,7 @@ class ByEnhetStrategy(private val axsysService: AxsysService) : Strategy {
                 }.toList()
         } catch (exe: Exception) {
             logger.warn("Klarte ikke hente tilganger fra Axsys. Se secureLogs for mer informasjon")
-            SecureLog.logger.warn("Klart eikke hente tilganger fra Axsys for bruker med ident: $navIdent. Error: $exe")
+            SecureLog.logger.warn("Klarte ikke hente tilganger fra Axsys for bruker med ident: $navIdent. Error: $exe")
             emptyList()
         }
     }
