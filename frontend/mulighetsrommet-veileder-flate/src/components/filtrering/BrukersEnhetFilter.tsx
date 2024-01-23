@@ -119,6 +119,7 @@ export function BrukersEnhetFilter() {
                   </Checkbox>
                 </div>
                 <ChevronDownIcon
+                  fontSize={"1.25rem"}
                   className={classnames(styles.accordion_down, {
                     [styles.accordion_down_open]: regionOpen.includes(region.enhetsnummer),
                   })}
