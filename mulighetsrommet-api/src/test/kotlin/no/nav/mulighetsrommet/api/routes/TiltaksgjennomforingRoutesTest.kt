@@ -100,7 +100,7 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
         }
     }
 
-    test("200 OK for autentisert kall for PUT av tiltaksgjennomføring når bruker har tilgang til skriv for tiltaksgjennomføring") {
+    test("200 OK for autentisert kall for PUT av tiltaksgjennomføring når bruker har generell tilgang og til skriv for tiltaksgjennomføring") {
         val tiltaksgjennomforingSkrivRolle =
             AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV)
         val tiltaksadministrasjonGenerellRolle =

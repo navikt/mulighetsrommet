@@ -63,6 +63,8 @@ spec:
           - id: 279039a0-39fd-4860-afdd-a1a2ccaa6323
             # 0000-AZ-TILTAK-avtaler_skriv
           - id: 48026f54-6259-4c35-a148-bc4257bcaf03
+            # 0000-GA-TILTAK-ANSVARLIG
+          - id: 52bb9196-b071-4cc7-9472-be4942d33c4b
         extra:
           - NAVident
           - azp_name

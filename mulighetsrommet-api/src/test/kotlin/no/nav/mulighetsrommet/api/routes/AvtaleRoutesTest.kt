@@ -85,7 +85,7 @@ class AvtaleRoutesTest : FunSpec({
         }
     }
 
-    test("200 OK for autentisert kall for PUT av avtaledata når bruker har tilgang til skriv for avtaler") {
+    test("200 OK for autentisert kall for PUT av avtaledata når bruker har generell tilgang og til skriv for avtaler") {
         val avtaleSkrivRolle = AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), NavAnsattRolle.AVTALER_SKRIV)
         val tiltaksadministrasjonGenerellRolle = AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL)
         val engine = createMockEngine(
