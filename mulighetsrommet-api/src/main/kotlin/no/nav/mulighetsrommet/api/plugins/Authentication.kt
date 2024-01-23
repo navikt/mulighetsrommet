@@ -21,6 +21,7 @@ enum class AuthProvider {
     AZURE_AD_BETABRUKER,
     AZURE_AD_AVTALER_SKRIV,
     AZURE_AD_TILTAKSJENNOMFORINGER_SKRIV,
+    AZURE_AD_TILTAKSADMINISTRASJON_GENERELL,
 }
 
 object AppRoles {
@@ -79,7 +80,32 @@ fun Application.configureAuthentication(
             validate { credentials ->
                 credentials["NAVident"] ?: return@validate null
 
-                if (!hasNavAnsattRoles(credentials, NavAnsattRolle.BETABRUKER)) {
+                if (!hasAnyNavAnsattRoles(
+                        credentials,
+                        NavAnsattRolle.BETABRUKER,
+                        NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL,
+                    )
+                ) {
+                    return@validate null
+                }
+
+                JWTPrincipal(credentials.payload)
+            }
+        }
+
+        jwt(AuthProvider.AZURE_AD_TILTAKSADMINISTRASJON_GENERELL.name) {
+            verifier(jwkProvider, azure.issuer) {
+                withAudience(azure.audience)
+            }
+
+            validate { credentials ->
+                credentials["NAVident"] ?: return@validate null
+
+                if (!hasNavAnsattRoles(
+                        credentials,
+                        NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL,
+                    )
+                ) {
                     return@validate null
                 }
 
@@ -95,7 +121,14 @@ fun Application.configureAuthentication(
             validate { credentials ->
                 credentials["NAVident"] ?: return@validate null
 
-                if (!hasAnyNavAnsattRoles(credentials, NavAnsattRolle.AVTALER_SKRIV, NavAnsattRolle.BETABRUKER)) {
+                // TODO Fjern betabruker-sjekken når betabruker er sanert
+                if (!hasNavAnsattRoles(credentials, NavAnsattRolle.BETABRUKER) &&
+                    !hasNavAnsattRoles(
+                        credentials,
+                        NavAnsattRolle.AVTALER_SKRIV,
+                        NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL,
+                    )
+                ) {
                     return@validate null
                 }
 
@@ -111,10 +144,12 @@ fun Application.configureAuthentication(
             validate { credentials ->
                 credentials["NAVident"] ?: return@validate null
 
-                if (!hasAnyNavAnsattRoles(
+                // TODO Fjern betabruker-sjekken når betabruker er sanert
+                if (!hasNavAnsattRoles(credentials, NavAnsattRolle.BETABRUKER) &&
+                    !hasNavAnsattRoles(
                         credentials,
                         NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV,
-                        NavAnsattRolle.BETABRUKER,
+                        NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL,
                     )
                 ) {
                     return@validate null

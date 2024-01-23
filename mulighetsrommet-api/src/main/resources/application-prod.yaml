@@ -57,6 +57,9 @@ app:
       # 0000-GA-TILTAK-avtaler_skriv
       - adGruppeId: 46ba8787-eb24-4f7b-830f-4c5e9256de65
         rolle: AVTALER_SKRIV
+      # 0000-GA-TILTAK-ANSVARLIG
+      - adGruppeId: 2cf8d881-c2da-47b5-b409-fa088440a629
+        rolle: TILTAKADMINISTRASJON_GENERELL
 
   sanity:
     dataset: ${SANITY_DATASET}
