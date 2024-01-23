@@ -58,12 +58,7 @@ class NavAnsattService(
 
     fun getNavAnsatte(filter: NavAnsattFilter): List<NavAnsattDto> {
         // TODO Fjern når betabruker-rollen er sanert fra AD
-        val roller =
-            if (filter.roller.any { it == NavAnsattRolle.AVTALER_SKRIV || it == NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV }) {
-                listOf(NavAnsattRolle.BETABRUKER, NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL)
-            } else {
-                filter.roller
-            }
+        val roller = filter.roller + NavAnsattRolle.BETABRUKER
         return ansatte.getAll(roller = roller).getOrThrow()
     }
 

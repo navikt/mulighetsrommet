@@ -121,10 +121,9 @@ fun Application.configureAuthentication(
             validate { credentials ->
                 credentials["NAVident"] ?: return@validate null
 
-                if (!hasAnyNavAnsattRoles(
+                if (!hasNavAnsattRoles(credentials, NavAnsattRolle.BETABRUKER) || !hasNavAnsattRoles(
                         credentials,
                         NavAnsattRolle.AVTALER_SKRIV,
-                        NavAnsattRolle.BETABRUKER,
                         NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL,
                     )
                 ) {
@@ -143,10 +142,9 @@ fun Application.configureAuthentication(
             validate { credentials ->
                 credentials["NAVident"] ?: return@validate null
 
-                if (!hasAnyNavAnsattRoles(
+                if (!hasNavAnsattRoles(credentials, NavAnsattRolle.BETABRUKER) || !hasNavAnsattRoles(
                         credentials,
                         NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV,
-                        NavAnsattRolle.BETABRUKER,
                         NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL,
                     )
                 ) {
