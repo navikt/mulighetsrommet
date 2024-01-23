@@ -49,11 +49,11 @@ app:
       # Mocket AD-gruppe for lokal utvikling
       - adGruppeId: ee45478c-57a5-4ee6-b28d-b65f8c1733fe
         rolle: BETABRUKER
-      # Mocket 0000-GA-TILTAK-tiltaksgjennomforinger_skriv
-      - adGruppeId: b3ace38f-9c62-43ef-9e6b-99c0e227afad
+      # Mocket 0000-ZA-TILTAK-tiltaksgjennomforinger_skriv
+      - adGruppeId: 279039a0-39fd-4860-afdd-a1a2ccaa6323
         rolle: TILTAKSGJENNOMFORINGER_SKRIV
-      # Mocket 0000-GA-TILTAK-avtaler_skriv
-      - adGruppeId: dfcce624-ad5d-4cd0-abc0-554dd66858e5
+      # Mocket 0000-ZA-TILTAK-avtaler_skriv
+      - adGruppeId: 48026f54-6259-4c35-a148-bc4257bcaf03
         rolle: AVTALER_SKRIV
 
   sanity:
