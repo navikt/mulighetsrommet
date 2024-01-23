@@ -121,7 +121,8 @@ fun Application.configureAuthentication(
             validate { credentials ->
                 credentials["NAVident"] ?: return@validate null
 
-                if (!hasNavAnsattRoles(credentials, NavAnsattRolle.BETABRUKER) || !hasNavAnsattRoles(
+                // TODO Fjern betabruker-sjekken når betabruker er sanert
+                if (!hasNavAnsattRoles(credentials, NavAnsattRolle.BETABRUKER) && !hasNavAnsattRoles(
                         credentials,
                         NavAnsattRolle.AVTALER_SKRIV,
                         NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL,
@@ -142,7 +143,8 @@ fun Application.configureAuthentication(
             validate { credentials ->
                 credentials["NAVident"] ?: return@validate null
 
-                if (!hasNavAnsattRoles(credentials, NavAnsattRolle.BETABRUKER) || !hasNavAnsattRoles(
+                // TODO Fjern betabruker-sjekken når betabruker er sanert
+                if (!hasNavAnsattRoles(credentials, NavAnsattRolle.BETABRUKER) && !hasNavAnsattRoles(
                         credentials,
                         NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV,
                         NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL,

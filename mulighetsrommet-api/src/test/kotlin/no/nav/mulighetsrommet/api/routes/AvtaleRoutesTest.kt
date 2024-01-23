@@ -65,8 +65,29 @@ class AvtaleRoutesTest : FunSpec({
         }
     }
 
+    test("401 Unauthorized for uautentisert kall for PUT av avtaledata når bruker har tilgang til å skrive for avtaler, men mangler generell tilgang") {
+        val avtaleSkrivRolle = AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), NavAnsattRolle.AVTALER_SKRIV)
+        val tiltaksadministrasjonGenerellRolle = AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL)
+        val config = createTestApplicationConfig().copy(
+            auth = createAuthConfig(oauth, roles = listOf(avtaleSkrivRolle, tiltaksadministrasjonGenerellRolle)),
+        )
+        withTestApplication(config) {
+            val response = client.put("/api/v1/internal/avtaler") {
+                val claims = mapOf(
+                    "NAVident" to "ABC123",
+                    "groups" to listOf(tiltaksadministrasjonGenerellRolle.adGruppeId),
+                )
+                bearerAuth(
+                    oauth.issueToken(claims = claims).serialize(),
+                )
+            }
+            response.status shouldBe HttpStatusCode.Unauthorized
+        }
+    }
+
     test("200 OK for autentisert kall for PUT av avtaledata når bruker har tilgang til skriv for avtaler") {
         val avtaleSkrivRolle = AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), NavAnsattRolle.AVTALER_SKRIV)
+        val tiltaksadministrasjonGenerellRolle = AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL)
         val engine = createMockEngine(
             "/brreg/enheter/${AvtaleFixtures.avtaleRequest.leverandorOrganisasjonsnummer}" to {
                 respondJson(BrregEnhet(organisasjonsnummer = "123456789", navn = "Testvirksomhet"))
@@ -76,7 +97,7 @@ class AvtaleRoutesTest : FunSpec({
             },
         )
         val config = createTestApplicationConfig().copy(
-            auth = createAuthConfig(oauth, roles = listOf(avtaleSkrivRolle)),
+            auth = createAuthConfig(oauth, roles = listOf(avtaleSkrivRolle, tiltaksadministrasjonGenerellRolle)),
             engine = engine,
             database = databaseConfig,
         )
@@ -89,7 +110,7 @@ class AvtaleRoutesTest : FunSpec({
             val response = client.put("/api/v1/internal/avtaler") {
                 val claims = mapOf(
                     "NAVident" to "ABC123",
-                    "groups" to listOf(avtaleSkrivRolle.adGruppeId),
+                    "groups" to listOf(avtaleSkrivRolle.adGruppeId, tiltaksadministrasjonGenerellRolle.adGruppeId),
                 )
                 bearerAuth(
                     oauth.issueToken(claims = claims).serialize(),
