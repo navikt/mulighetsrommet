@@ -33,8 +33,8 @@ class BrukerService(
         return Brukerdata(
             fnr = fnr,
             innsatsgruppe = sisteVedtak?.innsatsgruppe,
-            oppfolgingsenhet = brukersOppfolgingsenhet?.toNavEnhet(),
-            geografiskEnhet = brukersGeografiskeEnhet?.toNavEnhet(),
+            oppfolgingsenhet = brukersOppfolgingsenhet?.toEmbeddedNavEnhet(),
+            geografiskEnhet = brukersGeografiskeEnhet?.toEmbeddedNavEnhet(),
             servicegruppe = oppfolgingsstatus?.servicegruppe,
             fornavn = personInfo.fornavn,
             manuellStatus = manuellStatus,
@@ -53,7 +53,7 @@ class BrukerService(
     )
 }
 
-fun NavEnhetDbo.toNavEnhet(): EmbeddedNavEnhet {
+fun NavEnhetDbo.toEmbeddedNavEnhet(): EmbeddedNavEnhet {
     return EmbeddedNavEnhet(
         enhetsnummer = enhetsnummer,
         navn = navn,

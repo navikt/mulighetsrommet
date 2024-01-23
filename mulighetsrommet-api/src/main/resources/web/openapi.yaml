@@ -876,16 +876,16 @@ paths:
     post:
       tags:
         - VeilederTiltak
-      operationId: getRelevanteTiltaksgjennomforingerForBruker
+      operationId: getTiltaksgjennomforinger
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/GetRelevanteTiltaksgjennomforingerForBrukerRequest"
+              $ref: "#/components/schemas/GetTiltaksgjennomforingerRequest"
         required: true
       responses:
         200:
-          description: Hent tiltaksgjennomføringer filtrert på brukers enheter
+          description: Hent tiltaksgjennomføringer
           content:
             application/json:
               schema:
@@ -897,12 +897,12 @@ paths:
     post:
       tags:
         - VeilederTiltak
-      operationId: getTiltaksgjennomforingForBruker
+      operationId: getTiltaksgjennomforing
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/GetTiltaksgjennomforingForBrukerRequest"
+              $ref: "#/components/schemas/GetTiltaksgjennomforingRequest"
         required: true
       responses:
         200:
@@ -911,27 +911,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/VeilederflateTiltaksgjennomforing"
-
-  /api/v1/internal/veileder/preview/tiltaksgjennomforinger:
-    post:
-      tags:
-        - VeilederTiltak
-      operationId: getPreviewRelevanteTiltaksgjennomforinger
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/GetRelevanteTiltaksgjennomforingerPreviewRequest"
-        required: true
-      responses:
-        200:
-          description: Hent tiltaksgjennomføringer basert på geografisk enhet
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/VeilederflateTiltaksgjennomforing"
 
   /api/v1/internal/veileder/preview/tiltaksgjennomforing:
     post:
@@ -1657,11 +1636,13 @@ components:
       required:
         - norskIdent
 
-    GetRelevanteTiltaksgjennomforingerForBrukerRequest:
+    GetTiltaksgjennomforingerRequest:
       type: object
       properties:
-        norskIdent:
-          type: string
+        enheter:
+          type: array
+          items:
+            type: string
         innsatsgruppe:
           $ref: "#/components/schemas/Innsatsgruppe"
         tiltakstypeIds:
@@ -1674,6 +1655,7 @@ components:
         apentForInnsok:
           $ref: "#/components/schemas/ApentForInnsok"
       required:
+        - enheter
         - norskIdent
         - apentForInnsok
 
@@ -1684,30 +1666,10 @@ components:
         - STENGT
         - APENT_ELLER_STENGT
 
-    GetRelevanteTiltaksgjennomforingerPreviewRequest:
-      type: object
-      properties:
-        geografiskEnhet:
-          type: string
-        innsatsgruppe:
-          $ref: "#/components/schemas/Innsatsgruppe"
-        tiltakstypeIds:
-          type: array
-          items:
-            type: string
-            format: uuid
-        search:
-          type: string
-        apentForInnsok:
-          $ref: "#/components/schemas/ApentForInnsok"
-      required:
-        - geografiskEnhet
-        - apentForInnsok
-
     GetTiltaksgjennomforingDetaljerPreviewRequest:
       type: object
       properties:
-        brukersEnheter:
+        enheter:
           type: array
           items:
             type: string
@@ -1717,16 +1679,18 @@ components:
         - enheter
         - id
 
-    GetTiltaksgjennomforingForBrukerRequest:
+    GetTiltaksgjennomforingRequest:
       type: object
       properties:
         id:
           type: string
           format: uuid
-        norskIdent:
-          type: string
+        enheter:
+          type: array
+          items:
+            type: string
       required:
-        - norskIdent
+        - enheter
         - id
 
     ManuellStatus:

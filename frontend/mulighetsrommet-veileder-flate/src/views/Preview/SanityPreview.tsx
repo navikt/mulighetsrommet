@@ -1,17 +1,12 @@
 import { Alert, Loader } from "@navikt/ds-react";
-import { useAtom } from "jotai";
 import { Innsatsgruppe, NavEnhetType } from "mulighetsrommet-api-client";
 import usePreviewTiltaksgjennomforingById from "../../core/api/queries/usePreviewTiltaksgjennomforingById";
-import { geografiskEnhetForPreviewAtom } from "../../core/atoms/atoms";
 import ViewTiltaksgjennomforingDetaljer from "../tiltaksgjennomforing-detaljer/ViewTiltaksgjennomforingDetaljer";
 import styles from "./SanityPreview.module.scss";
 import { Link } from "react-router-dom";
 
 export function SanityPreview() {
-  const [geografiskEnhet] = useAtom(geografiskEnhetForPreviewAtom);
-  const { data, isLoading, isError } = usePreviewTiltaksgjennomforingById([
-    geografiskEnhet?.enhetsnummer || "",
-  ]);
+  const { data, isLoading, isError } = usePreviewTiltaksgjennomforingById();
   const brukersInnsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS;
 
   if (isLoading) {

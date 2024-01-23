@@ -7,6 +7,7 @@ import InnsatsgruppeFilter from "./InnsatsgruppeFilter";
 import Sokefelt from "./Sokefelt";
 import { Tiltakstypefilter } from "./Tiltakstypefilter";
 import { useArbeidsmarkedstiltakFilter } from "../../hooks/useArbeidsmarkedstiltakFilter";
+import { BrukersEnhetFilter } from "./BrukersEnhetFilter";
 
 const Filtermeny = () => {
   const [filter, setFilter] = useArbeidsmarkedstiltakFilter();
@@ -18,6 +19,7 @@ const Filtermeny = () => {
         setSokefilter={(search: string) => setFilter({ ...filter, search })}
       />
       <Accordion>
+        <BrukersEnhetFilter />
         <FilterToggle
           accordionHeader="Åpent for innsøk"
           value={filter.apentForInnsok}

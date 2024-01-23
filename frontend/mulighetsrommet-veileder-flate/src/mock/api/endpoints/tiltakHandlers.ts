@@ -1,8 +1,7 @@
 import { http, HttpResponse, PathParams } from "msw";
 import {
-  GetRelevanteTiltaksgjennomforingerForBrukerRequest,
-  GetRelevanteTiltaksgjennomforingerPreviewRequest,
-  GetTiltaksgjennomforingForBrukerRequest,
+  GetTiltaksgjennomforingerRequest,
+  GetTiltaksgjennomforingRequest,
   Innsatsgruppe,
   VeilederflateInnsatsgruppe,
   VeilederflateTiltaksgjennomforing,
@@ -27,7 +26,7 @@ export const tiltakHandlers = [
     },
   ),
 
-  http.post<PathParams, GetRelevanteTiltaksgjennomforingerForBrukerRequest>(
+  http.post<PathParams, GetTiltaksgjennomforingerRequest>(
     "*/api/v1/internal/veileder/tiltaksgjennomforinger",
     async ({ request }) => {
       const { innsatsgruppe, search = "", tiltakstypeIds = [] } = await request.json();
@@ -41,21 +40,7 @@ export const tiltakHandlers = [
     },
   ),
 
-  http.post<PathParams, GetRelevanteTiltaksgjennomforingerPreviewRequest>(
-    "*/api/v1/internal/veileder/preview/tiltaksgjennomforinger",
-    async ({ request }) => {
-      const { innsatsgruppe, search = "", tiltakstypeIds = [] } = await request.json();
-
-      const results = mockTiltaksgjennomforinger
-        .filter((gj) => filtrerFritekst(gj, search))
-        .filter((gj) => filtrerInnsatsgruppe(gj, innsatsgruppe))
-        .filter((gj) => filtrerTiltakstyper(gj, tiltakstypeIds));
-
-      return HttpResponse.json(results);
-    },
-  ),
-
-  http.post<PathParams, GetTiltaksgjennomforingForBrukerRequest>(
+  http.post<PathParams, GetTiltaksgjennomforingRequest>(
     "*/api/v1/internal/veileder/tiltaksgjennomforing",
     async ({ request }) => {
       const { id } = await request.json();

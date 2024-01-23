@@ -185,7 +185,7 @@ class VeilederflateService(
 
     suspend fun hentTiltaksgjennomforing(
         id: UUID,
-        enheter: NonEmptyList<String>,
+        enheter: List<String>,
         sanityPerspective: SanityPerspective,
     ): VeilederflateTiltaksgjennomforing {
         return tiltaksgjennomforingService.get(id)

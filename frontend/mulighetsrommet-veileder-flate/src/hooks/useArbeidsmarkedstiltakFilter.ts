@@ -1,11 +1,16 @@
-import { ApentForInnsok, Innsatsgruppe } from "mulighetsrommet-api-client";
+import { ApentForInnsok, EmbeddedNavEnhet, Innsatsgruppe } from "mulighetsrommet-api-client";
 import { atomWithStorage, createJSONStorage } from "jotai/utils";
 import { useAtom, useAtomValue } from "jotai";
 import { SyncStorage } from "jotai/vanilla/utils/atomWithStorage";
 import { useHentBrukerdata } from "../core/api/queries/useHentBrukerdata";
 
+export interface RegionMap {
+  [region: string]: string[];
+}
+
 export interface ArbeidsmarkedstiltakFilter {
   search: string;
+  regionMap: RegionMap;
   innsatsgruppe?: ArbeidsmarkedstiltakFilterGruppe<Innsatsgruppe>;
   tiltakstyper: ArbeidsmarkedstiltakFilterGruppe<string>[];
   apentForInnsok: ApentForInnsok;
@@ -45,6 +50,7 @@ export function useResetArbeidsmarkedstiltakFilter() {
     filter.innsatsgruppe?.nokkel !== brukerdata?.innsatsgruppe ||
     filter.apentForInnsok !== ApentForInnsok.APENT_ELLER_STENGT ||
     filter.search !== "" ||
+    navEnheter(filter).length > 0 ||
     filter.tiltakstyper.length > 0;
 
   return {
@@ -90,6 +96,7 @@ const ARBEIDSMARKEDSTILTAK_FILTER_KEY = "arbeidsmarkedstiltak-filter";
 
 const defaultTiltaksgjennomforingfilter: ArbeidsmarkedstiltakFilter = {
   search: "",
+  regionMap: {},
   innsatsgruppe: undefined,
   tiltakstyper: [],
   apentForInnsok: ApentForInnsok.APENT_ELLER_STENGT,
@@ -101,3 +108,21 @@ export const filterAtom = atomWithStorage<FilterMedBrukerIKontekst>(
   filterStorage,
   { getOnInit: true },
 );
+
+export function navEnheter(filter: ArbeidsmarkedstiltakFilter): string[] {
+  return Array.from(Object.values(filter.regionMap)).flat(1);
+}
+
+export function buildRegionMap(navEnheter: EmbeddedNavEnhet[]): RegionMap {
+  const map: RegionMap = {};
+  navEnheter.forEach((enhet: EmbeddedNavEnhet) => {
+    const regionNavn = enhet.overordnetEnhet ?? "unknown";
+    if (regionNavn in map) {
+      map[regionNavn].push(enhet.enhetsnummer);
+    } else {
+      map[regionNavn] = [enhet.enhetsnummer];
+    }
+  });
+
+  return map;
+}

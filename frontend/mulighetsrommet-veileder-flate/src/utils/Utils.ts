@@ -1,4 +1,4 @@
-import { Bruker, NavEnhetType } from "mulighetsrommet-api-client";
+import { Bruker, EmbeddedNavEnhet, NavEnhetType } from "mulighetsrommet-api-client";
 
 export const erTomtObjekt = (objekt: Object): boolean => {
   return Object.keys(objekt).length === 0;
@@ -60,6 +60,27 @@ export function brukersGeografiskeOgOppfolgingsenhetErLokalkontorMenIkkeSammeKon
     oppfolgingsenhet?.type === NavEnhetType.LOKAL &&
     oppfolgingsenhet.enhetsnummer !== geografiskEnhet?.enhetsnummer
   );
+}
+
+export function relevanteEnheter(bruker?: Bruker): EmbeddedNavEnhet[] {
+  if (!bruker) return [];
+
+  const { geografiskEnhet, oppfolgingsenhet } = bruker;
+
+  let actualGeografiskEnhet = geografiskEnhet;
+  if (oppfolgingsenhet?.type === NavEnhetType.LOKAL) {
+    actualGeografiskEnhet = oppfolgingsenhet;
+  }
+
+  let virtuellOppfolgingsenhet = null;
+  if (
+    oppfolgingsenhet != null &&
+    oppfolgingsenhet.type! in [NavEnhetType.FYLKE, NavEnhetType.LOKAL]
+  ) {
+    virtuellOppfolgingsenhet = oppfolgingsenhet;
+  }
+
+  return [actualGeografiskEnhet, virtuellOppfolgingsenhet].filter((x) => x) as EmbeddedNavEnhet[];
 }
 
 export function addOrRemove<T>(array: T[], item: T): T[] {

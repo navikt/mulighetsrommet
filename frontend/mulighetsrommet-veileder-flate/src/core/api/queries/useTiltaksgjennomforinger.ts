@@ -1,21 +1,19 @@
 import { useQuery } from "@tanstack/react-query";
-import {
-  GetRelevanteTiltaksgjennomforingerForBrukerRequest,
-  Innsatsgruppe,
-} from "mulighetsrommet-api-client";
-import { useAppContext } from "../../../hooks/useAppContext";
+import { GetTiltaksgjennomforingerRequest, Innsatsgruppe } from "mulighetsrommet-api-client";
 import { mulighetsrommetClient } from "../clients";
 import { QueryKeys } from "../query-keys";
 import { useHentBrukerdata } from "./useHentBrukerdata";
-import { useArbeidsmarkedstiltakFilterValue } from "../../../hooks/useArbeidsmarkedstiltakFilter";
+import {
+  navEnheter,
+  useArbeidsmarkedstiltakFilterValue,
+} from "../../../hooks/useArbeidsmarkedstiltakFilter";
 
 export default function useTiltaksgjennomforinger() {
   const filter = useArbeidsmarkedstiltakFilterValue();
   const brukerData = useHentBrukerdata();
-  const { fnr } = useAppContext();
 
-  const requestBody: GetRelevanteTiltaksgjennomforingerForBrukerRequest = {
-    norskIdent: fnr,
+  const requestBody: GetTiltaksgjennomforingerRequest = {
+    enheter: navEnheter(filter),
     innsatsgruppe: filter.innsatsgruppe?.nokkel,
     apentForInnsok: filter.apentForInnsok,
   };
@@ -31,7 +29,7 @@ export default function useTiltaksgjennomforinger() {
   return useQuery({
     queryKey: QueryKeys.sanity.tiltaksgjennomforinger(brukerData.data, filter),
     queryFn: () =>
-      mulighetsrommetClient.veilederTiltak.getRelevanteTiltaksgjennomforingerForBruker({
+      mulighetsrommetClient.veilederTiltak.getTiltaksgjennomforinger({
         requestBody,
       }),
   });
