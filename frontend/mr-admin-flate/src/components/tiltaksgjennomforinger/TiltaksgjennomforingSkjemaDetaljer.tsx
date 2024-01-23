@@ -1,11 +1,6 @@
 import { PlusIcon, XMarkIcon } from "@navikt/aksel-icons";
 import { Button, Checkbox, HStack, TextField } from "@navikt/ds-react";
-import {
-  Avtale,
-  Tiltaksgjennomforing,
-  TiltaksgjennomforingOppstartstype,
-  Toggles,
-} from "mulighetsrommet-api-client";
+import { Avtale, Tiltaksgjennomforing, Toggles } from "mulighetsrommet-api-client";
 import { ControlledSokeSelect } from "mulighetsrommet-frontend-common";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
@@ -23,6 +18,7 @@ import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
 import skjemastyles from "../skjema/Skjema.module.scss";
 import { VirksomhetKontaktpersoner } from "../virksomhet/VirksomhetKontaktpersoner";
 import { arrangorUnderenheterOptions, erArenaOpphav } from "./TiltaksgjennomforingSkjemaConst";
+import { SelectOppstartstype } from "./SelectOppstartstype";
 
 interface Props {
   tiltaksgjennomforing?: Tiltaksgjennomforing;
@@ -121,22 +117,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
           </FormGroup>
           <Separator />
           <FormGroup>
-            <ControlledSokeSelect
-              size="small"
-              label="Oppstartstype"
-              placeholder="Velg oppstart"
-              {...register("oppstart")}
-              options={[
-                {
-                  label: "Felles oppstartsdato",
-                  value: TiltaksgjennomforingOppstartstype.FELLES,
-                },
-                {
-                  label: "Løpende oppstart",
-                  value: TiltaksgjennomforingOppstartstype.LOPENDE,
-                },
-              ]}
-            />
+            <SelectOppstartstype name="oppstart" />
             <FraTilDatoVelger
               size="small"
               fra={{
