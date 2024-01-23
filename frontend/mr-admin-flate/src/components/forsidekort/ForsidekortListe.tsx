@@ -46,7 +46,7 @@ export function ForsidekortListe() {
         navn="Endringsmelding"
         ikon={<PersonPencilIcon aria-label="Endringsmelding" />}
         url={`https://arbeidsmarkedstiltak.intern.nav.no/`}
-        tekst="Her finner du endringsmeldinger"
+        tekst="Her finner du endringsmeldinger fra tiltaksarrangør"
       />
     </div>
   );
