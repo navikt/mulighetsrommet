@@ -1,15 +1,9 @@
-import { Alert, BodyShort, Button, Heading, Loader, Modal } from "@navikt/ds-react";
-import { useAtom } from "jotai";
+import { Alert, BodyShort, Button, Heading, Modal } from "@navikt/ds-react";
 import {
-  NavEnhet,
-  SanityKontakinfoTiltaksansvarlige,
+  VeilederflateKontaktinfoTiltaksansvarlig,
   VeilederflateTiltaksgjennomforing,
 } from "mulighetsrommet-api-client";
 import { RefObject, useRef } from "react";
-import { Link } from "react-router-dom";
-import { useNavEnheter } from "../../../core/api/queries/useNavEnheter";
-import { geografiskEnhetForPreviewAtom } from "../../../core/atoms/atoms";
-import { erPreview } from "../../../utils/Utils";
 import styles from "./Kontaktinfo.module.scss";
 
 const TEAMS_DYPLENKE = "https://teams.microsoft.com/l/chat/0/0?users=";
@@ -20,23 +14,7 @@ interface NavKontaktpersonInfoProps {
 
 const NavKontaktpersonInfo = ({ data }: NavKontaktpersonInfoProps) => {
   const { kontaktinfoTiltaksansvarlige: tiltaksansvarlige } = data;
-  const { data: navEnheter, isLoading: isLoadingNavEnheter } = useNavEnheter();
-  const [brukersGeografiskeEnhet] = useAtom(geografiskEnhetForPreviewAtom);
   const modalRef = useRef<HTMLDialogElement>(null);
-
-  if (erPreview() && !brukersGeografiskeEnhet) {
-    return (
-      <Alert variant="info" inline>
-        Det er ikke satt en geografisk enhet i forhåndsvisning så vi vet ikke hvilken kontaktperson
-        vi skal vise. Gå til oversikten{" "}
-        <Link to="/preview">og velg en geografisk enhet før du går tilbake til tiltaket.</Link>
-      </Alert>
-    );
-  }
-
-  if (isLoadingNavEnheter) {
-    return <Loader size="medium" />;
-  }
 
   return (
     <div className={styles.tiltaksansvarlig_info}>
@@ -48,18 +26,8 @@ const NavKontaktpersonInfo = ({ data }: NavKontaktpersonInfoProps) => {
             Tiltaksansvarlig
           </Heading>
 
-          {tiltaksansvarlige.map((tiltaksansvarlig: SanityKontakinfoTiltaksansvarlige) => {
-            const {
-              navn,
-              epost,
-              telefonnummer,
-              enhet: enhetsnummer,
-              beskrivelse,
-            } = tiltaksansvarlig;
-            const enhetsnavn = navEnheter?.find(
-              (navEnhet: NavEnhet) => navEnhet.enhetsnummer === enhetsnummer,
-            )?.navn;
-            const enhet = enhetsnavn ? `${enhetsnavn} - ${enhetsnummer}` : enhetsnummer;
+          {tiltaksansvarlige.map((tiltaksansvarlig: VeilederflateKontaktinfoTiltaksansvarlig) => {
+            const { navn, epost, telefonnummer, enhet, beskrivelse } = tiltaksansvarlig;
             return (
               <div key={epost} className={styles.container}>
                 <BodyShort className={styles.navn} size="small">
@@ -95,7 +63,7 @@ const NavKontaktpersonInfo = ({ data }: NavKontaktpersonInfoProps) => {
                     ) : null}
                     <dt>Enhet:</dt>
                     <dd>
-                      <span>{enhet}</span>
+                      <span>{`${enhet.navn} - ${enhet.enhetsnummer}`}</span>
                     </dd>
                   </dl>
                 </BodyShort>

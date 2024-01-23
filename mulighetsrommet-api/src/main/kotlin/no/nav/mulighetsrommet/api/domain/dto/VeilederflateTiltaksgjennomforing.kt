@@ -38,11 +38,20 @@ data class VeilederflateTiltaksgjennomforing(
     val stengtFra: LocalDate? = null,
     @Serializable(with = LocalDateSerializer::class)
     val stengtTil: LocalDate? = null,
-    val kontaktinfoTiltaksansvarlige: List<KontaktinfoTiltaksansvarlige>,
+    val kontaktinfoTiltaksansvarlige: List<VeilederflateKontaktinfoTiltaksansvarlig>,
     val fylke: String? = null,
     val enheter: List<String>? = emptyList(),
     val beskrivelse: String? = null,
     val faneinnhold: Faneinnhold? = null,
+)
+
+@Serializable
+data class VeilederflateKontaktinfoTiltaksansvarlig(
+    val navn: String? = null,
+    val telefonnummer: String? = null,
+    val enhet: EmbeddedNavEnhet? = null,
+    val epost: String? = null,
+    val beskrivelse: String? = null,
 )
 
 @Serializable

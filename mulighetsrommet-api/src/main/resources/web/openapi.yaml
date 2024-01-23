@@ -2754,7 +2754,7 @@ components:
         kontaktinfoTiltaksansvarlige:
           type: array
           items:
-            $ref: "#/components/schemas/SanityKontakinfoTiltaksansvarlige"
+            $ref: "#/components/schemas/VeilederflateKontaktinfoTiltaksansvarlig"
         apentForInnsok:
           type: boolean
         stengtFra:
@@ -2853,7 +2853,7 @@ components:
         - telefon
         - epost
 
-    SanityKontakinfoTiltaksansvarlige:
+    VeilederflateKontaktinfoTiltaksansvarlig:
       type: object
       properties:
         _id:
@@ -2861,7 +2861,7 @@ components:
         navn:
           type: string
         enhet:
-          type: string
+          $ref: "#/components/schemas/EmbeddedNavEnhet"
         telefonnummer:
           type: string
         epost:

@@ -28,7 +28,7 @@ import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.ArenaOpp
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.Oppfolging1
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.Oppfolging2
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
-import no.nav.mulighetsrommet.api.services.toNavEnhet
+import no.nav.mulighetsrommet.api.services.toEmbeddedNavEnhet
 import no.nav.mulighetsrommet.api.utils.DEFAULT_PAGINATION_LIMIT
 import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
@@ -157,7 +157,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 )
                 it.startDato shouldBe LocalDate.of(2023, 1, 1)
                 it.sluttDato shouldBe LocalDate.of(2023, 2, 2)
-                it.arenaAnsvarligEnhet shouldBe NavEnhetFixtures.Innlandet.toNavEnhet()
+                it.arenaAnsvarligEnhet shouldBe NavEnhetFixtures.Innlandet.toEmbeddedNavEnhet()
                 it.apentForInnsok shouldBe false
                 it.antallPlasser shouldBe 10
                 it.avtaleId shouldBe null
