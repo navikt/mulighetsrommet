@@ -21,7 +21,6 @@ import { useHentBrukerdata } from "../../core/api/queries/useHentBrukerdata";
 import useTiltaksgjennomforinger from "../../core/api/queries/useTiltaksgjennomforinger";
 import { useResetArbeidsmarkedstiltakFilter } from "../../hooks/useArbeidsmarkedstiltakFilter";
 import styles from "./ViewTiltaksgjennomforingOversikt.module.scss";
-import { brukersEnhetFilterErEndret } from "../../utils/Utils";
 
 const ViewTiltaksgjennomforingOversikt = () => {
   useTitle("Arbeidsmarkedstiltak - Oversikt");
@@ -144,9 +143,7 @@ const ViewTiltaksgjennomforingOversikt = () => {
         tags={<Filtertags />}
         table={
           <div style={{ marginTop: "1rem" }}>
-            {!brukersEnhetFilterErEndret(filter, brukerdata) && (
-              <BrukersOppfolgingsenhetVarsel brukerdata={brukerdata} />
-            )}
+            <BrukersOppfolgingsenhetVarsel brukerdata={brukerdata} />
             <FiltrertFeilInnsatsgruppeVarsel filter={filter} />
             <BrukerHarIkke14aVedtakVarsel brukerdata={brukerdata} />
             {isLoading ? (

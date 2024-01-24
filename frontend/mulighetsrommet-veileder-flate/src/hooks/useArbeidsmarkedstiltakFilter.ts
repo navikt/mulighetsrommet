@@ -3,6 +3,7 @@ import { atomWithStorage, createJSONStorage } from "jotai/utils";
 import { useAtom, useAtomValue } from "jotai";
 import { SyncStorage } from "jotai/vanilla/utils/atomWithStorage";
 import { useHentBrukerdata } from "../core/api/queries/useHentBrukerdata";
+import { brukersEnhetFilterHasChanged } from "../utils/Utils";
 
 export interface RegionMap {
   [region: string]: string[];
@@ -50,7 +51,7 @@ export function useResetArbeidsmarkedstiltakFilter() {
     filter.innsatsgruppe?.nokkel !== brukerdata?.innsatsgruppe ||
     filter.apentForInnsok !== ApentForInnsok.APENT_ELLER_STENGT ||
     filter.search !== "" ||
-    navEnheter(filter).length > 0 ||
+    brukersEnhetFilterHasChanged(filter, brukerdata) ||
     filter.tiltakstyper.length > 0;
 
   return {

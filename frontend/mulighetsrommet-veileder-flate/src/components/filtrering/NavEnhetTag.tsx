@@ -10,7 +10,7 @@ export function NavEnhetTag() {
   const filter = useArbeidsmarkedstiltakFilterValue();
   const valgteEnheter = navEnheter(filter);
 
-  if (!alleEnheter || !valgteEnheter || !filter) {
+  if (!alleEnheter || !valgteEnheter || !filter || valgteEnheter.length === 0) {
     return null;
   }
 

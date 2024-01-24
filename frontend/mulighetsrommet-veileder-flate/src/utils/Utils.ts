@@ -98,10 +98,11 @@ export function addOrRemove<T>(array: T[], item: T): T[] {
   }
 }
 
-export function brukersEnhetFilterErEndret(
+export function brukersEnhetFilterHasChanged(
   filter: ArbeidsmarkedstiltakFilter,
-  bruker: Bruker,
+  bruker?: Bruker,
 ): boolean {
+  if (!bruker) return false;
   const relevanteEnheterForBruker = relevanteEnheter(bruker);
 
   const filterEnheter = navEnheter(filter);
