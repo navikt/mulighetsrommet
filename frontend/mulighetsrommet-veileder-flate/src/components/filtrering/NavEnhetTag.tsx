@@ -18,7 +18,7 @@ export function NavEnhetTag() {
     const firstEnhetName = alleEnheter?.find((e) => e.enhetsnummer === valgteEnheter[0])?.navn;
 
     if (valgteEnheter.length > 1) {
-      return `${firstEnhetName} +${valgteEnheter.length}`;
+      return `${firstEnhetName} +${valgteEnheter.length - 1}`;
     }
     return firstEnhetName;
   }

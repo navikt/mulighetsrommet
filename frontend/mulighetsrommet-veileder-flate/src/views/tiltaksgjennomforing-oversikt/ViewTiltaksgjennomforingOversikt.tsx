@@ -125,7 +125,7 @@ const ViewTiltaksgjennomforingOversikt = () => {
               size="small"
               variant="tertiary"
               onClick={resetFilterToDefaults}
-              data-testid="knapp_tilbakestill-filter"
+              data-testid="knapp_nullstill-filter"
             >
               Nullstill filter
             </Button>

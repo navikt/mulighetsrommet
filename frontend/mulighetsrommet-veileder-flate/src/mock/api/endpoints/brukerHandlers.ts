@@ -25,14 +25,14 @@ export const brukerHandlers = [
         oppfolgingsenhet: {
           navn: "NAV Sarpsborg",
           enhetsnummer: ENHET_SARPSBORG,
-          overordnetEnhet: "0100",
+          overordnetEnhet: "0200",
           type: NavEnhetType.LOKAL,
         },
         fornavn: "IHERDIG",
         geografiskEnhet: {
           navn: "NAV Fredrikstad",
           enhetsnummer: ENHET_FREDRIKSTAD,
-          overordnetEnhet: "0100",
+          overordnetEnhet: "0200",
           type: NavEnhetType.LOKAL,
         },
         manuellStatus: {

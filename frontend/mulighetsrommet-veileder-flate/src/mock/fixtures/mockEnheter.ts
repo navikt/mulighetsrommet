@@ -97,4 +97,26 @@ export const mockEnheter: {
     enhetsnummer: "0300",
     overordnetEnhet: null,
   },
+  // Ost Viken
+  _0106: {
+    navn: "NAV Fredrikstad",
+    type: NavEnhetType.LOKAL,
+    status: NavEnhetStatus.AKTIV,
+    enhetsnummer: "0106",
+    overordnetEnhet: "0200",
+  },
+  _0105: {
+    navn: "NAV Sarpsborg",
+    type: NavEnhetType.LOKAL,
+    status: NavEnhetStatus.AKTIV,
+    enhetsnummer: "0105",
+    overordnetEnhet: "0200",
+  },
+  _0200: {
+    navn: "NAV Øst-Viken",
+    type: NavEnhetType.FYLKE,
+    status: NavEnhetStatus.AKTIV,
+    enhetsnummer: "0200",
+    overordnetEnhet: null,
+  },
 };
