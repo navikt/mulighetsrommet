@@ -1,5 +1,5 @@
 [versions]
-common-java-modules = "3.2023.12.12_13.53-510909d4aa1a"
+common-java-modules = "3.2024.01.24_10.14-f70bae69bd65"
 flyway = "10.6.0"
 hoplite = "2.7.5"
 koin = "3.5.1"
@@ -98,7 +98,7 @@ nav-common-auditLog = { module = "no.nav.common:audit-log", version.ref = "commo
 nav-common-kafka = { module = "no.nav.common:kafka", version.ref = "common-java-modules" }
 nav-common-tokenClient = { module = "no.nav.common:token-client", version.ref = "common-java-modules" }
 nav-common-client = { module = "no.nav.common:client", version.ref = "common-java-modules" }
-nav-poaoTilgang-client = "no.nav.poao-tilgang:client:2024.01.05_08.39-83879ad64bab"
+nav-poaoTilgang-client = "no.nav.poao-tilgang:client:2024.01.23_14.55-e7426f53be9f"
 nav-mockOauth2Server = "no.nav.security:mock-oauth2-server:2.1.1"
 
 postgresql = "org.postgresql:postgresql:42.7.1"
