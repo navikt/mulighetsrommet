@@ -51,12 +51,18 @@ app:
       # (GRP) mr-nav_kontaktperson
       - adGruppeId: 7b1d209a-f6c1-4c6e-84f2-02a1bb4c92ba
         rolle: KONTAKTPERSON
-      # 0000-GA-TILTAK-tiltaksgjennomforinger_skriv
-      - adGruppeId: b3ace38f-9c62-43ef-9e6b-99c0e227afad
+      # 0000-ZA-TILTAK-tiltaksgjennomforinger_skriv
+      - adGruppeId: 279039a0-39fd-4860-afdd-a1a2ccaa6323
         rolle: TILTAKSGJENNOMFORINGER_SKRIV
       # 0000-GA-TILTAK-avtaler_skriv
-      - adGruppeId: dfcce624-ad5d-4cd0-abc0-554dd66858e5
+      - adGruppeId: 48026f54-6259-4c35-a148-bc4257bcaf03
         rolle: AVTALER_SKRIV
+      # 0000-GA-TILTAK-ANSVARLIG
+      - adGruppeId: 52bb9196-b071-4cc7-9472-be4942d33c4b
+        rolle: TILTAKADMINISTRASJON_GENERELL
+      # 0000-GA-TILTAK-ENDRINGSMELDING
+      - adGruppeId: d9f317a1-2444-4fcd-b696-df8dbd6cc942
+        rolle: TILTAKADMINISTRASJON_ENDRINGSMELDING
 
   sanity:
     dataset: ${SANITY_DATASET}

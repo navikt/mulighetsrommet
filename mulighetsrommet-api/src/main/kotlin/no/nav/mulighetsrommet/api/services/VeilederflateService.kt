@@ -251,6 +251,8 @@ class VeilederflateService(
                 detaljerOgInnhold,
                 pameldingOgVarighetInfoboks,
                 pameldingOgVarighet,
+                kontaktinfoInfoboks,
+                kontaktinfo,
               },
             }[0]
         """.trimIndent()

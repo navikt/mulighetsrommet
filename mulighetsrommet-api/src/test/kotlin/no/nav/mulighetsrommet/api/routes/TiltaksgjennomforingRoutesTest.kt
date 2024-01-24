@@ -78,9 +78,33 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
         }
     }
 
-    test("200 OK for autentisert kall for PUT av tiltaksgjennomføring når bruker har tilgang til skriv for tiltaksgjennomføring") {
+    test("401 Unauthorized for uautentisert kall for PUT av tiltaksgjennomføring når bruker har tilgang til å skrive for tiltaksgjennomføringer, men mangler generell tilgang") {
         val tiltaksgjennomforingSkrivRolle =
             AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV)
+        val tiltaksadministrasjonGenerellRolle =
+            AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL)
+        val config = createTestApplicationConfig().copy(
+            auth = createAuthConfig(oauth, roles = listOf(tiltaksgjennomforingSkrivRolle, tiltaksadministrasjonGenerellRolle)),
+        )
+        withTestApplication(config) {
+            val response = client.put("/api/v1/internal/tiltaksgjennomforinger") {
+                val claims = mapOf(
+                    "NAVident" to "ABC123",
+                    "groups" to listOf(tiltaksgjennomforingSkrivRolle.adGruppeId),
+                )
+                bearerAuth(
+                    oauth.issueToken(claims = claims).serialize(),
+                )
+            }
+            response.status shouldBe HttpStatusCode.Unauthorized
+        }
+    }
+
+    test("200 OK for autentisert kall for PUT av tiltaksgjennomføring når bruker har generell tilgang og til skriv for tiltaksgjennomføring") {
+        val tiltaksgjennomforingSkrivRolle =
+            AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV)
+        val tiltaksadministrasjonGenerellRolle =
+            AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL)
         val engine = createMockEngine(
             "/brreg/enheter/${TiltaksgjennomforingFixtures.Oppfolging1Request.arrangorOrganisasjonsnummer}" to {
                 respondJson(BrregEnhet(organisasjonsnummer = "123456789", navn = "Testvirksomhet"))
@@ -90,7 +114,7 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
             },
         )
         val config = createTestApplicationConfig().copy(
-            auth = createAuthConfig(oauth, roles = listOf(tiltaksgjennomforingSkrivRolle)),
+            auth = createAuthConfig(oauth, roles = listOf(tiltaksgjennomforingSkrivRolle, tiltaksadministrasjonGenerellRolle)),
             engine = engine,
             database = databaseConfig,
         )
@@ -103,7 +127,7 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
             val response = client.put("/api/v1/internal/tiltaksgjennomforinger") {
                 val claims = mapOf(
                     "NAVident" to "ABC123",
-                    "groups" to listOf(tiltaksgjennomforingSkrivRolle.adGruppeId),
+                    "groups" to listOf(tiltaksgjennomforingSkrivRolle.adGruppeId, tiltaksadministrasjonGenerellRolle.adGruppeId),
                 )
                 bearerAuth(
                     oauth.issueToken(claims = claims).serialize(),
