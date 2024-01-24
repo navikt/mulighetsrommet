@@ -4,10 +4,11 @@ import { Innsatsgruppe, NavEnhetType } from "mulighetsrommet-api-client";
 import usePreviewTiltaksgjennomforingById from "../../core/api/queries/usePreviewTiltaksgjennomforingById";
 import { geografiskEnhetForPreviewAtom } from "../../core/atoms/atoms";
 import ViewTiltaksgjennomforingDetaljer from "../tiltaksgjennomforing-detaljer/ViewTiltaksgjennomforingDetaljer";
-import styles from "./SanityPreview.module.scss";
-import { Link } from "react-router-dom";
+import styles from "./PreviewViewTiltaksgjennomforingDetaljer.module.scss";
+import Tilbakeknapp from "../../components/tilbakeknapp/Tilbakeknapp";
+import { DelMedBruker } from "../../components/delMedBruker/DelMedBruker";
 
-export function SanityPreview() {
+export function PreviewViewTiltaksgjennomforingDetaljer() {
   const [geografiskEnhet] = useAtom(geografiskEnhetForPreviewAtom);
   const { data, isLoading, isError } = usePreviewTiltaksgjennomforingById([
     geografiskEnhet?.enhetsnummer || "",
@@ -33,43 +34,37 @@ export function SanityPreview() {
       <Alert style={{ marginBottom: "2rem" }} variant="warning" data-testid="sanity-preview-alert">
         Forhåndsvisning av informasjon
       </Alert>
-      <Link to="/preview">Tilbake</Link>
       <ViewTiltaksgjennomforingDetaljer
         tiltaksgjennomforing={data}
-        brukerHarRettPaaTiltak={true}
         brukersInnsatsgruppe={brukersInnsatsgruppe}
-        innsatsgruppeForGjennomforing={Innsatsgruppe.VARIG_TILPASSET_INNSATS}
-        harDeltMedBruker={undefined}
-        veilederdata={{
-          etternavn: "Veiledersen",
-          fornavn: "Veileder",
-          hovedenhet: { enhetsnummer: "0519", navn: "Hovedenhet veileder" },
-          navIdent: "V123456",
-        }}
-        brukerdata={{
-          fnr: "99999999999",
-          fornavn: "Forhånds",
-          innsatsgruppe: brukersInnsatsgruppe,
-          geografiskEnhet: {
-            enhetsnummer: "1234",
-            navn: "Forhåndsvisningsenhet",
-            type: NavEnhetType.LOKAL,
-            overordnetEnhet: null,
-          },
-          oppfolgingsenhet: {
-            enhetsnummer: "1234",
-            navn: "Oppfølgingsenhet",
-            type: NavEnhetType.LOKAL,
-            overordnetEnhet: null,
-          },
-          manuellStatus: {
-            erUnderManuellOppfolging: false,
-            krrStatus: {
-              erReservert: false,
-              kanVarsles: true,
-            },
-          },
-        }}
+        knapperad={<Tilbakeknapp tilbakelenke="/preview" tekst="Tilbake til tiltaksoversikten" />}
+        brukerActions={
+          <DelMedBruker
+            tiltaksgjennomforing={data}
+            knappetekst="Del med bruker"
+            veiledernavn="{Veiledernavn}"
+            brukerdata={{
+              fnr: "12345678910",
+              fornavn: "{NAVN}",
+              manuellStatus: {
+                erUnderManuellOppfolging: false,
+                krrStatus: { kanVarsles: true, erReservert: false },
+              },
+              oppfolgingsenhet: {
+                navn: "{OPPFØLGINGSENHET}",
+                enhetsnummer: "0",
+                overordnetEnhet: "0100",
+                type: NavEnhetType.LOKAL,
+              },
+              geografiskEnhet: {
+                navn: "{OPPFØLGINGSENHET}",
+                enhetsnummer: "0",
+                overordnetEnhet: "0100",
+                type: NavEnhetType.LOKAL,
+              },
+            }}
+          />
+        }
       />
     </>
   );

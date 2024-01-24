@@ -13,7 +13,7 @@ import { useAtom } from "jotai";
 import { geografiskEnhetForPreviewAtom } from "../../core/atoms/atoms";
 import { FilterAndTableLayout } from "../../components/filtrering/FilterAndTableLayout";
 
-export const SanityPreviewOversikt = () => {
+export const PreviewOversikt = () => {
   const [geografiskEnhet, setGeografiskEnhet] = useAtom(geografiskEnhetForPreviewAtom);
   const {
     data: tiltaksgjennomforinger = [],
