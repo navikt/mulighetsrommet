@@ -171,10 +171,7 @@ class VeilederflateService(
             // Det er foreløpig ikke noe egen funksjonalitet for å markere tiltak som midlertidig stengt i Sanity
             emptyList()
         } else {
-            val gruppeSanityIds = gruppeGjennomforinger.map { it.sanityId }
-            sanityGjennomforinger
-                .filter { it._id !in gruppeSanityIds }
-                .map { toVeilederTiltaksgjennomforing(it, enheter) }
+            sanityGjennomforinger.map { toVeilederTiltaksgjennomforing(it, enheter) }
         }
 
         return (individuelleGjennomforinger + gruppeGjennomforinger)
