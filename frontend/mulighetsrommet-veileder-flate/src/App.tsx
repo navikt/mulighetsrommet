@@ -77,23 +77,25 @@ function PersonflateArbeidsmarkedstiltak() {
   const enableLandingsside = enableLandingssideFeature.isSuccess && enableLandingssideFeature.data;
   const visDeltakerregistrering =
     visDeltakerregistreringFeature.isSuccess && visDeltakerregistreringFeature.data;
-
+  const demoContainer = document.getElementById(APPLICATION_NAME)
+  
   if (enableLandingssideFeature.isLoading) {
     return null;
   }
 
   return (
     <div className={styles.amt_container}>
-      <header>
-        {import.meta.env.DEV ? (
-          <img
-            src="/interflatedekorator_arbmark.png"
-            id="veilarbpersonflatefs-root"
-            alt="veilarbpersonflate-bilde"
-            className={styles.demo_image}
-          />
+      
+        {import.meta.env.DEV || demoContainer ? (
+          <header>
+            <img
+              src="/interflatedekorator_arbmark.png"
+              id="veilarbpersonflatefs-root"
+              alt="veilarbpersonflate-bilde"
+              className={styles.demo_image}
+            />
+          </header>
         ) : null}
-      </header>
       <div className={styles.amt_content}>
         <Routes>
           {enableLandingsside ? <Route path="" element={<Landingsside />} /> : null}
