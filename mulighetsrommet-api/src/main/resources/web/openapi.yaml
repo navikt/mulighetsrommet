@@ -876,7 +876,7 @@ paths:
     post:
       tags:
         - VeilederTiltak
-      operationId: getTiltaksgjennomforinger
+      operationId: getVeilederTiltaksgjennomforinger
       requestBody:
         content:
           application/json:
@@ -897,7 +897,7 @@ paths:
     post:
       tags:
         - VeilederTiltak
-      operationId: getTiltaksgjennomforing
+      operationId: getVeilederTiltaksgjennomforing
       requestBody:
         content:
           application/json:

@@ -29,7 +29,7 @@ export default function useTiltaksgjennomforinger() {
   return useQuery({
     queryKey: QueryKeys.sanity.tiltaksgjennomforinger(brukerData.data, filter),
     queryFn: () =>
-      mulighetsrommetClient.veilederTiltak.getTiltaksgjennomforinger({
+      mulighetsrommetClient.veilederTiltak.getVeilederTiltaksgjennomforinger({
         requestBody,
       }),
   });
