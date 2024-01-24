@@ -18,6 +18,7 @@ import { ViewTiltaksgjennomforingDetaljerContainer } from "./views/tiltaksgjenno
 import { DeltakerRegistrering } from "./microfrontends/team_komet/DeltakerRegistrering";
 import ViewTiltaksgjennomforingOversikt from "./views/tiltaksgjennomforing-oversikt/ViewTiltaksgjennomforingOversikt";
 import { PreviewHeader } from "./views/Preview/PreviewHeader";
+import { APPLICATION_NAME } from "./constants";
 
 if (import.meta.env.PROD && import.meta.env.VITE_FARO_URL) {
   initializeFaro({
@@ -77,25 +78,24 @@ function PersonflateArbeidsmarkedstiltak() {
   const enableLandingsside = enableLandingssideFeature.isSuccess && enableLandingssideFeature.data;
   const visDeltakerregistrering =
     visDeltakerregistreringFeature.isSuccess && visDeltakerregistreringFeature.data;
-  const demoContainer = document.getElementById(APPLICATION_NAME)
-  
+  const demoContainer = document.getElementById(APPLICATION_NAME);
+
   if (enableLandingssideFeature.isLoading) {
     return null;
   }
 
   return (
     <div className={styles.amt_container}>
-      
-        {import.meta.env.DEV || demoContainer ? (
-          <header>
-            <img
-              src="/interflatedekorator_arbmark.png"
-              id="veilarbpersonflatefs-root"
-              alt="veilarbpersonflate-bilde"
-              className={styles.demo_image}
-            />
-          </header>
-        ) : null}
+      {import.meta.env.DEV || demoContainer ? (
+        <header>
+          <img
+            src="/interflatedekorator_arbmark.png"
+            id="veilarbpersonflatefs-root"
+            alt="veilarbpersonflate-bilde"
+            className={styles.demo_image}
+          />
+        </header>
+      ) : null}
       <div className={styles.amt_content}>
         <Routes>
           {enableLandingsside ? <Route path="" element={<Landingsside />} /> : null}
