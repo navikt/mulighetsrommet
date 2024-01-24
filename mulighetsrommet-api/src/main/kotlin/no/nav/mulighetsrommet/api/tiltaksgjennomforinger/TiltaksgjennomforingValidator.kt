@@ -8,16 +8,13 @@ import arrow.core.right
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingAdminDto
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
-import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
 import no.nav.mulighetsrommet.domain.Tiltakskoder
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus.GJENNOMFORES
-import no.nav.mulighetsrommet.env.NaisEnv
 
 class TiltaksgjennomforingValidator(
     private val avtaler: AvtaleRepository,
-    private val deltakere: DeltakerRepository,
 ) {
     fun validate(
         dbo: TiltaksgjennomforingDbo,
@@ -134,18 +131,6 @@ class TiltaksgjennomforingValidator(
 
                 if (dbo.opphav != gjennomforing.opphav) {
                     add(ValidationError.of(TiltaksgjennomforingDbo::opphav, "Opphav kan ikke endres"))
-                }
-
-                if (NaisEnv.current() == NaisEnv.ProdGCP) {
-                    val antallDeltagere = deltakere.getAll(gjennomforing.id).size
-                    if (antallDeltagere > 0 && dbo.oppstart != gjennomforing.oppstart) {
-                        add(
-                            ValidationError.of(
-                                TiltaksgjennomforingDbo::oppstart,
-                                "Oppstartstype kan ikke endres når det finnes påmeldte deltakere",
-                            ),
-                        )
-                    }
                 }
 
                 if (gjennomforing.status == GJENNOMFORES) {

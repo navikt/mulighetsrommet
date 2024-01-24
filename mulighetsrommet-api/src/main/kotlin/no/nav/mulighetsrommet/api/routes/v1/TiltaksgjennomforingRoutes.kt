@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingKontaktpersonDbo
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
+import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.BadRequest
 import no.nav.mulighetsrommet.api.routes.v1.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
@@ -27,10 +28,14 @@ import java.time.LocalDate
 import java.util.*
 
 fun Route.tiltaksgjennomforingRoutes() {
+    val deltakere: DeltakerRepository by inject()
     val service: TiltaksgjennomforingService by inject()
 
     route("/api/v1/internal/tiltaksgjennomforinger") {
-        authenticate(AuthProvider.AZURE_AD_TILTAKSJENNOMFORINGER_SKRIV.name, strategy = AuthenticationStrategy.Required) {
+        authenticate(
+            AuthProvider.AZURE_AD_TILTAKSJENNOMFORINGER_SKRIV.name,
+            strategy = AuthenticationStrategy.Required,
+        ) {
             put {
                 val request = call.receive<TiltaksgjennomforingRequest>()
                 val navIdent = getNavIdent()
@@ -92,8 +97,22 @@ fun Route.tiltaksgjennomforingRoutes() {
             val historikk = service.getEndringshistorikk(id)
             call.respond(historikk)
         }
+
+        get("{id}/deltaker-summary") {
+            val id: UUID by call.parameters
+
+            val deltakereForGjennomforing = deltakere.getAll(id)
+            val summary = TiltaksgjennomforingDeltakerSummary(antallDeltakere = deltakereForGjennomforing.size)
+
+            call.respond(summary)
+        }
     }
 }
+
+@Serializable
+data class TiltaksgjennomforingDeltakerSummary(
+    val antallDeltakere: Int,
+)
 
 @Serializable
 data class TiltaksgjennomforingRequest(
