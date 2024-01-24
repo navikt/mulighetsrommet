@@ -67,19 +67,25 @@ fun Route.virksomhetRoutes() {
             call.respondWithStatusResponse(response)
         }
 
-        get("{orgnr}/kontaktperson") {
-            val orgnr = call.parameters.getOrFail("orgnr").also { validateOrgnr(it) }
+        get("{id}/kontaktperson") {
+            val id: UUID by call.parameters
 
-            call.respond(virksomhetService.hentKontaktpersoner(orgnr))
+            call.respond(virksomhetService.hentKontaktpersoner(id))
         }
 
+        // TODO lagre på {id} i stedet for {orgnr} når vi får egne arrangør-sider
         put("{orgnr}/kontaktperson") {
             val orgnr = call.parameters.getOrFail("orgnr").also { validateOrgnr(it) }
             val virksomhetKontaktperson = call.receive<VirksomhetKontaktpersonRequest>()
 
-            val result = virksomhetService.getOrSyncHovedenhetFromBrreg(orgnr)
-                .mapLeft { toStatusResponseError(it) }
-                .flatMap { virksomhetKontaktperson.toDto(orgnr) }
+            val result = virksomhetService.getOrSyncVirksomhetFromBrreg(orgnr)
+                .mapLeft {
+                    when (it) {
+                        BrregError.NotFound -> BadRequest("Bedrift med organisasjonsnummer '$orgnr' finnes ikke.")
+                        else -> toStatusResponseError(it)
+                    }
+                }
+                .flatMap { virksomhetKontaktperson.toDto(it.id) }
                 .map { virksomhetService.upsertKontaktperson(it) }
                 .onLeft { application.log.warn("Klarte ikke opprette kontaktperson: $it") }
 
@@ -131,7 +137,7 @@ data class VirksomhetKontaktpersonRequest(
     val beskrivelse: String?,
     val epost: String,
 ) {
-    fun toDto(orgnr: String): StatusResponse<VirksomhetKontaktperson> {
+    fun toDto(virksomhetId: UUID): StatusResponse<VirksomhetKontaktperson> {
         val navn = navn.trim()
         val epost = epost.trim()
 
@@ -151,7 +157,7 @@ data class VirksomhetKontaktpersonRequest(
         return Either.Right(
             VirksomhetKontaktperson(
                 id = id,
-                organisasjonsnummer = orgnr,
+                virksomhetId = virksomhetId,
                 navn = navn,
                 telefon = telefon?.trim()?.ifEmpty { null },
                 epost = epost,

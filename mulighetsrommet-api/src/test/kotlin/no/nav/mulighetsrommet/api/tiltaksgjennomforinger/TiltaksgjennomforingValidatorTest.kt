@@ -30,8 +30,8 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
     val avtale = AvtaleFixtures.oppfolging.copy(
         startDato = avtaleStartDato,
         sluttDato = avtaleSluttDato,
-        leverandorOrganisasjonsnummer = "000000000",
-        leverandorUnderenheter = listOf("000000001", "000000002"),
+        leverandorVirksomhetId = Fixtures.Virksomhet.hovedenhet.id,
+        leverandorUnderenheter = listOf(Fixtures.Virksomhet.underenhet1.id),
         navEnheter = listOf("0400", "0502"),
     )
 
@@ -40,13 +40,9 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
         sluttDato = avtaleSluttDato,
         navRegion = "0400",
         navEnheter = listOf("0502"),
-        arrangorOrganisasjonsnummer = "000000001",
+        arrangorVirksomhetId = Fixtures.Virksomhet.underenhet1.id,
         administratorer = listOf(NavAnsattFixture.ansatt1.navIdent),
     )
-
-    lateinit var tiltakstyper: TiltakstypeService
-    lateinit var avtaler: AvtaleRepository
-    lateinit var tiltaksgjennomforinger: TiltaksgjennomforingRepository
 
     val domain = MulighetsrommetTestDomain(
         enheter = listOf(
@@ -79,10 +75,19 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
                 overordnetEnhet = null,
             ),
         ),
+        virksomheter = listOf(
+            Fixtures.Virksomhet.hovedenhet,
+            Fixtures.Virksomhet.underenhet1,
+            Fixtures.Virksomhet.underenhet2,
+        ),
         ansatte = listOf(NavAnsattFixture.ansatt1),
         tiltakstyper = listOf(TiltakstypeFixtures.AFT, TiltakstypeFixtures.Jobbklubb, TiltakstypeFixtures.Oppfolging),
         avtaler = listOf(avtale),
     )
+
+    lateinit var tiltakstyper: TiltakstypeService
+    lateinit var avtaler: AvtaleRepository
+    lateinit var tiltaksgjennomforinger: TiltaksgjennomforingRepository
 
     beforeEach {
         domain.initialize(database.db)
@@ -192,8 +197,8 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
                 listOf(ValidationError("navEnheter", "NAV-enhet 0401 mangler i avtalen")),
             ),
             row(
-                gjennomforing.copy(arrangorOrganisasjonsnummer = "000000003"),
-                listOf(ValidationError("arrangorOrganisasjonsnummer", "Arrangøren mangler i avtalen")),
+                gjennomforing.copy(arrangorVirksomhetId = Fixtures.Virksomhet.underenhet2.id),
+                listOf(ValidationError("arrangorVirksomhetId", "Arrangøren mangler i avtalen")),
             ),
         ) { input, error ->
             validator.validate(input, null).shouldBeLeft(error)

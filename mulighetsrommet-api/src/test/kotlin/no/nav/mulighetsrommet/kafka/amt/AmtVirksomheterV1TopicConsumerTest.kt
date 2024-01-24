@@ -10,13 +10,14 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
-import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
+import no.nav.mulighetsrommet.api.domain.dto.LagretVirksomhetDto
 import no.nav.mulighetsrommet.api.repositories.VirksomhetRepository
 import no.nav.mulighetsrommet.api.services.VirksomhetService
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.consumers.amt.AmtVirksomhetV1Dto
 import no.nav.mulighetsrommet.kafka.consumers.amt.AmtVirksomheterV1TopicConsumer
+import java.util.*
 
 class AmtVirksomheterV1TopicConsumerTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
@@ -34,7 +35,8 @@ class AmtVirksomheterV1TopicConsumerTest : FunSpec({
             overordnetEnhetOrganisasjonsnummer = amtVirksomhet.organisasjonsnummer,
         )
 
-        val underenhetDto = VirksomhetDto(
+        val underenhetDto = LagretVirksomhetDto(
+            id = UUID.randomUUID(),
             navn = amtUnderenhet.navn,
             organisasjonsnummer = amtUnderenhet.organisasjonsnummer,
             overordnetEnhet = amtVirksomhet.organisasjonsnummer,
@@ -42,7 +44,8 @@ class AmtVirksomheterV1TopicConsumerTest : FunSpec({
             poststed = "Andeby",
         )
 
-        val virksomhetDto = VirksomhetDto(
+        val virksomhetDto = LagretVirksomhetDto(
+            id = UUID.randomUUID(),
             organisasjonsnummer = amtVirksomhet.organisasjonsnummer,
             navn = amtVirksomhet.navn,
             overordnetEnhet = null,

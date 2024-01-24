@@ -328,6 +328,7 @@ class VeilederflateService(
         enheter: List<String>,
     ): VeilederflateTiltaksgjennomforing {
         val arrangor = VeilederflateArrangor(
+            virksomhetId = apiGjennomforing.arrangor.id,
             selskapsnavn = apiGjennomforing.arrangor.navn,
             organisasjonsnummer = apiGjennomforing.arrangor.organisasjonsnummer,
             kontaktpersoner = apiGjennomforing.arrangor.kontaktpersoner,

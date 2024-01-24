@@ -10,12 +10,9 @@ import no.nav.mulighetsrommet.api.clients.pdl.IdentGruppe
 import no.nav.mulighetsrommet.api.clients.pdl.IdentInformasjon
 import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
+import no.nav.mulighetsrommet.api.domain.dto.LagretVirksomhetDto
 import no.nav.mulighetsrommet.api.domain.dto.TiltakshistorikkDto
-import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
-import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
-import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
-import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
-import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
+import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.repositories.TiltakshistorikkRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.dbo.ArenaTiltakshistorikkDbo
@@ -59,6 +56,7 @@ class TiltakshistorikkServiceTest : FunSpec({
 
     beforeSpec {
         MulighetsrommetTestDomain(
+            virksomheter = listOf(Fixtures.Virksomhet.hovedenhet, Fixtures.Virksomhet.underenhet1),
             tiltakstyper = listOf(tiltakstype, tiltakstypeIndividuell),
             avtaler = listOf(AvtaleFixtures.oppfolging),
             gjennomforinger = listOf(tiltaksgjennomforing),
@@ -70,16 +68,10 @@ class TiltakshistorikkServiceTest : FunSpec({
     }
 
     test("henter historikk for bruker basert på person id med arrangørnavn") {
-        val bedriftsnavn = "Bedriftsnavn"
-        val bedriftsnavn2 = "Bedriftsnavn 2"
-        coEvery { virksomhetService.getOrSyncHovedenhetFromBrreg(tiltaksgjennomforing.arrangorOrganisasjonsnummer) } returns VirksomhetDto(
-            navn = bedriftsnavn,
-            organisasjonsnummer = tiltaksgjennomforing.arrangorOrganisasjonsnummer,
-            postnummer = null,
-            poststed = null,
-        ).right()
-        coEvery { virksomhetService.getOrSyncHovedenhetFromBrreg(tiltakshistorikkIndividuell.arrangorOrganisasjonsnummer) } returns VirksomhetDto(
-            navn = bedriftsnavn2,
+        coEvery { virksomhetService.getOrSyncHovedenhetFromBrreg(Fixtures.Virksomhet.underenhet1.organisasjonsnummer) } returns Fixtures.Virksomhet.underenhet1.right()
+        coEvery { virksomhetService.getOrSyncHovedenhetFromBrreg(tiltakshistorikkIndividuell.arrangorOrganisasjonsnummer) } returns LagretVirksomhetDto(
+            id = UUID.randomUUID(),
+            navn = "Bedriftsnavn 2",
             organisasjonsnummer = tiltakshistorikkIndividuell.arrangorOrganisasjonsnummer,
             postnummer = null,
             poststed = null,
@@ -103,8 +95,8 @@ class TiltakshistorikkServiceTest : FunSpec({
                 tiltaksnavn = tiltaksgjennomforing.navn,
                 tiltakstype = tiltakstype.navn,
                 arrangor = TiltakshistorikkDto.Arrangor(
-                    organisasjonsnummer = tiltaksgjennomforing.arrangorOrganisasjonsnummer,
-                    navn = bedriftsnavn,
+                    organisasjonsnummer = Fixtures.Virksomhet.underenhet1.organisasjonsnummer,
+                    navn = Fixtures.Virksomhet.underenhet1.navn,
                 ),
             ),
             TiltakshistorikkDto(
@@ -116,7 +108,7 @@ class TiltakshistorikkServiceTest : FunSpec({
                 tiltakstype = tiltakstypeIndividuell.navn,
                 arrangor = TiltakshistorikkDto.Arrangor(
                     organisasjonsnummer = tiltakshistorikkIndividuell.arrangorOrganisasjonsnummer,
-                    navn = bedriftsnavn2,
+                    navn = "Bedriftsnavn 2",
                 ),
             ),
         )

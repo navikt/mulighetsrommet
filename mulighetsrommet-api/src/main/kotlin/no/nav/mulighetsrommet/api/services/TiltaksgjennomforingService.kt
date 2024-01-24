@@ -1,6 +1,8 @@
 package no.nav.mulighetsrommet.api.services
 
-import arrow.core.*
+import arrow.core.Either
+import arrow.core.left
+import arrow.core.toNonEmptyListOrNull
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import kotliquery.TransactionalSession
@@ -46,18 +48,7 @@ class TiltaksgjennomforingService(
         navIdent: NavIdent,
     ): Either<List<ValidationError>, TiltaksgjennomforingAdminDto> {
         val previous = tiltaksgjennomforinger.get(request.id)
-        return virksomhetService.getOrSyncHovedenhetFromBrreg(request.arrangorOrganisasjonsnummer)
-            .mapLeft {
-                ValidationError
-                    .of(
-                        TiltaksgjennomforingDbo::arrangorOrganisasjonsnummer,
-                        "Arrangøren finnes ikke Brønnøysundregistrene",
-                    )
-                    .nel()
-            }
-            .flatMap {
-                validator.validate(request.toDbo(), previous)
-            }
+        return validator.validate(request.toDbo(), previous)
             .map { dbo ->
                 db.transactionSuspend { tx ->
                     if (previous?.toDbo() == dbo) {
