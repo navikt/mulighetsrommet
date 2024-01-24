@@ -43,8 +43,8 @@ export function ForsidekortListe() {
         tekst="Her kan du se hvordan tiltakene vises for veileder i Modia"
       />
       <Forsidekort
-        navn="Endringsmelding"
-        ikon={<PersonPencilIcon aria-label="Endringsmelding" />}
+        navn="Endringsmeldinger"
+        ikon={<PersonPencilIcon aria-label="Endringsmeldinger" />}
         url={`https://arbeidsmarkedstiltak.intern.nav.no/`}
         tekst="Her finner du endringsmeldinger fra tiltaksarrangør"
       />
