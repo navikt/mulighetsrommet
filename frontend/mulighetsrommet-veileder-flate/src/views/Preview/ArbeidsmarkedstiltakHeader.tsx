@@ -1,6 +1,6 @@
 import { InternalHeader, Spacer } from "@navikt/ds-react";
 
-export const PreviewHeader = () => {
+export const ArbeidsmarkedstiltakHeader = () => {
   return (
     <header>
       <InternalHeader>
