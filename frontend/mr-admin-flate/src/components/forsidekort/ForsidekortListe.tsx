@@ -1,12 +1,13 @@
-import styles from "./Forsidekort.module.scss";
-import { Forsidekort } from "./Forsidekort";
 import {
   FileCheckmarkIcon,
   HandshakeIcon,
   RectangleSectionsIcon,
   TokenIcon,
+  PersonPencilIcon,
 } from "@navikt/aksel-icons";
 import { erForhandsvisningMiljo } from "../../utils/Utils";
+import { Forsidekort } from "./Forsidekort";
+import styles from "./Forsidekort.module.scss";
 
 export function ForsidekortListe() {
   return (
@@ -40,6 +41,12 @@ export function ForsidekortListe() {
         ikon={<RectangleSectionsIcon aria-label="Preview" />}
         url={`https://mulighetsrommet-veileder-flate.intern.${erForhandsvisningMiljo}/preview`}
         tekst="Her kan du se hvordan tiltakene vises for veileder i Modia"
+      />
+      <Forsidekort
+        navn="Endringsmeldinger"
+        ikon={<PersonPencilIcon aria-label="Endringsmeldinger" />}
+        url={`https://arbeidsmarkedstiltak.intern.nav.no/`}
+        tekst="Her finner du endringsmeldinger fra tiltaksarrangør"
       />
     </div>
   );

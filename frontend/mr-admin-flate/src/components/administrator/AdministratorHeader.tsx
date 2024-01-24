@@ -18,6 +18,7 @@ export function AdministratorHeader() {
   const individuelleGjennomforingerLinkRef = useRef<HTMLAnchorElement>(null);
   const veilederflateLinkRef = useRef<HTMLAnchorElement>(null);
   const notifikasjonerLinkRef = useRef<HTMLAnchorElement>(null);
+  const endringsmeldingerLinkRef = useRef<HTMLAnchorElement>(null);
 
   return (
     <InternalHeader>
@@ -62,6 +63,14 @@ export function AdministratorHeader() {
               </Link>
             </Dropdown.Menu.GroupedList.Item>
             <Dropdown.Menu.GroupedList.Item
+              onClick={() => notifikasjonerLinkRef.current?.click()}
+              as="span"
+            >
+              <Link ref={notifikasjonerLinkRef} to="/notifikasjoner">
+                Notifikasjoner
+              </Link>
+            </Dropdown.Menu.GroupedList.Item>
+            <Dropdown.Menu.GroupedList.Item
               onClick={() => individuelleGjennomforingerLinkRef.current?.click()}
               as="span"
             >
@@ -86,11 +95,15 @@ export function AdministratorHeader() {
               </Link>
             </Dropdown.Menu.GroupedList.Item>
             <Dropdown.Menu.GroupedList.Item
-              onClick={() => notifikasjonerLinkRef.current?.click()}
+              onClick={() => endringsmeldingerLinkRef.current?.click()}
               as="span"
             >
-              <Link ref={notifikasjonerLinkRef} to="/notifikasjoner">
-                Notifikasjoner
+              <Link
+                target="_blank"
+                ref={endringsmeldingerLinkRef}
+                to="https://arbeidsmarkedstiltak.intern.nav.no/"
+              >
+                Endringsmeldinger <ExternalLinkIcon />
               </Link>
             </Dropdown.Menu.GroupedList.Item>
           </Dropdown.Menu.GroupedList>
