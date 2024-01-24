@@ -58,8 +58,8 @@ function OppstartstypeWarning({ gjennomforingId }: OppstartstypePropsWarning) {
 
   return isError || summary.antallDeltakere > 0 ? (
     <Alert variant="warning">
-      Hvis du endrer oppstartstype vil det føre til at deltakere som allerede har fullført tiltaket
-      får ny status i deltakeroversikten.
+      Deltakerstatus påvirkes av oppstartstypen. Hvis du endrer oppstartstypen så kan deltakelser
+      som er avsluttet få en ny status. Statusen vises i aktivitetsplanen og deltakeroversikten.
     </Alert>
   ) : null;
 }
