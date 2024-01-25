@@ -7,7 +7,9 @@ import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.tasks.GenerateValidationReport
 import no.nav.mulighetsrommet.api.tasks.InitialLoadTiltaksgjennomforinger
+import no.nav.mulighetsrommet.api.tasks.InitialLoadTiltaksgjennomforingerInput
 import no.nav.mulighetsrommet.api.tasks.SynchronizeNavAnsatte
+import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
 import java.util.*
@@ -25,7 +27,15 @@ fun Route.tasks() {
         }
 
         post("initial-load-tiltaksgjennomforinger") {
-            val taskId = initialLoadTiltaksgjennomforinger.schedule()
+            val input = InitialLoadTiltaksgjennomforingerInput(opphav = null)
+            val taskId = initialLoadTiltaksgjennomforinger.schedule(input)
+
+            call.respond(HttpStatusCode.Accepted, ScheduleTaskResponse(id = taskId))
+        }
+
+        post("initial-load-mulighetsrommet-tiltaksgjennomforinger") {
+            val input = InitialLoadTiltaksgjennomforingerInput(opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE)
+            val taskId = initialLoadTiltaksgjennomforinger.schedule(input)
 
             call.respond(HttpStatusCode.Accepted, ScheduleTaskResponse(id = taskId))
         }

@@ -1,12 +1,12 @@
 import Filtermeny from "../../components/filtrering/Filtermeny";
 import Tiltaksgjennomforingsoversikt from "../../components/oversikt/Tiltaksgjennomforingsoversikt";
-import styles from "../tiltaksgjennomforing-oversikt/ViewTiltaksgjennomforingOversikt.module.scss";
 import { Loader } from "@navikt/ds-react";
 import { Feilmelding } from "../../components/feilmelding/Feilmelding";
 import { FilterAndTableLayout } from "../../components/filtrering/FilterAndTableLayout";
 import useTiltaksgjennomforinger from "../../core/api/queries/useTiltaksgjennomforinger";
+import styles from "./PreviewView.module.scss";
 
-export const SanityPreviewOversikt = () => {
+export const PreviewOversikt = () => {
   const { data: tiltaksgjennomforinger = [], isLoading } = useTiltaksgjennomforinger();
 
   return (

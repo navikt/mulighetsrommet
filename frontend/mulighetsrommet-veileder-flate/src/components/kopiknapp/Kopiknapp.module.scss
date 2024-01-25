@@ -1,16 +1,14 @@
-:global(.mulighetsrommet-veileder-flate) {
-  :global(.navds-button).kopiknapp {
-    vertical-align: bottom;
-    margin-top: -4px;
-    padding: 2px 0;
+:global(.navds-button).kopiknapp {
+  vertical-align: bottom;
+  margin-top: -4px;
+  padding: 2px 0;
 
-    svg {
-      width: 20px;
-      height: auto;
-      display: block;
-    }
-    :global(.navds-button--tertiary:hover) {
-      background-color: transparent;
-    }
+  svg {
+    width: 20px;
+    height: auto;
+    display: block;
+  }
+  :global(.navds-button--tertiary:hover) {
+    background-color: transparent;
   }
 }

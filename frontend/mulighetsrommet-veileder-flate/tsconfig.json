@@ -26,9 +26,9 @@
       // Fordi "muduleResolution" er satt til "bundler"
       "mulighetsrommet-api-client": ["../mulighetsrommet-api-client"],
       // Fordi bl.a. sanity drar med seg vite@v4
-      "vite": ["node_modules/vite"]
+      "vite": ["node_modules/vite"],
     },
   },
   "include": ["src"],
-  "references": [{ "path": "./tsconfig.node.json" }]
+  "references": [{ "path": "./tsconfig.node.json" }],
 }

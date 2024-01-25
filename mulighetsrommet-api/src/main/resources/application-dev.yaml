@@ -19,7 +19,8 @@ app:
     producers:
       arenaMigreringTiltaksgjennomforinger:
         topic: team-mulighetsrommet.arena-migrering-tiltaksgjennomforinger-v1
-        tiltakstyper: []
+        tiltakstyper:
+          - VASV
       tiltaksgjennomforinger:
         topic: team-mulighetsrommet.siste-tiltaksgjennomforinger-v1
       tiltakstyper:

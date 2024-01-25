@@ -4,14 +4,14 @@ import {
   DelMedBruker,
   VeilederflateTiltaksgjennomforing,
 } from "mulighetsrommet-api-client";
-import { PORTEN } from "mulighetsrommet-frontend-common/constants";
+import { PORTEN } from "../../../../../frontend-common/constants";
 import { mulighetsrommetClient } from "../../../core/api/clients";
 import { useHentDeltMedBrukerStatus } from "../../../core/api/queries/useHentDeltMedbrukerStatus";
 import { useLogEvent } from "../../../logging/amplitude";
 import { byttTilDialogFlate } from "../../../utils/DialogFlateUtils";
 import { erPreview } from "../../../utils/Utils";
-import modalStyles from "../Modal.module.scss";
-import { StatusModal } from "../StatusModal";
+import modalStyles from "../../modal/Modal.module.scss";
+import { StatusModal } from "../../modal/StatusModal";
 import { DelMedBrukerContent, MAKS_ANTALL_TEGN_DEL_MED_BRUKER } from "./DelMedBrukerContent";
 import delemodalStyles from "./Delemodal.module.scss";
 import { Actions, State } from "./DelemodalActions";
@@ -20,7 +20,6 @@ import { erBrukerResertMotElektroniskKommunikasjon } from "../../../utils/Bruker
 interface DelemodalProps {
   brukernavn?: string;
   veiledernavn?: string;
-  brukerFnr: string;
   tiltaksgjennomforing: VeilederflateTiltaksgjennomforing;
   brukerdata: Bruker;
   harDeltMedBruker?: DelMedBruker;
@@ -31,7 +30,6 @@ interface DelemodalProps {
 export function Delemodal({
   brukernavn,
   veiledernavn,
-  brukerFnr,
   tiltaksgjennomforing,
   brukerdata,
   harDeltMedBruker,
@@ -42,7 +40,7 @@ export function Delemodal({
 
   const senderTilDialogen = state.sendtStatus === "SENDER";
   const { lagreVeilederHarDeltTiltakMedBruker } = useHentDeltMedBrukerStatus(
-    brukerFnr,
+    brukerdata.fnr,
     tiltaksgjennomforing,
   );
 
@@ -83,7 +81,7 @@ export function Delemodal({
     try {
       const res = await mulighetsrommetClient.dialogen.delMedDialogen({
         requestBody: {
-          norskIdent: brukerFnr,
+          norskIdent: brukerdata?.fnr,
           overskrift,
           tekst,
           venterPaaSvarFraBruker,

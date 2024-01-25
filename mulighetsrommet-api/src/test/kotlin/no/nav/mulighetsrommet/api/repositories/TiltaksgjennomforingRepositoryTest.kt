@@ -419,6 +419,27 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         }
     }
 
+    test("get by opphav") {
+        val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
+
+        tiltaksgjennomforinger.upsert(Oppfolging1.copy(opphav = ArenaMigrering.Opphav.ARENA))
+        tiltaksgjennomforinger.upsert(Arbeidstrening1.copy(opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE))
+
+        tiltaksgjennomforinger.getAll(opphav = null).should {
+            it.first shouldBe 2
+        }
+
+        tiltaksgjennomforinger.getAll(opphav = ArenaMigrering.Opphav.ARENA).should {
+            it.first shouldBe 1
+            it.second[0].id shouldBe Oppfolging1.id
+        }
+
+        tiltaksgjennomforinger.getAll(opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE).should {
+            it.first shouldBe 1
+            it.second[0].id shouldBe Arbeidstrening1.id
+        }
+    }
+
     context("Filtrer på avtale") {
         test("Kun gjennomforinger tilhørende avtale blir tatt med") {
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)

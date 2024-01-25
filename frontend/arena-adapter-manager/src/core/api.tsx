@@ -104,6 +104,7 @@ export const deleteEvents = async (arenaTable: string, arenaIds: string) => {
 export type MrApiTask =
   | "generate-validation-report"
   | "initial-load-tiltaksgjennomforinger"
+  | "initial-load-mulighetsrommet-tiltaksgjennomforinger"
   | "sync-navansatte";
 
 export const runTask = (task: MrApiTask) =>

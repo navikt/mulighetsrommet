@@ -26,7 +26,7 @@ const createCommonConfig = (dataset: "production" | "test", basePath: string) =>
 
       const id = document._id?.replace("drafts.", "");
       const miljo = dataset === "test" ? "dev.nav.no" : "nav.no";
-      return `https://mulighetsrommet-veileder-flate.intern.${miljo}/preview/${id}`;
+      return `https://mulighetsrommet-veileder-flate.intern.${miljo}/preview/tiltak/${id}`;
     },
   },
   tools: (prev, { currentUser }) => {

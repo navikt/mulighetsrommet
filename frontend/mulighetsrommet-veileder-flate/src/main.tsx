@@ -5,6 +5,7 @@ import React from "react";
 import { Arbeidsmarkedstiltak } from "./WebComponentWrapper";
 import { App } from "./App";
 import { AppContext } from "./AppContext";
+import styles from "./App.module.scss";
 
 if (import.meta.env.VITE_MULIGHETSROMMET_API_MOCK === "true") {
   import("./mock/worker")
@@ -38,6 +39,12 @@ function render() {
     const root = createRoot(demoContainer);
     root.render(
       <AppContext contextData={{ fnr: "12345678910", enhet: "0315" }}>
+        <img
+          src="/interflatedekorator_arbmark.png"
+          id="veilarbpersonflatefs-root"
+          alt="veilarbpersonflate-bilde"
+          className={styles.demo_image}
+        />
         <App />
       </AppContext>,
     );
