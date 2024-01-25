@@ -17,8 +17,9 @@ data class MulighetsrommetTestDomain(
     val tiltakstyper: List<TiltakstypeDbo> = listOf(
         TiltakstypeFixtures.Oppfolging,
         TiltakstypeFixtures.Arbeidstrening,
+        TiltakstypeFixtures.VTA
     ),
-    val avtaler: List<AvtaleDbo> = listOf(AvtaleFixtures.avtale1),
+    val avtaler: List<AvtaleDbo> = listOf(AvtaleFixtures.avtale1, AvtaleFixtures.avtaleForVta),
 ) {
     fun initialize(database: FlywayDatabaseAdapter) {
         NavEnhetRepository(database).also { repository ->

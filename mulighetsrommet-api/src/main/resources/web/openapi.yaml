@@ -1606,6 +1606,8 @@ components:
     ValidationErrorResponse:
       type: object
       properties:
+        message:
+          type: string
         errors:
           type: array
           items:

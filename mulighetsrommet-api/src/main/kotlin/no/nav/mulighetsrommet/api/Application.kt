@@ -57,7 +57,7 @@ fun Application.configure(config: AppConfig) {
 
         authenticate(AuthProvider.AZURE_AD_NAV_IDENT.name, AuthProvider.AZURE_AD_TILTAKSADMINISTRASJON_GENERELL.name) {
             tiltakstypeRoutes()
-            tiltaksgjennomforingRoutes()
+            tiltaksgjennomforingRoutes(config)
             avtaleRoutes()
             veilederflateRoutes()
             brukerRoutes()

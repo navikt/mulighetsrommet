@@ -8,7 +8,7 @@ import {
   Tiltaksgjennomforing,
   TiltaksgjennomforingRequest,
 } from "mulighetsrommet-api-client";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { v4 as uuidv4 } from "uuid";
 import { gjennomforingDetaljerTabAtom } from "../../api/atoms";
@@ -46,6 +46,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
   const redigeringsModus = !!tiltaksgjennomforing;
   const mutation = useUpsertTiltaksgjennomforing();
   const [activeTab, setActiveTab] = useAtom(gjennomforingDetaljerTabAtom);
+  const [error, setError] = useState("");
 
   const avbrytModalRef = useRef<HTMLDialogElement>(null);
 
@@ -114,6 +115,10 @@ export const TiltaksgjennomforingSkjemaContainer = ({
         form.setError(name, { type: "custom", message: error.message });
       });
 
+      if (validation?.message) {
+        setError(validation.message);
+      }
+
       function mapErrorToSchemaPropertyName(name: string) {
         const mapping: { [name: string]: string } = {
           startDato: "startOgSluttDato.startDato",
@@ -139,6 +144,11 @@ export const TiltaksgjennomforingSkjemaContainer = ({
       {!redigeringsModus ? (
         <Alert variant="warning" style={{ margin: "1rem 0" }}>
           Opprettelse av gjennomføring her vil ikke opprette gjennomføringen i Arena.
+        </Alert>
+      ) : null}
+      {error ? (
+        <Alert variant="error" style={{ margin: "1rem 0" }}>
+          {error}
         </Alert>
       ) : null}
       <form onSubmit={handleSubmit(postData)}>
