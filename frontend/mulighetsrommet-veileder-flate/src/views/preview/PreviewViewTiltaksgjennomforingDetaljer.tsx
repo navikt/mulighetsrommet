@@ -39,31 +39,33 @@ export function PreviewViewTiltaksgjennomforingDetaljer() {
         brukersInnsatsgruppe={brukersInnsatsgruppe}
         knapperad={<Tilbakeknapp tilbakelenke="/preview" tekst="Tilbake til tiltaksoversikten" />}
         brukerActions={
-          <DelMedBruker
-            tiltaksgjennomforing={data}
-            knappetekst="Del med bruker"
-            veiledernavn="{Veiledernavn}"
-            brukerdata={{
-              fnr: "12345678910",
-              fornavn: "{NAVN}",
-              manuellStatus: {
-                erUnderManuellOppfolging: false,
-                krrStatus: { kanVarsles: true, erReservert: false },
-              },
-              oppfolgingsenhet: {
-                navn: "{OPPFØLGINGSENHET}",
-                enhetsnummer: "0",
-                overordnetEnhet: "0100",
-                type: NavEnhetType.LOKAL,
-              },
-              geografiskEnhet: {
-                navn: "{OPPFØLGINGSENHET}",
-                enhetsnummer: "0",
-                overordnetEnhet: "0100",
-                type: NavEnhetType.LOKAL,
-              },
-            }}
-          />
+          <div>
+            <DelMedBruker
+              tiltaksgjennomforing={data}
+              knappetekst="Del med bruker"
+              veiledernavn="{Veiledernavn}"
+              brukerdata={{
+                fnr: "12345678910",
+                fornavn: "{NAVN}",
+                manuellStatus: {
+                  erUnderManuellOppfolging: false,
+                  krrStatus: { kanVarsles: true, erReservert: false },
+                },
+                oppfolgingsenhet: {
+                  navn: "{OPPFØLGINGSENHET}",
+                  enhetsnummer: "0",
+                  overordnetEnhet: "0100",
+                  type: NavEnhetType.LOKAL,
+                },
+                geografiskEnhet: {
+                  navn: "{OPPFØLGINGSENHET}",
+                  enhetsnummer: "0",
+                  overordnetEnhet: "0100",
+                  type: NavEnhetType.LOKAL,
+                },
+              }}
+            />
+          </div>
         }
       />
     </>

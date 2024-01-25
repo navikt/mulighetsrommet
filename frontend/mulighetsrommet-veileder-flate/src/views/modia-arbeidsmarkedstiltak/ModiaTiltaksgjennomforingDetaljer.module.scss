@@ -4,15 +4,11 @@
   text-align: center;
 }
 
-.deleknapp_container {
+.brukeractions_container {
   display: flex;
   flex-direction: column;
-  margin-top: 32px;
-  gap: 8px;
-}
-
-.deleknapp {
-  width: 100%;
+  gap: 1rem;
+  margin-top: 1rem;
 }
 
 .link {
@@ -25,7 +21,6 @@
 }
 .dialogknapp {
   text-align: center;
-  margin-top: 1rem;
 
   svg {
     width: 20px;

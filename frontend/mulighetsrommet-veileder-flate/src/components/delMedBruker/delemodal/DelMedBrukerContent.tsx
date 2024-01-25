@@ -116,8 +116,8 @@ export function DelMedBrukerContent({
           data-testid="alert-preview-del-med-bruker"
           className={delemodalStyles.preview_alert}
         >
-          Det er ikke mulig å dele tiltak med bruker i forhåndsvisning. Brukers navn og veileders
-          navn blir automatisk satt utenfor forhåndsvisningsmodus.
+          Det er ikke mulig å dele tiltak med bruker i forhåndsvisning. Brukers navn blir automatisk
+          satt utenfor forhåndsvisningsmodus.
         </Alert>
       ) : null}
     </>

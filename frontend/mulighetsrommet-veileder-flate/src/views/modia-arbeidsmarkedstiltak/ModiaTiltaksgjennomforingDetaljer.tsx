@@ -131,34 +131,33 @@ export function ModiaTiltaksgjennomforingDetaljer() {
           </>
         }
         brukerActions={
-          <>
-            <div className={styles.deleknapp_container}>
-              {opprettAvtale && (
-                <Button
-                  onClick={kanBrukerFaaAvtale}
-                  variant="primary"
-                  className={styles.deleknapp}
-                  aria-label="Opprett avtale"
-                  data-testid="opprettavtaleknapp"
-                  disabled={!brukerHarRettPaaTiltak}
-                >
-                  Opprett avtale
-                </Button>
-              )}
-              {enableDeltakerRegistrering && !opprettAvtale ? (
-                <Link className={styles.link} to="./deltaker">
-                  Meld på
-                </Link>
-              ) : null}
-              <DelMedBruker
-                knappetekst={
-                  harDeltMedBruker ? `Delt med bruker ${datoSidenSistDelt}` : "Del med bruker"
-                }
-                veiledernavn={resolveName(veilederdata.data)}
-                brukerdata={brukerdata}
-                tiltaksgjennomforing={tiltaksgjennomforing}
-              />
-            </div>
+          <div className={styles.brukeractions_container}>
+            {opprettAvtale && (
+              <Button
+                onClick={kanBrukerFaaAvtale}
+                variant="primary"
+                className={styles.deleknapp}
+                aria-label="Opprett avtale"
+                data-testid="opprettavtaleknapp"
+                disabled={!brukerHarRettPaaTiltak}
+              >
+                Opprett avtale
+              </Button>
+            )}
+            {enableDeltakerRegistrering && !opprettAvtale ? (
+              <Link className={styles.link} to="./deltaker">
+                Meld på
+              </Link>
+            ) : null}
+            <DelMedBruker
+              knappetekst={
+                harDeltMedBruker ? `Delt med bruker ${datoSidenSistDelt}` : "Del med bruker"
+              }
+              veiledernavn={resolveName(veilederdata.data)}
+              brukerdata={brukerdata}
+              tiltaksgjennomforing={tiltaksgjennomforing}
+            />
+
             {!brukerdata?.manuellStatus && (
               <Alert
                 title="Vi kunne ikke opprette kontakt med KRR og vet derfor ikke om brukeren har reservert seg mot elektronisk kommunikasjon"
@@ -189,7 +188,7 @@ export function ModiaTiltaksgjennomforingDetaljer() {
                 </Button>
               </div>
             )}
-          </>
+          </div>
         }
       />
     </>
