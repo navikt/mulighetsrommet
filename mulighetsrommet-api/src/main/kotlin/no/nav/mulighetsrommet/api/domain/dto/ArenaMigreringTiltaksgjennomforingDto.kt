@@ -2,6 +2,8 @@ package no.nav.mulighetsrommet.api.domain.dto
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
+import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus.GJENNOMFORES
+import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus.PLANLAGT
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
@@ -32,10 +34,19 @@ data class ArenaMigreringTiltaksgjennomforingDto(
     val deltidsprosent: Double,
 ) {
     companion object {
-        fun from(tiltaksgjennomforing: TiltaksgjennomforingAdminDto, arenaId: Int?, endretTidspunkt: LocalDateTime): ArenaMigreringTiltaksgjennomforingDto {
+        fun from(
+            tiltaksgjennomforing: TiltaksgjennomforingAdminDto,
+            arenaId: Int?,
+            endretTidspunkt: LocalDateTime,
+        ): ArenaMigreringTiltaksgjennomforingDto {
             // Alle fra arena har arena_ansvarlig_enhet og nav_region er required fra admin-flate
             requireNotNull(tiltaksgjennomforing.navRegion ?: tiltaksgjennomforing.arenaAnsvarligEnhet) {
                 "navRegion or arenaAnsvarligEnhet was null! Should not be possible!"
+            }
+
+            val status = when (tiltaksgjennomforing.status) {
+                PLANLAGT, GJENNOMFORES -> GJENNOMFORES
+                else -> tiltaksgjennomforing.status
             }
 
             return ArenaMigreringTiltaksgjennomforingDto(
@@ -48,7 +59,7 @@ data class ArenaMigreringTiltaksgjennomforingDto(
                 navn = tiltaksgjennomforing.navn,
                 orgnummer = tiltaksgjennomforing.arrangor.organisasjonsnummer,
                 antallPlasser = tiltaksgjennomforing.antallPlasser,
-                status = tiltaksgjennomforing.status,
+                status = status,
                 arenaId = arenaId,
                 enhet = tiltaksgjennomforing.arenaAnsvarligEnhet?.enhetsnummer
                     ?: tiltaksgjennomforing.navRegion?.enhetsnummer
