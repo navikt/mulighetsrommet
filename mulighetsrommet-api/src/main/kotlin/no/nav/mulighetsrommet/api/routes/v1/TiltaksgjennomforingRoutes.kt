@@ -57,8 +57,8 @@ fun Route.tiltaksgjennomforingRoutes(appConfig: AppConfig) {
                                 errors = listOf(
                                     ValidationError(
                                         name = "avtale",
-                                        message = "Opprettelse av tiltaksgjennomføring for tiltakstype: '${tiltakstype.navn}' er ikke skrudd på enda."
-                                    )
+                                        message = "Opprettelse av tiltaksgjennomføring for tiltakstype: '${tiltakstype.navn}' er ikke skrudd på enda.",
+                                    ),
                                 ),
                             ),
                         ),
