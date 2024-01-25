@@ -2,12 +2,10 @@ import { Button } from "@navikt/ds-react";
 import styles from "../../views/ViewTiltaksgjennomforingDetaljer/ViewTiltaksgjennomforingDetaljer.module.scss";
 import { CheckmarkIcon } from "@navikt/aksel-icons";
 import { Delemodal } from "./delemodal/Delemodal";
-import { formaterDato } from "../../utils/Utils";
 import { useDelMedBruker } from "./delemodal/DelemodalReducer";
 import { useLogEvent } from "../../logging/amplitude";
 import { utledDelMedBrukerTekst } from "./delemodal/DelMedBrukerTekst";
 import { useHentDeltMedBrukerStatus } from "../../core/api/queries/useHentDeltMedbrukerStatus";
-import { useAppContext } from "../../hooks/useAppContext";
 import { erBrukerResertMotElektroniskKommunikasjon } from "../../utils/Bruker";
 import { Bruker, VeilederflateTiltaksgjennomforing } from "mulighetsrommet-api-client";
 
@@ -24,22 +22,19 @@ export const DelMedBruker = ({
   brukerdata,
   tiltaksgjennomforing,
 }: Props) => {
-  const { fnr } = useAppContext();
-  const { harDeltMedBruker } = useHentDeltMedBrukerStatus(fnr, tiltaksgjennomforing);
+  const { harDeltMedBruker } = useHentDeltMedBrukerStatus(brukerdata.fnr, tiltaksgjennomforing);
 
-  const originaldeletekstFraTiltakstypen = tiltaksgjennomforing?.tiltakstype.delingMedBruker ?? "";
+  const originaldeletekstFraTiltakstypen = tiltaksgjennomforing.tiltakstype.delingMedBruker ?? "";
 
   const { logEvent } = useLogEvent();
-  const { reservert } = erBrukerResertMotElektroniskKommunikasjon(brukerdata!);
+  const { reservert } = erBrukerResertMotElektroniskKommunikasjon(brukerdata);
 
   const deletekst = utledDelMedBrukerTekst(
     originaldeletekstFraTiltakstypen,
-    tiltaksgjennomforing?.navn!,
+    tiltaksgjennomforing.navn,
     brukerdata.fornavn,
   );
   const [state, dispatch] = useDelMedBruker(deletekst);
-
-  harDeltMedBruker && formaterDato(new Date(harDeltMedBruker.createdAt!!));
 
   const handleClickApneModal = () => {
     logEvent({
