@@ -1157,7 +1157,7 @@ paths:
               schema:
                 type: string
 
-  /api/v1/internal/enheter:
+  /api/v1/internal/nav-enheter:
     get:
       tags:
         - NavEnheter
@@ -1187,7 +1187,22 @@ paths:
                 items:
                   $ref: "#/components/schemas/NavEnhet"
 
-  /api/v1/internal/enheter/{enhetsnummer}/overordnet:
+  /api/v1/internal/nav-enheter/regioner:
+    get:
+      tags:
+        - NavEnheter
+      operationId: getRegioner
+      responses:
+        200:
+          description: Liste over regioner med underenheter
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/NavRegion"
+
+  /api/v1/internal/nav-enheter/{enhetsnummer}/overordnet:
     parameters:
       - in: "path"
         name: enhetsnummer
@@ -2525,6 +2540,28 @@ components:
       required:
         - navn
         - overordnetEnhet
+        - enhetsnummer
+        - status
+        - type
+
+    NavRegion:
+      type: object
+      properties:
+        enhetsnummer:
+          type: string
+        navn:
+          type: string
+        status:
+          $ref: "#/components/schemas/NavEnhetStatus"
+        type:
+          $ref: "#/components/schemas/NavEnhetType"
+        enheter:
+          type: array
+          items:
+            $ref: "#/components/schemas/NavEnhet"
+      required:
+        - navn
+        - enheter
         - enhetsnummer
         - status
         - type

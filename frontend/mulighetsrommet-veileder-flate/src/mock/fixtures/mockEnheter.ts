@@ -1,4 +1,4 @@
-import { NavEnhet, NavEnhetStatus, NavEnhetType } from "mulighetsrommet-api-client";
+import { NavEnhet, NavEnhetStatus, NavEnhetType, NavRegion } from "mulighetsrommet-api-client";
 
 export const mockEnheter: {
   [navn: string]: NavEnhet;
@@ -97,6 +97,7 @@ export const mockEnheter: {
     enhetsnummer: "0300",
     overordnetEnhet: null,
   },
+
   // Ost Viken
   _0106: {
     navn: "NAV Fredrikstad",
@@ -120,3 +121,40 @@ export const mockEnheter: {
     overordnetEnhet: null,
   },
 };
+
+export const mockRegioner: NavRegion[] = [
+  {
+    navn: "NAV Oslo",
+    type: NavEnhetType.FYLKE,
+    status: NavEnhetStatus.AKTIV,
+    enhetsnummer: "0300",
+    enheter: [
+      mockEnheter._0313,
+      mockEnheter._0330,
+      mockEnheter._0318,
+      mockEnheter._0334,
+      mockEnheter._0315,
+    ],
+  },
+  {
+    navn: "NAV Innlandet",
+    type: NavEnhetType.FYLKE,
+    status: NavEnhetStatus.AKTIV,
+    enhetsnummer: "0400",
+    enheter: [
+      mockEnheter._0425,
+      mockEnheter._0402,
+      mockEnheter._0415,
+      mockEnheter._0428,
+      mockEnheter._0511,
+      mockEnheter._0420,
+    ],
+  },
+  {
+    navn: "NAV Øst-Vikern",
+    type: NavEnhetType.FYLKE,
+    status: NavEnhetStatus.AKTIV,
+    enhetsnummer: "0200",
+    enheter: [mockEnheter._0106, mockEnheter._0105],
+  },
+];

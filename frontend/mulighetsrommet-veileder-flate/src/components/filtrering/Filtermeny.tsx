@@ -10,7 +10,7 @@ import {
   RegionMap,
   useArbeidsmarkedstiltakFilter,
 } from "../../hooks/useArbeidsmarkedstiltakFilter";
-import { BrukersEnhetFilter } from "./BrukersEnhetFilter";
+import { NavEnhetFilter } from "./NavEnhetFilter";
 
 const Filtermeny = () => {
   const [filter, setFilter] = useArbeidsmarkedstiltakFilter();
@@ -22,7 +22,7 @@ const Filtermeny = () => {
         setSokefilter={(search: string) => setFilter({ ...filter, search })}
       />
       <Accordion>
-        <BrukersEnhetFilter
+        <NavEnhetFilter
           regionMapFilter={filter.regionMap}
           setRegionMapFilter={(regionMap: RegionMap) => setFilter({ ...filter, regionMap })}
         />

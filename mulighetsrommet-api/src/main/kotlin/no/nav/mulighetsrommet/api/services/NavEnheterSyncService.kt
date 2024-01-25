@@ -14,6 +14,33 @@ import no.nav.mulighetsrommet.api.utils.NavEnhetUtils
 import no.nav.mulighetsrommet.slack.SlackNotifier
 import org.slf4j.LoggerFactory
 
+val NAV_EGNE_ANSATTE_TIL_FYLKE_MAP = mapOf(
+    // NAV egne ansatte Vestfold og Telemark
+    "0883" to "0800",
+    // NAV egne ansatte Vestland
+    "1283" to "1200",
+    // NAV egne ansatte Troms og Finnmark
+    "1983" to "1900",
+    // NAV egne ansatte Oslo
+    "0383" to "0300",
+    // NAV egne ansatte Rogaland
+    "1183" to "1100",
+    // NAV egne ansatte Møre og Romsdal
+    "1583" to "1500",
+    // NAV egne ansatte Vest-Viken
+    "0683" to "0600",
+    // NAV egne ansatte Agder
+    "1083" to "1000",
+    // NAV egne ansatte Nordland
+    "1883" to "1800",
+    // NAV egne ansatte Øst-Viken
+    "0283" to "0200",
+    // NAV egne ansatte Innlandet
+    "0483" to "0400",
+    // NAV egne ansatte Trøndelag
+    "1683" to "5700",
+)
+
 class NavEnheterSyncService(
     private val norg2Client: Norg2Client,
     private val sanityClient: SanityClient,
@@ -166,31 +193,7 @@ class NavEnheterSyncService(
             "1193" to "1100",
             // NAV Tiltak Trøndelag
             "5771" to "5700",
-            // NAV egne ansatte Vestfold og Telemark
-            "0883" to "0800",
-            // NAV egne ansatte Vestland
-            "1283" to "1200",
-            // NAV egne ansatte Troms og Finnmark
-            "1983" to "1900",
-            // NAV egne ansatte Oslo
-            "0383" to "0300",
-            // NAV egne ansatte Rogaland
-            "1183" to "1100",
-            // NAV egne ansatte Møre og Romsdal
-            "1583" to "1500",
-            // NAV egne ansatte Vest-Viken
-            "0683" to "0600",
-            // NAV egne ansatte Agder
-            "1083" to "1000",
-            // NAV egne ansatte Nordland
-            "1883" to "1800",
-            // NAV egne ansatte Øst-Viken
-            "0283" to "0200",
-            // NAV egne ansatte Innlandet
-            "0483" to "0400",
-            // NAV egne ansatte Trøndelag
-            "1683" to "5700",
-        )
+        ) + NAV_EGNE_ANSATTE_TIL_FYLKE_MAP
 
         val fantFylke = spesialEnheterTilFylkeMap[enhet.enhetNr]
         if (fantFylke == null && enhet.type != Norg2Type.KO) {

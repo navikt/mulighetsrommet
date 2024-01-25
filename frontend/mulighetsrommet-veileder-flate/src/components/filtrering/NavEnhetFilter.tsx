@@ -2,71 +2,74 @@ import { Accordion, Checkbox, CheckboxGroup, Loader } from "@navikt/ds-react";
 import { useState } from "react";
 import { addOrRemove } from "../../utils/Utils";
 import { filterAccordionAtom } from "../../core/atoms/atoms";
-import styles from "./BrukersEnhetFilter.module.scss";
+import styles from "./NavEnhetFilter.module.scss";
 import { useAtom } from "jotai";
-import { NavEnhet } from "mulighetsrommet-api-client";
+import { NavEnhet, NavRegion } from "mulighetsrommet-api-client";
 import { ChevronDownIcon } from "@navikt/aksel-icons";
 import classnames from "classnames";
-import { useRegionMap } from "../../core/api/queries/useRegionMap";
 import { RegionMap } from "../../hooks/useArbeidsmarkedstiltakFilter";
+import { useRegioner } from "../../core/api/queries/useRegioner";
 
 interface Props {
   regionMapFilter: RegionMap;
   setRegionMapFilter: (regionMap: RegionMap) => void;
 }
 
-export function BrukersEnhetFilter({
+export function NavEnhetFilter({
   regionMapFilter: regionMap,
   setRegionMapFilter: setRegionMap,
 }: Props) {
   const [accordionsOpen, setAccordionsOpen] = useAtom(filterAccordionAtom);
-  const { data: fullRegionMap, isLoading } = useRegionMap();
+  const { data: alleRegioner, isLoading } = useRegioner();
   const [regionOpen, setRegionOpen] = useState<string[]>([]);
-  if (isLoading || !fullRegionMap) {
+
+  if (isLoading || !alleRegioner) {
     return <Loader size="xlarge" />;
   }
 
-  function regionIsIndeterminate(region: NavEnhet): boolean {
+  function regionIsIndeterminate(region: NavRegion): boolean {
     const underenhetCount = regionMap[region.enhetsnummer]?.length ?? 0;
-    return underenhetCount > 0 && underenhetCount < (fullRegionMap.get(region)?.length ?? 0);
+    return underenhetCount > 0 && underenhetCount < region.enheter.length;
   }
 
-  function regionValues(): NavEnhet[] {
-    return Array.from(fullRegionMap.keys())
-      .filter(
-        (region: NavEnhet) =>
-          Object.keys(regionMap).includes(region.enhetsnummer) &&
-          regionMap[region.enhetsnummer].length > 0,
-      )
-      .filter((region: NavEnhet) => !regionIsIndeterminate(region));
+  function regionValues(): NavRegion[] {
+    return (
+      alleRegioner
+        ?.filter(
+          (region: NavRegion) =>
+            Object.keys(regionMap).includes(region.enhetsnummer) &&
+            regionMap[region.enhetsnummer].length > 0,
+        )
+        .filter((region: NavRegion) => !regionIsIndeterminate(region)) ?? []
+    );
   }
 
-  function regionOnChange(regioner: NavEnhet[]) {
-    function enheterAfterChange(region: NavEnhet) {
+  function regionOnChange(regioner: NavRegion[]) {
+    function enheterAfterChange(region: NavRegion) {
       const isIndeterminate = regionIsIndeterminate(region);
       const isIncluded = regioner.includes(region);
 
       if (isIndeterminate && !isIncluded) {
         return regionMap[region.enhetsnummer];
       } else if (!isIndeterminate && isIncluded) {
-        return fullRegionMap.get(region)?.map((enhet: NavEnhet) => enhet.enhetsnummer) ?? [];
+        return region.enheter.map((enhet: NavEnhet) => enhet.enhetsnummer) ?? [];
       } else {
         return [];
       }
     }
 
     setRegionMap(
-      Array.from(fullRegionMap.keys()).reduce(
-        (acc: RegionMap, region: NavEnhet) => ({
+      alleRegioner?.reduce(
+        (acc: RegionMap, region: NavRegion) => ({
           ...acc,
           [region.enhetsnummer]: enheterAfterChange(region),
         }),
         {} as RegionMap,
-      ),
+      ) ?? {},
     );
   }
 
-  function RegionCheckbox({ region }: { region: NavEnhet }) {
+  function RegionCheckbox({ region }: { region: NavRegion }) {
     return (
       <>
         <div
@@ -101,7 +104,7 @@ export function BrukersEnhetFilter({
     });
   }
 
-  function UnderenheterCheckboxGroup({ region }: { region: NavEnhet }) {
+  function UnderenheterCheckboxGroup({ region }: { region: NavRegion }) {
     return (
       <CheckboxGroup
         value={regionMap[region.enhetsnummer] ?? []}
@@ -114,11 +117,13 @@ export function BrukersEnhetFilter({
           marginLeft: "1rem",
         }}
       >
-        {(fullRegionMap.get(region) ?? []).map((enhet: NavEnhet) => (
-          <Checkbox key={enhet.enhetsnummer} value={enhet.enhetsnummer}>
-            {enhet.navn}
-          </Checkbox>
-        ))}
+        <div style={{ maxHeight: "400px", overflow: "auto" }}>
+          {region.enheter.map((enhet: NavEnhet) => (
+            <Checkbox key={enhet.enhetsnummer} value={enhet.enhetsnummer}>
+              {enhet.navn}
+            </Checkbox>
+          ))}
+        </div>
       </CheckboxGroup>
     );
   }
@@ -131,7 +136,7 @@ export function BrukersEnhetFilter({
         }}
         data-testid="filter_accordionheader_brukers-enhet"
       >
-        Brukers enhet
+        Nav enhet
       </Accordion.Header>
       <Accordion.Content data-testid="filter_accordioncontent_brukers-enhet">
         <CheckboxGroup
@@ -142,7 +147,7 @@ export function BrukersEnhetFilter({
           size="small"
           data-testid={"checkboxgroup_brukers-enhet"}
         >
-          {Array.from(fullRegionMap.keys()).map((region: NavEnhet) => (
+          {alleRegioner.map((region: NavRegion) => (
             // eslint-disable-next-line react/prop-types
             <RegionCheckbox key={region.enhetsnummer} region={region} />
           ))}
