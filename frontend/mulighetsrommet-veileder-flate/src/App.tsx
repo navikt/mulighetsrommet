@@ -10,7 +10,6 @@ import { useInitializeAppContext } from "./hooks/useInitializeAppContext";
 import { initAmplitude } from "./logging/amplitude";
 import { ErrorFallback } from "./utils/ErrorFallback";
 import { PreviewViewTiltaksgjennomforingDetaljer } from "./views/preview/PreviewViewTiltaksgjennomforingDetaljer";
-import { PreviewOversikt } from "./views/preview/PreviewOversikt";
 import { useFeatureToggle } from "./core/api/feature-toggles";
 import { Toggles } from "mulighetsrommet-api-client";
 import { Landingsside } from "./views/landingsside/Landingsside";
@@ -18,6 +17,7 @@ import { ModiaTiltaksgjennomforingDetaljer } from "./views/modia-arbeidsmarkedst
 import { DeltakerRegistrering } from "./microfrontends/team_komet/DeltakerRegistrering";
 import ModiaViewTiltaksgjennomforingOversikt from "./views/modia-arbeidsmarkedstiltak/ModiaViewTiltaksgjennomforingOversikt";
 import { ArbeidsmarkedstiltakHeader } from "./components/ArbeidsmarkedstiltakHeader";
+import { PreviewOversikt } from "./views/preview/PreviewOversikt";
 
 if (import.meta.env.PROD && import.meta.env.VITE_FARO_URL) {
   initializeFaro({
