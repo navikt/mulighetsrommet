@@ -1,0 +1,29 @@
+.filter_loader {
+  display: block;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.brukeractions_container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.link {
+  text-align: center;
+  margin: 1rem 0;
+}
+.alert {
+  margin-top: 0.5rem;
+  border-radius: 0;
+}
+.dialogknapp {
+  text-align: center;
+
+  svg {
+    width: 20px;
+    height: auto;
+  }
+}

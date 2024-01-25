@@ -8,8 +8,8 @@ Flate rettet mot veiledere for behandling av tiltaksinformasjon.
 - [Teknologier](#teknologier)
 - [Kom i gang](#kom-i-gang)
 - [kodestil](#kodestil)
-    - [Forutsetninger](#forutsetninger)
-    - [Steg for steg](#steg-for-steg)
+  - [Forutsetninger](#forutsetninger)
+  - [Steg for steg](#steg-for-steg)
 
 # <a name="deploy"></a>Deploy
 

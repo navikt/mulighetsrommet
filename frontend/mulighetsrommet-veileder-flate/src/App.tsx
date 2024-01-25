@@ -9,15 +9,15 @@ import { useInitializeArbeidsmarkedstiltakFilterForBruker } from "./hooks/useIni
 import { useInitializeAppContext } from "./hooks/useInitializeAppContext";
 import { initAmplitude } from "./logging/amplitude";
 import { ErrorFallback } from "./utils/ErrorFallback";
-import { SanityPreview } from "./views/Preview/SanityPreview";
-import { SanityPreviewOversikt } from "./views/Preview/SanityPreviewOversikt";
 import { useFeatureToggle } from "./core/api/feature-toggles";
 import { Toggles } from "mulighetsrommet-api-client";
 import { Landingsside } from "./views/landingsside/Landingsside";
-import { ViewTiltaksgjennomforingDetaljerContainer } from "./views/tiltaksgjennomforing-detaljer/ViewTiltaksgjennomforingDetaljerContainer";
+import { ModiaTiltaksgjennomforingDetaljer } from "./views/modia-arbeidsmarkedstiltak/ModiaTiltaksgjennomforingDetaljer";
 import { DeltakerRegistrering } from "./microfrontends/team_komet/DeltakerRegistrering";
-import ViewTiltaksgjennomforingOversikt from "./views/tiltaksgjennomforing-oversikt/ViewTiltaksgjennomforingOversikt";
-import { ArbeidsmarkedstiltakHeader } from "./views/Preview/ArbeidsmarkedstiltakHeader";
+import ModiaViewTiltaksgjennomforingOversikt from "./views/modia-arbeidsmarkedstiltak/ModiaViewTiltaksgjennomforingOversikt";
+import { ArbeidsmarkedstiltakHeader } from "./components/ArbeidsmarkedstiltakHeader";
+import { PreviewOversikt } from "./views/preview/PreviewOversikt";
+import { PreviewViewTiltaksgjennomforingDetaljer } from "./views/preview/PreviewViewTiltaksgjennomforingDetaljer";
 
 if (import.meta.env.PROD && import.meta.env.VITE_FARO_URL) {
   initializeFaro({
@@ -36,7 +36,7 @@ export function App() {
       <Router>
         <Routes>
           <Route path="preview/*" element={<PreviewArbeidsmarkedstiltak />} />
-          <Route path="arbeidsmarkedstiltak/*" element={<PersonflateArbeidsmarkedstiltak />} />
+          <Route path="arbeidsmarkedstiltak/*" element={<ModiaArbeidsmarkedstiltak />} />
           <Route path="*" element={<Navigate replace to="/arbeidsmarkedstiltak" />} />
         </Routes>
       </Router>
@@ -50,8 +50,8 @@ function PreviewArbeidsmarkedstiltak() {
       <ArbeidsmarkedstiltakHeader />
       <div className={styles.preview_content}>
         <Routes>
-          <Route path="oversikt" element={<SanityPreviewOversikt />} />
-          <Route path="tiltak/:id" element={<SanityPreview />}>
+          <Route path="oversikt" element={<PreviewOversikt />} />
+          <Route path="tiltak/:id" element={<PreviewViewTiltaksgjennomforingDetaljer />}>
             <Route path="oppskrifter/:oppskriftId/:tiltakstypeId" element={<Oppskrift />} />
           </Route>
           <Route path="*" element={<Navigate replace to="/preview/oversikt" />} />
@@ -61,7 +61,7 @@ function PreviewArbeidsmarkedstiltak() {
   );
 }
 
-function PersonflateArbeidsmarkedstiltak() {
+function ModiaArbeidsmarkedstiltak() {
   useHentVeilederdata(); // Pre-fetch veilederdata så slipper vi å vente på data når vi trenger det i appen senere
 
   const { fnr, enhet } = useInitializeAppContext();
@@ -87,8 +87,8 @@ function PersonflateArbeidsmarkedstiltak() {
       <div className={styles.amt_content}>
         <Routes>
           {enableLandingsside ? <Route path="" element={<Landingsside />} /> : null}
-          <Route path="oversikt" element={<ViewTiltaksgjennomforingOversikt />} />
-          <Route path="tiltak/:id" element={<ViewTiltaksgjennomforingDetaljerContainer />}>
+          <Route path="oversikt" element={<ModiaViewTiltaksgjennomforingOversikt />} />
+          <Route path="tiltak/:id" element={<ModiaTiltaksgjennomforingDetaljer />}>
             <Route path="oppskrifter/:oppskriftId/:tiltakstypeId" element={<Oppskrift />} />
           </Route>
           {visDeltakerregistrering ? (

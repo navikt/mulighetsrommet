@@ -2,6 +2,7 @@ import { PlusIcon } from "@navikt/aksel-icons";
 import { Link } from "react-router-dom";
 import { HistorikkForBrukerModalInnhold } from "../../components/historikk/HistorikkForBrukerModalInnhold";
 import styles from "./Landingsside.module.scss";
+import { Heading } from "@navikt/ds-react";
 
 export function Landingsside() {
   return (
@@ -13,7 +14,9 @@ export function Landingsside() {
           </Link>
         </div>
         <div>
-          <h3>Tiltakshistorikk</h3>
+          <Heading level="3" size="medium">
+            Tiltakshistorikk
+          </Heading>
           <HistorikkForBrukerModalInnhold />
         </div>
       </div>

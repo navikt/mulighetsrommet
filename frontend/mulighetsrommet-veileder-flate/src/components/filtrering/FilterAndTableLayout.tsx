@@ -13,8 +13,7 @@ interface Props {
   table: React.ReactNode;
 }
 
-export function FilterAndTableLayout(props: Props) {
-  const { filter, table, resetButton, buttons, tags } = props;
+export function FilterAndTableLayout({ filter, table, resetButton, buttons, tags }: Props) {
   const [filterSelected, setFilterSelected] = useState<boolean>(true);
 
   return (
