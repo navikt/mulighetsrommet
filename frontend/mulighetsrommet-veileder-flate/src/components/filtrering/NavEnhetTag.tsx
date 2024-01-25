@@ -1,22 +1,28 @@
 import { Tag } from "@navikt/ds-react";
 import {
   useArbeidsmarkedstiltakFilterValue,
-  valgteNavEnheter,
+  valgteEnhetsnumre,
 } from "../../hooks/useArbeidsmarkedstiltakFilter";
+import { useNavEnheter } from "../../core/api/queries/useNavEnheter";
+import { NavEnhet } from "mulighetsrommet-api-client";
 
 export function NavEnhetTag() {
   const filter = useArbeidsmarkedstiltakFilterValue();
-  const enheter = valgteNavEnheter(filter);
+  const { data: alleEnheter } = useNavEnheter();
+  const enheter = valgteEnhetsnumre(filter);
 
-  if (!filter || enheter.length === 0) {
+  if (!alleEnheter || !filter || enheter.length === 0) {
     return null;
   }
 
   function tagLabel() {
+    const firstEnhetName = alleEnheter?.find(
+      (enhet: NavEnhet) => enhet.enhetsnummer === enheter[0],
+    )?.navn;
     if (enheter.length > 1) {
-      return `${enheter[0].navn} +${enheter.length - 1}`;
+      return `${firstEnhetName} +${enheter.length - 1}`;
     }
-    return enheter[0].navn;
+    return firstEnhetName;
   }
 
   return (

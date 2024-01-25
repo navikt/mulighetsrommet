@@ -1,7 +1,7 @@
-import { Bruker } from "mulighetsrommet-api-client";
+import { Bruker, NavEnhet } from "mulighetsrommet-api-client";
 import {
   ArbeidsmarkedstiltakFilter,
-  valgteNavEnheter,
+  valgteEnhetsnumre,
 } from "../hooks/useArbeidsmarkedstiltakFilter";
 
 export const erTomtObjekt = (objekt: Object): boolean => {
@@ -75,8 +75,13 @@ export function brukersEnhetFilterHasChanged(
 ): boolean {
   if (!bruker) return false;
 
-  const filterEnheter = valgteNavEnheter(filter);
+  const filterEnheter = valgteEnhetsnumre(filter);
   if (filterEnheter.length !== bruker.enheter.length) return true;
 
-  return bruker.enheter.sort().join(",") === filterEnheter.sort().join(",");
+  return (
+    bruker.enheter
+      .map((enhet: NavEnhet) => enhet.enhetsnummer)
+      .sort()
+      .join(",") !== filterEnheter.sort().join(",")
+  );
 }

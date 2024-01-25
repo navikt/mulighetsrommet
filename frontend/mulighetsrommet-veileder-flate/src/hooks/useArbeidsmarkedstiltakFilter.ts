@@ -6,7 +6,7 @@ import { useHentBrukerdata } from "../core/api/queries/useHentBrukerdata";
 import { brukersEnhetFilterHasChanged } from "../utils/Utils";
 
 export interface RegionMap {
-  [region: string]: NavEnhet[];
+  [region: string]: string[];
 }
 
 export interface ArbeidsmarkedstiltakFilter {
@@ -110,12 +110,8 @@ export const filterAtom = atomWithStorage<FilterMedBrukerIKontekst>(
   { getOnInit: true },
 );
 
-export function valgteNavEnheter(filter: ArbeidsmarkedstiltakFilter): NavEnhet[] {
-  return Array.from(Object.values(filter.regionMap)).flat(1);
-}
-
 export function valgteEnhetsnumre(filter: ArbeidsmarkedstiltakFilter): string[] {
-  return valgteNavEnheter(filter).map((enhet: NavEnhet) => enhet.enhetsnummer);
+  return Array.from(Object.values(filter.regionMap)).flat(1);
 }
 
 export function buildRegionMap(navEnheter: NavEnhet[]): RegionMap {
@@ -123,9 +119,9 @@ export function buildRegionMap(navEnheter: NavEnhet[]): RegionMap {
   navEnheter.forEach((enhet: NavEnhet) => {
     const regionNavn = enhet.overordnetEnhet ?? "unknown";
     if (regionNavn in map) {
-      map[regionNavn].push(enhet);
+      map[regionNavn].push(enhet.enhetsnummer);
     } else {
-      map[regionNavn] = [enhet];
+      map[regionNavn] = [enhet.enhetsnummer];
     }
   });
 
