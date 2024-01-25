@@ -14,6 +14,9 @@ export const QueryKeys = {
   tiltaksgjennomforing: (id?: string) => ["tiltaksgjennomforing", id] as const,
   tiltaksgjennomforingHistorikk: (id?: string) =>
     ["tiltaksgjennomforing", id, "historikk"] as const,
+  tiltaksgjennomforingDeltakerSummary(id: string) {
+    return ["tiltaksgjennomforing", id, "deltaker-summary"] as const;
+  },
   tiltaksgjennomforingerByEnhet: (enhet: string = "enhet", page?: number) =>
     [enhet, page, "tiltaksgjennomforinger"] as const,
   ansatt: () => ["ansatt"] as const,

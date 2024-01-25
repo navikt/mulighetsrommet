@@ -424,6 +424,27 @@ paths:
               schema:
                 $ref: "#/components/schemas/Endringshistorikk"
 
+  /api/v1/internal/tiltaksgjennomforinger/{id}/deltaker-summary:
+    get:
+      tags:
+        - Tiltaksgjennomforinger
+      operationId: getTiltaksgjennomforingDeltakerSummary
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID for tiltaksgjennomføringen
+      responses:
+        200:
+          description: Oppsummert informasjon om gjennomførings deltakere
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TiltaksgjennomforingDeltakerSummary"
+
   /api/v1/internal/notater/tiltaksgjennomforinger/mine:
     get:
       tags:
@@ -2990,6 +3011,14 @@ components:
           type: string
           format: UUID
           nullable: true
+
+    TiltaksgjennomforingDeltakerSummary:
+      type: object
+      properties:
+        antallDeltakere:
+          type: number
+      required:
+        - antallDeltakere
 
     TiltaksgjennomforingKontaktperson:
       type: object

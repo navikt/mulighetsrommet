@@ -1,37 +1,35 @@
-:global(.mulighetsrommet-veileder-flate) {
-  :global(.navds-accordion__content) {
-    padding: 0 0 1rem 0.5rem;
-  }
+:global(.navds-accordion__content) {
+  padding: 0 0 1rem 0.5rem;
+}
 
-  .tiltakstype_oversikt_filtermeny {
-    transition:
-      top 0.2s ease 0s,
-      max-height 0.2s ease 0s;
-    display: flex;
-    flex-direction: column;
-    grid-column: 1;
-    grid-row-start: 1;
-    grid-row-end: 4;
-    height: fit-content;
-    background-color: var(--a-white);
-  }
+.tiltakstype_oversikt_filtermeny {
+  transition:
+    top 0.2s ease 0s,
+    max-height 0.2s ease 0s;
+  display: flex;
+  flex-direction: column;
+  grid-column: 1;
+  grid-row-start: 1;
+  grid-row-end: 4;
+  height: fit-content;
+  background-color: var(--a-white);
+}
 
-  .sokefelt {
-    :global(.navds-body-short) {
-      font-size: 1rem;
-    }
+.sokefelt {
+  :global(.navds-body-short) {
+    font-size: 1rem;
   }
+}
 
-  .filtermeny_heading {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
+.filtermeny_heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 
-  :global(.navds-accordion) {
-    :global(.navds-heading--small) {
-      font-size: 1rem;
-      font-weight: bold;
-    }
+:global(.navds-accordion) {
+  :global(.navds-heading--small) {
+    font-size: 1rem;
+    font-weight: bold;
   }
 }

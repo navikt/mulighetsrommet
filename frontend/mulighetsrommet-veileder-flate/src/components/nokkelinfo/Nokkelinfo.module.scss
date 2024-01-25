@@ -1,59 +1,55 @@
-:global(.mulighetsrommet-veileder-flate) {
-  .container {
-    display: flex;
-    margin-top: 1.5rem;
-  }
-
-  .nokkelinfo {
-    width: fit-content;
-    display: flex;
-    flex-direction: column;
-    border-right: 1px solid var(--a-border-default);
-    padding: 0;
-    margin-right: 1rem;
-    min-width: 250px;
-    height: 52px;
-  }
-
-  .content {
-    display: flex;
-    justify-content: space-between;
-    margin-right: 1rem;
-  }
-
-  .heading {
-    font-weight: unset;
-    display: flex;
-    flex-direction: row;
-    gap: 1rem;
-    color: var(--a-text-subtle);
-    font-size: 14px;
-  }
-
-  .tekst {
-    font-size: 24px;
-    line-height: unset;
-    margin: 0;
-    padding: 0;
-  }
+.container {
+  display: flex;
+  margin-top: 1.5rem;
 }
 
-:global(.mulighetsrommet-veileder-flate) {
-  :global(.navds-popover__content) {
-    max-width: 400px;
-  }
+.nokkelinfo {
+  width: fit-content;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--a-border-default);
+  padding: 0;
+  margin-right: 1rem;
+  min-width: 250px;
+  height: 52px;
+}
 
-  :global(.navds-popover__arrow::before) {
-    // Bugfix pga. feil i ds-react
-    display: none;
-  }
+.content {
+  display: flex;
+  justify-content: space-between;
+  margin-right: 1rem;
+}
 
-  :global(.navds-help-text__icon) {
-    font-size: 16px;
-  }
+.heading {
+  font-weight: unset;
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  color: var(--a-text-subtle);
+  font-size: 14px;
+}
 
-  :global(.navds-help-text__button) {
-    width: 24px;
-    height: 24px;
-  }
+.tekst {
+  font-size: 24px;
+  line-height: unset;
+  margin: 0;
+  padding: 0;
+}
+
+:global(.navds-popover__content) {
+  max-width: 400px;
+}
+
+:global(.navds-popover__arrow::before) {
+  // Bugfix pga. feil i ds-react
+  display: none;
+}
+
+:global(.navds-help-text__icon) {
+  font-size: 16px;
+}
+
+:global(.navds-help-text__button) {
+  width: 24px;
+  height: 24px;
 }

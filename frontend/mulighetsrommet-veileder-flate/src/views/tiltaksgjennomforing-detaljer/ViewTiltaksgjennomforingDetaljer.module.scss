@@ -67,19 +67,17 @@
   gap: 8px;
 }
 
-:global(.mulighetsrommet-veileder-flate) {
-  :global(.navds-panel) {
-    padding: 1.5rem;
-    background-color: var(--a-gray-100);
-  }
+:global(.navds-panel) {
+  padding: 1.5rem;
+  background-color: var(--a-gray-100);
+}
 
-  :global(.navds-button).deleknapp {
-    width: 100%;
-  }
+:global(.navds-button).deleknapp {
+  width: 100%;
+}
 
-  :global(.navds-tabs__tablist-wrapper) {
-    box-shadow: unset;
-  }
+:global(.navds-tabs__tablist-wrapper) {
+  box-shadow: unset;
 }
 
 .dialogknapp {

@@ -16,6 +16,7 @@ import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingKontaktpersonDb
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
+import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.BadRequest
 import no.nav.mulighetsrommet.api.routes.v1.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
@@ -31,6 +32,7 @@ import java.time.LocalDate
 import java.util.*
 
 fun Route.tiltaksgjennomforingRoutes(appConfig: AppConfig) {
+    val deltakere: DeltakerRepository by inject()
     val service: TiltaksgjennomforingService by inject()
     val tiltakstyper: TiltakstypeRepository by inject()
 
@@ -115,8 +117,22 @@ fun Route.tiltaksgjennomforingRoutes(appConfig: AppConfig) {
             val historikk = service.getEndringshistorikk(id)
             call.respond(historikk)
         }
+
+        get("{id}/deltaker-summary") {
+            val id: UUID by call.parameters
+
+            val deltakereForGjennomforing = deltakere.getAll(id)
+            val summary = TiltaksgjennomforingDeltakerSummary(antallDeltakere = deltakereForGjennomforing.size)
+
+            call.respond(summary)
+        }
     }
 }
+
+@Serializable
+data class TiltaksgjennomforingDeltakerSummary(
+    val antallDeltakere: Int,
+)
 
 @Serializable
 data class TiltaksgjennomforingRequest(
