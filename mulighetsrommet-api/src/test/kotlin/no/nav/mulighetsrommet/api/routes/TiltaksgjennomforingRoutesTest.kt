@@ -137,7 +137,7 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
                         avtaleId = AvtaleFixtures.avtale1.id,
                         navRegion = NavEnhetFixtures.Oslo.enhetsnummer,
                         navEnheter = listOf(NavEnhetFixtures.Sagene.enhetsnummer),
-                        tiltakstypeId = TiltakstypeFixtures.Oppfolging.id
+                        tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
                     ),
                 )
             }
@@ -183,7 +183,7 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
                         avtaleId = AvtaleFixtures.avtale1.id,
                         navRegion = NavEnhetFixtures.Oslo.enhetsnummer,
                         navEnheter = listOf(NavEnhetFixtures.Sagene.enhetsnummer),
-                        tiltakstypeId = TiltakstypeFixtures.VTA.id
+                        tiltakstypeId = TiltakstypeFixtures.VTA.id,
                     ),
                 )
             }

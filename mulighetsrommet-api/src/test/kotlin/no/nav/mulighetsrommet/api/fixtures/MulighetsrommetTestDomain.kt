@@ -17,7 +17,7 @@ data class MulighetsrommetTestDomain(
     val tiltakstyper: List<TiltakstypeDbo> = listOf(
         TiltakstypeFixtures.Oppfolging,
         TiltakstypeFixtures.Arbeidstrening,
-        TiltakstypeFixtures.VTA
+        TiltakstypeFixtures.VTA,
     ),
     val avtaler: List<AvtaleDbo> = listOf(AvtaleFixtures.avtale1, AvtaleFixtures.avtaleForVta),
 ) {

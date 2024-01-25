@@ -37,7 +37,7 @@ fun Route.tiltaksgjennomforingRoutes(appConfig: AppConfig) {
     route("/api/v1/internal/tiltaksgjennomforinger") {
         authenticate(
             AuthProvider.AZURE_AD_TILTAKSJENNOMFORINGER_SKRIV.name,
-            strategy = AuthenticationStrategy.Required
+            strategy = AuthenticationStrategy.Required,
         ) {
             put {
                 val request = call.receive<TiltaksgjennomforingRequest>()
@@ -52,9 +52,9 @@ fun Route.tiltaksgjennomforingRoutes(appConfig: AppConfig) {
                         Either.Left(
                             BadRequest(
                                 message = "Opprettelse av tiltaksgjennomføring for tiltakstype: '${tiltakstype.navn}' er ikke skrudd på enda.",
-                                errors = emptyList()
-                            )
-                        )
+                                errors = emptyList(),
+                            ),
+                        ),
                     )
                 }
 
