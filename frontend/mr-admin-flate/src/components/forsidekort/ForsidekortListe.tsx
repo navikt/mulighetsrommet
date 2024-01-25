@@ -45,7 +45,7 @@ export function ForsidekortListe() {
       <Forsidekort
         navn="Endringsmeldinger"
         ikon={<PersonPencilIcon aria-label="Endringsmeldinger" />}
-        url={`https://arbeidsmarkedstiltak.intern.${!erProdMiljo ? "dev" : ""}.nav.no`}
+        url={`https://arbeidsmarkedstiltak.intern${!erProdMiljo ? ".dev" : ""}.nav.no`}
         tekst="Her finner du endringsmeldinger fra tiltaksarrangør"
       />
     </div>
