@@ -104,7 +104,7 @@ fun createKafkaConfig(): KafkaConfig {
             tiltakstyper = TiltakstypeKafkaProducer.Config(topic = "siste-tiltakstyper-v1"),
             arenaMigreringTiltaksgjennomforinger = ArenaMigreringTiltaksgjennomforingKafkaProducer.Config(
                 topic = "arena-migrering-tiltaksgjennomforinger-v1",
-                tiltakstyper = emptyList(),
+                tiltakstyper = listOf("INDOPPFAG"),
             ),
         ),
         consumerGroupId = "mulighetsrommet-api-consumer",
