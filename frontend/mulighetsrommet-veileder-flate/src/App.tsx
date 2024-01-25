@@ -16,8 +16,8 @@ import { ModiaTiltaksgjennomforingDetaljer } from "./views/modia-arbeidsmarkedst
 import { DeltakerRegistrering } from "./microfrontends/team_komet/DeltakerRegistrering";
 import ModiaViewTiltaksgjennomforingOversikt from "./views/modia-arbeidsmarkedstiltak/ModiaViewTiltaksgjennomforingOversikt";
 import { ArbeidsmarkedstiltakHeader } from "./components/ArbeidsmarkedstiltakHeader";
-import { PreviewOversikt } from "./views/Preview/PreviewOversikt";
-import { PreviewViewTiltaksgjennomforingDetaljer } from "./views/Preview/PreviewViewTiltaksgjennomforingDetaljer";
+import { PreviewOversikt } from "./views/preview/PreviewOversikt";
+import { PreviewViewTiltaksgjennomforingDetaljer } from "./views/preview/PreviewViewTiltaksgjennomforingDetaljer";
 
 if (import.meta.env.PROD && import.meta.env.VITE_FARO_URL) {
   initializeFaro({

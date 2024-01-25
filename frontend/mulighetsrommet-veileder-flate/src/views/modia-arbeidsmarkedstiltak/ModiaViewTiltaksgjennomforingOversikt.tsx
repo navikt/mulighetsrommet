@@ -20,7 +20,7 @@ import { useHentAlleTiltakDeltMedBruker } from "../../core/api/queries/useHentAl
 import { useHentBrukerdata } from "../../core/api/queries/useHentBrukerdata";
 import useTiltaksgjennomforinger from "../../core/api/queries/useTiltaksgjennomforinger";
 import { useResetArbeidsmarkedstiltakFilter } from "../../hooks/useArbeidsmarkedstiltakFilter";
-import styles from "./ModiaView.module.scss";
+import styles from "../ViewTiltaksgjennomforingDetaljer/ViewTiltaksgjennomforingDetaljer.module.scss";
 
 const ModiaViewTiltaksgjennomforingOversikt = () => {
   useTitle("Arbeidsmarkedstiltak - Oversikt");

@@ -3,7 +3,7 @@ import { useAtom } from "jotai";
 import { Innsatsgruppe, NavEnhetType } from "mulighetsrommet-api-client";
 import usePreviewTiltaksgjennomforingById from "../../core/api/queries/usePreviewTiltaksgjennomforingById";
 import { geografiskEnhetForPreviewAtom } from "../../core/atoms/atoms";
-import ModiaViewTiltaksgjennomforingDetaljer from "../modia-arbeidsmarkedstiltak/ModiaViewTiltaksgjennomforingDetaljer";
+import ViewTiltaksgjennomforingDetaljer from "../ViewTiltaksgjennomforingDetaljer/ViewTiltaksgjennomforingDetaljer";
 import styles from "./PreviewView.module.scss";
 import Tilbakeknapp from "../../components/tilbakeknapp/Tilbakeknapp";
 import { DelMedBruker } from "../../components/delMedBruker/DelMedBruker";
@@ -34,7 +34,7 @@ export function PreviewViewTiltaksgjennomforingDetaljer() {
       <Alert style={{ marginBottom: "2rem" }} variant="warning" data-testid="sanity-preview-alert">
         Forhåndsvisning av informasjon
       </Alert>
-      <ModiaViewTiltaksgjennomforingDetaljer
+      <ViewTiltaksgjennomforingDetaljer
         tiltaksgjennomforing={data}
         brukersInnsatsgruppe={brukersInnsatsgruppe}
         knapperad={<Tilbakeknapp tilbakelenke="/preview" tekst="Tilbake til tiltaksoversikten" />}

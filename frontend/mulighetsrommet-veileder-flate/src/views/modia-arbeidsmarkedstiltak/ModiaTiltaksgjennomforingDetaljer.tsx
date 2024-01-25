@@ -6,8 +6,8 @@ import { useHentVeilederdata } from "../../core/api/queries/useHentVeilederdata"
 import useTiltaksgjennomforingById from "../../core/api/queries/useTiltaksgjennomforingById";
 import { useBrukerHarRettPaaTiltak } from "../../hooks/useBrukerHarRettPaaTiltak";
 import { useAppContext } from "../../hooks/useAppContext";
-import ModiaViewTiltaksgjennomforingDetaljer from "./ModiaViewTiltaksgjennomforingDetaljer";
-import styles from "./ModiaView.module.scss";
+import ViewTiltaksgjennomforingDetaljer from "../ViewTiltaksgjennomforingDetaljer/ViewTiltaksgjennomforingDetaljer";
+import styles from "./ModiaTiltaksgjennomforingDetaljer.module.scss";
 import Tilbakeknapp from "../../components/tilbakeknapp/Tilbakeknapp";
 import { DetaljerJoyride } from "../../components/joyride/DetaljerJoyride";
 import { OpprettAvtaleJoyride } from "../../components/joyride/OpprettAvtaleJoyride";
@@ -114,7 +114,7 @@ export function ModiaTiltaksgjennomforingDetaljer() {
         innsatsgruppeForGjennomforing={innsatsgruppeForGjennomforing}
       />
       <BrukerHarIkke14aVedtakVarsel brukerdata={brukerdata} />
-      <ModiaViewTiltaksgjennomforingDetaljer
+      <ViewTiltaksgjennomforingDetaljer
         tiltaksgjennomforing={tiltaksgjennomforing}
         knapperad={
           <>
