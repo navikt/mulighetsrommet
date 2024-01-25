@@ -32,7 +32,6 @@ select tg.id::uuid,
        region.navn             as nav_region_navn,
        region.type             as nav_region_type,
        region.overordnet_enhet as nav_region_overordnet_enhet,
-       region.status           as nav_region_status,
        jsonb_agg(
                distinct
                case
@@ -82,7 +81,8 @@ select tg.id::uuid,
        tg.tilgjengelig_for_veileder,
        tg.tilgjengelig_for_veileder and tg.avslutningsstatus = 'IKKE_AVSLUTTET'::avslutningsstatus
                                as vises_for_veileder,
-       tg.deltidsprosent
+       tg.deltidsprosent,
+       region.status           as nav_region_status
 from tiltaksgjennomforing tg
          inner join tiltakstype t on tg.tiltakstype_id = t.id
          left join tiltaksgjennomforing_administrator tg_a on tg_a.tiltaksgjennomforing_id = tg.id
