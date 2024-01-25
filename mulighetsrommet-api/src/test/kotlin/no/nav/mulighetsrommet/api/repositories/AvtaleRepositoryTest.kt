@@ -559,7 +559,7 @@ class AvtaleRepositoryTest : FunSpec({
             avtaler.upsert(avtale5)
             val result = avtaler.getAll(sortering = "navn-ascending")
 
-            result.second shouldHaveSize 5
+            result.second shouldHaveSize 6
             result.second[0].navn shouldBe "Avtale hos Anders"
             result.second[1].navn shouldBe "Avtale hos Kjetil"
             result.second[2].navn shouldBe "Avtale hos Ærfuglen Ærle"
@@ -594,12 +594,13 @@ class AvtaleRepositoryTest : FunSpec({
             avtaler.upsert(avtale5)
             val result = avtaler.getAll(sortering = "navn-descending")
 
-            result.second shouldHaveSize 5
-            result.second[0].navn shouldBe "Avtale hos Åse"
-            result.second[1].navn shouldBe "Avtale hos Øyvind"
-            result.second[2].navn shouldBe "Avtale hos Ærfuglen Ærle"
-            result.second[3].navn shouldBe "Avtale hos Kjetil"
-            result.second[4].navn shouldBe "Avtale hos Anders"
+            result.second shouldHaveSize 6
+            result.second[0].navn shouldBe "Avtalenavn for VTA"
+            result.second[1].navn shouldBe "Avtale hos Åse"
+            result.second[2].navn shouldBe "Avtale hos Øyvind"
+            result.second[3].navn shouldBe "Avtale hos Ærfuglen Ærle"
+            result.second[4].navn shouldBe "Avtale hos Kjetil"
+            result.second[5].navn shouldBe "Avtale hos Anders"
         }
 
         test("Filtrer på tiltakstype og nav-region forholder seg til korrekt logikk i filter-spørring") {
@@ -693,7 +694,7 @@ class AvtaleRepositoryTest : FunSpec({
 
             val ascending = avtaler.getAll(sortering = "leverandor-ascending")
 
-            ascending.second shouldHaveSize 2
+            ascending.second shouldHaveSize 3
             ascending.second[0].leverandor shouldBe AvtaleAdminDto.Leverandor(
                 organisasjonsnummer = "987654321",
                 navn = "alvdal",
@@ -704,16 +705,26 @@ class AvtaleRepositoryTest : FunSpec({
                 navn = "bjarne",
                 slettet = false,
             )
+            ascending.second[2].leverandor shouldBe AvtaleAdminDto.Leverandor(
+                organisasjonsnummer = "123456789",
+                navn = "bjarne",
+                slettet = false,
+            )
 
             val descending = avtaler.getAll(sortering = "leverandor-descending")
 
-            descending.second shouldHaveSize 2
+            descending.second shouldHaveSize 3
             descending.second[0].leverandor shouldBe AvtaleAdminDto.Leverandor(
                 organisasjonsnummer = "123456789",
                 navn = "bjarne",
                 slettet = false,
             )
             descending.second[1].leverandor shouldBe AvtaleAdminDto.Leverandor(
+                organisasjonsnummer = "123456789",
+                navn = "bjarne",
+                slettet = false,
+            )
+            descending.second[2].leverandor shouldBe AvtaleAdminDto.Leverandor(
                 organisasjonsnummer = "987654321",
                 navn = "alvdal",
                 slettet = false,
@@ -759,19 +770,21 @@ class AvtaleRepositoryTest : FunSpec({
 
             val result = avtaler.getAll(sortering = "sluttdato-descending")
 
-            result.second shouldHaveSize 6
-            result.second[0].sluttDato shouldBe LocalDate.of(2023, 1, 1)
-            result.second[0].navn shouldBe "Avtale hos Benny"
+            result.second shouldHaveSize 7
+            result.second[0].sluttDato shouldBe LocalDate.of(2023, 2, 28)
+            result.second[0].navn shouldBe "Avtalenavn for VTA"
             result.second[1].sluttDato shouldBe LocalDate.of(2023, 1, 1)
-            result.second[1].navn shouldBe "Avtale hos Christina"
-            result.second[2].sluttDato shouldBe LocalDate.of(2011, 1, 1)
-            result.second[2].navn shouldBe "Avtale hos Kjetil"
-            result.second[3].sluttDato shouldBe LocalDate.of(2010, 1, 31)
-            result.second[3].navn shouldBe "Avtale hos Anders"
-            result.second[4].sluttDato shouldBe LocalDate.of(2010, 1, 1)
-            result.second[4].navn shouldBe "Avtale hos Øyvind"
-            result.second[5].sluttDato shouldBe LocalDate.of(2009, 1, 1)
-            result.second[5].navn shouldBe "Avtale hos Åse"
+            result.second[1].navn shouldBe "Avtale hos Benny"
+            result.second[2].sluttDato shouldBe LocalDate.of(2023, 1, 1)
+            result.second[2].navn shouldBe "Avtale hos Christina"
+            result.second[3].sluttDato shouldBe LocalDate.of(2011, 1, 1)
+            result.second[3].navn shouldBe "Avtale hos Kjetil"
+            result.second[4].sluttDato shouldBe LocalDate.of(2010, 1, 31)
+            result.second[4].navn shouldBe "Avtale hos Anders"
+            result.second[5].sluttDato shouldBe LocalDate.of(2010, 1, 1)
+            result.second[5].navn shouldBe "Avtale hos Øyvind"
+            result.second[6].sluttDato shouldBe LocalDate.of(2009, 1, 1)
+            result.second[6].navn shouldBe "Avtale hos Åse"
         }
 
         test("Sortering på sluttdato fra å-a sorterer korrekt") {
@@ -813,7 +826,7 @@ class AvtaleRepositoryTest : FunSpec({
 
             val result = avtaler.getAll(sortering = "sluttdato-ascending")
 
-            result.second shouldHaveSize 6
+            result.second shouldHaveSize 7
             result.second[0].sluttDato shouldBe LocalDate.of(2009, 1, 1)
             result.second[0].navn shouldBe "Avtale hos Åse"
             result.second[1].sluttDato shouldBe LocalDate.of(2010, 1, 1)
@@ -826,6 +839,8 @@ class AvtaleRepositoryTest : FunSpec({
             result.second[4].navn shouldBe "Avtale hos Benny"
             result.second[5].sluttDato shouldBe LocalDate.of(2023, 1, 1)
             result.second[5].navn shouldBe "Avtale hos Christina"
+            result.second[6].sluttDato shouldBe LocalDate.of(2023, 2, 28)
+            result.second[6].navn shouldBe "Avtalenavn for VTA"
         }
     }
 
