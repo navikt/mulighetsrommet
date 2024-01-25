@@ -5,7 +5,7 @@ import {
   TokenIcon,
   PersonPencilIcon,
 } from "@navikt/aksel-icons";
-import { erForhandsvisningMiljo } from "../../utils/Utils";
+import { erForhandsvisningMiljo, erProdMiljo } from "../../utils/Utils";
 import { Forsidekort } from "./Forsidekort";
 import styles from "./Forsidekort.module.scss";
 
@@ -45,7 +45,7 @@ export function ForsidekortListe() {
       <Forsidekort
         navn="Endringsmeldinger"
         ikon={<PersonPencilIcon aria-label="Endringsmeldinger" />}
-        url={`https://arbeidsmarkedstiltak.intern.nav.no/`}
+        url={`https://arbeidsmarkedstiltak.intern.${!erProdMiljo ? "dev" : ""}.nav.no"`}
         tekst="Her finner du endringsmeldinger fra tiltaksarrangør"
       />
     </div>
