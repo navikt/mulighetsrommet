@@ -1,6 +1,5 @@
 import Filtermeny from "../../components/filtrering/Filtermeny";
 import Tiltaksgjennomforingsoversikt from "../../components/oversikt/Tiltaksgjennomforingsoversikt";
-import styles from "../tiltaksgjennomforing-oversikt/ViewTiltaksgjennomforingOversikt.module.scss";
 import { NavEnhet, NavEnhetType } from "mulighetsrommet-api-client";
 import { usePreviewTiltaksgjennomforinger } from "../../core/api/queries/usePreviewTiltaksgjennomforinger";
 import { Loader } from "@navikt/ds-react";
@@ -12,6 +11,7 @@ import { SokeSelect } from "mulighetsrommet-frontend-common/components/SokeSelec
 import { useAtom } from "jotai";
 import { geografiskEnhetForPreviewAtom } from "../../core/atoms/atoms";
 import { FilterAndTableLayout } from "../../components/filtrering/FilterAndTableLayout";
+import styles from "./PreviewView.module.scss";
 
 export const PreviewOversikt = () => {
   const [geografiskEnhet, setGeografiskEnhet] = useAtom(geografiskEnhetForPreviewAtom);

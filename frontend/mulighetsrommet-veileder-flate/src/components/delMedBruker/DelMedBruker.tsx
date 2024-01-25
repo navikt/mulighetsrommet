@@ -1,5 +1,5 @@
 import { Button } from "@navikt/ds-react";
-import styles from "../../views/tiltaksgjennomforing-detaljer/ViewTiltaksgjennomforingDetaljer.module.scss";
+import styles from "../../views/modia-arbeidsmarkedstiltak/ModiaView.module.scss";
 import { CheckmarkIcon } from "@navikt/aksel-icons";
 import { Delemodal } from "./delemodal/Delemodal";
 import { formaterDato } from "../../utils/Utils";

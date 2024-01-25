@@ -6,7 +6,7 @@ import SidemenyDetaljer from "../../components/sidemeny/SidemenyDetaljer";
 import TiltaksdetaljerFane from "../../components/tabs/TiltaksdetaljerFane";
 import { useGetTiltaksgjennomforingIdFraUrl } from "../../core/api/queries/useGetTiltaksgjennomforingIdFraUrl";
 import TiltaksgjennomforingsHeader from "../../layouts/TiltaksgjennomforingsHeader";
-import styles from "./ViewTiltaksgjennomforingDetaljer.module.scss";
+import styles from "./ModiaView.module.scss";
 
 interface Props {
   tiltaksgjennomforing: VeilederflateTiltaksgjennomforing;
@@ -15,7 +15,7 @@ interface Props {
   knapperad: React.ReactNode;
 }
 
-const ViewTiltaksgjennomforingDetaljer = ({
+const ModiaViewTiltaksgjennomforingDetaljer = ({
   tiltaksgjennomforing,
   brukerActions,
   knapperad,
@@ -54,4 +54,4 @@ const ViewTiltaksgjennomforingDetaljer = ({
   );
 };
 
-export default ViewTiltaksgjennomforingDetaljer;
+export default ModiaViewTiltaksgjennomforingDetaljer;

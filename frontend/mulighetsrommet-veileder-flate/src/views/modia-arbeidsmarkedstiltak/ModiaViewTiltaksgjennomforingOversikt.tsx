@@ -20,9 +20,9 @@ import { useHentAlleTiltakDeltMedBruker } from "../../core/api/queries/useHentAl
 import { useHentBrukerdata } from "../../core/api/queries/useHentBrukerdata";
 import useTiltaksgjennomforinger from "../../core/api/queries/useTiltaksgjennomforinger";
 import { useResetArbeidsmarkedstiltakFilter } from "../../hooks/useArbeidsmarkedstiltakFilter";
-import styles from "./ViewTiltaksgjennomforingOversikt.module.scss";
+import styles from "./ModiaView.module.scss";
 
-const ViewTiltaksgjennomforingOversikt = () => {
+const ModiaViewTiltaksgjennomforingOversikt = () => {
   useTitle("Arbeidsmarkedstiltak - Oversikt");
 
   const { data: brukerdata } = useHentBrukerdata();
@@ -179,4 +179,4 @@ function TilbakestillFilterFeil({ resetFilter }: { resetFilter(): void }) {
   );
 }
 
-export default ViewTiltaksgjennomforingOversikt;
+export default ModiaViewTiltaksgjennomforingOversikt;

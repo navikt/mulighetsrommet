@@ -1,13 +1,13 @@
 import { Alert, Button, Loader } from "@navikt/ds-react";
-import { useTitle } from "mulighetsrommet-frontend-common";
+import { useTitle } from "../../../../frontend-common";
 import { useHentBrukerdata } from "../../core/api/queries/useHentBrukerdata";
 import { useHentDeltMedBrukerStatus } from "../../core/api/queries/useHentDeltMedbrukerStatus";
 import { useHentVeilederdata } from "../../core/api/queries/useHentVeilederdata";
 import useTiltaksgjennomforingById from "../../core/api/queries/useTiltaksgjennomforingById";
 import { useBrukerHarRettPaaTiltak } from "../../hooks/useBrukerHarRettPaaTiltak";
 import { useAppContext } from "../../hooks/useAppContext";
-import ViewTiltaksgjennomforingDetaljer from "./ViewTiltaksgjennomforingDetaljer";
-import styles from "./ViewTiltaksgjennomforingDetaljer.module.scss";
+import ModiaViewTiltaksgjennomforingDetaljer from "./ModiaViewTiltaksgjennomforingDetaljer";
+import styles from "./ModiaView.module.scss";
 import Tilbakeknapp from "../../components/tilbakeknapp/Tilbakeknapp";
 import { DetaljerJoyride } from "../../components/joyride/DetaljerJoyride";
 import { OpprettAvtaleJoyride } from "../../components/joyride/OpprettAvtaleJoyride";
@@ -114,7 +114,7 @@ export function ModiaTiltaksgjennomforingDetaljer() {
         innsatsgruppeForGjennomforing={innsatsgruppeForGjennomforing}
       />
       <BrukerHarIkke14aVedtakVarsel brukerdata={brukerdata} />
-      <ViewTiltaksgjennomforingDetaljer
+      <ModiaViewTiltaksgjennomforingDetaljer
         tiltaksgjennomforing={tiltaksgjennomforing}
         knapperad={
           <>
