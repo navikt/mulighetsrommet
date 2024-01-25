@@ -11,12 +11,14 @@ import { Lenkeknapp } from "../../components/lenkeknapp/Lenkeknapp";
 import { TiltaksgjennomforingstatusTag } from "../../components/statuselementer/TiltaksgjennomforingstatusTag";
 import { useNavigateAndReplaceUrl } from "../../hooks/useNavigateWithoutReplacingUrl";
 import { ContainerLayout } from "../../layouts/ContainerLayout";
+import { erProdMiljo } from "../../utils/Utils";
 import commonStyles from "../Page.module.scss";
 
 export function TiltaksgjennomforingPage() {
   const { pathname } = useLocation();
   const { navigateAndReplaceUrl } = useNavigateAndReplaceUrl();
   const { data: tiltaksgjennomforing, isLoading } = useTiltaksgjennomforingById();
+  const forhandsvisningMiljo = import.meta.env.dev || erProdMiljo ? "nav.no" : "dev.nav.no";
   const { data: showNotater } = useFeatureToggle(Toggles.MULIGHETSROMMET_ADMIN_FLATE_SHOW_NOTATER);
 
   if (!tiltaksgjennomforing && isLoading) {
@@ -67,7 +69,7 @@ export function TiltaksgjennomforingPage() {
                 size="small"
                 isExternal={true}
                 variant="secondary"
-                to={`https://mulighetsrommet-veileder-flate.intern/preview/${tiltaksgjennomforing.id}`}
+                to={`https://mulighetsrommet-veileder-flate.intern.${forhandsvisningMiljo}/preview/tiltak/${tiltaksgjennomforing.id}`}
               >
                 Forhåndsvis i Modia
               </Lenkeknapp>
