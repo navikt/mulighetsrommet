@@ -69,7 +69,7 @@ export function TiltaksgjennomforingPage() {
                 size="small"
                 isExternal={true}
                 variant="secondary"
-                to={`https://mulighetsrommet-veileder-flate.intern.${forhandsvisningMiljo}/preview/${tiltaksgjennomforing.id}`}
+                to={`https://mulighetsrommet-veileder-flate.intern.${forhandsvisningMiljo}/preview/tiltak/${tiltaksgjennomforing.id}`}
               >
                 Forhåndsvis i Modia
               </Lenkeknapp>
