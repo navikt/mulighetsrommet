@@ -4,7 +4,7 @@ import { useInnsatsgrupper } from "../core/api/queries/useInnsatsgrupper";
 import {
   buildRegionMap,
   useArbeidsmarkedstiltakFilter,
-  valgteNavEnheter,
+  valgteEnhetsnumre,
 } from "./useArbeidsmarkedstiltakFilter";
 
 export function useInitializeArbeidsmarkedstiltakFilterForBruker() {
@@ -21,7 +21,7 @@ export function useInitializeArbeidsmarkedstiltakFilterForBruker() {
     brukersInnsatsgruppe !== undefined && filter.innsatsgruppe === undefined;
 
   const resetEnheter =
-    brukerdata && brukerdata.enheter.length > 0 && valgteNavEnheter(filter).length === 0;
+    brukerdata && brukerdata.enheter.length > 0 && valgteEnhetsnumre(filter).length === 0;
 
   useEffect(() => {
     if (resetInnsatsgruppe || resetEnheter) {
