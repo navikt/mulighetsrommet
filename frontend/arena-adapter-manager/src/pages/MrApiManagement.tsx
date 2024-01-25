@@ -1,4 +1,4 @@
-import { Box, Heading, VStack } from "@chakra-ui/react";
+import { Box, Heading, VStack, Link } from "@chakra-ui/react";
 import { UpdateVirksomhet } from "../sections/UpdateVirksomhet";
 import { RunTask } from "../sections/RunTask";
 
@@ -11,7 +11,8 @@ export function MrApiManagement() {
         <RunTask task="generate-validation-report">
           <p>
             Genererer en rapport med alle valideringsfeil på gjennomføringer og laster rapporten opp
-            til en bucket i GCP.
+            til en
+            <Link href="https://console.cloud.google.com/storage/browser">bucket i GCP.</Link>
           </p>
           <p>
             Rapporten kan benyttes til å få en oversikt over tilstanden til gjennomføringene vi skal
