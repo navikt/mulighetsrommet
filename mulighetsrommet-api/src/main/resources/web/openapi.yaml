@@ -2292,18 +2292,28 @@ components:
           $ref: "#/components/schemas/Innsatsgruppe"
         servicegruppe:
           type: string
-        oppfolgingsenhet:
-          $ref: "#/components/schemas/EmbeddedNavEnhet"
-        geografiskEnhet:
-          $ref: "#/components/schemas/EmbeddedNavEnhet"
+        enheter:
+          type: array
+          items:
+            $ref: "#/components/schemas/EmbeddedNavEnhet"
         fornavn:
           type: string
         manuellStatus:
           $ref: "#/components/schemas/ManuellStatus"
+        varsler:
+          type: array
+          items:
+            $ref: "#/components/schemas/BrukerVarsel"
       required:
         - fnr
-        - oppfolgingsenhet
-        - geografiskEnhet
+        - enheter
+        - varsler
+
+    BrukerVarsel:
+      type: string
+      enum:
+        - LOKAL_OPPFOLGINGSENHET
+        - MANGLER_14A_VEDTAK
 
     NavVeileder:
       type: object

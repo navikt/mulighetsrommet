@@ -6,7 +6,6 @@ import {
   navEnheter,
   useArbeidsmarkedstiltakFilter,
 } from "./useArbeidsmarkedstiltakFilter";
-import { relevanteEnheter } from "../utils/Utils";
 
 export function useInitializeArbeidsmarkedstiltakFilterForBruker() {
   const { data: innsatsgrupper } = useInnsatsgrupper();
@@ -17,12 +16,12 @@ export function useInitializeArbeidsmarkedstiltakFilterForBruker() {
   const brukersInnsatsgruppe = innsatsgrupper?.find(
     (gruppe) => gruppe.nokkel === brukerdata?.innsatsgruppe,
   );
-  const relevanteEnheterForBruker = relevanteEnheter(brukerdata);
 
   const resetInnsatsgruppe =
     brukersInnsatsgruppe !== undefined && filter.innsatsgruppe === undefined;
 
-  const resetEnheter = relevanteEnheterForBruker.length > 0 && navEnheter(filter).length === 0;
+  const resetEnheter =
+    brukerdata && brukerdata.enheter.length > 0 && navEnheter(filter).length === 0;
 
   useEffect(() => {
     if (resetInnsatsgruppe || resetEnheter) {
@@ -35,7 +34,7 @@ export function useInitializeArbeidsmarkedstiltakFilterForBruker() {
               tittel: brukersInnsatsgruppe.tittel,
             }
           : undefined,
-        regionMap: buildRegionMap(relevanteEnheterForBruker),
+        regionMap: buildRegionMap(brukerdata?.enheter ?? []),
       });
     }
   }, [resetInnsatsgruppe]);

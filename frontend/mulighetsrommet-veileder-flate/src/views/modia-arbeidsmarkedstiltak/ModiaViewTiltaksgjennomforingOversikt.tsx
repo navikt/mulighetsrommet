@@ -84,7 +84,7 @@ const ModiaViewTiltaksgjennomforingOversikt = () => {
     }
   }
 
-  if (!brukerdata.geografiskEnhet) {
+  if (brukerdata.enheter.length === 0) {
     return (
       <Feilmelding
         header="Kunne ikke hente brukers geografiske enhet"

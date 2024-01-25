@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.services
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.clients.oppfolging.ManuellStatusDto
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
 import no.nav.mulighetsrommet.api.clients.person.VeilarbpersonClient
@@ -33,11 +34,23 @@ class BrukerService(
         return Brukerdata(
             fnr = fnr,
             innsatsgruppe = sisteVedtak?.innsatsgruppe,
-            oppfolgingsenhet = brukersOppfolgingsenhet?.toEmbeddedNavEnhet(),
-            geografiskEnhet = brukersGeografiskeEnhet?.toEmbeddedNavEnhet(),
+            enheter = getRelevanteEnheterForBruker(brukersGeografiskeEnhet, brukersOppfolgingsenhet)
+                .map { it.toEmbeddedNavEnhet() },
             servicegruppe = oppfolgingsstatus?.servicegruppe,
             fornavn = personInfo.fornavn,
             manuellStatus = manuellStatus,
+            varsler = listOfNotNull(
+                if (oppfolgingsenhetLokalOgUlik(brukersGeografiskeEnhet, brukersOppfolgingsenhet)) {
+                    BrukerVarsel.LOKAL_OPPFOLGINGSENHET
+                } else {
+                    null
+                },
+                if (sisteVedtak?.innsatsgruppe == null && oppfolgingsstatus?.servicegruppe != null) {
+                    BrukerVarsel.MANGLER_14A_VEDTAK
+                } else {
+                    null
+                },
+            ),
         )
     }
 
@@ -45,12 +58,46 @@ class BrukerService(
     data class Brukerdata(
         val fnr: String,
         val innsatsgruppe: Innsatsgruppe?,
-        val oppfolgingsenhet: EmbeddedNavEnhet?,
-        val geografiskEnhet: EmbeddedNavEnhet?,
+        val enheter: List<EmbeddedNavEnhet>,
         val servicegruppe: String?,
         val fornavn: String?,
         val manuellStatus: ManuellStatusDto?,
+        val varsler: List<BrukerVarsel>,
     )
+
+    enum class BrukerVarsel {
+        LOKAL_OPPFOLGINGSENHET,
+        MANGLER_14A_VEDTAK,
+    }
+}
+
+fun oppfolgingsenhetLokalOgUlik(
+    geografiskEnhet: NavEnhetDbo?,
+    oppfolgingsenhet: NavEnhetDbo?,
+): Boolean {
+    return oppfolgingsenhet?.type == Norg2Type.LOKAL && oppfolgingsenhet.enhetsnummer == geografiskEnhet?.enhetsnummer
+}
+
+fun getRelevanteEnheterForBruker(
+    geografiskEnhet: NavEnhetDbo?,
+    oppfolgingsenhet: NavEnhetDbo?,
+): List<NavEnhetDbo> {
+    val actualGeografiskEnhet = if (oppfolgingsenhet?.type == Norg2Type.LOKAL) {
+        oppfolgingsenhet
+    } else {
+        geografiskEnhet
+    }
+
+    val virtuellOppfolgingsenhet = if (oppfolgingsenhet != null && oppfolgingsenhet.type !in listOf(
+            Norg2Type.FYLKE,
+            Norg2Type.LOKAL,
+        )
+    ) {
+        oppfolgingsenhet
+    } else {
+        null
+    }
+    return listOfNotNull(actualGeografiskEnhet, virtuellOppfolgingsenhet)
 }
 
 fun NavEnhetDbo.toEmbeddedNavEnhet(): EmbeddedNavEnhet {

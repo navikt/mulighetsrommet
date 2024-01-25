@@ -46,18 +46,15 @@ export function PreviewViewTiltaksgjennomforingDetaljer() {
                   erUnderManuellOppfolging: false,
                   krrStatus: { kanVarsles: true, erReservert: false },
                 },
-                oppfolgingsenhet: {
-                  navn: "{OPPFØLGINGSENHET}",
-                  enhetsnummer: "0",
-                  overordnetEnhet: "0100",
-                  type: NavEnhetType.LOKAL,
-                },
-                geografiskEnhet: {
-                  navn: "{OPPFØLGINGSENHET}",
-                  enhetsnummer: "0",
-                  overordnetEnhet: "0100",
-                  type: NavEnhetType.LOKAL,
-                },
+                varsler: [],
+                enheter: [
+                  {
+                    navn: "{GEOGRAFISK_ENHET}",
+                    enhetsnummer: "0",
+                    overordnetEnhet: "0100",
+                    type: NavEnhetType.LOKAL,
+                  },
+                ],
               }}
             />
           </div>

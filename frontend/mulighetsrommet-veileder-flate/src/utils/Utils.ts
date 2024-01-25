@@ -1,4 +1,4 @@
-import { Bruker, EmbeddedNavEnhet, NavEnhetType } from "mulighetsrommet-api-client";
+import { Bruker } from "mulighetsrommet-api-client";
 import { ArbeidsmarkedstiltakFilter, navEnheter } from "../hooks/useArbeidsmarkedstiltakFilter";
 
 export const erTomtObjekt = (objekt: Object): boolean => {
@@ -52,38 +52,6 @@ export function utledLopenummerFraTiltaksnummer(tiltaksnummer: string): string {
   return tiltaksnummer;
 }
 
-export function brukersGeografiskeOgOppfolgingsenhetErLokalkontorMenIkkeSammeKontor(
-  bruker: Bruker,
-): boolean {
-  const { geografiskEnhet, oppfolgingsenhet } = bruker;
-
-  return (
-    oppfolgingsenhet?.type === NavEnhetType.LOKAL &&
-    oppfolgingsenhet.enhetsnummer !== geografiskEnhet?.enhetsnummer
-  );
-}
-
-export function relevanteEnheter(bruker?: Bruker): EmbeddedNavEnhet[] {
-  if (!bruker) return [];
-
-  const { geografiskEnhet, oppfolgingsenhet } = bruker;
-
-  let actualGeografiskEnhet = geografiskEnhet;
-  if (oppfolgingsenhet?.type === NavEnhetType.LOKAL) {
-    actualGeografiskEnhet = oppfolgingsenhet;
-  }
-
-  let virtuellOppfolgingsenhet = null;
-  if (
-    oppfolgingsenhet != null &&
-    oppfolgingsenhet.type! in [NavEnhetType.FYLKE, NavEnhetType.LOKAL]
-  ) {
-    virtuellOppfolgingsenhet = oppfolgingsenhet;
-  }
-
-  return [actualGeografiskEnhet, virtuellOppfolgingsenhet].filter((x) => x) as EmbeddedNavEnhet[];
-}
-
 export function addOrRemove<T>(array: T[], item: T): T[] {
   const exists = array.includes(item);
 
@@ -103,10 +71,9 @@ export function brukersEnhetFilterHasChanged(
   bruker?: Bruker,
 ): boolean {
   if (!bruker) return false;
-  const relevanteEnheterForBruker = relevanteEnheter(bruker);
 
   const filterEnheter = navEnheter(filter);
-  if (filterEnheter.length !== relevanteEnheterForBruker.length) return true;
+  if (filterEnheter.length !== bruker.enheter.length) return true;
 
-  return relevanteEnheterForBruker.sort().join(",") === filterEnheter.sort().join(",");
+  return bruker.enheter.sort().join(",") === filterEnheter.sort().join(",");
 }

@@ -1,9 +1,6 @@
 import { Alert } from "@navikt/ds-react";
-import { Bruker } from "mulighetsrommet-api-client";
-import {
-  brukersEnhetFilterHasChanged,
-  brukersGeografiskeOgOppfolgingsenhetErLokalkontorMenIkkeSammeKontor,
-} from "../../utils/Utils";
+import { Bruker, BrukerVarsel } from "mulighetsrommet-api-client";
+import { brukersEnhetFilterHasChanged } from "../../utils/Utils";
 import { useArbeidsmarkedstiltakFilterValue } from "../../hooks/useArbeidsmarkedstiltakFilter";
 
 interface Props {
@@ -15,7 +12,7 @@ export function BrukersOppfolgingsenhetVarsel({ brukerdata }: Props) {
 
   if (
     !brukersEnhetFilterHasChanged(filter, brukerdata) &&
-    brukersGeografiskeOgOppfolgingsenhetErLokalkontorMenIkkeSammeKontor(brukerdata)
+    brukerdata.varsler.includes(BrukerVarsel.LOKAL_OPPFOLGINGSENHET)
   ) {
     return (
       <Alert style={{ marginBottom: "1rem" }} variant="info">

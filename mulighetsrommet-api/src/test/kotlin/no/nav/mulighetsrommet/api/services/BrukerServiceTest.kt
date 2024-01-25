@@ -1,6 +1,9 @@
 package no.nav.mulighetsrommet.api.services
 
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldContainInOrder
+import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
@@ -14,6 +17,7 @@ import no.nav.mulighetsrommet.api.clients.vedtak.VedtakDto
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
+import no.nav.mulighetsrommet.api.domain.dto.EmbeddedNavEnhet
 
 class BrukerServiceTest : FunSpec({
     val veilarboppfolgingClient: VeilarboppfolgingClient = mockk()
@@ -25,6 +29,22 @@ class BrukerServiceTest : FunSpec({
         BrukerService(veilarboppfolgingClient, veilarbvedtaksstotteClient, veilarbpersonClient, navEnhetService)
     val fnr1 = "12345678910"
     val fnr2 = "99887766554"
+
+    val navEgneAnsatteEnhet = NavEnhetDbo(
+        navn = "Nav egne ansatte Lerkendal",
+        enhetsnummer = "0583",
+        status = NavEnhetStatus.AKTIV,
+        type = Norg2Type.KO,
+        overordnetEnhet = "0500",
+    )
+
+    val navLerkendalEnhet = NavEnhetDbo(
+        navn = "Nav Lerkendal",
+        enhetsnummer = "0501",
+        status = NavEnhetStatus.AKTIV,
+        type = Norg2Type.LOKAL,
+        overordnetEnhet = "0500",
+    )
 
     beforeSpec {
         coEvery { veilarboppfolgingClient.hentOppfolgingsstatus(fnr1, any()) } returns OppfolgingsstatusDto(
@@ -81,10 +101,35 @@ class BrukerServiceTest : FunSpec({
         brukerService.hentBrukerdata(fnr1, "").manuellStatus?.erUnderManuellOppfolging shouldBe false
         brukerService.hentBrukerdata(fnr1, "").manuellStatus?.krrStatus?.erReservert shouldBe false
         brukerService.hentBrukerdata(fnr1, "").manuellStatus?.krrStatus?.kanVarsles shouldBe true
-        brukerService.hentBrukerdata(fnr1, "").oppfolgingsenhet?.navn shouldBe "NAV Fredrikstad"
-        brukerService.hentBrukerdata(fnr1, "").oppfolgingsenhet?.enhetsnummer shouldBe "0106"
-        brukerService.hentBrukerdata(fnr1, "").geografiskEnhet?.navn shouldBe "NAV Fredrikstad"
-        brukerService.hentBrukerdata(fnr1, "").geografiskEnhet?.enhetsnummer shouldBe "0106"
+        brukerService.hentBrukerdata(fnr1, "").enheter shouldContainExactly listOf(
+            EmbeddedNavEnhet(
+                navn = "NAV Fredrikstad",
+                enhetsnummer = "0106",
+                type = Norg2Type.LOKAL,
+                overordnetEnhet = "0100",
+            ),
+        )
+    }
+
+    context("getRelevanteEnheterForBruker") {
+        test("Hent relevante enheter returnerer liste med både geografisk- og oppfølgingsenhet hvis oppfølgingsenhet ikke er et fylke eller lokalkontor") {
+            getRelevanteEnheterForBruker(navLerkendalEnhet, navEgneAnsatteEnhet).should {
+                it shouldContainInOrder listOf(navLerkendalEnhet, navEgneAnsatteEnhet)
+            }
+        }
+
+        test("Hent relevante enheter returnerer liste med geografisk enhet hvis oppfølgingsenhet ikke eksisterer") {
+            getRelevanteEnheterForBruker(navLerkendalEnhet, null).should {
+                it shouldContainExactly listOf(navLerkendalEnhet)
+            }
+        }
+
+        test("Hent relevante enheter returnerer liste med oppfølgingsenhet enhet hvis oppfølgingsenhet er Lokal") {
+            val oppfolgingsenhet = navEgneAnsatteEnhet.copy(enhetsnummer = "0502", type = Norg2Type.LOKAL)
+            getRelevanteEnheterForBruker(navLerkendalEnhet, oppfolgingsenhet).should {
+                it shouldContainExactly listOf(oppfolgingsenhet)
+            }
+        }
     }
 })
 
