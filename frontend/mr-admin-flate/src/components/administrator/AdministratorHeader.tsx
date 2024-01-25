@@ -24,7 +24,7 @@ export function AdministratorHeader() {
     <InternalHeader>
       <InternalHeader.Title className={styles.title} as="h1">
         <Link className={styles.link} to="/">
-          NAV arbeidsmarkedstiltak
+          NAV Tiltaksadministrasjon
         </Link>
       </InternalHeader.Title>
       <Spacer />
