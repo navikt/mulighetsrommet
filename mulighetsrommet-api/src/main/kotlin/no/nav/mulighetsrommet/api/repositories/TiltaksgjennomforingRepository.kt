@@ -338,6 +338,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         arrangorOrgnr: List<String> = emptyList(),
         administratorNavIdent: String? = null,
         skalMigreres: Boolean? = null,
+        opphav: ArenaMigrering.Opphav? = null,
     ): Pair<Int, List<TiltaksgjennomforingAdminDto>> {
         val parameters = mapOf(
             "search" to "%${search?.replace("/", "#")?.trim()}%",
@@ -349,6 +350,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             "arrangor_organisasjonsnummer" to arrangorOrgnr,
             "administrator_nav_ident" to administratorNavIdent?.let { """[{ "navIdent": "$it" }]""" },
             "skalMigreres" to skalMigreres,
+            "opphav" to opphav?.name,
         )
 
         val where = DatabaseUtils.andWhereParameterNotNull(
@@ -362,6 +364,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             arrangorOrgnr.ifEmpty { null } to arrangorOrganisasjonsnummerWhereStatement(arrangorOrgnr),
             administratorNavIdent to "administratorer @> :administrator_nav_ident::jsonb",
             skalMigreres to "skal_migreres = :skalMigreres",
+            opphav to "opphav = :opphav::opphav",
         )
 
         val order = when (sortering) {
