@@ -1,6 +1,7 @@
 name: Deploy kafka topics to prod
 
 on:
+  workflow_dispatch:
   push:
     paths:
       - .github/workflows/kafka-topics-prod.yaml

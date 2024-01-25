@@ -1,6 +1,7 @@
 name: Deploy kafka topics to dev
 
 on:
+  workflow_dispatch:
   push:
     paths:
       - .github/workflows/kafka-topics-dev.yaml
