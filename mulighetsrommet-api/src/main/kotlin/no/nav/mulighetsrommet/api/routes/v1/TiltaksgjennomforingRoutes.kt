@@ -18,6 +18,7 @@ import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.BadRequest
+import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
 import no.nav.mulighetsrommet.api.routes.v1.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
 import no.nav.mulighetsrommet.api.utils.getAdminTiltaksgjennomforingsFilter
@@ -53,8 +54,12 @@ fun Route.tiltaksgjennomforingRoutes(appConfig: AppConfig) {
                     call.respondWithStatusResponse(
                         Either.Left(
                             BadRequest(
-                                message = "Opprettelse av tiltaksgjennomføring for tiltakstype: '${tiltakstype.navn}' er ikke skrudd på enda.",
-                                errors = emptyList(),
+                                errors = listOf(
+                                    ValidationError(
+                                        name = "avtale",
+                                        message = "Opprettelse av tiltaksgjennomføring for tiltakstype: '${tiltakstype.navn}' er ikke skrudd på enda."
+                                    )
+                                ),
                             ),
                         ),
                     )
