@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.domain.dto
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
 import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus.GJENNOMFORES
 import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus.PLANLAGT
@@ -39,8 +40,12 @@ data class ArenaMigreringTiltaksgjennomforingDto(
             arenaId: Int?,
             endretTidspunkt: LocalDateTime,
         ): ArenaMigreringTiltaksgjennomforingDto {
-            // Alle fra arena har arena_ansvarlig_enhet og nav_region er required fra admin-flate
-            requireNotNull(tiltaksgjennomforing.navRegion ?: tiltaksgjennomforing.arenaAnsvarligEnhet) {
+            val enhet = if (tiltaksgjennomforing.opphav == ArenaMigrering.Opphav.ARENA) {
+                tiltaksgjennomforing.arenaAnsvarligEnhet
+            } else {
+                tiltaksgjennomforing.navRegion
+            }
+            requireNotNull(enhet) {
                 "navRegion or arenaAnsvarligEnhet was null! Should not be possible!"
             }
 
@@ -61,9 +66,7 @@ data class ArenaMigreringTiltaksgjennomforingDto(
                 antallPlasser = tiltaksgjennomforing.antallPlasser,
                 status = status,
                 arenaId = arenaId,
-                enhet = tiltaksgjennomforing.arenaAnsvarligEnhet?.enhetsnummer
-                    ?: tiltaksgjennomforing.navRegion?.enhetsnummer
-                    ?: throw IllegalStateException("Unreachable pga require clause over"),
+                enhet = enhet.enhetsnummer,
                 apentForInnsok = tiltaksgjennomforing.apentForInnsok,
                 deltidsprosent = tiltaksgjennomforing.deltidsprosent,
             )
