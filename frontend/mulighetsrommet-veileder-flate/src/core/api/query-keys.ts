@@ -1,4 +1,4 @@
-import { Bruker, JoyrideType, NavEnhetStatus } from "mulighetsrommet-api-client";
+import { Bruker, JoyrideType, NavEnhetStatus, NavEnhetType } from "mulighetsrommet-api-client";
 import { ArbeidsmarkedstiltakFilter } from "../../hooks/useArbeidsmarkedstiltakFilter";
 
 export const QueryKeys = {
@@ -23,7 +23,12 @@ export const QueryKeys = {
     tiltaksgjennomforingPreview: (id: string) => ["tiltaksgjennomforing", "preview", id],
   },
   features: (feature: string) => [feature, "feature"],
-  navEnheter: (statuser: NavEnhetStatus[]) => [statuser, "navEnheter"],
+  navEnheter: (statuser: NavEnhetStatus[], typer: NavEnhetType[]) => [
+    statuser,
+    typer,
+    "navEnheter",
+  ],
+  navRegioner: ["navRegioner"],
   oppskrifter: (tiltakstypeId: string) => [tiltakstypeId, "oppskrifter"],
   harFullfortJoyride: (joyrideType: JoyrideType) => [joyrideType, "joyride"],
   overordnetEnhet: (enhetsnummer: string) => ["overordnetEnhet", enhetsnummer],

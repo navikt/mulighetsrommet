@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.domain.dto
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonObject
+import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.Faneinnhold
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
@@ -38,11 +39,20 @@ data class VeilederflateTiltaksgjennomforing(
     val stengtFra: LocalDate? = null,
     @Serializable(with = LocalDateSerializer::class)
     val stengtTil: LocalDate? = null,
-    val kontaktinfoTiltaksansvarlige: List<KontaktinfoTiltaksansvarlige>,
+    val kontaktinfoTiltaksansvarlige: List<VeilederflateKontaktinfoTiltaksansvarlig>,
     val fylke: String? = null,
     val enheter: List<String>? = emptyList(),
     val beskrivelse: String? = null,
     val faneinnhold: Faneinnhold? = null,
+)
+
+@Serializable
+data class VeilederflateKontaktinfoTiltaksansvarlig(
+    val navn: String? = null,
+    val telefonnummer: String? = null,
+    val enhet: NavEnhetDbo? = null,
+    val epost: String? = null,
+    val beskrivelse: String? = null,
 )
 
 @Serializable

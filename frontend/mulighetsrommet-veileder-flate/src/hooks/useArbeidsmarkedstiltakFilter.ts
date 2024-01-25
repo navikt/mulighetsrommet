@@ -1,11 +1,17 @@
-import { ApentForInnsok, Innsatsgruppe } from "mulighetsrommet-api-client";
+import { ApentForInnsok, Innsatsgruppe, NavEnhet } from "mulighetsrommet-api-client";
 import { atomWithStorage, createJSONStorage } from "jotai/utils";
 import { useAtom, useAtomValue } from "jotai";
 import { SyncStorage } from "jotai/vanilla/utils/atomWithStorage";
 import { useHentBrukerdata } from "../core/api/queries/useHentBrukerdata";
+import { brukersEnhetFilterHasChanged } from "../utils/Utils";
+
+export interface RegionMap {
+  [region: string]: NavEnhet[];
+}
 
 export interface ArbeidsmarkedstiltakFilter {
   search: string;
+  regionMap: RegionMap;
   innsatsgruppe?: ArbeidsmarkedstiltakFilterGruppe<Innsatsgruppe>;
   tiltakstyper: ArbeidsmarkedstiltakFilterGruppe<string>[];
   apentForInnsok: ApentForInnsok;
@@ -45,6 +51,7 @@ export function useResetArbeidsmarkedstiltakFilter() {
     filter.innsatsgruppe?.nokkel !== brukerdata?.innsatsgruppe ||
     filter.apentForInnsok !== ApentForInnsok.APENT_ELLER_STENGT ||
     filter.search !== "" ||
+    brukersEnhetFilterHasChanged(filter, brukerdata) ||
     filter.tiltakstyper.length > 0;
 
   return {
@@ -90,6 +97,7 @@ const ARBEIDSMARKEDSTILTAK_FILTER_KEY = "arbeidsmarkedstiltak-filter";
 
 const defaultTiltaksgjennomforingfilter: ArbeidsmarkedstiltakFilter = {
   search: "",
+  regionMap: {},
   innsatsgruppe: undefined,
   tiltakstyper: [],
   apentForInnsok: ApentForInnsok.APENT_ELLER_STENGT,
@@ -101,3 +109,25 @@ export const filterAtom = atomWithStorage<FilterMedBrukerIKontekst>(
   filterStorage,
   { getOnInit: true },
 );
+
+export function valgteNavEnheter(filter: ArbeidsmarkedstiltakFilter): NavEnhet[] {
+  return Array.from(Object.values(filter.regionMap)).flat(1);
+}
+
+export function valgteEnhetsnumre(filter: ArbeidsmarkedstiltakFilter): string[] {
+  return valgteNavEnheter(filter).map((enhet: NavEnhet) => enhet.enhetsnummer);
+}
+
+export function buildRegionMap(navEnheter: NavEnhet[]): RegionMap {
+  const map: RegionMap = {};
+  navEnheter.forEach((enhet: NavEnhet) => {
+    const regionNavn = enhet.overordnetEnhet ?? "unknown";
+    if (regionNavn in map) {
+      map[regionNavn].push(enhet);
+    } else {
+      map[regionNavn] = [enhet];
+    }
+  });
+
+  return map;
+}

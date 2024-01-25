@@ -28,7 +28,6 @@ import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.ArenaOpp
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.Oppfolging1
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.Oppfolging2
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
-import no.nav.mulighetsrommet.api.services.toNavEnhet
 import no.nav.mulighetsrommet.api.utils.DEFAULT_PAGINATION_LIMIT
 import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
@@ -85,11 +84,12 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 it.avtaleId shouldBe Oppfolging1.avtaleId
                 it.administratorer shouldBe emptyList()
                 it.navEnheter shouldBe listOf(
-                    EmbeddedNavEnhet(
+                    NavEnhetDbo(
                         navn = "IT",
                         enhetsnummer = "2990",
                         type = Norg2Type.DIR,
                         overordnetEnhet = null,
+                        status = NavEnhetStatus.AKTIV,
                     ),
                 )
                 it.sanityId shouldBe null
@@ -99,11 +99,12 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 it.kontaktpersoner shouldBe listOf()
                 it.stedForGjennomforing shouldBe "Oslo"
                 it.stengtTil shouldBe null
-                it.navRegion shouldBe EmbeddedNavEnhet(
+                it.navRegion shouldBe NavEnhetDbo(
                     navn = "IT",
                     enhetsnummer = "2990",
                     type = Norg2Type.DIR,
                     overordnetEnhet = null,
+                    status = NavEnhetStatus.AKTIV,
                 )
                 it.faneinnhold shouldBe null
                 it.beskrivelse shouldBe null
@@ -157,7 +158,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 )
                 it.startDato shouldBe LocalDate.of(2023, 1, 1)
                 it.sluttDato shouldBe LocalDate.of(2023, 2, 2)
-                it.arenaAnsvarligEnhet shouldBe NavEnhetFixtures.Innlandet.toNavEnhet()
+                it.arenaAnsvarligEnhet shouldBe NavEnhetFixtures.Innlandet
                 it.apentForInnsok shouldBe false
                 it.antallPlasser shouldBe 10
                 it.avtaleId shouldBe null
@@ -250,17 +251,19 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             tiltaksgjennomforinger.upsert(gjennomforing)
             tiltaksgjennomforinger.get(gjennomforing.id).should {
                 it!!.navEnheter shouldContainExactlyInAnyOrder listOf(
-                    EmbeddedNavEnhet(
+                    NavEnhetDbo(
                         enhetsnummer = "1",
                         navn = "Navn1",
                         type = Norg2Type.LOKAL,
                         overordnetEnhet = null,
+                        status = NavEnhetStatus.AKTIV,
                     ),
-                    EmbeddedNavEnhet(
+                    NavEnhetDbo(
                         enhetsnummer = "2",
                         navn = "Navn2",
                         type = Norg2Type.LOKAL,
                         overordnetEnhet = null,
+                        status = NavEnhetStatus.AKTIV,
                     ),
                 )
             }
@@ -269,17 +272,19 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             tiltaksgjennomforinger.upsert(gjennomforing.copy(navEnheter = listOf("3", "1")))
             tiltaksgjennomforinger.get(gjennomforing.id).should {
                 it!!.navEnheter shouldContainExactlyInAnyOrder listOf(
-                    EmbeddedNavEnhet(
+                    NavEnhetDbo(
                         enhetsnummer = "1",
                         navn = "Navn1",
                         type = Norg2Type.LOKAL,
                         overordnetEnhet = null,
+                        status = NavEnhetStatus.AKTIV,
                     ),
-                    EmbeddedNavEnhet(
+                    NavEnhetDbo(
                         enhetsnummer = "3",
                         navn = "Navn3",
                         type = Norg2Type.LOKAL,
                         overordnetEnhet = null,
+                        status = NavEnhetStatus.AKTIV,
                     ),
                 )
             }

@@ -7,6 +7,8 @@ import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.clients.vedtak.Innsatsgruppe
+import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
+import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.domain.dto.*
 import no.nav.mulighetsrommet.api.utils.DatabaseUtils
@@ -487,17 +489,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                    vk.epost               as arrangor_kontaktperson_epost,
                    tg.stengt_fra,
                    tg.stengt_til,
-                   jsonb_agg(distinct
-                             case
-                                 when tgk.tiltaksgjennomforing_id is null then null::jsonb
-                                 else jsonb_build_object(
-                                    'navn', concat(na.fornavn, ' ', na.etternavn),
-                                    'epost', na.epost,
-                                    'telefonnummer', na.mobilnummer,
-                                    'beskrivelse', tgk.beskrivelse
-                                 )
-                             end
-                       )                  as kontaktpersoner,
                    tg.nav_region,
                    array_agg(tg_e.enhetsnummer) as nav_enheter,
                    tg.beskrivelse,
@@ -506,8 +497,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                      inner join tiltakstype t on tg.tiltakstype_id = t.id
                      left join tiltaksgjennomforing_nav_enhet tg_e on tg_e.tiltaksgjennomforing_id = tg.id
                      left join virksomhet v on v.organisasjonsnummer = tg.arrangor_organisasjonsnummer
-                     left join tiltaksgjennomforing_kontaktperson tgk on tgk.tiltaksgjennomforing_id = tg.id
-                     left join nav_ansatt na on na.nav_ident = tgk.kontaktperson_nav_ident
                      left join virksomhet_kontaktperson vk on vk.id = tg.arrangor_kontaktperson_id
             $where
             and t.skal_migreres
@@ -632,9 +621,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
 
     private fun Row.toVeilederflateTiltaksgjennomforing(): VeilederflateTiltaksgjennomforing {
         val navEnheter = arrayOrNull<String?>("nav_enheter")?.asList()?.filterNotNull() ?: emptyList()
-        val kontaktpersoner = Json
-            .decodeFromString<List<KontaktinfoTiltaksansvarlige?>>(string("kontaktpersoner"))
-            .filterNotNull()
 
         return VeilederflateTiltaksgjennomforing(
             sanityId = uuidOrNull("sanity_id").toString(),
@@ -663,7 +649,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             ),
             stengtFra = localDateOrNull("stengt_fra"),
             stengtTil = localDateOrNull("stengt_til"),
-            kontaktinfoTiltaksansvarlige = kontaktpersoner,
+            kontaktinfoTiltaksansvarlige = emptyList(),
             fylke = stringOrNull("nav_region"),
             enheter = navEnheter,
             beskrivelse = stringOrNull("beskrivelse"),
@@ -675,7 +661,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         val administratorer = Json
             .decodeFromString<List<TiltaksgjennomforingAdminDto.Administrator?>>(string("administratorer"))
             .filterNotNull()
-        val embeddedNavEnheter = Json.decodeFromString<List<EmbeddedNavEnhet?>>(string("nav_enheter")).filterNotNull()
+        val navEnheterDto = Json.decodeFromString<List<NavEnhetDbo?>>(string("nav_enheter")).filterNotNull()
         val kontaktpersoner = Json
             .decodeFromString<List<TiltaksgjennomforingKontaktperson?>>(string("kontaktpersoner"))
             .filterNotNull()
@@ -723,13 +709,14 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             antallPlasser = intOrNull("antall_plasser"),
             avtaleId = uuidOrNull("avtale_id"),
             administratorer = administratorer,
-            navEnheter = embeddedNavEnheter,
+            navEnheter = navEnheterDto,
             navRegion = stringOrNull("nav_region_enhetsnummer")?.let {
-                EmbeddedNavEnhet(
+                NavEnhetDbo(
                     enhetsnummer = it,
                     navn = string("nav_region_navn"),
                     type = Norg2Type.valueOf(string("nav_region_type")),
                     overordnetEnhet = stringOrNull("nav_region_overordnet_enhet"),
+                    status = NavEnhetStatus.valueOf(string("nav_region_status")),
                 )
             },
             sanityId = uuidOrNull("sanity_id"),

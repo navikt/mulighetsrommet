@@ -1,4 +1,6 @@
 import {
+  NavEnhetStatus,
+  NavEnhetType,
   TiltaksgjennomforingOppstartstype,
   VeilederflateTiltaksgjennomforing,
 } from "mulighetsrommet-api-client";
@@ -20,7 +22,13 @@ const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
         navn: "Sindre",
         telefonnummer: "12345678",
         _id: "8ea86d71-4c1b-4c8f-81b5-49ec67ef1d17",
-        enhet: "123456",
+        enhet: {
+          enhetsnummer: "1928",
+          navn: "Nav Oslo",
+          type: NavEnhetType.LOKAL,
+          status: NavEnhetStatus.AKTIV,
+          overordnetEnhet: null,
+        },
         epost: "test@example.com",
       },
     ],
@@ -52,7 +60,13 @@ const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
         navn: "Sindre",
         telefonnummer: "12345678",
         _id: "8ea86d71-4c1b-4c8f-81b5-49ec67ef1d17",
-        enhet: "123456",
+        enhet: {
+          enhetsnummer: "1928",
+          status: NavEnhetStatus.AKTIV,
+          navn: "Nav Oslo",
+          type: NavEnhetType.LOKAL,
+          overordnetEnhet: null,
+        },
         epost: "test@example.com",
       },
     ],
@@ -79,7 +93,13 @@ const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
       {
         navn: "Pelle Pilotbruker",
         telefonnummer: "48123456",
-        enhet: "1928",
+        enhet: {
+          status: NavEnhetStatus.AKTIV,
+          enhetsnummer: "1928",
+          navn: "Nav Oslo",
+          type: NavEnhetType.LOKAL,
+          overordnetEnhet: null,
+        },
         epost: "pelle.pilotbruker@nav.no",
         _id: "56767",
       },
@@ -154,7 +174,13 @@ const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
       {
         navn: "Pelle Pilotbruker",
         telefonnummer: "48123456",
-        enhet: "1928",
+        enhet: {
+          enhetsnummer: "1928",
+          status: NavEnhetStatus.AKTIV,
+          navn: "Nav Oslo",
+          type: NavEnhetType.LOKAL,
+          overordnetEnhet: null,
+        },
         epost: "pelle.pilotbruker@nav.no",
         _id: "56767",
       },
@@ -229,7 +255,13 @@ const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
       {
         navn: "Pelle Pilotbruker",
         telefonnummer: "48123456",
-        enhet: "1928",
+        enhet: {
+          enhetsnummer: "1928",
+          navn: "Nav Oslo",
+          type: NavEnhetType.LOKAL,
+          overordnetEnhet: null,
+          status: NavEnhetStatus.AKTIV,
+        },
         epost: "pelle.pilotbruker@nav.no",
         _id: "56767",
       },
@@ -270,7 +302,13 @@ const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
       {
         navn: "Pelle Pilotbruker",
         telefonnummer: "48123456",
-        enhet: "1928",
+        enhet: {
+          enhetsnummer: "1928",
+          navn: "Nav Oslo",
+          type: NavEnhetType.LOKAL,
+          overordnetEnhet: null,
+          status: NavEnhetStatus.AKTIV,
+        },
         epost: "pelle.pilotbruker@nav.no",
         _id: "56767",
       },

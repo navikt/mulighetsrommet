@@ -1,13 +1,15 @@
 import { HttpResponse, PathParams, http } from "msw";
 import {
   Bruker,
+  BrukerVarsel,
   GetBrukerRequest,
   HistorikkForBruker,
   Innsatsgruppe,
+  NavEnhetStatus,
   NavEnhetType,
 } from "mulighetsrommet-api-client";
 import { historikk } from "../../fixtures/historikk";
-import { ENHET_FREDRIKSTAD, ENHET_SARPSBORG } from "../../mock_constants";
+import { ENHET_SARPSBORG } from "../../mock_constants";
 
 export const brukerHandlers = [
   http.post<PathParams, GetBrukerRequest, Bruker | String>(
@@ -22,19 +24,17 @@ export const brukerHandlers = [
       const bruker: Bruker = {
         fnr: norskIdent,
         innsatsgruppe: Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
-        oppfolgingsenhet: {
-          navn: "NAV Sarpsborg",
-          enhetsnummer: ENHET_SARPSBORG,
-          overordnetEnhet: "0100",
-          type: NavEnhetType.LOKAL,
-        },
+        enheter: [
+          {
+            navn: "NAV Sarpsborg",
+            enhetsnummer: ENHET_SARPSBORG,
+            overordnetEnhet: "0200",
+            type: NavEnhetType.LOKAL,
+            status: NavEnhetStatus.AKTIV,
+          },
+        ],
+        varsler: [BrukerVarsel.LOKAL_OPPFOLGINGSENHET],
         fornavn: "IHERDIG",
-        geografiskEnhet: {
-          navn: "NAV Fredrikstad",
-          enhetsnummer: ENHET_FREDRIKSTAD,
-          overordnetEnhet: "0100",
-          type: NavEnhetType.LOKAL,
-        },
         manuellStatus: {
           erUnderManuellOppfolging: false,
           krrStatus: {

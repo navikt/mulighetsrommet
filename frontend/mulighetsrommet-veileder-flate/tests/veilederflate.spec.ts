@@ -38,20 +38,20 @@ test.describe("Tiltaksoversikt", () => {
     ).toContainText("Yoda");
   });
 
-  test("Skal vise 'Tilbakestill filter'-knapp når man filterer på innsatsgruppe", async ({
+  test("Skal vise 'Nullstill filter'-knapp når man filterer på innsatsgruppe", async ({
     page,
   }) => {
-    velgFilter(page, "standard-innsats");
-    await expect(page.getByTestId("knapp_tilbakestill-filter")).toBeVisible();
+    await velgFilter(page, "standard-innsats");
+    await expect(page.getByTestId("knapp_nullstill-filter")).toBeVisible();
   });
 
-  test("'Tilbakestill filter'-knappen fungerer", async ({ page }) => {
+  test("'Nullstill filter'-knappen fungerer", async ({ page }) => {
     const rows = page.getByTestId("oversikt_tiltaksgjennomforinger").getByRole("link");
     await expect(rows).toHaveCount(5);
-    velgFilter(page, "standard-innsats");
-    await expect(page.getByTestId("knapp_tilbakestill-filter")).toBeVisible();
+    await velgFilter(page, "standard-innsats");
+    await expect(page.getByTestId("knapp_nullstill-filter")).toBeVisible();
     await expect(rows).toHaveCount(1);
-    await page.getByTestId("knapp_tilbakestill-filter").click();
+    await page.getByTestId("knapp_nullstill-filter").click();
     await expect(rows).toHaveCount(5);
   });
 

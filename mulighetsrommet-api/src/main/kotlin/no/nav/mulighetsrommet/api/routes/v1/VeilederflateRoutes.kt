@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.routes.v1
 
-import arrow.core.NonEmptyList
 import arrow.core.toNonEmptyListOrNull
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -9,25 +8,20 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.clients.sanity.SanityPerspective
 import no.nav.mulighetsrommet.api.domain.dto.Oppskrift
 import no.nav.mulighetsrommet.api.domain.dto.Oppskrifter
+import no.nav.mulighetsrommet.api.domain.dto.VeilederflateTiltaksgjennomforing
 import no.nav.mulighetsrommet.api.plugins.getNavAnsattAzureId
-import no.nav.mulighetsrommet.api.services.BrukerService
-import no.nav.mulighetsrommet.api.services.NavEnhetService
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
 import no.nav.mulighetsrommet.api.services.VeilederflateService
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
-import no.nav.mulighetsrommet.ktor.extensions.getAccessToken
 import org.koin.ktor.ext.inject
 import java.util.*
 
 fun Route.veilederflateRoutes() {
     val veilederflateService: VeilederflateService by inject()
     val poaoTilgangService: PoaoTilgangService by inject()
-    val brukerService: BrukerService by inject()
-    val navEnhetService: NavEnhetService by inject()
 
     route("/api/v1/internal/veileder") {
         get("/innsatsgrupper") {
@@ -47,16 +41,12 @@ fun Route.veilederflateRoutes() {
         }
 
         post("/tiltaksgjennomforinger") {
-            val request = call.receive<GetRelevanteTiltaksgjennomforingerForBrukerRequest>()
-
-            poaoTilgangService.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), request.norskIdent)
-
-            val brukerdata = brukerService.hentBrukerdata(request.norskIdent, call.getAccessToken())
-            val brukersEnheter = getRelevanteEnheterForBruker(brukerdata, navEnhetService)
-                ?: return@post call.respond(HttpStatusCode.NotFound, "Klarte ikke utlede brukers NAV-enheter")
+            val request = call.receive<GetTiltaksgjennomforingerRequest>()
+            val enheter = request.enheter.toNonEmptyListOrNull()
+                ?: return@post call.respond(emptyList<VeilederflateTiltaksgjennomforing>())
 
             val result = veilederflateService.hentTiltaksgjennomforinger(
-                enheter = brukersEnheter,
+                enheter = enheter,
                 innsatsgruppe = request.innsatsgruppe,
                 tiltakstypeIds = request.tiltakstypeIds,
                 search = request.search,
@@ -67,13 +57,9 @@ fun Route.veilederflateRoutes() {
         }
 
         post("/tiltaksgjennomforing") {
-            val request = call.receive<GetTiltaksgjennomforingForBrukerRequest>()
-
-            poaoTilgangService.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), request.norskIdent)
-
-            val brukerdata = brukerService.hentBrukerdata(request.norskIdent, call.getAccessToken())
-            val enheter = getRelevanteEnheterForBruker(brukerdata, navEnhetService)
-                ?: return@post call.respond(HttpStatusCode.NotFound, "Klarte ikke utlede brukers NAV-enheter")
+            val request = call.receive<GetTiltaksgjennomforingRequest>()
+            val enheter = request.enheter.toNonEmptyListOrNull()
+                ?: return@post call.respond(HttpStatusCode.NotFound)
 
             val result = veilederflateService.hentTiltaksgjennomforing(
                 request.id,
@@ -101,34 +87,9 @@ fun Route.veilederflateRoutes() {
     }
 }
 
-fun getRelevanteEnheterForBruker(
-    brukerdata: BrukerService.Brukerdata,
-    navEnhetService: NavEnhetService,
-): NonEmptyList<String>? {
-    val geografiskEnhet = brukerdata.geografiskEnhet?.enhetsnummer?.let { navEnhetService.hentEnhet(it) }
-    val oppfolgingsenhet =
-        brukerdata.oppfolgingsenhet?.let { enhet -> enhet.enhetsnummer.let { navEnhetService.hentEnhet(it) } }
-
-    val actualGeografiskEnhet = if (oppfolgingsenhet?.type == Norg2Type.LOKAL) {
-        oppfolgingsenhet.enhetsnummer
-    } else {
-        geografiskEnhet?.enhetsnummer
-    }
-    val virtuellOppfolgingsenhet = if (oppfolgingsenhet != null && oppfolgingsenhet.type !in listOf(
-            Norg2Type.FYLKE,
-            Norg2Type.LOKAL,
-        )
-    ) {
-        oppfolgingsenhet.enhetsnummer
-    } else {
-        null
-    }
-    return listOfNotNull(actualGeografiskEnhet, virtuellOppfolgingsenhet).toNonEmptyListOrNull()
-}
-
 @Serializable
-data class GetRelevanteTiltaksgjennomforingerForBrukerRequest(
-    val norskIdent: String,
+data class GetTiltaksgjennomforingerRequest(
+    val enheter: List<String>,
     val innsatsgruppe: String? = null,
     val tiltakstypeIds: List<String>? = null,
     val search: String? = null,
@@ -142,8 +103,8 @@ enum class ApentForInnsok {
 }
 
 @Serializable
-data class GetTiltaksgjennomforingForBrukerRequest(
-    val norskIdent: String,
+data class GetTiltaksgjennomforingRequest(
+    val enheter: List<String>,
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
 )

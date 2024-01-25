@@ -6,7 +6,11 @@ import styles from "./Filtermeny.module.scss";
 import InnsatsgruppeFilter from "./InnsatsgruppeFilter";
 import Sokefelt from "./Sokefelt";
 import { Tiltakstypefilter } from "./Tiltakstypefilter";
-import { useArbeidsmarkedstiltakFilter } from "../../hooks/useArbeidsmarkedstiltakFilter";
+import {
+  RegionMap,
+  useArbeidsmarkedstiltakFilter,
+} from "../../hooks/useArbeidsmarkedstiltakFilter";
+import { NavEnhetFilter } from "./NavEnhetFilter";
 
 const Filtermeny = () => {
   const [filter, setFilter] = useArbeidsmarkedstiltakFilter();
@@ -18,6 +22,10 @@ const Filtermeny = () => {
         setSokefilter={(search: string) => setFilter({ ...filter, search })}
       />
       <Accordion>
+        <NavEnhetFilter
+          regionMapFilter={filter.regionMap}
+          setRegionMapFilter={(regionMap: RegionMap) => setFilter({ ...filter, regionMap })}
+        />
         <FilterToggle
           accordionHeader="Åpent for innsøk"
           value={filter.apentForInnsok}

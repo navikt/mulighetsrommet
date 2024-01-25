@@ -84,7 +84,7 @@ const ModiaViewTiltaksgjennomforingOversikt = () => {
     }
   }
 
-  if (!brukerdata.geografiskEnhet) {
+  if (brukerdata.enheter.length === 0) {
     return (
       <Feilmelding
         header="Kunne ikke hente brukers geografiske enhet"
@@ -124,7 +124,7 @@ const ModiaViewTiltaksgjennomforingOversikt = () => {
               size="small"
               variant="tertiary"
               onClick={resetFilterToDefaults}
-              data-testid="knapp_tilbakestill-filter"
+              data-testid="knapp_nullstill-filter"
             >
               Nullstill filter
             </Button>

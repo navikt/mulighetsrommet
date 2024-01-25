@@ -153,10 +153,6 @@ class VeilederflateService(
             is SanityResponse.Error -> throw Exception(result.error.toString())
         }
 
-        val fylkeEnhetsnummer = enheter.first()
-            .let { navEnhetService.hentOverordnetFylkesenhet(it)?.enhetsnummer }
-            ?: ""
-
         val gruppeGjennomforinger = tiltaksgjennomforingService.getAllVeilederflateTiltaksgjennomforing(
             search = search,
             sanityTiltakstypeIds = tiltakstypeIds?.map { UUID.fromString(it) },
@@ -175,25 +171,18 @@ class VeilederflateService(
             // Det er foreløpig ikke noe egen funksjonalitet for å markere tiltak som midlertidig stengt i Sanity
             emptyList()
         } else {
-            val gruppeSanityIds = gruppeGjennomforinger.map { it.sanityId }
-            sanityGjennomforinger
-                .filter { it._id !in gruppeSanityIds }
-                .map { toVeilederTiltaksgjennomforing(it, enheter) }
+            sanityGjennomforinger.map { toVeilederTiltaksgjennomforing(it, enheter) }
         }
 
         return (individuelleGjennomforinger + gruppeGjennomforinger)
             .filter {
-                if (it.enheter.isNullOrEmpty()) {
-                    it.fylke == fylkeEnhetsnummer // TODO Trengs denne lenger? Kan vi ta den bort?
-                } else {
-                    it.enheter.any { enhet -> enhet in enheter }
-                }
+                it.enheter?.any { enhet -> enhet in enheter } ?: false
             }
     }
 
     suspend fun hentTiltaksgjennomforing(
         id: UUID,
-        enheter: NonEmptyList<String>,
+        enheter: List<String>,
         sanityPerspective: SanityPerspective,
     ): VeilederflateTiltaksgjennomforing {
         return tiltaksgjennomforingService.get(id)
@@ -282,6 +271,15 @@ class VeilederflateService(
             val kontaktpersoner = kontaktpersoner
                 ?.filter { it.enheter.any { enhet -> enhet in enheter } }
                 ?.map { it.navKontaktperson }
+                ?.map {
+                    VeilederflateKontaktinfoTiltaksansvarlig(
+                        navn = it.navn,
+                        telefonnummer = it.telefonnummer,
+                        enhet = it.enhet?.let { enhet -> navEnhetService.hentEnhet(enhet) },
+                        epost = it.epost,
+                        beskrivelse = it.beskrivelse,
+                    )
+                }
                 ?: emptyList()
 
             VeilederflateTiltaksgjennomforing(
@@ -357,21 +355,16 @@ class VeilederflateService(
     private fun utledKontaktpersonerForEnhet(
         tiltaksgjennomforingAdminDto: TiltaksgjennomforingAdminDto,
         enheter: List<String>,
-    ): List<KontaktinfoTiltaksansvarlige> {
+    ): List<VeilederflateKontaktinfoTiltaksansvarlig> {
         return tiltaksgjennomforingAdminDto.kontaktpersoner
             .filter { it.navEnheter.isEmpty() || it.navEnheter.any { enhet -> enhet in enheter } }
             .map {
-                KontaktinfoTiltaksansvarlige(
+                VeilederflateKontaktinfoTiltaksansvarlig(
                     navn = it.navn,
                     telefonnummer = it.mobilnummer,
-                    enhet = it.hovedenhet,
+                    enhet = navEnhetService.hentEnhet(it.hovedenhet),
                     epost = it.epost,
                     beskrivelse = it.beskrivelse,
-                    _rev = null,
-                    _type = null,
-                    _id = null,
-                    _updatedAt = null,
-                    _createdAt = null,
                 )
             }
     }

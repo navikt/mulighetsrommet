@@ -7,6 +7,7 @@ import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
+import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dto.*
 import no.nav.mulighetsrommet.api.utils.DatabaseUtils
 import no.nav.mulighetsrommet.api.utils.PaginationParams
@@ -22,7 +23,6 @@ import java.time.LocalDate
 import java.util.*
 
 class AvtaleRepository(private val db: Database) {
-
     private val logger = LoggerFactory.getLogger(javaClass)
 
     fun upsert(avtale: AvtaleDbo) = db.transaction { upsert(avtale, it) }
@@ -398,7 +398,7 @@ class AvtaleRepository(private val db: Database) {
             .filterNotNull()
 
         val navEnheter = stringOrNull("nav_enheter")
-            ?.let { Json.decodeFromString<List<EmbeddedNavEnhet?>>(it).filterNotNull() }
+            ?.let { Json.decodeFromString<List<NavEnhetDbo?>>(it).filterNotNull() }
             ?: emptyList()
         val kontorstruktur = navEnheter
             .filter { it.type == Norg2Type.FYLKE }

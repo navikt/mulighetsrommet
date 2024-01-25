@@ -1,4 +1,8 @@
-import { Bruker, NavEnhetType } from "mulighetsrommet-api-client";
+import { Bruker } from "mulighetsrommet-api-client";
+import {
+  ArbeidsmarkedstiltakFilter,
+  valgteNavEnheter,
+} from "../hooks/useArbeidsmarkedstiltakFilter";
 
 export const erTomtObjekt = (objekt: Object): boolean => {
   return Object.keys(objekt).length === 0;
@@ -51,17 +55,6 @@ export function utledLopenummerFraTiltaksnummer(tiltaksnummer: string): string {
   return tiltaksnummer;
 }
 
-export function brukersGeografiskeOgOppfolgingsenhetErLokalkontorMenIkkeSammeKontor(
-  bruker: Bruker,
-): boolean {
-  const { geografiskEnhet, oppfolgingsenhet } = bruker;
-
-  return (
-    oppfolgingsenhet?.type === NavEnhetType.LOKAL &&
-    oppfolgingsenhet.enhetsnummer !== geografiskEnhet?.enhetsnummer
-  );
-}
-
 export function addOrRemove<T>(array: T[], item: T): T[] {
   const exists = array.includes(item);
 
@@ -74,4 +67,16 @@ export function addOrRemove<T>(array: T[], item: T): T[] {
     result.push(item);
     return result;
   }
+}
+
+export function brukersEnhetFilterHasChanged(
+  filter: ArbeidsmarkedstiltakFilter,
+  bruker?: Bruker,
+): boolean {
+  if (!bruker) return false;
+
+  const filterEnheter = valgteNavEnheter(filter);
+  if (filterEnheter.length !== bruker.enheter.length) return true;
+
+  return bruker.enheter.sort().join(",") === filterEnheter.sort().join(",");
 }

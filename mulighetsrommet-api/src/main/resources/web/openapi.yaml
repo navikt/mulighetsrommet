@@ -897,16 +897,16 @@ paths:
     post:
       tags:
         - VeilederTiltak
-      operationId: getRelevanteTiltaksgjennomforingerForBruker
+      operationId: getVeilederTiltaksgjennomforinger
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/GetRelevanteTiltaksgjennomforingerForBrukerRequest"
+              $ref: "#/components/schemas/GetTiltaksgjennomforingerRequest"
         required: true
       responses:
         200:
-          description: Hent tiltaksgjennomføringer filtrert på brukers enheter
+          description: Hent tiltaksgjennomføringer
           content:
             application/json:
               schema:
@@ -918,12 +918,12 @@ paths:
     post:
       tags:
         - VeilederTiltak
-      operationId: getTiltaksgjennomforingForBruker
+      operationId: getVeilederTiltaksgjennomforing
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/GetTiltaksgjennomforingForBrukerRequest"
+              $ref: "#/components/schemas/GetTiltaksgjennomforingRequest"
         required: true
       responses:
         200:
@@ -932,27 +932,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/VeilederflateTiltaksgjennomforing"
-
-  /api/v1/internal/veileder/preview/tiltaksgjennomforinger:
-    post:
-      tags:
-        - VeilederTiltak
-      operationId: getPreviewRelevanteTiltaksgjennomforinger
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/GetRelevanteTiltaksgjennomforingerPreviewRequest"
-        required: true
-      responses:
-        200:
-          description: Hent tiltaksgjennomføringer basert på geografisk enhet
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/VeilederflateTiltaksgjennomforing"
 
   /api/v1/internal/veileder/preview/tiltaksgjennomforing:
     post:
@@ -1178,7 +1157,7 @@ paths:
               schema:
                 type: string
 
-  /api/v1/internal/enheter:
+  /api/v1/internal/nav-enheter:
     get:
       tags:
         - NavEnheter
@@ -1208,7 +1187,22 @@ paths:
                 items:
                   $ref: "#/components/schemas/NavEnhet"
 
-  /api/v1/internal/enheter/{enhetsnummer}/overordnet:
+  /api/v1/internal/nav-enheter/regioner:
+    get:
+      tags:
+        - NavEnheter
+      operationId: getRegioner
+      responses:
+        200:
+          description: Liste over regioner med underenheter
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/NavRegion"
+
+  /api/v1/internal/nav-enheter/{enhetsnummer}/overordnet:
     parameters:
       - in: "path"
         name: enhetsnummer
@@ -1680,11 +1674,13 @@ components:
       required:
         - norskIdent
 
-    GetRelevanteTiltaksgjennomforingerForBrukerRequest:
+    GetTiltaksgjennomforingerRequest:
       type: object
       properties:
-        norskIdent:
-          type: string
+        enheter:
+          type: array
+          items:
+            type: string
         innsatsgruppe:
           $ref: "#/components/schemas/Innsatsgruppe"
         tiltakstypeIds:
@@ -1697,6 +1693,7 @@ components:
         apentForInnsok:
           $ref: "#/components/schemas/ApentForInnsok"
       required:
+        - enheter
         - norskIdent
         - apentForInnsok
 
@@ -1707,30 +1704,10 @@ components:
         - STENGT
         - APENT_ELLER_STENGT
 
-    GetRelevanteTiltaksgjennomforingerPreviewRequest:
-      type: object
-      properties:
-        geografiskEnhet:
-          type: string
-        innsatsgruppe:
-          $ref: "#/components/schemas/Innsatsgruppe"
-        tiltakstypeIds:
-          type: array
-          items:
-            type: string
-            format: uuid
-        search:
-          type: string
-        apentForInnsok:
-          $ref: "#/components/schemas/ApentForInnsok"
-      required:
-        - geografiskEnhet
-        - apentForInnsok
-
     GetTiltaksgjennomforingDetaljerPreviewRequest:
       type: object
       properties:
-        brukersEnheter:
+        enheter:
           type: array
           items:
             type: string
@@ -1740,16 +1717,18 @@ components:
         - enheter
         - id
 
-    GetTiltaksgjennomforingForBrukerRequest:
+    GetTiltaksgjennomforingRequest:
       type: object
       properties:
         id:
           type: string
           format: uuid
-        norskIdent:
-          type: string
+        enheter:
+          type: array
+          items:
+            type: string
       required:
-        - norskIdent
+        - enheter
         - id
 
     ManuellStatus:
@@ -1910,7 +1889,7 @@ components:
         avtalestatus:
           $ref: "#/components/schemas/Avtalestatus"
         arenaAnsvarligEnhet:
-          $ref: "#/components/schemas/EmbeddedNavEnhet"
+          $ref: "#/components/schemas/NavEnhet"
         prisbetingelser:
           type: string
           nullable: true
@@ -2111,7 +2090,7 @@ components:
         arrangor:
           $ref: "#/components/schemas/Arrangor"
         arenaAnsvarligEnhet:
-          $ref: "#/components/schemas/EmbeddedNavEnhet"
+          $ref: "#/components/schemas/NavEnhet"
         status:
           $ref: "#/components/schemas/TiltaksgjennomforingStatus"
         startDato:
@@ -2123,9 +2102,9 @@ components:
         navEnheter:
           type: array
           items:
-            $ref: "#/components/schemas/EmbeddedNavEnhet"
+            $ref: "#/components/schemas/NavEnhet"
         navRegion:
-          $ref: "#/components/schemas/EmbeddedNavEnhet"
+          $ref: "#/components/schemas/NavEnhet"
         administratorer:
           type: array
           items:
@@ -2315,18 +2294,28 @@ components:
           $ref: "#/components/schemas/Innsatsgruppe"
         servicegruppe:
           type: string
-        oppfolgingsenhet:
-          $ref: "#/components/schemas/EmbeddedNavEnhet"
-        geografiskEnhet:
-          $ref: "#/components/schemas/EmbeddedNavEnhet"
+        enheter:
+          type: array
+          items:
+            $ref: "#/components/schemas/NavEnhet"
         fornavn:
           type: string
         manuellStatus:
           $ref: "#/components/schemas/ManuellStatus"
+        varsler:
+          type: array
+          items:
+            $ref: "#/components/schemas/BrukerVarsel"
       required:
         - fnr
-        - oppfolgingsenhet
-        - geografiskEnhet
+        - enheter
+        - varsler
+
+    BrukerVarsel:
+      type: string
+      enum:
+        - LOKAL_OPPFOLGINGSENHET
+        - MANGLER_14A_VEDTAK
 
     NavVeileder:
       type: object
@@ -2567,6 +2556,28 @@ components:
         - status
         - type
 
+    NavRegion:
+      type: object
+      properties:
+        enhetsnummer:
+          type: string
+        navn:
+          type: string
+        status:
+          $ref: "#/components/schemas/NavEnhetStatus"
+        type:
+          $ref: "#/components/schemas/NavEnhetType"
+        enheter:
+          type: array
+          items:
+            $ref: "#/components/schemas/NavEnhet"
+      required:
+        - navn
+        - enheter
+        - enhetsnummer
+        - status
+        - type
+
     Arrangor:
       type: object
       properties:
@@ -2655,24 +2666,6 @@ components:
         - telefon
         - beskrivelse
         - epost
-
-    EmbeddedNavEnhet:
-      type: object
-      properties:
-        navn:
-          type: string
-        enhetsnummer:
-          type: string
-        "type":
-          $ref: "#/components/schemas/NavEnhetType"
-        overordnetEnhet:
-          type: string
-          nullable: true
-      required:
-        - navn
-        - enhetsnummer
-        - type
-        - overordnetEnhet
 
     AvtaleAdministrator:
       type: object
@@ -2777,7 +2770,7 @@ components:
         kontaktinfoTiltaksansvarlige:
           type: array
           items:
-            $ref: "#/components/schemas/SanityKontakinfoTiltaksansvarlige"
+            $ref: "#/components/schemas/VeilederflateKontaktinfoTiltaksansvarlig"
         apentForInnsok:
           type: boolean
         stengtFra:
@@ -2876,7 +2869,7 @@ components:
         - telefon
         - epost
 
-    SanityKontakinfoTiltaksansvarlige:
+    VeilederflateKontaktinfoTiltaksansvarlig:
       type: object
       properties:
         _id:
@@ -2884,7 +2877,7 @@ components:
         navn:
           type: string
         enhet:
-          type: string
+          $ref: "#/components/schemas/NavEnhet"
         telefonnummer:
           type: string
         epost:
@@ -3297,11 +3290,11 @@ components:
         type: object
         properties:
           region:
-            $ref: "#/components/schemas/EmbeddedNavEnhet"
+            $ref: "#/components/schemas/NavEnhet"
           kontorer:
             type: array
             items:
-              $ref: "#/components/schemas/EmbeddedNavEnhet"
+              $ref: "#/components/schemas/NavEnhet"
         required:
           - region
           - kontorer

@@ -1,0 +1,19 @@
+.accordion_down {
+  transform: rotate(0deg);
+  transition: transform 0.1s linear;
+}
+
+.accordion_down_open {
+  transform: rotate(-180deg);
+  transition: transform 0.1s linear;
+}
+
+.checkbox_and_caret {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.checkbox_and_caret:hover {
+  background-color: var(--a-gray-100);
+}

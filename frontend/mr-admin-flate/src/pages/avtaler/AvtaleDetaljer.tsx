@@ -1,6 +1,5 @@
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
 import { Alert, Heading, HelpText } from "@navikt/ds-react";
-import { EmbeddedNavEnhet } from "mulighetsrommet-api-client";
 import { NOM_ANSATT_SIDE } from "mulighetsrommet-frontend-common/constants";
 import { Fragment } from "react";
 import { useAvtale } from "../../api/avtaler/useAvtale";
@@ -11,6 +10,7 @@ import { avtaletypeTilTekst, formaterDato } from "../../utils/Utils";
 import { erAnskaffetTiltak } from "../../utils/tiltakskoder";
 import styles from "../DetaljerInfo.module.scss";
 import { Link } from "react-router-dom";
+import { NavEnhet } from "mulighetsrommet-api-client";
 
 export function AvtaleDetaljer() {
   const { data: avtale, isPending, error } = useAvtale();
@@ -38,7 +38,7 @@ export function AvtaleDetaljer() {
     );
   };
 
-  function sorterPaRegionsnavn(a: { region: EmbeddedNavEnhet }, b: { region: EmbeddedNavEnhet }) {
+  function sorterPaRegionsnavn(a: { region: NavEnhet }, b: { region: NavEnhet }) {
     return a.region.navn.localeCompare(b.region.navn);
   }
 

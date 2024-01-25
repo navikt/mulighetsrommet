@@ -1,18 +1,13 @@
 import { Alert, Loader } from "@navikt/ds-react";
-import { useAtom } from "jotai";
-import { Innsatsgruppe, NavEnhetType } from "mulighetsrommet-api-client";
+import { Innsatsgruppe, NavEnhetStatus, NavEnhetType } from "mulighetsrommet-api-client";
 import usePreviewTiltaksgjennomforingById from "../../core/api/queries/usePreviewTiltaksgjennomforingById";
-import { geografiskEnhetForPreviewAtom } from "../../core/atoms/atoms";
 import ViewTiltaksgjennomforingDetaljer from "../ViewTiltaksgjennomforingDetaljer/ViewTiltaksgjennomforingDetaljer";
 import styles from "./PreviewView.module.scss";
 import Tilbakeknapp from "../../components/tilbakeknapp/Tilbakeknapp";
 import { DelMedBruker } from "../../components/delMedBruker/DelMedBruker";
 
 export function PreviewViewTiltaksgjennomforingDetaljer() {
-  const [geografiskEnhet] = useAtom(geografiskEnhetForPreviewAtom);
-  const { data, isLoading, isError } = usePreviewTiltaksgjennomforingById([
-    geografiskEnhet?.enhetsnummer || "",
-  ]);
+  const { data, isLoading, isError } = usePreviewTiltaksgjennomforingById();
   const brukersInnsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS;
 
   if (isLoading) {
@@ -51,18 +46,16 @@ export function PreviewViewTiltaksgjennomforingDetaljer() {
                   erUnderManuellOppfolging: false,
                   krrStatus: { kanVarsles: true, erReservert: false },
                 },
-                oppfolgingsenhet: {
-                  navn: "{OPPFØLGINGSENHET}",
-                  enhetsnummer: "0",
-                  overordnetEnhet: "0100",
-                  type: NavEnhetType.LOKAL,
-                },
-                geografiskEnhet: {
-                  navn: "{OPPFØLGINGSENHET}",
-                  enhetsnummer: "0",
-                  overordnetEnhet: "0100",
-                  type: NavEnhetType.LOKAL,
-                },
+                varsler: [],
+                enheter: [
+                  {
+                    navn: "{GEOGRAFISK_ENHET}",
+                    enhetsnummer: "0",
+                    overordnetEnhet: "0100",
+                    type: NavEnhetType.LOKAL,
+                    status: NavEnhetStatus.AKTIV,
+                  },
+                ],
               }}
             />
           </div>

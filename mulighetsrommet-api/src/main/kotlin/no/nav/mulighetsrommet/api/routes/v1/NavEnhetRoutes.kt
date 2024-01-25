@@ -12,10 +12,14 @@ import org.koin.ktor.ext.inject
 fun Route.navEnhetRoutes() {
     val navEnhetService: NavEnhetService by inject()
 
-    route("api/v1/internal/enheter") {
+    route("api/v1/internal/nav-enheter") {
         get {
             val filter = getEnhetFilter()
             call.respond(navEnhetService.hentAlleEnheter(filter))
+        }
+
+        get("regioner") {
+            call.respond(navEnhetService.hentRegioner())
         }
 
         get("{enhetsnummer}/overordnet") {
