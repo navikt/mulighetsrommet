@@ -1,5 +1,5 @@
 import { PlusIcon, XMarkIcon } from "@navikt/aksel-icons";
-import { Button, Checkbox, HStack, TextField } from "@navikt/ds-react";
+import { Alert, Button, Checkbox, HStack, TextField } from "@navikt/ds-react";
 import { Avtale, Tiltaksgjennomforing, Toggles } from "mulighetsrommet-api-client";
 import { ControlledSokeSelect } from "mulighetsrommet-frontend-common";
 import { useFieldArray, useFormContext } from "react-hook-form";
@@ -113,7 +113,14 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
               readOnly
               label={`Avtale (tiltakstype: ${avtale.tiltakstype.navn})`}
               value={avtale.navn || ""}
+              error={errors.avtale?.message as string}
             />
+            {/**
+             * // TODO Kan fjerne alert under når Aksel har fikset readonly + error
+             * */}
+            {errors.avtale?.message ? (
+              <Alert variant="warning">{errors.avtale.message as string}</Alert>
+            ) : null}
           </FormGroup>
           <Separator />
           <FormGroup>

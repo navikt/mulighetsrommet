@@ -35,6 +35,27 @@ object AvtaleFixtures {
         faneinnhold = null,
     )
 
+    val avtaleForVta = AvtaleDbo(
+        id = UUID.randomUUID(),
+        navn = "Avtalenavn for VTA",
+        avtalenummer = "2024#1",
+        tiltakstypeId = TiltakstypeFixtures.VTA.id,
+        leverandorOrganisasjonsnummer = "123456789",
+        leverandorUnderenheter = emptyList(),
+        startDato = LocalDate.of(2023, 1, 1),
+        sluttDato = LocalDate.of(2023, 2, 28),
+        avtaletype = Avtaletype.Rammeavtale,
+        prisbetingelser = null,
+        opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
+        administratorer = emptyList(),
+        navEnheter = listOf("2990"),
+        leverandorKontaktpersonId = null,
+        antallPlasser = null,
+        url = null,
+        beskrivelse = null,
+        faneinnhold = null,
+    )
+
     val avtaleRequest = AvtaleRequest(
         id = UUID.randomUUID(),
         navn = "Avtalenavn",

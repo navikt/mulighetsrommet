@@ -24,7 +24,7 @@ export function AdministratorHeader() {
     <InternalHeader>
       <InternalHeader.Title className={styles.title} as="h1">
         <Link className={styles.link} to="/">
-          NAV arbeidsmarkedstiltak
+          NAV Tiltaksadministrasjon
         </Link>
       </InternalHeader.Title>
       <Spacer />
@@ -98,12 +98,8 @@ export function AdministratorHeader() {
               onClick={() => endringsmeldingerLinkRef.current?.click()}
               as="span"
             >
-              <Link
-                target="_blank"
-                ref={endringsmeldingerLinkRef}
-                to="https://arbeidsmarkedstiltak.intern.nav.no/"
-              >
-                Endringsmeldinger <ExternalLinkIcon />
+              <Link ref={endringsmeldingerLinkRef} to="https://arbeidsmarkedstiltak.intern.nav.no/">
+                Endringsmeldinger
               </Link>
             </Dropdown.Menu.GroupedList.Item>
           </Dropdown.Menu.GroupedList>
