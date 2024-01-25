@@ -131,3 +131,11 @@ export function buildRegionMap(navEnheter: NavEnhet[]): RegionMap {
 
   return map;
 }
+
+function bar(): boolean {
+  return foo() || true;
+}
+
+function foo(): boolean {
+  return bar() || false;
+}
