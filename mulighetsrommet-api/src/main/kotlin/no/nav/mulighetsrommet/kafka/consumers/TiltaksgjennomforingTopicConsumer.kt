@@ -12,9 +12,11 @@ import no.nav.mulighetsrommet.kafka.producers.ArenaMigreringTiltaksgjennomforing
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import no.nav.mulighetsrommet.utils.toUUID
+import java.util.*
 
 class TiltaksgjennomforingTopicConsumer(
     config: Config,
+    private val migrerteTiltak: List<String>,
     private val tiltaksgjennomforingRepository: TiltaksgjennomforingRepository,
     private val arenaMigreringTiltaksgjennomforingKafkaProducer: ArenaMigreringTiltaksgjennomforingKafkaProducer,
     private val arenaAdapterClient: ArenaAdapterClient,
@@ -24,23 +26,36 @@ class TiltaksgjennomforingTopicConsumer(
     JsonElementDeserializer(),
 ) {
     override suspend fun consume(key: String, message: JsonElement) {
-        when (val tiltaksgjennomforingDto = JsonIgnoreUnknownKeys.decodeFromJsonElement<TiltaksgjennomforingDto?>(message)) {
-            null -> {
-                arenaMigreringTiltaksgjennomforingKafkaProducer.retract(key.toUUID())
-            }
-            else -> {
-                val arenaTiltaksgjennomforingDto = arenaAdapterClient.hentArenadata(tiltaksgjennomforingDto.id)
-                tiltaksgjennomforingRepository.get(tiltaksgjennomforingDto.id)?.let {
-                    val endretTidspunkt = tiltaksgjennomforingRepository.getUpdatedAt(tiltaksgjennomforingDto.id)!!
-                    arenaMigreringTiltaksgjennomforingKafkaProducer.publish(
-                        ArenaMigreringTiltaksgjennomforingDto.from(
-                            it,
-                            arenaTiltaksgjennomforingDto?.arenaId,
-                            endretTidspunkt,
-                        ),
-                    )
-                }
-            }
+        val gjennomforing = JsonIgnoreUnknownKeys.decodeFromJsonElement<TiltaksgjennomforingDto?>(message)
+
+        if (gjennomforing == null) {
+            arenaMigreringTiltaksgjennomforingKafkaProducer.retract(key.toUUID())
+            return
         }
+
+        if (gjennomforingSKalDelesMedArena(gjennomforing)) {
+            publishMigrertGjennomforing(gjennomforing.id)
+        }
+    }
+
+    private suspend fun publishMigrertGjennomforing(id: UUID) {
+        val arenaGjennomforing = arenaAdapterClient.hentArenadata(id)
+
+        val gjennomforing = tiltaksgjennomforingRepository.get(id)
+        requireNotNull(gjennomforing)
+
+        val endretTidspunkt = tiltaksgjennomforingRepository.getUpdatedAt(id)
+        requireNotNull(endretTidspunkt)
+
+        val migrertGjennomforing = ArenaMigreringTiltaksgjennomforingDto.from(
+            gjennomforing,
+            arenaGjennomforing?.arenaId,
+            endretTidspunkt,
+        )
+        arenaMigreringTiltaksgjennomforingKafkaProducer.publish(migrertGjennomforing)
+    }
+
+    private fun gjennomforingSKalDelesMedArena(gjennomforing: TiltaksgjennomforingDto): Boolean {
+        return gjennomforing.tiltakstype.arenaKode in migrerteTiltak
     }
 }

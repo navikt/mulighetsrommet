@@ -111,7 +111,7 @@ private fun kafka(appConfig: AppConfig) = module {
     single {
         ArenaMigreringTiltaksgjennomforingKafkaProducer(
             producerClient,
-            config.producers.arenaMigreringTiltaksgjennomforinger.copy(tiltakstyper = appConfig.migrerteTiltak),
+            config.producers.arenaMigreringTiltaksgjennomforinger,
         )
     }
     single { TiltaksgjennomforingKafkaProducer(producerClient, config.producers.tiltaksgjennomforinger) }
@@ -132,6 +132,7 @@ private fun kafka(appConfig: AppConfig) = module {
         val consumers = listOf(
             TiltaksgjennomforingTopicConsumer(
                 config = config.consumers.tiltaksgjennomforingerV1,
+                migrerteTiltak = appConfig.migrerteTiltak,
                 arenaAdapterClient = get(),
                 arenaMigreringTiltaksgjennomforingKafkaProducer = get(),
                 tiltaksgjennomforingRepository = get(),
