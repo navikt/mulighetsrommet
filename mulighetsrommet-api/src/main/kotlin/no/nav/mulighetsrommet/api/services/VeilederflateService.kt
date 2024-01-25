@@ -275,7 +275,7 @@ class VeilederflateService(
                     VeilederflateKontaktinfoTiltaksansvarlig(
                         navn = it.navn,
                         telefonnummer = it.telefonnummer,
-                        enhet = it.enhet?.let { enhet -> navEnhetService.hentEnhet(enhet)?.toEmbeddedNavEnhet() },
+                        enhet = it.enhet?.let { enhet -> navEnhetService.hentEnhet(enhet) },
                         epost = it.epost,
                         beskrivelse = it.beskrivelse,
                     )
@@ -362,7 +362,7 @@ class VeilederflateService(
                 VeilederflateKontaktinfoTiltaksansvarlig(
                     navn = it.navn,
                     telefonnummer = it.mobilnummer,
-                    enhet = navEnhetService.hentEnhet(it.hovedenhet)?.toEmbeddedNavEnhet(),
+                    enhet = navEnhetService.hentEnhet(it.hovedenhet),
                     epost = it.epost,
                     beskrivelse = it.beskrivelse,
                 )

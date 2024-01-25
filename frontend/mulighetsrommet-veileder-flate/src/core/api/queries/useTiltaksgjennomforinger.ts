@@ -4,8 +4,8 @@ import { mulighetsrommetClient } from "../clients";
 import { QueryKeys } from "../query-keys";
 import { useHentBrukerdata } from "./useHentBrukerdata";
 import {
-  navEnheter,
   useArbeidsmarkedstiltakFilterValue,
+  valgteEnhetsnumre,
 } from "../../../hooks/useArbeidsmarkedstiltakFilter";
 
 export default function useTiltaksgjennomforinger() {
@@ -13,7 +13,7 @@ export default function useTiltaksgjennomforinger() {
   const brukerData = useHentBrukerdata();
 
   const requestBody: GetTiltaksgjennomforingerRequest = {
-    enheter: navEnheter(filter),
+    enheter: valgteEnhetsnumre(filter),
     innsatsgruppe: filter.innsatsgruppe?.nokkel,
     apentForInnsok: filter.apentForInnsok,
   };

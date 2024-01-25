@@ -15,8 +15,9 @@ select tg.id::uuid,
                    'enhetsnummer', arena_nav_enhet.enhetsnummer,
                    'navn', arena_nav_enhet.navn,
                    'type', arena_nav_enhet.type,
-                   'overordnetEnhet',
-                   arena_nav_enhet.overordnet_enhet)
+                   'overordnetEnhet', arena_nav_enhet.overordnet_enhet,
+                   'status', arena_nav_enhet.status
+           )
            end                 as arena_ansvarlig_enhet,
        tg.avslutningsstatus,
        tg.apent_for_innsok,
@@ -31,6 +32,7 @@ select tg.id::uuid,
        region.navn             as nav_region_navn,
        region.type             as nav_region_type,
        region.overordnet_enhet as nav_region_overordnet_enhet,
+       region.status           as nav_region_status,
        jsonb_agg(
                distinct
                case
@@ -42,8 +44,13 @@ select tg.id::uuid,
        jsonb_agg(distinct
                  case
                      when tg_e.enhetsnummer is null then null::jsonb
-                     else jsonb_build_object('enhetsnummer', tg_e.enhetsnummer, 'navn', ne.navn, 'type', ne.type,
-                                             'overordnetEnhet', ne.overordnet_enhet)
+                     else jsonb_build_object(
+                        'enhetsnummer', tg_e.enhetsnummer,
+                        'navn', ne.navn,
+                        'type', ne.type,
+                        'status', ne.status,
+                        'overordnetEnhet', ne.overordnet_enhet
+                        )
                      end
            )                   as nav_enheter,
        jsonb_agg(distinct
@@ -89,4 +96,4 @@ from tiltaksgjennomforing tg
          left join nav_ansatt na on na.nav_ident = tgk.kontaktperson_nav_ident
          left join nav_ansatt na_tg on na_tg.nav_ident = tg_a.nav_ident
          left join virksomhet_kontaktperson vk on vk.id = tg.arrangor_kontaktperson_id
-group by tg.id, t.id, v.navn, vk.id, region.navn, region.type, region.overordnet_enhet, arena_nav_enhet.enhetsnummer;
+group by tg.id, t.id, v.navn, vk.id, region.status, region.navn, region.type, region.overordnet_enhet, arena_nav_enhet.enhetsnummer;

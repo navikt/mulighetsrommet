@@ -2,8 +2,9 @@ package no.nav.mulighetsrommet.api.fixtures
 
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
+import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
+import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleAdminDto
-import no.nav.mulighetsrommet.api.domain.dto.EmbeddedNavEnhet
 import no.nav.mulighetsrommet.api.domain.dto.Kontorstruktur
 import no.nav.mulighetsrommet.api.domain.dto.VirksomhetKontaktperson
 import no.nav.mulighetsrommet.api.routes.v1.AvtaleRequest
@@ -109,18 +110,20 @@ object AvtaleFixtures {
         opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
         kontorstruktur = listOf(
             Kontorstruktur(
-                region = EmbeddedNavEnhet(
+                region = NavEnhetDbo(
                     navn = "NAV Mockdata",
                     enhetsnummer = "0100",
                     type = Norg2Type.FYLKE,
                     overordnetEnhet = null,
+                    status = NavEnhetStatus.AKTIV,
                 ),
                 kontorer = listOf(
-                    EmbeddedNavEnhet(
+                    NavEnhetDbo(
                         navn = "NAV Mockkontor",
                         enhetsnummer = "0101",
                         type = Norg2Type.LOKAL,
                         overordnetEnhet = "0100",
+                        status = NavEnhetStatus.AKTIV,
                     ),
                 ),
             ),
@@ -158,18 +161,20 @@ object AvtaleFixtures {
         opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
         kontorstruktur = listOf(
             Kontorstruktur(
-                region = EmbeddedNavEnhet(
+                region = NavEnhetDbo(
                     navn = "NAV Mockdata",
                     enhetsnummer = "0100",
                     type = Norg2Type.FYLKE,
                     overordnetEnhet = null,
+                    status = NavEnhetStatus.AKTIV,
                 ),
                 kontorer = listOf(
-                    EmbeddedNavEnhet(
+                    NavEnhetDbo(
                         navn = "NAV Mockkontor",
                         enhetsnummer = "0101",
                         type = Norg2Type.LOKAL,
                         overordnetEnhet = "0100",
+                        status = NavEnhetStatus.AKTIV,
                     ),
                 ),
             ),

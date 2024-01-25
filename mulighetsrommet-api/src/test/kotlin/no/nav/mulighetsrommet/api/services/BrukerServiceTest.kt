@@ -17,7 +17,6 @@ import no.nav.mulighetsrommet.api.clients.vedtak.VedtakDto
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
-import no.nav.mulighetsrommet.api.domain.dto.EmbeddedNavEnhet
 
 class BrukerServiceTest : FunSpec({
     val veilarboppfolgingClient: VeilarboppfolgingClient = mockk()
@@ -102,11 +101,12 @@ class BrukerServiceTest : FunSpec({
         brukerService.hentBrukerdata(fnr1, "").manuellStatus?.krrStatus?.erReservert shouldBe false
         brukerService.hentBrukerdata(fnr1, "").manuellStatus?.krrStatus?.kanVarsles shouldBe true
         brukerService.hentBrukerdata(fnr1, "").enheter shouldContainExactly listOf(
-            EmbeddedNavEnhet(
+            NavEnhetDbo(
                 navn = "NAV Fredrikstad",
                 enhetsnummer = "0106",
                 type = Norg2Type.LOKAL,
                 overordnetEnhet = "0100",
+                status = NavEnhetStatus.AKTIV,
             ),
         )
     }

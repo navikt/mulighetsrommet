@@ -3,8 +3,8 @@ import { mulighetsrommetClient } from "../clients";
 import { QueryKeys } from "../query-keys";
 import { useGetTiltaksgjennomforingIdFraUrl } from "./useGetTiltaksgjennomforingIdFraUrl";
 import {
-  navEnheter,
   useArbeidsmarkedstiltakFilterValue,
+  valgteEnhetsnumre,
 } from "../../../hooks/useArbeidsmarkedstiltakFilter";
 
 export default function usePreviewTiltaksgjennomforingById() {
@@ -15,7 +15,7 @@ export default function usePreviewTiltaksgjennomforingById() {
     queryKey: QueryKeys.sanity.tiltaksgjennomforingPreview(id),
     queryFn: () =>
       mulighetsrommetClient.veilederTiltak.getPreviewTiltaksgjennomforing({
-        requestBody: { id, enheter: navEnheter(filter) },
+        requestBody: { id, enheter: valgteEnhetsnumre(filter) },
       }),
   });
 }

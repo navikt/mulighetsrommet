@@ -1889,7 +1889,7 @@ components:
         avtalestatus:
           $ref: "#/components/schemas/Avtalestatus"
         arenaAnsvarligEnhet:
-          $ref: "#/components/schemas/EmbeddedNavEnhet"
+          $ref: "#/components/schemas/NavEnhet"
         prisbetingelser:
           type: string
           nullable: true
@@ -2090,7 +2090,7 @@ components:
         arrangor:
           $ref: "#/components/schemas/Arrangor"
         arenaAnsvarligEnhet:
-          $ref: "#/components/schemas/EmbeddedNavEnhet"
+          $ref: "#/components/schemas/NavEnhet"
         status:
           $ref: "#/components/schemas/TiltaksgjennomforingStatus"
         startDato:
@@ -2102,9 +2102,9 @@ components:
         navEnheter:
           type: array
           items:
-            $ref: "#/components/schemas/EmbeddedNavEnhet"
+            $ref: "#/components/schemas/NavEnhet"
         navRegion:
-          $ref: "#/components/schemas/EmbeddedNavEnhet"
+          $ref: "#/components/schemas/NavEnhet"
         administratorer:
           type: array
           items:
@@ -2297,7 +2297,7 @@ components:
         enheter:
           type: array
           items:
-            $ref: "#/components/schemas/EmbeddedNavEnhet"
+            $ref: "#/components/schemas/NavEnhet"
         fornavn:
           type: string
         manuellStatus:
@@ -2667,24 +2667,6 @@ components:
         - beskrivelse
         - epost
 
-    EmbeddedNavEnhet:
-      type: object
-      properties:
-        navn:
-          type: string
-        enhetsnummer:
-          type: string
-        "type":
-          $ref: "#/components/schemas/NavEnhetType"
-        overordnetEnhet:
-          type: string
-          nullable: true
-      required:
-        - navn
-        - enhetsnummer
-        - type
-        - overordnetEnhet
-
     AvtaleAdministrator:
       type: object
       properties:
@@ -2895,7 +2877,7 @@ components:
         navn:
           type: string
         enhet:
-          $ref: "#/components/schemas/EmbeddedNavEnhet"
+          $ref: "#/components/schemas/NavEnhet"
         telefonnummer:
           type: string
         epost:
@@ -3308,11 +3290,11 @@ components:
         type: object
         properties:
           region:
-            $ref: "#/components/schemas/EmbeddedNavEnhet"
+            $ref: "#/components/schemas/NavEnhet"
           kontorer:
             type: array
             items:
-              $ref: "#/components/schemas/EmbeddedNavEnhet"
+              $ref: "#/components/schemas/NavEnhet"
         required:
           - region
           - kontorer

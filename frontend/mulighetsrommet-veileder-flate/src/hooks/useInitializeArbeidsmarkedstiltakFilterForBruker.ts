@@ -3,8 +3,8 @@ import { useHentBrukerdata } from "../core/api/queries/useHentBrukerdata";
 import { useInnsatsgrupper } from "../core/api/queries/useInnsatsgrupper";
 import {
   buildRegionMap,
-  navEnheter,
   useArbeidsmarkedstiltakFilter,
+  valgteNavEnheter,
 } from "./useArbeidsmarkedstiltakFilter";
 
 export function useInitializeArbeidsmarkedstiltakFilterForBruker() {
@@ -21,7 +21,7 @@ export function useInitializeArbeidsmarkedstiltakFilterForBruker() {
     brukersInnsatsgruppe !== undefined && filter.innsatsgruppe === undefined;
 
   const resetEnheter =
-    brukerdata && brukerdata.enheter.length > 0 && navEnheter(filter).length === 0;
+    brukerdata && brukerdata.enheter.length > 0 && valgteNavEnheter(filter).length === 0;
 
   useEffect(() => {
     if (resetInnsatsgruppe || resetEnheter) {

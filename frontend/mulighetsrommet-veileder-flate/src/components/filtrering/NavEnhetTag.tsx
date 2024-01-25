@@ -1,26 +1,22 @@
 import { Tag } from "@navikt/ds-react";
 import {
-  navEnheter,
   useArbeidsmarkedstiltakFilterValue,
+  valgteNavEnheter,
 } from "../../hooks/useArbeidsmarkedstiltakFilter";
-import { useNavEnheter } from "../../core/api/queries/useNavEnheter";
 
 export function NavEnhetTag() {
-  const { data: alleEnheter } = useNavEnheter();
   const filter = useArbeidsmarkedstiltakFilterValue();
-  const valgteEnheter = navEnheter(filter);
+  const enheter = valgteNavEnheter(filter);
 
-  if (!alleEnheter || !valgteEnheter || !filter || valgteEnheter.length === 0) {
+  if (!filter || enheter.length === 0) {
     return null;
   }
 
   function tagLabel() {
-    const firstEnhetName = alleEnheter?.find((e) => e.enhetsnummer === valgteEnheter[0])?.navn;
-
-    if (valgteEnheter.length > 1) {
-      return `${firstEnhetName} +${valgteEnheter.length - 1}`;
+    if (enheter.length > 1) {
+      return `${enheter[0].navn} +${enheter.length - 1}`;
     }
-    return firstEnhetName;
+    return enheter[0].navn;
   }
 
   return (

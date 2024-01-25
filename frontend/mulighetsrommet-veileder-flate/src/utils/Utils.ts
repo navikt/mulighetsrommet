@@ -1,5 +1,8 @@
 import { Bruker } from "mulighetsrommet-api-client";
-import { ArbeidsmarkedstiltakFilter, navEnheter } from "../hooks/useArbeidsmarkedstiltakFilter";
+import {
+  ArbeidsmarkedstiltakFilter,
+  valgteNavEnheter,
+} from "../hooks/useArbeidsmarkedstiltakFilter";
 
 export const erTomtObjekt = (objekt: Object): boolean => {
   return Object.keys(objekt).length === 0;
@@ -72,7 +75,7 @@ export function brukersEnhetFilterHasChanged(
 ): boolean {
   if (!bruker) return false;
 
-  const filterEnheter = navEnheter(filter);
+  const filterEnheter = valgteNavEnheter(filter);
   if (filterEnheter.length !== bruker.enheter.length) return true;
 
   return bruker.enheter.sort().join(",") === filterEnheter.sort().join(",");

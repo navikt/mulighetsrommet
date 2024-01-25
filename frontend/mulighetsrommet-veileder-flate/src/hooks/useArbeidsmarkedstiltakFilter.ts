@@ -1,4 +1,4 @@
-import { ApentForInnsok, EmbeddedNavEnhet, Innsatsgruppe } from "mulighetsrommet-api-client";
+import { ApentForInnsok, Innsatsgruppe, NavEnhet } from "mulighetsrommet-api-client";
 import { atomWithStorage, createJSONStorage } from "jotai/utils";
 import { useAtom, useAtomValue } from "jotai";
 import { SyncStorage } from "jotai/vanilla/utils/atomWithStorage";
@@ -6,7 +6,7 @@ import { useHentBrukerdata } from "../core/api/queries/useHentBrukerdata";
 import { brukersEnhetFilterHasChanged } from "../utils/Utils";
 
 export interface RegionMap {
-  [region: string]: string[];
+  [region: string]: NavEnhet[];
 }
 
 export interface ArbeidsmarkedstiltakFilter {
@@ -110,18 +110,22 @@ export const filterAtom = atomWithStorage<FilterMedBrukerIKontekst>(
   { getOnInit: true },
 );
 
-export function navEnheter(filter: ArbeidsmarkedstiltakFilter): string[] {
+export function valgteNavEnheter(filter: ArbeidsmarkedstiltakFilter): NavEnhet[] {
   return Array.from(Object.values(filter.regionMap)).flat(1);
 }
 
-export function buildRegionMap(navEnheter: EmbeddedNavEnhet[]): RegionMap {
+export function valgteEnhetsnumre(filter: ArbeidsmarkedstiltakFilter): string[] {
+  return valgteNavEnheter(filter).map((enhet: NavEnhet) => enhet.enhetsnummer);
+}
+
+export function buildRegionMap(navEnheter: NavEnhet[]): RegionMap {
   const map: RegionMap = {};
-  navEnheter.forEach((enhet: EmbeddedNavEnhet) => {
+  navEnheter.forEach((enhet: NavEnhet) => {
     const regionNavn = enhet.overordnetEnhet ?? "unknown";
     if (regionNavn in map) {
-      map[regionNavn].push(enhet.enhetsnummer);
+      map[regionNavn].push(enhet);
     } else {
-      map[regionNavn] = [enhet.enhetsnummer];
+      map[regionNavn] = [enhet];
     }
   });
 

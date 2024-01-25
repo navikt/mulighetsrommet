@@ -52,7 +52,7 @@ export function NavEnhetFilter({
       if (isIndeterminate && !isIncluded) {
         return regionMap[region.enhetsnummer];
       } else if (!isIndeterminate && isIncluded) {
-        return region.enheter.map((enhet: NavEnhet) => enhet.enhetsnummer) ?? [];
+        return region.enheter;
       } else {
         return [];
       }
@@ -97,7 +97,7 @@ export function NavEnhetFilter({
     );
   }
 
-  function underenhetOnChange(region: string, enheter: string[]) {
+  function underenhetOnChange(region: string, enheter: NavEnhet[]) {
     setRegionMap({
       ...regionMap,
       [region]: enheter,
@@ -119,7 +119,7 @@ export function NavEnhetFilter({
       >
         <div style={{ maxHeight: "400px", overflow: "auto" }}>
           {region.enheter.map((enhet: NavEnhet) => (
-            <Checkbox key={enhet.enhetsnummer} value={enhet.enhetsnummer}>
+            <Checkbox key={enhet.enhetsnummer} value={enhet}>
               {enhet.navn}
             </Checkbox>
           ))}

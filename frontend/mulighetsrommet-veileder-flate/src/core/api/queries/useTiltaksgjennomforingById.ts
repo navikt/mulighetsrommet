@@ -3,15 +3,15 @@ import { mulighetsrommetClient } from "../clients";
 import { QueryKeys } from "../query-keys";
 import { useGetTiltaksgjennomforingIdFraUrl } from "./useGetTiltaksgjennomforingIdFraUrl";
 import {
-  navEnheter,
   useArbeidsmarkedstiltakFilterValue,
+  valgteEnhetsnumre,
 } from "../../../hooks/useArbeidsmarkedstiltakFilter";
 
 export default function useTiltaksgjennomforingById() {
   const id = useGetTiltaksgjennomforingIdFraUrl();
   const filter = useArbeidsmarkedstiltakFilterValue();
 
-  const requestBody = { enheter: navEnheter(filter), id };
+  const requestBody = { enheter: valgteEnhetsnumre(filter), id };
 
   return useQuery({
     queryKey: QueryKeys.sanity.tiltaksgjennomforing(id),

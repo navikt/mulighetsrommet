@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.domain.dto
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonObject
+import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.Faneinnhold
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
@@ -49,7 +50,7 @@ data class VeilederflateTiltaksgjennomforing(
 data class VeilederflateKontaktinfoTiltaksansvarlig(
     val navn: String? = null,
     val telefonnummer: String? = null,
-    val enhet: EmbeddedNavEnhet? = null,
+    val enhet: NavEnhetDbo? = null,
     val epost: String? = null,
     val beskrivelse: String? = null,
 )

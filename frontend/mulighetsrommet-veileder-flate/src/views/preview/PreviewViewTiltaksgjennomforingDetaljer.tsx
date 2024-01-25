@@ -1,5 +1,5 @@
 import { Alert, Loader } from "@navikt/ds-react";
-import { Innsatsgruppe, NavEnhetType } from "mulighetsrommet-api-client";
+import { Innsatsgruppe, NavEnhetStatus, NavEnhetType } from "mulighetsrommet-api-client";
 import usePreviewTiltaksgjennomforingById from "../../core/api/queries/usePreviewTiltaksgjennomforingById";
 import ViewTiltaksgjennomforingDetaljer from "../ViewTiltaksgjennomforingDetaljer/ViewTiltaksgjennomforingDetaljer";
 import styles from "./PreviewView.module.scss";
@@ -53,6 +53,7 @@ export function PreviewViewTiltaksgjennomforingDetaljer() {
                     enhetsnummer: "0",
                     overordnetEnhet: "0100",
                     type: NavEnhetType.LOKAL,
+                    status: NavEnhetStatus.AKTIV,
                   },
                 ],
               }}

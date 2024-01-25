@@ -8,7 +8,6 @@ import no.nav.mulighetsrommet.api.clients.person.VeilarbpersonClient
 import no.nav.mulighetsrommet.api.clients.vedtak.Innsatsgruppe
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
-import no.nav.mulighetsrommet.api.domain.dto.EmbeddedNavEnhet
 
 class BrukerService(
     private val veilarboppfolgingClient: VeilarboppfolgingClient,
@@ -34,8 +33,7 @@ class BrukerService(
         return Brukerdata(
             fnr = fnr,
             innsatsgruppe = sisteVedtak?.innsatsgruppe,
-            enheter = getRelevanteEnheterForBruker(brukersGeografiskeEnhet, brukersOppfolgingsenhet)
-                .map { it.toEmbeddedNavEnhet() },
+            enheter = getRelevanteEnheterForBruker(brukersGeografiskeEnhet, brukersOppfolgingsenhet),
             servicegruppe = oppfolgingsstatus?.servicegruppe,
             fornavn = personInfo.fornavn,
             manuellStatus = manuellStatus,
@@ -58,7 +56,7 @@ class BrukerService(
     data class Brukerdata(
         val fnr: String,
         val innsatsgruppe: Innsatsgruppe?,
-        val enheter: List<EmbeddedNavEnhet>,
+        val enheter: List<NavEnhetDbo>,
         val servicegruppe: String?,
         val fornavn: String?,
         val manuellStatus: ManuellStatusDto?,
@@ -98,13 +96,4 @@ fun getRelevanteEnheterForBruker(
         null
     }
     return listOfNotNull(actualGeografiskEnhet, virtuellOppfolgingsenhet)
-}
-
-fun NavEnhetDbo.toEmbeddedNavEnhet(): EmbeddedNavEnhet {
-    return EmbeddedNavEnhet(
-        enhetsnummer = enhetsnummer,
-        navn = navn,
-        type = type,
-        overordnetEnhet = overordnetEnhet,
-    )
 }

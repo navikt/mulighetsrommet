@@ -7,6 +7,8 @@ import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.clients.vedtak.Innsatsgruppe
+import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
+import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.domain.dto.*
 import no.nav.mulighetsrommet.api.utils.DatabaseUtils
@@ -659,7 +661,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         val administratorer = Json
             .decodeFromString<List<TiltaksgjennomforingAdminDto.Administrator?>>(string("administratorer"))
             .filterNotNull()
-        val embeddedNavEnheter = Json.decodeFromString<List<EmbeddedNavEnhet?>>(string("nav_enheter")).filterNotNull()
+        val navEnheterDto = Json.decodeFromString<List<NavEnhetDbo?>>(string("nav_enheter")).filterNotNull()
         val kontaktpersoner = Json
             .decodeFromString<List<TiltaksgjennomforingKontaktperson?>>(string("kontaktpersoner"))
             .filterNotNull()
@@ -707,13 +709,14 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             antallPlasser = intOrNull("antall_plasser"),
             avtaleId = uuidOrNull("avtale_id"),
             administratorer = administratorer,
-            navEnheter = embeddedNavEnheter,
+            navEnheter = navEnheterDto,
             navRegion = stringOrNull("nav_region_enhetsnummer")?.let {
-                EmbeddedNavEnhet(
+                NavEnhetDbo(
                     enhetsnummer = it,
                     navn = string("nav_region_navn"),
                     type = Norg2Type.valueOf(string("nav_region_type")),
                     overordnetEnhet = stringOrNull("nav_region_overordnet_enhet"),
+                    status = NavEnhetStatus.valueOf(string("nav_region_status")),
                 )
             },
             sanityId = uuidOrNull("sanity_id"),

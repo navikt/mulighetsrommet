@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.domain.dto
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingKontaktpersonDbo
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
@@ -28,15 +29,15 @@ data class TiltaksgjennomforingAdminDto(
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate?,
-    val arenaAnsvarligEnhet: EmbeddedNavEnhet?,
+    val arenaAnsvarligEnhet: NavEnhetDbo?,
     val status: Tiltaksgjennomforingsstatus,
     val apentForInnsok: Boolean,
     val antallPlasser: Int?,
     @Serializable(with = UUIDSerializer::class)
     val avtaleId: UUID?,
     val administratorer: List<Administrator>,
-    val navEnheter: List<EmbeddedNavEnhet>,
-    val navRegion: EmbeddedNavEnhet?,
+    val navEnheter: List<NavEnhetDbo>,
+    val navRegion: NavEnhetDbo?,
     @Serializable(with = UUIDSerializer::class)
     val sanityId: UUID?,
     val oppstart: TiltaksgjennomforingOppstartstype,

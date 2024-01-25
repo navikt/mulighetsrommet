@@ -93,7 +93,7 @@ class AvtaleValidator(
                             )
                         }
 
-                        gjennomforing.navEnheter.forEach { enhet ->
+                        gjennomforing.navEnheter.forEach { enhet: NavEnhetDbo ->
                             val enhetsnummer = enhet.enhetsnummer
                             if (enhetsnummer !in dbo.navEnheter) {
                                 add(

@@ -380,11 +380,12 @@ class AvtaleRepositoryTest : FunSpec({
                     navRegioner = listOf("1801"),
                 )
                 result.second shouldHaveSize 1
-                result.second[0].kontorstruktur[0].region shouldBe EmbeddedNavEnhet(
+                result.second[0].kontorstruktur[0].region shouldBe NavEnhetDbo(
                     enhetsnummer = "1801",
                     navn = "Vestland",
                     type = Norg2Type.FYLKE,
                     overordnetEnhet = null,
+                    status = NavEnhetStatus.AKTIV,
                 )
             }
 
@@ -466,18 +467,20 @@ class AvtaleRepositoryTest : FunSpec({
                 avtaler.get(avtale1.id).should {
                     it!!.kontorstruktur shouldBe listOf(
                         Kontorstruktur(
-                            region = EmbeddedNavEnhet(
+                            region = NavEnhetDbo(
                                 enhetsnummer = "1900",
                                 navn = "Oppland",
                                 type = Norg2Type.FYLKE,
                                 overordnetEnhet = null,
+                                status = NavEnhetStatus.AKTIV,
                             ),
                             kontorer = listOf(
-                                EmbeddedNavEnhet(
+                                NavEnhetDbo(
                                     enhetsnummer = "1901",
                                     navn = "Oppland 1",
                                     type = Norg2Type.LOKAL,
                                     overordnetEnhet = "1900",
+                                    status = NavEnhetStatus.AKTIV,
                                 ),
                             ),
                         ),

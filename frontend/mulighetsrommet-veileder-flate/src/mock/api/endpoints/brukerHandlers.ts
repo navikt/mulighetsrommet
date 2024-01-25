@@ -5,6 +5,7 @@ import {
   GetBrukerRequest,
   HistorikkForBruker,
   Innsatsgruppe,
+  NavEnhetStatus,
   NavEnhetType,
 } from "mulighetsrommet-api-client";
 import { historikk } from "../../fixtures/historikk";
@@ -29,6 +30,7 @@ export const brukerHandlers = [
             enhetsnummer: ENHET_SARPSBORG,
             overordnetEnhet: "0200",
             type: NavEnhetType.LOKAL,
+            status: NavEnhetStatus.AKTIV,
           },
         ],
         varsler: [BrukerVarsel.LOKAL_OPPFOLGINGSENHET],

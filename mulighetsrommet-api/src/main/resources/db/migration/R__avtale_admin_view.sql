@@ -20,7 +20,9 @@ select a.id,
                        'enhetsnummer', arena_nav_enhet.enhetsnummer,
                        'navn', arena_nav_enhet.navn,
                        'type', arena_nav_enhet.type,
-                       'overordnetEnhet', arena_nav_enhet.overordnet_enhet) end as arena_ansvarlig_enhet,
+                       'overordnetEnhet', arena_nav_enhet.overordnet_enhet,
+                       'status', arena_nav_enhet.status
+               ) end as arena_ansvarlig_enhet,
        a.opphav,
        a.avtaletype,
        a.avslutningsstatus,
@@ -52,6 +54,7 @@ from avtale a
                    'enhetsnummer', an.enhetsnummer,
                    'navn', ne.navn,
                    'type', ne.type,
+                   'status', ne.status,
                    'overordnetEnhet', ne.overordnet_enhet))) as nav_enheter
     from avtale_nav_enhet an
              left join nav_enhet ne on ne.enhetsnummer = an.enhetsnummer
