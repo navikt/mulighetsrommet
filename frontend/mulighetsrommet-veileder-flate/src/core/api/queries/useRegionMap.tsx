@@ -1,5 +1,6 @@
 import { NavEnhet, NavEnhetStatus, NavEnhetType } from "mulighetsrommet-api-client";
 import { useNavEnheter } from "./useNavEnheter";
+import { useState } from "react";
 
 const EGNE_ANSATTE_NUMMER = [
   "1083",
@@ -17,26 +18,31 @@ const EGNE_ANSATTE_NUMMER = [
 ];
 
 export function useRegionMap() {
+  const [map, setMap] = useState<Map<NavEnhet, NavEnhet[]>>(new Map());
   const { data: navEnheter, ...rest } = useNavEnheter(
     [NavEnhetStatus.AKTIV],
     [NavEnhetType.FYLKE, NavEnhetType.LOKAL, NavEnhetType.KO],
   );
-
-  const lokaleEnheterOgEgneAnsatte = navEnheter?.filter(
-    (enhet: NavEnhet) =>
-      enhet.type === NavEnhetType.LOKAL || EGNE_ANSATTE_NUMMER.includes(enhet.enhetsnummer),
-  );
   const regioner = navEnheter?.filter((enhet: NavEnhet) => enhet.type === NavEnhetType.FYLKE);
 
-  const map = new Map<NavEnhet, NavEnhet[]>();
-  regioner?.forEach((region: NavEnhet) =>
-    map.set(
-      region,
-      lokaleEnheterOgEgneAnsatte?.filter(
-        (enhet: NavEnhet) => enhet.overordnetEnhet === region.enhetsnummer,
-      ) ?? [],
-    ),
-  );
+  if (navEnheter && map?.size !== regioner?.length) {
+    const lokaleEnheterOgEgneAnsatte = navEnheter?.filter(
+      (enhet: NavEnhet) =>
+        enhet.type === NavEnhetType.LOKAL || EGNE_ANSATTE_NUMMER.includes(enhet.enhetsnummer),
+    );
+
+    const newMap: Map<NavEnhet, NavEnhet[]> = new Map();
+    regioner?.forEach((region: NavEnhet) => {
+      newMap.set(
+        region,
+        lokaleEnheterOgEgneAnsatte?.filter(
+          (enhet: NavEnhet) => enhet.overordnetEnhet === region.enhetsnummer,
+        ) ?? [],
+      );
+    });
+
+    setMap(newMap);
+  }
 
   return { data: map, ...rest };
 }
