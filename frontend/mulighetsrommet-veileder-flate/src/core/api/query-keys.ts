@@ -1,4 +1,4 @@
-import { Bruker, JoyrideType, NavEnhetStatus, NavEnhetType } from "mulighetsrommet-api-client";
+import { JoyrideType, NavEnhetStatus, NavEnhetType } from "mulighetsrommet-api-client";
 import { ArbeidsmarkedstiltakFilter } from "../../hooks/useArbeidsmarkedstiltakFilter";
 
 export const QueryKeys = {
@@ -11,10 +11,10 @@ export const QueryKeys = {
   sanity: {
     innsatsgrupper: ["innsatsgrupper"],
     tiltakstyper: ["tiltakstyper"],
-    tiltaksgjennomforinger: (
-      bruker?: Bruker,
-      tiltaksgjennomforingsfilter?: ArbeidsmarkedstiltakFilter,
-    ) => ["tiltaksgjennomforinger", { ...bruker }, { ...tiltaksgjennomforingsfilter }],
+    tiltaksgjennomforinger: (tiltaksgjennomforingsfilter?: ArbeidsmarkedstiltakFilter) => [
+      "tiltaksgjennomforinger",
+      { ...tiltaksgjennomforingsfilter },
+    ],
     tiltaksgjennomforingerPreview: (
       tiltaksgjennomforingsfilter?: ArbeidsmarkedstiltakFilter,
       geografiskEnhet?: string,
