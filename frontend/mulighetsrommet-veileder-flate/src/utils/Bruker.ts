@@ -1,6 +1,6 @@
 import { Bruker } from "mulighetsrommet-api-client";
 
-export function erBrukerResertMotElektroniskKommunikasjon(brukerdata: Bruker): {
+export function erBrukerReservertMotElektroniskKommunikasjon(brukerdata: Bruker): {
   reservert: boolean;
   melding: string | null;
 } {

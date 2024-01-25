@@ -5,29 +5,31 @@ import { Delemodal } from "./delemodal/Delemodal";
 import { useDelMedBruker } from "./delemodal/DelemodalReducer";
 import { useLogEvent } from "../../logging/amplitude";
 import { utledDelMedBrukerTekst } from "./delemodal/DelMedBrukerTekst";
-import { useHentDeltMedBrukerStatus } from "../../core/api/queries/useHentDeltMedbrukerStatus";
-import { erBrukerResertMotElektroniskKommunikasjon } from "../../utils/Bruker";
-import { Bruker, VeilederflateTiltaksgjennomforing } from "mulighetsrommet-api-client";
+import { erBrukerReservertMotElektroniskKommunikasjon } from "../../utils/Bruker";
+import {
+  Bruker,
+  DelMedBruker as DelMedBrukerInfo,
+  VeilederflateTiltaksgjennomforing,
+} from "mulighetsrommet-api-client";
+import { formaterDato } from "../../utils/Utils";
 
 interface Props {
-  knappetekst: string;
   veiledernavn: string;
   brukerdata: Bruker;
   tiltaksgjennomforing: VeilederflateTiltaksgjennomforing;
+  delMedBrukerInfo?: DelMedBrukerInfo;
 }
 
 export const DelMedBruker = ({
-  knappetekst,
   veiledernavn,
   brukerdata,
   tiltaksgjennomforing,
+  delMedBrukerInfo,
 }: Props) => {
-  const { harDeltMedBruker } = useHentDeltMedBrukerStatus(brukerdata.fnr, tiltaksgjennomforing);
-
   const originaldeletekstFraTiltakstypen = tiltaksgjennomforing.tiltakstype.delingMedBruker ?? "";
 
   const { logEvent } = useLogEvent();
-  const { reservert } = erBrukerResertMotElektroniskKommunikasjon(brukerdata);
+  const { reservert } = erBrukerReservertMotElektroniskKommunikasjon(brukerdata);
 
   const deletekst = utledDelMedBrukerTekst(
     originaldeletekstFraTiltakstypen,
@@ -46,6 +48,10 @@ export const DelMedBruker = ({
       : dispatch({ type: "Toggle modal", payload: true });
   };
 
+  const knappetekst = delMedBrukerInfo?.createdAt
+    ? `Delt med bruker ${formaterDato(new Date(delMedBrukerInfo.createdAt))}`
+    : "Del med bruker";
+
   return (
     <>
       <Button
@@ -54,7 +60,7 @@ export const DelMedBruker = ({
         className={styles.deleknapp}
         aria-label="Dele"
         data-testid="deleknapp"
-        icon={harDeltMedBruker && <CheckmarkIcon title="Suksess" />}
+        icon={delMedBrukerInfo && <CheckmarkIcon title="Suksess" />}
         iconPosition="left"
       >
         {knappetekst}
@@ -64,7 +70,7 @@ export const DelMedBruker = ({
         brukernavn={brukerdata.fornavn}
         veiledernavn={veiledernavn}
         tiltaksgjennomforing={tiltaksgjennomforing}
-        harDeltMedBruker={harDeltMedBruker}
+        harDeltMedBruker={delMedBrukerInfo}
         dispatch={dispatch}
         state={state}
         brukerdata={brukerdata}

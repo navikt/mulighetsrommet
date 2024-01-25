@@ -15,7 +15,7 @@ import { StatusModal } from "../../modal/StatusModal";
 import { DelMedBrukerContent, MAKS_ANTALL_TEGN_DEL_MED_BRUKER } from "./DelMedBrukerContent";
 import delemodalStyles from "./Delemodal.module.scss";
 import { Actions, State } from "./DelemodalActions";
-import { erBrukerResertMotElektroniskKommunikasjon } from "../../../utils/Bruker";
+import { erBrukerReservertMotElektroniskKommunikasjon } from "../../../utils/Bruker";
 
 interface DelemodalProps {
   brukernavn?: string;
@@ -95,7 +95,7 @@ export function Delemodal({
     }
   };
 
-  const { reservert, melding } = erBrukerResertMotElektroniskKommunikasjon(brukerdata);
+  const { reservert, melding } = erBrukerReservertMotElektroniskKommunikasjon(brukerdata);
 
   return (
     <>
