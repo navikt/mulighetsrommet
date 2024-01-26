@@ -12,14 +12,14 @@ import { ErrorFallback } from "./utils/ErrorFallback";
 import { useFeatureToggle } from "./core/api/feature-toggles";
 import { Toggles } from "mulighetsrommet-api-client";
 import { Landingsside } from "./views/landingsside/Landingsside";
-import { ModiaTiltaksgjennomforingDetaljer } from "./views/modia-arbeidsmarkedstiltak/ModiaTiltaksgjennomforingDetaljer";
+import { ModiaArbeidsmarkedstiltakDetaljer } from "./views/modia-arbeidsmarkedstiltak/ModiaArbeidsmarkedstiltakDetaljer";
 import { DeltakerRegistrering } from "./microfrontends/team_komet/DeltakerRegistrering";
-import ModiaViewTiltaksgjennomforingOversikt from "./views/modia-arbeidsmarkedstiltak/ModiaViewTiltaksgjennomforingOversikt";
+import { ModiaArbeidsmarkedstiltakOversikt } from "./views/modia-arbeidsmarkedstiltak/ModiaArbeidsmarkedstiltakOversikt";
 import { ArbeidsmarkedstiltakHeader } from "./components/ArbeidsmarkedstiltakHeader";
-import { PreviewOversikt } from "./views/preview/PreviewOversikt";
-import { PreviewViewTiltaksgjennomforingDetaljer } from "./views/preview/PreviewViewTiltaksgjennomforingDetaljer";
+import { PreviewArbeidsmarkedstiltakOversikt } from "./views/preview/PreviewArbeidsmarkedstiltakOversikt";
+import { PreviewArbeidsmarkedstiltakDetaljer } from "./views/preview/PreviewArbeidsmarkedstiltakDetaljer";
 import { NavArbeidsmarkedstiltakOversikt } from "./views/nav-arbeidsmarkedstiltak/NavArbeidsmarkedstiltakOversikt";
-import { NavArbeidsmarkedstiltakViewTiltaksgjennomforingDetaljer } from "./views/nav-arbeidsmarkedstiltak/NavArbeidsmarkedstiltakViewTiltaksgjennomforingDetaljer";
+import { NavArbeidsmarkedstiltakDetaljer } from "./views/nav-arbeidsmarkedstiltak/NavArbeidsmarkedstiltakDetaljer";
 import { AppContainerOversiktView } from "./components/appContainerOversiktView/AppContainerOversiktView";
 
 if (import.meta.env.PROD && import.meta.env.VITE_FARO_URL) {
@@ -52,8 +52,8 @@ function PreviewArbeidsmarkedstiltak() {
   return (
     <AppContainerOversiktView header={<ArbeidsmarkedstiltakHeader />}>
       <Routes>
-        <Route path="oversikt" element={<PreviewOversikt />} />
-        <Route path="tiltak/:id" element={<PreviewViewTiltaksgjennomforingDetaljer />}>
+        <Route path="oversikt" element={<PreviewArbeidsmarkedstiltakOversikt />} />
+        <Route path="tiltak/:id" element={<PreviewArbeidsmarkedstiltakDetaljer />}>
           <Route path="oppskrifter/:oppskriftId/:tiltakstypeId" element={<Oppskrift />} />
         </Route>
         <Route path="*" element={<Navigate replace to="/preview/oversikt" />} />
@@ -100,8 +100,8 @@ function ModiaArbeidsmarkedstiltak() {
     >
       <Routes>
         {enableLandingsside ? <Route path="" element={<Landingsside />} /> : null}
-        <Route path="oversikt" element={<ModiaViewTiltaksgjennomforingOversikt />} />
-        <Route path="tiltak/:id" element={<ModiaTiltaksgjennomforingDetaljer />}>
+        <Route path="oversikt" element={<ModiaArbeidsmarkedstiltakOversikt />} />
+        <Route path="tiltak/:id" element={<ModiaArbeidsmarkedstiltakDetaljer />}>
           <Route path="oppskrifter/:oppskriftId/:tiltakstypeId" element={<Oppskrift />} />
         </Route>
         {visDeltakerregistrering ? (
@@ -131,7 +131,7 @@ function NavArbeidsmarkedstiltak() {
         <Route path="oversikt" element={<NavArbeidsmarkedstiltakOversikt />} />
         <Route
           path="tiltak/:id"
-          element={<NavArbeidsmarkedstiltakViewTiltaksgjennomforingDetaljer />}
+          element={<NavArbeidsmarkedstiltakDetaljer />}
         >
           <Route path="oppskrifter/:oppskriftId/:tiltakstypeId" element={<Oppskrift />} />
         </Route>

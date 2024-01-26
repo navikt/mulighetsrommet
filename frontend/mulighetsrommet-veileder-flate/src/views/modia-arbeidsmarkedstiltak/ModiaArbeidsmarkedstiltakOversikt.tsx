@@ -23,7 +23,7 @@ import styles from "../ViewTiltaksgjennomforingDetaljer/ViewTiltaksgjennomforing
 import { ManglerInnsatsOgServicegruppeVarsel } from "../../components/varsler/ManglerInnsatsOgServiceGruppeVarsel";
 import { useTiltaksgjennomforinger } from "../../core/api/queries/useTiltaksgjennomforinger";
 
-const ModiaViewTiltaksgjennomforingOversikt = () => {
+export const ModiaArbeidsmarkedstiltakOversikt = () => {
   useTitle("Arbeidsmarkedstiltak - Oversikt");
 
   const { data: brukerdata } = useHentBrukerdata();
@@ -180,5 +180,3 @@ function TilbakestillFilterFeil({ resetFilter }: { resetFilter(): void }) {
     </Feilmelding>
   );
 }
-
-export default ModiaViewTiltaksgjennomforingOversikt;

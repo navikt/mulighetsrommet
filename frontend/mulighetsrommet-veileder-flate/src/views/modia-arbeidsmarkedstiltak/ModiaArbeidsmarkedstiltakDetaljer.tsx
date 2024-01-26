@@ -4,7 +4,6 @@ import { useHentBrukerdata } from "../../core/api/queries/useHentBrukerdata";
 import { useHentDeltMedBrukerStatus } from "../../core/api/queries/useHentDeltMedbrukerStatus";
 import { useHentVeilederdata } from "../../core/api/queries/useHentVeilederdata";
 import { useTiltaksgjennomforingById } from "../../core/api/queries/useTiltaksgjennomforingById";
-import { useBrukerHarRettPaaTiltak } from "../../hooks/useBrukerHarRettPaaTiltak";
 import { useAppContext } from "../../hooks/useAppContext";
 import ViewTiltaksgjennomforingDetaljer from "../ViewTiltaksgjennomforingDetaljer/ViewTiltaksgjennomforingDetaljer";
 import styles from "./ModiaTiltaksgjennomforingDetaljer.module.scss";
@@ -19,92 +18,75 @@ import { byttTilDialogFlate } from "../../utils/DialogFlateUtils";
 import { useAtomValue } from "jotai/index";
 import { paginationAtom } from "../../core/atoms/atoms";
 import { useFeatureToggle } from "../../core/api/feature-toggles";
-import { NavVeileder, Tiltakskode, Toggles } from "mulighetsrommet-api-client";
+import {
+  Bruker,
+  Innsatsgruppe,
+  NavVeileder,
+  Tiltakskode,
+  Toggles,
+  VeilederflateTiltakstype,
+} from "mulighetsrommet-api-client";
 import { environments } from "../../env";
 import { DelMedBruker } from "../../components/delMedBruker/DelMedBruker";
 import { TiltakLoader } from "../../components/TiltakLoader";
+import { useGetTiltaksgjennomforingIdFraUrl } from "../../core/api/queries/useGetTiltaksgjennomforingIdFraUrl";
 
-const whiteListOpprettAvtaleKnapp: Tiltakskode[] = [
-  Tiltakskode.MIDLONTIL,
-  Tiltakskode.ARBTREN,
-  Tiltakskode.VARLONTIL,
-  Tiltakskode.MENTOR,
-  Tiltakskode.INKLUTILS,
-  Tiltakskode.TILSJOBB,
-];
+export function ModiaArbeidsmarkedstiltakDetaljer() {
+  const { fnr } = useAppContext();
+  const id = useGetTiltaksgjennomforingIdFraUrl();
+  const { delMedBrukerInfo, lagreVeilederHarDeltTiltakMedBruker } = useHentDeltMedBrukerStatus(
+    fnr,
+    id,
+  );
 
-type IndividuelleTiltak = (typeof whiteListOpprettAvtaleKnapp)[number];
+  const {
+    data: veilederdata,
+    isPending: isPendingVeilederdata,
+    isError: isErrorVeilederdata,
+  } = useHentVeilederdata();
+  const {
+    data: brukerdata,
+    isPending: isPendingBrukerdata,
+    isError: isErrorBrukerdata,
+  } = useHentBrukerdata();
+  const {
+    data: tiltaksgjennomforing,
+    isPending: isPendingTiltak,
+    isError,
+  } = useTiltaksgjennomforingById();
 
-function resolveName(ansatt?: NavVeileder) {
-  if (!ansatt) {
-    return "";
-  }
-  return [ansatt.fornavn, ansatt.etternavn].filter((part) => part !== "").join(" ");
-}
-
-function tiltakstypeAsStringIsIndividuellTiltakstype(
-  arenakode: Tiltakskode,
-): arenakode is IndividuelleTiltak {
-  return whiteListOpprettAvtaleKnapp.includes(arenakode);
-}
-
-function lenkeTilOpprettAvtaleForEnv(): string {
-  const env: environments = import.meta.env.VITE_ENVIRONMENT;
-  const baseUrl =
-    env === "production"
-      ? "https://tiltaksgjennomforing.intern.nav.no/"
-      : "https://tiltaksgjennomforing.intern.dev.nav.no/";
-  return `${baseUrl}tiltaksgjennomforing/opprett-avtale`;
-}
-
-export function ModiaTiltaksgjennomforingDetaljer() {
-  const { data: tiltaksgjennomforing, isLoading, isError } = useTiltaksgjennomforingById();
   useTitle(
     `Arbeidsmarkedstiltak - Detaljer ${
       tiltaksgjennomforing?.navn ? `- ${tiltaksgjennomforing.navn}` : null
     }`,
   );
-  const { fnr } = useAppContext();
-  const { delMedBrukerInfo } = useHentDeltMedBrukerStatus(fnr, tiltaksgjennomforing);
-  const { brukerHarRettPaaTiltak, innsatsgruppeForGjennomforing } = useBrukerHarRettPaaTiltak();
-  const veilederdata = useHentVeilederdata();
-  const brukerdata = useHentBrukerdata().data;
-  const pageData = useAtomValue(paginationAtom);
+
+  const pagination = useAtomValue(paginationAtom);
 
   const { data: enableDeltakerRegistrering } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_VEILEDERFLATE_VIS_DELTAKER_REGISTRERING,
   );
 
-  if (isLoading) {
+  if (isPendingTiltak || isPendingVeilederdata || isPendingBrukerdata) {
     return <TiltakLoader />;
   }
 
-  if (isError) {
+  if (isError || isErrorVeilederdata || isErrorBrukerdata) {
     return <Alert variant="error">Det har skjedd en feil</Alert>;
   }
 
-  if (!tiltaksgjennomforing || !veilederdata?.data || !brukerdata) return null;
+  const tiltakstype = tiltaksgjennomforing.tiltakstype;
 
-  const kanBrukerFaaAvtale = () => {
-    if (
-      tiltaksgjennomforing.tiltakstype?.arenakode &&
-      tiltakstypeAsStringIsIndividuellTiltakstype(tiltaksgjennomforing.tiltakstype.arenakode)
-    ) {
-      const url = lenkeTilOpprettAvtaleForEnv();
-      window.open(url, "_blank");
-    }
-  };
+  const kanOppretteAvtaleForTiltak = isIndividueltTiltak(tiltakstype);
 
-  const opprettAvtale =
-    !!tiltaksgjennomforing.tiltakstype?.arenakode &&
-    tiltakstypeAsStringIsIndividuellTiltakstype(tiltaksgjennomforing.tiltakstype.arenakode);
+  const brukerHarRettPaaValgtTiltak = harBrukerRettPaaValgtTiltak(brukerdata, tiltakstype);
 
   return (
     <>
       <BrukerKvalifisererIkkeVarsel
         brukerdata={brukerdata}
-        brukerHarRettPaaTiltak={brukerHarRettPaaTiltak}
-        innsatsgruppeForGjennomforing={innsatsgruppeForGjennomforing}
+        brukerHarRettPaaTiltak={brukerHarRettPaaValgtTiltak}
+        tiltakstype={tiltakstype}
       />
       <BrukerHarIkke14aVedtakVarsel brukerdata={brukerdata} />
       <ViewTiltaksgjennomforingDetaljer
@@ -113,40 +95,46 @@ export function ModiaTiltaksgjennomforingDetaljer() {
           <>
             <Tilbakeknapp
               tilbakelenke={`/arbeidsmarkedstiltak/oversikt#pagination=${encodeURIComponent(
-                JSON.stringify({ ...pageData }),
+                JSON.stringify({ ...pagination }),
               )}`}
               tekst="Tilbake til tiltaksoversikten"
             />
             <div>
-              <DetaljerJoyride opprettAvtale={opprettAvtale} />
-              {opprettAvtale ? <OpprettAvtaleJoyride opprettAvtale={opprettAvtale} /> : null}
+              <DetaljerJoyride opprettAvtale={kanOppretteAvtaleForTiltak} />
+              {kanOppretteAvtaleForTiltak ? (
+                <OpprettAvtaleJoyride opprettAvtale={kanOppretteAvtaleForTiltak} />
+              ) : null}
             </div>
           </>
         }
         brukerActions={
           <div className={styles.brukeractions_container}>
-            {opprettAvtale && (
+            {kanOppretteAvtaleForTiltak && (
               <Button
-                onClick={kanBrukerFaaAvtale}
+                onClick={() => {
+                  const url = lenkeTilOpprettAvtaleForEnv();
+                  window.open(url, "_blank");
+                }}
                 variant="primary"
                 className={styles.deleknapp}
                 aria-label="Opprett avtale"
                 data-testid="opprettavtaleknapp"
-                disabled={!brukerHarRettPaaTiltak}
+                disabled={!brukerHarRettPaaValgtTiltak}
               >
                 Opprett avtale
               </Button>
             )}
-            {enableDeltakerRegistrering && !opprettAvtale ? (
+            {enableDeltakerRegistrering && !kanOppretteAvtaleForTiltak ? (
               <Link className={styles.link} to="./deltaker">
                 Meld på
               </Link>
             ) : null}
             <DelMedBruker
               delMedBrukerInfo={delMedBrukerInfo}
-              veiledernavn={resolveName(veilederdata.data)}
-              brukerdata={brukerdata}
+              veiledernavn={resolveName(veilederdata)}
               tiltaksgjennomforing={tiltaksgjennomforing}
+              brukerdata={brukerdata}
+              lagreVeilederHarDeltTiltakMedBruker={lagreVeilederHarDeltTiltakMedBruker}
             />
 
             {!brukerdata?.manuellStatus && (
@@ -184,4 +172,71 @@ export function ModiaTiltaksgjennomforingDetaljer() {
       />
     </>
   );
+}
+
+const whiteListOpprettAvtaleKnapp: Tiltakskode[] = [
+  Tiltakskode.MIDLONTIL,
+  Tiltakskode.ARBTREN,
+  Tiltakskode.VARLONTIL,
+  Tiltakskode.MENTOR,
+  Tiltakskode.INKLUTILS,
+  Tiltakskode.TILSJOBB,
+];
+
+function resolveName(ansatt: NavVeileder) {
+  return [ansatt.fornavn, ansatt.etternavn].filter((part) => part !== "").join(" ");
+}
+
+function isIndividueltTiltak(tiltakstype: VeilederflateTiltakstype): boolean {
+  return (
+    tiltakstype.arenakode !== undefined &&
+    whiteListOpprettAvtaleKnapp.includes(tiltakstype.arenakode)
+  );
+}
+
+function lenkeTilOpprettAvtaleForEnv(): string {
+  const env: environments = import.meta.env.VITE_ENVIRONMENT;
+  const baseUrl =
+    env === "production"
+      ? "https://tiltaksgjennomforing.intern.nav.no/"
+      : "https://tiltaksgjennomforing.intern.dev.nav.no/";
+  return `${baseUrl}tiltaksgjennomforing/opprett-avtale`;
+}
+
+function harBrukerRettPaaValgtTiltak(brukerdata: Bruker, tiltakstype: VeilederflateTiltakstype) {
+  const innsatsgruppeForGjennomforing = tiltakstype.innsatsgruppe?.nokkel;
+
+  if (!innsatsgruppeForGjennomforing) {
+    return false;
+  }
+
+  const godkjenteInnsatsgrupper = brukerdata.innsatsgruppe
+    ? utledInnsatsgrupperFraInnsatsgruppe(brukerdata.innsatsgruppe)
+    : [];
+
+  return godkjenteInnsatsgrupper.includes(innsatsgruppeForGjennomforing);
+}
+
+function utledInnsatsgrupperFraInnsatsgruppe(innsatsgruppe: string): Innsatsgruppe[] {
+  switch (innsatsgruppe) {
+    case "STANDARD_INNSATS":
+      return [Innsatsgruppe.STANDARD_INNSATS];
+    case "SITUASJONSBESTEMT_INNSATS":
+      return [Innsatsgruppe.STANDARD_INNSATS, Innsatsgruppe.SITUASJONSBESTEMT_INNSATS];
+    case "SPESIELT_TILPASSET_INNSATS":
+      return [
+        Innsatsgruppe.STANDARD_INNSATS,
+        Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
+        Innsatsgruppe.SPESIELT_TILPASSET_INNSATS,
+      ];
+    case "VARIG_TILPASSET_INNSATS":
+      return [
+        Innsatsgruppe.STANDARD_INNSATS,
+        Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
+        Innsatsgruppe.SPESIELT_TILPASSET_INNSATS,
+        Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+      ];
+    default:
+      return [];
+  }
 }

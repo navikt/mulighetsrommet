@@ -4,7 +4,7 @@ import Tilbakeknapp from "../../components/tilbakeknapp/Tilbakeknapp";
 import { TiltakLoader } from "../../components/TiltakLoader";
 import { useNavTiltaksgjennomforingById } from "../../core/api/queries/useTiltaksgjennomforingById";
 
-export function NavArbeidsmarkedstiltakViewTiltaksgjennomforingDetaljer() {
+export function NavArbeidsmarkedstiltakDetaljer() {
   const { data, isLoading, isError } = useNavTiltaksgjennomforingById();
 
   if (isLoading) {

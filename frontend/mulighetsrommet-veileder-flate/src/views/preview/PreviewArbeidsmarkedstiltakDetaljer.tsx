@@ -6,19 +6,17 @@ import { DelMedBruker } from "../../components/delMedBruker/DelMedBruker";
 import { TiltakLoader } from "../../components/TiltakLoader";
 import { usePreviewTiltaksgjennomforingById } from "../../core/api/queries/useTiltaksgjennomforingById";
 
-export function PreviewViewTiltaksgjennomforingDetaljer() {
-  const { data, isLoading, isError } = usePreviewTiltaksgjennomforingById();
+export function PreviewArbeidsmarkedstiltakDetaljer() {
+  const { data, isPending, isError } = usePreviewTiltaksgjennomforingById();
   const brukersInnsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS;
 
-  if (isLoading) {
+  if (isPending) {
     return <TiltakLoader />;
   }
 
   if (isError) {
     return <Alert variant="error">Det har skjedd en feil</Alert>;
   }
-
-  if (!data) return <Alert variant="error">Klarte ikke finne tiltaksgjennomføringen</Alert>;
 
   return (
     <>
@@ -51,6 +49,10 @@ export function PreviewViewTiltaksgjennomforingDetaljer() {
                     status: NavEnhetStatus.AKTIV,
                   },
                 ],
+              }}
+              lagreVeilederHarDeltTiltakMedBruker={async (dialogId, gjennomforing) => {
+                // eslint-disable-next-line no-console
+                console.log("Del med bruker", dialogId, gjennomforing);
               }}
             />
           </div>

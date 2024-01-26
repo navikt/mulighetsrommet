@@ -18,6 +18,11 @@ interface Props {
   brukerdata: Bruker;
   tiltaksgjennomforing: VeilederflateTiltaksgjennomforing;
   delMedBrukerInfo?: DelMedBrukerInfo;
+
+  lagreVeilederHarDeltTiltakMedBruker(
+    dialogId: string,
+    gjennomforing: VeilederflateTiltaksgjennomforing,
+  ): Promise<void>;
 }
 
 export const DelMedBruker = ({
@@ -25,6 +30,7 @@ export const DelMedBruker = ({
   brukerdata,
   tiltaksgjennomforing,
   delMedBrukerInfo,
+  lagreVeilederHarDeltTiltakMedBruker,
 }: Props) => {
   const { logEvent } = useLogEvent();
   const { reservert } = erBrukerReservertMotElektroniskKommunikasjon(brukerdata);
@@ -72,6 +78,7 @@ export const DelMedBruker = ({
         dispatch={dispatch}
         state={state}
         brukerdata={brukerdata}
+        lagreVeilederHarDeltTiltakMedBruker={lagreVeilederHarDeltTiltakMedBruker}
       />
     </>
   );

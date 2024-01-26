@@ -6,7 +6,7 @@ import { useTiltaksgjennomforinger } from "../../core/api/queries/useTiltaksgjen
 import { Filtertags } from "../../components/filtrering/Filtertags";
 import { TiltakLoader } from "../../components/TiltakLoader";
 
-export const PreviewOversikt = () => {
+export const PreviewArbeidsmarkedstiltakOversikt = () => {
   const { data: tiltaksgjennomforinger = [], isLoading } = useTiltaksgjennomforinger();
 
   return (
