@@ -7,8 +7,9 @@ import { Separator } from "../detaljside/Metadata";
 import { PortableTextEditor } from "../portableText/PortableTextEditor";
 import skjemastyles from "../skjema/Skjema.module.scss";
 import { Laster } from "../laster/Laster";
-import React from "react";
+import React, { useState } from "react";
 import { InlineErrorBoundary } from "../../ErrorBoundary";
+import { FileTextIcon, PaperplaneIcon } from "@navikt/aksel-icons";
 
 interface RedaksjoneltInnholdFormProps {
   tiltakstype: EmbeddedTiltakstype;
@@ -52,11 +53,46 @@ function RedaksjoneltInnhold({ tiltakstype }: { tiltakstype: EmbeddedTiltakstype
         <Heading size="medium">Faneinnhold</Heading>
         <Tabs size="small" defaultValue="for_hvem">
           <Tabs.List>
-            <Tabs.Tab value="for_hvem" label="For hvem" />
-            <Tabs.Tab value="detaljer_og_innhold" label="Detaljer og innhold" />
-            <Tabs.Tab value="pamelding_og_varighet" label="Påmelding og varighet" />
-            <Tabs.Tab value="kontaktinfo" label="Kontaktinfo" />
-            <Tabs.Tab value="alle" label="Alle faner" />
+            <Tabs.Tab
+              value="for_hvem"
+              label={
+                <div className={skjemastyles.red_tab_title}>
+                  <FileTextIcon /> For hvem
+                </div>
+              }
+            />
+            <Tabs.Tab
+              value="detaljer_og_innhold"
+              label={
+                <div className={skjemastyles.red_tab_title}>
+                  <FileTextIcon /> Detaljer og innhold
+                </div>
+              }
+            />
+            <Tabs.Tab
+              value="pamelding_og_varighet"
+              label={
+                <div className={skjemastyles.red_tab_title}>
+                  <FileTextIcon /> Påmelding og varighet
+                </div>
+              }
+            />
+            <Tabs.Tab
+              value="kontaktinfo"
+              label={
+                <div className={skjemastyles.red_tab_title}>
+                  <FileTextIcon /> Kontaktinfo
+                </div>
+              }
+            />
+            <Tabs.Tab
+              value="del_med_bruker"
+              label={
+                <div className={skjemastyles.red_tab_title}>
+                  <PaperplaneIcon /> Del med bruker
+                </div>
+              }
+            />
           </Tabs.List>
           <Tabs.Panel value="for_hvem">
             <ForHvem tiltakstype={tiltakstypeSanityData} />
@@ -70,13 +106,8 @@ function RedaksjoneltInnhold({ tiltakstype }: { tiltakstype: EmbeddedTiltakstype
           <Tabs.Panel value="kontaktinfo">
             <Kontaktinfo />
           </Tabs.Panel>
-          <Tabs.Panel value="alle">
-            <>
-              <ForHvem tiltakstype={tiltakstypeSanityData} />
-              <DetaljerOgInnhold tiltakstype={tiltakstypeSanityData} />
-              <PameldingOgVarighet tiltakstype={tiltakstypeSanityData} />
-              <Kontaktinfo />
-            </>
+          <Tabs.Panel value="del_med_bruker">
+            <DelMedBruker tiltakstype={tiltakstypeSanityData} />
           </Tabs.Panel>
         </Tabs>
       </div>
@@ -181,6 +212,34 @@ const Kontaktinfo = () => {
         {...register("faneinnhold.kontaktinfo")}
         label="Kontaktinfo"
         description="Ekstra tekst om kontaktinfo."
+      />
+    </div>
+  );
+};
+
+const DelMedBruker = ({ tiltakstype }: { tiltakstype?: VeilederflateTiltakstype }) => {
+  const { watch, setValue } = useFormContext();
+
+  const [tekst, setTekst] = useState<string>(
+    watch("faneinnhold.delMedBruker") ?? tiltakstype?.delingMedBruker ?? "",
+  );
+
+  function onChange(value: string) {
+    if (value !== tiltakstype?.delingMedBruker) {
+      setValue("faneinnhold.delMedBruker", value);
+    }
+  }
+
+  return (
+    <div className={skjemastyles.faneinnhold_container}>
+      <Textarea
+        onChange={(e) => {
+          onChange(e.target.value);
+          setTekst(e.target.value);
+        }}
+        value={tekst}
+        label="Del med bruker"
+        description="Bruk denne tekstboksen for å redigere default teksten som sendes til bruker når man deler et tiltak."
       />
     </div>
   );

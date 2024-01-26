@@ -172,3 +172,10 @@
   justify-content: space-between;
   align-items: center;
 }
+
+.red_tab_title {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.125rem;
+}
