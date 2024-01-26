@@ -31,7 +31,6 @@ const ViewTiltaksgjennomforingDetaljer = ({
   return (
     <div className={styles.container}>
       <div className={styles.top_wrapper}>{knapperad}</div>
-
       <div className={styles.tiltaksgjennomforing_detaljer} id="tiltaksgjennomforing_detaljer">
         <div className={styles.tiltakstype_header_maksbredde}>
           <TiltaksgjennomforingsHeader tiltaksgjennomforing={tiltaksgjennomforing} />

@@ -18,6 +18,10 @@ import ModiaViewTiltaksgjennomforingOversikt from "./views/modia-arbeidsmarkedst
 import { ArbeidsmarkedstiltakHeader } from "./components/ArbeidsmarkedstiltakHeader";
 import { PreviewOversikt } from "./views/preview/PreviewOversikt";
 import { PreviewViewTiltaksgjennomforingDetaljer } from "./views/preview/PreviewViewTiltaksgjennomforingDetaljer";
+import { NavArbeidsmarkedstiltakOversikt } from "./views/nav-arbeidsmarkedstiltak/NavArbeidsmarkedstiltakOversikt";
+import { NavArbeidsmarkedstiltakViewTiltaksgjennomforingDetaljer } from "./views/nav-arbeidsmarkedstiltak/NavArbeidsmarkedstiltakViewTiltaksgjennomforingDetaljer";
+import { AppContainerOversiktView } from "./components/appContainerOversiktView/AppContainerOversiktView";
+import { APPLICATION_NAME } from "./constants";
 
 if (import.meta.env.PROD && import.meta.env.VITE_FARO_URL) {
   initializeFaro({
@@ -37,6 +41,7 @@ export function App() {
         <Routes>
           <Route path="preview/*" element={<PreviewArbeidsmarkedstiltak />} />
           <Route path="arbeidsmarkedstiltak/*" element={<ModiaArbeidsmarkedstiltak />} />
+          <Route path="nav/*" element={<NavArbeidsmarkedstiltak />} />
           <Route path="*" element={<Navigate replace to="/arbeidsmarkedstiltak" />} />
         </Routes>
       </Router>
@@ -46,18 +51,15 @@ export function App() {
 
 function PreviewArbeidsmarkedstiltak() {
   return (
-    <div className={styles.preview_container}>
-      <ArbeidsmarkedstiltakHeader />
-      <div className={styles.preview_content}>
-        <Routes>
-          <Route path="oversikt" element={<PreviewOversikt />} />
-          <Route path="tiltak/:id" element={<PreviewViewTiltaksgjennomforingDetaljer />}>
-            <Route path="oppskrifter/:oppskriftId/:tiltakstypeId" element={<Oppskrift />} />
-          </Route>
-          <Route path="*" element={<Navigate replace to="/preview/oversikt" />} />
-        </Routes>
-      </div>
-    </div>
+    <AppContainerOversiktView header={<ArbeidsmarkedstiltakHeader />}>
+      <Routes>
+        <Route path="oversikt" element={<PreviewOversikt />} />
+        <Route path="tiltak/:id" element={<PreviewViewTiltaksgjennomforingDetaljer />}>
+          <Route path="oppskrifter/:oppskriftId/:tiltakstypeId" element={<Oppskrift />} />
+        </Route>
+        <Route path="*" element={<Navigate replace to="/preview/oversikt" />} />
+      </Routes>
+    </AppContainerOversiktView>
   );
 }
 
@@ -65,6 +67,7 @@ function ModiaArbeidsmarkedstiltak() {
   useHentVeilederdata(); // Pre-fetch veilederdata så slipper vi å vente på data når vi trenger det i appen senere
 
   const { fnr, enhet } = useInitializeAppContext();
+  const demoContainer = document.getElementById(APPLICATION_NAME);
 
   useInitializeArbeidsmarkedstiltakFilterForBruker();
 
@@ -83,31 +86,59 @@ function ModiaArbeidsmarkedstiltak() {
   }
 
   return (
-    <div className={styles.amt_container}>
-      <div className={styles.amt_content}>
-        <Routes>
-          {enableLandingsside ? <Route path="" element={<Landingsside />} /> : null}
-          <Route path="oversikt" element={<ModiaViewTiltaksgjennomforingOversikt />} />
-          <Route path="tiltak/:id" element={<ModiaTiltaksgjennomforingDetaljer />}>
-            <Route path="oppskrifter/:oppskriftId/:tiltakstypeId" element={<Oppskrift />} />
-          </Route>
-          {visDeltakerregistrering ? (
-            <Route
-              path="tiltak/:id/deltaker"
-              element={<DeltakerRegistrering fnr={fnr} enhetId={enhet} />}
+    <AppContainerOversiktView
+      header={
+        <>
+          {import.meta.env.DEV && demoContainer ? (
+            <img
+              src="/interflatedekorator_arbmark.png"
+              id="veilarbpersonflatefs-root"
+              alt="veilarbpersonflate-bilde"
+              className={styles.demo_image}
             />
           ) : null}
+        </>
+      }
+    >
+      <Routes>
+        {enableLandingsside ? <Route path="" element={<Landingsside />} /> : null}
+        <Route path="oversikt" element={<ModiaViewTiltaksgjennomforingOversikt />} />
+        <Route path="tiltak/:id" element={<ModiaTiltaksgjennomforingDetaljer />}>
+          <Route path="oppskrifter/:oppskriftId/:tiltakstypeId" element={<Oppskrift />} />
+        </Route>
+        {visDeltakerregistrering ? (
           <Route
-            path="*"
-            element={
-              <Navigate
-                replace
-                to={enableLandingsside ? "/arbeidsmarkedstiltak" : "/arbeidsmarkedstiltak/oversikt"}
-              />
-            }
+            path="tiltak/:id/deltaker"
+            element={<DeltakerRegistrering fnr={fnr} enhetId={enhet} />}
           />
-        </Routes>
-      </div>
-    </div>
+        ) : null}
+        <Route
+          path="*"
+          element={
+            <Navigate
+              replace
+              to={enableLandingsside ? "/arbeidsmarkedstiltak" : "/arbeidsmarkedstiltak/oversikt"}
+            />
+          }
+        />
+      </Routes>
+    </AppContainerOversiktView>
+  );
+}
+
+function NavArbeidsmarkedstiltak() {
+  return (
+    <AppContainerOversiktView header={<ArbeidsmarkedstiltakHeader />}>
+      <Routes>
+        <Route path="oversikt" element={<NavArbeidsmarkedstiltakOversikt />} />
+        <Route
+          path="tiltak/:id"
+          element={<NavArbeidsmarkedstiltakViewTiltaksgjennomforingDetaljer />}
+        >
+          <Route path="oppskrifter/:oppskriftId/:tiltakstypeId" element={<Oppskrift />} />
+        </Route>
+        <Route path="*" element={<Navigate replace to="/nav/oversikt" />} />
+      </Routes>
+    </AppContainerOversiktView>
   );
 }

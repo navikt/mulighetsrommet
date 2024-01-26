@@ -1,21 +1,17 @@
-import { Alert, Loader } from "@navikt/ds-react";
+import { Alert } from "@navikt/ds-react";
 import { Innsatsgruppe, NavEnhetStatus, NavEnhetType } from "mulighetsrommet-api-client";
 import usePreviewTiltaksgjennomforingById from "../../core/api/queries/usePreviewTiltaksgjennomforingById";
 import ViewTiltaksgjennomforingDetaljer from "../ViewTiltaksgjennomforingDetaljer/ViewTiltaksgjennomforingDetaljer";
-import styles from "./PreviewView.module.scss";
 import Tilbakeknapp from "../../components/tilbakeknapp/Tilbakeknapp";
 import { DelMedBruker } from "../../components/delMedBruker/DelMedBruker";
+import { FilterLoader } from "../../components/FilterLoader";
 
 export function PreviewViewTiltaksgjennomforingDetaljer() {
   const { data, isLoading, isError } = usePreviewTiltaksgjennomforingById();
   const brukersInnsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS;
 
   if (isLoading) {
-    return (
-      <div className={styles.filter_loader}>
-        <Loader size="xlarge" title="Laster tiltaksgjennomføring..." />
-      </div>
-    );
+    return <FilterLoader />;
   }
 
   if (isError) {

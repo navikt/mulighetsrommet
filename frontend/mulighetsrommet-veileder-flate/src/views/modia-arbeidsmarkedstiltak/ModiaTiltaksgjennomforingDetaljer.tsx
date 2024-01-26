@@ -1,4 +1,4 @@
-import { Alert, Button, Loader } from "@navikt/ds-react";
+import { Alert, Button } from "@navikt/ds-react";
 import { useTitle } from "../../../../frontend-common";
 import { useHentBrukerdata } from "../../core/api/queries/useHentBrukerdata";
 import { useHentDeltMedBrukerStatus } from "../../core/api/queries/useHentDeltMedbrukerStatus";
@@ -22,6 +22,7 @@ import { useFeatureToggle } from "../../core/api/feature-toggles";
 import { NavVeileder, Tiltakskode, Toggles } from "mulighetsrommet-api-client";
 import { environments } from "../../env";
 import { DelMedBruker } from "../../components/delMedBruker/DelMedBruker";
+import { FilterLoader } from "../../components/FilterLoader";
 
 const whiteListOpprettAvtaleKnapp: Tiltakskode[] = [
   Tiltakskode.MIDLONTIL,
@@ -75,11 +76,7 @@ export function ModiaTiltaksgjennomforingDetaljer() {
   );
 
   if (isLoading) {
-    return (
-      <div className={styles.filter_loader}>
-        <Loader size="xlarge" />
-      </div>
-    );
+    return <FilterLoader />;
   }
 
   if (isError) {

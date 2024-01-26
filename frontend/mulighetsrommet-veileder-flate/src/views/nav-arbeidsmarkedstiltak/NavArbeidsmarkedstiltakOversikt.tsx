@@ -3,17 +3,16 @@ import Tiltaksgjennomforingsoversikt from "../../components/oversikt/Tiltaksgjen
 import { Feilmelding } from "../../components/feilmelding/Feilmelding";
 import { FilterAndTableLayout } from "../../components/filtrering/FilterAndTableLayout";
 import useTiltaksgjennomforinger from "../../core/api/queries/useTiltaksgjennomforinger";
-import { Filtertags } from "../../components/filtrering/Filtertags";
 import { FilterLoader } from "../../components/FilterLoader";
 
-export const PreviewOversikt = () => {
+export const NavArbeidsmarkedstiltakOversikt = () => {
   const { data: tiltaksgjennomforinger = [], isLoading } = useTiltaksgjennomforinger();
 
   return (
     <FilterAndTableLayout
       buttons={null}
       filter={<Filtermeny />}
-      tags={<Filtertags />}
+      tags={null}
       table={
         <div>
           {isLoading ? (
