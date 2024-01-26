@@ -9,8 +9,8 @@ import { FilterAndTableLayout } from "../../components/filtrering/FilterAndTable
 import Filtermeny from "../../components/filtrering/Filtermeny";
 import { Filtertags } from "../../components/filtrering/Filtertags";
 import { HistorikkButton } from "../../components/historikk/HistorikkButton";
-import { BrukerHarIkke14aVedtakVarsel } from "../../components/ikkeKvalifisertVarsel/BrukerHarIkke14aVedtakVarsel";
-import { FiltrertFeilInnsatsgruppeVarsel } from "../../components/ikkeKvalifisertVarsel/FiltrertFeilInnsatsgruppeVarsel";
+import { BrukerHarIkke14aVedtakVarsel } from "../../components/varsler/BrukerHarIkke14aVedtakVarsel";
+import { FiltrertFeilInnsatsgruppeVarsel } from "../../components/varsler/FiltrertFeilInnsatsgruppeVarsel";
 import { OversiktenJoyride } from "../../components/joyride/OversiktenJoyride";
 import Lenke from "../../components/lenke/Lenke";
 import Tiltaksgjennomforingsoversikt from "../../components/oversikt/Tiltaksgjennomforingsoversikt";
@@ -21,6 +21,7 @@ import { useHentBrukerdata } from "../../core/api/queries/useHentBrukerdata";
 import useTiltaksgjennomforinger from "../../core/api/queries/useTiltaksgjennomforinger";
 import { useResetArbeidsmarkedstiltakFilter } from "../../hooks/useArbeidsmarkedstiltakFilter";
 import styles from "../ViewTiltaksgjennomforingDetaljer/ViewTiltaksgjennomforingDetaljer.module.scss";
+import { ManglerInnsatsOgServicegruppeVarsel } from "../../components/varsler/ManglerInnsatsOgServiceGruppeVarsel";
 
 const ModiaViewTiltaksgjennomforingOversikt = () => {
   useTitle("Arbeidsmarkedstiltak - Oversikt");
@@ -146,6 +147,7 @@ const ModiaViewTiltaksgjennomforingOversikt = () => {
             <BrukersOppfolgingsenhetVarsel brukerdata={brukerdata} />
             <FiltrertFeilInnsatsgruppeVarsel filter={filter} />
             <BrukerHarIkke14aVedtakVarsel brukerdata={brukerdata} />
+            <ManglerInnsatsOgServicegruppeVarsel brukerdata={brukerdata} />
             {isLoading ? (
               <div className={styles.filter_loader}>
                 <Loader />

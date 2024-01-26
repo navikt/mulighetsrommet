@@ -5,6 +5,7 @@ import { Feilmelding } from "../../components/feilmelding/Feilmelding";
 import { FilterAndTableLayout } from "../../components/filtrering/FilterAndTableLayout";
 import useTiltaksgjennomforinger from "../../core/api/queries/useTiltaksgjennomforinger";
 import styles from "./PreviewView.module.scss";
+import { Filtertags } from "../../components/filtrering/Filtertags";
 
 export const PreviewOversikt = () => {
   const { data: tiltaksgjennomforinger = [], isLoading } = useTiltaksgjennomforinger();
@@ -13,7 +14,7 @@ export const PreviewOversikt = () => {
     <FilterAndTableLayout
       buttons={null}
       filter={<Filtermeny />}
-      tags={null}
+      tags={<Filtertags />}
       table={
         <div>
           {isLoading ? (
