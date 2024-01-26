@@ -22,10 +22,6 @@ const Filtermeny = () => {
         setSokefilter={(search: string) => setFilter({ ...filter, search })}
       />
       <Accordion>
-        <NavEnhetFilter
-          regionMapFilter={filter.regionMap}
-          setRegionMapFilter={(regionMap: RegionMap) => setFilter({ ...filter, regionMap })}
-        />
         <FilterToggle
           accordionHeader="Åpent for innsøk"
           value={filter.apentForInnsok}
@@ -45,6 +41,10 @@ const Filtermeny = () => {
           accordionIsOpenValue="apen-for-innsok"
         />
         <InnsatsgruppeFilter />
+        <NavEnhetFilter
+          regionMapFilter={filter.regionMap}
+          setRegionMapFilter={(regionMap: RegionMap) => setFilter({ ...filter, regionMap })}
+        />
         <Tiltakstypefilter />
       </Accordion>
     </div>

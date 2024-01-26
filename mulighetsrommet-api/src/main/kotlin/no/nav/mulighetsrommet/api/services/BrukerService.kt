@@ -48,6 +48,11 @@ class BrukerService(
                 } else {
                     null
                 },
+                if (sisteVedtak?.innsatsgruppe == null && oppfolgingsstatus?.servicegruppe == null) {
+                    BrukerVarsel.MANGLER_INNSATSGRUPPE_OG_SERVICEGRUPPE
+                } else {
+                    null
+                },
             ),
         )
     }
@@ -66,6 +71,7 @@ class BrukerService(
     enum class BrukerVarsel {
         LOKAL_OPPFOLGINGSENHET,
         MANGLER_14A_VEDTAK,
+        MANGLER_INNSATSGRUPPE_OG_SERVICEGRUPPE,
     }
 }
 
