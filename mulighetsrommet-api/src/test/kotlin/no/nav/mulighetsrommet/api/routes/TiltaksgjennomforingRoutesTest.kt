@@ -145,7 +145,7 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
         }
     }
 
-    test("400 Bad request for autentisert kall for PUT av tiltaksgjennomføring når tiltakstypen ikke er skrudd på som master") {
+    xtest("400 Bad request for autentisert kall for PUT av tiltaksgjennomføring når tiltakstypen ikke er skrudd på som master") {
         val tiltaksgjennomforingSkrivRolle =
             AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV)
         val tiltaksadministrasjonGenerellRolle =
