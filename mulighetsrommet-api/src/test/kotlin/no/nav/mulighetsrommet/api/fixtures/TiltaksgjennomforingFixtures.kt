@@ -35,7 +35,7 @@ object TiltaksgjennomforingFixtures {
         tiltaksnummer = "2023#1",
         arrangorOrganisasjonsnummer = "976663934",
         startDato = LocalDate.of(2023, 1, 1),
-        sluttDato = LocalDate.of(2023, 2, 1),
+        sluttDato = LocalDate.of(2026, 2, 1),
         apentForInnsok = true,
         antallPlasser = 12,
         administratorer = listOf(),
