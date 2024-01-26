@@ -64,7 +64,7 @@ class VeilederflateServiceTest : FunSpec({
                 "fylke": "0400",
                 "oppstart": null,
                 "oppstartsdato": null,
-                "enheter": ["0430"]
+                "enheter": null
             },
             {
                 "_id": "$sanityGjennomforingStorElvdal",
