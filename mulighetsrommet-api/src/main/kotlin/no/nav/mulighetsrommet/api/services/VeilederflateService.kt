@@ -174,9 +174,17 @@ class VeilederflateService(
             sanityGjennomforinger.map { toVeilederTiltaksgjennomforing(it, enheter) }
         }
 
+        val fylker = enheter.map {
+            navEnhetService.hentOverordnetFylkesenhet(it)?.enhetsnummer
+        }
+
         return (individuelleGjennomforinger + gruppeGjennomforinger)
             .filter {
-                it.enheter?.any { enhet -> enhet in enheter } ?: false
+                if (it.enheter.isNullOrEmpty()) {
+                    it.fylke in fylker
+                } else {
+                    it.enheter.any { enhet -> enhet in enheter }
+                }
             }
     }
 
