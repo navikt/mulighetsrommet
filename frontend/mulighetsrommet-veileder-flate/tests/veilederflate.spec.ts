@@ -38,7 +38,7 @@ test.describe("Tiltaksoversikt", () => {
     ).toContainText("Yoda");
   });
 
-  test("Skal vise 'Nullstill filter'-knapp når man filterer på innsatsgruppe", async ({
+  test("Skal vise 'Nullstill filter'-knapp når man filtrerer på innsatsgruppe", async ({
     page,
   }) => {
     await velgFilter(page, "standard-innsats");

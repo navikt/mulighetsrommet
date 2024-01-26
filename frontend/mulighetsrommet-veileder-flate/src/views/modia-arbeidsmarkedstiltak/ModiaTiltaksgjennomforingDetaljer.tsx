@@ -22,7 +22,6 @@ import { useFeatureToggle } from "../../core/api/feature-toggles";
 import { NavVeileder, Tiltakskode, Toggles } from "mulighetsrommet-api-client";
 import { environments } from "../../env";
 import { DelMedBruker } from "../../components/delMedBruker/DelMedBruker";
-import { formaterDato } from "../../utils/Utils";
 
 const whiteListOpprettAvtaleKnapp: Tiltakskode[] = [
   Tiltakskode.MIDLONTIL,
@@ -65,7 +64,7 @@ export function ModiaTiltaksgjennomforingDetaljer() {
     }`,
   );
   const { fnr } = useAppContext();
-  const { harDeltMedBruker } = useHentDeltMedBrukerStatus(fnr, tiltaksgjennomforing);
+  const { delMedBrukerInfo } = useHentDeltMedBrukerStatus(fnr, tiltaksgjennomforing);
   const { brukerHarRettPaaTiltak, innsatsgruppeForGjennomforing } = useBrukerHarRettPaaTiltak();
   const veilederdata = useHentVeilederdata();
   const brukerdata = useHentBrukerdata().data;
@@ -102,9 +101,6 @@ export function ModiaTiltaksgjennomforingDetaljer() {
   const opprettAvtale =
     !!tiltaksgjennomforing.tiltakstype?.arenakode &&
     tiltakstypeAsStringIsIndividuellTiltakstype(tiltaksgjennomforing.tiltakstype.arenakode);
-
-  const datoSidenSistDelt =
-    harDeltMedBruker && formaterDato(new Date(harDeltMedBruker.createdAt!!));
 
   return (
     <>
@@ -150,9 +146,7 @@ export function ModiaTiltaksgjennomforingDetaljer() {
               </Link>
             ) : null}
             <DelMedBruker
-              knappetekst={
-                harDeltMedBruker ? `Delt med bruker ${datoSidenSistDelt}` : "Del med bruker"
-              }
+              delMedBrukerInfo={delMedBrukerInfo}
               veiledernavn={resolveName(veilederdata.data)}
               brukerdata={brukerdata}
               tiltaksgjennomforing={tiltaksgjennomforing}
@@ -171,7 +165,7 @@ export function ModiaTiltaksgjennomforingDetaljer() {
                 seg mot elektronisk kommunikasjon
               </Alert>
             )}
-            {harDeltMedBruker && (
+            {delMedBrukerInfo && (
               <div className={styles.dialogknapp}>
                 <Button
                   size="small"
@@ -179,7 +173,7 @@ export function ModiaTiltaksgjennomforingDetaljer() {
                   onClick={(event) =>
                     byttTilDialogFlate({
                       event,
-                      dialogId: harDeltMedBruker.dialogId!!,
+                      dialogId: delMedBrukerInfo.dialogId,
                     })
                   }
                 >

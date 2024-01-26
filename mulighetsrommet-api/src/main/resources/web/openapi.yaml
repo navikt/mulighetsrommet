@@ -2534,6 +2534,10 @@ components:
           type: string
         updatedBy:
           type: string
+      required:
+        - norskIdent
+        - navident
+        - dialogId
 
     NavEnhet:
       type: object

@@ -37,7 +37,6 @@ export function PreviewViewTiltaksgjennomforingDetaljer() {
           <div>
             <DelMedBruker
               tiltaksgjennomforing={data}
-              knappetekst="Del med bruker"
               veiledernavn="{Veiledernavn}"
               brukerdata={{
                 fnr: "12345678910",

@@ -12,7 +12,7 @@ export function useHentDeltMedBrukerStatus(
   const { data: veilederData } = useHentVeilederdata();
   const id = tiltaksgjennomforing?.id ?? tiltaksgjennomforing?.sanityId;
 
-  const { data: sistDeltMedBruker, refetch: refetchDelMedBruker } = useQuery({
+  const { data: delMedBrukerInfo, refetch: refetchDelMedBruker } = useQuery({
     queryKey: [QueryKeys.DeltMedBrukerStatus, norskIdent, id],
     queryFn: async () => {
       const result = await mulighetsrommetClient.delMedBruker.getDelMedBruker({
@@ -31,7 +31,7 @@ export function useHentDeltMedBrukerStatus(
 
     const requestBody = {
       norskIdent,
-      navident: veilederData?.navIdent,
+      navident: veilederData.navIdent,
       sanityId: tiltaksgjennomforing.sanityId,
       tiltaksgjennomforingId: tiltaksgjennomforing.id,
       dialogId,
@@ -42,5 +42,5 @@ export function useHentDeltMedBrukerStatus(
     await refetchDelMedBruker();
   }
 
-  return { harDeltMedBruker: sistDeltMedBruker, lagreVeilederHarDeltTiltakMedBruker };
+  return { delMedBrukerInfo, lagreVeilederHarDeltTiltakMedBruker };
 }
