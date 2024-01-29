@@ -27,8 +27,8 @@ const KontaktinfoFane = ({ tiltaksgjennomforing }: Props) => {
         </BodyLong>
       )}
       <div className={styles.grid_container}>
-        <ArrangorInfo data={tiltaksgjennomforing} />
-        <NavKontaktpersonInfo data={tiltaksgjennomforing} />
+        <ArrangorInfo arrangor={tiltaksgjennomforing.arrangor} />
+        <NavKontaktpersonInfo kontaktinfo={tiltaksgjennomforing.kontaktinfo} />
       </div>
     </FaneTiltaksinformasjon>
   );

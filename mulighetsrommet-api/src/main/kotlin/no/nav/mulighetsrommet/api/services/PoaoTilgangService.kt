@@ -50,7 +50,7 @@ class PoaoTilgangService(
         }
     }
 
-    fun verfiyAccessToModia(navAnsattAzureId: UUID) {
+    fun verifyAccessToModia(navAnsattAzureId: UUID) {
         val access = CacheUtils.tryCacheFirstNotNull(tilgangCache, navAnsattAzureId.toString()) {
             client.evaluatePolicy(NavAnsattTilgangTilModiaPolicyInput(navAnsattAzureId)).getOrThrow().isPermit
         }

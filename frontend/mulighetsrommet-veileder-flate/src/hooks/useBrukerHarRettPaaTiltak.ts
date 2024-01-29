@@ -1,7 +1,6 @@
 import { Innsatsgruppe } from "mulighetsrommet-api-client";
 import { useHentBrukerdata } from "../core/api/queries/useHentBrukerdata";
-import { utledInnsatsgrupperFraInnsatsgruppe } from "../core/api/queries/useTiltaksgjennomforinger";
-import useTiltaksgjennomforingById from "../core/api/queries/useTiltaksgjennomforingById";
+import { useTiltaksgjennomforingById } from "../core/api/queries/useTiltaksgjennomforingById";
 
 export function useBrukerHarRettPaaTiltak() {
   const { data } = useTiltaksgjennomforingById();
@@ -21,4 +20,28 @@ export function useBrukerHarRettPaaTiltak() {
     brukersInnsatsgruppe,
     innsatsgruppeForGjennomforing,
   };
+}
+
+function utledInnsatsgrupperFraInnsatsgruppe(innsatsgruppe: string): Innsatsgruppe[] {
+  switch (innsatsgruppe) {
+    case "STANDARD_INNSATS":
+      return [Innsatsgruppe.STANDARD_INNSATS];
+    case "SITUASJONSBESTEMT_INNSATS":
+      return [Innsatsgruppe.STANDARD_INNSATS, Innsatsgruppe.SITUASJONSBESTEMT_INNSATS];
+    case "SPESIELT_TILPASSET_INNSATS":
+      return [
+        Innsatsgruppe.STANDARD_INNSATS,
+        Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
+        Innsatsgruppe.SPESIELT_TILPASSET_INNSATS,
+      ];
+    case "VARIG_TILPASSET_INNSATS":
+      return [
+        Innsatsgruppe.STANDARD_INNSATS,
+        Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
+        Innsatsgruppe.SPESIELT_TILPASSET_INNSATS,
+        Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+      ];
+    default:
+      return [];
+  }
 }

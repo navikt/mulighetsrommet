@@ -2,18 +2,17 @@ import Filtermeny from "../../components/filtrering/Filtermeny";
 import Tiltaksgjennomforingsoversikt from "../../components/oversikt/Tiltaksgjennomforingsoversikt";
 import { Feilmelding } from "../../components/feilmelding/Feilmelding";
 import { FilterAndTableLayout } from "../../components/filtrering/FilterAndTableLayout";
-import { useTiltaksgjennomforinger } from "../../core/api/queries/useTiltaksgjennomforinger";
-import { Filtertags } from "../../components/filtrering/Filtertags";
+import { useNavTiltaksgjennomforinger } from "../../core/api/queries/useTiltaksgjennomforinger";
 import { TiltakLoader } from "../../components/TiltakLoader";
 
-export const PreviewOversikt = () => {
-  const { data: tiltaksgjennomforinger = [], isLoading } = useTiltaksgjennomforinger();
+export const NavArbeidsmarkedstiltakOversikt = () => {
+  const { data: tiltaksgjennomforinger = [], isLoading } = useNavTiltaksgjennomforinger();
 
   return (
     <FilterAndTableLayout
       buttons={null}
       filter={<Filtermeny />}
-      tags={<Filtertags />}
+      tags={null}
       table={
         <div>
           {isLoading ? (

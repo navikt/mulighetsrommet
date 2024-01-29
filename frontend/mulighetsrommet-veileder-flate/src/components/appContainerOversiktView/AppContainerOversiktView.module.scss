@@ -1,0 +1,11 @@
+.app_container {
+  background-color: var(--a-bg-subtle);
+  min-height: 100dvh;
+  .app_content {
+    max-width: 1920px;
+    margin: 0 auto;
+    scroll-behavior: smooth;
+    width: 100%;
+    padding: 12px 0.5rem;
+  }
+}

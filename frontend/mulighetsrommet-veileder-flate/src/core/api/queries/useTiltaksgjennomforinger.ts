@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { GetTiltaksgjennomforingerRequest, Innsatsgruppe } from "mulighetsrommet-api-client";
+import { GetTiltaksgjennomforingerRequest } from "mulighetsrommet-api-client";
 import { mulighetsrommetClient } from "../clients";
 import { QueryKeys } from "../query-keys";
 import {
@@ -7,9 +7,28 @@ import {
   valgteEnhetsnumre,
 } from "../../../hooks/useArbeidsmarkedstiltakFilter";
 
-export default function useTiltaksgjennomforinger() {
-  const filter = useArbeidsmarkedstiltakFilterValue();
+export function useTiltaksgjennomforinger() {
+  return useGetTiltaksgjennomforinger(
+    mulighetsrommetClient.veilederTiltak.getVeilederTiltaksgjennomforinger,
+  );
+}
 
+export function useNavTiltaksgjennomforinger() {
+  return useGetTiltaksgjennomforinger(
+    mulighetsrommetClient.veilederTiltak.getNavTiltaksgjennomforinger,
+  );
+}
+
+export function usePreviewTiltaksgjennomforinger() {
+  return useGetTiltaksgjennomforinger(
+    mulighetsrommetClient.veilederTiltak.getPreviewTiltaksgjennomforinger,
+  );
+}
+
+function useGetTiltaksgjennomforinger(
+  queryFn: typeof mulighetsrommetClient.veilederTiltak.getVeilederTiltaksgjennomforinger,
+) {
+  const filter = useArbeidsmarkedstiltakFilterValue();
   const requestBody: GetTiltaksgjennomforingerRequest = {
     enheter: valgteEnhetsnumre(filter),
     innsatsgruppe: filter.innsatsgruppe?.nokkel,
@@ -26,33 +45,6 @@ export default function useTiltaksgjennomforinger() {
 
   return useQuery({
     queryKey: QueryKeys.sanity.tiltaksgjennomforinger(filter),
-    queryFn: () =>
-      mulighetsrommetClient.veilederTiltak.getVeilederTiltaksgjennomforinger({
-        requestBody,
-      }),
+    queryFn: queryFn.bind(mulighetsrommetClient.veilederTiltak, { requestBody }),
   });
-}
-
-export function utledInnsatsgrupperFraInnsatsgruppe(innsatsgruppe: string): Innsatsgruppe[] {
-  switch (innsatsgruppe) {
-    case "STANDARD_INNSATS":
-      return [Innsatsgruppe.STANDARD_INNSATS];
-    case "SITUASJONSBESTEMT_INNSATS":
-      return [Innsatsgruppe.STANDARD_INNSATS, Innsatsgruppe.SITUASJONSBESTEMT_INNSATS];
-    case "SPESIELT_TILPASSET_INNSATS":
-      return [
-        Innsatsgruppe.STANDARD_INNSATS,
-        Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
-        Innsatsgruppe.SPESIELT_TILPASSET_INNSATS,
-      ];
-    case "VARIG_TILPASSET_INNSATS":
-      return [
-        Innsatsgruppe.STANDARD_INNSATS,
-        Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
-        Innsatsgruppe.SPESIELT_TILPASSET_INNSATS,
-        Innsatsgruppe.VARIG_TILPASSET_INNSATS,
-      ];
-    default:
-      return [];
-  }
 }

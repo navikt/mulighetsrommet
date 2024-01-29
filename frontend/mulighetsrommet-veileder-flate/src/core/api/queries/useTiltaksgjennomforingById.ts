@@ -7,7 +7,7 @@ import {
   valgteEnhetsnumre,
 } from "../../../hooks/useArbeidsmarkedstiltakFilter";
 
-export default function useTiltaksgjennomforingById() {
+export function useTiltaksgjennomforingById() {
   const id = useGetTiltaksgjennomforingIdFraUrl();
   const filter = useArbeidsmarkedstiltakFilterValue();
 
@@ -17,5 +17,30 @@ export default function useTiltaksgjennomforingById() {
     queryKey: QueryKeys.sanity.tiltaksgjennomforing(id),
     queryFn: () =>
       mulighetsrommetClient.veilederTiltak.getVeilederTiltaksgjennomforing({ requestBody }),
+  });
+}
+
+export function useNavTiltaksgjennomforingById() {
+  const id = useGetTiltaksgjennomforingIdFraUrl();
+
+  return useQuery({
+    queryKey: QueryKeys.sanity.tiltaksgjennomforing(id),
+    queryFn: () =>
+      mulighetsrommetClient.veilederTiltak.getNavTiltaksgjennomforing({
+        requestBody: { id },
+      }),
+  });
+}
+
+export function usePreviewTiltaksgjennomforingById() {
+  const id = useGetTiltaksgjennomforingIdFraUrl();
+  const filter = useArbeidsmarkedstiltakFilterValue();
+
+  return useQuery({
+    queryKey: QueryKeys.sanity.tiltaksgjennomforingPreview(id),
+    queryFn: () =>
+      mulighetsrommetClient.veilederTiltak.getPreviewTiltaksgjennomforing({
+        requestBody: { id, enheter: valgteEnhetsnumre(filter) },
+      }),
   });
 }

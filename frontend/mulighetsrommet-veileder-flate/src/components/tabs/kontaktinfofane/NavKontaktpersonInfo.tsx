@@ -1,7 +1,8 @@
 import { Alert, BodyShort, Button, Heading, Modal } from "@navikt/ds-react";
 import {
+  KontaktinfoVarsel,
+  VeilederflateKontaktInfo,
   VeilederflateKontaktinfoTiltaksansvarlig,
-  VeilederflateTiltaksgjennomforing,
 } from "mulighetsrommet-api-client";
 import { RefObject, useRef } from "react";
 import styles from "./Kontaktinfo.module.scss";
@@ -9,16 +10,21 @@ import styles from "./Kontaktinfo.module.scss";
 const TEAMS_DYPLENKE = "https://teams.microsoft.com/l/chat/0/0?users=";
 
 interface NavKontaktpersonInfoProps {
-  data: VeilederflateTiltaksgjennomforing;
+  kontaktinfo?: VeilederflateKontaktInfo;
 }
 
-const NavKontaktpersonInfo = ({ data }: NavKontaktpersonInfoProps) => {
-  const { kontaktinfoTiltaksansvarlige: tiltaksansvarlige } = data;
+const NavKontaktpersonInfo = ({ kontaktinfo }: NavKontaktpersonInfoProps) => {
   const modalRef = useRef<HTMLDialogElement>(null);
+
+  if (!kontaktinfo) return null;
+
+  const { tiltaksansvarlige, varsler } = kontaktinfo;
 
   return (
     <div className={styles.tiltaksansvarlig_info}>
-      {tiltaksansvarlige?.length === 0 || !tiltaksansvarlige ? (
+      {varsler.includes(KontaktinfoVarsel.IKKE_TILGANG_TIL_KONTAKTINFO) ? (
+        <Alert variant="info">På grunn av personvern kan ikke kontaktinformasjonen vises</Alert>
+      ) : tiltaksansvarlige.length === 0 ? (
         <Alert variant="info">Kontaktinfo til tiltaksansvarlig er ikke lagt inn</Alert>
       ) : (
         <>

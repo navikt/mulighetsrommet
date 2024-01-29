@@ -1,9 +1,9 @@
-import { Alert, Button, Loader } from "@navikt/ds-react";
+import { Alert, Button } from "@navikt/ds-react";
 import { useTitle } from "../../../../frontend-common";
 import { useHentBrukerdata } from "../../core/api/queries/useHentBrukerdata";
 import { useHentDeltMedBrukerStatus } from "../../core/api/queries/useHentDeltMedbrukerStatus";
 import { useHentVeilederdata } from "../../core/api/queries/useHentVeilederdata";
-import useTiltaksgjennomforingById from "../../core/api/queries/useTiltaksgjennomforingById";
+import { useTiltaksgjennomforingById } from "../../core/api/queries/useTiltaksgjennomforingById";
 import { useBrukerHarRettPaaTiltak } from "../../hooks/useBrukerHarRettPaaTiltak";
 import { useAppContext } from "../../hooks/useAppContext";
 import ViewTiltaksgjennomforingDetaljer from "../ViewTiltaksgjennomforingDetaljer/ViewTiltaksgjennomforingDetaljer";
@@ -22,6 +22,7 @@ import { useFeatureToggle } from "../../core/api/feature-toggles";
 import { NavVeileder, Tiltakskode, Toggles } from "mulighetsrommet-api-client";
 import { environments } from "../../env";
 import { DelMedBruker } from "../../components/delMedBruker/DelMedBruker";
+import { TiltakLoader } from "../../components/TiltakLoader";
 
 const whiteListOpprettAvtaleKnapp: Tiltakskode[] = [
   Tiltakskode.MIDLONTIL,
@@ -75,11 +76,7 @@ export function ModiaTiltaksgjennomforingDetaljer() {
   );
 
   if (isLoading) {
-    return (
-      <div className={styles.filter_loader}>
-        <Loader size="xlarge" />
-      </div>
-    );
+    return <TiltakLoader />;
   }
 
   if (isError) {

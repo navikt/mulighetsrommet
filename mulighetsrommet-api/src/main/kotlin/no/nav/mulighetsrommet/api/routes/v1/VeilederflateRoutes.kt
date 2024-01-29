@@ -9,9 +9,7 @@ import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.clients.sanity.SanityPerspective
-import no.nav.mulighetsrommet.api.domain.dto.Oppskrift
-import no.nav.mulighetsrommet.api.domain.dto.Oppskrifter
-import no.nav.mulighetsrommet.api.domain.dto.VeilederflateTiltaksgjennomforing
+import no.nav.mulighetsrommet.api.domain.dto.*
 import no.nav.mulighetsrommet.api.plugins.getNavAnsattAzureId
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
 import no.nav.mulighetsrommet.api.services.VeilederflateService
@@ -25,7 +23,7 @@ fun Route.veilederflateRoutes() {
 
     route("/api/v1/internal/veileder") {
         get("/innsatsgrupper") {
-            poaoTilgangService.verfiyAccessToModia(getNavAnsattAzureId())
+            poaoTilgangService.verifyAccessToModia(getNavAnsattAzureId())
 
             val innsatsgrupper = veilederflateService.hentInnsatsgrupper()
 
@@ -33,7 +31,7 @@ fun Route.veilederflateRoutes() {
         }
 
         get("/tiltakstyper") {
-            poaoTilgangService.verfiyAccessToModia(getNavAnsattAzureId())
+            poaoTilgangService.verifyAccessToModia(getNavAnsattAzureId())
 
             val tiltakstyper = veilederflateService.hentTiltakstyper()
 
@@ -41,6 +39,8 @@ fun Route.veilederflateRoutes() {
         }
 
         post("/tiltaksgjennomforinger") {
+            poaoTilgangService.verifyAccessToModia(getNavAnsattAzureId())
+
             val request = call.receive<GetTiltaksgjennomforingerRequest>()
             val enheter = request.enheter.toNonEmptyListOrNull()
                 ?: return@post call.respond(emptyList<VeilederflateTiltaksgjennomforing>())
@@ -57,6 +57,8 @@ fun Route.veilederflateRoutes() {
         }
 
         post("/tiltaksgjennomforing") {
+            poaoTilgangService.verifyAccessToModia(getNavAnsattAzureId())
+
             val request = call.receive<GetTiltaksgjennomforingRequest>()
             val enheter = request.enheter.toNonEmptyListOrNull()
                 ?: return@post call.respond(HttpStatusCode.NotFound)
@@ -84,6 +86,47 @@ fun Route.veilederflateRoutes() {
                 veilederflateService.hentOppskrifterForTiltakstype(tiltakstypeId, perspective)
             call.respond(Oppskrifter(data = oppskrifter))
         }
+
+        route("/nav") {
+            fun utenKontaktInfo(gjennomforing: VeilederflateTiltaksgjennomforing): VeilederflateTiltaksgjennomforing {
+                val arrangor = gjennomforing.arrangor?.copy(kontaktperson = null)
+                return gjennomforing.copy(
+                    arrangor = arrangor,
+                    kontaktinfoTiltaksansvarlige = emptyList(),
+                    kontaktinfo = VeilederflateKontaktinfo(
+                        varsler = listOf(KontaktinfoVarsel.IKKE_TILGANG_TIL_KONTAKTINFO),
+                        tiltaksansvarlige = emptyList(),
+                    ),
+                )
+            }
+
+            post("/tiltaksgjennomforinger") {
+                val request = call.receive<GetTiltaksgjennomforingerRequest>()
+                val enheter = request.enheter.toNonEmptyListOrNull()
+                    ?: return@post call.respond(emptyList<VeilederflateTiltaksgjennomforing>())
+
+                val result = veilederflateService.hentTiltaksgjennomforinger(
+                    enheter = enheter,
+                    innsatsgruppe = request.innsatsgruppe,
+                    tiltakstypeIds = request.tiltakstypeIds,
+                    search = request.search,
+                    apentForInnsok = request.apentForInnsok,
+                ).map { utenKontaktInfo(it) }
+
+                call.respond(result)
+            }
+
+            post("/tiltaksgjennomforing") {
+                val request = call.receive<GetNavTiltaksgjennomforingRequest>()
+                val result = veilederflateService.hentTiltaksgjennomforing(
+                    request.id,
+                    enheter = emptyList(),
+                    SanityPerspective.PUBLISHED,
+                ).let { utenKontaktInfo(it) }
+
+                call.respond(result)
+            }
+        }
     }
 }
 
@@ -105,6 +148,12 @@ enum class ApentForInnsok {
 @Serializable
 data class GetTiltaksgjennomforingRequest(
     val enheter: List<String>,
+    @Serializable(with = UUIDSerializer::class)
+    val id: UUID,
+)
+
+@Serializable
+data class GetNavTiltaksgjennomforingRequest(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
 )

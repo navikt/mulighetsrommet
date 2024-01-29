@@ -18,10 +18,10 @@ import Tilbakeknapp from "../../components/tilbakeknapp/Tilbakeknapp";
 import { useFeatureToggle } from "../../core/api/feature-toggles";
 import { useHentAlleTiltakDeltMedBruker } from "../../core/api/queries/useHentAlleTiltakDeltMedBruker";
 import { useHentBrukerdata } from "../../core/api/queries/useHentBrukerdata";
-import useTiltaksgjennomforinger from "../../core/api/queries/useTiltaksgjennomforinger";
 import { useResetArbeidsmarkedstiltakFilter } from "../../hooks/useArbeidsmarkedstiltakFilter";
 import styles from "../ViewTiltaksgjennomforingDetaljer/ViewTiltaksgjennomforingDetaljer.module.scss";
 import { ManglerInnsatsOgServicegruppeVarsel } from "../../components/varsler/ManglerInnsatsOgServiceGruppeVarsel";
+import { useTiltaksgjennomforinger } from "../../core/api/queries/useTiltaksgjennomforinger";
 
 const ModiaViewTiltaksgjennomforingOversikt = () => {
   useTitle("Arbeidsmarkedstiltak - Oversikt");

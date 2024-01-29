@@ -1,14 +1,12 @@
 import { BodyShort, Heading } from "@navikt/ds-react";
-import { VeilederflateTiltaksgjennomforing } from "mulighetsrommet-api-client";
+import { VeilderflateArrangor } from "mulighetsrommet-api-client";
 import styles from "./Kontaktinfo.module.scss";
 
 interface ArrangorInfoProps {
-  data: VeilederflateTiltaksgjennomforing;
+  arrangor?: VeilderflateArrangor;
 }
 
-const ArrangorInfo = ({ data }: ArrangorInfoProps) => {
-  const { arrangor } = data;
-
+const ArrangorInfo = ({ arrangor }: ArrangorInfoProps) => {
   if (!arrangor) {
     return null;
   }
