@@ -45,6 +45,7 @@ data class SanityTiltaksgjennomforing(
     val enheter: List<String?>? = null,
     val kontaktpersoner: List<SanityKontaktperson>? = null,
     val faneinnhold: Faneinnhold? = null,
+    val delingMedBruker: String? = null,
 )
 
 @Serializable

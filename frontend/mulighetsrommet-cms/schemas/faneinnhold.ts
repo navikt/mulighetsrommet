@@ -29,10 +29,6 @@ export const faneinnhold = defineType({
       name: "kontaktinfo",
       title: "Kontaktinfo",
     },
-    {
-      name: "delMedBruker",
-      title: "Del med bruker",
-    },
   ],
   fields: [
     defineField({
@@ -130,15 +126,6 @@ export const faneinnhold = defineType({
             "Innholdet er for langt. Kan innholdet være kortere og mer konsist?"
           )
         ),
-    }),
-    defineField({
-      name: "delMedBruker",
-      title:
-        'Del med bruker tekst',
-      description:
-        'Teksten som deles med bruker ved `Del med bruker` knapp. Standard tekst fra tiltakstype brukes hvis ikke utfyllt.',
-      ...infoboksOptions,
-      group: "delMedBruker",
     }),
   ],
 });

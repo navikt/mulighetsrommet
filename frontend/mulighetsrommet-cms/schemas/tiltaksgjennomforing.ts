@@ -268,6 +268,12 @@ export const tiltaksgjennomforing = defineType({
       title: "Faneinnhold",
       type: "faneinnhold",
     }),
+    defineField({
+      name: "delingMedBruker",
+      title: "Informasjon som kan deles med bruker",
+      description: "Informasjon om tiltaket som veileder kan dele med bruker. Standard tekst fra tiltakstype brukes hvis ikke utfyllt.",
+      type: "text",
+    }),
   ],
   orderings: [
     {
