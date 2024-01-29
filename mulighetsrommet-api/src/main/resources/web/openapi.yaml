@@ -2838,6 +2838,8 @@ components:
           type: string
         stengtTil:
           type: string
+        kontaktinfo:
+          $ref: "#/components/schemas/VeilederflateKontaktInfo"
       required:
         - navn
         - tiltakstype
@@ -2907,6 +2909,26 @@ components:
         delMedBruker:
           type: string
           nullable: true
+
+    VeilederflateKontaktInfo:
+      type: object
+      properties:
+        varsler:
+          type: array
+          items:
+            $ref: "#/components/schemas/KontaktinfoVarsel"
+        tiltaksansvarlige:
+          type: array
+          items:
+            $ref: "#/components/schemas/VeilederflateKontaktinfoTiltaksansvarlig"
+      required:
+        - varsler
+        - tiltaksansvarlige
+
+    KontaktinfoVarsel:
+      type: string
+      enum:
+        - IKKE_TILGANG_TIL_KONTAKTINFO
 
     VeilderflateArrangor:
       type: object

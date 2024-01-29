@@ -11,8 +11,6 @@ interface Props {
 }
 
 const KontaktinfoFane = ({ tiltaksgjennomforing }: Props) => {
-  const { kontaktinfoTiltaksansvarlige: tiltaksansvarlige } = tiltaksgjennomforing;
-
   return (
     <FaneTiltaksinformasjon
       harInnhold={!!tiltaksgjennomforing}
@@ -28,16 +26,10 @@ const KontaktinfoFane = ({ tiltaksgjennomforing }: Props) => {
           <RedaksjoneltInnhold value={tiltaksgjennomforing.faneinnhold?.kontaktinfo} />
         </BodyLong>
       )}
-      {(tiltaksansvarlige?.length === 0 || !tiltaksansvarlige) && !tiltaksgjennomforing.arrangor ? (
-        <Alert variant="info">Kontaktinfo er ikke tilgjengeliggjort</Alert>
-      ) : (
-        <div className={styles.grid_container}>
-          <ArrangorInfo arrangor={tiltaksgjennomforing.arrangor} />
-          <NavKontaktpersonInfo
-            tiltaksansvarlige={tiltaksgjennomforing.kontaktinfoTiltaksansvarlige}
-          />
-        </div>
-      )}
+      <div className={styles.grid_container}>
+        <ArrangorInfo arrangor={tiltaksgjennomforing.arrangor} />
+        <NavKontaktpersonInfo kontaktinfo={tiltaksgjennomforing.kontaktinfo} />
+      </div>
     </FaneTiltaksinformasjon>
   );
 };

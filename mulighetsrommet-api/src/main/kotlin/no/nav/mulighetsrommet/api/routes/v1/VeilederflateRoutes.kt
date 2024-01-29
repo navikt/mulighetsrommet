@@ -9,9 +9,7 @@ import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.clients.sanity.SanityPerspective
-import no.nav.mulighetsrommet.api.domain.dto.Oppskrift
-import no.nav.mulighetsrommet.api.domain.dto.Oppskrifter
-import no.nav.mulighetsrommet.api.domain.dto.VeilederflateTiltaksgjennomforing
+import no.nav.mulighetsrommet.api.domain.dto.*
 import no.nav.mulighetsrommet.api.plugins.getNavAnsattAzureId
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
 import no.nav.mulighetsrommet.api.services.VeilederflateService
@@ -91,7 +89,15 @@ fun Route.veilederflateRoutes() {
 
         route("/nav") {
             fun utenKontaktInfo(gjennomforing: VeilederflateTiltaksgjennomforing): VeilederflateTiltaksgjennomforing {
-                return gjennomforing.copy(arrangor = null, kontaktinfoTiltaksansvarlige = emptyList())
+                val arrangor = gjennomforing.arrangor?.copy(kontaktperson = null)
+                return gjennomforing.copy(
+                    arrangor = arrangor,
+                    kontaktinfoTiltaksansvarlige = emptyList(),
+                    kontaktinfo = VeilederflateKontaktinfo(
+                        varsler = listOf(KontaktinfoVarsel.IKKE_TILGANG_TIL_KONTAKTINFO),
+                        tiltaksansvarlige = emptyList(),
+                    ),
+                )
             }
 
             post("/tiltaksgjennomforinger") {

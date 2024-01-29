@@ -44,6 +44,7 @@ data class VeilederflateTiltaksgjennomforing(
     val enheter: List<String>? = emptyList(),
     val beskrivelse: String? = null,
     val faneinnhold: Faneinnhold? = null,
+    val kontaktinfo: VeilederflateKontaktinfo? = null,
 )
 
 @Serializable
@@ -54,6 +55,16 @@ data class VeilederflateKontaktinfoTiltaksansvarlig(
     val epost: String? = null,
     val beskrivelse: String? = null,
 )
+
+@Serializable
+data class VeilederflateKontaktinfo(
+    val varsler: List<KontaktinfoVarsel>,
+    val tiltaksansvarlige: List<VeilederflateKontaktinfoTiltaksansvarlig>,
+)
+
+enum class KontaktinfoVarsel {
+    IKKE_TILGANG_TIL_KONTAKTINFO,
+}
 
 @Serializable
 data class VeilederflateTiltakstype(

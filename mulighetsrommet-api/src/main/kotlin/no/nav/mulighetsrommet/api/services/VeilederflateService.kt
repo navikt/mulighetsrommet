@@ -314,6 +314,10 @@ class VeilederflateService(
                 beskrivelse = beskrivelse,
                 oppstart = TiltaksgjennomforingOppstartstype.LOPENDE,
                 tiltaksnummer = tiltaksnummer ?: "",
+                kontaktinfo = VeilederflateKontaktinfo(
+                    varsler = emptyList(),
+                    tiltaksansvarlige = kontaktpersoner,
+                ),
             )
         }
     }
@@ -356,6 +360,10 @@ class VeilederflateService(
                 enheter = apiGjennomforing.navEnheter.map { it.enhetsnummer },
                 beskrivelse = apiGjennomforing.beskrivelse ?: beskrivelse,
                 faneinnhold = faneinnhold,
+                kontaktinfo = VeilederflateKontaktinfo(
+                    varsler = emptyList(),
+                    tiltaksansvarlige = kontaktpersoner,
+                ),
             )
         }
     }
