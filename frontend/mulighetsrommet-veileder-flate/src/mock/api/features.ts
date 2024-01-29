@@ -1,7 +1,6 @@
 import { Features } from "../../core/api/feature-toggles";
 
 export const mockFeatures: Features = {
-  "mulighetsrommet.admin-flate-opprett-tiltaksgjennomforing": false,
   "mulighetsrommet.veilederflate.visDeltakerRegistrering": true,
   "mulighetsrommet-veilederflate-landingsside": false,
   "mulighetsrommet-veilederflate-arena-oppskrifter": true,

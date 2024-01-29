@@ -1,14 +1,13 @@
 import { Button } from "@navikt/ds-react";
 import { useAtom, WritableAtom } from "jotai";
-import { Avtalestatus, Opphav, Toggles } from "mulighetsrommet-api-client";
+import { Avtalestatus, Opphav } from "mulighetsrommet-api-client";
 import { useState } from "react";
 import { defaultTiltaksgjennomforingfilter, TiltaksgjennomforingFilter } from "../../api/atoms";
 import { useAvtale } from "../../api/avtaler/useAvtale";
-import { useFeatureToggle } from "../../api/features/feature-toggles";
 import { inneholderUrl } from "../../utils/Utils";
+import { HarSkrivetilgang } from "../authActions/HarSkrivetilgang";
 import { Lenkeknapp } from "../lenkeknapp/Lenkeknapp";
 import { LeggTilGjennomforingModal } from "../modal/LeggTilGjennomforingModal";
-import { HarSkrivetilgang } from "../authActions/HarSkrivetilgang";
 
 interface Props {
   filterAtom: WritableAtom<
@@ -23,11 +22,7 @@ export function TiltaksgjennomforingFilterButtons({ filterAtom }: Props) {
   const { data: avtale } = useAvtale();
   const [modalOpen, setModalOpen] = useState<boolean>(false);
 
-  const { data: opprettGjennomforingIsEnabled } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_ADMIN_FLATE_OPPRETT_TILTAKSGJENNOMFORING,
-  );
-  const visOpprettTiltaksgjennomforingKnapp =
-    opprettGjennomforingIsEnabled && inneholderUrl("/avtaler/");
+  const visOpprettTiltaksgjennomforingKnapp = inneholderUrl("/avtaler/");
 
   const avtaleErOpprettetIAdminFlate = avtale?.opphav === Opphav.MR_ADMIN_FLATE;
   const avtalenErAktiv = avtale?.avtalestatus === Avtalestatus.AKTIV;
