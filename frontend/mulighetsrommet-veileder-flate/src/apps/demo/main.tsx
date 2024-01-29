@@ -1,18 +1,15 @@
-import "../polyfill";
 import { createRoot } from "react-dom/client";
-import { APPLICATION_NAME } from "../constants";
-import {
-  ModiaArbeidsmarkedstiltak,
-  NavArbeidsmarkedstiltak,
-  PreviewArbeidsmarkedstiltak,
-} from "../App";
-import { AppContext } from "../AppContext";
+import { APPLICATION_NAME } from "../../constants";
+import { AppContext } from "../../AppContext";
 import { ErrorBoundary } from "react-error-boundary";
-import { ErrorFallback } from "../utils/ErrorFallback";
+import { ErrorFallback } from "../../utils/ErrorFallback";
 import { BrowserRouter as Router, Link, Route, Routes } from "react-router-dom";
+import { NavArbeidsmarkedstiltak } from "../nav/NavArbeidsmarkedstiltak";
+import { PreviewArbeidsmarkedstiltak } from "../preview/PreviewArbeidsmarkedstiltak";
+import { ModiaArbeidsmarkedstiltak } from "../modia/ModiaArbeidsmarkedstiltak";
 
 if (import.meta.env.VITE_MULIGHETSROMMET_API_MOCK === "true") {
-  import("../mock/worker")
+  import("../../mock/worker")
     .then(({ initializeMockServiceWorker }) => {
       return initializeMockServiceWorker();
     })

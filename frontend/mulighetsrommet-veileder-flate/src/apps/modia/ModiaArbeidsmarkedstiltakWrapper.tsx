@@ -1,14 +1,14 @@
-import createCache from "@emotion/cache";
+import { APPLICATION_WEB_COMPONENT_NAME } from "../../constants";
+import { BrowserRouter as Router, Navigate, Route, Routes } from "react-router-dom";
 import { createRoot, Root } from "react-dom/client";
 import urlJoin from "url-join";
-import { ModiaArbeidsmarkedstiltak } from "./App";
-import { AppContext } from "./AppContext";
+import { headers } from "../../core/api/headers";
+import createCache from "@emotion/cache";
 import { CustomEmotionCacheProvider } from "./CustomEmotionCacheProvider";
-import { APPLICATION_WEB_COMPONENT_NAME } from "./constants";
-import { headers } from "./core/api/headers";
+import { AppContext } from "../../AppContext";
 import { ErrorBoundary } from "react-error-boundary";
-import { ErrorFallback } from "./utils/ErrorFallback";
-import { BrowserRouter as Router, Navigate, Route, Routes } from "react-router-dom";
+import { ErrorFallback } from "../../utils/ErrorFallback";
+import { ModiaArbeidsmarkedstiltak } from "./ModiaArbeidsmarkedstiltak";
 
 interface ViteAssetManifest {
   "index.html": {
@@ -16,7 +16,7 @@ interface ViteAssetManifest {
   };
 }
 
-export class Arbeidsmarkedstiltak extends HTMLElement {
+export class ModiaArbeidsmarkedstiltakWrapper extends HTMLElement {
   static FNR_PROP = "data-fnr";
   static ENHET_PROP = "data-enhet";
 
@@ -32,7 +32,7 @@ export class Arbeidsmarkedstiltak extends HTMLElement {
   }
 
   static get observedAttributes() {
-    return [Arbeidsmarkedstiltak.FNR_PROP, Arbeidsmarkedstiltak.ENHET_PROP];
+    return [ModiaArbeidsmarkedstiltakWrapper.FNR_PROP, ModiaArbeidsmarkedstiltakWrapper.ENHET_PROP];
   }
 
   /**
@@ -51,8 +51,8 @@ export class Arbeidsmarkedstiltak extends HTMLElement {
 
     this.loadStyles(shadowRoot)
       .then(() => {
-        const fnr = this.getAttribute(Arbeidsmarkedstiltak.FNR_PROP) ?? undefined;
-        const enhet = this.getAttribute(Arbeidsmarkedstiltak.ENHET_PROP) ?? undefined;
+        const fnr = this.getAttribute(ModiaArbeidsmarkedstiltakWrapper.FNR_PROP) ?? undefined;
+        const enhet = this.getAttribute(ModiaArbeidsmarkedstiltakWrapper.ENHET_PROP) ?? undefined;
         this.renderApp(fnr, enhet);
       })
       .catch((error) => {
@@ -65,9 +65,9 @@ export class Arbeidsmarkedstiltak extends HTMLElement {
   }
 
   attributeChangedCallback(name: string, _oldValue: string, newValue: string) {
-    if (name === Arbeidsmarkedstiltak.FNR_PROP && this.updateContextData) {
+    if (name === ModiaArbeidsmarkedstiltakWrapper.FNR_PROP && this.updateContextData) {
       this.updateContextData("fnr", newValue);
-    } else if (name === Arbeidsmarkedstiltak.ENHET_PROP && this.updateContextData) {
+    } else if (name === ModiaArbeidsmarkedstiltakWrapper.ENHET_PROP && this.updateContextData) {
       this.updateContextData("enhet", newValue);
     }
   }
