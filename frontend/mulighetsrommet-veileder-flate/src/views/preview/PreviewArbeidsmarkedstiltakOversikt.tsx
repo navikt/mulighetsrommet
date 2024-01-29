@@ -2,12 +2,12 @@ import Filtermeny from "../../components/filtrering/Filtermeny";
 import Tiltaksgjennomforingsoversikt from "../../components/oversikt/Tiltaksgjennomforingsoversikt";
 import { Feilmelding } from "../../components/feilmelding/Feilmelding";
 import { FilterAndTableLayout } from "../../components/filtrering/FilterAndTableLayout";
-import { useTiltaksgjennomforinger } from "../../core/api/queries/useTiltaksgjennomforinger";
+import { usePreviewTiltaksgjennomforinger } from "../../core/api/queries/useTiltaksgjennomforinger";
 import { Filtertags } from "../../components/filtrering/Filtertags";
 import { TiltakLoader } from "../../components/TiltakLoader";
 
 export const PreviewArbeidsmarkedstiltakOversikt = () => {
-  const { data: tiltaksgjennomforinger = [], isLoading } = useTiltaksgjennomforinger();
+  const { data: tiltaksgjennomforinger = [], isLoading } = usePreviewTiltaksgjennomforinger();
 
   return (
     <FilterAndTableLayout
