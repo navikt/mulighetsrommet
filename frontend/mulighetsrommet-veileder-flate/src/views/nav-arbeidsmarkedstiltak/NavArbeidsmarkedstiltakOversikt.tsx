@@ -4,6 +4,7 @@ import { Feilmelding } from "../../components/feilmelding/Feilmelding";
 import { FilterAndTableLayout } from "../../components/filtrering/FilterAndTableLayout";
 import { useNavTiltaksgjennomforinger } from "../../core/api/queries/useTiltaksgjennomforinger";
 import { TiltakLoader } from "../../components/TiltakLoader";
+import { Filtertags } from "../../components/filtrering/Filtertags";
 
 export const NavArbeidsmarkedstiltakOversikt = () => {
   const { data: tiltaksgjennomforinger = [], isLoading } = useNavTiltaksgjennomforinger();
@@ -12,7 +13,7 @@ export const NavArbeidsmarkedstiltakOversikt = () => {
     <FilterAndTableLayout
       buttons={null}
       filter={<Filtermeny />}
-      tags={null}
+      tags={<Filtertags />}
       table={
         <div>
           {isLoading ? (

@@ -1,8 +1,9 @@
 import styles from "./AppContainerOversiktView.module.scss";
+import { ReactNode } from "react";
 
 interface Props {
-  children: React.ReactNode;
-  header?: React.ReactNode;
+  header?: ReactNode;
+  children: ReactNode;
 }
 
 export const AppContainerOversiktView = ({ children, header }: Props) => {

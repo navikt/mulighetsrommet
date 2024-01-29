@@ -1,13 +1,16 @@
-import "./polyfill";
+import "../polyfill";
 import { createRoot } from "react-dom/client";
-import { APPLICATION_NAME, APPLICATION_WEB_COMPONENT_NAME } from "./constants";
+import { APPLICATION_NAME, APPLICATION_WEB_COMPONENT_NAME } from "../constants";
 import React from "react";
-import { Arbeidsmarkedstiltak } from "./WebComponentWrapper";
-import { App } from "./App";
-import { AppContext } from "./AppContext";
+import { Arbeidsmarkedstiltak } from "../WebComponentWrapper";
+import { ModiaArbeidsmarkedstiltak } from "../App";
+import { AppContext } from "../AppContext";
+import { ErrorBoundary } from "react-error-boundary";
+import { ErrorFallback } from "../utils/ErrorFallback";
+import { BrowserRouter as Router, Navigate, Route, Routes } from "react-router-dom";
 
 if (import.meta.env.VITE_MULIGHETSROMMET_API_MOCK === "true") {
-  import("./mock/worker")
+  import("../mock/worker")
     .then(({ initializeMockServiceWorker }) => {
       return initializeMockServiceWorker();
     })
@@ -38,7 +41,14 @@ function render() {
     const root = createRoot(demoContainer);
     root.render(
       <AppContext contextData={{ fnr: "12345678910", enhet: "0315" }}>
-        <App />
+        <ErrorBoundary FallbackComponent={ErrorFallback}>
+          <Router>
+            <Routes>
+              <Route path="arbeidsmarkedstiltak/*" element={<ModiaArbeidsmarkedstiltak />} />
+              <Route path="*" element={<Navigate replace to="/arbeidsmarkedstiltak" />} />
+            </Routes>
+          </Router>
+        </ErrorBoundary>
       </AppContext>,
     );
   } else if (demoContainer) {

@@ -1,11 +1,14 @@
 import createCache from "@emotion/cache";
 import { createRoot, Root } from "react-dom/client";
 import urlJoin from "url-join";
-import { App } from "./App";
+import { ModiaArbeidsmarkedstiltak } from "./App";
 import { AppContext } from "./AppContext";
 import { CustomEmotionCacheProvider } from "./CustomEmotionCacheProvider";
 import { APPLICATION_WEB_COMPONENT_NAME } from "./constants";
 import { headers } from "./core/api/headers";
+import { ErrorBoundary } from "react-error-boundary";
+import { ErrorFallback } from "./utils/ErrorFallback";
+import { BrowserRouter as Router, Navigate, Route, Routes } from "react-router-dom";
 
 interface ViteAssetManifest {
   "index.html": {
@@ -102,7 +105,14 @@ export class Arbeidsmarkedstiltak extends HTMLElement {
           contextData={{ enhet, fnr }}
           updateContextDataRef={(updateContextData) => (this.updateContextData = updateContextData)}
         >
-          <App />
+          <ErrorBoundary FallbackComponent={ErrorFallback}>
+            <Router>
+              <Routes>
+                <Route path="arbeidsmarkedstiltak/*" element={<ModiaArbeidsmarkedstiltak />} />
+                <Route path="*" element={<Navigate replace to="/arbeidsmarkedstiltak" />} />
+              </Routes>
+            </Router>
+          </ErrorBoundary>
         </AppContext>
       </CustomEmotionCacheProvider>,
     );

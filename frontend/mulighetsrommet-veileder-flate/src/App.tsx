@@ -1,14 +1,11 @@
 import { getWebInstrumentations, initializeFaro } from "@grafana/faro-web-sdk";
 import "@navikt/ds-css";
-import { ErrorBoundary } from "react-error-boundary";
-import { BrowserRouter as Router, Navigate, Route, Routes } from "react-router-dom";
-import styles from "./App.module.scss";
+import { Navigate, Route, Routes } from "react-router-dom";
 import { Oppskrift } from "./components/oppskrift/Oppskrift";
 import { useHentVeilederdata } from "./core/api/queries/useHentVeilederdata";
 import { useInitializeArbeidsmarkedstiltakFilterForBruker } from "./hooks/useInitializeArbeidsmarkedstiltakFilterForBruker";
 import { useInitializeAppContext } from "./hooks/useInitializeAppContext";
 import { initAmplitude } from "./logging/amplitude";
-import { ErrorFallback } from "./utils/ErrorFallback";
 import { useFeatureToggle } from "./core/api/feature-toggles";
 import { Toggles } from "mulighetsrommet-api-client";
 import { Landingsside } from "./views/landingsside/Landingsside";
@@ -16,11 +13,12 @@ import { ModiaArbeidsmarkedstiltakDetaljer } from "./views/modia-arbeidsmarkedst
 import { DeltakerRegistrering } from "./microfrontends/team_komet/DeltakerRegistrering";
 import { ModiaArbeidsmarkedstiltakOversikt } from "./views/modia-arbeidsmarkedstiltak/ModiaArbeidsmarkedstiltakOversikt";
 import { ArbeidsmarkedstiltakHeader } from "./components/ArbeidsmarkedstiltakHeader";
-import { PreviewArbeidsmarkedstiltakOversikt } from "./views/preview/PreviewArbeidsmarkedstiltakOversikt";
-import { PreviewArbeidsmarkedstiltakDetaljer } from "./views/preview/PreviewArbeidsmarkedstiltakDetaljer";
 import { NavArbeidsmarkedstiltakOversikt } from "./views/nav-arbeidsmarkedstiltak/NavArbeidsmarkedstiltakOversikt";
 import { NavArbeidsmarkedstiltakDetaljer } from "./views/nav-arbeidsmarkedstiltak/NavArbeidsmarkedstiltakDetaljer";
 import { AppContainerOversiktView } from "./components/appContainerOversiktView/AppContainerOversiktView";
+import { DemoImageHeader } from "./components/DemoImageHeader";
+import { PreviewArbeidsmarkedstiltakOversikt } from "./views/preview/PreviewArbeidsmarkedstiltakOversikt";
+import { PreviewArbeidsmarkedstiltakDetaljer } from "./views/preview/PreviewArbeidsmarkedstiltakDetaljer";
 
 if (import.meta.env.PROD && import.meta.env.VITE_FARO_URL) {
   initializeFaro({
@@ -33,36 +31,7 @@ if (import.meta.env.PROD && import.meta.env.VITE_FARO_URL) {
   initAmplitude();
 }
 
-export function App() {
-  return (
-    <ErrorBoundary FallbackComponent={ErrorFallback}>
-      <Router>
-        <Routes>
-          <Route path="preview/*" element={<PreviewArbeidsmarkedstiltak />} />
-          <Route path="arbeidsmarkedstiltak/*" element={<ModiaArbeidsmarkedstiltak />} />
-          <Route path="nav/*" element={<NavArbeidsmarkedstiltak />} />
-          <Route path="*" element={<Navigate replace to="/arbeidsmarkedstiltak" />} />
-        </Routes>
-      </Router>
-    </ErrorBoundary>
-  );
-}
-
-function PreviewArbeidsmarkedstiltak() {
-  return (
-    <AppContainerOversiktView header={<ArbeidsmarkedstiltakHeader />}>
-      <Routes>
-        <Route path="oversikt" element={<PreviewArbeidsmarkedstiltakOversikt />} />
-        <Route path="tiltak/:id" element={<PreviewArbeidsmarkedstiltakDetaljer />}>
-          <Route path="oppskrifter/:oppskriftId/:tiltakstypeId" element={<Oppskrift />} />
-        </Route>
-        <Route path="*" element={<Navigate replace to="/preview/oversikt" />} />
-      </Routes>
-    </AppContainerOversiktView>
-  );
-}
-
-function ModiaArbeidsmarkedstiltak() {
+export function ModiaArbeidsmarkedstiltak() {
   useHentVeilederdata(); // Pre-fetch veilederdata så slipper vi å vente på data når vi trenger det i appen senere
 
   const { fnr, enhet } = useInitializeAppContext();
@@ -84,20 +53,7 @@ function ModiaArbeidsmarkedstiltak() {
   }
 
   return (
-    <AppContainerOversiktView
-      header={
-        <>
-          {import.meta.env.DEV ? (
-            <img
-              src="/interflatedekorator_arbmark.png"
-              id="veilarbpersonflatefs-root"
-              alt="veilarbpersonflate-bilde"
-              className={styles.demo_image}
-            />
-          ) : null}
-        </>
-      }
-    >
+    <AppContainerOversiktView header={<DemoImageHeader />}>
       <Routes>
         {enableLandingsside ? <Route path="" element={<Landingsside />} /> : null}
         <Route path="oversikt" element={<ModiaArbeidsmarkedstiltakOversikt />} />
@@ -124,18 +80,29 @@ function ModiaArbeidsmarkedstiltak() {
   );
 }
 
-function NavArbeidsmarkedstiltak() {
+export function NavArbeidsmarkedstiltak() {
   return (
     <AppContainerOversiktView header={<ArbeidsmarkedstiltakHeader />}>
       <Routes>
         <Route path="oversikt" element={<NavArbeidsmarkedstiltakOversikt />} />
-        <Route
-          path="tiltak/:id"
-          element={<NavArbeidsmarkedstiltakDetaljer />}
-        >
+        <Route path="tiltak/:id" element={<NavArbeidsmarkedstiltakDetaljer />}>
           <Route path="oppskrifter/:oppskriftId/:tiltakstypeId" element={<Oppskrift />} />
         </Route>
         <Route path="*" element={<Navigate replace to="/nav/oversikt" />} />
+      </Routes>
+    </AppContainerOversiktView>
+  );
+}
+
+export function PreviewArbeidsmarkedstiltak() {
+  return (
+    <AppContainerOversiktView header={<ArbeidsmarkedstiltakHeader />}>
+      <Routes>
+        <Route path="oversikt" element={<PreviewArbeidsmarkedstiltakOversikt />} />
+        <Route path="tiltak/:id" element={<PreviewArbeidsmarkedstiltakDetaljer />}>
+          <Route path="oppskrifter/:oppskriftId/:tiltakstypeId" element={<Oppskrift />} />
+        </Route>
+        <Route path="*" element={<Navigate replace to="/preview/oversikt" />} />
       </Routes>
     </AppContainerOversiktView>
   );
