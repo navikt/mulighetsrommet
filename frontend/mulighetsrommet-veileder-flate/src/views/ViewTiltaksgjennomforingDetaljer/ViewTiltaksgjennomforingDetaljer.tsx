@@ -1,12 +1,13 @@
 import { PadlockLockedFillIcon } from "@navikt/aksel-icons";
 import { Alert } from "@navikt/ds-react";
 import { Innsatsgruppe, VeilederflateTiltaksgjennomforing } from "mulighetsrommet-api-client";
-import { Outlet } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import SidemenyDetaljer from "../../components/sidemeny/SidemenyDetaljer";
 import TiltaksdetaljerFane from "../../components/tabs/TiltaksdetaljerFane";
 import { useGetTiltaksgjennomforingIdFraUrl } from "../../core/api/queries/useGetTiltaksgjennomforingIdFraUrl";
 import TiltaksgjennomforingsHeader from "../../layouts/TiltaksgjennomforingsHeader";
 import styles from "./ViewTiltaksgjennomforingDetaljer.module.scss";
+import { Oppskrift } from "../../components/oppskrift/Oppskrift";
 
 interface Props {
   tiltaksgjennomforing: VeilederflateTiltaksgjennomforing;
@@ -47,7 +48,9 @@ const ViewTiltaksgjennomforingDetaljer = ({
         <TiltaksdetaljerFane tiltaksgjennomforing={tiltaksgjennomforing} />
       </div>
       <div className={styles.oppskriftContainer}>
-        <Outlet />
+        <Routes>
+          <Route path="oppskrifter/:oppskriftId/:tiltakstypeId" element={<Oppskrift />} />
+        </Routes>
       </div>
     </div>
   );

@@ -1,7 +1,6 @@
 import { getWebInstrumentations, initializeFaro } from "@grafana/faro-web-sdk";
 import "@navikt/ds-css";
 import { Navigate, Route, Routes } from "react-router-dom";
-import { Oppskrift } from "./components/oppskrift/Oppskrift";
 import { useHentVeilederdata } from "./core/api/queries/useHentVeilederdata";
 import { useInitializeArbeidsmarkedstiltakFilterForBruker } from "./hooks/useInitializeArbeidsmarkedstiltakFilterForBruker";
 import { useInitializeAppContext } from "./hooks/useInitializeAppContext";
@@ -57,9 +56,7 @@ export function ModiaArbeidsmarkedstiltak() {
       <Routes>
         {enableLandingsside ? <Route path="" element={<Landingsside />} /> : null}
         <Route path="oversikt" element={<ModiaArbeidsmarkedstiltakOversikt />} />
-        <Route path="tiltak/:id" element={<ModiaArbeidsmarkedstiltakDetaljer />}>
-          <Route path="oppskrifter/:oppskriftId/:tiltakstypeId" element={<Oppskrift />} />
-        </Route>
+        <Route path="tiltak/:id/*" element={<ModiaArbeidsmarkedstiltakDetaljer />} />
         {visDeltakerregistrering ? (
           <Route
             path="tiltak/:id/deltaker"
@@ -69,10 +66,7 @@ export function ModiaArbeidsmarkedstiltak() {
         <Route
           path="*"
           element={
-            <Navigate
-              replace
-              to={enableLandingsside ? "/arbeidsmarkedstiltak" : "/arbeidsmarkedstiltak/oversikt"}
-            />
+            <Navigate replace to={enableLandingsside ? "/arbeidsmarkedstiltak" : "./oversikt"} />
           }
         />
       </Routes>
@@ -85,10 +79,8 @@ export function NavArbeidsmarkedstiltak() {
     <AppContainerOversiktView header={<ArbeidsmarkedstiltakHeader />}>
       <Routes>
         <Route path="oversikt" element={<NavArbeidsmarkedstiltakOversikt />} />
-        <Route path="tiltak/:id" element={<NavArbeidsmarkedstiltakDetaljer />}>
-          <Route path="oppskrifter/:oppskriftId/:tiltakstypeId" element={<Oppskrift />} />
-        </Route>
-        <Route path="*" element={<Navigate replace to="/nav/oversikt" />} />
+        <Route path="tiltak/:id/*" element={<NavArbeidsmarkedstiltakDetaljer />} />
+        <Route path="*" element={<Navigate replace to="./oversikt" />} />
       </Routes>
     </AppContainerOversiktView>
   );
@@ -99,10 +91,8 @@ export function PreviewArbeidsmarkedstiltak() {
     <AppContainerOversiktView header={<ArbeidsmarkedstiltakHeader />}>
       <Routes>
         <Route path="oversikt" element={<PreviewArbeidsmarkedstiltakOversikt />} />
-        <Route path="tiltak/:id" element={<PreviewArbeidsmarkedstiltakDetaljer />}>
-          <Route path="oppskrifter/:oppskriftId/:tiltakstypeId" element={<Oppskrift />} />
-        </Route>
-        <Route path="*" element={<Navigate replace to="/preview/oversikt" />} />
+        <Route path="tiltak/:id/*" element={<PreviewArbeidsmarkedstiltakDetaljer />} />
+        <Route path="*" element={<Navigate replace to="./oversikt" />} />
       </Routes>
     </AppContainerOversiktView>
   );
