@@ -13,4 +13,5 @@ data class Faneinnhold(
     val pameldingOgVarighetInfoboks: String? = null,
     val kontaktinfo: List<JsonObject>? = null,
     val kontaktinfoInfoboks: String? = null,
+    val delMedBruker: String? = null,
 )
