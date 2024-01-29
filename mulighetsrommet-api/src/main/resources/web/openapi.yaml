@@ -933,6 +933,27 @@ paths:
               schema:
                 $ref: "#/components/schemas/VeilederflateTiltaksgjennomforing"
 
+  /api/v1/internal/veileder/preview/tiltaksgjennomforinger:
+    post:
+      tags:
+        - VeilederTiltak
+      operationId: getPreviewTiltaksgjennomforinger
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GetTiltaksgjennomforingerRequest"
+        required: true
+      responses:
+        200:
+          description: Hent tiltaksgjennomføringer
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/VeilederflateTiltaksgjennomforing"
+
   /api/v1/internal/veileder/preview/tiltaksgjennomforing:
     post:
       tags:

@@ -19,6 +19,12 @@ export function useNavTiltaksgjennomforinger() {
   );
 }
 
+export function usePreviewTiltaksgjennomforinger() {
+  return useGetTiltaksgjennomforinger(
+    mulighetsrommetClient.veilederTiltak.getPreviewTiltaksgjennomforinger,
+  );
+}
+
 function useGetTiltaksgjennomforinger(
   queryFn: typeof mulighetsrommetClient.veilederTiltak.getVeilederTiltaksgjennomforinger,
 ) {
