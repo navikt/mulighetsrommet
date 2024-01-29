@@ -70,7 +70,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             validator,
             EndringshistorikkService(database.db),
             database.db,
-            appConfig = createTestApplicationConfig()
+            appConfig = createTestApplicationConfig(),
         )
 
         test("Man skal ikke få avbryte dersom gjennomføringen ikke finnes") {
@@ -137,7 +137,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             validator,
             EndringshistorikkService(database.db),
             database.db,
-            appConfig = createTestApplicationConfig()
+            appConfig = createTestApplicationConfig(),
         )
 
         test("Man skal ikke få lov til å opprette gjennomføring dersom det oppstår valideringsfeil") {
@@ -173,7 +173,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             validator,
             EndringshistorikkService(database.db),
             database.db,
-            appConfig = createTestApplicationConfig()
+            appConfig = createTestApplicationConfig(),
         )
         val navAnsattRepository = NavAnsattRepository(database.db)
 
@@ -294,7 +294,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             validator,
             EndringshistorikkService(database.db),
             database.db,
-            appConfig = createTestApplicationConfig()
+            appConfig = createTestApplicationConfig(),
         )
 
         test("Hvis publish kaster rulles upsert tilbake") {

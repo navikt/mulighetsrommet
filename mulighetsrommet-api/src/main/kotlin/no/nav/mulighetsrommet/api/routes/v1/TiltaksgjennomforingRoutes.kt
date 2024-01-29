@@ -8,7 +8,6 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.AppConfig
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingKontaktpersonDbo
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
@@ -28,7 +27,7 @@ import org.koin.ktor.ext.inject
 import java.time.LocalDate
 import java.util.*
 
-fun Route.tiltaksgjennomforingRoutes(appConfig: AppConfig) {
+fun Route.tiltaksgjennomforingRoutes() {
     val deltakere: DeltakerRepository by inject()
     val service: TiltaksgjennomforingService by inject()
 
@@ -40,8 +39,6 @@ fun Route.tiltaksgjennomforingRoutes(appConfig: AppConfig) {
             put {
                 val request = call.receive<TiltaksgjennomforingRequest>()
                 val navIdent = getNavIdent()
-
-
 
                 val result = service.upsert(request, navIdent)
                     .mapLeft { BadRequest(errors = it) }

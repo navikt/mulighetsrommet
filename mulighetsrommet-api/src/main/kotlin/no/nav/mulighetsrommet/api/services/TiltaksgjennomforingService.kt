@@ -40,7 +40,7 @@ class TiltaksgjennomforingService(
     private val validator: TiltaksgjennomforingValidator,
     private val documentHistoryService: EndringshistorikkService,
     private val db: Database,
-    private val appConfig: AppConfig
+    private val appConfig: AppConfig,
 ) {
     suspend fun upsert(
         request: TiltaksgjennomforingRequest,
@@ -55,7 +55,7 @@ class TiltaksgjennomforingService(
         val previous = tiltaksgjennomforinger.get(request.id)
 
         if (previous == null && !appConfig.kafka.producers.arenaMigreringTiltaksgjennomforinger.tiltakstyper.contains(
-                tiltakstype.arenaKode
+                tiltakstype.arenaKode,
             )
         ) {
             return Either.Left(
@@ -64,7 +64,7 @@ class TiltaksgjennomforingService(
                         name = "avtale",
                         message = "Opprettelse av tiltaksgjennomføring for tiltakstype: '${tiltakstype.navn}' er ikke skrudd på enda.",
                     ),
-                )
+                ),
             )
         }
 
