@@ -4,9 +4,13 @@ import {
   valgteEnhetsnumre,
 } from "../hooks/useArbeidsmarkedstiltakFilter";
 
-export const erTomtObjekt = (objekt: Object): boolean => {
-  return Object.keys(objekt).length === 0;
-};
+export function isDev() {
+  return !isProd();
+}
+
+export function isProd() {
+  return window.location.origin.endsWith(".intern.nav.no");
+}
 
 export const inneholderUrl = (string: string) => {
   return window.location.href.indexOf(string) > -1;

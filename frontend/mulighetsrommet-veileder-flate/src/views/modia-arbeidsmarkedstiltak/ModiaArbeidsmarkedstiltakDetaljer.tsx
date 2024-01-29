@@ -26,10 +26,10 @@ import {
   Toggles,
   VeilederflateTiltakstype,
 } from "mulighetsrommet-api-client";
-import { environments } from "../../env";
 import { DelMedBruker } from "../../components/delMedBruker/DelMedBruker";
 import { TiltakLoader } from "../../components/TiltakLoader";
 import { useGetTiltaksgjennomforingIdFraUrl } from "../../core/api/queries/useGetTiltaksgjennomforingIdFraUrl";
+import { isProd } from "../../utils/Utils";
 
 export function ModiaArbeidsmarkedstiltakDetaljer() {
   const { fnr } = useAppContext();
@@ -112,7 +112,7 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
             {kanOppretteAvtaleForTiltak && (
               <Button
                 onClick={() => {
-                  const url = lenkeTilOpprettAvtaleForEnv();
+                  const url = lenkeTilOpprettAvtale();
                   window.open(url, "_blank");
                 }}
                 variant="primary"
@@ -194,13 +194,11 @@ function isIndividueltTiltak(tiltakstype: VeilederflateTiltakstype): boolean {
   );
 }
 
-function lenkeTilOpprettAvtaleForEnv(): string {
-  const env: environments = import.meta.env.VITE_ENVIRONMENT;
-  const baseUrl =
-    env === "production"
-      ? "https://tiltaksgjennomforing.intern.nav.no/"
-      : "https://tiltaksgjennomforing.intern.dev.nav.no/";
-  return `${baseUrl}tiltaksgjennomforing/opprett-avtale`;
+function lenkeTilOpprettAvtale(): string {
+  const baseUrl = isProd()
+    ? "https://tiltaksgjennomforing.intern.nav.no"
+    : "https://tiltaksgjennomforing.intern.dev.nav.no";
+  return `${baseUrl}/tiltaksgjennomforing/opprett-avtale`;
 }
 
 function harBrukerRettPaaValgtTiltak(brukerdata: Bruker, tiltakstype: VeilederflateTiltakstype) {
