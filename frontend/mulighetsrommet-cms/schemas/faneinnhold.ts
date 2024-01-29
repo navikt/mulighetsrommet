@@ -29,6 +29,10 @@ export const faneinnhold = defineType({
       name: "kontaktinfo",
       title: "Kontaktinfo",
     },
+    {
+      name: "delMedBruker",
+      title: "Del med bruker",
+    },
   ],
   fields: [
     defineField({
@@ -104,6 +108,15 @@ export const faneinnhold = defineType({
         ),
     }),
     defineField({
+      name: "kontaktinfoInfoboks",
+      title:
+        'Ekstra viktig informasjon til veileder som legger seg i blå infoboks under fanen "Kontaktinfo"',
+      description:
+        'Fremhevet informasjon om kontaktinfo. Bruk gjerne "forhåndsvisning av tiltaksgjennomføring" for å få et inntrykk av hvordan det vil se ut.',
+      ...infoboksOptions,
+      group: "kontaktinfo",
+    }),
+    defineField({
       name: "kontaktinfo",
       title: "Kontaktinfo",
       description: `Ekstra tekst om kontaktinfo. Makslengde er ${MAKS_LENGDE_INNHOLD} tegn.`,
@@ -117,6 +130,15 @@ export const faneinnhold = defineType({
             "Innholdet er for langt. Kan innholdet være kortere og mer konsist?"
           )
         ),
+    }),
+    defineField({
+      name: "delMedBruker",
+      title:
+        'Del med bruker tekst',
+      description:
+        'Teksten som deles med bruker ved `Del med bruker` knapp. Standard tekst fra tiltakstype brukes hvis ikke utfyllt.',
+      ...infoboksOptions,
+      group: "delMedBruker",
     }),
   ],
 });
