@@ -17,21 +17,25 @@ const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
     tiltakstype: mockTiltakstyper.avklaring,
     sluttdato: "2025-07-09",
     apentForInnsok: true,
-    kontaktinfoTiltaksansvarlige: [
-      {
-        navn: "Sindre",
-        telefonnummer: "12345678",
-        _id: "8ea86d71-4c1b-4c8f-81b5-49ec67ef1d17",
-        enhet: {
-          enhetsnummer: "1928",
-          navn: "Nav Oslo",
-          type: NavEnhetType.LOKAL,
-          status: NavEnhetStatus.AKTIV,
-          overordnetEnhet: null,
+    kontaktinfo: {
+      tiltaksansvarlige: [
+        {
+          navn: "Sindre",
+          telefonnummer: "12345678",
+          _id: "8ea86d71-4c1b-4c8f-81b5-49ec67ef1d17",
+          enhet: {
+            enhetsnummer: "1928",
+            navn: "Nav Oslo",
+            type: NavEnhetType.LOKAL,
+            status: NavEnhetStatus.AKTIV,
+            overordnetEnhet: null,
+          },
+          epost: "test@example.com",
         },
-        epost: "test@example.com",
-      },
-    ],
+      ],
+      varsler: [],
+    },
+    kontaktinfoTiltaksansvarlige: [],
     faneinnhold: {
       forHvem: [
         {
@@ -55,21 +59,25 @@ const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
     stedForGjennomforing: "Oslo",
     tiltakstype: mockTiltakstyper.mentor,
     apentForInnsok: false,
-    kontaktinfoTiltaksansvarlige: [
-      {
-        navn: "Sindre",
-        telefonnummer: "12345678",
-        _id: "8ea86d71-4c1b-4c8f-81b5-49ec67ef1d17",
-        enhet: {
-          enhetsnummer: "1928",
-          status: NavEnhetStatus.AKTIV,
-          navn: "Nav Oslo",
-          type: NavEnhetType.LOKAL,
-          overordnetEnhet: null,
+    kontaktinfo: {
+      tiltaksansvarlige: [
+        {
+          navn: "Sindre",
+          telefonnummer: "12345678",
+          _id: "8ea86d71-4c1b-4c8f-81b5-49ec67ef1d17",
+          enhet: {
+            enhetsnummer: "1928",
+            status: NavEnhetStatus.AKTIV,
+            navn: "Nav Oslo",
+            type: NavEnhetType.LOKAL,
+            overordnetEnhet: null,
+          },
+          epost: "test@example.com",
         },
-        epost: "test@example.com",
-      },
-    ],
+      ],
+      varsler: [],
+    },
+    kontaktinfoTiltaksansvarlige: [],
   },
   {
     id: "00097090-1ba8-47a4-a82f-6aaad488994e",
@@ -89,21 +97,25 @@ const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
       },
     },
     beskrivelse: "Beskrivelse av gruppe amo tiltaket på gjennomføringsnivå.",
-    kontaktinfoTiltaksansvarlige: [
-      {
-        navn: "Pelle Pilotbruker",
-        telefonnummer: "48123456",
-        enhet: {
-          status: NavEnhetStatus.AKTIV,
-          enhetsnummer: "1928",
-          navn: "Nav Oslo",
-          type: NavEnhetType.LOKAL,
-          overordnetEnhet: null,
+    kontaktinfo: {
+      tiltaksansvarlige: [
+        {
+          navn: "Pelle Pilotbruker",
+          telefonnummer: "48123456",
+          enhet: {
+            status: NavEnhetStatus.AKTIV,
+            enhetsnummer: "1928",
+            navn: "Nav Oslo",
+            type: NavEnhetType.LOKAL,
+            overordnetEnhet: null,
+          },
+          epost: "pelle.pilotbruker@nav.no",
+          _id: "56767",
         },
-        epost: "pelle.pilotbruker@nav.no",
-        _id: "56767",
-      },
-    ],
+      ],
+      varsler: [],
+    },
+    kontaktinfoTiltaksansvarlige: [],
     faneinnhold: {
       forHvemInfoboks: "Deltakeren må være forberedt på dårlig vær under tiltaksperioden",
       forHvem: [
@@ -170,21 +182,25 @@ const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
         epost: "test@example.com",
       },
     },
-    kontaktinfoTiltaksansvarlige: [
-      {
-        navn: "Pelle Pilotbruker",
-        telefonnummer: "48123456",
-        enhet: {
-          enhetsnummer: "1928",
-          status: NavEnhetStatus.AKTIV,
-          navn: "Nav Oslo",
-          type: NavEnhetType.LOKAL,
-          overordnetEnhet: null,
+    kontaktinfo: {
+      tiltaksansvarlige: [
+        {
+          navn: "Pelle Pilotbruker",
+          telefonnummer: "48123456",
+          enhet: {
+            enhetsnummer: "1928",
+            status: NavEnhetStatus.AKTIV,
+            navn: "Nav Oslo",
+            type: NavEnhetType.LOKAL,
+            overordnetEnhet: null,
+          },
+          epost: "pelle.pilotbruker@nav.no",
+          _id: "56767",
         },
-        epost: "pelle.pilotbruker@nav.no",
-        _id: "56767",
-      },
-    ],
+      ],
+      varsler: [],
+    },
+    kontaktinfoTiltaksansvarlige: [],
     faneinnhold: {
       forHvem: [
         {
@@ -251,21 +267,25 @@ const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
         epost: "test@example.com",
       },
     },
-    kontaktinfoTiltaksansvarlige: [
-      {
-        navn: "Pelle Pilotbruker",
-        telefonnummer: "48123456",
-        enhet: {
-          enhetsnummer: "1928",
-          navn: "Nav Oslo",
-          type: NavEnhetType.LOKAL,
-          overordnetEnhet: null,
-          status: NavEnhetStatus.AKTIV,
+    kontaktinfo: {
+      tiltaksansvarlige: [
+        {
+          navn: "Pelle Pilotbruker",
+          telefonnummer: "48123456",
+          enhet: {
+            enhetsnummer: "1928",
+            navn: "Nav Oslo",
+            type: NavEnhetType.LOKAL,
+            overordnetEnhet: null,
+            status: NavEnhetStatus.AKTIV,
+          },
+          epost: "pelle.pilotbruker@nav.no",
+          _id: "56767",
         },
-        epost: "pelle.pilotbruker@nav.no",
-        _id: "56767",
-      },
-    ],
+      ],
+      varsler: [],
+    },
+    kontaktinfoTiltaksansvarlige: [],
     faneinnhold: {
       forHvem: [
         {
@@ -298,21 +318,25 @@ const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
         epost: "test@example.com",
       },
     },
-    kontaktinfoTiltaksansvarlige: [
-      {
-        navn: "Pelle Pilotbruker",
-        telefonnummer: "48123456",
-        enhet: {
-          enhetsnummer: "1928",
-          navn: "Nav Oslo",
-          type: NavEnhetType.LOKAL,
-          overordnetEnhet: null,
-          status: NavEnhetStatus.AKTIV,
+    kontaktinfo: {
+      tiltaksansvarlige: [
+        {
+          navn: "Pelle Pilotbruker",
+          telefonnummer: "48123456",
+          enhet: {
+            enhetsnummer: "1928",
+            navn: "Nav Oslo",
+            type: NavEnhetType.LOKAL,
+            overordnetEnhet: null,
+            status: NavEnhetStatus.AKTIV,
+          },
+          epost: "pelle.pilotbruker@nav.no",
+          _id: "56767",
         },
-        epost: "pelle.pilotbruker@nav.no",
-        _id: "56767",
-      },
-    ],
+      ],
+      varsler: [],
+    },
+    kontaktinfoTiltaksansvarlige: [],
   },
   {
     sanityId: "f1887090-1ba8-47a4-a82f-6aaad488994e",
@@ -322,6 +346,10 @@ const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
     tiltakstype: mockTiltakstyper.OpplaringEnkeltplassFagOgYrke,
     oppstart: TiltaksgjennomforingOppstartstype.LOPENDE,
     oppstartsdato: "2022-11-01",
+    kontaktinfo: {
+      tiltaksansvarlige: [],
+      varsler: [],
+    },
     kontaktinfoTiltaksansvarlige: [],
     sluttdato: "2030-11-30",
   },
@@ -339,6 +367,10 @@ for (let i = 0; i < x; i++) {
     tiltakstype: mockTiltakstyper.OpplaringEnkeltplassFagOgYrke,
     oppstart: TiltaksgjennomforingOppstartstype.LOPENDE,
     oppstartsdato: "2022-11-01",
+    kontaktinfo: {
+      tiltaksansvarlige: [],
+      varsler: [],
+    },
     kontaktinfoTiltaksansvarlige: [],
     sluttdato: "2030-11-30",
   });
