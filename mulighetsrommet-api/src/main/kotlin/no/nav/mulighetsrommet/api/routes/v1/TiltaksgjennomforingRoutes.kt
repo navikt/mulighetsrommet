@@ -1,10 +1,8 @@
 package no.nav.mulighetsrommet.api.routes.v1
 
-import arrow.core.Either
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
-import io.ktor.server.plugins.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -16,10 +14,7 @@ import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingKontaktpersonDb
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
-import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
-import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.BadRequest
-import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
 import no.nav.mulighetsrommet.api.routes.v1.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
 import no.nav.mulighetsrommet.api.utils.getAdminTiltaksgjennomforingsFilter
@@ -36,8 +31,6 @@ import java.util.*
 fun Route.tiltaksgjennomforingRoutes(appConfig: AppConfig) {
     val deltakere: DeltakerRepository by inject()
     val service: TiltaksgjennomforingService by inject()
-    val tiltakstyper: TiltakstypeRepository by inject()
-    val tiltaksgjennomforinger: TiltaksgjennomforingRepository by inject()
 
     route("/api/v1/internal/tiltaksgjennomforinger") {
         authenticate(
@@ -48,26 +41,7 @@ fun Route.tiltaksgjennomforingRoutes(appConfig: AppConfig) {
                 val request = call.receive<TiltaksgjennomforingRequest>()
                 val navIdent = getNavIdent()
 
-                // TODO Fjern tiltakstypesjekk når vi har blitt master for alle tiltakstyper
-                val tiltakstype = tiltakstyper.get(request.tiltakstypeId)
-                    ?: throw BadRequestException("Fant ikke tiltakstype med id: ${request.tiltakstypeId}")
 
-                val tiltaksgjennomforingEksisterer = tiltaksgjennomforinger.get(request.id)
-
-                if (tiltaksgjennomforingEksisterer == null && !appConfig.kafka.producers.arenaMigreringTiltaksgjennomforinger.tiltakstyper.contains(tiltakstype.arenaKode)) {
-                    call.respondWithStatusResponse(
-                        Either.Left(
-                            BadRequest(
-                                errors = listOf(
-                                    ValidationError(
-                                        name = "avtale",
-                                        message = "Opprettelse av tiltaksgjennomføring for tiltakstype: '${tiltakstype.navn}' er ikke skrudd på enda.",
-                                    ),
-                                ),
-                            ),
-                        ),
-                    )
-                }
 
                 val result = service.upsert(request, navIdent)
                     .mapLeft { BadRequest(errors = it) }

@@ -279,7 +279,7 @@ private fun services(appConfig: AppConfig) = module {
     single { PoaoTilgangService(get()) }
     single { DelMedBrukerService(get()) }
     single { MicrosoftGraphService(get()) }
-    single { TiltaksgjennomforingService(get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
+    single { TiltaksgjennomforingService(get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), appConfig) }
     single { SanityTiltaksgjennomforingService(get(), get(), get()) }
     single { TiltakstypeService(get()) }
     single { NavEnheterSyncService(get(), get(), get(), get()) }
