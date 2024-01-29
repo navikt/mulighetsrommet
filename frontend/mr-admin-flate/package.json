@@ -21,7 +21,7 @@
     "playwright:codegen": "playwright codegen playwright.dev"
   },
   "dependencies": {
-    "@eik/rollup-plugin": "4.0.60",
+    "@eik/rollup-plugin": "4.0.61",
     "@grafana/faro-web-sdk": "1.3.6",
     "@hookform/resolvers": "3.3.4",
     "@navikt/aksel-icons": "5.15.1",
@@ -30,13 +30,13 @@
     "@portabletext/react": "3.0.11",
     "@portabletext/types": "2.0.8",
     "@tanstack/react-query": "5.17.19",
-    "@tanstack/react-query-devtools": "5.17.19",
+    "@tanstack/react-query-devtools": "5.17.21",
     "@types/is-url": "1.2.32",
     "classnames": "2.5.1",
     "debounce": "2.0.0",
     "eslint": "8.56.0",
     "is-url": "1.2.4",
-    "jotai": "2.6.2",
+    "jotai": "2.6.3",
     "mulighetsrommet-api-client": "*",
     "mulighetsrommet-frontend-common": "*",
     "react": "18.2.0",
@@ -48,19 +48,19 @@
     "react-toastify": "10.0.4",
     "slate": "0.101.5",
     "slate-history": "^0.100.0",
-    "slate-react": "^0.101.5",
+    "slate-react": "^0.101.6",
     "tiny-invariant": "1.3.1",
     "use-deep-compare-effect": "1.8.1",
     "uuid": "9.0.1",
     "zod": "3.22.4"
   },
   "devDependencies": {
-    "@axe-core/playwright": "4.8.3",
+    "@axe-core/playwright": "4.8.4",
     "@playwright/test": "1.41.1",
     "@rollup/plugin-terser": "0.4.4",
     "@types/react": "18.2.48",
     "@types/react-dom": "18.2.18",
-    "@typescript-eslint/eslint-plugin": "6.19.0",
+    "@typescript-eslint/eslint-plugin": "6.19.1",
     "@vitejs/plugin-react": "4.2.1",
     "axe-core": "4.8.3",
     "cross-env": "7.0.3",
@@ -73,10 +73,10 @@
     "eslint-plugin-react": "7.33.2",
     "eslint-plugin-react-hooks": "4.6.0",
     "eslint-plugin-react-refresh": "0.4.5",
-    "msw": "2.1.3",
+    "msw": "2.1.5",
     "typescript": "5.3.3",
     "vite": "5.0.12",
-    "vitest": "1.2.1"
+    "vitest": "1.2.2"
   },
   "msw": {
     "workerDirectory": "public"
