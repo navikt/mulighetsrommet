@@ -26,13 +26,16 @@ export const DelMedBruker = ({
   tiltaksgjennomforing,
   delMedBrukerInfo,
 }: Props) => {
-  const originaldeletekstFraTiltakstypen = tiltaksgjennomforing.tiltakstype.delingMedBruker ?? "";
+  const delMedBrukerTekst =
+    tiltaksgjennomforing.faneinnhold?.delMedBruker ??
+    tiltaksgjennomforing.tiltakstype.delingMedBruker ??
+    "";
 
   const { logEvent } = useLogEvent();
   const { reservert } = erBrukerReservertMotElektroniskKommunikasjon(brukerdata);
 
   const deletekst = utledDelMedBrukerTekst(
-    originaldeletekstFraTiltakstypen,
+    delMedBrukerTekst,
     tiltaksgjennomforing.navn,
     brukerdata.fornavn,
   );

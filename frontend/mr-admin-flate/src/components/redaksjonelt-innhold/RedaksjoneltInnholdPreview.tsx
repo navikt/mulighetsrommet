@@ -67,6 +67,10 @@ function RedaksjoneltInnhold(props: RedaksjoneltInnholdPreviewProps) {
         tiltaksgjennomforing={faneinnhold?.kontaktinfo}
         tiltaksgjennomforingAlert={faneinnhold?.kontaktinfoInfoboks}
       />
+      <Heading size="medium">Del med bruker</Heading>
+      <BodyLong as="div" size="small">
+        {faneinnhold?.delMedBruker ?? tiltakstypeSanityData.delingMedBruker}
+      </BodyLong>
     </div>
   );
 }

@@ -2857,6 +2857,8 @@ components:
           type: object
         kontaktinfoInfoboks:
           type: string
+        delMedBruker:
+          type: string
 
     SanityFaneinnholdRequest:
       type: object
@@ -2879,6 +2881,9 @@ components:
         kontaktinfo:
           type: object
         kontaktinfoInfoboks:
+          type: string
+          nullable: true
+        delMedBruker:
           type: string
           nullable: true
 
