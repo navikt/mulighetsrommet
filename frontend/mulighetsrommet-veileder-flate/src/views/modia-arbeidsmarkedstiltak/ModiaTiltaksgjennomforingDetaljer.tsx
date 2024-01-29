@@ -3,7 +3,7 @@ import { useTitle } from "../../../../frontend-common";
 import { useHentBrukerdata } from "../../core/api/queries/useHentBrukerdata";
 import { useHentDeltMedBrukerStatus } from "../../core/api/queries/useHentDeltMedbrukerStatus";
 import { useHentVeilederdata } from "../../core/api/queries/useHentVeilederdata";
-import useTiltaksgjennomforingById from "../../core/api/queries/useTiltaksgjennomforingById";
+import { useTiltaksgjennomforingById } from "../../core/api/queries/useTiltaksgjennomforingById";
 import { useBrukerHarRettPaaTiltak } from "../../hooks/useBrukerHarRettPaaTiltak";
 import { useAppContext } from "../../hooks/useAppContext";
 import ViewTiltaksgjennomforingDetaljer from "../ViewTiltaksgjennomforingDetaljer/ViewTiltaksgjennomforingDetaljer";
