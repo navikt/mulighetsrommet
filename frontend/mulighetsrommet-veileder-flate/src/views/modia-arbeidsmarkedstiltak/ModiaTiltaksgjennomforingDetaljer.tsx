@@ -22,7 +22,7 @@ import { useFeatureToggle } from "../../core/api/feature-toggles";
 import { NavVeileder, Tiltakskode, Toggles } from "mulighetsrommet-api-client";
 import { environments } from "../../env";
 import { DelMedBruker } from "../../components/delMedBruker/DelMedBruker";
-import { FilterLoader } from "../../components/FilterLoader";
+import { TiltakLoader } from "../../components/TiltakLoader";
 
 const whiteListOpprettAvtaleKnapp: Tiltakskode[] = [
   Tiltakskode.MIDLONTIL,
@@ -76,7 +76,7 @@ export function ModiaTiltaksgjennomforingDetaljer() {
   );
 
   if (isLoading) {
-    return <FilterLoader />;
+    return <TiltakLoader />;
   }
 
   if (isError) {

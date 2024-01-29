@@ -4,14 +4,14 @@ import usePreviewTiltaksgjennomforingById from "../../core/api/queries/usePrevie
 import ViewTiltaksgjennomforingDetaljer from "../ViewTiltaksgjennomforingDetaljer/ViewTiltaksgjennomforingDetaljer";
 import Tilbakeknapp from "../../components/tilbakeknapp/Tilbakeknapp";
 import { DelMedBruker } from "../../components/delMedBruker/DelMedBruker";
-import { FilterLoader } from "../../components/FilterLoader";
+import { TiltakLoader } from "../../components/TiltakLoader";
 
 export function PreviewViewTiltaksgjennomforingDetaljer() {
   const { data, isLoading, isError } = usePreviewTiltaksgjennomforingById();
   const brukersInnsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS;
 
   if (isLoading) {
-    return <FilterLoader />;
+    return <TiltakLoader />;
   }
 
   if (isError) {

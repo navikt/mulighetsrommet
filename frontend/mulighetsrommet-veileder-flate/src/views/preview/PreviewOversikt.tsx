@@ -4,7 +4,7 @@ import { Feilmelding } from "../../components/feilmelding/Feilmelding";
 import { FilterAndTableLayout } from "../../components/filtrering/FilterAndTableLayout";
 import useTiltaksgjennomforinger from "../../core/api/queries/useTiltaksgjennomforinger";
 import { Filtertags } from "../../components/filtrering/Filtertags";
-import { FilterLoader } from "../../components/FilterLoader";
+import { TiltakLoader } from "../../components/TiltakLoader";
 
 export const PreviewOversikt = () => {
   const { data: tiltaksgjennomforinger = [], isLoading } = useTiltaksgjennomforinger();
@@ -17,7 +17,7 @@ export const PreviewOversikt = () => {
       table={
         <div>
           {isLoading ? (
-            <FilterLoader />
+            <TiltakLoader />
           ) : tiltaksgjennomforinger.length === 0 ? (
             <Feilmelding
               header="Ingen tiltaksgjennomføringer funnet"

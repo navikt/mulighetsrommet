@@ -3,7 +3,7 @@ import Tiltaksgjennomforingsoversikt from "../../components/oversikt/Tiltaksgjen
 import { Feilmelding } from "../../components/feilmelding/Feilmelding";
 import { FilterAndTableLayout } from "../../components/filtrering/FilterAndTableLayout";
 import useTiltaksgjennomforinger from "../../core/api/queries/useTiltaksgjennomforinger";
-import { FilterLoader } from "../../components/FilterLoader";
+import { TiltakLoader } from "../../components/TiltakLoader";
 
 export const NavArbeidsmarkedstiltakOversikt = () => {
   const { data: tiltaksgjennomforinger = [], isLoading } = useTiltaksgjennomforinger();
@@ -16,7 +16,7 @@ export const NavArbeidsmarkedstiltakOversikt = () => {
       table={
         <div>
           {isLoading ? (
-            <FilterLoader />
+            <TiltakLoader />
           ) : tiltaksgjennomforinger.length === 0 ? (
             <Feilmelding
               header="Ingen tiltaksgjennomføringer funnet"
