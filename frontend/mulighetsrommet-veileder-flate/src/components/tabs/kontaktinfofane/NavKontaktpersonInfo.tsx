@@ -61,10 +61,14 @@ const NavKontaktpersonInfo = ({ data }: NavKontaktpersonInfoProps) => {
                         </dd>
                       </>
                     ) : null}
-                    <dt>Enhet:</dt>
-                    <dd>
-                      <span>{`${enhet.navn} - ${enhet.enhetsnummer}`}</span>
-                    </dd>
+                    {enhet ? (
+                      <>
+                        <dt>Enhet:</dt>
+                        <dd>
+                          <span>{`${enhet.navn} - ${enhet.enhetsnummer}`}</span>
+                        </dd>
+                      </>
+                    ) : null}
                   </dl>
                 </BodyShort>
                 <PersonsensitiveOpplysningerModal modalRef={modalRef} epost={epost} />

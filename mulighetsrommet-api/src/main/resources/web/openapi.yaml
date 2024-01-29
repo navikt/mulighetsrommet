@@ -2897,7 +2897,6 @@ components:
       required:
         - _id
         - navn
-        - enhet
         - epost
 
     NavEnhetStatus:
