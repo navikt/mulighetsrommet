@@ -7,9 +7,22 @@ import {
   valgteEnhetsnumre,
 } from "../../../hooks/useArbeidsmarkedstiltakFilter";
 
-export default function useTiltaksgjennomforinger() {
-  const filter = useArbeidsmarkedstiltakFilterValue();
+export function useTiltaksgjennomforinger() {
+  return useGetTiltaksgjennomforinger(
+    mulighetsrommetClient.veilederTiltak.getVeilederTiltaksgjennomforinger,
+  );
+}
 
+export function useNavTiltaksgjennomforinger() {
+  return useGetTiltaksgjennomforinger(
+    mulighetsrommetClient.veilederTiltak.getNavTiltaksgjennomforinger,
+  );
+}
+
+function useGetTiltaksgjennomforinger(
+  queryFn: typeof mulighetsrommetClient.veilederTiltak.getVeilederTiltaksgjennomforinger,
+) {
+  const filter = useArbeidsmarkedstiltakFilterValue();
   const requestBody: GetTiltaksgjennomforingerRequest = {
     enheter: valgteEnhetsnumre(filter),
     innsatsgruppe: filter.innsatsgruppe?.nokkel,
@@ -26,10 +39,7 @@ export default function useTiltaksgjennomforinger() {
 
   return useQuery({
     queryKey: QueryKeys.sanity.tiltaksgjennomforinger(filter),
-    queryFn: () =>
-      mulighetsrommetClient.veilederTiltak.getVeilederTiltaksgjennomforinger({
-        requestBody,
-      }),
+    queryFn: queryFn.bind(mulighetsrommetClient.veilederTiltak, { requestBody }),
   });
 }
 

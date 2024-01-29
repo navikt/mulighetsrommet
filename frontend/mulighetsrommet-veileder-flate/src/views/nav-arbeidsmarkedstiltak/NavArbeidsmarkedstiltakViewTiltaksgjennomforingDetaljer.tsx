@@ -1,11 +1,11 @@
 import { Alert } from "@navikt/ds-react";
-import usePreviewTiltaksgjennomforingById from "../../core/api/queries/usePreviewTiltaksgjennomforingById";
 import ViewTiltaksgjennomforingDetaljer from "../ViewTiltaksgjennomforingDetaljer/ViewTiltaksgjennomforingDetaljer";
 import Tilbakeknapp from "../../components/tilbakeknapp/Tilbakeknapp";
 import { TiltakLoader } from "../../components/TiltakLoader";
+import { useNavTiltaksgjennomforingById } from "../../core/api/queries/useTiltaksgjennomforingById";
 
 export function NavArbeidsmarkedstiltakViewTiltaksgjennomforingDetaljer() {
-  const { data, isLoading, isError } = usePreviewTiltaksgjennomforingById();
+  const { data, isLoading, isError } = useNavTiltaksgjennomforingById();
 
   if (isLoading) {
     return <TiltakLoader />;

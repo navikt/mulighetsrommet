@@ -51,6 +51,37 @@ export const tiltakHandlers = [
     },
   ),
 
+  http.post<PathParams, GetTiltaksgjennomforingerRequest>(
+    "*/api/v1/internal/veileder/nav/tiltaksgjennomforinger",
+    async ({ request }) => {
+      const { innsatsgruppe, search = "", tiltakstypeIds = [] } = await request.json();
+
+      const results = mockTiltaksgjennomforinger
+        .filter((gj) => filtrerFritekst(gj, search))
+        .filter((gj) => filtrerInnsatsgruppe(gj, innsatsgruppe))
+        .filter((gj) => filtrerTiltakstyper(gj, tiltakstypeIds));
+
+      return HttpResponse.json(results);
+    },
+  ),
+
+  http.post<PathParams, GetTiltaksgjennomforingRequest>(
+    "*/api/v1/internal/veileder/nav/tiltaksgjennomforing",
+    async ({ request }) => {
+      const { id } = await request.json();
+      const gjennomforing = mockTiltaksgjennomforinger.find(
+        (gj) => gj.sanityId === id || gj.id === id,
+      );
+
+      if (gjennomforing) {
+        gjennomforing.arrangor = undefined;
+        gjennomforing.kontaktinfoTiltaksansvarlige = [];
+      }
+
+      return HttpResponse.json(gjennomforing);
+    },
+  ),
+
   http.post<PathParams>(
     "*/api/v1/internal/veileder/preview/tiltaksgjennomforing",
     async ({ request }) => {

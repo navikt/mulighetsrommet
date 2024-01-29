@@ -942,7 +942,47 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/GetTiltaksgjennomforingDetaljerPreviewRequest"
+              $ref: "#/components/schemas/GetTiltaksgjennomforingRequest"
+        required: true
+      responses:
+        200:
+          description: Hent tiltaksgjennomføring for id
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VeilederflateTiltaksgjennomforing"
+
+  /api/v1/internal/veileder/nav/tiltaksgjennomforinger:
+    post:
+      tags:
+        - VeilederTiltak
+      operationId: getNavTiltaksgjennomforinger
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GetTiltaksgjennomforingerRequest"
+        required: true
+      responses:
+        200:
+          description: Hent tiltaksgjennomføringer
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/VeilederflateTiltaksgjennomforing"
+
+  /api/v1/internal/veileder/nav/tiltaksgjennomforing:
+    post:
+      tags:
+        - VeilederTiltak
+      operationId: getNavTiltaksgjennomforing
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GetNavTiltaksgjennomforingRequest"
         required: true
       responses:
         200:
@@ -1694,7 +1734,6 @@ components:
           $ref: "#/components/schemas/ApentForInnsok"
       required:
         - enheter
-        - norskIdent
         - apentForInnsok
 
     ApentForInnsok:
@@ -1703,19 +1742,6 @@ components:
         - APENT
         - STENGT
         - APENT_ELLER_STENGT
-
-    GetTiltaksgjennomforingDetaljerPreviewRequest:
-      type: object
-      properties:
-        enheter:
-          type: array
-          items:
-            type: string
-        id:
-          type: string
-      required:
-        - enheter
-        - id
 
     GetTiltaksgjennomforingRequest:
       type: object
@@ -1729,6 +1755,15 @@ components:
             type: string
       required:
         - enheter
+        - id
+
+    GetNavTiltaksgjennomforingRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+      required:
         - id
 
     ManuellStatus:

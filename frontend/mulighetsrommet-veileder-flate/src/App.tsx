@@ -21,7 +21,6 @@ import { PreviewViewTiltaksgjennomforingDetaljer } from "./views/preview/Preview
 import { NavArbeidsmarkedstiltakOversikt } from "./views/nav-arbeidsmarkedstiltak/NavArbeidsmarkedstiltakOversikt";
 import { NavArbeidsmarkedstiltakViewTiltaksgjennomforingDetaljer } from "./views/nav-arbeidsmarkedstiltak/NavArbeidsmarkedstiltakViewTiltaksgjennomforingDetaljer";
 import { AppContainerOversiktView } from "./components/appContainerOversiktView/AppContainerOversiktView";
-import { APPLICATION_NAME } from "./constants";
 
 if (import.meta.env.PROD && import.meta.env.VITE_FARO_URL) {
   initializeFaro({
@@ -67,7 +66,6 @@ function ModiaArbeidsmarkedstiltak() {
   useHentVeilederdata(); // Pre-fetch veilederdata så slipper vi å vente på data når vi trenger det i appen senere
 
   const { fnr, enhet } = useInitializeAppContext();
-  const demoContainer = document.getElementById(APPLICATION_NAME);
 
   useInitializeArbeidsmarkedstiltakFilterForBruker();
 
@@ -89,7 +87,7 @@ function ModiaArbeidsmarkedstiltak() {
     <AppContainerOversiktView
       header={
         <>
-          {import.meta.env.DEV && demoContainer ? (
+          {import.meta.env.DEV ? (
             <img
               src="/interflatedekorator_arbmark.png"
               id="veilarbpersonflatefs-root"

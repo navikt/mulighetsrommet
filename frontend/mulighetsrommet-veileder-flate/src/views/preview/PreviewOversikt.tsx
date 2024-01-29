@@ -2,7 +2,7 @@ import Filtermeny from "../../components/filtrering/Filtermeny";
 import Tiltaksgjennomforingsoversikt from "../../components/oversikt/Tiltaksgjennomforingsoversikt";
 import { Feilmelding } from "../../components/feilmelding/Feilmelding";
 import { FilterAndTableLayout } from "../../components/filtrering/FilterAndTableLayout";
-import useTiltaksgjennomforinger from "../../core/api/queries/useTiltaksgjennomforinger";
+import { useTiltaksgjennomforinger } from "../../core/api/queries/useTiltaksgjennomforinger";
 import { Filtertags } from "../../components/filtrering/Filtertags";
 import { TiltakLoader } from "../../components/TiltakLoader";
 
