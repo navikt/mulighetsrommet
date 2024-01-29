@@ -9,11 +9,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import io.mockk.clearAllMocks
-import io.mockk.every
-import io.mockk.mockk
-import io.mockk.spyk
-import io.mockk.verify
+import io.mockk.*
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattDbo
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
@@ -39,7 +35,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
     val virksomhetService: VirksomhetService = mockk(relaxed = true)
     val utkastRepository: UtkastRepository = mockk(relaxed = true)
     val validator = mockk<TiltaksgjennomforingValidator>()
-
+    val enabledTiltakstyper = listOf(TiltakstypeFixtures.Oppfolging.tiltakskode)
     val avtaleId = AvtaleFixtures.avtale1.id
     val domain = MulighetsrommetTestDomain()
 
@@ -60,17 +56,20 @@ class TiltaksgjennomforingServiceTest : FunSpec({
         val avtaler = AvtaleRepository(database.db)
         val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
         val deltagerRepository = DeltakerRepository(database.db)
+        val tiltakstypeRepository = TiltakstypeRepository(database.db)
         val tiltaksgjennomforingService = TiltaksgjennomforingService(
             avtaler,
             tiltaksgjennomforingRepository,
             deltagerRepository,
             virksomhetService,
             utkastRepository,
+            tiltakstypeRepository,
             tiltaksgjennomforingKafkaProducer,
             NotificationRepository(database.db),
             validator,
             EndringshistorikkService(database.db),
             database.db,
+            enabledTiltakstyper,
         )
 
         test("Man skal ikke få avbryte dersom gjennomføringen ikke finnes") {
@@ -124,17 +123,20 @@ class TiltaksgjennomforingServiceTest : FunSpec({
         val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
         val deltagerRepository = DeltakerRepository(database.db)
         val avtaleRepository = AvtaleRepository(database.db)
+        val tiltakstypeRepository = TiltakstypeRepository(database.db)
         val tiltaksgjennomforingService = TiltaksgjennomforingService(
             avtaler,
             tiltaksgjennomforingRepository,
             deltagerRepository,
             virksomhetService,
             utkastRepository,
+            tiltakstypeRepository,
             tiltaksgjennomforingKafkaProducer,
             NotificationRepository(database.db),
             validator,
             EndringshistorikkService(database.db),
             database.db,
+            enabledTiltakstyper,
         )
 
         test("Man skal ikke få lov til å opprette gjennomføring dersom det oppstår valideringsfeil") {
@@ -157,17 +159,20 @@ class TiltaksgjennomforingServiceTest : FunSpec({
         val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
         val deltagerRepository = DeltakerRepository(database.db)
         val avtaleRepository = AvtaleRepository(database.db)
+        val tiltakstypeRepository = TiltakstypeRepository(database.db)
         val tiltaksgjennomforingService = TiltaksgjennomforingService(
             avtaler,
             tiltaksgjennomforingRepository,
             deltagerRepository,
             virksomhetService,
             utkastRepository,
+            tiltakstypeRepository,
             tiltaksgjennomforingKafkaProducer,
             NotificationRepository(database.db),
             validator,
             EndringshistorikkService(database.db),
             database.db,
+            enabledTiltakstyper,
         )
         val navAnsattRepository = NavAnsattRepository(database.db)
 
@@ -275,17 +280,20 @@ class TiltaksgjennomforingServiceTest : FunSpec({
         val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
         val deltagerRepository = DeltakerRepository(database.db)
         val notificationRepository = spyk(NotificationRepository(database.db))
+        val tiltakstypeRepository = TiltakstypeRepository(database.db)
         val tiltaksgjennomforingService = TiltaksgjennomforingService(
             avtaler,
             tiltaksgjennomforingRepository,
             deltagerRepository,
             virksomhetService,
             utkastRepository,
+            tiltakstypeRepository,
             tiltaksgjennomforingKafkaProducer,
             notificationRepository,
             validator,
             EndringshistorikkService(database.db),
             database.db,
+            enabledTiltakstyper,
         )
 
         test("Hvis publish kaster rulles upsert tilbake") {

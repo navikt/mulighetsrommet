@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.api.routes
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.string.shouldContain
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
@@ -28,6 +27,13 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
             enheter = listOf(NavEnhetFixtures.IT, NavEnhetFixtures.Oslo, NavEnhetFixtures.Sagene),
             avtaler = listOf(
                 AvtaleFixtures.avtale1.copy(
+                    navEnheter = listOf(
+                        NavEnhetFixtures.Sagene.enhetsnummer,
+                        NavEnhetFixtures.Oslo.enhetsnummer,
+                    ),
+                    leverandorUnderenheter = listOf(TiltaksgjennomforingFixtures.Oppfolging1.arrangorOrganisasjonsnummer),
+                ),
+                AvtaleFixtures.avtaleForVta.copy(
                     navEnheter = listOf(
                         NavEnhetFixtures.Sagene.enhetsnummer,
                         NavEnhetFixtures.Oslo.enhetsnummer,
@@ -145,7 +151,7 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
         }
     }
 
-    xtest("400 Bad request for autentisert kall for PUT av tiltaksgjennomføring når tiltakstypen ikke er skrudd på som master") {
+    test("400 Bad request for autentisert kall for PUT av tiltaksgjennomføring når tiltakstypen ikke er skrudd på som master") {
         val tiltaksgjennomforingSkrivRolle =
             AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV)
         val tiltaksadministrasjonGenerellRolle =
@@ -180,7 +186,7 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
                 contentType(ContentType.Application.Json)
                 setBody(
                     TiltaksgjennomforingFixtures.Oppfolging1Request.copy(
-                        avtaleId = AvtaleFixtures.avtale1.id,
+                        avtaleId = AvtaleFixtures.avtaleForVta.id,
                         navRegion = NavEnhetFixtures.Oslo.enhetsnummer,
                         navEnheter = listOf(NavEnhetFixtures.Sagene.enhetsnummer),
                         tiltakstypeId = TiltakstypeFixtures.VTA.id,
@@ -188,7 +194,6 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
                 )
             }
             response.status shouldBe HttpStatusCode.BadRequest
-            response.bodyAsText() shouldContain "er ikke skrudd på enda"
         }
     }
 
