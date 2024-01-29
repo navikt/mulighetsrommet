@@ -259,6 +259,7 @@ class VeilederflateService(
                 kontaktinfoInfoboks,
                 kontaktinfo,
               },
+              delingMedBruker,
             }[0]
         """.trimIndent()
 
@@ -310,7 +311,7 @@ class VeilederflateService(
                 fylke = fylke,
                 enheter = this.enheter?.filterNotNull(),
                 kontaktinfoTiltaksansvarlige = kontaktpersoner,
-                faneinnhold = faneinnhold,
+                faneinnhold = faneinnhold?.copy(delMedBruker = delingMedBruker),
                 beskrivelse = beskrivelse,
                 oppstart = TiltaksgjennomforingOppstartstype.LOPENDE,
                 tiltaksnummer = tiltaksnummer ?: "",
