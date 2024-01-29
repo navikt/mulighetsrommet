@@ -3278,7 +3278,6 @@ components:
     Toggles:
       type: string
       enum:
-        - mulighetsrommet.admin-flate-opprett-tiltaksgjennomforing
         - mulighetsrommet.veilederflate.visDeltakerRegistrering
         - mulighetsrommet-veilederflate-landingsside
         - mulighetsrommet-veilederflate-arena-oppskrifter
