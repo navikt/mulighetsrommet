@@ -7,7 +7,6 @@ import io.ktor.server.plugins.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import kotliquery.TransactionalSession
-import no.nav.mulighetsrommet.api.AppConfig
 import no.nav.mulighetsrommet.api.clients.vedtak.Innsatsgruppe
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.domain.dto.*
@@ -40,7 +39,7 @@ class TiltaksgjennomforingService(
     private val validator: TiltaksgjennomforingValidator,
     private val documentHistoryService: EndringshistorikkService,
     private val db: Database,
-    private val appConfig: AppConfig,
+    private val enabledTiltakstyper: List<String>,
 ) {
     suspend fun upsert(
         request: TiltaksgjennomforingRequest,
@@ -54,7 +53,7 @@ class TiltaksgjennomforingService(
 
         val previous = tiltaksgjennomforinger.get(request.id)
 
-        if (previous == null && !appConfig.kafka.producers.arenaMigreringTiltaksgjennomforinger.tiltakstyper.contains(
+        if (previous == null && !enabledTiltakstyper.contains(
                 tiltakstype.arenaKode,
             )
         ) {

@@ -11,7 +11,6 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.mockk.*
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
-import no.nav.mulighetsrommet.api.createTestApplicationConfig
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattDbo
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.fixtures.*
@@ -36,7 +35,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
     val virksomhetService: VirksomhetService = mockk(relaxed = true)
     val utkastRepository: UtkastRepository = mockk(relaxed = true)
     val validator = mockk<TiltaksgjennomforingValidator>()
-
+    val enabledTiltakstyper = listOf(TiltakstypeFixtures.Oppfolging.tiltakskode)
     val avtaleId = AvtaleFixtures.avtale1.id
     val domain = MulighetsrommetTestDomain()
 
@@ -70,7 +69,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             validator,
             EndringshistorikkService(database.db),
             database.db,
-            appConfig = createTestApplicationConfig(),
+            enabledTiltakstyper,
         )
 
         test("Man skal ikke få avbryte dersom gjennomføringen ikke finnes") {
@@ -137,7 +136,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             validator,
             EndringshistorikkService(database.db),
             database.db,
-            appConfig = createTestApplicationConfig(),
+            enabledTiltakstyper,
         )
 
         test("Man skal ikke få lov til å opprette gjennomføring dersom det oppstår valideringsfeil") {
@@ -173,7 +172,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             validator,
             EndringshistorikkService(database.db),
             database.db,
-            appConfig = createTestApplicationConfig(),
+            enabledTiltakstyper,
         )
         val navAnsattRepository = NavAnsattRepository(database.db)
 
@@ -294,7 +293,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             validator,
             EndringshistorikkService(database.db),
             database.db,
-            appConfig = createTestApplicationConfig(),
+            enabledTiltakstyper,
         )
 
         test("Hvis publish kaster rulles upsert tilbake") {
