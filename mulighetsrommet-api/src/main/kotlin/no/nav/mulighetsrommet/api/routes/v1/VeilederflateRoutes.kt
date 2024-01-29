@@ -25,7 +25,7 @@ fun Route.veilederflateRoutes() {
 
     route("/api/v1/internal/veileder") {
         get("/innsatsgrupper") {
-            poaoTilgangService.verfiyAccessToModia(getNavAnsattAzureId())
+            poaoTilgangService.verifyAccessToModia(getNavAnsattAzureId())
 
             val innsatsgrupper = veilederflateService.hentInnsatsgrupper()
 
@@ -33,7 +33,7 @@ fun Route.veilederflateRoutes() {
         }
 
         get("/tiltakstyper") {
-            poaoTilgangService.verfiyAccessToModia(getNavAnsattAzureId())
+            poaoTilgangService.verifyAccessToModia(getNavAnsattAzureId())
 
             val tiltakstyper = veilederflateService.hentTiltakstyper()
 
