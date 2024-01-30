@@ -239,7 +239,7 @@ const DelMedBruker = ({ tiltakstype }: { tiltakstype?: VeilederflateTiltakstype 
         }}
         value={tekst}
         label="Del med bruker"
-        description="Bruk denne tekstboksen for å redigere default teksten som sendes til bruker når man deler et tiltak."
+        description="Bruk denne tekstboksen for å redigere teksten som sendes til bruker når man deler et tiltak. Det blir automatisk lagt til en ”Hei” og en “Hilsen”."
       />
     </div>
   );
