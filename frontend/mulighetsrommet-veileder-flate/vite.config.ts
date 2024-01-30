@@ -1,8 +1,9 @@
+import "dotenv/config";
 import { resolve } from "path";
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import { shadowStyle } from "vite-plugin-shadow-style";
 import { visualizer } from "rollup-plugin-visualizer";
-import "dotenv/config";
 
 const config = {
   DEMO: {
@@ -38,6 +39,7 @@ export default defineConfig({
     visualizer({
       filename: "bundle-stats.html",
     }),
+    shadowStyle(),
   ],
   build: {
     outDir: resolve(__dirname, "dist"), //appConfig.outDir,

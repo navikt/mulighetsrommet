@@ -1,7 +1,9 @@
-import { APPLICATION_WEB_COMPONENT_NAME } from "../../constants";
+import { APPLICATION_NAME, APPLICATION_WEB_COMPONENT_NAME } from "../../constants";
 import { initAmplitude } from "../../logging/amplitude";
 import { getWebInstrumentations, initializeFaro } from "@grafana/faro-web-sdk";
 import { ModiaArbeidsmarkedstiltakWrapper } from "./ModiaArbeidsmarkedstiltakWrapper";
+import { createRoot } from "react-dom/client";
+import React from "react";
 
 if (import.meta.env.PROD && import.meta.env.VITE_FARO_URL) {
   initializeFaro({
@@ -24,3 +26,17 @@ if (import.meta.env.PROD && import.meta.env.VITE_FARO_URL) {
  * [0]: https://developer.mozilla.org/en-US/docs/Web/API/Web_components
  */
 customElements.define(APPLICATION_WEB_COMPONENT_NAME, ModiaArbeidsmarkedstiltakWrapper);
+
+/**
+ * Må kjøres via `vite build` og `vite preview` (altså ikke via `vite dev`) for at styling under
+ * shadow root skal bli lastet riktig.
+ */
+const demoContainer = document.getElementById(APPLICATION_NAME);
+if (demoContainer) {
+  const root = createRoot(demoContainer);
+  const app = React.createElement(APPLICATION_WEB_COMPONENT_NAME, {
+    "data-fnr": import.meta.env.VITE_DEMO_FNR ?? null,
+    "data-enhet": import.meta.env.VITE_DEMO_ENHET ?? null,
+  });
+  root.render(app);
+}

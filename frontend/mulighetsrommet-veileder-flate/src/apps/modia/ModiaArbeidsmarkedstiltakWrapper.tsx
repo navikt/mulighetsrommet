@@ -1,20 +1,12 @@
 import { APPLICATION_WEB_COMPONENT_NAME } from "../../constants";
 import { BrowserRouter as Router, Navigate, Route, Routes } from "react-router-dom";
 import { createRoot, Root } from "react-dom/client";
-import urlJoin from "url-join";
-import { headers } from "../../core/api/headers";
 import createCache from "@emotion/cache";
 import { CustomEmotionCacheProvider } from "./CustomEmotionCacheProvider";
 import { AppContext } from "../../AppContext";
 import { ErrorBoundary } from "react-error-boundary";
 import { ErrorFallback } from "../../utils/ErrorFallback";
 import { ModiaArbeidsmarkedstiltak } from "./ModiaArbeidsmarkedstiltak";
-
-interface ViteAssetManifest {
-  "index.html": {
-    css: string[];
-  };
-}
 
 export class ModiaArbeidsmarkedstiltakWrapper extends HTMLElement {
   static FNR_PROP = "data-fnr";
@@ -73,22 +65,9 @@ export class ModiaArbeidsmarkedstiltakWrapper extends HTMLElement {
   }
 
   async loadStyles(shadowRoot: ShadowRoot) {
-    const response = await fetch(urlJoin(import.meta.env.BASE_URL, "asset-manifest.json"), {
-      headers,
-    });
-
-    if (!response.ok) {
-      throw Error(`Failed to get resource '${response.url}'`);
-    }
-
-    const manifest: ViteAssetManifest = await response.json();
-    for (const css of manifest["index.html"].css) {
-      const link = document.createElement("link");
-      link.rel = "stylesheet";
-      link.href = urlJoin(import.meta.env.BASE_URL, css);
-
-      shadowRoot.appendChild(link);
-    }
+    const style = document.createElement("style");
+    style.innerHTML = SHADOW_STYLE;
+    shadowRoot.appendChild(style);
   }
 
   renderApp(fnr?: string, enhet?: string) {
