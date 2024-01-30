@@ -1,4 +1,4 @@
-import { Bruker, NavEnhet } from "mulighetsrommet-api-client";
+import { Bruker, NavEnhet, VeilederflateTiltaksgjennomforing } from "mulighetsrommet-api-client";
 import {
   ArbeidsmarkedstiltakFilter,
   valgteEnhetsnumre,
@@ -83,5 +83,14 @@ export function brukersEnhetFilterHasChanged(
       .map((enhet: NavEnhet) => enhet.enhetsnummer)
       .sort()
       .join(",") !== filterEnheter.sort().join(",")
+  );
+}
+
+export function delMedBrukerTekst(
+  tiltaksgjennomforing: VeilederflateTiltaksgjennomforing,
+): string | undefined {
+  return (
+    tiltaksgjennomforing.faneinnhold?.delMedBruker ??
+    tiltaksgjennomforing.tiltakstype.delingMedBruker
   );
 }
