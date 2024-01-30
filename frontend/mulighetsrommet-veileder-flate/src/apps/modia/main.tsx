@@ -1,4 +1,3 @@
-import "./polyfill";
 import { APPLICATION_WEB_COMPONENT_NAME } from "../../constants";
 import { initAmplitude } from "../../logging/amplitude";
 import { getWebInstrumentations, initializeFaro } from "@grafana/faro-web-sdk";

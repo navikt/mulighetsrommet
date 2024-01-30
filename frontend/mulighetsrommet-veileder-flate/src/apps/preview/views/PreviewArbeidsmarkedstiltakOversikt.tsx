@@ -1,10 +1,10 @@
-import Filtermeny from "../../components/filtrering/Filtermeny";
-import Tiltaksgjennomforingsoversikt from "../../components/oversikt/Tiltaksgjennomforingsoversikt";
-import { Feilmelding } from "../../components/feilmelding/Feilmelding";
-import { FilterAndTableLayout } from "../../components/filtrering/FilterAndTableLayout";
-import { usePreviewTiltaksgjennomforinger } from "../../core/api/queries/useTiltaksgjennomforinger";
-import { Filtertags } from "../../components/filtrering/Filtertags";
-import { TiltakLoader } from "../../components/TiltakLoader";
+import Filtermeny from "../../../components/filtrering/Filtermeny";
+import Tiltaksgjennomforingsoversikt from "../../../components/oversikt/Tiltaksgjennomforingsoversikt";
+import { Feilmelding } from "../../../components/feilmelding/Feilmelding";
+import { FilterAndTableLayout } from "../../../components/filtrering/FilterAndTableLayout";
+import { usePreviewTiltaksgjennomforinger } from "../../../core/api/queries/useTiltaksgjennomforinger";
+import { Filtertags } from "../../../components/filtrering/Filtertags";
+import { TiltakLoader } from "../../../components/TiltakLoader";
 
 export const PreviewArbeidsmarkedstiltakOversikt = () => {
   const { data: tiltaksgjennomforinger = [], isLoading } = usePreviewTiltaksgjennomforinger();

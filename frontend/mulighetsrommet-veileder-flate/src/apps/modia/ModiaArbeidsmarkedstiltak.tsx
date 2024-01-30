@@ -6,11 +6,11 @@ import { useInitializeAppContext } from "../../hooks/useInitializeAppContext";
 import { useInitializeArbeidsmarkedstiltakFilterForBruker } from "../../hooks/useInitializeArbeidsmarkedstiltakFilterForBruker";
 import { useFeatureToggle } from "../../core/api/feature-toggles";
 import { Toggles } from "mulighetsrommet-api-client";
-import { AppContainerOversiktView } from "../../components/appContainerOversiktView/AppContainerOversiktView";
+import { AppContainer } from "../../layouts/AppContainer";
 import { DemoImageHeader } from "../../components/DemoImageHeader";
-import { Landingsside } from "../../views/landingsside/Landingsside";
-import { ModiaArbeidsmarkedstiltakOversikt } from "../../views/modia-arbeidsmarkedstiltak/ModiaArbeidsmarkedstiltakOversikt";
-import { ModiaArbeidsmarkedstiltakDetaljer } from "../../views/modia-arbeidsmarkedstiltak/ModiaArbeidsmarkedstiltakDetaljer";
+import { Landingsside } from "./views/Landingsside";
+import { ModiaArbeidsmarkedstiltakOversikt } from "./views/ModiaArbeidsmarkedstiltakOversikt";
+import { ModiaArbeidsmarkedstiltakDetaljer } from "./views/ModiaArbeidsmarkedstiltakDetaljer";
 import { DeltakerRegistrering } from "../../microfrontends/team_komet/DeltakerRegistrering";
 
 export function ModiaArbeidsmarkedstiltak() {
@@ -35,7 +35,7 @@ export function ModiaArbeidsmarkedstiltak() {
   }
 
   return (
-    <AppContainerOversiktView header={<DemoImageHeader />}>
+    <AppContainer header={<DemoImageHeader />}>
       <Routes>
         {enableLandingsside ? <Route path="" element={<Landingsside />} /> : null}
         <Route path="oversikt" element={<ModiaArbeidsmarkedstiltakOversikt />} />
@@ -53,6 +53,6 @@ export function ModiaArbeidsmarkedstiltak() {
           }
         />
       </Routes>
-    </AppContainerOversiktView>
+    </AppContainer>
   );
 }

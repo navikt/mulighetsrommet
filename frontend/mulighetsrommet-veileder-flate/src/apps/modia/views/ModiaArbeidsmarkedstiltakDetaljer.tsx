@@ -1,23 +1,23 @@
 import { Alert, Button } from "@navikt/ds-react";
-import { useTitle } from "../../../../frontend-common";
-import { useHentBrukerdata } from "../../core/api/queries/useHentBrukerdata";
-import { useHentDeltMedBrukerStatus } from "../../core/api/queries/useHentDeltMedbrukerStatus";
-import { useHentVeilederdata } from "../../core/api/queries/useHentVeilederdata";
-import { useTiltaksgjennomforingById } from "../../core/api/queries/useTiltaksgjennomforingById";
-import { useAppContext } from "../../hooks/useAppContext";
-import ViewTiltaksgjennomforingDetaljer from "../ViewTiltaksgjennomforingDetaljer/ViewTiltaksgjennomforingDetaljer";
-import styles from "./ModiaTiltaksgjennomforingDetaljer.module.scss";
-import Tilbakeknapp from "../../components/tilbakeknapp/Tilbakeknapp";
-import { DetaljerJoyride } from "../../components/joyride/DetaljerJoyride";
-import { OpprettAvtaleJoyride } from "../../components/joyride/OpprettAvtaleJoyride";
-import { BrukerKvalifisererIkkeVarsel } from "../../components/varsler/BrukerKvalifisererIkkeVarsel";
-import { BrukerHarIkke14aVedtakVarsel } from "../../components/varsler/BrukerHarIkke14aVedtakVarsel";
+import { useTitle } from "../../../../../frontend-common";
+import { useHentBrukerdata } from "../../../core/api/queries/useHentBrukerdata";
+import { useHentDeltMedBrukerStatus } from "../../../core/api/queries/useHentDeltMedbrukerStatus";
+import { useHentVeilederdata } from "../../../core/api/queries/useHentVeilederdata";
+import { useTiltaksgjennomforingById } from "../../../core/api/queries/useTiltaksgjennomforingById";
+import { useAppContext } from "../../../hooks/useAppContext";
+import { ViewTiltaksgjennomforingDetaljer } from "../../../layouts/ViewTiltaksgjennomforingDetaljer";
+import styles from "./ModiaArbeidsmarkedstiltakDetaljer.module.scss";
+import Tilbakeknapp from "../../../components/tilbakeknapp/Tilbakeknapp";
+import { DetaljerJoyride } from "../../../components/joyride/DetaljerJoyride";
+import { OpprettAvtaleJoyride } from "../../../components/joyride/OpprettAvtaleJoyride";
+import { BrukerKvalifisererIkkeVarsel } from "../../../components/varsler/BrukerKvalifisererIkkeVarsel";
+import { BrukerHarIkke14aVedtakVarsel } from "../../../components/varsler/BrukerHarIkke14aVedtakVarsel";
 import { Link } from "react-router-dom";
 import { Chat2Icon } from "@navikt/aksel-icons";
-import { byttTilDialogFlate } from "../../utils/DialogFlateUtils";
+import { byttTilDialogFlate } from "../../../utils/DialogFlateUtils";
 import { useAtomValue } from "jotai/index";
-import { paginationAtom } from "../../core/atoms/atoms";
-import { useFeatureToggle } from "../../core/api/feature-toggles";
+import { paginationAtom } from "../../../core/atoms/atoms";
+import { useFeatureToggle } from "../../../core/api/feature-toggles";
 import {
   Bruker,
   Innsatsgruppe,
@@ -26,10 +26,10 @@ import {
   Toggles,
   VeilederflateTiltakstype,
 } from "mulighetsrommet-api-client";
-import { DelMedBruker } from "../../components/delMedBruker/DelMedBruker";
-import { TiltakLoader } from "../../components/TiltakLoader";
-import { useGetTiltaksgjennomforingIdFraUrl } from "../../core/api/queries/useGetTiltaksgjennomforingIdFraUrl";
-import { isProd } from "../../utils/Utils";
+import { DelMedBruker } from "../../../components/delMedBruker/DelMedBruker";
+import { TiltakLoader } from "../../../components/TiltakLoader";
+import { useGetTiltaksgjennomforingIdFraUrl } from "../../../core/api/queries/useGetTiltaksgjennomforingIdFraUrl";
+import { isProd } from "../../../utils/Utils";
 
 export function ModiaArbeidsmarkedstiltakDetaljer() {
   const { fnr } = useAppContext();

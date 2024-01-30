@@ -1,5 +1,5 @@
 import { Button } from "@navikt/ds-react";
-import styles from "../../views/ViewTiltaksgjennomforingDetaljer/ViewTiltaksgjennomforingDetaljer.module.scss";
+import styles from "../../layouts/ViewTiltaksgjennomforingDetaljer.module.scss";
 import { CheckmarkIcon } from "@navikt/aksel-icons";
 import { Delemodal } from "./delemodal/Delemodal";
 import { useDelMedBruker } from "./delemodal/DelemodalReducer";

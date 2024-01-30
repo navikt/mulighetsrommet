@@ -6,20 +6,16 @@ import "dotenv/config";
 
 const config = {
   DEMO: {
-    root: "apps/demo",
-    publicDir: "../../public",
+    root: resolve(__dirname, "src/apps/demo"),
   },
   MODIA: {
-    root: "apps/modia",
-    publicDir: "../../public",
+    root: resolve(__dirname, "src/apps/modia"),
   },
   NAV: {
-    root: "apps/nav",
-    publicDir: "../../public",
+    root: resolve(__dirname, "src/apps/nav"),
   },
   PREVIEW: {
-    root: "apps/preview",
-    publicDir: "../../public",
+    root: resolve(__dirname, "src/apps/preview"),
   },
 } as const;
 
@@ -35,26 +31,20 @@ if (!appConfig) {
 
 export default defineConfig({
   root: appConfig.root,
-  publicDir: appConfig.publicDir,
+  publicDir: resolve(__dirname, "public"),
   plugins: [
+    tsconfigPaths(),
     react(),
     visualizer({
       filename: "bundle-stats.html",
     }),
   ],
-  resolve: {
-    alias: [
-      {
-        // Sett opp et alias for kildekoden slik at imports fra `apps/<app>/index.html` fungerer i dev-modus
-        find: "/src",
-        replacement: resolve(__dirname, "src"),
-      },
-    ],
-  },
   build: {
+    outDir: resolve(__dirname, "dist"), //appConfig.outDir,
+    emptyOutDir: true,
     rollupOptions: {
       input: {
-        main: resolve(__dirname, `${appConfig.root}/index.html`),
+        main: resolve(appConfig.root, "index.html"),
       },
     },
     manifest: "asset-manifest.json",
