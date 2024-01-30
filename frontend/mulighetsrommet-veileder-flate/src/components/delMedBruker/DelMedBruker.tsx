@@ -11,7 +11,7 @@ import {
   DelMedBruker as DelMedBrukerInfo,
   VeilederflateTiltaksgjennomforing,
 } from "mulighetsrommet-api-client";
-import { formaterDato } from "../../utils/Utils";
+import { delMedBrukerTekst, formaterDato } from "../../utils/Utils";
 
 interface Props {
   veiledernavn: string;
@@ -26,16 +26,11 @@ export const DelMedBruker = ({
   tiltaksgjennomforing,
   delMedBrukerInfo,
 }: Props) => {
-  const delMedBrukerTekst =
-    tiltaksgjennomforing.faneinnhold?.delMedBruker ??
-    tiltaksgjennomforing.tiltakstype.delingMedBruker ??
-    "";
-
   const { logEvent } = useLogEvent();
   const { reservert } = erBrukerReservertMotElektroniskKommunikasjon(brukerdata);
 
   const deletekst = utledDelMedBrukerTekst(
-    delMedBrukerTekst,
+    delMedBrukerTekst(tiltaksgjennomforing) ?? "",
     tiltaksgjennomforing.navn,
     brukerdata.fornavn,
   );
