@@ -151,7 +151,7 @@ export const mockRegioner: NavRegion[] = [
     ],
   },
   {
-    navn: "NAV Øst-Vikern",
+    navn: "NAV Øst-Viken",
     type: NavEnhetType.FYLKE,
     status: NavEnhetStatus.AKTIV,
     enhetsnummer: "0200",
