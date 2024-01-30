@@ -27,6 +27,7 @@
       "mulighetsrommet-api-client": ["../mulighetsrommet-api-client"],
       // Fordi bl.a. sanity drar med seg vite@v4
       "vite": ["node_modules/vite"],
+      "@/*": ["./src/*"],
     },
   },
   "include": ["src"],

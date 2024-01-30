@@ -1,9 +1,9 @@
-import { APPLICATION_WEB_COMPONENT_NAME } from "../../constants";
 import { BrowserRouter as Router, Navigate, Route, Routes } from "react-router-dom";
 import { createRoot, Root } from "react-dom/client";
 import createCache from "@emotion/cache";
+import { AppContext } from "@/AppContext";
+import { APPLICATION_WEB_COMPONENT_NAME } from "@/constants";
 import { CustomEmotionCacheProvider } from "./CustomEmotionCacheProvider";
-import { AppContext } from "../../AppContext";
 import { ModiaArbeidsmarkedstiltak } from "./ModiaArbeidsmarkedstiltak";
 
 export class ModiaArbeidsmarkedstiltakWrapper extends HTMLElement {

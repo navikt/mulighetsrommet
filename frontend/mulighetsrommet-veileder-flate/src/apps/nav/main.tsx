@@ -1,7 +1,7 @@
 import { createRoot } from "react-dom/client";
-import { APPLICATION_NAME } from "../../constants";
-import { AppContext } from "../../AppContext";
 import { BrowserRouter as Router, Navigate, Route, Routes } from "react-router-dom";
+import { APPLICATION_NAME } from "@/constants";
+import { AppContext } from "@/AppContext";
 import { NavArbeidsmarkedstiltak } from "./NavArbeidsmarkedstiltak";
 
 const demoContainer = document.getElementById(APPLICATION_NAME);

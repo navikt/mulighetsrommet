@@ -1,10 +1,10 @@
 import { createRoot } from "react-dom/client";
-import { APPLICATION_NAME } from "../../constants";
-import { AppContext } from "../../AppContext";
+import { APPLICATION_NAME } from "@/constants";
+import { AppContext } from "@/AppContext";
 import { BrowserRouter as Router, Link, Route, Routes } from "react-router-dom";
-import { NavArbeidsmarkedstiltak } from "../nav/NavArbeidsmarkedstiltak";
-import { PreviewArbeidsmarkedstiltak } from "../preview/PreviewArbeidsmarkedstiltak";
-import { ModiaArbeidsmarkedstiltak } from "../modia/ModiaArbeidsmarkedstiltak";
+import { NavArbeidsmarkedstiltak } from "@/apps/nav/NavArbeidsmarkedstiltak";
+import { PreviewArbeidsmarkedstiltak } from "@/apps/preview/PreviewArbeidsmarkedstiltak";
+import { ModiaArbeidsmarkedstiltak } from "@/apps/modia/ModiaArbeidsmarkedstiltak";
 
 if (import.meta.env.VITE_MULIGHETSROMMET_API_MOCK === "true") {
   import("../../mock/worker")

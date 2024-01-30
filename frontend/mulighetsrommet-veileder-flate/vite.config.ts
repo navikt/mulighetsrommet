@@ -1,9 +1,10 @@
 import "dotenv/config";
 import { resolve } from "path";
 import { defineConfig } from "vite";
+import { visualizer } from "rollup-plugin-visualizer";
 import react from "@vitejs/plugin-react";
 import { shadowStyle } from "vite-plugin-shadow-style";
-import { visualizer } from "rollup-plugin-visualizer";
+import tsconfigPaths from "vite-tsconfig-paths";
 
 const config = {
   DEMO: {

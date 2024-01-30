@@ -1,9 +1,9 @@
-import { APPLICATION_NAME, APPLICATION_WEB_COMPONENT_NAME } from "../../constants";
-import { initAmplitude } from "../../logging/amplitude";
-import { getWebInstrumentations, initializeFaro } from "@grafana/faro-web-sdk";
-import { ModiaArbeidsmarkedstiltakWrapper } from "./ModiaArbeidsmarkedstiltakWrapper";
-import { createRoot } from "react-dom/client";
 import React from "react";
+import { createRoot } from "react-dom/client";
+import { getWebInstrumentations, initializeFaro } from "@grafana/faro-web-sdk";
+import { APPLICATION_NAME, APPLICATION_WEB_COMPONENT_NAME } from "@/constants";
+import { initAmplitude } from "@/logging/amplitude";
+import { ModiaArbeidsmarkedstiltakWrapper } from "./ModiaArbeidsmarkedstiltakWrapper";
 
 if (import.meta.env.PROD && import.meta.env.VITE_FARO_URL) {
   initializeFaro({

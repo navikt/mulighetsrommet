@@ -1,8 +1,8 @@
+import { Heading } from "@navikt/ds-react";
 import { PlusIcon } from "@navikt/aksel-icons";
 import { Link } from "react-router-dom";
-import { HistorikkForBrukerModalInnhold } from "../../../components/historikk/HistorikkForBrukerModalInnhold";
+import { HistorikkForBrukerModalInnhold } from "@/components/historikk/HistorikkForBrukerModalInnhold";
 import styles from "./Landingsside.module.scss";
-import { Heading } from "@navikt/ds-react";
 
 export function Landingsside() {
   return (

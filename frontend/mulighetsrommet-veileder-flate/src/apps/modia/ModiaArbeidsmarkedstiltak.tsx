@@ -1,17 +1,17 @@
 import "@navikt/ds-css";
 import "./polyfill";
 import { Navigate, Route, Routes } from "react-router-dom";
-import { useHentVeilederdata } from "../../core/api/queries/useHentVeilederdata";
-import { useInitializeAppContext } from "../../hooks/useInitializeAppContext";
-import { useInitializeArbeidsmarkedstiltakFilterForBruker } from "../../hooks/useInitializeArbeidsmarkedstiltakFilterForBruker";
-import { useFeatureToggle } from "../../core/api/feature-toggles";
+import { useHentVeilederdata } from "@/core/api/queries/useHentVeilederdata";
+import { useInitializeAppContext } from "@/hooks/useInitializeAppContext";
+import { useInitializeArbeidsmarkedstiltakFilterForBruker } from "@/hooks/useInitializeArbeidsmarkedstiltakFilterForBruker";
+import { useFeatureToggle } from "@/core/api/feature-toggles";
 import { Toggles } from "mulighetsrommet-api-client";
-import { AppContainer } from "../../layouts/AppContainer";
-import { DemoImageHeader } from "../../components/DemoImageHeader";
+import { AppContainer } from "@/layouts/AppContainer";
+import { DemoImageHeader } from "@/components/DemoImageHeader";
 import { Landingsside } from "./views/Landingsside";
 import { ModiaArbeidsmarkedstiltakOversikt } from "./views/ModiaArbeidsmarkedstiltakOversikt";
 import { ModiaArbeidsmarkedstiltakDetaljer } from "./views/ModiaArbeidsmarkedstiltakDetaljer";
-import { DeltakerRegistrering } from "../../microfrontends/team_komet/DeltakerRegistrering";
+import { DeltakerRegistrering } from "@/microfrontends/team_komet/DeltakerRegistrering";
 
 export function ModiaArbeidsmarkedstiltak() {
   return (
