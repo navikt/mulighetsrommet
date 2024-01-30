@@ -1,9 +1,11 @@
-import { Alert, BodyShort, Detail, Loader } from "@navikt/ds-react";
+import { ExternalLinkIcon } from "@navikt/aksel-icons";
+import { Alert, BodyShort, Detail, Link, Loader } from "@navikt/ds-react";
 import { HistorikkForBruker as IHistorikkForBruker } from "mulighetsrommet-api-client";
+import { PORTEN } from "mulighetsrommet-frontend-common/constants";
 import { useHentHistorikk } from "../../core/api/queries/useHentHistorikk";
+import { formaterDato } from "../../utils/Utils";
 import styles from "./HistorikkForBrukerModal.module.scss";
 import { StatusBadge } from "./Statusbadge";
-import { formaterDato } from "../../utils/Utils";
 
 export function HistorikkForBrukerModalInnhold() {
   const { data, isLoading, isError } = useHentHistorikk();
@@ -36,33 +38,54 @@ export function HistorikkForBrukerModalInnhold() {
   const tiltak = [...venter, ...deltar, ...avsluttet, ...ikkeAktuell];
 
   return (
-    <ul className={styles.historikk_for_bruker_liste}>
-      {tiltak?.map((historikk) => {
-        return (
-          <li key={historikk.id} className={styles.historikk_for_bruker_listeelement}>
-            <div className={styles.historikk_for_bruker_data}>
-              <BodyShort size="small">{historikk.tiltaksnavn}</BodyShort>
+    <>
+      <Alert variant="info" style={{ marginBottom: "1rem" }}>
+        Historikken er ikke komplett og viser bare 5 år tilbake i tid.
+      </Alert>
+      <ul className={styles.historikk_for_bruker_liste}>
+        {tiltak?.map((historikk) => {
+          return (
+            <li key={historikk.id} className={styles.historikk_for_bruker_listeelement}>
+              <div className={styles.historikk_for_bruker_data}>
+                <BodyShort size="small">{historikk.tiltaksnavn}</BodyShort>
 
-              <div className={styles.historikk_for_bruker_arrangor_tiltakstype}>
-                <Detail className={styles.historikk_for_bruker_tiltakstype}>
-                  {historikk.tiltakstype}
-                </Detail>
-                <Detail>•</Detail>
-                <Detail className={styles.historikk_for_bruker_arrangor}>
-                  {historikk.arrangor?.navn}
-                </Detail>
+                <div className={styles.historikk_for_bruker_arrangor_tiltakstype}>
+                  <Detail className={styles.historikk_for_bruker_tiltakstype}>
+                    {historikk.tiltakstype}
+                  </Detail>
+                  <Detail>•</Detail>
+                  <Detail className={styles.historikk_for_bruker_arrangor}>
+                    {historikk.arrangor?.navn}
+                  </Detail>
+                </div>
               </div>
-            </div>
-            <div className={styles.historikk_for_bruker_status_dato}>
-              <StatusBadge status={historikk.status} />
-              <div className={styles.historikk_datoer}>
-                <Detail>{formaterDato(historikk.fraDato ?? "")}</Detail> -{" "}
-                <Detail>{formaterDato(historikk.tilDato ?? "")}</Detail>
+              <div className={styles.historikk_for_bruker_status_dato}>
+                <StatusBadge status={historikk.status} />
+                <div className={styles.historikk_datoer}>
+                  <Detail>{formaterDato(historikk.fraDato ?? "")}</Detail> -{" "}
+                  <Detail>{formaterDato(historikk.tilDato ?? "")}</Detail>
+                </div>
               </div>
-            </div>
-          </li>
-        );
-      })}
-    </ul>
+            </li>
+          );
+        })}
+      </ul>
+      <ViVilHoreFraDeg />
+    </>
+  );
+}
+
+function ViVilHoreFraDeg() {
+  return (
+    <>
+      <h4>Vi vil høre fra deg</h4>
+      <BodyShort>
+        Vi jobber med utvikling av historikk-funksjonaliteten og vi ønsker å høre fra deg som har
+        tanker om hvordan historikken burde presenteres og fungere.{" "}
+        <Link href={PORTEN}>
+          Send oss gjerne en melding via Porten <ExternalLinkIcon />
+        </Link>
+      </BodyShort>
+    </>
   );
 }
