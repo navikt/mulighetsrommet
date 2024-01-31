@@ -68,13 +68,11 @@ function OppstartstypeWarning({ gjennomforingId }: OppstartstypePropsWarning) {
             Statusen vises i aktivitetsplanen og Deltakeroversikten.
           </li>
           <li>
-            Dersom oppstartstypen blir endret så vil også den avsluttende statusen endres, og
-            aktivitetskortet i aktivitetsplanen vil kunne bli flyttet til enten fullført eller
-            avbrutt.
+            Dersom oppstartstypen blir endret, så endres også den avsluttende statusen, og
+            aktiviteten i aktivitetsplanen kan flyttes til enten fullført eller avbrutt.
           </li>
           <li>
-            Når statusen endres vil det komme en visuell markering i form av en blå prikk på det
-            aktuelle aktivitetskortet.
+            En blå prikk vises på aktiviteten for å synliggjøre at det er en endring siden sist.
           </li>
         </ul>
       </HelpText>
