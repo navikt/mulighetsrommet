@@ -40,7 +40,8 @@ export function HistorikkForBrukerModalInnhold() {
   return (
     <>
       <Alert variant="info" style={{ marginBottom: "1rem" }}>
-        Historikken er ikke komplett og viser bare 5 år tilbake i tid.
+        Vi viser bare tiltak 5 år tilbake i tid. Vær oppmerksom på at tiltak som er flyttet ut fra
+        Arena kan mangle i historikken.
       </Alert>
       <ul className={styles.historikk_for_bruker_liste}>
         {tiltak?.map((historikk) => {
