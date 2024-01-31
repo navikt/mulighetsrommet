@@ -1,4 +1,4 @@
-import { Alert } from "@navikt/ds-react";
+import { Alert, HelpText } from "@navikt/ds-react";
 import { TiltaksgjennomforingOppstartstype } from "mulighetsrommet-api-client";
 import { ControlledSokeSelect } from "mulighetsrommet-frontend-common";
 import { useController } from "react-hook-form";
@@ -59,7 +59,23 @@ function OppstartstypeWarning({ gjennomforingId }: OppstartstypePropsWarning) {
   return isError || summary.antallDeltakere > 0 ? (
     <Alert variant="warning">
       Deltakerstatus påvirkes av oppstartstypen. Hvis du endrer oppstartstypen så kan deltakelser
-      som er avsluttet få en ny status. Statusen vises i aktivitetsplanen og deltakeroversikten.
+      som er avsluttet få en ny status. Statusen vises i aktivitetsplanen og deltakeroversikten.{" "}
+      <HelpText title="Hvilke konsekvenser får dette?">
+        <ul>
+          <li>
+            Avsluttende deltakere vil ha statusen &quot;Har sluttet&quot; på tiltak med løpende
+            inntak, og &quot;Fullført&quot; eller &quot;Avbrutt&quot; på tiltak med felles oppstart.
+            Statusen vises i aktivitetsplanen og Deltakeroversikten.
+          </li>
+          <li>
+            Dersom oppstartstypen blir endret, så endres også den avsluttende statusen, og
+            aktiviteten i aktivitetsplanen kan flyttes til enten fullført eller avbrutt.
+          </li>
+          <li>
+            En blå prikk vises på aktiviteten for å synliggjøre at det er en endring siden sist.
+          </li>
+        </ul>
+      </HelpText>
     </Alert>
   ) : null;
 }
