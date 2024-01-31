@@ -1,8 +1,9 @@
 import { LayersPlusIcon } from "@navikt/aksel-icons";
 import styles from "./DupliserTiltak.module.scss";
 import { Button } from "@navikt/ds-react";
-import { Tiltaksgjennomforing } from "mulighetsrommet-api-client";
+import { Tiltaksgjennomforing, Toggles } from "mulighetsrommet-api-client";
 import { useNavigate } from "react-router-dom";
+import { useFeatureToggle } from "../../api/features/feature-toggles";
 
 interface Props {
   tiltaksgjennomforing: Tiltaksgjennomforing;
@@ -10,6 +11,11 @@ interface Props {
 
 export function DupliserTiltak({ tiltaksgjennomforing }: Props) {
   const navigate = useNavigate();
+  const { data: kanDuplisereTiltak } = useFeatureToggle(
+    Toggles.MR_ADMIN_FLATE_KAN_DUPLISERE_TILTAK,
+  );
+
+  if (!kanDuplisereTiltak) return null;
 
   function apneRedigeringForDupliseringAvTiltak() {
     navigate(`/tiltaksgjennomforinger/${tiltaksgjennomforing.id}/skjema`, {
