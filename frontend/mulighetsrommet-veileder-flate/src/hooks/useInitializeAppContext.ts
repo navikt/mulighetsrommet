@@ -1,10 +1,10 @@
 import { useSetAtom } from "jotai";
 import { useOverordnetEnhet } from "../core/api/queries/useOverordnetEnhet";
-import { appContextAtom, AppContextData, useAppContext } from "./useAppContext";
+import { appContextAtom, useAppContext } from "./useAppContext";
 import { useEffect } from "react";
 import { useLogEvent } from "../logging/amplitude";
 
-export function useInitializeAppContext(): AppContextData {
+export function useInitializeAppContext() {
   const appContext = useAppContext();
   const setAppContext = useSetAtom(appContextAtom);
   const { data: overordnetEnhet } = useOverordnetEnhet(appContext.enhet);
@@ -21,6 +21,4 @@ export function useInitializeAppContext(): AppContextData {
       logEvent({ name: "arbeidsmarkedstiltak.unike-brukere" });
     }
   }, [appContext.overordnetEnhet]);
-
-  return appContext;
 }

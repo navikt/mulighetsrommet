@@ -4,14 +4,6 @@ import {
   valgteEnhetsnumre,
 } from "../hooks/useArbeidsmarkedstiltakFilter";
 
-export function isDev() {
-  return !isProd();
-}
-
-export function isProd() {
-  return window.location.origin.endsWith(".intern.nav.no");
-}
-
 export const inneholderUrl = (string: string) => {
   return window.location.href.indexOf(string) > -1;
 };

@@ -29,7 +29,7 @@ import { useFeatureToggle } from "@/core/api/feature-toggles";
 import { DelMedBruker } from "@/components/delMedBruker/DelMedBruker";
 import { TiltakLoader } from "@/components/TiltakLoader";
 import { useGetTiltaksgjennomforingIdFraUrl } from "@/core/api/queries/useGetTiltaksgjennomforingIdFraUrl";
-import { isProd } from "@/utils/Utils";
+import { isProduction } from "@/environment";
 
 export function ModiaArbeidsmarkedstiltakDetaljer() {
   const { fnr } = useAppContext();
@@ -195,7 +195,7 @@ function isIndividueltTiltak(tiltakstype: VeilederflateTiltakstype): boolean {
 }
 
 function lenkeTilOpprettAvtale(): string {
-  const baseUrl = isProd()
+  const baseUrl = isProduction
     ? "https://tiltaksgjennomforing.intern.nav.no"
     : "https://tiltaksgjennomforing.intern.dev.nav.no";
   return `${baseUrl}/tiltaksgjennomforing/opprett-avtale`;

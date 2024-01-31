@@ -11,7 +11,7 @@ import { DemoImageHeader } from "@/components/DemoImageHeader";
 import { Landingsside } from "./views/Landingsside";
 import { ModiaArbeidsmarkedstiltakOversikt } from "./views/ModiaArbeidsmarkedstiltakOversikt";
 import { ModiaArbeidsmarkedstiltakDetaljer } from "./views/ModiaArbeidsmarkedstiltakDetaljer";
-import { DeltakerRegistrering } from "@/microfrontends/team_komet/DeltakerRegistrering";
+import { DeltakerRegistrering } from "@/microfrontends/deltaker-registrering/DeltakerRegistrering";
 
 export function ModiaArbeidsmarkedstiltak() {
   return (
@@ -24,7 +24,7 @@ export function ModiaArbeidsmarkedstiltak() {
 function ModiaArbeidsmarkedstiltakRoutes() {
   useHentVeilederdata(); // Pre-fetch veilederdata så slipper vi å vente på data når vi trenger det i appen senere
 
-  const { fnr, enhet } = useInitializeAppContext();
+  useInitializeAppContext();
 
   useInitializeArbeidsmarkedstiltakFilterForBruker();
 
@@ -48,10 +48,7 @@ function ModiaArbeidsmarkedstiltakRoutes() {
       <Route path="oversikt" element={<ModiaArbeidsmarkedstiltakOversikt />} />
       <Route path="tiltak/:id/*" element={<ModiaArbeidsmarkedstiltakDetaljer />} />
       {visDeltakerregistrering ? (
-        <Route
-          path="tiltak/:id/deltaker"
-          element={<DeltakerRegistrering fnr={fnr} enhetId={enhet} />}
-        />
+        <Route path="tiltak/:id/deltaker" element={<DeltakerRegistrering />} />
       ) : null}
       <Route
         path="*"
