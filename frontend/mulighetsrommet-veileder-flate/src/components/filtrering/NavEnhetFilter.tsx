@@ -69,63 +69,11 @@ export function NavEnhetFilter({
     );
   }
 
-  function RegionCheckbox({ region }: { region: NavRegion }) {
-    return (
-      <>
-        <div
-          className={styles.checkbox_and_caret}
-          onClick={() => setRegionOpen([...addOrRemove(regionOpen, region.enhetsnummer)])}
-        >
-          <div onClick={(e) => e.stopPropagation()}>
-            <Checkbox
-              key={region.enhetsnummer}
-              value={region}
-              indeterminate={regionIsIndeterminate(region)}
-            >
-              {region.navn}
-            </Checkbox>
-          </div>
-          <ChevronDownIcon
-            fontSize="1.25rem"
-            className={classnames(styles.accordion_down, {
-              [styles.accordion_down_open]: regionOpen.includes(region.enhetsnummer),
-            })}
-          />
-        </div>
-        {regionOpen.includes(region.enhetsnummer) && <UnderenheterCheckboxGroup region={region} />}
-      </>
-    );
-  }
-
   function underenhetOnChange(region: string, enheter: string[]) {
     setRegionMap({
       ...regionMap,
       [region]: enheter,
     });
-  }
-
-  function UnderenheterCheckboxGroup({ region }: { region: NavRegion }) {
-    return (
-      <CheckboxGroup
-        value={regionMap[region.enhetsnummer] ?? []}
-        onChange={(enheter) => underenhetOnChange(region.enhetsnummer, enheter)}
-        key={region.enhetsnummer}
-        legend=""
-        hideLegend
-        size="small"
-        style={{
-          marginLeft: "1rem",
-        }}
-      >
-        <div style={{ maxHeight: "400px", overflow: "auto" }}>
-          {region.enheter.map((enhet: NavEnhet) => (
-            <Checkbox key={enhet.enhetsnummer} value={enhet.enhetsnummer}>
-              {enhet.navn}
-            </Checkbox>
-          ))}
-        </div>
-      </CheckboxGroup>
-    );
   }
 
   return (
@@ -148,8 +96,51 @@ export function NavEnhetFilter({
           data-testid={"checkboxgroup_brukers-enhet"}
         >
           {alleRegioner.map((region: NavRegion) => (
-            // eslint-disable-next-line react/prop-types
-            <RegionCheckbox key={region.enhetsnummer} region={region} />
+            <div key={region.enhetsnummer}>
+              <div
+                className={styles.checkbox_and_caret}
+                onClick={() => setRegionOpen([...addOrRemove(regionOpen, region.enhetsnummer)])}
+              >
+                <div onClick={(e) => e.stopPropagation()} className={styles.checkbox}>
+                  <Checkbox
+                    key={region.enhetsnummer}
+                    value={region}
+                    indeterminate={regionIsIndeterminate(region)}
+                  >
+                    {region.navn}
+                  </Checkbox>
+                </div>
+                <div className={styles.caret_container}>
+                  <ChevronDownIcon
+                    fontSize="1.25rem"
+                    className={classnames(styles.accordion_down, {
+                      [styles.accordion_down_open]: regionOpen.includes(region.enhetsnummer),
+                    })}
+                  />
+                </div>
+              </div>
+              {regionOpen.includes(region.enhetsnummer) && (
+                <CheckboxGroup
+                  value={regionMap[region.enhetsnummer] ?? []}
+                  onChange={(enheter) => underenhetOnChange(region.enhetsnummer, enheter)}
+                  key={region.enhetsnummer}
+                  legend=""
+                  hideLegend
+                  size="small"
+                  style={{
+                    marginLeft: "1rem",
+                  }}
+                >
+                  <div className={styles.underenhet_list}>
+                    {region.enheter.map((enhet: NavEnhet) => (
+                      <Checkbox key={enhet.enhetsnummer} value={enhet.enhetsnummer}>
+                        {enhet.navn}
+                      </Checkbox>
+                    ))}
+                  </div>
+                </CheckboxGroup>
+              )}
+            </div>
           ))}
         </CheckboxGroup>
       </Accordion.Content>
