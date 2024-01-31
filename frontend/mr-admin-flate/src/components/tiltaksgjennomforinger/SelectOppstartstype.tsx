@@ -63,24 +63,18 @@ function OppstartstypeWarning({ gjennomforingId }: OppstartstypePropsWarning) {
       <HelpText title="Hvilke konsekvenser får dette?">
         <ul>
           <li>
-            På tiltak med <code>løpende inntak</code> vil avsluttede deltakere ha statusen &quot;Har
-            sluttet&quot; i aktivitetsplanen og Deltakeroversikten. Dersom gjennomføringen blir
-            endret til <code>felles oppstart</code> så vil statusen endres til enten
-            &quot;Fullført&quot; eller &quot;Avbrutt&quot;. Aktivitetskortet i aktivitetsplanen til
-            bruker vil flyttes til statuskolonnen &quot;Avbrutt&quot; dersom statusen på
-            tiltaksdeltakelsen endres til dette.
+            Avsluttende deltakere vil ha statusen &quot;Har sluttet&quot; på tiltak med løpende
+            inntak, og &quot;Fullført&quot; eller &quot;Avbrutt&quot; på tiltak med felles oppstart.
+            Statusen vises i aktivitetsplanen og Deltakeroversikten.
           </li>
           <li>
-            På tiltak med <code>felles oppstart</code> vil avsluttede deltakere ha status
-            &quot;Fullført&quot; eller &quot;Avbrutt&quot;. Dersom gjennomføringen blir endret til{" "}
-            <code>løpende inntak</code> så vil disse statusene blir endret til &quot;Har
-            sluttet&quot; (og aktivitetskortet i aktivitetsplanen vil ligge i statuskolonnen
-            &quot;Fullført&quot;).
+            Dersom oppstartstypen blir endret så vil også den avsluttende statusen endres, og
+            aktivitetskortet i aktivitetsplanen vil kunne bli flyttet til enten fullført eller
+            avbrutt.
           </li>
           <li>
-            Dersom statusen endres vil det være synlig i aktivitetsplanen at det er en endring på
-            det aktuelle aktivitetskortet (en visuell markering i form av en blå prikk som betyr at
-            det er en endring siden sist du var inne på planen)
+            Når statusen endres vil det komme en visuell markering i form av en blå prikk på det
+            aktuelle aktivitetskortet.
           </li>
         </ul>
       </HelpText>
