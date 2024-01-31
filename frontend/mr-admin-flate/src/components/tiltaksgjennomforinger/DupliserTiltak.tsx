@@ -41,6 +41,7 @@ export function DupliserTiltak({ tiltaksgjennomforing }: Props) {
         style={{ margin: "0 auto", display: "block" }}
         color="white"
         fontSize="1.5rem"
+        aria-label="Ikon for duplisering av dokument"
       />
     </Button>
   );
