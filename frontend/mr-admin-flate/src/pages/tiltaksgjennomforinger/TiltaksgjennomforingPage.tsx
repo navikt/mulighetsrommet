@@ -13,6 +13,7 @@ import { useNavigateAndReplaceUrl } from "../../hooks/useNavigateWithoutReplacin
 import { ContainerLayout } from "../../layouts/ContainerLayout";
 import { erProdMiljo } from "../../utils/Utils";
 import commonStyles from "../Page.module.scss";
+import { DupliserTiltak } from "../../components/tiltaksgjennomforinger/DupliserTiltak";
 
 export function TiltaksgjennomforingPage() {
   const { pathname } = useLocation();
@@ -62,6 +63,7 @@ export function TiltaksgjennomforingPage() {
               {tiltaksgjennomforing?.navn ?? "..."}
             </Heading>
             <TiltaksgjennomforingstatusTag tiltaksgjennomforing={tiltaksgjennomforing} />
+            <DupliserTiltak tiltaksgjennomforing={tiltaksgjennomforing} />
           </div>
           {tiltaksgjennomforing?.id && (
             <div className={headerStyles.forhandsvisningsknapp}>
