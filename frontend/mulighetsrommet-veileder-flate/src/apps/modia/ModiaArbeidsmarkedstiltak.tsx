@@ -14,6 +14,14 @@ import { ModiaArbeidsmarkedstiltakDetaljer } from "./views/ModiaArbeidsmarkedsti
 import { DeltakerRegistrering } from "../../microfrontends/team_komet/DeltakerRegistrering";
 
 export function ModiaArbeidsmarkedstiltak() {
+  return (
+    <AppContainer header={<DemoImageHeader />}>
+      <ModiaArbeidsmarkedstiltakRoutes />
+    </AppContainer>
+  );
+}
+
+function ModiaArbeidsmarkedstiltakRoutes() {
   useHentVeilederdata(); // Pre-fetch veilederdata så slipper vi å vente på data når vi trenger det i appen senere
 
   const { fnr, enhet } = useInitializeAppContext();
@@ -35,24 +43,22 @@ export function ModiaArbeidsmarkedstiltak() {
   }
 
   return (
-    <AppContainer header={<DemoImageHeader />}>
-      <Routes>
-        {enableLandingsside ? <Route path="" element={<Landingsside />} /> : null}
-        <Route path="oversikt" element={<ModiaArbeidsmarkedstiltakOversikt />} />
-        <Route path="tiltak/:id/*" element={<ModiaArbeidsmarkedstiltakDetaljer />} />
-        {visDeltakerregistrering ? (
-          <Route
-            path="tiltak/:id/deltaker"
-            element={<DeltakerRegistrering fnr={fnr} enhetId={enhet} />}
-          />
-        ) : null}
+    <Routes>
+      {enableLandingsside ? <Route path="" element={<Landingsside />} /> : null}
+      <Route path="oversikt" element={<ModiaArbeidsmarkedstiltakOversikt />} />
+      <Route path="tiltak/:id/*" element={<ModiaArbeidsmarkedstiltakDetaljer />} />
+      {visDeltakerregistrering ? (
         <Route
-          path="*"
-          element={
-            <Navigate replace to={enableLandingsside ? "/arbeidsmarkedstiltak" : "./oversikt"} />
-          }
+          path="tiltak/:id/deltaker"
+          element={<DeltakerRegistrering fnr={fnr} enhetId={enhet} />}
         />
-      </Routes>
-    </AppContainer>
+      ) : null}
+      <Route
+        path="*"
+        element={
+          <Navigate replace to={enableLandingsside ? "/arbeidsmarkedstiltak" : "./oversikt"} />
+        }
+      />
+    </Routes>
   );
 }

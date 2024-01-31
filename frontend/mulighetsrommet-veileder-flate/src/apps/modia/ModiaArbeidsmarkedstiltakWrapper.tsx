@@ -4,8 +4,6 @@ import { createRoot, Root } from "react-dom/client";
 import createCache from "@emotion/cache";
 import { CustomEmotionCacheProvider } from "./CustomEmotionCacheProvider";
 import { AppContext } from "../../AppContext";
-import { ErrorBoundary } from "react-error-boundary";
-import { ErrorFallback } from "../../utils/ErrorFallback";
 import { ModiaArbeidsmarkedstiltak } from "./ModiaArbeidsmarkedstiltak";
 
 export class ModiaArbeidsmarkedstiltakWrapper extends HTMLElement {
@@ -84,14 +82,12 @@ export class ModiaArbeidsmarkedstiltakWrapper extends HTMLElement {
           contextData={{ enhet, fnr }}
           updateContextDataRef={(updateContextData) => (this.updateContextData = updateContextData)}
         >
-          <ErrorBoundary FallbackComponent={ErrorFallback}>
-            <Router>
-              <Routes>
-                <Route path="arbeidsmarkedstiltak/*" element={<ModiaArbeidsmarkedstiltak />} />
-                <Route path="*" element={<Navigate replace to="/arbeidsmarkedstiltak" />} />
-              </Routes>
-            </Router>
-          </ErrorBoundary>
+          <Router>
+            <Routes>
+              <Route path="arbeidsmarkedstiltak/*" element={<ModiaArbeidsmarkedstiltak />} />
+              <Route path="*" element={<Navigate replace to="/arbeidsmarkedstiltak" />} />
+            </Routes>
+          </Router>
         </AppContext>
       </CustomEmotionCacheProvider>,
     );
