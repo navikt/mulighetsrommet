@@ -1,4 +1,4 @@
-import { Alert, Button, Loader } from "@navikt/ds-react";
+import { Alert, Button } from "@navikt/ds-react";
 import { ApiError, Toggles } from "mulighetsrommet-api-client";
 import { useTitle } from "../../../../../frontend-common";
 import { PORTEN } from "../../../../../frontend-common/constants";
@@ -19,9 +19,9 @@ import { useFeatureToggle } from "../../../core/api/feature-toggles";
 import { useHentAlleTiltakDeltMedBruker } from "../../../core/api/queries/useHentAlleTiltakDeltMedBruker";
 import { useHentBrukerdata } from "../../../core/api/queries/useHentBrukerdata";
 import { useResetArbeidsmarkedstiltakFilter } from "../../../hooks/useArbeidsmarkedstiltakFilter";
-import styles from "../../../layouts/ViewTiltaksgjennomforingDetaljer.module.scss";
 import { ManglerInnsatsOgServicegruppeVarsel } from "../../../components/varsler/ManglerInnsatsOgServiceGruppeVarsel";
 import { useTiltaksgjennomforinger } from "../../../core/api/queries/useTiltaksgjennomforinger";
+import { TiltakLoader } from "../../../components/TiltakLoader";
 
 export const ModiaArbeidsmarkedstiltakOversikt = () => {
   useTitle("Arbeidsmarkedstiltak - Oversikt");
@@ -92,7 +92,7 @@ export const ModiaArbeidsmarkedstiltakOversikt = () => {
         beskrivelse={
           <>
             Brukers geografiske enhet kunne ikke hentes. Kontroller at brukeren er under oppfølging
-            og finnes i Arena, og {ForsokPaNyttLink()}
+            og finnes i Arena, og <ForsokPaNyttLink />
           </>
         }
         ikonvariant="error"
@@ -107,7 +107,7 @@ export const ModiaArbeidsmarkedstiltakOversikt = () => {
         beskrivelse={
           <>
             Vi kan ikke hente brukerens innsatsgruppe eller servicegruppe. Kontroller at brukeren er
-            under oppfølging og finnes i Arena, og <br /> {ForsokPaNyttLink()}
+            under oppfølging og finnes i Arena, og <br /> <ForsokPaNyttLink />
           </>
         }
         ikonvariant="error"
@@ -149,9 +149,7 @@ export const ModiaArbeidsmarkedstiltakOversikt = () => {
             <BrukerHarIkke14aVedtakVarsel brukerdata={brukerdata} />
             <ManglerInnsatsOgServicegruppeVarsel brukerdata={brukerdata} />
             {isLoading ? (
-              <div className={styles.filter_loader}>
-                <Loader />
-              </div>
+              <TiltakLoader />
             ) : tiltaksgjennomforinger.length === 0 ? (
               <TilbakestillFilterFeil resetFilter={resetFilterToDefaults} />
             ) : (
