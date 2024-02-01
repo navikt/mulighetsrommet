@@ -43,6 +43,7 @@ jobs:
         env:
           VITE_SANITY_PROJECT_ID: xegcworx
           VITE_SANITY_DATASET: test
+
   deploy-dev:
     name: Deploy (dev)
     runs-on: ubuntu-latest
@@ -55,7 +56,7 @@ jobs:
       - name: Setup frontend
         uses: ./.github/actions/setup-frontend
       - name: Build
-        run: npx turbo run build:dev --filter=mulighetsrommet-veileder-flate
+        run: npx turbo run build:modia --filter=mulighetsrommet-veileder-flate
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
@@ -104,7 +105,7 @@ jobs:
       - name: Setup frontend
         uses: ./.github/actions/setup-frontend
       - name: Build
-        run: npx turbo run build --filter=mulighetsrommet-veileder-flate
+        run: npx turbo run build:modia --filter=mulighetsrommet-veileder-flate
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
