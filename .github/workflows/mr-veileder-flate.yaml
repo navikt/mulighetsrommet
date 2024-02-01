@@ -80,9 +80,6 @@ jobs:
         uses: ./.github/actions/setup-frontend
       - name: Build
         run: npx turbo run build:demo --filter=mulighetsrommet-veileder-flate
-        env:
-          VITE_SANITY_PROJECT_ID: xegcworx
-          VITE_SANITY_DATASET: test
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:

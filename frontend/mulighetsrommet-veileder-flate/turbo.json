@@ -1,0 +1,17 @@
+{
+  "extends": ["//"],
+  "pipeline": {
+    "build:modia": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**"]
+    },
+    "build:nav": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**"]
+    },
+    "build:preview": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**"]
+    }
+  }
+}
