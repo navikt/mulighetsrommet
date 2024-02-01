@@ -6,6 +6,7 @@ import io.ktor.server.routing.*
 import no.nav.mulighetsrommet.api.plugins.getNavAnsattAzureId
 import no.nav.mulighetsrommet.api.services.NavAnsattService
 import no.nav.mulighetsrommet.api.services.NavVeilederService
+import no.nav.mulighetsrommet.api.utils.getNavAnsattFilter
 import no.nav.mulighetsrommet.ktor.extensions.getAccessToken
 import org.koin.ktor.ext.inject
 
@@ -22,7 +23,8 @@ fun Route.navAnsattRoutes() {
 
         route("/ansatt") {
             get {
-                val ansatte = ansattService.getNavAnsatte()
+                val filter = getNavAnsattFilter()
+                val ansatte = ansattService.getNavAnsatte(filter = filter)
                 call.respond(ansatte)
             }
 

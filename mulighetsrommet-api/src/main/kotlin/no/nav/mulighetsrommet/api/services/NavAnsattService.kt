@@ -16,6 +16,7 @@ import no.nav.mulighetsrommet.api.domain.dto.Mutation
 import no.nav.mulighetsrommet.api.domain.dto.NavAnsattDto
 import no.nav.mulighetsrommet.api.domain.dto.SanityResponse
 import no.nav.mulighetsrommet.api.repositories.NavAnsattRepository
+import no.nav.mulighetsrommet.api.utils.NavAnsattFilter
 import no.nav.mulighetsrommet.database.utils.DatabaseOperationError
 import no.nav.mulighetsrommet.database.utils.getOrThrow
 import org.slf4j.LoggerFactory
@@ -42,8 +43,8 @@ class NavAnsattService(
             .getOrThrow()
     }
 
-    fun getNavAnsatte(): List<NavAnsattDto> {
-        return ansatte.getAll().getOrThrow()
+    fun getNavAnsatte(filter: NavAnsattFilter): List<NavAnsattDto> {
+        return ansatte.getAll(roller = filter.roller).getOrThrow()
     }
 
     suspend fun getNavAnsattFromAzure(azureId: UUID): NavAnsattDto {
