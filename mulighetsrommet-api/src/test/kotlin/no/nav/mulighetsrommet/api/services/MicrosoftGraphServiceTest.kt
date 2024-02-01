@@ -20,7 +20,7 @@ class MicrosoftGraphServiceTest : FunSpec({
                 hovedenhetKode = "2990",
                 hovedenhetNavn = "IT-Avdelingen",
                 fornavn = "Bertil",
-                etternavn = "Betabruker",
+                etternavn = "Bengtson",
                 navIdent = "B123456",
                 mobilnummer = "12345678",
                 epost = "test@test.no",

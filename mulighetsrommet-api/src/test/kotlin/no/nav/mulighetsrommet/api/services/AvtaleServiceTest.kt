@@ -198,7 +198,7 @@ class AvtaleServiceTest : FunSpec({
                 NavAnsattDbo(
                     navIdent = "B123456",
                     fornavn = "Bertil",
-                    etternavn = "Betabruker",
+                    etternavn = "Bengtson",
                     hovedenhet = "2990",
                     azureId = UUID.randomUUID(),
                     mobilnummer = null,
@@ -218,7 +218,7 @@ class AvtaleServiceTest : FunSpec({
                 NavAnsattDbo(
                     navIdent = "B123456",
                     fornavn = "Bertil",
-                    etternavn = "Betabruker",
+                    etternavn = "Bengtson",
                     hovedenhet = "2990",
                     azureId = UUID.randomUUID(),
                     mobilnummer = null,
@@ -231,7 +231,7 @@ class AvtaleServiceTest : FunSpec({
                 NavAnsattDbo(
                     navIdent = "Z654321",
                     fornavn = "Zorre",
-                    etternavn = "Betabruker",
+                    etternavn = "Zorreszon",
                     hovedenhet = "2990",
                     azureId = UUID.randomUUID(),
                     mobilnummer = null,

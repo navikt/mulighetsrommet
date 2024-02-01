@@ -11,7 +11,7 @@ export const mockAvtaler: Avtale[] = [
     administratorer: [
       {
         navIdent: "B123456",
-        navn: "Bertil Betabruker",
+        navn: "Bertil Bengtson",
       },
     ],
     opphav: Opphav.MR_ADMIN_FLATE,
@@ -69,7 +69,7 @@ export const mockAvtaler: Avtale[] = [
     administratorer: [
       {
         navIdent: "B123456",
-        navn: "Bertil Betabruker",
+        navn: "Bertil Bengtson",
       },
     ],
     leverandorUnderenheter: mockVirksomheter.fretex.underenheter!!.map((v) => ({
@@ -93,7 +93,7 @@ export const mockAvtaler: Avtale[] = [
     administratorer: [
       {
         navIdent: "B123456",
-        navn: "Bertil Betabruker",
+        navn: "Bertil Bengtson",
       },
     ],
     tiltakstype: mockTiltakstyper.INDOPPFAG,

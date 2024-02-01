@@ -65,7 +65,7 @@ class NavAnsattRepositoryTest : FunSpec({
             hovedenhet = "1000",
             mobilnummer = "12345678",
             epost = "donald@nav.no",
-            roller = setOf(NavAnsattRolle.BETABRUKER, NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL),
+            roller = setOf(NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL),
         )
 
         val ansatt2 = NavAnsattDbo(
@@ -87,7 +87,7 @@ class NavAnsattRepositoryTest : FunSpec({
             hovedenhet = "1000",
             mobilnummer = "12345678",
             epost = "ole@nav.no",
-            roller = setOf(NavAnsattRolle.BETABRUKER, NavAnsattRolle.KONTAKTPERSON, NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL),
+            roller = setOf(NavAnsattRolle.KONTAKTPERSON, NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL),
         )
 
         test("CRUD") {
@@ -102,20 +102,21 @@ class NavAnsattRepositoryTest : FunSpec({
             ansatte.getByNavIdent(ansatt1.navIdent) shouldBeRight null
         }
 
+        // TODO Sjekk denne i forbindelse med test på
         test("hent ansatte gitt rolle") {
             ansatte.upsert(ansatt1).shouldBeRight()
             ansatte.upsert(ansatt2).shouldBeRight()
             ansatte.upsert(ansatt3).shouldBeRight()
 
             ansatte.getAll(
-                roller = listOf(NavAnsattRolle.BETABRUKER, NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL),
+                harMinstEnAvRollene = listOf(NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL),
             ) shouldBeRight listOf(toDto(ansatt1, enhet1), toDto(ansatt3, enhet1))
             ansatte.getAll(
-                roller = listOf(NavAnsattRolle.KONTAKTPERSON),
+                harMinstEnAvRollene = listOf(NavAnsattRolle.KONTAKTPERSON),
             ) shouldBeRight listOf(toDto(ansatt2, enhet2), toDto(ansatt3, enhet1))
             ansatte.getAll(
-                roller = listOf(NavAnsattRolle.BETABRUKER, NavAnsattRolle.KONTAKTPERSON, NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL),
-            ) shouldBeRight listOf(toDto(ansatt3, enhet1))
+                harMinstEnAvRollene = listOf(NavAnsattRolle.KONTAKTPERSON, NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL),
+            ) shouldBeRight listOf(toDto(ansatt2, enhet2), toDto(ansatt1, enhet1), toDto(ansatt3, enhet1))
         }
 
         test("hent ansatte gitt hovedenhet") {

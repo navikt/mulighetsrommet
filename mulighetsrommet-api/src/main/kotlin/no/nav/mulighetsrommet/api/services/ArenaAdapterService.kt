@@ -237,7 +237,7 @@ class ArenaAdapterService(
 
         val administrators = navAnsatte
             .getAll(
-                roller = listOf(NavAnsattRolle.BETABRUKER),
+                harMinstEnAvRollene = listOf(NavAnsattRolle.AVTALER_SKRIV, NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV),
                 hovedenhetIn = potentialAdministratorHovedenheter,
             )
             .getOrThrow()

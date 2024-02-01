@@ -24,7 +24,7 @@ export const avtalenotatHandlers = [
         updatedAt: new Date().toISOString(),
         opprettetAv: {
           navIdent: "B123456",
-          navn: "Bertil Betabruker",
+          navn: "Bertil Bengtson",
         },
       });
       return HttpResponse.json();

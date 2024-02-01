@@ -8,13 +8,13 @@ const bertil: NavAnsatt = {
   azureId: "8c133e5e-fd93-4226-8567-41d699a3efee",
   navIdent: "B123456",
   fornavn: "Bertil",
-  etternavn: "Betabruker",
+  etternavn: "Bengtson",
   hovedenhet: {
     enhetsnummer: "2990",
     navn: "IT Drift",
   },
   mobilnummer: null,
-  epost: "bertil.betabruker@nav.no",
+  epost: "bertil.Bengtson@nav.no",
   roller: [
     NavAnsattRolle.KONTAKTPERSON,
     NavAnsattRolle.AVTALER_SKRIV,
@@ -101,6 +101,6 @@ export const nikolineKontaktperson: TiltaksgjennomforingKontaktperson = {
   beskrivelse: null,
 };
 
-export const mockBetabruker: NavAnsatt = bertil;
+export const mockRedaktor: NavAnsatt = bertil;
 
 export const mockKontaktpersoner: NavAnsatt[] = [bertil, pelle, perRichard, nikoline, petrus];

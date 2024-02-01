@@ -1,6 +1,6 @@
 import { HttpResponse, PathParams, http } from "msw";
 import { NavAnsatt } from "mulighetsrommet-api-client";
-import { mockBetabruker, mockKontaktpersoner } from "../fixtures/mock_ansatt";
+import { mockRedaktor, mockKontaktpersoner } from "../fixtures/mock_ansatt";
 
 export const ansattHandlers = [
   http.get<PathParams, NavAnsatt[]>("*/api/v1/internal/ansatt", ({ request }) => {
@@ -12,6 +12,6 @@ export const ansattHandlers = [
   }),
 
   http.get<PathParams, NavAnsatt>("*/api/v1/internal/ansatt/me", () =>
-    HttpResponse.json(mockBetabruker),
+    HttpResponse.json(mockRedaktor),
   ),
 ];

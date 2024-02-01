@@ -58,9 +58,6 @@ app:
       audience: mulighetsrommet-api
       tokenEndpointUrl: http://localhost:8081/azure/token
     roles:
-      # Mocket AD-gruppe for lokal utvikling
-      - adGruppeId: ee45478c-57a5-4ee6-b28d-b65f8c1733fe
-        rolle: BETABRUKER
       # Mocket 0000-ZA-TILTAK-tiltaksgjennomforinger_skriv
       - adGruppeId: 279039a0-39fd-4860-afdd-a1a2ccaa6323
         rolle: TILTAKSGJENNOMFORINGER_SKRIV

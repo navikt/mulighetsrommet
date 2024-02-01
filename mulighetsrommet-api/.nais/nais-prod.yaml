@@ -58,8 +58,6 @@ spec:
         groups:
           # team-mulighetsrommet
           - id: "debefa6e-1865-446d-b22b-9579fc735de3"
-          # 0000-GA-mr-admin-flate_betabruker
-          - id: "dde41c4b-42af-401f-bedf-9e537bcbdd37"
           # (GRP) mr-nav_kontaktperson
           - id: "0fdd133a-f47f-4b95-9a5e-f3a5ec87a472"
           # 0000-GA-TILTAK-tiltaksgjennomforinger_skriv
