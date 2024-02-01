@@ -14,7 +14,5 @@ export function utledDelMedBrukerTekst(
 
 function hilsenTekst(veiledernavn?: string) {
   const interessant = "Er dette aktuelt for deg? Gi meg tilbakemelding her i dialogen.";
-  return veiledernavn
-    ? `${interessant}\n\nVi holder kontakten\nHilsen ${veiledernavn}`
-    : `${interessant}\n\nVi holder kontakten`;
+  return veiledernavn ? `${interessant}\n\nHilsen ${veiledernavn}` : `${interessant}`;
 }

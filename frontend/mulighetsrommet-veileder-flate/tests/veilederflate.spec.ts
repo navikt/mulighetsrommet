@@ -98,7 +98,7 @@ test.describe("Tiltaksgjennomføringsdetaljer", () => {
     await page.getByTestId("deleknapp").click();
     await expect(page.getByTestId("textarea_deletekst")).not.toContainText("Hei IHERDIG");
     await expect(page.getByTestId("textarea_deletekst")).toContainText("Jedi Mester");
-    await expect(page.getByTestId("textarea_deletekst")).toContainText("Vi holder kontakten");
+    await expect(page.getByTestId("textarea_deletekst")).toContainText("Hilsen");
 
     await page.getByTestId("endre-deletekst_btn").click();
     await page.getByTestId("textarea_deletekst").fill("I am your father");
