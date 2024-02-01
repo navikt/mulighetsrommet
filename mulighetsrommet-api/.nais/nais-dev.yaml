@@ -59,12 +59,12 @@ spec:
           - id: "ee45478c-57a5-4ee6-b28d-b65f8c1733fe"
           # (GRP) mr-nav_kontaktperson
           - id: "7b1d209a-f6c1-4c6e-84f2-02a1bb4c92ba"
-            # 0000-ZA-TILTAK-tiltaksgjennomforinger_skriv
-          - id: 279039a0-39fd-4860-afdd-a1a2ccaa6323
-            # 0000-AZ-TILTAK-avtaler_skriv
-          - id: 48026f54-6259-4c35-a148-bc4257bcaf03
-            # 0000-GA-TILTAK-ANSVARLIG
-          - id: 52bb9196-b071-4cc7-9472-be4942d33c4b
+          # 0000-ZA-TILTAK-tiltaksgjennomforinger_skriv
+          - id: "279039a0-39fd-4860-afdd-a1a2ccaa6323"
+          # 0000-AZ-TILTAK-avtaler_skriv
+          - id: "48026f54-6259-4c35-a148-bc4257bcaf03"
+          # 0000-GA-TILTAK-ANSVARLIG
+          - id: "52bb9196-b071-4cc7-9472-be4942d33c4b"
         extra:
           - NAVident
           - azp_name
@@ -75,6 +75,7 @@ spec:
         - application: mulighetsrommet-arena-adapter-manager
         - application: mulighetsrommet-veileder-flate
         - application: mr-admin-flate
+        - application: nav-arbeidsmarkedstiltak
         - application: veilarbpersonflate
           namespace: poao
         - application: amt-tiltak

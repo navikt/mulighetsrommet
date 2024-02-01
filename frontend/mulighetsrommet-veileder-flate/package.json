@@ -10,7 +10,7 @@
     "serve": "vite preview",
     "build:demo": "cross-env APP=DEMO VITE_MULIGHETSROMMET_API_MOCK=true vite build",
     "build:modia": "cross-env APP=MODIA VITE_MULIGHETSROMMET_API_BASE='/mulighetsrommet-api' vite build",
-    "build:nav": "cross-env APP=NAV VITE_MULIGHETSROMMET_API_BASE='/mulighetsrommet-api' VITE_FARO_URL=https://telemetry.ekstern.dev.nav.no/collect vite build",
+    "build:nav": "cross-env APP=NAV VITE_MULIGHETSROMMET_API_BASE='/mulighetsrommet-api' vite build",
     "build:preview": "cross-env APP=PREVIEW VITE_MULIGHETSROMMET_API_BASE='/mulighetsrommet-api' VITE_FARO_URL=https://telemetry.ekstern.dev.nav.no/collect vite build",
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0 && tsc",
     "fix-lint": "eslint src --ext .ts,.tsx --fix",

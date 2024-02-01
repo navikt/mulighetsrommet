@@ -11,7 +11,7 @@ runs:
     - run: npm ci
       shell: bash
     - name: Cache Turborepo
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: node_modules/.cache/turbo
         key: turborepo-${{ github.ref_name }}-${{ github.sha }}
