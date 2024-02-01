@@ -5,6 +5,7 @@ import { AppContext } from "@/AppContext";
 import { APPLICATION_WEB_COMPONENT_NAME } from "@/constants";
 import { CustomEmotionCacheProvider } from "./CustomEmotionCacheProvider";
 import { ModiaArbeidsmarkedstiltak } from "./ModiaArbeidsmarkedstiltak";
+import { PreviewArbeidsmarkedstiltak } from "@/apps/preview/PreviewArbeidsmarkedstiltak";
 
 export class ModiaArbeidsmarkedstiltakWrapper extends HTMLElement {
   static FNR_PROP = "data-fnr";
@@ -85,6 +86,7 @@ export class ModiaArbeidsmarkedstiltakWrapper extends HTMLElement {
           <Router>
             <Routes>
               <Route path="arbeidsmarkedstiltak/*" element={<ModiaArbeidsmarkedstiltak />} />
+              <Route path="preview/*" element={<PreviewArbeidsmarkedstiltak />} />
               <Route path="*" element={<Navigate replace to="/arbeidsmarkedstiltak" />} />
             </Routes>
           </Router>
