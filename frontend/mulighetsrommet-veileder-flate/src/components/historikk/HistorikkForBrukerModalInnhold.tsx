@@ -13,10 +13,6 @@ export function HistorikkForBrukerModalInnhold() {
 
   if (isError) return <Alert variant="error">Kunne ikke hente brukerens tiltakshistorikk</Alert>;
 
-  if (data?.length! === 0) {
-    return <Alert variant="info">Fant ikke historikk for bruker</Alert>;
-  }
-
   const sorterPaaFraDato = (a: IHistorikkForBruker, b: IHistorikkForBruker) => {
     if (!a.fraDato || !b.fraDato) return -1; // Flytt deltakelser uten fraDato bakerst
 
