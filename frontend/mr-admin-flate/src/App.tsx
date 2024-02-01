@@ -65,7 +65,8 @@ export function App() {
       (rolle) =>
         rolle === NavAnsattRolle.AVTALER_SKRIV ||
         rolle === NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV ||
-        rolle === NavAnsattRolle.TEAM_MULIGHETSROMMET,
+        rolle === NavAnsattRolle.TEAM_MULIGHETSROMMET ||
+        rolle === NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL,
     )
   ) {
     return <IkkeAutentisertApp />;
