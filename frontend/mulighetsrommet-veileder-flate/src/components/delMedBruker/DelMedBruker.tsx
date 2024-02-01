@@ -32,7 +32,7 @@ export const DelMedBruker = ({
   const deletekst = utledDelMedBrukerTekst(
     delMedBrukerTekst(tiltaksgjennomforing) ?? "",
     tiltaksgjennomforing.navn,
-    brukerdata.fornavn,
+    veiledernavn,
   );
   const [state, dispatch] = useDelMedBruker(deletekst);
 
