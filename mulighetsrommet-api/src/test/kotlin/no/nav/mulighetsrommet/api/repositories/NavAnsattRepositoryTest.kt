@@ -102,21 +102,20 @@ class NavAnsattRepositoryTest : FunSpec({
             ansatte.getByNavIdent(ansatt1.navIdent) shouldBeRight null
         }
 
-        // TODO Sjekk denne i forbindelse med test på
         test("hent ansatte gitt rolle") {
             ansatte.upsert(ansatt1).shouldBeRight()
             ansatte.upsert(ansatt2).shouldBeRight()
             ansatte.upsert(ansatt3).shouldBeRight()
 
             ansatte.getAll(
-                harMinstEnAvRollene = listOf(NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL),
+                roller = listOf(NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL),
             ) shouldBeRight listOf(toDto(ansatt1, enhet1), toDto(ansatt3, enhet1))
             ansatte.getAll(
-                harMinstEnAvRollene = listOf(NavAnsattRolle.KONTAKTPERSON),
+                roller = listOf(NavAnsattRolle.KONTAKTPERSON),
             ) shouldBeRight listOf(toDto(ansatt2, enhet2), toDto(ansatt3, enhet1))
             ansatte.getAll(
-                harMinstEnAvRollene = listOf(NavAnsattRolle.KONTAKTPERSON, NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL),
-            ) shouldBeRight listOf(toDto(ansatt2, enhet2), toDto(ansatt1, enhet1), toDto(ansatt3, enhet1))
+                roller = listOf(NavAnsattRolle.KONTAKTPERSON, NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL),
+            ) shouldBeRight listOf(toDto(ansatt3, enhet1))
         }
 
         test("hent ansatte gitt hovedenhet") {

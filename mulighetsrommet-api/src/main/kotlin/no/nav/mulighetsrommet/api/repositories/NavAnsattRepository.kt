@@ -39,19 +39,18 @@ class NavAnsattRepository(private val db: Database) {
     }
 
     fun getAll(
-        harMinstEnAvRollene: List<NavAnsattRolle>? = null,
+        roller: List<NavAnsattRolle>? = null,
         hovedenhetIn: List<String>? = null,
         skalSlettesDatoLte: LocalDate? = null,
     ): QueryResult<List<NavAnsattDto>> = query {
         val params = mapOf(
-            "roller" to harMinstEnAvRollene?.let { roller -> db.createTextArray(roller.map { it.name }) },
+            "roller" to roller?.let { roller -> db.createTextArray(roller.map { it.name }) },
             "hovedenhet" to hovedenhetIn?.let { enheter -> db.createTextArray(enheter) },
             "skal_slettes_dato" to skalSlettesDatoLte,
         )
 
-        // TODO Ok å endre til && istednefor @>?
         val where = DatabaseUtils.andWhereParameterNotNull(
-            harMinstEnAvRollene to "roller && :roller::nav_ansatt_rolle[]",
+            roller to "roller @> :roller::nav_ansatt_rolle[]",
             hovedenhetIn to "hovedenhet = any(:hovedenhet)",
             skalSlettesDatoLte to "skal_slettes_dato <= :skal_slettes_dato",
         )
