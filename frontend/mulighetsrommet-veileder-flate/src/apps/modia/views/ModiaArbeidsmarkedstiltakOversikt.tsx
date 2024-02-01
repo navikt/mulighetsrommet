@@ -20,7 +20,7 @@ import { useHentAlleTiltakDeltMedBruker } from "@/core/api/queries/useHentAlleTi
 import { useHentBrukerdata } from "@/core/api/queries/useHentBrukerdata";
 import { useResetArbeidsmarkedstiltakFilter } from "@/hooks/useArbeidsmarkedstiltakFilter";
 import { ManglerInnsatsOgServicegruppeVarsel } from "@/components/varsler/ManglerInnsatsOgServiceGruppeVarsel";
-import { useTiltaksgjennomforinger } from "@/core/api/queries/useTiltaksgjennomforinger";
+import { useVeilederTiltaksgjennomforinger } from "@/core/api/queries/useTiltaksgjennomforinger";
 import { TiltakLoader } from "@/components/TiltakLoader";
 
 export const ModiaArbeidsmarkedstiltakOversikt = () => {
@@ -41,7 +41,7 @@ export const ModiaArbeidsmarkedstiltakOversikt = () => {
     isLoading,
     isError,
     error,
-  } = useTiltaksgjennomforinger();
+  } = useVeilederTiltaksgjennomforinger();
 
   useEffect(() => {
     setIsHistorikkModalOpen(isHistorikkModalOpen);

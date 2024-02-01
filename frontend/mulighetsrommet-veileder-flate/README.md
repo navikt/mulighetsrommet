@@ -9,27 +9,24 @@ Applikasjonen bygges og distribueres i flere varianter avhengig av bruksområde.
 
 **MODIA**
 - En variant rettet med veiledere ved arbeidsrettet oppfølging.
-- Kjører med en bruker (borger) i kontekst og inkluderer en del funksjoner rettet mot samhendling mellom NAV-veileder og bruker.
-- Lar deg finne relevante arbeidsmarkedstiltak for bruker i kontekst.
+  - Kjører med en bruker (borger) i kontekst og inkluderer en del funksjoner rettet mot samhendling mellom NAV-veileder og bruker.
+  - Lar deg finne relevante arbeidsmarkedstiltak for bruker i kontekst.
 - Blir distribuert som en [Web Component](https://developer.mozilla.org/en-US/docs/Web/API/Web_components) og inkludert som en microfrontend i [veilarbpersonflate](https://github.com/navikt/veilarbpersonflatefs).
 
 **NAV**
 
 - En variant som er tilgjengelig for alle NAV-ansatte.
-- Gir deg en oversikt over arbeidsmarkedstiltak i NAV.
-
-**PREVIEW**
-
-- En variant som er tilgjengelig for administratorer/redaktører av tiltak og tilaksinformasjon.
-- Benyttes av redaktører til forhåndsvisning av informasjon av innhold.
-- Inkluderer noen mock-varianter av funksjoner som ellers kun er tilgjenglige for veiledere (via `MODIA`-varianten) slik at man kan forhåndsvise innhold uten å ha en reell bruker i kontekst.
+  - Gir deg en oversikt over arbeidsmarkedstiltak i NAV.
+- Inneholder også en modus for forhåndsvisning av redaksjonelt innhold
+  - Tilgjengelig for administratorer/redaktører innen tiltaksadministrasjon.
+  - Inkluderer noen mock-varianter av funksjoner som ellers kun er tilgjenglige for veiledere (via `MODIA`-varianten) slik at man kan forhåndsvise innhold uten å ha en reell bruker i kontekst.
 
 ## Lokal utvikling
 
 Som standard vil `DEMO`-appen startes lokalt. Om ønskelig kan dette overstyres via miljøvariabelen `APP` i `.env`:
 
 ```.env
-APP=DEMO # Eller MODIA, NAV, PREVIEW
+APP=DEMO # Eller MODIA, NAV
 ```
 
 ### Installere avhengigheter

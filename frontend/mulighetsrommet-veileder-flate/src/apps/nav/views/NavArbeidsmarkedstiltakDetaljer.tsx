@@ -20,7 +20,7 @@ export function NavArbeidsmarkedstiltakDetaljer() {
   return (
     <ViewTiltaksgjennomforingDetaljer
       tiltaksgjennomforing={data}
-      knapperad={<Tilbakeknapp tilbakelenke="/nav" tekst="Tilbake til tiltaksoversikten" />}
+      knapperad={<Tilbakeknapp tilbakelenke=".." tekst="Tilbake til tiltaksoversikten" />}
       brukerActions={null}
     />
   );

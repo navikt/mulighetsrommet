@@ -26,7 +26,7 @@ export function PreviewArbeidsmarkedstiltakDetaljer() {
       <ViewTiltaksgjennomforingDetaljer
         tiltaksgjennomforing={data}
         brukersInnsatsgruppe={brukersInnsatsgruppe}
-        knapperad={<Tilbakeknapp tilbakelenke="/preview" tekst="Tilbake til tiltaksoversikten" />}
+        knapperad={<Tilbakeknapp tilbakelenke=".." tekst="Tilbake til tiltaksoversikten" />}
         brukerActions={
           <div>
             <DelMedBruker

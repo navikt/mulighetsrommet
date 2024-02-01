@@ -16,9 +16,6 @@ const config = {
   NAV: {
     root: resolve(__dirname, "src/apps/nav"),
   },
-  PREVIEW: {
-    root: resolve(__dirname, "src/apps/preview"),
-  },
 } as const;
 
 const APP = (process.env.APP ?? "DEMO") as keyof typeof config;
@@ -43,7 +40,7 @@ export default defineConfig({
     shadowStyle(),
   ],
   build: {
-    outDir: resolve(__dirname, "dist"), //appConfig.outDir,
+    outDir: resolve(__dirname, "dist"),
     emptyOutDir: true,
     rollupOptions: {
       input: {

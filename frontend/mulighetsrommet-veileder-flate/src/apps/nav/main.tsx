@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Navigate, Route, Routes } from "react-router-d
 import { APPLICATION_NAME } from "@/constants";
 import { AppContext } from "@/AppContext";
 import { NavArbeidsmarkedstiltak } from "./NavArbeidsmarkedstiltak";
+import { PreviewArbeidsmarkedstiltak } from "@/apps/nav/PreviewArbeidsmarkedstiltak";
 
 const demoContainer = document.getElementById(APPLICATION_NAME);
 if (demoContainer) {
@@ -11,8 +12,9 @@ if (demoContainer) {
     <AppContext contextData={{}}>
       <Router>
         <Routes>
-          <Route path="nav/*" element={<NavArbeidsmarkedstiltak />} />
-          <Route path="*" element={<Navigate replace to="/nav" />} />
+          <Route path="arbeidsmarkedstiltak/*" element={<NavArbeidsmarkedstiltak />} />
+          <Route path="preview/*" element={<PreviewArbeidsmarkedstiltak />} />
+          <Route path="*" element={<Navigate replace to="./arbeidsmarkedstiltak" />} />
         </Routes>
       </Router>
     </AppContext>,

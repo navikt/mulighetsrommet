@@ -5,7 +5,7 @@ import { AppContext } from "@/AppContext";
 import { APPLICATION_WEB_COMPONENT_NAME } from "@/constants";
 import { CustomEmotionCacheProvider } from "./CustomEmotionCacheProvider";
 import { ModiaArbeidsmarkedstiltak } from "./ModiaArbeidsmarkedstiltak";
-import { PreviewArbeidsmarkedstiltak } from "@/apps/preview/PreviewArbeidsmarkedstiltak";
+import { PreviewArbeidsmarkedstiltak } from "@/apps/nav/PreviewArbeidsmarkedstiltak";
 
 export class ModiaArbeidsmarkedstiltakWrapper extends HTMLElement {
   static FNR_PROP = "data-fnr";

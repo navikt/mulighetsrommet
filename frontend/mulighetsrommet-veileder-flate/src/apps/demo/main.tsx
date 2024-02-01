@@ -3,7 +3,7 @@ import { APPLICATION_NAME } from "@/constants";
 import { AppContext } from "@/AppContext";
 import { BrowserRouter as Router, Link, Route, Routes } from "react-router-dom";
 import { NavArbeidsmarkedstiltak } from "@/apps/nav/NavArbeidsmarkedstiltak";
-import { PreviewArbeidsmarkedstiltak } from "@/apps/preview/PreviewArbeidsmarkedstiltak";
+import { PreviewArbeidsmarkedstiltak } from "@/apps/nav/PreviewArbeidsmarkedstiltak";
 import { ModiaArbeidsmarkedstiltak } from "@/apps/modia/ModiaArbeidsmarkedstiltak";
 
 if (import.meta.env.VITE_MULIGHETSROMMET_API_MOCK === "true") {

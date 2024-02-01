@@ -46,7 +46,7 @@ jobs:
           CLUSTER: dev-gcp
           RESOURCE: frontend/mulighetsrommet-veileder-flate/.nais/nais-demo.yaml
 
-  deploy-dev:
+  deploy-modia-dev:
     runs-on: ubuntu-latest
     needs: [ci]
     if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
@@ -60,9 +60,9 @@ jobs:
           CLUSTER: dev-gcp
           RESOURCE: frontend/mulighetsrommet-veileder-flate/.nais/nais-dev.yaml
 
-  deploy-prod:
+  deploy-modia-prod:
     runs-on: ubuntu-latest
-    needs: [deploy-dev, deploy-demo]
+    needs: [deploy-modia-dev]
     if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'dev_and_prod'
     permissions:
       id-token: write # Needed for `nais/deploy/actions/deploy`

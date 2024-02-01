@@ -7,7 +7,7 @@ import { NavArbeidsmarkedstiltakDetaljer } from "./views/NavArbeidsmarkedstiltak
 
 export function NavArbeidsmarkedstiltak() {
   return (
-    <AppContainer header={<ArbeidsmarkedstiltakHeader href={"/nav"} />}>
+    <AppContainer header={<ArbeidsmarkedstiltakHeader href={"/"} />}>
       <Routes>
         <Route path="oversikt" element={<NavArbeidsmarkedstiltakOversikt />} />
         <Route path="tiltak/:id/*" element={<NavArbeidsmarkedstiltakDetaljer />} />
