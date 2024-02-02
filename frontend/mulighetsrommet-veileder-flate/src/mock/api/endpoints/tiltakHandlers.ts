@@ -82,6 +82,20 @@ export const tiltakHandlers = [
     },
   ),
 
+  http.post<PathParams, GetTiltaksgjennomforingerRequest>(
+    "*/api/v1/internal/veileder/preview/tiltaksgjennomforinger",
+    async ({ request }) => {
+      const { innsatsgruppe, search = "", tiltakstypeIds = [] } = await request.json();
+
+      const results = mockTiltaksgjennomforinger
+        .filter((gj) => filtrerFritekst(gj, search))
+        .filter((gj) => filtrerInnsatsgruppe(gj, innsatsgruppe))
+        .filter((gj) => filtrerTiltakstyper(gj, tiltakstypeIds));
+
+      return HttpResponse.json(results);
+    },
+  ),
+
   http.post<PathParams>(
     "*/api/v1/internal/veileder/preview/tiltaksgjennomforing",
     async ({ request }) => {

@@ -18,7 +18,7 @@ interface Props {
   deltMedBruker?: DelMedBruker[];
 }
 
-const Tiltaksgjennomforingsoversikt = ({ tiltaksgjennomforinger, deltMedBruker }: Props) => {
+export const Tiltaksgjennomforingsoversikt = ({ tiltaksgjennomforinger, deltMedBruker }: Props) => {
   const [pageData, setPages] = useAtom(paginationAtom);
   const filter = useArbeidsmarkedstiltakFilterValue();
 
@@ -177,5 +177,3 @@ const Tiltaksgjennomforingsoversikt = ({ tiltaksgjennomforinger, deltMedBruker }
     </>
   );
 };
-
-export default Tiltaksgjennomforingsoversikt;

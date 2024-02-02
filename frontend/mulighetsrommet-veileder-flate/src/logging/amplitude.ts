@@ -2,7 +2,7 @@ import { useAtomValue } from "jotai";
 import { LogEventFromApp } from "../env";
 import { erPreview } from "../utils/Utils";
 import { Event } from "./taxonomy";
-import { appContextAtom } from "../hooks/useAppContext";
+import { modiaContextAtom } from "../apps/modia/hooks/useModiaContext";
 
 let amplitude: LogEventFromApp | null = null;
 
@@ -22,7 +22,7 @@ export function initAmplitude() {
 }
 
 export function useLogEvent() {
-  const contextData = useAtomValue(appContextAtom);
+  const contextData = useAtomValue(modiaContextAtom);
 
   function logEvent(event: Event, extraData?: Record<string, unknown>) {
     const erPreviewModus = erPreview() || import.meta.env.VITE_MULIGHETSROMMET_API_MOCK === "true";

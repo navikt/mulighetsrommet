@@ -1,15 +1,14 @@
-import { Accordion, Alert, Checkbox, CheckboxGroup, Loader } from "@navikt/ds-react";
-import React from "react";
-import { addOrRemove, kebabCase } from "../../utils/Utils";
-import { filterAccordionAtom } from "../../core/atoms/atoms";
+import { Accordion, Alert, Checkbox, CheckboxGroup } from "@navikt/ds-react";
 import { useAtom } from "jotai";
+import React from "react";
+import { filterAccordionAtom } from "../../core/atoms/atoms";
+import { addOrRemove, kebabCase } from "../../utils/Utils";
 
 interface CheckboxFilterProps<T extends { id: string; tittel: string }> {
   accordionNavn: string;
   options: T[];
   setOptions: (type: T[]) => void;
   data: T[];
-  isLoading: boolean;
   isError: boolean;
   sortert?: boolean;
 }
@@ -19,7 +18,6 @@ const CheckboxFilter = <T extends { id: string; tittel: string }>({
   options,
   setOptions,
   data,
-  isLoading,
   isError,
   sortert = false,
 }: CheckboxFilterProps<T>) => {
@@ -58,7 +56,6 @@ const CheckboxFilter = <T extends { id: string; tittel: string }>({
         {accordionNavn}
       </Accordion.Header>
       <Accordion.Content data-testid={`filter_accordioncontent_${kebabCaseAccordionNavn}`}>
-        {isLoading && !data ? <Loader size="xlarge" /> : null}
         {data && (
           <CheckboxGroup
             legend=""

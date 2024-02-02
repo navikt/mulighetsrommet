@@ -4,14 +4,15 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "backend": "cross-env VITE_MULIGHETSROMMET_API_MOCK=false VITE_MULIGHETSROMMET_API_BASE='http://localhost:8080' vite",
-    "build": "cross-env VITE_ENVIRONMENT=production VITE_FARO_URL=https://telemetry.nav.no/collect VITE_MULIGHETSROMMET_API_BASE='/mulighetsrommet-api' vite build --base=https://mulighetsrommet-veileder-flate.intern.nav.no/",
-    "build:dev": "cross-env VITE_ENVIRONMENT=dev VITE_FARO_URL=https://telemetry.ekstern.dev.nav.no/collect VITE_MULIGHETSROMMET_API_BASE='/mulighetsrommet-api' vite build --base=https://mulighetsrommet-veileder-flate.intern.dev.nav.no/",
-    "build:demo": "cross-env VITE_DEMO_FNR=12345678910 VITE_DEMO_ENHET=0315 VITE_MULIGHETSROMMET_API_MOCK=true vite build",
+    "start": "cross-env VITE_MULIGHETSROMMET_API_MOCK=true vite",
+    "backend": "cross-env VITE_MULIGHETSROMMET_API_BASE='http://localhost:8080' vite",
+    "build": "cross-env VITE_MULIGHETSROMMET_API_BASE='http://localhost:8080' vite build",
+    "serve": "vite preview",
+    "build:demo": "cross-env APP=DEMO VITE_MULIGHETSROMMET_API_MOCK=true vite build",
+    "build:modia": "cross-env APP=MODIA VITE_MULIGHETSROMMET_API_BASE='/mulighetsrommet-api' vite build",
+    "build:nav": "cross-env APP=NAV VITE_MULIGHETSROMMET_API_BASE='/mulighetsrommet-api' vite build",
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0 && tsc",
     "fix-lint": "eslint src --ext .ts,.tsx --fix",
-    "preview": "vite preview",
-    "start": "cross-env VITE_ENVIRONMENT=localhost VITE_MULIGHETSROMMET_API_MOCK=true vite",
     "playwright": "playwright test",
     "playwright:debug": "playwright test --debug",
     "playwright:open": "playwright test --ui",
@@ -44,7 +45,6 @@
     "react-error-boundary": "4.0.12",
     "react-joyride": "2.7.2",
     "react-router-dom": "6.21.3",
-    "url-join": "5.0.0",
     "uuid": "9.0.1"
   },
   "devDependencies": {
@@ -55,6 +55,7 @@
     "@typescript-eslint/eslint-plugin": "6.19.1",
     "@vitejs/plugin-react": "4.2.1",
     "cross-env": "7.0.3",
+    "dotenv": "^16.4.1",
     "eslint": "8.56.0",
     "eslint-config-prettier": "9.1.0",
     "eslint-config-standard": "17.1.0",
@@ -68,7 +69,9 @@
     "msw": "2.1.5",
     "rollup-plugin-visualizer": "5.12.0",
     "typescript": "5.3.3",
-    "vite": "5.0.12"
+    "vite": "5.0.12",
+    "vite-plugin-shadow-style": "^1.1.0",
+    "vite-tsconfig-paths": "^4.3.1"
   },
   "msw": {
     "workerDirectory": "public"
