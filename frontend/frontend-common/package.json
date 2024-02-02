@@ -4,10 +4,8 @@
   "description": "Felleskode for frontend-applikasjoner for Team Valp",
   "module": "index.ts",
   "types": "index.tsx",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "dependencies": {
+    "react-router-dom": "6.21.3",
     "react-select": "^5.8.0",
     "@navikt/ds-react": "5.15.1"
   },
