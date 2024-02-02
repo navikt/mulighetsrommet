@@ -6,7 +6,6 @@ import {
 } from "mulighetsrommet-api-client";
 import { PORTEN } from "../../../../../frontend-common/constants";
 import { mulighetsrommetClient } from "../../../core/api/clients";
-import { useHentDeltMedBrukerStatus } from "../../../core/api/queries/useHentDeltMedbrukerStatus";
 import { useLogEvent } from "../../../logging/amplitude";
 import { byttTilDialogFlate } from "../../../utils/DialogFlateUtils";
 import { erPreview } from "../../../utils/Utils";
@@ -25,6 +24,11 @@ interface DelemodalProps {
   harDeltMedBruker?: DelMedBruker;
   dispatch: (action: Actions) => void;
   state: State;
+
+  lagreVeilederHarDeltTiltakMedBruker(
+    dialogId: string,
+    gjennomforing: VeilederflateTiltaksgjennomforing,
+  ): Promise<void>;
 }
 
 export function Delemodal({
@@ -35,14 +39,11 @@ export function Delemodal({
   harDeltMedBruker,
   dispatch,
   state,
+  lagreVeilederHarDeltTiltakMedBruker,
 }: DelemodalProps) {
   const { logEvent } = useLogEvent();
 
   const senderTilDialogen = state.sendtStatus === "SENDER";
-  const { lagreVeilederHarDeltTiltakMedBruker } = useHentDeltMedBrukerStatus(
-    brukerdata.fnr,
-    tiltaksgjennomforing,
-  );
 
   const originaltekstLengde = state.originalDeletekst.length;
   const lukkStatusmodal = () => dispatch({ type: "Toggle statusmodal", payload: false });

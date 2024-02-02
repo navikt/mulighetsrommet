@@ -7,7 +7,7 @@ import {
   valgteEnhetsnumre,
 } from "../../../hooks/useArbeidsmarkedstiltakFilter";
 
-export function useTiltaksgjennomforinger() {
+export function useVeilederTiltaksgjennomforinger() {
   return useGetTiltaksgjennomforinger(
     mulighetsrommetClient.veilederTiltak.getVeilederTiltaksgjennomforinger,
   );

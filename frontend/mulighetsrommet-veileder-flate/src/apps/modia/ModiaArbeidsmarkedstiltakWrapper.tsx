@@ -1,19 +1,13 @@
-import createCache from "@emotion/cache";
+import { BrowserRouter as Router, Navigate, Route, Routes } from "react-router-dom";
 import { createRoot, Root } from "react-dom/client";
-import urlJoin from "url-join";
-import { App } from "./App";
-import { AppContext } from "./AppContext";
+import createCache from "@emotion/cache";
+import { AppContext } from "@/AppContext";
+import { APPLICATION_WEB_COMPONENT_NAME } from "@/constants";
 import { CustomEmotionCacheProvider } from "./CustomEmotionCacheProvider";
-import { APPLICATION_WEB_COMPONENT_NAME } from "./constants";
-import { headers } from "./core/api/headers";
+import { ModiaArbeidsmarkedstiltak } from "./ModiaArbeidsmarkedstiltak";
+import { PreviewArbeidsmarkedstiltak } from "@/apps/nav/PreviewArbeidsmarkedstiltak";
 
-interface ViteAssetManifest {
-  "index.html": {
-    css: string[];
-  };
-}
-
-export class Arbeidsmarkedstiltak extends HTMLElement {
+export class ModiaArbeidsmarkedstiltakWrapper extends HTMLElement {
   static FNR_PROP = "data-fnr";
   static ENHET_PROP = "data-enhet";
 
@@ -29,7 +23,7 @@ export class Arbeidsmarkedstiltak extends HTMLElement {
   }
 
   static get observedAttributes() {
-    return [Arbeidsmarkedstiltak.FNR_PROP, Arbeidsmarkedstiltak.ENHET_PROP];
+    return [ModiaArbeidsmarkedstiltakWrapper.FNR_PROP, ModiaArbeidsmarkedstiltakWrapper.ENHET_PROP];
   }
 
   /**
@@ -48,8 +42,8 @@ export class Arbeidsmarkedstiltak extends HTMLElement {
 
     this.loadStyles(shadowRoot)
       .then(() => {
-        const fnr = this.getAttribute(Arbeidsmarkedstiltak.FNR_PROP) ?? undefined;
-        const enhet = this.getAttribute(Arbeidsmarkedstiltak.ENHET_PROP) ?? undefined;
+        const fnr = this.getAttribute(ModiaArbeidsmarkedstiltakWrapper.FNR_PROP) ?? undefined;
+        const enhet = this.getAttribute(ModiaArbeidsmarkedstiltakWrapper.ENHET_PROP) ?? undefined;
         this.renderApp(fnr, enhet);
       })
       .catch((error) => {
@@ -62,30 +56,17 @@ export class Arbeidsmarkedstiltak extends HTMLElement {
   }
 
   attributeChangedCallback(name: string, _oldValue: string, newValue: string) {
-    if (name === Arbeidsmarkedstiltak.FNR_PROP && this.updateContextData) {
+    if (name === ModiaArbeidsmarkedstiltakWrapper.FNR_PROP && this.updateContextData) {
       this.updateContextData("fnr", newValue);
-    } else if (name === Arbeidsmarkedstiltak.ENHET_PROP && this.updateContextData) {
+    } else if (name === ModiaArbeidsmarkedstiltakWrapper.ENHET_PROP && this.updateContextData) {
       this.updateContextData("enhet", newValue);
     }
   }
 
   async loadStyles(shadowRoot: ShadowRoot) {
-    const response = await fetch(urlJoin(import.meta.env.BASE_URL, "asset-manifest.json"), {
-      headers,
-    });
-
-    if (!response.ok) {
-      throw Error(`Failed to get resource '${response.url}'`);
-    }
-
-    const manifest: ViteAssetManifest = await response.json();
-    for (const css of manifest["index.html"].css) {
-      const link = document.createElement("link");
-      link.rel = "stylesheet";
-      link.href = urlJoin(import.meta.env.BASE_URL, css);
-
-      shadowRoot.appendChild(link);
-    }
+    const style = document.createElement("style");
+    style.innerHTML = SHADOW_STYLE;
+    shadowRoot.appendChild(style);
   }
 
   renderApp(fnr?: string, enhet?: string) {
@@ -102,7 +83,13 @@ export class Arbeidsmarkedstiltak extends HTMLElement {
           contextData={{ enhet, fnr }}
           updateContextDataRef={(updateContextData) => (this.updateContextData = updateContextData)}
         >
-          <App />
+          <Router>
+            <Routes>
+              <Route path="arbeidsmarkedstiltak/*" element={<ModiaArbeidsmarkedstiltak />} />
+              <Route path="preview/*" element={<PreviewArbeidsmarkedstiltak />} />
+              <Route path="*" element={<Navigate replace to="/arbeidsmarkedstiltak" />} />
+            </Routes>
+          </Router>
         </AppContext>
       </CustomEmotionCacheProvider>,
     );

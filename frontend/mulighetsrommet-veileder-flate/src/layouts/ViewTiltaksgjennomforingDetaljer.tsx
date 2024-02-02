@@ -1,21 +1,23 @@
 import { PadlockLockedFillIcon } from "@navikt/aksel-icons";
 import { Alert } from "@navikt/ds-react";
 import { Innsatsgruppe, VeilederflateTiltaksgjennomforing } from "mulighetsrommet-api-client";
-import { Outlet } from "react-router-dom";
-import SidemenyDetaljer from "../../components/sidemeny/SidemenyDetaljer";
-import TiltaksdetaljerFane from "../../components/tabs/TiltaksdetaljerFane";
-import { useGetTiltaksgjennomforingIdFraUrl } from "../../core/api/queries/useGetTiltaksgjennomforingIdFraUrl";
-import TiltaksgjennomforingsHeader from "../../layouts/TiltaksgjennomforingsHeader";
+import { Route, Routes } from "react-router-dom";
+import SidemenyDetaljer from "../components/sidemeny/SidemenyDetaljer";
+import TiltaksdetaljerFane from "../components/tabs/TiltaksdetaljerFane";
+import { useGetTiltaksgjennomforingIdFraUrl } from "../core/api/queries/useGetTiltaksgjennomforingIdFraUrl";
+import TiltaksgjennomforingsHeader from "./TiltaksgjennomforingsHeader";
 import styles from "./ViewTiltaksgjennomforingDetaljer.module.scss";
+import { Oppskrift } from "../components/oppskrift/Oppskrift";
+import { ReactNode } from "react";
 
 interface Props {
   tiltaksgjennomforing: VeilederflateTiltaksgjennomforing;
   brukersInnsatsgruppe?: Innsatsgruppe;
-  brukerActions: React.ReactNode;
-  knapperad: React.ReactNode;
+  brukerActions: ReactNode;
+  knapperad: ReactNode;
 }
 
-const ViewTiltaksgjennomforingDetaljer = ({
+export const ViewTiltaksgjennomforingDetaljer = ({
   tiltaksgjennomforing,
   brukerActions,
   knapperad,
@@ -47,10 +49,10 @@ const ViewTiltaksgjennomforingDetaljer = ({
         <TiltaksdetaljerFane tiltaksgjennomforing={tiltaksgjennomforing} />
       </div>
       <div className={styles.oppskriftContainer}>
-        <Outlet />
+        <Routes>
+          <Route path="oppskrifter/:oppskriftId/:tiltakstypeId" element={<Oppskrift />} />
+        </Routes>
       </div>
     </div>
   );
 };
-
-export default ViewTiltaksgjennomforingDetaljer;

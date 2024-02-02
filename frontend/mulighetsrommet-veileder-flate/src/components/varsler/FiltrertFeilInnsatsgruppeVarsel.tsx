@@ -1,6 +1,5 @@
 import { Alert } from "@navikt/ds-react";
 import { useHentBrukerdata } from "../../core/api/queries/useHentBrukerdata";
-import appStyles from "../../App.module.scss";
 import styles from "./BrukerKvalifisererIkkeVarsel.module.scss";
 import { Innsatsgruppe } from "mulighetsrommet-api-client";
 import { ArbeidsmarkedstiltakFilter } from "../../hooks/useArbeidsmarkedstiltakFilter";
@@ -31,8 +30,8 @@ export function FiltrertFeilInnsatsgruppeVarsel({ filter }: FiltrertFeilInnsatsg
       {(standardInnsatsBruker || situasjonsbestemtInnsatsBruker || spesieltTilpassetInnsats) && (
         <Alert variant="warning" className={styles.varsel}>
           Oversikten viser nå tiltak for innsatsgruppen
-          <strong className={appStyles.lowercase}> {innsatsgruppeFiltrertNavn}</strong>. Tenker du
-          noen av disse er aktuelle bør du gjøre en ny behovsvurdering.
+          <strong> {innsatsgruppeFiltrertNavn}</strong>. Tenker du noen av disse er aktuelle bør du
+          gjøre en ny behovsvurdering.
         </Alert>
       )}
     </>

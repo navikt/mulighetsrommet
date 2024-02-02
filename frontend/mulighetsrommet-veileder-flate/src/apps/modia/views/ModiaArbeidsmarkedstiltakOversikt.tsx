@@ -1,29 +1,29 @@
-import { Alert, Button, Loader } from "@navikt/ds-react";
+import { useEffect, useState } from "react";
+import { Alert, Button } from "@navikt/ds-react";
 import { ApiError, Toggles } from "mulighetsrommet-api-client";
 import { useTitle } from "mulighetsrommet-frontend-common";
 import { PORTEN } from "mulighetsrommet-frontend-common/constants";
-import { useEffect, useState } from "react";
-import { BrukersOppfolgingsenhetVarsel } from "../../components/brukersEnheter/BrukersOppfolgingsenhetVarsel";
-import { Feilmelding, ForsokPaNyttLink } from "../../components/feilmelding/Feilmelding";
-import { FilterAndTableLayout } from "../../components/filtrering/FilterAndTableLayout";
-import Filtermeny from "../../components/filtrering/Filtermeny";
-import { Filtertags } from "../../components/filtrering/Filtertags";
-import { HistorikkButton } from "../../components/historikk/HistorikkButton";
-import { BrukerHarIkke14aVedtakVarsel } from "../../components/varsler/BrukerHarIkke14aVedtakVarsel";
-import { FiltrertFeilInnsatsgruppeVarsel } from "../../components/varsler/FiltrertFeilInnsatsgruppeVarsel";
-import { OversiktenJoyride } from "../../components/joyride/OversiktenJoyride";
-import Lenke from "../../components/lenke/Lenke";
-import Tiltaksgjennomforingsoversikt from "../../components/oversikt/Tiltaksgjennomforingsoversikt";
-import Tilbakeknapp from "../../components/tilbakeknapp/Tilbakeknapp";
-import { useFeatureToggle } from "../../core/api/feature-toggles";
-import { useHentAlleTiltakDeltMedBruker } from "../../core/api/queries/useHentAlleTiltakDeltMedBruker";
-import { useHentBrukerdata } from "../../core/api/queries/useHentBrukerdata";
-import { useResetArbeidsmarkedstiltakFilter } from "../../hooks/useArbeidsmarkedstiltakFilter";
-import styles from "../ViewTiltaksgjennomforingDetaljer/ViewTiltaksgjennomforingDetaljer.module.scss";
-import { ManglerInnsatsOgServicegruppeVarsel } from "../../components/varsler/ManglerInnsatsOgServiceGruppeVarsel";
-import { useTiltaksgjennomforinger } from "../../core/api/queries/useTiltaksgjennomforinger";
+import { BrukersOppfolgingsenhetVarsel } from "@/components/brukersEnheter/BrukersOppfolgingsenhetVarsel";
+import { Feilmelding, ForsokPaNyttLink } from "@/components/feilmelding/Feilmelding";
+import { FilterAndTableLayout } from "@/components/filtrering/FilterAndTableLayout";
+import { Filtermeny } from "@/components/filtrering/Filtermeny";
+import { Filtertags } from "@/components/filtrering/Filtertags";
+import { HistorikkButton } from "@/components/historikk/HistorikkButton";
+import { BrukerHarIkke14aVedtakVarsel } from "@/components/varsler/BrukerHarIkke14aVedtakVarsel";
+import { FiltrertFeilInnsatsgruppeVarsel } from "@/components/varsler/FiltrertFeilInnsatsgruppeVarsel";
+import { OversiktenJoyride } from "@/components/joyride/OversiktenJoyride";
+import Lenke from "../../../components/lenke/Lenke";
+import { Tiltaksgjennomforingsoversikt } from "@/components/oversikt/Tiltaksgjennomforingsoversikt";
+import { Tilbakeknapp } from "@/components/tilbakeknapp/Tilbakeknapp";
+import { useFeatureToggle } from "@/core/api/feature-toggles";
+import { useHentAlleTiltakDeltMedBruker } from "@/core/api/queries/useHentAlleTiltakDeltMedBruker";
+import { useHentBrukerdata } from "@/core/api/queries/useHentBrukerdata";
+import { useResetArbeidsmarkedstiltakFilter } from "@/hooks/useArbeidsmarkedstiltakFilter";
+import { ManglerInnsatsOgServicegruppeVarsel } from "@/components/varsler/ManglerInnsatsOgServiceGruppeVarsel";
+import { useVeilederTiltaksgjennomforinger } from "@/core/api/queries/useTiltaksgjennomforinger";
+import { TiltakLoader } from "@/components/TiltakLoader";
 
-const ModiaViewTiltaksgjennomforingOversikt = () => {
+export const ModiaArbeidsmarkedstiltakOversikt = () => {
   useTitle("Arbeidsmarkedstiltak - Oversikt");
 
   const { data: brukerdata } = useHentBrukerdata();
@@ -41,7 +41,7 @@ const ModiaViewTiltaksgjennomforingOversikt = () => {
     isLoading,
     isError,
     error,
-  } = useTiltaksgjennomforinger();
+  } = useVeilederTiltaksgjennomforinger();
 
   useEffect(() => {
     setIsHistorikkModalOpen(isHistorikkModalOpen);
@@ -92,7 +92,7 @@ const ModiaViewTiltaksgjennomforingOversikt = () => {
         beskrivelse={
           <>
             Brukers geografiske enhet kunne ikke hentes. Kontroller at brukeren er under oppfølging
-            og finnes i Arena, og {ForsokPaNyttLink()}
+            og finnes i Arena, og <ForsokPaNyttLink />
           </>
         }
         ikonvariant="error"
@@ -107,7 +107,7 @@ const ModiaViewTiltaksgjennomforingOversikt = () => {
         beskrivelse={
           <>
             Vi kan ikke hente brukerens innsatsgruppe eller servicegruppe. Kontroller at brukeren er
-            under oppfølging og finnes i Arena, og <br /> {ForsokPaNyttLink()}
+            under oppfølging og finnes i Arena, og <br /> <ForsokPaNyttLink />
           </>
         }
         ikonvariant="error"
@@ -149,9 +149,7 @@ const ModiaViewTiltaksgjennomforingOversikt = () => {
             <BrukerHarIkke14aVedtakVarsel brukerdata={brukerdata} />
             <ManglerInnsatsOgServicegruppeVarsel brukerdata={brukerdata} />
             {isLoading ? (
-              <div className={styles.filter_loader}>
-                <Loader />
-              </div>
+              <TiltakLoader />
             ) : tiltaksgjennomforinger.length === 0 ? (
               <TilbakestillFilterFeil resetFilter={resetFilterToDefaults} />
             ) : (
@@ -180,5 +178,3 @@ function TilbakestillFilterFeil({ resetFilter }: { resetFilter(): void }) {
     </Feilmelding>
   );
 }
-
-export default ModiaViewTiltaksgjennomforingOversikt;

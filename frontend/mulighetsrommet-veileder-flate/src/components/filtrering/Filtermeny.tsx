@@ -12,7 +12,7 @@ import {
 } from "../../hooks/useArbeidsmarkedstiltakFilter";
 import { NavEnhetFilter } from "./NavEnhetFilter";
 
-const Filtermeny = () => {
+export const Filtermeny = () => {
   const [filter, setFilter] = useArbeidsmarkedstiltakFilter();
 
   return (
@@ -50,5 +50,3 @@ const Filtermeny = () => {
     </div>
   );
 };
-
-export default Filtermeny;

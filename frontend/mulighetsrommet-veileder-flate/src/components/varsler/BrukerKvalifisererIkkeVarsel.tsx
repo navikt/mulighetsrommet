@@ -1,32 +1,26 @@
 import { Alert } from "@navikt/ds-react";
-import { Bruker, Innsatsgruppe } from "mulighetsrommet-api-client";
-import appStyles from "../../App.module.scss";
+import { Bruker, VeilederflateTiltakstype } from "mulighetsrommet-api-client";
 import styles from "./BrukerKvalifisererIkkeVarsel.module.scss";
 
 interface Props {
-  brukerdata?: Bruker;
+  brukerdata: Bruker;
   brukerHarRettPaaTiltak: boolean;
-  innsatsgruppeForGjennomforing: Innsatsgruppe;
+  tiltakstype: VeilederflateTiltakstype;
 }
 
 export function BrukerKvalifisererIkkeVarsel({
-  brukerdata,
   brukerHarRettPaaTiltak,
-  innsatsgruppeForGjennomforing = Innsatsgruppe.STANDARD_INNSATS,
+  brukerdata,
+  tiltakstype,
 }: Props) {
-  return !brukerHarRettPaaTiltak && brukerdata?.innsatsgruppe ? (
+  const innsatsgruppeEllerTiltakstype = tiltakstype.innsatsgruppe?.tittel ?? tiltakstype.navn;
+
+  return !brukerHarRettPaaTiltak && brukerdata.innsatsgruppe ? (
     <Alert variant="warning" className={styles.varsel}>
       Brukeren tilhører innsatsgruppen{" "}
-      <strong className={appStyles.lowercase}>
-        {brukerdata?.innsatsgruppe.replaceAll("_", " ")}
-      </strong>
-      , men tiltaksgjennomføringen gjelder for{" "}
-      <strong className={appStyles.lowercase}>
-        {innsatsgruppeForGjennomforing.replaceAll("_", " ")}
-      </strong>
-      .
+      <strong>{brukerdata.innsatsgruppe.replaceAll("_", " ").toLocaleLowerCase()}</strong>, men
+      tiltaksgjennomføringen gjelder for{" "}
+      <strong>{innsatsgruppeEllerTiltakstype.toLocaleLowerCase()}</strong>.
     </Alert>
-  ) : (
-    <></>
-  );
+  ) : null;
 }
