@@ -20,8 +20,8 @@ import { ApiError, Toggles } from "mulighetsrommet-api-client";
 import { useTitle } from "mulighetsrommet-frontend-common";
 import { PORTEN } from "mulighetsrommet-frontend-common/constants";
 import { useEffect, useState } from "react";
-import { FilterMenyWithSkeletonLoader } from "../../../components/filtrering/FilterMenyWithSkeletonLoader";
-import Lenke from "../../../components/lenke/Lenke";
+import { FilterMenyMedSkeletonLoader } from "@/components/filtrering/FilterMenyMedSkeletonLoader";
+import Lenke from "@/components/lenke/Lenke";
 
 export const ModiaArbeidsmarkedstiltakOversikt = () => {
   useTitle("Arbeidsmarkedstiltak - Oversikt");
@@ -140,7 +140,7 @@ export const ModiaArbeidsmarkedstiltakOversikt = () => {
             />
           </>
         }
-        filter={<FilterMenyWithSkeletonLoader />}
+        filter={<FilterMenyMedSkeletonLoader />}
         tags={<Filtertags />}
         table={
           <div style={{ marginTop: "1rem" }}>

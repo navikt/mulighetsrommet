@@ -14,7 +14,7 @@ function FilterSkeletonLoader() {
   );
 }
 
-export function FilterMenyWithSkeletonLoader() {
+export function FilterMenyMedSkeletonLoader() {
   return (
     <Suspense fallback={<FilterSkeletonLoader />}>
       <Filtermeny />

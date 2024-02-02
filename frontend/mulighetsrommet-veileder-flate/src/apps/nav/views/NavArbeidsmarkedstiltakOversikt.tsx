@@ -4,7 +4,7 @@ import { FilterAndTableLayout } from "@/components/filtrering/FilterAndTableLayo
 import { Filtertags } from "@/components/filtrering/Filtertags";
 import { Tiltaksgjennomforingsoversikt } from "@/components/oversikt/Tiltaksgjennomforingsoversikt";
 import { useNavTiltaksgjennomforinger } from "@/core/api/queries/useTiltaksgjennomforinger";
-import { FilterMenyWithSkeletonLoader } from "../../../components/filtrering/FilterMenyWithSkeletonLoader";
+import { FilterMenyMedSkeletonLoader } from "@/components/filtrering/FilterMenyMedSkeletonLoader";
 
 export const NavArbeidsmarkedstiltakOversikt = () => {
   const { data: tiltaksgjennomforinger = [], isLoading } = useNavTiltaksgjennomforinger();
@@ -12,7 +12,7 @@ export const NavArbeidsmarkedstiltakOversikt = () => {
   return (
     <FilterAndTableLayout
       buttons={null}
-      filter={<FilterMenyWithSkeletonLoader />}
+      filter={<FilterMenyMedSkeletonLoader />}
       tags={<Filtertags />}
       table={
         <div>
