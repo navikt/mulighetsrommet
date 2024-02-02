@@ -1,17 +1,18 @@
 import { Button } from "@navikt/ds-react";
-import styles from "../../layouts/ViewTiltaksgjennomforingDetaljer.module.scss";
 import { CheckmarkIcon } from "@navikt/aksel-icons";
-import { Delemodal } from "./delemodal/Delemodal";
-import { useDelMedBruker } from "./delemodal/DelemodalReducer";
-import { useLogEvent } from "../../logging/amplitude";
-import { utledDelMedBrukerTekst } from "./delemodal/DelMedBrukerTekst";
-import { erBrukerReservertMotElektroniskKommunikasjon } from "../../utils/Bruker";
+import { Delemodal } from "./Delemodal";
+import { useDelMedBruker } from "./DelemodalReducer";
+import { useLogEvent } from "@/logging/amplitude";
 import {
   Bruker,
   DelMedBruker as DelMedBrukerInfo,
   VeilederflateTiltaksgjennomforing,
 } from "mulighetsrommet-api-client";
-import { delMedBrukerTekst, formaterDato } from "../../utils/Utils";
+import { formaterDato } from "@/utils/Utils";
+import {
+  erBrukerReservertMotElektroniskKommunikasjon,
+  utledDelMedBrukerTekst,
+} from "@/apps/modia/delMedBruker/helpers";
 
 interface Props {
   veiledernavn: string;
@@ -35,11 +36,7 @@ export const DelMedBruker = ({
   const { logEvent } = useLogEvent();
   const { reservert } = erBrukerReservertMotElektroniskKommunikasjon(brukerdata);
 
-  const deletekst = utledDelMedBrukerTekst(
-    delMedBrukerTekst(tiltaksgjennomforing) ?? "",
-    tiltaksgjennomforing.navn,
-    brukerdata.fornavn,
-  );
+  const deletekst = utledDelMedBrukerTekst(tiltaksgjennomforing, brukerdata.fornavn);
   const [state, dispatch] = useDelMedBruker(deletekst);
 
   const handleClickApneModal = () => {
@@ -61,7 +58,6 @@ export const DelMedBruker = ({
       <Button
         onClick={handleClickApneModal}
         variant="secondary"
-        className={styles.deleknapp}
         aria-label="Dele"
         data-testid="deleknapp"
         icon={delMedBrukerInfo && <CheckmarkIcon title="Suksess" />}

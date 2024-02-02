@@ -2257,6 +2257,7 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
     navn: "Midlertidig lønnstilskudd",
   },
   mentor: {
+    arenakode: Tiltakskode.MENTOR,
     faneinnhold: {
       pameldingOgVarighet: [
         {

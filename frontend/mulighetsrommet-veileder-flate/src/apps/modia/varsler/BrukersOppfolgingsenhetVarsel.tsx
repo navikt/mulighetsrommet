@@ -1,7 +1,7 @@
 import { Alert } from "@navikt/ds-react";
 import { Bruker, BrukerVarsel } from "mulighetsrommet-api-client";
-import { brukersEnhetFilterHasChanged } from "../../utils/Utils";
-import { useArbeidsmarkedstiltakFilterValue } from "../../hooks/useArbeidsmarkedstiltakFilter";
+import { useArbeidsmarkedstiltakFilterValue } from "@/hooks/useArbeidsmarkedstiltakFilter";
+import { brukersEnhetFilterHasChanged } from "@/apps/modia/delMedBruker/helpers";
 
 interface Props {
   brukerdata: Bruker;

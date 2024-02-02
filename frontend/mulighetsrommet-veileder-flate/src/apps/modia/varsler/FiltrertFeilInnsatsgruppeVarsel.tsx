@@ -1,8 +1,8 @@
 import { Alert } from "@navikt/ds-react";
-import { useHentBrukerdata } from "../../core/api/queries/useHentBrukerdata";
+import { useHentBrukerdata } from "@/apps/modia/hooks/useHentBrukerdata";
 import styles from "./BrukerKvalifisererIkkeVarsel.module.scss";
 import { Innsatsgruppe } from "mulighetsrommet-api-client";
-import { ArbeidsmarkedstiltakFilter } from "../../hooks/useArbeidsmarkedstiltakFilter";
+import { ArbeidsmarkedstiltakFilter } from "@/hooks/useArbeidsmarkedstiltakFilter";
 
 interface FiltrertFeilInnsatsgruppeVarselProps {
   filter: ArbeidsmarkedstiltakFilter;

@@ -3,7 +3,7 @@ import React from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { useLoadDeltakerRegistreringApp } from "@/microfrontends/deltaker-registrering/useLoadDeltakerRegistreringApp";
 import { useGetTiltaksgjennomforingIdFraUrl } from "@/core/api/queries/useGetTiltaksgjennomforingIdFraUrl";
-import { useAppContext } from "@/hooks/useAppContext";
+import { useModiaContext } from "@/apps/modia/hooks/useModiaContext";
 
 export function DeltakerRegistrering() {
   return (
@@ -35,7 +35,7 @@ function DeltakerRegistreringApp() {
 
   const tiltaksgjennomforingId = useGetTiltaksgjennomforingIdFraUrl();
 
-  const { fnr, enhet } = useAppContext();
+  const { fnr, enhet } = useModiaContext();
 
   return React.createElement("arbeidsmarkedstiltak-deltaker", {
     "data-personident": fnr,

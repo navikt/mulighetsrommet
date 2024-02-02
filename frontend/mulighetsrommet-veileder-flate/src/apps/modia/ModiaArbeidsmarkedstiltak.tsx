@@ -1,9 +1,9 @@
 import "@navikt/ds-css";
 import "./polyfill";
 import { Navigate, Route, Routes } from "react-router-dom";
-import { useHentVeilederdata } from "@/core/api/queries/useHentVeilederdata";
-import { useInitializeAppContext } from "@/hooks/useInitializeAppContext";
-import { useInitializeArbeidsmarkedstiltakFilterForBruker } from "@/hooks/useInitializeArbeidsmarkedstiltakFilterForBruker";
+import { useHentVeilederdata } from "@/apps/modia/hooks/useHentVeilederdata";
+import { useInitializeModiaContext } from "@/apps/modia/hooks/useInitializeModiaContext";
+import { useInitializeArbeidsmarkedstiltakFilterForBruker } from "@/apps/modia/hooks/useInitializeArbeidsmarkedstiltakFilterForBruker";
 import { useFeatureToggle } from "@/core/api/feature-toggles";
 import { Toggles } from "mulighetsrommet-api-client";
 import { AppContainer } from "@/layouts/AppContainer";
@@ -24,7 +24,7 @@ export function ModiaArbeidsmarkedstiltak() {
 function ModiaArbeidsmarkedstiltakRoutes() {
   useHentVeilederdata(); // Pre-fetch veilederdata så slipper vi å vente på data når vi trenger det i appen senere
 
-  useInitializeAppContext();
+  useInitializeModiaContext();
 
   useInitializeArbeidsmarkedstiltakFilterForBruker();
 

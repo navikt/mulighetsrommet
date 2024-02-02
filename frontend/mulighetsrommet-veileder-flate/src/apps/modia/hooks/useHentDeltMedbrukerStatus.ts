@@ -1,7 +1,7 @@
 import { VeilederflateTiltaksgjennomforing } from "mulighetsrommet-api-client";
-import { mulighetsrommetClient } from "../clients";
-import { QueryKeys } from "../query-keys";
-import { useHentVeilederdata } from "./useHentVeilederdata";
+import { mulighetsrommetClient } from "@/core/api/clients";
+import { QueryKeys } from "@/core/api/query-keys";
+import { useHentVeilederdata } from "@/apps/modia/hooks/useHentVeilederdata";
 import { useQuery } from "@tanstack/react-query";
 
 export function useHentDeltMedBrukerStatus(norskIdent: string, gjennomforingId: string) {

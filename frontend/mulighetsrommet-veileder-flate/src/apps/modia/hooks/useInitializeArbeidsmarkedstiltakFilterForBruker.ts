@@ -1,11 +1,11 @@
 import { useEffect } from "react";
-import { useHentBrukerdata } from "../core/api/queries/useHentBrukerdata";
-import { useInnsatsgrupper } from "../core/api/queries/useInnsatsgrupper";
+import { useHentBrukerdata } from "@/apps/modia/hooks/useHentBrukerdata";
+import { useInnsatsgrupper } from "@/core/api/queries/useInnsatsgrupper";
 import {
   buildRegionMap,
   useArbeidsmarkedstiltakFilter,
   valgteEnhetsnumre,
-} from "./useArbeidsmarkedstiltakFilter";
+} from "@/hooks/useArbeidsmarkedstiltakFilter";
 
 export function useInitializeArbeidsmarkedstiltakFilterForBruker() {
   const { data: innsatsgrupper } = useInnsatsgrupper();

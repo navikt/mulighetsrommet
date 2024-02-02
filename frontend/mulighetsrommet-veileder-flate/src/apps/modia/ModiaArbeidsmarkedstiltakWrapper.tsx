@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Navigate, Route, Routes } from "react-router-dom";
 import { createRoot, Root } from "react-dom/client";
 import createCache from "@emotion/cache";
-import { AppContext } from "@/AppContext";
+import { ModiaContext } from "@/apps/modia/ModiaContext";
 import { APPLICATION_WEB_COMPONENT_NAME } from "@/constants";
 import { CustomEmotionCacheProvider } from "./CustomEmotionCacheProvider";
 import { ModiaArbeidsmarkedstiltak } from "./ModiaArbeidsmarkedstiltak";
@@ -79,7 +79,7 @@ export class ModiaArbeidsmarkedstiltakWrapper extends HTMLElement {
     });
     this.reactRoot.render(
       <CustomEmotionCacheProvider cache={shadowrootCache}>
-        <AppContext
+        <ModiaContext
           contextData={{ enhet, fnr }}
           updateContextDataRef={(updateContextData) => (this.updateContextData = updateContextData)}
         >
@@ -90,7 +90,7 @@ export class ModiaArbeidsmarkedstiltakWrapper extends HTMLElement {
               <Route path="*" element={<Navigate replace to="/arbeidsmarkedstiltak" />} />
             </Routes>
           </Router>
-        </AppContext>
+        </ModiaContext>
       </CustomEmotionCacheProvider>,
     );
   }
