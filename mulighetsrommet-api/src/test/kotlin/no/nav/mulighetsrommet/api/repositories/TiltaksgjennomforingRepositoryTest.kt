@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.repositories
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainAll
+import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.date.shouldNotBeBefore
@@ -73,7 +74,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     organisasjonsnummer = Oppfolging1.arrangorOrganisasjonsnummer,
                     slettet = true,
                     navn = null,
-                    kontaktperson = null,
+                    kontaktpersoner = emptyList(),
                 )
                 it.startDato shouldBe Oppfolging1.startDato
                 it.sluttDato shouldBe Oppfolging1.sluttDato
@@ -154,7 +155,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     organisasjonsnummer = "123456789",
                     slettet = true,
                     navn = null,
-                    kontaktperson = null,
+                    kontaktpersoner = emptyList(),
                 )
                 it.startDato shouldBe LocalDate.of(2023, 1, 1)
                 it.sluttDato shouldBe LocalDate.of(2023, 2, 2)
@@ -381,18 +382,32 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 organisasjonsnummer = "999888777",
                 beskrivelse = "beskrivelse",
             )
+            val jens = VirksomhetKontaktperson(
+                navn = "Jens",
+                telefon = "22222224",
+                epost = "jens@theshark.co.uk",
+                id = UUID.randomUUID(),
+                organisasjonsnummer = "999888777",
+                beskrivelse = "beskrivelse2",
+            )
             virksomhetRepository.upsertKontaktperson(thomas)
+            virksomhetRepository.upsertKontaktperson(jens)
 
-            val gjennomforing = Oppfolging1.copy(arrangorKontaktpersonId = thomas.id)
+            val gjennomforing = Oppfolging1.copy(arrangorKontaktpersoner = listOf(thomas.id))
 
             tiltaksgjennomforinger.upsert(gjennomforing)
             tiltaksgjennomforinger.get(gjennomforing.id).should {
-                it!!.arrangor.kontaktperson shouldBe thomas
+                it!!.arrangor.kontaktpersoner shouldContainExactly listOf(thomas)
             }
 
-            tiltaksgjennomforinger.upsert(gjennomforing.copy(arrangorKontaktpersonId = null))
+            tiltaksgjennomforinger.upsert(gjennomforing.copy(arrangorKontaktpersoner = emptyList()))
             tiltaksgjennomforinger.get(gjennomforing.id).should {
-                it!!.arrangor.kontaktperson shouldBe null
+                it!!.arrangor.kontaktpersoner shouldHaveSize 0
+            }
+
+            tiltaksgjennomforinger.upsert(gjennomforing.copy(arrangorKontaktpersoner = listOf(thomas.id, jens.id)))
+            tiltaksgjennomforinger.get(gjennomforing.id).should {
+                it!!.arrangor.kontaktpersoner shouldContainExactlyInAnyOrder listOf(thomas, jens)
             }
         }
 

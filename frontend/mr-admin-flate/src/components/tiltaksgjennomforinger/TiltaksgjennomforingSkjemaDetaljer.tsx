@@ -16,9 +16,11 @@ import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FormGroup } from "../skjema/FormGroup";
 import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
 import skjemastyles from "../skjema/Skjema.module.scss";
-import { VirksomhetKontaktpersoner } from "../virksomhet/VirksomhetKontaktpersoner";
 import { arrangorUnderenheterOptions, erArenaOpphav } from "./TiltaksgjennomforingSkjemaConst";
 import { SelectOppstartstype } from "./SelectOppstartstype";
+import { VirksomhetKontaktpersonerModal } from "../virksomhet/VirksomhetKontaktpersonerModal";
+import { useRef } from "react";
+import { useVirksomhetKontaktpersoner } from "../../api/virksomhet/useVirksomhetKontaktpersoner";
 
 interface Props {
   tiltaksgjennomforing?: Tiltaksgjennomforing;
@@ -32,6 +34,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
   const { data: ansatt, isLoading: isLoadingAnsatt } = useHentAnsatt();
 
   const { data: kontaktpersoner, isLoading: isLoadingKontaktpersoner } = useHentKontaktpersoner();
+  const virksomhetKontaktpersonerModalRef = useRef<HTMLDialogElement>(null);
 
   const kontaktpersonerOption = (selectedIndex: number) => {
     const excludedKontaktpersoner = watch("kontaktpersoner")
@@ -63,6 +66,11 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
     name: "kontaktpersoner",
     control,
   });
+  const {
+    data: virksomhetKontaktpersoner,
+    isLoading: isLoadingVirksomhetKontaktpersoner,
+    refetch: refetchVirksomhetKontaktpersoner,
+  } = useVirksomhetKontaktpersoner(watch("tiltaksArrangorUnderenhetOrganisasjonsnummer"));
 
   const watchErMidlertidigStengt = watch("midlertidigStengt.erMidlertidigStengt");
 
@@ -336,7 +344,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                 placeholder="Velg underenhet for tiltaksarrangør"
                 {...register("tiltaksArrangorUnderenhetOrganisasjonsnummer")}
                 onChange={() => {
-                  setValue("arrangorKontaktpersonId", null);
+                  setValue("arrangorKontaktpersoner", []);
                 }}
                 onClearValue={() => {
                   setValue("tiltaksArrangorUnderenhetOrganisasjonsnummer", "");
@@ -349,11 +357,29 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
               {watch("tiltaksArrangorUnderenhetOrganisasjonsnummer") &&
                 !tiltaksgjennomforing?.arrangor?.slettet && (
                   <div className={skjemastyles.virksomhet_kontaktperson_container}>
-                    <VirksomhetKontaktpersoner
-                      title={"Kontaktperson hos arrangøren"}
-                      orgnr={watch("tiltaksArrangorUnderenhetOrganisasjonsnummer")}
-                      formValueName={"arrangorKontaktpersonId"}
+                    <ControlledMultiSelect
+                      size="small"
+                      placeholder={
+                        isLoadingVirksomhetKontaktpersoner ? "Laster kontaktpersoner..." : "Velg en"
+                      }
+                      label={"Kontaktperson hos arrangøren"}
+                      {...register("arrangorKontaktpersoner")}
+                      options={
+                        virksomhetKontaktpersoner?.map((person) => ({
+                          value: person.id,
+                          label: person.navn,
+                        })) ?? []
+                      }
                     />
+                    <Button
+                      style={{ marginTop: "1rem" }}
+                      size="small"
+                      type="button"
+                      variant="secondary"
+                      onClick={() => virksomhetKontaktpersonerModalRef.current?.showModal()}
+                    >
+                      Rediger kontaktpersoner
+                    </Button>
                   </div>
                 )}
               <TextField
@@ -370,6 +396,14 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
             </FormGroup>
           </div>
         </div>
+        <VirksomhetKontaktpersonerModal
+          orgnr={watch("tiltaksArrangorUnderenhetOrganisasjonsnummer")}
+          modalRef={virksomhetKontaktpersonerModalRef}
+          onClose={() => {
+            setValue("arrangorKontaktpersoner", []);
+            refetchVirksomhetKontaktpersoner();
+          }}
+        />
       </div>
     </div>
   );

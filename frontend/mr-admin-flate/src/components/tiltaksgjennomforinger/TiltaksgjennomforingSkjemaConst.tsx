@@ -7,6 +7,7 @@ import {
   TiltaksgjennomforingKontaktperson,
   TiltaksgjennomforingOppstartstype,
   Virksomhet,
+  VirksomhetKontaktperson,
 } from "mulighetsrommet-api-client";
 import { InferredTiltaksgjennomforingSchema } from "./TiltaksgjennomforingSchema";
 import { DeepPartial } from "react-hook-form";
@@ -130,7 +131,9 @@ export function defaultTiltaksgjennomforingData(
     apentForInnsok: tiltaksgjennomforing?.apentForInnsok,
     kontaktpersoner: defaultValuesForKontaktpersoner(tiltaksgjennomforing?.kontaktpersoner),
     stedForGjennomforing: tiltaksgjennomforing?.stedForGjennomforing ?? null,
-    arrangorKontaktpersonId: tiltaksgjennomforing?.arrangor?.kontaktperson?.id,
+    arrangorKontaktpersoner: tiltaksgjennomforing?.arrangor?.kontaktpersoner.map(
+      (p: VirksomhetKontaktperson) => p.id,
+    ),
     beskrivelse: tiltaksgjennomforing?.beskrivelse ?? avtale.beskrivelse,
     faneinnhold: tiltaksgjennomforing?.faneinnhold ?? avtale.faneinnhold,
     opphav: tiltaksgjennomforing?.opphav ?? Opphav.MR_ADMIN_FLATE,

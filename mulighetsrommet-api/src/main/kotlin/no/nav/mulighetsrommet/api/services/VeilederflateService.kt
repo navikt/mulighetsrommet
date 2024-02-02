@@ -331,11 +331,11 @@ class VeilederflateService(
         val arrangor = VeilederflateArrangor(
             selskapsnavn = apiGjennomforing.arrangor.navn,
             organisasjonsnummer = apiGjennomforing.arrangor.organisasjonsnummer,
-            kontaktperson = apiGjennomforing.arrangor.kontaktperson?.run {
+            kontaktpersoner = apiGjennomforing.arrangor.kontaktpersoner.map {
                 VeilederflateArrangor.Kontaktperson(
-                    navn = navn,
-                    telefon = telefon,
-                    epost = epost,
+                    navn = it.navn,
+                    telefon = it.telefon,
+                    epost = it.epost,
                 )
             },
         )

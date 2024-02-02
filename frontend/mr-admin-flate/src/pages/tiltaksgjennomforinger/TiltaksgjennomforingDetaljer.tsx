@@ -4,6 +4,7 @@ import {
   Avtale,
   Tiltaksgjennomforing,
   TiltaksgjennomforingOppstartstype,
+  VirksomhetKontaktperson,
 } from "mulighetsrommet-api-client";
 import { NOM_ANSATT_SIDE } from "mulighetsrommet-frontend-common/constants";
 import { Bolk } from "../../components/detaljside/Bolk";
@@ -249,20 +250,19 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
               />
             </Bolk>
           ) : null}
-
-          {arrangor.kontaktperson && (
+          {arrangor.kontaktpersoner.length > 0 && (
             <Metadata
               header="Kontaktperson hos arrangør"
               verdi={
-                <div className={styles.leverandor_kontaktinfo}>
-                  <label>{arrangor.kontaktperson.navn}</label>
-                  <label>{arrangor.kontaktperson.telefon}</label>
-                  <a href={`mailto:${arrangor.kontaktperson.epost}`}>
-                    {arrangor.kontaktperson.epost}
-                  </a>
-                  {arrangor.kontaktperson.beskrivelse && (
-                    <label>{arrangor.kontaktperson.beskrivelse}</label>
-                  )}
+                <div className={styles.leverandor_kontaktinfo_container}>
+                  {arrangor.kontaktpersoner.map((person: VirksomhetKontaktperson) => (
+                    <div key={person.id} className={styles.leverandor_kontaktinfo}>
+                      <label>{person.navn}</label>
+                      <label>{person.telefon}</label>
+                      <a href={`mailto:${person.epost}`}>{person.epost}</a>
+                      {person.beskrivelse && <label>{person.beskrivelse}</label>}
+                    </div>
+                  ))}
                 </div>
               }
             />

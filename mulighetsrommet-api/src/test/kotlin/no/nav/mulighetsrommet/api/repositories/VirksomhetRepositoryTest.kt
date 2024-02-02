@@ -260,7 +260,7 @@ class VirksomhetRepositoryTest : FunSpec({
                 opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
                 sluttDato = null,
                 kontaktpersoner = emptyList(),
-                arrangorKontaktpersonId = null,
+                arrangorKontaktpersoner = emptyList(),
                 stengtFra = null,
                 stengtTil = null,
                 stedForGjennomforing = "Oslo",

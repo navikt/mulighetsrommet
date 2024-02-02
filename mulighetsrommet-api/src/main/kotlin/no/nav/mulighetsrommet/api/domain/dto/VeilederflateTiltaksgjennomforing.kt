@@ -82,7 +82,7 @@ data class VeilederflateTiltakstype(
 data class VeilederflateArrangor(
     val selskapsnavn: String?,
     val organisasjonsnummer: String?,
-    val kontaktperson: Kontaktperson?,
+    val kontaktpersoner: List<Kontaktperson>,
 ) {
     @Serializable
     data class Kontaktperson(

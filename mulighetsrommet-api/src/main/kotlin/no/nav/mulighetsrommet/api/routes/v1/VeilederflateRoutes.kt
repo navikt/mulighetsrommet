@@ -89,7 +89,7 @@ fun Route.veilederflateRoutes() {
 
         route("/nav") {
             fun utenKontaktInfo(gjennomforing: VeilederflateTiltaksgjennomforing): VeilederflateTiltaksgjennomforing {
-                val arrangor = gjennomforing.arrangor?.copy(kontaktperson = null)
+                val arrangor = gjennomforing.arrangor?.copy(kontaktpersoner = emptyList())
                 return gjennomforing.copy(
                     arrangor = arrangor,
                     kontaktinfoTiltaksansvarlige = emptyList(),
