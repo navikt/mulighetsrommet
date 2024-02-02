@@ -1,10 +1,10 @@
-import { Filtermeny } from "@/components/filtrering/Filtermeny";
-import { Tiltaksgjennomforingsoversikt } from "@/components/oversikt/Tiltaksgjennomforingsoversikt";
+import { TiltakLoader } from "@/components/TiltakLoader";
 import { Feilmelding } from "@/components/feilmelding/Feilmelding";
 import { FilterAndTableLayout } from "@/components/filtrering/FilterAndTableLayout";
-import { useNavTiltaksgjennomforinger } from "@/core/api/queries/useTiltaksgjennomforinger";
-import { TiltakLoader } from "@/components/TiltakLoader";
 import { Filtertags } from "@/components/filtrering/Filtertags";
+import { Tiltaksgjennomforingsoversikt } from "@/components/oversikt/Tiltaksgjennomforingsoversikt";
+import { useNavTiltaksgjennomforinger } from "@/core/api/queries/useTiltaksgjennomforinger";
+import { FilterMenyMedSkeletonLoader } from "@/components/filtrering/FilterMenyMedSkeletonLoader";
 
 export const NavArbeidsmarkedstiltakOversikt = () => {
   const { data: tiltaksgjennomforinger = [], isLoading } = useNavTiltaksgjennomforinger();
@@ -12,7 +12,7 @@ export const NavArbeidsmarkedstiltakOversikt = () => {
   return (
     <FilterAndTableLayout
       buttons={null}
-      filter={<Filtermeny />}
+      filter={<FilterMenyMedSkeletonLoader />}
       tags={<Filtertags />}
       table={
         <div>

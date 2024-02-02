@@ -1,27 +1,27 @@
-import { useEffect, useState } from "react";
+import { TiltakLoader } from "@/components/TiltakLoader";
+import { BrukersOppfolgingsenhetVarsel } from "@/components/brukersEnheter/BrukersOppfolgingsenhetVarsel";
+import { Feilmelding, ForsokPaNyttLink } from "@/components/feilmelding/Feilmelding";
+import { FilterAndTableLayout } from "@/components/filtrering/FilterAndTableLayout";
+import { Filtertags } from "@/components/filtrering/Filtertags";
+import { HistorikkButton } from "@/components/historikk/HistorikkButton";
+import { OversiktenJoyride } from "@/components/joyride/OversiktenJoyride";
+import { Tiltaksgjennomforingsoversikt } from "@/components/oversikt/Tiltaksgjennomforingsoversikt";
+import { Tilbakeknapp } from "@/components/tilbakeknapp/Tilbakeknapp";
+import { BrukerHarIkke14aVedtakVarsel } from "@/components/varsler/BrukerHarIkke14aVedtakVarsel";
+import { FiltrertFeilInnsatsgruppeVarsel } from "@/components/varsler/FiltrertFeilInnsatsgruppeVarsel";
+import { ManglerInnsatsOgServicegruppeVarsel } from "@/components/varsler/ManglerInnsatsOgServiceGruppeVarsel";
+import { useFeatureToggle } from "@/core/api/feature-toggles";
+import { useHentAlleTiltakDeltMedBruker } from "@/core/api/queries/useHentAlleTiltakDeltMedBruker";
+import { useHentBrukerdata } from "@/core/api/queries/useHentBrukerdata";
+import { useVeilederTiltaksgjennomforinger } from "@/core/api/queries/useTiltaksgjennomforinger";
+import { useResetArbeidsmarkedstiltakFilter } from "@/hooks/useArbeidsmarkedstiltakFilter";
 import { Alert, Button } from "@navikt/ds-react";
 import { ApiError, Toggles } from "mulighetsrommet-api-client";
 import { useTitle } from "mulighetsrommet-frontend-common";
 import { PORTEN } from "mulighetsrommet-frontend-common/constants";
-import { BrukersOppfolgingsenhetVarsel } from "@/components/brukersEnheter/BrukersOppfolgingsenhetVarsel";
-import { Feilmelding, ForsokPaNyttLink } from "@/components/feilmelding/Feilmelding";
-import { FilterAndTableLayout } from "@/components/filtrering/FilterAndTableLayout";
-import { Filtermeny } from "@/components/filtrering/Filtermeny";
-import { Filtertags } from "@/components/filtrering/Filtertags";
-import { HistorikkButton } from "@/components/historikk/HistorikkButton";
-import { BrukerHarIkke14aVedtakVarsel } from "@/components/varsler/BrukerHarIkke14aVedtakVarsel";
-import { FiltrertFeilInnsatsgruppeVarsel } from "@/components/varsler/FiltrertFeilInnsatsgruppeVarsel";
-import { OversiktenJoyride } from "@/components/joyride/OversiktenJoyride";
-import Lenke from "../../../components/lenke/Lenke";
-import { Tiltaksgjennomforingsoversikt } from "@/components/oversikt/Tiltaksgjennomforingsoversikt";
-import { Tilbakeknapp } from "@/components/tilbakeknapp/Tilbakeknapp";
-import { useFeatureToggle } from "@/core/api/feature-toggles";
-import { useHentAlleTiltakDeltMedBruker } from "@/core/api/queries/useHentAlleTiltakDeltMedBruker";
-import { useHentBrukerdata } from "@/core/api/queries/useHentBrukerdata";
-import { useResetArbeidsmarkedstiltakFilter } from "@/hooks/useArbeidsmarkedstiltakFilter";
-import { ManglerInnsatsOgServicegruppeVarsel } from "@/components/varsler/ManglerInnsatsOgServiceGruppeVarsel";
-import { useVeilederTiltaksgjennomforinger } from "@/core/api/queries/useTiltaksgjennomforinger";
-import { TiltakLoader } from "@/components/TiltakLoader";
+import { useEffect, useState } from "react";
+import { FilterMenyMedSkeletonLoader } from "@/components/filtrering/FilterMenyMedSkeletonLoader";
+import Lenke from "@/components/lenke/Lenke";
 
 export const ModiaArbeidsmarkedstiltakOversikt = () => {
   useTitle("Arbeidsmarkedstiltak - Oversikt");
@@ -140,7 +140,7 @@ export const ModiaArbeidsmarkedstiltakOversikt = () => {
             />
           </>
         }
-        filter={<Filtermeny />}
+        filter={<FilterMenyMedSkeletonLoader />}
         tags={<Filtertags />}
         table={
           <div style={{ marginTop: "1rem" }}>

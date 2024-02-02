@@ -1,6 +1,6 @@
 import { useTiltakstyper } from "../../core/api/queries/useTiltakstyper";
-import CheckboxFilter from "./CheckboxFilter";
 import { useArbeidsmarkedstiltakFilter } from "../../hooks/useArbeidsmarkedstiltakFilter";
+import CheckboxFilter from "./CheckboxFilter";
 
 export function Tiltakstypefilter() {
   const tiltakstyper = useTiltakstyper();
@@ -18,7 +18,6 @@ export function Tiltakstypefilter() {
           };
         }) ?? []
       }
-      isLoading={tiltakstyper.isLoading}
       isError={tiltakstyper.isError}
       sortert
     />
