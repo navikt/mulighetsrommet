@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
 import { Notifikasjonsbjelle } from "../notifikasjoner/Notifikasjonsbjelle";
 import styles from "./AdministratorHeader.module.scss";
-import { erForhandsvisningMiljo } from "../../utils/Utils";
+import { erForhandsvisningMiljo, erProdMiljo } from "../../utils/Utils";
 import { useRef } from "react";
 
 export function AdministratorHeader() {
@@ -98,7 +98,14 @@ export function AdministratorHeader() {
               onClick={() => endringsmeldingerLinkRef.current?.click()}
               as="span"
             >
-              <Link ref={endringsmeldingerLinkRef} to="https://arbeidsmarkedstiltak.intern.nav.no/">
+              <Link
+                ref={endringsmeldingerLinkRef}
+                to={
+                  erProdMiljo
+                    ? "https://arbeidsmarkedstiltak.intern.nav.no/"
+                    : "https://arbeidsmarkedstiltak.intern.dev.nav.no/"
+                }
+              >
                 Endringsmeldinger
               </Link>
             </Dropdown.Menu.GroupedList.Item>
