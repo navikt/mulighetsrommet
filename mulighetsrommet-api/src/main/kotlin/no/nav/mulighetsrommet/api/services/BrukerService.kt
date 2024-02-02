@@ -79,7 +79,7 @@ fun oppfolgingsenhetLokalOgUlik(
     geografiskEnhet: NavEnhetDbo?,
     oppfolgingsenhet: NavEnhetDbo?,
 ): Boolean {
-    return oppfolgingsenhet?.type == Norg2Type.LOKAL && oppfolgingsenhet.enhetsnummer == geografiskEnhet?.enhetsnummer
+    return oppfolgingsenhet?.type == Norg2Type.LOKAL && oppfolgingsenhet.enhetsnummer != geografiskEnhet?.enhetsnummer
 }
 
 fun getRelevanteEnheterForBruker(
