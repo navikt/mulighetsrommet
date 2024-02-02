@@ -5,11 +5,12 @@ Visning av arbeidsmarkedstiltak til veiledere og NAV-ansatte.
 Applikasjonen bygges og distribueres i flere varianter avhengig av bruksområde.
 
 **DEMO**
-- En demo-versjon som samler alle variantene nevnte under og inkluderer mocks og fungerer uten en backend
+- En demo-versjon som samler variantene nevnt under.
+- Inkluderer mocks via MSW i stedet for å gå mot backend.
 
 **MODIA**
-- En variant rettet med veiledere ved arbeidsrettet oppfølging.
-  - Kjører med en bruker (borger) i kontekst og inkluderer en del funksjoner rettet mot samhendling mellom NAV-veileder og bruker.
+- En variant rettet mot veiledere ved arbeidsrettet oppfølging.
+  - Kjører med en bruker (borger) i kontekst og inkluderer en del funksjoner rettet mot samhandling mellom NAV-veileder og bruker.
   - Lar deg finne relevante arbeidsmarkedstiltak for bruker i kontekst.
 - Blir distribuert som en [Web Component](https://developer.mozilla.org/en-US/docs/Web/API/Web_components) og inkludert som en microfrontend i [veilarbpersonflate](https://github.com/navikt/veilarbpersonflatefs).
 
@@ -17,7 +18,7 @@ Applikasjonen bygges og distribueres i flere varianter avhengig av bruksområde.
 
 - En variant som er tilgjengelig for alle NAV-ansatte.
   - Gir deg en oversikt over arbeidsmarkedstiltak i NAV.
-- Inneholder også en modus for forhåndsvisning av redaksjonelt innhold
+- Inneholder også en modus for forhåndsvisning av redaksjonelt innhold.
   - Tilgjengelig for administratorer/redaktører innen tiltaksadministrasjon.
   - Inkluderer noen mock-varianter av funksjoner som ellers kun er tilgjenglige for veiledere (via `MODIA`-varianten) slik at man kan forhåndsvise innhold uten å ha en reell bruker i kontekst.
 
@@ -85,6 +86,9 @@ npm run playwright:open
 ## Deploy
 
 Ved merge til main-branch deployes appen til dev og prod.
+
+- `MODIA`-varianten lastes opp til NAV CDN og importeres direkte i [veilarbpersonflate](https://github.com/navikt/veilarbpersonflatefs).
+- `NAV`-varianten hostes via egen instans av [POAO-frontend](https://github.com/navikt/poao-frontend).
 
 ## <a name="teknologier"></a>Teknologier
 
