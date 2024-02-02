@@ -26,7 +26,7 @@ import { BrukerHarIkke14aVedtakVarsel } from "@/apps/modia/varsler/BrukerHarIkke
 import { byttTilDialogFlate } from "@/utils/DialogFlateUtils";
 import { paginationAtom } from "@/core/atoms/atoms";
 import { useFeatureToggle } from "@/core/api/feature-toggles";
-import { DelMedBruker } from "@/components/delMedBruker/DelMedBruker";
+import { DelMedBruker } from "@/apps/modia/delMedBruker/DelMedBruker";
 import { TiltakLoader } from "@/components/TiltakLoader";
 import { useGetTiltaksgjennomforingIdFraUrl } from "@/core/api/queries/useGetTiltaksgjennomforingIdFraUrl";
 import { isProduction } from "@/environment";
@@ -116,7 +116,6 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
                   window.open(url, "_blank");
                 }}
                 variant="primary"
-                className={styles.deleknapp}
                 aria-label="Opprett avtale"
                 data-testid="opprettavtaleknapp"
                 disabled={!brukerHarRettPaaValgtTiltak}

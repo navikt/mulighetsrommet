@@ -1,10 +1,11 @@
 import { Alert, Button, ErrorMessage, Textarea } from "@navikt/ds-react";
 import { DelMedBruker, VeilederflateTiltaksgjennomforing } from "mulighetsrommet-api-client";
 import React, { Dispatch, useEffect, useRef } from "react";
-import { delMedBrukerTekst, erPreview, formaterDato } from "../../../utils/Utils";
+import { erPreview, formaterDato } from "@/utils/Utils";
 import delemodalStyles from "./Delemodal.module.scss";
 import { Actions, State } from "./DelemodalActions";
-import { useLogEvent } from "../../../logging/amplitude";
+import { useLogEvent } from "@/logging/amplitude";
+import { getDelMedBrukerTekst } from "@/apps/modia/delMedBruker/helpers";
 
 export const MAKS_ANTALL_TEGN_DEL_MED_BRUKER = 500;
 
@@ -104,7 +105,7 @@ export function DelMedBrukerContent({
         </ErrorMessage>
       ) : null}
 
-      {!delMedBrukerTekst(tiltaksgjennomforing) ? (
+      {!getDelMedBrukerTekst(tiltaksgjennomforing) ? (
         <ErrorMessage className={delemodalStyles.feilmeldinger}>
           • Mangler ferdigutfylt tekst som kan deles med bruker{" "}
         </ErrorMessage>

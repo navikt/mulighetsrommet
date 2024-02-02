@@ -1,5 +1,10 @@
+import { useEffect, useState } from "react";
+import { Alert, Button } from "@navikt/ds-react";
+import { ApiError, Toggles } from "mulighetsrommet-api-client";
+import { useTitle } from "mulighetsrommet-frontend-common";
+import { PORTEN } from "mulighetsrommet-frontend-common/constants";
 import { TiltakLoader } from "@/components/TiltakLoader";
-import { BrukersOppfolgingsenhetVarsel } from "@/components/brukersEnheter/BrukersOppfolgingsenhetVarsel";
+import { BrukersOppfolgingsenhetVarsel } from "@/apps/modia/varsler/BrukersOppfolgingsenhetVarsel";
 import { Feilmelding, ForsokPaNyttLink } from "@/components/feilmelding/Feilmelding";
 import { FilterAndTableLayout } from "@/components/filtrering/FilterAndTableLayout";
 import { Filtertags } from "@/components/filtrering/Filtertags";
@@ -15,11 +20,6 @@ import { useHentBrukerdata } from "@/apps/modia/hooks/useHentBrukerdata";
 import { useVeilederTiltaksgjennomforinger } from "@/core/api/queries/useTiltaksgjennomforinger";
 import { useResetArbeidsmarkedstiltakFilter } from "@/hooks/useArbeidsmarkedstiltakFilter";
 import { ManglerInnsatsOgServicegruppeVarsel } from "@/apps/modia/varsler/ManglerInnsatsOgServiceGruppeVarsel";
-import { Alert, Button } from "@navikt/ds-react";
-import { ApiError, Toggles } from "mulighetsrommet-api-client";
-import { useTitle } from "mulighetsrommet-frontend-common";
-import { PORTEN } from "mulighetsrommet-frontend-common/constants";
-import { useEffect, useState } from "react";
 import { FilterMenyMedSkeletonLoader } from "@/components/filtrering/FilterMenyMedSkeletonLoader";
 import Lenke from "@/components/lenke/Lenke";
 

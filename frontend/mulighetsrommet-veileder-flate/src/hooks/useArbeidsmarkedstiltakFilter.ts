@@ -3,7 +3,7 @@ import { atomWithStorage, createJSONStorage } from "jotai/utils";
 import { useAtom, useAtomValue } from "jotai";
 import { SyncStorage } from "jotai/vanilla/utils/atomWithStorage";
 import { useHentBrukerdata } from "@/apps/modia/hooks/useHentBrukerdata";
-import { brukersEnhetFilterHasChanged } from "@/utils/Utils";
+import { brukersEnhetFilterHasChanged } from "@/apps/modia/delMedBruker/helpers";
 
 export interface RegionMap {
   [region: string]: string[];

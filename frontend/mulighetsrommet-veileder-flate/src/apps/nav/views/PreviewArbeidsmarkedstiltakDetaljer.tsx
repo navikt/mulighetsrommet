@@ -2,7 +2,7 @@ import { Alert } from "@navikt/ds-react";
 import { Innsatsgruppe, NavEnhetStatus, NavEnhetType } from "mulighetsrommet-api-client";
 import { ViewTiltaksgjennomforingDetaljer } from "@/layouts/ViewTiltaksgjennomforingDetaljer";
 import { Tilbakeknapp } from "@/components/tilbakeknapp/Tilbakeknapp";
-import { DelMedBruker } from "@/components/delMedBruker/DelMedBruker";
+import { DelMedBruker } from "@/apps/modia/delMedBruker/DelMedBruker";
 import { TiltakLoader } from "@/components/TiltakLoader";
 import { usePreviewTiltaksgjennomforingById } from "@/core/api/queries/useTiltaksgjennomforingById";
 
