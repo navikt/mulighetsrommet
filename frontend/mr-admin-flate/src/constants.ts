@@ -1,5 +1,18 @@
+import { isProduction } from "./environment";
+
 export const APPLICATION_NAME = "mr-admin-flate";
 
 export const PAGE_SIZE = 15;
 export const AVTALE_PAGE_SIZE = 15;
 
+export const PREVIEW_ARBEIDSMARKEDSTILTAK_URL = isProduction
+  ? "https://nav-arbeidsmarkedstiltak.intern.nav.no/preview"
+  : "https://nav-arbeidsmarkedstiltak.intern.dev.nav.no/preview";
+
+export const ENDRINGSMELDINGER_URL = isProduction
+  ? "https://arbeidsmarkedstiltak.intern.nav.no"
+  : "https://arbeidsmarkedstiltak.intern.dev.nav.no";
+
+export const SANITY_STUDIO_URL = isProduction
+  ? "https://mulighetsrommet-sanity-studio.intern.nav.no/prod/desk"
+  : "https://mulighetsrommet-sanity-studio.intern.nav.no/test/desk";

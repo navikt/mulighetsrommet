@@ -4,8 +4,12 @@ import { Link } from "react-router-dom";
 import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
 import { Notifikasjonsbjelle } from "../notifikasjoner/Notifikasjonsbjelle";
 import styles from "./AdministratorHeader.module.scss";
-import { erForhandsvisningMiljo, erProdMiljo } from "../../utils/Utils";
 import { useRef } from "react";
+import {
+  ENDRINGSMELDINGER_URL,
+  PREVIEW_ARBEIDSMARKEDSTILTAK_URL,
+  SANITY_STUDIO_URL,
+} from "../../constants";
 
 export function AdministratorHeader() {
   const { data } = useHentAnsatt();
@@ -74,11 +78,7 @@ export function AdministratorHeader() {
               onClick={() => individuelleGjennomforingerLinkRef.current?.click()}
               as="span"
             >
-              <Link
-                ref={individuelleGjennomforingerLinkRef}
-                to="https://mulighetsrommet-sanity-studio.intern.nav.no/prod/desk"
-                target="_blank"
-              >
+              <Link ref={individuelleGjennomforingerLinkRef} to={SANITY_STUDIO_URL} target="_blank">
                 Individuelle tiltaksgjennomføringer <ExternalLinkIcon />
               </Link>
             </Dropdown.Menu.GroupedList.Item>
@@ -88,7 +88,7 @@ export function AdministratorHeader() {
             >
               <Link
                 ref={veilederflateLinkRef}
-                to={`https://mulighetsrommet-veileder-flate.intern.${erForhandsvisningMiljo}/preview`}
+                to={PREVIEW_ARBEIDSMARKEDSTILTAK_URL}
                 target="_blank"
               >
                 Veilederflate forhåndsvisning <ExternalLinkIcon />
@@ -98,14 +98,7 @@ export function AdministratorHeader() {
               onClick={() => endringsmeldingerLinkRef.current?.click()}
               as="span"
             >
-              <Link
-                ref={endringsmeldingerLinkRef}
-                to={
-                  erProdMiljo
-                    ? "https://arbeidsmarkedstiltak.intern.nav.no/"
-                    : "https://arbeidsmarkedstiltak.intern.dev.nav.no/"
-                }
-              >
+              <Link ref={endringsmeldingerLinkRef} to={ENDRINGSMELDINGER_URL}>
                 Endringsmeldinger
               </Link>
             </Dropdown.Menu.GroupedList.Item>
