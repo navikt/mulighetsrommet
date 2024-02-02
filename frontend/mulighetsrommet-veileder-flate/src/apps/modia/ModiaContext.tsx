@@ -1,25 +1,15 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { Provider, useAtom } from "jotai";
+import { Provider as JotaiProvider, useAtom } from "jotai";
 import { useHydrateAtoms } from "jotai/utils";
 import { ReactNode, useEffect, useState } from "react";
-import { appContextAtom, AppContextData } from "./hooks/useAppContext";
+import { AppContextData, modiaContextAtom } from "./hooks/useModiaContext";
 import {
   filterAtom,
   FilterMedBrukerIKontekst,
   getDefaultFilterForBrukerIKontekst,
-} from "./hooks/useArbeidsmarkedstiltakFilter";
+} from "@/hooks/useArbeidsmarkedstiltakFilter";
+import { ReactQueryProvider } from "@/ReactQueryProvider";
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      throwOnError: true,
-      retry: 3,
-    },
-  },
-});
-
-export interface AppContextProps {
+export interface ModiaContextProps {
   contextData: Partial<AppContextData>;
   updateContextDataRef?: (updateContextData: (key: string, value: string) => void) => void;
   children: ReactNode;
@@ -38,14 +28,14 @@ function HydrateAtoms({
    * Initialiserer atoms som trenger standardverdier basert på bruker i kontekst
    */
   useHydrateAtoms([
-    [appContextAtom, appContext],
+    [modiaContextAtom, appContext],
     [filterAtom, filter],
   ]);
   return children;
 }
 
-export function AppContext(props: AppContextProps) {
-  const [contextData, setContextData] = useAtom(appContextAtom);
+export function ModiaContext(props: ModiaContextProps) {
+  const [contextData, setContextData] = useAtom(modiaContextAtom);
 
   const [loadedFilter, setLoadedFilter] = useState<FilterMedBrukerIKontekst | null>(null);
 
@@ -67,13 +57,12 @@ export function AppContext(props: AppContextProps) {
   }
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <Provider>
+    <ReactQueryProvider>
+      <JotaiProvider>
         <HydrateAtoms appContext={props.contextData} filter={loadedFilter}>
           {props.children}
         </HydrateAtoms>
-      </Provider>
-      <ReactQueryDevtools initialIsOpen={false} />
-    </QueryClientProvider>
+      </JotaiProvider>
+    </ReactQueryProvider>
   );
 }

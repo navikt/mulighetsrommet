@@ -15,7 +15,7 @@ import { useHentBrukerdata } from "@/core/api/queries/useHentBrukerdata";
 import { useHentDeltMedBrukerStatus } from "@/core/api/queries/useHentDeltMedbrukerStatus";
 import { useHentVeilederdata } from "@/core/api/queries/useHentVeilederdata";
 import { useTiltaksgjennomforingById } from "@/core/api/queries/useTiltaksgjennomforingById";
-import { useAppContext } from "@/hooks/useAppContext";
+import { useModiaContext } from "@/apps/modia/hooks/useModiaContext";
 import { ViewTiltaksgjennomforingDetaljer } from "@/layouts/ViewTiltaksgjennomforingDetaljer";
 import styles from "./ModiaArbeidsmarkedstiltakDetaljer.module.scss";
 import { Tilbakeknapp } from "@/components/tilbakeknapp/Tilbakeknapp";
@@ -32,7 +32,7 @@ import { useGetTiltaksgjennomforingIdFraUrl } from "@/core/api/queries/useGetTil
 import { isProduction } from "@/environment";
 
 export function ModiaArbeidsmarkedstiltakDetaljer() {
-  const { fnr } = useAppContext();
+  const { fnr } = useModiaContext();
   const id = useGetTiltaksgjennomforingIdFraUrl();
   const { delMedBrukerInfo, lagreVeilederHarDeltTiltakMedBruker } = useHentDeltMedBrukerStatus(
     fnr,

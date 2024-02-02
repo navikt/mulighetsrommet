@@ -6,10 +6,10 @@ export interface AppContextData {
   overordnetEnhet: string | null | undefined;
 }
 
-export const appContextAtom = atom<Partial<AppContextData>>({});
+export const modiaContextAtom = atom<Partial<AppContextData>>({});
 
-export function useAppContext(): AppContextData {
-  const [data] = useAtom(appContextAtom);
+export function useModiaContext(): AppContextData {
+  const [data] = useAtom(modiaContextAtom);
 
   if (data == null) {
     throw Error("Missing data in AppContext");

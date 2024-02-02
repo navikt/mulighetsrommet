@@ -1,10 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import { mulighetsrommetClient } from "../clients";
 import { QueryKeys } from "../query-keys";
-import { useAppContext } from "../../../hooks/useAppContext";
+import { useModiaContext } from "../../../apps/modia/hooks/useModiaContext";
 
 export function useHentAlleTiltakDeltMedBruker() {
-  const { fnr: norskIdent } = useAppContext();
+  const { fnr: norskIdent } = useModiaContext();
 
   const { data: alleTiltakDeltMedBruker } = useQuery({
     queryKey: [QueryKeys.AlleDeltMedBrukerStatus, norskIdent],

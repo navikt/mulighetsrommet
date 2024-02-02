@@ -1,10 +1,11 @@
 import { createRoot } from "react-dom/client";
 import { APPLICATION_NAME } from "@/constants";
-import { AppContext } from "@/AppContext";
+import { ModiaContext } from "@/apps/modia/ModiaContext";
 import { BrowserRouter as Router, Link, Route, Routes } from "react-router-dom";
 import { NavArbeidsmarkedstiltak } from "@/apps/nav/NavArbeidsmarkedstiltak";
 import { PreviewArbeidsmarkedstiltak } from "@/apps/nav/PreviewArbeidsmarkedstiltak";
 import { ModiaArbeidsmarkedstiltak } from "@/apps/modia/ModiaArbeidsmarkedstiltak";
+import { ReactQueryProvider } from "@/ReactQueryProvider";
 
 if (import.meta.env.VITE_MULIGHETSROMMET_API_MOCK === "true") {
   import("../../mock/worker")
@@ -47,25 +48,25 @@ function render() {
             <Route
               path="arbeidsmarkedstiltak/*"
               element={
-                <AppContext key="modia" contextData={{ fnr: "12345678910", enhet: "0315" }}>
+                <ModiaContext key="modia" contextData={{ fnr: "12345678910", enhet: "0315" }}>
                   <ModiaArbeidsmarkedstiltak />
-                </AppContext>
+                </ModiaContext>
               }
             />
             <Route
               path="nav/*"
               element={
-                <AppContext key="nav" contextData={{}}>
+                <ReactQueryProvider>
                   <NavArbeidsmarkedstiltak />
-                </AppContext>
+                </ReactQueryProvider>
               }
             />
             <Route
               path="preview/*"
               element={
-                <AppContext key="preview" contextData={{}}>
+                <ReactQueryProvider>
                   <PreviewArbeidsmarkedstiltak />
-                </AppContext>
+                </ReactQueryProvider>
               }
             />
           </Routes>
