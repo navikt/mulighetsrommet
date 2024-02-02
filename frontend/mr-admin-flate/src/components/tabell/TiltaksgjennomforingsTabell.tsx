@@ -1,7 +1,7 @@
 import { Alert, Checkbox, Pagination, Table, Tag, VStack } from "@navikt/ds-react";
 import { useAtom, WritableAtom } from "jotai";
 import { SorteringTiltaksgjennomforinger } from "mulighetsrommet-api-client";
-import Lenke from "mulighetsrommet-veileder-flate/src/components/lenke/Lenke";
+import { Lenke } from "mulighetsrommet-frontend-common/components/Lenke";
 import React from "react";
 import { TiltaksgjennomforingFilter } from "../../api/atoms";
 import { useSort } from "../../hooks/useSort";

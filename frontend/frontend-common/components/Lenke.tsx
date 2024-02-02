@@ -10,7 +10,7 @@ interface LinkProps extends RouterLinkProps {
   children?: React.ReactNode;
 }
 
-function Lenke({ children, isExternal = false, to, className, ...others }: LinkProps) {
+export function Lenke({ children, isExternal = false, to, className, ...others }: LinkProps) {
   return isExternal ? (
     <Link
       target="_blank"
@@ -27,5 +27,3 @@ function Lenke({ children, isExternal = false, to, className, ...others }: LinkP
     </RouterLink>
   );
 }
-
-export default Lenke;
