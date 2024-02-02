@@ -131,6 +131,47 @@ class BrukerServiceTest : FunSpec({
             }
         }
     }
+
+    context("Varsler ang. bruker til veileder") {
+        test("Skal returnere true når oppfolgingsenhet er lokal enhet og oppfølgingsenhet er ulik geografisk enhet") {
+            val result = oppfolgingsenhetLokalOgUlik(
+                NavEnhetDbo(
+                    navn = "",
+                    enhetsnummer = "1234",
+                    status = NavEnhetStatus.AKTIV,
+                    type = Norg2Type.LOKAL,
+                    overordnetEnhet = "1000"
+                ),
+                NavEnhetDbo(
+                    navn = "",
+                    enhetsnummer = "4321",
+                    status = NavEnhetStatus.AKTIV,
+                    type = Norg2Type.LOKAL,
+                    overordnetEnhet = "4000"
+                )
+            )
+            result shouldBe true
+        }
+        test("Skal returnere false når oppfolgingsenhet er lokal enhet og oppfølgingsenhet er lik geografisk enhet") {
+            val result = oppfolgingsenhetLokalOgUlik(
+                NavEnhetDbo(
+                    navn = "",
+                    enhetsnummer = "1234",
+                    status = NavEnhetStatus.AKTIV,
+                    type = Norg2Type.LOKAL,
+                    overordnetEnhet = "1000"
+                ),
+                NavEnhetDbo(
+                    navn = "",
+                    enhetsnummer = "1234",
+                    status = NavEnhetStatus.AKTIV,
+                    type = Norg2Type.LOKAL,
+                    overordnetEnhet = "1000"
+                ),
+            )
+            result shouldBe false
+        }
+    }
 })
 
 fun mockManuellStatus(): ManuellStatusDto {
