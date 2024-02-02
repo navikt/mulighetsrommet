@@ -131,10 +131,6 @@ export const validEmail = (email: string | undefined): Boolean => {
   );
 };
 
-export const erProdMiljo = inneholderUrl("intern.nav.no");
-
-export const erForhandsvisningMiljo = import.meta.env.dev || erProdMiljo ? "nav.no" : "dev.nav.no";
-
 export function addYear(date: Date, numYears: number): Date {
   const newDate = new Date(date);
   newDate.setFullYear(date.getFullYear() + numYears);
