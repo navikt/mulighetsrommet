@@ -140,15 +140,15 @@ class BrukerServiceTest : FunSpec({
                     enhetsnummer = "1234",
                     status = NavEnhetStatus.AKTIV,
                     type = Norg2Type.LOKAL,
-                    overordnetEnhet = "1000"
+                    overordnetEnhet = "1000",
                 ),
                 NavEnhetDbo(
                     navn = "",
                     enhetsnummer = "4321",
                     status = NavEnhetStatus.AKTIV,
                     type = Norg2Type.LOKAL,
-                    overordnetEnhet = "4000"
-                )
+                    overordnetEnhet = "4000",
+                ),
             )
             result shouldBe true
         }
@@ -159,14 +159,14 @@ class BrukerServiceTest : FunSpec({
                     enhetsnummer = "1234",
                     status = NavEnhetStatus.AKTIV,
                     type = Norg2Type.LOKAL,
-                    overordnetEnhet = "1000"
+                    overordnetEnhet = "1000",
                 ),
                 NavEnhetDbo(
                     navn = "",
                     enhetsnummer = "1234",
                     status = NavEnhetStatus.AKTIV,
                     type = Norg2Type.LOKAL,
-                    overordnetEnhet = "1000"
+                    overordnetEnhet = "1000",
                 ),
             )
             result shouldBe false
