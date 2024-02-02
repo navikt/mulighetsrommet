@@ -1,14 +1,14 @@
-import { Accordion, Checkbox, CheckboxGroup, Loader } from "@navikt/ds-react";
-import { useState } from "react";
-import { addOrRemove } from "../../utils/Utils";
-import { filterAccordionAtom } from "../../core/atoms/atoms";
-import styles from "./NavEnhetFilter.module.scss";
+import { ChevronDownIcon } from "@navikt/aksel-icons";
+import { Accordion, Checkbox, CheckboxGroup } from "@navikt/ds-react";
+import classnames from "classnames";
 import { useAtom } from "jotai";
 import { NavEnhet, NavRegion } from "mulighetsrommet-api-client";
-import { ChevronDownIcon } from "@navikt/aksel-icons";
-import classnames from "classnames";
-import { RegionMap } from "../../hooks/useArbeidsmarkedstiltakFilter";
+import { useState } from "react";
 import { useRegioner } from "../../core/api/queries/useRegioner";
+import { filterAccordionAtom } from "../../core/atoms/atoms";
+import { RegionMap } from "../../hooks/useArbeidsmarkedstiltakFilter";
+import { addOrRemove } from "../../utils/Utils";
+import styles from "./NavEnhetFilter.module.scss";
 
 interface Props {
   regionMapFilter: RegionMap;
@@ -20,12 +20,8 @@ export function NavEnhetFilter({
   setRegionMapFilter: setRegionMap,
 }: Props) {
   const [accordionsOpen, setAccordionsOpen] = useAtom(filterAccordionAtom);
-  const { data: alleRegioner, isLoading } = useRegioner();
+  const { data: alleRegioner } = useRegioner();
   const [regionOpen, setRegionOpen] = useState<string[]>([]);
-
-  if (isLoading || !alleRegioner) {
-    return <Loader size="xlarge" />;
-  }
 
   function regionIsIndeterminate(region: NavRegion): boolean {
     const underenhetCount = regionMap[region.enhetsnummer]?.length ?? 0;
@@ -95,7 +91,7 @@ export function NavEnhetFilter({
           size="small"
           data-testid={"checkboxgroup_brukers-enhet"}
         >
-          {alleRegioner.map((region: NavRegion) => (
+          {alleRegioner?.map((region: NavRegion) => (
             <div key={region.enhetsnummer}>
               <div
                 className={styles.checkbox_and_caret}
