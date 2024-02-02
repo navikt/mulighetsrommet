@@ -16,13 +16,6 @@ export function OmArbeidsmarkedstiltak() {
         </Link>
         .
       </p>
-      <p>
-        Har du spørsmål eller innspill kan du{" "}
-        <Link href="https://slack.com/app_redirect?team=T5LNAMWNA&channel=team-valp">
-          sende oss en melding på Slack i kanalen #team-valp
-        </Link>
-        .
-      </p>
     </div>
   );
 }
