@@ -11,9 +11,9 @@ import {
   VeilederflateTiltakstype,
 } from "mulighetsrommet-api-client";
 import { useTitle } from "mulighetsrommet-frontend-common";
-import { useHentBrukerdata } from "@/core/api/queries/useHentBrukerdata";
-import { useHentDeltMedBrukerStatus } from "@/core/api/queries/useHentDeltMedbrukerStatus";
-import { useHentVeilederdata } from "@/core/api/queries/useHentVeilederdata";
+import { useHentBrukerdata } from "@/apps/modia/hooks/useHentBrukerdata";
+import { useHentDeltMedBrukerStatus } from "@/apps/modia/hooks/useHentDeltMedbrukerStatus";
+import { useHentVeilederdata } from "@/apps/modia/hooks/useHentVeilederdata";
 import { useTiltaksgjennomforingById } from "@/core/api/queries/useTiltaksgjennomforingById";
 import { useModiaContext } from "@/apps/modia/hooks/useModiaContext";
 import { ViewTiltaksgjennomforingDetaljer } from "@/layouts/ViewTiltaksgjennomforingDetaljer";

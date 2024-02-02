@@ -2,13 +2,13 @@ import { ExternalLinkIcon } from "@navikt/aksel-icons";
 import { Alert, BodyShort, Detail, Link, Loader } from "@navikt/ds-react";
 import { HistorikkForBruker as IHistorikkForBruker } from "mulighetsrommet-api-client";
 import { PORTEN } from "mulighetsrommet-frontend-common/constants";
-import { useHentHistorikk } from "../../core/api/queries/useHentHistorikk";
-import { formaterDato } from "../../utils/Utils";
+import { useTiltakshistorikkForBruker } from "@/apps/modia/hooks/useTiltakshistorikkForBruker";
+import { formaterDato } from "@/utils/Utils";
 import styles from "./HistorikkForBrukerModal.module.scss";
 import { StatusBadge } from "./Statusbadge";
 
 export function HistorikkForBrukerModalInnhold() {
-  const { data, isLoading, isError } = useHentHistorikk();
+  const { data, isLoading, isError } = useTiltakshistorikkForBruker();
   if (isLoading && !data) return <Loader />;
 
   if (isError) return <Alert variant="error">Kunne ikke hente brukerens tiltakshistorikk</Alert>;

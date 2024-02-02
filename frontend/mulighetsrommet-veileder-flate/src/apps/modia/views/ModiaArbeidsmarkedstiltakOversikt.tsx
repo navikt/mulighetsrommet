@@ -11,8 +11,8 @@ import { BrukerHarIkke14aVedtakVarsel } from "@/components/varsler/BrukerHarIkke
 import { FiltrertFeilInnsatsgruppeVarsel } from "@/components/varsler/FiltrertFeilInnsatsgruppeVarsel";
 import { ManglerInnsatsOgServicegruppeVarsel } from "@/components/varsler/ManglerInnsatsOgServiceGruppeVarsel";
 import { useFeatureToggle } from "@/core/api/feature-toggles";
-import { useHentAlleTiltakDeltMedBruker } from "@/core/api/queries/useHentAlleTiltakDeltMedBruker";
-import { useHentBrukerdata } from "@/core/api/queries/useHentBrukerdata";
+import { useHentAlleTiltakDeltMedBruker } from "@/apps/modia/hooks/useHentAlleTiltakDeltMedBruker";
+import { useHentBrukerdata } from "@/apps/modia/hooks/useHentBrukerdata";
 import { useVeilederTiltaksgjennomforinger } from "@/core/api/queries/useTiltaksgjennomforinger";
 import { useResetArbeidsmarkedstiltakFilter } from "@/hooks/useArbeidsmarkedstiltakFilter";
 import { Alert, Button } from "@navikt/ds-react";
