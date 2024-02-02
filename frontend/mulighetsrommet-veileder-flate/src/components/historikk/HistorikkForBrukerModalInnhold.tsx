@@ -35,6 +35,11 @@ export function HistorikkForBrukerModalInnhold() {
 
   return (
     <>
+      {tiltak.length === 0 ? (
+        <Alert variant="info" style={{ marginBottom: "1rem" }}>
+          Vi finner ingen registrerte tiltak på brukeren
+        </Alert>
+      ) : null}
       <Alert variant="info" style={{ marginBottom: "1rem" }}>
         Vi viser bare tiltak 5 år tilbake i tid. Vær oppmerksom på at tiltak som er flyttet ut fra
         Arena kan mangle i historikken.
