@@ -105,7 +105,6 @@ fun Route.veilederflateRoutes() {
                 val arrangor = gjennomforing.arrangor?.copy(kontaktpersoner = emptyList())
                 return gjennomforing.copy(
                     arrangor = arrangor,
-                    kontaktinfoTiltaksansvarlige = emptyList(),
                     kontaktinfo = VeilederflateKontaktinfo(
                         varsler = listOf(KontaktinfoVarsel.IKKE_TILGANG_TIL_KONTAKTINFO),
                         tiltaksansvarlige = emptyList(),

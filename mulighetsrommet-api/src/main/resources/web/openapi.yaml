@@ -2816,10 +2816,6 @@ components:
           type: string
         faneinnhold:
           $ref: "#/components/schemas/SanityFaneinnhold"
-        kontaktinfoTiltaksansvarlige:
-          type: array
-          items:
-            $ref: "#/components/schemas/VeilederflateKontaktinfoTiltaksansvarlig"
         apentForInnsok:
           type: boolean
         stengtFra:
@@ -2833,7 +2829,6 @@ components:
         - tiltakstype
         - apentForInnsok
         - oppstart
-        - kontaktinfoTiltaksansvarlige
 
     SanityRegelverkLenke:
       type: object

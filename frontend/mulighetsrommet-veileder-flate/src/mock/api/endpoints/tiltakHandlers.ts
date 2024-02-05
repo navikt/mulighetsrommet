@@ -46,7 +46,6 @@ export const tiltakHandlers = [
       const gjennomforing = findArbeidsmarkedstiltak(id);
       if (gjennomforing) {
         gjennomforing.arrangor = undefined;
-        gjennomforing.kontaktinfoTiltaksansvarlige = [];
         gjennomforing.kontaktinfo = {
           tiltaksansvarlige: [],
           varsler: [KontaktinfoVarsel.IKKE_TILGANG_TIL_KONTAKTINFO],
