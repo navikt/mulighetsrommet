@@ -39,7 +39,7 @@
     "jotai-location": "0.5.2",
     "mulighetsrommet-api-client": "*",
     "mulighetsrommet-frontend-common": "*",
-    "playwright": "^1.41.1",
+    "playwright": "^1.41.2",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-error-boundary": "4.0.12",
