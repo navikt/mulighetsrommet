@@ -53,15 +53,15 @@ export const ModiaArbeidsmarkedstiltakOversikt = () => {
   }
 
   if (isError) {
-    if (error instanceof ApiError) {
-      return (
-        <Alert variant="error">
-          Det har dessverre skjedd en feil. Om feilen gjentar seg, ta kontakt i{" "}
-          {
-            <Lenke to={MODIA_PORTEN} target={"_blank"}>
-              Porten
-            </Lenke>
-          }
+    const porten = (
+      <Lenke to={MODIA_PORTEN} target={"_blank"}>
+        Porten
+      </Lenke>
+    );
+    return (
+      <Alert variant="error">
+        Det har dessverre skjedd en feil. Om feilen gjentar seg, ta kontakt i {porten}.
+        {error instanceof ApiError ? (
           <pre>
             {JSON.stringify(
               { message: error.message, status: error.status, url: error.url },
@@ -69,21 +69,9 @@ export const ModiaArbeidsmarkedstiltakOversikt = () => {
               2,
             )}
           </pre>
-        </Alert>
-      );
-    } else {
-      return (
-        <Alert variant="error">
-          Det har dessverre skjedd en feil. Om feilen gjentar seg, ta kontakt i{" "}
-          {
-            <Lenke to={MODIA_PORTEN} target={"_blank"}>
-              Porten
-            </Lenke>
-          }
-          .
-        </Alert>
-      );
-    }
+        ) : null}
+      </Alert>
+    );
   }
 
   if (brukerdata.enheter.length === 0) {
