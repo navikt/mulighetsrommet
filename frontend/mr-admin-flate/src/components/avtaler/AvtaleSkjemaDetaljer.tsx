@@ -304,8 +304,11 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
           orgnr={watchedLeverandor}
           modalRef={virksomhetKontaktpersonerModalRef}
           onClose={() => {
-            setValue("leverandorKontaktpersonId", undefined);
-            refetchVirksomhetKontaktpersoner();
+            refetchVirksomhetKontaktpersoner().then((res) => {
+              if (!res?.data?.some((p) => p.id === watch("leverandorKontaktpersonId"))) {
+                setValue("leverandorKontaktpersonId", undefined);
+              }
+            });
           }}
         />
       )}
