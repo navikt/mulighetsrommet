@@ -5,18 +5,17 @@ import { useGetTiltaksgjennomforingIdFraUrl } from "./useGetTiltaksgjennomforing
 import {
   useArbeidsmarkedstiltakFilterValue,
   valgteEnhetsnumre,
-} from "../../../hooks/useArbeidsmarkedstiltakFilter";
+} from "@/hooks/useArbeidsmarkedstiltakFilter";
 
 export function useTiltaksgjennomforingById() {
   const id = useGetTiltaksgjennomforingIdFraUrl();
   const filter = useArbeidsmarkedstiltakFilterValue();
-
-  const requestBody = { enheter: valgteEnhetsnumre(filter), id };
+  const enheter = valgteEnhetsnumre(filter);
 
   return useQuery({
     queryKey: QueryKeys.sanity.tiltaksgjennomforing(id),
     queryFn: () =>
-      mulighetsrommetClient.veilederTiltak.getVeilederTiltaksgjennomforing({ requestBody }),
+      mulighetsrommetClient.veilederTiltak.getVeilederTiltaksgjennomforing({ id, enheter }),
   });
 }
 
@@ -25,22 +24,18 @@ export function useNavTiltaksgjennomforingById() {
 
   return useQuery({
     queryKey: QueryKeys.sanity.tiltaksgjennomforing(id),
-    queryFn: () =>
-      mulighetsrommetClient.veilederTiltak.getNavTiltaksgjennomforing({
-        requestBody: { id },
-      }),
+    queryFn: () => mulighetsrommetClient.veilederTiltak.getNavTiltaksgjennomforing({ id }),
   });
 }
 
 export function usePreviewTiltaksgjennomforingById() {
   const id = useGetTiltaksgjennomforingIdFraUrl();
   const filter = useArbeidsmarkedstiltakFilterValue();
+  const enheter = valgteEnhetsnumre(filter);
 
   return useQuery({
     queryKey: QueryKeys.sanity.tiltaksgjennomforingPreview(id),
     queryFn: () =>
-      mulighetsrommetClient.veilederTiltak.getPreviewTiltaksgjennomforing({
-        requestBody: { id, enheter: valgteEnhetsnumre(filter) },
-      }),
+      mulighetsrommetClient.veilederTiltak.getPreviewTiltaksgjennomforing({ id, enheter }),
   });
 }

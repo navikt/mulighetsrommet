@@ -12,10 +12,10 @@ import {
 import { NavFilterTags } from "@/apps/nav/filtrering/NavFilterTags";
 
 interface Props {
-  preview: boolean;
+  preview?: boolean;
 }
 
-export const NavArbeidsmarkedstiltakOversikt = ({ preview }: Props) => {
+export const NavArbeidsmarkedstiltakOversikt = ({ preview = false }: Props) => {
   const { data: tiltaksgjennomforinger = [], isLoading } = useNavTiltaksgjennomforinger({
     preview,
   });

@@ -1,25 +1,45 @@
 package no.nav.mulighetsrommet.api.routes.v1
 
+import arrow.core.NonEmptyList
 import arrow.core.toNonEmptyListOrNull
 import io.ktor.http.*
 import io.ktor.server.application.*
-import io.ktor.server.request.*
+import io.ktor.server.auth.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
-import kotlinx.serialization.Serializable
+import io.ktor.util.pipeline.*
 import no.nav.mulighetsrommet.api.clients.sanity.SanityPerspective
 import no.nav.mulighetsrommet.api.domain.dto.*
+import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.getNavAnsattAzureId
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
 import no.nav.mulighetsrommet.api.services.VeilederflateService
-import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
+import no.nav.mulighetsrommet.ktor.exception.StatusException
 import org.koin.ktor.ext.inject
 import java.util.*
 
 fun Route.veilederflateRoutes() {
     val veilederflateService: VeilederflateService by inject()
     val poaoTilgangService: PoaoTilgangService by inject()
+
+    fun <T : Any> PipelineContext<T, ApplicationCall>.getArbeidsmarkedstiltakFilter(): ArbeidsmarkedstiltakFilter {
+        val queryParameters = call.request.queryParameters
+
+        val enheter = queryParameters.getAll("enheter")
+            ?.toNonEmptyListOrNull()
+            ?: throw StatusException(HttpStatusCode.BadRequest, "NAV-enheter er påkrevd")
+
+        val apentForInnsok: ApentForInnsok by queryParameters
+
+        return ArbeidsmarkedstiltakFilter(
+            enheter = enheter,
+            innsatsgruppe = queryParameters["innsatsgruppe"],
+            tiltakstyper = queryParameters.getAll("tiltakstyper"),
+            search = queryParameters["search"],
+            apentForInnsok = apentForInnsok,
+        )
+    }
 
     route("/api/v1/internal/veileder") {
         get("/innsatsgrupper") {
@@ -34,35 +54,32 @@ fun Route.veilederflateRoutes() {
             call.respond(tiltakstyper)
         }
 
-        post("/tiltaksgjennomforinger") {
+        get("/tiltaksgjennomforinger") {
             poaoTilgangService.verifyAccessToModia(getNavAnsattAzureId())
 
-            val request = call.receive<GetTiltaksgjennomforingerRequest>()
-            val enheter = request.enheter.toNonEmptyListOrNull()
-                ?: return@post call.respond(emptyList<VeilederflateTiltaksgjennomforing>())
+            val filter = getArbeidsmarkedstiltakFilter()
 
             val result = veilederflateService.hentTiltaksgjennomforinger(
-                enheter = enheter,
-                innsatsgruppe = request.innsatsgruppe,
-                tiltakstypeIds = request.tiltakstypeIds,
-                search = request.search,
-                apentForInnsok = request.apentForInnsok,
+                enheter = filter.enheter,
+                innsatsgruppe = filter.innsatsgruppe,
+                tiltakstypeIds = filter.tiltakstyper,
+                search = filter.search,
+                apentForInnsok = filter.apentForInnsok,
             )
 
             call.respond(result)
         }
 
-        post("/tiltaksgjennomforing") {
+        get("/tiltaksgjennomforinger/{id}") {
             poaoTilgangService.verifyAccessToModia(getNavAnsattAzureId())
 
-            val request = call.receive<GetTiltaksgjennomforingRequest>()
-            val enheter = request.enheter.toNonEmptyListOrNull()
-                ?: return@post call.respond(HttpStatusCode.NotFound)
+            val id: UUID by call.parameters
+            val enheter: List<String> by call.request.queryParameters
 
             val result = veilederflateService.hentTiltaksgjennomforing(
-                request.id,
-                enheter,
-                SanityPerspective.PUBLISHED,
+                id = id,
+                enheter = enheter,
+                sanityPerspective = SanityPerspective.PUBLISHED,
             )
 
             call.respond(result)
@@ -96,42 +113,76 @@ fun Route.veilederflateRoutes() {
                 )
             }
 
-            post("/tiltaksgjennomforinger") {
-                val request = call.receive<GetTiltaksgjennomforingerRequest>()
-                val enheter = request.enheter.toNonEmptyListOrNull()
-                    ?: return@post call.respond(emptyList<VeilederflateTiltaksgjennomforing>())
+            get("/tiltaksgjennomforinger") {
+                val filter = getArbeidsmarkedstiltakFilter()
 
                 val result = veilederflateService.hentTiltaksgjennomforinger(
-                    enheter = enheter,
-                    innsatsgruppe = request.innsatsgruppe,
-                    tiltakstypeIds = request.tiltakstypeIds,
-                    search = request.search,
-                    apentForInnsok = request.apentForInnsok,
+                    enheter = filter.enheter,
+                    innsatsgruppe = filter.innsatsgruppe,
+                    tiltakstypeIds = filter.tiltakstyper,
+                    search = filter.search,
+                    apentForInnsok = filter.apentForInnsok,
                 ).map { utenKontaktInfo(it) }
 
                 call.respond(result)
             }
 
-            post("/tiltaksgjennomforing") {
-                val request = call.receive<GetNavTiltaksgjennomforingRequest>()
+            get("/tiltaksgjennomforinger/{id}") {
+                val id: UUID by call.parameters
+
                 val result = veilederflateService.hentTiltaksgjennomforing(
-                    request.id,
+                    id = id,
                     enheter = emptyList(),
-                    SanityPerspective.PUBLISHED,
+                    sanityPerspective = SanityPerspective.PUBLISHED,
                 ).let { utenKontaktInfo(it) }
 
                 call.respond(result)
             }
         }
+
+        authenticate(
+            AuthProvider.AZURE_AD_TILTAKSADMINISTRASJON_GENERELL.name,
+            strategy = AuthenticationStrategy.Required,
+        ) {
+            route("/preview") {
+                get("/tiltaksgjennomforinger") {
+                    val filter = getArbeidsmarkedstiltakFilter()
+
+                    val result = veilederflateService.hentTiltaksgjennomforinger(
+                        enheter = filter.enheter,
+                        innsatsgruppe = filter.innsatsgruppe,
+                        tiltakstypeIds = filter.tiltakstyper,
+                        search = filter.search,
+                        apentForInnsok = filter.apentForInnsok,
+                    )
+
+                    call.respond(result)
+                }
+
+                get("/tiltaksgjennomforinger/{id}") {
+                    val id = call.parameters.getOrFail("id")
+                        .let { UUID.fromString(it.replace("drafts.", "")) }
+                    val enheter = call.request.queryParameters.getAll("enheter")
+                        ?: emptyList()
+
+                    val result = veilederflateService.hentTiltaksgjennomforing(
+                        id = id,
+                        enheter = enheter,
+                        sanityPerspective = SanityPerspective.PREVIEW_DRAFTS,
+                    )
+
+                    call.respond(result)
+                }
+            }
+        }
     }
 }
 
-@Serializable
-data class GetTiltaksgjennomforingerRequest(
-    val enheter: List<String>,
-    val innsatsgruppe: String? = null,
-    val tiltakstypeIds: List<String>? = null,
-    val search: String? = null,
+data class ArbeidsmarkedstiltakFilter(
+    val enheter: NonEmptyList<String>,
+    val innsatsgruppe: String?,
+    val tiltakstyper: List<String>?,
+    val search: String?,
     val apentForInnsok: ApentForInnsok,
 )
 
@@ -140,16 +191,3 @@ enum class ApentForInnsok {
     STENGT,
     APENT_ELLER_STENGT,
 }
-
-@Serializable
-data class GetTiltaksgjennomforingRequest(
-    val enheter: List<String>,
-    @Serializable(with = UUIDSerializer::class)
-    val id: UUID,
-)
-
-@Serializable
-data class GetNavTiltaksgjennomforingRequest(
-    @Serializable(with = UUIDSerializer::class)
-    val id: UUID,
-)

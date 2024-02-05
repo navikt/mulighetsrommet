@@ -1,110 +1,92 @@
-import { http, HttpResponse, PathParams } from "msw";
+import { http, HttpResponse } from "msw";
 import {
-  GetTiltaksgjennomforingerRequest,
-  GetTiltaksgjennomforingRequest,
   Innsatsgruppe,
-  VeilederflateInnsatsgruppe,
+  KontaktinfoVarsel,
   VeilederflateTiltaksgjennomforing,
-  VeilederflateTiltakstype,
 } from "mulighetsrommet-api-client";
-import { mockInnsatsgrupper } from "../../fixtures/mockInnsatsgrupper";
-import { mockTiltaksgjennomforinger } from "../../fixtures/mockTiltaksgjennomforinger";
-import { mockTiltakstyper } from "../../fixtures/mockTiltakstyper";
+import { mockInnsatsgrupper } from "@/mock/fixtures/mockInnsatsgrupper";
+import { mockTiltaksgjennomforinger } from "@/mock/fixtures/mockTiltaksgjennomforinger";
+import { mockTiltakstyper } from "@/mock/fixtures/mockTiltakstyper";
 
 export const tiltakHandlers = [
-  http.get<PathParams, VeilederflateInnsatsgruppe[]>(
-    "*/api/v1/internal/veileder/innsatsgrupper",
-    async () => {
-      return HttpResponse.json(mockInnsatsgrupper);
-    },
-  ),
+  http.get("*/api/v1/internal/veileder/innsatsgrupper", async () => {
+    return HttpResponse.json(mockInnsatsgrupper);
+  }),
 
-  http.get<PathParams, VeilederflateTiltakstype[]>(
-    "*/api/v1/internal/veileder/tiltakstyper",
-    async () => {
-      return HttpResponse.json(Object.values(mockTiltakstyper));
-    },
-  ),
+  http.get("*/api/v1/internal/veileder/tiltakstyper", async () => {
+    return HttpResponse.json(Object.values(mockTiltakstyper));
+  }),
 
-  http.post<PathParams, GetTiltaksgjennomforingerRequest>(
-    "*/api/v1/internal/veileder/tiltaksgjennomforinger",
-    async ({ request }) => {
-      const { innsatsgruppe, search = "", tiltakstypeIds = [] } = await request.json();
+  http.get("*/api/v1/internal/veileder/tiltaksgjennomforinger", async ({ request }) => {
+    const url = new URL(request.url);
+    const results = getFilteredArbeidsmarkedstiltak(url);
+    return HttpResponse.json(results);
+  }),
 
-      const results = mockTiltaksgjennomforinger
-        .filter((gj) => filtrerFritekst(gj, search))
-        .filter((gj) => filtrerInnsatsgruppe(gj, innsatsgruppe))
-        .filter((gj) => filtrerTiltakstyper(gj, tiltakstypeIds));
-
-      return HttpResponse.json(results);
-    },
-  ),
-
-  http.post<PathParams, GetTiltaksgjennomforingRequest>(
-    "*/api/v1/internal/veileder/tiltaksgjennomforing",
-    async ({ request }) => {
-      const { id } = await request.json();
-      const gjennomforing = mockTiltaksgjennomforinger.find(
-        (gj) => gj.sanityId === id || gj.id === id,
-      );
+  http.get<{ id: string }>(
+    "*/api/v1/internal/veileder/tiltaksgjennomforinger/:id",
+    async ({ params }) => {
+      const { id } = params;
+      const gjennomforing = findArbeidsmarkedstiltak(id);
       return HttpResponse.json(gjennomforing);
     },
   ),
 
-  http.post<PathParams, GetTiltaksgjennomforingerRequest>(
-    "*/api/v1/internal/veileder/nav/tiltaksgjennomforinger",
-    async ({ request }) => {
-      const { innsatsgruppe, search = "", tiltakstypeIds = [] } = await request.json();
+  http.get("*/api/v1/internal/veileder/nav/tiltaksgjennomforinger", async ({ request }) => {
+    const url = new URL(request.url);
+    const results = getFilteredArbeidsmarkedstiltak(url);
+    return HttpResponse.json(results);
+  }),
 
-      const results = mockTiltaksgjennomforinger
-        .filter((gj) => filtrerFritekst(gj, search))
-        .filter((gj) => filtrerInnsatsgruppe(gj, innsatsgruppe))
-        .filter((gj) => filtrerTiltakstyper(gj, tiltakstypeIds));
+  http.get<{ id: string }>(
+    "*/api/v1/internal/veileder/nav/tiltaksgjennomforinger/:id",
+    async ({ params }) => {
+      const { id } = params;
 
-      return HttpResponse.json(results);
-    },
-  ),
-
-  http.post<PathParams, GetTiltaksgjennomforingRequest>(
-    "*/api/v1/internal/veileder/nav/tiltaksgjennomforing",
-    async ({ request }) => {
-      const { id } = await request.json();
-      const gjennomforing = mockTiltaksgjennomforinger.find(
-        (gj) => gj.sanityId === id || gj.id === id,
-      );
-
+      const gjennomforing = findArbeidsmarkedstiltak(id);
       if (gjennomforing) {
         gjennomforing.arrangor = undefined;
         gjennomforing.kontaktinfoTiltaksansvarlige = [];
+        gjennomforing.kontaktinfo = {
+          tiltaksansvarlige: [],
+          varsler: [KontaktinfoVarsel.IKKE_TILGANG_TIL_KONTAKTINFO],
+        };
       }
 
       return HttpResponse.json(gjennomforing);
     },
   ),
 
-  http.post<PathParams, GetTiltaksgjennomforingerRequest>(
-    "*/api/v1/internal/veileder/preview/tiltaksgjennomforinger",
-    async ({ request }) => {
-      const { innsatsgruppe, search = "", tiltakstypeIds = [] } = await request.json();
+  http.get("*/api/v1/internal/veileder/preview/tiltaksgjennomforinger", async ({ request }) => {
+    const url = new URL(request.url);
+    const results = getFilteredArbeidsmarkedstiltak(url);
+    return HttpResponse.json(results);
+  }),
 
-      const results = mockTiltaksgjennomforinger
-        .filter((gj) => filtrerFritekst(gj, search))
-        .filter((gj) => filtrerInnsatsgruppe(gj, innsatsgruppe))
-        .filter((gj) => filtrerTiltakstyper(gj, tiltakstypeIds));
-
-      return HttpResponse.json(results);
-    },
-  ),
-
-  http.post<PathParams>(
-    "*/api/v1/internal/veileder/preview/tiltaksgjennomforing",
-    async ({ request }) => {
-      const body = (await request.json()) as { id: string; brukersEnheter: string[] };
-      const gjennomforing = mockTiltaksgjennomforinger.find((gj) => gj.sanityId === body.id);
+  http.get<{ id: string }>(
+    "*/api/v1/internal/veileder/preview/tiltaksgjennomforinger/:id",
+    async ({ params }) => {
+      const { id } = params;
+      const gjennomforing = findArbeidsmarkedstiltak(id);
       return HttpResponse.json(gjennomforing);
     },
   ),
 ];
+
+function getFilteredArbeidsmarkedstiltak(url: URL) {
+  const innsatsgruppe = url.searchParams.get("innsatsgruppe") as Innsatsgruppe;
+  const search = url.searchParams.get("search") ?? "";
+  const tiltakstyper = url.searchParams.getAll("tiltakstyper");
+
+  return mockTiltaksgjennomforinger
+    .filter((gj) => filtrerFritekst(gj, search))
+    .filter((gj) => filtrerInnsatsgruppe(gj, innsatsgruppe))
+    .filter((gj) => filtrerTiltakstyper(gj, tiltakstyper));
+}
+
+function findArbeidsmarkedstiltak(id: string) {
+  return mockTiltaksgjennomforinger.find((gj) => gj.sanityId === id || gj.id === id);
+}
 
 function filtrerFritekst(gjennomforing: VeilederflateTiltaksgjennomforing, sok: string): boolean {
   return sok === "" || gjennomforing.navn.toLocaleLowerCase().includes(sok.toLocaleLowerCase());

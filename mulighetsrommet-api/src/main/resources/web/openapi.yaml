@@ -894,16 +894,16 @@ paths:
                   $ref: "#/components/schemas/VeilederflateTiltakstype"
 
   /api/v1/internal/veileder/tiltaksgjennomforinger:
-    post:
+    get:
       tags:
         - VeilederTiltak
       operationId: getVeilederTiltaksgjennomforinger
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/GetTiltaksgjennomforingerRequest"
-        required: true
+      parameters:
+        - $ref: "#/components/parameters/SearchParam"
+        - $ref: "#/components/parameters/ApentForInnsokParam"
+        - $ref: "#/components/parameters/InnsatsgruppeParam"
+        - $ref: "#/components/parameters/EnheterParam"
+        - $ref: "#/components/parameters/TiltakstyperParam"
       responses:
         200:
           description: Hent tiltaksgjennomføringer
@@ -914,17 +914,14 @@ paths:
                 items:
                   $ref: "#/components/schemas/VeilederflateTiltaksgjennomforing"
 
-  /api/v1/internal/veileder/tiltaksgjennomforing:
-    post:
+  /api/v1/internal/veileder/tiltaksgjennomforinger/{id}:
+    get:
       tags:
         - VeilederTiltak
       operationId: getVeilederTiltaksgjennomforing
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/GetTiltaksgjennomforingRequest"
-        required: true
+      parameters:
+        - $ref: "#/components/parameters/ID"
+        - $ref: "#/components/parameters/EnheterParam"
       responses:
         200:
           description: Hent tiltaksgjennomføring for id
@@ -934,16 +931,16 @@ paths:
                 $ref: "#/components/schemas/VeilederflateTiltaksgjennomforing"
 
   /api/v1/internal/veileder/preview/tiltaksgjennomforinger:
-    post:
+    get:
       tags:
         - VeilederTiltak
       operationId: getPreviewTiltaksgjennomforinger
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/GetTiltaksgjennomforingerRequest"
-        required: true
+      parameters:
+        - $ref: "#/components/parameters/SearchParam"
+        - $ref: "#/components/parameters/ApentForInnsokParam"
+        - $ref: "#/components/parameters/InnsatsgruppeParam"
+        - $ref: "#/components/parameters/EnheterParam"
+        - $ref: "#/components/parameters/TiltakstyperParam"
       responses:
         200:
           description: Hent tiltaksgjennomføringer
@@ -954,17 +951,14 @@ paths:
                 items:
                   $ref: "#/components/schemas/VeilederflateTiltaksgjennomforing"
 
-  /api/v1/internal/veileder/preview/tiltaksgjennomforing:
-    post:
+  /api/v1/internal/veileder/preview/tiltaksgjennomforinger/{id}:
+    get:
       tags:
         - VeilederTiltak
       operationId: getPreviewTiltaksgjennomforing
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/GetTiltaksgjennomforingRequest"
-        required: true
+      parameters:
+        - $ref: "#/components/parameters/ID"
+        - $ref: "#/components/parameters/EnheterParam"
       responses:
         200:
           description: Hent tiltaksgjennomføring for id
@@ -974,16 +968,16 @@ paths:
                 $ref: "#/components/schemas/VeilederflateTiltaksgjennomforing"
 
   /api/v1/internal/veileder/nav/tiltaksgjennomforinger:
-    post:
+    get:
       tags:
         - VeilederTiltak
       operationId: getNavTiltaksgjennomforinger
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/GetTiltaksgjennomforingerRequest"
-        required: true
+      parameters:
+        - $ref: "#/components/parameters/SearchParam"
+        - $ref: "#/components/parameters/ApentForInnsokParam"
+        - $ref: "#/components/parameters/InnsatsgruppeParam"
+        - $ref: "#/components/parameters/EnheterParam"
+        - $ref: "#/components/parameters/TiltakstyperParam"
       responses:
         200:
           description: Hent tiltaksgjennomføringer
@@ -994,17 +988,13 @@ paths:
                 items:
                   $ref: "#/components/schemas/VeilederflateTiltaksgjennomforing"
 
-  /api/v1/internal/veileder/nav/tiltaksgjennomforing:
-    post:
+  /api/v1/internal/veileder/nav/tiltaksgjennomforinger/{id}:
+    get:
       tags:
         - VeilederTiltak
       operationId: getNavTiltaksgjennomforing
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/GetNavTiltaksgjennomforingRequest"
-        required: true
+      parameters:
+        - $ref: "#/components/parameters/ID"
       responses:
         200:
           description: Hent tiltaksgjennomføring for id
@@ -1641,6 +1631,7 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
+
   parameters:
     ID:
       name: id
@@ -1677,6 +1668,43 @@ components:
       required: false
       schema:
         type: string
+
+    EnheterParam:
+      in: query
+      name: enheter
+      required: true
+      schema:
+        type: array
+        items:
+          type: string
+
+    InnsatsgruppeParam:
+      in: query
+      name: innsatsgruppe
+      schema:
+        $ref: "#/components/schemas/Innsatsgruppe"
+
+    TiltakstyperParam:
+      in: query
+      name: tiltakstyper
+      schema:
+        type: array
+        items:
+          type: string
+          format: uuid
+
+    SearchParam:
+      in: query
+      name: search
+      schema:
+        type: string
+
+    ApentForInnsokParam:
+      in: query
+      name: apentForInnsok
+      required: true
+      schema:
+        $ref: "#/components/schemas/ApentForInnsok"
 
   schemas:
     ValidationErrorResponse:
@@ -1735,57 +1763,12 @@ components:
       required:
         - norskIdent
 
-    GetTiltaksgjennomforingerRequest:
-      type: object
-      properties:
-        enheter:
-          type: array
-          items:
-            type: string
-        innsatsgruppe:
-          $ref: "#/components/schemas/Innsatsgruppe"
-        tiltakstypeIds:
-          type: array
-          items:
-            type: string
-            format: uuid
-        search:
-          type: string
-        apentForInnsok:
-          $ref: "#/components/schemas/ApentForInnsok"
-      required:
-        - enheter
-        - apentForInnsok
-
     ApentForInnsok:
       type: string
       enum:
         - APENT
         - STENGT
         - APENT_ELLER_STENGT
-
-    GetTiltaksgjennomforingRequest:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        enheter:
-          type: array
-          items:
-            type: string
-      required:
-        - enheter
-        - id
-
-    GetNavTiltaksgjennomforingRequest:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-      required:
-        - id
 
     ManuellStatus:
       type: object

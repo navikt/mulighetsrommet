@@ -45,14 +45,6 @@ fun Application.configure(config: AppConfig) {
             tasks()
         }
 
-        authenticate(
-            AuthProvider.AZURE_AD_TILTAKSADMINISTRASJON_GENERELL.name,
-            AuthProvider.AZURE_AD_AVTALER_SKRIV.name,
-            AuthProvider.AZURE_AD_TILTAKSJENNOMFORINGER_SKRIV.name,
-        ) {
-            veilederflatePreviewRoutes()
-        }
-
         authenticate(AuthProvider.AZURE_AD_NAV_IDENT.name, AuthProvider.AZURE_AD_TILTAKSADMINISTRASJON_GENERELL.name) {
             tiltakstypeRoutes()
             tiltaksgjennomforingRoutes()
