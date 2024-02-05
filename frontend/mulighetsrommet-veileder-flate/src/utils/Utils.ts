@@ -1,13 +1,3 @@
-import { Bruker, NavEnhet, VeilederflateTiltaksgjennomforing } from "mulighetsrommet-api-client";
-import {
-  ArbeidsmarkedstiltakFilter,
-  valgteEnhetsnumre,
-} from "../hooks/useArbeidsmarkedstiltakFilter";
-
-export const erTomtObjekt = (objekt: Object): boolean => {
-  return Object.keys(objekt).length === 0;
-};
-
 export const inneholderUrl = (string: string) => {
   return window.location.href.indexOf(string) > -1;
 };
@@ -67,30 +57,4 @@ export function addOrRemove<T>(array: T[], item: T): T[] {
     result.push(item);
     return result;
   }
-}
-
-export function brukersEnhetFilterHasChanged(
-  filter: ArbeidsmarkedstiltakFilter,
-  bruker?: Bruker,
-): boolean {
-  if (!bruker) return false;
-
-  const filterEnheter = valgteEnhetsnumre(filter);
-  if (filterEnheter.length !== bruker.enheter.length) return true;
-
-  return (
-    bruker.enheter
-      .map((enhet: NavEnhet) => enhet.enhetsnummer)
-      .sort()
-      .join(",") !== filterEnheter.sort().join(",")
-  );
-}
-
-export function delMedBrukerTekst(
-  tiltaksgjennomforing: VeilederflateTiltaksgjennomforing,
-): string | undefined {
-  return (
-    tiltaksgjennomforing.faneinnhold?.delMedBruker ??
-    tiltaksgjennomforing.tiltakstype.delingMedBruker
-  );
 }

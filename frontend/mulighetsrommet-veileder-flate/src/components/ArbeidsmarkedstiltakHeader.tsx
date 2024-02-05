@@ -1,10 +1,17 @@
 import { InternalHeader } from "@navikt/ds-react";
+import { ReactNode } from "react";
 
-export const ArbeidsmarkedstiltakHeader = () => {
+interface Props {
+  href: string;
+  children?: ReactNode;
+}
+
+export const ArbeidsmarkedstiltakHeader = (props: Props) => {
   return (
     <header>
       <InternalHeader>
-        <InternalHeader.Title href="/preview">NAV Arbeidsmarkedstiltak</InternalHeader.Title>
+        <InternalHeader.Title href={props.href}>NAV Arbeidsmarkedstiltak</InternalHeader.Title>
+        {props.children}
       </InternalHeader>
     </header>
   );

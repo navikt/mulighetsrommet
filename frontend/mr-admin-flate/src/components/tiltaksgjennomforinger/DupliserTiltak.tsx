@@ -1,7 +1,7 @@
 import { LayersPlusIcon } from "@navikt/aksel-icons";
 import styles from "./DupliserTiltak.module.scss";
 import { Button } from "@navikt/ds-react";
-import { Tiltaksgjennomforing, Toggles } from "mulighetsrommet-api-client";
+import { Opphav, Tiltaksgjennomforing, Toggles } from "mulighetsrommet-api-client";
 import { useNavigate } from "react-router-dom";
 import { useFeatureToggle } from "../../api/features/feature-toggles";
 
@@ -26,6 +26,7 @@ export function DupliserTiltak({ tiltaksgjennomforing }: Props) {
           tiltaksnummer: "",
           startDato: undefined,
           sluttDato: undefined,
+          opphav: Opphav.MR_ADMIN_FLATE,
         },
       },
     });

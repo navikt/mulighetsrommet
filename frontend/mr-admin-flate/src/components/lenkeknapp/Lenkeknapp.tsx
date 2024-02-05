@@ -1,5 +1,5 @@
-import Lenke from "mulighetsrommet-veileder-flate/src/components/lenke/Lenke";
 import classNames from "classnames";
+import { Lenke } from "mulighetsrommet-frontend-common/components/Lenke";
 import style from "./Lenkeknapp.module.scss";
 
 interface Props {

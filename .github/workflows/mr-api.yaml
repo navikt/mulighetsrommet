@@ -36,7 +36,6 @@ jobs:
     runs-on:
       labels: ubuntu-latest-8-cores
     permissions:
-      contents: write # Needed for `mikepenz/gradle-dependency-submission`
       id-token: write # Needed for `nais/docker-build-push`
     steps:
       - name: Checkout
@@ -45,12 +44,6 @@ jobs:
         uses: ./.github/actions/setup-backend
       - name: Build with Gradle
         run: ./gradlew :mulighetsrommet-api:build
-      - name: Submit Gradle dependencies
-        uses: mikepenz/gradle-dependency-submission@v1
-        if: github.ref_name == 'main'
-        with:
-          gradle-build-module: :mulighetsrommet-api
-          sub-module-mode: INDIVIDUAL
       - name: Build and push Docker image
         uses: nais/docker-build-push@v0
         id: docker-build-push

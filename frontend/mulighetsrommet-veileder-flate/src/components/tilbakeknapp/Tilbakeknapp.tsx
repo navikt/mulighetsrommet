@@ -1,4 +1,4 @@
-import Lenke from "../lenke/Lenke";
+import { Lenke } from "mulighetsrommet-frontend-common/components/Lenke";
 import styles from "./Tilbakeknapp.module.scss";
 import { BodyShort } from "@navikt/ds-react";
 import { ChevronLeftIcon } from "@navikt/aksel-icons";
@@ -8,7 +8,7 @@ interface TilbakeknappProps {
   tekst?: string;
 }
 
-const Tilbakeknapp = ({ tilbakelenke, tekst = "Tilbake" }: TilbakeknappProps) => {
+export const Tilbakeknapp = ({ tilbakelenke, tekst = "Tilbake" }: TilbakeknappProps) => {
   return (
     <Lenke className={styles.tilbakeknapp} to={tilbakelenke}>
       <ChevronLeftIcon aria-label="Tilbakeknapp" />
@@ -16,4 +16,3 @@ const Tilbakeknapp = ({ tilbakelenke, tekst = "Tilbake" }: TilbakeknappProps) =>
     </Lenke>
   );
 };
-export default Tilbakeknapp;

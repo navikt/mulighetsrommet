@@ -1,0 +1,42 @@
+.brukeractions_container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.link {
+  text-align: center;
+  margin: 1rem 0;
+}
+
+.linkAsButton {
+  padding: 20px 12px;
+  background-color: var(--a-surface-action);
+  color: white;
+  border-radius: 0.2rem;
+  text-decoration: none;
+  margin: 0;
+  height: 48px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    background-color: var(--a-surface-action-hover);
+  }
+}
+
+.alert {
+  margin-top: 0.5rem;
+  border-radius: 0;
+}
+.dialogknapp {
+  text-align: center;
+
+  svg {
+    width: 20px;
+    height: auto;
+  }
+}

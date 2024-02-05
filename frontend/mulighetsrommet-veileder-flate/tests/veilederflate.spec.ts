@@ -19,6 +19,10 @@ const velgFilter = async (page: Page, filternavn: string) => {
 };
 
 test.describe("Tiltaksoversikt", () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto("/arbeidsmarkedstiltak");
+  });
+
   test("Sjekk at det er 5 tiltaksgjennomføringer i oversikten", async ({ page }) => {
     const rows = page.getByTestId("oversikt_tiltaksgjennomforinger").getByRole("link");
     await expect(rows).toHaveCount(5);
@@ -96,9 +100,9 @@ test.describe("Tiltaksgjennomføringsdetaljer", () => {
 
   test('Sjekk "Del med bruker"', async ({ page }) => {
     await page.getByTestId("deleknapp").click();
-    await expect(page.getByTestId("textarea_deletekst")).toContainText("Hei IHERDIG");
+    await expect(page.getByTestId("textarea_deletekst")).not.toContainText("Hei IHERDIG");
     await expect(page.getByTestId("textarea_deletekst")).toContainText("Jedi Mester");
-    await expect(page.getByTestId("textarea_deletekst")).toContainText("Vi holder kontakten!");
+    await expect(page.getByTestId("textarea_deletekst")).toContainText("Hilsen");
 
     await page.getByTestId("endre-deletekst_btn").click();
     await page.getByTestId("textarea_deletekst").fill("I am your father");
@@ -115,9 +119,13 @@ test.describe("Tiltaksgjennomføringsdetaljer", () => {
 
 test.describe("Preview Mulighetsrommet", () => {
   test.beforeEach(async ({ page }) => {
-    const url = "/preview/tiltak/f4cea25b-c372-4d4c-8106-535ab10cd586";
-    await page.goto(url);
+    await page.goto("/preview/tiltak/f4cea25b-c372-4d4c-8106-535ab10cd586");
     expect(page.url().includes("/preview/"));
+  });
+
+  test("Skal vise tiltak", async ({ page }) => {
+    const h1 = await page.getByRole("heading", { level: 1 }).innerText();
+    expect(h1).toEqual("Avklaring - Fredrikstad");
   });
 
   test("Skal vise en warning på siden om at man er i Preview-modus", async ({ page }) => {
@@ -129,7 +137,7 @@ test.describe("Preview Mulighetsrommet", () => {
   }) => {
     await page.getByTestId("deleknapp").click();
     await expect(page.getByTestId("alert-preview-del-med-bruker")).toContainText(
-      "Det er ikke" + " mulig å dele tiltak med bruker i forhåndsvisning",
+      "Det er ikke mulig å dele tiltak med bruker i forhåndsvisning",
     );
   });
 });

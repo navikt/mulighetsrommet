@@ -1,0 +1,43 @@
+.delemodal {
+  .body {
+    padding-bottom: 0;
+  }
+
+  .heading {
+    margin-bottom: 1rem;
+  }
+
+  .feilmeldinger {
+    margin-bottom: 1rem;
+    margin-top: 0.5rem;
+  }
+
+  &_svg {
+    width: 3rem;
+    height: auto;
+    align-self: center;
+  }
+
+  .personopplysninger {
+    margin-top: 1rem;
+  }
+
+  .endreTekst_btn {
+    margin-top: 1rem;
+  }
+
+  .deletekst {
+    margin-top: 1rem;
+    white-space: pre-wrap;
+    border-radius: 5px;
+  }
+
+  .preview_alert {
+    margin-top: 1rem;
+  }
+}
+
+.knapperad {
+  display: flex;
+  gap: 2rem;
+}
