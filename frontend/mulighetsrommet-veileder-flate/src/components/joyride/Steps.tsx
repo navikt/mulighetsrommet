@@ -1,7 +1,7 @@
-import Lenke from "../lenke/Lenke";
 import { BodyShort } from "@navikt/ds-react";
+import { Lenke } from "mulighetsrommet-frontend-common/components/Lenke";
 import { PORTEN } from "mulighetsrommet-frontend-common/constants";
-import { APPLICATION_WEB_COMPONENT_NAME } from "../../constants";
+import { APPLICATION_WEB_COMPONENT_NAME } from "@/constants";
 import { useEffect, useState } from "react";
 import { Step } from "react-joyride";
 

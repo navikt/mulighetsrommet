@@ -6,10 +6,9 @@ import {
   TiltaksgjennomforingOppstartstype,
   VeilederflateTiltaksgjennomforing,
 } from "mulighetsrommet-api-client";
-import { paginationAtom } from "../../core/atoms/atoms";
-import { formaterDato, kebabCase } from "../../utils/Utils";
-import Lenke from "../lenke/Lenke";
-
+import { Lenke } from "mulighetsrommet-frontend-common/components/Lenke";
+import { paginationAtom } from "@/core/atoms/atoms";
+import { formaterDato, kebabCase } from "@/utils/Utils";
 import styles from "./Gjennomforingsrad.module.scss";
 import { useAtomValue } from "jotai";
 

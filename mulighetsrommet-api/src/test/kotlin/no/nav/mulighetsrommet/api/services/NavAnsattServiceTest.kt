@@ -57,11 +57,14 @@ class NavAnsattServiceTest : FunSpec({
     val ansatt1 = toAzureAdNavAnsattDto(NavAnsattFixture.ansatt1)
     val ansatt2 = toAzureAdNavAnsattDto(NavAnsattFixture.ansatt2)
 
-    val generellTilgangPerson = AdGruppeNavAnsattRolleMapping(adGruppeId = UUID.randomUUID(), rolle = TILTAKADMINISTRASJON_GENERELL)
+    val tiltaksadministrasjon = AdGruppeNavAnsattRolleMapping(
+        adGruppeId = UUID.randomUUID(),
+        rolle = TILTAKADMINISTRASJON_GENERELL,
+    )
     val kontaktperson = AdGruppeNavAnsattRolleMapping(adGruppeId = UUID.randomUUID(), rolle = KONTAKTPERSON)
 
     val msGraph = mockk<MicrosoftGraphService>()
-    coEvery { msGraph.getNavAnsatteInGroup(generellTilgangPerson.adGruppeId) } returns listOf(ansatt1, ansatt2)
+    coEvery { msGraph.getNavAnsatteInGroup(tiltaksadministrasjon.adGruppeId) } returns listOf(ansatt1, ansatt2)
     coEvery { msGraph.getNavAnsatteInGroup(kontaktperson.adGruppeId) } returns listOf(ansatt2)
 
     val sanityClient = SanityClient(
@@ -118,7 +121,7 @@ class NavAnsattServiceTest : FunSpec({
             val service = NavAnsattService(
                 microsoftGraphService = msGraph,
                 ansatte = NavAnsattRepository(database.db),
-                roles = listOf(generellTilgangPerson),
+                roles = listOf(tiltaksadministrasjon),
                 sanityClient = sanityClient,
             )
 
@@ -126,7 +129,7 @@ class NavAnsattServiceTest : FunSpec({
 
             coEvery { msGraph.getNavAnsatt(azureId) } returns ansatt1
             coEvery { msGraph.getNavAnsattAdGrupper(azureId) } returns listOf(
-                AdGruppe(id = generellTilgangPerson.adGruppeId, navn = "Tiltaksadministrasjon generell"),
+                AdGruppe(id = tiltaksadministrasjon.adGruppeId, navn = "Tiltaksadministrasjon generell"),
                 AdGruppe(
                     id = UUID.randomUUID(),
                     navn = "Tilfeldig AD-gruppe som ikke har en innvirkning på den ansattes roller",
@@ -151,7 +154,7 @@ class NavAnsattServiceTest : FunSpec({
 
             coEvery { msGraph.getNavAnsatt(azureId) } returns ansatt1
             coEvery { msGraph.getNavAnsattAdGrupper(azureId) } returns listOf(
-                AdGruppe(id = generellTilgangPerson.adGruppeId, navn = "Tiltaksadministrasjon generell"),
+                AdGruppe(id = tiltaksadministrasjon.adGruppeId, navn = "Tiltaksadministrasjon generell"),
             )
 
             shouldThrow<IllegalStateException> {
@@ -164,7 +167,7 @@ class NavAnsattServiceTest : FunSpec({
         test("should resolve all roles from the specified groups") {
             forAll(
                 row(
-                    listOf(generellTilgangPerson),
+                    listOf(tiltaksadministrasjon),
                     listOf(
                         NavAnsattDto.fromAzureAdNavAnsatt(ansatt1, setOf(TILTAKADMINISTRASJON_GENERELL)),
                         NavAnsattDto.fromAzureAdNavAnsatt(ansatt2, setOf(TILTAKADMINISTRASJON_GENERELL)),
@@ -175,7 +178,7 @@ class NavAnsattServiceTest : FunSpec({
                     listOf(NavAnsattDto.fromAzureAdNavAnsatt(ansatt2, setOf(KONTAKTPERSON))),
                 ),
                 row(
-                    listOf(generellTilgangPerson, kontaktperson),
+                    listOf(tiltaksadministrasjon, kontaktperson),
                     listOf(
                         NavAnsattDto.fromAzureAdNavAnsatt(ansatt1, setOf(TILTAKADMINISTRASJON_GENERELL)),
                         NavAnsattDto.fromAzureAdNavAnsatt(ansatt2, setOf(TILTAKADMINISTRASJON_GENERELL, KONTAKTPERSON)),
@@ -196,6 +199,29 @@ class NavAnsattServiceTest : FunSpec({
                 }
             }
         }
+
+        test("should support multiple roles from the same group") {
+            val id = UUID.randomUUID()
+            val roles = listOf(
+                AdGruppeNavAnsattRolleMapping(adGruppeId = id, rolle = TILTAKADMINISTRASJON_GENERELL),
+                AdGruppeNavAnsattRolleMapping(adGruppeId = id, rolle = KONTAKTPERSON),
+            )
+            coEvery { msGraph.getNavAnsatteInGroup(id) } returns listOf(ansatt1, ansatt2)
+
+            val service = NavAnsattService(
+                microsoftGraphService = msGraph,
+                ansatte = NavAnsattRepository(database.db),
+                roles = roles,
+                sanityClient = sanityClient,
+            )
+
+            val resolvedAnsatte = service.getNavAnsatteFromAzure()
+
+            resolvedAnsatte shouldContainExactlyInAnyOrder listOf(
+                NavAnsattDto.fromAzureAdNavAnsatt(ansatt1, setOf(TILTAKADMINISTRASJON_GENERELL, KONTAKTPERSON)),
+                NavAnsattDto.fromAzureAdNavAnsatt(ansatt2, setOf(TILTAKADMINISTRASJON_GENERELL, KONTAKTPERSON)),
+            )
+        }
     }
 
     context("synchronizeNavAnsatteFromAzure") {
@@ -207,14 +233,14 @@ class NavAnsattServiceTest : FunSpec({
 
             forAll(
                 row(
-                    listOf(generellTilgangPerson, kontaktperson),
+                    listOf(tiltaksadministrasjon, kontaktperson),
                     listOf(
                         NavAnsattDto.fromAzureAdNavAnsatt(ansatt1, setOf(TILTAKADMINISTRASJON_GENERELL)),
                         NavAnsattDto.fromAzureAdNavAnsatt(ansatt2, setOf(TILTAKADMINISTRASJON_GENERELL, KONTAKTPERSON)),
                     ),
                 ),
                 row(
-                    listOf(generellTilgangPerson),
+                    listOf(tiltaksadministrasjon),
                     listOf(
                         NavAnsattDto.fromAzureAdNavAnsatt(ansatt1, setOf(TILTAKADMINISTRASJON_GENERELL)),
                         NavAnsattDto.fromAzureAdNavAnsatt(ansatt2, setOf(TILTAKADMINISTRASJON_GENERELL)),
@@ -263,7 +289,7 @@ class NavAnsattServiceTest : FunSpec({
 
             forAll(
                 row(
-                    listOf(generellTilgangPerson, kontaktperson),
+                    listOf(tiltaksadministrasjon, kontaktperson),
                     listOf(
                         NavAnsattDto.fromAzureAdNavAnsatt(ansatt1, setOf(TILTAKADMINISTRASJON_GENERELL)),
                         NavAnsattDto.fromAzureAdNavAnsatt(ansatt2, setOf(TILTAKADMINISTRASJON_GENERELL, KONTAKTPERSON)),

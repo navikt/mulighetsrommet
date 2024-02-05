@@ -3,6 +3,7 @@ import { Alert, Button } from "@navikt/ds-react";
 import { ApiError, Toggles } from "mulighetsrommet-api-client";
 import { useTitle } from "mulighetsrommet-frontend-common";
 import { PORTEN } from "mulighetsrommet-frontend-common/constants";
+import { Lenke } from "mulighetsrommet-frontend-common/components/Lenke";
 import { TiltakLoader } from "@/components/TiltakLoader";
 import { BrukersOppfolgingsenhetVarsel } from "@/apps/modia/varsler/BrukersOppfolgingsenhetVarsel";
 import { Feilmelding, ForsokPaNyttLink } from "@/components/feilmelding/Feilmelding";
@@ -21,7 +22,6 @@ import { useVeilederTiltaksgjennomforinger } from "@/core/api/queries/useTiltaks
 import { useResetArbeidsmarkedstiltakFilter } from "@/hooks/useArbeidsmarkedstiltakFilter";
 import { ManglerInnsatsOgServicegruppeVarsel } from "@/apps/modia/varsler/ManglerInnsatsOgServiceGruppeVarsel";
 import { FilterMenyMedSkeletonLoader } from "@/components/filtrering/FilterMenyMedSkeletonLoader";
-import Lenke from "@/components/lenke/Lenke";
 
 export const ModiaArbeidsmarkedstiltakOversikt = () => {
   useTitle("Arbeidsmarkedstiltak - Oversikt");
