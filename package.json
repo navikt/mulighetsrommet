@@ -4,8 +4,8 @@
     "frontend/*"
   ],
   "devDependencies": {
-    "husky": "9.0.6",
-    "prettier": "3.2.4",
+    "husky": "9.0.10",
+    "prettier": "3.2.5",
     "turbo": "1.11.3"
   },
   "scripts": {
