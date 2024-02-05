@@ -129,7 +129,10 @@ data class TiltaksgjennomforingRequest(
     val sluttDato: LocalDate?,
     val antallPlasser: Int,
     val arrangorOrganisasjonsnummer: String,
-    val arrangorKontaktpersoner: List<@Serializable(with = UUIDSerializer::class) UUID>,
+    val arrangorKontaktpersoner: List<
+        @Serializable(with = UUIDSerializer::class)
+        UUID,
+        >,
     val tiltaksnummer: String?,
     val administratorer: List<String>,
     val navRegion: String,

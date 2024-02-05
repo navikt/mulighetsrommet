@@ -28,7 +28,7 @@ interface Props {
 }
 
 export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtale }: Props) => {
-  const { data: virksomhet } = useVirksomhet(avtale.leverandor.organisasjonsnummer || "");
+  const { data: virksomhet } = useVirksomhet(avtale.leverandor.organisasjonsnummer);
   const { data: administratorer } = useTiltaksgjennomforingAdministratorer();
 
   const { data: ansatt, isLoading: isLoadingAnsatt } = useHentAnsatt();
@@ -396,14 +396,16 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
             </FormGroup>
           </div>
         </div>
-        <VirksomhetKontaktpersonerModal
-          orgnr={watch("tiltaksArrangorUnderenhetOrganisasjonsnummer")}
-          modalRef={virksomhetKontaktpersonerModalRef}
-          onClose={() => {
-            setValue("arrangorKontaktpersoner", []);
-            refetchVirksomhetKontaktpersoner();
-          }}
-        />
+        {watch("tiltaksArrangorUnderenhetOrganisasjonsnummer") && (
+          <VirksomhetKontaktpersonerModal
+            orgnr={watch("tiltaksArrangorUnderenhetOrganisasjonsnummer")}
+            modalRef={virksomhetKontaktpersonerModalRef}
+            onClose={() => {
+              setValue("arrangorKontaktpersoner", []);
+              refetchVirksomhetKontaktpersoner();
+            }}
+          />
+        )}
       </div>
     </div>
   );

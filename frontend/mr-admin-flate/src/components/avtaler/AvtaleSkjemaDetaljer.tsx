@@ -299,14 +299,16 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
           </div>
         </div>
       </div>
-      <VirksomhetKontaktpersonerModal
-        orgnr={watchedLeverandor}
-        modalRef={virksomhetKontaktpersonerModalRef}
-        onClose={() => {
-          setValue("leverandorKontaktpersonId", undefined);
-          refetchVirksomhetKontaktpersoner();
-        }}
-      />
+      {watchedLeverandor && (
+        <VirksomhetKontaktpersonerModal
+          orgnr={watchedLeverandor}
+          modalRef={virksomhetKontaktpersonerModalRef}
+          onClose={() => {
+            setValue("leverandorKontaktpersonId", undefined);
+            refetchVirksomhetKontaktpersoner();
+          }}
+        />
+      )}
     </div>
   );
 }
