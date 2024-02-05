@@ -55,7 +55,7 @@ export const TiltaksgjennomforingSchema = z
       })
       .min(1, "Du må velge en underenhet for tiltaksarrangør"),
     stedForGjennomforing: z.string().nullable(),
-    arrangorKontaktpersonId: z.string().nullable().optional(),
+    arrangorKontaktpersoner: z.string().array(),
     administratorer: z
       .string({ required_error: "Du må velge minst én administrator" })
       .array()

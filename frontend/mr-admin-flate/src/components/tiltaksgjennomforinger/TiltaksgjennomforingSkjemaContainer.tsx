@@ -95,7 +95,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
             beskrivelse: kontakt.beskrivelse ?? null,
           })) || [],
       stedForGjennomforing: data.stedForGjennomforing,
-      arrangorKontaktpersonId: data.arrangorKontaktpersonId ?? null,
+      arrangorKontaktpersoner: data.arrangorKontaktpersoner,
       beskrivelse: data.beskrivelse,
       faneinnhold: data.faneinnhold ?? null,
       opphav: data.opphav,

@@ -1,4 +1,4 @@
-import { Textarea, TextField } from "@navikt/ds-react";
+import { Button, Textarea, TextField } from "@navikt/ds-react";
 import {
   Avtale,
   Avtaletype,
@@ -11,7 +11,7 @@ import {
 } from "mulighetsrommet-api-client";
 import { ControlledSokeSelect } from "mulighetsrommet-frontend-common/components/ControlledSokeSelect";
 import { SelectOption } from "mulighetsrommet-frontend-common/components/SokeSelect";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { MultiValue } from "react-select";
 import { useAvtaleAdministratorer } from "../../api/ansatt/useAvtaleAdministratorer";
@@ -25,9 +25,10 @@ import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FormGroup } from "../skjema/FormGroup";
 import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
 import skjemastyles from "../skjema/Skjema.module.scss";
-import { VirksomhetKontaktpersoner } from "../virksomhet/VirksomhetKontaktpersoner";
+import { VirksomhetKontaktpersonerModal } from "../virksomhet/VirksomhetKontaktpersonerModal";
 import { InferredAvtaleSchema } from "./AvtaleSchema";
 import { getLokaleUnderenheterAsSelectOptions, underenheterOptions } from "./AvtaleSkjemaConst";
+import { useVirksomhetKontaktpersoner } from "../../api/virksomhet/useVirksomhetKontaktpersoner";
 
 const minStartdato = new Date(2000, 0, 1);
 
@@ -43,6 +44,7 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
   const { data: leverandorVirksomheter = [] } = useSokVirksomheter(sokLeverandor);
 
   const { data: administratorer } = useAvtaleAdministratorer();
+  const virksomhetKontaktpersonerModalRef = useRef<HTMLDialogElement>(null);
 
   const {
     register,
@@ -55,6 +57,8 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
   const arenaKode = watchedTiltakstype?.arenaKode;
 
   const watchedLeverandor = watch("leverandor");
+  const { data: virksomhetKontaktpersoner, refetch: refetchVirksomhetKontaktpersoner } =
+    useVirksomhetKontaktpersoner(watchedLeverandor);
   const { data: leverandorData } = useVirksomhet(watchedLeverandor);
 
   const underenheterForLeverandor = leverandorData?.underenheter ?? [];
@@ -269,17 +273,45 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
             {watchedLeverandor && !avtale?.leverandor?.slettet && (
               <FormGroup>
                 <div className={skjemastyles.kontaktperson_container}>
-                  <VirksomhetKontaktpersoner
-                    title="Kontaktperson hos leverandøren"
-                    orgnr={watchedLeverandor}
-                    formValueName="leverandorKontaktpersonId"
+                  <ControlledSokeSelect
+                    size="small"
+                    placeholder="Velg en"
+                    label={"Kontaktperson hos leverandør"}
+                    {...register("leverandorKontaktpersonId")}
+                    options={
+                      virksomhetKontaktpersoner?.map((person) => ({
+                        value: person.id,
+                        label: person.navn,
+                      })) ?? []
+                    }
                   />
+                  <Button
+                    size="small"
+                    type="button"
+                    variant="secondary"
+                    onClick={() => virksomhetKontaktpersonerModalRef.current?.showModal()}
+                  >
+                    Rediger kontaktpersoner
+                  </Button>
                 </div>
               </FormGroup>
             )}
           </div>
         </div>
       </div>
+      {watchedLeverandor && (
+        <VirksomhetKontaktpersonerModal
+          orgnr={watchedLeverandor}
+          modalRef={virksomhetKontaktpersonerModalRef}
+          onClose={() => {
+            refetchVirksomhetKontaktpersoner().then((res) => {
+              if (!res?.data?.some((p) => p.id === watch("leverandorKontaktpersonId"))) {
+                setValue("leverandorKontaktpersonId", undefined);
+              }
+            });
+          }}
+        />
+      )}
     </div>
   );
 }

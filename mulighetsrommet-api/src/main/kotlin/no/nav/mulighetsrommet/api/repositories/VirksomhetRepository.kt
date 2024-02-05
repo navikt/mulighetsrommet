@@ -211,11 +211,11 @@ class VirksomhetRepository(private val db: Database) {
     fun koblingerTilKontaktperson(id: UUID): Pair<List<UUID>, List<UUID>> {
         @Language("PostgreSQL")
         val gjennomforingQuery = """
-            select id from tiltaksgjennomforing tg where arrangor_kontaktperson_id = ?
+            select tiltaksgjennomforing_id from tiltaksgjennomforing_virksomhet_kontaktperson where virksomhet_kontaktperson_id = ?
         """.trimIndent()
 
         val gjennomforinger = queryOf(gjennomforingQuery, id)
-            .map { it.uuid("id") }
+            .map { it.uuid("tiltaksgjennomforing_id") }
             .asList
             .let { db.run(it) }
 
