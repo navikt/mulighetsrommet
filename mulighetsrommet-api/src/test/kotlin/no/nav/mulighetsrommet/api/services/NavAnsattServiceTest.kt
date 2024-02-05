@@ -199,6 +199,29 @@ class NavAnsattServiceTest : FunSpec({
                 }
             }
         }
+
+        test("should support multiple roles from the same group") {
+            val id = UUID.randomUUID()
+            val roles = listOf(
+                AdGruppeNavAnsattRolleMapping(adGruppeId = id, rolle = TILTAKADMINISTRASJON_GENERELL),
+                AdGruppeNavAnsattRolleMapping(adGruppeId = id, rolle = KONTAKTPERSON),
+            )
+            coEvery { msGraph.getNavAnsatteInGroup(id) } returns listOf(ansatt1, ansatt2)
+
+            val service = NavAnsattService(
+                microsoftGraphService = msGraph,
+                ansatte = NavAnsattRepository(database.db),
+                roles = roles,
+                sanityClient = sanityClient,
+            )
+
+            val resolvedAnsatte = service.getNavAnsatteFromAzure()
+
+            resolvedAnsatte shouldContainExactlyInAnyOrder listOf(
+                NavAnsattDto.fromAzureAdNavAnsatt(ansatt1, setOf(TILTAKADMINISTRASJON_GENERELL, KONTAKTPERSON)),
+                NavAnsattDto.fromAzureAdNavAnsatt(ansatt2, setOf(TILTAKADMINISTRASJON_GENERELL, KONTAKTPERSON)),
+            )
+        }
     }
 
     context("synchronizeNavAnsatteFromAzure") {
