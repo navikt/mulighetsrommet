@@ -11,6 +11,7 @@ spec:
   ingresses:
     - https://mulighetsrommet-admin-flate.ekstern.dev.nav.no
     - https://mulighetsrommet-admin-flate-demo.ekstern.dev.nav.no
+    - https://tiltaksadministrasjon.ekstern.dev.nav.no
   liveness:
     path: /internal/alive
     initialDelay: 10
