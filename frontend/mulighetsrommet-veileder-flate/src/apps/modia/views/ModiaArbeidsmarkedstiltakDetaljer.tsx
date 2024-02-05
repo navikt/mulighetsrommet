@@ -1,7 +1,25 @@
-import { Link } from "react-router-dom";
-import { useAtomValue } from "jotai";
+import { DelMedBruker } from "@/apps/modia/delMedBruker/DelMedBruker";
+import { useHentBrukerdata } from "@/apps/modia/hooks/useHentBrukerdata";
+import { useHentDeltMedBrukerStatus } from "@/apps/modia/hooks/useHentDeltMedbrukerStatus";
+import { useHentVeilederdata } from "@/apps/modia/hooks/useHentVeilederdata";
+import { useModiaContext } from "@/apps/modia/hooks/useModiaContext";
+import { BrukerHarIkke14aVedtakVarsel } from "@/apps/modia/varsler/BrukerHarIkke14aVedtakVarsel";
+import { BrukerKvalifisererIkkeVarsel } from "@/apps/modia/varsler/BrukerKvalifisererIkkeVarsel";
+import { TiltakLoader } from "@/components/TiltakLoader";
+import { DetaljerJoyride } from "@/components/joyride/DetaljerJoyride";
+import { OpprettAvtaleJoyride } from "@/components/joyride/OpprettAvtaleJoyride";
+import { Tilbakeknapp } from "@/components/tilbakeknapp/Tilbakeknapp";
+import { useFeatureToggle } from "@/core/api/feature-toggles";
+import { useGetTiltaksgjennomforingIdFraUrl } from "@/core/api/queries/useGetTiltaksgjennomforingIdFraUrl";
+import { useTiltaksgjennomforingById } from "@/core/api/queries/useTiltaksgjennomforingById";
+import { paginationAtom } from "@/core/atoms/atoms";
+import { isProduction } from "@/environment";
+import { ViewTiltaksgjennomforingDetaljer } from "@/layouts/ViewTiltaksgjennomforingDetaljer";
+import { byttTilDialogFlate } from "@/utils/DialogFlateUtils";
 import { Chat2Icon } from "@navikt/aksel-icons";
 import { Alert, Button } from "@navikt/ds-react";
+import classNames from "classnames";
+import { useAtomValue } from "jotai";
 import {
   Bruker,
   Innsatsgruppe,
@@ -11,25 +29,8 @@ import {
   VeilederflateTiltakstype,
 } from "mulighetsrommet-api-client";
 import { useTitle } from "mulighetsrommet-frontend-common";
-import { useHentBrukerdata } from "@/apps/modia/hooks/useHentBrukerdata";
-import { useHentDeltMedBrukerStatus } from "@/apps/modia/hooks/useHentDeltMedbrukerStatus";
-import { useHentVeilederdata } from "@/apps/modia/hooks/useHentVeilederdata";
-import { useTiltaksgjennomforingById } from "@/core/api/queries/useTiltaksgjennomforingById";
-import { useModiaContext } from "@/apps/modia/hooks/useModiaContext";
-import { ViewTiltaksgjennomforingDetaljer } from "@/layouts/ViewTiltaksgjennomforingDetaljer";
+import { Link } from "react-router-dom";
 import styles from "./ModiaArbeidsmarkedstiltakDetaljer.module.scss";
-import { Tilbakeknapp } from "@/components/tilbakeknapp/Tilbakeknapp";
-import { DetaljerJoyride } from "@/components/joyride/DetaljerJoyride";
-import { OpprettAvtaleJoyride } from "@/components/joyride/OpprettAvtaleJoyride";
-import { BrukerKvalifisererIkkeVarsel } from "@/apps/modia/varsler/BrukerKvalifisererIkkeVarsel";
-import { BrukerHarIkke14aVedtakVarsel } from "@/apps/modia/varsler/BrukerHarIkke14aVedtakVarsel";
-import { byttTilDialogFlate } from "@/utils/DialogFlateUtils";
-import { paginationAtom } from "@/core/atoms/atoms";
-import { useFeatureToggle } from "@/core/api/feature-toggles";
-import { DelMedBruker } from "@/apps/modia/delMedBruker/DelMedBruker";
-import { TiltakLoader } from "@/components/TiltakLoader";
-import { useGetTiltaksgjennomforingIdFraUrl } from "@/core/api/queries/useGetTiltaksgjennomforingIdFraUrl";
-import { isProduction } from "@/environment";
 
 export function ModiaArbeidsmarkedstiltakDetaljer() {
   const { fnr } = useModiaContext();
@@ -76,10 +77,12 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
   }
 
   const tiltakstype = tiltaksgjennomforing.tiltakstype;
-
   const kanOppretteAvtaleForTiltak = isIndividueltTiltak(tiltakstype);
-
   const brukerHarRettPaaValgtTiltak = harBrukerRettPaaValgtTiltak(brukerdata, tiltakstype);
+  const skalVisePameldingslenke =
+    !kanOppretteAvtaleForTiltak &&
+    brukerHarRettPaaValgtTiltak &&
+    tiltakstypeStotterPamelding(tiltakstype);
 
   return (
     <>
@@ -123,9 +126,9 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
                 Opprett avtale
               </Button>
             )}
-            {enableDeltakerRegistrering && !kanOppretteAvtaleForTiltak ? (
-              <Link className={styles.link} to="./deltaker">
-                Meld på
+            {enableDeltakerRegistrering && skalVisePameldingslenke ? (
+              <Link className={classNames(styles.link, styles.linkAsButton)} to="./deltaker">
+                Start påmelding
               </Link>
             ) : null}
             <DelMedBruker
@@ -212,6 +215,19 @@ function harBrukerRettPaaValgtTiltak(brukerdata: Bruker, tiltakstype: Veilederfl
     : [];
 
   return godkjenteInnsatsgrupper.includes(innsatsgruppeForGjennomforing);
+}
+
+function tiltakstypeStotterPamelding(tiltakstype: VeilederflateTiltakstype): boolean {
+  const whitelistTiltakstypeStotterPamelding = [
+    Tiltakskode.ARBFORB,
+    Tiltakskode.ARBRRHDAG,
+    Tiltakskode.AVKLARAG,
+    Tiltakskode.INDOPPFAG,
+    Tiltakskode.VASV,
+  ];
+  return (
+    !!tiltakstype.arenakode && whitelistTiltakstypeStotterPamelding.includes(tiltakstype.arenakode)
+  );
 }
 
 function utledInnsatsgrupperFraInnsatsgruppe(innsatsgruppe: string): Innsatsgruppe[] {
