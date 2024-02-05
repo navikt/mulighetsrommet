@@ -13,5 +13,6 @@ export function useVirksomhet(orgnr: string) {
       }
       return response;
     },
+    enabled: !!orgnr,
   });
 }

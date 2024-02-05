@@ -401,8 +401,14 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
             orgnr={watch("tiltaksArrangorUnderenhetOrganisasjonsnummer")}
             modalRef={virksomhetKontaktpersonerModalRef}
             onClose={() => {
-              setValue("arrangorKontaktpersoner", []);
-              refetchVirksomhetKontaktpersoner();
+              refetchVirksomhetKontaktpersoner().then((res) => {
+                setValue(
+                  "arrangorKontaktpersoner",
+                  watch("arrangorKontaktpersoner").filter((id: string) =>
+                    res?.data?.some((p) => p.id === id),
+                  ),
+                );
+              });
             }}
           />
         )}
