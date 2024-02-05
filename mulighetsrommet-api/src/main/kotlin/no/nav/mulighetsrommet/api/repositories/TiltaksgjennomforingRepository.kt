@@ -155,6 +155,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 tiltaksgjennomforing_id
             )
             values (:virksomhet_kontaktperson_id::uuid, :tiltaksgjennomforing_id::uuid)
+            on conflict do nothing
         """.trimIndent()
 
         @Language("PostgreSQL")
@@ -502,29 +503,42 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         @Language("PostgreSQL")
         val query = """
             select
-                   tg.id,
-                   tg.sanity_id,
-                   t.sanity_id as tiltakstype_sanity_id,
-                   t.navn as tiltakstype_navn,
-                   tg.navn,
-                   tg.sted_for_gjennomforing,
-                   tg.apent_for_innsok,
-                   tg.tiltaksnummer,
-                   tg.oppstart,
-                   tg.start_dato,
-                   tg.slutt_dato,
-                   tg.arrangor_organisasjonsnummer,
-                   v.navn                 as arrangor_navn,
-                   tg.stengt_fra,
-                   tg.stengt_til,
-                   tg.nav_region,
-                   array_agg(tg_e.enhetsnummer) as nav_enheter,
-                   tg.beskrivelse,
-                   tg.faneinnhold
+                tg.id,
+                tg.sanity_id,
+                t.sanity_id as tiltakstype_sanity_id,
+                t.navn as tiltakstype_navn,
+                tg.navn,
+                tg.sted_for_gjennomforing,
+                tg.apent_for_innsok,
+                tg.tiltaksnummer,
+                tg.oppstart,
+                tg.start_dato,
+                tg.slutt_dato,
+                tg.arrangor_organisasjonsnummer,
+                v.navn                 as arrangor_navn,
+                tg.stengt_fra,
+                tg.stengt_til,
+                tg.nav_region,
+                array_agg(tg_e.enhetsnummer) as nav_enheter,
+                tg.beskrivelse,
+                tg.faneinnhold,
+                jsonb_agg(distinct
+                    case when tvk.tiltaksgjennomforing_id is null then null::jsonb
+                    else jsonb_build_object(
+                        'id', tvk.virksomhet_kontaktperson_id,
+                        'organisasjonsnummer', vk.organisasjonsnummer,
+                        'navn', vk.navn,
+                        'telefon', vk.telefon,
+                        'epost', vk.epost,
+                        'beskrivelse', vk.beskrivelse
+                    ) end
+                ) as virksomhet_kontaktpersoner
             from tiltaksgjennomforing tg
-                     inner join tiltakstype t on tg.tiltakstype_id = t.id
-                     left join tiltaksgjennomforing_nav_enhet tg_e on tg_e.tiltaksgjennomforing_id = tg.id
-                     left join virksomhet v on v.organisasjonsnummer = tg.arrangor_organisasjonsnummer
+                inner join tiltakstype t on tg.tiltakstype_id = t.id
+                left join tiltaksgjennomforing_nav_enhet tg_e on tg_e.tiltaksgjennomforing_id = tg.id
+                left join virksomhet v on v.organisasjonsnummer = tg.arrangor_organisasjonsnummer
+                left join tiltaksgjennomforing_virksomhet_kontaktperson tvk on tvk.tiltaksgjennomforing_id = tg.id
+                left join virksomhet_kontaktperson vk on vk.id = tvk.virksomhet_kontaktperson_id
             $where
             and t.skal_migreres
             and tg.tilgjengelig_for_veileder
@@ -647,6 +661,9 @@ class TiltaksgjennomforingRepository(private val db: Database) {
 
     private fun Row.toVeilederflateTiltaksgjennomforing(): VeilederflateTiltaksgjennomforing {
         val navEnheter = arrayOrNull<String?>("nav_enheter")?.asList()?.filterNotNull() ?: emptyList()
+        val virksomhetKontaktpersoner = Json
+            .decodeFromString<List<VirksomhetKontaktperson?>>(string("virksomhet_kontaktpersoner"))
+            .filterNotNull()
 
         return VeilederflateTiltaksgjennomforing(
             sanityId = uuidOrNull("sanity_id").toString(),
@@ -665,7 +682,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             arrangor = VeilederflateArrangor(
                 organisasjonsnummer = string("arrangor_organisasjonsnummer"),
                 selskapsnavn = stringOrNull("arrangor_navn"),
-                kontaktpersoner = emptyList(),
+                kontaktpersoner = virksomhetKontaktpersoner,
             ),
             stengtFra = localDateOrNull("stengt_fra"),
             stengtTil = localDateOrNull("stengt_til"),

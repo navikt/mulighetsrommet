@@ -2941,25 +2941,13 @@ components:
           type: string
         organisasjonsnummer:
           type: string
-        kontaktperson:
-          $ref: "#/components/schemas/VeilderflateArrangorKontaktperson"
+        kontaktpersoner:
+          type: array
+          items:
+            $ref: "#/components/schemas/VirksomhetKontaktperson"
       required:
         - selskapsnavn
-
-    VeilderflateArrangorKontaktperson:
-      type: object
-      properties:
-        navn:
-          type: string
-        telefon:
-          type: string
-          nullable: true
-        epost:
-          type: string
-      required:
-        - navn
-        - telefon
-        - epost
+        - kontaktpersoner
 
     VeilederflateKontaktinfoTiltaksansvarlig:
       type: object

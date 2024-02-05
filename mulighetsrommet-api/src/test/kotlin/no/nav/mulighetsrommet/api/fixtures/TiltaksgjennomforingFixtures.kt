@@ -68,7 +68,7 @@ object TiltaksgjennomforingFixtures {
         navEnheter = listOf("2990"),
         oppstart = Oppfolging1.oppstart,
         kontaktpersoner = emptyList(),
-        arrangorKontaktpersonIder = emptyList(),
+        arrangorKontaktpersoner = emptyList(),
         stengtFra = Oppfolging1.stengtFra,
         stengtTil = Oppfolging1.stengtTil,
         stedForGjennomforing = Oppfolging1.stedForGjennomforing,

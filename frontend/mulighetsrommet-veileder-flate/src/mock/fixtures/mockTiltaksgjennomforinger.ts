@@ -90,11 +90,16 @@ const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
     sluttdato: "2023-11-30",
     arrangor: {
       selskapsnavn: "JOBLEARN AS AVD 813201 ØST-VIKEN KURS",
-      kontaktperson: {
-        navn: "Ole Testesen",
-        telefon: "12345678",
-        epost: "test@example.com",
-      },
+      kontaktpersoner: [
+        {
+          id: "1",
+          navn: "Ole Testesen",
+          telefon: "12345678",
+          epost: "test@example.com",
+          organisasjonsnummer: "987654321",
+          beskrivelse: null,
+        },
+      ],
     },
     beskrivelse: "Beskrivelse av gruppe amo tiltaket på gjennomføringsnivå.",
     kontaktinfo: {
@@ -176,11 +181,16 @@ const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
     sluttdato: "2023-11-30",
     arrangor: {
       selskapsnavn: "FRETEX",
-      kontaktperson: {
-        navn: "Ole Testesen",
-        telefon: "12345678",
-        epost: "test@example.com",
-      },
+      kontaktpersoner: [
+        {
+          id: "1",
+          navn: "Ole Testesen",
+          telefon: "12345678",
+          epost: "test@example.com",
+          organisasjonsnummer: "987654321",
+          beskrivelse: null,
+        },
+      ],
     },
     kontaktinfo: {
       tiltaksansvarlige: [
@@ -261,11 +271,7 @@ const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
     sluttdato: "2030-11-30",
     arrangor: {
       selskapsnavn: "LARS MONSEN AS AVD FINNMARK",
-      kontaktperson: {
-        navn: "Mona Monsen",
-        telefon: "12345678",
-        epost: "test@example.com",
-      },
+      kontaktpersoner: [],
     },
     kontaktinfo: {
       tiltaksansvarlige: [
@@ -312,11 +318,16 @@ const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
     sluttdato: "2030-11-30",
     arrangor: {
       selskapsnavn: "AFT GRUPPEN NORWAY",
-      kontaktperson: {
-        navn: "Louise Gran",
-        telefon: "12345678",
-        epost: "test@example.com",
-      },
+      kontaktpersoner: [
+        {
+          id: "1",
+          navn: "Ole Testesen",
+          telefon: "12345678",
+          epost: "test@example.com",
+          organisasjonsnummer: "987654321",
+          beskrivelse: null,
+        },
+      ],
     },
     kontaktinfo: {
       tiltaksansvarlige: [
