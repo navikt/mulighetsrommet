@@ -29,7 +29,7 @@ export function utledDelMedBrukerTekst(
   const tiltak = deletekst.replaceAll("<tiltaksnavn>", tiltaksgjennomforing.navn);
 
   const hilsen = hilsenTekst(veiledernavn);
-  return `${tiltak}\n\n${hilsen}`;
+  return `Hei\n\n${tiltak}\n\n${hilsen}`;
 }
 
 function hilsenTekst(veiledernavn?: string) {
