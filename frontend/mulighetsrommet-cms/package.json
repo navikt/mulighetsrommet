@@ -14,7 +14,7 @@
     "sanity"
   ],
   "dependencies": {
-    "@navikt/aksel-icons": "5.15.1",
+    "@navikt/aksel-icons": "5.17.4",
     "@portabletext/react": "3.0.11",
     "@sanity/client": "6.12.3",
     "@sanity/vision": "3.26.1",
