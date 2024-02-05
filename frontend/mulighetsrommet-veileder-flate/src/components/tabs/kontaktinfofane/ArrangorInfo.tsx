@@ -37,17 +37,20 @@ const ArrangorInfo = ({ arrangor }: ArrangorInfoProps) => {
           )}
 
           <BodyShort as="div" size="small">
-            <div className={styles.infofelt}>
-              <div className={styles.kolonne}>
-                {person.telefon && <span>Telefon:</span>}
-                <span>Epost:</span>
-              </div>
-
-              <div className={styles.kolonne}>
-                {person.telefon && <span>{person.telefon}</span>}
+            <dl className={styles.definisjonsliste}>
+              <dt>Epost:</dt>
+              <dd>
                 <a href={`mailto:${person.epost}`}>{person.epost}</a>
-              </div>
-            </div>
+              </dd>
+              {person.telefon ? (
+                <>
+                  <dt>Telefon:</dt>
+                  <dd>
+                    <span>{person.telefon}</span>
+                  </dd>
+                </>
+              ) : null}
+            </dl>
           </BodyShort>
         </div>
       ))}
