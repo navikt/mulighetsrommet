@@ -89,7 +89,7 @@ export function DelMedBrukerContent({
           variant="secondary"
           className={delemodalStyles.endreTekst_btn}
         >
-          Endre melding
+          Rediger melding
         </Button>
       )}
 
