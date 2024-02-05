@@ -23,24 +23,18 @@ export function brukersEnhetFilterHasChanged(
 
 export function utledDelMedBrukerTekst(
   tiltaksgjennomforing: VeilederflateTiltaksgjennomforing,
-  brukernavn?: string,
   veiledernavn?: string,
 ) {
   const deletekst = getDelMedBrukerTekst(tiltaksgjennomforing) ?? "";
-
-  const intro = `Hei ${brukernavn}`;
-
   const tiltak = deletekst.replaceAll("<tiltaksnavn>", tiltaksgjennomforing.navn);
 
   const hilsen = hilsenTekst(veiledernavn);
-  return `${intro}\n\n${tiltak}\n\n${hilsen}`;
+  return `${tiltak}\n\n${hilsen}`;
 }
 
 function hilsenTekst(veiledernavn?: string) {
   const interessant = "Er dette aktuelt for deg? Gi meg tilbakemelding her i dialogen.";
-  return veiledernavn
-    ? `${interessant}\n\nVi holder kontakten!\nHilsen ${veiledernavn}`
-    : `${interessant}\n\nVi holder kontakten!`;
+  return veiledernavn ? `${interessant}\n\nHilsen ${veiledernavn}` : `${interessant}`;
 }
 
 export function getDelMedBrukerTekst(
