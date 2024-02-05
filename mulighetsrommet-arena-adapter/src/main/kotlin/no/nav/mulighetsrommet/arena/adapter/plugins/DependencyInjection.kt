@@ -28,7 +28,7 @@ import no.nav.mulighetsrommet.slack.SlackNotifierImpl
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
 import org.koin.core.module.Module
 import org.koin.dsl.module
-import org.koin.ktor.plugin.Koin
+import org.koin.ktor.plugin.KoinIsolated
 import org.koin.logger.SLF4JLogger
 import java.security.KeyPairGenerator
 import java.security.interfaces.RSAPrivateKey
@@ -38,7 +38,7 @@ fun Application.configureDependencyInjection(
     appConfig: AppConfig,
 ) {
     val tokenClient = createM2mTokenClient(appConfig)
-    install(Koin) {
+    install(KoinIsolated) {
         SLF4JLogger()
         modules(
             db(appConfig.database),

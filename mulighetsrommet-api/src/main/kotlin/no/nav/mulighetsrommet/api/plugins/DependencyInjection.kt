@@ -62,14 +62,14 @@ import org.apache.kafka.common.serialization.ByteArrayDeserializer
 import org.apache.kafka.common.serialization.StringSerializer
 import org.koin.core.module.Module
 import org.koin.dsl.module
-import org.koin.ktor.plugin.Koin
+import org.koin.ktor.plugin.KoinIsolated
 import org.koin.logger.SLF4JLogger
 import java.security.KeyPairGenerator
 import java.security.interfaces.RSAPrivateKey
 import java.security.interfaces.RSAPublicKey
 
 fun Application.configureDependencyInjection(appConfig: AppConfig) {
-    install(Koin) {
+    install(KoinIsolated) {
         SLF4JLogger()
 
         modules(
