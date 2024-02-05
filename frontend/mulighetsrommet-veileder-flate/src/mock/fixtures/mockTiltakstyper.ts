@@ -7,7 +7,6 @@ import {
 
 export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
   VTA: {
-    arenakode: Tiltakskode.VASV,
     sanityId: "02509279-0a0f-4bd6-b506-f40111e4ba14",
     regelverkLenker: [
       {

@@ -80,34 +80,6 @@ const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
     kontaktinfoTiltaksansvarlige: [],
   },
   {
-    sanityId: "",
-    navn: "Varig tilrettelagt arbeid i skjermet bedrift - Valpeskolen AS",
-    oppstart: TiltaksgjennomforingOppstartstype.FELLES,
-    oppstartsdato: new Date().toDateString(),
-    stedForGjennomforing: "Oslo",
-    tiltakstype: mockTiltakstyper.VTA,
-    apentForInnsok: true,
-    kontaktinfo: {
-      tiltaksansvarlige: [
-        {
-          navn: "Sindre",
-          telefonnummer: "12345678",
-          _id: "8ea86d71-4c1b-4c8f-81b5-49ec67ef1d17",
-          enhet: {
-            enhetsnummer: "1928",
-            status: NavEnhetStatus.AKTIV,
-            navn: "Nav Oslo",
-            type: NavEnhetType.LOKAL,
-            overordnetEnhet: null,
-          },
-          epost: "test@example.com",
-        },
-      ],
-      varsler: [],
-    },
-    kontaktinfoTiltaksansvarlige: [],
-  },
-  {
     id: "00097090-1ba8-47a4-a82f-6aaad488994e",
     navn: "Kurs i overlevelsesteknikk (Gruppe AMO)",
     stedForGjennomforing: "2050 JESSHEIM",
