@@ -127,7 +127,11 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
               </Button>
             )}
             {enableDeltakerRegistrering && skalVisePameldingslenke ? (
-              <Link className={classNames(styles.link, styles.linkAsButton)} to="./deltaker">
+              <Link
+                className={classNames(styles.link, styles.linkAsButton)}
+                to="./deltaker"
+                data-testid="start-pamelding-lenke"
+              >
                 Start påmelding
               </Link>
             ) : null}
