@@ -4,10 +4,10 @@ import classnames from "classnames";
 import { useAtom } from "jotai";
 import { NavEnhet, NavRegion } from "mulighetsrommet-api-client";
 import { useState } from "react";
-import { useRegioner } from "../../core/api/queries/useRegioner";
-import { filterAccordionAtom } from "../../core/atoms/atoms";
-import { RegionMap } from "../../hooks/useArbeidsmarkedstiltakFilter";
-import { addOrRemove } from "../../utils/Utils";
+import { useRegioner } from "@/core/api/queries/useRegioner";
+import { filterAccordionAtom } from "@/core/atoms/atoms";
+import { RegionMap } from "@/hooks/useArbeidsmarkedstiltakFilter";
+import { addOrRemove } from "@/utils/Utils";
 import styles from "./NavEnhetFilter.module.scss";
 
 interface Props {
@@ -80,7 +80,7 @@ export function NavEnhetFilter({
         }}
         data-testid="filter_accordionheader_brukers-enhet"
       >
-        Nav enhet
+        NAV enhet
       </Accordion.Header>
       <Accordion.Content data-testid="filter_accordioncontent_brukers-enhet">
         <CheckboxGroup
@@ -89,7 +89,7 @@ export function NavEnhetFilter({
           legend=""
           hideLegend
           size="small"
-          data-testid={"checkboxgroup_brukers-enhet"}
+          data-testid="checkboxgroup_brukers-enhet"
         >
           {alleRegioner?.map((region: NavRegion) => (
             <div key={region.enhetsnummer}>

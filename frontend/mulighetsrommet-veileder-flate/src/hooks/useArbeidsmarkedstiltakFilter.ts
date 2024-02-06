@@ -37,20 +37,34 @@ export function useArbeidsmarkedstiltakFilter(): [
   ];
 }
 
+export function useArbeidsmarkedstiltakFilterUtenBrukerIKontekst(): [
+  ArbeidsmarkedstiltakFilter,
+  (filter: ArbeidsmarkedstiltakFilter) => void,
+] {
+  const [value, setValue] = useAtom(filterAtom);
+
+  return [
+    value.filter,
+    (filter: ArbeidsmarkedstiltakFilter) => {
+      setValue({ brukerIKontekst: null, filter });
+    },
+  ];
+}
+
 export function useArbeidsmarkedstiltakFilterValue() {
   const value = useAtomValue(filterAtom);
   return value.filter;
 }
 
-export function useResetArbeidsmarkedstiltakFilter() {
+export function useResetArbeidsmarkedstiltakFilterMedBrukerIKontekst() {
   const [{ brukerIKontekst, filter }, setValue] = useAtom(filterAtom);
 
   const { data: brukerdata } = useHentBrukerdata();
 
   const filterHasChanged =
-    filter.innsatsgruppe?.nokkel !== brukerdata?.innsatsgruppe ||
-    filter.apentForInnsok !== ApentForInnsok.APENT_ELLER_STENGT ||
     filter.search !== "" ||
+    filter.apentForInnsok !== ApentForInnsok.APENT_ELLER_STENGT ||
+    filter.innsatsgruppe?.nokkel !== brukerdata?.innsatsgruppe ||
     brukersEnhetFilterHasChanged(filter, brukerdata) ||
     filter.tiltakstyper.length > 0;
 
@@ -66,14 +80,34 @@ export function useResetArbeidsmarkedstiltakFilter() {
   };
 }
 
-export interface FilterMedBrukerIKontekst {
+export function useResetArbeidsmarkedstiltakFilterUtenBrukerIKontekst() {
+  const [{ filter }, setValue] = useAtom(filterAtom);
+
+  const filterHasChanged =
+    filter.search !== "" ||
+    filter.apentForInnsok !== ApentForInnsok.APENT_ELLER_STENGT ||
+    filter.innsatsgruppe?.nokkel !== undefined ||
+    valgteEnhetsnumre(filter).length !== 0 ||
+    filter.tiltakstyper.length > 0;
+
+  return {
+    filter,
+    filterHasChanged,
+    resetFilterToDefaults() {
+      setValue({
+        brukerIKontekst: null,
+        filter: defaultTiltaksgjennomforingfilter,
+      });
+    },
+  };
+}
+
+export interface Filter {
   brukerIKontekst: string | null;
   filter: ArbeidsmarkedstiltakFilter;
 }
 
-export function getDefaultFilterForBrukerIKontekst(
-  brukerIKontekst: string | null,
-): FilterMedBrukerIKontekst {
+export function getDefaultFilterForBrukerIKontekst(brukerIKontekst: string | null): Filter {
   const defaultFilterForBrukerIKontekst = {
     brukerIKontekst,
     filter: defaultTiltaksgjennomforingfilter,
@@ -89,9 +123,7 @@ export function getDefaultFilterForBrukerIKontekst(
     : defaultFilterForBrukerIKontekst;
 }
 
-const filterStorage: SyncStorage<FilterMedBrukerIKontekst> = createJSONStorage(
-  () => sessionStorage,
-);
+const filterStorage: SyncStorage<Filter> = createJSONStorage(() => sessionStorage);
 
 const ARBEIDSMARKEDSTILTAK_FILTER_KEY = "arbeidsmarkedstiltak-filter";
 
@@ -103,7 +135,7 @@ const defaultTiltaksgjennomforingfilter: ArbeidsmarkedstiltakFilter = {
   apentForInnsok: ApentForInnsok.APENT_ELLER_STENGT,
 };
 
-export const filterAtom = atomWithStorage<FilterMedBrukerIKontekst>(
+export const filterAtom = atomWithStorage<Filter>(
   ARBEIDSMARKEDSTILTAK_FILTER_KEY,
   { brukerIKontekst: null, filter: defaultTiltaksgjennomforingfilter },
   filterStorage,
