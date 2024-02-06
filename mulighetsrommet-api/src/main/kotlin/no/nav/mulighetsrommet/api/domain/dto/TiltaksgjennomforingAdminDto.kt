@@ -79,7 +79,7 @@ data class TiltaksgjennomforingAdminDto(
     data class Arrangor(
         val organisasjonsnummer: String,
         val navn: String?,
-        val kontaktperson: VirksomhetKontaktperson?,
+        val kontaktpersoner: List<VirksomhetKontaktperson>,
         val slettet: Boolean,
     )
 
@@ -90,7 +90,7 @@ data class TiltaksgjennomforingAdminDto(
             tiltakstypeId = tiltakstype.id,
             tiltaksnummer = tiltaksnummer,
             arrangorOrganisasjonsnummer = arrangor.organisasjonsnummer,
-            arrangorKontaktpersonId = arrangor.kontaktperson?.id,
+            arrangorKontaktpersoner = arrangor.kontaktpersoner.map { it.id },
             startDato = startDato,
             sluttDato = sluttDato,
             apentForInnsok = apentForInnsok,

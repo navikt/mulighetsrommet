@@ -108,6 +108,7 @@ export function NavEnhetFilter({
                 </div>
                 <div className={styles.caret_container}>
                   <ChevronDownIcon
+                    aria-label="Ikon ned"
                     fontSize="1.25rem"
                     className={classnames(styles.accordion_down, {
                       [styles.accordion_down_open]: regionOpen.includes(region.enhetsnummer),

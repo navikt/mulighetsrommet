@@ -36,7 +36,7 @@ export const DelMedBruker = ({
   const { logEvent } = useLogEvent();
   const { reservert } = erBrukerReservertMotElektroniskKommunikasjon(brukerdata);
 
-  const deletekst = utledDelMedBrukerTekst(tiltaksgjennomforing, brukerdata.fornavn);
+  const deletekst = utledDelMedBrukerTekst(tiltaksgjennomforing, veiledernavn);
   const [state, dispatch] = useDelMedBruker(deletekst);
 
   const handleClickApneModal = () => {

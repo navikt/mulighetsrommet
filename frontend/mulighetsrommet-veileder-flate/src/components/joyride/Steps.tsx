@@ -157,7 +157,8 @@ export const detaljerSteps: MulighetsrommetStep[] = [
   },
   {
     title: "Dele med bruker",
-    content: "Del en predefinert tekst om tiltaket med bruker i dialogen.",
+    content:
+      "Del en predefinert tekst om tiltaket med bruker i dialogen. Du kan redigere teksten før sending ved behov.",
     target: '[data-testid="deleknapp"]',
     disableBeacon: true,
     id: "dele-med-bruker",

@@ -5,8 +5,8 @@ export const veilederHandlers = [
   http.get<PathParams, NavVeileder>("*/api/v1/internal/veileder/me", () =>
     HttpResponse.json({
       navIdent: "V12345",
-      etternavn: "VEILEDERSEN",
-      fornavn: "VEILEDER",
+      etternavn: "Veiledersen",
+      fornavn: "Veileder",
       hovedenhet: {
         enhetsnummer: "2990",
         navn: "Østfold",

@@ -16,9 +16,11 @@ import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FormGroup } from "../skjema/FormGroup";
 import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
 import skjemastyles from "../skjema/Skjema.module.scss";
-import { VirksomhetKontaktpersoner } from "../virksomhet/VirksomhetKontaktpersoner";
 import { arrangorUnderenheterOptions, erArenaOpphav } from "./TiltaksgjennomforingSkjemaConst";
 import { SelectOppstartstype } from "./SelectOppstartstype";
+import { VirksomhetKontaktpersonerModal } from "../virksomhet/VirksomhetKontaktpersonerModal";
+import { useRef } from "react";
+import { useVirksomhetKontaktpersoner } from "../../api/virksomhet/useVirksomhetKontaktpersoner";
 
 interface Props {
   tiltaksgjennomforing?: Tiltaksgjennomforing;
@@ -26,12 +28,13 @@ interface Props {
 }
 
 export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtale }: Props) => {
-  const { data: virksomhet } = useVirksomhet(avtale.leverandor.organisasjonsnummer || "");
+  const { data: virksomhet } = useVirksomhet(avtale.leverandor.organisasjonsnummer);
   const { data: administratorer } = useTiltaksgjennomforingAdministratorer();
 
   const { data: ansatt, isLoading: isLoadingAnsatt } = useHentAnsatt();
 
   const { data: kontaktpersoner, isLoading: isLoadingKontaktpersoner } = useHentKontaktpersoner();
+  const virksomhetKontaktpersonerModalRef = useRef<HTMLDialogElement>(null);
 
   const kontaktpersonerOption = (selectedIndex: number) => {
     const excludedKontaktpersoner = watch("kontaktpersoner")
@@ -63,6 +66,11 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
     name: "kontaktpersoner",
     control,
   });
+  const {
+    data: virksomhetKontaktpersoner,
+    isLoading: isLoadingVirksomhetKontaktpersoner,
+    refetch: refetchVirksomhetKontaktpersoner,
+  } = useVirksomhetKontaktpersoner(watch("tiltaksArrangorUnderenhetOrganisasjonsnummer"));
 
   const watchErMidlertidigStengt = watch("midlertidigStengt.erMidlertidigStengt");
 
@@ -250,8 +258,10 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                 {kontaktpersonFields?.map((field, index) => {
                   return (
                     <div className={skjemastyles.kontaktperson_container} key={field.id}>
-                      <button
-                        className={skjemastyles.kontaktperson_button}
+                      <Button
+                        className={skjemastyles.kontaktperson_fjern_button}
+                        variant="tertiary"
+                        size="small"
                         type="button"
                         onClick={() => {
                           if (watch("kontaktpersoner")!.length > 1) {
@@ -267,7 +277,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                         }}
                       >
                         <XMarkIcon fontSize="1.5rem" />
-                      </button>
+                      </Button>
                       <div className={skjemastyles.kontaktperson_inputs}>
                         <ControlledSokeSelect
                           helpText="Bestemmer kontaktperson som veilederene kan hendvende seg til for informasjon om gjennomføringen. Kan gjelde for én eller flere enheter."
@@ -309,6 +319,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                   className={skjemastyles.kontaktperson_button}
                   type="button"
                   size="small"
+                  variant="tertiary"
                   onClick={() =>
                     appendKontaktperson({
                       navIdent: "",
@@ -336,7 +347,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                 placeholder="Velg underenhet for tiltaksarrangør"
                 {...register("tiltaksArrangorUnderenhetOrganisasjonsnummer")}
                 onChange={() => {
-                  setValue("arrangorKontaktpersonId", null);
+                  setValue("arrangorKontaktpersoner", []);
                 }}
                 onClearValue={() => {
                   setValue("tiltaksArrangorUnderenhetOrganisasjonsnummer", "");
@@ -349,11 +360,29 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
               {watch("tiltaksArrangorUnderenhetOrganisasjonsnummer") &&
                 !tiltaksgjennomforing?.arrangor?.slettet && (
                   <div className={skjemastyles.virksomhet_kontaktperson_container}>
-                    <VirksomhetKontaktpersoner
-                      title={"Kontaktperson hos arrangøren"}
-                      orgnr={watch("tiltaksArrangorUnderenhetOrganisasjonsnummer")}
-                      formValueName={"arrangorKontaktpersonId"}
+                    <ControlledMultiSelect
+                      size="small"
+                      placeholder={
+                        isLoadingVirksomhetKontaktpersoner ? "Laster kontaktpersoner..." : "Velg en"
+                      }
+                      label={"Kontaktperson hos arrangøren"}
+                      {...register("arrangorKontaktpersoner")}
+                      options={
+                        virksomhetKontaktpersoner?.map((person) => ({
+                          value: person.id,
+                          label: person.navn,
+                        })) ?? []
+                      }
                     />
+                    <Button
+                      className={skjemastyles.kontaktperson_button}
+                      size="small"
+                      type="button"
+                      variant="tertiary"
+                      onClick={() => virksomhetKontaktpersonerModalRef.current?.showModal()}
+                    >
+                      Rediger eller legg til kontaktpersoner
+                    </Button>
                   </div>
                 )}
               <TextField
@@ -370,6 +399,22 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
             </FormGroup>
           </div>
         </div>
+        {watch("tiltaksArrangorUnderenhetOrganisasjonsnummer") && (
+          <VirksomhetKontaktpersonerModal
+            orgnr={watch("tiltaksArrangorUnderenhetOrganisasjonsnummer")}
+            modalRef={virksomhetKontaktpersonerModalRef}
+            onClose={() => {
+              refetchVirksomhetKontaktpersoner().then((res) => {
+                setValue(
+                  "arrangorKontaktpersoner",
+                  watch("arrangorKontaktpersoner").filter((id: string) =>
+                    res?.data?.some((p) => p.id === id),
+                  ),
+                );
+              });
+            }}
+          />
+        )}
       </div>
     </div>
   );

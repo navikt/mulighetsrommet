@@ -1,16 +1,9 @@
 import { expect, Page, test } from "@playwright/test";
-import AxeBuilder from "@axe-core/playwright";
+import { sjekkUU } from "./playwrightUtils";
 
 test.beforeEach(async ({ page }) => {
   await page.goto("/");
 });
-
-const sjekkUU = async (page: Page) => {
-  const accessibilityScanResults = await new AxeBuilder({ page })
-    .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
-    .analyze();
-  expect(accessibilityScanResults.violations).toEqual([]);
-};
 
 const velgFilter = async (page: Page, filternavn: string) => {
   await page.getByTestId(`filter_radio_${filternavn}`).click();
@@ -100,9 +93,9 @@ test.describe("Tiltaksgjennomføringsdetaljer", () => {
 
   test('Sjekk "Del med bruker"', async ({ page }) => {
     await page.getByTestId("deleknapp").click();
-    await expect(page.getByTestId("textarea_deletekst")).toContainText("Hei IHERDIG");
+    await expect(page.getByTestId("textarea_deletekst")).not.toContainText("Hei IHERDIG");
     await expect(page.getByTestId("textarea_deletekst")).toContainText("Jedi Mester");
-    await expect(page.getByTestId("textarea_deletekst")).toContainText("Vi holder kontakten!");
+    await expect(page.getByTestId("textarea_deletekst")).toContainText("Hilsen");
 
     await page.getByTestId("endre-deletekst_btn").click();
     await page.getByTestId("textarea_deletekst").fill("I am your father");

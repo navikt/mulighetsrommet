@@ -67,12 +67,6 @@ select tg.id::uuid,
                  end
            )                   as kontaktpersoner,
        tg.sted_for_gjennomforing,
-       tg.arrangor_kontaktperson_id,
-       vk.organisasjonsnummer  as arrangor_kontaktperson_organisasjonsnummer,
-       vk.navn                 as arrangor_kontaktperson_navn,
-       vk.telefon              as arrangor_kontaktperson_telefon,
-       vk.epost                as arrangor_kontaktperson_epost,
-       vk.beskrivelse          as arrangor_kontaktperson_beskrivelse,
        t.skal_migreres,
        tg.faneinnhold,
        tg.beskrivelse,
@@ -82,7 +76,20 @@ select tg.id::uuid,
        tg.tilgjengelig_for_veileder and tg.avslutningsstatus = 'IKKE_AVSLUTTET'::avslutningsstatus
                                as vises_for_veileder,
        tg.deltidsprosent,
-       region.status           as nav_region_status
+       region.status           as nav_region_status,
+       jsonb_agg(distinct
+                    case
+                        when tvk.tiltaksgjennomforing_id is null then null::jsonb
+                        else jsonb_build_object(
+                           'id', tvk.virksomhet_kontaktperson_id,
+                           'organisasjonsnummer', vk.organisasjonsnummer,
+                           'navn', vk.navn,
+                           'telefon', vk.telefon,
+                           'epost', vk.epost,
+                           'beskrivelse', vk.beskrivelse
+                       )
+                    end
+       ) as virksomhet_kontaktpersoner
 from tiltaksgjennomforing tg
          inner join tiltakstype t on tg.tiltakstype_id = t.id
          left join tiltaksgjennomforing_administrator tg_a on tg_a.tiltaksgjennomforing_id = tg.id
@@ -95,5 +102,6 @@ from tiltaksgjennomforing tg
          left join tiltaksgjennomforing_kontaktperson tgk on tgk.tiltaksgjennomforing_id = tg.id
          left join nav_ansatt na on na.nav_ident = tgk.kontaktperson_nav_ident
          left join nav_ansatt na_tg on na_tg.nav_ident = tg_a.nav_ident
-         left join virksomhet_kontaktperson vk on vk.id = tg.arrangor_kontaktperson_id
-group by tg.id, t.id, v.navn, vk.id, region.status, region.navn, region.type, region.overordnet_enhet, arena_nav_enhet.enhetsnummer;
+         left join tiltaksgjennomforing_virksomhet_kontaktperson tvk on tvk.tiltaksgjennomforing_id = tg.id
+         left join virksomhet_kontaktperson vk on vk.id = tvk.virksomhet_kontaktperson_id
+group by tg.id, t.id, v.navn, region.status, region.navn, region.type, region.overordnet_enhet, arena_nav_enhet.enhetsnummer;

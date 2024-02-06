@@ -2241,10 +2241,11 @@ components:
           type: number
         arrangorOrganisasjonsnummer:
           type: string
-        arrangorKontaktpersonId:
-          type: string
-          format: UUID
-          nullable: true
+        arrangorKontaktpersoner:
+          type: array
+          items:
+            type: string
+            format: UUID
         tiltaksnummer:
           type: string
           nullable: true
@@ -2298,7 +2299,7 @@ components:
         - antallPlasser
         - avtaleId
         - arrangorOrganisasjonsnummer
-        - arrangorKontaktpersonId
+        - arrangorKontaktpersoner
         - tiltaksnummer
         - administrator
         - navRegion
@@ -2647,13 +2648,16 @@ components:
           type: string
         navn:
           type: string
-        kontaktperson:
-          $ref: "#/components/schemas/VirksomhetKontaktperson"
+        kontaktpersoner:
+          type: array
+          items:
+            $ref: "#/components/schemas/VirksomhetKontaktperson"
         slettet:
           type: boolean
       required:
         - organisasjonsnummer
         - slettet
+        - kontaktpersoner
 
     Leverandor:
       type: object
@@ -2938,25 +2942,13 @@ components:
           type: string
         organisasjonsnummer:
           type: string
-        kontaktperson:
-          $ref: "#/components/schemas/VeilderflateArrangorKontaktperson"
+        kontaktpersoner:
+          type: array
+          items:
+            $ref: "#/components/schemas/VirksomhetKontaktperson"
       required:
         - selskapsnavn
-
-    VeilderflateArrangorKontaktperson:
-      type: object
-      properties:
-        navn:
-          type: string
-        telefon:
-          type: string
-          nullable: true
-        epost:
-          type: string
-      required:
-        - navn
-        - telefon
-        - epost
+        - kontaktpersoner
 
     VeilederflateKontaktinfoTiltaksansvarlig:
       type: object
