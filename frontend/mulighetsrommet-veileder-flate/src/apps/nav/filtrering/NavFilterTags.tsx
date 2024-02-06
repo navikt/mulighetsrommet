@@ -1,21 +1,21 @@
 import { ApentForInnsok } from "mulighetsrommet-api-client";
 import {
   ArbeidsmarkedstiltakFilterGruppe,
-  useArbeidsmarkedstiltakFilterUtenBrukerIKontekst,
+  useArbeidsmarkedstiltakFilter,
 } from "@/hooks/useArbeidsmarkedstiltakFilter";
 import FilterTag from "../../../components/tags/FilterTag";
-import { NavEnhetTag } from "../../../components/tags/NavEnhetTag";
+import { NavEnhetTag } from "@/components/tags/NavEnhetTag";
 import { FilterTagsContainer } from "@/components/filtrering/FilterTagsContainer";
 
 export function NavFilterTags() {
-  const [filter, setFilter] = useArbeidsmarkedstiltakFilterUtenBrukerIKontekst();
+  const [filter, setFilter] = useArbeidsmarkedstiltakFilter();
 
   return (
     <FilterTagsContainer>
       {filter.search && (
         <FilterTag
           options={[{ id: "search", tittel: `'${filter.search}'` }]}
-          handleClick={() => setFilter({ ...filter, search: "" })}
+          onClose={() => setFilter({ ...filter, search: "" })}
         />
       )}
       {filter.apentForInnsok !== ApentForInnsok.APENT_ELLER_STENGT && (
@@ -26,7 +26,7 @@ export function NavFilterTags() {
               tittel: filter.apentForInnsok === ApentForInnsok.APENT ? "Åpent" : "Stengt",
             },
           ]}
-          handleClick={() =>
+          onClose={() =>
             setFilter({
               ...filter,
               apentForInnsok: ApentForInnsok.APENT_ELLER_STENGT,
@@ -37,15 +37,15 @@ export function NavFilterTags() {
       {filter.innsatsgruppe && (
         <FilterTag
           options={[filter.innsatsgruppe]}
-          handleClick={() => {
+          onClose={() => {
             setFilter({ ...filter, innsatsgruppe: undefined });
           }}
         />
       )}
-      <NavEnhetTag handleClick={(e: React.MouseEvent) => e.stopPropagation()} />
+      <NavEnhetTag onClose={() => setFilter({ ...filter, regionMap: {} })} />
       <FilterTag
         options={filter.tiltakstyper}
-        handleClick={(id: string) =>
+        onClose={(id: string) =>
           setFilter({
             ...filter,
             tiltakstyper: filter.tiltakstyper?.filter(
