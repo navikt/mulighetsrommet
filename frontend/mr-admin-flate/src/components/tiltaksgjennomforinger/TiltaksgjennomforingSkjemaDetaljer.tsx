@@ -258,8 +258,10 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                 {kontaktpersonFields?.map((field, index) => {
                   return (
                     <div className={skjemastyles.kontaktperson_container} key={field.id}>
-                      <button
-                        className={skjemastyles.kontaktperson_button}
+                      <Button
+                        className={skjemastyles.kontaktperson_fjern_button}
+                        variant="tertiary"
+                        size="small"
                         type="button"
                         onClick={() => {
                           if (watch("kontaktpersoner")!.length > 1) {
@@ -275,7 +277,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                         }}
                       >
                         <XMarkIcon fontSize="1.5rem" />
-                      </button>
+                      </Button>
                       <div className={skjemastyles.kontaktperson_inputs}>
                         <ControlledSokeSelect
                           helpText="Bestemmer kontaktperson som veilederene kan hendvende seg til for informasjon om gjennomføringen. Kan gjelde for én eller flere enheter."
@@ -317,6 +319,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                   className={skjemastyles.kontaktperson_button}
                   type="button"
                   size="small"
+                  variant="tertiary"
                   onClick={() =>
                     appendKontaktperson({
                       navIdent: "",
@@ -372,13 +375,13 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                       }
                     />
                     <Button
-                      style={{ marginTop: "1rem" }}
+                      className={skjemastyles.kontaktperson_button}
                       size="small"
                       type="button"
-                      variant="secondary"
+                      variant="tertiary"
                       onClick={() => virksomhetKontaktpersonerModalRef.current?.showModal()}
                     >
-                      Rediger kontaktpersoner
+                      Rediger eller legg til kontaktpersoner
                     </Button>
                   </div>
                 )}
