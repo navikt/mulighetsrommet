@@ -3,15 +3,15 @@ import {
   ArbeidsmarkedstiltakFilterGruppe,
   useArbeidsmarkedstiltakFilterUtenBrukerIKontekst,
 } from "@/hooks/useArbeidsmarkedstiltakFilter";
-import FilterTag from "../tags/FilterTag";
-import styles from "./Filtertags.module.scss";
-import { NavEnhetTag } from "../tags/NavEnhetTag";
+import FilterTag from "../../../components/tags/FilterTag";
+import { NavEnhetTag } from "../../../components/tags/NavEnhetTag";
+import { FilterTagsContainer } from "@/components/filtrering/FilterTagsContainer";
 
-export function FiltertagsArbeidsmarkedstiltak() {
+export function NavFilterTags() {
   const [filter, setFilter] = useArbeidsmarkedstiltakFilterUtenBrukerIKontekst();
 
   return (
-    <div className={styles.filtertags} data-testid="filtertags">
+    <FilterTagsContainer>
       {filter.search && (
         <FilterTag
           options={[{ id: "search", tittel: `'${filter.search}'` }]}
@@ -54,6 +54,6 @@ export function FiltertagsArbeidsmarkedstiltak() {
           })
         }
       />
-    </div>
+    </FilterTagsContainer>
   );
 }

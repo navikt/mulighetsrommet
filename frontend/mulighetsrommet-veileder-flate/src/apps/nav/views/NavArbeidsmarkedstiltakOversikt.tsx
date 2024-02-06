@@ -9,7 +9,7 @@ import {
   useResetArbeidsmarkedstiltakFilterUtenBrukerIKontekst,
   valgteEnhetsnumre,
 } from "@/hooks/useArbeidsmarkedstiltakFilter";
-import { FiltertagsArbeidsmarkedstiltak } from "@/components/filtrering/FiltertagsArbeidsmarkedstiltak";
+import { NavFilterTags } from "@/apps/nav/filtrering/NavFilterTags";
 
 interface Props {
   preview: boolean;
@@ -27,7 +27,7 @@ export const NavArbeidsmarkedstiltakOversikt = ({ preview }: Props) => {
     <FilterAndTableLayout
       buttons={null}
       filter={<FilterMenyMedSkeletonLoader />}
-      tags={<FiltertagsArbeidsmarkedstiltak />}
+      tags={<NavFilterTags />}
       resetButton={
         filterHasChanged && (
           <Button

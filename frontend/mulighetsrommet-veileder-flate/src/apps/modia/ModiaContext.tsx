@@ -3,8 +3,8 @@ import { useHydrateAtoms } from "jotai/utils";
 import { ReactNode, useEffect, useState } from "react";
 import { AppContextData, modiaContextAtom } from "./hooks/useModiaContext";
 import {
-  Filter,
   filterAtom,
+  FilterMedBrukerIKontekst,
   getDefaultFilterForBrukerIKontekst,
 } from "@/hooks/useArbeidsmarkedstiltakFilter";
 import { ReactQueryProvider } from "@/ReactQueryProvider";
@@ -21,7 +21,7 @@ function HydrateAtoms({
   children,
 }: {
   appContext: Partial<AppContextData>;
-  filter: Filter;
+  filter: FilterMedBrukerIKontekst;
   children: ReactNode;
 }) {
   /**
@@ -37,7 +37,7 @@ function HydrateAtoms({
 export function ModiaContext(props: ModiaContextProps) {
   const [contextData, setContextData] = useAtom(modiaContextAtom);
 
-  const [loadedFilter, setLoadedFilter] = useState<Filter | null>(null);
+  const [loadedFilter, setLoadedFilter] = useState<FilterMedBrukerIKontekst | null>(null);
 
   useEffect(() => {
     if (props.contextData) {

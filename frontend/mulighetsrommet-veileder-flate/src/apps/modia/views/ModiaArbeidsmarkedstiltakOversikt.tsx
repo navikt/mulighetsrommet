@@ -8,7 +8,7 @@ import { TiltakLoader } from "@/components/TiltakLoader";
 import { BrukersOppfolgingsenhetVarsel } from "@/apps/modia/varsler/BrukersOppfolgingsenhetVarsel";
 import { Feilmelding, ForsokPaNyttLink } from "@/components/feilmelding/Feilmelding";
 import { FilterAndTableLayout } from "@/components/filtrering/FilterAndTableLayout";
-import { Filtertags } from "@/components/filtrering/Filtertags";
+import { ModiaFilterTags } from "@/apps/modia/filtrering/ModiaFilterTags";
 import { HistorikkButton } from "@/apps/modia/historikk/HistorikkButton";
 import { BrukerHarIkke14aVedtakVarsel } from "@/apps/modia/varsler/BrukerHarIkke14aVedtakVarsel";
 import { FiltrertFeilInnsatsgruppeVarsel } from "@/apps/modia/varsler/FiltrertFeilInnsatsgruppeVarsel";
@@ -142,7 +142,7 @@ export const ModiaArbeidsmarkedstiltakOversikt = () => {
           </>
         }
         filter={<FilterMenyMedSkeletonLoader />}
-        tags={<Filtertags />}
+        tags={<ModiaFilterTags />}
         table={
           <div style={{ marginTop: "1rem" }}>
             <BrukersOppfolgingsenhetVarsel brukerdata={brukerdata} />

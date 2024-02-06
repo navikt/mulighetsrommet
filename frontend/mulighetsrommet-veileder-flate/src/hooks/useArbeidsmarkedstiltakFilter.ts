@@ -102,12 +102,14 @@ export function useResetArbeidsmarkedstiltakFilterUtenBrukerIKontekst() {
   };
 }
 
-export interface Filter {
+export interface FilterMedBrukerIKontekst {
   brukerIKontekst: string | null;
   filter: ArbeidsmarkedstiltakFilter;
 }
 
-export function getDefaultFilterForBrukerIKontekst(brukerIKontekst: string | null): Filter {
+export function getDefaultFilterForBrukerIKontekst(
+  brukerIKontekst: string | null,
+): FilterMedBrukerIKontekst {
   const defaultFilterForBrukerIKontekst = {
     brukerIKontekst,
     filter: defaultTiltaksgjennomforingfilter,
@@ -123,7 +125,9 @@ export function getDefaultFilterForBrukerIKontekst(brukerIKontekst: string | nul
     : defaultFilterForBrukerIKontekst;
 }
 
-const filterStorage: SyncStorage<Filter> = createJSONStorage(() => sessionStorage);
+const filterStorage: SyncStorage<FilterMedBrukerIKontekst> = createJSONStorage(
+  () => sessionStorage,
+);
 
 const ARBEIDSMARKEDSTILTAK_FILTER_KEY = "arbeidsmarkedstiltak-filter";
 
@@ -135,7 +139,7 @@ const defaultTiltaksgjennomforingfilter: ArbeidsmarkedstiltakFilter = {
   apentForInnsok: ApentForInnsok.APENT_ELLER_STENGT,
 };
 
-export const filterAtom = atomWithStorage<Filter>(
+export const filterAtom = atomWithStorage<FilterMedBrukerIKontekst>(
   ARBEIDSMARKEDSTILTAK_FILTER_KEY,
   { brukerIKontekst: null, filter: defaultTiltaksgjennomforingfilter },
   filterStorage,

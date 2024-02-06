@@ -3,15 +3,15 @@ import {
   ArbeidsmarkedstiltakFilterGruppe,
   useArbeidsmarkedstiltakFilter,
 } from "@/hooks/useArbeidsmarkedstiltakFilter";
-import FilterTag from "../tags/FilterTag";
-import styles from "./Filtertags.module.scss";
-import { NavEnhetTag } from "../tags/NavEnhetTag";
+import FilterTag from "../../../components/tags/FilterTag";
+import { NavEnhetTag } from "@/components/tags/NavEnhetTag";
+import { FilterTagsContainer } from "@/components/filtrering/FilterTagsContainer";
 
-export function Filtertags() {
+export function ModiaFilterTags() {
   const [filter, setFilter] = useArbeidsmarkedstiltakFilter();
 
   return (
-    <div className={styles.filtertags} data-testid="filtertags">
+    <FilterTagsContainer>
       <NavEnhetTag />
       {filter.apentForInnsok !== ApentForInnsok.APENT_ELLER_STENGT && (
         <FilterTag
@@ -47,6 +47,6 @@ export function Filtertags() {
           handleClick={() => setFilter({ ...filter, search: "" })}
         />
       )}
-    </div>
+    </FilterTagsContainer>
   );
 }
