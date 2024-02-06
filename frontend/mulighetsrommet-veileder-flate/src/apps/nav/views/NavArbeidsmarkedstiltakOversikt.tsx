@@ -11,8 +11,15 @@ import {
 } from "@/hooks/useArbeidsmarkedstiltakFilter";
 import { FiltertagsArbeidsmarkedstiltak } from "@/components/filtrering/FiltertagsArbeidsmarkedstiltak";
 
-export const NavArbeidsmarkedstiltakOversikt = () => {
-  const { data: tiltaksgjennomforinger = [], isLoading } = useNavTiltaksgjennomforinger();
+interface Props {
+  preview: boolean;
+}
+
+export const NavArbeidsmarkedstiltakOversikt = ({ preview }: Props) => {
+  const { data: tiltaksgjennomforinger = [], isLoading } = useNavTiltaksgjennomforinger({
+    preview,
+  });
+
   const { filter, filterHasChanged, resetFilterToDefaults } =
     useResetArbeidsmarkedstiltakFilterUtenBrukerIKontekst();
 
