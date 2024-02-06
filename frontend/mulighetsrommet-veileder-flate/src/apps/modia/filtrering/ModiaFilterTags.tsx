@@ -21,7 +21,7 @@ export function ModiaFilterTags() {
               tittel: filter.apentForInnsok === ApentForInnsok.APENT ? "Åpent" : "Stengt",
             },
           ]}
-          handleClick={() =>
+          onClose={() =>
             setFilter({
               ...filter,
               apentForInnsok: ApentForInnsok.APENT_ELLER_STENGT,
@@ -32,7 +32,7 @@ export function ModiaFilterTags() {
       {filter.innsatsgruppe && <FilterTag options={[filter.innsatsgruppe]} />}
       <FilterTag
         options={filter.tiltakstyper}
-        handleClick={(id: string) =>
+        onClose={(id: string) =>
           setFilter({
             ...filter,
             tiltakstyper: filter.tiltakstyper?.filter(
@@ -44,7 +44,7 @@ export function ModiaFilterTags() {
       {filter.search && (
         <FilterTag
           options={[{ id: "search", tittel: `'${filter.search}'` }]}
-          handleClick={() => setFilter({ ...filter, search: "" })}
+          onClose={() => setFilter({ ...filter, search: "" })}
         />
       )}
     </FilterTagsContainer>

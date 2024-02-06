@@ -15,7 +15,7 @@ export function NavFilterTags() {
       {filter.search && (
         <FilterTag
           options={[{ id: "search", tittel: `'${filter.search}'` }]}
-          handleClick={() => setFilter({ ...filter, search: "" })}
+          onClose={() => setFilter({ ...filter, search: "" })}
         />
       )}
       {filter.apentForInnsok !== ApentForInnsok.APENT_ELLER_STENGT && (
@@ -26,7 +26,7 @@ export function NavFilterTags() {
               tittel: filter.apentForInnsok === ApentForInnsok.APENT ? "Åpent" : "Stengt",
             },
           ]}
-          handleClick={() =>
+          onClose={() =>
             setFilter({
               ...filter,
               apentForInnsok: ApentForInnsok.APENT_ELLER_STENGT,
@@ -37,7 +37,7 @@ export function NavFilterTags() {
       {filter.innsatsgruppe && (
         <FilterTag
           options={[filter.innsatsgruppe]}
-          handleClick={() => {
+          onClose={() => {
             setFilter({ ...filter, innsatsgruppe: undefined });
           }}
         />
@@ -45,7 +45,7 @@ export function NavFilterTags() {
       <NavEnhetTag handleClick={(e: React.MouseEvent) => e.stopPropagation()} />
       <FilterTag
         options={filter.tiltakstyper}
-        handleClick={(id: string) =>
+        onClose={(id: string) =>
           setFilter({
             ...filter,
             tiltakstyper: filter.tiltakstyper?.filter(
