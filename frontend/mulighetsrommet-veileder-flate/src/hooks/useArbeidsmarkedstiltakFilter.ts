@@ -37,20 +37,6 @@ export function useArbeidsmarkedstiltakFilter(): [
   ];
 }
 
-export function useArbeidsmarkedstiltakFilterUtenBrukerIKontekst(): [
-  ArbeidsmarkedstiltakFilter,
-  (filter: ArbeidsmarkedstiltakFilter) => void,
-] {
-  const [value, setValue] = useAtom(filterAtom);
-
-  return [
-    value.filter,
-    (filter: ArbeidsmarkedstiltakFilter) => {
-      setValue({ brukerIKontekst: null, filter });
-    },
-  ];
-}
-
 export function useArbeidsmarkedstiltakFilterValue() {
   const value = useAtomValue(filterAtom);
   return value.filter;

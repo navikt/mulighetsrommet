@@ -1,6 +1,6 @@
 import { Tag } from "@navikt/ds-react";
 import {
-  useArbeidsmarkedstiltakFilterUtenBrukerIKontekst,
+  useArbeidsmarkedstiltakFilter,
   useArbeidsmarkedstiltakFilterValue,
   valgteEnhetsnumre,
 } from "@/hooks/useArbeidsmarkedstiltakFilter";
@@ -18,7 +18,7 @@ export function NavEnhetTag({ handleClick }: Props) {
   const filter = useArbeidsmarkedstiltakFilterValue();
   const { data: alleEnheter } = useNavEnheter();
   const enheter = valgteEnhetsnumre(filter);
-  const [, setFilter] = useArbeidsmarkedstiltakFilterUtenBrukerIKontekst();
+  const [, setFilter] = useArbeidsmarkedstiltakFilter();
 
   if (!alleEnheter || !filter || enheter.length === 0) {
     return null;

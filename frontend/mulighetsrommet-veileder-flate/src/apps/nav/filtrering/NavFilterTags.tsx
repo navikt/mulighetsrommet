@@ -1,14 +1,14 @@
 import { ApentForInnsok } from "mulighetsrommet-api-client";
 import {
   ArbeidsmarkedstiltakFilterGruppe,
-  useArbeidsmarkedstiltakFilterUtenBrukerIKontekst,
+  useArbeidsmarkedstiltakFilter,
 } from "@/hooks/useArbeidsmarkedstiltakFilter";
 import FilterTag from "../../../components/tags/FilterTag";
-import { NavEnhetTag } from "../../../components/tags/NavEnhetTag";
+import { NavEnhetTag } from "@/components/tags/NavEnhetTag";
 import { FilterTagsContainer } from "@/components/filtrering/FilterTagsContainer";
 
 export function NavFilterTags() {
-  const [filter, setFilter] = useArbeidsmarkedstiltakFilterUtenBrukerIKontekst();
+  const [filter, setFilter] = useArbeidsmarkedstiltakFilter();
 
   return (
     <FilterTagsContainer>
