@@ -11,7 +11,7 @@ import {
 
 interface FeilmeldingProps {
   header: ReactNode;
-  beskrivelse: ReactNode;
+  beskrivelse?: ReactNode;
   children?: ReactNode;
   ikonvariant?: string;
   utenMargin?: boolean;

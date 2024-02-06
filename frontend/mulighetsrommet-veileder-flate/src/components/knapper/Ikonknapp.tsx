@@ -7,7 +7,7 @@ interface SidemenyKnappProps {
   children?: React.ReactNode;
   icon?: React.ReactNode;
   className?: string;
-  handleClick: () => void;
+  handleClick: (e: React.MouseEvent) => void;
   ariaLabel: string;
   dataTestId?: string;
 }

@@ -1,23 +1,47 @@
 import { TiltakLoader } from "@/components/TiltakLoader";
 import { Feilmelding } from "@/components/feilmelding/Feilmelding";
 import { FilterAndTableLayout } from "@/components/filtrering/FilterAndTableLayout";
-import { Filtertags } from "@/components/filtrering/Filtertags";
 import { Tiltaksgjennomforingsoversikt } from "@/components/oversikt/Tiltaksgjennomforingsoversikt";
 import { useNavTiltaksgjennomforinger } from "@/core/api/queries/useTiltaksgjennomforinger";
 import { FilterMenyMedSkeletonLoader } from "@/components/filtrering/FilterMenyMedSkeletonLoader";
+import { Button } from "@navikt/ds-react";
+import {
+  useResetArbeidsmarkedstiltakFilterUtenBrukerIKontekst,
+  valgteEnhetsnumre,
+} from "@/hooks/useArbeidsmarkedstiltakFilter";
+import { FiltertagsArbeidsmarkedstiltak } from "@/components/filtrering/FiltertagsArbeidsmarkedstiltak";
 
 export const NavArbeidsmarkedstiltakOversikt = () => {
   const { data: tiltaksgjennomforinger = [], isLoading } = useNavTiltaksgjennomforinger();
+  const { filter, filterHasChanged, resetFilterToDefaults } =
+    useResetArbeidsmarkedstiltakFilterUtenBrukerIKontekst();
 
   return (
     <FilterAndTableLayout
       buttons={null}
       filter={<FilterMenyMedSkeletonLoader />}
-      tags={<Filtertags />}
+      tags={<FiltertagsArbeidsmarkedstiltak />}
+      resetButton={
+        filterHasChanged && (
+          <Button
+            size="small"
+            variant="tertiary"
+            onClick={resetFilterToDefaults}
+            data-testid="knapp_nullstill-filter"
+          >
+            Nullstill filter
+          </Button>
+        )
+      }
       table={
         <div>
           {isLoading ? (
             <TiltakLoader />
+          ) : valgteEnhetsnumre(filter).length === 0 || filter.innsatsgruppe === undefined ? (
+            <Feilmelding
+              header="Du må filtrere på en NAV-enhet og en innsatsgruppe for å se tiltaksgjennomføringer"
+              ikonvariant="info"
+            />
           ) : tiltaksgjennomforinger.length === 0 ? (
             <Feilmelding
               header="Ingen tiltaksgjennomføringer funnet"

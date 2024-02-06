@@ -1,18 +1,23 @@
 import { ApentForInnsok } from "mulighetsrommet-api-client";
 import {
   ArbeidsmarkedstiltakFilterGruppe,
-  useArbeidsmarkedstiltakFilter,
+  useArbeidsmarkedstiltakFilterUtenBrukerIKontekst,
 } from "@/hooks/useArbeidsmarkedstiltakFilter";
 import FilterTag from "../tags/FilterTag";
 import styles from "./Filtertags.module.scss";
-import { NavEnhetTag } from "./NavEnhetTag";
+import { NavEnhetTag } from "../tags/NavEnhetTag";
 
-export function Filtertags() {
-  const [filter, setFilter] = useArbeidsmarkedstiltakFilter();
+export function FiltertagsArbeidsmarkedstiltak() {
+  const [filter, setFilter] = useArbeidsmarkedstiltakFilterUtenBrukerIKontekst();
 
   return (
     <div className={styles.filtertags} data-testid="filtertags">
-      <NavEnhetTag />
+      {filter.search && (
+        <FilterTag
+          options={[{ id: "search", tittel: `'${filter.search}'` }]}
+          handleClick={() => setFilter({ ...filter, search: "" })}
+        />
+      )}
       {filter.apentForInnsok !== ApentForInnsok.APENT_ELLER_STENGT && (
         <FilterTag
           options={[
@@ -29,7 +34,15 @@ export function Filtertags() {
           }
         />
       )}
-      {filter.innsatsgruppe && <FilterTag options={[filter.innsatsgruppe]} />}
+      {filter.innsatsgruppe && (
+        <FilterTag
+          options={[filter.innsatsgruppe]}
+          handleClick={() => {
+            setFilter({ ...filter, innsatsgruppe: undefined });
+          }}
+        />
+      )}
+      <NavEnhetTag handleClick={(e: React.MouseEvent) => e.stopPropagation()} />
       <FilterTag
         options={filter.tiltakstyper}
         handleClick={(id: string) =>
@@ -41,12 +54,6 @@ export function Filtertags() {
           })
         }
       />
-      {filter.search && (
-        <FilterTag
-          options={[{ id: "search", tittel: `'${filter.search}'` }]}
-          handleClick={() => setFilter({ ...filter, search: "" })}
-        />
-      )}
     </div>
   );
 }

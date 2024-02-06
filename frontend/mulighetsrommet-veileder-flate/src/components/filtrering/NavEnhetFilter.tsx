@@ -80,7 +80,7 @@ export function NavEnhetFilter({
         }}
         data-testid="filter_accordionheader_brukers-enhet"
       >
-        NAV enhet
+        NAV-enhet
       </Accordion.Header>
       <Accordion.Content data-testid="filter_accordioncontent_brukers-enhet">
         <CheckboxGroup

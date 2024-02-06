@@ -21,8 +21,6 @@ fun byggSokeFilter(sokestreng: String?): String {
 }
 
 fun byggInnsatsgruppeFilter(innsatsgruppe: String?): String {
-    if (innsatsgruppe.isNullOrBlank()) return ""
-
     return """
              && tiltakstype->innsatsgruppe->nokkel in ${utledInnsatsgrupper(innsatsgruppe).toSanityListe()}
     """.trimIndent()
@@ -32,7 +30,7 @@ private fun List<String>.toSanityListe(): String {
     return "[${this.joinToString { "'$it'" }}]"
 }
 
-fun utledInnsatsgrupper(innsatsgruppe: String): List<String> {
+fun utledInnsatsgrupper(innsatsgruppe: String?): List<String> {
     return when (innsatsgruppe) {
         Innsatsgruppe.STANDARD_INNSATS.name -> listOf(Innsatsgruppe.STANDARD_INNSATS.name)
         Innsatsgruppe.SITUASJONSBESTEMT_INNSATS.name -> listOf(

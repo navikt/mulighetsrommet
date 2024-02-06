@@ -1,0 +1,10 @@
+.accordion_header {
+  display: flex;
+  justify-content: flex-start;
+
+  .accordion_header_text {
+    display: flex;
+    justify-content: space-between;
+    width: 16rem;
+  }
+}
