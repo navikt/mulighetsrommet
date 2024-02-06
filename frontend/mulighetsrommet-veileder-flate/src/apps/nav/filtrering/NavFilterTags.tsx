@@ -42,7 +42,7 @@ export function NavFilterTags() {
           }}
         />
       )}
-      <NavEnhetTag handleClick={(e: React.MouseEvent) => e.stopPropagation()} />
+      <NavEnhetTag onClose={() => setFilter({ ...filter, regionMap: {} })} />
       <FilterTag
         options={filter.tiltakstyper}
         onClose={(id: string) =>

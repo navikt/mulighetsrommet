@@ -1,6 +1,5 @@
 import { Tag } from "@navikt/ds-react";
 import {
-  useArbeidsmarkedstiltakFilter,
   useArbeidsmarkedstiltakFilterValue,
   valgteEnhetsnumre,
 } from "@/hooks/useArbeidsmarkedstiltakFilter";
@@ -11,14 +10,13 @@ import { XMarkIcon } from "@navikt/aksel-icons";
 import styles from "./Filtertag.module.scss";
 
 interface Props {
-  handleClick?: (e: React.MouseEvent) => void;
+  onClose?: (e: React.MouseEvent) => void;
 }
 
-export function NavEnhetTag({ handleClick }: Props) {
+export function NavEnhetTag({ onClose }: Props) {
   const filter = useArbeidsmarkedstiltakFilterValue();
   const { data: alleEnheter } = useNavEnheter();
   const enheter = valgteEnhetsnumre(filter);
-  const [, setFilter] = useArbeidsmarkedstiltakFilter();
 
   if (!alleEnheter || !filter || enheter.length === 0) {
     return null;
@@ -45,11 +43,10 @@ export function NavEnhetTag({ handleClick }: Props) {
       variant="info"
     >
       {tagLabel()}
-
-      {handleClick ? (
+      {onClose ? (
         <Ikonknapp
           className={styles.overstyrt_ikon_knapp}
-          handleClick={() => setFilter({ ...filter, regionMap: {} })}
+          handleClick={onClose}
           ariaLabel="Lukke"
           icon={<XMarkIcon className={styles.ikon} aria-label="Lukke" />}
         />
