@@ -1,15 +1,9 @@
-import { expect, Page, test } from "@playwright/test";
-import { sjekkUU } from "./playwrightUtils";
+import { expect, test } from "@playwright/test";
+import { sjekkUU, velgFilter } from "./playwrightUtils";
 
 test.beforeEach(async ({ page }) => {
   await page.goto("/");
 });
-
-const velgFilter = async (page: Page, filternavn: string) => {
-  await page.getByTestId(`filter_radio_${filternavn}`).click();
-  await expect(page.getByTestId(`filter_radio_${filternavn}`)).toBeChecked();
-  await expect(page.getByTestId(`filtertag_${filternavn}`)).toBeVisible();
-};
 
 test.describe("Tiltaksoversikt", () => {
   test.beforeEach(async ({ page }) => {

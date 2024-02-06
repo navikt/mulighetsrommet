@@ -46,7 +46,8 @@ export const NavArbeidsmarkedstiltakOversikt = ({ preview }: Props) => {
             <TiltakLoader />
           ) : valgteEnhetsnumre(filter).length === 0 || filter.innsatsgruppe === undefined ? (
             <Feilmelding
-              header="Du må filtrere på minst én NAV-enhet og en innsatsgruppe for å se tiltaksgjennomføringer"
+              data-testid="filter-mangler-verdier-feilmelding"
+              header="Du må filtrere på en NAV-enhet og en innsatsgruppe for å se tiltaksgjennomføringer"
               ikonvariant="info"
             />
           ) : tiltaksgjennomforinger.length === 0 ? (
