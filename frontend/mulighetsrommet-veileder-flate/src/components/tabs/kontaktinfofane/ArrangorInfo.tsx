@@ -1,5 +1,5 @@
 import { BodyShort, Heading } from "@navikt/ds-react";
-import { VeilderflateArrangor } from "mulighetsrommet-api-client";
+import { VeilderflateArrangor, VirksomhetKontaktperson } from "mulighetsrommet-api-client";
 import styles from "./Kontaktinfo.module.scss";
 
 interface ArrangorInfoProps {
@@ -11,7 +11,7 @@ const ArrangorInfo = ({ arrangor }: ArrangorInfoProps) => {
     return null;
   }
 
-  const { kontaktperson } = arrangor;
+  const { kontaktpersoner } = arrangor;
 
   return (
     <div className={styles.arrangor_info}>
@@ -25,27 +25,35 @@ const ArrangorInfo = ({ arrangor }: ArrangorInfoProps) => {
         </BodyShort>
       </div>
 
-      {kontaktperson && (
-        <div className={styles.container}>
+      {kontaktpersoner.map((person: VirksomhetKontaktperson) => (
+        <div key={person.id} className={styles.container}>
           <BodyShort className={styles.navn} size="small">
-            {kontaktperson.navn}
+            {person.navn}
           </BodyShort>
+          {person.beskrivelse && (
+            <BodyShort textColor="subtle" size="small">
+              {person.beskrivelse}
+            </BodyShort>
+          )}
 
           <BodyShort as="div" size="small">
-            <div className={styles.infofelt}>
-              <div className={styles.kolonne}>
-                <span>Telefon:</span>
-                <span>Epost:</span>
-              </div>
-
-              <div className={styles.kolonne}>
-                <span>{kontaktperson.telefon}</span>
-                <a href={`mailto:${kontaktperson.epost}`}>{kontaktperson.epost}</a>
-              </div>
-            </div>
+            <dl className={styles.definisjonsliste}>
+              <dt>Epost:</dt>
+              <dd>
+                <a href={`mailto:${person.epost}`}>{person.epost}</a>
+              </dd>
+              {person.telefon ? (
+                <>
+                  <dt>Telefon:</dt>
+                  <dd>
+                    <span>{person.telefon}</span>
+                  </dd>
+                </>
+              ) : null}
+            </dl>
           </BodyShort>
         </div>
-      )}
+      ))}
     </div>
   );
 };

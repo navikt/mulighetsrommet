@@ -6,7 +6,7 @@ metadata:
   labels:
     team: team-mulighetsrommet
 spec:
-  image: {{image}}
+  image: "{{image}}"
   port: 8080
   ingresses:
     - https://mulighetsrommet-api.intern.nav.no
@@ -58,15 +58,14 @@ spec:
         groups:
           # team-mulighetsrommet
           - id: "debefa6e-1865-446d-b22b-9579fc735de3"
+          # 0000-GA-TILTAK-ANSVARLIG
+          - id: "2cf8d881-c2da-47b5-b409-fa088440a629"
+          # 0000-GA-TILTAK-tiltaksgjennomforinger_skriv
+          - id: "33053061-86da-4d6b-9372-33238fabd25f"
+          # 0000-GA-TILTAK-avtaler_skriv
+          - id: "46ba8787-eb24-4f7b-830f-4c5e9256de65"
           # (GRP) mr-nav_kontaktperson
           - id: "0fdd133a-f47f-4b95-9a5e-f3a5ec87a472"
-          # 0000-GA-TILTAK-tiltaksgjennomforinger_skriv
-          - id: 33053061-86da-4d6b-9372-33238fabd25f
-          # 0000-GA-TILTAK-avtaler_skriv
-          - id: 46ba8787-eb24-4f7b-830f-4c5e9256de65
-          # 0000-GA-TILTAK-ANSVARLIG
-          - id: 2cf8d881-c2da-47b5-b409-fa088440a629
-
         extra:
           - NAVident
           - azp_name
@@ -77,6 +76,7 @@ spec:
         - application: mulighetsrommet-arena-adapter-manager
         - application: mulighetsrommet-veileder-flate
         - application: mr-admin-flate
+        - application: nav-arbeidsmarkedstiltak
         - application: veilarbpersonflate
           namespace: poao
         - application: amt-tiltak

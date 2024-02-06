@@ -1,0 +1,91 @@
+.input_container {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.telefonepost_container {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+}
+
+.telefonepost_input {
+  margin: 8px 0;
+  display: flex;
+  justify-content: space-between;
+}
+
+.telefon_input {
+  display: flex;
+  align-items: start;
+  flex: 1 1 auto;
+}
+
+.epost_input {
+  align-items: start;
+  flex: 2 1 auto;
+}
+
+.kontaktperson_info_container {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+}
+
+.kontaktperson_button {
+  display: inline-flex;
+  text-align: left;
+  align-items: center;
+  padding: 0;
+  margin: 0.5rem 0;
+  color: var(--a-text-action);
+  background: none;
+  border: none;
+
+  &:hover {
+    color: var(--a-text-action);
+    text-decoration: underline;
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+}
+
+.button_container {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.button_container_left {
+  display: flex;
+  gap: 8px;
+}
+
+.rediger_button {
+  width: 30%;
+}
+
+.modal {
+  width: 550px;
+
+}
+
+.modal_body {
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  max-height: 600;
+  overflow: auto;
+  gap: 1rem;
+}
+
+.list_item_container {
+  padding: 1rem;
+  border: 1px solid var(--a-border-divider);
+  background-color: var(--a-gray-100);
+  border-radius: 0.25rem;
+}

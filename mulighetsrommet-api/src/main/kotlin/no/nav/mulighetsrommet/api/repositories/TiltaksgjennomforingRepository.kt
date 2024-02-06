@@ -42,7 +42,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 tiltakstype_id,
                 tiltaksnummer,
                 arrangor_organisasjonsnummer,
-                arrangor_kontaktperson_id,
                 start_dato,
                 slutt_dato,
                 avslutningsstatus,
@@ -65,7 +64,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 :tiltakstype_id::uuid,
                 :tiltaksnummer,
                 :arrangor_organisasjonsnummer,
-                :arrangor_kontaktperson_id,
                 :start_dato,
                 :slutt_dato,
                 :avslutningsstatus::avslutningsstatus,
@@ -87,7 +85,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                               tiltakstype_id               = excluded.tiltakstype_id,
                               tiltaksnummer                = excluded.tiltaksnummer,
                               arrangor_organisasjonsnummer = excluded.arrangor_organisasjonsnummer,
-                              arrangor_kontaktperson_id    = excluded.arrangor_kontaktperson_id,
                               start_dato                   = excluded.start_dato,
                               slutt_dato                   = excluded.slutt_dato,
                               avslutningsstatus            = excluded.avslutningsstatus,
@@ -151,6 +148,22 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             where tiltaksgjennomforing_id = ?::uuid and not (kontaktperson_nav_ident = any (?))
         """.trimIndent()
 
+        @Language("PostgreSQL")
+        val upsertVirksomhetKontaktperson = """
+            insert into tiltaksgjennomforing_virksomhet_kontaktperson (
+                virksomhet_kontaktperson_id,
+                tiltaksgjennomforing_id
+            )
+            values (:virksomhet_kontaktperson_id::uuid, :tiltaksgjennomforing_id::uuid)
+            on conflict do nothing
+        """.trimIndent()
+
+        @Language("PostgreSQL")
+        val deleteVirksomhetKontaktpersoner = """
+            delete from tiltaksgjennomforing_virksomhet_kontaktperson
+            where tiltaksgjennomforing_id = ?::uuid and not (virksomhet_kontaktperson_id = any (?))
+        """.trimIndent()
+
         tx.run(queryOf(query, tiltaksgjennomforing.toSqlParameters()).asExecute)
 
         tiltaksgjennomforing.administratorer.forEach { administrator ->
@@ -208,6 +221,26 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 deleteKontaktpersoner,
                 tiltaksgjennomforing.id,
                 tiltaksgjennomforing.kontaktpersoner.let { kontakt -> db.createTextArray(kontakt.map { it.navIdent }) },
+            ).asExecute,
+        )
+
+        tiltaksgjennomforing.arrangorKontaktpersoner.forEach { person ->
+            tx.run(
+                queryOf(
+                    upsertVirksomhetKontaktperson,
+                    mapOf(
+                        "tiltaksgjennomforing_id" to tiltaksgjennomforing.id,
+                        "virksomhet_kontaktperson_id" to person,
+                    ),
+                ).asExecute,
+            )
+        }
+
+        tx.run(
+            queryOf(
+                deleteVirksomhetKontaktpersoner,
+                tiltaksgjennomforing.id,
+                db.createUuidArray(tiltaksgjennomforing.arrangorKontaktpersoner),
             ).asExecute,
         )
     }
@@ -470,39 +503,47 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         @Language("PostgreSQL")
         val query = """
             select
-                   tg.id,
-                   tg.sanity_id,
-                   t.sanity_id as tiltakstype_sanity_id,
-                   t.navn as tiltakstype_navn,
-                   tg.navn,
-                   tg.sted_for_gjennomforing,
-                   tg.apent_for_innsok,
-                   tg.tiltaksnummer,
-                   tg.oppstart,
-                   tg.start_dato,
-                   tg.slutt_dato,
-                   tg.arrangor_organisasjonsnummer,
-                   v.navn                 as arrangor_navn,
-                   tg.arrangor_kontaktperson_id,
-                   vk.navn                as arrangor_kontaktperson_navn,
-                   vk.telefon             as arrangor_kontaktperson_telefon,
-                   vk.epost               as arrangor_kontaktperson_epost,
-                   tg.stengt_fra,
-                   tg.stengt_til,
-                   tg.nav_region,
-                   array_agg(tg_e.enhetsnummer) as nav_enheter,
-                   tg.beskrivelse,
-                   tg.faneinnhold
+                tg.id,
+                tg.sanity_id,
+                t.sanity_id as tiltakstype_sanity_id,
+                t.navn as tiltakstype_navn,
+                tg.navn,
+                tg.sted_for_gjennomforing,
+                tg.apent_for_innsok,
+                tg.tiltaksnummer,
+                tg.oppstart,
+                tg.start_dato,
+                tg.slutt_dato,
+                tg.arrangor_organisasjonsnummer,
+                v.navn                 as arrangor_navn,
+                tg.stengt_fra,
+                tg.stengt_til,
+                tg.nav_region,
+                array_agg(tg_e.enhetsnummer) as nav_enheter,
+                tg.beskrivelse,
+                tg.faneinnhold,
+                jsonb_agg(distinct
+                    case when tvk.tiltaksgjennomforing_id is null then null::jsonb
+                    else jsonb_build_object(
+                        'id', tvk.virksomhet_kontaktperson_id,
+                        'organisasjonsnummer', vk.organisasjonsnummer,
+                        'navn', vk.navn,
+                        'telefon', vk.telefon,
+                        'epost', vk.epost,
+                        'beskrivelse', vk.beskrivelse
+                    ) end
+                ) as virksomhet_kontaktpersoner
             from tiltaksgjennomforing tg
-                     inner join tiltakstype t on tg.tiltakstype_id = t.id
-                     left join tiltaksgjennomforing_nav_enhet tg_e on tg_e.tiltaksgjennomforing_id = tg.id
-                     left join virksomhet v on v.organisasjonsnummer = tg.arrangor_organisasjonsnummer
-                     left join virksomhet_kontaktperson vk on vk.id = tg.arrangor_kontaktperson_id
+                inner join tiltakstype t on tg.tiltakstype_id = t.id
+                left join tiltaksgjennomforing_nav_enhet tg_e on tg_e.tiltaksgjennomforing_id = tg.id
+                left join virksomhet v on v.organisasjonsnummer = tg.arrangor_organisasjonsnummer
+                left join tiltaksgjennomforing_virksomhet_kontaktperson tvk on tvk.tiltaksgjennomforing_id = tg.id
+                left join virksomhet_kontaktperson vk on vk.id = tvk.virksomhet_kontaktperson_id
             $where
             and t.skal_migreres
             and tg.tilgjengelig_for_veileder
             and tg.avslutningsstatus = 'IKKE_AVSLUTTET'
-            group by tg.id, t.id, v.navn, vk.id
+            group by tg.id, t.id, v.navn
             having array_agg(tg_e.enhetsnummer) && :brukersEnheter
         """.trimIndent()
 
@@ -583,7 +624,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         "tiltakstype_id" to tiltakstypeId,
         "tiltaksnummer" to tiltaksnummer,
         "arrangor_organisasjonsnummer" to arrangorOrganisasjonsnummer,
-        "arrangor_kontaktperson_id" to arrangorKontaktpersonId,
         "start_dato" to startDato,
         "slutt_dato" to sluttDato,
         "avslutningsstatus" to Avslutningsstatus.IKKE_AVSLUTTET.name,
@@ -621,6 +661,9 @@ class TiltaksgjennomforingRepository(private val db: Database) {
 
     private fun Row.toVeilederflateTiltaksgjennomforing(): VeilederflateTiltaksgjennomforing {
         val navEnheter = arrayOrNull<String?>("nav_enheter")?.asList()?.filterNotNull() ?: emptyList()
+        val virksomhetKontaktpersoner = Json
+            .decodeFromString<List<VirksomhetKontaktperson?>>(string("virksomhet_kontaktpersoner"))
+            .filterNotNull()
 
         return VeilederflateTiltaksgjennomforing(
             sanityId = uuidOrNull("sanity_id").toString(),
@@ -639,13 +682,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             arrangor = VeilederflateArrangor(
                 organisasjonsnummer = string("arrangor_organisasjonsnummer"),
                 selskapsnavn = stringOrNull("arrangor_navn"),
-                kontaktperson = uuidOrNull("arrangor_kontaktperson_id")?.let {
-                    VeilederflateArrangor.Kontaktperson(
-                        navn = string("arrangor_kontaktperson_navn"),
-                        telefon = stringOrNull("arrangor_kontaktperson_telefon"),
-                        epost = string("arrangor_kontaktperson_epost"),
-                    )
-                },
+                kontaktpersoner = virksomhetKontaktpersoner,
             ),
             stengtFra = localDateOrNull("stengt_fra"),
             stengtTil = localDateOrNull("stengt_til"),
@@ -665,6 +702,9 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         val kontaktpersoner = Json
             .decodeFromString<List<TiltaksgjennomforingKontaktperson?>>(string("kontaktpersoner"))
             .filterNotNull()
+        val virksomhetKontaktpersoner = Json
+            .decodeFromString<List<VirksomhetKontaktperson?>>(string("virksomhet_kontaktpersoner"))
+            .filterNotNull()
 
         val startDato = localDate("start_dato")
         val sluttDato = localDateOrNull("slutt_dato")
@@ -681,16 +721,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 organisasjonsnummer = string("arrangor_organisasjonsnummer"),
                 navn = stringOrNull("arrangor_navn"),
                 slettet = stringOrNull("arrangor_navn") == null,
-                kontaktperson = uuidOrNull("arrangor_kontaktperson_id")?.let {
-                    VirksomhetKontaktperson(
-                        id = it,
-                        organisasjonsnummer = string("arrangor_kontaktperson_organisasjonsnummer"),
-                        navn = string("arrangor_kontaktperson_navn"),
-                        telefon = stringOrNull("arrangor_kontaktperson_telefon"),
-                        epost = string("arrangor_kontaktperson_epost"),
-                        beskrivelse = stringOrNull("arrangor_kontaktperson_beskrivelse"),
-                    )
-                },
+                kontaktpersoner = virksomhetKontaktpersoner,
             ),
             startDato = startDato,
             sluttDato = sluttDato,

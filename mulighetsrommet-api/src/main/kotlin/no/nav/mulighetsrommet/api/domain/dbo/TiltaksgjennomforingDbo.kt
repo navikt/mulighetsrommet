@@ -12,7 +12,7 @@ data class TiltaksgjennomforingDbo(
     val tiltakstypeId: UUID,
     val tiltaksnummer: String?,
     val arrangorOrganisasjonsnummer: String,
-    val arrangorKontaktpersonId: UUID?,
+    val arrangorKontaktpersoner: List<UUID>,
     val startDato: LocalDate,
     val sluttDato: LocalDate?,
     val apentForInnsok: Boolean,

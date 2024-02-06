@@ -20,7 +20,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     arrangor: {
       ...mockVirksomheter.fretex.underenheter!![0],
       slettet: false,
-      kontaktperson: mockVirksomhetKontaktperson[0],
+      kontaktpersoner: [mockVirksomhetKontaktperson[0]],
     },
     avtaleId: mockAvtaler[0].id,
     tiltakstype: mockTiltakstyper.AVKLARAG,
@@ -89,7 +89,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     arrangor: {
       ...mockVirksomheter.fretex.underenheter![0],
       slettet: false,
-      kontaktperson: mockVirksomhetKontaktperson[0],
+      kontaktpersoner: mockVirksomhetKontaktperson,
     },
     tiltakstype: mockTiltakstyper.ARBFORB,
     sanityId: "1234",
@@ -113,7 +113,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     arrangor: {
       ...mockVirksomheter.fretex.underenheter![0],
       slettet: false,
-      kontaktperson: mockVirksomhetKontaktperson[0],
+      kontaktpersoner: mockVirksomhetKontaktperson,
     },
     tiltakstype: mockTiltakstyper.ARBFORB,
     startDato: "2022-01-01",

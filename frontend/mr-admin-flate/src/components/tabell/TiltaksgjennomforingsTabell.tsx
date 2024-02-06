@@ -1,7 +1,7 @@
 import { Alert, Checkbox, Pagination, Table, Tag, VStack } from "@navikt/ds-react";
 import { useAtom, WritableAtom } from "jotai";
 import { SorteringTiltaksgjennomforinger } from "mulighetsrommet-api-client";
-import Lenke from "mulighetsrommet-veileder-flate/src/components/lenke/Lenke";
+import { Lenke } from "mulighetsrommet-frontend-common/components/Lenke";
 import React from "react";
 import { TiltaksgjennomforingFilter } from "../../api/atoms";
 import { useSort } from "../../hooks/useSort";
@@ -13,6 +13,7 @@ import { PagineringsOversikt } from "../paginering/PagineringOversikt";
 import { TiltaksgjennomforingstatusTag } from "../statuselementer/TiltaksgjennomforingstatusTag";
 import styles from "./Tabell.module.scss";
 import { useAdminTiltaksgjennomforinger } from "../../api/tiltaksgjennomforing/useAdminTiltaksgjennomforinger";
+import { DupliserTiltak } from "../tiltaksgjennomforinger/DupliserTiltak";
 
 interface ColumnHeader {
   sortKey: Kolonne;
@@ -22,6 +23,12 @@ interface ColumnHeader {
 }
 
 const headers: ColumnHeader[] = [
+  {
+    sortKey: "dupliser",
+    tittel: "",
+    sortable: false,
+    width: "0.5fr",
+  },
   {
     sortKey: "navn",
     tittel: "Tiltaksnavn",
@@ -79,6 +86,7 @@ const headers: ColumnHeader[] = [
 ];
 
 type Kolonne =
+  | "dupliser"
   | "navn"
   | "enhet"
   | "tiltaksnummer"
@@ -172,7 +180,7 @@ export const TiltaksgjennomforingsTabell = ({ skjulKolonner, filterAtom }: Props
           data-testid="tiltaksgjennomforing-tabell"
         >
           <Table.Header>
-            <Table.Row className={styles.tiltaksgjennomforing_tabellrad}>
+            <Table.Row>
               {headers
                 .filter((header) => {
                   return skjulKolonner ? !skjulKolonner[header.sortKey] : true;
@@ -195,7 +203,10 @@ export const TiltaksgjennomforingsTabell = ({ skjulKolonner, filterAtom }: Props
             <Table.Body>
               {tiltaksgjennomforinger.map((tiltaksgjennomforing, index) => {
                 return (
-                  <Table.Row key={index} className={styles.tiltaksgjennomforing_tabellrad}>
+                  <Table.Row key={index}>
+                    <Table.DataCell>
+                      <DupliserTiltak tiltaksgjennomforing={tiltaksgjennomforing} />
+                    </Table.DataCell>
                     <SkjulKolonne skjul={!!skjulKolonner?.navn}>
                       <Table.DataCell
                         aria-label={`Navn på tiltaksgjennomforing: ${tiltaksgjennomforing.navn}`}

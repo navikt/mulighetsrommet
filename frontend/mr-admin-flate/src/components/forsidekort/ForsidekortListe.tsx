@@ -1,13 +1,17 @@
 import {
   FileCheckmarkIcon,
   HandshakeIcon,
+  PersonPencilIcon,
   RectangleSectionsIcon,
   TokenIcon,
-  PersonPencilIcon,
 } from "@navikt/aksel-icons";
-import { erForhandsvisningMiljo, erProdMiljo } from "../../utils/Utils";
 import { Forsidekort } from "./Forsidekort";
 import styles from "./Forsidekort.module.scss";
+import {
+  ENDRINGSMELDINGER_URL,
+  PREVIEW_ARBEIDSMARKEDSTILTAK_URL,
+  SANITY_STUDIO_URL,
+} from "../../constants";
 
 export function ForsidekortListe() {
   return (
@@ -33,19 +37,19 @@ export function ForsidekortListe() {
       <Forsidekort
         navn="Individuelle tiltaksgjennomføringer"
         ikon={<img src="./sanity_logo.png" alt="Sanity-logo" />}
-        url="https://mulighetsrommet-sanity-studio.intern.nav.no/prod/desk"
+        url={SANITY_STUDIO_URL}
         tekst="Her administrerer du individuelle tiltaksgjennomføringer"
       />
       <Forsidekort
         navn="Veilederflate forhåndsvisning"
         ikon={<RectangleSectionsIcon aria-label="Preview" />}
-        url={`https://mulighetsrommet-veileder-flate.intern.${erForhandsvisningMiljo}/preview`}
+        url={PREVIEW_ARBEIDSMARKEDSTILTAK_URL}
         tekst="Her kan du se hvordan tiltakene vises for veileder i Modia"
       />
       <Forsidekort
         navn="Endringsmeldinger"
         ikon={<PersonPencilIcon aria-label="Endringsmeldinger" />}
-        url={`https://arbeidsmarkedstiltak.intern${!erProdMiljo ? ".dev" : ""}.nav.no`}
+        url={ENDRINGSMELDINGER_URL}
         tekst="Her finner du endringsmeldinger fra tiltaksarrangør"
       />
     </div>

@@ -1,7 +1,7 @@
-import Lenke from "../lenke/Lenke";
 import { BodyShort } from "@navikt/ds-react";
+import { Lenke } from "mulighetsrommet-frontend-common/components/Lenke";
 import { PORTEN } from "mulighetsrommet-frontend-common/constants";
-import { APPLICATION_WEB_COMPONENT_NAME } from "../../constants";
+import { APPLICATION_WEB_COMPONENT_NAME } from "@/constants";
 import { useEffect, useState } from "react";
 import { Step } from "react-joyride";
 
@@ -157,7 +157,8 @@ export const detaljerSteps: MulighetsrommetStep[] = [
   },
   {
     title: "Dele med bruker",
-    content: "Del en predefinert tekst om tiltaket med bruker i dialogen.",
+    content:
+      "Del en predefinert tekst om tiltaket med bruker i dialogen. Du kan redigere teksten før sending ved behov.",
     target: '[data-testid="deleknapp"]',
     disableBeacon: true,
     id: "dele-med-bruker",

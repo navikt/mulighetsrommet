@@ -1,11 +1,11 @@
-import { Accordion, Alert, Loader, Radio, RadioGroup } from "@navikt/ds-react";
+import { Accordion, Alert, Radio, RadioGroup } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { Innsatsgruppe } from "mulighetsrommet-api-client";
 import { useInnsatsgrupper } from "../../core/api/queries/useInnsatsgrupper";
 import { filterAccordionAtom } from "../../core/atoms/atoms";
+import { useArbeidsmarkedstiltakFilter } from "../../hooks/useArbeidsmarkedstiltakFilter";
 import { addOrRemove, kebabCase } from "../../utils/Utils";
 import "./Filtermeny.module.scss";
-import { useArbeidsmarkedstiltakFilter } from "../../hooks/useArbeidsmarkedstiltakFilter";
 
 interface InnsatsgruppeFilterProps<
   T extends { id: string; tittel: string; nokkel?: Innsatsgruppe },
@@ -13,7 +13,6 @@ interface InnsatsgruppeFilterProps<
   option?: Innsatsgruppe;
   setOption: (type: Innsatsgruppe) => void;
   options: T[];
-  isLoading: boolean;
   isError: boolean;
 }
 
@@ -21,7 +20,6 @@ const InnsatsgruppeAccordion = <T extends { id: string; tittel: string; nokkel?:
   option,
   setOption,
   options,
-  isLoading,
   isError,
 }: InnsatsgruppeFilterProps<T>) => {
   const [accordionsOpen, setAccordionsOpen] = useAtom(filterAccordionAtom);
@@ -49,7 +47,6 @@ const InnsatsgruppeAccordion = <T extends { id: string; tittel: string; nokkel?:
         Innsatsgruppe
       </Accordion.Header>
       <Accordion.Content data-testid={"filter_accordioncontent_innsatsgruppe"}>
-        {isLoading && <Loader size="xlarge" />}
         {options.length !== 0 && (
           <RadioGroup
             legend=""
@@ -103,7 +100,6 @@ function InnsatsgruppeFilter() {
         handleEndreFilter(innsatsgruppe);
       }}
       options={options ?? []}
-      isLoading={innsatsgrupper.isLoading}
       isError={innsatsgrupper.isError}
     />
   );

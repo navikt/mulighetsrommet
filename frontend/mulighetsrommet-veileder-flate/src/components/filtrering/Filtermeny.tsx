@@ -1,18 +1,18 @@
 import { PadlockLockedFillIcon } from "@navikt/aksel-icons";
 import { Accordion } from "@navikt/ds-react";
 import { ApentForInnsok } from "mulighetsrommet-api-client";
-import { FilterToggle } from "./FilterToggle";
-import styles from "./Filtermeny.module.scss";
-import InnsatsgruppeFilter from "./InnsatsgruppeFilter";
-import Sokefelt from "./Sokefelt";
-import { Tiltakstypefilter } from "./Tiltakstypefilter";
 import {
   RegionMap,
   useArbeidsmarkedstiltakFilter,
 } from "../../hooks/useArbeidsmarkedstiltakFilter";
+import { FilterToggle } from "./FilterToggle";
+import styles from "./Filtermeny.module.scss";
+import InnsatsgruppeFilter from "./InnsatsgruppeFilter";
 import { NavEnhetFilter } from "./NavEnhetFilter";
+import Sokefelt from "./Sokefelt";
+import { Tiltakstypefilter } from "./Tiltakstypefilter";
 
-const Filtermeny = () => {
+export const Filtermeny = () => {
   const [filter, setFilter] = useArbeidsmarkedstiltakFilter();
 
   return (
@@ -50,5 +50,3 @@ const Filtermeny = () => {
     </div>
   );
 };
-
-export default Filtermeny;

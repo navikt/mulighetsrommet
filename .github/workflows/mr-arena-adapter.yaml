@@ -35,7 +35,6 @@ jobs:
     name: CI
     runs-on: ubuntu-latest
     permissions:
-      contents: write # Needed for `mikepenz/gradle-dependency-submission`
       id-token: write # Needed for `nais/docker-build-push`
     steps:
       - name: Checkout
@@ -44,12 +43,6 @@ jobs:
         uses: ./.github/actions/setup-backend
       - name: Build with Gradle
         run: ./gradlew :mulighetsrommet-arena-adapter:build
-      - name: Submit Gradle dependencies
-        uses: mikepenz/gradle-dependency-submission@v1
-        if: github.ref_name == 'main'
-        with:
-          gradle-build-module: :mulighetsrommet-arena-adapter
-          sub-module-mode: INDIVIDUAL
       - name: Build and push Docker image
         uses: nais/docker-build-push@v0
         id: docker-build-push
