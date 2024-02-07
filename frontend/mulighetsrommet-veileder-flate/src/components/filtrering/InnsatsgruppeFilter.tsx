@@ -49,12 +49,14 @@ const InnsatsgruppeAccordion = <T extends { id: string; tittel: string; nokkel?:
         <div className={styles.accordion_header_text}>
           Innsatsgruppe
           <HelpText placement="right" strategy="fixed" onClick={(e) => e.stopPropagation()}>
-            Dette filteret baserer seg på brukerens innsatsgruppe etter behovsvurdering av
-            arbeidsevne (NAV-loven § 14 a), og viser de tiltakene brukeren har krav på med valgt
-            innsatsgruppe.
+            Filteret viser de tiltakene som kan være aktuelle for brukere med valgt innsatsgruppe.
             <br />
-            <a href="https://www.nav.no/arbeidsevne#hvordan" rel="noreferrer" target="_blank">
-              Klikk her for mer informasjon.
+            <a
+              href="https://navno.sharepoint.com/sites/fag-og-ytelser-arbeid-tiltak-og-virkemidler/SitePages/Tiltak-og-virkemidler-etter-innsatsbehov.aspx"
+              rel="noreferrer"
+              target="_blank"
+            >
+              Se mer informasjon om innsatsgruppe og tiltak her.
             </a>
           </HelpText>
         </div>
