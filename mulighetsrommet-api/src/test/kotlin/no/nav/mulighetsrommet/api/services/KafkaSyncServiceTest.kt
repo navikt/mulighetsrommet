@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.services
 
+import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.mockk.mockk
 import io.mockk.verifyAll
@@ -154,14 +155,14 @@ class KafkaSyncServiceTest : FunSpec({
             KafkaSyncService(mockk(), tiltakstypeRepository, mockk(), tiltakstypeKafkaProducer)
 
         val startdatoInnenfor =
-            tiltakstype.copy(id = UUID.randomUUID(), fraDato = LocalDate.of(2023, 2, 15))
+            tiltakstype.copy(id = UUID.randomUUID(), tiltakskode = "START", fraDato = LocalDate.of(2023, 2, 15))
         val sluttdatoInnenfor =
-            tiltakstype.copy(id = UUID.randomUUID(), fraDato = LocalDate.of(2023, 2, 13), tilDato = lastSuccessDate)
+            tiltakstype.copy(id = UUID.randomUUID(), tiltakskode = "SLUTT", fraDato = LocalDate.of(2023, 2, 13), tilDato = lastSuccessDate)
 
         test("oppdater statuser på kafka på relevante tiltakstyper") {
-            tiltakstypeRepository.upsert(tiltakstype)
-            tiltakstypeRepository.upsert(startdatoInnenfor)
-            tiltakstypeRepository.upsert(sluttdatoInnenfor)
+            tiltakstypeRepository.upsert(tiltakstype).shouldBeRight()
+            tiltakstypeRepository.upsert(startdatoInnenfor).shouldBeRight()
+            tiltakstypeRepository.upsert(sluttdatoInnenfor).shouldBeRight()
 
             kafkaSyncService.oppdaterTiltakstypestatus(today, lastSuccessDate)
 
