@@ -2,10 +2,10 @@ import React from "react";
 import { createRoot } from "react-dom/client";
 import { getWebInstrumentations, initializeFaro } from "@grafana/faro-web-sdk";
 import { APPLICATION_NAME, APPLICATION_WEB_COMPONENT_NAME } from "@/constants";
-import { initAmplitude } from "@/logging/amplitude";
 import { ModiaArbeidsmarkedstiltakWrapper } from "./ModiaArbeidsmarkedstiltakWrapper";
+import { initAmplitudeModia } from "@/logging/amplitude";
 
-if (import.meta.env.PROD && import.meta.env.VITE_FARO_URL) {
+if (import.meta.env.VITE_FARO_URL) {
   initializeFaro({
     url: import.meta.env.VITE_FARO_URL,
     instrumentations: [...getWebInstrumentations({ captureConsole: true })],
@@ -13,9 +13,9 @@ if (import.meta.env.PROD && import.meta.env.VITE_FARO_URL) {
       name: "mulighetsrommet-veileder-flate",
     },
   });
-
-  initAmplitude();
 }
+
+initAmplitudeModia();
 
 /**
  * Applikasjonen blir lastet inn i `veilarbpersonflate` i dev og prod ved at vi definerer et

@@ -4,6 +4,9 @@ import { APPLICATION_NAME } from "@/constants";
 import { NavArbeidsmarkedstiltak } from "./NavArbeidsmarkedstiltak";
 import { PreviewArbeidsmarkedstiltak } from "@/apps/nav/PreviewArbeidsmarkedstiltak";
 import { ReactQueryProvider } from "@/ReactQueryProvider";
+import { initAmplitudeNav } from "@/logging/amplitude";
+
+initAmplitudeNav();
 
 const demoContainer = document.getElementById(APPLICATION_NAME);
 if (demoContainer) {
