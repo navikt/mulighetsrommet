@@ -1,4 +1,5 @@
 import { BodyShort, Heading, Link } from "@navikt/ds-react";
+import { PORTEN_ARBEIDSMARKEDSTILTAK } from "mulighetsrommet-frontend-common/constants";
 
 export function OmArbeidsmarkedstiltak() {
   return (
@@ -25,6 +26,14 @@ export function OmArbeidsmarkedstiltak() {
           Denne løsningen utvikles og forvaltes av{" "}
           <Link href="https://teamkatalog.nav.no/team/aa730c95-b437-497b-b1ae-0ccf69a10997">
             Team Valp
+          </Link>
+          .
+        </BodyShort>
+        <br />
+        <BodyShort>
+          Ved spørsmål eller tilbakemeldinger, send oss en melding i{" "}
+          <Link href={PORTEN_ARBEIDSMARKEDSTILTAK} target="_blank">
+            Porten
           </Link>
           .
         </BodyShort>

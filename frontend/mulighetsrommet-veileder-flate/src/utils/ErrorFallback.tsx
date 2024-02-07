@@ -1,5 +1,5 @@
 import { Feilmelding } from "../components/feilmelding/Feilmelding";
-import { PORTEN } from "mulighetsrommet-frontend-common/constants";
+import { PORTEN_MODIA } from "mulighetsrommet-frontend-common/constants";
 import { ApiError } from "mulighetsrommet-api-client";
 import { BodyShort, Heading } from "@navikt/ds-react";
 import { ReactNode } from "react";
@@ -17,8 +17,8 @@ export function ErrorFallback({ error }: FallbackProps) {
           Arbeidsmarkedstiltakene kunne ikke hentes på grunn av en feil hos oss.
         </BodyShort>
         <BodyShort>
-          Vennligst last nettsiden på nytt, eller ta <a href={PORTEN}>kontakt i Porten</a> dersom du
-          trenger mer hjelp.
+          Vennligst last nettsiden på nytt, eller ta <a href={PORTEN_MODIA}>kontakt i Porten</a>{" "}
+          dersom du trenger mer hjelp.
         </BodyShort>
       </>
     );
@@ -67,7 +67,7 @@ function renderApiError(error: ApiError) {
         </BodyShort>
       )}
       <BodyShort>
-        <a href={PORTEN}>Meld sak i Porten</a> hvis problemene vedvarer.
+        <a href={PORTEN_MODIA}>Meld sak i Porten</a> hvis problemene vedvarer.
       </BodyShort>
     </>
   );
