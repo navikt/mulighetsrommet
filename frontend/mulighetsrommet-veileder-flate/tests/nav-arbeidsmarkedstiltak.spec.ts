@@ -13,7 +13,7 @@ test.describe("Tiltaksoversikt", () => {
   test("Sjekk at det er tiltaksgjennomføringer i oversikten", async ({ page }) => {
     const feilmelding = page.getByTestId("feilmelding-container");
     await expect(feilmelding).toContainText(
-      /Du må filtrere på en NAV-enhet og en innsatsgruppe for å se tiltaksgjennomføringer/,
+      /Du må filtrere på en innsatsgruppe og minst én NAV-enhet for å se tiltaksgjennomføringer/,
     );
     await page.getByLabel("Varig tilpasset innsats").click();
     await page.getByLabel("NAV Oslo").click();
