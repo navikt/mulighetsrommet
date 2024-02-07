@@ -1,5 +1,5 @@
 import { BodyShort, Heading, Link } from "@navikt/ds-react";
-import { PORTEN_ARBEIDSMARKEDSTILTAK } from "mulighetsrommet-frontend-common/constants";
+import { NAV_PORTEN } from "mulighetsrommet-frontend-common/constants";
 
 export function OmArbeidsmarkedstiltak() {
   return (
@@ -32,7 +32,7 @@ export function OmArbeidsmarkedstiltak() {
         <br />
         <BodyShort>
           Ved spørsmål eller tilbakemeldinger, send oss en melding i{" "}
-          <Link href={PORTEN_ARBEIDSMARKEDSTILTAK} target="_blank">
+          <Link href={NAV_PORTEN} target="_blank">
             Porten
           </Link>
           .

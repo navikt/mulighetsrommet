@@ -1,6 +1,6 @@
 import { BodyShort } from "@navikt/ds-react";
 import { Lenke } from "mulighetsrommet-frontend-common/components/Lenke";
-import { PORTEN_MODIA } from "mulighetsrommet-frontend-common/constants";
+import { MODIA_PORTEN } from "mulighetsrommet-frontend-common/constants";
 import { APPLICATION_WEB_COMPONENT_NAME } from "@/constants";
 import { useEffect, useState } from "react";
 import { Step } from "react-joyride";
@@ -169,7 +169,7 @@ export const detaljerSteps: MulighetsrommetStep[] = [
       <BodyShort>
         Har du innspill eller forslag til forbedringer vil vi gjerne at du tar kontakt med oss i{" "}
         {
-          <Lenke to={PORTEN_MODIA} target={"_blank"}>
+          <Lenke to={MODIA_PORTEN} target={"_blank"}>
             Porten
           </Lenke>
         }
