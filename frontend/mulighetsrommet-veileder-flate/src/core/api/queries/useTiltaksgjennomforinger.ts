@@ -2,31 +2,32 @@ import { useQuery } from "@tanstack/react-query";
 import { mulighetsrommetClient } from "../clients";
 import { QueryKeys } from "../query-keys";
 import {
+  isFilterReady,
   useArbeidsmarkedstiltakFilterValue,
   valgteEnhetsnumre,
 } from "@/hooks/useArbeidsmarkedstiltakFilter";
 
 export function useVeilederTiltaksgjennomforinger() {
-  const { queryIsValid, query } = useGetArbeidsmarkedstiltakFilterAsQuery();
+  const { isFilterReady, filter } = useGetArbeidsmarkedstiltakFilterAsQuery();
 
   return useQuery({
-    queryKey: QueryKeys.sanity.tiltaksgjennomforinger(query),
-    queryFn: () => mulighetsrommetClient.veilederTiltak.getVeilederTiltaksgjennomforinger(query),
-    enabled: queryIsValid,
+    queryKey: QueryKeys.sanity.tiltaksgjennomforinger(filter),
+    queryFn: () => mulighetsrommetClient.veilederTiltak.getVeilederTiltaksgjennomforinger(filter),
+    enabled: isFilterReady,
   });
 }
 
 export function useNavTiltaksgjennomforinger({ preview }: { preview: boolean }) {
-  const { queryIsValid, query } = useGetArbeidsmarkedstiltakFilterAsQuery();
+  const { isFilterReady, filter } = useGetArbeidsmarkedstiltakFilterAsQuery();
 
   return useQuery({
-    queryKey: QueryKeys.sanity.tiltaksgjennomforinger(query),
+    queryKey: QueryKeys.sanity.tiltaksgjennomforinger(filter),
     queryFn() {
       return preview
-        ? mulighetsrommetClient.veilederTiltak.getPreviewTiltaksgjennomforinger(query)
-        : mulighetsrommetClient.veilederTiltak.getNavTiltaksgjennomforinger(query);
+        ? mulighetsrommetClient.veilederTiltak.getPreviewTiltaksgjennomforinger(filter)
+        : mulighetsrommetClient.veilederTiltak.getNavTiltaksgjennomforinger(filter);
     },
-    enabled: queryIsValid,
+    enabled: isFilterReady,
   });
 }
 
@@ -39,8 +40,8 @@ function useGetArbeidsmarkedstiltakFilterAsQuery() {
   const enheter = valgteEnhetsnumre(filter);
 
   return {
-    queryIsValid: enheter.length !== 0 && filter.innsatsgruppe !== undefined,
-    query: {
+    isFilterReady: isFilterReady(filter),
+    filter: {
       search: filter.search || undefined,
       apentForInnsok: filter.apentForInnsok,
       innsatsgruppe: filter.innsatsgruppe?.nokkel,

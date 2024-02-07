@@ -6,8 +6,8 @@ import { useNavTiltaksgjennomforinger } from "@/core/api/queries/useTiltaksgjenn
 import { FilterMenyMedSkeletonLoader } from "@/components/filtrering/FilterMenyMedSkeletonLoader";
 import { Button } from "@navikt/ds-react";
 import {
+  isFilterReady,
   useResetArbeidsmarkedstiltakFilterUtenBrukerIKontekst,
-  valgteEnhetsnumre,
 } from "@/hooks/useArbeidsmarkedstiltakFilter";
 import { NavFilterTags } from "@/apps/nav/filtrering/NavFilterTags";
 
@@ -44,7 +44,7 @@ export const NavArbeidsmarkedstiltakOversikt = ({ preview = false }: Props) => {
         <div>
           {isLoading ? (
             <TiltakLoader />
-          ) : valgteEnhetsnumre(filter).length === 0 || filter.innsatsgruppe === undefined ? (
+          ) : !isFilterReady(filter) ? (
             <Feilmelding
               data-testid="filter-mangler-verdier-feilmelding"
               header="Du må filtrere på en innsatsgruppe og minst én NAV-enhet for å se tiltaksgjennomføringer"

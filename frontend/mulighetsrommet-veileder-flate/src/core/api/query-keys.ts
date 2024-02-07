@@ -14,11 +14,6 @@ export const QueryKeys = {
       "tiltaksgjennomforinger",
       { ...tiltaksgjennomforingsfilter },
     ],
-    tiltaksgjennomforingerPreview: (tiltaksgjennomforingsfilter?: object) => [
-      "tiltaksgjennomforinger",
-      "preview",
-      { ...tiltaksgjennomforingsfilter },
-    ],
     tiltaksgjennomforing: (id: string) => ["tiltaksgjennomforing", id],
     tiltaksgjennomforingPreview: (id: string) => ["tiltaksgjennomforing", "preview", id],
   },
