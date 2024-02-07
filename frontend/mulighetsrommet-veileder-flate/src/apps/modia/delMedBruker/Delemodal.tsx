@@ -4,7 +4,6 @@ import {
   DelMedBruker,
   VeilederflateTiltaksgjennomforing,
 } from "mulighetsrommet-api-client";
-import { MODIA_PORTEN } from "mulighetsrommet-frontend-common/constants";
 import { mulighetsrommetClient } from "@/core/api/clients";
 import { useLogEvent } from "@/logging/amplitude";
 import { byttTilDialogFlate } from "@/utils/DialogFlateUtils";
@@ -14,6 +13,7 @@ import { DelMedBrukerContent, MAKS_ANTALL_TEGN_DEL_MED_BRUKER } from "./DelMedBr
 import delemodalStyles from "./Delemodal.module.scss";
 import { Actions, State } from "./DelemodalActions";
 import { erBrukerReservertMotElektroniskKommunikasjon } from "@/apps/modia/delMedBruker/helpers";
+import { PortenLink } from "@/components/PortenLink";
 
 interface DelemodalProps {
   brukernavn?: string;
@@ -196,7 +196,8 @@ export function Delemodal({
           text={
             <>
               Tiltaket kunne ikke deles på grunn av en teknisk feil hos oss. Forsøk på nytt eller ta{" "}
-              <a href={MODIA_PORTEN}>kontakt i Porten</a> dersom du trenger mer hjelp.
+              <PortenLink>kontakt i Porten</PortenLink>
+              dersom du trenger mer hjelp.
             </>
           }
           onClose={lukkStatusmodal}

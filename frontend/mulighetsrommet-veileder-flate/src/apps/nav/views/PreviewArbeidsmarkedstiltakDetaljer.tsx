@@ -28,34 +28,32 @@ export function PreviewArbeidsmarkedstiltakDetaljer() {
         brukersInnsatsgruppe={brukersInnsatsgruppe}
         knapperad={<Tilbakeknapp tilbakelenke=".." tekst="Tilbake til tiltaksoversikten" />}
         brukerActions={
-          <div>
-            <DelMedBruker
-              tiltaksgjennomforing={data}
-              veiledernavn="{Veiledernavn}"
-              brukerdata={{
-                fnr: "12345678910",
-                fornavn: "{NAVN}",
-                manuellStatus: {
-                  erUnderManuellOppfolging: false,
-                  krrStatus: { kanVarsles: true, erReservert: false },
+          <DelMedBruker
+            tiltaksgjennomforing={data}
+            veiledernavn="{Veiledernavn}"
+            brukerdata={{
+              fnr: "12345678910",
+              fornavn: "{NAVN}",
+              manuellStatus: {
+                erUnderManuellOppfolging: false,
+                krrStatus: { kanVarsles: true, erReservert: false },
+              },
+              varsler: [],
+              enheter: [
+                {
+                  navn: "{GEOGRAFISK_ENHET}",
+                  enhetsnummer: "0",
+                  overordnetEnhet: "0100",
+                  type: NavEnhetType.LOKAL,
+                  status: NavEnhetStatus.AKTIV,
                 },
-                varsler: [],
-                enheter: [
-                  {
-                    navn: "{GEOGRAFISK_ENHET}",
-                    enhetsnummer: "0",
-                    overordnetEnhet: "0100",
-                    type: NavEnhetType.LOKAL,
-                    status: NavEnhetStatus.AKTIV,
-                  },
-                ],
-              }}
-              lagreVeilederHarDeltTiltakMedBruker={async (dialogId, gjennomforing) => {
-                // eslint-disable-next-line no-console
-                console.log("Del med bruker", dialogId, gjennomforing);
-              }}
-            />
-          </div>
+              ],
+            }}
+            lagreVeilederHarDeltTiltakMedBruker={async (dialogId, gjennomforing) => {
+              // eslint-disable-next-line no-console
+              console.log("Del med bruker", dialogId, gjennomforing);
+            }}
+          />
         }
       />
     </>

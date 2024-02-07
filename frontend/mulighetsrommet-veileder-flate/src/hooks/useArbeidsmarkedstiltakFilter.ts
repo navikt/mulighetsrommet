@@ -132,6 +132,10 @@ export const filterAtom = atomWithStorage<FilterMedBrukerIKontekst>(
   { getOnInit: true },
 );
 
+export function isFilterReady(filter: ArbeidsmarkedstiltakFilter): boolean {
+  return filter.innsatsgruppe !== undefined && valgteEnhetsnumre(filter).length !== 0;
+}
+
 export function valgteEnhetsnumre(filter: ArbeidsmarkedstiltakFilter): string[] {
   return Array.from(Object.values(filter.regionMap)).flat(1);
 }

@@ -49,7 +49,7 @@ data class SanityTiltaksgjennomforing(
 )
 
 @Serializable
-data class KontaktinfoTiltaksansvarlige(
+data class KontaktinfoTiltaksansvarlig(
     val _rev: String? = null,
     val _type: String? = null,
     val navn: String? = null,
@@ -64,7 +64,7 @@ data class KontaktinfoTiltaksansvarlige(
 
 @Serializable
 data class SanityKontaktperson(
-    val navKontaktperson: KontaktinfoTiltaksansvarlige,
+    val navKontaktperson: KontaktinfoTiltaksansvarlig,
     val enheter: List<String>,
 )
 

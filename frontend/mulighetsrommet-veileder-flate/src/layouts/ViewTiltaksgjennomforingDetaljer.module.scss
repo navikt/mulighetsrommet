@@ -3,6 +3,13 @@
   margin: 0 auto;
 }
 
+.brukeractions_container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
 .top_wrapper {
   align-items: baseline;
   display: flex;

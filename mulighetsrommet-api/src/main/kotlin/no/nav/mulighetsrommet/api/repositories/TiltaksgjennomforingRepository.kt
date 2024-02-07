@@ -686,7 +686,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             ),
             stengtFra = localDateOrNull("stengt_fra"),
             stengtTil = localDateOrNull("stengt_til"),
-            kontaktinfoTiltaksansvarlige = emptyList(),
             fylke = stringOrNull("nav_region"),
             enheter = navEnheter,
             beskrivelse = stringOrNull("beskrivelse"),
