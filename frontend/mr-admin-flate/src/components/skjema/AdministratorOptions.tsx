@@ -7,9 +7,9 @@ export const AdministratorOptions = (
     navIdent: string;
     navn: string;
   }[],
-  betabrukere?: NavAnsatt[],
+  eksisterendeAdministratorer?: NavAnsatt[],
 ): SelectOption[] => {
-  if (!ansatt || !betabrukere) {
+  if (!ansatt || !eksisterendeAdministratorer) {
     return [{ value: "", label: "Laster..." }];
   }
 
@@ -31,7 +31,7 @@ export const AdministratorOptions = (
       });
   }
 
-  betabrukere
+  eksisterendeAdministratorer
     .filter(
       (b: NavAnsatt) =>
         b.navIdent !== ansatt.navIdent &&

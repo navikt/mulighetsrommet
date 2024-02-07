@@ -58,8 +58,6 @@ spec:
         groups:
           # team-mulighetsrommet
           - id: "debefa6e-1865-446d-b22b-9579fc735de3"
-          # 0000-GA-mr-admin-flate_betabruker
-          - id: "dde41c4b-42af-401f-bedf-9e537bcbdd37"
           # 0000-GA-TILTAK-ANSVARLIG
           - id: "2cf8d881-c2da-47b5-b409-fa088440a629"
           # 0000-GA-TILTAK-tiltaksgjennomforinger_skriv

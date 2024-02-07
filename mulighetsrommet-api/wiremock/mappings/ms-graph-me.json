@@ -11,8 +11,8 @@
       "city": "IT-Avdelingen",
       "onPremisesSamAccountName": "B123456",
       "givenName": "Bertil",
-      "surname": "Betabruker",
-      "mail": "bertil.betabruker@nav.no"
+      "surname": "Bengtsom",
+      "mail": "bertil.bengtson@nav.no"
     },
     "headers": {
       "Content-Type": "application/json"

@@ -27,7 +27,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     administratorer: [
       {
         navIdent: "B123456",
-        navn: "Bertil Betabruker",
+        navn: "Bertil Bengtson",
       },
     ],
     sanityId: "123",

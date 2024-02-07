@@ -13,7 +13,7 @@ object NavAnsattFixture {
         azureId = UUID.randomUUID(),
         mobilnummer = "12345678",
         epost = "donald.duck@nav.no",
-        roller = setOf(NavAnsattRolle.BETABRUKER, NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL),
+        roller = setOf(NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL, NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV, NavAnsattRolle.AVTALER_SKRIV),
     )
     val ansatt2: NavAnsattDbo = NavAnsattDbo(
         navIdent = "DD2",
@@ -23,6 +23,6 @@ object NavAnsattFixture {
         azureId = UUID.randomUUID(),
         mobilnummer = "48243214",
         epost = "dolly.duck@nav.no",
-        roller = setOf(NavAnsattRolle.BETABRUKER, NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL),
+        roller = setOf(NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL, NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV, NavAnsattRolle.AVTALER_SKRIV),
     )
 }

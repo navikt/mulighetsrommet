@@ -35,7 +35,6 @@ data class NavAnsattDbo(
 
 enum class NavAnsattRolle {
     TEAM_MULIGHETSROMMET,
-    BETABRUKER,
     KONTAKTPERSON,
     TILTAKSGJENNOMFORINGER_SKRIV,
     AVTALER_SKRIV,

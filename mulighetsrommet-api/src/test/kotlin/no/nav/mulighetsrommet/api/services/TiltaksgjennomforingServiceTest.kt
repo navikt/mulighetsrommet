@@ -181,7 +181,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
                 NavAnsattDbo(
                     navIdent = "B123456",
                     fornavn = "Bertil",
-                    etternavn = "Betabruker",
+                    etternavn = "Bengtson",
                     hovedenhet = "2990",
                     azureId = UUID.randomUUID(),
                     mobilnummer = null,
@@ -211,7 +211,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
                 NavAnsattDbo(
                     navIdent = "B123456",
                     fornavn = "Bertil",
-                    etternavn = "Betabruker",
+                    etternavn = "Bengtson",
                     hovedenhet = "2990",
                     azureId = UUID.randomUUID(),
                     mobilnummer = null,
@@ -224,7 +224,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
                 NavAnsattDbo(
                     navIdent = "Z654321",
                     fornavn = "Znorre",
-                    etternavn = "Betabruker",
+                    etternavn = "Znorrezon",
                     hovedenhet = "2990",
                     azureId = UUID.randomUUID(),
                     mobilnummer = null,

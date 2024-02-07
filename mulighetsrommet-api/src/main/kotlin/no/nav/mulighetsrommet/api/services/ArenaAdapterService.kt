@@ -181,7 +181,7 @@ class ArenaAdapterService(
 
     private fun maybeNotifyRelevantAdministrators(avtale: AvtaleAdminDto) {
         val enhet = resolveRelevantNavEnhet(avtale.arenaAnsvarligEnhet?.enhetsnummer) ?: return
-        notifyRelevantAdministrators(enhet) { administrators ->
+        notifyRelevantAdministrators(enhet, NavAnsattRolle.AVTALER_SKRIV) { administrators ->
             ScheduledNotification(
                 type = NotificationType.TASK,
                 title = """Avtalen "${avtale.navn}" har endringer fra Arena, men mangler en ansvarlig administrator.""",
@@ -198,7 +198,7 @@ class ArenaAdapterService(
 
     private fun maybeNotifyRelevantAdministrators(gjennomforing: TiltaksgjennomforingAdminDto) {
         val enhet = resolveRelevantNavEnhet(gjennomforing.arenaAnsvarligEnhet?.enhetsnummer) ?: return
-        notifyRelevantAdministrators(enhet) { administrators ->
+        notifyRelevantAdministrators(enhet, NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV) { administrators ->
             ScheduledNotification(
                 type = NotificationType.TASK,
                 title = """Gjennomføringen "${gjennomforing.navn}" har endringer fra Arena, men mangler en ansvarlig administrator.""",
@@ -223,6 +223,7 @@ class ArenaAdapterService(
 
     private fun notifyRelevantAdministrators(
         overordnetEnhet: NavEnhetDbo,
+        navAnsattRolle: NavAnsattRolle,
         createNotification: (administrators: NonEmptyList<String>) -> ScheduledNotification,
     ) {
         val potentialAdministratorHovedenheter = navEnhetService
@@ -237,7 +238,7 @@ class ArenaAdapterService(
 
         val administrators = navAnsatte
             .getAll(
-                roller = listOf(NavAnsattRolle.BETABRUKER),
+                roller = listOf(navAnsattRolle),
                 hovedenhetIn = potentialAdministratorHovedenheter,
             )
             .getOrThrow()

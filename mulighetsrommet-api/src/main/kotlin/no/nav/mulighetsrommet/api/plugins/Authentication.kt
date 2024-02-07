@@ -18,7 +18,6 @@ enum class AuthProvider {
     AZURE_AD_TEAM_MULIGHETSROMMET,
     AZURE_AD_DEFAULT_APP,
     AZURE_AD_TILTAKSGJENNOMFORING_APP,
-    AZURE_AD_BETABRUKER,
     AZURE_AD_AVTALER_SKRIV,
     AZURE_AD_TILTAKSJENNOMFORINGER_SKRIV,
     AZURE_AD_TILTAKSADMINISTRASJON_GENERELL,
@@ -72,27 +71,6 @@ fun Application.configureAuthentication(
             }
         }
 
-        jwt(AuthProvider.AZURE_AD_BETABRUKER.name) {
-            verifier(jwkProvider, azure.issuer) {
-                withAudience(azure.audience)
-            }
-
-            validate { credentials ->
-                credentials["NAVident"] ?: return@validate null
-
-                if (!hasAnyNavAnsattRoles(
-                        credentials,
-                        NavAnsattRolle.BETABRUKER,
-                        NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL,
-                    )
-                ) {
-                    return@validate null
-                }
-
-                JWTPrincipal(credentials.payload)
-            }
-        }
-
         jwt(AuthProvider.AZURE_AD_TILTAKSADMINISTRASJON_GENERELL.name) {
             verifier(jwkProvider, azure.issuer) {
                 withAudience(azure.audience)
@@ -121,9 +99,7 @@ fun Application.configureAuthentication(
             validate { credentials ->
                 credentials["NAVident"] ?: return@validate null
 
-                // TODO Fjern betabruker-sjekken når betabruker er sanert
-                if (!hasNavAnsattRoles(credentials, NavAnsattRolle.BETABRUKER) &&
-                    !hasNavAnsattRoles(
+                if (!hasNavAnsattRoles(
                         credentials,
                         NavAnsattRolle.AVTALER_SKRIV,
                         NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL,
@@ -144,9 +120,7 @@ fun Application.configureAuthentication(
             validate { credentials ->
                 credentials["NAVident"] ?: return@validate null
 
-                // TODO Fjern betabruker-sjekken når betabruker er sanert
-                if (!hasNavAnsattRoles(credentials, NavAnsattRolle.BETABRUKER) &&
-                    !hasNavAnsattRoles(
+                if (!hasNavAnsattRoles(
                         credentials,
                         NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV,
                         NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL,

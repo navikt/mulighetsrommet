@@ -9,7 +9,7 @@ export const mockAvtalenotater: AvtaleNotat[] = [
     updatedAt: new Date().toISOString(),
     opprettetAv: {
       navIdent: "B123456",
-      navn: "Bertil Betabruker",
+      navn: "Bertil Bengtson",
     },
     innhold: "Dette er den beste avtalen i verden!",
   },

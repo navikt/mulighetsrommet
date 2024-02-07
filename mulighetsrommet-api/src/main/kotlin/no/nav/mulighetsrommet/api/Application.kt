@@ -49,7 +49,6 @@ fun Application.configure(config: AppConfig) {
             AuthProvider.AZURE_AD_TILTAKSADMINISTRASJON_GENERELL.name,
             AuthProvider.AZURE_AD_AVTALER_SKRIV.name,
             AuthProvider.AZURE_AD_TILTAKSJENNOMFORINGER_SKRIV.name,
-            AuthProvider.AZURE_AD_BETABRUKER.name,
         ) {
             veilederflatePreviewRoutes()
         }

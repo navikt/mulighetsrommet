@@ -35,7 +35,6 @@ spec:
       claims:
         groups:
           - id: 639e2806-4cc2-484c-a72a-51b4308c52a1 # team-mulighetsrommet
-          - id: ee45478c-57a5-4ee6-b28d-b65f8c1733fe # 0000-GA-mr-admin-flate_betabruker
           - id: 279039a0-39fd-4860-afdd-a1a2ccaa6323 # 0000-ZA-TILTAK-tiltaksgjennomforinger_skriv
           - id: 48026f54-6259-4c35-a148-bc4257bcaf03 # 0000-ZA-TILTAK-avtaler_skriv
           - id: 52bb9196-b071-4cc7-9472-be4942d33c4b # 0000-GA-TILTAK-ANSVARLIG

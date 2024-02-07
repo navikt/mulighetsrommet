@@ -40,31 +40,11 @@ class NavAnsattService(
                     ansatte.upsert(NavAnsattDbo.fromNavAnsattDto(ansatt)).map { ansatt }
                 }
             }
-            .map {
-                // TODO Fjern når betabruker-rollen er sanert fra AD
-                if (it.roller.contains(NavAnsattRolle.BETABRUKER)) {
-                    it.copy(
-                        roller = it.roller + listOf(
-                            NavAnsattRolle.AVTALER_SKRIV,
-                            NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV,
-                        ),
-                    )
-                } else {
-                    it
-                }
-            }
             .getOrThrow()
     }
 
     fun getNavAnsatte(filter: NavAnsattFilter): List<NavAnsattDto> {
-        // TODO Fjern når betabruker-rollen er sanert fra AD
-        val roller =
-            if (filter.roller.any { it == NavAnsattRolle.AVTALER_SKRIV || it == NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV }) {
-                filter.roller + NavAnsattRolle.BETABRUKER
-            } else {
-                filter.roller
-            }
-        return ansatte.getAll(roller = roller).getOrThrow()
+        return ansatte.getAll(roller = filter.roller).getOrThrow()
     }
 
     suspend fun getNavAnsattFromAzure(azureId: UUID): NavAnsattDto {
@@ -187,7 +167,7 @@ class NavAnsattService(
                 kontaktpersonMutations.add(mutation)
             }
 
-            if (ansatt.roller.contains(NavAnsattRolle.BETABRUKER)) {
+            if (ansatt.roller.contains(NavAnsattRolle.AVTALER_SKRIV) || ansatt.roller.contains(NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV)) {
                 val id = redaktorer[ansatt.epost] ?: UUID.randomUUID()
                 redaktorMutations.add(upsertRedaktor(ansatt, id.toString()))
             }
