@@ -4,10 +4,10 @@ import { Innsatsgruppe, VeilederflateTiltaksgjennomforing } from "mulighetsromme
 import { Route, Routes } from "react-router-dom";
 import SidemenyDetaljer from "../components/sidemeny/SidemenyDetaljer";
 import TiltaksdetaljerFane from "../components/tabs/TiltaksdetaljerFane";
-import { useGetTiltaksgjennomforingIdFraUrl } from "../core/api/queries/useGetTiltaksgjennomforingIdFraUrl";
+import { useGetTiltaksgjennomforingIdFraUrl } from "@/core/api/queries/useGetTiltaksgjennomforingIdFraUrl";
 import TiltaksgjennomforingsHeader from "./TiltaksgjennomforingsHeader";
 import styles from "./ViewTiltaksgjennomforingDetaljer.module.scss";
-import { Oppskrift } from "../components/oppskrift/Oppskrift";
+import { Oppskrift } from "@/components/oppskrift/Oppskrift";
 import { ReactNode } from "react";
 
 interface Props {

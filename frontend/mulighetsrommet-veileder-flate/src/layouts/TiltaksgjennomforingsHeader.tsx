@@ -1,6 +1,5 @@
 import { BodyLong, Heading } from "@navikt/ds-react";
 import { VeilederflateTiltaksgjennomforing } from "mulighetsrommet-api-client";
-import { kebabCase } from "../utils/Utils";
 import styles from "./TiltaksgjennomforingsHeader.module.scss";
 import classnames from "classnames";
 
@@ -12,12 +11,7 @@ const TiltaksgjennomforingsHeader = ({ tiltaksgjennomforing }: Props) => {
   const { navn, beskrivelse, tiltakstype } = tiltaksgjennomforing;
   return (
     <>
-      <Heading
-        level="1"
-        size="xlarge"
-        className={styles.tiltaksgjennomforing_title}
-        data-testid={`tiltaksgjennomforing-header_${kebabCase(navn)}`}
-      >
+      <Heading level="1" size="xlarge" className={styles.tiltaksgjennomforing_title}>
         {navn}
       </Heading>
       {tiltakstype.beskrivelse && (

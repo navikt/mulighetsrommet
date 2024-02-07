@@ -20,7 +20,7 @@ export function PreviewArbeidsmarkedstiltakDetaljer() {
 
   return (
     <>
-      <Alert style={{ marginBottom: "2rem" }} variant="warning" data-testid="sanity-preview-alert">
+      <Alert style={{ marginBottom: "2rem" }} variant="warning">
         Forhåndsvisning av informasjon
       </Alert>
       <ViewTiltaksgjennomforingDetaljer
@@ -28,7 +28,7 @@ export function PreviewArbeidsmarkedstiltakDetaljer() {
         brukersInnsatsgruppe={brukersInnsatsgruppe}
         knapperad={<Tilbakeknapp tilbakelenke=".." tekst="Tilbake til tiltaksoversikten" />}
         brukerActions={
-          <div>
+          <>
             <DelMedBruker
               tiltaksgjennomforing={data}
               veiledernavn="{Veiledernavn}"
@@ -55,7 +55,7 @@ export function PreviewArbeidsmarkedstiltakDetaljer() {
                 console.log("Del med bruker", dialogId, gjennomforing);
               }}
             />
-          </div>
+          </>
         }
       />
     </>

@@ -148,7 +148,6 @@ export function Delemodal({
                 }}
                 checked={state.venterPaaSvarFraBruker}
                 value="venter-pa-svar-fra-bruker"
-                data-testid="venter-pa-svar_checkbox"
               >
                 Venter på svar fra bruker
               </Checkbox>
@@ -170,7 +169,6 @@ export function Delemodal({
               </Button>
               <Button
                 onClick={handleSend}
-                data-testid="modal_btn-send"
                 disabled={
                   senderTilDialogen ||
                   state.deletekst.length === 0 ||

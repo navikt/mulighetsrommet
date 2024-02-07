@@ -4,7 +4,6 @@ import { Toggles, VeilederflateTiltaksgjennomforing } from "mulighetsrommet-api-
 import { useNavigate } from "react-router-dom";
 import { useFeatureToggle } from "../../core/api/feature-toggles";
 import { faneAtom } from "../../core/atoms/atoms";
-import { kebabCase } from "../../utils/Utils";
 import { Oppskriftsoversikt } from "../oppskrift/Oppskriftsoversikt";
 import DetaljerFane from "./DetaljerFane";
 import styles from "./TiltaksdetaljerFane.module.scss";
@@ -78,13 +77,7 @@ const TiltaksdetaljerFane = ({ tiltaksgjennomforing }: Props) => {
     >
       <Tabs.List className={styles.fane_liste} id="fane_liste">
         {faneoverskrifter.filter(Boolean).map((fane, index) => (
-          <Tabs.Tab
-            key={index}
-            value={`tab${index + 1}`}
-            label={fane}
-            className={styles.btn_tab}
-            data-testid={`fane_${kebabCase(fane)}`}
-          />
+          <Tabs.Tab key={index} value={`tab${index + 1}`} label={fane} className={styles.btn_tab} />
         ))}
       </Tabs.List>
       <div className={styles.fane_panel} data-testid="fane_panel">
