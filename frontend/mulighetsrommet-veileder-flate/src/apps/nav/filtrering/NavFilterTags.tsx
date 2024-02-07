@@ -2,17 +2,22 @@ import { ApentForInnsok } from "mulighetsrommet-api-client";
 import {
   ArbeidsmarkedstiltakFilterGruppe,
   useArbeidsmarkedstiltakFilter,
-} from "../../hooks/useArbeidsmarkedstiltakFilter";
-import FilterTag from "../tags/FilterTag";
-import styles from "./Filtertags.module.scss";
-import { NavEnhetTag } from "./NavEnhetTag";
+} from "@/hooks/useArbeidsmarkedstiltakFilter";
+import FilterTag from "../../../components/tags/FilterTag";
+import { NavEnhetTag } from "@/components/tags/NavEnhetTag";
+import { FilterTagsContainer } from "@/components/filtrering/FilterTagsContainer";
 
-export function Filtertags() {
+export function NavFilterTags() {
   const [filter, setFilter] = useArbeidsmarkedstiltakFilter();
 
   return (
-    <div className={styles.filtertags} data-testid="filtertags">
-      <NavEnhetTag />
+    <FilterTagsContainer>
+      {filter.search && (
+        <FilterTag
+          options={[{ id: "search", tittel: `'${filter.search}'` }]}
+          onClose={() => setFilter({ ...filter, search: "" })}
+        />
+      )}
       {filter.apentForInnsok !== ApentForInnsok.APENT_ELLER_STENGT && (
         <FilterTag
           options={[
@@ -21,7 +26,7 @@ export function Filtertags() {
               tittel: filter.apentForInnsok === ApentForInnsok.APENT ? "Åpent" : "Stengt",
             },
           ]}
-          handleClick={() =>
+          onClose={() =>
             setFilter({
               ...filter,
               apentForInnsok: ApentForInnsok.APENT_ELLER_STENGT,
@@ -29,10 +34,18 @@ export function Filtertags() {
           }
         />
       )}
-      {filter.innsatsgruppe && <FilterTag options={[filter.innsatsgruppe]} />}
+      {filter.innsatsgruppe && (
+        <FilterTag
+          options={[filter.innsatsgruppe]}
+          onClose={() => {
+            setFilter({ ...filter, innsatsgruppe: undefined });
+          }}
+        />
+      )}
+      <NavEnhetTag onClose={() => setFilter({ ...filter, regionMap: {} })} />
       <FilterTag
         options={filter.tiltakstyper}
-        handleClick={(id: string) =>
+        onClose={(id: string) =>
           setFilter({
             ...filter,
             tiltakstyper: filter.tiltakstyper?.filter(
@@ -41,12 +54,6 @@ export function Filtertags() {
           })
         }
       />
-      {filter.search && (
-        <FilterTag
-          options={[{ id: "search", tittel: `'${filter.search}'` }]}
-          handleClick={() => setFilter({ ...filter, search: "" })}
-        />
-      )}
-    </div>
+    </FilterTagsContainer>
   );
 }

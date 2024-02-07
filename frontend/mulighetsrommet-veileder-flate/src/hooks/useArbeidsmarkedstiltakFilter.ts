@@ -42,15 +42,15 @@ export function useArbeidsmarkedstiltakFilterValue() {
   return value.filter;
 }
 
-export function useResetArbeidsmarkedstiltakFilter() {
+export function useResetArbeidsmarkedstiltakFilterMedBrukerIKontekst() {
   const [{ brukerIKontekst, filter }, setValue] = useAtom(filterAtom);
 
   const { data: brukerdata } = useHentBrukerdata();
 
   const filterHasChanged =
-    filter.innsatsgruppe?.nokkel !== brukerdata?.innsatsgruppe ||
-    filter.apentForInnsok !== ApentForInnsok.APENT_ELLER_STENGT ||
     filter.search !== "" ||
+    filter.apentForInnsok !== ApentForInnsok.APENT_ELLER_STENGT ||
+    filter.innsatsgruppe?.nokkel !== brukerdata?.innsatsgruppe ||
     brukersEnhetFilterHasChanged(filter, brukerdata) ||
     filter.tiltakstyper.length > 0;
 
@@ -60,6 +60,28 @@ export function useResetArbeidsmarkedstiltakFilter() {
     resetFilterToDefaults() {
       setValue({
         brukerIKontekst,
+        filter: defaultTiltaksgjennomforingfilter,
+      });
+    },
+  };
+}
+
+export function useResetArbeidsmarkedstiltakFilterUtenBrukerIKontekst() {
+  const [{ filter }, setValue] = useAtom(filterAtom);
+
+  const filterHasChanged =
+    filter.search !== "" ||
+    filter.apentForInnsok !== ApentForInnsok.APENT_ELLER_STENGT ||
+    filter.innsatsgruppe?.nokkel !== undefined ||
+    valgteEnhetsnumre(filter).length !== 0 ||
+    filter.tiltakstyper.length > 0;
+
+  return {
+    filter,
+    filterHasChanged,
+    resetFilterToDefaults() {
+      setValue({
+        brukerIKontekst: null,
         filter: defaultTiltaksgjennomforingfilter,
       });
     },

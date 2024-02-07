@@ -2,6 +2,10 @@
   max-width: none;
 }
 
+:global(.navds-internalheader) {
+  margin-bottom: 1rem;
+}
+
 .svg_success {
   color: var(--a-green-600);
 }

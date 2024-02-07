@@ -11,6 +11,12 @@ test.describe("Tiltaksoversikt", () => {
   });
 
   test("Sjekk at det er tiltaksgjennomføringer i oversikten", async ({ page }) => {
+    const feilmelding = page.getByTestId("feilmelding-container");
+    await expect(feilmelding).toContainText(
+      /Du må filtrere på en innsatsgruppe og minst én NAV-enhet for å se tiltaksgjennomføringer/,
+    );
+    await page.getByLabel("Varig tilpasset innsats").click();
+    await page.getByLabel("NAV Oslo").click();
     const rows = page.getByTestId("oversikt_tiltaksgjennomforinger").getByRole("link");
     await expect(page.getByTestId("oversikt_tiltaksgjennomforinger")).toContainText(
       "Avklaring - Fredrikstad",
@@ -25,6 +31,8 @@ test.describe("Tiltaksoversikt", () => {
   test.describe("Tiltaksgjennomføringsdetaljer for alle NAV-ansatte", () => {
     test.beforeEach(async ({ page }) => {
       await page.goto("/nav/oversikt");
+      await page.getByLabel("Varig tilpasset innsats").click();
+      await page.getByLabel("NAV Oslo").click();
       await page.getByTestId("tiltaksgjennomforing_sindres-mentorordning-med-yoda").click();
     });
 

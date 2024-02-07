@@ -8,7 +8,7 @@ import { TiltakLoader } from "@/components/TiltakLoader";
 import { BrukersOppfolgingsenhetVarsel } from "@/apps/modia/varsler/BrukersOppfolgingsenhetVarsel";
 import { Feilmelding, ForsokPaNyttLink } from "@/components/feilmelding/Feilmelding";
 import { FilterAndTableLayout } from "@/components/filtrering/FilterAndTableLayout";
-import { Filtertags } from "@/components/filtrering/Filtertags";
+import { ModiaFilterTags } from "@/apps/modia/filtrering/ModiaFilterTags";
 import { HistorikkButton } from "@/apps/modia/historikk/HistorikkButton";
 import { BrukerHarIkke14aVedtakVarsel } from "@/apps/modia/varsler/BrukerHarIkke14aVedtakVarsel";
 import { FiltrertFeilInnsatsgruppeVarsel } from "@/apps/modia/varsler/FiltrertFeilInnsatsgruppeVarsel";
@@ -19,7 +19,7 @@ import { useFeatureToggle } from "@/core/api/feature-toggles";
 import { useHentAlleTiltakDeltMedBruker } from "@/apps/modia/hooks/useHentAlleTiltakDeltMedBruker";
 import { useHentBrukerdata } from "@/apps/modia/hooks/useHentBrukerdata";
 import { useVeilederTiltaksgjennomforinger } from "@/core/api/queries/useTiltaksgjennomforinger";
-import { useResetArbeidsmarkedstiltakFilter } from "@/hooks/useArbeidsmarkedstiltakFilter";
+import { useResetArbeidsmarkedstiltakFilterMedBrukerIKontekst } from "@/hooks/useArbeidsmarkedstiltakFilter";
 import { ManglerInnsatsOgServicegruppeVarsel } from "@/apps/modia/varsler/ManglerInnsatsOgServiceGruppeVarsel";
 import { FilterMenyMedSkeletonLoader } from "@/components/filtrering/FilterMenyMedSkeletonLoader";
 
@@ -29,7 +29,8 @@ export const ModiaArbeidsmarkedstiltakOversikt = () => {
   const { data: brukerdata } = useHentBrukerdata();
   const { alleTiltakDeltMedBruker } = useHentAlleTiltakDeltMedBruker();
 
-  const { filter, filterHasChanged, resetFilterToDefaults } = useResetArbeidsmarkedstiltakFilter();
+  const { filter, filterHasChanged, resetFilterToDefaults } =
+    useResetArbeidsmarkedstiltakFilterMedBrukerIKontekst();
 
   const landingssideFeature = useFeatureToggle(Toggles.MULIGHETSROMMET_VEILEDERFLATE_LANDINGSSIDE);
   const landingssideEnabled = landingssideFeature.isSuccess && landingssideFeature.data;
@@ -141,7 +142,7 @@ export const ModiaArbeidsmarkedstiltakOversikt = () => {
           </>
         }
         filter={<FilterMenyMedSkeletonLoader />}
-        tags={<Filtertags />}
+        tags={<ModiaFilterTags />}
         table={
           <div style={{ marginTop: "1rem" }}>
             <BrukersOppfolgingsenhetVarsel brukerdata={brukerdata} />

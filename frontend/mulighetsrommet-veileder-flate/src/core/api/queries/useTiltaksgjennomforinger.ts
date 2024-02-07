@@ -5,7 +5,7 @@ import { QueryKeys } from "../query-keys";
 import {
   useArbeidsmarkedstiltakFilterValue,
   valgteEnhetsnumre,
-} from "../../../hooks/useArbeidsmarkedstiltakFilter";
+} from "@/hooks/useArbeidsmarkedstiltakFilter";
 
 export function useVeilederTiltaksgjennomforinger() {
   return useGetTiltaksgjennomforinger(
@@ -13,16 +13,12 @@ export function useVeilederTiltaksgjennomforinger() {
   );
 }
 
-export function useNavTiltaksgjennomforinger() {
-  return useGetTiltaksgjennomforinger(
-    mulighetsrommetClient.veilederTiltak.getNavTiltaksgjennomforinger,
-  );
-}
+export function useNavTiltaksgjennomforinger({ preview }: { preview: boolean }) {
+  const queryFn = preview
+    ? mulighetsrommetClient.veilederTiltak.getPreviewTiltaksgjennomforinger
+    : mulighetsrommetClient.veilederTiltak.getNavTiltaksgjennomforinger;
 
-export function usePreviewTiltaksgjennomforinger() {
-  return useGetTiltaksgjennomforinger(
-    mulighetsrommetClient.veilederTiltak.getPreviewTiltaksgjennomforinger,
-  );
+  return useGetTiltaksgjennomforinger(queryFn);
 }
 
 function useGetTiltaksgjennomforinger(

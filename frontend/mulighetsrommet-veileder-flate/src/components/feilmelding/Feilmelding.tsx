@@ -11,7 +11,7 @@ import {
 
 interface FeilmeldingProps {
   header: ReactNode;
-  beskrivelse: ReactNode;
+  beskrivelse?: ReactNode;
   children?: ReactNode;
   ikonvariant?: string;
   utenMargin?: boolean;
@@ -30,11 +30,18 @@ export const Feilmelding = ({
 }: FeilmeldingProps) => {
   const ikon = () => {
     if (ikonvariant === "info") {
-      return <InformationSquareFillIcon className={svgStyle.svg_info} />;
+      return (
+        <InformationSquareFillIcon aria-label="Informasjons-ikon" className={svgStyle.svg_info} />
+      );
     } else if (ikonvariant === "warning") {
-      return <ExclamationmarkTriangleFillIcon className={svgStyle.svg_warning} />;
+      return (
+        <ExclamationmarkTriangleFillIcon
+          aria-label="Varsel-ikon"
+          className={svgStyle.svg_warning}
+        />
+      );
     } else if (ikonvariant === "error") {
-      return <XMarkOctagonFillIcon className={svgStyle.svg_error} />;
+      return <XMarkOctagonFillIcon aria-label="Feilmelding-ikon" className={svgStyle.svg_error} />;
     }
   };
 

@@ -34,7 +34,7 @@ class SanityFiltersKtTest : FunSpec({
         test("byggInnsatsgruppeFilter skal returnere tom streng når ingen innsatsgrupper er valgt") {
             val innsatsgruppe = null
             val result = byggInnsatsgruppeFilter(innsatsgruppe)
-            result shouldBe ""
+            result shouldBe "&& tiltakstype->innsatsgruppe->nokkel in []"
         }
 
         test("byggInnsatsgruppeFilter skal returnere korrekt Groq-uttrykk når en innsatsgruppe er gitt") {

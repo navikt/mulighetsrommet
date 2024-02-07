@@ -7,3 +7,9 @@ export const sjekkUU = async (page: Page) => {
     .analyze();
   expect(accessibilityScanResults.violations).toEqual([]);
 };
+
+export const velgFilter = async (page: Page, filternavn: string) => {
+  await page.getByTestId(`filter_radio_${filternavn}`).click();
+  await expect(page.getByTestId(`filter_radio_${filternavn}`)).toBeChecked();
+  await expect(page.getByTestId(`filtertag_${filternavn}`)).toBeVisible();
+};

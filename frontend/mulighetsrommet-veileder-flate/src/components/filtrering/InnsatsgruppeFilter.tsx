@@ -1,11 +1,12 @@
-import { Accordion, Alert, Radio, RadioGroup } from "@navikt/ds-react";
+import { Accordion, Alert, HelpText, Radio, RadioGroup } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { Innsatsgruppe } from "mulighetsrommet-api-client";
-import { useInnsatsgrupper } from "../../core/api/queries/useInnsatsgrupper";
-import { filterAccordionAtom } from "../../core/atoms/atoms";
-import { useArbeidsmarkedstiltakFilter } from "../../hooks/useArbeidsmarkedstiltakFilter";
-import { addOrRemove, kebabCase } from "../../utils/Utils";
+import { useInnsatsgrupper } from "@/core/api/queries/useInnsatsgrupper";
+import { filterAccordionAtom } from "@/core/atoms/atoms";
+import { useArbeidsmarkedstiltakFilter } from "@/hooks/useArbeidsmarkedstiltakFilter";
+import { addOrRemove, kebabCase } from "@/utils/Utils";
 import "./Filtermeny.module.scss";
+import styles from "./InnsatsgruppeFilter.module.scss";
 
 interface InnsatsgruppeFilterProps<
   T extends { id: string; tittel: string; nokkel?: Innsatsgruppe },
@@ -42,11 +43,23 @@ const InnsatsgruppeAccordion = <T extends { id: string; tittel: string; nokkel?:
         onClick={() => {
           setAccordionsOpen([...addOrRemove(accordionsOpen, "innsatsgruppe")]);
         }}
-        data-testid={"filter_accordionheader_innsatsgruppe"}
+        data-testid="filter_accordionheader_innsatsgruppe"
+        className={styles.accordion_header}
       >
-        Innsatsgruppe
+        <div className={styles.accordion_header_text}>
+          Innsatsgruppe
+          <HelpText placement="right" strategy="fixed" onClick={(e) => e.stopPropagation()}>
+            Dette filteret baserer seg på brukerens innsatsgruppe etter behovsvurdering av
+            arbeidsevne (NAV-loven § 14 a), og viser de tiltakene brukeren har krav på med valgt
+            innsatsgruppe.
+            <br />
+            <a href="https://www.nav.no/arbeidsevne#hvordan" rel="noreferrer" target="_blank">
+              Klikk her for mer informasjon.
+            </a>
+          </HelpText>
+        </div>
       </Accordion.Header>
-      <Accordion.Content data-testid={"filter_accordioncontent_innsatsgruppe"}>
+      <Accordion.Content data-testid="filter_accordioncontent_innsatsgruppe">
         {options.length !== 0 && (
           <RadioGroup
             legend=""
