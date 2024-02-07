@@ -1,7 +1,7 @@
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
 import { Alert, BodyShort, Detail, Link, Loader } from "@navikt/ds-react";
 import { HistorikkForBruker as IHistorikkForBruker } from "mulighetsrommet-api-client";
-import { PORTEN } from "mulighetsrommet-frontend-common/constants";
+import { MODIA_PORTEN } from "mulighetsrommet-frontend-common/constants";
 import { useTiltakshistorikkForBruker } from "@/apps/modia/hooks/useTiltakshistorikkForBruker";
 import { formaterDato } from "@/utils/Utils";
 import styles from "./HistorikkForBrukerModal.module.scss";
@@ -84,7 +84,7 @@ function ViVilHoreFraDeg() {
       <BodyShort>
         Vi jobber med utvikling av historikk-funksjonaliteten og vi ønsker å høre fra deg som har
         tanker om hvordan historikken burde presenteres og fungere.{" "}
-        <Link href={PORTEN}>
+        <Link href={MODIA_PORTEN}>
           Send oss gjerne en melding via Porten <ExternalLinkIcon />
         </Link>
       </BodyShort>

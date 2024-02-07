@@ -4,7 +4,7 @@ import {
   DelMedBruker,
   VeilederflateTiltaksgjennomforing,
 } from "mulighetsrommet-api-client";
-import { PORTEN } from "mulighetsrommet-frontend-common/constants";
+import { MODIA_PORTEN } from "mulighetsrommet-frontend-common/constants";
 import { mulighetsrommetClient } from "@/core/api/clients";
 import { useLogEvent } from "@/logging/amplitude";
 import { byttTilDialogFlate } from "@/utils/DialogFlateUtils";
@@ -196,7 +196,7 @@ export function Delemodal({
           text={
             <>
               Tiltaket kunne ikke deles på grunn av en teknisk feil hos oss. Forsøk på nytt eller ta{" "}
-              <a href={PORTEN}>kontakt i Porten</a> dersom du trenger mer hjelp.
+              <a href={MODIA_PORTEN}>kontakt i Porten</a> dersom du trenger mer hjelp.
             </>
           }
           onClose={lukkStatusmodal}

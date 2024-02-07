@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Alert, Button } from "@navikt/ds-react";
 import { ApiError, Toggles } from "mulighetsrommet-api-client";
 import { useTitle } from "mulighetsrommet-frontend-common";
-import { PORTEN } from "mulighetsrommet-frontend-common/constants";
+import { MODIA_PORTEN } from "mulighetsrommet-frontend-common/constants";
 import { Lenke } from "mulighetsrommet-frontend-common/components/Lenke";
 import { TiltakLoader } from "@/components/TiltakLoader";
 import { BrukersOppfolgingsenhetVarsel } from "@/apps/modia/varsler/BrukersOppfolgingsenhetVarsel";
@@ -58,7 +58,7 @@ export const ModiaArbeidsmarkedstiltakOversikt = () => {
         <Alert variant="error">
           Det har dessverre skjedd en feil. Om feilen gjentar seg, ta kontakt i{" "}
           {
-            <Lenke to={PORTEN} target={"_blank"}>
+            <Lenke to={MODIA_PORTEN} target={"_blank"}>
               Porten
             </Lenke>
           }
@@ -76,7 +76,7 @@ export const ModiaArbeidsmarkedstiltakOversikt = () => {
         <Alert variant="error">
           Det har dessverre skjedd en feil. Om feilen gjentar seg, ta kontakt i{" "}
           {
-            <Lenke to={PORTEN} target={"_blank"}>
+            <Lenke to={MODIA_PORTEN} target={"_blank"}>
               Porten
             </Lenke>
           }
