@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.services
 
+import arrow.core.getOrElse
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.clients.oppfolging.ManuellStatusDto
@@ -15,11 +16,10 @@ class BrukerService(
     private val veilarbpersonClient: VeilarbpersonClient,
     private val navEnhetService: NavEnhetService,
 ) {
-
     suspend fun hentBrukerdata(fnr: String, accessToken: String): Brukerdata {
         val oppfolgingsstatus = veilarboppfolgingClient.hentOppfolgingsstatus(fnr, accessToken)
         val manuellStatus = veilarboppfolgingClient.hentManuellStatus(fnr, accessToken)
-        val sisteVedtak = veilarbvedtaksstotteClient.hentSiste14AVedtak(fnr, accessToken)
+        val sisteVedtak = veilarbvedtaksstotteClient.hentSiste14AVedtak(fnr, accessToken).getOrElse { throw it }
         val personInfo = veilarbpersonClient.hentPersonInfo(fnr, accessToken)
 
         val brukersOppfolgingsenhet = oppfolgingsstatus?.oppfolgingsenhet?.enhetId?.let {
