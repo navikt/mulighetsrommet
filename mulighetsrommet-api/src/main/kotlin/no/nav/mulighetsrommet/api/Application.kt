@@ -9,7 +9,7 @@ import no.nav.mulighetsrommet.api.plugins.*
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.routes.featuretoggles.featureTogglesRoute
 import no.nav.mulighetsrommet.api.routes.internal.frontendLoggerRoutes
-import no.nav.mulighetsrommet.api.routes.internal.tasks
+import no.nav.mulighetsrommet.api.routes.internal.maamRoutes
 import no.nav.mulighetsrommet.api.routes.v1.*
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.hoplite.loadConfiguration
@@ -42,7 +42,7 @@ fun Application.configure(config: AppConfig) {
 
     routing {
         authenticate(AuthProvider.AZURE_AD_TEAM_MULIGHETSROMMET.name) {
-            tasks()
+            maamRoutes()
         }
 
         authenticate(AuthProvider.AZURE_AD_NAV_IDENT.name, AuthProvider.AZURE_AD_TILTAKSADMINISTRASJON_GENERELL.name) {
