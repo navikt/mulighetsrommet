@@ -20,7 +20,7 @@ export function PreviewArbeidsmarkedstiltakDetaljer() {
 
   return (
     <>
-      <Alert style={{ marginBottom: "2rem" }} variant="warning" data-testid="sanity-preview-alert">
+      <Alert style={{ marginBottom: "2rem" }} variant="warning">
         Forhåndsvisning av informasjon
       </Alert>
       <ViewTiltaksgjennomforingDetaljer

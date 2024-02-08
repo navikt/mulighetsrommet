@@ -58,7 +58,7 @@ export const DelMedBruker = ({
       <Button
         onClick={handleClickApneModal}
         variant="secondary"
-        aria-label="Dele"
+        aria-label="Del med bruker"
         data-testid="deleknapp"
         icon={delMedBrukerInfo && <CheckmarkIcon title="Suksess" />}
         iconPosition="left"

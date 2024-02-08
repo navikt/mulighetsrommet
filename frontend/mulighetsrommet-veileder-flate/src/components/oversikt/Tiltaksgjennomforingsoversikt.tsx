@@ -6,12 +6,12 @@ import {
   VeilederflateTiltaksgjennomforing,
 } from "mulighetsrommet-api-client";
 import { useEffect, useState } from "react";
-import { paginationAtom } from "../../core/atoms/atoms";
+import { paginationAtom } from "@/core/atoms/atoms";
 import { Sorteringsmeny } from "../sorteringmeny/Sorteringsmeny";
 import { Gjennomforingsrad } from "./Gjennomforingsrad";
 import styles from "./Tiltaksgjennomforingsoversikt.module.scss";
-import { useLogEvent } from "../../logging/amplitude";
-import { useArbeidsmarkedstiltakFilterValue } from "../../hooks/useArbeidsmarkedstiltakFilter";
+import { useLogEvent } from "@/logging/amplitude";
+import { useArbeidsmarkedstiltakFilterValue } from "@/hooks/useArbeidsmarkedstiltakFilter";
 
 interface Props {
   tiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[];
