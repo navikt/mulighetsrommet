@@ -5,6 +5,17 @@ import { NavArbeidsmarkedstiltak } from "./NavArbeidsmarkedstiltak";
 import { PreviewArbeidsmarkedstiltak } from "@/apps/nav/PreviewArbeidsmarkedstiltak";
 import { ReactQueryProvider } from "@/ReactQueryProvider";
 import { initAmplitudeNav } from "@/logging/amplitude";
+import { getWebInstrumentations, initializeFaro } from "@grafana/faro-web-sdk";
+
+if (import.meta.env.VITE_FARO_URL) {
+  initializeFaro({
+    url: import.meta.env.VITE_FARO_URL,
+    instrumentations: [...getWebInstrumentations({ captureConsole: true })],
+    app: {
+      name: "nav-arbeidsmarkedstiltak",
+    },
+  });
+}
 
 initAmplitudeNav();
 
