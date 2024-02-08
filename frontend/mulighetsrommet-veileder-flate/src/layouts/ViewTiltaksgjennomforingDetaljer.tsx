@@ -44,7 +44,7 @@ export const ViewTiltaksgjennomforingDetaljer = ({
         )}
         <div className={styles.sidemeny}>
           <SidemenyDetaljer tiltaksgjennomforing={tiltaksgjennomforing} />
-          {brukerActions}
+          <div className={styles.brukeractions_container}>{brukerActions}</div>
         </div>
         <TiltaksdetaljerFane tiltaksgjennomforing={tiltaksgjennomforing} />
       </div>

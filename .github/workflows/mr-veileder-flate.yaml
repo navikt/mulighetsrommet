@@ -79,6 +79,7 @@ jobs:
         run: npx turbo run build:modia --filter=mulighetsrommet-veileder-flate -- --base=https://cdn.dev.nav.no/mulighetsrommet/arbeidsmarkedstiltak-modia/dist
         env:
           VITE_FARO_URL: https://telemetry.ekstern.dev.nav.no/collect
+          VITE_PORTEN_URL: https://jira.adeo.no/plugins/servlet/desk/portal/541/create/1401
       - name: Upload to NAV CDN
         uses: navikt/frontend/actions/cdn-upload/v1@main
         with:
@@ -103,6 +104,7 @@ jobs:
         run: npx turbo run build:modia --filter=mulighetsrommet-veileder-flate -- --base=https://cdn.nav.no/mulighetsrommet/arbeidsmarkedstiltak-modia/dist
         env:
           VITE_FARO_URL: https://telemetry.nav.no/collect
+          VITE_PORTEN_URL: https://jira.adeo.no/plugins/servlet/desk/portal/541/create/1401
       - name: Upload to NAV CDN
         uses: navikt/frontend/actions/cdn-upload/v1@main
         with:
@@ -125,6 +127,9 @@ jobs:
         uses: ./.github/actions/setup-frontend
       - name: Build
         run: npx turbo run build:nav --filter=mulighetsrommet-veileder-flate
+        env:
+          VITE_AMPLITUDE_API_KEY: 669d3e2dcff1396f26ae5df125ed505e
+          VITE_PORTEN_URL: https://jira.adeo.no/plugins/servlet/desk/portal/541/create/5406
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
@@ -148,6 +153,9 @@ jobs:
         uses: ./.github/actions/setup-frontend
       - name: Build
         run: npx turbo run build:nav --filter=mulighetsrommet-veileder-flate
+        env:
+          VITE_AMPLITUDE_API_KEY: 927491550bf305e5263e65255d8fd900
+          VITE_PORTEN_URL: https://jira.adeo.no/plugins/servlet/desk/portal/541/create/5406
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:

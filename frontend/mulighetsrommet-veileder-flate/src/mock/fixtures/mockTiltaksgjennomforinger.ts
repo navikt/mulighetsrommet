@@ -6,7 +6,7 @@ import {
 } from "mulighetsrommet-api-client";
 import { mockTiltakstyper } from "./mockTiltakstyper";
 
-const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
+export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
   {
     sanityId: "f4cea25b-c372-4d4c-8106-535ab10cd586",
     navn: "Avklaring - Fredrikstad",
@@ -35,7 +35,6 @@ const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
       ],
       varsler: [],
     },
-    kontaktinfoTiltaksansvarlige: [],
     faneinnhold: {
       forHvem: [
         {
@@ -77,7 +76,6 @@ const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
       ],
       varsler: [],
     },
-    kontaktinfoTiltaksansvarlige: [],
   },
   {
     id: "00097090-1ba8-47a4-a82f-6aaad488994e",
@@ -120,7 +118,6 @@ const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
       ],
       varsler: [],
     },
-    kontaktinfoTiltaksansvarlige: [],
     faneinnhold: {
       forHvemInfoboks: "Deltakeren må være forberedt på dårlig vær under tiltaksperioden",
       forHvem: [
@@ -210,7 +207,6 @@ const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
       ],
       varsler: [],
     },
-    kontaktinfoTiltaksansvarlige: [],
     faneinnhold: {
       forHvem: [
         {
@@ -291,7 +287,6 @@ const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
       ],
       varsler: [],
     },
-    kontaktinfoTiltaksansvarlige: [],
     faneinnhold: {
       forHvem: [
         {
@@ -347,7 +342,6 @@ const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
       ],
       varsler: [],
     },
-    kontaktinfoTiltaksansvarlige: [],
   },
   {
     sanityId: "f1887090-1ba8-47a4-a82f-6aaad488994e",
@@ -361,7 +355,6 @@ const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
       tiltaksansvarlige: [],
       varsler: [],
     },
-    kontaktinfoTiltaksansvarlige: [],
     sluttdato: "2030-11-30",
   },
 ];
@@ -382,8 +375,6 @@ for (let i = 0; i < x; i++) {
       tiltaksansvarlige: [],
       varsler: [],
     },
-    kontaktinfoTiltaksansvarlige: [],
     sluttdato: "2030-11-30",
   });
 }
-export { mockTiltaksgjennomforinger };

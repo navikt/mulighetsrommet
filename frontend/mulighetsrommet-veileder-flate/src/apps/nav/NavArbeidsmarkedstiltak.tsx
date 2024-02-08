@@ -18,7 +18,7 @@ export function NavArbeidsmarkedstiltak() {
       }
     >
       <Routes>
-        <Route path="oversikt" element={<NavArbeidsmarkedstiltakOversikt preview={false} />} />
+        <Route path="oversikt" element={<NavArbeidsmarkedstiltakOversikt />} />
         <Route path="tiltak/:id/*" element={<NavArbeidsmarkedstiltakDetaljer />} />
         <Route path="om" element={<OmArbeidsmarkedstiltak />} />
         <Route path="*" element={<Navigate replace to="./oversikt" />} />

@@ -2,8 +2,6 @@ import { useEffect, useState } from "react";
 import { Alert, Button } from "@navikt/ds-react";
 import { ApiError, Toggles } from "mulighetsrommet-api-client";
 import { useTitle } from "mulighetsrommet-frontend-common";
-import { MODIA_PORTEN } from "mulighetsrommet-frontend-common/constants";
-import { Lenke } from "mulighetsrommet-frontend-common/components/Lenke";
 import { TiltakLoader } from "@/components/TiltakLoader";
 import { BrukersOppfolgingsenhetVarsel } from "@/apps/modia/varsler/BrukersOppfolgingsenhetVarsel";
 import { Feilmelding, ForsokPaNyttLink } from "@/components/feilmelding/Feilmelding";
@@ -22,6 +20,7 @@ import { useVeilederTiltaksgjennomforinger } from "@/core/api/queries/useTiltaks
 import { useResetArbeidsmarkedstiltakFilterMedBrukerIKontekst } from "@/hooks/useArbeidsmarkedstiltakFilter";
 import { ManglerInnsatsOgServicegruppeVarsel } from "@/apps/modia/varsler/ManglerInnsatsOgServiceGruppeVarsel";
 import { FilterMenyMedSkeletonLoader } from "@/components/filtrering/FilterMenyMedSkeletonLoader";
+import { PortenLink } from "@/components/PortenLink";
 
 export const ModiaArbeidsmarkedstiltakOversikt = () => {
   useTitle("Arbeidsmarkedstiltak - Oversikt");
@@ -53,15 +52,10 @@ export const ModiaArbeidsmarkedstiltakOversikt = () => {
   }
 
   if (isError) {
-    if (error instanceof ApiError) {
-      return (
-        <Alert variant="error">
-          Det har dessverre skjedd en feil. Om feilen gjentar seg, ta kontakt i{" "}
-          {
-            <Lenke to={MODIA_PORTEN} target={"_blank"}>
-              Porten
-            </Lenke>
-          }
+    return (
+      <Alert variant="error">
+        Det har dessverre skjedd en feil. Om feilen gjentar seg, ta kontakt i <PortenLink />.
+        {error instanceof ApiError ? (
           <pre>
             {JSON.stringify(
               { message: error.message, status: error.status, url: error.url },
@@ -69,21 +63,9 @@ export const ModiaArbeidsmarkedstiltakOversikt = () => {
               2,
             )}
           </pre>
-        </Alert>
-      );
-    } else {
-      return (
-        <Alert variant="error">
-          Det har dessverre skjedd en feil. Om feilen gjentar seg, ta kontakt i{" "}
-          {
-            <Lenke to={MODIA_PORTEN} target={"_blank"}>
-              Porten
-            </Lenke>
-          }
-          .
-        </Alert>
-      );
-    }
+        ) : null}
+      </Alert>
+    );
   }
 
   if (brukerdata.enheter.length === 0) {

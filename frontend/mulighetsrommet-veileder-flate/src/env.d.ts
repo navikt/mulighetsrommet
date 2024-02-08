@@ -22,7 +22,7 @@ export type LogEventFromApp = (params?: {
   origin: unknown | string;
   eventName: unknown | string;
   eventData?: unknown | Record<string, unknown>;
-}) => Promise<Void>;
+}) => Promise<void>;
 
 declare global {
   interface Window {

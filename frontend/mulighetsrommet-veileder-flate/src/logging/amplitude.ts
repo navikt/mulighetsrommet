@@ -1,48 +1,72 @@
+import amplitude from "amplitude-js";
 import { useAtomValue } from "jotai";
-import { LogEventFromApp } from "../env";
-import { erPreview } from "../utils/Utils";
 import { Event } from "./taxonomy";
 import { modiaContextAtom } from "../apps/modia/hooks/useModiaContext";
 
-let amplitude: LogEventFromApp | null = null;
+type LogEvent = (params: { eventName: string; eventData?: any }) => void;
 
-export function initAmplitude() {
-  if (import.meta.env.VITE_MULIGHETSROMMET_API_MOCK === "true") {
-    // eslint-disable-next-line no-console
-    console.info("Initialiserer ikke Amplitude lokalt når vi kjører mocks");
-    return;
-  }
+// Default, altså for DEMO og hvis amplitude skulle være nede, så gjør vi ingen ting
+let amplitudeLogger: LogEvent = () => {};
 
+export function initAmplitudeModia() {
   if (window.veilarbpersonflatefsAmplitude) {
-    amplitude = window.veilarbpersonflatefsAmplitude;
+    amplitudeLogger = (params: { eventName: string; eventData?: any }) => {
+      window.veilarbpersonflatefsAmplitude({
+        origin: "arbeidsmarkedstiltak",
+        eventName: params.eventName,
+        eventData: params.eventData,
+      });
+    };
   } else {
     // eslint-disable-next-line no-console
     console.warn("Amplitude finnes ikke på window fra veilarbpersonflate");
   }
 }
 
+export function initAmplitudeNav() {
+  const config = {
+    apiEndpoint: "amplitude.nav.no/collect",
+    saveEvents: false,
+    includeUtm: true,
+    includeReferrer: true,
+    platform: window.location.toString(),
+    trackingOptions: {
+      city: false,
+      ip_address: false,
+    },
+    // eslint-disable-next-line no-console
+    onerror: () => console.warn("Amplitude init error"),
+  };
+  amplitude.getInstance().init(import.meta.env.VITE_AMPLITUDE_API_KEY, undefined, config);
+  amplitudeLogger = (params: { eventName: string; eventData?: any }) =>
+    amplitude.getInstance().logEvent(params.eventName, params.eventData);
+}
+
 export function useLogEvent() {
   const contextData = useAtomValue(modiaContextAtom);
 
   function logEvent(event: Event, extraData?: Record<string, unknown>) {
-    const erPreviewModus = erPreview() || import.meta.env.VITE_MULIGHETSROMMET_API_MOCK === "true";
-    const fylkeOgEnhet = { fylke: contextData.overordnetEnhet, enhet: contextData.enhet };
-    if (!erPreviewModus) {
-      amplitude?.({
-        origin: "arbeidsmarkedstiltak",
+    const fylkeOgEnhet = contextData
+      ? { fylke: contextData.overordnetEnhet, enhet: contextData.enhet }
+      : undefined;
+
+    if (import.meta.env.VITE_MULIGHETSROMMET_API_MOCK === "true") {
+      // eslint-disable-next-line no-console
+      console.log("[Mock Amplitude Event]", {
+        name: event.name,
+        data: {
+          ...("data" in event ? event.data : {}),
+          ...extraData,
+        },
+      });
+    } else {
+      amplitudeLogger({
         eventName: event.name,
         eventData: {
           ...("data" in event ? event.data : {}),
           ...extraData,
           ...fylkeOgEnhet,
         },
-      });
-    } else {
-      // eslint-disable-next-line no-console
-      console.log("[Mock Amplitude Event]", {
-        name: event.name,
-        ...("data" in event ? event.data : {}),
-        ...fylkeOgEnhet,
       });
     }
   }

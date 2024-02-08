@@ -1,8 +1,8 @@
-import { MODIA_PORTEN } from "mulighetsrommet-frontend-common/constants";
 import { Link } from "react-router-dom";
 import { Avtale } from "mulighetsrommet-api-client";
 import { BodyShort } from "@navikt/ds-react";
 import { avtaleHarRegioner } from "../../utils/Utils";
+import { PORTEN_URL } from "../../constants";
 
 const avtaleFinnesIkke = () => (
   <>
@@ -12,7 +12,7 @@ const avtaleFinnesIkke = () => (
       <Link to={`/avtaler`}>avtaler</Link>, finn riktig avtale og trykk «Legg til gjennomføring».
     </BodyShort>
     <BodyShort>
-      Ta <a href={MODIA_PORTEN}>kontakt i Porten</a> dersom du trenger mer hjelp.
+      Ta <a href={PORTEN_URL}>kontakt i Porten</a> dersom du trenger mer hjelp.
     </BodyShort>
   </>
 );
@@ -29,7 +29,7 @@ const avtaleManglerNavRegionError = (avtaleId?: string) => (
       ) : null}
     </BodyShort>
     <BodyShort>
-      Ta <a href={MODIA_PORTEN}>kontakt i Porten</a> dersom du trenger mer hjelp.
+      Ta <a href={PORTEN_URL}>kontakt i Porten</a> dersom du trenger mer hjelp.
     </BodyShort>
   </>
 );
