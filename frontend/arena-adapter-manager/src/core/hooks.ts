@@ -1,18 +1,18 @@
 import { useEffect, useState } from "react";
 import { Topic } from "../domain";
-import { getArenaTables, getTopics } from "./api";
+import { ApiBase, getArenaTables, getTopics } from "./api";
 
-export function useTopics() {
+export function useTopics(base: ApiBase) {
   const [topics, setTopics] = useState<Topic[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   useEffect(() => {
     const fetchTopics = async () => {
-      const t = await getTopics();
+      const t = await getTopics(base);
       setTopics(t ?? []);
       setIsLoading(false);
     };
     fetchTopics();
-  }, []);
+  }, [base]);
   return { topics, isTopicsLoading: isLoading, setTopics };
 }
 
