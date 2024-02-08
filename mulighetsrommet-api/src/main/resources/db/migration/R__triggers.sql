@@ -62,3 +62,15 @@ CREATE TRIGGER set_timestamp
     ON veileder_joyride
     FOR EACH ROW
 EXECUTE PROCEDURE trigger_set_timestamp();
+
+CREATE TRIGGER set_timestamp
+    BEFORE UPDATE
+    ON deltaker_registrering_innholdselement
+    FOR EACH ROW
+EXECUTE PROCEDURE trigger_set_timestamp();
+
+CREATE TRIGGER set_timestamp
+    BEFORE UPDATE
+    ON tiltakstype_deltaker_registrering_innholdselement
+    FOR EACH ROW
+EXECUTE PROCEDURE trigger_set_timestamp();
