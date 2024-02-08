@@ -29,13 +29,13 @@ class VeilarboppfolgingClient(
 
     private val veilarboppfolgingCache: Cache<String, OppfolgingsstatusDto> = Caffeine.newBuilder()
         .expireAfterWrite(30, TimeUnit.MINUTES)
-        .maximumSize(500)
+        .maximumSize(10_000)
         .recordStats()
         .build()
 
     private val manuellStatusCache: Cache<String, ManuellStatusDto> = Caffeine.newBuilder()
         .expireAfterWrite(30, TimeUnit.MINUTES)
-        .maximumSize(500)
+        .maximumSize(10_000)
         .recordStats()
         .build()
 
