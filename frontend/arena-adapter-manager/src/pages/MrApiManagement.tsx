@@ -1,14 +1,19 @@
-import { Box, Heading, VStack, Link } from "@chakra-ui/react";
+import { Box, Heading, Link, VStack } from "@chakra-ui/react";
 import { UpdateVirksomhet } from "../sections/UpdateVirksomhet";
 import { RunTask } from "../sections/RunTask";
+import TopicOverview from "../sections/TopicOverview.tsx";
+import { ApiBase } from "../core/api.tsx";
 
 export function MrApiManagement() {
   return (
     <Box>
       <Heading mb="10">mr-api</Heading>
       <VStack spacing={8}>
+        <TopicOverview base={ApiBase.MR_API} />
+
         <UpdateVirksomhet />
-        <RunTask task="generate-validation-report">
+
+        <RunTask base={ApiBase.MR_API} task="generate-validation-report">
           <p>
             Genererer en rapport med alle valideringsfeil på gjennomføringer og laster rapporten opp
             til en
@@ -19,19 +24,23 @@ export function MrApiManagement() {
             migrere.
           </p>
         </RunTask>
-        <RunTask task="initial-load-mulighetsrommet-tiltakstyper">
+
+        <RunTask base={ApiBase.MR_API} task="initial-load-mulighetsrommet-tiltakstyper">
           Starter en initial load av alle tiltakstyper som skal migreres.
         </RunTask>
-        <RunTask task="initial-load-mulighetsrommet-tiltaksgjennomforinger">
+
+        <RunTask base={ApiBase.MR_API} task="initial-load-mulighetsrommet-tiltaksgjennomforinger">
           Starter en initial load av alle gjennomføringer med opphav = MR_ADMIN_FLATE.
         </RunTask>
-        <RunTask task="initial-load-tiltaksgjennomforinger">
+
+        <RunTask base={ApiBase.MR_API} task="initial-load-tiltaksgjennomforinger">
           <p>Starter en initial load av alle gjennomføringer i API.</p>
           <p>
             Dette inkluderer både gjennomføringer med opphav = ARENA og opphav = MR_ADMIN_FLATE.
           </p>
         </RunTask>
-        <RunTask task={"sync-navansatte"}>
+
+        <RunTask base={ApiBase.MR_API} task={"sync-navansatte"}>
           Synkoniserer NAV-ansatte fra relevante AD-grupper.
         </RunTask>
       </VStack>

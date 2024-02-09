@@ -1,9 +1,10 @@
 import { Button } from "@chakra-ui/react";
 import { ReactNode, useState } from "react";
 import { Section } from "../components/Section";
-import { MrApiTask, runTask } from "../core/api";
+import { ApiBase, MrApiTask, runTask } from "../core/api";
 
 interface Props {
+  base: ApiBase;
   task: MrApiTask;
   children: ReactNode;
 }
@@ -13,7 +14,7 @@ export function RunTask(props: Props) {
 
   const executeTask = async () => {
     setLoading(true);
-    await runTask(props.task);
+    await runTask(props.base, props.task);
     setLoading(false);
   };
 

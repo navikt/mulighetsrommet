@@ -84,7 +84,6 @@ export function DelMedBrukerContent({
 
       {enableRedigerDeletekst ? null : (
         <Button
-          data-testid="endre-deletekst_btn"
           onClick={enableEndreDeletekst}
           variant="secondary"
           className={delemodalStyles.endreTekst_btn}

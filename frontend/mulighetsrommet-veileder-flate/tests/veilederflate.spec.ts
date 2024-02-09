@@ -67,7 +67,7 @@ test.describe("Tiltaksoversikt", () => {
 test.describe("Tiltaksgjennomføringsdetaljer", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/arbeidsmarkedstiltak/oversikt");
-    await page.getByTestId("tiltaksgjennomforing_sindres-mentorordning-med-yoda").click();
+    await page.getByRole("link", { name: "Sindres mentorordning med Yoda" }).click();
   });
 
   test("Sjekk UU", async ({ page }) => {
@@ -75,13 +75,12 @@ test.describe("Tiltaksgjennomføringsdetaljer", () => {
   });
 
   test("Sjekk riktig tiltaksgjennomføring", async ({ page }) => {
-    await expect(page).toHaveTitle(
-      /Arbeidsmarkedstiltak - Detaljer - Sindres mentorordning med Yoda/,
-    );
+    const h1 = await page.getByRole("heading", { level: 1 }).innerText();
+    expect(h1).toContain("Sindres mentorordning med Yoda");
   });
 
   test("Sjekk at kontaktinfo-fanen viser kontaktinfo", async ({ page }) => {
-    await page.getByTestId("fane_kontaktinfo").click();
+    await page.getByRole("tab", { name: "Kontaktinfo" }).click();
     await expect(page.getByTestId("fane_panel")).toContainText("Sindre");
   });
 
@@ -91,14 +90,14 @@ test.describe("Tiltaksgjennomføringsdetaljer", () => {
     await expect(page.getByTestId("textarea_deletekst")).toContainText("Jedi Mester");
     await expect(page.getByTestId("textarea_deletekst")).toContainText("Hilsen");
 
-    await page.getByTestId("endre-deletekst_btn").click();
+    await page.getByRole("button", { name: "Rediger melding" }).click();
     await page.getByTestId("textarea_deletekst").fill("I am your father");
 
     await expect(page.getByTestId("textarea_deletekst")).not.toContainText("Hei IHERDIG");
     await expect(page.getByTestId("textarea_deletekst")).toContainText("I am your father");
 
-    await page.getByTestId("venter-pa-svar_checkbox").check();
-    await page.getByTestId("modal_btn-send").click();
+    await page.getByRole("checkbox", { name: "Venter på svar fra bruker" }).check();
+    await page.getByRole("button", { name: "Send via Dialogen" }).click();
 
     await expect(page.getByTestId("statusmodal")).toContainText("Tiltaket er delt med brukeren");
   });
@@ -116,7 +115,9 @@ test.describe("Preview Mulighetsrommet", () => {
   });
 
   test("Skal vise en warning på siden om at man er i Preview-modus", async ({ page }) => {
-    await expect(page.getByTestId("sanity-preview-alert")).toBeVisible();
+    await expect(page.getByText("AdvarselForhåndsvisning av informasjon")).toContainText(
+      "Forhåndsvisning av informasjon",
+    );
   });
 
   test("Skal kunne åpne del med bruker, men send via Dialog-knapp gir feilmodal", async ({
