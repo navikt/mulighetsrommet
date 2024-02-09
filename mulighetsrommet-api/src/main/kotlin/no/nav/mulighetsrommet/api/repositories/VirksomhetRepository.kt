@@ -22,27 +22,24 @@ class VirksomhetRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            insert into virksomhet(
-                organisasjonsnummer,
-                navn,
-                postnummer,
-                poststed
-            )
-            values (:organisasjonsnummer, :navn, :postnummer, :poststed)
+            insert into virksomhet(organisasjonsnummer, navn, slettet_dato, postnummer, poststed)
+            values (:organisasjonsnummer, :navn, :slettet_dato, :postnummer, :poststed)
             on conflict (organisasjonsnummer) do update set
-                navn        = excluded.navn,
-                postnummer  = excluded.postnummer,
-                poststed    = excluded.poststed
+                navn         = excluded.navn,
+                slettet_dato = excluded.slettet_dato,
+                postnummer   = excluded.postnummer,
+                poststed     = excluded.poststed
             returning *
         """.trimIndent()
 
         @Language("PostgreSQL")
         val upsertUnderenheter = """
-             insert into virksomhet (overordnet_enhet, navn, organisasjonsnummer, postnummer, poststed)
-             values (?, ?, ?, ?, ?)
-             on conflict (organisasjonsnummer) do update set
+            insert into virksomhet (organisasjonsnummer, navn, overordnet_enhet, slettet_dato, postnummer, poststed)
+            values (:organisasjonsnummer, :navn, :overordnet_enhet, :slettet_dato, :postnummer, :poststed)
+            on conflict (organisasjonsnummer) do update set
                 navn             = excluded.navn,
                 overordnet_enhet = excluded.overordnet_enhet,
+                slettet_dato     = excluded.slettet_dato,
                 postnummer       = excluded.postnummer,
                 poststed         = excluded.poststed
             returning *
@@ -60,12 +57,10 @@ class VirksomhetRepository(private val db: Database) {
             overordnetEnhetDbo.underenheter.forEach { underenhet ->
                 queryOf(
                     upsertUnderenheter,
-                    overordnetEnhetDbo.organisasjonsnummer,
-                    underenhet.navn,
-                    underenhet.organisasjonsnummer,
-                    underenhet.postnummer,
-                    underenhet.poststed,
-                ).asExecute.let { tx.run(it) }
+                    underenhet.toSqlParameters(),
+                )
+                    .asExecute
+                    .let { tx.run(it) }
             }
 
             queryOf(
@@ -82,14 +77,8 @@ class VirksomhetRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            insert into virksomhet(
-                organisasjonsnummer,
-                navn,
-                overordnet_enhet,
-                postnummer,
-                poststed
-            )
-            values (:organisasjonsnummer, :navn, :overordnet_enhet, :postnummer, :poststed)
+            insert into virksomhet(organisasjonsnummer, navn, overordnet_enhet, slettet_dato, postnummer, poststed)
+            values (:organisasjonsnummer, :navn, :overordnet_enhet, :slettet_dato, :postnummer, :poststed)
             on conflict (organisasjonsnummer) do update set
                 navn = excluded.navn,
                 overordnet_enhet = excluded.overordnet_enhet,
@@ -108,9 +97,11 @@ class VirksomhetRepository(private val db: Database) {
             VirksomhetTil.AVTALE -> {
                 "inner join avtale on avtale.leverandor_organisasjonsnummer = v.organisasjonsnummer"
             }
+
             VirksomhetTil.TILTAKSGJENNOMFORING -> {
                 "inner join tiltaksgjennomforing t on t.arrangor_organisasjonsnummer = v.organisasjonsnummer"
             }
+
             else -> ""
         }
 
@@ -120,6 +111,7 @@ class VirksomhetRepository(private val db: Database) {
                 v.organisasjonsnummer,
                 v.overordnet_enhet,
                 v.navn,
+                v.slettet_dato,
                 v.postnummer,
                 v.poststed
             from virksomhet v
@@ -140,6 +132,7 @@ class VirksomhetRepository(private val db: Database) {
                 v.organisasjonsnummer,
                 v.overordnet_enhet,
                 v.navn,
+                v.slettet_dato,
                 v.postnummer,
                 v.poststed
             from virksomhet v
@@ -152,6 +145,7 @@ class VirksomhetRepository(private val db: Database) {
                 v.organisasjonsnummer,
                 v.overordnet_enhet,
                 v.navn,
+                v.slettet_dato,
                 v.postnummer,
                 v.poststed
             from virksomhet v
@@ -267,7 +261,7 @@ class VirksomhetRepository(private val db: Database) {
         organisasjonsnummer = string("organisasjonsnummer"),
         navn = string("navn"),
         overordnetEnhet = stringOrNull("overordnet_enhet"),
-        underenheter = null,
+        slettetDato = localDateOrNull("slettet_dato"),
         postnummer = stringOrNull("postnummer"),
         poststed = stringOrNull("poststed"),
     )
@@ -285,6 +279,7 @@ class VirksomhetRepository(private val db: Database) {
         "organisasjonsnummer" to organisasjonsnummer,
         "navn" to navn,
         "overordnet_enhet" to overordnetEnhet,
+        "slettet_dato" to slettetDato,
         "postnummer" to postnummer,
         "poststed" to poststed,
     )
@@ -301,6 +296,7 @@ class VirksomhetRepository(private val db: Database) {
     private fun OverordnetEnhetDbo.toSqlParameters() = mapOf(
         "organisasjonsnummer" to organisasjonsnummer,
         "navn" to navn,
+        "slettet_dato" to slettetDato,
         "postnummer" to postnummer,
         "poststed" to poststed,
     )

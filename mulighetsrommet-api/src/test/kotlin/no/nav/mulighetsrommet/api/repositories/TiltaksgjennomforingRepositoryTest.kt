@@ -375,6 +375,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 VirksomhetDto(
                     organisasjonsnummer = "999888777",
                     navn = "Rema 2000",
+                    postnummer = null,
+                    poststed = null,
                 ),
             )
             val thomas = VirksomhetKontaktperson(

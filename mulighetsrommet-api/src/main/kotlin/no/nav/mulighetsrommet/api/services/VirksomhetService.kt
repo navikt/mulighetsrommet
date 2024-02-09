@@ -27,7 +27,7 @@ class VirksomhetService(
 
     private val brregServiceCache: Cache<String, VirksomhetDto> = Caffeine.newBuilder()
         .expireAfterWrite(3, TimeUnit.HOURS)
-        .maximumSize(500)
+        .maximumSize(20_000)
         .recordStats()
         .build()
 
@@ -47,27 +47,23 @@ class VirksomhetService(
 
     suspend fun syncVirksomhetFraBrreg(orgnr: String): VirksomhetDto? {
         log.info("Skal synkronisere enhet med orgnr: $orgnr fra Brreg")
-        val enhet = CacheUtils.tryCacheFirstNullable(brregServiceCache, orgnr) {
-            brregClient.hentEnhet(orgnr)
-        } ?: return null
+        val virksomhet = getVirksomhet(orgnr) ?: return null
 
-        log.info("Hentet enhet fra Brreg med orgnr: $orgnr: $enhet")
-        val overordnetEnhet = if (enhet.overordnetEnhet == null) {
-            enhet
+        log.info("Hentet enhet fra Brreg med orgnr: $orgnr: $virksomhet")
+        val overordnetEnhet = if (virksomhet.overordnetEnhet == null) {
+            virksomhet
         } else {
-            CacheUtils.tryCacheFirstNullable(brregServiceCache, enhet.overordnetEnhet) {
-                brregClient.hentEnhet(enhet.overordnetEnhet)
-            }
+            getVirksomhet(virksomhet.overordnetEnhet)
         } ?: return null
 
-        if (overordnetEnhet.slettedato != null) {
-            log.info("Enhet med orgnr: ${enhet.organisasjonsnummer} er slettet i Brreg med slettedato ${enhet.slettedato}")
+        if (overordnetEnhet.slettetDato != null) {
+            log.info("Enhet med orgnr: ${virksomhet.organisasjonsnummer} er slettet i Brreg med slettedato ${virksomhet.slettetDato}")
         }
 
         virksomhetRepository.upsertOverordnetEnhet(overordnetEnhet.toOverordnetEnhetDbo())
             .onLeft { log.warn("Feil ved upsert av virksomhet: $it") }
 
-        return enhet
+        return virksomhet
     }
 
     suspend fun sokEtterEnhet(sokestreng: String): List<VirksomhetDto> {
@@ -92,5 +88,9 @@ class VirksomhetService(
         }
 
         return Either.Right(virksomhetRepository.deleteKontaktperson(id))
+    }
+
+    private suspend fun getVirksomhet(orgnr: String) = CacheUtils.tryCacheFirstNullable(brregServiceCache, orgnr) {
+        brregClient.hentEnhet(orgnr)
     }
 }

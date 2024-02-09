@@ -1,6 +1,8 @@
 package no.nav.mulighetsrommet.api.domain.dto
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
+import java.time.LocalDate
 
 @Serializable
 data class VirksomhetDto(
@@ -8,7 +10,8 @@ data class VirksomhetDto(
     val navn: String,
     val overordnetEnhet: String? = null,
     val underenheter: List<VirksomhetDto>? = null,
-    val postnummer: String? = null,
-    val poststed: String? = null,
-    val slettedato: String? = null,
+    val postnummer: String?,
+    val poststed: String?,
+    @Serializable(with = LocalDateSerializer::class)
+    val slettetDato: LocalDate? = null,
 )

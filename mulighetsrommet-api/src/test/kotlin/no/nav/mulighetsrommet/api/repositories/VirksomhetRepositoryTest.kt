@@ -18,6 +18,7 @@ import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.utils.VirksomhetTil
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
+import java.time.LocalDate
 import java.util.*
 
 class VirksomhetRepositoryTest : FunSpec({
@@ -46,6 +47,7 @@ class VirksomhetRepositoryTest : FunSpec({
                 navn = "REMA 1000 AS",
                 organisasjonsnummer = "982254604",
                 underenheter = listOf(underenhet1, underenhet2),
+                slettetDato = null,
                 postnummer = "5174",
                 poststed = "Mathopen",
             )
@@ -83,6 +85,7 @@ class VirksomhetRepositoryTest : FunSpec({
                 navn = "REMA 1000 AS",
                 organisasjonsnummer = "982254604",
                 underenheter = listOf(underenhet1),
+                slettetDato = null,
                 postnummer = "5174",
                 poststed = "Mathopen",
             )
@@ -135,6 +138,41 @@ class VirksomhetRepositoryTest : FunSpec({
             }
         }
 
+        test("Upsert slettet enhet") {
+            val virksomhetRepository = VirksomhetRepository(database.db)
+
+            val slettetDato = LocalDate.of(2024, 1, 1)
+
+            val underenhet1 = VirksomhetDto(
+                organisasjonsnummer = "880907522",
+                overordnetEnhet = "982254604",
+                navn = "REMA 1000 NORGE AS REGION NORDLAND",
+                slettetDato = slettetDato,
+                postnummer = "5174",
+                poststed = "Mathopen",
+            )
+
+            val overordnet = OverordnetEnhetDbo(
+                navn = "REMA 1000 AS",
+                organisasjonsnummer = "982254604",
+                underenheter = listOf(underenhet1),
+                slettetDato = slettetDato,
+                postnummer = "5174",
+                poststed = "Mathopen",
+            )
+
+            virksomhetRepository.upsertOverordnetEnhet(overordnet).shouldBeRight()
+
+            virksomhetRepository.get(overordnet.organisasjonsnummer).shouldBeRight().should {
+                it.shouldNotBeNull()
+                it.slettetDato shouldBe slettetDato
+            }
+            virksomhetRepository.get(underenhet1.organisasjonsnummer).shouldBeRight().should {
+                it.shouldNotBeNull()
+                it.slettetDato shouldBe slettetDato
+            }
+        }
+
         test("Delete overordnet cascader") {
             val virksomhetRepository = VirksomhetRepository(database.db)
 
@@ -152,6 +190,7 @@ class VirksomhetRepositoryTest : FunSpec({
                 underenheter = listOf(underenhet1),
                 postnummer = "5174",
                 poststed = "Mathopen",
+                slettetDato = null,
             )
             virksomhetRepository.upsertOverordnetEnhet(overordnet).shouldBeRight()
 

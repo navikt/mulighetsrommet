@@ -15,7 +15,10 @@ import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.domain.dbo.OverordnetEnhetDbo
-import no.nav.mulighetsrommet.api.domain.dto.*
+import no.nav.mulighetsrommet.api.domain.dto.AvtaleAdminDto
+import no.nav.mulighetsrommet.api.domain.dto.Kontorstruktur
+import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
+import no.nav.mulighetsrommet.api.domain.dto.VirksomhetKontaktperson
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
@@ -139,6 +142,8 @@ class AvtaleRepositoryTest : FunSpec({
                 VirksomhetDto(
                     organisasjonsnummer = "999888777",
                     navn = "Rema 1000",
+                    postnummer = null,
+                    poststed = null,
                 ),
             )
             val leverandorKontaktperson = VirksomhetKontaktperson(
@@ -209,12 +214,19 @@ class AvtaleRepositoryTest : FunSpec({
                         VirksomhetDto(
                             organisasjonsnummer = "888888888",
                             navn = "u8",
+                            postnummer = null,
+                            poststed = null,
                         ),
                         VirksomhetDto(
                             organisasjonsnummer = "777777777",
                             navn = "u7",
+                            postnummer = null,
+                            poststed = null,
                         ),
                     ),
+                    slettetDato = null,
+                    postnummer = null,
+                    poststed = null,
                 ),
             )
 
@@ -329,7 +341,10 @@ class AvtaleRepositoryTest : FunSpec({
                 forAll(
                     row(listOf(Avtalestatus.Avbrutt), listOf(avtaleAvbrutt.id)),
                     row(listOf(Avtalestatus.Avsluttet), listOf(avtaleAvsluttetStatus.id, avtaleAvsluttetDato.id)),
-                    row(listOf(Avtalestatus.Avbrutt, Avtalestatus.Avsluttet), listOf(avtaleAvbrutt.id, avtaleAvsluttetStatus.id, avtaleAvsluttetDato.id)),
+                    row(
+                        listOf(Avtalestatus.Avbrutt, Avtalestatus.Avsluttet),
+                        listOf(avtaleAvbrutt.id, avtaleAvsluttetStatus.id, avtaleAvsluttetDato.id),
+                    ),
                 ) { statuser, expected ->
                     val result = avtaler.getAll(
                         dagensDato = LocalDate.of(2023, 2, 1),
@@ -675,12 +690,16 @@ class AvtaleRepositoryTest : FunSpec({
                 VirksomhetDto(
                     navn = "alvdal",
                     organisasjonsnummer = "987654321",
+                    postnummer = null,
+                    poststed = null,
                 ),
             )
             virksomhetRepository.upsert(
                 VirksomhetDto(
                     navn = "bjarne",
                     organisasjonsnummer = "123456789",
+                    postnummer = null,
+                    poststed = null,
                 ),
             )
             val avtale1 = AvtaleFixtures.oppfolging.copy(

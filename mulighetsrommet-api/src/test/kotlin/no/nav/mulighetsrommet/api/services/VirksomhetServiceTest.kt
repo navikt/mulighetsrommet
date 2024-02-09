@@ -8,13 +8,11 @@ import io.ktor.server.plugins.*
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
-import kotlinx.serialization.InternalSerializationApi
 import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
 import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
 import no.nav.mulighetsrommet.api.repositories.VirksomhetRepository
 import no.nav.mulighetsrommet.database.utils.query
 
-@OptIn(InternalSerializationApi::class)
 class VirksomhetServiceTest : FunSpec({
 
     val brregClient: BrregClient = mockk()
@@ -34,8 +32,12 @@ class VirksomhetServiceTest : FunSpec({
                     VirksomhetDto(
                         organisasjonsnummer = "234567891",
                         navn = "Underenhet til Testbedriften AS",
+                        postnummer = null,
+                        poststed = null,
                     ),
                 ),
+                postnummer = null,
+                poststed = null,
             )
 
         coEvery { brregClient.hentEnhet("999999999") } throws NotFoundException("Fant ingen enhet i Brreg med orgnr: '999999999'")
@@ -46,10 +48,14 @@ class VirksomhetServiceTest : FunSpec({
             VirksomhetDto(
                 organisasjonsnummer = "123456789",
                 navn = "NAV AS",
+                postnummer = null,
+                poststed = null,
             ),
             VirksomhetDto(
                 organisasjonsnummer = "445533227",
                 navn = "Navesen AS",
+                postnummer = null,
+                poststed = null,
             ),
         )
     }
@@ -61,6 +67,8 @@ class VirksomhetServiceTest : FunSpec({
             VirksomhetDto(
                 organisasjonsnummer = "234567891",
                 navn = "Underenhet til Testbedriften AS",
+                postnummer = null,
+                poststed = null,
             ),
         )
     }

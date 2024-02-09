@@ -11,8 +11,10 @@ import io.ktor.http.*
 import io.ktor.server.plugins.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
+import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import org.slf4j.LoggerFactory
+import java.time.LocalDate
 
 object OrgnummerUtil {
     fun erOrgnr(verdi: String): Boolean {
@@ -46,7 +48,9 @@ class BrregClient(
                 navn = data.navn,
                 overordnetEnhet = null,
                 underenheter = emptyList(),
-                slettedato = data.slettedato,
+                slettetDato = data.slettedato,
+                postnummer = null,
+                poststed = null,
             )
         }
 
@@ -73,7 +77,9 @@ class BrregClient(
                 navn = underenhetData.navn,
                 overordnetEnhet = null,
                 underenheter = null,
-                slettedato = underenhetData.slettedato,
+                slettetDato = underenhetData.slettedato,
+                postnummer = null,
+                poststed = null,
             )
         }
 
@@ -106,6 +112,8 @@ class BrregClient(
             VirksomhetDto(
                 organisasjonsnummer = it.organisasjonsnummer,
                 navn = it.navn,
+                postnummer = it.beliggenhetsadresse?.postnummer,
+                poststed = it.beliggenhetsadresse?.poststed,
             )
         } ?: emptyList()
     }
@@ -121,14 +129,14 @@ class BrregClient(
         val data = tolkRespons<BrregEmbeddedUnderenheter>(underenheterResponse, orgnrOverordnetEnhet)
 
         return data?.let {
-            it._embedded?.underenheter?.map {
+            it._embedded?.underenheter?.map { underenhet ->
                 VirksomhetDto(
-                    organisasjonsnummer = it.organisasjonsnummer,
-                    navn = it.navn,
+                    organisasjonsnummer = underenhet.organisasjonsnummer,
+                    navn = underenhet.navn,
                     overordnetEnhet = orgnrOverordnetEnhet,
                     underenheter = null,
-                    poststed = it.beliggenhetsadresse?.poststed,
-                    postnummer = it.beliggenhetsadresse?.postnummer,
+                    poststed = underenhet.beliggenhetsadresse?.poststed,
+                    postnummer = underenhet.beliggenhetsadresse?.postnummer,
                 )
             }
         } ?: emptyList()
@@ -159,7 +167,8 @@ internal data class BrregEnhet(
     val navn: String,
     val overordnetEnhet: String? = null,
     val beliggenhetsadresse: Adresse? = null,
-    val slettedato: String? = null,
+    @Serializable(with = LocalDateSerializer::class)
+    val slettedato: LocalDate? = null,
 )
 
 @Serializable
