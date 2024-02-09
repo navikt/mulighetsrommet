@@ -25,6 +25,10 @@ export function MrApiManagement() {
           </p>
         </RunTask>
 
+        <RunTask base={ApiBase.MR_API} task="initial-load-mulighetsrommet-tiltakstyper">
+          Starter en initial load av alle tiltakstyper
+        </RunTask>
+
         <RunTask base={ApiBase.MR_API} task="initial-load-mulighetsrommet-tiltaksgjennomforinger">
           Starter en initial load av alle gjennomføringer med opphav = MR_ADMIN_FLATE.
         </RunTask>
