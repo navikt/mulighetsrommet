@@ -17,4 +17,4 @@ export const SANITY_STUDIO_URL = isProduction
   ? "https://mulighetsrommet-sanity-studio.intern.nav.no/prod/desk"
   : "https://mulighetsrommet-sanity-studio.intern.nav.no/test/desk";
 
-export const PORTEN_URL = "https://jira.adeo.no/plugins/servlet/desk/portal/541/create/5406";
+export const PORTEN_URL = "https://jira.adeo.no/plugins/servlet/desk/portal/541/create/4665";
