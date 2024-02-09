@@ -12,7 +12,6 @@ import no.nav.mulighetsrommet.api.utils.DatabaseUtils.paginateFanOut
 import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.kafka.producers.TiltakstypeKafkaProducer
-import no.nav.mulighetsrommet.tasks.DbSchedulerKotlinSerializer
 import org.slf4j.LoggerFactory
 import org.slf4j.MDC
 import java.time.Instant
@@ -29,9 +28,8 @@ class InitialLoadTiltakstyper(
     val task: OneTimeTask<InitialLoadTiltaksgjennomforingerInput> = Tasks
         .oneTime(javaClass.name, InitialLoadTiltaksgjennomforingerInput::class.java)
         .execute { instance, context ->
-            val input = instance.data
 
-            logger.info("Running task ${instance.taskName} with input=$input")
+            logger.info("Running task ${instance.taskName}")
 
             MDC.put("correlationId", instance.id)
 
@@ -56,7 +54,6 @@ class InitialLoadTiltakstyper(
 
     private val client = SchedulerClient.Builder
         .create(database.getDatasource(), task)
-        .serializer(DbSchedulerKotlinSerializer())
         .build()
 
     fun schedule(startTime: Instant = Instant.now()): UUID {
