@@ -26,7 +26,7 @@ export function MrApiManagement() {
         </RunTask>
 
         <RunTask base={ApiBase.MR_API} task="initial-load-mulighetsrommet-tiltakstyper">
-          Starter en initial load av alle tiltakstyper som skal migreres.
+          Starter en initial load av alle tiltakstyper
         </RunTask>
 
         <RunTask base={ApiBase.MR_API} task="initial-load-mulighetsrommet-tiltaksgjennomforinger">
