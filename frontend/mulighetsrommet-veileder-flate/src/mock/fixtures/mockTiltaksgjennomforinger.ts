@@ -17,6 +17,19 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
     tiltakstype: mockTiltakstyper.avklaring,
     sluttdato: "2025-07-09",
     apentForInnsok: true,
+    arrangor: {
+      selskapsnavn: "JOBLEARN AS AVD 813201 ØST-VIKEN KURS",
+      kontaktpersoner: [
+        {
+          id: "1",
+          navn: "Ole Testesen",
+          telefon: "12345678",
+          epost: "test@example.com",
+          organisasjonsnummer: "987654321",
+          beskrivelse: null,
+        },
+      ],
+    },
     kontaktinfo: {
       tiltaksansvarlige: [
         {
@@ -42,6 +55,28 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
           children: [
             {
               text: "Tiltaket er for deltakere som er synshemmet eller døve/hørselshemmet.",
+              _type: "span",
+            },
+          ],
+          _type: "block",
+        },
+      ],
+      kontaktinfo: [
+        {
+          style: "normal",
+          children: [
+            {
+              text: "Oppmøtested er Andeby 1, 0669 Donald-Pocketby",
+              _type: "span",
+            },
+          ],
+          _type: "block",
+        },
+        {
+          style: "normal",
+          children: [
+            {
+              text: "Postadresse er Fyrstikkalleen 1, 0101 Oslo",
               _type: "span",
             },
           ],
