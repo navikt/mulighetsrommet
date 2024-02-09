@@ -2,7 +2,7 @@ package no.nav.mulighetsrommet.api
 
 import io.ktor.server.application.*
 import io.ktor.server.testing.*
-import no.nav.mulighetsrommet.api.clients.brreg.BrregClientImpl
+import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.tasks.*
 import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
@@ -84,7 +84,7 @@ fun createTestApplicationConfig() = AppConfig(
         channel = "",
         enable = false,
     ),
-    brreg = BrregClientImpl.Config(baseUrl = "brreg"),
+    brreg = BrregClient.Config(baseUrl = "brreg"),
     unleash = UnleashService.Config(
         appName = "",
         url = "",

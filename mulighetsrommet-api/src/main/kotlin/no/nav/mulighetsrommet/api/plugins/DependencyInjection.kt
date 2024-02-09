@@ -17,7 +17,6 @@ import no.nav.mulighetsrommet.api.TaskConfig
 import no.nav.mulighetsrommet.api.avtaler.AvtaleValidator
 import no.nav.mulighetsrommet.api.clients.arenaadapter.ArenaAdapterClient
 import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
-import no.nav.mulighetsrommet.api.clients.brreg.BrregClientImpl
 import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogClient
 import no.nav.mulighetsrommet.api.clients.msgraph.MicrosoftGraphClient
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Client
@@ -241,8 +240,8 @@ private fun services(appConfig: AppConfig) = module {
             config = appConfig.sanity,
         )
     }
-    single<BrregClient> {
-        BrregClientImpl(baseUrl = appConfig.brreg.baseUrl, clientEngine = appConfig.engine)
+    single {
+        BrregClient(baseUrl = appConfig.brreg.baseUrl, clientEngine = appConfig.engine)
     }
     single { EndringshistorikkService(get()) }
     single {

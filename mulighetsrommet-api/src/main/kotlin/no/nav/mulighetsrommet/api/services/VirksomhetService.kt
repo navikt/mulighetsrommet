@@ -32,8 +32,8 @@ class VirksomhetService(
         .build()
 
     init {
-        val cacheMetrics: CacheMetricsCollector =
-            CacheMetricsCollector().register(Metrikker.appMicrometerRegistry.prometheusRegistry)
+        val cacheMetrics: CacheMetricsCollector = CacheMetricsCollector()
+            .register(Metrikker.appMicrometerRegistry.prometheusRegistry)
         cacheMetrics.addCache("brregServiceCache", brregServiceCache)
     }
 
@@ -59,11 +59,9 @@ class VirksomhetService(
                 brregClient.hentEnhet(enhet.overordnetEnhet)
             }
         } ?: return null
-        log.debug("Potensiell overordnet enhet fra Brreg: $overordnetEnhet")
 
         if (overordnetEnhet.slettedato != null) {
-            log.debug("Enhet med orgnr: ${enhet.organisasjonsnummer} er slettet i Brreg med slettedato ${enhet.slettedato}")
-            return null
+            log.info("Enhet med orgnr: ${enhet.organisasjonsnummer} er slettet i Brreg med slettedato ${enhet.slettedato}")
         }
 
         virksomhetRepository.upsertOverordnetEnhet(overordnetEnhet.toOverordnetEnhetDbo())
