@@ -1,12 +1,14 @@
-import { BodyShort, Heading } from "@navikt/ds-react";
+import { BodyLong, BodyShort, Heading } from "@navikt/ds-react";
 import { VeilderflateArrangor, VirksomhetKontaktperson } from "mulighetsrommet-api-client";
 import styles from "./Kontaktinfo.module.scss";
+import { RedaksjoneltInnhold } from "../../RedaksjoneltInnhold";
 
 interface ArrangorInfoProps {
   arrangor?: VeilderflateArrangor;
+  faneinnhold: any;
 }
 
-const ArrangorInfo = ({ arrangor }: ArrangorInfoProps) => {
+const ArrangorInfo = ({ arrangor, faneinnhold }: ArrangorInfoProps) => {
   if (!arrangor) {
     return null;
   }
@@ -54,6 +56,11 @@ const ArrangorInfo = ({ arrangor }: ArrangorInfoProps) => {
           </BodyShort>
         </div>
       ))}
+      {faneinnhold && (
+        <BodyLong as="div" textColor="subtle" size="small">
+          <RedaksjoneltInnhold value={faneinnhold} />
+        </BodyLong>
+      )}
     </div>
   );
 };
