@@ -6,6 +6,7 @@ import io.mockk.mockk
 import io.mockk.verifyAll
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingDto
+import no.nav.mulighetsrommet.api.domain.dto.TiltakstypeEksternDto
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.repositories.NavEnhetRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
@@ -17,7 +18,6 @@ import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
-import no.nav.mulighetsrommet.domain.dto.TiltakstypeDto
 import no.nav.mulighetsrommet.domain.dto.Tiltakstypestatus
 import no.nav.mulighetsrommet.kafka.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.kafka.producers.TiltakstypeKafkaProducer
@@ -83,8 +83,8 @@ class KafkaSyncServiceTest : FunSpec({
         )
     }
 
-    fun TiltakstypeDbo.toDto(tiltakstypestatus: Tiltakstypestatus): TiltakstypeDto {
-        return TiltakstypeDto(
+    fun TiltakstypeDbo.toDto(tiltakstypestatus: Tiltakstypestatus): TiltakstypeEksternDto {
+        return TiltakstypeEksternDto(
             id = id,
             navn = navn,
             arenaKode = tiltakskode,
@@ -94,7 +94,7 @@ class KafkaSyncServiceTest : FunSpec({
             tilDato = tilDato,
             rettPaaTiltakspenger = rettPaaTiltakspenger,
             status = tiltakstypestatus,
-            sanityId = null,
+            deltakerRegistreringInnhold = null,
         )
     }
 
@@ -157,7 +157,12 @@ class KafkaSyncServiceTest : FunSpec({
         val startdatoInnenfor =
             tiltakstype.copy(id = UUID.randomUUID(), tiltakskode = "START", fraDato = LocalDate.of(2023, 2, 15))
         val sluttdatoInnenfor =
-            tiltakstype.copy(id = UUID.randomUUID(), tiltakskode = "SLUTT", fraDato = LocalDate.of(2023, 2, 13), tilDato = lastSuccessDate)
+            tiltakstype.copy(
+                id = UUID.randomUUID(),
+                tiltakskode = "SLUTT",
+                fraDato = LocalDate.of(2023, 2, 13),
+                tilDato = lastSuccessDate,
+            )
 
         test("oppdater statuser på kafka på relevante tiltakstyper") {
             tiltakstypeRepository.upsert(tiltakstype).shouldBeRight()
@@ -167,8 +172,12 @@ class KafkaSyncServiceTest : FunSpec({
             kafkaSyncService.oppdaterTiltakstypestatus(today, lastSuccessDate)
 
             verifyAll {
-                tiltakstypeKafkaProducer.publish(startdatoInnenfor.toDto(Tiltakstypestatus.Aktiv))
-                tiltakstypeKafkaProducer.publish(sluttdatoInnenfor.toDto(Tiltakstypestatus.Avsluttet))
+                tiltakstypeKafkaProducer.publish(
+                    startdatoInnenfor.toDto(Tiltakstypestatus.Aktiv),
+                )
+                tiltakstypeKafkaProducer.publish(
+                    sluttdatoInnenfor.toDto(Tiltakstypestatus.Avsluttet),
+                )
             }
         }
     }

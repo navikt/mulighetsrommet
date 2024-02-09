@@ -19,6 +19,9 @@ export function MrApiManagement() {
             migrere.
           </p>
         </RunTask>
+        <RunTask task="initial-load-mulighetsrommet-tiltakstyper">
+          Starter en initial load av alle tiltakstyper som skal migreres.
+        </RunTask>
         <RunTask task="initial-load-mulighetsrommet-tiltaksgjennomforinger">
           Starter en initial load av alle gjennomføringer med opphav = MR_ADMIN_FLATE.
         </RunTask>

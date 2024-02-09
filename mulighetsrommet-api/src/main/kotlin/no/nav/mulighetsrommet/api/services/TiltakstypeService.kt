@@ -6,14 +6,14 @@ import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.api.utils.TiltakstypeFilter
-import no.nav.mulighetsrommet.domain.dto.TiltakstypeDto
+import no.nav.mulighetsrommet.domain.dto.TiltakstypeAdminDto
 import no.nav.mulighetsrommet.utils.CacheUtils
 import java.util.*
 import java.util.concurrent.TimeUnit
 
 class TiltakstypeService(private val tiltakstypeRepository: TiltakstypeRepository) {
 
-    private val cacheBySanityId: Cache<UUID, TiltakstypeDto> = Caffeine.newBuilder()
+    private val cacheBySanityId: Cache<UUID, TiltakstypeAdminDto> = Caffeine.newBuilder()
         .expireAfterWrite(30, TimeUnit.MINUTES)
         .maximumSize(500)
         .recordStats()
@@ -22,7 +22,7 @@ class TiltakstypeService(private val tiltakstypeRepository: TiltakstypeRepositor
     fun getWithFilter(
         filter: TiltakstypeFilter,
         pagination: PaginationParams,
-    ): PaginatedResponse<TiltakstypeDto> {
+    ): PaginatedResponse<TiltakstypeAdminDto> {
         val (totalCount, items) = tiltakstypeRepository.getAllSkalMigreres(
             filter,
             pagination,
@@ -31,11 +31,11 @@ class TiltakstypeService(private val tiltakstypeRepository: TiltakstypeRepositor
         return PaginatedResponse.of(pagination, totalCount, items)
     }
 
-    fun getById(id: UUID): TiltakstypeDto? {
+    fun getById(id: UUID): TiltakstypeAdminDto? {
         return tiltakstypeRepository.get(id)
     }
 
-    fun getBySanityId(sanityId: UUID): TiltakstypeDto? {
+    fun getBySanityId(sanityId: UUID): TiltakstypeAdminDto? {
         return CacheUtils.tryCacheFirstNullable(cacheBySanityId, sanityId) {
             tiltakstypeRepository.getBySanityId(sanityId)
         }

@@ -12,6 +12,7 @@ import io.mockk.verify
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleAdminDto
 import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingDto
+import no.nav.mulighetsrommet.api.domain.dto.TiltakstypeEksternDto
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
@@ -22,7 +23,7 @@ import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.*
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
-import no.nav.mulighetsrommet.domain.dto.TiltakstypeDto
+import no.nav.mulighetsrommet.domain.dto.Tiltakstypestatus
 import no.nav.mulighetsrommet.kafka.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.kafka.producers.TiltakstypeKafkaProducer
 import no.nav.mulighetsrommet.notifications.NotificationService
@@ -171,9 +172,24 @@ class ArenaAdapterServiceTest : FunSpec({
         }
 
         test("should publish and retract tiltakstype from kafka topic") {
-            service.upsertTiltakstype(tiltakstype)
+            service.upsertTiltakstype(tiltakstype).shouldBeRight()
 
-            verify(exactly = 1) { tiltakstypeKafkaProducer.publish(TiltakstypeDto.from(tiltakstype)) }
+            verify(exactly = 1) {
+                tiltakstypeKafkaProducer.publish(
+                    TiltakstypeEksternDto(
+                        id = tiltakstype.id,
+                        navn = tiltakstype.navn,
+                        arenaKode = tiltakstype.tiltakskode,
+                        registrertIArenaDato = tiltakstype.registrertDatoIArena,
+                        sistEndretIArenaDato = tiltakstype.sistEndretDatoIArena,
+                        fraDato = tiltakstype.fraDato,
+                        tilDato = tiltakstype.tilDato,
+                        rettPaaTiltakspenger = tiltakstype.rettPaaTiltakspenger,
+                        status = Tiltakstypestatus.Aktiv,
+                        deltakerRegistreringInnhold = null,
+                    ),
+                )
+            }
 
             service.removeTiltakstype(tiltakstype.id)
 
