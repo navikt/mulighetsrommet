@@ -363,6 +363,7 @@ private fun tasks(config: TaskConfig) = module {
         val notificationService: NotificationService by inject()
         val generateValidationReport: GenerateValidationReport by inject()
         val initialLoadTiltaksgjennomforinger: InitialLoadTiltaksgjennomforinger by inject()
+        val initialLoadTiltakstyper: InitialLoadTiltakstyper by inject()
         val synchronizeNavAnsatte: SynchronizeNavAnsatte by inject()
 
         val db: Database by inject()
@@ -373,6 +374,7 @@ private fun tasks(config: TaskConfig) = module {
                 notificationService.getScheduledNotificationTask(),
                 generateValidationReport.task,
                 initialLoadTiltaksgjennomforinger.task,
+                initialLoadTiltakstyper.task,
             )
             .startTasks(
                 deleteExpiredTiltakshistorikk.task,
