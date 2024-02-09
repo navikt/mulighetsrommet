@@ -110,7 +110,7 @@ class AvtaleRepositoryTest : FunSpec({
 
             val ansatt1 = NavAnsattFixture.ansatt1
             val ansatt2 = NavAnsattFixture.ansatt2
-            val avtale1 = AvtaleFixtures.avtale1.copy(
+            val avtale1 = AvtaleFixtures.oppfolging.copy(
                 id = UUID.randomUUID(),
                 administratorer = listOf(ansatt1.navIdent),
             )
@@ -152,7 +152,7 @@ class AvtaleRepositoryTest : FunSpec({
             virksomhetRepository.upsertKontaktperson(leverandorKontaktperson)
 
             val avtaler = AvtaleRepository(database.db)
-            var avtale = AvtaleFixtures.avtale1.copy(
+            var avtale = AvtaleFixtures.oppfolging.copy(
                 id = UUID.randomUUID(),
                 leverandorKontaktpersonId = leverandorKontaktperson.id,
             )
@@ -189,7 +189,7 @@ class AvtaleRepositoryTest : FunSpec({
         test("Underenheter blir populert i korrekt tabell") {
             val avtaler = AvtaleRepository(database.db)
             val underenhet = "123456789"
-            val avtale1 = AvtaleFixtures.avtale1.copy(
+            val avtale1 = AvtaleFixtures.oppfolging.copy(
                 leverandorUnderenheter = listOf(underenhet),
             )
             avtaler.upsert(avtale1)
@@ -218,7 +218,7 @@ class AvtaleRepositoryTest : FunSpec({
                 ),
             )
 
-            val avtale1 = AvtaleFixtures.avtale1.copy(
+            val avtale1 = AvtaleFixtures.oppfolging.copy(
                 leverandorOrganisasjonsnummer = "999999999",
                 leverandorUnderenheter = listOf("888888888", "777777777"),
             )
@@ -249,7 +249,7 @@ class AvtaleRepositoryTest : FunSpec({
 
         context("Avtalenavn") {
             test("Filtrere på avtalenavn skal returnere avtaler som matcher søket") {
-                val avtale1 = AvtaleFixtures.avtale1.copy(
+                val avtale1 = AvtaleFixtures.oppfolging.copy(
                     id = UUID.randomUUID(),
                     navn = "Avtale om opplæring av blinde krokodiller",
                 )
@@ -271,11 +271,11 @@ class AvtaleRepositoryTest : FunSpec({
         }
 
         test("administrator") {
-            val a1 = AvtaleFixtures.avtale1.copy(
+            val a1 = AvtaleFixtures.oppfolging.copy(
                 id = UUID.randomUUID(),
                 administratorer = listOf(NavAnsattFixture.ansatt1.navIdent),
             )
-            val a2 = AvtaleFixtures.avtale1.copy(
+            val a2 = AvtaleFixtures.oppfolging.copy(
                 id = UUID.randomUUID(),
                 administratorer = listOf(NavAnsattFixture.ansatt1.navIdent, NavAnsattFixture.ansatt2.navIdent),
             )
@@ -294,32 +294,32 @@ class AvtaleRepositoryTest : FunSpec({
 
         context("Avtalestatus") {
             test("filtrering på Avtalestatus") {
-                val avtaleAktiv = AvtaleFixtures.avtale1.copy(
+                val avtaleAktiv = AvtaleFixtures.oppfolging.copy(
                     id = UUID.randomUUID(),
                 )
                 avtaler.upsert(avtaleAktiv)
                 avtaler.setAvslutningsstatus(avtaleAktiv.id, Avslutningsstatus.IKKE_AVSLUTTET)
 
-                val avtaleAvsluttetStatus = AvtaleFixtures.avtale1.copy(
+                val avtaleAvsluttetStatus = AvtaleFixtures.oppfolging.copy(
                     id = UUID.randomUUID(),
                 )
                 avtaler.upsert(avtaleAvsluttetStatus)
                 avtaler.setAvslutningsstatus(avtaleAvsluttetStatus.id, Avslutningsstatus.AVSLUTTET)
 
-                val avtaleAvsluttetDato = AvtaleFixtures.avtale1.copy(
+                val avtaleAvsluttetDato = AvtaleFixtures.oppfolging.copy(
                     id = UUID.randomUUID(),
                     sluttDato = LocalDate.of(2023, 1, 31),
                 )
                 avtaler.upsert(avtaleAvsluttetDato)
                 avtaler.setAvslutningsstatus(avtaleAvsluttetDato.id, Avslutningsstatus.IKKE_AVSLUTTET)
 
-                val avtaleAvbrutt = AvtaleFixtures.avtale1.copy(
+                val avtaleAvbrutt = AvtaleFixtures.oppfolging.copy(
                     id = UUID.randomUUID(),
                 )
                 avtaler.upsert(avtaleAvbrutt)
                 avtaler.setAvslutningsstatus(avtaleAvbrutt.id, Avslutningsstatus.AVBRUTT)
 
-                val avtalePlanlagt = AvtaleFixtures.avtale1.copy(
+                val avtalePlanlagt = AvtaleFixtures.oppfolging.copy(
                     id = UUID.randomUUID(),
                     startDato = LocalDate.of(2023, 2, 2),
                 )
@@ -362,7 +362,7 @@ class AvtaleRepositoryTest : FunSpec({
                     ),
                 )
 
-                val avtale1 = AvtaleFixtures.avtale1.copy(
+                val avtale1 = AvtaleFixtures.oppfolging.copy(
                     id = UUID.randomUUID(),
                     navEnheter = listOf("1801"),
                 )
@@ -410,7 +410,7 @@ class AvtaleRepositoryTest : FunSpec({
                     ),
                 )
 
-                val avtale1 = AvtaleFixtures.avtale1.copy(
+                val avtale1 = AvtaleFixtures.oppfolging.copy(
                     id = UUID.randomUUID(),
                     navEnheter = listOf("1801"),
                 )
@@ -459,7 +459,7 @@ class AvtaleRepositoryTest : FunSpec({
                     ),
                 )
 
-                val avtale1 = AvtaleFixtures.avtale1.copy(
+                val avtale1 = AvtaleFixtures.oppfolging.copy(
                     id = UUID.randomUUID(),
                     navEnheter = listOf("1900", "1901"),
                 )
@@ -493,7 +493,7 @@ class AvtaleRepositoryTest : FunSpec({
             val tiltakstyper = TiltakstypeRepository(database.db)
             val tiltakstypeId: UUID = TiltakstypeFixtures.Oppfolging.id
             val tiltakstypeIdForAvtale3: UUID = UUID.randomUUID()
-            val avtale1 = AvtaleFixtures.avtale1.copy(
+            val avtale1 = AvtaleFixtures.oppfolging.copy(
                 tiltakstypeId = tiltakstypeId,
             )
             val avtale2 = avtale1.copy(
@@ -536,7 +536,7 @@ class AvtaleRepositoryTest : FunSpec({
         val avtaler = AvtaleRepository(database.db)
 
         test("Sortering på navn fra a-å sorterer korrekt med æøå til slutt") {
-            val avtale1 = AvtaleFixtures.avtale1.copy(
+            val avtale1 = AvtaleFixtures.oppfolging.copy(
                 navn = "Avtale hos Anders",
             )
             val avtale2 = avtale1.copy(
@@ -571,7 +571,7 @@ class AvtaleRepositoryTest : FunSpec({
         }
 
         test("Sortering på navn fra å-a sorterer korrekt") {
-            val avtale1 = AvtaleFixtures.avtale1.copy(
+            val avtale1 = AvtaleFixtures.oppfolging.copy(
                 navn = "Avtale hos Anders",
             )
             val avtale2 = avtale1.copy(
@@ -634,7 +634,7 @@ class AvtaleRepositoryTest : FunSpec({
                 ),
             ).getOrThrow()
 
-            val avtale1 = AvtaleFixtures.avtale1.copy(
+            val avtale1 = AvtaleFixtures.oppfolging.copy(
                 id = UUID.randomUUID(),
                 navn = "Avtale hos Anders",
             )
@@ -683,7 +683,7 @@ class AvtaleRepositoryTest : FunSpec({
                     organisasjonsnummer = "123456789",
                 ),
             )
-            val avtale1 = AvtaleFixtures.avtale1.copy(
+            val avtale1 = AvtaleFixtures.oppfolging.copy(
                 leverandorOrganisasjonsnummer = "123456789",
                 navn = "Avtale hos Anders",
             )
@@ -735,7 +735,7 @@ class AvtaleRepositoryTest : FunSpec({
         }
 
         test("Sortering på sluttdato fra a-å sorterer korrekt") {
-            val avtale1 = AvtaleFixtures.avtale1.copy(
+            val avtale1 = AvtaleFixtures.oppfolging.copy(
                 sluttDato = LocalDate.of(2010, 1, 31),
                 navn = "Avtale hos Anders",
             )
@@ -791,7 +791,7 @@ class AvtaleRepositoryTest : FunSpec({
         }
 
         test("Sortering på sluttdato fra å-a sorterer korrekt") {
-            val avtale1 = AvtaleFixtures.avtale1.copy(
+            val avtale1 = AvtaleFixtures.oppfolging.copy(
                 sluttDato = LocalDate.of(2010, 1, 31),
                 navn = "Avtale hos Anders",
             )
@@ -854,27 +854,27 @@ class AvtaleRepositoryTest : FunSpec({
         context("Avtaler nærmer seg sluttdato") {
             test("Skal returnere avtaler som har sluttdato om 6 mnd, 3 mnd, 14 dager og 7 dager") {
                 val tiltakstype = TiltakstypeFixtures.Oppfolging.copy(id = TiltakstypeFixtures.Oppfolging.id)
-                val avtale6Mnd = AvtaleFixtures.avtale1.copy(
+                val avtale6Mnd = AvtaleFixtures.oppfolging.copy(
                     id = UUID.randomUUID(),
                     startDato = LocalDate.of(2021, 1, 1),
                     sluttDato = LocalDate.of(2023, 11, 30),
                 )
-                val avtale3Mnd = AvtaleFixtures.avtale1.copy(
+                val avtale3Mnd = AvtaleFixtures.oppfolging.copy(
                     id = UUID.randomUUID(),
                     startDato = LocalDate.of(2021, 1, 1),
                     sluttDato = LocalDate.of(2023, 8, 31),
                 )
-                val avtale14Dag = AvtaleFixtures.avtale1.copy(
+                val avtale14Dag = AvtaleFixtures.oppfolging.copy(
                     id = UUID.randomUUID(),
                     startDato = LocalDate.of(2021, 1, 1),
                     sluttDato = LocalDate.of(2023, 6, 14),
                 )
-                val avtale7Dag = AvtaleFixtures.avtale1.copy(
+                val avtale7Dag = AvtaleFixtures.oppfolging.copy(
                     id = UUID.randomUUID(),
                     startDato = LocalDate.of(2021, 1, 1),
                     sluttDato = LocalDate.of(2023, 6, 7),
                 )
-                val avtaleSomIkkeSkalMatche = AvtaleFixtures.avtale1.copy(
+                val avtaleSomIkkeSkalMatche = AvtaleFixtures.oppfolging.copy(
                     id = UUID.randomUUID(),
                     startDato = LocalDate.of(2022, 6, 7),
                     sluttDato = LocalDate.of(2024, 1, 1),
@@ -900,7 +900,7 @@ class AvtaleRepositoryTest : FunSpec({
         test("endringer på avslutningsstatus påvirker avtalestatus") {
             MulighetsrommetTestDomain(
                 avtaler = listOf(
-                    AvtaleFixtures.avtale1.copy(
+                    AvtaleFixtures.oppfolging.copy(
                         sluttDato = LocalDate.now().plusWeeks(1),
                     ),
                 ),
@@ -908,17 +908,17 @@ class AvtaleRepositoryTest : FunSpec({
 
             val avtaler = AvtaleRepository(database.db)
 
-            avtaler.get(AvtaleFixtures.avtale1.id).should {
+            avtaler.get(AvtaleFixtures.oppfolging.id).should {
                 it?.avtalestatus shouldBe Avtalestatus.Aktiv
             }
 
-            avtaler.setAvslutningsstatus(AvtaleFixtures.avtale1.id, Avslutningsstatus.AVBRUTT)
-            avtaler.get(AvtaleFixtures.avtale1.id).should {
+            avtaler.setAvslutningsstatus(AvtaleFixtures.oppfolging.id, Avslutningsstatus.AVBRUTT)
+            avtaler.get(AvtaleFixtures.oppfolging.id).should {
                 it?.avtalestatus shouldBe Avtalestatus.Avbrutt
             }
 
-            avtaler.setAvslutningsstatus(AvtaleFixtures.avtale1.id, Avslutningsstatus.AVSLUTTET)
-            avtaler.get(AvtaleFixtures.avtale1.id).should {
+            avtaler.setAvslutningsstatus(AvtaleFixtures.oppfolging.id, Avslutningsstatus.AVSLUTTET)
+            avtaler.get(AvtaleFixtures.oppfolging.id).should {
                 it?.avtalestatus shouldBe Avtalestatus.Avsluttet
             }
         }

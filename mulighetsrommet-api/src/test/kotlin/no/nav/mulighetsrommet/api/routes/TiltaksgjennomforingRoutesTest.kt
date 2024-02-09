@@ -4,7 +4,6 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
-import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import no.nav.mulighetsrommet.api.*
@@ -26,7 +25,7 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
         MulighetsrommetTestDomain(
             enheter = listOf(NavEnhetFixtures.IT, NavEnhetFixtures.Oslo, NavEnhetFixtures.Sagene),
             avtaler = listOf(
-                AvtaleFixtures.avtale1.copy(
+                AvtaleFixtures.oppfolging.copy(
                     navEnheter = listOf(
                         NavEnhetFixtures.Sagene.enhetsnummer,
                         NavEnhetFixtures.Oslo.enhetsnummer,
@@ -140,7 +139,7 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
                 contentType(ContentType.Application.Json)
                 setBody(
                     TiltaksgjennomforingFixtures.Oppfolging1Request.copy(
-                        avtaleId = AvtaleFixtures.avtale1.id,
+                        avtaleId = AvtaleFixtures.oppfolging.id,
                         navRegion = NavEnhetFixtures.Oslo.enhetsnummer,
                         navEnheter = listOf(NavEnhetFixtures.Sagene.enhetsnummer),
                         tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,

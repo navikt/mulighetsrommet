@@ -6,7 +6,7 @@ import java.util.*
 object AvtaleNotatFixture {
     val Notat1 = AvtaleNotatDbo(
         id = UUID.randomUUID(),
-        avtaleId = AvtaleFixtures.avtale1.id,
+        avtaleId = AvtaleFixtures.oppfolging.id,
         createdAt = null,
         updatedAt = null,
         opprettetAv = NavAnsattFixture.ansatt1.navIdent,

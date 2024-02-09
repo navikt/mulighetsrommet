@@ -88,7 +88,7 @@ class AvtaleServiceTest : FunSpec({
         )
 
         test("Man skal ikke få avbryte dersom avtalen ikke finnes") {
-            val avtale = AvtaleFixtures.avtale1.copy(navn = "Avtale som eksisterer")
+            val avtale = AvtaleFixtures.oppfolging.copy(navn = "Avtale som eksisterer")
             val avtaleIdSomIkkeFinnes = "3c9f3d26-50ec-45a7-a7b2-c2d8a3653945".toUUID()
             avtaleRepository.upsert(avtale)
 
@@ -98,7 +98,7 @@ class AvtaleServiceTest : FunSpec({
         }
 
         test("Man skal ikke få avbryte, men få en melding dersom opphav for avtalen ikke er admin-flate") {
-            val avtale = AvtaleFixtures.avtale1.copy(
+            val avtale = AvtaleFixtures.oppfolging.copy(
                 navn = "Avtale som eksisterer",
                 startDato = LocalDate.of(2023, 6, 1),
                 sluttDato = LocalDate.of(2023, 7, 1),
@@ -112,7 +112,7 @@ class AvtaleServiceTest : FunSpec({
         }
 
         test("Man skal ikke få avbryte, men få en melding dersom avtalen allerede er avsluttet") {
-            val avtale = AvtaleFixtures.avtale1.copy(
+            val avtale = AvtaleFixtures.oppfolging.copy(
                 navn = "Avtale som eksisterer",
                 startDato = LocalDate.of(2023, 5, 1),
                 sluttDato = LocalDate.of(2023, 6, 1),
@@ -126,13 +126,13 @@ class AvtaleServiceTest : FunSpec({
         }
 
         test("Man skal ikke få avbryte, men få en melding dersom det finnes gjennomføringer koblet til avtalen") {
-            val avtale = AvtaleFixtures.avtale1.copy(
+            val avtale = AvtaleFixtures.oppfolging.copy(
                 id = UUID.randomUUID(),
                 navn = "Avtale som eksisterer",
                 startDato = LocalDate.of(2024, 5, 17),
                 sluttDato = LocalDate.of(2025, 7, 1),
             )
-            val avtaleSomErUinteressant = AvtaleFixtures.avtale1.copy(
+            val avtaleSomErUinteressant = AvtaleFixtures.oppfolging.copy(
                 id = UUID.randomUUID(),
                 navn = "Avtale som vi ikke bryr oss om",
                 startDato = LocalDate.of(2024, 5, 17),
@@ -168,7 +168,7 @@ class AvtaleServiceTest : FunSpec({
         }
 
         test("Skal få avbryte avtale hvis alle sjekkene er ok") {
-            val avtale = AvtaleFixtures.avtale1.copy(
+            val avtale = AvtaleFixtures.oppfolging.copy(
                 startDato = LocalDate.of(2023, 7, 1),
                 sluttDato = LocalDate.of(2024, 7, 1),
             )
