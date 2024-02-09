@@ -19,6 +19,7 @@ Et API med endepunkter for å hente ut informasjon om forskjellige tiltak NAV ka
     - [Feature toggles](#feature-toggles)
   - [Automatiske jobber](#automatiske-jobber)
     - [Oppdatere enheter fra NORG til Sanity](#oppdatere-enheter-fra-norg-til-sanity)
+- [Strukturert innhold](#strukturert-innhold)
 
 # <a name="teknologier"></a>Teknologier
 
@@ -160,3 +161,8 @@ bruker `db-scheduler` for å vite når de skal kjøre.
 Jobben `synchronize-norg2-enheter-to-sanity` brukes for å oppdatere enheter i Sanity med fasit fra NORG2.
 Jobben benytter seg av tokenet `Token for task: synchronize-norg2-enheter-to-sanity fra api (PROD | TEST)` som har
 create/update-tilgang til enheter-dokumentene i Sanity.
+
+# <a name="strukturert-innhold"></a>Strukturert innhold
+Vi deler strukturert innhold om tiltakstyper via Kafka.
+Innholdet lever i tabeller i databasen og kan oppdateres via filen `R__deltakerregistrering-innhold.sql`. Gjør de endringene som må til og deploy så vil migrasjonsfilen kjøres på nytt mot databasene i dev og prod.
+
