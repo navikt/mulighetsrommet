@@ -1,7 +1,7 @@
 import { Link } from "@navikt/ds-react";
 import { PropsWithChildren } from "react";
 
-const PORTEN_URL = import.meta.env.PORTEN_URL ?? "";
+const PORTEN_URL = import.meta.env.VITE_PORTEN_URL ?? "";
 
 export function PortenLink(props: PropsWithChildren) {
   const { children = "Porten" } = props;
