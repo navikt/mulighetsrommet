@@ -1,4 +1,5 @@
 import {
+  EstimertVentetid,
   NavEnhetStatus,
   NavEnhetType,
   TiltaksgjennomforingOppstartstype,
@@ -6,12 +7,15 @@ import {
 } from "mulighetsrommet-api-client";
 import { mockTiltakstyper } from "./mockTiltakstyper";
 
-// TODO Mock estimert ventetid
 export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
   {
     sanityId: "f4cea25b-c372-4d4c-8106-535ab10cd586",
     navn: "Avklaring - Fredrikstad",
     oppstart: TiltaksgjennomforingOppstartstype.LOPENDE,
+    estimertVentetid: {
+      verdi: 3,
+      enhet: EstimertVentetid.enhet.MANED,
+    },
     stedForGjennomforing:
       "Valpekullsveien 69, 1424" +
       " Taumatawhakatangi­hangakoauauotamatea­turipukakapikimaunga­horonukupokaiwhen­uakitanatahu",
@@ -89,6 +93,10 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
   {
     sanityId: "91205ff2-ec72-4a7f-80b8-1c99d8535a06",
     navn: "Sindres mentorordning med Yoda",
+    estimertVentetid: {
+      verdi: 5,
+      enhet: EstimertVentetid.enhet.UKE,
+    },
     oppstart: TiltaksgjennomforingOppstartstype.FELLES,
     oppstartsdato: new Date().toDateString(),
     stedForGjennomforing: "Oslo",
