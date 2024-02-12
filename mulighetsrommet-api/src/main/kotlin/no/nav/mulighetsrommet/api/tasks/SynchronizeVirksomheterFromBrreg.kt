@@ -22,7 +22,7 @@ class SynchronizeVirksomheterFromBrreg(
 
     val task: OneTimeTask<Void> = Tasks
         .oneTime(javaClass.name)
-        .execute { instance, context ->
+        .execute { instance, _ ->
             logger.info("Running task ${instance.taskName}")
 
             MDC.put("correlationId", instance.id)
@@ -65,9 +65,8 @@ class SynchronizeVirksomheterFromBrreg(
             .let { database.run(it) }
 
         orgnrs.forEach { orgnr ->
-            val virksomhet = virksomhetService.syncVirksomhetFraBrreg(orgnr)
-            if (virksomhet == null) {
-                logger.warn("Klarte ikke synkronisere virksomhet med orgnr=$orgnr fra brreg")
+            virksomhetService.syncVirksomhetFraBrreg(orgnr).onLeft {
+                logger.warn("Klarte ikke synkronisere virksomhet med orgnr=$orgnr fra brreg: $it")
             }
         }
     }

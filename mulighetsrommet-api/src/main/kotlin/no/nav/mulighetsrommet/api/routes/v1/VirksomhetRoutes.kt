@@ -9,11 +9,12 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
+import no.nav.mulighetsrommet.api.clients.brreg.BrregError
 import no.nav.mulighetsrommet.api.clients.brreg.OrgnummerUtil
 import no.nav.mulighetsrommet.api.domain.dto.VirksomhetKontaktperson
-import no.nav.mulighetsrommet.api.routes.v1.responses.BadRequest
-import no.nav.mulighetsrommet.api.routes.v1.responses.StatusResponse
-import no.nav.mulighetsrommet.api.routes.v1.responses.respondWithStatusResponse
+import no.nav.mulighetsrommet.api.repositories.VirksomhetRepository
+import no.nav.mulighetsrommet.api.routes.v1.responses.*
 import no.nav.mulighetsrommet.api.services.VirksomhetService
 import no.nav.mulighetsrommet.api.utils.getVirksomhetFilter
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
@@ -21,12 +22,14 @@ import org.koin.ktor.ext.inject
 import java.util.*
 
 fun Route.virksomhetRoutes() {
+    val virksomhetRepository: VirksomhetRepository by inject()
     val virksomhetService: VirksomhetService by inject()
+    val brregClient: BrregClient by inject()
 
     route("api/v1/internal/virksomhet") {
         get {
             val filter = getVirksomhetFilter()
-            call.respond(virksomhetService.getAll(filter))
+            call.respond(virksomhetRepository.getAll(til = filter.til))
         }
 
         get("{orgnr}") {
@@ -84,7 +87,16 @@ fun Route.virksomhetRoutes() {
                 throw BadRequestException("'sok' kan ikke være en tom streng")
             }
 
-            call.respond(virksomhetService.sokEtterEnhet(sokestreng))
+            val response = brregClient.sokEtterOverordnetEnheter(sokestreng)
+                .mapLeft {
+                    when (it) {
+                        BrregError.NotFound -> NotFound()
+                        BrregError.BadRequest -> BadRequest()
+                        BrregError.Error -> ServerError()
+                    }
+                }
+
+            call.respondWithStatusResponse(response)
         }
 
         post("/update") {
@@ -94,9 +106,20 @@ fun Route.virksomhetRoutes() {
                 throw BadRequestException("'orgnr' må inneholde 9 siffer")
             }
 
-            application.log.info("Oppdaterer virksomhet med orgnr: $orgnr")
-            val response = virksomhetService.syncVirksomhetFraBrreg(orgnr)
-            call.respond("${response?.navn} oppdatert")
+            virksomhetService.syncVirksomhetFraBrreg(orgnr)
+                .onRight { virksomhet ->
+                    call.respond("${virksomhet.navn} oppdatert")
+                }
+                .onLeft { error ->
+                    if (error == BrregError.Error) {
+                        call.respond(HttpStatusCode.InternalServerError)
+                    } else {
+                        call.respond(
+                            HttpStatusCode.BadRequest,
+                            "Klarte ikke synkronisere virksomhet med orgnr=$orgnr. Er orgnr riktig?",
+                        )
+                    }
+                }
         }
     }
 }

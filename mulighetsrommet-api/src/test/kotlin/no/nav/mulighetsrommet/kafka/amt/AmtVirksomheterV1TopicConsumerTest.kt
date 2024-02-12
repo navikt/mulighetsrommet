@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.kafka.amt
 
+import arrow.core.right
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -10,10 +11,10 @@ import io.mockk.mockk
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.encodeToJsonElement
-import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
 import no.nav.mulighetsrommet.api.repositories.VirksomhetRepository
+import no.nav.mulighetsrommet.api.services.VirksomhetService
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.consumers.amt.AmtVirksomhetV1Dto
@@ -54,14 +55,14 @@ class AmtVirksomheterV1TopicConsumerTest : FunSpec({
 
         val virksomhetRepository = VirksomhetRepository(database.db)
 
-        val brregClientMock: BrregClient = mockk(relaxed = true)
-        coEvery { brregClientMock.hentEnhet(amtVirksomhet.organisasjonsnummer) } returns virksomhetDto
-        coEvery { brregClientMock.hentEnhet(amtUnderenhet.organisasjonsnummer) } returns underenhetDto
+        val virksomhetService: VirksomhetService = mockk()
+        coEvery { virksomhetService.getVirksomhet(amtVirksomhet.organisasjonsnummer) } returns virksomhetDto.right()
+        coEvery { virksomhetService.getVirksomhet(amtUnderenhet.organisasjonsnummer) } returns underenhetDto.right()
 
         val virksomhetConsumer = AmtVirksomheterV1TopicConsumer(
             config = KafkaTopicConsumer.Config(id = "virksomheter", topic = "virksomheter"),
             virksomhetRepository = virksomhetRepository,
-            brregClient = brregClientMock,
+            virksomhetService = virksomhetService,
         )
 
         test("ignorer virksomheter når de ikke allerede er lagret i database") {

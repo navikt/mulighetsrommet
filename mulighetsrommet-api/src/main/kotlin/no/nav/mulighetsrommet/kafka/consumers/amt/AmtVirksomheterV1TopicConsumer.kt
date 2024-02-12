@@ -3,8 +3,8 @@ package no.nav.mulighetsrommet.kafka.consumers.amt
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.stringDeserializer
-import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
 import no.nav.mulighetsrommet.api.repositories.VirksomhetRepository
+import no.nav.mulighetsrommet.api.services.VirksomhetService
 import no.nav.mulighetsrommet.database.utils.getOrThrow
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory
 class AmtVirksomheterV1TopicConsumer(
     config: Config,
     private val virksomhetRepository: VirksomhetRepository,
-    private val brregClient: BrregClient,
+    private val virksomhetService: VirksomhetService,
 ) : KafkaTopicConsumer<String, JsonElement>(
     config,
     stringDeserializer(),
@@ -34,10 +34,14 @@ class AmtVirksomheterV1TopicConsumer(
             }
 
             else -> {
-                brregClient.hentEnhet(amtVirksomhet.organisasjonsnummer)?.let {
-                    // Hent fra Brreg for å oppdatere postnummer og poststed
-                    virksomhetRepository.upsert(it)
-                }
+                virksomhetService.getVirksomhet(amtVirksomhet.organisasjonsnummer)
+                    .onRight { virksomhet ->
+                        // Hent fra Brreg for å oppdatere postnummer og poststed
+                        virksomhetRepository.upsert(virksomhet)
+                    }
+                    .onLeft { error ->
+                        throw IllegalStateException("Forventet å finne virksomhet med orgnr ${amtVirksomhet.organisasjonsnummer} i Brreg. Er det feil data i meldingen? Respons fra Brreg: $error")
+                    }
             }
         }
     }
