@@ -1,5 +1,8 @@
 package no.nav.mulighetsrommet.api.clients.person
 
+import arrow.core.Either
+import arrow.core.left
+import arrow.core.right
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import io.ktor.client.call.*
@@ -14,7 +17,6 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import no.nav.mulighetsrommet.metrics.Metrikker
 import no.nav.mulighetsrommet.securelog.SecureLog
-import no.nav.mulighetsrommet.utils.CacheUtils
 import org.slf4j.LoggerFactory
 import java.util.concurrent.TimeUnit
 
@@ -42,29 +44,34 @@ class VeilarbpersonClient(
         cacheMetrics.addCache("personInfoCache", personInfoCache)
     }
 
-    suspend fun hentPersonInfo(fnr: String, accessToken: String): PersonDto {
-        return CacheUtils.tryCacheFirstNotNull(personInfoCache, fnr) {
-            try {
-                val response = client.post("$baseUrl/v3/hent-person") {
-                    bearerAuth(tokenProvider.invoke(accessToken))
-                    header(HttpHeaders.ContentType, ContentType.Application.Json)
-                    setBody(PersonRequest(fnr = fnr, behandlingsnummer = behandlingsnummer))
-                }
+    suspend fun hentPersonInfo(fnr: String, accessToken: String): Either<PersonError, PersonDto> {
+        personInfoCache.getIfPresent(fnr)?.let { return@hentPersonInfo it.right() }
 
-                if (!response.status.isSuccess()) {
-                    SecureLog.logger.error("Klarte ikke hente persondata. Response: $response")
-                    log.warn("Klarte ikke hente persondata. Se detaljer i SecureLog.")
-                    throw NotFoundException("Fant ikke person")
-                } else {
-                    response.body()
-                }
-            } catch (exe: Exception) {
-                SecureLog.logger.error("Klarte ikke hente persondata for bruker med fnr: $fnr", exe)
-                log.error("Feil ved henting av persondata. Se detaljer i SecureLog.")
-                throw exe
+        val response = client.post("$baseUrl/v3/hent-person") {
+            bearerAuth(tokenProvider.invoke(accessToken))
+            header(HttpHeaders.ContentType, ContentType.Application.Json)
+            setBody(PersonRequest(fnr = fnr, behandlingsnummer = behandlingsnummer))
+        }
+
+        return if (response.status == HttpStatusCode.Forbidden) {
+            log.warn("Manglet tilgang til å hente persondata.")
+            PersonError.Forbidden.left()
+        } else {
+            if (!response.status.isSuccess()) {
+                SecureLog.logger.error("Klarte ikke hente siste 14A-vedtak. Response: $response")
+                log.warn("Klarte ikke hente persondata. Status: ${response.status}.")
+                PersonError.Error.left()
+            } else {
+                response.body<PersonDto>().right()
             }
+                .onRight { personInfoCache.put(fnr, it) }
         }
     }
+}
+
+enum class PersonError {
+    Forbidden,
+    Error,
 }
 
 @Serializable
