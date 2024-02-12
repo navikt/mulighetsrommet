@@ -23,6 +23,9 @@ spec:
       application: amt-tiltak
       access: read
     - team: amt
+      application: amt-deltaker-bff
+      access: read
+    - team: amt
       application: amt-kafka-manager
       access: read
     - team: pto
