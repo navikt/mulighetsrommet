@@ -109,7 +109,7 @@ shedlock-jdbc = "net.javacrumbs.shedlock:shedlock-provider-jdbc:5.10.2"
 
 slack-client = "com.slack.api:slack-api-client:1.38.1"
 
-slf4j = "org.slf4j:slf4j-api:2.0.11"
+slf4j = "org.slf4j:slf4j-api:2.0.12"
 
 apache-poi = "org.apache.poi:poi:5.2.5"
 apache-poi-ooxml = "org.apache.poi:poi-ooxml:5.2.5"
