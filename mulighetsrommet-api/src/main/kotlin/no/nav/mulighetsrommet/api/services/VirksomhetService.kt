@@ -60,7 +60,8 @@ class VirksomhetService(
             log.info("Enhet med orgnr: ${virksomhet.organisasjonsnummer} er slettet i Brreg med slettedato ${virksomhet.slettetDato}")
         }
 
-        virksomhetRepository.upsertOverordnetEnhet(overordnetEnhet.toOverordnetEnhetDbo())
+        virksomhetRepository
+            .upsertOverordnetEnhet(overordnetEnhet.toOverordnetEnhetDbo())
             .onLeft { log.warn("Feil ved upsert av virksomhet: $it") }
 
         return virksomhet
