@@ -1,4 +1,5 @@
 import {
+  EstimertVentetid,
   Opphav,
   PaginertTiltaksgjennomforing,
   Tiltaksgjennomforing,
@@ -16,6 +17,10 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     id: "a7d63fb0-4366-412c-84b7-7c15518ee361",
     navn: "Yrkesnorsk med praksis med en veldig lang tittel som ikke er helt utenkelig at de skriver inn",
     tiltaksnummer: "123456",
+    estimertVentetid: {
+      verdi: 3,
+      enhet: EstimertVentetid.enhet.MANED,
+    },
     antallPlasser: 50,
     arrangor: {
       ...mockVirksomheter.fretex.underenheter!![0],

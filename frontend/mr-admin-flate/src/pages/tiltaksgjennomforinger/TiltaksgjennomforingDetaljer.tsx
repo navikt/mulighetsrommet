@@ -9,7 +9,7 @@ import {
 import { NOM_ANSATT_SIDE } from "mulighetsrommet-frontend-common/constants";
 import { Bolk } from "../../components/detaljside/Bolk";
 import { Metadata, Separator } from "../../components/detaljside/Metadata";
-import { formaterDato } from "../../utils/Utils";
+import { formaterDato, formatertVentetid } from "../../utils/Utils";
 import styles from "../DetaljerInfo.module.scss";
 import { Kontaktperson } from "./Kontaktperson";
 import { Link } from "react-router-dom";
@@ -148,6 +148,21 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
           </Bolk>
 
           <Separator />
+
+          {tiltaksgjennomforing?.estimertVentetid ? (
+            <>
+              <Bolk aria-label="Estimert ventetid">
+                <Metadata
+                  header="Estimert ventetid"
+                  verdi={formatertVentetid(
+                    tiltaksgjennomforing.estimertVentetid.verdi,
+                    tiltaksgjennomforing.estimertVentetid.enhet,
+                  )}
+                />
+              </Bolk>
+              <Separator />
+            </>
+          ) : null}
 
           <Bolk aria-label="Administratorer for gjennomføringen">
             <Metadata

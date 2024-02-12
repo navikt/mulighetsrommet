@@ -1,3 +1,5 @@
+import { EstimertVentetid } from "mulighetsrommet-api-client";
+
 export const inneholderUrl = (string: string) => {
   return window.location.href.indexOf(string) > -1;
 };
@@ -56,5 +58,16 @@ export function addOrRemove<T>(array: T[], item: T): T[] {
     const result = array;
     result.push(item);
     return result;
+  }
+}
+
+export function formatertVentetid(verdi: number, enhet: EstimertVentetid.enhet): string {
+  switch (enhet) {
+    case EstimertVentetid.enhet.UKE:
+      return `${verdi} ${verdi > 1 ? "uker" : "uke"}`;
+    case EstimertVentetid.enhet.MANED:
+      return `${verdi} ${verdi > 1 ? "måneder" : "måned"}`;
+    default:
+      return "Ukjent enhet for ventetid";
   }
 }
