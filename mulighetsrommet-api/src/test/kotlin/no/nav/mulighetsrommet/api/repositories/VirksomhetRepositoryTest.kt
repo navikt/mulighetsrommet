@@ -268,6 +268,8 @@ class VirksomhetRepositoryTest : FunSpec({
                 faneinnhold = null,
                 beskrivelse = null,
                 deltidsprosent = 100.0,
+                estimertVentetidVerdi = 3,
+                estimertVentetidEnhet = "dager",
             )
             tiltaksgjennomforingRepository.upsert(tiltaksgjennomforing)
 

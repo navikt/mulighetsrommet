@@ -56,7 +56,9 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 faneinnhold,
                 beskrivelse,
                 nav_region,
-                deltidsprosent
+                deltidsprosent,
+                estimert_ventetid_verdi,
+                estimert_ventetid_enhet
             )
             values (
                 :id::uuid,
@@ -78,7 +80,9 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 :faneinnhold::jsonb,
                 :beskrivelse,
                 :nav_region,
-                :deltidsprosent
+                :deltidsprosent,
+                :estimert_ventetid_verdi,
+                :estimert_ventetid_enhet
             )
             on conflict (id)
                 do update set navn                         = excluded.navn,
@@ -99,7 +103,9 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                               faneinnhold                  = excluded.faneinnhold,
                               beskrivelse                  = excluded.beskrivelse,
                               nav_region                   = excluded.nav_region,
-                              deltidsprosent               = excluded.deltidsprosent
+                              deltidsprosent               = excluded.deltidsprosent,
+                              estimert_ventetid_verdi      = excluded.estimert_ventetid_verdi,
+                              estimert_ventetid_enhet      = excluded.estimert_ventetid_enhet
         """.trimIndent()
 
         @Language("PostgreSQL")
@@ -532,7 +538,9 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                         'epost', vk.epost,
                         'beskrivelse', vk.beskrivelse
                     ) end
-                ) as virksomhet_kontaktpersoner
+                ) as virksomhet_kontaktpersoner,
+                tg.estimert_ventetid_verdi,
+                tg.estimert_ventetid_enhet
             from tiltaksgjennomforing tg
                 inner join tiltakstype t on tg.tiltakstype_id = t.id
                 left join tiltaksgjennomforing_nav_enhet tg_e on tg_e.tiltaksgjennomforing_id = tg.id
@@ -639,6 +647,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         "beskrivelse" to beskrivelse,
         "nav_region" to navRegion,
         "deltidsprosent" to deltidsprosent,
+        "estimert_ventetid_verdi" to estimertVentetidVerdi,
+        "estimert_ventetid_enhet" to estimertVentetidEnhet,
     )
 
     private fun ArenaTiltaksgjennomforingDbo.toSqlParameters() = mapOf(
@@ -690,6 +700,12 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             enheter = navEnheter,
             beskrivelse = stringOrNull("beskrivelse"),
             faneinnhold = stringOrNull("faneinnhold")?.let { Json.decodeFromString(it) },
+            estimertVentetid = intOrNull("estimert_ventetid_verdi")?.let {
+                EstimertVentetid(
+                    verdi = int("estimert_ventetid_verdi"),
+                    enhet = string("estimert_ventetid_enhet"),
+                )
+            },
         )
     }
 
@@ -762,6 +778,12 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             tilgjengeligForVeileder = boolean("tilgjengelig_for_veileder"),
             visesForVeileder = boolean("vises_for_veileder"),
             deltidsprosent = double("deltidsprosent"),
+            estimertVentetid = intOrNull("estimert_ventetid_verdi")?.let {
+                TiltaksgjennomforingAdminDto.EstimertVentetid(
+                    verdi = int("estimert_ventetid_verdi"),
+                    enhet = string("estimert_ventetid_enhet"),
+                )
+            },
         )
     }
 

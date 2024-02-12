@@ -138,5 +138,8 @@ export function defaultTiltaksgjennomforingData(
     faneinnhold: tiltaksgjennomforing?.faneinnhold ?? avtale.faneinnhold,
     opphav: tiltaksgjennomforing?.opphav ?? Opphav.MR_ADMIN_FLATE,
     deltidsprosent: tiltaksgjennomforing?.deltidsprosent ?? 100,
+    visEstimertVentetid: !!tiltaksgjennomforing?.estimertVentetid?.verdi ?? false,
+    estimertVentetidEnhet: tiltaksgjennomforing?.estimertVentetid?.enhet ?? null,
+    estimertVentetidVerdi: tiltaksgjennomforing?.estimertVentetid?.verdi ?? null,
   };
 }

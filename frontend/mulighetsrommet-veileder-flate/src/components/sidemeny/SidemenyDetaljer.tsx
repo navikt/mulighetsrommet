@@ -7,6 +7,7 @@ import {
 } from "mulighetsrommet-api-client";
 import { formaterDato, utledLopenummerFraTiltaksnummer } from "../../utils/Utils";
 import Kopiknapp from "../kopiknapp/Kopiknapp";
+import { EstimertVentetid } from "./EstimertVentetid";
 import Regelverksinfo from "./Regelverksinfo";
 import styles from "./Sidemenydetaljer.module.scss";
 
@@ -60,6 +61,7 @@ const SidemenyDetaljer = ({ tiltaksgjennomforing }: Props) => {
 
   return (
     <>
+      <EstimertVentetid tiltaksgjennomforing={tiltaksgjennomforing} />
       <Panel className={styles.panel} id="sidemeny">
         {tiltaksnummer && (
           <div className={styles.rad}>

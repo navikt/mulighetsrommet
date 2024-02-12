@@ -357,6 +357,12 @@ class VeilederflateService(
                     varsler = emptyList(),
                     tiltaksansvarlige = kontaktpersoner,
                 ),
+                estimertVentetid = estimertVentetid?.let {
+                    EstimertVentetid(
+                        verdi = it.verdi,
+                        enhet = it.enhet,
+                    )
+                },
             )
         }
     }

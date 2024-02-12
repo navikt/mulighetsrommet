@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.fixtures
 
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
+import no.nav.mulighetsrommet.api.routes.v1.EstimertVentetid
 import no.nav.mulighetsrommet.api.routes.v1.TiltaksgjennomforingRequest
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
@@ -52,6 +53,8 @@ object TiltaksgjennomforingFixtures {
         faneinnhold = null,
         beskrivelse = null,
         deltidsprosent = 100.0,
+        estimertVentetidVerdi = 3,
+        estimertVentetidEnhet = "dager",
     )
 
     val Oppfolging1Request = TiltaksgjennomforingRequest(
@@ -78,6 +81,10 @@ object TiltaksgjennomforingFixtures {
         faneinnhold = Oppfolging1.faneinnhold,
         beskrivelse = Oppfolging1.beskrivelse,
         deltidsprosent = 100.0,
+        estimertVentetid = EstimertVentetid(
+            verdi = 3,
+            enhet = "dager",
+        ),
     )
 
     val Oppfolging2 = TiltaksgjennomforingDbo(
@@ -104,6 +111,8 @@ object TiltaksgjennomforingFixtures {
         faneinnhold = null,
         beskrivelse = null,
         deltidsprosent = 100.0,
+        estimertVentetidVerdi = 3,
+        estimertVentetidEnhet = "dager",
     )
 
     val Arbeidstrening1 = TiltaksgjennomforingDbo(
@@ -130,5 +139,7 @@ object TiltaksgjennomforingFixtures {
         faneinnhold = null,
         beskrivelse = null,
         deltidsprosent = 100.0,
+        estimertVentetidVerdi = 3,
+        estimertVentetidEnhet = "dager",
     )
 }

@@ -6,6 +6,7 @@ import {
 } from "mulighetsrommet-api-client";
 import { mockTiltakstyper } from "./mockTiltakstyper";
 
+// TODO Mock estimert ventetid
 export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
   {
     sanityId: "f4cea25b-c372-4d4c-8106-535ab10cd586",

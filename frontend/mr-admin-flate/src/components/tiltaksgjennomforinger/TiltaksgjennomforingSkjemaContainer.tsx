@@ -100,6 +100,13 @@ export const TiltaksgjennomforingSkjemaContainer = ({
       faneinnhold: data.faneinnhold ?? null,
       opphav: data.opphav,
       deltidsprosent: data.deltidsprosent,
+      estimertVentetid:
+        data.visEstimertVentetid && data.estimertVentetidEnhet && data.estimertVentetidVerdi
+          ? {
+              verdi: data.estimertVentetidVerdi,
+              enhet: data.estimertVentetidEnhet,
+            }
+          : null,
     };
 
     mutation.mutate(body);
