@@ -112,7 +112,7 @@ export const TiltaksgjennomforingSchema = z
           required_error: "Du må sette en verdi for estimert ventetid",
           invalid_type_error: "Du må sette en verdi for estimert ventetid",
         }),
-        enhet: z.string({
+        enhet: z.enum(["uke", "maned"], {
           required_error: "Du må sette en enhet for estimert ventetid",
           invalid_type_error: "Du må sette en enhet for estimert ventetid",
         }),
