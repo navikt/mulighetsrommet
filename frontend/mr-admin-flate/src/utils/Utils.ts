@@ -213,9 +213,9 @@ export function createQueryParamsForExcelDownload(filter: AvtaleFilter): URLSear
 export function formatertVentetid(verdi: number, enhet: EstimertVentetid.enhet): string {
   switch (enhet) {
     case EstimertVentetid.enhet.UKE:
-      return `${verdi} ${verdi > 1 ? "uker" : "uke"}`;
+      return `${verdi} ${verdi === 1 ? "uke" : "uker"}`;
     case EstimertVentetid.enhet.MANED:
-      return `${verdi} ${verdi > 1 ? "måneder" : "måned"}`;
+      return `${verdi} ${verdi === 1 ? "måned" : "måneder"}`;
     default:
       return "Ukjent enhet for ventetid";
   }

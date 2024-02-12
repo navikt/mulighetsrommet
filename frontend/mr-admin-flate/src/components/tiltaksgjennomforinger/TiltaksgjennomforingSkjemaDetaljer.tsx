@@ -246,7 +246,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                   <TextField
                     size="small"
                     type="number"
-                    min={1}
+                    min={0}
                     label="Antall"
                     error={errors.estimertVentetid?.verdi?.message as string}
                     {...register("estimertVentetid.verdi", {
