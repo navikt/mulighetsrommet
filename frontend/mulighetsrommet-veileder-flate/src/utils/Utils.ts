@@ -67,5 +67,7 @@ export function formatertVentetid(verdi: number, enhet: EstimertVentetid.enhet):
       return `${verdi} ${verdi > 1 ? "uker" : "uke"}`;
     case EstimertVentetid.enhet.MANED:
       return `${verdi} ${verdi > 1 ? "måneder" : "måned"}`;
+    default:
+      return "Ukjent enhet for ventetid";
   }
 }
