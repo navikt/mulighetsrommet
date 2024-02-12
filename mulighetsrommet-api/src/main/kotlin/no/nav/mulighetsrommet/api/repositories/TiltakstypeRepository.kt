@@ -199,7 +199,7 @@ class TiltakstypeRepository(private val db: Database) {
     }
 
     fun getAllMedDeltakerregistreringsinnhold(): List<TiltakstypeEksternDto> {
-        val tiltakstyper = getAll()
+        val tiltakstyper = getAll(paginationParams = PaginationParams(nullableLimit = 1000))
 
         return tiltakstyper.second.map { tiltakstypeAdminDto ->
             val deltakerRegistreringInnhold = getDeltakerregistreringInnholdByTiltakskode(tiltakstypeAdminDto.arenaKode)
