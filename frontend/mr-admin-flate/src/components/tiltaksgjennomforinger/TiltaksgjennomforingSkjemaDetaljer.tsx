@@ -87,8 +87,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
   useEffect(() => {
     const resetEstimertVentetid = () => {
       if (!watchVisEstimertVentetid) {
-        setValue("estimertVentetidEnhet", null);
-        setValue("estimertVentetidVerdi", null);
+        setValue("estimertVentetid", null);
       }
     };
 
@@ -243,22 +242,22 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                 Registrer estimert ventetid
               </Switch>
               {watch("visEstimertVentetid") ? (
-                <HStack justify="start" gap="10" columns={2}>
+                <HStack justify="start" gap="10" columns={4}>
                   <TextField
                     size="small"
                     type="number"
                     min={1}
                     label="Antall"
-                    error={errors.estimertVentetidVerdi?.message as string}
-                    {...register("estimertVentetidVerdi", {
+                    error={errors.estimertVentetid?.verdi?.message as string}
+                    {...register("estimertVentetid.verdi", {
                       valueAsNumber: true,
                     })}
                   />
                   <Select
                     size="small"
                     label="Måleenhet"
-                    error={errors.estimertVentetidEnhet?.message as string}
-                    {...register("estimertVentetidEnhet")}
+                    error={errors.estimertVentetid?.enhet?.message as string}
+                    {...register("estimertVentetid.enhet")}
                   >
                     <option value="uke">Uker</option>
                     <option value="maned">Måneder</option>

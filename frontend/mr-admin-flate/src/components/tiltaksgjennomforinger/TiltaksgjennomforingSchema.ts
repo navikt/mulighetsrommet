@@ -105,9 +105,19 @@ export const TiltaksgjennomforingSchema = z
       })
       .nullable(),
     opphav: z.nativeEnum(Opphav),
-    visEstimertVentetid: z.boolean().default(false),
-    estimertVentetidVerdi: z.number().nullable(),
-    estimertVentetidEnhet: z.string().nullable(),
+    visEstimertVentetid: z.boolean(),
+    estimertVentetid: z
+      .object({
+        verdi: z.number({
+          required_error: "Du må sette en verdi for estimert ventetid",
+          invalid_type_error: "Du må sette en verdi for estimert ventetid",
+        }),
+        enhet: z.string({
+          required_error: "Du må sette en enhet for estimert ventetid",
+          invalid_type_error: "Du må sette en enhet for estimert ventetid",
+        }),
+      })
+      .nullable(),
   })
   .superRefine((data, ctx) => {
     if (
@@ -152,21 +162,6 @@ export const TiltaksgjennomforingSchema = z
           path: ["startOgSluttDato.sluttDato"],
         });
       }
-    }
-    if (data.visEstimertVentetid && !data.estimertVentetidEnhet) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Du må registrere enhet for estimert ventetid",
-        path: ["estimertVentetidEnhet"],
-      });
-    }
-
-    if (data.visEstimertVentetid && !data.estimertVentetidVerdi) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Du må registrere verdi for estimert ventetid",
-        path: ["estimertVentetidVerdi"],
-      });
     }
   });
 
