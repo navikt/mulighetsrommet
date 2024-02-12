@@ -54,7 +54,7 @@ object TiltaksgjennomforingFixtures {
         beskrivelse = null,
         deltidsprosent = 100.0,
         estimertVentetidVerdi = 3,
-        estimertVentetidEnhet = "dager",
+        estimertVentetidEnhet = "dag",
     )
 
     val Oppfolging1Request = TiltaksgjennomforingRequest(
@@ -83,7 +83,7 @@ object TiltaksgjennomforingFixtures {
         deltidsprosent = 100.0,
         estimertVentetid = EstimertVentetid(
             verdi = 3,
-            enhet = "dager",
+            enhet = "dag",
         ),
     )
 
@@ -112,7 +112,7 @@ object TiltaksgjennomforingFixtures {
         beskrivelse = null,
         deltidsprosent = 100.0,
         estimertVentetidVerdi = 3,
-        estimertVentetidEnhet = "dager",
+        estimertVentetidEnhet = "dag",
     )
 
     val Arbeidstrening1 = TiltaksgjennomforingDbo(
@@ -140,6 +140,6 @@ object TiltaksgjennomforingFixtures {
         beskrivelse = null,
         deltidsprosent = 100.0,
         estimertVentetidVerdi = 3,
-        estimertVentetidEnhet = "dager",
+        estimertVentetidEnhet = "dag",
     )
 }
