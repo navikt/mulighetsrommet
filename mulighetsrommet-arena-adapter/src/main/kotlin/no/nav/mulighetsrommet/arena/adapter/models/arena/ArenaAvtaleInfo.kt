@@ -55,4 +55,7 @@ enum class Avtalestatuskode {
 
     @SerialName("AVBRU")
     Avbrutt,
+
+    @SerialName("OVERF")
+    Overfort,
 }
