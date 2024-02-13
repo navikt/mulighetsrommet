@@ -1,4 +1,4 @@
-import { Button, Textarea, TextField } from "@navikt/ds-react";
+import { Button, Textarea, TextField, VStack } from "@navikt/ds-react";
 import {
   Avtale,
   Avtaletype,
@@ -272,7 +272,7 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
             </FormGroup>
             {watchedLeverandor && !avtale?.leverandor?.slettet && (
               <FormGroup>
-                <div className={skjemastyles.kontaktperson_container}>
+                <VStack gap="2" className={skjemastyles.kontaktperson_container}>
                   <ControlledSokeSelect
                     size="small"
                     placeholder="Velg en"
@@ -293,7 +293,7 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
                   >
                     Rediger kontaktpersoner
                   </Button>
-                </div>
+                </VStack>
               </FormGroup>
             )}
           </div>
