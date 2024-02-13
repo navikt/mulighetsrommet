@@ -105,6 +105,19 @@ export const TiltaksgjennomforingSchema = z
       })
       .nullable(),
     opphav: z.nativeEnum(Opphav),
+    visEstimertVentetid: z.boolean(),
+    estimertVentetid: z
+      .object({
+        verdi: z.number({
+          required_error: "Du må sette en verdi for estimert ventetid",
+          invalid_type_error: "Du må sette en verdi for estimert ventetid",
+        }),
+        enhet: z.enum(["uke", "maned"], {
+          required_error: "Du må sette en enhet for estimert ventetid",
+          invalid_type_error: "Du må sette en enhet for estimert ventetid",
+        }),
+      })
+      .nullable(),
   })
   .superRefine((data, ctx) => {
     if (
@@ -119,6 +132,7 @@ export const TiltaksgjennomforingSchema = z
         path: ["midlertidigStengt.stengtTil"],
       });
     }
+
     if (data.opphav === Opphav.MR_ADMIN_FLATE && !data.startOgSluttDato.sluttDato) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,

@@ -30,6 +30,8 @@ data class TiltaksgjennomforingDbo(
     val faneinnhold: Faneinnhold?,
     val beskrivelse: String?,
     val deltidsprosent: Double,
+    val estimertVentetidVerdi: Int?,
+    val estimertVentetidEnhet: String?,
 )
 
 data class TiltaksgjennomforingKontaktpersonDbo(

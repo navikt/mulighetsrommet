@@ -89,7 +89,9 @@ select tg.id::uuid,
                            'beskrivelse', vk.beskrivelse
                        )
                     end
-       ) as virksomhet_kontaktpersoner
+       ) as virksomhet_kontaktpersoner,
+    tg.estimert_ventetid_verdi,
+    tg.estimert_ventetid_enhet
 from tiltaksgjennomforing tg
          inner join tiltakstype t on tg.tiltakstype_id = t.id
          left join tiltaksgjennomforing_administrator tg_a on tg_a.tiltaksgjennomforing_id = tg.id

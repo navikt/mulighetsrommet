@@ -149,6 +149,7 @@ data class TiltaksgjennomforingRequest(
     val faneinnhold: Faneinnhold?,
     val beskrivelse: String?,
     val deltidsprosent: Double,
+    val estimertVentetid: EstimertVentetid?,
 ) {
     fun toDbo() = TiltaksgjennomforingDbo(
         id = id,
@@ -180,6 +181,8 @@ data class TiltaksgjennomforingRequest(
         faneinnhold = faneinnhold,
         beskrivelse = beskrivelse,
         deltidsprosent = deltidsprosent,
+        estimertVentetidVerdi = estimertVentetid?.verdi,
+        estimertVentetidEnhet = estimertVentetid?.enhet,
     )
 }
 
@@ -199,4 +202,10 @@ data class NavKontaktpersonForGjennomforing(
 @Serializable
 data class TilgjengeligForVeilederRequest(
     val tilgjengeligForVeileder: Boolean,
+)
+
+@Serializable
+data class EstimertVentetid(
+    val verdi: Int,
+    val enhet: String,
 )

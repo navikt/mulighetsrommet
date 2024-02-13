@@ -167,3 +167,12 @@
   align-items: center;
   gap: 0.125rem;
 }
+
+.fieldset_no_styling {
+  border: none;
+  padding: 0;
+  legend {
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+  }
+}

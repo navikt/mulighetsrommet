@@ -1,13 +1,24 @@
 import { PlusIcon, XMarkIcon } from "@navikt/aksel-icons";
-import { Alert, Button, Checkbox, HStack, TextField } from "@navikt/ds-react";
+import {
+  Alert,
+  Button,
+  Checkbox,
+  HStack,
+  HelpText,
+  Select,
+  Switch,
+  TextField,
+} from "@navikt/ds-react";
 import { Avtale, Tiltaksgjennomforing, Toggles } from "mulighetsrommet-api-client";
 import { ControlledSokeSelect } from "mulighetsrommet-frontend-common";
+import { useEffect, useRef } from "react";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
 import { useHentKontaktpersoner } from "../../api/ansatt/useHentKontaktpersoner";
 import { useTiltaksgjennomforingAdministratorer } from "../../api/ansatt/useTiltaksgjennomforingAdministratorer";
 import { useFeatureToggle } from "../../api/features/feature-toggles";
 import { useVirksomhet } from "../../api/virksomhet/useVirksomhet";
+import { useVirksomhetKontaktpersoner } from "../../api/virksomhet/useVirksomhetKontaktpersoner";
 import { addYear } from "../../utils/Utils";
 import { isTiltakMedFellesOppstart } from "../../utils/tiltakskoder";
 import { Separator } from "../detaljside/Metadata";
@@ -16,11 +27,10 @@ import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FormGroup } from "../skjema/FormGroup";
 import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
 import skjemastyles from "../skjema/Skjema.module.scss";
-import { arrangorUnderenheterOptions, erArenaOpphav } from "./TiltaksgjennomforingSkjemaConst";
-import { SelectOppstartstype } from "./SelectOppstartstype";
 import { VirksomhetKontaktpersonerModal } from "../virksomhet/VirksomhetKontaktpersonerModal";
-import { useRef } from "react";
-import { useVirksomhetKontaktpersoner } from "../../api/virksomhet/useVirksomhetKontaktpersoner";
+import { SelectOppstartstype } from "./SelectOppstartstype";
+import { arrangorUnderenheterOptions, erArenaOpphav } from "./TiltaksgjennomforingSkjemaConst";
+import { InferredTiltaksgjennomforingSchema } from "./TiltaksgjennomforingSchema";
 
 interface Props {
   tiltaksgjennomforing?: Tiltaksgjennomforing;
@@ -30,19 +40,18 @@ interface Props {
 export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtale }: Props) => {
   const { data: virksomhet } = useVirksomhet(avtale.leverandor.organisasjonsnummer);
   const { data: administratorer } = useTiltaksgjennomforingAdministratorer();
-
   const { data: ansatt, isLoading: isLoadingAnsatt } = useHentAnsatt();
-
   const { data: kontaktpersoner, isLoading: isLoadingKontaktpersoner } = useHentKontaktpersoner();
+
   const virksomhetKontaktpersonerModalRef = useRef<HTMLDialogElement>(null);
 
   const kontaktpersonerOption = (selectedIndex: number) => {
     const excludedKontaktpersoner = watch("kontaktpersoner")
-      .filter((_: any, i: number) => i !== selectedIndex)
+      ?.filter((_: any, i: number) => i !== selectedIndex)
       .map((k: any) => k["navIdent"]);
 
     const options = kontaktpersoner
-      ?.filter((kontaktperson) => !excludedKontaktpersoner.includes(kontaktperson.navIdent))
+      ?.filter((kontaktperson) => !excludedKontaktpersoner?.includes(kontaktperson.navIdent))
       ?.map((kontaktperson) => ({
         label: `${kontaktperson.fornavn} ${kontaktperson.etternavn} - ${kontaktperson.navIdent}`,
         value: kontaktperson.navIdent,
@@ -57,7 +66,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
     formState: { errors },
     setValue,
     watch,
-  } = useFormContext();
+  } = useFormContext<InferredTiltaksgjennomforingSchema>();
   const {
     fields: kontaktpersonFields,
     append: appendKontaktperson,
@@ -73,6 +82,17 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
   } = useVirksomhetKontaktpersoner(avtale.leverandor.organisasjonsnummer);
 
   const watchErMidlertidigStengt = watch("midlertidigStengt.erMidlertidigStengt");
+  const watchVisEstimertVentetid = watch("visEstimertVentetid");
+
+  useEffect(() => {
+    const resetEstimertVentetid = () => {
+      if (!watchVisEstimertVentetid) {
+        setValue("estimertVentetid", null);
+      }
+    };
+
+    resetEstimertVentetid();
+  }, [watchVisEstimertVentetid]);
 
   const regionerOptions = avtale.kontorstruktur
     .map((struk) => struk.region)
@@ -121,13 +141,9 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
               readOnly
               label={`Avtale (tiltakstype: ${avtale.tiltakstype.navn})`}
               value={avtale.navn || ""}
-              error={errors.avtale?.message as string}
             />
-            {/**
-             * // TODO Kan fjerne alert under når Aksel har fikset readonly + error
-             * */}
-            {errors.avtale?.message ? (
-              <Alert variant="warning">{errors.avtale.message as string}</Alert>
+            {errors.avtaleId?.message ? (
+              <Alert variant="warning">{errors.avtaleId.message as string}</Alert>
             ) : null}
           </FormGroup>
           <Separator />
@@ -212,6 +228,43 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                 />
               )}
             </HStack>
+            <Separator />
+            <fieldset className={skjemastyles.fieldset_no_styling}>
+              <HStack gap="1">
+                <legend>Estimert ventetid </legend>
+                <HelpText title="Hva er estimert ventetid?">
+                  Estimert ventetid er et felt som kan brukes hvis dere sitter på informasjon om
+                  estimert ventetid for tiltaket. Hvis dere legger inn en verdi i feltene her blir
+                  det synlig for alle ansatte i NAV.
+                </HelpText>
+              </HStack>
+              <Switch checked={watch("visEstimertVentetid")} {...register("visEstimertVentetid")}>
+                Registrer estimert ventetid
+              </Switch>
+              {watch("visEstimertVentetid") ? (
+                <HStack justify="start" gap="10" columns={4}>
+                  <TextField
+                    size="small"
+                    type="number"
+                    min={0}
+                    label="Antall"
+                    error={errors.estimertVentetid?.verdi?.message as string}
+                    {...register("estimertVentetid.verdi", {
+                      valueAsNumber: true,
+                    })}
+                  />
+                  <Select
+                    size="small"
+                    label="Måleenhet"
+                    error={errors.estimertVentetid?.enhet?.message as string}
+                    {...register("estimertVentetid.enhet")}
+                  >
+                    <option value="uke">Uker</option>
+                    <option value="maned">Måneder</option>
+                  </Select>
+                </HStack>
+              ) : null}
+            </fieldset>
           </FormGroup>
           <Separator />
           <FormGroup>
@@ -239,7 +292,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                 placeholder="Velg en"
                 {...register("navRegion")}
                 onChange={() => {
-                  setValue("navEnheter", []);
+                  setValue("navEnheter", [] as any);
                 }}
                 options={regionerOptions}
               />
