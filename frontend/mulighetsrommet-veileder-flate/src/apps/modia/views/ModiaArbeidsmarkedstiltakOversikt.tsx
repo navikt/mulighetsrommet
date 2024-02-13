@@ -19,6 +19,7 @@ import { useVeilederTiltaksgjennomforinger } from "@/core/api/queries/useTiltaks
 import { useResetArbeidsmarkedstiltakFilterMedBrukerIKontekst } from "@/hooks/useArbeidsmarkedstiltakFilter";
 import { FilterMenyMedSkeletonLoader } from "@/components/filtrering/FilterMenyMedSkeletonLoader";
 import { PortenLink } from "@/components/PortenLink";
+import { BrukerHarIkke14aVedtakVarsel } from "@/apps/modia/varsler/BrukerHarIkke14aVedtakVarsel";
 
 export const ModiaArbeidsmarkedstiltakOversikt = () => {
   useTitle("Arbeidsmarkedstiltak - Oversikt");
@@ -95,6 +96,7 @@ export const ModiaArbeidsmarkedstiltakOversikt = () => {
         tags={<ModiaFilterTags />}
         table={
           <div style={{ marginTop: "1rem" }}>
+            <BrukerHarIkke14aVedtakVarsel brukerdata={brukerdata} />
             <BrukersOppfolgingsenhetVarsel brukerdata={brukerdata} />
             <FiltrertFeilInnsatsgruppeVarsel filter={filter} />
             {isLoading ? (

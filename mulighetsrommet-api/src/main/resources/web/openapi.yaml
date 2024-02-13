@@ -2361,7 +2361,6 @@ components:
             $ref: "#/components/schemas/BrukerVarsel"
       required:
         - manuellStatus
-        - innsatsgruppe
         - fnr
         - enheter
         - varsler
@@ -2370,8 +2369,6 @@ components:
       type: string
       enum:
         - LOKAL_OPPFOLGINGSENHET
-        - MANGLER_14A_VEDTAK
-        - MANGLER_INNSATSGRUPPE_OG_SERVICEGRUPPE
 
     NavVeileder:
       type: object

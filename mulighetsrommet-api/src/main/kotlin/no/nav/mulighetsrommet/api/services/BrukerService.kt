@@ -48,9 +48,9 @@ class BrukerService(
         val sisteVedtak = veilarbvedtaksstotteClient.hentSiste14AVedtak(fnr, accessToken)
             .getOrElse {
                 when (it) {
-                    VedtakError.NotFound -> throw StatusException(HttpStatusCode.BadRequest, "Bruker mangler §14a-vedtak. Kontroller at brukeren er under oppfølging og finnes i Arena")
                     VedtakError.Forbidden -> throw StatusException(HttpStatusCode.Forbidden, "Mangler tilgang til å hente §14a-vedtak")
                     VedtakError.Error -> throw StatusException(HttpStatusCode.InternalServerError, "Klarte ikke hente hente §14a-vedtak")
+                    VedtakError.NotFound -> null
                 }
             }
 
@@ -62,9 +62,13 @@ class BrukerService(
             navEnhetService.hentEnhet(it)
         } ?: throw StatusException(HttpStatusCode.BadRequest, "Brukers geografiske enhet kunne ikke hentes. Kontroller at brukeren er under oppfølging og finnes i Arena")
 
+        if (sisteVedtak == null && oppfolgingsstatus?.servicegruppe == null) {
+            throw StatusException(HttpStatusCode.BadRequest, "Bruker manglet innsatsgruppe og servicegruppe. Kontroller at brukeren er under oppfølging og finnes i Arena")
+        }
+
         return Brukerdata(
             fnr = fnr,
-            innsatsgruppe = sisteVedtak.innsatsgruppe,
+            innsatsgruppe = sisteVedtak?.innsatsgruppe,
             enheter = getRelevanteEnheterForBruker(brukersGeografiskeEnhet, brukersOppfolgingsenhet),
             servicegruppe = oppfolgingsstatus?.servicegruppe,
             fornavn = personInfo.fornavn,
@@ -82,7 +86,7 @@ class BrukerService(
     @Serializable
     data class Brukerdata(
         val fnr: String,
-        val innsatsgruppe: Innsatsgruppe,
+        val innsatsgruppe: Innsatsgruppe?,
         val enheter: List<NavEnhetDbo>,
         val servicegruppe: String?,
         val fornavn: String,

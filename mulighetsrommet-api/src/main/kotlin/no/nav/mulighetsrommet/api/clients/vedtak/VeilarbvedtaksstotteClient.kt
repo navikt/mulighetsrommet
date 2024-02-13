@@ -55,20 +55,22 @@ class VeilarbvedtaksstotteClient(
         return if (response.status == HttpStatusCode.Forbidden) {
             log.warn("Mangler tilgang til å hente siste 14A-vedtak for bruker. Har innlogget personen riktig AD-rolle for å hente siste 14A-vedtak?")
             VedtakError.Forbidden.left()
-        } else if (!response.status.isSuccess()) {
-            SecureLog.logger.error("Klarte ikke hente siste 14A-vedtak. Response: $response")
-            log.error("Klarte ikke hente siste 14A-vedtak. Status: ${response.status}")
-            VedtakError.Error.left()
         } else {
-            val body = response.bodyAsText()
-            if (body.isBlank()) {
-                log.info("Fant ikke siste 14A-vedtak for bruker")
-                VedtakError.NotFound.left()
+            if (!response.status.isSuccess()) {
+                SecureLog.logger.error("Klarte ikke hente siste 14A-vedtak. Response: $response")
+                log.error("Klarte ikke hente siste 14A-vedtak. Status: ${response.status}")
+                VedtakError.Error.left()
             } else {
-                JsonIgnoreUnknownKeys.decodeFromString<VedtakDto>(body).right()
+                val body = response.bodyAsText()
+                if (body.isBlank()) {
+                    log.info("Fant ikke siste 14A-vedtak for bruker")
+                    VedtakError.NotFound.left()
+                } else {
+                    JsonIgnoreUnknownKeys.decodeFromString<VedtakDto>(body).right()
+                }
             }
+                .onRight { siste14aVedtakCache.put(fnr, it) }
         }
-            .onRight { siste14aVedtakCache.put(fnr, it) }
     }
 }
 
