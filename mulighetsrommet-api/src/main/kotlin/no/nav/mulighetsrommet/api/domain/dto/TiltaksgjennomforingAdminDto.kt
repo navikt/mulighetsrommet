@@ -52,8 +52,8 @@ data class TiltaksgjennomforingAdminDto(
     val beskrivelse: String?,
     @Serializable(with = LocalDateTimeSerializer::class)
     val createdAt: LocalDateTime,
-    val tilgjengeligForVeileder: Boolean,
-    val visesForVeileder: Boolean,
+    val tilgjengeligForAlle: Boolean,
+    val visesForAlle: Boolean,
     val deltidsprosent: Double,
     val estimertVentetid: EstimertVentetid?,
 ) {

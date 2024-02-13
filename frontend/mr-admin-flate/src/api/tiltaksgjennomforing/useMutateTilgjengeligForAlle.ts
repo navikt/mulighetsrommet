@@ -2,14 +2,14 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { mulighetsrommetClient } from "../clients";
 import { QueryKeys } from "../QueryKeys";
 
-export function useMutateTilgjengeligForVeileder() {
+export function useMutateTilgjengeligForAlle() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: { id: string; tilgjengeligForVeileder: boolean }) => {
-      return mulighetsrommetClient.tiltaksgjennomforinger.setTilgjengeligForVeileder({
+    mutationFn: async (data: { id: string; tilgjengeligForAlle: boolean }) => {
+      return mulighetsrommetClient.tiltaksgjennomforinger.setTilgjengeligForAlle({
         id: data.id,
-        requestBody: { tilgjengeligForVeileder: data.tilgjengeligForVeileder },
+        requestBody: { tilgjengeligForAlle: data.tilgjengeligForAlle },
       });
     },
 

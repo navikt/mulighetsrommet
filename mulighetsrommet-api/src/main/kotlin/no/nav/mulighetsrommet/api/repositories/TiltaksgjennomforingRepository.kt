@@ -421,8 +421,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             "startdato-descending" -> "start_dato desc"
             "sluttdato-ascending" -> "slutt_dato asc"
             "sluttdato-descending" -> "slutt_dato desc"
-            "vises_for_veileder-ascending" -> "vises_for_veileder asc"
-            "vises_for_veileder-descending" -> "vises_for_veileder desc"
+            "vises_for_alle-ascending" -> "vises_for_alle asc"
+            "vises_for_alle-descending" -> "vises_for_alle desc"
             else -> "navn asc"
         }
 
@@ -549,7 +549,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 left join virksomhet_kontaktperson vk on vk.id = tvk.virksomhet_kontaktperson_id
             $where
             and t.skal_migreres
-            and tg.tilgjengelig_for_veileder
+            and tg.tilgjengelig_for_alle
             and tg.avslutningsstatus = 'IKKE_AVSLUTTET'
             group by tg.id, t.id, v.navn
             having array_agg(tg_e.enhetsnummer) && :brukersEnheter
@@ -610,20 +610,20 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         return tx.run(queryOf(query, id).asUpdate)
     }
 
-    fun setTilgjengeligForVeileder(id: UUID, tilgjengeligForVeileder: Boolean): Int {
-        return db.transaction { setTilgjengeligForVeileder(it, id, tilgjengeligForVeileder) }
+    fun setTilgjengeligForAlle(id: UUID, tilgjengeligForAlle: Boolean): Int {
+        return db.transaction { setTilgjengeligForAlle(it, id, tilgjengeligForAlle) }
     }
 
-    fun setTilgjengeligForVeileder(tx: Session, id: UUID, tilgjengeligForVeileder: Boolean): Int {
-        logger.info("Setter tilgjengelig for veileder '$tilgjengeligForVeileder' for gjennomføring med id: $id")
+    fun setTilgjengeligForAlle(tx: Session, id: UUID, tilgjengeligForAlle: Boolean): Int {
+        logger.info("Setter tilgjengelig for alle '$tilgjengeligForAlle' for gjennomføring med id: $id")
         @Language("PostgreSQL")
         val query = """
            update tiltaksgjennomforing
-           set tilgjengelig_for_veileder = ?
+           set tilgjengelig_for_alle = ?
            where id = ?::uuid
         """.trimIndent()
 
-        return queryOf(query, tilgjengeligForVeileder, id).asUpdate.let { tx.run(it) }
+        return queryOf(query, tilgjengeligForAlle, id).asUpdate.let { tx.run(it) }
     }
 
     private fun TiltaksgjennomforingDbo.toSqlParameters() = mapOf(
@@ -775,8 +775,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             faneinnhold = stringOrNull("faneinnhold")?.let { Json.decodeFromString(it) },
             beskrivelse = stringOrNull("beskrivelse"),
             createdAt = localDateTime("created_at"),
-            tilgjengeligForVeileder = boolean("tilgjengelig_for_veileder"),
-            visesForVeileder = boolean("vises_for_veileder"),
+            tilgjengeligForAlle = boolean("tilgjengelig_for_alle"),
+            visesForAlle = boolean("vises_for_alle"),
             deltidsprosent = double("deltidsprosent"),
             estimertVentetid = intOrNull("estimert_ventetid_verdi")?.let {
                 TiltaksgjennomforingAdminDto.EstimertVentetid(

@@ -64,8 +64,8 @@ fun Route.tiltaksgjennomforingRoutes() {
             put("{id}/tilgjengelig-for-veileder") {
                 val id = call.parameters.getOrFail<UUID>("id")
                 val navIdent = getNavIdent()
-                val request = call.receive<TilgjengeligForVeilederRequest>()
-                service.setTilgjengeligForVeileder(id, request.tilgjengeligForVeileder, navIdent)
+                val request = call.receive<TilgjengeligForAlleRequest>()
+                service.setTilgjengeligForAlle(id, request.tilgjengeligForAlle, navIdent)
                 call.respond(HttpStatusCode.OK)
             }
         }
@@ -200,8 +200,8 @@ data class NavKontaktpersonForGjennomforing(
 )
 
 @Serializable
-data class TilgjengeligForVeilederRequest(
-    val tilgjengeligForVeileder: Boolean,
+data class TilgjengeligForAlleRequest(
+    val tilgjengeligForAlle: Boolean,
 )
 
 @Serializable
