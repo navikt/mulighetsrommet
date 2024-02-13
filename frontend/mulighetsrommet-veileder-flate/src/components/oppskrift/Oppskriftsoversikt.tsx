@@ -1,6 +1,5 @@
 import { Alert, Skeleton } from "@navikt/ds-react";
 import { Oppskrift, Toggles } from "mulighetsrommet-api-client";
-import { Link } from "react-router-dom";
 import { useFeatureToggle } from "../../core/api/feature-toggles";
 import { useOppskrifter } from "../../core/api/queries/useOppskrifter";
 import { formaterDato } from "../../utils/Utils";
@@ -8,9 +7,10 @@ import styles from "./Oppskriftsoversikt.module.scss";
 
 interface Props {
   tiltakstypeId: string;
+  setOppskriftId: (id: string) => void;
 }
 
-export function Oppskriftsoversikt({ tiltakstypeId }: Props) {
+export function Oppskriftsoversikt({ tiltakstypeId, setOppskriftId }: Props) {
   const { data: enableOppskrifter } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_VEILEDERFLATE_ARENA_OPPSKRIFTER,
   );
@@ -34,9 +34,9 @@ export function Oppskriftsoversikt({ tiltakstypeId }: Props) {
       {oppskrifter.data.map((oppskrift) => {
         return (
           <li className={styles.item} key={oppskrift._id}>
-            <Link className={styles.link} to={`oppskrifter/${oppskrift._id}/${tiltakstypeId}`}>
+            <span role="button" onClick={() => setOppskriftId(oppskrift._id)}>
               <Oppskriftskort oppskrift={oppskrift} />
-            </Link>
+            </span>
           </li>
         );
       })}

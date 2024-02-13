@@ -1,14 +1,13 @@
 import { PadlockLockedFillIcon } from "@navikt/aksel-icons";
 import { Alert } from "@navikt/ds-react";
 import { Innsatsgruppe, VeilederflateTiltaksgjennomforing } from "mulighetsrommet-api-client";
-import { Route, Routes } from "react-router-dom";
 import SidemenyDetaljer from "../components/sidemeny/SidemenyDetaljer";
 import TiltaksdetaljerFane from "../components/tabs/TiltaksdetaljerFane";
 import { useGetTiltaksgjennomforingIdFraUrl } from "@/core/api/queries/useGetTiltaksgjennomforingIdFraUrl";
 import TiltaksgjennomforingsHeader from "./TiltaksgjennomforingsHeader";
 import styles from "./ViewTiltaksgjennomforingDetaljer.module.scss";
 import { Oppskrift } from "@/components/oppskrift/Oppskrift";
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
 
 interface Props {
   tiltaksgjennomforing: VeilederflateTiltaksgjennomforing;
@@ -23,6 +22,7 @@ export const ViewTiltaksgjennomforingDetaljer = ({
   knapperad,
 }: Props) => {
   const gjennomforingsId = useGetTiltaksgjennomforingIdFraUrl();
+  const [oppskriftId, setOppskriftId] = useState<string | undefined>(undefined);
 
   if (!tiltaksgjennomforing) {
     return (
@@ -46,12 +46,18 @@ export const ViewTiltaksgjennomforingDetaljer = ({
           <SidemenyDetaljer tiltaksgjennomforing={tiltaksgjennomforing} />
           <div className={styles.brukeractions_container}>{brukerActions}</div>
         </div>
-        <TiltaksdetaljerFane tiltaksgjennomforing={tiltaksgjennomforing} />
+        <TiltaksdetaljerFane
+          tiltaksgjennomforing={tiltaksgjennomforing}
+          setOppskriftId={setOppskriftId}
+        />
       </div>
       <div className={styles.oppskriftContainer}>
-        <Routes>
-          <Route path="oppskrifter/:oppskriftId/:tiltakstypeId" element={<Oppskrift />} />
-        </Routes>
+        {oppskriftId && (
+          <Oppskrift
+            oppskriftId={oppskriftId}
+            tiltakstypeId={tiltaksgjennomforing.tiltakstype.sanityId}
+          />
+        )}
       </div>
     </div>
   );

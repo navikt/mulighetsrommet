@@ -1,13 +1,17 @@
 import { Alert } from "@navikt/ds-react";
 import { useEffect, useRef } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { APPLICATION_WEB_COMPONENT_NAME } from "../../constants";
 import { useOppskrifter } from "../../core/api/queries/useOppskrifter";
 import styles from "./Oppskrift.module.scss";
 import { RedaksjoneltInnhold } from "../RedaksjoneltInnhold";
 
-export function Oppskrift() {
-  const { oppskriftId, tiltakstypeId } = useParams();
+interface Props {
+  oppskriftId: string;
+  tiltakstypeId: string;
+}
+
+export function Oppskrift({ oppskriftId, tiltakstypeId }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const { data: oppskrifter } = useOppskrifter(tiltakstypeId);
 

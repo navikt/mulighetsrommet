@@ -9,10 +9,6 @@ export const paginationAtom = atomWithHash(
   },
 );
 
-export const faneAtom = atomWithHash("fane", "tab1", {
-  setHash: "replaceState",
-});
-
 export const filterAccordionAtom = atom<string[]>([
   "apen-for-innsok",
   "innsatsgruppe",
