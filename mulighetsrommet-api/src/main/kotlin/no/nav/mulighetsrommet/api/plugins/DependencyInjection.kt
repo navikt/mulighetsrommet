@@ -16,15 +16,11 @@ import no.nav.mulighetsrommet.api.SlackConfig
 import no.nav.mulighetsrommet.api.TaskConfig
 import no.nav.mulighetsrommet.api.avtaler.AvtaleValidator
 import no.nav.mulighetsrommet.api.clients.arenaadapter.ArenaAdapterClient
-import no.nav.mulighetsrommet.api.clients.arenaadapter.ArenaAdapterClientImpl
 import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
 import no.nav.mulighetsrommet.api.clients.brreg.BrregClientImpl
 import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogClient
-import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogClientImpl
 import no.nav.mulighetsrommet.api.clients.msgraph.MicrosoftGraphClient
-import no.nav.mulighetsrommet.api.clients.msgraph.MicrosoftGraphClientImpl
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Client
-import no.nav.mulighetsrommet.api.clients.norg2.Norg2ClientImpl
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClientImpl
 import no.nav.mulighetsrommet.api.clients.person.VeilarbpersonClient
@@ -206,7 +202,7 @@ private fun services(appConfig: AppConfig) = module {
         )
     }
     single<VeilarbdialogClient> {
-        VeilarbdialogClientImpl(
+        VeilarbdialogClient(
             baseUrl = appConfig.veilarbdialogConfig.url,
             tokenProvider = { token ->
                 oboTokenProvider.exchangeOnBehalfOfToken(appConfig.veilarbdialogConfig.scope, token)
@@ -221,7 +217,7 @@ private fun services(appConfig: AppConfig) = module {
         )
     }
     single<MicrosoftGraphClient> {
-        MicrosoftGraphClientImpl(
+        MicrosoftGraphClient(
             baseUrl = appConfig.msGraphConfig.url,
             tokenProvider = { token ->
                 if (token == null) {
@@ -233,13 +229,13 @@ private fun services(appConfig: AppConfig) = module {
         )
     }
     single<ArenaAdapterClient> {
-        ArenaAdapterClientImpl(
+        ArenaAdapterClient(
             baseUrl = appConfig.arenaAdapter.url,
             machineToMachineTokenClient = { m2mTokenProvider.createMachineToMachineToken(appConfig.arenaAdapter.scope) },
         )
     }
     single<Norg2Client> {
-        Norg2ClientImpl(
+        Norg2Client(
             baseUrl = appConfig.norg2.baseUrl,
         )
     }
@@ -306,7 +302,7 @@ private fun services(appConfig: AppConfig) = module {
     single { ExcelService() }
     single { MetrikkService(get()) }
     single { UtkastService(get()) }
-    single { NotatServiceImpl(get(), get()) }
+    single { NotatService(get(), get()) }
     single {
         val byEnhetStrategy = ByEnhetStrategy(get())
         val byNavidentStrategy = ByNavidentStrategy()

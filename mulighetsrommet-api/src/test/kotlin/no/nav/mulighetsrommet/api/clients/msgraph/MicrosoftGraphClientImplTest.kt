@@ -10,7 +10,7 @@ import java.util.*
 
 class MicrosoftGraphClientImplTest : FunSpec({
 
-    fun createClient(engine: MockEngine) = MicrosoftGraphClientImpl(engine, "https://ms-graph.com") { "token" }
+    fun createClient(engine: MockEngine) = MicrosoftGraphClient(engine, "https://ms-graph.com") { "token" }
 
     test("should get an MsGraph user as a NavAnsatt") {
         val id = UUID.randomUUID()
@@ -34,7 +34,7 @@ class MicrosoftGraphClientImplTest : FunSpec({
 
         val client = createClient(engine)
 
-        client.getNavAnsatt(id) shouldBe AzureAdNavAnsatt(
+        client.getNavAnsatt(id, null) shouldBe AzureAdNavAnsatt(
             azureId = id,
             navIdent = "DD123456",
             fornavn = "Donald",
@@ -59,6 +59,6 @@ class MicrosoftGraphClientImplTest : FunSpec({
 
         val client = createClient(engine)
 
-        client.getMemberGroups(id) shouldBe listOf(AdGruppe(group.id, group.displayName))
+        client.getMemberGroups(id, null) shouldBe listOf(AdGruppe(group.id, group.displayName))
     }
 })
