@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.services
 
+import arrow.core.right
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainInOrder
@@ -49,13 +50,13 @@ class BrukerServiceTest : FunSpec({
         coEvery { veilarboppfolgingClient.hentOppfolgingsstatus(fnr1, any()) } returns OppfolgingsstatusDto(
             oppfolgingsenhet = mockOppfolgingsenhet(),
             servicegruppe = "IKKE_VURDERT",
-        )
+        ).right()
 
-        coEvery { veilarboppfolgingClient.hentManuellStatus(fnr1, any()) } returns mockManuellStatus()
+        coEvery { veilarboppfolgingClient.hentManuellStatus(fnr1, any()) } returns mockManuellStatus().right()
 
         coEvery { veilarbvedtaksstotteClient.hentSiste14AVedtak(fnr1, any()) } returns VedtakDto(
             innsatsgruppe = Innsatsgruppe.STANDARD_INNSATS,
-        )
+        ).right()
 
         coEvery { veilarbpersonClient.hentPersonInfo(fnr1, any()) } returns PersonDto(
             fornavn = "Ola",
@@ -63,18 +64,18 @@ class BrukerServiceTest : FunSpec({
                 navn = "NAV Fredrikstad",
                 enhetsnummer = "0106",
             ),
-        )
+        ).right()
 
         coEvery { veilarboppfolgingClient.hentOppfolgingsstatus(fnr2, any()) } returns OppfolgingsstatusDto(
             oppfolgingsenhet = mockOppfolgingsenhet(),
             servicegruppe = "IKKE_VURDERT",
-        )
+        ).right()
 
-        coEvery { veilarboppfolgingClient.hentManuellStatus(fnr2, any()) } returns mockManuellStatus()
+        coEvery { veilarboppfolgingClient.hentManuellStatus(fnr2, any()) } returns mockManuellStatus().right()
 
         coEvery { veilarbvedtaksstotteClient.hentSiste14AVedtak(fnr2, any()) } returns VedtakDto(
             innsatsgruppe = Innsatsgruppe.GRADERT_VARIG_TILPASSET_INNSATS,
-        )
+        ).right()
 
         coEvery { veilarbpersonClient.hentPersonInfo(fnr2, any()) } returns PersonDto(
             fornavn = "Petter",
@@ -82,7 +83,7 @@ class BrukerServiceTest : FunSpec({
                 navn = "NAV Fredrikstad",
                 enhetsnummer = "0106",
             ),
-        )
+        ).right()
 
         coEvery { navEnhetService.hentEnhet(any()) } returns NavEnhetDbo(
             navn = "NAV Fredrikstad",

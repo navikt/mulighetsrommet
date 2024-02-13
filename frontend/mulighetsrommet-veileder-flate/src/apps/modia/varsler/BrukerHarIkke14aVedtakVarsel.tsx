@@ -1,5 +1,5 @@
 import { Alert } from "@navikt/ds-react";
-import { Bruker, BrukerVarsel } from "mulighetsrommet-api-client";
+import { Bruker } from "mulighetsrommet-api-client";
 import styles from "./BrukerKvalifisererIkkeVarsel.module.scss";
 
 interface Props {
@@ -7,7 +7,7 @@ interface Props {
 }
 
 export function BrukerHarIkke14aVedtakVarsel({ brukerdata }: Props) {
-  return brukerdata.varsler.includes(BrukerVarsel.MANGLER_14A_VEDTAK) ? (
+  return !brukerdata.innsatsgruppe ? (
     <Alert variant="warning" className={styles.varsel} data-testid="varsel_servicesgruppe">
       Brukeren har ikke fått §14 a-vedtak enda, og kan derfor ikke meldes på noen tiltak.
     </Alert>

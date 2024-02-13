@@ -4,11 +4,10 @@ import { ApiError, Toggles } from "mulighetsrommet-api-client";
 import { useTitle } from "mulighetsrommet-frontend-common";
 import { TiltakLoader } from "@/components/TiltakLoader";
 import { BrukersOppfolgingsenhetVarsel } from "@/apps/modia/varsler/BrukersOppfolgingsenhetVarsel";
-import { Feilmelding, ForsokPaNyttLink } from "@/components/feilmelding/Feilmelding";
+import { Feilmelding } from "@/components/feilmelding/Feilmelding";
 import { FilterAndTableLayout } from "@/components/filtrering/FilterAndTableLayout";
 import { ModiaFilterTags } from "@/apps/modia/filtrering/ModiaFilterTags";
 import { HistorikkButton } from "@/apps/modia/historikk/HistorikkButton";
-import { BrukerHarIkke14aVedtakVarsel } from "@/apps/modia/varsler/BrukerHarIkke14aVedtakVarsel";
 import { FiltrertFeilInnsatsgruppeVarsel } from "@/apps/modia/varsler/FiltrertFeilInnsatsgruppeVarsel";
 import { OversiktenJoyride } from "@/components/joyride/OversiktenJoyride";
 import { Tiltaksgjennomforingsoversikt } from "@/components/oversikt/Tiltaksgjennomforingsoversikt";
@@ -18,9 +17,9 @@ import { useHentAlleTiltakDeltMedBruker } from "@/apps/modia/hooks/useHentAlleTi
 import { useHentBrukerdata } from "@/apps/modia/hooks/useHentBrukerdata";
 import { useVeilederTiltaksgjennomforinger } from "@/core/api/queries/useTiltaksgjennomforinger";
 import { useResetArbeidsmarkedstiltakFilterMedBrukerIKontekst } from "@/hooks/useArbeidsmarkedstiltakFilter";
-import { ManglerInnsatsOgServicegruppeVarsel } from "@/apps/modia/varsler/ManglerInnsatsOgServiceGruppeVarsel";
 import { FilterMenyMedSkeletonLoader } from "@/components/filtrering/FilterMenyMedSkeletonLoader";
 import { PortenLink } from "@/components/PortenLink";
+import { BrukerHarIkke14aVedtakVarsel } from "@/apps/modia/varsler/BrukerHarIkke14aVedtakVarsel";
 
 export const ModiaArbeidsmarkedstiltakOversikt = () => {
   useTitle("Arbeidsmarkedstiltak - Oversikt");
@@ -68,36 +67,6 @@ export const ModiaArbeidsmarkedstiltakOversikt = () => {
     );
   }
 
-  if (brukerdata.enheter.length === 0) {
-    return (
-      <Feilmelding
-        header="Kunne ikke hente brukers geografiske enhet"
-        beskrivelse={
-          <>
-            Brukers geografiske enhet kunne ikke hentes. Kontroller at brukeren er under oppfølging
-            og finnes i Arena, og <ForsokPaNyttLink />
-          </>
-        }
-        ikonvariant="error"
-      />
-    );
-  }
-
-  if (!brukerdata.innsatsgruppe && !brukerdata.servicegruppe) {
-    return (
-      <Feilmelding
-        header="Kunne ikke hente brukers innsatsgruppe eller servicegruppe"
-        beskrivelse={
-          <>
-            Vi kan ikke hente brukerens innsatsgruppe eller servicegruppe. Kontroller at brukeren er
-            under oppfølging og finnes i Arena, og <br /> <ForsokPaNyttLink />
-          </>
-        }
-        ikonvariant="error"
-      />
-    );
-  }
-
   return (
     <>
       {landingssideEnabled ? <Tilbakeknapp tilbakelenke="/arbeidsmarkedstiltak" /> : null}
@@ -127,10 +96,9 @@ export const ModiaArbeidsmarkedstiltakOversikt = () => {
         tags={<ModiaFilterTags />}
         table={
           <div style={{ marginTop: "1rem" }}>
+            <BrukerHarIkke14aVedtakVarsel brukerdata={brukerdata} />
             <BrukersOppfolgingsenhetVarsel brukerdata={brukerdata} />
             <FiltrertFeilInnsatsgruppeVarsel filter={filter} />
-            <BrukerHarIkke14aVedtakVarsel brukerdata={brukerdata} />
-            <ManglerInnsatsOgServicegruppeVarsel brukerdata={brukerdata} />
             {isLoading ? (
               <TiltakLoader />
             ) : tiltaksgjennomforinger.length === 0 ? (

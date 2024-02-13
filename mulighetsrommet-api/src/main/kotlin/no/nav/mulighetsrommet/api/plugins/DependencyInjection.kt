@@ -22,12 +22,9 @@ import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogClient
 import no.nav.mulighetsrommet.api.clients.msgraph.MicrosoftGraphClient
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Client
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
-import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClientImpl
 import no.nav.mulighetsrommet.api.clients.person.VeilarbpersonClient
-import no.nav.mulighetsrommet.api.clients.person.VeilarbpersonClientImpl
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
-import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClientImpl
 import no.nav.mulighetsrommet.api.repositories.*
 import no.nav.mulighetsrommet.api.services.*
 import no.nav.mulighetsrommet.api.tasks.*
@@ -178,7 +175,7 @@ private fun services(appConfig: AppConfig) = module {
     val oboTokenProvider = createOboTokenClient(appConfig)
 
     single<VeilarboppfolgingClient> {
-        VeilarboppfolgingClientImpl(
+        VeilarboppfolgingClient(
             baseUrl = appConfig.veilarboppfolgingConfig.url,
             tokenProvider = { token ->
                 oboTokenProvider.exchangeOnBehalfOfToken(appConfig.veilarboppfolgingConfig.scope, token)
@@ -186,7 +183,7 @@ private fun services(appConfig: AppConfig) = module {
         )
     }
     single<VeilarbvedtaksstotteClient> {
-        VeilarbvedtaksstotteClientImpl(
+        VeilarbvedtaksstotteClient(
             baseUrl = appConfig.veilarbvedtaksstotteConfig.url,
             tokenProvider = { token ->
                 oboTokenProvider.exchangeOnBehalfOfToken(appConfig.veilarbvedtaksstotteConfig.scope, token)
@@ -194,7 +191,7 @@ private fun services(appConfig: AppConfig) = module {
         )
     }
     single<VeilarbpersonClient> {
-        VeilarbpersonClientImpl(
+        VeilarbpersonClient(
             baseUrl = appConfig.veilarbpersonConfig.url,
             tokenProvider = { token ->
                 oboTokenProvider.exchangeOnBehalfOfToken(appConfig.veilarbpersonConfig.scope, token)
