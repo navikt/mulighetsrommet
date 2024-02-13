@@ -31,9 +31,9 @@ customElements.define(APPLICATION_WEB_COMPONENT_NAME, ModiaArbeidsmarkedstiltakW
  * Må kjøres via `vite build` og `vite preview` (altså ikke via `vite dev`) for at styling under
  * shadow root skal bli lastet riktig.
  */
-const demoContainer = document.getElementById(APPLICATION_NAME);
-if (demoContainer) {
-  const root = createRoot(demoContainer);
+const container = document.getElementById(APPLICATION_NAME);
+if (container) {
+  const root = createRoot(container);
   const app = React.createElement(APPLICATION_WEB_COMPONENT_NAME, {
     "data-fnr": import.meta.env.VITE_DEMO_FNR ?? null,
     "data-enhet": import.meta.env.VITE_DEMO_ENHET ?? null,

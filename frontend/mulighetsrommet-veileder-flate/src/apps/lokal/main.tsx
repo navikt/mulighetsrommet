@@ -22,9 +22,9 @@ if (import.meta.env.VITE_MULIGHETSROMMET_API_MOCK === "true") {
 }
 
 function render() {
-  const demoContainer = document.getElementById(APPLICATION_NAME);
-  if (demoContainer) {
-    const root = createRoot(demoContainer);
+  const container = document.getElementById(APPLICATION_NAME);
+  if (container) {
+    const root = createRoot(container);
     root.render(
       <div>
         <Router>
