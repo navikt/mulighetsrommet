@@ -32,7 +32,7 @@ class TiltakshistorikkService(
     }
 
     private suspend fun hentArrangorNavn(virksomhetsnummer: String): String? {
-        return virksomhetService.getOrSyncVirksomhet(virksomhetsnummer).fold({ error ->
+        return virksomhetService.getOrSyncVirksomhetFromBrreg(virksomhetsnummer).fold({ error ->
             log.warn("Klarte ikke hente arrangør. BrregError: $error")
             null
         }, { virksomhet ->

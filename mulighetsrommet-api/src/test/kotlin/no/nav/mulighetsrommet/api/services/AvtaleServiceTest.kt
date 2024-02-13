@@ -8,12 +8,14 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.mockk.clearAllMocks
+import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.avtaler.AvtaleValidator
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattDbo
+import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
@@ -45,12 +47,21 @@ class AvtaleServiceTest : FunSpec({
         every { validator.validate(any(), any()) } answers {
             firstArg<AvtaleDbo>().right()
         }
+
+        coEvery { virksomhetService.getOrSyncVirksomhetFromBrreg(any()) } answers {
+            VirksomhetDto(
+                organisasjonsnummer = firstArg<String>(),
+                navn = "Virksomhet",
+                postnummer = null,
+                poststed = null,
+            ).right()
+        }
     }
 
-    afterEach {
-        database.db.truncateAll()
-        clearAllMocks()
-    }
+//    afterEach {
+//        database.db.truncateAll()
+//        clearAllMocks()
+//    }
 
     context("Upsert avtale") {
         val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
@@ -73,10 +84,7 @@ class AvtaleServiceTest : FunSpec({
             val request = AvtaleFixtures.avtaleRequest
 
             every { validator.validate(request.toDbo(), any()) } returns listOf(
-                ValidationError(
-                    "navn",
-                    "Dårlig navn",
-                ),
+                ValidationError("navn", "Dårlig navn"),
             ).left()
 
             avtaleService.upsert(request, "B123456").shouldBeLeft(

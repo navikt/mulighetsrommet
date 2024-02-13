@@ -34,9 +34,9 @@ class AmtVirksomheterV1TopicConsumer(
             }
 
             else -> {
-                virksomhetService.getVirksomhet(amtVirksomhet.organisasjonsnummer)
+                // Hent fra Brreg for å oppdatere postnummer og poststed
+                virksomhetService.getVirksomhetFromBrreg(amtVirksomhet.organisasjonsnummer)
                     .onRight { virksomhet ->
-                        // Hent fra Brreg for å oppdatere postnummer og poststed
                         virksomhetRepository.upsert(virksomhet)
                     }
                     .onLeft { error ->

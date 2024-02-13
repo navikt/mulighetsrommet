@@ -67,15 +67,15 @@ class TiltakshistorikkServiceTest : FunSpec({
     test("henter historikk for bruker basert på person id med arrangørnavn") {
         val bedriftsnavn = "Bedriftsnavn"
         val bedriftsnavn2 = "Bedriftsnavn 2"
-        coEvery { virksomhetService.getOrSyncVirksomhet(tiltaksgjennomforing.arrangorOrganisasjonsnummer) } returns VirksomhetDto(
+        coEvery { virksomhetService.getOrSyncVirksomhetFromBrreg(tiltaksgjennomforing.arrangorOrganisasjonsnummer) } returns VirksomhetDto(
             navn = bedriftsnavn,
-            organisasjonsnummer = "123456789",
+            organisasjonsnummer = tiltaksgjennomforing.arrangorOrganisasjonsnummer,
             postnummer = null,
             poststed = null,
         ).right()
-        coEvery { virksomhetService.getOrSyncVirksomhet(tiltakshistorikkIndividuell.arrangorOrganisasjonsnummer) } returns VirksomhetDto(
+        coEvery { virksomhetService.getOrSyncVirksomhetFromBrreg(tiltakshistorikkIndividuell.arrangorOrganisasjonsnummer) } returns VirksomhetDto(
             navn = bedriftsnavn2,
-            organisasjonsnummer = "12343",
+            organisasjonsnummer = tiltakshistorikkIndividuell.arrangorOrganisasjonsnummer,
             postnummer = null,
             poststed = null,
         ).right()

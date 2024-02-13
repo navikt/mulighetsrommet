@@ -39,12 +39,18 @@ fun Route.virksomhetRoutes() {
                 throw BadRequestException("Verdi sendt inn er ikke et organisasjonsnummer. Organisasjonsnummer er 9 siffer og bare tall.")
             }
 
-            val enhet = virksomhetService.getOrSyncVirksomhet(orgnr)
-            if (enhet == null) {
-                call.respond(HttpStatusCode.NoContent, "Fant ikke enhet med orgnr: $orgnr")
-            } else {
-                call.respond(enhet)
-            }
+            // TODO skriver virksomhet til DB selv om det kan hende at den ikke er referert til fra avtaler/gjennomføringer.
+            //      Vurdere å fjerne virksomheter fra db som ikke er refert til?
+            //      Burde egentlig ikke være nødvendig å kalle dette endepunktet om vi antar at virksomheter alltid finnes fra før? undersøk om dette kan fjernes.
+            virksomhetService.getOrSyncVirksomhetFromBrreg(orgnr)
+                .onRight { call.respond(it) }
+                .onLeft {
+                    if (it == BrregError.NotFound) {
+                        call.respond(HttpStatusCode.NoContent, "Fant ikke enhet med orgnr: $orgnr")
+                    } else {
+                        call.respondWithStatusResponseError(toStatusResponseError(it))
+                    }
+                }
         }
 
         get("{orgnr}/kontaktperson") {
@@ -88,13 +94,7 @@ fun Route.virksomhetRoutes() {
             }
 
             val response = brregClient.sokEtterOverordnetEnheter(sokestreng)
-                .mapLeft {
-                    when (it) {
-                        BrregError.NotFound -> NotFound()
-                        BrregError.BadRequest -> BadRequest()
-                        BrregError.Error -> ServerError()
-                    }
-                }
+                .mapLeft { toStatusResponseError(it) }
 
             call.respondWithStatusResponse(response)
         }
@@ -106,22 +106,21 @@ fun Route.virksomhetRoutes() {
                 throw BadRequestException("'orgnr' må inneholde 9 siffer")
             }
 
-            virksomhetService.syncVirksomhetFraBrreg(orgnr)
+            virksomhetService.syncVirksomhetFromBrreg(orgnr)
                 .onRight { virksomhet ->
                     call.respond("${virksomhet.navn} oppdatert")
                 }
                 .onLeft { error ->
-                    if (error == BrregError.Error) {
-                        call.respond(HttpStatusCode.InternalServerError)
-                    } else {
-                        call.respond(
-                            HttpStatusCode.BadRequest,
-                            "Klarte ikke synkronisere virksomhet med orgnr=$orgnr. Er orgnr riktig?",
-                        )
-                    }
+                    call.respondWithStatusResponseError(toStatusResponseError(error))
                 }
         }
     }
+}
+
+private fun toStatusResponseError(it: BrregError) = when (it) {
+    BrregError.NotFound -> NotFound()
+    BrregError.BadRequest -> BadRequest()
+    BrregError.Error -> ServerError()
 }
 
 @Serializable

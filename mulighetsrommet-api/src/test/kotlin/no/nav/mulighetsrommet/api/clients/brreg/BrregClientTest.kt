@@ -24,7 +24,7 @@ class BrregClientTest : FunSpec({
         val brregClient = BrregClient(
             "https://brreg.no",
             createMockEngine(
-                "/enheter?size=20&navn=Nav" to {
+                "/enheter?navn=Nav" to {
                     respondJson(BrregEmbeddedHovedenheter(BrregHovedenheter(listOf(hovedenhet))))
                 },
             ),
@@ -44,7 +44,7 @@ class BrregClientTest : FunSpec({
         val brregClient = BrregClient(
             "https://brreg.no",
             createMockEngine(
-                "/enheter?size=20&navn=NAV" to {
+                "/enheter?navn=NAV" to {
                     respondJson(BrregEmbeddedHovedenheter())
                 },
             ),
@@ -57,7 +57,7 @@ class BrregClientTest : FunSpec({
         val brregClient = BrregClient(
             "https://brreg.no",
             createMockEngine(
-                "/underenheter?size=1000&overordnetEnhet=123456789" to {
+                "/underenheter?overordnetEnhet=123456789" to {
                     respondJson(BrregEmbeddedUnderenheter(BrregUnderenheter(listOf(underenhet))))
                 },
             ),
@@ -78,7 +78,7 @@ class BrregClientTest : FunSpec({
         val brregClient = BrregClient(
             "https://brreg.no",
             createMockEngine(
-                "/underenheter?size=1000&overordnetEnhet=123456789" to {
+                "/underenheter?overordnetEnhet=123456789" to {
                     respondJson(BrregEmbeddedHovedenheter())
                 },
             ),
@@ -94,7 +94,7 @@ class BrregClientTest : FunSpec({
                 "/enheter/123456789" to {
                     respondJson(hovedenhet)
                 },
-                "/underenheter?size=1000&overordnetEnhet=123456789" to {
+                "/underenheter?overordnetEnhet=123456789" to {
                     respondJson(BrregEmbeddedUnderenheter())
                 },
             ),
@@ -116,7 +116,7 @@ class BrregClientTest : FunSpec({
                 "/enheter/123456789" to {
                     respondJson(hovedenhet)
                 },
-                "/underenheter?size=1000&overordnetEnhet=123456789" to {
+                "/underenheter?overordnetEnhet=123456789" to {
                     respondJson(BrregEmbeddedUnderenheter(BrregUnderenheter(listOf(underenhet))))
                 },
             ),

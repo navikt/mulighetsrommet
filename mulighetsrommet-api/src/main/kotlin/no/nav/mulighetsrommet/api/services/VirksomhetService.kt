@@ -39,11 +39,34 @@ class VirksomhetService(
         cacheMetrics.addCache("brregServiceCache", brregServiceCache)
     }
 
-    suspend fun getOrSyncVirksomhet(orgnr: String): Either<BrregError, VirksomhetDto> {
-        return virksomhetRepository.get(orgnr).getOrThrow()?.right() ?: syncVirksomhetFraBrreg(orgnr)
+    suspend fun getOrSyncVirksomhetFromBrreg(orgnr: String): Either<BrregError, VirksomhetDto> {
+        return virksomhetRepository.get(orgnr).getOrThrow()?.right() ?: syncVirksomhetFromBrreg(orgnr)
     }
 
-    suspend fun getVirksomhet(orgnr: String): Either<BrregError, VirksomhetDto> {
+    suspend fun syncVirksomhetFromBrreg(orgnr: String): Either<BrregError, VirksomhetDto> {
+        log.info("Synkroniserer enhet fra brreg orgnr=$orgnr")
+        return getVirksomhetFromBrreg(orgnr)
+            .flatMap { virksomhet ->
+                if (virksomhet.overordnetEnhet == null) {
+                    virksomhet.right()
+                } else {
+                    log.info("Henter overordnet enhet fra brreg orgnr=$orgnr")
+                    getVirksomhetFromBrreg(virksomhet.overordnetEnhet)
+                }
+            }
+            .map { virksomhet ->
+                if (virksomhet.slettetDato != null) {
+                    log.info("Enhet med orgnr ${virksomhet.organisasjonsnummer} er slettet i Brreg med slettedato ${virksomhet.slettetDato}")
+                    virksomhetRepository.upsert(virksomhet).getOrThrow()
+                } else {
+                    val overordnetEnhetDbo = virksomhet.toOverordnetEnhetDbo()
+                    virksomhetRepository.upsertOverordnetEnhet(overordnetEnhetDbo).getOrThrow()
+                }
+                virksomhet
+            }
+    }
+
+    suspend fun getVirksomhetFromBrreg(orgnr: String): Either<BrregError, VirksomhetDto> {
         val virksomhet = brregServiceCache.getIfPresent(orgnr)
         if (virksomhet != null) {
             return virksomhet.right()
@@ -64,33 +87,6 @@ class VirksomhetService(
                 it.right()
             },
         )
-    }
-
-    suspend fun syncVirksomhetFraBrreg(orgnr: String): Either<BrregError, VirksomhetDto> {
-        log.info("Synkroniserer enhet fra brreg orgnr=$orgnr")
-        return getVirksomhet(orgnr)
-            .flatMap { virksomhet ->
-                if (virksomhet.overordnetEnhet == null) {
-                    virksomhet.right()
-                } else {
-                    log.info("Henter overordnet enhet fra brreg orgnr=$orgnr")
-                    getVirksomhet(virksomhet.overordnetEnhet)
-                }
-            }
-            .map { virksomhet ->
-                if (virksomhet.slettetDato != null) {
-                    log.info("Enhet med orgnr ${virksomhet.organisasjonsnummer} er slettet i Brreg med slettedato ${virksomhet.slettetDato}")
-                    virksomhetRepository
-                        .upsert(virksomhet)
-                        .getOrThrow()
-                } else {
-                    virksomhetRepository
-                        .upsertOverordnetEnhet(virksomhet.toOverordnetEnhetDbo())
-                        .getOrThrow()
-                }
-
-                virksomhet
-            }
     }
 
     fun upsertKontaktperson(kontaktperson: VirksomhetKontaktperson) =
