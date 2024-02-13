@@ -89,6 +89,7 @@ select tg.id::uuid,
        ) as virksomhet_kontaktpersoner,
     tg.estimert_ventetid_verdi,
     tg.estimert_ventetid_enhet,
+    tg.publisert,
     tg.publisert and tg.avslutningsstatus = 'IKKE_AVSLUTTET'::avslutningsstatus
        as publisert_for_alle
 from tiltaksgjennomforing tg
