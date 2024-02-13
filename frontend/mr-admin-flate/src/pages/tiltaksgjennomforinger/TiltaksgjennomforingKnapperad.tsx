@@ -1,6 +1,6 @@
 import React, { useRef } from "react";
 import { Button, Switch } from "@navikt/ds-react";
-import { useMutateTilgjengeligForAlle } from "../../api/tiltaksgjennomforing/useMutateTilgjengeligForAlle";
+import { useMutatePublisert } from "../../api/tiltaksgjennomforing/useMutatePublisert";
 import styles from "../DetaljerInfo.module.scss";
 import { Tiltaksgjennomforing } from "mulighetsrommet-api-client";
 import { useTiltaksgjennomforingEndringshistorikk } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforingEndringshistorikk";
@@ -18,12 +18,12 @@ interface Props {
 
 export function TiltaksgjennomforingKnapperad({ tiltaksgjennomforing }: Props) {
   const navigate = useNavigate();
-  const { mutate } = useMutateTilgjengeligForAlle();
+  const { mutate } = useMutatePublisert();
   const { data: bruker } = useHentAnsatt();
   const advarselModal = useRef<HTMLDialogElement>(null);
 
   function handleClick(e: React.MouseEvent<HTMLInputElement>) {
-    mutate({ id: tiltaksgjennomforing.id, tilgjengeligForAlle: e.currentTarget.checked });
+    mutate({ id: tiltaksgjennomforing.id, publisert: e.currentTarget.checked });
   }
   if (!bruker) {
     return <Laster />;
@@ -32,8 +32,8 @@ export function TiltaksgjennomforingKnapperad({ tiltaksgjennomforing }: Props) {
   return (
     <div className={styles.knapperad}>
       <HarSkrivetilgang ressurs="Tiltaksgjennomføring">
-        <Switch checked={tiltaksgjennomforing.tilgjengeligForAlle} onClick={handleClick}>
-          Tilgjengeliggjør for alle
+        <Switch checked={tiltaksgjennomforing.publisert} onClick={handleClick}>
+          Publiser
         </Switch>
       </HarSkrivetilgang>
 

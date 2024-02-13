@@ -992,10 +992,10 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 
         val gjennomforing = Oppfolging1.copy(id = UUID.randomUUID())
         tiltaksgjennomforinger.upsert(gjennomforing)
-        tiltaksgjennomforinger.get(gjennomforing.id)?.tilgjengeligForAlle shouldBe false
+        tiltaksgjennomforinger.get(gjennomforing.id)?.publisert shouldBe false
 
-        tiltaksgjennomforinger.setTilgjengeligForAlle(gjennomforing.id, true)
-        tiltaksgjennomforinger.get(gjennomforing.id)?.tilgjengeligForAlle shouldBe true
+        tiltaksgjennomforinger.setPublisert(gjennomforing.id, true)
+        tiltaksgjennomforinger.get(gjennomforing.id)?.publisert shouldBe true
     }
 
     test("skal vises til veileder basert til tilgjengelighet og avslutningsstatus") {
@@ -1004,14 +1004,14 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         tiltaksgjennomforinger.upsert(gjennomforing)
 
         tiltaksgjennomforinger.setAvslutningsstatus(gjennomforing.id, Avslutningsstatus.AVSLUTTET)
-        tiltaksgjennomforinger.setTilgjengeligForAlle(gjennomforing.id, false)
-        tiltaksgjennomforinger.get(gjennomforing.id)?.visesForAlle shouldBe false
+        tiltaksgjennomforinger.setPublisert(gjennomforing.id, false)
+        tiltaksgjennomforinger.get(gjennomforing.id)?.publisertForAlle shouldBe false
 
-        tiltaksgjennomforinger.setTilgjengeligForAlle(gjennomforing.id, true)
-        tiltaksgjennomforinger.get(gjennomforing.id)?.visesForAlle shouldBe false
+        tiltaksgjennomforinger.setPublisert(gjennomforing.id, true)
+        tiltaksgjennomforinger.get(gjennomforing.id)?.publisertForAlle shouldBe false
 
         tiltaksgjennomforinger.setAvslutningsstatus(gjennomforing.id, Avslutningsstatus.IKKE_AVSLUTTET)
-        tiltaksgjennomforinger.get(gjennomforing.id)?.visesForAlle shouldBe true
+        tiltaksgjennomforinger.get(gjennomforing.id)?.publisertForAlle shouldBe true
     }
 
     test("Henting av arena-ansvarlig-enhet skal ikke krasje hvis arena-ansvarlig-enhet ikke eksisterer i nav-enhet-tabellen") {
@@ -1048,26 +1048,26 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 .let { database.db.run(it) }
 
             tiltaksgjennomforinger.upsert(Oppfolging1.copy(navEnheter = listOf("2990")))
-            tiltaksgjennomforinger.setTilgjengeligForAlle(Oppfolging1.id, true)
+            tiltaksgjennomforinger.setPublisert(Oppfolging1.id, true)
 
             tiltaksgjennomforinger.upsert(Arbeidstrening1.copy(navEnheter = listOf("2990")))
-            tiltaksgjennomforinger.setTilgjengeligForAlle(Arbeidstrening1.id, true)
+            tiltaksgjennomforinger.setPublisert(Arbeidstrening1.id, true)
         }
 
-        test("skal filtrere basert på tilgjengelig_for_alle") {
+        test("skal filtrere basert på om tiltaket er publisert") {
             tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
                 innsatsgrupper = listOf(Innsatsgruppe.STANDARD_INNSATS),
                 brukersEnheter = listOf("2990"),
             ) shouldHaveSize 2
 
-            tiltaksgjennomforinger.setTilgjengeligForAlle(Oppfolging1.id, false)
+            tiltaksgjennomforinger.setPublisert(Oppfolging1.id, false)
 
             tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
                 innsatsgrupper = listOf(Innsatsgruppe.STANDARD_INNSATS),
                 brukersEnheter = listOf("2990"),
             ) shouldHaveSize 1
 
-            tiltaksgjennomforinger.setTilgjengeligForAlle(Arbeidstrening1.id, false)
+            tiltaksgjennomforinger.setPublisert(Arbeidstrening1.id, false)
 
             tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
                 innsatsgrupper = listOf(Innsatsgruppe.STANDARD_INNSATS),

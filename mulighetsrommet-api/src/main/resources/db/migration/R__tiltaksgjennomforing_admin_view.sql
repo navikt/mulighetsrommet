@@ -72,8 +72,8 @@ select tg.id::uuid,
        tg.beskrivelse,
        tg.created_at,
        tg.updated_at,
-       tg.tilgjengelig_for_alle,
-       tg.tilgjengelig_for_alle and tg.avslutningsstatus = 'IKKE_AVSLUTTET'::avslutningsstatus
+       tg.publisert,
+       tg.publisert and tg.avslutningsstatus = 'IKKE_AVSLUTTET'::avslutningsstatus
                                as vises_for_veileder,
        tg.deltidsprosent,
        region.status           as nav_region_status,
@@ -108,4 +108,4 @@ from tiltaksgjennomforing tg
          left join virksomhet_kontaktperson vk on vk.id = tvk.virksomhet_kontaktperson_id
 group by tg.id, t.id, v.navn, region.status, region.navn, region.type, region.overordnet_enhet, arena_nav_enhet.enhetsnummer;
 
-alter table tiltaksgjennomforing_admin_dto_view rename vises_for_veileder to vises_for_alle;
+alter table tiltaksgjennomforing_admin_dto_view rename vises_for_veileder to publisert_for_alle;

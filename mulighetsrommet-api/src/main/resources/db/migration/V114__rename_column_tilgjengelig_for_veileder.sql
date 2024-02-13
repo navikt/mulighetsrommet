@@ -1,1 +1,1 @@
-alter table tiltaksgjennomforing rename tilgjengelig_for_veileder to tilgjengelig_for_alle;
+alter table tiltaksgjennomforing rename tilgjengelig_for_veileder to publisert;

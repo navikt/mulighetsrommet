@@ -78,8 +78,8 @@ const headers: ColumnHeader[] = [
     width: "1fr",
   },
   {
-    sortKey: "vises_for_alle",
-    tittel: "Tilgjengeliggjort tiltak",
+    sortKey: "publisert",
+    tittel: "Publisert",
     sortable: true,
     width: "1fr",
   },
@@ -95,7 +95,7 @@ type Kolonne =
   | "startdato"
   | "sluttdato"
   | "status"
-  | "vises_for_alle";
+  | "publisert";
 
 interface Props {
   skjulKolonner?: Partial<Record<Kolonne, boolean>>;
@@ -292,10 +292,10 @@ export const TiltaksgjennomforingsTabell = ({ skjulKolonner, filterAtom }: Props
                     </SkjulKolonne>
                     <Table.DataCell>
                       <VStack align={"center"}>
-                        {tiltaksgjennomforing.visesForAlle ? (
+                        {tiltaksgjennomforing.publisertForAlle ? (
                           <Tag
-                            aria-label="Tiltaket er tilgjengeliggjort for alle"
-                            title="Tiltaket er tilgjengeliggjort for alle"
+                            aria-label="Tiltaket er publisert for alle"
+                            title="Tiltaket er publisert for alle"
                             variant="success-filled"
                           >
                             Ja
@@ -305,7 +305,7 @@ export const TiltaksgjennomforingsTabell = ({ skjulKolonner, filterAtom }: Props
                             // Denne span'en må være her så brukere av skjermlesere får beskjed om at tiltaket ikke er tilgjengelig.
                             // Klassen under gjør at elementet er usynlig for brukere som kan se, men skjermlesere kan fortsatt få tak i elementet
                             className="navds-sr-only"
-                            title="Tiltaket er ikke tilgjengeliggjort for alle"
+                            title="Tiltaket er ikke publisert for alle"
                           />
                         )}
                       </VStack>

@@ -48,8 +48,8 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     apentForInnsok: false,
     stedForGjennomforing: "Brummundal",
     kontaktpersoner: [petrusKontaktperson, nikolineKontaktperson],
-    tilgjengeligForAlle: true,
-    visesForAlle: true,
+    publisert: true,
+    publisertForAlle: true,
     beskrivelse: "bla bla bla beskrivelse",
     faneinnhold: {
       forHvem: [
@@ -106,8 +106,8 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     opphav: Opphav.MR_ADMIN_FLATE,
     apentForInnsok: true,
     kontaktpersoner: [],
-    tilgjengeligForAlle: false,
-    visesForAlle: false,
+    publisert: false,
+    publisertForAlle: false,
   },
   {
     id: "a7d63fb0-4366-412c-84b7-7c15518ee363",
@@ -129,8 +129,8 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     opphav: Opphav.MR_ADMIN_FLATE,
     apentForInnsok: true,
     kontaktpersoner: [],
-    tilgjengeligForAlle: false,
-    visesForAlle: true,
+    publisert: false,
+    publisertForAlle: true,
   },
 ];
 
