@@ -2,23 +2,23 @@ package no.nav.mulighetsrommet.api.repositories
 
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.collections.*
+import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
-import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
-import no.nav.mulighetsrommet.api.domain.dbo.*
+import no.nav.mulighetsrommet.api.domain.dbo.OverordnetEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
 import no.nav.mulighetsrommet.api.domain.dto.VirksomhetKontaktperson
+import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
+import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
+import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
+import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.utils.VirksomhetTil
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.database.utils.getOrThrow
-import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
-import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
-import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
-import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.*
 
 class VirksomhetRepositoryTest : FunSpec({
@@ -42,34 +42,31 @@ class VirksomhetRepositoryTest : FunSpec({
                 postnummer = "5174",
                 poststed = "Mathopen",
             )
-            val underenhet3 = VirksomhetDto(
-                organisasjonsnummer = "912704394",
-                overordnetEnhet = "982254604",
-                navn = "REMA 1000 NORGE AS REGION NORD",
-                postnummer = "5174",
-                poststed = "Mathopen",
-            )
 
             val overordnet = OverordnetEnhetDbo(
                 navn = "REMA 1000 AS",
                 organisasjonsnummer = "982254604",
-                underenheter = listOf(underenhet1, underenhet2, underenhet3),
+                underenheter = listOf(underenhet1, underenhet2),
+                slettetDato = null,
                 postnummer = "5174",
                 poststed = "Mathopen",
             )
             virksomhetRepository.upsertOverordnetEnhet(overordnet).shouldBeRight()
 
             virksomhetRepository.get(overordnet.organisasjonsnummer).shouldBeRight().should {
-                it!!.navn shouldBe "REMA 1000 AS"
-                it.underenheter!! shouldHaveSize 3
-                it.underenheter!! shouldContainAll listOf(underenhet1, underenhet2, underenhet3)
+                it.shouldNotBeNull()
+                it.navn shouldBe "REMA 1000 AS"
+                it.underenheter.shouldNotBeNull() shouldContainExactlyInAnyOrder listOf(
+                    underenhet1,
+                    underenhet2,
+                )
             }
 
             virksomhetRepository.upsertOverordnetEnhet(overordnet.copy(underenheter = listOf(underenhet1)))
                 .shouldBeRight()
             virksomhetRepository.get(overordnet.organisasjonsnummer).shouldBeRight().should {
-                it!!.underenheter!! shouldHaveSize 1
-                it.underenheter!! shouldContain underenhet1
+                it.shouldNotBeNull()
+                it.underenheter.shouldNotBeNull() shouldContainExactlyInAnyOrder listOf(underenhet1)
             }
         }
 
@@ -83,28 +80,16 @@ class VirksomhetRepositoryTest : FunSpec({
                 postnummer = "5174",
                 poststed = "Mathopen",
             )
-            val underenhet2 = VirksomhetDto(
-                organisasjonsnummer = "912704327",
-                overordnetEnhet = "982254604",
-                navn = "REMA 1000 NORGE AS REGION VESTRE ØSTLAND",
-                postnummer = "5174",
-                poststed = "Mathopen",
-            )
-            val underenhet3 = VirksomhetDto(
-                organisasjonsnummer = "912704394",
-                overordnetEnhet = "982254604",
-                navn = "REMA 1000 NORGE AS REGION NORD",
-                postnummer = "5174",
-                poststed = "Mathopen",
-            )
 
             val overordnet = OverordnetEnhetDbo(
                 navn = "REMA 1000 AS",
                 organisasjonsnummer = "982254604",
-                underenheter = listOf(underenhet1, underenhet2, underenhet3),
+                underenheter = listOf(underenhet1),
+                slettetDato = null,
                 postnummer = "5174",
                 poststed = "Mathopen",
             )
+
             virksomhetRepository.upsertOverordnetEnhet(overordnet).shouldBeRight()
             virksomhetRepository.upsertOverordnetEnhet(
                 overordnet.copy(
@@ -115,18 +100,11 @@ class VirksomhetRepositoryTest : FunSpec({
             ).shouldBeRight()
 
             virksomhetRepository.get(overordnet.organisasjonsnummer).shouldBeRight().should {
-                it!!.navn shouldBe "Stopp konflikten"
+                it.shouldNotBeNull()
+                it.navn shouldBe "Stopp konflikten"
                 it.postnummer shouldBe "9988"
                 it.poststed shouldBe "Olsenåsen"
-                it.underenheter!! shouldHaveSize 3
-                it.underenheter!! shouldContainAll listOf(underenhet1, underenhet2, underenhet3)
-            }
-
-            virksomhetRepository.upsertOverordnetEnhet(overordnet.copy(underenheter = listOf(underenhet1)))
-                .shouldBeRight()
-            virksomhetRepository.get(overordnet.organisasjonsnummer).shouldBeRight().should {
-                it!!.underenheter!! shouldHaveSize 1
-                it.underenheter!! shouldContain underenhet1
+                it.underenheter.shouldNotBeNull() shouldContainExactlyInAnyOrder listOf(underenhet1)
             }
         }
 
@@ -160,6 +138,41 @@ class VirksomhetRepositoryTest : FunSpec({
             }
         }
 
+        test("Upsert slettet enhet") {
+            val virksomhetRepository = VirksomhetRepository(database.db)
+
+            val slettetDato = LocalDate.of(2024, 1, 1)
+
+            val underenhet1 = VirksomhetDto(
+                organisasjonsnummer = "880907522",
+                overordnetEnhet = "982254604",
+                navn = "REMA 1000 NORGE AS REGION NORDLAND",
+                slettetDato = slettetDato,
+                postnummer = "5174",
+                poststed = "Mathopen",
+            )
+
+            val overordnet = OverordnetEnhetDbo(
+                navn = "REMA 1000 AS",
+                organisasjonsnummer = "982254604",
+                underenheter = listOf(underenhet1),
+                slettetDato = slettetDato,
+                postnummer = "5174",
+                poststed = "Mathopen",
+            )
+
+            virksomhetRepository.upsertOverordnetEnhet(overordnet).shouldBeRight()
+
+            virksomhetRepository.get(overordnet.organisasjonsnummer).shouldBeRight().should {
+                it.shouldNotBeNull()
+                it.slettetDato shouldBe slettetDato
+            }
+            virksomhetRepository.get(underenhet1.organisasjonsnummer).shouldBeRight().should {
+                it.shouldNotBeNull()
+                it.slettetDato shouldBe slettetDato
+            }
+        }
+
         test("Delete overordnet cascader") {
             val virksomhetRepository = VirksomhetRepository(database.db)
 
@@ -177,101 +190,30 @@ class VirksomhetRepositoryTest : FunSpec({
                 underenheter = listOf(underenhet1),
                 postnummer = "5174",
                 poststed = "Mathopen",
+                slettetDato = null,
             )
             virksomhetRepository.upsertOverordnetEnhet(overordnet).shouldBeRight()
 
             virksomhetRepository.get(underenhet1.organisasjonsnummer).shouldBeRight().should {
-                it!!.organisasjonsnummer shouldBe underenhet1.organisasjonsnummer
+                it.shouldNotBeNull()
+                it.organisasjonsnummer shouldBe underenhet1.organisasjonsnummer
             }
 
             virksomhetRepository.delete(overordnet.organisasjonsnummer).shouldBeRight()
             virksomhetRepository.get(underenhet1.organisasjonsnummer).shouldBeRight().should {
-                it shouldBe null
+                it.shouldBeNull()
             }
             virksomhetRepository.get(overordnet.organisasjonsnummer).shouldBeRight().should {
-                it shouldBe null
+                it.shouldBeNull()
             }
         }
 
         test("Filter på avtale eller gjennomforing") {
-            val virksomhetRepository = VirksomhetRepository(database.db)
-            val avtaleRepository = AvtaleRepository(database.db)
-            val tiltakstypeRepository = TiltakstypeRepository(database.db)
-            val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
-            val navEnhetRepository = NavEnhetRepository(database.db)
-            navEnhetRepository.upsert(
-                NavEnhetDbo(
-                    navn = "Oslo",
-                    enhetsnummer = "0100",
-                    status = NavEnhetStatus.AKTIV,
-                    type = Norg2Type.FYLKE,
-                    overordnetEnhet = null,
-                ),
-            ).shouldBeRight()
-
-            val tiltakstypeId = UUID.randomUUID()
-            tiltakstypeRepository.upsert(
-                TiltakstypeDbo(
-                    tiltakstypeId,
-                    "",
-                    "",
-                    rettPaaTiltakspenger = true,
-                    registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
-                    sistEndretDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
-                    fraDato = LocalDate.of(2023, 1, 11),
-                    tilDato = LocalDate.of(2023, 1, 12),
-                ),
-            ).getOrThrow()
-
-            val avtale = AvtaleDbo(
-                id = UUID.randomUUID(),
-                navn = "Navn",
-                tiltakstypeId = tiltakstypeId,
-                leverandorOrganisasjonsnummer = "982254604",
-                leverandorUnderenheter = emptyList(),
-                startDato = LocalDate.now(),
-                sluttDato = LocalDate.now(),
-                navEnheter = listOf("0100"),
-                avtaletype = Avtaletype.Avtale,
-                opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
-                avtalenummer = null,
-                leverandorKontaktpersonId = null,
-                prisbetingelser = null,
-                antallPlasser = null,
-                url = null,
-                administratorer = emptyList(),
-                beskrivelse = null,
-                faneinnhold = null,
-            )
-            avtaleRepository.upsert(avtale)
-            val tiltaksgjennomforing = TiltaksgjennomforingDbo(
-                id = UUID.randomUUID(),
-                navn = "Navn",
-                tiltakstypeId = tiltakstypeId,
-                tiltaksnummer = null,
-                arrangorOrganisasjonsnummer = "112254604",
-                startDato = LocalDate.now(),
-                apentForInnsok = true,
-                antallPlasser = 12,
-                administratorer = emptyList(),
-                navRegion = "0100",
-                navEnheter = emptyList(),
-                oppstart = TiltaksgjennomforingOppstartstype.FELLES,
-                opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
-                sluttDato = null,
-                kontaktpersoner = emptyList(),
-                arrangorKontaktpersoner = emptyList(),
-                stengtFra = null,
-                stengtTil = null,
-                stedForGjennomforing = "Oslo",
-                avtaleId = avtale.id,
-                faneinnhold = null,
-                beskrivelse = null,
-                deltidsprosent = 100.0,
-                estimertVentetidVerdi = 3,
-                estimertVentetidEnhet = "dager",
-            )
-            tiltaksgjennomforingRepository.upsert(tiltaksgjennomforing)
+            MulighetsrommetTestDomain(
+                tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
+                avtaler = listOf(AvtaleFixtures.oppfolging.copy(leverandorOrganisasjonsnummer = "982254604")),
+                gjennomforinger = listOf(TiltaksgjennomforingFixtures.Oppfolging1.copy(arrangorOrganisasjonsnummer = "112254604")),
+            ).initialize(database.db)
 
             val virksomhet1 = VirksomhetDto(
                 navn = "REMA 1000 AS",
@@ -287,6 +229,7 @@ class VirksomhetRepositoryTest : FunSpec({
                 postnummer = "5174",
                 poststed = "Mathopen",
             )
+            val virksomhetRepository = VirksomhetRepository(database.db)
             virksomhetRepository.upsert(virksomhet1).shouldBeRight()
             virksomhetRepository.upsert(virksomhet2).shouldBeRight()
 

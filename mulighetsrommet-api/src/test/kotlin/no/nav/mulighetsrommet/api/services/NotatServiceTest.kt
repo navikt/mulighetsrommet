@@ -31,7 +31,7 @@ class NotatServiceTest : FunSpec({
             val avtaleNotatRepository = AvtaleNotatRepository(database.db)
             val tiltaksgjennomforingNotatRepository = TiltaksgjennomforingNotatRepository(database.db)
             val notatService = NotatService(avtaleNotatRepository, tiltaksgjennomforingNotatRepository)
-            val avtale = AvtaleFixtures.avtale1
+            val avtale = AvtaleFixtures.oppfolging
             val avtaleNotater = AvtaleNotatRepository(database.db)
 
             val notat1 = AvtaleNotatDbo(
@@ -73,7 +73,7 @@ class NotatServiceTest : FunSpec({
             val avtaleNotatRepository = AvtaleNotatRepository(database.db)
             val tiltaksgjennomforingNotatRepository = TiltaksgjennomforingNotatRepository(database.db)
             val notatService = NotatService(avtaleNotatRepository, tiltaksgjennomforingNotatRepository)
-            val avtale = AvtaleFixtures.avtale1
+            val avtale = AvtaleFixtures.oppfolging
             val avtaleNotater = AvtaleNotatRepository(database.db)
 
             val notat1 = AvtaleNotatDbo(
@@ -122,7 +122,7 @@ class NotatServiceTest : FunSpec({
             val tiltakstyper = TiltakstypeRepository(database.db)
             tiltakstyper.upsert(tiltakstypeFixture.Arbeidstrening).shouldBeRight()
             tiltakstyper.upsert(tiltakstypeFixture.Oppfolging).shouldBeRight()
-            val avtale = AvtaleFixtures.avtale1
+            val avtale = AvtaleFixtures.oppfolging
             val tiltaksgjennomforingFixtures = TiltaksgjennomforingFixtures
             val gjennomforing = tiltaksgjennomforingFixtures.Oppfolging1.copy(avtaleId = avtale.id)
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
@@ -171,7 +171,7 @@ class NotatServiceTest : FunSpec({
             val tiltakstyper = TiltakstypeRepository(database.db)
             tiltakstyper.upsert(tiltakstypeFixture.Arbeidstrening).shouldBeRight()
             tiltakstyper.upsert(tiltakstypeFixture.Oppfolging).shouldBeRight()
-            val avtale = AvtaleFixtures.avtale1
+            val avtale = AvtaleFixtures.oppfolging
             val tiltaksgjennomforingFixtures = TiltaksgjennomforingFixtures
             val gjennomforing = tiltaksgjennomforingFixtures.Oppfolging1.copy(avtaleId = avtale.id)
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)

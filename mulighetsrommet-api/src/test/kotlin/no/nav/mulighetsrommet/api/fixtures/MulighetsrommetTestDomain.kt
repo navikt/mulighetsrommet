@@ -4,10 +4,8 @@ import io.kotest.assertions.arrow.core.shouldBeRight
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
-import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
-import no.nav.mulighetsrommet.api.repositories.NavAnsattRepository
-import no.nav.mulighetsrommet.api.repositories.NavEnhetRepository
-import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
+import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
+import no.nav.mulighetsrommet.api.repositories.*
 import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 
@@ -19,7 +17,8 @@ data class MulighetsrommetTestDomain(
         TiltakstypeFixtures.Arbeidstrening,
         TiltakstypeFixtures.VTA,
     ),
-    val avtaler: List<AvtaleDbo> = listOf(AvtaleFixtures.avtale1, AvtaleFixtures.avtaleForVta),
+    val avtaler: List<AvtaleDbo> = listOf(AvtaleFixtures.oppfolging, AvtaleFixtures.avtaleForVta),
+    val gjennomforinger: List<TiltaksgjennomforingDbo> = listOf(),
 ) {
     fun initialize(database: FlywayDatabaseAdapter) {
         NavEnhetRepository(database).also { repository ->
@@ -36,6 +35,10 @@ data class MulighetsrommetTestDomain(
 
         AvtaleRepository(database).also { repository ->
             avtaler.forEach { repository.upsert(it) }
+        }
+
+        TiltaksgjennomforingRepository(database).also { repository ->
+            gjennomforinger.forEach { repository.upsert(it) }
         }
     }
 }

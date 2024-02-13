@@ -2987,6 +2987,10 @@ components:
           type: string
         navn:
           type: string
+        slettetDato:
+          type: string
+          format: date
+          nullable: true
         overordnetEnhet:
           type: string
           nullable: true

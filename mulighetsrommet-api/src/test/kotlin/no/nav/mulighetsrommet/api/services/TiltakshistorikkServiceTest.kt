@@ -72,10 +72,14 @@ class TiltakshistorikkServiceTest : FunSpec({
         coEvery { virksomhetService.getOrSyncVirksomhet(tiltaksgjennomforing.arrangorOrganisasjonsnummer) } returns VirksomhetDto(
             navn = bedriftsnavn,
             organisasjonsnummer = "123456789",
+            postnummer = null,
+            poststed = null,
         )
         coEvery { virksomhetService.getOrSyncVirksomhet(tiltakshistorikkIndividuell.arrangorOrganisasjonsnummer) } returns VirksomhetDto(
             navn = bedriftsnavn2,
             organisasjonsnummer = "12343",
+            postnummer = null,
+            poststed = null,
         )
 
         val historikkService = TiltakshistorikkService(virksomhetService, TiltakshistorikkRepository(database.db))

@@ -70,7 +70,7 @@ class UtkastRepositoryTest : FunSpec({
 
     context("CRUD for Utkast") {
         val utkastRepository = UtkastRepository(database.db)
-        val avtale = AvtaleFixtures.avtale1
+        val avtale = AvtaleFixtures.oppfolging
 
         val utkastId = UUID.randomUUID()
         val utkast = UtkastRequest(

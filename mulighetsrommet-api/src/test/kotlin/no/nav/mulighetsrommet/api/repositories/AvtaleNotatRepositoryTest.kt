@@ -39,7 +39,7 @@ class AvtaleNotatRepositoryTest : FunSpec({
             avtaleNotater.upsert(notat2).shouldBeRight()
             avtaleNotater.upsert(notat3).shouldBeRight()
 
-            avtaleNotater.getAll(filter = NotatFilter(avtaleId = AvtaleFixtures.avtale1.id, opprettetAv = null))
+            avtaleNotater.getAll(filter = NotatFilter(avtaleId = AvtaleFixtures.oppfolging.id, opprettetAv = null))
                 .shouldBeRight()
                 .should { it.size shouldBe 3 }
 
@@ -59,7 +59,7 @@ class AvtaleNotatRepositoryTest : FunSpec({
             avtaleNotater.delete(notat1.id).shouldBeRight()
             avtaleNotater.get(notat1.id).shouldBeRight(null)
 
-            avtaleNotater.getAll(filter = NotatFilter(avtaleId = AvtaleFixtures.avtale1.id, opprettetAv = null))
+            avtaleNotater.getAll(filter = NotatFilter(avtaleId = AvtaleFixtures.oppfolging.id, opprettetAv = null))
                 .shouldBeRight()
                 .should { it.size shouldBe 2 }
         }

@@ -36,7 +36,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
     val utkastRepository: UtkastRepository = mockk(relaxed = true)
     val validator = mockk<TiltaksgjennomforingValidator>()
     val enabledTiltakstyper = listOf(TiltakstypeFixtures.Oppfolging.tiltakskode)
-    val avtaleId = AvtaleFixtures.avtale1.id
+    val avtaleId = AvtaleFixtures.oppfolging.id
     val domain = MulighetsrommetTestDomain()
 
     beforeEach {
@@ -146,7 +146,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
                 ValidationError("navn", "Dårlig navn"),
             ).left()
 
-            avtaleRepository.upsert(AvtaleFixtures.avtale1)
+            avtaleRepository.upsert(AvtaleFixtures.oppfolging)
 
             tiltaksgjennomforingService.upsert(gjennomforing, "B123456").shouldBeLeft(
                 listOf(ValidationError("navn", "Dårlig navn")),
@@ -191,7 +191,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
                 ),
             )
             avtaleRepository.upsert(
-                AvtaleFixtures.avtale1.copy(
+                AvtaleFixtures.oppfolging.copy(
                     id = avtaleId,
                     tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
                     sluttDato = LocalDate.of(2025, 1, 1),
@@ -247,7 +247,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
                 ),
             )
             avtaleRepository.upsert(
-                AvtaleFixtures.avtale1.copy(
+                AvtaleFixtures.oppfolging.copy(
                     id = avtaleId,
                     tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
                     sluttDato = LocalDate.of(2025, 1, 1),

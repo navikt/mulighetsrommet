@@ -22,7 +22,7 @@ class TiltaksgjennomforingNotatRepositoryTest : FunSpec({
             val tiltakstyper = TiltakstypeRepository(database.db)
             tiltakstyper.upsert(tiltakstypeFixture.Arbeidstrening).shouldBeRight()
             tiltakstyper.upsert(tiltakstypeFixture.Oppfolging).shouldBeRight()
-            val avtale = AvtaleFixtures.avtale1
+            val avtale = AvtaleFixtures.oppfolging
             val tiltaksgjennomforingFixtures = TiltaksgjennomforingFixtures
             val gjennomforing = tiltaksgjennomforingFixtures.Oppfolging1.copy(avtaleId = avtale.id)
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)

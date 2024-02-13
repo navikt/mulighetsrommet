@@ -29,7 +29,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
 
     val avtaleStartDato = LocalDate.now()
     val avtaleSluttDato = LocalDate.now().plusMonths(1)
-    val avtale = AvtaleFixtures.avtale1.copy(
+    val avtale = AvtaleFixtures.oppfolging.copy(
         startDato = avtaleStartDato,
         sluttDato = avtaleSluttDato,
         leverandorOrganisasjonsnummer = "000000000",

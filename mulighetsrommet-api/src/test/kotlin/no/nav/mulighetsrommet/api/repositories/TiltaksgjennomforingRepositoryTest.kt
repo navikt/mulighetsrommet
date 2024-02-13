@@ -23,7 +23,7 @@ import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingAdminDto
 import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingKontaktperson
 import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
 import no.nav.mulighetsrommet.api.domain.dto.VirksomhetKontaktperson
-import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures.avtale1
+import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures.oppfolging
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
@@ -375,6 +375,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 VirksomhetDto(
                     organisasjonsnummer = "999888777",
                     navn = "Rema 2000",
+                    postnummer = null,
+                    poststed = null,
                 ),
             )
             val thomas = VirksomhetKontaktperson(
@@ -469,12 +471,12 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 
             tiltaksgjennomforinger.upsert(
                 Oppfolging1.copy(
-                    avtaleId = avtale1.id,
+                    avtaleId = oppfolging.id,
                 ),
             )
 
             val result = tiltaksgjennomforinger.getAll(
-                avtaleId = avtale1.id,
+                avtaleId = oppfolging.id,
             )
                 .second
             result shouldHaveSize 1
