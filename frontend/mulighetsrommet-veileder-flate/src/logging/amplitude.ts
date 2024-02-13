@@ -5,7 +5,7 @@ import { modiaContextAtom } from "../apps/modia/hooks/useModiaContext";
 
 type LogEvent = (params: { eventName: string; eventData?: any }) => void;
 
-// Default, altså for DEMO og hvis amplitude skulle være nede, så gjør vi ingen ting
+// Default, altså for LOKAL og hvis amplitude skulle være nede, så gjør vi ingen ting
 let amplitudeLogger: LogEvent = () => {};
 
 export function initAmplitudeModia() {

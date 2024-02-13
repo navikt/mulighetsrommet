@@ -30,7 +30,7 @@ class NotatServiceTest : FunSpec({
         test("Skal få slette notat for avtale når du har opprettet notatet") {
             val avtaleNotatRepository = AvtaleNotatRepository(database.db)
             val tiltaksgjennomforingNotatRepository = TiltaksgjennomforingNotatRepository(database.db)
-            val notatService = NotatServiceImpl(avtaleNotatRepository, tiltaksgjennomforingNotatRepository)
+            val notatService = NotatService(avtaleNotatRepository, tiltaksgjennomforingNotatRepository)
             val avtale = AvtaleFixtures.avtale1
             val avtaleNotater = AvtaleNotatRepository(database.db)
 
@@ -72,7 +72,7 @@ class NotatServiceTest : FunSpec({
         test("Skal ikke få slette notat for avtale når du ikke har opprettet notatet selv") {
             val avtaleNotatRepository = AvtaleNotatRepository(database.db)
             val tiltaksgjennomforingNotatRepository = TiltaksgjennomforingNotatRepository(database.db)
-            val notatService = NotatServiceImpl(avtaleNotatRepository, tiltaksgjennomforingNotatRepository)
+            val notatService = NotatService(avtaleNotatRepository, tiltaksgjennomforingNotatRepository)
             val avtale = AvtaleFixtures.avtale1
             val avtaleNotater = AvtaleNotatRepository(database.db)
 
@@ -117,7 +117,7 @@ class NotatServiceTest : FunSpec({
         test("Skal få slette notat for tiltaksgjennomføring når du har opprettet notatet selv") {
             val tiltaksgjennomforingNotatRepository = TiltaksgjennomforingNotatRepository(database.db)
             val avtaleNotatRepository = AvtaleNotatRepository(database.db)
-            val notatService = NotatServiceImpl(avtaleNotatRepository, tiltaksgjennomforingNotatRepository)
+            val notatService = NotatService(avtaleNotatRepository, tiltaksgjennomforingNotatRepository)
             val tiltakstypeFixture = TiltakstypeFixtures
             val tiltakstyper = TiltakstypeRepository(database.db)
             tiltakstyper.upsert(tiltakstypeFixture.Arbeidstrening).shouldBeRight()
@@ -166,7 +166,7 @@ class NotatServiceTest : FunSpec({
         test("Skal ikke få slette notat for tiltaksgjennomføring når du ikke har opprettet notatet selv") {
             val tiltaksgjennomforingNotatRepository = TiltaksgjennomforingNotatRepository(database.db)
             val avtaleNotatRepository = AvtaleNotatRepository(database.db)
-            val notatService = NotatServiceImpl(avtaleNotatRepository, tiltaksgjennomforingNotatRepository)
+            val notatService = NotatService(avtaleNotatRepository, tiltaksgjennomforingNotatRepository)
             val tiltakstypeFixture = TiltakstypeFixtures
             val tiltakstyper = TiltakstypeRepository(database.db)
             tiltakstyper.upsert(tiltakstypeFixture.Arbeidstrening).shouldBeRight()

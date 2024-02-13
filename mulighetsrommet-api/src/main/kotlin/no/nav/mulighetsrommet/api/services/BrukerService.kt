@@ -1,13 +1,20 @@
 package no.nav.mulighetsrommet.api.services
 
+import arrow.core.getOrElse
+import io.ktor.http.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.clients.oppfolging.ManuellStatusDto
+import no.nav.mulighetsrommet.api.clients.oppfolging.ManuellStatusError
+import no.nav.mulighetsrommet.api.clients.oppfolging.OppfolgingsstatusError
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
+import no.nav.mulighetsrommet.api.clients.person.PersonError
 import no.nav.mulighetsrommet.api.clients.person.VeilarbpersonClient
 import no.nav.mulighetsrommet.api.clients.vedtak.Innsatsgruppe
+import no.nav.mulighetsrommet.api.clients.vedtak.VedtakError
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
+import no.nav.mulighetsrommet.ktor.exception.StatusException
 
 class BrukerService(
     private val veilarboppfolgingClient: VeilarboppfolgingClient,
@@ -15,12 +22,37 @@ class BrukerService(
     private val veilarbpersonClient: VeilarbpersonClient,
     private val navEnhetService: NavEnhetService,
 ) {
-
     suspend fun hentBrukerdata(fnr: String, accessToken: String): Brukerdata {
         val oppfolgingsstatus = veilarboppfolgingClient.hentOppfolgingsstatus(fnr, accessToken)
+            .getOrElse {
+                when (it) {
+                    OppfolgingsstatusError.Forbidden -> throw StatusException(HttpStatusCode.Forbidden, "Manglet tilgang til å hente hente oppfølgingsstatus")
+                    OppfolgingsstatusError.Error -> throw StatusException(HttpStatusCode.InternalServerError, "Klarte ikke hente hente oppfølgingsstatus")
+                    OppfolgingsstatusError.NotFound -> null
+                }
+            }
         val manuellStatus = veilarboppfolgingClient.hentManuellStatus(fnr, accessToken)
-        val sisteVedtak = veilarbvedtaksstotteClient.hentSiste14AVedtak(fnr, accessToken)
+            .getOrElse {
+                when (it) {
+                    ManuellStatusError.Forbidden -> throw StatusException(HttpStatusCode.Forbidden, "Manglet tilgang til å hente hente manuell status")
+                    ManuellStatusError.Error -> throw StatusException(HttpStatusCode.InternalServerError, "Klarte ikke hente hente manuell status")
+                }
+            }
         val personInfo = veilarbpersonClient.hentPersonInfo(fnr, accessToken)
+            .getOrElse {
+                when (it) {
+                    PersonError.Forbidden -> throw StatusException(HttpStatusCode.Forbidden, "Manglet tilgang til å hente hente personinfo")
+                    PersonError.Error -> throw StatusException(HttpStatusCode.InternalServerError, "Klarte ikke hente hente personinfo")
+                }
+            }
+        val sisteVedtak = veilarbvedtaksstotteClient.hentSiste14AVedtak(fnr, accessToken)
+            .getOrElse {
+                when (it) {
+                    VedtakError.Forbidden -> throw StatusException(HttpStatusCode.Forbidden, "Mangler tilgang til å hente §14a-vedtak")
+                    VedtakError.Error -> throw StatusException(HttpStatusCode.InternalServerError, "Klarte ikke hente hente §14a-vedtak")
+                    VedtakError.NotFound -> null
+                }
+            }
 
         val brukersOppfolgingsenhet = oppfolgingsstatus?.oppfolgingsenhet?.enhetId?.let {
             navEnhetService.hentEnhet(it)
@@ -30,26 +62,26 @@ class BrukerService(
             navEnhetService.hentEnhet(it)
         }
 
+        if (sisteVedtak == null && oppfolgingsstatus?.servicegruppe == null) {
+            throw StatusException(HttpStatusCode.BadRequest, "Bruker manglet innsatsgruppe og servicegruppe. Kontroller at brukeren er under oppfølging og finnes i Arena")
+        }
+
+        val enheter = getRelevanteEnheterForBruker(brukersGeografiskeEnhet, brukersOppfolgingsenhet)
+
+        if (enheter.isEmpty()) {
+            throw StatusException(HttpStatusCode.BadRequest, "Fant ikke brukers enheter. Kontroller at brukeren er under oppfølging og finnes i Arena")
+        }
+
         return Brukerdata(
             fnr = fnr,
             innsatsgruppe = sisteVedtak?.innsatsgruppe,
-            enheter = getRelevanteEnheterForBruker(brukersGeografiskeEnhet, brukersOppfolgingsenhet),
+            enheter = enheter,
             servicegruppe = oppfolgingsstatus?.servicegruppe,
             fornavn = personInfo.fornavn,
             manuellStatus = manuellStatus,
             varsler = listOfNotNull(
                 if (oppfolgingsenhetLokalOgUlik(brukersGeografiskeEnhet, brukersOppfolgingsenhet)) {
                     BrukerVarsel.LOKAL_OPPFOLGINGSENHET
-                } else {
-                    null
-                },
-                if (sisteVedtak?.innsatsgruppe == null && oppfolgingsstatus?.servicegruppe != null) {
-                    BrukerVarsel.MANGLER_14A_VEDTAK
-                } else {
-                    null
-                },
-                if (sisteVedtak?.innsatsgruppe == null && oppfolgingsstatus?.servicegruppe == null) {
-                    BrukerVarsel.MANGLER_INNSATSGRUPPE_OG_SERVICEGRUPPE
                 } else {
                     null
                 },
@@ -63,15 +95,13 @@ class BrukerService(
         val innsatsgruppe: Innsatsgruppe?,
         val enheter: List<NavEnhetDbo>,
         val servicegruppe: String?,
-        val fornavn: String?,
-        val manuellStatus: ManuellStatusDto?,
+        val fornavn: String,
+        val manuellStatus: ManuellStatusDto,
         val varsler: List<BrukerVarsel>,
     )
 
     enum class BrukerVarsel {
         LOKAL_OPPFOLGINGSENHET,
-        MANGLER_14A_VEDTAK,
-        MANGLER_INNSATSGRUPPE_OG_SERVICEGRUPPE,
     }
 }
 

@@ -32,20 +32,6 @@ jobs:
         with:
           path: frontend/mulighetsrommet-veileder-flate/.nais
 
-  deploy-demo:
-    runs-on: ubuntu-latest
-    needs: [ci]
-    if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
-    permissions:
-      id-token: write # Needed for `nais/deploy/actions/deploy`
-    steps:
-      - uses: actions/checkout@v4
-      - name: Deploy (demo)
-        uses: nais/deploy/actions/deploy@v2
-        env:
-          CLUSTER: dev-gcp
-          RESOURCE: frontend/mulighetsrommet-veileder-flate/.nais/nais-demo.yaml
-
   deploy-nav-dev:
     runs-on: ubuntu-latest
     needs: [ci]

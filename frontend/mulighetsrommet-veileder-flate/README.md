@@ -4,10 +4,6 @@ Visning av arbeidsmarkedstiltak til veiledere og NAV-ansatte.
 
 Applikasjonen bygges og distribueres i flere varianter avhengig av bruksområde.
 
-**DEMO**
-- En demo-versjon som samler variantene nevnt under.
-- Inkluderer mocks via MSW i stedet for å gå mot backend.
-
 **MODIA**
 - En variant rettet mot veiledere ved arbeidsrettet oppfølging.
   - Kjører med en bruker (borger) i kontekst og inkluderer en del funksjoner rettet mot samhandling mellom NAV-veileder og bruker.
@@ -24,10 +20,10 @@ Applikasjonen bygges og distribueres i flere varianter avhengig av bruksområde.
 
 ## Lokal utvikling
 
-Som standard vil `DEMO`-appen startes lokalt. Om ønskelig kan dette overstyres via miljøvariabelen `APP` i `.env`:
+Som standard vil `LOKAL`-appen startes lokalt. Om ønskelig kan dette overstyres via miljøvariabelen `APP` i `.env`:
 
 ```.env
-APP=DEMO # Eller MODIA, NAV
+APP=LOKAL # Eller MODIA, NAV
 ```
 
 ### Installere avhengigheter

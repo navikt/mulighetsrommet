@@ -3,7 +3,6 @@ import { useHentBrukerdata } from "@/apps/modia/hooks/useHentBrukerdata";
 import { useHentDeltMedBrukerStatus } from "@/apps/modia/hooks/useHentDeltMedbrukerStatus";
 import { useHentVeilederdata } from "@/apps/modia/hooks/useHentVeilederdata";
 import { useModiaContext } from "@/apps/modia/hooks/useModiaContext";
-import { BrukerHarIkke14aVedtakVarsel } from "@/apps/modia/varsler/BrukerHarIkke14aVedtakVarsel";
 import { BrukerKvalifisererIkkeVarsel } from "@/apps/modia/varsler/BrukerKvalifisererIkkeVarsel";
 import { TiltakLoader } from "@/components/TiltakLoader";
 import { DetaljerJoyride } from "@/components/joyride/DetaljerJoyride";
@@ -91,7 +90,6 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
         brukerHarRettPaaTiltak={brukerHarRettPaaValgtTiltak}
         tiltakstype={tiltakstype}
       />
-      <BrukerHarIkke14aVedtakVarsel brukerdata={brukerdata} />
       <ViewTiltaksgjennomforingDetaljer
         tiltaksgjennomforing={tiltaksgjennomforing}
         knapperad={

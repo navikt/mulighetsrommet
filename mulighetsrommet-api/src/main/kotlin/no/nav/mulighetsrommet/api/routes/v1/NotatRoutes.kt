@@ -14,14 +14,14 @@ import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingNotatDbo
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.routes.v1.responses.StatusResponse
 import no.nav.mulighetsrommet.api.routes.v1.responses.respondWithStatusResponse
-import no.nav.mulighetsrommet.api.services.NotatServiceImpl
+import no.nav.mulighetsrommet.api.services.NotatService
 import no.nav.mulighetsrommet.api.utils.getNotatFilter
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
 import java.util.*
 
 fun Route.avtaleNotatRoutes() {
-    val notatService: NotatServiceImpl by inject()
+    val notatService: NotatService by inject()
     val logger = application.environment.log
 
     route("/api/v1/internal/notater") {

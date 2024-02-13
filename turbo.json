@@ -21,6 +21,10 @@
       "dependsOn": ["^build"],
       "outputs": ["dist/**"]
     },
+    "build:lokal": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**"]
+    },
     "playwright": {
       "dependsOn": ["^build"],
       "outputs": []
