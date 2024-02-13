@@ -158,14 +158,14 @@ class TiltaksgjennomforingService(
         return tiltaksgjennomforinger.getAllMidlertidigStengteGjennomforingerSomNarmerSegSluttdato()
     }
 
-    fun setTilgjengeligForVeileder(id: UUID, tilgjengeligForVeileder: Boolean, navIdent: String) {
+    fun setPublisert(id: UUID, publisert: Boolean, navIdent: String) {
         db.transaction { tx ->
-            tiltaksgjennomforinger.setTilgjengeligForVeileder(tx, id, tilgjengeligForVeileder)
+            tiltaksgjennomforinger.setPublisert(tx, id, publisert)
             val dto = getOrError(id, tx)
-            val operation = if (tilgjengeligForVeileder) {
-                "Tilgjengelig for veileder"
+            val operation = if (publisert) {
+                "Tiltak publisert"
             } else {
-                "Ikke tilgjengelig for veileder"
+                "Tiltak ikke publisert"
             }
             logEndring(operation, dto, navIdent, tx)
         }

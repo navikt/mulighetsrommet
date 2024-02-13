@@ -19,7 +19,10 @@ import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingKontaktpersonDbo
-import no.nav.mulighetsrommet.api.domain.dto.*
+import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingAdminDto
+import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingKontaktperson
+import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
+import no.nav.mulighetsrommet.api.domain.dto.VirksomhetKontaktperson
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures.avtale1
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
@@ -984,15 +987,15 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         }
     }
 
-    test("Tilgjengelig for veileder må settes eksplisitt") {
+    test("Tilgjengelig for alle må settes eksplisitt") {
         val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
 
         val gjennomforing = Oppfolging1.copy(id = UUID.randomUUID())
         tiltaksgjennomforinger.upsert(gjennomforing)
-        tiltaksgjennomforinger.get(gjennomforing.id)?.tilgjengeligForVeileder shouldBe false
+        tiltaksgjennomforinger.get(gjennomforing.id)?.publisert shouldBe false
 
-        tiltaksgjennomforinger.setTilgjengeligForVeileder(gjennomforing.id, true)
-        tiltaksgjennomforinger.get(gjennomforing.id)?.tilgjengeligForVeileder shouldBe true
+        tiltaksgjennomforinger.setPublisert(gjennomforing.id, true)
+        tiltaksgjennomforinger.get(gjennomforing.id)?.publisert shouldBe true
     }
 
     test("skal vises til veileder basert til tilgjengelighet og avslutningsstatus") {
@@ -1001,14 +1004,14 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         tiltaksgjennomforinger.upsert(gjennomforing)
 
         tiltaksgjennomforinger.setAvslutningsstatus(gjennomforing.id, Avslutningsstatus.AVSLUTTET)
-        tiltaksgjennomforinger.setTilgjengeligForVeileder(gjennomforing.id, false)
-        tiltaksgjennomforinger.get(gjennomforing.id)?.visesForVeileder shouldBe false
+        tiltaksgjennomforinger.setPublisert(gjennomforing.id, false)
+        tiltaksgjennomforinger.get(gjennomforing.id)?.publisertForAlle shouldBe false
 
-        tiltaksgjennomforinger.setTilgjengeligForVeileder(gjennomforing.id, true)
-        tiltaksgjennomforinger.get(gjennomforing.id)?.visesForVeileder shouldBe false
+        tiltaksgjennomforinger.setPublisert(gjennomforing.id, true)
+        tiltaksgjennomforinger.get(gjennomforing.id)?.publisertForAlle shouldBe false
 
         tiltaksgjennomforinger.setAvslutningsstatus(gjennomforing.id, Avslutningsstatus.IKKE_AVSLUTTET)
-        tiltaksgjennomforinger.get(gjennomforing.id)?.visesForVeileder shouldBe true
+        tiltaksgjennomforinger.get(gjennomforing.id)?.publisertForAlle shouldBe true
     }
 
     test("Henting av arena-ansvarlig-enhet skal ikke krasje hvis arena-ansvarlig-enhet ikke eksisterer i nav-enhet-tabellen") {
@@ -1045,26 +1048,26 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 .let { database.db.run(it) }
 
             tiltaksgjennomforinger.upsert(Oppfolging1.copy(navEnheter = listOf("2990")))
-            tiltaksgjennomforinger.setTilgjengeligForVeileder(Oppfolging1.id, true)
+            tiltaksgjennomforinger.setPublisert(Oppfolging1.id, true)
 
             tiltaksgjennomforinger.upsert(Arbeidstrening1.copy(navEnheter = listOf("2990")))
-            tiltaksgjennomforinger.setTilgjengeligForVeileder(Arbeidstrening1.id, true)
+            tiltaksgjennomforinger.setPublisert(Arbeidstrening1.id, true)
         }
 
-        test("skal filtrere basert på tilgjengelig_for_veileder") {
+        test("skal filtrere basert på om tiltaket er publisert") {
             tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
                 innsatsgrupper = listOf(Innsatsgruppe.STANDARD_INNSATS),
                 brukersEnheter = listOf("2990"),
             ) shouldHaveSize 2
 
-            tiltaksgjennomforinger.setTilgjengeligForVeileder(Oppfolging1.id, false)
+            tiltaksgjennomforinger.setPublisert(Oppfolging1.id, false)
 
             tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
                 innsatsgrupper = listOf(Innsatsgruppe.STANDARD_INNSATS),
                 brukersEnheter = listOf("2990"),
             ) shouldHaveSize 1
 
-            tiltaksgjennomforinger.setTilgjengeligForVeileder(Arbeidstrening1.id, false)
+            tiltaksgjennomforinger.setPublisert(Arbeidstrening1.id, false)
 
             tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
                 innsatsgrupper = listOf(Innsatsgruppe.STANDARD_INNSATS),

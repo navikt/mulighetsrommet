@@ -729,12 +729,12 @@ paths:
     put:
       tags:
         - Tiltaksgjennomforinger
-      operationId: setTilgjengeligForVeileder
+      operationId: setPublisert
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/TilgjengeligForVeilederRequest"
+              $ref: "#/components/schemas/PublisertRequest"
       responses:
         200:
           description: Update for 'tilgjengelig for veileder' was successful
@@ -2111,8 +2111,8 @@ components:
         - sluttdato-descending
         - arrangor-ascending
         - arrangor-descending
-        - vises_for_veileder_ascending
-        - vises_for_veileder_descending
+        - publisert_ascending
+        - publisert_descending
 
     Tiltaksgjennomforing:
       type: object
@@ -2178,9 +2178,9 @@ components:
           $ref: "#/components/schemas/SanityFaneinnhold"
         beskrivelse:
           type: string
-        tilgjengeligForVeileder:
+        publisert:
           type: boolean
-        visesForVeileder:
+        publisertForAlle:
           type: boolean
         deltidsprosent:
           type: number
@@ -2198,8 +2198,8 @@ components:
         - opphav
         - midlertidigStengt
         - apentForInnsok
-        - tilgjengeligForVeileder
-        - visesForVeileder
+        - publisert
+        - publisertForAlle
         - deltidsprosent
 
     TiltaksgjennomforingRequest:
@@ -3349,13 +3349,13 @@ components:
         - mulighetsrommet.admin-flate.midlertidig-stengt
         - mr-admin-flate.kan-duplisere-tiltak
 
-    TilgjengeligForVeilederRequest:
+    PublisertRequest:
       type: object
       properties:
-        tilgjengeligForVeileder:
+        publisert:
           type: boolean
       required:
-        - tilgjengeligForVeileder
+        - publisert
 
     NavKontorStruktur:
       type: array
