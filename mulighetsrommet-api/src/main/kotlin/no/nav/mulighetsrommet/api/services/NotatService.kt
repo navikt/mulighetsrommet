@@ -6,7 +6,6 @@ import no.nav.mulighetsrommet.api.domain.dbo.AvtaleNotatDbo
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingNotatDbo
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleNotatDto
 import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingNotatDto
-import no.nav.mulighetsrommet.api.domain.int.NotatService
 import no.nav.mulighetsrommet.api.repositories.AvtaleNotatRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingNotatRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.Forbidden
@@ -18,20 +17,20 @@ import no.nav.mulighetsrommet.database.utils.getOrThrow
 import org.slf4j.LoggerFactory
 import java.util.*
 
-class NotatServiceImpl(
+class NotatService(
     private val avtaleNotatRepository: AvtaleNotatRepository,
     private val tiltaksgjennomforingNotatRepository: TiltaksgjennomforingNotatRepository,
-) : NotatService {
+) {
     private val logger = LoggerFactory.getLogger(this.javaClass)
 
-    override fun getAllAvtaleNotater(
+    fun getAllAvtaleNotater(
         filter: NotatFilter,
     ): StatusResponse<List<AvtaleNotatDto>> {
         return avtaleNotatRepository.getAll(filter = filter)
             .mapLeft { error -> ServerError(message = "Det oppsto en feil ved henting av notater for avtale. Error: $error") }
     }
 
-    override fun upsertAvtaleNotat(notat: AvtaleNotatDbo): StatusResponse<AvtaleNotatDto> {
+    fun upsertAvtaleNotat(notat: AvtaleNotatDbo): StatusResponse<AvtaleNotatDto> {
         logger.info("Upserter avtalenotat med id: $notat.id")
         return avtaleNotatRepository.upsert(notat)
             .flatMap { avtaleNotatRepository.get(notat.id) }
@@ -39,11 +38,11 @@ class NotatServiceImpl(
             .mapLeft { ServerError("Internal Error while upserting notat for avtale: $it") }
     }
 
-    override fun getAvtaleNotat(id: UUID): QueryResult<AvtaleNotatDto?> {
+    fun getAvtaleNotat(id: UUID): QueryResult<AvtaleNotatDto?> {
         return avtaleNotatRepository.get(id)
     }
 
-    override fun deleteAvtaleNotat(id: UUID, navIdent: String): StatusResponse<Int> {
+    fun deleteAvtaleNotat(id: UUID, navIdent: String): StatusResponse<Int> {
         logger.info("Prøver å slette avtalenotat med id: '$id'")
         val notatForSletting = avtaleNotatRepository.get(id).getOrThrow()
 
@@ -59,12 +58,12 @@ class NotatServiceImpl(
             }
     }
 
-    override fun getAllTiltaksgjennomforingNotater(filter: NotatFilter): StatusResponse<List<TiltaksgjennomforingNotatDto>> {
+    fun getAllTiltaksgjennomforingNotater(filter: NotatFilter): StatusResponse<List<TiltaksgjennomforingNotatDto>> {
         return tiltaksgjennomforingNotatRepository.getAll(filter = filter)
             .mapLeft { error -> ServerError(message = "Det oppsto en feil ved henting av notater for tiltaksgjennomføring. Error: $error") }
     }
 
-    override fun upsertTiltaksgjennomforingNotat(notat: TiltaksgjennomforingNotatDbo): StatusResponse<TiltaksgjennomforingNotatDto> {
+    fun upsertTiltaksgjennomforingNotat(notat: TiltaksgjennomforingNotatDbo): StatusResponse<TiltaksgjennomforingNotatDto> {
         logger.info("Upserter avtalenotat med id: $notat.id")
         return tiltaksgjennomforingNotatRepository.upsert(notat)
             .flatMap { tiltaksgjennomforingNotatRepository.get(notat.id) }
@@ -72,11 +71,11 @@ class NotatServiceImpl(
             .mapLeft { ServerError("Internal Error while upserting notat for tiltaksgjennomføring: $it") }
     }
 
-    override fun getTiltaksgjennomforingNotat(id: UUID): QueryResult<TiltaksgjennomforingNotatDto?> {
+    fun getTiltaksgjennomforingNotat(id: UUID): QueryResult<TiltaksgjennomforingNotatDto?> {
         return tiltaksgjennomforingNotatRepository.get(id)
     }
 
-    override fun deleteTiltaksgjennomforingNotat(id: UUID, navIdent: String): StatusResponse<Int> {
+    fun deleteTiltaksgjennomforingNotat(id: UUID, navIdent: String): StatusResponse<Int> {
         logger.info("Prøver å slette notat for tiltaksgjennomføring med id: '$id'")
         val notatForSletting = tiltaksgjennomforingNotatRepository.get(id).getOrThrow()
 
