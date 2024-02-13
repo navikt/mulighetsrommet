@@ -39,6 +39,9 @@ spec:
     - team: amt
       application: amt-aktivitetskort-publisher
       access: read
+    - team: amt
+      application: amt-deltaker
+      access: read
 
     # DVH
     - team: teamoppfolging

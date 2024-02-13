@@ -25,6 +25,9 @@ spec:
     - team: amt
       application: amt-deltaker-bff
       access: read
+    - team: amt
+      application: amt-deltaker
+      access: read
     - team: pto
       application: veilarbportefolje
       access: read
