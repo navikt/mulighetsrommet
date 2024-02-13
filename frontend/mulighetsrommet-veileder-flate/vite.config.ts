@@ -7,8 +7,8 @@ import { shadowStyle } from "vite-plugin-shadow-style";
 import tsconfigPaths from "vite-tsconfig-paths";
 
 const config = {
-  DEMO: {
-    root: resolve(__dirname, "src/apps/demo"),
+  LOKAL: {
+    root: resolve(__dirname, "src/apps/lokal"),
   },
   MODIA: {
     root: resolve(__dirname, "src/apps/modia"),
@@ -18,7 +18,7 @@ const config = {
   },
 } as const;
 
-const APP = (process.env.APP ?? "DEMO") as keyof typeof config;
+const APP = (process.env.APP ?? "LOKAL") as keyof typeof config;
 
 const appConfig = config[APP];
 

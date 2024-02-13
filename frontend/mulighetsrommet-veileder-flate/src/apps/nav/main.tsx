@@ -19,9 +19,9 @@ if (import.meta.env.VITE_FARO_URL) {
 
 initAmplitudeNav();
 
-const demoContainer = document.getElementById(APPLICATION_NAME);
-if (demoContainer) {
-  const root = createRoot(demoContainer);
+const container = document.getElementById(APPLICATION_NAME);
+if (container) {
+  const root = createRoot(container);
   root.render(
     <ReactQueryProvider>
       <Router>

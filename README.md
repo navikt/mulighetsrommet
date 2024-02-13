@@ -103,7 +103,6 @@ Det finnes noen tilgjengelige dashboards, men nytten med disse kan variere:
 |-----------------|---------------------------------------------------------------------------------------------------------|
 | Kildekode       | <https://github.com/navikt/mulighetsrommet/tree/main/frontend/mulighetsrommet-veileder-flate>           |
 | README          | <https://github.com/navikt/mulighetsrommet/blob/main/frontend/mulighetsrommet-veileder-flate/README.md> |
-| Url (demo)      | <https://mulighetsrommet-veileder-flate.ekstern.dev.nav.no/12345678910>                                 |
 | Url (dev-miljø) | <https://veilarbpersonflate.intern.dev.nav.no/12118323058>                                              |
 
 ### `mulighetsrommet-api-client`
