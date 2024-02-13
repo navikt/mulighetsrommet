@@ -60,7 +60,7 @@ class BrukerService(
 
         val brukersGeografiskeEnhet = personInfo.geografiskEnhet?.enhetsnummer?.let {
             navEnhetService.hentEnhet(it)
-        } ?: throw StatusException(HttpStatusCode.BadRequest, "Brukers geografiske enhet kunne ikke hentes. Kontroller at brukeren er under oppfølging og finnes i Arena")
+        }
 
         if (sisteVedtak == null && oppfolgingsstatus?.servicegruppe == null) {
             throw StatusException(HttpStatusCode.BadRequest, "Bruker manglet innsatsgruppe og servicegruppe. Kontroller at brukeren er under oppfølging og finnes i Arena")
