@@ -17,6 +17,10 @@
       "dependsOn": ["^build"],
       "outputs": ["dist/**"]
     },
+    "build:demo": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**"]
+    },
     "build:lokal": {
       "dependsOn": ["^build"],
       "outputs": ["dist/**"]
