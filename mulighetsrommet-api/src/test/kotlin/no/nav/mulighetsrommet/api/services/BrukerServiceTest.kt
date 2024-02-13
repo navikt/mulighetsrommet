@@ -1,6 +1,8 @@
 package no.nav.mulighetsrommet.api.services
 
+import arrow.core.left
 import arrow.core.right
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainInOrder
@@ -12,12 +14,14 @@ import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.clients.oppfolging.*
 import no.nav.mulighetsrommet.api.clients.person.Enhet
 import no.nav.mulighetsrommet.api.clients.person.PersonDto
+import no.nav.mulighetsrommet.api.clients.person.PersonError
 import no.nav.mulighetsrommet.api.clients.person.VeilarbpersonClient
 import no.nav.mulighetsrommet.api.clients.vedtak.Innsatsgruppe
 import no.nav.mulighetsrommet.api.clients.vedtak.VedtakDto
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
+import no.nav.mulighetsrommet.ktor.exception.StatusException
 
 class BrukerServiceTest : FunSpec({
     val veilarboppfolgingClient: VeilarboppfolgingClient = mockk()
@@ -95,21 +99,50 @@ class BrukerServiceTest : FunSpec({
     }
 
     test("Henter brukerdata for et gitt fnr") {
-        brukerService.hentBrukerdata(fnr1, "").fornavn shouldBe "Ola"
-        brukerService.hentBrukerdata(fnr1, "").innsatsgruppe shouldBe Innsatsgruppe.STANDARD_INNSATS
-        brukerService.hentBrukerdata(fnr1, "").fnr shouldBe fnr1
-        brukerService.hentBrukerdata(fnr1, "").manuellStatus?.erUnderManuellOppfolging shouldBe false
-        brukerService.hentBrukerdata(fnr1, "").manuellStatus?.krrStatus?.erReservert shouldBe false
-        brukerService.hentBrukerdata(fnr1, "").manuellStatus?.krrStatus?.kanVarsles shouldBe true
-        brukerService.hentBrukerdata(fnr1, "").enheter shouldContainExactly listOf(
-            NavEnhetDbo(
-                navn = "NAV Fredrikstad",
-                enhetsnummer = "0106",
-                type = Norg2Type.LOKAL,
-                overordnetEnhet = "0100",
-                status = NavEnhetStatus.AKTIV,
-            ),
-        )
+        brukerService.hentBrukerdata(fnr1, "") shouldBe
+            BrukerService.Brukerdata(
+                fornavn = "Ola",
+                innsatsgruppe = Innsatsgruppe.STANDARD_INNSATS,
+                fnr = fnr1,
+                manuellStatus = ManuellStatusDto(
+                    erUnderManuellOppfolging = false,
+                    krrStatus = KrrStatus(
+                        erReservert = false,
+                        kanVarsles = true,
+                    ),
+                ),
+                enheter = listOf(
+                    NavEnhetDbo(
+                        navn = "NAV Fredrikstad",
+                        enhetsnummer = "0106",
+                        type = Norg2Type.LOKAL,
+                        overordnetEnhet = "0100",
+                        status = NavEnhetStatus.AKTIV,
+                    ),
+                ),
+                servicegruppe = "IKKE_VURDERT",
+                varsler = emptyList(),
+            )
+    }
+
+    test("Exception kastes ved tom enhetsliste") {
+        coEvery { veilarbpersonClient.hentPersonInfo(fnr1, any()) } returns PersonDto(
+            fornavn = "Ola",
+            geografiskEnhet = null,
+        ).right()
+        coEvery { veilarboppfolgingClient.hentOppfolgingsstatus(fnr1, any()) } returns OppfolgingsstatusError.NotFound.left()
+
+        shouldThrow<StatusException> {
+            brukerService.hentBrukerdata(fnr1, "")
+        }
+    }
+
+    test("Exception kastes hvis personinfo mangler") {
+        coEvery { veilarbpersonClient.hentPersonInfo(fnr1, any()) } returns PersonError.Error.left()
+
+        shouldThrow<StatusException> {
+            brukerService.hentBrukerdata(fnr1, "")
+        }
     }
 
     context("getRelevanteEnheterForBruker") {
