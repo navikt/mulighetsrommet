@@ -50,7 +50,7 @@ class ArenaAdapterService(
 ) {
     fun upsertTiltakstype(tiltakstype: TiltakstypeDbo): QueryResult<TiltakstypeDbo> {
         return tiltakstyper.upsert(tiltakstype).onRight {
-            tiltakstyper.get(tiltakstype.id)?.let {
+            tiltakstyper.getEksternTiltakstype(tiltakstype.id)?.let {
                 tiltakstypeKafkaProducer.publish(it)
             }
         }

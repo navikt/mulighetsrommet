@@ -1,4 +1,9 @@
-import { Avtale, Avtaletype, TiltaksgjennomforingStatus } from "mulighetsrommet-api-client";
+import {
+  Avtale,
+  Avtaletype,
+  EstimertVentetid,
+  TiltaksgjennomforingStatus,
+} from "mulighetsrommet-api-client";
 import { AvtaleFilter } from "../api/atoms";
 
 export function capitalize(text?: string): string {
@@ -203,4 +208,15 @@ export function createQueryParamsForExcelDownload(filter: AvtaleFilter): URLSear
 
   queryParams.set("size", "10000");
   return queryParams;
+}
+
+export function formatertVentetid(verdi: number, enhet: EstimertVentetid.enhet): string {
+  switch (enhet) {
+    case EstimertVentetid.enhet.UKE:
+      return `${verdi} ${verdi === 1 ? "uke" : "uker"}`;
+    case EstimertVentetid.enhet.MANED:
+      return `${verdi} ${verdi === 1 ? "måned" : "måneder"}`;
+    default:
+      return "Ukjent enhet for ventetid";
+  }
 }

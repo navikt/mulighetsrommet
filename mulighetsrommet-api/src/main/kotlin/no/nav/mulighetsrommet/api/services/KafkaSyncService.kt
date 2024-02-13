@@ -52,7 +52,7 @@ class KafkaSyncService(
             )
 
             tiltakstyper.forEach { it ->
-                tiltakstypeRepository.get(it.id)?.let {
+                tiltakstypeRepository.getEksternTiltakstype(it.id)?.let {
                     tiltakstypeKafkaProducer.publish(it)
                 }
             }

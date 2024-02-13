@@ -2,8 +2,10 @@ package no.nav.mulighetsrommet.api.repositories
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import kotliquery.Query
+import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.utils.DEFAULT_PAGINATION_LIMIT
@@ -14,6 +16,7 @@ import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListe
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 import no.nav.mulighetsrommet.domain.dto.Tiltakstypestatus
+import org.intellij.lang.annotations.Language
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -222,6 +225,72 @@ class TiltakstypeRepositoryTest : FunSpec({
             items.last().navn shouldBe "99"
 
             totalCount shouldBe 105
+        }
+    }
+
+    context("Strukturert innhold for deltakerregistrering") {
+        val tiltakstyper = TiltakstypeRepository(database.db)
+
+        beforeEach {
+            tiltakstyper.upsert(TiltakstypeFixtures.Oppfolging)
+            tiltakstyper.upsert(TiltakstypeFixtures.VTA)
+            tiltakstyper.upsert(TiltakstypeFixtures.Arbeidstrening)
+        }
+
+        test("Skal hente ut korrekt strukturert innhold for tiltakstype som har strukturert innhold") {
+            @Language("PostgreSQL")
+            val query = """
+                insert into deltaker_registrering_innholdselement(innholdskode, tekst)
+                values('jobbsoking', '${TiltakstypeFixtures.Oppfolging.tiltakskode}')
+                on conflict do nothing;
+
+                insert into deltaker_registrering_innholdselement(innholdskode, tekst)
+                values('kartlegge-helse', '${TiltakstypeFixtures.Oppfolging.tiltakskode}')
+                on conflict do nothing;
+
+                update tiltakstype
+                set deltaker_registrering_ledetekst = 'Oppfølging er et bra tiltak'
+                where tiltakskode = '${TiltakstypeFixtures.Oppfolging.tiltakskode}';
+
+                insert into tiltakstype_deltaker_registrering_innholdselement(innholdskode, tiltakskode)
+                values('jobbsoking', '${TiltakstypeFixtures.Oppfolging.tiltakskode}');
+
+                insert into tiltakstype_deltaker_registrering_innholdselement(innholdskode, tiltakskode)
+                values('kartlegge-helse', '${TiltakstypeFixtures.Oppfolging.tiltakskode}');
+            """.trimIndent()
+            queryOf(
+                query,
+            ).asExecute.let { database.db.run(it) }
+            tiltakstyper.getEksternTiltakstype(TiltakstypeFixtures.Oppfolging.id).should {
+                it?.navn shouldBe "Oppfølging"
+                it?.deltakerRegistreringInnhold?.ledetekst shouldBe "Oppfølging er et bra tiltak"
+                it?.deltakerRegistreringInnhold?.innholdselementer?.size shouldBe 2
+            }
+        }
+
+        test("Skal støtte å hente tiltaktype som bare har ledetekst, men ingen innholdselementer") {
+            @Language("PostgreSQL")
+            val query = """
+                update tiltakstype
+                set deltaker_registrering_ledetekst = 'VTA er kjempebra'
+                where tiltakskode = '${TiltakstypeFixtures.VTA.tiltakskode}';
+            """.trimIndent()
+            queryOf(
+                query,
+            ).asExecute.let { database.db.run(it) }
+            tiltakstyper.getEksternTiltakstype(TiltakstypeFixtures.VTA.id).should {
+                it?.navn shouldBe "Varig tilrettelagt arbeid i skjermet virksomhet"
+                it?.deltakerRegistreringInnhold?.ledetekst shouldBe "VTA er kjempebra"
+                it?.deltakerRegistreringInnhold?.innholdselementer?.size shouldBe 0
+            }
+        }
+
+        test("Skal kunne hente tiltakstype uten strukturert innhold for deltakerregistrering") {
+            tiltakstyper.getEksternTiltakstype(TiltakstypeFixtures.Arbeidstrening.id).should {
+                it?.navn shouldBe "Arbeidstrening"
+                it?.rettPaaTiltakspenger shouldBe true
+                it?.deltakerRegistreringInnhold shouldBe null
+            }
         }
     }
 })

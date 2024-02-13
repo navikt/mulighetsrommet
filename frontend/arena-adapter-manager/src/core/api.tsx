@@ -13,8 +13,13 @@ export class ApiError extends Error {
   }
 }
 
-export const getTopics = () =>
-  fetch("/mulighetsrommet-arena-adapter/topics", {
+export enum ApiBase {
+  ARENA_ADAPTER = "/mulighetsrommet-arena-adapter",
+  MR_API = "/mulighetsrommet-api/api/internal/maam",
+}
+
+export const getTopics = (base: ApiBase) =>
+  fetch(`${base}/topics`, {
     method: "GET",
     headers: getDefaultHeaders(),
   })
@@ -29,8 +34,8 @@ export const getArenaTables = () =>
     .then(parseJson)
     .catch((error) => toastError("Klarte ikke laste ArenaTables", error));
 
-export const putTopicRunningState = (topics: Topic[]) =>
-  fetch("/mulighetsrommet-arena-adapter/topics", {
+export const putTopicRunningState = (base: ApiBase, topics: Topic[]) =>
+  fetch(`${base}/topics`, {
     method: "PUT",
     headers: {
       ...getDefaultHeaders(),
@@ -103,12 +108,13 @@ export const deleteEvents = async (arenaTable: string, arenaIds: string) => {
 
 export type MrApiTask =
   | "generate-validation-report"
+  | "initial-load-mulighetsrommet-tiltakstyper"
   | "initial-load-tiltaksgjennomforinger"
   | "initial-load-mulighetsrommet-tiltaksgjennomforinger"
   | "sync-navansatte";
 
-export const runTask = (task: MrApiTask) =>
-  fetch(`/mulighetsrommet-api/api/v1/internal/tasks/${task}`, {
+export const runTask = (base: ApiBase, task: MrApiTask) =>
+  fetch(`${base}/tasks/${task}`, {
     method: "POST",
     headers: getDefaultHeaders(),
   })

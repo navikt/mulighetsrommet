@@ -44,6 +44,7 @@ data class VeilederflateTiltaksgjennomforing(
     val beskrivelse: String? = null,
     val faneinnhold: Faneinnhold? = null,
     val kontaktinfo: VeilederflateKontaktinfo? = null,
+    val estimertVentetid: EstimertVentetid? = null,
 )
 
 @Serializable
@@ -96,4 +97,10 @@ data class Oppskrift(
     val beskrivelse: String,
     val steg: List<JsonObject>,
     val _updatedAt: String,
+)
+
+@Serializable
+data class EstimertVentetid(
+    val verdi: Int,
+    val enhet: String,
 )

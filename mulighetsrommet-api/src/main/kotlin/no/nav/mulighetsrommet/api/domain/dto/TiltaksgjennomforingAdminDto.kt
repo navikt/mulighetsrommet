@@ -55,6 +55,7 @@ data class TiltaksgjennomforingAdminDto(
     val tilgjengeligForVeileder: Boolean,
     val visesForVeileder: Boolean,
     val deltidsprosent: Double,
+    val estimertVentetid: EstimertVentetid?,
 ) {
     fun isAktiv(): Boolean = status in listOf(
         Tiltaksgjennomforingsstatus.PLANLAGT,
@@ -81,6 +82,12 @@ data class TiltaksgjennomforingAdminDto(
         val navn: String?,
         val kontaktpersoner: List<VirksomhetKontaktperson>,
         val slettet: Boolean,
+    )
+
+    @Serializable
+    data class EstimertVentetid(
+        val verdi: Int,
+        val enhet: String,
     )
 
     fun toDbo() =
@@ -114,6 +121,8 @@ data class TiltaksgjennomforingAdminDto(
             faneinnhold = faneinnhold,
             beskrivelse = beskrivelse,
             deltidsprosent = deltidsprosent,
+            estimertVentetidVerdi = estimertVentetid?.verdi,
+            estimertVentetidEnhet = estimertVentetid?.enhet,
         )
 
     fun toArenaTiltaksgjennomforingDbo() =

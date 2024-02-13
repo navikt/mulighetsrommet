@@ -2184,6 +2184,9 @@ components:
           type: boolean
         deltidsprosent:
           type: number
+        estimertVentetid:
+          $ref: "#/components/schemas/EstimertVentetid"
+          nullable: true
       required:
         - status
         - id
@@ -2272,6 +2275,16 @@ components:
           nullable: true
         deltidsprosent:
           type: number
+        estimertVentetid:
+          type: object
+          properties:
+            verdi:
+              type: number
+              nullable: true
+            enhet:
+              type: string
+              nullable: true
+          nullable: true
       required:
         - id
         - tiltakstypeId
@@ -2826,6 +2839,9 @@ components:
           type: string
         kontaktinfo:
           $ref: "#/components/schemas/VeilederflateKontaktInfo"
+        estimertVentetid:
+          $ref: "#/components/schemas/EstimertVentetid"
+          nullable: true
       required:
         - navn
         - tiltakstype
@@ -3415,3 +3431,17 @@ components:
         - OVERSIKT
         - DETALJER
         - HAR_VIST_OPPRETT_AVTALE
+
+    EstimertVentetid:
+      type: object
+      properties:
+        verdi:
+          type: number
+        enhet:
+          type: string
+          enum:
+            - uke
+            - maned
+      required:
+        - verdi
+        - enhet

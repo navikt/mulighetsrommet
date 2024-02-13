@@ -1,4 +1,5 @@
 import {
+  EstimertVentetid,
   NavEnhetStatus,
   NavEnhetType,
   TiltaksgjennomforingOppstartstype,
@@ -11,12 +12,29 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
     sanityId: "f4cea25b-c372-4d4c-8106-535ab10cd586",
     navn: "Avklaring - Fredrikstad",
     oppstart: TiltaksgjennomforingOppstartstype.LOPENDE,
+    estimertVentetid: {
+      verdi: 3,
+      enhet: EstimertVentetid.enhet.MANED,
+    },
     stedForGjennomforing:
       "Valpekullsveien 69, 1424" +
       " Taumatawhakatangi­hangakoauauotamatea­turipukakapikimaunga­horonukupokaiwhen­uakitanatahu",
     tiltakstype: mockTiltakstyper.avklaring,
     sluttdato: "2025-07-09",
     apentForInnsok: true,
+    arrangor: {
+      selskapsnavn: "JOBLEARN AS AVD 813201 ØST-VIKEN KURS",
+      kontaktpersoner: [
+        {
+          id: "1",
+          navn: "Ole Testesen",
+          telefon: "12345678",
+          epost: "test@example.com",
+          organisasjonsnummer: "987654321",
+          beskrivelse: null,
+        },
+      ],
+    },
     kontaktinfo: {
       tiltaksansvarlige: [
         {
@@ -48,11 +66,37 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
           _type: "block",
         },
       ],
+      kontaktinfo: [
+        {
+          style: "normal",
+          children: [
+            {
+              text: "Oppmøtested er Andeby 1, 0669 Donald-Pocketby",
+              _type: "span",
+            },
+          ],
+          _type: "block",
+        },
+        {
+          style: "normal",
+          children: [
+            {
+              text: "Postadresse er Fyrstikkalleen 1, 0101 Oslo",
+              _type: "span",
+            },
+          ],
+          _type: "block",
+        },
+      ],
     },
   },
   {
     sanityId: "91205ff2-ec72-4a7f-80b8-1c99d8535a06",
     navn: "Sindres mentorordning med Yoda",
+    estimertVentetid: {
+      verdi: 5,
+      enhet: EstimertVentetid.enhet.UKE,
+    },
     oppstart: TiltaksgjennomforingOppstartstype.FELLES,
     oppstartsdato: new Date().toDateString(),
     stedForGjennomforing: "Oslo",
