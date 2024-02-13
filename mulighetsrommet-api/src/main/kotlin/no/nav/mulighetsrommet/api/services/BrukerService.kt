@@ -66,10 +66,16 @@ class BrukerService(
             throw StatusException(HttpStatusCode.BadRequest, "Bruker manglet innsatsgruppe og servicegruppe. Kontroller at brukeren er under oppfølging og finnes i Arena")
         }
 
+        val enheter = getRelevanteEnheterForBruker(brukersGeografiskeEnhet, brukersOppfolgingsenhet)
+
+        if (enheter.isEmpty()) {
+            throw StatusException(HttpStatusCode.BadRequest, "Fant ikke brukers enheter. Kontroller at brukeren er under oppfølging og finnes i Arena")
+        }
+
         return Brukerdata(
             fnr = fnr,
             innsatsgruppe = sisteVedtak?.innsatsgruppe,
-            enheter = getRelevanteEnheterForBruker(brukersGeografiskeEnhet, brukersOppfolgingsenhet),
+            enheter = enheter,
             servicegruppe = oppfolgingsstatus?.servicegruppe,
             fornavn = personInfo.fornavn,
             manuellStatus = manuellStatus,
