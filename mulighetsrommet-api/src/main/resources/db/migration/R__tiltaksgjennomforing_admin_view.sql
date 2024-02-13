@@ -72,9 +72,6 @@ select tg.id::uuid,
        tg.beskrivelse,
        tg.created_at,
        tg.updated_at,
-       tg.publisert,
-       tg.publisert and tg.avslutningsstatus = 'IKKE_AVSLUTTET'::avslutningsstatus
-                               as vises_for_veileder,
        tg.deltidsprosent,
        region.status           as nav_region_status,
        jsonb_agg(distinct
@@ -91,7 +88,9 @@ select tg.id::uuid,
                     end
        ) as virksomhet_kontaktpersoner,
     tg.estimert_ventetid_verdi,
-    tg.estimert_ventetid_enhet
+    tg.estimert_ventetid_enhet,
+    tg.publisert and tg.avslutningsstatus = 'IKKE_AVSLUTTET'::avslutningsstatus
+       as publisert_for_alle
 from tiltaksgjennomforing tg
          inner join tiltakstype t on tg.tiltakstype_id = t.id
          left join tiltaksgjennomforing_administrator tg_a on tg_a.tiltaksgjennomforing_id = tg.id
@@ -107,5 +106,3 @@ from tiltaksgjennomforing tg
          left join tiltaksgjennomforing_virksomhet_kontaktperson tvk on tvk.tiltaksgjennomforing_id = tg.id
          left join virksomhet_kontaktperson vk on vk.id = tvk.virksomhet_kontaktperson_id
 group by tg.id, t.id, v.navn, region.status, region.navn, region.type, region.overordnet_enhet, arena_nav_enhet.enhetsnummer;
-
-alter table tiltaksgjennomforing_admin_dto_view rename vises_for_veileder to publisert_for_alle;
