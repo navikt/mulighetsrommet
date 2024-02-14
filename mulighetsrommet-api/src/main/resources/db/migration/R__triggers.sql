@@ -74,3 +74,9 @@ CREATE TRIGGER set_timestamp
     ON tiltakstype_deltaker_registrering_innholdselement
     FOR EACH ROW
 EXECUTE PROCEDURE trigger_set_timestamp();
+
+create trigger set_timestamp
+    before update
+    on virksomhet
+    for each row
+execute procedure trigger_set_timestamp();
