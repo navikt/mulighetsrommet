@@ -23,9 +23,7 @@ class SynchronizeVirksomheterFromBrreg(
     val task: OneTimeTask<Void> = Tasks
         .oneTime(javaClass.name)
         .execute { instance, context ->
-            val input = instance.data
-
-            logger.info("Running task ${instance.taskName} with input=$input")
+            logger.info("Running task ${instance.taskName}")
 
             MDC.put("correlationId", instance.id)
 
@@ -40,8 +38,7 @@ class SynchronizeVirksomheterFromBrreg(
 
     fun schedule(startTime: Instant = Instant.now()): UUID {
         val id = UUID.randomUUID()
-        val instance = task.instance(id.toString())
-        client.schedule(instance, startTime)
+        client.schedule(task.instance(id.toString()), startTime)
         return id
     }
 
