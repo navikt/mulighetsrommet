@@ -7,7 +7,6 @@ import kotlinx.coroutines.runBlocking
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.services.VirksomhetService
 import no.nav.mulighetsrommet.database.Database
-import no.nav.mulighetsrommet.tasks.DbSchedulerKotlinSerializer
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 import org.slf4j.MDC
@@ -37,7 +36,6 @@ class SynchronizeVirksomheterFromBrreg(
 
     private val client = SchedulerClient.Builder
         .create(database.getDatasource(), task)
-        .serializer(DbSchedulerKotlinSerializer())
         .build()
 
     fun schedule(startTime: Instant = Instant.now()): UUID {
