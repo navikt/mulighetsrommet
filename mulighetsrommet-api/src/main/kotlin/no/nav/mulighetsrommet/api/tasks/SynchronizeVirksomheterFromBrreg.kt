@@ -65,7 +65,7 @@ class SynchronizeVirksomheterFromBrreg(
             .let { database.run(it) }
 
         orgnrs.forEach { orgnr ->
-            val virksomhet = virksomhetService.getOrSyncVirksomhet(orgnr)
+            val virksomhet = virksomhetService.syncVirksomhetFraBrreg(orgnr)
             if (virksomhet == null) {
                 logger.warn("Klarte ikke synkronisere virksomhet med orgnr=$orgnr fra brreg")
             }
