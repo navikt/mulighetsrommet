@@ -49,7 +49,7 @@ class VirksomhetService(
         log.info("Skal synkronisere enhet med orgnr: $orgnr fra Brreg")
         val virksomhet = getVirksomhet(orgnr) ?: return null
 
-        log.info("Hentet enhet fra Brreg med orgnr: $orgnr: $virksomhet")
+        log.info("Hentet enhet fra Brreg med orgnr: $orgnr")
         val overordnetEnhet = if (virksomhet.overordnetEnhet == null) {
             virksomhet
         } else {
@@ -58,11 +58,14 @@ class VirksomhetService(
 
         if (overordnetEnhet.slettetDato != null) {
             log.info("Enhet med orgnr: ${virksomhet.organisasjonsnummer} er slettet i Brreg med slettedato ${virksomhet.slettetDato}")
+            virksomhetRepository
+                .upsert(overordnetEnhet)
+                .onLeft { log.warn("Feil ved upsert av virksomhet: $it") }
+        } else {
+            virksomhetRepository
+                .upsertOverordnetEnhet(overordnetEnhet.toOverordnetEnhetDbo())
+                .onLeft { log.warn("Feil ved upsert av virksomhet: $it") }
         }
-
-        virksomhetRepository
-            .upsertOverordnetEnhet(overordnetEnhet.toOverordnetEnhetDbo())
-            .onLeft { log.warn("Feil ved upsert av virksomhet: $it") }
 
         return virksomhet
     }

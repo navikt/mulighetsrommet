@@ -55,10 +55,8 @@ class VirksomhetRepository(private val db: Database) {
             tx.run(queryOf(query, overordnetEnhetDbo.toSqlParameters()).asExecute)
 
             overordnetEnhetDbo.underenheter.forEach { underenhet ->
-                queryOf(
-                    upsertUnderenheter,
-                    underenhet.toSqlParameters(),
-                )
+                logger.info("Lagrer underenhet ${underenhet.organisasjonsnummer}")
+                queryOf(upsertUnderenheter, underenhet.toSqlParameters())
                     .asExecute
                     .let { tx.run(it) }
             }
@@ -82,6 +80,7 @@ class VirksomhetRepository(private val db: Database) {
             on conflict (organisasjonsnummer) do update set
                 navn = excluded.navn,
                 overordnet_enhet = excluded.overordnet_enhet,
+                slettet_dato = excluded.slettet_dato,
                 postnummer = excluded.postnummer,
                 poststed = excluded.poststed
             returning *
