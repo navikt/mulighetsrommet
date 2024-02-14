@@ -63,17 +63,23 @@ CREATE TRIGGER set_timestamp
     FOR EACH ROW
 EXECUTE PROCEDURE trigger_set_timestamp();
 
+DROP TRIGGER IF EXISTS set_timestamp ON deltaker_registrering_innholdselement;
+
 CREATE TRIGGER set_timestamp
     BEFORE UPDATE
     ON deltaker_registrering_innholdselement
     FOR EACH ROW
 EXECUTE PROCEDURE trigger_set_timestamp();
 
+DROP TRIGGER IF EXISTS set_timestamp ON tiltakstype_deltaker_registrering_innholdselement;
+
 CREATE TRIGGER set_timestamp
     BEFORE UPDATE
     ON tiltakstype_deltaker_registrering_innholdselement
     FOR EACH ROW
 EXECUTE PROCEDURE trigger_set_timestamp();
+
+drop trigger if exists set_timestamp on virksomhet;
 
 create trigger set_timestamp
     before update
