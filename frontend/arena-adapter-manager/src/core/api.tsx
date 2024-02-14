@@ -111,7 +111,8 @@ export type MrApiTask =
   | "initial-load-mulighetsrommet-tiltakstyper"
   | "initial-load-tiltaksgjennomforinger"
   | "initial-load-mulighetsrommet-tiltaksgjennomforinger"
-  | "sync-navansatte";
+  | "sync-navansatte"
+  | "sync-virksomheter";
 
 export const runTask = (base: ApiBase, task: MrApiTask) =>
   fetch(`${base}/tasks/${task}`, {

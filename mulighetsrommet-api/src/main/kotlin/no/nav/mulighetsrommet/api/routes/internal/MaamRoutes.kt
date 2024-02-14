@@ -21,6 +21,7 @@ fun Route.maamRoutes() {
             val initialLoadTiltaksgjennomforinger: InitialLoadTiltaksgjennomforinger by inject()
             val initialLoadTiltakstyper: InitialLoadTiltakstyper by inject()
             val synchronizeNavAnsatte: SynchronizeNavAnsatte by inject()
+            val synchronizeVirksomheter: SynchronizeVirksomheterFromBrreg by inject()
 
             post("generate-validation-report") {
                 val taskId = generateValidationReport.schedule()
@@ -50,6 +51,11 @@ fun Route.maamRoutes() {
 
             post("sync-navansatte") {
                 val taskId = synchronizeNavAnsatte.schedule()
+                call.respond(HttpStatusCode.Accepted, ScheduleTaskResponse(id = taskId))
+            }
+
+            post("sync-virksomheter") {
+                val taskId = synchronizeVirksomheter.schedule()
                 call.respond(HttpStatusCode.Accepted, ScheduleTaskResponse(id = taskId))
             }
         }
