@@ -14,6 +14,7 @@ import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
+import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.respondJson
@@ -82,6 +83,117 @@ class AvtaleRoutesTest : FunSpec({
                 )
             }
             response.status shouldBe HttpStatusCode.Unauthorized
+        }
+    }
+
+    test("400 Bad request for autentisert kall for PUT av avtaledata dersom tiltakstypen ikke er skrudd på som master") {
+        val avtaleSkrivRolle = AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), NavAnsattRolle.AVTALER_SKRIV)
+        val tiltaksadministrasjonGenerellRolle = AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL)
+        val engine = createMockEngine(
+            "/brreg/enheter/${AvtaleFixtures.avtaleRequest.leverandorOrganisasjonsnummer}" to {
+                respondJson(BrregEnhet(organisasjonsnummer = "123456789", navn = "Testvirksomhet"))
+            },
+            "/brreg/underenheter" to {
+                respondJson(BrregEmbeddedUnderenheter(_embedded = BrregUnderenheter(underenheter = emptyList())))
+            },
+        )
+        val config = createTestApplicationConfig().copy(
+            auth = createAuthConfig(oauth, roles = listOf(avtaleSkrivRolle, tiltaksadministrasjonGenerellRolle)),
+            engine = engine,
+            database = databaseConfig,
+        )
+        withTestApplication(config) {
+            val client = createClient {
+                install(ContentNegotiation) {
+                    json()
+                }
+            }
+            val response = client.put("/api/v1/internal/avtaler") {
+                val claims = mapOf(
+                    "NAVident" to "ABC123",
+                    "groups" to listOf(avtaleSkrivRolle.adGruppeId, tiltaksadministrasjonGenerellRolle.adGruppeId),
+                )
+                bearerAuth(
+                    oauth.issueToken(claims = claims).serialize(),
+                )
+                contentType(ContentType.Application.Json)
+                setBody(AvtaleFixtures.avtaleRequest.copy(navEnheter = listOf(NavEnhetFixtures.Oslo.enhetsnummer), tiltakstypeId = TiltakstypeFixtures.Jobbklubb.id))
+            }
+            response.status shouldBe HttpStatusCode.BadRequest
+        }
+    }
+
+    test("200 OK for autentisert kall for PUT av avtaledata dersom tiltakstypen ikke er skrudd på som master, men tiltakstypen er VTA") {
+        val avtaleSkrivRolle = AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), NavAnsattRolle.AVTALER_SKRIV)
+        val tiltaksadministrasjonGenerellRolle = AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL)
+        val engine = createMockEngine(
+            "/brreg/enheter/${AvtaleFixtures.avtaleRequest.leverandorOrganisasjonsnummer}" to {
+                respondJson(BrregEnhet(organisasjonsnummer = "123456789", navn = "Testvirksomhet"))
+            },
+            "/brreg/underenheter" to {
+                respondJson(BrregEmbeddedUnderenheter(_embedded = BrregUnderenheter(underenheter = emptyList())))
+            },
+        )
+        val config = createTestApplicationConfig().copy(
+            auth = createAuthConfig(oauth, roles = listOf(avtaleSkrivRolle, tiltaksadministrasjonGenerellRolle)),
+            engine = engine,
+            database = databaseConfig,
+        )
+        withTestApplication(config) {
+            val client = createClient {
+                install(ContentNegotiation) {
+                    json()
+                }
+            }
+            val response = client.put("/api/v1/internal/avtaler") {
+                val claims = mapOf(
+                    "NAVident" to "ABC123",
+                    "groups" to listOf(avtaleSkrivRolle.adGruppeId, tiltaksadministrasjonGenerellRolle.adGruppeId),
+                )
+                bearerAuth(
+                    oauth.issueToken(claims = claims).serialize(),
+                )
+                contentType(ContentType.Application.Json)
+                setBody(AvtaleFixtures.avtaleRequest.copy(navEnheter = listOf(NavEnhetFixtures.Oslo.enhetsnummer), tiltakstypeId = TiltakstypeFixtures.VTA.id))
+            }
+            response.status shouldBe HttpStatusCode.OK
+        }
+    }
+
+    test("200 OK for autentisert kall for PUT av avtaledata dersom tiltakstypen ikke er skrudd på som master, men tiltakstypen er AFT") {
+        val avtaleSkrivRolle = AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), NavAnsattRolle.AVTALER_SKRIV)
+        val tiltaksadministrasjonGenerellRolle = AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL)
+        val engine = createMockEngine(
+            "/brreg/enheter/${AvtaleFixtures.avtaleRequest.leverandorOrganisasjonsnummer}" to {
+                respondJson(BrregEnhet(organisasjonsnummer = "123456789", navn = "Testvirksomhet"))
+            },
+            "/brreg/underenheter" to {
+                respondJson(BrregEmbeddedUnderenheter(_embedded = BrregUnderenheter(underenheter = emptyList())))
+            },
+        )
+        val config = createTestApplicationConfig().copy(
+            auth = createAuthConfig(oauth, roles = listOf(avtaleSkrivRolle, tiltaksadministrasjonGenerellRolle)),
+            engine = engine,
+            database = databaseConfig,
+        )
+        withTestApplication(config) {
+            val client = createClient {
+                install(ContentNegotiation) {
+                    json()
+                }
+            }
+            val response = client.put("/api/v1/internal/avtaler") {
+                val claims = mapOf(
+                    "NAVident" to "ABC123",
+                    "groups" to listOf(avtaleSkrivRolle.adGruppeId, tiltaksadministrasjonGenerellRolle.adGruppeId),
+                )
+                bearerAuth(
+                    oauth.issueToken(claims = claims).serialize(),
+                )
+                contentType(ContentType.Application.Json)
+                setBody(AvtaleFixtures.avtaleRequest.copy(navEnheter = listOf(NavEnhetFixtures.Oslo.enhetsnummer), tiltakstypeId = TiltakstypeFixtures.AFT.id))
+            }
+            response.status shouldBe HttpStatusCode.OK
         }
     }
 

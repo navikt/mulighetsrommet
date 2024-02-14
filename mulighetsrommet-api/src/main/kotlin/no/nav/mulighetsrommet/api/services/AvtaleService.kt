@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.services
 
 import arrow.core.Either
 import arrow.core.toNonEmptyListOrNull
+import io.ktor.server.plugins.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import kotliquery.TransactionalSession
@@ -12,6 +13,7 @@ import no.nav.mulighetsrommet.api.domain.dto.AvtaleNotificationDto
 import no.nav.mulighetsrommet.api.domain.dto.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
+import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.api.repositories.UtkastRepository
 import no.nav.mulighetsrommet.api.routes.v1.AvtaleRequest
 import no.nav.mulighetsrommet.api.routes.v1.responses.*
@@ -33,9 +35,11 @@ class AvtaleService(
     private val virksomhetService: VirksomhetService,
     private val notificationRepository: NotificationRepository,
     private val utkastRepository: UtkastRepository,
+    private val tiltakstyper: TiltakstypeRepository,
     private val validator: AvtaleValidator,
     private val endringshistorikkService: EndringshistorikkService,
     private val db: Database,
+    private val enabledTiltakstyper: List<String>,
 ) {
     fun get(id: UUID): AvtaleAdminDto? {
         return avtaler.get(id)
@@ -44,7 +48,27 @@ class AvtaleService(
     suspend fun upsert(request: AvtaleRequest, navIdent: String): Either<List<ValidationError>, AvtaleAdminDto> {
         virksomhetService.getOrSyncVirksomhet(request.leverandorOrganisasjonsnummer)
 
+        // TODO Fjern tiltakstypesjekk for avtaler når vi har blitt master for alle tiltakstyper
+        val tiltakstype = tiltakstyper.get(request.tiltakstypeId)
+            ?: throw BadRequestException("Fant ikke tiltakstype med id: ${request.tiltakstypeId}")
+
         val previous = avtaler.get(request.id)
+
+        val tiltakstyperSomKanOppretteAvtaler = enabledTiltakstyper + listOf("VASV", "ARBFORB")
+        if (previous == null && !tiltakstyperSomKanOppretteAvtaler.contains(
+                tiltakstype.arenaKode,
+            )
+        ) {
+            return Either.Left(
+                listOf(
+                    ValidationError(
+                        name = "tiltakstype",
+                        message = "Opprettelse av avtale for tiltakstype: '${tiltakstype.navn}' er ikke skrudd på enda.",
+                    ),
+                ),
+            )
+        }
+
         return validator.validate(request.toDbo(), previous)
             .map { dbo ->
                 db.transaction { tx ->

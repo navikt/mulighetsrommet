@@ -262,7 +262,20 @@ private fun services(appConfig: AppConfig) = module {
             get(),
         )
     }
-    single { AvtaleService(get(), get(), get(), get(), get(), get(), get(), get()) }
+    single {
+        AvtaleService(
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            appConfig.kafka.producers.arenaMigreringTiltaksgjennomforinger.tiltakstyper,
+        )
+    }
     single { TiltakshistorikkService(get(), get()) }
     single { VeilederflateService(get(), get(), get(), get()) }
     single { BrukerService(get(), get(), get(), get()) }
