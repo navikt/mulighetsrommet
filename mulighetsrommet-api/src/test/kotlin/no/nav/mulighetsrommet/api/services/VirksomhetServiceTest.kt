@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
 import no.nav.mulighetsrommet.api.repositories.VirksomhetRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
+import java.time.LocalDate
 
 class VirksomhetServiceTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
@@ -49,6 +50,23 @@ class VirksomhetServiceTest : FunSpec({
 
             virksomhetRepository.get(hovedenhet) shouldBeRight testBedrift.copy(underenheter = null)
             virksomhetRepository.get(testBedriftUnderenhet.organisasjonsnummer) shouldBeRight testBedriftUnderenhet
+        }
+
+        test("skal hente slettet enhet brreg og skrive de til databasen") {
+            val orgnr = "100200300"
+            val slettetVirksomhet = VirksomhetDto(
+                organisasjonsnummer = orgnr,
+                navn = "Slettet bedrift",
+                slettetDato = LocalDate.of(2020, 1, 1),
+                postnummer = null,
+                poststed = null,
+            )
+
+            coEvery { brregClient.hentEnhet(orgnr) } returns slettetVirksomhet
+
+            virksomhetService.getOrSyncVirksomhet(orgnr) shouldBe slettetVirksomhet
+
+            virksomhetRepository.get(orgnr) shouldBeRight slettetVirksomhet
         }
 
         test("noop når enhet ikke finnes i brreg") {
