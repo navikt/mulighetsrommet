@@ -71,7 +71,6 @@ spec:
       rules:
         - application: mulighetsrommet-arena-adapter
         - application: mulighetsrommet-arena-adapter-manager
-        - application: mulighetsrommet-veileder-flate
         - application: mr-admin-flate
         - application: nav-arbeidsmarkedstiltak
         - application: veilarbpersonflate
