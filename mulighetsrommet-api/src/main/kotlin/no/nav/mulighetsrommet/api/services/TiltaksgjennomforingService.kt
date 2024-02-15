@@ -53,10 +53,9 @@ class TiltaksgjennomforingService(
 
         val previous = tiltaksgjennomforinger.get(request.id)
 
-        if (previous == null && !enabledTiltakstyper.contains(
-                tiltakstype.arenaKode,
-            )
-        ) {
+        val ikkeKanOppretteTiltak = previous == null && !enabledTiltakstyper.contains(tiltakstype.arenaKode)
+
+        if (ikkeKanOppretteTiltak) {
             return Either.Left(
                 listOf(
                     ValidationError(
@@ -67,24 +66,23 @@ class TiltaksgjennomforingService(
             )
         }
 
-        return validator.validate(request.toDbo(), previous)
-            .map { dbo ->
-                db.transactionSuspend { tx ->
-                    if (previous?.toDbo() == dbo) {
-                        return@transactionSuspend previous
-                    }
-
-                    tiltaksgjennomforinger.upsert(dbo, tx)
-                    utkastRepository.delete(dbo.id, tx)
-
-                    val dto = getOrError(dbo.id, tx)
-
-                    dispatchNotificationToNewAdministrators(tx, dbo, navIdent)
-                    logEndring("Redigerte gjennomføring", dto, navIdent, tx)
-                    tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingDto.from(dto))
-                    dto
+        return validator.validate(request.toDbo(), previous).map { dbo ->
+            db.transactionSuspend { tx ->
+                if (previous?.toDbo() == dbo) {
+                    return@transactionSuspend previous
                 }
+
+                tiltaksgjennomforinger.upsert(dbo, tx)
+                utkastRepository.delete(dbo.id, tx)
+
+                val dto = getOrError(dbo.id, tx)
+
+                dispatchNotificationToNewAdministrators(tx, dbo, navIdent)
+                logEndring("Redigerte gjennomføring", dto, navIdent, tx)
+                tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingDto.from(dto))
+                dto
             }
+        }
     }
 
     fun get(id: UUID): TiltaksgjennomforingAdminDto? {
@@ -94,25 +92,23 @@ class TiltaksgjennomforingService(
     fun getAllSkalMigreres(
         pagination: PaginationParams,
         filter: AdminTiltaksgjennomforingFilter,
-    ): PaginatedResponse<TiltaksgjennomforingAdminDto> = tiltaksgjennomforinger
-        .getAll(
-            pagination,
-            search = filter.search,
-            navEnheter = filter.navEnheter,
-            tiltakstypeIder = filter.tiltakstypeIder,
-            statuser = filter.statuser,
-            sortering = filter.sortering,
-            sluttDatoCutoff = filter.sluttDatoCutoff,
-            dagensDato = filter.dagensDato,
-            navRegioner = filter.navRegioner,
-            avtaleId = filter.avtaleId,
-            arrangorOrgnr = filter.arrangorOrgnr,
-            administratorNavIdent = filter.administratorNavIdent,
-            skalMigreres = true,
-        )
-        .let { (totalCount, data) ->
-            PaginatedResponse.of(pagination, totalCount, data)
-        }
+    ): PaginatedResponse<TiltaksgjennomforingAdminDto> = tiltaksgjennomforinger.getAll(
+        pagination,
+        search = filter.search,
+        navEnheter = filter.navEnheter,
+        tiltakstypeIder = filter.tiltakstypeIder,
+        statuser = filter.statuser,
+        sortering = filter.sortering,
+        sluttDatoCutoff = filter.sluttDatoCutoff,
+        dagensDato = filter.dagensDato,
+        navRegioner = filter.navRegioner,
+        avtaleId = filter.avtaleId,
+        arrangorOrgnr = filter.arrangorOrgnr,
+        administratorNavIdent = filter.administratorNavIdent,
+        skalMigreres = true,
+    ).let { (totalCount, data) ->
+        PaginatedResponse.of(pagination, totalCount, data)
+    }
 
     fun getAllVeilederflateTiltaksgjennomforing(
         search: String?,
@@ -131,24 +127,22 @@ class TiltaksgjennomforingService(
     fun getAll(
         pagination: PaginationParams,
         filter: AdminTiltaksgjennomforingFilter,
-    ): PaginatedResponse<TiltaksgjennomforingAdminDto> = tiltaksgjennomforinger
-        .getAll(
-            pagination,
-            search = filter.search,
-            navEnheter = filter.navEnheter,
-            tiltakstypeIder = filter.tiltakstypeIder,
-            statuser = filter.statuser,
-            sortering = filter.sortering,
-            sluttDatoCutoff = filter.sluttDatoCutoff,
-            dagensDato = filter.dagensDato,
-            navRegioner = filter.navRegioner,
-            avtaleId = filter.avtaleId,
-            arrangorOrgnr = filter.arrangorOrgnr,
-            administratorNavIdent = filter.administratorNavIdent,
-        )
-        .let { (totalCount, data) ->
-            PaginatedResponse.of(pagination, totalCount, data)
-        }
+    ): PaginatedResponse<TiltaksgjennomforingAdminDto> = tiltaksgjennomforinger.getAll(
+        pagination,
+        search = filter.search,
+        navEnheter = filter.navEnheter,
+        tiltakstypeIder = filter.tiltakstypeIder,
+        statuser = filter.statuser,
+        sortering = filter.sortering,
+        sluttDatoCutoff = filter.sluttDatoCutoff,
+        dagensDato = filter.dagensDato,
+        navRegioner = filter.navRegioner,
+        avtaleId = filter.avtaleId,
+        arrangorOrgnr = filter.arrangorOrgnr,
+        administratorNavIdent = filter.administratorNavIdent,
+    ).let { (totalCount, data) ->
+        PaginatedResponse.of(pagination, totalCount, data)
+    }
 
     fun getAllGjennomforingerSomNarmerSegSluttdato(): List<TiltaksgjennomforingNotificationDto> {
         return tiltaksgjennomforinger.getAllGjennomforingerSomNarmerSegSluttdato()
@@ -236,8 +230,8 @@ class TiltaksgjennomforingService(
     ) {
         val currentAdministratorer = get(dbo.id)?.administratorer?.map { it.navIdent }?.toSet() ?: setOf()
 
-        val administratorsToNotify = (dbo.administratorer - currentAdministratorer - navIdent)
-            .toNonEmptyListOrNull() ?: return
+        val administratorsToNotify =
+            (dbo.administratorer - currentAdministratorer - navIdent).toNonEmptyListOrNull() ?: return
 
         val notification = ScheduledNotification(
             type = NotificationType.NOTIFICATION,

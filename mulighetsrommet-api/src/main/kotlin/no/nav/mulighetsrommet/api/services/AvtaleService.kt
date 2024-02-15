@@ -55,10 +55,13 @@ class AvtaleService(
         val previous = avtaler.get(request.id)
 
         val tiltakstyperSomKanOppretteAvtaler = enabledTiltakstyper + listOf("VASV", "ARBFORB")
-        if (previous == null && !tiltakstyperSomKanOppretteAvtaler.contains(
-                tiltakstype.arenaKode,
-            )
-        ) {
+
+        val ikkeKanOppretteAvtale =
+            previous == null && !tiltakstyperSomKanOppretteAvtaler.contains(tiltakstype.arenaKode)
+        val kanIkkeRedigereTiltakstypeForAvtale =
+            previous != null && tiltakstype.arenaKode != previous.tiltakstype.arenaKode
+
+        if (ikkeKanOppretteAvtale || kanIkkeRedigereTiltakstypeForAvtale) {
             return Either.Left(
                 listOf(
                     ValidationError(
@@ -69,24 +72,23 @@ class AvtaleService(
             )
         }
 
-        return validator.validate(request.toDbo(), previous)
-            .map { dbo ->
-                db.transaction { tx ->
-                    if (previous?.toDbo() == dbo) {
-                        return@transaction previous
-                    }
-
-                    avtaler.upsert(dbo, tx)
-                    utkastRepository.delete(dbo.id, tx)
-
-                    dispatchNotificationToNewAdministrators(tx, dbo, navIdent)
-
-                    val dto = getOrError(dbo.id, tx)
-
-                    logEndring("Redigerte avtale", dto, navIdent, tx)
-                    dto
+        return validator.validate(request.toDbo(), previous).map { dbo ->
+            db.transaction { tx ->
+                if (previous?.toDbo() == dbo) {
+                    return@transaction previous
                 }
+
+                avtaler.upsert(dbo, tx)
+                utkastRepository.delete(dbo.id, tx)
+
+                dispatchNotificationToNewAdministrators(tx, dbo, navIdent)
+
+                val dto = getOrError(dbo.id, tx)
+
+                logEndring("Redigerte avtale", dto, navIdent, tx)
+                dto
             }
+        }
     }
 
     fun getAll(
@@ -113,8 +115,7 @@ class AvtaleService(
     }
 
     fun avbrytAvtale(id: UUID, navIdent: String): StatusResponse<Unit> {
-        val avtale = avtaler.get(id)
-            ?: return Either.Left(NotFound("Avtalen finnes ikke"))
+        val avtale = avtaler.get(id) ?: return Either.Left(NotFound("Avtalen finnes ikke"))
 
         if (avtale.opphav == Opphav.ARENA) {
             return Either.Left(BadRequest(message = "Avtalen har opprinnelse fra Arena og kan ikke bli avbrutt fra admin-flate."))
@@ -162,8 +163,8 @@ class AvtaleService(
     ) {
         val currentAdministratorer = get(dbo.id)?.administratorer?.map { it.navIdent }?.toSet() ?: setOf()
 
-        val administratorsToNotify = (dbo.administratorer - currentAdministratorer - navIdent)
-            .toNonEmptyListOrNull() ?: return
+        val administratorsToNotify =
+            (dbo.administratorer - currentAdministratorer - navIdent).toNonEmptyListOrNull() ?: return
 
         val notification = ScheduledNotification(
             type = NotificationType.NOTIFICATION,
