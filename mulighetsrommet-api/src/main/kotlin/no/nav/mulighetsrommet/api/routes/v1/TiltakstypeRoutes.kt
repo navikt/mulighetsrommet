@@ -13,7 +13,7 @@ import no.nav.mulighetsrommet.api.utils.getTiltakstypeFilter
 import org.koin.ktor.ext.inject
 import java.util.*
 
-fun Route.tiltakstypeRoutes() {
+fun Route.tiltakstypeRoutes(migrerteTiltak: List<String>) {
     val tiltakstypeService: TiltakstypeService by inject()
     val veilederflateService: VeilederflateService by inject()
 
@@ -54,6 +54,10 @@ fun Route.tiltakstypeRoutes() {
                 )
 
             call.respond(veilederflateTiltakstype)
+        }
+
+        get("migrerte") {
+            call.respond(migrerteTiltak)
         }
     }
 }

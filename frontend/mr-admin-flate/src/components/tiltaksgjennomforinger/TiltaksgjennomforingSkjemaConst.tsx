@@ -41,8 +41,14 @@ export function defaultValuesForKontaktpersoner(
   }));
 }
 
-export const erArenaOpphav = (tiltaksgjennomforing: Tiltaksgjennomforing | undefined) => {
-  return tiltaksgjennomforing?.opphav === Opphav.ARENA;
+export const erArenaOpphavOgIngenEierskap = (
+  tiltaksgjennomforing: Tiltaksgjennomforing | undefined,
+  migrerteTiltakstyper: string[],
+) => {
+  return (
+    tiltaksgjennomforing?.opphav === Opphav.ARENA &&
+    !migrerteTiltakstyper?.includes(tiltaksgjennomforing.tiltakstype.arenaKode)
+  );
 };
 
 export const arrangorUnderenheterOptions = (avtale: Avtale, virksomhet: Virksomhet | undefined) => {

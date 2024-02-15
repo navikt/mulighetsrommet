@@ -29,6 +29,7 @@ import { VirksomhetKontaktpersonerModal } from "../virksomhet/VirksomhetKontaktp
 import { InferredAvtaleSchema } from "./AvtaleSchema";
 import { getLokaleUnderenheterAsSelectOptions, underenheterOptions } from "./AvtaleSkjemaConst";
 import { useVirksomhetKontaktpersoner } from "../../api/virksomhet/useVirksomhetKontaktpersoner";
+import { useMigrerteTiltakstyper } from "../../api/tiltakstyper/useMigrerteTiltakstyper";
 
 const minStartdato = new Date(2000, 0, 1);
 
@@ -42,6 +43,7 @@ interface Props {
 export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: Props) {
   const [sokLeverandor, setSokLeverandor] = useState(avtale?.leverandor?.organisasjonsnummer || "");
   const { data: leverandorVirksomheter = [] } = useSokVirksomheter(sokLeverandor);
+  const { data: migrerteTiltakstyper } = useMigrerteTiltakstyper();
 
   const { data: administratorer } = useAvtaleAdministratorer();
   const virksomhetKontaktpersonerModalRef = useRef<HTMLDialogElement>(null);
@@ -63,7 +65,9 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
 
   const underenheterForLeverandor = leverandorData?.underenheter ?? [];
 
-  const arenaOpphav = avtale?.opphav === Opphav.ARENA;
+  const arenaOpphavOgIngenEierskap =
+    avtale?.opphav === Opphav.ARENA &&
+    !migrerteTiltakstyper?.includes(watchedTiltakstype.arenaKode);
 
   const navRegionerOptions = enheter
     .filter((enhet) => enhet.type === NavEnhetType.FYLKE)
@@ -101,7 +105,7 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
           <FormGroup cols={avtale?.avtalenummer ? 2 : 1}>
             <TextField
               size="small"
-              readOnly={arenaOpphav}
+              readOnly={arenaOpphavOgIngenEierskap}
               error={errors.navn?.message}
               label="Avtalenavn"
               autoFocus
@@ -115,7 +119,7 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
           <FormGroup cols={2}>
             <ControlledSokeSelect
               size="small"
-              readOnly={arenaOpphav}
+              readOnly={arenaOpphavOgIngenEierskap}
               placeholder="Velg en"
               label={"Tiltakstype"}
               {...register("tiltakstype")}
@@ -130,7 +134,7 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
             />
             <ControlledSokeSelect
               size="small"
-              readOnly={arenaOpphav}
+              readOnly={arenaOpphavOgIngenEierskap}
               placeholder="Velg en"
               label={"Avtaletype"}
               {...register("avtaletype")}
@@ -156,7 +160,7 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
               size="small"
               fra={{
                 label: "Startdato",
-                readOnly: arenaOpphav,
+                readOnly: arenaOpphavOgIngenEierskap,
                 fromDate: minStartdato,
                 toDate: sluttDatoTilDato,
                 ...register("startOgSluttDato.startDato"),
@@ -164,7 +168,7 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
               }}
               til={{
                 label: "Sluttdato",
-                readOnly: arenaOpphav,
+                readOnly: arenaOpphavOgIngenEierskap,
                 fromDate: sluttDatoFraDato,
                 toDate: sluttDatoTilDato,
                 ...register("startOgSluttDato.sluttDato"),
@@ -187,7 +191,7 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
               <FormGroup>
                 <Textarea
                   size="small"
-                  readOnly={arenaOpphav}
+                  readOnly={arenaOpphavOgIngenEierskap}
                   error={errors.prisbetingelser?.message}
                   label="Pris og betalingsinformasjon"
                   {...register("prisbetingelser")}
@@ -250,7 +254,7 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
             <FormGroup>
               <ControlledSokeSelect
                 size="small"
-                readOnly={arenaOpphav}
+                readOnly={arenaOpphavOgIngenEierskap}
                 placeholder="Skriv for å søke etter tiltaksarrangør"
                 label={"Tiltaksarrangør hovedenhet"}
                 {...register("leverandor")}
