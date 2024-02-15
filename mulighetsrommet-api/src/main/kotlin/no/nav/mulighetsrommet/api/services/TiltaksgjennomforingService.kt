@@ -47,7 +47,7 @@ class TiltaksgjennomforingService(
     ): Either<List<ValidationError>, TiltaksgjennomforingAdminDto> {
         virksomhetService.getOrSyncVirksomhet(request.arrangorOrganisasjonsnummer)
 
-        // TODO Fjern tiltakstypesjekk når vi har blitt master for alle tiltakstyper
+        // TODO Fjern tiltakstypesjekk for tiltak når vi har blitt master for alle tiltakstyper
         val tiltakstype = tiltakstyper.get(request.tiltakstypeId)
             ?: throw BadRequestException("Fant ikke tiltakstype med id: ${request.tiltakstypeId}")
 

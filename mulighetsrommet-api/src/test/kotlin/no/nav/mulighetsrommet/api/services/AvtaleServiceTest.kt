@@ -7,6 +7,7 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.avtaler.AvtaleValidator
@@ -17,14 +18,12 @@ import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
-import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
-import no.nav.mulighetsrommet.api.repositories.NavAnsattRepository
-import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
-import no.nav.mulighetsrommet.api.repositories.UtkastRepository
+import no.nav.mulighetsrommet.api.repositories.*
 import no.nav.mulighetsrommet.api.routes.v1.responses.BadRequest
 import no.nav.mulighetsrommet.api.routes.v1.responses.NotFound
 import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
+import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.notifications.NotificationRepository
 import no.nav.mulighetsrommet.utils.toUUID
@@ -35,6 +34,7 @@ class AvtaleServiceTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
     val virksomhetService: VirksomhetService = mockk(relaxed = true)
     val utkastRepository: UtkastRepository = mockk(relaxed = true)
+    val enabledTiltakstyper = listOf(TiltakstypeFixtures.Oppfolging.tiltakskode)
     val validator = mockk<AvtaleValidator>()
 
     val domain = MulighetsrommetTestDomain()
@@ -47,8 +47,14 @@ class AvtaleServiceTest : FunSpec({
         }
     }
 
+    afterEach {
+        database.db.truncateAll()
+        clearAllMocks()
+    }
+
     context("Upsert avtale") {
         val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
+        val tiltakstypeRepository = TiltakstypeRepository(database.db)
         val avtaler = AvtaleRepository(database.db)
         val avtaleService = AvtaleService(
             avtaler,
@@ -56,15 +62,22 @@ class AvtaleServiceTest : FunSpec({
             virksomhetService,
             NotificationRepository(database.db),
             utkastRepository,
+            tiltakstypeRepository,
             validator,
             EndringshistorikkService(database.db),
             database.db,
+            enabledTiltakstyper,
         )
 
         test("Man skal ikke få lov til å opprette avtale dersom det oppstår valideringsfeil") {
             val request = AvtaleFixtures.avtaleRequest
 
-            every { validator.validate(request.toDbo(), any()) } returns listOf(ValidationError("navn", "Dårlig navn")).left()
+            every { validator.validate(request.toDbo(), any()) } returns listOf(
+                ValidationError(
+                    "navn",
+                    "Dårlig navn",
+                ),
+            ).left()
 
             avtaleService.upsert(request, "B123456").shouldBeLeft(
                 listOf(ValidationError("navn", "Dårlig navn")),
@@ -75,6 +88,7 @@ class AvtaleServiceTest : FunSpec({
     context("Avbryte avtale") {
         val avtaleRepository = AvtaleRepository(database.db)
         val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
+        val tiltakstypeRepository = TiltakstypeRepository(database.db)
 
         val avtaleService = AvtaleService(
             avtaleRepository,
@@ -82,9 +96,11 @@ class AvtaleServiceTest : FunSpec({
             virksomhetService,
             NotificationRepository(database.db),
             utkastRepository,
+            tiltakstypeRepository,
             validator,
             EndringshistorikkService(database.db),
             database.db,
+            enabledTiltakstyper,
         )
 
         test("Man skal ikke få avbryte dersom avtalen ikke finnes") {
@@ -181,15 +197,18 @@ class AvtaleServiceTest : FunSpec({
     context("Administrator-notification") {
         val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
         val avtaler = AvtaleRepository(database.db)
+        val tiltakstypeRepository = TiltakstypeRepository(database.db)
         val avtaleService = AvtaleService(
             avtaler,
             tiltaksgjennomforinger,
             virksomhetService,
             NotificationRepository(database.db),
             utkastRepository,
+            tiltakstypeRepository,
             validator,
             EndringshistorikkService(database.db),
             database.db,
+            enabledTiltakstyper,
         )
         val navAnsattRepository = NavAnsattRepository(database.db)
 
@@ -279,15 +298,18 @@ class AvtaleServiceTest : FunSpec({
     context("transactions") {
         val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
         val avtaler = AvtaleRepository(database.db)
+        val tiltakstypeRepository = TiltakstypeRepository(database.db)
         val avtaleService = AvtaleService(
             avtaler,
             tiltaksgjennomforinger,
             virksomhetService,
             NotificationRepository(database.db),
             utkastRepository,
+            tiltakstypeRepository,
             validator,
             EndringshistorikkService(database.db),
             database.db,
+            enabledTiltakstyper,
         )
 
         test("Hvis is utkast _ikke_ kaster blir upsert værende") {

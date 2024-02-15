@@ -93,6 +93,7 @@ fun createTestApplicationConfig() = AppConfig(
         environment = "",
     ),
     axsys = ServiceClientConfig(url = "", scope = ""),
+    migrerteTiltak = emptyList(),
 )
 
 fun createKafkaConfig(): KafkaConfig {
@@ -104,7 +105,6 @@ fun createKafkaConfig(): KafkaConfig {
             tiltakstyper = TiltakstypeKafkaProducer.Config(topic = "siste-tiltakstyper-v1"),
             arenaMigreringTiltaksgjennomforinger = ArenaMigreringTiltaksgjennomforingKafkaProducer.Config(
                 topic = "arena-migrering-tiltaksgjennomforinger-v1",
-                tiltakstyper = listOf("INDOPPFAG"),
             ),
         ),
         consumerGroupId = "mulighetsrommet-api-consumer",

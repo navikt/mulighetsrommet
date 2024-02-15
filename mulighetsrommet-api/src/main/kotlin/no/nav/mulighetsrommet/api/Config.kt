@@ -22,6 +22,7 @@ data class Config(
 
 data class AppConfig(
     val database: FlywayDatabaseAdapter.Config,
+    val migrerteTiltak: List<String>,
     val kafka: KafkaConfig,
     val auth: AuthConfig,
     val sanity: SanityClient.Config,

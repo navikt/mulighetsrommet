@@ -11,7 +11,6 @@ import no.nav.common.token_client.builder.AzureAdTokenClientBuilder
 import no.nav.common.token_client.client.MachineToMachineTokenClient
 import no.nav.common.token_client.client.OnBehalfOfTokenClient
 import no.nav.mulighetsrommet.api.AppConfig
-import no.nav.mulighetsrommet.api.KafkaConfig
 import no.nav.mulighetsrommet.api.SlackConfig
 import no.nav.mulighetsrommet.api.TaskConfig
 import no.nav.mulighetsrommet.api.avtaler.AvtaleValidator
@@ -66,7 +65,7 @@ fun Application.configureDependencyInjection(appConfig: AppConfig) {
 
         modules(
             db(appConfig.database),
-            kafka(appConfig.kafka),
+            kafka(appConfig),
             repositories(),
             services(appConfig),
             tasks(appConfig.tasks),
@@ -91,7 +90,8 @@ private fun db(config: FlywayDatabaseAdapter.Config): Module {
     }
 }
 
-private fun kafka(config: KafkaConfig) = module {
+private fun kafka(appConfig: AppConfig) = module {
+    val config = appConfig.kafka
     val producerProperties = when (NaisEnv.current()) {
         NaisEnv.Local -> KafkaPropertiesBuilder.producerBuilder()
             .withBaseProperties()
@@ -111,7 +111,7 @@ private fun kafka(config: KafkaConfig) = module {
     single {
         ArenaMigreringTiltaksgjennomforingKafkaProducer(
             producerClient,
-            config.producers.arenaMigreringTiltaksgjennomforinger,
+            config.producers.arenaMigreringTiltaksgjennomforinger.copy(tiltakstyper = appConfig.migrerteTiltak),
         )
     }
     single { TiltaksgjennomforingKafkaProducer(producerClient, config.producers.tiltaksgjennomforinger) }
@@ -262,7 +262,20 @@ private fun services(appConfig: AppConfig) = module {
             get(),
         )
     }
-    single { AvtaleService(get(), get(), get(), get(), get(), get(), get(), get()) }
+    single {
+        AvtaleService(
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            appConfig.migrerteTiltak,
+        )
+    }
     single { TiltakshistorikkService(get(), get()) }
     single { VeilederflateService(get(), get(), get(), get()) }
     single { BrukerService(get(), get(), get(), get()) }
@@ -284,7 +297,7 @@ private fun services(appConfig: AppConfig) = module {
             get(),
             get(),
             get(),
-            appConfig.kafka.producers.arenaMigreringTiltaksgjennomforinger.tiltakstyper,
+            appConfig.migrerteTiltak,
         )
     }
     single { SanityTiltaksgjennomforingService(get(), get(), get()) }

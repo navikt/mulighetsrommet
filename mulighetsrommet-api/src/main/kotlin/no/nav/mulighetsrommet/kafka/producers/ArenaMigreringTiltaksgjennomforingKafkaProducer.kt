@@ -17,7 +17,7 @@ class ArenaMigreringTiltaksgjennomforingKafkaProducer(
 
     data class Config(
         val topic: String,
-        val tiltakstyper: List<String>,
+        val tiltakstyper: List<String> = emptyList(),
     )
 
     fun publish(value: ArenaMigreringTiltaksgjennomforingDto) {

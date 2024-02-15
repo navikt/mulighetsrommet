@@ -15,6 +15,19 @@ app:
       # Kan kjøres når du må kjøre flyway repair
       # strategy: RepairAndMigrate
 
+  migrerteTiltak:
+    - ARBFORB
+    - ARBRRHDAG
+    - AVKLARAG
+    - DIGIOPPARB
+    - GRUFAGYRKE
+    - GRUPPEAMO
+    - INDJOBSTOT
+    - INDOPPFAG
+    - IPSUNG
+    - JOBBK
+    - UTVAOONAV
+    - VASV
 
   kafka:
     brokerUrl: localhost:29092
@@ -23,19 +36,6 @@ app:
     producers:
       arenaMigreringTiltaksgjennomforinger:
         topic: arena-migrering-tiltaksgjennomforinger-v1
-        tiltakstyper:
-          - ARBFORB
-          - ARBRRHDAG
-          - AVKLARAG
-          - DIGIOPPARB
-          - GRUFAGYRKE
-          - GRUPPEAMO
-          - INDJOBSTOT
-          - INDOPPFAG
-          - IPSUNG
-          - JOBBK
-          - UTVAOONAV
-          - VASV
       tiltaksgjennomforinger:
         topic: siste-tiltaksgjennomforinger-v1
       tiltakstyper:
