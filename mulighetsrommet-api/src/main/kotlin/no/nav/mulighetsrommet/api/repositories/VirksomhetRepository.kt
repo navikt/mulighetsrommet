@@ -7,8 +7,6 @@ import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
 import no.nav.mulighetsrommet.api.domain.dto.VirksomhetKontaktperson
 import no.nav.mulighetsrommet.api.utils.VirksomhetTil
 import no.nav.mulighetsrommet.database.Database
-import no.nav.mulighetsrommet.database.utils.QueryResult
-import no.nav.mulighetsrommet.database.utils.query
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 import java.util.*
@@ -17,7 +15,7 @@ class VirksomhetRepository(private val db: Database) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
     /** Upserter en overordnet enhet og oppdaterer listen med underenheter */
-    fun upsertOverordnetEnhet(overordnetEnhetDbo: OverordnetEnhetDbo): QueryResult<Unit> = query {
+    fun upsertOverordnetEnhet(overordnetEnhetDbo: OverordnetEnhetDbo) {
         logger.info("Lagrer overordnet enhet ${overordnetEnhetDbo.organisasjonsnummer}")
 
         @Language("PostgreSQL")
@@ -70,7 +68,7 @@ class VirksomhetRepository(private val db: Database) {
     }
 
     /** Upserter kun enheten og tar ikke hensyn til underenheter */
-    fun upsert(virksomhetDto: VirksomhetDto): QueryResult<Unit> = query {
+    fun upsert(virksomhetDto: VirksomhetDto) {
         logger.info("Lagrer virksomhet ${virksomhetDto.organisasjonsnummer}")
 
         @Language("PostgreSQL")
@@ -91,7 +89,7 @@ class VirksomhetRepository(private val db: Database) {
         }
     }
 
-    fun getAll(til: VirksomhetTil? = null): QueryResult<List<VirksomhetDto>> = query {
+    fun getAll(til: VirksomhetTil? = null): List<VirksomhetDto> {
         val join = when (til) {
             VirksomhetTil.AVTALE -> {
                 "inner join avtale on avtale.leverandor_organisasjonsnummer = v.organisasjonsnummer"
@@ -118,13 +116,13 @@ class VirksomhetRepository(private val db: Database) {
             order by v.navn asc
         """.trimIndent()
 
-        queryOf(selectVirksomheter)
+        return queryOf(selectVirksomheter)
             .map { it.toVirksomhetDto() }
             .asList
             .let { db.run(it) }
     }
 
-    fun get(orgnr: String): QueryResult<VirksomhetDto?> = query {
+    fun get(orgnr: String): VirksomhetDto? {
         @Language("PostgreSQL")
         val selectVirksomhet = """
             select
@@ -156,7 +154,7 @@ class VirksomhetRepository(private val db: Database) {
             .asSingle
             .let { db.run(it) }
 
-        if (virksomhet != null) {
+        return if (virksomhet != null) {
             val underenheter = queryOf(selectUnderenheterTilVirksomhet, orgnr)
                 .map { it.toVirksomhetDto() }
                 .asList
@@ -168,7 +166,7 @@ class VirksomhetRepository(private val db: Database) {
         }
     }
 
-    fun delete(orgnr: String): QueryResult<Unit> = query {
+    fun delete(orgnr: String) {
         logger.info("Sletter virksomhet $orgnr")
 
         @Language("PostgreSQL")

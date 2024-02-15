@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.kafka.amt
 
 import arrow.core.right
-import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
@@ -69,19 +68,19 @@ class AmtVirksomheterV1TopicConsumerTest : FunSpec({
             virksomhetConsumer.consume(amtVirksomhet.organisasjonsnummer, Json.encodeToJsonElement(amtVirksomhet))
             virksomhetConsumer.consume(amtUnderenhet.organisasjonsnummer, Json.encodeToJsonElement(amtUnderenhet))
 
-            virksomhetRepository.getAll().shouldBeRight().shouldBeEmpty()
+            virksomhetRepository.getAll().shouldBeEmpty()
         }
 
         test("oppdaterer virksomheter når de finnes i database") {
-            virksomhetRepository.upsert(virksomhetDto.copy(poststed = "Gåseby")).shouldBeRight()
-            virksomhetRepository.upsert(underenhetDto.copy(poststed = "Gåseby")).shouldBeRight()
+            virksomhetRepository.upsert(virksomhetDto.copy(poststed = "Gåseby"))
+            virksomhetRepository.upsert(underenhetDto.copy(poststed = "Gåseby"))
 
             virksomhetConsumer.consume(amtVirksomhet.organisasjonsnummer, Json.encodeToJsonElement(amtVirksomhet))
             virksomhetConsumer.consume(amtUnderenhet.organisasjonsnummer, Json.encodeToJsonElement(amtUnderenhet))
 
-            virksomhetRepository.getAll().shouldBeRight().shouldHaveSize(2)
-            virksomhetRepository.get(virksomhetDto.organisasjonsnummer).shouldBeRight().shouldBe(virksomhetDto)
-            virksomhetRepository.get(underenhetDto.organisasjonsnummer).shouldBeRight().shouldBe(underenhetDto)
+            virksomhetRepository.getAll().shouldHaveSize(2)
+            virksomhetRepository.get(virksomhetDto.organisasjonsnummer).shouldBe(virksomhetDto)
+            virksomhetRepository.get(underenhetDto.organisasjonsnummer).shouldBe(underenhetDto)
         }
 
         test("delete virksomheter for tombstone messages") {
@@ -89,7 +88,7 @@ class AmtVirksomheterV1TopicConsumerTest : FunSpec({
 
             virksomhetConsumer.consume(amtUnderenhet.organisasjonsnummer, JsonNull)
 
-            virksomhetRepository.get(underenhetDto.organisasjonsnummer).shouldBeRight() shouldBe null
+            virksomhetRepository.get(underenhetDto.organisasjonsnummer) shouldBe null
         }
     }
 })

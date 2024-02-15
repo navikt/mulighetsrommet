@@ -15,7 +15,6 @@ import no.nav.mulighetsrommet.api.domain.dto.VirksomhetKontaktperson
 import no.nav.mulighetsrommet.api.repositories.VirksomhetRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.BadRequest
 import no.nav.mulighetsrommet.api.routes.v1.responses.StatusResponse
-import no.nav.mulighetsrommet.database.utils.getOrThrow
 import no.nav.mulighetsrommet.metrics.Metrikker
 import org.slf4j.LoggerFactory
 import java.util.*
@@ -40,7 +39,7 @@ class VirksomhetService(
     }
 
     suspend fun getOrSyncVirksomhetFromBrreg(orgnr: String): Either<BrregError, VirksomhetDto> {
-        return virksomhetRepository.get(orgnr).getOrThrow()?.right() ?: syncVirksomhetFromBrreg(orgnr)
+        return virksomhetRepository.get(orgnr)?.right() ?: syncVirksomhetFromBrreg(orgnr)
     }
 
     suspend fun syncVirksomhetFromBrreg(orgnr: String): Either<BrregError, VirksomhetDto> {
@@ -57,10 +56,10 @@ class VirksomhetService(
             .map { virksomhet ->
                 if (virksomhet.slettetDato != null) {
                     log.info("Enhet med orgnr ${virksomhet.organisasjonsnummer} er slettet i Brreg med slettedato ${virksomhet.slettetDato}")
-                    virksomhetRepository.upsert(virksomhet).getOrThrow()
+                    virksomhetRepository.upsert(virksomhet)
                 } else {
                     val overordnetEnhetDbo = virksomhet.toOverordnetEnhetDbo()
-                    virksomhetRepository.upsertOverordnetEnhet(overordnetEnhetDbo).getOrThrow()
+                    virksomhetRepository.upsertOverordnetEnhet(overordnetEnhetDbo)
                 }
                 virksomhet
             }
