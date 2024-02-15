@@ -29,8 +29,12 @@ import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
 import skjemastyles from "../skjema/Skjema.module.scss";
 import { VirksomhetKontaktpersonerModal } from "../virksomhet/VirksomhetKontaktpersonerModal";
 import { SelectOppstartstype } from "./SelectOppstartstype";
-import { arrangorUnderenheterOptions, erArenaOpphav } from "./TiltaksgjennomforingSkjemaConst";
+import {
+  arrangorUnderenheterOptions,
+  erArenaOpphavOgIngenEierskap,
+} from "./TiltaksgjennomforingSkjemaConst";
 import { InferredTiltaksgjennomforingSchema } from "./TiltaksgjennomforingSchema";
+import { useMigrerteTiltakstyper } from "../../api/tiltakstyper/useMigrerteTiltakstyper";
 
 interface Props {
   tiltaksgjennomforing?: Tiltaksgjennomforing;
@@ -42,6 +46,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
   const { data: administratorer } = useTiltaksgjennomforingAdministratorer();
   const { data: ansatt, isLoading: isLoadingAnsatt } = useHentAnsatt();
   const { data: kontaktpersoner, isLoading: isLoadingKontaktpersoner } = useHentKontaktpersoner();
+  const { data: migrerteTiltakstyper = [] } = useMigrerteTiltakstyper();
 
   const virksomhetKontaktpersonerModalRef = useRef<HTMLDialogElement>(null);
 
@@ -118,7 +123,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
           <FormGroup>
             <TextField
               size="small"
-              readOnly={erArenaOpphav(tiltaksgjennomforing)}
+              readOnly={erArenaOpphavOgIngenEierskap(tiltaksgjennomforing, migrerteTiltakstyper)}
               error={errors.navn?.message as string}
               label="Tiltaksnavn"
               autoFocus
@@ -153,7 +158,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
               size="small"
               fra={{
                 label: "Startdato",
-                readOnly: erArenaOpphav(tiltaksgjennomforing),
+                readOnly: erArenaOpphavOgIngenEierskap(tiltaksgjennomforing, migrerteTiltakstyper),
                 fromDate: minStartdato,
                 toDate: maxSluttdato,
                 ...register("startOgSluttDato.startDato"),
@@ -161,7 +166,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
               }}
               til={{
                 label: "Sluttdato",
-                readOnly: erArenaOpphav(tiltaksgjennomforing),
+                readOnly: erArenaOpphavOgIngenEierskap(tiltaksgjennomforing, migrerteTiltakstyper),
                 fromDate: minStartdato,
                 toDate: maxSluttdato,
                 ...register("startOgSluttDato.sluttDato"),
@@ -170,7 +175,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
             />
             <Checkbox
               size="small"
-              readOnly={erArenaOpphav(tiltaksgjennomforing)}
+              readOnly={erArenaOpphavOgIngenEierskap(tiltaksgjennomforing, migrerteTiltakstyper)}
               {...register("apentForInnsok")}
             >
               Åpen for innsøk
@@ -202,7 +207,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
             <HStack justify="space-between" columns={2}>
               <TextField
                 size="small"
-                readOnly={erArenaOpphav(tiltaksgjennomforing)}
+                readOnly={erArenaOpphavOgIngenEierskap(tiltaksgjennomforing, migrerteTiltakstyper)}
                 error={errors.antallPlasser?.message as string}
                 type="number"
                 style={{ width: "180px" }}
@@ -214,7 +219,10 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
               {isTiltakMedFellesOppstart(avtale.tiltakstype.arenaKode) && (
                 <TextField
                   size="small"
-                  readOnly={erArenaOpphav(tiltaksgjennomforing)}
+                  readOnly={erArenaOpphavOgIngenEierskap(
+                    tiltaksgjennomforing,
+                    migrerteTiltakstyper,
+                  )}
                   error={errors.deltidsprosent?.message as string}
                   type="number"
                   step="0.01"
@@ -403,7 +411,8 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                   setValue("tiltaksArrangorUnderenhetOrganisasjonsnummer", "");
                 }}
                 readOnly={
-                  !avtale.leverandor.organisasjonsnummer || erArenaOpphav(tiltaksgjennomforing)
+                  !avtale.leverandor.organisasjonsnummer ||
+                  erArenaOpphavOgIngenEierskap(tiltaksgjennomforing, migrerteTiltakstyper)
                 }
                 options={arrangorUnderenheterOptions(avtale, virksomhet)}
               />

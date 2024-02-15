@@ -39,4 +39,5 @@ export const QueryKeys = {
   mineTiltaksgjennomforingsnotater: (tiltaksgjennomforingsId: string) =>
     ["tiltaksgjennomforingsnotater", "mine", tiltaksgjennomforingsId] as const,
   features: (feature: string) => ["feature", feature],
+  migrerteTiltakstyper: () => ["migrerteTiltakstyper"],
 };

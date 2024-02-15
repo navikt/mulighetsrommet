@@ -24,9 +24,13 @@ import {
   InferredTiltaksgjennomforingSchema,
   TiltaksgjennomforingSchema,
 } from "./TiltaksgjennomforingSchema";
-import { defaultTiltaksgjennomforingData, erArenaOpphav } from "./TiltaksgjennomforingSkjemaConst";
+import {
+  defaultTiltaksgjennomforingData,
+  erArenaOpphavOgIngenEierskap,
+} from "./TiltaksgjennomforingSkjemaConst";
 import { TiltaksgjennomforingSkjemaDetaljer } from "./TiltaksgjennomforingSkjemaDetaljer";
 import { TiltaksgjennomforingSkjemaKnapperad } from "./TiltaksgjennomforingSkjemaKnapperad";
+import { useMigrerteTiltakstyper } from "../../api/tiltakstyper/useMigrerteTiltakstyper";
 
 interface Props {
   onClose: () => void;
@@ -46,6 +50,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
   const redigeringsModus = !!tiltaksgjennomforing;
   const mutation = useUpsertTiltaksgjennomforing();
   const [activeTab, setActiveTab] = useAtom(gjennomforingDetaljerTabAtom);
+  const { data: migrerteTiltakstyper = [] } = useMigrerteTiltakstyper();
 
   const avbrytModalRef = useRef<HTMLDialogElement>(null);
 
@@ -184,17 +189,18 @@ export const TiltaksgjennomforingSkjemaContainer = ({
         <Separator />
         <div className={skjemastyles.flex_container}>
           <HarSkrivetilgang ressurs="Tiltaksgjennomføring">
-            {!erArenaOpphav(tiltaksgjennomforing) && redigeringsModus && (
-              <Button
-                size="small"
-                variant="danger"
-                type="button"
-                onClick={() => avbrytModalRef.current?.showModal()}
-                className={skjemastyles.avbryt_knapp}
-              >
-                Avbryt gjennomføring
-              </Button>
-            )}
+            {!erArenaOpphavOgIngenEierskap(tiltaksgjennomforing, migrerteTiltakstyper) &&
+              redigeringsModus && (
+                <Button
+                  size="small"
+                  variant="danger"
+                  type="button"
+                  onClick={() => avbrytModalRef.current?.showModal()}
+                  className={skjemastyles.avbryt_knapp}
+                >
+                  Avbryt gjennomføring
+                </Button>
+              )}
           </HarSkrivetilgang>
           <TiltaksgjennomforingSkjemaKnapperad
             size="small"

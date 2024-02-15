@@ -863,6 +863,21 @@ paths:
               schema:
                 type: string
 
+  /api/v1/internal/tiltakstyper/migrerte:
+    get:
+      tags:
+        - Tiltakstyper
+      operationId: getMigrerteTiltakstyper
+      responses:
+        200:
+          description: Liste over tiltak vi har tatt eierskap over fra Arena
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+
   /api/v1/internal/veileder/innsatsgrupper:
     get:
       tags:
