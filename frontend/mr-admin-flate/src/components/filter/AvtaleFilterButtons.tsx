@@ -3,6 +3,7 @@ import { useAtom, WritableAtom } from "jotai";
 import { AvtaleFilter, defaultAvtaleFilter } from "../../api/atoms";
 import { Lenkeknapp } from "../lenkeknapp/Lenkeknapp";
 import { HarSkrivetilgang } from "../authActions/HarSkrivetilgang";
+import style from "./AvtaleFilterButtons.module.scss";
 
 interface Props {
   filterAtom: WritableAtom<AvtaleFilter, [newValue: AvtaleFilter], void>;
@@ -13,15 +14,7 @@ export function AvtaleFilterButtons({ filterAtom, tiltakstypeId }: Props) {
   const [filter, setFilter] = useAtom(filterAtom);
 
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "row",
-        justifyContent: "space-between",
-        height: "100%",
-        alignItems: "center",
-      }}
-    >
+    <div className={style.filterbuttons_container}>
       {filter.sok.length > 0 ||
       filter.navRegioner.length > 0 ||
       (!tiltakstypeId && filter.tiltakstyper.length > 0) ||
@@ -30,7 +23,7 @@ export function AvtaleFilterButtons({ filterAtom, tiltakstypeId }: Props) {
         <Button
           type="button"
           size="small"
-          style={{ maxWidth: "130px" }}
+          className={style.nullstill_filter}
           variant="tertiary"
           onClick={() => {
             setFilter({
@@ -41,15 +34,14 @@ export function AvtaleFilterButtons({ filterAtom, tiltakstypeId }: Props) {
         >
           Nullstill filter
         </Button>
-      ) : (
-        <div></div>
-      )}
-      {/*
-        Empty div over for å dytte de andre knappene til høyre uavhengig
-        av om nullstill knappen er der
-      */}
+      ) : null}
       <HarSkrivetilgang ressurs="Avtale">
-        <Lenkeknapp to="/avtaler/skjema" size="small" variant="primary">
+        <Lenkeknapp
+          to="/avtaler/skjema"
+          size="small"
+          variant="primary"
+          className={style.opprett_avtale_knapp}
+        >
           Opprett ny avtale
         </Lenkeknapp>
       </HarSkrivetilgang>

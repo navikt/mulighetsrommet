@@ -186,6 +186,7 @@ export function AvtaleSkjemaContainer({
                 variant="danger"
                 type="button"
                 onClick={() => avbrytModalRef.current?.showModal()}
+                className={skjemastyles.avbryt_knapp}
               >
                 Avbryt avtale
               </Button>
