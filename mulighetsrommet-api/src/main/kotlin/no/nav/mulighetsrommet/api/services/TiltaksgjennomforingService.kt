@@ -53,10 +53,9 @@ class TiltaksgjennomforingService(
 
         val previous = tiltaksgjennomforinger.get(request.id)
 
-        if (previous == null && !enabledTiltakstyper.contains(
-                tiltakstype.arenaKode,
-            )
-        ) {
+        val ikkeKanOppretteTiltak = previous == null && !enabledTiltakstyper.contains(tiltakstype.arenaKode)
+
+        if (ikkeKanOppretteTiltak) {
             return Either.Left(
                 listOf(
                     ValidationError(
@@ -67,8 +66,7 @@ class TiltaksgjennomforingService(
             )
         }
 
-        return validator.validate(request.toDbo(), previous)
-            .map { dbo ->
+        return validator.validate(request.toDbo(), previous).map { dbo ->
                 db.transactionSuspend { tx ->
                     if (previous?.toDbo() == dbo) {
                         return@transactionSuspend previous
@@ -94,8 +92,7 @@ class TiltaksgjennomforingService(
     fun getAllSkalMigreres(
         pagination: PaginationParams,
         filter: AdminTiltaksgjennomforingFilter,
-    ): PaginatedResponse<TiltaksgjennomforingAdminDto> = tiltaksgjennomforinger
-        .getAll(
+    ): PaginatedResponse<TiltaksgjennomforingAdminDto> = tiltaksgjennomforinger.getAll(
             pagination,
             search = filter.search,
             navEnheter = filter.navEnheter,
@@ -109,8 +106,7 @@ class TiltaksgjennomforingService(
             arrangorOrgnr = filter.arrangorOrgnr,
             administratorNavIdent = filter.administratorNavIdent,
             skalMigreres = true,
-        )
-        .let { (totalCount, data) ->
+        ).let { (totalCount, data) ->
             PaginatedResponse.of(pagination, totalCount, data)
         }
 
@@ -131,8 +127,7 @@ class TiltaksgjennomforingService(
     fun getAll(
         pagination: PaginationParams,
         filter: AdminTiltaksgjennomforingFilter,
-    ): PaginatedResponse<TiltaksgjennomforingAdminDto> = tiltaksgjennomforinger
-        .getAll(
+    ): PaginatedResponse<TiltaksgjennomforingAdminDto> = tiltaksgjennomforinger.getAll(
             pagination,
             search = filter.search,
             navEnheter = filter.navEnheter,
@@ -145,8 +140,7 @@ class TiltaksgjennomforingService(
             avtaleId = filter.avtaleId,
             arrangorOrgnr = filter.arrangorOrgnr,
             administratorNavIdent = filter.administratorNavIdent,
-        )
-        .let { (totalCount, data) ->
+        ).let { (totalCount, data) ->
             PaginatedResponse.of(pagination, totalCount, data)
         }
 
@@ -236,8 +230,8 @@ class TiltaksgjennomforingService(
     ) {
         val currentAdministratorer = get(dbo.id)?.administratorer?.map { it.navIdent }?.toSet() ?: setOf()
 
-        val administratorsToNotify = (dbo.administratorer - currentAdministratorer - navIdent)
-            .toNonEmptyListOrNull() ?: return
+        val administratorsToNotify =
+            (dbo.administratorer - currentAdministratorer - navIdent).toNonEmptyListOrNull() ?: return
 
         val notification = ScheduledNotification(
             type = NotificationType.NOTIFICATION,
