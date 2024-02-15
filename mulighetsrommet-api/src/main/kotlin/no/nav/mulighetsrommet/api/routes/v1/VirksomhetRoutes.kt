@@ -11,7 +11,6 @@ import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
 import no.nav.mulighetsrommet.api.clients.brreg.BrregError
-import no.nav.mulighetsrommet.api.clients.brreg.OrgnummerUtil
 import no.nav.mulighetsrommet.api.domain.dto.VirksomhetKontaktperson
 import no.nav.mulighetsrommet.api.repositories.VirksomhetRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.*
@@ -32,43 +31,49 @@ fun Route.virksomhetRoutes() {
             call.respond(virksomhetRepository.getAll(til = filter.til))
         }
 
-        get("{orgnr}") {
-            val orgnr = call.parameters.getOrFail("orgnr")
+        get("sok") {
+            val sok: String by call.request.queryParameters
 
-            if (!OrgnummerUtil.erOrgnr(orgnr)) {
-                throw BadRequestException("Verdi sendt inn er ikke et organisasjonsnummer. Organisasjonsnummer er 9 siffer og bare tall.")
+            if (sok.isBlank()) {
+                throw BadRequestException("'sok' kan ikke være en tom streng")
             }
 
-            // TODO skriver virksomhet til DB selv om det kan hende at den ikke er referert til fra avtaler/gjennomføringer.
-            //      Vurdere å fjerne virksomheter fra db som ikke er refert til?
-            //      Burde egentlig ikke være nødvendig å kalle dette endepunktet om vi antar at virksomheter alltid finnes fra før? undersøk om dette kan fjernes.
-            virksomhetService.getOrSyncVirksomhetFromBrreg(orgnr)
-                .onRight { call.respond(it) }
-                .onLeft {
-                    if (it == BrregError.NotFound) {
-                        call.respond(HttpStatusCode.NoContent, "Fant ikke enhet med orgnr: $orgnr")
-                    } else {
-                        call.respondWithStatusResponseError(toStatusResponseError(it))
-                    }
+            val response = brregClient.sokEtterOverordnetEnheter(sok)
+                .map {
+                    // Kombinerer resultat med utenlandske virksomheter siden de ikke finnes i brreg
+                    it + virksomhetRepository.getAll(sok = sok, utenlandsk = true)
                 }
+                .mapLeft { toStatusResponseError(it) }
+
+            call.respondWithStatusResponse(response)
+        }
+
+        get("{orgnr}") {
+            val orgnr = call.parameters.getOrFail("orgnr").also { validateOrgnr(it) }
+
+            if (isUtenlandskOrgnr(orgnr)) {
+                val virksomhet = virksomhetRepository.get(orgnr)
+                return@get if (virksomhet != null) {
+                    call.respond(virksomhet)
+                } else {
+                    call.respond(HttpStatusCode.NotFound, "Fant ikke enhet med orgnr: $orgnr")
+                }
+            }
+
+            val response = virksomhetService.getVirksomhetFromBrreg(orgnr)
+                .mapLeft { toStatusResponseError(it) }
+
+            call.respondWithStatusResponse(response)
         }
 
         get("{orgnr}/kontaktperson") {
-            val orgnr = call.parameters.getOrFail("orgnr")
-
-            if (!OrgnummerUtil.erOrgnr(orgnr)) {
-                throw BadRequestException("Verdi sendt inn er ikke et organisasjonsnummer. Organisasjonsnummer er 9 siffer og bare tall.")
-            }
+            val orgnr = call.parameters.getOrFail("orgnr").also { validateOrgnr(it) }
 
             call.respond(virksomhetService.hentKontaktpersoner(orgnr))
         }
 
         put("{orgnr}/kontaktperson") {
-            val orgnr = call.parameters.getOrFail("orgnr")
-
-            if (!OrgnummerUtil.erOrgnr(orgnr)) {
-                throw BadRequestException("Verdi sendt inn er ikke et organisasjonsnummer. Organisasjonsnummer er 9 siffer og bare tall.")
-            }
+            val orgnr = call.parameters.getOrFail("orgnr").also { validateOrgnr(it) }
 
             val virksomhetKontaktperson = call.receive<VirksomhetKontaktpersonRequest>()
             val result = virksomhetKontaktperson
@@ -86,25 +91,8 @@ fun Route.virksomhetRoutes() {
             call.respondWithStatusResponse(virksomhetService.deleteKontaktperson(id))
         }
 
-        get("sok/{sok}") {
-            val sokestreng = call.parameters.getOrFail("sok")
-
-            if (sokestreng.isBlank()) {
-                throw BadRequestException("'sok' kan ikke være en tom streng")
-            }
-
-            val response = brregClient.sokEtterOverordnetEnheter(sokestreng)
-                .mapLeft { toStatusResponseError(it) }
-
-            call.respondWithStatusResponse(response)
-        }
-
         post("/update") {
-            val orgnr = call.request.queryParameters.getOrFail("orgnr")
-
-            if (orgnr.length != 9) {
-                throw BadRequestException("'orgnr' må inneholde 9 siffer")
-            }
+            val orgnr = call.parameters.getOrFail("orgnr").also { validateOrgnr(it) }
 
             virksomhetService.syncVirksomhetFromBrreg(orgnr)
                 .onRight { virksomhet ->
@@ -115,6 +103,16 @@ fun Route.virksomhetRoutes() {
                 }
         }
     }
+}
+
+fun validateOrgnr(orgnr: String) {
+    if (!orgnr.matches("^[0-9]{9}\$".toRegex())) {
+        throw BadRequestException("Verdi sendt inn er ikke et organisasjonsnummer. Organisasjonsnummer er 9 siffer og bare tall.")
+    }
+}
+
+fun isUtenlandskOrgnr(orgnr: String): Boolean {
+    return orgnr.matches("^[1-7][0-9]{8}\$".toRegex())
 }
 
 private fun toStatusResponseError(it: BrregError) = when (it) {

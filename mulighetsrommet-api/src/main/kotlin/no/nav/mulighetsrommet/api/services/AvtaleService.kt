@@ -53,18 +53,17 @@ class AvtaleService(
 
         val tiltakstyperSomKanOppretteAvtaler = enabledTiltakstyper + listOf("VASV", "ARBFORB")
 
-        val kanIkkeOppretteAvtale =
-            previous == null && !tiltakstyperSomKanOppretteAvtaler.contains(tiltakstype.arenaKode)
-        val kanIkkeRedigereTiltakstypeForAvtale =
-            previous != null && (tiltakstype.arenaKode != previous.tiltakstype.arenaKode && !tiltakstyperSomKanOppretteAvtaler.contains(
-                tiltakstype.arenaKode
-            ))
+        val kanIkkeOppretteAvtale = previous == null &&
+            !tiltakstyperSomKanOppretteAvtaler.contains(tiltakstype.arenaKode)
+        val kanIkkeRedigereTiltakstypeForAvtale = previous != null &&
+            tiltakstype.arenaKode != previous.tiltakstype.arenaKode &&
+            !tiltakstyperSomKanOppretteAvtaler.contains(tiltakstype.arenaKode)
 
         if (kanIkkeOppretteAvtale || kanIkkeRedigereTiltakstypeForAvtale) {
             return ValidationError
                 .of(
                     AvtaleDbo::tiltakstypeId,
-                    "Opprettelse av avtale for tiltakstype: '${tiltakstype.navn}' er ikke skrudd på enda."
+                    "Opprettelse av avtale for tiltakstype: '${tiltakstype.navn}' er ikke skrudd på enda.",
                 )
                 .nel()
                 .left()
@@ -72,11 +71,10 @@ class AvtaleService(
 
         return virksomhetService.getOrSyncVirksomhetFromBrreg(request.leverandorOrganisasjonsnummer)
             .mapLeft {
-                // TODO håndtere NotFound for utenlandske arrangører
                 ValidationError
                     .of(
                         AvtaleDbo::leverandorOrganisasjonsnummer,
-                        "Leverandøren finnes ikke Brønnøysundregistrene"
+                        "Leverandøren finnes ikke Brønnøysundregistrene",
                     )
                     .nel()
             }

@@ -1331,6 +1331,28 @@ paths:
                 items:
                   $ref: "#/components/schemas/Virksomhet"
 
+  /api/v1/internal/virksomhet/sok:
+    get:
+      tags:
+        - Virksomhet
+      operationId: sokVirksomhet
+      parameters:
+        - in: query
+          name: sok
+          required: true
+          schema:
+            type: string
+          description: Søkestreng for navn på virksomheter
+      responses:
+        200:
+          description: Liste med virksomheter
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Virksomhet"
+
   /api/v1/internal/virksomhet/{orgnr}:
     get:
       tags:
@@ -1413,28 +1435,6 @@ paths:
           description: Om kontaktpersonen ble slettet eller ikke
         500:
           description: Hvis noe gikk galt ved sletting av kontaktperson
-
-  /api/v1/internal/virksomhet/sok/{sok}:
-    get:
-      tags:
-        - Virksomhet
-      operationId: sokVirksomhet
-      parameters:
-        - in: path
-          name: sok
-          required: true
-          schema:
-            type: string
-          description: Søkestreng for navn på virksomheter
-      responses:
-        200:
-          description: Liste med virksomheter
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Virksomhet"
 
   /api/v1/internal/notifications:
     get:

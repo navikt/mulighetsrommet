@@ -89,7 +89,11 @@ class VirksomhetRepository(private val db: Database) {
         }
     }
 
-    fun getAll(til: VirksomhetTil? = null): List<VirksomhetDto> {
+    fun getAll(
+        til: VirksomhetTil? = null,
+        sok: String? = null,
+        utenlandsk: Boolean? = null,
+    ): List<VirksomhetDto> {
         val join = when (til) {
             VirksomhetTil.AVTALE -> {
                 "inner join avtale on avtale.leverandor_organisasjonsnummer = v.organisasjonsnummer"
@@ -113,10 +117,14 @@ class VirksomhetRepository(private val db: Database) {
                 v.poststed
             from virksomhet v
                 $join
+            where (:sok::text is null or v.navn ilike :sok)
+              and (:utenlandsk::boolean is null or v.er_utenlandsk_virksomhet = :utenlandsk)
             order by v.navn asc
         """.trimIndent()
 
-        return queryOf(selectVirksomheter)
+        val params = mapOf("sok" to sok?.let { "%$it%" }, "utenlandsk" to utenlandsk)
+
+        return queryOf(selectVirksomheter, params)
             .map { it.toVirksomhetDto() }
             .asList
             .let { db.run(it) }

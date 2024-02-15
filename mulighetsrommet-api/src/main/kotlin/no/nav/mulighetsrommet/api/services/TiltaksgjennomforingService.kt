@@ -53,7 +53,7 @@ class TiltaksgjennomforingService(
             return ValidationError
                 .of(
                     TiltaksgjennomforingDbo::avtaleId,
-                    "Opprettelse av tiltaksgjennomføring for tiltakstype: '${tiltakstype.navn}' er ikke skrudd på enda."
+                    "Opprettelse av tiltaksgjennomføring for tiltakstype: '${tiltakstype.navn}' er ikke skrudd på enda.",
                 )
                 .nel()
                 .left()
@@ -61,7 +61,6 @@ class TiltaksgjennomforingService(
 
         return virksomhetService.getOrSyncVirksomhetFromBrreg(request.arrangorOrganisasjonsnummer)
             .mapLeft {
-                // TODO håndtere NotFound for utenlandske arrangører
                 ValidationError
                     .of(
                         TiltaksgjennomforingDbo::arrangorOrganisasjonsnummer,

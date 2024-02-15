@@ -7,6 +7,7 @@ import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
+import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.OverordnetEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
@@ -17,13 +18,69 @@ import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.utils.VirksomhetTil
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
+import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import java.time.LocalDate
 import java.util.*
 
 class VirksomhetRepositoryTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
+    afterEach {
+        database.db.truncateAll()
+    }
+
     context("crud") {
+        test("søk og filtrering på virksomheter") {
+            val virksomhetRepository = VirksomhetRepository(database.db)
+
+            val overordnet = VirksomhetDto(
+                navn = "REMA 1000 AS",
+                organisasjonsnummer = "982254604",
+                postnummer = "5174",
+                poststed = "Mathopen",
+            )
+            virksomhetRepository.upsert(overordnet)
+
+            val underenhet1 = VirksomhetDto(
+                organisasjonsnummer = "880907522",
+                overordnetEnhet = overordnet.organisasjonsnummer,
+                navn = "REMA 1000 NORGE AS REGION NORDLAND",
+                postnummer = "5174",
+                poststed = "Mathopen",
+            )
+            virksomhetRepository.upsert(underenhet1)
+
+            val underenhet2 = VirksomhetDto(
+                organisasjonsnummer = "912704327",
+                overordnetEnhet = overordnet.organisasjonsnummer,
+                navn = "REMA 1000 NORGE AS REGION VESTRE ØSTLAND",
+                postnummer = "5174",
+                poststed = "Mathopen",
+            )
+            virksomhetRepository.upsert(underenhet2)
+
+            val utenlandsk = VirksomhetDto(
+                organisasjonsnummer = "100000001",
+                navn = "X - Utenlandsk virksomhet",
+                postnummer = null,
+                poststed = null,
+            )
+            virksomhetRepository.upsert(utenlandsk)
+            queryOf("update virksomhet set er_utenlandsk_virksomhet = true where organisasjonsnummer = '${utenlandsk.organisasjonsnummer}'")
+                .asExecute
+                .let { database.db.run(it) }
+
+            virksomhetRepository.getAll(utenlandsk = true) shouldContainExactlyInAnyOrder listOf(utenlandsk)
+            virksomhetRepository.getAll(utenlandsk = false) shouldContainExactlyInAnyOrder listOf(
+                overordnet,
+                underenhet1,
+                underenhet2,
+            )
+
+            virksomhetRepository.getAll(sok = "utenlandsk") shouldContainExactlyInAnyOrder listOf(utenlandsk)
+            virksomhetRepository.getAll(sok = "østland") shouldContainExactlyInAnyOrder listOf(underenhet2)
+        }
+
         test("Upsert virksomhet med underenheter") {
             val virksomhetRepository = VirksomhetRepository(database.db)
 
