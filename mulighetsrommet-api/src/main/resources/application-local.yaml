@@ -16,6 +16,17 @@ app:
       # strategy: RepairAndMigrate
 
   migrerteTiltak:
+    - ARBFORB
+    - ARBRRHDAG
+    - AVKLARAG
+    - DIGIOPPARB
+    - GRUFAGYRKE
+    - GRUPPEAMO
+    - INDJOBSTOT
+    - INDOPPFAG
+    - IPSUNG
+    - JOBBK
+    - UTVAOONAV
     - VASV
 
   kafka:
