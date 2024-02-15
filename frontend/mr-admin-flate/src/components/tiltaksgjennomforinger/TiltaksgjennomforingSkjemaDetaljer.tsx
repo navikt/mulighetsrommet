@@ -3,8 +3,8 @@ import {
   Alert,
   Button,
   Checkbox,
-  HStack,
   HelpText,
+  HStack,
   Select,
   Switch,
   TextField,
@@ -17,7 +17,6 @@ import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
 import { useHentKontaktpersoner } from "../../api/ansatt/useHentKontaktpersoner";
 import { useTiltaksgjennomforingAdministratorer } from "../../api/ansatt/useTiltaksgjennomforingAdministratorer";
 import { useFeatureToggle } from "../../api/features/feature-toggles";
-import { useVirksomhet } from "../../api/virksomhet/useVirksomhet";
 import { useVirksomhetKontaktpersoner } from "../../api/virksomhet/useVirksomhetKontaktpersoner";
 import { addYear } from "../../utils/Utils";
 import { isTiltakMedFellesOppstart } from "../../utils/tiltakskoder";
@@ -42,7 +41,6 @@ interface Props {
 }
 
 export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtale }: Props) => {
-  const { data: virksomhet } = useVirksomhet(avtale.leverandor.organisasjonsnummer);
   const { data: administratorer } = useTiltaksgjennomforingAdministratorer();
   const { data: ansatt, isLoading: isLoadingAnsatt } = useHentAnsatt();
   const { data: kontaktpersoner, isLoading: isLoadingKontaktpersoner } = useHentKontaktpersoner();
@@ -417,7 +415,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                   !avtale.leverandor.organisasjonsnummer ||
                   erArenaOpphavOgIngenEierskap(tiltaksgjennomforing, migrerteTiltakstyper)
                 }
-                options={arrangorUnderenheterOptions(avtale, virksomhet)}
+                options={arrangorUnderenheterOptions(avtale)}
               />
               <div className={skjemastyles.virksomhet_kontaktperson_container}>
                 <ControlledMultiSelect
