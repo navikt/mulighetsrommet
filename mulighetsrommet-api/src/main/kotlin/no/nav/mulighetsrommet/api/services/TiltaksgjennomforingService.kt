@@ -67,22 +67,22 @@ class TiltaksgjennomforingService(
         }
 
         return validator.validate(request.toDbo(), previous).map { dbo ->
-                db.transactionSuspend { tx ->
-                    if (previous?.toDbo() == dbo) {
-                        return@transactionSuspend previous
-                    }
-
-                    tiltaksgjennomforinger.upsert(dbo, tx)
-                    utkastRepository.delete(dbo.id, tx)
-
-                    val dto = getOrError(dbo.id, tx)
-
-                    dispatchNotificationToNewAdministrators(tx, dbo, navIdent)
-                    logEndring("Redigerte gjennomføring", dto, navIdent, tx)
-                    tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingDto.from(dto))
-                    dto
+            db.transactionSuspend { tx ->
+                if (previous?.toDbo() == dbo) {
+                    return@transactionSuspend previous
                 }
+
+                tiltaksgjennomforinger.upsert(dbo, tx)
+                utkastRepository.delete(dbo.id, tx)
+
+                val dto = getOrError(dbo.id, tx)
+
+                dispatchNotificationToNewAdministrators(tx, dbo, navIdent)
+                logEndring("Redigerte gjennomføring", dto, navIdent, tx)
+                tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingDto.from(dto))
+                dto
             }
+        }
     }
 
     fun get(id: UUID): TiltaksgjennomforingAdminDto? {
@@ -93,22 +93,22 @@ class TiltaksgjennomforingService(
         pagination: PaginationParams,
         filter: AdminTiltaksgjennomforingFilter,
     ): PaginatedResponse<TiltaksgjennomforingAdminDto> = tiltaksgjennomforinger.getAll(
-            pagination,
-            search = filter.search,
-            navEnheter = filter.navEnheter,
-            tiltakstypeIder = filter.tiltakstypeIder,
-            statuser = filter.statuser,
-            sortering = filter.sortering,
-            sluttDatoCutoff = filter.sluttDatoCutoff,
-            dagensDato = filter.dagensDato,
-            navRegioner = filter.navRegioner,
-            avtaleId = filter.avtaleId,
-            arrangorOrgnr = filter.arrangorOrgnr,
-            administratorNavIdent = filter.administratorNavIdent,
-            skalMigreres = true,
-        ).let { (totalCount, data) ->
-            PaginatedResponse.of(pagination, totalCount, data)
-        }
+        pagination,
+        search = filter.search,
+        navEnheter = filter.navEnheter,
+        tiltakstypeIder = filter.tiltakstypeIder,
+        statuser = filter.statuser,
+        sortering = filter.sortering,
+        sluttDatoCutoff = filter.sluttDatoCutoff,
+        dagensDato = filter.dagensDato,
+        navRegioner = filter.navRegioner,
+        avtaleId = filter.avtaleId,
+        arrangorOrgnr = filter.arrangorOrgnr,
+        administratorNavIdent = filter.administratorNavIdent,
+        skalMigreres = true,
+    ).let { (totalCount, data) ->
+        PaginatedResponse.of(pagination, totalCount, data)
+    }
 
     fun getAllVeilederflateTiltaksgjennomforing(
         search: String?,
@@ -128,21 +128,21 @@ class TiltaksgjennomforingService(
         pagination: PaginationParams,
         filter: AdminTiltaksgjennomforingFilter,
     ): PaginatedResponse<TiltaksgjennomforingAdminDto> = tiltaksgjennomforinger.getAll(
-            pagination,
-            search = filter.search,
-            navEnheter = filter.navEnheter,
-            tiltakstypeIder = filter.tiltakstypeIder,
-            statuser = filter.statuser,
-            sortering = filter.sortering,
-            sluttDatoCutoff = filter.sluttDatoCutoff,
-            dagensDato = filter.dagensDato,
-            navRegioner = filter.navRegioner,
-            avtaleId = filter.avtaleId,
-            arrangorOrgnr = filter.arrangorOrgnr,
-            administratorNavIdent = filter.administratorNavIdent,
-        ).let { (totalCount, data) ->
-            PaginatedResponse.of(pagination, totalCount, data)
-        }
+        pagination,
+        search = filter.search,
+        navEnheter = filter.navEnheter,
+        tiltakstypeIder = filter.tiltakstypeIder,
+        statuser = filter.statuser,
+        sortering = filter.sortering,
+        sluttDatoCutoff = filter.sluttDatoCutoff,
+        dagensDato = filter.dagensDato,
+        navRegioner = filter.navRegioner,
+        avtaleId = filter.avtaleId,
+        arrangorOrgnr = filter.arrangorOrgnr,
+        administratorNavIdent = filter.administratorNavIdent,
+    ).let { (totalCount, data) ->
+        PaginatedResponse.of(pagination, totalCount, data)
+    }
 
     fun getAllGjennomforingerSomNarmerSegSluttdato(): List<TiltaksgjennomforingNotificationDto> {
         return tiltaksgjennomforinger.getAllGjennomforingerSomNarmerSegSluttdato()

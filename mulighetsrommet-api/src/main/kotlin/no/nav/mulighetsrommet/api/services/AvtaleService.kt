@@ -73,22 +73,22 @@ class AvtaleService(
         }
 
         return validator.validate(request.toDbo(), previous).map { dbo ->
-                db.transaction { tx ->
-                    if (previous?.toDbo() == dbo) {
-                        return@transaction previous
-                    }
-
-                    avtaler.upsert(dbo, tx)
-                    utkastRepository.delete(dbo.id, tx)
-
-                    dispatchNotificationToNewAdministrators(tx, dbo, navIdent)
-
-                    val dto = getOrError(dbo.id, tx)
-
-                    logEndring("Redigerte avtale", dto, navIdent, tx)
-                    dto
+            db.transaction { tx ->
+                if (previous?.toDbo() == dbo) {
+                    return@transaction previous
                 }
+
+                avtaler.upsert(dbo, tx)
+                utkastRepository.delete(dbo.id, tx)
+
+                dispatchNotificationToNewAdministrators(tx, dbo, navIdent)
+
+                val dto = getOrError(dbo.id, tx)
+
+                logEndring("Redigerte avtale", dto, navIdent, tx)
+                dto
             }
+        }
     }
 
     fun getAll(
