@@ -13,14 +13,15 @@ app:
     migrationConfig:
       strategy: Migrate
 
+  migrerteTiltak:
+    - VASV
+
   kafka:
     producerId: mulighetsrommet-api-kafka-producer.v1
     consumerGroupId: mulighetsrommet-api-kafka-consumer.v1
     producers:
       arenaMigreringTiltaksgjennomforinger:
         topic: team-mulighetsrommet.arena-migrering-tiltaksgjennomforinger-v1
-        tiltakstyper:
-          - VASV
       tiltaksgjennomforinger:
         topic: team-mulighetsrommet.siste-tiltaksgjennomforinger-v1
       tiltakstyper:

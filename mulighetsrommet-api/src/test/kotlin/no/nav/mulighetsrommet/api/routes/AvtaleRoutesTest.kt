@@ -105,7 +105,7 @@ class AvtaleRoutesTest : FunSpec({
             auth = createAuthConfig(oauth, roles = listOf(avtaleSkrivRolle, tiltaksadministrasjonGenerellRolle)),
             engine = engine,
             database = databaseConfig,
-            // TODO Få inn enable tiltakstype som config her
+            migrerteTiltak = listOf("INDOPPFAG"),
         )
         withTestApplication(config) {
             val client = createClient {
@@ -133,13 +133,12 @@ class AvtaleRoutesTest : FunSpec({
                         AvtaleFixtures.avtaleRequest.copy(
                             id = UUID.randomUUID(),
                             navEnheter = listOf(NavEnhetFixtures.Oslo.enhetsnummer),
-                            tiltakstypeId = tiltakstype.id
-                        )
+                            tiltakstypeId = tiltakstype.id,
+                        ),
                     )
                 }
                 response.status shouldBe status
             }
-
         }
     }
 

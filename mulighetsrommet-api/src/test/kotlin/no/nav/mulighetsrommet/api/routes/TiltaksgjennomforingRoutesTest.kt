@@ -123,6 +123,7 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
             auth = createAuthConfig(oauth, roles = listOf(tiltaksgjennomforingSkrivRolle, tiltaksadministrasjonGenerellRolle)),
             engine = engine,
             database = databaseConfig,
+            migrerteTiltak = listOf("INDOPPFAG"),
         )
         withTestApplication(config) {
             val client = createClient {
@@ -140,7 +141,7 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
                         "NAVident" to "ABC123",
                         "groups" to listOf(
                             tiltaksgjennomforingSkrivRolle.adGruppeId,
-                            tiltaksadministrasjonGenerellRolle.adGruppeId
+                            tiltaksadministrasjonGenerellRolle.adGruppeId,
                         ),
                     )
                     bearerAuth(
@@ -152,7 +153,7 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
                             avtaleId = AvtaleFixtures.oppfolging.id,
                             navRegion = NavEnhetFixtures.Oslo.enhetsnummer,
                             navEnheter = listOf(NavEnhetFixtures.Sagene.enhetsnummer),
-                            tiltakstypeId = tiltakstype.id
+                            tiltakstypeId = tiltakstype.id,
                         ),
                     )
                 }
