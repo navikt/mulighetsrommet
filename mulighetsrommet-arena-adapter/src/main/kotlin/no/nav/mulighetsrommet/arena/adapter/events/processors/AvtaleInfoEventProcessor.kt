@@ -63,7 +63,7 @@ class AvtaleInfoEventProcessor(
             return@either ProcessingResult(Ignored, "Avtale har en til-dato som er før 2023")
         }
 
-        if(data.AVTALESTATUSKODE === Avtalestatuskode.Overfort) {
+        if (data.AVTALESTATUSKODE === Avtalestatuskode.Overfort) {
             return@either ProcessingResult(Ignored, "Avtalen har status 'OVERF' og skal ikke videre til api-databasen.")
         }
 
