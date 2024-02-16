@@ -13,7 +13,6 @@ import { PagineringsOversikt } from "../paginering/PagineringOversikt";
 import { TiltaksgjennomforingstatusTag } from "../statuselementer/TiltaksgjennomforingstatusTag";
 import styles from "./Tabell.module.scss";
 import { useAdminTiltaksgjennomforinger } from "../../api/tiltaksgjennomforing/useAdminTiltaksgjennomforinger";
-import { DupliserTiltak } from "../tiltaksgjennomforinger/DupliserTiltak";
 
 interface ColumnHeader {
   sortKey: Kolonne;
@@ -23,12 +22,6 @@ interface ColumnHeader {
 }
 
 const headers: ColumnHeader[] = [
-  {
-    sortKey: "dupliser",
-    tittel: "",
-    sortable: false,
-    width: "0.5fr",
-  },
   {
     sortKey: "navn",
     tittel: "Tiltaksnavn",
@@ -204,9 +197,6 @@ export const TiltaksgjennomforingsTabell = ({ skjulKolonner, filterAtom }: Props
               {tiltaksgjennomforinger.map((tiltaksgjennomforing, index) => {
                 return (
                   <Table.Row key={index}>
-                    <Table.DataCell>
-                      <DupliserTiltak tiltaksgjennomforing={tiltaksgjennomforing} />
-                    </Table.DataCell>
                     <SkjulKolonne skjul={!!skjulKolonner?.navn}>
                       <Table.DataCell
                         aria-label={`Navn på tiltaksgjennomforing: ${tiltaksgjennomforing.navn}`}
