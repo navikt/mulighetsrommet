@@ -56,12 +56,12 @@ class AvtaleService(
 
         val tiltakstyperSomKanOppretteAvtaler = enabledTiltakstyper + listOf("VASV", "ARBFORB")
 
-        val ikkeKanOppretteAvtale =
+        val kanIkkeOppretteAvtale =
             previous == null && !tiltakstyperSomKanOppretteAvtaler.contains(tiltakstype.arenaKode)
         val kanIkkeRedigereTiltakstypeForAvtale =
-            previous != null && tiltakstype.arenaKode != previous.tiltakstype.arenaKode
+            previous != null && (tiltakstype.arenaKode != previous.tiltakstype.arenaKode && !tiltakstyperSomKanOppretteAvtaler.contains(tiltakstype.arenaKode))
 
-        if (ikkeKanOppretteAvtale || kanIkkeRedigereTiltakstypeForAvtale) {
+        if (kanIkkeOppretteAvtale || kanIkkeRedigereTiltakstypeForAvtale) {
             return Either.Left(
                 listOf(
                     ValidationError(
