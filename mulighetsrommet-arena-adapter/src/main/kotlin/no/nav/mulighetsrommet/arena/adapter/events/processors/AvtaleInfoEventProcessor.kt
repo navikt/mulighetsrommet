@@ -13,6 +13,7 @@ import no.nav.mulighetsrommet.arena.adapter.models.ProcessingResult
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaAvtaleInfo
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.arena.Avtalekode
+import no.nav.mulighetsrommet.arena.adapter.models.arena.Avtalestatuskode
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.Handled
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.Ignored
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
@@ -60,6 +61,10 @@ class AvtaleInfoEventProcessor(
 
         if (!isRecentAvtale(data)) {
             return@either ProcessingResult(Ignored, "Avtale har en til-dato som er før 2023")
+        }
+
+        if(data.AVTALESTATUSKODE === Avtalestatuskode.Overfort) {
+            return@either ProcessingResult(Ignored, "Avtalen har status 'OVERF' og skal ikke videre til api-databasen.")
         }
 
         val mapping = entities.getMapping(event.arenaTable, event.arenaId).bind()

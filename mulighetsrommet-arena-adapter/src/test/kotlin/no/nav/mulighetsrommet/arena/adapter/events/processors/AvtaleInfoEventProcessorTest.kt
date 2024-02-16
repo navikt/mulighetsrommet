@@ -140,6 +140,17 @@ class AvtaleInfoEventProcessorTest : FunSpec({
                 database.assertThat("avtale").isEmpty
             }
 
+            test("ignore avtaler med status OVERF") {
+                val processor = createProcessor()
+
+                val event = createArenaAvtaleInfoEvent(Insert) {
+                    it.copy(AVTALESTATUSKODE = Avtalestatuskode.Overfort)
+                }
+
+                processor.handleEvent(event).shouldBeRight().should { it.status shouldBe Ignored }
+                database.assertThat("avtale").isEmpty
+            }
+
             test("should treat all operations as upserts") {
                 val (e1, mapping) = prepareEvent(createArenaAvtaleInfoEvent(Insert))
 
