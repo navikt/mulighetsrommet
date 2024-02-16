@@ -56,6 +56,7 @@ export const ViewTiltaksgjennomforingDetaljer = ({
           <Oppskrift
             oppskriftId={oppskriftId}
             tiltakstypeId={tiltaksgjennomforing.tiltakstype.sanityId}
+            setOppskriftId={setOppskriftId}
           />
         )}
       </div>
