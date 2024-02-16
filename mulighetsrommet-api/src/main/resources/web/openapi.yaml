@@ -1063,6 +1063,28 @@ paths:
                 items:
                   $ref: "#/components/schemas/HistorikkForBruker"
 
+  # TODO Type denne korrekt når vi får data fra Komet
+  /api/v1/internal/bruker/historikk-fra-komet:
+    post:
+      tags:
+        - Historikk
+      operationId: hentHistorikkForBrukerFraKomet
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GetHistorikkForBrukerRequest"
+        required: true
+      responses:
+        200:
+          description: Historical data about the user from the team Komet
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/HistorikkForBrukerFraKomet"
+
   /api/v1/internal/ansatt:
     get:
       tags:
@@ -2567,6 +2589,48 @@ components:
         - tiltaksnavn
         - tiltakstype
         - arrangor
+
+    HistorikkForBrukerFraKomet:
+      type: object
+      properties:
+        id:
+          type: string
+        fnr:
+          type: string
+        fraDato:
+          type: string
+          nullable: true
+        tilDato:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum:
+            - VENTER
+            - AVSLUTTET
+            - DELTAR
+            - IKKE_AKTUELL
+        tiltaksnavn:
+          type: string
+          nullable: true
+        tiltakstype:
+          type: string
+        arsak:
+          type: string
+          nullable: true
+        tiltaksgjennomforingId:
+          type: string
+          format: uuid
+      required:
+        - id
+        - fnr
+        - fraDato
+        - tilDato
+        - status
+        - tiltaksnavn
+        - tiltakstype
+        - arsak
+        - tiltaksgjennomforingId
 
     TiltakshistorikkArrangor:
       type: object
