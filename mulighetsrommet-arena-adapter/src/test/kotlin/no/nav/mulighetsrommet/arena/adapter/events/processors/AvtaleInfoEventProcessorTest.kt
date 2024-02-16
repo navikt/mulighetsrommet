@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.arena.adapter.events.processors
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
@@ -140,17 +141,6 @@ class AvtaleInfoEventProcessorTest : FunSpec({
                 database.assertThat("avtale").isEmpty
             }
 
-            test("ignore avtaler med status OVERF") {
-                val processor = createProcessor()
-
-                val event = createArenaAvtaleInfoEvent(Insert) {
-                    it.copy(AVTALESTATUSKODE = Avtalestatuskode.Overfort)
-                }
-
-                processor.handleEvent(event).shouldBeRight().should { it.status shouldBe Ignored }
-                database.assertThat("avtale").isEmpty
-            }
-
             test("should treat all operations as upserts") {
                 val (e1, mapping) = prepareEvent(createArenaAvtaleInfoEvent(Insert))
 
@@ -277,6 +267,33 @@ class AvtaleInfoEventProcessorTest : FunSpec({
 
                     url.getLastPathParameterAsUUID() shouldBe mapping.entityId
                 }
+            }
+
+            test("should not call api with handle event when status is OVERF from Arena") {
+                val (event, mapping) = prepareEvent(
+                    createArenaAvtaleInfoEvent(Insert) {
+                        it.copy(
+                            AVTALESTATUSKODE = Avtalestatuskode.Overfort,
+                        )
+                    },
+                )
+
+                val engine = createMockEngine(
+                    "/ords/arbeidsgiver" to {
+                        respondJson(ArenaOrdsArrangor("123456", "1000000"))
+                    },
+                    "/api/v1/internal/arena/avtale" to { respondOk() },
+                    "/api/v1/internal/arena/avtale/${mapping.entityId}" to { respondOk() },
+                )
+                val processor = createProcessor(engine)
+
+                processor.handleEvent(event).shouldBeRight()
+
+                database.assertThat("avtale").row()
+                    .value("id").isEqualTo(mapping.entityId)
+                    .value("status").isEqualTo(Avtale.Status.Overfort.name)
+
+                engine.requestHistory.shouldBeEmpty()
             }
         }
     }
