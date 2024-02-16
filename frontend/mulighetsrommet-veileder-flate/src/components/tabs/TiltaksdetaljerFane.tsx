@@ -1,9 +1,6 @@
 import { Tabs } from "@navikt/ds-react";
-import { useAtom } from "jotai";
 import { Toggles, VeilederflateTiltaksgjennomforing } from "mulighetsrommet-api-client";
-import { useNavigate } from "react-router-dom";
 import { useFeatureToggle } from "../../core/api/feature-toggles";
-import { faneAtom } from "../../core/atoms/atoms";
 import { Oppskriftsoversikt } from "../oppskrift/Oppskriftsoversikt";
 import DetaljerFane from "./DetaljerFane";
 import styles from "./TiltaksdetaljerFane.module.scss";
@@ -14,13 +11,12 @@ import { useLogEvent } from "../../logging/amplitude";
 
 interface Props {
   tiltaksgjennomforing: VeilederflateTiltaksgjennomforing;
+  setOppskriftId: (id: string | undefined) => void;
 }
 
 type TabsType = "tab1" | "tab2" | "tab3" | "tab4" | "tab5";
 
-const TiltaksdetaljerFane = ({ tiltaksgjennomforing }: Props) => {
-  const [fane, setFane] = useAtom(faneAtom);
-  const navigate = useNavigate();
+const TiltaksdetaljerFane = ({ tiltaksgjennomforing, setOppskriftId }: Props) => {
   const { logEvent } = useLogEvent();
 
   const { data: enableArenaOppskrifter } = useFeatureToggle(
@@ -51,20 +47,15 @@ const TiltaksdetaljerFane = ({ tiltaksgjennomforing }: Props) => {
     }
   }
 
-  function navigateAwayFromOppskrift() {
-    navigate("./");
-  }
-
   return (
     <Tabs
-      defaultValue={fane}
+      defaultValue="tab1"
       size="small"
       selectionFollowsFocus
       className={styles.fane_root}
       onChange={(value) => {
-        setFane(value);
         if (value !== "tab5") {
-          navigateAwayFromOppskrift();
+          setOppskriftId(undefined);
         }
         logEvent({
           name: "arbeidsmarkedstiltak.fanevalg",
@@ -110,7 +101,10 @@ const TiltaksdetaljerFane = ({ tiltaksgjennomforing }: Props) => {
             <KontaktinfoFane tiltaksgjennomforing={tiltaksgjennomforing} />
           </Tabs.Panel>
           <Tabs.Panel value="tab5">
-            <Oppskriftsoversikt tiltakstypeId={tiltaksgjennomforing.tiltakstype.sanityId} />
+            <Oppskriftsoversikt
+              tiltakstypeId={tiltaksgjennomforing.tiltakstype.sanityId}
+              setOppskriftId={setOppskriftId}
+            />
           </Tabs.Panel>
         </ErrorBoundary>
       </div>

@@ -1,13 +1,17 @@
-import { Alert } from "@navikt/ds-react";
+import { Alert, Button } from "@navikt/ds-react";
 import { useEffect, useRef } from "react";
-import { Link, useParams } from "react-router-dom";
 import { APPLICATION_WEB_COMPONENT_NAME } from "../../constants";
 import { useOppskrifter } from "../../core/api/queries/useOppskrifter";
-import styles from "./Oppskrift.module.scss";
 import { RedaksjoneltInnhold } from "../RedaksjoneltInnhold";
+import styles from "./Oppskrift.module.scss";
 
-export function Oppskrift() {
-  const { oppskriftId, tiltakstypeId } = useParams();
+interface Props {
+  oppskriftId: string;
+  tiltakstypeId: string;
+  setOppskriftId: (id: string | undefined) => void;
+}
+
+export function Oppskrift({ oppskriftId, tiltakstypeId, setOppskriftId }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const { data: oppskrifter } = useOppskrifter(tiltakstypeId);
 
@@ -41,7 +45,9 @@ export function Oppskrift() {
 
   return (
     <>
-      <Link to="..">Lukk oppskriften</Link>
+      <Button variant="tertiary-neutral" onClick={() => setOppskriftId(undefined)}>
+        Lukk oppskriften
+      </Button>
       <div className={styles.container}>
         <aside className={styles.navigering}>
           <nav>
