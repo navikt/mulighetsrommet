@@ -63,6 +63,17 @@ class TiltaksgjennomforingValidator(
                 validateKursTiltak(dbo)
             }
 
+            if (!Tiltakskoder.isKursTiltak(avtale.tiltakstype.arenaKode)) {
+                if (dbo.oppstart == TiltaksgjennomforingOppstartstype.LOPENDE) {
+                    add(
+                        ValidationError.of(
+                            TiltaksgjennomforingDbo::oppstart,
+                            "Tiltaket må ha felles oppstartstype",
+                        ),
+                    )
+                }
+            }
+
             if (!Tiltakskoder.isTiltakMedAvtalerFraMulighetsrommet(avtale.tiltakstype.arenaKode)) {
                 if (dbo.startDato.isBefore(avtale.startDato)) {
                     add(
@@ -203,15 +214,6 @@ class TiltaksgjennomforingValidator(
                 ValidationError.of(
                     TiltaksgjennomforingDbo::deltidsprosent,
                     "Deltidsprosent kan ikke være større enn 100",
-                ),
-            )
-        }
-
-        if (dbo.oppstart != TiltaksgjennomforingOppstartstype.FELLES) {
-            add(
-                ValidationError.of(
-                    TiltaksgjennomforingDbo::oppstart,
-                    "Oppstartstypen kan bare ha felles oppstartsdato for valgt tiltakstype fra avtalen",
                 ),
             )
         }

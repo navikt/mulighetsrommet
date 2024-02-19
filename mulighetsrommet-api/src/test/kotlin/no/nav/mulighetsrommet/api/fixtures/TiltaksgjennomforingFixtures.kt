@@ -57,34 +57,6 @@ object TiltaksgjennomforingFixtures {
         estimertVentetidEnhet = "dag",
     )
 
-    val Jobbklubb1 = TiltaksgjennomforingDbo(
-        id = UUID.randomUUID(),
-        navn = "Oppfølging 1",
-        tiltakstypeId = TiltakstypeFixtures.Jobbklubb.id,
-        tiltaksnummer = "2024#1",
-        arrangorOrganisasjonsnummer = "976663934",
-        startDato = LocalDate.of(2023, 1, 1),
-        sluttDato = LocalDate.of(2023, 2, 1),
-        apentForInnsok = true,
-        antallPlasser = 12,
-        administratorer = listOf(),
-        navRegion = "2990",
-        navEnheter = listOf("2990"),
-        oppstart = TiltaksgjennomforingOppstartstype.FELLES,
-        opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
-        kontaktpersoner = emptyList(),
-        arrangorKontaktpersoner = emptyList(),
-        stengtFra = null,
-        stengtTil = null,
-        stedForGjennomforing = "Oslo",
-        avtaleId = AvtaleFixtures.jobbklubb.id,
-        faneinnhold = null,
-        beskrivelse = null,
-        deltidsprosent = 100.0,
-        estimertVentetidVerdi = 3,
-        estimertVentetidEnhet = "dag",
-    )
-
     val Oppfolging1Request = TiltaksgjennomforingRequest(
         id = Oppfolging1.id,
         navn = Oppfolging1.navn,

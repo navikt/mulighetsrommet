@@ -37,24 +37,8 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
         leverandorUnderenheter = listOf("000000001", "000000002"),
         navEnheter = listOf("0400", "0502"),
     )
-    val jobbklubbAvtale = AvtaleFixtures.jobbklubb.copy(
-        startDato = avtaleStartDato,
-        sluttDato = avtaleSluttDato,
-        leverandorOrganisasjonsnummer = "000000000",
-        leverandorUnderenheter = listOf("000000001", "000000002"),
-        navEnheter = listOf("0400", "0502"),
-    )
 
     val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1.copy(
-        startDato = avtaleStartDato,
-        sluttDato = avtaleSluttDato,
-        navRegion = "0400",
-        navEnheter = listOf("0502"),
-        arrangorOrganisasjonsnummer = "000000001",
-        administratorer = listOf("B123456"),
-    )
-
-    val gjennomforingForJobbklubb = TiltaksgjennomforingFixtures.Jobbklubb1.copy(
         startDato = avtaleStartDato,
         sluttDato = avtaleSluttDato,
         navRegion = "0400",
@@ -104,7 +88,6 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
 
         avtaler = AvtaleRepository(database.db)
         avtaler.upsert(avtale)
-        avtaler.upsert(jobbklubbAvtale)
 
         tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
     }
@@ -134,8 +117,8 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
     test("should fail when tiltakstype does not support change of oppstartstype") {
         val validator = TiltaksgjennomforingValidator(avtaler)
 
-        validator.validate(gjennomforingForJobbklubb.copy(oppstart = TiltaksgjennomforingOppstartstype.LOPENDE), null).shouldBeLeft().shouldContainExactlyInAnyOrder(
-            ValidationError("oppstart", "Oppstartstypen kan bare ha felles oppstartsdato for valgt tiltakstype fra avtalen"),
+        validator.validate(gjennomforing.copy(oppstart = TiltaksgjennomforingOppstartstype.LOPENDE), null).shouldBeLeft().shouldContainExactlyInAnyOrder(
+            ValidationError("oppstart", "Tiltaket må ha felles oppstartstype"),
         )
     }
 
