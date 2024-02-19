@@ -6,7 +6,6 @@ interface Props {
   historikk: HistorikkForBrukerFraKomet;
 }
 export function HistorikkKort({ historikk }: Props) {
-  // TODO Korrekt url
   const { tiltakstype, tiltaksnavn, fraDato, tilDato, status, tiltaksgjennomforingId, arsak } =
     historikk;
   return (
