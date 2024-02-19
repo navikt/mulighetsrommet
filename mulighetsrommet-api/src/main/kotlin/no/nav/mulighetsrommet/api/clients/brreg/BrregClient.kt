@@ -101,7 +101,7 @@ class BrregClient(
             false -> "navn"
         }
 
-        val hovedenhetResponse = client.get("$baseUrl/enheter") {
+        val hovedenhetResponse = client.get("$baseUrl/enheter?sort=navn,ASC") {
             parameter("size", 20)
             parameter(sokEllerOppslag, orgnr)
         }
@@ -121,7 +121,7 @@ class BrregClient(
     private suspend fun hentUnderenheterForOverordnetEnhet(orgnrOverordnetEnhet: String): List<VirksomhetDto> {
         validerOrgnr(orgnrOverordnetEnhet)
 
-        val underenheterResponse = client.get("$baseUrl/underenheter") {
+        val underenheterResponse = client.get("$baseUrl/underenheter?sort=navn,ASC") {
             parameter("size", 1000)
             parameter("overordnetEnhet", orgnrOverordnetEnhet)
         }
