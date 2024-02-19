@@ -153,7 +153,10 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
           </FormGroup>
           <Separator />
           <FormGroup>
-            <SelectOppstartstype name="oppstart" />
+            <SelectOppstartstype
+              name="oppstart"
+              readonly={isTiltakMedFellesOppstart(avtale.tiltakstype.arenaKode)}
+            />
             <FraTilDatoVelger
               size="small"
               fra={{

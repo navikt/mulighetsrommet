@@ -8,9 +8,10 @@ import { useGetTiltaksgjennomforingIdFromUrl } from "../../hooks/useGetTiltaksgj
 
 interface SelectOppstartstypeProps {
   name: string;
+  readonly: boolean;
 }
 
-export function SelectOppstartstype({ name }: SelectOppstartstypeProps) {
+export function SelectOppstartstype({ name, readonly = false }: SelectOppstartstypeProps) {
   const id = useGetTiltaksgjennomforingIdFromUrl();
 
   const { field, fieldState } = useController({ name });
@@ -25,6 +26,7 @@ export function SelectOppstartstype({ name }: SelectOppstartstypeProps) {
         placeholder="Velg oppstart"
         name={name}
         onChange={field.onChange}
+        readOnly={readonly}
         options={[
           {
             label: "Felles oppstartsdato",

@@ -21,6 +21,7 @@ import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
+import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import java.time.LocalDate
 import java.util.*
 
@@ -30,6 +31,13 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
     val avtaleStartDato = LocalDate.now()
     val avtaleSluttDato = LocalDate.now().plusMonths(1)
     val avtale = AvtaleFixtures.oppfolging.copy(
+        startDato = avtaleStartDato,
+        sluttDato = avtaleSluttDato,
+        leverandorOrganisasjonsnummer = "000000000",
+        leverandorUnderenheter = listOf("000000001", "000000002"),
+        navEnheter = listOf("0400", "0502"),
+    )
+    val jobbklubbAvtale = AvtaleFixtures.jobbklubb.copy(
         startDato = avtaleStartDato,
         sluttDato = avtaleSluttDato,
         leverandorOrganisasjonsnummer = "000000000",
@@ -46,6 +54,15 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
         administratorer = listOf("B123456"),
     )
 
+    val gjennomforingForJobbklubb = TiltaksgjennomforingFixtures.Jobbklubb1.copy(
+        startDato = avtaleStartDato,
+        sluttDato = avtaleSluttDato,
+        navRegion = "0400",
+        navEnheter = listOf("0502"),
+        arrangorOrganisasjonsnummer = "000000001",
+        administratorer = listOf("B123456"),
+    )
+
     lateinit var tiltakstyper: TiltakstypeRepository
     lateinit var avtaler: AvtaleRepository
     lateinit var tiltaksgjennomforinger: TiltaksgjennomforingRepository
@@ -54,6 +71,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
         tiltakstyper = TiltakstypeRepository(database.db)
         tiltakstyper.upsert(TiltakstypeFixtures.AFT).shouldBeRight()
         tiltakstyper.upsert(TiltakstypeFixtures.Oppfolging).shouldBeRight()
+        tiltakstyper.upsert(TiltakstypeFixtures.Jobbklubb).shouldBeRight()
 
         val enheter = NavEnhetRepository(database.db)
         enheter.upsert(
@@ -86,6 +104,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
 
         avtaler = AvtaleRepository(database.db)
         avtaler.upsert(avtale)
+        avtaler.upsert(jobbklubbAvtale)
 
         tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
     }
@@ -109,6 +128,14 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
 
         validator.validate(gjennomforing, null).shouldBeLeft().shouldContainExactlyInAnyOrder(
             ValidationError("tiltakstypeId", "Tiltakstypen må være den samme som for avtalen"),
+        )
+    }
+
+    test("should fail when tiltakstype does not support change of oppstartstype") {
+        val validator = TiltaksgjennomforingValidator(avtaler)
+
+        validator.validate(gjennomforingForJobbklubb.copy(oppstart = TiltaksgjennomforingOppstartstype.LOPENDE), null).shouldBeLeft().shouldContainExactlyInAnyOrder(
+            ValidationError("oppstart", "Oppstartstypen kan bare ha felles oppstartsdato for valgt tiltakstype fra avtalen"),
         )
     }
 

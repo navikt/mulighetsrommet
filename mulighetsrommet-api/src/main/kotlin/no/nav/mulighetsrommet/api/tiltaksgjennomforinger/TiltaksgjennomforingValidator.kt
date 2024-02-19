@@ -11,6 +11,7 @@ import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
 import no.nav.mulighetsrommet.domain.Tiltakskoder
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
+import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus.GJENNOMFORES
 
 class TiltaksgjennomforingValidator(
@@ -202,6 +203,15 @@ class TiltaksgjennomforingValidator(
                 ValidationError.of(
                     TiltaksgjennomforingDbo::deltidsprosent,
                     "Deltidsprosent kan ikke være større enn 100",
+                ),
+            )
+        }
+
+        if (dbo.oppstart != TiltaksgjennomforingOppstartstype.FELLES) {
+            add(
+                ValidationError.of(
+                    TiltaksgjennomforingDbo::oppstart,
+                    "Oppstartstypen kan bare ha felles oppstartsdato for valgt tiltakstype fra avtalen",
                 ),
             )
         }
