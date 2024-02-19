@@ -50,7 +50,7 @@ kotest-extensions-testcontainers-kafka = { module = "io.kotest.extensions:kotest
 kotest-junit = { module = "io.kotest:kotest-runner-junit5", version.ref = "kotest" }
 
 kotlinx-serialization-json = "org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3"
-kotlinx-coroutines-core = "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3"
+kotlinx-coroutines-core = "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0"
 
 kotliquery = "com.github.seratch:kotliquery:1.9.0"
 
