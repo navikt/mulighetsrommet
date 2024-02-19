@@ -33,6 +33,7 @@ export function PreviewArbeidsmarkedstiltakDetaljer() {
             veiledernavn="{Veiledernavn}"
             brukerdata={{
               innsatsgruppe: Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+              erSykmeldtMedArbeidsgiver: false,
               fnr: "12345678910",
               fornavn: "{NAVN}",
               manuellStatus: {

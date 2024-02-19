@@ -3,7 +3,12 @@ package no.nav.mulighetsrommet.api.clients.oppfolging
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class OppfolgingsstatusDto(
+data class OppfolgingStatus(
+    val erSykmeldtMedArbeidsgiver: Boolean,
+)
+
+@Serializable
+data class OppfolgingEnhetMedVeilederResponse(
     val oppfolgingsenhet: Oppfolgingsenhet?,
     val servicegruppe: String?,
 )

@@ -1,0 +1,15 @@
+{
+  "request": {
+    "method": "POST",
+    "urlPattern": "/veilarboppfolging/api/v3/oppfolging/hent-status"
+  },
+  "response": {
+    "status": 200,
+    "jsonBody": {
+      "erSykmeldtMedArbeidsgiver": true
+    },
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}
