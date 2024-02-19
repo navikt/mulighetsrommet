@@ -97,7 +97,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     ),
                 )
                 it.sanityId shouldBe null
-                it.oppstart shouldBe TiltaksgjennomforingOppstartstype.FELLES
+                it.oppstart shouldBe TiltaksgjennomforingOppstartstype.LOPENDE
                 it.opphav shouldBe ArenaMigrering.Opphav.MR_ADMIN_FLATE
                 it.stengtFra shouldBe null
                 it.kontaktpersoner shouldBe listOf()

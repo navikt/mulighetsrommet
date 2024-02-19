@@ -42,7 +42,7 @@ object TiltaksgjennomforingFixtures {
         administratorer = listOf(),
         navRegion = "2990",
         navEnheter = listOf("2990"),
-        oppstart = TiltaksgjennomforingOppstartstype.FELLES,
+        oppstart = TiltaksgjennomforingOppstartstype.LOPENDE,
         opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
         kontaktpersoner = emptyList(),
         arrangorKontaktpersoner = emptyList(),
