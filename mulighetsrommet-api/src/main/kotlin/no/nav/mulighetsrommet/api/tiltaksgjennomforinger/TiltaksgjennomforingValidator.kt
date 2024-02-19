@@ -72,7 +72,6 @@ class TiltaksgjennomforingValidator(
                 }
             }
 
-
             if (!Tiltakskoder.isTiltakMedAvtalerFraMulighetsrommet(avtale.tiltakstype.arenaKode)) {
                 if (dbo.startDato.isBefore(avtale.startDato)) {
                     add(
