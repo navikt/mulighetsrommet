@@ -117,8 +117,8 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
     test("should fail when tiltakstype does not support change of oppstartstype") {
         val validator = TiltaksgjennomforingValidator(avtaler)
 
-        validator.validate(gjennomforing.copy(oppstart = TiltaksgjennomforingOppstartstype.LOPENDE), null).shouldBeLeft().shouldContainExactlyInAnyOrder(
-            ValidationError("oppstart", "Tiltaket må ha felles oppstartstype"),
+        validator.validate(gjennomforing.copy(oppstart = TiltaksgjennomforingOppstartstype.FELLES), null).shouldBeLeft().shouldContainExactlyInAnyOrder(
+            ValidationError("oppstart", "Tiltaket må ha løpende oppstartstype"),
         )
     }
 

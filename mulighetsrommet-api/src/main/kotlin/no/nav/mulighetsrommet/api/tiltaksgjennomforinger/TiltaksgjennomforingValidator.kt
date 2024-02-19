@@ -61,18 +61,17 @@ class TiltaksgjennomforingValidator(
 
             if (Tiltakskoder.isKursTiltak(avtale.tiltakstype.arenaKode)) {
                 validateKursTiltak(dbo)
-            }
-
-            if (!Tiltakskoder.isKursTiltak(avtale.tiltakstype.arenaKode)) {
-                if (dbo.oppstart == TiltaksgjennomforingOppstartstype.LOPENDE) {
+            } else {
+                if (dbo.oppstart == TiltaksgjennomforingOppstartstype.FELLES) {
                     add(
                         ValidationError.of(
                             TiltaksgjennomforingDbo::oppstart,
-                            "Tiltaket må ha felles oppstartstype",
+                            "Tiltaket må ha løpende oppstartstype",
                         ),
                     )
                 }
             }
+
 
             if (!Tiltakskoder.isTiltakMedAvtalerFraMulighetsrommet(avtale.tiltakstype.arenaKode)) {
                 if (dbo.startDato.isBefore(avtale.startDato)) {
