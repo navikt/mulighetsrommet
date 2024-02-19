@@ -13,6 +13,7 @@ import no.nav.mulighetsrommet.arena.adapter.models.ProcessingResult
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaAvtaleInfo
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.arena.Avtalekode
+import no.nav.mulighetsrommet.arena.adapter.models.arena.Avtalestatuskode
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.Handled
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.Ignored
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
@@ -64,9 +65,15 @@ class AvtaleInfoEventProcessor(
 
         val mapping = entities.getMapping(event.arenaTable, event.arenaId).bind()
 
-        data
+        val arenaAdapterAvtale = data
             .toAvtale(mapping.entityId)
             .flatMap { entities.upsertAvtale(it) }
+
+        if (data.AVTALESTATUSKODE == Avtalestatuskode.Overfort) {
+            return@either ProcessingResult(Handled, "Avtalen har status 'OVERF' og skal ikke videre til api-databasen.")
+        }
+
+        arenaAdapterAvtale
             .flatMap { toAvtaleDbo(it) }
             .flatMap { avtale ->
                 val response = if (event.operation == ArenaEvent.Operation.Delete) {

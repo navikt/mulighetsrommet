@@ -24,6 +24,7 @@ data class Avtale(
         Aktiv,
         Avsluttet,
         Avbrutt,
+        Overfort,
         ;
 
         companion object {
@@ -32,6 +33,7 @@ data class Avtale(
                 Avtalestatuskode.Gjennomforer -> Aktiv
                 Avtalestatuskode.Avsluttet -> Avsluttet
                 Avtalestatuskode.Avbrutt -> Avbrutt
+                Avtalestatuskode.Overfort -> Overfort
             }
         }
     }
