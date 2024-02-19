@@ -11,6 +11,7 @@ import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
 import no.nav.mulighetsrommet.domain.Tiltakskoder
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
+import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus.GJENNOMFORES
 
 class TiltaksgjennomforingValidator(
@@ -60,6 +61,15 @@ class TiltaksgjennomforingValidator(
 
             if (Tiltakskoder.isKursTiltak(avtale.tiltakstype.arenaKode)) {
                 validateKursTiltak(dbo)
+            } else {
+                if (dbo.oppstart == TiltaksgjennomforingOppstartstype.FELLES) {
+                    add(
+                        ValidationError.of(
+                            TiltaksgjennomforingDbo::oppstart,
+                            "Tiltaket må ha løpende oppstartstype",
+                        ),
+                    )
+                }
             }
 
             if (!Tiltakskoder.isTiltakMedAvtalerFraMulighetsrommet(avtale.tiltakstype.arenaKode)) {

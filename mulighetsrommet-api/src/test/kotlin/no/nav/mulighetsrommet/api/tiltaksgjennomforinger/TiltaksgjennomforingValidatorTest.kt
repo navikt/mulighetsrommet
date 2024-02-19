@@ -21,6 +21,7 @@ import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
+import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import java.time.LocalDate
 import java.util.*
 
@@ -54,6 +55,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
         tiltakstyper = TiltakstypeRepository(database.db)
         tiltakstyper.upsert(TiltakstypeFixtures.AFT).shouldBeRight()
         tiltakstyper.upsert(TiltakstypeFixtures.Oppfolging).shouldBeRight()
+        tiltakstyper.upsert(TiltakstypeFixtures.Jobbklubb).shouldBeRight()
 
         val enheter = NavEnhetRepository(database.db)
         enheter.upsert(
@@ -109,6 +111,14 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
 
         validator.validate(gjennomforing, null).shouldBeLeft().shouldContainExactlyInAnyOrder(
             ValidationError("tiltakstypeId", "Tiltakstypen må være den samme som for avtalen"),
+        )
+    }
+
+    test("should fail when tiltakstype does not support change of oppstartstype") {
+        val validator = TiltaksgjennomforingValidator(avtaler)
+
+        validator.validate(gjennomforing.copy(oppstart = TiltaksgjennomforingOppstartstype.FELLES), null).shouldBeLeft().shouldContainExactlyInAnyOrder(
+            ValidationError("oppstart", "Tiltaket må ha løpende oppstartstype"),
         )
     }
 
