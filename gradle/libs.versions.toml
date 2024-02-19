@@ -105,7 +105,7 @@ postgresql = "org.postgresql:postgresql:42.7.1"
 
 prometheus-caffeine = "io.prometheus:simpleclient_caffeine:0.16.0"
 
-shedlock-jdbc = "net.javacrumbs.shedlock:shedlock-provider-jdbc:5.10.2"
+shedlock-jdbc = "net.javacrumbs.shedlock:shedlock-provider-jdbc:5.11.0"
 
 slack-client = "com.slack.api:slack-api-client:1.38.1"
 
