@@ -280,6 +280,7 @@ class VeilederflateService(
             val kontaktpersoner = kontaktpersoner
                 ?.filter { it.enheter.any { enhet -> enhet in enheter } }
                 ?.map { it.navKontaktperson }
+                ?.filterNotNull()
                 ?.map {
                     VeilederflateKontaktinfoTiltaksansvarlig(
                         navn = it.navn,
@@ -288,8 +289,7 @@ class VeilederflateService(
                         epost = it.epost,
                         beskrivelse = it.beskrivelse,
                     )
-                }
-                ?: emptyList()
+                } ?: emptyList()
 
             VeilederflateTiltaksgjennomforing(
                 sanityId = _id,
