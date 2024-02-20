@@ -64,7 +64,7 @@ data class KontaktinfoTiltaksansvarlig(
 
 @Serializable
 data class SanityKontaktperson(
-    val navKontaktperson: KontaktinfoTiltaksansvarlig,
+    val navKontaktperson: KontaktinfoTiltaksansvarlig? = null,
     val enheter: List<String>,
 )
 
