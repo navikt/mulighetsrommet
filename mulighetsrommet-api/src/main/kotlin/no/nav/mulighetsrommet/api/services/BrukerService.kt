@@ -84,7 +84,8 @@ class BrukerService(
             fnr = fnr,
             innsatsgruppe = sisteVedtak?.innsatsgruppe,
             enheter = enheter,
-            erSykmeldtMedArbeidsgiver = oppfolgingStatus.erSykmeldtMedArbeidsgiver,
+            // Denne er null hvis brukeren ikke er under oppfølging
+            erSykmeldtMedArbeidsgiver = oppfolgingStatus.erSykmeldtMedArbeidsgiver ?: false,
             fornavn = personInfo.fornavn,
             manuellStatus = manuellStatus,
             varsler = listOfNotNull(

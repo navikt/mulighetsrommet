@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class OppfolgingStatus(
-    val erSykmeldtMedArbeidsgiver: Boolean,
+    val erSykmeldtMedArbeidsgiver: Boolean?,
 )
 
 @Serializable
