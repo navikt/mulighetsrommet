@@ -23,12 +23,20 @@ class BrukerService(
     private val navEnhetService: NavEnhetService,
 ) {
     suspend fun hentBrukerdata(fnr: String, accessToken: String): Brukerdata {
-        val oppfolgingsstatus = veilarboppfolgingClient.hentOppfolgingsstatus(fnr, accessToken)
+        val oppfolgingEnhetDto = veilarboppfolgingClient.hentOppfolgingEnhet(fnr, accessToken)
             .getOrElse {
                 when (it) {
                     OppfolgingsstatusError.Forbidden -> throw StatusException(HttpStatusCode.Forbidden, "Manglet tilgang til å hente hente oppfølgingsstatus")
                     OppfolgingsstatusError.Error -> throw StatusException(HttpStatusCode.InternalServerError, "Klarte ikke hente hente oppfølgingsstatus")
                     OppfolgingsstatusError.NotFound -> null
+                }
+            }
+        val oppfolgingStatus = veilarboppfolgingClient.hentOppfolgingStatus(fnr, accessToken)
+            .getOrElse {
+                when (it) {
+                    OppfolgingsstatusError.Forbidden -> throw StatusException(HttpStatusCode.Forbidden, "Manglet tilgang til å hente hente oppfølgingsstatus")
+                    OppfolgingsstatusError.Error -> throw StatusException(HttpStatusCode.InternalServerError, "Klarte ikke hente hente oppfølgingsstatus")
+                    OppfolgingsstatusError.NotFound -> throw StatusException(HttpStatusCode.BadRequest, "Klarte ikke hente hente oppfølgingsstatus")
                 }
             }
         val manuellStatus = veilarboppfolgingClient.hentManuellStatus(fnr, accessToken)
@@ -54,7 +62,7 @@ class BrukerService(
                 }
             }
 
-        val brukersOppfolgingsenhet = oppfolgingsstatus?.oppfolgingsenhet?.enhetId?.let {
+        val brukersOppfolgingsenhet = oppfolgingEnhetDto?.oppfolgingsenhet?.enhetId?.let {
             navEnhetService.hentEnhet(it)
         }
 
@@ -62,7 +70,7 @@ class BrukerService(
             navEnhetService.hentEnhet(it)
         }
 
-        if (sisteVedtak == null && oppfolgingsstatus?.servicegruppe == null) {
+        if (sisteVedtak == null && oppfolgingEnhetDto?.servicegruppe == null) {
             throw StatusException(HttpStatusCode.BadRequest, "Bruker manglet innsatsgruppe og servicegruppe. Kontroller at brukeren er under oppfølging og finnes i Arena")
         }
 
@@ -76,7 +84,7 @@ class BrukerService(
             fnr = fnr,
             innsatsgruppe = sisteVedtak?.innsatsgruppe,
             enheter = enheter,
-            servicegruppe = oppfolgingsstatus?.servicegruppe,
+            erSykmeldtMedArbeidsgiver = oppfolgingStatus.erSykmeldtMedArbeidsgiver,
             fornavn = personInfo.fornavn,
             manuellStatus = manuellStatus,
             varsler = listOfNotNull(
@@ -93,8 +101,8 @@ class BrukerService(
     data class Brukerdata(
         val fnr: String,
         val innsatsgruppe: Innsatsgruppe?,
+        val erSykmeldtMedArbeidsgiver: Boolean,
         val enheter: List<NavEnhetDbo>,
-        val servicegruppe: String?,
         val fornavn: String,
         val manuellStatus: ManuellStatusDto,
         val varsler: List<BrukerVarsel>,
