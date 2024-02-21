@@ -44,7 +44,7 @@ spec:
             envVarPrefix: DB
             users:
               - name: datastream # Ekstra databasebruker for Datastream
-        diskAutoresize: true # Datastream bruker en del lagringsplass
+        diskAutoresize: true
         flags:
           - name: max_connections
             value: "200"
