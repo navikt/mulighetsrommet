@@ -19,8 +19,6 @@ $$
             GRANT SELECT ON tiltakstype TO "datastream";
 
             ALTER USER "datastream" WITH REPLICATION;
-            CREATE PUBLICATION "ds_publication" FOR TABLE tiltakstype;
-            SELECT PG_CREATE_LOGICAL_REPLICATION_SLOT('ds_replication', 'pgoutput');
         END IF;
     END
 $$;
