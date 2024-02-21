@@ -1,0 +1,37 @@
+name: Deploy BigQuery Views
+
+on:
+  push:
+    paths:
+      - iac/bigquery-views/**
+  workflow_dispatch:
+    inputs:
+      environment:
+        type: choice
+        description: Environment
+        required: true
+        default: dev
+        options:
+          - dev
+          - dev_and_prod
+
+jobs:
+  deploy-dev-views:
+    if: github.ref == 'refs/heads/main'
+    permissions:
+      id-token: write # Needed for `nais/deploy/actions/deploy`
+    uses: ./.github/workflows/deploy-views.yaml
+    secrets: inherit
+    with:
+      cluster: dev-gcp
+      project: team-mulighetsrommet-dev-a2d7
+
+#  deploy-prod-views:
+#    if: github.ref == 'refs/heads/main'
+#    permissions:
+#      id-token: write # Needed for `nais/deploy/actions/deploy`
+#    uses: ./.github/workflows/deploy-views.yaml
+#    secrets: inherit
+#    with:
+#      cluster: prod-gcp
+#      project: team-mulighetsrommet-prod-5492
