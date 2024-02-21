@@ -1,0 +1,23 @@
+name: Deploy BigQuery Views
+on:
+  workflow_call:
+    inputs:
+      cluster:
+        required: true
+        type: string
+      project:
+        required: true
+        type: string
+
+jobs:
+  deploy-views:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: nais/deploy/actions/deploy@v2
+        env:
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+          CLUSTER: ${{ inputs.cluster }}
+          RESOURCE: iac/bigquery-views/tiltakstyper.yaml
+          VAR: project=${{ inputs.project }}
+          PRINT_PAYLOAD: true
