@@ -14,12 +14,13 @@ spec:
   resourceID: tiltakstyper
   description: "Dataprodukt som viser tiltakstyper med navn, tiltakskode og om tiltakstypen gir rett til tiltakspenger"
   datasetRef:
-    external: dataprodukt
+    external: datastream_mulighetsrommet_api_db
   view:
     useLegacySql: false
     query: >-
       SELECT
+        id,
         navn,
         tiltakskode,
         rett_paa_tiltakspenger
-      FROM dataprodukt.tiltakstype
+      FROM tiltakstype
