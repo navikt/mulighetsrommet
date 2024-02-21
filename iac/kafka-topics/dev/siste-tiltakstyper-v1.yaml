@@ -28,9 +28,6 @@ spec:
     - team: amt
       application: amt-deltaker
       access: read
-    - team: pto
-      application: veilarbportefolje
-      access: read
     - team: teamoppfolging
       application: teamoppfolging-kafka
       access: read
