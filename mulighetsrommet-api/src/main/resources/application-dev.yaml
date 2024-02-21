@@ -11,7 +11,7 @@ app:
     password: ${DB_PASSWORD}
     maximumPoolSize: 10
     migrationConfig:
-      strategy: RepairAndMigrate
+      strategy: Migrate
 
   migrerteTiltak:
     - VASV
