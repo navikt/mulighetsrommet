@@ -1,5 +1,6 @@
 alter table tiltakstype rename column tiltakskode to arena_kode;
 alter table tiltakstype add column tiltakskode text;
+alter table tiltakstype drop column skal_migreres;
 
 update tiltakstype set tiltakskode = 'AVKLARING' where arena_kode = 'AVKLARAG';
 update tiltakstype set tiltakskode = 'OPPFOLGING' where arena_kode = 'INDOPPFAG';

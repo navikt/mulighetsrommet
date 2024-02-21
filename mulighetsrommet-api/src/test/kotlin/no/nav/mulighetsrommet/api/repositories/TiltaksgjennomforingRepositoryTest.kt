@@ -29,6 +29,7 @@ import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.Arbeidstrening1
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.ArenaOppfolging1
+import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.EnkelAmo
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.Oppfolging1
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.Oppfolging2
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
@@ -428,14 +429,11 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
     }
 
     context("skal migreres") {
-        test("skal migreres henter kun der tiltakstypen skal_migreres er true") {
+        test("skal migreres henter kun der tiltakstypen er ikke null") {
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
 
-            Query("update tiltakstype set skal_migreres = true where id = '${Oppfolging1.tiltakstypeId}'")
-                .asUpdate.let { database.db.run(it) }
-
             tiltaksgjennomforinger.upsert(Oppfolging1)
-            tiltaksgjennomforinger.upsert(Arbeidstrening1)
+            tiltaksgjennomforinger.upsert(EnkelAmo)
 
             tiltaksgjennomforinger.getAll(skalMigreres = true).should {
                 it.first shouldBe 1
@@ -1033,9 +1031,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         val arbeidstreningSanityId = UUID.randomUUID()
 
         beforeEach {
-            Query("update tiltakstype set skal_migreres = true")
-                .asUpdate
-                .let { database.db.run(it) }
             Query("update tiltakstype set sanity_id = '$oppfolgingSanityId' where id = '${TiltakstypeFixtures.Oppfolging.id}'")
                 .asUpdate
                 .let { database.db.run(it) }
@@ -1077,13 +1072,13 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             ) shouldHaveSize 0
         }
 
-        test("skal bare returnere tiltak markert med skal_migreres") {
+        test("skal bare returnere tiltak markert som skal migreres") {
             tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
                 innsatsgrupper = listOf(Innsatsgruppe.STANDARD_INNSATS),
                 brukersEnheter = listOf("2990"),
             ) shouldHaveSize 2
 
-            Query("update tiltakstype set skal_migreres = false where id = '${TiltakstypeFixtures.Oppfolging.id}'")
+            Query("update tiltakstype set tiltakskode = null where id = '${TiltakstypeFixtures.Oppfolging.id}'")
                 .asUpdate
                 .let { database.db.run(it) }
 
@@ -1092,7 +1087,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 brukersEnheter = listOf("2990"),
             ) shouldHaveSize 1
 
-            Query("update tiltakstype set skal_migreres = false where id = '${TiltakstypeFixtures.Arbeidstrening.id}'")
+            Query("update tiltakstype set tiltakskode = null where id = '${TiltakstypeFixtures.Arbeidstrening.id}'")
                 .asUpdate
                 .let { database.db.run(it) }
 

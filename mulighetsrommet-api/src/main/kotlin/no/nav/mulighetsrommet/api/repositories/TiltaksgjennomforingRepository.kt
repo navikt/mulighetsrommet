@@ -404,7 +404,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             avtaleId to "avtale_id = :avtaleId",
             arrangorOrgnr.ifEmpty { null } to arrangorOrganisasjonsnummerWhereStatement(arrangorOrgnr),
             administratorNavIdent to "administratorer @> :administrator_nav_ident::jsonb",
-            skalMigreres to "skal_migreres = :skalMigreres",
+            skalMigreres to "tiltakskode is not null",
             opphav to "opphav = :opphav::opphav",
         )
 
@@ -548,7 +548,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 left join tiltaksgjennomforing_virksomhet_kontaktperson tvk on tvk.tiltaksgjennomforing_id = tg.id
                 left join virksomhet_kontaktperson vk on vk.id = tvk.virksomhet_kontaktperson_id
             $where
-            and t.skal_migreres
+            and t.tiltakskode is not null
             and tg.publisert
             and tg.avslutningsstatus = 'IKKE_AVSLUTTET'
             group by tg.id, t.id, v.navn

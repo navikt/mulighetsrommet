@@ -4,7 +4,6 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
-import kotliquery.Query
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
@@ -67,7 +66,7 @@ class TiltakstypeRepositoryTest : FunSpec({
         val tiltakstypeAvsluttet = TiltakstypeDbo(
             id = UUID.randomUUID(),
             navn = "Oppfølgning",
-            tiltakskode = null,
+            tiltakskode = Gruppetiltak.OPPFOLGING,
             arenaKode = "INDOPPFOLG",
             rettPaaTiltakspenger = true,
             registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
@@ -92,9 +91,6 @@ class TiltakstypeRepositoryTest : FunSpec({
         tiltakstyper.upsert(tiltakstypeAktiv)
         tiltakstyper.upsert(tiltakstypeAvsluttet)
         tiltakstyper.upsert(tiltakstypeSkalIkkeMigreres)
-        Query("update tiltakstype set skal_migreres = true where id <> '$idSkalIkkeMigreres'").asUpdate.let {
-            database.db.run(it)
-        }
 
         test("Ingen filter for kategori returnerer både individuelle- og gruppetiltak") {
             tiltakstyper.getAllSkalMigreres(

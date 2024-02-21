@@ -7,6 +7,7 @@ select tg.id::uuid,
        v.navn                  as arrangor_navn,
        tg.start_dato,
        tg.slutt_dato,
+       t.tiltakskode,
        t.navn                  as tiltakstype_navn,
        case
            when arena_nav_enhet.enhetsnummer is null then null::jsonb
@@ -66,7 +67,6 @@ select tg.id::uuid,
                  end
            )                   as kontaktpersoner,
        tg.sted_for_gjennomforing,
-       t.skal_migreres,
        tg.faneinnhold,
        tg.beskrivelse,
        tg.created_at,

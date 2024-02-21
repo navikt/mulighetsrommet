@@ -142,4 +142,31 @@ object TiltaksgjennomforingFixtures {
         estimertVentetidVerdi = 3,
         estimertVentetidEnhet = "dag",
     )
-}
+
+    val EnkelAmo = TiltaksgjennomforingDbo(
+        id = UUID.randomUUID(),
+        navn = "EnkelAmo 1",
+        tiltakstypeId = TiltakstypeFixtures.EnkelAmo.id,
+        tiltaksnummer = "2023#3",
+        arrangorOrganisasjonsnummer = "222222222",
+        startDato = LocalDate.of(2023, 1, 1),
+        sluttDato = LocalDate.of(2023, 2, 1),
+        apentForInnsok = true,
+        antallPlasser = 12,
+        administratorer = emptyList(),
+        navRegion = "2990",
+        navEnheter = emptyList(),
+        oppstart = TiltaksgjennomforingOppstartstype.FELLES,
+        opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
+        kontaktpersoner = emptyList(),
+        arrangorKontaktpersoner = emptyList(),
+        stengtFra = null,
+        stengtTil = null,
+        stedForGjennomforing = "Oslo",
+        avtaleId = AvtaleFixtures.oppfolging.id,
+        faneinnhold = null,
+        beskrivelse = null,
+        deltidsprosent = 100.0,
+        estimertVentetidVerdi = 3,
+        estimertVentetidEnhet = "dag",
+    ) }

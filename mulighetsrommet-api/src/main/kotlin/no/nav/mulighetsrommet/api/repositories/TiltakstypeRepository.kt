@@ -179,7 +179,7 @@ class TiltakstypeRepository(private val db: Database) {
         val where = DatabaseUtils.andWhereParameterNotNull(
             tiltakstypeFilter.search to "(lower(navn) like lower(:search))",
             tiltakstypeFilter.statuser.ifEmpty { null } to statuserWhereStatement(tiltakstypeFilter.statuser),
-            true to "skal_migreres = true",
+            true to "tiltakskode is not null",
         )
 
         val order = when (tiltakstypeFilter.sortering) {
