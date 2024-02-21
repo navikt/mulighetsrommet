@@ -1,4 +1,4 @@
-name: Deploy BigQuery Views
+name: Deploy BigQuery Views - template
 on:
   workflow_call:
     inputs:
