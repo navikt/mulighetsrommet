@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.services
 
-import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.mockk.mockk
 import io.mockk.verifyAll

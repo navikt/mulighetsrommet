@@ -1,4 +1,4 @@
-import { Avtaletype, Opphav, Tiltakskode } from "mulighetsrommet-api-client";
+import { Avtaletype, Opphav, TiltakskodeArena } from "mulighetsrommet-api-client";
 import z from "zod";
 
 const GyldigUrlHvisVerdi = z.union([
@@ -11,7 +11,7 @@ export const AvtaleSchema = z.object({
   tiltakstype: z.object(
     {
       navn: z.string(),
-      arenaKode: z.nativeEnum(Tiltakskode),
+      arenaKode: z.nativeEnum(TiltakskodeArena),
       id: z.string(),
     },
     { required_error: "Du må velge en tiltakstype" },

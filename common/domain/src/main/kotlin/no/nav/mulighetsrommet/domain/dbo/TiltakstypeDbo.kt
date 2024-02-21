@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.domain.dbo
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.domain.Gruppetiltak
-import no.nav.mulighetsrommet.domain.Tiltakskoder
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer

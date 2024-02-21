@@ -169,4 +169,5 @@ object TiltaksgjennomforingFixtures {
         deltidsprosent = 100.0,
         estimertVentetidVerdi = 3,
         estimertVentetidEnhet = "dag",
-    ) }
+    )
+}
