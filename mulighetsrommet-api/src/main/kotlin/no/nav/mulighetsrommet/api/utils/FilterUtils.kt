@@ -19,7 +19,6 @@ import java.util.*
 data class TiltakstypeFilter(
     val search: String? = null,
     val statuser: List<Tiltakstypestatus> = emptyList(),
-    val kategorier: List<Tiltakstypekategori> = emptyList(),
     val dagensDato: LocalDate = LocalDate.now(),
     val sortering: String? = null,
 )
@@ -58,11 +57,6 @@ data class EnhetFilter(
 data class NotificationFilter(
     val status: NotificationStatus? = null,
 )
-
-enum class Tiltakstypekategori {
-    INDIVIDUELL,
-    GRUPPE,
-}
 
 data class VirksomhetFilter(
     val til: VirksomhetTil? = null,
@@ -104,13 +98,10 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getTiltakstypeFilter(): Tiltak
     val search = call.request.queryParameters["search"]
     val statuser =
         call.parameters.getAll("tiltakstypestatuser")?.map { status -> Tiltakstypestatus.valueOf(status) }
-    val kategorier =
-        call.parameters.getAll("tiltakstypekategorier")?.map { kategori -> Tiltakstypekategori.valueOf(kategori) }
     val sortering = call.request.queryParameters["sort"]
     return TiltakstypeFilter(
         search = search,
         statuser = statuser ?: emptyList(),
-        kategorier = kategorier ?: emptyList(),
         sortering = sortering,
     )
 }

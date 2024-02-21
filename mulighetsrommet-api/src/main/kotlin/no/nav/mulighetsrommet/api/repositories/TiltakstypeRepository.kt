@@ -8,7 +8,6 @@ import no.nav.mulighetsrommet.api.domain.dto.TiltakstypeEksternDto
 import no.nav.mulighetsrommet.api.utils.DatabaseUtils
 import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.api.utils.TiltakstypeFilter
-import no.nav.mulighetsrommet.api.utils.Tiltakstypekategori
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
@@ -180,7 +179,6 @@ class TiltakstypeRepository(private val db: Database) {
         val where = DatabaseUtils.andWhereParameterNotNull(
             tiltakstypeFilter.search to "(lower(navn) like lower(:search))",
             tiltakstypeFilter.statuser.ifEmpty { null } to statuserWhereStatement(tiltakstypeFilter.statuser),
-            tiltakstypeFilter.kategorier.ifEmpty { null } to kategorierWhereStatement(tiltakstypeFilter.kategorier),
             true to "skal_migreres = true",
         )
 
@@ -377,14 +375,6 @@ class TiltakstypeRepository(private val db: Database) {
                 Tiltakstypestatus.Planlagt -> "(:today < fra_dato)"
                 Tiltakstypestatus.Aktiv -> "(:today >= fra_dato and :today <= til_dato)"
                 else -> "(:today > til_dato)"
-            }
-        }
-
-    private fun kategorierWhereStatement(kategorier: List<Tiltakstypekategori>): String =
-        kategorier.joinToString(prefix = "(", postfix = ")", separator = " or ") {
-            when (it) {
-                Tiltakstypekategori.GRUPPE -> "(arena_kode = any(:gruppetiltakskoder))"
-                Tiltakstypekategori.INDIVIDUELL -> "(not(arena_kode = any(:gruppetiltakskoder)))"
             }
         }
 }

@@ -11,7 +11,6 @@ import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.utils.DEFAULT_PAGINATION_LIMIT
 import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.api.utils.TiltakstypeFilter
-import no.nav.mulighetsrommet.api.utils.Tiltakstypekategori
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.Gruppetiltak
@@ -95,30 +94,6 @@ class TiltakstypeRepositoryTest : FunSpec({
         tiltakstyper.upsert(tiltakstypeSkalIkkeMigreres)
         Query("update tiltakstype set skal_migreres = true where id <> '$idSkalIkkeMigreres'").asUpdate.let {
             database.db.run(it)
-        }
-
-        test("Filter for kun gruppetiltak returnerer bare gruppetiltak") {
-            tiltakstyper.getAllSkalMigreres(
-                TiltakstypeFilter(
-                    kategorier = listOf(Tiltakstypekategori.GRUPPE),
-                ),
-            ).second shouldHaveSize 2
-        }
-
-        test("Filter for kun individuelle tiltak returnerer bare individuelle tiltak") {
-            tiltakstyper.getAllSkalMigreres(
-                TiltakstypeFilter(
-                    kategorier = listOf(Tiltakstypekategori.INDIVIDUELL),
-                ),
-            ).second shouldHaveSize 1
-        }
-
-        test("Filter for alle kategorier returnerer alle") {
-            tiltakstyper.getAllSkalMigreres(
-                TiltakstypeFilter(
-                    kategorier = listOf(Tiltakstypekategori.INDIVIDUELL, Tiltakstypekategori.GRUPPE),
-                ),
-            ).second shouldHaveSize 3
         }
 
         test("Ingen filter for kategori returnerer både individuelle- og gruppetiltak") {
