@@ -60,9 +60,9 @@ class AvtaleValidatorTest : FunSpec({
 
     beforeEach {
         tiltakstyper = TiltakstypeRepository(database.db)
-        tiltakstyper.upsert(TiltakstypeFixtures.AFT).shouldBeRight()
-        tiltakstyper.upsert(TiltakstypeFixtures.VTA).shouldBeRight()
-        tiltakstyper.upsert(TiltakstypeFixtures.Oppfolging).shouldBeRight()
+        tiltakstyper.upsert(TiltakstypeFixtures.AFT)
+        tiltakstyper.upsert(TiltakstypeFixtures.VTA)
+        tiltakstyper.upsert(TiltakstypeFixtures.Oppfolging)
 
         val enheter = NavEnhetRepository(database.db)
         enheter.upsert(

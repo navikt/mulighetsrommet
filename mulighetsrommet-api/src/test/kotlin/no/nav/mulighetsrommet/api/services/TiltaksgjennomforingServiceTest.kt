@@ -35,7 +35,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
     val virksomhetService: VirksomhetService = mockk(relaxed = true)
     val utkastRepository: UtkastRepository = mockk(relaxed = true)
     val validator = mockk<TiltaksgjennomforingValidator>()
-    val enabledTiltakstyper = listOf(TiltakstypeFixtures.Oppfolging.tiltakskode)
+    val enabledTiltakstyper = listOf(TiltakstypeFixtures.Oppfolging.arenaKode)
     val avtaleId = AvtaleFixtures.oppfolging.id
     val domain = MulighetsrommetTestDomain()
 

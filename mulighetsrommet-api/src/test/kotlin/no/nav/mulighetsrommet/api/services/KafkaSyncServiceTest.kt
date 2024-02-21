@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.api.repositories.NavEnhetRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
+import no.nav.mulighetsrommet.domain.Gruppetiltak
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
@@ -34,7 +35,8 @@ class KafkaSyncServiceTest : FunSpec({
     val tiltakstype = TiltakstypeDbo(
         id = UUID.randomUUID(),
         navn = "Oppfølging",
-        tiltakskode = "INDOPPFAG",
+        tiltakskode = Gruppetiltak.OPPFOLGING,
+        arenaKode = "INDOPPFAG",
         rettPaaTiltakspenger = true,
         registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
         sistEndretDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
@@ -72,7 +74,7 @@ class KafkaSyncServiceTest : FunSpec({
             tiltakstype = TiltaksgjennomforingDto.Tiltakstype(
                 id = tiltakstype.id,
                 navn = tiltakstype.navn,
-                arenaKode = tiltakstype.tiltakskode,
+                arenaKode = tiltakstype.arenaKode,
             ),
             navn = navn,
             virksomhetsnummer = arrangorOrganisasjonsnummer,
@@ -87,7 +89,8 @@ class KafkaSyncServiceTest : FunSpec({
         return TiltakstypeEksternDto(
             id = id,
             navn = navn,
-            arenaKode = tiltakskode,
+            tiltakskode = tiltakskode,
+            arenaKode = arenaKode,
             registrertIArenaDato = registrertDatoIArena,
             sistEndretIArenaDato = sistEndretDatoIArena,
             fraDato = fraDato,
@@ -155,19 +158,19 @@ class KafkaSyncServiceTest : FunSpec({
             KafkaSyncService(mockk(), tiltakstypeRepository, mockk(), tiltakstypeKafkaProducer)
 
         val startdatoInnenfor =
-            tiltakstype.copy(id = UUID.randomUUID(), tiltakskode = "START", fraDato = LocalDate.of(2023, 2, 15))
+            tiltakstype.copy(id = UUID.randomUUID(), arenaKode = "START", fraDato = LocalDate.of(2023, 2, 15))
         val sluttdatoInnenfor =
             tiltakstype.copy(
                 id = UUID.randomUUID(),
-                tiltakskode = "SLUTT",
+                arenaKode = "SLUTT",
                 fraDato = LocalDate.of(2023, 2, 13),
                 tilDato = lastSuccessDate,
             )
 
         test("oppdater statuser på kafka på relevante tiltakstyper") {
-            tiltakstypeRepository.upsert(tiltakstype).shouldBeRight()
-            tiltakstypeRepository.upsert(startdatoInnenfor).shouldBeRight()
-            tiltakstypeRepository.upsert(sluttdatoInnenfor).shouldBeRight()
+            tiltakstypeRepository.upsert(tiltakstype)
+            tiltakstypeRepository.upsert(startdatoInnenfor)
+            tiltakstypeRepository.upsert(sluttdatoInnenfor)
 
             kafkaSyncService.oppdaterTiltakstypestatus(today, lastSuccessDate)
 

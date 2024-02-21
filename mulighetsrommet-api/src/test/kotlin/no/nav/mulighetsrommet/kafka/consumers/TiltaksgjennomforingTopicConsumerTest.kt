@@ -77,7 +77,7 @@ class TiltaksgjennomforingTopicConsumerTest : FunSpec({
             val arenaAdapterClient = mockk<ArenaAdapterClient>()
             coEvery { arenaAdapterClient.hentArenadata(gjennomforing.id) } returns null
 
-            val migrerteTiltak = listOf(TiltakstypeFixtures.Oppfolging.tiltakskode)
+            val migrerteTiltak = listOf(TiltakstypeFixtures.Oppfolging.arenaKode)
 
             val consumer = TiltaksgjennomforingTopicConsumer(
                 KafkaTopicConsumer.Config(id = "id", topic = "topic"),
@@ -104,7 +104,7 @@ class TiltaksgjennomforingTopicConsumerTest : FunSpec({
                 status = "AVSLU",
             )
 
-            val migrerteTiltak = listOf(TiltakstypeFixtures.Oppfolging.tiltakskode)
+            val migrerteTiltak = listOf(TiltakstypeFixtures.Oppfolging.arenaKode)
 
             val consumer = TiltaksgjennomforingTopicConsumer(
                 KafkaTopicConsumer.Config(id = "id", topic = "topic"),

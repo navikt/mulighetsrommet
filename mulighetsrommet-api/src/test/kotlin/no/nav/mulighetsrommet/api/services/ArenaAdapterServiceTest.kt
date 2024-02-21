@@ -39,7 +39,8 @@ class ArenaAdapterServiceTest : FunSpec({
     val tiltakstype = TiltakstypeDbo(
         id = UUID.randomUUID(),
         navn = "Oppfølging",
-        tiltakskode = "INDOPPFAG",
+        tiltakskode = null,
+        arenaKode = "INDOPPFAG",
         rettPaaTiltakspenger = true,
         registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
         sistEndretDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
@@ -93,7 +94,8 @@ class ArenaAdapterServiceTest : FunSpec({
     val tiltakstypeIndividuell = TiltakstypeDbo(
         id = UUID.randomUUID(),
         navn = "Høyere utdanning",
-        tiltakskode = "HOYEREUTD",
+        tiltakskode = null,
+        arenaKode = "HOYEREUTD",
         rettPaaTiltakspenger = true,
         registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
         sistEndretDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
@@ -119,7 +121,7 @@ class ArenaAdapterServiceTest : FunSpec({
             tiltakstype = TiltaksgjennomforingDto.Tiltakstype(
                 id = tiltakstypeId,
                 navn = tiltakstype.navn,
-                arenaKode = tiltakstype.tiltakskode,
+                arenaKode = tiltakstype.arenaKode,
             ),
             navn = navn,
             startDato = startDato,
@@ -172,14 +174,15 @@ class ArenaAdapterServiceTest : FunSpec({
         }
 
         test("should publish and retract tiltakstype from kafka topic") {
-            service.upsertTiltakstype(tiltakstype).shouldBeRight()
+            service.upsertTiltakstype(tiltakstype)
 
             verify(exactly = 1) {
                 tiltakstypeKafkaProducer.publish(
                     TiltakstypeEksternDto(
                         id = tiltakstype.id,
                         navn = tiltakstype.navn,
-                        arenaKode = tiltakstype.tiltakskode,
+                        tiltakskode = null,
+                        arenaKode = tiltakstype.arenaKode,
                         registrertIArenaDato = tiltakstype.registrertDatoIArena,
                         sistEndretIArenaDato = tiltakstype.sistEndretDatoIArena,
                         fraDato = tiltakstype.fraDato,
@@ -424,9 +427,9 @@ class ArenaAdapterServiceTest : FunSpec({
         }
 
         test("should keep references to existing avtale when avtale is managed in Mulighetsrommet") {
-            forAll(row("VASV"), row("ARBFORB")) { tiltakskode ->
+            forAll(row("VASV"), row("ARBFORB")) { arenaKode ->
                 runBlocking {
-                    val type = tiltakstype.copy(tiltakskode = tiltakskode)
+                    val type = tiltakstype.copy(arenaKode = arenaKode)
 
                     service.upsertTiltakstype(type)
                     service.upsertAvtale(avtale)
@@ -443,9 +446,9 @@ class ArenaAdapterServiceTest : FunSpec({
         }
 
         test("should overwrite references to existing avtale when avtale is managed in Arena") {
-            forAll(row("JOBBK"), row("GRUPPEAMO")) { tiltakskode ->
+            forAll(row("JOBBK"), row("GRUPPEAMO")) { arenaKode ->
                 runBlocking {
-                    val type = tiltakstype.copy(tiltakskode = tiltakskode)
+                    val type = tiltakstype.copy(arenaKode = arenaKode)
 
                     service.upsertTiltakstype(type)
                     service.upsertAvtale(avtale)

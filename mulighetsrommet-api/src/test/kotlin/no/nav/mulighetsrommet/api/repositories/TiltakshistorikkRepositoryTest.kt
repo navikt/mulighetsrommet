@@ -18,7 +18,8 @@ class TiltakshistorikkRepositoryTest : FunSpec({
     val tiltakstypeIndividuell = TiltakstypeDbo(
         id = UUID.randomUUID(),
         navn = "Høyere utdanning",
-        tiltakskode = "HOYEREUTD",
+        tiltakskode = null,
+        arenaKode = "HOYEREUTD",
         rettPaaTiltakspenger = true,
         registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
         sistEndretDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),

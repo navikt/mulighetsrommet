@@ -728,7 +728,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             tiltakstype = TiltaksgjennomforingAdminDto.Tiltakstype(
                 id = uuid("tiltakstype_id"),
                 navn = string("tiltakstype_navn"),
-                arenaKode = string("tiltakskode"),
+                arenaKode = string("arena_kode"),
             ),
             navn = string("navn"),
             tiltaksnummer = stringOrNull("tiltaksnummer"),

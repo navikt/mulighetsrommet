@@ -14,6 +14,7 @@ import no.nav.mulighetsrommet.api.utils.TiltakstypeFilter
 import no.nav.mulighetsrommet.api.utils.Tiltakstypekategori
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
+import no.nav.mulighetsrommet.domain.Gruppetiltak
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 import no.nav.mulighetsrommet.domain.dto.Tiltakstypestatus
 import org.intellij.lang.annotations.Language
@@ -45,7 +46,8 @@ class TiltakstypeRepositoryTest : FunSpec({
         val tiltakstypePlanlagt = TiltakstypeDbo(
             id = UUID.randomUUID(),
             navn = "Arbeidsforberedende trening",
-            tiltakskode = "ARBFORB",
+            tiltakskode = Gruppetiltak.ARBEIDSFORBEREDENDE_TRENING,
+            arenaKode = "ARBFORB",
             rettPaaTiltakspenger = true,
             registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
             sistEndretDatoIArena = LocalDateTime.of(2022, 1, 15, 0, 0, 0),
@@ -55,7 +57,8 @@ class TiltakstypeRepositoryTest : FunSpec({
         val tiltakstypeAktiv = TiltakstypeDbo(
             id = UUID.randomUUID(),
             navn = "Jobbklubb",
-            tiltakskode = "JOBBK",
+            tiltakskode = Gruppetiltak.JOBBKLUBB,
+            arenaKode = "JOBBK",
             rettPaaTiltakspenger = true,
             registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
             sistEndretDatoIArena = LocalDateTime.of(2022, 1, 15, 0, 0, 0),
@@ -65,7 +68,8 @@ class TiltakstypeRepositoryTest : FunSpec({
         val tiltakstypeAvsluttet = TiltakstypeDbo(
             id = UUID.randomUUID(),
             navn = "Oppfølgning",
-            tiltakskode = "INDOPPFOLG",
+            tiltakskode = null,
+            arenaKode = "INDOPPFOLG",
             rettPaaTiltakspenger = true,
             registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
             sistEndretDatoIArena = LocalDateTime.of(2022, 1, 15, 0, 0, 0),
@@ -75,8 +79,9 @@ class TiltakstypeRepositoryTest : FunSpec({
         val idSkalIkkeMigreres = UUID.randomUUID()
         val tiltakstypeSkalIkkeMigreres = TiltakstypeDbo(
             id = idSkalIkkeMigreres,
-            navn = "Oppfølgning",
-            tiltakskode = "INDOPPFOLG",
+            navn = "AMOY",
+            tiltakskode = null,
+            arenaKode = "AMOY",
             rettPaaTiltakspenger = true,
             registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
             sistEndretDatoIArena = LocalDateTime.of(2022, 1, 15, 0, 0, 0),
@@ -164,7 +169,8 @@ class TiltakstypeRepositoryTest : FunSpec({
                 TiltakstypeDbo(
                     id = UUID.randomUUID(),
                     navn = "$it",
-                    tiltakskode = "$it",
+                    tiltakskode = null,
+                    arenaKode = "$it",
                     rettPaaTiltakspenger = true,
                     registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
                     sistEndretDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
@@ -241,22 +247,22 @@ class TiltakstypeRepositoryTest : FunSpec({
             @Language("PostgreSQL")
             val query = """
                 insert into deltaker_registrering_innholdselement(innholdskode, tekst)
-                values('jobbsoking', '${TiltakstypeFixtures.Oppfolging.tiltakskode}')
+                values('jobbsoking', '${TiltakstypeFixtures.Oppfolging.arenaKode}')
                 on conflict do nothing;
 
                 insert into deltaker_registrering_innholdselement(innholdskode, tekst)
-                values('kartlegge-helse', '${TiltakstypeFixtures.Oppfolging.tiltakskode}')
+                values('kartlegge-helse', '${TiltakstypeFixtures.Oppfolging.arenaKode}')
                 on conflict do nothing;
 
                 update tiltakstype
                 set deltaker_registrering_ledetekst = 'Oppfølging er et bra tiltak'
-                where tiltakskode = '${TiltakstypeFixtures.Oppfolging.tiltakskode}';
+                where arena_kode = '${TiltakstypeFixtures.Oppfolging.arenaKode}';
 
-                insert into tiltakstype_deltaker_registrering_innholdselement(innholdskode, tiltakskode)
-                values('jobbsoking', '${TiltakstypeFixtures.Oppfolging.tiltakskode}');
+                insert into tiltakstype_deltaker_registrering_innholdselement(innholdskode, arena_kode)
+                values('jobbsoking', '${TiltakstypeFixtures.Oppfolging.arenaKode}');
 
-                insert into tiltakstype_deltaker_registrering_innholdselement(innholdskode, tiltakskode)
-                values('kartlegge-helse', '${TiltakstypeFixtures.Oppfolging.tiltakskode}');
+                insert into tiltakstype_deltaker_registrering_innholdselement(innholdskode, arena_kode)
+                values('kartlegge-helse', '${TiltakstypeFixtures.Oppfolging.arenaKode}');
             """.trimIndent()
             queryOf(
                 query,
@@ -273,7 +279,7 @@ class TiltakstypeRepositoryTest : FunSpec({
             val query = """
                 update tiltakstype
                 set deltaker_registrering_ledetekst = 'VTA er kjempebra'
-                where tiltakskode = '${TiltakstypeFixtures.VTA.tiltakskode}';
+                where arena_kode = '${TiltakstypeFixtures.VTA.arenaKode}';
             """.trimIndent()
             queryOf(
                 query,

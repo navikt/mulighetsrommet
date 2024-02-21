@@ -7,7 +7,6 @@ select tg.id::uuid,
        v.navn                  as arrangor_navn,
        tg.start_dato,
        tg.slutt_dato,
-       t.tiltakskode,
        t.navn                  as tiltakstype_navn,
        case
            when arena_nav_enhet.enhetsnummer is null then null::jsonb
@@ -91,7 +90,8 @@ select tg.id::uuid,
     tg.estimert_ventetid_enhet,
     tg.publisert,
     tg.publisert and tg.avslutningsstatus = 'IKKE_AVSLUTTET'::avslutningsstatus
-       as publisert_for_alle
+       as publisert_for_alle,
+    t.arena_kode
 from tiltaksgjennomforing tg
          inner join tiltakstype t on tg.tiltakstype_id = t.id
          left join tiltaksgjennomforing_administrator tg_a on tg_a.tiltaksgjennomforing_id = tg.id
@@ -106,4 +106,4 @@ from tiltaksgjennomforing tg
          left join nav_ansatt na_tg on na_tg.nav_ident = tg_a.nav_ident
          left join tiltaksgjennomforing_virksomhet_kontaktperson tvk on tvk.tiltaksgjennomforing_id = tg.id
          left join virksomhet_kontaktperson vk on vk.id = tvk.virksomhet_kontaktperson_id
-group by tg.id, t.id, v.navn, region.status, region.navn, region.type, region.overordnet_enhet, arena_nav_enhet.enhetsnummer;
+group by tg.id, t.id, v.navn, region.status, region.navn, region.type, region.overordnet_enhet, arena_nav_enhet.enhetsnummer, t.arena_kode;

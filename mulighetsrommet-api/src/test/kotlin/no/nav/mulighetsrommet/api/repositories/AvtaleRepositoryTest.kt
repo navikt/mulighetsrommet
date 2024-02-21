@@ -63,7 +63,7 @@ class AvtaleRepositoryTest : FunSpec({
             ).shouldBeRight()
 
             val tiltakstype = TiltakstypeFixtures.Oppfolging.copy(id = TiltakstypeFixtures.Oppfolging.id)
-            tiltakstypeRepository.upsert(tiltakstype).shouldBeRight()
+            tiltakstypeRepository.upsert(tiltakstype)
 
             val avtaleId = UUID.randomUUID()
             val avtale = ArenaAvtaleDbo(
@@ -89,7 +89,7 @@ class AvtaleRepositoryTest : FunSpec({
                 it.tiltakstype shouldBe AvtaleAdminDto.Tiltakstype(
                     id = tiltakstype.id,
                     navn = tiltakstype.navn,
-                    arenaKode = tiltakstype.tiltakskode,
+                    arenaKode = tiltakstype.arenaKode,
                 )
                 it.navn shouldBe "Avtale til test"
                 it.avtalenummer shouldBe "2023#123"
@@ -524,7 +524,7 @@ class AvtaleRepositoryTest : FunSpec({
                 TiltakstypeFixtures.Oppfolging.copy(
                     id = tiltakstypeIdForAvtale3,
                     navn = "",
-                    tiltakskode = "",
+                    arenaKode = "",
                     rettPaaTiltakspenger = true,
                     registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
                     sistEndretDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
@@ -630,7 +630,7 @@ class AvtaleRepositoryTest : FunSpec({
                 TiltakstypeFixtures.Oppfolging.copy(
                     id = tiltakstypeId,
                     navn = "",
-                    tiltakskode = "",
+                    arenaKode = "",
                     rettPaaTiltakspenger = true,
                     registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
                     sistEndretDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
@@ -899,7 +899,7 @@ class AvtaleRepositoryTest : FunSpec({
                     sluttDato = LocalDate.of(2024, 1, 1),
                 )
 
-                tiltakstypeRepository.upsert(tiltakstype).getOrThrow()
+                tiltakstypeRepository.upsert(tiltakstype)
 
                 avtaler.upsert(avtale6Mnd)
                 avtaler.upsert(avtale3Mnd)

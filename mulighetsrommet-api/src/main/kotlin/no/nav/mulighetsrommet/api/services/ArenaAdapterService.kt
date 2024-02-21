@@ -48,12 +48,13 @@ class ArenaAdapterService(
     private val notificationService: NotificationService,
     private val endringshistorikk: EndringshistorikkService,
 ) {
-    fun upsertTiltakstype(tiltakstype: TiltakstypeDbo): QueryResult<TiltakstypeDbo> {
-        return tiltakstyper.upsert(tiltakstype).onRight {
-            tiltakstyper.getEksternTiltakstype(tiltakstype.id)?.let {
-                tiltakstypeKafkaProducer.publish(it)
+    fun upsertTiltakstype(tiltakstype: TiltakstypeDbo): TiltakstypeDbo {
+        return tiltakstyper.upsert(tiltakstype)
+            .also {
+                tiltakstyper.getEksternTiltakstype(tiltakstype.id)?.let {
+                    tiltakstypeKafkaProducer.publish(it)
+                }
             }
-        }
     }
 
     fun removeTiltakstype(id: UUID): QueryResult<Int> {

@@ -53,9 +53,9 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
 
     beforeEach {
         tiltakstyper = TiltakstypeRepository(database.db)
-        tiltakstyper.upsert(TiltakstypeFixtures.AFT).shouldBeRight()
-        tiltakstyper.upsert(TiltakstypeFixtures.Oppfolging).shouldBeRight()
-        tiltakstyper.upsert(TiltakstypeFixtures.Jobbklubb).shouldBeRight()
+        tiltakstyper.upsert(TiltakstypeFixtures.AFT)
+        tiltakstyper.upsert(TiltakstypeFixtures.Oppfolging)
+        tiltakstyper.upsert(TiltakstypeFixtures.Jobbklubb)
 
         val enheter = NavEnhetRepository(database.db)
         enheter.upsert(

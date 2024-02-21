@@ -34,7 +34,7 @@ class AvtaleServiceTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
     val virksomhetService: VirksomhetService = mockk(relaxed = true)
     val utkastRepository: UtkastRepository = mockk(relaxed = true)
-    val enabledTiltakstyper = listOf(TiltakstypeFixtures.Oppfolging.tiltakskode)
+    val enabledTiltakstyper = listOf(TiltakstypeFixtures.Oppfolging.arenaKode)
     val validator = mockk<AvtaleValidator>()
 
     val domain = MulighetsrommetTestDomain()

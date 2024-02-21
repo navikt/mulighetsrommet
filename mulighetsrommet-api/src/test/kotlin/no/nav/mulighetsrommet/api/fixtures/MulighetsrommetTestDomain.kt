@@ -32,7 +32,7 @@ data class MulighetsrommetTestDomain(
         }
 
         TiltakstypeRepository(database).also { repository ->
-            tiltakstyper.forEach { repository.upsert(it).shouldBeRight() }
+            tiltakstyper.forEach { repository.upsert(it) }
         }
 
         AvtaleRepository(database).also { repository ->

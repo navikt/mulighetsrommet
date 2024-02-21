@@ -69,7 +69,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 it.tiltakstype shouldBe TiltaksgjennomforingAdminDto.Tiltakstype(
                     id = TiltakstypeFixtures.Oppfolging.id,
                     navn = TiltakstypeFixtures.Oppfolging.navn,
-                    arenaKode = TiltakstypeFixtures.Oppfolging.tiltakskode,
+                    arenaKode = TiltakstypeFixtures.Oppfolging.arenaKode,
                 )
                 it.navn shouldBe Oppfolging1.navn
                 it.tiltaksnummer shouldBe Oppfolging1.tiltaksnummer
@@ -151,7 +151,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 it.tiltakstype shouldBe TiltaksgjennomforingAdminDto.Tiltakstype(
                     id = TiltakstypeFixtures.Oppfolging.id,
                     navn = TiltakstypeFixtures.Oppfolging.navn,
-                    arenaKode = TiltakstypeFixtures.Oppfolging.tiltakskode,
+                    arenaKode = TiltakstypeFixtures.Oppfolging.arenaKode,
                 )
                 it.tiltaksnummer shouldBe "2023#1"
                 it.arrangor shouldBe TiltaksgjennomforingAdminDto.Arrangor(

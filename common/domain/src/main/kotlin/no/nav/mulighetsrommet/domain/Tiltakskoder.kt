@@ -1,11 +1,26 @@
 package no.nav.mulighetsrommet.domain
 
+import kotlinx.serialization.Serializable
+
+@Serializable
+enum class Gruppetiltak {
+    AVKLARING,
+    OPPFOLGING,
+    GRUPPE_AMO,
+    JOBBKLUBB,
+    DIGITAL_JOBBKLUBB,
+    ARBEIDSFORBEREDENDE_TRENING,
+    FAG_OG_YRKE_OPPLAERING,
+    ARBEIDSRETTET_REHABILITERING,
+    VARIG_TILRETTELAGT_ARBEID,
+}
+
 object Tiltakskoder {
     /**
      * Tiltakskoder for de forhåndsgodkjente og anskaffede tiltakene, kalt "gruppetilak" (av oss i hvert fall), og som
      * skal migreres fra Arena som del av P4.
      */
-    val Gruppetiltak = listOf(
+    val GruppetiltakArenaKoder = listOf(
         "ARBFORB",
         "ARBRRHDAG",
         "AVKLARAG",
@@ -59,23 +74,23 @@ object Tiltakskoder {
         "VASV",
     )
 
-    fun isGruppetiltak(tiltakskode: String): Boolean {
-        return tiltakskode in Gruppetiltak
+    fun isGruppetiltak(arenaKode: String): Boolean {
+        return arenaKode in GruppetiltakArenaKoder
     }
 
-    fun isEgenRegiTiltak(tiltakskode: String): Boolean {
-        return tiltakskode in EgenRegiTiltak
+    fun isEgenRegiTiltak(arenaKode: String): Boolean {
+        return arenaKode in EgenRegiTiltak
     }
 
-    fun isKursTiltak(tiltakskode: String): Boolean {
-        return tiltakskode in TiltakMedFellesOppstart
+    fun isKursTiltak(arenaKode: String): Boolean {
+        return arenaKode in TiltakMedFellesOppstart
     }
 
-    fun isAmtTiltak(tiltakskode: String): Boolean {
-        return tiltakskode in AmtTiltak
+    fun isAmtTiltak(arenaKode: String): Boolean {
+        return arenaKode in AmtTiltak
     }
 
-    fun isTiltakMedAvtalerFraMulighetsrommet(tiltakskode: String): Boolean {
-        return tiltakskode in TiltakMedAvtalerFraMulighetsrommet
+    fun isTiltakMedAvtalerFraMulighetsrommet(arenaKode: String): Boolean {
+        return arenaKode in TiltakMedAvtalerFraMulighetsrommet
     }
 }

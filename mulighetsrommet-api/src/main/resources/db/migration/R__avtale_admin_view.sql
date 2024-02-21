@@ -31,7 +31,6 @@ select a.id,
        a.url,
        a.updated_at,
        t.navn                                                                   as tiltakstype_navn,
-       t.tiltakskode,
        an.nav_enheter,
        au.leverandor_underenheter,
        jsonb_agg(
@@ -42,7 +41,8 @@ select a.id,
                    end
            )                                                                    as administratorer,
        a.beskrivelse,
-       a.faneinnhold
+       a.faneinnhold,
+       t.arena_kode
 from avtale a
          join tiltakstype t on t.id = a.tiltakstype_id
          left join avtale_administrator aa on a.id = aa.avtale_id
@@ -71,5 +71,5 @@ from avtale a
     ) au on au.avtale_id = a.id
          left join virksomhet v on v.organisasjonsnummer = a.leverandor_organisasjonsnummer
          left join virksomhet_kontaktperson vk on vk.id = a.leverandor_kontaktperson_id
-group by a.id, t.navn, t.tiltakskode, v.navn, au.leverandor_underenheter, an.nav_enheter, vk.id,
+group by a.id, t.navn, t.arena_kode, v.navn, au.leverandor_underenheter, an.nav_enheter, vk.id,
          arena_nav_enhet.enhetsnummer;
