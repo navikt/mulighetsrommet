@@ -41,7 +41,7 @@ interface Props {
 }
 
 export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: Props) {
-  const [sokLeverandor, setSokLeverandor] = useState(avtale?.leverandor?.organisasjonsnummer || "");
+  const [sokLeverandor, setSokLeverandor] = useState("");
   const { data: leverandorVirksomheter = [] } = useSokVirksomheter(sokLeverandor);
   const { data: migrerteTiltakstyper } = useMigrerteTiltakstyper();
 
@@ -89,9 +89,10 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
     if (leverandorData) {
       options.push({
         label: `${leverandorData.navn} - ${leverandorData.organisasjonsnummer}`,
-        value: leverandorData?.organisasjonsnummer,
+        value: leverandorData.organisasjonsnummer,
       });
     } else if (watchedLeverandor) {
+      // TODO Dette fører til flickering i gui. Hadde vært bedre om valgt leverandør alltid var tilgjengelig..
       options.push({ label: watchedLeverandor, value: watchedLeverandor });
     }
 

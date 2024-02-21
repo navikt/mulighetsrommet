@@ -6,7 +6,6 @@ import {
   Tiltaksgjennomforing,
   TiltaksgjennomforingKontaktperson,
   TiltaksgjennomforingOppstartstype,
-  Virksomhet,
   VirksomhetKontaktperson,
 } from "mulighetsrommet-api-client";
 import { InferredTiltaksgjennomforingSchema } from "./TiltaksgjennomforingSchema";
@@ -51,24 +50,13 @@ export const erArenaOpphavOgIngenEierskap = (
   );
 };
 
-export const arrangorUnderenheterOptions = (avtale: Avtale, virksomhet: Virksomhet | undefined) => {
-  const options =
-    avtale?.leverandorUnderenheter.map((lev: any) => {
-      return {
-        label: `${lev.navn} - ${lev.organisasjonsnummer}`,
-        value: lev.organisasjonsnummer,
-      };
-    }) || [];
-
-  // Ingen underenheter betyr at alle er valgt, må gi valg om alle underenheter fra virksomhet
-  if (options?.length === 0) {
-    const enheter = virksomhet?.underenheter || [];
-    return enheter.map((enhet) => ({
-      value: enhet.organisasjonsnummer,
-      label: `${enhet?.navn} - ${enhet?.organisasjonsnummer}`,
-    }));
-  }
-  return options;
+export const arrangorUnderenheterOptions = (avtale: Avtale) => {
+  return (avtale?.leverandorUnderenheter ?? []).map((arrangor) => {
+    return {
+      label: `${arrangor.navn} - ${arrangor.organisasjonsnummer}`,
+      value: arrangor.organisasjonsnummer,
+    };
+  });
 };
 
 function defaultNavRegion(

@@ -141,7 +141,7 @@ private fun kafka(appConfig: AppConfig) = module {
             AmtVirksomheterV1TopicConsumer(
                 config = config.consumers.amtVirksomheterV1,
                 virksomhetRepository = get(),
-                brregClient = get(),
+                virksomhetService = get(),
             ),
         )
         KafkaConsumerOrchestrator(

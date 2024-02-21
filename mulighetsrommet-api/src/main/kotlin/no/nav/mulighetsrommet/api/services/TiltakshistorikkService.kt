@@ -32,11 +32,11 @@ class TiltakshistorikkService(
     }
 
     private suspend fun hentArrangorNavn(virksomhetsnummer: String): String? {
-        return try {
-            virksomhetService.getOrSyncVirksomhet(virksomhetsnummer)?.navn
-        } catch (e: Throwable) {
-            log.error("Feil oppstod ved henting arrangørnavn", e)
+        return virksomhetService.getOrSyncVirksomhetFromBrreg(virksomhetsnummer).fold({ error ->
+            log.warn("Klarte ikke hente arrangør. BrregError: $error")
             null
-        }
+        }, { virksomhet ->
+            virksomhet.navn
+        })
     }
 }

@@ -1,17 +1,21 @@
 package no.nav.mulighetsrommet.api.services
 
+import arrow.core.left
+import arrow.core.right
+import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import io.ktor.server.plugins.*
+import io.mockk.clearAllMocks
 import io.mockk.coEvery
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
+import no.nav.mulighetsrommet.api.clients.brreg.BrregError
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
 import no.nav.mulighetsrommet.api.repositories.VirksomhetRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
+import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import java.time.LocalDate
 
 class VirksomhetServiceTest : FunSpec({
@@ -26,33 +30,48 @@ class VirksomhetServiceTest : FunSpec({
         virksomhetService = VirksomhetService(brregClient, virksomhetRepository)
     }
 
-    context(VirksomhetService::sokEtterEnhet.name) {
-        val testBedriftUnderenhet = VirksomhetDto(
+    context(VirksomhetService::getOrSyncVirksomhetFromBrreg.name) {
+        val underenhet = VirksomhetDto(
             organisasjonsnummer = "234567891",
             navn = "Underenhet til Testbedriften AS",
+            overordnetEnhet = "123456789",
             postnummer = null,
             poststed = null,
         )
-        val testBedrift = VirksomhetDto(
+        val hovedenhet = VirksomhetDto(
             organisasjonsnummer = "123456789",
             navn = "Testbedriften AS",
-            underenheter = listOf(testBedriftUnderenhet),
+            underenheter = listOf(underenhet),
             postnummer = null,
             poststed = null,
         )
 
-        test("skal hente enheter fra brreg og skrive de til databasen") {
-            val hovedenhet = testBedrift.organisasjonsnummer
-
-            coEvery { brregClient.hentEnhet(hovedenhet) } returns testBedrift
-
-            virksomhetService.getOrSyncVirksomhet(hovedenhet) shouldBe testBedrift
-
-            virksomhetRepository.get(hovedenhet) shouldBeRight testBedrift.copy(underenheter = null)
-            virksomhetRepository.get(testBedriftUnderenhet.organisasjonsnummer) shouldBeRight testBedriftUnderenhet
+        afterEach {
+            clearAllMocks()
+            database.db.truncateAll()
         }
 
-        test("skal hente slettet enhet brreg og skrive de til databasen") {
+        test("skal synkronisere hovedenhet med underenheter fra brreg til databasen gitt orgnr til hovedenhet") {
+            coEvery { brregClient.getHovedenhet(hovedenhet.organisasjonsnummer) } returns hovedenhet.right()
+
+            virksomhetService.getOrSyncVirksomhetFromBrreg(hovedenhet.organisasjonsnummer) shouldBeRight hovedenhet
+
+            virksomhetRepository.get(hovedenhet.organisasjonsnummer) shouldBe hovedenhet
+            virksomhetRepository.get(underenhet.organisasjonsnummer) shouldBe underenhet
+        }
+
+        test("skal synkronisere hovedenhet med underenheter fra brreg til databasen gitt orgnr til underenhet") {
+            coEvery { brregClient.getHovedenhet(hovedenhet.organisasjonsnummer) } returns hovedenhet.right()
+            coEvery { brregClient.getHovedenhet(underenhet.organisasjonsnummer) } returns BrregError.NotFound.left()
+            coEvery { brregClient.getUnderenhet(underenhet.organisasjonsnummer) } returns underenhet.right()
+
+            virksomhetService.getOrSyncVirksomhetFromBrreg(underenhet.organisasjonsnummer) shouldBeRight hovedenhet
+
+            virksomhetRepository.get(hovedenhet.organisasjonsnummer) shouldBe hovedenhet
+            virksomhetRepository.get(underenhet.organisasjonsnummer) shouldBe underenhet
+        }
+
+        test("skal synkronisere slettet enhet fra brreg og til databasen gitt orgnr til enheten") {
             val orgnr = "100200300"
             val slettetVirksomhet = VirksomhetDto(
                 organisasjonsnummer = orgnr,
@@ -62,68 +81,22 @@ class VirksomhetServiceTest : FunSpec({
                 poststed = null,
             )
 
-            coEvery { brregClient.hentEnhet(orgnr) } returns slettetVirksomhet
+            coEvery { brregClient.getHovedenhet(orgnr) } returns slettetVirksomhet.right()
 
-            virksomhetService.getOrSyncVirksomhet(orgnr) shouldBe slettetVirksomhet
+            virksomhetService.getOrSyncVirksomhetFromBrreg(orgnr) shouldBeRight slettetVirksomhet
 
-            virksomhetRepository.get(orgnr) shouldBeRight slettetVirksomhet
+            virksomhetRepository.get(orgnr) shouldBe slettetVirksomhet
         }
 
-        test("noop når enhet ikke finnes i brreg") {
+        test("NotFound error når enhet ikke finnes") {
             val orgnr = "123123123"
 
-            coEvery { brregClient.hentEnhet(orgnr) } returns null
+            coEvery { brregClient.getHovedenhet(orgnr) } returns BrregError.NotFound.left()
+            coEvery { brregClient.getUnderenhet(orgnr) } returns BrregError.NotFound.left()
 
-            virksomhetService.getOrSyncVirksomhet(orgnr) shouldBe null
+            virksomhetService.getOrSyncVirksomhetFromBrreg(orgnr) shouldBeLeft BrregError.NotFound
 
-            virksomhetRepository.get(orgnr) shouldBeRight null
-        }
-
-        test("Hent enhet skal returnere 404 not found hvis ingen enhet finnes") {
-            coEvery { brregClient.hentEnhet("999999999") } throws NotFoundException("Fant ingen enhet i Brreg med orgnr: '999999999'")
-
-            val exception = shouldThrow<NotFoundException> {
-                virksomhetService.getOrSyncVirksomhet("999999999")
-            }
-
-            exception.message shouldBe "Fant ingen enhet i Brreg med orgnr: '999999999'"
-        }
-    }
-
-    context(VirksomhetService::sokEtterEnhet.name) {
-        test("Søk etter enhet skal returnere en liste med treff") {
-            val sok = "Nav"
-
-            coEvery { brregClient.sokEtterOverordnetEnheter(sok) } returns listOf(
-                VirksomhetDto(
-                    organisasjonsnummer = "123456789",
-                    navn = "NAV AS",
-                    postnummer = null,
-                    poststed = null,
-                ),
-                VirksomhetDto(
-                    organisasjonsnummer = "445533227",
-                    navn = "Navesen AS",
-                    postnummer = null,
-                    poststed = null,
-                ),
-            )
-
-            val result = virksomhetService.sokEtterEnhet(sok)
-
-            result.size shouldBe 2
-            result[0].navn shouldBe "NAV AS"
-            result[1].navn shouldBe "Navesen AS"
-        }
-
-        test("Søk etter enhet skal returnere en tom liste hvis ingen treff") {
-            val sok = "ingen treff her"
-
-            coEvery { brregClient.sokEtterOverordnetEnheter(sok) } returns emptyList()
-
-            val result = virksomhetService.sokEtterEnhet(sok)
-
-            result.size shouldBe 0
+            virksomhetRepository.get(orgnr) shouldBe null
         }
     }
 })

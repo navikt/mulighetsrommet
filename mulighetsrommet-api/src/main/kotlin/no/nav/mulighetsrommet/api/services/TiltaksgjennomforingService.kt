@@ -1,8 +1,6 @@
 package no.nav.mulighetsrommet.api.services
 
-import arrow.core.Either
-import arrow.core.left
-import arrow.core.toNonEmptyListOrNull
+import arrow.core.*
 import io.ktor.server.plugins.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
@@ -45,44 +43,51 @@ class TiltaksgjennomforingService(
         request: TiltaksgjennomforingRequest,
         navIdent: String,
     ): Either<List<ValidationError>, TiltaksgjennomforingAdminDto> {
-        virksomhetService.getOrSyncVirksomhet(request.arrangorOrganisasjonsnummer)
-
         // TODO Fjern tiltakstypesjekk for tiltak når vi har blitt master for alle tiltakstyper
         val tiltakstype = tiltakstyper.get(request.tiltakstypeId)
             ?: throw BadRequestException("Fant ikke tiltakstype med id: ${request.tiltakstypeId}")
 
         val previous = tiltaksgjennomforinger.get(request.id)
-
         val ikkeKanOppretteTiltak = previous == null && !enabledTiltakstyper.contains(tiltakstype.arenaKode)
-
         if (ikkeKanOppretteTiltak) {
-            return Either.Left(
-                listOf(
-                    ValidationError(
-                        name = "avtale",
-                        message = "Opprettelse av tiltaksgjennomføring for tiltakstype: '${tiltakstype.navn}' er ikke skrudd på enda.",
-                    ),
-                ),
-            )
+            return ValidationError
+                .of(
+                    TiltaksgjennomforingDbo::avtaleId,
+                    "Opprettelse av tiltaksgjennomføring for tiltakstype: '${tiltakstype.navn}' er ikke skrudd på enda.",
+                )
+                .nel()
+                .left()
         }
 
-        return validator.validate(request.toDbo(), previous).map { dbo ->
-            db.transactionSuspend { tx ->
-                if (previous?.toDbo() == dbo) {
-                    return@transactionSuspend previous
-                }
-
-                tiltaksgjennomforinger.upsert(dbo, tx)
-                utkastRepository.delete(dbo.id, tx)
-
-                val dto = getOrError(dbo.id, tx)
-
-                dispatchNotificationToNewAdministrators(tx, dbo, navIdent)
-                logEndring("Redigerte gjennomføring", dto, navIdent, tx)
-                tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingDto.from(dto))
-                dto
+        return virksomhetService.getOrSyncVirksomhetFromBrreg(request.arrangorOrganisasjonsnummer)
+            .mapLeft {
+                ValidationError
+                    .of(
+                        TiltaksgjennomforingDbo::arrangorOrganisasjonsnummer,
+                        "Arrangøren finnes ikke Brønnøysundregistrene",
+                    )
+                    .nel()
             }
-        }
+            .flatMap {
+                validator.validate(request.toDbo(), previous)
+            }
+            .map { dbo ->
+                db.transactionSuspend { tx ->
+                    if (previous?.toDbo() == dbo) {
+                        return@transactionSuspend previous
+                    }
+
+                    tiltaksgjennomforinger.upsert(dbo, tx)
+                    utkastRepository.delete(dbo.id, tx)
+
+                    val dto = getOrError(dbo.id, tx)
+
+                    dispatchNotificationToNewAdministrators(tx, dbo, navIdent)
+                    logEndring("Redigerte gjennomføring", dto, navIdent, tx)
+                    tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingDto.from(dto))
+                    dto
+                }
+            }
     }
 
     fun get(id: UUID): TiltaksgjennomforingAdminDto? {

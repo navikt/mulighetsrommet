@@ -6,6 +6,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.encodeToJsonElement
 import kotliquery.TransactionalSession
+import no.nav.mulighetsrommet.api.clients.brreg.BrregError
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
@@ -29,6 +30,7 @@ import no.nav.mulighetsrommet.notifications.NotificationMetadata
 import no.nav.mulighetsrommet.notifications.NotificationService
 import no.nav.mulighetsrommet.notifications.NotificationType
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
+import org.slf4j.LoggerFactory
 import java.time.Instant
 import java.util.*
 
@@ -48,6 +50,8 @@ class ArenaAdapterService(
     private val notificationService: NotificationService,
     private val endringshistorikk: EndringshistorikkService,
 ) {
+    private val logger = LoggerFactory.getLogger(javaClass)
+
     fun upsertTiltakstype(tiltakstype: TiltakstypeDbo): QueryResult<TiltakstypeDbo> {
         return tiltakstyper.upsert(tiltakstype).onRight {
             tiltakstyper.getEksternTiltakstype(tiltakstype.id)?.let {
@@ -65,7 +69,7 @@ class ArenaAdapterService(
     }
 
     suspend fun upsertAvtale(avtale: ArenaAvtaleDbo): AvtaleAdminDto {
-        virksomhetService.getOrSyncVirksomhet(avtale.leverandorOrganisasjonsnummer)
+        syncVirksomhetFromBrreg(avtale.leverandorOrganisasjonsnummer)
 
         val dto = db.transaction { tx ->
             val previous = avtaler.get(avtale.id)
@@ -96,8 +100,9 @@ class ArenaAdapterService(
     }
 
     suspend fun upsertTiltaksgjennomforing(tiltaksgjennomforing: ArenaTiltaksgjennomforingDbo): QueryResult<TiltaksgjennomforingAdminDto> {
+        syncVirksomhetFromBrreg(tiltaksgjennomforing.arrangorOrganisasjonsnummer)
+
         val mulighetsrommetAvtaleId = lookForExistingAvtale(tiltaksgjennomforing)
-        virksomhetService.getOrSyncVirksomhet(tiltaksgjennomforing.arrangorOrganisasjonsnummer)
         val tiltaksgjennomforingMedAvtale = tiltaksgjennomforing.copy(avtaleId = mulighetsrommetAvtaleId)
 
         val gjennomforing = db.transactionSuspend { tx ->
@@ -128,6 +133,16 @@ class ArenaAdapterService(
         }
 
         return query { gjennomforing }
+    }
+
+    private suspend fun syncVirksomhetFromBrreg(orgnr: String) {
+        virksomhetService.getOrSyncVirksomhetFromBrreg(orgnr).onLeft { error ->
+            if (error == BrregError.NotFound) {
+                logger.warn("Virksomhet mer orgnr=$orgnr finnes ikke i brreg. Er dette en utenlandsk arrangør?")
+            }
+
+            throw IllegalArgumentException("Klarte ikke hente virksomhet med orgnr=$orgnr fra brreg: $error")
+        }
     }
 
     suspend fun removeTiltaksgjennomforing(id: UUID) {

@@ -13,6 +13,7 @@ import io.mockk.*
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattDbo
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
+import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.repositories.*
 import no.nav.mulighetsrommet.api.routes.v1.responses.BadRequest
@@ -44,6 +45,15 @@ class TiltaksgjennomforingServiceTest : FunSpec({
 
         every { validator.validate(any(), any()) } answers {
             firstArg<TiltaksgjennomforingDbo>().right()
+        }
+
+        coEvery { virksomhetService.getOrSyncVirksomhetFromBrreg(any()) } answers {
+            VirksomhetDto(
+                organisasjonsnummer = firstArg<String>(),
+                navn = "Virksomhet",
+                postnummer = null,
+                poststed = null,
+            ).right()
         }
     }
 
