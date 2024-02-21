@@ -101,7 +101,7 @@ nav-common-client = { module = "no.nav.common:client", version.ref = "common-jav
 nav-poaoTilgang-client = "no.nav.poao-tilgang:client:2024.02.16_13.44-aad488f62f54"
 nav-mockOauth2Server = "no.nav.security:mock-oauth2-server:2.1.2"
 
-postgresql = "org.postgresql:postgresql:42.7.1"
+postgresql = "org.postgresql:postgresql:42.7.2"
 
 prometheus-caffeine = "io.prometheus:simpleclient_caffeine:0.16.0"
 
