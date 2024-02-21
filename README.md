@@ -179,6 +179,9 @@ Synkronisering av kontaktpersoner kjører en gang i timen, så du må potensielt
 
 MERK: Hvis du mangler tilgang til AD så kan du selv be om tilgang ved å følge beskrivelse her: https://github.com/navikt/azure-ad-self-service/blob/main/DirectoryRead/README.md
 
+# Datadeling på Datamarkedsplassen
+TODO: Legg til info om produktene i datamarkedsplassen
+
 ## Henvendelser
 
 Spørsmål knyttet til koden eller prosjektet kan stilles via issues her på GitHub.
