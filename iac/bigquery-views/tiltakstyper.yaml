@@ -7,7 +7,7 @@ metadata:
     team: team-mulighetsrommet
   annotations:
     cnrm.cloud.google.com/management-conflict-prevention-policy: none
-    cnrm.cloud.google.com/project-id: team-mulighetsrommet-dev-a2d7
+    cnrm.cloud.google.com/project-id: {{ project }}
     cnrm.cloud.google.com/state-into-spec: merge
 
 spec:
