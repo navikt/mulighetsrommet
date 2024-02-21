@@ -75,6 +75,17 @@ jobs:
           RESOURCE: mulighetsrommet-api/.nais/nais-dev.yaml
           VAR: image=${{ needs.ci.outputs.image }}
 
+  deploy-dev-views:
+    needs: [ deploy-dev ]
+    if: github.ref == 'refs/heads/main'
+    permissions:
+      id-token: write # Needed for `nais/deploy/actions/deploy`
+    uses: ./.github/workflows/deploy-views.yaml
+    secrets: inherit
+    with:
+      cluster: dev-gcp
+      project: team-mulighetsrommet-dev
+
   deploy-prod:
     name: Deploy (prod)
     runs-on: ubuntu-latest
@@ -91,3 +102,14 @@ jobs:
           CLUSTER: prod-gcp
           RESOURCE: mulighetsrommet-api/.nais/nais-prod.yaml
           VAR: image=${{ needs.ci.outputs.image }}
+
+  deploy-prod-views:
+    needs: [ deploy-prod ]
+    if: github.ref == 'refs/heads/main'
+    permissions:
+      id-token: write # Needed for `nais/deploy/actions/deploy`
+    uses: ./.github/workflows/deploy-views.yaml
+    secrets: inherit
+    with:
+      cluster: prod-gcp
+      project: team-mulighetsrommet-prod

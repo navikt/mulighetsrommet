@@ -4,8 +4,6 @@ import io.ktor.client.engine.mock.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.http.content.*
-import io.ktor.utils.io.*
-import io.ktor.utils.io.core.*
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.serializer
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
@@ -48,7 +46,7 @@ fun createMockEngine(
     for ((uri, handler) in requestHandlers) {
         val mockUrl = Url(uri)
 
-        if (urlMatches(request.url, mockUrl)) {
+        if (urlMatches(expectedUrl = mockUrl, actualUrl = request.url)) {
             return@MockEngine handler(request)
         }
     }
@@ -56,16 +54,29 @@ fun createMockEngine(
     throw IllegalStateException("Mock-response is missing for request method=${request.method.value} url=${request.url}")
 }
 
-private fun urlMatches(requestUrl: Url, mockUrl: Url): Boolean {
-    if (requestUrl.encodedPath != mockUrl.encodedPath) {
+private fun urlMatches(expectedUrl: Url, actualUrl: Url): Boolean {
+    if (actualUrl.encodedPath != expectedUrl.encodedPath) {
         return false
     }
 
-    if (!mockUrl.parameters.isEmpty() && requestUrl.parameters != mockUrl.parameters) {
+    if (!parametersMatches(expectedUrl.parameters, actualUrl.parameters)) {
         return false
     }
 
     return true
+}
+
+private fun parametersMatches(expectedParameters: Parameters, actualParameters: Parameters): Boolean {
+    if (expectedParameters.isEmpty()) {
+        return true
+    }
+
+    return expectedParameters.entries()
+        .all { (key, expectedValue) ->
+            val actualValue = actualParameters.getAll(key)
+                ?: throw IllegalStateException("Expected to find '$key' in request parameters, but it was missing")
+            return actualValue == expectedValue
+        }
 }
 
 fun Url.getLastPathParameterAsUUID(): UUID {

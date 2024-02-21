@@ -7,13 +7,14 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import io.mockk.clearAllMocks
+import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.avtaler.AvtaleValidator
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattDbo
+import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
@@ -23,7 +24,6 @@ import no.nav.mulighetsrommet.api.routes.v1.responses.BadRequest
 import no.nav.mulighetsrommet.api.routes.v1.responses.NotFound
 import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.notifications.NotificationRepository
 import no.nav.mulighetsrommet.utils.toUUID
@@ -45,11 +45,15 @@ class AvtaleServiceTest : FunSpec({
         every { validator.validate(any(), any()) } answers {
             firstArg<AvtaleDbo>().right()
         }
-    }
 
-    afterEach {
-        database.db.truncateAll()
-        clearAllMocks()
+        coEvery { virksomhetService.getOrSyncVirksomhetFromBrreg(any()) } answers {
+            VirksomhetDto(
+                organisasjonsnummer = firstArg<String>(),
+                navn = "Virksomhet",
+                postnummer = null,
+                poststed = null,
+            ).right()
+        }
     }
 
     context("Upsert avtale") {
@@ -73,10 +77,7 @@ class AvtaleServiceTest : FunSpec({
             val request = AvtaleFixtures.avtaleRequest
 
             every { validator.validate(request.toDbo(), any()) } returns listOf(
-                ValidationError(
-                    "navn",
-                    "Dårlig navn",
-                ),
+                ValidationError("navn", "Dårlig navn"),
             ).left()
 
             avtaleService.upsert(request, "B123456").shouldBeLeft(

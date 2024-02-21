@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.api.services
 
-import arrow.core.Either
-import arrow.core.toNonEmptyListOrNull
+import arrow.core.*
 import io.ktor.server.plugins.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
@@ -46,8 +45,6 @@ class AvtaleService(
     }
 
     suspend fun upsert(request: AvtaleRequest, navIdent: String): Either<List<ValidationError>, AvtaleAdminDto> {
-        virksomhetService.getOrSyncVirksomhet(request.leverandorOrganisasjonsnummer)
-
         // TODO Fjern tiltakstypesjekk for avtaler når vi har blitt master for alle tiltakstyper
         val tiltakstype = tiltakstyper.get(request.tiltakstypeId)
             ?: throw BadRequestException("Fant ikke tiltakstype med id: ${request.tiltakstypeId}")
@@ -56,39 +53,51 @@ class AvtaleService(
 
         val tiltakstyperSomKanOppretteAvtaler = enabledTiltakstyper + listOf("VASV", "ARBFORB")
 
-        val kanIkkeOppretteAvtale =
-            previous == null && !tiltakstyperSomKanOppretteAvtaler.contains(tiltakstype.arenaKode)
-        val kanIkkeRedigereTiltakstypeForAvtale =
-            previous != null && (tiltakstype.arenaKode != previous.tiltakstype.arenaKode && !tiltakstyperSomKanOppretteAvtaler.contains(tiltakstype.arenaKode))
+        val kanIkkeOppretteAvtale = previous == null &&
+            !tiltakstyperSomKanOppretteAvtaler.contains(tiltakstype.arenaKode)
+        val kanIkkeRedigereTiltakstypeForAvtale = previous != null &&
+            tiltakstype.arenaKode != previous.tiltakstype.arenaKode &&
+            !tiltakstyperSomKanOppretteAvtaler.contains(tiltakstype.arenaKode)
 
         if (kanIkkeOppretteAvtale || kanIkkeRedigereTiltakstypeForAvtale) {
-            return Either.Left(
-                listOf(
-                    ValidationError(
-                        name = "tiltakstype",
-                        message = "Opprettelse av avtale for tiltakstype: '${tiltakstype.navn}' er ikke skrudd på enda.",
-                    ),
-                ),
-            )
+            return ValidationError
+                .of(
+                    AvtaleDbo::tiltakstypeId,
+                    "Opprettelse av avtale for tiltakstype: '${tiltakstype.navn}' er ikke skrudd på enda.",
+                )
+                .nel()
+                .left()
         }
 
-        return validator.validate(request.toDbo(), previous).map { dbo ->
-            db.transaction { tx ->
-                if (previous?.toDbo() == dbo) {
-                    return@transaction previous
-                }
-
-                avtaler.upsert(dbo, tx)
-                utkastRepository.delete(dbo.id, tx)
-
-                dispatchNotificationToNewAdministrators(tx, dbo, navIdent)
-
-                val dto = getOrError(dbo.id, tx)
-
-                logEndring("Redigerte avtale", dto, navIdent, tx)
-                dto
+        return virksomhetService.getOrSyncVirksomhetFromBrreg(request.leverandorOrganisasjonsnummer)
+            .mapLeft {
+                ValidationError
+                    .of(
+                        AvtaleDbo::leverandorOrganisasjonsnummer,
+                        "Leverandøren finnes ikke Brønnøysundregistrene",
+                    )
+                    .nel()
             }
-        }
+            .flatMap {
+                validator.validate(request.toDbo(), previous)
+            }
+            .map { dbo ->
+                db.transaction { tx ->
+                    if (previous?.toDbo() == dbo) {
+                        return@transaction previous
+                    }
+
+                    avtaler.upsert(dbo, tx)
+                    utkastRepository.delete(dbo.id, tx)
+
+                    dispatchNotificationToNewAdministrators(tx, dbo, navIdent)
+
+                    val dto = getOrError(dbo.id, tx)
+
+                    logEndring("Redigerte avtale", dto, navIdent, tx)
+                    dto
+                }
+            }
     }
 
     fun getAll(

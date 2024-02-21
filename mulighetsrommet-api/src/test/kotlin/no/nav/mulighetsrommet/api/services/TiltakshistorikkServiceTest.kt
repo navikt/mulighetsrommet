@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.services
 
+import arrow.core.right
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
@@ -7,12 +8,11 @@ import io.mockk.mockk
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dto.TiltakshistorikkDto
 import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
+import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
-import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakshistorikkRepository
-import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.dbo.ArenaTiltakshistorikkDbo
 import no.nav.mulighetsrommet.domain.dbo.Deltakerstatus
@@ -53,13 +53,11 @@ class TiltakshistorikkServiceTest : FunSpec({
     )
 
     beforeSpec {
-        MulighetsrommetTestDomain().initialize(database.db)
-        val tiltakstyper = TiltakstypeRepository(database.db)
-        tiltakstyper.upsert(tiltakstype)
-        tiltakstyper.upsert(tiltakstypeIndividuell)
-
-        val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-        tiltaksgjennomforinger.upsert(tiltaksgjennomforing)
+        MulighetsrommetTestDomain(
+            tiltakstyper = listOf(tiltakstype, tiltakstypeIndividuell),
+            avtaler = listOf(AvtaleFixtures.oppfolging),
+            gjennomforinger = listOf(tiltaksgjennomforing),
+        ).initialize(database.db)
 
         val tiltakshistorikk = TiltakshistorikkRepository(database.db)
         tiltakshistorikk.upsert(tiltakshistorikkGruppe)
@@ -69,18 +67,18 @@ class TiltakshistorikkServiceTest : FunSpec({
     test("henter historikk for bruker basert på person id med arrangørnavn") {
         val bedriftsnavn = "Bedriftsnavn"
         val bedriftsnavn2 = "Bedriftsnavn 2"
-        coEvery { virksomhetService.getOrSyncVirksomhet(tiltaksgjennomforing.arrangorOrganisasjonsnummer) } returns VirksomhetDto(
+        coEvery { virksomhetService.getOrSyncVirksomhetFromBrreg(tiltaksgjennomforing.arrangorOrganisasjonsnummer) } returns VirksomhetDto(
             navn = bedriftsnavn,
-            organisasjonsnummer = "123456789",
+            organisasjonsnummer = tiltaksgjennomforing.arrangorOrganisasjonsnummer,
             postnummer = null,
             poststed = null,
-        )
-        coEvery { virksomhetService.getOrSyncVirksomhet(tiltakshistorikkIndividuell.arrangorOrganisasjonsnummer) } returns VirksomhetDto(
+        ).right()
+        coEvery { virksomhetService.getOrSyncVirksomhetFromBrreg(tiltakshistorikkIndividuell.arrangorOrganisasjonsnummer) } returns VirksomhetDto(
             navn = bedriftsnavn2,
-            organisasjonsnummer = "12343",
+            organisasjonsnummer = tiltakshistorikkIndividuell.arrangorOrganisasjonsnummer,
             postnummer = null,
             poststed = null,
-        )
+        ).right()
 
         val historikkService = TiltakshistorikkService(virksomhetService, TiltakshistorikkRepository(database.db))
 

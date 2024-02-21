@@ -77,12 +77,16 @@ suspend inline fun <reified T : Any> ApplicationCall.respondWithStatusResponse(r
             respond(message)
         }
         .onLeft { error ->
-            if (error.errors == null) {
-                val message = error.message ?: error.status.description
-                respond(error.status, message)
-            } else {
-                val message = ValidationErrorResponse(message = error.message, errors = error.errors)
-                respond(error.status, message)
-            }
+            respondWithStatusResponseError(error)
         }
+}
+
+suspend fun ApplicationCall.respondWithStatusResponseError(error: StatusResponseError) {
+    if (error.errors == null) {
+        val message = error.message ?: error.status.description
+        respond(error.status, message)
+    } else {
+        val message = ValidationErrorResponse(message = error.message, errors = error.errors)
+        respond(error.status, message)
+    }
 }
