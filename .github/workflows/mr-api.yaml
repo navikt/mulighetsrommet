@@ -84,7 +84,7 @@ jobs:
     secrets: inherit
     with:
       cluster: dev-gcp
-      project: team-mulighetsrommet-dev
+      project: team-mulighetsrommet-dev-a2d7
 
   deploy-prod:
     name: Deploy (prod)
@@ -112,4 +112,4 @@ jobs:
     secrets: inherit
     with:
       cluster: prod-gcp
-      project: team-mulighetsrommet-prod
+      project: team-mulighetsrommet-prod-5492
