@@ -78,6 +78,8 @@ jobs:
   deploy-dev-views:
     needs: [ deploy-dev ]
     if: github.ref == 'refs/heads/main'
+    permissions:
+      id-token: write # Needed for `nais/deploy/actions/deploy`
     uses: ./.github/workflows/deploy-views.yaml
     secrets: inherit
     with:
@@ -104,6 +106,8 @@ jobs:
   deploy-prod-views:
     needs: [ deploy-prod ]
     if: github.ref == 'refs/heads/main'
+    permissions:
+      id-token: write # Needed for `nais/deploy/actions/deploy`
     uses: ./.github/workflows/deploy-views.yaml
     secrets: inherit
     with:
