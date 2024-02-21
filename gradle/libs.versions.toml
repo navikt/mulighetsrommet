@@ -98,7 +98,7 @@ nav-common-auditLog = { module = "no.nav.common:audit-log", version.ref = "commo
 nav-common-kafka = { module = "no.nav.common:kafka", version.ref = "common-java-modules" }
 nav-common-tokenClient = { module = "no.nav.common:token-client", version.ref = "common-java-modules" }
 nav-common-client = { module = "no.nav.common:client", version.ref = "common-java-modules" }
-nav-poaoTilgang-client = "no.nav.poao-tilgang:client:2024.02.16_13.44-aad488f62f54"
+nav-poaoTilgang-client = "no.nav.poao-tilgang:client:2024.02.20_07.34-4dbbf67d478e"
 nav-mockOauth2Server = "no.nav.security:mock-oauth2-server:2.1.2"
 
 postgresql = "org.postgresql:postgresql:42.7.1"
