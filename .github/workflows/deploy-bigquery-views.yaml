@@ -17,7 +17,7 @@ on:
 
 jobs:
   deploy-dev-views:
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
     permissions:
       id-token: write # Needed for `nais/deploy/actions/deploy`
     uses: ./.github/workflows/deploy-views.yaml
@@ -27,7 +27,7 @@ jobs:
       project: team-mulighetsrommet-dev-a2d7
 
 #  deploy-prod-views:
-#    if: github.ref == 'refs/heads/main'
+#    if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
 #    permissions:
 #      id-token: write # Needed for `nais/deploy/actions/deploy`
 #    uses: ./.github/workflows/deploy-views.yaml
