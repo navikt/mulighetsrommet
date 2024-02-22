@@ -103,7 +103,6 @@ export const TiltaksgjennomforingSkjemaContainer = ({
       arrangorKontaktpersoner: data.arrangorKontaktpersoner,
       beskrivelse: data.beskrivelse,
       faneinnhold: data.faneinnhold ?? null,
-      opphav: data.opphav,
       deltidsprosent: data.deltidsprosent,
       estimertVentetid: data.estimertVentetid ?? null,
     };

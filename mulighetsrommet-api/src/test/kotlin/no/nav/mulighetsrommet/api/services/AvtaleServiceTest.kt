@@ -119,9 +119,9 @@ class AvtaleServiceTest : FunSpec({
                 navn = "Avtale som eksisterer",
                 startDato = LocalDate.of(2023, 6, 1),
                 sluttDato = LocalDate.of(2023, 7, 1),
-                opphav = ArenaMigrering.Opphav.ARENA,
             )
             avtaleRepository.upsert(avtale)
+            avtaleRepository.setOpphav(avtale.id, ArenaMigrering.Opphav.ARENA)
 
             avtaleService.avbrytAvtale(avtale.id, "B123456").shouldBeLeft(
                 BadRequest("Avtalen har opprinnelse fra Arena og kan ikke bli avbrutt fra admin-flate."),
@@ -133,9 +133,9 @@ class AvtaleServiceTest : FunSpec({
                 navn = "Avtale som eksisterer",
                 startDato = LocalDate.of(2023, 5, 1),
                 sluttDato = LocalDate.of(2023, 6, 1),
-                opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
             )
             avtaleRepository.upsert(avtale)
+            avtaleRepository.setOpphav(avtale.id, ArenaMigrering.Opphav.MR_ADMIN_FLATE)
 
             avtaleService.avbrytAvtale(avtale.id, "B123456").shouldBeLeft(
                 BadRequest(message = "Avtalen er allerede avsluttet og kan derfor ikke avbrytes."),

@@ -139,10 +139,6 @@ class TiltaksgjennomforingValidator(
                     )
                 }
 
-                if (dbo.opphav != gjennomforing.opphav) {
-                    add(ValidationError.of(TiltaksgjennomforingDbo::opphav, "Opphav kan ikke endres"))
-                }
-
                 if (gjennomforing.status == GJENNOMFORES) {
                     if (dbo.avtaleId != gjennomforing.avtaleId) {
                         add(
@@ -188,10 +184,6 @@ class TiltaksgjennomforingValidator(
                             ),
                         )
                     }
-                }
-            } ?: run {
-                if (dbo.opphav != ArenaMigrering.Opphav.MR_ADMIN_FLATE) {
-                    add(ValidationError.of(TiltaksgjennomforingDbo::opphav, "Opphav må være MR_ADMIN_FLATE"))
                 }
             }
         }

@@ -53,7 +53,6 @@ class ArenaAdapterServiceTest : FunSpec({
         avtaletype = Avtaletype.Rammeavtale,
         avslutningsstatus = IKKE_AVSLUTTET,
         prisbetingelser = "💸",
-        opphav = ArenaMigrering.Opphav.ARENA,
     )
 
     val tiltaksgjennomforing = ArenaTiltaksgjennomforingDbo(
@@ -69,7 +68,6 @@ class ArenaAdapterServiceTest : FunSpec({
         apentForInnsok = true,
         antallPlasser = null,
         oppstart = TiltaksgjennomforingOppstartstype.FELLES,
-        opphav = ArenaMigrering.Opphav.ARENA,
         avtaleId = null,
         deltidsprosent = 100.0,
     )
@@ -307,7 +305,7 @@ class ArenaAdapterServiceTest : FunSpec({
             service.upsertAvtale(
                 avtale.copy(
                     arenaAnsvarligEnhet = NavEnhetFixtures.IT.enhetsnummer,
-                    avslutningsstatus = Avslutningsstatus.AVSLUTTET,
+                    avslutningsstatus = AVSLUTTET,
                 ),
             )
 
@@ -403,9 +401,7 @@ class ArenaAdapterServiceTest : FunSpec({
         }
 
         test("should not overwrite opphav when gjennomforing already exists") {
-            val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1.copy(
-                opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
-            )
+            val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1
 
             MulighetsrommetTestDomain(
                 tiltakstyper = listOf(tiltakstype),
@@ -686,6 +682,5 @@ fun toArenaTiltaksgjennomforingDbo(dbo: TiltaksgjennomforingDbo, avslutningsstat
         avtaleId = avtaleId,
         oppstart = oppstart,
         deltidsprosent = deltidsprosent,
-        opphav = ArenaMigrering.Opphav.ARENA,
     )
 }

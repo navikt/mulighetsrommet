@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.repositories
 
-import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.data.forAll
 import io.kotest.data.row
@@ -30,81 +29,87 @@ import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.ArenaAvtaleDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dto.Avtalestatus
-import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
 class AvtaleRepositoryTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
-    val domain = MulighetsrommetTestDomain()
-
-    beforeEach {
-        domain.initialize(database.db)
-    }
-
-    afterEach {
-        database.db.truncateAll()
-    }
 
     context("CRUD") {
-        test("Upsert av Arena-avtaler") {
-            val tiltakstypeRepository = TiltakstypeRepository(database.db)
-            val avtaler = AvtaleRepository(database.db)
-            val enheter = NavEnhetRepository(database.db)
-            enheter.upsert(
-                NavEnhetDbo(
-                    navn = "Navnesen",
-                    enhetsnummer = "0400",
-                    status = NavEnhetStatus.AKTIV,
-                    type = Norg2Type.FYLKE,
-                    overordnetEnhet = null,
-                ),
-            ).shouldBeRight()
-
-            val tiltakstype = TiltakstypeFixtures.Oppfolging.copy(id = TiltakstypeFixtures.Oppfolging.id)
-            tiltakstypeRepository.upsert(tiltakstype).shouldBeRight()
-
-            val avtaleId = UUID.randomUUID()
-            val avtale = ArenaAvtaleDbo(
-                id = avtaleId,
-                navn = "Avtale til test",
-                tiltakstypeId = tiltakstype.id,
-                avtalenummer = "2023#123",
-                leverandorOrganisasjonsnummer = "123456789",
-                startDato = LocalDate.of(2023, 1, 1),
-                sluttDato = LocalDate.of(2023, 2, 2),
+        val arenaAvtale: ArenaAvtaleDbo = AvtaleFixtures.oppfolging.run {
+            ArenaAvtaleDbo(
+                id = id,
+                navn = navn,
+                tiltakstypeId = tiltakstypeId,
+                avtalenummer = avtalenummer,
+                leverandorOrganisasjonsnummer = leverandorOrganisasjonsnummer,
+                startDato = startDato,
+                sluttDato = sluttDato,
                 arenaAnsvarligEnhet = "9999",
-                avtaletype = Avtaletype.Avtale,
+                avtaletype = avtaletype,
                 avslutningsstatus = Avslutningsstatus.AVSLUTTET,
-                opphav = ArenaMigrering.Opphav.ARENA,
-                prisbetingelser = "Alt er dyrt",
+                prisbetingelser = prisbetingelser,
             )
+        }
 
-            avtaler.upsertArenaAvtale(avtale)
-            val upsertedAvtale = avtaler.get(avtale.id)
-            upsertedAvtale.shouldNotBeNull()
-            upsertedAvtale.should {
-                it.id shouldBe avtaleId
-                it.tiltakstype shouldBe AvtaleAdminDto.Tiltakstype(
-                    id = tiltakstype.id,
-                    navn = tiltakstype.navn,
-                    arenaKode = tiltakstype.tiltakskode,
-                )
-                it.navn shouldBe "Avtale til test"
-                it.avtalenummer shouldBe "2023#123"
-                it.leverandor shouldBe AvtaleAdminDto.Leverandor(
-                    organisasjonsnummer = "123456789",
-                    navn = null,
-                    slettet = true,
-                )
+        beforeEach {
+            MulighetsrommetTestDomain(
+                tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
+                avtaler = listOf(),
+            ).initialize(database.db)
+        }
+
+        afterEach {
+            database.db.truncateAll()
+        }
+
+        test("Upsert av Arena-avtaler") {
+            val avtaler = AvtaleRepository(database.db)
+
+            avtaler.upsertArenaAvtale(arenaAvtale)
+
+            avtaler.get(arenaAvtale.id).shouldNotBeNull().should {
+                it.id shouldBe arenaAvtale.id
+                it.tiltakstype.id shouldBe arenaAvtale.tiltakstypeId
+                it.navn shouldBe arenaAvtale.navn
+                it.avtalenummer shouldBe arenaAvtale.avtalenummer
+                it.leverandor.organisasjonsnummer shouldBe arenaAvtale.leverandorOrganisasjonsnummer
                 it.arenaAnsvarligEnhet shouldBe null
-                it.startDato shouldBe LocalDate.of(2023, 1, 1)
-                it.sluttDato shouldBe LocalDate.of(2023, 2, 2)
-                it.avtaletype shouldBe Avtaletype.Avtale
+                it.startDato shouldBe arenaAvtale.startDato
+                it.sluttDato shouldBe arenaAvtale.sluttDato
+                it.avtaletype shouldBe arenaAvtale.avtaletype
                 it.avtalestatus shouldBe Avtalestatus.Avsluttet
                 it.opphav shouldBe ArenaMigrering.Opphav.ARENA
                 it.prisbetingelser shouldBe "Alt er dyrt"
+            }
+        }
+
+        test("upsert setter opphav til MR_ADMIN_FLATE") {
+            val avtaler = AvtaleRepository(database.db)
+
+            avtaler.upsert(AvtaleFixtures.oppfolging)
+
+            avtaler.get(AvtaleFixtures.oppfolging.id).shouldNotBeNull().should {
+                it.opphav shouldBe ArenaMigrering.Opphav.MR_ADMIN_FLATE
+            }
+        }
+
+        test("upsert endrer ikke opphav om det allerede er satt") {
+            val avtaler = AvtaleRepository(database.db)
+
+            val id1 = UUID.randomUUID()
+            avtaler.upsertArenaAvtale(arenaAvtale.copy(id = id1))
+            avtaler.upsert(AvtaleFixtures.oppfolging.copy(id = id1))
+            avtaler.get(id1).shouldNotBeNull().should {
+                it.opphav shouldBe ArenaMigrering.Opphav.ARENA
+            }
+
+            val id2 = UUID.randomUUID()
+            avtaler.upsert(AvtaleFixtures.oppfolging.copy(id = id2))
+            avtaler.upsertArenaAvtale(arenaAvtale.copy(id = id2))
+            avtaler.get(id2).shouldNotBeNull().should {
+                it.opphav shouldBe ArenaMigrering.Opphav.MR_ADMIN_FLATE
             }
         }
 
@@ -258,6 +263,17 @@ class AvtaleRepositoryTest : FunSpec({
 
     context("Filter for avtaler") {
         val avtaler = AvtaleRepository(database.db)
+
+        beforeEach {
+            MulighetsrommetTestDomain(
+                tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
+                avtaler = listOf(),
+            ).initialize(database.db)
+        }
+
+        afterEach {
+            database.db.truncateAll()
+        }
 
         context("Avtalenavn") {
             test("Filtrere på avtalenavn skal returnere avtaler som matcher søket") {
@@ -550,34 +566,58 @@ class AvtaleRepositoryTest : FunSpec({
     context("Sortering") {
         val avtaler = AvtaleRepository(database.db)
 
+        val domain = MulighetsrommetTestDomain(
+            tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging, TiltakstypeFixtures.Jobbklubb),
+            avtaler = listOf(
+                AvtaleFixtures.oppfolging.copy(
+                    id = UUID.randomUUID(),
+                    navn = "Avtale hos Anders",
+                    leverandorOrganisasjonsnummer = "123456789",
+                    sluttDato = LocalDate.of(2010, 1, 31),
+                ),
+                AvtaleFixtures.oppfolging.copy(
+                    id = UUID.randomUUID(),
+                    navn = "Avtale hos Åse",
+                    leverandorOrganisasjonsnummer = "987654321",
+                    sluttDato = LocalDate.of(2009, 1, 1),
+                ),
+                AvtaleFixtures.oppfolging.copy(
+                    id = UUID.randomUUID(),
+                    navn = "Avtale hos Øyvind",
+                    leverandorOrganisasjonsnummer = "123456789",
+                    sluttDato = LocalDate.of(2010, 1, 1),
+                ),
+                AvtaleFixtures.oppfolging.copy(
+                    id = UUID.randomUUID(),
+                    navn = "Avtale hos Kjetil",
+                    leverandorOrganisasjonsnummer = "999888777",
+                    sluttDato = LocalDate.of(2011, 1, 1),
+                ),
+                AvtaleFixtures.oppfolging.copy(
+                    id = UUID.randomUUID(),
+                    navn = "Avtale hos Ærfuglen Ærle",
+                    leverandorOrganisasjonsnummer = "123456789",
+                    sluttDato = LocalDate.of(2023, 1, 1),
+                ),
+            ),
+            virksomhter = listOf(
+                VirksomhetDto(navn = "alvdal", organisasjonsnummer = "987654321", postnummer = null, poststed = null),
+                VirksomhetDto(navn = "bjarne", organisasjonsnummer = "123456789", postnummer = null, poststed = null),
+                VirksomhetDto(navn = "chris", organisasjonsnummer = "999888777", postnummer = null, poststed = null),
+            ),
+        )
+        beforeEach {
+            domain.initialize(database.db)
+        }
+
+        afterEach {
+            database.db.truncateAll()
+        }
+
         test("Sortering på navn fra a-å sorterer korrekt med æøå til slutt") {
-            val avtale1 = AvtaleFixtures.oppfolging.copy(
-                navn = "Avtale hos Anders",
-            )
-            val avtale2 = avtale1.copy(
-                id = UUID.randomUUID(),
-                navn = "Avtale hos Åse",
-            )
-            val avtale3 = avtale1.copy(
-                id = UUID.randomUUID(),
-                navn = "Avtale hos Øyvind",
-            )
-            val avtale4 = avtale1.copy(
-                id = UUID.randomUUID(),
-                navn = "Avtale hos Kjetil",
-            )
-            val avtale5 = avtale1.copy(
-                id = UUID.randomUUID(),
-                navn = "Avtale hos Ærfuglen Ærle",
-            )
-            avtaler.upsert(avtale1)
-            avtaler.upsert(avtale2)
-            avtaler.upsert(avtale3)
-            avtaler.upsert(avtale4)
-            avtaler.upsert(avtale5)
             val result = avtaler.getAll(sortering = "navn-ascending")
 
-            result.second shouldHaveSize 6
+            result.second shouldHaveSize 5
             result.second[0].navn shouldBe "Avtale hos Anders"
             result.second[1].navn shouldBe "Avtale hos Kjetil"
             result.second[2].navn shouldBe "Avtale hos Ærfuglen Ærle"
@@ -586,58 +626,18 @@ class AvtaleRepositoryTest : FunSpec({
         }
 
         test("Sortering på navn fra å-a sorterer korrekt") {
-            val avtale1 = AvtaleFixtures.oppfolging.copy(
-                navn = "Avtale hos Anders",
-            )
-            val avtale2 = avtale1.copy(
-                id = UUID.randomUUID(),
-                navn = "Avtale hos Åse",
-            )
-            val avtale3 = avtale1.copy(
-                id = UUID.randomUUID(),
-                navn = "Avtale hos Øyvind",
-            )
-            val avtale4 = avtale1.copy(
-                id = UUID.randomUUID(),
-                navn = "Avtale hos Kjetil",
-            )
-            val avtale5 = avtale1.copy(
-                id = UUID.randomUUID(),
-                navn = "Avtale hos Ærfuglen Ærle",
-            )
-            avtaler.upsert(avtale1)
-            avtaler.upsert(avtale2)
-            avtaler.upsert(avtale3)
-            avtaler.upsert(avtale4)
-            avtaler.upsert(avtale5)
             val result = avtaler.getAll(sortering = "navn-descending")
 
-            result.second shouldHaveSize 6
-            result.second[0].navn shouldBe "Avtalenavn for VTA"
-            result.second[1].navn shouldBe "Avtale hos Åse"
-            result.second[2].navn shouldBe "Avtale hos Øyvind"
-            result.second[3].navn shouldBe "Avtale hos Ærfuglen Ærle"
-            result.second[4].navn shouldBe "Avtale hos Kjetil"
-            result.second[5].navn shouldBe "Avtale hos Anders"
+            result.second shouldHaveSize 5
+            result.second[0].navn shouldBe "Avtale hos Åse"
+            result.second[1].navn shouldBe "Avtale hos Øyvind"
+            result.second[2].navn shouldBe "Avtale hos Ærfuglen Ærle"
+            result.second[3].navn shouldBe "Avtale hos Kjetil"
+            result.second[4].navn shouldBe "Avtale hos Anders"
         }
 
         test("Filtrer på tiltakstype og nav-region forholder seg til korrekt logikk i filter-spørring") {
-            val tiltakstypeId = UUID.randomUUID()
-
             val navEnhetRepository = NavEnhetRepository(database.db)
-            val tiltakstyper = TiltakstypeRepository(database.db)
-            tiltakstyper.upsert(
-                TiltakstypeFixtures.Oppfolging.copy(
-                    id = tiltakstypeId,
-                    navn = "",
-                    tiltakskode = "",
-                    rettPaaTiltakspenger = true,
-                    registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
-                    sistEndretDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
-                    fraDato = LocalDate.of(2023, 1, 11),
-                    tilDato = LocalDate.of(2023, 1, 12),
-                ),
-            )
 
             navEnhetRepository.upsert(
                 NavEnhetDbo(
@@ -660,7 +660,7 @@ class AvtaleRepositoryTest : FunSpec({
             val avtale3 = avtale1.copy(
                 id = UUID.randomUUID(),
                 navn = "Avtale hos Øyvind",
-                tiltakstypeId = tiltakstypeId,
+                tiltakstypeId = TiltakstypeFixtures.Jobbklubb.id,
             )
 
             avtaler.upsert(avtale1)
@@ -685,170 +685,57 @@ class AvtaleRepositoryTest : FunSpec({
         }
 
         test("Sortering på leverandor sorterer korrekt") {
-            val virksomhetRepository = VirksomhetRepository(database.db)
-            virksomhetRepository.upsert(
-                VirksomhetDto(
-                    navn = "alvdal",
-                    organisasjonsnummer = "987654321",
-                    postnummer = null,
-                    poststed = null,
-                ),
+            val alvdal = AvtaleAdminDto.Leverandor(
+                organisasjonsnummer = "987654321",
+                navn = "alvdal",
+                slettet = false,
             )
-            virksomhetRepository.upsert(
-                VirksomhetDto(
-                    navn = "bjarne",
-                    organisasjonsnummer = "123456789",
-                    postnummer = null,
-                    poststed = null,
-                ),
+            val bjarne = AvtaleAdminDto.Leverandor(
+                organisasjonsnummer = "123456789",
+                navn = "bjarne",
+                slettet = false,
             )
-            val avtale1 = AvtaleFixtures.oppfolging.copy(
-                leverandorOrganisasjonsnummer = "123456789",
-                navn = "Avtale hos Anders",
+            val chris = AvtaleAdminDto.Leverandor(
+                organisasjonsnummer = "999888777",
+                navn = "chris",
+                slettet = false,
             )
-            val avtale2 = avtale1.copy(
-                id = UUID.randomUUID(),
-                leverandorOrganisasjonsnummer = "987654321",
-                navn = "Avtale hos Åse",
-            )
-            avtaler.upsert(avtale1)
-            avtaler.upsert(avtale2)
 
             val ascending = avtaler.getAll(sortering = "leverandor-ascending")
 
-            ascending.second shouldHaveSize 3
-            ascending.second[0].leverandor shouldBe AvtaleAdminDto.Leverandor(
-                organisasjonsnummer = "987654321",
-                navn = "alvdal",
-                slettet = false,
-            )
-            ascending.second[1].leverandor shouldBe AvtaleAdminDto.Leverandor(
-                organisasjonsnummer = "123456789",
-                navn = "bjarne",
-                slettet = false,
-            )
-            ascending.second[2].leverandor shouldBe AvtaleAdminDto.Leverandor(
-                organisasjonsnummer = "123456789",
-                navn = "bjarne",
-                slettet = false,
-            )
+            ascending.second[0].leverandor shouldBe alvdal
+            ascending.second[1].leverandor shouldBe bjarne
+            ascending.second[2].leverandor shouldBe bjarne
+            ascending.second[3].leverandor shouldBe bjarne
+            ascending.second[4].leverandor shouldBe chris
 
             val descending = avtaler.getAll(sortering = "leverandor-descending")
 
-            descending.second shouldHaveSize 3
-            descending.second[0].leverandor shouldBe AvtaleAdminDto.Leverandor(
-                organisasjonsnummer = "123456789",
-                navn = "bjarne",
-                slettet = false,
-            )
-            descending.second[1].leverandor shouldBe AvtaleAdminDto.Leverandor(
-                organisasjonsnummer = "123456789",
-                navn = "bjarne",
-                slettet = false,
-            )
-            descending.second[2].leverandor shouldBe AvtaleAdminDto.Leverandor(
-                organisasjonsnummer = "987654321",
-                navn = "alvdal",
-                slettet = false,
-            )
+            descending.second[0].leverandor shouldBe chris
+            descending.second[1].leverandor shouldBe bjarne
+            descending.second[2].leverandor shouldBe bjarne
+            descending.second[3].leverandor shouldBe bjarne
+            descending.second[4].leverandor shouldBe alvdal
         }
 
         test("Sortering på sluttdato fra a-å sorterer korrekt") {
-            val avtale1 = AvtaleFixtures.oppfolging.copy(
-                sluttDato = LocalDate.of(2010, 1, 31),
-                navn = "Avtale hos Anders",
-            )
-            val avtale2 = avtale1.copy(
-                id = UUID.randomUUID(),
-                sluttDato = LocalDate.of(2009, 1, 1),
-                navn = "Avtale hos Åse",
-            )
-            val avtale3 = avtale1.copy(
-                id = UUID.randomUUID(),
-                sluttDato = LocalDate.of(2010, 1, 1),
-                navn = "Avtale hos Øyvind",
-            )
-            val avtale4 = avtale1.copy(
-                id = UUID.randomUUID(),
-                sluttDato = LocalDate.of(2011, 1, 1),
-                navn = "Avtale hos Kjetil",
-            )
-            val avtale5 = avtale1.copy(
-                id = UUID.randomUUID(),
-                sluttDato = LocalDate.of(2023, 1, 1),
-                navn = "Avtale hos Benny",
-            )
-            val avtale6 = avtale1.copy(
-                id = UUID.randomUUID(),
-                sluttDato = LocalDate.of(2023, 1, 1),
-                navn = "Avtale hos Christina",
-            )
-            avtaler.upsert(avtale1)
-            avtaler.upsert(avtale2)
-            avtaler.upsert(avtale3)
-            avtaler.upsert(avtale4)
-            avtaler.upsert(avtale5)
-            avtaler.upsert(avtale6)
-
             val result = avtaler.getAll(sortering = "sluttdato-descending")
 
-            result.second shouldHaveSize 7
-            result.second[0].sluttDato shouldBe LocalDate.of(2023, 2, 28)
-            result.second[0].navn shouldBe "Avtalenavn for VTA"
-            result.second[1].sluttDato shouldBe LocalDate.of(2023, 1, 1)
-            result.second[1].navn shouldBe "Avtale hos Benny"
-            result.second[2].sluttDato shouldBe LocalDate.of(2023, 1, 1)
-            result.second[2].navn shouldBe "Avtale hos Christina"
-            result.second[3].sluttDato shouldBe LocalDate.of(2011, 1, 1)
-            result.second[3].navn shouldBe "Avtale hos Kjetil"
-            result.second[4].sluttDato shouldBe LocalDate.of(2010, 1, 31)
-            result.second[4].navn shouldBe "Avtale hos Anders"
-            result.second[5].sluttDato shouldBe LocalDate.of(2010, 1, 1)
-            result.second[5].navn shouldBe "Avtale hos Øyvind"
-            result.second[6].sluttDato shouldBe LocalDate.of(2009, 1, 1)
-            result.second[6].navn shouldBe "Avtale hos Åse"
+            result.second[0].sluttDato shouldBe LocalDate.of(2023, 1, 1)
+            result.second[0].navn shouldBe "Avtale hos Ærfuglen Ærle"
+            result.second[1].sluttDato shouldBe LocalDate.of(2011, 1, 1)
+            result.second[1].navn shouldBe "Avtale hos Kjetil"
+            result.second[2].sluttDato shouldBe LocalDate.of(2010, 1, 31)
+            result.second[2].navn shouldBe "Avtale hos Anders"
+            result.second[3].sluttDato shouldBe LocalDate.of(2010, 1, 1)
+            result.second[3].navn shouldBe "Avtale hos Øyvind"
+            result.second[4].sluttDato shouldBe LocalDate.of(2009, 1, 1)
+            result.second[4].navn shouldBe "Avtale hos Åse"
         }
 
         test("Sortering på sluttdato fra å-a sorterer korrekt") {
-            val avtale1 = AvtaleFixtures.oppfolging.copy(
-                sluttDato = LocalDate.of(2010, 1, 31),
-                navn = "Avtale hos Anders",
-            )
-            val avtale2 = avtale1.copy(
-                id = UUID.randomUUID(),
-                sluttDato = LocalDate.of(2009, 1, 1),
-                navn = "Avtale hos Åse",
-            )
-            val avtale3 = avtale1.copy(
-                id = UUID.randomUUID(),
-                sluttDato = LocalDate.of(2010, 1, 1),
-                navn = "Avtale hos Øyvind",
-            )
-            val avtale4 = avtale1.copy(
-                id = UUID.randomUUID(),
-                sluttDato = LocalDate.of(2011, 1, 1),
-                navn = "Avtale hos Kjetil",
-            )
-            val avtale5 = avtale1.copy(
-                id = UUID.randomUUID(),
-                sluttDato = LocalDate.of(2023, 1, 1),
-                navn = "Avtale hos Benny",
-            )
-            val avtale6 = avtale1.copy(
-                id = UUID.randomUUID(),
-                sluttDato = LocalDate.of(2023, 1, 1),
-                navn = "Avtale hos Christina",
-            )
-            avtaler.upsert(avtale1)
-            avtaler.upsert(avtale2)
-            avtaler.upsert(avtale3)
-            avtaler.upsert(avtale4)
-            avtaler.upsert(avtale5)
-            avtaler.upsert(avtale6)
-
             val result = avtaler.getAll(sortering = "sluttdato-ascending")
 
-            result.second shouldHaveSize 7
             result.second[0].sluttDato shouldBe LocalDate.of(2009, 1, 1)
             result.second[0].navn shouldBe "Avtale hos Åse"
             result.second[1].sluttDato shouldBe LocalDate.of(2010, 1, 1)
@@ -858,55 +745,47 @@ class AvtaleRepositoryTest : FunSpec({
             result.second[3].sluttDato shouldBe LocalDate.of(2011, 1, 1)
             result.second[3].navn shouldBe "Avtale hos Kjetil"
             result.second[4].sluttDato shouldBe LocalDate.of(2023, 1, 1)
-            result.second[4].navn shouldBe "Avtale hos Benny"
-            result.second[5].sluttDato shouldBe LocalDate.of(2023, 1, 1)
-            result.second[5].navn shouldBe "Avtale hos Christina"
-            result.second[6].sluttDato shouldBe LocalDate.of(2023, 2, 28)
-            result.second[6].navn shouldBe "Avtalenavn for VTA"
+            result.second[4].navn shouldBe "Avtale hos Ærfuglen Ærle"
         }
     }
 
     context("Notifikasjoner for avtaler") {
-        val tiltakstypeRepository = TiltakstypeRepository(database.db)
-        val avtaler = AvtaleRepository(database.db)
-
         context("Avtaler nærmer seg sluttdato") {
+            val avtaler = AvtaleRepository(database.db)
+
+            val avtale6Mnd = AvtaleFixtures.oppfolging.copy(
+                id = UUID.randomUUID(),
+                startDato = LocalDate.of(2021, 1, 1),
+                sluttDato = LocalDate.of(2023, 11, 30),
+            )
+            val avtale3Mnd = AvtaleFixtures.oppfolging.copy(
+                id = UUID.randomUUID(),
+                startDato = LocalDate.of(2021, 1, 1),
+                sluttDato = LocalDate.of(2023, 8, 31),
+            )
+            val avtale14Dag = AvtaleFixtures.oppfolging.copy(
+                id = UUID.randomUUID(),
+                startDato = LocalDate.of(2021, 1, 1),
+                sluttDato = LocalDate.of(2023, 6, 14),
+            )
+            val avtale7Dag = AvtaleFixtures.oppfolging.copy(
+                id = UUID.randomUUID(),
+                startDato = LocalDate.of(2021, 1, 1),
+                sluttDato = LocalDate.of(2023, 6, 7),
+            )
+            val avtaleSomIkkeSkalMatche = AvtaleFixtures.oppfolging.copy(
+                id = UUID.randomUUID(),
+                startDato = LocalDate.of(2022, 6, 7),
+                sluttDato = LocalDate.of(2024, 1, 1),
+            )
+
+            val domain = MulighetsrommetTestDomain(
+                tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
+                avtaler = listOf(avtale6Mnd, avtale3Mnd, avtale14Dag, avtale7Dag, avtaleSomIkkeSkalMatche),
+            )
+            domain.initialize(database.db)
+
             test("Skal returnere avtaler som har sluttdato om 6 mnd, 3 mnd, 14 dager og 7 dager") {
-                val tiltakstype = TiltakstypeFixtures.Oppfolging.copy(id = TiltakstypeFixtures.Oppfolging.id)
-                val avtale6Mnd = AvtaleFixtures.oppfolging.copy(
-                    id = UUID.randomUUID(),
-                    startDato = LocalDate.of(2021, 1, 1),
-                    sluttDato = LocalDate.of(2023, 11, 30),
-                )
-                val avtale3Mnd = AvtaleFixtures.oppfolging.copy(
-                    id = UUID.randomUUID(),
-                    startDato = LocalDate.of(2021, 1, 1),
-                    sluttDato = LocalDate.of(2023, 8, 31),
-                )
-                val avtale14Dag = AvtaleFixtures.oppfolging.copy(
-                    id = UUID.randomUUID(),
-                    startDato = LocalDate.of(2021, 1, 1),
-                    sluttDato = LocalDate.of(2023, 6, 14),
-                )
-                val avtale7Dag = AvtaleFixtures.oppfolging.copy(
-                    id = UUID.randomUUID(),
-                    startDato = LocalDate.of(2021, 1, 1),
-                    sluttDato = LocalDate.of(2023, 6, 7),
-                )
-                val avtaleSomIkkeSkalMatche = AvtaleFixtures.oppfolging.copy(
-                    id = UUID.randomUUID(),
-                    startDato = LocalDate.of(2022, 6, 7),
-                    sluttDato = LocalDate.of(2024, 1, 1),
-                )
-
-                tiltakstypeRepository.upsert(tiltakstype).getOrThrow()
-
-                avtaler.upsert(avtale6Mnd)
-                avtaler.upsert(avtale3Mnd)
-                avtaler.upsert(avtale14Dag)
-                avtaler.upsert(avtale7Dag)
-                avtaler.upsert(avtaleSomIkkeSkalMatche)
-
                 val result = avtaler.getAllAvtalerSomNarmerSegSluttdato(
                     currentDate = LocalDate.of(2023, 5, 31),
                 )

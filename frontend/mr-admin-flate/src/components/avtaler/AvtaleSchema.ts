@@ -1,4 +1,4 @@
-import { Avtaletype, Opphav, Tiltakskode } from "mulighetsrommet-api-client";
+import { Avtaletype, Tiltakskode } from "mulighetsrommet-api-client";
 import z from "zod";
 
 const GyldigUrlHvisVerdi = z.union([
@@ -59,7 +59,6 @@ export const AvtaleSchema = z.object({
       { required_error: "Det redaksjonelle innholdet må settes på avtalen" },
     )
     .nullable(),
-  opphav: z.nativeEnum(Opphav),
 });
 
 export type InferredAvtaleSchema = z.infer<typeof AvtaleSchema>;

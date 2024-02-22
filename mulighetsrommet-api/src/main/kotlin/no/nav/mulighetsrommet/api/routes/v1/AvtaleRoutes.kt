@@ -17,7 +17,6 @@ import no.nav.mulighetsrommet.api.services.AvtaleService
 import no.nav.mulighetsrommet.api.services.ExcelService
 import no.nav.mulighetsrommet.api.utils.getAvtaleFilter
 import no.nav.mulighetsrommet.api.utils.getPaginationParams
-import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import no.nav.mulighetsrommet.domain.dto.Faneinnhold
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
@@ -132,7 +131,6 @@ data class AvtaleRequest(
     val navEnheter: List<String>,
     val beskrivelse: String?,
     val faneinnhold: Faneinnhold?,
-    val opphav: ArenaMigrering.Opphav,
 ) {
     fun toDbo() = AvtaleDbo(
         id = id,
@@ -150,7 +148,6 @@ data class AvtaleRequest(
         administratorer = administratorer,
         prisbetingelser = prisbetingelser,
         navEnheter = navEnheter,
-        opphav = opphav,
         beskrivelse = beskrivelse,
         faneinnhold = faneinnhold,
     )

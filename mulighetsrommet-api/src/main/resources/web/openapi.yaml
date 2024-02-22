@@ -2054,8 +2054,6 @@ components:
         faneinnhold:
           $ref: "#/components/schemas/SanityFaneinnholdRequest"
           nullable: true
-        opphav:
-          $ref: "#/components/schemas/Opphav"
       required:
         - id
         - navn
@@ -2073,7 +2071,6 @@ components:
         - navEnheter
         - beskrivelse
         - faneinnhold
-        - opphav
         - avslutningsstatus
 
     EmbeddedTiltakstype:
@@ -2301,9 +2298,6 @@ components:
         stedForGjennomforing:
           type: string
           nullable: true
-        opphav:
-          $ref: "#/components/schemas/Opphav"
-          nullable: true
         faneinnhold:
           $ref: "#/components/schemas/SanityFaneinnholdRequest"
           nullable: true
@@ -2343,7 +2337,6 @@ components:
         - apentForInnsok
         - kontaktpersoner
         - stedForGjennomforing
-        - opphav
         - faneinnhold
         - beskrivelse
         - deltidsprosent
