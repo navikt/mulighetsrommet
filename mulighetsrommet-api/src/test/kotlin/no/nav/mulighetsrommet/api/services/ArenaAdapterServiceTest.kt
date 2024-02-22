@@ -438,6 +438,10 @@ class ArenaAdapterServiceTest : FunSpec({
                     service.upsertTiltaksgjennomforing(tiltaksgjennomforing.copy(avtaleId = null))
                     database.assertThat("tiltaksgjennomforing").row()
                         .value("avtale_id").isEqualTo(avtale.id)
+
+                    verify(exactly = 1) {
+                        tiltaksgjennomforingKafkaProducer.publish(any())
+                    }
                 }
             }
         }
