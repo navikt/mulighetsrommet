@@ -306,7 +306,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                               antall_plasser               = excluded.antall_plasser,
                               avtale_id                    = excluded.avtale_id,
                               oppstart                     = coalesce(tiltaksgjennomforing.oppstart, excluded.oppstart),
-                              opphav                       = excluded.opphav,
+                              opphav                       = coalesce(tiltaksgjennomforing.opphav, excluded.opphav),
                               deltidsprosent               = excluded.deltidsprosent
         """.trimIndent()
 

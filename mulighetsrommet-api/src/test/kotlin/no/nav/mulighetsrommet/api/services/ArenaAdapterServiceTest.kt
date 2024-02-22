@@ -5,22 +5,25 @@ import io.kotest.common.runBlocking
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.data.blocking.forAll
 import io.kotest.data.row
+import io.kotest.matchers.nulls.shouldNotBeNull
+import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.mockk.clearAllMocks
 import io.mockk.mockk
 import io.mockk.verify
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
+import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleAdminDto
 import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingDto
 import no.nav.mulighetsrommet.api.domain.dto.TiltakstypeEksternDto
-import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
-import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
-import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
+import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.repositories.*
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.utils.getOrThrow
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.*
+import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus.AVSLUTTET
+import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus.IKKE_AVSLUTTET
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
 import no.nav.mulighetsrommet.domain.dto.Tiltakstypestatus
@@ -36,20 +39,11 @@ import java.util.*
 class ArenaAdapterServiceTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
-    val tiltakstype = TiltakstypeDbo(
-        id = UUID.randomUUID(),
-        navn = "Oppfølging",
-        tiltakskode = "INDOPPFAG",
-        rettPaaTiltakspenger = true,
-        registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
-        sistEndretDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
-        fraDato = LocalDate.now(),
-        tilDato = LocalDate.now().plusYears(1),
-    )
+    val tiltakstype = TiltakstypeFixtures.Oppfolging
 
     val avtale = ArenaAvtaleDbo(
         id = UUID.randomUUID(),
-        navn = "Arbeidstrening",
+        navn = "Oppfølgingsavtale",
         tiltakstypeId = tiltakstype.id,
         avtalenummer = "2023#1000",
         leverandorOrganisasjonsnummer = "123456789",
@@ -57,21 +51,21 @@ class ArenaAdapterServiceTest : FunSpec({
         sluttDato = LocalDate.now().plusYears(1),
         arenaAnsvarligEnhet = null,
         avtaletype = Avtaletype.Rammeavtale,
-        avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
+        avslutningsstatus = IKKE_AVSLUTTET,
         prisbetingelser = "💸",
         opphav = ArenaMigrering.Opphav.ARENA,
     )
 
     val tiltaksgjennomforing = ArenaTiltaksgjennomforingDbo(
         id = UUID.randomUUID(),
-        navn = "Arbeidstrening",
+        navn = "Oppfølging",
         tiltakstypeId = tiltakstype.id,
         tiltaksnummer = "12345",
         arrangorOrganisasjonsnummer = "123456789",
         startDato = LocalDate.now(),
         sluttDato = LocalDate.now().plusYears(1),
         arenaAnsvarligEnhet = null,
-        avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
+        avslutningsstatus = IKKE_AVSLUTTET,
         apentForInnsok = true,
         antallPlasser = null,
         oppstart = TiltaksgjennomforingOppstartstype.FELLES,
@@ -112,23 +106,6 @@ class ArenaAdapterServiceTest : FunSpec({
         tiltakstypeId = tiltakstypeIndividuell.id,
         arrangorOrganisasjonsnummer = "12343",
     )
-
-    val tiltaksgjennomforingDto = tiltaksgjennomforing.run {
-        TiltaksgjennomforingDto(
-            id = id,
-            tiltakstype = TiltaksgjennomforingDto.Tiltakstype(
-                id = tiltakstypeId,
-                navn = tiltakstype.navn,
-                arenaKode = tiltakstype.tiltakskode,
-            ),
-            navn = navn,
-            startDato = startDato,
-            sluttDato = sluttDato,
-            status = Tiltaksgjennomforingsstatus.GJENNOMFORES,
-            oppstart = oppstart,
-            virksomhetsnummer = arrangorOrganisasjonsnummer,
-        )
-    }
 
     context("tiltakstype") {
         val tiltakstypeKafkaProducer = mockk<TiltakstypeKafkaProducer>(relaxed = true)
@@ -343,12 +320,13 @@ class ArenaAdapterServiceTest : FunSpec({
     context("tiltaksgjennomføring") {
         val tiltaksgjennomforingKafkaProducer = mockk<TiltaksgjennomforingKafkaProducer>(relaxed = true)
         val notificationService = mockk<NotificationService>(relaxed = true)
+        val gjennomforinger = TiltaksgjennomforingRepository(database.db)
         val service = ArenaAdapterService(
             db = database.db,
             navAnsatte = NavAnsattRepository(database.db),
             tiltakstyper = TiltakstypeRepository(database.db),
             avtaler = AvtaleRepository(database.db),
-            tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db),
+            tiltaksgjennomforinger = gjennomforinger,
             tiltakshistorikk = TiltakshistorikkRepository(database.db),
             deltakere = DeltakerRepository(database.db),
             tiltaksgjennomforingKafkaProducer = tiltaksgjennomforingKafkaProducer,
@@ -378,6 +356,7 @@ class ArenaAdapterServiceTest : FunSpec({
                 .value("start_dato").isEqualTo(tiltaksgjennomforing.startDato)
                 .value("slutt_dato").isEqualTo(tiltaksgjennomforing.sluttDato)
                 .value("deltidsprosent").isEqualTo(tiltaksgjennomforing.deltidsprosent)
+                .value("opphav").isEqualTo(ArenaMigrering.Opphav.ARENA.name)
 
             val updated = tiltaksgjennomforing.copy(navn = "Oppdatert arbeidstrening")
             service.upsertTiltaksgjennomforing(updated)
@@ -401,7 +380,7 @@ class ArenaAdapterServiceTest : FunSpec({
             service.upsertTiltaksgjennomforing(tiltaksgjennomforing)
 
             verify(exactly = 1) {
-                tiltaksgjennomforingKafkaProducer.publish(tiltaksgjennomforingDto)
+                tiltaksgjennomforingKafkaProducer.publish(toTiltaksgjennomforingDto(tiltaksgjennomforing, tiltakstype))
             }
 
             service.removeTiltaksgjennomforing(tiltaksgjennomforing.id)
@@ -419,7 +398,29 @@ class ArenaAdapterServiceTest : FunSpec({
             service.upsertTiltaksgjennomforing(tiltaksgjennomforing)
 
             verify(exactly = 1) {
-                tiltaksgjennomforingKafkaProducer.publish(tiltaksgjennomforingDto)
+                tiltaksgjennomforingKafkaProducer.publish(toTiltaksgjennomforingDto(tiltaksgjennomforing, tiltakstype))
+            }
+        }
+
+        test("should not overwrite opphav when gjennomforing already exists") {
+            val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1.copy(
+                opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
+            )
+
+            MulighetsrommetTestDomain(
+                tiltakstyper = listOf(tiltakstype),
+                avtaler = listOf(AvtaleFixtures.oppfolging),
+                gjennomforinger = listOf(gjennomforing),
+            ).initialize(database.db)
+
+            service.upsertTiltakstype(tiltakstype)
+            service.upsertTiltaksgjennomforing(
+                toArenaTiltaksgjennomforingDbo(gjennomforing.copy(navn = "Endret navn"), AVSLUTTET),
+            )
+
+            gjennomforinger.get(gjennomforing.id).shouldNotBeNull().should {
+                it.navn shouldBe "Endret navn"
+                it.opphav shouldBe ArenaMigrering.Opphav.MR_ADMIN_FLATE
             }
         }
 
@@ -431,13 +432,15 @@ class ArenaAdapterServiceTest : FunSpec({
                     service.upsertTiltakstype(type)
                     service.upsertAvtale(avtale)
 
-                    service.upsertTiltaksgjennomforing(tiltaksgjennomforing.copy(avtaleId = avtale.id))
-                    database.assertThat("tiltaksgjennomforing").row()
-                        .value("avtale_id").isEqualTo(avtale.id)
+                    service.upsertTiltaksgjennomforing(tiltaksgjennomforing.copy(avtaleId = avtale.id)).shouldBeRight()
+                    gjennomforinger.get(tiltaksgjennomforing.id).shouldNotBeNull().should {
+                        it.avtaleId shouldBe avtale.id
+                    }
 
                     service.upsertTiltaksgjennomforing(tiltaksgjennomforing.copy(avtaleId = null))
-                    database.assertThat("tiltaksgjennomforing").row()
-                        .value("avtale_id").isEqualTo(avtale.id)
+                    gjennomforinger.get(tiltaksgjennomforing.id).shouldNotBeNull().should {
+                        it.avtaleId shouldBe avtale.id
+                    }
 
                     verify(exactly = 1) {
                         tiltaksgjennomforingKafkaProducer.publish(any())
@@ -455,12 +458,14 @@ class ArenaAdapterServiceTest : FunSpec({
                     service.upsertAvtale(avtale)
 
                     service.upsertTiltaksgjennomforing(tiltaksgjennomforing.copy(avtaleId = avtale.id))
-                    database.assertThat("tiltaksgjennomforing").row()
-                        .value("avtale_id").isEqualTo(avtale.id)
+                    gjennomforinger.get(tiltaksgjennomforing.id).shouldNotBeNull().should {
+                        it.avtaleId shouldBe avtale.id
+                    }
 
                     service.upsertTiltaksgjennomforing(tiltaksgjennomforing.copy(avtaleId = null))
-                    database.assertThat("tiltaksgjennomforing").row()
-                        .value("avtale_id").isNull
+                    gjennomforinger.get(tiltaksgjennomforing.id).shouldNotBeNull().should {
+                        it.avtaleId shouldBe null
+                    }
                 }
             }
         }
@@ -647,3 +652,40 @@ class ArenaAdapterServiceTest : FunSpec({
         }
     }
 })
+
+private fun toTiltaksgjennomforingDto(dbo: ArenaTiltaksgjennomforingDbo, tiltakstype: TiltakstypeDbo) = dbo.run {
+    TiltaksgjennomforingDto(
+        id = id,
+        tiltakstype = TiltaksgjennomforingDto.Tiltakstype(
+            id = tiltakstypeId,
+            navn = tiltakstype.navn,
+            arenaKode = tiltakstype.tiltakskode,
+        ),
+        navn = navn,
+        startDato = startDato,
+        sluttDato = sluttDato,
+        status = Tiltaksgjennomforingsstatus.GJENNOMFORES,
+        oppstart = oppstart,
+        virksomhetsnummer = arrangorOrganisasjonsnummer,
+    )
+}
+
+fun toArenaTiltaksgjennomforingDbo(dbo: TiltaksgjennomforingDbo, avslutningsstatus: Avslutningsstatus) = dbo.run {
+    ArenaTiltaksgjennomforingDbo(
+        id = id,
+        navn = navn,
+        tiltakstypeId = tiltakstypeId,
+        tiltaksnummer = tiltaksnummer ?: "",
+        arrangorOrganisasjonsnummer = arrangorOrganisasjonsnummer,
+        startDato = startDato,
+        sluttDato = sluttDato,
+        arenaAnsvarligEnhet = null,
+        avslutningsstatus = avslutningsstatus,
+        apentForInnsok = apentForInnsok,
+        antallPlasser = antallPlasser,
+        avtaleId = avtaleId,
+        oppstart = oppstart,
+        deltidsprosent = deltidsprosent,
+        opphav = ArenaMigrering.Opphav.ARENA,
+    )
+}
