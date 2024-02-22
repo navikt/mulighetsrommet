@@ -64,7 +64,9 @@ export function VirksomhetKontaktpersonerModal(props: Props) {
                       {person.telefon && (
                         <div>
                           <Label size="small">Telefon</Label>
-                          <BodyShort size="small">{person.telefon}</BodyShort>
+                          <BodyShort>
+                            <a href={`tel:${person.telefon}`}>{person.telefon}</a>
+                          </BodyShort>
                         </div>
                       )}
                       <div>
