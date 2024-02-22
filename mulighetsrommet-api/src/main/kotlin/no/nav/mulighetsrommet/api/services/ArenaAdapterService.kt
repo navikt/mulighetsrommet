@@ -106,14 +106,14 @@ class ArenaAdapterService(
         val tiltaksgjennomforingMedAvtale = tiltaksgjennomforing.copy(avtaleId = mulighetsrommetAvtaleId)
 
         val gjennomforing = db.transactionSuspend { tx ->
-            val previous = tiltaksgjennomforinger.get(tiltaksgjennomforing.id)
-            if (previous?.toArenaTiltaksgjennomforingDbo() == tiltaksgjennomforing) {
+            val previous = tiltaksgjennomforinger.get(tiltaksgjennomforingMedAvtale.id)
+            if (previous?.toArenaTiltaksgjennomforingDbo() == tiltaksgjennomforingMedAvtale) {
                 return@transactionSuspend previous
             }
 
             tiltaksgjennomforinger.upsertArenaTiltaksgjennomforing(tiltaksgjennomforingMedAvtale, tx)
 
-            val gjennomforing = tiltaksgjennomforinger.get(tiltaksgjennomforing.id, tx)!!
+            val gjennomforing = tiltaksgjennomforinger.get(tiltaksgjennomforingMedAvtale.id, tx)!!
 
             logUpdate(tx, DocumentClass.TILTAKSGJENNOMFORING, gjennomforing.id, gjennomforing)
 
