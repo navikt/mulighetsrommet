@@ -23,4 +23,4 @@ spec:
         navn,
         tiltakskode,
         rett_paa_tiltakspenger
-      FROM public_tiltakstype
+      FROM datastream_mulighetsrommet_api_db.public_tiltakstype
