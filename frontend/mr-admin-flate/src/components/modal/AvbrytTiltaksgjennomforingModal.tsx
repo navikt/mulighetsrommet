@@ -35,7 +35,7 @@ export const AvbrytTiltaksgjennomforingModal = ({ modalRef, tiltaksgjennomforing
   };
 
   return (
-    <Modal ref={modalRef} onClose={onClose} aria-label="modal">
+    <Modal ref={modalRef} onClose={onClose} closeOnBackdropClick aria-label="modal">
       <Modal.Header closeButton={false}>
         <div className={styles.heading}>
           <XMarkOctagonFillIcon className={classNames(styles.icon_warning, styles.icon)} />
