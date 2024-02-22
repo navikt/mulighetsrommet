@@ -277,7 +277,7 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
             </FormGroup>
             {watchedLeverandor && !avtale?.leverandor?.slettet && (
               <FormGroup>
-                <VStack gap="2" className={skjemastyles.kontaktperson_container}>
+                <div className={skjemastyles.virksomhet_kontaktperson_container}>
                   <ControlledSokeSelect
                     size="small"
                     placeholder="Velg en"
@@ -291,14 +291,15 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
                     }
                   />
                   <Button
+                    className={skjemastyles.kontaktperson_button}
                     size="small"
                     type="button"
-                    variant="secondary"
+                    variant="tertiary"
                     onClick={() => virksomhetKontaktpersonerModalRef.current?.showModal()}
                   >
-                    Rediger kontaktpersoner
+                    Rediger eller legg til kontaktpersoner
                   </Button>
-                </VStack>
+                </div>
               </FormGroup>
             )}
           </div>
