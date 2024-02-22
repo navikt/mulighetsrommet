@@ -21,8 +21,8 @@ export const Sorteringsmeny = ({ sortValue, setSortValue }: Props) => {
       <option value="tiltakstype-descending">Tiltakstype Å-A</option>
       <option value="oppstart-descending">Oppstartsdato synkende</option>
       <option value="oppstart-ascending">Oppstartsdato stigende</option>
-      <option value="navn-ascending">Tittel a-å</option>
-      <option value="navn-descending">Tittel å-a</option>
+      <option value="navn-ascending">Tittel A-Å</option>
+      <option value="navn-descending">Tittel Å-A</option>
     </Select>
   );
 };
