@@ -21,6 +21,8 @@ Et API med endepunkter for å hente ut informasjon om forskjellige tiltak NAV ka
     - [Oppdatere enheter fra NORG til Sanity](#oppdatere-enheter-fra-norg-til-sanity)
 - [Strukturert innhold](#strukturert-innhold)
 - [Datadeling til Datamarkedsplassen med Datastream](#datadeling-til-datamarkedsplassen-med-datastream)
+    - [Ang. datastream](#ang-datastream)
+    - [Tilganger for servicebruker (SA-bruker)](#tilganger-for-servicebruker-sa-bruker)
 
 # <a name="teknologier"></a>Teknologier
 
@@ -174,4 +176,12 @@ Vi har fulgt guiden her https://github.com/navikt/nada-datastream for oppsett.
 Datastream i dev: https://console.cloud.google.com/datastream/streams?authuser=1&project=team-mulighetsrommet-dev-a2d7
 Datastream i prod: https://console.cloud.google.com/datastream/streams?authuser=1&project=team-mulighetsrommet-prod-5492
 
-TODO: Legg til info om produktene i datamarkedsplassen
+BigQuery i dev: https://console.cloud.google.com/bigquery?authuser=1&project=team-mulighetsrommet-dev-a2d7&ws=!1m0
+BigQuery i prod: https://console.cloud.google.com/bigquery?authuser=1&project=team-mulighetsrommet-prod-5492&ws=!1m0
+
+### Ang. datastream
+Dersom datastreamen tuller seg eller man vil restarte prosessen så må man gå til datastreamen (lenke over) og så slette datastreamen.
+[Kjør så datastream på nytt basert på guiden her ](https://github.com/navikt/nada-datastream)
+
+### Tilganger for servicebruker (SA-bruker)
+I dev og prod har vi servicebrukere som trenger tilgang til BigQuery for å opprette ressurser (feks. views). Disse skal være satt opp korrekt via NAIS-automatikk, men om det ikke fungerer som forventet kan man prøve å gi BigQuery-admin rolle via IAM til SA-brukeren i dev og prod.
