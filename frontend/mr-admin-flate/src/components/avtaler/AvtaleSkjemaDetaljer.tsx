@@ -1,4 +1,4 @@
-import { Button, Textarea, TextField, VStack } from "@navikt/ds-react";
+import { Button, Textarea, TextField } from "@navikt/ds-react";
 import {
   Avtale,
   Avtaletype,

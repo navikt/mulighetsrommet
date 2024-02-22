@@ -325,7 +325,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                         variant="tertiary"
                         size="small"
                         type="button"
-                        onClick={() => removeKontaktperson(index) }
+                        onClick={() => removeKontaktperson(index)}
                       >
                         <XMarkIcon fontSize="1.5rem" />
                       </Button>
