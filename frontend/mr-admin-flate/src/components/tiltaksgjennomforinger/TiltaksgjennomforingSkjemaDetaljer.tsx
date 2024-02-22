@@ -373,7 +373,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                   variant="tertiary"
                   onClick={() =>
                     appendKontaktperson({
-                      navIdent: "",
+                      navIdent: null,
                       navEnheter: [],
                     })
                   }
