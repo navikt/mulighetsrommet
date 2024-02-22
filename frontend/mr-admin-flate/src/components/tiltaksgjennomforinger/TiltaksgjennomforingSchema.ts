@@ -37,14 +37,8 @@ export const TiltaksgjennomforingSchema = z
     }),
     kontaktpersoner: z
       .object({
-        navIdent: z.string({
-          required_error: "Du må velge en kontaktperson",
-        }),
-        navEnheter: z
-          .string({
-            required_error: "Du må velge minst et område",
-          })
-          .array(),
+        navIdent: z.string().nullable(),
+        navEnheter: z.string().array(),
         beskrivelse: z.string().nullable().optional(),
       })
       .array()
@@ -163,6 +157,22 @@ export const TiltaksgjennomforingSchema = z
         });
       }
     }
+    data.kontaktpersoner?.forEach((kontaktperson, index) => {
+      if (kontaktperson.navIdent == null) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Du må velge en kontaktperson",
+          path: [`kontaktpersoner.${index}.navIdent`],
+        });
+      }
+      if (kontaktperson.navEnheter.length === 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Du må velge minst én enhet",
+          path: [`kontaktpersoner.${index}.navEnheter`],
+        });
+      }
+    });
   });
 
 function bareDatoUtenTidspunkt(date: Date): Date {

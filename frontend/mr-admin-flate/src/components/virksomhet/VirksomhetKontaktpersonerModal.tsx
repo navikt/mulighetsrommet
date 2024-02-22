@@ -61,10 +61,14 @@ export function VirksomhetKontaktpersonerModal(props: Props) {
                     <Label size="small">Navn</Label>
                     <BodyShort size="small">{person.navn}</BodyShort>
                     <div className={styles.telefonepost_container}>
-                      <div>
-                        <Label size="small">Telefon</Label>
-                        <BodyShort size="small">{person.telefon}</BodyShort>
-                      </div>
+                      {person.telefon && (
+                        <div>
+                          <Label size="small">Telefon</Label>
+                          <BodyShort>
+                            <a href={`tel:${person.telefon}`}>{person.telefon}</a>
+                          </BodyShort>
+                        </div>
+                      )}
                       <div>
                         <Label size="small">Epost</Label>
                         <BodyShort size="small">{person.epost}</BodyShort>

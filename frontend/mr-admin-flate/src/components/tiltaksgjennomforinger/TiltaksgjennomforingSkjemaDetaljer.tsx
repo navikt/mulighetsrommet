@@ -325,18 +325,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                         variant="tertiary"
                         size="small"
                         type="button"
-                        onClick={() => {
-                          if (watch("kontaktpersoner")!.length > 1) {
-                            removeKontaktperson(index);
-                          } else {
-                            setValue("kontaktpersoner", [
-                              {
-                                navIdent: "",
-                                navEnheter: [],
-                              },
-                            ]);
-                          }
-                        }}
+                        onClick={() => removeKontaktperson(index)}
                       >
                         <XMarkIcon fontSize="1.5rem" />
                       </Button>
@@ -384,7 +373,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                   variant="tertiary"
                   onClick={() =>
                     appendKontaktperson({
-                      navIdent: "",
+                      navIdent: null,
                       navEnheter: [],
                     })
                   }

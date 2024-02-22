@@ -141,6 +141,7 @@ export const SokeSelect = <T,>(
           style={{
             marginTop: "8px",
             color: "#c30000",
+            fontSize: size === "small" ? "16px" : "18px",
           }}
         >
           <b>• {error.message}</b>
