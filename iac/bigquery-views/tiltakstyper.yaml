@@ -7,11 +7,11 @@ metadata:
     team: team-mulighetsrommet
   annotations:
     cnrm.cloud.google.com/management-conflict-prevention-policy: none
-    cnrm.cloud.google.com/project-id: {{ project }}
+    cnrm.cloud.google.com/project-id: {{project}}
     cnrm.cloud.google.com/state-into-spec: merge
 
 spec:
-  resourceID: public_tiltakstype
+  resourceID: tiltakstype_view # Navn på viewet uttad
   description: "Dataprodukt som viser tiltakstyper med navn, tiltakskode og om tiltakstypen gir rett til tiltakspenger"
   datasetRef:
     external: datastream_mulighetsrommet_api_db
