@@ -1,4 +1,12 @@
-import { Alert, Button, ErrorMessage, Textarea } from "@navikt/ds-react";
+import {
+  Alert,
+  Button,
+  Checkbox,
+  ErrorMessage,
+  HStack,
+  HelpText,
+  Textarea,
+} from "@navikt/ds-react";
 import { DelMedBruker, VeilederflateTiltaksgjennomforing } from "mulighetsrommet-api-client";
 import React, { Dispatch, useEffect, useRef } from "react";
 import { erPreview, formaterDato } from "@/utils/Utils";
@@ -82,15 +90,44 @@ export function DelMedBrukerContent({
         {state.deletekst}
       </Textarea>
 
-      {enableRedigerDeletekst ? null : (
-        <Button
-          onClick={enableEndreDeletekst}
-          variant="secondary"
-          className={delemodalStyles.endreTekst_btn}
-        >
-          Rediger melding
-        </Button>
-      )}
+      <HStack gap="4">
+        {enableRedigerDeletekst ? null : (
+          <Button
+            onClick={enableEndreDeletekst}
+            variant="secondary"
+            className={delemodalStyles.endreTekst_btn}
+          >
+            Rediger melding
+          </Button>
+        )}
+        <HStack gap="1" style={{ marginTop: "1rem" }}>
+          <Checkbox
+            onChange={(e) => {
+              dispatch({
+                type: "Venter på svar fra bruker",
+                payload: e.currentTarget.checked,
+              });
+              if (e.currentTarget.checked) {
+                logEvent({
+                  name: "arbeidsmarkedstiltak.del-med-bruker",
+                  data: {
+                    action: "Sett venter på svar fra bruker",
+                    tiltakstype: tiltaksgjennomforing.tiltakstype.navn,
+                  },
+                });
+              }
+            }}
+            checked={state.venterPaaSvarFraBruker}
+            value="venter-pa-svar-fra-bruker"
+          >
+            Venter på svar fra bruker
+          </Checkbox>
+          <HelpText title="Hva betyr dette valget?">
+            Ved å huke av for at du venter på svar fra bruker vil du kunne bruke filteret i
+            oversikten til å se alle brukere du venter på svar fra.
+          </HelpText>
+        </HStack>
+      </HStack>
 
       {!veiledernavn ? (
         <ErrorMessage className={delemodalStyles.feilmeldinger}>
