@@ -11,7 +11,7 @@ metadata:
     cnrm.cloud.google.com/state-into-spec: merge
 
 spec:
-  resourceID: tiltakstyper
+  resourceID: public_tiltakstype
   description: "Dataprodukt som viser tiltakstyper med navn, tiltakskode og om tiltakstypen gir rett til tiltakspenger"
   datasetRef:
     external: datastream_mulighetsrommet_api_db
