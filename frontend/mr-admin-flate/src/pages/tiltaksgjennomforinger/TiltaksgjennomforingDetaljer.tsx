@@ -1,5 +1,5 @@
 import { ExclamationmarkTriangleIcon, ExternalLinkIcon } from "@navikt/aksel-icons";
-import { Heading, HelpText } from "@navikt/ds-react";
+import { Heading, HelpText, Tag } from "@navikt/ds-react";
 import {
   Avtale,
   Tiltaksgjennomforing,
@@ -15,6 +15,8 @@ import { Kontaktperson } from "./Kontaktperson";
 import { Link } from "react-router-dom";
 import { useTitle } from "mulighetsrommet-frontend-common";
 import { isTiltakMedFellesOppstart } from "../../utils/tiltakskoder";
+import { usePollTiltaksnummer } from "../../api/tiltaksgjennomforing/usePollTiltaksnummer";
+import { Laster } from "../../components/laster/Laster";
 
 interface Props {
   tiltaksgjennomforing: Tiltaksgjennomforing;
@@ -73,7 +75,10 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
         <div className={styles.detaljer}>
           <Bolk aria-label="Tiltaksnavn og tiltaksnummer" data-testid="tiltaksnavn">
             <Metadata header="Tiltaksnavn" verdi={tiltaksgjennomforing.navn} />
-            {tiltaksnummer ? <Metadata header="Tiltaksnummer" verdi={tiltaksnummer} /> : null}
+            <Metadata
+              header="Tiltaksnummer"
+              verdi={tiltaksnummer ?? <HentTiltaksnummer id={tiltaksgjennomforing.id} />}
+            />
           </Bolk>
 
           <Bolk aria-label="Tiltakstype og avtaletype">
@@ -293,5 +298,16 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
         </div>
       </div>
     </>
+  );
+}
+
+function HentTiltaksnummer({ id }: { id: string }) {
+  const { isError, isLoading, data } = usePollTiltaksnummer(id);
+  return isError ? (
+    <Tag variant="error">Klarte ikke hente tiltaksnummer</Tag>
+  ) : isLoading ? (
+    <Laster />
+  ) : (
+    data?.tiltaksnummer
   );
 }

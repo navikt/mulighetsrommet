@@ -686,6 +686,29 @@ paths:
               schema:
                 type: string
 
+  /api/v1/internal/tiltaksgjennomforinger/{id}/tiltaksnummer:
+    parameters:
+      - $ref: "#/components/parameters/ID"
+    get:
+      tags:
+        - Tiltaksgjennomforinger
+      operationId: getTiltaksnummer
+      responses:
+        200:
+          description: Tiltaksnummer til tiltaksgjennomføringen.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TiltaksnummerResponse"
+        204:
+          description: Tiltaksgjennomføringen har enda ikke tiltaksnummer.
+        404:
+          description: Tiltaksgjennomføringen ble ikke funnet.
+          content:
+            application/json:
+              schema:
+                type: string
+
   /api/v1/internal/tiltaksgjennomforinger/{id}/avtale:
     parameters:
       - $ref: "#/components/parameters/ID"
@@ -2235,6 +2258,14 @@ components:
         - publisert
         - publisertForAlle
         - deltidsprosent
+
+    TiltaksnummerResponse:
+      type: object
+      properties:
+        tiltaksnummer:
+          type: string
+      required:
+        - tiltaksnummer
 
     TiltaksgjennomforingRequest:
       type: object

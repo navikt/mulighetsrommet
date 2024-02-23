@@ -91,6 +91,18 @@ fun Route.tiltaksgjennomforingRoutes() {
                 ?: call.respond(HttpStatusCode.NotFound, "Ingen tiltaksgjennomføring med id=$id")
         }
 
+        get("{id}/tiltaksnummer") {
+            val id = call.parameters.getOrFail<UUID>("id")
+
+            service.get(id)
+                ?.let { gjennomforing ->
+                    gjennomforing.tiltaksnummer
+                        ?.let { call.respond(TiltaksnummerResponse(tiltaksnummer = it)) }
+                        ?: call.respond(HttpStatusCode.NoContent)
+                }
+                ?: call.respond(HttpStatusCode.NotFound, "Fant ikke tiltaksnummer for tiltaksgjennomføring med id=$id")
+        }
+
         get("{id}/historikk") {
             val id: UUID by call.parameters
             val historikk = service.getEndringshistorikk(id)
@@ -111,6 +123,11 @@ fun Route.tiltaksgjennomforingRoutes() {
 @Serializable
 data class TiltaksgjennomforingDeltakerSummary(
     val antallDeltakere: Int,
+)
+
+@Serializable
+data class TiltaksnummerResponse(
+    val tiltaksnummer: String,
 )
 
 @Serializable
