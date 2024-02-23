@@ -51,10 +51,7 @@ class BrukerServiceTest : FunSpec({
     )
 
     beforeSpec {
-        coEvery { veilarboppfolgingClient.hentOppfolgingStatus(fnr1, any()) } returns OppfolgingStatus(
-            erSykmeldtMedArbeidsgiver = false,
-        ).right()
-        coEvery { veilarboppfolgingClient.hentOppfolgingEnhet(fnr1, any()) } returns OppfolgingEnhetMedVeilederResponse(
+        coEvery { veilarboppfolgingClient.hentOppfolgingsstatus(fnr1, any()) } returns OppfolgingsstatusDto(
             oppfolgingsenhet = mockOppfolgingsenhet(),
             servicegruppe = "IKKE_VURDERT",
         ).right()
@@ -73,7 +70,7 @@ class BrukerServiceTest : FunSpec({
             ),
         ).right()
 
-        coEvery { veilarboppfolgingClient.hentOppfolgingEnhet(fnr2, any()) } returns OppfolgingEnhetMedVeilederResponse(
+        coEvery { veilarboppfolgingClient.hentOppfolgingsstatus(fnr2, any()) } returns OppfolgingsstatusDto(
             oppfolgingsenhet = mockOppfolgingsenhet(),
             servicegruppe = "IKKE_VURDERT",
         ).right()
@@ -123,8 +120,8 @@ class BrukerServiceTest : FunSpec({
                         status = NavEnhetStatus.AKTIV,
                     ),
                 ),
+                servicegruppe = "IKKE_VURDERT",
                 varsler = emptyList(),
-                erSykmeldtMedArbeidsgiver = false,
             )
     }
 
@@ -133,7 +130,7 @@ class BrukerServiceTest : FunSpec({
             fornavn = "Ola",
             geografiskEnhet = null,
         ).right()
-        coEvery { veilarboppfolgingClient.hentOppfolgingEnhet(fnr1, any()) } returns OppfolgingsstatusError.NotFound.left()
+        coEvery { veilarboppfolgingClient.hentOppfolgingsstatus(fnr1, any()) } returns OppfolgingsstatusError.NotFound.left()
 
         shouldThrow<StatusException> {
             brukerService.hentBrukerdata(fnr1, "")
