@@ -84,6 +84,33 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
+    fun getBySakId(sakId: Int): Tiltaksgjennomforing? {
+        @Language("PostgreSQL")
+        val query = """
+            select
+                id,
+                tiltaksgjennomforing_id,
+                sak_id,
+                tiltakskode,
+                arrangor_id,
+                navn,
+                fra_dato,
+                til_dato,
+                apent_for_innsok,
+                antall_plasser,
+                status,
+                avtale_id,
+                deltidsprosent
+            from tiltaksgjennomforing
+            where sak_id = ?
+        """.trimIndent()
+
+        return queryOf(query, sakId)
+            .map { it.toTiltaksgjennomforing() }
+            .asSingle
+            .let { db.run(it) }
+    }
+
     private fun Tiltaksgjennomforing.toSqlParameters() = mapOf(
         "id" to id,
         "tiltaksgjennomforing_id" to tiltaksgjennomforingId,
