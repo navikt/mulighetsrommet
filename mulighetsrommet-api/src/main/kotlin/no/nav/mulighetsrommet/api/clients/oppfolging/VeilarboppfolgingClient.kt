@@ -29,13 +29,7 @@ class VeilarboppfolgingClient(
         install(HttpCache)
     }
 
-    private val veilarboppfolgingCache: Cache<String, OppfolgingStatus> = Caffeine.newBuilder()
-        .expireAfterWrite(30, TimeUnit.MINUTES)
-        .maximumSize(10_000)
-        .recordStats()
-        .build()
-
-    private val veilarboppfolgingEnhetCache: Cache<String, OppfolgingEnhetMedVeilederResponse> = Caffeine.newBuilder()
+    private val veilarboppfolgingCache: Cache<String, OppfolgingsstatusDto> = Caffeine.newBuilder()
         .expireAfterWrite(30, TimeUnit.MINUTES)
         .maximumSize(10_000)
         .recordStats()
@@ -51,14 +45,13 @@ class VeilarboppfolgingClient(
         val cacheMetrics: CacheMetricsCollector =
             CacheMetricsCollector().register(Metrikker.appMicrometerRegistry.prometheusRegistry)
         cacheMetrics.addCache("veilarboppfolgingCache", veilarboppfolgingCache)
-        cacheMetrics.addCache("veilarboppfolgingEnhetCache", veilarboppfolgingEnhetCache)
         cacheMetrics.addCache("manuellStatusCache", manuellStatusCache)
     }
 
-    suspend fun hentOppfolgingStatus(fnr: String, accessToken: String): Either<OppfolgingsstatusError, OppfolgingStatus> {
-        veilarboppfolgingCache.getIfPresent(fnr)?.let { return@hentOppfolgingStatus it.right() }
+    suspend fun hentOppfolgingsstatus(fnr: String, accessToken: String): Either<OppfolgingsstatusError, OppfolgingsstatusDto> {
+        veilarboppfolgingCache.getIfPresent(fnr)?.let { return@hentOppfolgingsstatus it.right() }
 
-        val response = client.post("$baseUrl/v3/oppfolging/hent-status") {
+        val response = client.post("$baseUrl/v2/person/hent-oppfolgingsstatus") {
             bearerAuth(tokenProvider.invoke(accessToken))
             header(HttpHeaders.ContentType, ContentType.Application.Json)
             setBody(HentOppfolgingsstatusRequest(fnr = fnr))
@@ -77,37 +70,9 @@ class VeilarboppfolgingClient(
                 log.warn("Klarte ikke hente oppfølgingsstatus for bruker. Status: ${response.status}")
                 OppfolgingsstatusError.Error.left()
             } else {
-                response.body<OppfolgingStatus>().right()
+                response.body<OppfolgingsstatusDto>().right()
             }
                 .onRight { veilarboppfolgingCache.put(fnr, it) }
-        }
-    }
-
-    suspend fun hentOppfolgingEnhet(fnr: String, accessToken: String): Either<OppfolgingsstatusError, OppfolgingEnhetMedVeilederResponse> {
-        veilarboppfolgingEnhetCache.getIfPresent(fnr)?.let { return@hentOppfolgingEnhet it.right() }
-
-        val response = client.post("$baseUrl/v2/person/hent-oppfolgingsstatus") {
-            bearerAuth(tokenProvider.invoke(accessToken))
-            header(HttpHeaders.ContentType, ContentType.Application.Json)
-            setBody(HentOppfolgingsstatusRequest(fnr = fnr))
-        }
-
-        return when (response.status) {
-            HttpStatusCode.NotFound -> {
-                log.info("Fant ikke arena oppfølgingsstatus for bruker. Det kan være fordi bruker ikke er under oppfølging eller ikke finnes i Arena")
-                OppfolgingsstatusError.NotFound.left()
-            }
-            HttpStatusCode.Forbidden -> {
-                log.info("Manglet tilgang til å hente arena oppfølgingsstatus for bruker.")
-                OppfolgingsstatusError.Forbidden.left()
-            }
-            else -> if (!response.status.isSuccess()) {
-                log.warn("Klarte ikke hente arena oppfølgingsstatus for bruker. Status: ${response.status}")
-                OppfolgingsstatusError.Error.left()
-            } else {
-                response.body<OppfolgingEnhetMedVeilederResponse>().right()
-            }
-                .onRight { veilarboppfolgingEnhetCache.put(fnr, it) }
         }
     }
 

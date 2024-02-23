@@ -2375,8 +2375,8 @@ components:
           type: string
         innsatsgruppe:
           $ref: "#/components/schemas/Innsatsgruppe"
-        erSykmeldtMedArbeidsgiver:
-          type: boolean
+        servicegruppe:
+          type: string
         enheter:
           type: array
           items:
@@ -2394,7 +2394,6 @@ components:
         - fnr
         - enheter
         - varsler
-        - erSykmeldtMedArbeidsgiver
 
     BrukerVarsel:
       type: string
