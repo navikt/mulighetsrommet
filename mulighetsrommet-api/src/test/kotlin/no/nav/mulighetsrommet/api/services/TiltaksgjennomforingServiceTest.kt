@@ -91,9 +91,9 @@ class TiltaksgjennomforingServiceTest : FunSpec({
         test("Man skal ikke få avbryte dersom opphav for gjennomføringen ikke er admin-flate") {
             val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1.copy(
                 avtaleId = avtaleId,
-                opphav = ArenaMigrering.Opphav.ARENA,
             )
             tiltaksgjennomforingRepository.upsert(gjennomforing)
+            tiltaksgjennomforingRepository.setOpphav(gjennomforing.id, ArenaMigrering.Opphav.ARENA)
 
             tiltaksgjennomforingService.avbrytGjennomforing(gjennomforing.id, "B123456").shouldBeLeft(
                 BadRequest(message = "Gjennomføringen har opprinnelse fra Arena og kan ikke bli avbrutt i admin-flate."),
@@ -103,10 +103,10 @@ class TiltaksgjennomforingServiceTest : FunSpec({
         test("Man skal ikke få avbryte dersom det finnes deltagere koblet til gjennomføringen") {
             val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1.copy(
                 avtaleId = avtaleId,
-                opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
                 sluttDato = null,
             )
             tiltaksgjennomforingRepository.upsert(gjennomforing)
+            tiltaksgjennomforingRepository.setOpphav(gjennomforing.id, ArenaMigrering.Opphav.MR_ADMIN_FLATE)
 
             val deltager = DeltakerFixture.Deltaker.copy(tiltaksgjennomforingId = gjennomforing.id)
             deltagerRepository.upsert(deltager)

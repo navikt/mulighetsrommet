@@ -21,7 +21,6 @@ import no.nav.mulighetsrommet.arena.adapter.models.db.Avtale
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.arena.adapter.utils.ArenaUtils
 import no.nav.mulighetsrommet.domain.Tiltakskoder
-import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering.ArenaAvtaleCutoffDateTime
 import no.nav.mulighetsrommet.domain.dbo.ArenaAvtaleDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
@@ -152,7 +151,6 @@ class AvtaleInfoEventProcessor(
             avtaletype = avtaletype,
             avslutningsstatus = avslutningsstatus,
             prisbetingelser = avtale.prisbetingelser,
-            opphav = ArenaMigrering.Opphav.ARENA,
         )
     }
 }

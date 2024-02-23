@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.domain.dbo
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
@@ -24,6 +23,5 @@ data class ArenaAvtaleDbo(
     val arenaAnsvarligEnhet: String?,
     val avtaletype: Avtaletype,
     val avslutningsstatus: Avslutningsstatus,
-    val opphav: ArenaMigrering.Opphav,
     val prisbetingelser: String?,
 )

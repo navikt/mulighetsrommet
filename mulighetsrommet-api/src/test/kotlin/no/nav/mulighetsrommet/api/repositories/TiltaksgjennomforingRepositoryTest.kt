@@ -138,7 +138,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 antallPlasser = 10,
                 avtaleId = null,
                 oppstart = TiltaksgjennomforingOppstartstype.FELLES,
-                opphav = ArenaMigrering.Opphav.ARENA,
                 deltidsprosent = 100.0,
             )
 
@@ -180,6 +179,22 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 it.faneinnhold shouldBe null
                 it.beskrivelse shouldBe null
                 it.createdAt shouldNotBe null
+            }
+        }
+
+        test("upsert endrer ikke opphav om det allerede er satt") {
+            val id1 = UUID.randomUUID()
+            tiltaksgjennomforinger.upsertArenaTiltaksgjennomforing(ArenaOppfolging1.copy(id = id1))
+            tiltaksgjennomforinger.upsert(Oppfolging1.copy(id = id1))
+            tiltaksgjennomforinger.get(id1).shouldNotBeNull().should {
+                it.opphav shouldBe ArenaMigrering.Opphav.ARENA
+            }
+
+            val id2 = UUID.randomUUID()
+            tiltaksgjennomforinger.upsert(Oppfolging1.copy(id = id2))
+            tiltaksgjennomforinger.upsertArenaTiltaksgjennomforing(ArenaOppfolging1.copy(id = id2))
+            tiltaksgjennomforinger.get(id2).shouldNotBeNull().should {
+                it.opphav shouldBe ArenaMigrering.Opphav.MR_ADMIN_FLATE
             }
         }
 
@@ -447,8 +462,9 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
     test("get by opphav") {
         val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
 
-        tiltaksgjennomforinger.upsert(Oppfolging1.copy(opphav = ArenaMigrering.Opphav.ARENA))
-        tiltaksgjennomforinger.upsert(Arbeidstrening1.copy(opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE))
+        tiltaksgjennomforinger.upsert(Oppfolging1)
+        tiltaksgjennomforinger.setOpphav(Oppfolging1.id, ArenaMigrering.Opphav.ARENA)
+        tiltaksgjennomforinger.upsert(Arbeidstrening1)
 
         tiltaksgjennomforinger.getAll(opphav = null).should {
             it.first shouldBe 2
@@ -890,7 +906,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                         startDato = LocalDate.of(2022, 1, 1),
                         apentForInnsok = true,
                         oppstart = TiltaksgjennomforingOppstartstype.FELLES,
-                        opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
                         stedForGjennomforing = "0139 Oslo",
                     ),
                 )

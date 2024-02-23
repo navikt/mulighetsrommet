@@ -19,7 +19,6 @@ import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import java.time.LocalDate
@@ -117,9 +116,9 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
     test("should fail when tiltakstype does not support change of oppstartstype") {
         val validator = TiltaksgjennomforingValidator(avtaler)
 
-        validator.validate(gjennomforing.copy(oppstart = TiltaksgjennomforingOppstartstype.FELLES), null).shouldBeLeft().shouldContainExactlyInAnyOrder(
-            ValidationError("oppstart", "Tiltaket må ha løpende oppstartstype"),
-        )
+        validator.validate(gjennomforing.copy(oppstart = TiltaksgjennomforingOppstartstype.FELLES), null)
+            .shouldBeLeft()
+            .shouldContainExactlyInAnyOrder(ValidationError("oppstart", "Tiltaket må ha løpende oppstartstype"))
     }
 
     test("skal godta endringer selv om avtale er avbrutt") {
@@ -183,21 +182,6 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
         }
     }
 
-    context("when gjennomføring does not already exist") {
-        test("should fail when opphav is not MR_ADMIN_FLATE") {
-            val validator = TiltaksgjennomforingValidator(avtaler)
-
-            val dbo = gjennomforing.copy(
-                id = UUID.randomUUID(),
-                opphav = ArenaMigrering.Opphav.ARENA,
-            )
-
-            validator.validate(dbo, null).shouldBeLeft().shouldContainExactlyInAnyOrder(
-                ValidationError("opphav", "Opphav må være MR_ADMIN_FLATE"),
-            )
-        }
-    }
-
     context("when gjennomføring already exists") {
         beforeEach {
             tiltaksgjennomforinger.upsert(gjennomforing.copy(administratorer = listOf()))
@@ -205,19 +189,6 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
 
         afterEach {
             tiltaksgjennomforinger.delete(gjennomforing.id)
-        }
-
-        test("should fail when opphav is different") {
-            val validator = TiltaksgjennomforingValidator(avtaler)
-
-            val dbo = gjennomforing.copy(
-                opphav = ArenaMigrering.Opphav.ARENA,
-            )
-            val previous = tiltaksgjennomforinger.get(gjennomforing.id)
-
-            validator.validate(dbo, previous).shouldBeLeft().shouldContainExactlyInAnyOrder(
-                ValidationError("opphav", "Opphav kan ikke endres"),
-            )
         }
 
         test("should fail when status is Avsluttet") {

@@ -10,7 +10,6 @@ import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingAdminDto
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
 import no.nav.mulighetsrommet.domain.Tiltakskoder
-import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus.GJENNOMFORES
 
@@ -139,10 +138,6 @@ class TiltaksgjennomforingValidator(
                     )
                 }
 
-                if (dbo.opphav != gjennomforing.opphav) {
-                    add(ValidationError.of(TiltaksgjennomforingDbo::opphav, "Opphav kan ikke endres"))
-                }
-
                 if (gjennomforing.status == GJENNOMFORES) {
                     if (dbo.avtaleId != gjennomforing.avtaleId) {
                         add(
@@ -188,10 +183,6 @@ class TiltaksgjennomforingValidator(
                             ),
                         )
                     }
-                }
-            } ?: run {
-                if (dbo.opphav != ArenaMigrering.Opphav.MR_ADMIN_FLATE) {
-                    add(ValidationError.of(TiltaksgjennomforingDbo::opphav, "Opphav må være MR_ADMIN_FLATE"))
                 }
             }
         }

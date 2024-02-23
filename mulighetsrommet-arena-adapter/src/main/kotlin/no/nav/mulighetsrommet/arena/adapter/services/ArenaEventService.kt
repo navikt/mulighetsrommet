@@ -112,6 +112,7 @@ class ArenaEventService(
                             entities.upsertMapping(mapping.copy(status = it.status, message = it.message))
                             events.upsert(event.copy(status = ArenaEvent.ProcessingStatus.Processed, message = null))
                         }.onLeft {
+                            logger.info("Fail to process event: table=${event.arenaTable}, id=${event.arenaId}")
                             events.upsert(event.copy(status = it.status, message = it.message))
                         }
                 } catch (e: Throwable) {

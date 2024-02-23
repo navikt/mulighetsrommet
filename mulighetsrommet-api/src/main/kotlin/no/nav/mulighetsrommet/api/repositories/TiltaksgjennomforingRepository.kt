@@ -96,7 +96,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                               antall_plasser               = excluded.antall_plasser,
                               avtale_id                    = excluded.avtale_id,
                               oppstart                     = excluded.oppstart,
-                              opphav                       = excluded.opphav,
+                              opphav                       = coalesce(tiltaksgjennomforing.opphav, excluded.opphav),
                               stengt_fra                   = excluded.stengt_fra,
                               stengt_til                   = excluded.stengt_til,
                               sted_for_gjennomforing       = excluded.sted_for_gjennomforing,
@@ -610,6 +610,19 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         return tx.run(queryOf(query, id).asUpdate)
     }
 
+    fun setOpphav(id: UUID, opphav: ArenaMigrering.Opphav) {
+        @Language("PostgreSQL")
+        val query = """
+            update tiltaksgjennomforing
+            set opphav = :opphav::opphav
+            where id = :id::uuid
+        """.trimIndent()
+
+        queryOf(query, mapOf("id" to id, "opphav" to opphav.name))
+            .asUpdate
+            .let { db.run(it) }
+    }
+
     fun setPublisert(id: UUID, publisert: Boolean): Int {
         return db.transaction { setPublisert(it, id, publisert) }
     }
@@ -627,6 +640,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
     }
 
     private fun TiltaksgjennomforingDbo.toSqlParameters() = mapOf(
+        "opphav" to ArenaMigrering.Opphav.MR_ADMIN_FLATE.name,
         "id" to id,
         "navn" to navn,
         "tiltakstype_id" to tiltakstypeId,
@@ -639,7 +653,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         "antall_plasser" to antallPlasser,
         "avtale_id" to avtaleId,
         "oppstart" to oppstart.name,
-        "opphav" to opphav.name,
         "stengt_fra" to stengtFra,
         "stengt_til" to stengtTil,
         "sted_for_gjennomforing" to stedForGjennomforing,
@@ -652,6 +665,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
     )
 
     private fun ArenaTiltaksgjennomforingDbo.toSqlParameters() = mapOf(
+        "opphav" to ArenaMigrering.Opphav.ARENA.name,
         "id" to id,
         "navn" to navn,
         "tiltakstype_id" to tiltakstypeId,
@@ -665,7 +679,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         "antall_plasser" to antallPlasser,
         "avtale_id" to avtaleId,
         "oppstart" to oppstart.name,
-        "opphav" to opphav.name,
         "deltidsprosent" to deltidsprosent,
     )
 

@@ -18,7 +18,6 @@ import no.nav.mulighetsrommet.api.routes.v1.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
 import no.nav.mulighetsrommet.api.utils.getAdminTiltaksgjennomforingsFilter
 import no.nav.mulighetsrommet.api.utils.getPaginationParams
-import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.Faneinnhold
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
@@ -145,7 +144,6 @@ data class TiltaksgjennomforingRequest(
     val apentForInnsok: Boolean,
     val kontaktpersoner: List<NavKontaktpersonForGjennomforing>,
     val stedForGjennomforing: String?,
-    val opphav: ArenaMigrering.Opphav?,
     val faneinnhold: Faneinnhold?,
     val beskrivelse: String?,
     val deltidsprosent: Double,
@@ -167,7 +165,6 @@ data class TiltaksgjennomforingRequest(
         navRegion = navRegion,
         navEnheter = navEnheter,
         oppstart = oppstart,
-        opphav = opphav ?: ArenaMigrering.Opphav.MR_ADMIN_FLATE,
         stengtFra = stengtFra,
         stengtTil = stengtTil,
         kontaktpersoner = kontaktpersoner.map {

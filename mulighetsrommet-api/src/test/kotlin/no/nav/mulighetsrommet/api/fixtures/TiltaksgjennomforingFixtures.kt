@@ -3,7 +3,6 @@ package no.nav.mulighetsrommet.api.fixtures
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.routes.v1.EstimertVentetid
 import no.nav.mulighetsrommet.api.routes.v1.TiltaksgjennomforingRequest
-import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
@@ -24,7 +23,6 @@ object TiltaksgjennomforingFixtures {
         apentForInnsok = true,
         antallPlasser = null,
         oppstart = TiltaksgjennomforingOppstartstype.FELLES,
-        opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
         avtaleId = AvtaleFixtures.oppfolging.id,
         deltidsprosent = 100.0,
     )
@@ -43,7 +41,6 @@ object TiltaksgjennomforingFixtures {
         navRegion = "2990",
         navEnheter = listOf("2990"),
         oppstart = TiltaksgjennomforingOppstartstype.LOPENDE,
-        opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
         kontaktpersoner = emptyList(),
         arrangorKontaktpersoner = emptyList(),
         stengtFra = null,
@@ -77,7 +74,6 @@ object TiltaksgjennomforingFixtures {
         stedForGjennomforing = Oppfolging1.stedForGjennomforing,
         avtaleId = Oppfolging1.avtaleId,
         apentForInnsok = true,
-        opphav = Oppfolging1.opphav,
         faneinnhold = Oppfolging1.faneinnhold,
         beskrivelse = Oppfolging1.beskrivelse,
         deltidsprosent = 100.0,
@@ -101,7 +97,6 @@ object TiltaksgjennomforingFixtures {
         navRegion = "2990",
         navEnheter = emptyList(),
         oppstart = TiltaksgjennomforingOppstartstype.FELLES,
-        opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
         kontaktpersoner = emptyList(),
         arrangorKontaktpersoner = emptyList(),
         stengtFra = null,
@@ -129,7 +124,6 @@ object TiltaksgjennomforingFixtures {
         navRegion = "2990",
         navEnheter = emptyList(),
         oppstart = TiltaksgjennomforingOppstartstype.FELLES,
-        opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
         kontaktpersoner = emptyList(),
         arrangorKontaktpersoner = emptyList(),
         stengtFra = null,

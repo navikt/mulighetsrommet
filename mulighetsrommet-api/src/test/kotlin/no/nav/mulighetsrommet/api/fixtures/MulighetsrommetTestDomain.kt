@@ -5,6 +5,7 @@ import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
+import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
 import no.nav.mulighetsrommet.api.repositories.*
 import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
@@ -21,6 +22,7 @@ data class MulighetsrommetTestDomain(
     ),
     val avtaler: List<AvtaleDbo> = listOf(AvtaleFixtures.oppfolging, AvtaleFixtures.avtaleForVta),
     val gjennomforinger: List<TiltaksgjennomforingDbo> = listOf(),
+    val virksomhter: List<VirksomhetDto> = listOf(),
 ) {
     fun initialize(database: FlywayDatabaseAdapter) {
         NavEnhetRepository(database).also { repository ->
@@ -41,6 +43,10 @@ data class MulighetsrommetTestDomain(
 
         TiltaksgjennomforingRepository(database).also { repository ->
             gjennomforinger.forEach { repository.upsert(it) }
+        }
+
+        VirksomhetRepository(database).also { repository ->
+            virksomhter.forEach { repository.upsert(it) }
         }
     }
 }

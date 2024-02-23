@@ -99,7 +99,6 @@ export function AvtaleSkjemaContainer({
         : null,
       beskrivelse: data.beskrivelse,
       faneinnhold: data.faneinnhold,
-      opphav: data.opphav,
       leverandorKontaktpersonId: data.leverandorKontaktpersonId ?? null,
     };
 

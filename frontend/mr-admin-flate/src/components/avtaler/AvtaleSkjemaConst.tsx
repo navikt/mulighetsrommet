@@ -5,7 +5,6 @@ import {
   NavAnsatt,
   NavEnhet,
   NavEnhetType,
-  Opphav,
   Virksomhet,
 } from "mulighetsrommet-api-client";
 import { DeepPartial } from "react-hook-form";
@@ -67,6 +66,5 @@ export function defaultAvtaleData(
     prisbetingelser: avtale?.prisbetingelser ?? undefined,
     beskrivelse: avtale?.beskrivelse ?? null,
     faneinnhold: avtale?.faneinnhold ?? null,
-    opphav: avtale?.opphav ?? Opphav.MR_ADMIN_FLATE,
   };
 }

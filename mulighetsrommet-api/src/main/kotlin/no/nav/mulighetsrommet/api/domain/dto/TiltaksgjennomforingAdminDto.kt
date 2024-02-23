@@ -107,7 +107,6 @@ data class TiltaksgjennomforingAdminDto(
             navRegion = navRegion?.enhetsnummer ?: "",
             navEnheter = navEnheter.map { it.enhetsnummer },
             oppstart = oppstart,
-            opphav = opphav,
             stengtFra = stengtFra,
             stengtTil = stengtTil,
             kontaktpersoner = kontaktpersoner.map {
@@ -145,7 +144,6 @@ data class TiltaksgjennomforingAdminDto(
             antallPlasser = antallPlasser,
             avtaleId = avtaleId,
             oppstart = oppstart,
-            opphav = opphav,
             deltidsprosent = deltidsprosent,
         )
 }
