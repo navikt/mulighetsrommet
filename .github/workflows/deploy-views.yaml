@@ -21,3 +21,5 @@ jobs:
           RESOURCE: iac/bigquery-views/tiltakstyper.yaml,iac/bigquery-views/tiltaksgjennomforing.yaml
           VAR: project=${{ inputs.project }}
           PRINT_PAYLOAD: true
+
+
