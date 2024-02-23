@@ -1,0 +1,30 @@
+apiVersion: bigquery.cnrm.cloud.google.com/v1beta1
+kind: BigQueryTable
+metadata:
+  name: bq-tiltaksgjennomforing-view
+  namespace: team-mulighetsrommet
+  labels:
+    team: team-mulighetsrommet
+  annotations:
+    cnrm.cloud.google.com/management-conflict-prevention-policy: none
+    cnrm.cloud.google.com/project-id: {{project}}
+    cnrm.cloud.google.com/state-into-spec: merge
+
+spec:
+  resourceID: tiltaksgjennomforing_view # Navn på viewet uttad
+  description: "Dataprodukt som viser tiltaksgjennomforinger fra 1.1.2018"
+  datasetRef:
+    external: datastream_mulighetsrommet_api_db
+  view:
+    useLegacySql: false
+    query: >-
+      SELECT
+        id,
+        navn,
+        tiltakstype_id,
+        tiltaksnummer,
+        start_dato,
+        slutt_dato,
+        arrangor_organisasjonsnummer
+      FROM datastream_mulighetsrommet_api_db.public_tiltaksgjennomforing
+      WHERE start_dato >= DATE '2018-01-01'
