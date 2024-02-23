@@ -121,7 +121,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
             .shouldContainExactlyInAnyOrder(ValidationError("oppstart", "Tiltaket må ha løpende oppstartstype"))
     }
 
-    test("skal godta endringer selv om avtale er avbrutt") {
+    test("kan ikke opprette på ikke Aktiv avtale") {
         val id = UUID.randomUUID()
         avtaler.upsert(avtale.copy(id = id))
 
@@ -134,8 +134,21 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
             val validator = TiltaksgjennomforingValidator(avtaler)
             val dbo = gjennomforing.copy(avtaleId = id)
 
-            validator.validate(dbo, null).shouldBeRight()
+            validator.validate(dbo, null).shouldBeLeft(
+                listOf(ValidationError("avtaleId", "Avtalen må være aktiv for å kunne opprette tiltak")),
+            )
         }
+    }
+
+    test("kan ikke opprette før Avtale startDato") {
+        val validator = TiltaksgjennomforingValidator(avtaler)
+        val dbo = gjennomforing.copy(
+            startDato = avtale.startDato.minusDays(1),
+        )
+
+        validator.validate(dbo, null).shouldBeLeft(
+            listOf(ValidationError("startDato", "Startdato må være etter avtalens startdato")),
+        )
     }
 
     test("should validate fields in the gjennomføring and fields related to the avtale") {
@@ -148,15 +161,6 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
                     sluttDato = avtaleStartDato,
                 ),
                 listOf(ValidationError("startDato", "Startdato må være etter avtalens startdato")),
-            ),
-            row(
-                gjennomforing.copy(
-                    startDato = avtaleSluttDato.plusDays(1),
-                    sluttDato = avtaleSluttDato.plusDays(1),
-                ),
-                listOf(
-                    ValidationError("startDato", "Startdato må være før avtalens sluttdato"),
-                ),
             ),
             row(
                 gjennomforing.copy(
@@ -189,6 +193,20 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
 
         afterEach {
             tiltaksgjennomforinger.delete(gjennomforing.id)
+        }
+
+        test("skal godta endringer selv om avtale er avbrutt") {
+            forAll(
+                row(Avslutningsstatus.AVBRUTT),
+                row(Avslutningsstatus.AVSLUTTET),
+            ) { status ->
+                avtaler.setAvslutningsstatus(avtale.id, status)
+
+                val validator = TiltaksgjennomforingValidator(avtaler)
+
+                val previous = tiltaksgjennomforinger.get(gjennomforing.id)
+                validator.validate(gjennomforing, previous).shouldBeRight()
+            }
         }
 
         test("should fail when status is Avsluttet") {
