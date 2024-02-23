@@ -176,7 +176,7 @@ For å legge til eller fjerne kontaktpersoner i admin-flate så går du til http
 
 Velg så Members -> Add members -> Søk opp personen med navn -> Huk av og velg Select.
 Synkronisering av kontaktpersoner kjører en gang i timen, så du må potensielt vente en time før kontaktpersonen blir tilgjengelig i admin-flate.
-
+****
 MERK: Hvis du mangler tilgang til AD så kan du selv be om tilgang ved å følge beskrivelse her: https://github.com/navikt/azure-ad-self-service/blob/main/DirectoryRead/README.md
 
 # Datadeling på Datamarkedsplassen

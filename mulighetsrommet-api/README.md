@@ -184,4 +184,4 @@ Dersom datastreamen tuller seg eller man vil restarte prosessen så må man gå 
 [Kjør så datastream på nytt basert på guiden her ](https://github.com/navikt/nada-datastream)
 
 ### Tilganger for servicebruker (SA-bruker)
-I dev og prod har vi servicebrukere som trenger tilgang til BigQuery for å opprette ressurser (feks. views). Disse skal være satt opp korrekt via NAIS-automatikk, men om det ikke fungerer som forventet kan man prøve å gi BigQuery-admin rolle via IAM til SA-brukeren i dev og prod.
+I dev og prod har vi servicebrukere som trenger tilgang til BigQuery for å opprette ressurser (feks. views). Disse har tilgang til `BigQuery Data Editor`-rollen. Den rollen trengs for å opprette og oppdatere views.
