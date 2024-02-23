@@ -46,7 +46,7 @@ data class MulighetsrommetTestDomain(
         }
 
         VirksomhetRepository(database).also { repository ->
-            virksomhter.forEach { repository.upsert(it)}
+            virksomhter.forEach { repository.upsert(it) }
         }
     }
 }

@@ -13,7 +13,6 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import kotlinx.serialization.json.Json
 import kotliquery.Query
-import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.clients.vedtak.Innsatsgruppe
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
@@ -185,7 +184,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 
         test("upsert endrer ikke opphav om det allerede er satt") {
             val id1 = UUID.randomUUID()
-            tiltaksgjennomforinger.upsertArenaTiltaksgjennomforing(ArenaOppfolging1.copy(id= id1))
+            tiltaksgjennomforinger.upsertArenaTiltaksgjennomforing(ArenaOppfolging1.copy(id = id1))
             tiltaksgjennomforinger.upsert(Oppfolging1.copy(id = id1))
             tiltaksgjennomforinger.get(id1).shouldNotBeNull().should {
                 it.opphav shouldBe ArenaMigrering.Opphav.ARENA
@@ -193,7 +192,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 
             val id2 = UUID.randomUUID()
             tiltaksgjennomforinger.upsert(Oppfolging1.copy(id = id2))
-            tiltaksgjennomforinger.upsertArenaTiltaksgjennomforing(ArenaOppfolging1.copy(id= id2))
+            tiltaksgjennomforinger.upsertArenaTiltaksgjennomforing(ArenaOppfolging1.copy(id = id2))
             tiltaksgjennomforinger.get(id2).shouldNotBeNull().should {
                 it.opphav shouldBe ArenaMigrering.Opphav.MR_ADMIN_FLATE
             }

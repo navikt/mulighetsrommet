@@ -58,7 +58,7 @@ class AvtaleValidator(
                  * så reglene for når en avtale er låst er foreløpig ganske naive og baserer seg kun på om det finnes
                  * gjennomføringer på avtalen eller ikke...
                  */
-                val (numGjennomforinger, gjennomforinger) = tiltaksgjennomforinger.getAll(avtaleId = dbo.id)
+                    val (numGjennomforinger, gjennomforinger) = tiltaksgjennomforinger.getAll(avtaleId = dbo.id)
                 if (numGjennomforinger > 0) {
                     if (dbo.tiltakstypeId != avtale.tiltakstype.id) {
                         add(
