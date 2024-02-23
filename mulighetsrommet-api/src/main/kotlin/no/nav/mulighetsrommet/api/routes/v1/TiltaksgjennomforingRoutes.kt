@@ -100,7 +100,7 @@ fun Route.tiltaksgjennomforingRoutes() {
                         ?.let { call.respond(TiltaksnummerResponse(tiltaksnummer = it)) }
                         ?: call.respond(HttpStatusCode.NoContent)
                 }
-                ?: call.respond(HttpStatusCode.NotFound, "Fant ikke tiltaksnummer for tiltaksgjennomføring med id=$id")
+                ?: call.respond(HttpStatusCode.NotFound, "Ingen tiltaksgjennomføring med id=$id")
         }
 
         get("{id}/historikk") {
