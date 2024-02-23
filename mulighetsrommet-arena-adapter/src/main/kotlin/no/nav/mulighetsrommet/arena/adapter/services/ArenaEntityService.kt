@@ -97,10 +97,6 @@ class ArenaEntityService(
             .left()
     }
 
-    fun getTiltaksgjennomforingBySakId(sakId: Int): Tiltaksgjennomforing? {
-        return tiltaksgjennomforinger.getBySakId(sakId)
-    }
-
     fun isIgnored(arenaTable: ArenaTable, arenaId: String): Either<ProcessingError, Boolean> {
         return getMapping(arenaTable, arenaId)
             .map { it.status == ArenaEntityMapping.Status.Ignored }

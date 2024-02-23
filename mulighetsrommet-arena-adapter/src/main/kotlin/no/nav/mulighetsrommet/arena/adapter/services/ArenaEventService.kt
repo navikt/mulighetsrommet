@@ -92,7 +92,6 @@ class ArenaEventService(
                                 logger.info("Sletter entity som tidligere var håndtert men nå skal ignoreres: table=${event.arenaTable}, id=${event.arenaId}, reason=${result.message}")
                                 deleteEntity(processor, event).map { result }
                             } else {
-                                replayDependentEntities(processor, event)
                                 result.right()
                             }
                         }.onRight {

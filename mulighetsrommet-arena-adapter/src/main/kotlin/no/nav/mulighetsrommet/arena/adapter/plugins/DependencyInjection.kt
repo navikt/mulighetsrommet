@@ -139,7 +139,12 @@ private fun services(services: ServiceConfig, tokenClient: MachineToMachineToken
     single {
         val processors = listOf(
             TiltakEventProcessor(get(), get()),
-            TiltakgjennomforingEventProcessor(get(), get(), get()),
+            TiltakgjennomforingEventProcessor(
+                get(),
+                get(),
+                get(),
+                config = TiltakgjennomforingEventProcessor.Config(retryUpsertTimes = 10),
+            ),
             TiltakdeltakerEventProcessor(get(), get(), get()),
             SakEventProcessor(get()),
             AvtaleInfoEventProcessor(get(), get(), get()),

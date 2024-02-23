@@ -91,7 +91,7 @@ class ArenaEventServiceTest : FunSpec({
                 .value("message").isNull
         }
 
-        test("should replay dependent events when event gets processed successfully") {
+        test("should not replay dependent events when event gets processed successfully") {
             val dependentEvent = ArenaEvent(
                 status = ProcessingStatus.Processed,
                 // En vilkårlig tabell som ikke er brukt i [processedEvent]
@@ -130,13 +130,13 @@ class ArenaEventServiceTest : FunSpec({
             // Deretter [processedEvent]
             service.processEvent(processedEvent)
 
-            // Verifiser at [processedEVent] blitt prosessert
+            // Verifiser at [processedEVent] blitt prosessert én gang
             coVerify(exactly = 1) {
                 processor.handleEvent(processedEvent)
             }
 
-            // Verifiser at [dependentEvent] har blitt prosessert en ekstra gang
-            coVerify(exactly = 2) {
+            // Verifiser at [dependentEvent] har blitt prosessert én gang
+            coVerify(exactly = 1) {
                 dependentEventProcessor.handleEvent(dependentEvent)
             }
 
