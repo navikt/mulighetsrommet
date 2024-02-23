@@ -251,7 +251,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                 Registrer estimert ventetid
               </Switch>
               {watch("visEstimertVentetid") ? (
-                <HStack justify="start" gap="10" columns={4}>
+                <HStack align="start" justify="start" gap="10" columns={4}>
                   <TextField
                     size="small"
                     type="number"
