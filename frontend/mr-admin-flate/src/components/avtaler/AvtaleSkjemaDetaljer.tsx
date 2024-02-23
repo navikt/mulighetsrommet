@@ -1,4 +1,4 @@
-import { Button, Textarea, TextField } from "@navikt/ds-react";
+import { Button, HGrid, Textarea, TextField } from "@navikt/ds-react";
 import {
   Avtale,
   Avtaletype,
@@ -103,57 +103,61 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
     <div className={skjemastyles.container}>
       <div className={skjemastyles.input_container}>
         <div className={skjemastyles.column}>
-          <FormGroup cols={avtale?.avtalenummer ? 2 : 1}>
-            <TextField
-              size="small"
-              readOnly={arenaOpphavOgIngenEierskap}
-              error={errors.navn?.message}
-              label="Avtalenavn"
-              autoFocus
-              {...register("navn")}
-            />
-            {avtale?.avtalenummer ? (
-              <TextField size="small" readOnly label="Avtalenummer" value={avtale.avtalenummer} />
-            ) : null}
+          <FormGroup>
+            <HGrid gap="4" columns={avtale?.avtalenummer ? 2 : 1}>
+              <TextField
+                size="small"
+                readOnly={arenaOpphavOgIngenEierskap}
+                error={errors.navn?.message}
+                label="Avtalenavn"
+                autoFocus
+                {...register("navn")}
+              />
+              {avtale?.avtalenummer ? (
+                <TextField size="small" readOnly label="Avtalenummer" value={avtale.avtalenummer} />
+              ) : null}
+            </HGrid>
           </FormGroup>
           <Separator />
-          <FormGroup cols={2}>
-            <ControlledSokeSelect
-              size="small"
-              readOnly={arenaOpphavOgIngenEierskap}
-              placeholder="Velg en"
-              label={"Tiltakstype"}
-              {...register("tiltakstype")}
-              options={tiltakstyper.map((tiltakstype) => ({
-                value: {
-                  arenaKode: tiltakstype.arenaKode,
-                  navn: tiltakstype.navn,
-                  id: tiltakstype.id,
-                },
-                label: tiltakstype.navn,
-              }))}
-            />
-            <ControlledSokeSelect
-              size="small"
-              readOnly={arenaOpphavOgIngenEierskap}
-              placeholder="Velg en"
-              label={"Avtaletype"}
-              {...register("avtaletype")}
-              options={[
-                {
-                  value: Avtaletype.FORHAANDSGODKJENT,
-                  label: "Forhåndsgodkjent avtale",
-                },
-                {
-                  value: Avtaletype.RAMMEAVTALE,
-                  label: "Rammeavtale",
-                },
-                {
-                  value: Avtaletype.AVTALE,
-                  label: "Avtale",
-                },
-              ]}
-            />
+          <FormGroup>
+            <HGrid gap="4" columns={2}>
+              <ControlledSokeSelect
+                size="small"
+                readOnly={arenaOpphavOgIngenEierskap}
+                placeholder="Velg en"
+                label={"Tiltakstype"}
+                {...register("tiltakstype")}
+                options={tiltakstyper.map((tiltakstype) => ({
+                  value: {
+                    arenaKode: tiltakstype.arenaKode,
+                    navn: tiltakstype.navn,
+                    id: tiltakstype.id,
+                  },
+                  label: tiltakstype.navn,
+                }))}
+              />
+              <ControlledSokeSelect
+                size="small"
+                readOnly={arenaOpphavOgIngenEierskap}
+                placeholder="Velg en"
+                label={"Avtaletype"}
+                {...register("avtaletype")}
+                options={[
+                  {
+                    value: Avtaletype.FORHAANDSGODKJENT,
+                    label: "Forhåndsgodkjent avtale",
+                  },
+                  {
+                    value: Avtaletype.RAMMEAVTALE,
+                    label: "Rammeavtale",
+                  },
+                  {
+                    value: Avtaletype.AVTALE,
+                    label: "Avtale",
+                  },
+                ]}
+              />
+            </HGrid>
           </FormGroup>
           <Separator />
           <FormGroup>
