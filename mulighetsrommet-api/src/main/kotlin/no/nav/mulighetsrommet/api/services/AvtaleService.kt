@@ -45,7 +45,7 @@ class AvtaleService(
 
     suspend fun upsert(request: AvtaleRequest, navIdent: String): Either<List<ValidationError>, AvtaleAdminDto> {
         val previous = avtaler.get(request.id)
-        return virksomhetService.getOrSyncVirksomhetFromBrreg(request.leverandorOrganisasjonsnummer)
+        return virksomhetService.getOrSyncHovedenhetFromBrreg(request.leverandorOrganisasjonsnummer)
             .mapLeft {
                 ValidationError
                     .of(

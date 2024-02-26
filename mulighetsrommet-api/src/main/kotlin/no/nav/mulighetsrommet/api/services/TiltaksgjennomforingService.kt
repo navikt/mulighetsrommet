@@ -44,7 +44,7 @@ class TiltaksgjennomforingService(
         navIdent: String,
     ): Either<List<ValidationError>, TiltaksgjennomforingAdminDto> {
         val previous = tiltaksgjennomforinger.get(request.id)
-        return virksomhetService.getOrSyncVirksomhetFromBrreg(request.arrangorOrganisasjonsnummer)
+        return virksomhetService.getOrSyncHovedenhetFromBrreg(request.arrangorOrganisasjonsnummer)
             .mapLeft {
                 ValidationError
                     .of(

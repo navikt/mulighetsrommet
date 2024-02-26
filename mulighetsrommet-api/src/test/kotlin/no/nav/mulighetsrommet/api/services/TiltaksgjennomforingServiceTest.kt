@@ -46,7 +46,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             firstArg<TiltaksgjennomforingDbo>().right()
         }
 
-        coEvery { virksomhetService.getOrSyncVirksomhetFromBrreg(any()) } answers {
+        coEvery { virksomhetService.getOrSyncHovedenhetFromBrreg(any()) } answers {
             VirksomhetDto(
                 organisasjonsnummer = firstArg<String>(),
                 navn = "Virksomhet",
