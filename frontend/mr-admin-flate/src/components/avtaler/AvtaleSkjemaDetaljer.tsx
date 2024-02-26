@@ -45,6 +45,10 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
   const { data: leverandorVirksomheter = [] } = useSokVirksomheter(sokLeverandor);
   const { data: migrerteTiltakstyper } = useMigrerteTiltakstyper();
 
+  const migrerteTiltakstyperOgTiltakstyperUtenAvtaleIArena = migrerteTiltakstyper?.concat(
+    "VASV",
+    "ARBFORB",
+  );
   const { data: administratorer } = useAvtaleAdministratorer();
   const virksomhetKontaktpersonerModalRef = useRef<HTMLDialogElement>(null);
 
@@ -67,7 +71,7 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
 
   const arenaOpphavOgIngenEierskap =
     avtale?.opphav === Opphav.ARENA &&
-    !migrerteTiltakstyper?.includes(watchedTiltakstype.arenaKode);
+    !migrerteTiltakstyperOgTiltakstyperUtenAvtaleIArena?.includes(watchedTiltakstype.arenaKode);
 
   const navRegionerOptions = enheter
     .filter((enhet) => enhet.type === NavEnhetType.FYLKE)
@@ -133,7 +137,14 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
                     navn: tiltakstype.navn,
                     id: tiltakstype.id,
                   },
-                  label: tiltakstype.navn,
+                  label: !migrerteTiltakstyperOgTiltakstyperUtenAvtaleIArena?.includes(
+                    tiltakstype.arenaKode,
+                  )
+                    ? `${tiltakstype.navn} må opprettes i Arena`
+                    : tiltakstype.navn,
+                  isDisabled: !migrerteTiltakstyperOgTiltakstyperUtenAvtaleIArena?.includes(
+                    tiltakstype.arenaKode,
+                  ),
                 }))}
               />
               <ControlledSokeSelect
