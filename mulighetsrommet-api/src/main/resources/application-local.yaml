@@ -113,6 +113,11 @@ app:
     url: https://axsys.dev-fss-pub.nais.io # TODO Url for wiremock for axsys
     scope: default # TODO scope for wiremock for axsys
 
+  pdl:
+    url: http://localhost:8090/pdl
+    scope: default
+
+
   tasks:
     deleteExpiredTiltakshistorikk:
       disabled: true

@@ -93,6 +93,7 @@ fun createTestApplicationConfig() = AppConfig(
         environment = "",
     ),
     axsys = ServiceClientConfig(url = "", scope = ""),
+    pdl = ServiceClientConfig(url = "", scope = ""),
     migrerteTiltak = emptyList(),
 )
 

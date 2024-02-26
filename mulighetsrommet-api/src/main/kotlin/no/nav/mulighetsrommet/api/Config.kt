@@ -40,6 +40,7 @@ data class AppConfig(
     val brreg: BrregClient.Config,
     val unleash: UnleashService.Config,
     val axsys: ServiceClientConfig,
+    val pdl: ServiceClientConfig,
     val engine: HttpClientEngine = CIO.create(),
 )
 

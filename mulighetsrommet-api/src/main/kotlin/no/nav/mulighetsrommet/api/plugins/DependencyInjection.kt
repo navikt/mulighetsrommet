@@ -4,6 +4,9 @@ import com.github.kagkarlsson.scheduler.Scheduler
 import com.nimbusds.jose.jwk.KeyUse
 import com.nimbusds.jose.jwk.RSAKey
 import io.ktor.server.application.*
+import no.nav.common.client.pdl.PdlClient
+import no.nav.common.client.pdl.PdlClientImpl
+import no.nav.common.client.pdl.Tema
 import no.nav.common.kafka.producer.util.KafkaProducerClientBuilder
 import no.nav.common.kafka.util.KafkaPropertiesBuilder
 import no.nav.common.kafka.util.KafkaPropertiesPreset
@@ -20,6 +23,7 @@ import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogClient
 import no.nav.mulighetsrommet.api.clients.msgraph.MicrosoftGraphClient
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Client
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
+import no.nav.mulighetsrommet.api.clients.pdl.PdlClientWrapper
 import no.nav.mulighetsrommet.api.clients.person.VeilarbpersonClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
@@ -174,7 +178,7 @@ private fun services(appConfig: AppConfig) = module {
     val m2mTokenProvider = createM2mTokenClient(appConfig)
     val oboTokenProvider = createOboTokenClient(appConfig)
 
-    single<VeilarboppfolgingClient> {
+    single {
         VeilarboppfolgingClient(
             baseUrl = appConfig.veilarboppfolgingConfig.url,
             tokenProvider = { token ->
@@ -182,7 +186,7 @@ private fun services(appConfig: AppConfig) = module {
             },
         )
     }
-    single<VeilarbvedtaksstotteClient> {
+    single {
         VeilarbvedtaksstotteClient(
             baseUrl = appConfig.veilarbvedtaksstotteConfig.url,
             tokenProvider = { token ->
@@ -190,7 +194,7 @@ private fun services(appConfig: AppConfig) = module {
             },
         )
     }
-    single<VeilarbpersonClient> {
+    single {
         VeilarbpersonClient(
             baseUrl = appConfig.veilarbpersonConfig.url,
             tokenProvider = { token ->
@@ -198,7 +202,7 @@ private fun services(appConfig: AppConfig) = module {
             },
         )
     }
-    single<VeilarbdialogClient> {
+    single {
         VeilarbdialogClient(
             baseUrl = appConfig.veilarbdialogConfig.url,
             tokenProvider = { token ->
@@ -206,6 +210,17 @@ private fun services(appConfig: AppConfig) = module {
             },
         )
     }
+    single<PdlClient> {
+        PdlClientImpl(
+            appConfig.pdl.url,
+            Tema.GEN,
+            { m2mTokenProvider.createMachineToMachineToken(appConfig.pdl.scope) },
+            { m2mTokenProvider.createMachineToMachineToken(appConfig.pdl.scope) },
+            // Team Valps behandlingsnummer for behandling av data for løsningen Arbeidsmarkedstiltak i Modia
+            "B450",
+        )
+    }
+    single { PdlClientWrapper(get()) }
 
     single<PoaoTilgangClient> {
         PoaoTilgangHttpClient(
@@ -213,7 +228,7 @@ private fun services(appConfig: AppConfig) = module {
             tokenProvider = { m2mTokenProvider.createMachineToMachineToken(appConfig.poaoTilgang.scope) },
         )
     }
-    single<MicrosoftGraphClient> {
+    single {
         MicrosoftGraphClient(
             baseUrl = appConfig.msGraphConfig.url,
             tokenProvider = { token ->
@@ -225,13 +240,13 @@ private fun services(appConfig: AppConfig) = module {
             },
         )
     }
-    single<ArenaAdapterClient> {
+    single {
         ArenaAdapterClient(
             baseUrl = appConfig.arenaAdapter.url,
             machineToMachineTokenClient = { m2mTokenProvider.createMachineToMachineToken(appConfig.arenaAdapter.scope) },
         )
     }
-    single<Norg2Client> {
+    single {
         Norg2Client(
             baseUrl = appConfig.norg2.baseUrl,
         )

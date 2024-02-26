@@ -107,6 +107,10 @@ app:
     url: https://axsys.dev-fss-pub.nais.io
     scope: api://dev-fss.org.axsys/.default
 
+  pdl:
+    url: https://pdl-api.dev-fss-pub.nais.io/graphql
+    scope: api://dev-fss.pdl.pdl-api/.default
+
   tasks:
     deleteExpiredTiltakshistorikk:
       cronPattern: "0 0 1 * * *" # Hver morgen kl. 01:00
