@@ -9,10 +9,10 @@ const RETRY_DELAY = 3000;
 
 export function usePollTiltaksnummer(id: string) {
   const tiltaksnummer = useQuery({
-    queryKey: ["tiltakgjennomforing", id, "tiltksnummer"],
+    queryKey: ["tiltakgjennomforing", id, "tiltaksnummer"],
     async queryFn() {
       const tiltaksnummer = await mulighetsrommetClient.tiltaksgjennomforinger.getTiltaksnummer({
-        id: id,
+        id,
       });
 
       if (!tiltaksnummer) {
