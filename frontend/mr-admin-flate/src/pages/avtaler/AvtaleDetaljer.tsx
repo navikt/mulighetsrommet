@@ -1,5 +1,5 @@
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
-import { Alert, Heading, HelpText } from "@navikt/ds-react";
+import { Alert, Heading, HelpText, VStack } from "@navikt/ds-react";
 import { NOM_ANSATT_SIDE } from "mulighetsrommet-frontend-common/constants";
 import { Fragment } from "react";
 import { useAvtale } from "../../api/avtaler/useAvtale";
@@ -90,53 +90,64 @@ export function AvtaleDetaljer() {
 
         <Separator />
 
-        <Bolk aria-label="Pris- og betalingsbetingelser">
-          {erAnskaffetTiltak(tiltakstype.arenaKode) && (
-            <Metadata
-              header="Pris- og betalingsbetingelser"
-              verdi={
-                avtale.prisbetingelser ??
-                "Det eksisterer ikke pris og betalingsbetingelser for denne avtalen"
-              }
-            />
-          )}
-        </Bolk>
-
-        {url ? (
-          <a href={url} target="_blank" rel="noopener noreferrer">
-            {lenketekst()}
-          </a>
-        ) : null}
-
-        {administratorer ? (
-          <Bolk aria-label="Administratorer for avtalen">
-            <Metadata
-              header="Administratorer for avtalen"
-              verdi={
-                administratorer.length ? (
-                  <ul>
-                    {administratorer.map((admin) => {
-                      return (
-                        <li key={admin.navIdent}>
-                          <a
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            href={`${NOM_ANSATT_SIDE}${admin.navIdent}`}
-                          >
-                            {`${admin.navn} - ${admin.navIdent}`}{" "}
-                            <ExternalLinkIcon aria-label="Ekstern lenke" />
-                          </a>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                ) : (
-                  "Ingen administratorer satt for avtalen"
-                )
-              }
-            />
+        <VStack gap="5">
+          <Bolk aria-label="Pris- og betalingsbetingelser">
+            {erAnskaffetTiltak(tiltakstype.arenaKode) && (
+              <Metadata
+                header="Pris- og betalingsbetingelser"
+                verdi={
+                  avtale.prisbetingelser ??
+                  "Det eksisterer ikke pris og betalingsbetingelser for denne avtalen"
+                }
+              />
+            )}
           </Bolk>
-        ) : null}
+
+          {administratorer ? (
+            <Bolk aria-label="Administratorer for avtalen">
+              <Metadata
+                header="Administratorer for avtalen"
+                verdi={
+                  administratorer.length ? (
+                    <ul>
+                      {administratorer.map((admin) => {
+                        return (
+                          <li key={admin.navIdent}>
+                            <a
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              href={`${NOM_ANSATT_SIDE}${admin.navIdent}`}
+                            >
+                              {`${admin.navn} - ${admin.navIdent}`}{" "}
+                              <ExternalLinkIcon aria-label="Ekstern lenke" />
+                            </a>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  ) : (
+                    "Ingen administratorer satt for avtalen"
+                  )
+                }
+              />
+              {url ? (
+                <Metadata
+                  header="Se originalavtale"
+                  verdi={
+                    <Link
+                      className={styles.websakLenke}
+                      to={url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {lenketekst()}
+                    </Link>
+                  }
+                />
+              ) : null}
+            </Bolk>
+          ) : null}
+        </VStack>
       </div>
 
       <div className={styles.detaljer}>
