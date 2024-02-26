@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.arena.adapter.services
 
+import arrow.core.Either
 import arrow.core.flatMap
 import arrow.core.right
 import kotlinx.coroutines.*
@@ -38,7 +39,7 @@ class ArenaEventService(
 
         ids.forEach { id ->
             events.get(table, id)?.also { event ->
-                deleteEntityForEvent(event)
+                handleDeleteEntityForEvent(event)
             }
         }
     }
@@ -89,22 +90,7 @@ class ArenaEventService(
                         .flatMap { result ->
                             if (mapping.status == Handled && result.status == Ignored) {
                                 logger.info("Sletter entity som tidligere var håndtert men nå skal ignoreres: table=${event.arenaTable}, id=${event.arenaId}, reason=${result.message}")
-
-                                processor.deleteEntity(event)
-                                    .onLeft {
-                                        logger.warn("Klarte ikke slette entity: table=${event.arenaTable}, id=${event.arenaId}, status=${it.status}, message=${it.message}")
-
-                                        if (it is ProcessingError.ForeignKeyViolation) {
-                                            val dependentEntities = processor.getDependentEntities(event)
-
-                                            logger.info("Gjenspiller ${dependentEntities.size} avhengigheter til event: table=${event.arenaTable}, id=${event.arenaId}")
-
-                                            dependentEntities.forEach { mapping ->
-                                                replayEvent(mapping.arenaTable, mapping.arenaId)
-                                            }
-                                        }
-                                    }
-                                    .map { result }
+                                deleteEntity(processor, event).map { result }
                             } else {
                                 result.right()
                             }
@@ -112,7 +98,7 @@ class ArenaEventService(
                             entities.upsertMapping(mapping.copy(status = it.status, message = it.message))
                             events.upsert(event.copy(status = ArenaEvent.ProcessingStatus.Processed, message = null))
                         }.onLeft {
-                            logger.info("Fail to process event: table=${event.arenaTable}, id=${event.arenaId}")
+                            logger.info("Failed to process event: table=${event.arenaTable}, id=${event.arenaId}")
                             events.upsert(event.copy(status = it.status, message = it.message))
                         }
                 } catch (e: Throwable) {
@@ -125,16 +111,40 @@ class ArenaEventService(
             }
     }
 
-    private suspend fun deleteEntityForEvent(event: ArenaEvent) {
+    private suspend fun handleDeleteEntityForEvent(event: ArenaEvent) {
         processors
             .filter { it.arenaTable == event.arenaTable }
             .forEach { processor ->
                 logger.info("Deleting entity: table=${event.arenaTable}, id=${event.arenaId}")
-
-                processor.deleteEntity(event).onLeft {
+                deleteEntity(processor, event).onLeft {
                     throw RuntimeException(it.message)
                 }
             }
+    }
+
+    private suspend fun deleteEntity(processor: ArenaEventProcessor, event: ArenaEvent): Either<ProcessingError, Unit> {
+        return processor.deleteEntity(event)
+            .onLeft {
+                logger.warn("Klarte ikke slette entity: table=${event.arenaTable}, id=${event.arenaId}, status=${it.status}, message=${it.message}")
+
+                if (it is ProcessingError.ForeignKeyViolation) {
+                    logger.info("Forsøker å gjenspille avhengigheter til event: table=${event.arenaTable}, id=${event.arenaId}")
+                    replayDependentEntities(processor, event)
+                }
+            }
+    }
+
+    private suspend fun replayDependentEntities(
+        processor: ArenaEventProcessor,
+        event: ArenaEvent,
+    ) {
+        val dependentEntities = processor.getDependentEntities(event)
+
+        logger.info("Gjenspiller ${dependentEntities.size} avhengigheter til event: table=${event.arenaTable}, id=${event.arenaId}")
+
+        dependentEntities.forEach { mapping ->
+            replayEvent(mapping.arenaTable, mapping.arenaId)
+        }
     }
 
     @OptIn(ExperimentalCoroutinesApi::class, ExperimentalTime::class)

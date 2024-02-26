@@ -67,7 +67,7 @@ class ArenaEventRepository(private val db: Database) {
     }
 
     fun get(table: ArenaTable, id: String): ArenaEvent? {
-        logger.info("Getting event id=$id")
+        logger.info("Getting event table=$table, id=$id")
 
         @Language("PostgreSQL")
         val query = """

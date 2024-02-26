@@ -6,6 +6,7 @@ import arrow.core.left
 import arrow.core.raise.either
 import arrow.core.right
 import io.ktor.http.*
+import kotlinx.coroutines.delay
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClient
 import no.nav.mulighetsrommet.arena.adapter.models.ProcessingError
@@ -34,8 +35,13 @@ class TiltakgjennomforingEventProcessor(
     private val entities: ArenaEntityService,
     private val client: MulighetsrommetApiClient,
     private val ords: ArenaOrdsProxyClient,
+    private val config: Config = Config(),
 ) : ArenaEventProcessor {
     override val arenaTable: ArenaTable = ArenaTable.Tiltaksgjennomforing
+
+    data class Config(
+        val retryUpsertTimes: Int = 1,
+    )
 
     override suspend fun handleEvent(event: ArenaEvent) = either {
         val data = event.decodePayload<ArenaTiltaksgjennomforing>()
@@ -63,7 +69,14 @@ class TiltakgjennomforingEventProcessor(
         val avtaleId = data.AVTALE_ID?.let { resolveFromMappingStatus(it).bind() }
         val tiltaksgjennomforing = entities.getMapping(event.arenaTable, event.arenaId)
             .flatMap { data.toTiltaksgjennomforing(it.entityId, avtaleId) }
-            .flatMap { entities.upsertTiltaksgjennomforing(it) }
+            .flatMap {
+                retry(
+                    times = config.retryUpsertTimes,
+                    condition = { it.isLeft { error -> error is ProcessingError.ForeignKeyViolation } },
+                ) {
+                    entities.upsertTiltaksgjennomforing(it)
+                }
+            }
             .bind()
 
         if (isGruppetiltak) {
@@ -194,4 +207,23 @@ class TiltakgjennomforingEventProcessor(
             oppstart = if (isKursTiltak(tiltakskode)) FELLES else LOPENDE,
             deltidsprosent = deltidsprosent,
         )
+}
+
+suspend fun <T> retry(
+    times: Int = 10,
+    delayMs: Long = 1000,
+    condition: (T) -> Boolean = { true },
+    block: suspend () -> T,
+): T {
+    repeat(times - 1) {
+        val result = block()
+
+        if (!condition(result)) {
+            return result
+        }
+
+        delay(delayMs)
+    }
+
+    return block()
 }
