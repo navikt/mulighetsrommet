@@ -4,9 +4,6 @@ import com.github.kagkarlsson.scheduler.Scheduler
 import com.nimbusds.jose.jwk.KeyUse
 import com.nimbusds.jose.jwk.RSAKey
 import io.ktor.server.application.*
-import no.nav.common.client.pdl.PdlClient
-import no.nav.common.client.pdl.PdlClientImpl
-import no.nav.common.client.pdl.Tema
 import no.nav.common.kafka.producer.util.KafkaProducerClientBuilder
 import no.nav.common.kafka.util.KafkaPropertiesBuilder
 import no.nav.common.kafka.util.KafkaPropertiesPreset
@@ -23,7 +20,7 @@ import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogClient
 import no.nav.mulighetsrommet.api.clients.msgraph.MicrosoftGraphClient
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Client
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
-import no.nav.mulighetsrommet.api.clients.pdl.PdlClientWrapper
+import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
 import no.nav.mulighetsrommet.api.clients.person.VeilarbpersonClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
@@ -39,6 +36,7 @@ import no.nav.mulighetsrommet.kafka.KafkaConsumerRepositoryImpl
 import no.nav.mulighetsrommet.kafka.consumers.TiltaksgjennomforingTopicConsumer
 import no.nav.mulighetsrommet.kafka.consumers.amt.AmtDeltakerV1TopicConsumer
 import no.nav.mulighetsrommet.kafka.consumers.amt.AmtVirksomheterV1TopicConsumer
+import no.nav.mulighetsrommet.kafka.consumers.pto.PtoSisteOppfolgingsperiodeV1TopicConsumer
 import no.nav.mulighetsrommet.kafka.producers.ArenaMigreringTiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.kafka.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.kafka.producers.TiltakstypeKafkaProducer
@@ -147,6 +145,11 @@ private fun kafka(appConfig: AppConfig) = module {
                 virksomhetRepository = get(),
                 virksomhetService = get(),
             ),
+            PtoSisteOppfolgingsperiodeV1TopicConsumer(
+                config = config.consumers.ptoSisteOppfolgingsperiodeV1,
+                tiltakshistorikkService = get(),
+                pdlClient = get(),
+            ),
         )
         KafkaConsumerOrchestrator(
             consumerPreset = properties,
@@ -210,17 +213,12 @@ private fun services(appConfig: AppConfig) = module {
             },
         )
     }
-    single<PdlClient> {
-        PdlClientImpl(
-            appConfig.pdl.url,
-            Tema.GEN,
-            { m2mTokenProvider.createMachineToMachineToken(appConfig.pdl.scope) },
-            { m2mTokenProvider.createMachineToMachineToken(appConfig.pdl.scope) },
-            // Team Valps behandlingsnummer for behandling av data for løsningen Arbeidsmarkedstiltak i Modia
-            "B450",
+    single {
+        PdlClient(
+            baseUrl = appConfig.pdl.url,
+            tokenProvider = { m2mTokenProvider.createMachineToMachineToken(appConfig.pdl.scope) },
         )
     }
-    single { PdlClientWrapper(get()) }
 
     single<PoaoTilgangClient> {
         PoaoTilgangHttpClient(
@@ -292,7 +290,7 @@ private fun services(appConfig: AppConfig) = module {
             appConfig.migrerteTiltak,
         )
     }
-    single { TiltakshistorikkService(get(), get()) }
+    single { TiltakshistorikkService(get(), get(), get()) }
     single { VeilederflateService(get(), get(), get(), get()) }
     single { BrukerService(get(), get(), get(), get()) }
     single { DialogService(get()) }

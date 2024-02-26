@@ -35,6 +35,9 @@ app:
       amtVirksomheterV1:
         id: amt-virksomheter
         topic: amt.virksomheter-v1
+      ptoSisteOppfolgingsperiodeV1:
+        id: pto-virksomheter
+        topic: pto.siste-oppfolgingsperiode-v1
 
   auth:
     azure:
@@ -107,7 +110,7 @@ app:
     scope: api://prod-fss.org.axsys/.default
 
   pdl:
-    url: https://pdl-api.prod-fss-pub.nais.io/graphql
+    url: https://pdl-api.prod-fss-pub.nais.io
     scope: api://prod-fss.pdl.pdl-api/.default
 
   tasks:
