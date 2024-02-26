@@ -85,7 +85,7 @@ export const Tiltaksgjennomforingsoversikt = ({ tiltaksgjennomforinger, deltMedB
     });
   };
 
-  const antallSize = [15, 50, 100, 1000];
+  const antallSize = [50, 100, 1000];
   const lopendeGjennomforinger = tiltaksgjennomforinger.filter(
     (gj) => gj.oppstart === TiltaksgjennomforingOppstartstype.LOPENDE,
   );

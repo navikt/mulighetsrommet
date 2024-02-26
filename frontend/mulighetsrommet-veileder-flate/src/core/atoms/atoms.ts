@@ -3,7 +3,7 @@ import { atomWithHash } from "jotai-location";
 
 export const paginationAtom = atomWithHash(
   "pagination",
-  { page: 1, pageSize: 15 },
+  { page: 1, pageSize: 50 },
   {
     setHash: "replaceState",
   },
