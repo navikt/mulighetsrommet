@@ -23,7 +23,6 @@ export function DupliserTiltak({ tiltaksgjennomforing }: Props) {
         tiltaksgjennomforing: {
           ...tiltaksgjennomforing,
           id: window.crypto.randomUUID(),
-          tiltaksnummer: "",
           startDato: undefined,
           sluttDato: undefined,
           opphav: Opphav.MR_ADMIN_FLATE,

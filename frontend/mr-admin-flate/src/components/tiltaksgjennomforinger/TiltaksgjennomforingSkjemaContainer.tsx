@@ -82,7 +82,6 @@ export const TiltaksgjennomforingSkjemaContainer = ({
         data.tiltaksArrangorUnderenhetOrganisasjonsnummer ||
         tiltaksgjennomforing?.arrangor?.organisasjonsnummer ||
         "",
-      tiltaksnummer: tiltaksgjennomforing?.tiltaksnummer ?? null,
       oppstart: data.oppstart,
       apentForInnsok: data.apentForInnsok,
       stengtFra: data.midlertidigStengt.erMidlertidigStengt

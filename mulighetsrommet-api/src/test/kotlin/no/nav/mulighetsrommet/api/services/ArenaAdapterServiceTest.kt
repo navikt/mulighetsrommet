@@ -411,7 +411,7 @@ class ArenaAdapterServiceTest : FunSpec({
 
             service.upsertTiltakstype(tiltakstype)
             service.upsertTiltaksgjennomforing(
-                toArenaTiltaksgjennomforingDbo(gjennomforing.copy(navn = "Endret navn"), AVSLUTTET),
+                toArenaTiltaksgjennomforingDbo(gjennomforing.copy(navn = "Endret navn"), AVSLUTTET, "2024#1"),
             )
 
             gjennomforinger.get(gjennomforing.id).shouldNotBeNull().should {
@@ -666,12 +666,16 @@ private fun toTiltaksgjennomforingDto(dbo: ArenaTiltaksgjennomforingDbo, tiltaks
     )
 }
 
-fun toArenaTiltaksgjennomforingDbo(dbo: TiltaksgjennomforingDbo, avslutningsstatus: Avslutningsstatus) = dbo.run {
+fun toArenaTiltaksgjennomforingDbo(
+    dbo: TiltaksgjennomforingDbo,
+    avslutningsstatus: Avslutningsstatus,
+    tiltaksnummer: String,
+) = dbo.run {
     ArenaTiltaksgjennomforingDbo(
         id = id,
         navn = navn,
         tiltakstypeId = tiltakstypeId,
-        tiltaksnummer = tiltaksnummer ?: "",
+        tiltaksnummer = tiltaksnummer,
         arrangorOrganisasjonsnummer = arrangorOrganisasjonsnummer,
         startDato = startDato,
         sluttDato = sluttDato,
