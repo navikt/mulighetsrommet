@@ -11,6 +11,7 @@ import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
 import no.nav.mulighetsrommet.domain.Tiltakskoder
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
+import no.nav.mulighetsrommet.domain.dto.Avtalestatus
 import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus.GJENNOMFORES
 
 class TiltaksgjennomforingValidator(
@@ -71,26 +72,6 @@ class TiltaksgjennomforingValidator(
                 }
             }
 
-            if (!Tiltakskoder.isTiltakMedAvtalerFraMulighetsrommet(avtale.tiltakstype.arenaKode)) {
-                if (dbo.startDato.isBefore(avtale.startDato)) {
-                    add(
-                        ValidationError.of(
-                            TiltaksgjennomforingDbo::startDato,
-                            "Startdato må være etter avtalens startdato",
-                        ),
-                    )
-                }
-
-                if (dbo.startDato.isAfter(avtale.sluttDato)) {
-                    add(
-                        ValidationError.of(
-                            TiltaksgjennomforingDbo::startDato,
-                            "Startdato må være før avtalens sluttdato",
-                        ),
-                    )
-                }
-            }
-
             if (dbo.navEnheter.isEmpty()) {
                 add(ValidationError.of(TiltaksgjennomforingDbo::navEnheter, "Minst ett NAV-kontor må være valgt"))
             }
@@ -128,8 +109,8 @@ class TiltaksgjennomforingValidator(
                 )
             }
 
-            previousDto?.also { gjennomforing ->
-                if (!gjennomforing.isAktiv()) {
+            if (previousDto != null) {
+                if (!previousDto.isAktiv()) {
                     add(
                         ValidationError.of(
                             TiltaksgjennomforingDbo::navn,
@@ -138,8 +119,8 @@ class TiltaksgjennomforingValidator(
                     )
                 }
 
-                if (gjennomforing.status == GJENNOMFORES) {
-                    if (dbo.avtaleId != gjennomforing.avtaleId) {
+                if (previousDto.status == GJENNOMFORES) {
+                    if (dbo.avtaleId != previousDto.avtaleId) {
                         add(
                             ValidationError.of(
                                 TiltaksgjennomforingDbo::avtaleId,
@@ -148,7 +129,7 @@ class TiltaksgjennomforingValidator(
                         )
                     }
 
-                    if (dbo.startDato != gjennomforing.startDato) {
+                    if (dbo.startDato != previousDto.startDato) {
                         add(
                             ValidationError.of(
                                 TiltaksgjennomforingDbo::startDato,
@@ -157,7 +138,7 @@ class TiltaksgjennomforingValidator(
                         )
                     }
 
-                    if (dbo.sluttDato != gjennomforing.sluttDato) {
+                    if (dbo.sluttDato != previousDto.sluttDato) {
                         add(
                             ValidationError.of(
                                 TiltaksgjennomforingDbo::sluttDato,
@@ -166,7 +147,7 @@ class TiltaksgjennomforingValidator(
                         )
                     }
 
-                    if (dbo.antallPlasser != gjennomforing.antallPlasser) {
+                    if (dbo.antallPlasser != previousDto.antallPlasser) {
                         add(
                             ValidationError.of(
                                 TiltaksgjennomforingDbo::antallPlasser,
@@ -175,7 +156,7 @@ class TiltaksgjennomforingValidator(
                         )
                     }
 
-                    if (dbo.arrangorOrganisasjonsnummer != gjennomforing.arrangor.organisasjonsnummer) {
+                    if (dbo.arrangorOrganisasjonsnummer != previousDto.arrangor.organisasjonsnummer) {
                         add(
                             ValidationError.of(
                                 TiltaksgjennomforingDbo::arrangorOrganisasjonsnummer,
@@ -183,6 +164,23 @@ class TiltaksgjennomforingValidator(
                             ),
                         )
                     }
+                }
+            } else { // Dvs. opprettelse av ny gjennomføring
+                if (dbo.startDato.isBefore(avtale.startDato)) {
+                    add(
+                        ValidationError.of(
+                            TiltaksgjennomforingDbo::startDato,
+                            "Startdato må være etter avtalens startdato",
+                        ),
+                    )
+                }
+                if (avtale.avtalestatus != Avtalestatus.Aktiv) {
+                    add(
+                        ValidationError.of(
+                            TiltaksgjennomforingDbo::avtaleId,
+                            "Avtalen må være aktiv for å kunne opprette tiltak",
+                        ),
+                    )
                 }
             }
         }
