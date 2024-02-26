@@ -95,7 +95,6 @@ data class TiltaksgjennomforingAdminDto(
             id = id,
             navn = navn,
             tiltakstypeId = tiltakstype.id,
-            tiltaksnummer = tiltaksnummer,
             arrangorOrganisasjonsnummer = arrangor.organisasjonsnummer,
             arrangorKontaktpersoner = arrangor.kontaktpersoner.map { it.id },
             startDato = startDato,

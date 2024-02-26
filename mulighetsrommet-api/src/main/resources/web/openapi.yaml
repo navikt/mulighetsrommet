@@ -2297,9 +2297,6 @@ components:
           items:
             type: string
             format: UUID
-        tiltaksnummer:
-          type: string
-          nullable: true
         administratorer:
           type: array
           items:
@@ -2358,7 +2355,6 @@ components:
         - avtaleId
         - arrangorOrganisasjonsnummer
         - arrangorKontaktpersoner
-        - tiltaksnummer
         - administrator
         - navRegion
         - navEnheter

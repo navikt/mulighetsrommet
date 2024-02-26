@@ -72,7 +72,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     arenaKode = TiltakstypeFixtures.Oppfolging.tiltakskode,
                 )
                 it.navn shouldBe Oppfolging1.navn
-                it.tiltaksnummer shouldBe Oppfolging1.tiltaksnummer
+                it.tiltaksnummer shouldBe null
                 it.arrangor shouldBe TiltaksgjennomforingAdminDto.Arrangor(
                     organisasjonsnummer = Oppfolging1.arrangorOrganisasjonsnummer,
                     slettet = true,
@@ -901,7 +901,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                         id = UUID.randomUUID(),
                         navn = "Tiltak - $it",
                         tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
-                        tiltaksnummer = "$it",
                         arrangorOrganisasjonsnummer = "123456789",
                         startDato = LocalDate.of(2022, 1, 1),
                         apentForInnsok = true,
