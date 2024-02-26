@@ -1,10 +1,12 @@
 import { Accordion, Alert, Checkbox, CheckboxGroup } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import React from "react";
-import { filterAccordionAtom } from "../../core/atoms/atoms";
-import { addOrRemove, kebabCase } from "../../utils/Utils";
+import { filterAccordionAtom } from "@/core/atoms/atoms";
+import { addOrRemove, kebabCase } from "@/utils/Utils";
+import styles from "@/components/filtrering/NavEnhetFilter.module.scss";
 
 interface CheckboxFilterProps<T extends { id: string; tittel: string }> {
+  accordionHeader: React.ReactNode;
   accordionNavn: string;
   options: T[];
   setOptions: (type: T[]) => void;
@@ -14,6 +16,7 @@ interface CheckboxFilterProps<T extends { id: string; tittel: string }> {
 }
 
 const CheckboxFilter = <T extends { id: string; tittel: string }>({
+  accordionHeader,
   accordionNavn,
   options,
   setOptions,
@@ -52,8 +55,9 @@ const CheckboxFilter = <T extends { id: string; tittel: string }>({
           setAccordionsOpen([...addOrRemove(accordionsOpen, kebabCaseAccordionNavn)]);
         }}
         data-testid={`filter_accordionheader_${kebabCaseAccordionNavn}`}
+        className={styles.accordion_header_med_antall}
       >
-        {accordionNavn}
+        {accordionHeader}
       </Accordion.Header>
       <Accordion.Content data-testid={`filter_accordioncontent_${kebabCaseAccordionNavn}`}>
         {data && (

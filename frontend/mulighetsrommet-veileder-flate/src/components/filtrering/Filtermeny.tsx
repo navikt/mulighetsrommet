@@ -4,7 +4,8 @@ import { ApentForInnsok } from "mulighetsrommet-api-client";
 import {
   RegionMap,
   useArbeidsmarkedstiltakFilter,
-} from "../../hooks/useArbeidsmarkedstiltakFilter";
+  valgteEnhetsnumre,
+} from "@/hooks/useArbeidsmarkedstiltakFilter";
 import { FilterToggle } from "./FilterToggle";
 import styles from "./Filtermeny.module.scss";
 import InnsatsgruppeFilter from "./InnsatsgruppeFilter";
@@ -44,8 +45,9 @@ export const Filtermeny = () => {
         <NavEnhetFilter
           regionMapFilter={filter.regionMap}
           setRegionMapFilter={(regionMap: RegionMap) => setFilter({ ...filter, regionMap })}
+          antallValgteEnheter={valgteEnhetsnumre(filter).length}
         />
-        <Tiltakstypefilter />
+        <Tiltakstypefilter antallValgteTiltakstyper={filter.tiltakstyper.length} />
       </Accordion>
     </div>
   );

@@ -13,11 +13,13 @@ import styles from "./NavEnhetFilter.module.scss";
 interface Props {
   regionMapFilter: RegionMap;
   setRegionMapFilter: (regionMap: RegionMap) => void;
+  antallValgteEnheter: number;
 }
 
 export function NavEnhetFilter({
   regionMapFilter: regionMap,
   setRegionMapFilter: setRegionMap,
+  antallValgteEnheter,
 }: Props) {
   const [accordionsOpen, setAccordionsOpen] = useAtom(filterAccordionAtom);
   const { data: alleRegioner } = useRegioner();
@@ -79,8 +81,14 @@ export function NavEnhetFilter({
           setAccordionsOpen([...addOrRemove(accordionsOpen, "brukers-enhet")]);
         }}
         data-testid="filter_accordionheader_brukers-enhet"
+        className={styles.accordion_header_med_antall}
       >
-        NAV-enhet
+        <div className={styles.accordion_header_text}>
+          <span>NAV-enhet</span>
+          {antallValgteEnheter !== 0 ? (
+            <span className={styles.antall_filter}>{antallValgteEnheter}</span>
+          ) : null}
+        </div>
       </Accordion.Header>
       <Accordion.Content data-testid="filter_accordioncontent_brukers-enhet">
         <CheckboxGroup

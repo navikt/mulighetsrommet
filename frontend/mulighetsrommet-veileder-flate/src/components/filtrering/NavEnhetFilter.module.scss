@@ -8,6 +8,21 @@
   transition: transform 0.15s linear;
 }
 
+.accordion_header_med_antall {
+  display: grid;
+  grid-template-columns: auto 90%;
+  .accordion_header_text {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .antall_filter {
+    background-color: var(--a-blue-100);
+    padding: 0 8px;
+    border-radius: 50%;
+  }
+}
+
 .checkbox_and_caret {
   display: flex;
   flex-direction: row;
@@ -43,7 +58,7 @@
 }
 
 .checkbox:hover .accordion_down {
-  background-color: none;
+  background-color: transparent;
 }
 
 .underenhet_list {
