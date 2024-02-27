@@ -38,11 +38,11 @@ class VirksomhetService(
         cacheMetrics.addCache("brregServiceCache", brregServiceCache)
     }
 
-    suspend fun getOrSyncVirksomhetFromBrreg(orgnr: String): Either<BrregError, VirksomhetDto> {
-        return virksomhetRepository.get(orgnr)?.right() ?: syncVirksomhetFromBrreg(orgnr)
+    suspend fun getOrSyncHovedenhetFromBrreg(orgnr: String): Either<BrregError, VirksomhetDto> {
+        return virksomhetRepository.get(orgnr)?.right() ?: syncHovedenhetFromBrreg(orgnr)
     }
 
-    suspend fun syncVirksomhetFromBrreg(orgnr: String): Either<BrregError, VirksomhetDto> {
+    suspend fun syncHovedenhetFromBrreg(orgnr: String): Either<BrregError, VirksomhetDto> {
         log.info("Synkroniserer enhet fra brreg orgnr=$orgnr")
         return getVirksomhetFromBrreg(orgnr)
             .flatMap { virksomhet ->

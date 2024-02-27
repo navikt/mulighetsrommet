@@ -11,13 +11,14 @@ import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
+import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
-import no.nav.mulighetsrommet.api.repositories.NavEnhetRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
+import no.nav.mulighetsrommet.api.services.TiltakstypeService
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
@@ -46,18 +47,12 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
         administratorer = listOf("B123456"),
     )
 
-    lateinit var tiltakstyper: TiltakstypeRepository
+    lateinit var tiltakstyper: TiltakstypeService
     lateinit var avtaler: AvtaleRepository
     lateinit var tiltaksgjennomforinger: TiltaksgjennomforingRepository
 
-    beforeEach {
-        tiltakstyper = TiltakstypeRepository(database.db)
-        tiltakstyper.upsert(TiltakstypeFixtures.AFT).shouldBeRight()
-        tiltakstyper.upsert(TiltakstypeFixtures.Oppfolging).shouldBeRight()
-        tiltakstyper.upsert(TiltakstypeFixtures.Jobbklubb).shouldBeRight()
-
-        val enheter = NavEnhetRepository(database.db)
-        enheter.upsert(
+    val domain = MulighetsrommetTestDomain(
+        enheter = listOf(
             NavEnhetDbo(
                 navn = "NAV Oslo",
                 enhetsnummer = "0300",
@@ -65,8 +60,6 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
                 type = Norg2Type.FYLKE,
                 overordnetEnhet = null,
             ),
-        ).shouldBeRight()
-        enheter.upsert(
             NavEnhetDbo(
                 navn = "NAV Innlandet",
                 enhetsnummer = "0400",
@@ -74,8 +67,6 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
                 type = Norg2Type.FYLKE,
                 overordnetEnhet = null,
             ),
-        ).shouldBeRight()
-        enheter.upsert(
             NavEnhetDbo(
                 navn = "NAV Gjøvik",
                 enhetsnummer = "0502",
@@ -83,18 +74,37 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
                 type = Norg2Type.LOKAL,
                 overordnetEnhet = "0400",
             ),
-        ).shouldBeRight()
+        ),
+        ansatte = listOf(),
+        tiltakstyper = listOf(TiltakstypeFixtures.AFT, TiltakstypeFixtures.Jobbklubb, TiltakstypeFixtures.Oppfolging),
+        avtaler = listOf(avtale),
+    )
 
+    beforeEach {
+        domain.initialize(database.db)
+
+        tiltakstyper = TiltakstypeService(TiltakstypeRepository(database.db), listOf("INDOPPFAG"))
         avtaler = AvtaleRepository(database.db)
-        avtaler.upsert(avtale)
-
         tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
+    }
+
+    test("should fail when tiltakstype is not enabled") {
+        val arenakodeEnabledTiltakstyper = listOf<String>()
+        tiltakstyper = TiltakstypeService(TiltakstypeRepository(database.db), arenakodeEnabledTiltakstyper)
+        val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler)
+
+        validator.validate(gjennomforing, null).shouldBeLeft().shouldContainExactlyInAnyOrder(
+            ValidationError(
+                "avtaleId",
+                "Opprettelse av tiltaksgjennomføring for tiltakstype: 'Oppfølging' er ikke skrudd på enda.",
+            ),
+        )
     }
 
     test("should fail when avtale does not exist") {
         val unknownAvtaleId = UUID.randomUUID()
 
-        val validator = TiltaksgjennomforingValidator(avtaler)
+        val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler)
 
         val dbo = gjennomforing.copy(avtaleId = unknownAvtaleId)
 
@@ -106,7 +116,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
     test("should fail when tiltakstype does not match with avtale") {
         avtaler.upsert(avtale.copy(tiltakstypeId = TiltakstypeFixtures.AFT.id))
 
-        val validator = TiltaksgjennomforingValidator(avtaler)
+        val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler)
 
         validator.validate(gjennomforing, null).shouldBeLeft().shouldContainExactlyInAnyOrder(
             ValidationError("tiltakstypeId", "Tiltakstypen må være den samme som for avtalen"),
@@ -114,7 +124,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
     }
 
     test("should fail when tiltakstype does not support change of oppstartstype") {
-        val validator = TiltaksgjennomforingValidator(avtaler)
+        val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler)
 
         validator.validate(gjennomforing.copy(oppstart = TiltaksgjennomforingOppstartstype.FELLES), null)
             .shouldBeLeft()
@@ -131,7 +141,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
         ) { status ->
             avtaler.setAvslutningsstatus(id, status)
 
-            val validator = TiltaksgjennomforingValidator(avtaler)
+            val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler)
             val dbo = gjennomforing.copy(avtaleId = id)
 
             validator.validate(dbo, null).shouldBeLeft(
@@ -141,7 +151,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
     }
 
     test("kan ikke opprette før Avtale startDato") {
-        val validator = TiltaksgjennomforingValidator(avtaler)
+        val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler)
         val dbo = gjennomforing.copy(
             startDato = avtale.startDato.minusDays(1),
         )
@@ -152,7 +162,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
     }
 
     test("should validate fields in the gjennomføring and fields related to the avtale") {
-        val validator = TiltaksgjennomforingValidator(avtaler)
+        val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler)
 
         forAll(
             row(
@@ -202,7 +212,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
             ) { status ->
                 avtaler.setAvslutningsstatus(avtale.id, status)
 
-                val validator = TiltaksgjennomforingValidator(avtaler)
+                val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler)
 
                 val previous = tiltaksgjennomforinger.get(gjennomforing.id)
                 validator.validate(gjennomforing, previous).shouldBeRight()
@@ -217,7 +227,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
             ) { status ->
                 tiltaksgjennomforinger.setAvslutningsstatus(gjennomforing.id, status)
 
-                val validator = TiltaksgjennomforingValidator(avtaler)
+                val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler)
 
                 val previous = tiltaksgjennomforinger.get(gjennomforing.id)
                 validator.validate(gjennomforing, previous).shouldBeLeft().shouldContainExactlyInAnyOrder(

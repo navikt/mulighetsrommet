@@ -14,6 +14,7 @@ import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
+import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
@@ -22,6 +23,7 @@ import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
 import no.nav.mulighetsrommet.api.services.NavEnhetService
+import no.nav.mulighetsrommet.api.services.TiltakstypeService
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
@@ -54,18 +56,12 @@ class AvtaleValidatorTest : FunSpec({
     )
 
     lateinit var navEnheterService: NavEnhetService
-    lateinit var tiltakstyper: TiltakstypeRepository
+    lateinit var tiltakstyper: TiltakstypeService
     lateinit var avtaler: AvtaleRepository
     lateinit var gjennomforinger: TiltaksgjennomforingRepository
 
-    beforeEach {
-        tiltakstyper = TiltakstypeRepository(database.db)
-        tiltakstyper.upsert(TiltakstypeFixtures.AFT).shouldBeRight()
-        tiltakstyper.upsert(TiltakstypeFixtures.VTA).shouldBeRight()
-        tiltakstyper.upsert(TiltakstypeFixtures.Oppfolging).shouldBeRight()
-
-        val enheter = NavEnhetRepository(database.db)
-        enheter.upsert(
+    val domain = MulighetsrommetTestDomain(
+        enheter = listOf(
             NavEnhetDbo(
                 navn = "NAV Oslo",
                 enhetsnummer = "0300",
@@ -73,8 +69,6 @@ class AvtaleValidatorTest : FunSpec({
                 type = Norg2Type.FYLKE,
                 overordnetEnhet = null,
             ),
-        ).shouldBeRight()
-        enheter.upsert(
             NavEnhetDbo(
                 navn = "NAV Innlandet",
                 enhetsnummer = "0400",
@@ -82,8 +76,6 @@ class AvtaleValidatorTest : FunSpec({
                 type = Norg2Type.FYLKE,
                 overordnetEnhet = null,
             ),
-        ).shouldBeRight()
-        enheter.upsert(
             NavEnhetDbo(
                 navn = "NAV Gjøvik",
                 enhetsnummer = "0502",
@@ -91,16 +83,44 @@ class AvtaleValidatorTest : FunSpec({
                 type = Norg2Type.LOKAL,
                 overordnetEnhet = "0400",
             ),
-        ).shouldBeRight()
-        navEnheterService = NavEnhetService(enheter)
+        ),
+        ansatte = listOf(),
+        tiltakstyper = listOf(
+            TiltakstypeFixtures.AFT,
+            TiltakstypeFixtures.VTA,
+            TiltakstypeFixtures.Oppfolging,
+        ),
+        avtaler = listOf(),
+    )
 
+    beforeEach {
+        domain.initialize(database.db)
+
+        tiltakstyper = TiltakstypeService(TiltakstypeRepository(database.db), listOf("INDOPPFAG"))
+        navEnheterService = NavEnhetService(NavEnhetRepository(database.db))
         avtaler = AvtaleRepository(database.db)
-
         gjennomforinger = TiltaksgjennomforingRepository(database.db)
     }
 
     afterEach {
         database.db.truncateAll()
+    }
+
+    test("should fail when tiltakstype is not enabled") {
+        val arenakodeEnabledTiltakstyper = listOf<String>()
+        tiltakstyper = TiltakstypeService(TiltakstypeRepository(database.db), arenakodeEnabledTiltakstyper)
+        val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService)
+
+        val dbo = avtaleDbo.copy(
+            tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
+        )
+
+        validator.validate(dbo, null).shouldBeLeft().shouldContainAll(
+            ValidationError(
+                "tiltakstypeId",
+                "Opprettelse av avtale for tiltakstype: 'Oppfølging' er ikke skrudd på enda.",
+            ),
+        )
     }
 
     test("should accumulate errors when dbo has multiple issues") {

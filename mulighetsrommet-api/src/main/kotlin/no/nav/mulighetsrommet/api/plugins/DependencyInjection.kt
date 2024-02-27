@@ -134,7 +134,7 @@ private fun kafka(appConfig: AppConfig) = module {
         val consumers = listOf(
             TiltaksgjennomforingTopicConsumer(
                 config = config.consumers.tiltaksgjennomforingerV1,
-                migrerteTiltak = appConfig.migrerteTiltak,
+                tiltakstyper = get(),
                 arenaAdapterClient = get(),
                 arenaMigreringTiltaksgjennomforingKafkaProducer = get(),
                 tiltaksgjennomforingRepository = get(),
@@ -286,8 +286,6 @@ private fun services(appConfig: AppConfig) = module {
             get(),
             get(),
             get(),
-            get(),
-            appConfig.migrerteTiltak,
         )
     }
     single { TiltakshistorikkService(get(), get(), get()) }
@@ -310,12 +308,10 @@ private fun services(appConfig: AppConfig) = module {
             get(),
             get(),
             get(),
-            get(),
-            appConfig.migrerteTiltak,
         )
     }
     single { SanityTiltaksgjennomforingService(get(), get(), get()) }
-    single { TiltakstypeService(get()) }
+    single { TiltakstypeService(get(), appConfig.migrerteTiltak) }
     single { NavEnheterSyncService(get(), get(), get(), get()) }
     single { KafkaSyncService(get(), get(), get(), get()) }
     single { NavEnhetService(get()) }
@@ -333,7 +329,7 @@ private fun services(appConfig: AppConfig) = module {
     }
     single { AxsysService(appConfig.axsys) { m2mTokenProvider.createMachineToMachineToken(appConfig.axsys.scope) } }
     single { AvtaleValidator(get(), get(), get()) }
-    single { TiltaksgjennomforingValidator(get()) }
+    single { TiltaksgjennomforingValidator(get(), get()) }
 }
 
 private fun tasks(config: TaskConfig) = module {

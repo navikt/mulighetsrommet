@@ -65,7 +65,7 @@ class SynchronizeVirksomheterFromBrreg(
             .let { database.run(it) }
 
         orgnrs.forEach { orgnr ->
-            virksomhetService.syncVirksomhetFromBrreg(orgnr).onLeft {
+            virksomhetService.syncHovedenhetFromBrreg(orgnr).onLeft {
                 logger.warn("Klarte ikke synkronisere virksomhet med orgnr=$orgnr fra brreg: $it")
             }
         }

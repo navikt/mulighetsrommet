@@ -54,8 +54,8 @@ class AmtVirksomheterV1TopicConsumerTest : FunSpec({
         val virksomhetRepository = VirksomhetRepository(database.db)
 
         val virksomhetService: VirksomhetService = mockk()
-        coEvery { virksomhetService.syncVirksomhetFromBrreg(amtVirksomhet.organisasjonsnummer) } returns virksomhetDto.right()
-        coEvery { virksomhetService.syncVirksomhetFromBrreg(amtUnderenhet.organisasjonsnummer) } returns virksomhetDto.right()
+        coEvery { virksomhetService.syncHovedenhetFromBrreg(amtVirksomhet.organisasjonsnummer) } returns virksomhetDto.right()
+        coEvery { virksomhetService.syncHovedenhetFromBrreg(amtUnderenhet.organisasjonsnummer) } returns virksomhetDto.right()
 
         val virksomhetConsumer = AmtVirksomheterV1TopicConsumer(
             config = KafkaTopicConsumer.Config(id = "virksomheter", topic = "virksomheter"),

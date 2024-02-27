@@ -34,7 +34,7 @@ class AmtVirksomheterV1TopicConsumer(
 
             else -> {
                 // Syncer fra Brreg i tilfelle hovedenheten ikke finnes i vår database
-                virksomhetService.syncVirksomhetFromBrreg(amtVirksomhet.organisasjonsnummer)
+                virksomhetService.syncHovedenhetFromBrreg(amtVirksomhet.organisasjonsnummer)
                     .onLeft { error ->
                         logger.error("Error when syncing orgnr: ${amtVirksomhet.organisasjonsnummer} from brreg in AmtVirksomhetV1TopicConsumer")
                         throw IllegalStateException("Forventet å finne virksomhet med orgnr ${amtVirksomhet.organisasjonsnummer} i Brreg. Er det feil data i meldingen? Respons fra Brreg: $error")
