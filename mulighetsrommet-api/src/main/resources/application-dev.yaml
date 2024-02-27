@@ -15,6 +15,7 @@ app:
 
   migrerteTiltak:
     - VASV
+    - AVKLARAG
 
   kafka:
     producerId: mulighetsrommet-api-kafka-producer.v1
