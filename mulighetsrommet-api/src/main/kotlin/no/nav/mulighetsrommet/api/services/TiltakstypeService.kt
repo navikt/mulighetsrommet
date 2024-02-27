@@ -11,13 +11,18 @@ import no.nav.mulighetsrommet.utils.CacheUtils
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-class TiltakstypeService(private val tiltakstypeRepository: TiltakstypeRepository) {
+class TiltakstypeService(
+    private val tiltakstypeRepository: TiltakstypeRepository,
+    private val arenakodeEnabledTiltakstyper: List<String>,
+) {
 
     private val cacheBySanityId: Cache<UUID, TiltakstypeAdminDto> = Caffeine.newBuilder()
         .expireAfterWrite(30, TimeUnit.MINUTES)
         .maximumSize(500)
         .recordStats()
         .build()
+
+    fun isEnabled(tiltakstypeArenakode: String) = arenakodeEnabledTiltakstyper.contains(tiltakstypeArenakode)
 
     fun getWithFilter(
         filter: TiltakstypeFilter,

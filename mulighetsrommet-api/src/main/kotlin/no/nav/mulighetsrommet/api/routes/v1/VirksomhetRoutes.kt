@@ -94,7 +94,7 @@ fun Route.virksomhetRoutes() {
         post("/update") {
             val orgnr = call.parameters.getOrFail("orgnr").also { validateOrgnr(it) }
 
-            virksomhetService.syncVirksomhetFromBrreg(orgnr)
+            virksomhetService.syncHovedenhetFromBrreg(orgnr)
                 .onRight { virksomhet ->
                     call.respond("${virksomhet.navn} oppdatert")
                 }

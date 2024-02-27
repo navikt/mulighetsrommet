@@ -136,7 +136,7 @@ class ArenaAdapterService(
     }
 
     private suspend fun syncVirksomhetFromBrreg(orgnr: String) {
-        virksomhetService.getOrSyncVirksomhetFromBrreg(orgnr).onLeft { error ->
+        virksomhetService.getOrSyncHovedenhetFromBrreg(orgnr).onLeft { error ->
             if (error == BrregError.NotFound) {
                 logger.warn("Virksomhet mer orgnr=$orgnr finnes ikke i brreg. Er dette en utenlandsk arrangør?")
             }
