@@ -2217,12 +2217,6 @@ components:
           $ref: "#/components/schemas/TiltaksgjennomforingOppstartstype"
         opphav:
           $ref: "#/components/schemas/Opphav"
-        stengtFra:
-          type: string
-          format: date
-        stengtTil:
-          type: string
-          format: date
         apentForInnsok:
           type: boolean
         kontaktpersoner:
@@ -2253,7 +2247,6 @@ components:
         - arrangor
         - navEnheter
         - opphav
-        - midlertidigStengt
         - apentForInnsok
         - publisert
         - publisertForAlle
@@ -2309,14 +2302,6 @@ components:
             type: string
         oppstart:
           $ref: "#/components/schemas/TiltaksgjennomforingOppstartstype"
-        stengtFra:
-          type: string
-          format: date
-          nullable: true
-        stengtTil:
-          type: string
-          format: date
-          nullable: true
         apentForInnsok:
           type: boolean
         kontaktpersoner:
@@ -2359,8 +2344,6 @@ components:
         - navRegion
         - navEnheter
         - oppstart
-        - stengtFra
-        - stengtTil
         - apentForInnsok
         - kontaktpersoner
         - stedForGjennomforing
@@ -2929,10 +2912,6 @@ components:
           $ref: "#/components/schemas/SanityFaneinnhold"
         apentForInnsok:
           type: boolean
-        stengtFra:
-          type: string
-        stengtTil:
-          type: string
         kontaktinfo:
           $ref: "#/components/schemas/VeilederflateKontaktInfo"
         estimertVentetid:
@@ -3449,7 +3428,6 @@ components:
         - mulighetsrommet-veilederflate-landingsside
         - mulighetsrommet-veilederflate-arena-oppskrifter
         - mulighetsrommet.admin-flate.show-notater
-        - mulighetsrommet.admin-flate.midlertidig-stengt
         - mr-admin-flate.kan-duplisere-tiltak
 
     PublisertRequest:

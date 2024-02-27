@@ -3,20 +3,20 @@ import {
   Alert,
   Button,
   Checkbox,
-  HelpText,
   HStack,
+  HelpText,
   Select,
   Switch,
   TextField,
 } from "@navikt/ds-react";
-import { Avtale, Tiltaksgjennomforing, Toggles } from "mulighetsrommet-api-client";
+import { Avtale, Tiltaksgjennomforing } from "mulighetsrommet-api-client";
 import { ControlledSokeSelect } from "mulighetsrommet-frontend-common";
 import { useEffect, useRef } from "react";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
 import { useHentKontaktpersoner } from "../../api/ansatt/useHentKontaktpersoner";
 import { useTiltaksgjennomforingAdministratorer } from "../../api/ansatt/useTiltaksgjennomforingAdministratorer";
-import { useFeatureToggle } from "../../api/features/feature-toggles";
+import { useMigrerteTiltakstyper } from "../../api/tiltakstyper/useMigrerteTiltakstyper";
 import { useVirksomhetKontaktpersoner } from "../../api/virksomhet/useVirksomhetKontaktpersoner";
 import { addYear } from "../../utils/Utils";
 import { isTiltakMedFellesOppstart } from "../../utils/tiltakskoder";
@@ -28,12 +28,11 @@ import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
 import skjemastyles from "../skjema/Skjema.module.scss";
 import { VirksomhetKontaktpersonerModal } from "../virksomhet/VirksomhetKontaktpersonerModal";
 import { SelectOppstartstype } from "./SelectOppstartstype";
+import { InferredTiltaksgjennomforingSchema } from "./TiltaksgjennomforingSchema";
 import {
   arrangorUnderenheterOptions,
   erArenaOpphavOgIngenEierskap,
 } from "./TiltaksgjennomforingSkjemaConst";
-import { InferredTiltaksgjennomforingSchema } from "./TiltaksgjennomforingSchema";
-import { useMigrerteTiltakstyper } from "../../api/tiltakstyper/useMigrerteTiltakstyper";
 
 interface Props {
   tiltaksgjennomforing?: Tiltaksgjennomforing;
@@ -84,7 +83,6 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
     refetch: refetchVirksomhetKontaktpersoner,
   } = useVirksomhetKontaktpersoner(avtale.leverandor.organisasjonsnummer);
 
-  const watchErMidlertidigStengt = watch("midlertidigStengt.erMidlertidigStengt");
   const watchVisEstimertVentetid = watch("visEstimertVentetid");
 
   useEffect(() => {
@@ -108,9 +106,6 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
 
   const minStartdato = new Date();
   const maxSluttdato = addYear(minStartdato, 5);
-  const { data: midlertidigStengt } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_ADMIN_FLATE_MIDLERTIDIG_STENGT,
-  );
 
   const valgteNavEnheter = watch("navEnheter");
 
@@ -181,30 +176,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
             >
               Åpen for innsøk
             </Checkbox>
-            {midlertidigStengt ? (
-              <Checkbox size="small" {...register("midlertidigStengt.erMidlertidigStengt")}>
-                Midlertidig stengt
-              </Checkbox>
-            ) : null}
-            {watchErMidlertidigStengt && (
-              <FraTilDatoVelger
-                size="small"
-                fra={{
-                  label: "Stengt fra",
-                  fromDate: minStartdato,
-                  toDate: maxSluttdato,
-                  ...register("midlertidigStengt.stengtFra"),
-                  format: "date",
-                }}
-                til={{
-                  label: "Stengt til",
-                  fromDate: watch("midlertidigStengt.stengtFra") ?? new Date(),
-                  toDate: maxSluttdato,
-                  ...register("midlertidigStengt.stengtTil"),
-                  format: "date",
-                }}
-              />
-            )}
+
             <HStack justify="space-between" columns={2}>
               <TextField
                 size="small"

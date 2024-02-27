@@ -54,31 +54,6 @@ export const TiltaksgjennomforingSchema = z
       .string({ required_error: "Du må velge minst én administrator" })
       .array()
       .min(1, "Du må velge minst én administrator"),
-    midlertidigStengt: z
-      .object({
-        erMidlertidigStengt: z.boolean(),
-        stengtFra: z.date().optional(),
-        stengtTil: z.date().optional(),
-      })
-      .refine((data) => !data.erMidlertidigStengt || Boolean(data.stengtFra), {
-        message: "Midlertidig stengt må ha en start dato",
-        path: ["stengtFra"],
-      })
-      .refine((data) => !data.erMidlertidigStengt || Boolean(data.stengtTil), {
-        message: "Midlertidig stengt må ha en til dato",
-        path: ["stengtTil"],
-      })
-      .refine(
-        (data) =>
-          !data.erMidlertidigStengt ||
-          !data.stengtTil ||
-          !data.stengtFra ||
-          data.stengtTil > data.stengtFra,
-        {
-          message: "Midlertidig stengt fra dato må være før til dato",
-          path: ["stengtFra"],
-        },
-      ),
     oppstart: z.custom<TiltaksgjennomforingOppstartstype>(
       (val) => !!val,
       "Du må velge oppstartstype",
@@ -114,19 +89,6 @@ export const TiltaksgjennomforingSchema = z
       .nullable(),
   })
   .superRefine((data, ctx) => {
-    if (
-      data.startOgSluttDato.sluttDato &&
-      data.midlertidigStengt.erMidlertidigStengt &&
-      data.midlertidigStengt.stengtTil &&
-      data.midlertidigStengt.stengtTil >= new Date(data.startOgSluttDato.sluttDato)
-    ) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Stengt til dato må være før sluttdato",
-        path: ["midlertidigStengt.stengtTil"],
-      });
-    }
-
     if (data.opphav === Opphav.MR_ADMIN_FLATE && !data.startOgSluttDato.sluttDato) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,

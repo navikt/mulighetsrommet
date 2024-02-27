@@ -38,8 +38,6 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     sanityId: "123",
     startDato: "2022-01-01",
     sluttDato: "2029-12-12",
-    stengtFra: "2023-6-1",
-    stengtTil: "2023-8-1",
     deltidsprosent: 100,
     arenaAnsvarligEnhet: mockEnheter._0313,
     navEnheter: [mockEnheter._0313, mockEnheter._0315, mockEnheter._0330],

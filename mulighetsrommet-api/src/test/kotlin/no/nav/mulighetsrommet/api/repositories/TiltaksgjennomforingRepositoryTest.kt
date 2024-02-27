@@ -99,10 +99,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 it.sanityId shouldBe null
                 it.oppstart shouldBe TiltaksgjennomforingOppstartstype.LOPENDE
                 it.opphav shouldBe ArenaMigrering.Opphav.MR_ADMIN_FLATE
-                it.stengtFra shouldBe null
                 it.kontaktpersoner shouldBe listOf()
                 it.stedForGjennomforing shouldBe "Oslo"
-                it.stengtTil shouldBe null
                 it.navRegion shouldBe NavEnhetDbo(
                     navn = "IT",
                     enhetsnummer = "2990",
@@ -172,8 +170,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 it.navRegion shouldBe null
                 it.sanityId shouldBe null
                 it.opphav shouldBe ArenaMigrering.Opphav.ARENA
-                it.stengtFra shouldBe null
-                it.stengtTil shouldBe null
                 it.kontaktpersoner shouldBe emptyList()
                 it.stedForGjennomforing shouldBe null
                 it.faneinnhold shouldBe null
@@ -214,21 +210,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             tiltaksgjennomforinger.upsertArenaTiltaksgjennomforing(ArenaOppfolging1)
             tiltaksgjennomforinger.get(ArenaOppfolging1.id) should {
                 it!!.oppstart shouldBe TiltaksgjennomforingOppstartstype.LOPENDE
-            }
-        }
-
-        test("midlertidig_stengt crud") {
-            val gjennomforing = Oppfolging1.copy(
-                id = UUID.randomUUID(),
-                stengtFra = LocalDate.of(2020, 1, 22),
-                stengtTil = LocalDate.of(2020, 4, 22),
-            )
-
-            tiltaksgjennomforinger.upsert(gjennomforing)
-
-            tiltaksgjennomforinger.get(gjennomforing.id).should {
-                it!!.stengtFra shouldBe LocalDate.of(2020, 1, 22)
-                it.stengtTil shouldBe LocalDate.of(2020, 4, 22)
             }
         }
 
@@ -628,45 +609,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 ),
             )
             result.size shouldBe 3
-        }
-    }
-
-    context("Hente tiltaksgjennomføringer som er midlertidig stengt og som nærmer seg sluttdato for den stengte perioden") {
-        test("Skal hente gjennomføringer som er 7 eller 1 dag til stengt-til-datoen") {
-            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-            val oppfolging14Dager = Oppfolging1.copy(
-                id = UUID.randomUUID(),
-                sluttDato = LocalDate.of(2023, 5, 30),
-            )
-            val gjennomforing7Dager = Oppfolging1.copy(
-                id = UUID.randomUUID(),
-                sluttDato = LocalDate.of(2023, 5, 23),
-                stengtFra = LocalDate.of(2023, 6, 16),
-                stengtTil = LocalDate.of(2023, 5, 23),
-            )
-            val oppfolging1Dager = Oppfolging1.copy(
-                id = UUID.randomUUID(),
-                sluttDato = LocalDate.of(2023, 5, 17),
-                stengtFra = LocalDate.of(2023, 6, 16),
-                stengtTil = LocalDate.of(2023, 5, 17),
-            )
-            val oppfolging10Dager = Oppfolging1.copy(
-                id = UUID.randomUUID(),
-                sluttDato = LocalDate.of(2023, 5, 26),
-            )
-            tiltaksgjennomforinger.upsert(oppfolging14Dager)
-            tiltaksgjennomforinger.upsert(gjennomforing7Dager)
-            tiltaksgjennomforinger.upsert(oppfolging1Dager)
-            tiltaksgjennomforinger.upsert(oppfolging10Dager)
-
-            val result = tiltaksgjennomforinger.getAllMidlertidigStengteGjennomforingerSomNarmerSegSluttdato(
-                currentDate = LocalDate.of(
-                    2023,
-                    5,
-                    16,
-                ),
-            )
-            result.size shouldBe 2
         }
     }
 
