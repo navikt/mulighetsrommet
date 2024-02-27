@@ -10,21 +10,32 @@ import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleAdminDto
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
-import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
 import no.nav.mulighetsrommet.api.services.NavEnhetService
+import no.nav.mulighetsrommet.api.services.TiltakstypeService
 import no.nav.mulighetsrommet.domain.Tiltakskoder.isTiltakMedAvtalerFraMulighetsrommet
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
+import no.nav.mulighetsrommet.domain.dto.TiltakstypeAdminDto
 import no.nav.mulighetsrommet.env.NaisEnv
 
 class AvtaleValidator(
-    private val tiltakstyper: TiltakstypeRepository,
+    private val tiltakstyper: TiltakstypeService,
     private val tiltaksgjennomforinger: TiltaksgjennomforingRepository,
     private val navEnheterService: NavEnhetService,
 ) {
     fun validate(dbo: AvtaleDbo, previous: AvtaleAdminDto?): Either<List<ValidationError>, AvtaleDbo> = either {
-        val tiltakstype = tiltakstyper.get(dbo.tiltakstypeId)
+        val tiltakstype = tiltakstyper.getById(dbo.tiltakstypeId)
             ?: raise(ValidationError.of(AvtaleDbo::tiltakstypeId, "Tiltakstypen finnes ikke").nel())
+
+        if (isTiltakstypeDisabled(previous, tiltakstype)) {
+            return ValidationError
+                .of(
+                    AvtaleDbo::tiltakstypeId,
+                    "Opprettelse av avtale for tiltakstype: '${tiltakstype.navn}' er ikke skrudd på enda.",
+                )
+                .nel()
+                .left()
+        }
 
         val errors = buildList {
             if (dbo.administratorer.isEmpty()) {
@@ -173,6 +184,22 @@ class AvtaleValidator(
         }
 
         return errors.takeIf { it.isNotEmpty() }?.left() ?: dbo.right()
+    }
+
+    private fun isTiltakstypeDisabled(
+        previous: AvtaleAdminDto?,
+        tiltakstype: TiltakstypeAdminDto,
+    ): Boolean {
+        fun isEnabled(arenakode: String) =
+            tiltakstyper.isEnabled(arenakode) || listOf("VASV", "ARBFORB").contains(arenakode)
+
+        val kanIkkeOppretteAvtale = previous == null && !isEnabled(tiltakstype.arenaKode)
+
+        val kanIkkeRedigereTiltakstypeForAvtale = previous != null &&
+            tiltakstype.arenaKode != previous.tiltakstype.arenaKode &&
+            !isEnabled(tiltakstype.arenaKode)
+
+        return kanIkkeOppretteAvtale || kanIkkeRedigereTiltakstypeForAvtale
     }
 
     private fun validateNavEnheter(navEnheter: List<String>) = buildList {

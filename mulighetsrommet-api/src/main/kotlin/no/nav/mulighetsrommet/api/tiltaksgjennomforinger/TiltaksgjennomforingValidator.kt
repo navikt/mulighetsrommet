@@ -5,22 +5,39 @@ import arrow.core.left
 import arrow.core.nel
 import arrow.core.raise.either
 import arrow.core.right
+import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingAdminDto
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
+import no.nav.mulighetsrommet.api.services.TiltakstypeService
 import no.nav.mulighetsrommet.domain.Tiltakskoder
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.Avtalestatus
 import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus.GJENNOMFORES
+import no.nav.mulighetsrommet.domain.dto.TiltakstypeAdminDto
 
 class TiltaksgjennomforingValidator(
+    private val tiltakstyper: TiltakstypeService,
     private val avtaler: AvtaleRepository,
 ) {
     fun validate(
         dbo: TiltaksgjennomforingDbo,
-        previousDto: TiltaksgjennomforingAdminDto?,
+        previous: TiltaksgjennomforingAdminDto?,
     ): Either<List<ValidationError>, TiltaksgjennomforingDbo> = either {
+        val tiltakstype = tiltakstyper.getById(dbo.tiltakstypeId)
+            ?: raise(ValidationError.of(AvtaleDbo::tiltakstypeId, "Tiltakstypen finnes ikke").nel())
+
+        if (isTiltakstypeDisabled(previous, tiltakstype)) {
+            return ValidationError
+                .of(
+                    TiltaksgjennomforingDbo::avtaleId,
+                    "Opprettelse av tiltaksgjennomføring for tiltakstype: '${tiltakstype.navn}' er ikke skrudd på enda.",
+                )
+                .nel()
+                .left()
+        }
+
         val avtale = avtaler.get(dbo.avtaleId)
             ?: raise(ValidationError.of(TiltaksgjennomforingDbo::avtaleId, "Avtalen finnes ikke").nel())
 
@@ -109,8 +126,8 @@ class TiltaksgjennomforingValidator(
                 )
             }
 
-            if (previousDto != null) {
-                if (!previousDto.isAktiv()) {
+            if (previous != null) {
+                if (!previous.isAktiv()) {
                     add(
                         ValidationError.of(
                             TiltaksgjennomforingDbo::navn,
@@ -119,8 +136,8 @@ class TiltaksgjennomforingValidator(
                     )
                 }
 
-                if (previousDto.status == GJENNOMFORES) {
-                    if (dbo.avtaleId != previousDto.avtaleId) {
+                if (previous.status == GJENNOMFORES) {
+                    if (dbo.avtaleId != previous.avtaleId) {
                         add(
                             ValidationError.of(
                                 TiltaksgjennomforingDbo::avtaleId,
@@ -129,7 +146,7 @@ class TiltaksgjennomforingValidator(
                         )
                     }
 
-                    if (dbo.startDato != previousDto.startDato) {
+                    if (dbo.startDato != previous.startDato) {
                         add(
                             ValidationError.of(
                                 TiltaksgjennomforingDbo::startDato,
@@ -138,7 +155,7 @@ class TiltaksgjennomforingValidator(
                         )
                     }
 
-                    if (dbo.sluttDato != previousDto.sluttDato) {
+                    if (dbo.sluttDato != previous.sluttDato) {
                         add(
                             ValidationError.of(
                                 TiltaksgjennomforingDbo::sluttDato,
@@ -147,7 +164,7 @@ class TiltaksgjennomforingValidator(
                         )
                     }
 
-                    if (dbo.antallPlasser != previousDto.antallPlasser) {
+                    if (dbo.antallPlasser != previous.antallPlasser) {
                         add(
                             ValidationError.of(
                                 TiltaksgjennomforingDbo::antallPlasser,
@@ -156,7 +173,7 @@ class TiltaksgjennomforingValidator(
                         )
                     }
 
-                    if (dbo.arrangorOrganisasjonsnummer != previousDto.arrangor.organisasjonsnummer) {
+                    if (dbo.arrangorOrganisasjonsnummer != previous.arrangor.organisasjonsnummer) {
                         add(
                             ValidationError.of(
                                 TiltaksgjennomforingDbo::arrangorOrganisasjonsnummer,
@@ -205,4 +222,9 @@ class TiltaksgjennomforingValidator(
             )
         }
     }
+
+    private fun isTiltakstypeDisabled(
+        previous: TiltaksgjennomforingAdminDto?,
+        tiltakstype: TiltakstypeAdminDto,
+    ) = previous == null && !tiltakstyper.isEnabled(tiltakstype.arenaKode)
 }
