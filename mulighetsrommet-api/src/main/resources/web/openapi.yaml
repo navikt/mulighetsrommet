@@ -3450,7 +3450,6 @@ components:
         - mulighetsrommet-veilederflate-arena-oppskrifter
         - mulighetsrommet.admin-flate.show-notater
         - mulighetsrommet.admin-flate.midlertidig-stengt
-        - mr-admin-flate.kan-duplisere-tiltak
 
     PublisertRequest:
       type: object
