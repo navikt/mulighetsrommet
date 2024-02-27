@@ -68,7 +68,12 @@ class TiltaksgjennomforingService(
                     val dto = getOrError(dbo.id, tx)
 
                     dispatchNotificationToNewAdministrators(tx, dbo, navIdent)
-                    logEndring("Redigerte gjennomføring", dto, navIdent, tx)
+                    val operation = if (previous == null) {
+                        "Opprettet gjennomføring"
+                    } else {
+                        "Redigerte gjennomføring"
+                    }
+                    logEndring(operation, dto, navIdent, tx)
                     tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingDto.from(dto))
                     dto
                 }
