@@ -1,21 +1,30 @@
 import { ReactNode } from "react";
 import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
-import { NavAnsattRolle } from "mulighetsrommet-api-client";
+import { NavAnsatt, NavAnsattRolle } from "mulighetsrommet-api-client";
 
 interface Props {
   children: ReactNode;
   ressurs: "Avtale" | "Tiltaksgjennomføring";
+  condition?: boolean;
 }
 
-export function HarSkrivetilgang({ ressurs, children }: Props) {
-  const { data } = useHentAnsatt();
+export function HarSkrivetilgang({ ressurs, children, condition }: Props) {
+  const { data: ansatt } = useHentAnsatt();
 
-  if (ressurs === "Avtale" && data?.roller.includes(NavAnsattRolle.AVTALER_SKRIV)) {
+  if (!ansatt || condition === false) {
+    return null;
+  } else if (ressurs === "Avtale" && harRolle(ansatt, NavAnsattRolle.AVTALER_SKRIV)) {
     return children;
   } else if (
     ressurs === "Tiltaksgjennomføring" &&
-    data?.roller.includes(NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV)
+    harRolle(ansatt, NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV)
   ) {
     return children;
-  } else return null;
+  } else {
+    return null;
+  }
+}
+
+function harRolle(ansatt: NavAnsatt, rolle: NavAnsattRolle) {
+  return ansatt.roller.includes(rolle);
 }
